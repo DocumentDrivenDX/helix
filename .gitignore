@@ -1,4 +1,7 @@
-# Beads database
+# HELIX tracker data (local issue database)
+.helix/
+
+# Legacy Beads database
 .beads/
 
 # HELIX session logs

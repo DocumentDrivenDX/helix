@@ -47,71 +47,6 @@ make_mock_bin() {
   local root="$1"
   mkdir -p "$root/bin" "$root/state"
 
-  cat >"$root/bin/bd" <<'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-
-state_root="${MOCK_STATE_ROOT:?}"
-sandbox=0
-
-while [[ "${1:-}" == "--sandbox" ]]; do
-  sandbox=1
-  shift
-done
-
-if [[ "${MOCK_REQUIRE_SANDBOX:-0}" == "1" && "$sandbox" -ne 1 ]]; then
-  echo "mock bd expected --sandbox" >&2
-  exit 1
-fi
-
-command="${1:-}"
-shift || true
-
-pop_first_line() {
-  local file="$1"
-  if [[ ! -s "$file" ]]; then
-    return 1
-  fi
-  head -n1 "$file"
-  tail -n +2 "$file" > "$file.tmp" || true
-  mv "$file.tmp" "$file"
-}
-
-emit_ready_json() {
-  local count="$1"
-  printf '['
-  local i
-  for ((i = 0; i < count; i++)); do
-    [[ "$i" -gt 0 ]] && printf ','
-    printf '{"id":"bd-mock-%d"}' "$i"
-  done
-  printf ']\n'
-}
-
-case "$command" in
-  init)
-    mkdir -p .beads
-    ;;
-  status)
-    if [[ "${MOCK_BD_STATUS:-ok}" == "fail" ]]; then
-      echo "mock bd status failure" >&2
-      exit 1
-    fi
-    cat <<'JSON'
-{"summary":{"total_issues":0,"ready_issues":0}}
-JSON
-    ;;
-  ready)
-    count="$(pop_first_line "$state_root/ready-seq" || echo 0)"
-    emit_ready_json "$count"
-    ;;
-  *)
-    echo "unsupported mock bd command: $command" >&2
-    exit 1
-    ;;
-esac
-EOF
-
   cat >"$root/bin/codex" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
@@ -125,11 +60,6 @@ fi
 
 if [[ "$*" != *"--progress-cursor"* ]]; then
   echo "mock codex expected --progress-cursor" >&2
-  exit 1
-fi
-
-if [[ "${MOCK_EXPECT_BEADS_DIRECT:-0}" == "1" && "${BEADS_DOLT_SERVER_MODE:-}" != "0" ]]; then
-  echo "mock codex expected BEADS_DOLT_SERVER_MODE=0" >&2
   exit 1
 fi
 
@@ -180,7 +110,7 @@ case "$payload" in
         echo "Backfill Metadata"
         echo "BACKFILL_STATUS: COMPLETE"
         echo "BACKFILL_REPORT: $report"
-        echo "RESEARCH_EPIC: bd-mock-backfill"
+        echo "RESEARCH_EPIC: hx-mock-backfill"
         ;;
       guidance)
         mkdir -p docs/helix/06-iterate/backfill-reports
@@ -189,12 +119,12 @@ case "$payload" in
         echo "Backfill Metadata"
         echo "BACKFILL_STATUS: GUIDANCE_NEEDED"
         echo "BACKFILL_REPORT: $report"
-        echo "RESEARCH_EPIC: bd-mock-backfill"
+        echo "RESEARCH_EPIC: hx-mock-backfill"
         ;;
       missing-report)
         echo "Backfill Metadata"
         echo "BACKFILL_STATUS: COMPLETE"
-        echo "RESEARCH_EPIC: bd-mock-backfill"
+        echo "RESEARCH_EPIC: hx-mock-backfill"
         ;;
       blocked)
         mkdir -p docs/helix/06-iterate/backfill-reports
@@ -203,7 +133,7 @@ case "$payload" in
         echo "Backfill Metadata"
         echo "BACKFILL_STATUS: BLOCKED"
         echo "BACKFILL_REPORT: $report"
-        echo "RESEARCH_EPIC: bd-mock-backfill"
+        echo "RESEARCH_EPIC: hx-mock-backfill"
         ;;
       *)
         echo "unsupported mock backfill mode: $mode" >&2
@@ -221,9 +151,9 @@ case "$payload" in
     record polish
     echo "POLISH_STATUS: CONVERGED"
     echo "POLISH_ROUNDS: 4"
-    echo "BEADS_MODIFIED: 3"
-    echo "BEADS_CREATED: 1"
-    echo "BEADS_MERGED: 2"
+    echo "ISSUES_MODIFIED: 3"
+    echo "ISSUES_CREATED: 1"
+    echo "ISSUES_MERGED: 2"
     ;;
   *"fresh-eyes review"*)
     record review
@@ -258,11 +188,6 @@ fi
 
 if [[ "$*" != *"--no-session-persistence"* ]]; then
   echo "mock claude expected --no-session-persistence" >&2
-  exit 1
-fi
-
-if [[ "${MOCK_EXPECT_BEADS_DIRECT:-0}" == "1" && "${BEADS_DOLT_SERVER_MODE:-}" != "0" ]]; then
-  echo "mock claude expected BEADS_DOLT_SERVER_MODE=0" >&2
   exit 1
 fi
 
@@ -323,7 +248,7 @@ case "$payload" in
         echo "Backfill Metadata"
         echo "BACKFILL_STATUS: COMPLETE"
         echo "BACKFILL_REPORT: $report"
-        echo "RESEARCH_EPIC: bd-mock-backfill"
+        echo "RESEARCH_EPIC: hx-mock-backfill"
         ;;
       *)
         echo "unsupported mock backfill mode: $mode" >&2
@@ -341,9 +266,9 @@ case "$payload" in
     record polish
     echo "POLISH_STATUS: CONVERGED"
     echo "POLISH_ROUNDS: 4"
-    echo "BEADS_MODIFIED: 3"
-    echo "BEADS_CREATED: 1"
-    echo "BEADS_MERGED: 2"
+    echo "ISSUES_MODIFIED: 3"
+    echo "ISSUES_CREATED: 1"
+    echo "ISSUES_MERGED: 2"
     ;;
   *"fresh-eyes review"*)
     record review
@@ -365,7 +290,7 @@ case "$payload" in
 esac
 EOF
 
-  chmod +x "$root/bin/bd" "$root/bin/codex" "$root/bin/claude"
+  chmod +x "$root/bin/codex" "$root/bin/claude"
 }
 
 make_workspace() {
@@ -376,9 +301,30 @@ make_workspace() {
   (
     cd "$root/work"
     git init -q
-    mkdir -p .beads
   )
   echo "$root"
+}
+
+# Seed the built-in tracker with ready issues for loop tests
+seed_tracker() {
+  local root="$1"
+  local count="${2:-0}"
+  local work_dir="$root/work"
+  mkdir -p "$work_dir/.helix"
+  local i
+  for ((i = 0; i < count; i++)); do
+    printf '{"id":"hx-mock-%d","title":"mock issue %d","type":"task","status":"open","priority":2,"labels":["helix"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","deps":[],"assignee":"","notes":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}\n' "$i" "$i"
+  done > "$work_dir/.helix/issues.jsonl"
+}
+
+# Close all tracker issues (simulates agent completing work)
+close_all_issues() {
+  local work_dir="$1/work"
+  if [[ -f "$work_dir/.helix/issues.jsonl" ]]; then
+    local tmp
+    tmp="$(jq -c '.status = "closed"' "$work_dir/.helix/issues.jsonl")"
+    printf '%s\n' "$tmp" > "$work_dir/.helix/issues.jsonl"
+  fi
 }
 
 run_helix() {
@@ -391,10 +337,84 @@ run_helix() {
     HOME="$root/home" \
     PATH="$root/bin:$PATH" \
     MOCK_STATE_ROOT="$root/state" \
-    HELIX_LIBRARY_ROOT="$repo_root/workflows/helix" \
+    HELIX_LIBRARY_ROOT="$repo_root/workflows" \
     bash "$repo_root/scripts/helix" "$cmd" --quiet "$@"
   )
 }
+
+# ── Tracker unit tests ──────────────────────────────────────────────
+
+test_tracker_create_and_show() {
+  local root
+  root="$(make_workspace)"
+  local id
+  id="$(run_helix "$root" tracker create "Test issue" --type task --labels helix,phase:build)"
+  [[ -n "$id" ]] || fail "tracker create should return an ID"
+
+  local output
+  output="$(run_helix "$root" tracker show "$id")"
+  assert_contains "$output" "Test issue" "show should display title"
+  assert_contains "$output" "helix" "show should display labels"
+  rm -rf "$root"
+}
+
+test_tracker_ready_and_blocked() {
+  local root
+  root="$(make_workspace)"
+  local id1 id2
+  id1="$(run_helix "$root" tracker create "First")"
+  id2="$(run_helix "$root" tracker create "Second")"
+  run_helix "$root" tracker dep add "$id2" "$id1" >/dev/null
+
+  local ready_count
+  ready_count="$(run_helix "$root" tracker ready --json | jq 'length')"
+  assert_eq "1" "$ready_count" "only unblocked issue should be ready"
+
+  local blocked_count
+  blocked_count="$(run_helix "$root" tracker blocked --json | jq 'length')"
+  assert_eq "1" "$blocked_count" "blocked issue should show as blocked"
+
+  run_helix "$root" tracker close "$id1" >/dev/null
+  ready_count="$(run_helix "$root" tracker ready --json | jq 'length')"
+  assert_eq "1" "$ready_count" "previously blocked issue should become ready after dep closes"
+
+  local ready_id
+  ready_id="$(run_helix "$root" tracker ready --json | jq -r '.[0].id')"
+  assert_eq "$id2" "$ready_id" "the unblocked issue should be the second one"
+  rm -rf "$root"
+}
+
+test_tracker_update_and_claim() {
+  local root
+  root="$(make_workspace)"
+  local id
+  id="$(run_helix "$root" tracker create "Claim me")"
+
+  run_helix "$root" tracker update "$id" --claim >/dev/null
+  local status
+  status="$(run_helix "$root" tracker show "$id" --json | jq -r '.status')"
+  assert_eq "in_progress" "$status" "claim should set status to in_progress"
+
+  local assignee
+  assignee="$(run_helix "$root" tracker show "$id" --json | jq -r '.assignee')"
+  assert_eq "helix" "$assignee" "claim should set assignee to helix"
+  rm -rf "$root"
+}
+
+test_tracker_status() {
+  local root
+  root="$(make_workspace)"
+  run_helix "$root" tracker create "One" >/dev/null
+  run_helix "$root" tracker create "Two" >/dev/null
+
+  local output
+  output="$(run_helix "$root" tracker status)"
+  assert_contains "$output" "2 issues" "status should show total count"
+  assert_contains "$output" "2 open" "status should show open count"
+  rm -rf "$root"
+}
+
+# ── CLI integration tests ───────────────────────────────────────────
 
 test_help() {
   local root
@@ -403,6 +423,7 @@ test_help() {
   output="$(run_helix "$root" help)"
   assert_contains "$output" "helix run" "help should list run command"
   assert_contains "$output" "--review-every" "help should list review option"
+  assert_contains "$output" "tracker" "help should list tracker command"
   rm -rf "$root"
 }
 
@@ -413,16 +434,6 @@ test_check_dry_run() {
   output="$(run_helix "$root" check --dry-run repo)"
   assert_contains "$output" "codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor -C" "dry-run should print codex command"
   assert_contains "$output" "actions/check.md" "dry-run should reference check action"
-  rm -rf "$root"
-}
-
-test_check_dry_run_uses_beads_direct_mode() {
-  local root
-  root="$(make_workspace)"
-  local output
-  output="$(BEADS_DOLT_SERVER_MODE=0 run_helix "$root" check --dry-run repo)"
-  assert_contains "$output" "env BEADS_DOLT_SERVER_MODE=0 codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor -C" "dry-run should propagate Beads direct mode to Codex"
-  assert_contains "$output" "This session must use Beads direct mode." "dry-run should tell the agent to stay off localhost Dolt server access"
   rm -rf "$root"
 }
 
@@ -437,59 +448,117 @@ test_backfill_dry_run() {
   rm -rf "$root"
 }
 
-test_run_fails_without_beads_workspace() {
-  local root
-  root="$(make_workspace)"
-  rm -rf "$root/work/.beads"
-
-  local output
-  if output="$(run_helix "$root" run 2>&1)"; then
-    fail "run should fail when Beads is not initialized"
-  fi
-
-  assert_contains "$output" "Beads is not initialized" "run should report missing Beads workspace"
-  assert_contains "$output" "bd init" "run should tell the operator to initialize Beads manually"
-  [[ ! -f "$root/state/calls.log" ]] || fail "run should not invoke the agent when Beads is missing"
-  rm -rf "$root"
-}
-
-test_implement_fails_when_beads_is_unhealthy() {
-  local root
-  root="$(make_workspace)"
-
-  local output
-  if output="$(MOCK_BD_STATUS=fail run_helix "$root" implement repo 2>&1)"; then
-    fail "implement should fail when live Beads access is broken"
-  fi
-
-  assert_contains "$output" "failed to access live Beads tracker" "implement should report live Beads failure"
-  assert_contains "$output" "mock bd status failure" "implement should surface the bd status error"
-  assert_contains "$output" "refusing to auto-initialize or inspect backup/exported tracker data" "implement should refuse fallback behavior"
-  [[ ! -f "$root/state/calls.log" ]] || fail "implement should not invoke the agent when Beads is unhealthy"
-  rm -rf "$root"
-}
-
 test_run_stops_after_queue_drains() {
   local root
   root="$(make_workspace)"
-  printf '1\n1\n0\n' > "$root/state/ready-seq"
+  seed_tracker "$root" 2
   printf 'STOP\n' > "$root/state/next-actions"
+
+  # The mock agent's implement call doesn't close issues, so we need to
+  # close them after each implement call. We'll seed with 1 issue and
+  # have the mock close it by manipulating the tracker file.
+  seed_tracker "$root" 1
+
+  # Override codex to also close the issue after implementing
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"
+  tail -n +2 "$file" > "$file.tmp" || true
+  mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    # Close all open issues to simulate completing work
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"check action"*)
+    record check
+    action="$(next_action)"
+    printf 'NEXT_ACTION: %s\n' "$action"
+    ;;
+  *"alignment action"*)
+    if [[ "${MOCK_ALIGN_FAIL:-0}" == "1" ]]; then
+      echo "mock alignment failure" >&2; exit 1
+    fi
+    record align
+    echo "alignment complete"
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
 
   local output
   output="$(run_helix "$root" run 2>&1)"
 
   local calls
   calls="$(cat "$root/state/calls.log")"
-  assert_eq $'implement\nimplement\ncheck' "$calls" "run should implement until drained, then check once"
-  assert_contains "$output" "helix: stopping after check returned STOP" "run should report why it stopped after the queue drained"
+  assert_eq $'implement\ncheck' "$calls" "run should implement until drained, then check"
+  assert_contains "$output" "helix: stopping after check returned STOP" "run should report why it stopped"
   rm -rf "$root"
 }
 
 test_run_periodic_alignment() {
   local root
   root="$(make_workspace)"
-  printf '1\n1\n0\n' > "$root/state/ready-seq"
+  seed_tracker "$root" 2
   printf 'STOP\n' > "$root/state/next-actions"
+
+  # Mock agent that closes one issue per implement call
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"
+  tail -n +2 "$file" > "$file.tmp" || true
+  mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    # Close first open issue
+    if [[ -f .helix/issues.jsonl ]]; then
+      first_open="$(jq -r 'select(.status == "open") | .id' .helix/issues.jsonl | head -1)"
+      if [[ -n "$first_open" ]]; then
+        tmp="$(jq -c "if .id == \"$first_open\" then .status = \"closed\" else . end" .helix/issues.jsonl)"
+        printf '%s\n' "$tmp" > .helix/issues.jsonl
+      fi
+    fi
+    echo "implementation complete"
+    ;;
+  *"check action"*)
+    record check
+    action="$(next_action)"
+    printf 'NEXT_ACTION: %s\n' "$action"
+    ;;
+  *"alignment action"*)
+    if [[ "${MOCK_ALIGN_FAIL:-0}" == "1" ]]; then
+      echo "mock alignment failure" >&2; exit 1
+    fi
+    record align
+    echo "alignment complete"
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
 
   run_helix "$root" run --review-every 2 >/dev/null
 
@@ -502,7 +571,7 @@ test_run_periodic_alignment() {
 test_run_auto_aligns_once() {
   local root
   root="$(make_workspace)"
-  printf '0\n0\n' > "$root/state/ready-seq"
+  # No issues — queue is empty from the start
   printf 'ALIGN\nSTOP\n' > "$root/state/next-actions"
 
   run_helix "$root" run >/dev/null
@@ -516,32 +585,39 @@ test_run_auto_aligns_once() {
 test_run_reports_periodic_alignment_failure() {
   local root
   root="$(make_workspace)"
-  printf '1\n' > "$root/state/ready-seq"
+  seed_tracker "$root" 1
+
+  # Mock that closes issue on implement
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"alignment action"*)
+    echo "mock alignment failure" >&2; exit 1
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
 
   local output
-  if output="$(MOCK_ALIGN_FAIL=1 run_helix "$root" run --review-every 1 2>&1)"; then
+  if output="$(run_helix "$root" run --review-every 1 2>&1)"; then
     fail "run should fail when periodic alignment fails"
   fi
 
   assert_contains "$output" "mock alignment failure" "run should surface the alignment failure"
-  assert_contains "$output" "helix: periodic alignment failed after 1 cycles" "run should report why the loop exited on periodic alignment failure"
-  rm -rf "$root"
-}
-
-test_run_uses_beads_direct_mode_for_wrapper_and_agent() {
-  local root
-  root="$(make_workspace)"
-  printf '0\n' > "$root/state/ready-seq"
-  printf 'STOP\n' > "$root/state/next-actions"
-
-  BEADS_DOLT_SERVER_MODE=0 \
-  MOCK_REQUIRE_SANDBOX=1 \
-  MOCK_EXPECT_BEADS_DIRECT=1 \
-    run_helix "$root" run >/dev/null
-
-  local calls
-  calls="$(cat "$root/state/calls.log")"
-  assert_eq $'check' "$calls" "run should keep Beads direct mode on for wrapper bd calls and the spawned agent"
+  assert_contains "$output" "helix: periodic alignment failed after 1 cycles" "run should report why the loop exited"
   rm -rf "$root"
 }
 
@@ -592,15 +668,52 @@ test_installer_creates_launcher() {
 test_claude_run_stops_after_queue_drains() {
   local root
   root="$(make_workspace)"
-  printf '1\n1\n0\n' > "$root/state/ready-seq"
+  seed_tracker "$root" 1
   printf 'STOP\n' > "$root/state/next-actions"
+
+  # Mock claude that closes issues
+  cat >"$root/bin/claude" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+stdin_payload=""
+if ! [[ -t 0 ]]; then stdin_payload="$(cat)"; fi
+payload="$* $stdin_payload"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"
+  tail -n +2 "$file" > "$file.tmp" || true
+  mv "$file.tmp" "$file"
+}
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"check action"*)
+    record check
+    action="$(next_action)"
+    printf 'NEXT_ACTION: %s\n' "$action"
+    ;;
+  *"alignment action"*)
+    record align; echo "alignment complete" ;;
+  *) record other; echo "mock claude" ;;
+esac
+MOCK
+  chmod +x "$root/bin/claude"
 
   local output
   output="$(run_helix "$root" run --claude 2>&1)"
 
   local calls
   calls="$(cat "$root/state/calls.log")"
-  assert_eq $'implement\nimplement\ncheck' "$calls" "claude run should implement until drained, then check once"
+  assert_eq $'implement\ncheck' "$calls" "claude run should implement until drained, then check"
   assert_contains "$output" "helix: stopping after check returned STOP" "claude run should report why it stopped"
   rm -rf "$root"
 }
@@ -608,7 +721,6 @@ test_claude_run_stops_after_queue_drains() {
 test_claude_run_auto_aligns() {
   local root
   root="$(make_workspace)"
-  printf '0\n0\n' > "$root/state/ready-seq"
   printf 'ALIGN\nSTOP\n' > "$root/state/next-actions"
 
   run_helix "$root" run --claude >/dev/null
@@ -629,27 +741,9 @@ test_claude_check_dry_run() {
   rm -rf "$root"
 }
 
-test_claude_run_beads_direct_mode() {
-  local root
-  root="$(make_workspace)"
-  printf '0\n' > "$root/state/ready-seq"
-  printf 'STOP\n' > "$root/state/next-actions"
-
-  BEADS_DOLT_SERVER_MODE=0 \
-  MOCK_REQUIRE_SANDBOX=1 \
-  MOCK_EXPECT_BEADS_DIRECT=1 \
-    run_helix "$root" run --claude >/dev/null
-
-  local calls
-  calls="$(cat "$root/state/calls.log")"
-  assert_eq $'check' "$calls" "claude run should keep Beads direct mode on"
-  rm -rf "$root"
-}
-
 test_run_auto_unblock_on_wait() {
   local root
   root="$(make_workspace)"
-  printf '0\n0\n' > "$root/state/ready-seq"
   # First check returns WAIT, unblock attempt runs, second check returns STOP
   printf 'WAIT\nSTOP\n' > "$root/state/next-actions"
 
@@ -666,7 +760,6 @@ test_run_auto_unblock_on_wait() {
 test_run_no_auto_unblock_flag() {
   local root
   root="$(make_workspace)"
-  printf '0\n' > "$root/state/ready-seq"
   printf 'WAIT\n' > "$root/state/next-actions"
 
   local output
@@ -688,30 +781,24 @@ test_extract_next_action_from_claude_output() {
     printf '%s' "$result"
   }
 
-  # Plain text mid-output
   local result
   result="$(extract_next_action "## Queue Health
 NEXT_ACTION: IMPLEMENT
-Target bead: adt.2.1")"
+Target issue: hx-mock-1")"
   assert_eq "IMPLEMENT" "$result" "extract plain NEXT_ACTION"
 
-  # Bold-wrapped: **NEXT_ACTION: WAIT**
   result="$(extract_next_action "**NEXT_ACTION: WAIT**")"
   assert_eq "WAIT" "$result" "extract bold-wrapped NEXT_ACTION"
 
-  # Backtick-wrapped: \`NEXT_ACTION: STOP\`
   result="$(extract_next_action '`NEXT_ACTION: STOP`')"
   assert_eq "STOP" "$result" "extract backtick-wrapped NEXT_ACTION"
 
-  # Bold code split: **NEXT_ACTION:** GUIDANCE
   result="$(extract_next_action '**NEXT_ACTION:** GUIDANCE')"
   assert_eq "GUIDANCE" "$result" "extract bold-key NEXT_ACTION"
 
-  # Bold value: NEXT_ACTION: **ALIGN**
   result="$(extract_next_action 'NEXT_ACTION: **ALIGN**')"
   assert_eq "ALIGN" "$result" "extract bold-value NEXT_ACTION"
 
-  # Code block line: \`NEXT_ACTION: BACKFILL\`
   result="$(extract_next_action 'Some preamble
 \`NEXT_ACTION: BACKFILL\`
 Some epilogue')"
@@ -726,18 +813,6 @@ test_plan_dry_run() {
   assert_contains "$output" "actions/plan.md" "plan dry-run should reference plan action"
   assert_contains "$output" "Plan scope: repo" "plan dry-run should include scope"
   assert_contains "$output" "Refinement rounds: 5" "plan dry-run should include default rounds"
-  rm -rf "$root"
-}
-
-test_plan_does_not_require_beads() {
-  local root
-  root="$(make_workspace)"
-  rm -rf "$root/work/.beads"
-
-  # plan should work even without .beads directory
-  local output
-  output="$(run_helix "$root" plan --dry-run repo 2>&1)"
-  assert_contains "$output" "actions/plan.md" "plan should work without beads"
   rm -rf "$root"
 }
 
@@ -761,15 +836,6 @@ test_polish_dry_run() {
   rm -rf "$root"
 }
 
-test_polish_requires_beads() {
-  local root
-  root="$(make_workspace)"
-  rm -rf "$root/work/.beads"
-
-  assert_fails "polish should fail without beads" run_helix "$root" polish 2>/dev/null
-  rm -rf "$root"
-}
-
 test_review_dry_run() {
   local root
   root="$(make_workspace)"
@@ -789,57 +855,38 @@ test_review_custom_scope() {
   rm -rf "$root"
 }
 
-test_next_with_bv_mock() {
+test_next_shows_ready_issue() {
   local root
   root="$(make_workspace)"
-  printf '1\n' > "$root/state/ready-seq"
-
-  cat >"$root/bin/bv" <<'EOF'
-#!/usr/bin/env bash
-echo "bd-priority-1 (PageRank: 0.42, Betweenness: 0.31)"
-EOF
-  chmod +x "$root/bin/bv"
+  seed_tracker "$root" 1
 
   local output
-  output="$(run_helix "$root" next 2>&1 || true)"
-  assert_contains "$output" "bd-priority-1" "next should use bv output when available"
+  output="$(run_helix "$root" next 2>&1)"
+  assert_contains "$output" "hx-mock-0" "next should show first ready issue ID"
   rm -rf "$root"
 }
 
-test_next_bv_fallback() {
+test_next_no_ready_issues() {
   local root
   root="$(make_workspace)"
-  printf '1\n' > "$root/state/ready-seq"
-
-  # bv exists but fails — should fall back to bd ready
-  cat >"$root/bin/bv" <<'EOF'
-#!/usr/bin/env bash
-exit 1
-EOF
-  chmod +x "$root/bin/bv"
 
   local output
-  output="$(run_helix "$root" next 2>&1 || true)"
-  # When bv is present, has_bv returns true, so the code runs bv --robot-next
-  # which exits 1 with empty output. The || true in bv_context captures empty.
-  # This tests the bv-present path; bd-mock-0 comes from the fallback only
-  # when bv is absent. When bv is present but fails, output is empty.
+  output="$(run_helix "$root" next 2>&1)"
+  assert_contains "$output" "no ready issues" "next should report when no issues are ready"
   rm -rf "$root"
 }
 
 test_spawn_without_ntm() {
   local root
   root="$(make_workspace)"
-  printf '0\n' > "$root/state/ready-seq"
-  printf 'STOP\n' > "$root/state/next-actions"
 
   local output
-  output="$(run_helix "$root" spawn 2>&1)"
+  output="$(run_helix "$root" spawn 2>&1)" || true
   assert_contains "$output" "ntm not found" "spawn should report ntm absence"
   rm -rf "$root"
 }
 
-test_help_includes_new_commands() {
+test_help_includes_all_commands() {
   local root
   root="$(make_workspace)"
   local output
@@ -849,23 +896,8 @@ test_help_includes_new_commands() {
   assert_contains "$output" "helix next" "help should list next command"
   assert_contains "$output" "helix review" "help should list review command"
   assert_contains "$output" "helix spawn" "help should list spawn command"
-  rm -rf "$root"
-}
-
-test_implementation_prompt_has_bv_context() {
-  local root
-  root="$(make_workspace)"
-
-  cat >"$root/bin/bv" <<'EOF'
-#!/usr/bin/env bash
-echo "bd-critical-1 (PageRank: 0.85, Betweenness: 0.72)"
-EOF
-  chmod +x "$root/bin/bv"
-
-  local output
-  output="$(run_helix "$root" implement --dry-run)"
-  assert_contains "$output" "Graph-aware routing context" "implement should include bv context when available"
-  assert_contains "$output" "bd-critical-1" "implement should include bv output"
+  assert_contains "$output" "helix experiment" "help should list experiment command"
+  assert_contains "$output" "helix tracker" "help should list tracker command"
   rm -rf "$root"
 }
 
@@ -876,15 +908,6 @@ test_experiment_dry_run() {
   output="$(run_helix "$root" experiment --dry-run)"
   assert_contains "$output" "actions/experiment.md" "experiment dry-run should reference experiment action"
   assert_contains "$output" "Experiment target" "experiment dry-run should include experiment target"
-  rm -rf "$root"
-}
-
-test_experiment_requires_beads() {
-  local root
-  root="$(make_workspace)"
-  rm -rf "$root/work/.beads"
-
-  assert_fails "experiment should fail without beads" run_helix "$root" experiment 2>/dev/null
   rm -rf "$root"
 }
 
@@ -915,19 +938,10 @@ test_experiment_close_dry_run() {
   rm -rf "$root"
 }
 
-test_help_includes_experiment() {
-  local root
-  root="$(make_workspace)"
-  local output
-  output="$(run_helix "$root" help)"
-  assert_contains "$output" "experiment" "help should include experiment"
-  rm -rf "$root"
-}
-
 test_claude_agent_timeout_kills_process() {
   local root
   root="$(make_workspace)"
-  printf '1\n' > "$root/state/ready-seq"
+  seed_tracker "$root" 1
 
   local output
   if output="$(HELIX_AGENT_TIMEOUT=1 MOCK_CLAUDE_SLEEP=30 run_helix "$root" run --claude 2>&1)"; then
@@ -939,6 +953,18 @@ test_claude_agent_timeout_kills_process() {
   rm -rf "$root"
 }
 
+test_implement_prompt_references_tracker() {
+  local root
+  root="$(make_workspace)"
+  local output
+  output="$(run_helix "$root" implement --dry-run)"
+  assert_contains "$output" "helix tracker" "implement prompt should reference helix tracker"
+  assert_contains "$output" "issues.jsonl" "implement prompt should reference JSONL file"
+  rm -rf "$root"
+}
+
+# ── Run all tests ──────────────────────────────────────────────────
+
 run_test() {
   local name="$1"
   shift
@@ -947,44 +973,42 @@ run_test() {
   echo "ok - $name"
 }
 
+# Tracker unit tests
+run_test "tracker create and show" test_tracker_create_and_show
+run_test "tracker ready and blocked" test_tracker_ready_and_blocked
+run_test "tracker update and claim" test_tracker_update_and_claim
+run_test "tracker status" test_tracker_status
+
+# CLI integration tests
 run_test "help" test_help
 run_test "check dry-run" test_check_dry_run
-run_test "check dry-run beads direct mode" test_check_dry_run_uses_beads_direct_mode
 run_test "backfill dry-run" test_backfill_dry_run
-run_test "run requires beads workspace" test_run_fails_without_beads_workspace
-run_test "implement fails on unhealthy beads" test_implement_fails_when_beads_is_unhealthy
 run_test "run stops after drain" test_run_stops_after_queue_drains
 run_test "periodic alignment" test_run_periodic_alignment
 run_test "auto-align" test_run_auto_aligns_once
 run_test "periodic alignment failure reason" test_run_reports_periodic_alignment_failure
-run_test "run beads direct mode" test_run_uses_beads_direct_mode_for_wrapper_and_agent
 run_test "backfill requires report marker" test_backfill_requires_report_marker
 run_test "backfill creates report" test_backfill_creates_report
 run_test "installer launcher" test_installer_creates_launcher
 run_test "claude run stops after drain" test_claude_run_stops_after_queue_drains
 run_test "claude auto-align" test_claude_run_auto_aligns
 run_test "claude check dry-run" test_claude_check_dry_run
-run_test "claude beads direct mode" test_claude_run_beads_direct_mode
 run_test "auto-unblock on WAIT" test_run_auto_unblock_on_wait
 run_test "no-auto-unblock flag" test_run_no_auto_unblock_flag
 run_test "extract NEXT_ACTION from claude output" test_extract_next_action_from_claude_output
 run_test "plan dry-run" test_plan_dry_run
-run_test "plan does not require beads" test_plan_does_not_require_beads
 run_test "plan custom rounds" test_plan_custom_rounds
 run_test "polish dry-run" test_polish_dry_run
-run_test "polish requires beads" test_polish_requires_beads
 run_test "review dry-run" test_review_dry_run
 run_test "review custom scope" test_review_custom_scope
-run_test "next with bv mock" test_next_with_bv_mock
-run_test "next bv fallback" test_next_bv_fallback
+run_test "next shows ready issue" test_next_shows_ready_issue
+run_test "next no ready issues" test_next_no_ready_issues
 run_test "spawn without ntm" test_spawn_without_ntm
-run_test "help includes new commands" test_help_includes_new_commands
-run_test "implementation prompt has bv context" test_implementation_prompt_has_bv_context
+run_test "help includes all commands" test_help_includes_all_commands
 run_test "experiment dry-run" test_experiment_dry_run
-run_test "experiment requires beads" test_experiment_requires_beads
 run_test "experiment requires clean worktree" test_experiment_requires_clean_worktree
 run_test "experiment close dry-run" test_experiment_close_dry_run
-run_test "help includes experiment" test_help_includes_experiment
 run_test "claude agent timeout kills process" test_claude_agent_timeout_kills_process
+run_test "implement prompt references tracker" test_implement_prompt_references_tracker
 
 echo "PASS: ${test_count} helix wrapper tests"
