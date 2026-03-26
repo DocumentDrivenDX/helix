@@ -672,6 +672,26 @@ test_installer_creates_launcher() {
   local launcher
   launcher="$(cat "$root/home/.local/bin/helix")"
   assert_contains "$launcher" 'exec bash "'$repo_root'/scripts/helix"' "launcher should invoke repo helix script through bash"
+  local canonical_skills=(
+    helix-run
+    helix-implement
+    helix-check
+    helix-align
+    helix-backfill
+    helix-plan
+    helix-polish
+    helix-next
+    helix-review
+    helix-spawn
+    helix-experiment
+  )
+  local skill
+  for skill in "${canonical_skills[@]}"; do
+    [[ -L "$root/codex-home/skills/$skill" ]] || fail "installer should link $skill into Codex"
+    [[ -L "$root/claude-home/skills/$skill" ]] || fail "installer should link $skill into Claude"
+  done
+  [[ ! -e "$root/codex-home/skills/helix-workflow" ]] || fail "installer should remove legacy skill aliases"
+  [[ ! -e "$root/codex-home/skills/plan-workflow" ]] || fail "installer should remove legacy skill aliases"
   rm -rf "$root"
 }
 

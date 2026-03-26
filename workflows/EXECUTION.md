@@ -292,9 +292,8 @@ helix spawn --count 3 --stagger 45  # 3 agents, 45s apart
 `phase:iterate` issues. Each invocation: hypothesize → edit → test → benchmark →
 keep/discard → log → exit.
 
-The loop is driven externally by the `/ddx:experiment` skill (analogous to how
-`/ddx:grind` drives repeated `implement` calls) or by the operator re-invoking
-the command. This preserves the bounded-action model.
+The loop is driven externally by the `helix-experiment` skill or by the
+operator re-invoking the command. This preserves the bounded-action model.
 
 Experiments are operator-invoked only — `helix check` does not produce a
 `NEXT_ACTION: EXPERIMENT` code. The operator chooses `helix experiment` instead

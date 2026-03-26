@@ -44,6 +44,23 @@ Supporting templates for metrics and reports:
 
 - [metric-definition.yaml](templates/metric-definition.yaml) for shared metric definitions referenced by ratchets, experiments, and monitoring
 
+## Command Mirroring
+
+Public agent skills must mirror the CLI exactly.
+
+- Agent skills use `helix-<command>`.
+- CLI commands use `helix <command>`.
+- `<command>` must be identical in both places.
+
+Examples:
+
+- `helix-run` <-> `helix run`
+- `helix-implement` <-> `helix implement`
+- `helix-align` <-> `helix align`
+- `helix-review` <-> `helix review`
+
+Do not publish extra skill names that have no matching CLI command.
+
 ```mermaid
 graph TB
     subgraph "The HELIX Spiral"

@@ -1,10 +1,10 @@
 ---
-name: helix-alignment-review
-description: Top-down reconciliation review of a HELIX project. Use for alignment audits, drift analysis, traceability checks, or generating remediation issues.
+name: helix-align
+description: Run the HELIX alignment action. Use when the user wants `helix align` behavior.
 argument-hint: "[scope]"
 ---
 
-# HELIX Alignment Review
+# Align
 
 Use this skill for repo-wide or area-scoped reconciliation reviews.
 

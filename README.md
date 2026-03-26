@@ -51,18 +51,22 @@ helix experiment --close
 
 ## Skills
 
-Installed as Claude Code skills (invocable as `/helix:<name>`):
+Installed as local agent skills named to mirror the CLI:
 
-- `helix` — Main workflow execution
-- `helix-alignment-review` — Drift analysis and traceability
-- `execute` — Single issue end-to-end
-- `grind` — Continuous queue execution
-- `review` — Critical review for errors
-- `triage` — Queue health analysis
-- `handoff` — Review changes from other agents
-- `plan` — Design document creation
-- `polish` — Issue refinement
-- `experiment` — Metric-driven optimization loop
+- `helix-run` <-> `helix run`
+- `helix-implement` <-> `helix implement`
+- `helix-check` <-> `helix check`
+- `helix-align` <-> `helix align`
+- `helix-backfill` <-> `helix backfill`
+- `helix-plan` <-> `helix plan`
+- `helix-polish` <-> `helix polish`
+- `helix-next` <-> `helix next`
+- `helix-review` <-> `helix review`
+- `helix-spawn` <-> `helix spawn`
+- `helix-experiment` <-> `helix experiment`
+
+The contract is strict: public skill names are `helix-<command>` and must
+mirror the CLI subcommand exactly.
 
 ## Tracker
 

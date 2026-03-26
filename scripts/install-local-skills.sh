@@ -43,11 +43,41 @@ EOF
   chmod +x "$dest"
 }
 
-install_pair "helix-workflow" "$repo_root/skills/helix"
-install_pair "helix-alignment-review" "$repo_root/skills/helix-alignment-review"
-install_pair "plan-workflow" "$repo_root/skills/plan"
-install_pair "polish-workflow" "$repo_root/skills/polish"
-install_pair "experiment-workflow" "$repo_root/skills/experiment"
+remove_noncanonical_links() {
+  local names=(
+    helix-workflow
+    helix-alignment-review
+    plan-workflow
+    polish-workflow
+    experiment-workflow
+    execute
+    grind
+    handoff
+    review
+    triage
+    plan
+    polish
+    experiment
+  )
+  local name
+  for name in "${names[@]}"; do
+    rm -f "$codex_skills_dir/$name" "$claude_skills_dir/$name"
+  done
+}
+
+remove_noncanonical_links
+
+install_pair "helix-run" "$repo_root/skills/helix"
+install_pair "helix-implement" "$repo_root/skills/execute"
+install_pair "helix-check" "$repo_root/skills/check"
+install_pair "helix-align" "$repo_root/skills/helix-alignment-review"
+install_pair "helix-backfill" "$repo_root/skills/backfill"
+install_pair "helix-plan" "$repo_root/skills/plan"
+install_pair "helix-polish" "$repo_root/skills/polish"
+install_pair "helix-next" "$repo_root/skills/next"
+install_pair "helix-review" "$repo_root/skills/review"
+install_pair "helix-spawn" "$repo_root/skills/spawn"
+install_pair "helix-experiment" "$repo_root/skills/experiment"
 
 echo "Installed skills into:"
 echo "  Codex:  $codex_skills_dir"

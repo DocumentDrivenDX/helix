@@ -53,18 +53,22 @@ Key rules:
 
 ## HELIX Skills
 
-The plugin provides these skills (invocable as `/helix:<name>`):
+Installed agent skills mirror CLI commands exactly:
 
-- `/helix:helix` — HELIX workflow execution (auto-invoked on context)
-- `/helix:review` — critical review for errors, omissions, compliance
-- `/helix:grind` — continuous issue queue execution with sub-agents
-- `/helix:execute` — pick next issue, implement, test, commit, close
-- `/helix:triage` — review issues vs repo state, improve and fill gaps
-- `/helix:handoff` — review changes made by another agent/session
-- `/helix:helix-alignment-review` — top-down reconciliation and drift analysis
-- `/helix:plan` — create design document through iterative refinement
-- `/helix:polish` — refine issues before implementation
-- `/helix:experiment` — autonomous metric-driven optimization loop
+- `helix-run` <-> `helix run`
+- `helix-implement` <-> `helix implement`
+- `helix-check` <-> `helix check`
+- `helix-align` <-> `helix align`
+- `helix-backfill` <-> `helix backfill`
+- `helix-plan` <-> `helix plan`
+- `helix-polish` <-> `helix polish`
+- `helix-next` <-> `helix next`
+- `helix-review` <-> `helix review`
+- `helix-spawn` <-> `helix spawn`
+- `helix-experiment` <-> `helix experiment`
+
+Rule: public skill names are `helix-<command>`, and `<command>` must match the
+CLI subcommand exactly.
 
 ## HELIX CLI
 
@@ -192,7 +196,7 @@ For performance tuning, bundle size reduction, or other measurable optimization:
 
 1. Create a `phase:iterate` issue with the optimization goal
 2. `helix experiment [issue-id|goal]` — runs one experiment iteration
-3. The `/helix:experiment` skill loops the action autonomously
+3. The `helix-experiment` skill loops the action autonomously
 4. All existing tests must pass after every iteration — tests are the spec
 5. Prefer simpler solutions; do not add complexity for marginal gains
 6. At session close, the experiment branch is squash-merged and performance

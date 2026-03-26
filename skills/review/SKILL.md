@@ -1,48 +1,23 @@
 ---
-name: review
-description: Critical review for errors, omissions, mischaracterizations, and principle compliance. Use when asked to review proposals, plans, specs, research, or any work product.
+name: helix-review
+description: Run the HELIX fresh-eyes review. Use when the user wants `helix review` behavior after implementation.
 argument-hint: "[scope]"
 ---
 
-# Critical Review
+# Review
 
-Review the work product for blunders, errors, omissions, mischaracterizations,
-and unsubstantiated statements.
+Execute the HELIX fresh-eyes review action.
 
-## What to examine
+## Steps
 
-Depending on what was most recently produced or discussed, review:
+1. Read and apply `workflows/actions/fresh-eyes-review.md`.
+2. Scope the review to `$ARGUMENTS` when provided, otherwise review the recent
+   implementation work.
+3. Focus on bugs, regressions, missing tests, and follow-on work.
+4. Report concrete findings first. If the work is clean, say so briefly.
 
-- Proposals and plans
-- Newly created or modified documents
-- Research output and analysis
-- Specifications and designs
-- Implementation changes
+## Output
 
-If a scope argument is provided, narrow the review to: $ARGUMENTS
-
-## Review criteria
-
-For each claim, recommendation, or design decision, check:
-
-1. **Factual accuracy** — are statements correct and verifiable?
-2. **Logical consistency** — does the reasoning hold? Are there contradictions?
-3. **Completeness** — what's missing? What hasn't been considered?
-4. **Mischaracterizations** — does it accurately represent the things it references?
-5. **Substantiation** — are claims backed by evidence, or asserted without support?
-6. **Principle compliance** — does it align with the project's documented principles and product vision?
-
-## Output format
-
-For each issue found, state:
-
-- The category (error, omission, mischaracterization, unsubstantiated, principle violation)
-- What specifically is wrong
-- Why it matters
-- What the correction should be
-
-After listing issues, propose improvements needed to bring the work into
-compliance with the project's principles and product vision.
-
-Be direct. Do not soften findings. If the work is sound, say so briefly and
-move on.
+- findings first
+- concrete evidence
+- recommended fixes or follow-on issues when needed

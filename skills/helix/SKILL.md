@@ -1,32 +1,22 @@
 ---
-name: helix-workflow
-description: HELIX test-first workflow with authority-ordered planning stack and tracker-based execution tracking. Use when working through Frame/Design/Test/Build/Deploy/Iterate phases, executing issues, or aligning implementation to specs.
+name: helix-run
+description: Run the HELIX bounded operator loop. Use when the user wants `helix run` behavior inside the agent.
 argument-hint: "[scope|issue-id]"
 ---
 
-# HELIX Workflow Skill
+# Run
 
-Guide development using the HELIX methodology: a test-first workflow with a
-canonical planning stack and an execution layer tracked in the built-in HELIX
-tracker (`helix tracker`).
+Run the HELIX bounded operator loop against the built-in tracker.
 
 ## Use This Skill When
 
-- the user is building or refining a feature under HELIX
-- the repo has `docs/helix/` or `workflows/`
-- the user wants TDD phase guidance or artifact sequencing
-- the user wants implementation kept aligned to requirements, design, and tests
-- the user wants a ready HELIX issue executed end-to-end with the right quality gates
-- the user wants to know whether more HELIX work remains or what the next action should be
-- the user wants a repo-wide reconciliation, drift analysis, or traceability audit
-- the user wants to backfill HELIX documentation from an existing repo or subsystem
+- the user wants `helix run` behavior from inside the agent
+- the repo uses `helix tracker` for execution tracking
+- the user wants ready HELIX work executed until the bounded loop stops
+- the user wants queue-drain decisions honored instead of a blind loop
 
-For alignment review, documentation backfill, or other cross-phase repo work, read:
-
-- [cross-phase-actions.md](references/cross-phase-actions.md)
-
-The separate `helix-alignment-review` skill remains available as a narrower
-specialist alias for review-heavy requests.
+For command-specific work, prefer the mirrored companion skills such as
+`helix-implement`, `helix-check`, `helix-align`, and `helix-backfill`.
 
 ## HELIX Phases
 

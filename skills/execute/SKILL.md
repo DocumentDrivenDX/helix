@@ -1,11 +1,11 @@
 ---
-name: execute
-description: Pick the next issue, implement it, pass tests, commit, and close it. Use when the user wants one issue executed end-to-end.
+name: helix-implement
+description: Execute one bounded HELIX implementation pass. Use when the user wants `helix implement` behavior against one ready issue.
 argument-hint: "[issue-id|scope]"
 disable-model-invocation: true
 ---
 
-# Execute
+# Implement
 
 Pick the next issue from the queue, implement it fully, and close it.
 

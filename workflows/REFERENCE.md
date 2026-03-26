@@ -53,6 +53,9 @@ helix tracker init
 scripts/install-local-skills.sh
 ```
 
+Installed agent skills mirror CLI commands exactly: `helix-<command>` maps to
+`helix <command>`.
+
 ### Execution Commands
 
 ```bash
