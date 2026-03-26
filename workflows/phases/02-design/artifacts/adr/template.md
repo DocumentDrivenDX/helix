@@ -13,8 +13,6 @@ dun:
 
 ## Context
 
-[Problem description and why this decision is needed]
-
 | Aspect | Description |
 |--------|-------------|
 | Problem | [Specific problem] |
@@ -43,37 +41,19 @@ We will [decision statement].
 | Negative | [Trade-offs, technical debt] |
 | Neutral | [Side effects] |
 
-## Implementation Impact
-
-| Aspect | Assessment |
-|--------|------------|
-| Effort | [High/Med/Low] - [Duration] |
-| Skills | [Required expertise] |
-| Performance | [Expected impact] |
-| Scalability | [Scaling implications] |
-| Security | [Security implications] |
-
 ## Risks
 
 | Risk | Prob | Impact | Mitigation |
 |------|------|--------|------------|
 | [Risk 1] | H/M/L | H/M/L | [Strategy] |
-| [Risk 2] | H/M/L | H/M/L | [Strategy] |
-
-## Dependencies
-
-- **Technical**: [Technologies, versions]
-- **Decisions**: [Related ADRs]
 
 ## Validation
 
 | Success Metric | Review Trigger |
 |----------------|----------------|
 | [Metric 1] | [Condition for reconsideration] |
-| [Metric 2] | [Requirements change] |
 
 ## References
 
 - [PRD section link]
 - [Related ADRs]
-- [External docs]

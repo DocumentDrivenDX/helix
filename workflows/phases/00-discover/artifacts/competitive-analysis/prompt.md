@@ -8,60 +8,18 @@ Store at: `docs/helix/00-discover/competitive-analysis.md`
 
 ## Purpose
 
-The Competitive Analysis answers: **How do we win in this market?**
-
-It provides:
-- Market landscape overview
-- Competitor profiles
-- Feature comparison
-- Differentiation strategy
+Answers: **How do we win in this market?** Keep the comparison factual, compact, and focused on positioning.
 
 ## Key Principles
 
-### 1. Know Your Competition
-- Include direct and indirect competitors
-- Understand their strengths and weaknesses
-- Identify their target customers
-
-### 2. Find Your Angle
-- What can you do that they cannot?
-- Where are the gaps in the market?
-- What is your unfair advantage?
-
-### 3. Be Objective
-- Acknowledge competitor strengths
-- Be honest about your weaknesses
-- Base analysis on facts, not wishes
-
-## Section Guidance
-
-### Market Landscape
-- Market maturity and trends
-- Key players and market share
-- Entry barriers
-- Market dynamics
-
-### Competitor Profiles
-- 3-5 key competitors
-- Their positioning and strategy
-- Strengths and weaknesses
-- Target customer segments
-
-### Feature Comparison Matrix
-- Core features comparison
-- Your advantage areas
-- Gap areas to address
-- Unique capabilities
-
-### Differentiation Strategy
-- Primary differentiators
-- How to communicate advantage
-- Sustainable competitive moats
+- **Cover direct and indirect competitors** - compare strengths, weaknesses, and target customers.
+- **Find the angle** - identify gaps and defensible differentiation.
+- **Stay objective** - base claims on facts, not wishes.
 
 ## Quality Checklist
 
 - [ ] At least 3 competitors analyzed
-- [ ] Both direct and indirect competitors included
-- [ ] Feature matrix is factual (not aspirational)
+- [ ] Direct and indirect competitors included
+- [ ] Feature matrix is factual
 - [ ] Differentiation is specific and defensible
 - [ ] Sources cited for competitor data

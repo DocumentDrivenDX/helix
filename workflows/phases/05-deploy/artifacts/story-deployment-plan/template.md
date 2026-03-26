@@ -1,30 +1,20 @@
-# Story Deploy Bead Template Guidance
+# Story Deploy Issue Template Guidance
 
-Story deployment work is stored as deploy beads, not as markdown deployment
-plans.
+Story deployment work is stored as deploy issues, not markdown deployment plans.
 
-Use upstream Beads via `bd create`, `bd update`, `bd dep add`, and `bd ready`.
-See `workflows/BEADS.md`.
+Use `helix tracker create`, `helix tracker update`, and `helix tracker ready`.
+See `workflows/TRACKER.md`.
 
-## Required Story Deploy Bead Mapping
+## Required Story Deploy Issue Mapping
 
-- native upstream `type: task`
-- labels:
-  - `helix`
-  - `phase:deploy`
-  - `kind:deploy`
-  - `story:US-XXX`
-- governing references in `spec-id` and/or description to:
-  - dependent build bead(s)
-  - `docs/helix/05-deploy/deployment-checklist.md`
-  - `docs/helix/05-deploy/monitoring-setup.md`
-  - `docs/helix/05-deploy/runbook.md`
-- rollout steps in `description` / `design`
+- `type: task`
+- labels: `helix`, `phase:deploy`, `kind:deploy`, `story:US-XXX`
+- references to dependent build issue(s) and the governing deploy artifacts in `spec-id` or description
+- rollout steps in `description` or `design`
 - rollback triggers and verification in `acceptance`
-- blockers in dependency links rather than a custom blocked field
+- blockers expressed as dependencies
 
 ## Queue Check
 
-Use `bd ready` to pick the next executable deploy bead. Confirm the bead carries
-the labels `helix`, `phase:deploy`, and `story:US-{story-id}`, then inspect it
-with `bd show <id>` before executing rollout work.
+Use `helix tracker ready` to pick the next deploy issue, then inspect it with
+`helix tracker show <id>` before rollout work.

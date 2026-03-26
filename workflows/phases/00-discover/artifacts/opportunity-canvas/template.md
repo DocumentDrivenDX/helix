@@ -1,9 +1,5 @@
 # Opportunity Canvas
 
-**Date**: [Date]
-**Author**: [Author]
-**Status**: Draft | Review | Approved
-
 ## Problem Statement
 
 | Aspect | Description |
@@ -21,7 +17,6 @@
 |---------|----------|------|-----------------|------------------|
 | [Primary] | P0 | [Size] | [Key traits] | [What they use now] |
 | [Secondary] | P1 | [Size] | [Key traits] | [What they use now] |
-| [Tertiary] | P2 | [Size] | [Key traits] | [What they use now] |
 
 **Early Adopters**: [Who will use this first and why?]
 
@@ -31,7 +26,6 @@
 |-------------------|------------------|-------------|
 | [Value 1] | [Why it matters] | [Evidence] |
 | [Value 2] | [Why it matters] | [Evidence] |
-| [Value 3] | [Why it matters] | [Evidence] |
 
 **Elevator Pitch**: [2 sentences max describing the unique value]
 
@@ -41,7 +35,6 @@
 |------------|-------------------|----------|
 | [Capability 1] | [Which problem aspect] | P0/P1/P2 |
 | [Capability 2] | [Which problem aspect] | P0/P1/P2 |
-| [Capability 3] | [Which problem aspect] | P0/P1/P2 |
 
 **NOT in Scope**: [What this solution will NOT do]
 
@@ -50,9 +43,7 @@
 | Metric | Type | Target | Timeline |
 |--------|------|--------|----------|
 | [Success metric 1] | Outcome | [Target] | [When] |
-| [Success metric 2] | Outcome | [Target] | [When] |
 | [Leading indicator 1] | Leading | [Target] | [When] |
-| [Leading indicator 2] | Leading | [Target] | [When] |
 
 **North Star Metric**: [Single most important metric]
 
@@ -61,25 +52,11 @@
 | Advantage Type | Our Position | Sustainability |
 |----------------|--------------|----------------|
 | [Type 1] | [Description] | H/M/L |
-| [Type 2] | [Description] | H/M/L |
 
 **Honest Assessment**: [What we have vs. what we need to build]
 
-## Go/No-Go Checklist
-
-| Criterion | Status | Notes |
-|-----------|--------|-------|
-| Problem validated | Yes/No | [Evidence] |
-| Customer segment clear | Yes/No | [Evidence] |
-| Value prop differentiated | Yes/No | [Evidence] |
-| Solution feasible | Yes/No | [Evidence] |
-| Metrics defined | Yes/No | [Evidence] |
-| Resources available | Yes/No | [Evidence] |
+## Go/No-Go Decision
 
 **Decision**: Go | Pivot | No-Go
 
 **Rationale**: [2-3 sentences explaining decision]
-
----
-
-*Canvas approved by: [Names and dates]*

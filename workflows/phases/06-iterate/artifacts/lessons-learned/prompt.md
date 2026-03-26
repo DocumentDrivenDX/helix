@@ -10,44 +10,13 @@
 
 ## Prompt
 
-You are documenting lessons learned from a completed iteration. Your goal is to capture insights that will improve future iterations.
+Document only the lessons that should change future behavior.
 
-Based on production metrics, user feedback, and team retrospective, document:
-
-1. **Iteration Summary**
-   - Goals achieved vs. planned
-   - Key metrics comparison
-   - Overall assessment
-
-2. **What Went Well**
-   | Category | Success | Contributing Factors | How to Repeat |
-   |----------|---------|---------------------|---------------|
-   | [Process/Technical/Team] | [Description] | [Why it worked] | [Action] |
-
-3. **What Could Be Improved**
-   | Category | Issue | Root Cause | Improvement Action |
-   |----------|-------|------------|-------------------|
-   | [Process/Technical/Team] | [Description] | [Analysis] | [Specific action] |
-
-4. **Technical Debt Identified**
-   - New debt incurred
-   - Debt addressed
-   - Priority for remediation
-
-5. **Process Improvements**
-   - Workflow changes recommended
-   - Tool improvements needed
-   - Communication enhancements
-
-6. **Knowledge Transfer**
-   - Key insights for new team members
-   - Documentation updates needed
-   - Training recommendations
+Use production metrics, feedback, and retrospective notes to capture the iteration summary, what worked, what did not work, estimation misses, technical debt, process changes, and recurring patterns. Keep each item short and tied to a concrete follow-up.
 
 Use the template at `workflows/phases/06-iterate/artifacts/lessons-learned/template.md`.
 
 ## Completion Criteria
-- [ ] Both successes and improvements documented
-- [ ] Root causes identified for issues
-- [ ] Candidate backlog beads identified for actionable follow-up work
-- [ ] Knowledge transfer items identified
+- [ ] Both successes and failures documented with root causes
+- [ ] Candidate backlog issues identified for actionable follow-up
+- [ ] Recurring patterns flagged for systemic fixes

@@ -1,9 +1,5 @@
 # Product Vision
 
-**Date**: [Date]
-**Author**: [Author]
-**Status**: Draft | Review | Approved
-
 ## Mission Statement
 
 [One to two sentences: What we do + for whom + why it matters]
@@ -29,28 +25,20 @@
 
 ## Key Value Propositions
 
-| # | Value Proposition | Customer Benefit |
-|---|-------------------|------------------|
-| 1 | [Core capability] | [Why it matters to customer] |
-| 2 | [Core capability] | [Why it matters to customer] |
-| 3 | [Core capability] | [Why it matters to customer] |
-| 4 | [Core capability] | [Why it matters to customer] |
+| Value Proposition | Customer Benefit |
+|-------------------|------------------|
+| [Core capability] | [Why it matters to customer] |
+| [Core capability] | [Why it matters to customer] |
 
 ## Success Definition
 
-| Metric | Target | Timeline | Measurement |
-|--------|--------|----------|-------------|
-| Primary KPI | [Specific target] | [When] | [How measured] |
-| Adoption | [Target] | [When] | [How measured] |
-| Retention | [Target] | [When] | [How measured] |
-| Revenue/Value | [Target] | [When] | [How measured] |
+| Metric | Target | Timeline |
+|--------|--------|----------|
+| Primary KPI | [Specific target] | [When] |
+| [Supporting metric] | [Target] | [When] |
 
 ## Strategic Fit
 
 - **Company Strategy Alignment**: [How this supports broader goals]
 - **Resource Availability**: [Team, budget, technology readiness]
 - **Timing**: [Why now is the right time]
-
----
-
-*Vision approved by: [Names and dates]*

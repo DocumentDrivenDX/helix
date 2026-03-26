@@ -11,7 +11,7 @@ dun:
 ## Story Reference
 
 **User Story**: [[US-XXX-[story-name]]]
-**Deploy Beads**: [List related upstream `bd` issue IDs or `bd list` query]
+**Deploy Issues**: [List related tracker issue IDs or `helix tracker list` query]
 **Report Period**: [Start Date] - [End Date]
 
 ## Outcome Summary
@@ -35,11 +35,9 @@ dun:
 ## What Worked
 
 - [Observation]
-- [Observation]
 
 ## What Did Not Work
 
-- [Observation]
 - [Observation]
 
 ## Issues and Resolutions
@@ -48,13 +46,10 @@ dun:
 |------|--------|------------|------------------|
 | [Issue] | [Impact] | [Resolution] | [Yes/No] |
 
-## Derived Backlog Beads
+## Derived Backlog Issues
 
-Actionable follow-up work must be emitted as backlog beads rather than embedded
-as free-form tasks in this report.
-
-| Bead ID | Type | Title | Priority | Rationale |
-|---------|------|-------|----------|-----------|
+| Issue ID | Type | Title | Priority | Rationale |
+|----------|------|-------|----------|-----------|
 | [prefix]-abc123 | [improvement/bug/debt/process/research] | [Title] | P0/P1/P2 | [Why this work exists] |
 
 ## Canonical Updates Recommended
@@ -65,6 +60,5 @@ as free-form tasks in this report.
 
 ## Close-Out
 
-- [ ] All supporting evidence is linked
-- [ ] Follow-up backlog beads are created or referenced
-- [ ] Required canonical updates are identified
+- [ ] Follow-up backlog issues created or referenced
+- [ ] Required canonical updates identified

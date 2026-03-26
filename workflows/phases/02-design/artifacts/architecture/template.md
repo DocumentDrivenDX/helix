@@ -68,30 +68,11 @@ sequenceDiagram
 
 **Patterns**: [Pattern 1: usage] | [Pattern 2: usage]
 
-## Scalability
+## Quality Attributes
 
-| Component | Strategy | Bottleneck Mitigation |
-|-----------|----------|----------------------|
-| [Name] | [H/V scaling] | [Approach] |
-
-## Security
-
-| Layer | Controls |
-|-------|----------|
-| Network | [Firewalls, segmentation] |
-| Application | [Auth, authz] |
-| Data | [Encryption] |
-
-## Observability
-
-| Type | Tool | Targets |
-|------|------|---------|
-| Metrics | [Tool] | [What] |
-| Logging | [Tool] | [What] |
-| Tracing | [Tool] | [What] |
-
-## Disaster Recovery
-
-| RTO | RPO | Backup | Failover |
-|-----|-----|--------|----------|
-| [Target] | [Target] | [Strategy] | [Manual/Auto] |
+| Attribute | Strategy | Key Decisions |
+|-----------|----------|---------------|
+| Scalability | [H/V scaling] | [Approach] |
+| Security | [Controls] | [Boundaries] |
+| Observability | [Metrics/Logging/Tracing] | [Tools] |
+| Disaster Recovery | RTO: [target] / RPO: [target] | [Backup/Failover strategy] |

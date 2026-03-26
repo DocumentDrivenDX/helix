@@ -6,30 +6,24 @@
 
 ## Highlights
 
-- **[Feature 1]**: [One-sentence benefit description]
-- **[Feature 2]**: [One-sentence benefit description]
-- **[Improvement]**: [One-sentence benefit description]
+- **[Feature]**: [One-sentence benefit description]
 
-## New Features
+## Changes
 
+### New Features
 | Feature | Description | How to Access |
 |---------|-------------|---------------|
 | | | |
-| | | |
-| | | |
 
-## Improvements
-
+### Improvements
 | Area | Change | Benefit |
 |------|--------|---------|
 | | | |
-| | | |
 
-## Bug Fixes
+### Bug Fixes
 
 | Issue | Impact | Resolution |
 |-------|--------|------------|
-| | | |
 | | | |
 
 ## Breaking Changes
@@ -64,18 +58,3 @@ If issues occur: [Brief rollback instructions or link]
 | Issue | Workaround | Fix ETA |
 |-------|------------|---------|
 | | | |
-
-## Deprecations
-
-| Feature | Deprecated | Removal Date | Alternative |
-|---------|------------|--------------|-------------|
-| | | | |
-
-## Resources
-
-- [Full Documentation](link)
-- [Migration Guide](link)
-- [Support Contact](link)
-
----
-*Questions? Contact support@example.com*

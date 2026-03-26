@@ -1,79 +1,35 @@
-# Story Iteration Report Generation Prompt
-
-Create a post-deployment iteration report that captures learnings, outcomes, and follow-up work for a single user story after it has been deployed and observed in production.
+# Story Iteration Report Generation
 
 ## Storage Location
 
-Store the iteration report at: `docs/helix/06-iterate/IR-XXX-[story-name].md`
+`docs/helix/06-iterate/IR-XXX-[story-name].md`
 
-## Purpose
+## Required Inputs
+- User story (US-XXX) with acceptance criteria
+- Deployment issues and observation period data
+- Production metrics for the story
 
-The iteration report ensures:
-- Post-deployment outcomes are captured against acceptance criteria
-- What worked and what did not is documented for future reference
-- Issues encountered are recorded with resolutions
-- Follow-up work is emitted as backlog beads, not buried in prose
-- Canonical artifact updates are identified when specs drift from reality
+## Produced Output
+- `docs/helix/06-iterate/IR-XXX-[story-name].md` - Post-deployment iteration report
 
-## Key Requirements
+## Prompt
 
-### 1. Story Reference
+Create a post-deployment iteration report for a single user story. Capture outcomes, learnings, and follow-up work concisely.
 
-Link the report to:
-- The originating user story (US-XXX)
-- Related deployment beads
-- The observation period (start and end dates)
+Produce:
 
-### 2. Outcome Summary
+1. **Story reference** - Link to user story, deployment issues, observation period
+2. **Outcome summary** - Status (Success/Partial/Issues) and one-sentence takeaway
+3. **Acceptance criteria review** - Target vs. actual for each criterion (Pass/Partial/Fail)
+4. **Metrics and evidence** - Baseline, target, and actual values for relevant metrics
+5. **What worked / what did not** - Patterns to repeat or avoid
+6. **Issues and resolutions** - Each issue with impact, resolution, and follow-up flag
+7. **Derived backlog issues** - Actionable follow-up as tracker issues (not prose tasks)
+8. **Canonical updates** - Artifacts that need updating because reality diverged from specs
 
-Provide:
-- Overall status: Success, Partial Success, or Issues
-- One-sentence key takeaway
+Use the template at `workflows/phases/06-iterate/artifacts/story-iteration-report/template.md`.
 
-### 3. Acceptance Criteria Review
-
-For each acceptance criterion from the user story:
-- State the target and actual outcome
-- Mark as Pass, Partial, or Fail
-- Note any deviations and their impact
-
-### 4. Metrics and Evidence
-
-For each relevant metric:
-- Baseline value before deployment
-- Target value from the story
-- Actual observed value
-- Notes on measurement methodology
-
-### 5. Learnings
-
-Document:
-- What worked well (patterns to repeat)
-- What did not work (patterns to avoid)
-- Surprising observations
-
-### 6. Issues and Resolutions
-
-For each issue encountered:
-- Describe the issue and its impact
-- Document the resolution applied
-- Flag whether follow-up is needed
-
-### 7. Derived Backlog Beads
-
-Actionable follow-up work MUST be emitted as beads, not embedded as free-form tasks:
-- Create beads for improvements, bugs, tech debt, process changes, or research
-- Include bead ID, type, title, priority, and rationale
-
-### 8. Canonical Updates
-
-Identify any governing artifacts that need updating because the deployed reality differs from what the specs describe.
-
-## Quality Checklist
-
-Before the iteration report is complete:
-- [ ] All acceptance criteria are reviewed with actual outcomes
-- [ ] Supporting evidence is linked
-- [ ] Follow-up work is captured as beads, not prose
-- [ ] Required canonical updates are identified
-- [ ] Report is concise and actionable
+## Completion Criteria
+- [ ] All acceptance criteria reviewed with actual outcomes
+- [ ] Follow-up work captured as backlog issues
+- [ ] Required canonical updates identified

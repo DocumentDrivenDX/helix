@@ -6,125 +6,55 @@
 
 ## Monitoring Architecture
 
-### Security Information and Event Management (SIEM)
+### SIEM
 - **Platform**: [Splunk, Azure Sentinel, AWS Security Hub]
-- **Data Sources**: Application logs, system logs, network logs, security tools
+- **Data sources**: Application logs, system logs, network logs, security tools
 - **Retention**: Security events retained for [X] months
 - **Alerting**: Real-time alerts for critical security events
 
-### Log Collection and Analysis
-- **Collection**: Centralized logging via [tool/service]
-- **Parsing**: Structured logging with security event categorization
-- **Analysis**: Automated correlation and anomaly detection
-- **Storage**: Encrypted log storage with integrity protection
+### Log Collection
+- Centralized logging via [tool/service]
+- Structured logging with security event categorization
+- Automated correlation and anomaly detection
+- Encrypted storage with integrity protection
 
-## Security Alerts Configuration
+## Security Alerts
 
-### Authentication Alerts
-- [ ] Multiple failed login attempts (threshold: 5 in 5 minutes)
-- [ ] Successful login from new location/device
-- [ ] Administrative account usage outside business hours
-- [ ] MFA bypass attempts
-- [ ] Account lockout events
-
-### Authorization Alerts
-- [ ] Privilege escalation attempts
-- [ ] Access to sensitive resources
-- [ ] Administrative function usage
-- [ ] Unusual permission grant/revoke activities
-- [ ] Cross-tenant data access attempts
-
-### Data Protection Alerts
-- [ ] Large data downloads/exports
-- [ ] Unusual database query patterns
-- [ ] Encryption key access outside normal patterns
-- [ ] Data classification policy violations
-- [ ] Backup/restore operations
-
-### Infrastructure Alerts
-- [ ] Unusual network traffic patterns
-- [ ] System configuration changes
-- [ ] New service/application deployments
-- [ ] Resource utilization anomalies
-- [ ] Security tool status changes
+| Category | Signals |
+|----------|---------|
+| Authentication | Failed logins, MFA bypass attempts, new device/location, lockouts |
+| Authorization | Privilege escalation, sensitive access, unusual permission changes, cross-tenant access |
+| Data protection | Large exports, unusual queries, key access anomalies, policy violations |
+| Infrastructure | Unusual traffic, security config changes, deployments, security tool status changes |
 
 ## Incident Response Integration
 
 ### Alert Triage
-- **Priority Levels**: Critical (immediate), High (1 hour), Medium (4 hours), Low (24 hours)
-- **Escalation Matrix**: Security team → Manager → CISO
-- **Communication Channels**: [Slack, PagerDuty, Email]
-- **Response Procedures**: Documented playbooks for common scenarios
-
-### Investigation Tools
-- [ ] Log analysis and search capabilities
-- [ ] Network traffic analysis
-- [ ] Endpoint detection and response
-- [ ] Threat intelligence integration
-- [ ] Forensic investigation tools
+- **Priority**: Critical (immediate), High (1h), Medium (4h), Low (24h)
+- **Escalation**: Security team -> Manager -> CISO
+- **Channels**: [Slack, PagerDuty, Email]
 
 ## Compliance Monitoring
 
-### Audit Trail Requirements
-- [ ] All user actions logged with timestamps
-- [ ] Administrative changes tracked and attributed
-- [ ] Data access events recorded
-- [ ] System changes audited
-- [ ] Log integrity verification
+### Audit Trail
+- All user actions logged with timestamps
+- Administrative changes tracked
+- Data access events recorded
+- Log integrity verified
 
 ### Regulatory Reporting
-- [ ] GDPR breach notification (72-hour requirement)
-- [ ] Industry-specific incident reporting
-- [ ] Compliance dashboard with KPIs
-- [ ] Regular compliance reports generated
-- [ ] Evidence collection for audits
+- Breach notification compliance (e.g. GDPR 72h)
+- Compliance dashboard with KPIs
+- Evidence collection for audits
 
-## Dashboard and Metrics
+## KPIs
 
-### Security Operations Dashboard
-- Active security incidents
-- Security alert volumes and trends
-- System security health indicators
-- Threat intelligence feeds
-- Compliance status indicators
+- Mean time to detect (MTTD)
+- Mean time to respond (MTTR)
+- False positive rate
+- Security control effectiveness
 
-### Key Performance Indicators
-- Mean time to detect (MTTD) security incidents
-- Mean time to respond (MTTR) to security alerts
-- False positive rate for security alerts
-- Security control effectiveness metrics
-- User security awareness metrics
-
-## Deployment Checklist
-
-### Pre-Deployment Setup
-- [ ] SIEM/monitoring platform configured
-- [ ] Log collection agents deployed
-- [ ] Security rules and correlation logic implemented
-- [ ] Alert thresholds and notification channels configured
-- [ ] Dashboard and reporting setup completed
-
-### Post-Deployment Validation
-- [ ] Log data flowing correctly from all sources
-- [ ] Security alerts triggering appropriately
-- [ ] Dashboard metrics updating in real-time
+### Post-Deployment
+- [ ] Log data flowing from all sources
+- [ ] Alerts triggering appropriately
 - [ ] Incident response procedures tested
-- [ ] Integration with other security tools validated
-
-### Ongoing Operations
-- [ ] 24/7 security operations center (SOC) coverage
-- [ ] Regular rule tuning and threshold adjustment
-- [ ] Threat intelligence feed updates
-- [ ] Security monitoring tool maintenance
-- [ ] Staff training on monitoring tools and procedures
-
-## Approval and Sign-off
-
-| Role | Name | Date |
-|------|------|------|
-| Security Operations | [Name] | |
-| Security Champion | [Name] | |
-| Technical Lead | [Name] | |
-
----
-*Document Version: 1.0*

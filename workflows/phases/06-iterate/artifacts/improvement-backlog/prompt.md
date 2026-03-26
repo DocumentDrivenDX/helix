@@ -7,30 +7,25 @@
 
 ## Produced Output
 - `docs/helix/06-iterate/improvement-backlog.md` - Prioritized backlog index
-- upstream `bd` issues labeled `helix`, `phase:iterate`, `kind:backlog`
+- tracker issues labeled `helix`, `phase:iterate`, `kind:backlog`
 
 ## Prompt
 
-You are creating the improvement backlog for the next iteration. Your goal is
-to prioritize actionable follow-up work and store each actionable item as a
-backlog bead.
+Create the next improvement backlog as a concise, tracker-backed index.
 
-Based on lessons learned, user feedback, and metrics:
+Use the source documents to identify only actionable follow-up work. Create or update one backlog issue per actionable item, and keep observations, risks, and open questions out of the issue list.
 
-1. Create or update one backlog bead per actionable item
-2. Group and prioritize the beads in the backlog index document
-3. Distinguish actionable work from observations, risks, and open questions
-4. Mark items that need canonical artifact updates before execution
+In the index, prioritize the issues and note which ones need canonical artifact updates before execution.
 
 Use the index template at:
 `workflows/phases/06-iterate/artifacts/improvement-backlog/template.md`
 
-Use upstream Beads guidance at:
-`workflows/BEADS.md`
+Use tracker guidance at:
+`workflows/TRACKER.md`
 
 ## Completion Criteria
 - [ ] All improvement sources reviewed
-- [ ] Every actionable item has a backlog bead
-- [ ] Beads are prioritized consistently in the index
+- [ ] Every actionable item has a backlog issue
+- [ ] Issues are prioritized consistently in the index
 - [ ] Dependencies are identified
-- [ ] The index references bead IDs explicitly
+- [ ] The index references issue IDs explicitly

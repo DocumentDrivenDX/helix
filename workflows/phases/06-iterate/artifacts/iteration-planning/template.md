@@ -12,34 +12,23 @@
 - [Goal 2]
 - [Goal 3]
 
-## Selected Beads
+## Selected Issues
 
-| Bead ID | Type | Goal | Dependencies | Owner | Notes |
-|---------|------|------|--------------|-------|-------|
-| [prefix]-abc123 | [type] | [Goal] | [Deps] | [Owner] | [Reason included] |
+| Issue ID | Type | Goal | Owner | Notes |
+|---------|------|------|-------|-------|
+| [prefix]-abc123 | [type] | [Goal] | [Owner] | [Reason included] |
 
 ## Canonical Updates Required Before Execution
 
-| Bead ID | Artifact to Update | Why Required |
+| Issue ID | Artifact to Update | Why Required |
 |---------|--------------------|--------------|
 | [prefix]-abc123 | [artifact] | [reason] |
 
 ## Critical Path
 
-1. [Bead or artifact update]
-2. [Bead or artifact update]
-3. [Bead or artifact update]
-
-## Parallel Tracks
-
-- Track A: [Beads]
-- Track B: [Beads]
-
-## Deferred Beads
-
-| Bead ID | Reason Deferred | Revisit Trigger |
-|---------|-----------------|-----------------|
-| [prefix]-abc123 | [Reason] | [Trigger] |
+1. [Issue or artifact update]
+2. [Issue or artifact update]
+3. [Issue or artifact update]
 
 ## Risks and Mitigations
 
@@ -52,10 +41,3 @@
 | Metric | Baseline | Target | Measurement |
 |--------|----------|--------|-------------|
 | [Metric] | [Value] | [Value] | [Method] |
-
-## Exit Criteria
-
-- [ ] All selected beads have owners and dependencies
-- [ ] Required canonical updates are identified
-- [ ] Critical path is explicit
-- [ ] Success metrics are measurable
