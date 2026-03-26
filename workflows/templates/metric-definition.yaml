@@ -1,54 +1,14 @@
 # Metric Definition Template
-#
-# A shared metric definition referenced by ratchets, experiments,
-# monitoring, and dashboards. Each metric gets its own file at:
-#   docs/helix/06-iterate/metrics/<name>.yaml
-#
-# Authority level: 5-6 (Solution Designs / Test Plans)
+# File location: docs/helix/06-iterate/metrics/<name>.yaml
+# Default output format: METRIC <name>=<value>
 
-# Required: unique identifier for this metric (kebab-case)
 name: <name>
-
-# Required: human-readable explanation of what this metric measures
 description: <description>
+unit: <unit>                  # e.g. seconds, bytes, percent, count
+direction: <lower|higher>     # lower = smaller is better, higher = larger is better
+command: <command>             # must be deterministic
 
-# Required: measurement unit (e.g. seconds, bytes, percent, count)
-unit: <unit>
-
-# Required: optimization direction
-#   lower  — smaller values are better (latency, error rate)
-#   higher — larger values are better (throughput, coverage)
-direction: <lower|higher>
-
-# Required: shell command that produces a repeatable measurement.
-# Must be deterministic — same code state should yield similar results
-# within the tolerance band.
-command: <command>
-
-# Optional: regex with a capture group to extract the numeric value
-# from command output. If omitted, the convention is:
-#   METRIC <name>=<value>
-# where <name> matches this definition's name field.
-# output_pattern: "<regex-with-capture-group>"
-
-# Optional: acceptable noise band for ratchet enforcement.
-# Measurements within this band of the floor are not considered regressions.
-# Examples: "5%", "0.5s", "100ms"
-# tolerance: "<band>"
-
-# Optional: key-value pairs for monitoring/dashboard categorization
+# output_pattern: "<regex-with-capture-group>"  # override default METRIC format
+# tolerance: "<band>"                           # noise band, e.g. "5%", "100ms"
 # labels:
 #   <key>: <value>
-
-# ─── Example ───────────────────────────────────────────────────────
-#
-# name: test-suite-runtime
-# description: Wall-clock time for the full test suite
-# unit: seconds
-# direction: lower
-# command: ./scripts/run-tests.sh
-# output_pattern: "METRIC test_suite_runtime=([0-9.]+)"
-# tolerance: 5%
-# labels:
-#   area: testing
-#   phase: iterate

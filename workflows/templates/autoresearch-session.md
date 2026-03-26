@@ -6,16 +6,9 @@
 
 ## Metrics
 
-### Primary
-
+- **Primary:** {{metric_name}} ({{metric_unit}}, {{lower_or_higher}} is better)
 - **Definition:** `docs/helix/06-iterate/metrics/{{metric_name}}.yaml`
-- **Name:** {{metric_name}}
-- **Unit:** {{metric_unit}}
-- **Direction:** {{lower_or_higher}}
-
-### Secondary (optional)
-
-{{secondary_metrics_or_none}}
+- **Secondary:** {{secondary_metrics_or_none}}
 
 ## How to Run
 
@@ -31,12 +24,9 @@ Outputs `METRIC {{metric_name}}={{value}}` lines to stdout.
 {{test_command}}
 ```
 
-Tests MUST pass after every iteration. If tests fail, the experiment is
-discarded regardless of metric improvement.
+Tests must pass; failures discard the iteration.
 
 ## Files in Scope
-
-Every file the agent may modify during this experiment:
 
 | File | Notes |
 |------|-------|
@@ -44,21 +34,18 @@ Every file the agent may modify during this experiment:
 
 ## Off Limits
 
-Files and directories that must NOT be modified:
-
 - {{off_limits_path_or_pattern}}
 
 ## Constraints
 
-- All existing tests must pass after every edit
-- No new dependencies without explicit approval
-- Do not change test expectations
+- Tests must pass after every edit; failures discard the iteration
+- No new dependencies without approval
 - Only modify files listed in "Files in Scope"
 - {{additional_constraint}}
 
 ## What's Been Tried
 
-_Updated every 5 iterations with a summary of experiments._
+_Updated every 5 iterations._
 
 ### Iterations 1-5
 

@@ -1,4 +1,4 @@
-# Bead Polish Report
+# Issue Polish Report
 
 **Date**: {{YYYY-MM-DD}}
 **Scope**: {{scope}}
@@ -9,50 +9,44 @@
 
 | Metric | Count |
 |--------|-------|
-| Beads modified | {{count}} |
-| Beads created | {{count}} |
-| Beads merged | {{count}} |
-| Initial bead count | {{count}} |
-| Final bead count | {{count}} |
+| Issues modified | {{count}} |
+| Issues created | {{count}} |
+| Issues merged | {{count}} |
+| Final issue count | {{count}} |
 
 ## Round-by-Round Changes
 
-### Round 1
+### Round {{N}}
 
-- Changes made: {{N}}
-- {{description of modifications}}
-
-### Round N
-
-- Changes made: {{N}}
+- Changes: {{N}}
 - {{description of modifications}}
 
 ## Deduplication
 
 | Merged Into | Closed Duplicates | Reason |
 |-------------|-------------------|--------|
-| {{bead ID}} | {{bead IDs}} | {{overlapping scope description}} |
+| {{issue ID}} | {{issue IDs}} | {{overlapping scope}} |
 
 ## Coverage Gaps Found
 
-| Plan Section | Gap | Bead Created |
+| Plan Section | Gap | Issue Created |
 |-------------|-----|-------------|
-| {{section}} | {{what was missing}} | {{bead ID}} |
+| {{section}} | {{what was missing}} | {{issue ID}} |
 
 ## Acceptance Criteria Sharpened
 
-| Bead | Before | After |
-|------|--------|-------|
+| Issue | Before | After |
+|-------|--------|-------|
 | {{ID}} | {{vague criterion}} | {{testable criterion}} |
 
 ## Dependency Corrections
 
-| Bead | Issue | Fix |
-|------|-------|-----|
-| {{ID}} | {{missing/circular/incorrect dep}} | {{correction made}} |
+| Issue | Problem | Fix |
+|-------|---------|-----|
+| {{ID}} | {{missing/circular/incorrect dep}} | {{correction}} |
 
-## Oversized Beads Split
+## Oversized Issues Split
 
 | Original | Split Into | Rationale |
 |----------|-----------|-----------|
-| {{ID}} | {{new IDs}} | {{why it was too large}} |
+| {{ID}} | {{new IDs}} | {{why too large}} |

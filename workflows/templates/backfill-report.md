@@ -1,55 +1,33 @@
 # HELIX Backfill Report: [Scope]
 
-**Backfill Date**: [YYYY-MM-DD]
+**Date**: [YYYY-MM-DD]
 **Scope**: [repo | subsystem | feature | story-set]
 **Status**: [draft | awaiting-guidance | complete | superseded]
-**Research Epic**: [bd issue ID]
-**Research Beads**: [bd issue IDs]
-**Primary Evidence Baseline**: [paths and major sources]
+**Research Epic**: [tracker issue ID]
+**Confidence Scale**: HIGH / MEDIUM / LOW
 
-## Backfill Metadata
-
-- **Reviewer / Author**: [name]
-- **Run Trigger**: [why backfill was initiated]
-- **Authority Baseline**: Product Vision -> PRD -> Feature Specs / User Stories -> Architecture / ADRs -> Solution / Technical Designs -> Test Plans / Tests -> Implementation Plans -> Source Code
-- **Confidence Scale**: HIGH / MEDIUM / LOW
-- **Upstream Beads References**: [epic ID and key child IDs]
-
-## Scope and Evidence Baseline
+## Scope and Evidence
 
 ### Scope Definition
 
 - [Area 1]
 - [Area 2]
-- [Area 3]
 
 ### Evidence Surveyed
 
-- [docs/...]
-- [tests/...]
-- [src/...]
-- [ci/deploy/runbook/...]
-- [git history / release notes / changelog]
+- [paths surveyed]
 
-## Recursive Coverage
+## Coverage Ledger
 
-### Coverage Ledger
-
-| Scope Node | Node Type | Review Bead | Coverage Status | Files / Paths Covered | Notes |
-|------------|-----------|-------------|-----------------|-----------------------|-------|
-| [repo/area/folder/file-set] | [root/area/folder/file-set] | [bd ID] | [complete/in-progress/deferred/excluded] | [paths] | [reason or summary] |
+| Scope Node | Node Type | Coverage Status | Files / Paths | Notes |
+|------------|-----------|-----------------|---------------|-------|
+| [node] | [root/area/folder/file-set] | [complete/in-progress/deferred/excluded] | [paths] | [summary] |
 
 ### Explicit Exclusions
 
-| Path | Reason Excluded | Impact on Confidence |
-|------|------------------|----------------------|
-| [path] | [reason] | [HIGH/MEDIUM/LOW impact] |
-
-### Consolidation Chain
-
-| Child Node | Parent Consolidation Node | Status |
-|------------|---------------------------|--------|
-| [folder or file-set] | [area or root] | [complete/in-progress] |
+| Path | Reason | Confidence Impact |
+|------|--------|-------------------|
+| [path] | [reason] | [HIGH/MEDIUM/LOW] |
 
 ## Current-State Summary
 
@@ -57,15 +35,15 @@
 
 [Summary]
 
-### Observed Architecture and Runtime Shape
+### Architecture and Runtime Shape
 
 [Summary]
 
-### Operational and Delivery Context
+### Operational Context
 
 [Summary]
 
-### Evidence vs Inference Notes
+### Evidence vs Inference
 
 - [direct evidence]
 - [medium-confidence inference]
@@ -73,23 +51,23 @@
 
 ## Artifact Inventory and Gaps
 
-| Artifact Slot | Current State | Action | Confidence | Evidence |
-|---------------|---------------|--------|------------|----------|
-| [PRD / Architecture / Test Plan / etc.] | [exists/missing/stale/partial] | [preserve/create/update/defer] | [HIGH/MEDIUM/LOW] | [path refs] |
+| Artifact Slot | State | Action | Confidence | Evidence |
+|---------------|-------|--------|------------|----------|
+| [PRD / Architecture / Test Plan / etc.] | [exists/missing/stale/partial] | [preserve/create/update/defer] | [H/M/L] | [path refs] |
 
 ## Confidence Ledger
 
-| Area | Statement | Confidence | Evidence | Notes |
-|------|-----------|------------|----------|-------|
-| [Area] | [Inferred or confirmed statement] | [HIGH/MEDIUM/LOW] | [path refs] | [why] |
+| Area | Statement | Confidence | Evidence |
+|------|-----------|------------|----------|
+| [Area] | [Inferred or confirmed statement] | [H/M/L] | [path refs] |
 
 ## Guidance Gates
 
 ### Questions Raised
 
-| Decision Area | Ambiguity | Evidence | Default Interpretation | User Guidance Needed |
-|---------------|-----------|----------|------------------------|----------------------|
-| [Area] | [What is unclear] | [path refs] | [Default] | [Exact question] |
+| Decision Area | Ambiguity | Default Interpretation | Question for User |
+|---------------|-----------|------------------------|-------------------|
+| [Area] | [What is unclear] | [Default] | [Exact question] |
 
 ### Guidance Received
 
@@ -99,24 +77,23 @@
 
 ## Backfilled Artifacts
 
-| Artifact | Status | Confidence | Basis | Notes |
-|----------|--------|------------|-------|-------|
-| [docs/helix/...path] | [created/updated/deferred] | [HIGH/MEDIUM/LOW] | [evidence + user guidance] | [notes] |
+| Artifact | Status | Confidence | Basis |
+|----------|--------|------------|-------|
+| [path] | [created/updated/deferred] | [H/M/L] | [evidence + guidance] |
 
 ## Assumption Ledger
 
-| Assumption | Confidence | Affected Artifacts | Confirmation Status | Next Action |
-|------------|------------|--------------------|---------------------|-------------|
-| [Statement] | [HIGH/MEDIUM/LOW] | [paths] | [confirmed/pending/rejected] | [action] |
+| Assumption | Confidence | Affected Artifacts | Status |
+|------------|------------|--------------------|---------|
+| [Statement] | [H/M/L] | [paths] | [confirmed/pending/rejected] |
 
-## Follow-Up Beads
+## Follow-Up Issues
 
-| Bead ID | Type | HELIX Labels | Goal | Dependencies | Why It Exists |
-|---------|------|--------------|------|--------------|---------------|
-| [bd ID] | [task/chore/decision] | [phase:... kind:...] | [goal] | [deps] | [rationale] |
+| Issue ID | Type | Goal | Dependencies |
+|----------|------|------|--------------|
+| [issue ID] | [task/chore/decision] | [goal] | [deps] |
 
-## Next Recommended Steps
+## Next Steps
 
-1. [Highest-priority next step]
-2. [Next guidance or artifact update]
-3. [Next implementation or test alignment step]
+1. [Next step]
+2. [Next step]

@@ -1,21 +1,20 @@
 # Design Plan: {{scope}}
 
 **Date**: {{YYYY-MM-DD}}
-**Scope**: {{scope description}}
 **Status**: {{CONVERGED|IN_PROGRESS|GUIDANCE_NEEDED}}
 **Refinement Rounds**: {{N}}
 
-## Problem Statement and User Impact
+## Problem Statement
 
 {{What problem does this solve? Who benefits?}}
 
-## Requirements Analysis
+## Requirements
 
-### Functional Requirements
+### Functional
 
 {{What the system must do}}
 
-### Non-Functional Requirements
+### Non-Functional
 
 {{Performance, scalability, reliability targets}}
 
@@ -28,9 +27,9 @@
 ### Decision 1: {{title}}
 
 - **Question**: {{what needs to be decided}}
-- **Alternatives considered**: {{list with pros/cons}}
-- **Chosen approach**: {{selected option}}
-- **Rationale**: {{why this was chosen and others rejected}}
+- **Alternatives**: {{list with pros/cons}}
+- **Chosen**: {{selected option}}
+- **Rationale**: {{why this was chosen}}
 
 ## Interface Contracts
 
@@ -40,27 +39,19 @@
 
 {{Entities, relationships, storage, migration strategy}}
 
-## Error Handling Strategy
+## Error Handling
 
 {{Error categories, retry policies, fallback behavior}}
 
-## Security Considerations
+## Security
 
-{{Attack surfaces, auth, authz, data protection, threat model}}
+{{Attack surfaces, auth, authz, data protection}}
 
 ## Test Strategy
 
-### Unit Tests
-
-{{What to test, critical paths}}
-
-### Integration Tests
-
-{{Cross-component verification}}
-
-### End-to-End Tests
-
-{{User-facing scenario coverage}}
+- **Unit**: {{critical paths to test}}
+- **Integration**: {{cross-component verification}}
+- **E2E**: {{user-facing scenario coverage}}
 
 ## Implementation Plan
 
@@ -68,13 +59,9 @@
 
 {{Work slices and their ordering}}
 
-### Parallel Tracks
+### Issue Breakdown
 
-{{Independent work streams}}
-
-### Bead Breakdown
-
-{{Suggested beads with acceptance criteria}}
+{{Suggested issues with acceptance criteria}}
 
 ## Risk Register
 
@@ -84,7 +71,7 @@
 
 ## Observability
 
-{{Logging, metrics, alerting, dashboards}}
+{{Logging, metrics, alerting}}
 
 ## Governing Artifacts
 
