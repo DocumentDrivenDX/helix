@@ -121,7 +121,7 @@ depends on either `codex` or `claude`; swarm mode additionally depends on
 
 | Area | Statement | Confidence | Evidence | Notes |
 |------|-----------|------------|----------|-------|
-| Command surface | `helix-cli` includes `run`, `implement`, `check`, `align`, `backfill`, `plan`, `polish`, `next`, `review`, `experiment`, `spawn`, `tracker`, and `help` | HIGH | `scripts/helix:42-69`, `README.md:38-50` | Directly declared in wrapper usage and repo docs |
+| Command surface | `helix-cli` includes `run`, `implement`, `check`, `align`, `backfill`, `plan`, `polish`, `next`, `review`, `experiment`, `tracker`, and `help` | HIGH | `scripts/helix:42-69`, `README.md:38-50` | Directly declared in wrapper usage and repo docs |
 | Queue control | `run` is bounded by dependency-aware ready work and a queue-drain `check` pass | HIGH | `scripts/helix:677-760`, `tests/helix-cli.sh:571-581`, `workflows/EXECUTION.md:43-52` | Code and tests agree |
 | Tracker semantics | The repository-local tracker stores JSONL issues and derives ready/blocked state from dependency closure | HIGH | `scripts/tracker.sh:7-49`, `scripts/tracker.sh:265-343`, `tests/helix-cli.sh:361-383` | Direct implementation plus test corroboration |
 | Installation | The installer links HELIX skills and writes `~/.local/bin/helix` to exec the repo wrapper | HIGH | `scripts/install-local-skills.sh:35-67`, `tests/helix-cli.sh:650-665` | Direct implementation plus test corroboration |
@@ -149,9 +149,9 @@ being canonized as a scope-wide product decision.
 
 | Artifact | Status | Confidence | Basis | Notes |
 |----------|--------|------------|-------|-------|
-| `docs/helix/01-frame/features/helix-cli.md` | created | HIGH | wrapper usage, command docs, tracker and backfill behavior | Scoped to observable subsystem behavior |
-| `docs/helix/02-design/technical-designs/helix-cli.md` | created | HIGH | wrapper implementation, tracker library, installer, harness | Captures components and runtime surfaces only |
-| `docs/helix/03-test/test-plans/helix-cli.md` | created | HIGH | deterministic harness and validation docs | Does not overstate live-agent coverage |
+| `docs/helix/01-frame/features/FEAT-002-helix-cli.md` | created | HIGH | wrapper usage, command docs, tracker and backfill behavior | Scoped to observable subsystem behavior |
+| `docs/helix/02-design/technical-designs/TD-001-helix-cli.md` | created | HIGH | wrapper implementation, tracker library, installer, harness | Captures components and runtime surfaces only |
+| `docs/helix/03-test/test-plans/TP-002-helix-cli.md` | created | HIGH | deterministic harness and validation docs | Does not overstate live-agent coverage |
 | `docs/helix/04-build/implementation-plans/helix-cli.md` | created | HIGH | wrapper code boundaries and validation guidance | Preserves deterministic test gate as implementation rule |
 | `docs/helix/06-iterate/backfill-reports/BF-2026-03-25-helix-cli.md` | created | HIGH | current backfill execution | Durable record for this run |
 

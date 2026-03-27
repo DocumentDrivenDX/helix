@@ -54,8 +54,8 @@ Typical order:
 2. Frame in `docs/helix/01-frame/`
    Write the PRD, feature specs, user stories, and supporting requirement docs.
 3. Design in `docs/helix/02-design/`
-   Define architecture, ADRs, contracts, solution designs, and technical
-   designs.
+   Define architecture, ADRs, contracts, feature-level solution designs, and
+   story-level technical designs.
 4. Test in `docs/helix/03-test/` and `tests/`
    Write the test plan and failing tests before implementation.
 5. Build in `docs/helix/04-build/` plus the tracker

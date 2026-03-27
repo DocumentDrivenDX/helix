@@ -1,5 +1,6 @@
-# HELIX Feature Spec: helix-cli
+# Feature Specification: FEAT-002 - HELIX CLI
 
+**Feature ID**: FEAT-002
 **Status**: backfilled
 **Backfill Date**: 2026-03-25
 **Scope**: wrapper CLI, built-in tracker, local installer, and deterministic harness
@@ -9,10 +10,9 @@
 `helix-cli` is the repository's operator-facing wrapper around HELIX actions.
 It provides one command surface for bounded execution (`run`, `implement`,
 `check`, `align`, `backfill`), planning and quality workflows (`plan`,
-`polish`, `review`, `experiment`), tracker access (`tracker`), and optional
-swarm orchestration (`spawn`). The wrapper must preserve the HELIX authority
-stack, keep execution bounded, and make queue-control semantics explicit and
-safe.
+`polish`, `review`, `experiment`), tracker access (`tracker`), and helper
+navigation (`next`). The wrapper must preserve the HELIX authority stack,
+keep execution bounded, and make queue-control semantics explicit and safe.
 
 ## Users
 
@@ -36,7 +36,6 @@ The CLI must expose these top-level commands:
 - `next`
 - `review`
 - `experiment`
-- `spawn`
 - `tracker`
 - `help`
 
@@ -81,8 +80,6 @@ The CLI must expose these top-level commands:
 ### Operator Safeguards
 
 - The experiment flow must require a clean worktree before continuing.
-- `spawn` must require `ntm`; when `ntm` is unavailable it must fall back to a
-  single-agent `helix run`.
 - Backfill output must include machine-readable `BACKFILL_STATUS`,
   `BACKFILL_REPORT`, and `RESEARCH_EPIC` trailers, and the declared report file
   must exist.

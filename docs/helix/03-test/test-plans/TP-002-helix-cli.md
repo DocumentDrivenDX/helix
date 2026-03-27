@@ -1,4 +1,4 @@
-# HELIX Test Plan: helix-cli
+# Test Plan: TP-002-helix-cli
 
 **Status**: backfilled
 **Backfill Date**: 2026-03-25
@@ -61,7 +61,6 @@ bash tests/helix-cli.sh
 ### Utility Commands
 
 - `next` returns the first ready issue or `no ready issues`
-- `spawn` reports missing `ntm`
 - `experiment` requires a clean worktree
 - `experiment --close` includes close-session guidance
 - installer creates the local `helix` launcher

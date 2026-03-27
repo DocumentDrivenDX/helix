@@ -112,6 +112,10 @@ When HELIX artifacts disagree, resolve the conflict using this authority order:
 3. **Feature Specifications and User Stories** (`docs/helix/01-frame/features/`, `docs/helix/01-frame/user-stories/`)
 4. **Architecture and ADRs** (`docs/helix/02-design/architecture.md`, `docs/helix/02-design/adr/`)
 5. **Solution Designs and Technical Designs** (`docs/helix/02-design/solution-designs/`, `docs/helix/02-design/technical-designs/`)
+   - `SD-XXX` solution designs are feature-level and describe the chosen
+     approach for a feature or cross-component capability.
+   - `TD-XXX` technical designs are story-level and describe one bounded
+     implementation slice that inherits from a solution design.
 6. **Test Plans and Executable Tests** (`docs/helix/03-test/`, `tests/`)
 7. **Implementation Plans** (`docs/helix/04-build/implementation-plan.md`)
 8. **Source Code and Build Artifacts** (`src/`, generated outputs)

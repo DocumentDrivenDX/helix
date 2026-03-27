@@ -71,9 +71,10 @@ Each phase directory contains artifacts directly (no `artifacts/` subdirectory):
 ├── README.md
 ├── prd.md
 ├── principles.md
+├── features/
+│   └── FEAT-XXX-*.md
 ├── feature-registry.md
 ├── user-stories/
-├── features/
 ├── stakeholder-map.md
 ├── compliance-requirements.md
 ├── security-requirements.md
@@ -84,7 +85,9 @@ Each phase directory contains artifacts directly (no `artifacts/` subdirectory):
 ├── architecture.md
 ├── adr/
 ├── solution-designs/
+│   └── SD-XXX-*.md
 ├── technical-designs/
+│   └── TD-XXX-*.md
 ├── contracts/
 ├── data-design.md
 └── security-architecture.md
@@ -193,6 +196,12 @@ Every issue should:
 1. **Phase Directories**: Always use two-digit numbering (01-frame, not 1-frame)
 2. **Artifact Directories**: Use lowercase with hyphens, typically plural (e.g., `user-stories`, `contracts`)
 3. **No Nesting**: Avoid deep nesting; keep artifacts at most one level deep within phase directories
+
+### Design Artifact Naming
+
+1. **Feature specifications**: `FEAT-XXX-[name].md`
+2. **Solution designs**: `SD-XXX-[name].md`
+3. **Technical designs**: `TD-XXX-[name].md`
 
 ## Cross-References
 

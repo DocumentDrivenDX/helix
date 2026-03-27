@@ -5,7 +5,7 @@
 
 ## Story Reference
 
-**User Story**: [HELIX CLI wrapper execution] | **Feature**: [helix-cli] | **Solution Design**: [SD-001-helix-supervisory-control]
+**User Story**: [HELIX CLI wrapper execution] | **Feature**: [FEAT-002-helix-cli] | **Solution Design**: [SD-001-helix-supervisory-control]
 
 ## Acceptance Criteria Review
 

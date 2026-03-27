@@ -46,7 +46,7 @@ output:
   naming: SD-{feature-number}-{feature-name}.md
   examples:
     - SD-001-mcp-management.md
-    - SD-014-helix-supervisory-control.md
+    - SD-001-helix-supervisory-control.md
 
 validation:
   required_sections:

@@ -159,7 +159,7 @@ work.
 
 | HELIX category | Issue type | Required labels | Typical governing refs |
 |---|---|---|---|
-| Story build work | `task` | `helix`, `phase:build`, `kind:build`, `story:US-XXX` | `TP-XXX`, `TD-XXX`, `implementation-plan.md` |
+| Story build work | `task` | `helix`, `phase:build`, `kind:build`, `story:US-XXX` | `FEAT-XXX`, `SD-XXX`, `TD-XXX`, `TP-XXX`, `implementation-plan.md` |
 | Story deploy work | `task` | `helix`, `phase:deploy`, `kind:deploy`, `story:US-XXX` | deployment docs, related build issue IDs |
 | Improvement backlog item | `task` or `chore` | `helix`, `phase:iterate`, `kind:backlog` | lessons learned, feedback, incidents, metrics |
 | Review epic | `epic` | `helix`, `phase:review`, `kind:review` | review scope and governing artifacts |
@@ -174,7 +174,7 @@ helix tracker create "Implement US-036: list MCP servers CLI path" \
   --type task \
   --labels helix,phase:build,kind:build,story:US-036,feature:FEAT-001 \
   --spec-id TP-036 \
-  --description "Governing artifacts: US-036, TD-036, TP-036, docs/helix/04-build/implementation-plan.md" \
+  --description "Governing artifacts: FEAT-001-mcp-server-management, SD-001-mcp-management, US-036, TD-036, TP-036, docs/helix/04-build/implementation-plan.md" \
   --design "Implement the CLI slice needed to satisfy the failing TP-036 tests." \
   --acceptance "TP-036 tests pass; no upstream artifact drift is introduced."
 ```

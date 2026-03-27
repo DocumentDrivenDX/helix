@@ -9,7 +9,7 @@ dun:
 
 ## Scope
 
-**Feature**: [FEAT-001-helix-supervisory-control] | **PRD**: [helix.prd] | **ADR**: [ADR-001]
+**Feature**: [[FEAT-001-helix-supervisory-control]] | **PRD**: [[helix.prd]] | **ADR**: [[ADR-001]]
 
 ## Acceptance Criteria
 
@@ -247,6 +247,7 @@ tracker_metadata_extensions:
 1. Encode the supervisory model in product/design docs
    -- Files: `docs/helix/00-discover/product-vision.md`,
    `docs/helix/01-frame/prd.md`,
+   `docs/helix/01-frame/features/FEAT-001-helix-supervisory-control.md`,
    `docs/helix/02-design/adr/ADR-001-supervisory-control-model.md`,
    `docs/helix/02-design/solution-designs/SD-001-helix-supervisory-control.md`
    -- Tests: n/a
