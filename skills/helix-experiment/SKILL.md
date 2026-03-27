@@ -1,7 +1,7 @@
 ---
 name: helix-experiment
-description: Autonomous experiment loop for metric-driven optimization. Use when
-  asked to "run autoresearch", "optimize X in a loop", "experiment with X".
+description: Autonomous experiment loop for metric-driven optimization. Use when asked to "run autoresearch", "optimize X in a loop", or "experiment with X".
+argument-hint: "[issue-id|goal]"
 disable-model-invocation: true
 ---
 

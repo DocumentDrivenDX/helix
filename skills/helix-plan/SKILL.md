@@ -1,6 +1,7 @@
 ---
 name: helix-plan
 description: Create a comprehensive design plan through iterative refinement before implementation. Use when starting a new feature, major refactor, or project scope.
+argument-hint: "[scope]"
 disable-model-invocation: true
 ---
 

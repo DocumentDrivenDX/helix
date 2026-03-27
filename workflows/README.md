@@ -81,6 +81,11 @@ folders.
 - A HELIX installation is incomplete if the project-level package surface is
   present without the underlying `skills/` and shared workflow resources it
   depends on.
+- Published `SKILL.md` files must include `name` and `description`; include
+  `argument-hint` when the mirrored CLI command accepts a trailing positional
+  argument such as a scope, selector, or goal.
+- `name` must match the published skill directory basename exactly.
+- The deterministic package validator is `bash tests/validate-skills.sh`.
 
 ```mermaid
 graph TB

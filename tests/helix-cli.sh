@@ -859,6 +859,13 @@ test_installer_creates_launcher() {
   rm -rf "$root"
 }
 
+test_skill_package_validation() {
+  (
+    cd "$repo_root"
+    bash tests/validate-skills.sh >/dev/null
+  )
+}
+
 test_claude_run_stops_after_queue_drains() {
   local root
   root="$(make_workspace)"

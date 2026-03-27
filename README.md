@@ -77,6 +77,22 @@ The `skills/` tree remains the implementation source for skill content and
 shared references. The project-level package surface that agents should consume
 is `./.agents/skills`.
 
+Required skill metadata:
+
+- every published `SKILL.md` must declare `name` and `description`
+- skills whose mirrored CLI command accepts a trailing scope, selector, or goal
+  must also declare `argument-hint`
+- `name` must match the skill directory basename exactly
+
+Deterministic validation:
+
+```bash
+bash tests/validate-skills.sh
+```
+
+This validator checks directory-name to skill-name alignment, required
+frontmatter, and the canonical `.agents/skills -> skills/` symlink contract.
+
 ## Tracker
 
 HELIX uses a built-in file-backed bead tracker for execution tracking.

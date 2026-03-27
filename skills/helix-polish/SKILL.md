@@ -1,6 +1,7 @@
 ---
 name: helix-polish
 description: Iteratively refine issues before implementation. Deduplication, plan coverage verification, acceptance criteria sharpening, and dependency correction.
+argument-hint: "[scope]"
 disable-model-invocation: true
 ---
 
