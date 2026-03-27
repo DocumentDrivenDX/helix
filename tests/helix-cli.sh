@@ -722,6 +722,78 @@ MOCK
   rm -rf "$root"
 }
 
+test_run_stops_on_queue_drift_before_close() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c '.["spec-id"] = "TP-DRIFT" | .status = "closed"' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix "$root" run --no-auto-review 2>&1)"
+  assert_contains "$output" "queue drift detected" "run should report queue drift"
+  assert_contains "$output" "stopping after queue drift" "run should stop after drift is detected"
+
+  local status
+  status="$(run_helix "$root" tracker show hx-mock-0 --json | jq -r '.status')"
+  assert_eq "open" "$status" "run should reopen a drifted issue instead of leaving it closed"
+  rm -rf "$root"
+}
+
+test_run_stops_on_queue_drift_before_close_without_closing() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c '.["spec-id"] = "TP-DRIFT"' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix "$root" run --no-auto-review 2>&1)"
+  assert_contains "$output" "queue drift detected" "run should report drift even if the issue was not closed"
+  assert_contains "$output" "stopping after queue drift" "run should stop for a re-check path"
+
+  local status
+  status="$(run_helix "$root" tracker show hx-mock-0 --json | jq -r '.status')"
+  assert_eq "open" "$status" "run should leave the issue open for re-check"
+  rm -rf "$root"
+}
+
 run_backfill_missing_report() {
   local root="$1"
   MOCK_BACKFILL_MODE=missing-report run_helix "$root" backfill repo >/dev/null
@@ -1862,6 +1934,8 @@ run_test "run stops after drain" test_run_stops_after_queue_drains
 run_test "periodic alignment" test_run_periodic_alignment
 run_test "auto-align" test_run_auto_aligns_once
 run_test "periodic alignment failure reason" test_run_reports_periodic_alignment_failure
+run_test "run stops on queue drift before close" test_run_stops_on_queue_drift_before_close
+run_test "run stops on queue drift without closing" test_run_stops_on_queue_drift_before_close_without_closing
 run_test "backfill requires report marker" test_backfill_requires_report_marker
 run_test "backfill creates report" test_backfill_creates_report
 run_test "installer launcher" test_installer_creates_launcher

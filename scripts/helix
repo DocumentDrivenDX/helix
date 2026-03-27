@@ -381,6 +381,53 @@ helix_ready_count() {
   tracker_ready --json | jq 'length'
 }
 
+helix_select_ready_issue() {
+  need_cmd jq
+  tracker_ready --json | jq -r '.[0].id // empty'
+}
+
+tracker_issue_fingerprint() {
+  local id="$1"
+  need_cmd jq
+  tracker_show "$id" --json | jq -c '{
+    "spec-id": .["spec-id"],
+    parent: .parent,
+    deps: (.deps // [])
+  }'
+}
+
+handle_issue_queue_drift() {
+  local issue_id="$1"
+  local before_fingerprint="$2"
+  local after_json
+
+  if ! after_json="$(tracker_show "$issue_id" --json 2>/dev/null)"; then
+    printf 'helix: queue drift detected for %s: issue disappeared during execution\n' "$issue_id" >&2
+    return 0
+  fi
+
+  local after_fingerprint
+  after_fingerprint="$(printf '%s' "$after_json" | jq -c '{
+    "spec-id": .["spec-id"],
+    parent: .parent,
+    deps: (.deps // [])
+  }')"
+
+  if [[ "$before_fingerprint" == "$after_fingerprint" ]]; then
+    return 1
+  fi
+
+  local status
+  status="$(printf '%s' "$after_json" | jq -r '.status')"
+  printf 'helix: queue drift detected for %s; refusing stale completion\n' "$issue_id" >&2
+
+  if [[ "$status" == "closed" || "$status" == "in_progress" ]]; then
+    tracker_update "$issue_id" --status open --assignee "" >/dev/null || true
+  fi
+
+  return 0
+}
+
 extract_next_action() {
   local stripped
   # Strip markdown bold/backtick formatting but preserve underscores
@@ -646,15 +693,30 @@ run_loop() {
     if (( ready_count > 0 )); then
       local attempt_number="$((attempted_cycles + 1))"
       local closed_before
+      local selected_issue
+      local selected_fingerprint
       closed_before="$(tracker_list --status closed --json | jq 'length')"
+      selected_issue="$(helix_select_ready_issue)"
 
-      printf 'helix: ready=%s, cycle=%s\n' "$ready_count" "$attempt_number" >&2
+      if [[ -z "$selected_issue" ]]; then
+        echo "helix: ready count was positive but no ready issue could be selected" >&2
+        return 1
+      fi
+
+      selected_fingerprint="$(tracker_issue_fingerprint "$selected_issue")"
+
+      printf 'helix: ready=%s, cycle=%s, issue=%s\n' "$ready_count" "$attempt_number" "$selected_issue" >&2
       attempted_cycles=$((attempted_cycles + 1))
-      if ! run_implementation; then
+      if ! run_implementation "$selected_issue"; then
         printf 'helix: implementation failed during cycle %s (will not count toward completed cycles)\n' "$attempt_number" >&2
         sleep 5
         recover_orphaned_issues
       else
+        if handle_issue_queue_drift "$selected_issue" "$selected_fingerprint"; then
+          printf 'helix: stopping after queue drift on %s\n' "$selected_issue" >&2
+          return 0
+        fi
+
         local review_ok=1
         # Post-implementation review: catch bugs and capture learnings
         if (( auto_review )); then
