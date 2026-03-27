@@ -550,6 +550,26 @@ test_backfill_dry_run() {
   rm -rf "$root"
 }
 
+test_quickstart_demo_setup_creates_claude_settings_path() {
+  local root
+  root="$(make_workspace)"
+  mkdir -p "$root/library/.agents/skills/helix-demo"
+  printf 'demo skill\n' > "$root/library/.agents/skills/helix-demo/SKILL.md"
+
+  (
+    cd "$root/work"
+    DEMO_LIBRARY_ROOT="$root/library"
+    # shellcheck source=/dev/null
+    source "$repo_root/docs/demos/helix-quickstart/demo.sh"
+    setup_demo_workspace
+  )
+
+  assert_file_exists "$root/work/.claude/settings.json" "quickstart setup should create .claude/settings.json in a clean workspace"
+  assert_file_contains "$root/work/.claude/settings.json" '"allow": ["Bash(*)", "Read(*)", "Write(*)", "Edit(*)"]' "quickstart settings should include the expected permissions"
+  assert_file_exists "$root/work/.agents/skills/helix-demo/SKILL.md" "quickstart setup should copy demo skills into .agents/skills"
+  rm -rf "$root"
+}
+
 test_run_stops_after_queue_drains() {
   local root
   root="$(make_workspace)"
@@ -2306,6 +2326,7 @@ run_test "help" test_help
 run_test "tracker help" test_tracker_help
 run_test "check dry-run" test_check_dry_run
 run_test "backfill dry-run" test_backfill_dry_run
+run_test "quickstart demo setup path" test_quickstart_demo_setup_creates_claude_settings_path
 run_test "run stops after drain" test_run_stops_after_queue_drains
 run_test "periodic alignment" test_run_periodic_alignment
 run_test "auto-align" test_run_auto_aligns_once

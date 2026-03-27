@@ -26,6 +26,7 @@ set -euo pipefail
 RECORDING_FILE="/recordings/helix-quickstart-$(date +%Y%m%d-%H%M%S).cast"
 MAX_RETRIES=3
 COOLDOWN=8  # generous gap between API calls to avoid rate limits
+DEMO_LIBRARY_ROOT="${DEMO_LIBRARY_ROOT:-/ddx-library}"
 
 narrate() {
   echo ""
@@ -133,6 +134,18 @@ assert_output() {
   fi
 }
 
+setup_demo_workspace() {
+  mkdir -p .agents .claude
+  cp -rf "$DEMO_LIBRARY_ROOT/.agents/skills" .agents/
+  cat > .claude/settings.json <<'SETTINGS'
+{
+  "permissions": {
+    "allow": ["Bash(*)", "Read(*)", "Write(*)", "Edit(*)"]
+  }
+}
+SETTINGS
+}
+
 demo_body() {
   # ── ACT 1: Setup ──────────────────────────────────────────
   narrate "ACT 1: Project Setup"
@@ -141,15 +154,7 @@ demo_body() {
   cd hello-helix
   run helix tracker init
 
-  mkdir -p .agents .claude
-  cp -rf /ddx-library/.agents/skills .agents/
-  cat > .claude/settings.json <<'SETTINGS'
-{
-  "permissions": {
-    "allow": ["Bash(*)", "Read(*)", "Write(*)", "Edit(*)"]
-  }
-}
-SETTINGS
+  setup_demo_workspace
   echo "HELIX skills installed: $(ls .agents/skills/ | tr '\n' ' ')"
   echo ""
   sleep 2
