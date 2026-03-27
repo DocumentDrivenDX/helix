@@ -203,8 +203,8 @@ actions:
 - `backfill-helix-docs`: reconstruct missing HELIX docs conservatively from
   current evidence
 
-For operator flow, queue control, and autonomous Codex or Claude loop recipes,
-see [EXECUTION.md](EXECUTION.md).
+For operator flow, queue control, and bounded HELIX execution semantics, see
+[EXECUTION.md](EXECUTION.md).
 
 ## Human-AI Collaboration
 

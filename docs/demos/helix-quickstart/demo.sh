@@ -141,8 +141,8 @@ demo_body() {
   cd hello-helix
   run helix tracker init
 
-  mkdir -p .claude/skills
-  cp -rf /ddx-library/skills/* .claude/skills/
+  mkdir -p .agents
+  cp -rf /ddx-library/.agents/skills .agents/
   cat > .claude/settings.json <<'SETTINGS'
 {
   "permissions": {
@@ -150,7 +150,7 @@ demo_body() {
   }
 }
 SETTINGS
-  echo "DDx skills installed: $(ls .claude/skills/ | tr '\n' ' ')"
+  echo "HELIX skills installed: $(ls .agents/skills/ | tr '\n' ' ')"
   echo ""
   sleep 2
 

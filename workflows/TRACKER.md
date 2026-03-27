@@ -390,8 +390,8 @@ helix tracker create "Review auth traceability and implementation drift" \
 
 ## Daily Workflow
 
-For operator-facing execution flow, bounded loop control, and Codex or Claude
-automation patterns, see [EXECUTION.md](EXECUTION.md).
+For operator-facing execution flow, bounded loop control, and HELIX action
+sequencing, see [EXECUTION.md](EXECUTION.md).
 
 Use the `helix tracker` commands below when triaging or managing the queue
 manually.
