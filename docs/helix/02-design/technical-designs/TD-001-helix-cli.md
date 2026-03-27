@@ -1,10 +1,20 @@
-# HELIX Technical Design: helix-cli
+# Technical Design: TD-001-helix-cli
 
 **Status**: backfilled
 **Backfill Date**: 2026-03-25
 
-## Design Goal
+## Story Reference
 
+**User Story**: [HELIX CLI wrapper execution] | **Feature**: [helix-cli] | **Solution Design**: [SD-001-helix-supervisory-control]
+
+## Acceptance Criteria Review
+
+- The wrapper keeps HELIX execution bounded.
+- Queue-drain decisions follow the documented control contract.
+- Tracker-backed execution remains deterministic and testable.
+- Local installation exposes the mirrored HELIX command surface safely.
+
+## Technical Approach
 Provide a thin Bash wrapper that keeps HELIX execution bounded, delegates deep
 work to documented actions, and gives the repository a local tracker and
 launcher without requiring operators to assemble prompts manually.
@@ -25,6 +35,23 @@ decision model exactly as specified by the authority stack.
 - It keeps alignment and backfill as distinct follow-up actions.
 - It does not auto-implement blocked work on `WAIT`.
 - It does not silently continue after a review failure.
+
+## Component Changes
+
+### Modified: Wrapper entry and run loop
+- **Current State**: Bash wrapper around HELIX actions.
+- **Changes**: Enforce bounded execution, queue-drain checks, and review-aware
+  cycle control.
+
+### Modified: Tracker integration
+- **Current State**: Local JSONL issue tracker.
+- **Changes**: Dependency-aware ready/blocked selection, ownership, and
+  recovery-aware orchestration.
+
+### Modified: Installer and harness
+- **Current State**: Local launcher and deterministic wrapper tests.
+- **Changes**: Keep mirrored command install and deterministic verification in
+  sync with the wrapper contract.
 
 ## State Machine
 

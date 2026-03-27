@@ -34,6 +34,24 @@ Bridges business requirements to technical implementation:
 - **Component Decomposition**: Breaking down the system
 - **Technology Rationale**: Why specific technologies were chosen
 
+Use a solution design when the scope is feature-level or cross-component. It
+is the design artifact that explains the chosen approach for a feature. Do not
+use it for one bounded story slice.
+
+### 1a. Technical Design
+**Location**: `docs/helix/02-design/technical-designs/TD-XXX-[name].md`
+
+Bridges one user story to implementation details:
+- **Acceptance Criteria Mapping**: How one story will be satisfied
+- **Component Changes**: Specific changes for one bounded slice
+- **Interfaces and Data**: Story-scoped contracts and schema impact
+- **Testing Approach**: How the story will be verified
+- **Implementation Sequence**: Practical order for building the slice
+
+Use a technical design when the scope is one story or one bounded vertical
+slice. It should inherit the broader architecture from the parent solution
+design instead of redefining feature-level structure.
+
 ### 2. Architecture Diagrams
 **Location**: `docs/helix/02-design/architecture.md`
 
