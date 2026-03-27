@@ -88,16 +88,16 @@ remove_obsolete_native_links() {
 remove_noncanonical_links
 remove_obsolete_native_links
 
-install_pair "helix-run" "$repo_root/skills/helix"
-install_pair "helix-implement" "$repo_root/skills/execute"
-install_pair "helix-check" "$repo_root/skills/check"
-install_pair "helix-align" "$repo_root/skills/helix-alignment-review"
-install_pair "helix-backfill" "$repo_root/skills/backfill"
-install_pair "helix-plan" "$repo_root/skills/plan"
-install_pair "helix-polish" "$repo_root/skills/polish"
-install_pair "helix-next" "$repo_root/skills/next"
-install_pair "helix-review" "$repo_root/skills/review"
-install_pair "helix-experiment" "$repo_root/skills/experiment"
+install_pair "helix-run" "$repo_root/skills/helix-run"
+install_pair "helix-implement" "$repo_root/skills/helix-implement"
+install_pair "helix-check" "$repo_root/skills/helix-check"
+install_pair "helix-align" "$repo_root/skills/helix-align"
+install_pair "helix-backfill" "$repo_root/skills/helix-backfill"
+install_pair "helix-plan" "$repo_root/skills/helix-plan"
+install_pair "helix-polish" "$repo_root/skills/helix-polish"
+install_pair "helix-next" "$repo_root/skills/helix-next"
+install_pair "helix-review" "$repo_root/skills/helix-review"
+install_pair "helix-experiment" "$repo_root/skills/helix-experiment"
 
 echo "Installed skills into:"
 echo "  Agents: $agents_skills_dir"
