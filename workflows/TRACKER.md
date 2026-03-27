@@ -259,6 +259,10 @@ Required behavior:
 - file rewrites must be atomic so readers observe either the old state or the
   new state, never a partial file
 - readers may remain lock-free if writes preserve whole-file atomicity
+- malformed `.helix/issues.jsonl` state must fail closed for both reads and
+  mutations rather than being rewritten opportunistically
+- lock acquisition timeouts must surface the recorded lock-owner PID when
+  available so operators can investigate before clearing `.helix/issues.lock`
 
 Non-goals:
 
