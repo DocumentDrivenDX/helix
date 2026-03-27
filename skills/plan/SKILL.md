@@ -9,9 +9,15 @@ disable-model-invocation: true
 Create a thorough design document through iterative self-critique and
 refinement. Invest deeply in planning quality before any code is written.
 
+This skill depends on shared HELIX planning assets under `workflows/`. If the
+shared workflow library is missing, stop and report an incomplete HELIX
+package.
+
 ## When to Use
 
 - Starting a new feature or project
+- When a functionality change requires new or expanded design authority before
+  implementation can continue
 - Before creating execution issues for a large scope
 - When existing planning artifacts are thin or incomplete
 - When the implementation path is unclear

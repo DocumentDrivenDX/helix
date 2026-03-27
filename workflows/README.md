@@ -29,6 +29,11 @@ The rest of `workflows/` is supporting guidance, templates, phase
 context, or examples. If a supporting document conflicts with the files above,
 follow the normative contract and update the supporting document.
 
+`workflows/` is also the shared HELIX resource library for assets consumed by
+multiple HELIX skills. Skills are the operational entrypoints into HELIX; the
+shared prompts, templates, metadata, and conventions they reuse live here.
+Assets used by only one skill should live with that skill instead of here.
+
 Additional actions extend the workflow without altering the core loop:
 
 - [plan.md](actions/plan.md) for iterative design document creation
@@ -60,6 +65,20 @@ Examples:
 - `helix-review` <-> `helix review`
 
 Do not publish extra skill names that have no matching CLI command.
+
+## Skill Pack Layout
+
+HELIX is packaged and installed as one skill system, not as isolated skill
+folders.
+
+- `skills/` contains the public HELIX skill entrypoints and any skill-local
+  resources.
+- `workflows/` contains shared resources used by multiple HELIX skills.
+- Installers, plugins, and enterprise packaging must preserve both directories
+  together so package-relative references from skills to `workflows/` remain
+  valid.
+- A HELIX installation is incomplete if a skill is present without the shared
+  workflow resources it depends on.
 
 ```mermaid
 graph TB

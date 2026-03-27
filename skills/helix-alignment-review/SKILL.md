@@ -1,12 +1,16 @@
 ---
 name: helix-align
-description: Run the HELIX alignment action. Use when the user wants `helix align` behavior.
+description: Run the HELIX alignment action. Use when the user wants `helix align` behavior or when functionality changes imply upstream spec or design reconciliation.
 argument-hint: "[scope]"
 ---
 
 # Align
 
 Use this skill for repo-wide or area-scoped reconciliation reviews.
+
+This skill depends on the shared HELIX workflow library under `workflows/`.
+If the shared resources are unavailable, treat the HELIX package as incomplete
+and stop rather than guessing from code alone.
 
 ## When To Use
 

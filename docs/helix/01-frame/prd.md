@@ -98,6 +98,13 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
    breaking the overall control model.
 7. Tracker state remains the durable execution layer for refinement, ordering,
    ownership, and completion of work.
+8. HELIX must be distributed and installed as one skill pack, not as isolated
+   standalone skills copied without their shared resources.
+9. Resources shared by multiple HELIX skills must live in `workflows/`, while
+   skill-specific resources must live with the corresponding skill under
+   `skills/<skill>/`.
+10. Plugin, enterprise, and local installations must preserve package-relative
+    access from HELIX skills to the shared `workflows/` resource library.
 
 ### Should Have (P1)
 
@@ -109,6 +116,8 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
    where autopilot should proceed silently.
 4. Deterministic tests cover the most important state transitions in the
    supervisory loop.
+5. Packaging and installer rules make incomplete skill-only installs invalid
+   rather than silently degrading shared-resource access.
 
 ### Nice to Have (P2)
 
@@ -149,12 +158,24 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
 2. Direct invocation of a single HELIX command or skill must not break the
    broader model that `helix-run` uses to resume supervision later.
 
+### Packaging and Resource Access
+
+1. HELIX skills must be installed as one package that preserves both
+   `skills/` and `workflows/`.
+2. `workflows/` must be treated as the shared resource library for assets used
+   by multiple HELIX skills.
+3. Assets used by only one skill should live in that skill's directory instead
+   of `workflows/`.
+4. HELIX skills must reference shared resources through stable package-relative
+   paths and must fail clearly if the shared library is missing.
+
 ## Constraints, Assumptions, Dependencies
 
 ### Constraints
 
 - **Technical**: HELIX must preserve bounded actions, authority-ordered
-  decision-making, and tracker-first execution.
+  decision-making, tracker-first execution, and package-relative access from
+  skills to shared workflow resources.
 - **Product**: The interface must stay comprehensible; new supervisory behavior
   cannot devolve into hidden magical state changes.
 - **Testing**: The control loop should be explainable and testable through
@@ -175,6 +196,7 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
 - HELIX tracker contract in `workflows/TRACKER.md` and `scripts/tracker.sh`
 - Skill surfaces under `skills/`
 - CLI execution surface in `scripts/helix`
+- Installers and plugin packaging that preserve the HELIX package layout
 
 ## Risks
 

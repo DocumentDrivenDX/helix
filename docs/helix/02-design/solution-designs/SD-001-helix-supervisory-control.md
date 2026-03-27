@@ -49,6 +49,11 @@ interactive entrypoints.
 - Stop-for-guidance is a first-class outcome whenever safe progress depends on
   human judgment, approval, prioritization, or missing source-of-truth
   artifacts.
+- HELIX is packaged as one skill system: `skills/` contains entrypoints and
+  skill-local assets, while `workflows/` contains shared resources consumed by
+  multiple HELIX skills.
+- Plugin and enterprise distribution must preserve package-relative access from
+  every HELIX skill to the shared `workflows/` library.
 
 **Trade-offs**:
 - Gain: lower orchestration burden and better continuity across phases.
@@ -86,6 +91,13 @@ interactive entrypoints.
   requirement change detection, reconciliation/planning, issue refinement,
   implementation, review, and escalation.
 
+### Component: Package layout and resource resolution
+- **Current State**: HELIX resources are referenced from skills, but the
+  package/distribution contract for preserving those references is implicit.
+- **Changes**: Treat `workflows/` as the shared resource library for multi-skill
+  assets, keep skill-local assets under `skills/<skill>/`, and define installs
+  that omit the shared library as invalid.
+
 ## Domain Model
 
 ```mermaid
@@ -108,6 +120,8 @@ graph TD
    or product judgment is missing.
 3. Interactive continuity: direct command use must not create a separate
    control model from `helix-run`.
+4. Shared-resource integrity: any HELIX skill that depends on `workflows/`
+   assumes the full HELIX package layout is present.
 
 ## API/Interface Design
 
@@ -144,6 +158,15 @@ supervisor_outputs:
   rationale:
     - least_power_explanation
     - blocking_authority
+package_layout:
+  root:
+    - skills/
+    - workflows/
+  rules:
+    - multi_skill_shared_assets_live_in_workflows
+    - single_skill_assets_live_with_the_skill
+    - installs_must_preserve_package_relative_paths
+    - incomplete_skill_only_installs_are_invalid
 ```
 
 ## Traceability
@@ -155,6 +178,7 @@ supervisor_outputs:
 | FR-003 | Tracker integration | Spec changes with open work route to polish | Tracker + loop integration tests |
 | FR-004 | Review handling | Implementation is followed by review | Deterministic wrapper review tests |
 | FR-005 | Escalation boundaries | Guidance stop on missing authority | Negative-path tests |
+| FR-006 | Package layout | Shared assets resolve from `workflows/` across skills | Packaging validation and install tests |
 
 ### Gaps
 - [ ] Tracker metadata mutation still needs first-class CLI support for
@@ -171,6 +195,10 @@ tracker_metadata_extensions:
     - update_refs
   rationale: issue refinement and reconciliation need first-class metadata
     mutation, not direct JSONL surgery
+packaging_contract:
+  shared_library: workflows/
+  skill_local_assets: skills/<skill>/
+  invalid_install: skill present without required shared resources
 ```
 
 ## Integration Points
@@ -184,6 +212,7 @@ tracker_metadata_extensions:
 | `helix-run` | `review` | Triggered subroutine | recent implementation results |
 | `helix-run` | tracker | Query/update | issue state, dependencies, metadata, claims |
 | Companion commands | `helix-run` model | Shared control semantics | direct interactive intervention without model drift |
+| HELIX skill pack | shared `workflows/` library | Package-relative file access | actions, templates, metadata, conventions |
 
 ### External Dependencies
 - **Tracker CLI**: source of durable execution state | Fallback: stop and
@@ -219,6 +248,8 @@ tracker_metadata_extensions:
 - [ ] **Integration**: `run` -> `align/plan` -> `polish` -> `implement` ->
       `review` handoffs
 - [ ] **API**: tracker metadata update flows required by issue refinement
+- [ ] **Packaging**: installs preserve `skills/` plus `workflows/` and shared
+      references resolve correctly
 - [ ] **Security**: stop-for-guidance behavior on ambiguity or missing
       authority
 
@@ -229,7 +260,7 @@ tracker_metadata_extensions:
 - **Assumptions**: Existing workflow docs and skills can be updated to reflect
   the supervisory model without inventing a new artifact taxonomy.
 - **Dependencies**: PRD, ADR-001, tracker contract, workflow contract docs,
-  and mirrored HELIX skills.
+  mirrored HELIX skills, and installers that preserve the HELIX package root.
 
 ## Migration & Rollback
 

@@ -1,6 +1,6 @@
 ---
 name: helix-run
-description: Run the HELIX bounded operator loop. Use when the user wants `helix run` behavior inside the agent.
+description: Run HELIX autopilot. Use when the user wants `helix run` behavior or when work should keep advancing until human input is required.
 argument-hint: "[scope|issue-id]"
 ---
 
@@ -8,12 +8,18 @@ argument-hint: "[scope|issue-id]"
 
 Run the HELIX bounded operator loop against the built-in tracker.
 
+This skill assumes the full HELIX package is installed. Shared resources used
+by multiple HELIX skills live under `workflows/`; skill-local assets live with
+the individual skill directories.
+
 ## Use This Skill When
 
 - the user wants `helix run` behavior from inside the agent
 - the repo uses `helix tracker` for execution tracking
 - the user wants ready HELIX work executed until the bounded loop stops
 - the user wants queue-drain decisions honored instead of a blind loop
+- the user wants HELIX to keep moving across requirements, designs, issues,
+  implementation, and review until human judgment is required
 
 For command-specific work, prefer the mirrored companion skills such as
 `helix-implement`, `helix-check`, `helix-align`, and `helix-backfill`.
@@ -62,6 +68,9 @@ Reference docs (read as needed):
 - `workflows/actions/check.md` when the user wants queue health or the next action
 - `workflows/actions/implementation.md` when the user wants ready work executed
 - relevant phase README and artifact prompts/templates
+
+Shared HELIX resources resolve from `workflows/`. If those resources are
+missing, stop and report an incomplete HELIX package instead of improvising.
 
 ## On Invocation
 
