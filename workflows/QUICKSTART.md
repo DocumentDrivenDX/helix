@@ -36,8 +36,8 @@ Notes:
 - `helix tracker init` creates the tracker workspace in `.helix/`.
 - `scripts/install-local-skills.sh` links the local `helix` wrapper into
   `~/.local/bin/helix`.
-- The installer exposes agent skills named `helix-<command>` in
-  `~/.agents/skills`.
+- The repo exposes agent skills named `helix-<command>` at `./.agents/skills`.
+- The installer installs that package surface into `~/.agents/skills`.
 - It also mirrors them into `~/.claude/skills` until Claude documents
   `.agents/skills` support.
 - The wrapper is optional but preferred for operator loops.

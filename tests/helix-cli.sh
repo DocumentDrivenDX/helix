@@ -851,8 +851,8 @@ test_installer_creates_launcher() {
   for skill in "${canonical_skills[@]}"; do
     [[ -L "$root/agents-home/skills/$skill" ]] || fail "installer should link $skill into .agents"
     [[ -L "$root/claude-home/skills/$skill" ]] || fail "installer should link $skill into Claude"
-    [[ "$(readlink "$root/agents-home/skills/$skill")" == "$repo_root/skills/$skill" ]] || fail "installer should point .agents/$skill at the canonical skill directory"
-    [[ "$(readlink "$root/claude-home/skills/$skill")" == "$repo_root/skills/$skill" ]] || fail "installer should point Claude/$skill at the canonical skill directory"
+    [[ "$(readlink "$root/agents-home/skills/$skill")" == "$repo_root/.agents/skills/$skill" ]] || fail "installer should point .agents/$skill at the canonical project skill package"
+    [[ "$(readlink "$root/claude-home/skills/$skill")" == "$repo_root/.agents/skills/$skill" ]] || fail "installer should point Claude/$skill at the canonical project skill package"
   done
   [[ ! -e "$root/agents-home/skills/helix-workflow" ]] || fail "installer should remove legacy skill aliases"
   [[ ! -e "$root/agents-home/skills/plan-workflow" ]] || fail "installer should remove legacy skill aliases"

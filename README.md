@@ -50,10 +50,9 @@ helix experiment --close
 
 ## Skills
 
-Installed as local agent skills named to mirror the CLI.
-
-Canonical install path:
-- `~/.agents/skills`
+HELIX publishes its agent-compatible skill surface from the repo at
+`./.agents/skills` and installs those same skills into the canonical user path
+`~/.agents/skills`.
 
 Temporary compatibility mirror:
 - `~/.claude/skills`
@@ -73,6 +72,10 @@ Installed skill set:
 
 The contract is strict: public skill names are `helix-<command>` and must
 mirror the CLI subcommand exactly.
+
+The `skills/` tree remains the implementation source for skill content and
+shared references. The project-level package surface that agents should consume
+is `./.agents/skills`.
 
 ## Tracker
 

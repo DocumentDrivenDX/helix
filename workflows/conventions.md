@@ -27,14 +27,16 @@ When conventions and execution guidance disagree, follow:
 
 HELIX is packaged as one skill system.
 
+- `.agents/skills/` is the canonical project-level skill package surface.
 - Put resources used by multiple HELIX skills in `workflows/`.
 - Put resources used by only one skill in that skill's directory under
-  `skills/<skill>/`.
+  `skills/<skill>/`, with `.agents/skills/<skill>` exposing the published
+  package entrypoint.
 - Skills may assume package-relative access to the shared `workflows/`
   resources only when the full HELIX package layout is preserved.
-- Installers and plugins must preserve both `skills/` and `workflows/`
-  together; copying isolated skill folders without shared resources is an
-  invalid HELIX install.
+- Installers and plugins must preserve `.agents/skills/`, `skills/`, and
+  `workflows/` together; copying isolated skill folders without shared
+  resources is an invalid HELIX install.
 
 ## Documentation Structure
 
@@ -69,6 +71,7 @@ project-root/
 5. **Flexibility**: Non-phase documentation has dedicated locations
 6. **Shared skill resources**: `workflows/` doubles as the shared resource
    library for HELIX skills, while skill-local assets remain under `skills/`
+   and are exposed through `.agents/skills/`
 
 ### Phase Directory Contents
 
@@ -223,7 +226,8 @@ Every issue should:
 1. **Shared resources**: If more than one HELIX skill depends on an asset, it
    belongs in `workflows/`.
 2. **Skill-local resources**: If only one skill uses an asset, keep it with
-   that skill under `skills/<skill>/`.
+   that skill under `skills/<skill>/`, with the published entrypoint exposed at
+   `.agents/skills/<skill>`.
 3. **Stable references**: Skills should reference shared assets through stable
    package-relative paths and documented locations.
 4. **Packaging integrity**: Plugin or enterprise distribution must preserve the

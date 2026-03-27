@@ -72,6 +72,7 @@ CLI subcommand exactly.
 
 This repo now ships a small HELIX wrapper CLI:
 
+- canonical project skill path: `.agents/skills`
 - script source: `scripts/helix`
 - tracker library: `scripts/tracker.sh`
 - local launcher install: `scripts/install-local-skills.sh`

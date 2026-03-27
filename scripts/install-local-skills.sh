@@ -2,6 +2,7 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+project_skills_dir="$repo_root/.agents/skills"
 agents_skills_dir="${AGENTS_HOME:-$HOME/.agents}/skills"
 claude_skills_dir="${CLAUDE_HOME:-$HOME/.claude}/skills"
 local_bin_dir="$HOME/.local/bin"
@@ -88,16 +89,16 @@ remove_obsolete_native_links() {
 remove_noncanonical_links
 remove_obsolete_native_links
 
-install_pair "helix-run" "$repo_root/skills/helix-run"
-install_pair "helix-implement" "$repo_root/skills/helix-implement"
-install_pair "helix-check" "$repo_root/skills/helix-check"
-install_pair "helix-align" "$repo_root/skills/helix-align"
-install_pair "helix-backfill" "$repo_root/skills/helix-backfill"
-install_pair "helix-plan" "$repo_root/skills/helix-plan"
-install_pair "helix-polish" "$repo_root/skills/helix-polish"
-install_pair "helix-next" "$repo_root/skills/helix-next"
-install_pair "helix-review" "$repo_root/skills/helix-review"
-install_pair "helix-experiment" "$repo_root/skills/helix-experiment"
+install_pair "helix-run" "$project_skills_dir/helix-run"
+install_pair "helix-implement" "$project_skills_dir/helix-implement"
+install_pair "helix-check" "$project_skills_dir/helix-check"
+install_pair "helix-align" "$project_skills_dir/helix-align"
+install_pair "helix-backfill" "$project_skills_dir/helix-backfill"
+install_pair "helix-plan" "$project_skills_dir/helix-plan"
+install_pair "helix-polish" "$project_skills_dir/helix-polish"
+install_pair "helix-next" "$project_skills_dir/helix-next"
+install_pair "helix-review" "$project_skills_dir/helix-review"
+install_pair "helix-experiment" "$project_skills_dir/helix-experiment"
 
 echo "Installed skills into:"
 echo "  Agents: $agents_skills_dir"

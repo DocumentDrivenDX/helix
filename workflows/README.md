@@ -71,14 +71,16 @@ Do not publish extra skill names that have no matching CLI command.
 HELIX is packaged and installed as one skill system, not as isolated skill
 folders.
 
-- `skills/` contains the public HELIX skill entrypoints and any skill-local
-  resources.
+- `.agents/skills/` is the canonical project-level skill package surface.
+- `skills/` contains the underlying HELIX skill directories and skill-local
+  resources that the project-level package surface points at.
 - `workflows/` contains shared resources used by multiple HELIX skills.
-- Installers, plugins, and enterprise packaging must preserve both directories
-  together so package-relative references from skills to `workflows/` remain
-  valid.
-- A HELIX installation is incomplete if a skill is present without the shared
-  workflow resources it depends on.
+- Installers, plugins, and enterprise packaging must preserve `.agents/skills/`,
+  `skills/`, and `workflows/` together so package-relative references from
+  skills to `workflows/` remain valid.
+- A HELIX installation is incomplete if the project-level package surface is
+  present without the underlying `skills/` and shared workflow resources it
+  depends on.
 
 ```mermaid
 graph TB
