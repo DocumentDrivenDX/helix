@@ -1008,6 +1008,24 @@ run_loop() {
           printf 'helix: epic %s has no remaining open children — closing epic\n' "$focused_epic" >&2
           tracker_close "$focused_epic" 2>/dev/null || true
           completed_cycles=$((completed_cycles + 1))
+
+          # Post-epic review: verify acceptance criteria and catch gaps
+          if (( auto_review )); then
+            local epic_spec
+            epic_spec="$(tracker_show "$focused_epic" --json 2>/dev/null | jq -r '.["spec-id"] // ""')" || epic_spec=""
+            local review_scope="${epic_spec:-last-commit}"
+            printf 'helix: post-epic review for %s (scope: %s)\n' "$focused_epic" "$review_scope" >&2
+            if run_review "$review_scope" 1; then
+              :
+            else
+              local review_rc="$?"
+              if (( review_rc == 10 )); then
+                printf 'helix: epic review found gaps — issues created, continuing\n' >&2
+              else
+                printf 'helix: epic review output not parseable (rc=%s), continuing\n' "$review_rc" >&2
+              fi
+            fi
+          fi
         else
           printf 'helix: epic %s has %s open children but none are eligible — releasing focus\n' "$focused_epic" "$remaining_children" >&2
         fi
