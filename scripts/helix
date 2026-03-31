@@ -28,6 +28,7 @@ auto_align=1
 auto_review=1
 dry_run=0
 quiet=0
+total_tokens=0
 
 # Session log — all stderr is tee'd to this file for post-hoc inspection
 helix_log_dir="${target_root}/.helix-logs"
@@ -102,6 +103,20 @@ need_cmd() {
 require_tracker() {
   need_cmd jq
   tracker_ensure
+}
+
+extract_codex_tokens() {
+  # Extract the token count from codex output (appears as "tokens used\nNNN").
+  # Prints the count or 0 if not found.
+  local prev=""
+  while IFS= read -r line; do
+    if [[ "$prev" == "tokens used" ]] && [[ "$line" =~ ^[0-9,]+$ ]]; then
+      printf '%s' "${line//,/}"
+      return
+    fi
+    prev="$line"
+  done
+  printf '0'
 }
 
 condense_codex_output() {
@@ -185,8 +200,14 @@ run_agent_prompt() {
           printf -- '--- end codex output ---\n'
         } >> "$helix_log"
 
+        # Extract and accumulate token usage
+        local _cycle_tokens
+        _cycle_tokens="$(printf -- '%s\n' "$_codex_raw" | extract_codex_tokens)"
+        total_tokens=$((total_tokens + _cycle_tokens))
+
         if (( ! quiet )); then
-          printf 'helix: [%s] codex complete (rc=%s, %ss)\n' "$(date +%H:%M:%S)" "$_codex_rc" "$_elapsed" >&2
+          printf 'helix: [%s] codex complete (rc=%s, %ss, %s tokens, %s total)\n' \
+            "$(date +%H:%M:%S)" "$_codex_rc" "$_elapsed" "$_cycle_tokens" "$total_tokens" >&2
         fi
 
         # Emit condensed output (strips command lists and token counts)
@@ -833,8 +854,8 @@ run_loop() {
     local skip_count="${#skipped_issues[@]}"
 
     # Always print summary line
-    printf '\nhelix: ═══ run complete: %s attempted, %s completed, %s skipped ═══\n' \
-      "$attempted_cycles" "$completed_cycles" "$skip_count" >&2
+    printf '\nhelix: ═══ run complete: %s attempted, %s completed, %s skipped, %s tokens ═══\n' \
+      "$attempted_cycles" "$completed_cycles" "$skip_count" "$total_tokens" >&2
 
     if (( skip_count == 0 )); then
       return 0
