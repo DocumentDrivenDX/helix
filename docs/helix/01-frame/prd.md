@@ -116,8 +116,8 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
 
 ### Should Have (P1)
 
-1. HELIX documents explicit trigger rules between `run`, `align`, `plan`,
-   `polish`, `implement`, `review`, `check`, and `backfill`.
+1. HELIX documents explicit trigger rules between `run`, `align`, `design`,
+   `polish`, `build`, `review`, `check`, `evolve`, and `backfill`.
 2. Skills describe not only what each command does, but when it should
    activate based on user intent and repo state.
 3. The workflow contract makes it obvious where human attention is expected and
@@ -128,23 +128,100 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
    rather than silently degrading shared-resource access.
 6. Deterministic tests cover queue drift caused by concurrent interactive
    refinement while `helix-run` is active.
+7. `helix status` provides a structured lifecycle snapshot: run-controller
+   state, current claimed work, blocked issues with reasons, pending human
+   decisions, and next recommended action.
+8. Cross-model review: when `--review-agent` is configured, reviews and plan
+   critiques alternate between the implementation agent and the review agent
+   to catch blind spots.
+9. Epic focus mode: when `helix run` picks an epic, it stays focused —
+   decompose into children, implement them, review the epic on close — before
+   moving to the next scope.
 
 ### Nice to Have (P2)
 
 1. Operator-facing examples show common transitions such as requirements change
-   -> align/plan -> polish -> implement -> review.
-2. The tracker can evolve to support richer metadata updates needed by issue
-   refinement workflows.
+   -> evolve -> polish -> build -> review.
+2. The tracker supports richer lifecycle metadata: phase labels for all 6
+   phases (`phase:frame`, `phase:test`), per-scope phase gates, and structured
+   blocker descriptions.
+3. Phase-aware `helix run` that drives the full lifecycle (Frame → Design →
+   Test → Build → Deploy → Iterate) using explicit per-scope phase state
+   rather than inference from labels and deps.
+4. `helix frame`, `helix test`, and `helix deploy` as phase-specific commands
+   for manual control over phases currently handled implicitly.
+5. `helix reject` as a compound operation: structured rejection reason, mark
+   execution-ineligible, create corrective follow-on issue.
+
+## Command Surface
+
+The command surface is organized around how users interact with HELIX:
+
+### Execution (how agents work)
+
+- `helix run` — supervisory autopilot; reads tracker, selects the
+  highest-leverage next action, executes it, repeats until human input is
+  needed or no work remains
+- `helix status` — structured lifecycle snapshot for human observation
+
+### Steering (how humans direct agents)
+
+The tracker is the primary steering interface. Users typically interact with
+the tracker via an agent conversation while `helix run` grinds in the
+background. Structured commands ensure artifact consistency:
+
+- `helix tracker` — raw CRUD for issues (create, show, update, close, list,
+  ready, blocked, dep, status)
+- `helix evolve` — thread a requirement change through the artifact stack;
+  updates governing docs and creates/modifies tracker issues
+- `helix design` — create or extend the design stack (architecture, ADRs,
+  solution designs, test strategy) through iterative multi-model refinement
+- `helix review` — fresh-eyes review of recent work
+- `helix align` — top-down audit of the full planning stack vs implementation;
+  also handles reconstruction of missing docs (backfill mode)
+- `helix polish` — iterative issue refinement before implementation
+- `helix experiment` — metric-driven optimization loop
+
+### Internal (dispatched by run, also directly invocable)
+
+- `helix build` — one bounded implementation pass (currently: `implement`)
+- `helix check` — queue-health decision: what action should run take next
+
+### Deferred (Phase 2 — requires tracker lifecycle primitives)
+
+- `helix frame` — Phase 1: requirements, feature specs, user stories
+- `helix test` — Phase 3: write failing tests from design artifacts (Red gate)
+- `helix deploy` — Phase 5: release, monitoring, verification
+- `helix reject` — compound rejection: structured reason, mark ineligible,
+  create corrective follow-on
+- Per-scope phase gates on tracker epics/scopes
+
+### Command naming principle
+
+Commands that map to HELIX phases use the phase name: `frame`, `design`,
+`test`, `build`, `deploy`. Commands that are control-plane verbs use their
+verb: `run`, `status`, `evolve`, `review`, `align`, `polish`, `experiment`.
 
 ## Functional Requirements
 
 ### Supervisory Run Loop
 
-1. `helix-run` must own autonomous forward progress for HELIX-managed work.
-2. `helix-run` must treat the companion HELIX actions as triggered subroutines
+1. `helix run` must own autonomous forward progress for HELIX-managed work.
+2. `helix run` must treat the companion HELIX actions as triggered subroutines
    inside the loop, while still allowing them to be invoked directly.
-3. `helix-run` must stop when human input is required rather than continuing
+3. `helix run` must stop when human input is required rather than continuing
    through uncertainty.
+4. `helix run` must support epic focus: when an epic is selected, stay on it
+   (decompose → implement children → review on close) before moving on.
+5. `helix run` must use exponential backoff on difficult issues rather than
+   immediately skipping them. Only declare an issue intractable after
+   escalating effort across multiple attempts.
+6. `helix run` must absorb small adjacent work (same file, related manifest
+   updates) into the current issue rather than creating separate tickets for
+   every observation.
+7. `helix run` must produce a structured blocker report when it finishes,
+   identifying every skipped issue with its reason and marking them in the
+   tracker for human triage.
 
 ### Trigger Rules
 
@@ -157,19 +234,52 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
    must prefer bounded implementation over further speculative planning.
 4. When tracker or governing-artifact state changes during a live run, HELIX
    must re-check at the next safe boundary instead of closing or claiming work
-   from stale assumptions.
-5. After implementation, HELIX must review the recent work before proceeding to
-   additional execution.
-6. When canonical artifacts are missing or too incomplete for safe progress,
+   from stale assumptions. Drift on a single issue should skip that issue,
+   not stop the entire loop.
+5. After implementation, HELIX must review the recent work using a different
+   AI model than the one that implemented it when cross-model review is
+   configured.
+6. After an epic closes, HELIX must run a scoped review against the epic's
+   governing spec to verify acceptance coverage and catch gaps.
+7. When canonical artifacts are missing or too incomplete for safe progress,
    HELIX must stop for guidance or run a bounded reconstruction path rather
    than guessing.
+8. When `helix evolve` invalidates in-flight work, it must use explicit
+   tracker primitives (`superseded-by`, `execution-eligible=false`, or
+   blocking deps on new design issues) rather than vague "re-evaluation"
+   flags.
 
 ### Interactive Operation
 
 1. Users must be able to work directly in vision, PRD, specs, designs, issues,
    tests, implementation, review, or metrics.
 2. Direct invocation of a single HELIX command or skill must not break the
-   broader model that `helix-run` uses to resume supervision later.
+   broader model that `helix run` uses to resume supervision later.
+3. The typical interaction pattern is: user talks to an agent that manipulates
+   the tracker and governing artifacts, while `helix run` executes in the
+   background on clearly defined work. The tracker is the shared state between
+   the human-facing agent and the execution agent.
+
+### Observability
+
+1. `helix run` must persist run-controller state (last check result, stop
+   reason, current claimed issue, last action timestamp, cumulative token
+   usage) to a structured state file.
+2. `helix status` must surface this state file plus tracker health in a
+   machine-readable format.
+3. Long-running codex sessions must have timeout enforcement and periodic
+   heartbeat output.
+4. Each cycle must log elapsed time and token usage.
+
+### Quality Assurance
+
+1. Tracker validation must enforce required fields (helix label, phase label,
+   spec-id for tasks, acceptance criteria for tasks and epics) at issue
+   creation time.
+2. Design documents and critical artifacts should go through multi-round
+   iterative refinement with convergence detection.
+3. When cross-model review is configured, alternating AI models critique each
+   other's work to catch implementation blindness.
 
 ### Packaging and Resource Access
 

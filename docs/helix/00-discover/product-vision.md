@@ -36,19 +36,21 @@ than routine orchestration.
 | Supervisory autopilot | HELIX keeps work moving across specs, designs, tests, implementation, review, and metrics until human judgment is actually needed |
 | Least-power execution | HELIX chooses the smallest sufficient next action instead of overreaching, reducing unnecessary churn and speculative changes |
 | Authority-ordered reconciliation | When artifacts disagree, HELIX resolves the conflict by escalating to the governing source instead of guessing from code alone |
-| Tracker-first execution | All durable work is captured, refined, and executed through one bounded issue system rather than ad hoc lists or memory |
+| Tracker as steering wheel | The tracker is the primary human interface for steering agents. Users create issues, set priorities, approve gates, and reject work through tracker state; agents read it and execute |
+| Cross-model quality | Critical artifacts are reviewed by alternating AI models, catching blind spots that self-review misses |
 | Interactive intervention points | Users can step into any layer of the workflow directly without losing the benefits of autopilot orchestration |
 
 ## Product Principles
 
 1. **Autopilot by default**
-   `helix-run` is HELIX's supervisory autopilot. It continuously selects and
+   `helix run` is HELIX's supervisory autopilot. It continuously selects and
    executes the highest-leverage next bounded action that does not require
    human input.
 
 2. **Human intervention by exception**
    HELIX should escalate only when ambiguity, missing authority, tradeoffs, or
-   product judgment block safe forward progress.
+   product judgment block safe forward progress. When it stops, it should tell
+   the user exactly what decision is needed and why.
 
 3. **Least powerful next action**
    HELIX should restore progress with the smallest sufficient action: refine a
@@ -59,14 +61,34 @@ than routine orchestration.
    Requirements, designs, tests, and plans govern code. Implementation is
    evidence of current behavior, not the source of truth for what should exist.
 
-5. **Tracker-first execution**
-   Durable work should flow through the HELIX tracker so issue refinement,
-   dependencies, and completion remain inspectable and actionable.
+5. **Tracker as the steering wheel**
+   The tracker is the primary interface between humans and agents. Users steer
+   by creating issues, setting priorities, approving phase gates, and rejecting
+   work — all through tracker state. Agents read tracker state and execute.
+   The mental model is: `User <-> Tracker <-> helix run (background)`.
 
-6. **Interactive entry at any layer**
+6. **Do hard things**
+   Agents should attack problems, not defer them. If the toolchain doesn't
+   compile, try to fix it. If a spec is ambiguous, make the best-effort
+   interpretation and document the reasoning. Only genuinely contradictory
+   governing artifacts or intractable technical problems after escalating
+   effort should result in stopping.
+
+7. **Cross-model verification**
+   Critical artifacts and implementations should be reviewed by a different AI
+   model than the one that produced them. Different models have different blind
+   spots; alternating reviewers catches errors that self-review misses.
+
+8. **Interactive entry at any layer**
    The user should be able to work directly on vision, PRD, specs, tests,
    issues, implementation, review, or metrics while still benefiting from
    HELIX's overall control system.
+
+9. **Continuous useful work**
+   The system should always be making forward progress. When one issue is
+   blocked, move to the next. When an epic's children are done, review the
+   epic before moving on. Absorb small adjacent work instead of creating
+   ticket churn. The goal is net progress, not activity.
 
 ## Success Definition
 
