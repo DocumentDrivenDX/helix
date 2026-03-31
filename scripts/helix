@@ -139,21 +139,54 @@ run_agent_prompt() {
       if (( dry_run )); then
         printf 'codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor -C %q --ephemeral %q\n' "$target_root" "$prompt"
       else
+        local _start_ts _elapsed
+        _start_ts="$(date +%s)"
+
         if (( ! quiet )); then
-          printf 'helix: [%s] codex exec -C %s <prompt %s bytes>\n' "$(date +%H:%M:%S)" "$target_root" "$prompt_bytes" >&2
+          printf 'helix: [%s] codex exec -C %s <prompt %s bytes> (timeout %ss)\n' \
+            "$(date +%H:%M:%S)" "$target_root" "$prompt_bytes" "$agent_timeout" >&2
         fi
-        local _codex_raw _codex_rc=0
-        _codex_raw="$(codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor -C "$target_root" --ephemeral "$prompt")" || _codex_rc=$?
+
+        # Run codex in background with temp file for output capture
+        local _codex_tmp _codex_pid _codex_rc=0
+        _codex_tmp="$(mktemp)"
+        codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor \
+          -C "$target_root" --ephemeral "$prompt" > "$_codex_tmp" &
+        _codex_pid=$!
+
+        # Watchdog: timeout + periodic progress heartbeat
+        local _watchdog_elapsed=0
+        while kill -0 "$_codex_pid" 2>/dev/null; do
+          sleep 1
+          _watchdog_elapsed=$((_watchdog_elapsed + 1))
+          if (( ! quiet )) && (( _watchdog_elapsed % 60 == 0 )); then
+            printf 'helix: [%s] codex still running (%ss elapsed)\n' "$(date +%H:%M:%S)" "$_watchdog_elapsed" >&2
+          fi
+          if (( _watchdog_elapsed >= agent_timeout )); then
+            printf 'helix: [%s] codex timeout after %ss — killing\n' "$(date +%H:%M:%S)" "$_watchdog_elapsed" >&2
+            kill "$_codex_pid" 2>/dev/null
+            wait "$_codex_pid" 2>/dev/null || true
+            rm -f "$_codex_tmp"
+            return 1
+          fi
+        done
+        wait "$_codex_pid" || _codex_rc=$?
+
+        local _codex_raw
+        _codex_raw="$(cat "$_codex_tmp")"
+        rm -f "$_codex_tmp"
+
+        _elapsed=$(( $(date +%s) - _start_ts ))
 
         # Log full output for post-hoc inspection
         {
-          printf -- '--- codex output [%s] rc=%s ---\n' "$(date +%H:%M:%S)" "$_codex_rc"
+          printf -- '--- codex output [%s] rc=%s elapsed=%ss ---\n' "$(date +%H:%M:%S)" "$_codex_rc" "$_elapsed"
           printf -- '%s\n' "$_codex_raw"
           printf -- '--- end codex output ---\n'
         } >> "$helix_log"
 
         if (( ! quiet )); then
-          printf 'helix: [%s] codex complete (rc=%s)\n' "$(date +%H:%M:%S)" "$_codex_rc" >&2
+          printf 'helix: [%s] codex complete (rc=%s, %ss)\n' "$(date +%H:%M:%S)" "$_codex_rc" "$_elapsed" >&2
         fi
 
         # Emit condensed output (strips command lists and token counts)
@@ -973,7 +1006,9 @@ run_loop() {
         sleep "$delay"
       fi
 
-      printf 'helix: ready=%s, cycle=%s, issue=%s\n' "$ready_count" "$attempt_number" "$selected_issue" >&2
+      local _cycle_start
+      _cycle_start="$(date +%s)"
+      printf 'helix: [%s] ready=%s, cycle=%s, issue=%s\n' "$(date +%H:%M:%S)" "$ready_count" "$attempt_number" "$selected_issue" >&2
       attempted_cycles=$((attempted_cycles + 1))
       if ! run_implementation "$selected_issue"; then
         printf 'helix: implementation failed during cycle %s (will not count toward completed cycles)\n' "$attempt_number" >&2
