@@ -38,13 +38,20 @@ judgment is actually needed.
   progress.
 - Requirement or specification changes must trigger alignment, planning, or
   polish when downstream work is affected.
-- Ready governed work must trigger bounded implementation.
+- Ready governed work must trigger bounded build work.
 - Users must be able to enter any layer of the loop interactively without
   breaking autonomous continuation later.
 - Interactive refinement performed while `helix-run` is active must be
   reflected at the next safe execution boundary.
 - HELIX must stop and ask for guidance when authority, approval, or product
   judgment is missing.
+- The supervisory loop must keep doing useful work by staying focused on an
+  active epic, retrying difficult work with bounded exponential backoff, and
+  absorbing small adjacent changes when they are clearly part of the current
+  slice.
+- The supervisory loop must produce a blocker report and expose enough
+  structured state for `helix status` to explain what the run controller is
+  doing and why it stopped.
 
 ### Non-Functional Requirements
 - **Performance**: Control-loop decisions should be quick enough to feel
@@ -67,12 +74,13 @@ judgment is actually needed.
   then `helix-run` advances the next bounded layer without asking for a phase
   name.
 - [ ] Given a user-requested functionality change, when it affects downstream
-  artifacts, then HELIX routes to alignment or planning before implementation
+  artifacts, then HELIX routes to alignment, evolve, or design before build
   resumes.
 
 ### US-002: Intervene directly anywhere [FEAT-001]
 **As a** HELIX operator
-**I want** to invoke align, plan, polish, implement, review, or backfill
+**I want** to invoke align, evolve, design, polish, build, review, status, or
+backfill
 directly
 **So that** I can focus on the highest-impact area that needs my judgment
 
@@ -84,11 +92,14 @@ directly
 
 - Missing or conflicting authority artifacts must stop autopilot instead of
   guessing.
-- Open issues with changed specs must be polished before implementation.
+- Open issues with changed specs must be polished before build resumes.
 - A selected execution issue that changes materially before claim or close must
   be revalidated instead of being processed from stale state.
 - If the tracker or workflow contract is unhealthy, `helix-run` must stop and
   surface guidance.
+- If an epic is in focus and one child becomes intractable after bounded
+  retries, HELIX must block the epic explicitly and report the blocker rather
+  than silently drifting to unrelated work.
 
 ## Success Metrics
 
@@ -100,8 +111,10 @@ directly
 ## Constraints and Assumptions
 
 - HELIX remains bounded and tracker-first.
-- The workflow contract and skill descriptions will be updated to reflect the
-  supervisory model.
+- The tracker is the steering wheel for day-to-day execution control, and the
+  workflow contract plus skill descriptions must preserve that model.
+- Cross-model verification is preferred when review or critique automation is
+  configured.
 
 ## Dependencies
 

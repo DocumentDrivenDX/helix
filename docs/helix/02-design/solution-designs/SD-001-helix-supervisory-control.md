@@ -19,16 +19,22 @@ dun:
    input.
 2. **Given** a user-requested functionality change, **When** the change has
    downstream implications for specs or designs, **Then** HELIX routes work to
-   reconciliation or planning before implementation continues.
+   reconciliation, evolve, or design before build continues.
 3. **Given** changed specs or designs and open tracker issues, **When**
    `helix-run` evaluates the next step, **Then** HELIX refines the issue queue
-   before implementation resumes.
+   before build resumes.
 4. **Given** ready issues governed by sufficient upstream artifacts, **When**
-   `helix-run` advances execution, **Then** it prefers bounded implementation
+   `helix-run` advances execution, **Then** it prefers bounded build
    followed by fresh-eyes review.
 5. **Given** ambiguity, missing authority, or product judgment requirements,
    **When** HELIX cannot proceed safely, **Then** it stops and requests human
    guidance instead of guessing.
+6. **Given** an epic selected for execution, **When** runnable child work
+   exists, **Then** `helix-run` stays focused on that epic until completion or
+   a recorded blocker releases focus.
+7. **Given** difficult but still-governed work, **When** a first attempt
+   fails, **Then** `helix-run` retries with bounded exponential backoff before
+   declaring the slice blocked.
 
 ## Solution Approaches
 
@@ -42,9 +48,16 @@ interactive entrypoints.
   to restate phase transitions explicitly once HELIX has sufficient authority.
 - `helix-run` must remain responsive to concurrent local refinement activity:
   tracker and governing-artifact changes are new supervisory input, not noise.
+- The tracker is the steering wheel for execution: state mutations in
+  `.helix/issues.jsonl` are how operators and agents redirect work while a run
+  is active.
 - Next-step selection follows the principle of least power: prefer refining,
   reconciling, or polishing existing artifacts before escalating to broader
   changes.
+- HELIX should do hard things before giving up: use epic focus, bounded
+  backoff, and scoped follow-up review before abandoning governed work.
+- Cross-model verification is preferred when review or critique automation is
+  configured so the implementation model does not validate itself unchecked.
 - Companion actions remain directly invocable, but they are no longer peers in
   the product model; they are intervention points inside one shared control
   system.
@@ -66,12 +79,14 @@ interactive entrypoints.
 
 ### Component: `helix-run` supervisory loop
 - **Current State**: `helix-run` is primarily framed as a bounded loop around
-  ready implementation work plus queue-drain decisions.
+  ready build work plus queue-drain decisions.
 - **Changes**: Expand `helix-run` into a supervisory controller that can detect
   which workflow layer is weakest and route to the appropriate bounded action:
-  align, plan, polish, implement, review, check, or backfill. Revalidate the
+  align, evolve, design, polish, build, review, check, or backfill. Revalidate the
   selected issue before claim and before close so concurrent refinement causes
-  a controlled re-check instead of stale execution.
+  a controlled re-check instead of stale execution. Keep state persisted for
+  observability, emit blocker reports, stay focused on active epics, and retry
+  difficult work with bounded exponential backoff before declaring blockers.
 
 ### Component: Skill trigger model
 - **Current State**: HELIX skills are described mainly as direct mirrors of CLI
@@ -154,10 +169,12 @@ supervisor_inputs:
 supervisor_outputs:
   next_action:
     - align
-    - plan
+    - evolve
+    - design
     - polish
-    - implement
+    - build
     - review
+    - status
     - check
     - backfill
     - guidance
@@ -165,6 +182,15 @@ supervisor_outputs:
     - least_power_explanation
     - blocking_authority
     - queue_drift_reason
+observability:
+  persisted_state:
+    - current_issue
+    - focused_epic
+    - attempted_cycles
+    - completed_cycles
+    - total_tokens
+    - cycle_timing
+    - blocker_summary
 package_layout:
   root:
     - skills/
@@ -181,11 +207,12 @@ package_layout:
 | Requirement ID | Component | Design Element | Test Strategy |
 |---------------|-----------|----------------|---------------|
 | FR-001 | `helix-run` | Supervisory loop selects next bounded action | Scenario tests for state transitions |
-| FR-002 | Skill trigger model | Functionality changes route to align/plan | Skill and workflow contract coverage |
+| FR-002 | Skill trigger model | Functionality changes route to align/evolve/design | Skill and workflow contract coverage |
 | FR-003 | Tracker integration | Spec changes with open work route to polish | Tracker + loop integration tests |
 | FR-004 | Review handling | Implementation is followed by review | Deterministic wrapper review tests |
 | FR-005 | Escalation boundaries | Guidance stop on missing authority | Negative-path tests |
 | FR-006 | Package layout | Shared assets resolve from `workflows/` across skills | Packaging validation and install tests |
+| FR-007 | Observability | Run-controller persistence and `helix status` snapshot | Status and reporting tests |
 
 ### Gaps
 - [ ] Tracker metadata mutation still needs first-class CLI support for

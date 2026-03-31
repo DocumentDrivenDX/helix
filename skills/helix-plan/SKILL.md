@@ -1,11 +1,11 @@
 ---
 name: helix-plan
-description: Create a comprehensive design plan through iterative refinement before implementation. Use when starting a new feature, major refactor, or project scope.
+description: Create a comprehensive design document through iterative refinement before build work. Public command surface: `helix design`.
 argument-hint: "[scope]"
 disable-model-invocation: true
 ---
 
-# Plan
+# Design
 
 Create a thorough design document through iterative self-critique and
 refinement. Invest deeply in planning quality before any code is written.
@@ -18,7 +18,7 @@ package.
 
 - Starting a new feature or project
 - When a functionality change requires new or expanded design authority before
-  implementation can continue
+  build work can continue
 - When changing HELIX itself: workflow contract, tracker semantics, skill
   behavior, installer behavior, or CLI control rules
 - Before creating execution issues for a large scope
@@ -58,4 +58,4 @@ to execute.
 
 - Action prompt: `workflows/actions/plan.md`
 - Output template: `workflows/templates/plan-document.md`
-- CLI: `helix plan [--rounds N] [scope]`
+- CLI: `helix design [--rounds N] [scope]`

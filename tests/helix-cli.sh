@@ -1417,24 +1417,24 @@ Some epilogue')"
   assert_eq "POLISH" "$result" "extract POLISH NEXT_ACTION"
 }
 
-test_plan_dry_run() {
+test_design_dry_run() {
   local root
   root="$(make_workspace)"
   local output
-  output="$(run_helix "$root" plan --dry-run repo)"
-  assert_contains "$output" "actions/plan.md" "plan dry-run should reference plan action"
-  assert_contains "$output" "Plan scope: repo" "plan dry-run should include scope"
-  assert_contains "$output" "Refinement rounds: 5" "plan dry-run should include default rounds"
+  output="$(run_helix "$root" design --dry-run repo)"
+  assert_contains "$output" "actions/plan.md" "design dry-run should reference design action"
+  assert_contains "$output" "Plan scope: repo" "design dry-run should include scope"
+  assert_contains "$output" "Refinement rounds: 5" "design dry-run should include default rounds"
   rm -rf "$root"
 }
 
-test_plan_custom_rounds() {
+test_design_custom_rounds() {
   local root
   root="$(make_workspace)"
   local output
-  output="$(run_helix "$root" plan --dry-run --rounds 8 auth)"
-  assert_contains "$output" "Refinement rounds: 8" "plan should accept custom rounds"
-  assert_contains "$output" "Plan scope: auth" "plan should accept scope argument"
+  output="$(run_helix "$root" design --dry-run --rounds 8 auth)"
+  assert_contains "$output" "Refinement rounds: 8" "design should accept custom rounds"
+  assert_contains "$output" "Plan scope: auth" "design should accept scope argument"
   rm -rf "$root"
 }
 
@@ -1493,7 +1493,8 @@ test_help_includes_all_commands() {
   root="$(make_workspace)"
   local output
   output="$(run_helix "$root" help)"
-  assert_contains "$output" "helix plan" "help should list plan command"
+  assert_contains "$output" "helix design" "help should list design command"
+  assert_contains "$output" "helix build" "help should list build command"
   assert_contains "$output" "helix polish" "help should list polish command"
   assert_contains "$output" "helix next" "help should list next command"
   assert_contains "$output" "helix review" "help should list review command"
@@ -1555,14 +1556,14 @@ test_claude_agent_timeout_kills_process() {
   rm -rf "$root"
 }
 
-test_implement_prompt_references_tracker() {
+test_build_prompt_references_tracker() {
   local root
   root="$(make_workspace)"
   local output
-  output="$(run_helix "$root" implement --dry-run)"
-  assert_contains "$output" "helix tracker" "implement prompt should reference helix tracker"
-  assert_contains "$output" "issues.jsonl" "implement prompt should reference JSONL file"
-  assert_contains "$output" "re-read the selected issue immediately before claim and immediately before close" "implement prompt should require pre-claim and pre-close revalidation"
+  output="$(run_helix "$root" build --dry-run)"
+  assert_contains "$output" "helix tracker" "build prompt should reference helix tracker"
+  assert_contains "$output" "issues.jsonl" "build prompt should reference JSONL file"
+  assert_contains "$output" "re-read the selected issue immediately before claim and immediately before close" "build prompt should require pre-claim and pre-close revalidation"
   rm -rf "$root"
 }
 
@@ -2377,8 +2378,8 @@ run_test "run dispatches backfill" test_run_dispatches_backfill
 run_test "max cycles count completed work only" test_run_max_cycles_counts_completed_cycles_only
 run_test "periodic alignment ignores failed attempts" test_run_periodic_alignment_ignores_failed_attempts
 run_test "extract NEXT_ACTION from claude output" test_extract_next_action_from_claude_output
-run_test "plan dry-run" test_plan_dry_run
-run_test "plan custom rounds" test_plan_custom_rounds
+run_test "design dry-run" test_design_dry_run
+run_test "design custom rounds" test_design_custom_rounds
 run_test "polish dry-run" test_polish_dry_run
 run_test "review dry-run" test_review_dry_run
 run_test "review custom scope" test_review_custom_scope
@@ -2393,7 +2394,7 @@ run_test "recovery preserves unrelated dirty changes" test_run_recovery_preserve
 # killed reliably through the stdin pipe subshell. Fix the watchdog to
 # kill the process group, then re-enable.
 # run_test "claude agent timeout kills process" test_claude_agent_timeout_kills_process
-run_test "implement prompt references tracker" test_implement_prompt_references_tracker
+run_test "build prompt references tracker" test_build_prompt_references_tracker
 
 # ── triage validation tests ───────────────────────────────────────────
 

@@ -51,17 +51,22 @@ Assets used by only one skill should live with that skill instead of here.
 
 Additional actions extend the supervisory loop with bounded subroutines:
 
-- [plan.md](actions/plan.md) for iterative design document creation
+- [plan.md](actions/plan.md) for iterative design document creation behind the
+  public `helix design` command surface
 - [polish.md](actions/polish.md) for issue refinement before implementation
 - [fresh-eyes-review.md](actions/fresh-eyes-review.md) for post-implementation review
+- [evolve.md](actions/evolve.md) for threading requirement changes through the
+  artifact stack and tracker
 - [experiment.md](actions/experiment.md) for metric-driven optimization (execution tracked by issues, not HELIX docs)
 
-`helix run` may dispatch `plan`, `polish`, and `review` as supervisory
-subroutines when repository state or user intent requires them. These actions
-remain directly invocable by the operator and do not become new `check`
-queue-drain `NEXT_ACTION` codes unless the normative execution contract is
-updated explicitly. `experiment` remains operator-invoked only and is outside
-the `helix run` supervisory dispatch model. If a supporting document conflicts
+`helix run` may dispatch `design`, `polish`, and `review` as supervisory
+subroutines when repository state or user intent requires them. `design` and
+`polish` are explicit queue-drain outcomes in the converged contract.
+`review` remains a post-build supervisory step rather than a `NEXT_ACTION`
+code. `evolve`, `triage`, and `status` are part of the public command surface
+but are operator-steering or observability tools rather than queue-drain loop
+actions. `experiment` remains operator-invoked only and is outside the
+`helix run` supervisory dispatch model. If a supporting document conflicts
 with the core normative contract above, follow the contract.
 
 Supporting templates for metrics and reports:
@@ -79,9 +84,13 @@ Public agent skills must mirror the CLI exactly.
 Examples:
 
 - `helix-run` <-> `helix run`
-- `helix-implement` <-> `helix implement`
+- `helix-build` <-> `helix build`
 - `helix-align` <-> `helix align`
 - `helix-review` <-> `helix review`
+- `helix-design` <-> `helix design`
+- `helix-status` <-> `helix status`
+- `helix-triage` <-> `helix triage`
+- `helix-evolve` <-> `helix evolve`
 
 Do not publish extra skill names that have no matching CLI command.
 
@@ -181,6 +190,9 @@ The built-in tracker is HELIX's execution layer. Issues are stored in
 
 - Issues are governed by the HELIX authority stack.
 - Issues must cite the canonical artifacts that authorize the work.
+- The tracker is the steering wheel for execution: operators and agents should
+  express decomposition, blockers, supersession, and follow-up work through
+  tracker primitives instead of out-of-band TODOs.
 - Closing an issue records completion of a task; it does not redefine
   requirements, design, or tests.
 - If issue execution changes behavior or scope, the governing canonical artifacts
@@ -199,10 +211,10 @@ parents, dependencies, `spec-id`, and labels rather than custom files:
 HELIX execution is intentionally bounded and uses a small set of top-level
 actions:
 
-- `implementation`: execute one ready execution issue and exit
+- `build`: execute one ready execution issue and exit
 - `check`: determine whether the next step is implementation, alignment,
   backfill, waiting, guidance, or stopping
-- `plan`: create or extend the design stack when supervisory routing detects
+- `design`: create or extend the design stack when supervisory routing detects
   missing design authority for the requested scope
 - `polish`: refine ready or stale issues when specs changed before
   implementation resumes
@@ -210,8 +222,24 @@ actions:
   execution set is unclear
 - `fresh-eyes-review`: review completed implementation before additional
   execution continues when review automation is enabled
+- `status`: expose persisted run-controller state, cycle timing, token usage,
+  blockers, and next recommended action
+- `evolve`: update governing artifacts and tracker issues when requirements
+  change
+- `triage`: create validated tracker issues with required steering metadata
 - `backfill-helix-docs`: reconstruct missing HELIX docs conservatively from
   current evidence
+
+Execution principles:
+
+- tracker-as-steering-wheel: use tracker metadata as the shared execution
+  control plane
+- do-hard-things: use epic focus and bounded exponential backoff before giving
+  up on governed work
+- cross-model verification: prefer `--review-agent` or critique handoffs when
+  review automation is enabled
+- continuous useful work: absorb small adjacent work, stay within scope, and
+  finish with blocker reports instead of silent stops
 
 For operator flow, queue control, and bounded HELIX execution semantics, see
 [EXECUTION.md](EXECUTION.md).

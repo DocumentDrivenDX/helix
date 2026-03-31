@@ -1,13 +1,13 @@
 ---
 name: helix-implement
-description: Execute one bounded HELIX implementation pass. Use when the user wants `helix implement` behavior against one ready issue.
+description: Execute one bounded HELIX build pass. Public command surface: `helix build`.
 argument-hint: "[issue-id|scope]"
 disable-model-invocation: true
 ---
 
-# Implement
+# Build
 
-Pick the next issue from the queue, implement it fully, and close it.
+Pick the next issue from the queue, build it fully, and close it.
 
 If a specific issue or scope is given, use: $ARGUMENTS
 
@@ -22,7 +22,7 @@ If a specific issue or scope is given, use: $ARGUMENTS
    spec-id and description. Understand what "done" means from the acceptance
    criteria.
 
-4. **Implement** — write the code, docs, or config changes needed to satisfy
+4. **Build** — write the code, docs, or config changes needed to satisfy
    the issue. Stay within scope. Do not add unspecified functionality.
 
 5. **Verify** — run the project's test suite and quality checks. Ensure:
@@ -38,5 +38,5 @@ If a specific issue or scope is given, use: $ARGUMENTS
 
 7. **Close** — `helix tracker close <id>`.
 
-8. **Capture follow-on work** — if implementation revealed additional work,
+8. **Capture follow-on work** — if build execution revealed additional work,
    create new issues for it. Do not silently absorb extra scope.

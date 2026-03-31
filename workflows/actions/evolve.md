@@ -104,7 +104,7 @@ Create tracker issues for the implementation work implied by the updated
 artifacts:
 
 1. For each updated artifact, determine what code changes are needed.
-2. Create issues that are individually implementable in one `helix implement`
+2. Create issues that are individually implementable in one `helix build`
    cycle.
 3. Each issue must pass triage validation:
    - `--labels helix,phase:build,...`

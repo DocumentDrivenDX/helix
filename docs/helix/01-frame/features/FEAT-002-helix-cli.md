@@ -8,11 +8,12 @@
 ## Summary
 
 `helix-cli` is the repository's operator-facing wrapper around HELIX actions.
-It provides one command surface for bounded execution (`run`, `implement`,
-`check`, `align`, `backfill`), planning and quality workflows (`plan`,
-`polish`, `review`, `experiment`), tracker access (`tracker`), and helper
-navigation (`next`). The wrapper must preserve the HELIX authority stack,
-keep execution bounded, and make queue-control semantics explicit and safe.
+It provides one command surface for bounded execution (`run`, `build`,
+`check`, `align`, `backfill`), supervisory steering (`status`, `evolve`,
+`design`, `polish`, `review`, `triage`, `experiment`), tracker access
+(`tracker`), and helper navigation (`next`). The wrapper must preserve the
+HELIX authority stack, keep execution bounded, and make queue-control
+semantics explicit, observable, and safe.
 
 ## Users
 
@@ -27,15 +28,18 @@ keep execution bounded, and make queue-control semantics explicit and safe.
 The CLI must expose these top-level commands:
 
 - `run`
-- `implement`
+- `status`
+- `build`
 - `check`
 - `align`
 - `backfill`
-- `plan`
+- `evolve`
+- `design`
 - `polish`
 - `next`
 - `review`
 - `experiment`
+- `triage`
 - `tracker`
 - `help`
 
@@ -43,24 +47,41 @@ The CLI must expose these top-level commands:
 
 - `run` must continue only while true ready work exists, then call `check` when
   the queue drains.
-- `implement` must execute one bounded implementation pass.
-- `check` must return a `NEXT_ACTION` code used to decide whether to implement,
-  align, backfill, wait, ask for guidance, or stop.
+- `build` must execute one bounded build pass.
+- `status` must report a structured lifecycle snapshot sourced from persisted
+  run-controller state.
+- `check` must return a `NEXT_ACTION` code used to decide whether to build,
+  design, polish, align, backfill, wait, ask for guidance, or stop.
 - `run` must treat `NEXT_ACTION` as authoritative:
-  - `IMPLEMENT`: continue with the next bounded implementation pass.
+  - `BUILD`: continue with the next bounded build pass.
+  - `DESIGN`: run one bounded design pass, then re-evaluate queue state.
+  - `POLISH`: run one bounded issue-refinement pass, then re-evaluate queue
+    state.
   - `ALIGN`: run the alignment workflow once, then re-evaluate queue state.
   - `BACKFILL`: stop and surface the explicit `helix backfill <scope>` command
     before execution resumes.
   - `WAIT`: stop without attempting implementation.
   - `GUIDANCE`: stop and surface the required decision.
   - `STOP`: stop because no actionable work remains.
-- Only successfully completed implementation passes count as completed cycles.
+- `run` must support epic focus mode: when an epic is selected, remain on that
+  epic's children until it is complete or explicitly blocked.
+- `run` must retry difficult work with bounded exponential backoff before
+  declaring it blocked.
+- `run` must absorb small adjacent work into the current slice when the change
+  is clearly part of satisfying the same governing acceptance.
+- Only successfully completed build passes count as completed cycles.
 - Failed implementation attempts, reviews, alignment, backfill, and recovery
   retries must not be counted as completed cycles.
-- After each successful implementation pass, `run` must perform a fresh-eyes
-  review before advancing to the next cycle.
+- After each successful build pass, `run` must perform a fresh-eyes review
+  before advancing to the next cycle.
+- When `--review-agent` is configured, post-build review must switch to the
+  alternate agent for cross-model verification.
+- When an epic closes, `run` must perform a scoped post-epic review against
+  the epic's governing spec before leaving that scope.
 - A review with findings must be surfaced as actionable follow-up before the
   loop advances.
+- When the loop stops with skipped work, `run` must emit a blocker report and
+  persist enough state for `helix status` to explain the stop condition.
 
 ### Tracker Model
 
@@ -68,6 +89,9 @@ The CLI must expose these top-level commands:
 - Tracker data must live in `.helix/issues.jsonl`.
 - Ready work must be determined from open issues whose dependencies are all
   closed.
+- Tracker creation paths must enforce the required issue fields at creation
+  time: `helix` label, one phase label, `--spec-id` for tasks, and
+  deterministic `--acceptance` for tasks and epics.
 - Tracker ownership must distinguish active claims from stale or orphaned
   claims.
 - The wrapper may only reclaim or recover stale work when the tracker's
@@ -97,16 +121,25 @@ The CLI must expose these top-level commands:
 ## Acceptance Criteria
 
 - Running `helix help` shows the command surface and key options.
+- Running `helix status` reports a structured lifecycle snapshot derived from
+  persisted run-controller state.
 - Running `helix tracker` subcommands supports create/show/update/close/list,
   ready/blocked queries, dependency management, and status summaries.
+- Running `helix triage` produces tracker-valid issues with required labels,
+  governing artifact reference, and deterministic acceptance criteria.
 - Running `helix run` follows the explicit `NEXT_ACTION` contract for
-  `IMPLEMENT`, `ALIGN`, `BACKFILL`, `WAIT`, `GUIDANCE`, and `STOP`.
+  `BUILD`, `DESIGN`, `POLISH`, `ALIGN`, `BACKFILL`, `WAIT`, `GUIDANCE`, and
+  `STOP`.
 - Running `helix run` does not attempt implementation after `WAIT`.
 - Running `helix run` stops and surfaces the exact backfill command after
   `BACKFILL`.
-- Running `helix run` counts only completed implementation passes as completed
+- Running `helix run` counts only completed build passes as completed
   cycles.
 - Running `helix run` surfaces review findings before the loop advances.
+- Running `helix run` stays focused on a chosen epic until the epic finishes
+  or an explicit blocker forces release.
+- Running `helix run` emits blocker-report output and observability metadata
+  for cycle timing and token accounting.
 - Running `helix run` does not discard unrelated worktree changes during
   recovery.
 - Running `helix backfill <scope>` enforces the required trailers and durable
@@ -116,14 +149,10 @@ The CLI must expose these top-level commands:
 
 ## Evidence
 
-- `scripts/helix:40-94`
-- `scripts/helix:250-359`
-- `scripts/helix:467-519`
-- `scripts/helix:542-570`
-- `scripts/tracker.sh:7-18`
-- `scripts/tracker.sh:52-128`
-- `scripts/tracker.sh:265-420`
-- `scripts/install-local-skills.sh:35-67`
-- `tests/helix-cli.sh:419-447`
-- `tests/helix-cli.sh:563-646`
-- `tests/helix-cli.sh:744-937`
+- `docs/helix/01-frame/prd.md`
+- `docs/helix/02-design/solution-designs/SD-001-helix-supervisory-control.md`
+- `docs/helix/02-design/technical-designs/TD-002-helix-cli.md`
+- `docs/helix/03-test/test-plans/TP-002-helix-cli.md`
+- `workflows/README.md`
+- `workflows/EXECUTION.md`
+- `workflows/TRACKER.md`

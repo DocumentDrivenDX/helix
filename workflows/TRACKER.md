@@ -137,6 +137,9 @@ Required behavioral guarantees:
   so
 - exports must preserve canonical tracker state without lossy translation in the
   maintained JSONL interchange format
+- tracker-backed creation commands, including `helix tracker create` and
+  `helix triage`, must fail closed when required HELIX steering fields are
+  missing
 
 Implementation-specific freedom:
 
@@ -185,6 +188,10 @@ Use tracker fields directly:
 - `labels`: encode HELIX-specific execution semantics
 - `execution-eligible`: keep refinement work visible in the tracker without making it runnable by `helix run`
 - `superseded-by` / `replaces`: preserve explicit replacement traceability during refinement
+
+The tracker is HELIX's steering wheel. Use these fields and relationships to
+shape live execution rather than keeping separate TODO lists, hidden notes, or
+unstructured handoff state.
 
 Blocked work should be modeled with dependencies and surfaced through
 `helix tracker blocked` / `helix tracker ready`, not with a custom HELIX status
@@ -335,10 +342,33 @@ Use `--spec-id` for the closest governing artifact. Put the full authority
 chain in the description when more than one canonical artifact governs the
 work.
 
+## Triage Validation
+
+Tracker creation must validate required steering fields before a new issue is
+written.
+
+Required at create time:
+
+- `helix` label
+- one phase label: `phase:build`, `phase:deploy`, `phase:iterate`,
+  `phase:design`, or `phase:review`
+- `--spec-id` for `task` issues
+- deterministic `--acceptance` for `task` and `epic` issues
+- dependencies, when provided, must reference existing issue IDs
+
+Advisory but recommended:
+
+- a `kind:*` label for execution and reporting clarity
+
+Validation failures must stop issue creation instead of silently producing a
+partially specified HELIX issue. `helix triage` is the preferred operator-facing
+entrypoint because it guides users toward the required field set.
+
 ## HELIX Categories
 
 | HELIX category | Issue type | Required labels | Typical governing refs |
 |---|---|---|---|
+| Design or artifact-evolution work | `task` | `helix`, `phase:design`, `kind:design` | `prd.md`, `FEAT-XXX`, `SD-XXX`, `TD-XXX`, `TP-XXX`, workflow docs |
 | Story build work | `task` | `helix`, `phase:build`, `kind:build`, `story:US-XXX` | `FEAT-XXX`, `SD-XXX`, `TD-XXX`, `TP-XXX`, `implementation-plan.md` |
 | Story deploy work | `task` | `helix`, `phase:deploy`, `kind:deploy`, `story:US-XXX` | deployment docs, related build issue IDs |
 | Improvement backlog item | `task` or `chore` | `helix`, `phase:iterate`, `kind:backlog` | lessons learned, feedback, incidents, metrics |

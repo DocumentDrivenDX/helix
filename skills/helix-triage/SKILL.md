@@ -8,7 +8,7 @@ argument-hint: "Title" [--type task|epic|bug|chore] [options...]
 
 Every issue should enter the tracker ready to execute. This skill guides you
 through creating issues with the metadata that `helix run` needs to select,
-implement, and close them.
+build, and close them.
 
 ## When to Use
 
@@ -72,7 +72,7 @@ When an epic or large task needs breakdown:
 1. Read the parent's acceptance criteria
 2. Create child tasks that collectively cover every AC
 3. Set `--parent` on each child
-4. Each child should be completable in one `helix implement` cycle
+4. Each child should be completable in one `helix build` cycle
 5. If the parent is a task with 2+ children, consider promoting it to an epic
 
 ## References

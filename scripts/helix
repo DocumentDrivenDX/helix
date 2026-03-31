@@ -43,11 +43,11 @@ usage() {
   cat <<EOF
 Usage:
   helix run [--agent codex|claude] [--review-every N] [--max-cycles N] [--no-auto-align] [--no-auto-review] [--dry-run]
-  helix implement [--agent codex|claude] [selector]
+  helix build [--agent codex|claude] [selector]
   helix check [--agent codex|claude] [scope]
   helix align [--agent codex|claude] [scope]
   helix backfill [--agent codex|claude] [scope]
-  helix plan [--agent codex|claude] [--rounds N] [scope]
+  helix design [--agent codex|claude] [--rounds N] [scope]
   helix polish [--agent codex|claude] [--rounds N] [scope]
   helix next
   helix review [--agent codex|claude] [scope]
@@ -59,11 +59,11 @@ Usage:
 
 Commands:
   run         Loop over ready HELIX work, then check whether to continue
-  implement   Run one bounded implementation pass
+  build       Run one bounded implementation pass
   check       Run the bounded HELIX queue-health check
   align       Run reconcile-alignment for a scope (default: repo)
   backfill    Run documentation backfill for a scope (default: repo)
-  plan        Create a comprehensive design document through iterative refinement
+  design      Create a comprehensive design document through iterative refinement
   polish      Refine issues before implementation (dedup, coverage, criteria)
   next        Show recommended next issue
   review      Fresh-eyes review of recent work
@@ -1368,7 +1368,7 @@ main() {
 
       run_loop
       ;;
-    implement)
+    build|implement)
       parse_common_flags "$@"
       set -- "${REMAINING_ARGS[@]}"
       run_implementation "${1:-}"
@@ -1388,7 +1388,7 @@ main() {
       set -- "${REMAINING_ARGS[@]}"
       run_backfill "${1:-repo}"
       ;;
-    plan)
+    design|plan)
       parse_common_flags "$@"
       set -- "${REMAINING_ARGS[@]}"
       local plan_rounds=5

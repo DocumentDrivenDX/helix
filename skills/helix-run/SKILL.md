@@ -19,10 +19,10 @@ the individual skill directories.
 - the user wants ready HELIX work executed until the bounded loop stops
 - the user wants queue-drain decisions honored instead of a blind loop
 - the user wants HELIX to keep moving across requirements, designs, issues,
-  implementation, and review until human judgment is required
+  build work, and review until human judgment is required
 
 For command-specific work, prefer the mirrored companion skills such as
-`helix-implement`, `helix-check`, `helix-align`, and `helix-backfill`.
+`helix-build`, `helix-check`, `helix-align`, and `helix-backfill`.
 
 ## HELIX Phases
 
@@ -66,7 +66,7 @@ Reference docs (read as needed):
 - `workflows/README.md`
 - `workflows/TRACKER.md`
 - `workflows/actions/check.md` when the user wants queue health or the next action
-- `workflows/actions/implementation.md` when the user wants ready work executed
+- `workflows/actions/implementation.md` when the user wants ready build work executed
 - relevant phase README and artifact prompts/templates
 
 Shared HELIX resources resolve from `workflows/`. If those resources are
@@ -104,14 +104,14 @@ Then claim it:
 helix tracker update <id> --claim
 ```
 
-### Step 3 — Load context and implement
+### Step 3 — Load context and build
 
 1. Read the issue's `spec-id`, parent, labels, and acceptance criteria.
 2. Read the governing artifacts (requirements, design, tests) referenced by
    the issue.
 3. Read `workflows/actions/implementation.md` for full phase-specific
    rules (build, deploy, iterate).
-4. Implement the work: write code, update docs, create follow-on issues for
+4. Build the work: write code, update docs, create follow-on issues for
    any out-of-scope work discovered.
 
 ### Step 4 — Verify
@@ -131,7 +131,8 @@ When no ready issues remain, read and execute
 `workflows/actions/check.md` to decide what happens next. That action
 produces a `NEXT_ACTION` code:
 
-- `IMPLEMENT` → go to Step 1
+- `BUILD` → go to Step 1
+- `DESIGN` → run the design action once, then re-evaluate the queue
 - `ALIGN` → read and execute `workflows/actions/reconcile-alignment.md`
 - `BACKFILL` → read and execute `workflows/actions/backfill-helix-docs.md`
 - `WAIT` / `GUIDANCE` → report what is blocking and stop
@@ -148,7 +149,7 @@ phase), narrow all steps to that scope.
 2. Do the minimum correct work for that phase.
 3. Preserve traceability to upstream artifacts.
 4. Keep Build subordinate to failing tests.
-5. If implementation reveals plan drift, refine upstream artifacts explicitly.
+5. If build work reveals design drift, refine upstream artifacts explicitly.
 
 ## Core Questions
 

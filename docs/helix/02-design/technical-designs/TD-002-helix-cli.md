@@ -29,14 +29,19 @@ decision model exactly as specified by the authority stack.
 
 - It always starts from tracker-backed ready work, not from assumptions about
   in-progress work.
-- It executes at most one implementation issue per pass.
+- It executes at most one build issue per pass.
 - It treats `check` as the source of next-step guidance after the ready queue
   drains.
 - It revalidates selected issue state at safe boundaries so concurrent local
   refinement does not lead to stale claim or close behavior.
 - It keeps alignment and backfill as distinct follow-up actions.
-- It does not auto-implement blocked work on `WAIT`.
+- It does not auto-build blocked work on `WAIT`.
 - It does not silently continue after a review failure.
+- It persists run-controller state so `helix status` can report lifecycle
+  progress, cycle timing, focused epic, blocked work, and token usage.
+- It prefers cross-model verification when `--review-agent` is configured.
+- It stays focused on a chosen epic until the epic completes or a blocker is
+  recorded.
 
 ## Component Changes
 
@@ -64,7 +69,7 @@ When `helix tracker ready --json` reports one or more ready execution issues:
 1. Select the best ready execution issue using the tracker ranking rules.
 2. Re-read the issue and verify it is still a safe execution target.
 3. Claim the issue.
-4. Run one bounded implementation pass for that issue.
+4. Run one bounded build pass for that issue.
 5. Re-read the issue before close and verify no material queue drift or
    supersession invalidates the close.
 6. Verify, commit, and close it when the issue is complete.
@@ -75,15 +80,15 @@ When `helix tracker ready --json` reports one or more ready execution issues:
 When the ready queue is empty, `helix run` must execute `check` once and obey
 the first `NEXT_ACTION` result exactly:
 
-- `NEXT_ACTION: IMPLEMENT`
+- `NEXT_ACTION: BUILD`
   Re-enter ready-work selection and continue only if the tracker now reports
   ready execution work.
-- `NEXT_ACTION: PLAN`
-  Run one bounded planning pass, then re-check queue state before any
-  implementation resumes.
+- `NEXT_ACTION: DESIGN`
+  Run one bounded design pass, then re-check queue state before any
+  build resumes.
 - `NEXT_ACTION: POLISH`
   Run one bounded issue-refinement pass, then re-check queue state before any
-  implementation resumes.
+  build resumes.
 - `NEXT_ACTION: ALIGN`
   Run one alignment pass if auto-alignment is enabled. If the follow-up check
   still returns `ALIGN`, stop and surface the alignment command rather than
@@ -93,8 +98,8 @@ the first `NEXT_ACTION` result exactly:
   separate cross-phase action and is not auto-run by `helix run`.
 - `NEXT_ACTION: WAIT`
   Stop immediately. `WAIT` means execution is blocked by claimed work or a
-  truly external dependency; `helix run` must not attempt an unblock
-  implementation pass.
+  truly external dependency; `helix run` must not attempt an unblock build
+  pass.
 - `NEXT_ACTION: GUIDANCE`
   Stop immediately and surface the required user or stakeholder decision.
 - `NEXT_ACTION: STOP`
@@ -104,13 +109,15 @@ the first `NEXT_ACTION` result exactly:
 
 The loop must distinguish between attempted work and completed work.
 
-- `attempted_cycles`: increment when the wrapper starts an implementation
+- `attempted_cycles`: increment when the wrapper starts a build
   attempt.
-- `completed_cycles`: increment only after implementation succeeds, the issue
+- `completed_cycles`: increment only after build succeeds, the issue
   is closed, and post-implementation review passes when review is enabled.
 - `--review-every N` and `--max-cycles N` must use `completed_cycles`, not
   attempted cycles.
-- Failed implementation attempts do not count toward the cycle limit.
+- Failed build attempts do not count toward the cycle limit.
+- `cycle_start`, `cycle_end`, `cycle_duration`, and `total_tokens` belong in
+  persisted run-controller state and in the loop's progress output.
 
 ## Recovery and Ownership
 
@@ -176,12 +183,12 @@ completion status for the currently selected issue:
 ### Execution Eligibility
 
 The wrapper must distinguish execution-safe work from general open work so
-interactive refinement issues do not get treated as implementation targets by
+interactive refinement issues do not get treated as build targets by
 accident.
 
 ## Review Handling
 
-Post-implementation review is part of the orchestration contract.
+Post-build review is part of the orchestration contract.
 
 - A clean review allows the loop to continue.
 - Review findings must create or reopen follow-up work before the loop
@@ -190,6 +197,21 @@ Post-implementation review is part of the orchestration contract.
   `CLEAN` from actionable findings.
 - If review cannot be interpreted safely, the loop must stop instead of
   assuming success.
+- When `--review-agent` is configured, review must run under the alternate
+  model rather than the implementation model.
+- When an epic closes, the loop must run a scoped post-epic review against the
+  epic's governing artifact before releasing focus.
+
+## Blockers And Work Absorption
+
+- Small adjacent work discovered while satisfying the same governing
+  acceptance, such as related manifest updates or directly coupled file edits,
+  should be absorbed into the current issue instead of spawning avoidable
+  tracker noise.
+- Work that is adjacent but not clearly required by the current acceptance
+  must still become separate follow-up issues.
+- When the loop exits with skipped or intractable work, it must emit a blocker
+  report that names the issue, reason, attempts, and any epic-level impact.
 
 ## Components
 
@@ -223,14 +245,18 @@ freshness metadata when the tracker schema is extended.
 `run_loop` is the orchestration layer for `helix run`. It:
 
 - checks ready work before implementation
+- persists run-controller state for status and observability
 - revalidates the selected issue immediately before claim and before close
-- runs one bounded implementation pass at a time
+- runs one bounded build pass at a time
 - calls `check` after the queue drains
+- honors `DESIGN` and `POLISH` queue-drain results before build resumes
 - can auto-run alignment once after `ALIGN`
 - stops on `WAIT`, `GUIDANCE`, or `STOP`
 - stops on `BACKFILL` and surfaces the explicit follow-up command
 - can trigger periodic alignment with `--review-every` using completed cycles
-- must not attempt an unblock implementation pass after `WAIT`
+- uses epic focus, bounded exponential backoff, and blocker reporting to keep
+  useful work moving without losing traceability
+- must not attempt an unblock build pass after `WAIT`
 
 ### 6. Installer
 
@@ -251,6 +277,8 @@ agent sessions.
 - Workflow docs root: `workflows/`
 - Tracker state: `.helix/issues.jsonl`
 - Session logs: `.helix-logs/helix-YYYYMMDD-HHMMSS.log`
+- Run-controller state: `.helix/run-state.json`
+- Blocker reports: `.helix-logs/blockers-YYYYMMDD-HHMMSS.md`
 - Installed launcher: `~/.local/bin/helix`
 - Installed skill links: `${CODEX_HOME:-$HOME/.codex}/skills`,
   `${CLAUDE_HOME:-$HOME/.claude}/skills`
