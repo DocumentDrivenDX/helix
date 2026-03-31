@@ -70,11 +70,21 @@ Do not claim or implement `phase:review` issues with this action.
 
 ## Core Principle
 
-Select the smallest ready issue that unlocks meaningful forward progress and has
-enough governing context to execute safely.
+Do the work. The goal is continuous forward progress on real implementation.
 
-Do not pick work just because it is ready. Issues with weak authority, unclear
-scope, or missing verification must be refined before implementation.
+Select the issue most likely to close cleanly in this run. Prefer straightforward
+tasks with clear acceptance criteria. When given an epic, decompose it into
+subtasks and implement the first one — decomposition IS implementation work.
+
+Hard problems should be attacked, not deferred. If the toolchain doesn't compile,
+try to fix it. If the spec is ambiguous, make the best-effort interpretation
+consistent with the authority order and document your reasoning. Only bail when
+there is a genuine contradiction between governing artifacts that you cannot
+resolve, or an intractable technical problem after real effort.
+
+"Not safe to execute as written" is almost never the right conclusion. The right
+conclusion is usually: do the part that IS safe, create follow-on issues for the
+rest, and close the issue.
 
 ## PHASE 0 - Bootstrap
 
@@ -123,17 +133,25 @@ Prefer, in order:
 4. issue whose acceptance criteria are specific and locally verifiable
 5. smallest coherent slice likely to finish cleanly in one run
 
-De-prioritize or reject issues when:
+De-prioritize (but do not automatically reject) when:
 
-- governing artifacts are missing or contradictory
-- acceptance criteria are vague
-- required verification is undefined
-- the issue is a hidden planning or decision task in execution clothing
-- the issue would require broad speculative refactoring to complete
+- governing artifacts are thin — try to infer intent from the authority stack
+- acceptance criteria are broad — scope down to the clearest slice and implement that
+- the issue is an epic — decompose into subtasks and implement the first one
 
-If no candidate is safe to execute, do not claim one. Report the reason and
-open a refinement or decision issue if appropriate. Exit cleanly so the
-supervisor can run the queue-health check.
+Reject only when:
+
+- the issue directly contradicts a higher-authority governing artifact and the
+  contradiction cannot be resolved by reasonable interpretation
+- the issue is truly a planning or decision task that requires human input
+
+When an issue seems too hard or too broad, the right response is to decompose it
+into smaller pieces, implement the easiest piece, and create follow-on issues for
+the rest. Do not bail just because the full scope is large.
+
+If genuinely no candidate can make forward progress, report what is blocked and
+why with specific artifact references. Exit cleanly so the supervisor can run
+the queue-health check.
 
 ## PHASE 3 - Claim And Context Load
 
@@ -169,17 +187,26 @@ For the selected issue:
 Before editing code or docs, validate:
 
 - the issue is still ready and unblocked
-- the governing artifacts are sufficient to execute
-- the acceptance criteria match upstream intent
-- the verification method is concrete
-- there is no upstream contradiction that should be resolved first
+- the governing artifacts provide enough context to make reasonable progress
+- there is no direct contradiction between higher-authority artifacts
 
-If the issue is underspecified or divergent:
+If context is thin but not contradictory:
 
-- stop implementation
-- document the gap
-- create the needed follow-on issue such as `decision`, `doc`, or `design`
-- leave the current issue open unless it is genuinely invalid
+- make the best-effort interpretation consistent with the authority order
+- document your interpretation in the commit message
+- implement the clearest slice of the work
+- create follow-on issues for anything that needs further clarification
+
+Only stop implementation when:
+
+- governing artifacts directly contradict each other at the same or higher
+  authority level AND the contradiction cannot be resolved by project vision
+  and principles
+- the issue requires a human decision (e.g., product direction, API contract
+  change) that the agent cannot make
+
+"Underspecified" is not a reason to stop. Underspecified means: scope down to
+what IS specified, implement that, and create follow-on issues for the rest.
 
 ## PHASE 5 - Phase-Appropriate Execution
 

@@ -104,6 +104,29 @@ require_tracker() {
   tracker_ensure
 }
 
+condense_codex_output() {
+  # Strip codex exec boilerplate from agent output:
+  #   - "Commands run: ..." summary lines
+  #   - "tokens used\nNNN" footer
+  # Preserves substantive content and trailer lines for downstream parsing.
+  local skipping_tokens=0
+  while IFS= read -r line; do
+    if [[ "$line" =~ ^Commands\ run: ]]; then
+      continue
+    fi
+    if [[ "$line" =~ ^tokens\ used$ ]]; then
+      skipping_tokens=1
+      continue
+    fi
+    if (( skipping_tokens )); then
+      skipping_tokens=0
+      continue
+    fi
+    printf -- '%s\n' "$line"
+  done | sed -e '/./,$!d' -e :a -e '/^\n*$/{$d;N;ba;}'
+  # sed trims leading and trailing blank lines
+}
+
 run_agent_prompt() {
   local prompt="$1"
   local prompt_bytes
@@ -117,9 +140,25 @@ run_agent_prompt() {
         printf 'codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor -C %q --ephemeral %q\n' "$target_root" "$prompt"
       else
         if (( ! quiet )); then
-          printf 'helix: [%s] codex exec --progress-cursor -C %s --ephemeral <prompt %s bytes>\n' "$(date +%H:%M:%S)" "$target_root" "$prompt_bytes" >&2
+          printf 'helix: [%s] codex exec -C %s <prompt %s bytes>\n' "$(date +%H:%M:%S)" "$target_root" "$prompt_bytes" >&2
         fi
-        codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor -C "$target_root" --ephemeral "$prompt"
+        local _codex_raw _codex_rc=0
+        _codex_raw="$(codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor -C "$target_root" --ephemeral "$prompt")" || _codex_rc=$?
+
+        # Log full output for post-hoc inspection
+        {
+          printf -- '--- codex output [%s] rc=%s ---\n' "$(date +%H:%M:%S)" "$_codex_rc"
+          printf -- '%s\n' "$_codex_raw"
+          printf -- '--- end codex output ---\n'
+        } >> "$helix_log"
+
+        if (( ! quiet )); then
+          printf 'helix: [%s] codex complete (rc=%s)\n' "$(date +%H:%M:%S)" "$_codex_rc" >&2
+        fi
+
+        # Emit condensed output (strips command lists and token counts)
+        printf -- '%s\n' "$_codex_raw" | condense_codex_output
+        return "$_codex_rc"
       fi
       ;;
     claude)
@@ -382,8 +421,29 @@ helix_ready_count() {
 }
 
 helix_select_ready_issue() {
+  local skip_json="${1:-[]}"
   need_cmd jq
-  tracker_ready --json --execution | jq -r '.[0].id // empty'
+  tracker_ready --json --execution | jq -r --argjson skip "$skip_json" '
+    [.[] | select(.id as $id | $skip | index($id) | not)] as $candidates |
+
+    # Prefer leaf tasks (non-epic) with execution metadata over epics.
+    # Epics waste cycles on decomposition instead of implementation.
+    [ $candidates[] | select(.type != "epic") | select(
+        (.["spec-id"] // "") != "" or
+        (.acceptance // "") != "" or
+        (.design // "") != ""
+      )] as $leaf_with_meta |
+    if ($leaf_with_meta | length) > 0 then $leaf_with_meta
+    else
+      # Fall back: any non-epic task
+      [ $candidates[] | select(.type != "epic") ] as $leaf_any |
+      if ($leaf_any | length) > 0 then $leaf_any
+      else
+        # Last resort: epics (when only epics remain)
+        $candidates
+      end
+    end | .[0].id // empty
+  '
 }
 
 tracker_issue_fingerprint() {
@@ -728,12 +788,98 @@ run_loop() {
   local attempted_cycles=0
   local completed_cycles=0
   local post_drain_alignment_ran=0
+  local consecutive_failures=0
+  local -A skipped_issues=()
+  local -A skip_reasons=()
+  local -A issue_attempts=()
+
+  # Write a structured blocker report when the loop finishes.
+  # Called from finish_loop before every return.
+  write_blocker_report() {
+    local report_file="${target_root}/.helix-logs/blockers-$(date +%Y%m%d-%H%M%S).md"
+    local skip_count="${#skipped_issues[@]}"
+
+    # Always print summary line
+    printf '\nhelix: ═══ run complete: %s attempted, %s completed, %s skipped ═══\n' \
+      "$attempted_cycles" "$completed_cycles" "$skip_count" >&2
+
+    if (( skip_count == 0 )); then
+      return 0
+    fi
+
+    # Print blockers to stderr and mark them in the tracker
+    printf 'helix: BLOCKERS (%s issues):\n' "$skip_count" >&2
+    local id
+    for id in "${!skipped_issues[@]}"; do
+      local title
+      title="$(tracker_show "$id" --json 2>/dev/null | jq -r '.title // "?"')" || title="?"
+      local reason="${skip_reasons[$id]:-unknown}"
+      printf 'helix:   %s — %s\n' "$id" "$reason" >&2
+      printf 'helix:     %s\n' "$title" >&2
+      # Mark blocked in tracker with structured notes for human triage
+      tracker_update "$id" \
+        --labels "helix,blocked" \
+        --notes "BLOCKED [$(date -Iseconds)]: $reason" \
+        >/dev/null 2>&1 || true
+    done
+
+    # Write structured report file
+    {
+      printf '# HELIX Run Blocker Report\n\n'
+      printf 'Generated: %s\n' "$(date -Iseconds)"
+      printf 'Cycles: %s attempted, %s completed, %s skipped\n' \
+        "$attempted_cycles" "$completed_cycles" "$skip_count"
+      printf 'Log: %s\n\n' "$helix_log"
+      printf '## Blocked Issues\n\n'
+      for id in "${!skipped_issues[@]}"; do
+        local title
+        title="$(tracker_show "$id" --json 2>/dev/null | jq -r '.title // "?"')" || title="?"
+        printf '### %s\n\n' "$id"
+        printf '**Title:** %s\n' "$title"
+        printf '**Reason:** %s\n\n' "${skip_reasons[$id]:-unknown}"
+      done
+    } > "$report_file"
+    printf 'helix: blocker report written to %s\n' "$report_file" >&2
+  }
+
+  # Wrap all loop exits through this so the report always gets written.
+  finish_loop() {
+    local rc="${1:-0}"
+    write_blocker_report
+    return "$rc"
+  }
+
+  # Backoff delay for a given attempt count (exponential: 5s, 10s, 20s, 40s cap)
+  backoff_delay() {
+    local attempts="$1"
+    local delay=$(( 5 * (1 << (attempts - 1)) ))
+    (( delay > 40 )) && delay=40
+    printf '%s' "$delay"
+  }
+
+  # Check if an issue is an epic with open children.
+  # Prints the first open child ID if one exists; empty otherwise.
+  epic_next_child() {
+    local epic_id="$1"
+    local epic_type
+    epic_type="$(tracker_show "$epic_id" --json 2>/dev/null | jq -r '.type // ""')" || true
+    if [[ "$epic_type" != "epic" ]]; then
+      return
+    fi
+    # Find open children of this epic
+    tracker_list --json 2>/dev/null | jq -r --arg parent "$epic_id" '
+      [.[] | select(.parent == $parent and .status == "open")] | .[0].id // empty
+    '
+  }
 
   need_cmd jq
   require_tracker
 
   # Recover orphaned issues from crashed sessions before starting the loop
   recover_orphaned_issues
+
+  # Epic focus: when set, the loop stays on this epic until done or blocked.
+  local focused_epic=""
 
   while true; do
     local ready_count
@@ -743,18 +889,50 @@ run_loop() {
       continue
     fi
 
-    if (( ready_count > 0 )); then
+    local skip_json selected_issue=""
+    skip_json="$(printf '%s\n' "${!skipped_issues[@]}" | jq -R . | jq -s .)"
+
+    # Epic focus mode: if we're focused on an epic, try its children first.
+    if [[ -n "$focused_epic" ]]; then
+      local child
+      child="$(epic_next_child "$focused_epic")" || true
+      if [[ -n "$child" ]]; then
+        # Verify the child is execution-eligible and not skipped
+        local child_in_skip
+        child_in_skip="$(printf '%s' "$skip_json" | jq --arg id "$child" '[.[] | select(. == $id)] | length')"
+        if (( child_in_skip == 0 )); then
+          selected_issue="$child"
+          printf 'helix: epic focus: %s → child %s\n' "$focused_epic" "$selected_issue" >&2
+        fi
+      fi
+      # If no eligible children remain, check if epic is done
+      if [[ -z "$selected_issue" ]]; then
+        local remaining_children
+        remaining_children="$(tracker_list --json 2>/dev/null | jq --arg parent "$focused_epic" '
+          [.[] | select(.parent == $parent and .status != "closed")] | length
+        ')" || remaining_children=0
+        if (( remaining_children == 0 )); then
+          printf 'helix: epic %s has no remaining open children — closing epic\n' "$focused_epic" >&2
+          tracker_close "$focused_epic" 2>/dev/null || true
+          completed_cycles=$((completed_cycles + 1))
+        else
+          printf 'helix: epic %s has %s open children but none are eligible — releasing focus\n' "$focused_epic" "$remaining_children" >&2
+        fi
+        focused_epic=""
+      fi
+    fi
+
+    # Normal selection if epic focus didn't produce a candidate
+    if [[ -z "$selected_issue" ]] && (( ready_count > 0 )); then
+      selected_issue="$(helix_select_ready_issue "$skip_json" 2>/dev/null)" || true
+    fi
+
+    if [[ -n "$selected_issue" ]]; then
       local attempt_number="$((attempted_cycles + 1))"
       local closed_before
-      local selected_issue
       local selected_fingerprint
       if ! closed_before="$(tracker_list --status closed --json | jq 'length')"; then
         printf 'helix: failed to read closed count, retrying\n' >&2
-        sleep 2
-        continue
-      fi
-      if ! selected_issue="$(helix_select_ready_issue)" || [[ -z "$selected_issue" ]]; then
-        printf 'helix: ready count was positive but no ready issue could be selected, retrying\n' >&2
         sleep 2
         continue
       fi
@@ -765,16 +943,67 @@ run_loop() {
         continue
       fi
 
+      # Check if this is an epic — if so, enter epic focus mode
+      local issue_type
+      issue_type="$(tracker_show "$selected_issue" --json 2>/dev/null | jq -r '.type // ""')" || true
+      if [[ "$issue_type" == "epic" ]] && [[ -z "$focused_epic" ]]; then
+        focused_epic="$selected_issue"
+        printf 'helix: entering epic focus mode for %s\n' "$focused_epic" >&2
+        # Try to get a child to implement instead of the epic itself
+        local child
+        child="$(epic_next_child "$selected_issue")" || true
+        if [[ -n "$child" ]]; then
+          selected_issue="$child"
+          printf 'helix: epic focus: %s → child %s\n' "$focused_epic" "$selected_issue" >&2
+          # Re-fingerprint the child
+          if ! selected_fingerprint="$(tracker_issue_fingerprint "$selected_issue")"; then
+            printf 'helix: failed to fingerprint child %s, retrying\n' "$selected_issue" >&2
+            sleep 2
+            continue
+          fi
+        fi
+      fi
+
+      # Exponential backoff: delay before retrying a previously-attempted issue
+      local prev_attempts="${issue_attempts[$selected_issue]:-0}"
+      if (( prev_attempts > 0 )); then
+        local delay
+        delay="$(backoff_delay "$prev_attempts")"
+        printf 'helix: attempt %s for %s (backoff %ss)\n' "$((prev_attempts + 1))" "$selected_issue" "$delay" >&2
+        sleep "$delay"
+      fi
+
       printf 'helix: ready=%s, cycle=%s, issue=%s\n' "$ready_count" "$attempt_number" "$selected_issue" >&2
       attempted_cycles=$((attempted_cycles + 1))
       if ! run_implementation "$selected_issue"; then
         printf 'helix: implementation failed during cycle %s (will not count toward completed cycles)\n' "$attempt_number" >&2
+        consecutive_failures=$((consecutive_failures + 1))
+        issue_attempts["$selected_issue"]=$(( prev_attempts + 1 ))
+        # Exponential backoff: skip after 4 attempts (5s + 10s + 20s + 40s = 75s total backoff)
+        if (( issue_attempts["$selected_issue"] >= 4 )); then
+          skipped_issues["$selected_issue"]=1
+          skip_reasons["$selected_issue"]="intractable after ${issue_attempts[$selected_issue]} attempts with exponential backoff"
+          printf 'helix: blocking %s after %s failed attempts\n' "$selected_issue" "${issue_attempts[$selected_issue]}" >&2
+          # If this was part of a focused epic, mark the epic as blocked too
+          if [[ -n "$focused_epic" ]]; then
+            local parent
+            parent="$(tracker_show "$selected_issue" --json 2>/dev/null | jq -r '.parent // ""')" || true
+            if [[ "$parent" == "$focused_epic" ]]; then
+              skipped_issues["$focused_epic"]=1
+              skip_reasons["$focused_epic"]="child $selected_issue intractable after ${issue_attempts[$selected_issue]} attempts"
+              printf 'helix: blocking parent epic %s due to intractable child %s\n' "$focused_epic" "$selected_issue" >&2
+              focused_epic=""
+            fi
+          fi
+        fi
         sleep 5
         recover_orphaned_issues
       else
         if handle_issue_queue_drift "$selected_issue" "$selected_fingerprint"; then
-          printf 'helix: stopping after queue drift on %s\n' "$selected_issue" >&2
-          return 0
+          skipped_issues["$selected_issue"]=1
+          skip_reasons["$selected_issue"]="queue drift: upstream governance fields changed during execution"
+          printf 'helix: skipping %s after queue drift (continuing with next issue)\n' "$selected_issue" >&2
+          continue
         fi
 
         # Post-implementation review: catch bugs and capture learnings
@@ -787,11 +1016,11 @@ run_loop() {
             case "$review_status" in
               10)
                 printf 'helix: stopping after actionable review findings in cycle %s\n' "$attempt_number" >&2
-                return 0
+                finish_loop 0; return $?
                 ;;
               *)
                 printf 'helix: review output was not safely interpretable after cycle %s\n' "$attempt_number" >&2
-                return 1
+                finish_loop 1; return $?
                 ;;
             esac
           fi
@@ -801,8 +1030,18 @@ run_loop() {
         closed_after="$(tracker_list --status closed --json | jq 'length' || echo 0)"
         if (( closed_after > closed_before )); then
           completed_cycles=$((completed_cycles + 1))
+          consecutive_failures=0
+          issue_attempts["$selected_issue"]=0
         else
           printf 'helix: cycle %s did not complete a tracked issue; completed cycles remain %s\n' "$attempt_number" "$completed_cycles" >&2
+          consecutive_failures=$((consecutive_failures + 1))
+          issue_attempts["$selected_issue"]=$(( prev_attempts + 1 ))
+          # Exponential backoff: skip after 4 non-completing attempts
+          if (( issue_attempts["$selected_issue"] >= 4 )); then
+            skipped_issues["$selected_issue"]=1
+            skip_reasons["$selected_issue"]="failed to complete after ${issue_attempts[$selected_issue]} attempts with exponential backoff"
+            printf 'helix: blocking %s after %s non-completing attempts\n' "$selected_issue" "${issue_attempts[$selected_issue]}" >&2
+          fi
         fi
       fi
       post_drain_alignment_ran=0
@@ -811,13 +1050,13 @@ run_loop() {
         printf 'helix: periodic alignment after %s cycles\n' "$completed_cycles" >&2
         if ! run_alignment repo; then
           printf 'helix: periodic alignment failed after %s cycles\n' "$completed_cycles" >&2
-          return 1
+          finish_loop 1; return $?
         fi
       fi
 
       if (( max_cycles > 0 )) && (( completed_cycles >= max_cycles )); then
         printf 'helix: reached max cycles (%s)\n' "$max_cycles" >&2
-        return 0
+        finish_loop 0; return $?
       fi
 
       continue
@@ -826,7 +1065,7 @@ run_loop() {
     local check_output=""
     if ! check_output="$(run_check repo)"; then
       echo "helix: check failed after queue drain" >&2
-      return 1
+      finish_loop 1; return $?
     fi
     printf '%s\n' "$check_output"
 
@@ -841,7 +1080,7 @@ run_loop() {
         printf 'helix: queue drained, running plan\n' >&2
         if ! run_plan repo; then
           echo "helix: plan failed after queue drain" >&2
-          return 1
+          finish_loop 1; return $?
         fi
         continue
         ;;
@@ -849,7 +1088,7 @@ run_loop() {
         printf 'helix: queue drained, running polish\n' >&2
         if ! run_polish repo; then
           echo "helix: polish failed after queue drain" >&2
-          return 1
+          finish_loop 1; return $?
         fi
         continue
         ;;
@@ -858,30 +1097,33 @@ run_loop() {
           printf 'helix: queue drained, running alignment\n' >&2
           if ! run_alignment repo; then
             echo "helix: post-drain alignment failed" >&2
-            return 1
+            finish_loop 1; return $?
           fi
           post_drain_alignment_ran=1
           continue
         fi
         echo "helix: stopping after check returned ALIGN" >&2
-        return 0
+        finish_loop 0; return $?
         ;;
       WAIT)
         printf 'helix: stopping after check returned WAIT\n' >&2
-        return 0
+        finish_loop 0; return $?
         ;;
       BACKFILL)
-        printf 'helix: stopping after check returned BACKFILL\n' >&2
-        printf 'helix: run helix backfill repo\n' >&2
-        return 0
+        printf 'helix: queue needs backfill, running backfill\n' >&2
+        if ! run_backfill repo; then
+          echo "helix: backfill failed after queue drain" >&2
+          finish_loop 1; return $?
+        fi
+        continue
         ;;
       GUIDANCE|STOP)
         printf 'helix: stopping after check returned %s\n' "$next_action" >&2
-        return 0
+        finish_loop 0; return $?
         ;;
       *)
         echo "helix: unable to determine NEXT_ACTION from check output" >&2
-        return 1
+        finish_loop 1; return $?
         ;;
     esac
   done

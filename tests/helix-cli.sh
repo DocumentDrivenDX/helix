@@ -896,6 +896,10 @@ case "$payload" in
     fi
     echo "implementation complete"
     ;;
+  *"check action"*)
+    record check
+    printf 'NEXT_ACTION: STOP\n'
+    ;;
   *) record other; echo "mock codex" ;;
 esac
 MOCK
@@ -904,11 +908,14 @@ MOCK
   local output
   output="$(run_helix "$root" run --no-auto-review 2>&1)"
   assert_contains "$output" "queue drift detected" "run should report queue drift"
-  assert_contains "$output" "stopping after queue drift" "run should stop after drift is detected"
+  assert_contains "$output" "after queue drift" "run should skip drifted issue and continue"
 
   local status
   status="$(run_helix "$root" tracker show hx-mock-0 --json | jq -r '.status')"
   assert_eq "open" "$status" "run should reopen a drifted issue instead of leaving it closed"
+
+  assert_contains "$output" "BLOCKERS" "run should report blockers at the end"
+  assert_contains "$output" "hx-mock-0" "blocker report should name the drifted issue"
   rm -rf "$root"
 }
 
@@ -932,6 +939,10 @@ case "$payload" in
     fi
     echo "implementation complete"
     ;;
+  *"check action"*)
+    record check
+    printf 'NEXT_ACTION: STOP\n'
+    ;;
   *) record other; echo "mock codex" ;;
 esac
 MOCK
@@ -940,7 +951,7 @@ MOCK
   local output
   output="$(run_helix "$root" run --no-auto-review 2>&1)"
   assert_contains "$output" "queue drift detected" "run should report drift even if the issue was not closed"
-  assert_contains "$output" "stopping after queue drift" "run should stop for a re-check path"
+  assert_contains "$output" "after queue drift" "run should skip drifted issue and continue"
 
   local status
   status="$(run_helix "$root" tracker show hx-mock-0 --json | jq -r '.status')"
@@ -1024,6 +1035,10 @@ case "$payload" in
     printf '%s\n' "$tmp" > .helix/issues.jsonl
     echo "implementation complete"
     ;;
+  *"check action"*)
+    record check
+    printf 'NEXT_ACTION: STOP\n'
+    ;;
   *) record other; echo "mock codex" ;;
 esac
 MOCK
@@ -1032,7 +1047,7 @@ MOCK
   local output
   output="$(run_helix "$root" run --no-auto-review 2>&1)"
   assert_contains "$output" "queue drift detected" "run should report supersession as drift"
-  assert_contains "$output" "stopping after queue drift" "run should stop when an issue is superseded"
+  assert_contains "$output" "after queue drift" "run should skip superseded issue"
 
   local status superseded_by
   status="$(run_helix "$root" tracker show hx-mock-0 --json | jq -r '.status')"
@@ -1205,19 +1220,18 @@ test_run_stops_on_wait() {
   rm -rf "$root"
 }
 
-test_run_stops_on_backfill() {
+test_run_dispatches_backfill() {
   local root
   root="$(make_workspace)"
-  printf 'BACKFILL\n' > "$root/state/next-actions"
+  printf 'BACKFILL\nSTOP\n' > "$root/state/next-actions"
 
   local output
   output="$(run_helix "$root" run --no-auto-review 2>&1)"
 
   local calls
   calls="$(cat "$root/state/calls.log")"
-  assert_eq $'check' "$calls" "run should not auto-dispatch backfill after queue drain"
-  assert_contains "$output" "stopping after check returned BACKFILL" "run should surface BACKFILL as a distinct stop"
-  assert_contains "$output" "run helix backfill repo" "run should print the explicit backfill handoff command"
+  assert_eq $'check\nbackfill\ncheck' "$calls" "run should auto-dispatch backfill after queue drain"
+  assert_contains "$output" "queue needs backfill" "run should report backfill dispatch"
   rm -rf "$root"
 }
 
@@ -2358,7 +2372,7 @@ run_test "claude run stops after drain" test_claude_run_stops_after_queue_drains
 run_test "claude auto-align" test_claude_run_auto_aligns
 run_test "claude check dry-run" test_claude_check_dry_run
 run_test "run stops on WAIT" test_run_stops_on_wait
-run_test "run stops on BACKFILL" test_run_stops_on_backfill
+run_test "run dispatches backfill" test_run_dispatches_backfill
 run_test "max cycles count completed work only" test_run_max_cycles_counts_completed_cycles_only
 run_test "periodic alignment ignores failed attempts" test_run_periodic_alignment_ignores_failed_attempts
 run_test "extract NEXT_ACTION from claude output" test_extract_next_action_from_claude_output
