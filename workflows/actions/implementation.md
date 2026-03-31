@@ -238,22 +238,34 @@ Follow Iterate-phase discipline strictly:
 
 ## PHASE 6 - Follow-On Issue Capture
 
-If execution reveals additional work:
+If execution reveals additional work, decide whether to absorb or split:
 
-- create a new issue immediately
-- make it atomic and deterministic
+**Absorb into the current issue** when the follow-on work is:
+
+- small (< 30 minutes, < 100 lines changed)
+- directly adjacent to what you already changed (same file, same module)
+- a doc/manifest update triggered by the code you just wrote (e.g., promoting
+  an acceptance criterion in the TOML after implementing the feature)
+- a test update for the code you just changed
+
+Absorbing small adjacent work reduces issue churn and keeps the tracker
+meaningful. The goal is one issue per coherent unit of work, not one issue
+per observation.
+
+**Create a new follow-on issue** when the work is:
+
+- in a different subsystem or crate than the current issue
+- a newly discovered bug unrelated to the current change
+- a design or architecture change that needs its own review
+- large enough to be its own implementation cycle (> 1 hour estimated)
+- blocked on something the current issue can't resolve
+
+When creating follow-on issues:
+
+- make them atomic and deterministic
 - set `spec-id` to the nearest governing artifact
 - add the correct HELIX labels
 - encode blockers with `helix tracker dep add`
-
-Create follow-on issues when:
-
-- remaining work is outside the current issue scope
-- a new bug or cleanup item is discovered
-- governing docs must change before more code should land
-- deployment or iterate work is exposed by build completion
-
-Do not silently absorb follow-on work into the current issue.
 
 ## PHASE 7 - Verification
 
