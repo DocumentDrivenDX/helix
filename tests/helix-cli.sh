@@ -1101,20 +1101,11 @@ test_installer_creates_launcher() {
   local launcher
   launcher="$(cat "$root/home/.local/bin/helix")"
   assert_contains "$launcher" 'exec bash "'$repo_root'/scripts/helix"' "launcher should invoke repo helix script through bash"
-  local canonical_skills=(
-    helix-run
-    helix-implement
-    helix-check
-    helix-align
-    helix-backfill
-    helix-plan
-    helix-polish
-    helix-next
-    helix-review
-    helix-experiment
-  )
+  # Auto-discover canonical skills from .agents/skills/ — never hardcode
   local skill
-  for skill in "${canonical_skills[@]}"; do
+  for skill_path in "$repo_root/.agents/skills"/helix-*; do
+    [[ -e "$skill_path" ]] || continue
+    skill="$(basename "$skill_path")"
     [[ -L "$root/agents-home/skills/$skill" ]] || fail "installer should link $skill into .agents"
     [[ -L "$root/claude-home/skills/$skill" ]] || fail "installer should link $skill into Claude"
     [[ "$(readlink "$root/agents-home/skills/$skill")" == "$repo_root/.agents/skills/$skill" ]] || fail "installer should point .agents/$skill at the canonical project skill package"

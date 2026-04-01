@@ -98,16 +98,12 @@ remove_obsolete_native_links() {
 remove_noncanonical_links
 remove_obsolete_native_links
 
-install_pair "helix-run" "$project_skills_dir/helix-run"
-install_pair "helix-implement" "$project_skills_dir/helix-implement"
-install_pair "helix-check" "$project_skills_dir/helix-check"
-install_pair "helix-align" "$project_skills_dir/helix-align"
-install_pair "helix-backfill" "$project_skills_dir/helix-backfill"
-install_pair "helix-plan" "$project_skills_dir/helix-plan"
-install_pair "helix-polish" "$project_skills_dir/helix-polish"
-install_pair "helix-next" "$project_skills_dir/helix-next"
-install_pair "helix-review" "$project_skills_dir/helix-review"
-install_pair "helix-experiment" "$project_skills_dir/helix-experiment"
+# Auto-discover and install all skills from .agents/skills/
+for skill_link in "$project_skills_dir"/helix-*; do
+  [[ -e "$skill_link" ]] || continue
+  local_name="$(basename "$skill_link")"
+  install_pair "$local_name" "$skill_link"
+done
 
 echo "Installed skills into:"
 echo "  Agents: $agents_skills_dir"

@@ -58,6 +58,7 @@ usage() {
   cat <<EOF
 Usage:
   helix run [--agent codex|claude] [--review-every N] [--max-cycles N] [--no-auto-align] [--no-auto-review] [--dry-run]
+  helix frame [--agent codex|claude] [scope]
   helix build [--agent codex|claude] [selector]
   helix check [--agent codex|claude] [scope]
   helix align [--agent codex|claude] [scope]
@@ -74,6 +75,7 @@ Usage:
 
 Commands:
   run         Loop over ready HELIX work, then check whether to continue
+  frame       Create or refine product vision, PRD, and feature specs
   build       Run one bounded implementation pass
   check       Run the bounded HELIX queue-health check
   align       Run reconcile-alignment for a scope (default: repo)
@@ -484,6 +486,24 @@ Backfill scope: ${scope}.
 Return the required BACKFILL_STATUS, BACKFILL_REPORT, and RESEARCH_EPIC trailer lines exactly.
 Follow the action exactly. Do the work — do not just describe what you would do.
 EOF
+}
+
+frame_prompt() {
+  local scope="${1:-}"
+  cat <<EOF
+Execute the following HELIX frame action.
+$(inline_action "${helix_docs_root}/actions/frame.md")
+Use artifact templates at ${helix_docs_root}/phases/00-discover/artifacts/ and ${helix_docs_root}/phases/01-frame/artifacts/ as needed.
+Execute in the current repository rooted at ${target_root}.
+Issue tracker: built-in JSONL at ${tracker_file}. Use \`helix tracker\` subcommands.
+Frame scope: ${scope:-repo}.
+Follow the action exactly. Do the work — do not just describe what you would do.
+EOF
+}
+
+run_frame() {
+  local scope="${1:-}"
+  run_agent_prompt "$(frame_prompt "$scope")"
 }
 
 plan_prompt() {
@@ -1629,6 +1649,11 @@ main() {
       done
 
       run_loop
+      ;;
+    frame)
+      parse_common_flags "$@"
+      set -- "${REMAINING_ARGS[@]}"
+      run_frame "${1:-}"
       ;;
     build|implement)
       parse_common_flags "$@"
