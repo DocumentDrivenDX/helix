@@ -269,16 +269,20 @@ When creating follow-on issues:
 
 ## PHASE 7 - Verification
 
-Run all verification required by the issue and the project.
+Run verification scoped to what you changed, not the full workspace.
+
+**Scope verification to changed crates and files.** If you changed files in
+two crates, run clippy, tests, and fmt on those two crates — not the entire
+workspace. The pre-commit hooks handle full workspace verification on commit,
+so you do not need to duplicate that work. This saves significant time and
+token cost.
 
 At minimum, verify:
 
 - the issue acceptance criteria are satisfied
-- relevant tests pass
-- no previously passing required checks now fail
-- lint, type, format, or static analysis gates pass if defined by the project
+- relevant tests pass in the changed crates/packages
+- lint, format, or static analysis passes on the changed crates/packages
 - docs/config/runbooks are updated where required
-- any build, deploy, or iterate phase exit conditions touched by the work are still valid
 - ratchet enforcement commands pass if the project has adopted quality ratchets
   (see `workflows/ratchets.md`). If a ratchet auto-bump is triggered,
   include the updated floor fixture in the issue commit.

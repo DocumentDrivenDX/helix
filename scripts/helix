@@ -23,10 +23,11 @@ source "$script_dir/tracker.sh"
 
 agent="${HELIX_AGENT:-codex}"
 review_agent="${HELIX_REVIEW_AGENT:-}"
-review_every=5
+review_every=15
 max_cycles=0
 auto_align=1
 auto_review=1
+review_threshold=100
 dry_run=0
 quiet=0
 total_tokens=0
@@ -342,7 +343,9 @@ inline_action() {
 
 implementation_prompt() {
   local selector="${1:-}"
+  local context_file="${target_root}/.helix/context.md"
   cat <<EOF
+$(if [[ -f "$context_file" ]]; then cat "$context_file"; printf '\n---\n\n'; fi)
 Execute the following HELIX implementation action.
 $(inline_action "${helix_docs_root}/actions/implementation.md")
 Use supporting references at ${helix_docs_root}/README.md and ${helix_docs_root}/phases/04-build/enforcer.md as needed.
@@ -508,6 +511,46 @@ run_evolve() {
     require_tracker
   fi
   run_agent_prompt "$(evolve_prompt "$requirement" "$scope" "$artifact" "$source")"
+}
+
+generate_run_context() {
+  # Generate a condensed context file for the agent to reduce token usage.
+  # Called at run start and on epic switch. Non-fatal if it fails.
+  local epic_id="${1:-}"
+  local context_file="${target_root}/.helix/context.md"
+  local ready_count
+  ready_count="$(tracker_ready --json --execution 2>/dev/null | jq 'length' 2>/dev/null)" || ready_count="?"
+
+  {
+    printf '# HELIX Execution Context\n\n'
+    printf 'Project root: %s\n' "$target_root"
+    printf 'Tracker: %s\n' "$tracker_file"
+    printf 'Ready issues: %s\n\n' "$ready_count"
+
+    if [[ -n "$epic_id" ]]; then
+      local epic_title epic_spec epic_ac
+      epic_title="$(tracker_show "$epic_id" --json 2>/dev/null | jq -r '.title // "?"')" || epic_title="?"
+      epic_spec="$(tracker_show "$epic_id" --json 2>/dev/null | jq -r '.["spec-id"] // ""')" || epic_spec=""
+      epic_ac="$(tracker_show "$epic_id" --json 2>/dev/null | jq -r '.acceptance // ""')" || epic_ac=""
+      printf '## Current Epic\n\n'
+      printf 'ID: %s\nTitle: %s\n' "$epic_id" "$epic_title"
+      [[ -n "$epic_spec" ]] && printf 'Spec: %s\n' "$epic_spec"
+      [[ -n "$epic_ac" ]] && printf 'Acceptance: %s\n' "$epic_ac"
+      printf '\n'
+    fi
+
+    printf '## Key Rules\n\n'
+    printf '- One issue per cycle. Claim before work, close after verification.\n'
+    printf '- Authority order: Vision > PRD > Specs > Architecture > Designs > Tests > Code\n'
+    printf '- Verify only changed crates/packages, not the full workspace.\n'
+    printf '- Absorb small adjacent work (<100 lines, same module) instead of creating tickets.\n'
+    printf '- Use helix tracker subcommands for all issue operations.\n'
+    printf '- Commit with issue ID in message. Push to remote.\n'
+  } > "$context_file"
+
+  if (( ! quiet )); then
+    printf 'helix: generated context at %s\n' "$context_file" >&2
+  fi
 }
 
 helix_ready_count() {
@@ -1054,6 +1097,9 @@ run_loop() {
   # Recover orphaned issues from crashed sessions before starting the loop
   recover_orphaned_issues
 
+  # Generate context file for token efficiency (non-fatal)
+  generate_run_context "" || true
+
   # Epic focus: when set, the loop stays on this epic until done or blocked.
   local focused_epic=""
 
@@ -1143,6 +1189,7 @@ run_loop() {
       if [[ "$issue_type" == "epic" ]] && [[ -z "$focused_epic" ]]; then
         focused_epic="$selected_issue"
         printf 'helix: entering epic focus mode for %s\n' "$focused_epic" >&2
+        generate_run_context "$focused_epic" || true
         # Try to get a child to implement instead of the epic itself
         local child
         child="$(epic_next_child "$selected_issue")" || true
@@ -1203,7 +1250,17 @@ run_loop() {
         fi
 
         # Post-implementation review: catch bugs and capture learnings
+        # Skip review for small changes (below threshold) to save tokens.
+        # Epic close reviews always run regardless of threshold.
         if (( auto_review )); then
+          local _diff_lines _diff_files _skip_review=0
+          _diff_lines="$(cd "$target_root" && git diff --stat HEAD~1 2>/dev/null | tail -1 | grep -oE '[0-9]+ insertion|[0-9]+ deletion' | grep -oE '[0-9]+' | paste -sd+ | bc 2>/dev/null)" || _diff_lines=999
+          _diff_files="$(cd "$target_root" && git diff --name-only HEAD~1 2>/dev/null | wc -l)" || _diff_files=999
+          if (( review_threshold > 0 && _diff_lines < review_threshold && _diff_files < 3 )); then
+            _skip_review=1
+            printf 'helix: skipping review for small change (%s lines, %s files < threshold %s)\n' "$_diff_lines" "$_diff_files" "$review_threshold" >&2
+          fi
+          if (( ! _skip_review )); then
           printf 'helix: post-implementation review after cycle %s\n' "$attempt_number" >&2
           if run_review last-commit 1; then
             :
@@ -1220,6 +1277,7 @@ run_loop() {
                 ;;
             esac
           fi
+          fi  # _skip_review
         fi
 
         local closed_after
@@ -1350,6 +1408,10 @@ main() {
           --no-auto-review)
             auto_review=0
             shift
+            ;;
+          --review-threshold)
+            review_threshold="$2"
+            shift 2
             ;;
           --review-agent)
             review_agent="$2"
