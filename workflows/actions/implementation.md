@@ -8,11 +8,14 @@ without drifting from the authoritative planning stack, satisfy all applicable
 project quality gates, create any necessary follow-on issues, commit the work
 with explicit issue traceability, close the issue, and exit.
 
-This action is intentionally single-run. It must never loop internally or claim
-multiple issues in one invocation. External supervisors may invoke it
-repeatedly, but each run handles at most one issue. When the ready queue drains,
-the external supervisor should run `workflows/actions/check.md` instead
-of continuing blindly.
+This action is intentionally bounded. In single-issue mode, it handles one issue
+and exits. In batch mode, the supervisor provides a list of related issues to
+implement sequentially within one session — claim each, implement, verify, close,
+then move to the next. Batch mode saves context-loading cost when issues share
+the same governing artifacts.
+
+When the ready queue drains, the external supervisor should run
+`workflows/actions/check.md` instead of continuing blindly.
 
 ## Action Input
 
@@ -24,10 +27,10 @@ You may receive:
 
 Examples:
 
-- `helix implement`
-- `helix implement <id>`
-- `helix implement US-042`
-- `helix implement area:auth`
+- `helix build`
+- `helix build <id>`
+- `helix build US-042`
+- `helix build area:auth`
 
 If no argument is given, choose the best ready HELIX execution issue.
 
@@ -70,11 +73,21 @@ Do not claim or implement `phase:review` issues with this action.
 
 ## Core Principle
 
-Select the smallest ready issue that unlocks meaningful forward progress and has
-enough governing context to execute safely.
+Do the work. The goal is continuous forward progress on real implementation.
 
-Do not pick work just because it is ready. Issues with weak authority, unclear
-scope, or missing verification must be refined before implementation.
+Select the issue most likely to close cleanly in this run. Prefer straightforward
+tasks with clear acceptance criteria. When given an epic, decompose it into
+subtasks and implement the first one — decomposition IS implementation work.
+
+Hard problems should be attacked, not deferred. If the toolchain doesn't compile,
+try to fix it. If the spec is ambiguous, make the best-effort interpretation
+consistent with the authority order and document your reasoning. Only bail when
+there is a genuine contradiction between governing artifacts that you cannot
+resolve, or an intractable technical problem after real effort.
+
+"Not safe to execute as written" is almost never the right conclusion. The right
+conclusion is usually: do the part that IS safe, create follow-on issues for the
+rest, and close the issue.
 
 ## PHASE 0 - Bootstrap
 
@@ -123,36 +136,51 @@ Prefer, in order:
 4. issue whose acceptance criteria are specific and locally verifiable
 5. smallest coherent slice likely to finish cleanly in one run
 
-De-prioritize or reject issues when:
+De-prioritize (but do not automatically reject) when:
 
-- governing artifacts are missing or contradictory
-- acceptance criteria are vague
-- required verification is undefined
-- the issue is a hidden planning or decision task in execution clothing
-- the issue would require broad speculative refactoring to complete
+- governing artifacts are thin — try to infer intent from the authority stack
+- acceptance criteria are broad — scope down to the clearest slice and implement that
+- the issue is an epic — decompose into subtasks and implement the first one
 
-If no candidate is safe to execute, do not claim one. Report the reason and
-open a refinement or decision issue if appropriate. Exit cleanly so the
-supervisor can run the queue-health check.
+Reject only when:
+
+- the issue directly contradicts a higher-authority governing artifact and the
+  contradiction cannot be resolved by reasonable interpretation
+- the issue is truly a planning or decision task that requires human input
+
+When an issue seems too hard or too broad, the right response is to decompose it
+into smaller pieces, implement the easiest piece, and create follow-on issues for
+the rest. Do not bail just because the full scope is large.
+
+If genuinely no candidate can make forward progress, report what is blocked and
+why with specific artifact references. Exit cleanly so the supervisor can run
+the queue-health check.
 
 ## PHASE 3 - Claim And Context Load
 
 For the selected issue:
 
-1. claim it with `helix tracker update <id> --claim`
-2. inspect:
+1. re-read the selected issue immediately before claim:
+   - `helix tracker show <id> --json`
+   - verify the issue is still ready, still executable, and has not drifted
+     materially in `spec-id`, dependencies, parentage, or other governing
+     metadata
+   - if it drifted materially, do not claim it from stale assumptions; return
+     to candidate selection or stop with the blocker
+2. claim it with `helix tracker update <id> --claim`
+3. inspect:
    - issue fields and labels
    - `spec-id`
    - parent epic or parent issue
    - dependency tree
    - acceptance text
    - related story, feature, or area labels
-3. load the governing artifacts referenced by:
+4. load the governing artifacts referenced by:
    - `spec-id`
    - issue description
    - parent issue or epic
    - linked user story, feature, design, or test artifacts
-4. determine the work phase from labels:
+5. determine the work phase from labels:
    - `phase:build`
    - `phase:deploy`
    - `phase:iterate`
@@ -162,17 +190,26 @@ For the selected issue:
 Before editing code or docs, validate:
 
 - the issue is still ready and unblocked
-- the governing artifacts are sufficient to execute
-- the acceptance criteria match upstream intent
-- the verification method is concrete
-- there is no upstream contradiction that should be resolved first
+- the governing artifacts provide enough context to make reasonable progress
+- there is no direct contradiction between higher-authority artifacts
 
-If the issue is underspecified or divergent:
+If context is thin but not contradictory:
 
-- stop implementation
-- document the gap
-- create the needed follow-on issue such as `decision`, `doc`, or `design`
-- leave the current issue open unless it is genuinely invalid
+- make the best-effort interpretation consistent with the authority order
+- document your interpretation in the commit message
+- implement the clearest slice of the work
+- create follow-on issues for anything that needs further clarification
+
+Only stop implementation when:
+
+- governing artifacts directly contradict each other at the same or higher
+  authority level AND the contradiction cannot be resolved by project vision
+  and principles
+- the issue requires a human decision (e.g., product direction, API contract
+  change) that the agent cannot make
+
+"Underspecified" is not a reason to stop. Underspecified means: scope down to
+what IS specified, implement that, and create follow-on issues for the rest.
 
 ## PHASE 5 - Phase-Appropriate Execution
 
@@ -204,35 +241,51 @@ Follow Iterate-phase discipline strictly:
 
 ## PHASE 6 - Follow-On Issue Capture
 
-If execution reveals additional work:
+If execution reveals additional work, decide whether to absorb or split:
 
-- create a new issue immediately
-- make it atomic and deterministic
+**Absorb into the current issue** when the follow-on work is:
+
+- small (< 30 minutes, < 100 lines changed)
+- directly adjacent to what you already changed (same file, same module)
+- a doc/manifest update triggered by the code you just wrote (e.g., promoting
+  an acceptance criterion in the TOML after implementing the feature)
+- a test update for the code you just changed
+
+Absorbing small adjacent work reduces issue churn and keeps the tracker
+meaningful. The goal is one issue per coherent unit of work, not one issue
+per observation.
+
+**Create a new follow-on issue** when the work is:
+
+- in a different subsystem or crate than the current issue
+- a newly discovered bug unrelated to the current change
+- a design or architecture change that needs its own review
+- large enough to be its own implementation cycle (> 1 hour estimated)
+- blocked on something the current issue can't resolve
+
+When creating follow-on issues:
+
+- make them atomic and deterministic
 - set `spec-id` to the nearest governing artifact
 - add the correct HELIX labels
 - encode blockers with `helix tracker dep add`
 
-Create follow-on issues when:
-
-- remaining work is outside the current issue scope
-- a new bug or cleanup item is discovered
-- governing docs must change before more code should land
-- deployment or iterate work is exposed by build completion
-
-Do not silently absorb follow-on work into the current issue.
-
 ## PHASE 7 - Verification
 
-Run all verification required by the issue and the project.
+Run verification scoped to what you changed, not the full workspace.
+
+**Scope verification to changed crates and files.** If you changed files in
+two crates, run clippy, tests, and fmt on those two crates — not the entire
+workspace. The pre-commit hooks handle full workspace verification on commit,
+so you do not need to duplicate that work. This saves significant time and
+token cost.
 
 At minimum, verify:
 
 - the issue acceptance criteria are satisfied
-- relevant tests pass
-- no previously passing required checks now fail
-- lint, type, format, or static analysis gates pass if defined by the project
+- relevant tests pass in the changed crates/packages
+- lint, format, or static analysis passes on the changed crates/packages
 - docs/config/runbooks are updated where required
-- any build, deploy, or iterate phase exit conditions touched by the work are still valid
 - ratchet enforcement commands pass if the project has adopted quality ratchets
   (see `workflows/ratchets.md`). If a ratchet auto-bump is triggered,
   include the updated floor fixture in the issue commit.
@@ -272,14 +325,20 @@ If issues are found, fix them before proceeding to Phase 8.
 
 If the issue is complete:
 
-1. review the diff for scope discipline
-2. create a comprehensive commit that references the issue ID
-3. include in the commit message:
+1. re-read the selected issue immediately before close:
+   - `helix tracker show <id> --json`
+   - verify it has not been superseded or materially drifted while execution
+     was in progress
+   - if it drifted materially, do not close it from stale assumptions; stop,
+     reopen the decision path, or create the required follow-on issue
+2. review the diff for scope discipline
+3. create a comprehensive commit that references the issue ID
+4. include in the commit message:
    - issue ID
    - concise summary
    - governing artifact references where helpful
    - verification summary
-4. close the issue with `helix tracker close <id>`
+5. close the issue with `helix tracker close <id>`
 
 If the worktree contains unrelated changes, commit only the files that belong to
 the issue. Never revert unrelated work just to simplify the commit.

@@ -300,7 +300,41 @@ case "$payload" in
 esac
 EOF
 
-  chmod +x "$root/bin/codex" "$root/bin/claude"
+  cat >"$root/bin/bd" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "${1:-}" != "list" ]] || [[ "${2:-}" != "--json" ]]; then
+  echo "mock bd only supports: bd list --json" >&2
+  exit 1
+fi
+
+if [[ "${MOCK_BD_FAIL:-0}" == "1" ]]; then
+  echo "mock bd failure" >&2
+  exit 1
+fi
+
+printf '%s\n' "${MOCK_BD_LIST_JSON:-[]}"
+EOF
+
+  cat >"$root/bin/br" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "${1:-}" != "list" ]] || [[ "${2:-}" != "--json" ]]; then
+  echo "mock br only supports: br list --json" >&2
+  exit 1
+fi
+
+if [[ "${MOCK_BR_FAIL:-0}" == "1" ]]; then
+  echo "mock br failure" >&2
+  exit 1
+fi
+
+printf '%s\n' "${MOCK_BR_LIST_JSON:-[]}"
+EOF
+
+  chmod +x "$root/bin/codex" "$root/bin/claude" "$root/bin/bd" "$root/bin/br"
 }
 
 make_workspace() {
@@ -323,7 +357,7 @@ seed_tracker() {
   mkdir -p "$work_dir/.helix"
   local i
   for ((i = 0; i < count; i++)); do
-    printf '{"id":"hx-mock-%d","title":"mock issue %d","type":"task","status":"open","priority":2,"labels":["helix"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","deps":[],"assignee":"","notes":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}\n' "$i" "$i"
+    printf '{"id":"hx-mock-%d","title":"mock issue %d","type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","deps":[],"assignee":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}\n' "$i" "$i"
   done > "$work_dir/.helix/issues.jsonl"
 }
 
@@ -348,7 +382,54 @@ run_helix() {
     PATH="$root/bin:$PATH" \
     MOCK_STATE_ROOT="$root/state" \
     HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+    HELIX_SKIP_TRIAGE="${HELIX_SKIP_TRIAGE:-0}" \
+    HELIX_FORCE_EPHEMERAL=1 \
     bash "$repo_root/scripts/helix" "$cmd" --quiet "$@"
+  )
+}
+
+run_helix_with_env() {
+  local root="$1"
+  local env_name="$2"
+  local env_value="$3"
+  shift 3
+  local cmd="${1:-help}"
+  shift || true
+  (
+    cd "$root/work"
+    env \
+      HOME="$root/home" \
+      PATH="$root/bin:$PATH" \
+      MOCK_STATE_ROOT="$root/state" \
+      HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+      "$env_name=$env_value" \
+      bash "$repo_root/scripts/helix" "$cmd" --quiet "$@"
+  )
+}
+
+run_helix_with_envs() {
+  local root="$1"
+  shift
+  local env_args=()
+  while [[ $# -gt 0 ]] && [[ "$1" != "--" ]]; do
+    env_args+=("$1")
+    shift
+  done
+  if [[ "${1:-}" != "--" ]]; then
+    fail "run_helix_with_envs requires -- before command arguments"
+  fi
+  shift
+  local cmd="${1:-help}"
+  shift || true
+  (
+    cd "$root/work"
+    env \
+      HOME="$root/home" \
+      PATH="$root/bin:$PATH" \
+      MOCK_STATE_ROOT="$root/state" \
+      HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+      "${env_args[@]}" \
+      bash "$repo_root/scripts/helix" "$cmd" --quiet "$@"
   )
 }
 
@@ -358,7 +439,7 @@ test_tracker_create_and_show() {
   local root
   root="$(make_workspace)"
   local id
-  id="$(run_helix "$root" tracker create "Test issue" --type task --labels helix,phase:build)"
+  id="$(run_helix "$root" tracker create "Test issue" --type task --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
   [[ -n "$id" ]] || fail "tracker create should return an ID"
 
   local output
@@ -372,8 +453,8 @@ test_tracker_ready_and_blocked() {
   local root
   root="$(make_workspace)"
   local id1 id2
-  id1="$(run_helix "$root" tracker create "First")"
-  id2="$(run_helix "$root" tracker create "Second")"
+  id1="$(run_helix "$root" tracker create "First" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
+  id2="$(run_helix "$root" tracker create "Second" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
   run_helix "$root" tracker dep add "$id2" "$id1" >/dev/null
 
   local ready_count
@@ -398,7 +479,7 @@ test_tracker_update_and_claim() {
   local root
   root="$(make_workspace)"
   local id
-  id="$(run_helix "$root" tracker create "Claim me")"
+  id="$(run_helix "$root" tracker create "Claim me" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
 
   run_helix "$root" tracker update "$id" --claim >/dev/null
   local status
@@ -414,8 +495,8 @@ test_tracker_update_and_claim() {
 test_tracker_status() {
   local root
   root="$(make_workspace)"
-  run_helix "$root" tracker create "One" >/dev/null
-  run_helix "$root" tracker create "Two" >/dev/null
+  run_helix "$root" tracker create "One" --labels helix,phase:build --spec-id TEST --acceptance "test passes" >/dev/null
+  run_helix "$root" tracker create "Two" --labels helix,phase:build --spec-id TEST --acceptance "test passes" >/dev/null
 
   local output
   output="$(run_helix "$root" tracker status)"
@@ -437,6 +518,18 @@ test_help() {
   rm -rf "$root"
 }
 
+test_tracker_help() {
+  local root
+  root="$(make_workspace)"
+  local output
+  output="$(run_helix "$root" tracker help)"
+  assert_contains "$output" "helix tracker create" "tracker help should list create"
+  assert_contains "$output" "helix tracker import" "tracker help should list import"
+  assert_contains "$output" "helix tracker export" "tracker help should list export"
+  assert_contains "$output" "Canonical storage is .helix/issues.jsonl" "tracker help should describe canonical storage"
+  rm -rf "$root"
+}
+
 test_check_dry_run() {
   local root
   root="$(make_workspace)"
@@ -444,6 +537,7 @@ test_check_dry_run() {
   output="$(run_helix "$root" check --dry-run repo)"
   assert_contains "$output" "codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor -C" "dry-run should print codex command"
   assert_contains "$output" "actions/check.md" "dry-run should reference check action"
+  assert_contains "$output" "BUILD, DESIGN, POLISH, ALIGN, BACKFILL, WAIT, GUIDANCE, or STOP" "check dry-run should advertise the full NEXT_ACTION contract"
   rm -rf "$root"
 }
 
@@ -455,6 +549,26 @@ test_backfill_dry_run() {
   assert_contains "$output" "actions/backfill-helix-docs.md" "backfill dry-run should reference backfill action"
   assert_contains "$output" "This is a writable live session" "backfill dry-run should assert writable live execution"
   assert_contains "$output" "BACKFILL_STATUS" "backfill dry-run should require machine-readable trailer"
+  rm -rf "$root"
+}
+
+test_quickstart_demo_setup_creates_claude_settings_path() {
+  local root
+  root="$(make_workspace)"
+  mkdir -p "$root/library/.agents/skills/helix-demo"
+  printf 'demo skill\n' > "$root/library/.agents/skills/helix-demo/SKILL.md"
+
+  (
+    cd "$root/work"
+    DEMO_LIBRARY_ROOT="$root/library"
+    # shellcheck source=/dev/null
+    source "$repo_root/docs/demos/helix-quickstart/demo.sh"
+    setup_demo_workspace
+  )
+
+  assert_file_exists "$root/work/.claude/settings.json" "quickstart setup should create .claude/settings.json in a clean workspace"
+  assert_file_contains "$root/work/.claude/settings.json" '"allow": ["Bash(*)", "Read(*)", "Write(*)", "Edit(*)"]' "quickstart settings should include the expected permissions"
+  assert_file_exists "$root/work/.agents/skills/helix-demo/SKILL.md" "quickstart setup should copy demo skills into .agents/skills"
   rm -rf "$root"
 }
 
@@ -592,6 +706,139 @@ test_run_auto_aligns_once() {
   rm -rf "$root"
 }
 
+test_run_dispatches_plan_after_queue_drain() {
+  local root
+  root="$(make_workspace)"
+  printf 'DESIGN\nBUILD\nSTOP\n' > "$root/state/next-actions"
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"
+  tail -n +2 "$file" > "$file.tmp" || true
+  mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"check action"*)
+    record check
+    action="$(next_action)"
+    printf 'NEXT_ACTION: %s\n' "$action"
+    ;;
+  *"plan action"*)
+    record plan
+    mkdir -p .helix
+    cat > .helix/issues.jsonl <<'EOF'
+{"id":"hx-planned","title":"planned issue","type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"SD-001","description":"","design":"","acceptance":"","deps":[],"assignee":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}
+EOF
+    echo "PLAN_STATUS: CONVERGED"
+    echo "PLAN_DOCUMENT: docs/helix/02-design/plan-2099-01-01-repo.md"
+    ;;
+  *"implementation action"*"Implementation target: hx-planned"*)
+    record implement
+    tmp="$(jq -c 'if .id == "hx-planned" then .status = "closed" else . end' .helix/issues.jsonl)"
+    printf '%s\n' "$tmp" > .helix/issues.jsonl
+    echo "implementation complete"
+    ;;
+  *"implementation action"*)
+    echo "implementation targeted wrong issue after plan" >&2
+    exit 1
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix "$root" run --no-auto-review 2>&1)"
+
+  local calls
+  calls="$(cat "$root/state/calls.log")"
+  case "$calls" in
+    check$'\n'plan$'\n'implement$'\n'check*|check$'\n'plan$'\n'check$'\n'implement$'\n'check*)
+      ;;
+    *)
+      printf 'unexpected calls:\n%s\n' "$calls" >&2
+      fail "run should dispatch plan before bounded implementation resumes"
+      ;;
+  esac
+  assert_contains "$output" "queue drained, running design" "run should report design dispatch"
+  rm -rf "$root"
+}
+
+test_run_dispatches_polish_after_queue_drain() {
+  local root
+  root="$(make_workspace)"
+  mkdir -p "$root/work/.helix"
+  cat >"$root/work/.helix/issues.jsonl" <<'EOF'
+{"id":"hx-refine","title":"refine queue","type":"task","status":"open","priority":2,"labels":["helix","phase:design"],"parent":"","spec-id":"SD-001","description":"","design":"","acceptance":"","deps":[],"assignee":"","notes":"","execution-eligible":false,"superseded-by":"","replaces":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}
+EOF
+  printf 'POLISH\nBUILD\nSTOP\n' > "$root/state/next-actions"
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"
+  tail -n +2 "$file" > "$file.tmp" || true
+  mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"check action"*)
+    record check
+    action="$(next_action)"
+    printf 'NEXT_ACTION: %s\n' "$action"
+    ;;
+  *"polish action"*)
+    record polish
+    cat > .helix/issues.jsonl <<'EOF'
+{"id":"hx-polished","title":"polished issue","type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"SD-001","description":"","design":"","acceptance":"","deps":[],"assignee":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}
+EOF
+    echo "POLISH_STATUS: CONVERGED"
+    echo "POLISH_ROUNDS: 4"
+    ;;
+  *"implementation action"*"Implementation target: hx-polished"*)
+    record implement
+    tmp="$(jq -c 'if .id == "hx-polished" then .status = "closed" else . end' .helix/issues.jsonl)"
+    printf '%s\n' "$tmp" > .helix/issues.jsonl
+    echo "implementation complete"
+    ;;
+  *"implementation action"*)
+    echo "implementation targeted wrong issue after polish" >&2
+    exit 1
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix "$root" run --no-auto-review 2>&1)"
+
+  local calls
+  calls="$(cat "$root/state/calls.log")"
+  case "$calls" in
+    check$'\n'polish$'\n'implement$'\n'check*|check$'\n'polish$'\n'check$'\n'implement$'\n'check*)
+      ;;
+    *)
+      printf 'unexpected calls:\n%s\n' "$calls" >&2
+      fail "run should dispatch polish before bounded implementation resumes"
+      ;;
+  esac
+  assert_contains "$output" "queue drained, running polish" "run should report polish dispatch"
+  rm -rf "$root"
+}
+
 test_run_reports_periodic_alignment_failure() {
   local root
   root="$(make_workspace)"
@@ -631,6 +878,187 @@ MOCK
   rm -rf "$root"
 }
 
+test_run_stops_on_queue_drift_before_close() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c '.["spec-id"] = "TP-DRIFT" | .status = "closed"' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"check action"*)
+    record check
+    printf 'NEXT_ACTION: STOP\n'
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix "$root" run --no-auto-review 2>&1)"
+  assert_contains "$output" "queue drift detected" "run should report queue drift"
+  assert_contains "$output" "after queue drift" "run should skip drifted issue and continue"
+
+  local status
+  status="$(run_helix "$root" tracker show hx-mock-0 --json | jq -r '.status')"
+  assert_eq "open" "$status" "run should reopen a drifted issue instead of leaving it closed"
+
+  assert_contains "$output" "BLOCKERS" "run should report blockers at the end"
+  assert_contains "$output" "hx-mock-0" "blocker report should name the drifted issue"
+  rm -rf "$root"
+}
+
+test_run_stops_on_queue_drift_before_close_without_closing() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c '.["spec-id"] = "TP-DRIFT"' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"check action"*)
+    record check
+    printf 'NEXT_ACTION: STOP\n'
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix "$root" run --no-auto-review 2>&1)"
+  assert_contains "$output" "queue drift detected" "run should report drift even if the issue was not closed"
+  assert_contains "$output" "after queue drift" "run should skip drifted issue and continue"
+
+  local status
+  status="$(run_helix "$root" tracker show hx-mock-0 --json | jq -r '.status')"
+  assert_eq "open" "$status" "run should leave the issue open for re-check"
+  rm -rf "$root"
+}
+
+test_run_skips_execution_ineligible_ready_work() {
+  local root
+  root="$(make_workspace)"
+  mkdir -p "$root/work/.helix"
+  cat >"$root/work/.helix/issues.jsonl" <<'EOF'
+{"id":"hx-refine","title":"refinement","type":"task","status":"open","priority":2,"labels":["helix","phase:design"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","deps":[],"assignee":"","notes":"","execution-eligible":false,"superseded-by":"","replaces":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}
+{"id":"hx-build","title":"build","type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","deps":[],"assignee":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}
+EOF
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"
+  tail -n +2 "$file" > "$file.tmp" || true
+  mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*"Implementation target: hx-build"*)
+    record implement
+    tmp="$(jq -c 'if .id == "hx-build" then .status = "closed" else . end' .helix/issues.jsonl)"
+    printf '%s\n' "$tmp" > .helix/issues.jsonl
+    echo "implementation complete"
+    ;;
+  *"implementation action"*)
+    echo "implementation targeted wrong issue" >&2
+    exit 1
+    ;;
+  *"check action"*)
+    record check
+    action="$(next_action)"
+    printf 'NEXT_ACTION: %s\n' "$action"
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  run_helix "$root" run --no-auto-review >/dev/null
+
+  local calls
+  calls="$(cat "$root/state/calls.log")"
+  assert_eq $'implement\ncheck' "$calls" "run should implement the eligible issue then check"
+
+  local refine_status build_status
+  refine_status="$(run_helix "$root" tracker show hx-refine --json | jq -r '.status')"
+  build_status="$(run_helix "$root" tracker show hx-build --json | jq -r '.status')"
+  assert_eq "open" "$refine_status" "run should not claim refinement work"
+  assert_eq "closed" "$build_status" "run should execute the eligible build issue"
+  rm -rf "$root"
+}
+
+test_run_stops_when_issue_is_superseded() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    tmp="$(jq -c '.["superseded-by"] = "hx-replacement" | .status = "closed"' .helix/issues.jsonl)"
+    printf '%s\n' "$tmp" > .helix/issues.jsonl
+    echo "implementation complete"
+    ;;
+  *"check action"*)
+    record check
+    printf 'NEXT_ACTION: STOP\n'
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix "$root" run --no-auto-review 2>&1)"
+  assert_contains "$output" "queue drift detected" "run should report supersession as drift"
+  assert_contains "$output" "after queue drift" "run should skip superseded issue"
+
+  local status superseded_by
+  status="$(run_helix "$root" tracker show hx-mock-0 --json | jq -r '.status')"
+  superseded_by="$(run_helix "$root" tracker show hx-mock-0 --json | jq -r '.["superseded-by"]')"
+  assert_eq "open" "$status" "run should refuse stale close after supersession"
+  assert_eq "hx-replacement" "$superseded_by" "supersession metadata should remain visible"
+  rm -rf "$root"
+}
+
 run_backfill_missing_report() {
   local root="$1"
   MOCK_BACKFILL_MODE=missing-report run_helix "$root" backfill repo >/dev/null
@@ -663,7 +1091,7 @@ test_installer_creates_launcher() {
   (
     cd "$repo_root"
     HOME="$root/home" \
-    CODEX_HOME="$root/codex-home" \
+    AGENTS_HOME="$root/agents-home" \
     CLAUDE_HOME="$root/claude-home" \
     bash scripts/install-local-skills.sh >/dev/null
   )
@@ -672,7 +1100,35 @@ test_installer_creates_launcher() {
   local launcher
   launcher="$(cat "$root/home/.local/bin/helix")"
   assert_contains "$launcher" 'exec bash "'$repo_root'/scripts/helix"' "launcher should invoke repo helix script through bash"
+  local canonical_skills=(
+    helix-run
+    helix-implement
+    helix-check
+    helix-align
+    helix-backfill
+    helix-plan
+    helix-polish
+    helix-next
+    helix-review
+    helix-experiment
+  )
+  local skill
+  for skill in "${canonical_skills[@]}"; do
+    [[ -L "$root/agents-home/skills/$skill" ]] || fail "installer should link $skill into .agents"
+    [[ -L "$root/claude-home/skills/$skill" ]] || fail "installer should link $skill into Claude"
+    [[ "$(readlink "$root/agents-home/skills/$skill")" == "$repo_root/.agents/skills/$skill" ]] || fail "installer should point .agents/$skill at the canonical project skill package"
+    [[ "$(readlink "$root/claude-home/skills/$skill")" == "$repo_root/.agents/skills/$skill" ]] || fail "installer should point Claude/$skill at the canonical project skill package"
+  done
+  [[ ! -e "$root/agents-home/skills/helix-workflow" ]] || fail "installer should remove legacy skill aliases"
+  [[ ! -e "$root/agents-home/skills/plan-workflow" ]] || fail "installer should remove legacy skill aliases"
   rm -rf "$root"
+}
+
+test_skill_package_validation() {
+  (
+    cd "$repo_root"
+    bash tests/validate-skills.sh >/dev/null
+  )
 }
 
 test_claude_run_stops_after_queue_drains() {
@@ -766,19 +1222,18 @@ test_run_stops_on_wait() {
   rm -rf "$root"
 }
 
-test_run_stops_on_backfill() {
+test_run_dispatches_backfill() {
   local root
   root="$(make_workspace)"
-  printf 'BACKFILL\n' > "$root/state/next-actions"
+  printf 'BACKFILL\nSTOP\n' > "$root/state/next-actions"
 
   local output
   output="$(run_helix "$root" run --no-auto-review 2>&1)"
 
   local calls
   calls="$(cat "$root/state/calls.log")"
-  assert_eq $'check' "$calls" "run should not auto-dispatch backfill after queue drain"
-  assert_contains "$output" "stopping after check returned BACKFILL" "run should surface BACKFILL as a distinct stop"
-  assert_contains "$output" "run helix backfill repo" "run should print the explicit backfill handoff command"
+  assert_eq "check" "$calls" "run should stop after BACKFILL (no auto-dispatch)"
+  assert_contains "$output" "run \`helix backfill <scope>\` to reconstruct missing docs" "run should print backfill handoff"
   rm -rf "$root"
 }
 
@@ -900,7 +1355,7 @@ test_run_recovery_preserves_unrelated_dirty_changes() {
   local root
   root="$(make_workspace)"
   local issue_id
-  issue_id="$(run_helix "$root" tracker create "Claimed task" --labels helix,phase:build)"
+  issue_id="$(run_helix "$root" tracker create "Claimed task" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
   run_helix "$root" tracker update "$issue_id" --claim >/dev/null
 
   (
@@ -929,15 +1384,15 @@ test_extract_next_action_from_claude_output() {
     local stripped
     stripped="$(printf '%s\n' "$1" | sed 's/[*`]//g')"
     local result
-    result="$(printf '%s\n' "$stripped" | grep -oE 'NEXT_ACTION: *(IMPLEMENT|ALIGN|BACKFILL|WAIT|GUIDANCE|STOP)' | head -n1 | sed 's/^NEXT_ACTION: *//')"
+    result="$(printf '%s\n' "$stripped" | grep -oE 'NEXT_ACTION: *(BUILD|DESIGN|POLISH|ALIGN|BACKFILL|WAIT|GUIDANCE|STOP)' | head -n1 | sed 's/^NEXT_ACTION: *//')"
     printf '%s' "$result"
   }
 
   local result
   result="$(extract_next_action "## Queue Health
-NEXT_ACTION: IMPLEMENT
+NEXT_ACTION: BUILD
 Target issue: hx-mock-1")"
-  assert_eq "IMPLEMENT" "$result" "extract plain NEXT_ACTION"
+  assert_eq "BUILD" "$result" "extract plain NEXT_ACTION"
 
   result="$(extract_next_action "**NEXT_ACTION: WAIT**")"
   assert_eq "WAIT" "$result" "extract bold-wrapped NEXT_ACTION"
@@ -955,26 +1410,32 @@ Target issue: hx-mock-1")"
 \`NEXT_ACTION: BACKFILL\`
 Some epilogue')"
   assert_eq "BACKFILL" "$result" "extract code-inline NEXT_ACTION"
+
+  result="$(extract_next_action 'NEXT_ACTION: DESIGN')"
+  assert_eq "DESIGN" "$result" "extract DESIGN NEXT_ACTION"
+
+  result="$(extract_next_action '**NEXT_ACTION:** POLISH')"
+  assert_eq "POLISH" "$result" "extract POLISH NEXT_ACTION"
 }
 
-test_plan_dry_run() {
+test_design_dry_run() {
   local root
   root="$(make_workspace)"
   local output
-  output="$(run_helix "$root" plan --dry-run repo)"
-  assert_contains "$output" "actions/plan.md" "plan dry-run should reference plan action"
-  assert_contains "$output" "Plan scope: repo" "plan dry-run should include scope"
-  assert_contains "$output" "Refinement rounds: 5" "plan dry-run should include default rounds"
+  output="$(run_helix "$root" design --dry-run repo)"
+  assert_contains "$output" "actions/plan.md" "design dry-run should reference design action"
+  assert_contains "$output" "Plan scope: repo" "design dry-run should include scope"
+  assert_contains "$output" "Refinement rounds: 5" "design dry-run should include default rounds"
   rm -rf "$root"
 }
 
-test_plan_custom_rounds() {
+test_design_custom_rounds() {
   local root
   root="$(make_workspace)"
   local output
-  output="$(run_helix "$root" plan --dry-run --rounds 8 auth)"
-  assert_contains "$output" "Refinement rounds: 8" "plan should accept custom rounds"
-  assert_contains "$output" "Plan scope: auth" "plan should accept scope argument"
+  output="$(run_helix "$root" design --dry-run --rounds 8 auth)"
+  assert_contains "$output" "Refinement rounds: 8" "design should accept custom rounds"
+  assert_contains "$output" "Plan scope: auth" "design should accept scope argument"
   rm -rf "$root"
 }
 
@@ -1028,26 +1489,16 @@ test_next_no_ready_issues() {
   rm -rf "$root"
 }
 
-test_spawn_without_ntm() {
-  local root
-  root="$(make_workspace)"
-
-  local output
-  output="$(run_helix "$root" spawn 2>&1)" || true
-  assert_contains "$output" "ntm not found" "spawn should report ntm absence"
-  rm -rf "$root"
-}
-
 test_help_includes_all_commands() {
   local root
   root="$(make_workspace)"
   local output
   output="$(run_helix "$root" help)"
-  assert_contains "$output" "helix plan" "help should list plan command"
+  assert_contains "$output" "helix design" "help should list design command"
+  assert_contains "$output" "helix build" "help should list build command"
   assert_contains "$output" "helix polish" "help should list polish command"
   assert_contains "$output" "helix next" "help should list next command"
   assert_contains "$output" "helix review" "help should list review command"
-  assert_contains "$output" "helix spawn" "help should list spawn command"
   assert_contains "$output" "helix experiment" "help should list experiment command"
   assert_contains "$output" "helix tracker" "help should list tracker command"
   rm -rf "$root"
@@ -1060,6 +1511,7 @@ test_experiment_dry_run() {
   output="$(run_helix "$root" experiment --dry-run)"
   assert_contains "$output" "actions/experiment.md" "experiment dry-run should reference experiment action"
   assert_contains "$output" "Experiment target" "experiment dry-run should include experiment target"
+  [[ "$output" != *"CLOSE SESSION"* ]] || fail "experiment dry-run without --close must not include CLOSE SESSION"
   rm -rf "$root"
 }
 
@@ -1105,13 +1557,14 @@ test_claude_agent_timeout_kills_process() {
   rm -rf "$root"
 }
 
-test_implement_prompt_references_tracker() {
+test_build_prompt_references_tracker() {
   local root
   root="$(make_workspace)"
   local output
-  output="$(run_helix "$root" implement --dry-run)"
-  assert_contains "$output" "helix tracker" "implement prompt should reference helix tracker"
-  assert_contains "$output" "issues.jsonl" "implement prompt should reference JSONL file"
+  output="$(run_helix "$root" build --dry-run)"
+  assert_contains "$output" "helix tracker" "build prompt should reference helix tracker"
+  assert_contains "$output" "issues.jsonl" "build prompt should reference JSONL file"
+  assert_contains "$output" "re-read the selected issue immediately before claim and immediately before close" "build prompt should require pre-claim and pre-close revalidation"
   rm -rf "$root"
 }
 
@@ -1224,12 +1677,118 @@ MOCK
   rm -rf "$root"
 }
 
+test_run_stops_on_review_findings() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"fresh-eyes review"*)
+    record review
+    echo "REVIEW_STATUS: ISSUES_FOUND"
+    echo "ISSUES_COUNT: 2"
+    echo "AGENTS_MD_UPDATED: NO"
+    echo "LEARNINGS_FILED: 1"
+    ;;
+  *"check action"*)
+    record check
+    echo "NEXT_ACTION: STOP"
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix "$root" run 2>&1)"
+
+  local calls
+  calls="$(cat "$root/state/calls.log")"
+  assert_eq $'implement\nreview' "$calls" "run should stop before check when review finds issues"
+  assert_contains "$output" "review reported 2 actionable issue(s)" "run should surface review findings count"
+  assert_contains "$output" "stopping after actionable review findings" "run should stop after actionable review findings"
+  rm -rf "$root"
+}
+
+test_run_fails_on_unparseable_review_output() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"fresh-eyes review"*)
+    record review
+    echo "review complete without trailer"
+    ;;
+  *"check action"*)
+    record check
+    echo "NEXT_ACTION: STOP"
+    ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  if output="$(run_helix "$root" run 2>&1)"; then
+    fail "run should fail when review output cannot be interpreted safely"
+  fi
+
+  local calls
+  calls="$(cat "$root/state/calls.log")"
+  assert_eq $'implement\nreview' "$calls" "run should stop before check on malformed review output"
+  assert_contains "$output" "review output missing REVIEW_STATUS trailer" "run should require REVIEW_STATUS"
+  assert_contains "$output" "review output was not safely interpretable" "run should explain the failure"
+  rm -rf "$root"
+}
+
 # ── Extended tracker tests ─────────────────────────────────────────
 
 test_tracker_create_requires_title() {
   local root
   root="$(make_workspace)"
   assert_fails "create without title should fail" run_helix "$root" tracker create 2>/dev/null
+  rm -rf "$root"
+}
+
+test_tracker_create_help_no_side_effect() {
+  local root output
+  root="$(make_workspace)"
+  output="$(run_helix "$root" tracker create --help)"
+  assert_contains "$output" "helix tracker create" "create --help should show usage"
+  # Must not create an issue
+  local count
+  count="$(wc -l < "$root/.helix/issues.jsonl" 2>/dev/null || echo 0)"
+  [[ "$count" -eq 0 ]] || fail "create --help must not create an issue (found $count)"
   rm -rf "$root"
 }
 
@@ -1251,7 +1810,7 @@ test_tracker_close_sets_status() {
   local root
   root="$(make_workspace)"
   local id
-  id="$(run_helix "$root" tracker create "Close me")"
+  id="$(run_helix "$root" tracker create "Close me" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
 
   run_helix "$root" tracker close "$id" >/dev/null
   local status
@@ -1269,7 +1828,7 @@ test_tracker_update_multiple_fields() {
   local root
   root="$(make_workspace)"
   local id
-  id="$(run_helix "$root" tracker create "Multi update" --priority 2)"
+  id="$(run_helix "$root" tracker create "Multi update" --priority 2 --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
 
   run_helix "$root" tracker update "$id" --priority 0 --title "Urgent" --assignee agent >/dev/null
 
@@ -1285,8 +1844,8 @@ test_tracker_list_filters() {
   local root
   root="$(make_workspace)"
   local id1 id2
-  id1="$(run_helix "$root" tracker create "Open task" --labels helix,phase:build)"
-  id2="$(run_helix "$root" tracker create "Other task" --labels helix,phase:test)"
+  id1="$(run_helix "$root" tracker create "Open task" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
+  id2="$(run_helix "$root" tracker create "Other task" --labels helix,phase:iterate --spec-id TEST --acceptance "test passes")"
 
   run_helix "$root" tracker close "$id1" >/dev/null
 
@@ -1310,8 +1869,8 @@ test_tracker_dep_add_and_remove() {
   local root
   root="$(make_workspace)"
   local id1 id2
-  id1="$(run_helix "$root" tracker create "Parent")"
-  id2="$(run_helix "$root" tracker create "Child")"
+  id1="$(run_helix "$root" tracker create "Parent" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
+  id2="$(run_helix "$root" tracker create "Child" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
 
   # Add dep
   run_helix "$root" tracker dep add "$id2" "$id1" >/dev/null
@@ -1336,8 +1895,8 @@ test_tracker_dep_tree() {
   local root
   root="$(make_workspace)"
   local id1 id2
-  id1="$(run_helix "$root" tracker create "Dep parent")"
-  id2="$(run_helix "$root" tracker create "Dep child")"
+  id1="$(run_helix "$root" tracker create "Dep parent" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
+  id2="$(run_helix "$root" tracker create "Dep child" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
   run_helix "$root" tracker dep add "$id2" "$id1" >/dev/null
 
   local output
@@ -1353,9 +1912,9 @@ test_tracker_unique_ids() {
 
   # Create multiple issues and verify IDs are unique
   local id1 id2 id3
-  id1="$(run_helix "$root" tracker create "First")"
-  id2="$(run_helix "$root" tracker create "Second")"
-  id3="$(run_helix "$root" tracker create "Third")"
+  id1="$(run_helix "$root" tracker create "First" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
+  id2="$(run_helix "$root" tracker create "Second" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
+  id3="$(run_helix "$root" tracker create "Third" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
 
   [[ "$id1" != "$id2" ]] || fail "issue IDs should be unique (1 vs 2)"
   [[ "$id2" != "$id3" ]] || fail "issue IDs should be unique (2 vs 3)"
@@ -1367,7 +1926,7 @@ test_tracker_json_output() {
   local root
   root="$(make_workspace)"
   local id
-  id="$(run_helix "$root" tracker create "JSON test" --type bug --labels area:cli --description "Test desc" --acceptance "Tests pass")"
+  id="$(run_helix "$root" tracker create "JSON test" --type bug --labels area:cli,helix,phase:build --description "Test desc" --acceptance "Tests pass")"
 
   # Verify JSON output is valid and has all fields
   local json
@@ -1382,12 +1941,63 @@ test_tracker_json_output() {
   rm -rf "$root"
 }
 
+test_tracker_create_with_deps() {
+  local root
+  root="$(make_workspace)"
+  local parent child
+  parent="$(run_helix "$root" tracker create "Parent issue" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
+  child="$(run_helix "$root" tracker create "Child issue" --deps "$parent" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
+
+  local dep_id
+  dep_id="$(run_helix "$root" tracker show "$child" --json | jq -r '.deps[0]')"
+  assert_eq "$parent" "$dep_id" "create --deps should seed dependencies"
+  rm -rf "$root"
+}
+
+test_tracker_update_structural_fields() {
+  local root
+  root="$(make_workspace)"
+  local parent dep target
+  parent="$(run_helix "$root" tracker create "Parent issue" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
+  dep="$(run_helix "$root" tracker create "Dependency issue" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
+  target="$(run_helix "$root" tracker create "Target issue" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
+
+  run_helix "$root" tracker update "$target" --spec-id TP-999 --parent "$parent" --deps "$dep" >/dev/null
+
+  local json
+  json="$(run_helix "$root" tracker show "$target" --json)"
+  assert_eq "TP-999" "$(printf '%s' "$json" | jq -r '.["spec-id"]')" "update should set spec-id"
+  assert_eq "$parent" "$(printf '%s' "$json" | jq -r '.parent')" "update should set parent"
+  assert_eq "$dep" "$(printf '%s' "$json" | jq -r '.deps[0]')" "update should set deps"
+  rm -rf "$root"
+}
+
+test_tracker_update_execution_metadata_fields() {
+  local root
+  root="$(make_workspace)"
+  local target replacement
+  target="$(run_helix "$root" tracker create "Target issue" --labels helix,phase:build,kind:build --spec-id TEST --acceptance "test passes")"
+  replacement="$(run_helix "$root" tracker create "Replacement issue" --labels helix,phase:build,kind:build --spec-id TEST --acceptance "test passes")"
+
+  run_helix "$root" tracker update "$target" \
+    --execution-eligible false \
+    --superseded-by "$replacement" \
+    --replaces hx-older >/dev/null
+
+  local json
+  json="$(run_helix "$root" tracker show "$target" --json)"
+  assert_eq "false" "$(printf '%s' "$json" | jq -r '.["execution-eligible"]')" "update should set execution eligibility"
+  assert_eq "$replacement" "$(printf '%s' "$json" | jq -r '.["superseded-by"]')" "update should set superseded-by"
+  assert_eq "hx-older" "$(printf '%s' "$json" | jq -r '.replaces')" "update should set replaces"
+  rm -rf "$root"
+}
+
 test_tracker_status_json() {
   local root
   root="$(make_workspace)"
-  run_helix "$root" tracker create "A" >/dev/null
+  run_helix "$root" tracker create "A" --labels helix,phase:build --spec-id TEST --acceptance "test passes" >/dev/null
   local id
-  id="$(run_helix "$root" tracker create "B")"
+  id="$(run_helix "$root" tracker create "B" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
   run_helix "$root" tracker close "$id" >/dev/null
 
   local json
@@ -1402,7 +2012,7 @@ test_tracker_in_progress_not_ready() {
   local root
   root="$(make_workspace)"
   local id
-  id="$(run_helix "$root" tracker create "Claimed task")"
+  id="$(run_helix "$root" tracker create "Claimed task" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
   run_helix "$root" tracker update "$id" --claim >/dev/null
 
   local ready_count
@@ -1420,9 +2030,94 @@ test_tracker_empty_ready() {
   rm -rf "$root"
 }
 
+test_tracker_ready_execution_filters_metadata() {
+  local root
+  root="$(make_workspace)"
+  local runnable refinement superseded
+  runnable="$(run_helix "$root" tracker create "Runnable" --labels helix,phase:build,kind:build --spec-id TEST --acceptance "test passes")"
+  refinement="$(run_helix "$root" tracker create "Refinement" --labels helix,phase:design --execution-eligible false --spec-id TEST --acceptance "test passes")"
+  superseded="$(run_helix "$root" tracker create "Superseded" --labels helix,phase:build,kind:build --spec-id TEST --acceptance "test passes")"
+  run_helix "$root" tracker update "$superseded" --superseded-by "$runnable" >/dev/null
+
+  local ready_ids
+  ready_ids="$(run_helix "$root" tracker ready --json --execution | jq -r '.[].id')"
+  assert_eq "$runnable" "$ready_ids" "execution-ready query should exclude refinement and superseded work"
+  rm -rf "$root"
+}
+
+test_tracker_serializes_concurrent_writes() {
+  local root
+  root="$(make_workspace)"
+
+  run_helix_with_env "$root" HELIX_TRACKER_TEST_HOLD_LOCK_SEC 0.3 tracker create "First concurrent issue" --labels helix,phase:build --spec-id TEST --acceptance "test passes" >/dev/null &
+  local first_pid=$!
+
+  sleep 0.05
+
+  local second_id
+  second_id="$(run_helix "$root" tracker create "Second concurrent issue" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
+  wait "$first_pid"
+
+  local count
+  count="$(run_helix "$root" tracker list --json | jq 'length')"
+  assert_eq "2" "$count" "concurrent creates should both persist"
+
+  local second_title
+  second_title="$(run_helix "$root" tracker show "$second_id" --json | jq -r '.title')"
+  assert_eq "Second concurrent issue" "$second_title" "second writer should succeed after waiting for the lock"
+  rm -rf "$root"
+}
+
+test_tracker_lock_timeout_reports_owner() {
+  local root
+  root="$(make_workspace)"
+
+  mkdir -p "$root/work/.helix/issues.lock"
+  printf '424242\n' > "$root/work/.helix/issues.lock/pid"
+  printf '2099-01-01T00:00:00Z\n' > "$root/work/.helix/issues.lock/acquired_at"
+
+  local output
+  output="$(run_helix_with_env "$root" HELIX_TRACKER_LOCK_TIMEOUT 0 tracker create "Blocked by lock" --labels helix,phase:build --spec-id TEST --acceptance "test passes" 2>&1 || true)"
+  assert_contains "$output" "timed out waiting for tracker lock" "lock timeout should be reported"
+  assert_contains "$output" "owner: 424242" "lock timeout should report the recorded lock owner"
+
+  local count
+  count="$(run_helix "$root" tracker list --json | jq 'length')"
+  assert_eq "0" "$count" "timed out mutation should not create partial tracker state"
+  rm -rf "$root"
+}
+
+test_tracker_list_fails_on_malformed_jsonl() {
+  local root
+  root="$(make_workspace)"
+
+  mkdir -p "$root/work/.helix"
+  printf '{"id":"hx-good","title":"ok"}\n{"id":"hx-bad"\n' > "$root/work/.helix/issues.jsonl"
+
+  assert_fails "list should fail on malformed tracker state" run_helix "$root" tracker list --json 2>/dev/null
+  assert_fails "status should fail on malformed tracker state" run_helix "$root" tracker status --json 2>/dev/null
+  rm -rf "$root"
+}
+
+test_tracker_mutation_fails_on_malformed_jsonl() {
+  local root
+  root="$(make_workspace)"
+
+  mkdir -p "$root/work/.helix"
+  printf '{"id":"hx-good","title":"ok"}\n{"id":"hx-bad"\n' > "$root/work/.helix/issues.jsonl"
+
+  assert_fails "create should fail on malformed tracker state" run_helix "$root" tracker create "Should fail" 2>/dev/null
+  assert_fails "update should fail on malformed tracker state" run_helix "$root" tracker update hx-good --title "new" 2>/dev/null
+
+  local line_count
+  line_count="$(wc -l < "$root/work/.helix/issues.jsonl" | tr -d ' ')"
+  assert_eq "2" "$line_count" "failed mutation should not rewrite malformed tracker state"
+  rm -rf "$root"
+}
+
 # ── Migration tests ───────────────────────────────────────────────
 
-test_migrate_from_jsonl() {
+test_tracker_import_from_jsonl() {
   local root
   root="$(make_workspace)"
 
@@ -1434,47 +2129,47 @@ test_migrate_from_jsonl() {
 LEGACY
 
   local output
-  output="$(run_helix "$root" tracker migrate 2>&1)"
-  assert_contains "$output" "found 2 issues" "migrate should find issues"
-  assert_contains "$output" "migrated 2 issues" "migrate should report count"
-  assert_contains "$output" "may be stale" "JSONL fallback should warn about staleness"
+  output="$(run_helix "$root" tracker import --from jsonl 2>&1)"
+  assert_contains "$output" "found 2 issues" "import should find issues"
+  assert_contains "$output" "imported 2 beads" "import should report count"
+  assert_contains "$output" ".beads/issues.jsonl" "import should report the JSONL source"
 
   # Verify data is accessible
   local count
   count="$(run_helix "$root" tracker list --json | jq 'length')"
-  assert_eq "2" "$count" "migrated tracker should have 2 issues"
+  assert_eq "2" "$count" "imported tracker should have 2 issues"
 
   # Verify IDs are preserved
   local title
   title="$(run_helix "$root" tracker show bd-aaa111 --json | jq -r '.title')"
-  assert_eq "Legacy task one" "$title" "migrated issue should preserve title"
+  assert_eq "Legacy task one" "$title" "imported issue should preserve title"
 
   # Verify deps are preserved
   local deps
   deps="$(run_helix "$root" tracker show bd-bbb222 --json | jq -r '.deps[0]')"
-  assert_eq "bd-aaa111" "$deps" "migrated issue should preserve deps"
+  assert_eq "bd-aaa111" "$deps" "imported issue should preserve deps"
 
   # Verify labels are preserved
   local label
   label="$(run_helix "$root" tracker show bd-aaa111 --json | jq -r '.labels[1]')"
-  assert_eq "phase:build" "$label" "migrated issue should preserve labels"
+  assert_eq "phase:build" "$label" "imported issue should preserve labels"
   rm -rf "$root"
 }
 
-test_migrate_no_source() {
+test_tracker_import_no_source() {
   local root
   root="$(make_workspace)"
   # No .beads/ directory, no bd, no br
-  assert_fails "migrate with no source should fail" run_helix "$root" tracker migrate 2>/dev/null
+  assert_fails "import with no source should fail" run_helix "$root" tracker import 2>/dev/null
   rm -rf "$root"
 }
 
-test_migrate_warns_existing_data() {
+test_tracker_import_warns_existing_data() {
   local root
   root="$(make_workspace)"
 
   # Seed existing tracker data
-  run_helix "$root" tracker create "Existing issue" >/dev/null
+  run_helix "$root" tracker create "Existing issue" --labels helix,phase:build --spec-id TEST --acceptance "test passes" >/dev/null
 
   # Create legacy data
   mkdir -p "$root/work/.beads"
@@ -1482,18 +2177,18 @@ test_migrate_warns_existing_data() {
     >"$root/work/.beads/issues.jsonl"
 
   local output
-  output="$(run_helix "$root" tracker migrate 2>&1)"
-  assert_contains "$output" "WARNING" "migrate should warn about existing data"
-  assert_contains "$output" "already has 1 issues" "migrate should report existing count"
+  output="$(run_helix "$root" tracker import --from jsonl 2>&1)"
+  assert_contains "$output" "WARNING" "import should warn about existing data"
+  assert_contains "$output" "already has 1 issues" "import should report existing count"
 
   # Verify both old and new data exist
   local count
   count="$(run_helix "$root" tracker list --json | jq 'length')"
-  assert_eq "2" "$count" "migrate should append to existing data"
+  assert_eq "2" "$count" "import should append to existing data"
   rm -rf "$root"
 }
 
-test_migrate_normalizes_missing_fields() {
+test_tracker_import_normalizes_missing_fields() {
   local root
   root="$(make_workspace)"
 
@@ -1502,16 +2197,103 @@ test_migrate_normalizes_missing_fields() {
   printf '{"id":"bd-sparse","title":"Sparse issue"}\n' \
     >"$root/work/.beads/issues.jsonl"
 
-  run_helix "$root" tracker migrate 2>/dev/null
+  run_helix "$root" tracker import --from jsonl 2>/dev/null
 
   # Verify defaults were applied
   local json
   json="$(run_helix "$root" tracker show bd-sparse --json)"
-  assert_eq "task" "$(printf '%s' "$json" | jq -r '.type')" "migrate should default type to task"
-  assert_eq "open" "$(printf '%s' "$json" | jq -r '.status')" "migrate should default status to open"
-  assert_eq "2" "$(printf '%s' "$json" | jq '.priority')" "migrate should default priority to 2"
-  assert_eq "0" "$(printf '%s' "$json" | jq '.deps | length')" "migrate should default deps to empty"
-  assert_eq "0" "$(printf '%s' "$json" | jq '.labels | length')" "migrate should default labels to empty"
+  assert_eq "task" "$(printf '%s' "$json" | jq -r '.type')" "import should default type to task"
+  assert_eq "open" "$(printf '%s' "$json" | jq -r '.status')" "import should default status to open"
+  assert_eq "2" "$(printf '%s' "$json" | jq '.priority')" "import should default priority to 2"
+  assert_eq "0" "$(printf '%s' "$json" | jq '.deps | length')" "import should default deps to empty"
+  assert_eq "0" "$(printf '%s' "$json" | jq '.labels | length')" "import should default labels to empty"
+  rm -rf "$root"
+}
+
+test_tracker_import_from_bd() {
+  local root
+  root="$(make_workspace)"
+  mkdir -p "$root/work/.beads"
+
+  local output
+  output="$(run_helix_with_envs "$root" \
+    MOCK_BD_LIST_JSON='[{"id":"bd-live","title":"From bd","type":"task","status":"open","priority":1,"labels":["helix","phase:build"],"deps":[]}]' \
+    -- tracker import --from bd 2>&1)"
+  assert_contains "$output" "bd (live Dolt database)" "import should report bd as the source"
+
+  local title
+  title="$(run_helix "$root" tracker show bd-live --json | jq -r '.title')"
+  assert_eq "From bd" "$title" "bd import should populate canonical storage"
+  rm -rf "$root"
+}
+
+test_tracker_import_from_br() {
+  local root
+  root="$(make_workspace)"
+
+  local output
+  output="$(run_helix_with_envs "$root" \
+    MOCK_BR_LIST_JSON='[{"id":"br-live","title":"From br","type":"bug","status":"closed","priority":0,"labels":["helix"],"deps":[]}]' \
+    -- tracker import --from br 2>&1)"
+  assert_contains "$output" "br (live SQLite database)" "import should report br as the source"
+
+  local status
+  status="$(run_helix "$root" tracker show br-live --json | jq -r '.status')"
+  assert_eq "closed" "$status" "br import should preserve issue state"
+  rm -rf "$root"
+}
+
+test_tracker_migrate_aliases_import() {
+  local root
+  root="$(make_workspace)"
+  mkdir -p "$root/work/.beads"
+  printf '{"id":"bd-alias","title":"Alias issue","type":"task","status":"open","priority":2,"labels":[],"deps":[]}\n' \
+    >"$root/work/.beads/issues.jsonl"
+
+  local output
+  output="$(run_helix "$root" tracker migrate 2>&1)"
+  assert_contains "$output" "imported 1 beads" "migrate should remain an import alias"
+  rm -rf "$root"
+}
+
+test_tracker_export_writes_beads_jsonl() {
+  local root
+  root="$(make_workspace)"
+  local id
+  id="$(run_helix "$root" tracker create "Export me" --type bug --labels helix,phase:build,area:cli)"
+  run_helix "$root" tracker update "$id" --claim >/dev/null
+
+  local export_path
+  export_path="$(run_helix "$root" tracker export)"
+  local export_file="$export_path"
+  if [[ "$export_file" != /* ]]; then
+    export_file="$root/work/$export_file"
+  fi
+  [[ -f "$export_file" ]] || fail "export should write bead JSONL"
+
+  local exported_json
+  exported_json="$(jq -s '.' "$export_file")"
+  assert_eq "$id" "$(printf '%s' "$exported_json" | jq -r '.[0].id')" "export should preserve ids"
+  assert_eq "in_progress" "$(printf '%s' "$exported_json" | jq -r '.[0].status')" "export should preserve status"
+  assert_eq "helix" "$(printf '%s' "$exported_json" | jq -r '.[0].assignee')" "export should preserve assignee"
+  rm -rf "$root"
+}
+
+test_tracker_export_stdout_roundtrip() {
+  local root
+  root="$(make_workspace)"
+  run_helix "$root" tracker create "Round trip A" --labels helix,phase:build --spec-id TEST --acceptance "test passes" >/dev/null
+  run_helix "$root" tracker create "Round trip B" --labels helix,phase:build --spec-id TEST --acceptance "test passes" >/dev/null
+
+  mkdir -p "$root/work/tmp"
+  run_helix "$root" tracker export --stdout > "$root/work/tmp/export.jsonl"
+  rm -f "$root/work/.helix/issues.jsonl"
+
+  run_helix "$root" tracker import --from jsonl --file tmp/export.jsonl >/dev/null
+
+  local count
+  count="$(run_helix "$root" tracker list --json | jq 'length')"
+  assert_eq "2" "$count" "exported beads JSONL should round-trip back into canonical storage"
   rm -rf "$root"
 }
 
@@ -1528,6 +2310,7 @@ run_test() {
 # Tracker unit tests
 run_test "tracker create and show" test_tracker_create_and_show
 run_test "tracker create requires title" test_tracker_create_requires_title
+run_test "tracker create --help no side effect" test_tracker_create_help_no_side_effect
 run_test "tracker show missing issue" test_tracker_show_missing_issue
 run_test "tracker update missing issue" test_tracker_update_missing_issue
 run_test "tracker ready and blocked" test_tracker_ready_and_blocked
@@ -1539,29 +2322,52 @@ run_test "tracker dep add and remove" test_tracker_dep_add_and_remove
 run_test "tracker dep tree" test_tracker_dep_tree
 run_test "tracker unique IDs" test_tracker_unique_ids
 run_test "tracker JSON output" test_tracker_json_output
+run_test "tracker create with deps" test_tracker_create_with_deps
+run_test "tracker update structural fields" test_tracker_update_structural_fields
+run_test "tracker update execution metadata fields" test_tracker_update_execution_metadata_fields
 run_test "tracker status JSON" test_tracker_status_json
 run_test "tracker status" test_tracker_status
 run_test "tracker in_progress not ready" test_tracker_in_progress_not_ready
 run_test "tracker empty ready" test_tracker_empty_ready
+run_test "tracker ready execution filters metadata" test_tracker_ready_execution_filters_metadata
+run_test "tracker serializes concurrent writes" test_tracker_serializes_concurrent_writes
+run_test "tracker lock timeout reports owner" test_tracker_lock_timeout_reports_owner
+run_test "tracker list fails on malformed jsonl" test_tracker_list_fails_on_malformed_jsonl
+run_test "tracker mutation fails on malformed jsonl" test_tracker_mutation_fails_on_malformed_jsonl
 
-# Migration tests
-run_test "migrate from JSONL" test_migrate_from_jsonl
-run_test "migrate no source" test_migrate_no_source
-run_test "migrate warns existing data" test_migrate_warns_existing_data
-run_test "migrate normalizes missing fields" test_migrate_normalizes_missing_fields
+# Beads interop tests
+run_test "tracker import from JSONL" test_tracker_import_from_jsonl
+run_test "tracker import no source" test_tracker_import_no_source
+run_test "tracker import warns existing data" test_tracker_import_warns_existing_data
+run_test "tracker import normalizes missing fields" test_tracker_import_normalizes_missing_fields
+run_test "tracker import from bd" test_tracker_import_from_bd
+run_test "tracker import from br" test_tracker_import_from_br
+run_test "tracker migrate aliases import" test_tracker_migrate_aliases_import
+run_test "tracker export writes beads JSONL" test_tracker_export_writes_beads_jsonl
+run_test "tracker export stdout roundtrip" test_tracker_export_stdout_roundtrip
 
 # Auto-review in loop tests
 run_test "run auto-reviews after implement" test_run_auto_reviews_after_implement
 run_test "run no-auto-review flag" test_run_no_auto_review_flag
+run_test "run stops on review findings" test_run_stops_on_review_findings
+run_test "run fails on unparseable review output" test_run_fails_on_unparseable_review_output
 
 # CLI integration tests
 run_test "help" test_help
+run_test "tracker help" test_tracker_help
 run_test "check dry-run" test_check_dry_run
 run_test "backfill dry-run" test_backfill_dry_run
+run_test "quickstart demo setup path" test_quickstart_demo_setup_creates_claude_settings_path
 run_test "run stops after drain" test_run_stops_after_queue_drains
 run_test "periodic alignment" test_run_periodic_alignment
 run_test "auto-align" test_run_auto_aligns_once
+run_test "queue-drain plan dispatch" test_run_dispatches_plan_after_queue_drain
+run_test "queue-drain polish dispatch" test_run_dispatches_polish_after_queue_drain
 run_test "periodic alignment failure reason" test_run_reports_periodic_alignment_failure
+run_test "run stops on queue drift before close" test_run_stops_on_queue_drift_before_close
+run_test "run stops on queue drift without closing" test_run_stops_on_queue_drift_before_close_without_closing
+run_test "run skips execution-ineligible ready work" test_run_skips_execution_ineligible_ready_work
+run_test "run stops when issue is superseded" test_run_stops_when_issue_is_superseded
 run_test "backfill requires report marker" test_backfill_requires_report_marker
 run_test "backfill creates report" test_backfill_creates_report
 run_test "installer launcher" test_installer_creates_launcher
@@ -1569,18 +2375,17 @@ run_test "claude run stops after drain" test_claude_run_stops_after_queue_drains
 run_test "claude auto-align" test_claude_run_auto_aligns
 run_test "claude check dry-run" test_claude_check_dry_run
 run_test "run stops on WAIT" test_run_stops_on_wait
-run_test "run stops on BACKFILL" test_run_stops_on_backfill
+run_test "run dispatches backfill" test_run_dispatches_backfill
 run_test "max cycles count completed work only" test_run_max_cycles_counts_completed_cycles_only
 run_test "periodic alignment ignores failed attempts" test_run_periodic_alignment_ignores_failed_attempts
 run_test "extract NEXT_ACTION from claude output" test_extract_next_action_from_claude_output
-run_test "plan dry-run" test_plan_dry_run
-run_test "plan custom rounds" test_plan_custom_rounds
+run_test "design dry-run" test_design_dry_run
+run_test "design custom rounds" test_design_custom_rounds
 run_test "polish dry-run" test_polish_dry_run
 run_test "review dry-run" test_review_dry_run
 run_test "review custom scope" test_review_custom_scope
 run_test "next shows ready issue" test_next_shows_ready_issue
 run_test "next no ready issues" test_next_no_ready_issues
-run_test "spawn without ntm" test_spawn_without_ntm
 run_test "help includes all commands" test_help_includes_all_commands
 run_test "experiment dry-run" test_experiment_dry_run
 run_test "experiment requires clean worktree" test_experiment_requires_clean_worktree
@@ -1590,6 +2395,127 @@ run_test "recovery preserves unrelated dirty changes" test_run_recovery_preserve
 # killed reliably through the stdin pipe subshell. Fix the watchdog to
 # kill the process group, then re-enable.
 # run_test "claude agent timeout kills process" test_claude_agent_timeout_kills_process
-run_test "implement prompt references tracker" test_implement_prompt_references_tracker
+run_test "build prompt references tracker" test_build_prompt_references_tracker
+
+# ── triage validation tests ───────────────────────────────────────────
+
+test_triage_rejects_task_without_spec_id() {
+  local root
+  root="$(make_workspace)"
+  assert_fails "task without spec-id should fail" \
+    run_helix "$root" tracker create "Missing spec" --labels helix,phase:build --acceptance "test"
+  rm -rf "$root"
+}
+
+test_triage_rejects_task_without_acceptance() {
+  local root
+  root="$(make_workspace)"
+  assert_fails "task without acceptance should fail" \
+    run_helix "$root" tracker create "Missing AC" --labels helix,phase:build --spec-id TEST
+  rm -rf "$root"
+}
+
+test_triage_rejects_missing_helix_label() {
+  local root
+  root="$(make_workspace)"
+  assert_fails "issue without helix label should fail" \
+    run_helix "$root" tracker create "No helix" --labels phase:build --spec-id TEST --acceptance "test"
+  rm -rf "$root"
+}
+
+test_triage_rejects_missing_phase_label() {
+  local root
+  root="$(make_workspace)"
+  assert_fails "issue without phase label should fail" \
+    run_helix "$root" tracker create "No phase" --labels helix --spec-id TEST --acceptance "test"
+  rm -rf "$root"
+}
+
+test_triage_rejects_epic_without_acceptance() {
+  local root
+  root="$(make_workspace)"
+  assert_fails "epic without acceptance should fail" \
+    run_helix "$root" tracker create "Bad epic" --type epic --labels helix,phase:build --spec-id TEST
+  rm -rf "$root"
+}
+
+test_triage_allows_bug_without_spec_id() {
+  local root
+  root="$(make_workspace)"
+  local id
+  id="$(run_helix "$root" tracker create "Good bug" --type bug --labels helix,phase:build)"
+  assert_contains "$id" "hx-" "bug without spec-id should succeed"
+  rm -rf "$root"
+}
+
+test_triage_allows_valid_task() {
+  local root
+  root="$(make_workspace)"
+  local id
+  id="$(run_helix "$root" tracker create "Good task" --labels helix,phase:build,kind:build --spec-id SD-001 --acceptance "tests pass")"
+  assert_contains "$id" "hx-" "valid task should succeed"
+  rm -rf "$root"
+}
+
+test_triage_rejects_nonexistent_dep() {
+  local root
+  root="$(make_workspace)"
+  assert_fails "dep on nonexistent issue should fail" \
+    run_helix "$root" tracker create "Bad dep" --labels helix,phase:build --spec-id TEST --acceptance "test" --deps hx-nonexistent
+  rm -rf "$root"
+}
+
+run_test "triage rejects task without spec-id" test_triage_rejects_task_without_spec_id
+run_test "triage rejects task without acceptance" test_triage_rejects_task_without_acceptance
+run_test "triage rejects missing helix label" test_triage_rejects_missing_helix_label
+run_test "triage rejects missing phase label" test_triage_rejects_missing_phase_label
+run_test "triage rejects epic without acceptance" test_triage_rejects_epic_without_acceptance
+run_test "triage allows bug without spec-id" test_triage_allows_bug_without_spec_id
+run_test "triage allows valid task" test_triage_allows_valid_task
+run_test "triage rejects nonexistent dep" test_triage_rejects_nonexistent_dep
+
+# ── evolve tests ──────────────────────────────────────────────────────
+
+test_evolve_dry_run() {
+  local root
+  root="$(make_workspace)"
+  local output
+  output="$(run_helix "$root" evolve --dry-run "Add WAL compression")"
+  assert_contains "$output" "actions/evolve.md" "evolve dry-run should reference evolve action"
+  assert_contains "$output" "Add WAL compression" "evolve dry-run should include the requirement"
+  assert_contains "$output" "EVOLUTION_STATUS" "evolve dry-run should require machine-readable trailer"
+  rm -rf "$root"
+}
+
+test_evolve_dry_run_with_scope() {
+  local root
+  root="$(make_workspace)"
+  local output
+  output="$(run_helix "$root" evolve --dry-run --scope area:wal "WAL compression")"
+  assert_contains "$output" "Scope: area:wal" "evolve dry-run should include scope"
+  rm -rf "$root"
+}
+
+test_evolve_dry_run_with_artifact() {
+  local root
+  root="$(make_workspace)"
+  local output
+  output="$(run_helix "$root" evolve --dry-run --artifact SD-017 "Loom support")"
+  assert_contains "$output" "Target artifact: SD-017" "evolve dry-run should include artifact"
+  rm -rf "$root"
+}
+
+test_evolve_requires_description() {
+  local root
+  root="$(make_workspace)"
+  assert_fails "evolve without description should fail" \
+    run_helix "$root" evolve
+  rm -rf "$root"
+}
+
+run_test "evolve dry-run" test_evolve_dry_run
+run_test "evolve dry-run with scope" test_evolve_dry_run_with_scope
+run_test "evolve dry-run with artifact" test_evolve_dry_run_with_artifact
+run_test "evolve requires description" test_evolve_requires_description
 
 echo "PASS: ${test_count} helix wrapper tests"

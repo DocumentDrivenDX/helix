@@ -51,9 +51,9 @@ per-story markdown plans. Build issues:
 The canonical execution entry point for ready work is:
 
 ```bash
-helix implement
-helix implement issue-abc123
-helix implement US-042
+helix build
+helix build issue-abc123
+helix build US-042
 ```
 
 This action handles one issue per run: it selects or loads a ready execution
@@ -388,7 +388,7 @@ By the end of Build phase, you should have:
 
 ## Using AI Assistance
 
-Build execution is driven by `helix implement` or `helix run`, following the
+Build execution is driven by `helix build` or `helix run`, following the
 bounded loop defined in `workflows/actions/implementation.md`. Use the
 phase artifacts under `workflows/phases/04-build/artifacts/` when you
 need supporting build documentation or issue guidance.

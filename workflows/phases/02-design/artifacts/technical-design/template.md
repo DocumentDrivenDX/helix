@@ -9,6 +9,13 @@ dun:
 
 **User Story**: [[US-XXX]] | **Feature**: [[FEAT-XXX]] | **Solution Design**: [[SD-XXX]]
 
+## Scope
+
+- Story-level design artifact
+- Use for one vertical slice or one bounded implementation story
+- Must inherit the broader approach from the parent solution design
+- Do not redefine cross-component architecture here; that belongs in `SD-XXX`
+
 ## Acceptance Criteria
 
 1. **Given** [precondition], **When** [action], **Then** [expected outcome]

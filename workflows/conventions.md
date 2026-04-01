@@ -23,6 +23,21 @@ When conventions and execution guidance disagree, follow:
 3. [TRACKER.md](TRACKER.md)
 4. the bounded action prompts under `workflows/actions/`
 
+## Skill Resource Boundary
+
+HELIX is packaged as one skill system.
+
+- `.agents/skills/` is the canonical project-level skill package surface.
+- Put resources used by multiple HELIX skills in `workflows/`.
+- Put resources used by only one skill in that skill's directory under
+  `skills/<skill>/`, with `.agents/skills/<skill>` exposing the published
+  package entrypoint.
+- Skills may assume package-relative access to the shared `workflows/`
+  resources only when the full HELIX package layout is preserved.
+- Installers and plugins must preserve `.agents/skills/`, `skills/`, and
+  `workflows/` together; copying isolated skill folders without shared
+  resources is an invalid HELIX install.
+
 ## Documentation Structure
 
 ### Phase-Based Organization
@@ -54,6 +69,9 @@ project-root/
 3. **Execution Separation**: Ephemeral task execution lives in the built-in tracker under `.helix/`, not in canonical planning docs
 4. **Tool Support**: Consistent structure enables validation and automation
 5. **Flexibility**: Non-phase documentation has dedicated locations
+6. **Shared skill resources**: `workflows/` doubles as the shared resource
+   library for HELIX skills, while skill-local assets remain under `skills/`
+   and are exposed through `.agents/skills/`
 
 ### Phase Directory Contents
 
@@ -71,9 +89,10 @@ Each phase directory contains artifacts directly (no `artifacts/` subdirectory):
 ├── README.md
 ├── prd.md
 ├── principles.md
+├── features/
+│   └── FEAT-XXX-*.md
 ├── feature-registry.md
 ├── user-stories/
-├── features/
 ├── stakeholder-map.md
 ├── compliance-requirements.md
 ├── security-requirements.md
@@ -84,7 +103,9 @@ Each phase directory contains artifacts directly (no `artifacts/` subdirectory):
 ├── architecture.md
 ├── adr/
 ├── solution-designs/
+│   └── SD-XXX-*.md
 ├── technical-designs/
+│   └── TD-XXX-*.md
 ├── contracts/
 ├── data-design.md
 └── security-architecture.md
@@ -193,6 +214,24 @@ Every issue should:
 1. **Phase Directories**: Always use two-digit numbering (01-frame, not 1-frame)
 2. **Artifact Directories**: Use lowercase with hyphens, typically plural (e.g., `user-stories`, `contracts`)
 3. **No Nesting**: Avoid deep nesting; keep artifacts at most one level deep within phase directories
+
+### Design Artifact Naming
+
+1. **Feature specifications**: `FEAT-XXX-[name].md`
+2. **Solution designs**: `SD-XXX-[name].md`
+3. **Technical designs**: `TD-XXX-[name].md`
+
+### Skill and Workflow Resource Placement
+
+1. **Shared resources**: If more than one HELIX skill depends on an asset, it
+   belongs in `workflows/`.
+2. **Skill-local resources**: If only one skill uses an asset, keep it with
+   that skill under `skills/<skill>/`, with the published entrypoint exposed at
+   `.agents/skills/<skill>`.
+3. **Stable references**: Skills should reference shared assets through stable
+   package-relative paths and documented locations.
+4. **Packaging integrity**: Plugin or enterprise distribution must preserve the
+   HELIX package root so those references continue to resolve.
 
 ## Cross-References
 

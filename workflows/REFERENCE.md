@@ -10,7 +10,7 @@ dun:
 
 - [README.md](README.md): high-level model and authority order
 - [EXECUTION.md](EXECUTION.md): queue control and operator loop
-- [TRACKER.md](TRACKER.md): built-in tracker mapping and labels
+- [TRACKER.md](TRACKER.md): built-in tracker mapping, backend contract, and labels
 - [implementation.md](actions/implementation.md): one bounded execution pass
 - [check.md](actions/check.md): queue-drain decision
 - [reconcile-alignment.md](actions/reconcile-alignment.md): top-down review
@@ -53,28 +53,39 @@ helix tracker init
 scripts/install-local-skills.sh
 ```
 
+Installed agent skills mirror CLI commands exactly: `helix-<command>` maps to
+`helix <command>`.
+
+Canonical project package path: `./.agents/skills`
+Canonical user install path: `~/.agents/skills`
+Claude compatibility path: `~/.claude/skills`
+
+HELIX-specific execution behavior lives in the workflow contract and wrapper
+commands, not in the portable skill packaging layer.
+
 ### Execution Commands
 
 ```bash
 helix run
-helix implement
-helix implement hx-abc123
+helix build
+helix build hx-abc123
 helix check repo
 helix align repo
 helix backfill repo
+helix status
+helix evolve "requirement description"
+helix triage "Issue title" --type task
 ```
 
 ### Planning and Quality Commands
 
 ```bash
-helix plan [scope]                    # create design document
-helix plan --rounds 8 auth            # more refinement rounds
+helix design [scope]                  # create design document
+helix design --rounds 8 auth         # more refinement rounds
 helix polish [scope]                  # refine issues before implementation
 helix polish --rounds 10              # more polish rounds
-helix next                            # recommended next issue (uses bv if available)
+helix next                            # recommended next issue
 helix review [scope]                  # fresh-eyes review of recent work
-helix spawn                           # launch multi-agent swarm (requires ntm)
-helix spawn --count 3 --stagger 45    # 3 agents, 45s apart
 helix experiment [issue-id|goal]      # one experiment iteration
 helix experiment --close              # squash-merge and close session
 ```
@@ -89,6 +100,8 @@ helix tracker dep tree <id>
 helix tracker blocked --json
 helix tracker close <id>
 helix tracker status
+helix tracker import --from jsonl --file .beads/issues.jsonl
+helix tracker export
 ```
 
 See [TRACKER.md](TRACKER.md) for full tracker conventions and setup guidance.
@@ -107,9 +120,13 @@ Recommended labels:
 ## Decision Guide
 
 - Starting new work or a large scope:
-  run `helix plan`, then `helix polish`, then `helix run`.
+  run `helix design`, then `helix polish`, then `helix run`.
 - Ready execution issues exist:
-  run `implementation` or `helix run`.
+  run `helix build` or `helix run`.
+- Work lacks design authority for safe execution:
+  run `helix design`, or let `helix run` dispatch it from `check`.
+- Specs changed and open work needs issue refinement before implementation:
+  run `helix polish`, or let `helix run` dispatch it from `check`.
 - No ready execution issue, but the planning stack exists and next work is
   unclear:
   run alignment.
@@ -146,9 +163,11 @@ do not replace the bounded execution contract.
 
 ## Validation
 
-When changing HELIX wrapper behavior or the execution contract:
+When changing HELIX wrapper behavior, skill packaging docs, or the execution
+contract:
 
 ```bash
 bash tests/helix-cli.sh
+bash tests/validate-skills.sh
 git diff --check
 ```

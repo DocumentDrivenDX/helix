@@ -148,7 +148,7 @@ docs/
     │   ├── prd.md                     # Project-level
     │   ├── principles.md               # Project-level
     │   ├── features/
-    │   │   └── FEAT-001-*.md          # Feature-level
+    │   │   └── FEAT-XXX-*.md          # Feature-level
     │   └── user-stories/
     │       └── US-XXX-*.md            # Story-level
     ├── 02-design/
@@ -156,7 +156,7 @@ docs/
     │   ├── solution-designs/
     │   │   └── SD-XXX-*.md           # Feature-level
     │   └── technical-designs/
-    │       └── TD-XXX-*.md           # Story-level (NEW)
+    │       └── TD-XXX-*.md           # Story-level
     ├── 03-test/
     │   ├── test-plan.md               # Project-level
     │   └── test-plans/
@@ -189,9 +189,17 @@ Each artifact references its dependencies:
 **Solution Design**: [[SD-001-mcp-management]]
 ```
 
+### Feature-Level References
+```markdown
+# SD-001-helix-supervisory-control.md
+**Feature**: [[FEAT-001-helix-supervisory-control]]
+**PRD**: [[helix.prd]]
+**ADR**: [[ADR-001]]
+```
+
 ### Traceability Chain
 ```
-FEAT-001 → US-036 → TD-036 → TP-036 → build issue(s) → deploy issue(s) → IR-036
+FEAT-001 → SD-001 → US-036 → TD-036 → TP-036 → build issue(s) → deploy issue(s) → IR-036
          ↓
          US-037 → TD-037 → TP-037 → build issue(s) → deploy issue(s) → IR-037
          ↓
@@ -317,7 +325,7 @@ Use the current HELIX queue controls with this hierarchy:
 helix tracker ready --json
 
 # Execute one ready issue
-helix implement
+helix build
 
 # Decide the next action when the queue drains
 helix check

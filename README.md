@@ -1,11 +1,15 @@
 # HELIX
 
-A test-driven development workflow for AI-assisted software development.
+HELIX has two public layers:
 
-HELIX enforces specification-first, test-first discipline through a structured
-phase approach where tests are written BEFORE implementation. Human creativity
-and AI capabilities collaborate throughout, with tests serving as the contract
-between design and implementation.
+- a portable Agent Skills package surface published at `./.agents/skills`
+- a stricter HELIX workflow and CLI contract for planning, execution, and
+  tracker-driven delivery
+
+The workflow layer enforces specification-first, test-first discipline through
+a structured phase approach where tests are written before implementation.
+Humans and AI agents collaborate throughout, with tests serving as the
+contract between design and implementation.
 
 ## Quick Start
 
@@ -13,13 +17,13 @@ between design and implementation.
 # Install skills and CLI
 scripts/install-local-skills.sh
 
-# Run the execution loop
-helix run --agent claude
+# Run the bounded execution loop
+helix run
 
 # Or run individual commands
-helix implement
+helix build
 helix check
-helix plan auth
+helix design auth
 helix experiment --close
 ```
 
@@ -38,43 +42,92 @@ helix experiment --close
 | Command | Purpose |
 |---------|---------|
 | `helix run` | Loop: implement ready issues, check, decide, repeat |
-| `helix implement [issue]` | Execute one ready issue end-to-end |
-| `helix check [scope]` | Decide next action (IMPLEMENT/ALIGN/BACKFILL/WAIT/STOP) |
+| `helix build [issue]` | Execute one ready issue end-to-end |
+| `helix check [scope]` | Decide next action (BUILD/DESIGN/ALIGN/BACKFILL/WAIT/STOP) |
 | `helix align [scope]` | Top-down reconciliation review |
 | `helix backfill [scope]` | Reconstruct missing HELIX docs |
-| `helix plan [scope]` | Create design document through iterative refinement |
+| `helix design [scope]` | Create design document through iterative refinement |
+| `helix status` | Show tracker health and queue summary |
+| `helix evolve [requirement]` | Thread requirement through the artifact stack |
+| `helix triage [title]` | Create well-structured tracker issues |
 | `helix polish [scope]` | Refine issues before implementation |
 | `helix next` | Show recommended next issue |
 | `helix review [scope]` | Fresh-eyes post-implementation review |
 | `helix experiment [issue]` | One metric-optimization iteration |
-| `helix spawn` | Launch multi-agent swarm (requires ntm) |
 
 ## Skills
 
-Installed as Claude Code skills (invocable as `/helix:<name>`):
+HELIX publishes its portable skill surface from the repo at
+`./.agents/skills` and installs those same skills into the canonical user path
+`~/.agents/skills`.
 
-- `helix` — Main workflow execution
-- `helix-alignment-review` — Drift analysis and traceability
-- `execute` — Single issue end-to-end
-- `grind` — Continuous queue execution
-- `review` — Critical review for errors
-- `triage` — Queue health analysis
-- `handoff` — Review changes from other agents
-- `plan` — Design document creation
-- `polish` — Issue refinement
-- `experiment` — Metric-driven optimization loop
+Temporary compatibility mirror:
+- `~/.claude/skills`
 
-## Tracker
+Installed skill set:
 
-HELIX uses a built-in JSONL tracker for execution tracking. Issues are stored
-in `.helix/issues.jsonl`. Run `helix tracker` to manage issues.
+- `helix-run` <-> `helix run`
+- `helix-build` <-> `helix build`
+- `helix-check` <-> `helix check`
+- `helix-align` <-> `helix align`
+- `helix-backfill` <-> `helix backfill`
+- `helix-design` <-> `helix design`
+- `helix-polish` <-> `helix polish`
+- `helix-next` <-> `helix next`
+- `helix-review` <-> `helix review`
+- `helix-experiment` <-> `helix experiment`
+- `helix-evolve` <-> `helix evolve`
+- `helix-triage` <-> `helix triage`
 
-## Documentation
+The contract is strict: public skill names are `helix-<command>` and must
+mirror the CLI subcommand exactly.
+
+The `skills/` tree remains the implementation source for skill content and
+shared references. The project-level package surface that agent clients should
+consume is `./.agents/skills`.
+
+Required skill metadata:
+
+- every published `SKILL.md` must declare `name` and `description`
+- skills whose mirrored CLI command accepts a trailing scope, selector, or goal
+  must also declare `argument-hint`
+- `name` must match the skill directory basename exactly
+
+Deterministic validation:
+
+```bash
+bash tests/validate-skills.sh
+```
+
+This validator checks directory-name to skill-name alignment, required
+frontmatter, and the canonical `.agents/skills -> skills/` symlink contract.
+
+## Workflow Contract
+
+The HELIX-specific operating contract lives in `workflows/` and covers:
+
+- authority order and canonical documentation
+- bounded actions such as `implement`, `check`, `align`, and `backfill`
+- the built-in tracker and queue-control rules
+- the `helix` wrapper CLI used to run those actions consistently
+
+Start with:
 
 - [Workflow Overview](workflows/README.md)
 - [Execution Guide](workflows/EXECUTION.md)
 - [Tracker Guide](workflows/TRACKER.md)
 - [Reference Card](workflows/REFERENCE.md)
+
+## Tracker
+
+HELIX uses a built-in file-backed tracker for execution tracking. Canonical
+issues live in `.helix/issues.jsonl`. Run `helix tracker` to manage issues,
+`helix tracker import` to pull compatible JSONL into the canonical store, and
+`helix tracker export` to write JSONL for interop or recovery.
+
+## Documentation
+
+- [Workflow Contract](workflows/README.md)
 - [Quality Ratchets](workflows/ratchets.md)
 - [Conventions](workflows/conventions.md)
 

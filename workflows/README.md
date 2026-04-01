@@ -12,6 +12,21 @@ A test-driven development workflow with AI-assisted collaboration for building h
 
 HELIX enforces Test-Driven Development (TDD) through a structured phase approach where tests are written BEFORE implementation. This ensures quality is built-in from the start and specifications are executable. Human creativity and AI capabilities collaborate throughout, with tests serving as the contract between design and implementation.
 
+## Public Layers
+
+HELIX exposes two public layers that should stay distinct in docs and tooling:
+
+- Portable skill package surface:
+  published at `.agents/skills`, mirrored to `~/.agents/skills`, with
+  `~/.claude/skills` retained only as a temporary compatibility mirror.
+- HELIX workflow and CLI contract:
+  the stricter method defined in `workflows/`, the built-in tracker, and the
+  `helix` wrapper commands that execute bounded actions.
+
+Use the portable layer when you need standards-compliant skill packaging. Use
+the workflow contract when you need HELIX-specific planning, queue control, and
+execution semantics.
+
 ## Normative Contract
 
 Treat the following files as the canonical HELIX workflow contract:
@@ -29,20 +44,76 @@ The rest of `workflows/` is supporting guidance, templates, phase
 context, or examples. If a supporting document conflicts with the files above,
 follow the normative contract and update the supporting document.
 
-Additional actions extend the workflow without altering the core loop:
+`workflows/` is also the shared HELIX resource library for assets consumed by
+multiple HELIX skills. Skills are the operational entrypoints into HELIX; the
+shared prompts, templates, metadata, and conventions they reuse live here.
+Assets used by only one skill should live with that skill instead of here.
 
-- [plan.md](actions/plan.md) for iterative design document creation
+Additional actions extend the supervisory loop with bounded subroutines:
+
+- [plan.md](actions/plan.md) for iterative design document creation behind the
+  public `helix design` command surface
 - [polish.md](actions/polish.md) for issue refinement before implementation
 - [fresh-eyes-review.md](actions/fresh-eyes-review.md) for post-implementation review
+- [evolve.md](actions/evolve.md) for threading requirement changes through the
+  artifact stack and tracker
 - [experiment.md](actions/experiment.md) for metric-driven optimization (execution tracked by issues, not HELIX docs)
 
-These are operator-chosen entry points that do not participate in the
-check → NEXT_ACTION dispatch. If a supporting document conflicts with the
-core normative contract above, follow the contract.
+`helix run` may dispatch `design`, `polish`, and `review` as supervisory
+subroutines when repository state or user intent requires them. `design` and
+`polish` are explicit queue-drain outcomes in the converged contract.
+`review` remains a post-build supervisory step rather than a `NEXT_ACTION`
+code. `evolve`, `triage`, and `status` are part of the public command surface
+but are operator-steering or observability tools rather than queue-drain loop
+actions. `experiment` remains operator-invoked only and is outside the
+`helix run` supervisory dispatch model. If a supporting document conflicts
+with the core normative contract above, follow the contract.
 
 Supporting templates for metrics and reports:
 
 - [metric-definition.yaml](templates/metric-definition.yaml) for shared metric definitions referenced by ratchets, experiments, and monitoring
+
+## Command Mirroring
+
+Public agent skills must mirror the CLI exactly.
+
+- Agent skills use `helix-<command>`.
+- CLI commands use `helix <command>`.
+- `<command>` must be identical in both places.
+
+Examples:
+
+- `helix-run` <-> `helix run`
+- `helix-build` <-> `helix build`
+- `helix-align` <-> `helix align`
+- `helix-review` <-> `helix review`
+- `helix-design` <-> `helix design`
+- `helix-status` <-> `helix status`
+- `helix-triage` <-> `helix triage`
+- `helix-evolve` <-> `helix evolve`
+
+Do not publish extra skill names that have no matching CLI command.
+
+## Skill Pack Layout
+
+HELIX is packaged and installed as one skill system, not as isolated skill
+folders.
+
+- `.agents/skills/` is the canonical project-level skill package surface.
+- `skills/` contains the underlying HELIX skill directories and skill-local
+  resources that the project-level package surface points at.
+- `workflows/` contains shared resources used by multiple HELIX skills.
+- Installers, plugins, and enterprise packaging must preserve `.agents/skills/`,
+  `skills/`, and `workflows/` together so package-relative references from
+  skills to `workflows/` remain valid.
+- A HELIX installation is incomplete if the project-level package surface is
+  present without the underlying `skills/` and shared workflow resources it
+  depends on.
+- Published `SKILL.md` files must include `name` and `description`; include
+  `argument-hint` when the mirrored CLI command accepts a trailing positional
+  argument such as a scope, selector, or goal.
+- `name` must match the published skill directory basename exactly.
+- The deterministic package validator is `bash tests/validate-skills.sh`.
 
 ```mermaid
 graph TB
@@ -95,6 +166,10 @@ When HELIX artifacts disagree, resolve the conflict using this authority order:
 3. **Feature Specifications and User Stories** (`docs/helix/01-frame/features/`, `docs/helix/01-frame/user-stories/`)
 4. **Architecture and ADRs** (`docs/helix/02-design/architecture.md`, `docs/helix/02-design/adr/`)
 5. **Solution Designs and Technical Designs** (`docs/helix/02-design/solution-designs/`, `docs/helix/02-design/technical-designs/`)
+   - `SD-XXX` solution designs are feature-level and describe the chosen
+     approach for a feature or cross-component capability.
+   - `TD-XXX` technical designs are story-level and describe one bounded
+     implementation slice that inherits from a solution design.
 6. **Test Plans and Executable Tests** (`docs/helix/03-test/`, `tests/`)
 7. **Implementation Plans** (`docs/helix/04-build/implementation-plan.md`)
 8. **Source Code and Build Artifacts** (`src/`, generated outputs)
@@ -115,6 +190,9 @@ The built-in tracker is HELIX's execution layer. Issues are stored in
 
 - Issues are governed by the HELIX authority stack.
 - Issues must cite the canonical artifacts that authorize the work.
+- The tracker is the steering wheel for execution: operators and agents should
+  express decomposition, blockers, supersession, and follow-up work through
+  tracker primitives instead of out-of-band TODOs.
 - Closing an issue records completion of a task; it does not redefine
   requirements, design, or tests.
 - If issue execution changes behavior or scope, the governing canonical artifacts
@@ -133,16 +211,38 @@ parents, dependencies, `spec-id`, and labels rather than custom files:
 HELIX execution is intentionally bounded and uses a small set of top-level
 actions:
 
-- `implementation`: execute one ready execution issue and exit
+- `build`: execute one ready execution issue and exit
 - `check`: determine whether the next step is implementation, alignment,
   backfill, waiting, guidance, or stopping
+- `design`: create or extend the design stack when supervisory routing detects
+  missing design authority for the requested scope
+- `polish`: refine ready or stale issues when specs changed before
+  implementation resumes
 - `reconcile-alignment`: run a top-down audit when the plan exists but the next
   execution set is unclear
+- `fresh-eyes-review`: review completed implementation before additional
+  execution continues when review automation is enabled
+- `status`: expose persisted run-controller state, cycle timing, token usage,
+  blockers, and next recommended action
+- `evolve`: update governing artifacts and tracker issues when requirements
+  change
+- `triage`: create validated tracker issues with required steering metadata
 - `backfill-helix-docs`: reconstruct missing HELIX docs conservatively from
   current evidence
 
-For operator flow, queue control, and autonomous Codex or Claude loop recipes,
-see [EXECUTION.md](EXECUTION.md).
+Execution principles:
+
+- tracker-as-steering-wheel: use tracker metadata as the shared execution
+  control plane
+- do-hard-things: use epic focus and bounded exponential backoff before giving
+  up on governed work
+- cross-model verification: prefer `--review-agent` or critique handoffs when
+  review automation is enabled
+- continuous useful work: absorb small adjacent work, stay within scope, and
+  finish with blocker reports instead of silent stops
+
+For operator flow, queue control, and bounded HELIX execution semantics, see
+[EXECUTION.md](EXECUTION.md).
 
 ## Human-AI Collaboration
 

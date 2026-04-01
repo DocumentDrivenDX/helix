@@ -24,6 +24,13 @@ Use the bounded action prompts only when you are doing the corresponding work:
 - [reconcile-alignment.md](actions/reconcile-alignment.md)
 - [backfill-helix-docs.md](actions/backfill-helix-docs.md)
 
+Keep the public layers separate:
+
+- portable skills: `.agents/skills` in the repo and `~/.agents/skills` for the
+  installed user package
+- HELIX workflow contract: the docs in `workflows/` plus the built-in tracker
+  and `helix` CLI
+
 ## Bootstrap A Repo
 
 ```bash
@@ -36,7 +43,12 @@ Notes:
 - `helix tracker init` creates the tracker workspace in `.helix/`.
 - `scripts/install-local-skills.sh` links the local `helix` wrapper into
   `~/.local/bin/helix`.
-- The wrapper is optional but preferred for operator loops.
+- The repo exposes agent skills named `helix-<command>` at `./.agents/skills`.
+- The installer installs that package surface into `~/.agents/skills`.
+- It also mirrors them into `~/.claude/skills` until Claude documents
+  `.agents/skills` support.
+- The wrapper is optional for skill packaging and preferred for HELIX operator
+  loops.
 
 ## Build The Canonical Planning Stack
 
@@ -50,8 +62,8 @@ Typical order:
 2. Frame in `docs/helix/01-frame/`
    Write the PRD, feature specs, user stories, and supporting requirement docs.
 3. Design in `docs/helix/02-design/`
-   Define architecture, ADRs, contracts, solution designs, and technical
-   designs.
+   Define architecture, ADRs, contracts, feature-level solution designs, and
+   story-level technical designs.
 4. Test in `docs/helix/03-test/` and `tests/`
    Write the test plan and failing tests before implementation.
 5. Build in `docs/helix/04-build/` plus the tracker
@@ -76,21 +88,12 @@ See [TRACKER.md](TRACKER.md) for the mapping and examples.
 
 ## Run The Queue
 
-Preferred wrapper commands:
+Preferred HELIX wrapper commands:
 
 ```bash
 helix run
-helix implement
+helix build
 helix check repo
-helix align repo
-helix backfill repo
-```
-
-These are equivalent to direct action commands:
-
-```bash
-helix implement
-helix check
 helix align repo
 helix backfill repo
 ```
@@ -110,7 +113,7 @@ If you are not using `helix run`, use the bounded manual loop from
 
 ```bash
 while [ "$(helix tracker ready --json | jq 'length')" -gt 0 ]; do
-  helix implement
+  helix build
 done
 
 helix check
@@ -131,9 +134,11 @@ helix check
 
 ## Validation
 
-When you change HELIX wrapper behavior or its contract docs, run:
+When you change HELIX wrapper behavior, skill packaging docs, or the workflow
+contract, run:
 
 ```bash
 bash tests/helix-cli.sh
+bash tests/validate-skills.sh
 git diff --check
 ```

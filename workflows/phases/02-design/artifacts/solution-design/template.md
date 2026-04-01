@@ -6,6 +6,15 @@ dun:
 ---
 # Solution Design
 
+**Feature**: [[FEAT-XXX]] | **Artifact**: `docs/helix/02-design/solution-designs/SD-XXX-[name].md`
+
+## Scope
+
+- Feature-level design artifact
+- Use for cross-component behavior, main alternatives, domain model, and
+  decomposition
+- Do not use for one-story implementation details; those belong in `TD-XXX`
+
 ## Requirements Mapping
 
 ### Functional Requirements
