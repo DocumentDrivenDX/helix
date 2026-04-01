@@ -26,6 +26,8 @@ review_agent="${HELIX_REVIEW_AGENT:-}"
 check_model="${HELIX_CHECK_MODEL:-}"
 polish_model="${HELIX_POLISH_MODEL:-}"
 review_every=15
+force_ephemeral="${HELIX_FORCE_EPHEMERAL:-0}"
+session_active=0  # 1 = reusable session exists for the current epic
 max_cycles=0
 auto_align=1
 auto_review=1
@@ -157,6 +159,13 @@ condense_codex_output() {
   # sed trims leading and trailing blank lines
 }
 
+reset_session() {
+  session_active=0
+  if (( ! quiet )); then
+    printf 'helix: session reset (next cycle starts fresh)\n' >&2
+  fi
+}
+
 run_agent_prompt() {
   local prompt="$1"
   local model_override="${2:-}"
@@ -183,9 +192,23 @@ run_agent_prompt() {
         # Run codex in background with temp file for output capture
         local _codex_tmp _codex_pid _codex_rc=0
         _codex_tmp="$(mktemp)"
-        # shellcheck disable=SC2086
-        codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor \
-          -C "$target_root" $_codex_model_flag --ephemeral "$prompt" > "$_codex_tmp" &
+        if (( session_active && ! force_ephemeral )); then
+          # Resume existing session within epic focus
+          if (( ! quiet )); then
+            printf 'helix: resuming codex session\n' >&2
+          fi
+          # shellcheck disable=SC2086
+          codex --dangerously-bypass-approvals-and-sandbox exec resume --last \
+            --progress-cursor -C "$target_root" $_codex_model_flag "$prompt" > "$_codex_tmp" 2>&1 &
+        else
+          # Fresh session
+          local _ephemeral_flag=""
+          (( force_ephemeral )) && _ephemeral_flag="--ephemeral"
+          # shellcheck disable=SC2086
+          codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor \
+            -C "$target_root" $_codex_model_flag $_ephemeral_flag "$prompt" > "$_codex_tmp" &
+          session_active=1
+        fi
         _codex_pid=$!
 
         # Watchdog: timeout + periodic progress heartbeat
@@ -238,11 +261,22 @@ run_agent_prompt() {
       need_cmd claude
       local _claude_model_flag=""
       [[ -n "$model_override" ]] && _claude_model_flag="--model $model_override"
+      local _claude_session_flag="--no-session-persistence"
+      if (( session_active && ! force_ephemeral )); then
+        _claude_session_flag="--continue"
+        if (( ! quiet )); then
+          printf 'helix: continuing claude session\n' >&2
+        fi
+      elif (( ! force_ephemeral )); then
+        # First cycle: start persistent session (no --no-session-persistence)
+        _claude_session_flag=""
+        session_active=1
+      fi
       if (( dry_run )); then
-        printf 'cd %q && claude -p --permission-mode bypassPermissions --dangerously-skip-permissions --no-session-persistence %s %q\n' "$target_root" "$_claude_model_flag" "$prompt"
+        printf 'cd %q && claude -p --permission-mode bypassPermissions --dangerously-skip-permissions %s %s %q\n' "$target_root" "$_claude_session_flag" "$_claude_model_flag" "$prompt"
       else
         if (( ! quiet )); then
-          printf 'helix: [%s] claude -p %s (timeout %ss)\n' "$(date +%H:%M:%S)" "${model_override:+(model: $model_override)}" "$agent_timeout" >&2
+          printf 'helix: [%s] claude -p %s %s (timeout %ss)\n' "$(date +%H:%M:%S)" "$_claude_session_flag" "${model_override:+(model: $model_override)}" "$agent_timeout" >&2
           printf '%s\n' "$prompt" | sed 's/^/helix: │ /' >&2
           printf 'helix: └─ %s bytes\n' "$prompt_bytes" >&2
         fi
@@ -255,7 +289,7 @@ run_agent_prompt() {
           (cd "$target_root" && printf '%s' "$prompt" | claude -p \
             --permission-mode bypassPermissions \
             --dangerously-skip-permissions \
-            --no-session-persistence \
+            $_claude_session_flag \
             $_claude_model_flag \
             --output-format stream-json \
             --verbose \
@@ -326,7 +360,7 @@ run_agent_prompt() {
           (cd "$target_root" && printf '%s' "$prompt" | claude -p \
             --permission-mode bypassPermissions \
             --dangerously-skip-permissions \
-            --no-session-persistence \
+            $_claude_session_flag \
             $_claude_model_flag \
             --verbose) &
         fi
@@ -536,6 +570,7 @@ generate_run_context() {
   # Called at run start and on epic switch. Non-fatal if it fails.
   local epic_id="${1:-}"
   local context_file="${target_root}/.helix/context.md"
+  mkdir -p "${target_root}/.helix" 2>/dev/null || true
   local ready_count
   ready_count="$(tracker_ready --json --execution 2>/dev/null | jq 'length' 2>/dev/null)" || ready_count="?"
 
@@ -557,13 +592,13 @@ generate_run_context() {
       printf '\n'
     fi
 
-    printf '## Key Rules\n\n'
-    printf '- One issue per cycle. Claim before work, close after verification.\n'
-    printf '- Authority order: Vision > PRD > Specs > Architecture > Designs > Tests > Code\n'
-    printf '- Verify only changed crates/packages, not the full workspace.\n'
-    printf '- Absorb small adjacent work (<100 lines, same module) instead of creating tickets.\n'
-    printf '- Use helix tracker subcommands for all issue operations.\n'
-    printf '- Commit with issue ID in message. Push to remote.\n'
+    printf -- '## Key Rules\n\n'
+    printf -- '- One issue per cycle. Claim before work, close after verification.\n'
+    printf -- '- Authority order: Vision > PRD > Specs > Architecture > Designs > Tests > Code\n'
+    printf -- '- Verify only changed crates/packages, not the full workspace.\n'
+    printf -- '- Absorb small adjacent work (<100 lines, same module) instead of creating tickets.\n'
+    printf -- '- Use helix tracker subcommands for all issue operations.\n'
+    printf -- '- Commit with issue ID in message. Push to remote.\n'
   } > "$context_file"
 
   if (( ! quiet )); then
@@ -1177,6 +1212,7 @@ run_loop() {
           printf 'helix: epic %s has %s open children but none are eligible — releasing focus\n' "$focused_epic" "$remaining_children" >&2
         fi
         focused_epic=""
+        reset_session
       fi
     fi
 
@@ -1254,6 +1290,7 @@ run_loop() {
               skip_reasons["$focused_epic"]="child $selected_issue intractable after ${issue_attempts[$selected_issue]} attempts"
               printf 'helix: blocking parent epic %s due to intractable child %s\n' "$focused_epic" "$selected_issue" >&2
               focused_epic=""
+              reset_session
             fi
           fi
         fi
@@ -1430,6 +1467,10 @@ main() {
           --review-threshold)
             review_threshold="$2"
             shift 2
+            ;;
+          --ephemeral)
+            force_ephemeral=1
+            shift
             ;;
           --check-model)
             check_model="$2"

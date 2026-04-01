@@ -383,6 +383,7 @@ run_helix() {
     MOCK_STATE_ROOT="$root/state" \
     HELIX_LIBRARY_ROOT="$repo_root/workflows" \
     HELIX_SKIP_TRIAGE="${HELIX_SKIP_TRIAGE:-0}" \
+    HELIX_FORCE_EPHEMERAL=1 \
     bash "$repo_root/scripts/helix" "$cmd" --quiet "$@"
   )
 }
