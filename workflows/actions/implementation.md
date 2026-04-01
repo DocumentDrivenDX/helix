@@ -8,11 +8,14 @@ without drifting from the authoritative planning stack, satisfy all applicable
 project quality gates, create any necessary follow-on issues, commit the work
 with explicit issue traceability, close the issue, and exit.
 
-This action is intentionally single-run. It must never loop internally or claim
-multiple issues in one invocation. External supervisors may invoke it
-repeatedly, but each run handles at most one issue. When the ready queue drains,
-the external supervisor should run `workflows/actions/check.md` instead
-of continuing blindly.
+This action is intentionally bounded. In single-issue mode, it handles one issue
+and exits. In batch mode, the supervisor provides a list of related issues to
+implement sequentially within one session — claim each, implement, verify, close,
+then move to the next. Batch mode saves context-loading cost when issues share
+the same governing artifacts.
+
+When the ready queue drains, the external supervisor should run
+`workflows/actions/check.md` instead of continuing blindly.
 
 ## Action Input
 

@@ -399,6 +399,41 @@ Session log: ${helix_log}
 EOF
 }
 
+# Build a prompt that instructs the agent to implement multiple related issues
+# in one invocation. Each issue is claimed, implemented, verified, and closed
+# individually within the same session.
+batch_implementation_prompt() {
+  local issues="$1"  # newline-separated issue IDs
+  local context_file="${target_root}/.helix/context.md"
+  local issue_count
+  issue_count="$(printf '%s\n' "$issues" | wc -l)"
+
+  cat <<EOF
+$(if [[ -f "$context_file" ]]; then cat "$context_file"; printf '\n---\n\n'; fi)
+Execute the following HELIX implementation action for ${issue_count} related issues.
+$(inline_action "${helix_docs_root}/actions/implementation.md")
+Use supporting references at ${helix_docs_root}/README.md and ${helix_docs_root}/phases/04-build/enforcer.md as needed.
+Execute in the current repository rooted at ${target_root}.
+Issue tracker: built-in JSONL at ${tracker_file}. Use \`helix tracker\` subcommands.
+
+BATCH MODE: Implement these ${issue_count} related issues sequentially in this session:
+$(printf '%s\n' "$issues" | while read -r id; do
+  local title
+  title="$(tracker_show "$id" --json 2>/dev/null | jq -r '.title // "?"')" || title="?"
+  printf '  - %s: %s\n' "$id" "$title"
+done)
+
+For each issue: claim it, implement it, run scoped verification on changed crates,
+commit with the issue ID, close it, then move to the next issue. If one issue
+fails, commit and close what you completed and leave the rest open.
+
+Concurrency rule: re-read each issue immediately before claim and before close.
+CRITICAL: If tests fail after your changes, fix them. Retry up to 3 times. Never commit broken work.
+Follow the action exactly. Do the work — do not just describe what you would do.
+Session log: ${helix_log}
+EOF
+}
+
 check_prompt() {
   local scope="${1:-repo}"
   cat <<EOF
@@ -581,7 +616,7 @@ generate_run_context() {
     fi
 
     printf -- '## Key Rules\n\n'
-    printf -- '- One issue per cycle. Claim before work, close after verification.\n'
+    printf -- '- Implement all listed issues in one cycle. Claim each before work, close each after verification.\n'
     printf -- '- Authority order: Vision > PRD > Specs > Architecture > Designs > Tests > Code\n'
     printf -- '- Verify only changed crates/packages, not the full workspace.\n'
     printf -- '- Absorb small adjacent work (<100 lines, same module) instead of creating tickets.\n'
@@ -623,6 +658,44 @@ helix_select_ready_issue() {
       end
     end | .[0].id // empty
   '
+}
+
+# Select a batch of related issues that can be implemented together.
+# Given a primary issue ID, finds up to N siblings with the same parent
+# or same spec-id. Returns newline-separated IDs (primary first).
+helix_select_batch() {
+  local primary_id="$1"
+  local max_batch="${2:-3}"
+  local skip_json="${3:-[]}"
+  need_cmd jq
+
+  local primary_json
+  primary_json="$(tracker_show "$primary_id" --json 2>/dev/null)" || { printf '%s\n' "$primary_id"; return; }
+
+  local parent spec_id
+  parent="$(printf '%s' "$primary_json" | jq -r '.parent // ""')"
+  spec_id="$(printf '%s' "$primary_json" | jq -r '.["spec-id"] // ""')"
+
+  # Find siblings: same parent OR same spec-id, ready, non-epic, not skipped
+  local siblings
+  siblings="$(tracker_ready --json --execution 2>/dev/null | jq -r --arg primary "$primary_id" \
+    --arg parent "$parent" --arg spec "$spec_id" --argjson skip "$skip_json" \
+    --argjson max "$max_batch" '
+    [.[] | select(
+      .id != $primary and
+      .type != "epic" and
+      (.id as $id | $skip | index($id) | not) and
+      (
+        ($parent != "" and .parent == $parent) or
+        ($spec != "" and .["spec-id"] == $spec)
+      )
+    )] | .[0:($max - 1)] | .[].id
+  ' 2>/dev/null)" || true
+
+  printf '%s\n' "$primary_id"
+  if [[ -n "$siblings" ]]; then
+    printf '%s\n' "$siblings"
+  fi
 }
 
 tracker_issue_fingerprint() {
@@ -745,6 +818,14 @@ run_implementation() {
     require_tracker
   fi
   run_agent_prompt "$(implementation_prompt "$selector")"
+}
+
+run_batch_implementation() {
+  local issues="$1"  # newline-separated issue IDs
+  if (( ! dry_run )); then
+    require_tracker
+  fi
+  run_agent_prompt "$(batch_implementation_prompt "$issues")"
 }
 
 run_check() {
@@ -1256,11 +1337,29 @@ run_loop() {
         sleep "$delay"
       fi
 
+      # Batch related issues for token efficiency
+      local batch_issues
+      batch_issues="$(helix_select_batch "$selected_issue" 3 "$skip_json")"
+      local batch_count
+      batch_count="$(printf '%s\n' "$batch_issues" | wc -l)"
+
       local _cycle_start
       _cycle_start="$(date +%s)"
-      printf 'helix: [%s] ready=%s, cycle=%s, issue=%s\n' "$(date +%H:%M:%S)" "$ready_count" "$attempt_number" "$selected_issue" >&2
+      if (( batch_count > 1 )); then
+        printf 'helix: [%s] ready=%s, cycle=%s, batch=%s issues (%s)\n' \
+          "$(date +%H:%M:%S)" "$ready_count" "$attempt_number" "$batch_count" \
+          "$(printf '%s\n' "$batch_issues" | paste -sd, )" >&2
+      else
+        printf 'helix: [%s] ready=%s, cycle=%s, issue=%s\n' "$(date +%H:%M:%S)" "$ready_count" "$attempt_number" "$selected_issue" >&2
+      fi
       attempted_cycles=$((attempted_cycles + 1))
-      if ! run_implementation "$selected_issue"; then
+      local _impl_cmd
+      if (( batch_count > 1 )); then
+        _impl_cmd="run_batch_implementation \"$batch_issues\""
+      else
+        _impl_cmd="run_implementation \"$selected_issue\""
+      fi
+      if ! eval "$_impl_cmd"; then
         printf 'helix: implementation failed during cycle %s (will not count toward completed cycles)\n' "$attempt_number" >&2
         consecutive_failures=$((consecutive_failures + 1))
         issue_attempts["$selected_issue"]=$(( prev_attempts + 1 ))
