@@ -192,23 +192,11 @@ run_agent_prompt() {
         # Run codex in background with temp file for output capture
         local _codex_tmp _codex_pid _codex_rc=0
         _codex_tmp="$(mktemp)"
-        if (( session_active && ! force_ephemeral )); then
-          # Resume existing session within epic focus
-          if (( ! quiet )); then
-            printf 'helix: resuming codex session\n' >&2
-          fi
-          # shellcheck disable=SC2086
-          codex --dangerously-bypass-approvals-and-sandbox exec resume --last \
-            --progress-cursor -C "$target_root" $_codex_model_flag "$prompt" > "$_codex_tmp" 2>&1 &
-        else
-          # Fresh session
-          local _ephemeral_flag=""
-          (( force_ephemeral )) && _ephemeral_flag="--ephemeral"
-          # shellcheck disable=SC2086
-          codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor \
-            -C "$target_root" $_codex_model_flag $_ephemeral_flag "$prompt" > "$_codex_tmp" &
-          session_active=1
-        fi
+        # Codex does not support feeding new prompts to resumed sessions.
+        # Always use --ephemeral for codex to avoid broken resume attempts.
+        # shellcheck disable=SC2086
+        codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor \
+          -C "$target_root" $_codex_model_flag --ephemeral "$prompt" > "$_codex_tmp" &
         _codex_pid=$!
 
         # Watchdog: timeout + periodic progress heartbeat
