@@ -22,7 +22,6 @@ target_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 source "$script_dir/tracker.sh"
 
 agent="${HELIX_AGENT:-codex}"
-review_agent="${HELIX_REVIEW_AGENT:-}"
 check_model="${HELIX_CHECK_MODEL:-}"
 polish_model="${HELIX_POLISH_MODEL:-}"
 review_every=15
@@ -32,6 +31,17 @@ max_cycles=0
 auto_align=1
 auto_review=1
 review_threshold=100
+
+# Cross-model review: default to the other agent if available
+if [[ -n "${HELIX_REVIEW_AGENT:-}" ]]; then
+  review_agent="${HELIX_REVIEW_AGENT}"
+elif [[ "${agent}" == "codex" ]] && command -v claude >/dev/null 2>&1; then
+  review_agent="claude"
+elif [[ "${agent}" == "claude" ]] && command -v codex >/dev/null 2>&1; then
+  review_agent="codex"
+else
+  review_agent=""
+fi
 dry_run=0
 quiet=0
 total_tokens=0

@@ -384,6 +384,7 @@ run_helix() {
     HELIX_LIBRARY_ROOT="$repo_root/workflows" \
     HELIX_SKIP_TRIAGE="${HELIX_SKIP_TRIAGE:-0}" \
     HELIX_FORCE_EPHEMERAL=1 \
+    HELIX_REVIEW_AGENT="codex" \
     bash "$repo_root/scripts/helix" "$cmd" --quiet "$@"
   )
 }
