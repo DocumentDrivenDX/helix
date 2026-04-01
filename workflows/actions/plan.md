@@ -20,9 +20,9 @@ You may receive:
 
 Examples:
 
-- `helix plan`
-- `helix plan auth`
-- `helix plan --rounds 8 FEAT-003`
+- `helix design`
+- `helix design auth`
+- `helix design --rounds 8 FEAT-003`
 
 ## Authority Order
 

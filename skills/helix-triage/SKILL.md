@@ -1,7 +1,7 @@
 ---
 name: helix-triage
 description: Create well-structured tracker issues with validated metadata, governing artifact references, and deterministic acceptance criteria.
-argument-hint: "Title" [--type task|epic|bug|chore] [options...]
+argument-hint: '"Title" [--type task|epic|bug|chore] [options...]'
 ---
 
 # Triage: Create Execution-Ready Issues

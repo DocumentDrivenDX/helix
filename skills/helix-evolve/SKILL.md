@@ -1,7 +1,7 @@
 ---
 name: helix-evolve
 description: Thread a new requirement through the artifact stack — update governing docs, detect conflicts, create tracker issues. Use when requirements change, features are requested, or incidents reveal needed capabilities.
-argument-hint: "requirement description" [--scope S] [--artifact ID] [--from source]
+argument-hint: '"requirement description" [--scope S] [--artifact ID] [--from source]'
 ---
 
 # Evolve: Propagate Requirements Through the Artifact Stack

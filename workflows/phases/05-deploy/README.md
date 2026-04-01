@@ -382,7 +382,7 @@ deploy:
 
 ## Using AI Assistance
 
-Deploy execution is driven by deploy issues through `helix implement` or
+Deploy execution is driven by deploy issues through `helix build` or
 `helix run`. Use the prompts and templates under
 `workflows/phases/05-deploy/artifacts/` to prepare rollout and
 operational documentation.

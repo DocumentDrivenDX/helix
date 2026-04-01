@@ -240,9 +240,9 @@ packaging_contract:
 | From | To | Method | Data |
 |------|-----|--------|------|
 | User conversation | `helix-run` supervisor | Intent classification | functionality changes, direct requests, approvals, ambiguity |
-| `helix-run` | `align` / `plan` | Triggered subroutine | requirement and design drift |
+| `helix-run` | `align` / `design` | Triggered subroutine | requirement and design drift |
 | `helix-run` | `polish` | Triggered subroutine | changed specs plus open issues |
-| `helix-run` | `implement` | Triggered subroutine | ready governed issues |
+| `helix-run` | `build` | Triggered subroutine | ready governed issues |
 | `helix-run` | `review` | Triggered subroutine | recent implementation results |
 | `helix-run` | tracker | Query/update | issue state, dependencies, metadata, claims |
 | Companion commands | `helix-run` model | Shared control semantics | direct interactive intervention without model drift |
@@ -279,7 +279,7 @@ packaging_contract:
 
 - [ ] **Unit**: next-action selection logic for representative state
       transitions
-- [ ] **Integration**: `run` -> `align/plan` -> `polish` -> `implement` ->
+- [ ] **Integration**: `run` -> `align/design` -> `polish` -> `build` ->
       `review` handoffs
 - [ ] **API**: tracker metadata update flows required by issue refinement
 - [ ] **Concurrency**: operator refinement during a live run causes

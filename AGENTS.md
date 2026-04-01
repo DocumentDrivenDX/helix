@@ -22,7 +22,10 @@ bash tests/helix-cli.sh       # Deterministic HELIX wrapper tests
 bash tests/validate-skills.sh # Deterministic HELIX skill package validation
 helix run                     # Run bounded HELIX execution loop
 helix check                   # Decide next HELIX action
-helix plan                    # Create design document through iterative refinement
+helix design                  # Create design document through iterative refinement
+helix status                  # Show tracker health and queue summary
+helix evolve                  # Thread a new requirement through the artifact stack
+helix triage                  # Create well-structured tracker issues
 helix polish                  # Refine issues before implementation
 helix next                    # Show recommended next issue
 helix review                  # Fresh-eyes review of recent work
@@ -43,8 +46,8 @@ Key rules:
 - For general ready-work detection, use `helix tracker ready`, not manual JSONL parsing.
 - For execution selection or `helix run` reasoning, use `helix tracker ready --execution`.
 - Keep `implementation` single-shot and bounded to one issue per run.
-- Use `check` when the ready queue drains to decide whether to implement,
-  plan, polish, align, backfill, wait, ask for guidance, or stop.
+- Use `check` when the ready queue drains to decide whether to build,
+  design, polish, align, backfill, wait, ask for guidance, or stop.
 - Keep alignment and backfill as separate cross-phase actions:
   - `workflows/actions/reconcile-alignment.md`
   - `workflows/actions/backfill-helix-docs.md`
@@ -64,12 +67,14 @@ Think about HELIX in two layers:
 Installed agent skills mirror CLI commands exactly:
 
 - `helix-run` <-> `helix run`
-- `helix-implement` <-> `helix implement`
+- `helix-build` <-> `helix build`
 - `helix-check` <-> `helix check`
 - `helix-align` <-> `helix align`
 - `helix-backfill` <-> `helix backfill`
-- `helix-plan` <-> `helix plan`
+- `helix-design` <-> `helix design`
 - `helix-polish` <-> `helix polish`
+- `helix-evolve` <-> `helix evolve`
+- `helix-triage` <-> `helix triage`
 - `helix-next` <-> `helix next`
 - `helix-review` <-> `helix review`
 - `helix-experiment` <-> `helix experiment`
@@ -95,10 +100,10 @@ This repo now ships a small HELIX wrapper CLI:
 Useful commands:
 
 ```bash
-helix plan auth                       # create design document
+helix design auth                     # create design document
 helix polish                          # refine issues before implementation
 helix run --review-every 5
-helix implement
+helix build
 helix check repo
 helix align auth
 helix backfill repo
@@ -115,7 +120,7 @@ helix tracker status                  # tracker health summary
 `helix run` is the preferred operator loop. It:
 
 - loops only while true ready HELIX execution work exists
-- may route to `helix plan` or `helix polish` when supervisory state requires
+- may route to `helix design` or `helix polish` when supervisory state requires
   bounded planning or issue refinement before implementation resumes
 - executes one bounded implementation pass at a time
 - may run `helix review` after a successful implementation pass when review
@@ -208,7 +213,7 @@ Pre-commit hooks must remain enabled. Do not use `--no-verify`.
 
 For new features or major work:
 
-1. `helix plan [scope]` — create comprehensive design document
+1. `helix design [scope]` — create comprehensive design document
 2. `helix polish [scope]` — refine issues against the plan
 3. `helix run` — execute the implementation loop
 

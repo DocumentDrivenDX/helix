@@ -24,10 +24,10 @@ You may receive:
 
 Examples:
 
-- `helix implement`
-- `helix implement <id>`
-- `helix implement US-042`
-- `helix implement area:auth`
+- `helix build`
+- `helix build <id>`
+- `helix build US-042`
+- `helix build area:auth`
 
 If no argument is given, choose the best ready HELIX execution issue.
 

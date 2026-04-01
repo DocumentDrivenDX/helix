@@ -1,11 +1,11 @@
 ---
-name: helix-implement
-description: "DEPRECATED: use helix-build instead. Execute one bounded HELIX build pass."
+name: helix-build
+description: Execute one bounded HELIX build pass. Public command surface: `helix build`.
 argument-hint: "[issue-id|scope]"
 disable-model-invocation: true
 ---
 
-# Build (DEPRECATED — use helix-build)
+# Build
 
 Pick the next issue from the queue, build it fully, and close it.
 

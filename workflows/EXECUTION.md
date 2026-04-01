@@ -300,7 +300,7 @@ operator re-invoking the command. This preserves the bounded-action model.
 
 Experiments are operator-invoked only — `helix check` does not produce a
 `NEXT_ACTION: EXPERIMENT` code. The operator chooses `helix experiment` instead
-of `helix implement` for optimization work.
+of `helix build` for optimization work.
 
 The experiment action requires a clean worktree. The CLI prompts the user to
 commit uncommitted changes before proceeding.

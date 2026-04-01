@@ -92,7 +92,7 @@ Preferred HELIX wrapper commands:
 
 ```bash
 helix run
-helix implement
+helix build
 helix check repo
 helix align repo
 helix backfill repo
@@ -113,7 +113,7 @@ If you are not using `helix run`, use the bounded manual loop from
 
 ```bash
 while [ "$(helix tracker ready --json | jq 'length')" -gt 0 ]; do
-  helix implement
+  helix build
 done
 
 helix check

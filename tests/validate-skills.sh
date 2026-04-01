@@ -10,11 +10,15 @@ declare -A skills_requiring_argument_hint=(
   [helix-backfill]=1
   [helix-check]=1
   [helix-experiment]=1
+  [helix-build]=1
+  [helix-design]=1
+  [helix-evolve]=1
   [helix-implement]=1
   [helix-plan]=1
   [helix-polish]=1
   [helix-review]=1
   [helix-run]=1
+  [helix-triage]=1
 )
 
 fail() {

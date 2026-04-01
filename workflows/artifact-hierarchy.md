@@ -325,7 +325,7 @@ Use the current HELIX queue controls with this hierarchy:
 helix tracker ready --json
 
 # Execute one ready issue
-helix implement
+helix build
 
 # Decide the next action when the queue drains
 helix check

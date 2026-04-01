@@ -67,18 +67,21 @@ commands, not in the portable skill packaging layer.
 
 ```bash
 helix run
-helix implement
-helix implement hx-abc123
+helix build
+helix build hx-abc123
 helix check repo
 helix align repo
 helix backfill repo
+helix status
+helix evolve "requirement description"
+helix triage "Issue title" --type task
 ```
 
 ### Planning and Quality Commands
 
 ```bash
-helix plan [scope]                    # create design document
-helix plan --rounds 8 auth            # more refinement rounds
+helix design [scope]                  # create design document
+helix design --rounds 8 auth         # more refinement rounds
 helix polish [scope]                  # refine issues before implementation
 helix polish --rounds 10              # more polish rounds
 helix next                            # recommended next issue
@@ -117,11 +120,11 @@ Recommended labels:
 ## Decision Guide
 
 - Starting new work or a large scope:
-  run `helix plan`, then `helix polish`, then `helix run`.
+  run `helix design`, then `helix polish`, then `helix run`.
 - Ready execution issues exist:
-  run `implementation` or `helix run`.
+  run `helix build` or `helix run`.
 - Work lacks design authority for safe execution:
-  run `helix plan`, or let `helix run` dispatch it from `check`.
+  run `helix design`, or let `helix run` dispatch it from `check`.
 - Specs changed and open work needs issue refinement before implementation:
   run `helix polish`, or let `helix run` dispatch it from `check`.
 - No ready execution issue, but the planning stack exists and next work is

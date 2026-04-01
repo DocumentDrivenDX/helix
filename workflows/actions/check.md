@@ -30,8 +30,8 @@ If no scope is given, default to the repository.
 
 Your first output line must be exactly one of:
 
-- `NEXT_ACTION: IMPLEMENT`
-- `NEXT_ACTION: PLAN`
+- `NEXT_ACTION: BUILD`
+- `NEXT_ACTION: DESIGN`
 - `NEXT_ACTION: POLISH`
 - `NEXT_ACTION: ALIGN`
 - `NEXT_ACTION: BACKFILL`
@@ -41,8 +41,8 @@ Your first output line must be exactly one of:
 
 Use them precisely:
 
-- `IMPLEMENT`: one or more safe ready HELIX execution issues exist and should be worked now
-- `PLAN`: design authority is missing or too weak for safe execution and a bounded planning pass should create or extend the governing design stack
+- `BUILD`: one or more safe ready HELIX execution issues exist and should be worked now
+- `DESIGN`: design authority is missing or too weak for safe execution and a bounded planning pass should create or extend the governing design stack
 - `POLISH`: governing specs changed or open issue metadata is stale enough that the queue should be refined before implementation resumes
 - `ALIGN`: the planning stack exists, but no safe ready execution issue exists and a reconciliation pass is likely to expose or refine the next work set
 - `BACKFILL`: the canonical HELIX stack is missing, stale, or contradictory enough that continued execution would be unsafe without reconstructing or repairing the governing docs
@@ -50,7 +50,7 @@ Use them precisely:
 - `GUIDANCE`: user or stakeholder input is required before safe work can continue
 - `STOP`: there is no actionable work remaining for the scope right now
 
-`check` owns the maintained queue-drain `NEXT_ACTION` vocabulary above. `plan`
+`check` owns the maintained queue-drain `NEXT_ACTION` vocabulary above. `design`
 and `polish` are now first-class queue-drain outcomes when repository state
 shows that design authority or issue refinement must happen before execution
 can resume. `review` remains a supervisory subroutine outside this specific
@@ -58,8 +58,8 @@ can resume. `review` remains a supervisory subroutine outside this specific
 
 Supervisor interpretation:
 
-- `IMPLEMENT` means continue the bounded implementation loop now.
-- `PLAN` means run `helix plan <scope>` once, then re-evaluate the queue.
+- `BUILD` means continue the bounded implementation loop now.
+- `DESIGN` means run `helix design <scope>` once, then re-evaluate the queue.
 - `POLISH` means run `helix polish <scope>` once, then re-evaluate the queue.
 - `ALIGN` means run `helix align <scope>` once, then re-evaluate the queue.
 - `BACKFILL` means stop implementation and run `helix backfill <scope>` before resuming any execution work.
@@ -133,11 +133,11 @@ Check for:
 
 Apply these rules in order:
 
-1. Recommend `IMPLEMENT` when:
+1. Recommend `BUILD` when:
    - one or more safe ready HELIX execution issues exist
-   - no higher-priority supervisory refinement such as required `plan` or
+   - no higher-priority supervisory refinement such as required `design` or
      `polish` remains unresolved for the same scope
-2. Recommend `PLAN` when:
+2. Recommend `DESIGN` when:
    - requested or discovered work lacks sufficient design authority
    - a bounded planning pass can create or extend the missing design stack
    - implementation would otherwise guess at solution details
@@ -148,8 +148,8 @@ Apply these rules in order:
    - the canonical HELIX stack is missing, stale, or contradictory enough to make safe execution impossible
 5. Recommend `ALIGN` when:
    - the planning stack exists, but no safe ready execution issue exists and a reconciliation pass is likely to expose or refine the next work
-   - or supervisory review shows that requirement/design drift exists above the issue queue and neither a bounded `PLAN` nor `POLISH` pass is the right narrower repair step
-6. Recommend `IMPLEMENT` (not `WAIT`) when:
+   - or supervisory review shows that requirement/design drift exists above the issue queue and neither a bounded `DESIGN` nor `POLISH` pass is the right narrower repair step
+6. Recommend `BUILD` (not `WAIT`) when:
    - work is blocked, but the blocking issues themselves are actionable
      (e.g., config changes, migrations, infrastructure-as-code fixes)
    - in this case, recommend implementing the blocker issue directly
@@ -176,10 +176,10 @@ can safely resume.
 
 Provide the exact next command for the recommended action where possible:
 
-- `IMPLEMENT`:
-  - `helix implement`
-- `PLAN`:
-  - `helix plan <scope>`
+- `BUILD`:
+  - `helix build`
+- `DESIGN`:
+  - `helix design <scope>`
 - `POLISH`:
   - `helix polish <scope>`
 - `ALIGN`:

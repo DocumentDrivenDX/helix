@@ -536,7 +536,7 @@ test_check_dry_run() {
   output="$(run_helix "$root" check --dry-run repo)"
   assert_contains "$output" "codex --dangerously-bypass-approvals-and-sandbox exec --progress-cursor -C" "dry-run should print codex command"
   assert_contains "$output" "actions/check.md" "dry-run should reference check action"
-  assert_contains "$output" "IMPLEMENT, PLAN, POLISH, ALIGN, BACKFILL, WAIT, GUIDANCE, or STOP" "check dry-run should advertise the full NEXT_ACTION contract"
+  assert_contains "$output" "BUILD, DESIGN, POLISH, ALIGN, BACKFILL, WAIT, GUIDANCE, or STOP" "check dry-run should advertise the full NEXT_ACTION contract"
   rm -rf "$root"
 }
 
@@ -708,7 +708,7 @@ test_run_auto_aligns_once() {
 test_run_dispatches_plan_after_queue_drain() {
   local root
   root="$(make_workspace)"
-  printf 'PLAN\nIMPLEMENT\nSTOP\n' > "$root/state/next-actions"
+  printf 'DESIGN\nBUILD\nSTOP\n' > "$root/state/next-actions"
 
   cat >"$root/bin/codex" <<'MOCK'
 #!/usr/bin/env bash
@@ -766,7 +766,7 @@ MOCK
       fail "run should dispatch plan before bounded implementation resumes"
       ;;
   esac
-  assert_contains "$output" "queue drained, running plan" "run should report plan dispatch"
+  assert_contains "$output" "queue drained, running design" "run should report design dispatch"
   rm -rf "$root"
 }
 
@@ -777,7 +777,7 @@ test_run_dispatches_polish_after_queue_drain() {
   cat >"$root/work/.helix/issues.jsonl" <<'EOF'
 {"id":"hx-refine","title":"refine queue","type":"task","status":"open","priority":2,"labels":["helix","phase:design"],"parent":"","spec-id":"SD-001","description":"","design":"","acceptance":"","deps":[],"assignee":"","notes":"","execution-eligible":false,"superseded-by":"","replaces":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}
 EOF
-  printf 'POLISH\nIMPLEMENT\nSTOP\n' > "$root/state/next-actions"
+  printf 'POLISH\nBUILD\nSTOP\n' > "$root/state/next-actions"
 
   cat >"$root/bin/codex" <<'MOCK'
 #!/usr/bin/env bash
@@ -1231,8 +1231,8 @@ test_run_dispatches_backfill() {
 
   local calls
   calls="$(cat "$root/state/calls.log")"
-  assert_eq $'check\nbackfill\ncheck' "$calls" "run should auto-dispatch backfill after queue drain"
-  assert_contains "$output" "queue needs backfill" "run should report backfill dispatch"
+  assert_eq "check" "$calls" "run should stop after BACKFILL (no auto-dispatch)"
+  assert_contains "$output" "run \`helix backfill <scope>\` to reconstruct missing docs" "run should print backfill handoff"
   rm -rf "$root"
 }
 
@@ -1383,15 +1383,15 @@ test_extract_next_action_from_claude_output() {
     local stripped
     stripped="$(printf '%s\n' "$1" | sed 's/[*`]//g')"
     local result
-    result="$(printf '%s\n' "$stripped" | grep -oE 'NEXT_ACTION: *(IMPLEMENT|PLAN|POLISH|ALIGN|BACKFILL|WAIT|GUIDANCE|STOP)' | head -n1 | sed 's/^NEXT_ACTION: *//')"
+    result="$(printf '%s\n' "$stripped" | grep -oE 'NEXT_ACTION: *(BUILD|DESIGN|POLISH|ALIGN|BACKFILL|WAIT|GUIDANCE|STOP)' | head -n1 | sed 's/^NEXT_ACTION: *//')"
     printf '%s' "$result"
   }
 
   local result
   result="$(extract_next_action "## Queue Health
-NEXT_ACTION: IMPLEMENT
+NEXT_ACTION: BUILD
 Target issue: hx-mock-1")"
-  assert_eq "IMPLEMENT" "$result" "extract plain NEXT_ACTION"
+  assert_eq "BUILD" "$result" "extract plain NEXT_ACTION"
 
   result="$(extract_next_action "**NEXT_ACTION: WAIT**")"
   assert_eq "WAIT" "$result" "extract bold-wrapped NEXT_ACTION"
@@ -1410,8 +1410,8 @@ Target issue: hx-mock-1")"
 Some epilogue')"
   assert_eq "BACKFILL" "$result" "extract code-inline NEXT_ACTION"
 
-  result="$(extract_next_action 'NEXT_ACTION: PLAN')"
-  assert_eq "PLAN" "$result" "extract PLAN NEXT_ACTION"
+  result="$(extract_next_action 'NEXT_ACTION: DESIGN')"
+  assert_eq "DESIGN" "$result" "extract DESIGN NEXT_ACTION"
 
   result="$(extract_next_action '**NEXT_ACTION:** POLISH')"
   assert_eq "POLISH" "$result" "extract POLISH NEXT_ACTION"

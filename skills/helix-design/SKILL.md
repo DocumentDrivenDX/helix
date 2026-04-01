@@ -1,11 +1,11 @@
 ---
-name: helix-plan
-description: "DEPRECATED: use helix-design instead. Create a comprehensive design document through iterative refinement."
+name: helix-design
+description: Create a comprehensive design document through iterative refinement before build work. Public command surface: `helix design`.
 argument-hint: "[scope]"
 disable-model-invocation: true
 ---
 
-# Design (DEPRECATED — use helix-design)
+# Design
 
 Create a thorough design document through iterative self-critique and
 refinement. Invest deeply in planning quality before any code is written.
@@ -30,7 +30,7 @@ package.
 1. **Load context** — read all existing planning artifacts (vision, PRD,
    architecture, designs), current implementation, and issue queue state.
 
-2. **Draft a comprehensive plan** covering: problem statement, requirements,
+2. **Draft a comprehensive design** covering: problem statement, requirements,
    architecture decisions with alternatives, interface contracts, data model,
    error handling, security, test strategy, implementation ordering with
    dependency graph, risk register, and observability.
@@ -43,15 +43,15 @@ package.
 4. **Detect convergence** — stop when substantive changes drop below 5 for
    two consecutive rounds.
 
-5. **Output the plan** to `docs/helix/02-design/plan-YYYY-MM-DD[-scope].md`.
+5. **Output the design** to `docs/helix/02-design/plan-YYYY-MM-DD[-scope].md`.
 
 6. **Capture execution work** — once the intended design is clear enough,
    create or refine HELIX tracker issues that represent the implementation
    slices needed to make the design real.
 
-## After Planning
+## After Design
 
-Run `helix polish` to create and refine issues from the plan, then `helix run`
+Run `helix polish` to create and refine issues from the design, then `helix run`
 to execute.
 
 ## References

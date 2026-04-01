@@ -21,9 +21,9 @@ scripts/install-local-skills.sh
 helix run
 
 # Or run individual commands
-helix implement
+helix build
 helix check
-helix plan auth
+helix design auth
 helix experiment --close
 ```
 
@@ -42,11 +42,14 @@ helix experiment --close
 | Command | Purpose |
 |---------|---------|
 | `helix run` | Loop: implement ready issues, check, decide, repeat |
-| `helix implement [issue]` | Execute one ready issue end-to-end |
-| `helix check [scope]` | Decide next action (IMPLEMENT/ALIGN/BACKFILL/WAIT/STOP) |
+| `helix build [issue]` | Execute one ready issue end-to-end |
+| `helix check [scope]` | Decide next action (BUILD/DESIGN/ALIGN/BACKFILL/WAIT/STOP) |
 | `helix align [scope]` | Top-down reconciliation review |
 | `helix backfill [scope]` | Reconstruct missing HELIX docs |
-| `helix plan [scope]` | Create design document through iterative refinement |
+| `helix design [scope]` | Create design document through iterative refinement |
+| `helix status` | Show tracker health and queue summary |
+| `helix evolve [requirement]` | Thread requirement through the artifact stack |
+| `helix triage [title]` | Create well-structured tracker issues |
 | `helix polish [scope]` | Refine issues before implementation |
 | `helix next` | Show recommended next issue |
 | `helix review [scope]` | Fresh-eyes post-implementation review |
@@ -64,15 +67,17 @@ Temporary compatibility mirror:
 Installed skill set:
 
 - `helix-run` <-> `helix run`
-- `helix-implement` <-> `helix implement`
+- `helix-build` <-> `helix build`
 - `helix-check` <-> `helix check`
 - `helix-align` <-> `helix align`
 - `helix-backfill` <-> `helix backfill`
-- `helix-plan` <-> `helix plan`
+- `helix-design` <-> `helix design`
 - `helix-polish` <-> `helix polish`
 - `helix-next` <-> `helix next`
 - `helix-review` <-> `helix review`
 - `helix-experiment` <-> `helix experiment`
+- `helix-evolve` <-> `helix evolve`
+- `helix-triage` <-> `helix triage`
 
 The contract is strict: public skill names are `helix-<command>` and must
 mirror the CLI subcommand exactly.
