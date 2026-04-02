@@ -137,7 +137,7 @@ Options:
 
 Environment:
   HELIX_AGENT          Default agent (codex or claude)
-  HELIX_AGENT_TIMEOUT  Agent timeout in seconds (default: 900)
+  HELIX_AGENT_TIMEOUT  Agent timeout in seconds (default: 2700)
   HELIX_REVIEW_AGENT   Agent for cross-model reviews
   HELIX_CHECK_MODEL    Cheaper model for queue-drain decisions
   HELIX_POLISH_MODEL   Cheaper model for issue refinement
@@ -214,7 +214,7 @@ run_agent_prompt() {
   local model_override="${2:-}"
   local prompt_bytes
   prompt_bytes="$(printf '%s' "$prompt" | wc -c)"
-  local agent_timeout="${HELIX_AGENT_TIMEOUT:-900}"
+  local agent_timeout="${HELIX_AGENT_TIMEOUT:-2700}"
 
   case "$agent" in
     codex)
