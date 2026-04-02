@@ -546,6 +546,7 @@ Execute in the current repository rooted at ${target_root}.
 Issue tracker: built-in JSONL at ${tracker_file}. Use \`helix tracker\` subcommands.
 Review scope: ${scope}.
 ${in_loop:+This review is running inside the automated helix run loop after an implementation cycle.}
+IMPORTANT: File each actionable finding (critical, high, medium severity) as a tracker issue with label \`review-finding\` so findings are durable and queryable via \`helix tracker list --label review-finding\`. See the "Filing Findings as Tracker Issues" section in the action for the exact command pattern.
 Follow the action exactly. Do the work — do not just describe what you would do.
 EOF
 }
@@ -837,6 +838,12 @@ extract_review_issues_count() {
   printf '%s\n' "$stripped" | grep -oE 'ISSUES_COUNT: *[0-9]+' | head -n1 | sed 's/^ISSUES_COUNT: *//'
 }
 
+extract_findings_filed() {
+  local stripped
+  stripped="$(printf '%s\n' "$1" | sed 's/[*`]//g')"
+  printf '%s\n' "$stripped" | grep -oE 'FINDINGS_FILED: *[0-9]+' | head -n1 | sed 's/^FINDINGS_FILED: *//'
+}
+
 parse_common_flags() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -1080,13 +1087,15 @@ run_review() {
       _restore_review_agent; return 0
       ;;
     ISSUES_FOUND)
-      local issues_count
+      local issues_count findings_filed
       issues_count="$(extract_review_issues_count "$output" || true)"
+      findings_filed="$(extract_findings_filed "$output" || true)"
       if [[ -z "$issues_count" ]]; then
         echo "helix: review output missing ISSUES_COUNT trailer" >&2
         _restore_review_agent; return 1
       fi
-      printf 'helix: review reported %s actionable issue(s)\n' "$issues_count" >&2
+      printf 'helix: review reported %s issue(s), %s filed as tracker issues\n' \
+        "$issues_count" "${findings_filed:-0}" >&2
       _restore_review_agent; return 10
       ;;
     *)
@@ -1550,21 +1559,40 @@ run_loop() {
           fi
         fi
 
-        # Acceptance gate: run project acceptance scripts if they exist
+        # Acceptance gate: run project acceptance scripts if they exist.
+        # Failures are filed as tracker issues (label: acceptance-failure)
+        # so they appear in the ready queue for the next cycle.
         if (( ! dry_run )); then
           local _ac_failed=0
           for _ac_script in \
             "${target_root}/scripts/check-acceptance-traceability.sh" \
             "${target_root}/scripts/check-acceptance-coverage.sh"; do
             if [[ -x "$_ac_script" ]]; then
-              if ! bash "$_ac_script" >/dev/null 2>&1; then
-                printf 'helix: ACCEPTANCE CHECK FAILED: %s\n' "$(basename "$_ac_script")" >&2
+              local _ac_output=""
+              if ! _ac_output="$(bash "$_ac_script" 2>&1)"; then
+                local _ac_name
+                _ac_name="$(basename "$_ac_script")"
+                printf 'helix: ACCEPTANCE CHECK FAILED: %s\n' "$_ac_name" >&2
                 _ac_failed=1
+                # File acceptance failure as a tracker issue
+                local _ac_issue_id=""
+                _ac_issue_id="$(tracker_create \
+                  "Acceptance failure: ${_ac_name} after ${selected_issue}" \
+                  --type task \
+                  --labels "helix,phase:build,acceptance-failure" \
+                  --spec-id "$_ac_name" \
+                  --description "Acceptance check ${_ac_name} failed after implementing ${selected_issue}.
+Output: ${_ac_output:0:500}" \
+                  --acceptance "${_ac_name} passes cleanly" \
+                  --silent 2>/dev/null)" || true
+                if [[ -n "$_ac_issue_id" ]]; then
+                  printf 'helix: filed acceptance failure as %s\n' "$_ac_issue_id" >&2
+                fi
               fi
             fi
           done
           if (( _ac_failed )); then
-            printf 'helix: acceptance criteria not met after cycle %s — continuing but flagging\n' "$attempt_number" >&2
+            printf 'helix: acceptance criteria not met after cycle %s — failures filed as tracker issues\n' "$attempt_number" >&2
           fi
         fi
 
@@ -1587,12 +1615,13 @@ run_loop() {
             local review_status="$?"
             case "$review_status" in
               10)
-                printf 'helix: stopping after actionable review findings in cycle %s\n' "$attempt_number" >&2
-                finish_loop 0; return $?
+                # Review findings are now filed as tracker issues by the review
+                # action itself (label: review-finding). Continue the loop —
+                # findings will appear in the ready queue for future cycles.
+                printf 'helix: review filed actionable findings as tracker issues — continuing\n' "$attempt_number" >&2
                 ;;
               *)
-                printf 'helix: review output was not safely interpretable after cycle %s\n' "$attempt_number" >&2
-                finish_loop 1; return $?
+                printf 'helix: review output was not safely interpretable after cycle %s — continuing\n' "$attempt_number" >&2
                 ;;
             esac
           fi
@@ -1690,7 +1719,19 @@ run_loop() {
         printf 'helix: run `helix backfill <scope>` to reconstruct missing docs\n' >&2
         finish_loop 0; return $?
         ;;
-      GUIDANCE|STOP)
+      STOP)
+        if (( auto_align )) && (( post_drain_alignment_ran == 0 )); then
+          printf 'helix: queue empty, running alignment before stopping\n' >&2
+          if run_alignment repo; then
+            post_drain_alignment_ran=1
+          else
+            echo "helix: pre-stop alignment failed" >&2
+          fi
+        fi
+        printf 'helix: stopping after check returned STOP\n' >&2
+        finish_loop 0; return $?
+        ;;
+      GUIDANCE)
         printf 'helix: stopping after check returned %s\n' "$next_action" >&2
         finish_loop 0; return $?
         ;;

@@ -115,17 +115,50 @@ For each issue found, report:
 - **Description**: what is wrong
 - **Suggested fix**: how to resolve it
 
+## Filing Findings as Tracker Issues
+
+After completing all review passes, file each actionable finding (severity
+`critical`, `high`, or `medium`) as a tracker issue so that findings are
+durable and appear in the ready queue for subsequent execution cycles.
+
+For each actionable finding, create a tracker issue:
+
+```bash
+helix tracker create "<category>: <short description>" \
+  --type task \
+  --labels helix,phase:build,review-finding \
+  --spec-id <governing-artifact-or-file-path> \
+  --description "Review finding from fresh-eyes review.
+File: <file>:<line>
+Category: <category>
+Severity: <severity>
+Description: <full description>
+Suggested fix: <suggested fix>" \
+  --acceptance "<deterministic verification criteria for the fix>"
+```
+
+Rules for filing:
+- `low` severity findings: do not file as issues; report them in the output
+  only
+- Use label `review-finding` on every finding issue for queryability
+- Set `--spec-id` to the file path where the finding was identified
+- Write deterministic acceptance criteria (e.g., "test X passes", "no SQL
+  injection in function Y") so the issue can be closed by automated build
+
 Report these trailer lines at the end of your output:
 
 ```
 REVIEW_STATUS: CLEAN|ISSUES_FOUND
 ISSUES_COUNT: N
+FINDINGS_FILED: N
 AGENTS_MD_UPDATED: YES|NO
 LEARNINGS_FILED: N
 ```
 
 - `CLEAN`: no issues found across all passes
 - `ISSUES_FOUND`: one or more issues identified
+- `ISSUES_COUNT`: total number of findings (all severities)
+- `FINDINGS_FILED`: number of findings filed as tracker issues (critical+high+medium)
 - `AGENTS_MD_UPDATED`: whether AGENTS.md was modified during this review
 - `LEARNINGS_FILED`: number of learnings issues created (0 if none)
 

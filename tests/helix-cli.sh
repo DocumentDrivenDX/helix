@@ -385,6 +385,7 @@ run_helix() {
     HELIX_SKIP_TRIAGE="${HELIX_SKIP_TRIAGE:-0}" \
     HELIX_FORCE_EPHEMERAL=1 \
     HELIX_REVIEW_AGENT="codex" \
+    HELIX_AUTO_ALIGN="${HELIX_AUTO_ALIGN:-0}" \
     bash "$repo_root/scripts/helix" "$cmd" --quiet "$@"
   )
 }
@@ -618,7 +619,7 @@ MOCK
   chmod +x "$root/bin/codex"
 
   local output
-  output="$(run_helix "$root" run --no-auto-review 2>&1)"
+  output="$(run_helix "$root" run --no-auto-review --no-auto-align 2>&1)"
 
   local calls
   calls="$(cat "$root/state/calls.log")"
@@ -677,7 +678,7 @@ esac
 MOCK
   chmod +x "$root/bin/codex"
 
-  run_helix "$root" run --review-every 2 --no-auto-review >/dev/null
+  run_helix "$root" run --review-every 2 --no-auto-review --no-auto-align >/dev/null
 
   local calls
   calls="$(cat "$root/state/calls.log")"
@@ -691,7 +692,7 @@ test_run_auto_aligns_once() {
   # No issues — queue is empty from the start
   printf 'ALIGN\nSTOP\n' > "$root/state/next-actions"
 
-  run_helix "$root" run --no-auto-review >/dev/null
+  HELIX_AUTO_ALIGN=1 run_helix "$root" run --no-auto-review >/dev/null
 
   local calls
   calls="$(cat "$root/state/calls.log")"
@@ -862,7 +863,7 @@ MOCK
   chmod +x "$root/bin/codex"
 
   local output
-  if output="$(run_helix "$root" run --review-every 1 --no-auto-review 2>&1)"; then
+  if output="$(HELIX_AUTO_ALIGN=1 run_helix "$root" run --review-every 1 --no-auto-review 2>&1)"; then
     fail "run should fail when periodic alignment fails"
   fi
 
@@ -998,7 +999,7 @@ esac
 MOCK
   chmod +x "$root/bin/codex"
 
-  run_helix "$root" run --no-auto-review >/dev/null
+  run_helix "$root" run --no-auto-review --no-auto-align >/dev/null
 
   local calls
   calls="$(cat "$root/state/calls.log")"
@@ -1159,7 +1160,7 @@ MOCK
   chmod +x "$root/bin/claude"
 
   local output
-  output="$(run_helix "$root" run --claude --no-auto-review 2>&1)"
+  output="$(run_helix "$root" run --claude --no-auto-review --no-auto-align 2>&1)"
 
   local calls
   calls="$(cat "$root/state/calls.log")"
@@ -1173,7 +1174,7 @@ test_claude_run_auto_aligns() {
   root="$(make_workspace)"
   printf 'ALIGN\nSTOP\n' > "$root/state/next-actions"
 
-  run_helix "$root" run --claude --no-auto-review >/dev/null
+  HELIX_AUTO_ALIGN=1 run_helix "$root" run --claude --no-auto-review >/dev/null
 
   local calls
   calls="$(cat "$root/state/calls.log")"
@@ -1326,7 +1327,7 @@ MOCK
   chmod +x "$root/bin/codex"
 
   local output
-  output="$(run_helix "$root" run --review-every 1 --no-auto-review 2>&1)"
+  output="$(run_helix "$root" run --review-every 1 --no-auto-review --no-auto-align 2>&1)"
 
   local calls
   calls="$(cat "$root/state/calls.log")"
@@ -1609,7 +1610,9 @@ MOCK
 
   local calls
   calls="$(cat "$root/state/calls.log")"
-  assert_eq $'implement\nreview\ncheck' "$calls" "run should review after each successful implementation"
+  # After implement, review runs (CLEAN). Then check returns STOP, and
+  # auto_align runs alignment before stopping.
+  assert_eq $'implement\nreview\ncheck\nalign' "$calls" "run should review after each successful implementation"
   assert_contains "$output" "post-implementation review" "run should report review step"
   rm -rf "$root"
 }
@@ -1653,7 +1656,7 @@ esac
 MOCK
   chmod +x "$root/bin/codex"
 
-  run_helix "$root" run --no-auto-review >/dev/null
+  run_helix "$root" run --no-auto-review --no-auto-align >/dev/null
 
   local calls
   calls="$(cat "$root/state/calls.log")"
@@ -1693,6 +1696,10 @@ case "$payload" in
     record check
     echo "NEXT_ACTION: STOP"
     ;;
+  *"alignment action"*)
+    record align
+    echo "alignment complete"
+    ;;
   *) record other; echo "mock codex" ;;
 esac
 MOCK
@@ -1703,9 +1710,10 @@ MOCK
 
   local calls
   calls="$(cat "$root/state/calls.log")"
-  assert_eq $'implement\nreview' "$calls" "run should stop before check when review finds issues"
-  assert_contains "$output" "review reported 2 actionable issue(s)" "run should surface review findings count"
-  assert_contains "$output" "stopping after actionable review findings" "run should stop after actionable review findings"
+  # Review findings are now filed as tracker issues and the loop continues.
+  assert_eq $'implement\nreview\ncheck' "$calls" "run should continue after review files findings as tracker issues"
+  assert_contains "$output" "review reported 2 issue(s), 0 filed as tracker issues" "run should surface review findings count"
+  assert_contains "$output" "review filed actionable findings as tracker issues" "run should note findings were filed"
   rm -rf "$root"
 }
 
@@ -1737,21 +1745,24 @@ case "$payload" in
     record check
     echo "NEXT_ACTION: STOP"
     ;;
+  *"alignment action"*)
+    record align
+    echo "alignment complete"
+    ;;
   *) record other; echo "mock codex" ;;
 esac
 MOCK
   chmod +x "$root/bin/codex"
 
   local output
-  if output="$(run_helix "$root" run 2>&1)"; then
-    fail "run should fail when review output cannot be interpreted safely"
-  fi
+  output="$(run_helix "$root" run 2>&1)"
 
   local calls
   calls="$(cat "$root/state/calls.log")"
-  assert_eq $'implement\nreview' "$calls" "run should stop before check on malformed review output"
+  # Unparseable review output logs a warning but the loop continues.
+  assert_eq $'implement\nreview\ncheck' "$calls" "run should continue after unparseable review output"
   assert_contains "$output" "review output missing REVIEW_STATUS trailer" "run should require REVIEW_STATUS"
-  assert_contains "$output" "review output was not safely interpretable" "run should explain the failure"
+  assert_contains "$output" "review output was not safely interpretable" "run should explain the issue"
   rm -rf "$root"
 }
 
@@ -2333,8 +2344,8 @@ run_test "tracker export stdout roundtrip" test_tracker_export_stdout_roundtrip
 # Auto-review in loop tests
 run_test "run auto-reviews after implement" test_run_auto_reviews_after_implement
 run_test "run no-auto-review flag" test_run_no_auto_review_flag
-run_test "run stops on review findings" test_run_stops_on_review_findings
-run_test "run fails on unparseable review output" test_run_fails_on_unparseable_review_output
+run_test "run continues after review findings filed as issues" test_run_stops_on_review_findings
+run_test "run continues after unparseable review output" test_run_fails_on_unparseable_review_output
 
 # CLI integration tests
 run_test "help" test_help

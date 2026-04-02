@@ -218,7 +218,10 @@ Main commands:
 - can trigger `reconcile-alignment` every `N` completed build passes
   or when `check` returns `ALIGN`
 - may run `helix review` after each successful build pass when review
-  automation is enabled
+  automation is enabled; review findings are filed as tracker issues with
+  label `review-finding` and the loop continues
+- files acceptance check failures as tracker issues with label
+  `acceptance-failure` instead of only logging to stderr
 - may use `--review-agent` for cross-model review
 - can stay focused on one epic through decomposition, child execution, and
   post-epic scoped review
@@ -297,8 +300,23 @@ helix review ddx-abc123       # review changes for a specific issue
 helix review src/auth/        # review specific files
 ```
 
-Review findings are advisory for the loop controller unless they produce
-follow-up work or a failing verification result.
+Review findings are durable: the review action files each actionable finding
+as a tracker issue with label `review-finding`. The run loop continues after
+review rather than stopping, because the findings are now in the tracker and
+will surface via `helix tracker list --label review-finding` or
+`helix tracker ready` once they are ready for implementation.
+
+Similarly, when acceptance checks fail in the run loop, the specific failures
+are filed as tracker issues with label `acceptance-failure` so they appear in
+the ready queue for the next cycle.
+
+Operators can query and manage these findings like any other issue:
+
+```bash
+helix tracker list --label review-finding    # all unresolved review findings
+helix tracker list --label acceptance-failure # all unresolved acceptance failures
+helix tracker close <id>                     # resolve a finding
+```
 
 ## Experiment Loop
 

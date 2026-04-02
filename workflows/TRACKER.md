@@ -336,6 +336,8 @@ Add labels as needed for traceability:
 - `story:US-XXX`
 - `feature:FEAT-XXX`
 - `source:metrics`, `source:feedback`, `source:retrospective`, `source:incident`
+- `review-finding` for actionable findings filed by the fresh-eyes review action
+- `acceptance-failure` for acceptance check failures filed by the run loop
 - area labels such as `area:auth` or `area:cli`
 
 Use `--spec-id` for the closest governing artifact. Put the full authority
