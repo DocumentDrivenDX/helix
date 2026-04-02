@@ -23,7 +23,7 @@ The tracker enforces these structural rules at creation time:
 
 | Field | Required For | What To Set |
 |-------|-------------|-------------|
-| `--labels helix,phase:*` | All issues | `helix` + one of `phase:build`, `phase:deploy`, `phase:iterate`, `phase:design`, `phase:review` |
+| `--labels helix,phase:*` | All issues | `helix` + one of `phase:frame`, `phase:design`, `phase:test`, `phase:build`, `phase:deploy`, `phase:iterate`, `phase:review` |
 | `--spec-id` | Tasks | Nearest governing artifact (e.g., `SD-001`, `ADR-048`, `TP-SD-014`) |
 | `--acceptance` | Tasks, Epics | Deterministic completion criteria — what must be true when this is done |
 | `--description` | Recommended | Work contract: what to do, which files, governing artifact references |

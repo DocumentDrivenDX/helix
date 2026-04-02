@@ -328,7 +328,7 @@ execution loop queue guard does not filter by label -- it uses all ready issues.
 Recommended labels:
 
 - `helix` -- identifies HELIX-managed issues; useful for triage and cross-repo queries
-- one phase label: `phase:build`, `phase:deploy`, `phase:iterate`, or `phase:review`
+- one phase label: `phase:frame`, `phase:design`, `phase:test`, `phase:build`, `phase:deploy`, `phase:iterate`, or `phase:review`
 
 Add labels as needed for traceability:
 
@@ -350,8 +350,8 @@ written.
 Required at create time:
 
 - `helix` label
-- one phase label: `phase:build`, `phase:deploy`, `phase:iterate`,
-  `phase:design`, or `phase:review`
+- one phase label: `phase:frame`, `phase:design`, `phase:test`, `phase:build`,
+  `phase:deploy`, `phase:iterate`, or `phase:review`
 - `--spec-id` for `task` issues
 - deterministic `--acceptance` for `task` and `epic` issues
 - dependencies, when provided, must reference existing issue IDs

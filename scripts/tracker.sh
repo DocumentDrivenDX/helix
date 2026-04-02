@@ -90,7 +90,16 @@ tracker_write_all() {
   local json="$1"
   local tmp
   tmp="$(mktemp "${tracker_dir}/issues.jsonl.tmp.XXXXXX")"
-  printf '%s' "$json" | jq -c '.[] | .' > "$tmp"
+  if ! printf '%s' "$json" | jq -e 'type == "array"' >/dev/null; then
+    rm -f "$tmp"
+    echo "tracker: refusing to write malformed tracker array" >&2
+    return 1
+  fi
+  if ! printf '%s' "$json" | jq -c '.[] | .' > "$tmp"; then
+    rm -f "$tmp"
+    echo "tracker: failed to serialize tracker state" >&2
+    return 1
+  fi
   mv -f "$tmp" "$tracker_file"
 }
 
@@ -102,7 +111,16 @@ tracker_write_jsonl_file() {
   mkdir -p "$output_dir"
   local tmp
   tmp="$(mktemp "${output_dir}/issues.jsonl.tmp.XXXXXX")"
-  printf '%s' "$json" | jq -c '.[] | .' > "$tmp"
+  if ! printf '%s' "$json" | jq -e 'type == "array"' >/dev/null; then
+    rm -f "$tmp"
+    echo "tracker: refusing to export malformed tracker array" >&2
+    return 1
+  fi
+  if ! printf '%s' "$json" | jq -c '.[] | .' > "$tmp"; then
+    rm -f "$tmp"
+    echo "tracker: failed to serialize tracker export" >&2
+    return 1
+  fi
   mv -f "$tmp" "$output_file"
 }
 
@@ -164,9 +182,9 @@ tracker_validate_create() {
 
   # Hard: at least one phase label
   case ",${labels}," in
-    *,phase:build,*|*,phase:deploy,*|*,phase:iterate,*|*,phase:design,*|*,phase:review,*) ;;
+    *,phase:frame,*|*,phase:design,*|*,phase:test,*|*,phase:build,*|*,phase:deploy,*|*,phase:iterate,*|*,phase:review,*) ;;
     *)
-      printf '[triage] error: missing phase label (phase:build, phase:deploy, phase:iterate, phase:design, or phase:review)\n' >&2
+      printf '[triage] error: missing phase label (phase:frame, phase:design, phase:test, phase:build, phase:deploy, phase:iterate, or phase:review)\n' >&2
       rc=1
       ;;
   esac
@@ -460,13 +478,13 @@ tracker_update_impl() {
       --replaces)    updates+=(".replaces = \"$2\""); shift 2 ;;
       --labels)
         local lj
-        lj="$(printf '%s' "$2" | jq -R 'split(",")')"
+        lj="$(jq -Rn --arg v "$2" '$v | if length == 0 then [] else split(",") end')"
         updates+=(".labels = $lj")
         shift 2
         ;;
       --deps)
         local dj
-        dj="$(printf '%s' "$2" | jq -R 'if length == 0 then [] else split(",") end')"
+        dj="$(jq -Rn --arg v "$2" '$v | if length == 0 then [] else split(",") end')"
         updates+=(".deps = $dj")
         shift 2
         ;;
@@ -506,7 +524,10 @@ tracker_update_impl() {
   fi
 
   local updated
-  updated="$(printf '%s' "$all" | jq "[.[] | if .id == \"$id\" then $expr else . end]")"
+  if ! updated="$(printf '%s' "$all" | jq "[.[] | if .id == \"$id\" then $expr else . end]")"; then
+    echo "tracker: failed to update issue: $id" >&2
+    return 1
+  fi
   tracker_write_all "$updated"
 }
 

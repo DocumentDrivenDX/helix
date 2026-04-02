@@ -113,7 +113,7 @@ not required by the execution loop queue guard.
 
 Recommended labels:
 - `helix` -- identifies HELIX-managed issues (recommended, not required by the queue guard).
-- Phase labels: `phase:build`, `phase:deploy`, `phase:iterate`, `phase:review`.
+- Phase labels: `phase:frame`, `phase:design`, `phase:test`, `phase:build`, `phase:deploy`, `phase:iterate`, `phase:review`.
 - Kind labels: `kind:build`, `kind:deploy`, `kind:backlog`, `kind:review`.
 - Traceability labels: `story:US-XXX`, `feature:FEAT-XXX`, `area:<name>`, `source:metrics`.
 

@@ -188,7 +188,7 @@ Every issue should:
 ### Label Conventions
 
 - Add `helix` for discoverability (recommended, not required by the queue guard)
-- Add a phase label when applicable: `phase:build`, `phase:deploy`, `phase:iterate`, or `phase:review`
+- Add a phase label when applicable: `phase:frame`, `phase:design`, `phase:test`, `phase:build`, `phase:deploy`, `phase:iterate`, or `phase:review`
 - Add `kind:build`, `kind:deploy`, `kind:backlog`, or `kind:review` when helpful
 - Add traceability labels such as `story:US-XXX`, `feature:FEAT-XXX`, `source:metrics`, or `area:auth`
 - Use `helix tracker ready`, `helix tracker blocked`, and `helix tracker dep tree` instead of relying on custom HELIX status fields
