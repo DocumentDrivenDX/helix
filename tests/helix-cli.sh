@@ -2510,4 +2510,68 @@ run_test "evolve dry-run with scope" test_evolve_dry_run_with_scope
 run_test "evolve dry-run with artifact" test_evolve_dry_run_with_artifact
 run_test "evolve requires description" test_evolve_requires_description
 
+# ── frame tests ───────────────────────────────────────────────────────
+
+test_frame_dry_run() {
+  local root
+  root="$(make_workspace)"
+  local output
+  output="$(run_helix "$root" frame --dry-run)"
+  assert_contains "$output" "actions/frame.md" "frame dry-run should reference frame action"
+  assert_contains "$output" "phases/00-discover/artifacts" "frame dry-run should reference discover templates"
+  assert_contains "$output" "phases/01-frame/artifacts" "frame dry-run should reference frame templates"
+  rm -rf "$root"
+}
+
+test_frame_dry_run_with_scope() {
+  local root
+  root="$(make_workspace)"
+  local output
+  output="$(run_helix "$root" frame --dry-run auth)"
+  assert_contains "$output" "Frame scope: auth" "frame dry-run should include scope"
+  rm -rf "$root"
+}
+
+test_frame_help_listed() {
+  local root
+  root="$(make_workspace)"
+  local output
+  output="$(run_helix "$root" help)"
+  assert_contains "$output" "frame" "help should list frame command"
+  rm -rf "$root"
+}
+
+run_test "frame dry-run" test_frame_dry_run
+run_test "frame dry-run with scope" test_frame_dry_run_with_scope
+run_test "frame help listed" test_frame_help_listed
+
+# ── installer completeness test ───────────────────────────────────────
+
+test_installer_installs_all_skills() {
+  # Verify the installer installs every skill in .agents/skills/
+  local root
+  root="$(make_workspace)"
+  (
+    cd "$repo_root"
+    HOME="$root/home" \
+    AGENTS_HOME="$root/agents-home" \
+    CLAUDE_HOME="$root/claude-home" \
+    bash scripts/install-local-skills.sh >/dev/null
+  )
+  local missing=0
+  for skill_path in "$repo_root/.agents/skills"/helix-*; do
+    [[ -e "$skill_path" ]] || continue
+    local name
+    name="$(basename "$skill_path")"
+    if [[ ! -L "$root/agents-home/skills/$name" ]]; then
+      printf 'missing skill: %s\n' "$name" >&2
+      missing=$((missing + 1))
+    fi
+  done
+  (( missing == 0 )) || fail "installer missed $missing skill(s)"
+  rm -rf "$root"
+}
+
+run_test "installer installs all skills" test_installer_installs_all_skills
+
 echo "PASS: ${test_count} helix wrapper tests"
