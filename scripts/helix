@@ -1189,6 +1189,7 @@ run_loop() {
   local attempted_cycles=0
   local completed_cycles=0
   local post_drain_alignment_ran=0
+  local post_drain_backfill_ran=0
   local consecutive_failures=0
   local -A skipped_issues=()
   local -A skip_reasons=()
@@ -1535,6 +1536,7 @@ run_loop() {
         fi
       fi
       post_drain_alignment_ran=0
+      post_drain_backfill_ran=0
 
       if (( completed_cycles > 0 )) && (( review_every > 0 )) && (( completed_cycles % review_every == 0 )); then
         printf 'helix: periodic alignment after %s cycles\n' "$completed_cycles" >&2
@@ -1600,7 +1602,16 @@ run_loop() {
         finish_loop 0; return $?
         ;;
       BACKFILL)
-        printf 'helix: run `helix backfill <scope>` to reconstruct missing docs\n' >&2
+        if (( post_drain_backfill_ran == 0 )); then
+          printf 'helix: queue drained, running backfill\n' >&2
+          if ! run_backfill repo; then
+            echo "helix: backfill failed after queue drain" >&2
+            finish_loop 1; return $?
+          fi
+          post_drain_backfill_ran=1
+          continue
+        fi
+        echo "helix: stopping after check returned BACKFILL (already ran once)" >&2
         finish_loop 0; return $?
         ;;
       GUIDANCE|STOP)
