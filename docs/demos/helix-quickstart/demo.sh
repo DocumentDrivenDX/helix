@@ -24,7 +24,16 @@ set -euo pipefail
 RECORDING_FILE="/recordings/helix-quickstart-$(date +%Y%m%d-%H%M%S).cast"
 MAX_RETRIES=3
 COOLDOWN=5
-HELIX_LIBRARY_ROOT="${HELIX_LIBRARY_ROOT:-/helix}"
+# Auto-detect helix repo: Docker mount at /helix, or relative to this script
+if [[ -d /helix/workflows ]]; then
+  HELIX_ROOT="/helix"
+elif [[ -d "$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)/workflows" ]]; then
+  HELIX_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+else
+  echo "FAIL: cannot find helix repo — set HELIX_ROOT or mount at /helix" >&2
+  exit 1
+fi
+HELIX_LIBRARY_ROOT="${HELIX_LIBRARY_ROOT:-$HELIX_ROOT}"
 
 narrate() {
   echo ""
@@ -114,9 +123,9 @@ demo_body() {
   # ── ACT 1: Install HELIX ──────────────────────────────────
   narrate "ACT 1: Install HELIX"
 
-  echo "Installing HELIX from /helix..."
-  export HELIX_LIBRARY_ROOT="/helix/workflows"
-  bash /helix/scripts/install-local-skills.sh 2>&1
+  echo "Installing HELIX from $HELIX_ROOT..."
+  export HELIX_LIBRARY_ROOT="$HELIX_ROOT/workflows"
+  bash "$HELIX_ROOT/scripts/install-local-skills.sh" 2>&1
   echo ""
 
   echo "Available skills:"

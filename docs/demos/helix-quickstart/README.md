@@ -17,20 +17,28 @@ Builds a tiny Node.js temperature converter from scratch, driven entirely by HEL
 # Build the demo container
 docker build -t helix-demo docs/demos/helix-quickstart/
 
-# Run with recording
+# Run with recording (Docker)
 docker run --rm \
-  -v ~/.claude:/root/.claude:ro \
+  -v ~/.claude.json:/root/.claude.json:ro \
+  -v ~/.claude:/root/.claude \
   -v $(pwd):/helix:ro \
   -v $(pwd)/docs/demos/helix-quickstart/recordings:/recordings \
   helix-demo
 
-# Run without recording (just execute)
+# Run without recording (Docker)
 docker run --rm \
-  -v ~/.claude:/root/.claude:ro \
+  -v ~/.claude.json:/root/.claude.json:ro \
+  -v ~/.claude:/root/.claude \
   -v $(pwd):/helix:ro \
   -e HELIX_DEMO_RECORDING=1 \
   helix-demo
+
+# Run locally (no Docker) — fastest, uses your existing claude auth
+cd /tmp && bash path/to/helix/docs/demos/helix-quickstart/demo.sh
 ```
+
+**Note:** Docker runs need `~/.claude.json` (auth token) AND `~/.claude/`
+(writable, for session state). The local run uses your existing setup.
 
 ## What It Does
 
