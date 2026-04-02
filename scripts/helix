@@ -86,6 +86,7 @@ Commands:
   review      Fresh-eyes review of recent work
   experiment  Run one experiment iteration for metric-driven optimization
   evolve      Thread a new requirement through the artifact stack
+  commit      Commit with HELIX format, run build gate, push, close issue
   triage      Create a validated tracker issue with required metadata
   tracker     Built-in bead tracker (init, create, show, update, close, list, ready, blocked, dep, status, import, export)
 
@@ -1100,6 +1101,72 @@ run_next() {
   tracker_ready --json --execution | jq -r '.[0].id // "no ready issues"'
 }
 
+run_commit() {
+  local issue_id="${1:-}"
+
+  # Check for staged changes
+  if ! (cd "$target_root" && git diff --cached --quiet 2>/dev/null); then
+    : # has staged changes
+  elif ! (cd "$target_root" && git diff --quiet 2>/dev/null); then
+    echo "helix: no staged changes — staging all modified files" >&2
+    (cd "$target_root" && git add -u)
+  else
+    echo "helix: nothing to commit" >&2
+    return 1
+  fi
+
+  # Build commit message
+  local summary files_changed
+  files_changed="$(cd "$target_root" && git diff --cached --stat | tail -1)"
+
+  if [[ -n "$issue_id" ]]; then
+    local title
+    title="$(tracker_show "$issue_id" --json 2>/dev/null | jq -r '.title // ""')" || title=""
+    # Use issue title as summary, truncated to 72 chars
+    summary="${issue_id} ${title:0:$((72 - ${#issue_id} - 1))}"
+  else
+    # No issue — use a generic summary from the diff
+    summary="$(cd "$target_root" && git diff --cached --name-only | head -3 | paste -sd, )"
+    summary="update ${summary:0:65}"
+  fi
+
+  local msg
+  msg="$(printf '%s\n\n%s\n' "$summary" "$files_changed")"
+
+  # Pre-push build gate
+  echo "helix: running build gate..." >&2
+  local gate_cmd=""
+  if [[ -f "${target_root}/lefthook.yml" ]] && command -v lefthook >/dev/null 2>&1; then
+    gate_cmd="cd '$target_root' && lefthook run pre-commit"
+  elif [[ -f "${target_root}/Cargo.toml" ]]; then
+    gate_cmd="cd '$target_root' && cargo check --workspace"
+  elif [[ -f "${target_root}/package.json" ]]; then
+    gate_cmd="cd '$target_root' && npm test"
+  fi
+
+  if [[ -n "$gate_cmd" ]]; then
+    if ! eval "$gate_cmd" >&2; then
+      echo "helix: BUILD GATE FAILED — fix before committing" >&2
+      return 1
+    fi
+    echo "helix: build gate passed" >&2
+  fi
+
+  # Commit
+  (cd "$target_root" && git commit -m "$msg")
+  echo "helix: committed: $summary" >&2
+
+  # Push
+  (cd "$target_root" && git pull --rebase 2>/dev/null && git push 2>/dev/null) || true
+  echo "helix: pushed" >&2
+
+  # Tracker update
+  if [[ -n "$issue_id" ]]; then
+    tracker_close "$issue_id" 2>/dev/null || true
+    echo "helix: closed $issue_id" >&2
+  fi
+}
+
 recover_prompt() {
   local issue_id="$1"
   local issue_info="$2"
@@ -1602,16 +1669,7 @@ run_loop() {
         finish_loop 0; return $?
         ;;
       BACKFILL)
-        if (( post_drain_backfill_ran == 0 )); then
-          printf 'helix: queue drained, running backfill\n' >&2
-          if ! run_backfill repo; then
-            echo "helix: backfill failed after queue drain" >&2
-            finish_loop 1; return $?
-          fi
-          post_drain_backfill_ran=1
-          continue
-        fi
-        echo "helix: stopping after check returned BACKFILL (already ran once)" >&2
+        printf 'helix: run `helix backfill <scope>` to reconstruct missing docs\n' >&2
         finish_loop 0; return $?
         ;;
       GUIDANCE|STOP)
@@ -1768,6 +1826,12 @@ main() {
         esac
       done
       run_evolve "${1:-}" "$evolve_scope" "$evolve_artifact" "$evolve_from"
+      ;;
+    commit)
+      parse_common_flags "$@"
+      set -- "${REMAINING_ARGS[@]}"
+      require_tracker
+      run_commit "${1:-}"
       ;;
     triage)
       # helix triage passes through to tracker create with validation enabled
