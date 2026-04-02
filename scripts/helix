@@ -28,7 +28,7 @@ review_every=15
 force_ephemeral="${HELIX_FORCE_EPHEMERAL:-0}"
 session_active=0  # 1 = reusable session exists for the current epic
 max_cycles=0
-auto_align=1
+auto_align="${HELIX_AUTO_ALIGN:-1}"
 auto_review=1
 review_threshold=100
 

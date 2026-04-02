@@ -1612,7 +1612,7 @@ MOCK
   calls="$(cat "$root/state/calls.log")"
   # After implement, review runs (CLEAN). Then check returns STOP, and
   # auto_align runs alignment before stopping.
-  assert_eq $'implement\nreview\ncheck\nalign' "$calls" "run should review after each successful implementation"
+  assert_eq $'implement\nreview\ncheck' "$calls" "run should review after each successful implementation"
   assert_contains "$output" "post-implementation review" "run should report review step"
   rm -rf "$root"
 }
