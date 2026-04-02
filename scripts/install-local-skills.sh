@@ -109,7 +109,7 @@ echo "Installed skills into:"
 echo "  Agents: $agents_skills_dir"
 echo "  Claude: $claude_skills_dir"
 
-chmod +x "$repo_root/scripts/helix"
+chmod +x "$repo_root/scripts/helix" 2>/dev/null || true
 install_helix_cli
 
 echo "Installed HELIX CLI into:"
