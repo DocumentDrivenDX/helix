@@ -11,6 +11,10 @@ a structured phase approach where tests are written before implementation.
 Humans and AI agents collaborate throughout, with tests serving as the
 contract between design and implementation.
 
+## Demo
+
+![HELIX Quickstart Demo](docs/demos/helix-quickstart/recordings/helix-quickstart.gif)
+
 ## Quick Start
 
 ```bash
