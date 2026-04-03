@@ -3513,6 +3513,416 @@ run_test "blocker report written to file" test_blocker_report_written_to_file
 run_test "blocker report marks tracker" test_blocker_report_marks_tracker
 run_test "condense strips boilerplate" test_condense_strips_boilerplate
 
+# --- Context refresh on epic switch and every 5 cycles ---
+
+test_context_refreshed_on_epic_switch() {
+  local root
+  root="$(make_workspace)"
+  local work_dir="$root/work"
+  mkdir -p "$work_dir/.helix"
+  # Epic with one child — entering epic focus triggers context regeneration
+  {
+    printf '{"id":"hx-epic-r","title":"refresh epic","type":"epic","status":"open","priority":2,"labels":["helix","phase:build"],"parent":"","spec-id":"SPEC-R","description":"","design":"","acceptance":"done","deps":[],"assignee":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}\n'
+    printf '{"id":"hx-child-r","title":"refresh child","type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"hx-epic-r","spec-id":"SPEC-R","description":"","design":"","acceptance":"done","deps":[],"assignee":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}\n'
+  } > "$work_dir/.helix/issues.jsonl"
+
+  printf 'STOP\n' > "$root/state/next-actions"
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"; tail -n +2 "$file" > "$file.tmp" || true; mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c 'if .type != "epic" then .status = "closed" else . end' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"check action"*) record check; printf 'NEXT_ACTION: %s\n' "$(next_action)" ;;
+  *) record other; echo "mock" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  run_helix "$root" run --no-auto-review --no-auto-align 2>&1 >/dev/null || true
+
+  # Context file should contain epic metadata (written on epic switch)
+  assert_file_exists "$work_dir/.helix/context.md" "context.md should exist"
+  assert_file_contains "$work_dir/.helix/context.md" "Current Epic" \
+    "context.md should contain epic section after epic focus switch"
+  assert_file_contains "$work_dir/.helix/context.md" "hx-epic-r" \
+    "context.md should reference the focused epic ID"
+  rm -rf "$root"
+}
+
+test_context_refreshed_every_5_cycles() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 6  # 6 issues so we can complete 5+ cycles
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  # Track context.md modification times
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"; tail -n +2 "$file" > "$file.tmp" || true; mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .helix/issues.jsonl ]]; then
+      # Close the first open issue only
+      first="$(jq -r 'select(.status == "open") | .id' .helix/issues.jsonl | head -1)"
+      if [[ -n "$first" ]]; then
+        tmp="$(jq -c "if .id == \"$first\" then .status = \"closed\" else . end" .helix/issues.jsonl)"
+        printf '%s\n' "$tmp" > .helix/issues.jsonl
+      fi
+    fi
+    # Record context.md hash after each implementation
+    if [[ -f .helix/context.md ]]; then
+      md5sum .helix/context.md >> "$state_root/context-hashes.log"
+    fi
+    echo "implementation complete"
+    ;;
+  *"check action"*) record check; printf 'NEXT_ACTION: %s\n' "$(next_action)" ;;
+  *) record other; echo "mock" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  run_helix "$root" run --no-auto-review --no-auto-align 2>&1 >/dev/null || true
+
+  # Should have completed at least 5 cycles
+  local impl_count
+  impl_count="$(grep -c '^implement$' "$root/state/calls.log" 2>/dev/null || echo 0)"
+  (( impl_count >= 5 )) || fail "should complete at least 5 cycles (got $impl_count)"
+
+  # Context should have been refreshed (hashes should differ between early and late)
+  local hash_count
+  hash_count="$(wc -l < "$root/state/context-hashes.log" 2>/dev/null || echo 0)"
+  local unique_hashes
+  unique_hashes="$(awk '{print $1}' "$root/state/context-hashes.log" 2>/dev/null | sort -u | wc -l)"
+  # After 5 cycles the context is regenerated, so hashes should change
+  (( unique_hashes >= 2 )) || fail "context.md should be refreshed during run (got $unique_hashes unique hashes from $hash_count checks)"
+  rm -rf "$root"
+}
+
+# --- Pre-claim drift (supersession) ---
+
+test_drift_on_supersession_skips_close() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+
+  # Mock: implementation succeeds but supersedes the issue mid-flight
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"; tail -n +2 "$file" > "$file.tmp" || true; mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    # Simulate governance drift: set superseded-by during execution
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c '.["superseded-by"] = "hx-replacement"' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"check action"*) record check; printf 'NEXT_ACTION: %s\n' "$(next_action)" ;;
+  *) record other; echo "mock" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  local output
+  output="$(run_helix "$root" run --no-auto-review --no-auto-align 2>&1)" || true
+
+  assert_contains "$output" "queue drift" "should detect supersession as queue drift"
+  rm -rf "$root"
+}
+
+test_drift_on_spec_id_change_skips_close() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"; tail -n +2 "$file" > "$file.tmp" || true; mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    # Simulate governance drift: change spec-id during execution
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c '.["spec-id"] = "CHANGED-SPEC"' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"check action"*) record check; printf 'NEXT_ACTION: %s\n' "$(next_action)" ;;
+  *) record other; echo "mock" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  local output
+  output="$(run_helix "$root" run --no-auto-review --no-auto-align 2>&1)" || true
+
+  assert_contains "$output" "queue drift" "should detect spec-id change as queue drift"
+  rm -rf "$root"
+}
+
+# --- Review trailer parsing ---
+
+test_review_clean_status_succeeds() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"; tail -n +2 "$file" > "$file.tmp" || true; mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"review"*)
+    record review
+    echo "REVIEW_STATUS: CLEAN"
+    ;;
+  *"check action"*) record check; printf 'NEXT_ACTION: %s\n' "$(next_action)" ;;
+  *) record other; echo "mock" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix "$root" run --no-auto-align 2>&1)" || true
+
+  # Should have called review
+  local calls
+  calls="$(cat "$root/state/calls.log" 2>/dev/null)"
+  assert_contains "$calls" "review" "should call review after implementation"
+  # Should NOT contain any issues_found messages
+  if [[ "$output" == *"issue(s)"* ]]; then
+    fail "CLEAN review should not report issues"
+  fi
+  rm -rf "$root"
+}
+
+test_review_issues_found_continues_loop() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"; tail -n +2 "$file" > "$file.tmp" || true; mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"review"*)
+    record review
+    printf 'REVIEW_STATUS: ISSUES_FOUND\nISSUES_COUNT: 2\nFINDINGS_FILED: 2\n'
+    ;;
+  *"check action"*) record check; printf 'NEXT_ACTION: %s\n' "$(next_action)" ;;
+  *) record other; echo "mock" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix "$root" run --no-auto-align 2>&1)" || true
+
+  assert_contains "$output" "2 issue(s)" "should report issue count from review"
+  assert_contains "$output" "2 filed" "should report findings filed count"
+  # Loop should continue (check should be called after review)
+  local calls
+  calls="$(cat "$root/state/calls.log" 2>/dev/null)"
+  assert_contains "$calls" "check" "loop should continue to check after review findings"
+  rm -rf "$root"
+}
+
+# --- Cross-model review in live run ---
+
+test_cross_model_review_switches_agent() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  # Use claude as primary, codex as review agent
+  # Mock both — implementation via claude, review via codex
+  cat >"$root/bin/claude" <<'MOCK'
+#!/usr/bin/env bash
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+# claude is used for implementation
+record "claude-call"
+if [[ -f .helix/issues.jsonl ]]; then
+  tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
+  printf '%s\n' "$tmp" > .helix/issues.jsonl
+fi
+echo "implementation complete"
+MOCK
+  chmod +x "$root/bin/claude"
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"; tail -n +2 "$file" > "$file.tmp" || true; mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"review"*)
+    record "codex-review"
+    echo "REVIEW_STATUS: CLEAN"
+    ;;
+  *"check action"*)
+    record check; printf 'NEXT_ACTION: %s\n' "$(next_action)" ;;
+  *) record other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(
+    cd "$root/work"
+    HOME="$root/home" \
+    PATH="$root/bin:$PATH" \
+    MOCK_STATE_ROOT="$root/state" \
+    HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+    HELIX_FORCE_EPHEMERAL=1 \
+    HELIX_REVIEW_AGENT="codex" \
+    bash "$repo_root/scripts/helix" run --agent claude --quiet --no-auto-align 2>&1
+  )" || true
+
+  local calls
+  calls="$(cat "$root/state/calls.log" 2>/dev/null)"
+  # Review should use codex (the review agent), not claude
+  assert_contains "$calls" "codex-review" "review should use the cross-model review agent (codex)"
+  rm -rf "$root"
+}
+
+# --- Epic child failure blocks parent ---
+
+test_epic_blocked_when_child_intractable() {
+  local root
+  root="$(make_workspace)"
+  local work_dir="$root/work"
+  mkdir -p "$work_dir/.helix"
+  # Epic with one child that will fail
+  {
+    printf '{"id":"hx-epic-b","title":"blocked epic","type":"epic","status":"open","priority":2,"labels":["helix","phase:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"done","deps":[],"assignee":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}\n'
+    printf '{"id":"hx-fail-c","title":"failing child","type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"hx-epic-b","spec-id":"","description":"","design":"","acceptance":"done","deps":[],"assignee":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}\n'
+  } > "$work_dir/.helix/issues.jsonl"
+
+  printf 'STOP\n' > "$root/state/next-actions"
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"; tail -n +2 "$file" > "$file.tmp" || true; mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*) record implement; exit 1 ;;
+  *"check action"*) record check; printf 'NEXT_ACTION: %s\n' "$(next_action)" ;;
+  *) record other; echo "mock" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix_with_env "$root" HELIX_BACKOFF_SLEEP 0 run --no-auto-review --no-auto-align 2>&1)" || true
+
+  # Blocker report should mention both the child AND the parent epic
+  assert_contains "$output" "hx-fail-c" "should report blocked child"
+  assert_contains "$output" "hx-epic-b" "should report blocked parent epic"
+  assert_contains "$output" "BLOCKERS (2 issues)" "should report 2 blocked issues (child + epic)"
+  rm -rf "$root"
+}
+
+run_test "context refreshed on epic switch" test_context_refreshed_on_epic_switch
+run_test "context refreshed every 5 cycles" test_context_refreshed_every_5_cycles
+run_test "drift on supersession skips close" test_drift_on_supersession_skips_close
+run_test "drift on spec-id change skips close" test_drift_on_spec_id_change_skips_close
+run_test "review CLEAN succeeds" test_review_clean_status_succeeds
+run_test "review ISSUES_FOUND continues loop" test_review_issues_found_continues_loop
+run_test "cross-model review switches agent" test_cross_model_review_switches_agent
+run_test "epic blocked when child intractable" test_epic_blocked_when_child_intractable
+
 # ── frame tests ───────────────────────────────────────────────────────
 
 test_frame_dry_run() {
