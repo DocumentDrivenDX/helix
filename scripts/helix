@@ -298,17 +298,11 @@ run_agent_prompt() {
       need_cmd claude
       local _claude_model_flag=""
       [[ -n "$model_override" ]] && _claude_model_flag="--model $model_override"
+      # Always use --no-session-persistence for claude in the run loop.
+      # Session reuse across different operations (review, alignment,
+      # implementation) causes rc=2 failures when the session context
+      # doesn't match the new prompt.
       local _claude_session_flag="--no-session-persistence"
-      if (( session_active && ! force_ephemeral )); then
-        _claude_session_flag="--continue"
-        if (( ! quiet )); then
-          printf 'helix: continuing claude session\n' >&2
-        fi
-      elif (( ! force_ephemeral )); then
-        # First cycle: start persistent session (no --no-session-persistence)
-        _claude_session_flag=""
-        session_active=1
-      fi
       if (( dry_run )); then
         printf 'cd %q && claude -p --permission-mode bypassPermissions --dangerously-skip-permissions %s %s %q\n' "$target_root" "$_claude_session_flag" "$_claude_model_flag" "$prompt"
       else
