@@ -1563,7 +1563,7 @@ run_loop() {
         local delay
         delay="$(backoff_delay "$prev_attempts")"
         verbose_line "attempt %s for %s (backoff %ss)" "$((prev_attempts + 1))" "$selected_issue" "$delay"
-        sleep "$delay"
+        sleep "${HELIX_BACKOFF_SLEEP:-$delay}"
       fi
 
       # Batch related issues for token efficiency
@@ -1638,7 +1638,7 @@ run_loop() {
             fi
           fi
         fi
-        sleep 5
+        sleep "${HELIX_BACKOFF_SLEEP:-5}"
         recover_orphaned_issues
       else
         if handle_issue_queue_drift "$selected_issue" "$selected_fingerprint"; then

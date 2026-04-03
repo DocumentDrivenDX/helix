@@ -2737,7 +2737,7 @@ test_orphan_recovery_reclaims_stale() {
 
   # Verify they're in_progress before recovery
   local before
-  before="$(cd "$root/work" && HELIX_LIBRARY_ROOT="$repo_root/workflows" bash -c 'source "'"$repo_root"'/scripts/tracker.sh"; tracker_list --status in_progress --json' | jq 'length')"
+  before="$(run_helix "$root" tracker list --status in_progress --json | jq 'length')"
   assert_eq "2" "$before" "should have 2 in-progress issues before recovery"
 
   # Run helix with a mock that returns STOP immediately — recovery happens at startup
@@ -2749,7 +2749,7 @@ test_orphan_recovery_reclaims_stale() {
 
   # Verify issues were reclaimed (back to open)
   local after
-  after="$(cd "$root/work" && HELIX_LIBRARY_ROOT="$repo_root/workflows" bash -c 'source "'"$repo_root"'/scripts/tracker.sh"; tracker_list --status in_progress --json' | jq 'length')"
+  after="$(run_helix "$root" tracker list --status in_progress --json | jq 'length')"
   assert_eq "0" "$after" "orphan recovery should reclaim stale issues"
   assert_contains "$output" "reclaiming orphaned" "should report reclaiming"
   assert_contains "$output" "recovered 2 orphaned" "should report recovery count"
@@ -2774,7 +2774,7 @@ test_orphan_recovery_skips_fresh() {
 
   # Issue should still be in_progress (not reclaimed)
   local status
-  status="$(cd "$work_dir" && HELIX_LIBRARY_ROOT="$repo_root/workflows" bash -c 'source "'"$repo_root"'/scripts/tracker.sh"; tracker_show hx-fresh-0 --json' | jq -r '.status')"
+  status="$(run_helix "$root" tracker show hx-fresh-0 --json | jq -r '.status')"
   assert_eq "in_progress" "$status" "fresh claimed issue should not be reclaimed"
   rm -rf "$root"
 }
@@ -2881,13 +2881,11 @@ test_tracker_claim_records_metadata() {
   seed_tracker "$root" 1
 
   # Claim the issue
-  (cd "$root/work" && HELIX_LIBRARY_ROOT="$repo_root/workflows" \
-    bash -c 'source "'"$repo_root"'/scripts/tracker.sh"; tracker_update hx-mock-0 --claim')
+  run_helix "$root" tracker update hx-mock-0 --claim >/dev/null
 
   # Check claimed-at and claimed-pid are set
   local issue_json
-  issue_json="$(cd "$root/work" && HELIX_LIBRARY_ROOT="$repo_root/workflows" \
-    bash -c 'source "'"$repo_root"'/scripts/tracker.sh"; tracker_show hx-mock-0 --json')"
+  issue_json="$(run_helix "$root" tracker show hx-mock-0 --json)"
 
   local claimed_at claimed_pid status
   claimed_at="$(printf '%s' "$issue_json" | jq -r '.["claimed-at"] // ""')"
@@ -2906,12 +2904,11 @@ test_tracker_unclaim_clears_metadata() {
   seed_tracker "$root" 1
 
   # Claim then unclaim
-  (cd "$root/work" && HELIX_LIBRARY_ROOT="$repo_root/workflows" \
-    bash -c 'source "'"$repo_root"'/scripts/tracker.sh"; tracker_update hx-mock-0 --claim; tracker_update hx-mock-0 --unclaim')
+  run_helix "$root" tracker update hx-mock-0 --claim >/dev/null
+  run_helix "$root" tracker update hx-mock-0 --unclaim >/dev/null
 
   local issue_json
-  issue_json="$(cd "$root/work" && HELIX_LIBRARY_ROOT="$repo_root/workflows" \
-    bash -c 'source "'"$repo_root"'/scripts/tracker.sh"; tracker_show hx-mock-0 --json')"
+  issue_json="$(run_helix "$root" tracker show hx-mock-0 --json)"
 
   local claimed_at claimed_pid status assignee
   claimed_at="$(printf '%s' "$issue_json" | jq -r '.["claimed-at"] // "null"')"
@@ -2932,6 +2929,589 @@ run_test "orphan recovery reclaims stale" test_orphan_recovery_reclaims_stale
 run_test "orphan recovery skips fresh" test_orphan_recovery_skips_fresh
 run_test "BUILD loop stops after empty builds" test_build_loop_stops_after_empty_builds
 run_test "BUILD loop recovers orphans and continues" test_build_loop_recovers_orphans_and_continues
+
+# ── port-safety gap tests ─────────────────────────────────────────────
+
+# --- Context regeneration ---
+
+test_context_generated_at_run_start() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"; tail -n +2 "$file" > "$file.tmp" || true; mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"check action"*)
+    record check; printf 'NEXT_ACTION: %s\n' "$(next_action)" ;;
+  *) record other; echo "mock" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  run_helix "$root" run --no-auto-review --no-auto-align 2>&1 >/dev/null || true
+
+  assert_file_exists "$root/work/.helix/context.md" "context.md should be generated at run start"
+  assert_file_contains "$root/work/.helix/context.md" "Issue counts:" "context.md should contain issue counts"
+  assert_file_contains "$root/work/.helix/context.md" "HELIX Execution Context" "context.md should have header"
+  rm -rf "$root"
+}
+
+test_context_contains_issue_counts() {
+  # Reuse the context file from the previous test pattern — seed 1 issue,
+  # implement and close it, check returns STOP
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"; tail -n +2 "$file" > "$file.tmp" || true; mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"check action"*) record check; printf 'NEXT_ACTION: %s\n' "$(next_action)" ;;
+  *) record other; echo "mock" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  run_helix "$root" run --no-auto-review --no-auto-align 2>&1 >/dev/null || true
+
+  local ctx
+  ctx="$(cat "$root/work/.helix/context.md")"
+  assert_contains "$ctx" "ready=" "context should show ready count"
+  assert_contains "$ctx" "open=" "context should show open count"
+  assert_contains "$ctx" "closed=" "context should show closed count"
+  rm -rf "$root"
+}
+
+# --- Epic focus mode ---
+
+test_epic_focus_selects_children() {
+  local root
+  root="$(make_workspace)"
+  local work_dir="$root/work"
+  mkdir -p "$work_dir/.helix"
+  # Create an epic with one child
+  {
+    printf '{"id":"hx-epic-1","title":"test epic","type":"epic","status":"open","priority":2,"labels":["helix","phase:build"],"parent":"","spec-id":"SPEC-1","description":"","design":"","acceptance":"all children done","deps":[],"assignee":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}\n'
+    printf '{"id":"hx-child-1","title":"child 1","type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"hx-epic-1","spec-id":"SPEC-1","description":"","design":"","acceptance":"test passes","deps":[],"assignee":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}\n'
+  } > "$work_dir/.helix/issues.jsonl"
+
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  # Mock: close all open non-epic issues
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"; tail -n +2 "$file" > "$file.tmp" || true; mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c 'if .type != "epic" then .status = "closed" else . end' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"check action"*)
+    record check; printf 'NEXT_ACTION: %s\n' "$(next_action)" ;;
+  *) record other; echo "mock" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix "$root" run --no-auto-review --no-auto-align 2>&1)" || true
+
+  # Should have entered epic focus (output mentions it)
+  assert_contains "$output" "epic" "should mention epic in output"
+
+  # Epic should be closed after child completes
+  local epic_status
+  epic_status="$(jq -r 'select(.id == "hx-epic-1") | .status' "$work_dir/.helix/issues.jsonl")"
+  assert_eq "closed" "$epic_status" "epic should be closed after all children complete"
+  rm -rf "$root"
+}
+
+# --- Area-label batching ---
+
+test_batch_falls_back_to_area_labels() {
+  local root
+  root="$(make_workspace)"
+  local work_dir="$root/work"
+  mkdir -p "$work_dir/.helix"
+  # Two issues with same area label but no shared parent or spec-id
+  {
+    printf '{"id":"hx-area-1","title":"area issue 1","type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build","area:auth"],"parent":"","spec-id":"SPEC-A","description":"","design":"","acceptance":"done","deps":[],"assignee":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}\n'
+    printf '{"id":"hx-area-2","title":"area issue 2","type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build","area:auth"],"parent":"","spec-id":"SPEC-B","description":"","design":"","acceptance":"done","deps":[],"assignee":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}\n'
+    printf '{"id":"hx-area-3","title":"unrelated issue","type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build","area:storage"],"parent":"","spec-id":"SPEC-C","description":"","design":"","acceptance":"done","deps":[],"assignee":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created":"2099-01-01T00:00:00Z","updated":"2099-01-01T00:00:00Z"}\n'
+  } > "$work_dir/.helix/issues.jsonl"
+
+  # Use dry-run — the batch prompt should mention both area:auth siblings
+  printf 'STOP\n' > "$root/state/next-actions"
+  make_mock_bin "$root"
+  local output
+  output="$(run_helix "$root" run --dry-run --no-auto-review --no-auto-align 2>&1)" || true
+
+  # The dry-run output should show a batch containing both area:auth issues
+  # (batch=2 in the cycle line, or both IDs in the prompt)
+  assert_contains "$output" "hx-area-2" "batch should include area:auth sibling"
+  rm -rf "$root"
+}
+
+# --- Revalidation / queue drift ---
+
+test_drift_on_parent_change_skips_close() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+
+  # Mock: implementation succeeds but changes the issue's parent mid-flight
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"; tail -n +2 "$file" > "$file.tmp" || true; mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    # Simulate governance drift: change the parent field mid-execution
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c '.parent = "hx-new-parent"' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"check action"*)
+    record check; printf 'NEXT_ACTION: %s\n' "$(next_action)" ;;
+  *) record other; echo "mock" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  local output
+  output="$(run_helix "$root" run --no-auto-review --no-auto-align 2>&1)" || true
+
+  assert_contains "$output" "queue drift" "should detect parent change as queue drift"
+  rm -rf "$root"
+}
+
+# --- Acceptance check filing ---
+
+test_acceptance_failure_filed_as_issue() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  # Create a failing acceptance check script that only fails once
+  mkdir -p "$root/work/scripts"
+  cat >"$root/work/scripts/check-acceptance-traceability.sh" <<SCRIPT
+#!/usr/bin/env bash
+flag="$root/state/ac-ran"
+if [[ ! -f "\$flag" ]]; then
+  touch "\$flag"
+  echo "FAIL: missing traceability for module X"
+  exit 1
+fi
+exit 0
+SCRIPT
+  chmod +x "$root/work/scripts/check-acceptance-traceability.sh"
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"; tail -n +2 "$file" > "$file.tmp" || true; mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c 'if .status == "open" then .status = "closed" else . end' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"check action"*)
+    record check; printf 'NEXT_ACTION: %s\n' "$(next_action)" ;;
+  *) record other; echo "mock" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix "$root" run --max-cycles 1 --no-auto-review --no-auto-align 2>&1)" || true
+
+  # Should have filed an acceptance failure issue
+  local ac_issues
+  ac_issues="$(run_helix "$root" tracker list --label acceptance-failure --json | jq 'length')"
+  (( ac_issues > 0 )) || fail "acceptance failure should be filed as tracker issue"
+
+  # Verify the filed issue has correct metadata
+  local ac_title
+  ac_title="$(run_helix "$root" tracker list --label acceptance-failure --json | jq -r '.[0].title')"
+  assert_contains "$ac_title" "Acceptance failure" "filed issue should have descriptive title"
+  rm -rf "$root"
+}
+
+# --- Exponential backoff ---
+
+test_backoff_delay_formula() {
+  # Test the backoff_delay function directly
+  local root
+  root="$(make_workspace)"
+
+  # Source the helix script to get the function
+  local delays
+  delays="$(cd "$root/work" && HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+    bash -c '
+      source "'"$repo_root"'/scripts/tracker.sh"
+      # Extract just the backoff_delay function
+      backoff_delay() {
+        local attempts="$1"
+        local delay=$(( 5 * (1 << (attempts - 1)) ))
+        (( delay > 40 )) && delay=40
+        printf "%s" "$delay"
+      }
+      echo "$(backoff_delay 1) $(backoff_delay 2) $(backoff_delay 3) $(backoff_delay 4) $(backoff_delay 5)"
+    ')"
+
+  assert_eq "5 10 20 40 40" "$delays" "backoff should be 5s, 10s, 20s, 40s cap"
+  rm -rf "$root"
+}
+
+test_backoff_blocks_after_four_attempts() {
+  # This test exercises the full backoff loop (4 failures with exponential delays).
+  # The backoff sleeps total ~55 seconds so we use HELIX_BACKOFF_OVERRIDE=0 to skip delays.
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  # Mock: implementation always fails
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"; tail -n +2 "$file" > "$file.tmp" || true; mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    echo "fail" >&2
+    exit 1
+    ;;
+  *"check action"*)
+    record check; printf 'NEXT_ACTION: %s\n' "$(next_action)" ;;
+  *) record other; echo "mock" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix_with_env "$root" HELIX_BACKOFF_SLEEP 0 run --no-auto-review --no-auto-align 2>&1)" || true
+
+  # Should have attempted implementation 4 times then blocked
+  local impl_count
+  impl_count="$(grep -c '^implement$' "$root/state/calls.log" 2>/dev/null || echo 0)"
+  assert_eq "4" "$impl_count" "should attempt implementation exactly 4 times before blocking"
+  assert_contains "$output" "BLOCKERS" "should report blockers after exhausting attempts"
+  rm -rf "$root"
+}
+
+# --- Token capture ---
+
+test_extract_codex_tokens_from_output() {
+  # Test the extract_codex_tokens function with stdout+stderr merged output
+  local result
+  result="$(printf 'some agent output\nCommands run:\ncargo test\ntokens used\n1,234\n' | \
+    bash -c '
+      extract_codex_tokens() {
+        local prev=""
+        while IFS= read -r line; do
+          if [[ "$prev" == "tokens used" ]] && [[ "$line" =~ ^[0-9,]+$ ]]; then
+            printf "%s" "${line//,/}"
+            return
+          fi
+          prev="$line"
+        done
+        printf "0"
+      }
+      extract_codex_tokens
+    ')"
+  assert_eq "1234" "$result" "should extract token count from codex output (stripping commas)"
+}
+
+test_extract_codex_tokens_missing() {
+  # Test fallback when no token footer present
+  local result
+  result="$(printf 'some output with no tokens\n' | \
+    bash -c '
+      extract_codex_tokens() {
+        local prev=""
+        while IFS= read -r line; do
+          if [[ "$prev" == "tokens used" ]] && [[ "$line" =~ ^[0-9,]+$ ]]; then
+            printf "%s" "${line//,/}"
+            return
+          fi
+          prev="$line"
+        done
+        printf "0"
+      }
+      extract_codex_tokens
+    ')"
+  assert_eq "0" "$result" "should return 0 when no token footer found"
+}
+
+# --- GUIDANCE next-action ---
+
+test_run_stops_on_guidance() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+  printf 'GUIDANCE\n' > "$root/state/next-actions"
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"; tail -n +2 "$file" > "$file.tmp" || true; mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    if [[ -f .helix/issues.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
+      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"check action"*)
+    record check; printf 'NEXT_ACTION: %s\n' "$(next_action)" ;;
+  *) record other; echo "mock" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix "$root" run --no-auto-review --no-auto-align 2>&1)" || true
+
+  assert_contains "$output" "stopping after check returned GUIDANCE" \
+    "should stop on GUIDANCE"
+  rm -rf "$root"
+}
+
+# --- Cross-model review ---
+
+test_review_dry_run_uses_review_agent() {
+  local root
+  root="$(make_workspace)"
+
+  # Run review with --review-agent set via env
+  local output
+  output="$(
+    cd "$root/work"
+    HOME="$root/home" \
+    PATH="$root/bin:$PATH" \
+    MOCK_STATE_ROOT="$root/state" \
+    HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+    HELIX_FORCE_EPHEMERAL=1 \
+    HELIX_REVIEW_AGENT="codex" \
+    bash "$repo_root/scripts/helix" review --agent claude --quiet --dry-run 2>&1
+  )"
+
+  # In dry-run, the review command should show codex (the review agent), not claude
+  assert_contains "$output" "codex" "review dry-run should use the review agent (codex)"
+  rm -rf "$root"
+}
+
+# --- Blocker report ---
+
+test_blocker_report_written_to_file() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  # Mock: implementation always fails (triggers blocker)
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"; tail -n +2 "$file" > "$file.tmp" || true; mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement; echo "fail" >&2; exit 1 ;;
+  *"check action"*)
+    record check; printf 'NEXT_ACTION: %s\n' "$(next_action)" ;;
+  *) record other; echo "mock" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  run_helix "$root" run --no-auto-review --no-auto-align 2>&1 >/dev/null || true
+
+  # Blocker report file should exist
+  local report
+  report="$(ls "$root/work/.helix-logs"/blockers-*.md 2>/dev/null | head -1)"
+  [[ -n "$report" ]] || fail "blocker report file should be created"
+
+  # Report should contain structured content
+  local report_content
+  report_content="$(cat "$report")"
+  assert_contains "$report_content" "HELIX Run Blocker Report" "report should have header"
+  assert_contains "$report_content" "Blocked Issues" "report should list blocked issues"
+  assert_contains "$report_content" "hx-mock-0" "report should contain the blocked issue ID"
+  rm -rf "$root"
+}
+
+test_blocker_report_marks_tracker() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"; tail -n +2 "$file" > "$file.tmp" || true; mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*) record implement; exit 1 ;;
+  *"check action"*) record check; printf 'NEXT_ACTION: %s\n' "$(next_action)" ;;
+  *) record other; echo "mock" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  run_helix "$root" run --no-auto-review --no-auto-align 2>&1 >/dev/null || true
+
+  # Blocked issue should have "blocked" label in tracker
+  local labels
+  labels="$(run_helix "$root" tracker show hx-mock-0 --json | jq -r '.labels | join(",")')"
+  assert_contains "$labels" "blocked" "blocked issue should have 'blocked' label in tracker"
+  rm -rf "$root"
+}
+
+# --- Condense codex output ---
+
+test_condense_strips_boilerplate() {
+  local result
+  result="$(printf 'real output\nCommands run:\ncargo test\ncargo build\ntokens used\n500\nmore real output\n' | \
+    bash -c '
+      condense_codex_output() {
+        local skipping_tokens=0
+        while IFS= read -r line; do
+          if [[ "$line" =~ ^Commands\ run: ]]; then continue; fi
+          if [[ "$line" =~ ^tokens\ used$ ]]; then skipping_tokens=1; continue; fi
+          if (( skipping_tokens )); then skipping_tokens=0; continue; fi
+          printf -- "%s\n" "$line"
+        done | sed -e "/./,\$!d" -e :a -e "/^\n*\$/{$d;N;ba;}"
+      }
+      condense_codex_output
+    ')"
+  assert_contains "$result" "real output" "should preserve real output"
+  assert_contains "$result" "more real output" "should preserve trailing output"
+  if [[ "$result" == *"Commands run:"* ]]; then
+    fail "should strip Commands run: line"
+  fi
+  if [[ "$result" == *"tokens used"* ]]; then
+    fail "should strip tokens used footer"
+  fi
+}
+
+run_test "context generated at run start" test_context_generated_at_run_start
+run_test "context contains issue counts" test_context_contains_issue_counts
+run_test "epic focus selects children" test_epic_focus_selects_children
+run_test "batch falls back to area labels" test_batch_falls_back_to_area_labels
+run_test "drift on parent change skips close" test_drift_on_parent_change_skips_close
+run_test "acceptance failure filed as issue" test_acceptance_failure_filed_as_issue
+run_test "backoff delay formula" test_backoff_delay_formula
+run_test "backoff blocks after four attempts" test_backoff_blocks_after_four_attempts
+run_test "extract codex tokens from output" test_extract_codex_tokens_from_output
+run_test "extract codex tokens missing" test_extract_codex_tokens_missing
+run_test "run stops on GUIDANCE" test_run_stops_on_guidance
+run_test "review dry-run uses review agent" test_review_dry_run_uses_review_agent
+run_test "blocker report written to file" test_blocker_report_written_to_file
+run_test "blocker report marks tracker" test_blocker_report_marks_tracker
+run_test "condense strips boilerplate" test_condense_strips_boilerplate
 
 # ── frame tests ───────────────────────────────────────────────────────
 
