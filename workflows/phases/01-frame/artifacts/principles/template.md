@@ -1,26 +1,36 @@
 # Project Principles
 
-*These principles extend the HELIX workflow principles for this specific project.*
+These principles guide judgment calls across all HELIX phases. They are not
+workflow rules or process enforcement — they are lenses applied when choosing
+between two valid options.
+
+This document was bootstrapped from HELIX defaults. You own it now — add,
+modify, reorder, or remove any principle. The only constraint: principles
+cannot negate HELIX mechanics (artifact hierarchy, phase gates, tracker
+semantics).
 
 ## Principles
-- **Library-First**: Start with clear boundaries and minimal dependencies.
-- **CLI Interface**: Expose functionality through CLI, text input, and structured output.
-- **Test-First**: Write and verify failing tests before implementation.
-- **Simplicity Gate**: Limit initial complexity unless justified.
-- **Anti-Abstraction**: Prefer direct framework features over wrappers.
-- **Integration-First Testing**: Favor real environments and mandatory contract tests.
 
-## Project-Specific Principles
-[PROJECT_SPECIFIC_PRINCIPLE_1]
-[PROJECT_SPECIFIC_PRINCIPLE_2]
+1. **Design for change** — Prefer structures that are easy to modify over
+   structures that are easy to describe today.
 
-## Technology Constraints
-- Primary Language: [LANGUAGE]
-- Framework: [FRAMEWORK]
-- Database: [DATABASE]
+2. **Design for simplicity** — Start with the minimal viable approach.
+   Additional complexity requires justification.
 
-## Exceptions Log
+3. **Validate your work** — Every change should be verified through the most
+   appropriate means available (tests, type checks, manual verification).
 
-| Date | Principle | Exception | Justification | Resolution Timeline |
-|------|-----------|-----------|---------------|---------------------|
-| | | | | |
+4. **Make intent explicit** — Code, configuration, and documentation should
+   make the *why* visible, not just the *what*.
+
+5. **Prefer reversible decisions** — When uncertain, choose the option that
+   is easiest to undo or change later.
+
+## Tension Resolution
+
+When principles pull in opposite directions, document the resolution strategy
+here. Each entry should name the two principles, describe when they conflict,
+and state how to decide.
+
+*No tensions identified yet. As you add project-specific principles, use this
+section to resolve any conflicts with existing principles.*
