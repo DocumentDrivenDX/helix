@@ -123,7 +123,7 @@ Operational procedures:
 - Disaster recovery
 
 ### Story Deploy Issues
-**Output Location**: `.helix/issues.jsonl` queried through `helix tracker`
+**Output Location**: `.ddx/beads.jsonl` queried through `helix tracker`
 
 Story-level rollout work is tracked as deploy issues rather than per-story
 deployment markdown plans. Deploy issues reference the project deployment

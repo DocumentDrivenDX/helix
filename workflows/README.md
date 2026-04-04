@@ -185,7 +185,7 @@ When HELIX artifacts disagree, resolve the conflict using this authority order:
 ## Tracker
 
 The built-in tracker is HELIX's execution layer. Issues are stored in
-`.helix/issues.jsonl` and managed via `helix tracker` subcommands.
+`.helix/beads.jsonl` and managed via `helix tracker` subcommands.
 
 - HELIX tracker guide: `helix tracker --help` (DDx FEAT-004)
 

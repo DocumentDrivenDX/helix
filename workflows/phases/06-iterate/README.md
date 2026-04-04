@@ -151,7 +151,7 @@ Knowledge capture and pattern recognition:
 
 #### 5. Improvement Backlog
 **Artifact Location**: `artifacts/improvement-backlog/`
-**Output Location**: `docs/helix/06-iterate/improvement-backlog.md` and tracker issues in `.helix/issues.jsonl`
+**Output Location**: `docs/helix/06-iterate/improvement-backlog.md` and tracker issues in `.ddx/beads.jsonl`
 
 Prioritized list of improvements with impact analysis:
 - Feature enhancements

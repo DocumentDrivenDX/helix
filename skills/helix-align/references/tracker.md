@@ -1,6 +1,6 @@
 # Tracker Usage
 
-Use the built-in HELIX tracker only. Issues are stored in `.helix/issues.jsonl`.
+Use the built-in HELIX tracker only. Issues are stored in `.helix/beads.jsonl`.
 
 ## Review Epic
 

@@ -54,7 +54,7 @@ design.
 ## Execution Layer
 
 HELIX uses the built-in tracker (`helix tracker`) for execution tracking.
-Issues are stored in `.helix/issues.jsonl`.
+Issues are stored in `.helix/beads.jsonl`.
 
 - Use `helix tracker` issues, dependencies, parents, `spec-id`, and labels.
 - Do not invent custom issue files or custom status taxonomies.
