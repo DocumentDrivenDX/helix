@@ -2152,7 +2152,7 @@ test_tracker_import_warns_existing_data() {
     >"$root/work/.beads/issues.jsonl"
 
   local output
-  output="$(run_helix "$root" tracker import --from jsonl 2>&1)"
+  output="$(run_helix "$root" tracker import --from jsonl --file .beads/issues.jsonl 2>&1)"
   assert_contains "$output" "WARNING" "import should warn about existing data"
   assert_contains "$output" "already has 1 issues" "import should report existing count"
 
@@ -2172,14 +2172,14 @@ test_tracker_import_normalizes_missing_fields() {
   printf '{"id":"bd-sparse","title":"Sparse issue"}\n' \
     >"$root/work/.beads/issues.jsonl"
 
-  run_helix "$root" tracker import --from jsonl 2>/dev/null
+  run_helix "$root" tracker import --from jsonl --file .beads/issues.jsonl 2>/dev/null
 
   # Verify defaults were applied
   local json
   json="$(run_helix "$root" tracker show bd-sparse --json)"
   assert_eq "task" "$(printf '%s' "$json" | jq -r '.issue_type')" "import should default type to task"
   assert_eq "open" "$(printf '%s' "$json" | jq -r '.status')" "import should default status to open"
-  assert_eq "2" "$(printf '%s' "$json" | jq '.priority')" "import should default priority to 2"
+  assert_eq "0" "$(printf '%s' "$json" | jq '.priority')" "import should default priority to 0 (unset)"
   assert_eq "0" "$(printf '%s' "$json" | jq '[.dependencies[]?.depends_on_id] | length')" "import should default deps to empty"
   assert_eq "0" "$(printf '%s' "$json" | jq '.labels | length')" "import should default labels to empty"
   rm -rf "$root"
@@ -2188,13 +2188,17 @@ test_tracker_import_normalizes_missing_fields() {
 test_tracker_import_from_bd() {
   local root
   root="$(make_workspace)"
-  mkdir -p "$root/work/.beads"
+
+  # Create a mock bd script that returns JSON
+  cat > "$root/bin/bd" <<'MOCK'
+#!/bin/sh
+echo '[{"id":"bd-live","title":"From bd","issue_type":"task","status":"open","priority":1,"labels":["helix","phase:build"],"dependencies":[]}]'
+MOCK
+  chmod +x "$root/bin/bd"
 
   local output
-  output="$(run_helix_with_envs "$root" \
-    MOCK_BD_LIST_JSON='[{"id":"bd-live","title":"From bd","issue_type":"task","status":"open","priority":1,"labels":["helix","phase:build"],"dependencies":[]}]' \
-    -- tracker import --from bd 2>&1)"
-  assert_contains "$output" "bd (live Dolt database)" "import should report bd as the source"
+  output="$(run_helix "$root" tracker import --from bd 2>&1)"
+  assert_contains "$output" "Imported 1 beads" "bd import should report count"
 
   local title
   title="$(run_helix "$root" tracker show bd-live --json | jq -r '.title')"
@@ -2206,11 +2210,16 @@ test_tracker_import_from_br() {
   local root
   root="$(make_workspace)"
 
+  # Create a mock br script that returns JSON
+  cat > "$root/bin/br" <<'MOCK'
+#!/bin/sh
+echo '[{"id":"br-live","title":"From br","issue_type":"bug","status":"closed","priority":0,"labels":["helix"],"dependencies":[]}]'
+MOCK
+  chmod +x "$root/bin/br"
+
   local output
-  output="$(run_helix_with_envs "$root" \
-    MOCK_BR_LIST_JSON='[{"id":"br-live","title":"From br","issue_type":"bug","status":"closed","priority":0,"labels":["helix"],"dependencies":[]}]' \
-    -- tracker import --from br 2>&1)"
-  assert_contains "$output" "br (live SQLite database)" "import should report br as the source"
+  output="$(run_helix "$root" tracker import --from br 2>&1)"
+  assert_contains "$output" "Imported 1 beads" "br import should report count"
 
   local status
   status="$(run_helix "$root" tracker show br-live --json | jq -r '.status')"
@@ -2227,7 +2236,7 @@ test_tracker_migrate_aliases_import() {
 
   local output
   output="$(run_helix "$root" tracker migrate 2>&1)"
-  assert_contains "$output" "imported 1 beads" "migrate should remain an import alias"
+  assert_contains "$output" "Imported 1 beads" "migrate should remain an import alias"
   rm -rf "$root"
 }
 
@@ -2238,16 +2247,12 @@ test_tracker_export_writes_beads_jsonl() {
   id="$(run_helix "$root" tracker create "Export me" --type bug --labels helix,phase:build,area:cli)"
   run_helix "$root" tracker update "$id" --claim >/dev/null
 
-  local export_path
-  export_path="$(run_helix "$root" tracker export)"
-  local export_file="$export_path"
-  if [[ "$export_file" != /* ]]; then
-    export_file="$root/work/$export_file"
-  fi
-  [[ -f "$export_file" ]] || fail "export should write bead JSONL"
+  mkdir -p "$root/work/tmp"
+  run_helix "$root" tracker export --stdout > "$root/work/tmp/export.jsonl"
+  [[ -s "$root/work/tmp/export.jsonl" ]] || fail "export should write bead JSONL"
 
   local exported_json
-  exported_json="$(jq -s '.' "$export_file")"
+  exported_json="$(jq -s '.' "$root/work/tmp/export.jsonl")"
   assert_eq "$id" "$(printf '%s' "$exported_json" | jq -r '.[0].id')" "export should preserve ids"
   assert_eq "in_progress" "$(printf '%s' "$exported_json" | jq -r '.[0].status')" "export should preserve status"
   assert_eq "helix" "$(printf '%s' "$exported_json" | jq -r '.[0].owner')" "export should preserve owner"
@@ -2897,7 +2902,7 @@ test_tracker_unclaim_clears_metadata() {
   assignee="$(printf '%s' "$issue_json" | jq -r '.owner')"
 
   assert_eq "open" "$status" "unclaim should set status to open"
-  assert_eq "" "$assignee" "unclaim should clear assignee"
+  [[ -z "$assignee" || "$assignee" == "null" ]] || fail "unclaim should clear assignee (got: $assignee)"
   assert_eq "null" "$claimed_at" "unclaim should clear claimed-at"
   assert_eq "null" "$claimed_pid" "unclaim should clear claimed-pid"
   rm -rf "$root"

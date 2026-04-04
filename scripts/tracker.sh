@@ -362,9 +362,16 @@ tracker_import() {
     esac
   done
 
+  # Warn if existing data present
+  local existing_count
+  existing_count="$(ddx bead list --json 2>/dev/null | jq 'length' 2>/dev/null || echo 0)"
+  if (( existing_count > 0 )); then
+    printf 'WARNING: tracker already has %d issues; import will merge (not replace)\n' "$existing_count" >&2
+  fi
+
   local -a cmd=(ddx bead import --from "$from")
   [[ -n "$file_path" ]] && cmd+=("$file_path")
-  "${cmd[@]}" 2>/dev/null
+  "${cmd[@]}" 2>&1
 }
 
 tracker_export() {
@@ -424,6 +431,8 @@ tracker_dispatch() {
     migrate)  tracker_migrate "$@" ;;
     help|-h|--help|"")
       echo "Usage: helix tracker <command>"
+      echo ""
+      echo "Canonical storage is .helix/beads.jsonl (delegated to ddx bead)"
       echo ""
       echo "Commands:"
       echo "  helix tracker init                    Initialize tracker"
