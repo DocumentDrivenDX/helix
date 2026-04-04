@@ -392,6 +392,7 @@ run_helix() {
     HELIX_REVIEW_AGENT="codex" \
     HELIX_ALT_AGENT="none" \
     HELIX_AUTO_ALIGN="${HELIX_AUTO_ALIGN:-0}" \
+    DDX_BEAD_DIR="$root/work/.ddx" \
     bash "$repo_root/scripts/helix" "$cmd" --quiet "$@"
   )
 }
@@ -406,6 +407,7 @@ run_bead() {
     MOCK_STATE_ROOT="$root/state" \
     HELIX_LIBRARY_ROOT="$repo_root/workflows" \
     HELIX_FORCE_EPHEMERAL=1 \
+    DDX_BEAD_DIR="$root/work/.ddx" \
     ddx bead "$@"
   )
 }
@@ -424,6 +426,7 @@ run_helix_with_env() {
       PATH="$root/bin:$PATH" \
       MOCK_STATE_ROOT="$root/state" \
       HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+      "DDX_BEAD_DIR=$root/work/.ddx" \
       "$env_name=$env_value" \
       bash "$repo_root/scripts/helix" "$cmd" --quiet "$@"
   )
@@ -450,6 +453,7 @@ run_helix_with_envs() {
       PATH="$root/bin:$PATH" \
       MOCK_STATE_ROOT="$root/state" \
       HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+      "DDX_BEAD_DIR=$root/work/.ddx" \
       "${env_args[@]}" \
       bash "$repo_root/scripts/helix" "$cmd" --quiet "$@"
   )

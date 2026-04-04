@@ -12,3 +12,7 @@ autoresearch.md
 autoresearch.sh
 autoresearch.jsonl
 experiments/
+
+# Hugo build output
+website/public/
+website/resources/

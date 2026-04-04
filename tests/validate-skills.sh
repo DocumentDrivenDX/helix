@@ -99,7 +99,14 @@ for name in "${expected_skills[@]}"; do
   done <<< "$frontmatter"
 
   [[ -n "$skill_name" ]] || fail "missing name field in $skill_file"
-  [[ "$skill_name" == "$name" ]] || fail "frontmatter name $skill_name does not match directory $name"
+  # For symlinked skill directories, the SKILL.md name should match the
+  # symlink target (not the link name), since the link is just an alias.
+  if [[ -L "$skills_dir/$name" ]]; then
+    target_name="$(basename "$(readlink "$skills_dir/$name")")"
+    [[ "$skill_name" == "$target_name" ]] || fail "frontmatter name $skill_name does not match symlink target $target_name for alias $name"
+  else
+    [[ "$skill_name" == "$name" ]] || fail "frontmatter name $skill_name does not match directory $name"
+  fi
   [[ -n "$description" ]] || fail "missing description field in $skill_file"
 
   if [[ -n "${skills_requiring_argument_hint[$name]:-}" && -z "$argument_hint" ]]; then
