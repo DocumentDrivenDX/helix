@@ -1224,8 +1224,10 @@ run_implementation() {
     agent="$alt_agent"
     (( ! quiet )) && printf 'helix: adversarial build: switching to %s\n' "$agent" >&2
   fi
-  run_agent_prompt "$(implementation_prompt "$selector")" "$(resolve_model cheap)" "${agent_effort:-medium}"
-  [[ -n "$_saved_agent" ]] && agent="$_saved_agent"
+  local _rc=0
+  run_agent_prompt "$(implementation_prompt "$selector")" "$(resolve_model cheap)" "${agent_effort:-medium}" || _rc=$?
+  [[ -z "$_saved_agent" ]] || agent="$_saved_agent"
+  return "$_rc"
 }
 
 run_batch_implementation() {
@@ -1240,8 +1242,10 @@ run_batch_implementation() {
     agent="$alt_agent"
     (( ! quiet )) && printf 'helix: adversarial build: switching to %s\n' "$agent" >&2
   fi
-  run_agent_prompt "$(batch_implementation_prompt "$issues")" "$(resolve_model cheap)" "${agent_effort:-medium}"
-  [[ -n "$_saved_agent" ]] && agent="$_saved_agent"
+  local _rc=0
+  run_agent_prompt "$(batch_implementation_prompt "$issues")" "$(resolve_model cheap)" "${agent_effort:-medium}" || _rc=$?
+  [[ -z "$_saved_agent" ]] || agent="$_saved_agent"
+  return "$_rc"
 }
 
 run_check() {
@@ -1256,8 +1260,10 @@ run_check() {
     agent="$alt_agent"
     (( ! quiet )) && printf 'helix: adversarial check: switching to %s\n' "$agent" >&2
   fi
-  run_agent_prompt "$(check_prompt "$scope")" "$(resolve_model cheap)" "${agent_effort:-low}"
-  [[ -n "$_saved_agent" ]] && agent="$_saved_agent"
+  local _rc=0
+  run_agent_prompt "$(check_prompt "$scope")" "$(resolve_model cheap)" "${agent_effort:-low}" || _rc=$?
+  [[ -z "$_saved_agent" ]] || agent="$_saved_agent"
+  return "$_rc"
 }
 
 run_alignment() {
@@ -1412,8 +1418,10 @@ run_polish() {
     agent="$alt_agent"
     (( ! quiet )) && printf 'helix: adversarial polish: switching to %s\n' "$agent" >&2
   fi
-  run_agent_prompt "$(polish_prompt "$scope" "$rounds")" "$(resolve_model cheap)" "${agent_effort:-medium}"
-  [[ -n "$_saved_agent" ]] && agent="$_saved_agent"
+  local _rc=0
+  run_agent_prompt "$(polish_prompt "$scope" "$rounds")" "$(resolve_model cheap)" "${agent_effort:-medium}" || _rc=$?
+  [[ -z "$_saved_agent" ]] || agent="$_saved_agent"
+  return "$_rc"
 }
 
 run_review() {
@@ -1434,9 +1442,10 @@ run_review() {
   fi
 
   if (( dry_run )); then
-    run_agent_prompt "$(review_prompt "$scope" "$in_loop")" "$(resolve_model smart)" "${agent_effort:-high}"
-    [[ -n "$_saved_agent" ]] && agent="$_saved_agent"
-    return 0
+    local _rc=0
+    run_agent_prompt "$(review_prompt "$scope" "$in_loop")" "$(resolve_model smart)" "${agent_effort:-high}" || _rc=$?
+    [[ -z "$_saved_agent" ]] || agent="$_saved_agent"
+    return "$_rc"
   fi
 
   local output
@@ -1444,7 +1453,7 @@ run_review() {
   printf '%s\n' "$output"
 
   # Restore agent before returning
-  _restore_review_agent() { [[ -n "$_saved_agent" ]] && agent="$_saved_agent"; }
+  _restore_review_agent() { [[ -z "$_saved_agent" ]] || agent="$_saved_agent"; }
 
   local status
   status="$(extract_review_status "$output" || true)"
