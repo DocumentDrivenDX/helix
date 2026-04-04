@@ -12,10 +12,18 @@ build, and close them.
 
 ## When to Use
 
+- The user asks for work to be done, tracked, queued, or filed as an issue
+- The user mentions bugs, tasks, or work items that need creating
 - Creating new implementation, design, or test issues
 - Decomposing an epic into child tasks
 - Recording blockers or follow-on work during implementation
 - Filing bugs discovered during review or testing
+- Batch-creating execution issues from alignment review gaps or gap registers
+- Any time work should enter the tracker rather than be listed as "next steps"
+
+**Trigger rule**: If the user is asking for work and it is not a spec or
+requirement change (use `helix evolve` for those), default to triage. When in
+doubt between suggesting next steps and filing issues, file the issues.
 
 ## Required Metadata
 

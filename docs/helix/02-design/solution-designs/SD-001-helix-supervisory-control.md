@@ -113,9 +113,16 @@ interactive entrypoints.
 ### Component: Package layout and resource resolution
 - **Current State**: HELIX resources are referenced from skills, but the
   package/distribution contract for preserving those references is implicit.
+  Installation relies on `scripts/install-local-skills.sh` creating absolute
+  symlinks into `~/.claude/skills/`, which breaks on repo moves and requires
+  manual re-runs when skills are added.
 - **Changes**: Treat `workflows/` as the shared resource library for multi-skill
   assets, keep skill-local assets under `skills/<skill>/`, and define installs
-  that omit the shared library as invalid.
+  that omit the shared library as invalid. The HELIX repo root becomes a Claude
+  Code plugin via `.claude-plugin/plugin.json` (see [[FEAT-004]]). Skills are
+  auto-discovered from `skills/`, the CLI is exposed via `bin/helix` (plugin
+  PATH injection), and shared resources resolve via `${CLAUDE_PLUGIN_ROOT}/`.
+  The symlink installer is demoted to a development convenience.
 
 ## Domain Model
 
@@ -191,15 +198,28 @@ observability:
     - total_tokens
     - cycle_timing
     - blocker_summary
+  execution_capture:
+    - every_skill_invocation_creates_ddx_exec_run
+    - run_records_link_to_governing_artifact_ids
+    - structured_result_per_skill_type
+    - helix_status_queries_recent_execution_history
+    - depends_on_ddx_FEAT_010
 package_layout:
   root:
+    - .claude-plugin/plugin.json
     - skills/
     - workflows/
+    - bin/helix
+    - scripts/helix
   rules:
     - multi_skill_shared_assets_live_in_workflows
     - single_skill_assets_live_with_the_skill
+    - plugin_manifest_is_primary_distribution
+    - bin_helix_delegates_to_scripts_helix_via_plugin_root
+    - shared_resources_resolve_via_CLAUDE_PLUGIN_ROOT
     - installs_must_preserve_package_relative_paths
     - incomplete_skill_only_installs_are_invalid
+    - symlink_installer_is_dev_convenience_only
 ```
 
 ## Traceability
@@ -217,6 +237,12 @@ package_layout:
 ### Gaps
 - [ ] Tracker metadata mutation still needs first-class CLI support for
       refinement workflows such as `--refs`.
+- [ ] Principles injection into judgment-making actions — see [[SD-002]]
+      for the design of first-class principles as a cross-cutting input
+      to the supervisory loop's action prompts.
+- [ ] Plugin packaging implementation — see [[FEAT-004]] for the Claude Code
+      plugin manifest, `bin/helix` wrapper, and `${CLAUDE_PLUGIN_ROOT}`
+      resource resolution.
 
 ## Data Model Changes
 
@@ -247,12 +273,16 @@ packaging_contract:
 | `helix-run` | tracker | Query/update | issue state, dependencies, metadata, claims |
 | Companion commands | `helix-run` model | Shared control semantics | direct interactive intervention without model drift |
 | HELIX skill pack | shared `workflows/` library | Package-relative file access | actions, templates, metadata, conventions |
+| HELIX skills | DDx execution framework | `ddx exec run` | structured skill output, raw logs, artifact linkage |
 
 ### External Dependencies
 - **Tracker CLI**: source of durable execution state | Fallback: stop and
   require guidance if tracker state cannot be trusted
 - **Workflow docs**: source of normative action semantics | Fallback: escalate
   rather than improvise unsupported behavior
+- **DDx execution framework** (`ddx exec`): durable artifact-linked execution
+  records for skill output capture | Fallback: skip capture gracefully when
+  `ddx exec` is unavailable (DDx FEAT-010 in progress)
 
 ## Security
 
@@ -284,8 +314,9 @@ packaging_contract:
 - [ ] **API**: tracker metadata update flows required by issue refinement
 - [ ] **Concurrency**: operator refinement during a live run causes
       revalidation before claim and before close
-- [ ] **Packaging**: installs preserve `skills/` plus `workflows/` and shared
-      references resolve correctly
+- [ ] **Packaging**: plugin manifest declares the correct layout, `bin/helix`
+      resolves via plugin root, skills discover shared `workflows/` resources,
+      and `validate-skills.sh` catches broken layouts
 - [ ] **Security**: stop-for-guidance behavior on ambiguity or missing
       authority
 

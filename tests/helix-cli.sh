@@ -390,6 +390,7 @@ run_helix() {
     HELIX_LIBRARY_ROOT="$repo_root/workflows" \
     HELIX_FORCE_EPHEMERAL=1 \
     HELIX_REVIEW_AGENT="codex" \
+    HELIX_ALT_AGENT="codex" \
     HELIX_AUTO_ALIGN="${HELIX_AUTO_ALIGN:-0}" \
     bash "$repo_root/scripts/helix" "$cmd" --quiet "$@"
   )
@@ -1964,6 +1965,7 @@ run_helix_summary() {
     HELIX_LIBRARY_ROOT="$repo_root/workflows" \
     HELIX_FORCE_EPHEMERAL=1 \
     HELIX_REVIEW_AGENT="codex" \
+    HELIX_ALT_AGENT="codex" \
     HELIX_AUTO_ALIGN="${HELIX_AUTO_ALIGN:-0}" \
     bash "$repo_root/scripts/helix" "$cmd" --summary "$@"
   )

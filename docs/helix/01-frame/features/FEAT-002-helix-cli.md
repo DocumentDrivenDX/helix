@@ -159,15 +159,31 @@ Command aliases: `implement` → `build`, `plan` → `design`,
   `BACKFILL_REPORT`, and `RESEARCH_EPIC` trailers, and the declared report file
   must exist.
 
-### Local Installation
+### Installation
 
-- `scripts/install-local-skills.sh` must install the HELIX skill entrypoints
-  into the canonical `~/.agents/skills` location and mirror them into
-  `~/.claude/skills` for Claude compatibility.
+#### Primary: Plugin mode (see [[FEAT-004]])
+
+- The HELIX repo root is a Claude Code plugin. Loading it via
+  `claude --plugin-dir /path/to/helix` or project-level plugin settings must
+  make all HELIX skills, the CLI (`bin/helix`), and shared resources available
+  automatically.
+- No manual symlink step is required. New skills are available in the next
+  session after the file is created.
+- `bin/helix` is added to PATH by the plugin loader and delegates to
+  `scripts/helix` via `${CLAUDE_PLUGIN_ROOT}`.
+
+#### Legacy: Symlink installer
+
+- `scripts/install-local-skills.sh` remains as a development convenience for
+  contributors who want HELIX skills available outside of plugin mode.
+- The installer must install HELIX skill entrypoints into `~/.agents/skills`
+  and mirror them into `~/.claude/skills` for Claude compatibility.
 - The installed skill links must preserve package-relative access back to the
   shared `workflows/` resource library in the HELIX repo.
-- The installer must create `~/.local/bin/helix` as a launcher that invokes the
-  repository's `scripts/helix`.
+- The installer must create `~/.local/bin/helix` as a launcher that invokes
+  the repository's `scripts/helix`.
+- The installer should print a notice recommending plugin mode as the primary
+  installation path.
 
 ## Acceptance Criteria
 
@@ -221,6 +237,7 @@ Command aliases: `implement` → `build`, `plan` → `design`,
 ## Evidence
 
 - `docs/helix/01-frame/prd.md`
+- `docs/helix/01-frame/features/FEAT-004-plugin-packaging.md`
 - `docs/helix/02-design/solution-designs/SD-001-helix-supervisory-control.md`
 - `docs/helix/02-design/technical-designs/TD-002-helix-cli.md`
 - `docs/helix/03-test/test-plans/TP-002-helix-cli.md`

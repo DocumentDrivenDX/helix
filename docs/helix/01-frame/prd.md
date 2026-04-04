@@ -137,6 +137,15 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
 9. Epic focus mode: when `helix run` picks an epic, it stays focused —
    decompose into children, implement them, review the epic on close — before
    moving to the next scope.
+10. First-class principles: HELIX ships a small set of default design
+    principles and every judgment-making skill loads the active principles
+    (project-specific if they exist, HELIX defaults otherwise) to guide
+    design trade-offs, implementation choices, and review criteria
+    consistently across phases. See [[FEAT-003]].
+11. Plugin packaging: HELIX should be installable as a Claude Code plugin so
+    that skills, the CLI, and shared workflow resources are discovered
+    automatically via the plugin manifest — no manual symlink installation
+    required. See [[FEAT-004]].
 
 ### Nice to Have (P2)
 
@@ -162,6 +171,8 @@ The command surface is organized around how users interact with HELIX:
 - `helix run` — supervisory autopilot; reads tracker, selects the
   highest-leverage next action, executes it, repeats until human input is
   needed or no work remains
+- `helix worker` — launch `helix run` as a background process and monitor
+  progress via summary output and log files
 - `helix status` — structured lifecycle snapshot for human observation
 
 ### Steering (how humans direct agents)
@@ -270,6 +281,11 @@ verb: `run`, `status`, `evolve`, `review`, `align`, `polish`, `experiment`.
 3. Long-running codex sessions must have timeout enforcement and periodic
    heartbeat output.
 4. Each cycle must log elapsed time and token usage.
+5. Every HELIX skill invocation that produces structured output must create a
+   DDx execution run record linking the output to the governing artifact.
+   See [[FEAT-005]].
+6. `helix status` must be able to query recent execution history to report
+   what actions were taken and their outcomes.
 
 ### Quality Assurance
 
@@ -322,11 +338,17 @@ verb: `run`, `status`, `evolve`, `review`, `align`, `polish`, `experiment`.
 - **DDx agent service** (`ddx agent run`) for harness dispatch, output capture,
   token tracking, and session logging. HELIX no longer implements its own
   agent invocation; it calls DDx.
+- **DDx execution framework** (`ddx exec`) for durable, artifact-linked
+  execution run records. HELIX skill outputs are captured as DDx execution
+  runs. See DDx FEAT-010 and [[FEAT-005]].
 - HELIX tracker conventions (labels, spec-id, queue semantics) remain
   HELIX-owned, enforced via DDx validation hooks, and operate on DDx beads.
 - Skill surfaces under `skills/`
 - CLI execution surface in `scripts/helix`
-- Installers and plugin packaging that preserve the HELIX package layout
+- Plugin packaging via `.claude-plugin/plugin.json` manifest that preserves
+  the HELIX package layout (see [[FEAT-004]])
+- Legacy installer (`scripts/install-local-skills.sh`) as development
+  convenience
 
 ## Risks
 

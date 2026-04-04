@@ -26,8 +26,6 @@ export DDX_BEAD_PREFIX="${DDX_BEAD_PREFIX:-hx}"
 agent="${HELIX_AGENT:-codex}"
 agent_model="${HELIX_MODEL:-}"
 agent_effort="${HELIX_EFFORT:-}"
-check_model="${HELIX_CHECK_MODEL:-}"
-polish_model="${HELIX_POLISH_MODEL:-}"
 review_every=15
 force_ephemeral="${HELIX_FORCE_EPHEMERAL:-0}"
 session_active=0  # 1 = reusable session exists for the current epic
@@ -36,16 +34,71 @@ auto_align="${HELIX_AUTO_ALIGN:-1}"
 auto_review=1
 review_threshold=100
 
-# Cross-model review: default to the other agent if available
-if [[ -n "${HELIX_REVIEW_AGENT:-}" ]]; then
-  review_agent="${HELIX_REVIEW_AGENT}"
+# Model tiers: "smart" for reasoning-heavy stages, "cheap" for mechanical stages.
+# Override with HELIX_SMART_MODEL / HELIX_CHEAP_MODEL for the primary agent.
+smart_model="${HELIX_SMART_MODEL:-}"
+cheap_model="${HELIX_CHEAP_MODEL:-}"
+
+# resolve_model <tier> — return the model name for the current $agent and tier.
+# tier: "smart" or "cheap"
+# HELIX_SMART_MODEL / HELIX_CHEAP_MODEL override defaults for the PRIMARY agent.
+# When the current agent is the alternate (adversarial rotation), use that
+# agent's own defaults — the env overrides don't cross agent boundaries.
+resolve_model() {
+  local tier="${1:-smart}"
+  local primary="${HELIX_AGENT:-codex}"
+  case "$agent" in
+    claude)
+      if [[ "$tier" == "smart" ]]; then
+        if [[ "$agent" == "$primary" && -n "$smart_model" ]]; then
+          printf '%s' "$smart_model"
+        else
+          printf '%s' "claude-opus-4-6"
+        fi
+      else
+        if [[ "$agent" == "$primary" && -n "$cheap_model" ]]; then
+          printf '%s' "$cheap_model"
+        else
+          printf '%s' "claude-sonnet-4-6"
+        fi
+      fi
+      ;;
+    codex)
+      if [[ "$tier" == "smart" ]]; then
+        if [[ "$agent" == "$primary" && -n "$smart_model" ]]; then
+          printf '%s' "$smart_model"
+        else
+          printf '%s' "gpt-5.4"
+        fi
+      else
+        if [[ "$agent" == "$primary" && -n "$cheap_model" ]]; then
+          printf '%s' "$cheap_model"
+        else
+          printf '%s' "gpt-5.4-mini"
+        fi
+      fi
+      ;;
+    *)
+      # Unknown agent — fall through to agent default
+      printf '%s' "${agent_model:-}"
+      ;;
+  esac
+}
+
+# Adversarial agent rotation: reasoning stages use the primary agent,
+# mechanical stages (build, polish, check) use the alternate agent.
+# This ensures different models review each other's work.
+if [[ -n "${HELIX_ALT_AGENT:-}" ]]; then
+  alt_agent="${HELIX_ALT_AGENT}"
 elif [[ "${agent}" == "codex" ]] && command -v claude >/dev/null 2>&1; then
-  review_agent="claude"
+  alt_agent="claude"
 elif [[ "${agent}" == "claude" ]] && command -v codex >/dev/null 2>&1; then
-  review_agent="codex"
+  alt_agent="codex"
 else
-  review_agent=""
+  alt_agent=""
 fi
+# review_agent kept as alias for backward compat with --review-agent flag
+review_agent="${HELIX_REVIEW_AGENT:-$alt_agent}"
 dry_run=0
 quiet=0
 summary=0
@@ -134,21 +187,26 @@ Options:
   --no-auto-align   Do not auto-run alignment when check returns ALIGN
   --no-auto-review  Do not run fresh-eyes review after each implementation
   --review-threshold N  Skip review for changes below N lines (default: 100)
-  --review-agent    Use a different agent for reviews (cross-model review)
-  --check-model     Use a cheaper model for queue-drain decisions
-  --polish-model    Use a cheaper model for issue refinement
+  --review-agent    Use a different agent for reviews (default: adversarial alternate)
+  --smart-model     Model for reasoning-heavy stages (frame, design, align, review)
+  --cheap-model     Model for mechanical stages (build, polish, check)
   --dry-run         Print the agent command instead of executing it
   --quiet, -q       Suppress progress output (command echo, prompt sizes)
   --summary, -s     Concise output with log-file line pointers (implies --quiet)
 
 Environment:
-  HELIX_AGENT          Default agent (codex or claude)
+  HELIX_AGENT          Default primary agent (codex or claude)
+  HELIX_ALT_AGENT      Alternate agent for adversarial rotation (auto-detected)
   HELIX_AGENT_TIMEOUT  Agent timeout in seconds (default: 2700)
-  HELIX_REVIEW_AGENT   Agent for cross-model reviews
-  HELIX_CHECK_MODEL    Cheaper model for queue-drain decisions
-  HELIX_POLISH_MODEL   Cheaper model for issue refinement
+  HELIX_SMART_MODEL    Model for reasoning stages (default: opus / gpt-5.4)
+  HELIX_CHEAP_MODEL    Model for mechanical stages (default: sonnet / gpt-5.4-mini)
   HELIX_LIBRARY_ROOT   Override the library root that contains workflows/
   HELIX_TRACKER_DIR    Override the tracker directory (default: .helix/)
+
+Adversarial rotation:
+  Primary agent (frame, design, evolve, align, review) uses the smart model.
+  Alternate agent (build, polish, check) uses the cheap model.
+  This ensures different models review each other's work.
 
 Logs:
   Session logs are written to .helix-logs/helix-YYYYMMDD-HHMMSS.log
@@ -761,7 +819,8 @@ EOF
 
 run_frame() {
   local scope="${1:-}"
-  run_agent_prompt "$(frame_prompt "$scope")" "" "${agent_effort:-high}"
+  # Frame is reasoning-heavy — use primary agent with smart model
+  run_agent_prompt "$(frame_prompt "$scope")" "$(resolve_model smart)" "${agent_effort:-high}"
 }
 
 plan_prompt() {
@@ -874,7 +933,8 @@ run_evolve() {
   if (( ! dry_run )); then
     require_tracker
   fi
-  run_agent_prompt "$(evolve_prompt "$requirement" "$scope" "$artifact" "$source")" "" "${agent_effort:-high}"
+  # Evolve is reasoning-heavy — use primary agent with smart model
+  run_agent_prompt "$(evolve_prompt "$requirement" "$scope" "$artifact" "$source")" "$(resolve_model smart)" "${agent_effort:-high}"
 }
 
 extract_agents_md_commands() {
@@ -1155,7 +1215,15 @@ run_implementation() {
   if (( ! dry_run )); then
     require_tracker
   fi
-  run_agent_prompt "$(implementation_prompt "$selector")" "" "${agent_effort:-medium}"
+  # Build is mechanical — use alternate agent with cheap model
+  local _saved_agent=""
+  if [[ -n "$alt_agent" ]] && [[ "$alt_agent" != "$agent" ]]; then
+    _saved_agent="$agent"
+    agent="$alt_agent"
+    (( ! quiet )) && printf 'helix: adversarial build: switching to %s\n' "$agent" >&2
+  fi
+  run_agent_prompt "$(implementation_prompt "$selector")" "$(resolve_model cheap)" "${agent_effort:-medium}"
+  [[ -n "$_saved_agent" ]] && agent="$_saved_agent"
 }
 
 run_batch_implementation() {
@@ -1163,7 +1231,15 @@ run_batch_implementation() {
   if (( ! dry_run )); then
     require_tracker
   fi
-  run_agent_prompt "$(batch_implementation_prompt "$issues")" "" "${agent_effort:-medium}"
+  # Build is mechanical — use alternate agent with cheap model
+  local _saved_agent=""
+  if [[ -n "$alt_agent" ]] && [[ "$alt_agent" != "$agent" ]]; then
+    _saved_agent="$agent"
+    agent="$alt_agent"
+    (( ! quiet )) && printf 'helix: adversarial build: switching to %s\n' "$agent" >&2
+  fi
+  run_agent_prompt "$(batch_implementation_prompt "$issues")" "$(resolve_model cheap)" "${agent_effort:-medium}"
+  [[ -n "$_saved_agent" ]] && agent="$_saved_agent"
 }
 
 run_check() {
@@ -1171,7 +1247,15 @@ run_check() {
   if (( ! dry_run )); then
     require_tracker
   fi
-  run_agent_prompt "$(check_prompt "$scope")" "$check_model" "${agent_effort:-low}"
+  # Check is mechanical — use alternate agent with cheap model
+  local _saved_agent=""
+  if [[ -n "$alt_agent" ]] && [[ "$alt_agent" != "$agent" ]]; then
+    _saved_agent="$agent"
+    agent="$alt_agent"
+    (( ! quiet )) && printf 'helix: adversarial check: switching to %s\n' "$agent" >&2
+  fi
+  run_agent_prompt "$(check_prompt "$scope")" "$(resolve_model cheap)" "${agent_effort:-low}"
+  [[ -n "$_saved_agent" ]] && agent="$_saved_agent"
 }
 
 run_alignment() {
@@ -1179,21 +1263,24 @@ run_alignment() {
   if (( ! dry_run )); then
     require_tracker
   fi
-  run_agent_prompt "$(alignment_prompt "$scope")" "" "${agent_effort:-high}"
+  # Alignment is reasoning-heavy — use primary agent with smart model
+  run_agent_prompt "$(alignment_prompt "$scope")" "$(resolve_model smart)" "${agent_effort:-high}"
 }
 
 run_backfill() {
   local scope="${1:-repo}"
 
   if (( dry_run )); then
-    run_agent_prompt "$(backfill_prompt "$scope")"
+    # Backfill is reasoning-heavy — use primary agent with smart model
+    run_agent_prompt "$(backfill_prompt "$scope")" "$(resolve_model smart)" "${agent_effort:-high}"
     return 0
   fi
 
   require_tracker
 
   local output
-  output="$(run_agent_prompt "$(backfill_prompt "$scope")")"
+  # Backfill is reasoning-heavy — use primary agent with smart model
+  output="$(run_agent_prompt "$(backfill_prompt "$scope")" "$(resolve_model smart)" "${agent_effort:-high}")"
   printf '%s\n' "$output"
 
   local status
@@ -1279,7 +1366,8 @@ run_plan() {
   local scope="${1:-}"
   local rounds="${2:-5}"
   # Planning does NOT require tracker — it happens before issue creation
-  run_agent_prompt "$(plan_prompt "$scope" "$rounds")" "" "${agent_effort:-high}"
+  # Design/plan is reasoning-heavy — use primary agent with smart model
+  run_agent_prompt "$(plan_prompt "$scope" "$rounds")" "$(resolve_model smart)" "${agent_effort:-high}"
 
   # Cross-model critique: if review_agent is configured, alternate agents
   # for additional refinement passes on the written plan
@@ -1315,31 +1403,42 @@ run_polish() {
   if (( ! dry_run )); then
     require_tracker
   fi
-  run_agent_prompt "$(polish_prompt "$scope" "$rounds")" "$polish_model" "${agent_effort:-medium}"
+  # Polish is mechanical — use alternate agent with cheap model
+  local _saved_agent=""
+  if [[ -n "$alt_agent" ]] && [[ "$alt_agent" != "$agent" ]]; then
+    _saved_agent="$agent"
+    agent="$alt_agent"
+    (( ! quiet )) && printf 'helix: adversarial polish: switching to %s\n' "$agent" >&2
+  fi
+  run_agent_prompt "$(polish_prompt "$scope" "$rounds")" "$(resolve_model cheap)" "${agent_effort:-medium}"
+  [[ -n "$_saved_agent" ]] && agent="$_saved_agent"
 }
 
 run_review() {
   local scope="${1:-last-commit}"
   local in_loop="${2:-0}"
 
-  # Cross-model review: use a different agent for reviews if configured
+  # Review is reasoning-heavy and adversarial — the primary agent reviews
+  # the alternate agent's build work. If we're currently running as the
+  # alternate (inside a build cycle), switch back to primary for review.
+  # If review_agent is explicitly set, honor that.
   local _saved_agent=""
   if [[ -n "$review_agent" ]] && [[ "$review_agent" != "$agent" ]]; then
     _saved_agent="$agent"
     agent="$review_agent"
     if (( ! quiet )); then
-      printf 'helix: cross-model review: switching to %s\n' "$agent" >&2
+      printf 'helix: adversarial review: switching to %s\n' "$agent" >&2
     fi
   fi
 
   if (( dry_run )); then
-    run_agent_prompt "$(review_prompt "$scope" "$in_loop")"
+    run_agent_prompt "$(review_prompt "$scope" "$in_loop")" "$(resolve_model smart)" "${agent_effort:-high}"
     [[ -n "$_saved_agent" ]] && agent="$_saved_agent"
     return 0
   fi
 
   local output
-  output="$(run_agent_prompt "$(review_prompt "$scope" "$in_loop")")"
+  output="$(run_agent_prompt "$(review_prompt "$scope" "$in_loop")" "$(resolve_model smart)" "${agent_effort:-high}")"
   printf '%s\n' "$output"
 
   # Restore agent before returning
@@ -2291,12 +2390,12 @@ main() {
             force_ephemeral=1
             shift
             ;;
-          --check-model)
-            check_model="$2"
+          --smart-model)
+            smart_model="$2"
             shift 2
             ;;
-          --polish-model)
-            polish_model="$2"
+          --cheap-model)
+            cheap_model="$2"
             shift 2
             ;;
           --review-agent)
