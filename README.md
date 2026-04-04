@@ -125,7 +125,7 @@ Start with:
 ## Tracker
 
 HELIX uses a built-in file-backed tracker for execution tracking. Canonical
-issues live in `.helix/issues.jsonl`. Run `helix tracker` to manage issues,
+issues live in `.ddx/beads.jsonl`. Run `helix tracker` to manage issues,
 `helix tracker import` to pull compatible JSONL into the canonical store, and
 `helix tracker export` to write JSONL for interop or recovery.
 

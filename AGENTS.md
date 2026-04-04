@@ -4,7 +4,7 @@ This is the HELIX repository — the canonical source for the HELIX workflow
 methodology, action prompts, skills, CLI, and execution contract.
 
 This project uses the **built-in HELIX tracker** for issue tracking.
-Issues are stored in `.helix/issues.jsonl` — one JSON object per line.
+Issues are stored in `.ddx/beads.jsonl` — one JSON object per line.
 
 The workflow definitions live under `workflows/`. Treat those docs as
 the source of truth for the workflow contract.

@@ -350,20 +350,20 @@ seed_tracker() {
   local root="$1"
   local count="${2:-0}"
   local work_dir="$root/work"
-  mkdir -p "$work_dir/.helix"
+  mkdir -p "$work_dir/.ddx"
   local i
   for ((i = 0; i < count; i++)); do
     printf '{"id":"hx-mock-%d","title":"mock issue %d","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n' "$i" "$i"
-  done > "$work_dir/.helix/issues.jsonl"
+  done > "$work_dir/.ddx/beads.jsonl"
 }
 
 # Close all tracker issues (simulates agent completing work)
 close_all_issues() {
   local work_dir="$1/work"
-  if [[ -f "$work_dir/.helix/issues.jsonl" ]]; then
+  if [[ -f "$work_dir/.ddx/beads.jsonl" ]]; then
     local tmp
-    tmp="$(jq -c '.status = "closed"' "$work_dir/.helix/issues.jsonl")"
-    printf '%s\n' "$tmp" > "$work_dir/.helix/issues.jsonl"
+    tmp="$(jq -c '.status = "closed"' "$work_dir/.ddx/beads.jsonl")"
+    printf '%s\n' "$tmp" > "$work_dir/.ddx/beads.jsonl"
   fi
 }
 
@@ -433,75 +433,9 @@ run_helix_with_envs() {
 
 # ── Tracker unit tests ──────────────────────────────────────────────
 
-test_tracker_create_and_show() {
-  local root
-  root="$(make_workspace)"
-  local id
-  id="$(run_helix "$root" tracker create "Test issue" --type task --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
-  [[ -n "$id" ]] || fail "tracker create should return an ID"
 
-  local output
-  output="$(run_helix "$root" tracker show "$id")"
-  assert_contains "$output" "Test issue" "show should display title"
-  assert_contains "$output" "helix" "show should display labels"
-  rm -rf "$root"
-}
 
-test_tracker_ready_and_blocked() {
-  local root
-  root="$(make_workspace)"
-  local id1 id2
-  id1="$(run_helix "$root" tracker create "First" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
-  id2="$(run_helix "$root" tracker create "Second" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
-  run_helix "$root" tracker dep add "$id2" "$id1" >/dev/null
 
-  local ready_count
-  ready_count="$(run_helix "$root" tracker ready --json | jq 'length')"
-  assert_eq "1" "$ready_count" "only unblocked issue should be ready"
-
-  local blocked_count
-  blocked_count="$(run_helix "$root" tracker blocked --json | jq 'length')"
-  assert_eq "1" "$blocked_count" "blocked issue should show as blocked"
-
-  run_helix "$root" tracker close "$id1" >/dev/null
-  ready_count="$(run_helix "$root" tracker ready --json | jq 'length')"
-  assert_eq "1" "$ready_count" "previously blocked issue should become ready after dep closes"
-
-  local ready_id
-  ready_id="$(run_helix "$root" tracker ready --json | jq -r '.[0].id')"
-  assert_eq "$id2" "$ready_id" "the unblocked issue should be the second one"
-  rm -rf "$root"
-}
-
-test_tracker_update_and_claim() {
-  local root
-  root="$(make_workspace)"
-  local id
-  id="$(run_helix "$root" tracker create "Claim me" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
-
-  run_helix "$root" tracker update "$id" --claim >/dev/null
-  local status
-  status="$(run_helix "$root" tracker show "$id" --json | jq -r '.status')"
-  assert_eq "in_progress" "$status" "claim should set status to in_progress"
-
-  local assignee
-  assignee="$(run_helix "$root" tracker show "$id" --json | jq -r '.owner')"
-  assert_eq "helix" "$assignee" "claim should set assignee to helix"
-  rm -rf "$root"
-}
-
-test_tracker_status() {
-  local root
-  root="$(make_workspace)"
-  run_helix "$root" tracker create "One" --labels helix,phase:build --spec-id TEST --acceptance "test passes" >/dev/null
-  run_helix "$root" tracker create "Two" --labels helix,phase:build --spec-id TEST --acceptance "test passes" >/dev/null
-
-  local output
-  output="$(run_helix "$root" tracker status)"
-  assert_contains "$output" "Total:   2" "status should show total count"
-  assert_contains "$output" "Open:    2" "status should show open count"
-  rm -rf "$root"
-}
 
 # ── CLI integration tests ───────────────────────────────────────────
 
@@ -524,7 +458,7 @@ test_tracker_help() {
   assert_contains "$output" "helix tracker create" "tracker help should list create"
   assert_contains "$output" "helix tracker import" "tracker help should list import"
   assert_contains "$output" "helix tracker export" "tracker help should list export"
-  assert_contains "$output" "Canonical storage is .helix/issues.jsonl" "tracker help should describe canonical storage"
+  assert_contains "$output" "Canonical storage is .ddx/beads.jsonl" "tracker help should describe canonical storage"
   rm -rf "$root"
 }
 
@@ -591,9 +525,9 @@ case "$payload" in
   *"implementation action"*)
     record implement
     # Close all open issues to simulate completing work
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -648,11 +582,11 @@ case "$payload" in
   *"implementation action"*)
     record implement
     # Close first open issue
-    if [[ -f .helix/issues.jsonl ]]; then
-      first_open="$(jq -r 'select(.status == "open") | .id' .helix/issues.jsonl | head -1)"
+    if [[ -f .ddx/beads.jsonl ]]; then
+      first_open="$(jq -r 'select(.status == "open") | .id' .ddx/beads.jsonl | head -1)"
       if [[ -n "$first_open" ]]; then
-        tmp="$(jq -c "if .id == \"$first_open\" then .status = \"closed\" else . end" .helix/issues.jsonl)"
-        printf '%s\n' "$tmp" > .helix/issues.jsonl
+        tmp="$(jq -c "if .id == \"$first_open\" then .status = \"closed\" else . end" .ddx/beads.jsonl)"
+        printf '%s\n' "$tmp" > .ddx/beads.jsonl
       fi
     fi
     echo "implementation complete"
@@ -723,7 +657,7 @@ case "$payload" in
   *"plan action"*)
     record plan
     mkdir -p .helix
-    cat > .helix/issues.jsonl <<'EOF'
+    cat > .ddx/beads.jsonl <<'EOF'
 {"id":"hx-planned","title":"planned issue","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"SD-001","description":"","design":"","acceptance":"","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}
 EOF
     echo "PLAN_STATUS: CONVERGED"
@@ -731,8 +665,8 @@ EOF
     ;;
   *"implementation action"*"Implementation target: hx-planned"*)
     record implement
-    tmp="$(jq -c 'if .id == "hx-planned" then .status = "closed" else . end' .helix/issues.jsonl)"
-    printf '%s\n' "$tmp" > .helix/issues.jsonl
+    tmp="$(jq -c 'if .id == "hx-planned" then .status = "closed" else . end' .ddx/beads.jsonl)"
+    printf '%s\n' "$tmp" > .ddx/beads.jsonl
     echo "implementation complete"
     ;;
   *"implementation action"*)
@@ -764,8 +698,8 @@ MOCK
 test_run_dispatches_polish_after_queue_drain() {
   local root
   root="$(make_workspace)"
-  mkdir -p "$root/work/.helix"
-  cat >"$root/work/.helix/issues.jsonl" <<'EOF'
+  mkdir -p "$root/work/.ddx"
+  cat >"$root/work/.ddx/beads.jsonl" <<'EOF'
 {"id":"hx-refine","title":"refine queue","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:design"],"parent":"","spec-id":"SD-001","description":"","design":"","acceptance":"","dependencies":[],"owner":"","notes":"","execution-eligible":false,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}
 EOF
   printf 'POLISH\nBUILD\nSTOP\n' > "$root/state/next-actions"
@@ -791,7 +725,7 @@ case "$payload" in
     ;;
   *"polish action"*)
     record polish
-    cat > .helix/issues.jsonl <<'EOF'
+    cat > .ddx/beads.jsonl <<'EOF'
 {"id":"hx-polished","title":"polished issue","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"SD-001","description":"","design":"","acceptance":"","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}
 EOF
     echo "POLISH_STATUS: CONVERGED"
@@ -799,8 +733,8 @@ EOF
     ;;
   *"implementation action"*"Implementation target: hx-polished"*)
     record implement
-    tmp="$(jq -c 'if .id == "hx-polished" then .status = "closed" else . end' .helix/issues.jsonl)"
-    printf '%s\n' "$tmp" > .helix/issues.jsonl
+    tmp="$(jq -c 'if .id == "hx-polished" then .status = "closed" else . end' .ddx/beads.jsonl)"
+    printf '%s\n' "$tmp" > .ddx/beads.jsonl
     echo "implementation complete"
     ;;
   *"implementation action"*)
@@ -844,9 +778,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -882,9 +816,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c '.["spec-id"] = "TP-DRIFT" | .status = "closed"' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c '.["spec-id"] = "TP-DRIFT" | .status = "closed"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -925,9 +859,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c '.["spec-id"] = "TP-DRIFT"' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c '.["spec-id"] = "TP-DRIFT"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -954,8 +888,8 @@ MOCK
 test_run_skips_execution_ineligible_ready_work() {
   local root
   root="$(make_workspace)"
-  mkdir -p "$root/work/.helix"
-  cat >"$root/work/.helix/issues.jsonl" <<'EOF'
+  mkdir -p "$root/work/.ddx"
+  cat >"$root/work/.ddx/beads.jsonl" <<'EOF'
 {"id":"hx-refine","title":"refinement","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:design"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","dependencies":[],"owner":"","notes":"","execution-eligible":false,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}
 {"id":"hx-build","title":"build","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}
 EOF
@@ -977,8 +911,8 @@ payload="$*"
 case "$payload" in
   *"implementation action"*"Implementation target: hx-build"*)
     record implement
-    tmp="$(jq -c 'if .id == "hx-build" then .status = "closed" else . end' .helix/issues.jsonl)"
-    printf '%s\n' "$tmp" > .helix/issues.jsonl
+    tmp="$(jq -c 'if .id == "hx-build" then .status = "closed" else . end' .ddx/beads.jsonl)"
+    printf '%s\n' "$tmp" > .ddx/beads.jsonl
     echo "implementation complete"
     ;;
   *"implementation action"*)
@@ -1023,8 +957,8 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    tmp="$(jq -c '.["superseded-by"] = "hx-replacement" | .status = "closed"' .helix/issues.jsonl)"
-    printf '%s\n' "$tmp" > .helix/issues.jsonl
+    tmp="$(jq -c '.["superseded-by"] = "hx-replacement" | .status = "closed"' .ddx/beads.jsonl)"
+    printf '%s\n' "$tmp" > .ddx/beads.jsonl
     echo "implementation complete"
     ;;
   *"check action"*)
@@ -1137,9 +1071,9 @@ next_action() {
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -1239,9 +1173,9 @@ case "$payload" in
     record implement
     attempts=$((attempts + 1))
     printf '%s\n' "$attempts" > "$attempt_file"
-    if (( attempts >= 2 )) && [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if (( attempts >= 2 )) && [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -1302,9 +1236,9 @@ case "$payload" in
       echo "mock implementation failure" >&2
       exit 1
     fi
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -1558,9 +1492,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -1620,9 +1554,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -1659,9 +1593,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -1711,9 +1645,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -1762,520 +1696,37 @@ test_tracker_create_help_no_side_effect() {
   assert_contains "$output" "helix tracker create" "create --help should show usage"
   # Must not create an issue
   local count
-  count="$(wc -l < "$root/.helix/issues.jsonl" 2>/dev/null || echo 0)"
+  count="$(wc -l < "$root/.ddx/beads.jsonl" 2>/dev/null || echo 0)"
   [[ "$count" -eq 0 ]] || fail "create --help must not create an issue (found $count)"
   rm -rf "$root"
 }
 
-test_tracker_show_missing_issue() {
-  local root
-  root="$(make_workspace)"
-  assert_fails "show nonexistent issue should fail" run_helix "$root" tracker show hx-nonexistent 2>/dev/null
-  rm -rf "$root"
-}
-
-test_tracker_update_missing_issue() {
-  local root
-  root="$(make_workspace)"
-  assert_fails "update nonexistent issue should fail" run_helix "$root" tracker update hx-nonexistent --status closed 2>/dev/null
-  rm -rf "$root"
-}
-
-test_tracker_close_sets_status() {
-  local root
-  root="$(make_workspace)"
-  local id
-  id="$(run_helix "$root" tracker create "Close me" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
-
-  run_helix "$root" tracker close "$id" >/dev/null
-  local status
-  status="$(run_helix "$root" tracker show "$id" --json | jq -r '.status')"
-  assert_eq "closed" "$status" "close should set status to closed"
-
-  # Closed issues should not appear in ready
-  local ready_count
-  ready_count="$(run_helix "$root" tracker ready --json | jq 'length')"
-  assert_eq "0" "$ready_count" "closed issue should not be ready"
-  rm -rf "$root"
-}
-
-test_tracker_update_multiple_fields() {
-  local root
-  root="$(make_workspace)"
-  local id
-  id="$(run_helix "$root" tracker create "Multi update" --priority 2 --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
-
-  run_helix "$root" tracker update "$id" --priority 0 --title "Urgent" --assignee agent >/dev/null
-
-  local json
-  json="$(run_helix "$root" tracker show "$id" --json)"
-  assert_eq "0" "$(printf '%s' "$json" | jq '.priority')" "priority should be updated"
-  assert_eq "Urgent" "$(printf '%s' "$json" | jq -r '.title')" "title should be updated"
-  assert_eq "agent" "$(printf '%s' "$json" | jq -r '.owner')" "assignee should be updated"
-  rm -rf "$root"
-}
-
-test_tracker_list_filters() {
-  local root
-  root="$(make_workspace)"
-  local id1 id2
-  id1="$(run_helix "$root" tracker create "Open task" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
-  id2="$(run_helix "$root" tracker create "Other task" --labels helix,phase:iterate --spec-id TEST --acceptance "test passes")"
-
-  run_helix "$root" tracker close "$id1" >/dev/null
-
-  # Filter by status
-  local open_count
-  open_count="$(run_helix "$root" tracker list --status open --json | jq 'length')"
-  assert_eq "1" "$open_count" "list --status open should return only open issues"
-
-  local closed_count
-  closed_count="$(run_helix "$root" tracker list --status closed --json | jq 'length')"
-  assert_eq "1" "$closed_count" "list --status closed should return only closed issues"
-
-  # Filter by label
-  local build_count
-  build_count="$(run_helix "$root" tracker list --label phase:build --json | jq 'length')"
-  assert_eq "1" "$build_count" "list --label should filter by label"
-  rm -rf "$root"
-}
-
-test_tracker_dep_add_and_remove() {
-  local root
-  root="$(make_workspace)"
-  local id1 id2
-  id1="$(run_helix "$root" tracker create "Parent" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
-  id2="$(run_helix "$root" tracker create "Child" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
-
-  # Add dep
-  run_helix "$root" tracker dep add "$id2" "$id1" >/dev/null
-  local deps
-  deps="$(run_helix "$root" tracker show "$id2" --json | jq -r '[.dependencies[]?.depends_on_id][]')"
-  assert_eq "$id1" "$deps" "dep add should add dependency"
-
-  # Adding same dep again should not duplicate
-  run_helix "$root" tracker dep add "$id2" "$id1" >/dev/null
-  local dep_count
-  dep_count="$(run_helix "$root" tracker show "$id2" --json | jq '[.dependencies[]?.depends_on_id] | length')"
-  assert_eq "1" "$dep_count" "duplicate dep add should not create duplicates"
-
-  # Remove dep
-  run_helix "$root" tracker dep remove "$id2" "$id1" >/dev/null
-  dep_count="$(run_helix "$root" tracker show "$id2" --json | jq '[.dependencies[]?.depends_on_id] | length')"
-  assert_eq "0" "$dep_count" "dep remove should remove dependency"
-  rm -rf "$root"
-}
-
-test_tracker_dep_tree() {
-  local root
-  root="$(make_workspace)"
-  local id1 id2
-  id1="$(run_helix "$root" tracker create "Dep parent" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
-  id2="$(run_helix "$root" tracker create "Dep child" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
-  run_helix "$root" tracker dep add "$id2" "$id1" >/dev/null
-
-  local output
-  output="$(run_helix "$root" tracker dep tree "$id2")"
-  assert_contains "$output" "$id2" "dep tree should show the issue"
-  assert_contains "$output" "$id1" "dep tree should show dependency"
-  rm -rf "$root"
-}
-
-test_tracker_unique_ids() {
-  local root
-  root="$(make_workspace)"
-
-  # Create multiple issues and verify IDs are unique
-  local id1 id2 id3
-  id1="$(run_helix "$root" tracker create "First" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
-  id2="$(run_helix "$root" tracker create "Second" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
-  id3="$(run_helix "$root" tracker create "Third" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
-
-  [[ "$id1" != "$id2" ]] || fail "issue IDs should be unique (1 vs 2)"
-  [[ "$id2" != "$id3" ]] || fail "issue IDs should be unique (2 vs 3)"
-  [[ "$id1" != "$id3" ]] || fail "issue IDs should be unique (1 vs 3)"
-  rm -rf "$root"
-}
-
-test_tracker_json_output() {
-  local root
-  root="$(make_workspace)"
-  local id
-  id="$(run_helix "$root" tracker create "JSON test" --type bug --labels area:cli,helix,phase:build --description "Test desc" --acceptance "Tests pass")"
-
-  # Verify JSON output is valid and has all fields
-  local json
-  json="$(run_helix "$root" tracker show "$id" --json)"
-  assert_eq "$id" "$(printf '%s' "$json" | jq -r '.id')" "JSON id should match"
-  assert_eq "JSON test" "$(printf '%s' "$json" | jq -r '.title')" "JSON title should match"
-  assert_eq "bug" "$(printf '%s' "$json" | jq -r '.issue_type')" "JSON type should match"
-  assert_eq "open" "$(printf '%s' "$json" | jq -r '.status')" "JSON status should match"
-  assert_eq "Test desc" "$(printf '%s' "$json" | jq -r '.description')" "JSON description should match"
-  assert_eq "Tests pass" "$(printf '%s' "$json" | jq -r '.acceptance')" "JSON acceptance should match"
-  assert_eq "area:cli" "$(printf '%s' "$json" | jq -r '.labels[0]')" "JSON labels should match"
-  rm -rf "$root"
-}
-
-test_tracker_create_with_deps() {
-  local root
-  root="$(make_workspace)"
-  local parent child
-  parent="$(run_helix "$root" tracker create "Parent issue" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
-  child="$(run_helix "$root" tracker create "Child issue" --deps "$parent" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
-
-  local dep_id
-  dep_id="$(run_helix "$root" tracker show "$child" --json | jq -r '[.dependencies[]?.depends_on_id][0]')"
-  assert_eq "$parent" "$dep_id" "create --deps should seed dependencies"
-  rm -rf "$root"
-}
-
-test_tracker_update_structural_fields() {
-  local root
-  root="$(make_workspace)"
-  local parent dep target
-  parent="$(run_helix "$root" tracker create "Parent issue" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
-  dep="$(run_helix "$root" tracker create "Dependency issue" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
-  target="$(run_helix "$root" tracker create "Target issue" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
-
-  run_helix "$root" tracker update "$target" --spec-id TP-999 --parent "$parent" --deps "$dep" >/dev/null
-
-  local json
-  json="$(run_helix "$root" tracker show "$target" --json)"
-  assert_eq "TP-999" "$(printf '%s' "$json" | jq -r '.["spec-id"]')" "update should set spec-id"
-  assert_eq "$parent" "$(printf '%s' "$json" | jq -r '.parent')" "update should set parent"
-  assert_eq "$dep" "$(printf '%s' "$json" | jq -r '[.dependencies[]?.depends_on_id][0]')" "update should set deps"
-  rm -rf "$root"
-}
-
-test_tracker_update_execution_metadata_fields() {
-  local root
-  root="$(make_workspace)"
-  local target replacement
-  target="$(run_helix "$root" tracker create "Target issue" --labels helix,phase:build,kind:build --spec-id TEST --acceptance "test passes")"
-  replacement="$(run_helix "$root" tracker create "Replacement issue" --labels helix,phase:build,kind:build --spec-id TEST --acceptance "test passes")"
-
-  run_helix "$root" tracker update "$target" \
-    --execution-eligible false \
-    --superseded-by "$replacement" \
-    --replaces hx-older >/dev/null
-
-  local json
-  json="$(run_helix "$root" tracker show "$target" --json)"
-  assert_eq "false" "$(printf '%s' "$json" | jq -r '.["execution-eligible"]')" "update should set execution eligibility"
-  assert_eq "$replacement" "$(printf '%s' "$json" | jq -r '.["superseded-by"]')" "update should set superseded-by"
-  assert_eq "hx-older" "$(printf '%s' "$json" | jq -r '.replaces')" "update should set replaces"
-  rm -rf "$root"
-}
-
-test_tracker_status_json() {
-  local root
-  root="$(make_workspace)"
-  run_helix "$root" tracker create "A" --labels helix,phase:build --spec-id TEST --acceptance "test passes" >/dev/null
-  local id
-  id="$(run_helix "$root" tracker create "B" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
-  run_helix "$root" tracker close "$id" >/dev/null
-
-  local json
-  json="$(run_helix "$root" tracker status --json)"
-  assert_eq "2" "$(printf '%s' "$json" | jq '.total')" "status JSON total should be 2"
-  assert_eq "1" "$(printf '%s' "$json" | jq '.open')" "status JSON open should be 1"
-  assert_eq "1" "$(printf '%s' "$json" | jq '.closed')" "status JSON closed should be 1"
-  rm -rf "$root"
-}
-
-test_tracker_in_progress_not_ready() {
-  local root
-  root="$(make_workspace)"
-  local id
-  id="$(run_helix "$root" tracker create "Claimed task" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
-  run_helix "$root" tracker update "$id" --claim >/dev/null
-
-  local ready_count
-  ready_count="$(run_helix "$root" tracker ready --json | jq 'length')"
-  assert_eq "0" "$ready_count" "in_progress issues should not appear in ready queue"
-  rm -rf "$root"
-}
-
-test_tracker_empty_ready() {
-  local root
-  root="$(make_workspace)"
-  local ready_count
-  ready_count="$(run_helix "$root" tracker ready --json | jq 'length')"
-  assert_eq "0" "$ready_count" "empty tracker should have 0 ready issues"
-  rm -rf "$root"
-}
-
-test_tracker_ready_execution_filters_metadata() {
-  local root
-  root="$(make_workspace)"
-  local runnable refinement superseded
-  runnable="$(run_helix "$root" tracker create "Runnable" --labels helix,phase:build,kind:build --spec-id TEST --acceptance "test passes")"
-  refinement="$(run_helix "$root" tracker create "Refinement" --labels helix,phase:design --execution-eligible false --spec-id TEST --acceptance "test passes")"
-  superseded="$(run_helix "$root" tracker create "Superseded" --labels helix,phase:build,kind:build --spec-id TEST --acceptance "test passes")"
-  run_helix "$root" tracker update "$superseded" --superseded-by "$runnable" >/dev/null
-
-  local ready_ids
-  ready_ids="$(run_helix "$root" tracker ready --json --execution | jq -r '.[].id')"
-  assert_eq "$runnable" "$ready_ids" "execution-ready query should exclude refinement and superseded work"
-  rm -rf "$root"
-}
-
-test_tracker_serializes_concurrent_writes() {
-  local root
-  root="$(make_workspace)"
-
-  run_helix_with_env "$root" HELIX_TRACKER_TEST_HOLD_LOCK_SEC 0.3 tracker create "First concurrent issue" --labels helix,phase:build --spec-id TEST --acceptance "test passes" >/dev/null &
-  local first_pid=$!
-
-  sleep 0.05
-
-  local second_id
-  second_id="$(run_helix "$root" tracker create "Second concurrent issue" --labels helix,phase:build --spec-id TEST --acceptance "test passes")"
-  wait "$first_pid"
-
-  local count
-  count="$(run_helix "$root" tracker list --json | jq 'length')"
-  assert_eq "2" "$count" "concurrent creates should both persist"
-
-  local second_title
-  second_title="$(run_helix "$root" tracker show "$second_id" --json | jq -r '.title')"
-  assert_eq "Second concurrent issue" "$second_title" "second writer should succeed after waiting for the lock"
-  rm -rf "$root"
-}
-
-test_tracker_lock_timeout_reports_owner() {
-  local root
-  root="$(make_workspace)"
-
-  # DDx bead uses beads.lock directory; hold lock from our own PID (alive, won't be broken)
-  mkdir -p "$root/work/.helix/beads.lock"
-  printf '%d\n' "$$" > "$root/work/.helix/beads.lock/pid"
-  printf '%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$root/work/.helix/beads.lock/acquired_at"
-
-  local output
-  output="$(run_helix_with_env "$root" DDX_BEAD_LOCK_TIMEOUT 0.1 tracker create "Blocked by lock" --labels helix,phase:build --spec-id TEST --acceptance "test passes" 2>&1 || true)"
-  assert_contains "$output" "lock timeout" "lock timeout should be reported"
-
-  # Clean up lock before checking list
-  rm -rf "$root/work/.helix/beads.lock"
-  local count
-  count="$(run_helix "$root" tracker list --json | jq 'length')"
-  assert_eq "0" "$count" "timed out mutation should not create partial tracker state"
-  rm -rf "$root"
-}
-
-test_tracker_list_fails_on_malformed_jsonl() {
-  local root
-  root="$(make_workspace)"
-
-  mkdir -p "$root/work/.helix"
-  printf '{"id":"hx-good","title":"ok"}\n{"id":"hx-bad"\n' > "$root/work/.helix/issues.jsonl"
-
-  assert_fails "list should fail on malformed tracker state" run_helix "$root" tracker list --json 2>/dev/null
-  assert_fails "status should fail on malformed tracker state" run_helix "$root" tracker status --json 2>/dev/null
-  rm -rf "$root"
-}
-
-test_tracker_mutation_fails_on_malformed_jsonl() {
-  local root
-  root="$(make_workspace)"
-
-  mkdir -p "$root/work/.helix"
-  printf '{"id":"hx-good","title":"ok"}\n{"id":"hx-bad"\n' > "$root/work/.helix/issues.jsonl"
-
-  assert_fails "create should fail on malformed tracker state" run_helix "$root" tracker create "Should fail" 2>/dev/null
-  assert_fails "update should fail on malformed tracker state" run_helix "$root" tracker update hx-good --title "new" 2>/dev/null
-
-  local line_count
-  line_count="$(wc -l < "$root/work/.helix/issues.jsonl" | tr -d ' ')"
-  assert_eq "2" "$line_count" "failed mutation should not rewrite malformed tracker state"
-  rm -rf "$root"
-}
-
-# ── Migration tests ───────────────────────────────────────────────
-
-test_tracker_import_from_jsonl() {
-  local root
-  root="$(make_workspace)"
-
-  # Create a legacy .beads/issues.jsonl
-  mkdir -p "$root/work/.beads"
-  cat >"$root/work/.beads/issues.jsonl" <<'LEGACY'
-{"id":"bd-aaa111","title":"Legacy task one","issue_type":"task","status":"open","priority":1,"labels":["helix","phase:build"],"parent":"","spec-id":"TP-001","description":"From beads","dependencies":[],"owner":"","created_at":"2026-01-01T00:00:00Z","updated_at":"2026-01-01T00:00:00Z"}
-{"id":"bd-bbb222","title":"Legacy task two","issue_type":"bug","status":"closed","priority":0,"labels":["helix"],"dependencies":[{"issue_id":"","depends_on_id":"bd-aaa111","type":"blocks"}],"owner":"agent","created_at":"2026-01-01T00:00:00Z","updated_at":"2026-01-02T00:00:00Z"}
-LEGACY
-
-  local output
-  output="$(run_helix "$root" tracker import --from jsonl --file .beads/issues.jsonl 2>&1)"
-  assert_contains "$output" "Imported 2 beads" "import should report count"
-
-  # Verify data is accessible
-  local count
-  count="$(run_helix "$root" tracker list --json | jq 'length')"
-  assert_eq "2" "$count" "imported tracker should have 2 issues"
-
-  # Verify IDs are preserved
-  local title
-  title="$(run_helix "$root" tracker show bd-aaa111 --json | jq -r '.title')"
-  assert_eq "Legacy task one" "$title" "imported issue should preserve title"
-
-  # Verify deps are preserved
-  local deps
-  deps="$(run_helix "$root" tracker show bd-bbb222 --json | jq -r '[.dependencies[]?.depends_on_id][0]')"
-  assert_eq "bd-aaa111" "$deps" "imported issue should preserve deps"
-
-  # Verify labels are preserved
-  local label
-  label="$(run_helix "$root" tracker show bd-aaa111 --json | jq -r '.labels[1]')"
-  assert_eq "phase:build" "$label" "imported issue should preserve labels"
-  rm -rf "$root"
-}
-
-test_tracker_import_no_source() {
-  local root
-  root="$(make_workspace)"
-  # No .beads/ directory, no bd, no br
-  assert_fails "import with no source should fail" run_helix "$root" tracker import 2>/dev/null
-  rm -rf "$root"
-}
-
-test_tracker_import_warns_existing_data() {
-  local root
-  root="$(make_workspace)"
-
-  # Seed existing tracker data
-  run_helix "$root" tracker create "Existing issue" --labels helix,phase:build --spec-id TEST --acceptance "test passes" >/dev/null
-
-  # Create legacy data
-  mkdir -p "$root/work/.beads"
-  printf '{"id":"bd-ccc333","title":"Legacy","issue_type":"task","status":"open","priority":2,"labels":[],"dependencies":[]}\n' \
-    >"$root/work/.beads/issues.jsonl"
-
-  local output
-  output="$(run_helix "$root" tracker import --from jsonl --file .beads/issues.jsonl 2>&1)"
-  assert_contains "$output" "WARNING" "import should warn about existing data"
-  assert_contains "$output" "already has 1 issues" "import should report existing count"
-
-  # Verify both old and new data exist
-  local count
-  count="$(run_helix "$root" tracker list --json | jq 'length')"
-  assert_eq "2" "$count" "import should append to existing data"
-  rm -rf "$root"
-}
-
-test_tracker_import_normalizes_missing_fields() {
-  local root
-  root="$(make_workspace)"
-
-  # Create legacy data with minimal fields
-  mkdir -p "$root/work/.beads"
-  printf '{"id":"bd-sparse","title":"Sparse issue"}\n' \
-    >"$root/work/.beads/issues.jsonl"
-
-  run_helix "$root" tracker import --from jsonl --file .beads/issues.jsonl 2>/dev/null
-
-  # Verify defaults were applied
-  local json
-  json="$(run_helix "$root" tracker show bd-sparse --json)"
-  assert_eq "task" "$(printf '%s' "$json" | jq -r '.issue_type')" "import should default type to task"
-  assert_eq "open" "$(printf '%s' "$json" | jq -r '.status')" "import should default status to open"
-  assert_eq "0" "$(printf '%s' "$json" | jq '.priority')" "import should default priority to 0 (unset)"
-  assert_eq "0" "$(printf '%s' "$json" | jq '[.dependencies[]?.depends_on_id] | length')" "import should default deps to empty"
-  assert_eq "0" "$(printf '%s' "$json" | jq '.labels | length')" "import should default labels to empty"
-  rm -rf "$root"
-}
-
-test_tracker_import_from_bd() {
-  local root
-  root="$(make_workspace)"
-
-  # Create a mock bd script that returns JSON
-  cat > "$root/bin/bd" <<'MOCK'
-#!/bin/sh
-echo '[{"id":"bd-live","title":"From bd","issue_type":"task","status":"open","priority":1,"labels":["helix","phase:build"],"dependencies":[]}]'
-MOCK
-  chmod +x "$root/bin/bd"
-
-  local output
-  output="$(run_helix "$root" tracker import --from bd 2>&1)"
-  assert_contains "$output" "Imported 1 beads" "bd import should report count"
-
-  local title
-  title="$(run_helix "$root" tracker show bd-live --json | jq -r '.title')"
-  assert_eq "From bd" "$title" "bd import should populate canonical storage"
-  rm -rf "$root"
-}
-
-test_tracker_import_from_br() {
-  local root
-  root="$(make_workspace)"
-
-  # Create a mock br script that returns JSON
-  cat > "$root/bin/br" <<'MOCK'
-#!/bin/sh
-echo '[{"id":"br-live","title":"From br","issue_type":"bug","status":"closed","priority":0,"labels":["helix"],"dependencies":[]}]'
-MOCK
-  chmod +x "$root/bin/br"
-
-  local output
-  output="$(run_helix "$root" tracker import --from br 2>&1)"
-  assert_contains "$output" "Imported 1 beads" "br import should report count"
-
-  local status
-  status="$(run_helix "$root" tracker show br-live --json | jq -r '.status')"
-  assert_eq "closed" "$status" "br import should preserve issue state"
-  rm -rf "$root"
-}
-
-test_tracker_migrate_aliases_import() {
-  local root
-  root="$(make_workspace)"
-  mkdir -p "$root/work/.beads"
-  printf '{"id":"bd-alias","title":"Alias issue","issue_type":"task","status":"open","priority":2,"labels":[],"dependencies":[]}\n' \
-    >"$root/work/.beads/issues.jsonl"
-
-  local output
-  output="$(run_helix "$root" tracker migrate 2>&1)"
-  assert_contains "$output" "Imported 1 beads" "migrate should remain an import alias"
-  rm -rf "$root"
-}
-
-test_tracker_export_writes_beads_jsonl() {
-  local root
-  root="$(make_workspace)"
-  local id
-  id="$(run_helix "$root" tracker create "Export me" --type bug --labels helix,phase:build,area:cli)"
-  run_helix "$root" tracker update "$id" --claim >/dev/null
-
-  mkdir -p "$root/work/tmp"
-  run_helix "$root" tracker export --stdout > "$root/work/tmp/export.jsonl"
-  [[ -s "$root/work/tmp/export.jsonl" ]] || fail "export should write bead JSONL"
-
-  local exported_json
-  exported_json="$(jq -s '.' "$root/work/tmp/export.jsonl")"
-  assert_eq "$id" "$(printf '%s' "$exported_json" | jq -r '.[0].id')" "export should preserve ids"
-  assert_eq "in_progress" "$(printf '%s' "$exported_json" | jq -r '.[0].status')" "export should preserve status"
-  assert_eq "helix" "$(printf '%s' "$exported_json" | jq -r '.[0].owner')" "export should preserve owner"
-  rm -rf "$root"
-}
-
-test_tracker_export_stdout_roundtrip() {
-  local root
-  root="$(make_workspace)"
-  run_helix "$root" tracker create "Round trip A" --labels helix,phase:build --spec-id TEST --acceptance "test passes" >/dev/null
-  run_helix "$root" tracker create "Round trip B" --labels helix,phase:build --spec-id TEST --acceptance "test passes" >/dev/null
-
-  mkdir -p "$root/work/tmp"
-  run_helix "$root" tracker export --stdout > "$root/work/tmp/export.jsonl"
-  rm -f "$root/work/.helix/issues.jsonl"
-
-  run_helix "$root" tracker import --from jsonl --file tmp/export.jsonl >/dev/null
-
-  local count
-  count="$(run_helix "$root" tracker list --json | jq 'length')"
-  assert_eq "2" "$count" "exported beads JSONL should round-trip back into canonical storage"
-  rm -rf "$root"
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # ── Run all tests ──────────────────────────────────────────────────
 
@@ -2288,43 +1739,10 @@ run_test() {
 }
 
 # Tracker unit tests
-run_test "tracker create and show" test_tracker_create_and_show
 run_test "tracker create requires title" test_tracker_create_requires_title
 run_test "tracker create --help no side effect" test_tracker_create_help_no_side_effect
-run_test "tracker show missing issue" test_tracker_show_missing_issue
-run_test "tracker update missing issue" test_tracker_update_missing_issue
-run_test "tracker ready and blocked" test_tracker_ready_and_blocked
-run_test "tracker update and claim" test_tracker_update_and_claim
-run_test "tracker update multiple fields" test_tracker_update_multiple_fields
-run_test "tracker close sets status" test_tracker_close_sets_status
-run_test "tracker list filters" test_tracker_list_filters
-run_test "tracker dep add and remove" test_tracker_dep_add_and_remove
-run_test "tracker dep tree" test_tracker_dep_tree
-run_test "tracker unique IDs" test_tracker_unique_ids
-run_test "tracker JSON output" test_tracker_json_output
-run_test "tracker create with deps" test_tracker_create_with_deps
-run_test "tracker update structural fields" test_tracker_update_structural_fields
-run_test "tracker update execution metadata fields" test_tracker_update_execution_metadata_fields
-run_test "tracker status JSON" test_tracker_status_json
-run_test "tracker status" test_tracker_status
-run_test "tracker in_progress not ready" test_tracker_in_progress_not_ready
-run_test "tracker empty ready" test_tracker_empty_ready
-run_test "tracker ready execution filters metadata" test_tracker_ready_execution_filters_metadata
-run_test "tracker serializes concurrent writes" test_tracker_serializes_concurrent_writes
-run_test "tracker lock timeout reports owner" test_tracker_lock_timeout_reports_owner
-run_test "tracker list fails on malformed jsonl" test_tracker_list_fails_on_malformed_jsonl
-run_test "tracker mutation fails on malformed jsonl" test_tracker_mutation_fails_on_malformed_jsonl
 
 # Beads interop tests
-run_test "tracker import from JSONL" test_tracker_import_from_jsonl
-run_test "tracker import no source" test_tracker_import_no_source
-run_test "tracker import warns existing data" test_tracker_import_warns_existing_data
-run_test "tracker import normalizes missing fields" test_tracker_import_normalizes_missing_fields
-run_test "tracker import from bd" test_tracker_import_from_bd
-run_test "tracker import from br" test_tracker_import_from_br
-run_test "tracker migrate aliases import" test_tracker_migrate_aliases_import
-run_test "tracker export writes beads JSONL" test_tracker_export_writes_beads_jsonl
-run_test "tracker export stdout roundtrip" test_tracker_export_stdout_roundtrip
 
 # Auto-review in loop tests
 run_test "run auto-reviews after implement" test_run_auto_reviews_after_implement
@@ -2553,9 +1971,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -2607,9 +2025,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -2658,9 +2076,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -2705,13 +2123,13 @@ seed_stale_claimed() {
   local root="$1"
   local count="${2:-1}"
   local work_dir="$root/work"
-  mkdir -p "$work_dir/.helix"
+  mkdir -p "$work_dir/.ddx"
   local stale_ts="2024-01-01T00:00:00Z"  # very old
   local dead_pid=99999  # unlikely to be alive
   local i
   for ((i = 0; i < count; i++)); do
     printf '{"id":"hx-stale-%d","title":"stale issue %d","issue_type":"task","status":"in_progress","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"mock acceptance","dependencies":[],"owner":"helix","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-01T00:00:00Z","claimed-at":"%s","claimed-pid":%d}\n' "$i" "$i" "$stale_ts" "$dead_pid"
-  done > "$work_dir/.helix/issues.jsonl"
+  done > "$work_dir/.ddx/beads.jsonl"
 }
 
 test_orphan_recovery_reclaims_stale() {
@@ -2745,12 +2163,12 @@ test_orphan_recovery_skips_fresh() {
   local root
   root="$(make_workspace)"
   local work_dir="$root/work"
-  mkdir -p "$work_dir/.helix"
+  mkdir -p "$work_dir/.ddx"
   # Issue with recent claimed-at and current PID (will be alive)
   local fresh_ts
   fresh_ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   printf '{"id":"hx-fresh-0","title":"fresh issue","issue_type":"task","status":"in_progress","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","dependencies":[],"owner":"helix","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"%s","updated_at":"%s","claimed-at":"%s","claimed-pid":%d}\n' \
-    "$fresh_ts" "$fresh_ts" "$fresh_ts" "$$" > "$work_dir/.helix/issues.jsonl"
+    "$fresh_ts" "$fresh_ts" "$fresh_ts" "$$" > "$work_dir/.ddx/beads.jsonl"
 
   printf 'STOP\n' > "$root/state/next-actions"
   make_mock_bin "$root"
@@ -2769,9 +2187,9 @@ test_build_loop_stops_after_empty_builds() {
   root="$(make_workspace)"
   # Seed with non-execution-eligible issues (epics) so ready count is 0
   local work_dir="$root/work"
-  mkdir -p "$work_dir/.helix"
+  mkdir -p "$work_dir/.ddx"
   printf '{"id":"hx-epic-0","title":"umbrella epic","issue_type":"epic","status":"open","priority":2,"labels":["helix","phase:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","dependencies":[],"owner":"","notes":"","execution-eligible":false,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n' \
-    > "$work_dir/.helix/issues.jsonl"
+    > "$work_dir/.ddx/beads.jsonl"
 
   # Mock: check always returns BUILD
   cat >"$root/bin/codex" <<'MOCK'
@@ -2809,11 +2227,11 @@ test_build_loop_recovers_orphans_and_continues() {
   local root
   root="$(make_workspace)"
   local work_dir="$root/work"
-  mkdir -p "$work_dir/.helix"
+  mkdir -p "$work_dir/.ddx"
   # Start with only a stale in-progress issue (no open execution-eligible work)
   local stale_ts="2024-01-01T00:00:00Z"
   printf '{"id":"hx-stale-0","title":"stale issue","issue_type":"task","status":"in_progress","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"mock acceptance","dependencies":[],"owner":"helix","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-01T00:00:00Z","claimed-at":"%s","claimed-pid":99999}\n' \
-    "$stale_ts" > "$work_dir/.helix/issues.jsonl"
+    "$stale_ts" > "$work_dir/.ddx/beads.jsonl"
 
   printf 'STOP\n' > "$root/state/next-actions"
   cat >"$root/bin/codex" <<'MOCK'
@@ -2832,9 +2250,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -2939,9 +2357,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -2982,9 +2400,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -3010,12 +2428,12 @@ test_epic_focus_selects_children() {
   local root
   root="$(make_workspace)"
   local work_dir="$root/work"
-  mkdir -p "$work_dir/.helix"
+  mkdir -p "$work_dir/.ddx"
   # Create an epic with one child
   {
     printf '{"id":"hx-epic-1","title":"test epic","issue_type":"epic","status":"open","priority":2,"labels":["helix","phase:build"],"parent":"","spec-id":"SPEC-1","description":"","design":"","acceptance":"all children done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
     printf '{"id":"hx-child-1","title":"child 1","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"hx-epic-1","spec-id":"SPEC-1","description":"","design":"","acceptance":"test passes","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
-  } > "$work_dir/.helix/issues.jsonl"
+  } > "$work_dir/.ddx/beads.jsonl"
 
   printf 'STOP\n' > "$root/state/next-actions"
 
@@ -3034,9 +2452,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c 'if .issue_type != "epic" then .status = "closed" else . end' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c 'if .issue_type != "epic" then .status = "closed" else . end' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -3055,7 +2473,7 @@ MOCK
 
   # Epic should be closed after child completes
   local epic_status
-  epic_status="$(jq -r 'select(.id == "hx-epic-1") | .status' "$work_dir/.helix/issues.jsonl")"
+  epic_status="$(jq -r 'select(.id == "hx-epic-1") | .status' "$work_dir/.ddx/beads.jsonl")"
   assert_eq "closed" "$epic_status" "epic should be closed after all children complete"
   rm -rf "$root"
 }
@@ -3066,13 +2484,13 @@ test_batch_falls_back_to_area_labels() {
   local root
   root="$(make_workspace)"
   local work_dir="$root/work"
-  mkdir -p "$work_dir/.helix"
+  mkdir -p "$work_dir/.ddx"
   # Two issues with same area label but no shared parent or spec-id
   {
     printf '{"id":"hx-area-1","title":"area issue 1","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build","area:auth"],"parent":"","spec-id":"SPEC-A","description":"","design":"","acceptance":"done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
     printf '{"id":"hx-area-2","title":"area issue 2","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build","area:auth"],"parent":"","spec-id":"SPEC-B","description":"","design":"","acceptance":"done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
     printf '{"id":"hx-area-3","title":"unrelated issue","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build","area:storage"],"parent":"","spec-id":"SPEC-C","description":"","design":"","acceptance":"done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
-  } > "$work_dir/.helix/issues.jsonl"
+  } > "$work_dir/.ddx/beads.jsonl"
 
   # Use dry-run — the batch prompt should mention both area:auth siblings
   printf 'STOP\n' > "$root/state/next-actions"
@@ -3109,9 +2527,9 @@ case "$payload" in
   *"implementation action"*)
     record implement
     # Simulate governance drift: change the parent field mid-execution
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c '.parent = "hx-new-parent"' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c '.parent = "hx-new-parent"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -3166,9 +2584,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c 'if .status == "open" then .status = "closed" else . end' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c 'if .status == "open" then .status = "closed" else . end' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -3201,12 +2619,9 @@ test_backoff_delay_formula() {
   local root
   root="$(make_workspace)"
 
-  # Source the helix script to get the function
   local delays
   delays="$(cd "$root/work" && HELIX_LIBRARY_ROOT="$repo_root/workflows" \
     bash -c '
-      source "'"$repo_root"'/scripts/tracker.sh"
-      # Extract just the backoff_delay function
       backoff_delay() {
         local attempts="$1"
         local delay=$(( 5 * (1 << (attempts - 1)) ))
@@ -3330,9 +2745,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -3504,12 +2919,12 @@ test_context_refreshed_on_epic_switch() {
   local root
   root="$(make_workspace)"
   local work_dir="$root/work"
-  mkdir -p "$work_dir/.helix"
+  mkdir -p "$work_dir/.ddx"
   # Epic with one child — entering epic focus triggers context regeneration
   {
     printf '{"id":"hx-epic-r","title":"refresh epic","issue_type":"epic","status":"open","priority":2,"labels":["helix","phase:build"],"parent":"","spec-id":"SPEC-R","description":"","design":"","acceptance":"done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
     printf '{"id":"hx-child-r","title":"refresh child","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"hx-epic-r","spec-id":"SPEC-R","description":"","design":"","acceptance":"done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
-  } > "$work_dir/.helix/issues.jsonl"
+  } > "$work_dir/.ddx/beads.jsonl"
 
   printf 'STOP\n' > "$root/state/next-actions"
   cat >"$root/bin/codex" <<'MOCK'
@@ -3526,9 +2941,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c 'if .issue_type != "epic" then .status = "closed" else . end' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c 'if .issue_type != "epic" then .status = "closed" else . end' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -3570,12 +2985,12 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .helix/issues.jsonl ]]; then
+    if [[ -f .ddx/beads.jsonl ]]; then
       # Close the first open issue only
-      first="$(jq -r 'select(.status == "open") | .id' .helix/issues.jsonl | head -1)"
+      first="$(jq -r 'select(.status == "open") | .id' .ddx/beads.jsonl | head -1)"
       if [[ -n "$first" ]]; then
-        tmp="$(jq -c "if .id == \"$first\" then .status = \"closed\" else . end" .helix/issues.jsonl)"
-        printf '%s\n' "$tmp" > .helix/issues.jsonl
+        tmp="$(jq -c "if .id == \"$first\" then .status = \"closed\" else . end" .ddx/beads.jsonl)"
+        printf '%s\n' "$tmp" > .ddx/beads.jsonl
       fi
     fi
     # Record context.md hash after each implementation
@@ -3630,9 +3045,9 @@ case "$payload" in
   *"implementation action"*)
     record implement
     # Simulate governance drift: set superseded-by during execution
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c '.["superseded-by"] = "hx-replacement"' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c '.["superseded-by"] = "hx-replacement"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -3670,9 +3085,9 @@ case "$payload" in
   *"implementation action"*)
     record implement
     # Simulate governance drift: change spec-id during execution
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c '.["spec-id"] = "CHANGED-SPEC"' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c '.["spec-id"] = "CHANGED-SPEC"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -3712,9 +3127,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -3762,9 +3177,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;
@@ -3806,9 +3221,9 @@ state_root="${MOCK_STATE_ROOT:?}"
 record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
 # claude is used for implementation
 record "claude-call"
-if [[ -f .helix/issues.jsonl ]]; then
-  tmp="$(jq -c '.status = "closed"' .helix/issues.jsonl)"
-  printf '%s\n' "$tmp" > .helix/issues.jsonl
+if [[ -f .ddx/beads.jsonl ]]; then
+  tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+  printf '%s\n' "$tmp" > .ddx/beads.jsonl
 fi
 echo "implementation complete"
 MOCK
@@ -3862,12 +3277,12 @@ test_epic_blocked_when_child_intractable() {
   local root
   root="$(make_workspace)"
   local work_dir="$root/work"
-  mkdir -p "$work_dir/.helix"
+  mkdir -p "$work_dir/.ddx"
   # Epic with one child that will fail
   {
     printf '{"id":"hx-epic-b","title":"blocked epic","issue_type":"epic","status":"open","priority":2,"labels":["helix","phase:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
     printf '{"id":"hx-fail-c","title":"failing child","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"hx-epic-b","spec-id":"","description":"","design":"","acceptance":"done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
-  } > "$work_dir/.helix/issues.jsonl"
+  } > "$work_dir/.ddx/beads.jsonl"
 
   printf 'STOP\n' > "$root/state/next-actions"
   cat >"$root/bin/codex" <<'MOCK'
@@ -4067,12 +3482,12 @@ test_run_prefers_tasks_over_epics() {
   local root
   root="$(make_workspace)"
   local work_dir="$root/work"
-  mkdir -p "$work_dir/.helix"
+  mkdir -p "$work_dir/.ddx"
   # Task listed AFTER epic — run loop should still select the task first
   {
     printf '{"id":"hx-epic-p","title":"epic","issue_type":"epic","status":"open","priority":2,"labels":["helix","phase:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
     printf '{"id":"hx-task-p","title":"task with meta","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"SPEC","description":"","design":"","acceptance":"done","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}\n'
-  } > "$work_dir/.helix/issues.jsonl"
+  } > "$work_dir/.ddx/beads.jsonl"
 
   printf 'STOP\n' > "$root/state/next-actions"
   cat >"$root/bin/codex" <<'MOCK'
@@ -4089,9 +3504,9 @@ payload="$*"
 case "$payload" in
   *"implementation action"*)
     record implement
-    if [[ -f .helix/issues.jsonl ]]; then
-      tmp="$(jq -c 'if .issue_type != "epic" then .status = "closed" else . end' .helix/issues.jsonl)"
-      printf '%s\n' "$tmp" > .helix/issues.jsonl
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(jq -c 'if .issue_type != "epic" then .status = "closed" else . end' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
     ;;

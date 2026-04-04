@@ -131,8 +131,8 @@ Command aliases: `implement` → `build`, `plan` → `design`,
   `.ddx/hooks/validate-bead-create`.
 - HELIX validation requires: `helix` label, one phase label, `--spec-id` for
   tasks, and deterministic `--acceptance` for tasks and epics.
-- Tracker data lives in `.helix/issues.jsonl` (DDx bead configured with
-  `DDX_BEAD_DIR=.helix`, `DDX_BEAD_PREFIX=hx`).
+- Tracker data lives in `.ddx/beads.jsonl` (DDx bead configured with
+  `DDX_BEAD_DIR=.ddx`, `DDX_BEAD_PREFIX=hx`).
 - Ready work is determined by `ddx bead ready` (open beads with all deps
   closed). Execution-eligible filtering uses `ddx bead ready --execution`.
 - Claim semantics (`--claim`, `--unclaim`, `claimed-at`, `claimed-pid`) are

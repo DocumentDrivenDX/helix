@@ -100,7 +100,7 @@ helix tracker dep tree <id>
 helix tracker blocked --json
 helix tracker close <id>
 helix tracker status
-helix tracker import --from jsonl --file .helix/issues.jsonl
+helix tracker import --from jsonl --file .ddx/beads.jsonl
 helix tracker export
 ```
 

@@ -62,7 +62,7 @@ Use the built-in tracker only. Follow:
 
 - See `helix tracker --help` for tracker conventions
 
-Issues are stored in `.helix/issues.jsonl`.
+Issues are stored in `.ddx/beads.jsonl`.
 
 This action works only on execution issues. Exclude review issues by default.
 

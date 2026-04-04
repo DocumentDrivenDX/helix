@@ -361,7 +361,7 @@ This harness (133 tests):
 
 - creates temporary git workspaces
 - stubs `codex` and `claude` binaries via PATH injection
-- seeds `.helix/issues.jsonl` with known issue graphs
+- seeds `.ddx/beads.jsonl` with known issue graphs
 - drives exact ready-queue and `NEXT_ACTION` sequences
 - verifies tracker CRUD, run loop orchestration, epic focus, queue drift,
   orphan recovery, summary mode, backoff, acceptance filing, review trailers,
