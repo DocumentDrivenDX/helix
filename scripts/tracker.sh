@@ -8,11 +8,13 @@
 # Requires: ddx (on PATH), jq
 
 # ── ddx bead configuration ────────────────────────────────────────────
-tracker_dir="${HELIX_TRACKER_DIR:-${target_root:-.}/.helix}"
-tracker_file="${tracker_dir}/issues.jsonl"  # ddx bead canonical file
-export DDX_BEAD_DIR="$tracker_dir"
-# Per-project prefix: defaults to "hx", configurable via .helix/config or env
-export DDX_BEAD_PREFIX="${HELIX_BEAD_PREFIX:-hx}"
+# ddx bead defaults to .ddx/beads.jsonl and auto-detects prefix from repo name.
+# HELIX_TRACKER_DIR overrides the storage directory for non-standard layouts.
+if [[ -n "${HELIX_TRACKER_DIR:-}" ]]; then
+  export DDX_BEAD_DIR="$HELIX_TRACKER_DIR"
+fi
+tracker_dir="${DDX_BEAD_DIR:-${target_root:-.}/.ddx}"
+tracker_file="${tracker_dir}/beads.jsonl"
 
 tracker_init() {
   ddx bead init 2>/dev/null
