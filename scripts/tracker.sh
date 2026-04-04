@@ -111,7 +111,23 @@ tracker_create() {
       --superseded-by) superseded_by="$2"; shift 2 ;;
       --replaces)   replaces="$2"; shift 2 ;;
       --silent)     shift ;;
-      -h|--help|help) tracker_usage; return 0 ;;
+      -h|--help|help)
+        echo "Usage: helix tracker create <title> [options]"
+        echo ""
+        echo "Options:"
+        echo "  --type TYPE            Issue type (task, epic, bug, chore)"
+        echo "  --labels L1,L2         Comma-separated labels"
+        echo "  --deps ID1,ID2         Comma-separated dependency IDs"
+        echo "  --parent ID            Parent issue ID"
+        echo "  --spec-id ID           Governing artifact reference"
+        echo "  --description TEXT      Issue description"
+        echo "  --acceptance TEXT       Acceptance criteria"
+        echo "  --priority N            Priority (0=highest, 4=lowest, default 2)"
+        echo "  --execution-eligible T  true or false"
+        echo "  --superseded-by ID     Replacement issue ID"
+        echo "  --replaces ID          Issue this replaces"
+        return 0
+        ;;
       *)            title="$1"; shift ;;
     esac
   done
