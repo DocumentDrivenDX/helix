@@ -7,7 +7,7 @@ implementation, and iterating with real feedback. Humans set direction and make
 judgment calls; AI agents do the heavy lifting under HELIX's supervision.
 
 HELIX is built on [DDx](https://documentdrivendx.github.io/ddx/) (Document-Driven
-Development eXperience), a local-first platform for AI-assisted development. DDx
+Development eXperience), a platform for AI-assisted development. DDx
 provides the foundation that HELIX runs on: a document library for governing
 artifacts, a work tracker for issue management, an agent harness for dispatching
 AI models, and an execution engine for recording what happened. HELIX adds the
@@ -162,7 +162,7 @@ issues live in `.ddx/beads.jsonl`. Run `ddx bead` to manage issues,
 ## DDx Platform
 
 HELIX is built on [DDx](https://documentdrivendx.github.io/ddx/) — the
-local-first platform for AI-assisted development. DDx provides the document
+platform for AI-assisted development. DDx provides the document
 library, work tracker, agent harness, and execution engine. HELIX provides the
 methodology, phases, authority order, and supervisory skills.
 

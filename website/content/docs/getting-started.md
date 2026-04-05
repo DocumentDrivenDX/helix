@@ -10,7 +10,7 @@ Get HELIX installed and running your first supervised build session.
 ## DDx and HELIX
 
 HELIX is built on [DDx](https://documentdrivendx.github.io/ddx/) (Document-Driven
-Development eXperience), a local-first platform for AI-assisted development. DDx
+Development eXperience), a platform for AI-assisted development. DDx
 provides the foundation: a **document library** for managing governing artifacts
 like specs and designs, a **work tracker** (`ddx bead`) for issue management with
 dependencies and claims, an **agent harness** (`ddx agent`) for dispatching AI
