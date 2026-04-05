@@ -1035,12 +1035,15 @@ test_run_stops_when_issue_is_superseded() {
   root="$(make_workspace)"
   seed_tracker "$root" 1
 
-  cat >"$root/bin/codex" <<'MOCK'
+  # Override both agent mocks — helix dispatches to claude by default
+  cat >"$root/bin/mock-supersession" <<'MOCK'
 #!/usr/bin/env bash
 set -euo pipefail
 state_root="${MOCK_STATE_ROOT:?}"
 record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
-payload="$*"
+stdin_payload=""
+if ! [[ -t 0 ]]; then stdin_payload="$(cat)"; fi
+payload="$* $stdin_payload"
 case "$payload" in
   *"implementation action"*)
     record implement
@@ -1052,10 +1055,12 @@ case "$payload" in
     record check
     printf 'NEXT_ACTION: STOP\n'
     ;;
-  *) record other; echo "mock codex" ;;
+  *) record other; echo "mock agent" ;;
 esac
 MOCK
-  chmod +x "$root/bin/codex"
+  cp "$root/bin/mock-supersession" "$root/bin/codex"
+  cp "$root/bin/mock-supersession" "$root/bin/claude"
+  chmod +x "$root/bin/codex" "$root/bin/claude"
 
   local output
   output="$(run_helix "$root" run --no-auto-review 2>&1)"
