@@ -28,7 +28,19 @@
 
 ## Recording
 - Build Docker image: `docker build -t <project>-demo docs/demos/<name>/`
-- Record: mount `recordings/` directory, asciinema captures inside the container
+- Run with credential mounts — the user's Claude CLI auth is mounted into
+  the container so agent calls work without interactive login:
+  ```bash
+  docker run --rm \
+    -v ~/.claude.json:/root/.claude.json:ro \
+    -v ~/.claude:/root/.claude \
+    -v $(pwd):/helix:ro \
+    -v $(pwd)/../ddx/ddx:/usr/local/bin/ddx:ro \
+    -v $(pwd)/docs/demos/<name>/recordings:/recordings \
+    <project>-demo
+  ```
+- This is fully autonomous — an agent can build and run the container
+  without human interaction as long as `~/.claude/` and `~/.claude.json` exist
 - Review: `asciinema play recordings/<file>.cast` — watch at 1x to check pacing
 - Export GIF: use `agg` with default settings for README/social embedding
 - Copy `.cast` to `website/static/demos/` for microsite embedding
