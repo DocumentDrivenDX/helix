@@ -121,7 +121,7 @@ The loop must distinguish between attempted work and completed work.
 - The Codex runner must capture stdout and stderr together before token
   extraction so the `tokens used` footer is accounted for regardless of which
   stream Codex used.
-- `.helix/context.md` must be regenerated at run start, on epic switch, and
+- `.ddx/context.md` must be regenerated at run start, on epic switch, and
   after every 5 completed build cycles. The generator must include:
   - the Quick Reference build and test commands from `AGENTS.md`
   - current open, in-progress, ready-execution, and closed issue counts
@@ -324,11 +324,11 @@ streams Claude progress when possible, and enforces an agent timeout.
 
 ### 4. Built-In Tracker Library
 
-`scripts/tracker.sh` stores issues as JSONL in `.helix/issues.jsonl`. It
+`ddx bead` manages issues stored as JSONL in `.ddx/beads.jsonl`. It
 provides creation, read/update/close flows, dependency management, ready and
-blocked queue queries, and tracker health summaries using `jq`.
-For this design, it is also the source of truth for claim ownership and claim
-freshness metadata when the tracker schema is extended.
+blocked queue queries, and tracker health summaries.
+For this design, it is the source of truth for claim ownership and claim
+freshness metadata.
 
 ### 5. Loop Controller
 
@@ -365,9 +365,9 @@ agent sessions.
 ## Data and Filesystem Surfaces
 
 - Workflow docs root: `workflows/`
-- Tracker state: `.helix/issues.jsonl`
+- Tracker state: `.ddx/beads.jsonl`
 - Session logs: `.helix-logs/helix-YYYYMMDD-HHMMSS.log`
-- Run-controller state: `.helix/run-state.json`
+- Run-controller state: `.ddx/run-state.json`
 - Blocker reports: `.helix-logs/blockers-YYYYMMDD-HHMMSS.md`
 - Installed launcher: `~/.local/bin/helix`
 - Installed skill links: `${CODEX_HOME:-$HOME/.codex}/skills`,
@@ -400,9 +400,6 @@ agent sessions.
 - `scripts/helix:381-519`
 - `scripts/helix:542-570`
 - `scripts/helix:579-784`
-- `scripts/tracker.sh:7-49`
-- `scripts/tracker.sh:52-224`
-- `scripts/tracker.sh:265-420`
 - `scripts/install-local-skills.sh:4-67`
 - `tests/helix-cli.sh:46-176`
 - `tests/helix-cli.sh:347-414`
