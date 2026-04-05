@@ -1,8 +1,18 @@
 # HELIX
 
-A supervisory autopilot for AI-assisted software delivery. Specification-first,
-test-first discipline through structured phases where tests are written before
-implementation. Humans and AI agents collaborate throughout.
+A supervisory autopilot for AI-assisted software delivery. HELIX enforces
+specification-first, test-first discipline through structured phases — framing
+the problem, designing the solution, writing failing tests, building the
+implementation, and iterating with real feedback. Humans set direction and make
+judgment calls; AI agents do the heavy lifting under HELIX's supervision.
+
+HELIX is built on [DDx](https://documentdrivendx.github.io/ddx/) (Document-Driven
+Development eXperience), a local-first platform for AI-assisted development. DDx
+provides the foundation that HELIX runs on: a document library for governing
+artifacts, a work tracker for issue management, an agent harness for dispatching
+AI models, and an execution engine for recording what happened. HELIX adds the
+methodology layer — the phases, the authority order, the bounded execution loop,
+and the skills that turn governing documents into working software.
 
 **[Documentation](https://documentdrivendx.github.io/helix/)** · **[Demo Reels](https://documentdrivendx.github.io/helix/docs/demos/)** · **[Getting Started](https://documentdrivendx.github.io/helix/docs/getting-started/)**
 
@@ -10,11 +20,20 @@ implementation. Humans and AI agents collaborate throughout.
 
 ## Install
 
+First, install [DDx](https://documentdrivendx.github.io/ddx/):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/DocumentDrivenDX/ddx/main/install.sh | bash
+```
+
+Then install HELIX:
+
 ```bash
 ddx install helix
 ```
 
-**Requirements:** [ddx](https://github.com/DocumentDrivenDX/ddx), `claude` or `codex` CLI, bash, jq, git.
+You'll also need an AI agent CLI — either `claude` (Claude Code) or `codex`
+(OpenAI Codex) — plus `bash`, `jq`, and `git`.
 
 ## Quick Start
 
@@ -140,15 +159,12 @@ issues live in `.ddx/beads.jsonl`. Run `ddx bead` to manage issues,
 - [Quality Ratchets](workflows/ratchets.md)
 - [Conventions](workflows/conventions.md)
 
-## Document-Driven Development Experience (DDx)
+## DDx Platform
 
-HELIX is the reference implementation of DDx — the tooling and methodology
-layer that keeps governing documents current and uses them to drive AI agents
-through software development.
+HELIX is built on [DDx](https://documentdrivendx.github.io/ddx/) — the
+local-first platform for AI-assisted development. DDx provides the document
+library, work tracker, agent harness, and execution engine. HELIX provides the
+methodology, phases, authority order, and supervisory skills.
 
 See [DDx Methodology](workflows/DDX.md) for the artifact graph, authority
 hierarchy, evolution model, and agent context model.
-
-Originally developed in [ddx-library](https://github.com/easel/ddx-library),
-HELIX was extracted to its own repository because it is the primary value:
-DDx is the methodology, HELIX is the machine that runs it.

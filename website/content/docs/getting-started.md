@@ -9,25 +9,36 @@ Get HELIX installed and running your first supervised build session.
 
 ## DDx and HELIX
 
-[DDx](https://github.com/DocumentDrivenDX/ddx) (Document-Driven Development
-eXperience) is the platform — it provides the document library, artifact graph,
-tracker (`ddx bead`), agent harness (`ddx agent`), and execution framework
-(`ddx exec`). HELIX is the methodology that runs on top of DDx — it defines
-the phases (Frame → Design → Test → Build → Deploy → Iterate), the authority
-order, the bounded execution loop, and the skills that drive AI agents through
-structured delivery. You install DDx first, then install HELIX as a DDx package.
+HELIX is built on [DDx](https://documentdrivendx.github.io/ddx/) (Document-Driven
+Development eXperience), a local-first platform for AI-assisted development. DDx
+provides the foundation: a **document library** for managing governing artifacts
+like specs and designs, a **work tracker** (`ddx bead`) for issue management with
+dependencies and claims, an **agent harness** (`ddx agent`) for dispatching AI
+models with token tracking, and an **execution engine** (`ddx exec`) for recording
+structured evidence of what happened.
+
+HELIX adds the methodology on top — the development phases
+(Frame → Design → Test → Build → Deploy → Iterate), the authority order that
+resolves conflicts between artifacts, the bounded execution loop that decides
+what to do next, and the skills that turn all of this into agent instructions.
+You install DDx first, then install HELIX as a DDx package.
 
 ## Install
+
+First, install DDx:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/DocumentDrivenDX/ddx/main/install.sh | bash
+```
+
+Then install HELIX:
 
 ```bash
 ddx install helix
 ```
 
-This installs the HELIX skills, CLI, and shared workflow resources via the
-[DDx](https://github.com/DocumentDrivenDX/ddx) package manager.
-
-**Requirements:** [ddx](https://github.com/DocumentDrivenDX/ddx), `claude` or
-`codex` CLI, bash, jq, git.
+You'll also need an AI agent CLI — either `claude` (Claude Code) or `codex`
+(OpenAI Codex) — plus `bash`, `jq`, and `git`.
 
 ## Initialize a Project
 
