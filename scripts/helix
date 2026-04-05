@@ -106,12 +106,24 @@ quiet=0
 summary=0
 total_tokens=0
 
-# Session log — all stderr is tee'd to this file for post-hoc inspection
+# Session log — stderr is copied to a log file for post-hoc inspection.
+# We use a background tee with explicit PID tracking so the tee process
+# is cleaned up on exit.  This prevents $() subshells (used by the test
+# harness) from hanging on an orphan tee that holds the captured pipe open.
 helix_log_dir="${target_root}/.helix-logs"
 mkdir -p "$helix_log_dir"
 helix_log="${helix_log_dir}/helix-$(date +%Y%m%d-%H%M%S).log"
 exec 3>&2
 exec 2> >(tee -a "$helix_log" >&3)
+_helix_tee_pid=$!
+_helix_cleanup() {
+  exec 2>&3 3>&-  # restore stderr, close fd 3
+  if [[ -n "${_helix_tee_pid:-}" ]]; then
+    kill "$_helix_tee_pid" 2>/dev/null
+    wait "$_helix_tee_pid" 2>/dev/null || true
+  fi
+}
+trap _helix_cleanup EXIT
 
 # Summary-mode helpers: concise output to fd 3, verbose to fd 2 (log only).
 # In normal mode both go to stderr (which tee's to log anyway).
