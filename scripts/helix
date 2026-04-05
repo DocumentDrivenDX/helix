@@ -394,8 +394,9 @@ tracker_close() {
 }
 
 # Unclaim an issue only if it is still in-progress.
-# Never unclaims a closed bead — ddx bead update --unclaim sets status=open,
-# which would revert a closed bead and cause bead-state-drift between cycles.
+# Never unclaims a closed bead — semantically wrong and kept as a guard;
+# ddx bead update --unclaim only clears claim metadata on closed beads
+# without changing their status (does not reopen them).
 safe_unclaim() {
   local issue_id="$1"
   local current_status
@@ -542,6 +543,143 @@ run_agent_prompt() {
   local prompt_bytes
   prompt_bytes="$(printf '%s' "$prompt" | wc -c)"
   local agent_timeout="${HELIX_AGENT_TIMEOUT:-2700}"
+
+  # Prefer ddx agent run for unified dispatch (token tracking, session logging,
+  # harness-agnostic interface). Fall back to direct dispatch only when ddx
+  # agent is unavailable. Set HELIX_DIRECT_AGENT=1 to skip ddx and dispatch
+  # to agent binaries directly (used by tests with mock agents).
+  if [[ "${HELIX_DIRECT_AGENT:-0}" != "1" ]] \
+     && command -v ddx &>/dev/null \
+     && ddx agent list &>/dev/null 2>&1; then
+    _run_agent_ddx "$prompt" "$model_override" "$effort_override" "$agent_timeout"
+    return $?
+  fi
+
+  # Fallback: direct agent dispatch (no ddx)
+  _run_agent_direct "$prompt" "$model_override" "$effort_override" "$agent_timeout"
+}
+
+# Extract agent text result from ddx agent run JSON output.
+# Claude: output is a JSON blob with .result field.
+# Codex: output is JSONL stream; text is in item.completed .item.text fields.
+# Other: emit output as-is.
+_extract_agent_text() {
+  local harness="$1" raw_output="$2"
+
+  case "$harness" in
+    claude)
+      # Claude output is a JSON result blob — extract .result
+      printf '%s' "$raw_output" | jq -r '.result // ""' 2>/dev/null || printf '%s' "$raw_output"
+      ;;
+    codex)
+      # Codex output is JSONL — extract text from item.completed events
+      printf '%s\n' "$raw_output" | while IFS= read -r line; do
+        local text
+        text="$(printf '%s' "$line" | jq -r 'select(.type == "item.completed") | .item.text // empty' 2>/dev/null || true)"
+        [[ -n "$text" ]] && printf '%s\n' "$text"
+      done
+      ;;
+    *)
+      printf '%s' "$raw_output"
+      ;;
+  esac
+}
+
+# Primary dispatch via ddx agent run.
+_run_agent_ddx() {
+  local prompt="$1" model_override="$2" effort_override="$3" agent_timeout="$4"
+  local prompt_bytes
+  prompt_bytes="$(printf '%s' "$prompt" | wc -c)"
+
+  local -a ddx_flags=(
+    --harness "$agent"
+    --permissions unrestricted
+    --timeout "${agent_timeout}s"
+  )
+  [[ -n "$model_override" ]] && ddx_flags+=(--model "$model_override")
+  [[ -n "$effort_override" ]] && ddx_flags+=(--effort "$effort_override")
+
+  if (( dry_run )); then
+    printf 'ddx agent run %s --text %q\n' "${ddx_flags[*]}" "$prompt"
+    return 0
+  fi
+
+  # Write prompt to temp file (avoids shell arg-length limits for large prompts)
+  local _prompt_tmp
+  _prompt_tmp="$(mktemp)"
+  printf '%s' "$prompt" > "$_prompt_tmp"
+
+  local _start_ts
+  _start_ts="$(date +%s)"
+
+  if (( ! quiet )); then
+    printf 'helix: [%s] ddx agent run --harness %s %s <prompt %s bytes> (timeout %ss)\n' \
+      "$(date +%H:%M:%S)" "$agent" "${model_override:+(model: $model_override)}" "$prompt_bytes" "$agent_timeout" >&2
+  fi
+
+  # Dispatch via ddx agent run with JSON output for metrics
+  local _agent_tmp _agent_rc=0
+  _agent_tmp="$(mktemp)"
+  ddx agent run "${ddx_flags[@]}" --json --prompt "$_prompt_tmp" > "$_agent_tmp" 2>&1 &
+  local _agent_pid=$!
+
+  # Watchdog: periodic heartbeat while ddx handles its own timeout
+  local _watchdog_elapsed=0
+  while kill -0 "$_agent_pid" 2>/dev/null; do
+    sleep 5
+    _watchdog_elapsed=$((_watchdog_elapsed + 5))
+    if (( ! quiet )) && (( _watchdog_elapsed % 60 == 0 )); then
+      printf 'helix: [%s] %s still running (%ss elapsed)\n' "$(date +%H:%M:%S)" "$agent" "$_watchdog_elapsed" >&2
+    fi
+  done
+  wait "$_agent_pid" || _agent_rc=$?
+
+  rm -f "$_prompt_tmp"
+
+  local _agent_json
+  _agent_json="$(cat "$_agent_tmp")"
+  rm -f "$_agent_tmp"
+
+  local _elapsed=$(( $(date +%s) - _start_ts ))
+
+  # Extract metrics from ddx JSON output
+  local _cycle_tokens _cost _exit_code _raw_output
+  _exit_code="$(printf '%s' "$_agent_json" | jq -r '.exit_code // 1' 2>/dev/null || echo 1)"
+  _cycle_tokens="$(printf '%s' "$_agent_json" | jq -r '(.input_tokens // 0) + (.output_tokens // 0)' 2>/dev/null || echo 0)"
+  _cost="$(printf '%s' "$_agent_json" | jq -r '.cost_usd // 0' 2>/dev/null || echo 0)"
+  _raw_output="$(printf '%s' "$_agent_json" | jq -r '.output // ""' 2>/dev/null || echo '')"
+  total_tokens=$((total_tokens + _cycle_tokens))
+
+  # Log full output for post-hoc inspection
+  local _log_start _log_end
+  _log_start="$(log_line)"
+  {
+    printf -- '--- ddx agent run [%s] harness=%s rc=%s exit=%s elapsed=%ss cost=$%s tokens=%s ---\n' \
+      "$(date +%H:%M:%S)" "$agent" "$_agent_rc" "$_exit_code" "$_elapsed" "$_cost" "$_cycle_tokens"
+    printf -- '%s\n' "$_raw_output"
+    printf -- '--- end ddx agent output ---\n'
+  } >> "$helix_log"
+  _log_end="$(log_line)"
+
+  if (( summary )); then
+    summary_line "[%s] %s complete (rc=%s, %ss, %s tokens, \$%s) — log L%s–L%s in %s" \
+      "$(date +%H:%M:%S)" "$agent" "$_exit_code" "$_elapsed" "$_cycle_tokens" "$_cost" "$_log_start" "$_log_end" "$helix_log"
+  elif (( ! quiet )); then
+    printf 'helix: [%s] %s complete (rc=%s, %ss, %s tokens, $%s, %s total)\n' \
+      "$(date +%H:%M:%S)" "$agent" "$_exit_code" "$_elapsed" "$_cycle_tokens" "$_cost" "$total_tokens" >&2
+  fi
+
+  # Emit the agent's text result to stdout for downstream parsing
+  _extract_agent_text "$agent" "$_raw_output"
+
+  return "$_exit_code"
+}
+
+# Fallback dispatch when ddx agent is not available.
+_run_agent_direct() {
+  local prompt="$1" model_override="$2" effort_override="$3" agent_timeout="$4"
+  local prompt_bytes
+  prompt_bytes="$(printf '%s' "$prompt" | wc -c)"
 
   case "$agent" in
     codex)
@@ -1579,12 +1717,19 @@ run_status() {
   local claimed
   claimed="$(tracker_list --status in_progress --json 2>/dev/null | jq -c '[.[] | {id, title}]' 2>/dev/null || echo '[]')"
 
+  # Execution history (FEAT-005)
+  local exec_history='[]'
+  if command -v ddx &>/dev/null && ddx exec history --json &>/dev/null 2>&1; then
+    exec_history="$(ddx exec history --json 2>/dev/null | jq -c 'sort_by(.started_at) | reverse | .[0:10] | [.[] | {skill: (.definition_id | ltrimstr("helix:")), artifact: (.artifact_ids | join(",")), status, started_at}]' 2>/dev/null || echo '[]')"
+  fi
+
   if (( json_flag )); then
     jq -n \
       --argjson tracker "$tracker_json" \
       --argjson run "$run_state" \
       --argjson claimed "$claimed" \
-      '{tracker: $tracker, run: $run, claimed: $claimed}'
+      --argjson recent_actions "$exec_history" \
+      '{tracker: $tracker, run: $run, claimed: $claimed, recent_actions: $recent_actions}'
   else
     printf 'HELIX Status\n'
     printf '============\n\n'
@@ -1623,6 +1768,21 @@ run_status() {
       fi
     else
       printf '\nNo run state found. Run `helix run` to generate.\n'
+    fi
+
+    # Recent execution history (FEAT-005)
+    if command -v ddx &>/dev/null && ddx exec history --json &>/dev/null 2>&1; then
+      local exec_history
+      exec_history="$(ddx exec history --json 2>/dev/null || echo '[]')"
+      local exec_count
+      exec_count="$(printf '%s' "$exec_history" | jq 'length' 2>/dev/null || echo 0)"
+      if (( exec_count > 0 )); then
+        printf '\nRecent Actions:\n'
+        printf '%s' "$exec_history" | jq -r '
+          sort_by(.started_at) | reverse | .[0:10] | .[] |
+          "  \(.started_at | split("T") | .[0]) \(.started_at | split("T") | .[1] | split(".") | .[0])  \(.definition_id | ltrimstr("helix:"))  \(.status)  \(.artifact_ids | join(","))"
+        ' 2>/dev/null
+      fi
     fi
   fi
 }
