@@ -2367,8 +2367,37 @@ test_tracker_unclaim_clears_metadata() {
   rm -rf "$root"
 }
 
+test_tracker_unclaim_closed_bead() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+
+  # Claim, close, then unclaim
+  run_bead "$root" update hx-mock-0 --claim >/dev/null
+  run_bead "$root" close hx-mock-0 >/dev/null
+
+  local before_status
+  before_status="$(run_bead "$root" show hx-mock-0 --json | jq -r '.status')"
+  assert_eq "closed" "$before_status" "bead should be closed before unclaim"
+
+  # Unclaim a closed bead — current behavior: succeeds and reopens the bead
+  run_bead "$root" update hx-mock-0 --unclaim >/dev/null
+
+  local issue_json status claimed_at claimed_pid
+  issue_json="$(run_bead "$root" show hx-mock-0 --json)"
+  status="$(printf '%s' "$issue_json" | jq -r '.status')"
+  claimed_at="$(printf '%s' "$issue_json" | jq -r '.["claimed-at"] // "null"')"
+  claimed_pid="$(printf '%s' "$issue_json" | jq -r '.["claimed-pid"] // "null"')"
+
+  assert_eq "open" "$status" "unclaim on closed bead should reopen it"
+  assert_eq "null" "$claimed_at" "unclaim on closed bead should clear claimed-at"
+  assert_eq "null" "$claimed_pid" "unclaim on closed bead should clear claimed-pid"
+  rm -rf "$root"
+}
+
 run_test "tracker claim records metadata" test_tracker_claim_records_metadata
 run_test "tracker unclaim clears metadata" test_tracker_unclaim_clears_metadata
+run_test "tracker unclaim on closed bead reopens it" test_tracker_unclaim_closed_bead
 run_test "orphan recovery reclaims stale" test_orphan_recovery_reclaims_stale
 run_test "orphan recovery skips fresh" test_orphan_recovery_skips_fresh
 run_test "BUILD loop stops after empty builds" test_build_loop_stops_after_empty_builds
