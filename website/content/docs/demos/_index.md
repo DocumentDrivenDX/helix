@@ -1,7 +1,7 @@
 ---
 title: Demos
-weight: 5
-prev: /docs/skills
+weight: 7
+prev: /docs/glossary
 ---
 
 ## HELIX Quickstart

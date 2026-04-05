@@ -2,7 +2,7 @@
 title: Skills
 weight: 4
 prev: /docs/cli
-next: /docs/demos
+next: /docs/glossary
 ---
 
 HELIX publishes agent skills that mirror the CLI commands. Skills are the

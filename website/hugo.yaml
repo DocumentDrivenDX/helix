@@ -30,6 +30,12 @@ menu:
     - name: Skills
       pageRef: /docs/skills
       weight: 4
+    - name: Glossary
+      pageRef: /docs/glossary
+      weight: 5
+    - name: Demos
+      pageRef: /docs/demos
+      weight: 6
     - name: GitHub
       url: https://github.com/easel/helix
       weight: 10
