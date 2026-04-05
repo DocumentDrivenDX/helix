@@ -33,12 +33,15 @@ Frame-phase artifacts (authority levels 1-3):
 ## Steps
 
 1. Read existing Frame-phase artifacts if they exist
-2. Read the artifact templates at `workflows/phases/00-discover/artifacts/`
-   and `workflows/phases/01-frame/artifacts/`
+2. Read the artifact templates **and** `prompt.md` guidance at
+   `workflows/phases/00-discover/artifacts/` and
+   `workflows/phases/01-frame/artifacts/`
 3. Create or update the appropriate documents using the templates
 4. Iteratively refine through multiple rounds (challenge assumptions,
    fill gaps, sharpen requirements)
-5. Create tracker issues for any Design-phase work implied by the framing
+5. Validate all blocking quality checks in `dependencies.yaml` pass before
+   committing
+6. Create tracker issues for any Design-phase work implied by the framing
 
 ## Examples
 

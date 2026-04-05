@@ -25,10 +25,13 @@ exit_gates:
     required: true
     validation:
       - Mission statement is concise and compelling
-      - Vision articulated (desired end state, not timeline)
-      - Target market clearly defined
-      - Key value propositions documented
-      - Success definition established
+      - Positioning names a specific customer segment and competitor/alternative
+      - Vision articulated (desired end state, not timeline or market position)
+      - User experience describes a concrete usage scenario
+      - Target market is specific enough to identify real people
+      - Key value propositions documented with customer benefits
+      - Success metrics have measurable outcomes
+      - Why Now cites an observable change
     evidence: docs/helix/00-discover/product-vision.md
 
   # Business Justification

@@ -427,6 +427,58 @@ tracker_export() {
   tracker_exec export "$@"
 }
 
+# ---------- DDx exec run integration (FEAT-005) ----------
+#
+# When ddx exec is available, helix CLI dispatch wraps skill invocations
+# with ddx exec run for observability. Run records persist after each
+# skill invocation.
+#
+# Recursion protection: when scripts/helix is invoked BY ddx exec run,
+# the env var HELIX_EXEC_CONTEXT=1 is set. In that case the exec wrap
+# is skipped and the skill executes directly.
+#
+# Pattern:
+#   helix build
+#     → scripts/helix main() detects exec available, HELIX_EXEC_CONTEXT unset
+#     → HELIX_EXEC_CONTEXT=1 ddx exec run helix:build
+#       → ddx exec run invokes: helix build (with HELIX_EXEC_CONTEXT=1)
+#       → scripts/helix main() sees HELIX_EXEC_CONTEXT=1 → skips exec wrap
+#       → executes run_implementation directly
+#       → ddx records the run
+#
+# All skill command arguments are preserved because ddx exec run re-invokes
+# the full helix CLI command from the exec definition.
+
+_ddx_exec_available() {
+  command -v ddx &>/dev/null || return 1
+  ddx exec list &>/dev/null 2>&1
+}
+
+# Returns 0 if we should wrap this dispatch in ddx exec run.
+_exec_wrap_enabled() {
+  local skill="$1"
+  [[ "${HELIX_EXEC_CONTEXT:-0}" == "1" ]] && return 1  # already inside exec run
+  (( dry_run )) && return 1                               # dry-run: skip
+  _ddx_exec_available || return 1                         # ddx exec not available
+  ddx exec validate "helix:${skill}" &>/dev/null 2>&1 || return 1  # definition missing
+  return 0
+}
+
+# exec_wrap <skill> <helix-args...>
+# Wraps a top-level skill dispatch with ddx exec run when available.
+# On exec wrap: re-invokes helix with HELIX_EXEC_CONTEXT=1.
+# On fallback: calls "$@" (the original function + args) directly.
+exec_wrap() {
+  local skill="$1"; shift
+  if _exec_wrap_enabled "$skill"; then
+    verbose_line "wrapping helix:%s with ddx exec run" "$skill"
+    HELIX_EXEC_CONTEXT=1 ddx exec run "helix:${skill}"
+  else
+    "$@"
+  fi
+}
+# ----------------------------------------------------------
+
 tracker_dispatch() {
   local subcmd="${1:-}"
   require_tracker
@@ -2458,27 +2510,27 @@ main() {
     frame)
       parse_common_flags "$@"
       set -- "${REMAINING_ARGS[@]}"
-      run_frame "${1:-}"
+      exec_wrap frame run_frame "${1:-}"
       ;;
     build|implement)
       parse_common_flags "$@"
       set -- "${REMAINING_ARGS[@]}"
-      run_implementation "${1:-}"
+      exec_wrap build run_implementation "${1:-}"
       ;;
     check)
       parse_common_flags "$@"
       set -- "${REMAINING_ARGS[@]}"
-      run_check "${1:-repo}"
+      exec_wrap check run_check "${1:-repo}"
       ;;
     align)
       parse_common_flags "$@"
       set -- "${REMAINING_ARGS[@]}"
-      run_alignment "${1:-repo}"
+      exec_wrap align run_alignment "${1:-repo}"
       ;;
     backfill)
       parse_common_flags "$@"
       set -- "${REMAINING_ARGS[@]}"
-      run_backfill "${1:-repo}"
+      exec_wrap backfill run_backfill "${1:-repo}"
       ;;
     design|plan)
       parse_common_flags "$@"
@@ -2490,7 +2542,7 @@ main() {
           *) break ;;
         esac
       done
-      run_plan "${1:-}" "$plan_rounds"
+      exec_wrap design run_plan "${1:-}" "$plan_rounds"
       ;;
     polish)
       parse_common_flags "$@"
@@ -2502,7 +2554,7 @@ main() {
           *) break ;;
         esac
       done
-      run_polish "${1:-}" "$polish_rounds"
+      exec_wrap polish run_polish "${1:-}" "$polish_rounds"
       ;;
     status)
       parse_common_flags "$@"
@@ -2516,7 +2568,7 @@ main() {
     review)
       parse_common_flags "$@"
       set -- "${REMAINING_ARGS[@]}"
-      run_review "${1:-last-commit}"
+      exec_wrap review run_review "${1:-last-commit}"
       ;;
     experiment)
       parse_common_flags "$@"
@@ -2528,7 +2580,7 @@ main() {
           *) break ;;
         esac
       done
-      run_experiment "${1:-}" "$experiment_close"
+      exec_wrap experiment run_experiment "${1:-}" "$experiment_close"
       ;;
     evolve)
       parse_common_flags "$@"
@@ -2542,19 +2594,19 @@ main() {
           *) break ;;
         esac
       done
-      run_evolve "${1:-}" "$evolve_scope" "$evolve_artifact" "$evolve_from"
+      exec_wrap evolve run_evolve "${1:-}" "$evolve_scope" "$evolve_artifact" "$evolve_from"
       ;;
     commit)
       parse_common_flags "$@"
       set -- "${REMAINING_ARGS[@]}"
       require_tracker
-      run_commit "${1:-}"
+      exec_wrap commit run_commit "${1:-}"
       ;;
     triage)
       parse_common_flags "$@"
       set -- "${REMAINING_ARGS[@]}"
       require_tracker
-      tracker_create "$@"
+      exec_wrap triage tracker_create "$@"
       ;;
     *)
       echo "unknown command: $command" >&2

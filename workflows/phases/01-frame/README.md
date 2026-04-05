@@ -21,9 +21,9 @@ These gates ensure the team is ready to invest in proper framing before jumping 
 ## Exit Gates
 
 Criteria that must be met before proceeding to Design phase (defined in `exit-gates.yml`):
-- **PRD approved**: All stakeholders have signed off on requirements
-- **P0 requirements specified**: Critical features have detailed specifications
-- **Success metrics measurable**: Metrics have baselines, targets, and measurement methods
+- **PRD approved**: Problem quantified, P0s testable, metrics measurable, non-goals specific, personas validatable
+- **P0 requirements specified**: Critical features have detailed, testable specifications
+- **Success metrics measurable**: Metrics have numeric targets and named measurement methods
 - **Principles established**: Technical and project constraints are documented
 - **Risks assessed**: Major risks identified with mitigation strategies
 - **Stakeholder alignment**: RACI matrix complete and communication plan established

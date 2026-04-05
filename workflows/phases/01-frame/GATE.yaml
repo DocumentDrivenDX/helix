@@ -64,6 +64,11 @@ exit_requirements:
       description: "Success metrics contain numeric targets"
 
   manual:
+    - "Problem section quantifies pain or names a specific failure mode"
+    - "Every P0 requirement is testable (someone could write an acceptance test)"
+    - "Non-goals exclude plausible scope items, not strawmen"
+    - "Personas are specific enough to validate with a real user"
+    - "Risk mitigations are concrete actions, not 'monitor'"
     - "Stakeholder sign-off on PRD obtained"
     - "Product Owner approval confirmed"
 

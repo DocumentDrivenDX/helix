@@ -7,7 +7,7 @@ artifact:
   phase: discover
 
 description: |
-  North star document defining mission, direction, target market,
+  North star document defining mission, positioning, direction, target market,
   and success criteria. First artifact in Discover phase.
 
 dependencies:
@@ -40,23 +40,38 @@ output:
 validation:
   required_sections:
     - mission_statement
+    - positioning
     - vision
+    - user_experience
     - target_market
     - value_propositions
     - success_definition
+    - why_now
 
   quality_checks:
     - check: mission_concise
       description: Mission statement under 50 words
       severity: warning
 
+    - check: positioning_specific
+      description: Positioning names a specific customer segment and a specific competitor or alternative
+      severity: blocking
+
     - check: market_specific
-      description: Target market names specific segment
+      description: Target market names specific segment, not a broad category
       severity: blocking
 
     - check: metrics_measurable
-      description: Success metrics have numeric targets
+      description: Success metrics have numeric targets or named measurement methods
       severity: blocking
+
+    - check: ux_concrete
+      description: User experience section describes a concrete scenario, not abstract benefits
+      severity: blocking
+
+    - check: why_now_grounded
+      description: Why Now cites an observable change, not a general trend
+      severity: warning
 
 workflow:
   creation_order: 1

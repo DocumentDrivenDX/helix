@@ -64,6 +64,9 @@ For each missing or outdated artifact:
 ### Product Vision
 
 Follow the template at `workflows/phases/00-discover/artifacts/product-vision/`.
+Read **both** `template.md` (structure) and `prompt.md` (section-by-section
+guidance and quality checklist) before drafting.
+
 Key sections: mission statement, positioning, vision, user experience, target
 market, value propositions, product principles, success metrics, why now,
 non-goals.
@@ -71,8 +74,12 @@ non-goals.
 ### PRD
 
 Follow the template at `workflows/phases/01-frame/artifacts/prd/`.
-Key sections: problem & goals, users & scope, requirements (P0/P1/P2),
-functional requirements, constraints & assumptions, risks, success criteria.
+Read **both** `template.md` (structure) and `prompt.md` (section-by-section
+guidance and quality checklist) before drafting.
+
+Key sections: summary, problem & goals, success metrics, non-goals, users &
+scope, requirements (P0/P1/P2), functional requirements, constraints &
+assumptions, risks, success criteria.
 
 ### Feature Specs
 
@@ -90,6 +97,52 @@ For each drafted artifact, perform 3-5 rounds of self-critique:
 4. Ensure success metrics are measurable
 5. Check that feature specs cover the PRD requirements
 6. Verify user stories have deterministic acceptance criteria
+
+### Vision-specific critique
+
+If you drafted or updated the product vision, also check:
+
+1. **Positioning**: Does the "For [target]" name a findable group of people?
+   Does "Unlike [alternative]" name something real? If either is vague, the
+   positioning isn't done.
+2. **Vision**: Does it describe an end state or just a market position? "We
+   will be the leading X" is a goal, not a vision.
+3. **User Experience**: Could someone build a prototype from this scenario? If
+   it reads like marketing copy, rewrite it as a usage walkthrough.
+4. **Target Market**: Would you know where to find these customers? If "Who"
+   is broad enough to include everyone, it's too broad.
+5. **Success Definition**: Can you name the tool or process that measures each
+   metric? If not, the metric isn't measurable yet.
+6. **Why Now**: Does it cite a specific, observable change? "AI is improving"
+   is not specific. Name what changed and when.
+
+### PRD-specific critique
+
+If you drafted or updated the PRD, also check:
+
+1. **Problem**: Does it describe a failure mode or just the absence of your
+   product? "Users don't have X" is weak. Quantify the pain.
+2. **Goals**: Are they state changes or activities? "Build a dashboard" is an
+   activity, not a goal.
+3. **Success Metrics**: Does every metric have a numeric target and a named
+   measurement method? If either is missing, the metric isn't usable.
+4. **Non-Goals**: Would someone on the team plausibly argue for including each
+   excluded item? If not, the non-goal is a strawman.
+5. **P0 Requirements**: Could someone write an acceptance test for each one?
+   If not, it's too vague to be P0.
+6. **Personas**: Are they specific enough to find a real person who matches?
+   Generic roles with generic pain points are templates, not personas.
+7. **Risks**: Does every mitigation name a concrete action? "Monitor closely"
+   is not a mitigation.
+8. **Markers**: Search for `[TBD]`, `[TODO]`, `[NEEDS CLARIFICATION]`. None
+   should remain in the committed document.
+
+### Validation gate
+
+After refinement, read `dependencies.yaml` and `prompt.md` from each artifact
+directory you touched. Verify all **blocking** quality checks pass. If any
+fail, revise the artifact before proceeding to Phase 4. Do not commit an
+artifact that fails a blocking check.
 
 ## PHASE 3.5 — Principles Bootstrap (if needed)
 
