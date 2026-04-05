@@ -8,6 +8,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     unzip \
     python3 \
     pipx \
+    nodejs \
+    npm \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Bun
@@ -18,8 +20,8 @@ ENV PATH="/root/.bun/bin:$PATH"
 RUN pipx install asciinema
 ENV PATH="/root/.local/bin:$PATH"
 
-# Install Claude Code CLI (via Bun)
-RUN bun install -g @anthropic-ai/claude-code
+# Install Claude Code CLI (via npm — Claude CLI is a Node.js tool)
+RUN npm install -g @anthropic-ai/claude-code
 
 # Git identity
 RUN git config --global user.name "HELIX Demo" \
