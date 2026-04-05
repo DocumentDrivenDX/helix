@@ -134,6 +134,9 @@ Installed agent skills mirror CLI commands exactly:
 - `helix-next` <-> `helix next`
 - `helix-review` <-> `helix review`
 - `helix-experiment` <-> `helix experiment`
+- `helix-frame` <-> `helix frame`
+- `helix-commit` <-> `helix commit`
+- `helix-worker` — background run monitor (no matching CLI subcommand)
 
 Rule: public skill names are `helix-<command>`, and `<command>` must match the
 CLI subcommand exactly.
@@ -143,13 +146,42 @@ argument such as a scope, selector, issue ID, or goal.
 
 ## HELIX CLI
 
-This repo now ships a small HELIX wrapper CLI:
+This repo ships a HELIX wrapper CLI and plugin manifest.
 
+### Primary installation (plugin mode)
+
+```bash
+claude --plugin-dir /path/to/helix
+```
+
+Plugin mode discovers all skills automatically, adds `bin/helix` to PATH,
+and resolves shared resources via `${CLAUDE_PLUGIN_ROOT}`. No manual
+installer step is needed.
+
+Key plugin files:
+- Plugin manifest: `.claude-plugin/plugin.json`
+- Plugin CLI wrapper: `bin/helix` (thin wrapper → `scripts/helix`)
+- Skills directory: `skills/` (auto-discovered by plugin loader)
+- Shared resources: `workflows/`
+
+### Development convenience (symlink install)
+
+`scripts/install-local-skills.sh` is a **development convenience** for
+contributors who need HELIX skills available outside of plugin-dir mode
+(e.g., when working in other repos). It is no longer the primary
+installation path.
+
+```bash
+bash scripts/install-local-skills.sh   # deprecated — prints a notice
+```
+
+This installs:
+- Skills into `~/.agents/skills` and `~/.claude/skills`
+- CLI launcher at `~/.local/bin/helix`
+
+Other key paths:
 - canonical project skill path: `.agents/skills`
 - script source: `scripts/helix`
-- tracker library: `scripts/tracker.sh`
-- local launcher install: `scripts/install-local-skills.sh`
-- installed command: `~/.local/bin/helix`
 - canonical user skill path: `~/.agents/skills`
 - Claude compatibility path: `~/.claude/skills`
 

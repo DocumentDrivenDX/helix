@@ -2049,42 +2049,63 @@ run_loop() {
       else
         eval "$_impl_cmd" || _impl_rc=$?
       fi
+
+      # Even when the agent exits non-zero (timeout, minor error), it may
+      # have successfully closed the issue in the tracker. Check before
+      # declaring failure — the tracker is the source of truth, not the
+      # agent exit code.
       if (( _impl_rc != 0 )); then
-        verbose_line "implementation failed during cycle %s (will not count toward completed cycles)" "$attempt_number"
-        if (( summary )); then
-          summary_line "[%s] cycle %s: FAILED" "$(date +%H:%M:%S)" "$attempt_number"
-        fi
-        # Clean up after failed implementation attempt
-        (cd "$target_root" && git checkout -- . 2>/dev/null) || true
-        # Unclaim the issue so it can be retried cleanly
-        tracker_update "$selected_issue" --unclaim 2>/dev/null || true
-        consecutive_failures=$((consecutive_failures + 1))
-        issue_attempts["$selected_issue"]=$(( prev_attempts + 1 ))
-        # Exponential backoff: skip after 4 attempts (5s + 10s + 20s + 40s = 75s total backoff)
-        if (( issue_attempts["$selected_issue"] >= 4 )); then
-          skipped_issues["$selected_issue"]=1
-          skip_reasons["$selected_issue"]="intractable after ${issue_attempts[$selected_issue]} attempts with exponential backoff"
+        local _salvage_closed
+        _salvage_closed="$(tracker_list --status closed --json | jq 'length' || echo 0)"
+        if (( _salvage_closed > closed_before )); then
+          verbose_line "agent exited %s but tracker shows progress (closed %s → %s) — counting as success" \
+            "$_impl_rc" "$closed_before" "$_salvage_closed"
           if (( summary )); then
-            summary_line "[%s] BLOCKED %s after %s attempts" "$(date +%H:%M:%S)" "$selected_issue" "${issue_attempts[$selected_issue]}"
-          else
-            printf 'helix: blocking %s after %s failed attempts\n' "$selected_issue" "${issue_attempts[$selected_issue]}" >&2
+            summary_line "[%s] cycle %s: %s → SALVAGED (agent rc=%s but issue closed)" \
+              "$(date +%H:%M:%S)" "$attempt_number" "$selected_issue" "$_impl_rc"
           fi
-          # If this was part of a focused epic, mark the epic as blocked too
-          if [[ -n "$focused_epic" ]]; then
-            local parent
-            parent="$(tracker_show "$selected_issue" --json 2>/dev/null | jq -r '.parent // ""')" || true
-            if [[ "$parent" == "$focused_epic" ]]; then
-              skipped_issues["$focused_epic"]=1
-              skip_reasons["$focused_epic"]="child $selected_issue intractable after ${issue_attempts[$selected_issue]} attempts"
-              verbose_line "blocking parent epic %s due to intractable child %s" "$focused_epic" "$selected_issue"
-              focused_epic=""
-              reset_session
+          # Update closed_before so the downstream success path sees the
+          # change and increments completed_cycles correctly.
+          closed_before="$_salvage_closed"
+          _impl_rc=0
+        else
+          verbose_line "implementation failed during cycle %s (will not count toward completed cycles)" "$attempt_number"
+          if (( summary )); then
+            summary_line "[%s] cycle %s: FAILED" "$(date +%H:%M:%S)" "$attempt_number"
+          fi
+          # Clean up after failed implementation attempt
+          (cd "$target_root" && git checkout -- . 2>/dev/null) || true
+          # Unclaim the issue so it can be retried cleanly
+          tracker_update "$selected_issue" --unclaim 2>/dev/null || true
+          consecutive_failures=$((consecutive_failures + 1))
+          issue_attempts["$selected_issue"]=$(( prev_attempts + 1 ))
+          # Exponential backoff: skip after 4 attempts (5s + 10s + 20s + 40s = 75s total backoff)
+          if (( issue_attempts["$selected_issue"] >= 4 )); then
+            skipped_issues["$selected_issue"]=1
+            skip_reasons["$selected_issue"]="intractable after ${issue_attempts[$selected_issue]} attempts with exponential backoff"
+            if (( summary )); then
+              summary_line "[%s] BLOCKED %s after %s attempts" "$(date +%H:%M:%S)" "$selected_issue" "${issue_attempts[$selected_issue]}"
+            else
+              printf 'helix: blocking %s after %s failed attempts\n' "$selected_issue" "${issue_attempts[$selected_issue]}" >&2
+            fi
+            # If this was part of a focused epic, mark the epic as blocked too
+            if [[ -n "$focused_epic" ]]; then
+              local parent
+              parent="$(tracker_show "$selected_issue" --json 2>/dev/null | jq -r '.parent // ""')" || true
+              if [[ "$parent" == "$focused_epic" ]]; then
+                skipped_issues["$focused_epic"]=1
+                skip_reasons["$focused_epic"]="child $selected_issue intractable after ${issue_attempts[$selected_issue]} attempts"
+                verbose_line "blocking parent epic %s due to intractable child %s" "$focused_epic" "$selected_issue"
+                focused_epic=""
+                reset_session
+              fi
             fi
           fi
+          sleep "${HELIX_BACKOFF_SLEEP:-5}"
+          recover_orphaned_issues
         fi
-        sleep "${HELIX_BACKOFF_SLEEP:-5}"
-        recover_orphaned_issues
-      else
+      fi
+      if (( _impl_rc == 0 )); then
         if handle_issue_queue_drift "$selected_issue" "$selected_fingerprint"; then
           skipped_issues["$selected_issue"]=1
           skip_reasons["$selected_issue"]="queue drift: upstream governance fields changed during execution"

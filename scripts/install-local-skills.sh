@@ -2,6 +2,19 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# Deprecation notice: symlink installation is a development convenience.
+# The recommended way to use HELIX is as a Claude Code plugin:
+#
+#   claude --plugin-dir "$repo_root"
+#
+# Plugin mode discovers skills automatically without manual reinstalls,
+# adds bin/helix to PATH, and works regardless of the repo's absolute path.
+# This installer continues to work for contributors who need HELIX skills
+# available outside of plugin-dir mode.
+echo "NOTICE: Symlink installation is a development convenience." >&2
+echo "        Recommended: claude --plugin-dir \"$repo_root\"" >&2
+echo "" >&2
 project_skills_dir="$repo_root/.agents/skills"
 agents_skills_dir="${AGENTS_HOME:-$HOME/.agents}/skills"
 claude_skills_dir="${CLAUDE_HOME:-$HOME/.claude}/skills"

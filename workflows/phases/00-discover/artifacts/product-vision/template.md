@@ -4,13 +4,9 @@
 
 [One to two sentences: What we do + for whom + why it matters]
 
-## 3-5 Year Vision
+## Vision
 
-| Timeframe | Position | Key Milestones |
-|-----------|----------|----------------|
-| Year 1 | [Market position] | [Key achievements] |
-| Year 3 | [Market position] | [Key achievements] |
-| Year 5 | [Market position] | [Key achievements] |
+[What does the world look like when this product succeeds? Describe the desired end state — not when it happens, but what changes for users and the market.]
 
 **North Star**: [Single sentence describing ultimate success state]
 

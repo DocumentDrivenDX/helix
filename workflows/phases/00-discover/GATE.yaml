@@ -25,7 +25,7 @@ exit_gates:
     required: true
     validation:
       - Mission statement is concise and compelling
-      - 3-5 year direction articulated
+      - Vision articulated (desired end state, not timeline)
       - Target market clearly defined
       - Key value propositions documented
       - Success definition established

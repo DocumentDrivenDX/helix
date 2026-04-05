@@ -26,6 +26,39 @@ fail() {
   exit 1
 }
 
+# ---------- Plugin layout checks ----------
+
+plugin_manifest="$repo_root/.claude-plugin/plugin.json"
+[[ -f "$plugin_manifest" ]] || fail "missing plugin manifest at .claude-plugin/plugin.json"
+
+# Validate plugin.json is parseable JSON with required fields
+if command -v python3 &>/dev/null; then
+  python3 - "$plugin_manifest" <<'PYEOF'
+import json, sys
+path = sys.argv[1]
+try:
+    manifest = json.load(open(path))
+except json.JSONDecodeError as e:
+    print(f"invalid JSON in {path}: {e}", file=sys.stderr)
+    sys.exit(1)
+required = ("name", "version", "description", "skills")
+missing = [k for k in required if not manifest.get(k)]
+if missing:
+    print(f"plugin.json missing required fields: {', '.join(missing)}", file=sys.stderr)
+    sys.exit(1)
+PYEOF
+  [[ $? -eq 0 ]] || fail "plugin.json validation failed"
+fi
+
+# Verify that workflows/ references in SKILL.md files resolve from plugin root
+while IFS= read -r wf_ref; do
+  [[ -n "$wf_ref" ]] || continue
+  wf_path="$repo_root/$wf_ref"
+  [[ -f "$wf_path" ]] || fail "a SKILL.md references $wf_ref which does not exist at $wf_path"
+done < <(grep -roh "workflows/[a-zA-Z0-9/_.-]*\.md" "$repo_root/skills"/*/SKILL.md 2>/dev/null | sort -u)
+
+# ------------------------------------------
+
 extract_frontmatter() {
   local skill_file="$1"
 

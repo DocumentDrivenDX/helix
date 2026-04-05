@@ -58,8 +58,8 @@ For each missing or outdated artifact:
 ### Product Vision
 
 Follow the template at `workflows/phases/00-discover/artifacts/product-vision/`.
-Key sections: mission statement, 3-5 year vision, target market, value
-propositions, product principles, success metrics, non-goals.
+Key sections: mission statement, vision, target market, value propositions,
+product principles, success metrics, non-goals.
 
 ### PRD
 

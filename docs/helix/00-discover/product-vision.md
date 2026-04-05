@@ -10,13 +10,13 @@ HELIX combines collaborative planning with bounded autonomous execution so
 human attention stays focused on judgment, tradeoffs, and approvals rather
 than routine orchestration.
 
-## 3-5 Year Vision
+## Vision
 
-| Timeframe | Position | Key Milestones |
-|-----------|----------|----------------|
-| Year 1 | Trusted workflow for AI-assisted delivery teams | Core workflow, tracker, CLI, and mirrored skills converge on one clear contract; `helix-run` reliably advances work without blind looping |
-| Year 3 | Default control system for spec-driven agent software delivery | HELIX coordinates requirement, design, test, implementation, review, and metric refinement with minimal human intervention |
-| Year 5 | Reference standard for bounded autonomous software execution | Multi-agent and single-agent development workflows adopt HELIX as the safe default for advancing software from intent to production |
+HELIX becomes the default control system for spec-driven agent software
+delivery: a workflow where requirements, design, test, implementation, review,
+and metric refinement advance with minimal human intervention, and where
+multi-agent and single-agent teams alike adopt HELIX as the safe default for
+carrying software from intent to production.
 
 **North Star**: A team should be able to express intent once, collaborate where judgment matters, and let HELIX carry the rest of the workflow forward safely.
 
