@@ -12,6 +12,9 @@ ui, site
 - **Browser engines**: Chromium (default), optionally Firefox and WebKit
 - **Screenshot snapshots**: Visual regression detection via `toHaveScreenshot()`
 - **Video recording**: Full test execution videos for human review
+- **Demo reel**: A dedicated slow-paced Playwright script that produces a
+  polished walkthrough video of the application for stakeholder review,
+  README embedding, or onboarding
 - **Trace files**: Playwright traces for debugging failures
 - **Test data**: Fake/seed data that exercises every meaningful UI state
 
@@ -127,6 +130,44 @@ Playwright generates:
 - `playwright-report/` — HTML report with embedded videos
 
 Both directories should be gitignored. In CI, upload as artifacts.
+
+## Demo Reel
+
+Every project with a web UI should include a Playwright demo reel script that
+produces a polished walkthrough video. This replaces manual screen recordings
+with a reproducible, scriptable demo.
+
+### Demo reel structure
+
+The demo reel is a single Playwright test file (e.g., `e2e/demo.spec.ts`) that:
+
+1. Seeds the application with comprehensive, realistic data
+2. Navigates every major page and workflow at a human-readable pace
+3. Uses `page.waitForTimeout()` between actions for viewing comfort
+4. Produces a `.webm` video in `test-results/` that can be converted to
+   `.mp4` or `.gif` for embedding
+
+### Demo reel conventions
+
+- File: `e2e/demo.spec.ts` (separate from test specs)
+- Viewport: 1280x720 (HD, suitable for embedding)
+- Pacing: 1-2 second pauses between navigations, 2-3 seconds on key screens
+- Use `test.step()` for structured logging of what each section shows
+- Narrative structure: Overview (dashboard) -> Primary workflows -> Detail views
+- Run with: `npx playwright test e2e/demo.spec.ts`
+- Output: `test-results/demo-*/video.webm`
+- The demo must run against seeded data — never against an empty state
+- Re-record the demo after major UI changes
+
+### Converting output
+
+```bash
+# WebM to MP4 (for README/docs)
+ffmpeg -i test-results/demo-*/video.webm -c:v libx264 -preset slow -crf 22 demo.mp4
+
+# WebM to GIF (for README, keep under 10MB)
+ffmpeg -i test-results/demo-*/video.webm -vf "fps=10,scale=960:-1" -loop 0 demo.gif
+```
 
 ## When to use
 
