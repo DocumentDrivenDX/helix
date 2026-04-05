@@ -75,8 +75,8 @@ issues during execution, and closes the issue at session close.
    dropped critical project rules. This step is cheap insurance against drift.
 0a. **Load active design principles** following `workflows/references/principles-resolution.md`.
    Use them to inform metric selection and experiment design decisions.
-0b. **Load active stack and practices** following `workflows/references/stack-resolution.md`.
-   Experiments must use the declared stack — do not introduce alternative tools
+0b. **Load active concerns and practices** following `workflows/references/concern-resolution.md`.
+   Experiments must use the declared concerns — do not introduce alternative tools
    or frameworks as part of an optimization experiment.
 1. Verify the built-in tracker is available.
    - If `ddx bead status` fails, stop immediately.

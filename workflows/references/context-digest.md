@@ -3,7 +3,7 @@ dun:
   id: helix.workflow.context-digest
   depends_on:
     - helix.workflow.principles-resolution
-    - helix.workflow.stack-resolution
+    - helix.workflow.concern-resolution
     - FEAT-006
 ---
 # Context Digest Assembly
@@ -34,8 +34,8 @@ summarizes all cross-cutting concerns and governing context into
    `workflows/references/principles-resolution.md`. Include the full list
    as a compact single line (separator: ` · `).
 
-2. **Stack**: Load active stack per
-   `workflows/references/stack-resolution.md`. Summarize selected
+2. **Stack**: Load active concerns per
+   `workflows/references/concern-resolution.md`. Summarize selected
    components as `name | name | name`.
 
 3. **Practices**: Load merged practices (library + project overrides).
@@ -64,7 +64,7 @@ summarizes all cross-cutting concerns and governing context into
 ```xml
 <context-digest>
 <principles>Principle 1 · Principle 2 · Principle 3</principles>
-<stack>Component 1 | Component 2 | Component 3</stack>
+<concerns>Component 1 | Component 2 | Component 3</concerns>
 <practices>Practice 1 · Practice 2 · Practice 3</practices>
 <adrs>ADR-NNN decision summary · ADR-NNN decision summary</adrs>
 <governing>FEAT-NNN §X.Y — key requirement or constraint</governing>
@@ -72,7 +72,7 @@ summarizes all cross-cutting concerns and governing context into
 ```
 
 Each XML element is optional — omit it if there is no relevant content
-(e.g., omit `<adrs>` if no ADRs are relevant, omit `<stack>` if no
+(e.g., omit `<adrs>` if no ADRs are relevant, omit `<concerns>` if no
 stack is declared).
 
 ## Token Budget
@@ -102,7 +102,7 @@ When `helix polish` encounters a bead with an existing
    - Add a note to the bead: "Context digest refreshed: [what changed]".
 4. If no changes: leave the digest untouched.
 
-Material changes include: principle added/removed, stack changed,
+Material changes include: principle added/removed, concern changed,
 practice overridden, ADR superseded, governing spec amended.
 
 ## Reading the Digest at Build Time

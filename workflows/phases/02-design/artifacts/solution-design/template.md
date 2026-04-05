@@ -86,15 +86,15 @@ graph TD
 ### Gaps
 - [ ] [Requirement not fully addressed]: [Mitigation]
 
-## Stack Alignment
+## Concern Alignment
 
-If the project has an active stack (`docs/helix/01-frame/stack.md`), confirm
+If the project has an active concerns (`docs/helix/01-frame/concerns.md`), confirm
 this design is consistent with it:
 
-- **Stack components used**: [Which stack selections does this design rely on?]
-- **Stack constraints honored**: [Any stack constraints that shaped this design?]
+- **Concern components used**: [Which stack selections does this design rely on?]
+- **Concern constraints honored**: [Any stack constraints that shaped this design?]
 - **ADRs referenced**: [Stack-related ADRs that govern design choices here]
-- **Departures**: [Any design choices that depart from stack practices? If so,
+- **Departures**: [Any design choices that depart from concern practices? If so,
   an ADR should justify the departure.]
 
 ## Constraints & Assumptions

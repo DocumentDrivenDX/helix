@@ -47,9 +47,9 @@ when they exist.
    dropped critical project rules. This step is cheap insurance against drift.
 0a. **Load active design principles** following `workflows/references/principles-resolution.md`.
    These principles guide architectural and design judgment throughout the plan.
-0b. **Load active stack and practices** following `workflows/references/stack-resolution.md`.
+0b. **Load active concerns and practices** following `workflows/references/concern-resolution.md`.
    The stack constrains architecture decisions — design within the declared
-   technology selections. Reference ADRs that justify stack choices when the
+   technology selections. Reference ADRs that justify concern choices when the
    design depends on them.
 1. Read all existing planning artifacts for the scope:
    - product vision, PRD, feature specs, user stories

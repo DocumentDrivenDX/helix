@@ -29,9 +29,9 @@ Examples:
    dropped critical project rules. This step is cheap insurance against drift.
 0a. **Load active design principles** following `workflows/references/principles-resolution.md`.
    Apply them as review criteria — flag changes that violate the active principles.
-0b. **Load active stack and practices** following `workflows/references/stack-resolution.md`.
+0b. **Load active concerns and practices** following `workflows/references/concern-resolution.md`.
    Flag implementation that uses tools or conventions inconsistent with the
-   declared stack (e.g., wrong test framework, wrong formatter, wrong import style).
+   declared concerns (e.g., wrong test framework, wrong formatter, wrong import style).
 0c. **Read the bead's context digest** if the reviewed issue has one.
    Use it as the authoritative summary of what principles, stack, practices,
    and ADRs govern this work.

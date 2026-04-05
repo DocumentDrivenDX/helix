@@ -81,10 +81,10 @@ HELIX labels appropriate to the work phase.
 0a. **Load active design principles** following `workflows/references/principles-resolution.md`.
    Use them as alignment criteria — flag artifacts whose design choices deviate
    from the active principles.
-0b. **Load active stack and practices** following `workflows/references/stack-resolution.md`.
+0b. **Load active concerns and practices** following `workflows/references/concern-resolution.md`.
    Stack drift is an alignment concern — flag implementation that uses tools or
-   conventions inconsistent with the declared stack. Flag ADRs that contradict
-   current stack selections.
+   conventions inconsistent with the declared concerns. Flag ADRs that contradict
+   current concern selections.
 0c. **Verify context digest freshness**: For beads in scope, check whether
    `<context-digest>` blocks reflect current upstream state. Stale digests are
    an alignment finding.

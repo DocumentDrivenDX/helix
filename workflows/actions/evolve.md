@@ -42,8 +42,8 @@ update a lower-authority artifact in a way that contradicts a higher one.
    Use these as scoping guidance when evaluating which artifacts need updates
    and how to resolve judgment calls. Note: `helix evolve` reads principles
    but never modifies the principles file — only `helix frame` may write it.
-0a. **Load active stack and practices** following `workflows/references/stack-resolution.md`.
-   Stack context affects the scope of downstream changes — a requirement that
+0a. **Load active concerns and practices** following `workflows/references/concern-resolution.md`.
+   Concern context affects the scope of downstream changes — a requirement that
    implies a technology change may need an ADR before implementation.
 0b. **Context digest**: When `helix evolve` creates or modifies beads, it must
    assemble a context digest per `workflows/references/context-digest.md` and

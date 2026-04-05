@@ -63,7 +63,7 @@ Additional labels to include when applicable:
 
 5. **Assemble context digest.** Follow
    `workflows/references/context-digest.md` to build a compact summary of
-   active principles, stack, practices, relevant ADRs, and governing spec
+   active principles, concerns, practices, relevant ADRs, and governing spec
    context. Prepend the `<context-digest>` XML block to the description so
    the implementing agent can work from the bead alone.
 
@@ -76,7 +76,7 @@ ddx bead create "Implement X" \
   --spec-id SD-017 \
   --description "<context-digest>
 <principles>Design for simplicity · Tests first · Fake data</principles>
-<stack>TypeScript strict + Bun | Postgres 16</stack>
+<concerns>typescript-bun | postgres</concerns>
 <practices>ESLint strict · Biome · bun:test</practices>
 <adrs>ADR-050 event sourcing for audit</adrs>
 <governing>SD-017 §3.2 — Y component must handle partial writes</governing>

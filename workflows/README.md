@@ -253,27 +253,29 @@ action prompt:
 | Layer | Reference | Project File | Fallback |
 |-------|-----------|-------------|----------|
 | **Principles** | `references/principles-resolution.md` | `docs/helix/01-frame/principles.md` | `workflows/principles.md` (defaults) |
-| **Stacks & Practices** | `references/stack-resolution.md` | `docs/helix/01-frame/stack.md` | None (no default stack) |
+| **Concerns & Practices** | `references/concern-resolution.md` | `docs/helix/01-frame/concerns.md` | None (no defaults) |
 | **Context Digest** | `references/context-digest.md` | Assembled into bead descriptions | Fall back to upstream reads |
 
 **Principles** are values that guide judgment (design + engineering). They
 apply universally — "design for simplicity", "tests first", "local-first UX".
 
-**Stacks** are composable technology selections from a library
-(`workflows/stacks/`). Projects select stacks and override practices in their
-stack file. Each stack ships associated **practices** — conventions that follow
-from the technology choices.
+**Concerns** are composable cross-cutting declarations from a library
+(`workflows/concerns/`). They cover tech stacks (typescript-bun, rust-cargo),
+quality attributes (a11y-wcag-aa, o11y-otel), and conventions (i18n-icu).
+Each concern declares which **areas** it applies to, so a UI bead gets a11y
+practices but a database migration bead does not. Each concern ships
+associated **practices** — conventions that follow from the declaration.
 
 **Context digests** are compact ~1000-1500 token summaries assembled into beads
-at triage/polish time. They include active principles, stack, practices,
-relevant ADRs, and governing spec context — making beads self-contained
-execution units that rarely require upstream file reads.
+at triage/polish time. They include active principles, area-matched concerns,
+practices, relevant ADRs, and governing spec context — making beads
+self-contained execution units that rarely require upstream file reads.
 
-Stacks interact with spikes, ADRs, and POCs:
-- Spikes/POCs investigate technology questions
-- ADRs record decisions with rationale
-- Stack selections reference the governing ADRs
-- Context digests carry the ADR rationale into implementation beads
+Concerns form a knowledge chain with other design artifacts:
+- Spikes/POCs gather evidence about technology or approach questions
+- ADRs record decisions with rationale, citing spike evidence
+- Concerns index the decisions for context assembly, referencing ADRs
+- Context digests carry the concern practices + ADR rationale into beads
 
 ## Human-AI Collaboration
 

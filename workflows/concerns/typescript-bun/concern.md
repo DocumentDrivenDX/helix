@@ -1,4 +1,10 @@
-# Stack: TypeScript + Bun
+# Concern: TypeScript + Bun
+
+## Category
+tech-stack
+
+## Areas
+all
 
 ## Components
 
@@ -18,3 +24,5 @@
 Projects that need fast startup, built-in test runner, and TypeScript-first
 tooling. Good for APIs, CLI tools, and web services where Bun's runtime
 performance and built-in bundler are advantages.
+
+## ADR References

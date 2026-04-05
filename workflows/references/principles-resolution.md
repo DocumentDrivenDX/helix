@@ -38,7 +38,7 @@ Principles are one of three cross-cutting concerns injected into HELIX
 action prompts:
 
 - **Principles** (this document) — values that guide judgment
-- **Stacks and Practices** (`workflows/references/stack-resolution.md`) —
+- **Concerns and Practices** (`workflows/references/concern-resolution.md`) —
   technology selections and conventions
 - **Context Digest** (`workflows/references/context-digest.md`) — compact
   summary assembled into beads at triage/polish time

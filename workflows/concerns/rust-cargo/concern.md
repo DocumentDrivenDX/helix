@@ -1,4 +1,10 @@
-# Stack: Rust + Cargo
+# Concern: Rust + Cargo
+
+## Category
+tech-stack
+
+## Areas
+all
 
 ## Components
 
@@ -16,3 +22,5 @@
 
 Performance-critical systems, CLI tools, infrastructure software, and
 projects where memory safety and zero-cost abstractions matter.
+
+## ADR References

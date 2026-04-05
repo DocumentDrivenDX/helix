@@ -1,4 +1,10 @@
-# Stack: Python + uv
+# Concern: Python + uv
+
+## Category
+tech-stack
+
+## Areas
+all
 
 ## Components
 
@@ -17,3 +23,5 @@
 Python projects that benefit from fast dependency resolution and
 reproducible environments. Good for data services, APIs, ML pipelines,
 and CLI tools.
+
+## ADR References
