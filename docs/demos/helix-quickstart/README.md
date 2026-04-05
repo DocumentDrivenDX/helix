@@ -2,12 +2,13 @@
 
 A scripted demonstration of the full HELIX lifecycle: install → frame → design → build → review.
 
-Builds a tiny Node.js temperature converter from scratch, driven entirely by HELIX artifacts and the tracker.
+Builds a tiny Node.js temperature converter from scratch, driven entirely by HELIX artifacts and the tracker. Uses `ddx agent run` as the agent harness.
 
 ## Prerequisites
 
 - Docker
-- Claude Code credentials (`~/.claude/`)
+- Claude Code credentials (`~/.claude/`, `~/.claude.json`)
+- DDx binary (mounted or in PATH)
 
 ## Run
 
@@ -22,29 +23,19 @@ docker run --rm \
   -v ~/.claude.json:/root/.claude.json:ro \
   -v ~/.claude:/root/.claude \
   -v $(pwd):/helix:ro \
+  -v $(pwd)/../ddx/ddx:/usr/local/bin/ddx:ro \
   -v $(pwd)/docs/demos/helix-quickstart/recordings:/recordings \
   helix-demo
 
-# Run without recording (Docker)
-docker run --rm \
-  -v ~/.claude.json:/root/.claude.json:ro \
-  -v ~/.claude:/root/.claude \
-  -v $(pwd):/helix:ro \
-  -e HELIX_DEMO_RECORDING=1 \
-  helix-demo
-
-# Run locally (no Docker) — fastest, uses your existing claude auth
-cd /tmp && bash path/to/helix/docs/demos/helix-quickstart/demo.sh
+# Run locally (no Docker) — uses your existing tools
+cd /tmp && bash /path/to/helix/docs/demos/helix-quickstart/demo.sh
 ```
-
-**Note:** Docker runs need `~/.claude.json` (auth token) AND `~/.claude/`
-(writable, for session state). The local run uses your existing setup.
 
 ## What It Does
 
 | Act | Phase | What Happens |
 |-----|-------|-------------|
-| 1 | Install | Install HELIX skills and CLI from the repo |
+| 1 | Install | Install HELIX skills and CLI, verify ddx agent harness |
 | 2 | Setup | Initialize git repo, tracker, and AGENTS.md |
 | 3 | Frame | Agent creates product vision, PRD, and feature spec |
 | 4 | Design | Agent creates technical design, then tracker issues |
@@ -67,4 +58,4 @@ cd /tmp
 bash /path/to/helix/docs/demos/helix-quickstart/demo.sh
 ```
 
-Requires: git, jq, node, npm, claude CLI, helix CLI.
+Requires: git, jq, node, npm, ddx, helix CLI.

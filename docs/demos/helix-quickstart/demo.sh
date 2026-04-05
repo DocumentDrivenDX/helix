@@ -1,20 +1,22 @@
 #!/usr/bin/env bash
 # HELIX Quickstart Demo — scripted asciinema recording
 #
-# Demonstrates the full HELIX lifecycle on a tiny Node.js project:
-#   1. Install: install helix skills and CLI
-#   2. Frame: create product vision and PRD using helix frame
-#   3. Design: create solution design using helix design
-#   4. Build: write tests (Red), implement (Green) using helix build
-#   5. Review: cross-model fresh-eyes review
-#   6. Iterate: triage gaps and create follow-up issues
+# Demonstrates the full HELIX onboarding experience:
+#   1. Install: install HELIX as a plugin
+#   2. Setup: initialize a new project with DDx tracker
+#   3. Frame: create product vision, PRD, and feature spec
+#   4. Design: create technical design and tracker issues
+#   5. Build: TDD cycle — write failing tests (Red), implement (Green)
+#   6. Verify: run tests, check acceptance criteria
+#   7. Review: fresh-eyes review of the work
 #
-# Every artifact is created by the agent. The tracker drives the work.
+# Uses `ddx agent run` as the agent harness.
 #
 # Usage:
 #   docker build -t helix-demo docs/demos/helix-quickstart/
 #   docker run --rm \
-#     -v ~/.claude:/root/.claude:ro \
+#     -v ~/.claude.json:/root/.claude.json:ro \
+#     -v ~/.claude:/root/.claude \
 #     -v $(pwd):/helix:ro \
 #     -v $(pwd)/docs/demos/helix-quickstart/recordings:/recordings \
 #     helix-demo
@@ -23,7 +25,8 @@ set -euo pipefail
 
 RECORDING_FILE="/recordings/helix-quickstart-$(date +%Y%m%d-%H%M%S).cast"
 MAX_RETRIES=3
-COOLDOWN=5
+COOLDOWN=3
+
 # Auto-detect helix repo: Docker mount at /helix, or relative to this script
 if [[ -d /helix/workflows ]]; then
   HELIX_ROOT="/helix"
@@ -33,7 +36,20 @@ else
   echo "FAIL: cannot find helix repo — set HELIX_ROOT or mount at /helix" >&2
   exit 1
 fi
-HELIX_LIBRARY_ROOT="${HELIX_LIBRARY_ROOT:-$HELIX_ROOT}"
+
+# Ensure ddx is available
+if ! command -v ddx >/dev/null 2>&1; then
+  if [[ -x /ddx/ddx ]]; then
+    export PATH="/ddx:$PATH"
+  elif [[ -x "$HELIX_ROOT/../ddx/ddx" ]]; then
+    export PATH="$HELIX_ROOT/../ddx:$PATH"
+  else
+    echo "FAIL: ddx not found — mount ddx binary or install it" >&2
+    exit 1
+  fi
+fi
+
+# ── Display helpers ───────────────────────────────────────────
 
 narrate() {
   echo ""
@@ -61,8 +77,8 @@ show_file() {
   sleep 2
 }
 
-# Run claude -p with prompt visible and retries
-claude_run() {
+# Run ddx agent with prompt visible and retries
+agent_run() {
   local prompt=""
   if [[ $# -gt 0 ]]; then
     prompt="$*"
@@ -70,15 +86,15 @@ claude_run() {
     prompt="$(cat)"
   fi
 
-  echo '$ claude -p "'"${prompt:0:80}"'..."'
+  echo '$ ddx agent run --text "'"${prompt:0:80}"'..."'
   echo ""
 
   local attempt output
   for attempt in $(seq 1 "$MAX_RETRIES"); do
-    output=$(printf '%s' "$prompt" | claude -p \
-      --permission-mode bypassPermissions \
-      --dangerously-skip-permissions \
-      --no-session-persistence 2>/dev/null) || true
+    output=$(ddx agent run \
+      --harness claude \
+      --permissions unrestricted \
+      --text "$prompt" 2>/dev/null) || true
 
     if [[ -n "$output" && "$output" != "Execution error" ]]; then
       break
@@ -119,22 +135,31 @@ assert_output() {
   fi
 }
 
+# ── Demo body ─────────────────────────────────────────────────
+
 demo_body() {
   # ── ACT 1: Install HELIX ──────────────────────────────────
   narrate "ACT 1: Install HELIX"
 
-  echo "Installing HELIX from $HELIX_ROOT..."
+  echo "HELIX repo: $HELIX_ROOT"
+  echo ""
+
+  echo "Installing HELIX skills..."
   export HELIX_LIBRARY_ROOT="$HELIX_ROOT/workflows"
   bash "$HELIX_ROOT/scripts/install-local-skills.sh" 2>&1
   echo ""
 
   echo "Available skills:"
-  ls ~/.agents/skills/ | tr '\n' ' '
+  ls ~/.agents/skills/ 2>/dev/null | tr '\n' ' '
   echo ""
   echo ""
 
-  echo "Available commands:"
+  echo "HELIX CLI:"
   run helix help
+  sleep 2
+
+  echo "DDx agent harness:"
+  run ddx agent list
   sleep 2
 
   # ── ACT 2: Start a new project ─────────────────────────────
@@ -144,7 +169,7 @@ demo_body() {
   cd hello-helix
   run ddx bead init
 
-  # Copy skills into project
+  # Set up project for agent access
   mkdir -p .agents .claude
   cp -rf ~/.agents/skills .agents/
   cat > .claude/settings.json <<'SETTINGS'
@@ -186,7 +211,7 @@ AGENTS
   # ── ACT 3: Frame — Vision and PRD ──────────────────────────
   narrate "ACT 3: Frame — Define What to Build"
 
-  claude_run <<'FRAME_PROMPT'
+  agent_run <<'FRAME_PROMPT'
 Create the Frame-phase artifacts for "hello-helix", a Node.js CLI temperature converter.
 
 1. Write docs/helix/00-discover/product-vision.md:
@@ -221,7 +246,7 @@ FRAME_PROMPT
   # ── ACT 4: Design — Technical Design ───────────────────────
   narrate "ACT 4: Design — How to Build It"
 
-  claude_run <<'DESIGN_PROMPT'
+  agent_run <<'DESIGN_PROMPT'
 Create the Design-phase artifact for hello-helix.
 
 Write docs/helix/02-design/technical-designs/TD-001-temperature-conversion.md:
@@ -255,7 +280,7 @@ DESIGN_PROMPT
   narrate "ACT 5: Build — Tests First, Then Code"
 
   echo "▶ Writing failing tests (Red phase)..."
-  claude_run <<'RED_PROMPT'
+  agent_run <<'RED_PROMPT'
 Write failing tests for hello-helix per FEAT-001 and TD-001.
 
 1. Create package.json with {"name":"hello-helix","version":"0.1.0","scripts":{"test":"node --test"}}
@@ -282,7 +307,7 @@ RED_PROMPT
 
   echo ""
   echo "▶ Implementing to pass tests (Green phase)..."
-  claude_run <<'GREEN_PROMPT'
+  agent_run <<'GREEN_PROMPT'
 Implement bin/convert.js per TD-001 to make all tests pass.
 
 1. Export toFahrenheit(c) and toCelsius(f)
@@ -324,10 +349,10 @@ GREEN_PROMPT
   # ── ACT 7: Review ──────────────────────────────────────────
   narrate "ACT 7: Review"
 
-  claude_run "Review all artifacts and code in this project for errors, omissions, and quality issues. Check docs/helix/ specs against tests and implementation. Are acceptance criteria covered? What's missing? Be concise — bullet points."
+  agent_run "Review all artifacts and code in this project for errors, omissions, and quality issues. Check docs/helix/ specs against tests and implementation. Are acceptance criteria covered? What's missing? Be concise — bullet points."
   sleep 2
 
-  # ── ACT 8: Summary ─────────────────────────────────────────
+  # ── Summary ─────────────────────────────────────────────────
   narrate "Demo Complete!"
 
   echo "Tracker status:"
@@ -337,12 +362,13 @@ GREEN_PROMPT
 
   echo ""
   echo "What you just saw:"
-  echo "  1. Install: helix skills and CLI set up in seconds"
-  echo "  2. Frame: vision, PRD, and feature spec created"
-  echo "  3. Design: technical design, then tracker issues for build"
-  echo "  4. Build: failing tests first (Red), then implementation (Green)"
-  echo "  5. Verify: tests pass, acceptance criteria checked"
-  echo "  6. Review: agent reviews its own work for gaps"
+  echo "  1. Install   — HELIX skills and CLI set up"
+  echo "  2. Setup     — git repo, tracker, AGENTS.md"
+  echo "  3. Frame     — vision, PRD, feature spec created by agent"
+  echo "  4. Design    — technical design and tracker issues"
+  echo "  5. Build     — TDD: failing tests (Red) then implementation (Green)"
+  echo "  6. Verify    — tests pass, acceptance criteria checked"
+  echo "  7. Review    — agent reviews its own work"
   echo ""
   echo "The HELIX lifecycle: Frame → Design → Test → Build → Review"
   echo "The tracker drives. Artifacts govern. Agents execute."
