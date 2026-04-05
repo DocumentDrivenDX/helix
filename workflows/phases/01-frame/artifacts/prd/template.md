@@ -6,8 +6,11 @@ dun:
 
 ## Summary
 
-[2-3 sentences: What we're building, who uses it, and why it matters. Write
-this last — it should be a distillation, not an introduction.]
+[This section should work as a standalone 1-pager. Include: what we're
+building, who uses it, what problem it solves, the solution approach, and the
+top 2-3 success metrics. Write this last — it should be a distillation of the
+full PRD, not an introduction. Someone who reads only this section should
+understand the product well enough to decide whether to read the rest.]
 
 ## Problem and Goals
 
@@ -67,6 +70,30 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
 requirement should be testable — someone reading it should know how to verify
 whether it's satisfied.]
 
+## Acceptance Test Sketches
+
+[For each P0 requirement, describe a concrete scenario with inputs and
+expected outputs. These aren't full test cases — they're the minimum needed
+for an implementer (human or agent) to verify the requirement is met.]
+
+| Requirement | Scenario | Input | Expected Output |
+|-------------|----------|-------|-----------------|
+| [P0 requirement] | [What the user does] | [Specific input or state] | [Observable result] |
+
+## Technical Context
+
+[Stack, key dependencies with versions, API schemas, and platform targets.
+Be specific enough that an implementer knows what to install and what
+interfaces to code against. This section records current stack decisions — it
+does not make them. Stack selection rationale belongs in ADRs. If a choice
+here isn't backed by an ADR yet, note it in Open Questions.]
+
+- **Language/Runtime**: [e.g., TypeScript 5.x, Node 20+]
+- **Key Libraries**: [e.g., React 18, Tailwind CSS 4]
+- **Data/Storage**: [e.g., PostgreSQL 16, Redis 7]
+- **APIs**: [e.g., OpenAPI spec at docs/api/v2.yaml]
+- **Platform Targets**: [e.g., Linux, macOS; browser: Chrome/Firefox/Safari latest]
+
 ## Constraints, Assumptions, Dependencies
 
 ### Constraints
@@ -88,6 +115,14 @@ whether it's satisfied.]
 | Risk | Probability | Impact | Mitigation |
 |------|-------------|--------|------------|
 | [Risk] | High/Med/Low | High/Med/Low | [Concrete strategy, not "monitor"] |
+
+## Open Questions
+
+[Unresolved items that need answers before or during implementation. Each
+should name who can answer it and what's blocked by it. Prefer explicit
+questions here over `[TBD]` markers scattered through the document.]
+
+- [ ] [Question] — blocks [what], ask [who]
 
 ## Success Criteria
 

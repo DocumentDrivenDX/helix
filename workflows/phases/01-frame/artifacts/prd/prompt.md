@@ -30,9 +30,12 @@ should trace back to a PRD requirement.
 ## Section-by-Section Guidance
 
 ### Summary
-Write this last. It should be a distillation of the PRD, not an introduction.
-Test: could someone read only this section and know what the product does, who
-it's for, and why it exists?
+Write this last. This section must work as a **standalone 1-pager**: what
+we're building, who uses it, the problem, the solution approach, and the top
+2-3 success metrics. Someone who reads only this section should understand the
+product well enough to decide whether to invest time in the full PRD. Test:
+could a new team member read this alone and explain the product to someone
+else?
 
 ### Problem
 Describe the failure mode, not the absence of your solution. "Users don't have
@@ -71,6 +74,27 @@ These are the detailed behavioral specs. Each one should be testable — someone
 reading it should know how to write an acceptance test. Organize by subsystem
 or user flow, not by priority.
 
+### Acceptance Test Sketches
+For each P0 requirement, write a concrete scenario: what the user does, what
+input they provide, and what observable result they see. These aren't full test
+cases — they're the minimum an implementer (human or agent) needs to verify
+the requirement is met. An AI agent should be able to read a sketch and write
+a passing test without asking clarifying questions.
+
+### Technical Context
+Name the stack, key dependencies with versions, API schemas, and platform
+targets. Be specific enough that an implementer knows what to install and what
+interfaces to code against. "React" is not enough — "React 18 with TypeScript
+5.x and Vite 6" is. If there's an API schema (OpenAPI, GraphQL SDL), point to
+it. This section exists because AI agents need concrete dependency and
+interface information to produce correct implementations.
+
+**Important**: This section records stack decisions — it does not make them.
+Stack selection rationale belongs in ADRs (Architecture Decision Records). If
+you're documenting a choice that doesn't have an ADR yet, note it in Open
+Questions. If an existing ADR contradicts what you'd write here, the ADR
+governs until it's superseded.
+
 ### Constraints
 Name real constraints, not aspirational ones. "Must work on mobile" is a
 constraint only if you'd otherwise skip it. Budget, compliance, and platform
@@ -83,6 +107,13 @@ so the team knows what to watch.
 ### Risks
 Each risk needs a concrete mitigation, not "monitor closely." If the
 mitigation is monitoring, say what you'll monitor and what triggers action.
+
+### Open Questions
+List unresolved items explicitly rather than leaving `[TBD]` markers
+scattered through the document. Each question should name who can answer it
+and what's blocked by it. This section is honest about what you don't know
+yet — it's better to have a clear list of unknowns than a document that
+pretends to be complete.
 
 ### Success Criteria
 These are the acceptance criteria for the entire initiative. They should be
@@ -98,16 +129,19 @@ committing.
 
 - [ ] Problem section quantifies the pain or names a specific failure mode
 - [ ] Every P0 requirement is testable (someone could write an acceptance test)
+- [ ] Every P0 has an acceptance test sketch with inputs and expected outputs
 - [ ] Success metrics have numeric targets and named measurement methods
-- [ ] No `[TBD]`, `[TODO]`, or `[NEEDS CLARIFICATION]` markers remain
+- [ ] No `[TBD]`, `[TODO]`, or `[NEEDS CLARIFICATION]` markers in any section except Open Questions
 - [ ] Non-goals exclude something a reasonable person might assume is in scope
 - [ ] Personas are specific enough to validate with a real user
 
 ### Warning
 
-- [ ] Summary could stand alone as a product description
+- [ ] Summary works as a standalone 1-pager (problem, solution, metrics)
 - [ ] Goals describe state changes, not activities
 - [ ] Risk mitigations are concrete actions, not "monitor"
 - [ ] P0 requirements number 7 or fewer
 - [ ] Assumptions are falsifiable
 - [ ] Functional requirements are organized by subsystem or flow, not priority
+- [ ] Technical Context names specific versions, not just library names
+- [ ] Open Questions name who can answer and what's blocked

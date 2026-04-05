@@ -4,45 +4,68 @@ dun:
   depends_on:
     - FEAT-XXX
 ---
-# User Stories for [FEAT-XXX] - [Feature Name]
+# US-XXX: [Story Title]
 
-**Feature**: FEAT-XXX
+**Feature**: [FEAT-XXX — Feature Name]
+**Priority**: [P0 | P1 | P2]
 **Status**: [Draft | Review | Approved]
 
-## Primary User Stories
+## Story
 
-### US-XXX: [STORY_TITLE] [FEAT-XXX]
-**Priority**: [P0 | P1 | P2]
+**As a** [specific user type from PRD personas]
+**I want** [specific functionality — what the user does, not what the system does]
+**So that** [measurable business value or user outcome]
 
-**As a** [USER_TYPE]
-**I want** [SPECIFIC_FUNCTIONALITY]
-**So that** [BUSINESS_VALUE]
+## Context
 
-**Acceptance Criteria:**
-- [ ] Given [context], when [action], then [outcome]
-- [ ] Given [context], when [action], then [outcome]
+[Why this story matters. What's the user's situation before this works? What
+problem are they hitting? This should be 2-4 sentences that give an
+implementer enough background to make judgment calls without asking.]
 
-**Definition of Done:**
-- [ ] Implemented and code reviewed
-- [ ] Tests passing (unit, integration)
-- [ ] Documentation updated
-- [ ] Acceptance criteria verified
+## Walkthrough
 
----
+[Step-by-step description of the user's journey through this slice. Write in
+present tense. Name concrete actions and system responses. This is the
+vertical slice — it should cover one complete path from trigger to outcome.]
 
-## Story Prioritization
+1. User [action]
+2. System [response]
+3. User [action]
+4. System [response — the outcome]
 
-### Must Have (P0)
-- [ ] US-XXX: [Title] [FEAT-XXX]
+## Acceptance Criteria
 
-### Should Have (P1)
-- [ ] US-XXX: [Title] [FEAT-XXX]
+[Each criterion must be testable. Use Given/When/Then format. An implementer
+should be able to write a passing test from each criterion alone.]
 
-### Nice to Have (P2)
-- [ ] US-XXX: [Title] [FEAT-XXX]
+- [ ] Given [specific precondition], when [specific action], then [observable outcome]
+- [ ] Given [specific precondition], when [specific action], then [observable outcome]
 
-## Story Dependencies
+## Edge Cases
 
-| Story | Depends On | Notes |
-|-------|-----------|-------|
-| US-XXX | US-XXX | |
+[What happens when things go wrong or inputs are unexpected? Each edge case
+should name the condition and the expected system behavior.]
+
+- **[Condition]**: [Expected behavior]
+- **[Condition]**: [Expected behavior]
+
+## Test Scenarios
+
+[Concrete input/output pairs for the acceptance criteria. An implementer
+should be able to copy these into a test file.]
+
+| Scenario | Input / State | Action | Expected Result |
+|----------|---------------|--------|-----------------|
+| Happy path | [specific state] | [specific action] | [specific result] |
+| [Edge case] | [specific state] | [specific action] | [specific result] |
+
+## Dependencies
+
+- **Stories**: [US-XXX if this story depends on another being done first]
+- **Feature Spec**: [FEAT-XXX]
+- **External**: [APIs, services, or data this story requires]
+
+## Out of Scope
+
+[What this story explicitly does not cover, to prevent scope creep during
+implementation.]

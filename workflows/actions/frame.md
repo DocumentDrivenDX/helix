@@ -86,9 +86,10 @@ Follow the template at `workflows/phases/01-frame/artifacts/prd/`.
 Read **both** `template.md` (structure) and `prompt.md` (section-by-section
 guidance and quality checklist) before drafting.
 
-Key sections: summary, problem & goals, success metrics, non-goals, users &
-scope, requirements (P0/P1/P2), functional requirements, constraints &
-assumptions, risks, success criteria.
+Key sections: summary (standalone 1-pager), problem & goals, success metrics,
+non-goals, users & scope, requirements (P0/P1/P2), functional requirements,
+acceptance test sketches, technical context, constraints & assumptions, risks,
+open questions, success criteria.
 
 ### Feature Specs
 
@@ -106,8 +107,25 @@ dun frontmatter:
   request guidance before writing the file. Never write an artifact whose
   `depends_on` references a non-existent target.
 
-Key sections: overview, problem statement, functional requirements, user
-stories with acceptance criteria, non-functional requirements, constraints.
+Key sections: overview, problem statement, functional requirements,
+non-functional requirements, user story references, edge cases, success
+metrics, constraints, dependencies, out of scope.
+
+User stories are referenced by ID — do not duplicate story content in the
+feature spec. Stories are separate files with their own lifecycle.
+
+### User Stories
+
+Follow the template at `workflows/phases/01-frame/artifacts/user-stories/`.
+Read **both** `template.md` and `prompt.md` before drafting.
+
+For each vertical slice, create `docs/helix/01-frame/user-stories/US-NNN-<slug>.md`.
+One file per story. Key sections: story statement, context, walkthrough,
+acceptance criteria (Given/When/Then), edge cases, test scenarios with
+concrete values, dependencies, out of scope.
+
+User stories are stable design artifacts — tracker issues reference them, not
+the other way around. Write them to last across multiple implementation cycles.
 
 ## PHASE 3 — Iterative Refinement
 
@@ -157,7 +175,51 @@ If you drafted or updated the PRD, also check:
 7. **Risks**: Does every mitigation name a concrete action? "Monitor closely"
    is not a mitigation.
 8. **Markers**: Search for `[TBD]`, `[TODO]`, `[NEEDS CLARIFICATION]`. None
-   should remain in the committed document.
+   should remain outside the Open Questions section.
+9. **Acceptance Test Sketches**: Does every P0 have a scenario with inputs and
+   expected outputs? Could an implementer write a passing test from the sketch
+   alone?
+10. **Technical Context**: Are versions specific? Could an implementer set up
+    the dev environment from this section alone? Note: Technical Context
+    records current stack decisions; it does not make them. Stack selection
+    decisions and their rationale belong in ADRs. If a choice here conflicts
+    with or isn't yet backed by an ADR, flag it in Open Questions.
+11. **Open Questions**: Are unresolved items collected here instead of buried
+    as markers? Does each question name who can answer and what's blocked?
+
+### Feature-spec-specific critique
+
+If you drafted or updated a feature spec, also check:
+
+1. **Overview**: Does it link to a specific PRD requirement (P0-N, P1-N)?
+   "Improves the user experience" is not a link.
+2. **Functional Requirements**: Is each one independently testable? Could
+   someone write an acceptance test from the requirement alone?
+3. **Non-Functional Requirements**: Does every NFR have a specific numeric
+   target? "Must be fast" is not a requirement.
+4. **User Stories**: Are stories referenced by ID with links, not duplicated
+   inline? Stories are separate governing artifacts.
+5. **Dependencies**: Are feature IDs and external systems named specifically?
+   "Depends on auth" is too vague.
+
+### User-story-specific critique
+
+If you drafted or updated user stories, also check:
+
+1. **Persona**: Does "As a" name a specific persona from the PRD? "As a user"
+   is not specific enough.
+2. **Action vs. system behavior**: Does "I want" describe what the user does,
+   not what the system does internally?
+3. **Value**: Does "So that" name a measurable outcome? "So that I can use
+   the feature" is circular.
+4. **Walkthrough**: Could a QA engineer use it as a manual test script? Does
+   it trace one complete path from trigger to outcome?
+5. **Acceptance Criteria**: Is each criterion a single Given/When/Then? Split
+   compound criteria into separate items.
+6. **Test Scenarios**: Do they include concrete values, not placeholders? Could
+   an implementer copy them into a test file?
+7. **Stability**: Is this story written to last? It will be referenced by
+   multiple tracker issues across design, build, and test phases.
 
 ### Validation gate
 

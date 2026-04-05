@@ -7,9 +7,11 @@ artifact:
   phase: frame
 
 description: |
-  User stories capture specific user needs and scenarios with clear
-  acceptance criteria. They bridge the gap between business requirements
-  and technical implementation.
+  Standalone design artifacts defining vertical slices of the application.
+  Each story traces a complete user journey from trigger to outcome with
+  acceptance criteria concrete enough to drive test-first implementation.
+  Stories are stable governing references — tracker issues reference them,
+  not the other way around.
 
 dependencies:
   requires:
@@ -23,86 +25,72 @@ dependencies:
       required: true
 
   enables:
+    - output: Solution designs
+      type: artifact
+      phase: design
     - output: Test cases
       type: artifact
       phase: test
-    - output: Implementation tasks
-      type: artifact
+    - output: Tracker issues
+      type: tracker
       phase: build
 
 output:
   location: docs/helix/01-frame/user-stories/
   format: markdown
-  naming: US-{number}-{feature}.md
-  structure: per-feature
+  naming: US-{number}-{slug}.md
+  structure: one-per-story
 
 validation:
-  required_elements:
-    - story_format: "As a... I want... So that..."
-    - acceptance_criteria: "Given... When... Then..."
-    - definition_of_done
-    - priority_level
+  required_sections:
+    - story
+    - context
+    - walkthrough
+    - acceptance_criteria
+    - edge_cases
+    - test_scenarios
+    - dependencies
 
   quality_checks:
-    - check: story_completeness
-      description: Each story must have all required elements
+    - check: persona_specific
+      description: Story names a specific persona from the PRD
       severity: blocking
 
-    - check: acceptance_testable
-      description: Acceptance criteria must be testable
+    - check: criteria_testable
+      description: Every acceptance criterion is independently testable
       severity: blocking
 
-    - check: value_clear
-      description: Business value must be explicit
+    - check: test_scenarios_concrete
+      description: Test scenarios include concrete values
+      severity: blocking
+
+    - check: walkthrough_complete
+      description: Walkthrough traces a complete path from trigger to outcome
+      severity: blocking
+
+    - check: edge_cases_present
+      description: At least one edge case documented
       severity: warning
-
-    - check: independence
-      description: Stories should be independent when possible
-      severity: info
 
   automated_checks:
     - pattern: "As a .* I want .* [Ss]o that"
       expected: ">0"
       message: Story must follow standard format
 
-    - pattern: "Given .* When .* Then"
+    - pattern: "Given .* [Ww]hen .* [Tt]hen"
       expected: ">0"
-      message: Must include acceptance criteria
+      message: Must include testable acceptance criteria
 
 variables:
   - name: feature_id
-    description: FEAT-XXX identifier
+    description: FEAT-XXX identifier for parent feature
     required: true
-
-  - name: story_points
-    description: Estimated effort in story points
-    required: false
-
-  - name: sprint_target
-    description: Target sprint for completion
-    required: false
 
 prompts:
   generation: prompt.md
-  review: |
-    Review user stories for:
-    1. User focus (not technical implementation)
-    2. Clear value proposition
-    3. Testable acceptance criteria
-    4. Appropriate sizing
-    5. Complete Definition of Done
 
 template:
   file: template.md
-  sections:
-    - story_statement
-    - acceptance_criteria
-    - definition_of_done
-    - validation_scenarios
-
-examples:
-  - file: example.md
-    description: Sample user stories for template management feature
 
 workflow:
   creation_order: 3
@@ -110,43 +98,21 @@ workflow:
   approval_required: true
   approvers:
     - Product Owner
-    - QA Lead
 
 relationships:
   derived_from:
     - prd
     - feature-specification
-
   informs:
+    - solution-design
     - test-cases
-    - implementation-plan
-
-  grouped_by:
-    - feature
-    - epic
-    - persona
-
-estimation:
-  method: story_points
-  scale: fibonacci
-  velocity_tracking: true
+    - tracker-issues
 
 tracking:
-  id_format: US-XXX
+  id_format: US-NNN
   id_scope: project
-  status_values:
-    - draft
-    - ready
-    - in_progress
-    - testing
-    - done
-    - accepted
 
 tags:
   - requirements
-  - user-needs
-  - acceptance
-  - agile
-
-version: 1.0.0
-last_updated: 2024-01-14
+  - vertical-slice
+  - design-artifact

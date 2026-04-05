@@ -53,8 +53,11 @@ validation:
     - users_and_scope
     - requirements
     - functional_requirements
+    - acceptance_test_sketches
+    - technical_context
     - constraints_assumptions_dependencies
     - risks
+    - open_questions
     - success_criteria
 
   quality_checks:
@@ -82,6 +85,10 @@ validation:
       description: Personas are specific enough to validate with a real user
       severity: blocking
 
+    - check: test_sketches_exist
+      description: Every P0 requirement has an acceptance test sketch with inputs and expected outputs
+      severity: blocking
+
     - check: p0_count
       description: P0 requirements number 7 or fewer
       severity: warning
@@ -92,6 +99,14 @@ validation:
 
     - check: goals_state_changes
       description: Goals describe state changes, not activities
+      severity: warning
+
+    - check: tech_context_versioned
+      description: Technical Context names specific versions, not just library names
+      severity: warning
+
+    - check: open_questions_attributed
+      description: Open Questions name who can answer and what's blocked
       severity: warning
 
 workflow:
