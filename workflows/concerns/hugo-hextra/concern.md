@@ -42,7 +42,9 @@ Every microsite must include at minimum:
 
 ### Home page pattern
 
-Use `layout: hextra-home` and Hextra shortcodes:
+Use `layout: hextra-home` and Hextra shortcodes. **Spacing is critical** —
+the hero section must breathe. Use Hextra's `hx-` Tailwind utilities for
+vertical rhythm between hero elements:
 
 ```markdown
 ---
@@ -50,14 +52,60 @@ title: Project Name
 layout: hextra-home
 ---
 
-{{</* hextra/hero-badge */>}}v0.x.y{{</* /hextra/hero-badge */>}}
-{{</* hextra/hero-headline */>}}Tagline{{</* /hextra/hero-headline */>}}
-{{</* hextra/hero-subtitle */>}}One-sentence description{{</* /hextra/hero-subtitle */>}}
+{{</* hextra/hero-badge link="https://github.com/org/repo" */>}}
+  <span>Open Source</span>
+  {{</* icon name="arrow-circle-right" attributes="height=14" */>}}
+{{</* /hextra/hero-badge */>}}
+
+<div class="hx-mt-6 hx-mb-6">
+{{</* hextra/hero-headline */>}}
+  Tagline line one.&nbsp;<br class="sm:hx-block hx-hidden" />Tagline line two.
+{{</* /hextra/hero-headline */>}}
+</div>
+
+<div class="hx-mb-12">
+{{</* hextra/hero-subtitle */>}}
+  One-sentence description of the project.
+{{</* /hextra/hero-subtitle */>}}
+</div>
+
+<div class="hx-mb-12">
 {{</* hextra/hero-button text="Get Started" link="docs/getting-started" */>}}
+{{</* hextra/hero-button text="Learn More" link="docs/concepts" style="alt" */>}}
+</div>
+
+<div class="hx-mt-8"></div>
 
 {{</* hextra/feature-grid */>}}
-  {{</* hextra/feature-card title="Feature" */>}}Description{{</* /hextra/feature-card */>}}
+  {{</* hextra/feature-card title="Feature" subtitle="Description" */>}}
 {{</* /hextra/feature-grid */>}}
+
+<div class="hx-mt-16"></div>
+
+## Below-the-fold section
+```
+
+#### Landing page spacing rules
+
+| Element | Class | Purpose |
+|---------|-------|---------|
+| Hero headline wrapper | `hx-mt-6 hx-mb-6` | Breathing room above and below headline |
+| Hero subtitle wrapper | `hx-mb-12` | Generous gap before CTA buttons |
+| CTA button wrapper | `hx-mb-12` | Prevent buttons from crowding the feature grid |
+| Spacer before feature grid | `hx-mt-8` | Visual separation between hero and features |
+| Spacer before below-fold section | `hx-mt-16` | Clear break before secondary content |
+
+**Do not** use `hx-mb-6` between CTA buttons and the feature grid — it looks
+cramped. Use `hx-mb-12` on the button wrapper plus a `hx-mt-8` spacer div.
+
+#### Feature card pattern
+
+Use `hx-aspect-auto md:hx-aspect-[1.1/1]` and `max-md:hx-min-h-[340px]` on
+the top row of feature cards to ensure consistent height. Use radial gradient
+backgrounds for visual distinction:
+
+```
+style="background: radial-gradient(ellipse at 50% 80%,rgba(72,120,198,0.15),hsla(0,0%,100%,0));"
 ```
 
 ### Documentation page pattern

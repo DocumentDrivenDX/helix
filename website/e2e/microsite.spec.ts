@@ -35,8 +35,8 @@ test.describe('Getting Started', () => {
     })
 
     await test.step('verify installation content', async () => {
-      await expect(article(page).getByText('ddx init')).toBeVisible()
-      await expect(page.getByText('Plugin (recommended)')).toBeVisible()
+      await expect(article(page).getByText('ddx install helix')).toBeVisible()
+      await expect(article(page).getByText('DDx and HELIX')).toBeVisible()
     })
 
     await test.step('capture screenshot', async () => {

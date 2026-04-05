@@ -3,7 +3,7 @@ title: HELIX
 layout: hextra-home
 ---
 
-{{< hextra/hero-badge link="https://github.com/easel/helix" >}}
+{{< hextra/hero-badge link="https://github.com/DocumentDrivenDX/helix" >}}
   <span>Open Source</span>
   {{< icon name="arrow-circle-right" attributes="height=14" >}}
 {{< /hextra/hero-badge >}}
@@ -20,10 +20,12 @@ layout: hextra-home
 {{< /hextra/hero-subtitle >}}
 </div>
 
-<div class="hx-mb-6">
+<div class="hx-mb-12">
 {{< hextra/hero-button text="Get Started" link="docs/getting-started" >}}
 {{< hextra/hero-button text="Workflow Guide" link="docs/workflow" style="alt" >}}
 </div>
+
+<div class="hx-mt-8"></div>
 
 {{< hextra/feature-grid >}}
   {{< hextra/feature-card
@@ -57,6 +59,8 @@ layout: hextra-home
     subtitle="Refine a spec before redesigning a system. Sharpen issues before implementing. Reconcile artifacts before inventing new ones. The smallest sufficient action wins."
   >}}
 {{< /hextra/feature-grid >}}
+
+<div class="hx-mt-16"></div>
 
 ## See It In Action
 
