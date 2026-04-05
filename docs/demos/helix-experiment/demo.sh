@@ -79,6 +79,7 @@ agent_run() {
   for attempt in $(seq 1 "$MAX_RETRIES"); do
     output=$(ddx agent run \
       --harness claude \
+      --model "${DEMO_MODEL:-claude-haiku-4-5-20251001}" \
       --text "$prompt" 2>/dev/null) || true
 
     if [[ -n "$output" && "$output" != "Execution error" ]]; then
@@ -91,7 +92,13 @@ agent_run() {
   done
 
   if [[ -n "$output" && "$output" != "Execution error" ]]; then
-    printf '%s\n' "$output"
+    local result
+    result=$(printf '%s' "$output" | jq -r '.result // empty' 2>/dev/null) || true
+    if [[ -n "$result" ]]; then
+      printf '%s\n' "$result"
+    else
+      printf '%s\n' "$output"
+    fi
   fi
 
   echo ""
