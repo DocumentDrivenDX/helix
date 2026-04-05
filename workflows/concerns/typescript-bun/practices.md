@@ -1,34 +1,48 @@
-# Practices: TypeScript + Bun
+# Practices: typescript-bun
 
-## TypeScript Config
+## Requirements (Frame phase)
+- All user stories involving TypeScript must assume Bun as runtime and package manager
+- If a library dependency requires a Node.js adapter, flag it as a concern at framing — it may require a Bun-compatible alternative
 
-- `strict: true`
-- `noUncheckedIndexedAccess: true`
-- `exactOptionalPropertyTypes: true`
-- `verbatimModuleSyntax: true`
-- `noEmit: true` (Bun handles execution directly)
+## Design
+- Use Bun workspaces for monorepos: `"workspaces": ["packages/*"]` in root `package.json`
+- Separate packages by concern: `shared` (types/schemas), `server` (API), `web` (frontend)
+- Use workspace references (`workspace:*`) for cross-package dependencies
+- HTTP servers: `Bun.serve()` — not Express, Fastify with Node adapter, or `@hono/node-server`
+- For Hono: use `hono` directly with `Bun.serve()` export, not the node-server adapter
 
-## Linting & Formatting
-
-- Linter: ESLint with `@typescript-eslint/strict-type-checked`
-- Formatter: Biome (not Prettier)
-- Run: `bunx biome check --write .`
+## Implementation
+- Run TypeScript directly: `bun src/index.ts` — no build step required for server/CLI
+- Scripts in `package.json` must use `bun run` / `bun test` / `bun add`, not `npm run`
+- Use Bun-native APIs:
+  - File I/O: `Bun.file()`, `Bun.write()`
+  - Subprocesses: `Bun.spawn()`, `Bun.spawnSync()`
+  - HTTP: `Bun.serve()`
+  - Environment: `Bun.env`
+- TypeScript config: `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `verbatimModuleSyntax`
+- No `any` — TypeScript strict mode is enforced
+- Formatting: Biome with tabs, line width 100
+- Linting: Biome recommended rules + `noUnusedImports: error`, `noUnusedVariables: warn`
+- Imports: use `type` keyword for type-only imports (`import type { Foo }`)
 
 ## Testing
+- Framework: `bun:test` (built-in)
+- Run: `bun test`
+- Use `mock()` from `bun:test` for module mocking
+- Fake data: `@faker-js/faker` or equivalent — not static fixtures
+- Prefer stubs to mocks; verify behavior, not call sequences
+- Integration tests can use real databases via `docker compose up -d` or testcontainers
 
-- Framework: `bun:test` (built-in, not Jest or Vitest)
-- Use `Bun.mock()` for module mocking
-- Fake data with `@faker-js/faker`, not static fixtures
-- Prefer stubs to mocks — verify behavior, not call sequences
+## Quality Gates (pre-commit / CI)
+- `bun test` — all tests pass
+- `bun run typecheck` — `tsc --noEmit` passes for all packages
+- `bun run lint` — Biome lint + format check passes
+- No `package-lock.json` committed (indicates npm was used)
+- `bun.lock` committed and up to date
 
-## Imports & Modules
-
-- Use Bun-native imports, not Node compat layer
-- Prefer explicit file extensions in imports
-- Use `Bun.file()` for file I/O, not `fs`
-
-## Dependencies
-
-- Add with `bun add`, not `npm install`
-- Prefer zero-dependency or Bun-native packages
-- Lock file: `bun.lockb` (binary, committed to git)
+## Dependency Management
+- Add: `bun add <pkg>` (not `npm install`)
+- Dev deps: `bun add -d <pkg>`
+- Workspace deps: reference with `"workspace:*"` in package.json
+- Lock file: `bun.lock` (text format, committed)
+- Audit: `bun audit` for known vulnerabilities
