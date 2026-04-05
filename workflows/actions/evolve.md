@@ -43,8 +43,19 @@ update a lower-authority artifact in a way that contradicts a higher one.
    and how to resolve judgment calls. Note: `helix evolve` reads principles
    but never modifies the principles file — only `helix frame` may write it.
 0a. **Load active concerns and practices** following `workflows/references/concern-resolution.md`.
-   Concern context affects the scope of downstream changes — a requirement that
-   implies a technology change may need an ADR before implementation.
+   Concern context affects the scope of downstream changes:
+   - A requirement that implies a technology change (new language, new framework,
+     new runtime, new dependency) must be checked against declared concerns.
+   - If the change conflicts with an active concern (e.g., adding a Node.js
+     dependency in a `typescript-bun` project, or introducing `println!` logging
+     in an `o11y-otel` project), flag it as a conflict requiring an ADR.
+   - If the requirement implies adopting a technology that has a library concern
+     but the project doesn't yet declare it, include concern selection as part of
+     the evolution — create or update `docs/helix/01-frame/concerns.md` alongside
+     the other artifact updates.
+   - If the requirement removes or replaces a technology covered by an active
+     concern, the concern declaration and project overrides must be updated as
+     part of Phase 4 artifact evolution.
 0b. **Context digest**: When `helix evolve` creates or modifies beads, it must
    assemble a context digest per `workflows/references/context-digest.md` and
    prepend it to the bead description.
@@ -101,15 +112,30 @@ For each affected artifact:
 1. Read the relevant sections.
 2. Check whether the new requirement contradicts existing content.
 3. Check whether the new requirement conflicts with open tracker issues.
-4. For each conflict found, record:
-   - Artifact and section
-   - What the artifact currently says
+4. Check whether the new requirement conflicts with active concerns:
+   - Does it introduce a tool, framework, or convention that contradicts a
+     declared concern's constraints or practices?
+   - Does it require a technology not covered by any active concern?
+   - Would it change the project's area taxonomy or concern applicability?
+5. For each conflict found, record:
+   - Artifact and section (or concern name, for concern conflicts)
+   - What the artifact or concern currently says
    - What the requirement asks for
    - Whether the conflict is resolvable by reasonable interpretation or
      requires human decision
+   - For concern conflicts: whether an ADR is needed to justify the departure
 
 Conflicts that require human decision are flagged but do NOT halt the
 entire evolution. Proceed with non-conflicting artifacts.
+
+When a concern conflict is identified, the resolution options are:
+
+- **ADR + concern update**: Create an ADR justifying the technology change,
+  then update `concerns.md` to reflect the new selection.
+- **Project override**: Add or modify a project override in `concerns.md`
+  that documents the exception and its rationale.
+- **Reject**: The requirement is incompatible with the project's technology
+  commitments and should be reconsidered.
 
 ## PHASE 4 — Artifact Evolution
 

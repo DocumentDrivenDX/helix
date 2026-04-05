@@ -93,6 +93,10 @@ Rules:
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
+0a. **Load active concerns** following `workflows/references/concern-resolution.md`.
+   Concern context informs queue health assessment — beads without area labels
+   cannot be matched to concerns, and stale context digests indicate the queue
+   needs a polish pass.
 1. Verify the built-in tracker is available.
    - If `ddx bead status` fails, stop immediately.
 2. Determine the scope.
@@ -128,6 +132,23 @@ Check for:
   (see `workflows/ratchets.md`): current measured value vs. floor,
   trend direction, and whether any ratchet is approaching its failure
   threshold
+
+### Concern Health
+
+If active concerns are declared:
+
+- **Missing area labels**: Count beads in scope that have no `area:*` labels.
+  These beads cannot be matched to concerns, so their context digests will be
+  incomplete. If the count is significant, recommend `POLISH` to assign labels.
+- **Missing context digests**: Count beads in scope that lack a
+  `<context-digest>` block. If the concern library has been updated since these
+  beads were created, recommend `POLISH` to assemble digests.
+- **Stale digests**: If concerns or practices were recently updated (check git
+  log on `workflows/concerns/` and `docs/helix/01-frame/concerns.md`), flag
+  that existing beads may have stale digests.
+- **Missing concerns.md**: If `docs/helix/01-frame/concerns.md` does not exist,
+  flag it. Recommend `BACKFILL` if the project clearly uses a technology with
+  a library concern, or `GUIDANCE` if the technology choices are unclear.
 
 ## PHASE 3 - Decision Logic
 

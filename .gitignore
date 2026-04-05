@@ -13,6 +13,15 @@ autoresearch.sh
 autoresearch.jsonl
 experiments/
 
+# DDx runtime state (agent logs, execution runs)
+.ddx/agent-logs/
+.ddx/exec-runs.d/
+.ddx/exec-runs.jsonl
+.ddx/run-state.json
+
+# Codex config
+.codex
+
 # Hugo build output
 website/public/
 website/resources/

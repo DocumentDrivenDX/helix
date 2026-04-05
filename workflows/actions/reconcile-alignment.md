@@ -82,9 +82,19 @@ HELIX labels appropriate to the work phase.
    Use them as alignment criteria — flag artifacts whose design choices deviate
    from the active principles.
 0b. **Load active concerns and practices** following `workflows/references/concern-resolution.md`.
-   Concern drift is an alignment finding — flag implementation that uses tools or
-   conventions inconsistent with the declared concerns. Flag ADRs that contradict
-   current concern selections.
+   Concern drift is an alignment finding at every layer, not just implementation:
+   - Flag **implementation** that uses tools or conventions inconsistent with the
+     declared concerns (e.g., using `vitest` when `bun:test` is declared).
+   - Flag **planning artifacts** (PRD technical context, design docs, test plans)
+     that reference tools, frameworks, or conventions contradicted by the active
+     concerns (e.g., a design doc specifying ESLint when the concern declares Biome,
+     or a test plan referencing Jest when the concern declares `bun:test`).
+   - Flag **ADRs** that contradict current concern selections.
+   - Flag **missing concern coverage**: if the project uses a technology that has
+     a library concern but that concern is not declared in `concerns.md`, note it.
+   - For each concern, load its `practices.md` and check that the project's
+     actual tooling matches each practice category (linter, formatter, test
+     framework, build tool, dependency audit). Report specific mismatches.
 0c. **Verify context digest freshness**: For beads in scope, check whether
    `<context-digest>` blocks reflect current upstream state. Stale digests are
    an alignment finding.
@@ -145,6 +155,9 @@ Identify:
 - stale artifacts
 - same-layer conflicts
 - downstream artifacts that no longer match upstream authority
+- concern-artifact inconsistencies: planning artifacts that specify tools,
+  frameworks, quality gates, or conventions that conflict with the active
+  concerns and their merged practices
 
 ## PHASE 3 - Implementation Review
 
@@ -160,6 +173,27 @@ Identify:
 - build and deploy surfaces
 - major unplanned code paths
 - dead or orphaned implementations
+
+### Concern Drift Detection
+
+For each active concern, verify the implementation matches its declared
+practices:
+
+1. **Tech-stack concerns** (rust-cargo, typescript-bun, python-uv, go-std,
+   scala-sbt): Check that the actual linter, formatter, test runner, build
+   tool, and dependency manager match what the concern and project overrides
+   declare. Check for drift signals listed in the concern's `## Drift Signals`
+   section (if present). Report each mismatch with the specific file evidence.
+2. **Infrastructure concerns** (k8s-kind): Check that deployment manifests,
+   local dev setup, and service discovery patterns match the declared approach.
+3. **Quality concerns** (security-owasp, o11y-otel, a11y-wcag-aa): Check that
+   the concern's quality gates are present in CI or pre-commit configuration.
+   Verify dependency audit commands are wired. Check that practices like
+   parameterized queries, input validation, and secret management are followed.
+4. **Concern-specific quality gates**: For each concern that declares quality
+   gate commands (e.g., `cargo deny check advisories`, `govulncheck`,
+   `bun audit`), verify those commands are present in CI configuration or
+   pre-commit hooks. Missing gates are alignment findings.
 
 ### Acceptance Criteria Validation
 

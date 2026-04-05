@@ -69,7 +69,9 @@ For every changed test:
 5. Are database migrations reversible?
 6. Do API changes maintain backward compatibility where required?
 
-## Pass 3 - Security and Performance Review (when applicable)
+## Pass 3 - Concern-Aware Quality Review
+
+### Security (always, when attack surface exists)
 
 1. Are there injection vulnerabilities (SQL, command, XSS, template)?
 2. Are there authentication or authorization bypasses?
@@ -77,8 +79,31 @@ For every changed test:
 4. Are there O(n^2) loops, unbounded allocations, or missing pagination?
 5. Are there unnecessary network calls in hot paths?
 
+### Concern-Specific Practices
+
+For each active concern loaded in Phase 0b, verify the changes follow
+the concern's declared practices:
+
+1. **Tech-stack concerns**: Does the code use the declared linter, formatter,
+   test framework, and build tool? Flag drift signals — e.g., `require()`
+   instead of `import`, `npm run` instead of `bun run`, `println!` instead
+   of `tracing::info!`, `vitest` imports in a `bun:test` project.
+2. **Security concern** (if active): Are inputs validated at system boundaries?
+   Are SQL queries parameterized? Are secrets loaded from environment, not
+   hardcoded? Are error messages generic to clients? Check against the
+   practices in `workflows/concerns/security-owasp/practices.md`.
+3. **Observability concern** (if active): Are new code paths instrumented
+   with tracing spans? Are metrics emitted for new endpoints? Check against
+   `workflows/concerns/o11y-otel/practices.md`.
+4. **Infrastructure concern** (if active): Do new services follow the
+   declared deployment pattern? Are Helm values or k8s manifests updated?
+
+Report concern-practice violations as findings with category `drift` and
+the specific concern name.
+
 Skip this pass when changes are purely documentation, configuration, or
-internal refactoring with no new attack surface or performance impact.
+internal refactoring with no new attack surface, performance impact, or
+concern-relevant tooling changes.
 
 ## Pass 4 - Operational Learnings
 

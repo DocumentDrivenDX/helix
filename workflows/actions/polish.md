@@ -109,6 +109,34 @@ Each pass performs ALL of the following checks. Track changes made per pass.
 - Ensure area labels are present where applicable.
 - Ensure `kind:*` labels match the issue's actual type.
 
+### Area Label Enforcement for Concern Matching
+
+Area labels are required for concern filtering to work. For each bead in scope:
+
+1. If the bead has no `area:*` labels, infer the correct area from:
+   - The `spec-id` and its governing artifact's scope
+   - The files or subsystems referenced in the description
+   - The parent epic's area labels (if the parent has them)
+2. Assign the inferred `area:*` label(s) using `ddx bead update <id> --labels`.
+3. If the area is genuinely ambiguous, prefer the more inclusive label or
+   assign multiple labels. A bead touching both API and CLI should have both
+   `area:api` and `area:cli`.
+4. Beads that touch all areas (e.g., CI config, cross-cutting refactors) may
+   omit area labels — they will match only `areas: all` concerns, which is
+   correct.
+
+### Concern-Aware Acceptance Criteria
+
+For each bead in scope, verify acceptance criteria reference the correct
+concern tools:
+
+- A bead in a `typescript-bun` project should reference `bun:test`, not
+  `vitest` or `jest`, in its test-related acceptance criteria.
+- A bead in a `rust-cargo` project should reference `cargo clippy` and
+  `cargo deny`, not ad-hoc lint approaches.
+- If acceptance criteria reference tools inconsistent with declared concerns,
+  update them.
+
 ## Convergence Detection
 
 Track a change count per round: number of issues modified, created, or merged.

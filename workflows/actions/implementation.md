@@ -307,6 +307,17 @@ At minimum, verify:
 - ratchet enforcement commands pass if the project has adopted quality ratchets
   (see `workflows/ratchets.md`). If a ratchet auto-bump is triggered,
   include the updated floor fixture in the issue commit.
+- **concern-declared quality gates** pass for the active concerns scoped to
+  this bead's area. Run the gates declared in each matched concern's
+  `practices.md` under `## Quality Gates`. Common examples:
+  - `rust-cargo`: `cargo clippy`, `cargo fmt --check`, `cargo deny check advisories`, `cargo machete`
+  - `typescript-bun`: `biome check`, `bun:test`
+  - `python-uv`: `ruff check`, `ruff format --check`, `pyright`
+  - `go-std`: `go vet`, `golangci-lint run`, `govulncheck`
+  - `security-owasp`: the per-stack dependency audit command from the concern
+  - Use project overrides from `concerns.md` when they specify alternative
+    commands or additional flags. Scope gate runs to changed packages, not
+    the full workspace.
 
 If the repository defines canonical verification wrappers or proof lanes, use
 those wrappers for closure evidence. Narrower package or file commands are for

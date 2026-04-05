@@ -92,17 +92,16 @@ inject concerns at their Phase 0 or Bootstrap step, alongside principles.
 
 | Action | Injection Point |
 |--------|----------------|
-| `implementation.md` | Phase 0 (Bootstrap) — alongside principles and quality gates |
-| `fresh-eyes-review.md` | Phase 0 — verify implementation follows concern conventions |
+| `implementation.md` | Phase 0 (Bootstrap) — alongside principles and quality gates; Phase 7 runs concern-declared quality gates |
+| `fresh-eyes-review.md` | Phase 0 — verify implementation follows concern conventions; Pass 3 checks concern-specific practices |
 | `plan.md` | Before first refinement round — concerns constrain architecture |
-| `evolve.md` | Phase 1 — concerns affect scope of downstream changes |
-| `reconcile-alignment.md` | Phase 0 — concern drift is an alignment finding |
-| `polish.md` | Bootstrap — verify beads reference correct concern context |
+| `evolve.md` | Phase 0 — concerns affect scope; Phase 3 detects concern conflicts from new requirements |
+| `reconcile-alignment.md` | Phase 0 — concern drift across all layers (code, docs, ADRs); Phase 3 detects per-concern tooling drift |
+| `polish.md` | Bootstrap — verify beads reference correct concern context; area label enforcement for concern matching; acceptance criteria tool consistency |
 | `frame.md` | Bootstrap — concern selection happens during framing |
 | `experiment.md` | Bootstrap — experiments must use declared concerns |
-
-**Not injected**: `check.md` (mechanical queue evaluation),
-`backfill-helix-docs.md` (reconstructs what exists).
+| `check.md` | Phase 0 — load concerns for queue health; Phase 2 checks area label coverage, digest freshness, missing concerns.md |
+| `backfill-helix-docs.md` | Phase 0 — discover active concerns or propose them from evidence; Phase 4 may create concerns.md |
 
 ## Concern Selection in helix frame
 

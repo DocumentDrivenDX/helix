@@ -169,6 +169,16 @@ evidence extraction pass are complete for the relevant scope.
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
+0a. **Discover active concerns**: Check whether `docs/helix/01-frame/concerns.md`
+   exists. If it does, load it per `workflows/references/concern-resolution.md`
+   and use the declared concerns to guide backfill — ensure backfilled artifacts
+   are consistent with declared technology choices and practices.
+   If it does not exist, inspect the project's actual tooling (package managers,
+   linters, formatters, test frameworks, CI config) and match them against
+   available concerns in `workflows/concerns/`. Include `concerns.md` creation
+   as part of the backfill output — propose active concerns and project overrides
+   based on the evidence discovered during Phase 1 research. Concern selection
+   requires user confirmation before canonization (treat as a guidance gate).
 1. Determine the backfill scope.
 2. Verify the built-in tracker is available.
    - If `ddx bead status` fails, stop immediately.
@@ -329,6 +339,7 @@ Expected outputs may include:
 
 - `docs/helix/00-discover/product-vision.md`
 - `docs/helix/01-frame/prd.md`
+- `docs/helix/01-frame/concerns.md` (if missing — propose based on evidence)
 - `docs/helix/01-frame/features/*.md`
 - `docs/helix/01-frame/user-stories/*.md`
 - `docs/helix/02-design/architecture.md`
@@ -337,6 +348,15 @@ Expected outputs may include:
 - `docs/helix/04-build/implementation-plan.md`
 
 Only create the artifacts justified by the scope and evidence.
+
+When backfilling `concerns.md`, use the evidence from Phase 1 research to:
+
+1. Match the project's observed tooling to library concerns.
+2. Document project-specific overrides for any deviations from the library
+   defaults (e.g., older MSRV, alternative HTTP framework, non-default linters).
+3. Define area labels based on the project's actual module/package structure.
+4. Gate the final `concerns.md` on user confirmation — concern selection is
+   a design decision, not a backfill inference.
 
 Where scope is large, draft in the same order as the consolidation tree:
 
