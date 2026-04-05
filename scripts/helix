@@ -165,6 +165,8 @@ Usage:
   helix backfill [--agent codex|claude] [scope]
   helix design [--agent codex|claude] [--rounds N] [scope]
   helix polish [--agent codex|claude] [--rounds N] [scope]
+  helix start [helix run options...]
+  helix stop
   helix status [--json]
   helix next
   helix review [--agent codex|claude] [scope]
@@ -176,6 +178,8 @@ Usage:
 
 Commands:
   run         Loop over ready HELIX work, then check whether to continue
+  start       Launch helix run as a background process (PID file written)
+  stop        Kill the background helix run cleanly
   frame       Create or refine product vision, PRD, and feature specs
   build       Run one bounded implementation pass
   check       Run the bounded HELIX queue-health check
@@ -440,6 +444,74 @@ tracker_import() {
 
 tracker_export() {
   tracker_exec export "$@"
+}
+
+# ---------- PID file helpers (hx-407ed8b8) ----------
+
+_helix_pid_file() {
+  printf '%s/helix.pid' "$tracker_dir"
+}
+
+_helix_pid_alive() {
+  local pid_file
+  pid_file="$(_helix_pid_file)"
+  [[ -f "$pid_file" ]] || return 1
+  local pid
+  pid="$(cat "$pid_file" 2>/dev/null)"
+  [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null
+}
+
+run_start() {
+  require_tracker
+  local pid_file
+  pid_file="$(_helix_pid_file)"
+
+  if _helix_pid_alive; then
+    local pid; pid="$(cat "$pid_file")"
+    echo "helix: run already active (pid=$pid). Use 'helix stop' first." >&2
+    return 1
+  fi
+
+  # Clean stale PID file
+  rm -f "$pid_file"
+
+  # Launch helix run in background with --summary
+  "$0" run --summary "$@" &
+  local bg_pid=$!
+  printf '%s\n' "$bg_pid" > "$pid_file"
+  printf 'helix: started (pid=%s, log=%s)\n' "$bg_pid" "$helix_log" >&2
+}
+
+run_stop() {
+  require_tracker
+  local pid_file
+  pid_file="$(_helix_pid_file)"
+
+  if [[ ! -f "$pid_file" ]]; then
+    echo "helix: no active run (no PID file)" >&2
+    return 1
+  fi
+
+  local pid; pid="$(cat "$pid_file" 2>/dev/null)"
+
+  if ! kill -0 "$pid" 2>/dev/null; then
+    rm -f "$pid_file"
+    echo "helix: stale PID file removed (pid=$pid was not running)" >&2
+    return 1
+  fi
+
+  kill "$pid" 2>/dev/null
+  local waited=0
+  while kill -0 "$pid" 2>/dev/null && (( waited < 10 )); do
+    sleep 1
+    (( waited++ ))
+  done
+
+  if kill -0 "$pid" 2>/dev/null; then
+    kill -9 "$pid" 2>/dev/null || true
+  fi
+  rm -f "$pid_file"
+  printf 'helix: stopped (pid=%s)\n' "$pid" >&2
 }
 
 # ---------- DDx exec run integration (FEAT-005) ----------
@@ -1723,13 +1795,25 @@ run_status() {
     exec_history="$(ddx exec history --json 2>/dev/null | jq -c 'sort_by(.started_at) | reverse | .[0:10] | [.[] | {skill: (.definition_id | ltrimstr("helix:")), artifact: (.artifact_ids | join(",")), status, started_at}]' 2>/dev/null || echo '[]')"
   fi
 
+  # Active run PID check
+  local active_run='null'
+  local pid_file
+  pid_file="$(_helix_pid_file)"
+  if _helix_pid_alive; then
+    local active_pid; active_pid="$(cat "$pid_file")"
+    active_run="$(jq -n --arg pid "$active_pid" --arg log "$helix_log" '{pid: ($pid | tonumber), log: $log}')"
+  elif [[ -f "$pid_file" ]]; then
+    rm -f "$pid_file"  # clean stale
+  fi
+
   if (( json_flag )); then
     jq -n \
       --argjson tracker "$tracker_json" \
       --argjson run "$run_state" \
       --argjson claimed "$claimed" \
       --argjson recent_actions "$exec_history" \
-      '{tracker: $tracker, run: $run, claimed: $claimed, recent_actions: $recent_actions}'
+      --argjson active_run "$active_run" \
+      '{tracker: $tracker, run: $run, claimed: $claimed, active_run: $active_run, recent_actions: $recent_actions}'
   else
     printf 'HELIX Status\n'
     printf '============\n\n'
@@ -1743,6 +1827,18 @@ run_status() {
       "  Ready:   \(.ready // 0)",
       "  Blocked: \(.blocked // 0)"
     ' 2>/dev/null
+
+    # Active run (PID check)
+    local pid_file
+    pid_file="$(_helix_pid_file)"
+    if _helix_pid_alive; then
+      local active_pid; active_pid="$(cat "$pid_file")"
+      printf '\nActive Run:\n'
+      printf '  PID:  %s\n' "$active_pid"
+      printf '  Log:  %s\n' "$helix_log"
+    elif [[ -f "$pid_file" ]]; then
+      rm -f "$pid_file"  # clean stale
+    fi
 
     # Claimed work
     local claimed_count
@@ -2742,6 +2838,15 @@ main() {
         esac
       done
       exec_wrap polish run_polish "${1:-}" "$polish_rounds"
+      ;;
+    start)
+      parse_common_flags "$@"
+      set -- "${REMAINING_ARGS[@]}"
+      run_start "$@"
+      ;;
+    stop)
+      parse_common_flags "$@"
+      run_stop
       ;;
     status)
       parse_common_flags "$@"

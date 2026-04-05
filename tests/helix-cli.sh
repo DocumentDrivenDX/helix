@@ -391,6 +391,7 @@ run_helix() {
     HELIX_FORCE_EPHEMERAL=1 \
     HELIX_REVIEW_AGENT="codex" \
     HELIX_ALT_AGENT="none" \
+    HELIX_DIRECT_AGENT=1 \
     HELIX_AUTO_ALIGN="${HELIX_AUTO_ALIGN:-0}" \
     DDX_BEAD_DIR="$root/work/.ddx" \
     bash "$repo_root/scripts/helix" "$cmd" --quiet "$@"
@@ -427,6 +428,7 @@ run_helix_with_env() {
       MOCK_STATE_ROOT="$root/state" \
       HELIX_LIBRARY_ROOT="$repo_root/workflows" \
       "DDX_BEAD_DIR=$root/work/.ddx" \
+      "HELIX_DIRECT_AGENT=1" \
       "$env_name=$env_value" \
       bash "$repo_root/scripts/helix" "$cmd" --quiet "$@"
   )
@@ -454,6 +456,7 @@ run_helix_with_envs() {
       MOCK_STATE_ROOT="$root/state" \
       HELIX_LIBRARY_ROOT="$repo_root/workflows" \
       "DDX_BEAD_DIR=$root/work/.ddx" \
+      "HELIX_DIRECT_AGENT=1" \
       "${env_args[@]}" \
       bash "$repo_root/scripts/helix" "$cmd" --quiet "$@"
   )
@@ -1972,6 +1975,7 @@ run_helix_summary() {
     HELIX_FORCE_EPHEMERAL=1 \
     HELIX_REVIEW_AGENT="codex" \
     HELIX_ALT_AGENT="none" \
+    HELIX_DIRECT_AGENT=1 \
     HELIX_AUTO_ALIGN="${HELIX_AUTO_ALIGN:-0}" \
     bash "$repo_root/scripts/helix" "$cmd" --summary "$@"
   )
@@ -2380,7 +2384,9 @@ test_tracker_unclaim_closed_bead() {
   before_status="$(run_bead "$root" show hx-mock-0 --json | jq -r '.status')"
   assert_eq "closed" "$before_status" "bead should be closed before unclaim"
 
-  # Unclaim a closed bead — current behavior: succeeds and reopens the bead
+  # Unclaim a closed bead — current behavior: clears claim metadata but status stays closed.
+  # ddx bead update --unclaim does NOT reopen a closed bead; it only clears assignee/claim
+  # fields. Use --status open explicitly when reopening a closed bead is intentional.
   run_bead "$root" update hx-mock-0 --unclaim >/dev/null
 
   local issue_json status claimed_at claimed_pid
@@ -2389,7 +2395,7 @@ test_tracker_unclaim_closed_bead() {
   claimed_at="$(printf '%s' "$issue_json" | jq -r '.["claimed-at"] // "null"')"
   claimed_pid="$(printf '%s' "$issue_json" | jq -r '.["claimed-pid"] // "null"')"
 
-  assert_eq "open" "$status" "unclaim on closed bead should reopen it"
+  assert_eq "closed" "$status" "unclaim on closed bead should not reopen it"
   assert_eq "null" "$claimed_at" "unclaim on closed bead should clear claimed-at"
   assert_eq "null" "$claimed_pid" "unclaim on closed bead should clear claimed-pid"
   rm -rf "$root"
@@ -2397,7 +2403,7 @@ test_tracker_unclaim_closed_bead() {
 
 run_test "tracker claim records metadata" test_tracker_claim_records_metadata
 run_test "tracker unclaim clears metadata" test_tracker_unclaim_clears_metadata
-run_test "tracker unclaim on closed bead reopens it" test_tracker_unclaim_closed_bead
+run_test "tracker unclaim on closed bead clears metadata" test_tracker_unclaim_closed_bead
 run_test "orphan recovery reclaims stale" test_orphan_recovery_reclaims_stale
 run_test "orphan recovery skips fresh" test_orphan_recovery_skips_fresh
 run_test "BUILD loop stops after empty builds" test_build_loop_stops_after_empty_builds
@@ -2919,6 +2925,7 @@ test_review_dry_run_uses_review_agent() {
     HELIX_LIBRARY_ROOT="$repo_root/workflows" \
     HELIX_FORCE_EPHEMERAL=1 \
     HELIX_REVIEW_AGENT="codex" \
+    HELIX_DIRECT_AGENT=1 \
     bash "$repo_root/scripts/helix" review --agent claude --quiet --dry-run 2>&1
   )"
 
@@ -3370,6 +3377,7 @@ MOCK
     HELIX_LIBRARY_ROOT="$repo_root/workflows" \
     HELIX_FORCE_EPHEMERAL=1 \
     HELIX_REVIEW_AGENT="codex" \
+    HELIX_DIRECT_AGENT=1 \
     bash "$repo_root/scripts/helix" run --agent claude --quiet --no-auto-align 2>&1
   )" || true
 
@@ -3635,7 +3643,90 @@ MOCK
   rm -rf "$root"
 }
 
+test_help_includes_all_commands() {
+  local root
+  root="$(make_workspace)"
+  local output
+  output="$(run_helix "$root" help 2>&1)"
+  for cmd in run start stop build check align backfill design polish status next review experiment evolve commit triage; do
+    assert_contains "$output" "$cmd" "help output should include $cmd"
+  done
+  rm -rf "$root"
+}
+
+test_start_writes_pid_file() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  # start launches background run
+  run_helix "$root" start --max-cycles 1 --no-auto-review --no-auto-align 2>&1 || true
+  # Give background process time to write PID and finish
+  sleep 2
+  assert_file_exists "$root/work/.ddx/helix.pid" "start should write PID file"
+  rm -rf "$root"
+}
+
+test_stop_no_active_run() {
+  local root
+  root="$(make_workspace)"
+
+  # stop should fail with no PID file
+  local output rc=0
+  output="$(run_helix "$root" stop 2>&1)" || rc=$?
+  [[ "$rc" -ne 0 ]] || fail "stop should fail when no run is active"
+  assert_contains "$output" "no active run" "stop should report no active run"
+  rm -rf "$root"
+}
+
+test_stop_stale_pid() {
+  local root
+  root="$(make_workspace)"
+  mkdir -p "$root/work/.ddx"
+  # Write a PID that doesn't exist
+  printf '99999999\n' > "$root/work/.ddx/helix.pid"
+
+  local output rc=0
+  output="$(run_helix "$root" stop 2>&1)" || rc=$?
+  [[ "$rc" -ne 0 ]] || fail "stop should fail on stale PID"
+  assert_contains "$output" "stale PID" "stop should report stale PID"
+  [[ ! -f "$root/work/.ddx/helix.pid" ]] || fail "stop should remove stale PID file"
+  rm -rf "$root"
+}
+
+test_status_shows_active_run() {
+  local root
+  root="$(make_workspace)"
+  mkdir -p "$root/work/.ddx"
+  # Write our own PID (will be alive)
+  printf '%s\n' "$$" > "$root/work/.ddx/helix.pid"
+
+  local output
+  output="$(run_helix "$root" status 2>&1)"
+  assert_contains "$output" "Active Run" "status should show Active Run section"
+  assert_contains "$output" "PID:" "status should show PID"
+
+  rm -f "$root/work/.ddx/helix.pid"
+  rm -rf "$root"
+}
+
+test_status_cleans_stale_pid() {
+  local root
+  root="$(make_workspace)"
+  mkdir -p "$root/work/.ddx"
+  printf '99999999\n' > "$root/work/.ddx/helix.pid"
+
+  run_helix "$root" status 2>&1 >/dev/null
+  [[ ! -f "$root/work/.ddx/helix.pid" ]] || fail "status should clean stale PID file"
+  rm -rf "$root"
+}
+
 run_test "help includes all commands" test_help_includes_all_commands
 run_test "run prefers tasks over epics" test_run_prefers_tasks_over_epics
+run_test "stop with no active run" test_stop_no_active_run
+run_test "stop cleans stale PID" test_stop_stale_pid
+run_test "status shows active run" test_status_shows_active_run
+run_test "status cleans stale PID" test_status_cleans_stale_pid
 
 echo "PASS: ${test_count} helix wrapper tests"
