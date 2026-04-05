@@ -619,7 +619,8 @@ run_agent_prompt() {
         fi
 
         # Emit condensed output via DDx (strips diffs, boilerplate, and bulk verbose content).
-        printf -- '%s\n' "$_codex_raw" | ddx agent condense
+        # Fall back to raw output if ddx agent condense fails (pipefail would otherwise abort).
+        printf -- '%s\n' "$_codex_raw" | ddx agent condense || printf -- '%s\n' "$_codex_raw"
         return "$_codex_rc"
       fi
       ;;
