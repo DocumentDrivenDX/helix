@@ -27,6 +27,9 @@ all
   CI must checkout with `fetch-depth: 0`
 - `goldmark.renderer.unsafe: true` — allows raw HTML in markdown for shortcodes
 - Hugo version pinned in CI workflow — do not rely on ambient `hugo` from PATH
+- When governing artifacts change (new features, renamed commands, changed
+  workflow rules, new artifact types), the corresponding microsite pages must
+  be updated in the same pass — not deferred to a separate task
 
 ## Content Guidelines
 
@@ -203,6 +206,18 @@ GitHub Actions workflow for GitHub Pages deployment:
 3. Checkout with `fetch-depth: 0` (required for `enableGitInfo`)
 4. Build: `hugo --gc --minify` in `website/` directory
 5. Deploy to GitHub Pages
+
+## Drift Signals (anti-patterns to reject in review)
+
+- CLI command added or changed without updating CLI Reference page → update the docs
+- New artifact type in `workflows/phases/` without a glossary entry → add it
+- Feature spec created or evolved without updating the microsite → update it
+- Install process changed without updating Getting Started → fix it
+- Demo reel recorded but not copied to `website/static/demos/` → publish it
+- `hx-mb-6` between CTA buttons and feature grid on landing page → use `hx-mb-12` + `hx-mt-8` spacer
+- Custom CSS when Hextra utility classes would suffice → use `hx-` classes
+- Missing `_index.md` in a content section → add it for proper sidebar nav
+- Hardcoded URLs instead of Hugo `relref` or `ref` → use Hugo link functions
 
 ## When to use
 

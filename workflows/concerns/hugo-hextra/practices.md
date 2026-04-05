@@ -37,6 +37,62 @@
 - Include version badge on homepage hero using `hextra/hero-badge`
 - Feature cards should each describe one capability with a concrete benefit
 
+## Artifact-to-Docs Sync
+
+The microsite must reflect the current state of the project's governing
+artifacts. When artifacts are created, renamed, removed, or materially
+changed, the corresponding microsite pages must be updated as part of the
+same evolution or build pass.
+
+### What triggers a docs update
+
+Any change to a HELIX artifact that is surfaced on the microsite:
+- New or renamed CLI commands → update CLI Reference
+- New, renamed, or removed features → update glossary/artifacts page
+- Changed phases, authority order, or workflow rules → update workflow page
+- New or changed artifact types → update glossary/artifacts with description
+  from `workflows/phases/*/artifacts/<name>/meta.yml` (description field)
+  and `workflows/phases/*/artifacts/<name>/prompt.md` (Purpose section)
+- New or changed concerns → update glossary/concerns page
+- Changed install process → update Getting Started
+- New demo reels → update Demos page and copy cast/video files to
+  `website/static/demos/`
+
+### Glossary generation from artifact metadata
+
+Each HELIX artifact type has structured metadata at
+`workflows/phases/<NN>-<phase>/artifacts/<name>/`:
+
+| File | What it provides |
+|------|-----------------|
+| `meta.yml` | Name, description, dependencies, validation rules, relationships |
+| `prompt.md` | Purpose section — 2-3 paragraphs explaining what the artifact is, why it matters, and how it fits the authority order |
+| `template.md` | The structure to fill in |
+| `example.md` | A concrete example |
+
+The glossary artifacts page (`website/content/docs/glossary/artifacts.md`)
+must include a substantive description for each artifact — not just a one-line
+purpose. Pull the description from `meta.yml` and the Purpose section of
+`prompt.md`. The reader should understand what each artifact is, when to
+create one, and how it relates to artifacts above and below it in the
+authority order.
+
+### When evolve or frame changes artifacts
+
+When `helix evolve` or `helix frame` creates or modifies a governing artifact
+that is documented on the microsite, the agent must also update the
+corresponding microsite page. This is not a separate task — it is part of
+completing the evolution. The concern makes this a requirement, not a
+suggestion.
+
+Specifically:
+- If a new artifact type is added to `workflows/phases/`, add it to the
+  glossary artifacts page with its description from `meta.yml`/`prompt.md`
+- If an artifact's purpose or scope changes, update the glossary entry
+- If a CLI command is added or its behavior changes, update the CLI
+  reference page
+- If installation steps change, update Getting Started
+
 ## Testing
 - Playwright e2e tests in `website/e2e/` verify page loads and navigation
 - Screenshot snapshot tests catch visual regressions after theme updates
