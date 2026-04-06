@@ -166,6 +166,7 @@ Usage:
   helix backfill [--agent codex|claude] [scope]
   helix design [--agent codex|claude] [--rounds N] [scope]
   helix polish [--agent codex|claude] [--rounds N] [scope]
+  helix doctor
   helix start [helix run options...]
   helix stop
   helix status [--json]
@@ -179,6 +180,7 @@ Usage:
 
 Commands:
   run         Loop over ready HELIX work, then check whether to continue
+  doctor      Check installation health: required tools, agent CLIs, workflows
   start       Launch helix run as a background process (PID file written)
   stop        Kill the background helix run cleanly
   frame       Create or refine product vision, PRD, and feature specs
@@ -240,6 +242,90 @@ need_cmd() {
   if ! command -v "$1" >/dev/null 2>&1; then
     echo "missing required command: $1" >&2
     exit 1
+  fi
+}
+
+run_doctor() {
+  local ok=0 warn=0 fail=0
+
+  _check() {
+    local name="$1" required="${2:-1}"
+    if command -v "$name" >/dev/null 2>&1; then
+      local ver
+      ver="$("$name" --version 2>/dev/null || "$name" -V 2>/dev/null || "$name" version 2>/dev/null || echo "ok")"
+      ver="$(printf '%s' "$ver" | head -1)"
+      printf '  ✓  %-12s %s\n' "$name" "$ver"
+      ok=$((ok + 1))
+    elif (( required )); then
+      printf '  ✗  %-12s MISSING (required)\n' "$name"
+      fail=$((fail + 1))
+    else
+      printf '  -  %-12s not found (optional)\n' "$name"
+      warn=$((warn + 1))
+    fi
+  }
+
+  printf 'HELIX Doctor\n'
+  printf '============\n\n'
+  printf 'Version:  helix %s\n' "$HELIX_VERSION"
+  printf 'Root:     %s\n\n' "$library_root"
+
+  printf 'Required:\n'
+  _check bash 1
+  _check git 1
+  _check jq 1
+  _check ddx 1
+
+  printf '\nAgent CLIs (at least one required):\n'
+  local has_agent=0
+  if command -v claude >/dev/null 2>&1; then
+    _check claude 0; has_agent=1
+  fi
+  if command -v codex >/dev/null 2>&1; then
+    _check codex 0; has_agent=1
+  fi
+  if (( ! has_agent )); then
+    printf '  ✗  No agent CLI found (need claude or codex)\n'
+    fail=$((fail + 1))
+  fi
+
+  printf '\nOptional:\n'
+  _check tmux 0
+  _check asciinema 0
+  _check hugo 0
+  _check docker 0
+
+  printf '\nWorkflows:\n'
+  if [[ -d "$helix_docs_root" ]]; then
+    printf '  ✓  %-12s %s\n' "workflows" "$helix_docs_root"
+  else
+    printf '  ✗  %-12s NOT FOUND at %s\n' "workflows" "$helix_docs_root"
+    fail=$((fail + 1))
+  fi
+
+  printf '\nSkills:\n'
+  local skill_count=0
+  if [[ -d "$library_root/skills" ]]; then
+    skill_count="$(find "$library_root/skills" -name SKILL.md 2>/dev/null | wc -l)"
+  fi
+  printf '  %-14s %s skills found\n' "" "$skill_count"
+
+  printf '\nTracker:\n'
+  if [[ -f "$tracker_file" ]]; then
+    local bead_count
+    bead_count="$(wc -l < "$tracker_file")"
+    printf '  ✓  %-12s %s beads\n' "$tracker_file" "$bead_count"
+  else
+    printf '  -  %-12s no tracker in this directory\n' "$tracker_file"
+  fi
+
+  printf '\n'
+  if (( fail > 0 )); then
+    printf 'Result: %s ok, %s warnings, %s FAILURES\n' "$ok" "$warn" "$fail"
+    return 1
+  else
+    printf 'Result: %s ok, %s warnings — ready to go\n' "$ok" "$warn"
+    return 0
   fi
 }
 
@@ -2742,6 +2828,9 @@ main() {
       ;;
     version|--version|-V)
       printf 'helix %s\n' "$HELIX_VERSION"
+      ;;
+    doctor)
+      run_doctor
       ;;
     run)
       parse_common_flags "$@"
