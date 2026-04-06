@@ -113,7 +113,9 @@ demo_body() {
 
   echo "Installing HELIX..."
   export HELIX_LIBRARY_ROOT="$HELIX_ROOT/workflows"
-  ddx install helix --force 2>&1 && bash "$HELIX_ROOT/scripts/helix" doctor --fix 2>&1
+  export PATH="$HELIX_ROOT/scripts:$HELIX_ROOT/bin:$PATH"
+  mkdir -p ~/.ddx/plugins && ln -sfn "$HELIX_ROOT" ~/.ddx/plugins/helix && bash "$HELIX_ROOT/scripts/helix" doctor --fix 2>&1
+  mkdir -p ~/.agents/skills ~/.claude/skills && for s in "$HELIX_ROOT"/.agents/skills/helix-*; do ln -sfn "$s" ~/.agents/skills/$(basename "$s"); ln -sfn "$s" ~/.claude/skills/$(basename "$s"); done
   echo ""
 
   run git init perf-lab
