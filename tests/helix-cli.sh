@@ -1825,7 +1825,6 @@ test_tracker_create_help_no_side_effect() {
 run_test() {
   local name="$1"
   shift
-  cd "$repo_root" 2>/dev/null || true
   "$@"
   test_count=$((test_count + 1))
   echo "ok - $name"
