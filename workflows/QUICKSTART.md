@@ -35,20 +35,21 @@ Keep the public layers separate:
 
 ```bash
 ddx bead init
-scripts/install-local-skills.sh
+ddx install helix
+helix doctor --fix
 ```
 
 Notes:
 
-- `ddx bead init` creates the tracker workspace in `.helix/`.
-- `scripts/install-local-skills.sh` links the local `helix` wrapper into
-  `~/.local/bin/helix`.
-- The repo exposes agent skills named `helix-<command>` at `./.agents/skills`.
-- The installer installs that package surface into `~/.agents/skills`.
-- It also mirrors them into `~/.claude/skills` until Claude documents
-  `.agents/skills` support.
-- The wrapper is optional for skill packaging and preferred for HELIX operator
-  loops.
+- `ddx bead init` creates the tracker workspace.
+- `ddx install helix` creates `~/.ddx/plugins/helix` and installs skills into
+  `~/.agents/skills` and `~/.claude/skills`.
+- `helix doctor --fix` verifies and repairs the installation — creates missing
+  `.ddx/plugins/helix` symlinks and skill links in the target repo.
+- The repo exposes agent skills named `helix-<command>` at `.agents/skills` and
+  `.claude/skills` (symlinks to `skills/`).
+- For Claude Code: `claude --plugin-dir /path/to/helix` discovers skills
+  automatically without manual install.
 
 ## Build The Canonical Planning Stack
 
@@ -112,7 +113,7 @@ If you are not using `helix run`, use the bounded manual loop from
 [EXECUTION.md](EXECUTION.md):
 
 ```bash
-while [ "$(ddx bead ready --json | jq 'length')" -gt 0 ]; do
+while [ "$(ddx bead ready --json | ddx jq 'length')" -gt 0 ]; do
   helix build
 done
 

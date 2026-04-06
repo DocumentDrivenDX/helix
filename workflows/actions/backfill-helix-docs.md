@@ -230,6 +230,30 @@ The only acceptable non-complete outcomes are:
 Never end by telling the user to rerun the action in a different session unless
 you actually attempted the command that failed.
 
+## PHASE 0.5 - Bead Acquisition
+
+Before modifying any files or creating tracker issues, acquire a governing
+bead for this backfill pass. See `.ddx/plugins/helix/workflows/references/bead-first.md` for
+the full pattern.
+
+1. Search for an existing open bead governing this work:
+   - `ddx bead list --status open --label kind:planning,action:backfill --json`
+   - Filter by scope if the action was dispatched with a scope.
+2. If found, verify it is still relevant and claim it:
+   - `ddx bead update <id> --claim`
+3. If not found, create one:
+   ```bash
+   ddx bead create "backfill: <scope description>" \
+     --type task \
+     --labels helix,kind:planning,action:backfill \
+     --description "<context-digest>...</context-digest>
+   Reconstruct missing HELIX artifacts for <scope>.
+   Existing coverage: <summary from Phase 0 inventory>" \
+     --acceptance "Missing artifacts reconstructed with evidence; assumption ledger complete; follow-up issues created for guidance-dependent items"
+   ```
+4. Record the bead ID. All subsequent file modifications and tracker changes
+   are governed by this bead.
+
 ## PHASE 1 - Current-State Research
 
 Research the current system aggressively before drafting docs.
@@ -468,8 +492,38 @@ Produce these sections in order:
 
 Be precise, evidence-driven, and conservative about canonizing uncertain intent.
 
+## PHASE 9 - Measure
+
+Verify the backfill against the governing bead's acceptance criteria.
+See `.ddx/plugins/helix/workflows/references/measure.md` for the full pattern.
+
+1. **Artifact completeness**: All missing artifacts identified in Phase 2 have
+   been created or explicitly deferred with rationale.
+2. **Consistency**: Backfilled artifacts are consistent with each other and
+   with higher-authority existing artifacts.
+3. **Concern alignment**: Backfilled artifacts are consistent with declared
+   (or proposed) concerns and practices.
+4. **Assumption ledger**: All inferred items are recorded with confidence levels.
+5. **Record results** on the governing bead:
+   `ddx bead update <id> --notes "<measure-results>...</measure-results>"`
+
+## PHASE 10 - Report
+
+Close the backfill cycle and feed back into the planning helix.
+See `.ddx/plugins/helix/workflows/references/report.md` for the full pattern.
+
+1. If measurement passed, close the governing bead with evidence summary.
+2. If low-confidence items remain, create follow-on beads with label
+   `kind:planning` for guidance-dependent work.
+3. The follow-up issues created in Phase 8 re-enter the planning helix.
+
 After those sections, emit this machine-readable trailer exactly:
 
-`BACKFILL_STATUS: COMPLETE|GUIDANCE_NEEDED|BLOCKED`
-`BACKFILL_REPORT: docs/helix/06-iterate/backfill-reports/<file>.md`
-`RESEARCH_EPIC: <id|none>`
+```
+BACKFILL_STATUS: COMPLETE|GUIDANCE_NEEDED|BLOCKED
+BACKFILL_REPORT: docs/helix/06-iterate/backfill-reports/<file>.md
+RESEARCH_EPIC: <id|none>
+MEASURE_STATUS: PASS|FAIL|PARTIAL
+BEAD_ID: <governing-bead-id>
+FOLLOW_ON_CREATED: N
+```

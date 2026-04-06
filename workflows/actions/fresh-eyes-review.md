@@ -43,6 +43,29 @@ Examples:
 2. Load the governing artifacts for the reviewed code (acceptance criteria,
    test plans, design docs).
 
+## PHASE 0.5 - Bead Acquisition
+
+Before performing review passes, acquire a governing bead for this review.
+See `.ddx/plugins/helix/workflows/references/bead-first.md` for the full pattern.
+
+1. If reviewing a specific issue ID, the review may operate on the execution
+   bead itself (recording review findings as notes). Alternatively, create a
+   dedicated review bead.
+2. Search for an existing open review bead:
+   - `ddx bead list --status open --label kind:planning,action:review --json`
+3. If not found, create one:
+   ```bash
+   ddx bead create "review: <scope description>" \
+     --type task \
+     --labels helix,kind:planning,action:review \
+     --spec-id <reviewed-commit-or-issue> \
+     --description "<context-digest>...</context-digest>
+   Fresh-eyes review of <target>.
+   Review target: <last-commit|issue-id|file-list>" \
+     --acceptance "All review passes complete; findings filed as beads; AGENTS.md updated if needed"
+   ```
+4. Record the bead ID. All review findings are governed by this bead.
+
 ## Pass 1 - Correctness Review
 
 For every changed function or method:
@@ -178,6 +201,34 @@ Rules for filing:
 - Write deterministic acceptance criteria (e.g., "test X passes", "no SQL
   injection in function Y") so the issue can be closed by automated build
 
+## Measure
+
+Record review results on the governing bead. See
+`.ddx/plugins/helix/workflows/references/measure.md` for the full pattern.
+
+All four review passes constitute the measurement. Record a summary:
+
+```bash
+ddx bead update <id> --notes "<measure-results>
+  <timestamp>$(date -u +%Y-%m-%dT%H:%M:%SZ)</timestamp>
+  <status>CLEAN|ISSUES_FOUND</status>
+  <findings total='N' filed='N' critical='N' high='N' medium='N' low='N'/>
+  <agents-md-updated>YES|NO</agents-md-updated>
+  <learnings-filed>N</learnings-filed>
+</measure-results>"
+```
+
+## Report
+
+Close the review cycle. See `.ddx/plugins/helix/workflows/references/report.md` for the full
+pattern.
+
+1. The filed finding beads (from "Filing Findings" above) are the primary
+   follow-on output — they re-enter the planning helix for polish and build.
+2. Close the governing review bead with evidence summary.
+3. If issues are found with severity `critical` or `high`, recommend that the
+   associated implementation issue be reopened or a regression issue be created.
+
 Report these trailer lines at the end of your output:
 
 ```
@@ -186,6 +237,9 @@ ISSUES_COUNT: N
 FINDINGS_FILED: N
 AGENTS_MD_UPDATED: YES|NO
 LEARNINGS_FILED: N
+MEASURE_STATUS: PASS|FAIL|PARTIAL
+BEAD_ID: <governing-bead-id>
+FOLLOW_ON_CREATED: N
 ```
 
 - `CLEAN`: no issues found across all passes
@@ -194,6 +248,3 @@ LEARNINGS_FILED: N
 - `FINDINGS_FILED`: number of findings filed as tracker issues (critical+high+medium)
 - `AGENTS_MD_UPDATED`: whether AGENTS.md was modified during this review
 - `LEARNINGS_FILED`: number of learnings issues created (0 if none)
-
-If issues are found with severity `critical` or `high`, recommend that the
-associated issue be reopened or a regression issue be created.

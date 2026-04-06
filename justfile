@@ -23,9 +23,10 @@ lint:
     @git diff --check || true
     @echo "Lint OK"
 
-# Install skills and CLI locally
+# Install HELIX via DDx and verify
 install:
-    bash scripts/install-local-skills.sh
+    ddx install helix --force
+    bash scripts/helix doctor --fix
 
 # Show test count
 count:

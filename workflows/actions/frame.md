@@ -66,6 +66,28 @@ artifacts unless the scope explicitly asks you to revise them.
 4. Identify what exists, what's missing, and what needs updating for the
    requested scope.
 
+## PHASE 0.5 — Bead Acquisition
+
+Before creating or modifying any artifacts, acquire a governing bead for this
+frame pass. See `.ddx/plugins/helix/workflows/references/bead-first.md` for the full pattern.
+
+1. Search for an existing open bead governing this work:
+   - `ddx bead list --status open --label kind:planning,action:frame --json`
+   - Filter by scope if the action was dispatched with a scope.
+2. If found, verify it is still relevant and claim it:
+   - `ddx bead update <id> --claim`
+3. If not found, create one:
+   ```bash
+   ddx bead create "frame: <scope description>" \
+     --type task \
+     --labels helix,kind:planning,action:frame \
+     --description "<context-digest>...</context-digest>
+   Create or refine frame-phase artifacts for <scope>.
+   Existing artifacts: <summary from Phase 1 discovery>" \
+     --acceptance "Artifacts created/updated per type requirements; downstream design issues filed; validation gates pass"
+   ```
+4. Record the bead ID. All subsequent artifact writes are governed by this bead.
+
 ## PHASE 2 — Draft
 
 For each missing or outdated artifact:
@@ -264,8 +286,45 @@ Create tracker issues for Design-phase work implied by the framing:
 
 Write all artifacts to their canonical locations and commit.
 
+## PHASE 6 — Measure
+
+Verify the frame pass against the governing bead's acceptance criteria.
+See `.ddx/plugins/helix/workflows/references/measure.md` for the full pattern.
+
+1. **Artifact completeness**: All required artifacts for the scope have been
+   created or updated.
+2. **Validation gates**: All blocking quality checks from `dependencies.yaml`
+   and `prompt.md` pass for each artifact.
+3. **Issue creation**: Downstream design issues have been filed for each
+   feature spec.
+4. **Concern alignment**: If concerns were selected or updated, verify
+   consistency with artifact content.
+5. **Record results** on the governing bead:
+   `ddx bead update <id> --notes "<measure-results>...</measure-results>"`
+
+## PHASE 7 — Report
+
+Close the frame cycle and feed back into the planning helix.
+See `.ddx/plugins/helix/workflows/references/report.md` for the full pattern.
+
+1. If measurement passed, close the governing bead with evidence summary.
+2. If validation gates failed or guidance is needed, create follow-on beads.
+3. The design issues created in Phase 4 are the primary downstream output —
+   they enter the planning helix for design and polish.
+
 Report:
 1. Artifacts created or updated
 2. Key decisions made
 3. Open questions requiring stakeholder input
 4. Tracker issues created for downstream work
+5. Measurement results
+
+```
+FRAME_STATUS: COMPLETE|GUIDANCE_NEEDED
+ARTIFACTS_CREATED: N
+ARTIFACTS_UPDATED: N
+ISSUES_CREATED: N
+MEASURE_STATUS: PASS|FAIL|PARTIAL
+BEAD_ID: <governing-bead-id>
+FOLLOW_ON_CREATED: N
+```

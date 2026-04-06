@@ -60,6 +60,28 @@ update a lower-authority artifact in a way that contradicts a higher one.
    assemble a context digest per `.ddx/plugins/helix/workflows/references/context-digest.md` and
    prepend it to the bead description.
 
+## PHASE 0.5 — Bead Acquisition
+
+Before modifying any artifacts, acquire a governing bead for this evolution
+pass. See `.ddx/plugins/helix/workflows/references/bead-first.md` for the full pattern.
+
+1. Search for an existing open bead governing this work:
+   - `ddx bead list --status open --label kind:planning,action:evolve --json`
+2. If found, verify it is still relevant and claim it:
+   - `ddx bead update <id> --claim`
+3. If not found, create one:
+   ```bash
+   ddx bead create "evolve: <requirement summary>" \
+     --type task \
+     --labels helix,kind:planning,action:evolve \
+     --description "<context-digest>...</context-digest>
+   Thread requirement through artifact stack: <requirement description>.
+   Source: <--from value if provided>" \
+     --acceptance "Requirement threaded through all affected artifacts; no unresolved conflicts; downstream beads created with context digests"
+   ```
+4. Record the bead ID. All subsequent artifact modifications are governed by
+   this bead.
+
 ## PHASE 1 — Requirement Analysis
 
 Parse the input requirement:
@@ -190,8 +212,35 @@ Search existing open issues for overlap with the new issues:
 
 ## PHASE 7 — Evolution Report and Commit
 
-1. Commit all artifact changes with a message referencing the requirement.
+1. Commit all artifact changes with a message referencing the requirement
+   and the governing bead ID.
 2. Push to the remote.
+
+## PHASE 8 — Measure
+
+Verify the evolution against the governing bead's acceptance criteria.
+See `.ddx/plugins/helix/workflows/references/measure.md` for the full pattern.
+
+1. **Artifact consistency**: All updated artifacts are consistent with each
+   other and with higher-authority artifacts.
+2. **Conflict resolution**: All resolvable conflicts were resolved; remaining
+   conflicts are documented with clear resolution options.
+3. **Issue completeness**: Downstream implementation beads were created for all
+   code changes implied by the updated artifacts.
+4. **Concern threading**: If the requirement introduced or changed a concern,
+   verify the concern is properly declared and its practices are referenced
+   in new beads.
+5. **Record results** on the governing bead:
+   `ddx bead update <id> --notes "<measure-results>...</measure-results>"`
+
+## PHASE 9 — Report
+
+Close the evolution cycle and feed back into the planning helix.
+See `.ddx/plugins/helix/workflows/references/report.md` for the full pattern.
+
+1. If measurement passed, close the governing bead with evidence summary.
+2. If conflicts remain, create follow-on beads for each unresolved conflict
+   requiring human decision.
 3. Output a structured report:
 
 ```
@@ -223,6 +272,9 @@ EVOLUTION_STATUS: COMPLETE|CONFLICTS|BLOCKED
 ARTIFACTS_UPDATED: [count]
 ISSUES_CREATED: [count]
 CONFLICTS: [count]
+MEASURE_STATUS: PASS|FAIL|PARTIAL
+BEAD_ID: <governing-bead-id>
+FOLLOW_ON_CREATED: N
 ```
 
 `COMPLETE` means all artifacts updated and issues created with no conflicts.

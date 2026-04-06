@@ -108,7 +108,7 @@ agent_run() {
   if [[ -n "$output" && "$output" != "Execution error" ]]; then
     # Extract the result text from ddx agent JSON output
     local result
-    result=$(printf '%s' "$output" | jq -r '.result // empty' 2>/dev/null) || true
+    result=$(printf '%s' "$output" | ddx jq -r '.result // empty' 2>/dev/null) || true
     if [[ -n "$result" ]]; then
       printf '%s\n' "$result"
     else
@@ -153,7 +153,7 @@ demo_body() {
 
   echo "Installing HELIX skills..."
   export HELIX_LIBRARY_ROOT="$HELIX_ROOT/workflows"
-  bash "$HELIX_ROOT/scripts/install-local-skills.sh" 2>&1
+  ddx install helix --force 2>&1 && bash "$HELIX_ROOT/scripts/helix" doctor --fix 2>&1
   echo ""
 
   echo "Available skills:"
@@ -298,7 +298,7 @@ Write failing tests for hello-helix per FEAT-001 and TD-001.
 6. Do NOT create bin/convert.js — tests must FAIL
 
 Then claim and close the test issue:
-ddx bead list --json | jq -r '.[] | select(.title | contains("failing tests")) | .id' | head -1
+ddx bead list --json | ddx jq -r '.[] | select(.title | contains("failing tests")) | .id' | head -1
 Use that ID to: ddx bead update <id> --claim && ddx bead close <id>
 RED_PROMPT
 
@@ -323,7 +323,7 @@ Implement bin/convert.js per TD-001 to make all tests pass.
 4. Run npm test — all tests must pass
 
 Then claim and close the implementation issue:
-ddx bead list --json | jq -r '.[] | select(.title | contains("Implement")) | .id' | head -1
+ddx bead list --json | ddx jq -r '.[] | select(.title | contains("Implement")) | .id' | head -1
 Use that ID to: ddx bead update <id> --claim && ddx bead close <id>
 GREEN_PROMPT
 

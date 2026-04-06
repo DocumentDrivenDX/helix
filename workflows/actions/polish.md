@@ -64,6 +64,30 @@ Issues are stored in `.ddx/beads.jsonl`.
    - Check other planning artifacts (PRD, feature specs, architecture docs)
 4. Record initial issue count and state as the baseline.
 
+## PHASE 0.5 - Bead Acquisition
+
+Before modifying any beads, acquire a governing bead for this polish pass.
+See `.ddx/plugins/helix/workflows/references/bead-first.md` for the full pattern.
+
+1. Search for an existing open bead governing this work:
+   - `ddx bead list --status open --label kind:planning,action:polish --json`
+   - Filter by scope if the action was dispatched with a scope.
+2. If found, verify it is still relevant and claim it:
+   - `ddx bead update <id> --claim`
+3. If not found, create one:
+   ```bash
+   ddx bead create "polish: <scope description>" \
+     --type task \
+     --labels helix,kind:planning,action:polish \
+     --spec-id <governing-plan-if-known> \
+     --description "<context-digest>...</context-digest>
+   Decompose plans and refine beads for <scope>.
+   Plans to decompose: <list plan docs found in Phase 0>" \
+     --acceptance "All plans in scope decomposed into beads; convergence reached (< 3 changes for 2 consecutive rounds); context digests refreshed; concern-appropriate acceptance criteria on all beads"
+   ```
+4. Record the bead ID. All subsequent bead modifications are governed by this
+   bead.
+
 ## PHASE 1 - Plan Decomposition
 
 **This phase runs first and is mandatory when a plan exists.** Plans must be
@@ -178,6 +202,25 @@ concern tools:
 - If acceptance criteria reference tools inconsistent with declared concerns,
   update them.
 
+### Concern Propagation Verification
+
+For each active concern, verify end-to-end threading across all beads in scope:
+
+1. **Digest coverage**: Every bead with a matching area label must have a
+   `<context-digest>` that includes the concern. If missing, assemble one.
+2. **Acceptance criteria coverage**: Every bead touching a concern's area must
+   have at least one acceptance criterion that references the concern's quality
+   gate or practice. For example:
+   - A `typescript-bun` bead must reference `bun:test` or `biome check`
+   - A `security-owasp` bead must reference input validation or dependency audit
+   - A `rust-cargo` bead must reference `cargo clippy` or `cargo deny`
+3. **Tool consistency**: Flag any bead whose acceptance criteria reference tools
+   inconsistent with declared concerns (e.g., `vitest` in a `bun:test` project).
+4. **New concern detection**: If concerns changed since beads were created (check
+   git log on `.ddx/plugins/helix/workflows/concerns/` and `docs/helix/01-frame/concerns.md`),
+   propagate the change to all affected beads — update both digests and
+   acceptance criteria.
+
 ## Convergence Detection
 
 Track a change count per round: number of issues modified, created, or merged.
@@ -189,6 +232,32 @@ convergence and stop refinement.
 
 If max rounds is reached without convergence, report the current state and
 recommend additional rounds or user guidance.
+
+## PHASE N+1 - Measure
+
+Verify the polish pass against the governing bead's acceptance criteria.
+See `.ddx/plugins/helix/workflows/references/measure.md` for the full pattern.
+
+1. **Decomposition completeness**: All plans in scope have corresponding beads.
+2. **Convergence**: Change velocity dropped below threshold.
+3. **Concern threading**: All beads in scope have concern-appropriate context
+   digests and acceptance criteria.
+4. **Dependency integrity**: No circular dependencies; all `spec-id` references
+   resolve to existing artifacts.
+5. **Record results** on the governing bead:
+   `ddx bead update <id> --notes "<measure-results>...</measure-results>"`
+
+## PHASE N+2 - Report
+
+Close the polish cycle and feed back into the planning helix.
+See `.ddx/plugins/helix/workflows/references/report.md` for the full pattern.
+
+1. If measurement passed, close the governing bead with evidence summary.
+2. If measurement identified gaps, create follow-on beads for:
+   - Beads that still lack concern coverage
+   - Plans that could not be fully decomposed (need guidance)
+   - Dependency issues that need resolution
+3. The polished beads are now ready for `helix build` to claim and execute.
 
 ## Output
 
@@ -203,6 +272,9 @@ ISSUES_DECOMPOSED: count (from plan decomposition)
 ISSUES_MODIFIED: count
 ISSUES_CREATED: count (from refinement, not decomposition)
 ISSUES_MERGED: count
+MEASURE_STATUS: PASS|FAIL|PARTIAL
+BEAD_ID: <governing-bead-id>
+FOLLOW_ON_CREATED: N
 ```
 
 - `CONVERGED`: change velocity dropped below threshold

@@ -372,7 +372,7 @@ close_all_issues() {
   local work_dir="$1/work"
   if [[ -f "$work_dir/.ddx/beads.jsonl" ]]; then
     local tmp
-    tmp="$(jq -c '.status = "closed"' "$work_dir/.ddx/beads.jsonl")"
+    tmp="$(ddx jq -c '.status = "closed"' "$work_dir/.ddx/beads.jsonl")"
     printf '%s\n' "$tmp" > "$work_dir/.ddx/beads.jsonl"
   fi
 }
@@ -557,7 +557,7 @@ case "$payload" in
     record implement
     # Close all open issues to simulate completing work
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c '.status = "closed"' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -612,7 +612,7 @@ case "$payload" in
   *"implementation action"*)
     record implement
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c '.status = "closed"' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -670,9 +670,9 @@ case "$payload" in
     record implement
     # Close first open issue
     if [[ -f .ddx/beads.jsonl ]]; then
-      first_open="$(jq -r 'select(.status == "open") | .id' .ddx/beads.jsonl | head -1)"
+      first_open="$(ddx jq -r 'select(.status == "open") | .id' .ddx/beads.jsonl | head -1)"
       if [[ -n "$first_open" ]]; then
-        tmp="$(jq -c "if .id == \"$first_open\" then .status = \"closed\" else . end" .ddx/beads.jsonl)"
+        tmp="$(ddx jq -c "if .id == \"$first_open\" then .status = \"closed\" else . end" .ddx/beads.jsonl)"
         printf '%s\n' "$tmp" > .ddx/beads.jsonl
       fi
     fi
@@ -752,7 +752,7 @@ EOF
     ;;
   *"implementation action"*"Implementation target: hx-planned"*)
     record implement
-    tmp="$(jq -c 'if .id == "hx-planned" then .status = "closed" else . end' .ddx/beads.jsonl)"
+    tmp="$(ddx jq -c 'if .id == "hx-planned" then .status = "closed" else . end' .ddx/beads.jsonl)"
     printf '%s\n' "$tmp" > .ddx/beads.jsonl
     echo "implementation complete"
     ;;
@@ -820,7 +820,7 @@ EOF
     ;;
   *"implementation action"*"Implementation target: hx-polished"*)
     record implement
-    tmp="$(jq -c 'if .id == "hx-polished" then .status = "closed" else . end' .ddx/beads.jsonl)"
+    tmp="$(ddx jq -c 'if .id == "hx-polished" then .status = "closed" else . end' .ddx/beads.jsonl)"
     printf '%s\n' "$tmp" > .ddx/beads.jsonl
     echo "implementation complete"
     ;;
@@ -866,7 +866,7 @@ case "$payload" in
   *"implementation action"*)
     record implement
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c '.status = "closed"' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -904,7 +904,7 @@ case "$payload" in
   *"implementation action"*)
     record implement
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.["spec-id"] = "TP-DRIFT" | .status = "closed"' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c '.["spec-id"] = "TP-DRIFT" | .status = "closed"' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -924,7 +924,7 @@ MOCK
   assert_contains "$output" "after queue drift" "run should skip drifted issue and continue"
 
   local status
-  status="$(run_bead "$root" show hx-mock-0 --json | jq -r '.status')"
+  status="$(run_bead "$root" show hx-mock-0 --json | ddx jq -r '.status')"
   assert_eq "closed" "$status" "run should leave a closed bead closed when drift is non-supersession governance change"
 
   assert_contains "$output" "BLOCKERS" "run should report blockers at the end"
@@ -947,7 +947,7 @@ case "$payload" in
   *"implementation action"*)
     record implement
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.["spec-id"] = "TP-DRIFT"' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c '.["spec-id"] = "TP-DRIFT"' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -967,7 +967,7 @@ MOCK
   assert_contains "$output" "after queue drift" "run should skip drifted issue and continue"
 
   local status
-  status="$(run_bead "$root" show hx-mock-0 --json | jq -r '.status')"
+  status="$(run_bead "$root" show hx-mock-0 --json | ddx jq -r '.status')"
   assert_eq "open" "$status" "run should leave the issue open for re-check"
   rm -rf "$root"
 }
@@ -998,7 +998,7 @@ payload="$*"
 case "$payload" in
   *"implementation action"*"Implementation target: hx-build"*)
     record implement
-    tmp="$(jq -c 'if .id == "hx-build" then .status = "closed" else . end' .ddx/beads.jsonl)"
+    tmp="$(ddx jq -c 'if .id == "hx-build" then .status = "closed" else . end' .ddx/beads.jsonl)"
     printf '%s\n' "$tmp" > .ddx/beads.jsonl
     echo "implementation complete"
     ;;
@@ -1023,8 +1023,8 @@ MOCK
   assert_eq $'implement\ncheck' "$calls" "run should implement the eligible issue then check"
 
   local refine_status build_status
-  refine_status="$(run_bead "$root" show hx-refine --json | jq -r '.status')"
-  build_status="$(run_bead "$root" show hx-build --json | jq -r '.status')"
+  refine_status="$(run_bead "$root" show hx-refine --json | ddx jq -r '.status')"
+  build_status="$(run_bead "$root" show hx-build --json | ddx jq -r '.status')"
   assert_eq "open" "$refine_status" "run should not claim refinement work"
   assert_eq "closed" "$build_status" "run should execute the eligible build issue"
   rm -rf "$root"
@@ -1047,7 +1047,7 @@ payload="$* $stdin_payload"
 case "$payload" in
   *"implementation action"*)
     record implement
-    tmp="$(jq -c '.["superseded-by"] = "hx-replacement" | .status = "closed"' .ddx/beads.jsonl)"
+    tmp="$(ddx jq -c '.["superseded-by"] = "hx-replacement" | .status = "closed"' .ddx/beads.jsonl)"
     printf '%s\n' "$tmp" > .ddx/beads.jsonl
     echo "implementation complete"
     ;;
@@ -1068,8 +1068,8 @@ MOCK
   assert_contains "$output" "after queue drift" "run should skip superseded issue"
 
   local status superseded_by
-  status="$(run_bead "$root" show hx-mock-0 --json | jq -r '.status')"
-  superseded_by="$(run_bead "$root" show hx-mock-0 --json | jq -r '.["superseded-by"]')"
+  status="$(run_bead "$root" show hx-mock-0 --json | ddx jq -r '.status')"
+  superseded_by="$(run_bead "$root" show hx-mock-0 --json | ddx jq -r '.["superseded-by"]')"
   assert_eq "open" "$status" "run should refuse stale close after supersession"
   assert_eq "hx-replacement" "$superseded_by" "supersession metadata should remain visible"
   rm -rf "$root"
@@ -1101,33 +1101,13 @@ test_backfill_creates_report() {
   rm -rf "$root"
 }
 
-test_installer_creates_launcher() {
+test_doctor_reports_status() {
   local root
   root="$(make_workspace)"
-  (
-    cd "$repo_root"
-    HOME="$root/home" \
-    AGENTS_HOME="$root/agents-home" \
-    CLAUDE_HOME="$root/claude-home" \
-    bash scripts/install-local-skills.sh >/dev/null
-  )
-
-  [[ -x "$root/home/.local/bin/helix" ]] || fail "installer should create helix launcher"
-  local launcher
-  launcher="$(cat "$root/home/.local/bin/helix")"
-  assert_contains "$launcher" 'exec bash "'$repo_root'/scripts/helix"' "launcher should invoke repo helix script through bash"
-  # Auto-discover canonical skills from .agents/skills/ — never hardcode
-  local skill
-  for skill_path in "$repo_root/.agents/skills"/helix-*; do
-    [[ -e "$skill_path" ]] || continue
-    skill="$(basename "$skill_path")"
-    [[ -L "$root/agents-home/skills/$skill" ]] || fail "installer should link $skill into .agents"
-    [[ -L "$root/claude-home/skills/$skill" ]] || fail "installer should link $skill into Claude"
-    [[ "$(readlink "$root/agents-home/skills/$skill")" == "$repo_root/.agents/skills/$skill" ]] || fail "installer should point .agents/$skill at the canonical project skill package"
-    [[ "$(readlink "$root/claude-home/skills/$skill")" == "$repo_root/.agents/skills/$skill" ]] || fail "installer should point Claude/$skill at the canonical project skill package"
-  done
-  [[ ! -e "$root/agents-home/skills/helix-workflow" ]] || fail "installer should remove legacy skill aliases"
-  [[ ! -e "$root/agents-home/skills/plan-workflow" ]] || fail "installer should remove legacy skill aliases"
+  local output
+  output="$(run_helix "$root" doctor 2>&1)" || true
+  assert_contains "$output" "HELIX Doctor" "doctor should print header"
+  assert_contains "$output" "workflows" "doctor should check workflows"
   rm -rf "$root"
 }
 
@@ -1164,7 +1144,7 @@ case "$payload" in
   *"implementation action"*)
     record implement
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c '.status = "closed"' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -1283,7 +1263,7 @@ case "$payload" in
     attempts=$((attempts + 1))
     printf '%s\n' "$attempts" > "$attempt_file"
     if (( attempts >= 2 )) && [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c '.status = "closed"' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -1346,7 +1326,7 @@ case "$payload" in
       exit 1
     fi
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c '.status = "closed"' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -1395,7 +1375,7 @@ test_run_recovery_preserves_unrelated_dirty_changes() {
   output="$(run_helix "$root" run --no-auto-review 2>&1)"
 
   local status
-  status="$(run_bead "$root" show "$issue_id" --json | jq -r '.status')"
+  status="$(run_bead "$root" show "$issue_id" --json | ddx jq -r '.status')"
   assert_eq "in_progress" "$status" "fresh claims should remain claimed"
   assert_file_contains "$root/work/keep.txt" "tracked but dirty" "recovery should not revert unrelated dirty worktree changes"
   assert_contains "$output" "too fresh to reclaim" "run should report that claim is too fresh"
@@ -1602,7 +1582,7 @@ case "$payload" in
   *"implementation action"*)
     record implement
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c '.status = "closed"' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -1664,7 +1644,7 @@ case "$payload" in
   *"implementation action"*)
     record implement
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c '.status = "closed"' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -1703,7 +1683,7 @@ case "$payload" in
   *"implementation action"*)
     record implement
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c '.status = "closed"' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -1755,7 +1735,7 @@ case "$payload" in
   *"implementation action"*)
     record implement
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c '.status = "closed"' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -1880,7 +1860,7 @@ run_test "run skips execution-ineligible ready work" test_run_skips_execution_in
 run_test "run stops when issue is superseded" test_run_stops_when_issue_is_superseded
 run_test "backfill requires report marker" test_backfill_requires_report_marker
 run_test "backfill creates report" test_backfill_creates_report
-run_test "installer launcher" test_installer_creates_launcher
+run_test "doctor reports status" test_doctor_reports_status
 run_test "claude run stops after drain" test_claude_run_stops_after_queue_drains
 run_test "claude auto-align" test_claude_run_auto_aligns
 run_test "claude check dry-run" test_claude_check_dry_run
@@ -2022,7 +2002,7 @@ case "$payload" in
   *"implementation action"*)
     record implement
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c '.status = "closed"' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -2076,7 +2056,7 @@ case "$payload" in
   *"implementation action"*)
     record implement
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c '.status = "closed"' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -2127,7 +2107,7 @@ case "$payload" in
   *"implementation action"*)
     record implement
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c '.status = "closed"' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -2190,7 +2170,7 @@ test_orphan_recovery_reclaims_stale() {
 
   # Verify they're in_progress before recovery
   local before
-  before="$(run_bead "$root" list --status in_progress --json | jq 'length')"
+  before="$(run_bead "$root" list --status in_progress --json | ddx jq 'length')"
   assert_eq "2" "$before" "should have 2 in-progress issues before recovery"
 
   # Run helix with a mock that returns STOP immediately — recovery happens at startup
@@ -2202,7 +2182,7 @@ test_orphan_recovery_reclaims_stale() {
 
   # Verify issues were reclaimed (back to open)
   local after
-  after="$(run_bead "$root" list --status in_progress --json | jq 'length')"
+  after="$(run_bead "$root" list --status in_progress --json | ddx jq 'length')"
   assert_eq "0" "$after" "orphan recovery should reclaim stale issues"
   assert_contains "$output" "reclaiming orphaned" "should report reclaiming"
   assert_contains "$output" "recovered 2 orphaned" "should report recovery count"
@@ -2227,7 +2207,7 @@ test_orphan_recovery_skips_fresh() {
 
   # Issue should still be in_progress (not reclaimed)
   local status
-  status="$(run_bead "$root" show hx-fresh-0 --json | jq -r '.status')"
+  status="$(run_bead "$root" show hx-fresh-0 --json | ddx jq -r '.status')"
   assert_eq "in_progress" "$status" "fresh claimed issue should not be reclaimed"
   rm -rf "$root"
 }
@@ -2301,7 +2281,7 @@ case "$payload" in
   *"implementation action"*)
     record implement
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c '.status = "closed"' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -2341,9 +2321,9 @@ test_tracker_claim_records_metadata() {
   issue_json="$(run_bead "$root" show hx-mock-0 --json)"
 
   local claimed_at claimed_pid status
-  claimed_at="$(printf '%s' "$issue_json" | jq -r '.["claimed-at"] // ""')"
-  claimed_pid="$(printf '%s' "$issue_json" | jq -r '.["claimed-pid"] // ""')"
-  status="$(printf '%s' "$issue_json" | jq -r '.status')"
+  claimed_at="$(printf '%s' "$issue_json" | ddx jq -r '.["claimed-at"] // ""')"
+  claimed_pid="$(printf '%s' "$issue_json" | ddx jq -r '.["claimed-pid"] // ""')"
+  status="$(printf '%s' "$issue_json" | ddx jq -r '.status')"
 
   assert_eq "in_progress" "$status" "claim should set status to in_progress"
   [[ -n "$claimed_at" && "$claimed_at" != "null" ]] || fail "claim should set claimed-at"
@@ -2364,10 +2344,10 @@ test_tracker_unclaim_clears_metadata() {
   issue_json="$(run_bead "$root" show hx-mock-0 --json)"
 
   local claimed_at claimed_pid status assignee
-  claimed_at="$(printf '%s' "$issue_json" | jq -r '.["claimed-at"] // "null"')"
-  claimed_pid="$(printf '%s' "$issue_json" | jq -r '.["claimed-pid"] // "null"')"
-  status="$(printf '%s' "$issue_json" | jq -r '.status')"
-  assignee="$(printf '%s' "$issue_json" | jq -r '.owner')"
+  claimed_at="$(printf '%s' "$issue_json" | ddx jq -r '.["claimed-at"] // "null"')"
+  claimed_pid="$(printf '%s' "$issue_json" | ddx jq -r '.["claimed-pid"] // "null"')"
+  status="$(printf '%s' "$issue_json" | ddx jq -r '.status')"
+  assignee="$(printf '%s' "$issue_json" | ddx jq -r '.owner')"
 
   assert_eq "open" "$status" "unclaim should set status to open"
   [[ -z "$assignee" || "$assignee" == "null" ]] || fail "unclaim should clear assignee (got: $assignee)"
@@ -2386,7 +2366,7 @@ test_tracker_unclaim_closed_bead() {
   run_bead "$root" close hx-mock-0 >/dev/null
 
   local before_status
-  before_status="$(run_bead "$root" show hx-mock-0 --json | jq -r '.status')"
+  before_status="$(run_bead "$root" show hx-mock-0 --json | ddx jq -r '.status')"
   assert_eq "closed" "$before_status" "bead should be closed before unclaim"
 
   # Unclaim a closed bead — current behavior: clears claim metadata but status stays closed.
@@ -2396,9 +2376,9 @@ test_tracker_unclaim_closed_bead() {
 
   local issue_json status claimed_at claimed_pid
   issue_json="$(run_bead "$root" show hx-mock-0 --json)"
-  status="$(printf '%s' "$issue_json" | jq -r '.status')"
-  claimed_at="$(printf '%s' "$issue_json" | jq -r '.["claimed-at"] // "null"')"
-  claimed_pid="$(printf '%s' "$issue_json" | jq -r '.["claimed-pid"] // "null"')"
+  status="$(printf '%s' "$issue_json" | ddx jq -r '.status')"
+  claimed_at="$(printf '%s' "$issue_json" | ddx jq -r '.["claimed-at"] // "null"')"
+  claimed_pid="$(printf '%s' "$issue_json" | ddx jq -r '.["claimed-pid"] // "null"')"
 
   assert_eq "closed" "$status" "unclaim on closed bead should not reopen it"
   assert_eq "null" "$claimed_at" "unclaim on closed bead should clear claimed-at"
@@ -2439,7 +2419,7 @@ case "$payload" in
   *"implementation action"*)
     record implement
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c '.status = "closed"' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -2482,7 +2462,7 @@ case "$payload" in
   *"implementation action"*)
     record implement
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c '.status = "closed"' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -2534,7 +2514,7 @@ case "$payload" in
   *"implementation action"*)
     record implement
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c 'if .issue_type != "epic" then .status = "closed" else . end' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c 'if .issue_type != "epic" then .status = "closed" else . end' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -2554,7 +2534,7 @@ MOCK
 
   # Epic should be closed after child completes
   local epic_status
-  epic_status="$(jq -r 'select(.id == "hx-epic-1") | .status' "$work_dir/.ddx/beads.jsonl")"
+  epic_status="$(ddx jq -r 'select(.id == "hx-epic-1") | .status' "$work_dir/.ddx/beads.jsonl")"
   assert_eq "closed" "$epic_status" "epic should be closed after all children complete"
   rm -rf "$root"
 }
@@ -2591,7 +2571,7 @@ case "$payload" in
 EOF
         : > "$state_root/promotion-seen"
       else
-        tmp="$(jq -c 'if .id == "hx-task-child-2" then .status = "closed" else . end' .ddx/beads.jsonl)"
+        tmp="$(ddx jq -c 'if .id == "hx-task-child-2" then .status = "closed" else . end' .ddx/beads.jsonl)"
         printf '%s\n' "$tmp" > .ddx/beads.jsonl
       fi
     fi
@@ -2614,12 +2594,12 @@ MOCK
   assert_contains "$output" "epic focus: hx-task-r → child hx-task-child-2" \
     "should continue execution under epic focus after promotion"
   local parent_type
-  parent_type="$(jq -r 'select(.id == "hx-task-r") | .issue_type' "$work_dir/.ddx/beads.jsonl")"
+  parent_type="$(ddx jq -r 'select(.id == "hx-task-r") | .issue_type' "$work_dir/.ddx/beads.jsonl")"
   assert_eq "epic" "$parent_type" "parent task should be promoted to epic"
   local parent_labels parent_spec parent_priority
-  parent_labels="$(jq -r 'select(.id == "hx-task-r") | .labels | join(",")' "$work_dir/.ddx/beads.jsonl")"
-  parent_spec="$(jq -r 'select(.id == "hx-task-r") | .["spec-id"]' "$work_dir/.ddx/beads.jsonl")"
-  parent_priority="$(jq -r 'select(.id == "hx-task-r") | .priority' "$work_dir/.ddx/beads.jsonl")"
+  parent_labels="$(ddx jq -r 'select(.id == "hx-task-r") | .labels | join(",")' "$work_dir/.ddx/beads.jsonl")"
+  parent_spec="$(ddx jq -r 'select(.id == "hx-task-r") | .["spec-id"]' "$work_dir/.ddx/beads.jsonl")"
+  parent_priority="$(ddx jq -r 'select(.id == "hx-task-r") | .priority' "$work_dir/.ddx/beads.jsonl")"
   assert_eq "helix,phase:build" "$parent_labels" "parent labels should be preserved"
   assert_eq "SPEC-R" "$parent_spec" "parent spec-id should be preserved"
   assert_eq "1" "$parent_priority" "parent priority should be preserved"
@@ -2676,7 +2656,7 @@ case "$payload" in
     record implement
     # Simulate governance drift: change the parent field mid-execution
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.parent = "hx-new-parent"' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c '.parent = "hx-new-parent"' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -2733,7 +2713,7 @@ case "$payload" in
   *"implementation action"*)
     record implement
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c 'if .status == "open" then .status = "closed" else . end' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c 'if .status == "open" then .status = "closed" else . end' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -2750,12 +2730,12 @@ MOCK
 
   # Should have filed an acceptance failure issue
   local ac_issues
-  ac_issues="$(run_bead "$root" list --label acceptance-failure --json | jq 'length')"
+  ac_issues="$(run_bead "$root" list --label acceptance-failure --json | ddx jq 'length')"
   (( ac_issues > 0 )) || fail "acceptance failure should be filed as tracker issue"
 
   # Verify the filed issue has correct metadata
   local ac_title
-  ac_title="$(run_bead "$root" list --label acceptance-failure --json | jq -r '.[0].title')"
+  ac_title="$(run_bead "$root" list --label acceptance-failure --json | ddx jq -r '.[0].title')"
   assert_contains "$ac_title" "Acceptance failure" "filed issue should have descriptive title"
   rm -rf "$root"
 }
@@ -2894,7 +2874,7 @@ case "$payload" in
   *"implementation action"*)
     record implement
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c '.status = "closed"' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -3014,7 +2994,7 @@ MOCK
 
   # Blocked issue should have "blocked" label in tracker
   local labels
-  labels="$(run_bead "$root" show hx-mock-0 --json | jq -r '.labels | join(",")')"
+  labels="$(run_bead "$root" show hx-mock-0 --json | ddx jq -r '.labels | join(",")')"
   assert_contains "$labels" "blocked" "blocked issue should have 'blocked' label in tracker"
   rm -rf "$root"
 }
@@ -3065,7 +3045,7 @@ MOCK
   run_helix "$root" run --no-auto-review --no-auto-align 2>&1 >/dev/null || true
 
   local notes_after_first
-  notes_after_first="$(run_bead "$root" show hx-mock-0 --json | jq -r '.notes // ""')"
+  notes_after_first="$(run_bead "$root" show hx-mock-0 --json | ddx jq -r '.notes // ""')"
   [[ -n "$notes_after_first" ]] || fail "first run should set blocker notes"
 
   # Reset next-actions for the second run
@@ -3076,7 +3056,7 @@ MOCK
   run_helix "$root" run --no-auto-review --no-auto-align 2>&1 >/dev/null || true
 
   local notes_after_second
-  notes_after_second="$(run_bead "$root" show hx-mock-0 --json | jq -r '.notes // ""')"
+  notes_after_second="$(run_bead "$root" show hx-mock-0 --json | ddx jq -r '.notes // ""')"
   assert_eq "$notes_after_first" "$notes_after_second" \
     "blocker notes should remain stable across identical retries"
   rm -rf "$root"
@@ -3115,7 +3095,7 @@ case "$payload" in
   *"implementation action"*)
     record implement
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c 'if .issue_type != "epic" then .status = "closed" else . end' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c 'if .issue_type != "epic" then .status = "closed" else . end' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -3160,9 +3140,9 @@ case "$payload" in
     record implement
     if [[ -f .ddx/beads.jsonl ]]; then
       # Close the first open issue only
-      first="$(jq -r 'select(.status == "open") | .id' .ddx/beads.jsonl | head -1)"
+      first="$(ddx jq -r 'select(.status == "open") | .id' .ddx/beads.jsonl | head -1)"
       if [[ -n "$first" ]]; then
-        tmp="$(jq -c "if .id == \"$first\" then .status = \"closed\" else . end" .ddx/beads.jsonl)"
+        tmp="$(ddx jq -c "if .id == \"$first\" then .status = \"closed\" else . end" .ddx/beads.jsonl)"
         printf '%s\n' "$tmp" > .ddx/beads.jsonl
       fi
     fi
@@ -3219,7 +3199,7 @@ case "$payload" in
     record implement
     # Simulate governance drift: set superseded-by during execution
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.["superseded-by"] = "hx-replacement"' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c '.["superseded-by"] = "hx-replacement"' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -3259,7 +3239,7 @@ case "$payload" in
     record implement
     # Simulate governance drift: change spec-id during execution
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.["spec-id"] = "CHANGED-SPEC"' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c '.["spec-id"] = "CHANGED-SPEC"' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -3301,7 +3281,7 @@ case "$payload" in
   *"implementation action"*)
     record implement
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c '.status = "closed"' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -3351,7 +3331,7 @@ case "$payload" in
   *"implementation action"*)
     record implement
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c '.status = "closed"' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"
@@ -3395,7 +3375,7 @@ record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
 # claude is used for implementation
 record "claude-call"
 if [[ -f .ddx/beads.jsonl ]]; then
-  tmp="$(jq -c '.status = "closed"' .ddx/beads.jsonl)"
+  tmp="$(ddx jq -c '.status = "closed"' .ddx/beads.jsonl)"
   printf '%s\n' "$tmp" > .ddx/beads.jsonl
 fi
 echo "implementation complete"
@@ -3533,34 +3513,28 @@ run_test "frame dry-run" test_frame_dry_run
 run_test "frame dry-run with scope" test_frame_dry_run_with_scope
 run_test "frame help listed" test_frame_help_listed
 
-# ── installer completeness test ───────────────────────────────────────
+# ── skill completeness test ───────────────────────────────────────
 
-test_installer_installs_all_skills() {
-  # Verify the installer installs every skill in .agents/skills/
-  local root
-  root="$(make_workspace)"
-  (
-    cd "$repo_root"
-    HOME="$root/home" \
-    AGENTS_HOME="$root/agents-home" \
-    CLAUDE_HOME="$root/claude-home" \
-    bash scripts/install-local-skills.sh >/dev/null
-  )
+test_skills_have_symlinks() {
+  # Verify every skill in skills/ has symlinks in .agents/skills/ and .claude/skills/
   local missing=0
-  for skill_path in "$repo_root/.agents/skills"/helix-*; do
+  for skill_path in "$repo_root/skills"/helix-*/SKILL.md; do
     [[ -e "$skill_path" ]] || continue
     local name
-    name="$(basename "$skill_path")"
-    if [[ ! -L "$root/agents-home/skills/$name" ]]; then
-      printf 'missing skill: %s\n' "$name" >&2
+    name="$(basename "$(dirname "$skill_path")")"
+    if [[ ! -L "$repo_root/.agents/skills/$name" ]]; then
+      printf 'missing .agents/skills/%s symlink\n' "$name" >&2
+      missing=$((missing + 1))
+    fi
+    if [[ ! -L "$repo_root/.claude/skills/$name" ]]; then
+      printf 'missing .claude/skills/%s symlink\n' "$name" >&2
       missing=$((missing + 1))
     fi
   done
-  (( missing == 0 )) || fail "installer missed $missing skill(s)"
-  rm -rf "$root"
+  (( missing == 0 )) || fail "missing $missing skill symlink(s) — run helix doctor --fix"
 }
 
-run_test "installer installs all skills" test_installer_installs_all_skills
+run_test "skills have symlinks" test_skills_have_symlinks
 
 # ── commit tests ──────────────────────────────────────────────────────
 
@@ -3588,7 +3562,7 @@ test_commit_stages_and_commits() {
 
   assert_contains "$output" "committed" "should report successful commit"
   local status
-  status="$(run_bead "$root" show hx-mock-0 --json | jq -r '.status')"
+  status="$(run_bead "$root" show hx-mock-0 --json | ddx jq -r '.status')"
   assert_eq "closed" "$status" "commit should close the tracker issue"
   rm -rf "$root"
 }
@@ -3680,7 +3654,7 @@ case "$payload" in
   *"implementation action"*)
     record implement
     if [[ -f .ddx/beads.jsonl ]]; then
-      tmp="$(jq -c 'if .issue_type != "epic" then .status = "closed" else . end' .ddx/beads.jsonl)"
+      tmp="$(ddx jq -c 'if .issue_type != "epic" then .status = "closed" else . end' .ddx/beads.jsonl)"
       printf '%s\n' "$tmp" > .ddx/beads.jsonl
     fi
     echo "implementation complete"

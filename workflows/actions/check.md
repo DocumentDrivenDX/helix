@@ -168,6 +168,18 @@ If active concerns are declared:
 - **Missing concerns.md**: If `docs/helix/01-frame/concerns.md` does not exist,
   flag it. Recommend `BACKFILL` if the project clearly uses a technology with
   a library concern, or `GUIDANCE` if the technology choices are unclear.
+- **Concern propagation completeness**: If concerns exist and beads exist,
+  verify that beads with matching area labels have concern-appropriate
+  acceptance criteria (e.g., a `typescript-bun` bead should reference
+  `bun:test` or `biome check`, not `vitest` or `eslint`). If a significant
+  number of beads have incorrect or missing concern references in their
+  acceptance criteria, recommend `POLISH` to propagate concerns.
+- **Concern change since last polish**: Check whether
+  `docs/helix/01-frame/concerns.md` or `.ddx/plugins/helix/workflows/concerns/` have been
+  modified more recently than the most recent `kind:planning,action:polish`
+  bead was closed. If so, concerns have changed since the last polish pass —
+  recommend `POLISH` even if beads appear ready, because their context digests
+  and acceptance criteria may be stale.
 
 ## PHASE 3 - Decision Logic
 

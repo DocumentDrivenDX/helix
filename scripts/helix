@@ -166,7 +166,7 @@ Usage:
   helix backfill [--agent codex|claude] [scope]
   helix design [--agent codex|claude] [--rounds N] [scope]
   helix polish [--agent codex|claude] [--rounds N] [scope]
-  helix doctor
+  helix doctor [--fix]
   helix start [helix run options...]
   helix stop
   helix status [--json]
@@ -180,7 +180,7 @@ Usage:
 
 Commands:
   run         Loop over ready HELIX work, then check whether to continue
-  doctor      Check installation health: required tools, agent CLIs, workflows
+  doctor      Check installation health; --fix auto-repairs plugin symlinks and skills
   start       Launch helix run as a background process (PID file written)
   stop        Kill the background helix run cleanly
   frame       Create or refine product vision, PRD, and feature specs
@@ -246,7 +246,8 @@ need_cmd() {
 }
 
 run_doctor() {
-  local ok=0 warn=0 fail=0
+  local fix="${1:-0}"
+  local ok=0 warn=0 fail=0 fixed=0
 
   _check() {
     local name="$1" required="${2:-1}"
@@ -265,10 +266,59 @@ run_doctor() {
     fi
   }
 
+  _fix_symlink() {
+    local target="$1" link_path="$2" label="$3"
+    if [[ -L "$link_path" ]]; then
+      # Resolve both to absolute paths for comparison
+      local resolved_link resolved_target
+      resolved_link="$(cd "$(dirname "$link_path")" && cd "$(readlink "$link_path")" 2>/dev/null && pwd)" || resolved_link=""
+      resolved_target="$(cd "$target" 2>/dev/null && pwd)" || resolved_target="$target"
+      if [[ -n "$resolved_link" && "$resolved_link" == "$resolved_target" ]]; then
+        printf '  ✓  %-12s %s\n' "$label" "$link_path"
+        ok=$((ok + 1))
+        return 0
+      elif [[ -d "$link_path" ]]; then
+        # Symlink resolves to a valid directory, just not the expected one
+        printf '  ✓  %-12s %s\n' "$label" "$link_path"
+        ok=$((ok + 1))
+        return 0
+      else
+        if (( fix )); then
+          ln -sfn "$target" "$link_path"
+          printf '  ✓  %-12s %s (updated)\n' "$label" "$link_path"
+          fixed=$((fixed + 1))
+          return 0
+        else
+          printf '  ✗  %-12s %s (stale: points to %s)\n' "$label" "$link_path" "$(readlink "$link_path")"
+          fail=$((fail + 1))
+          return 1
+        fi
+      fi
+    elif [[ -e "$link_path" ]]; then
+      printf '  ✗  %-12s %s exists but is not a symlink\n' "$label" "$link_path"
+      fail=$((fail + 1))
+      return 1
+    else
+      if (( fix )); then
+        mkdir -p "$(dirname "$link_path")"
+        ln -s "$target" "$link_path"
+        printf '  ✓  %-12s %s (created)\n' "$label" "$link_path"
+        fixed=$((fixed + 1))
+        return 0
+      else
+        printf '  ✗  %-12s NOT FOUND at %s\n' "$label" "$link_path"
+        fail=$((fail + 1))
+        return 1
+      fi
+    fi
+  }
+
   printf 'HELIX Doctor\n'
   printf '============\n\n'
   printf 'Version:  helix %s\n' "$HELIX_VERSION"
-  printf 'Root:     %s\n\n' "$library_root"
+  printf 'Root:     %s\n' "$library_root"
+  (( fix )) && printf 'Mode:     --fix (will auto-repair)\n'
+  printf '\n'
 
   printf 'Required:\n'
   _check bash 1
@@ -304,21 +354,74 @@ run_doctor() {
 
   # Skills reference .ddx/plugins/helix/workflows/ from the target repo.
   # Verify that path resolves so agents can find workflow docs.
-  local plugin_workflows="${target_root}/.ddx/plugins/helix/workflows"
-  if [[ -d "$plugin_workflows" ]]; then
-    printf '  ✓  %-12s %s\n' "plugin path" "$plugin_workflows"
-  else
-    printf '  ✗  %-12s NOT FOUND at %s\n' "plugin path" "$plugin_workflows"
-    printf '     Skills reference .ddx/plugins/helix/workflows/ — install helix or create a symlink.\n'
-    fail=$((fail + 1))
-  fi
+  printf '\nPlugin path:\n'
+  local plugin_dir="${target_root}/.ddx/plugins/helix"
+  _fix_symlink "$library_root" "$plugin_dir" "plugin"
 
   printf '\nSkills:\n'
   local skill_count=0
   if [[ -d "$library_root/skills" ]]; then
     skill_count="$(find "$library_root/skills" -name SKILL.md 2>/dev/null | wc -l)"
   fi
-  printf '  %-14s %s skills found\n' "" "$skill_count"
+  printf '  %-14s %s skills found in library\n' "" "$skill_count"
+
+  # Check .agents/skills and .claude/skills symlinks in target repo
+  printf '\nSkill symlinks:\n'
+  local skills_dir="${library_root}/skills"
+  local agents_dir="${target_root}/.agents/skills"
+  local claude_dir="${target_root}/.claude/skills"
+  local stale_links=0
+
+  for skill_src in "$skills_dir"/helix-*/SKILL.md; do
+    [[ -e "$skill_src" ]] || continue
+    local skill_name
+    skill_name="$(basename "$(dirname "$skill_src")")"
+    local rel_target="../../skills/$skill_name"
+
+    # .agents/skills/<name>
+    if [[ -L "$agents_dir/$skill_name" ]]; then
+      local current
+      current="$(readlink "$agents_dir/$skill_name")"
+      if [[ "$current" != "$rel_target" ]] && (( fix )); then
+        ln -sfn "$rel_target" "$agents_dir/$skill_name"
+        fixed=$((fixed + 1))
+      elif [[ "$current" != "$rel_target" ]]; then
+        stale_links=$((stale_links + 1))
+      fi
+    elif (( fix )); then
+      mkdir -p "$agents_dir"
+      ln -s "$rel_target" "$agents_dir/$skill_name"
+      fixed=$((fixed + 1))
+    else
+      stale_links=$((stale_links + 1))
+    fi
+
+    # .claude/skills/<name>
+    if [[ -L "$claude_dir/$skill_name" ]]; then
+      local current
+      current="$(readlink "$claude_dir/$skill_name")"
+      if [[ "$current" != "$rel_target" ]] && (( fix )); then
+        ln -sfn "$rel_target" "$claude_dir/$skill_name"
+        fixed=$((fixed + 1))
+      elif [[ "$current" != "$rel_target" ]]; then
+        stale_links=$((stale_links + 1))
+      fi
+    elif (( fix )); then
+      mkdir -p "$claude_dir"
+      ln -s "$rel_target" "$claude_dir/$skill_name"
+      fixed=$((fixed + 1))
+    else
+      stale_links=$((stale_links + 1))
+    fi
+  done
+
+  if (( stale_links > 0 )); then
+    printf '  ✗  %d missing or stale skill symlinks (run helix doctor --fix)\n' "$stale_links"
+    fail=$((fail + 1))
+  else
+    printf '  ✓  .agents/skills and .claude/skills up to date\n'
+    ok=$((ok + 1))
+  fi
 
   printf '\nTracker:\n'
   if [[ -f "$tracker_file" ]]; then
@@ -330,8 +433,12 @@ run_doctor() {
   fi
 
   printf '\n'
+  if (( fixed > 0 )); then
+    printf 'Fixed: %d items repaired\n' "$fixed"
+  fi
   if (( fail > 0 )); then
     printf 'Result: %s ok, %s warnings, %s FAILURES\n' "$ok" "$warn" "$fail"
+    (( ! fix )) && printf 'Hint: run "helix doctor --fix" to auto-repair\n'
     return 1
   else
     printf 'Result: %s ok, %s warnings — ready to go\n' "$ok" "$warn"
@@ -2839,7 +2946,14 @@ main() {
       printf 'helix %s\n' "$HELIX_VERSION"
       ;;
     doctor)
-      run_doctor
+      local doctor_fix=0
+      while [[ $# -gt 0 ]]; do
+        case "$1" in
+          --fix) doctor_fix=1; shift ;;
+          *) break ;;
+        esac
+      done
+      run_doctor "$doctor_fix"
       ;;
     run)
       parse_common_flags "$@"

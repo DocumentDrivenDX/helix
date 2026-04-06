@@ -284,16 +284,28 @@ Interpret `check` as follows:
 
 This repo also provides a small wrapper CLI at `scripts/helix`.
 
-To expose it on your `PATH` locally:
+Installation methods:
 
-```bash
-scripts/install-local-skills.sh
-```
+1. **Plugin mode** (recommended for Claude Code):
+   ```bash
+   claude --plugin-dir /path/to/helix
+   ```
 
-That installer now also links `~/.local/bin/helix` to this repo's wrapper.
-HELIX's canonical project-level skill package surface lives at
-`./.agents/skills`. The installer installs those skills to `~/.agents/skills`
-and mirrors them to `~/.claude/skills` for Claude compatibility.
+2. **DDx install** (for use in other repos):
+   ```bash
+   ddx install helix
+   ```
+
+3. **Health check** (verify or repair installation):
+   ```bash
+   helix doctor          # check status
+   helix doctor --fix    # auto-repair symlinks
+   ```
+
+Skills are symlinked from `skills/` into `.agents/skills/` and `.claude/skills/`
+within the repo. `ddx install helix` creates `~/.ddx/plugins/helix` pointing to
+the repo, which resolves `.ddx/plugins/helix/workflows/...` paths used in skill
+and action prompts.
 
 Main commands:
 

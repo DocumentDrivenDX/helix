@@ -27,6 +27,8 @@ helix design [scope]          # Create design document through iterative refinem
 helix build [selector]        # Run one bounded build pass
 helix check [scope]           # Decide next HELIX action
 helix review [scope]          # Fresh-eyes review of recent work
+helix measure [id|scope]      # Verify bead against acceptance criteria + gates
+helix report [id|scope]       # Analyze results, create follow-on beads, close cycle
 helix align [scope]           # Top-down reconciliation audit
 helix evolve "requirement"    # Thread a requirement through the artifact stack
 helix triage "Title"          # Create well-structured tracker issues
@@ -84,7 +86,7 @@ ddx bead close hx-old
 - **Skill YAML front matter** — quote values containing colons or pipes,
   otherwise codex's skill loader silently rejects them.
 - **Stale in-progress claims** — after a crashed run, unclaim manually:
-  `ddx bead list --status in_progress --json | jq -r '.[].id'`
+  `ddx bead list --status in_progress --json | ddx jq -r '.[].id'`
   then `ddx bead update <id> --status open --assignee ""`
 
 ## HELIX Workflow Notes
@@ -118,6 +120,17 @@ Think about HELIX in two layers:
 - the stricter HELIX workflow and CLI contract defined under `workflows/` and
   executed through `helix`
 
+HELIX operates as a **double helix** — two interleaved cycles:
+
+- **Planning helix**: review → plan → validate (creates and refines beads)
+- **Execution helix**: execute → measure → report (claims beads, does work,
+  records results, creates follow-on beads)
+
+Every action that modifies files must be governed by a bead (bead-first
+principle). Planning-helix beads use `kind:planning` label. Measurement
+results are recorded on beads. Report creates follow-on beads that feed
+back into the planning helix. See `workflows/EXECUTION.md` for details.
+
 ## HELIX Skills
 
 Installed agent skills mirror CLI commands exactly:
@@ -133,6 +146,8 @@ Installed agent skills mirror CLI commands exactly:
 - `helix-triage` <-> `helix triage`
 - `helix-next` <-> `helix next`
 - `helix-review` <-> `helix review`
+- `helix-measure` <-> `helix measure`
+- `helix-report` <-> `helix report`
 - `helix-experiment` <-> `helix experiment`
 - `helix-frame` <-> `helix frame`
 - `helix-commit` <-> `helix commit`
@@ -164,26 +179,26 @@ Key plugin files:
 - Skills directory: `skills/` (auto-discovered by plugin loader)
 - Shared resources: `workflows/`
 
-### Development convenience (symlink install)
+### DDx plugin install
 
-`scripts/install-local-skills.sh` is a **development convenience** for
-contributors who need HELIX skills available outside of plugin-dir mode
-(e.g., when working in other repos). It is no longer the primary
-installation path.
+For use in other repos, install via DDx:
 
 ```bash
-bash scripts/install-local-skills.sh   # deprecated — prints a notice
+ddx install helix
 ```
 
-This installs:
+This creates:
+- `~/.ddx/plugins/helix` symlink to the repo (resolves `.ddx/plugins/helix/workflows/...` paths)
 - Skills into `~/.agents/skills` and `~/.claude/skills`
-- CLI launcher at `~/.local/bin/helix`
 
-Other key paths:
-- canonical project skill path: `.agents/skills`
+After installation, verify with `helix doctor`. Use `helix doctor --fix` to
+repair stale symlinks.
+
+Key paths:
+- canonical project skill path: `.agents/skills`, `.claude/skills` (symlinks to `skills/`)
 - script source: `scripts/helix`
-- canonical user skill path: `~/.agents/skills`
-- Claude compatibility path: `~/.claude/skills`
+- plugin symlink: `~/.ddx/plugins/helix`
+- user skill paths: `~/.agents/skills`, `~/.claude/skills`
 
 Useful commands:
 
@@ -197,6 +212,8 @@ helix align auth
 helix backfill repo
 helix next                            # show recommended next issue
 helix review                          # fresh-eyes review of last commit
+helix measure ddx-abc123              # verify bead against criteria + gates
+helix report FEAT-003                 # batch report across scope
 helix experiment hx-abc123            # one experiment iteration
 helix experiment --close              # squash-merge and close session
 ddx bead create "Title" --type task --labels helix,phase:build
@@ -224,7 +241,6 @@ If you change any of the following, run the HELIX wrapper harness:
 
 - `scripts/helix`
 - `scripts/tracker.sh`
-- `scripts/install-local-skills.sh`
 - `workflows/actions/check.md`
 - `workflows/actions/implementation.md`
 - `workflows/actions/reconcile-alignment.md`
@@ -302,8 +318,13 @@ Pre-commit hooks must remain enabled. Do not use `--no-verify`.
 For new features or major work:
 
 1. `helix design [scope]` — create comprehensive design document
-2. `helix polish [scope]` — refine issues against the plan
+2. `helix polish [scope]` — **decompose the plan into implementable beads**, then refine
 3. `helix run` — execute the implementation loop
+
+**Step 2 is mandatory.** Without polish, agents encounter undecomposed epics
+during build and attempt ad-hoc decomposition, producing poor breakdowns.
+`helix check` enforces this by recommending `POLISH` when plans exist without
+corresponding beads.
 
 ## Metric-Driven Optimization
 

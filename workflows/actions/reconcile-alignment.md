@@ -118,6 +118,31 @@ HELIX labels appropriate to the work phase.
    changed finding). This prevents repeated alignment reruns from bloating
    tracker records with duplicate evidence paragraphs.
 
+## PHASE 0.5 - Bead Acquisition
+
+Before modifying any tracker issues or writing reports, acquire a governing
+bead for this alignment pass. See `.ddx/plugins/helix/workflows/references/bead-first.md` for
+the full pattern.
+
+1. Search for an existing open bead governing this work:
+   - `ddx bead list --status open --label kind:planning,action:align --json`
+   - Filter by scope if the action was dispatched with a scope.
+2. If found, verify it is still relevant and claim it:
+   - `ddx bead update <id> --claim`
+3. If not found, create one:
+   ```bash
+   ddx bead create "align: <scope description>" \
+     --type task \
+     --labels helix,kind:planning,action:align \
+     --spec-id <governing-artifact-if-known> \
+     --description "<context-digest>...</context-digest>
+   Top-down reconciliation review for <scope>.
+   Scope areas: <list functional areas>" \
+     --acceptance "Alignment review complete; all gaps classified; execution issues created for real gaps; traceability matrix produced"
+   ```
+4. Record the bead ID. All subsequent tracker modifications and report writes
+   are governed by this bead.
+
 ## PHASE 1 - Reconstruct Intent
 
 Using planning artifacts only, summarize:
@@ -338,6 +363,30 @@ Every non-trivial claim must cite:
 Be explicit about inference when a conclusion is not directly stated by the
 artifacts.
 
+## PHASE 9 - Measure
+
+Verify the alignment review against the governing bead's acceptance criteria.
+See `.ddx/plugins/helix/workflows/references/measure.md` for the full pattern.
+
+1. **Completeness**: All functional areas in scope have a gap classification.
+2. **Traceability**: The traceability matrix covers all in-scope artifacts.
+3. **Issue coverage**: Every non-ALIGNED gap has at least one execution issue.
+4. **Concern drift**: All concern drift findings are recorded and have
+   corresponding execution issues.
+5. **Record results** on the governing bead:
+   `ddx bead update <id> --notes "<measure-results>...</measure-results>"`
+
+## PHASE 10 - Report
+
+Close the alignment cycle and feed back into the planning helix.
+See `.ddx/plugins/helix/workflows/references/report.md` for the full pattern.
+
+1. If measurement passed, close the governing bead with evidence summary.
+2. If measurement identified gaps in the review itself (incomplete areas,
+   missing traceability), create follow-on beads.
+3. The execution issues created in Phase 7 are the primary output — they
+   re-enter the planning helix for polish and then build.
+
 ## Output Format
 
 Produce these sections in order:
@@ -356,5 +405,18 @@ Produce these sections in order:
 12. Execution Order
 13. Open Decisions
 14. Queue Health and Exhaustion Assessment
+15. Measurement Results
+16. Follow-On Beads Created
+
+Then emit the machine-readable trailer:
+
+```
+ALIGN_STATUS: COMPLETE|INCOMPLETE|BLOCKED
+GAPS_FOUND: N
+EXECUTION_ISSUES_CREATED: N
+MEASURE_STATUS: PASS|FAIL|PARTIAL
+BEAD_ID: <governing-bead-id>
+FOLLOW_ON_CREATED: N
+```
 
 Be precise, deterministic, and evidence-driven.

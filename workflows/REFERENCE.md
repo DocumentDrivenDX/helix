@@ -50,7 +50,8 @@ dun:
 
 ```bash
 ddx bead init
-scripts/install-local-skills.sh
+ddx install helix
+helix doctor --fix
 ```
 
 Installed agent skills mirror CLI commands exactly: `helix-<command>` maps to

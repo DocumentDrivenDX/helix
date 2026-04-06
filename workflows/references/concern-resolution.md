@@ -148,3 +148,55 @@ Spike/POC (gather evidence)
 
 When a referenced ADR is superseded, `helix polish` must flag the
 affected concern for re-evaluation.
+
+## Propagation Completeness
+
+When a concern is introduced or changed, it must propagate through the full
+bead lifecycle. This section defines how to verify propagation completeness.
+
+### What Must Propagate
+
+When `docs/helix/01-frame/concerns.md` changes (concern added, removed, or
+practices updated), the following must be updated for all beads whose area
+matches the changed concern's scope:
+
+1. **Context digests**: The `<context-digest>` block must include the concern
+   and its key practices.
+2. **Acceptance criteria**: At least one acceptance criterion must reference a
+   concern-appropriate tool or practice (e.g., `bun:test` for `typescript-bun`,
+   `cargo clippy` for `rust-cargo`).
+3. **Quality gates**: The bead's governing action must run the concern's
+   declared quality gates during the measure phase.
+
+### How to Check
+
+Use these steps to verify propagation completeness for a scope:
+
+1. Load active concerns per the resolution logic above.
+2. For each concern, list all beads in scope with matching area labels.
+3. For each bead:
+   - Check `<context-digest>` includes the concern. If missing → stale digest.
+   - Check acceptance criteria reference concern-appropriate tools. If missing
+     or referencing wrong tools → concern gap.
+   - Check that the bead's last `<measure-results>` (if any) includes the
+     concern's quality gates. If missing → unmeasured.
+4. Report counts: total beads, beads with full coverage, beads with gaps.
+
+### When to Run
+
+| Trigger | Action |
+|---------|--------|
+| `helix check` Phase 2 | Concern Health — detect propagation gaps, recommend POLISH |
+| `helix polish` Phase 2-N | Concern Propagation Verification — fix gaps during refinement |
+| `helix measure` | Verify concern gates were run and recorded |
+| `helix report` batch mode | Aggregate concern coverage across scope |
+
+### Concern Change Detection
+
+To detect whether concerns have changed since beads were created or last
+polished:
+
+1. Check `git log --since=<last-polish-date> -- docs/helix/01-frame/concerns.md workflows/concerns/`
+2. If changes exist, the concern library has been updated and existing beads
+   may have stale digests and acceptance criteria.
+3. `helix check` should recommend `POLISH` when concern changes are detected.

@@ -347,7 +347,33 @@ leave that issue green. Reopen it immediately or create a linked regression issu
 that records the exact contradictory command, date, exit status, and reviewed
 artifacts.
 
-## PHASE 7.5 - Self-Review
+## PHASE 7.5 - Measure
+
+Record verification results on the bead. See `.ddx/plugins/helix/workflows/references/measure.md`
+for the full pattern.
+
+After verification passes, record the results:
+
+```bash
+ddx bead update <id> --notes "<measure-results>
+  <timestamp>$(date -u +%Y-%m-%dT%H:%M:%SZ)</timestamp>
+  <status>PASS|FAIL|PARTIAL</status>
+  <acceptance>
+    <criterion name='...' status='pass|fail' evidence='...'/>
+  </acceptance>
+  <gates>
+    <gate concern='...' command='...' status='pass|fail'/>
+  </gates>
+  <ratchets>
+    <ratchet name='...' floor='...' measured='...' status='pass|fail'/>
+  </ratchets>
+</measure-results>"
+```
+
+If verification failed and cannot be fixed within scope, record the failure
+on the bead and do not proceed to commit.
+
+## PHASE 7.6 - Self-Review
 
 Before committing, perform one quick fresh-eyes review:
 
@@ -402,7 +428,20 @@ If the issue is complete:
 If the worktree contains unrelated changes, commit only the files that belong to
 the issue. Never revert unrelated work just to simplify the commit.
 
-## PHASE 9 - Output
+## PHASE 9 - Report
+
+Close the execution cycle and feed back into the planning helix.
+See `.ddx/plugins/helix/workflows/references/report.md` for the full pattern.
+
+1. The bead was already closed in Phase 8. Verify the close comment includes
+   measurement evidence.
+2. Follow-on issues created in Phase 6 re-enter the planning helix for
+   polish and subsequent build.
+3. If the bead could not be closed (verification failed, acceptance unmet),
+   it remains open with measurement results recorded — the next `helix check`
+   will route it appropriately.
+
+## PHASE 10 - Output
 
 Report:
 
@@ -411,9 +450,16 @@ Report:
 3. Governing Artifacts
 4. Work Completed
 5. Follow-On Issues Created
-6. Verification Performed
-7. Commit Created
-8. Final Issue Status
-9. Open Risks Or Decisions
+6. Measurement Results (PASS/FAIL/PARTIAL with evidence summary)
+7. Verification Performed
+8. Commit Created
+9. Final Issue Status
+10. Open Risks Or Decisions
+
+```
+MEASURE_STATUS: PASS|FAIL|PARTIAL
+BEAD_ID: <id>
+FOLLOW_ON_CREATED: N
+```
 
 Be precise and deterministic.

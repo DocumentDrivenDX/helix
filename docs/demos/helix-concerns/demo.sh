@@ -95,7 +95,7 @@ agent_run() {
 
   if [[ -n "$output" && "$output" != "Execution error" ]]; then
     local result
-    result=$(printf '%s' "$output" | jq -r '.result // empty' 2>/dev/null) || true
+    result=$(printf '%s' "$output" | ddx jq -r '.result // empty' 2>/dev/null) || true
     if [[ -n "$result" ]]; then
       printf '%s\n' "$result"
     else
@@ -125,7 +125,7 @@ demo_body() {
 
   echo "Installing HELIX..."
   export HELIX_LIBRARY_ROOT="$HELIX_ROOT/workflows"
-  bash "$HELIX_ROOT/scripts/install-local-skills.sh" 2>&1
+  ddx install helix --force 2>&1 && bash "$HELIX_ROOT/scripts/helix" doctor --fix 2>&1
   echo ""
 
   run git init hello-bun

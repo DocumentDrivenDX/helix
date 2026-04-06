@@ -433,7 +433,27 @@ Delete the experiment branch:
 git branch -d experiment/<goal>-<date>
 ```
 
-### 3.6 Close Issue
+### 3.6 Measure
+
+Record measurement results on the bead before closing. See
+`.ddx/plugins/helix/workflows/references/measure.md` for the full pattern.
+
+```bash
+ddx bead update <id> --notes "<measure-results>
+  <timestamp>$(date -u +%Y-%m-%dT%H:%M:%SZ)</timestamp>
+  <status>PASS|PARTIAL</status>
+  <acceptance>
+    <criterion name='metric-improvement' status='pass|fail'
+      evidence='baseline=X, final=Y, delta=Z%'/>
+  </acceptance>
+  <ratchets>
+    <ratchet name='...' floor='...' measured='...' status='pass|fail'/>
+  </ratchets>
+  <experiment iterations='N' kept='N' confidence='score'/>
+</measure-results>"
+```
+
+### 3.7 Close Issue
 
 Close the issue with `ddx bead close <id>` and a comprehensive close comment
 recording execution evidence:
@@ -449,7 +469,7 @@ recording execution evidence:
 
 This is execution evidence on the issue, not a canonical HELIX doc.
 
-### 3.7 Follow-On Issues
+### 3.8 Follow-On Issues
 
 If the experiment revealed additional optimization opportunities, code quality
 concerns, or architectural concerns:
@@ -461,7 +481,7 @@ concerns, or architectural concerns:
 
 Do not silently absorb discovered work into the current experiment scope.
 
-### 3.8 Report
+### 3.9 Report
 
 Report trailer lines and a summary of the experiment session.
 
@@ -475,6 +495,8 @@ EXPERIMENT_ITERATIONS: N
 EXPERIMENT_KEPT: N
 EXPERIMENT_BEST: <metric>=<value> (<delta>% vs baseline)
 EXPERIMENT_CONFIDENCE: <score>
+MEASURE_STATUS: PASS|FAIL|PARTIAL
+BEAD_ID: <id>
 ```
 
 ### Status Definitions

@@ -76,6 +76,30 @@ when they exist.
      to an existing artifact on disk. If a target does not exist, stop and
      request guidance before writing the file.
 
+## PHASE 0.5 - Bead Acquisition
+
+Before writing any design content, acquire a governing bead for this design
+pass. See `.ddx/plugins/helix/workflows/references/bead-first.md` for the full pattern.
+
+1. Search for an existing open bead governing this work:
+   - `ddx bead list --status open --label kind:planning,action:design --json`
+   - Filter by scope or `spec-id` if the action was dispatched with a scope.
+2. If found, verify it is still relevant and claim it:
+   - `ddx bead update <id> --claim`
+3. If not found, create one:
+   ```bash
+   ddx bead create "design: <scope description>" \
+     --type task \
+     --labels helix,kind:planning,action:design \
+     --spec-id <governing-artifact-if-known> \
+     --description "<context-digest>...</context-digest>
+   Create comprehensive design document for <scope>.
+   Inputs: <list governing artifacts loaded in Phase 0>" \
+     --acceptance "Design document converged with all required sections including concern-mandated sections; written to canonical path"
+   ```
+4. Record the bead ID. All subsequent file modifications are governed by this
+   bead.
+
 ## PHASE 1 - First Draft
 
 Produce a comprehensive design document covering ALL of the following sections.
@@ -111,6 +135,23 @@ Do not skip sections; mark them "N/A" with rationale if genuinely inapplicable.
     - Known risks, likelihood, impact, mitigation strategy
 11. **Observability**
     - Logging, metrics, alerting, dashboards
+
+### Concern-Mandated Sections
+
+If active concerns require specific design coverage, those sections are
+mandatory (not just "recommended"):
+
+- `security-owasp` active → Section 7 (Security Considerations) must include
+  OWASP-aligned threat model, not just a placeholder.
+- `o11y-otel` active → Section 11 (Observability) must include OpenTelemetry
+  instrumentation plan with specific spans, metrics, and trace propagation.
+- `a11y-wcag-aa` active → Add a **12. Accessibility** section covering WCAG AA
+  compliance strategy for all user-facing surfaces.
+- Other active concerns → Check each concern's `practices.md` for design-phase
+  requirements and ensure the plan addresses them.
+
+The governing bead's acceptance criteria include concern-mandated section
+completeness.
 
 ## PHASE 2 through N - Iterative Refinement
 
@@ -159,6 +200,34 @@ declare convergence and stop refinement.
    without reading other documents, though it should cross-reference governing
    artifacts by path.
 
+## PHASE N+2 - Measure
+
+Verify the design document against the governing bead's acceptance criteria.
+See `.ddx/plugins/helix/workflows/references/measure.md` for the full pattern.
+
+1. **Acceptance criteria**: Verify the design document exists at the canonical
+   path and contains all required sections (including concern-mandated ones).
+2. **Convergence**: Confirm refinement velocity dropped below threshold or
+   explain why it did not.
+3. **Concern coverage**: Verify each active concern's design-phase requirements
+   are addressed in the plan.
+4. **Record results** on the governing bead:
+   `ddx bead update <id> --notes "<measure-results>...</measure-results>"`
+
+## PHASE N+3 - Report
+
+Close the design cycle and feed back into the planning helix.
+See `.ddx/plugins/helix/workflows/references/report.md` for the full pattern.
+
+1. If measurement passed, close the governing bead with evidence summary.
+2. If measurement identified gaps, create follow-on beads for:
+   - Missing concern-mandated sections
+   - Sections that need further refinement
+   - Guidance-dependent items
+3. Note: The design document itself is not an execution bead — it must go
+   through `helix polish` to be decomposed into implementable beads before
+   `helix build` can execute against it.
+
 ## Output
 
 Report these trailer lines at the end of your output:
@@ -167,6 +236,9 @@ Report these trailer lines at the end of your output:
 PLAN_STATUS: CONVERGED|IN_PROGRESS|GUIDANCE_NEEDED
 PLAN_DOCUMENT: docs/helix/02-design/plan-YYYY-MM-DD[-scope].md
 PLAN_ROUNDS: N
+MEASURE_STATUS: PASS|FAIL|PARTIAL
+BEAD_ID: <governing-bead-id>
+FOLLOW_ON_CREATED: N
 ```
 
 - `CONVERGED`: refinement velocity dropped below threshold
