@@ -20,7 +20,7 @@ HELIX exposes two public layers that should stay distinct in docs and tooling:
   published at `.agents/skills`, mirrored to `~/.agents/skills`, with
   `~/.claude/skills` retained only as a temporary compatibility mirror.
 - HELIX workflow and CLI contract:
-  the stricter method defined in `workflows/`, the built-in tracker, and the
+  the stricter method defined in `.ddx/plugins/helix/workflows/`, the built-in tracker, and the
   `helix` wrapper commands that execute bounded actions.
 
 Use the portable layer when you need standards-compliant skill packaging. Use
@@ -41,11 +41,11 @@ Treat the following files as the canonical HELIX workflow contract:
 - [backfill-helix-docs.md](actions/backfill-helix-docs.md) for conservative documentation reconstruction
 - [alignment-review.md](templates/alignment-review.md) and [backfill-report.md](templates/backfill-report.md) for durable review outputs
 
-The rest of `workflows/` is supporting guidance, templates, phase
+The rest of `.ddx/plugins/helix/workflows/` is supporting guidance, templates, phase
 context, or examples. If a supporting document conflicts with the files above,
 follow the normative contract and update the supporting document.
 
-`workflows/` is also the shared HELIX resource library for assets consumed by
+`.ddx/plugins/helix/workflows/` is also the shared HELIX resource library for assets consumed by
 multiple HELIX skills. Skills are the operational entrypoints into HELIX; the
 shared prompts, templates, metadata, and conventions they reuse live here.
 Assets used by only one skill should live with that skill instead of here.
@@ -103,10 +103,10 @@ folders.
 - `.agents/skills/` is the canonical project-level skill package surface.
 - `skills/` contains the underlying HELIX skill directories and skill-local
   resources that the project-level package surface points at.
-- `workflows/` contains shared resources used by multiple HELIX skills.
+- `.ddx/plugins/helix/workflows/` contains shared resources used by multiple HELIX skills.
 - Installers, plugins, and enterprise packaging must preserve `.agents/skills/`,
-  `skills/`, and `workflows/` together so package-relative references from
-  skills to `workflows/` remain valid.
+  `skills/`, and `.ddx/plugins/helix/workflows/` together so package-relative references from
+  skills to `.ddx/plugins/helix/workflows/` remain valid.
 - A HELIX installation is incomplete if the project-level package surface is
   present without the underlying `skills/` and shared workflow resources it
   depends on.
@@ -257,7 +257,7 @@ action prompt:
 
 | Layer | Reference | Project File | Fallback |
 |-------|-----------|-------------|----------|
-| **Principles** | `references/principles-resolution.md` | `docs/helix/01-frame/principles.md` | `workflows/principles.md` (defaults) |
+| **Principles** | `references/principles-resolution.md` | `docs/helix/01-frame/principles.md` | `.ddx/plugins/helix/workflows/principles.md` (defaults) |
 | **Concerns & Practices** | `references/concern-resolution.md` | `docs/helix/01-frame/concerns.md` | None (no defaults) |
 | **Context Digest** | `references/context-digest.md` | Assembled into bead descriptions | Fall back to upstream reads |
 
@@ -265,7 +265,7 @@ action prompt:
 apply universally — "design for simplicity", "tests first", "local-first UX".
 
 **Concerns** are composable cross-cutting declarations from a library
-(`workflows/concerns/`). They cover tech stacks (typescript-bun, rust-cargo),
+(`.ddx/plugins/helix/workflows/concerns/`). They cover tech stacks (typescript-bun, rust-cargo),
 quality attributes (a11y-wcag-aa, o11y-otel), and conventions (i18n-icu).
 Each concern declares which **areas** it applies to, so a UI bead gets a11y
 practices but a database migration bead does not. Each concern ships
@@ -373,7 +373,7 @@ HELIX may not be suitable for:
 helix run
 
 # Or follow the comprehensive guide
-open workflows/QUICKSTART.md
+open .ddx/plugins/helix/workflows/QUICKSTART.md
 ```
 
 For a detailed walkthrough, see our [Quick Start Guide](QUICKSTART.md) which includes a complete example of building a TODO API using HELIX.

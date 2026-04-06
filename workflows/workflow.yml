@@ -1,9 +1,9 @@
 # Metadata stub only.
 # The normative HELIX contract lives in:
-# - workflows/README.md
-# - workflows/EXECUTION.md
-# - workflows/TRACKER.md
-# - workflows/actions/*.md bounded action prompts
+# - .ddx/plugins/helix/workflows/README.md
+# - .ddx/plugins/helix/workflows/EXECUTION.md
+# - .ddx/plugins/helix/workflows/TRACKER.md
+# - .ddx/plugins/helix/workflows/actions/*.md bounded action prompts
 
 name: helix
 version: 2.0.0
@@ -21,57 +21,57 @@ phases:
     name: Discover
     description: Optional opportunity validation before Frame.
     contract_docs:
-      - workflows/phases/00-discover/README.md
-      - workflows/phases/00-discover/GATE.yaml
+      - .ddx/plugins/helix/workflows/phases/00-discover/README.md
+      - .ddx/plugins/helix/workflows/phases/00-discover/GATE.yaml
 
   - id: frame
     order: 1
     name: Frame
     description: Define the problem, requirements, and acceptance criteria.
     contract_docs:
-      - workflows/phases/01-frame/README.md
-      - workflows/phases/01-frame/GATE.yaml
+      - .ddx/plugins/helix/workflows/phases/01-frame/README.md
+      - .ddx/plugins/helix/workflows/phases/01-frame/GATE.yaml
 
   - id: design
     order: 2
     name: Design
     description: Define architecture, contracts, and technical designs.
     contract_docs:
-      - workflows/phases/02-design/README.md
-      - workflows/phases/02-design/GATE.yaml
+      - .ddx/plugins/helix/workflows/phases/02-design/README.md
+      - .ddx/plugins/helix/workflows/phases/02-design/GATE.yaml
 
   - id: test
     order: 3
     name: Test
     description: Write failing tests that define system behavior.
     contract_docs:
-      - workflows/phases/03-test/README.md
-      - workflows/phases/03-test/GATE.yaml
+      - .ddx/plugins/helix/workflows/phases/03-test/README.md
+      - .ddx/plugins/helix/workflows/phases/03-test/GATE.yaml
 
   - id: build
     order: 4
     name: Build
     description: Implement the minimum changes needed to satisfy tests.
     contract_docs:
-      - workflows/phases/04-build/README.md
-      - workflows/phases/04-build/GATE.yaml
-      - workflows/actions/implementation.md
+      - .ddx/plugins/helix/workflows/phases/04-build/README.md
+      - .ddx/plugins/helix/workflows/phases/04-build/GATE.yaml
+      - .ddx/plugins/helix/workflows/actions/implementation.md
 
   - id: deploy
     order: 5
     name: Deploy
     description: Release safely with monitoring and rollback readiness.
     contract_docs:
-      - workflows/phases/05-deploy/README.md
-      - workflows/phases/05-deploy/GATE.yaml
+      - .ddx/plugins/helix/workflows/phases/05-deploy/README.md
+      - .ddx/plugins/helix/workflows/phases/05-deploy/GATE.yaml
 
   - id: iterate
     order: 6
     name: Iterate
     description: Capture learnings, backlog follow-up work, and review outputs.
     contract_docs:
-      - workflows/phases/06-iterate/README.md
-      - workflows/phases/06-iterate/GATE.yaml
-      - workflows/actions/check.md
-      - workflows/actions/reconcile-alignment.md
-      - workflows/actions/backfill-helix-docs.md
+      - .ddx/plugins/helix/workflows/phases/06-iterate/README.md
+      - .ddx/plugins/helix/workflows/phases/06-iterate/GATE.yaml
+      - .ddx/plugins/helix/workflows/actions/check.md
+      - .ddx/plugins/helix/workflows/actions/reconcile-alignment.md
+      - .ddx/plugins/helix/workflows/actions/backfill-helix-docs.md

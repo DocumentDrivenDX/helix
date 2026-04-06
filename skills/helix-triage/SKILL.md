@@ -62,7 +62,7 @@ Additional labels to include when applicable:
    If it depends on other issues completing first, use `--deps`.
 
 5. **Assemble context digest.** Follow
-   `workflows/references/context-digest.md` to build a compact summary of
+   `.ddx/plugins/helix/workflows/references/context-digest.md` to build a compact summary of
    active principles, concerns, practices, relevant ADRs, and governing spec
    context. Prepend the `<context-digest>` XML block to the description so
    the implementing agent can work from the bead alone.
@@ -101,5 +101,5 @@ When an epic or large task needs breakdown:
 ## References
 
 - Tracker conventions: `ddx bead --help` (DDx FEAT-004)
-- Implementation action: `workflows/actions/implementation.md`
+- Implementation action: `.ddx/plugins/helix/workflows/actions/implementation.md`
 - CLI: `ddx bead create --help`

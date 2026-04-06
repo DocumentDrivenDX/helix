@@ -15,7 +15,7 @@ then move to the next. Batch mode saves context-loading cost when issues share
 the same governing artifacts.
 
 When the ready queue drains, the external supervisor should run
-`workflows/actions/check.md` instead of continuing blindly.
+`.ddx/plugins/helix/workflows/actions/check.md` instead of continuing blindly.
 
 ## Action Input
 
@@ -76,8 +76,13 @@ Do not claim or implement `phase:review` issues with this action.
 Do the work. The goal is continuous forward progress on real implementation.
 
 Select the issue most likely to close cleanly in this run. Prefer straightforward
-tasks with clear acceptance criteria. When given an epic, decompose it into
-subtasks and implement the first one — decomposition IS implementation work.
+tasks with clear acceptance criteria.
+
+**Do not decompose epics during build.** If the selected candidate is an epic
+without child task beads, exit cleanly so the supervisor can route to
+`helix polish` for proper decomposition. Decomposition is planning work, not
+implementation work — mixing them leads to agents skipping the breakdown and
+jumping straight to code.
 
 Hard problems should be attacked, not deferred. If the toolchain doesn't compile,
 try to fix it. If the spec is ambiguous, make the best-effort interpretation
@@ -101,18 +106,18 @@ rest, and close the issue.
    - If unrelated changes create commit risk, isolate your issue changes rather
      than cleaning the tree destructively.
 3. Load project quality and completeness gates.
-   - Read relevant HELIX guidance such as `workflows/phases/04-build/enforcer.md`
+   - Read relevant HELIX guidance such as `.ddx/plugins/helix/workflows/phases/04-build/enforcer.md`
      and any repo-specific CI, lint, test, security, or release rules.
    - Load ratchet floor fixtures if the project has adopted quality ratchets
-     (see `workflows/ratchets.md`). Note the current floors so Phase 7
+     (see `.ddx/plugins/helix/workflows/ratchets.md`). Note the current floors so Phase 7
      can compare against them.
 4. Load active design principles.
-   - Follow the resolution pattern in `workflows/references/principles-resolution.md`.
+   - Follow the resolution pattern in `.ddx/plugins/helix/workflows/references/principles-resolution.md`.
    - If `docs/helix/01-frame/principles.md` exists and has content, load it.
-   - Otherwise load `workflows/principles.md` (HELIX defaults).
+   - Otherwise load `.ddx/plugins/helix/workflows/principles.md` (HELIX defaults).
    - Apply these principles when making judgment calls throughout this task.
 5. Load active concerns and practices.
-   - Follow the resolution pattern in `workflows/references/concern-resolution.md`.
+   - Follow the resolution pattern in `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
    - If `docs/helix/01-frame/concerns.md` exists, load the declared concerns and
      merged practices.
    - Use the declared concern tools, conventions, and patterns throughout
@@ -158,7 +163,12 @@ De-prioritize (but do not automatically reject) when:
 
 - governing artifacts are thin — try to infer intent from the authority stack
 - acceptance criteria are broad — scope down to the clearest slice and implement that
-- the issue is an epic — decompose into subtasks and implement the first one
+
+**Skip and exit** when:
+
+- the issue is an epic without child task beads — this needs `helix polish`
+  decomposition, not implementation. Report the epic ID and exit so the
+  supervisor can route to polish.
 
 Reject only when:
 
@@ -166,9 +176,10 @@ Reject only when:
   contradiction cannot be resolved by reasonable interpretation
 - the issue is truly a planning or decision task that requires human input
 
-When an issue seems too hard or too broad, the right response is to decompose it
-into smaller pieces, implement the easiest piece, and create follow-on issues for
-the rest. Do not bail just because the full scope is large.
+When an issue seems too hard or too broad, the right response is to create
+follow-on issues for the parts you cannot tackle in this pass, implement the
+clearest slice, and close the issue scoped to what you did. Do not bail just
+because the full scope is large.
 
 If genuinely no candidate can make forward progress, report what is blocked and
 why with specific artifact references. Exit cleanly so the supervisor can run
@@ -305,7 +316,7 @@ At minimum, verify:
 - lint, format, or static analysis passes on the changed crates/packages
 - docs/config/runbooks are updated where required
 - ratchet enforcement commands pass if the project has adopted quality ratchets
-  (see `workflows/ratchets.md`). If a ratchet auto-bump is triggered,
+  (see `.ddx/plugins/helix/workflows/ratchets.md`). If a ratchet auto-bump is triggered,
   include the updated floor fixture in the issue commit.
 - **concern-declared quality gates** pass for the active concerns scoped to
   this bead's area. Run the gates declared in each matched concern's

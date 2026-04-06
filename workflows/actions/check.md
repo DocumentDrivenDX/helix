@@ -93,7 +93,7 @@ Rules:
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
-0a. **Load active concerns** following `workflows/references/concern-resolution.md`.
+0a. **Load active concerns** following `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
    Concern context informs queue health assessment — beads without area labels
    cannot be matched to concerns, and stale context digests indicate the queue
    needs a polish pass.
@@ -129,9 +129,28 @@ Check for:
 - open execution issues whose governing artifacts are too weak to execute safely
 - queue starvation caused by missing review, decision, or doc work
 - ratchet status if the project has adopted quality ratchets
-  (see `workflows/ratchets.md`): current measured value vs. floor,
+  (see `.ddx/plugins/helix/workflows/ratchets.md`): current measured value vs. floor,
   trend direction, and whether any ratchet is approaching its failure
   threshold
+
+### Plan Decomposition Health
+
+Plans must be decomposed into tracker beads before implementation can begin.
+Check for undecomposed plans:
+
+1. Scan `docs/helix/02-design/plan-*.md` and
+   `docs/helix/02-design/solution-designs/SD-*.md` for the scope.
+2. For each plan document found, check whether tracker beads exist that
+   reference it (via `spec-id`, description, or parent epic).
+3. If a plan exists but has **no or very few** corresponding beads, the plan
+   is undecomposed. Flag this as a `POLISH` trigger — `polish` is the action
+   that decomposes plans into implementable beads.
+4. If an epic exists for the plan but has no child beads, that is also an
+   undecomposed plan — the epic alone is not sufficient for `BUILD`.
+
+An undecomposed plan is a higher-priority signal than ready epics. Do not
+recommend `BUILD` when the ready queue contains only epics that need
+decomposition.
 
 ### Concern Health
 
@@ -144,7 +163,7 @@ If active concerns are declared:
   `<context-digest>` block. If the concern library has been updated since these
   beads were created, recommend `POLISH` to assemble digests.
 - **Stale digests**: If concerns or practices were recently updated (check git
-  log on `workflows/concerns/` and `docs/helix/01-frame/concerns.md`), flag
+  log on `.ddx/plugins/helix/workflows/concerns/` and `docs/helix/01-frame/concerns.md`), flag
   that existing beads may have stale digests.
 - **Missing concerns.md**: If `docs/helix/01-frame/concerns.md` does not exist,
   flag it. Recommend `BACKFILL` if the project clearly uses a technology with
@@ -155,14 +174,20 @@ If active concerns are declared:
 Apply these rules in order:
 
 1. Recommend `BUILD` when:
-   - one or more safe ready HELIX execution issues exist
+   - one or more safe ready HELIX execution issues exist that are **not**
+     undecomposed epics
    - no higher-priority supervisory refinement such as required `design` or
      `polish` remains unresolved for the same scope
+   - plan decomposition health shows all in-scope plans have corresponding beads
 2. Recommend `DESIGN` when:
    - requested or discovered work lacks sufficient design authority
    - a bounded planning pass can create or extend the missing design stack
    - implementation would otherwise guess at solution details
 3. Recommend `POLISH` when:
+   - a plan or solution design exists but has not been decomposed into
+     implementable beads (this takes priority over `BUILD` even when epics
+     appear in the ready queue)
+   - the ready queue contains only epics without child task beads
    - governing specs or designs changed and open issues need refinement before execution
    - issue dependencies, `spec-id`, parentage, or acceptance metadata are stale enough to make implementation unsafe
 4. Recommend `BACKFILL` when:

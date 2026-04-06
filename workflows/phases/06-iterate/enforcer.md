@@ -88,7 +88,7 @@ When documenting learnings:
 - [ ] Next iteration planned
 - [ ] Stakeholders informed
 - [ ] Decisions documented
-- [ ] Ratchet floor trends reviewed (compare current floors to cycle start — see `workflows/ratchets.md`)
+- [ ] Ratchet floor trends reviewed (compare current floors to cycle start — see `.ddx/plugins/helix/workflows/ratchets.md`)
 
 ## Common Anti-Patterns to Prevent
 

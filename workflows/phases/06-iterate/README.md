@@ -428,11 +428,11 @@ The Iterate phase outputs directly influence the next Frame phase:
 
 Iterate work is decided through `helix check` and the canonical cross-phase
 actions:
-- `workflows/actions/reconcile-alignment.md`
-- `workflows/actions/backfill-helix-docs.md`
+- `.ddx/plugins/helix/workflows/actions/reconcile-alignment.md`
+- `.ddx/plugins/helix/workflows/actions/backfill-helix-docs.md`
 
 For retrospective and planning artifacts, use the prompts and templates under
-`workflows/phases/06-iterate/artifacts/`.
+`.ddx/plugins/helix/workflows/phases/06-iterate/artifacts/`.
 
 Common entry points:
 - `artifacts/feedback-analysis/`
@@ -449,7 +449,7 @@ judgment remains responsible for prioritization, tradeoffs, and scheduling.
 ## File Organization
 
 ### Structure Overview
-- **Analysis Artifacts**: `workflows/phases/06-iterate/artifacts/`
+- **Analysis Artifacts**: `.ddx/plugins/helix/workflows/phases/06-iterate/artifacts/`
   - Templates for capturing and analyzing learnings
   - Prompts for AI-assisted insight generation
 

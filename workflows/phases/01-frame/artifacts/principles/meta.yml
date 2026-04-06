@@ -12,7 +12,7 @@ description: |
   when choosing between two valid options.
 
   Two-layer model:
-    Layer 1 (HELIX defaults): workflows/principles.md — sensible defaults
+    Layer 1 (HELIX defaults): .ddx/plugins/helix/workflows/principles.md — sensible defaults
     Layer 2 (Project):        docs/helix/01-frame/principles.md — project-owned
 
   If the project file exists, it is the sole active source.

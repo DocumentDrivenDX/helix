@@ -27,9 +27,9 @@ Examples:
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
-0a. **Load active design principles** following `workflows/references/principles-resolution.md`.
+0a. **Load active design principles** following `.ddx/plugins/helix/workflows/references/principles-resolution.md`.
    Apply them as review criteria — flag changes that violate the active principles.
-0b. **Load active concerns and practices** following `workflows/references/concern-resolution.md`.
+0b. **Load active concerns and practices** following `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
    Flag implementation that uses tools or conventions inconsistent with the
    declared concerns (e.g., wrong test framework, wrong formatter, wrong import style).
 0c. **Read the bead's context digest** if the reviewed issue has one.
@@ -91,10 +91,10 @@ the concern's declared practices:
 2. **Security concern** (if active): Are inputs validated at system boundaries?
    Are SQL queries parameterized? Are secrets loaded from environment, not
    hardcoded? Are error messages generic to clients? Check against the
-   practices in `workflows/concerns/security-owasp/practices.md`.
+   practices in `.ddx/plugins/helix/workflows/concerns/security-owasp/practices.md`.
 3. **Observability concern** (if active): Are new code paths instrumented
    with tracing spans? Are metrics emitted for new endpoints? Check against
-   `workflows/concerns/o11y-otel/practices.md`.
+   `.ddx/plugins/helix/workflows/concerns/o11y-otel/practices.md`.
 4. **Infrastructure concern** (if active): Do new services follow the
    declared deployment pattern? Are Helm values or k8s manifests updated?
 

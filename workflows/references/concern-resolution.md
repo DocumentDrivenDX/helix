@@ -60,7 +60,7 @@ label or assign multiple labels.
    `## Active Concerns`).
 2. Filter to concerns matching the current bead's area scope.
 3. For each matched concern, load
-   `workflows/concerns/<concern-name>/practices.md` from the library.
+   `.ddx/plugins/helix/workflows/concerns/<concern-name>/practices.md` from the library.
 4. Apply project overrides (listed under `## Project Overrides` in the
    concerns document) on top of library practices.
 
@@ -107,7 +107,7 @@ inject concerns at their Phase 0 or Bootstrap step, alongside principles.
 
 When `helix frame` runs and no `docs/helix/01-frame/concerns.md` exists:
 
-1. List available concerns from `workflows/concerns/` grouped by category.
+1. List available concerns from `.ddx/plugins/helix/workflows/concerns/` grouped by category.
 2. Ask the user about each category:
    - Tech stack: "What language, runtime, and package manager?"
    - Data: "What database or data layer?"

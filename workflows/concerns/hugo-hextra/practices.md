@@ -51,8 +51,8 @@ Any change to a HELIX artifact that is surfaced on the microsite:
 - New, renamed, or removed features → update glossary/artifacts page
 - Changed phases, authority order, or workflow rules → update workflow page
 - New or changed artifact types → update glossary/artifacts with description
-  from `workflows/phases/*/artifacts/<name>/meta.yml` (description field)
-  and `workflows/phases/*/artifacts/<name>/prompt.md` (Purpose section)
+  from `.ddx/plugins/helix/workflows/phases/*/artifacts/<name>/meta.yml` (description field)
+  and `.ddx/plugins/helix/workflows/phases/*/artifacts/<name>/prompt.md` (Purpose section)
 - New or changed concerns → update glossary/concerns page
 - Changed install process → update Getting Started
 - New demo reels → update Demos page and copy cast/video files to
@@ -61,7 +61,7 @@ Any change to a HELIX artifact that is surfaced on the microsite:
 ### Glossary generation from artifact metadata
 
 Each HELIX artifact type has structured metadata at
-`workflows/phases/<NN>-<phase>/artifacts/<name>/`:
+`.ddx/plugins/helix/workflows/phases/<NN>-<phase>/artifacts/<name>/`:
 
 | File | What it provides |
 |------|-----------------|
@@ -86,7 +86,7 @@ completing the evolution. The concern makes this a requirement, not a
 suggestion.
 
 Specifically:
-- If a new artifact type is added to `workflows/phases/`, add it to the
+- If a new artifact type is added to `.ddx/plugins/helix/workflows/phases/`, add it to the
   glossary artifacts page with its description from `meta.yml`/`prompt.md`
 - If an artifact's purpose or scope changes, update the glossary entry
 - If a CLI command is added or its behavior changes, update the CLI

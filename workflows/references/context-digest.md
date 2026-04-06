@@ -31,11 +31,11 @@ summarizes all cross-cutting concerns and governing context into
 ## Assembly Algorithm
 
 1. **Principles**: Load active principles per
-   `workflows/references/principles-resolution.md`. Include the full list
+   `.ddx/plugins/helix/workflows/references/principles-resolution.md`. Include the full list
    as a compact single line (separator: ` · `).
 
 2. **Concerns**: Load active concerns per
-   `workflows/references/concern-resolution.md`. Filter by bead area scope.
+   `.ddx/plugins/helix/workflows/references/concern-resolution.md`. Filter by bead area scope.
    Summarize matched concern names as `name | name | name`.
 
 3. **Practices**: Load merged practices from area-matched concerns (library

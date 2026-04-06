@@ -21,21 +21,21 @@ When conventions and execution guidance disagree, follow:
 1. [README.md](README.md)
 2. [EXECUTION.md](EXECUTION.md)
 3. `ddx bead --help` (tracker conventions; DDx FEAT-004)
-4. the bounded action prompts under `workflows/actions/`
+4. the bounded action prompts under `.ddx/plugins/helix/workflows/actions/`
 
 ## Skill Resource Boundary
 
 HELIX is packaged as one skill system.
 
 - `.agents/skills/` is the canonical project-level skill package surface.
-- Put resources used by multiple HELIX skills in `workflows/`.
+- Put resources used by multiple HELIX skills in `.ddx/plugins/helix/workflows/`.
 - Put resources used by only one skill in that skill's directory under
   `skills/<skill>/`, with `.agents/skills/<skill>` exposing the published
   package entrypoint.
-- Skills may assume package-relative access to the shared `workflows/`
+- Skills may assume package-relative access to the shared `.ddx/plugins/helix/workflows/`
   resources only when the full HELIX package layout is preserved.
 - Installers and plugins must preserve `.agents/skills/`, `skills/`, and
-  `workflows/` together; copying isolated skill folders without shared
+  `.ddx/plugins/helix/workflows/` together; copying isolated skill folders without shared
   resources is an invalid HELIX install.
 
 ## Documentation Structure
@@ -69,7 +69,7 @@ project-root/
 3. **Execution Separation**: Ephemeral task execution lives in the built-in tracker under `.helix/`, not in canonical planning docs
 4. **Tool Support**: Consistent structure enables validation and automation
 5. **Flexibility**: Non-phase documentation has dedicated locations
-6. **Shared skill resources**: `workflows/` doubles as the shared resource
+6. **Shared skill resources**: `.ddx/plugins/helix/workflows/` doubles as the shared resource
    library for HELIX skills, while skill-local assets remain under `skills/`
    and are exposed through `.agents/skills/`
 
@@ -224,7 +224,7 @@ Every issue should:
 ### Skill and Workflow Resource Placement
 
 1. **Shared resources**: If more than one HELIX skill depends on an asset, it
-   belongs in `workflows/`.
+   belongs in `.ddx/plugins/helix/workflows/`.
 2. **Skill-local resources**: If only one skill uses an asset, keep it with
    that skill under `skills/<skill>/`, with the published entrypoint exposed at
    `.agents/skills/<skill>`.
@@ -319,8 +319,8 @@ Use HELIX workflow templates to create consistent artifacts:
 
 ```bash
 # Review the artifact prompt and template
-sed -n '1,120p' workflows/phases/01-frame/artifacts/prd/prompt.md
-cp -f $DDX_HOME/workflows/phases/01-frame/artifacts/prd/template.md \
+sed -n '1,120p' .ddx/plugins/helix/workflows/phases/01-frame/artifacts/prd/prompt.md
+cp -f $DDX_HOME/.ddx/plugins/helix/workflows/phases/01-frame/artifacts/prd/template.md \
       docs/helix/01-frame/prd.md
 ```
 
@@ -461,7 +461,7 @@ Addresses bugs discovered during implementation phase.
 Use the standard refinement template for consistency:
 ```bash
 # Copy and fill the refinement template
-cp workflows/templates/refinement-log.md docs/helix/06-iterate/refinements/US-001-refinement-001.md
+cp .ddx/plugins/helix/workflows/templates/refinement-log.md docs/helix/06-iterate/refinements/US-001-refinement-001.md
 ```
 
 ## Evolution

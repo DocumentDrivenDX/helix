@@ -10,7 +10,7 @@ Execute the HELIX fresh-eyes review action.
 
 ## Steps
 
-1. Read and apply `workflows/actions/fresh-eyes-review.md`.
+1. Read and apply `.ddx/plugins/helix/workflows/actions/fresh-eyes-review.md`.
 2. Scope the review to `$ARGUMENTS` when provided, otherwise review the recent
    implementation work.
 3. Focus on bugs, regressions, missing tests, and follow-on work.
@@ -25,7 +25,7 @@ ready queue is the only durable hand-off mechanism between review and
 execution.
 
 See the "Filing Findings as Tracker Issues" section in
-`workflows/actions/fresh-eyes-review.md` for the exact bead format.
+`.ddx/plugins/helix/workflows/actions/fresh-eyes-review.md` for the exact bead format.
 
 ## Output
 

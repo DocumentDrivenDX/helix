@@ -337,7 +337,7 @@ environments:
 
 ### CI/CD Pipeline
 ```yaml
-# .github/workflows/deploy.yml
+# .github/.ddx/plugins/helix/workflows/deploy.yml
 deploy:
   staging:
     - build
@@ -384,7 +384,7 @@ deploy:
 
 Deploy execution is driven by deploy issues through `helix build` or
 `helix run`. Use the prompts and templates under
-`workflows/phases/05-deploy/artifacts/` to prepare rollout and
+`.ddx/plugins/helix/workflows/phases/05-deploy/artifacts/` to prepare rollout and
 operational documentation.
 
 Common entry points:
@@ -399,7 +399,7 @@ Go/no-go decisions, incident handling, and rollback approval remain human-owned.
 ## File Organization
 
 ### Structure Overview
-- **Deployment Definitions**: `workflows/phases/05-deploy/`
+- **Deployment Definitions**: `.ddx/plugins/helix/workflows/phases/05-deploy/`
   - Templates and prompts for deployment artifacts
   - Action definitions for deployment tasks
 

@@ -11,7 +11,7 @@ Refine the issue queue through multiple passes before implementation begins.
 
 "Check your issues N times, implement once."
 
-This skill depends on shared HELIX workflow assets under `workflows/`. If the
+This skill depends on shared HELIX workflow assets under `.ddx/plugins/helix/workflows/`. If the
 shared library is missing, stop and report an incomplete HELIX package.
 
 ## When to Use
@@ -49,6 +49,6 @@ shared library is missing, stop and report an incomplete HELIX package.
 
 ## References
 
-- Action prompt: `workflows/actions/polish.md`
-- Output template: `workflows/templates/polish-report.md`
+- Action prompt: `.ddx/plugins/helix/workflows/actions/polish.md`
+- Output template: `.ddx/plugins/helix/workflows/templates/polish-report.md`
 - CLI: `helix polish [--rounds N] [scope]`

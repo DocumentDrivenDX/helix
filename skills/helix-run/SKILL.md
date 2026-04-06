@@ -9,7 +9,7 @@ argument-hint: "[scope|issue-id]"
 Run the HELIX bounded operator loop against the built-in tracker.
 
 This skill assumes the full HELIX package is installed. Shared resources used
-by multiple HELIX skills live under `workflows/`; skill-local assets live with
+by multiple HELIX skills live under `.ddx/plugins/helix/workflows/`; skill-local assets live with
 the individual skill directories.
 
 ## Use This Skill When
@@ -63,12 +63,12 @@ Issues are stored in `.ddx/beads.jsonl`.
 
 Reference docs (read as needed):
 
-- `workflows/README.md`
-- `workflows/actions/check.md` when the user wants queue health or the next action
-- `workflows/actions/implementation.md` when the user wants ready build work executed
+- `.ddx/plugins/helix/workflows/README.md`
+- `.ddx/plugins/helix/workflows/actions/check.md` when the user wants queue health or the next action
+- `.ddx/plugins/helix/workflows/actions/implementation.md` when the user wants ready build work executed
 - relevant phase README and artifact prompts/templates
 
-Shared HELIX resources resolve from `workflows/`. If those resources are
+Shared HELIX resources resolve from `.ddx/plugins/helix/workflows/`. If those resources are
 missing, stop and report an incomplete HELIX package instead of improvising.
 
 ## Background Mode
@@ -115,7 +115,7 @@ ddx bead update <id> --claim
 1. Read the issue's `spec-id`, parent, labels, and acceptance criteria.
 2. Read the governing artifacts (requirements, design, tests) referenced by
    the issue.
-3. Read `workflows/actions/implementation.md` for full phase-specific
+3. Read `.ddx/plugins/helix/workflows/actions/implementation.md` for full phase-specific
    rules (build, deploy, iterate).
 4. Build the work: write code, update docs, create follow-on issues for
    any out-of-scope work discovered.
@@ -134,13 +134,13 @@ verification fails, fix within scope or leave the issue open with a status note.
 ### Step 6 — Queue drain
 
 When no ready issues remain, read and execute
-`workflows/actions/check.md` to decide what happens next. That action
+`.ddx/plugins/helix/workflows/actions/check.md` to decide what happens next. That action
 produces a `NEXT_ACTION` code:
 
 - `BUILD` → go to Step 1
 - `DESIGN` → run the design action once, then re-evaluate the queue
-- `ALIGN` → read and execute `workflows/actions/reconcile-alignment.md`
-- `BACKFILL` → read and execute `workflows/actions/backfill-helix-docs.md`
+- `ALIGN` → read and execute `.ddx/plugins/helix/workflows/actions/reconcile-alignment.md`
+- `BACKFILL` → read and execute `.ddx/plugins/helix/workflows/actions/backfill-helix-docs.md`
 - `WAIT` / `GUIDANCE` → report what is blocking and stop
 - `STOP` → report that no actionable work remains
 

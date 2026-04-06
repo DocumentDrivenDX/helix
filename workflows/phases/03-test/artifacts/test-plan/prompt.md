@@ -21,4 +21,4 @@ Create the project-level test plan for the Test phase. Keep it concise, but incl
 - every test should trace to a requirement or story
 - do not add generic testing doctrine that the template already implies
 
-Use template at `workflows/phases/03-test/artifacts/test-plan/template.md`.
+Use template at `.ddx/plugins/helix/workflows/phases/03-test/artifacts/test-plan/template.md`.

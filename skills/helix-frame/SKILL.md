@@ -34,8 +34,8 @@ Frame-phase artifacts (authority levels 1-3):
 
 1. Read existing Frame-phase artifacts if they exist
 2. Read the artifact templates **and** `prompt.md` guidance at
-   `workflows/phases/00-discover/artifacts/` and
-   `workflows/phases/01-frame/artifacts/`
+   `.ddx/plugins/helix/workflows/phases/00-discover/artifacts/` and
+   `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/`
 3. Create or update the appropriate documents using the templates
 4. Iteratively refine through multiple rounds (challenge assumptions,
    fill gaps, sharpen requirements)
@@ -53,7 +53,7 @@ helix frame "mobile payments"  # Frame a new feature area
 
 ## References
 
-- Vision template: `workflows/phases/00-discover/artifacts/product-vision/`
-- PRD template: `workflows/phases/01-frame/artifacts/prd/`
-- Feature spec template: `workflows/phases/01-frame/artifacts/feature-specification/`
-- Authority order: `workflows/actions/implementation.md`
+- Vision template: `.ddx/plugins/helix/workflows/phases/00-discover/artifacts/product-vision/`
+- PRD template: `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/prd/`
+- Feature spec template: `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/feature-specification/`
+- Authority order: `.ddx/plugins/helix/workflows/actions/implementation.md`

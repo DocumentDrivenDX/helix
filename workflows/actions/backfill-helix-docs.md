@@ -170,12 +170,12 @@ evidence extraction pass are complete for the relevant scope.
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
 0a. **Discover active concerns**: Check whether `docs/helix/01-frame/concerns.md`
-   exists. If it does, load it per `workflows/references/concern-resolution.md`
+   exists. If it does, load it per `.ddx/plugins/helix/workflows/references/concern-resolution.md`
    and use the declared concerns to guide backfill — ensure backfilled artifacts
    are consistent with declared technology choices and practices.
    If it does not exist, inspect the project's actual tooling (package managers,
    linters, formatters, test frameworks, CI config) and match them against
-   available concerns in `workflows/concerns/`. Include `concerns.md` creation
+   available concerns in `.ddx/plugins/helix/workflows/concerns/`. Include `concerns.md` creation
    as part of the backfill output — propose active concerns and project overrides
    based on the evidence discovered during Phase 1 research. Concern selection
    requires user confirmation before canonization (treat as a guidance gate).
@@ -409,7 +409,7 @@ Create or update the durable report at:
 
 Use the template at:
 
-- `workflows/templates/backfill-report.md`
+- `.ddx/plugins/helix/workflows/templates/backfill-report.md`
 
 The report must capture:
 

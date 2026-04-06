@@ -10,7 +10,7 @@ description: |
   Declares the project's active cross-cutting concerns (tech stacks,
   quality attributes, conventions) and any project-specific overrides.
   Concerns are composable selections from the library at
-  workflows/concerns/. Each concern declares area scope and associated
+  .ddx/plugins/helix/workflows/concerns/. Each concern declares area scope and associated
   practices that flow into context digests on beads.
 
 dependencies:
@@ -48,7 +48,7 @@ validation:
 
   quality_checks:
     - check: concerns_exist_in_library
-      description: Each selected concern must exist in workflows/concerns/
+      description: Each selected concern must exist in .ddx/plugins/helix/workflows/concerns/
       severity: blocking
 
     - check: overrides_cite_adrs

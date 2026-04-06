@@ -28,7 +28,7 @@ Keep the public layers separate:
 
 - portable skills: `.agents/skills` in the repo and `~/.agents/skills` for the
   installed user package
-- HELIX workflow contract: the docs in `workflows/` plus the built-in tracker
+- HELIX workflow contract: the docs in `.ddx/plugins/helix/workflows/` plus the built-in tracker
   and `helix` CLI
 
 ## Bootstrap A Repo
@@ -52,7 +52,7 @@ Notes:
 
 ## Build The Canonical Planning Stack
 
-Prompts and templates live under `workflows/phases/<phase>/artifacts/`.
+Prompts and templates live under `.ddx/plugins/helix/workflows/phases/<phase>/artifacts/`.
 Use them to draft or refine the canonical docs under `docs/helix/`.
 
 Typical order:

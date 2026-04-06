@@ -13,4 +13,4 @@ Create concise procedures for writing, running, and maintaining tests. Focus on 
 - validation and quality checks
 - the common failure modes worth documenting
 
-Use template at `workflows/phases/03-test/artifacts/test-procedures/template.md`.
+Use template at `.ddx/plugins/helix/workflows/phases/03-test/artifacts/test-procedures/template.md`.

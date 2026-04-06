@@ -45,9 +45,9 @@ when they exist.
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
-0a. **Load active design principles** following `workflows/references/principles-resolution.md`.
+0a. **Load active design principles** following `.ddx/plugins/helix/workflows/references/principles-resolution.md`.
    These principles guide architectural and design judgment throughout the plan.
-0b. **Load active concerns and practices** following `workflows/references/concern-resolution.md`.
+0b. **Load active concerns and practices** following `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
    The declared concerns constrain architecture decisions — design within the declared
    technology selections. Reference ADRs that justify concern choices when the
    design depends on them.
@@ -60,9 +60,9 @@ when they exist.
 4. Identify gaps: what questions does the existing planning stack leave open?
 5. **Load design artifact numbering rules** (required before creating any SD or
    TD artifact):
-   - Read `workflows/phases/02-design/artifacts/solution-design/meta.yml` to
+   - Read `.ddx/plugins/helix/workflows/phases/02-design/artifacts/solution-design/meta.yml` to
      understand the SD-{number} format, naming pattern, and no-reuse policy.
-   - Read `workflows/phases/02-design/artifacts/technical-design/meta.yml` to
+   - Read `.ddx/plugins/helix/workflows/phases/02-design/artifacts/technical-design/meta.yml` to
      understand the TD-{number} format.
    - Scan `docs/helix/02-design/solution-designs/SD-*.md` to find the maximum
      existing SD number; **next SD ID = max + 1** (use `001` if none exist).

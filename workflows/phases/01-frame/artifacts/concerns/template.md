@@ -2,7 +2,7 @@
 
 ## Active Concerns
 
-<!-- Select from workflows/concerns/ or add custom entries.
+<!-- Select from .ddx/plugins/helix/workflows/concerns/ or add custom entries.
      Each line: concern-name (category) — ADR reference that justified selection.
      The ADR ref is how the concern/ADR/spike chain stays traceable. -->
 

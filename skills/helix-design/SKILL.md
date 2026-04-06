@@ -10,7 +10,7 @@ disable-model-invocation: true
 Create a thorough design document through iterative self-critique and
 refinement. Invest deeply in planning quality before any code is written.
 
-This skill depends on shared HELIX planning assets under `workflows/`. If the
+This skill depends on shared HELIX planning assets under `.ddx/plugins/helix/workflows/`. If the
 shared workflow library is missing, stop and report an incomplete HELIX
 package.
 
@@ -57,6 +57,6 @@ monitoring when managing the run from an outer agent).
 
 ## References
 
-- Action prompt: `workflows/actions/plan.md`
-- Output template: `workflows/templates/plan-document.md`
+- Action prompt: `.ddx/plugins/helix/workflows/actions/plan.md`
+- Output template: `.ddx/plugins/helix/workflows/templates/plan-document.md`
 - CLI: `helix design [--rounds N] [scope]`

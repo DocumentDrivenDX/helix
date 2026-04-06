@@ -8,7 +8,7 @@ across all HELIX phases.
 1. **Check for existing principles**: If `docs/helix/01-frame/principles.md`
    already exists, load it and offer to refine rather than replace.
 
-2. **Load HELIX defaults**: Read `workflows/principles.md` for the baseline
+2. **Load HELIX defaults**: Read `.ddx/plugins/helix/workflows/principles.md` for the baseline
    design principles. Present them to the user as the starting point.
 
 3. **Discovery conversation**: Ask the user three questions to surface

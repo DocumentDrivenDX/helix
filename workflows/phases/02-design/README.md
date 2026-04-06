@@ -447,7 +447,7 @@ Implementation must match contracts exactly. No undocumented behavior.
 
 ## Using AI Assistance
 
-Design prompts live under `workflows/phases/02-design/artifacts/`.
+Design prompts live under `.ddx/plugins/helix/workflows/phases/02-design/artifacts/`.
 Open the relevant `prompt.md`, use the adjacent template, and write outputs to
 the canonical `docs/helix/02-design/` paths defined in each artifact.
 

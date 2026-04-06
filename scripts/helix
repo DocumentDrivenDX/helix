@@ -273,7 +273,6 @@ run_doctor() {
   printf 'Required:\n'
   _check bash 1
   _check git 1
-  _check jq 1
   _check ddx 1
 
   printf '\nAgent CLIs (at least one required):\n'
@@ -300,6 +299,17 @@ run_doctor() {
     printf '  ✓  %-12s %s\n' "workflows" "$helix_docs_root"
   else
     printf '  ✗  %-12s NOT FOUND at %s\n' "workflows" "$helix_docs_root"
+    fail=$((fail + 1))
+  fi
+
+  # Skills reference .ddx/plugins/helix/workflows/ from the target repo.
+  # Verify that path resolves so agents can find workflow docs.
+  local plugin_workflows="${target_root}/.ddx/plugins/helix/workflows"
+  if [[ -d "$plugin_workflows" ]]; then
+    printf '  ✓  %-12s %s\n' "plugin path" "$plugin_workflows"
+  else
+    printf '  ✗  %-12s NOT FOUND at %s\n' "plugin path" "$plugin_workflows"
+    printf '     Skills reference .ddx/plugins/helix/workflows/ — install helix or create a symlink.\n'
     fail=$((fail + 1))
   fi
 
@@ -334,7 +344,6 @@ tracker_init() {
 }
 
 tracker_ensure() {
-  need_cmd jq
   need_cmd ddx
 
   if [[ ! -f "$tracker_file" ]]; then
@@ -491,7 +500,7 @@ tracker_close() {
 safe_unclaim() {
   local issue_id="$1"
   local current_status
-  current_status="$(tracker_show "$issue_id" --json 2>/dev/null | jq -r '.status // ""')" || return 0
+  current_status="$(tracker_show "$issue_id" --json 2>/dev/null | ddx jq -r '.status // ""')" || return 0
   if [[ "$current_status" == "closed" ]]; then
     verbose_line "safe_unclaim: %s is already closed — skipping unclaim to prevent state revert" "$issue_id"
     return 0
@@ -728,13 +737,13 @@ _extract_agent_text() {
   case "$harness" in
     claude)
       # Claude output is a JSON result blob — extract .result
-      printf '%s' "$raw_output" | jq -r '.result // ""' 2>/dev/null || printf '%s' "$raw_output"
+      printf '%s' "$raw_output" | ddx jq -r '.result // ""' 2>/dev/null || printf '%s' "$raw_output"
       ;;
     codex)
       # Codex output is JSONL — extract text from item.completed events
       printf '%s\n' "$raw_output" | while IFS= read -r line; do
         local text
-        text="$(printf '%s' "$line" | jq -r 'select(.type == "item.completed") | .item.text // empty' 2>/dev/null || true)"
+        text="$(printf '%s' "$line" | ddx jq -r 'select(.type == "item.completed") | .item.text // empty' 2>/dev/null || true)"
         [[ -n "$text" ]] && printf '%s\n' "$text"
       done
       ;;
@@ -803,10 +812,10 @@ _run_agent_ddx() {
 
   # Extract metrics from ddx JSON output
   local _cycle_tokens _cost _exit_code _raw_output
-  _exit_code="$(printf '%s' "$_agent_json" | jq -r '.exit_code // 1' 2>/dev/null || echo 1)"
-  _cycle_tokens="$(printf '%s' "$_agent_json" | jq -r '(.input_tokens // 0) + (.output_tokens // 0)' 2>/dev/null || echo 0)"
-  _cost="$(printf '%s' "$_agent_json" | jq -r '.cost_usd // 0' 2>/dev/null || echo 0)"
-  _raw_output="$(printf '%s' "$_agent_json" | jq -r '.output // ""' 2>/dev/null || echo '')"
+  _exit_code="$(printf '%s' "$_agent_json" | ddx jq -r '.exit_code // 1' 2>/dev/null || echo 1)"
+  _cycle_tokens="$(printf '%s' "$_agent_json" | ddx jq -r '(.input_tokens // 0) + (.output_tokens // 0)' 2>/dev/null || echo 0)"
+  _cost="$(printf '%s' "$_agent_json" | ddx jq -r '.cost_usd // 0' 2>/dev/null || echo 0)"
+  _raw_output="$(printf '%s' "$_agent_json" | ddx jq -r '.output // ""' 2>/dev/null || echo '')"
   total_tokens=$((total_tokens + _cycle_tokens))
 
   # Log full output for post-hoc inspection
@@ -943,7 +952,7 @@ _run_agent_direct() {
 
         local claude_pid _claude_log_start
         _claude_log_start="$(log_line)"
-        if (( ! quiet )) && command -v jq >/dev/null 2>&1; then
+        if (( ! quiet )) && command -v ddx >/dev/null 2>&1; then
           # Stream JSON mode: show live tool-call progress on stderr,
           # emit final text result on stdout.
           # shellcheck disable=SC2086
@@ -957,7 +966,7 @@ _run_agent_direct() {
             --verbose \
           | while IFS= read -r line; do
               # Show tool calls with key details
-              tool_info="$(printf '%s' "$line" | jq -r '
+              tool_info="$(printf '%s' "$line" | ddx jq -r '
                 select(.type == "assistant")
                 | .message.content[]?
                 | select(.type == "tool_use")
@@ -978,7 +987,7 @@ _run_agent_direct() {
                 printf 'helix: [%s] → %s\n' "$(date +%H:%M:%S)" "$tool_info" >&2
               fi
               # Show thinking/text progress
-              think="$(printf '%s' "$line" | jq -r '
+              think="$(printf '%s' "$line" | ddx jq -r '
                 select(.type == "assistant")
                 | .message.content[]?
                 | select(.type == "thinking")
@@ -989,7 +998,7 @@ _run_agent_direct() {
                 printf 'helix: [%s] 💭 %s\n' "$(date +%H:%M:%S)" "$think" >&2
               fi
               # Show tool result summaries (first line, truncated)
-              tool_result="$(printf '%s' "$line" | jq -r '
+              tool_result="$(printf '%s' "$line" | ddx jq -r '
                 select(.type == "user")
                 | .message.content[]?
                 | select(.type == "tool_result")
@@ -1000,7 +1009,7 @@ _run_agent_direct() {
               ' 2>/dev/null || true)"
               if [[ -n "$tool_result" ]]; then
                 local is_err
-                is_err="$(printf '%s' "$line" | jq -r '
+                is_err="$(printf '%s' "$line" | ddx jq -r '
                   select(.type == "user")
                   | .message.content[]?
                   | select(.type == "tool_result")
@@ -1009,7 +1018,7 @@ _run_agent_direct() {
                 printf 'helix: [%s]  %s %s\n' "$(date +%H:%M:%S)" "${is_err:-" "}" "$tool_result" >&2
               fi
               # Emit final result text to stdout
-              result="$(printf '%s' "$line" | jq -r '
+              result="$(printf '%s' "$line" | ddx jq -r '
                 select(.type == "result") | .result // empty
               ' 2>/dev/null || true)"
               if [[ -n "$result" ]]; then
@@ -1017,7 +1026,7 @@ _run_agent_direct() {
               fi
             done) &
         else
-          # Quiet / no jq: plain text mode
+          # Quiet / no ddx: plain text mode
           # shellcheck disable=SC2086
           (cd "$target_root" && printf '%s' "$prompt" | claude -p \
             --permission-mode bypassPermissions \
@@ -1102,7 +1111,7 @@ Issue tracker: built-in JSONL at ${tracker_file} (legacy: .ddx/issues.jsonl). Us
 BATCH MODE: Implement these ${issue_count} related issues sequentially in this session:
 $(printf '%s\n' "$issues" | while read -r id; do
   local title
-  title="$(tracker_show "$id" --json 2>/dev/null | jq -r '.title // "?"')" || title="?"
+  title="$(tracker_show "$id" --json 2>/dev/null | ddx jq -r '.title // "?"')" || title="?"
   printf '  - %s: %s\n' "$id" "$title"
 done)
 
@@ -1312,10 +1321,10 @@ generate_run_context() {
   local context_file="${target_root}/.helix/context.md"
   mkdir -p "${target_root}/.helix" 2>/dev/null || true
   local ready_count open_count in_progress_count closed_count
-  ready_count="$(tracker_ready --json --execution 2>/dev/null | jq 'length' 2>/dev/null)" || ready_count="?"
-  open_count="$(tracker_list --status open --json 2>/dev/null | jq 'length' 2>/dev/null)" || open_count="?"
-  in_progress_count="$(tracker_list --status in_progress --json 2>/dev/null | jq 'length' 2>/dev/null)" || in_progress_count="?"
-  closed_count="$(tracker_list --status closed --json 2>/dev/null | jq 'length' 2>/dev/null)" || closed_count="?"
+  ready_count="$(tracker_ready --json --execution 2>/dev/null | ddx jq 'length' 2>/dev/null)" || ready_count="?"
+  open_count="$(tracker_list --status open --json 2>/dev/null | ddx jq 'length' 2>/dev/null)" || open_count="?"
+  in_progress_count="$(tracker_list --status in_progress --json 2>/dev/null | ddx jq 'length' 2>/dev/null)" || in_progress_count="?"
+  closed_count="$(tracker_list --status closed --json 2>/dev/null | ddx jq 'length' 2>/dev/null)" || closed_count="?"
 
   {
     printf '# HELIX Execution Context\n\n'
@@ -1334,9 +1343,9 @@ generate_run_context() {
 
     if [[ -n "$epic_id" ]]; then
       local epic_title epic_spec epic_ac
-      epic_title="$(tracker_show "$epic_id" --json 2>/dev/null | jq -r '.title // "?"')" || epic_title="?"
-      epic_spec="$(tracker_show "$epic_id" --json 2>/dev/null | jq -r '.["spec-id"] // ""')" || epic_spec=""
-      epic_ac="$(tracker_show "$epic_id" --json 2>/dev/null | jq -r '.acceptance // ""')" || epic_ac=""
+      epic_title="$(tracker_show "$epic_id" --json 2>/dev/null | ddx jq -r '.title // "?"')" || epic_title="?"
+      epic_spec="$(tracker_show "$epic_id" --json 2>/dev/null | ddx jq -r '.["spec-id"] // ""')" || epic_spec=""
+      epic_ac="$(tracker_show "$epic_id" --json 2>/dev/null | ddx jq -r '.acceptance // ""')" || epic_ac=""
       printf '## Current Epic\n\n'
       printf 'ID: %s\nTitle: %s\n' "$epic_id" "$epic_title"
       [[ -n "$epic_spec" ]] && printf 'Spec: %s\n' "$epic_spec"
@@ -1359,14 +1368,14 @@ generate_run_context() {
 }
 
 helix_ready_count() {
-  need_cmd jq
-  tracker_ready --json --execution | jq 'length'
+  need_cmd ddx
+  tracker_ready --json --execution | ddx jq 'length'
 }
 
 helix_select_ready_issue() {
   local skip_json="${1:-[]}"
-  need_cmd jq
-  tracker_ready --json --execution | jq -r --argjson skip "$skip_json" '
+  need_cmd ddx
+  tracker_ready --json --execution | ddx jq -r --argjson skip "$skip_json" '
     [.[] | select(.id as $id | $skip | index($id) | not)] as $candidates |
 
     # Prefer leaf tasks (non-epic) with execution metadata over epics.
@@ -1396,22 +1405,22 @@ helix_select_batch() {
   local primary_id="$1"
   local max_batch="${2:-3}"
   local skip_json="${3:-[]}"
-  need_cmd jq
+  need_cmd ddx
 
   local primary_json
   primary_json="$(tracker_show "$primary_id" --json 2>/dev/null)" || { printf '%s\n' "$primary_id"; return; }
 
   local parent spec_id
-  parent="$(printf '%s' "$primary_json" | jq -r '.parent // ""')"
-  spec_id="$(printf '%s' "$primary_json" | jq -r '.["spec-id"] // ""')"
+  parent="$(printf '%s' "$primary_json" | ddx jq -r '.parent // ""')"
+  spec_id="$(printf '%s' "$primary_json" | ddx jq -r '.["spec-id"] // ""')"
 
   # Extract area:* labels from the primary issue for fallback matching
   local primary_areas
-  primary_areas="$(printf '%s' "$primary_json" | jq -c '[(.labels // [])[] | select(startswith("area:"))]')"
+  primary_areas="$(printf '%s' "$primary_json" | ddx jq -c '[(.labels // [])[] | select(startswith("area:"))]')"
 
   # Find siblings: same parent OR same spec-id OR overlapping area labels (fallback)
   local siblings
-  siblings="$(tracker_ready --json --execution 2>/dev/null | jq -r --arg primary "$primary_id" \
+  siblings="$(tracker_ready --json --execution 2>/dev/null | ddx jq -r --arg primary "$primary_id" \
     --arg parent "$parent" --arg spec "$spec_id" --argjson skip "$skip_json" \
     --argjson max "$max_batch" --argjson areas "$primary_areas" '
     [.[] | select(
@@ -1434,8 +1443,8 @@ helix_select_batch() {
 
 tracker_issue_fingerprint() {
   local id="$1"
-  need_cmd jq
-  tracker_show "$id" --json | jq -c '{
+  need_cmd ddx
+  tracker_show "$id" --json | ddx jq -c '{
     "spec-id": .["spec-id"],
     parent: .parent,
     "superseded-by": (.["superseded-by"] // ""),
@@ -1454,7 +1463,7 @@ handle_issue_queue_drift() {
   fi
 
   local after_fingerprint
-  after_fingerprint="$(printf '%s' "$after_json" | jq -c '{
+  after_fingerprint="$(printf '%s' "$after_json" | ddx jq -c '{
     "spec-id": .["spec-id"],
     parent: .parent,
     "superseded-by": (.["superseded-by"] // ""),
@@ -1467,11 +1476,11 @@ handle_issue_queue_drift() {
 
   # Upstream governance fields changed — genuine external drift
   local status
-  status="$(printf '%s' "$after_json" | jq -r '.status')"
+  status="$(printf '%s' "$after_json" | ddx jq -r '.status')"
   printf 'helix: queue drift detected for %s; refusing stale completion\n' "$issue_id" >&2
 
   local superseded_by
-  superseded_by="$(printf '%s' "$after_json" | jq -r '.["superseded-by"] // ""')"
+  superseded_by="$(printf '%s' "$after_json" | ddx jq -r '.["superseded-by"] // ""')"
 
   # Unclaim logic for drift cases:
   # - in_progress: always unclaim (agent didn't close it, reset for retry)
@@ -1852,7 +1861,7 @@ run_review() {
 
 run_next() {
   require_tracker
-  tracker_ready --json --execution | jq -r '.[0].id // "no ready issues"'
+  tracker_ready --json --execution | ddx jq -r '.[0].id // "no ready issues"'
 }
 
 run_status() {
@@ -1874,12 +1883,12 @@ run_status() {
 
   # Get claimed issues
   local claimed
-  claimed="$(tracker_list --status in_progress --json 2>/dev/null | jq -c '[.[] | {id, title}]' 2>/dev/null || echo '[]')"
+  claimed="$(tracker_list --status in_progress --json 2>/dev/null | ddx jq -c '[.[] | {id, title}]' 2>/dev/null || echo '[]')"
 
   # Execution history (FEAT-005)
   local exec_history='[]'
   if command -v ddx &>/dev/null && ddx exec history --json &>/dev/null 2>&1; then
-    exec_history="$(ddx exec history --json 2>/dev/null | jq -c 'sort_by(.started_at) | reverse | .[0:10] | [.[] | {skill: (.definition_id | ltrimstr("helix:")), artifact: (.artifact_ids | join(",")), status, started_at}]' 2>/dev/null || echo '[]')"
+    exec_history="$(ddx exec history --json 2>/dev/null | ddx jq -c 'sort_by(.started_at) | reverse | .[0:10] | [.[] | {skill: (.definition_id | ltrimstr("helix:")), artifact: (.artifact_ids | join(",")), status, started_at}]' 2>/dev/null || echo '[]')"
   fi
 
   # Active run PID check
@@ -1888,13 +1897,13 @@ run_status() {
   pid_file="$(_helix_pid_file)"
   if _helix_pid_alive; then
     local active_pid; active_pid="$(cat "$pid_file")"
-    active_run="$(jq -n --arg pid "$active_pid" --arg log "$helix_log" '{pid: ($pid | tonumber), log: $log}')"
+    active_run="$(ddx jq -n --arg pid "$active_pid" --arg log "$helix_log" '{pid: ($pid | tonumber), log: $log}')"
   elif [[ -f "$pid_file" ]]; then
     rm -f "$pid_file"  # clean stale
   fi
 
   if (( json_flag )); then
-    jq -n \
+    ddx jq -n \
       --argjson tracker "$tracker_json" \
       --argjson run "$run_state" \
       --argjson claimed "$claimed" \
@@ -1907,7 +1916,7 @@ run_status() {
 
     # Tracker health
     printf 'Tracker:\n'
-    printf '%s' "$tracker_json" | jq -r '
+    printf '%s' "$tracker_json" | ddx jq -r '
       "  Total:   \(.total // 0)",
       "  Open:    \(.open // 0)",
       "  Closed:  \(.closed // 0)",
@@ -1929,16 +1938,16 @@ run_status() {
 
     # Claimed work
     local claimed_count
-    claimed_count="$(printf '%s' "$claimed" | jq 'length')"
+    claimed_count="$(printf '%s' "$claimed" | ddx jq 'length')"
     if (( claimed_count > 0 )); then
       printf '\nClaimed:\n'
-      printf '%s' "$claimed" | jq -r '.[] | "  \(.id)  \(.title)"'
+      printf '%s' "$claimed" | ddx jq -r '.[] | "  \(.id)  \(.title)"'
     fi
 
     # Run state
     if [[ -f "$state_file" ]]; then
       printf '\nLast Run:\n'
-      printf '%s' "$run_state" | jq -r '
+      printf '%s' "$run_state" | ddx jq -r '
         "  Agent:       \(.agent // "unknown")",
         "  Completed:   \(.completed_cycles // 0) cycles",
         "  Attempted:   \(.attempted_cycles // 0) cycles",
@@ -1946,8 +1955,8 @@ run_status() {
         "  Stop reason: \(.stop_reason // "unknown")",
         "  Timestamp:   \(.last_run // "unknown")"
       ' 2>/dev/null
-      if [[ "$(printf '%s' "$run_state" | jq -r '.focused_epic // ""')" != "" ]]; then
-        printf '  Epic focus:  %s\n' "$(printf '%s' "$run_state" | jq -r '.focused_epic')"
+      if [[ "$(printf '%s' "$run_state" | ddx jq -r '.focused_epic // ""')" != "" ]]; then
+        printf '  Epic focus:  %s\n' "$(printf '%s' "$run_state" | ddx jq -r '.focused_epic')"
       fi
     else
       printf '\nNo run state found. Run `helix run` to generate.\n'
@@ -1958,10 +1967,10 @@ run_status() {
       local exec_history
       exec_history="$(ddx exec history --json 2>/dev/null || echo '[]')"
       local exec_count
-      exec_count="$(printf '%s' "$exec_history" | jq 'length' 2>/dev/null || echo 0)"
+      exec_count="$(printf '%s' "$exec_history" | ddx jq 'length' 2>/dev/null || echo 0)"
       if (( exec_count > 0 )); then
         printf '\nRecent Actions:\n'
-        printf '%s' "$exec_history" | jq -r '
+        printf '%s' "$exec_history" | ddx jq -r '
           sort_by(.started_at) | reverse | .[0:10] | .[] |
           "  \(.started_at | split("T") | .[0]) \(.started_at | split("T") | .[1] | split(".") | .[0])  \(.definition_id | ltrimstr("helix:"))  \(.status)  \(.artifact_ids | join(","))"
         ' 2>/dev/null
@@ -1990,7 +1999,7 @@ run_commit() {
 
   if [[ -n "$issue_id" ]]; then
     local title
-    title="$(tracker_show "$issue_id" --json 2>/dev/null | jq -r '.title // ""')" || title=""
+    title="$(tracker_show "$issue_id" --json 2>/dev/null | ddx jq -r '.title // ""')" || title=""
     # Use issue title as summary, truncated to 72 chars
     summary="${issue_id} ${title:0:$((72 - ${#issue_id} - 1))}"
   else
@@ -2093,7 +2102,7 @@ recover_orphaned_issues() {
   local in_progress
   in_progress="$(tracker_list --status in_progress --label helix --json 2>/dev/null || echo '[]')"
   local count
-  count="$(printf '%s' "$in_progress" | jq 'length' 2>/dev/null || echo 0)"
+  count="$(printf '%s' "$in_progress" | ddx jq 'length' 2>/dev/null || echo 0)"
 
   if (( count == 0 )); then
     return 0
@@ -2108,9 +2117,9 @@ recover_orphaned_issues() {
   local i
   for ((i = 0; i < count; i++)); do
     local issue_id claimed_at claimed_pid
-    issue_id="$(printf '%s' "$in_progress" | jq -r ".[$i].id" 2>/dev/null)"
-    claimed_at="$(printf '%s' "$in_progress" | jq -r ".[$i][\"claimed-at\"] // \"\"" 2>/dev/null)"
-    claimed_pid="$(printf '%s' "$in_progress" | jq -r ".[$i][\"claimed-pid\"] // \"\"" 2>/dev/null)"
+    issue_id="$(printf '%s' "$in_progress" | ddx jq -r ".[$i].id" 2>/dev/null)"
+    claimed_at="$(printf '%s' "$in_progress" | ddx jq -r ".[$i][\"claimed-at\"] // \"\"" 2>/dev/null)"
+    claimed_pid="$(printf '%s' "$in_progress" | ddx jq -r ".[$i][\"claimed-pid\"] // \"\"" 2>/dev/null)"
 
     # Skip if another helix process is actively working on this issue
     if pgrep -f "helix.*implement.*${issue_id}" >/dev/null 2>&1; then
@@ -2130,7 +2139,7 @@ recover_orphaned_issues() {
       claim_epoch="$(date -d "$claimed_at" +%s 2>/dev/null || echo 0)"
     else
       local updated
-      updated="$(printf '%s' "$in_progress" | jq -r ".[$i].updated_at // \"\"" 2>/dev/null)"
+      updated="$(printf '%s' "$in_progress" | ddx jq -r ".[$i].updated_at // \"\"" 2>/dev/null)"
       [[ -n "$updated" && "$updated" != "null" ]] && claim_epoch="$(date -d "$updated" +%s 2>/dev/null || echo 0)"
     fi
 
@@ -2143,7 +2152,7 @@ recover_orphaned_issues() {
     # Orphan confirmed: reclaim — but only if still in-progress (it may have
     # been closed by its agent after the snapshot was taken above).
     local current_orphan_status
-    current_orphan_status="$(tracker_show "$issue_id" --json 2>/dev/null | jq -r '.status // ""')" || current_orphan_status=""
+    current_orphan_status="$(tracker_show "$issue_id" --json 2>/dev/null | ddx jq -r '.status // ""')" || current_orphan_status=""
     if [[ "$current_orphan_status" == "closed" ]]; then
       verbose_line "orphan %s is now closed — skipping reclaim" "$issue_id"
       continue
@@ -2196,7 +2205,7 @@ run_loop() {
     local id
     for id in "${!skipped_issues[@]}"; do
       local title
-      title="$(tracker_show "$id" --json 2>/dev/null | jq -r '.title // "?"')" || title="?"
+      title="$(tracker_show "$id" --json 2>/dev/null | ddx jq -r '.title // "?"')" || title="?"
       local reason="${skip_reasons[$id]:-unknown}"
       printf 'helix:   %s — %s\n' "$id" "$reason" >&2
       printf 'helix:     %s\n' "$title" >&2
@@ -2204,7 +2213,7 @@ run_loop() {
       # Only append a BLOCKED note if the existing notes don't already contain
       # the same reason text (ignoring the timestamp).
       local existing_notes
-      existing_notes="$(tracker_show "$id" --json 2>/dev/null | jq -r '.notes // ""')" || existing_notes=""
+      existing_notes="$(tracker_show "$id" --json 2>/dev/null | ddx jq -r '.notes // ""')" || existing_notes=""
       if [[ "$existing_notes" != *"$reason"* ]]; then
         tracker_update "$id" \
           --labels "helix,blocked" \
@@ -2228,7 +2237,7 @@ run_loop() {
       printf '## Blocked Issues\n\n'
       for id in "${!skipped_issues[@]}"; do
         local title
-        title="$(tracker_show "$id" --json 2>/dev/null | jq -r '.title // "?"')" || title="?"
+        title="$(tracker_show "$id" --json 2>/dev/null | ddx jq -r '.title // "?"')" || title="?"
         printf '### %s\n\n' "$id"
         printf '**Title:** %s\n' "$title"
         printf '**Reason:** %s\n\n' "${skip_reasons[$id]:-unknown}"
@@ -2254,7 +2263,7 @@ run_loop() {
 
     local skip_count="${#skipped_issues[@]}"
 
-    jq -n \
+    ddx jq -n \
       --arg current_issue "${current_issue_id:-}" \
       --arg focused_epic "${epic_id:-}" \
       --argjson completed_cycles "$completed_cycles" \
@@ -2290,17 +2299,17 @@ run_loop() {
   epic_next_child() {
     local epic_id="$1"
     local epic_type
-    epic_type="$(tracker_show "$epic_id" --json 2>/dev/null | jq -r '.issue_type // ""')" || true
+    epic_type="$(tracker_show "$epic_id" --json 2>/dev/null | ddx jq -r '.issue_type // ""')" || true
     if [[ "$epic_type" != "epic" ]]; then
       return
     fi
     # Find open children of this epic
-    tracker_list --json 2>/dev/null | jq -r --arg parent "$epic_id" '
+    tracker_list --json 2>/dev/null | ddx jq -r --arg parent "$epic_id" '
       [.[] | select(.parent == $parent and .status == "open")] | .[0].id // empty
     '
   }
 
-  need_cmd jq
+  need_cmd ddx
   require_tracker
 
   # Recover orphaned issues from crashed sessions before starting the loop
@@ -2321,7 +2330,7 @@ run_loop() {
     fi
 
     local skip_json selected_issue=""
-    skip_json="$(printf '%s\n' "${!skipped_issues[@]}" | jq -R . | jq -s .)"
+    skip_json="$(printf '%s\n' "${!skipped_issues[@]}" | ddx jq -R . | ddx jq -s .)"
 
     # Epic focus mode: if we're focused on an epic, try its children first.
     if [[ -n "$focused_epic" ]]; then
@@ -2330,7 +2339,7 @@ run_loop() {
       if [[ -n "$child" ]]; then
         # Verify the child is execution-eligible and not skipped
         local child_in_skip
-        child_in_skip="$(printf '%s' "$skip_json" | jq --arg id "$child" '[.[] | select(. == $id)] | length')"
+        child_in_skip="$(printf '%s' "$skip_json" | ddx jq --arg id "$child" '[.[] | select(. == $id)] | length')"
         if (( child_in_skip == 0 )); then
           selected_issue="$child"
           verbose_line "epic focus: %s → child %s" "$focused_epic" "$selected_issue"
@@ -2339,7 +2348,7 @@ run_loop() {
       # If no eligible children remain, check if epic is done
       if [[ -z "$selected_issue" ]]; then
         local remaining_children
-        remaining_children="$(tracker_list --json 2>/dev/null | jq --arg parent "$focused_epic" '
+        remaining_children="$(tracker_list --json 2>/dev/null | ddx jq --arg parent "$focused_epic" '
           [.[] | select(.parent == $parent and .status != "closed")] | length
         ')" || remaining_children=0
         if (( remaining_children == 0 )); then
@@ -2353,7 +2362,7 @@ run_loop() {
           # Post-epic review: verify acceptance criteria and catch gaps
           if (( auto_review )); then
             local epic_spec
-            epic_spec="$(tracker_show "$focused_epic" --json 2>/dev/null | jq -r '.["spec-id"] // ""')" || epic_spec=""
+            epic_spec="$(tracker_show "$focused_epic" --json 2>/dev/null | ddx jq -r '.["spec-id"] // ""')" || epic_spec=""
             local review_scope="${epic_spec:-last-commit}"
             verbose_line "post-epic review for %s (scope: %s)" "$focused_epic" "$review_scope"
             if run_review "$review_scope" 1; then
@@ -2385,7 +2394,7 @@ run_loop() {
       local attempt_number="$((attempted_cycles + 1))"
       local closed_before
       local selected_fingerprint
-      if ! closed_before="$(tracker_list --status closed --json | jq 'length')"; then
+      if ! closed_before="$(tracker_list --status closed --json | ddx jq 'length')"; then
         printf 'helix: failed to read closed count, retrying\n' >&2
         sleep 2
         continue
@@ -2399,7 +2408,7 @@ run_loop() {
 
       # Check if this is an epic — if so, enter epic focus mode
       local issue_type
-      issue_type="$(tracker_show "$selected_issue" --json 2>/dev/null | jq -r '.issue_type // ""')" || true
+      issue_type="$(tracker_show "$selected_issue" --json 2>/dev/null | ddx jq -r '.issue_type // ""')" || true
       if [[ "$issue_type" == "epic" ]] && [[ -z "$focused_epic" ]]; then
         focused_epic="$selected_issue"
         verbose_line "entering epic focus mode for %s" "$focused_epic"
@@ -2474,7 +2483,7 @@ run_loop() {
       # agent exit code.
       if (( _impl_rc != 0 )); then
         local _salvage_closed
-        _salvage_closed="$(tracker_list --status closed --json | jq 'length' || echo 0)"
+        _salvage_closed="$(tracker_list --status closed --json | ddx jq 'length' || echo 0)"
         if (( _salvage_closed > closed_before )); then
           verbose_line "agent exited %s but tracker shows progress (closed %s → %s) — counting as success" \
             "$_impl_rc" "$closed_before" "$_salvage_closed"
@@ -2511,7 +2520,7 @@ run_loop() {
             # If this was part of a focused epic, mark the epic as blocked too
             if [[ -n "$focused_epic" ]]; then
               local parent
-              parent="$(tracker_show "$selected_issue" --json 2>/dev/null | jq -r '.parent // ""')" || true
+              parent="$(tracker_show "$selected_issue" --json 2>/dev/null | ddx jq -r '.parent // ""')" || true
               if [[ "$parent" == "$focused_epic" ]]; then
                 skipped_issues["$focused_epic"]=1
                 skip_reasons["$focused_epic"]="child $selected_issue intractable after ${issue_attempts[$selected_issue]} attempts"
@@ -2566,17 +2575,17 @@ run_loop() {
         # Epic promotion: if the agent decomposed a task into children,
         # promote the parent to an epic so epic focus mode kicks in.
         local _child_count
-        _child_count="$(tracker_list --json 2>/dev/null | jq --arg parent "$selected_issue" '[.[] | select(.parent == $parent)] | length' 2>/dev/null)" || _child_count=0
+        _child_count="$(tracker_list --json 2>/dev/null | ddx jq --arg parent "$selected_issue" '[.[] | select(.parent == $parent)] | length' 2>/dev/null)" || _child_count=0
         if (( _child_count > 1 )); then
           local _current_type
-          _current_type="$(tracker_show "$selected_issue" --json 2>/dev/null | jq -r '.issue_type // ""')" || _current_type=""
+          _current_type="$(tracker_show "$selected_issue" --json 2>/dev/null | ddx jq -r '.issue_type // ""')" || _current_type=""
           if [[ "$_current_type" != "epic" ]]; then
             verbose_line "promoting %s to epic (agent created %s children)" "$selected_issue" "$_child_count"
             if ! tracker_update "$selected_issue" --set "issue_type=epic" 2>/dev/null; then
               echo "helix: failed to promote $selected_issue to epic" >&2
               finish_loop 1; return $?
             fi
-            _current_type="$(tracker_show "$selected_issue" --json 2>/dev/null | jq -r '.issue_type // ""')" || _current_type=""
+            _current_type="$(tracker_show "$selected_issue" --json 2>/dev/null | ddx jq -r '.issue_type // ""')" || _current_type=""
             if [[ "$_current_type" != "epic" ]]; then
               echo "helix: promotion of $selected_issue did not stick" >&2
               finish_loop 1; return $?
@@ -2663,7 +2672,7 @@ Output: ${_ac_output:0:500}" \
         fi
 
         local closed_after
-        closed_after="$(tracker_list --status closed --json | jq 'length' || echo 0)"
+        closed_after="$(tracker_list --status closed --json | ddx jq 'length' || echo 0)"
         if (( closed_after > closed_before )); then
           completed_cycles=$((completed_cycles + 1))
           consecutive_failures=0

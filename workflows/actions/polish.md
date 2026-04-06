@@ -1,13 +1,21 @@
 # HELIX Action: Polish Issues
 
-You are performing iterative issue refinement before implementation begins.
+You are performing plan decomposition and iterative issue refinement before
+implementation begins.
 
-"Check your issues N times, implement once."
+"Decompose the plan, check your issues N times, implement once."
 
-Your goal is to improve issue quality through multiple refinement passes:
-deduplication, coverage verification against the plan, acceptance criteria
-sharpening, dependency correction, and convergence detection. This front-loaded
-investment prevents expensive rework during implementation.
+Your goal is to decompose design plans into implementable tracker beads and then
+improve issue quality through multiple refinement passes: deduplication,
+coverage verification against the plan, acceptance criteria sharpening,
+dependency correction, and convergence detection. This front-loaded investment
+prevents agents from running off to implement work that hasn't been properly
+broken down.
+
+**Polish is the bridge between design and build.** A design plan is not
+executable — it must be decomposed into individually implementable beads before
+`helix build` can safely execute. If `helix check` routes here, your first
+priority is decomposition; refinement follows.
 
 ## Action Input
 
@@ -36,14 +44,14 @@ Issues are stored in `.ddx/beads.jsonl`.
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
-0a. **Load active design principles** following `workflows/references/principles-resolution.md`.
+0a. **Load active design principles** following `.ddx/plugins/helix/workflows/references/principles-resolution.md`.
    Use them as refinement guidance — flag issues whose scope or criteria
    conflict with the active principles.
-0b. **Load active concerns and practices** following `workflows/references/concern-resolution.md`.
+0b. **Load active concerns and practices** following `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
    Verify issue descriptions and acceptance criteria reference the correct
    concern tools and conventions.
 0c. **Refresh context digests**: For each bead in scope that has an existing
-   `<context-digest>`, re-assemble per `workflows/references/context-digest.md`
+   `<context-digest>`, re-assemble per `.ddx/plugins/helix/workflows/references/context-digest.md`
    and update if material changes exist. For beads without a digest, assemble
    one and prepend it.
 1. Verify the built-in tracker is available.
@@ -56,7 +64,38 @@ Issues are stored in `.ddx/beads.jsonl`.
    - Check other planning artifacts (PRD, feature specs, architecture docs)
 4. Record initial issue count and state as the baseline.
 
-## PHASE 1 through N - Refinement Passes
+## PHASE 1 - Plan Decomposition
+
+**This phase runs first and is mandatory when a plan exists.** Plans must be
+decomposed into tracker beads before refinement or implementation can proceed.
+
+1. Locate the governing plan documents for the scope:
+   - `docs/helix/02-design/plan-*.md`
+   - `docs/helix/02-design/solution-designs/SD-*.md`
+   - Other design artifacts referenced by the scope
+2. For each plan, check whether tracker beads already exist that reference it
+   (via `spec-id`, description, or parent epic).
+3. If the plan has **not been decomposed** (no or very few corresponding beads):
+   a. Read the plan's "Implementation Plan with Dependency Ordering" section
+      (or equivalent work breakdown).
+   b. Create one bead per implementable slice. Each bead must:
+      - be individually completable in one `helix build` cycle
+      - have `--labels helix,phase:build` (plus area labels)
+      - have `--spec-id` pointing to the governing plan or design artifact
+      - have deterministic acceptance criteria derived from the plan
+      - have a `<context-digest>` assembled per
+        `.ddx/plugins/helix/workflows/references/context-digest.md`
+   c. Group related beads under an epic if the plan implies multiple
+      implementation tracks.
+   d. Wire dependencies with `ddx bead dep add` based on the plan's
+      dependency graph.
+4. If the plan has been partially decomposed, create beads only for uncovered
+   sections — do not duplicate existing beads.
+
+Only after decomposition is complete (or confirmed already done) should
+refinement passes begin.
+
+## PHASE 2 through N - Refinement Passes
 
 Each pass performs ALL of the following checks. Track changes made per pass.
 
@@ -70,7 +109,9 @@ Each pass performs ALL of the following checks. Track changes made per pass.
 
 ### Plan Coverage Verification
 
-- If a plan document exists, verify every section has at least one issue.
+- If a plan document exists, verify every plan section has at least one issue
+  (decomposition should have handled this, but coverage verification catches
+  gaps).
 - If a section has no issue, create one with proper labels, spec-id, and
   acceptance criteria derived from the plan.
 - If an issue exists but doesn't map to any plan section, flag it for review.
@@ -140,9 +181,11 @@ concern tools:
 ## Convergence Detection
 
 Track a change count per round: number of issues modified, created, or merged.
+Decomposition (Phase 1) does not count toward convergence — it is a one-time
+setup step, not an iterative pass.
 
-When change count drops below 3 for two consecutive rounds, declare convergence
-and stop refinement.
+When change count drops below 3 for two consecutive refinement rounds, declare
+convergence and stop refinement.
 
 If max rounds is reached without convergence, report the current state and
 recommend additional rounds or user guidance.
@@ -154,11 +197,17 @@ lines:
 
 ```
 POLISH_STATUS: CONVERGED|IN_PROGRESS
+DECOMPOSITION: YES|NO|PARTIAL
 POLISH_ROUNDS: N
+ISSUES_DECOMPOSED: count (from plan decomposition)
 ISSUES_MODIFIED: count
-ISSUES_CREATED: count
+ISSUES_CREATED: count (from refinement, not decomposition)
 ISSUES_MERGED: count
 ```
 
 - `CONVERGED`: change velocity dropped below threshold
 - `IN_PROGRESS`: max rounds reached but velocity still above threshold
+- `DECOMPOSITION: YES`: plan was decomposed into beads in this run
+- `DECOMPOSITION: NO`: no plan found or plan was already decomposed
+- `DECOMPOSITION: PARTIAL`: plan partially decomposed, some sections could not
+  be broken down without guidance

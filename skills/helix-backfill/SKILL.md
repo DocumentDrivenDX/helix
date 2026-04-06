@@ -11,7 +11,7 @@ Execute the HELIX documentation backfill action.
 
 ## Steps
 
-1. Read and apply `workflows/actions/backfill-helix-docs.md`.
+1. Read and apply `.ddx/plugins/helix/workflows/actions/backfill-helix-docs.md`.
 2. Use `$ARGUMENTS` as the scope when provided.
 3. Reconstruct only what the evidence supports.
 4. Emit the required metadata markers, including `BACKFILL_STATUS` and `BACKFILL_REPORT`.

@@ -19,4 +19,4 @@ Create the test suite layout for the Red phase. Keep it concise and project-spec
 - oversized code examples
 - repeated explanations of why tests come first
 
-Use template at `workflows/phases/03-test/artifacts/test-suites/template.md`.
+Use template at `.ddx/plugins/helix/workflows/phases/03-test/artifacts/test-suites/template.md`.

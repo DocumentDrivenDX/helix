@@ -13,7 +13,7 @@ action prompts follow to load and apply active design principles.
 
 1. Check: does `docs/helix/01-frame/principles.md` exist and have content?
    - Yes → load it as the active principles document.
-   - No → load `workflows/principles.md` (HELIX defaults).
+   - No → load `.ddx/plugins/helix/workflows/principles.md` (HELIX defaults).
 
 The project file takes full precedence — there is no merging or layering.
 When the project file exists, the HELIX defaults are ignored completely.
@@ -38,9 +38,9 @@ Principles are one of three cross-cutting concerns injected into HELIX
 action prompts:
 
 - **Principles** (this document) — values that guide judgment
-- **Concerns and Practices** (`workflows/references/concern-resolution.md`) —
+- **Concerns and Practices** (`.ddx/plugins/helix/workflows/references/concern-resolution.md`) —
   technology selections and conventions
-- **Context Digest** (`workflows/references/context-digest.md`) — compact
+- **Context Digest** (`.ddx/plugins/helix/workflows/references/context-digest.md`) — compact
   summary assembled into beads at triage/polish time
 
 All three are loaded at Phase 0 of judgment-making actions.
@@ -91,7 +91,7 @@ Selective injection is appropriate when:
 
 When `helix frame` runs and no `docs/helix/01-frame/principles.md` exists:
 
-1. Read `workflows/principles.md` (HELIX defaults).
+1. Read `.ddx/plugins/helix/workflows/principles.md` (HELIX defaults).
 2. Present the defaults to the user and ask:
    - "What does your project value most?"
    - "What trade-offs do you consistently lean toward?"
@@ -114,7 +114,7 @@ When managing principles, check for conflicts between them:
 3. Flag unresolved tensions with a concrete example scenario.
 4. Accept the user's resolution strategy before completing.
 
-Size ceiling guidance (from `workflows/principles.md`):
+Size ceiling guidance (from `.ddx/plugins/helix/workflows/principles.md`):
 - At 8 principles: prompt to review which ones change decisions.
 - At 12: suggest consolidating.
 - At 15+: strongly recommend pruning.

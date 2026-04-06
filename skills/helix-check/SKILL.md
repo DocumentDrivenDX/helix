@@ -11,7 +11,7 @@ Execute the HELIX `check` action and return the required decision markers.
 
 ## Steps
 
-1. Read and apply `workflows/actions/check.md`.
+1. Read and apply `.ddx/plugins/helix/workflows/actions/check.md`.
 2. Use `$ARGUMENTS` as the scope when provided, otherwise default to repo scope.
 3. Evaluate the queue and planning stack conservatively.
 4. Return the exact `NEXT_ACTION` line and the exact next command.

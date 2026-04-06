@@ -78,10 +78,10 @@ HELIX labels appropriate to the work phase.
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
-0a. **Load active design principles** following `workflows/references/principles-resolution.md`.
+0a. **Load active design principles** following `.ddx/plugins/helix/workflows/references/principles-resolution.md`.
    Use them as alignment criteria — flag artifacts whose design choices deviate
    from the active principles.
-0b. **Load active concerns and practices** following `workflows/references/concern-resolution.md`.
+0b. **Load active concerns and practices** following `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
    Concern drift is an alignment finding at every layer, not just implementation:
    - Flag **implementation** that uses tools or conventions inconsistent with the
      declared concerns (e.g., using `vitest` when `bun:test` is declared).
@@ -212,7 +212,7 @@ For each user story and feature spec in the reviewed scope:
 4. Record results in the Gap Register with the governing artifact as planning
    evidence and the test or code file as implementation evidence.
 5. If the project has adopted an acceptance criteria ratchet
-   (see `workflows/ratchets.md`), compare the current satisfaction
+   (see `.ddx/plugins/helix/workflows/ratchets.md`), compare the current satisfaction
    count against the committed floor. Flag any regression — a decrease in
    SATISFIED criteria that was not accompanied by a floor override.
 
@@ -276,7 +276,7 @@ Create or update the durable report at:
 
 Use the template at:
 
-- `workflows/templates/alignment-review.md`
+- `.ddx/plugins/helix/workflows/templates/alignment-review.md`
 
 The report must consolidate all review issues into one coherent repo artifact.
 It is the durable output of the review run.

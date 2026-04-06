@@ -20,14 +20,94 @@ commands directly to `ddx bead`.
 This document owns HELIX execution behavior.
 
 - Follow this file for queue guards, loop shape, and `NEXT_ACTION` handling.
-- Follow the bounded action prompts under `workflows/actions/` for
+- Follow the bounded action prompts under `.ddx/plugins/helix/.ddx/plugins/helix/workflows/actions/` for
   action-specific behavior.
-- Treat examples elsewhere in `workflows/` as supportive summaries, not
+- Treat examples elsewhere in `.ddx/plugins/helix/.ddx/plugins/helix/workflows/` as supportive summaries, not
   alternate execution contracts.
 
 This is the HELIX-specific layer, not the portable skill packaging layer. Skill
 installation lives at `.agents/skills`; queue control and action semantics live
 here.
+
+## The Double Helix
+
+HELIX is built from two interleaved cycles — the double helix:
+
+### Planning Helix
+
+Identification and improvement of plans in bead format.
+
+```
+Review → Plan → Validate → (ready beads)
+```
+
+- **Review**: Assess current state (`check`, `align`). What work exists? What's
+  missing? What concerns aren't threaded?
+- **Plan**: Create or refine plan beads with consolidated context (`design`,
+  `polish`, `evolve`, `triage`). Every plan bead consolidates inputs,
+  cross-cutting concerns, current state, and acceptance criteria.
+- **Validate**: Verify plan quality — are beads well-specified? Are concerns
+  threaded? Are dependencies correct? Are acceptance criteria testable? This is
+  what `polish` refinement passes do.
+
+Output: a queue of well-specified, concern-threaded beads ready for execution.
+
+### Execution Helix
+
+Executing plans to update documents, reconcile artifacts, research next-stage
+plans, implement code, test it, and optimize metrics.
+
+```
+Execute → Measure → Report → (new beads)
+```
+
+- **Execute**: Claim a bead, do the work it describes (`build`, `review`,
+  `experiment`, `backfill` — any action that modifies files on disk).
+- **Measure**: Verify results against the bead's acceptance criteria. Run
+  concern-declared quality gates. Run ratchets. Record results on the bead.
+- **Report**: Analyze measurement results. Open new beads for issues found,
+  regressions, or follow-on work. Close the executed bead with evidence. New
+  beads feed back into the planning helix.
+
+### Crossover
+
+The helices interleave at two points:
+
+1. **Planning → Execution**: Ready beads move from the planning helix to the
+   execution queue.
+2. **Execution → Planning**: Report creates new beads that enter the planning
+   helix for refinement.
+
+`helix check` is the crossover point — it reads both helices and decides which
+one needs attention next. It already does this implicitly (`BUILD` vs
+`DESIGN`/`POLISH`/`ALIGN`), but the double-helix model makes the two cycles
+explicit.
+
+### Bead-First Principle
+
+**Every action that modifies files must be governed by a bead.** No file
+modifications without a plan bead — analogous to entering plan mode before
+writing code.
+
+Every action (except `triage` and `check`) follows this structure:
+
+1. **Bead acquisition**: Find or create the governing bead for this work.
+2. **Execution**: Do the work the bead describes.
+3. **Measure**: Verify results and record evidence on the bead.
+4. **Report**: Create follow-on beads and close the governing bead.
+
+`triage` is the entry point that bootstraps the bead graph — it creates beads
+and therefore cannot itself require one (that would be infinite regress).
+`check` is read-only and does not modify files.
+
+Planning-helix beads use the `kind:planning` label to distinguish them from
+execution beads. Combined with an `action:<name>` label (e.g.,
+`action:design`, `action:polish`), this makes the governing bead's purpose
+visible in the tracker.
+
+See `.ddx/plugins/helix/workflows/references/bead-first.md` for the full bead acquisition pattern,
+`.ddx/plugins/helix/workflows/references/measure.md` for measurement recording, and
+`.ddx/plugins/helix/workflows/references/report.md` for the report phase.
 
 ## Core Actions
 
@@ -51,13 +131,24 @@ HELIX supervision is built from bounded actions with distinct roles:
   Creates or extends the design stack when supervisory routing detects missing
   design authority for the requested scope.
 - `helix polish <scope>`
-  Refines issue definitions and dependencies when changed specs or stale issue
-  metadata would make build unsafe.
+  Decomposes design plans into implementable beads, then refines issue
+  definitions and dependencies. This is the mandatory step between design and
+  build — without it, agents attempt ad-hoc decomposition during implementation.
 - `helix review [scope]`
   Performs fresh-eyes review after build before additional execution
   continues when review automation is enabled.
+- `helix measure [bead-id|scope]`
+  Runs acceptance criteria, concern-declared quality gates, and ratchet
+  enforcement against a bead or scope. Records results on the bead. Can be
+  invoked standalone or runs as an embedded phase within other actions.
+- `helix report [bead-id|scope]`
+  Analyzes measurement results, creates follow-on beads for identified work,
+  and closes the governing bead with evidence. Per-bead by default; batch mode
+  aggregates across a scope.
 - `helix triage`
-  Creates tracker issues via the `ddx bead` create command.
+  Creates tracker issues via the `ddx bead` create command. This is the entry
+  point that bootstraps the bead graph — the one action that does not require
+  a governing bead.
 - `helix backfill <scope>`
   Reconstructs missing HELIX docs conservatively from current evidence.
 
@@ -69,7 +160,7 @@ Use a supervisory control loop with an explicit queue-drain sub-step:
 2. Route to the least-power bounded subroutine required by user intent and repository state:
    - `evolve` when a requirement change must propagate through canonical artifacts
    - `design` when requested work lacks sufficient design authority
-   - `polish` when governing specs changed and open issues need refinement
+   - `polish` when plans need decomposition into beads, or governing specs changed and open issues need refinement
    - `build` when safe ready execution work exists
    - `review` after successful build when review automation is enabled
 3. When the execution queue drains or supervisory routing needs a queue-health decision, run the bounded `check` action
@@ -93,8 +184,14 @@ queue-drain code.
 
 Execution principles:
 
+- bead-first: every action that modifies files must have a governing bead
+  before execution begins. No ad-hoc file changes without a plan bead.
 - tracker-as-steering-wheel: use tracker primitives, not side channels, to
   redirect execution
+- measure-and-record: verification results are recorded on the bead, not just
+  logged ephemerally. A closed bead carries its measurement evidence.
+- report-and-feed-back: measurement findings create new beads that re-enter the
+  planning helix, closing the feedback loop
 - do-hard-things: stay on the active epic and retry governed work with bounded
   exponential backoff before giving up
 - cross-model verification: prefer `--review-agent` for post-build review when
@@ -104,11 +201,11 @@ Execution principles:
 
 ## Queue Guard
 
-These examples assume `jq` is available.
+These examples assume `ddx` is available.
 
 ```bash
 helix_ready_count() {
-  ddx bead ready --json | jq 'length'
+  ddx bead ready --json | ddx jq 'length'
 }
 ```
 
@@ -131,7 +228,8 @@ Interpret `check` as follows:
 - `NEXT_ACTION: DESIGN`
   Run `helix design <scope>` once, then re-run `check`.
 - `NEXT_ACTION: POLISH`
-  Run `helix polish <scope>` once, then re-run `check`.
+  Run `helix polish <scope>` once to decompose plans and refine issues, then
+  re-run `check`.
 - `NEXT_ACTION: ALIGN`
   Run `reconcile-alignment` once for the indicated scope if auto-alignment is
   enabled, then re-run `check`.
@@ -148,8 +246,8 @@ Interpret `check` as follows:
 
 - It counts only completed build passes toward `--max-cycles`.
 - It may dispatch `helix design` or `helix polish` before build when
-  supervisory state indicates missing design authority or stale issue
-  refinement.
+  supervisory state indicates missing design authority, undecomposed plans,
+  or stale issue refinement.
 - It may run fresh-eyes review after a successful build when review
   automation is enabled; `--no-auto-review` disables that post-implementation
   review.
@@ -206,6 +304,10 @@ Main commands:
 - `helix align`
 - `helix evolve`
 - `helix design`
+- `helix polish`
+- `helix review`
+- `helix measure`
+- `helix report`
 - `helix triage`
 - `helix backfill`
 
@@ -213,7 +315,7 @@ Main commands:
 
 - loops only while true ready HELIX execution work exists
 - routes to `helix design` or `helix polish` when supervisory state requires
-  bounded design or issue refinement before build can resume
+  bounded design, plan decomposition, or issue refinement before build can resume
 - runs one bounded build pass at a time
 - runs `check` when the queue drains
 - can trigger `reconcile-alignment` every `N` completed build passes
@@ -302,6 +404,7 @@ helix design auth
 |-------|-----------|
 | `helix implement` | `helix build` |
 | `helix plan` | `helix design` |
+| `helix verify` | `helix measure` |
 ## Orphan Recovery
 
 At run start and after each failed implementation cycle, `helix run`
@@ -373,14 +476,38 @@ This harness (133 tests):
 Before the implementation loop, the recommended sequence for new work is:
 
 1. `helix design [scope]` — create a comprehensive design document through
-   iterative refinement (recommended for new features or major work)
-2. `helix polish [scope]` — refine issues against the plan: deduplication,
-   coverage verification, acceptance criteria sharpening (recommended after
-   issue creation)
-3. `helix run` — execute the bounded build loop
+   iterative refinement. The action acquires a `kind:planning,action:design`
+   bead before writing the design doc.
+2. `helix polish [scope]` — **decompose the plan into implementable beads**,
+   then refine: deduplication, coverage verification, acceptance criteria
+   sharpening, dependency wiring, concern threading (required before
+   implementation). Polish acquires its own governing bead.
+3. `helix run` — execute the bounded build loop. Each build cycle claims a
+   ready bead, executes, measures, and reports.
+
+**Every step is bead-governed.** Design creates a planning bead before writing
+docs. Polish creates a planning bead before decomposing. Build claims an
+execution bead before writing code. No files change without a governing bead.
+
+**Polish is the bridge between design and build.** A design plan produces a
+document with a work breakdown, but it does not create execution beads. Polish
+reads the plan, creates one bead per implementable slice, wires dependencies,
+threads concerns into context digests and acceptance criteria, and then refines
+the resulting queue. Without this step, agents encounter epics or vague work
+items and attempt ad-hoc decomposition during build.
+
+**Measure and report close each cycle.** After execution, every action measures
+results against its bead's acceptance criteria and records evidence on the bead.
+The report phase creates follow-on beads for any new work identified and closes
+the governing bead. These follow-on beads re-enter the planning helix.
 
 The public command names for this sequence are `helix design`, `helix polish`,
 and `helix run`.
+
+`helix check` enforces this pipeline: it recommends `POLISH` when a plan
+exists but has not been decomposed into beads, even if epics appear in the
+ready queue. It also recommends `POLISH` when concerns have changed since the
+last polish pass.
 
 These steps are optional for small changes but strongly recommended for any
 scope that will produce more than a handful of issues.
@@ -393,15 +520,27 @@ principles, area-matched concerns, merged practices, relevant ADRs, and
 governing spec context. It is prepended to the bead description as a
 `<context-digest>` XML block.
 
-`helix polish` refreshes stale digests against current upstream state.
+`helix polish` refreshes stale digests against current upstream state and
+verifies that concern-appropriate acceptance criteria are present on every bead
+in scope. When concerns change, polish propagates the change to all affected
+beads — not just their digests but their acceptance criteria and quality gates.
 
 `helix build` and `helix review` read the digest from the bead and use it
 as working authority — they do not redundantly read the upstream files that
 the digest summarizes.
 
-See `workflows/references/context-digest.md` for the assembly algorithm,
-`workflows/references/concern-resolution.md` for concern loading, and
-`workflows/references/principles-resolution.md` for principles loading.
+`helix measure` verifies concern-declared quality gates as part of its
+acceptance criteria check. Measurement results are recorded on the bead so
+that a closed bead carries its verification evidence.
+
+Concern threading is end-to-end: once a concern is introduced in
+`docs/helix/01-frame/concerns.md`, it must propagate through context digests,
+acceptance criteria, quality gates, and measurement evidence on every bead
+whose area matches the concern's scope.
+
+See `.ddx/plugins/helix/workflows/references/context-digest.md` for the assembly algorithm,
+`.ddx/plugins/helix/workflows/references/concern-resolution.md` for concern loading, and
+`.ddx/plugins/helix/workflows/references/principles-resolution.md` for principles loading.
 
 ## Next Issue
 

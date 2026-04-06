@@ -18,6 +18,7 @@ experiments/
 .ddx/exec-runs.d/
 .ddx/exec-runs.jsonl
 .ddx/run-state.json
+.ddx/plugins/
 
 # Codex config
 .codex

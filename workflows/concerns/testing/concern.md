@@ -97,7 +97,7 @@ all
 - **Performance ratchets**: Define quantitative floors for latency,
   throughput, memory, bundle size, or test duration. Commit floors to
   version control. CI fails if the metric regresses below the floor. See
-  `workflows/ratchets.md` for the ratchet pattern.
+  `.ddx/plugins/helix/workflows/ratchets.md` for the ratchet pattern.
 
 ## Drift Signals (anti-patterns to reject in review)
 

@@ -210,7 +210,7 @@ GitHub Actions workflow for GitHub Pages deployment:
 ## Drift Signals (anti-patterns to reject in review)
 
 - CLI command added or changed without updating CLI Reference page → update the docs
-- New artifact type in `workflows/phases/` without a glossary entry → add it
+- New artifact type in `.ddx/plugins/helix/workflows/phases/` without a glossary entry → add it
 - Feature spec created or evolved without updating the microsite → update it
 - Install process changed without updating Getting Started → fix it
 - Demo reel recorded but not copied to `website/static/demos/` → publish it

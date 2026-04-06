@@ -5,7 +5,7 @@ declaring any project-specific overrides.
 
 ## Approach
 
-1. List available concerns from `workflows/concerns/` grouped by category:
+1. List available concerns from `.ddx/plugins/helix/workflows/concerns/` grouped by category:
    - **Tech stack**: typescript-bun, python-uv, rust-cargo
    - **Accessibility**: a11y-wcag-aa
    - **Observability**: o11y-otel

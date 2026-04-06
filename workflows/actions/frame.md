@@ -32,10 +32,10 @@ artifacts unless the scope explicitly asks you to revise them.
 
 ## PHASE 0 — Bootstrap
 
-0. **Load active design principles** following `workflows/references/principles-resolution.md`.
+0. **Load active design principles** following `.ddx/plugins/helix/workflows/references/principles-resolution.md`.
    Use them to shape requirements priorities. If no project principles file
    exists, note that you will bootstrap one as part of this frame action.
-0a. **Load or initialize active concerns** following `workflows/references/concern-resolution.md`.
+0a. **Load or initialize active concerns** following `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
    If `docs/helix/01-frame/concerns.md` does not exist, include concern selection
    as part of the framing conversation — ask the user about their technology
    choices and create the concerns document alongside other Frame artifacts.
@@ -50,12 +50,12 @@ artifacts unless the scope explicitly asks you to revise them.
    - `docs/helix/01-frame/features/FEAT-*.md`
    - `docs/helix/01-frame/concerns.md` (if it exists)
 2. Read the artifact templates:
-   - `workflows/phases/00-discover/artifacts/product-vision/`
-   - `workflows/phases/01-frame/artifacts/prd/`
-   - `workflows/phases/01-frame/artifacts/feature-specification/`
-   - `workflows/phases/01-frame/artifacts/concerns/` (template, prompt, meta.yml)
+   - `.ddx/plugins/helix/workflows/phases/00-discover/artifacts/product-vision/`
+   - `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/prd/`
+   - `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/feature-specification/`
+   - `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/concerns/` (template, prompt, meta.yml)
 3. Load numbering rules and determine the next artifact ID:
-   - Read `workflows/phases/01-frame/artifacts/feature-specification/meta.yml`
+   - Read `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/feature-specification/meta.yml`
      to understand the ID format (`FEAT-{number}`), naming pattern, and reuse
      policy.
    - List all files matching `docs/helix/01-frame/features/FEAT-*.md`.
@@ -80,7 +80,7 @@ For each missing or outdated artifact:
 
 ### Product Vision
 
-Follow the template at `workflows/phases/00-discover/artifacts/product-vision/`.
+Follow the template at `.ddx/plugins/helix/workflows/phases/00-discover/artifacts/product-vision/`.
 Read **both** `template.md` (structure) and `prompt.md` (section-by-section
 guidance and quality checklist) before drafting.
 
@@ -90,7 +90,7 @@ non-goals.
 
 ### PRD
 
-Follow the template at `workflows/phases/01-frame/artifacts/prd/`.
+Follow the template at `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/prd/`.
 Read **both** `template.md` (structure) and `prompt.md` (section-by-section
 guidance and quality checklist) before drafting.
 
@@ -124,7 +124,7 @@ feature spec. Stories are separate files with their own lifecycle.
 
 ### User Stories
 
-Follow the template at `workflows/phases/01-frame/artifacts/user-stories/`.
+Follow the template at `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/user-stories/`.
 Read **both** `template.md` and `prompt.md` before drafting.
 
 For each vertical slice, create `docs/helix/01-frame/user-stories/US-NNN-<slug>.md`.
@@ -240,13 +240,13 @@ artifact that fails a blocking check.
 
 If no `docs/helix/01-frame/principles.md` exists for this project:
 
-1. Present the HELIX defaults from `workflows/principles.md` to the user.
+1. Present the HELIX defaults from `.ddx/plugins/helix/workflows/principles.md` to the user.
 2. Ask:
    - "What does your project value most?"
    - "What trade-offs do you consistently lean toward?"
    - "What past mistakes should these principles help you avoid?"
 3. Synthesize user input and defaults into a project principles document.
-4. Check for tensions between principles (see `workflows/references/principles-resolution.md`).
+4. Check for tensions between principles (see `.ddx/plugins/helix/workflows/references/principles-resolution.md`).
 5. Write `docs/helix/01-frame/principles.md`.
 
 Skip this phase if the principles file already exists.

@@ -73,15 +73,15 @@ issues during execution, and closes the issue at session close.
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
-0a. **Load active design principles** following `workflows/references/principles-resolution.md`.
+0a. **Load active design principles** following `.ddx/plugins/helix/workflows/references/principles-resolution.md`.
    Use them to inform metric selection and experiment design decisions.
-0b. **Load active concerns and practices** following `workflows/references/concern-resolution.md`.
+0b. **Load active concerns and practices** following `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
    Experiments must use the declared concerns — do not introduce alternative tools
    or frameworks as part of an optimization experiment.
 1. Verify the built-in tracker is available.
    - If `ddx bead status` fails, stop immediately.
 2. Load ratchet floor fixtures if the project has adopted quality ratchets
-   (see `workflows/ratchets.md`). Note the current floors so Phase 3
+   (see `.ddx/plugins/helix/workflows/ratchets.md`). Note the current floors so Phase 3
    can compare against them for auto-bump decisions.
 3. Determine the invocation mode:
    - If `--close` directive: skip directly to Phase 3.
@@ -142,7 +142,7 @@ Load or create the primary metric definition:
 - If a metric definition exists at `docs/helix/06-iterate/metrics/<name>.yaml`,
   read `name`, `unit`, `direction`, `command`, and `tolerance` from it.
 - If no metric definition exists, create one during setup using the
-  `workflows/templates/metric-definition.yaml` template schema. Commit
+  `.ddx/plugins/helix/workflows/templates/metric-definition.yaml` template schema. Commit
   the new metric definition to the canonical location
   (`docs/helix/06-iterate/metrics/<name>.yaml`) before branching. This is a
   normative artifact at authority level 5-6.
@@ -184,14 +184,14 @@ is non-negotiable — tests must pass at every step.
 
 3. Create ephemeral session files (untracked, local-only):
    - `autoresearch.md` — session doc, populated from
-     `workflows/templates/autoresearch-session.md`. References the metric
+     `.ddx/plugins/helix/workflows/templates/autoresearch-session.md`. References the metric
      definition by path. Contains objective, metrics, correctness check, files
      in scope, off-limits, constraints, and "What's Been Tried" section.
    - `autoresearch.sh` — benchmark script, derived from the metric definition's
      `command` field. Must output `METRIC <name>=<value>` lines to stdout.
      Make it executable (`chmod +x autoresearch.sh`).
    - `experiments/worklog.md` — narrative log, populated from
-     `workflows/templates/autoresearch-worklog.md`.
+     `.ddx/plugins/helix/workflows/templates/autoresearch-worklog.md`.
    - `autoresearch.jsonl` — initialize with a config header line:
      ```json
      {"type":"config","goal":"<goal>","metric":"<name>","direction":"<lower|higher>","issue":"<id>","started":"<ISO-8601>"}

@@ -38,11 +38,11 @@ update a lower-authority artifact in a way that contradicts a higher one.
 
 ## PHASE 0 — Bootstrap
 
-0. **Load active design principles** following `workflows/references/principles-resolution.md`.
+0. **Load active design principles** following `.ddx/plugins/helix/workflows/references/principles-resolution.md`.
    Use these as scoping guidance when evaluating which artifacts need updates
    and how to resolve judgment calls. Note: `helix evolve` reads principles
    but never modifies the principles file — only `helix frame` may write it.
-0a. **Load active concerns and practices** following `workflows/references/concern-resolution.md`.
+0a. **Load active concerns and practices** following `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
    Concern context affects the scope of downstream changes:
    - A requirement that implies a technology change (new language, new framework,
      new runtime, new dependency) must be checked against declared concerns.
@@ -57,7 +57,7 @@ update a lower-authority artifact in a way that contradicts a higher one.
      concern, the concern declaration and project overrides must be updated as
      part of Phase 4 artifact evolution.
 0b. **Context digest**: When `helix evolve` creates or modifies beads, it must
-   assemble a context digest per `workflows/references/context-digest.md` and
+   assemble a context digest per `.ddx/plugins/helix/workflows/references/context-digest.md` and
    prepend it to the bead description.
 
 ## PHASE 1 — Requirement Analysis
@@ -87,15 +87,15 @@ Search the project's doc tree for governing artifacts in scope:
    meta.yml files and determine the next available IDs now — before writing
    anything:
    - **New feature spec (FEAT-NNN)**: read
-     `workflows/phases/01-frame/artifacts/feature-specification/meta.yml`,
+     `.ddx/plugins/helix/workflows/phases/01-frame/artifacts/feature-specification/meta.yml`,
      scan `docs/helix/01-frame/features/FEAT-*.md`, set next FEAT ID = max + 1
      (use `001` if none exist).
    - **New solution design (SD-NNN)**: read
-     `workflows/phases/02-design/artifacts/solution-design/meta.yml`,
+     `.ddx/plugins/helix/workflows/phases/02-design/artifacts/solution-design/meta.yml`,
      scan `docs/helix/02-design/solution-designs/SD-*.md`, set next SD ID =
      max + 1.
    - **New technical design (TD-NNN)**: read
-     `workflows/phases/02-design/artifacts/technical-design/meta.yml`,
+     `.ddx/plugins/helix/workflows/phases/02-design/artifacts/technical-design/meta.yml`,
      scan `docs/helix/02-design/technical-designs/TD-*.md`, set next TD ID =
      max + 1.
    - Record these values. Use them exclusively when assigning IDs; never guess

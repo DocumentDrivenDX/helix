@@ -22,5 +22,5 @@ Create the canonical build plan for the Build phase. Keep it short, but preserve
 
 ## Template
 
-`workflows/phases/04-build/artifacts/implementation-plan/template.md`
+`.ddx/plugins/helix/workflows/phases/04-build/artifacts/implementation-plan/template.md`
 For tracker conventions see `ddx bead --help`.

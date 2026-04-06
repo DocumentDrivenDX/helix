@@ -13,7 +13,7 @@ Use when:
 
 Reference docs:
 
-- `workflows/actions/check.md`
+- `.ddx/plugins/helix/workflows/actions/check.md`
 
 Key rules:
 
@@ -33,8 +33,8 @@ Use when:
 
 Reference docs:
 
-- `workflows/actions/backfill-helix-docs.md`
-- `workflows/templates/backfill-report.md`
+- `.ddx/plugins/helix/workflows/actions/backfill-helix-docs.md`
+- `.ddx/plugins/helix/workflows/templates/backfill-report.md`
 Key rules:
 
 - research first
@@ -53,8 +53,8 @@ Use when:
 
 Reference docs:
 
-- `workflows/actions/reconcile-alignment.md`
-- `workflows/templates/alignment-review.md`
+- `.ddx/plugins/helix/workflows/actions/reconcile-alignment.md`
+- `.ddx/plugins/helix/workflows/templates/alignment-review.md`
 Key rules:
 
 - review top-down

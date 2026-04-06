@@ -8,7 +8,7 @@ argument-hint: "[scope]"
 
 Use this skill for repo-wide or area-scoped reconciliation reviews.
 
-This skill depends on the shared HELIX workflow library under `workflows/`.
+This skill depends on the shared HELIX workflow library under `.ddx/plugins/helix/workflows/`.
 If the shared resources are unavailable, treat the HELIX package as incomplete
 and stop rather than guessing from code alone.
 
@@ -23,8 +23,8 @@ and stop rather than guessing from code alone.
 
 Reference docs:
 
-- `workflows/actions/reconcile-alignment.md`
-- `workflows/templates/alignment-review.md`
+- `.ddx/plugins/helix/workflows/actions/reconcile-alignment.md`
+- `.ddx/plugins/helix/workflows/templates/alignment-review.md`
 - Tracker conventions: `ddx bead --help` (DDx FEAT-004)
 
 ## Core Rules
@@ -45,7 +45,7 @@ bead — the ready queue is the only durable hand-off mechanism between review
 and execution.
 
 See Phase 7 (Execution Issues) and Issue Coverage Verification in
-`workflows/actions/reconcile-alignment.md` for the exact rules and format.
+`.ddx/plugins/helix/workflows/actions/reconcile-alignment.md` for the exact rules and format.
 
 ## Output Model
 

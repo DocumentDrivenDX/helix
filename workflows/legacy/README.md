@@ -12,13 +12,13 @@ workflow:
 Use these current replacements instead:
 
 - bounded implementation work:
-  `workflows/actions/implementation.md`
+  `.ddx/plugins/helix/workflows/actions/implementation.md`
 - queue-drain decisions:
-  `workflows/actions/check.md`
+  `.ddx/plugins/helix/workflows/actions/check.md`
 - top-down reconciliation:
-  `workflows/actions/reconcile-alignment.md`
+  `.ddx/plugins/helix/workflows/actions/reconcile-alignment.md`
 - conservative documentation reconstruction:
-  `workflows/actions/backfill-helix-docs.md`
+  `.ddx/plugins/helix/workflows/actions/backfill-helix-docs.md`
 
 Historical versions remain available in git history. Do not reintroduce these
 legacy control surfaces as alternate execution entrypoints.

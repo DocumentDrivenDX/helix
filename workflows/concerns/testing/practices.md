@@ -78,7 +78,7 @@
 - Store floors in a committed file (e.g., `.ratchets.json`, `ratchets.toml`)
 - CI measures and compares against floor; fails on regression
 - Auto-bump floor when measured value exceeds it by the defined margin
-- See `workflows/ratchets.md` for the full ratchet pattern and override
+- See `.ddx/plugins/helix/workflows/ratchets.md` for the full ratchet pattern and override
   protocol
 
 ## Testing pyramid

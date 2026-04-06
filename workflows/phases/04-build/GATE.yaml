@@ -19,9 +19,9 @@ entry_requirements:
       description: "Tests must be failing (Red phase ready for implementation)"
 
     - check: file_exists
-      path: .github/workflows/test.yml
+      path: .github/.ddx/plugins/helix/workflows/test.yml
       fallback_paths:
-        - .github/workflows/ci.yml
+        - .github/.ddx/plugins/helix/workflows/ci.yml
         - .gitlab-ci.yml
       description: "CI/CD pipeline configured for tests"
 
