@@ -243,7 +243,7 @@ semantics on top of DDx tools:
 - **Spec-id enforcement** linking every bead to its governing artifact
 - **Execution-eligible** derivation from phase labels
 - **Supervisory run loop** that sequences build/check/design/review
-- **Agent orchestration** dispatching to Claude, Codex, or other agents
+- **Agent orchestration** dispatching to Claude, Codex, virtual (recorded replay), or other agents
 - **Quality ratchets** preventing metric regression
 
 DDx provides the beads, ADRs, and SDs. HELIX provides the workflow that

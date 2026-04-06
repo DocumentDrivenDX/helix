@@ -269,6 +269,56 @@ ddx agent run \
 This routes through DDx's agent abstraction, which provides output capture,
 token tracking, and session logging.
 
+### Deterministic replay with virtual harness
+
+For reproducible demos that produce identical output every time (no tokens
+consumed, no network dependency), use DDx's virtual agent harness.
+
+**Step 1 — Record responses** by adding `--record` to a live agent run:
+
+```bash
+ddx agent run \
+  --harness claude \
+  --record \
+  --text "$prompt"
+```
+
+This executes the prompt with the real agent and saves the prompt→response
+pair to `.ddx/agent-dictionary/<hash>.json` (hash is a truncated SHA-256 of
+the prompt text).
+
+**Step 2 — Replay** by switching the harness to `virtual`:
+
+```bash
+ddx agent run \
+  --harness virtual \
+  --text "$prompt"
+```
+
+The virtual harness looks up the prompt hash in the dictionary and returns
+the recorded response. No agent binary is invoked, no tokens are consumed,
+and timing is simulated from the original run.
+
+**Demo script pattern:**
+
+```bash
+HARNESS="${DEMO_HARNESS:-claude}"
+
+ddx agent run \
+  --harness "$HARNESS" \
+  --text "$prompt"
+```
+
+First run: `DEMO_HARNESS=claude ./demo.sh` (live, optionally with `--record`).
+Subsequent runs: `DEMO_HARNESS=virtual ./demo.sh` (deterministic replay).
+
+**Notes:**
+- The `.ddx/agent-dictionary/` directory should be committed to git so
+  recordings are shared and versioned.
+- Re-record when prompts change — the hash is prompt-exact.
+- The virtual harness is always available (`ddx agent list` shows it
+  regardless of installed agent binaries).
+
 ### Permissions
 
 Demos need file and command permissions. Do **not** use `--permissions
