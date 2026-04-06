@@ -14,7 +14,7 @@ resolve_script_dir() {
 
 script_dir="$(resolve_script_dir)"
 library_root="$(cd "$script_dir/.." && pwd)"
-HELIX_VERSION="1.0.0"
+HELIX_VERSION="0.2.0"
 helix_docs_root="${HELIX_LIBRARY_ROOT:-$library_root/workflows}"
 target_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 
