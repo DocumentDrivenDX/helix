@@ -5,11 +5,16 @@
 ```bash
 git clone https://github.com/DocumentDrivenDX/helix.git
 cd helix
-ddx install helix --force
+ddx install helix --local . --force
+ln -s "$(pwd)/scripts/helix" ~/.local/bin/helix
 helix doctor --fix
 ```
 
-Or use Claude Code plugin mode:
+This symlinks the plugin and skills so edits to your checkout are
+immediately reflected. `ddx install --local` will not overwrite the
+`~/.local/bin/helix` symlink on subsequent runs.
+
+Claude Code plugin mode (alternative — skills only, no CLI):
 
 ```bash
 claude --plugin-dir /path/to/helix

@@ -81,3 +81,20 @@ dun:
 
 **Commands**: `[test command]` | `[coverage command]`
 **Priority**: [Recommended order]
+
+## Review Checklist
+
+Use this checklist when reviewing a test plan:
+
+- [ ] Test levels cover contract, integration, unit, and E2E with coverage targets
+- [ ] Framework choices are justified and consistent with project concerns
+- [ ] Critical paths (P0) are identified and have 100% coverage requirements
+- [ ] Test data strategy covers fixtures, factories, and mocks
+- [ ] Coverage requirements have both targets and minimums with enforcement rules
+- [ ] Implementation order is justified — what must be tested first and why
+- [ ] Infrastructure requirements are specific (tool versions, service deps)
+- [ ] Risks include flaky test mitigation and slow execution strategies
+- [ ] Known gaps are documented with accepted risk rationale
+- [ ] Build handoff commands are concrete and runnable
+- [ ] Test plan traces back to acceptance criteria from governing feature specs
+- [ ] No untested P0 requirement — every P0 acceptance criterion has a test

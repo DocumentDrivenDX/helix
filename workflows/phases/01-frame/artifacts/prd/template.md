@@ -128,3 +128,23 @@ questions here over `[TBD]` markers scattered through the document.]
 
 [What must be true to call the initiative successful. These should be
 observable outcomes, not activities.]
+
+## Review Checklist
+
+Use this checklist when reviewing a PRD artifact:
+
+- [ ] Summary works as a standalone 1-pager — someone can decide whether to read the rest
+- [ ] Problem statement describes a specific failure mode with concrete cost
+- [ ] Goals are outcomes, not activities ("users can X" not "we build Y")
+- [ ] Success metrics have numeric targets and named measurement methods
+- [ ] Non-goals exclude things a reasonable person might assume are in scope
+- [ ] Personas have specific pain points, not generic descriptions
+- [ ] P0 requirements are necessary for launch — removing any one makes the product unusable
+- [ ] P1/P2 requirements are correctly prioritized relative to each other
+- [ ] Every P0 requirement has an acceptance test sketch
+- [ ] Functional requirements are testable — each can be verified with specific inputs and expected outputs
+- [ ] Technical context names specific versions and interfaces, not vague technology areas
+- [ ] Risks have concrete mitigations ("we do X"), not vague strategies ("we monitor")
+- [ ] Open questions name who can answer and what is blocked
+- [ ] No contradictions between requirements sections
+- [ ] PRD is consistent with the governing product vision

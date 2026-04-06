@@ -75,3 +75,19 @@ not the product-level metrics from the PRD.]
 
 [What this feature explicitly does not cover. Each item should prevent a
 plausible scope question.]
+
+## Review Checklist
+
+Use this checklist when reviewing a feature specification:
+
+- [ ] Overview connects this feature to a specific PRD requirement
+- [ ] Problem statement describes what exists now and what is broken — not just what is wanted
+- [ ] Every functional requirement is testable — you can write an assertion for it
+- [ ] Non-functional requirements have specific numeric targets, not "must be fast"
+- [ ] Edge cases cover realistic failure scenarios, not just happy paths
+- [ ] Success metrics are specific to this feature, not product-level metrics
+- [ ] Dependencies reference real artifact IDs (FEAT-XXX, external APIs)
+- [ ] Out of scope excludes things someone might reasonably assume are in scope
+- [ ] No implementation details ("use X library", "create Y table") — specify WHAT not HOW
+- [ ] Feature is consistent with governing PRD requirements
+- [ ] No `[NEEDS CLARIFICATION]` markers remain unresolved for P0 features

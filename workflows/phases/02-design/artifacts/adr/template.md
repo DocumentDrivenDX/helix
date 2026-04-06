@@ -67,3 +67,20 @@ library practice, note the impact here:
 
 - [PRD section link]
 - [Related ADRs]
+
+## Review Checklist
+
+Use this checklist when reviewing an ADR:
+
+- [ ] Context names a specific problem — not "we need to decide about X"
+- [ ] Decision statement is actionable — "we will" not "we should consider"
+- [ ] At least two alternatives were evaluated
+- [ ] Each alternative has concrete pros and cons, not vague assessments
+- [ ] Selected option's rationale explains why it wins over the best alternative
+- [ ] Consequences include both positive and negative impacts
+- [ ] Negative consequences have documented mitigations
+- [ ] Risks are specific with probability and impact assessments
+- [ ] Validation section defines how we'll know if the decision was right
+- [ ] Review triggers define conditions for reconsidering the decision
+- [ ] Concern impact section is complete (or explicitly marked as no impact)
+- [ ] ADR is consistent with governing feature spec and PRD requirements

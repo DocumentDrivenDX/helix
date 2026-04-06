@@ -1825,6 +1825,7 @@ test_tracker_create_help_no_side_effect() {
 run_test() {
   local name="$1"
   shift
+  cd "$repo_root" 2>/dev/null || true
   "$@"
   test_count=$((test_count + 1))
   echo "ok - $name"
@@ -3043,7 +3044,7 @@ MOCK
   chmod +x "$root/bin/codex" "$root/bin/claude"
 
   # First run: triggers blocker notes
-  run_helix "$root" run --no-auto-review --no-auto-align 2>&1 >/dev/null || true
+  run_helix_with_env "$root" HELIX_BACKOFF_SLEEP 0 run --no-auto-review --no-auto-align 2>&1 >/dev/null || true
 
   local notes_after_first
   notes_after_first="$(run_bead "$root" show hx-mock-0 --json | ddx jq -r '.notes // ""')"
@@ -3054,7 +3055,7 @@ MOCK
   : > "$root/state/calls.log"
 
   # Second run: same failure, same reason — notes should be stable
-  run_helix "$root" run --no-auto-review --no-auto-align 2>&1 >/dev/null || true
+  run_helix_with_env "$root" HELIX_BACKOFF_SLEEP 0 run --no-auto-review --no-auto-align 2>&1 >/dev/null || true
 
   local notes_after_second
   notes_after_second="$(run_bead "$root" show hx-mock-0 --json | ddx jq -r '.notes // ""')"

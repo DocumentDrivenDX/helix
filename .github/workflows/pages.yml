@@ -43,6 +43,47 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install DDx
+        run: curl -fsSL https://raw.githubusercontent.com/DocumentDrivenDX/ddx/main/install.sh | bash
+        env:
+          DDX_INSTALL_DIR: /usr/local/bin
+
+      - name: Install demo dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq jq
+          pipx install asciinema
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Configure git
+        run: |
+          git config --global user.name "HELIX CI"
+          git config --global user.email "ci@helix.dev"
+          git config --global init.defaultBranch main
+
+      - name: Record demos (virtual agent — no API keys)
+        run: |
+          export DEMO_HARNESS=virtual
+          export DEMO_MODEL=claude-haiku-4-5-20251001
+          export HELIX_ROOT="${GITHUB_WORKSPACE}"
+          export PATH="${HOME}/.local/bin:${GITHUB_WORKSPACE}/scripts:$PATH"
+          for demo in quickstart concerns evolve experiment; do
+            echo "::group::Recording $demo"
+            dir=$(mktemp -d)
+            cast="website/static/demos/helix-${demo}.cast"
+            (cd "$dir" && asciinema rec \
+              --cols 100 --rows 30 \
+              --command "HELIX_DEMO_RECORDING=1 bash ${GITHUB_WORKSPACE}/docs/demos/helix-${demo}/demo.sh" \
+              "/tmp/helix-${demo}.cast") && cp -f "/tmp/helix-${demo}.cast" "$cast" || {
+              echo "Warning: $demo demo failed — keeping committed .cast file"
+            }
+            echo "::endgroup::"
+          done
+
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5

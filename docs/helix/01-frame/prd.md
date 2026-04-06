@@ -75,6 +75,11 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
 **Goals**: Keep the workflow contract coherent across docs, skills, and implementation  
 **Pain Points**: The product intent is easy to dilute when surface docs or skill descriptions become too command-literal
 
+### Tertiary Persona: New Team Member
+**Role**: Developer or tech lead adopting HELIX for the first time without the creator present  
+**Goals**: Understand the artifact hierarchy, create a first project, and become productive quickly  
+**Pain Points**: The methodology is sophisticated and requires guided onboarding; without it, users may misuse HELIX as a prompt library or skip the planning artifacts entirely
+
 ## Requirements
 
 ### Must Have (P0)
@@ -152,6 +157,28 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
     (~1000-1500 tokens) summarizing active principles, concerns, practices,
     relevant ADRs, and governing spec context — making beads self-contained
     execution units that rarely require upstream file reads. See [[FEAT-006]].
+13. Artifact template quality: each artifact template (Vision, PRD, Feature
+    Spec, Solution Design, Technical Design, ADR, Test Plan) must include
+    clear instructions for what goes in each section, prompts for agents to
+    generate drafts from higher-level artifacts, review checklists for
+    adversarial review, and relationship declarations so the artifact graph
+    can be constructed automatically. See [[FEAT-008]].
+14. Team onboarding: HELIX must be teachable without its creator present.
+    This includes a getting-started guide that walks through initializing a
+    project, understanding the artifact hierarchy, creating a first bead,
+    and running an agent; a guided first-project template; and
+    self-documenting prompts that explain why each bead exists and what
+    context it draws from. See [[FEAT-009]].
+15. Testing strategy templates: HELIX should provide structured guidance on
+    testing approaches — acceptance test generation from acceptance criteria,
+    property-based testing patterns, integration/flow testing, and
+    performance benchmarking templates. These are structured approaches and
+    prompts, not test frameworks. See [[FEAT-010]].
+16. Hypothesis-driven optimization: the `helix experiment` command must
+    support metric definition, hypothesis generation, hypothesis testing
+    (apply change, re-measure), selection (keep improvements, discard
+    regressions), and iteration until target or diminishing returns. Each
+    hypothesis is a bead. Failed hypotheses must roll back cleanly.
 
 ### Nice to Have (P2)
 
@@ -167,6 +194,23 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
    for manual control over phases currently handled implicitly.
 5. `helix reject` as a compound operation: structured rejection reason, mark
    execution-ineligible, create corrective follow-on issue.
+6. Unstructured feedback routing: when a user provides unstructured feedback
+   about a running system ("I don't like how this looks", "the ships should
+   be green"), HELIX should determine which artifact layer the feedback
+   applies to and generate the appropriate bead to address it.
+7. Real-project feedback integration: lessons from validated HELIX projects
+   should be captured and folded into improved templates, better prompts,
+   new cross-cutting concerns, and updated getting-started materials.
+
+## Phases
+
+| Phase | Description | Key Activities |
+|-------|-------------|----------------|
+| **Discover** | Explore the problem space | Market analysis, competitive review, stakeholder research |
+| **Frame** | Decompose the problem into structured artifacts | Vision, PRD, Feature Specs, Acceptance Criteria |
+| **Plan** | Encode requirements as testable assertions | Convert acceptance criteria into executable tests |
+| **Build / Iterate** | Red-green-refactor against tests | Implement code to pass tests, respecting cross-cutting concerns |
+| **Polish** | Systematic optimization against metrics | Hypothesis-driven improvement, adversarial review, gap analysis |
 
 ## Command Surface
 
@@ -364,6 +408,11 @@ verb: `run`, `status`, `evolve`, `review`, `align`, `polish`, `experiment`.
 | The system overreaches and makes product decisions without authority | Medium | High | Preserve bounded actions, least-power rules, and escalation-on-ambiguity requirements |
 | Interactive commands and autopilot drift into separate mental models | Medium | High | Define companion commands as intervention points inside one shared control system |
 | Existing docs and skills lag behind the product contract | High | Medium | Follow the PRD with explicit workflow and skill-spec updates plus tracker issues |
+| Testing and validation unsolved industry-wide | High | High | Progressive abstraction + TDD + hypothesis optimization; track Meta JIT testing and similar research |
+| Documentation staleness (classic doc-driven failure) | Medium | High | Reconciliation beads, adversarial review, `helix align` |
+| DDX/HELIX boundary confusion | Medium | Medium | Explicit separation: DDX owns platform (beads, agents, exec); HELIX owns methodology (phases, templates, concerns) |
+| Transferability — new users can't adopt without creator | High | High | Team onboarding workflow ([[FEAT-009]]), guided first-project template, self-documenting prompts |
+| Rate of change in agentic best practices | High | Medium | Flexible template system, concern library extensibility, no breaking changes to artifact shapes |
 
 ## Success Criteria
 

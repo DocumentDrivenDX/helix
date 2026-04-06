@@ -12,9 +12,15 @@ resolve_script_dir() {
   cd -P "$(dirname "$source")" && pwd
 }
 
-script_dir="$(resolve_script_dir)"
-library_root="$(cd "$script_dir/.." && pwd)"
-HELIX_VERSION="0.2.1"
+# Use HELIX_ROOT if set (e.g., by bin/helix plugin wrapper), otherwise
+# resolve from this script's location.
+if [[ -n "${HELIX_ROOT:-}" ]]; then
+  library_root="$HELIX_ROOT"
+else
+  script_dir="$(resolve_script_dir)"
+  library_root="$(cd "$script_dir/.." && pwd)"
+fi
+HELIX_VERSION="0.3.0"
 helix_docs_root="${HELIX_LIBRARY_ROOT:-$library_root/workflows}"
 target_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 
@@ -974,33 +980,21 @@ _run_agent_direct() {
             "$(date +%H:%M:%S)" "$target_root" "${model_override:+(model: $model_override)}" "$prompt_bytes" "$agent_timeout" >&2
         fi
 
-        # Run codex in background with temp file for output capture
-        local _codex_tmp _codex_pid _codex_rc=0
+        # Run codex with timeout — uses timeout(1) to avoid zombie race
+        # conditions with kill -0 polling loops.
+        local _codex_tmp _codex_rc=0
         _codex_tmp="$(mktemp)"
         # Codex does not support feeding new prompts to resumed sessions.
         # Always use --ephemeral for codex to avoid broken resume attempts.
         # shellcheck disable=SC2086
-        codex --dangerously-bypass-approvals-and-sandbox exec \
-          -C "$target_root" $_codex_model_flag $_codex_effort_flag --ephemeral "$prompt" > "$_codex_tmp" 2>&1 &
-        _codex_pid=$!
-
-        # Watchdog: timeout + periodic progress heartbeat
-        local _watchdog_elapsed=0
-        while kill -0 "$_codex_pid" 2>/dev/null; do
-          sleep 1
-          _watchdog_elapsed=$((_watchdog_elapsed + 1))
-          if (( ! quiet )) && (( _watchdog_elapsed % 60 == 0 )); then
-            printf 'helix: [%s] codex still running (%ss elapsed)\n' "$(date +%H:%M:%S)" "$_watchdog_elapsed" >&2
-          fi
-          if (( _watchdog_elapsed >= agent_timeout )); then
-            printf 'helix: [%s] codex timeout after %ss — killing\n' "$(date +%H:%M:%S)" "$_watchdog_elapsed" >&2
-            kill "$_codex_pid" 2>/dev/null
-            wait "$_codex_pid" 2>/dev/null || true
-            rm -f "$_codex_tmp"
-            return 1
-          fi
-        done
-        wait "$_codex_pid" || _codex_rc=$?
+        timeout "${agent_timeout}s" \
+          codex --dangerously-bypass-approvals-and-sandbox exec \
+          -C "$target_root" $_codex_model_flag $_codex_effort_flag --ephemeral "$prompt" > "$_codex_tmp" 2>&1 || _codex_rc=$?
+        if (( _codex_rc == 124 )); then
+          printf 'helix: [%s] codex timeout after %ss\n' "$(date +%H:%M:%S)" "$agent_timeout" >&2
+          rm -f "$_codex_tmp"
+          return 1
+        fi
 
         local _codex_raw
         _codex_raw="$(cat "$_codex_tmp")"

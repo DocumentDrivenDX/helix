@@ -169,15 +169,14 @@ This repo ships a HELIX wrapper CLI and plugin manifest.
 claude --plugin-dir /path/to/helix
 ```
 
-Plugin mode discovers all skills automatically, adds `bin/helix` to PATH,
-and resolves shared resources via `${CLAUDE_PLUGIN_ROOT}`. No manual
-installer step is needed.
+Plugin mode discovers all skills automatically and resolves shared resources
+via `${CLAUDE_PLUGIN_ROOT}`. No manual installer step is needed.
 
 Key plugin files:
 - Plugin manifest: `.claude-plugin/plugin.json`
-- Plugin CLI wrapper: `bin/helix` (thin wrapper → `scripts/helix`)
 - Skills directory: `skills/` (auto-discovered by plugin loader)
 - Shared resources: `workflows/`
+- CLI implementation: `scripts/helix`
 
 ### DDx plugin install
 
@@ -190,6 +189,15 @@ ddx install helix
 This creates:
 - `~/.ddx/plugins/helix` symlink to the repo (resolves `.ddx/plugins/helix/workflows/...` paths)
 - Skills into `~/.agents/skills` and `~/.claude/skills`
+- `~/.local/bin/helix` launcher (file copy; skipped if target is a symlink)
+
+For development, symlink the launcher to your git checkout instead:
+```bash
+ln -s ~/Projects/helix/scripts/helix ~/.local/bin/helix
+```
+
+`ddx install` will not overwrite the symlink. `ddx doctor` reports
+whether the launcher is a symlink (developer mode) or a managed copy.
 
 After installation, verify with `helix doctor`. Use `helix doctor --fix` to
 repair stale symlinks.

@@ -66,6 +66,59 @@ show_file() {
   sleep 2
 }
 
+# Resolve the demo source directory (handles both local and Docker paths).
+demo_source_dir() {
+  if [[ -d "$HELIX_ROOT/docs/demos/helix-evolve" ]]; then
+    echo "$HELIX_ROOT/docs/demos/helix-evolve"
+  else
+    cd "$(dirname "${BASH_SOURCE[0]}")" && pwd
+  fi
+}
+
+# Seed the virtual agent dictionary from pre-recorded responses.
+seed_dictionary() {
+  local src
+  src="$(demo_source_dir)"
+  if [[ -d "$src/agent-dictionary" ]]; then
+    mkdir -p .ddx/agent-dictionary
+    cp -f "$src"/agent-dictionary/*.json .ddx/agent-dictionary/ 2>/dev/null || true
+  fi
+}
+
+# In virtual mode, apply specific fixture files the real agent would have created.
+# Usage: apply_fixtures docs tests bin
+apply_fixtures() {
+  [[ "${DEMO_HARNESS:-claude}" == "virtual" ]] || return 0
+  local src
+  src="$(demo_source_dir)"
+  [[ -d "$src/fixtures" ]] || return 0
+  for item in "$@"; do
+    if [[ -d "$src/fixtures/$item" ]]; then
+      cp -rf "$src/fixtures/$item" .
+    elif [[ -f "$src/fixtures/$item" ]]; then
+      mkdir -p "$(dirname "$item")"
+      cp -f "$src/fixtures/$item" "$item"
+    fi
+  done
+}
+
+# After recording, save dictionary and fixtures back to the demo source.
+save_recording() {
+  local src
+  src="$(demo_source_dir)"
+  if [[ -d .ddx/agent-dictionary ]]; then
+    mkdir -p "$src/agent-dictionary"
+    cp -f .ddx/agent-dictionary/*.json "$src/agent-dictionary/" 2>/dev/null || true
+  fi
+  # Save generated project files as fixtures for virtual replay
+  mkdir -p "$src/fixtures"
+  for d in docs tests bin; do
+    [[ -d "$d" ]] && cp -rf "$d" "$src/fixtures/"
+  done
+  [[ -f package.json ]] && cp -f package.json "$src/fixtures/"
+  echo "Saved recordings and fixtures to $src/"
+}
+
 agent_run() {
   local prompt=""
   if [[ $# -gt 0 ]]; then
@@ -79,10 +132,13 @@ agent_run() {
 
   local attempt output
   for attempt in $(seq 1 "$MAX_RETRIES"); do
-    output=$(ddx agent run \
-      --harness claude \
-      --model "${DEMO_MODEL:-claude-haiku-4-5-20251001}" \
-      --text "$prompt" 2>/dev/null) || true
+    local -a agent_flags=(
+      --harness "${DEMO_HARNESS:-claude}"
+      --model "${DEMO_MODEL:-claude-haiku-4-5-20251001}"
+      --text "$prompt"
+    )
+    [[ "${DEMO_RECORD:-0}" == "1" ]] && agent_flags+=(--record)
+    output=$(ddx agent run "${agent_flags[@]}" 2>/dev/null) || true
 
     if [[ -n "$output" && "$output" != "Execution error" ]]; then
       break
@@ -133,6 +189,7 @@ demo_body() {
   run git init temp-converter
   cd temp-converter
   run ddx bead init
+  seed_dictionary
 
   mkdir -p .agents .claude
   cp -rf ~/.agents/skills .agents/
@@ -282,6 +339,7 @@ Thread this requirement through the existing artifact stack:
 Make minimal, scoped changes to each artifact. Do not rewrite sections
 that are unaffected by the Kelvin requirement.
 EVOLVE_PROMPT
+  apply_fixtures docs
 
   echo "Checking what changed..."
   echo ""
@@ -310,6 +368,7 @@ Add failing tests for Kelvin conversion to tests/convert.test.js:
 Do NOT modify bin/convert.js yet — tests must FAIL.
 Then claim and close the test issue from the tracker.
 RED_PROMPT
+  apply_fixtures tests
 
   echo "Red phase — new tests should fail:"
   npm test 2>&1 || true
@@ -328,6 +387,7 @@ Add toKelvin(c) and fromKelvin(k) to bin/convert.js:
 
 Then claim and close the implementation issue from the tracker.
 GREEN_PROMPT
+  apply_fixtures bin
 
   # ── ACT 4: Verify ──────────────────────────────────────────
   narrate "ACT 4: Verify"
@@ -366,6 +426,9 @@ GREEN_PROMPT
   echo "Tracker:"
   run ddx bead status
   run ddx bead list
+
+  # Save recorded responses and fixtures back to the demo source directory
+  [[ "${DEMO_RECORD:-0}" == "1" ]] && save_recording || true
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

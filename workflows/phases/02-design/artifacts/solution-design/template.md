@@ -108,3 +108,21 @@ this design is consistent with them:
 | Risk | Prob | Impact | Mitigation |
 |------|------|--------|------------|
 | [Risk] | H/M/L | H/M/L | [Strategy] |
+
+## Review Checklist
+
+Use this checklist when reviewing a solution design:
+
+- [ ] Requirements mapping covers all P0 functional requirements from the governing spec
+- [ ] NFR impact section shows how the architecture satisfies each non-functional requirement
+- [ ] At least two solution approaches were evaluated with concrete pros/cons
+- [ ] Selected approach rationale explains why alternatives were rejected
+- [ ] Domain model captures all entities and their relationships
+- [ ] Business rules are specific enough to implement
+- [ ] System decomposition assigns every requirement to at least one component
+- [ ] Component interfaces are defined — not just names, but how they communicate
+- [ ] Technology rationale explains why each choice was made, not just what was chosen
+- [ ] Traceability table maps every requirement to a component and test strategy
+- [ ] Gaps section lists any requirements not fully addressed with mitigation plans
+- [ ] Concern alignment verifies consistency with active project concerns
+- [ ] Design is consistent with governing feature spec and PRD

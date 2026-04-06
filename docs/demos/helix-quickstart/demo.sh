@@ -77,6 +77,59 @@ show_file() {
   sleep 2
 }
 
+# Resolve the demo source directory (handles both local and Docker paths).
+demo_source_dir() {
+  if [[ -d "$HELIX_ROOT/docs/demos/helix-quickstart" ]]; then
+    echo "$HELIX_ROOT/docs/demos/helix-quickstart"
+  else
+    cd "$(dirname "${BASH_SOURCE[0]}")" && pwd
+  fi
+}
+
+# Seed the virtual agent dictionary from pre-recorded responses.
+seed_dictionary() {
+  local src
+  src="$(demo_source_dir)"
+  if [[ -d "$src/agent-dictionary" ]]; then
+    mkdir -p .ddx/agent-dictionary
+    cp -f "$src"/agent-dictionary/*.json .ddx/agent-dictionary/ 2>/dev/null || true
+  fi
+}
+
+# In virtual mode, apply specific fixture files the real agent would have created.
+# Usage: apply_fixtures docs tests bin/convert.js
+apply_fixtures() {
+  [[ "${DEMO_HARNESS:-claude}" == "virtual" ]] || return 0
+  local src
+  src="$(demo_source_dir)"
+  [[ -d "$src/fixtures" ]] || return 0
+  for item in "$@"; do
+    if [[ -d "$src/fixtures/$item" ]]; then
+      cp -rf "$src/fixtures/$item" .
+    elif [[ -f "$src/fixtures/$item" ]]; then
+      mkdir -p "$(dirname "$item")"
+      cp -f "$src/fixtures/$item" "$item"
+    fi
+  done
+}
+
+# After recording, save dictionary and fixtures back to the demo source.
+save_recording() {
+  local src
+  src="$(demo_source_dir)"
+  if [[ -d .ddx/agent-dictionary ]]; then
+    mkdir -p "$src/agent-dictionary"
+    cp -f .ddx/agent-dictionary/*.json "$src/agent-dictionary/" 2>/dev/null || true
+  fi
+  # Save generated project files as fixtures for virtual replay
+  mkdir -p "$src/fixtures"
+  for d in docs tests bin; do
+    [[ -d "$d" ]] && cp -rf "$d" "$src/fixtures/"
+  done
+  [[ -f package.json ]] && cp -f package.json "$src/fixtures/"
+  echo "Saved recordings and fixtures to $src/"
+}
+
 # Run ddx agent with prompt visible and retries
 agent_run() {
   local prompt=""
@@ -91,10 +144,13 @@ agent_run() {
 
   local attempt output
   for attempt in $(seq 1 "$MAX_RETRIES"); do
-    output=$(ddx agent run \
-      --harness claude \
-      --model "${DEMO_MODEL:-claude-haiku-4-5-20251001}" \
-      --text "$prompt" 2>/dev/null) || true
+    local -a agent_flags=(
+      --harness "${DEMO_HARNESS:-claude}"
+      --model "${DEMO_MODEL:-claude-haiku-4-5-20251001}"
+      --text "$prompt"
+    )
+    [[ "${DEMO_RECORD:-0}" == "1" ]] && agent_flags+=(--record)
+    output=$(ddx agent run "${agent_flags[@]}" 2>/dev/null) || true
 
     if [[ -n "$output" && "$output" != "Execution error" ]]; then
       break
@@ -177,6 +233,7 @@ demo_body() {
   run git init hello-helix
   cd hello-helix
   run ddx bead init
+  seed_dictionary
 
   # Set up project for agent access
   mkdir -p .agents .claude
@@ -243,6 +300,7 @@ Create the Frame-phase artifacts for "hello-helix", a Node.js CLI temperature co
 
 Create the directory structure as needed. Use markdown.
 FRAME_PROMPT
+  apply_fixtures docs
 
   require_file docs/helix/00-discover/product-vision.md "vision"
   require_file docs/helix/01-frame/prd.md "PRD"
@@ -276,6 +334,7 @@ ddx bead create "Implement bin/convert.js per TD-001" \
   --type task --priority 1 --labels helix,phase:build \
   --spec-id TD-001 --acceptance "npm test passes, CLI outputs correct values"
 DESIGN_PROMPT
+  apply_fixtures docs/helix/02-design
 
   require_file docs/helix/02-design/technical-designs/TD-001-temperature-conversion.md "tech design"
   show_file docs/helix/02-design/technical-designs/TD-001-temperature-conversion.md
@@ -303,6 +362,7 @@ Then claim and close the test issue:
 ddx bead list --json | ddx jq -r '.[] | select(.title | contains("failing tests")) | .id' | head -1
 Use that ID to: ddx bead update <id> --claim && ddx bead close <id>
 RED_PROMPT
+  apply_fixtures tests package.json
 
   require_file tests/convert.test.js "tests"
   [[ -f package.json ]] || echo '{"name":"hello-helix","version":"0.1.0","scripts":{"test":"node --test"}}' > package.json
@@ -328,6 +388,7 @@ Then claim and close the implementation issue:
 ddx bead list --json | ddx jq -r '.[] | select(.title | contains("Implement")) | .id' | head -1
 Use that ID to: ddx bead update <id> --claim && ddx bead close <id>
 GREEN_PROMPT
+  apply_fixtures bin
 
   require_file bin/convert.js "implementation"
   show_file bin/convert.js 20
@@ -382,6 +443,9 @@ GREEN_PROMPT
   echo "The HELIX lifecycle: Frame → Design → Test → Build → Review"
   echo "The tracker drives. Artifacts govern. Agents execute."
   echo ""
+
+  # Save recorded responses and fixtures back to the demo source directory
+  [[ "${DEMO_RECORD:-0}" == "1" ]] && save_recording
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

@@ -53,7 +53,43 @@ workflow — creating a product vision, PRD, and feature specs based on your
 description. The governing artifacts it creates will drive everything
 downstream.
 
-Once framing is complete, start the autopilot:
+## Understand the Artifact Hierarchy
+
+After framing, your project has governing artifacts at different zoom levels:
+
+```
+Product Vision          "What is this and why?"
+  └── PRD               "What must it do?"
+       └── Feature Spec  "What exactly does this feature do?"
+            └── Bead     "One unit of work to implement it"
+```
+
+Higher levels govern lower levels. If a feature spec contradicts the PRD,
+the PRD wins. HELIX enforces this automatically — you don't need to remember
+the hierarchy, but understanding it helps you steer effectively.
+
+## Add Work to the Tracker
+
+HELIX works from a tracker queue. After framing, you can add specific work
+items:
+
+```
+> /helix-triage "Add user authentication with OAuth"
+```
+
+This creates a well-structured bead with acceptance criteria, spec references,
+and a context digest that tells the implementing agent everything it needs to
+know. You can also add beads directly:
+
+```bash
+ddx bead create "Add OAuth login flow" --type task \
+  --labels helix,phase:build --set spec-id=FEAT-001 \
+  --acceptance "OAuth login redirects to provider and returns a session token"
+```
+
+## Run the Autopilot
+
+Once framing is complete and beads exist, start the autopilot:
 
 ```
 > /helix-run

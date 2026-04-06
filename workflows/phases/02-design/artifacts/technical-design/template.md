@@ -116,3 +116,22 @@ CREATE TABLE [table_name] (
 | Risk | Prob | Impact | Mitigation |
 |------|------|--------|------------|
 | [Risk] | H/M/L | H/M/L | [Strategy] |
+
+## Review Checklist
+
+Use this checklist when reviewing a technical design:
+
+- [ ] Acceptance criteria use Given/When/Then format and are verifiable
+- [ ] Technical approach inherits from the parent solution design — no contradictions
+- [ ] Key decisions have documented rationale
+- [ ] Trade-offs are explicit — what we gain and what we lose
+- [ ] Component changes clearly describe current state vs. changes
+- [ ] API/interface design includes request and response schemas
+- [ ] Data model changes include migration SQL
+- [ ] Integration points specify fallback behavior for external dependencies
+- [ ] Security section addresses authentication, authorization, and data protection
+- [ ] Performance targets are numeric with specific metrics
+- [ ] Testing section covers unit, integration, API, and security scenarios
+- [ ] Migration and rollback strategy is documented
+- [ ] Implementation sequence is ordered with file paths and test paths
+- [ ] Design is consistent with governing solution design and feature spec

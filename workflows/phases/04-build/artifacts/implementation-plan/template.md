@@ -56,3 +56,17 @@ Story-level work is tracked via `ddx bead` in `.ddx/issues.jsonl`.
 - [ ] Build issue set is defined with sequence and dependencies
 - [ ] Shared constraints are documented
 - [ ] Verification expectations are explicit
+
+## Review Checklist
+
+Use this checklist when reviewing an implementation plan:
+
+- [ ] Governing artifacts are listed and exist on disk
+- [ ] Shared constraints trace back to requirements, design, or architecture
+- [ ] Build sequence has a justified ordering — not just arbitrary
+- [ ] Dependencies between build steps are explicit
+- [ ] Each story/area references its governing artifacts (TP, TD)
+- [ ] Issue decomposition follows tracker conventions (labels, spec-id, deps)
+- [ ] Quality gates are specific and enforceable, not aspirational
+- [ ] Risks have concrete responses ("we do X"), not vague strategies
+- [ ] Plan is consistent with governing test plan and technical designs

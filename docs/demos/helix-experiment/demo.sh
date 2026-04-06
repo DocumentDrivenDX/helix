@@ -64,6 +64,60 @@ show_file() {
   sleep 2
 }
 
+# Resolve the demo source directory (handles both local and Docker paths).
+demo_source_dir() {
+  if [[ -d "$HELIX_ROOT/docs/demos/helix-experiment" ]]; then
+    echo "$HELIX_ROOT/docs/demos/helix-experiment"
+  else
+    cd "$(dirname "${BASH_SOURCE[0]}")" && pwd
+  fi
+}
+
+# Seed the virtual agent dictionary from pre-recorded responses.
+seed_dictionary() {
+  local src
+  src="$(demo_source_dir)"
+  if [[ -d "$src/agent-dictionary" ]]; then
+    mkdir -p .ddx/agent-dictionary
+    cp -f "$src"/agent-dictionary/*.json .ddx/agent-dictionary/ 2>/dev/null || true
+  fi
+}
+
+# In virtual mode, apply specific fixture files the real agent would have created.
+# Usage: apply_fixtures src tests
+apply_fixtures() {
+  [[ "${DEMO_HARNESS:-claude}" == "virtual" ]] || return 0
+  local src
+  src="$(demo_source_dir)"
+  [[ -d "$src/fixtures" ]] || return 0
+  for item in "$@"; do
+    if [[ -d "$src/fixtures/$item" ]]; then
+      cp -rf "$src/fixtures/$item" .
+    elif [[ -f "$src/fixtures/$item" ]]; then
+      mkdir -p "$(dirname "$item")"
+      cp -f "$src/fixtures/$item" "$item"
+    fi
+  done
+}
+
+# After recording, save dictionary and fixtures back to the demo source.
+save_recording() {
+  local src
+  src="$(demo_source_dir)"
+  if [[ -d .ddx/agent-dictionary ]]; then
+    mkdir -p "$src/agent-dictionary"
+    cp -f .ddx/agent-dictionary/*.json "$src/agent-dictionary/" 2>/dev/null || true
+  fi
+  # Save generated project files as fixtures for virtual replay
+  mkdir -p "$src/fixtures"
+  for d in src tests; do
+    [[ -d "$d" ]] && cp -rf "$d" "$src/fixtures/"
+  done
+  [[ -f package.json ]] && cp -f package.json "$src/fixtures/"
+  [[ -f benchmark.js ]] && cp -f benchmark.js "$src/fixtures/"
+  echo "Saved recordings and fixtures to $src/"
+}
+
 agent_run() {
   local prompt=""
   if [[ $# -gt 0 ]]; then
@@ -77,10 +131,13 @@ agent_run() {
 
   local attempt output
   for attempt in $(seq 1 "$MAX_RETRIES"); do
-    output=$(ddx agent run \
-      --harness claude \
-      --model "${DEMO_MODEL:-claude-haiku-4-5-20251001}" \
-      --text "$prompt" 2>/dev/null) || true
+    local -a agent_flags=(
+      --harness "${DEMO_HARNESS:-claude}"
+      --model "${DEMO_MODEL:-claude-haiku-4-5-20251001}"
+      --text "$prompt"
+    )
+    [[ "${DEMO_RECORD:-0}" == "1" ]] && agent_flags+=(--record)
+    output=$(ddx agent run "${agent_flags[@]}" 2>/dev/null) || true
 
     if [[ -n "$output" && "$output" != "Execution error" ]]; then
       break
@@ -121,6 +178,7 @@ demo_body() {
   run git init perf-lab
   cd perf-lab
   run ddx bead init
+  seed_dictionary
 
   mkdir -p .agents .claude src tests
   cp -rf ~/.agents/skills .agents/
@@ -275,6 +333,7 @@ Common optimizations to consider:
 
 Make exactly ONE change per iteration.
 EXPERIMENT_PROMPT
+  apply_fixtures src
 
   echo "After iteration 1:"
   run npm test
@@ -299,6 +358,7 @@ Identify the NEXT performance bottleneck.
 
 Remember: only modify src/process.js, and make ONE change.
 EXPERIMENT2_PROMPT
+  apply_fixtures src
 
   echo "After iteration 2:"
   run npm test
@@ -335,6 +395,9 @@ EXPERIMENT2_PROMPT
   echo "the change is discarded regardless of metric improvement."
   echo "Correctness is non-negotiable."
   echo ""
+
+  # Save recorded responses and fixtures back to the demo source directory
+  [[ "${DEMO_RECORD:-0}" == "1" ]] && save_recording || true
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
