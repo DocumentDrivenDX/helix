@@ -16,6 +16,7 @@ set -euo pipefail
 RECORDING_FILE="/recordings/helix-evolve-$(date +%Y%m%d-%H%M%S).cast"
 MAX_RETRIES=3
 COOLDOWN=3
+AGENT_PACE="${DEMO_PACE:-5}"
 
 # Auto-detect helix repo
 if [[ -d /helix/workflows ]]; then
@@ -160,6 +161,7 @@ agent_run() {
   fi
 
   echo ""
+  sleep "$AGENT_PACE"
   sleep "$COOLDOWN"
 }
 

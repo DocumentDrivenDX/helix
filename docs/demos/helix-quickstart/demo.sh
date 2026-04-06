@@ -26,6 +26,10 @@ set -euo pipefail
 RECORDING_FILE="/recordings/helix-quickstart-$(date +%Y%m%d-%H%M%S).cast"
 MAX_RETRIES=3
 COOLDOWN=3
+# Simulated agent thinking time for virtual replay recordings.
+# Real Claude calls take 15-30s each; this adds pacing so the screencast
+# is watchable. Set to 0 for fast validation runs.
+AGENT_PACE="${DEMO_PACE:-5}"
 
 # Auto-detect helix repo: Docker mount at /helix, or relative to this script
 if [[ -d /helix/workflows ]]; then
@@ -171,6 +175,10 @@ agent_run() {
       printf '%s\n' "$output"
     fi
   fi
+
+  # Pace the recording — real agent calls take 15-30s, so add a pause
+  # when using the virtual agent so the screencast is watchable.
+  sleep "$AGENT_PACE"
 
   echo ""
   sleep "$COOLDOWN"

@@ -69,18 +69,22 @@ jobs:
         run: |
           export DEMO_HARNESS=virtual
           export DEMO_MODEL=claude-haiku-4-5-20251001
+          export DEMO_PACE=5
           export HELIX_ROOT="${GITHUB_WORKSPACE}"
           export PATH="${HOME}/.local/bin:${GITHUB_WORKSPACE}/scripts:$PATH"
           for demo in quickstart concerns evolve experiment; do
             echo "::group::Recording $demo"
             dir=$(mktemp -d)
             cast="website/static/demos/helix-${demo}.cast"
-            (cd "$dir" && asciinema rec \
+            if (cd "$dir" && asciinema rec \
               --cols 100 --rows 30 \
               --command "HELIX_DEMO_RECORDING=1 bash ${GITHUB_WORKSPACE}/docs/demos/helix-${demo}/demo.sh" \
-              "/tmp/helix-${demo}.cast") && cp -f "/tmp/helix-${demo}.cast" "$cast" || {
-              echo "Warning: $demo demo failed — keeping committed .cast file"
-            }
+              "/tmp/helix-${demo}.cast" 2>&1); then
+              cp -f "/tmp/helix-${demo}.cast" "$cast"
+              echo "✓ $demo recorded ($(wc -c < "$cast") bytes)"
+            else
+              echo "::warning::$demo demo failed — keeping committed .cast file"
+            fi
             echo "::endgroup::"
           done
 
