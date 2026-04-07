@@ -1,6 +1,8 @@
 ---
-title: Theoretical Background
+title: Background
 weight: 2
+prev: /docs/getting-started
+next: /docs/workflow
 ---
 
 HELIX draws on decades of software engineering methodology, combining lessons
