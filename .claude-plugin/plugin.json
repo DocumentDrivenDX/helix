@@ -1,6 +1,6 @@
 {
   "name": "helix",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "HELIX development control system — supervisory autopilot for AI-assisted software delivery",
   "author": {
     "name": "Erik LaBianca",
