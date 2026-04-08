@@ -1,0 +1,5 @@
+Real-time sync < 100ms latency
+100 concurrent editors per doc
+Web-based with offline support
+Conflict resolution algorithm required
+Team of 5, 3-month timeline
