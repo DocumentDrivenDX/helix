@@ -1984,6 +1984,8 @@ run_helix_summary() {
     HELIX_ALT_AGENT="none" \
     HELIX_DIRECT_AGENT=1 \
     HELIX_AUTO_ALIGN="${HELIX_AUTO_ALIGN:-0}" \
+    DDX_BEAD_DIR="$root/work/.ddx" \
+    DDX_DISABLE_UPDATE_CHECK=1 \
     bash "$repo_root/scripts/helix" "$cmd" --summary "$@"
   )
 }

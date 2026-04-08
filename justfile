@@ -1,7 +1,7 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-cli test-skills
+test: test-cli test-skills test-install
 
 # Run CLI wrapper tests
 test-cli:
@@ -10,6 +10,10 @@ test-cli:
 # Run skill package validation
 test-skills:
     bash tests/validate-skills.sh
+
+# Run install integration test
+test-install:
+    bash tests/test-install.sh
 
 # Run all tests and check for stale references
 check: test lint

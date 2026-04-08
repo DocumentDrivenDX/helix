@@ -27,3 +27,6 @@ jobs:
 
       - name: Validate skill packages
         run: bash tests/validate-skills.sh
+
+      - name: Install integration test
+        run: bash tests/test-install.sh
