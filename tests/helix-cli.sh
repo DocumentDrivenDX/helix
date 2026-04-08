@@ -3,8 +3,10 @@ set -euo pipefail
 
 export DDX_DISABLE_UPDATE_CHECK=1
 
-# Wrap ddx to filter out the update-available notice that ddx prints to stdout
-# (ddx bug: notice goes to stdout instead of stderr, corrupts JSON/arithmetic).
+# Defensive wrapper: strip advisory lines (upgrade notices) from ddx stdout
+# before they reach JSON consumers. DDx guards these with an isatty check, but
+# helix also filters defensively via strip_advisory in tracker_exec. This
+# wrapper keeps the test environment safe regardless of DDx version.
 ddx() {
   local _ddx_out _ddx_rc=0
   _ddx_out="$(command ddx "$@")" || _ddx_rc=$?
@@ -3777,11 +3779,85 @@ test_status_cleans_stale_pid() {
   rm -rf "$root"
 }
 
+test_strip_advisory_pure_json_passes_through() {
+  # strip_advisory filter: pure compact JSON array passes unchanged
+  local input='[{"id":"hx-1","status":"open"}]'
+  local result
+  result="$(printf '%s\n' "$input" | awk 'found || /^[{[]/ { found=1; print }' || true)"
+  assert_eq "$input" "$result" "pure JSON array should pass through strip_advisory unchanged"
+}
+
+test_strip_advisory_pure_object_passes_through() {
+  # strip_advisory filter: pure JSON object passes unchanged
+  local input='{"id":"hx-1","status":"open"}'
+  local result
+  result="$(printf '%s\n' "$input" | awk 'found || /^[{[]/ { found=1; print }' || true)"
+  assert_eq "$input" "$result" "pure JSON object should pass through strip_advisory unchanged"
+}
+
+test_strip_advisory_removes_emoji_prefix() {
+  # strip_advisory filter: advisory line before JSON array is stripped (compact)
+  local json='[{"id":"hx-1","status":"open"}]'
+  local result
+  result="$(printf '💡 DDx 99.0.0 is available, run ddx upgrade\n%s\n' "$json" | awk 'found || /^[{[]/ { found=1; print }' || true)"
+  assert_eq "$json" "$result" "advisory line before JSON should be stripped"
+}
+
+test_strip_advisory_removes_upgrade_arrow_prefix() {
+  # strip_advisory filter: ⬆️ upgrade line before JSON is stripped (compact)
+  local json='[{"id":"hx-1"}]'
+  local result
+  result="$(printf '⬆️  Upgrade available\n%s\n' "$json" | awk 'found || /^[{[]/ { found=1; print }' || true)"
+  assert_eq "$json" "$result" "upgrade arrow advisory before JSON should be stripped"
+}
+
+test_strip_advisory_preserves_multiline_json() {
+  # strip_advisory filter: advisory line before pretty-printed JSON is stripped;
+  # all JSON lines (including those starting with spaces/} characters) are kept.
+  local expected
+  expected="$(printf '[\n  {"id":"hx-1"},\n  {"id":"hx-2"}\n]')"
+  local result
+  result="$(printf '💡 DDx 99.0.0 is available\n[\n  {"id":"hx-1"},\n  {"id":"hx-2"}\n]\n' | awk 'found || /^[{[]/ { found=1; print }' || true)"
+  assert_eq "$expected" "$result" "advisory before pretty-printed JSON should be stripped without truncating JSON body"
+}
+
+test_ready_count_survives_advisory_lines() {
+  # Integration: helix_ready_count returns correct count when ddx emits advisory lines.
+  # We create a ddx wrapper that prepends an advisory line to bead ready --json output,
+  # then verify helix status still reports the correct ready count.
+  local root real_ddx
+  root="$(make_workspace)"
+  seed_tracker "$root" 2
+  real_ddx="$(command -v ddx)"
+
+  # ddx wrapper: prepend advisory line only for bead ready --json
+  cat > "$root/bin/ddx" << SCRIPT
+#!/usr/bin/env bash
+if [[ "\$*" == *"bead ready"* ]] && [[ "\$*" == *"--json"* ]]; then
+  printf '\U0001F4A1 DDx 99.0.0 is available\\n'
+fi
+exec "$real_ddx" "\$@"
+SCRIPT
+  chmod +x "$root/bin/ddx"
+
+  local output
+  output="$(run_helix "$root" status 2>&1)"
+  assert_contains "$output" "Ready:" "helix status should show Ready count even when ddx emits advisory lines"
+  assert_not_contains "$output" "Ready:   0" "helix status ready count should not be 0 (advisory corruption would zero it)"
+  rm -rf "$root"
+}
+
 run_test "help includes all commands" test_help_includes_all_commands
 run_test "run prefers tasks over epics" test_run_prefers_tasks_over_epics
 run_test "stop with no active run" test_stop_no_active_run
 run_test "stop cleans stale PID" test_stop_stale_pid
 run_test "status shows active run" test_status_shows_active_run
 run_test "status cleans stale PID" test_status_cleans_stale_pid
+run_test "strip_advisory: pure JSON array passes through" test_strip_advisory_pure_json_passes_through
+run_test "strip_advisory: pure JSON object passes through" test_strip_advisory_pure_object_passes_through
+run_test "strip_advisory: removes emoji advisory prefix" test_strip_advisory_removes_emoji_prefix
+run_test "strip_advisory: removes upgrade arrow prefix" test_strip_advisory_removes_upgrade_arrow_prefix
+run_test "strip_advisory: preserves multiline JSON body" test_strip_advisory_preserves_multiline_json
+run_test "ready count survives advisory lines" test_ready_count_survives_advisory_lines
 
 echo "PASS: ${test_count} helix wrapper tests"

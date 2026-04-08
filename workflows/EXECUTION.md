@@ -217,7 +217,9 @@ These examples assume `ddx` is available.
 
 ```bash
 helix_ready_count() {
-  ddx bead ready --json | ddx jq 'length'
+  # Strip advisory lines (e.g. upgrade notices) before piping to ddx jq.
+  # awk skips lines until the first JSON delimiter, preserving multi-line JSON.
+  ddx bead ready --json | awk 'found || /^[{[]/ { found=1; print }' | ddx jq 'length'
 }
 ```
 

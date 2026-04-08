@@ -113,7 +113,7 @@ If you are not using `helix run`, use the bounded manual loop from
 [EXECUTION.md](EXECUTION.md):
 
 ```bash
-while [ "$(ddx bead ready --json | ddx jq 'length')" -gt 0 ]; do
+while [ "$(ddx bead ready --json | awk 'found || /^[{[]/ { found=1; print }' | ddx jq 'length')" -gt 0 ]; do
   helix build
 done
 

@@ -468,8 +468,26 @@ require_tracker() {
   tracker_ensure
 }
 
+# Strip non-JSON advisory lines from ddx output before piping to JSON consumers.
+# Advisory lines (e.g. upgrade notices) appear before the JSON and must not
+# reach ddx jq or other JSON parsers. Skips all lines until the first JSON
+# delimiter ([ or {), then passes all subsequent lines unchanged. This handles
+# both compact and pretty-printed JSON as well as array and object output.
+# Used by tracker_exec when --json is requested.
+strip_advisory() {
+  awk 'found || /^[{[]/ { found=1; print }' || true
+}
+
 tracker_exec() {
-  ddx bead "$@"
+  local has_json=0
+  for arg in "$@"; do
+    [[ "$arg" == "--json" ]] && { has_json=1; break; }
+  done
+  if (( has_json )); then
+    ddx bead "$@" | strip_advisory
+  else
+    ddx bead "$@"
+  fi
 }
 
 tracker_create() {
