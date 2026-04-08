@@ -12,6 +12,12 @@ A test-driven development workflow with AI-assisted collaboration for building h
 
 HELIX enforces Test-Driven Development (TDD) through a structured phase approach where tests are written BEFORE implementation. This ensures quality is built-in from the start and specifications are executable. Human creativity and AI capabilities collaborate throughout, with tests serving as the contract between design and implementation.
 
+For sparse user intent, HELIX now also defines a workflow entrypoint:
+
+- `helix input "<natural language request>" [--autonomy low|medium|high]`
+
+`helix input` is the planning-helix intake surface for the slider-autonomy model. It accepts incomplete intent, identifies the affected governed work, and creates or updates beads that the rest of the HELIX workflow can execute. When no autonomy override is supplied, the expected default is `medium`.
+
 ## Public Layers
 
 HELIX exposes two public layers that should stay distinct in docs and tooling:
@@ -84,6 +90,7 @@ Public agent skills must mirror the CLI exactly.
 
 Examples:
 
+- `helix-input` <-> `helix input`
 - `helix-run` <-> `helix run`
 - `helix-build` <-> `helix build`
 - `helix-align` <-> `helix align`
@@ -212,6 +219,9 @@ parents, dependencies, `spec-id`, and labels rather than custom files:
 HELIX execution is intentionally bounded and uses a small set of top-level
 actions:
 
+- `input`: accept sparse natural-language intent, apply autonomy behavior, and
+  create or update the governed beads/workflow context needed for follow-on
+  execution
 - `build`: execute one ready execution issue and exit
 - `check`: determine whether the next step is implementation, alignment,
   backfill, waiting, guidance, or stopping

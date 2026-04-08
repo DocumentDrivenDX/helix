@@ -36,45 +36,46 @@ From FEAT-011:
 
 ### Decision 1: Graph Traversal Algorithm (Revised)
 
-**Approach**: Two-phase traversal - collect subgraph first, then topological sort by authority tier
+**Approach**: HELIX consumes DDx graph primitives to collect the impacted subgraph, then applies HELIX authority-order policy to that subgraph.
 
 ```pseudocode
-# Phase 1: Collect all impacted artifacts (bidirectional BFS)
+# Phase 1: Collect all impacted artifacts using DDx graph primitives
 function collectImpactedSubgraph(startArtifact):
     visited = set()
     queue = [startArtifact]
-    
+
     while queue not empty:
         current = queue.pop()
         if current in visited:
             continue
         visited.add(current)
-        
-        # Add both upstream and downstream neighbors
-        for neighbor in getUpstreamNeighbors(current):
+
+        # DDx owns upstream/downstream neighbor lookup
+        for neighbor in ddxGraphUpstreamNeighbors(current):
             if neighbor not in visited:
                 queue.push(neighbor)
-        for neighbor in getDownstreamNeighbors(current):
+        for neighbor in ddxGraphDownstreamNeighbors(current):
             if neighbor not in visited:
                 queue.push(neighbor)
-    
+
     return visited
 
-# Phase 2: Sort by authority tier (stable topological sort)
+# Phase 2: HELIX orders the impacted set by authority tier
 function orderByAuthority(artifacts):
-    # Canonical order from workflows/artifact-hierarchy.md
     authorityTiers = {
         "vision": 0, "prd": 1,
         "feat": 2, "us": 3,
-        "adr": 4, "architecture": 4,  # ADRs at same tier as architecture
+        "adr": 4, "architecture": 4,
         "sd": 5, "td": 6,
         "tp": 7, "tests": 8,
         "implementation_plan": 9,
         "code": 10
     }
-    
+
     return sortBy(artifacts, key=lambda a: authorityTiers[getArtifactType(a)])
 ```
+
+**Boundary note**: DDx owns `[[ID]]` indexing, reverse/dependent lookup, and graph collection. HELIX does not build a parallel graph engine; it applies workflow policy over DDx-provided graph results.
 
 **Authority ordering** (aligned with `workflows/artifact-hierarchy.md`):
 1. Product Vision
@@ -88,54 +89,21 @@ function orderByAuthority(artifacts):
 
 ### Decision 2: Impact Detection Three-Phase System (Revised)
 
-**Phase 0: Build Reverse Index (One-time, cached)**
-```bash
-# Create reverse index mapping each ID to its downstream dependents
-# This enables efficient upstream→downstream traversal
-function buildReverseIndex():
-    idToFiles = {}      # ID → file path
-    downstreamMap = {}  # ID → [IDs that reference this one]
-    
-    for artifact in allArtifacts(docs/helix/):
-        id = extractArtifactId(artifact)
-        idToFiles[id] = artifact.path
-        
-        # For each [[ID]] reference in this artifact
-        for ref in parseCrossReferences(artifact):
-            if ref not in downstreamMap:
-                downstreamMap[ref] = []
-            downstreamMap[ref].append(id)
-    
-    return idToFiles, downstreamMap
-```
+**Phase 0: DDx graph index (authoritative)**
+- DDx indexes body `[[ID]]` links and frontmatter dependencies.
+- DDx provides the authoritative upstream/downstream lookup used by HELIX.
+- HELIX does not build or cache a separate reverse index outside the DDx substrate.
 
-**Phase 1: Declared Links (Primary)**
-```bash
-# Extract all [[ID]] references - supports slugs and dotted IDs
-# Pattern matches: US-036-list-mcp-servers, FEAT-011, helix.workflow.artifact-hierarchy
-rg '\[\[([A-Z]+-\d+(?:-[a-z0-9-]+)?|helix(?:\.[a-z][a-z-]*)+)\]\]' docs/helix/ | \
-  sed 's/.*\[\[\([^]]*\)\]\].*/\1/' | sort -u
+**Phase 1: Declared links (primary)**
+- Use DDx graph lookups to resolve explicitly declared artifact relationships first.
+- This is the authoritative impact surface for normal traversal.
 
-# For each ID, resolve to file path and extract ITS references (recursive)
-for id in ids; do
-  # Resolve ID to artifact file
-  file=$(findArtifactById "$id")
-  if [ -f "$file" ]; then
-    # Extract upstream refs from this artifact's [[ID]] links
-    rg '\[\[([A-Z]+-\d+(?:-[a-z0-9-]+)?|helix(?:\.[a-z][a-z-]*)+)\]\]' "$file"
-  fi
-done
-```
-
-**Phase 2: Search Fallback (Supplemental)**
+**Phase 2: Search fallback (supplemental)**
 ```bash
 # Extract key terms from input text or change diff
-# Use NLP-aware extraction, not just capitalization
 if [ -n "$INPUT_TEXT" ]; then
-  # For helix input: extract nouns and domain terms from natural language
   echo "$INPUT_TEXT" | rg -oP '\b(?:postgres|sqlite|database|api|auth|login|[A-Z][a-z]+)\b'
 elif [ -n "$GIT_DIFF" ]; then
-  # For file changes: extract added terms (case-insensitive)
   git diff HEAD~1 -- docs/helix/ | grep "^+" | rg -oiP '\b[a-z]{4,}\b'
 fi | sort -u | head -20
 
@@ -145,7 +113,7 @@ for term in terms; do
 done
 ```
 
-**Precedence**: Declared links always take precedence. Search results only added if not already in declared set.
+**Precedence**: Declared DDx graph links always take precedence. Search results only supplement traversal when the declared graph is incomplete or under-linked.
 
 ### Decision 3: Conflict Classification Rules (Revised)
 
@@ -169,14 +137,14 @@ done
 autonomy_level: "medium"  # low | medium | high
 
 bead_size_target: "small"  # small | medium | large
-question_threshold: 3  # decisions before asking human (low autonomy only)
-escalation_mode: "bead"  # bead | block | auto-resolve
+question_threshold: 0  # reserved for future/custom modes; ignored by current low/medium/high semantics
+escalation_mode: "bead"  # reserved for future/custom modes; current low/medium/high semantics take precedence
 
 speculative_allowed: true  # allow speculative work with marking
 speculation_label: "kind:speculative"
 
 conflict_handling:
-  resolvable: "escalate"  # escalate | assume-first | ask
+  resolvable: "escalate"  # reserved for future/custom modes; current low/medium/high semantics take precedence
   physics_level: "block"  # block only option
 
 graph_traversal:
@@ -191,7 +159,12 @@ verification:
 
 **Environment overrides**: `HELIX_AUTONOMY=high`, `HELIX_SPECULATIVE=false`
 
-**Note on conflict_handling.resolvable**: Even when set to `auto-resolve`, an escalation bead MUST be created for traceability. The auto-resolve only determines whether execution blocks while waiting for human review.
+**Autonomy precedence rule**: The low/medium/high autonomy semantics in FEAT-011 override the generic defaults in `conflict_handling`, `question_threshold`, and `escalation_mode` whenever they conflict. In particular:
+- low autonomy asks immediately and does not defer user confirmation through `question_threshold`
+- medium autonomy asks when ambiguity/conflict blocks deterministic progress
+- high autonomy does not block on resolvable conflicts even if generic config would otherwise ask or block
+
+**Note on conflict_handling.resolvable**: Even when set to `auto-resolve`, an escalation bead MUST be created for traceability. The auto-resolve only determines whether execution blocks while waiting for human review in autonomy modes that permit such blocking.
 
 ### Decision 5: CLI Implementation
 
@@ -207,13 +180,20 @@ helix input "use postgres instead of sqlite" --autonomy high
 helix input "the login button is broken" --autonomy medium
 ```
 
+**Autonomy behavior contract**:
+- `low`: ask before *any* first action and before each graph/artifact step (ask-first)
+- `medium`: proceed with automated traversal and creation, then ask on ambiguity/conflicts
+- `high`: run "until blocked" by physics-level constraints; ordinary DDx preserve outcomes end the current bounded attempt and return control to HELIX for interpretation, but do not by themselves stop the supervisory workflow or redefine the conflict class
+
 **Implementation flow**:
 1. Parse natural language, extract key terms and intent
 2. Load slider config (file + env overrides)
 3. Run impact detection (declared links + search)
 4. Traverse graph to identify all affected artifacts
-5. For each artifact layer:
-   - If autonomy=low: ask user before proceeding
+5. For each artifact layer and each downstream artifact candidate:
+   - If autonomy=low: ask user before proceeding at each step and before creating each downstream artifact
+   - If autonomy=medium: create deterministic non-conflict artifacts, but pause for user input when ambiguity or conflict blocks progress on an affected artifact
+   - If autonomy=high: create downstream artifacts without interactive prompts unless blocked by physics-level
    - Detect conflicts, classify as resolvable/physics-level
    - Create beads for work needed
 6. Output summary of created beads and assumptions
@@ -221,6 +201,43 @@ helix input "the login button is broken" --autonomy medium
 #### Existing Command: `helix run` (Unchanged)
 
 Continues to execute beads from queue. New bead types (`kind:escalation`, `kind:speculative`) are handled by existing worker logic with appropriate labeling.
+
+### Decision 5b: DDx Handoff Model
+
+HELIX delegates bounded implementation and verification execution to DDx. The handoff is explicit: HELIX owns workflow selection and interpretation, while DDx owns managed execution and runtime evidence.
+
+#### Handoff Flow
+
+1. **HELIX prepares execution context**
+   - Select bead ID and workflow scope
+   - Determine autonomy behavior (`low` / `medium` / `high`)
+   - Assemble governing artifact context, constraints, and conflict notes
+2. **HELIX dispatches bounded work to DDx**
+   - Invoke `ddx agent execute-bead <bead-id> [--from <rev>] [--no-merge]`
+   - Pass standard harness/model/effort controls through the DDx agent surface
+3. **DDx executes and verifies**
+   - Run the bead in a managed git context
+   - Capture transcript, runtime evidence, and execution results
+   - Run graph-discovered required executions and evaluate metric ratchets
+   - Return a merge or preserve outcome with supporting evidence
+4. **HELIX interprets the outcome**
+   - If merged: continue to measure/report or next workflow step
+   - If preserved: treat this as the end of the current DDx-managed attempt, then escalate, ask for input, or revise prompts/workflow wording
+   - If required execution failed or ratchets regressed: create follow-on beads or route to the appropriate supervisory action
+
+Preserved outcomes are execution results, not physics-level conflicts. They stop the current bounded DDx attempt and hand control back to HELIX without redefining the autonomy conflict model.
+
+#### Ownership Boundary
+
+| Capability | Owner | Notes |
+|------------|-------|-------|
+| Graph primitives and execution discovery | DDx | HELIX consumes results |
+| Managed bead execution and runtime evidence | DDx | `ddx agent execute-bead` is the contract |
+| Required executions, metrics, and ratchet evaluation | DDx | returned as evidence/outcomes |
+| Autonomy semantics | HELIX | what low/medium/high mean behaviorally |
+| Authority ordering and artifact flow | HELIX | policy over DDx graph primitives |
+| Conflict classification and escalation behavior | HELIX | workflow semantics, not substrate |
+| Supervisory routing and prompt strategy | HELIX | decides next action from DDx outcomes |
 
 ### Decision 6: Verification Loop Integration (Revised)
 

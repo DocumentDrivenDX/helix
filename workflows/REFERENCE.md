@@ -81,6 +81,8 @@ helix triage "Issue title" --type task
 ### Planning and Quality Commands
 
 ```bash
+helix input "natural language request"
+helix input "natural language request" --autonomy high
 helix design [scope]                  # create design document
 helix design --rounds 8 auth         # more refinement rounds
 helix polish [scope]                  # refine issues before implementation
@@ -90,6 +92,10 @@ helix review [scope]                  # fresh-eyes review of recent work
 helix experiment [issue-id|goal]      # one experiment iteration
 helix experiment --close              # squash-merge and close session
 ```
+
+`helix input` is the sparse-intent entrypoint for the autonomy-slider workflow.
+`--autonomy` selects the HELIX-owned behavior contract (`low`, `medium`, `high`); the expected default is `medium` when no override is supplied.
+
 
 ### Tracker
 
@@ -122,6 +128,8 @@ Recommended labels:
 
 - Starting new work or a large scope:
   run `helix design`, then `helix polish`, then `helix run`.
+- Starting from sparse user intent instead of a pre-shaped issue:
+  run `helix input "..."` and, when needed, set `--autonomy low|medium|high`.
 - Ready execution issues exist:
   run `helix build` or `helix run`.
 - Work lacks design authority for safe execution:

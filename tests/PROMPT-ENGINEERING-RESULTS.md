@@ -138,12 +138,13 @@ ddx validate helix-frame --check \
   --directory-structure=helix-standard
 ```
 
-### 3. Track Metrics Per Prompt Version
-Store metrics with each prompt iteration:
+### 3. Track Metrics Per Prompt Artifact Revision
+Store metrics with explicit prompt identifier and revision context (path + git sha):
 
 ```json
 {
-  "prompt_version": "v2",
+  "prompt_path": "library/prompts/helix/frame.md",
+  "prompt_revision": "git:deadbeef",
   "scenario": "A",
   "metrics": {
     "artifacts_created": 7,
@@ -155,13 +156,13 @@ Store metrics with each prompt iteration:
 }
 ```
 
-### 4. Enable A/B Testing of Prompts
-DDx should support running same scenario with different prompt versions:
+### 4. Compare Prompt Revisions Across Iterations
+DDx should support running the same scenario with different prompt artifacts/revisions:
 
 ```bash
-ddx agent run --prompt-version v1 --scenario A
-ddx agent run --prompt-version v2 --scenario A  
-# Compare results automatically
+ddx agent run --prompt "library/prompts/helix/frame-v1.md" --text "..."
+ddx agent run --prompt "library/prompts/helix/frame-v2.md" --text "..."
+# Compare metrics/outputs externally by run metadata (prompt path + revision)
 ```
 
 ---

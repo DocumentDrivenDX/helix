@@ -98,7 +98,9 @@ Every action (except `triage` and `check`) follows this structure:
 
 `triage` is the entry point that bootstraps the bead graph — it creates beads
 and therefore cannot itself require one (that would be infinite regress).
-`check` is read-only and does not modify files.
+`input` is also an entry point: it accepts sparse intent and creates or updates
+the bead/workflow context that later actions execute. `check` is read-only and
+does not modify files.
 
 Planning-helix beads use the `kind:planning` label to distinguish them from
 execution beads. Combined with an `action:<name>` label (e.g.,
@@ -113,6 +115,11 @@ See `.ddx/plugins/helix/workflows/references/bead-first.md` for the full bead ac
 
 HELIX supervision is built from bounded actions with distinct roles:
 
+- `helix input "<natural language request>" [--autonomy low|medium|high]`
+  Accepts sparse intent, applies HELIX autonomy semantics, and creates or
+  updates the bead/workflow context needed for later execution. This is the
+  planning-helix intake surface for the slider-autonomy model; the expected
+  default autonomy is `medium`.
 - `helix build`
   Executes one ready execution issue end-to-end, then exits.
 - `helix status`
@@ -154,7 +161,12 @@ HELIX supervision is built from bounded actions with distinct roles:
 
 ## Execution Model
 
-Use a supervisory control loop with an explicit queue-drain sub-step:
+Use a supervisory control loop with an explicit queue-drain sub-step.
+
+For sparse operator intent that is not yet represented as a bead or bounded
+scope, start with `helix input` before entering the normal execution loop.
+`helix input` shapes intent into governed work; `helix run`, `helix build`, and
+`helix check` operate on the resulting bead/workflow state.
 
 1. Guard on true ready work with `ddx bead ready`, not `ddx bead list --ready`
 2. Route to the least-power bounded subroutine required by user intent and repository state:

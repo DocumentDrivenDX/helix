@@ -442,6 +442,10 @@ run_helix_with_env() {
       PATH="$root/bin:$PATH" \
       MOCK_STATE_ROOT="$root/state" \
       HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+      "HELIX_FORCE_EPHEMERAL=1" \
+      "HELIX_REVIEW_AGENT=codex" \
+      "HELIX_ALT_AGENT=none" \
+      "HELIX_AUTO_ALIGN=0" \
       "DDX_BEAD_DIR=$root/work/.ddx" \
       "DDX_DISABLE_UPDATE_CHECK=1" \
       "HELIX_DIRECT_AGENT=1" \

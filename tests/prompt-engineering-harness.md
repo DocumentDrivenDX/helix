@@ -1,631 +1,522 @@
-# HELIX Prompt Engineering Harness (Live Testing)
+# HELIX Prompt Engineering Harness (DDx-Backed Workflow)
 
-This harness tests **actual agent behavior** across autonomy levels using live model runs. Model selection and performance ARE part of the test surface - we're measuring how well different models execute HELIX prompts under different autonomy constraints.
+This harness retargets prompt experiments from raw `ddx agent run` artifact generation to the HELIX→DDx execution flow.
 
-## Philosophy
+The experiment unit is a **preserved bead attempt** produced by:
 
-- Test with **live agents**, not virtual replay
-- Model choice is a **test variable**, not an implementation detail
-- Measure **real outputs** from real model runs
-- Accept variance between runs; use statistical measures
-- Each test run produces **measurable artifacts** for comparison
-- Track performance across models to inform selection decisions
+```bash
+ddx agent execute-bead <bead-id> --from <rev> --no-merge
+```
+
+That keeps prompt iteration grounded in the real workflow surface:
+- HELIX chooses the bead, autonomy behavior, and evaluation rubric
+- DDx executes the bead from a fixed git revision
+- DDx returns preserved-attempt evidence, required execution outcomes, ratchet results, and runtime metrics
+- HELIX compares those outcomes and revises prompt or workflow wording
+
+## Purpose
+
+Use this harness to answer questions like:
+- Does a prompt change improve bead execution quality?
+- Does a prompt change improve low / medium / high autonomy behavior?
+- Does a model or harness change improve outcomes for the same bead?
+- Does a prompt change increase merge-eligible outcomes instead of preserve-only outcomes?
+
+This harness is for **real runs with real models and real outputs**. Virtual replay is useful elsewhere, but not for prompt-engineering decisions.
+
+## Assumptions
+
+This harness assumes the DDx execution substrate exists with the following visible surface:
+- `ddx agent execute-bead <bead-id> [--from <rev>] [--no-merge]`
+- graph-discovered execution docs
+- required execution semantics
+- runtime evidence emitted for each attempt
+- preserved non-merged attempts that remain inspectable
+- merge-or-preserve outcomes returned to HELIX
+
+Where DDx output formatting is still under development, the harness specifies **what must be observed**, not a final wire format.
+
+---
+
+## Core Principles
+
+- Test the **real HELIX workflow**, not a simplified artifact-spam path.
+- Keep **git history canonical**: prompt variants are compared from the same base revision.
+- Treat **preserved attempts** as the primary comparison unit.
+- Compare prompt variants using **measurable evidence**, not preference.
+- Keep the DDx / HELIX boundary explicit:
+  - **HELIX owns** bead choice, autonomy semantics, escalation behavior, and scoring rubric.
+  - **DDx owns** execution, evidence capture, runtime metrics, required-execution evaluation, and preserve / merge mechanics.
 
 ---
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  Test Scenario (Vision Statement + Constraints)              │
-└──────────────────────┬──────────────────────────────────────┘
+```text
+┌──────────────────────────────────────────────────────────────┐
+│ Scenario Fixture or Real Bead                               │
+│ • governing artifacts                                        │
+│ • acceptance criteria                                        │
+│ • expected artifacts                                         │
+│ • linked execution docs                                      │
+└──────────────────────┬───────────────────────────────────────┘
+                       │
                        ▼
-┌─────────────────────────────────────────────────────────────┐
-│  Model Selection                                             │
-│  • claude-3.5-sonnet (default, balanced)                    │
-│  • claude-3.7-sonnet (high reasoning)                       │
-│  • gpt-4o-codex (code-focused)                              │
-│  • gpt-5.2-codex (latest code model)                        │
-└──────────────────────┬──────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│ Fixed Base Revision                                          │
+│ git rev-parse HEAD                                           │
+│ same starting point for every prompt variant                 │
+└──────────────────────┬───────────────────────────────────────┘
+                       │
                        ▼
-┌─────────────────────────────────────────────────────────────┐
-│  Autonomy Level + Config                                     │
-│  • Low: Ask questions, push back                            │
-│  • Medium: Obvious decisions + questions                    │
-│  • High: Complete stack with assumptions                    │
-└──────────────────────┬──────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│ Prompt / Workflow Variant Worktree                           │
+│ • prompt wording changes                                      │
+│ • autonomy setting under test                                 │
+│ • model / harness selection via DDx config or preset          │
+└──────────────────────┬───────────────────────────────────────┘
+                       │
                        ▼
-┌─────────────────────────────────────────────────────────────┐
-│  Live Agent Execution                                        │
-│  ddx agent run --harness claude|codex                       │
-│  • Real API calls, real tokens                              │
-│  • Captured output for analysis                             │
-│  • Timeout protection (max 15 min per test)                 │
-└──────────────────────┬──────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│ DDx Execution                                                 │
+│ ddx agent execute-bead <bead-id> --from <rev> --no-merge     │
+│ • isolated attempt                                            │
+│ • preserved commit/ref if not landed                          │
+│ • required execution results                                  │
+│ • ratchet outcomes                                            │
+│ • runtime metrics                                              │
+└──────────────────────┬───────────────────────────────────────┘
+                       │
                        ▼
-┌─────────────────────────────────────────────────────────────┐
-│  Artifact Generation                                         │
-│  • Vision → PRD → FEAT → US → SD → TD → TP                  │
-│  • Each layer measured against acceptance criteria           │
-└──────────────────────┬──────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│ HELIX Evaluation                                              │
+│ • completeness / quality / correctness                        │
+│ • graph coherence                                              │
+│ • required execution pass/fail                                 │
+│ • ratchet pass/fail                                             │
+│ • merge-vs-preserve interpretation                              │
+└──────────────────────┬───────────────────────────────────────┘
+                       │
                        ▼
-┌─────────────────────────────────────────────────────────────┐
-│  Measurement & Scoring                                       │
-│  • Completeness, Quality, Correctness, Efficiency            │
-│  • Statistical aggregation across multiple runs              │
-│  • Model comparison matrices                                │
+┌──────────────────────────────────────────────────────────────┐
+│ Prompt Iteration Decision                                     │
+│ • adopt                                                        │
+│ • revise and rerun                                             │
+│ • reject                                                       │
+│ • file follow-up bead                                          │
 └──────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Test Scenarios
+## Test Inputs
 
-### Scenario A: Simple CLI Tool (Baseline)
+Each experiment run should start from either:
 
-**Vision Statement**:
-> "Build a CLI tool that converts temperatures between Celsius, Fahrenheit, and Kelvin. Should support batch conversion from files and have a clean API."
+1. a **scenario fixture** under `tests/scenarios/`, or
+2. a **real HELIX bead** with bounded acceptance criteria.
 
-**Constraints**:
-- Language: TypeScript or Rust
-- Must include tests
-- Must have help documentation  
-- Target: Single developer, weekend project
+### Preferred fixture shape
 
-**Expected Artifact Stack**:
-```
-Vision → PRD → 
-  FEAT-001-core-conversion → US-001-cli-interface → TD-001 → TP-001 → Code
-  FEAT-002-batch-files → US-002-file-io → TD-002 → TP-002 → Code
-```
+A scenario fixture should provide at least:
+- `vision.md`
+- `constraints.txt`
+- `expected-artifacts.txt`
+- `workflow.md` describing starting input/bead form, autonomy expectations, validations, and merge-vs-preserve interpretation
+- one or more candidate beads representing the bounded work to execute
+- linked execution docs that define required vs observational validations
+- expected ratchet interpretation where relevant
 
-**Autonomy Level Tests**:
+### Scenario roles
 
-| Level | Expected Behavior | Measurement Criteria |
-|-------|------------------|---------------------|
-| **Low** | Asks clarifying questions before creating artifacts | ≥3 specific questions, 0-1 artifacts created |
-| **Medium** | Creates PRD with assumptions documented, asks remaining questions | PRD + FEATs created, ≤2 open questions |
-| **High** | Complete artifact stack (PRD→FEAT→US→TD→TP) with reasonable defaults | ≥90% of expected artifacts, all decisions traceable |
+| Scenario | Role | Typical use |
+|---|---|---|
+| A | baseline / simple | prompt regressions, low-noise comparisons |
+| B | medium complexity | auth, constraints, operational tradeoffs |
+| C | high complexity | ambiguity handling, escalation, autonomy behavior |
 
----
+### Bead selection rules
 
-### Scenario B: Web API with Auth (Medium Complexity)
+Choose beads that are:
+- bounded enough for one DDx attempt
+- linked to governing artifacts
+- backed by explicit acceptance criteria
+- linked to execution docs if required validations are expected
+- stable enough to compare across prompt variants
 
-**Vision Statement**:
-> "Build a REST API for managing user profiles with OAuth authentication. Needs to scale to 10k users initially."
-
-**Constraints**:
-- Must use PostgreSQL
-- OAuth2/OIDC required
-- Rate limiting needed
-- Docker deployment
-- Team of 3 developers
-
-**Expected Artifact Stack**:
-```
-Vision → PRD → 
-  FEAT-001-user-management → US-001-create-profile, US-002-update-profile → TDs → TPs
-  FEAT-002-oauth-auth → US-003-login-with-google, US-004-token-refresh → TDs → TPs  
-  FEAT-003-rate-limiting → US-005-api-throttling → TD → TP
-Architecture: ADR-001-database-choice (Postgres), ADR-002-auth-provider
-```
-
-**Autonomy Level Tests**:
-
-| Level | Expected Behavior | Measurement Criteria |
-|-------|------------------|---------------------|
-| **Low** | Questions on auth provider, framework choice, rate limit values | ≥4 questions covering key decisions |
-| **Medium** | PRD + ADRs created, assumptions documented for common choices | PRD + 2 ADRs, operational details questioned |
-| **High** | Complete stack including OAuth flow designs, DB schema, API specs | Full hierarchy with ADRs, all constraints addressed |
+Avoid beads that are really undecomposed epics.
 
 ---
 
-### Scenario C: Complex System (Full Stack)
+## What Changes Between Variants
 
-**Vision Statement**:
-> "Build a real-time collaborative document editor like Google Docs. Multiple users editing simultaneously with conflict resolution."
+A prompt-engineering experiment may vary one or more of:
+- HELIX prompt wording
+- HELIX workflow wording or decomposition guidance
+- autonomy setting (`low`, `medium`, `high`)
+- model / harness selection
 
-**Constraints**:
-- Real-time sync required (< 100ms latency)
-- Must handle 100 concurrent editors per doc
-- Web-based, works offline
-- Conflict resolution algorithm needed
-- Team of 5, 3-month timeline
+Only change the variable being tested.
 
-**Expected Artifact Stack**:
-```
-Vision → PRD → 
-  FEAT-001-realtime-sync → US-001-cursor-tracking, US-002-change-propagation → TDs (OT/CRDT) → TPs
-  FEAT-002-conflict-resolution → US-003-merge-strategy → TD (algorithm choice) → TP
-  FEAT-003-offline-support → US-004-local-storage, US-005-sync-on-reconnect → TDs → TPs
-Architecture: ADR-001-sync-algorithm (OT vs CRDT), ADR-002-websocket-provider
-```
+### Recommended comparison discipline
 
-**Autonomy Level Tests**:
-
-| Level | Expected Behavior | Measurement Criteria |
-|-------|------------------|---------------------|
-| **Low** | Pushes back on timeline, questions algorithm choice, clarifies requirements | Challenges feasibility, ≥5 critical questions |
-| **Medium** | PRD with risk flags, ADR for sync algorithm, operational questions | PRD + 1-2 ADRs, concerns documented as risks |
-| **High** | Complete technical design including CRDT/OT approach, WebSocket architecture | Full stack with complex decisions justified |
+- Hold the **bead** constant.
+- Hold the **base revision** constant.
+- Hold the **scenario fixture** constant.
+- Hold the **governing docs** constant unless the experiment is specifically about changed authority.
+- If testing prompt wording, do **not** also change model or autonomy in the same comparison set.
 
 ---
 
-## Measurement Framework
+## Measurement Dimensions
 
-### Metric 1: Completeness Score (0-100)
+Use these dimensions for every run.
 
-```bash
-#!/bin/bash
-# tests/measures/completeness.sh
+### 1. Artifact Completeness
 
-measure_completeness() {
-    local scenario="$1"
-    local expected_file="tests/scenarios/$scenario/expected-artifacts.txt"
-    
-    # List of expected artifacts for this scenario
-    mapfile -t expected < "$expected_file"
-    local total=${#expected[@]}
-    local found=0
-    
-    # Check each expected artifact exists
-    for artifact in "${expected[@]}"; do
-        if [ -f "docs/helix/$artifact" ] || \
-           find docs/helix/ -name "*$artifact*" -type f >/dev/null 2>&1; then
-            ((found++))
-        fi
-    done
-    
-    # Calculate percentage
-    echo $(( (found * 100) / total ))
-}
+Did the attempt produce the artifacts the bead and governing docs imply should exist?
 
-# Usage: measure_completeness "A"
+Primary evidence:
+- `tests/scenarios/<scenario>/expected-artifacts.txt`
+- resulting changed files
+- linked artifact IDs and expected downstream docs
+
+Existing helper:
+- `tests/measures/completeness.sh`
+
+### 2. Artifact Quality
+
+Are the produced artifacts structurally and semantically usable?
+
+Examples:
+- required sections exist
+- acceptance criteria are explicit
+- decisions are traceable to governing docs
+- downstream docs are not empty shells
+
+Existing helper:
+- `tests/measures/quality.sh`
+
+### 3. Decision Correctness
+
+Did the attempt respect scenario constraints and governing requirements?
+
+Examples:
+- PostgreSQL is chosen when required
+- OAuth2 / OIDC is respected where required
+- constraints are not silently dropped
+- assumptions are documented when autonomy permits assumptions
+
+Existing helper:
+- `tests/measures/correctness.sh`
+
+### 4. Graph Coherence
+
+Did the attempt preserve a coherent artifact graph?
+
+Check for:
+- correct `[[ID]]` references
+- meaningful dependency links
+- execution docs linked to governing artifacts
+- no obvious orphan downstream docs
+- no contradictory authority ordering
+
+Graph coherence matters because prompt changes that create superficially plausible docs can still damage the artifact stack.
+
+### 5. Required Execution Outcomes
+
+Did all **required** execution docs for the bead succeed?
+
+This is a merge-critical dimension.
+
+Interpretation:
+- required execution failure => the attempt should remain preserved, not land
+- required execution success => the attempt may still be blocked by ratchets or workflow-level concerns, but it remains merge-eligible on this dimension
+
+### 6. Ratchet Outcomes
+
+Did the attempt meet ratchet expectations?
+
+Examples:
+- no regression below the floor
+- observational metrics recorded even when non-blocking
+- threshold breaches interpreted consistently
+
+Use `workflows/ratchets.md` and linked metric definitions under:
+
+```text
+docs/helix/06-iterate/metrics/
 ```
 
-**Targets by autonomy level**:
-- Low: N/A (questions only, artifacts not expected)
-- Medium: ≥60% of core artifacts (PRD + key FEATs/USs)
-- High: ≥90% of full artifact stack
+### 7. Runtime Metrics
 
-### Metric 2: Quality Score (0-100)
+Record DDx-emitted runtime evidence for every run:
+- tokens
+- cost
+- elapsed time / duration
+- harness
+- model
+- attempt identifier / preserved ref
 
-```bash
-#!/bin/bash
-# tests/measures/quality.sh
+These metrics are part of the comparison surface, not incidental logs.
 
-measure_quality() {
-    local score=0
-    
-    # PRD quality checks (if exists)
-    if [ -f "docs/helix/01-frame/prd.md" ]; then
-        grep -q "## Requirements" docs/helix/01-frame/prd.md && ((score+=25))
-        grep -q "## Constraints" docs/helix/01-frame/prd.md && ((score+=25))
-    fi
-    
-    # Cross-reference traceability (minimum 5 refs)
-    local ref_count=$(grep -r '\[\[.*\]\]' docs/helix/ 2>/dev/null | wc -l)
-    [ $ref_count -ge 5 ] && ((score+=25))
-    
-    # Acceptance criteria in user stories
-    if grep -rq "## Acceptance Criteria" docs/helix/01-frame/user-stories/ 2>/dev/null; then
-        ((score+=25))
-    fi
-    
-    echo $score
-}
-```
+### 8. Merge-vs-Preserve Interpretation
 
-**Targets**: ≥75 for medium autonomy, ≥85 for high autonomy
+Every run should end with an explicit interpretation:
+- **merge-eligible**
+- **preserve-only**
+- **escalate / ask**
 
-### Metric 3: Decision Correctness (0-100)
+This interpretation is the key workflow-level output from the DDx-backed harness.
 
-```bash
-#!/bin/bash
-# tests/measures/correctness.sh
+---
 
-measure_correctness() {
-    local scenario="$1"
-    local score=100
-    
-    # Load constraints for this scenario
-    mapfile -t constraints < "tests/scenarios/$scenario/constraints.txt"
-    
-    # Check each constraint was respected
-    for constraint in "${constraints[@]}"; do
-        case "$constraint" in
-            *"PostgreSQL"*)
-                if ! grep -rq "PostgreSQL\|postgres" docs/helix/02-design/ 2>/dev/null; then
-                    ((score-=30))  # Major violation
-                fi
-                ;;
-            *"TypeScript"*|"Rust"*)
-                if ! grep -rqE "(TypeScript|Rust)" docs/helix/02-design/ 2>/dev/null; then
-                    ((score-=20))  # Language not specified
-                fi
-                ;;
-        esac
-    done
-    
-    # Bonus for documented assumptions
-    local assumption_count=$(grep -r "Assumption:" docs/helix/ 2>/dev/null | wc -l)
-    [ $assumption_count -gt 0 ] && ((score+=10))
-    
-    # Cap at 100
-    [ $score -gt 100 ] && score=100
-    
-    echo $score
-}
-```
+## Expected Outcome Matrix
 
-**Target**: ≥90 (constraints must be respected)
+Use this table when interpreting results.
 
-### Metric 4: Efficiency Score (tokens per artifact)
+| Evidence pattern | Expected interpretation |
+|---|---|
+| Required executions fail | Preserve-only |
+| Required executions pass, ratchets pass, artifacts coherent | Merge-eligible |
+| Required executions pass, observational checks fail only | Usually merge-eligible, but record follow-up if needed |
+| Artifacts incomplete or constraint-incorrect | Preserve-only |
+| Low autonomy asks instead of proceeding | Valid low-autonomy behavior, not a failure by itself |
+| Medium autonomy escalates ambiguity appropriately | Valid medium-autonomy behavior |
+| High autonomy completes work but DDx preserves due to failed validations | Preserve-only; return control to HELIX |
 
-```bash
-#!/bin/bash
-# tests/measures/efficiency.sh
-
-measure_efficiency() {
-    # Get token usage from last agent run
-    local tokens=$(cat ~/.ddx/agent-stats.json 2>/dev/null | jq '.total_tokens' || echo "0")
-    
-    # Count artifacts created
-    local artifact_count=$(find docs/helix/ -name "*.md" -type f 2>/dev/null | wc -l)
-    
-    [ $artifact_count -eq 0 ] && echo "N/A" && return
-    
-    echo $(( tokens / artifact_count ))
-}
-```
-
-**Target**: Track trend, lower is better but not at expense of quality
-
-### Metric 5: Autonomy Behavior Score (Low mode only)
-
-For low autonomy, we measure **question quality**, not artifacts:
-
-```bash
-#!/bin/bash
-# tests/measures/autonomy-behavior.sh
-
-measure_low_autonomy_behavior() {
-    local score=0
-    
-    # Check agent asked questions before creating major artifacts
-    if [ ! -f "docs/helix/01-frame/prd.md" ]; then
-        ((score+=50))  # Correctly held off on PRD creation
-    fi
-    
-    # Count clarifying questions in conversation log
-    local question_count=$(grep -iE "(should|what|which|how)" ~/.ddx/conversation-log.json 2>/dev/null | wc -l)
-    
-    if [ $question_count -ge 3 ]; then
-        ((score+=50))  # Asked sufficient questions
-    fi
-    
-    echo $score
-}
-```
-
-**Target**: ≥80 for low autonomy (should ask, not assume)
+Important: a DDx preserve outcome is an execution result, not automatically a physics-level conflict.
 
 ---
 
 ## Test Execution Workflow
 
-### Phase 1: Run Live Agent Tests
+### Phase 1: Prepare the experiment
+
+1. Choose the scenario or real bead.
+2. Identify the exact bead ID to execute.
+3. Freeze the base revision.
+4. Confirm the bead is bounded and linked to governing artifacts.
+5. Confirm the linked execution docs and expected ratchets are known.
+
+Example:
 
 ```bash
-#!/bin/bash
-# tests/run-live-test.sh
-
-set -euo pipefail
-
-SCENARIO="${1:-A}"          # A | B | C
-AUTONOMY="${2:-medium}"     # low | medium | high  
-MODEL="${3:-claude-3.5-sonnet}"  # Model to test
-RUNS="${4:-3}"              # Number of runs for statistical significance
-
-# Create isolated test workspace
-WORKSPACE="/tmp/helix-test-$SCENARIO-$AUTONOMY-$MODEL-$(date +%s)"
-mkdir -p "$WORKSPACE"
-cd "$WORKSPACE"
-
-# Initialize minimal HELIX project structure
-git init
-mkdir -p docs/helix/{01-frame,02-design,03-test}
-
-# Set autonomy configuration
-cat > .helix/slider-config.yaml << EOF
-autonomy_level: "$AUTONOMY"
-speculative_allowed: $([ "$AUTONOMY" = "high" ] && echo "true" || echo "false")
-conflict_handling:
-  resolvable: "escalate"
-  physics_level: "block"
-EOF
-
-# Load vision statement for this scenario
-VISION=$(cat "/Users/erik/Projects/helix/tests/scenarios/$SCENARIO/vision.md")
-
-echo "=== Running Test ==="
-echo "Scenario: $SCENARIO"
-echo "Autonomy: $AUTONOMY"  
-echo "Model: $MODEL"
-echo "Workspace: $WORKSPACE"
-echo ""
-
-# Run agent with specified model
-export CLAUDE_MODEL="$MODEL"  # Or appropriate env var for model selection
-
-timeout 900 ddx agent run \
-    --harness claude \
-    --text "$VISION" || {
-        echo "ERROR: Agent run failed or timed out"
-        exit 1
-}
-
-# Capture results
-echo ""
-echo "=== Measuring Results ==="
-
-# Run all measurements
-completeness=$(bash /Users/erik/Projects/helix/tests/measures/completeness.sh "$SCENARIO")
-quality=$(bash /Users/erik/Projects/helix/tests/measures/quality.sh)
-correctness=$(bash /Users/erik/Projects/helix/tests/measures/correctness.sh "$SCENARIO")
-
-if [ "$AUTONOMY" = "low" ]; then
-    autonomy_score=$(bash /Users/erik/Projects/helix/tests/measures/autonomy-behavior.sh)
-else
-    efficiency=$(bash /Users/erik/Projects/helix/tests/measures/efficiency.sh)
-fi
-
-# Output results
-echo ""
-echo "=== Results ==="
-echo "Completeness: $completeness/100"
-echo "Quality: $quality/100"
-echo "Correctness: $correctness/100"
-if [ "$AUTONOMY" != "low" ]; then
-    echo "Efficiency: $efficiency tokens/artifact"
-else
-    echo "Autonomy Behavior: $autonomy_score/100"
-fi
-
-# Save results for aggregation
-cat > "$WORKSPACE/results.json" << EOF
-{
-  "scenario": "$SCENARIO",
-  "autonomy": "$AUTONOMY",
-  "model": "$MODEL",
-  "timestamp": "$(date -Iseconds)",
-  "metrics": {
-    "completeness": $completeness,
-    "quality": $quality,
-    "correctness": $correctness
-  }
-}
-EOF
-
-# Determine pass/fail based on targets
-TARGET_COMPLETENESS=([low]=0 [medium]=60 [high]=90)
-if [ "$AUTONOMY" != "low" ]; then
-    if [ $completeness -ge ${TARGET_COMPLETENESS[$AUTONOMY]} ] && \
-       [ $quality -ge 75 ] && \
-       [ $correctness -ge 90 ]; then
-        echo ""
-        echo "✓ PASS"
-        exit 0
-    fi
-fi
-
-echo ""
-echo "✗ FAIL - below targets"
-exit 1
+BEAD_ID="hx-abc123"
+BASE_REV="$(git rev-parse HEAD)"
 ```
 
-### Phase 2: Statistical Aggregation (Multiple Runs)
+Record both values in the experiment log.
+
+### Phase 2: Create prompt variants
+
+Use separate branches or worktrees so each variant is isolated in git.
+
+Recommended naming:
+- `prompt-baseline`
+- `prompt-reworded`
+- `prompt-high-autonomy-tuned`
+
+Because git is canonical, prompt variants should be represented as actual file changes, not hidden out-of-band state.
+
+### Phase 3: Run preserved attempts
+
+For each prompt variant, execute the same bead from the same base revision:
 
 ```bash
-#!/bin/bash
-# tests/aggregate-results.sh
-
-SCENARIO="$1"
-AUTONOMY="$2"
-MODEL="$3"
-
-# Find all result files for this configuration
-results=$(find /tmp -name "helix-test-$SCENARIO-$AUTONOMY-$MODEL-*/results.json" 2>/dev/null)
-
-if [ -z "$results" ]; then
-    echo "No results found"
-    exit 1
-fi
-
-# Parse and aggregate using jq
-echo "=== Statistical Summary ==="
-echo "Scenario: $SCENARIO, Autonomy: $AUTONOMY, Model: $MODEL"
-echo ""
-
-for result in $results; do
-    cat "$result"
-done | jq -s '
-  {
-    runs: length,
-    completeness: {
-      mean: ([.[].metrics.completeness] | add / length),
-      min: ([.[].metrics.completeness] | min),
-      max: ([.[].metrics.completeness] | max)
-    },
-    quality: {
-      mean: ([.[].metrics.quality] | add / length),
-      min: ([.[].metrics.quality] | min),
-      max: ([.[].metrics.quality] | max)
-    },
-    correctness: {
-      mean: ([.[].metrics.correctness] | add / length),
-      min: ([.[].metrics.correctness] | min),
-      max: ([.[].metrics.correctness] | max)
-    }
-  }
-'
-
-echo ""
-echo "Recommendation:"
-completeness_mean=$(for result in $results; do cat "$result"; done | jq -s '[.[].metrics.completeness] | add / length')
-if (( $(echo "$completeness_mean >= 80" | bc -l) )); then
-    echo "Model performs well on this scenario/autonomy combination"
-else
-    echo "Consider prompt refinement or different model selection"
-fi
+ddx agent execute-bead "$BEAD_ID" --from "$BASE_REV" --no-merge
 ```
 
-### Phase 3: Model Comparison Matrix
+Required properties of the run:
+- the attempt is bounded to the chosen bead
+- the run starts from the same base revision for all compared variants
+- the attempt is preserved for inspection
+- DDx returns runtime and validation evidence
 
-```bash
-#!/bin/bash
-# tests/compare-models.sh
+Repeat runs when measuring variance across models or prompt variants.
 
-SCENARIO="$1"
-AUTONOMY="$2"
+### Phase 4: Collect evidence
 
-echo "=== Model Comparison: Scenario $SCENARIO, Autonomy $AUTONOMY ==="
-echo ""
+For each preserved attempt, collect:
+- attempt identifier / preserved ref
+- summary diff or changed files
+- required execution results
+- observational execution results
+- ratchet outcomes
+- runtime metrics
+- merge-or-preserve outcome
 
-for model in claude-3.5-sonnet claude-3.7-sonnet gpt-4o-codex; do
-    results=$(find /tmp -name "helix-test-$SCENARIO-$AUTONOMY-$model-*/results.json" 2>/dev/null | head -1)
-    
-    if [ -n "$results" ]; then
-        completeness=$(cat "$results" | jq '.metrics.completeness')
-        quality=$(cat "$results" | jq '.metrics.quality')
-        correctness=$(cat "$results" | jq '.metrics.correctness')
-        
-        echo "$model: C=$completeness Q=$quality Cr=$correctness"
-    else
-        echo "$model: No results yet"
-    fi
-done
-```
+Then evaluate artifact outputs using the HELIX-side measurements:
+- completeness
+- quality
+- correctness
+- graph coherence
+
+### Phase 5: Score and compare
+
+Use a per-attempt result table like this:
+
+| Variant | Scenario | Bead | Autonomy | Harness | Model | Complete | Quality | Correct | Graph | Required execs | Ratchets | Outcome |
+|---|---|---|---|---|---|---:|---:|---:|---|---|---|---|
+| baseline | A | hx-abc123 | medium | forge | qwen3.5-27b | 82 | 78 | 95 | pass | pass | pass | merge-eligible |
+| reworded | A | hx-abc123 | medium | forge | qwen3.5-27b | 91 | 85 | 95 | pass | pass | pass | merge-eligible |
+| alt | A | hx-abc123 | medium | forge | qwen3.5-27b | 74 | 70 | 90 | weak links | fail | pass | preserve-only |
+
+### Phase 6: Decide
+
+Use these rules:
+- **Adopt** the variant if it improves or maintains correctness, required execution success, and graph coherence while improving at least one major dimension.
+- **Revise and rerun** if the results are mixed but promising.
+- **Reject** if correctness, required execution outcomes, or graph coherence regress.
+- **File a follow-up bead** if the run reveals missing execution docs, unclear ratchet policy, or ambiguous workflow contracts.
 
 ---
 
-## Test Matrix
+## Statistical Aggregation
 
-Run this matrix to establish baseline performance across models and autonomy levels:
+When running multiple attempts for the same scenario:
+- aggregate completeness / quality / correctness scores
+- count required execution pass rate
+- count ratchet pass rate
+- count preserve-only vs merge-eligible outcomes
+- compare runtime metrics by median and range, not only a single run
 
-| Scenario | Autonomy | Models to Test | Runs Each |
-|----------|----------|----------------|-----------|
-| A (Simple) | Low | claude-3.5, gpt-4o-codex | 2 |
-| A (Simple) | Medium | All models | 3 |
-| A (Simple) | High | All models | 3 |
-| B (Medium) | Low | claude-3.5 | 2 |
-| B (Medium) | Medium | All models | 3 |
-| B (Medium) | High | All models | 3 |
-| C (Complex) | Medium | claude-3.7, gpt-5.2-codex | 2 |
-| C (Complex) | High | claude-3.7, gpt-5.2-codex | 2 |
-
-**Total**: ~40 agent runs to establish comprehensive baseline
+At minimum, summarize:
+- runs
+- mean completeness
+- mean quality
+- mean correctness
+- required execution pass percentage
+- ratchet pass percentage
+- preserve percentage
+- merge-eligible percentage
+- median tokens
+- median duration
 
 ---
 
-## Success Criteria for Merge
+## Suggested Test Matrix
 
-Before merging slider autonomy feature:
+Use this matrix to build confidence incrementally.
 
-### Minimum Requirements
-1. **Scenario A passes at all autonomy levels** with claude-3.5-sonnet (completeness ≥90%, quality ≥80, correctness ≥95)
-2. **Scenario B passes at medium/high autonomy** with claude-3.5-sonnet (completeness ≥75%, quality ≥75, correctness ≥90)
-3. **Low autonomy correctly asks questions** without creating major artifacts (autonomy behavior score ≥80)
+| Scenario | Autonomy | Comparison type |
+|---|---|---|
+| A | low | question quality and restraint |
+| A | medium | baseline prompt vs revised prompt |
+| A | high | completion quality vs preserve rate |
+| B | medium | auth / constraints handling |
+| B | high | execution-doc and ratchet interpretation |
+| C | medium | escalation quality under ambiguity |
+| C | high | bounded autonomy under complex design pressure |
 
-### Model Selection Guidance
-After testing, document which models work best for each scenario:
+Add model comparisons only after prompt comparisons are stable.
+
+---
+
+## Pass Criteria for Prompt Changes
+
+A prompt change is acceptable only if it does **not** regress the hard dimensions:
+- decision correctness
+- graph coherence
+- required execution outcomes
+
+Preferred improvements are:
+- higher completeness
+- higher quality
+- fewer preserve-only outcomes caused by avoidable prompt mistakes
+- clearer low / medium / high autonomy behavior
+- lower token or duration cost at equal quality
+
+### Minimum bar
+
+A candidate prompt should usually show:
+- correctness at or above current baseline
+- no drop in required execution pass rate
+- no new graph-coherence failures
+- a neutral or positive merge-eligibility trend
+
+---
+
+## Failure Analysis Checklist
+
+When a run underperforms, classify the failure before editing prompts.
+
+### Prompt failure
+- omitted required artifact step
+- weak instruction ordering
+- ambiguity not handled as intended for the autonomy level
+- insufficient traceability to governing docs
+
+### Workflow-contract failure
+- bead too large or under-specified
+- missing or under-linked execution docs
+- ratchet expectation unclear
+- missing acceptance criteria
+
+### Substrate failure
+- DDx did not surface enough evidence
+- preserve / merge result was not inspectable enough
+- runtime metrics were missing or inconsistent
+
+Only prompt failures should directly drive prompt edits. Other failure classes should file follow-up beads.
+
+---
+
+## Experiment Log Template
+
+Use a log entry per comparison set:
 
 ```markdown
-## Recommended Models by Scenario
+## Experiment: <name>
 
-| Scenario | Autonomy | Best Model | Notes |
-|----------|----------|------------|-------|
-| A | Any | claude-3.5-sonnet | Balanced performance/cost |
-| B | Medium/High | claude-3.7-sonnet | Better at complex reasoning |
-| C | High | gpt-5.2-codex | Superior technical design generation |
-```
+- Scenario: <A|B|C or real-work scope>
+- Bead: <id>
+- Base revision: <sha>
+- Autonomy: <low|medium|high>
+- Harness: <name>
+- Model: <name>
+- Compared variants:
+  - baseline: <branch or commit>
+  - candidate: <branch or commit>
 
-### Cost Considerations
-Track token usage to inform cost decisions:
+### Outcomes
+| Variant | Completeness | Quality | Correctness | Graph | Required execs | Ratchets | Runtime | Outcome |
+|---|---:|---:|---:|---|---|---|---|---|
+| baseline |  |  |  |  |  |  |  |  |
+| candidate |  |  |  |  |  |  |  |  |
 
-```bash
-# After all tests complete
-find /tmp -name "results.json" -exec cat {} \; | jq -s '
-  group_by(.model) | 
-  map({
-    model: .[0].model,
-    total_tokens: (map(.metrics.tokens // 0) | add),
-    avg_per_run: ((map(.metrics.tokens // 0) | add) / length)
-  })
-'
-```
+### Decision
+- Adopt / Revise / Reject
 
----
-
-## Iterative Improvement Loop
-
-```bash
-#!/bin/bash
-# tests/improve-prompts.sh
-
-SCENARIO="$1"
-AUTONOMY="$2"
-
-echo "=== Prompt Improvement Loop ==="
-echo ""
-
-while true; do
-    # Run test
-    bash /Users/erik/Projects/helix/tests/run-live-test.sh "$SCENARIO" "$AUTONOMY" claude-3.5-sonnet
-    
-    results=$?
-    
-    if [ $results -eq 0 ]; then
-        echo ""
-        echo "✓ Test passed - prompts are working well"
-        break
-    fi
-    
-    echo ""
-    echo "Test failed. Analyzing gaps..."
-    
-    # Identify which metrics failed
-    completeness=$(bash /Users/erik/Projects/helix/tests/measures/completeness.sh "$SCENARIO")
-    quality=$(bash /Users/erik/Projects/helix/tests/measures/quality.sh)
-    
-    if [ $completeness -lt 60 ]; then
-        echo "Issue: Low completeness - agent not creating expected artifacts"
-        echo "Fix: Review helix-frame or helix-design prompts for clarity"
-    fi
-    
-    if [ $quality -lt 75 ]; then
-        echo "Issue: Low quality - artifacts missing required sections"
-        echo "Fix: Add explicit section requirements to skill prompts"
-    fi
-    
-    echo ""
-    read -p "Edit prompts and re-run? (y/n): " choice
-    [ "$choice" != "y" ] && exit 1
-    
-    # Open relevant prompt files for editing
-    nvim .agents/skills/helix-frame/SKILL.md .agents/skills/helix-design/SKILL.md
-done
+### Notes
+- What changed?
+- What improved?
+- What regressed?
+- Is a follow-up bead required?
 ```
 
 ---
 
-## Next Steps
+## Relationship to the Other Harnesses
 
-1. **Create scenario fixtures**: Write vision statements and expected artifacts for A, B, C
-2. **Run baseline tests**: Execute test matrix with current HELIX prompts
-3. **Measure gaps**: Identify which metrics fail most often
-4. **Refine prompts**: Update skill prompts based on failure patterns
-5. **Re-test**: Verify improvements with fresh runs
-6. **Document model recommendations**: Based on comparative results
+This harness is specifically for **prompt and workflow wording iteration**.
 
-This harness tests **real agent performance** with measurable, repeatable criteria. Model selection becomes data-driven rather than guesswork.
+Related surfaces:
+- `tests/slider-autonomy-test-harness.md` focuses on autonomy behavior across low / medium / high.
+- Scenario fixtures under `tests/scenarios/` define the reusable comparison inputs.
+- `docs/helix/06-iterate/prompt-iteration-protocol.md` defines the repeatable decision loop and scoring rubric for these experiments.
+- Execution-doc conventions live in `docs/helix/02-design/contracts/CONTRACT-002-helix-execution-doc-conventions.md`.
+
+This harness should stay focused on answering:
+**Does a prompt or workflow wording change improve real HELIX execution outcomes on top of DDx?**
+
+---
+
+## Success Condition
+
+This harness is successful when HELIX maintainers can:
+- run the same bead from the same base revision across prompt variants
+- inspect preserved attempts instead of relying on ephemeral chat impressions
+- compare artifact quality and workflow outcomes together
+- determine whether a prompt change improves merge-eligible execution behavior
+- file precise follow-up beads when failures come from workflow contracts or DDx substrate gaps instead of prompt wording

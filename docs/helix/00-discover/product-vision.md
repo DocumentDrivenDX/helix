@@ -41,6 +41,9 @@ every action traces back to governing intent.
 - HELIX is **not waterfall**. The artifact hierarchy (vision → PRD → specs)
   is a set of abstractions at different zoom levels, not a sequential pipeline.
 
+The current ownership split is defined in
+[`CONTRACT-001: DDx / HELIX Boundary Contract`](../02-design/contracts/CONTRACT-001-ddx-helix-boundary.md).
+
 ## Vision
 
 HELIX becomes the default control system for spec-driven agent software
@@ -250,7 +253,7 @@ that humans can trust and steer.
 4. **DDX/HELIX boundary.** Some capabilities (feedback loops, measurement,
    optimization) could live in either DDX or HELIX. If the boundary isn't
    resolved cleanly, users will be confused about what's platform vs.
-   methodology.
+   methodology. `CONTRACT-001` exists to keep that split explicit and stable.
 
 5. **Transferability.** HELIX must be teachable without its creator present.
    The test of maturity is whether a new team member can pick it up and be

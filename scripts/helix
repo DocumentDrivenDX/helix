@@ -126,7 +126,7 @@ _helix_tee_pid=$!
 _helix_cleanup() {
   exec 2>&3 3>&-  # restore stderr, close fd 3
   if [[ -n "${_helix_tee_pid:-}" ]]; then
-    kill "$_helix_tee_pid" 2>/dev/null
+    kill "$_helix_tee_pid" 2>/dev/null || true
     wait "$_helix_tee_pid" 2>/dev/null || true
   fi
 }
@@ -677,7 +677,7 @@ run_start() {
 
   if _helix_pid_alive; then
     local pid; pid="$(cat "$pid_file")"
-    echo "helix: run already active (pid=$pid). Use 'helix stop' first." >&2
+    summary_line "run already active (pid=%s). Use 'helix stop' first." "$pid"
     return 1
   fi
 
@@ -688,7 +688,7 @@ run_start() {
   "$0" run --summary "$@" &
   local bg_pid=$!
   printf '%s\n' "$bg_pid" > "$pid_file"
-  printf 'helix: started (pid=%s, log=%s)\n' "$bg_pid" "$helix_log" >&2
+  summary_line "started (pid=%s, log=%s)" "$bg_pid" "$helix_log"
 }
 
 run_stop() {
@@ -697,7 +697,7 @@ run_stop() {
   pid_file="$(_helix_pid_file)"
 
   if [[ ! -f "$pid_file" ]]; then
-    echo "helix: no active run (no PID file)" >&2
+    summary_line "no active run (no PID file)"
     return 1
   fi
 
@@ -705,7 +705,7 @@ run_stop() {
 
   if ! kill -0 "$pid" 2>/dev/null; then
     rm -f "$pid_file"
-    echo "helix: stale PID file removed (pid=$pid was not running)" >&2
+    summary_line "stale PID file removed (pid=%s was not running)" "$pid"
     return 1
   fi
 
@@ -1349,9 +1349,9 @@ EOF
 
 require_clean_worktree() {
   if ! (cd "$target_root" && git diff --quiet && git diff --cached --quiet); then
-    echo "helix: worktree has uncommitted changes" >&2
-    echo "helix: please commit your changes before starting an experiment" >&2
-    echo "helix: experiment needs a clean worktree to safely branch and revert" >&2
+    summary_line "worktree has uncommitted changes"
+    summary_line "please commit your changes before starting an experiment"
+    summary_line "experiment needs a clean worktree to safely branch and revert"
     return 1
   fi
 }

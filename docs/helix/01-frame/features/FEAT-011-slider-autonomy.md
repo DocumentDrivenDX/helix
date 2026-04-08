@@ -68,14 +68,16 @@ The system shall distinguish between:
 
 High autonomy mode proceeds through resolvable conflicts; blocks only on physics-level.
 
+DDx preserve outcomes from bounded execution attempts (for example failed required executions or ratchet regressions) are **not** physics-level conflicts. They terminate the current DDx-managed attempt and hand control back to HELIX for escalation, follow-on beads, or user input.
+
 ### FR-05: Autonomy Slider Controls Flow Behavior
 The system shall support configurable autonomy level (per session or project):
 
 | Level | Behavior | Use Case |
 |-------|----------|----------|
-| **Low** | Ask before each graph traversal step; human approves change flow | Learning mode, critical systems |
-| **Medium** | Traverse graph autonomously, ask on conflicts/ambiguity | Default for most work |
-| **High** | Full autonomous traversal; escalate resolvable via beads; block only physics-level | Trusted contexts, rapid iteration |
+| **Low** | Ask before each graph step and before creating each downstream artifact; do **not** make changes until the user approves | Learning mode, critical systems |
+| **Medium** | Traverse graph autonomously, ask only on conflicts/ambiguity | Default for most work |
+| **High** | Continue end-to-end autonomously; escalate resolvable conflicts as non-blocking beads; only physics-level conflicts stop the supervisory workflow, while DDx preserve outcomes end the current bounded attempt and hand control back to HELIX | Trusted contexts, rapid iteration |
 
 ### FR-06: Minimal CLI Surface (Backward Compatible)
 CLI commands reduce to two core capabilities while maintaining backward compatibility:
@@ -123,6 +125,25 @@ For non-testable constraints (latency, security, compliance):
 - Automated checks collect metrics continuously
 - Threshold violations trigger reflow via beads
 
+## DDx Substrate vs HELIX Workflow Ownership
+
+This section summarizes the canonical boundary defined in [`CONTRACT-001`](../../02-design/contracts/CONTRACT-001-ddx-helix-boundary.md). If this feature text and the contract diverge, the contract is authoritative.
+
+**DDx owns the substrate**:
+- graph primitives (`[[ID]]` indexing, upstream/downstream traversal, reverse lookup)
+- graph-discovered execution docs and required validation execution
+- managed bead execution via `ddx agent execute-bead <bead-id> [--from <rev>] [--no-merge]`
+- runtime evidence capture, execution runs, metric projection, ratchet evaluation, and merge/preserve mechanics
+
+**HELIX owns the workflow semantics**:
+- autonomy behavior (`low` / `medium` / `high`)
+- authority ordering and artifact-flow policy
+- conflict classification and escalation behavior
+- workflow routing (`helix input`, `helix run`, follow-on bead creation)
+- prompt design and prompt-engineering strategy
+
+**Handoff contract**: HELIX decides scope, autonomy behavior, and workflow context; DDx executes the bounded bead and returns runtime evidence plus merge/preserve outcome; HELIX interprets that result to continue, escalate, or ask for input.
+
 ## Acceptance Criteria
 
 ### AC-01: Artifact Graph Metadata
@@ -141,9 +162,9 @@ For non-testable constraints (latency, security, compliance):
 - [ ] Physics-level conflicts block execution and require human resolution
 
 ### AC-04: Autonomy Slider Behavior
-- [ ] Low autonomy: asks before each graph step, human approves flow (verified via test scenarios)
-- [ ] Medium autonomy: autonomous traversal, asks on conflicts (default behavior)
-- [ ] High autonomy: full autonomous flow, escalates resolvable via beads, blocks only physics-level
+- [ ] Low autonomy: asks before each graph step and before creating each downstream artifact, human approves flow (verified via test scenarios)
+- [ ] Medium autonomy: autonomous traversal, asks on conflicts/ambiguity (default behavior)
+- [ ] High autonomy: full autonomous flow ("until blocked"), escalates resolvable conflicts via beads and blocks only physics-level conflicts at the supervisory level
 
 ### AC-05: CLI Simplification (Backward Compatible)
 - [ ] `helix input "<text>"` command accepts natural language and triggers graph traversal
@@ -161,6 +182,12 @@ For non-testable constraints (latency, security, compliance):
 - [ ] Existing skills remain functional (may be deprecated but not broken)
 - [ ] `helix run` loop continues to function with new bead types (`kind:escalation`, `kind:speculative`)
 
+### AC-08: DDx Handoff Is Observable
+- [ ] HELIX dispatches bounded implementation/verification work through `ddx agent execute-bead` rather than an implicit internal execution path
+- [ ] Preserve-vs-merge outcomes returned by DDx are observable inputs to HELIX workflow behavior (continue, escalate, or ask)
+- [ ] A DDx preserve outcome ends the current bounded attempt and returns control to HELIX without being misclassified as a physics-level conflict
+- [ ] Runtime evidence returned by DDx is sufficient for HELIX to interpret required execution outcomes and ratchet results without building a parallel execution store
+
 ## Non-Requirements
 
 - This feature does NOT replace the existing CLI/skill contract immediately (deprecation timeline defined)
@@ -173,6 +200,14 @@ For non-testable constraints (latency, security, compliance):
 - DDx tracker must support custom labels for escalation/gap/speculative beads (`kind:escalation`, `kind:speculative`)
 - Artifact stack must have complete `[[ID]]` cross-references for reliable traversal
 - Slider config schema needs to be defined and validated (`.helix/slider-config.yaml`)
+- DDx must provide the substrate defined in [`CONTRACT-001: DDx / HELIX Boundary Contract`](../../02-design/contracts/CONTRACT-001-ddx-helix-boundary.md), including graph primitives, managed bead execution, and runtime evidence capture
+
+### Autonomy Scope Contract (Explicit)
+- `low`: **ask-first** — do not proceed without explicit user confirmation per step and per downstream artifact creation
+- `medium`: **guided-autonomy** — ask when ambiguity or conflict blocks deterministic progress
+- `high`: **high-autonomy** — run to completion unless physics-level constraints stop progress; ordinary DDx preserve outcomes end the current bounded attempt and return control to HELIX, but are not themselves physics-level conflicts
+
+`helix input` SHOULD expose this as `--autonomy`.
 
 ## Risks
 
@@ -195,6 +230,8 @@ For non-testable constraints (latency, security, compliance):
 
 - [Artifact Hierarchy](../../../workflows/artifact-hierarchy.md) - canonical authority order and naming
 - [ADR-001: Supervisory Control Model](../../02-design/adr/ADR-001-supervisory-control-model.md) - helix-run as supervisor
+- [CONTRACT-001: DDx / HELIX Boundary Contract](../../02-design/contracts/CONTRACT-001-ddx-helix-boundary.md) - platform/workflow ownership split
+- [CONTRACT-002: HELIX Execution-Document Conventions](../../02-design/contracts/CONTRACT-002-helix-execution-doc-conventions.md) - how HELIX authors execution docs, metrics, and ratchet-backed validations for DDx discovery
 - [DDx BEAD Tracker](../features/FEAT-004-ddx-bead-tracker.md) - execution tracking conventions
 
 ---

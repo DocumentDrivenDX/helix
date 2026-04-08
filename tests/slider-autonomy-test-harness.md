@@ -1,526 +1,500 @@
 # Slider Autonomy Test Harness
 
-This document defines **concrete, measurable tests** for the slider autonomy feature before merge.
+This harness defines **observable workflow tests** for HELIX autonomy behavior on top of the DDx execution substrate.
+
+It replaces the earlier implementation-sketch tests for regex parsing and homemade graph traversal internals. Those substrate concerns belong in DDx. This harness tests the HELIX-owned behavior contract:
+- when HELIX asks
+- when HELIX proceeds
+- when HELIX escalates
+- when HELIX dispatches bounded work to DDx
+- how HELIX interprets DDx merge vs preserve outcomes
+
+## Scope
+
+This harness covers the **autonomy and handoff slice** of the behavior described by:
+- `FEAT-011`
+- `TD-011`
+- `CONTRACT-001`
+- `CONTRACT-002`
+
+It does **not** attempt to cover every acceptance area in those documents. In particular, graph primitives, full impact-detection coverage, authority ordering, verification traceback, and execution-doc authoring conventions are covered elsewhere and should have their own focused tests.
+
+This harness specifically tests:
+- `low` / `medium` / `high` as **HELIX semantics**, not DDx permissions
+- explicit HELIX→DDx handoff through `ddx agent execute-bead`
+- resolvable vs physics-level conflict handling
+- gap/speculative bead creation when the graph cannot support safe continuation
+- preserve-vs-merge interpretation after bounded DDx attempts
+- graph-aware planning behavior as seen through beads, questions, and dispatches
+
+---
 
 ## Philosophy
 
-- No "it works" assertions - only observable outputs
-- Tests run against fixture projects with known inputs/outputs
-- Measurable: pass/fail based on exact output comparison
-- Can be run manually or automated via CI
+- No invisible reasoning claims; only observable workflow outputs count.
+- The test surface is the **real HELIX workflow**, not a mocked internal algorithm.
+- DDx is treated as the execution substrate; HELIX is treated as the workflow supervisor.
+- Every assertion must be checkable from a transcript, bead state, or DDx outcome summary.
+- Preserve outcomes are not failures by default; they are workflow-relevant results.
 
 ---
 
-## Test 1: Artifact ID Parsing
+## Required Observable Surfaces
 
-**Goal**: Verify `[[ID]]` extraction handles all real-world patterns.
+Each autonomy run must emit enough evidence to judge behavior from the outside.
+
+### HELIX-side evidence
+- input request or bead selector
+- selected autonomy level
+- questions asked to the user, if any
+- beads created or updated
+- escalation beads created, if any
+- summary of intended graph impact / downstream work
+- supervisory decision: ask, dispatch, continue, escalate, or block
+
+### DDx-side evidence
+- explicit dispatch event to `ddx agent execute-bead <bead-id> [--from <rev>] [--no-merge]`
+- attempt outcome: merged or preserved
+- required execution summary
+- ratchet summary
+- runtime evidence with at least:
+  - harness
+  - model
+  - session ID
+  - elapsed duration
+  - token usage
+  - cost
+  - base revision
+  - result revision
+
+### Tracker evidence
+- created follow-up beads
+- escalation beads (`kind:escalation`) when applicable
+- speculative or gap beads if policy creates them
+
+If these surfaces are missing, the harness cannot pass because the workflow is not observable enough.
+
+---
+
+## Common Test Inputs
+
+Use scenario fixtures under `tests/scenarios/` once they are updated for the DDx-backed workflow.
+
+Each scenario should provide:
+- vision / intent
+- constraints
+- expected artifacts
+- `workflow.md` describing starting input/bead form, autonomy-specific behavior, validations, and merge-vs-preserve interpretation
+- expected execution-doc / ratchet interpretation where relevant
+
+### Scenario roles
+
+| Scenario | Primary use |
+|---|---|
+| A | low-noise baseline for ask-first vs autonomous behavior |
+| B | resolvable ambiguity and operational constraints |
+| C | complex planning, escalation quality, bounded autonomy under pressure |
+| Contradiction fixture | true physics-level blocking behavior |
+
+The contradiction fixture may be a dedicated small test input rather than a full scenario.
+
+---
+
+## Evidence Record Per Run
+
+For each test run, capture a record with at least these fields:
+
+```yaml
+run:
+  scenario: A
+  autonomy: low
+  input: "build a REST API for managing user profiles"
+  base_revision: <sha>
+  bead_ids_created:
+    - hx-...
+  questions_asked:
+    - "Which OAuth provider should we start with?"
+  dispatches:
+    - bead: hx-...
+      command: ddx agent execute-bead <bead-id> --from <rev> --no-merge
+  ddx_outcomes:
+    - bead: hx-...
+      result: preserved
+      required_executions: fail
+      ratchets: pass
+      runtime:
+        harness: forge
+        model: qwen3.5-27b
+        session_id: s-...
+        elapsed_ms: 12345
+        tokens: 9876
+        cost_usd: 0.42
+        base_revision: abc1234
+        result_revision: def5678
+  supervisory_outcome: ask
+```
+
+The exact serialization can vary. The fields themselves are the contract.
+
+---
+
+## Expected Behavior Summary by Autonomy Level
+
+| Autonomy | Expected HELIX behavior |
+|---|---|
+| `low` | Ask before each graph step and before each downstream artifact creation; do not dispatch DDx work without approval |
+| `medium` | Traverse and plan autonomously; ask when ambiguity or conflict blocks deterministic progress |
+| `high` | Continue end-to-end unless a physics-level contradiction blocks the workflow; create escalation beads for resolvable conflicts; dispatch DDx work when a bounded bead is ready |
+
+Important:
+- a DDx **preserve** outcome ends the current bounded attempt and returns control to HELIX
+- a DDx preserve outcome is **not** automatically a physics-level conflict
+- physics-level conflicts block the supervisory workflow before or during planning because the governing intent is contradictory
+
+---
+
+## Test Matrix
+
+| Test | Scenario / fixture | Autonomy | Main assertion |
+|---|---|---|---|
+| 1 | A | low | ask before first graph step |
+| 2 | A | low | ask before downstream artifact creation |
+| 3 | B | medium | autonomous traversal, ask on ambiguity |
+| 4 | B | high | resolvable conflict creates escalation bead and still dispatches |
+| 5 | contradiction fixture | high | physics-level conflict blocks before DDx dispatch |
+| 6 | missing-link fixture | medium/high | gap/speculative bead is created when required upstream support is missing |
+| 7 | B or C | high | DDx preserve returns to HELIX as preserve-only result, not physics-level |
+| 8 | A or B | medium/high | DDx merge outcome allows HELIX to continue/report |
+
+---
+
+## Test 1: Low Autonomy Asks Before First Graph Step
+
+**Goal:** verify `low` autonomy is truly ask-first.
 
 ### Setup
-```bash
-# Create test fixture file
-cat > /tmp/test-crossrefs.md << 'EOF'
-# Test Document
+- Use Scenario A or another simple fixture with a clear path.
+- Start from sparse user intent through `helix input "..." --autonomy low` once that surface exists.
+- Equivalent pre-command test setup is acceptable if it preserves the same workflow semantics.
 
-References: [[US-036-list-mcp-servers]], [[FEAT-011]], [[TD-001]]
-Also: [[helix.workflow.artifact-hierarchy]], [[ADR-001]]
-And slugs: [[US-999-completely-different-feature-name]]
-EOF
-
-# Run extraction command from TD-011 Decision 2
-rg '\[\[([A-Z]+-\d+(?:-[a-z0-9-]+)?|helix(?:\.[a-z][a-z-]*)+)\]\]' /tmp/test-crossrefs.md | \
-  sed 's/.*\[\[\([^]]*\)\]\].*/\1/' | sort -u
+### Input
+```text
+"Build a CLI tool that converts temperatures between Celsius, Fahrenheit, and Kelvin."
 ```
 
-### Expected Output (exact match)
-```
-ADR-001
-FEAT-011
-TD-001
-US-036-list-mcp-servers
-US-999-completely-different-feature-name
-helix.workflow.artifact-hierarchy
-```
+### Expected observable behavior
+- HELIX does **not** immediately create downstream artifacts.
+- HELIX asks at least one explicit approval question before the first graph/planning step.
+- HELIX does **not** dispatch `ddx agent execute-bead` yet.
 
-### Pass Criteria
-```bash
-# Save expected output
-cat > /tmp/expected-ids.txt << 'EOF'
-ADR-001
-FEAT-011
-TD-001
-US-036-list-mcp-servers
-US-999-completely-different-feature-name
-helix.workflow.artifact-hierarchy
-EOF
+### Pass criteria
+- `questions_asked >= 1` before any downstream artifact creation
+- `dispatches = 0`
+- no implementation bead is executed yet
 
-# Compare (exit 0 = pass)
-diff -q /tmp/expected-ids.txt <(rg '\[\[([A-Z]+-\d+(?:-[a-z0-9-]+)?|helix(?:\.[a-z][a-z-]*)+)\]\]' /tmp/test-crossrefs.md | sed 's/.*\[\[\([^]]*\)\]\].*/\1/' | sort -u)
-echo $?  # Should be 0
-```
+### Fail examples
+- HELIX immediately creates PRD / FEAT / TD artifacts without asking
+- HELIX dispatches DDx work before user approval
 
 ---
 
-## Test 2: Reverse Index Construction
+## Test 2: Low Autonomy Asks Before Each Downstream Artifact Creation
 
-**Goal**: Verify downstream dependency mapping works correctly.
+**Goal:** verify low autonomy asks repeatedly, not just once.
 
 ### Setup
-Create minimal fixture project in `/tmp/test-project/`:
+- Continue from Test 1 after the user approves the first step.
+- Use a fixture where at least two downstream artifacts would normally be created.
 
-```bash
-mkdir -p /tmp/test-project/docs/helix/{01-frame/features,01-frame/user-stories,02-design/technical-designs}
+### Expected observable behavior
+Before each new downstream artifact or major graph step, HELIX asks again.
 
-# FEAT-001 references US-001 and US-002
-cat > /tmp/test-project/docs/helix/01-frame/features/FEAT-001-test.md << 'EOF'
-# FEAT-001: Test Feature
-**User Stories**: [[US-001-first]], [[US-002-second]]
-EOF
+Examples:
+- ask before creating the PRD
+- ask before decomposing into features
+- ask before creating a technical-design bead
 
-# US-001 references TD-001
-cat > /tmp/test-project/docs/helix/01-frame/user-stories/US-001-first.md << 'EOF'
-# US-001: First Story
-**Technical Design**: [[TD-001]]
-EOF
+### Pass criteria
+- for a run that reaches `n` downstream artifact-creation steps, HELIX records `n` corresponding approvals or questions
+- no silent batch creation of multiple downstream artifacts under low autonomy
+- no DDx dispatch occurs until the relevant implementation bead is explicitly approved
 
-# US-002 references TD-002
-cat > /tmp/test-project/docs/helix/01-frame/user-stories/US-002-second.md << 'EOF'
-# US-002: Second Story
-**Technical Design**: [[TD-002]]
-EOF
-
-# TD-001 references TP-001
-cat > /tmp/test-project/docs/helix/02-design/technical-designs/TD-001-first.md << 'EOF'
-# TD-001: First Design
-**Test Plan**: [[TP-001]]
-EOF
-
-# TD-002 references TP-002
-cat > /tmp/test-project/docs/helix/02-design/technical-designs/TD-002-second.md << 'EOF'
-# TD-002: Second Design
-**Test Plan**: [[TP-002]]
-EOF
-
-# TP files (leaf nodes)
-echo "# TP-001" > /tmp/test-project/docs/helix/03-test/test-plans/TP-001.md
-echo "# TP-002" > /tmp/test-project/docs/helix/03-test/test-plans/TP-002.md
-```
-
-### Test: Downstream Traversal from FEAT-001
-
-```bash
-cd /tmp/test-project
-
-# Expected downstream artifacts when FEAT-001 changes:
-cat > /tmp/expected-downstream.txt << 'EOF'
-TD-001
-TD-002
-TP-001
-TP-002
-US-001-first
-US-002-second
-EOF
-
-# Run traversal (simplified version - actual implementation would use reverse index)
-# For now, test the concept: find all artifacts that transitively reference FEAT-001
-
-find_downstream() {
-    local start_id="$1"
-    local current_ids=("$start_id")
-    local visited=()
-    
-    while [ ${#current_ids[@]} -gt 0 ]; do
-        local id="${current_ids[0]}"
-        current_ids=("${current_ids[@]:1}")
-        
-        # Skip if already visited
-        [[ " ${visited[*]} " =~ " $id " ]] && continue
-        visited+=("$id")
-        
-        # Find all artifacts that reference this ID
-        local refs=$(rg "\[\[$id\]\]" docs/helix/ --glob "*.md" -l 2>/dev/null)
-        for file in $refs; do
-            # Extract the artifact ID from filename
-            local ref_id=$(basename "$file" .md | cut -d'/' -f1)
-            current_ids+=("$ref_id")
-        done
-    done
-    
-    # Output all visited except start node
-    printf '%s\n' "${visited[@]}" | grep -v "^$start_id$" | sort
-}
-
-find_downstream "FEAT-001" > /tmp/actual-downstream.txt
-
-# Compare (exit 0 = pass)
-diff -q /tmp/expected-downstream.txt /tmp/actual-downstream.txt && echo "PASS: Downstream traversal correct" || echo "FAIL: Mismatch"
-```
-
-### Pass Criteria
-- All downstream artifacts found: US-001, US-002, TD-001, TD-002, TP-001, TP-002
-- No false positives (artifacts not in chain)
+### Fail examples
+- HELIX asks once, then bulk-creates the rest
+- HELIX silently transitions from planning to execution
 
 ---
 
-## Test 3: Authority Ordering
+## Test 3: Medium Autonomy Traverses Autonomously but Asks on Ambiguity
 
-**Goal**: Verify artifacts are processed in correct canonical order.
+**Goal:** verify `medium` is guided autonomy, not ask-first and not full-autonomy.
 
 ### Setup
-```bash
-# Create test artifact list with mixed types
-cat > /tmp/test-artifacts.txt << 'EOF'
-TD-001-first-design
-US-001-first-story
-FEAT-001-test-feature
-TP-001-tests
-SD-001-solution
-ADR-001-decision
-prd.md
-vision.md
+Use Scenario B or similar input with a real ambiguity such as auth-provider choice.
+
+### Input
+```text
+"Build a REST API for managing user profiles with OAuth authentication. Needs to scale to 10k users initially."
 ```
 
-### Test: Sort by Authority Tier
+### Expected observable behavior
+- HELIX traverses the graph and creates or proposes the deterministic planning work without asking at every step.
+- HELIX asks when an ambiguity blocks deterministic progress.
+- HELIX does not classify ordinary design choices as physics-level contradictions.
 
-```bash
-# Define authority tiers (from TD-011)
-get_tier() {
-    case "$1" in
-        vision*) echo 0 ;;
-        prd*) echo 1 ;;
-        FEAT*) echo 2 ;;
-        US*) echo 3 ;;
-        ADR*|architecture*) echo 4 ;;
-        SD*) echo 5 ;;
-        TD*) echo 6 ;;
-        TP*) echo 7 ;;
-        tests*) echo 8 ;;
-        implementation_plan*) echo 9 ;;
-        code*) echo 10 ;;
-    esac
-}
+### Observable ambiguity examples
+- which OAuth provider to start with
+- default rate-limit values
+- framework choice when several options satisfy constraints equally
 
-# Sort artifacts by tier
-while read artifact; do
-    tier=$(get_tier "$artifact")
-    echo "$tier $artifact"
-done < /tmp/test-artifacts.txt | sort -n | cut -d' ' -f2 > /tmp/sorted-artifacts.txt
+### Pass criteria
+- some planning beads or artifact intentions are produced without a per-step approval loop
+- at least one question or escalation appears for the true ambiguity
+- if execution is not yet blocked, HELIX may still prepare bounded beads for later DDx dispatch
 
-cat /tmp/sorted-artifacts.txt
-```
-
-### Expected Output (exact match)
-```
-vision.md
-prd.md
-FEAT-001-test-feature
-US-001-first-story
-ADR-001-decision
-SD-001-solution
-TD-001-first-design
-TP-001-tests
-```
-
-### Pass Criteria
-```bash
-cat > /tmp/expected-order.txt << 'EOF'
-vision.md
-prd.md
-FEAT-001-test-feature
-US-001-first-story
-ADR-001-decision
-SD-001-solution
-TD-001-first-design
-TP-001-tests
-EOF
-
-diff -q /tmp/expected-order.txt /tmp/sorted-artifacts.txt && echo "PASS: Authority ordering correct" || echo "FAIL: Order mismatch"
-```
+### Fail examples
+- medium behaves like low and asks before every step
+- medium behaves like high and silently assumes all ambiguous details without surfacing them
 
 ---
 
-## Test 4: Conflict Classification
+## Test 4: High Autonomy Escalates Resolvable Conflicts but Still Dispatches
 
-**Goal**: Verify resolvable vs physics-level detection works correctly.
+**Goal:** verify `high` autonomy continues through resolvable conflicts.
 
 ### Setup
-Create test cases with known conflict types:
+Use Scenario B or C with a resolvable conflict, such as an implementation choice where multiple valid options exist.
+
+### Example resolvable conflict
+- PostgreSQL is required, but partitioning / hosting / OAuth-provider choice is still open
+- a design tradeoff exists without contradiction in the governing intent
+
+### Expected observable behavior
+- HELIX creates an escalation bead for the unresolved choice if traceability requires it
+- HELIX continues creating bounded work instead of blocking the whole workflow
+- once a bead is ready, HELIX dispatches DDx execution
+
+### Pass criteria
+- at least one `kind:escalation` bead is created for the resolvable issue
+- supervisory outcome is **continue** or **dispatch**, not **block**
+- at least one DDx dispatch occurs:
 
 ```bash
-mkdir -p /tmp/conflict-tests/{resolvable,physics}
-
-# Resolvable: Technology choice (Postgres vs SQLite)
-cat > /tmp/conflict-tests/resolvable/tech-choice.md << 'EOF'
-## Constraints
-- Must use a relational database
-- Prefer PostgreSQL for production workloads
-EOF
-
-cat > /tmp/conflict-tests/resolvable/tech-choice-alt.md << 'EOF'
-## Constraints  
-- Database layer should support SQLite for embedded deployments
-EOF
-
-# Physics-level: True contradiction
-cat > /tmp/conflict-tests/physics/contradiction.md << 'EOF'
-## Requirements
-- System must process requests in real-time (< 100ms)
-- All processing must be batch-only (no streaming allowed)
-EOF
+ddx agent execute-bead <bead-id> --from <rev> --no-merge
 ```
 
-### Test: Classification Heuristic
-
-```bash
-# Simple heuristic test - check for contradiction patterns
-classify_conflict() {
-    local file="$1"
-    
-    # Check for physics-level patterns in structured sections only
-    if grep -A5 "## Requirements\|## Constraints" "$file" | \
-       rg -i "(real-time.*batch-only|must.*NOT.*must|only.*alternative)"; then
-        echo "physics-level"
-    else
-        echo "resolvable"
-    fi
-}
-
-# Test resolvable case
-result=$(classify_conflict /tmp/conflict-tests/resolvable/tech-choice.md)
-[ "$result" = "resolvable" ] && echo "PASS: Tech choice classified as resolvable" || echo "FAIL: Expected resolvable, got $result"
-
-# Test physics-level case  
-result=$(classify_conflict /tmp/conflict-tests/physics/contradiction.md)
-[ "$result" = "physics-level" ] && echo "PASS: Contradiction classified as physics-level" || echo "FAIL: Expected physics-level, got $result"
-```
-
-### Pass Criteria
-- Technology choices → resolvable (can escalate via bead)
-- True contradictions → physics-level (block execution)
+### Fail examples
+- resolvable conflict is treated as physics-level and blocks everything
+- no escalation bead is recorded despite ambiguity requiring traceability
+- high autonomy still asks the user before every move
 
 ---
 
-## Test 5: End-to-End Impact Detection
+## Test 5: Physics-Level Conflict Blocks Before DDx Dispatch
 
-**Goal**: Verify complete flow from input to downstream beads.
+**Goal:** verify true contradictions stop the supervisory workflow.
 
 ### Setup
-Use the fixture project from Test 2, add a "helix input" simulation:
+Use a dedicated contradiction fixture.
 
-```bash
-cd /tmp/test-project
-
-# Simulate user input that should impact FEAT-001
-INPUT="change the authentication requirement in feature one"
-
-# Expected impacted artifacts (based on graph traversal)
-cat > /tmp/expected-impacted.txt << 'EOF'
-FEAT-001-test-feature
-TD-001-first-design
-TD-002-second-design
-TP-001-tests
-TP-002-tests
-US-001-first-story
-US-002-second-story
+### Input
+```text
+Requirements:
+- System must process requests in real time (<100ms)
+- All processing must be batch-only
 ```
 
-### Test: Full Impact Detection Pipeline
+### Expected observable behavior
+- HELIX classifies this as physics-level
+- HELIX blocks supervisory progress
+- HELIX does not dispatch bounded implementation work to DDx for the contradictory path
+- HELIX asks for human resolution or creates a blocking escalation record
 
-```bash
-# Phase 1: Search for "feature one" or "authentication" in artifacts
-search_terms=("feature" "authentication")
-impacted=()
+### Pass criteria
+- conflict class is recorded as physics-level
+- supervisory outcome is **block** or **ask for resolution**
+- `dispatches = 0` for the blocked path
 
-for term in "${search_terms[@]}"; do
-    # Find matching artifacts
-    matches=$(rg "$term" docs/helix/ --glob "*.md" -l 2>/dev/null)
-    for file in $matches; do
-        id=$(basename "$file" .md | cut -d'/' -f1)
-        impacted+=("$id")
-        
-        # Phase 2: Add downstream artifacts (using reverse index concept)
-        # Simplified: find all that reference this ID
-        downstream=$(rg "\[\[$id\]\]" docs/helix/ --glob "*.md" -l 2>/dev/null | \
-                     xargs -I{} basename {} .md | cut -d'/' -f1)
-        impacted+=("$downstream")
-    done
-done
-
-# Deduplicate and sort
-printf '%s\n' "${impacted[@]}" | sort -u > /tmp/actual-impacted.txt
-
-cat /tmp/actual-impacted.txt
-```
-
-### Pass Criteria
-```bash
-# Check that all expected artifacts are in actual output (subset check)
-all_found=true
-while read expected; do
-    if ! grep -q "^$expected$" /tmp/actual-impacted.txt; then
-        echo "MISSING: $expected"
-        all_found=false
-    fi
-done < /tmp/expected-impacted.txt
-
-if [ "$all_found" = true ]; then
-    echo "PASS: All expected artifacts detected"
-else
-    echo "FAIL: Some artifacts missing from impact detection"
-fi
-```
+### Fail examples
+- HELIX creates implementation beads and dispatches anyway
+- HELIX downgrades the contradiction to an ordinary escalation bead and continues silently
 
 ---
 
-## Test 6: Verification Loop Traceback
+## Test 6: Missing Graph Support Creates a Gap / Speculative Bead
 
-**Goal**: Verify failing test traces back to correct spec.
+**Goal:** verify HELIX records missing-support cases explicitly instead of silently continuing.
 
 ### Setup
-Create test file with spec reference metadata:
+Use a fixture where the requested downstream work depends on an upstream artifact, execution doc, or graph link that does not yet exist or is clearly incomplete.
 
-```bash
-mkdir -p /tmp/verification-test/tests
+Examples:
+- a requested change implies a TD or TP that has no governing upstream artifact yet
+- a bounded bead is ready in principle, but required supporting graph context is absent
 
-cat > /tmp/verification-test/tests/auth.test.js << 'EOF'
-/**
- * @spec-ref TD-001-auth-design
- * @requirement TC-001
- */
-test('authentication returns 200 on valid token', async () => {
-    const response = await auth('/api/login', { token: 'valid-token' });
-    expect(response.status).toBe(200);  // This will fail - actual is 401
-});
-EOF
+### Expected observable behavior
+- HELIX does not silently invent hidden context and proceed as if the graph were complete
+- HELIX creates a follow-up bead to represent the gap
+- the bead is marked as speculative / gap work according to the workflow policy in force
+- HELIX may continue other safe work, but the missing-support path stays explicit
 
-# Create corresponding spec
-mkdir -p /tmp/verification-test/docs/helix/02-design/technical-designs
-cat > /tmp/verification-test/docs/helix/02-design/technical-designs/TD-001-auth-design.md << 'EOF'
-# TD-001: Auth Design
-**User Story**: [[US-001-auth]]
+### Pass criteria
+- at least one bead is created for the missing-support condition
+- the bead is labeled or classified as `kind:speculative`, gap work, or equivalent explicit missing-context state
+- the transcript or summary explains what governing support is missing
 
-## API Response Format
-Authentication endpoint returns 200 on valid token.
-EOF
-```
-
-### Test: Extract Spec Reference and Trace Back
-
-```bash
-cd /tmp/verification-test
-
-# Step 1: Parse test metadata
-spec_ref=$(grep '@spec-ref' tests/auth.test.js | sed 's/.*@spec-ref \([^ ]*\).*/\1/')
-echo "Found spec reference: $spec_ref"
-
-# Step 2: Verify spec exists and extract upstream refs
-if [ -f "docs/helix/02-design/technical-designs/$spec_ref.md" ]; then
-    echo "PASS: Spec file found"
-    
-    # Extract upstream references from spec
-    upstream=$(grep '\[\[US-' "docs/helix/02-design/technical-designs/$spec_ref.md" | \
-               sed 's/.*\[\[\([^]]*\)\]\].*/\1/')
-    echo "Upstream reference: $upstream"
-    
-    # Verify upstream exists
-    if [ -f "docs/helix/01-frame/user-stories/$upstream.md" ]; then
-        echo "PASS: Upstream artifact found - traceback chain complete"
-    else
-        echo "FAIL: Upstream artifact missing"
-    fi
-else
-    echo "FAIL: Spec file not found"
-fi
-```
-
-### Pass Criteria
-- Test metadata correctly parsed (`@spec-ref TD-001-auth-design`)
-- Spec file exists and contains upstream reference
-- Upstream artifact (US-001-auth) can be located
+### Fail examples
+- HELIX silently proceeds as though the missing upstream artifact existed
+- HELIX drops the missing-support path without a bead
 
 ---
 
-## Running All Tests
+## Test 7: DDx Preserve Outcome Returns Control to HELIX Without Reclassifying the Conflict
 
-Create a test runner script:
+**Goal:** verify preserve handling matches the boundary contract.
 
-```bash
-cat > /tmp/run-slider-tests.sh << 'EOF'
-#!/bin/bash
-set -e
+### Setup
+Use a bead whose linked required executions can fail in a controlled way.
+Examples:
+- required execution doc fails
+- ratchet floor regresses
 
-echo "=== Slider Autonomy Test Suite ==="
-echo ""
+### Expected DDx outcome
+- DDx returns `preserved`
+- required execution summary and/or ratchet summary explains why the attempt did not land
 
-# Track results
-passed=0
-failed=0
+### Expected HELIX behavior
+- HELIX interprets the attempt as preserve-only
+- HELIX does **not** label the result itself as a physics-level conflict
+- HELIX chooses a supervisory next step such as:
+  - ask for input
+  - create a follow-up bead
+  - escalate
+  - revise prompt/workflow wording
 
-run_test() {
-    local name="$1"
-    local cmd="$2"
-    
-    echo "--- Test: $name ---"
-    if eval "$cmd"; then
-        ((passed++))
-        return 0
-    else
-        ((failed++))
-        return 1
-    fi
-}
+### Pass criteria
+- DDx outcome recorded as `preserved`
+- HELIX outcome recorded as one of: `ask`, `escalate`, `follow-up`, `revise`
+- no false `physics-level` classification unless the governing intent is separately contradictory
 
-# Run individual tests (implement each as described above)
-run_test "ID Parsing" "bash /tmp/test-1-parsing.sh" || true
-run_test "Reverse Index" "bash /tmp/test-2-reverse-index.sh" || true  
-run_test "Authority Ordering" "bash /tmp/test-3-authority.sh" || true
-run_test "Conflict Classification" "bash /tmp/test-4-conflicts.sh" || true
-run_test "Impact Detection" "bash /tmp/test-5-impact.sh" || true
-run_test "Verification Traceback" "bash /tmp/test-6-traceback.sh" || true
-
-echo ""
-echo "=== Results ==="
-echo "Passed: $passed"
-echo "Failed: $failed"
-echo ""
-
-if [ $failed -eq 0 ]; then
-    echo "✓ All tests passed - ready for merge"
-    exit 0
-else
-    echo "✗ Some tests failed - fix before merging"
-    exit 1
-fi
-EOF
-
-chmod +x /tmp/run-slider-tests.sh
-```
+### Fail examples
+- every preserve is treated as a workflow-halting contradiction
+- HELIX loses the DDx evidence and cannot explain why the attempt was preserved
 
 ---
 
-## Merge Gate Checklist
+## Test 8: DDx Merge Outcome Allows Workflow Continuation
 
-Before merging slider autonomy changes:
+**Goal:** verify successful bounded execution feeds the next HELIX step.
 
-- [ ] Test 1 (ID Parsing): PASS
-- [ ] Test 2 (Reverse Index): PASS  
-- [ ] Test 3 (Authority Ordering): PASS
-- [ ] Test 4 (Conflict Classification): PASS
-- [ ] Test 5 (Impact Detection): PASS
-- [ ] Test 6 (Verification Traceback): PASS
-- [ ] All existing HELIX tests still pass (`bash tests/helix-cli.sh`)
-- [ ] No regressions in artifact hierarchy
+### Setup
+Use a simple merge-eligible bead from Scenario A or B.
 
-**Run command**: `bash /tmp/run-slider-tests.sh`
+### Expected DDx outcome
+- `merged`
+- required executions pass
+- ratchets pass
+
+### Expected HELIX behavior
+After a merged outcome, HELIX continues to the next supervisory step, such as:
+- measure
+- report
+- next bead selection
+- additional bounded dispatch if the workflow requires it
+
+### Pass criteria
+- DDx outcome recorded as `merged`
+- HELIX records a continuation step rather than asking for conflict resolution
+- no preserve-only or contradiction language is attached to the merged attempt
 
 ---
 
-## Notes for Implementation
+## Comparison Rules Across Autonomy Levels
 
-When implementing the actual feature:
+Use these cross-checks to avoid false positives.
 
-1. **Replace test fixtures with real code** - These bash scripts become unit tests
-2. **Add to CI pipeline** - Run on every PR before merge
-3. **Extend coverage** - Add more edge cases (circular refs, missing artifacts, etc.)
-4. **Performance testing** - Measure traversal time on large artifact graphs
+### Low vs Medium
+- If both behave the same, the test fails.
+- Low must ask earlier and more often.
+- Medium must proceed further before asking.
 
-This harness proves the design works before any production code is written.
+### Medium vs High
+- If both stop on resolvable ambiguity, the test fails.
+- High must continue via escalation beads where medium may ask.
+
+### High vs Physics-Level Fixture
+- High must continue through resolvable conflicts.
+- High must still stop on true contradictions.
+
+---
+
+## Minimal Result Table
+
+Use a table like this for each test set:
+
+| Test | Scenario | Autonomy | Questions | Escalation beads | Gap/spec beads | DDx dispatches | DDx outcome | Supervisory outcome | Pass? |
+|---|---|---|---:|---:|---:|---:|---|---|---|
+| 1 | A | low | 2 | 0 | 0 | 0 | none | ask | pass |
+| 3 | B | medium | 1 | 0 | 0 | 0 or 1 | none/preserved | ask | pass |
+| 4 | B | high | 0 | 1 | 0 | 1 | preserved | continue then escalate | pass |
+| 5 | contradiction | high | 1 | 0 or 1 | 0 | 0 | none | block | pass |
+| 6 | missing-link | medium/high | 0 or 1 | 0 | 1 | 0 or 1 | none/preserved | follow-up | pass |
+| 7 | B | high | 0 | 1 | 0 | 1 | preserved | follow-up | pass |
+| 8 | A | high | 0 | 0 | 0 | 1 | merged | continue | pass |
+
+---
+
+## Merge Gate for FEAT-011
+
+Before slider autonomy can move beyond planning, this harness should demonstrate:
+
+- [ ] low autonomy asks before graph progression and downstream artifact creation
+- [ ] medium autonomy proceeds deterministically and asks on ambiguity/conflict
+- [ ] high autonomy escalates resolvable conflicts without blocking the whole workflow
+- [ ] physics-level contradictions block supervisory progress
+- [ ] missing-support conditions create explicit gap/speculative beads instead of silent continuation
+- [ ] HELIX dispatches bounded work through `ddx agent execute-bead`
+- [ ] DDx preserve outcomes are visible and interpreted correctly by HELIX
+- [ ] DDx merge outcomes allow workflow continuation
+- [ ] results are observable from transcript, tracker, and DDx outcome evidence, including minimum runtime fields from `CONTRACT-001`
+
+---
+
+## Failure Classification
+
+When a test fails, classify the failure.
+
+### HELIX semantic failure
+Examples:
+- low autonomy failed to ask
+- medium autonomy asked too early or too often
+- high autonomy blocked on a resolvable conflict
+- preserve outcome was misclassified as physics-level
+
+### Fixture failure
+Examples:
+- scenario did not contain a real ambiguity
+- contradiction fixture was not actually contradictory
+- expected behavior was underspecified
+
+### DDx substrate failure
+Examples:
+- no visible execute-bead dispatch evidence
+- preserved attempt evidence missing
+- required execution or ratchet summaries not surfaced
+
+Only semantic failures should directly drive changes to FEAT-011 / TD-011 behavior. Fixture and substrate failures should create follow-up beads.
+
+---
+
+## Relationship to Other Test Docs
+
+- `tests/prompt-engineering-harness.md` compares prompt variants using preserved bead attempts.
+- `docs/helix/06-iterate/prompt-iteration-protocol.md` defines the repeatable scoring rubric and decision loop for those experiments.
+- `tests/scenarios/` provides reusable scenario fixtures.
+- `CONTRACT-001` defines the DDx / HELIX ownership split.
+- `CONTRACT-002` defines the execution-doc conventions that make required-execution and ratchet behavior discoverable.
+
+This harness focuses on one question:
+
+**Does HELIX exhibit the intended low / medium / high workflow behavior on top of DDx-managed execution?**
