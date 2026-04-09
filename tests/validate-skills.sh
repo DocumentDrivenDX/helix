@@ -3,7 +3,8 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 skills_dir="$repo_root/skills"
-package_dir="$repo_root/.agents/skills"
+agents_package_dir="$repo_root/.agents/skills"
+claude_package_dir="$repo_root/.claude/skills"
 
 declare -A skills_requiring_argument_hint=(
   [helix-align]=1
@@ -77,7 +78,8 @@ extract_field() {
 }
 
 [[ -d "$skills_dir" ]] || fail "missing skills directory at $skills_dir"
-[[ -d "$package_dir" ]] || fail "missing package directory at $package_dir"
+[[ -d "$agents_package_dir" ]] || fail "missing package directory at $agents_package_dir"
+[[ -d "$claude_package_dir" ]] || fail "missing package directory at $claude_package_dir"
 
 shopt -s nullglob
 skill_dirs=("$skills_dir"/helix-*)
@@ -90,24 +92,45 @@ mapfile -t expected_skills < <(
   done | sort
 )
 
-mapfile -t published_skills < <(
-  for path in "$package_dir"/*; do
+# Validate .agents/skills/ symlinks
+mapfile -t agents_published_skills < <(
+  for path in "$agents_package_dir"/*; do
     [[ -e "$path" || -L "$path" ]] || continue
     printf '%s\n' "${path##*/}"
   done | sort
 )
 
+# Validate .claude/skills/ symlinks
+mapfile -t claude_published_skills < <(
+  for path in "$claude_package_dir"/*; do
+    [[ -e "$path" || -L "$path" ]] || continue
+    printf '%s\n' "${path##*/}"
+  done | sort
+)
+
+# Check .agents/skills/ matches skills/
 expected_list="$(printf '%s\n' "${expected_skills[@]}")"
-published_list="$(printf '%s\n' "${published_skills[@]}")"
-[[ "$expected_list" == "$published_list" ]] || fail "published skills in .agents/skills do not match skills/"
+agents_published_list="$(printf '%s\n' "${agents_published_skills[@]}")"
+[[ "$expected_list" == "$agents_published_list" ]] || fail "published skills in .agents/skills do not match skills/"
+
+# Check .claude/skills/ matches skills/
+claude_published_list="$(printf '%s\n' "${claude_published_skills[@]}")"
+[[ "$expected_list" == "$claude_published_list" ]] || fail "published skills in .claude/skills do not match skills/"
 
 for name in "${expected_skills[@]}"; do
   skill_file="$skills_dir/$name/SKILL.md"
-  package_link="$package_dir/$name"
+  agents_package_link="$agents_package_dir/$name"
+  claude_package_link="$claude_package_dir/$name"
 
   [[ -f "$skill_file" ]] || fail "missing SKILL.md for $name"
-  [[ -L "$package_link" ]] || fail "expected $package_link to be a symlink"
-  [[ "$(readlink "$package_link")" == "../../skills/$name" ]] || fail "expected $package_link to target ../../skills/$name"
+
+  # Validate .agents/skills/ symlinks
+  [[ -L "$agents_package_link" ]] || fail "expected $agents_package_link to be a symlink"
+  [[ "$(readlink "$agents_package_link")" == "../../skills/$name" ]] || fail "expected $agents_package_link to target ../../skills/$name"
+
+  # Validate .claude/skills/ symlinks
+  [[ -L "$claude_package_link" ]] || fail "expected $claude_package_link to be a symlink"
+  [[ "$(readlink "$claude_package_link")" == "../../skills/$name" ]] || fail "expected $claude_package_link to target ../../skills/$name"
 
   frontmatter="$(extract_frontmatter "$skill_file")"
   [[ -n "$frontmatter" ]] || fail "missing frontmatter in $skill_file"
