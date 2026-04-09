@@ -80,7 +80,6 @@ phases:
         - security-architecture
         - data-design
         - auth-design
-        - data-protection
         - proof-of-concept
         - tech-spike
     entry_gate:

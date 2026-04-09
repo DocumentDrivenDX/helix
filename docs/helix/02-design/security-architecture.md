@@ -47,3 +47,16 @@ control surface that shapes implementation and testing.
 `security-architecture` is not replaced by `architecture` or `threat-model`.
 Those artifacts are upstream inputs. The security architecture remains the
 place where the design-level security decisions are made concrete.
+
+The deleted `data-protection` artifact stays retired as a standalone design
+document. Its intent is already covered more cleanly by:
+
+- `docs/helix/02-design/security-architecture.md` for design-level data
+  protection controls, trust boundaries, encryption decisions, and monitoring
+- `docs/helix/01-frame/compliance-requirements.md` for privacy, retention, and
+  regulatory obligations
+- `docs/helix/02-design/data-design.md` for schema, lifecycle, and storage
+  consequences
+
+Reintroducing `data-protection` as its own artifact would recreate the thin
+stub that duplicated these responsibilities without a distinct review bar.

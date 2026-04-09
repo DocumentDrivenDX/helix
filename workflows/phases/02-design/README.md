@@ -92,6 +92,11 @@ Comprehensive data architecture:
 - **Access Patterns**: Common queries and optimization
 - **Migration Strategy**: Moving from current to target state
 
+`data-protection` is not a separate design artifact. Put design-level privacy,
+encryption, handling, and monitoring controls in `security-architecture`; keep
+regulatory and retention obligations in Frame's `compliance-requirements`; use
+`data-design` only for schema, storage, and lifecycle consequences.
+
 ### Technical Investigation Artifacts (Optional - When Technical Uncertainty Exists)
 
 When significant technical unknowns exist about architecture, technology choices, integration complexity, or implementation approaches, technical investigation artifacts can be used to reduce risk and validate approaches before committing to detailed design.
