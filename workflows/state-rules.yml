@@ -97,8 +97,6 @@ artifact_patterns:
     build:
       - pattern: "docs/helix/04-build/implementation-plan.md"
         type: master-implementation
-      - pattern: "docs/helix/04-build/build-procedures.md"
-        type: build-procedures
 
 # Phase detection strategy
 phase_detection:

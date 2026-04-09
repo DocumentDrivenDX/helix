@@ -130,10 +130,8 @@ phases:
     description: Implement code to pass tests (TDD Green phase)
     artifacts:
       ordered:
-        - implementation-plan    # Plan the build
-        - story-implementation-plan  # Emits per-story build issues
+        - implementation-plan    # Plan the build; story-level work decomposed into tracker issues via helix build
       parallel:
-        - build-procedures       # Build documentation
         - secure-coding          # Security guidelines
     entry_gate:
       automated:

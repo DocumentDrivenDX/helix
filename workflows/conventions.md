@@ -120,7 +120,6 @@ Each phase directory contains artifacts directly (no `artifacts/` subdirectory):
 04-build/
 ├── README.md
 ├── implementation-plan.md
-├── build-procedures.md
 └── secure-coding-checklist.md
 
 05-deploy/
@@ -133,6 +132,7 @@ Each phase directory contains artifacts directly (no `artifacts/` subdirectory):
 06-iterate/
 ├── README.md
 ├── metrics-dashboard.md
+├── security-metrics.md
 ├── metrics/                 # Shared metric definitions (YAML)
 ├── feedback-analysis.md
 ├── lessons-learned.md
