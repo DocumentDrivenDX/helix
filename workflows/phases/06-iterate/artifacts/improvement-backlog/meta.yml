@@ -1,0 +1,84 @@
+artifact:
+  name: Improvement Backlog
+  id: improvement-backlog
+  type: document
+  phase: iterate
+
+description: |
+  Prioritized improvement inventory derived from iteration learnings and
+  tracker-backed follow-up work.
+
+dependencies:
+  requires:
+    - input: Metrics Dashboard
+      type: artifact
+      path: metrics-dashboard
+      required: true
+    - input: Lessons learned
+      type: artifact
+      path: lessons-learned
+      required: false
+    - input: Tracker issues
+      type: external
+      required: true
+  enables:
+    - output: Next Iteration Plan
+      type: artifact
+      phase: iterate
+    - output: Planning beads
+      type: issue
+
+output:
+  location: docs/helix/06-iterate/improvement-backlog.md
+  format: markdown
+  naming: improvement-backlog.md
+
+validation:
+  required_sections:
+    - prioritization_rules
+    - backlog_items
+    - selection_for_next_iteration
+
+  quality_checks:
+    - check: issue_ids_linked
+      description: Each backlog item must reference a tracker issue or explicit follow-up target
+      severity: blocking
+    - check: ordering_explicit
+      description: Priorities must be ordered deterministically
+      severity: blocking
+    - check: evidence_cited
+      description: Each item must cite the learning or metric that produced it
+      severity: warning
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+workflow:
+  creation_order: 4
+  review_cycles: 1
+  approval_required: true
+  approvers:
+    - Product Owner
+    - Technical Lead
+
+relationships:
+  informed_by:
+    - metrics-dashboard
+    - feedback-analysis
+    - lessons-learned
+    - retrospective
+  informs:
+    - next-iteration
+    - tracker issues
+
+tags:
+  - iterate
+  - backlog
+  - prioritization
+  - follow-up
+
+version: 1.0.0
+last_updated: 2026-04-09
