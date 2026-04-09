@@ -1,0 +1,103 @@
+artifact:
+  name: Contract
+  id: contract
+  type: document
+  phase: design
+  level: interface
+
+description: |
+  Normative interface and schema contract that another team can implement
+  against directly, including API, CLI, protocol, event, and data contracts.
+
+dependencies:
+  requires:
+    - input: Architecture
+      type: artifact
+      path: architecture
+      required: false
+      note: "System context for shared boundaries and interface ownership"
+    - input: Solution Design
+      type: artifact
+      path: solution-design
+      required: false
+      note: "Feature-level approach when the contract belongs to one feature"
+    - input: Technical Design
+      type: artifact
+      path: technical-design
+      required: false
+      note: "Story-level slice context when the contract is local to one bounded change"
+    - input: ADR
+      type: artifact
+      path: adr
+      required: false
+      note: "Decision rationale when the contract encodes a selected boundary or policy"
+  enables:
+    - output: Test Plan
+      type: artifact
+      phase: test
+    - output: Technical Design
+      type: artifact
+      phase: design
+
+output:
+  location: docs/helix/02-design/contracts/CONTRACT-{id}-{name}.md
+  format: markdown
+  naming: CONTRACT-{number}-{name}.md
+  note: "API-{number}-{name}.md remains allowed for API-specific subtypes"
+
+validation:
+  required_sections:
+    - purpose
+    - scope_and_boundaries
+    - normative_surface
+    - precedence_and_compatibility
+    - error_semantics
+    - examples
+    - validation_checklist
+
+  quality_checks:
+    - check: normative_surface_explicit
+      description: Contract fields, commands, messages, or payload elements must be explicit
+      severity: blocking
+    - check: implementation_independent
+      description: Another team should be able to implement against the contract without code-level coupling
+      severity: blocking
+    - check: error_semantics_defined
+      description: Failure modes and recovery expectations must be specified
+      severity: blocking
+    - check: examples_present
+      description: At least one concrete example should illustrate the contract
+      severity: warning
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+workflow:
+  creation_order: 2
+  review_cycles: 1-2
+  approval_required: true
+  approvers:
+    - Technical Lead
+    - Interface Owner
+
+relationships:
+  informed_by:
+    - architecture
+    - solution-design
+    - technical-design
+    - adr
+  informs:
+    - test-plan
+    - technical-design
+
+tags:
+  - design
+  - contract
+  - interface
+  - schema
+
+version: 1.0.0
+last_updated: 2026-04-09
