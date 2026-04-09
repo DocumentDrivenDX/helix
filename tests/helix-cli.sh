@@ -504,6 +504,13 @@ test_help() {
   rm -rf "$root"
 }
 
+test_no_hardcoded_bead_prefix_export() {
+  local script
+  script="$(cat "$repo_root/scripts/helix")"
+  assert_not_contains "$script" 'export DDX_BEAD_PREFIX=' \
+    "helix should not hard-code DDX_BEAD_PREFIX"
+}
+
 test_bead_help() {
   local root
   root="$(make_workspace)"
@@ -1867,6 +1874,7 @@ run_test "run continues after unparseable review output" test_run_fails_on_unpar
 
 # CLI integration tests
 run_test "help" test_help
+run_test "no hardcoded bead prefix export" test_no_hardcoded_bead_prefix_export
 run_test "bead help" test_bead_help
 run_test "check dry-run" test_check_dry_run
 run_test "backfill dry-run" test_backfill_dry_run
@@ -3451,6 +3459,129 @@ MOCK
   rm -rf "$root"
 }
 
+# --- Explicit --agent disables adversarial rotation ---
+
+test_explicit_agent_dispatches_to_named_agent() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  # Rewrite codex mock to record calls and close issues
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"; tail -n +2 "$file" > "$file.tmp" || true; mv "$file.tmp" "$file"
+}
+if [[ "$*" != *"--dangerously-bypass-approvals-and-sandbox"* ]]; then
+  echo "mock codex expected flag" >&2; exit 1
+fi
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record codex-implement
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(ddx jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"check action"*) record codex-check; printf 'NEXT_ACTION: %s\n' "$(next_action)" ;;
+  *) record codex-other; echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  # Rewrite claude mock to record if invoked (should not be called)
+  cat >"$root/bin/claude" <<'MOCK'
+#!/usr/bin/env bash
+state_root="${MOCK_STATE_ROOT:?}"
+printf 'claude-called\n' >> "$state_root/calls.log"
+echo "mock claude"
+MOCK
+  chmod +x "$root/bin/claude"
+
+  local output
+  output="$(
+    cd "$root/work"
+    HOME="$root/home" \
+    PATH="$root/bin:$PATH" \
+    MOCK_STATE_ROOT="$root/state" \
+    HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+    HELIX_FORCE_EPHEMERAL=1 \
+    HELIX_DIRECT_AGENT=1 \
+    DDX_BEAD_DIR="$root/work/.ddx" \
+    DDX_DISABLE_UPDATE_CHECK=1 \
+    bash "$repo_root/scripts/helix" run --agent codex --quiet --no-auto-align --no-auto-review 2>&1
+  )" || true
+
+  local calls
+  calls="$(cat "$root/state/calls.log" 2>/dev/null)"
+  assert_contains "$calls" "codex-implement" "explicit --agent codex should dispatch implementation to codex"
+  assert_not_contains "$calls" "claude-called" "explicit --agent codex should not invoke claude for implementation"
+  rm -rf "$root"
+}
+
+test_run_state_records_explicit_agent() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  # Codex mock closes the issue and returns STOP on check
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"; tail -n +2 "$file" > "$file.tmp" || true; mv "$file.tmp" "$file"
+}
+if [[ "$*" != *"--dangerously-bypass-approvals-and-sandbox"* ]]; then
+  echo "mock codex expected flag" >&2; exit 1
+fi
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    if [[ -f .ddx/beads.jsonl ]]; then
+      tmp="$(ddx jq -c '.status = "closed"' .ddx/beads.jsonl)"
+      printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    fi
+    echo "implementation complete"
+    ;;
+  *"check action"*) printf 'NEXT_ACTION: %s\n' "$(next_action)" ;;
+  *) echo "mock codex" ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  (
+    cd "$root/work"
+    HOME="$root/home" \
+    PATH="$root/bin:$PATH" \
+    MOCK_STATE_ROOT="$root/state" \
+    HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+    HELIX_FORCE_EPHEMERAL=1 \
+    HELIX_DIRECT_AGENT=1 \
+    DDX_BEAD_DIR="$root/work/.ddx" \
+    DDX_DISABLE_UPDATE_CHECK=1 \
+    bash "$repo_root/scripts/helix" run --agent codex --quiet --no-auto-align --no-auto-review 2>&1
+  ) || true
+
+  local state_file="$root/work/.ddx/run-state.json"
+  [[ -f "$state_file" ]] || fail "run-state.json was not written"
+  local recorded_agent
+  recorded_agent="$(ddx jq -r '.agent // ""' "$state_file" 2>/dev/null)"
+  assert_eq "codex" "$recorded_agent" "run-state.json should record the agent as codex (not claude)"
+  rm -rf "$root"
+}
+
 # --- Epic child failure blocks parent ---
 
 test_epic_blocked_when_child_intractable() {
@@ -3502,7 +3633,135 @@ run_test "drift on spec-id change skips close" test_drift_on_spec_id_change_skip
 run_test "review CLEAN succeeds" test_review_clean_status_succeeds
 run_test "review ISSUES_FOUND continues loop" test_review_issues_found_continues_loop
 run_test "cross-model review switches agent" test_cross_model_review_switches_agent
+run_test "explicit --agent dispatches to named agent" test_explicit_agent_dispatches_to_named_agent
+run_test "run-state records explicit agent" test_run_state_records_explicit_agent
 run_test "epic blocked when child intractable" test_epic_blocked_when_child_intractable
+
+# ── ddx-agent harness tests ────────────────────────────────────────────
+
+with_mock_ddx_list() {
+  local root="$1"
+  local list_json="$2"
+  local real_ddx
+  real_ddx="$(command -v ddx)"
+
+  cat > "$root/bin/ddx" <<EOF
+#!/usr/bin/env bash
+if [[ "\$1 \$2" == "agent list" ]] && [[ " \$* " == *" --json "* ]]; then
+  cat <<'JSON'
+$list_json
+JSON
+  exit 0
+fi
+exec "$real_ddx" "\$@"
+EOF
+  chmod +x "$root/bin/ddx"
+}
+
+test_ddx_agent_flag_resolves_to_live_agent_harness() {
+  # When DDx exposes the embedded harness as "agent", HELIX should use it and
+  # delegate model selection by omitting an implicit --model flag.
+  local root
+  root="$(make_workspace)"
+  with_mock_ddx_list "$root" '[{"name":"agent","available":true}]'
+  local output
+  output="$(
+    cd "$root/work"
+    HOME="$root/home" \
+    PATH="$root/bin:$PATH" \
+    MOCK_STATE_ROOT="$root/state" \
+    HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+    HELIX_ALT_AGENT="none" \
+    DDX_BEAD_DIR="$root/work/.ddx" \
+    DDX_DISABLE_UPDATE_CHECK=1 \
+    bash "$repo_root/scripts/helix" build --ddx-agent --dry-run 2>&1
+  )"
+  assert_contains "$output" "--harness agent" "--ddx-agent should resolve to DDx's live agent harness"
+  assert_not_contains "$output" " --model " "default ddx-agent dispatch should not inject a concrete model"
+  rm -rf "$root"
+}
+
+test_ddx_agent_flag_resolves_to_live_forge_harness() {
+  # When an older DDx still exposes the embedded harness as "forge", HELIX
+  # should adapt instead of forcing the renamed surface.
+  local root
+  root="$(make_workspace)"
+  with_mock_ddx_list "$root" '[{"name":"forge","available":true}]'
+  local output
+  output="$(
+    cd "$root/work"
+    HOME="$root/home" \
+    PATH="$root/bin:$PATH" \
+    MOCK_STATE_ROOT="$root/state" \
+    HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+    HELIX_ALT_AGENT="none" \
+    DDX_BEAD_DIR="$root/work/.ddx" \
+    DDX_DISABLE_UPDATE_CHECK=1 \
+    bash "$repo_root/scripts/helix" build --ddx-agent --dry-run 2>&1
+  )"
+  assert_contains "$output" "--harness forge" "--ddx-agent should resolve to forge when that is DDx's live embedded harness name"
+  assert_not_contains "$output" " --model " "default embedded-harness dispatch should let DDx choose the model"
+  rm -rf "$root"
+}
+
+test_embedded_alias_maps_to_live_embedded_harness() {
+  local root
+  root="$(make_workspace)"
+  with_mock_ddx_list "$root" '[{"name":"embedded","available":true}]'
+  local output
+  output="$(
+    cd "$root/work"
+    HOME="$root/home" \
+    PATH="$root/bin:$PATH" \
+    MOCK_STATE_ROOT="$root/state" \
+    HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+    HELIX_ALT_AGENT="none" \
+    DDX_BEAD_DIR="$root/work/.ddx" \
+    DDX_DISABLE_UPDATE_CHECK=1 \
+    bash "$repo_root/scripts/helix" build --embedded --dry-run 2>&1
+  )"
+  assert_contains "$output" "--harness embedded" "--embedded alias should dispatch via DDx's embedded harness when exposed"
+  rm -rf "$root"
+}
+
+test_forge_alias_maps_to_live_agent_harness() {
+  # --forge remains accepted, but should resolve through DDx discovery.
+  local root
+  root="$(make_workspace)"
+  with_mock_ddx_list "$root" '[{"name":"agent","available":true}]'
+  local output
+  output="$(
+    cd "$root/work"
+    HOME="$root/home" \
+    PATH="$root/bin:$PATH" \
+    MOCK_STATE_ROOT="$root/state" \
+    HELIX_LIBRARY_ROOT="$repo_root/workflows" \
+    HELIX_ALT_AGENT="none" \
+    DDX_BEAD_DIR="$root/work/.ddx" \
+    DDX_DISABLE_UPDATE_CHECK=1 \
+    bash "$repo_root/scripts/helix" build --forge --dry-run 2>&1
+  )"
+  assert_contains "$output" "--harness agent" "--forge should remain a compatibility alias resolved through DDx discovery"
+  rm -rf "$root"
+}
+
+test_ddx_agent_help_mentions_ddx_agent() {
+  # Help text should teach ddx-agent as the preferred name and explain DDx delegation.
+  local root
+  root="$(make_workspace)"
+  local output
+  output="$(run_helix "$root" help 2>&1)"
+  assert_contains "$output" "ddx-agent" "help text should mention ddx-agent"
+  assert_contains "$output" "--embedded" "help text should mention the embedded shorthand"
+  assert_contains "$output" "default model selection is delegated to DDx" "help text should explain that DDx owns default model choice"
+  rm -rf "$root"
+}
+
+run_test "ddx-agent flag resolves to live agent harness" test_ddx_agent_flag_resolves_to_live_agent_harness
+run_test "ddx-agent flag resolves to live forge harness" test_ddx_agent_flag_resolves_to_live_forge_harness
+run_test "embedded alias maps to live embedded harness" test_embedded_alias_maps_to_live_embedded_harness
+run_test "forge alias resolves through DDx discovery" test_forge_alias_maps_to_live_agent_harness
+run_test "ddx-agent mentioned in help" test_ddx_agent_help_mentions_ddx_agent
 
 # ── frame tests ───────────────────────────────────────────────────────
 

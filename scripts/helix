@@ -28,9 +28,18 @@ target_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 tracker_dir="${DDX_BEAD_DIR:-${HELIX_TRACKER_DIR:-${target_root}/.ddx}}"
 tracker_file="${tracker_dir}/beads.jsonl"
 export DDX_BEAD_DIR="$tracker_dir"
-export DDX_BEAD_PREFIX="${DDX_BEAD_PREFIX:-hx}"
 
-agent="${HELIX_AGENT:-codex}"
+normalize_agent_name() {
+  # Normalize DDx-embedded-harness aliases to the canonical HELIX name "agent".
+  # ddx-agent, agent, embedded, and legacy forge all map to "agent".
+  # All other harness names pass through unchanged.
+  case "${1:-}" in
+    ddx-agent|agent|embedded|forge) printf 'agent' ;;
+    *) printf '%s' "${1:-}" ;;
+  esac
+}
+
+agent="$(normalize_agent_name "${HELIX_AGENT:-codex}")"
 agent_model="${HELIX_MODEL:-}"
 agent_effort="${HELIX_EFFORT:-}"
 review_every=15
@@ -41,55 +50,89 @@ auto_align="${HELIX_AUTO_ALIGN:-1}"
 auto_review=1
 review_threshold=100
 
-# Model tiers: "smart" for reasoning-heavy stages, "cheap" for mechanical stages.
-# Override with HELIX_SMART_MODEL / HELIX_CHEAP_MODEL for the primary agent.
+# Stage-specific model overrides. When unset, DDx or the direct harness default
+# owns concrete model selection. HELIX should choose stage intent, not a baked-in
+# model table.
 smart_model="${HELIX_SMART_MODEL:-}"
 cheap_model="${HELIX_CHEAP_MODEL:-}"
 
-# resolve_model <tier> — return the model name for the current $agent and tier.
-# tier: "smart" or "cheap"
-# HELIX_SMART_MODEL / HELIX_CHEAP_MODEL override defaults for the PRIMARY agent.
-# When the current agent is the alternate (adversarial rotation), use that
-# agent's own defaults — the env overrides don't cross agent boundaries.
+# resolve_model <tier> — return only explicit stage-specific model overrides.
+# HELIX no longer injects default concrete model names for DDx dispatch. When no
+# override is set, DDx or the underlying harness chooses the model.
 resolve_model() {
   local tier="${1:-smart}"
-  local primary="${HELIX_AGENT:-codex}"
-  case "$agent" in
-    claude)
-      if [[ "$tier" == "smart" ]]; then
-        if [[ "$agent" == "$primary" && -n "$smart_model" ]]; then
-          printf '%s' "$smart_model"
-        else
-          printf '%s' "claude-opus-4-6"
-        fi
-      else
-        if [[ "$agent" == "$primary" && -n "$cheap_model" ]]; then
-          printf '%s' "$cheap_model"
-        else
-          printf '%s' "claude-sonnet-4-6"
-        fi
-      fi
+  local primary
+  primary="$(normalize_agent_name "${HELIX_AGENT:-codex}")"
+  [[ "$agent" != "$primary" ]] && return 0
+  case "$tier" in
+    smart)
+      printf '%s' "$smart_model"
       ;;
-    codex)
-      if [[ "$tier" == "smart" ]]; then
-        if [[ "$agent" == "$primary" && -n "$smart_model" ]]; then
-          printf '%s' "$smart_model"
-        else
-          printf '%s' "gpt-5.4"
-        fi
-      else
-        if [[ "$agent" == "$primary" && -n "$cheap_model" ]]; then
-          printf '%s' "$cheap_model"
-        else
-          printf '%s' "gpt-5.4-mini"
-        fi
-      fi
-      ;;
-    *)
-      # Unknown agent — fall through to agent default
-      printf '%s' "${agent_model:-}"
+    cheap)
+      printf '%s' "$cheap_model"
       ;;
   esac
+}
+
+# DDx embedded-harness alias handling.
+# HELIX should accept the user-facing rename direction (`ddx-agent`) while still
+# working against older DDx binaries that expose the embedded harness as `forge`.
+_is_ddx_embedded_alias() {
+  case "${1:-}" in
+    ddx-agent|agent|embedded|forge)
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+declare -A _ddx_harness_alias_cache 2>/dev/null || true
+_resolve_ddx_dispatch_harness() {
+  local requested="${1:-}"
+  [[ -z "$requested" ]] && return 0
+  if ! _is_ddx_embedded_alias "$requested"; then
+    printf '%s' "$requested"
+    return 0
+  fi
+  if [[ -v "_ddx_harness_alias_cache[$requested]" ]]; then
+    printf '%s' "${_ddx_harness_alias_cache[$requested]}"
+    return 0
+  fi
+
+  local resolved=""
+  if command -v ddx &>/dev/null; then
+    local _list
+    _list="$(ddx agent list --json 2>/dev/null || true)"
+    if [[ -n "$_list" ]]; then
+      local candidate _avail
+      for candidate in agent embedded forge; do
+        _avail="$(printf '%s' "$_list" | ddx jq -r --arg h "$candidate" '.[] | select(.name == $h and .available == true) | .name' 2>/dev/null || true)"
+        if [[ -n "$_avail" ]]; then
+          resolved="$_avail"
+          break
+        fi
+      done
+    fi
+  fi
+
+  if [[ -z "$resolved" ]]; then
+    case "$requested" in
+      ddx-agent|agent)
+        resolved="agent"
+        ;;
+      embedded)
+        resolved="embedded"
+        ;;
+      forge)
+        resolved="forge"
+        ;;
+    esac
+  fi
+
+  _ddx_harness_alias_cache["$requested"]="$resolved"
+  printf '%s' "$resolved"
 }
 
 # Adversarial agent rotation: reasoning stages use the primary agent,
@@ -97,14 +140,28 @@ resolve_model() {
 # This ensures different models review each other's work.
 # Set HELIX_ALT_AGENT=none to explicitly disable auto-detection.
 if [[ "${HELIX_ALT_AGENT:-auto}" != "auto" ]]; then
-  alt_agent="${HELIX_ALT_AGENT}"
+  alt_agent="$(normalize_agent_name "${HELIX_ALT_AGENT}")"
   [[ "$alt_agent" == "none" ]] && alt_agent=""
 elif [[ "${agent}" == "codex" ]] && command -v claude >/dev/null 2>&1; then
   alt_agent="claude"
 elif [[ "${agent}" == "claude" ]] && command -v codex >/dev/null 2>&1; then
   alt_agent="codex"
 else
+  # For other agents (e.g. ddx-agent / agent), try ddx agent list to find a suitable alternate.
+  # Prefer claude or codex as the adversarial reviewer when available.
   alt_agent=""
+  if command -v ddx &>/dev/null; then
+    _alt_list="$(ddx agent list --json 2>/dev/null || true)"
+    for _alt_pref in claude codex; do
+      if [[ "$_alt_pref" != "$agent" ]]; then
+        _alt_avail="$(printf '%s' "$_alt_list" | ddx jq -r --arg h "$_alt_pref" '.[] | select(.name == $h and .available == true) | .name' 2>/dev/null || true)"
+        if [[ -n "$_alt_avail" ]]; then
+          alt_agent="$_alt_pref"
+          break
+        fi
+      fi
+    done
+  fi
 fi
 # review_agent kept as alias for backward compat with --review-agent flag
 review_agent="${HELIX_REVIEW_AGENT:-$alt_agent}"
@@ -164,22 +221,22 @@ verbose_line() {
 usage() {
   cat <<EOF
 Usage:
-  helix run [--agent codex|claude] [--review-every N] [--max-cycles N] [--no-auto-align] [--no-auto-review] [--summary] [--dry-run]
-  helix frame [--agent codex|claude] [scope]
-  helix build [--agent codex|claude] [selector]
-  helix check [--agent codex|claude] [scope]
-  helix align [--agent codex|claude] [scope]
-  helix backfill [--agent codex|claude] [scope]
-  helix design [--agent codex|claude] [--rounds N] [scope]
-  helix polish [--agent codex|claude] [--rounds N] [scope]
+  helix run [--agent <harness>] [--review-every N] [--max-cycles N] [--no-auto-align] [--no-auto-review] [--summary] [--dry-run]
+  helix frame [--agent <harness>] [scope]
+  helix build [--agent <harness>] [selector]
+  helix check [--agent <harness>] [scope]
+  helix align [--agent <harness>] [scope]
+  helix backfill [--agent <harness>] [scope]
+  helix design [--agent <harness>] [--rounds N] [scope]
+  helix polish [--agent <harness>] [--rounds N] [scope]
   helix doctor [--fix]
   helix start [helix run options...]
   helix stop
   helix status [--json]
   helix next
-  helix review [--agent codex|claude] [scope]
-  helix experiment [--agent codex|claude] [--close] [issue-id|goal]
-  helix evolve [--agent codex|claude] [--scope S] [--artifact ID] [--from source] "requirement"
+  helix review [--agent <harness>] [scope]
+  helix experiment [--agent <harness>] [--close] [issue-id|goal]
+  helix evolve [--agent <harness>] [--scope S] [--artifact ID] [--from source] "requirement"
   helix triage "Title" [--type task|epic|bug|chore] [ddx bead create options...]
   ddx bead <command> [args...]
   helix help
@@ -204,10 +261,15 @@ Commands:
   triage      Create a bead via ddx bead create
 
 Options:
-  --agent           Agent to use: codex or claude (default: ${agent})
+  --agent           Agent harness to use: codex, claude, ddx-agent,
+                    embedded, or any harness from \`ddx agent list\`
+                    (default: ${agent})
   --claude          Shorthand for --agent claude
   --codex           Shorthand for --agent codex
-  --model           Model to use (e.g., claude-sonnet-4-6, gpt-5.4)
+  --ddx-agent       Shorthand for --agent ddx-agent
+  --embedded        Shorthand for --agent embedded
+  --forge           Deprecated alias for the embedded DDx agent harness
+  --model           Explicit model override to pass through to DDx / the harness
   --effort          Reasoning effort: low, medium, high, max (defaults vary by action)
   --review-every    Run alignment every N completed implementation cycles
   --max-cycles      Stop after N completed implementation cycles
@@ -222,11 +284,12 @@ Options:
   --summary, -s     Concise output with log-file line pointers (implies --quiet)
 
 Environment:
-  HELIX_AGENT          Default primary agent (codex or claude)
+  HELIX_AGENT          Default primary agent (codex, claude, ddx-agent,
+                       or any ddx harness)
   HELIX_ALT_AGENT      Alternate agent for adversarial rotation (auto-detected)
   HELIX_AGENT_TIMEOUT  Agent timeout in seconds (default: 2700)
-  HELIX_SMART_MODEL    Model for reasoning stages (default: opus / gpt-5.4)
-  HELIX_CHEAP_MODEL    Model for mechanical stages (default: sonnet / gpt-5.4-mini)
+  HELIX_SMART_MODEL    Optional model override for reasoning stages
+  HELIX_CHEAP_MODEL    Optional model override for mechanical stages
   HELIX_LIBRARY_ROOT   Override the library root that contains workflows/
   HELIX_TRACKER_DIR    Override the tracker directory (default: .helix/)
 
@@ -240,7 +303,10 @@ Logs:
   in the project root. All stderr output is captured for post-hoc inspection.
 
 Notes:
-  Codex runs as `codex --dangerously-bypass-approvals-and-sandbox exec`.
+  Codex runs as \`codex --dangerously-bypass-approvals-and-sandbox exec\`.
+  Any harness listed by \`ddx agent list\` can be passed to --agent.
+  \`ddx-agent\`, \`embedded\`, and legacy \`forge\` are resolved against the live DDx embedded harness name.
+  When HELIX dispatches through DDx, default model selection is delegated to DDx unless you pass an explicit override.
 EOF
 }
 
@@ -333,14 +399,39 @@ run_doctor() {
 
   printf '\nAgent CLIs (at least one required):\n'
   local has_agent=0
-  if command -v claude >/dev/null 2>&1; then
-    _check claude 0; has_agent=1
-  fi
-  if command -v codex >/dev/null 2>&1; then
-    _check codex 0; has_agent=1
+  # Use ddx agent list for discovery when available; fall back to hardcoded checks.
+  if command -v ddx &>/dev/null; then
+    local _agent_list
+    _agent_list="$(ddx agent list --json 2>/dev/null || true)"
+    if [[ -n "$_agent_list" ]]; then
+      local _name _avail
+      while IFS= read -r _name; do
+        _avail="$(printf '%s' "$_agent_list" | ddx jq -r --arg h "$_name" '.[] | select(.name == $h) | .available' 2>/dev/null || true)"
+        if [[ "$_avail" == "true" ]]; then
+          _check "$_name" 0; has_agent=1
+        else
+          printf '  -  %-12s not available (ddx agent list reports unavailable)\n' "$_name"
+        fi
+      done < <(printf '%s' "$_agent_list" | ddx jq -r '.[].name' 2>/dev/null || true)
+    else
+      # ddx agent list returned nothing — fall back to direct binary checks
+      if command -v claude >/dev/null 2>&1; then
+        _check claude 0; has_agent=1
+      fi
+      if command -v codex >/dev/null 2>&1; then
+        _check codex 0; has_agent=1
+      fi
+    fi
+  else
+    if command -v claude >/dev/null 2>&1; then
+      _check claude 0; has_agent=1
+    fi
+    if command -v codex >/dev/null 2>&1; then
+      _check codex 0; has_agent=1
+    fi
   fi
   if (( ! has_agent )); then
-    printf '  ✗  No agent CLI found (need claude or codex)\n'
+    printf '  ✗  No agent CLI found (need at least one from: ddx agent list)\n'
     fail=$((fail + 1))
   fi
 
@@ -835,7 +926,7 @@ run_agent_prompt() {
   # the current agent matches the configured primary agent.
   # This prevents passing claude models to codex during cross-model review.
   local model_override="${2:-}"
-  if [[ -z "$model_override" ]] && [[ "$agent" == "${HELIX_AGENT:-codex}" ]]; then
+  if [[ -z "$model_override" ]] && [[ "$agent" == "$(normalize_agent_name "${HELIX_AGENT:-codex}")" ]]; then
     model_override="$agent_model"
   fi
   local effort_override="${3:-$agent_effort}"
@@ -887,11 +978,13 @@ _extract_agent_text() {
 # Primary dispatch via ddx agent run.
 _run_agent_ddx() {
   local prompt="$1" model_override="$2" effort_override="$3" agent_timeout="$4"
+  local ddx_harness
+  ddx_harness="$(_resolve_ddx_dispatch_harness "$agent")"
   local prompt_bytes
   prompt_bytes="$(printf '%s' "$prompt" | wc -c)"
 
   local -a ddx_flags=(
-    --harness "$agent"
+    --harness "$ddx_harness"
     --permissions unrestricted
     --timeout "${agent_timeout}s"
   )
@@ -912,8 +1005,8 @@ _run_agent_ddx() {
   _start_ts="$(date +%s)"
 
   if (( ! quiet )); then
-    printf 'helix: [%s] ddx agent run --harness %s %s <prompt %s bytes> (timeout %ss)\n' \
-      "$(date +%H:%M:%S)" "$agent" "${model_override:+(model: $model_override)}" "$prompt_bytes" "$agent_timeout" >&2
+    printf 'helix: [%s] ddx agent run --harness %s%s %s <prompt %s bytes> (timeout %ss)\n' \
+      "$(date +%H:%M:%S)" "$ddx_harness" "${agent:+ (requested: $agent)}" "${model_override:+(model: $model_override)}" "$prompt_bytes" "$agent_timeout" >&2
   fi
 
   # Dispatch via ddx agent run with JSON output for metrics
@@ -928,7 +1021,7 @@ _run_agent_ddx() {
     sleep 5
     _watchdog_elapsed=$((_watchdog_elapsed + 5))
     if (( ! quiet )) && (( _watchdog_elapsed % 60 == 0 )); then
-      printf 'helix: [%s] %s still running (%ss elapsed)\n' "$(date +%H:%M:%S)" "$agent" "$_watchdog_elapsed" >&2
+      printf 'helix: [%s] %s still running (%ss elapsed)\n' "$(date +%H:%M:%S)" "$ddx_harness" "$_watchdog_elapsed" >&2
     fi
   done
   wait "$_agent_pid" || _agent_rc=$?
@@ -954,7 +1047,7 @@ _run_agent_ddx() {
   _log_start="$(log_line)"
   {
     printf -- '--- ddx agent run [%s] harness=%s rc=%s exit=%s elapsed=%ss cost=$%s tokens=%s ---\n' \
-      "$(date +%H:%M:%S)" "$agent" "$_agent_rc" "$_exit_code" "$_elapsed" "$_cost" "$_cycle_tokens"
+      "$(date +%H:%M:%S)" "$ddx_harness" "$_agent_rc" "$_exit_code" "$_elapsed" "$_cost" "$_cycle_tokens"
     printf -- '%s\n' "$_raw_output"
     printf -- '--- end ddx agent output ---\n'
   } >> "$helix_log"
@@ -962,14 +1055,14 @@ _run_agent_ddx() {
 
   if (( summary )); then
     summary_line "[%s] %s complete (rc=%s, %ss, %s tokens, \$%s) — log L%s–L%s in %s" \
-      "$(date +%H:%M:%S)" "$agent" "$_exit_code" "$_elapsed" "$_cycle_tokens" "$_cost" "$_log_start" "$_log_end" "$helix_log"
+      "$(date +%H:%M:%S)" "$ddx_harness" "$_exit_code" "$_elapsed" "$_cycle_tokens" "$_cost" "$_log_start" "$_log_end" "$helix_log"
   elif (( ! quiet )); then
     printf 'helix: [%s] %s complete (rc=%s, %ss, %s tokens, $%s, %s total)\n' \
-      "$(date +%H:%M:%S)" "$agent" "$_exit_code" "$_elapsed" "$_cycle_tokens" "$_cost" "$total_tokens" >&2
+      "$(date +%H:%M:%S)" "$ddx_harness" "$_exit_code" "$_elapsed" "$_cycle_tokens" "$_cost" "$total_tokens" >&2
   fi
 
   # Emit the agent's text result to stdout for downstream parsing
-  _extract_agent_text "$agent" "$_raw_output"
+  _extract_agent_text "$ddx_harness" "$_raw_output"
 
   return "$_exit_code"
 }
@@ -1660,15 +1753,54 @@ parse_common_flags() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --agent)
-        agent="$2"
+        agent="$(normalize_agent_name "$2")"
+        # Explicit --agent flag overrides auto-detected adversarial rotation.
+        # If HELIX_ALT_AGENT is explicitly configured, honor it; otherwise
+        # clear the auto-detected alt_agent so the chosen agent runs all steps.
+        if [[ "${HELIX_ALT_AGENT:-auto}" == "auto" ]]; then
+          alt_agent=""
+          review_agent="${HELIX_REVIEW_AGENT:-}"
+        fi
         shift 2
         ;;
       --claude)
         agent="claude"
+        if [[ "${HELIX_ALT_AGENT:-auto}" == "auto" ]]; then
+          alt_agent=""
+          review_agent="${HELIX_REVIEW_AGENT:-}"
+        fi
         shift
         ;;
       --codex)
         agent="codex"
+        if [[ "${HELIX_ALT_AGENT:-auto}" == "auto" ]]; then
+          alt_agent=""
+          review_agent="${HELIX_REVIEW_AGENT:-}"
+        fi
+        shift
+        ;;
+      --ddx-agent)
+        agent="$(normalize_agent_name ddx-agent)"
+        if [[ "${HELIX_ALT_AGENT:-auto}" == "auto" ]]; then
+          alt_agent=""
+          review_agent="${HELIX_REVIEW_AGENT:-}"
+        fi
+        shift
+        ;;
+      --embedded)
+        agent="$(normalize_agent_name embedded)"
+        if [[ "${HELIX_ALT_AGENT:-auto}" == "auto" ]]; then
+          alt_agent=""
+          review_agent="${HELIX_REVIEW_AGENT:-}"
+        fi
+        shift
+        ;;
+      --forge)
+        agent="$(normalize_agent_name forge)"
+        if [[ "${HELIX_ALT_AGENT:-auto}" == "auto" ]]; then
+          alt_agent=""
+          review_agent="${HELIX_REVIEW_AGENT:-}"
+        fi
         shift
         ;;
       --model)
@@ -2391,7 +2523,7 @@ run_loop() {
       --argjson total_tokens "$total_tokens" \
       --arg stop_reason "$stop_reason" \
       --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-      --arg agent "${HELIX_AGENT:-claude}" \
+      --arg agent "$agent" \
       '{
         current_issue: $current_issue,
         focused_epic: $focused_epic,
