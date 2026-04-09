@@ -52,6 +52,11 @@ Use a technical design when the scope is one story or one bounded vertical
 slice. It should inherit the broader architecture from the parent solution
 design instead of redefining feature-level structure.
 
+`ux-design` remains retired as a standalone HELIX artifact. Put user-facing
+flow rationale, wireframes, and interaction trade-offs in the governing
+solution design or technical design, and use a proof of concept when the main
+risk is validating an interactive workflow end to end.
+
 ### 2. Architecture Diagrams
 **Location**: `docs/helix/02-design/architecture.md`
 
