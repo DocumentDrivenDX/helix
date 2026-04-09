@@ -103,6 +103,15 @@ The conflict taxonomy is HELIX-defined:
 - **Physics-level**: workflow must stop for human resolution because the governing intent is genuinely contradictory
 
 DDx may return execution outcomes such as merged or preserved, but it does not define HELIX conflict classes.
+
+HELIX interprets each bead as a governed workspace-state transformation:
+
+- bead `B` defines the intended transition from workspace state `W` to
+  successor workspace state `W'`
+- the execution run is the attempt and evidence record for realizing `B : W -> W'`
+- the execution outcome describes how that attempt landed
+- the state delta is the realized material change between `W` and `W'`
+
 ### 5. Prompt and workflow strategy
 HELIX owns:
 - prompt design
@@ -117,7 +126,9 @@ These objects are shared across the boundary and should keep stable meanings.
 
 | Object | DDx role | HELIX role |
 |---|---|---|
-| **Bead** | tracker record + execution target | workflow steering object |
+| **Bead** | tracker record + execution target | intended workspace-state transform (`B : W -> W'`) |
+| **Workspace state** | execution substrate input/output surface | governed current/successor state under workflow interpretation |
+| **State delta** | realized material diff between workspace states | workflow-visible change to inspect during measure/report |
 | **Graph artifact** | indexed document node | governance/context layer |
 | **Execution doc** | discovered executable validation definition | authored validation contract |
 | **Execution run** | immutable evidence record | workflow input for measure/report/iteration |

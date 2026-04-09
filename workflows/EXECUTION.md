@@ -61,6 +61,18 @@ plans, implement code, test it, and optimize metrics.
 Execute → Measure → Report → (new beads)
 ```
 
+- HELIX models each governed execution step as a workspace-state
+  transformation. Given workspace state `W`, executing bead `B` attempts to
+  produce successor workspace state `W'`.
+- Shorthand: `B : W -> W'`
+- The bead is the intended transformation, not the evidence record.
+- The execution run is the bounded attempt and evidence record for trying to
+  realize `W -> W'`.
+- The execution outcome records how that attempt landed (`merged`,
+  `preserved`, `blocked`, `failed`, or equivalent workflow-visible result).
+- The realized state delta is the material change between `W` and `W'`:
+  docs, code, tracker state, generated artifacts, and other workspace changes.
+
 - **Execute**: Claim a bead, do the work it describes (`build`, `review`,
   `experiment`, `backfill` — any action that modifies files on disk).
 - **Measure**: Verify results against the bead's acceptance criteria. Run
@@ -88,6 +100,12 @@ explicit.
 **Every action that modifies files must be governed by a bead.** No file
 modifications without a plan bead — analogous to entering plan mode before
 writing code.
+
+Operationally, a bead should describe the intended transformation from current
+workspace state `W` to successor workspace state `W'`. `measure` determines
+whether the resulting `W'` satisfies the bead's acceptance criteria and quality
+gates. `report` records evidence about the `W -> W'` transition and creates any
+required follow-on beads.
 
 Every action (except `triage` and `check`) follows this structure:
 
