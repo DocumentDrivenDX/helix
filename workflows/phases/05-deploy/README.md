@@ -86,6 +86,11 @@ deployment markdown plans. Deploy issues reference the project deployment
 artifacts and the build issues they are rolling out using native tracker issue
 IDs, dependencies, and labels.
 
+The deleted `story-deployment-plan` artifact stays retired. Its only durable
+responsibility is to define scoped rollout work, and the built-in tracker now
+does that more directly through `phase:deploy` issues linked to the governing
+deploy artifacts.
+
 ## Artifact Metadata
 
 Each artifact can include a `meta.yml` file that defines:

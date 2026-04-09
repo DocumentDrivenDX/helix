@@ -312,9 +312,9 @@ docs/
 │   ├── implementation-plan.md
 │   └── code-reviews/
 ├── 05-deploy/
-│   ├── deployment-plan.md
-│   ├── release-notes.md
-│   └── runbooks/
+│   ├── deployment-checklist.md
+│   ├── monitoring-setup.md
+│   └── runbook.md
 └── 06-iterate/
     ├── metrics-reports/
     ├── lessons-learned/

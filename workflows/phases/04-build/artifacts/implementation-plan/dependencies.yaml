@@ -21,11 +21,9 @@ inputs:
 
 outputs:
   produces:
-    - artifact: deployment-plan
+    - artifact: deploy-issue
       phase: "05-deploy"
-      prefix: DP
-      same_number: true
-      relationship: "completed code ready for deploy"
+      relationship: "completed code is handed to tracker-backed deploy issues rather than a story deployment plan artifact"
 
 completion:
   automated_checks:
