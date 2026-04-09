@@ -123,7 +123,7 @@ run:
       required_executions: fail
       ratchets: pass
       runtime:
-        harness: forge
+        harness: agent  # DDx harness backed by the ddx-agent binary
         model: qwen3.5-27b
         session_id: s-...
         elapsed_ms: 12345

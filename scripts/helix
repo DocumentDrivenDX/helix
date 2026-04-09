@@ -1513,6 +1513,44 @@ run_evolve() {
   run_agent_prompt "$(evolve_prompt "$requirement" "$scope" "$artifact" "$source")" "$(resolve_model smart)" "${agent_effort:-high}"
 }
 
+run_input() {
+  local request="${1:-}"
+  local autonomy="${2:-medium}"
+  if [[ -z "$request" ]]; then
+    echo "helix: input requires a natural language request" >&2
+    return 1
+  fi
+  case "$autonomy" in
+    low|medium|high) ;;
+    *)
+      echo "helix: invalid autonomy level '$autonomy' (use low, medium, or high)" >&2
+      return 1
+      ;;
+  esac
+  if (( ! dry_run )); then
+    require_tracker
+  fi
+  run_agent_prompt "$(input_prompt "$request" "$autonomy")" "$(resolve_model smart)" "${agent_effort:-high}"
+}
+
+input_prompt() {
+  local request="${1:-}"
+  local autonomy="${2:-medium}"
+  cat <<EOF
+You are processing sparse user intent through the HELIX intake surface.
+
+User request: $request
+Autonomy level: $autonomy
+
+$(inline_action "${helix_docs_root}/actions/input.md")
+Execute in the current repository rooted at ${target_root}.
+Issue tracker: built-in JSONL at ${tracker_file}. Use ddx bead create, ddx bead update <id>, ddx bead show <id>.
+
+Follow the action exactly. Do the work — do not just describe what you would do.
+EOF
+}
+
+
 extract_agents_md_commands() {
   # Extract the first ```bash block from the Quick Reference section of AGENTS.md.
   # Prints the block contents or nothing if not found.
@@ -3259,6 +3297,18 @@ main() {
       set -- "${REMAINING_ARGS[@]}"
       require_tracker
       exec_wrap triage tracker_create "$@"
+      ;;
+    input)
+      parse_common_flags "$@"
+      set -- "${REMAINING_ARGS[@]}"
+      local autonomy="medium"
+      while [[ $# -gt 0 ]]; do
+        case "$1" in
+          --autonomy) autonomy="$2"; shift 2 ;;
+          *) break ;;
+        esac
+      done
+      exec_wrap input run_input "${1:-}" "$autonomy"
       ;;
     *)
       echo "unknown command: $command" >&2

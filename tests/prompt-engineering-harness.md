@@ -358,9 +358,9 @@ Use a per-attempt result table like this:
 
 | Variant | Scenario | Bead | Autonomy | Harness | Model | Complete | Quality | Correct | Graph | Required execs | Ratchets | Outcome |
 |---|---|---|---|---|---|---:|---:|---:|---|---|---|---|
-| baseline | A | hx-abc123 | medium | forge | qwen3.5-27b | 82 | 78 | 95 | pass | pass | pass | merge-eligible |
-| reworded | A | hx-abc123 | medium | forge | qwen3.5-27b | 91 | 85 | 95 | pass | pass | pass | merge-eligible |
-| alt | A | hx-abc123 | medium | forge | qwen3.5-27b | 74 | 70 | 90 | weak links | fail | pass | preserve-only |
+| baseline | A | hx-abc123 | medium | agent | qwen3.5-27b | 82 | 78 | 95 | pass | pass | pass | merge-eligible |
+| reworded | A | hx-abc123 | medium | agent | qwen3.5-27b | 91 | 85 | 95 | pass | pass | pass | merge-eligible |
+| alt | A | hx-abc123 | medium | agent | qwen3.5-27b | 74 | 70 | 90 | weak links | fail | pass | preserve-only |
 
 ### Phase 6: Decide
 
