@@ -1,0 +1,99 @@
+artifact:
+  name: Data Design
+  id: data-design
+  type: document
+  phase: design
+
+description: |
+  Design-level data architecture covering entities, stores, access patterns,
+  constraints, and migration strategy.
+
+dependencies:
+  requires:
+    - input: Architecture
+      type: artifact
+      path: architecture
+      required: true
+    - input: Solution Design
+      type: artifact
+      path: solution-design
+      required: false
+      note: "Feature-level context when the data design belongs to one feature"
+    - input: Technical Design
+      type: artifact
+      path: technical-design
+      required: false
+      note: "Story-level context when one slice changes the data model"
+    - input: Security Architecture
+      type: artifact
+      path: security-architecture
+      required: false
+      note: "Control and classification constraints that shape storage or retention"
+  enables:
+    - output: Technical Design
+      type: artifact
+      phase: design
+    - output: Test Plan
+      type: artifact
+      phase: test
+
+output:
+  location: docs/helix/02-design/data-design.md
+  format: markdown
+  naming: data-design.md
+
+validation:
+  required_sections:
+    - data_summary
+    - entities_and_stores
+    - relationships
+    - access_patterns_and_constraints
+    - validation_and_security
+    - migration_strategy
+
+  quality_checks:
+    - check: entities_explicit
+      description: Main entities or stores and their purposes must be named explicitly
+      severity: blocking
+    - check: access_patterns_defined
+      description: Major read and write paths must be documented with their constraints
+      severity: blocking
+    - check: migration_strategy_defined
+      description: Schema evolution and rollback expectations must be explicit
+      severity: blocking
+    - check: security_consequences_noted
+      description: Material validation, privacy, or protection constraints should be captured
+      severity: warning
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+workflow:
+  creation_order: 2
+  review_cycles: 1-2
+  approval_required: true
+  approvers:
+    - Technical Lead
+    - Data Owner
+
+relationships:
+  informed_by:
+    - architecture
+    - solution-design
+    - technical-design
+    - security-architecture
+  informs:
+    - technical-design
+    - test-plan
+
+tags:
+  - design
+  - data
+  - schema
+  - migration
+
+version: 1.0.0
+last_updated: 2026-04-09
