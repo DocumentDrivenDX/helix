@@ -69,6 +69,8 @@ jobs:
           export DEMO_PACE=5
           export HELIX_ROOT="${GITHUB_WORKSPACE}"
           export PATH="${HOME}/.local/bin:${GITHUB_WORKSPACE}/scripts:$PATH"
+          # FEAT-007 public demo inventory: quickstart, concerns, evolve, experiment.
+          # helix-interactive remains experimental and is intentionally excluded here.
           for demo in quickstart concerns evolve experiment; do
             echo "::group::Recording $demo"
             dir=$(mktemp -d)

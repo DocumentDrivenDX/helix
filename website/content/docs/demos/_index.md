@@ -8,6 +8,11 @@ prev: /docs/glossary
 
 Scripted terminal recordings of HELIX in action. Each demo runs in a Docker container for reproducibility and uses `ddx agent run` as the agent harness.
 
+The shipped public demo inventory is `helix-quickstart`, `helix-concerns`,
+`helix-evolve`, and `helix-experiment`. The repo also contains
+`docs/demos/helix-interactive/` as experimental source material, but it is not
+currently embedded here or recorded by the Pages workflow.
+
 ---
 
 ## Quickstart: Full Lifecycle

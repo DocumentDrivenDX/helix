@@ -196,6 +196,8 @@ test.describe('Demos', () => {
       await expect(article(page).getByText('Concerns: Preventing Technology Drift')).toBeVisible()
       await expect(article(page).getByText('Evolve: Threading Requirements')).toBeVisible()
       await expect(article(page).getByText('Experiment: Metric-Driven Optimization')).toBeVisible()
+      await expect(article(page).getByText('docs/demos/helix-interactive/')).toBeVisible()
+      await expect(article(page).getByText('Interactive HELIX Demo')).toHaveCount(0)
     })
 
     await test.step('capture screenshot', async () => {

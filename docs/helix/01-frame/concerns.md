@@ -33,7 +33,8 @@ Examples:
 - **Custom shortcode**: `asciinema.html` for terminal recording embeds
 
 ### demo-asciinema
-- **Current demos**: `helix-quickstart` (full lifecycle), `helix-concerns` (drift detection), `helix-evolve` (requirement threading)
+- **Current demos**: `helix-quickstart` (full lifecycle), `helix-concerns` (drift detection), `helix-evolve` (requirement threading), `helix-experiment` (metric-driven optimization)
+- **Experimental demos**: `helix-interactive` is kept in `docs/demos/` for internal exploration and manual recording workflows; it is not part of the shipped public microsite or Pages recording inventory
 - **Agent harness**: `ddx agent run --harness claude` — not `claude -p`
 - **Recording container**: Ubuntu 24.04 with project-specific deps (Node.js or Bun)
 - **Cast files**: archived in `docs/demos/*/recordings/` and copied to `website/static/demos/`
