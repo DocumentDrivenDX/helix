@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+resolve_plugin_root() {
+  local source="${BASH_SOURCE[0]}"
+  while [[ -L "$source" ]]; do
+    local dir
+    dir="$(cd -P "$(dirname "$source")" && pwd)"
+    source="$(readlink "$source")"
+    [[ "$source" != /* ]] && source="$dir/$source"
+  done
+  cd -P "$(dirname "$source")/.." && pwd
+}
+
+if [[ -n "${CLAUDE_PLUGIN_ROOT:-}" ]]; then
+  plugin_root="$CLAUDE_PLUGIN_ROOT"
+else
+  plugin_root="$(resolve_plugin_root)"
+fi
+
+export HELIX_ROOT="$plugin_root"
+exec "$plugin_root/scripts/helix" "$@"

@@ -31,25 +31,48 @@ fail() {
 
 plugin_manifest="$repo_root/.claude-plugin/plugin.json"
 [[ -f "$plugin_manifest" ]] || fail "missing plugin manifest at .claude-plugin/plugin.json"
+plugin_bin="$repo_root/bin/helix"
+plugin_hooks="$repo_root/hooks/hooks.json"
 
 # Validate plugin.json is parseable JSON with required fields
 if command -v python3 &>/dev/null; then
-  python3 - "$plugin_manifest" <<'PYEOF'
+  python3 - "$plugin_manifest" "$plugin_bin" "$plugin_hooks" <<'PYEOF'
 import json, sys
-path = sys.argv[1]
+path, plugin_bin, plugin_hooks = sys.argv[1:4]
 try:
     manifest = json.load(open(path))
 except json.JSONDecodeError as e:
     print(f"invalid JSON in {path}: {e}", file=sys.stderr)
     sys.exit(1)
-required = ("name", "version", "description", "skills")
+required = ("name", "version", "description", "skills", "hooks")
 missing = [k for k in required if not manifest.get(k)]
 if missing:
     print(f"plugin.json missing required fields: {', '.join(missing)}", file=sys.stderr)
     sys.exit(1)
+if manifest["skills"] != "./skills/":
+    print(f"plugin.json skills must be ./skills/ (got {manifest['skills']!r})", file=sys.stderr)
+    sys.exit(1)
+if manifest["hooks"] != "./hooks/hooks.json":
+    print(f"plugin.json hooks must be ./hooks/hooks.json (got {manifest['hooks']!r})", file=sys.stderr)
+    sys.exit(1)
+try:
+    hooks = json.load(open(plugin_hooks))
+except json.JSONDecodeError as e:
+    print(f"invalid JSON in {plugin_hooks}: {e}", file=sys.stderr)
+    sys.exit(1)
+if not isinstance(hooks, dict):
+    print(f"{plugin_hooks} must contain a JSON object", file=sys.stderr)
+    sys.exit(1)
+if "version" not in hooks or "hooks" not in hooks:
+    print(f"{plugin_hooks} must define version and hooks keys", file=sys.stderr)
+    sys.exit(1)
 PYEOF
   [[ $? -eq 0 ]] || fail "plugin.json validation failed"
 fi
+
+[[ -f "$plugin_bin" ]] || fail "missing plugin wrapper at bin/helix"
+[[ -x "$plugin_bin" ]] || fail "expected bin/helix to be executable"
+[[ -f "$plugin_hooks" ]] || fail "missing plugin hooks at hooks/hooks.json"
 
 # Verify that workflows/ references in SKILL.md files resolve from plugin root
 while IFS= read -r wf_ref; do
