@@ -47,6 +47,10 @@ exit_requirements:
       path: docs/helix/05-deploy/runbook.md
       description: "Runbook must exist"
 
+    - check: file_exists
+      path: docs/helix/05-deploy/release-notes.md
+      description: "Release notes must exist"
+
     # Infrastructure as code
     - check: file_exists
       path: deployment.yml
@@ -90,6 +94,6 @@ exit_requirements:
   manual:
     - "Staging deployment verified successful"
     - "Production go/no-go decision approved"
-    - "Stakeholders notified of deployment"
+    - "Release notes published"
 
 next_phase: iterate
