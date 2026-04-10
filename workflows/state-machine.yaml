@@ -130,8 +130,6 @@ phases:
     artifacts:
       ordered:
         - implementation-plan    # Plan the build; story-level work decomposed into tracker issues via helix build
-      parallel:
-        - secure-coding          # Security guidelines
     entry_gate:
       automated:
         - check: phase_complete

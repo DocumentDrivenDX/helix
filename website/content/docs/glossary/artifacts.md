@@ -236,6 +236,8 @@ Build artifacts guide the implementation work. In HELIX, code is written to make
 
 Work breakdown, dependency ordering, and parallel tracks. Maps the path from "tests are failing" to "tests are passing" with clear sequencing so agents and developers know what to build in what order.
 
+`secure-coding` remains retired as a standalone build artifact. HELIX now keeps security intent in Frame and Design (`security-requirements`, `threat-model`, `security-architecture`) and proves it through `security-tests`, code review, and build-phase security scans instead of a generic checklist document.
+
 ---
 
 ## Deploy (Phase 5)

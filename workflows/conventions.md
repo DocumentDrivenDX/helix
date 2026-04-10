@@ -119,8 +119,7 @@ Each phase directory contains artifacts directly (no `artifacts/` subdirectory):
 
 04-build/
 ├── README.md
-├── implementation-plan.md
-└── secure-coding-checklist.md
+└── implementation-plan.md
 
 05-deploy/
 ├── README.md
