@@ -248,6 +248,24 @@ Deploy artifacts are project-specific checklists and runbooks. Rather than presc
 
 Iterate artifacts capture what was learned and feed it back into the next cycle. They close the loop between production reality and the planning stack.
 
+### Metrics Dashboard
+
+`docs/helix/06-iterate/metrics-dashboard.md`
+
+Iteration-level synthesis of the current measurement set against a baseline or ratchet floor. The dashboard interprets whether the latest changes improved, regressed, or stayed within noise, and it ties that conclusion to the next decision.
+
+### Security Metrics
+
+`docs/helix/06-iterate/security-metrics.md`
+
+Security-specific iteration report covering incidents, vulnerabilities, application security findings, and compliance trends. Use it when the security signal needs its own evidence-backed recommendation surface rather than being buried inside the general dashboard.
+
+### Improvement Backlog
+
+`docs/helix/06-iterate/improvement-backlog.md`
+
+Prioritized inventory of follow-up work derived from metrics, feedback, incidents, and retrospectives. The tracker holds the executable beads; the backlog is the ranked bridge from iteration learnings to the next planning pass.
+
 ### Alignment Review
 
 `docs/helix/06-iterate/alignment-reviews/AR-*.md`
@@ -265,3 +283,5 @@ Documentation reconstruction from evidence: when governing documents are missing
 `docs/helix/06-iterate/metrics/*.yaml`
 
 Individual metric specification: name, unit, direction (higher-is-better or lower-is-better), measurement command, tolerance band, and ratchet floor. See [Quality Ratchets](/docs/workflow/#quality-ratchets) for how metrics become enforced floors.
+
+`feedback-analysis` remains retired as a standalone iterate artifact. Its useful responsibility is already covered by the metrics dashboard, security metrics, and improvement backlog, which together synthesize the signal and route the follow-up work without adding another thin report.

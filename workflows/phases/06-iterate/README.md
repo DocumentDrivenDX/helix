@@ -79,6 +79,53 @@ graph TD
 Individual metric specification: name, unit, direction (higher-is-better or
 lower-is-better), measurement command, tolerance band, and ratchet floor.
 
+#### Metrics Dashboard
+**Artifact Location**: `artifacts/metrics-dashboard/`
+**Output Location**: `docs/helix/06-iterate/metrics-dashboard.md`
+
+Iteration-level summary artifact:
+- compares the current measurement set against a baseline or ratchet floor
+- synthesizes product, operator, and stakeholder signals into one decision view
+- states whether the latest changes improved, regressed, or stayed within noise
+- links the conclusions to follow-up tracker work when action is required
+
+#### Security Metrics and Analysis
+**Artifact Location**: `artifacts/security-metrics/`
+**Output Location**: `docs/helix/06-iterate/security-metrics.md`
+
+Security posture monitoring and improvement tracking:
+- **Security incident response metrics (MTTD, MTTR)**
+- **Vulnerability management and remediation tracking**
+- **Compliance monitoring and audit findings analysis**
+- **Security training effectiveness and awareness metrics**
+- **Threat landscape analysis and defense effectiveness**
+- **Security improvement backlog prioritization and planning**
+
+**AI Capabilities**:
+- Security trend analysis and pattern recognition
+- Threat correlation and risk assessment
+- Automated compliance monitoring and reporting
+- Security control effectiveness measurement
+
+#### Improvement Backlog
+**Artifact Location**: `artifacts/improvement-backlog/`
+**Output Location**: `docs/helix/06-iterate/improvement-backlog.md`
+
+Prioritized iteration follow-up surface:
+- turns metrics, feedback, incidents, and retrospectives into ranked work
+- links each candidate to supporting evidence and tracker issues
+- makes the next iteration candidate explicit instead of leaving loose notes
+
+`feedback-analysis` remains retired as a standalone HELIX artifact. Its useful
+responsibility is already covered by the current iterate contract:
+
+- `metrics-dashboard` synthesizes cross-signal learnings into an iteration-level decision
+- `security-metrics` captures the security-specific slice when feedback is about risk or incidents
+- `improvement-backlog` turns those learnings into prioritized follow-up work
+
+Tracker issues remain the executable follow-on system. Reintroducing
+`feedback-analysis` would split one evidence trail across another thin document.
+
 #### Cross-Phase Action: Alignment Review
 **Action Location**: `../../actions/reconcile-alignment.md`
 **Output Location**: `docs/helix/06-iterate/alignment-reviews/AR-YYYY-MM-DD[-scope].md`
@@ -108,24 +155,6 @@ Research-first documentation reconstruction:
 - reconstructs missing HELIX artifacts conservatively from current state
 - asks for user guidance before low-confidence canonical content is finalized
 - writes a durable backfill report with assumptions, confidence, and follow-up work
-
-#### 9. Security Metrics and Analysis
-**Artifact Location**: `artifacts/security-metrics/`
-**Output Location**: `docs/helix/06-iterate/security-metrics.md`
-
-Security posture monitoring and improvement tracking:
-- **Security incident response metrics (MTTD, MTTR)**
-- **Vulnerability management and remediation tracking**
-- **Compliance monitoring and audit findings analysis**
-- **Security training effectiveness and awareness metrics**
-- **Threat landscape analysis and defense effectiveness**
-- **Security improvement backlog prioritization and planning**
-
-**AI Capabilities**:
-- Security trend analysis and pattern recognition
-- Threat correlation and risk assessment
-- Automated compliance monitoring and reporting
-- Security control effectiveness measurement
 
 ## Artifact Metadata
 
