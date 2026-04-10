@@ -74,12 +74,17 @@ graph TD
         US[US-XXX - User Story]
         TD[TD-XXX - Technical Design]
         TP[TP-XXX - Test Plan]
-        IR[IR-XXX - Iteration Report]
     end
 
     subgraph "Execution Layer (Non-Canonical)"
         BB[Build Issues]
         DB[Deploy Issues]
+    end
+
+    subgraph "Iterate Outputs"
+        MD[metrics-dashboard]
+        SM[security-metrics]
+        IB[improvement-backlog]
     end
 
     PRD --> FEAT
@@ -88,7 +93,11 @@ graph TD
     SD --> TD
     US --> TD --> TP
     IMP --> BB
-    TP --> BB --> DB --> IR
+    TP --> BB --> DB
+    DB --> MD
+    DB --> SM
+    MD --> IB
+    SM --> IB
 ```
 
 ## Story-Level Progression and Execution
@@ -96,7 +105,10 @@ graph TD
 Each user story progresses through all phases independently:
 
 ### Naming Pattern
-`{Prefix}-{Number}-{descriptive-name}.md`
+Canonical story document artifacts use `{Prefix}-{Number}-{descriptive-name}.md`.
+Build and deploy execution use native tracker issue IDs. Iterate no longer
+creates a numbered story-scoped report artifact; outcomes flow into the
+canonical iterate outputs plus tracker-backed follow-on work.
 
 ### Phase Progression
 ```
@@ -105,18 +117,19 @@ Design:  TD-036-list-mcp-servers.md
 Test:    TP-036-list-mcp-servers.md
 Build:   issue `hx-a3f2dd` labeled `helix`, `phase:build`, `story:US-036`
 Deploy:  issue `hx-b4c9e1` labeled `helix`, `phase:deploy`, `story:US-036`
-Iterate: IR-036-list-mcp-servers.md
+Iterate: `metrics-dashboard.md`, `security-metrics.md` (when relevant),
+         `improvement-backlog.md`, and tracker follow-on work linked to US-036
 ```
 
 ### Artifact Descriptions
 
-| Prefix | Artifact Type | Phase | Purpose |
+| Surface | Artifact Type | Phase | Purpose |
 |--------|--------------|-------|---------|
 | US | User Story | Frame | Defines WHAT needs to be built |
 | TD | Technical Design | Design | Details HOW to build it |
 | TP | Test Plan | Test | Specifies tests to verify it |
 | ISSUE | Build / Deploy Issue | Build / Deploy | Tracks scoped execution work in the built-in tracker |
-| IR | Iteration Report | Iterate | Captures metrics and learnings |
+| Iterate outputs | `metrics-dashboard`, `security-metrics`, `improvement-backlog`, plus tracker follow-on work | Iterate | Capture measured results, durable learnings, and prioritized next work without a separate numbered story report |
 
 ## Feature-Level Progression (Epics)
 
@@ -199,11 +212,11 @@ Each artifact references its dependencies:
 
 ### Traceability Chain
 ```
-FEAT-001 → SD-001 → US-036 → TD-036 → TP-036 → build issue(s) → deploy issue(s) → IR-036
+FEAT-001 → SD-001 → US-036 → TD-036 → TP-036 → build issue(s) → deploy issue(s) → iterate outputs + follow-on tracker work
          ↓
-         US-037 → TD-037 → TP-037 → build issue(s) → deploy issue(s) → IR-037
+         US-037 → TD-037 → TP-037 → build issue(s) → deploy issue(s) → iterate outputs + follow-on tracker work
          ↓
-         US-038 → TD-038 → TP-038 → build issue(s) → deploy issue(s) → IR-038
+         US-038 → TD-038 → TP-038 → build issue(s) → deploy issue(s) → iterate outputs + follow-on tracker work
 ```
 
 ## Naming Rules
@@ -211,8 +224,8 @@ FEAT-001 → SD-001 → US-036 → TD-036 → TP-036 → build issue(s) → depl
 ### Consistency Rules
 1. **Number stays constant**: 036 throughout all phases
 2. **Name stays constant**: "list-mcp-servers" throughout
-3. **Only canonical artifact prefix changes**: US → TD → TP → IR
-4. **Build and Deploy use native issue IDs**: execution is tracked in the built-in tracker, not numbered HELIX files
+3. **Only canonical story document prefixes change**: US → TD → TP
+4. **Build, Deploy, and Iterate use tracker issues and phase docs**: execution is tracked in the built-in tracker, and iterate outcomes land in canonical iterate outputs rather than a numbered HELIX story file
 
 ### Valid Examples
 ✅ `US-001-initialize-ddx.md`
@@ -235,7 +248,8 @@ If exists TD-036: Story is in DESIGN
 If exists TP-036: Story is in TEST
 If open HELIX build issues exist for story US-036: Story is in BUILD
 If open HELIX deploy issues exist for story US-036: Story is in DEPLOY
-If exists IR-036: Story is in ITERATE
+If deploy issues are complete and the outcome is reflected in iterate outputs
+or tracker-backed follow-on work for story US-036: Story is in ITERATE
 ```
 
 ### Feature State Detection
@@ -300,9 +314,9 @@ Feature Level:
   SD-001-mcp-management.md
 
 Story Level:
-  US-036-list-mcp-servers.md → ... → IR-036-list-mcp-servers.md
-  US-037-install-mcp-server.md → ... → IR-037-install-mcp-server.md
-  US-038-configure-mcp-server.md → ... → IR-038-configure-mcp-server.md
+  US-036-list-mcp-servers.md → ... → deploy issue(s) → iterate outputs + follow-on tracker work
+  US-037-install-mcp-server.md → ... → deploy issue(s) → iterate outputs + follow-on tracker work
+  US-038-configure-mcp-server.md → ... → deploy issue(s) → iterate outputs + follow-on tracker work
 ```
 
 ### Example 2: Story in Multiple Phases
@@ -313,7 +327,7 @@ Tuesday:  Create TD-041-user-authentication.md (DESIGN)
 Wednesday: Create TP-041-user-authentication.md (TEST)
 Thursday: Create build issue(s) for US-041 (BUILD)
 Friday:   Create deploy issue(s) for US-041 (DEPLOY)
-Next Week: Create IR-041-user-authentication.md (ITERATE)
+Next Week: Record the outcome in iterate outputs and tracker follow-on work (ITERATE)
 ```
 
 ## Commands

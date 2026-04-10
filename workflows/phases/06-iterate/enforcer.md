@@ -267,7 +267,8 @@ Track iteration-over-iteration:
 - **Ratchet Trends**: Are floors advancing? A stagnant coverage floor suggests
   the test strategy needs attention. A stagnant acceptance satisfaction floor
   suggests requirements are outpacing implementation. Include floor deltas in
-  iteration reports and use them to prioritize next-cycle work.
+  the canonical iterate outputs (`metrics-dashboard` and `security-metrics`
+  when relevant) and use them to prioritize next-cycle work.
 
 ## Stakeholder Communication
 

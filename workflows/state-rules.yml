@@ -40,9 +40,10 @@ artifact_patterns:
       query_command: "Inspect open tracker issues labeled helix, phase:deploy, story:US-{id}"
 
     iterate:
-      pattern: "docs/helix/06-iterate/iteration-reports/IR-{id}-*.md"
-      type: iteration-report
+      pattern: "docs/helix/06-iterate/"
+      type: iterate-evidence
       phase: iterate
+      query_command: "Inspect canonical iterate outputs and linked tracker follow-on work for story US-{id}; there is no numbered IR file"
 
   # Feature-level artifacts (epics)
   feature:
@@ -130,7 +131,7 @@ naming_conventions:
       TD: "Technical Design (Design)"
       TP: "Test Plan (Test)"
       ISSUE: "Execution tracked in built-in tracker"
-      IR: "Iteration Report (Iterate)"
+      ITERATE: "Canonical iterate outputs plus tracker-backed follow-on work (no numbered story file)"
 
   feature:
     pattern: "{prefix}-{id}-{name}"
@@ -162,7 +163,7 @@ transitions:
 
     deploy_to_iterate:
       requires: ["deploy issue(s) exist", "deployed"]
-      creates: "IR-{id}"
+      creates: "iterate outputs and tracker follow-on work for story {id}"
 
 # Validation rules
 validation:

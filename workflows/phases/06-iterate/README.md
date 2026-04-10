@@ -143,6 +143,26 @@ responsibility is already covered by the current iterate contract:
 Tracker issues remain the executable follow-on system. Reintroducing
 `feedback-analysis` would split one evidence trail across another thin document.
 
+`story-iteration-report` remains retired as a standalone HELIX artifact. Its
+old story-scoped intent is already covered by the current iterate contract:
+
+- deploy issues and their execution evidence record what one bounded slice
+  shipped, what happened during rollout, and what changed relative to plan
+- `metrics-dashboard` records iteration-level outcome summaries when that slice
+  materially changes the measured system state
+- `security-metrics` records the security-specific result when the slice affects
+  incidents, vulnerabilities, compliance, or operational risk
+- `improvement-backlog` and tracker issues capture the prioritized follow-on
+  work instead of leaving it in a prose-only report
+- upstream canonical docs absorb the durable behavioral change: update the PRD,
+  feature specs, stories, risk registers, or tests when the learning changes
+  future expectations
+
+The deleted prompt and template were too thin to justify restoring a separate
+canonical report. Reintroducing `story-iteration-report` would duplicate
+evidence already owned by execution issues, iterate summary artifacts, and the
+tracker-backed follow-on system.
+
 #### Cross-Phase Action: Alignment Review
 **Action Location**: `../../actions/reconcile-alignment.md`
 **Output Location**: `docs/helix/06-iterate/alignment-reviews/AR-YYYY-MM-DD[-scope].md`
