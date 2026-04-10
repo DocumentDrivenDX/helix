@@ -19,15 +19,14 @@ built-in tracker holds the executable tasks themselves.
 ## Canonical Inputs
 
 - `docs/helix/06-iterate/metrics-dashboard.md`
-- `docs/helix/06-iterate/lessons-learned.md`
-- retrospective notes
+- `docs/helix/06-iterate/security-metrics.md`
 - tracker issues created from the iteration
 
 ## Minimum Prompt Bar
 
 - Turn learnings into ranked follow-up work.
 - Prefer tracker-backed items over vague ideas.
-- Use evidence from metrics, feedback, and retrospectives.
+- Use evidence from metrics, security findings, and iteration follow-up issues.
 - Make the next iteration candidate obvious.
 - Keep the backlog focused on prioritization, not implementation detail.
 

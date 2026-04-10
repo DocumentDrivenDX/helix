@@ -14,17 +14,14 @@ dependencies:
       type: artifact
       path: metrics-dashboard
       required: true
-    - input: Lessons learned
+    - input: Security Metrics
       type: artifact
-      path: lessons-learned
-      required: false
+      path: security-metrics
+      required: true
     - input: Tracker issues
       type: external
       required: true
   enables:
-    - output: Next Iteration Plan
-      type: artifact
-      phase: iterate
     - output: Planning beads
       type: issue
 
@@ -67,11 +64,8 @@ workflow:
 relationships:
   informed_by:
     - metrics-dashboard
-    - feedback-analysis
-    - lessons-learned
-    - retrospective
+    - security-metrics
   informs:
-    - next-iteration
     - tracker issues
 
 tags:

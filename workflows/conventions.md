@@ -133,13 +133,10 @@ Each phase directory contains artifacts directly (no `artifacts/` subdirectory):
 ├── README.md
 ├── metrics-dashboard.md
 ├── security-metrics.md
-├── metrics/                 # Shared metric definitions (YAML)
-├── feedback-analysis.md
-├── lessons-learned.md
-├── alignment-reviews/
-├── backfill-reports/
 ├── improvement-backlog.md
-└── refinements/
+├── metrics/                 # Shared metric definitions (YAML)
+├── alignment-reviews/
+└── backfill-reports/
 ```
 
 ### Parking Lot Registry

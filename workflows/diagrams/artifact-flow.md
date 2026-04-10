@@ -316,7 +316,7 @@ docs/
 │   ├── monitoring-setup.md
 │   └── runbook.md
 └── 06-iterate/
-    ├── metrics-reports/
-    ├── lessons-learned/
+    ├── metrics-dashboard.md
+    ├── security-metrics.md
     └── improvement-backlog.md
 ```

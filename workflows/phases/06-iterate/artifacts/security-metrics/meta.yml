@@ -1,0 +1,84 @@
+artifact:
+  name: Security Metrics
+  id: security-metrics
+  type: document
+  phase: iterate
+
+description: |
+  Iteration-level security posture report covering incident response,
+  vulnerability management, application security, and compliance.
+
+dependencies:
+  requires:
+    - input: Security Monitoring and Incident Data
+      type: external
+      required: true
+    - input: Vulnerability Scan Results
+      type: external
+      required: true
+    - input: Compliance Audit Findings
+      type: external
+      required: false
+    - input: Previous Security Metrics Report
+      type: external
+      required: false
+  enables:
+    - output: Improvement Backlog
+      type: artifact
+      phase: iterate
+    - output: Planning beads
+      type: issue
+
+output:
+  location: docs/helix/06-iterate/security-metrics.md
+  format: markdown
+  naming: security-metrics.md
+
+validation:
+  required_sections:
+    - incident_response
+    - vulnerability_management
+    - application_security
+    - compliance_status
+    - security_posture_trend
+    - recommendations
+
+  quality_checks:
+    - check: trend_comparison_explicit
+      description: Trend comparison must be explicit for each security area
+      severity: blocking
+    - check: actionable_recommendations
+      description: Recommendations must be specific enough to become tracker issues
+      severity: blocking
+    - check: root_cause_documented
+      description: Critical and high-severity incidents must include root cause notes
+      severity: warning
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+workflow:
+  creation_order: 2
+  review_cycles: 1
+  approval_required: true
+  approvers:
+    - Technical Lead
+    - Product Owner
+
+relationships:
+  informed_by:
+    - metrics-dashboard
+  informs:
+    - improvement-backlog
+
+tags:
+  - iterate
+  - security
+  - metrics
+  - report
+
+version: 1.0.0
+last_updated: 2026-04-09

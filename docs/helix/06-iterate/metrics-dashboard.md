@@ -22,7 +22,7 @@ files alone.
 - `docs/helix/06-iterate/metrics/*.yaml`
 - measurement output from the current iteration
 - prior iteration baseline or committed floor
-- feedback and learning artifacts when they affect interpretation
+- `docs/helix/06-iterate/security-metrics.md` when security posture affects interpretation
 
 ## Minimum Prompt Bar
 

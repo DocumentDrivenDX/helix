@@ -27,12 +27,8 @@ exit_requirements:
       description: "Metrics dashboard analysis must exist"
 
     - check: file_exists
-      path: docs/helix/06-iterate/feedback-analysis.md
-      description: "Feedback analysis must exist"
-
-    - check: file_exists
-      path: docs/helix/06-iterate/lessons-learned.md
-      description: "Lessons learned document must exist"
+      path: docs/helix/06-iterate/security-metrics.md
+      description: "Security metrics analysis must exist"
 
     - check: file_exists
       path: docs/helix/06-iterate/improvement-backlog.md
@@ -42,20 +38,11 @@ exit_requirements:
       path: .ddx/issues.jsonl
       description: "Tracker must be initialized for actionable items"
 
-    - check: file_exists
-      path: docs/helix/06-iterate/retrospective.md
-      description: "Team retrospective must exist"
-
-    # Security metrics
-    - check: file_exists
-      path: docs/helix/06-iterate/security-metrics.md
-      description: "Security metrics analysis must exist"
-
     # Action items documented
     - check: grep_present
       pattern: "(action item|next step|improvement|TODO)"
-      path: docs/helix/06-iterate/retrospective.md
-      description: "Retrospective contains follow-up work to convert into issues"
+      path: docs/helix/06-iterate/improvement-backlog.md
+      description: "Improvement backlog contains follow-up work to convert into issues"
 
     # Backlog has prioritized items
     - check: grep_present
@@ -71,8 +58,7 @@ exit_requirements:
   manual:
     - "Backlog issues created in tracker (`ddx bead`)"
     - "Improvement backlog references issue IDs or tracker queries"
-    - "Improvement backlog references the selected next-iteration issue IDs"
-    - "Team retrospective completed with all members"
+    - "Improvement backlog references the selected follow-up issue IDs"
     - "Improvement priorities agreed by stakeholders"
     - "Decision made: continue to next iteration or project complete"
 

@@ -179,8 +179,7 @@ phases:
     artifacts:
       ordered:
         - metrics-dashboard      # Collect data
-        - feedback-analysis      # Analyze feedback
-        - lessons-learned        # Document learnings
+        - security-metrics       # Security-specific learnings
         - improvement-backlog    # Plan improvements
       parallel: []
     entry_gate:
@@ -190,7 +189,7 @@ phases:
     exit_gate:
       automated:
         - check: file_exists
-          path: docs/helix/06-iterate/lessons-learned.md
+          path: docs/helix/06-iterate/improvement-backlog.md
       manual:
         - "Next iteration scope decided"
     next_phase: frame  # Loop back

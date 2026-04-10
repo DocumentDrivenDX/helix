@@ -220,9 +220,12 @@ Iterate provides:
 ## Iterate Artifacts
 
 Key outputs to create/update:
+- **Metrics Dashboard**: Iteration-level system summary and decision report
+- **Security Metrics**: Security-specific posture, trend, and recommendation report
+- **Improvement Backlog**: Prioritized tracker-backed follow-up work
+- **Metric Definitions**: Individual metric specifications with ratchet floors
 - **Alignment Reviews**: Reconciliation of plan vs. implementation
 - **Backfill Reports**: Documentation reconstruction from evidence
-- **Metric Definitions**: Individual metric specifications with ratchet floors
 - **Tracker Issues**: Follow-up work feeding back into Frame
 
 ## Your Mantras

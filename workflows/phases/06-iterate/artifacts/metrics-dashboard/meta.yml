@@ -17,15 +17,8 @@ dependencies:
     - input: Measurement Results
       type: external
       required: true
-    - input: Prior iteration learnings
-      type: artifact
-      path: feedback-analysis
-      required: false
   enables:
     - output: Improvement Backlog
-      type: artifact
-      phase: iterate
-    - output: Next Iteration Plan
       type: artifact
       phase: iterate
 
@@ -71,11 +64,8 @@ workflow:
 relationships:
   informed_by:
     - metric-definition
-    - feedback-analysis
-    - lessons-learned
   informs:
     - improvement-backlog
-    - next-iteration
 
 tags:
   - iterate

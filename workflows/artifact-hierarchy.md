@@ -166,13 +166,13 @@ docs/
     ├── 05-deploy/
     │   ├── deployment-checklist.md    # Project-level
     └── 06-iterate/
+        ├── metrics-dashboard.md       # Project-level
+        ├── security-metrics.md        # Project-level
+        ├── improvement-backlog.md     # Project-level
         ├── alignment-reviews/
         │   └── AR-YYYY-MM-DD-*.md    # Cross-phase reconciliation reports
-        ├── backfill-reports/
-        │   └── BF-YYYY-MM-DD-*.md    # Research-first backfill reports
-        ├── metrics-dashboard.md       # Project-level
-        └── iteration-reports/
-            └── IR-XXX-*.md           # Story-level (NEW)
+        └── backfill-reports/
+            └── BF-YYYY-MM-DD-*.md    # Research-first backfill reports
 
 .helix/                               # Built-in tracker workspace
 ```
