@@ -2087,6 +2087,50 @@ run_polish() {
   return "$_rc"
 }
 
+resolve_review_scope_for_issue() {
+  local issue_id="$1"
+  local closing_sha=""
+  closing_sha="$(tracker_show "$issue_id" --json 2>/dev/null | ddx jq -r '.closing_commit_sha // ""')" || closing_sha=""
+
+  if [[ -z "$closing_sha" ]]; then
+    printf 'last-commit\n'
+    return 0
+  fi
+
+  if ! (cd "$target_root" && git rev-parse --verify -q "${closing_sha}^{commit}" >/dev/null 2>&1); then
+    verbose_line "review fallback: closing_commit_sha for %s is unavailable locally (%s)" "$issue_id" "$closing_sha"
+    printf 'last-commit\n'
+    return 0
+  fi
+
+  printf 'commit:%s\n' "$closing_sha"
+}
+
+review_scope_stats() {
+  local scope="${1:-last-commit}"
+  local diff_lines=999 diff_files=999
+
+  case "$scope" in
+    commit:*)
+      local commit_sha="${scope#commit:}"
+      diff_lines="$(cd "$target_root" && git show --numstat --format='' "$commit_sha" 2>/dev/null | awk '
+        NF >= 3 {
+          if ($1 ~ /^[0-9]+$/) sum += $1
+          if ($2 ~ /^[0-9]+$/) sum += $2
+        }
+        END { print sum + 0 }
+      ')" || diff_lines=999
+      diff_files="$(cd "$target_root" && git show --name-only --format='' "$commit_sha" 2>/dev/null | awk 'NF { count += 1 } END { print count + 0 }')" || diff_files=999
+      ;;
+    *)
+      diff_lines="$(cd "$target_root" && git diff --stat HEAD~1 2>/dev/null | tail -1 | grep -oE '[0-9]+ insertion|[0-9]+ deletion' | grep -oE '[0-9]+' | paste -sd+ | bc 2>/dev/null)" || diff_lines=999
+      diff_files="$(cd "$target_root" && git diff --name-only HEAD~1 2>/dev/null | wc -l | awk '{print $1}')" || diff_files=999
+      ;;
+  esac
+
+  printf '%s %s\n' "$diff_lines" "$diff_files"
+}
+
 run_review() {
   local scope="${1:-last-commit}"
   local in_loop="${2:-0}"
@@ -2932,16 +2976,16 @@ Output: ${_ac_output:0:500}" \
         # Skip review for small changes (below threshold) to save tokens.
         # Epic close reviews always run regardless of threshold.
         if (( auto_review )); then
-          local _diff_lines _diff_files _skip_review=0
-          _diff_lines="$(cd "$target_root" && git diff --stat HEAD~1 2>/dev/null | tail -1 | grep -oE '[0-9]+ insertion|[0-9]+ deletion' | grep -oE '[0-9]+' | paste -sd+ | bc 2>/dev/null)" || _diff_lines=999
-          _diff_files="$(cd "$target_root" && git diff --name-only HEAD~1 2>/dev/null | wc -l)" || _diff_files=999
+          local review_scope _diff_lines _diff_files _skip_review=0
+          review_scope="$(resolve_review_scope_for_issue "$selected_issue")"
+          read -r _diff_lines _diff_files < <(review_scope_stats "$review_scope")
           if (( review_threshold > 0 && _diff_lines < review_threshold && _diff_files < 3 )); then
             _skip_review=1
-            verbose_line "skipping review for small change (%s lines, %s files < threshold %s)" "$_diff_lines" "$_diff_files" "$review_threshold"
+            verbose_line "skipping review for small change (%s, %s lines, %s files < threshold %s)" "$review_scope" "$_diff_lines" "$_diff_files" "$review_threshold"
           fi
           if (( ! _skip_review )); then
-          verbose_line "post-implementation review after cycle %s" "$attempt_number"
-          if run_review last-commit 1; then
+          verbose_line "post-implementation review after cycle %s (%s)" "$attempt_number" "$review_scope"
+          if run_review "$review_scope" 1; then
             :
           else
             local review_status="$?"

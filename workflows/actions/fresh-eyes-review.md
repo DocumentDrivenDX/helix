@@ -12,6 +12,7 @@ You may receive:
 
 - no argument (default: `last-commit`)
 - `last-commit` — review the most recent commit
+- `commit:<sha>` — review one specific implementation commit
 - an issue ID — review all changes associated with that issue
 - a file list — review those specific files
 
@@ -19,6 +20,7 @@ Examples:
 
 - `helix review`
 - `helix review last-commit`
+- `helix review commit:abc1234`
 - `helix review <id>`
 - `helix review src/auth/`
 
@@ -37,9 +39,13 @@ Examples:
    and ADRs govern this work.
 1. Determine what was just implemented:
    - If `last-commit` or no argument: `git diff HEAD~1`
+   - If `commit:<sha>`: review exactly that commit's diff (`git show <sha>`)
    - If issue ID: load the issue, find associated commits via issue ID in commit
      messages, compute the aggregate diff
    - If file paths: review those files in their current state
+   - In the automated `helix run` loop, prefer `commit:<sha>` from the
+     executed bead's `closing_commit_sha` when tracker-closure bookkeeping
+     produced a newer tracker-only commit after the implementation commit.
 2. Load the governing artifacts for the reviewed code (acceptance criteria,
    test plans, design docs).
 

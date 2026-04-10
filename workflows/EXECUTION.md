@@ -606,6 +606,12 @@ helix review ddx-abc123       # review changes for a specific issue
 helix review src/auth/        # review specific files
 ```
 
+Inside `helix run`, the post-implementation review target is resolved from the
+executed bead first. When the implementation pass closes the bead and a
+tracker-sync commit lands after the code commit, the loop reviews the bead's
+`closing_commit_sha` instead of raw `HEAD~1`, so the threshold and review scope
+still inspect the implementation diff rather than the tracker bookkeeping diff.
+
 Review findings are durable: the review action files each actionable finding
 as a tracker issue with label `review-finding`. The run loop continues after
 review rather than stopping, because the findings are now in the tracker and

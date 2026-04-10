@@ -3394,6 +3394,88 @@ MOCK
   rm -rf "$root"
 }
 
+test_run_review_targets_closing_commit_sha_after_tracker_sync_commit() {
+  local root
+  root="$(make_workspace)"
+  seed_tracker "$root" 1
+
+  (cd "$root/work" && git config user.email "test@test.com" && git config user.name "Test")
+  mkdir -p "$root/work/src"
+  printf 'base\n' > "$root/work/src/app.txt"
+  (
+    cd "$root/work" &&
+    git add .ddx/beads.jsonl src/app.txt &&
+    git commit -qm "seed"
+  )
+
+  awk 'BEGIN { for (i = 1; i <= 120; i++) printf "implementation line %03d\n", i }' > "$root/work/src/app.txt"
+  (
+    cd "$root/work" &&
+    git add src/app.txt &&
+    git commit -qm "hx-mock-0 implementation"
+  )
+  local impl_sha
+  impl_sha="$(cd "$root/work" && git rev-parse HEAD)"
+
+  local tracker_tmp
+  tracker_tmp="$(ddx jq -c '.notes = "tracker sync"' "$root/work/.ddx/beads.jsonl")"
+  printf '%s\n' "$tracker_tmp" > "$root/work/.ddx/beads.jsonl"
+  (
+    cd "$root/work" &&
+    git add .ddx/beads.jsonl &&
+    git commit -qm "helix-other sync tracker closure"
+  )
+
+  printf 'STOP\n' > "$root/state/next-actions"
+  cat >"$root/bin/codex" <<'MOCK'
+#!/usr/bin/env bash
+set -euo pipefail
+state_root="${MOCK_STATE_ROOT:?}"
+record() { printf '%s\n' "$1" >> "$state_root/calls.log"; }
+next_action() {
+  local file="$state_root/next-actions"
+  if [[ ! -s "$file" ]]; then echo STOP; return; fi
+  head -n1 "$file"; tail -n +2 "$file" > "$file.tmp" || true; mv "$file.tmp" "$file"
+}
+payload="$*"
+case "$payload" in
+  *"implementation action"*)
+    record implement
+    tmp="$(ddx jq -c --arg sha "$IMPL_SHA" '.status = "closed" | .closing_commit_sha = $sha' .ddx/beads.jsonl)"
+    printf '%s\n' "$tmp" > .ddx/beads.jsonl
+    echo "implementation complete"
+    ;;
+  *"fresh-eyes review"*)
+    record review
+    printf '%s\n' "$payload" > "$state_root/review-prompt.txt"
+    echo "REVIEW_STATUS: CLEAN"
+    echo "ISSUES_COUNT: 0"
+    ;;
+  *"check action"*)
+    record check
+    printf 'NEXT_ACTION: %s\n' "$(next_action)"
+    ;;
+  *)
+    record other
+    echo "mock"
+    ;;
+esac
+MOCK
+  chmod +x "$root/bin/codex"
+
+  local output
+  output="$(run_helix_with_env "$root" IMPL_SHA "$impl_sha" run --no-auto-align 2>&1)" || true
+
+  local calls
+  calls="$(cat "$root/state/calls.log" 2>/dev/null)"
+  assert_contains "$calls" "review" "run should still trigger review for the implementation diff"
+  local review_prompt
+  review_prompt="$(cat "$root/state/review-prompt.txt" 2>/dev/null)"
+  assert_contains "$review_prompt" "Review scope: commit:$impl_sha" "review should target closing_commit_sha instead of raw last-commit"
+  assert_not_contains "$output" "skipping review for small change" "tracker-only HEAD commit should not suppress review of the implementation commit"
+  rm -rf "$root"
+}
+
 # --- Cross-model review in live run ---
 
 test_cross_model_review_switches_agent() {
@@ -3634,6 +3716,7 @@ run_test "drift on supersession skips close" test_drift_on_supersession_skips_cl
 run_test "drift on spec-id change skips close" test_drift_on_spec_id_change_skips_close
 run_test "review CLEAN succeeds" test_review_clean_status_succeeds
 run_test "review ISSUES_FOUND continues loop" test_review_issues_found_continues_loop
+run_test "run review targets closing commit sha after tracker sync commit" test_run_review_targets_closing_commit_sha_after_tracker_sync_commit
 run_test "cross-model review switches agent" test_cross_model_review_switches_agent
 run_test "explicit --agent dispatches to named agent" test_explicit_agent_dispatches_to_named_agent
 run_test "run-state records explicit agent" test_run_state_records_explicit_agent
