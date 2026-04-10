@@ -46,9 +46,14 @@ docs/
 │   ├── implementation-plan.md  # Build strategy and planning (singular)
 │   └── build-procedures.md    # Development procedures (singular)
 ├── deploy/                     # Phase 05: Deployment & Operations
-│   └── [TBD]                  # Deployment-specific documentation
+│   ├── deployment-checklist.md # Release go/no-go checklist (singular)
+│   ├── monitoring-setup.md    # Observability and alerting setup (singular)
+│   ├── runbook.md             # Operator response and rollback guide (singular)
+│   └── release-notes.md       # Release communication artifact (singular)
 └── iterate/                    # Phase 06: Post-Deployment & Feedback
-    └── [TBD]                  # Iteration and improvement documentation
+    ├── metrics-dashboard.md   # Iteration health and outcome summary (singular)
+    ├── security-metrics.md    # Security posture summary (singular)
+    └── improvement-backlog.md # Prioritized follow-on work (singular)
 ```
 
 ## Legacy Structure
@@ -105,6 +110,13 @@ The documentation uses systematic identifiers to ensure traceability across phas
 - Test Procedures (`test/test-procedures.md`)
 - Implementation Plan (`build/implementation-plan.md`)
 - Build Procedures (`build/build-procedures.md`)
+- Deployment Checklist (`deploy/deployment-checklist.md`)
+- Monitoring Setup (`deploy/monitoring-setup.md`)
+- Runbook (`deploy/runbook.md`)
+- Release Notes (`deploy/release-notes.md`)
+- Metrics Dashboard (`iterate/metrics-dashboard.md`)
+- Security Metrics (`iterate/security-metrics.md`)
+- Improvement Backlog (`iterate/improvement-backlog.md`)
 
 **Plural Artifacts** (multiple per project):
 - Feature Specifications (`frame/features/FEAT-XXX-[name].md`)
