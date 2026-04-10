@@ -86,6 +86,15 @@ deploy surfaces as first-class when a release needs them:
 - `release-notes` communicate the shipped changes, required actions, and known
   caveats to users or operators.
 
+The deleted `launch-checklist` artifact stays superseded rather than restored.
+Its former umbrella scope is now split deliberately across the current deploy
+contract: `deployment-checklist` covers technical go/no-go readiness,
+`monitoring-setup` covers observability readiness, `runbook` covers operator
+response, `release-notes` cover release communication, and linked
+`phase:deploy` tracker issues carry coordination, owners, and dependencies.
+Restoring a separate launch checklist would collapse distinct responsibilities
+back into one vague surface without adding a new prompt or template contract.
+
 `CHANGELOG.md` may still exist as a repository history log, but it does not
 replace release-scoped notes that are audience-filtered and action-oriented.
 

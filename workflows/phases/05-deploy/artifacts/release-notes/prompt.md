@@ -29,8 +29,10 @@ Lead with the most important highlights, then make required actions, breaking
 changes, migrations, and known issues explicit. If no action is required or no
 breaking changes exist, say that clearly.
 
-Do not produce roadmap filler, a launch checklist, a GTM plan, or a dump of
-internal ticket summaries.
+Do not produce roadmap filler, a GTM plan, or a cross-functional launch
+checklist. Launch coordination belongs in linked `phase:deploy` tracker work
+plus the adjacent deploy artifacts (`deployment-checklist`, `monitoring-setup`,
+and `runbook`), not inside release notes.
 
 ## Completion Criteria
 - [ ] Release scope, audience, and channels are explicit

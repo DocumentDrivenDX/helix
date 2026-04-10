@@ -56,3 +56,11 @@ pruned.
 Those artifacts define adjacent responsibilities that the checklist references.
 The deleted prompt and template were too thin, so restoration requires a real
 prompt and template bar rather than reintroducing the old stub verbatim.
+
+The deleted `launch-checklist` artifact stays superseded rather than restored.
+Its surviving intent is intentionally decomposed: technical readiness lives in
+`deployment-checklist`, observability readiness lives in `monitoring-setup`,
+rollback and recovery procedures live in `runbook`, release communication lives
+in `release-notes`, and cross-functional coordination lives in linked
+`phase:deploy` tracker issues. Reintroducing `launch-checklist` would duplicate
+those surfaces instead of defining a distinct deploy artifact.
