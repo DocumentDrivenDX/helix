@@ -183,6 +183,9 @@ docs/
     │   ├── implementation-plan.md     # Project-level
     ├── 05-deploy/
     │   ├── deployment-checklist.md    # Project-level
+    │   ├── monitoring-setup.md        # Project-level
+    │   ├── runbook.md                 # Project-level
+    │   └── release-notes.md           # Project-level
     └── 06-iterate/
         ├── metrics-dashboard.md       # Project-level
         ├── security-metrics.md        # Project-level

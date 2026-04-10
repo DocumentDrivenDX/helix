@@ -309,12 +309,12 @@ docs/
 │   ├── test-procedures.md
 │   └── test-suites/
 ├── 04-build/
-│   ├── implementation-plan.md
-│   └── code-reviews/
+│   └── implementation-plan.md
 ├── 05-deploy/
 │   ├── deployment-checklist.md
 │   ├── monitoring-setup.md
-│   └── runbook.md
+│   ├── runbook.md
+│   └── release-notes.md
 └── 06-iterate/
     ├── metrics-dashboard.md
     ├── security-metrics.md

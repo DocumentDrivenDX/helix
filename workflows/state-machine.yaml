@@ -158,11 +158,11 @@ phases:
     description: Release to production with monitoring
     artifacts:
       ordered:
-        - deployment-checklist   # Technical deployment
-        - launch-checklist       # Cross-functional launch
-        - release-notes          # User communication
-      parallel:
-        - gtm-plan              # Go-to-market
+        - deployment-checklist   # Technical go/no-go for rollout
+        - monitoring-setup       # Proves the rollout is observable
+        - runbook                # Operator rollback and recovery guidance
+        - release-notes          # User and operator communication
+      parallel: []
     entry_gate:
       automated:
         - check: phase_complete
