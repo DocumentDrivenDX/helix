@@ -13,6 +13,8 @@ The documentation structure mirrors the HELIX workflow phases, creating a logica
 
 ## Directory Structure
 
+In this repository, the canonical HELIX phase artifacts live under `docs/helix/`.
+
 ```
 docs/
 ├── README.md                    # This overview document
@@ -45,12 +47,12 @@ docs/
 ├── build/                      # Phase 04: Implementation Strategy
 │   ├── implementation-plan.md  # Build strategy and planning (singular)
 │   └── build-procedures.md    # Development procedures (singular)
-├── deploy/                     # Phase 05: Deployment & Operations
+├── helix/05-deploy/            # Phase 05: Deployment & Operations
 │   ├── deployment-checklist.md # Release go/no-go checklist (singular)
 │   ├── monitoring-setup.md    # Observability and alerting setup (singular)
 │   ├── runbook.md             # Operator response and rollback guide (singular)
 │   └── release-notes.md       # Release communication artifact (singular)
-└── iterate/                    # Phase 06: Post-Deployment & Feedback
+└── helix/06-iterate/           # Phase 06: Post-Deployment & Feedback
     ├── metrics-dashboard.md   # Iteration health and outcome summary (singular)
     ├── security-metrics.md    # Security posture summary (singular)
     └── improvement-backlog.md # Prioritized follow-on work (singular)
@@ -110,13 +112,13 @@ The documentation uses systematic identifiers to ensure traceability across phas
 - Test Procedures (`test/test-procedures.md`)
 - Implementation Plan (`build/implementation-plan.md`)
 - Build Procedures (`build/build-procedures.md`)
-- Deployment Checklist (`deploy/deployment-checklist.md`)
-- Monitoring Setup (`deploy/monitoring-setup.md`)
-- Runbook (`deploy/runbook.md`)
-- Release Notes (`deploy/release-notes.md`)
-- Metrics Dashboard (`iterate/metrics-dashboard.md`)
-- Security Metrics (`iterate/security-metrics.md`)
-- Improvement Backlog (`iterate/improvement-backlog.md`)
+- Deployment Checklist (`docs/helix/05-deploy/deployment-checklist.md`)
+- Monitoring Setup (`docs/helix/05-deploy/monitoring-setup.md`)
+- Runbook (`docs/helix/05-deploy/runbook.md`)
+- Release Notes (`docs/helix/05-deploy/release-notes.md`)
+- Metrics Dashboard (`docs/helix/06-iterate/metrics-dashboard.md`)
+- Security Metrics (`docs/helix/06-iterate/security-metrics.md`)
+- Improvement Backlog (`docs/helix/06-iterate/improvement-backlog.md`)
 
 **Plural Artifacts** (multiple per project):
 - Feature Specifications (`frame/features/FEAT-XXX-[name].md`)
