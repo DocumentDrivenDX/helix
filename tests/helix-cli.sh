@@ -3571,6 +3571,8 @@ MOCK
     HELIX_FORCE_EPHEMERAL=1 \
     HELIX_REVIEW_AGENT="codex" \
     HELIX_DIRECT_AGENT=1 \
+    DDX_BEAD_DIR="$root/work/.ddx" \
+    DDX_DISABLE_UPDATE_CHECK=1 \
     bash "$repo_root/scripts/helix" run --agent claude --quiet --no-auto-align 2>&1
   )" || true
 
@@ -3767,7 +3769,7 @@ with_mock_ddx_list() {
   local root="$1"
   local list_json="$2"
   local real_ddx
-  real_ddx="$(command -v ddx)"
+  real_ddx="$(type -P ddx)"
 
   cat > "$root/bin/ddx" <<EOF
 #!/usr/bin/env bash
@@ -4211,7 +4213,7 @@ test_ready_count_survives_advisory_lines() {
   local root real_ddx
   root="$(make_workspace)"
   seed_tracker "$root" 2
-  real_ddx="$(command -v ddx)"
+  real_ddx="$(type -P ddx)"
 
   # ddx wrapper: prepend advisory line only for bead ready --json
   cat > "$root/bin/ddx" << SCRIPT

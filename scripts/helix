@@ -1680,7 +1680,7 @@ helix_select_batch() {
       (
         ($parent != "" and .parent == $parent) or
         ($spec != "" and .["spec-id"] == $spec) or
-        (($areas | length) > 0 and ([(.labels // [])[] | select(startswith("area:"))] | [.[] | select(. as $a | $areas | index($a))]) | length > 0)
+        (($areas | length) > 0 and ([ (.labels // [])[] | select(startswith("area:")) | . as $label | select($areas | index($label)) ] | length > 0))
       )
     )] | .[0:($max - 1)] | .[].id
   ' 2>/dev/null)" || true
@@ -2824,6 +2824,11 @@ run_loop() {
         eval "$_impl_cmd" >> "$helix_log" 2>&1 || _impl_rc=$?
       else
         eval "$_impl_cmd" || _impl_rc=$?
+      fi
+
+      if (( dry_run )); then
+        finish_loop 0
+        return $?
       fi
 
       # Even when the agent exits non-zero (timeout, minor error), it may
