@@ -152,7 +152,7 @@ relationships:
   informs:
     - solution-design
     - architecture
-    - contracts
+    - contract
     - implementation-plan
     - adr
 

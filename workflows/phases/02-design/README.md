@@ -105,7 +105,23 @@ Documents significant architectural decisions:
 - **Consequences**: Trade-offs and impacts
 - **Success Criteria**: How to validate the decision
 
-### 5. Data Design
+### 5. Security Architecture
+**Location**: `docs/helix/02-design/security-architecture.md`
+
+Defines the design-level security posture that implementation and testing must
+follow:
+- **Trust Boundaries**: Component and integration boundaries that require controls
+- **Control Mapping**: Preventive, detective, and recovery controls tied to threats
+- **Identity and Access**: Authentication, authorization, sessions, and token handling
+- **Data Protection**: Encryption, secrets handling, and sensitive-data controls
+- **Verification Hooks**: Testable expectations for security tests and reviews
+
+Use `security-architecture` when the document is the canonical place for
+design-level security decisions. Keep requirements in Frame's
+`security-requirements` and `threat-model`; keep schema and lifecycle details
+in `data-design`.
+
+### 6. Data Design
 **Location**: `docs/helix/02-design/data-design.md`
 
 Comprehensive data architecture:

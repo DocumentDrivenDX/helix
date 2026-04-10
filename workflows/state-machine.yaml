@@ -74,7 +74,7 @@ phases:
         - architecture           # System-level first
         - solution-design        # Feature-level designs
         - technical-design       # Implementation details
-        - contracts              # Normative interface and schema contracts
+        - contract               # Normative interface and schema contracts
       parallel:
         - adr                    # Decisions can be captured anytime
         - security-architecture
@@ -91,6 +91,12 @@ phases:
           path: docs/helix/02-design/architecture.md
         - check: dir_not_empty
           path: docs/helix/02-design/contracts
+        - check: dir_not_empty
+          path: docs/helix/02-design/adr
+        - check: file_exists
+          path: docs/helix/02-design/security-architecture.md
+        - check: file_exists
+          path: docs/helix/02-design/data-design.md
         - check: grep_absent
           pattern: "\\[NEEDS CLARIFICATION\\]"
           path: docs/helix/02-design/**/*.md

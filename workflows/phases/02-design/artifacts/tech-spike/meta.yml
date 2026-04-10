@@ -151,7 +151,7 @@ relationships:
     - adr
     - solution-design
     - implementation-plan
-    - contracts
+    - contract
 
   outputs:
     - technical_validation

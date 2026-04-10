@@ -27,7 +27,7 @@ outputs:
       prefix: TP
       same_number: true
       relationship: "test plan validates design"
-    - artifact: contracts
+    - artifact: contract
       relationship: "defines API contracts"
 
 completion:
