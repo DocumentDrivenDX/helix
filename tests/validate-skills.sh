@@ -38,6 +38,16 @@ assert_file_contains() {
   fi
 }
 
+assert_command_fails() {
+  local output_file="$1"
+  local message="$2"
+  shift 2
+
+  if "$@" >"$output_file" 2>&1; then
+    fail "$message"
+  fi
+}
+
 # ---------- Plugin layout checks ----------
 
 plugin_manifest="$repo_root/.claude-plugin/plugin.json"
@@ -240,5 +250,19 @@ assert_file_contains \
   "$repo_root/docs/helix/02-design/technical-designs/TD-011-slider-autonomy-implementation.md" \
   "### Decision 5c: Bead Success-Measurement Contract" \
   "TD-011 must retain the bead success-measurement decision"
+
+reject_output="$(mktemp)"
+command -v python3 >/dev/null 2>&1 || fail "python3 is required for execution-ready bead validation"
+assert_command_fails \
+  "$reject_output" \
+  "execution-ready validator should reject vague acceptance fixtures" \
+  python3 \
+  "$repo_root/scripts/validate_execution_ready_beads.py" \
+  "$repo_root/tests/fixtures/execution-ready-beads/vague-acceptance.jsonl"
+grep -Fq "hx-vague-ac" "$reject_output" || fail "execution-ready validator should identify the rejected fixture"
+rm -f "$reject_output"
+
+python3 "$repo_root/scripts/validate_execution_ready_beads.py" \
+  "$repo_root/tests/fixtures/execution-ready-beads/flagged-acceptance.jsonl"
 
 printf 'validated %d HELIX skills\n' "${#expected_skills[@]}"
