@@ -250,6 +250,15 @@ Work breakdown, dependency ordering, and parallel tracks. Maps the path from "te
 
 Deploy artifacts are project-specific checklists and runbooks. Rather than prescribing a fixed set, HELIX recommends creating deploy artifacts as needed for your project's deployment model. Common examples include deployment checklists, runbooks, monitoring setup, and release notes.
 
+### Deployment Checklist
+
+`docs/helix/05-deploy/deployment-checklist.md`
+
+Short, service-specific technical go/no-go surface for release execution.
+Tracks the checks that decide whether rollout can proceed, continue, pause, or
+roll back. It references `monitoring-setup` for signals and `runbook` for
+response procedures rather than duplicating those artifacts.
+
 ---
 
 ## Iterate (Phase 6)

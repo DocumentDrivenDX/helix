@@ -1,0 +1,87 @@
+artifact:
+  name: Deployment Checklist
+  id: deployment-checklist
+  type: document
+  phase: deploy
+
+description: |
+  Short, execution-ready release readiness checklist that captures the
+  technical go/no-go checks, rollout verification, and rollback triggers for a
+  service deployment.
+
+dependencies:
+  requires:
+    - input: Implementation Plan
+      type: artifact
+      path: implementation-plan
+      required: false
+      note: "Build completion context and sequencing constraints that affect deployment"
+    - input: Monitoring Setup
+      type: artifact
+      path: monitoring-setup
+      required: false
+      note: "Signals and alerts that the rollout must verify"
+    - input: Runbook
+      type: artifact
+      path: runbook
+      required: false
+      note: "Rollback and operator procedures referenced by the checklist"
+
+output:
+  location: docs/helix/05-deploy/deployment-checklist.md
+  format: markdown
+  naming: deployment-checklist.md
+
+validation:
+  required_sections:
+    - release_scope
+    - pre_deploy_checks
+    - rollout_plan
+    - verification_checks
+    - rollback_triggers
+    - go_no_go
+
+  quality_checks:
+    - check: service_specific_steps
+      description: Checklist must reflect the actual deployment path for the service rather than generic boilerplate
+      severity: blocking
+    - check: measurable_decision_points
+      description: Go or no-go checks must name commands, signals, or thresholds where they matter
+      severity: blocking
+    - check: rollback_linked
+      description: Checklist should reference the rollback owner or runbook entrypoint
+      severity: warning
+    - check: concise_execution_surface
+      description: Checklist should stay short enough to be used during the release itself
+      severity: warning
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+workflow:
+  creation_order: 1
+  review_cycles: 1
+  approval_required: true
+  approvers:
+    - Technical Lead
+    - Release Owner
+
+relationships:
+  informed_by:
+    - implementation-plan
+    - monitoring-setup
+    - runbook
+  informs:
+    - monitoring-setup
+
+tags:
+  - deploy
+  - checklist
+  - release
+  - rollback
+
+version: 1.0.0
+last_updated: 2026-04-10
