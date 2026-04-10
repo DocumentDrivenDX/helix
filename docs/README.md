@@ -1,6 +1,6 @@
 # Documentation Structure
 
-This document describes the organization of documentation in the DDx project, which follows the HELIX workflow phases to ensure consistency and traceability.
+This document describes the organization of documentation in the HELIX repository, which follows the HELIX workflow phases to ensure consistency and traceability.
 
 ## Overview
 
@@ -62,27 +62,17 @@ docs/
         └── security-metrics.md  # Security posture summary
 ```
 
-## Legacy Structure
+## Historical Categories
 
-The following directories contain documentation from the previous organization:
+Before this repository adopted the numbered `docs/helix/` layout, HELIX
+materials were commonly grouped into broad categories such as
+`architecture/`, `implementation/`, `usage/`, `development/`, and
+`references/`.
 
-### [Architecture](/docs/architecture/)
-Technical architecture, system design, and architectural decision records.
-
-### [Implementation](/docs/implementation/)
-Setup guides, configuration documentation, and implementation patterns.
-
-### [Usage](/docs/usage/)
-User guides, tutorials, FAQs, and troubleshooting resources.
-
-### [Development](/docs/development/)
-Developer documentation, contributing guidelines, and development standards.
-
-### [References](/docs/references/)
-External resources, research materials, and third-party documentation.
-
-### [Resources](/docs/resources/)
-Shared methodologies, principles, and workflow documentation.
+Those names are historical examples, not canonical paths in this repository.
+In this repo, governed HELIX artifacts live under `docs/helix/`, shared
+workflow references live under `docs/resources/`, and other repository docs
+live as topic-specific files or directories directly under `docs/`.
 
 ## Naming Conventions
 
@@ -214,7 +204,10 @@ The structure enables clear traceability across phases:
 
 When applying the HELIX workflow to your project, organize governed workflow
 artifacts under `docs/helix/` and keep the reusable workflow library under
-`workflows/phases/`:
+`workflows/phases/`.
+
+The tree below is a generic project example, not a literal map of this
+repository:
 
 ```
 project-root/
@@ -290,7 +283,8 @@ This structure was established to replace the previous organization. Key changes
 3. **Singular/Plural Distinction**: Clear separation of project-wide vs feature-specific artifacts
 4. **Workflow Alignment**: Structure mirrors HELIX workflow phases
 
-For legacy documents, see the directories listed under Legacy Structure above.
+For historical context, see the category notes above rather than treating them
+as live repository paths.
 
 ---
 
