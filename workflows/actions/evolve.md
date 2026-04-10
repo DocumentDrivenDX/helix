@@ -73,7 +73,7 @@ pass. See `.ddx/plugins/helix/workflows/references/bead-first.md` for the full p
    ```bash
    ddx bead create "evolve: <requirement summary>" \
      --type task \
-     --labels helix,kind:planning,action:evolve \
+     --labels helix,phase:design,kind:planning,action:evolve \
      --description "<context-digest>...</context-digest>
    Thread requirement through artifact stack: <requirement description>.
    Source: <--from value if provided>" \
@@ -193,7 +193,7 @@ artifacts:
    cycle.
 3. Each issue must pass triage validation:
    - `--labels helix,phase:build,...`
-   - `--spec-id` pointing to the updated artifact
+   - set `spec-id` with `--set spec-id=<updated-artifact>`
    - `--acceptance` with deterministic criteria
 4. Set `--parent` if the issues belong to an existing epic.
 5. Group related issues under a new epic if the requirement implies

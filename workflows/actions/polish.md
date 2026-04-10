@@ -78,8 +78,8 @@ See `.ddx/plugins/helix/workflows/references/bead-first.md` for the full pattern
    ```bash
    ddx bead create "polish: <scope description>" \
      --type task \
-     --labels helix,kind:planning,action:polish \
-     --spec-id <governing-plan-if-known> \
+     --labels helix,phase:design,kind:planning,action:polish \
+     --set spec-id=<governing-plan-if-known> \
      --description "<context-digest>...</context-digest>
    Decompose plans and refine beads for <scope>.
    Plans to decompose: <list plan docs found in Phase 0>" \
@@ -105,7 +105,7 @@ decomposed into tracker beads before refinement or implementation can proceed.
    b. Create one bead per implementable slice. Each bead must:
       - be individually completable in one `helix build` cycle
       - have `--labels helix,phase:build` (plus area labels)
-      - have `--spec-id` pointing to the governing plan or design artifact
+      - set `spec-id` with `--set spec-id=<governing-plan-or-design-artifact>`
       - have deterministic acceptance criteria derived from the plan
       - have a `<context-digest>` assembled per
         `.ddx/plugins/helix/workflows/references/context-digest.md`

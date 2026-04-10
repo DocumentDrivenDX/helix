@@ -90,8 +90,8 @@ pass. See `.ddx/plugins/helix/workflows/references/bead-first.md` for the full p
    ```bash
    ddx bead create "design: <scope description>" \
      --type task \
-     --labels helix,kind:planning,action:design \
-     --spec-id <governing-artifact-if-known> \
+     --labels helix,phase:design,kind:planning,action:design \
+     --set spec-id=<governing-artifact-if-known> \
      --description "<context-digest>...</context-digest>
    Create comprehensive design document for <scope>.
    Inputs: <list governing artifacts loaded in Phase 0>" \

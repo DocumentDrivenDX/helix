@@ -133,8 +133,8 @@ the full pattern.
    ```bash
    ddx bead create "align: <scope description>" \
      --type task \
-     --labels helix,kind:planning,action:align \
-     --spec-id <governing-artifact-if-known> \
+     --labels helix,phase:review,kind:planning,action:align \
+     --set spec-id=<governing-artifact-if-known> \
      --description "<context-digest>...</context-digest>
    Top-down reconciliation review for <scope>.
    Scope areas: <list functional areas>" \
