@@ -9,10 +9,49 @@ import re
 import subprocess
 import sys
 from collections import OrderedDict, defaultdict
+from functools import lru_cache
 from pathlib import Path
 
 
 STANDARD_TAGS = ("principles", "concerns", "practices", "adrs", "governing")
+STOPWORDS = {
+    "a",
+    "all",
+    "an",
+    "and",
+    "are",
+    "as",
+    "at",
+    "be",
+    "by",
+    "for",
+    "from",
+    "if",
+    "in",
+    "into",
+    "is",
+    "it",
+    "its",
+    "of",
+    "on",
+    "or",
+    "that",
+    "the",
+    "their",
+    "this",
+    "to",
+    "use",
+    "with",
+}
+AREA_TOPIC_ALIASES = {
+    "site": {"site", "microsite", "hugo", "frontend", "ui"},
+    "ui": {"ui", "frontend", "site", "accessibility"},
+    "frontend": {"ui", "frontend", "site", "accessibility"},
+    "api": {"api", "backend", "service"},
+    "backend": {"api", "backend", "service"},
+    "data": {"data", "database", "storage"},
+    "demo": {"demo", "recording", "asciinema"},
+}
 
 
 def read_text(path: Path) -> str:
@@ -33,6 +72,13 @@ def strip_markdown(text: str) -> str:
     text = text.replace("**", "")
     text = re.sub(r"\s+", " ", text)
     return text.strip(" -")
+
+
+def strip_frontmatter(markdown: str) -> str:
+    if not markdown.startswith("---\n"):
+        return markdown
+    _, _, remainder = markdown.partition("\n---\n")
+    return remainder or markdown
 
 
 def parse_principles(root: Path) -> list[str]:
@@ -116,8 +162,211 @@ def build_concern_library(root: Path, active_concerns: list[str], overrides: dic
             "areas": areas,
             "library_practices": parse_practice_bullets(concern_dir / "practices.md")[:5],
             "override_practices": overrides.get(name, []),
+            "override_lines": overrides.get(name, []),
         }
     return library
+
+
+@lru_cache(maxsize=None)
+def list_markdown_paths(root: Path) -> tuple[Path, ...]:
+    paths: list[Path] = []
+    for base in ("docs", "workflows"):
+        directory = root / base
+        if directory.exists():
+            paths.extend(sorted(directory.rglob("*.md")))
+    return tuple(paths)
+
+
+@lru_cache(maxsize=None)
+def list_adr_paths(root: Path) -> tuple[Path, ...]:
+    adr_dir = root / "docs/helix/02-design/adr"
+    if not adr_dir.exists():
+        return ()
+    return tuple(sorted(adr_dir.glob("ADR-*.md")))
+
+
+def tokenize(text: str) -> set[str]:
+    return {
+        token
+        for token in re.findall(r"[a-z0-9]+", text.lower())
+        if len(token) > 2 and token not in STOPWORDS
+    }
+
+
+def extract_doc_id(markdown: str) -> str:
+    patterns = (
+        r"^\s*id:\s*([A-Za-z0-9._-]+)\s*$",
+        r"^\*\*[^*]+ID\*\*:\s*`?([A-Za-z0-9._-]+)`?\s*$",
+        r"^# [^\n]*\b([A-Z]{2,}-\d{3,}|helix\.[A-Za-z0-9._-]+)\b",
+    )
+    for pattern in patterns:
+        match = re.search(pattern, markdown, re.MULTILINE)
+        if match:
+            return match.group(1)
+    return ""
+
+
+def extract_markdown_links(markdown: str) -> list[str]:
+    return [match.rstrip(".,:;") for match in re.findall(r"\[[^\]]+\]\(([^)]+)\)", markdown)]
+
+
+def resolve_artifact_path(root: Path, spec: str) -> Path | None:
+    normalized = strip_markdown(spec)
+    if not normalized:
+        return None
+    direct = root / normalized
+    if direct.exists():
+        return direct
+    for path in list_markdown_paths(root):
+        text = read_text(path)
+        doc_id = extract_doc_id(text)
+        if doc_id == normalized:
+            return path
+        if normalized == path.stem:
+            return path
+    return None
+
+
+def iter_markdown_clauses(markdown: str) -> list[str]:
+    clauses: list[str] = []
+    paragraph: list[str] = []
+    in_code = False
+    for raw in strip_frontmatter(markdown).splitlines():
+        stripped = raw.strip()
+        if stripped.startswith("```"):
+            in_code = not in_code
+            if paragraph:
+                clauses.append(strip_markdown(" ".join(paragraph)))
+                paragraph = []
+            continue
+        if in_code:
+            continue
+        if not stripped:
+            if paragraph:
+                clauses.append(strip_markdown(" ".join(paragraph)))
+                paragraph = []
+            continue
+        if stripped.startswith("#") or stripped.startswith("|"):
+            if paragraph:
+                clauses.append(strip_markdown(" ".join(paragraph)))
+                paragraph = []
+            continue
+        bullet = re.match(r"^(?:[-*]|\d+\.)\s+(.*)$", stripped)
+        if bullet:
+            if paragraph:
+                clauses.append(strip_markdown(" ".join(paragraph)))
+                paragraph = []
+            clauses.append(strip_markdown(bullet.group(1)))
+            continue
+        paragraph.append(stripped)
+    if paragraph:
+        clauses.append(strip_markdown(" ".join(paragraph)))
+    return [clause for clause in clauses if clause]
+
+
+def choose_best_clause(candidates: list[str], query: str) -> str:
+    if not candidates:
+        return ""
+    query_tokens = tokenize(query)
+    ranked: list[tuple[int, int, str]] = []
+    for index, candidate in enumerate(candidates):
+        overlap = len(query_tokens & tokenize(candidate))
+        boost = 2 if "must" in candidate.lower() or "required" in candidate.lower() else 0
+        ranked.append((overlap + boost, -index, candidate))
+    ranked.sort(reverse=True)
+    if ranked[0][0] == 0:
+        return candidates[0]
+    return ranked[0][2]
+
+
+def parse_concern_adr_refs(path: Path) -> list[str]:
+    markdown = read_text(path)
+    section = extract_section(markdown, "ADR References")
+    refs = []
+    refs.extend(re.findall(r"\bADR-\d+\b", section))
+    refs.extend(extract_markdown_links(section))
+    return compact(refs, 6)
+
+
+def parse_override_adr_refs(lines: list[str]) -> list[str]:
+    refs = []
+    for line in lines:
+        refs.extend(re.findall(r"\bADR-\d+\b", line))
+        refs.extend(extract_markdown_links(line))
+    return compact(refs, 6)
+
+
+def extract_adr_rationale(markdown: str) -> str:
+    requirements_row = re.search(r"^\|\s*Requirements\s*\|\s*(.*?)\s*\|$", markdown, re.MULTILINE)
+    if requirements_row:
+        return strip_markdown(requirements_row.group(1))
+    problem_row = re.search(r"^\|\s*Problem\s*\|\s*(.*?)\s*\|$", markdown, re.MULTILINE)
+    if problem_row:
+        return strip_markdown(problem_row.group(1))
+    context = extract_section(markdown, "Context")
+    return choose_best_clause(iter_markdown_clauses(context), "requirements constraints rationale")
+
+
+def summarize_adr(root: Path, ref: str) -> str:
+    path = resolve_artifact_path(root, ref)
+    if path is None or not path.exists():
+        return ""
+    markdown = read_text(path)
+    adr_id = extract_doc_id(markdown) or strip_markdown(ref)
+    title_match = re.search(r"^#\s+(.*)$", markdown, re.MULTILINE)
+    title = strip_markdown(title_match.group(1)) if title_match else adr_id
+    title = re.sub(rf"^{re.escape(adr_id)}:\s*", "", title)
+    decision = choose_best_clause(
+        iter_markdown_clauses(extract_section(markdown, "Decision")),
+        "decision selected approach",
+    )
+    rationale = extract_adr_rationale(markdown)
+    summary = f"{adr_id} {title}"
+    if decision:
+        summary += f" — {decision}"
+    if rationale:
+        summary += f" Why: {rationale}"
+    return summary
+
+
+def secondary_adr_matches(root: Path, item: dict, labels: list[str]) -> list[str]:
+    spec = strip_markdown(str(item.get("spec-id", "")))
+    areas = {label.removeprefix("area:") for label in labels if label.startswith("area:")}
+    matches = []
+    for path in list_adr_paths(root):
+        markdown = read_text(path)
+        lowered = markdown.lower()
+        if spec and spec in markdown:
+            matches.append(path.name)
+            continue
+        for area in areas:
+            aliases = AREA_TOPIC_ALIASES.get(area, {area})
+            if any(alias in lowered for alias in aliases):
+                matches.append(path.name)
+                break
+    return compact(matches, 6)
+
+
+def build_adrs(
+    root: Path,
+    item: dict,
+    labels: list[str],
+    matched: list[str],
+    library: dict[str, dict[str, list[str]]],
+) -> list[str]:
+    refs: list[str] = []
+    for name in matched:
+        concern_path = root / "workflows" / "concerns" / name / "concern.md"
+        if concern_path.exists():
+            refs.extend(parse_concern_adr_refs(concern_path))
+        refs.extend(parse_override_adr_refs(library[name].get("override_lines", [])))
+    refs.extend(secondary_adr_matches(root, item, labels))
+    summaries = []
+    for ref in OrderedDict.fromkeys(refs):
+        summary = summarize_adr(root, ref)
+        if summary:
+            summaries.append(summary)
+    return compact(summaries, 3)
 
 
 def select_digest_practices(
@@ -218,17 +467,41 @@ def compact(items: list[str], limit: int) -> list[str]:
     return ordered[:limit]
 
 
-def build_governing(item: dict) -> str:
+def build_governing(root: Path, item: dict) -> str:
     spec = strip_markdown(str(item.get("spec-id", "")))
-    acceptance = strip_markdown(str(item.get("acceptance", "")))
-    if acceptance:
-        acceptance = acceptance.split(";")[0].strip()
-    if spec and acceptance:
-        return f"{spec} — {acceptance}"
-    return spec or acceptance
+    if not spec:
+        return strip_markdown(str(item.get("acceptance", "")))
+    path = resolve_artifact_path(root, spec)
+    if path is None or not path.exists():
+        return spec
+
+    markdown = read_text(path)
+    artifact_id = extract_doc_id(markdown) or spec
+    query = " ".join(
+        [
+            item.get("title", ""),
+            item.get("description", ""),
+            item.get("acceptance", ""),
+            spec,
+        ]
+    )
+    candidates = []
+    for heading in ("Requirements", "Acceptance Criteria", "Constraints", "Problem Statement", "Overview"):
+        candidates.extend(iter_markdown_clauses(extract_section(markdown, heading)))
+    if not candidates:
+        candidates = iter_markdown_clauses(markdown)
+    clause = choose_best_clause(candidates, query)
+    if clause:
+        return f"{artifact_id} — {clause}"
+    return artifact_id
 
 
-def build_digest(item: dict, principles: list[str], library: dict[str, dict[str, list[str]]]) -> tuple[str, list[str]]:
+def build_digest(
+    item: dict,
+    principles: list[str],
+    library: dict[str, dict[str, list[str]]],
+    root: Path,
+) -> tuple[str, list[str]]:
     existing_digest, body = split_digest(item.get("description", ""))
     labels = infer_area_labels(item)
     bead_areas = {label.removeprefix("area:") for label in labels}
@@ -237,6 +510,7 @@ def build_digest(item: dict, principles: list[str], library: dict[str, dict[str,
         for name, data in library.items()
         if concern_matches(bead_areas, data["areas"])
     ]
+    adrs = build_adrs(root, item, labels, matched, library)
     practices = []
     for name in matched:
         practices.extend(
@@ -261,7 +535,9 @@ def build_digest(item: dict, principles: list[str], library: dict[str, dict[str,
         digest_lines.append(
             f"<practices>{html.escape(' · '.join(compact(practices, 6)), quote=False)}</practices>"
         )
-    governing = build_governing(item)
+    if adrs:
+        digest_lines.append(f"<adrs>{html.escape(' · '.join(adrs), quote=False)}</adrs>")
+    governing = build_governing(root, item)
     if governing:
         digest_lines.append(f"<governing>{html.escape(governing, quote=False)}</governing>")
     digest_lines.extend(extra_tags)
@@ -314,7 +590,7 @@ def main() -> int:
             continue
         if targeted and item.get("id") not in targeted:
             continue
-        new_description, new_labels = build_digest(item, principles, library)
+        new_description, new_labels = build_digest(item, principles, library, root)
         old_labels = [label for label in item.get("labels", []) if label.startswith("area:")]
         if new_description == item.get("description", "") and sorted(old_labels) == new_labels:
             continue
