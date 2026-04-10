@@ -19,44 +19,47 @@ In this repository, the canonical HELIX phase artifacts live under `docs/helix/`
 docs/
 ├── README.md                     # This overview document
 └── helix/
+    ├── 00-discover/             # Phase 00: Discovery and validation
+    │   └── product-vision.md    # Product vision for HELIX
     ├── 01-frame/                # Phase 01: Requirements & Problem Definition
+    │   ├── concerns.md          # Active project concerns and overrides
     │   ├── prd.md               # Product Requirements Document
-    │   ├── principles.md        # Project-specific principles
-    │   ├── features/            # Feature specifications (plural)
-    │   │   ├── FEAT-001-[name].md # Feature specification
-    │   │   ├── FEAT-002-[name].md # Feature specification
-    │   │   └── feature-registry.md # Central feature tracking
-    │   └── user-stories/        # User stories (plural)
-    │       ├── US-001-[name].md # User story collection
-    │       └── US-002-[name].md # User story collection
+    │   └── features/            # Feature specifications (plural)
+    │       ├── FEAT-001-[name].md # Feature specification
+    │       └── FEAT-011-[name].md # Feature specification
     ├── 02-design/               # Phase 02: Technical Architecture
-    │   ├── architecture.md      # System architecture diagrams (singular)
-    │   ├── data-design.md       # Data architecture (singular)
-    │   ├── security.md          # Security design (singular)
+    │   ├── adr/                 # Architecture Decision Records (plural)
+    │   │   ├── ADR-001-[title].md # Architectural decision record
+    │   │   └── ADR-002-[title].md # Architectural decision record
+    │   ├── contracts/           # API and workflow contracts (plural)
+    │   │   ├── API-001-[name].md # API contract specification
+    │   │   └── CONTRACT-001-[name].md # Cross-system contract
+    │   ├── data-design.md       # Data architecture
+    │   ├── security-architecture.md # Security design
     │   ├── solution-designs/    # Solution designs (plural)
     │   │   ├── SD-001-[name].md # Solution design for features
     │   │   └── SD-002-[name].md # Solution design for features
-    │   ├── contracts/           # API contracts (plural)
-    │   │   ├── API-001-[name].md # API contract specification
-    │   │   └── API-002-[name].md # API contract specification
-    │   └── adr/                 # Architecture Decision Records (plural)
-    │       ├── ADR-001-[title].md # Architectural decision record
-    │       └── ADR-002-[title].md # Architectural decision record
+    │   └── technical-designs/   # Technical designs (plural)
+    │       ├── TD-002-[name].md # Technical implementation design
+    │       └── TD-011-[name].md # Technical implementation design
     ├── 03-test/                 # Phase 03: Test Strategy & Specifications
-    │   ├── test-plan.md         # Overall testing strategy (singular)
-    │   └── test-procedures.md   # Test execution procedures (singular)
+    │   ├── executions/          # Recorded execution evidence
+    │   │   └── README.md        # Execution log conventions
+    │   └── test-plans/          # Test plans (plural)
+    │       └── TP-002-[name].md # Test plan
     ├── 04-build/                # Phase 04: Implementation Strategy
-    │   ├── implementation-plan.md # Build strategy and planning (singular)
-    │   └── build-procedures.md  # Development procedures (singular)
+    │   └── implementation-plan.md # Build strategy and planning
     ├── 05-deploy/               # Phase 05: Deployment & Operations
-    │   ├── deployment-checklist.md # Release go/no-go checklist (singular)
-    │   ├── monitoring-setup.md  # Observability and alerting setup (singular)
-    │   ├── runbook.md           # Operator response and rollback guide (singular)
-    │   └── release-notes.md     # Release communication artifact (singular)
+    │   ├── deployment-checklist.md # Release go/no-go checklist
+    │   ├── monitoring-setup.md  # Observability and alerting setup
+    │   ├── release-notes.md     # Release communication artifact
+    │   └── runbook.md           # Operator response and rollback guide
     └── 06-iterate/              # Phase 06: Post-Deployment & Feedback
-        ├── metrics-dashboard.md # Iteration health and outcome summary (singular)
-        ├── security-metrics.md  # Security posture summary (singular)
-        └── improvement-backlog.md # Prioritized follow-on work (singular)
+        ├── alignment-reviews/   # Alignment and drift review reports
+        ├── improvement-backlog.md # Prioritized follow-on work
+        ├── metrics/             # Metric definitions and fixtures
+        ├── metrics-dashboard.md # Iteration health and outcome summary
+        └── security-metrics.md  # Security posture summary
 ```
 
 ## Legacy Structure
@@ -95,7 +98,7 @@ The documentation uses systematic identifiers to ensure traceability across phas
 
 ### File Naming
 
-- **Singular artifacts**: Project-wide documents use descriptive names (e.g., `architecture.md`, `test-plan.md`)
+- **Singular artifacts**: Project-wide documents use descriptive names (e.g., `prd.md`, `security-architecture.md`)
 - **Plural artifacts**: Feature-specific documents use ID + name format (e.g., `FEAT-001-user-authentication.md`)
 - **Collections**: Directories containing multiple related artifacts use plural names
 
@@ -103,16 +106,13 @@ The documentation uses systematic identifiers to ensure traceability across phas
 
 ### Singular vs Plural Artifacts
 
-**Singular Artifacts** (one per project):
-- Product Requirements Document (`docs/helix/01-frame`)
-- Project Principles (`docs/helix/01-frame`)
-- System Architecture (`docs/helix/02-design`)
-- Data Design (`docs/helix/02-design`)
-- Security Design (`docs/helix/02-design`)
-- Test Plan (`docs/helix/03-test`)
-- Test Procedures (`docs/helix/03-test`)
-- Implementation Plan (`docs/helix/04-build`)
-- Build Procedures (`docs/helix/04-build`)
+**Singular Artifacts in this repository**:
+- Product Vision (`docs/helix/00-discover/product-vision.md`)
+- Project Concerns (`docs/helix/01-frame/concerns.md`)
+- Product Requirements Document (`docs/helix/01-frame/prd.md`)
+- Data Design (`docs/helix/02-design/data-design.md`)
+- Security Architecture (`docs/helix/02-design/security-architecture.md`)
+- Implementation Plan (`docs/helix/04-build/implementation-plan.md`)
 - Deployment Checklist (`docs/helix/05-deploy/deployment-checklist.md`)
 - Monitoring Setup (`docs/helix/05-deploy/monitoring-setup.md`)
 - Runbook (`docs/helix/05-deploy/runbook.md`)
@@ -121,12 +121,16 @@ The documentation uses systematic identifiers to ensure traceability across phas
 - Security Metrics (`docs/helix/06-iterate/security-metrics.md`)
 - Improvement Backlog (`docs/helix/06-iterate/improvement-backlog.md`)
 
-**Plural Artifacts** (multiple per project):
+**Plural Artifacts in this repository**:
 - Feature Specifications (`docs/helix/01-frame/features`)
-- User Stories (`docs/helix/01-frame/user-stories`)
 - Solution Designs (`docs/helix/02-design/solution-designs`)
+- Technical Designs (`docs/helix/02-design/technical-designs`)
 - API Contracts (`docs/helix/02-design/contracts`)
 - Architecture Decision Records (`docs/helix/02-design/adr`)
+- Test Plans (`docs/helix/03-test/test-plans`)
+- Execution Records (`docs/helix/03-test/executions`)
+- Alignment Reviews (`docs/helix/06-iterate/alignment-reviews`)
+- Metrics Fixtures (`docs/helix/06-iterate/metrics`)
 
 ## Phase-Specific Details
 
