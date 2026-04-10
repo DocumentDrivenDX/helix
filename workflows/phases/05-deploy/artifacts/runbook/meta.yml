@@ -30,13 +30,6 @@ dependencies:
       path: security-architecture
       required: false
       note: "Service-specific security response constraints when incident handling differs from default policy"
-  enables:
-    - output: Deployment Checklist
-      type: artifact
-      phase: deploy
-    - output: Monitoring Setup
-      type: artifact
-      phase: deploy
 
 output:
   location: docs/helix/05-deploy/runbook.md
@@ -91,9 +84,6 @@ relationships:
     - deployment-checklist
     - monitoring-setup
     - security-architecture
-  informs:
-    - deployment-checklist
-    - monitoring-setup
 
 tags:
   - deploy
