@@ -83,8 +83,8 @@ Release to production with monitoring.
 |---|---|
 | **Purpose** | Safely deliver the built software to users |
 | **Location** | `docs/helix/05-deploy/` |
-| **Key artifacts** | Project-specific checklists and runbooks as needed |
-| **Output** | Running production system with observability |
+| **Key artifacts** | Deployment Checklist, Monitoring Setup, Runbook, Release Notes |
+| **Output** | Production rollout with observability, operator guidance, and release communication |
 
 Deploy cannot start until all tests pass (Green phase complete).
 
