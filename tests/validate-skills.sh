@@ -262,7 +262,21 @@ assert_command_fails \
 grep -Fq "hx-vague-ac" "$reject_output" || fail "execution-ready validator should identify the rejected fixture"
 rm -f "$reject_output"
 
+flagged_fixture="$repo_root/tests/fixtures/execution-ready-beads/flagged-acceptance.jsonl"
+assert_file_contains \
+  "$flagged_fixture" \
+  "\"execution-eligible\":false" \
+  "flagged acceptance fixture must stay marked not execution-ready"
+assert_file_contains \
+  "$flagged_fixture" \
+  "flagged by polish for non-measurable acceptance" \
+  "flagged acceptance fixture must record non-measurable acceptance as the reason it is not execution-ready"
+flagged_output="$(mktemp)"
 python3 "$repo_root/scripts/validate_execution_ready_beads.py" \
-  "$repo_root/tests/fixtures/execution-ready-beads/flagged-acceptance.jsonl"
+  "$flagged_fixture" \
+  >"$flagged_output" 2>&1
+grep -Fq "validated measurable acceptance on 0 execution-ready bead(s)" "$flagged_output" || fail \
+  "flagged acceptance fixture should be skipped once it is marked not execution-ready"
+rm -f "$flagged_output"
 
 printf 'validated %d HELIX skills\n' "${#expected_skills[@]}"
