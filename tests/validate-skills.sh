@@ -263,8 +263,58 @@ assert_file_contains \
   "### Decision 5c: Bead Success-Measurement Contract" \
   "TD-011 must retain the bead success-measurement decision"
 
-reject_output="$(mktemp)"
 command -v python3 >/dev/null 2>&1 || fail "python3 is required for execution-ready bead validation"
+mixed_fixture="$repo_root/tests/fixtures/execution-ready-beads/mixed-ready-semantics.jsonl"
+mixed_tracker_dir="$(mktemp -d)"
+cp -f "$mixed_fixture" "$mixed_tracker_dir/beads.jsonl"
+mixed_expected_ids="$(mktemp)"
+mixed_actual_ids="$(mktemp)"
+DDX_BEAD_DIR="$mixed_tracker_dir" ddx bead ready --execution --json >"$mixed_expected_ids"
+python3 - "$repo_root/scripts/validate_execution_ready_beads.py" "$mixed_tracker_dir/beads.jsonl" >"$mixed_actual_ids" <<'PYEOF'
+import importlib.util
+import json
+import sys
+from pathlib import Path
+
+script_path, tracker_path = sys.argv[1:3]
+spec = importlib.util.spec_from_file_location("validate_execution_ready_beads", script_path)
+module = importlib.util.module_from_spec(spec)
+assert spec.loader is not None
+spec.loader.exec_module(module)
+ready = module.execution_ready_beads(module.load_beads(Path(tracker_path)))
+json.dump([bead["id"] for _, bead in ready], sys.stdout)
+PYEOF
+python3 - "$mixed_expected_ids" "$mixed_actual_ids" <<'PYEOF'
+import json
+import sys
+
+expected_path, actual_path = sys.argv[1:3]
+with open(expected_path, "r", encoding="utf-8") as handle:
+    expected = sorted(entry["id"] for entry in json.load(handle))
+with open(actual_path, "r", encoding="utf-8") as handle:
+    actual = sorted(json.load(handle))
+if expected != actual:
+    print(f"expected ready ids {expected}, got {actual}", file=sys.stderr)
+    sys.exit(1)
+PYEOF
+mixed_reject_output="$(mktemp)"
+assert_command_fails \
+  "$mixed_reject_output" \
+  "execution-ready validator should reject only the vague bead from the mixed queue fixture" \
+  python3 \
+  "$repo_root/scripts/validate_execution_ready_beads.py" \
+  "$mixed_fixture"
+grep -Fq "hx-ready-vague" "$mixed_reject_output" || fail \
+  "mixed execution-ready fixture should identify the ready vague bead"
+for skipped_id in hx-deferred-build hx-closed-build hx-in-progress-build hx-blocked-build hx-not-execution-eligible hx-superseded-build; do
+  if grep -Fq "$skipped_id" "$mixed_reject_output"; then
+    fail "mixed execution-ready fixture should skip non-ready bead $skipped_id"
+  fi
+done
+rm -f "$mixed_expected_ids" "$mixed_actual_ids" "$mixed_reject_output"
+rm -rf "$mixed_tracker_dir"
+
+reject_output="$(mktemp)"
 assert_command_fails \
   "$reject_output" \
   "execution-ready validator should reject vague acceptance fixtures" \

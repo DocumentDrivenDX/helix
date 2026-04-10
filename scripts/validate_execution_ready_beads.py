@@ -7,7 +7,6 @@ import re
 import sys
 from pathlib import Path
 
-EXECUTION_PHASES = {"phase:build", "phase:deploy", "phase:iterate"}
 TRACKER_TERMS = ("status", "label", "tracker", "field", "notes")
 VAGUE_PATTERN = re.compile(r"\b(?:works?|correct(?:ly)?|complete(?:ly)?|aligned?)\b", re.IGNORECASE)
 COMMAND_PATTERN = re.compile(
@@ -56,20 +55,64 @@ def load_beads(tracker_path: Path) -> list[tuple[int, dict[str, object]]]:
     return beads
 
 
-def is_execution_ready_bead(bead: dict[str, object]) -> bool:
-    labels = bead.get("labels")
-    if not isinstance(labels, list):
+def has_closed_dependencies_only(bead: dict[str, object], statuses_by_id: dict[str, str]) -> bool:
+    dependencies = bead.get("dependencies")
+    if not isinstance(dependencies, list):
+        return True
+
+    for dependency in dependencies:
+        if not isinstance(dependency, dict):
+            continue
+        depends_on_id = dependency.get("depends_on_id")
+        if not isinstance(depends_on_id, str) or not depends_on_id:
+            continue
+        if statuses_by_id.get(depends_on_id) != "closed":
+            return False
+    return True
+
+
+def is_execution_ready_bead(bead: dict[str, object], statuses_by_id: dict[str, str]) -> bool:
+    if bead.get("status") != "open":
         return False
-    label_set = {label for label in labels if isinstance(label, str)}
-    if not label_set.intersection(EXECUTION_PHASES):
-        return False
-    if "phase:review" in label_set or "kind:planning" in label_set:
-        return False
-    if bead.get("issue_type") == "epic":
+    if not has_closed_dependencies_only(bead, statuses_by_id):
         return False
     if bead.get("execution-eligible") is False:
         return False
+    superseded_by = bead.get("superseded-by")
+    if isinstance(superseded_by, str) and superseded_by.strip():
+        return False
     return True
+
+
+def execution_ready_beads(beads: list[tuple[int, dict[str, object]]]) -> list[tuple[int, dict[str, object]]]:
+    statuses_by_id = {
+        str(bead_id): str(status)
+        for _, bead in beads
+        if (bead_id := bead.get("id")) is not None and (status := bead.get("status")) is not None
+    }
+    return [
+        (line_number, bead)
+        for line_number, bead in beads
+        if is_execution_ready_bead(bead, statuses_by_id)
+    ]
+
+
+def validate_beads(beads: list[tuple[int, dict[str, object]]], tracker_path: Path) -> list[str]:
+    errors: list[str] = []
+    ready_beads = execution_ready_beads(beads)
+
+    for line_number, bead in ready_beads:
+        bead_id = str(bead.get("id", "<missing-id>"))
+        acceptance = bead.get("acceptance")
+        if not isinstance(acceptance, str) or not is_measurable_acceptance(acceptance):
+            errors.append(
+                f"{tracker_path}:{line_number}: bead {bead_id} has non-measurable execution-ready acceptance: "
+                f"{acceptance!r}"
+            )
+
+    if not errors:
+        print(f"validated measurable acceptance on {len(ready_beads)} execution-ready bead(s)")
+    return errors
 
 
 def is_measurable_acceptance(acceptance: str) -> bool:
@@ -92,28 +135,6 @@ def is_measurable_acceptance(acceptance: str) -> bool:
     if has_vague_language:
         return False
     return has_command or (has_named_target and has_check)
-
-
-def validate_beads(beads: list[tuple[int, dict[str, object]]], tracker_path: Path) -> list[str]:
-    errors: list[str] = []
-    checked = 0
-
-    for line_number, bead in beads:
-        if not is_execution_ready_bead(bead):
-            continue
-
-        checked += 1
-        bead_id = str(bead.get("id", "<missing-id>"))
-        acceptance = bead.get("acceptance")
-        if not isinstance(acceptance, str) or not is_measurable_acceptance(acceptance):
-            errors.append(
-                f"{tracker_path}:{line_number}: bead {bead_id} has non-measurable execution-ready acceptance: "
-                f"{acceptance!r}"
-            )
-
-    if not errors:
-        print(f"validated measurable acceptance on {checked} execution-ready bead(s)")
-    return errors
 
 
 def main() -> int:
