@@ -112,9 +112,25 @@ def build_concern_library(root: Path, active_concerns: list[str], overrides: dic
     for name in active_concerns:
         concern_dir = root / "workflows" / "concerns" / name
         areas = parse_concern_areas(concern_dir / "concern.md") if (concern_dir / "concern.md").exists() else []
-        practices = overrides.get(name) or parse_practice_bullets(concern_dir / "practices.md")[:5]
-        library[name] = {"areas": areas, "practices": practices}
+        library[name] = {
+            "areas": areas,
+            "library_practices": parse_practice_bullets(concern_dir / "practices.md")[:5],
+            "override_practices": overrides.get(name, []),
+        }
     return library
+
+
+def select_digest_practices(
+    library_practices: list[str], override_practices: list[str], limit: int
+) -> list[str]:
+    prioritized: list[str] = []
+    if library_practices:
+        prioritized.append(library_practices[0])
+    if override_practices:
+        prioritized.append(override_practices[0])
+    prioritized.extend(library_practices[1:])
+    prioritized.extend(override_practices[1:])
+    return compact(prioritized, limit)
 
 
 def bead_paths(item: dict) -> list[str]:
@@ -223,7 +239,13 @@ def build_digest(item: dict, principles: list[str], library: dict[str, dict[str,
     ]
     practices = []
     for name in matched:
-        practices.extend(library[name]["practices"][:2])
+        practices.extend(
+            select_digest_practices(
+                library[name]["library_practices"],
+                library[name]["override_practices"],
+                limit=2,
+            )
+        )
     extra_tags = extract_extra_tags(existing_digest)
 
     digest_lines = ["<context-digest>"]
