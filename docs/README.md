@@ -207,12 +207,15 @@ The structure enables clear traceability across phases:
 
 ### Using Helix Phases in Projects
 
-When applying the HELIX workflow to your project, organize documentation using the `docs/helix-phases/` convention:
+When applying the HELIX workflow to your project, organize governed workflow
+artifacts under `docs/helix/` and keep the reusable workflow library under
+`workflows/phases/`:
 
 ```
 project-root/
 ├── docs/
-│   ├── helix-phases/           # HELIX phase documentation
+│   ├── helix/                 # Project-specific HELIX artifacts
+│   │   ├── 00-discover/       # Optional discovery and validation
 │   │   ├── 01-frame/          # Problem definition & requirements
 │   │   ├── 02-design/         # Architecture & design decisions
 │   │   ├── 03-test/           # Test strategies & plans
@@ -222,45 +225,55 @@ project-root/
 │   ├── reference/             # Reference documentation
 │   ├── operations/            # Operational procedures
 │   └── strategy/              # Strategic planning
+├── workflows/
+│   └── phases/                # Shared HELIX artifact prompts/templates
 ```
 
 This convention:
-- Keeps phase documentation separate from operational docs
+- Keeps governed HELIX artifacts separate from operational docs
 - Uses numbered prefixes for clear ordering
-- Places artifacts directly in phase directories (no `artifacts/` subdirectory)
+- Stores project outputs under `docs/helix/`, while shared library assets live
+  under `workflows/phases/`
 - Allows for project-specific documentation outside the phases
 
-### Why `helix-phases/`?
+### Why `docs/helix/`?
 
-The `helix-phases/` naming:
-1. Clearly indicates use of the HELIX workflow
+The `docs/helix/` layout:
+1. Matches the active HELIX workflow contract used in this repository
 2. Separates phase artifacts from other documentation
 3. Maintains consistency across projects using HELIX
-4. Enables tooling to identify and validate phase structure
+4. Keeps the project artifact tree distinct from the shared workflow library in
+   `workflows/phases/`
 
 ## Tools and Automation
 
 ### Validation
-The structure can be validated using:
+Use supported HELIX entrypoints to inspect and reconcile the workflow stack:
 ```bash
-# Check for required artifacts
-ddx validate docs-structure
+# Review the artifact stack for drift
+helix align repo
 
-# Verify cross-references
-ddx validate traceability
+# Decide the next bounded HELIX action for the repository
+helix check repo
 
-# Generate artifact inventory
-ddx list artifacts
+# Inspect execution-safe tracked work
+ddx bead ready --execution
 ```
 
 ### Templates
-Use workflow templates to create consistent artifacts:
+The reusable artifact library lives under `workflows/phases/.../artifacts/`.
+Use the HELIX commands to create or refine project artifacts, and reference the
+library paths directly when you need the underlying template assets:
 ```bash
-# Create new feature specification
-ddx apply workflows/helix/phases/01-frame/artifacts/feature-specification
+# Create or refine frame artifacts for a scope
+helix frame auth
 
-# Generate solution design
-ddx apply workflows/helix/phases/02-design/artifacts/solution-design
+# Create or refine a design document for a scope
+helix design auth
+
+# Reference the shared artifact template directories directly
+workflows/phases/01-frame/artifacts/feature-specification/
+workflows/phases/02-design/artifacts/solution-design/
 ```
 
 ## Migration Notes
