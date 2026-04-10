@@ -1,0 +1,43 @@
+# Story Test Plan Dependencies
+artifact: story-test-plan
+prefix: TP
+
+inputs:
+  required:
+    - artifact: technical-design
+      phase: "02-design"
+      prefix: TD
+      same_number: true
+      relationship: "story test plan validates the bounded technical design"
+    - artifact: user-stories
+      phase: "01-frame"
+      prefix: US
+      same_number: true
+      relationship: "story test plan proves the story acceptance criteria"
+  optional:
+    - artifact: solution-design
+      phase: "02-design"
+      prefix: SD
+      relationship: "feature-level constraints shape story test coverage"
+
+outputs:
+  produces:
+    - artifact: test-suites
+      relationship: "maps each accepted scenario to executable tests"
+    - artifact: build-issue
+      phase: "04-build"
+      relationship: "build issues make the named tests pass without widening scope"
+
+completion:
+  automated_checks:
+    - type: file_exists
+    - type: no_markers
+      pattern: "\\[NEEDS CLARIFICATION\\]"
+    - type: section_exists
+      sections:
+        - "Acceptance Criteria Test Mapping"
+        - "Executable Proof"
+        - "Build Handoff"
+  manual_checks:
+    - "Every active acceptance criterion has at least one failing test path"
+    - "Setup, data, and edge cases are explicit enough to implement"

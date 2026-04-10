@@ -202,9 +202,15 @@ Test artifacts define **what to verify** before implementation begins. In HELIX,
 
 ### Test Plan
 
-`docs/helix/03-test/test-plans/TP-*.md`
+`docs/helix/03-test/test-plan.md`
 
 The project-level test strategy: test levels and scope, framework choices, coverage targets, critical paths, test data strategy, infrastructure requirements, and sequencing. Drives failing tests before implementation and provides traceability from requirements to test execution.
+
+### Story Test Plan
+
+`docs/helix/03-test/test-plans/TP-*.md`
+
+Story-scoped verification intent for one bounded slice. Maps a governing user story and technical design to concrete failing tests, explicit setup and data requirements, edge cases, and the build handoff needed to implement that slice without widening scope.
 
 ### Test Suites
 
