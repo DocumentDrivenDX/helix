@@ -25,6 +25,9 @@ jobs:
       - name: Run CLI tests
         run: bash tests/helix-cli.sh
 
+      - name: Validate deploy artifact graph
+        run: bash tests/validate-deploy-artifacts.sh
+
       - name: Validate skill packages
         run: bash tests/validate-skills.sh
 

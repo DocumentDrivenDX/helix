@@ -1,11 +1,15 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-cli test-skills test-install
+test: test-cli test-deploy-artifacts test-skills test-install
 
 # Run CLI wrapper tests
 test-cli:
     bash tests/helix-cli.sh
+
+# Validate deploy artifact graph consistency
+test-deploy-artifacts:
+    bash tests/validate-deploy-artifacts.sh
 
 # Run skill package validation
 test-skills:
