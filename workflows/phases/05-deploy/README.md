@@ -74,9 +74,20 @@ graph TD
 
 ### Artifacts
 
-Deploy artifacts are project-specific. Rather than prescribing a fixed set of
-templates, create checklists, runbooks, and monitoring configurations as needed
-for your project's deployment model.
+Deploy artifacts are project-specific, but current HELIX still treats four
+deploy surfaces as first-class when a release needs them:
+`deployment-checklist`, `monitoring-setup`, `runbook`, and `release-notes`.
+
+- `deployment-checklist` is the technical go or no-go surface for rollout.
+- `monitoring-setup` defines the dashboards, alerts, and health checks that
+  prove the rollout is safe.
+- `runbook` explains operator response procedures for rollback, recovery, and
+  incidents.
+- `release-notes` communicate the shipped changes, required actions, and known
+  caveats to users or operators.
+
+`CHANGELOG.md` may still exist as a repository history log, but it does not
+replace release-scoped notes that are audience-filtered and action-oriented.
 
 ### Story Deploy Issues
 **Output Location**: `.ddx/issues.jsonl` queried through `ddx bead`

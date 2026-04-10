@@ -269,6 +269,17 @@ commands, decision points, and escalation paths. It is not the same as
 `deployment-checklist`, which decides release readiness, or
 `monitoring-setup`, which defines the signals and dashboards the runbook uses.
 
+### Release Notes
+
+`docs/helix/05-deploy/release-notes.md`
+
+Release-scoped communication surface for shipped user-visible and
+operator-visible changes. It explains what changed, who is affected, what
+action is required, and any known caveats. It is distinct from
+`deployment-checklist`, which governs technical rollout readiness, and from
+`CHANGELOG.md`, which is a repository history log rather than an
+audience-filtered release communication.
+
 ---
 
 ## Iterate (Phase 6)

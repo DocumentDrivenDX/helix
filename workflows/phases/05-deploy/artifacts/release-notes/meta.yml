@@ -1,0 +1,96 @@
+artifact:
+  name: Release Notes
+  id: release-notes
+  type: document
+  phase: deploy
+
+description: |
+  Release-scoped communication artifact that summarizes shipped user-visible
+  and operator-visible changes, required actions, and known caveats for one
+  rollout.
+
+dependencies:
+  requires:
+    - input: Feature Registry
+      type: artifact
+      path: feature-registry
+      required: false
+      note: "Source of the features or capabilities that actually shipped"
+    - input: Implementation Plan
+      type: artifact
+      path: implementation-plan
+      required: false
+      note: "Build scope and shipped fixes that need communication"
+    - input: Deployment Checklist
+      type: artifact
+      path: deployment-checklist
+      required: false
+      note: "Release identifier, rollout window, and operational caveats that affect communication"
+    - input: Runbook
+      type: artifact
+      path: runbook
+      required: false
+      note: "Rollback or support guidance to link when operator action may be required"
+
+output:
+  location: docs/helix/05-deploy/release-notes.md
+  format: markdown
+  naming: release-notes.md
+
+validation:
+  required_sections:
+    - release_scope
+    - audience_and_channels
+    - highlights
+    - changes_and_fixes
+    - breaking_changes_and_required_actions
+    - migration_or_rollback_guidance
+    - known_issues_and_support
+
+  quality_checks:
+    - check: shipped_scope_only
+      description: Notes must describe only the changes that actually shipped in this release
+      severity: blocking
+    - check: audience_impact_explicit
+      description: User or operator impact and required actions must be explicit
+      severity: blocking
+    - check: breaking_changes_actionable
+      description: Breaking changes, migrations, or the explicit absence of them must be clear
+      severity: blocking
+    - check: evidence_backed_references
+      description: Links to deeper docs, issues, or commands should exist where readers need more detail
+      severity: warning
+    - check: not_marketing_filler
+      description: Avoid roadmap filler, launch-plan boilerplate, and internal-only implementation churn
+      severity: warning
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+workflow:
+  creation_order: 4
+  review_cycles: 1
+  approval_required: true
+  approvers:
+    - Release Owner
+    - Product Owner
+
+relationships:
+  informed_by:
+    - feature-registry
+    - implementation-plan
+    - deployment-checklist
+    - runbook
+
+tags:
+  - deploy
+  - release
+  - communication
+  - users
+  - operators
+
+version: 1.0.0
+last_updated: 2026-04-10
