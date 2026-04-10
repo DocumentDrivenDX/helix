@@ -375,10 +375,19 @@ def select_digest_practices(
     prioritized: list[str] = []
     if library_practices:
         prioritized.append(library_practices[0])
-    if override_practices:
-        prioritized.append(override_practices[0])
+
+    chosen_override = ""
+    for practice in override_practices:
+        if practice not in prioritized:
+            chosen_override = practice
+            break
+    if not chosen_override and override_practices:
+        chosen_override = override_practices[0]
+    if chosen_override:
+        prioritized.append(chosen_override)
+
     prioritized.extend(library_practices[1:])
-    prioritized.extend(override_practices[1:])
+    prioritized.extend(practice for practice in override_practices if practice != chosen_override)
     return compact(prioritized, limit)
 
 
