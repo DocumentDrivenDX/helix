@@ -73,6 +73,7 @@ assert_output_contains() {
 validate_helix_triage_intro() {
   local path="$1"
   local intro normalized
+  local blanket_execution_ready_pattern
 
   [[ -f "$path" ]] || fail "missing file for validation: $path"
   intro="$(
@@ -91,7 +92,8 @@ validate_helix_triage_intro() {
       | tr -s '[:space:]' ' '
   )"
 
-  if [[ "$normalized" =~ (every|all|each)[[:space:]]+(issue|issues|bead|beads|task|tasks|work[[:space:]]+item|work[[:space:]]+items)[[:space:]]+should[[:space:]]+enter[[:space:]]+the[[:space:]]+tracker[[:space:]]+ready[[:space:]]+(to[[:space:]]+execute|for[[:space:]]+execution) ]]; then
+  blanket_execution_ready_pattern='(every|all|each)([[:space:]]+[[:alpha:]][[:alpha:]-]*){0,4}[[:space:]]+(issue|issues|bead|beads|task|tasks|work[[:space:]]+item|work[[:space:]]+items)[[:space:]]+should[[:space:]]+enter[[:space:]]+the[[:space:]]+tracker[[:space:]]+ready[[:space:]]+(to[[:space:]]+execute|for[[:space:]]+execution)'
+  if [[ "$normalized" =~ $blanket_execution_ready_pattern ]]; then
     fail "helix-triage intro must not prime every issue as execution-ready"
   fi
 }
@@ -130,7 +132,7 @@ text = path.read_text(encoding="utf-8")
 needle = "# Triage: Shape Execution-Ready And Planning Issues\n\n"
 replacement = (
     "# Triage: Shape Execution-Ready And Planning Issues\n\n"
-    "Every issue should enter the tracker ready for execution when possible.\n\n"
+    "All implementation issues should enter the tracker ready to execute when possible.\n\n"
 )
 if needle not in text:
     raise SystemExit("missing helix-triage heading in regression fixture")
