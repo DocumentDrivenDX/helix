@@ -127,6 +127,71 @@ class RefreshContextDigestsTest(unittest.TestCase):
         self.assertIn("Digest assembly must load ADR references from matched concerns.", description)
         self.assertNotIn("The helper now includes ADR summaries and governing clauses.", description)
 
+    def test_build_digest_adds_adrs_from_secondary_matching(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            concern_dir = root / "workflows" / "concerns" / "demo-concern"
+            concern_dir.mkdir(parents=True)
+            (concern_dir / "concern.md").write_text(
+                "# Concern: Demo Concern\n\n## Areas\nworkflow\n",
+                encoding="utf-8",
+            )
+            (concern_dir / "practices.md").write_text("- Use deterministic tests\n", encoding="utf-8")
+
+            adr_dir = root / "docs" / "helix" / "02-design" / "adr"
+            adr_dir.mkdir(parents=True)
+            (adr_dir / "ADR-888-secondary-match.md").write_text(
+                "---\n"
+                "dun:\n"
+                "  id: ADR-888\n"
+                "---\n"
+                "# ADR-888: Secondary Match Digest Assembly\n\n"
+                "| Date | Status | Deciders | Related | Confidence |\n"
+                "|------|--------|----------|---------|------------|\n"
+                "| 2026-04-10 | Proposed | HELIX maintainers | FEAT-999 | High |\n\n"
+                "## Context\n\n"
+                "| Aspect | Description |\n"
+                "|--------|-------------|\n"
+                "| Requirements | Workflow digest rebuilds must summarize ADRs discovered from the fallback scan. |\n\n"
+                "## Decision\n\n"
+                "Workflow ADRs discovered outside concern metadata still contribute summaries to the bead digest.\n",
+                encoding="utf-8",
+            )
+
+            spec_dir = root / "docs" / "helix" / "01-frame" / "features"
+            spec_dir.mkdir(parents=True)
+            (spec_dir / "FEAT-999-demo.md").write_text(
+                "---\n"
+                "dun:\n"
+                "  id: FEAT-999\n"
+                "---\n"
+                "# Feature Specification: FEAT-999 — Demo\n\n"
+                "## Requirements\n\n"
+                "- Digest assembly must summarize secondary ADR matches.\n",
+                encoding="utf-8",
+            )
+
+            library = refresh_context_digests.build_concern_library(
+                root,
+                active_concerns=["demo-concern"],
+                overrides={},
+            )
+            description, _ = refresh_context_digests.build_digest(
+                {
+                    "title": "Digest helper honors secondary ADR refs",
+                    "description": "Review finding for the digest helper.",
+                    "acceptance": "The helper now includes ADR summaries discovered by fallback matching.",
+                    "labels": ["area:workflow"],
+                    "spec-id": "FEAT-999",
+                },
+                principles=["Make Intent Explicit"],
+                library=library,
+                root=root,
+            )
+
+        self.assertIn("<adrs>ADR-888", description)
+        self.assertIn("Workflow ADRs discovered outside concern metadata still contribute summaries", description)
+
 
 if __name__ == "__main__":
     unittest.main()

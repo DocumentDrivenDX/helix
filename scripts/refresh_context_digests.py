@@ -357,12 +357,12 @@ def secondary_adr_matches(root: Path, item: dict, labels: list[str]) -> list[str
         markdown = read_text(path)
         lowered = markdown.lower()
         if spec and spec in markdown:
-            matches.append(path.name)
+            matches.append(path.relative_to(root).as_posix())
             continue
         for area in areas:
             aliases = AREA_TOPIC_ALIASES.get(area, {area})
             if any(alias in lowered for alias in aliases):
-                matches.append(path.name)
+                matches.append(path.relative_to(root).as_posix())
                 break
     return compact(matches, 6)
 
