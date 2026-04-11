@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+repo_root="${HELIX_VALIDATE_SKILLS_REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 skills_dir="$repo_root/skills"
 agents_package_dir="$repo_root/.agents/skills"
 claude_package_dir="$repo_root/.claude/skills"
@@ -68,6 +68,91 @@ assert_output_contains() {
     printf 'expected substring: %s\nin:\n%s\n' "$needle" "$haystack" >&2
     fail "$message"
   fi
+}
+
+validate_helix_triage_intro() {
+  local path="$1"
+  local intro normalized
+
+  [[ -f "$path" ]] || fail "missing file for validation: $path"
+  intro="$(
+    awk '
+      /^# Triage: Shape Execution-Ready And Planning Issues$/ { in_intro = 1; next }
+      in_intro && /^## / { exit }
+      in_intro { print }
+    ' "$path"
+  )"
+  [[ -n "$intro" ]] || fail "helix-triage intro block is missing"
+
+  normalized="$(
+    printf '%s\n' "$intro" \
+      | tr '[:upper:]' '[:lower:]' \
+      | tr '\n' ' ' \
+      | tr -s '[:space:]' ' '
+  )"
+
+  if [[ "$normalized" =~ (every|all|each)[[:space:]]+(issue|issues|bead|beads|task|tasks|work[[:space:]]+item|work[[:space:]]+items)[[:space:]]+should[[:space:]]+enter[[:space:]]+the[[:space:]]+tracker[[:space:]]+ready[[:space:]]+(to[[:space:]]+execute|for[[:space:]]+execution) ]]; then
+    fail "helix-triage intro must not prime every issue as execution-ready"
+  fi
+}
+
+assert_helix_triage_blanket_priming_regression() {
+  local temp_root output_file regression_output
+
+  if [[ "${HELIX_VALIDATE_SKILLS_SKIP_REGRESSION:-0}" == "1" ]]; then
+    return
+  fi
+
+  command -v python3 >/dev/null 2>&1 || fail "python3 is required for execution-ready bead validation"
+
+  temp_root="$(mktemp -d)"
+  output_file="$(mktemp)"
+
+  cp -Rf \
+    "$repo_root/.agents" \
+    "$repo_root/.claude" \
+    "$repo_root/.claude-plugin" \
+    "$repo_root/bin" \
+    "$repo_root/docs" \
+    "$repo_root/hooks" \
+    "$repo_root/skills" \
+    "$repo_root/workflows" \
+    "$temp_root/"
+  mkdir -p "$temp_root/tests"
+  cp -f "$repo_root/tests/validate-skills.sh" "$temp_root/tests/validate-skills.sh"
+
+  python3 - "$temp_root/skills/helix-triage/SKILL.md" <<'PYEOF'
+from pathlib import Path
+import sys
+
+path = Path(sys.argv[1])
+text = path.read_text(encoding="utf-8")
+needle = "# Triage: Shape Execution-Ready And Planning Issues\n\n"
+replacement = (
+    "# Triage: Shape Execution-Ready And Planning Issues\n\n"
+    "Every issue should enter the tracker ready for execution when possible.\n\n"
+)
+if needle not in text:
+    raise SystemExit("missing helix-triage heading in regression fixture")
+path.write_text(text.replace(needle, replacement, 1), encoding="utf-8")
+PYEOF
+
+  assert_command_fails \
+    "$output_file" \
+    "validate-skills must fail when helix-triage regains blanket execution-ready priming" \
+    env \
+      HELIX_VALIDATE_SKILLS_REPO_ROOT="$temp_root" \
+      HELIX_VALIDATE_SKILLS_SKIP_REGRESSION=1 \
+      bash "$temp_root/tests/validate-skills.sh"
+
+  regression_output="$(<"$output_file")"
+  assert_output_contains \
+    "$regression_output" \
+    "helix-triage intro must not prime every issue as execution-ready" \
+    "validate-skills must report the blanket execution-ready triage regression"
+
+  rm -rf "$temp_root"
+  rm -f "$output_file"
 }
 
 # ---------- Plugin layout checks ----------
@@ -304,6 +389,7 @@ assert_file_contains \
   "$repo_root/skills/helix-triage/SKILL.md" \
   "route it to planning/polish or file it explicitly as a" \
   "helix-triage intro must direct vague requests to planning or explicit not-execution-ready paths"
+validate_helix_triage_intro "$repo_root/skills/helix-triage/SKILL.md"
 assert_file_not_contains \
   "$repo_root/skills/helix-triage/SKILL.md" \
   "Every issue should enter the tracker ready to execute." \
@@ -356,6 +442,7 @@ assert_file_contains \
   "$repo_root/docs/helix/02-design/technical-designs/TD-011-slider-autonomy-implementation.md" \
   "### Decision 5c: Bead Success-Measurement Contract" \
   "TD-011 must retain the bead success-measurement decision"
+assert_helix_triage_blanket_priming_regression
 
 command -v python3 >/dev/null 2>&1 || fail "python3 is required for execution-ready bead validation"
 mixed_fixture="$repo_root/tests/fixtures/execution-ready-beads/mixed-ready-semantics.jsonl"
