@@ -64,8 +64,8 @@ ddx agent execute-loop
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--agent codex\|claude` | `codex` | Which agent to dispatch |
-| `--smart-model MODEL` | auto | Model for reasoning stages |
-| `--cheap-model MODEL` | auto | Model for mechanical stages |
+| `--model MODEL` | auto | Explicit model override passed through to DDx or the harness |
+| `--effort LEVEL` | action default | Explicit reasoning-effort override passed through to DDx or the harness |
 | `--max-cycles N` | unlimited | Stop after N completed builds |
 | `--review-every N` | 15 | Periodic alignment interval |
 | `--review-threshold N` | 100 | Skip review below N changed lines |
@@ -83,8 +83,8 @@ ddx agent execute-loop
 | `HELIX_AGENT` | `codex` | Default primary agent |
 | `HELIX_ALT_AGENT` | auto-detected | Alternate agent for adversarial rotation |
 | `HELIX_AGENT_TIMEOUT` | 2700 | Per-agent-call timeout (seconds) |
-| `HELIX_SMART_MODEL` | opus / gpt-5.4 | Model for reasoning stages |
-| `HELIX_CHEAP_MODEL` | sonnet / gpt-5.4-mini | Model for mechanical stages |
+| `HELIX_MODEL` | auto | Explicit model override passed through to DDx or the harness |
+| `HELIX_EFFORT` | action default | Explicit effort override passed through to DDx or the harness |
 | `HELIX_LIBRARY_ROOT` | auto | Override workflows/ location |
 | `HELIX_BACKOFF_SLEEP` | formula | Override backoff delay |
 | `HELIX_ORPHAN_THRESHOLD` | 7200 | Stale claim threshold (seconds) |

@@ -592,7 +592,11 @@ test_help() {
   assert_contains "$output" "input       Accept sparse intent and shape governed HELIX work" "help should describe input command"
   assert_contains "$output" "\`helix run\` remains a compatibility wrapper for supervisory routing" "help should document the run compatibility boundary"
   assert_contains "$output" "\`helix build\` remains a compatibility wrapper for one bounded pass" "help should document the build compatibility boundary"
+  assert_contains "$output" "--model" "help should list the generic model override"
+  assert_contains "$output" "HELIX_MODEL" "help should list the generic model environment override"
   assert_contains "$output" "--review-every" "help should list review option"
+  assert_not_contains "$output" "--smart-model" "help should not advertise removed stage-model overrides"
+  assert_not_contains "$output" "HELIX_SMART_MODEL" "help should not advertise removed stage-model env overrides"
   assert_not_contains "$output" $'\n  tracker ' "help should not list tracker command"
   rm -rf "$root"
 }
@@ -602,6 +606,10 @@ test_no_hardcoded_bead_prefix_export() {
   script="$(cat "$repo_root/scripts/helix")"
   assert_not_contains "$script" 'export DDX_BEAD_PREFIX=' \
     "helix should not hard-code DDX_BEAD_PREFIX"
+  assert_not_contains "$script" 'HELIX_SMART_MODEL' \
+    "helix should not retain the removed reasoning-stage model override"
+  assert_not_contains "$script" 'HELIX_CHEAP_MODEL' \
+    "helix should not retain the removed mechanical-stage model override"
 }
 
 test_bead_help() {

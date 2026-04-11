@@ -72,30 +72,6 @@ auto_align="${HELIX_AUTO_ALIGN:-1}"
 auto_review=1
 review_threshold=100
 
-# Stage-specific model overrides. When unset, DDx or the direct harness default
-# owns concrete model selection. HELIX should choose stage intent, not a baked-in
-# model table.
-smart_model="${HELIX_SMART_MODEL:-}"
-cheap_model="${HELIX_CHEAP_MODEL:-}"
-
-# resolve_model <tier> — return only explicit stage-specific model overrides.
-# HELIX no longer injects default concrete model names for DDx dispatch. When no
-# override is set, DDx or the underlying harness chooses the model.
-resolve_model() {
-  local tier="${1:-smart}"
-  local primary
-  primary="$(normalize_agent_name "${HELIX_AGENT:-codex}")"
-  [[ "$agent" != "$primary" ]] && return 0
-  case "$tier" in
-    smart)
-      printf '%s' "$smart_model"
-      ;;
-    cheap)
-      printf '%s' "$cheap_model"
-      ;;
-  esac
-}
-
 # DDx embedded-harness alias handling.
 # HELIX should accept the user-facing rename direction (`ddx-agent`) while still
 # working against older DDx binaries that expose the embedded harness as `forge`.
@@ -302,8 +278,6 @@ Options:
   --no-auto-review  Do not run fresh-eyes review after each implementation
   --review-threshold N  Skip review for changes below N lines (default: 100)
   --review-agent    Use a different agent for reviews (default: adversarial alternate)
-  --smart-model     Model for reasoning-heavy stages (frame, design, align, review)
-  --cheap-model     Model for mechanical stages (build, polish, check)
   --dry-run         Print the agent command instead of executing it
   --quiet, -q       Suppress progress output (command echo, prompt sizes)
   --summary, -s     Concise output with log-file line pointers (implies --quiet)
@@ -313,15 +287,15 @@ Environment:
                        or any ddx harness)
   HELIX_ALT_AGENT      Alternate agent for adversarial rotation (auto-detected)
   HELIX_AGENT_TIMEOUT  Agent timeout in seconds (default: 2700)
-  HELIX_SMART_MODEL    Optional model override for reasoning stages
-  HELIX_CHEAP_MODEL    Optional model override for mechanical stages
+  HELIX_MODEL          Optional model override passed through to DDx / the harness
+  HELIX_EFFORT         Optional effort override passed through to DDx / the harness
   HELIX_LIBRARY_ROOT   Override the library root that contains workflows/
   HELIX_TRACKER_DIR    Override the tracker directory (default: <repo>/.ddx)
 
 Adversarial rotation:
-  Primary agent (frame, design, evolve, align, review) uses the smart model.
-  Alternate agent (build, polish, check) uses the cheap model.
-  This ensures different models review each other's work.
+  Primary agent handles frame/design/evolve/align/review.
+  Alternate agent handles build/polish/check.
+  Concrete model selection stays with DDx or the harness unless you pass --model.
 
 Logs:
   Session logs are written to .helix-logs/helix-YYYYMMDD-HHMMSS.log
@@ -1180,7 +1154,7 @@ run_execute_bead() {
 
   exec_agent="$(managed_build_agent)"
   ddx_harness="$(_resolve_ddx_dispatch_harness "$exec_agent")"
-  model_override="$(resolve_model cheap)"
+  model_override="${agent_model:-}"
   effort_override="${agent_effort:-medium}"
 
   [[ -n "$ddx_harness" ]] && ddx_flags+=(--harness "$ddx_harness")
@@ -1213,7 +1187,7 @@ run_execute_loop_once() {
 
   exec_agent="$(managed_build_agent)"
   ddx_harness="$(_resolve_ddx_dispatch_harness "$exec_agent")"
-  model_override="$(resolve_model cheap)"
+  model_override="${agent_model:-}"
   effort_override="${agent_effort:-medium}"
 
   [[ -n "$ddx_harness" ]] && ddx_flags+=(--harness "$ddx_harness")
@@ -1760,8 +1734,8 @@ EOF
 
 run_frame() {
   local scope="${1:-}"
-  # Frame is reasoning-heavy — use primary agent with smart model
-  run_agent_prompt "$(frame_prompt "$scope")" "$(resolve_model smart)" "${agent_effort:-high}"
+  # Frame uses the primary agent and its default model/effort policy.
+  run_agent_prompt "$(frame_prompt "$scope")" "" "${agent_effort:-high}"
 }
 
 plan_prompt() {
@@ -1874,8 +1848,8 @@ run_evolve() {
   if (( ! dry_run )); then
     require_tracker
   fi
-  # Evolve is reasoning-heavy — use primary agent with smart model
-  run_agent_prompt "$(evolve_prompt "$requirement" "$scope" "$artifact" "$source")" "$(resolve_model smart)" "${agent_effort:-high}"
+  # Evolve uses the primary agent and its default model/effort policy.
+  run_agent_prompt "$(evolve_prompt "$requirement" "$scope" "$artifact" "$source")" "" "${agent_effort:-high}"
 }
 
 run_input() {
@@ -1895,7 +1869,7 @@ run_input() {
   if (( ! dry_run )); then
     require_tracker
   fi
-  run_agent_prompt "$(input_prompt "$request" "$autonomy")" "$(resolve_model smart)" "${agent_effort:-high}"
+  run_agent_prompt "$(input_prompt "$request" "$autonomy")" "" "${agent_effort:-high}"
 }
 
 input_prompt() {
@@ -2255,7 +2229,7 @@ run_implementation() {
     run_execute_bead "$issue_id"
     return $?
   fi
-  # Build is mechanical — use alternate agent with cheap model
+  # Build uses the alternate agent when adversarial rotation is enabled.
   local _saved_agent=""
   if [[ -n "$alt_agent" ]] && [[ "$alt_agent" != "$agent" ]]; then
     _saved_agent="$agent"
@@ -2263,7 +2237,7 @@ run_implementation() {
     (( ! quiet )) && printf 'helix: adversarial build: switching to %s\n' "$agent" >&2
   fi
   local _rc=0
-  run_agent_prompt "$(implementation_prompt "$selector")" "$(resolve_model cheap)" "${agent_effort:-medium}" || _rc=$?
+  run_agent_prompt "$(implementation_prompt "$selector")" "" "${agent_effort:-medium}" || _rc=$?
   [[ -z "$_saved_agent" ]] || agent="$_saved_agent"
   return "$_rc"
 }
@@ -2273,7 +2247,7 @@ run_batch_implementation() {
   if (( ! dry_run )); then
     require_tracker
   fi
-  # Build is mechanical — use alternate agent with cheap model
+  # Batch build uses the alternate agent when adversarial rotation is enabled.
   local _saved_agent=""
   if [[ -n "$alt_agent" ]] && [[ "$alt_agent" != "$agent" ]]; then
     _saved_agent="$agent"
@@ -2281,7 +2255,7 @@ run_batch_implementation() {
     (( ! quiet )) && printf 'helix: adversarial build: switching to %s\n' "$agent" >&2
   fi
   local _rc=0
-  run_agent_prompt "$(batch_implementation_prompt "$issues")" "$(resolve_model cheap)" "${agent_effort:-medium}" || _rc=$?
+  run_agent_prompt "$(batch_implementation_prompt "$issues")" "" "${agent_effort:-medium}" || _rc=$?
   [[ -z "$_saved_agent" ]] || agent="$_saved_agent"
   return "$_rc"
 }
@@ -2291,7 +2265,7 @@ run_check() {
   if (( ! dry_run )); then
     require_tracker
   fi
-  # Check is mechanical — use alternate agent with cheap model
+  # Check uses the alternate agent when adversarial rotation is enabled.
   local _saved_agent=""
   if [[ -n "$alt_agent" ]] && [[ "$alt_agent" != "$agent" ]]; then
     _saved_agent="$agent"
@@ -2299,7 +2273,7 @@ run_check() {
     (( ! quiet )) && printf 'helix: adversarial check: switching to %s\n' "$agent" >&2
   fi
   local _rc=0
-  run_agent_prompt "$(check_prompt "$scope")" "$(resolve_model cheap)" "${agent_effort:-low}" || _rc=$?
+  run_agent_prompt "$(check_prompt "$scope")" "" "${agent_effort:-low}" || _rc=$?
   [[ -z "$_saved_agent" ]] || agent="$_saved_agent"
   return "$_rc"
 }
@@ -2313,24 +2287,24 @@ run_alignment() {
     governing_bead="${alignment_state%%$'\t'*}"
     governing_mode="${alignment_state#*$'\t'}"
   fi
-  # Alignment is reasoning-heavy — use primary agent with smart model
-  run_agent_prompt "$(alignment_prompt "$scope" "$governing_bead" "$governing_mode")" "$(resolve_model smart)" "${agent_effort:-high}"
+  # Alignment uses the primary agent and its default model/effort policy.
+  run_agent_prompt "$(alignment_prompt "$scope" "$governing_bead" "$governing_mode")" "" "${agent_effort:-high}"
 }
 
 run_backfill() {
   local scope="${1:-repo}"
 
   if (( dry_run )); then
-    # Backfill is reasoning-heavy — use primary agent with smart model
-    run_agent_prompt "$(backfill_prompt "$scope")" "$(resolve_model smart)" "${agent_effort:-high}"
+    # Backfill uses the primary agent and its default model/effort policy.
+    run_agent_prompt "$(backfill_prompt "$scope")" "" "${agent_effort:-high}"
     return 0
   fi
 
   require_tracker
 
   local output
-  # Backfill is reasoning-heavy — use primary agent with smart model
-  output="$(run_agent_prompt "$(backfill_prompt "$scope")" "$(resolve_model smart)" "${agent_effort:-high}")"
+  # Backfill uses the primary agent and its default model/effort policy.
+  output="$(run_agent_prompt "$(backfill_prompt "$scope")" "" "${agent_effort:-high}")"
   printf '%s\n' "$output"
 
   local status
@@ -2416,8 +2390,8 @@ run_plan() {
   local scope="${1:-}"
   local rounds="${2:-5}"
   # Planning does NOT require tracker — it happens before issue creation
-  # Design/plan is reasoning-heavy — use primary agent with smart model
-  run_agent_prompt "$(plan_prompt "$scope" "$rounds")" "$(resolve_model smart)" "${agent_effort:-high}"
+  # Design uses the primary agent and its default model/effort policy.
+  run_agent_prompt "$(plan_prompt "$scope" "$rounds")" "" "${agent_effort:-high}"
 
   # Cross-model critique: if review_agent is configured, alternate agents
   # for additional refinement passes on the written plan
@@ -2453,7 +2427,7 @@ run_polish() {
   if (( ! dry_run )); then
     require_tracker
   fi
-  # Polish is mechanical — use alternate agent with cheap model
+  # Polish uses the alternate agent when adversarial rotation is enabled.
   local _saved_agent=""
   if [[ -n "$alt_agent" ]] && [[ "$alt_agent" != "$agent" ]]; then
     _saved_agent="$agent"
@@ -2461,7 +2435,7 @@ run_polish() {
     (( ! quiet )) && printf 'helix: adversarial polish: switching to %s\n' "$agent" >&2
   fi
   local _rc=0
-  run_agent_prompt "$(polish_prompt "$scope" "$rounds")" "$(resolve_model cheap)" "${agent_effort:-medium}" || _rc=$?
+  run_agent_prompt "$(polish_prompt "$scope" "$rounds")" "" "${agent_effort:-medium}" || _rc=$?
   [[ -z "$_saved_agent" ]] || agent="$_saved_agent"
   return "$_rc"
 }
@@ -2529,13 +2503,13 @@ run_review() {
 
   if (( dry_run )); then
     local _rc=0
-    run_agent_prompt "$(review_prompt "$scope" "$in_loop")" "$(resolve_model smart)" "${agent_effort:-high}" || _rc=$?
+    run_agent_prompt "$(review_prompt "$scope" "$in_loop")" "" "${agent_effort:-high}" || _rc=$?
     [[ -z "$_saved_agent" ]] || agent="$_saved_agent"
     return "$_rc"
   fi
 
   local output
-  output="$(run_agent_prompt "$(review_prompt "$scope" "$in_loop")" "$(resolve_model smart)" "${agent_effort:-high}")"
+  output="$(run_agent_prompt "$(review_prompt "$scope" "$in_loop")" "" "${agent_effort:-high}")"
   printf '%s\n' "$output"
 
   # Restore agent before returning
@@ -3622,14 +3596,6 @@ main() {
           --ephemeral)
             force_ephemeral=1
             shift
-            ;;
-          --smart-model)
-            smart_model="$2"
-            shift 2
-            ;;
-          --cheap-model)
-            cheap_model="$2"
-            shift 2
             ;;
           --review-agent)
             review_agent="$2"
