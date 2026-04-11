@@ -76,10 +76,13 @@ jobs:
             dir=$(mktemp -d)
             cast="website/static/demos/helix-${demo}.cast"
             recorded_cast="${dir}/helix-${demo}.cast"
+            status_file="${dir}/helix-${demo}.status"
             (cd "$dir" && asciinema rec \
               --cols 100 --rows 30 \
-              --command "HELIX_DEMO_RECORDING=1 bash ${GITHUB_WORKSPACE}/docs/demos/helix-${demo}/demo.sh" \
+              --command "bash -lc 'set +e; HELIX_DEMO_RECORDING=1 bash \"${GITHUB_WORKSPACE}/docs/demos/helix-${demo}/demo.sh\"; rc=\$?; printf \"%s\n\" \"\$rc\" > \"${status_file}\"; exit \"\$rc\"'" \
               "$recorded_cast" 2>&1)
+            test -s "$status_file"
+            test "$(tr -d '\r\n' < "$status_file")" = "0"
             test -s "$recorded_cast"
             cp -f "$recorded_cast" "$cast"
             echo "✓ $demo recorded ($(wc -c < "$cast") bytes)"
