@@ -80,62 +80,74 @@ surface on 2026-04-10.
 | **FEAT-001** Supervisory Control | ALIGNED | Core bounded supervision remains governed by `TD-002` and `TP-002`, but the execution substrate boundary is shifting downward into DDx. |
 | **FEAT-002** HELIX CLI | PARTIAL | `scripts/helix` exposes the expected command surface, but the governing plan must now converge on DDx-managed execution (`execute-bead`, then `execute-loop`) instead of treating wrapper-owned claim/close mechanics as the long-term contract. |
 | **FEAT-003** First-Class Principles | COMPLETE | Defaults, bootstrap, and workflow references are in place; no live queue item currently targets FEAT-003 directly. |
-| **FEAT-004** Plugin Packaging | PARTIAL | `.claude-plugin/plugin.json`, `hooks/hooks.json`, `bin/helix`, and `tests/validate-skills.sh` exist; the remaining gap is deterministic delegation coverage for the plugin wrapper (`helix-0d48272d`). |
-| **FEAT-005** Execution-Backed Output | PARKED | The feature remains specified, but the prior blocked epic `helix-4dec7483` is already closed and no current open bead is carrying this work in the live queue snapshot. |
-| **FEAT-006** Concerns & Context Digest | DIVERGENT | Concern docs and prompt references exist, but live bead propagation and area-label preservation are still open (`helix-7b3c6980`, `helix-3ad4ba25`). |
-| **FEAT-007** Microsite and Demos | PARTIAL | The site and demos ship, but the current queue still carries route/search and Playwright coverage fixes (`helix-ae94e347`, `helix-f58a8717`). |
-| **FEAT-011** Slider Autonomy | PARTIAL | `helix input` and `--autonomy` are live in `scripts/helix`; the current design now assumes DDx-managed queue drain (`execute-loop`) with `execute-bead` underneath, and the migration path remains open work. |
+| **FEAT-004** Plugin Packaging | PARTIAL | `.claude-plugin/plugin.json`, `hooks/hooks.json`, `bin/helix`, and `tests/validate-skills.sh` exist; no dedicated open packaging bead is live right now, so remaining risk sits in wrapper-compatibility proof rather than package layout. |
+| **FEAT-005** Execution-Backed Output | PARKED | The feature remains specified, but no current open bead is scoped directly to execution-backed output while the queue prioritizes DDx-managed execution-contract alignment. |
+| **FEAT-006** Concerns & Context Digest | DIVERGENT | Concern docs and prompt references exist, but live propagation gaps remain open in the queue (`helix-674b1b42`, `helix-691d18c0`, `helix-d9f93a59`). |
+| **FEAT-007** Microsite and Demos | PARTIAL | The site and demos ship, but the live queue still carries demo and public-site drift fixes (`helix-438c8a07`, `helix-7d158bdf`, `helix-d903a854`). |
+| **FEAT-011** Slider Autonomy | PARTIAL | `helix input` and `--autonomy` are live in `scripts/helix`; the current queue is still converging the DDx-managed execution model across design and wrapper behavior (`helix-13cfe23f`, `helix-a938e147`, `helix-4243dd31`, `helix-ded1e007`). |
 
 ## Live Queue Snapshot
 
-Snapshot rebuilt on 2026-04-10 from the open queue that remains after this
-refresh bead closes:
+Snapshot rebuilt on 2026-04-10 from `ddx bead status` and
+`ddx bead list --status open --json` after `helix-c3ff5fdf` moved to
+`in_progress` for this refresh pass:
 
-- `27` open
-- `27` ready
-- `0` blocked
+- `28` open
+- `26` ready
+- `2` blocked
 
-### Build backlog
+### Ready build backlog
 
 | Issue | Priority | Focus |
 |-------|----------|-------|
-| `helix-0d48272d` | P0 | Add deterministic coverage for `bin/helix` delegation |
-| `helix-11c498d6` | P0 | Fix secondary ADR discovery in the context-digest helper |
-| `helix-15eff7dc` | P0 | Align monitoring-setup runbook contract with deploy ordering |
-| `helix-19a0b99a` | P0 | Preserve override-specific digest guidance when the first bullet duplicates library content |
-| `helix-268c54ee` | P0 | Reconcile the implementation-plan command surface with `bash scripts/helix help` |
-| `helix-3ad4ba25` | P0 | Preserve `area:*` labels on review-filed findings |
-| `helix-3c960e4b` | P0 | Add deterministic verification for `helix input` intake flow |
-| `helix-414fe238` | P0 | Update the deploy phase glossary for the restored `release-notes` contract |
-| `helix-41b86771` | P0 | Remove or restore deleted artifact types still named in supporting docs |
-| `helix-512324ed` | P0 | Define story-keyed iterate evidence before retiring shared-IR state detection |
-| `helix-6f9f8081` | P0 | Add deterministic validation for deploy artifact order consistency |
-| `helix-ae94e347` | P0 | Fix broken glossary route in site search output |
-| `helix-b7f0c18a` | P0 | Add deterministic coverage for deploy artifact order consistency |
-| `helix-c1466715` | P0 | Align the deploy README with the restored `release-notes` contract |
-| `helix-ef1cc923` | P0 | Prevent every story from matching ITERATE once `docs/helix/06-iterate/` exists |
-| `helix-f58a8717` | P0 | Add Playwright coverage for microsite search workflow |
-| `helix-f6c2b3a6` | P0 | Require `release-notes` in the deploy gate |
+| `helix-09f1b7ca` | P0 | Align the iterate gate tracker path with the built-in bead store |
+| `helix-1356be0a` | P0 | Remove the stale "every issue is execution-ready" claim from triage |
+| `helix-4243dd31` | P0 | Preserve the actual DDx-executed bead across `execute-loop` bookkeeping |
+| `helix-438c8a07` | P0 | Update the `helix-concerns` demo finding command to include area labels |
+| `helix-66c50c8e` | P0 | Reconcile `docs/README.md` legacy-structure claims with the live repo |
+| `helix-674b1b42` | P0 | Restore scope area labels and concern context on new align beads |
+| `helix-691d18c0` | P0 | Support project-local custom concerns during digest refresh |
+| `helix-7d158bdf` | P0 | Make Pages demo recording fail when wrapped demo commands fail |
+| `helix-bec526ad` | P0 | Reclaim reused in-progress governing beads during align execution |
+| `helix-c28ea8af` | P0 | Align `HELIX_TRACKER_DIR` defaults with the built-in bead store |
+| `helix-cd418cd7` | P0 | Align `monitoring-setup` docs with the optional runbook contract |
+| `helix-d2146c63` | P0 | Align `workflows/DDX.md` deploy row with the four-surface contract |
+| `helix-d903a854` | P0 | Update public quickstarts and demos for the DDx queue-drain default |
+| `helix-d9f93a59` | P0 | Allow explicit digest-omission rationale in the validator |
+| `helix-ded1e007` | P0 | Reject closed or non-ready explicit selectors before `helix build` dispatch |
+| `helix-e3988823` | P0 | Point `docs/README.md` workflow references at `workflows/references/` |
+| `helix-5129f35d` | P1 | Resolve CRM request scope against the current HELIX repo vision |
+| `helix-9230fd5b` | P1 | Frame greenfield CRM scope from sparse intake |
+| `helix-af902886` | P1 | Isolate the `helix start` wrapper test from live repo state |
+| `helix-db7d13a9` | P1 | Govern the sparse "Design a CRM" intake without drifting repo scope |
 | `helix-fb2ccbb1` | P1 | Fix the `ddx-agent` dry-run hang in `tests/helix-cli.sh` |
-| `hx-89d8e016` | P0 | Restore `security-metrics` in iterate state-machine artifacts |
-| `hx-98076461` | P0 | Remove stale build-procedures reference in `docs/README.md` |
-| `hx-f34fcaf1` | P0 | Close bead `helix-2a702709` after completed work |
 
 ### Design backlog
 
 | Issue | Priority | Focus |
 |-------|----------|-------|
-| `helix-004375e5` | P0 | Review deleted artifact type: `gtm-plan` |
-| `helix-05fa7338` | P0 | Review deleted artifact type: `launch-checklist` |
+| `helix-13cfe23f` | P0 | Align HELIX execution docs to shipped `ddx agent execute-loop` / `execute-bead` |
+| `helix-a938e147` | P0 | Decide whether HELIX exposes stage personalities over DDx-managed execution |
 | `helix-1940a77b` | P2 | Add first-class contract artifact support in design |
-| `helix-dd21cbaa` | P0 | Define the workspace-state transformation model for beads |
-| `helix-fef22846` | P0 | Audit deleted HELIX artifact types for restoration or retirement |
+
+### Frame backlog
+
+| Issue | Priority | Focus |
+|-------|----------|-------|
+| `helix-dfddd64b` | P1 | Clarify the CRM intake target before creating frame/design artifacts |
 
 ### Blocked backlog
 
 | Issue | Priority | Focus |
 |-------|----------|-------|
-| `helix-81c0c0df` | P1 | Blocked DDx tier-policy integration for model selection |
+| `helix-7e8a9c4b` | P2 | Decompose CRM design into execution-ready beads once upstream CRM planning is ready |
+| `helix-8944c622` | P2 | Draft the initial CRM solution design once framing dependencies clear |
+
+### Cross-Phase backlog
+
+| Issue | Priority | Focus |
+|-------|----------|-------|
+| `helix-81c0c0df` | P1 | Consume DDx tier policy backed by the `ddx-agent` model catalog |
 
 ## Build Sequencing
 
@@ -147,14 +159,14 @@ refresh bead closes:
 | 4 | Repair deploy artifact contract consistency | Deploy artifact metadata/templates, review findings | Resolve ordering contradictions and missing artifact references before extending deploy docs further. |
 | 5 | Restore the public site proof lane | FEAT-007, site concerns, Playwright/Hugo verification | Fix route/search regressions and extend deterministic site coverage so the published docs lane is green again. |
 | 6 | Finish design-taxonomy follow-ons | Artifact hierarchy, design artifact docs, workspace-state design work | Complete the deleted-artifact audit, first-class contract support, and workspace-state modeling before new artifact types are introduced. |
-| 7 | Defer blocked platform-policy work | DDx tier-policy/model-catalog contract | `helix-81c0c0df` remains blocked until DDx-side policy ownership is ready to consume. |
+| 7 | Stage DDx tier-policy adoption behind queue-contract stabilization | DDx tier-policy/model-catalog contract | Keep `helix-81c0c0df` queued as a cross-phase follow-on while higher-priority execution-contract work lands first. |
 
 ## Verification Expectations
 
 | Area | Required Verification |
 |------|-----------------------|
 | Wrapper / workflow contract changes | `bash tests/helix-cli.sh`; `git diff --check`; verify DDx alpha command help/contract assumptions against local `ddx agent execute-bead --help` and `ddx agent execute-loop --help` |
-| Plugin packaging and published skill surface | `bash tests/validate-skills.sh`; plugin manifest validation; deterministic `bin/helix` delegation coverage once `helix-0d48272d` lands |
+| Plugin packaging and published skill surface | `bash tests/validate-skills.sh`; plugin manifest validation; targeted wrapper/package smoke checks when plugin-surface follow-on work reopens |
 | Concern / digest propagation | Targeted `ddx bead show` / `ddx bead list --status open --json` spot checks on updated beads; confirm explicit parents/dependencies on newly ordered follow-on work; `git diff --check` |
 | Site / demo changes | `hugo --gc --minify` and `npx playwright test` under `website/`; `git diff --check` |
 | Queue-refresh and doc-only updates | `git diff --check`; cross-check against `ddx bead status`, `ddx bead list --status open --json`, and `bash scripts/helix help` |
