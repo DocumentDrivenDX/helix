@@ -3,6 +3,7 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 validator="$repo_root/scripts/validate_deploy_artifact_graph.py"
+docs_validator="$repo_root/scripts/validate_deploy_contract_docs.py"
 artifacts_dir="$repo_root/workflows/phases/05-deploy/artifacts"
 
 fail() {
@@ -24,6 +25,10 @@ run_validator() {
   python3 "$validator" "$@"
 }
 
+run_docs_validator() {
+  python3 "$docs_validator" "$@"
+}
+
 tmpdir="$(mktemp -d)"
 trap 'rm -rf "$tmpdir"' EXIT
 
@@ -31,6 +36,11 @@ pass_output="$(run_validator --artifacts-dir "$artifacts_dir" 2>&1)" \
   || fail "expected current deploy artifact graph to validate, got: $pass_output"
 assert_contains "$pass_output" "validated deploy artifact graph" \
   "validator should report success for the checked-in deploy artifact graph"
+
+docs_pass_output="$(run_docs_validator 2>&1)" \
+  || fail "expected checked-in deploy contract docs to validate, got: $docs_pass_output"
+assert_contains "$docs_pass_output" "validated deploy contract docs" \
+  "validator should report success for the checked-in deploy contract docs"
 
 later_dir="$tmpdir/later-edge"
 mkdir -p "$later_dir"
@@ -79,5 +89,42 @@ set -e
 [[ $cycle_status -ne 0 ]] || fail "validator should fail when deploy artifacts contain a cycle"
 assert_contains "$cycle_output" "deploy artifact dependency cycle detected" \
   "cycle fixture should report the dependency cycle"
+
+docs_dir="$tmpdir/docs-contract"
+mkdir -p "$docs_dir"
+cp -f "$repo_root/workflows/phases/05-deploy/README.md" "$docs_dir/README.md"
+cp -f "$repo_root/workflows/phases/05-deploy/enforcer.md" "$docs_dir/enforcer.md"
+cp -f "$repo_root/website/content/docs/glossary/artifacts.md" "$docs_dir/artifacts.md"
+python3 - "$docs_dir/README.md" <<'PYEOF'
+from pathlib import Path
+import sys
+
+path = Path(sys.argv[1])
+text = path.read_text(encoding="utf-8")
+needle = (
+    "Deploy artifacts are project-specific, but current HELIX still treats four\n"
+    "deploy surfaces as first-class in the live contract:\n"
+    "`deployment-checklist`, `monitoring-setup`, `runbook`, and `release-notes`.\n"
+)
+replacement = (
+    "Deploy artifacts are project-specific, but current HELIX still treats three\n"
+    "deploy surfaces as first-class in the live contract:\n"
+    "`deployment-checklist`, `monitoring-setup`, and `runbook`.\n"
+)
+if needle not in text:
+    raise SystemExit(f"expected canonical contract block not found in {path}")
+path.write_text(text.replace(needle, replacement, 1), encoding="utf-8")
+PYEOF
+
+set +e
+docs_fail_output="$(run_docs_validator \
+  --deploy-readme "$docs_dir/README.md" \
+  --deploy-enforcer "$docs_dir/enforcer.md" \
+  --glossary "$docs_dir/artifacts.md" 2>&1)"
+docs_fail_status=$?
+set -e
+[[ $docs_fail_status -ne 0 ]] || fail "validator should fail when deploy docs reintroduce stale three-artifact wording"
+assert_contains "$docs_fail_output" "deploy README: missing canonical four-artifact contract wording" \
+  "three-artifact fixture should report the missing canonical contract wording"
 
 printf 'validated deploy artifact graph checks\n'
