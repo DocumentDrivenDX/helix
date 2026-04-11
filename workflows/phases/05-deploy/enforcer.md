@@ -222,7 +222,7 @@ Deploy provides to Iterate:
 ## Deploy Artifacts
 
 Deploy artifacts are project-specific, but HELIX treats four deploy outputs as
-the live contract under `docs/helix/05-deploy/` when a release needs them:
+the live contract under `docs/helix/05-deploy/`:
 
 - `deployment-checklist` for rollout readiness and technical go/no-go checks
 - `monitoring-setup` for dashboards, alerts, and health checks

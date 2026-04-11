@@ -75,7 +75,7 @@ graph TD
 ### Artifacts
 
 Deploy artifacts are project-specific, but current HELIX still treats four
-deploy surfaces as first-class when a release needs them:
+deploy surfaces as first-class in the live contract:
 `deployment-checklist`, `monitoring-setup`, `runbook`, and `release-notes`.
 
 - `deployment-checklist` is the technical go or no-go surface for rollout.
