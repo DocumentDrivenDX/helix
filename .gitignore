@@ -31,3 +31,5 @@ website/resources/
 website/test-results/
 website/playwright-report/
 website/node_modules/
+__pycache__/
+*.pyc

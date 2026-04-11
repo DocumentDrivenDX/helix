@@ -91,7 +91,8 @@ HELIX owns:
   criteria so DDx-managed execution can close merged work without manual
   interpretation
 - bead topology policy for parent-child relationships and dependencies when
-  queue order matters
+  queue order matters (curation — ensures DDX's deterministic ordering is correct;
+  HELIX does not predict which bead DDX will select)
 
 ### 3. Artifact-flow policy
 HELIX owns:
@@ -177,7 +178,6 @@ These objects are shared across the boundary and should keep stable meanings.
 
 ### HELIX -> DDx
 HELIX decides:
-- what bead should be worked
 - what autonomy behavior should apply
 - what workflow prompt/context to use
 - what stage-authored stance should apply for the selected workflow step
@@ -197,15 +197,50 @@ DDx returns evidence, not workflow policy:
 - landed vs preserved outcome
 - transcript/session/exec evidence locations
 
-Minimum workflow-visible outcome surface expected by HELIX:
-- per-bead merge vs preserve state
-- merge vs preserve state
-- required execution pass/fail summary
-- ratchet pass/fail summary
-- enough runtime evidence to inspect why the bounded attempt landed or was preserved
+Minimum workflow-visible outcome surface from `ddx agent execute-loop --once --json`:
+
+```json
+{
+  "project_root": "/path",
+  "attempts": 1,
+  "successes": 1,
+  "failures": 0,
+  "results": [
+    {
+      "bead_id": "hx-abc123",       "attempt_id": "...",
+      "harness": "codex",           "status": "success",
+      "detail": "...",              "session_id": "...",
+      "base_rev": "sha",             "result_rev": "sha",
+      "retry_after": "..."
+    }
+  ]
+}
+```
+
+`results[].status` values:
+
+| Status | Meaning |
+|--------|---------|
+| `success` | Bead merged or preserved with success |
+| `no_changes` | Agent produced no tracked changes; worktree clean |
+| `execution_failed` | Agent or harness exit non-zero |
+| `land_conflict` | Attempt preserved: rebase failed or fast-forward not possible |
+| `post_run_check_failed` | Attempt preserved: post-run checks failed |
+| `structural_validation_failed` | Bead malformed or missing required fields |
+
+Outcome-to-status mapping (internal to DDx):
+- `outcome=merged` → `status=success`
+- `outcome=no-changes` → `status=no_changes`
+- `outcome=preserved`, reason in (rebase failed, ff-merge failed, ff-merge not possible) → `status=land_conflict`
+- `outcome=preserved`, reason=post-run checks failed → `status=post_run_check_failed`
+- `outcome=preserved`, other reason → `status=success`
+
+HELIX uses `results[].bead_id` for all post-cycle bookkeeping (not a pre-selected bead).
+HELIX uses `results[].result_rev` as the closing SHA candidate.
+HELIX uses `results[].retry_after` for blocked/suspended bead surfaced via `ddx bead blocked`.
 
 HELIX-authored execution beads must make success machine-auditable. In
-practice that means deterministic acceptance and success-measurement criteria:
+practice this means deterministic acceptance and success-measurement criteria:
 exact commands, named checks, concrete files or fields to inspect, and
 observable end states. Vague success text such as "works correctly" is not a
 sufficient contract for `ddx agent execute-bead` or `ddx agent execute-loop`.
@@ -242,14 +277,129 @@ HELIX then decides what to do next:
 - a second single-project queue-drain loop once `ddx agent execute-loop`
   satisfies the required HELIX supervision contract
 
+## Queue Curation Policy
+
+HELIX owns queue curation. DDx owns bead selection and execution.
+
+HELIX does not predict which bead DDx will select. Instead, HELIX ensures the
+queue is in the correct state so DDx's deterministic `ReadyExecution()` ordering
+produces the intended sequence.
+
+| Queue mechanism | DDx behavior | HELIX responsibility |
+|---|---|---|
+| `dep-ids` | `ReadyExecution` waits for all deps to be `closed` | Set correctly on all beads; update when deps are added |
+| `parent` hierarchy | DDx respects parent/child but does not enforce child execution order | Epic execution is separate from child execution; children enter ready queue independently |
+| `execution-eligible` | `ReadyExecution` filters out `false`; defaults `true` if absent | Set `false` to temporarily suppress a bead without closing it |
+| `superseded-by` | `ReadyExecution` filters out superseded beads | Set when a bead is superseded; do not leave superseded beads open |
+| `execute-loop-retry-after` | `ReadyExecution` filters out beads on cooldown | DDx sets this on failed attempts; HELIX should not set it |
+
+### Epic-focus queue curation
+
+When HELIX enters epic-focus mode (stay on an epic until all children are done):
+
+1. HELIX sets `execution-eligible: false` on all non-child open beads via `ddx bead update --set execution-eligible=false`.
+2. DDx's `ReadyExecution` naturally picks only eligible children.
+3. When the epic closes or switches, HELIX removes the `execution-eligible` suppression from remaining beads.
+4. No DDX flag or special selection logic is required.
+
+### Queue-drift ownership
+
+Drift (superseded-by, parent change, spec-id change) is a **pre-execution** concern.
+HELIX detects drift at `helix check` time and prevents stale beads from entering
+the ready queue. DDx executes what it is given; it does not reopen beads after
+close-with-evidence.
+
+HELIX does not implement post-close reopen logic. If a bead was ready when DDx
+picked it, the execution result stands.
+
+## Queue-Injected Supervisory Beads
+
+Review and alignment are **regular beads**, not post-cycle hooks. HELIX injects them
+into the queue and lets DDx execute them through execute-loop:
+
+| Bead type | Trigger | Acceptance |
+|---|---|---|
+| `review-finding` | Post-build or periodic | Agent finds 0 new drift violations |
+| `alignment-review` | Every N completed passes | No governance drift detected |
+
+When HELIX injects a review or alignment bead into the queue, DDx picks it up
+like any other ready bead. The execution produces the same evidence bundle as
+implementation beads, enabling performance analysis.
+
+`--no-auto-review` and `--no-auto-align` control whether HELIX injects these beads
+— they do not disable post-cycle hooks.
+
+## Performance Metadata and Optimization
+
+Every execute-bead attempt produces:
+
+```
+bead_id → { new_state, performance_metadata }
+```
+
+Performance metadata captured by DDx per attempt:
+- model, harness, provider
+- elapsed time
+- token usage (input, output, total)
+- cost
+- base revision, result revision
+- session ID, attempt ID
+
+HELIX uses this for:
+- **Prompt optimization**: did a simpler prompt produce the same result faster?
+- **Model routing**: would a faster/cheaper model have sufficed? Would a smarter model have avoided the failure?
+- **Process improvement**: why did this experiment fail? What assumption was wrong?
+
+HELIX experiments use this infrastructure:
+- Queue a batch of experiment beads with specific acceptance criteria
+- DDx runs them all in order via execute-loop
+- Each produces: new state + performance metadata
+- Keep the ones that improve state; failed experiments leave a detailed record
+  of what didn't work and why, enabling targeted improvement
+
+This turns every bead execution into a measurable data point for continuous
+process optimization.
+
+## Post-Cycle HELIX Behavior
+
+After `ddx agent execute-loop --once` returns, HELIX applies post-cycle
+supervisory policy to the bead(s) in `results[].bead_id`.
+
+| Behavior | Owner | Notes |
+|---|---|---|
+| Queue injection (review, alignment) | **HELIX** | Creates beads, DDx executes them |
+| Epic promotion (task → epic when children appear) | **HELIX** | Post-cycle tracker mutation |
+| Acceptance-failure filing | **HELIX** | Creates follow-on beads |
+| Cycle counting | **HELIX** | Increments on `status=success` |
+| Context refresh | **HELIX** | Every 5 cycles or on epic switch |
+| Closing SHA sync | **DDx** | Uses `results[].result_rev` |
+| Build gate (pre-merge check) | **DDx** | Runs before merge; reverts on failure |
+| Retry suppression | **DDx** | Sets `execute-loop-retry-after` on cooldown |
+| Orphan worktree recovery | **DDx** | Automatic after crashed runs |
+
+Behaviors **deleted** from HELIX wrapper:
+- HELIX retry/backoff logic (superseded by DDx `retry-after`)
+- HELIX blocker tracking and reporting (superseded by `ddx bead blocked`)
+- HELIX orphan tracker recovery (redundant with DDx worktree recovery)
+- `git checkout -- .` cleanup (DDx worktrees are isolated)
+- `safe_unclaim` after failed attempt (DDx handles claim lifecycle)
+- `HELIX_SELECTED_ISSUE` env var (DDx never consumed it)
+
 ## Validation Checklist
 
 The boundary is healthy when all of the following are true:
 
 - [ ] HELIX uses DDx graph primitives instead of a parallel graph implementation for document indexing/traversal
 - [ ] HELIX uses DDx-managed bead execution instead of directly inventing its own execution/provenance substrate
-- [ ] HELIX uses `ddx agent execute-loop` for queue draining once the DDx loop
-  exposes the required HELIX-visible outcomes and automation hooks
+- [ ] HELIX parses `execute-loop --json` to find executed bead(s), applies post-cycle
+  bookkeeping to those bead IDs rather than to a pre-selected bead
+- [ ] HELIX does not pass `HELIX_SELECTED_ISSUE` or any bead selector to DDx execute-loop
+- [ ] HELIX uses `execution-eligible` for epic-focus queue curation, not DDX flags
+- [ ] HELIX injects review and alignment as regular beads into the queue, not as post-cycle hooks
+- [ ] HELIX uses performance metadata from execute-bead results for prompt and model routing optimization
+- [ ] HELIX experiments use execute-loop to run batched experiment beads with performance tracking
+- [ ] HELIX does not implement retry/backoff or blocker tracking (DDx handles via `retry_after`)
+- [ ] HELIX does not implement post-close reopen logic (drift is pre-execution)
 - [ ] HELIX execution beads carry deterministic success criteria and
   measurement hooks precise enough for DDx-managed close-with-evidence
 - [ ] DDx provides enough runtime evidence for HELIX to evaluate preserved attempts and landed runs
