@@ -54,8 +54,8 @@ validation:
     - check: health_checks_linked
       description: Health checks should connect to rollout safety and operator verification
       severity: warning
-    - check: runbook_linked
-      description: Incident response should reference runbook or escalation ownership
+    - check: incident_response_owned
+      description: Incident response should name escalation ownership and link a runbook entrypoint once one exists
       severity: warning
 
 prompts:
@@ -76,7 +76,6 @@ relationships:
   informed_by:
     - deployment-checklist
     - architecture
-    - runbook
   informs:
     - deployment-verification
     - metrics-dashboard

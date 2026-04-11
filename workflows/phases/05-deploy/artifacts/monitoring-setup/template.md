@@ -59,11 +59,11 @@
 
 ## Incident Response
 
-### Runbook Links
-- [Service restart]
-- [Dependency failure]
-- [High latency]
-- [Rollback]
+### Response Entry Points
+- Primary owner or schedule: [Who handles the first page]
+- Secondary owner or schedule: [Who backs up the first responder]
+- Immediate containment actions: [Safe first actions before deeper procedures exist]
+- Existing runbook links (optional): [Add links once a runbook exists]
 
 ### Routing
 - Primary: [Schedule]
