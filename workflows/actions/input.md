@@ -82,7 +82,8 @@ Create or update tracker beads for the identified work:
    - If the repo ships `scripts/refresh_context_digests.py`, use it after bead
      creation so digest assembly and area labels stay deterministic.
    - Do not leave HELIX-created open beads without either a digest or an
-     explicit omission rationale when the contract allows omission.
+     explicit omission rationale when the contract allows omission. Use the
+     exact prefix `Explicit omission rationale: <reason>`.
 
 **Autonomy-specific bead creation rules**:
 

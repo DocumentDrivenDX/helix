@@ -10,6 +10,9 @@ from pathlib import Path
 
 
 DIGEST_PATTERN = re.compile(r"<context-digest>\s*.*?</context-digest>", re.DOTALL)
+OMISSION_RATIONALE_PATTERN = re.compile(
+    r"^\s*Explicit omission rationale:\s*\S.*\Z", re.DOTALL
+)
 
 
 def review_finding_missing_area(labels: list[str]) -> bool:
@@ -18,9 +21,19 @@ def review_finding_missing_area(labels: list[str]) -> bool:
     )
 
 
+def has_digest_or_omission_rationale(description: str) -> bool:
+    return bool(
+        DIGEST_PATTERN.search(description)
+        or OMISSION_RATIONALE_PATTERN.match(description)
+    )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Validate that open HELIX beads carry a context digest."
+        description=(
+            "Validate that open HELIX beads carry a context digest or an "
+            "explicit omission rationale."
+        )
     )
     parser.add_argument(
         "--tracker",
@@ -37,7 +50,7 @@ def main() -> int:
 
     tracker_path = Path(args.tracker)
     statuses = set(args.status or ["open"])
-    missing_digest: list[tuple[int, str, str]] = []
+    missing_context: list[tuple[int, str, str]] = []
     missing_review_area: list[tuple[int, str, str]] = []
 
     for line_number, raw_line in enumerate(
@@ -56,16 +69,17 @@ def main() -> int:
                 (line_number, bead.get("id", "<unknown>"), bead.get("title", ""))
             )
         description = bead.get("description") or ""
-        if DIGEST_PATTERN.search(description):
+        if has_digest_or_omission_rationale(description):
             continue
-        missing_digest.append(
+        missing_context.append(
             (line_number, bead.get("id", "<unknown>"), bead.get("title", ""))
         )
 
-    if missing_digest or missing_review_area:
-        for line_number, bead_id, title in missing_digest:
+    if missing_context or missing_review_area:
+        for line_number, bead_id, title in missing_context:
             print(
-                f"{tracker_path}:{line_number}: bead {bead_id} is missing <context-digest>: {title}",
+                f"{tracker_path}:{line_number}: bead {bead_id} is missing "
+                f"<context-digest> or explicit omission rationale: {title}",
                 file=sys.stderr,
             )
         for line_number, bead_id, title in missing_review_area:
@@ -74,14 +88,17 @@ def main() -> int:
                 file=sys.stderr,
             )
         print(
-            "validated context digests on 0 bead(s): "
-            f"{len(missing_digest)} missing digest(s), "
+            "validated context digests / omission rationales on 0 bead(s): "
+            f"{len(missing_context)} missing digest-or-rationale entry(ies), "
             f"{len(missing_review_area)} review-finding bead(s) missing area labels",
             file=sys.stderr,
         )
         return 1
 
-    print(f"validated context digests on open HELIX bead(s) in {tracker_path}")
+    print(
+        "validated context digests / omission rationales on open HELIX bead(s) "
+        f"in {tracker_path}"
+    )
     return 0
 
 
