@@ -158,6 +158,17 @@ def parse_practice_bullets(path: Path) -> list[str]:
     return bullets
 
 
+def resolve_concern_dir(root: Path, name: str, library_root: Path | None = None) -> Path | None:
+    library_root = library_root or root
+    for candidate in (
+        root / "workflows" / "concerns" / name,
+        library_root / "workflows" / "concerns" / name,
+    ):
+        if candidate.exists():
+            return candidate
+    return None
+
+
 def build_concern_library(
     root: Path,
     active_concerns: list[str],
@@ -167,11 +178,15 @@ def build_concern_library(
     library_root = library_root or root
     library: dict[str, dict[str, list[str]]] = {}
     for name in active_concerns:
-        concern_dir = library_root / "workflows" / "concerns" / name
-        areas = parse_concern_areas(concern_dir / "concern.md") if (concern_dir / "concern.md").exists() else []
+        concern_dir = resolve_concern_dir(root, name, library_root)
+        concern_md = concern_dir / "concern.md" if concern_dir else None
+        practices_md = concern_dir / "practices.md" if concern_dir else None
+        areas = parse_concern_areas(concern_md) if concern_md and concern_md.exists() else []
         library[name] = {
             "areas": areas,
-            "library_practices": parse_practice_bullets(concern_dir / "practices.md")[:5],
+            "library_practices": parse_practice_bullets(practices_md)[:5]
+            if practices_md and practices_md.exists()
+            else [],
             "override_practices": overrides.get(name, []),
             "override_lines": overrides.get(name, []),
         }
@@ -378,8 +393,9 @@ def build_adrs(
     library_root = library_root or root
     refs: list[str] = []
     for name in matched:
-        concern_path = library_root / "workflows" / "concerns" / name / "concern.md"
-        if concern_path.exists():
+        concern_dir = resolve_concern_dir(root, name, library_root)
+        concern_path = concern_dir / "concern.md" if concern_dir else None
+        if concern_path and concern_path.exists():
             refs.extend(parse_concern_adr_refs(concern_path))
         refs.extend(parse_override_adr_refs(library[name].get("override_lines", [])))
     refs.extend(secondary_adr_matches(root, item, labels))

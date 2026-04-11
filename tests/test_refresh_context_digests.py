@@ -200,6 +200,70 @@ class RefreshContextDigestsTest(unittest.TestCase):
         self.assertIn("<adrs>ADR-888", description)
         self.assertIn("Workflow ADRs discovered outside concern metadata still contribute summaries", description)
 
+    def test_build_digest_supports_project_local_concern_when_library_root_differs(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            root = workspace / "project"
+            library_root = workspace / "library"
+            root.mkdir()
+            library_root.mkdir()
+
+            custom_concern_dir = root / "workflows" / "concerns" / "custom-cli"
+            custom_concern_dir.mkdir(parents=True)
+            (custom_concern_dir / "concern.md").write_text(
+                "# Concern: Custom CLI\n\n## Areas\ncli\n\n## ADR References\n- ADR-321\n",
+                encoding="utf-8",
+            )
+            (custom_concern_dir / "practices.md").write_text(
+                "- Use project-local custom concern practices\n",
+                encoding="utf-8",
+            )
+
+            concerns_path = root / "docs" / "helix" / "01-frame"
+            concerns_path.mkdir(parents=True)
+            (concerns_path / "concerns.md").write_text(
+                "# Project Concerns\n\n## Active Concerns\n- custom-cli\n",
+                encoding="utf-8",
+            )
+
+            adr_dir = root / "docs" / "helix" / "02-design" / "adr"
+            adr_dir.mkdir(parents=True)
+            (adr_dir / "ADR-321-project-local-custom-cli.md").write_text(
+                "---\n"
+                "dun:\n"
+                "  id: ADR-321\n"
+                "---\n"
+                "# ADR-321: Project-local custom CLI concern\n\n"
+                "## Decision\n\n"
+                "Project-local custom concerns remain valid when the HELIX library root differs.\n",
+                encoding="utf-8",
+            )
+
+            library = refresh_context_digests.build_concern_library(
+                root,
+                active_concerns=["custom-cli"],
+                overrides={},
+                library_root=library_root,
+            )
+            description, _ = refresh_context_digests.build_digest(
+                {
+                    "title": "Digest refresh honors project-local custom concern",
+                    "description": "Review finding for split-root concern handling.",
+                    "acceptance": "The digest includes custom concern practices and ADR refs.",
+                    "labels": ["area:cli"],
+                    "spec-id": "scripts/refresh_context_digests.py",
+                },
+                principles=["Make Intent Explicit"],
+                library=library,
+                root=root,
+                library_root=library_root,
+            )
+
+        self.assertIn("<concerns>custom-cli</concerns>", description)
+        self.assertIn("Use project-local custom concern practices", description)
+        self.assertIn("<adrs>ADR-321", description)
+        self.assertIn("Project-local custom concerns remain valid", description)
+
 
 if __name__ == "__main__":
     unittest.main()
