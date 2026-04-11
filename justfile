@@ -1,7 +1,7 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-cli test-deploy-artifacts test-state-rules test-skills test-context-digests test-install
+test: test-cli test-deploy-artifacts test-state-rules test-skills test-context-digests test-demo-fixtures test-install
 
 # Run CLI wrapper tests
 test-cli:
@@ -22,6 +22,10 @@ test-skills:
 # Validate live tracker context-digest coverage
 test-context-digests:
     bash tests/validate-context-digests.sh
+
+# Validate demo prompt fixtures
+test-demo-fixtures:
+    bash tests/validate-demo-fixtures.sh
 
 # Run install integration test
 test-install:
