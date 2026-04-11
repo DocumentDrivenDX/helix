@@ -658,6 +658,11 @@ If a bead cannot be closed from explicit evidence, it is not ready for a
 DDx-managed execution lane and should be refined by `helix polish` or
 `helix triage` before entering the execution queue.
 
+If execution order matters, encode that order in the tracker as well: use
+parent-child structure for grouped scope and `ddx bead dep add` for hard
+prerequisites. `ddx agent execute-loop` should never rely on prose-only
+sequencing or operator memory to know what is safe to land next.
+
 Concern threading is end-to-end: once a concern is introduced in
 `docs/helix/01-frame/concerns.md`, it must propagate through context digests,
 acceptance criteria, quality gates, and measurement evidence on every bead

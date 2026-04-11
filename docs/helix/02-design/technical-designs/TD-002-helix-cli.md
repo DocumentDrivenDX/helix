@@ -376,8 +376,8 @@ Migration note:
   `execute-loop`, not indefinite growth of wrapper-owned claim/execute/close
   logic.
 - If `execute-loop` cannot yet express a required HELIX supervisory behavior,
-  that gap should become explicit DDx follow-on work rather than hidden shell
-  policy.
+  that gap should become explicit DDx follow-on work, ordered in the tracker
+  with parents and dependencies where needed, rather than hidden shell policy.
 
 ### 6. Installer
 

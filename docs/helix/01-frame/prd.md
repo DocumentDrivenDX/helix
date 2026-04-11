@@ -239,10 +239,13 @@ Execution contract:
 - HELIX owns supervisory routing, artifact-aware queue policy, review, and
   escalation decisions
 - DDx owns managed execution primitives: `ddx agent execute-bead` for bounded
-  single-bead work and `ddx agent execute-loop` as the target queue-drain
+  single-bead work and `ddx agent execute-loop` as the default queue-drain
   contract
 - HELIX CLI surfaces are convenience entrypoints and compatibility wrappers,
   not the durable owner of claim/execute/close mechanics
+- retained `helix run` and `helix build` are compatibility wrappers and
+  deprecation candidates once DDx exposes the remaining HELIX-visible routing
+  and evidence hooks they currently bridge
 - direct `ddx agent run` remains for non-managed prompts such as planning,
   review, and alignment
 
@@ -269,6 +272,8 @@ Queue-shaping rules for DDx-managed execution:
 - use parent-child relationships to keep related work grouped under an epic or
   governing planning bead
 - use explicit dependencies for real ordering constraints instead of prose
+- require machine-auditable acceptance and success criteria: exact commands,
+  named checks, concrete files or fields, or observable repository states
 - do not create execution-ready build beads when success criteria are still
   subjective or underspecified; route those back to planning or polish first
 - alignment, review, and report outputs must become beads before the governing

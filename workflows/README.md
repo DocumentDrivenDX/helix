@@ -34,6 +34,13 @@ the workflow contract when you need HELIX-specific planning, queue policy, bead
 shaping, and supervisory semantics. The durable execution substrate itself now
 lives in DDx.
 
+For execution-ready work, the default operator path is `helix input` plus
+`ddx agent execute-loop`. Retained `helix run` and `helix build` surfaces are
+compatibility wrappers until DDx exposes the remaining HELIX-visible routing
+and evidence hooks those wrappers still bridge. Direct `ddx agent run`
+remains the correct surface for non-managed planning, review, alignment, and
+other prompts that should not auto-claim or auto-close beads.
+
 ## Normative Contract
 
 Treat the following files as the canonical HELIX workflow contract:

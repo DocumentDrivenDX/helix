@@ -195,6 +195,10 @@ Migration rules:
 - Execution-ready implementation beads must also encode the real ordering
   constraints using parent-child relationships and `ddx bead dep add`, rather
   than relying on prose descriptions of order.
+- Compatibility wrappers must only dispatch beads whose readiness, ordering,
+  and success contract are already explicit in tracker state; `helix run` and
+  `helix build` must not hide sequencing assumptions that belong in the bead
+  graph.
 - Tracker data lives in `.ddx/beads.jsonl` (DDx bead configured with
   `DDX_BEAD_DIR=.ddx`, `DDX_BEAD_PREFIX=hx`).
 - Ready work is determined by `ddx bead ready` (open beads with all deps

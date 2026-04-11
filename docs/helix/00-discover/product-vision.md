@@ -134,6 +134,11 @@ For new quickstarts, plugin docs, and demos, the preferred public path is
 such as `helix run` and `helix build` remain available only where they still
 add supervisory compatibility or operator convenience; they are not the
 product vision's steady-state queue-drain substrate.
+Direct `ddx agent run` still has a role, but only for non-managed prompts such
+as planning, review, and alignment where HELIX wants prompt control without
+DDx auto-claim and auto-close behavior. Execution-ready beads therefore need
+machine-auditable success criteria and explicit dependency topology when order
+matters, so DDx-managed queue drain does not depend on hidden operator memory.
 
 ## Target Market
 
