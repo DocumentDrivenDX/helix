@@ -2605,6 +2605,9 @@ sync_issue_closing_commit_sha() {
   local closing_sha=""
   local closing_subject=""
   local target_sha=""
+  local tracker_is_repo_local=0
+  local tracker_snapshot=""
+  local rel_tracker=""
 
   issue_json="$(tracker_show "$issue_id" --json 2>/dev/null)" || return 1
   status="$(printf '%s' "$issue_json" | ddx jq -r '.status // ""')" || status=""
@@ -2625,26 +2628,51 @@ sync_issue_closing_commit_sha() {
     return 0
   fi
 
-  tracker_update "$issue_id" --set "closing_commit_sha=$target_sha" >/dev/null || return 1
-
   if path_is_within_root "$tracker_file" "$target_root"; then
-    local rel_tracker="${tracker_file#"$target_root"/}"
+    tracker_is_repo_local=1
+    rel_tracker="${tracker_file#"$target_root"/}"
+    tracker_snapshot="$(mktemp "${TMPDIR:-/tmp}/helix-tracker-sync.XXXXXX")" || return 1
+    cp -f "$tracker_file" "$tracker_snapshot" || {
+      rm -f "$tracker_snapshot"
+      return 1
+    }
+  fi
+
+  tracker_update "$issue_id" --set "closing_commit_sha=$target_sha" >/dev/null || {
+    [[ -n "$tracker_snapshot" ]] && rm -f "$tracker_snapshot"
+    return 1
+  }
+
+  if (( tracker_is_repo_local )); then
     local tracker_msg
     tracker_msg="$(printf '%s\n\nVerification: ddx bead show %s --json\n' \
       "${issue_id}: sync closing_commit_sha" \
       "$issue_id")"
-    (cd "$target_root" && git commit --only -qm "$tracker_msg" -- "$rel_tracker")
+    if ! (cd "$target_root" && git commit --only -qm "$tracker_msg" -- "$rel_tracker"); then
+      cp -f "$tracker_snapshot" "$tracker_file" || {
+        rm -f "$tracker_snapshot"
+        echo "helix: failed to restore tracker after closing_commit_sha sync failure for $issue_id" >&2
+        return 1
+      }
+      rm -f "$tracker_snapshot"
+      echo "helix: failed to create tracker sync commit for $issue_id" >&2
+      return 1
+    fi
   else
     verbose_line "synced closing_commit_sha for %s in external tracker" "$issue_id"
   fi
 
+  [[ -n "$tracker_snapshot" ]] && rm -f "$tracker_snapshot"
   printf '%s\n' "$target_sha"
 }
 
 resolve_review_scope_for_issue() {
   local issue_id="$1"
   local closing_sha=""
-  sync_issue_closing_commit_sha "$issue_id" >/dev/null 2>&1 || true
+
+  if ! sync_issue_closing_commit_sha "$issue_id" >/dev/null; then
+    echo "helix: failed to sync closing_commit_sha for $issue_id; falling back to current review scope" >&2
+  fi
   closing_sha="$(tracker_show "$issue_id" --json 2>/dev/null | ddx jq -r '.closing_commit_sha // ""')" || closing_sha=""
 
   if [[ -z "$closing_sha" ]]; then
@@ -3479,7 +3507,9 @@ run_loop() {
           fi
         fi
 
-        sync_issue_closing_commit_sha "$selected_issue" >/dev/null 2>&1 || true
+        if ! sync_issue_closing_commit_sha "$selected_issue" >/dev/null; then
+          verbose_line "closing_commit_sha sync failed for %s; review scope may stay on committed history only" "$selected_issue"
+        fi
 
         # Epic promotion: if the agent decomposed a task into children,
         # promote the parent to an epic so epic focus mode kicks in.
