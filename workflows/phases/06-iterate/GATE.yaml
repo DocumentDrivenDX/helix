@@ -35,8 +35,8 @@ exit_requirements:
       description: "Improvement backlog must exist"
 
     - check: file_exists
-      path: .ddx/issues.jsonl
-      description: "Tracker must be initialized for actionable items"
+      path: .ddx/beads.jsonl
+      description: "Built-in bead tracker must be initialized for actionable items"
 
     # Action items documented
     - check: grep_present
