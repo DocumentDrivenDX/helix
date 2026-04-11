@@ -2570,14 +2570,30 @@ issue_commit_subject() {
 is_issue_tracker_bookkeeping_commit() {
   local issue_id="$1"
   local subject="$2"
+  local suffix=""
 
   case "$subject" in
-    "$issue_id close tracker bead" | \
-    "$issue_id: close tracker bead" | \
-    "$issue_id sync closing_commit_sha" | \
-    "$issue_id: sync closing_commit_sha" | \
-    "$issue_id record measure and close bead" | \
-    "$issue_id: record measure and close bead")
+    "$issue_id "*) suffix="${subject#"$issue_id "}" ;;
+    "$issue_id: "*) suffix="${subject#"$issue_id: "}" ;;
+    *) return 1 ;;
+  esac
+
+  suffix="$(printf '%s' "$suffix" | tr '[:upper:]' '[:lower:]')"
+
+  case "$suffix" in
+    "close tracker bead" | \
+    "close tracker issue" | \
+    "close tracked bead" | \
+    "close tracker record" | \
+    "tracker: close bead" | \
+    "sync closing_commit_sha" | \
+    "sync tracker closure" | \
+    "sync tracker state" | \
+    "sync tracker closing commit sha" | \
+    "tracker: sync bead close state" | \
+    "record measure and close bead" | \
+    "record measure results and close bead" | \
+    "record review findings and close bead")
       return 0
       ;;
   esac
