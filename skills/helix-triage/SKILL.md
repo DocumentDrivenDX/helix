@@ -4,11 +4,14 @@ description: Create tracker issues with governing artifact references and determ
 argument-hint: '"Title" [--type task|epic|bug|chore] [options...]'
 ---
 
-# Triage: Create Execution-Ready Issues
+# Triage: Shape Execution-Ready And Planning Issues
 
-Every issue should enter the tracker ready to execute. This skill guides you
-through shaping issues with the metadata that `helix run` uses to select,
-build, and close them.
+Execution-ready implementation beads should enter the tracker ready to
+execute. When the request is still vague or lacks deterministic success
+criteria, route it to planning/polish or file it explicitly as a
+not-execution-ready planning/review bead instead of pretending it is ready for
+`helix run`. This skill guides you through shaping both paths with the
+metadata HELIX uses to select, refine, build, and close work.
 
 ## When to Use
 

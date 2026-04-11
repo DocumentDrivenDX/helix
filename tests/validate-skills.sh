@@ -38,6 +38,17 @@ assert_file_contains() {
   fi
 }
 
+assert_file_not_contains() {
+  local path="$1"
+  local needle="$2"
+  local message="$3"
+
+  [[ -f "$path" ]] || fail "missing file for validation: $path"
+  if grep -Fq "$needle" "$path"; then
+    fail "$message"
+  fi
+}
+
 assert_command_fails() {
   local output_file="$1"
   local message="$2"
@@ -285,6 +296,18 @@ for name in "${expected_skills[@]}"; do
   fi
 done
 
+assert_file_contains \
+  "$repo_root/skills/helix-triage/SKILL.md" \
+  "Execution-ready implementation beads should enter the tracker ready to" \
+  "helix-triage must scope execution-ready wording to implementation beads only"
+assert_file_contains \
+  "$repo_root/skills/helix-triage/SKILL.md" \
+  "route it to planning/polish or file it explicitly as a" \
+  "helix-triage intro must direct vague requests to planning or explicit not-execution-ready paths"
+assert_file_not_contains \
+  "$repo_root/skills/helix-triage/SKILL.md" \
+  "Every issue should enter the tracker ready to execute." \
+  "helix-triage must not claim every issue enters the tracker ready to execute"
 assert_file_contains \
   "$repo_root/skills/helix-triage/SKILL.md" \
   "deterministic acceptance and success-measurement criteria" \
