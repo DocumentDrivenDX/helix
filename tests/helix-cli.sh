@@ -368,6 +368,28 @@ record_execute() {
   printf '%s\n' "\$1" >> "\$state_root/ddx-calls.log"
 }
 
+close_after_show_if_configured() {
+  local issue_id="\$1"
+  [[ -n "\$state_root" ]] || return 0
+  [[ -n "\${MOCK_CLOSE_AFTER_SHOW_ID:-}" ]] || return 0
+  [[ "\$issue_id" == "\$MOCK_CLOSE_AFTER_SHOW_ID" ]] || return 0
+
+  local count_file="\$state_root/close-after-show-\$issue_id.count"
+  local done_file="\$state_root/close-after-show-\$issue_id.done"
+  local close_after_show_count="\${MOCK_CLOSE_AFTER_SHOW_COUNT:-1}"
+  local show_count=0
+
+  [[ -f "\$done_file" ]] && return 0
+  [[ -f "\$count_file" ]] && show_count="\$(cat "\$count_file")"
+  show_count=\$((show_count + 1))
+  printf '%s\n' "\$show_count" > "\$count_file"
+
+  if [[ "\$show_count" == "\$close_after_show_count" ]]; then
+    "\$real_ddx" bead close "\$issue_id" >/dev/null 2>&1 || true
+    : > "\$done_file"
+  fi
+}
+
 pick_issue() {
   if [[ -n "\${HELIX_SELECTED_ISSUE:-}" ]] && "\$real_ddx" bead show "\$HELIX_SELECTED_ISSUE" --json >/dev/null 2>&1; then
     printf '%s\n' "\$HELIX_SELECTED_ISSUE"
@@ -437,6 +459,17 @@ if [[ "\${1:-} \${2:-}" == "agent execute-bead" ]]; then
   record_execute "execute-bead \$issue_id"
   dispatch_managed_execution "\$harness" "\$issue_id"
   exit \$?
+fi
+
+if [[ "\${1:-} \${2:-}" == "bead show" ]] && [[ \$# -ge 3 ]] && [[ "\${3:-}" != "--help" ]]; then
+  issue_id="\$3"
+  show_output="\$("\$real_ddx" "\$@")"
+  rc=\$?
+  printf '%s\n' "\$show_output"
+  if [[ \$rc -eq 0 ]]; then
+    close_after_show_if_configured "\$issue_id"
+  fi
+  exit \$rc
 fi
 
 exec "\$real_ddx" "\$@"
@@ -841,6 +874,31 @@ test_align_reclaims_stale_in_progress_governing_bead() {
   assert_eq "in_progress" "$status" "align should leave the reclaimed governing bead claimed for dispatch"
   [[ "$claimed_pid" != "99999" ]] || fail "align should refresh the stale claim metadata when reclaiming"
   [[ "$claimed_at" != "$stale_ts" ]] || fail "align should replace the stale claim timestamp when reclaiming"
+  rm -rf "$root"
+}
+
+test_align_skips_reclaim_when_governing_bead_closes_mid_recheck() {
+  local root
+  root="$(make_workspace)"
+  local work_dir="$root/work"
+  mkdir -p "$work_dir/.ddx"
+  local stale_ts="2024-01-01T00:00:00Z"
+
+  printf '{"id":"hx-align-race","title":"align: repo","issue_type":"task","status":"in_progress","priority":2,"labels":["helix","phase:review","kind:planning","action:align"],"parent":"","spec-id":"FEAT-005","description":"","design":"","acceptance":"existing align bead","dependencies":[],"owner":"helix","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2024-01-01T00:00:00Z","updated_at":"2024-01-01T00:00:00Z","claimed-at":"%s","claimed-pid":99999}\n' \
+    "$stale_ts" \
+    > "$work_dir/.ddx/beads.jsonl"
+
+  local rc=0
+  run_helix_with_env "$root" MOCK_CLOSE_AFTER_SHOW_ID hx-align-race align repo >/dev/null 2>&1 || rc=$?
+
+  [[ "$rc" -ne 0 ]] || fail "align should stop rather than re-open a bead that closed during reclaim"
+  [[ ! -f "$root/state/calls.log" ]] || fail "align should not dispatch duplicate work after the governing bead closes during reclaim"
+
+  local count status
+  count="$(run_bead "$root" list --json | ddx jq 'length')"
+  assert_eq "1" "$count" "align should leave the closed governing bead untouched when reclaim races with closure"
+  status="$(run_bead "$root" show hx-align-race --json | ddx jq -r '.status // ""')"
+  assert_eq "closed" "$status" "align should not re-open a bead that closed during reclaim"
   rm -rf "$root"
 }
 
@@ -2442,6 +2500,7 @@ run_test "align reuses governing bead" test_align_reuses_existing_governing_bead
 run_test "align preserves artifact-directory scope labels" test_align_artifact_directory_scope_preserves_artifact_area_label
 run_test "align rejects in-progress governing bead" test_align_rejects_in_progress_governing_bead
 run_test "align reclaims stale in-progress governing bead" test_align_reclaims_stale_in_progress_governing_bead
+run_test "align skips reclaim when governing bead closes mid-recheck" test_align_skips_reclaim_when_governing_bead_closes_mid_recheck
 run_test "extract NEXT_ACTION from claude output" test_extract_next_action_from_claude_output
 run_test "design dry-run" test_design_dry_run
 run_test "design custom rounds" test_design_custom_rounds
@@ -2797,6 +2856,26 @@ test_orphan_recovery_skips_fresh() {
   rm -rf "$root"
 }
 
+test_orphan_recovery_skips_bead_closed_after_initial_snapshot() {
+  local root
+  root="$(make_workspace)"
+  seed_stale_claimed "$root" 1
+
+  printf 'STOP\n' > "$root/state/next-actions"
+
+  local output
+  output="$(run_helix_with_env "$root" MOCK_CLOSE_AFTER_SHOW_ID hx-stale-0 run --no-auto-review --no-auto-align 2>&1)" || true
+
+  local status
+  status="$(run_bead "$root" show hx-stale-0 --json | ddx jq -r '.status // ""')"
+  assert_eq "closed" "$status" "orphan recovery should leave a bead closed by another actor untouched"
+  assert_not_contains "$output" "reclaiming orphaned hx-stale-0" \
+    "orphan recovery should skip reclaim when the bead closes before the live re-check"
+  assert_not_contains "$output" "recovered 1 orphaned issue(s)" \
+    "orphan recovery should not count a bead that closed before reclaim"
+  rm -rf "$root"
+}
+
 test_build_loop_stops_after_empty_builds() {
   local root
   root="$(make_workspace)"
@@ -2976,6 +3055,7 @@ run_test "tracker unclaim clears metadata" test_tracker_unclaim_clears_metadata
 run_test "tracker unclaim on closed bead clears metadata" test_tracker_unclaim_closed_bead
 run_test "orphan recovery reclaims stale" test_orphan_recovery_reclaims_stale
 run_test "orphan recovery skips fresh" test_orphan_recovery_skips_fresh
+run_test "orphan recovery skips bead closed after initial snapshot" test_orphan_recovery_skips_bead_closed_after_initial_snapshot
 run_test "BUILD loop stops after empty builds" test_build_loop_stops_after_empty_builds
 run_test "BUILD loop recovers orphans and continues" test_build_loop_recovers_orphans_and_continues
 

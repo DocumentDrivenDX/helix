@@ -988,7 +988,7 @@ ensure_alignment_bead() {
 
   active_id="$(find_alignment_bead "$scope" "in_progress")" || return 1
   if [[ -n "$active_id" ]]; then
-    local active_owner active_json active_status
+    local active_owner active_json active_status live_active_json live_active_status
     active_json="$(tracker_show "$active_id" --json 2>/dev/null || true)"
     active_status="$(printf '%s' "$active_json" | ddx jq -r '.status // ""' 2>/dev/null)" || active_status=""
     if [[ "$active_status" != "in_progress" ]]; then
@@ -996,6 +996,18 @@ ensure_alignment_bead() {
       return $?
     fi
     if issue_claim_reclaimable "$active_json"; then
+      live_active_json="$(tracker_show "$active_id" --json 2>/dev/null || true)"
+      live_active_status="$(printf '%s' "$live_active_json" | ddx jq -r '.status // ""' 2>/dev/null)" || live_active_status=""
+      if [[ "$live_active_status" != "in_progress" ]]; then
+        verbose_line "alignment bead %s for %s changed to %s before reclaim; skipping duplicate dispatch" \
+          "$active_id" "$scope" "${live_active_status:-missing}"
+        return 1
+      fi
+      if ! issue_claim_reclaimable "$live_active_json"; then
+        verbose_line "alignment bead %s for %s is no longer reclaimable (%s); skipping duplicate dispatch" \
+          "$active_id" "$scope" "${claim_reclaim_status_reason:-unknown}"
+        return 1
+      fi
       verbose_line "alignment bead %s for %s is orphaned (age=%ss, pid=%s); reclaiming" \
         "$active_id" "$scope" "$claim_reclaim_status_age" "$claim_reclaim_status_pid"
       tracker_update "$active_id" --unclaim >/dev/null || return 1
@@ -3052,7 +3064,7 @@ recover_orphaned_issues() {
 
   local i
   for ((i = 0; i < count; i++)); do
-    local issue_id issue_json
+    local issue_id issue_json live_issue_json current_orphan_status
     issue_id="$(printf '%s' "$in_progress" | ddx jq -r ".[$i].id" 2>/dev/null)"
     issue_json="$(tracker_show "$issue_id" --json 2>/dev/null || true)"
     [[ -n "$issue_json" ]] || continue
@@ -3073,10 +3085,24 @@ recover_orphaned_issues() {
     fi
 
     # Orphan confirmed: reclaim — but only if still in-progress.
-    local current_orphan_status
-    current_orphan_status="$(printf '%s' "$issue_json" | ddx jq -r '.status // ""' 2>/dev/null)" || current_orphan_status=""
-    if [[ "$current_orphan_status" == "closed" ]]; then
-      verbose_line "orphan %s is now closed — skipping reclaim" "$issue_id"
+    live_issue_json="$(tracker_show "$issue_id" --json 2>/dev/null || true)"
+    current_orphan_status="$(printf '%s' "$live_issue_json" | ddx jq -r '.status // ""' 2>/dev/null)" || current_orphan_status=""
+    if [[ "$current_orphan_status" != "in_progress" ]]; then
+      verbose_line "orphan %s changed to %s before reclaim — skipping" "$issue_id" "${current_orphan_status:-missing}"
+      continue
+    fi
+    if ! issue_claim_reclaimable "$live_issue_json" "helix.*implement.*${issue_id}"; then
+      case "$claim_reclaim_status_reason" in
+        busy)
+          verbose_line "issue %s became busy before reclaim, skipping" "$issue_id"
+          ;;
+        pid_alive)
+          verbose_line "issue %s is now claimed by live PID %s, skipping" "$issue_id" "$claim_reclaim_status_pid"
+          ;;
+        fresh)
+          verbose_line "issue %s is now freshly claimed (%ss old), skipping reclaim" "$issue_id" "$claim_reclaim_status_age"
+          ;;
+      esac
       continue
     fi
     if (( summary )); then
