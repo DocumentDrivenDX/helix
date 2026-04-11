@@ -12,10 +12,12 @@ moving across requirements, specifications, designs, tests, implementation,
 review, and metrics until human judgment is actually needed.
 
 The primary product experience is not a bag of commands. It is a loop in which
-the user can work interactively at any layer, while `helix-run` autonomously
-detects downstream implications, selects the least-powerful sufficient next
-action, and advances the workflow without requiring repeated manual
-orchestration.
+the user can work interactively at any layer, often by talking directly to an
+agent, while HELIX autonomously detects downstream implications, selects the
+least-powerful sufficient next action, and advances the workflow without
+requiring repeated manual orchestration. `helix-run` is therefore an optional
+convenience entrypoint to the supervisory loop, not the only valid way to
+access it.
 
 ## Problem and Goals
 
@@ -37,7 +39,9 @@ That creates three failures:
 
 ### Goals
 
-1. Make `helix-run` the default supervisory autopilot for HELIX-managed work.
+1. Make the HELIX supervisory loop the default autopilot for HELIX-managed
+   work, whether entered through direct agent interaction or a thin
+   compatibility surface such as `helix run`.
 2. Ensure HELIX automatically advances the highest-leverage ready layer that
    does not require human input.
 3. Make direct commands and skills available as intervention points inside the
@@ -106,17 +110,23 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
    breaking the overall control model.
 7. Tracker state remains the durable execution layer for refinement, ordering,
    ownership, and completion of work.
-8. `helix-run` must support concurrent local operation where an automated
+8. Execution-ready beads must encode explicit parent-child relationships,
+   dependencies, and deterministic success criteria so
+   `ddx agent execute-loop` can drain work without hidden human ordering
+   rules.
+9. Alignment, review, measure, and report flows must capture every actionable
+   result as properly ordered beads instead of leaving prose-only next steps.
+10. `helix-run` must support concurrent local operation where an automated
    session advances execution while an operator or another agent refines specs
    and tracker issues interactively.
-9. `helix-run` must revalidate issue state before claim and before close so
+11. `helix-run` must revalidate issue state before claim and before close so
    concurrent refinement does not lead to stale execution or false completion.
-8. HELIX must be distributed and installed as one skill pack, not as isolated
+12. HELIX must be distributed and installed as one skill pack, not as isolated
    standalone skills copied without their shared resources.
-9. Resources shared by multiple HELIX skills must live in `workflows/`, while
+13. Resources shared by multiple HELIX skills must live in `workflows/`, while
    skill-specific resources must live with the corresponding skill under
    `skills/<skill>/`.
-10. Plugin, enterprise, and local installations must preserve package-relative
+14. Plugin, enterprise, and local installations must preserve package-relative
     access from HELIX skills to the shared `workflows/` resource library.
 
 ### Should Have (P1)
@@ -219,11 +229,22 @@ The command surface is organized around how users interact with HELIX:
 ### Execution (how agents work)
 
 - `helix run` — supervisory autopilot; reads tracker, selects the
-  highest-leverage next action, executes it, repeats until human input is
-  needed or no work remains
+  highest-leverage next action, delegates managed execution to DDx, and
+  repeats until human input is needed or no work remains
 - `helix worker` — launch `helix run` as a background process and monitor
   progress via summary output and log files
 - `helix status` — structured lifecycle snapshot for human observation
+
+Execution contract:
+- HELIX owns supervisory routing, artifact-aware queue policy, review, and
+  escalation decisions
+- DDx owns managed execution primitives: `ddx agent execute-bead` for bounded
+  single-bead work and `ddx agent execute-loop` as the target queue-drain
+  contract
+- HELIX CLI surfaces are convenience entrypoints and compatibility wrappers,
+  not the durable owner of claim/execute/close mechanics
+- direct `ddx agent run` remains for non-managed prompts such as planning,
+  review, and alignment
 
 ### Steering (how humans direct agents)
 
@@ -238,10 +259,20 @@ background. Structured commands ensure artifact consistency:
 - `helix design` — create or extend the design stack (architecture, ADRs,
   solution designs, test strategy) through iterative multi-model refinement
 - `helix review` — fresh-eyes review of recent work
-- `helix align` — top-down audit of the full planning stack vs implementation;
-  also handles reconstruction of missing docs (backfill mode)
+- `helix align` — convenience entrypoint that creates or claims the governing
+  alignment bead, then runs the stored alignment prompt to produce a durable
+  report plus properly ordered follow-on beads
 - `helix polish` — iterative issue refinement before implementation
 - `helix experiment` — metric-driven optimization loop
+
+Queue-shaping rules for DDx-managed execution:
+- use parent-child relationships to keep related work grouped under an epic or
+  governing planning bead
+- use explicit dependencies for real ordering constraints instead of prose
+- do not create execution-ready build beads when success criteria are still
+  subjective or underspecified; route those back to planning or polish first
+- alignment, review, and report outputs must become beads before the governing
+  planning bead closes
 
 ### Internal (dispatched by run, also directly invocable)
 
@@ -267,22 +298,29 @@ verb: `run`, `status`, `evolve`, `review`, `align`, `polish`, `experiment`.
 
 ### Supervisory Run Loop
 
-1. `helix run` must own autonomous forward progress for HELIX-managed work.
-2. `helix run` must treat the companion HELIX actions as triggered subroutines
+1. `helix run` must own autonomous forward progress and supervisory routing for
+   HELIX-managed work.
+2. `helix run` must treat DDx-managed execution as the implementation
+   substrate, not as a detail to be reimplemented locally.
+3. `helix run` must treat the companion HELIX actions as triggered subroutines
    inside the loop, while still allowing them to be invoked directly.
-3. `helix run` must stop when human input is required rather than continuing
+4. `helix run` must stop when human input is required rather than continuing
    through uncertainty.
-4. `helix run` must support epic focus: when an epic is selected, stay on it
+5. `helix run` must support epic focus: when an epic is selected, stay on it
    (decompose → implement children → review on close) before moving on.
-5. `helix run` must use exponential backoff on difficult issues rather than
+6. `helix run` must use exponential backoff on difficult issues rather than
    immediately skipping them. Only declare an issue intractable after
    escalating effort across multiple attempts.
-6. `helix run` must absorb small adjacent work (same file, related manifest
+7. `helix run` must absorb small adjacent work (same file, related manifest
    updates) into the current issue rather than creating separate tickets for
    every observation.
-7. `helix run` must produce a structured blocker report when it finishes,
+8. `helix run` must produce a structured blocker report when it finishes,
    identifying every skipped issue with its reason and marking them in the
    tracker for human triage.
+9. The migration target is DDx-managed queue drain through `ddx agent execute-loop`;
+   until that parity is complete, HELIX may keep a compatibility wrapper, but
+   the governing contract must treat `execute-loop` as the destination rather
+   than growing more wrapper-owned claim/close mechanics.
 
 ### Trigger Rules
 
@@ -317,9 +355,9 @@ verb: `run`, `status`, `evolve`, `review`, `align`, `polish`, `experiment`.
 2. Direct invocation of a single HELIX command or skill must not break the
    broader model that `helix run` uses to resume supervision later.
 3. The typical interaction pattern is: user talks to an agent that manipulates
-   the tracker and governing artifacts, while `helix run` executes in the
-   background on clearly defined work. The tracker is the shared state between
-   the human-facing agent and the execution agent.
+   the tracker and governing artifacts, while `helix run` supervises in the
+   background and DDx-managed execution handles bounded work. The tracker is
+   the shared state between the human-facing agent and the execution lane.
 
 ### Observability
 
@@ -385,9 +423,10 @@ verb: `run`, `status`, `evolve`, `review`, `align`, `polish`, `experiment`.
 - **DDx bead tracker** (`ddx bead`) as the canonical work-item backend. HELIX
   configures `bead.id_prefix: hx` and layers HELIX-specific labels/fields via
   validation hooks. HELIX no longer owns storage directly.
-- **DDx agent service** (`ddx agent run`) for harness dispatch, output capture,
+- **DDx agent service** (`ddx agent run`, `ddx agent execute-bead`,
+  `ddx agent execute-loop`) for harness dispatch, managed bead execution,
   token tracking, and session logging. HELIX no longer implements its own
-  agent invocation; it calls DDx.
+  execution substrate; it calls DDx.
 - **DDx execution framework** (`ddx exec`) for durable, artifact-linked
   execution run records. HELIX skill outputs are captured as DDx execution
   runs. See DDx FEAT-010 and [[FEAT-005]].

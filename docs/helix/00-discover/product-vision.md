@@ -115,14 +115,18 @@ synthesis (a bead can pull in its full governance chain).
 ## User Experience
 
 A developer opens their terminal with a backlog of work tracked in the repo.
-They run `helix run`. HELIX picks the highest-leverage ready issue, dispatches
-an agent to implement it, verifies the result against acceptance criteria, and
-commits. When it finishes, it picks the next one. The developer checks in
-periodically — reviewing diffs, approving gates, making product calls when
-HELIX surfaces a genuine ambiguity. When they want to work on something
-directly, they do — editing a spec, writing a test, closing an issue — and
-HELIX picks up the rest. The mental model is an autopilot you can always grab
-the wheel from.
+Sometimes they talk directly to an agent and let it create or refine beads.
+Sometimes they use a named HELIX entrypoint such as `helix input` or
+`helix run`. In either case, the durable execution lane is the same: HELIX
+shapes workflow context and bead policy, while DDx drains execution-ready work
+through `ddx agent execute-loop` and bounded attempts through
+`ddx agent execute-bead`. DDx lands or preserves the attempt with evidence;
+HELIX interprets the outcome, verifies it against acceptance criteria, and
+decides what happens next. When one slice finishes, the system advances to the
+next. The developer checks in periodically — reviewing diffs, approving gates,
+making product calls when HELIX surfaces a genuine ambiguity. The mental model
+is an autopilot you can always grab the wheel from, not a command wrapper you
+must drive manually at every step.
 
 ## Target Market
 
@@ -162,16 +166,18 @@ abstraction layer. This means HELIX must support:
 | Supervisory autopilot | HELIX keeps work moving across specs, designs, tests, implementation, review, and metrics until human judgment is actually needed |
 | Least-power execution | HELIX chooses the smallest sufficient next action instead of overreaching, reducing unnecessary churn and speculative changes |
 | Authority-ordered reconciliation | When artifacts disagree, HELIX resolves the conflict by escalating to the governing source instead of guessing from code alone |
-| Tracker as steering wheel | The tracker is the primary human interface for steering agents. Users create issues, set priorities, approve gates, and reject work through tracker state; agents read it and execute |
+| Tracker as steering wheel | The tracker is the primary human interface for steering agents. Users create issues, set priorities, define parents and dependencies, approve gates, and reject work through tracker state; agents read it and execute |
 | Cross-model quality | Critical artifacts are reviewed by alternating AI models, catching blind spots that self-review misses |
 | Interactive intervention points | Users can step into any layer of the workflow directly without losing the benefits of autopilot orchestration |
 
 ## Product Principles
 
 1. **Autopilot by default**
-   `helix run` is HELIX's supervisory autopilot. It continuously selects and
-   executes the highest-leverage next bounded action that does not require
-   human input.
+   HELIX's supervisory autopilot continuously selects the highest-leverage
+   next bounded action that does not require human input. `helix run` may
+   remain as a convenience entrypoint to that autopilot, but managed
+   execution mechanics belong in DDx rather than in a parallel HELIX-owned
+   git-aware execution substrate.
 
 2. **Human intervention by exception**
    HELIX should escalate only when ambiguity, missing authority, tradeoffs, or
@@ -191,7 +197,10 @@ abstraction layer. This means HELIX must support:
    The tracker is the primary interface between humans and agents. Users steer
    by creating issues, setting priorities, approving phase gates, and rejecting
    work — all through tracker state. Agents read tracker state and execute.
-   The mental model is: `User <-> Tracker <-> helix run (background)`.
+   Queue-drained work must also carry enough parent/child structure,
+   dependencies, and measurable success criteria for DDx-managed execution to
+   consume it deterministically. The mental model is:
+   `User <-> Tracker <-> HELIX supervision <-> DDx managed execution`.
 
 6. **Do hard things**
    Agents should attack problems, not defer them. If the toolchain doesn't
@@ -220,7 +229,7 @@ abstraction layer. This means HELIX must support:
 
 | Metric | Target |
 |--------|--------|
-| Autonomous forward progress | From an established vision and PRD, `helix run` advances the repo through downstream refinement and bounded execution until input is required |
+| Autonomous forward progress | From an established vision and PRD, HELIX supervision plus DDx-managed execution advance the repo through downstream refinement and bounded execution until input is required |
 | Reduced orchestration overhead | Users spend materially less time telling the agent what phase to enter next |
 | Artifact alignment | Specs, issues, tests, implementation, and follow-on work remain traceable and mutually consistent after iterative changes |
 | Safe escalation | HELIX asks for user input primarily at real judgment boundaries, not because the workflow contract is underspecified |
@@ -229,9 +238,12 @@ abstraction layer. This means HELIX must support:
 
 AI coding tools are already useful, but teams still lack a reliable supervisory
 layer that keeps complex software work coherent over time. The repo already
-contains the workflow method, tracker, CLI, and skill surfaces needed to make
-the control loop explicit — the gap is connecting them into a single autopilot
-that humans can trust and steer.
+contains the workflow method, tracker, prompts, and optional entry surfaces
+needed to make the control loop explicit. With DDx now shipping managed bead
+execution, the gap is no longer inventing another execution substrate inside
+HELIX; it is aligning HELIX's supervisory docs, queue policy, bead topology,
+and measurement contracts to the DDx execution lane that humans can trust and
+steer directly.
 
 ## Known Risks
 

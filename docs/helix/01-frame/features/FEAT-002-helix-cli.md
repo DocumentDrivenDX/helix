@@ -7,22 +7,28 @@
 
 ## Summary
 
-`helix-cli` is a ~1,900-line shell orchestrator that sits on top of DDx
-primitives. It delegates work-item storage to `ddx bead` and agent dispatch
-to `ddx agent run`, then adds the supervisory intelligence that makes HELIX
-more than "call agent in a loop": epic focus, exponential backoff, build
-gates, queue drift detection, batching, auto-alignment, auto-review, and
-blocker reporting.
+`helix-cli` is a shell entry surface on top of DDx primitives. It delegates
+work-item storage to `ddx bead`, non-managed prompts to `ddx agent run`, and
+managed execution to DDx execution surfaces (`ddx agent execute-bead` today,
+with `ddx agent execute-loop` as the queue-drain contract). HELIX then adds
+the workflow semantics that make it more than "call agent in a loop": prompt
+selection, authority-aware routing, epic focus policy, queue drift detection,
+auto-alignment, auto-review, and blocker reporting. The CLI is therefore a
+convenience and compatibility surface, not the long-term owner of queue-drain
+mechanics.
 
 The CLI provides one command surface for bounded execution (`run`, `build`,
 `check`, `align`, `backfill`), supervisory steering (`status`, `evolve`,
 `design`, `polish`, `review`, `triage`, `experiment`), tracker access
 (`tracker` — thin wrappers around `ddx bead`), and helper navigation (`next`).
+Users may still choose to interact directly with an agent and the tracker
+instead of the CLI; the contract here is that the CLI stays thin enough that
+both paths share the same underlying workflow rules.
 
 Shell is the right form factor: HELIX is glue code that calls `ddx bead`,
-`ddx agent run`, `git`, and project build tools. The workflow action specs
-(~2,600 lines of markdown under `workflows/actions/`) are loaded and
-interpolated by the shell — no compilation step needed.
+DDx agent/execution surfaces, `git`, and project build tools. The workflow
+action specs (~2,600 lines of markdown under `workflows/actions/`) are loaded
+and interpolated by the shell — no compilation step needed.
 
 ## Users
 
@@ -62,6 +68,15 @@ Command aliases: `implement` → `build`, `plan` → `design`,
 - `run` must continue only while true ready work exists, then call `check` when
   the queue drains.
 - `build` must execute one bounded build pass.
+- Managed bounded execution must flow through `ddx agent execute-bead`.
+- The queue-drain contract should converge on `ddx agent execute-loop`; any
+  wrapper-owned queue-drain behavior is compatibility logic, not the long-term
+  execution substrate.
+- `align` must not act as an ad hoc standalone review silo; it should create
+  or claim the governing `kind:planning,action:align` bead and dispatch the
+  stored alignment prompt against that bead-governed scope.
+- Direct `ddx agent run` remains appropriate for non-managed prompts such as
+  `check`, `review`, `align`, `design`, and `polish`.
 - `status` must report a structured lifecycle snapshot sourced from persisted
   run-controller state.
 - `check` must return a `NEXT_ACTION` code used to decide whether to build,
@@ -122,6 +137,12 @@ Command aliases: `implement` → `build`, `plan` → `design`,
   delay can be overridden via `HELIX_BACKOFF_SLEEP`.
 - When a child issue is blocked as intractable during epic focus, the parent
   epic must also be blocked.
+- The CLI must document which parts of the run loop remain HELIX-owned
+  supervision versus DDx-owned execution mechanics so the migration boundary
+  stays explicit.
+- The CLI must document which commands remain first-class workflow entrypoints
+  versus thin compatibility wrappers or deprecation candidates as DDx reaches
+  parity.
 
 ### Tracker Model
 
@@ -131,6 +152,9 @@ Command aliases: `implement` → `build`, `plan` → `design`,
   `.ddx/hooks/validate-bead-create`.
 - HELIX validation requires: `helix` label, one phase label, `--spec-id` for
   tasks, and deterministic `--acceptance` for tasks and epics.
+- Execution-ready implementation beads must also encode the real ordering
+  constraints using parent-child relationships and `ddx bead dep add`, rather
+  than relying on prose descriptions of order.
 - Tracker data lives in `.ddx/beads.jsonl` (DDx bead configured with
   `DDX_BEAD_DIR=.ddx`, `DDX_BEAD_PREFIX=hx`).
 - Ready work is determined by `ddx bead ready` (open beads with all deps
@@ -194,9 +218,17 @@ Command aliases: `implement` → `build`, `plan` → `design`,
   ready/blocked queries, dependency management, and status summaries.
 - Running `helix triage` produces tracker-valid issues with required labels,
   governing artifact reference, and deterministic acceptance criteria.
+- Running `helix align` first acquires a governing `kind:planning,action:align`
+  bead before it writes reports or follow-on execution issues.
 - Running `helix run` follows the explicit `NEXT_ACTION` contract for
   `BUILD`, `DESIGN`, `POLISH`, `ALIGN`, `BACKFILL`, `WAIT`, `GUIDANCE`, and
   `STOP`.
+- Running `helix run` treats DDx-managed execution as the implementation
+  substrate: `execute-bead` for bounded managed work, and `execute-loop` as
+  the target queue-drain contract.
+- Running `helix run` and related docs make clear that HELIX CLI execution
+  surfaces are convenience wrappers over DDx-managed execution rather than a
+  permanent parallel substrate.
 - Running `helix run` does not attempt implementation after `WAIT`.
 - Running `helix run` stops and surfaces the exact backfill command after
   `BACKFILL`.
@@ -240,6 +272,8 @@ Command aliases: `implement` → `build`, `plan` → `design`,
 - `docs/helix/01-frame/features/FEAT-004-plugin-packaging.md`
 - `docs/helix/02-design/solution-designs/SD-001-helix-supervisory-control.md`
 - `docs/helix/02-design/technical-designs/TD-002-helix-cli.md`
+- `docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md`
+- `docs/helix/01-frame/features/FEAT-011-slider-autonomy.md`
 - `docs/helix/03-test/test-plans/TP-002-helix-cli.md`
 - `workflows/README.md`
 - `workflows/EXECUTION.md`

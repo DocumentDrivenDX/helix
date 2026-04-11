@@ -86,11 +86,12 @@ HELIX owns:
 - planning vs execution routing
 - supervisory stop/continue behavior
 - when to ask for human input
-- whether queue draining should be hosted by HELIX wrappers or delegated to
-  `ddx agent execute-loop`
+- when to delegate a current project queue to `ddx agent execute-loop`
 - bead authoring rules for deterministic acceptance and success-measurement
   criteria so DDx-managed execution can close merged work without manual
   interpretation
+- bead topology policy for parent-child relationships and dependencies when
+  queue order matters
 
 ### 3. Artifact-flow policy
 HELIX owns:
@@ -125,6 +126,8 @@ HELIX interprets each bead as a governed workspace-state transformation:
 HELIX owns:
 - prompt design
 - prompt engineering strategy
+- stage-specific behavior profiles or "agent personalities" for planning,
+  execution, review, alignment, and other workflow stages
 - bead prompt structure
 - workflow wording and intervention policy
 - execution-document authoring conventions for HELIX artifacts (see [CONTRACT-002](CONTRACT-002-helix-execution-doc-conventions.md))

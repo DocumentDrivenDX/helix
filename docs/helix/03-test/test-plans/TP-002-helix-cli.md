@@ -40,6 +40,8 @@ bash tests/helix-cli.sh
   prompt details
 - `build --dry-run` and `triage` surfaces reflect the converged command and
   tracker-validation contract
+- `align --dry-run` and `align` behavior reflect the bead-governed alignment
+  contract rather than an ad hoc standalone review path
 
 ### Loop, Queue, and Cycle Control
 
@@ -49,6 +51,8 @@ bash tests/helix-cli.sh
 - `run --review-every N` triggers periodic alignment
 - `run` auto-aligns once after `NEXT_ACTION: ALIGN`
 - `run` surfaces alignment failures
+- `align` acquires or creates the governing `kind:planning,action:align` bead
+  before it writes reports or follow-on issues
 - `run` treats `NEXT_ACTION: WAIT` as terminal and does not attempt an unblock build pass
 - `run` surfaces `NEXT_ACTION: BACKFILL` as a distinct terminal branch rather than collapsing it into `WAIT` or `STOP`
 - `run --max-cycles N` counts successful build completions, not failed attempts

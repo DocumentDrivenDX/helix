@@ -227,6 +227,10 @@ interpretation.
   `execute-loop` satisfies the required HELIX-visible contract.
 - Direct `ddx agent run` remains valid for planning, review, alignment, and
   other non-managed prompts where no bead should be auto-claimed or auto-closed.
+- If `helix align` remains as a public surface, it should be implemented as a
+  bead-governed prompt launcher: acquire or create the
+  `kind:planning,action:align` bead, then run the stored prompt and file
+  ordered follow-on beads.
 
 ### Decision 5b: DDx Handoff Model
 

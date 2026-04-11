@@ -91,6 +91,11 @@ the required parity, HELIX-owned execution wrappers (`helix run`, and
 potentially `helix build`) become deprecation candidates while input,
 planning, review, and spec-shaping surfaces remain HELIX-owned.
 
+Planning actions such as alignment do not need their own permanent execution
+substrate. If `helix align` remains as a skill or CLI surface, it must behave
+as a thin entrypoint that creates or claims the governing alignment bead and
+then invokes the stored alignment prompt.
+
 ### FR-07: Bead-Centric Coordination
 All work flows through beads (non-blocking for resolvable conflicts):
 

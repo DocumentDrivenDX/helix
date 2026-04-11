@@ -27,11 +27,12 @@ HELIX exposes two public layers that should stay distinct in docs and tooling:
   `~/.claude/skills` retained only as a temporary compatibility mirror.
 - HELIX workflow and CLI contract:
   the stricter method defined in `.ddx/plugins/helix/workflows/`, the built-in tracker, and the
-  `helix` wrapper commands that execute bounded actions.
+  `helix` wrapper commands that expose bounded workflow entrypoints.
 
 Use the portable layer when you need standards-compliant skill packaging. Use
-the workflow contract when you need HELIX-specific planning, queue control, and
-execution semantics.
+the workflow contract when you need HELIX-specific planning, queue policy, bead
+shaping, and supervisory semantics. The durable execution substrate itself now
+lives in DDx.
 
 ## Normative Contract
 
@@ -52,8 +53,10 @@ context, or examples. If a supporting document conflicts with the files above,
 follow the normative contract and update the supporting document.
 
 `.ddx/plugins/helix/workflows/` is also the shared HELIX resource library for assets consumed by
-multiple HELIX skills. Skills are the operational entrypoints into HELIX; the
-shared prompts, templates, metadata, and conventions they reuse live here.
+multiple HELIX skills. Skills are operational entrypoints into HELIX; the
+shared prompts, templates, metadata, and conventions they reuse live here. A
+user may also drive the same workflow through direct agent interaction without
+touching the CLI, so the prompts and tracker rules are the real contract.
 Assets used by only one skill should live with that skill instead of here.
 
 Additional actions extend the supervisory loop with bounded subroutines:
@@ -75,6 +78,12 @@ but are operator-steering or observability tools rather than queue-drain loop
 actions. `experiment` remains operator-invoked only and is outside the
 `helix run` supervisory dispatch model. If a supporting document conflicts
 with the core normative contract above, follow the contract.
+
+Alignment is also a planning-bead workflow, not a special exempt lane:
+`helix align` is a convenience entrypoint that acquires or creates the
+governing `kind:planning,action:align` bead and then runs the stored prompt.
+If a user interacts directly with an agent instead, the same bead-first rule
+still applies.
 
 Supporting templates for metrics and reports:
 
@@ -211,9 +220,12 @@ parents, dependencies, `spec-id`, and labels rather than custom files:
 
 - `phase:build` for story-level implementation work
 - `phase:deploy` for rollout execution work, including story-scoped rollout
-  tasks and release-scoped coordination issues that track owners, dependencies, and communication
+  tasks and release-scoped coordination issues that track owners,
+  dependencies, and communication
 - `phase:iterate` and `kind:backlog` for prioritized follow-up work
 - `phase:review` and `kind:review` for reconciliation or audit work
+- `kind:planning` plus `action:<name>` for bead-governed planning actions such
+  as `align`, `design`, or `polish`
 
 ## Execution
 

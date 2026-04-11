@@ -67,6 +67,8 @@ commands, not in the portable skill packaging layer.
 ### Execution Commands
 
 ```bash
+ddx agent execute-loop
+ddx agent execute-loop --once
 helix run
 helix build
 helix build hx-abc123
@@ -77,6 +79,10 @@ helix status
 helix evolve "requirement description"
 helix triage "Issue title" --type task
 ```
+
+`ddx agent execute-loop` is the primary queue-drain command for
+execution-ready beads. `helix run` remains a convenience surface where HELIX
+still adds supervisory policy or compatibility value.
 
 ### Planning and Quality Commands
 
@@ -138,7 +144,8 @@ Recommended labels:
   run `helix polish`, or let `helix run` dispatch it from `check`.
 - No ready execution issue, but the planning stack exists and next work is
   unclear:
-  run alignment.
+  run alignment; this creates or claims the governing alignment bead and then
+  runs the stored prompt.
 - Canonical docs are missing or too incomplete to execute safely:
   run backfill.
 - Work exists but is blocked or already in progress:

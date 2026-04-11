@@ -148,7 +148,9 @@ HELIX supervision is built from bounded actions with distinct roles:
   `NEXT_ACTION` vocabulary: build, design, issue refinement,
   alignment, backfill, waiting, guidance, or stopping.
 - `helix align <scope>`
-  Runs a top-down reconciliation review and can emit follow-up execution issues.
+  Convenience entrypoint for a top-down reconciliation review. It first
+  creates or claims the governing `kind:planning,action:align` bead, then
+  runs the stored alignment prompt and emits properly ordered follow-on beads.
 - `helix evolve <requirement>`
   Threads a requirement change through the artifact stack and updates the
   tracker when authority shifts.
@@ -212,12 +214,18 @@ control an autonomous execution loop.
 `review` remains a post-build supervisory step rather than a
 queue-drain code.
 
+`ddx agent execute-loop` is the primary queue-drain substrate for
+execution-ready beads. `helix run` remains useful only where it adds
+supervisory routing, policy, or compatibility value above that substrate.
+
 Execution principles:
 
 - bead-first: every action that modifies files must have a governing bead
   before execution begins. No ad-hoc file changes without a plan bead.
 - tracker-as-steering-wheel: use tracker primitives, not side channels, to
   redirect execution
+- queue topology is explicit: if order matters, encode it with parent-child
+  structure and dependencies instead of prose or operator memory
 - measure-and-record: verification results are recorded on the bead, not just
   logged ephemerally. A closed bead carries its measurement evidence.
 - report-and-feed-back: measurement findings create new beads that re-enter the
