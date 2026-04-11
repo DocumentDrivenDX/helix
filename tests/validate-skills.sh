@@ -48,6 +48,17 @@ assert_command_fails() {
   fi
 }
 
+assert_output_contains() {
+  local haystack="$1"
+  local needle="$2"
+  local message="$3"
+
+  if [[ "$haystack" != *"$needle"* ]]; then
+    printf 'expected substring: %s\nin:\n%s\n' "$needle" "$haystack" >&2
+    fail "$message"
+  fi
+}
+
 # ---------- Plugin layout checks ----------
 
 plugin_manifest="$repo_root/.claude-plugin/plugin.json"
@@ -94,6 +105,66 @@ fi
 [[ -f "$plugin_bin" ]] || fail "missing plugin wrapper at bin/helix"
 [[ -x "$plugin_bin" ]] || fail "expected bin/helix to be executable"
 [[ -f "$plugin_hooks" ]] || fail "missing plugin hooks at hooks/hooks.json"
+
+write_wrapper_probe() {
+  local path="$1"
+  local label="$2"
+
+  cat >"$path" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+printf 'probe=%s\n' '$label'
+printf 'HELIX_ROOT=%s\n' "\${HELIX_ROOT:-}"
+printf 'ARGS=%s\n' "\$*"
+EOF
+  chmod +x "$path"
+}
+
+plugin_wrapper_root="$(mktemp -d)"
+claude_plugin_root="$(mktemp -d)"
+mkdir -p \
+  "$plugin_wrapper_root/bin" \
+  "$plugin_wrapper_root/scripts" \
+  "$claude_plugin_root/scripts"
+cp -f "$plugin_bin" "$plugin_wrapper_root/bin/helix"
+write_wrapper_probe "$plugin_wrapper_root/scripts/helix" "wrapper-path"
+write_wrapper_probe "$claude_plugin_root/scripts/helix" "claude-plugin-root"
+
+wrapper_output="$(
+  env -u HELIX_ROOT -u CLAUDE_PLUGIN_ROOT \
+    "$plugin_wrapper_root/bin/helix" probe 2>&1
+)"
+assert_output_contains \
+  "$wrapper_output" \
+  "probe=wrapper-path" \
+  "bin/helix should delegate to scripts/helix resolved from its own path"
+assert_output_contains \
+  "$wrapper_output" \
+  "HELIX_ROOT=$plugin_wrapper_root" \
+  "bin/helix should export HELIX_ROOT from wrapper path resolution"
+assert_output_contains \
+  "$wrapper_output" \
+  "ARGS=probe" \
+  "bin/helix should forward arguments through wrapper-path delegation"
+
+claude_wrapper_output="$(
+  env -u HELIX_ROOT \
+    CLAUDE_PLUGIN_ROOT="$claude_plugin_root" \
+    "$plugin_wrapper_root/bin/helix" probe 2>&1
+)"
+assert_output_contains \
+  "$claude_wrapper_output" \
+  "probe=claude-plugin-root" \
+  "bin/helix should delegate to CLAUDE_PLUGIN_ROOT/scripts/helix"
+assert_output_contains \
+  "$claude_wrapper_output" \
+  "HELIX_ROOT=$claude_plugin_root" \
+  "bin/helix should export HELIX_ROOT from CLAUDE_PLUGIN_ROOT"
+assert_output_contains \
+  "$claude_wrapper_output" \
+  "ARGS=probe" \
+  "bin/helix should forward arguments through CLAUDE_PLUGIN_ROOT delegation"
+rm -rf "$plugin_wrapper_root" "$claude_plugin_root"
 
 # Verify that workflows/ references in SKILL.md files resolve from plugin root
 while IFS= read -r wf_ref; do
