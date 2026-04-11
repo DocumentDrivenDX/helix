@@ -476,7 +476,8 @@ choices from the start
   by area relevance, then ADRs, then spec context. Truncate ADR summaries
   before dropping them.
 - **Permitted digest omission**: If a governing workflow explicitly allows a
-  bead to omit the digest, the bead description must begin with
+  bead to omit the digest, the bead must carry label
+  `digest:omission-authorized` and its description must begin with
   `Explicit omission rationale: <reason>`. The rationale must be non-empty and
   explain why omission is allowed for that bead.
 - **Stale ADR in digest**: If a referenced ADR is superseded after the

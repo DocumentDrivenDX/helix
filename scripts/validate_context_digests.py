@@ -13,6 +13,7 @@ DIGEST_PATTERN = re.compile(r"<context-digest>\s*.*?</context-digest>", re.DOTAL
 OMISSION_RATIONALE_PATTERN = re.compile(
     r"^\s*Explicit omission rationale:\s*\S.*\Z", re.DOTALL
 )
+AUTHORIZED_OMISSION_LABEL = "digest:omission-authorized"
 
 
 def review_finding_missing_area(labels: list[str]) -> bool:
@@ -21,10 +22,13 @@ def review_finding_missing_area(labels: list[str]) -> bool:
     )
 
 
-def has_digest_or_omission_rationale(description: str) -> bool:
-    return bool(
-        DIGEST_PATTERN.search(description)
-        or OMISSION_RATIONALE_PATTERN.match(description)
+def has_digest(description: str) -> bool:
+    return bool(DIGEST_PATTERN.search(description))
+
+
+def has_authorized_omission_rationale(description: str, labels: list[str]) -> bool:
+    return AUTHORIZED_OMISSION_LABEL in labels and bool(
+        OMISSION_RATIONALE_PATTERN.match(description)
     )
 
 
@@ -32,7 +36,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Validate that open HELIX beads carry a context digest or an "
-            "explicit omission rationale."
+            "explicit omission rationale from a workflow-authorized omission path."
         )
     )
     parser.add_argument(
@@ -51,6 +55,7 @@ def main() -> int:
     tracker_path = Path(args.tracker)
     statuses = set(args.status or ["open"])
     missing_context: list[tuple[int, str, str]] = []
+    unauthorized_omission: list[tuple[int, str, str]] = []
     missing_review_area: list[tuple[int, str, str]] = []
 
     for line_number, raw_line in enumerate(
@@ -69,17 +74,30 @@ def main() -> int:
                 (line_number, bead.get("id", "<unknown>"), bead.get("title", ""))
             )
         description = bead.get("description") or ""
-        if has_digest_or_omission_rationale(description):
+        if has_digest(description):
+            continue
+        if OMISSION_RATIONALE_PATTERN.match(description):
+            if has_authorized_omission_rationale(description, labels):
+                continue
+            unauthorized_omission.append(
+                (line_number, bead.get("id", "<unknown>"), bead.get("title", ""))
+            )
             continue
         missing_context.append(
             (line_number, bead.get("id", "<unknown>"), bead.get("title", ""))
         )
 
-    if missing_context or missing_review_area:
+    if missing_context or unauthorized_omission or missing_review_area:
         for line_number, bead_id, title in missing_context:
             print(
                 f"{tracker_path}:{line_number}: bead {bead_id} is missing "
-                f"<context-digest> or explicit omission rationale: {title}",
+                f"<context-digest> or workflow-authorized explicit omission rationale: {title}",
+                file=sys.stderr,
+            )
+        for line_number, bead_id, title in unauthorized_omission:
+            print(
+                f"{tracker_path}:{line_number}: bead {bead_id} uses an explicit omission rationale "
+                f"without {AUTHORIZED_OMISSION_LABEL}: {title}",
                 file=sys.stderr,
             )
         for line_number, bead_id, title in missing_review_area:
@@ -88,15 +106,16 @@ def main() -> int:
                 file=sys.stderr,
             )
         print(
-            "validated context digests / omission rationales on 0 bead(s): "
+            "validated context digests / workflow-authorized omission rationales on 0 bead(s): "
             f"{len(missing_context)} missing digest-or-rationale entry(ies), "
+            f"{len(unauthorized_omission)} unauthorized omission rationale entry(ies), "
             f"{len(missing_review_area)} review-finding bead(s) missing area labels",
             file=sys.stderr,
         )
         return 1
 
     print(
-        "validated context digests / omission rationales on open HELIX bead(s) "
+        "validated context digests / workflow-authorized omission rationales on open HELIX bead(s) "
         f"in {tracker_path}"
     )
     return 0
