@@ -230,12 +230,13 @@ Execution principles:
   logged ephemerally. A closed bead carries its measurement evidence.
 - report-and-feed-back: measurement findings create new beads that re-enter the
   planning helix, closing the feedback loop
-- do-hard-things: stay on the active epic and let DDx handle retry with bounded
-  backoff before marking the bead as intractable
+- do-hard-things: stay on the active epic, prefer DDx-owned cooldown and
+  preserve signals as the long-term retry surface, and file deterministic
+  follow-on work instead of carrying hidden wrapper heuristics
 - cross-model verification: prefer `--review-agent` for post-build review when
   available
 - continuous useful work: absorb small adjacent work when clearly required,
-  and end with an explicit blocker report when progress stops
+  and surface blocked work through tracker state rather than prose-only memory
 
 ## Queue Guard
 
@@ -276,22 +277,29 @@ predict which bead DDx will select.
 DDx owns **loop, selection, and execution**: bead selection, managed worktree
 execution, close-with-evidence, retry suppression, and orphan recovery.
 
-After each `ddx agent execute-loop --once` call, HELIX parses the JSON output to
-find `results[].bead_id` and `results[].status`, then applies post-cycle
-supervisory policy to the bead DDx actually executed (not a pre-selected bead).
+The intended adoption end state is: after each
+`ddx agent execute-loop --once --json` call, HELIX parses `results[].bead_id`
+and `results[].status`, then applies post-cycle supervisory policy to the bead
+DDx actually executed, not a pre-selected bead.
 
 ### Current compatibility behavior
 
 - `helix run` keeps HELIX-owned supervisory routing, queue-health decisions,
-  review/alignment dispatch, and persisted run state, but delegates each build
-  cycle to `ddx agent execute-loop --once` and parses the result to apply
-  post-cycle policy to the executed bead.
+  post-build review/alignment hooks, and persisted run state, while delegating
+  each build cycle to `ddx agent execute-loop --once`.
 - `helix build` delegates the managed execution attempt to
   `ddx agent execute-bead` for explicit single-bead execution.
 - Epic focus: HELIX sets `execution-eligible: false` on non-child beads to bias
   DDx's deterministic ordering toward epic children; no DDx flag needed.
-- Blocker tracking: DDx sets `execute-loop-retry-after`; HELIX surfaces blockers
-  via `ddx bead blocked`, not a separate tracking file.
+- Current gap: the wrapper still pre-selects a bead and exports
+  `HELIX_SELECTED_ISSUE` before DDx chooses the actual execution target. That is
+  a temporary internal seam, not part of the HELIX/DDx contract.
+- Current gap: review and periodic alignment still run as wrapper-owned
+  post-cycle hooks. The queued-bead model is the target state, but it is not
+  yet the shipped wrapper behavior.
+- Current gap: the wrapper still carries legacy retry/backoff, skip-tracking,
+  and blocker-report logic. The durable contract remains DDx-owned cooldown via
+  `execute-loop-retry-after` plus tracker visibility through `ddx bead blocked`.
 
 Interpret `check` as follows:
 
@@ -317,9 +325,9 @@ Interpret `check` as follows:
 `helix run` is a bounded compatibility controller, not a repair loop.
 
 - It counts only completed build passes toward `--max-cycles`.
-- It parses `ddx agent execute-loop --once --json` to find the executed bead and
-  applies post-cycle bookkeeping (drift, epic promotion, acceptance-failure
-  filing, review dispatch) to that bead.
+- Contract target: parse `ddx agent execute-loop --once --json`, use
+  `results[].bead_id` for all post-cycle bookkeeping, and avoid any private
+  selector handoff that DDx does not expose.
 - It may dispatch `helix design` or `helix polish` before build when
   supervisory state indicates missing design authority, undecomposed plans,
   or stale issue refinement.
@@ -341,14 +349,14 @@ Interpret `check` as follows:
 - Queue drift (superseded-by, parent change, spec-id change) is caught at `helix check`
   time before the bead enters the ready queue; `helix run` does not reopen beads after
   DDx close-with-evidence.
-- Retry is handled by DDx via `execute-loop-retry-after`; HELIX surfaces blockers
-  via `ddx bead blocked`.
-- HELIX injects review and alignment as regular beads into the queue; DDx executes
-  them through execute-loop like any other ready bead.
+- Current wrapper behavior still includes legacy retry/backoff and blocker-report
+  handling; treat that as transitional until the DDx-powered cleanup lands.
+- Current wrapper behavior still runs review and alignment as post-cycle hooks;
+  queued review/alignment beads remain the target design, not current fact.
 - It must not auto-dispatch backfill.
 - It must not attempt an unblock build pass after `WAIT`.
-- Orphan worktree recovery is handled by DDx; HELIX does not implement its own
-  reclaim logic.
+- DDx owns worktree orphan recovery, while the wrapper still performs its own
+  tracker-claim orphan cleanup for stale `in_progress` beads.
 
 ## `helix run`
 
@@ -503,7 +511,7 @@ helix design auth
 | `HELIX_FORCE_EPHEMERAL` | `0` | Force ephemeral sessions (no resume) |
 | `HELIX_AUTO_ALIGN` | `1` | Enable auto-alignment on ALIGN/STOP |
 | `HELIX_ORPHAN_THRESHOLD` | `7200` | Staleness threshold in seconds for orphan recovery |
-| `HELIX_BACKOFF_SLEEP` | — | Override exponential backoff delay (useful for testing) |
+| `HELIX_BACKOFF_SLEEP` | — | Legacy wrapper backoff override retained only until DDx-powered retry cleanup lands |
 | `HELIX_TRACKER_LOCK_TIMEOUT` | `10` | Lock acquisition timeout in seconds |
 | `HELIX_TRACKER_LOCK_POLL_INTERVAL` | `0.05` | Sleep interval while waiting for tracker lock |
 
@@ -558,14 +566,18 @@ empty BUILD cycles:
 
 ## Retry Suppression
 
-When a bead fails implementation, DDx sets `execute-loop-retry-after` to suppress
-re-selection until the cooldown expires. HELIX surfaces blocked beads via
-`ddx bead blocked`. After 4 suppressed attempts, the bead is blocked as
-intractable. If it is a child of the focused epic, the parent epic is also
-blocked.
+Contract target:
 
-HELIX no longer implements its own retry/backoff logic. The `HELIX_BACKOFF_SLEEP`
-env var is deprecated.
+- DDx sets `execute-loop-retry-after` to suppress immediate re-selection after
+  a failed managed attempt.
+- HELIX surfaces blocked or cooling-down work through `ddx bead blocked`.
+
+Current wrapper gap:
+
+- `scripts/helix` still implements legacy per-issue backoff, skip-tracking, and
+  blocker-report behavior while the DDx-powered adoption cleanup remains open.
+- Treat `HELIX_BACKOFF_SLEEP` and `.helix-logs/blockers-*.md` as compatibility
+  residue, not as the enduring HELIX/DDx boundary contract.
 
 ## Reproducible Testing
 
@@ -585,8 +597,9 @@ This harness (133 tests):
 - seeds `.ddx/beads.jsonl` with known issue graphs
 - drives exact ready-queue and `NEXT_ACTION` sequences
 - verifies tracker CRUD, run loop orchestration, epic focus, queue drift,
-  orphan recovery, summary mode, backoff, acceptance filing, review trailers,
-  cross-model review, blocker reports, and installer behavior
+  orphan recovery, summary mode, legacy backoff behavior, acceptance filing,
+  review trailers, cross-model review, legacy blocker reports, and installer
+  behavior
 - is implementation-language-agnostic: change `run_helix()` to invoke a
   different binary to verify a port
 

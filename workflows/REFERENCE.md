@@ -94,6 +94,11 @@ execution-ready beads. `helix run` and `helix build` remain compatibility
 surfaces where HELIX still adds supervisory policy or operator convenience.
 New quickstarts and demos should prefer the default path above.
 
+Execution-ready beads must carry deterministic acceptance and
+success-measurement criteria: exact commands, named checks, or observable repo
+state that DDx-managed execution can use to decide success without hidden human
+interpretation.
+
 ### Planning and Quality Commands
 
 ```bash
@@ -143,11 +148,14 @@ Recommended labels:
 ## Decision Guide
 
 - Starting new work or a large scope:
-  run `helix design`, then `helix polish`, then `helix run`.
+  run `helix design`, then `helix polish`, then `ddx agent execute-loop`
+  (or `helix run` when you need the compatibility wrapper's routing behavior).
 - Starting from sparse user intent instead of a pre-shaped issue:
   run `helix input "..."` and, when needed, set `--autonomy low|medium|high`.
 - Ready execution issues exist:
-  run `helix build` or `helix run`.
+  run `ddx agent execute-loop`; use `helix build` for an explicit single-bead
+  managed attempt or `helix run` when HELIX compatibility routing is still
+  required.
 - Work lacks design authority for safe execution:
   run `helix design`, or let `helix run` dispatch it from `check`.
 - Specs changed and open work needs issue refinement before implementation:
