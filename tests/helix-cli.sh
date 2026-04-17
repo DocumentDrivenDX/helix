@@ -4429,6 +4429,91 @@ MOCK
   rm -rf "$root"
 }
 
+test_run_tracker_sync_rollback_preserves_concurrent_tracker_updates() {
+  local root
+  root="$(make_workspace)"
+
+  mkdir -p "$root/work/.ddx"
+  cat >"$root/work/.ddx/beads.jsonl" <<'EOF'
+{"id":"hx-mock-0","title":"mock issue 0","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:build","kind:build"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","dependencies":[],"owner":"","notes":"","execution-eligible":true,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}
+{"id":"hx-mock-1","title":"mock issue 1","issue_type":"task","status":"open","priority":2,"labels":["helix","phase:design"],"parent":"","spec-id":"","description":"","design":"","acceptance":"","dependencies":[],"owner":"","notes":"","execution-eligible":false,"superseded-by":"","replaces":"","created_at":"2099-01-01T00:00:00Z","updated_at":"2099-01-01T00:00:00Z"}
+EOF
+
+  python3 - "$root/work/.ddx/beads.jsonl" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+rows = []
+for raw in path.read_text(encoding="utf-8").splitlines():
+    if not raw.strip():
+        continue
+    row = json.loads(raw)
+    if row.get("id") == "hx-mock-0":
+        row["status"] = "closed"
+        row["notes"] = "tracker sync"
+    rows.append(row)
+path.write_text("".join(json.dumps(row, separators=(",", ":")) + "\n" for row in rows), encoding="utf-8")
+PY
+
+  local issue_json
+  issue_json="$(run_bead "$root" show hx-mock-0 --json)"
+  local issue_jsonl
+  issue_jsonl="$(sed -n '1p' "$root/work/.ddx/beads.jsonl")"
+  local target_sha="deadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
+  local expected_issue_json
+  local saved_repo_root="$repo_root"
+  local helix_source
+
+  # Load the helper definitions without dispatching the CLI entrypoint.
+  helix_source="$(mktemp "${TMPDIR:-/tmp}/helix-source.XXXXXX")"
+  sed '$d' "$saved_repo_root/scripts/helix" > "$helix_source"
+  source "$helix_source"
+  rm -f "$helix_source"
+  repo_root="$saved_repo_root"
+  target_root="$root/work"
+  tracker_dir="$root/work/.ddx"
+  tracker_file="$root/work/.ddx/beads.jsonl"
+  export DDX_BEAD_DIR="$tracker_dir"
+  expected_issue_json="$(expected_tracker_issue_after_closing_sha_update "$issue_json" "$target_sha")"
+
+  python3 - "$root/work/.ddx/beads.jsonl" "$target_sha" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+target_sha = sys.argv[2]
+rows = []
+for raw in path.read_text(encoding="utf-8").splitlines():
+    if not raw.strip():
+        continue
+    row = json.loads(raw)
+    if row.get("id") == "hx-mock-0":
+        row["closing_commit_sha"] = target_sha
+    if row.get("id") == "hx-mock-1":
+        row["status"] = "closed"
+        row["notes"] = "concurrent close"
+    rows.append(row)
+path.write_text("".join(json.dumps(row, separators=(",", ":")) + "\n" for row in rows), encoding="utf-8")
+PY
+
+  rollback_issue_closing_commit_sha_update "hx-mock-0" "$issue_jsonl" "$expected_issue_json"
+
+  local closing_sha
+  closing_sha="$(run_bead "$root" show hx-mock-0 --json | ddx jq -r '.closing_commit_sha // ""')"
+  local concurrent_status
+  concurrent_status="$(run_bead "$root" show hx-mock-1 --json | ddx jq -r '.status')"
+  local concurrent_notes
+  concurrent_notes="$(run_bead "$root" show hx-mock-1 --json | ddx jq -r '.notes // ""')"
+
+  assert_eq "" "$closing_sha" "run should revert only hx-mock-0 closing_commit_sha after the sync commit failure"
+  assert_eq "closed" "$concurrent_status" "rollback should preserve the intervening tracker status change"
+  assert_eq "concurrent close" "$concurrent_notes" "rollback should preserve the intervening tracker metadata change"
+  rm -rf "$root"
+}
+
 test_commit_syncs_tracker_close_to_implementation_commit() {
   local root
   root="$(make_workspace)"
@@ -4784,6 +4869,7 @@ run_test "review ISSUES_FOUND continues loop" test_review_issues_found_continues
 run_test "run review targets closing commit sha after tracker sync commit" test_run_review_targets_closing_commit_sha_after_tracker_sync_commit
 run_test "run syncs closing commit sha after legacy close tracker issue commit" test_run_syncs_closing_commit_sha_after_legacy_close_tracker_issue_commit
 run_test "run syncs closing commit sha after tracker-only measure close commit" test_run_syncs_closing_commit_sha_after_tracker_only_measure_close_commit
+run_test "run tracker sync rollback preserves concurrent tracker updates" test_run_tracker_sync_rollback_preserves_concurrent_tracker_updates
 run_test "run rolls back tracker after closing commit sync failure" test_run_rolls_back_tracker_when_closing_commit_sync_commit_fails
 run_test "helix commit syncs closing commit sha to implementation commit" test_commit_syncs_tracker_close_to_implementation_commit
 run_test "helix commit succeeds with external tracker dir" test_commit_succeeds_with_external_tracker_dir
