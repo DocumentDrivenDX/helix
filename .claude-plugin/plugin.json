@@ -1,7 +1,7 @@
 {
   "name": "helix",
   "version": "0.3.3",
-  "description": "HELIX development control system — supervisory autopilot for AI-assisted software delivery",
+  "description": "HELIX methodology, artifact catalog, and routing skill for AI-assisted development.",
   "author": {
     "name": "Erik LaBianca",
     "url": "https://github.com/easel"
