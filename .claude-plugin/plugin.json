@@ -1,6 +1,6 @@
 {
   "name": "helix",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "HELIX methodology, artifact catalog, and routing skill for AI-assisted development.",
   "author": {
     "name": "Erik LaBianca",
