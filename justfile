@@ -39,12 +39,28 @@ lint:
     @git diff --check || true
     @echo "Lint OK"
 
-# Install HELIX via DDx and verify
+# Install HELIX via DDx (refresh the local snapshot)
 install:
     ddx install helix --force
-    bash scripts/helix doctor --fix
+
+# Build the Databricks Genie skill bundle (dist/genie-bundle/helix/)
+genie-build:
+    bash scripts/build-genie-bundle.sh
+
+# Install the Genie bundle to a Databricks workspace
+# Requires DATABRICKS_HOST and DATABRICKS_TOKEN env vars
+genie-install:
+    python scripts/install-genie.py
+
+# Verify a Genie install (offline static checks, no chat API)
+genie-verify:
+    python scripts/verify-genie.py
+
+# Run the per-runtime install test scenarios (Docker + screencasts)
+install-test:
+    bash tests/install/run-all.sh
 
 # Show test count
 count:
-    @echo "CLI tests: $(grep -c '^run_test ' tests/helix-cli.sh)"
-    @echo "Skills: $(ls .agents/skills/ | wc -l)"
+    @echo "Skill files: $(find skills -name 'SKILL.md' | wc -l)"
+    @echo "Test scripts: $(ls tests/*.sh tests/*.py 2>/dev/null | wc -l)"
