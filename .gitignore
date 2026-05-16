@@ -44,3 +44,4 @@ tmp/
 .ddx/beads.jsonl.pre-rename
 .ddx/beads.jsonl.*.bak
 .claude/prompts/
+dist/
