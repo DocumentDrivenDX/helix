@@ -1,211 +1,195 @@
 # HELIX in Claude Code
 
-This guide installs HELIX into Claude Code and shows how to invoke it. HELIX
-ships as a single routing skill plus an artifact catalog (templates, prompts,
-and metadata under `workflows/activities/`). Claude Code is one of HELIX's target
-runtimes, alongside DDx and Databricks Genie. The content is the same; only
-the packaging differs.
+This guide installs HELIX as a Claude Code plugin. The canonical
+install is the **marketplace flow**: add the HELIX marketplace, then
+install the `helix` plugin from it. No `git clone`, no manual symlinks.
 
-If you are publishing an install index later, link to this file as
-`docs/install/claude-code.md`.
+For development or CI scenarios that need to test a local checkout
+before publishing, a `--plugin-dir` session-load path is documented
+below.
 
 ## What you are installing
 
-Two pieces of content move into a location Claude Code can see:
+The HELIX repo IS a Claude Code plugin. Its layout:
 
-1. **The skill** — `skills/helix/SKILL.md`. A single router that maps user
-   intent (align, frame, design, evolve, review, build, release, etc.) to a
-   workflow contract. There are no separate public `helix-*` skills; the
-   router is the only entry point.
-2. **The artifact catalog** — `workflows/activities/00-discover` through
-   `06-iterate`. Each activity contains artifact-type directories (`prd`,
-   `feature-specification`, `adr`, `test-plan`, and so on). Each artifact-type
-   directory has `template.md`, `prompt.md`, `meta.yml`, and an example. The
-   skill resolves these paths relative to the project root when it needs to
-   open a template or quality rubric.
-
-HELIX does not need a CLI, a tracker, or an execution loop to be useful in
-Claude Code. The minimal runtime contract is the only thing the skill assumes:
-read markdown, write markdown, search files, and optionally run a shell
-command. Claude Code satisfies all of those by default.
-
-## Requirements
-
-- Claude Code 0.5 or later (skill discovery via `~/.claude/skills/` and
-  per-project `.claude/skills/`).
-- Frontmatter parser that tolerates `name:`, `description:`, and
-  `argument-hint:` keys. The HELIX skill ships only those three.
-- File-read, file-write, and file-search tools enabled in the Claude Code
-  session.
-- Optional: `Bash` tool, if you want the skill to run project-side
-  verification commands during alignment or review work.
-
-No other runtime dependency is required. HELIX content is plain Markdown plus
-YAML frontmatter under the `ddx:` namespace; Claude Code does not need to
-understand that namespace to render or edit the files.
-
-## Install path A: user-global
-
-Use this when you want HELIX available in every Claude Code session on your
-machine, regardless of which repo you open.
-
-Place the skill where Claude Code's user-scope skill loader looks:
-
-```text
-~/.claude/skills/helix/SKILL.md
+```
+helix/
+  .claude-plugin/
+    plugin.json            # plugin manifest (name=helix, version=...)
+    marketplace.json       # marketplace manifest listing the helix plugin
+  skills/
+    helix/
+      SKILL.md             # the routing skill (agentskills.io-compliant)
+  workflows/
+    activities/            # artifact-type catalog (7 activities)
+    ...
 ```
 
-Either copy the directory from a HELIX checkout or symlink it. A symlink is
-preferable while HELIX is iterating, because skill updates land without a
-re-copy.
+When you install the `helix` plugin, Claude Code makes the skill
+discoverable as `helix` (callable as `/helix` or by description match)
+and the catalog reachable at `workflows/activities/...`.
 
-Place the artifact catalog somewhere stable and discoverable. The conventional
-location for user-global HELIX content is:
+## Install path A: marketplace (canonical)
 
-```text
-~/.helix/workflows/activities/...
-~/.helix/docs/helix/...
+Two TUI commands inside Claude Code:
+
+```
+/plugin marketplace add easel/helix
+/plugin install helix@helix
 ```
 
-You can use a different root; the skill resolves template and prompt paths
-relative to the project it is invoked in, so for the global install, ensure
-each project that wants HELIX governance either vendors the catalog (see Path
-B) or points the skill at the global root when asked.
+Or scripted (Dockerfile-friendly), suitable for use in automation:
 
-User-global is right for solo projects and exploratory sessions. It is the
-wrong default for a team repo, because the team cannot version the catalog
-against the code.
-
-## Install path B: per-repo
-
-Use this when a repo should govern its own HELIX content — most production
-projects.
-
-Vendor the skill into the repo's per-project skill location:
-
-```text
-.claude/skills/helix/SKILL.md
+```bash
+claude plugin marketplace add easel/helix
+claude plugin install helix@helix --scope user -y
 ```
 
-Per-project skills override user-global skills with the same name in Claude
-Code, so a vendored copy lets a repo pin a specific HELIX version. Commit the
-directory so collaborators get the same skill.
+After install, the skill is available in any Claude Code session.
+Verify with `claude plugin list`:
 
-Vendor the artifact catalog into the repo at the conventional layout:
-
-```text
-workflows/activities/00-discover/...
-workflows/activities/01-frame/...
-workflows/activities/02-design/...
-workflows/activities/03-test/...
-workflows/activities/04-build/...
-workflows/activities/05-deploy/...
-workflows/activities/06-iterate/...
-workflows/artifact-schema.md
-workflows/principles.md
+```
+$ claude plugin list
+NAME   VERSION  SOURCE
+helix  0.3.4    easel-helix
 ```
 
-HELIX's own repo at `/Users/erik/Projects/helix` is the canonical layout. A
-new repo can adopt HELIX by copying the `skills/helix/` and `workflows/`
-trees, or by using one of the per-runtime packages (the DDx plugin published
-via `ddx install helix` is one such optional integration).
+## Install path B: session-only via `--plugin-dir` (development / CI)
 
-Once the catalog is in the repo, governing artifacts live under `docs/helix/`
-by convention:
+For testing a local HELIX checkout without going through marketplace
+distribution:
 
-```text
-docs/helix/00-discover/product-vision.md
-docs/helix/01-frame/prd.md
-docs/helix/02-design/...
+```bash
+# Load a local plugin directory for one session
+claude --plugin-dir /path/to/helix
 ```
 
-The skill expects to find templates under `workflows/activities/` and project
-artifacts under `docs/helix/` when those defaults apply. If your repo uses a
-different artifact root, tell the skill in the prompt — it will resolve from
-there.
+Or load a remote `.zip` (Claude Code v2.1.128+):
 
-## How invocation works
+```bash
+claude --plugin-url https://github.com/easel/helix/archive/v0.3.4.zip
+```
 
-Users do not memorize workflow names. They state intent; the skill routes.
+Session-only loads do not persist. Once Claude Code exits, the plugin
+is unloaded. Use for verification before tagging a release.
 
-The supported shapes are:
+## Install path C: DDx (alternative)
 
-- `/helix` — invoke the router with no arguments and let it ask.
-- `/helix align this PRD with the design docs` — invoke with an inline intent.
-- A natural-language ask in the chat: "use HELIX to evolve the auth
-  requirement through the spec stack" or "ask HELIX which workflow fits
-  this." Claude Code recognizes the skill by its `description:` frontmatter
-  and loads it.
+DDx and Claude Code share the same plugin format. If you already use
+DDx, `ddx install helix` places HELIX content at `~/.ddx/plugins/helix/`
+which is also a valid Claude Code `--plugin-dir` target:
 
-Claude Code resolves the skill name `helix` by looking in:
+```bash
+ddx install helix
+claude --plugin-dir ~/.ddx/plugins/helix
+```
 
-1. `.claude/skills/helix/` (per-repo, if present).
-2. `~/.claude/skills/helix/` (user-global).
-3. Any plugin-provided skill location enabled for this session.
+For permanent install via the marketplace flow, prefer path A.
 
-First match wins. The router then consults its internal routing table
-(`SKILL.md`) and selects one of: input, frame, align, evolve, design,
-backfill, review, polish, check, build, run, commit, release, experiment,
-worker. Each mode has a workflow contract in the same file that the skill
-follows for the rest of the session.
+## Auth in Docker / non-interactive
 
-When the routed workflow needs a template, prompt, or quality rubric, it opens
-the matching file under `workflows/activities/<activity>/artifacts/<type>/`. For
-example, framing a PRD reads
-`workflows/activities/01-frame/artifacts/prd/template.md` and `prompt.md`. The
-skill never invents these paths; they come from the catalog directory layout.
+Claude Code reads `ANTHROPIC_API_KEY` from the environment. No browser
+flow is required for `claude -p`:
 
-## Verify the install
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...
+claude plugin marketplace add easel/helix
+claude plugin install helix@helix --scope user -y
+echo "List HELIX routing modes" | claude -p
+```
 
-In a Claude Code session with the project open, type:
+## Update
+
+```bash
+claude plugin update helix@helix
+```
+
+Or set `autoUpdate: true` in the marketplace configuration to auto-pull
+new versions of `helix` whenever the marketplace listing's version
+bumps. Anthropic-official marketplaces auto-update by default;
+third-party marketplaces (including `easel/helix`) default to manual.
+
+Versioning falls through:
+1. Explicit `version` in `plugin.json` (bumped manually on releases)
+2. Falls back to git commit SHA (every commit = new version) when
+   `version` is missing
+
+## Uninstall
+
+```bash
+claude plugin uninstall helix@helix
+# preserve plugin data (e.g., ${CLAUDE_PLUGIN_DATA}):
+claude plugin uninstall helix@helix --keep-data
+```
+
+Aliases: `remove`, `rm`.
+
+## Verify
+
+In a Claude Code session:
 
 ```
 /helix check
 ```
 
-A working install produces, without further input:
-
+A working install responds with:
 1. A short statement that the HELIX router loaded.
-2. A list of governing artifacts the skill can see under `docs/helix/` (or a
-   note that none exist yet — that is fine; the skill will offer to start
-   with `input` or `frame`).
+2. A list of governing artifacts under `docs/helix/` (or a note that
+   none exist yet — that's fine; the skill offers `input` or `frame`).
 3. A proposed next action drawn from the routing table.
 
-If that does not happen, ask in plain English: "Is the HELIX skill available?
-List the workflow modes you would route to." A loaded skill will return the
-routing table from `SKILL.md`. A missing skill will produce a generic answer
-or an apology that no `helix` skill is installed.
+Or non-interactively:
 
-A second verification confirms the catalog is reachable. Ask:
+```bash
+echo "What HELIX routing modes are available?" | claude -p
+```
 
-> Open `workflows/activities/01-frame/artifacts/prd/template.md` and summarize
-> the section headings.
+Expected: response names align, frame, evolve, review, design,
+backfill, validate, polish, check, build, run, commit, release,
+experiment, worker (or a faithful subset) and references the
+`helix` skill.
 
-A correct install returns the PRD template's actual section list. A broken
-install (skill present but catalog missing or pointed at the wrong root)
-fails the open step.
+## How invocation works
+
+Users state intent; the skill routes. Supported shapes:
+
+- `/helix` — invoke with no arguments, the router asks for intent.
+- `/helix align this PRD with the design docs` — invoke with inline intent.
+- Natural-language ask: "use HELIX to evolve the auth requirement
+  through the spec stack". Claude Code matches by skill description.
+
+Claude Code resolves the `helix` skill in this order:
+1. `~/.claude/plugins/helix/skills/helix/` (installed plugin)
+2. Session `--plugin-dir` target
+3. Any other plugin-provided skill location enabled for the session
+
+The router then consults its internal routing table in
+`skills/helix/SKILL.md` and picks a mode. Each mode has a workflow
+contract in the same file.
+
+When a routed mode needs a template, prompt, or quality rubric, it
+opens the matching file under
+`workflows/activities/<activity>/artifacts/<type>/`. For example,
+framing a PRD reads
+`workflows/activities/01-frame/artifacts/prd/template.md` and
+`prompt.md`.
 
 ## Per-runtime contract
 
-HELIX content assumes the minimum runtime contract from the PRD: read
-markdown, write markdown, search files, and optionally execute a shell
-command. Claude Code provides all of these. The skill body avoids
-runtime-specific commands (no CLI verbs in the routing prose). If you see a
-HELIX skill or workflow that hard-codes a runtime command in its normative
-body, that is a bug against PRD R-4 and should be filed.
+HELIX assumes only the minimum runtime contract from the PRD: read
+markdown, write markdown, search files, and optionally execute a
+shell command. Claude Code provides all of these. If you see HELIX
+skill or workflow content that hard-codes a runtime command in its
+normative body, that is a bug against PRD R-4 and should be filed.
 
-## Optional integration: DDx
+## See also
 
-If your team also uses DDx as a software factory, you can install the same
-HELIX content as a DDx plugin so DDx-side automation and beads pick it up.
-That is a single optional integration, not a requirement; Claude Code does
-not need DDx to use HELIX.
-
-## Further reading
-
-- `skills/helix/SKILL.md` — the routing table and workflow contracts.
-- `workflows/artifact-schema.md` — what `meta.yml` and instance frontmatter
-  carry.
-- `workflows/principles.md` — methodology invariants the skill enforces.
-- `docs/helix/00-discover/product-vision.md` and `docs/helix/01-frame/prd.md`
-  — the governing intent for HELIX itself.
+- [`skills/helix/SKILL.md`](../../skills/helix/SKILL.md) — routing skill
+- [`.claude-plugin/plugin.json`](../../.claude-plugin/plugin.json) — manifest
+- [`.claude-plugin/marketplace.json`](../../.claude-plugin/marketplace.json)
+  — marketplace listing
+- [docs/resources/agents/claude-code-plugins.md](../resources/agents/claude-code-plugins.md)
+  — Claude Code plugin mechanism research notes
+- [Install README index](README.md)
+- Companion install guides: [OpenAI Codex CLI](codex.md),
+  [GitHub Copilot](copilot.md), [Databricks Genie Code](databricks-genie.md)
