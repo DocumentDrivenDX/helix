@@ -45,3 +45,5 @@ tmp/
 .ddx/beads.jsonl.*.bak
 .claude/prompts/
 dist/
+tests/install/genie/recordings/*
+!tests/install/genie/recordings/.gitkeep
