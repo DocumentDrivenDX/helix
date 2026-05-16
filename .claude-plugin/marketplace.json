@@ -1,0 +1,11 @@
+{
+  "name": "helix",
+  "description": "HELIX methodology marketplace",
+  "plugins": [
+    {
+      "name": "helix",
+      "source": ".",
+      "description": "HELIX methodology, artifact catalog, and routing skill for AI-assisted development."
+    }
+  ]
+}
