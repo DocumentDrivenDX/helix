@@ -21,6 +21,7 @@ experiments/
 .ddx/plugins/
 .ddx/server/
 .ddx/workers/
+.ddx/worktrees.json
 
 # Codex config
 .codex
