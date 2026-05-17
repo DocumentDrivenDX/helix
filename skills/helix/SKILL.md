@@ -56,10 +56,24 @@ this order of preference:
    placeholder is the runtime's plugin path — `.ddx/plugins/helix/` in
    DDx-installed HELIX, `~/.claude/plugins/helix/` in Claude Code.
 
-The seven `<NN>-<activity>` directories are `00-discover`, `01-frame`,
-`02-design`, `03-test`, `04-build`, `05-deploy`, `06-iterate`. Each
-artifact-type directory contains `template.md`, `prompt.md`, `meta.yml`,
-and an `example.md` (or `example-*.md`).
+The seven activities and the artifact types they own:
+
+| Activity | Artifact types (directory names under `<activity>/artifacts/`) |
+|---|---|
+| `00-discover` | `business-case`, `competitive-analysis`, `opportunity-canvas`, `product-vision`, `resource-summary` |
+| `01-frame` | `compliance-requirements`, `concerns`, `feasibility-study`, `feature-registry`, `feature-specification`, `parking-lot`, `pr-faq`, `prd`, `principles`, `research-plan`, `risk-register`, `security-requirements`, `stakeholder-map`, `threat-model`, `user-stories`, `validation-checklist` |
+| `02-design` | `adr`, `architecture`, `contract`, `data-design`, `proof-of-concept`, `security-architecture`, `solution-design`, `tech-spike`, `technical-design` |
+| `03-test` | `security-tests`, `story-test-plan`, `test-plan`, `test-procedures`, `test-suites` |
+| `04-build` | `implementation-plan` |
+| `05-deploy` | `deployment-checklist`, `monitoring-setup`, `release-notes`, `runbook` |
+| `06-iterate` | `improvement-backlog`, `metric-definition`, `metrics-dashboard`, `security-metrics` |
+
+Each artifact-type directory contains `template.md`, `prompt.md`,
+`meta.yml`, and an `example.md` (or `example-*.md`). Common queries
+("list artifact types under activity 01-frame", "what's the path to
+the prd template") can be answered from this table without traversing
+the filesystem; deeper queries that need template or prompt content
+require loading the file from one of the resolution paths above.
 
 If the catalog is at neither location, the runtime has not mounted it;
 report this as a setup gap rather than improvising paths or guessing
@@ -303,3 +317,25 @@ follow-up work are captured durably.
 - If the correct route is unclear, use check mode rather than guessing.
 - Preserve HELIX authority order: vision, PRD, features/stories, architecture
   and ADRs, designs, tests, implementation plans, code.
+- **Short affirmations inherit the prior turn's offered scope.** When the user
+  replies with a bare confirmation (`"do it"`, `"yes"`, `"go"`) after the
+  prior turn surfaced multiple branches or options, do not silently pick one.
+  Ask which branch, or — if only one was recommended — restate it verbatim
+  before acting.
+- **Scope complaints and pasted-evidence reactions route to `align` or
+  `evolve`, not to direct edits.** When the user pastes a snippet and says
+  something like "this isn't going to scale" or "what is this BS", treat the
+  complaint as evidence for §Align (find the upstream artifact that should
+  govern the pattern) or §Evolve (thread the new constraint through the
+  artifacts). Do not patch the pasted code in place.
+- **Operator pushback on a reported blocker triggers an alignment surface,
+  not a retry.** When the user pushes back on a claim like "this is blocked"
+  or "you said this couldn't be done", the response must name the specific
+  artifact-line evidence behind the blocker and route through the §Align
+  handoff fields. Retrying the same operation without diagnosis is
+  forbidden.
+- **`check` mode returns status; design changes are a follow-up turn.** When
+  asked "what's the situation with X" or "is X needed", surface the current
+  state plus a §Align-shaped next-step recommendation. Do not bundle a design
+  proposal in the same turn — the operator decides whether to invoke
+  `design` or `evolve` next.
