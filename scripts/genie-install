@@ -438,14 +438,15 @@ def resolve_target(args: argparse.Namespace, client) -> str:
 # --- main -----------------------------------------------------------------
 
 
-def main() -> int:
-    args = parse_args()
-
+def _run(args: argparse.Namespace, client=None) -> int:
+    """Shared install body. Used by both the CLI entry point (`main`) and
+    the programmatic entry point (`install`)."""
     print(f"HELIX Genie installer")
     print()
 
-    info("connecting to workspace")
-    client = make_client()
+    if client is None:
+        info("connecting to workspace")
+        client = make_client()
 
     target = resolve_target(args, client)
     print(f"target:  {target}")
@@ -479,6 +480,52 @@ def main() -> int:
     print("Next: open Databricks Genie Code (Agent mode) in your workspace")
     print('and try: "Using HELIX, list the routing modes you can route to."')
     return 0
+
+
+def install(
+    *,
+    shared: bool = False,
+    main: bool = False,
+    version: str | None = None,
+    bundle: "Path | str | None" = None,
+    target: str | None = None,
+    repo: str = DEFAULT_REPO,
+    keep_temp: bool = False,
+    client=None,
+) -> int:
+    """Programmatic entry point. Same semantics as the CLI.
+
+    Designed to be invoked from a Databricks notebook cell where the
+    kernel has implicit workspace credentials:
+
+        import urllib.request, runpy
+        urllib.request.urlretrieve(
+            "https://github.com/easel/helix/releases/latest/download/genie-install",
+            "/tmp/genie_install.py",
+        )
+        g = runpy.run_path("/tmp/genie_install.py")
+        g["install"]()                # user-scoped, latest release
+        # g["install"](shared=True)   # workspace-wide
+        # g["install"](main=True)     # track main branch
+    """
+    args = argparse.Namespace(
+        shared=shared,
+        main=main,
+        version=version,
+        bundle=Path(bundle) if bundle else None,
+        target=target,
+        repo=repo,
+        keep_temp=keep_temp,
+    )
+    if sum([bool(args.main), bool(args.version), bool(args.bundle)]) > 1:
+        fail(2, "--main, --version, --bundle are mutually exclusive")
+    if args.shared and args.target:
+        fail(2, "--shared and --target are mutually exclusive")
+    return _run(args, client=client)
+
+
+def main() -> int:
+    return _run(parse_args())
 
 
 if __name__ == "__main__":

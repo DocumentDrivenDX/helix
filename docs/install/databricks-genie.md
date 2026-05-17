@@ -8,20 +8,33 @@ design, review — over a project's governing artifacts.
 
 ### From inside a Databricks notebook (recommended — no setup)
 
-Paste this into a notebook cell. The Databricks runtime supplies
-implicit workspace credentials; no PAT, env vars, or CLI required.
+Paste this into a Python notebook cell. The kernel has implicit
+workspace credentials; no PAT, env vars, or CLI required.
 
 ```python
-%sh
-curl -fsSL https://github.com/easel/helix/releases/latest/download/genie-install -o /tmp/genie-install
-python3 /tmp/genie-install                  # user-scoped install
-# python3 /tmp/genie-install --shared       # workspace-wide (admin)
-# python3 /tmp/genie-install --main         # track main branch
+%pip install --quiet databricks-sdk PyYAML
+
+import urllib.request, runpy
+urllib.request.urlretrieve(
+    "https://github.com/easel/helix/releases/latest/download/genie-install",
+    "/tmp/genie_install.py",
+)
+g = runpy.run_path("/tmp/genie_install.py")
+
+g["install"]()                # user-scoped (current notebook user)
+# g["install"](shared=True)   # workspace-wide (admin)
+# g["install"](main=True)     # track main branch
 ```
 
-The installer auto-detects the workspace from the notebook's runtime
-context and uses your notebook identity for auth. Re-run any time to
-refresh.
+The `install()` function runs in the notebook's Python kernel where
+the Databricks SDK can use implicit notebook-runtime auth. Re-run any
+time to refresh.
+
+> **Don't use `%sh`** for the install. A `%sh` subprocess loses the
+> notebook's kernel context — the SDK partially detects "looks like a
+> notebook" (Spark Py4J connects) but then fails the IPython context
+> lookup with `'NoneType' object has no attribute 'parent_header'`.
+> Run the installer in a Python cell instead.
 
 ### From a dev box or CI
 
