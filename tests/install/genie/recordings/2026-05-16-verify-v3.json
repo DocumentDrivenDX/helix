@@ -1,0 +1,51 @@
+{
+  "date": "2026-05-16",
+  "attempt": "v3",
+  "helix_version": "0.3.4",
+  "skill_change": "skills/helix/SKILL.md §Catalog Resolution section (added in v2) names references/activities/ as the bundle-relative catalog path. v3 keeps that edit.",
+  "driver_change": "drive-genie.py v3 uses Stop-button presence as primary busy signal (not panel-text length deltas). Narrowed busy text hints to 'Thinking' active-tense form only.",
+  "workspace_host": "https://adb-7405619521761591.11.azuredatabricks.net",
+  "target_path": "/Workspace/.assistant/skills/helix",
+  "operator": "easel",
+  "automation": "Playwright + DBAUTH (headless Chromium); v3 driver",
+  "video": "2026-05-16-verify-v3.webm (117 MB, local only)",
+  "screenshots": [
+    "screenshots/v3-list-modes-response.png",
+    "screenshots/v3-catalog-reachable-response.png",
+    "screenshots/v3-smoke-routing-response.png"
+  ],
+  "prompts": [
+    {
+      "slug": "list-modes",
+      "pass": true,
+      "verdict": "timeout-but-response-captured",
+      "wait_elapsed_s": 600.2,
+      "panel_text_chars": 3124,
+      "notes": "Genie returned a comprehensive table covering ALL 17 modes (input, frame, align, validate, evolve, design, backfill, review, polish, check/next, build, run, commit, release, experiment, worker) with §Section citations. Includes routing-priority rule (frame before design, align before evolve when diagnostic) and §Alignment Content Migration reference. Skill load + routing fully confirmed."
+    },
+    {
+      "slug": "catalog-reachable",
+      "pass": false,
+      "verdict": "timeout-genie-never-found-catalog",
+      "wait_elapsed_s": 600.1,
+      "panel_text_chars": 3260,
+      "notes": "Critical evidence of the path-resolution bug. Genie's 'Thoughts' field in the response says: 'Based on the user's custom instructions, HELIX/DataHelix artifacts live at /Users/erik.labianca@synaptiq.ai/datahelix/ but the user is asking about HELIX specifically, not DataHelix. Let me look at the HELIX project structure.' It then attempts to read folders datahelix, .helix, templates — all in the user's WORKSPACE filesystem — and gets 'Failed to read folder'. Never attempts references/activities/ at /Workspace/.assistant/skills/helix/references/activities/ even though the SKILL.md §Catalog Resolution names that exact path. Genie's tool surface (or its routing of file-read tools) treats paths as workspace-rooted, not skill-bundle-relative."
+    },
+    {
+      "slug": "smoke-routing",
+      "pass": "queued-not-processed",
+      "verdict": "queued-behind-prompt-2",
+      "wait_elapsed_s": 600.8,
+      "panel_text_chars": 3426,
+      "notes": "By the time prompt 3 was submitted, prompts 1 and 2 were both still in Genie's processing queue. Prompt 3 sat as 3rd in queue throughout the 600s wait. The runtime correctly serializes; the bottleneck is prompt 2's never-completing catalog search."
+    }
+  ],
+  "conclusion": "§Catalog Resolution remedy in SKILL.md (remedy #1 from bead helix-96f7dd34) is INSUFFICIENT. Genie reads SKILL.md and produces routing-mode responses correctly, but its filesystem tool does not resolve paths relative to the skill bundle. Genie searches workspace-rooted paths instead, and is further biased by the user-level custom instructions naming a 'datahelix/' workspace path. The catalog at /Workspace/.assistant/skills/helix/references/activities/ is invisible to Genie's tool surface as currently configured.",
+  "next_remedies_to_try": [
+    "Remedy #2 (file in workspace): mirror the catalog to a Repos-backed workspace path the user references explicitly, then update SKILL.md to point there.",
+    "Remedy #3 (@-mention catalog files per prompt): user prefixes each prompt with @<catalog-path>; works but doesn't scale.",
+    "Remedy #4 (inline a minimal artifact-type index in SKILL.md): SKILL.md grows but common queries (list artifact types under activity X) can answer from SKILL.md alone without filesystem traversal.",
+    "Remedy #5 (file upstream with Databricks): request Genie Code skill-bundle path mounting. Out of HELIX control."
+  ],
+  "user_custom_instructions_confounder": "The workspace operator has user-level Genie Code custom instructions that name a `/Users/.../datahelix/` workspace path for 'HELIX/DataHelix artifacts'. This biases Genie toward workspace-filesystem lookups even when the HELIX skill bundle is correctly installed. Future testing should clear or override custom instructions to isolate the path-resolution behavior."
+}
