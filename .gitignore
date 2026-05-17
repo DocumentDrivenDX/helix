@@ -47,3 +47,6 @@ tmp/
 dist/
 tests/install/genie/recordings/*
 !tests/install/genie/recordings/.gitkeep
+!tests/install/genie/recordings/*.json
+!tests/install/genie/recordings/screenshots/
+!tests/install/genie/recordings/screenshots/*.png

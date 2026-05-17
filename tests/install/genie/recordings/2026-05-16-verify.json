@@ -1,0 +1,43 @@
+{
+  "date": "2026-05-16",
+  "helix_version": "0.3.4",
+  "workspace_host": "https://adb-7405619521761591.11.azuredatabricks.net",
+  "target_path": "/Workspace/.assistant/skills/helix",
+  "operator": "easel",
+  "automation": "Playwright + DBAUTH session cookie (headless Chromium on WSL2)",
+  "automation_script": "/tmp/genie-playwright/drive-genie.py",
+  "video": "2026-05-16-verify.webm",
+  "screenshots": [
+    "screenshots/05-home.png",
+    "screenshots/10-after-panel-open.png",
+    "screenshots/30-list-modes-response.png",
+    "screenshots/30-catalog-reachable-response.png",
+    "screenshots/30-smoke-routing-response.png"
+  ],
+  "prompts": [
+    {
+      "slug": "list-modes",
+      "pass": true,
+      "evidence": "screenshots/30-list-modes-response.png",
+      "notes": "Genie loaded the routing skill and returned a 3-column table (mode / description / SKILL.md section). Visible modes include frame, align, validate, evolve, design, backfill — each with §-prefixed section citation. Skill discovery, frontmatter, and routing logic all confirmed working."
+    },
+    {
+      "slug": "catalog-reachable",
+      "pass": false,
+      "evidence": "screenshots/30-catalog-reachable-response.png",
+      "notes": "Genie attempted to read directories in the user's workspace (datahelix, .helix, templates) rather than resolving paths relative to its own skill bundle at /Workspace/.assistant/skills/helix/references/activities/. Failed to find the catalog. Reveals a path-resolution gap: Genie Code does not auto-mount sibling directories of SKILL.md for skill use. See follow-up bead helix-<TBD>."
+    },
+    {
+      "slug": "smoke-routing",
+      "pass": "queued-not-processed",
+      "evidence": "screenshots/30-smoke-routing-response.png",
+      "notes": "Prompt was submitted while catalog-reachable was still exploring; Genie queued it but the script's wait timeout fired before processing began. Not a HELIX bug — driver-script wait needs tuning for Genie's slow folder-traversal cadence."
+    }
+  ],
+  "summary": "1 of 3 prompts demonstrated clean pass. Prompt 2 surfaced a real product finding: Genie's path-resolution behavior does not treat SKILL.md's parent as a content root. Recording captured the full automated flow including the discovered limitation.",
+  "follow_ups": [
+    "Investigate Genie Code's skill-bundle path resolution; consider inline-catalog or explicit-path-in-SKILL.md remedies",
+    "Tune drive-genie.py response-stability wait to 8-12s and use the Genie-panel DOM container, not <main>, for text capture",
+    "Re-run after path resolution is understood"
+  ]
+}
