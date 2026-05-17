@@ -1,26 +1,41 @@
 # HELIX on Databricks Genie Code
 
-This guide installs HELIX as a Databricks Genie Code skill so that
-Genie can route requests to the HELIX methodology — alignment,
-framing, evolution, design, review — over a project's governing
-artifacts.
+This guide installs HELIX as a Databricks Genie Code skill so Genie can
+route requests to the HELIX methodology — alignment, framing, evolution,
+design, review — over a project's governing artifacts.
 
-HELIX ships an automated build + upload + verify pipeline:
+## TL;DR
+
+**For yourself (user-scoped, no admin needed):**
 
 ```bash
-bash scripts/build-genie-bundle.sh           # assemble dist/genie-bundle/helix/
-python scripts/install-genie.py              # upload to workspace
-python scripts/verify-genie.py               # confirm install (offline checks)
+# Configure auth once
+export DATABRICKS_HOST=https://<your-workspace>.azuredatabricks.net
+export DATABRICKS_TOKEN=<personal access token>
+
+# Install latest release
+curl -fsSL https://github.com/easel/helix/releases/latest/download/genie-install -o /tmp/genie-install
+chmod +x /tmp/genie-install
+/tmp/genie-install
 ```
 
-The skill itself is content + frontmatter (no executable code). The
-runtime — Genie Code — does the file I/O.
+**For everyone in your workspace (admin-only):**
 
-> **Genie Code** is Databricks' agentic coding assistant inside the
-> workspace. GA as of 2026-03-11. It is distinct from "Genie" / "Genie
-> Spaces" (BI Q&A over data). HELIX targets Genie Code.
+```bash
+/tmp/genie-install --shared
+```
 
-## Skill format
+**Development install (track main branch):**
+
+```bash
+/tmp/genie-install --main
+```
+
+The installer downloads HELIX from GitHub, uploads it to the workspace,
+verifies the install offline, and prints the next-step prompt. Re-run
+any time to refresh.
+
+## What you are installing
 
 Genie Code adopts the [agentskills.io specification](https://agentskills.io/specification),
 the open standard also used by Claude Code, OpenAI Codex CLI, Cursor,
@@ -29,14 +44,9 @@ VS Code/Copilot, and Gemini CLI. A skill is a directory:
 ```
 helix/
   SKILL.md             # required: YAML frontmatter + Markdown body
-  references/          # optional: progressive-disclosure content
+  references/
     activities/        # HELIX artifact catalog under here
-  scripts/             # optional
-  assets/              # optional
 ```
-
-The agentskills invariant: parent directory name (`helix`) must equal
-the `name:` field in SKILL.md frontmatter.
 
 Required frontmatter:
 
@@ -47,103 +57,102 @@ description: Route HELIX methodology work to the right planning, alignment, desi
 ---
 ```
 
-`description` is 1–1024 chars. See
-[docs/resources/agents/agentskills-spec.md](../resources/agents/agentskills-spec.md)
-for the full schema (optional `license`, `compatibility`, `metadata`,
-`allowed-tools`).
+The agentskills invariant: parent directory name (`helix`) must equal
+the `name:` field. The installer enforces this.
 
 ## Workspace install paths
 
-| Scope | Path |
-|---|---|
-| Workspace-wide (admin) | `/Workspace/.assistant/skills/helix/SKILL.md` |
-| User-scoped | `/Users/<username>/.assistant/skills/helix/SKILL.md` |
+| Scope | Path | Who can install |
+|---|---|---|
+| Workspace-wide | `/Workspace/.assistant/skills/helix/SKILL.md` | workspace admin |
+| User-scoped | `/Users/<your-email>/.assistant/skills/helix/SKILL.md` | the user themselves (own PAT enough) |
 
 Skills are auto-discovered by directory scan. No registration command
-is needed. Start a new Agent-mode chat after changes for them to take
-effect.
+needed. Start a new Agent-mode chat after changes for them to take
+effect. User-scoped installs override workspace-wide ones for that
+user, useful for testing pre-release content without affecting
+teammates.
 
-## Install
+## Installer flags
 
-### 1. Build the bundle locally
-
-```bash
-cd <helix-repo-root>
-bash scripts/build-genie-bundle.sh
-# → dist/genie-bundle/helix/SKILL.md
-# → dist/genie-bundle/helix/references/activities/00-discover/...
-# → ...
+```text
+genie-install                            # latest release, current user
+genie-install --shared                   # latest release, workspace-wide
+genie-install --main                     # main branch HEAD, current user
+genie-install --main --shared            # main branch, workspace-wide
+genie-install --version v0.3.4           # specific release tag
+genie-install --bundle /path/to/helix    # skip download; install local bundle
+genie-install --target /Workspace/...    # explicit workspace path
+genie-install --repo <owner>/<repo>      # install from a fork
 ```
 
-The script validates SKILL.md frontmatter (`name: helix` invariant)
-and assembles the directory. `dist/` is gitignored.
+`--main`, `--version`, and `--bundle` are mutually exclusive (only one
+source). `--shared` and `--target` are mutually exclusive (only one
+destination).
 
-### 2. Configure Databricks credentials
+The installer prefers a pre-built release bundle when one exists
+(faster, no local build step). If no pre-built bundle is published for
+the requested ref, it falls back to downloading the source archive and
+running `scripts/build-genie-bundle.sh` locally — same result, slightly
+slower.
 
-```bash
-export DATABRICKS_HOST=https://<your-workspace>.databricks.com
-export DATABRICKS_TOKEN=<PAT or OAuth token>
-# OR
-export DATABRICKS_PROFILE=<section name in ~/.databrickscfg>
-```
+## Required environment
 
-Required role: workspace admin for `/Workspace/.assistant/skills/...`
-installs; the user's own PAT is sufficient for user-scoped installs.
+Either:
 
-### 3. Dry-run against a personal-scope workspace path
+- `DATABRICKS_HOST` (workspace URL) + `DATABRICKS_TOKEN` (PAT or OAuth),
+  OR
+- `DATABRICKS_PROFILE` naming a section in `~/.databrickscfg`.
 
-Before targeting the workspace-wide path, dry-run against your own
-`.assistant/skills/` directory:
+Workspace admin role is required for `--shared` installs. User PAT is
+sufficient for default (user-scoped) installs.
 
-```bash
-python scripts/install-genie.py \
-    --bundle dist/genie-bundle/helix \
-    --target /Users/$(whoami)/.assistant/skills/helix-test
-python scripts/verify-genie.py \
-    --target /Users/$(whoami)/.assistant/skills/helix-test
-```
-
-Both should exit 0. Inspect the uploaded tree with the Databricks
-workspace browser or `databricks workspace list /Users/.../helix-test`.
-
-### 4. Install to workspace path
-
-After dry-run passes, target the workspace-wide path:
+For Databricks CLI users:
 
 ```bash
-python scripts/install-genie.py \
-    --bundle dist/genie-bundle/helix \
-    --target /Workspace/.assistant/skills/helix
-python scripts/verify-genie.py \
-    --target /Workspace/.assistant/skills/helix
+databricks configure                     # interactive setup → ~/.databrickscfg
+DATABRICKS_PROFILE=my-workspace /tmp/genie-install
 ```
 
-The catalog lives in workspace storage; multiple users share one copy.
+## Distributing HELIX to other users
 
-## Verify install (offline + manual)
+There is no "marketplace" for Genie Code skills today. Distribution is
+per-workspace, per-install:
 
-### Offline static verification
+- **Same workspace**: install once at the workspace-wide path with
+  `--shared` (admin). Every user with Genie Code enabled in that
+  workspace sees HELIX automatically.
+- **Different workspace, same org**: that workspace's admin runs
+  `genie-install --shared` against their own `DATABRICKS_HOST`.
+- **Different organization**: they grab the installer with the same
+  `curl` line, point it at their workspace, run as admin or user.
+- **Per-user, opt-in**: anyone with their own PAT can run
+  `genie-install` (no `--shared`) — installs to their own
+  `/Users/<them>/.assistant/skills/helix/`. Doesn't affect anyone else.
+
+## Update / uninstall
+
+Update:
 
 ```bash
-python scripts/verify-genie.py --target /Workspace/.assistant/skills/helix
+/tmp/genie-install                  # re-run; overwrites existing install
 ```
 
-Asserts:
-- Target directory exists and contains `SKILL.md`
-- Frontmatter parses as valid YAML
-- `name == "helix"`
-- `description` is 1–1024 chars
-- All seven `references/activities/<NN>-<activity>/` dirs are present
+Uninstall:
 
-No chat API calls. Exit 0 on success; exit 5 on any failure.
+```bash
+databricks workspace delete --recursive /Workspace/.assistant/skills/helix
+# or for user-scoped:
+databricks workspace delete --recursive /Users/<you>/.assistant/skills/helix
+```
 
-### Manual browser verification
+## Verifying the install
 
-Genie Code has no public chat API. End-to-end skill activation must
-be verified through the workspace UI. Open Genie Code and run three
-prompts in a new Agent-mode chat:
+The installer runs offline verification automatically (file presence,
+frontmatter parse, activity-dir presence). For an additional
+end-to-end check, open Genie Code in Agent mode and run:
 
-**Step 1.** List modes:
+**Step 1.** Confirm the skill loaded and routes:
 
 ```
 List the HELIX workflow modes you can route to, and cite the SKILL.md
@@ -152,22 +161,20 @@ section that defines each one.
 
 Expected: Genie names input, frame, align, evolve, design, backfill,
 review, polish, check, build, run, commit, release, experiment,
-worker. Genie cites the routing table and per-mode contracts in
-`SKILL.md`.
+worker, and cites the routing table and §-prefixed contract sections.
 
-**Step 2.** Catalog reachable:
+**Step 2.** Confirm the catalog index is reachable from SKILL.md:
 
 ```
-Using HELIX, list the artifact types defined under activity 01-frame,
-and show the path of each artifact-type directory in the catalog.
+Using HELIX, list the artifact types defined under activity 01-frame.
 ```
 
-Expected: Genie returns the artifact-type directories under
-`references/activities/01-frame/artifacts/` with paths anchored at
-the skill root. If Genie returns generic descriptions without paths,
-the catalog references are unreachable.
+Expected: Genie returns the 16 artifact types under 01-frame
+(compliance-requirements, concerns, feasibility-study, ... ,
+validation-checklist) — these are inlined in SKILL.md §Catalog
+Resolution and don't require filesystem traversal.
 
-**Step 3.** Smoke-test routing:
+**Step 3.** Smoke-test a routing decision against a real project:
 
 ```
 I have docs/helix/00-discover/product-vision.md and
@@ -175,36 +182,32 @@ docs/helix/01-frame/prd.md in this repo. Use HELIX to check whether
 they are aligned. Do not write any files yet.
 ```
 
-Expected: Genie selects align mode, reads both artifacts, and returns
-an alignment-shaped report (gaps classified as `ALIGNED`,
-`INCOMPLETE`, `DIVERGENT`, `UNDERSPECIFIED`, `STALE_PLAN`, or
-`BLOCKED`) without modifying files.
+Expected: Genie selects align mode, returns an alignment-shaped report
+with classifications (`ALIGNED`, `INCOMPLETE`, `DIVERGENT`,
+`UNDERSPECIFIED`, `STALE_PLAN`, `BLOCKED`) — without modifying files.
 
-Capture a screencast of all three exchanges for release evidence.
+If Genie doesn't pick HELIX automatically on a relevant prompt,
+prefix with `@helix` to force activation.
 
-## Invocation
+## Known limitations
 
-Genie routes by natural language. HELIX is designed for that
-interface; users describe what they want and the routing skill picks
-the matching workflow.
-
-If Genie does not select the HELIX skill automatically, mention it
-explicitly:
-
-```
-@helix Use HELIX to align the artifacts under docs/helix/ for this repo.
-```
-
-The `@helix` mention forces activation. Healthy routing should not
-need it.
-
-Example prompts:
-
-- "@helix Align the artifacts under `docs/helix/` for this repo."
-- "Run a HELIX framing pass and produce a PRD for the new ingestion feature."
-- "Evolve the HELIX artifacts to thread the new compliance requirement
-  through vision, PRD, feature specs, and any affected designs."
-- "Do a HELIX fresh-eyes review of the changes on this branch."
+- **Bead `helix-96f7dd34` (open)**: Genie's filesystem tool does not
+  auto-resolve paths relative to the skill bundle for files outside
+  the inline §Catalog Resolution table. Queries that need to read a
+  template's body (not just list types) may fail to find the file at
+  `references/activities/.../template.md`. The 0.3.4+ SKILL.md
+  mitigates the most common queries via the inline index, but heavier
+  reads are blocked until the bead resolves.
+- **User-level custom instructions can shadow HELIX behavior.** If
+  Genie reasons about a `datahelix/`-like local path, your workspace
+  has a user custom instruction biasing path lookups. Clear or scope
+  those instructions if you see unexpected workspace-filesystem
+  search.
+- **Build / Run modes on Genie**: Genie's shell-execution surface is
+  more constrained than Claude Code or Codex CLI. HELIX `build` and
+  `run` modes that depend on running a project gate typically need
+  to be paired with a Databricks job, notebook, or CI pipeline rather
+  than executed inline.
 
 ## Caveats vs. other runtimes
 
@@ -212,15 +215,8 @@ Example prompts:
   local filesystem permissions. Genie writes through the Databricks
   workspace; write access to a Git-backed repo folder may go through
   a Databricks Repos integration rather than direct filesystem writes.
-  HELIX alignment and evolve passes that propose artifact edits may
-  need to be applied via the Repos commit flow rather than direct
-  file write. Confirm commit-attribution behavior with your workspace
-  administrator before relying on audit trails.
-- **Execution surface.** Claude Code and Codex can run shell commands
-  inline. Genie's shell-execution surface inside the workspace is
-  more constrained. HELIX `build` and `run` modes that depend on
-  running a project gate typically need to be paired with a Databricks
-  job, notebook, or CI pipeline triggered outside the HELIX skill.
+  Confirm commit-attribution behavior with your workspace admin before
+  relying on audit trails.
 - **Multi-user state.** Genie is a shared workspace agent: multiple
   users may invoke HELIX against the same artifact tree. HELIX itself
   is stateless between invocations, so this is safe, but concurrent
@@ -231,30 +227,27 @@ Example prompts:
   HELIX-on-Genie is HELIX-as-methodology only. Projects that want the
   full HELIX-plus-runtime experience can use DDx in a connected dev
   environment and have Genie operate over the same artifact tree.
-- **No CLI verbs.** This install does not introduce a `helix` CLI.
-  All invocation is natural language through Genie, exactly as with
-  the Claude Code and Codex installs.
 
-## Update / uninstall
+## Manual install (no installer)
 
-Update:
+If you can't run the `genie-install` shebang (e.g. no `uv` on the
+machine), the underlying steps are:
 
 ```bash
-bash scripts/build-genie-bundle.sh           # rebuild bundle
-python scripts/install-genie.py              # re-upload (overwrite=True)
-python scripts/verify-genie.py               # confirm
+git clone https://github.com/easel/helix /tmp/helix
+cd /tmp/helix
+bash scripts/build-genie-bundle.sh                  # → dist/genie-bundle/helix/
+python scripts/install-genie.py --target /Users/<you>/.assistant/skills/helix
+python scripts/verify-genie.py --target /Users/<you>/.assistant/skills/helix
 ```
 
-Uninstall by deleting the workspace path:
-
-```bash
-databricks workspace delete --recursive /Workspace/.assistant/skills/helix
-```
+These are the steps `genie-install` automates. Same result.
 
 ## See also
 
+- [`scripts/genie-install`](../../scripts/genie-install) — single-file installer
 - [`scripts/build-genie-bundle.sh`](../../scripts/build-genie-bundle.sh) — bundle assembler
-- [`scripts/install-genie.py`](../../scripts/install-genie.py) — uploader
+- [`scripts/install-genie.py`](../../scripts/install-genie.py) — direct uploader
 - [`scripts/verify-genie.py`](../../scripts/verify-genie.py) — offline verifier
 - [docs/resources/agents/databricks-genie-code-skills.md](../resources/agents/databricks-genie-code-skills.md)
   — Genie Code mechanism research notes

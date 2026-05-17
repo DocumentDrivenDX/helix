@@ -1,0 +1,402 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["databricks-sdk>=0.30", "PyYAML>=6"]
+# ///
+"""HELIX installer for Databricks Genie Code.
+
+Downloads the HELIX skill bundle from GitHub and uploads it to a
+Databricks workspace. By default installs to the current user
+(`/Users/<you>/.assistant/skills/helix/`); use `--shared` for the
+workspace-wide path (requires workspace admin). By default pulls the
+latest release tag; use `--main` to pull from the main branch or
+`--version vX.Y.Z` to pin a specific tag.
+
+Usage:
+    genie-install                            # latest release, current user
+    genie-install --shared                   # latest release, workspace-wide
+    genie-install --main                     # main branch, current user
+    genie-install --version v0.3.4           # specific release
+    genie-install --bundle /path/to/helix    # local bundle (skip download)
+    genie-install --target /Workspace/...    # custom workspace path
+
+Required env: DATABRICKS_HOST and DATABRICKS_TOKEN, OR DATABRICKS_PROFILE
+naming a section in ~/.databrickscfg.
+
+Exit codes:
+    0  install + verify succeeded
+    2  missing or invalid env / args
+    3  bundle source unavailable
+    4  upload error
+    5  verify failed (install incomplete)
+"""
+from __future__ import annotations
+
+import argparse
+import os
+import shutil
+import subprocess
+import sys
+import tarfile
+import tempfile
+import urllib.error
+import urllib.request
+from pathlib import Path
+
+
+DEFAULT_REPO = "easel/helix"
+WORKSPACE_TARGET = "/Workspace/.assistant/skills/helix"
+SKILL_NAME = "helix"
+EXPECTED_ACTIVITIES = [
+    "00-discover", "01-frame", "02-design", "03-test",
+    "04-build", "05-deploy", "06-iterate",
+]
+
+
+def fail(code: int, msg: str) -> None:
+    print(f"error: {msg}", file=sys.stderr)
+    sys.exit(code)
+
+
+def info(msg: str) -> None:
+    print(f"  {msg}", flush=True)
+
+
+def parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser(
+        description=__doc__.strip().split("\n")[0],
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=__doc__,
+    )
+    src = p.add_mutually_exclusive_group()
+    src.add_argument("--main", action="store_true",
+                     help="install from main branch HEAD instead of latest release")
+    src.add_argument("--version", metavar="vX.Y.Z",
+                     help="install a specific release tag")
+    src.add_argument("--bundle", type=Path,
+                     help="install from a local pre-built bundle directory (skip download)")
+
+    target = p.add_mutually_exclusive_group()
+    target.add_argument("--shared", action="store_true",
+                        help="install workspace-wide at /Workspace/.assistant/skills/helix (requires admin)")
+    target.add_argument("--target", help="explicit workspace path (overrides --shared)")
+
+    p.add_argument("--repo", default=DEFAULT_REPO,
+                   help=f"GitHub repo to install from (default: {DEFAULT_REPO})")
+    p.add_argument("--keep-temp", action="store_true",
+                   help="don't delete the temp directory after install (for debugging)")
+    return p.parse_args()
+
+
+# --- bundle acquisition ---------------------------------------------------
+
+
+def fetch_url(url: str, dest: Path) -> None:
+    info(f"fetching {url}")
+    req = urllib.request.Request(url, headers={"User-Agent": "helix-genie-install/1"})
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp, open(dest, "wb") as out:
+            shutil.copyfileobj(resp, out)
+    except urllib.error.HTTPError as exc:
+        fail(3, f"HTTP {exc.code} fetching {url}")
+    except urllib.error.URLError as exc:
+        fail(3, f"URL error fetching {url}: {exc.reason}")
+
+
+def resolve_latest_tag(repo: str) -> str:
+    api = f"https://api.github.com/repos/{repo}/releases/latest"
+    info(f"resolving latest release from {api}")
+    try:
+        req = urllib.request.Request(api, headers={"User-Agent": "helix-genie-install/1"})
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            import json
+            data = json.load(resp)
+            tag = data.get("tag_name")
+            if not tag:
+                fail(3, f"no tag_name in {api} response")
+            return tag
+    except urllib.error.HTTPError as exc:
+        if exc.code == 404:
+            fail(3, f"no releases yet on {repo}. Use --main or --version <tag>.")
+        fail(3, f"HTTP {exc.code} resolving latest release on {repo}")
+    except urllib.error.URLError as exc:
+        fail(3, f"can't reach GitHub API: {exc.reason}")
+
+
+def acquire_bundle(args: argparse.Namespace, workdir: Path) -> Path:
+    """Return a path to a built bundle directory ready for upload."""
+    if args.bundle:
+        if not args.bundle.is_dir():
+            fail(3, f"--bundle path is not a directory: {args.bundle}")
+        return args.bundle.resolve()
+
+    # Resolve the git ref to download.
+    if args.main:
+        ref = "main"
+        ref_kind = "branch"
+    elif args.version:
+        ref = args.version
+        ref_kind = "tag"
+    else:
+        ref = resolve_latest_tag(args.repo)
+        ref_kind = "tag"
+        info(f"latest release: {ref}")
+
+    # Prefer a pre-built bundle release asset.
+    if ref_kind == "tag":
+        asset_url = (
+            f"https://github.com/{args.repo}/releases/download/{ref}/"
+            f"helix-genie-bundle-{ref}.tar.gz"
+        )
+        try:
+            req = urllib.request.Request(asset_url, method="HEAD",
+                                         headers={"User-Agent": "helix-genie-install/1"})
+            urllib.request.urlopen(req, timeout=10).close()
+            info(f"pre-built bundle exists at {asset_url}")
+            bundle_tgz = workdir / "bundle.tar.gz"
+            fetch_url(asset_url, bundle_tgz)
+            extract_dir = workdir / "bundle"
+            extract_dir.mkdir()
+            with tarfile.open(bundle_tgz) as tf:
+                tf.extractall(extract_dir)
+            # The tarball root may be `helix/` or contain it.
+            candidate = extract_dir / "helix"
+            if candidate.is_dir():
+                return candidate
+            # Search one level for a dir containing SKILL.md.
+            for child in extract_dir.iterdir():
+                if child.is_dir() and (child / "SKILL.md").is_file():
+                    return child
+            fail(3, f"bundle tarball has unexpected layout under {extract_dir}")
+        except urllib.error.HTTPError as exc:
+            if exc.code != 404:
+                fail(3, f"HTTP {exc.code} checking {asset_url}")
+            info(f"no pre-built bundle at {ref}; will build from source")
+        except urllib.error.URLError as exc:
+            info(f"can't reach release asset ({exc.reason}); will build from source")
+
+    # Fallback: download the source archive and run scripts/build-genie-bundle.sh.
+    src_url = f"https://github.com/{args.repo}/archive/refs/{'heads' if ref_kind == 'branch' else 'tags'}/{ref}.tar.gz"
+    src_tgz = workdir / "source.tar.gz"
+    fetch_url(src_url, src_tgz)
+
+    src_dir = workdir / "src"
+    src_dir.mkdir()
+    info("extracting source")
+    with tarfile.open(src_tgz) as tf:
+        tf.extractall(src_dir)
+    roots = [p for p in src_dir.iterdir() if p.is_dir()]
+    if not roots:
+        fail(3, f"source archive has no top-level directory at {src_dir}")
+    repo_root = roots[0]
+
+    builder = repo_root / "scripts" / "build-genie-bundle.sh"
+    if not builder.is_file():
+        fail(3, f"build-genie-bundle.sh not found in source at {builder}")
+
+    info("running build-genie-bundle.sh")
+    out_dir = workdir / "build-out"
+    try:
+        subprocess.run(
+            ["bash", str(builder), "--out", str(out_dir)],
+            cwd=str(repo_root), check=True,
+        )
+    except subprocess.CalledProcessError as exc:
+        fail(3, f"build-genie-bundle.sh failed: exit {exc.returncode}")
+
+    bundle = out_dir / "helix"
+    if not (bundle / "SKILL.md").is_file():
+        fail(3, f"build produced no SKILL.md at {bundle}")
+    return bundle
+
+
+# --- bundle validation ----------------------------------------------------
+
+
+def validate_bundle(bundle: Path) -> None:
+    if bundle.name != SKILL_NAME:
+        fail(3, f"bundle parent dir is '{bundle.name}', must be '{SKILL_NAME}' "
+                f"(agentskills.io spec invariant)")
+    skill_md = bundle / "SKILL.md"
+    if not skill_md.is_file():
+        fail(3, f"bundle missing SKILL.md at {skill_md}")
+    content = skill_md.read_text()
+    if not content.startswith("---\n"):
+        fail(3, "SKILL.md has no YAML frontmatter")
+    info(f"bundle OK ({bundle})")
+
+
+# --- auth + upload --------------------------------------------------------
+
+
+def check_env() -> None:
+    if os.environ.get("DATABRICKS_PROFILE"):
+        return
+    if not os.environ.get("DATABRICKS_HOST"):
+        fail(2, "DATABRICKS_HOST not set (or set DATABRICKS_PROFILE)")
+    if not os.environ.get("DATABRICKS_TOKEN"):
+        fail(2, "DATABRICKS_TOKEN not set (or set DATABRICKS_PROFILE)")
+
+
+def upload(bundle: Path, target: str) -> int:
+    try:
+        from databricks.sdk import WorkspaceClient
+        from databricks.sdk.service.workspace import ImportFormat
+    except ImportError as exc:
+        fail(2, f"databricks-sdk not importable: {exc}")
+
+    info("connecting to workspace")
+    w = WorkspaceClient()
+    try:
+        me = w.current_user.me()
+        info(f"authenticated as {me.user_name}")
+    except Exception as exc:
+        fail(2, f"workspace auth failed: {exc}")
+
+    files = [p for p in bundle.rglob("*") if p.is_file()]
+    if not files:
+        fail(3, f"bundle has no files: {bundle}")
+    parent_dirs = sorted({str(Path(target) / p.relative_to(bundle).parent) for p in files})
+
+    info(f"target: {target}")
+    info(f"{len(files)} files / {len(parent_dirs)} dirs")
+
+    for d in parent_dirs:
+        d_norm = d.rstrip("/.") or target
+        try:
+            w.workspace.mkdirs(path=d_norm)
+        except Exception as exc:
+            print(f"  mkdirs warn {d_norm}: {exc}", file=sys.stderr)
+
+    uploaded = failed = 0
+    for f in files:
+        rel = f.relative_to(bundle)
+        dest = f"{target}/{rel.as_posix()}"
+        try:
+            with open(f, "rb") as fp:
+                w.workspace.upload(path=dest, content=fp,
+                                   format=ImportFormat.AUTO, overwrite=True)
+            uploaded += 1
+            if uploaded % 50 == 0 or uploaded == len(files):
+                info(f"uploaded {uploaded}/{len(files)}")
+        except Exception as exc:
+            failed += 1
+            print(f"  FAIL {dest}: {exc}", file=sys.stderr)
+    info(f"upload: {uploaded} ok, {failed} failed")
+    return 4 if failed else 0
+
+
+# --- verify ---------------------------------------------------------------
+
+
+def verify(target: str) -> int:
+    try:
+        from databricks.sdk import WorkspaceClient
+        from databricks.sdk.service.workspace import ExportFormat
+        import yaml
+    except ImportError as exc:
+        fail(2, f"missing dep: {exc}")
+    w = WorkspaceClient()
+
+    try:
+        objs = list(w.workspace.list(target))
+        names = {o.path.split("/")[-1] for o in objs}
+    except Exception as exc:
+        fail(5, f"target dir not reachable: {exc}")
+    if "SKILL.md" not in names:
+        fail(5, f"SKILL.md not at {target}")
+
+    try:
+        export = w.workspace.export(path=f"{target}/SKILL.md", format=ExportFormat.AUTO)
+        import base64
+        body = base64.b64decode(export.content).decode("utf-8")
+    except Exception as exc:
+        fail(5, f"export failed: {exc}")
+    end = body.find("\n---\n", 4)
+    if end == -1:
+        fail(5, "SKILL.md frontmatter not terminated")
+    fm = yaml.safe_load(body[4:end])
+    if fm.get("name") != SKILL_NAME:
+        fail(5, f"SKILL.md frontmatter name != {SKILL_NAME!r}: {fm.get('name')!r}")
+    info("verify: SKILL.md frontmatter OK")
+
+    activities_path = f"{target}/references/activities"
+    try:
+        act_objs = list(w.workspace.list(activities_path))
+        act_names = {o.path.split("/")[-1] for o in act_objs}
+    except Exception as exc:
+        fail(5, f"references/activities not reachable: {exc}")
+    missing = [a for a in EXPECTED_ACTIVITIES if a not in act_names]
+    if missing:
+        fail(5, f"missing activity dirs: {', '.join(missing)}")
+    info(f"verify: all {len(EXPECTED_ACTIVITIES)} activity dirs present")
+    return 0
+
+
+# --- target resolution ----------------------------------------------------
+
+
+def resolve_target(args: argparse.Namespace) -> str:
+    if args.target:
+        return args.target.rstrip("/")
+    if args.shared:
+        return WORKSPACE_TARGET
+    # Default: user-scoped. Need to ask the workspace who we are.
+    try:
+        from databricks.sdk import WorkspaceClient
+    except ImportError as exc:
+        fail(2, f"databricks-sdk not importable: {exc}")
+    w = WorkspaceClient()
+    try:
+        me = w.current_user.me()
+    except Exception as exc:
+        fail(2, f"workspace auth failed: {exc}")
+    return f"/Users/{me.user_name}/.assistant/skills/{SKILL_NAME}"
+
+
+# --- main -----------------------------------------------------------------
+
+
+def main() -> int:
+    args = parse_args()
+    check_env()
+
+    print(f"HELIX Genie installer")
+    print()
+
+    target = resolve_target(args)
+    print(f"target:  {target}")
+    print(f"source:  {'local bundle' if args.bundle else ('main branch' if args.main else (args.version or 'latest release'))}")
+    print(f"repo:    {args.repo}")
+    print()
+
+    with tempfile.TemporaryDirectory(prefix="helix-genie-install-") as td:
+        workdir = Path(td)
+        bundle = acquire_bundle(args, workdir)
+        validate_bundle(bundle)
+
+        rc = upload(bundle, target)
+        if rc != 0:
+            return rc
+
+        rc = verify(target)
+        if rc != 0:
+            return rc
+
+        if args.keep_temp:
+            permanent = Path("/tmp/helix-genie-install-debug")
+            if permanent.exists():
+                shutil.rmtree(permanent)
+            shutil.copytree(workdir, permanent)
+            info(f"kept temp at {permanent}")
+
+    print()
+    print(f"HELIX installed at {target}")
+    print()
+    print("Next: open Databricks Genie Code (Agent mode) in your workspace")
+    print('and try: "Using HELIX, list the routing modes you can route to."')
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
