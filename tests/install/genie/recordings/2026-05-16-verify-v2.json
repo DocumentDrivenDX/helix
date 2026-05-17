@@ -1,0 +1,42 @@
+{
+  "date": "2026-05-16",
+  "attempt": "v2",
+  "helix_version": "0.3.4",
+  "skill_change": "Added §Catalog Resolution section to skills/helix/SKILL.md that explicitly names references/activities/ (bundle) and workflows/activities/ (source) as the two paths where the catalog lives; updated §Validate step 2 to reference it.",
+  "workspace_host": "https://adb-7405619521761591.11.azuredatabricks.net",
+  "target_path": "/Workspace/.assistant/skills/helix",
+  "operator": "easel",
+  "automation": "Playwright + DBAUTH (headless Chromium); v2 driver with longer waits + panel container selector",
+  "video": "2026-05-16-verify-v2.webm",
+  "screenshots": [
+    "screenshots/v2-list-modes.png",
+    "screenshots/v2-catalog-queued.png",
+    "screenshots/v2-smoke-queued.png"
+  ],
+  "prompts": [
+    {
+      "slug": "list-modes",
+      "pass": true,
+      "evidence": "screenshots/v2-list-modes.png",
+      "notes": "Genie returned a 3-column table (Mode / User Intent / Contract Section) with at least input, frame, align, validate visible plus §-prefixed section citations. Skill load + routing confirmed working with the updated SKILL.md body."
+    },
+    {
+      "slug": "catalog-reachable",
+      "pass": "unobserved",
+      "evidence": "screenshots/v2-catalog-queued.png",
+      "notes": "Submitted while prompt 1 was still streaming. Got queued (Genie panel shows '2 queued' with this prompt visible). Driver-script bug: wait_response_complete() exits Phase A as soon as panel text exceeds baseline+20 chars (the user's submitted prompt itself bumps the count past that threshold), so subsequent prompts fire before responses finish. Did NOT get to observe whether the SKILL.md §Catalog Resolution edit unblocks Genie's path resolution. Pending follow-up."
+    },
+    {
+      "slug": "smoke-routing",
+      "pass": "unobserved",
+      "evidence": "screenshots/v2-smoke-queued.png",
+      "notes": "Same root cause as catalog-reachable. Queued behind prompts 1 and 2."
+    }
+  ],
+  "summary": "Prompt 1 passes again with the updated skill body. The §Catalog Resolution remedy's effect on prompts 2 and 3 is unmeasured because the driver script's response-detection logic submitted all three prompts before Genie finished any of them, causing prompts 2 and 3 to queue without being observed. Skill content change is committed; recording preserved; driver-script wait logic is the next follow-up.",
+  "follow_ups": [
+    "Fix drive-genie.py wait logic: detect the 'send' button state transition (active->disabled while streaming, then enabled when complete) instead of using panel-text length deltas. The submitted user prompt always inflates the panel text immediately so the baseline-delta heuristic is unreliable.",
+    "Re-run with the fixed driver to measure prompt 2 + 3 against the §Catalog Resolution remedy.",
+    "If Genie still fails prompt 2 with the new SKILL.md guidance, escalate to one of remedies 2-5 in bead helix-96f7dd34."
+  ]
+}

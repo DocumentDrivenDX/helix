@@ -41,6 +41,30 @@ When multiple routes fit, choose the highest-authority planning route first:
 and `evolve` before `build` when a requested implementation lacks governing
 artifact coverage.
 
+## Catalog Resolution
+
+When a workflow mode needs an artifact template, prompt, or quality
+criteria, resolve catalog paths against the mounted skill content, in
+this order of preference:
+
+1. `references/activities/<NN>-<activity>/artifacts/<type>/` — relative
+   to this `SKILL.md`. This is the agentskills.io progressive-disclosure
+   layout used by skill bundles (e.g. Databricks Genie Code, the Vercel
+   Labs Skills CLI install path).
+2. `<plugin-root>/workflows/activities/<NN>-<activity>/artifacts/<type>/`
+   in plugin installs that vendor the source tree. The `<plugin-root>`
+   placeholder is the runtime's plugin path — `.ddx/plugins/helix/` in
+   DDx-installed HELIX, `~/.claude/plugins/helix/` in Claude Code.
+
+The seven `<NN>-<activity>` directories are `00-discover`, `01-frame`,
+`02-design`, `03-test`, `04-build`, `05-deploy`, `06-iterate`. Each
+artifact-type directory contains `template.md`, `prompt.md`, `meta.yml`,
+and an `example.md` (or `example-*.md`).
+
+If the catalog is at neither location, the runtime has not mounted it;
+report this as a setup gap rather than improvising paths or guessing
+artifact-type names.
+
 ## Workflow Contracts
 
 ### Input
@@ -103,7 +127,8 @@ prompt and improve it in place.
    frontmatter when present (`ddx.type`, else inferred from `ddx.id`
    prefix); otherwise resolve by path or filename pattern against the
    artifact-type catalog the runtime exposes.
-2. Load the artifact-type's `template.md`, `prompt.md`, and `meta.yml`.
+2. Load the artifact-type's `template.md`, `prompt.md`, and `meta.yml`
+   from the resolved catalog path (see §Catalog Resolution).
 3. Run structural conformance: required section headings from `template.md`
    are present, and required frontmatter fields from `meta.yml` are
    populated.
