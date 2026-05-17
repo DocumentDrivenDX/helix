@@ -1,0 +1,54 @@
+{
+  "date": "2026-05-17",
+  "attempt": "v041",
+  "helix_version": "0.4.1",
+  "skill_change": "skills/helix/SKILL.md @ v0.4.0+ has the §Catalog Resolution inline artifact-type index plus four §Operating Discipline refusal rules. Bundle at /Workspace/.assistant/skills/helix was last uploaded 2026-05-17 with the v4 SKILL.md content (same content as v0.4.0/v0.4.1).",
+  "driver_change": "drive-genie.py v3 — Stop-button-only busy detection, no false-positive text hints.",
+  "workspace_host": "https://adb-7405619521761591.11.azuredatabricks.net",
+  "target_path": "/Workspace/.assistant/skills/helix",
+  "operator": "easel",
+  "automation": "Playwright + DBAUTH (headless Chromium)",
+  "video": "2026-05-17-verify-v041.webm (105 MB, local only)",
+  "screenshots": [
+    "screenshots/v041-list-modes-response.png",
+    "screenshots/v041-catalog-reachable-response.png",
+    "screenshots/v041-smoke-routing-response.png"
+  ],
+  "prompts": [
+    {
+      "slug": "list-modes",
+      "pass": true,
+      "verdict": "timeout-but-response-captured",
+      "wait_elapsed_s": 600.2,
+      "panel_text_chars": 3200,
+      "notes": "Same as v3 — Genie returns the full 17-mode table with §Section citations + routing-priority rule + §Alignment Content Migration reference. The v0.4.1 SKILL.md (with inline §Catalog Resolution table) is loaded into Genie."
+    },
+    {
+      "slug": "catalog-reachable",
+      "pass": false,
+      "verdict": "timeout-genie-searched-workspace-instead",
+      "wait_elapsed_s": 600.8,
+      "panel_text_chars": 3336,
+      "notes": "IDENTICAL to v3 behavior despite the SKILL.md now containing an inline §Catalog Resolution table with all 16 artifact types under 01-frame literally enumerated. Genie's 'Thoughts' field is verbatim the same: 'Based on the user's custom instructions, HELIX/DataHelix artifacts live at /Users/erik.labianca@synaptiq.ai/datahelix/ but the user is asking about HELIX specifically, not DataHelix. Let me look at the HELIX project structure.' Then attempts the same datahelix, .helix, templates folder reads. Never consults the inline §Catalog Resolution table that contains the literal answer. The user-level Genie Code custom instructions are over-ruling the skill body's path guidance."
+    },
+    {
+      "slug": "smoke-routing",
+      "pass": "queued-not-processed",
+      "verdict": "queued-behind-prompt-2",
+      "wait_elapsed_s": 600.6,
+      "panel_text_chars": 3502,
+      "notes": "Same as v3 — sat queued behind prompt 2's never-ending search."
+    }
+  ],
+  "conclusion": "Remedy #4 (inline catalog index in §Catalog Resolution) is theoretically correct but UNMEASURED against this operator's account because Genie Code's user-level custom instructions ('HELIX/DataHelix artifacts live at /Users/.../datahelix/') override the loaded skill content for path-style lookups. Genie reads SKILL.md cleanly (proven by prompt 1 returning the full mode table from the v0.4.1 content) but defers to the user instruction when asked about artifact-type paths.",
+  "next_steps": [
+    "Operator clears or scopes the Genie Code user-level custom instruction referencing 'HELIX/DataHelix' and '/Users/.../datahelix/'.",
+    "Re-run this e2e under a clean instruction state to isolate the inline-catalog remedy's effect.",
+    "If the inline catalog still doesn't unblock prompts 2/3 with a clean instruction state, escalate to remedy #5 — file the bundle-relative path resolution gap upstream with Databricks."
+  ],
+  "user_custom_instructions_confounder": {
+    "observed_in_thoughts_field": "Based on the user's custom instructions, HELIX/DataHelix artifacts live at /Users/erik.labianca@synaptiq.ai/datahelix/ but the user is asking about HELIX specifically, not DataHelix. Let me look at the HELIX project structure.",
+    "impact": "Causes Genie to defer to workspace filesystem search instead of consulting the inline §Catalog Resolution table in SKILL.md, even though the SKILL.md is loaded and answers prompt 1 (mode list) correctly.",
+    "remedy": "Operator clears the 'HELIX' / 'DataHelix' user-level custom instruction in Genie Code settings before retesting."
+  }
+}
