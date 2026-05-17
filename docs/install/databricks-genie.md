@@ -6,34 +6,41 @@ design, review — over a project's governing artifacts.
 
 ## TL;DR
 
-**For yourself (user-scoped, no admin needed):**
+### From inside a Databricks notebook (recommended — no setup)
+
+Paste this into a notebook cell. The Databricks runtime supplies
+implicit workspace credentials; no PAT, env vars, or CLI required.
+
+```python
+%sh
+curl -fsSL https://github.com/easel/helix/releases/latest/download/genie-install -o /tmp/genie-install
+python3 /tmp/genie-install                  # user-scoped install
+# python3 /tmp/genie-install --shared       # workspace-wide (admin)
+# python3 /tmp/genie-install --main         # track main branch
+```
+
+The installer auto-detects the workspace from the notebook's runtime
+context and uses your notebook identity for auth. Re-run any time to
+refresh.
+
+### From a dev box or CI
 
 ```bash
-# Configure auth once
-export DATABRICKS_HOST=https://<your-workspace>.azuredatabricks.net
+# One-time auth setup (whichever you prefer):
+export DATABRICKS_HOST=https://<workspace>.azuredatabricks.net
 export DATABRICKS_TOKEN=<personal access token>
+#   ... OR add a section to ~/.databrickscfg and:
+# export DATABRICKS_PROFILE=<section-name>
 
-# Install latest release
+# Install
 curl -fsSL https://github.com/easel/helix/releases/latest/download/genie-install -o /tmp/genie-install
 chmod +x /tmp/genie-install
-/tmp/genie-install
+/tmp/genie-install                          # user-scoped
+# /tmp/genie-install --shared               # workspace-wide
 ```
 
-**For everyone in your workspace (admin-only):**
-
-```bash
-/tmp/genie-install --shared
-```
-
-**Development install (track main branch):**
-
-```bash
-/tmp/genie-install --main
-```
-
-The installer downloads HELIX from GitHub, uploads it to the workspace,
-verifies the install offline, and prints the next-step prompt. Re-run
-any time to refresh.
+The Databricks CLI is **not** required — the installer talks directly
+to the workspace REST API via the Databricks Python SDK.
 
 ## What you are installing
 
@@ -96,23 +103,26 @@ the requested ref, it falls back to downloading the source archive and
 running `scripts/build-genie-bundle.sh` locally — same result, slightly
 slower.
 
-## Required environment
+## Auth options
 
-Either:
+The installer accepts credentials in this order (first match wins):
 
-- `DATABRICKS_HOST` (workspace URL) + `DATABRICKS_TOKEN` (PAT or OAuth),
-  OR
-- `DATABRICKS_PROFILE` naming a section in `~/.databrickscfg`.
+1. **Inside a Databricks notebook**: implicit. The notebook runtime
+   supplies workspace identity automatically. Nothing to set.
+2. **`DATABRICKS_HOST` + `DATABRICKS_TOKEN` env vars**: workspace URL
+   plus a PAT.
+3. **`DATABRICKS_PROFILE` env var**: names a section in
+   `~/.databrickscfg`.
+4. **Default profile in `~/.databrickscfg`**: if present, used as the
+   final fallback.
 
-Workspace admin role is required for `--shared` installs. User PAT is
-sufficient for default (user-scoped) installs.
+The Databricks CLI is **not** required at any layer — the Databricks
+Python SDK reads `~/.databrickscfg` and auto-detects notebook auth
+directly.
 
-For Databricks CLI users:
-
-```bash
-databricks configure                     # interactive setup → ~/.databrickscfg
-DATABRICKS_PROFILE=my-workspace /tmp/genie-install
-```
+Workspace admin role is required for `--shared` installs. User PAT (or
+notebook identity with appropriate workspace permissions) is
+sufficient for default user-scoped installs.
 
 ## Distributing HELIX to other users
 

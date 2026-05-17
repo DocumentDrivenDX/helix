@@ -1,8 +1,4 @@
-#!/usr/bin/env -S uv run --script
-# /// script
-# requires-python = ">=3.10"
-# dependencies = ["databricks-sdk>=0.30", "PyYAML>=6"]
-# ///
+#!/usr/bin/env python3
 """HELIX installer for Databricks Genie Code.
 
 Downloads the HELIX skill bundle from GitHub and uploads it to a
@@ -20,23 +16,104 @@ Usage:
     genie-install --bundle /path/to/helix    # local bundle (skip download)
     genie-install --target /Workspace/...    # custom workspace path
 
-Required env: DATABRICKS_HOST and DATABRICKS_TOKEN, OR DATABRICKS_PROFILE
-naming a section in ~/.databrickscfg.
+Auth: the Databricks SDK auto-detects credentials in this order:
+  1. Inside a Databricks notebook: implicit workspace context (no env
+     vars required); the SDK uses the notebook's identity.
+  2. `DATABRICKS_HOST` + `DATABRICKS_TOKEN` env vars.
+  3. `DATABRICKS_PROFILE` env var naming a section in
+     `~/.databrickscfg` (managed by `databricks configure`).
+  4. Default profile in `~/.databrickscfg` (if present).
+
+You do NOT need the Databricks CLI installed. The script speaks
+directly to the Databricks REST API via the SDK.
+
+Runtime: plain `python3` (>= 3.8). No `uv` required. Installs the
+`databricks-sdk` and `PyYAML` packages on first run if they aren't
+already present — works inside a Databricks notebook cell, where
+both pip and Databricks credentials are pre-configured, or any dev
+environment with pip on PATH.
 
 Exit codes:
     0  install + verify succeeded
-    2  missing or invalid env / args
+    2  missing or invalid env / args / unavailable deps
     3  bundle source unavailable
     4  upload error
     5  verify failed (install incomplete)
 """
 from __future__ import annotations
 
+# --- self-bootstrapping deps ---------------------------------------------
+# Done BEFORE non-stdlib imports so the script runs out of the box on a
+# fresh Databricks notebook or a dev box without manual setup.
+
+import importlib
+import subprocess
+import sys
+
+
+_REQS = [
+    ("databricks.sdk", "databricks-sdk>=0.30"),
+    ("yaml", "PyYAML>=6"),
+]
+
+
+def _ensure_deps() -> None:
+    missing_pkgs: list[str] = []
+    for mod, pkg in _REQS:
+        try:
+            importlib.import_module(mod)
+        except ImportError:
+            missing_pkgs.append(pkg)
+    if not missing_pkgs:
+        return
+
+    print(
+        f"installing missing dependencies via pip: {' '.join(missing_pkgs)}",
+        file=sys.stderr,
+    )
+    # Try several pip invocations in order of preference. Stop on first success.
+    attempts = [
+        [sys.executable, "-m", "pip", "install", "--quiet", *missing_pkgs],
+        [sys.executable, "-m", "pip", "install", "--quiet", "--user", *missing_pkgs],
+        # PEP 668: externally-managed Pythons (some Linux distros) require this.
+        [sys.executable, "-m", "pip", "install", "--quiet", "--break-system-packages", *missing_pkgs],
+    ]
+    for cmd in attempts:
+        try:
+            subprocess.check_call(
+                cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            )
+            importlib.invalidate_caches()
+            break
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            continue
+    else:
+        print(
+            "\nerror: could not pip-install the required dependencies.\n"
+            f"Install them manually then re-run:\n"
+            f"    pip install {' '.join(missing_pkgs)}\n",
+            file=sys.stderr,
+        )
+        sys.exit(2)
+
+    # Verify the imports work now.
+    for mod, pkg in _REQS:
+        try:
+            importlib.import_module(mod)
+        except ImportError as exc:
+            print(f"error: {pkg} installed but cannot import {mod}: {exc}",
+                  file=sys.stderr)
+            sys.exit(2)
+
+
+_ensure_deps()
+
+
+# --- now safe to import everything --------------------------------------
+
 import argparse
 import os
 import shutil
-import subprocess
-import sys
 import tarfile
 import tempfile
 import urllib.error
@@ -130,7 +207,6 @@ def acquire_bundle(args: argparse.Namespace, workdir: Path) -> Path:
             fail(3, f"--bundle path is not a directory: {args.bundle}")
         return args.bundle.resolve()
 
-    # Resolve the git ref to download.
     if args.main:
         ref = "main"
         ref_kind = "branch"
@@ -159,11 +235,9 @@ def acquire_bundle(args: argparse.Namespace, workdir: Path) -> Path:
             extract_dir.mkdir()
             with tarfile.open(bundle_tgz) as tf:
                 tf.extractall(extract_dir)
-            # The tarball root may be `helix/` or contain it.
             candidate = extract_dir / "helix"
             if candidate.is_dir():
                 return candidate
-            # Search one level for a dir containing SKILL.md.
             for child in extract_dir.iterdir():
                 if child.is_dir() and (child / "SKILL.md").is_file():
                     return child
@@ -175,7 +249,7 @@ def acquire_bundle(args: argparse.Namespace, workdir: Path) -> Path:
         except urllib.error.URLError as exc:
             info(f"can't reach release asset ({exc.reason}); will build from source")
 
-    # Fallback: download the source archive and run scripts/build-genie-bundle.sh.
+    # Fallback: download source archive and run scripts/build-genie-bundle.sh.
     src_url = f"https://github.com/{args.repo}/archive/refs/{'heads' if ref_kind == 'branch' else 'tags'}/{ref}.tar.gz"
     src_tgz = workdir / "source.tar.gz"
     fetch_url(src_url, src_tgz)
@@ -229,29 +303,46 @@ def validate_bundle(bundle: Path) -> None:
 # --- auth + upload --------------------------------------------------------
 
 
-def check_env() -> None:
-    if os.environ.get("DATABRICKS_PROFILE"):
-        return
-    if not os.environ.get("DATABRICKS_HOST"):
-        fail(2, "DATABRICKS_HOST not set (or set DATABRICKS_PROFILE)")
-    if not os.environ.get("DATABRICKS_TOKEN"):
-        fail(2, "DATABRICKS_TOKEN not set (or set DATABRICKS_PROFILE)")
+def make_client():
+    """Construct a WorkspaceClient using whatever auth the environment offers.
 
+    Order of preference (handled by the SDK):
+      - Inside a Databricks notebook: implicit workspace identity.
+      - DATABRICKS_HOST + DATABRICKS_TOKEN env vars.
+      - DATABRICKS_PROFILE env var → ~/.databrickscfg section.
+      - DEFAULT profile in ~/.databrickscfg.
 
-def upload(bundle: Path, target: str) -> int:
+    No Databricks CLI required; the SDK reads the config file directly.
+    """
+    from databricks.sdk import WorkspaceClient
     try:
-        from databricks.sdk import WorkspaceClient
-        from databricks.sdk.service.workspace import ImportFormat
-    except ImportError as exc:
-        fail(2, f"databricks-sdk not importable: {exc}")
-
-    info("connecting to workspace")
-    w = WorkspaceClient()
-    try:
-        me = w.current_user.me()
-        info(f"authenticated as {me.user_name}")
+        w = WorkspaceClient()
+        # Force an auth round-trip so failures surface here, not later.
+        w.current_user.me()
+        return w
     except Exception as exc:
-        fail(2, f"workspace auth failed: {exc}")
+        fail(
+            2,
+            "Databricks workspace auth failed.\n"
+            f"  {exc}\n"
+            "Inside a Databricks notebook this should not happen. "
+            "Outside a notebook, set either:\n"
+            "    DATABRICKS_HOST=https://<workspace>.databricks.com\n"
+            "    DATABRICKS_TOKEN=<personal access token>\n"
+            "or:\n"
+            "    DATABRICKS_PROFILE=<section in ~/.databrickscfg>\n"
+            "and re-run.",
+        )
+
+
+def upload(bundle: Path, target: str, client=None) -> int:
+    from databricks.sdk.service.workspace import ImportFormat
+
+    if client is None:
+        client = make_client()
+    w = client
+    me = w.current_user.me()
+    info(f"authenticated as {me.user_name}")
 
     files = [p for p in bundle.rglob("*") if p.is_file()]
     if not files:
@@ -289,14 +380,13 @@ def upload(bundle: Path, target: str) -> int:
 # --- verify ---------------------------------------------------------------
 
 
-def verify(target: str) -> int:
-    try:
-        from databricks.sdk import WorkspaceClient
-        from databricks.sdk.service.workspace import ExportFormat
-        import yaml
-    except ImportError as exc:
-        fail(2, f"missing dep: {exc}")
-    w = WorkspaceClient()
+def verify(target: str, client=None) -> int:
+    from databricks.sdk.service.workspace import ExportFormat
+    import yaml
+
+    if client is None:
+        client = make_client()
+    w = client
 
     try:
         objs = list(w.workspace.list(target))
@@ -336,21 +426,12 @@ def verify(target: str) -> int:
 # --- target resolution ----------------------------------------------------
 
 
-def resolve_target(args: argparse.Namespace) -> str:
+def resolve_target(args: argparse.Namespace, client) -> str:
     if args.target:
         return args.target.rstrip("/")
     if args.shared:
         return WORKSPACE_TARGET
-    # Default: user-scoped. Need to ask the workspace who we are.
-    try:
-        from databricks.sdk import WorkspaceClient
-    except ImportError as exc:
-        fail(2, f"databricks-sdk not importable: {exc}")
-    w = WorkspaceClient()
-    try:
-        me = w.current_user.me()
-    except Exception as exc:
-        fail(2, f"workspace auth failed: {exc}")
+    me = client.current_user.me()
     return f"/Users/{me.user_name}/.assistant/skills/{SKILL_NAME}"
 
 
@@ -359,12 +440,14 @@ def resolve_target(args: argparse.Namespace) -> str:
 
 def main() -> int:
     args = parse_args()
-    check_env()
 
     print(f"HELIX Genie installer")
     print()
 
-    target = resolve_target(args)
+    info("connecting to workspace")
+    client = make_client()
+
+    target = resolve_target(args, client)
     print(f"target:  {target}")
     print(f"source:  {'local bundle' if args.bundle else ('main branch' if args.main else (args.version or 'latest release'))}")
     print(f"repo:    {args.repo}")
@@ -375,11 +458,11 @@ def main() -> int:
         bundle = acquire_bundle(args, workdir)
         validate_bundle(bundle)
 
-        rc = upload(bundle, target)
+        rc = upload(bundle, target, client)
         if rc != 0:
             return rc
 
-        rc = verify(target)
+        rc = verify(target, client)
         if rc != 0:
             return rc
 
