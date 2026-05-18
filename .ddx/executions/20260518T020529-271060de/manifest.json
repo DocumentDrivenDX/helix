@@ -1,0 +1,44 @@
+{
+  "attempt_id": "20260518T020529-271060de",
+  "bead_id": "helix-4fd47f93",
+  "base_rev": "e92d5e2cec5a0ac07c2eea61a59a25a5ce3dffc6",
+  "created_at": "2026-05-18T02:05:30.804671762Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-4fd47f93",
+    "title": "FIX-02: author tests/workflows/fixtures/recipe-app/baseline/ pre-staged artifacts",
+    "description": "\u003ccontext-digest\u003e\n\u003cprinciples\u003eDesign for Change · Design for Simplicity · Validate Your Work · Make Intent Explicit · Prefer Reversible Decisions\u003c/principles\u003e\n\u003cconcerns\u003eworkflow-coverage | shared-fixture | runtime-parity | refusal-hardening\u003c/concerns\u003e\n\u003cpractices\u003etests/workflows/fixtures/recipe-app/ is the single shared fixture across all 5 runtimes · Pass criteria are runtime-neutral; per-runtime variants vary by invocation/observability only · Static checks free, functional checks gated by TEST_FUNCTIONAL=1 · Genie scenarios may emit `genie:catalog-unreachable` skip until helix-96f7dd34 resolves · Symlink/inherit from tests/install/\u003cruntime\u003e/install.sh where reusable\u003c/practices\u003e\n\u003cgoverning\u003eFEAT-014 FIX-02 · TP-014 §4 fixture spec · workflows/activities/\u003c*\u003e/artifacts/\u003ctype\u003e/template.md\u003c/governing\u003e\n\u003c/context-digest\u003e\n\nPre-stage the artifact files scenarios 3+ depend on so each scenario doesn't have to re-run scenario 1 + 2 (LLM cost):\n- `baseline/docs/helix/00-discover/product-vision.md`\n- `baseline/docs/helix/01-frame/prd.md`\n- `baseline/docs/helix/01-frame/features/FEAT-recipe-share.md`\n- `baseline/docs/helix/02-design/adr/ADR-001-sqlite.md`\n- `baseline/docs/helix/02-design/technical-designs/TD-recipe-store.md`\n\nEach artifact authored against its template under workflows/activities/, with ddx: frontmatter (`id`, `depends_on`, `status: draft`). Content should be terse but template-conformant so verify-sections passes.",
+    "acceptance": "All five files exist; each parses as YAML frontmatter + Markdown; verify-sections.sh and verify-frontmatter.sh both exit 0 against the matching expectations files (once those land in FIX-03).",
+    "parent": "helix-88f790e4",
+    "labels": [
+      "helix",
+      "activity:build",
+      "kind:implementation",
+      "area:fixtures",
+      "area:testing",
+      "area:artifacts"
+    ],
+    "metadata": {
+      "spec-id": "FEAT-014"
+    }
+  },
+  "governing": [
+    {
+      "id": "FEAT-014",
+      "path": "docs/helix/01-frame/features/FEAT-014-workflow-coverage.md",
+      "title": "Feature Specification: FEAT-014 — Workflow Coverage"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260518T020529-271060de",
+    "prompt": ".ddx/executions/20260518T020529-271060de/prompt.md",
+    "manifest": ".ddx/executions/20260518T020529-271060de/manifest.json",
+    "result": ".ddx/executions/20260518T020529-271060de/result.json",
+    "checks": ".ddx/executions/20260518T020529-271060de/checks.json",
+    "usage": ".ddx/executions/20260518T020529-271060de/usage.json",
+    "worktree": "tmp/ddx-exec-wt/.execute-bead-wt-helix-4fd47f93-20260518T020529-271060de"
+  },
+  "prompt_sha": "cf8aafa2dc170e19d8dd7955a5756dba4cbf01ecbf02a21c847be1b5a0ef8048"
+}
