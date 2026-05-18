@@ -1,0 +1,1 @@
+We need to move from SQLite to Postgres for production multi-user concurrency. As we scale, SQLite's locking will become a bottleneck. Update all HELIX artifacts including the architecture decision record, technical design, and any implementation plans to reflect this critical database migration.

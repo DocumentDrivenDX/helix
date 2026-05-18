@@ -1,0 +1,1 @@
+Build a recipe-sharing app for amateur cooks. Users browse, save, and post recipes; they can like and comment on recipes they find. Include basic ratings and reviews. Design it to be mobile-first so people can access it anywhere.

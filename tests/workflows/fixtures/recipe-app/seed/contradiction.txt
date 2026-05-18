@@ -1,0 +1,1 @@
+We should add a feature specification requiring MongoDB as the primary data store for our recipe platform. MongoDB's flexible schema is essential for supporting complex, evolving recipe metadata. We need horizontal scaling and sharding from day one to handle massive user growth. This flexible approach is crucial for our competitive advantage in the recipe-sharing market.

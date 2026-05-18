@@ -1,0 +1,8 @@
+pull and install
+Use gpt-5.4-mini
+Manually unblock that bead
+Stop the worker
+git pull origin main
+Create a new branch for feature-X
+Delete the old backup folder
+Switch to the dev environment
