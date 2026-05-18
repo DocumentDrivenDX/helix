@@ -1,0 +1,22 @@
+{
+  "bead_id": "helix-579b0db8",
+  "attempt_id": "20260518T014841-d109890c",
+  "base_rev": "43b4360b61e01967c5ad9ef3c0d416d116a9fbef",
+  "result_rev": "43b4360b61e01967c5ad9ef3c0d416d116a9fbef",
+  "outcome": "task_failed",
+  "status": "execution_failed",
+  "detail": "ResolveRoute: no live provider supports prompt of 1813 tokens with tools=false at policy cheap",
+  "session_id": "eb-b187385f",
+  "duration_ms": 35515,
+  "exit_code": 1,
+  "error": "ResolveRoute: no live provider supports prompt of 1813 tokens with tools=false at policy cheap",
+  "project_root": "/home/erik/Projects/helix",
+  "failure_mode": "no_viable_provider",
+  "execution_dir": ".ddx/executions/20260518T014841-d109890c",
+  "prompt_file": ".ddx/executions/20260518T014841-d109890c/prompt.md",
+  "manifest_file": ".ddx/executions/20260518T014841-d109890c/manifest.json",
+  "result_file": ".ddx/executions/20260518T014841-d109890c/result.json",
+  "rate_limit_budget": 300000000000,
+  "started_at": "2026-05-18T01:48:42.818822314Z",
+  "finished_at": "2026-05-18T01:49:18.33413586Z"
+}

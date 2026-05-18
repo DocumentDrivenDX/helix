@@ -1,0 +1,43 @@
+{
+  "attempt_id": "20260518T014841-d109890c",
+  "bead_id": "helix-579b0db8",
+  "base_rev": "43b4360b61e01967c5ad9ef3c0d416d116a9fbef",
+  "created_at": "2026-05-18T01:48:42.801738914Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-579b0db8",
+    "title": "FIX-01: author tests/workflows/fixtures/recipe-app/seed/ (5 seed prompt files)",
+    "description": "\u003ccontext-digest\u003e\n\u003cprinciples\u003eDesign for Change · Design for Simplicity · Validate Your Work · Make Intent Explicit · Prefer Reversible Decisions\u003c/principles\u003e\n\u003cconcerns\u003eworkflow-coverage | shared-fixture | runtime-parity | refusal-hardening\u003c/concerns\u003e\n\u003cpractices\u003etests/workflows/fixtures/recipe-app/ is the single shared fixture across all 5 runtimes · Pass criteria are runtime-neutral; per-runtime variants vary by invocation/observability only · Static checks free, functional checks gated by TEST_FUNCTIONAL=1 · Genie scenarios may emit `genie:catalog-unreachable` skip until helix-96f7dd34 resolves · Symlink/inherit from tests/install/\u003cruntime\u003e/install.sh where reusable\u003c/practices\u003e\n\u003cgoverning\u003eFEAT-014 FIX-01 · TP-014 §4 fixture spec\u003c/governing\u003e\n\u003c/context-digest\u003e\n\nCreate the five seed prompt files all scenarios consume:\n- `seed/intent.txt` — ~30 words. Sparse user intent for scenario 1 (bootstrap). Example: 'Build a recipe-sharing app for amateur cooks. Users browse, save, and post recipes; basic comments and ratings; mobile-first.'\n- `seed/change-request.txt` — ~40 words. SQLite → Postgres for scenario 3 (evolve).\n- `seed/contradiction.txt` — ~50 words. Feature request that contradicts ADR-001 (e.g. MongoDB as primary store), for scenario 7b.\n- `seed/ambiguous.txt` — ~15 words. Genuinely ambiguous intent for scenario 7c (e.g. 'Help me with that thing we discussed.').\n- `seed/mechanical-prompts.txt` — list of one-line mechanical/non-HELIX prompts for scenario 7d non-match (e.g. 'pull and install', 'Use gpt-5.4-mini', 'Stop the worker.').",
+    "acceptance": "All five files exist with the documented sizes; each is plain text; no sensitive workspace identifiers.",
+    "parent": "helix-88f790e4",
+    "labels": [
+      "helix",
+      "activity:build",
+      "kind:implementation",
+      "area:fixtures",
+      "area:testing"
+    ],
+    "metadata": {
+      "spec-id": "FEAT-014"
+    }
+  },
+  "governing": [
+    {
+      "id": "FEAT-014",
+      "path": "docs/helix/01-frame/features/FEAT-014-workflow-coverage.md",
+      "title": "Feature Specification: FEAT-014 — Workflow Coverage"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260518T014841-d109890c",
+    "prompt": ".ddx/executions/20260518T014841-d109890c/prompt.md",
+    "manifest": ".ddx/executions/20260518T014841-d109890c/manifest.json",
+    "result": ".ddx/executions/20260518T014841-d109890c/result.json",
+    "checks": ".ddx/executions/20260518T014841-d109890c/checks.json",
+    "usage": ".ddx/executions/20260518T014841-d109890c/usage.json",
+    "worktree": "tmp/ddx-exec-wt/.execute-bead-wt-helix-579b0db8-20260518T014841-d109890c"
+  },
+  "prompt_sha": "d5874d8cfc0a041f7d6ff55e4169fa3a0acb3e67130b74e4b7cd343d44392860"
+}
