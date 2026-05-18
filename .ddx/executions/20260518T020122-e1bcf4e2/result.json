@@ -1,0 +1,40 @@
+{
+  "bead_id": "helix-579b0db8",
+  "attempt_id": "20260518T020122-e1bcf4e2",
+  "base_rev": "d15193514d5f2e52c6045527b6a5395743049aa5",
+  "result_rev": "83cc7003c3b354130612a10fea5a7faabe6539b2",
+  "implementation_rev": "83cc7003c3b354130612a10fea5a7faabe6539b2",
+  "outcome": "task_succeeded",
+  "status": "success",
+  "detail": "success",
+  "candidate_ref": "refs/ddx/iterations/20260518T020122-e1bcf4e2/0",
+  "cycle_trace": [
+    {
+      "cycle_index": 0,
+      "attempt_id": "20260518T020122-e1bcf4e2",
+      "result_rev": "83cc7003c3b354130612a10fea5a7faabe6539b2",
+      "implementer_route": {
+        "harness": "claude",
+        "model": "haiku"
+      },
+      "review_result": {},
+      "final_decision": "success"
+    }
+  ],
+  "harness": "claude",
+  "model": "haiku",
+  "session_id": "eb-e7476ced",
+  "duration_ms": 128245,
+  "tokens": 6816,
+  "cost_usd": 0.3340622,
+  "exit_code": 0,
+  "project_root": "/home/erik/Projects/helix",
+  "execution_dir": ".ddx/executions/20260518T020122-e1bcf4e2",
+  "prompt_file": ".ddx/executions/20260518T020122-e1bcf4e2/prompt.md",
+  "manifest_file": ".ddx/executions/20260518T020122-e1bcf4e2/manifest.json",
+  "result_file": ".ddx/executions/20260518T020122-e1bcf4e2/result.json",
+  "usage_file": ".ddx/executions/20260518T020122-e1bcf4e2/usage.json",
+  "rate_limit_budget": 300000000000,
+  "started_at": "2026-05-18T02:01:23.83306471Z",
+  "finished_at": "2026-05-18T02:03:32.078483888Z"
+}

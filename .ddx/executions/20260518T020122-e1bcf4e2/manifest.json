@@ -1,0 +1,77 @@
+{
+  "attempt_id": "20260518T020122-e1bcf4e2",
+  "bead_id": "helix-579b0db8",
+  "base_rev": "d15193514d5f2e52c6045527b6a5395743049aa5",
+  "created_at": "2026-05-18T02:01:23.816733654Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-579b0db8",
+    "title": "FIX-01: author tests/workflows/fixtures/recipe-app/seed/ (5 seed prompt files)",
+    "description": "\u003ccontext-digest\u003e\n\u003cprinciples\u003eDesign for Change · Design for Simplicity · Validate Your Work · Make Intent Explicit · Prefer Reversible Decisions\u003c/principles\u003e\n\u003cconcerns\u003eworkflow-coverage | shared-fixture | runtime-parity | refusal-hardening\u003c/concerns\u003e\n\u003cpractices\u003etests/workflows/fixtures/recipe-app/ is the single shared fixture across all 5 runtimes · Pass criteria are runtime-neutral; per-runtime variants vary by invocation/observability only · Static checks free, functional checks gated by TEST_FUNCTIONAL=1 · Genie scenarios may emit `genie:catalog-unreachable` skip until helix-96f7dd34 resolves · Symlink/inherit from tests/install/\u003cruntime\u003e/install.sh where reusable\u003c/practices\u003e\n\u003cgoverning\u003eFEAT-014 FIX-01 · TP-014 §4 fixture spec\u003c/governing\u003e\n\u003c/context-digest\u003e\n\nCreate the five seed prompt files all scenarios consume:\n- `seed/intent.txt` — ~30 words. Sparse user intent for scenario 1 (bootstrap). Example: 'Build a recipe-sharing app for amateur cooks. Users browse, save, and post recipes; basic comments and ratings; mobile-first.'\n- `seed/change-request.txt` — ~40 words. SQLite → Postgres for scenario 3 (evolve).\n- `seed/contradiction.txt` — ~50 words. Feature request that contradicts ADR-001 (e.g. MongoDB as primary store), for scenario 7b.\n- `seed/ambiguous.txt` — ~15 words. Genuinely ambiguous intent for scenario 7c (e.g. 'Help me with that thing we discussed.').\n- `seed/mechanical-prompts.txt` — list of one-line mechanical/non-HELIX prompts for scenario 7d non-match (e.g. 'pull and install', 'Use gpt-5.4-mini', 'Stop the worker.').",
+    "acceptance": "All five files exist with the documented sizes; each is plain text; no sensitive workspace identifiers.",
+    "parent": "helix-88f790e4",
+    "labels": [
+      "helix",
+      "activity:build",
+      "kind:implementation",
+      "area:fixtures",
+      "area:testing"
+    ],
+    "metadata": {
+      "events": [
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-18T01:49:19.023950469Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider="
+        },
+        {
+          "actor": "erik",
+          "body": "{\"detail\":\"ResolveRoute: no live provider supports prompt of 1813 tokens with tools=false at policy cheap\",\"harness\":\"\",\"model\":\"\",\"reason\":\"routing\"}",
+          "created_at": "2026-05-18T01:49:19.422575299Z",
+          "kind": "disruption_detected",
+          "source": "ddx work",
+          "summary": "routing"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"\",\"actual_model\":\"\",\"actual_power\":0,\"actual_provider\":\"\",\"attempt_id\":\"20260518T014841-d109890c\",\"bead_id\":\"helix-579b0db8\",\"estimated_difficulty\":\"easy\",\"rejected_route_pins\":null,\"requested_power_class\":\"cheap\",\"requested_profile\":\"cheap\",\"routing_intent_degraded\":true,\"routing_intent_note\":\"actual route facts unavailable\",\"routing_intent_source\":\"readiness\"}",
+          "created_at": "2026-05-18T01:49:19.493509827Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=readiness difficulty=easy powerClass=cheap note=actual route facts unavailable"
+        },
+        {
+          "actor": "erik",
+          "body": "ResolveRoute: no live provider supports prompt of 1813 tokens with tools=false at policy cheap\npowerClass=cheap\nresult_rev=43b4360b61e01967c5ad9ef3c0d416d116a9fbef\nbase_rev=43b4360b61e01967c5ad9ef3c0d416d116a9fbef\noutcome_reason=no_viable_provider",
+          "created_at": "2026-05-18T01:49:19.567545517Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        }
+      ],
+      "spec-id": "FEAT-014"
+    }
+  },
+  "governing": [
+    {
+      "id": "FEAT-014",
+      "path": "docs/helix/01-frame/features/FEAT-014-workflow-coverage.md",
+      "title": "Feature Specification: FEAT-014 — Workflow Coverage"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260518T020122-e1bcf4e2",
+    "prompt": ".ddx/executions/20260518T020122-e1bcf4e2/prompt.md",
+    "manifest": ".ddx/executions/20260518T020122-e1bcf4e2/manifest.json",
+    "result": ".ddx/executions/20260518T020122-e1bcf4e2/result.json",
+    "checks": ".ddx/executions/20260518T020122-e1bcf4e2/checks.json",
+    "usage": ".ddx/executions/20260518T020122-e1bcf4e2/usage.json",
+    "worktree": "tmp/ddx-exec-wt/.execute-bead-wt-helix-579b0db8-20260518T020122-e1bcf4e2"
+  },
+  "prompt_sha": "649dc0cdd551bf85daa0dd166017ae6b406663c5cd4d0744901746b3672bc69c"
+}
