@@ -26,8 +26,7 @@ output:
   format: markdown
   naming: STP-{story-number}-{story-name}.md
   examples:
-    - STP-002-helix-cli.md
-    - STP-011-slider-autonomy.md
+    - STP-014-helix-workflow-coverage.md
 
 reuse_policy: |
   One story test plan per story slice. Update it in place as the technical

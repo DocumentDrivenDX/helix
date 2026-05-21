@@ -1,22 +1,11 @@
 ---
 title: "Data Design — HELIX Bead Tracker"
 slug: data-design
-weight: 270
+weight: 220
 activity: "Design"
 source: "02-design/data-design.md"
 generated: true
 ---
-
-> **Source identity** (from `02-design/data-design.md`):
-
-```yaml
-ddx:
-  status: superseded
-  superseded_at: 2026-05-21
-  superseded_reason: |
-    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
-```
-
 # Data Design — HELIX Bead Tracker
 
 **Scope**: The `.ddx/beads.jsonl` issue tracker that anchors HELIX execution.
@@ -26,12 +15,12 @@ ddx:
 
 - Scope: The bead tracker — HELIX's only durable execution-state store. Beads
   are work units (issues, tasks, epics, planning notes) governed by upstream
-  artifacts and consumed by `ddx agent execute-bead` / `ddx agent execute-loop`.
+  artifacts and consumed by `ddx agent execute-bead` / `ddx agent ddx work`.
 - Storage systems: Append-friendly JSON Lines file (`.ddx/beads.jsonl`) with
   per-record locking enforced by the `ddx bead` CLI. No database, no daemon
   required for reads.
 - Main concerns: Concurrent writer safety (operator and supervisor may both
-  mutate during a live `helix run`), stale-claim recovery, deterministic
+  mutate during a live `ddx work`), stale-claim recovery, deterministic
   ready/blocked queries, append history preserved in `events`, and forward-
   compatible schema evolution without breaking existing tooling.
 - Authority: [CONTRACT-001](contracts/CONTRACT-001-ddx-helix-boundary.md)
@@ -64,9 +53,9 @@ ddx:
 |----------------|-----------|------------------|---------------------------|
 | `ddx bead list --status open --json` (full read) | Every supervisor cycle | Sub-second on thousand-record stores | Sequential scan of JSONL — acceptable at this scale |
 | `ddx bead ready` (filter open + deps satisfied + not superseded) | Every supervisor cycle | Sub-second | Computed in-memory after full read |
-| Single-bead update (`update`, `claim`, `close`) | Every build cycle (many per `helix run`) | Strict atomicity — no torn writes | Exclusive file lock around read-modify-rewrite; `events[]` append captures intent before status changes |
+| Single-bead update (`update`, `claim`, `close`) | Every build cycle (many per `ddx work`) | Strict atomicity — no torn writes | Exclusive file lock around read-modify-rewrite; `events[]` append captures intent before status changes |
 | Orphan-recovery sweep (claims older than `HELIX_ORPHAN_THRESHOLD`, default 7200s) | Periodic during long runs | Bounded; touches only stale claims | Filter on `claimed-at` age + dead-PID check |
-| `helix status` snapshot (counts by status, focused-epic view) | Operator-initiated, ad hoc | Sub-second | Reuses the open-list scan |
+|  snapshot (counts by status, focused-epic view) | Operator-initiated, ad hoc | Sub-second | Reuses the open-list scan |
 
 ## Validation and Security
 
@@ -97,5 +86,5 @@ ddx:
   with the legacy file retired; no live rollback path is supported.
 - Rollback: Because the file is plain JSONL under git, any unintended schema
   drift is recoverable by reverting the offending commit. Live tracker writes
-  during a `helix run` are audited via `events[]` so a torn write can be
+  during a `ddx work` are audited via `events[]` so a torn write can be
   reconstructed without fully reverting the file.

@@ -129,11 +129,11 @@ sleep 1
 tmux send-keys -t "$SESSION" "claude" Enter
 sleep 3  # wait for Claude to initialize
 
-tmux send-keys -t "$SESSION" "I want to build a CLI that converts temperatures. Use /helix-frame to get started." Enter
+tmux send-keys -t "$SESSION" "I want to build a CLI that converts temperatures. Use /helix frame to get started." Enter
 sleep 30  # wait for Claude to complete framing
 
-# ACT 2: Run the autopilot
-tmux send-keys -t "$SESSION" "/helix-run" Enter
+# ACT 2: Drain the queue
+tmux send-keys -t "$SESSION" "/helix run" Enter
 sleep 60  # wait for build cycle
 
 # ACT 3: Verify
@@ -157,7 +157,7 @@ wait "$ASCIINEMA_PID" || true
   for completion markers if possible.
 - **Show the conversation**: The viewer should see both the human prompt
   and Claude's response. This is the natural tmux capture behavior.
-- **Use slash commands**: Show `/helix-run`, `/helix-review`, etc. as the
+- **Use slash commands**: Show `/helix run`, `/helix review`, etc. as the
   primary interaction — this is how users will actually invoke HELIX.
 - **Natural language too**: Show at least one natural-language prompt
   ("add OAuth support") to demonstrate that Claude understands context

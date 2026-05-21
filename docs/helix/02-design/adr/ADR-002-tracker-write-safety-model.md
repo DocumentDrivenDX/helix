@@ -37,7 +37,7 @@ require explicit detection or prevention of silent lost updates, and make
 malformed tracker state a surfaced failure rather than something the rest of
 HELIX must guess around.
 
-The supported local model must explicitly include one automated `helix-run`
+The supported local model must explicitly include one automated `ddx work`
 session progressing execution while another local session refines specs or
 tracker issues. The write-safety model therefore has to support not just file
 integrity, but also concurrency-visible mutation semantics that let the runner
@@ -73,7 +73,7 @@ first-class mutation APIs instead of manual JSONL edits
 | The supported local concurrency model remains underspecified | M | H | Pair this ADR with an explicit tracker contract artifact and deterministic tests |
 | The hardening layer adds partial protections but still misses silent lost updates | M | H | Make race and corruption scenarios executable in the harness before claiming safety |
 | Metadata mutation expansion broadens the surface faster than the safety model | M | M | Define mutation contract first, then add APIs behind tests |
-| File safety improves but `helix-run` still closes stale work after concurrent refinement | M | H | Define pre-claim/pre-close revalidation and issue supersession semantics in the technical design |
+| File safety improves but `ddx work` still closes stale work after concurrent refinement | M | H | Define pre-claim/pre-close revalidation and issue supersession semantics in the technical design |
 
 ## Validation
 
@@ -82,7 +82,7 @@ first-class mutation APIs instead of manual JSONL edits
 | Tracker docs and tests describe the same write-safety and corruption-handling model | Any tracker mutation behavior that is implemented but not captured in the contract or tests |
 | Real malformed-state and overlapping-mutation scenarios fail conservatively instead of corrupting the file | A reproduced issue causes invalid JSONL or silent lost updates |
 | HELIX issue refinement no longer requires direct JSONL surgery for supported metadata changes | A HELIX workflow still needs manual JSONL edits for normal tracker mutation needs |
-| Concurrent local operator refinement is surfaced as queue drift rather than hidden stale execution | `helix-run` claims or closes work after a material tracker change without revalidation |
+| Concurrent local operator refinement is surfaced as queue drift rather than hidden stale execution | `ddx work` claims or closes work after a material tracker change without revalidation |
 
 ## References
 

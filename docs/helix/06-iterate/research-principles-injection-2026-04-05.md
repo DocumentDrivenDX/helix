@@ -8,10 +8,6 @@ ddx:
     deps:
       SD-002: 474c29fce056411ad1affcd4a882a83f82b6e24d9887f1c87e105cf871e5f7dc
     reviewed_at: "2026-05-15T04:11:24Z"
-  status: superseded
-  superseded_at: 2026-05-21
-  superseded_reason: |
-    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ---
 # Research: Principles Injection Strategy Effectiveness
 
@@ -33,7 +29,7 @@ what token cost.
 A design judgment task requiring a binary recommendation with rationale:
 
 > The helix CLI currently reads configuration from environment variables and
-> a shell script at `scripts/helix`. A team member has requested a
+> a shell script at `the HELIX skill`. A team member has requested a
 > `--config-file` flag. Should we add it?
 
 This task was chosen because it directly exercises two of the five HELIX

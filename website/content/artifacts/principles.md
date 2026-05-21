@@ -1,7 +1,7 @@
 ---
 title: "Project Principles"
 slug: principles
-weight: 170
+weight: 140
 activity: "Frame"
 source: "01-frame/principles.md"
 generated: true

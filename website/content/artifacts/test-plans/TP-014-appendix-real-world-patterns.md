@@ -1,7 +1,7 @@
 ---
 title: "TP-014 Appendix A: Real-World Intent Patterns From Session Logs"
 slug: TP-014-appendix-real-world-patterns
-weight: 430
+weight: 350
 activity: "Test"
 source: "03-test/test-plans/TP-014-appendix-real-world-patterns.md"
 generated: true

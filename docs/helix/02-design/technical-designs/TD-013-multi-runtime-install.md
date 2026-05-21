@@ -4,10 +4,6 @@ ddx:
   depends_on:
     - FEAT-013
     - helix.prd
-  status: superseded
-  superseded_at: 2026-05-21
-  superseded_reason: |
-    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ---
 
 # Technical Design: TD-013 — Multi-Runtime Install
@@ -243,8 +239,8 @@ the same content via `.github/copilot-instructions.md`.
 
 ### Modified: `justfile`
 
-- **Current State**: `install` recipe calls `bash scripts/helix doctor
-  --fix` which fails because `scripts/helix` is gone.
+- **Current State**: `install` recipe calls `bash the HELIX skill doctor
+  --fix` which fails because `the HELIX skill` is gone.
 - **Changes**: `install` recipe reduced to `ddx install helix --force`
   followed by `bash tests/install/ddx/verify.sh`. New `install-test`
   recipe builds and runs the full Docker scenario set.

@@ -1,7 +1,7 @@
 ---
 title: "Metrics Dashboard: HELIX 2026-Q2 (post-`v0.3.3`)"
 slug: metrics-dashboard
-weight: 680
+weight: 490
 activity: "Iterate"
 source: "06-iterate/metrics-dashboard.md"
 generated: true
@@ -16,10 +16,6 @@ ddx:
     self_hash: 0934ca6e0913a5da11bb822adb4b4a5e343aaefdf6444af11690eab218a52c6c
     deps: {}
     reviewed_at: "2026-05-15T04:11:24Z"
-  status: superseded
-  superseded_at: 2026-05-21
-  superseded_reason: |
-    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ```
 
 # Metrics Dashboard: HELIX 2026-Q2 (post-`v0.3.3`)
@@ -57,9 +53,9 @@ signals indicate degradation.
 | Bead close rate (closed/week) | ~22 | ~26 | higher is better | pass | `ddx bead list --status closed --json` filtered by `updated_at` |
 | Agent attempt success rate (closed without retry) | ~78% | ~82% | higher is better | pass | `events[]` array on closed beads |
 | Median cycle time (claim → close) | ~38m | ~36m | lower is better | noise (within ±10%) | `events[]` timestamps; sampled across the 2026-Q2 window |
-| Escalation frequency (`NEXT_ACTION: WAIT` per `helix run`) | ~0.18 | ~0.15 | lower is better | pass | `helix status` snapshot history |
+| Escalation frequency (`NEXT_ACTION: WAIT` per `ddx work`) | ~0.18 | ~0.15 | lower is better | pass |  snapshot history |
 | Review-cycle noise (review passes per closed bead) | ~1.4 | ~1.1 | lower is better | pass (driven by `--review-threshold`) | `ddx bead show <id>` review events on closed beads |
-| Wrapper-CLI test green rate (CI) | ~85% | ~99% | higher is better | pass | GitHub Actions runs of `tests/helix-cli.sh` |
+| Wrapper-CLI test green rate (CI) | ~85% | ~99% | higher is better | pass | GitHub Actions runs of `tests/the HELIX skill.sh` |
 
 ## Trend Notes
 

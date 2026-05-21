@@ -388,17 +388,9 @@ assert_file_contains \
   "flag the bead as **not execution-ready**" \
   "polish action must define a not-execution-ready flagging path"
 assert_file_contains \
-  "$repo_root/docs/helix/01-frame/features/FEAT-011-slider-autonomy.md" \
-  "### AC-09: Automation-Friendly Success Criteria" \
-  "FEAT-011 must retain the automation-friendly success-criteria acceptance contract"
-assert_file_contains \
   "$repo_root/docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md" \
   "HELIX-authored execution beads must make success machine-auditable." \
   "CONTRACT-001 must retain machine-auditable bead success criteria"
-assert_file_contains \
-  "$repo_root/docs/helix/02-design/technical-designs/TD-011-slider-autonomy-implementation.md" \
-  "### Decision 5c: Bead Success-Measurement Contract" \
-  "TD-011 must retain the bead success-measurement decision"
 command -v python3 >/dev/null 2>&1 || fail "python3 is required for execution-ready bead validation"
 mixed_fixture="$repo_root/tests/fixtures/execution-ready-beads/mixed-ready-semantics.jsonl"
 mixed_tracker_dir="$(mktemp -d)"

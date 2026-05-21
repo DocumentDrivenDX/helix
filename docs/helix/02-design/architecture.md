@@ -4,16 +4,12 @@ ddx:
   depends_on:
     - helix.prd
     - CONTRACT-003
-  status: superseded
   review:
     self_hash: 49f65c706c77f174496e63379eb42676296da9527a504c90a81c204746968b0c
     deps:
       CONTRACT-003: 30e3e4320bc0643c904e92ee797d6ad8942a480edfae85a158c3a17054323a52
       helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
     reviewed_at: "2026-05-15T04:11:24Z"
-  superseded_at: 2026-05-21
-  superseded_reason: |
-    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ---
 
 # Architecture
@@ -217,7 +213,7 @@ catalog content inside the skill body. This means:
   packaging notes live in `docs/install/<runtime>.md`.
 
 The skill's normative behavior is self-contained. Runtimes may surface
-additional affordances (bead authoring, execute-loop delegation, prose checking)
+additional affordances (bead authoring, ddx work delegation, prose checking)
 through their own packaging layers; those extensions live in per-runtime
 packaging, not in the skill body.
 
@@ -287,7 +283,7 @@ both are in active flux.
 ## DDx as One Reference Runtime
 
 DDx is the reference runtime for HELIX's own development. HELIX uses DDx for
-bead tracking, execute-loop dispatch, and execution evidence on its own work
+bead tracking, ddx work dispatch, and execution evidence on its own work
 items. This is HELIX-using-DDx, not HELIX-coupled-to-DDx — the same
 relationship any adopter has with their chosen runtime.
 
@@ -295,7 +291,7 @@ The DDx adapter boundary is defined in
 [CONTRACT-003](contracts/CONTRACT-003-ddx-adapter-boundary.md). In brief:
 
 - HELIX provides to DDx: artifact catalog, routing skill, artifact-type schema.
-- DDx provides to HELIX (as runtime): bead tracker, execute-loop, evidence
+- DDx provides to HELIX (as runtime): bead tracker, ddx work, evidence
   store, plugin packaging, prose checker.
 - Neither side owns the other's internals.
 

@@ -4,31 +4,13 @@ ddx:
   depends_on:
     - helix.prd
     - FEAT-002
-  status: superseded
-  superseded_by: helix.prd
   review:
     self_hash: 4c167348ecc29309e3af200b7274f449629bca54615d66ffb87d6d15d05bf25d
     deps:
       FEAT-002: dc83e91027c886f1df2636d7bde0c9b0ba10d5e0a5ca560f0b44aaf9bcf4f4c6
       helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
     reviewed_at: "2026-05-15T04:11:24Z"
-  superseded_at: 2026-05-21
-  superseded_reason: |
-    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ---
-
-> **PARTIALLY SUPERSEDED** — The portions of this feature that describe
-> plugin packaging as a vehicle for distributing the HELIX CLI (`bin/helix`,
-> `scripts/helix`), skill entrypoints that mirror CLI verbs, and the
-> supervisory run loop are superseded by the current PRD (`helix.prd`).
-> HELIX does not ship a CLI or execution surface. The surviving scope is the
-> **runtime distribution packaging** concept (PRD R-7): packaging the artifact
-> catalog, templates, prompts, and the single alignment skill for target
-> runtimes (DDx plugin, Databricks Genie skill, Claude Code skill). The
-> plugin-layout and manifest work in this feature is still directionally
-> useful for that packaging contract, but must be read without the CLI and
-> supervisory-autopilot framing.
-
 # Feature Specification: FEAT-004 - Plugin Packaging
 
 **Feature ID**: FEAT-004
@@ -53,7 +35,7 @@ plugin manifest — no manual installer step required.
 
 - **Current situation**: `install-local-skills.sh` symlinks each skill into
   `~/.claude/skills/` and `~/.agents/skills/`, and installs a CLI launcher
-  into `~/.local/bin/helix`. Adding a new skill (e.g., `helix-worker`) has no
+  into `~/.local/the HELIX skill`. Adding a new skill (e.g., `helix-worker`) has no
   effect until the installer is re-run. Users hit "Unknown skill" errors with
   no indication that a reinstall is needed.
 - **Pain points**:
@@ -62,7 +44,7 @@ plugin manifest — no manual installer step required.
   2. Absolute symlinks break when the repo moves or is checked out elsewhere.
   3. No versioning, no manifest, no way for Claude Code to reason about HELIX
      as a coherent package.
-  4. `bin/helix` is installed via a side-channel (`~/.local/bin`) rather than
+  4. `the HELIX skill` is installed via a side-channel (`~/.local/bin`) rather than
      through the plugin `bin/` PATH injection.
   5. Enterprise and multi-repo deployments have no standard distribution path.
 - **Desired outcome**: `claude --plugin-dir ./path-to-helix` (or a plugin
@@ -80,7 +62,7 @@ helix/                              # plugin root
 ├── .claude-plugin/
 │   └── plugin.json                 # manifest
 ├── skills/                         # 17+ skills, auto-discovered
-│   ├── helix-run/
+│   ├── the HELIX skill/
 │   │   └── SKILL.md
 │   ├── helix-worker/
 │   │   └── SKILL.md
@@ -121,7 +103,7 @@ helix/                              # plugin root
 
 Key decisions:
 - `skills` points to the existing `skills/` directory — no move needed.
-- `bin/helix` is a thin wrapper that invokes `${CLAUDE_PLUGIN_ROOT}/scripts/helix`.
+- `the HELIX skill` is a thin wrapper that invokes `${CLAUDE_PLUGIN_ROOT}/the HELIX skill`.
   The plugin loader adds `bin/` to `PATH` automatically.
 - Skills reference shared resources via `${CLAUDE_PLUGIN_ROOT}/workflows/`.
 - No `commands/` directory — HELIX uses skills exclusively.
@@ -161,8 +143,8 @@ The installer should:
 
 ### Skill namespacing
 
-When installed as a plugin, skills are namespaced: `/helix:helix-run`,
-`/helix:helix-worker`, etc. The unqualified names (`/helix-run`) continue to
+When installed as a plugin, skills are namespaced: `/helix:the HELIX skill`,
+`/helix:helix-worker`, etc. The unqualified names (`/the HELIX skill`) continue to
 work when no other plugin provides a conflicting skill name.
 
 ## Requirements
@@ -171,8 +153,8 @@ work when no other plugin provides a conflicting skill name.
 
 1. The HELIX repo must contain a `.claude-plugin/plugin.json` manifest that
    declares HELIX as a Claude Code plugin.
-2. `bin/helix` must be a thin wrapper that resolves `HELIX_ROOT` to
-   `${CLAUDE_PLUGIN_ROOT}` and delegates to `scripts/helix`.
+2. `the HELIX skill` must be a thin wrapper that resolves `HELIX_ROOT` to
+   `${CLAUDE_PLUGIN_ROOT}` and delegates to `the HELIX skill`.
 3. All HELIX skills must be discoverable through the plugin's `skills/`
    directory without manual symlink installation.
 4. Shared resources in `workflows/` must be accessible from skills via
@@ -207,9 +189,9 @@ work when no other plugin provides a conflicting skill name.
 **Acceptance Criteria:**
 - [ ] Given a HELIX checkout, when `claude --plugin-dir /path/to/helix` starts,
   then all HELIX skills appear in the skill list.
-- [ ] Given the plugin is loaded, when the user invokes `/helix-run`, then the
+- [ ] Given the plugin is loaded, when the user invokes `/the HELIX skill`, then the
   skill executes with access to `workflows/` resources.
-- [ ] Given the plugin is loaded, when `helix status` is run in Bash, then the
+- [ ] Given the plugin is loaded, when  is run in Bash, then the
   CLI is on PATH and functional.
 
 ### US-002: Add a new skill without reinstalling [FEAT-004]
@@ -232,7 +214,7 @@ work when no other plugin provides a conflicting skill name.
 - [ ] Given `.claude/settings.json` references the HELIX plugin, when a team
   member starts Claude Code in the project, then HELIX skills are available.
 - [ ] Given the plugin is loaded from project settings, when the team member
-  invokes `helix run`, then the CLI and shared resources resolve correctly.
+  invokes `ddx work`, then the CLI and shared resources resolve correctly.
 
 ### US-004: Validate plugin layout [FEAT-004]
 **As a** HELIX maintainer

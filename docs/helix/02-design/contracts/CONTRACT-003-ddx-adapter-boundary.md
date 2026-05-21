@@ -7,7 +7,6 @@ ddx:
     - helix.prd
     - CONTRACT-001
     - CONTRACT-002
-  status: superseded
   review:
     self_hash: 30e3e4320bc0643c904e92ee797d6ad8942a480edfae85a158c3a17054323a52
     deps:
@@ -15,9 +14,6 @@ ddx:
       CONTRACT-002: 473794ceba3db29b84547ece5a9c2d976471c67a8f2cba39750220edb188685a
       helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
     reviewed_at: "2026-05-15T04:11:24Z"
-  superseded_at: 2026-05-21
-  superseded_reason: |
-    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ---
 
 # CONTRACT-003: DDx Adapter Boundary
@@ -115,7 +111,7 @@ beads. DDx does.
 
 ### 2. Execute-loop and dispatch
 
-`ddx agent execute-loop` is DDx's queue-drain primitive. `ddx agent execute-bead`
+`ddx agent ddx work` is DDx's queue-drain primitive. `ddx agent execute-bead`
 is the single-bead primitive. HELIX routing skill may invoke `build` or `run`
 modes that ultimately call these, but the invocation path goes through the
 agent session, not through a HELIX-owned subprocess. DDx owns harness
@@ -167,7 +163,7 @@ modifying the catalog source is not.
 | Beads | `.ddx/beads.jsonl` | Owned by DDx; HELIX does not write here directly |
 | Execution runs | `.ddx/exec/runs/` | DDx persists run manifests and evidence |
 | Plugin layout | `.ddx/plugins/helix/` | DDx installs HELIX content here; source stays in `workflows/` |
-| Runtime events | `.ddx/events/` or inline bead fields | DDx writes `execute-loop-*` fields; HELIX must not write these |
+| Runtime events | `.ddx/events/` or inline bead fields | DDx writes `ddx work-*` fields; HELIX must not write these |
 | Session/transcript capture | DDx session store | DDx-owned; not part of HELIX artifact schema |
 
 ### What the runtime contract requires (minimum)
@@ -180,13 +176,13 @@ From `docs/install/README.md`, items 1–3 are required for all HELIX routes:
 
 Item 4 (shell execution) is optional; DDx satisfies it fully. DDx is therefore
 a full-capability HELIX runtime. The DDx adapter may expose additional surfaces
-(bead tracker, execute-loop, metrics), but those are DDx extensions, not HELIX
+(bead tracker, ddx work, metrics), but those are DDx extensions, not HELIX
 requirements.
 
 ### Execute-loop result surface (DDx → HELIX skill)
 
 When the HELIX routing skill's `build` or `run` modes delegate to
-`ddx agent execute-loop --once --json`, the skill reads
+`ddx agent ddx work --once --json`, the skill reads
 `results[].bead_id` for post-cycle bookkeeping and `results[].status`
 (`success`, `no_changes`, `execution_failed`, `land_conflict`,
 `post_run_check_failed`, `structural_validation_failed`) to decide workflow
@@ -199,7 +195,7 @@ CONTRACT-001 §DDx -> HELIX, which remains authoritative for this surface.
 
 - Bead IDs, bead lifecycle, or claim mechanics. HELIX content may mention
   "work items" generically; it must not depend on `.ddx/beads.jsonl` format.
-- DDx internal fields (`execute-loop-retry-after`, `execute-loop-failed-routes`,
+- DDx internal fields (`ddx work-retry-after`, `ddx work-failed-routes`,
   etc.). These must not appear in HELIX artifact templates, prompts, or skill
   body.
 - DDx plugin manifest format. HELIX does not own or define the
@@ -309,5 +305,5 @@ The adapter boundary is healthy when all of the following are true:
 - [Claude Code install guide](../../../docs/install/claude-code.md)
 - [Artifact Schema](../../../workflows/artifact-schema.md)
 - [Routing Skill](../../../skills/helix/SKILL.md)
-- [CONTRACT-001: DDx / HELIX Boundary Contract](CONTRACT-001-ddx-helix-boundary.md) — pre-collapse shared-object definitions, still authoritative for execute-loop result surface
+- [CONTRACT-001: DDx / HELIX Boundary Contract](CONTRACT-001-ddx-helix-boundary.md) — pre-collapse shared-object definitions, still authoritative for ddx work result surface
 - [CONTRACT-002: HELIX Execution-Document Conventions](CONTRACT-002-helix-execution-doc-conventions.md)

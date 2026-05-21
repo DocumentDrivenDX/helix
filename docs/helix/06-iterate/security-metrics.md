@@ -1,10 +1,3 @@
----
-ddx:
-  status: superseded
-  superseded_at: 2026-05-21
-  superseded_reason: |
-    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
----
 # Security Metrics — HELIX 2026-Q2 (post-`v0.3.3`)
 
 > Illustrative example using representative measurements taken from the
@@ -70,7 +63,7 @@ manual and bound to dependency-update beads.
 
 | Requirement | Status | Open Gaps | Target Resolution |
 |-------------|--------|-----------|-------------------|
-| Boundary contract (CONTRACT-001) honored | Compliant | None — every doc audited 2026-05-01 references the post-DDx-migration substrate after the AR-2026-05-01 follow-ups | Sustained via the `helix review` discipline |
+| Boundary contract (CONTRACT-001) honored | Compliant | None — every doc audited 2026-05-01 references the post-DDx-migration substrate after the AR-2026-05-01 follow-ups | Sustained via the `/helix review` discipline |
 | `security-owasp` concern coverage | Compliant on the developer-local surface; not applicable to hosted-service controls (no hosted service) | None | N/A |
 | No secrets in repo | Compliant | None this period | Sustained via pre-commit secret scan |
 

@@ -1,7 +1,7 @@
 ---
 title: "Feature Specification: FEAT-013 — Runtime Install Coverage"
 slug: FEAT-013-runtime-install-coverage
-weight: 140
+weight: 110
 activity: "Frame"
 source: "01-frame/features/FEAT-013-runtime-install-coverage.md"
 generated: true
@@ -15,10 +15,6 @@ ddx:
   id: FEAT-013
   depends_on:
     - helix.prd
-  status: superseded
-  superseded_at: 2026-05-21
-  superseded_reason: |
-    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ```
 
 # Feature Specification: FEAT-013 — Runtime Install Coverage
@@ -66,7 +62,7 @@ research only recently stabilized.
   1. Users on Claude Code, Codex CLI, Copilot, or Genie Code cannot
      install HELIX with one supported command.
   2. The DDx install pulls a stale snapshot until a release tag triggers
-     a refresh, and the only known refresh command (`bash scripts/helix
+     a refresh, and the only known refresh command (`bash the HELIX skill
      doctor --fix`) was removed without a replacement.
   3. The current install documentation contains layout errors (e.g.
      Genie bundle wrapper structure) and stale hedges ("Genie format is

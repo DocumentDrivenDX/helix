@@ -101,27 +101,6 @@ The runtime remains responsible for claims, locks, background workers, commits,
 pull requests, CI, measurement, and deployment. HELIX supplies the planning
 contract those actions should respect.
 
-## Legacy mirrored skills
-
-Older HELIX packages include `helix-*` skills that mirror CLI commands. They
-are transitional compatibility surfaces for runtimes that still expose HELIX as
-command-shaped operations. They are not the core methodology contract.
-
-| Legacy skill | Runtime boundary |
-|--------------|------------------|
-| `helix-run` | Queue-drain supervision around a runtime loop |
-| `helix-build` | One bounded runtime implementation pass |
-| `helix-check` | Queue-health routing after ready work drains |
-| `helix-frame` | Requirements drafting surface now covered by planning |
-| `helix-design` | Design drafting surface now covered by planning |
-| `helix-evolve` | Artifact-threading surface now covered by planning |
-| `helix-review` | Post-implementation review surface |
-| `helix-align` | Closest legacy name for the core alignment/planning skill |
-| `helix-polish` | Runtime work-item refinement |
-| `helix-triage` | Runtime work-item creation |
-| `helix-next` | Runtime queue recommendation |
-| `helix-experiment` | Runtime optimization loop |
-| `helix-commit` | Runtime commit and gate workflow |
 | `helix-worker` | Runtime background process management |
 | `helix-backfill` | Recovery workflow for missing documentation |
 

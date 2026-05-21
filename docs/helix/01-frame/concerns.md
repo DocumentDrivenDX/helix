@@ -1,10 +1,3 @@
----
-ddx:
-  status: superseded
-  superseded_at: 2026-05-21
-  superseded_reason: |
-    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
----
 # Project Concerns
 
 ## Active Concerns
@@ -18,7 +11,6 @@ ddx:
 | Label | Applies to |
 |-------|-----------|
 | `all` | Every bead |
-| `cli` | scripts/helix, CLI wrapper |
 | `workflow` | workflows/actions, workflows/concerns, workflow engine |
 | `docs` | docs/, plans, reports, and user-facing workflow documentation |
 | `site` | website/, microsite content and deployment |

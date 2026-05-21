@@ -10,10 +10,6 @@ ddx:
       FEAT-006: a44d0a40e5cb883e31c5f6b150a77070fa427bb8f834345908aefaf1cffb38ce
       helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
     reviewed_at: "2026-05-15T04:11:24Z"
-  status: superseded
-  superseded_at: 2026-05-21
-  superseded_reason: |
-    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ---
 # Feature Specification: FEAT-008 — Artifact Template Quality and Completeness
 
@@ -102,7 +98,7 @@ Existing artifacts must remain valid. New template features are additive.
 2. Every artifact template declares `depends_on` and `enables` relationships
    in its meta.yml.
 3. At least one exemplar artifact exists for each artifact type.
-4. `helix review` can load the review checklist for the artifact type being
+4. `/helix review` can load the review checklist for the artifact type being
    reviewed and evaluate against it.
 
 ## Constraints

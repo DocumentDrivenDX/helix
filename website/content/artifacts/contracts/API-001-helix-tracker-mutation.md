@@ -1,7 +1,7 @@
 ---
 title: "API Contract: HELIX Tracker Mutation Surface [FEAT-002]"
 slug: API-001-helix-tracker-mutation
-weight: 210
+weight: 170
 activity: "Design"
 source: "02-design/contracts/API-001-helix-tracker-mutation.md"
 generated: true
@@ -52,9 +52,9 @@ $ ddx bead update hx-abc123 --deps hx-def456,hx-fedcba
 ### Supervisory Concurrency Requirements
 
 - Mutation APIs used by interactive refinement must be visible to a live
-  `helix-run` session at the next safe execution boundary.
+  `ddx work` session at the next safe execution boundary.
 - Structural mutations that affect execution validity must be queryable through
-  first-class tracker reads; `helix-run` must not have to infer them from raw
+  first-class tracker reads; `ddx work` must not have to infer them from raw
   JSONL edits.
 - The mutation surface supports:
   - execution-eligibility changes
@@ -128,5 +128,5 @@ tracker_read_all
 5. **Metadata Mutation Coverage**: supported HELIX refinement fields are
    mutated through CLI/API surfaces instead of direct JSONL edits.
 6. **Runner Revalidation Support**: the mutation surface exposes enough
-   structural metadata for `helix-run` to detect material queue drift before
+   structural metadata for `ddx work` to detect material queue drift before
    claim or close.

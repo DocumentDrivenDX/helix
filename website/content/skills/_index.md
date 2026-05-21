@@ -96,12 +96,11 @@ integration should wrap the same source content and skill contract.
 
 ## Legacy wrappers
 
-This repository still contains transitional `helix-*` command and skill
-wrappers from an earlier shape of the project. Treat those as runtime or
-compatibility surfaces, not the core HELIX methodology. The closest legacy name
-to the durable skill is `helix-align`; other mirrored skills such as
-`helix-run`, `helix-build`, `helix-polish`, `helix-triage`, and `helix-commit`
-describe DDx-era runtime operations rather than methodology primitives.
+HELIX ships exactly one skill: the umbrella router at `skills/helix/SKILL.md`.
+Operators invoke modes by intent (e.g., "use HELIX to frame this") or with
+the slash form `/helix <mode>`. Earlier shapes of the project shipped
+multiple `helix-*` skills; those have been collapsed into the single
+router.
 
 The durable public concepts are:
 

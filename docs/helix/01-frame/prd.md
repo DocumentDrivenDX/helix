@@ -293,12 +293,15 @@ package uses whatever metadata format its target requires.
   supports artifact-type scoping? Interim approach: prose guidance in
   `prompt.md`. Long-term: structured `rules:` block in `meta.yml` once DDx
   supports it.
-- Which legacy FEATs are superseded by this PRD? Candidates:
-  `FEAT-001-helix-supervisory-control`, `FEAT-002-helix-cli`,
-  `FEAT-005-execution-backed-output`, parts of `FEAT-004-plugin-packaging`,
-  parts of `FEAT-011-slider-autonomy`. Surviving FEATs: `FEAT-003-principles`,
-  `FEAT-006-concerns-practices-context-digest`, `FEAT-008-artifact-template-quality`,
-  `FEAT-009-team-onboarding`, `FEAT-010-testing-strategy-templates`.
+- Legacy features defining the removed HELIX runtime surface (supervisory
+  control, the CLI wrapper, execution-backed output, autonomy slider,
+  parts of the original plugin packaging) were removed in commit 823aa1ac
+  when HELIX collapsed to content + skill. Surviving feature specs:
+  `FEAT-003-principles`, `FEAT-004-plugin-packaging`,
+  `FEAT-006-concerns-practices-context-digest`,
+  `FEAT-008-artifact-template-quality`, `FEAT-009-team-onboarding`,
+  `FEAT-010-testing-strategy-templates`, `FEAT-013-runtime-install-coverage`,
+  `FEAT-014-workflow-coverage`.
 - Does HELIX itself need any tooling beyond the alignment skill (e.g., a
   catalog validator, a release-time portability check)? If yes, where does
   that tooling live — in HELIX, or as a DDx contribution?

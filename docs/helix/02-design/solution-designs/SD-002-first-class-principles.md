@@ -11,10 +11,6 @@ ddx:
       SD-001: 6a40b928fb7c8b82af8cac4d02e56ff3516001b10e40f39843746bbc473b0548
       helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
     reviewed_at: "2026-05-15T04:11:24Z"
-  status: superseded
-  superseded_at: 2026-05-21
-  superseded_reason: |
-    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ---
 # Solution Design: SD-002 — First-Class Principles
 
@@ -27,7 +23,7 @@ ddx:
 1. **Given** a new HELIX-managed repository with no project principles,
    **When** any judgment-making skill runs, **Then** HELIX loads and applies
    the defaults from `workflows/principles.md`.
-2. **Given** a repository where `helix frame` runs for the first time,
+2. **Given** a repository where `/helix frame` runs for the first time,
    **When** no `docs/helix/01-frame/principles.md` exists, **Then** HELIX
    bootstraps the file from defaults and prompts the user to customize.
 3. **Given** a project principles file exists, **When** any skill runs,
@@ -42,7 +38,7 @@ ddx:
 6. **Given** the project principles file changes, **When** the DDx document
    graph is evaluated, **Then** downstream artifacts that depend on
    principles are marked stale.
-7. **Given** `helix evolve` runs, **When** it threads a change through the
+7. **Given** `/helix evolve` runs, **When** it threads a change through the
    artifact stack, **Then** it reads and respects active principles but
    never modifies the principles file.
 
@@ -66,8 +62,8 @@ function that finds the active principles file.
 - Injection starts as a full-document preamble (baseline). Prompt
   engineering research (tracked separately) will iterate toward selective
   injection using DDx agent metrics.
-- Principles are upstream of everything except vision and PRD. `helix evolve`
-  reads them but never writes them. Only `helix frame` and direct user
+- Principles are upstream of everything except vision and PRD. `/helix evolve`
+  reads them but never writes them. Only `/helix frame` and direct user
   editing can modify principles.
 
 **Trade-offs**:
@@ -174,7 +170,7 @@ When two options are both valid, prefer the one that better aligns
 with the principles above.
 ```
 
-### Component: Bootstrap in `helix frame`
+### Component: Bootstrap in `/helix frame`
 
 The frame action (`workflows/actions/frame.md`) and frame skill
 (`skills/helix-frame/SKILL.md`) gain a principles bootstrap step:
@@ -192,7 +188,7 @@ The frame action (`workflows/actions/frame.md`) and frame skill
 
 ### Component: Principle management
 
-Principle management lives within `helix frame` as a sub-capability (not
+Principle management lives within `/helix frame` as a sub-capability (not
 a separate skill). When invoked with a principles-related intent:
 
 **Tension detection algorithm**:
@@ -228,7 +224,7 @@ principles.md
 
 When `principles.md` changes (detected via git diff or file watcher),
 downstream artifacts that declare a dependency on principles are marked
-stale. This surfaces in `helix align` as artifacts needing re-review.
+stale. This surfaces in `/helix align` as artifacts needing re-review.
 
 **DDx capability gap assessment**: If the DDx document graph does not
 currently support:
@@ -364,11 +360,11 @@ tension_detection:
 | From | To | Method | Data |
 |---|---|---|---|
 | Any judgment skill | Principles resolution | File read at invocation | Active principles document content |
-| `helix frame` | Principles bootstrap | Conversation + file write | User input + defaults → project principles |
-| `helix frame` | Tension detection | Pairwise analysis | Principle pairs, conflict scenarios |
+| `/helix frame` | Principles bootstrap | Conversation + file write | User input + defaults → project principles |
+| `/helix frame` | Tension detection | Pairwise analysis | Principle pairs, conflict scenarios |
 | Principles file | DDx document graph | Dependency declaration | Upstream of judgment artifacts |
-| DDx document graph | `helix align` | Staleness surfacing | List of artifacts needing re-review |
-| `helix evolve` | Principles file | Read-only load | Principles as scoping guidance |
+| DDx document graph | `/helix align` | Staleness surfacing | List of artifacts needing re-review |
+| `/helix evolve` | Principles file | Read-only load | Principles as scoping guidance |
 | Old `workflows/principles.md` rules | Enforcers + ratchets | One-time relocation | Rules absorbed into enforcement surfaces |
 
 ### External Dependencies
@@ -382,14 +378,14 @@ tension_detection:
 ## Security
 
 - **Authorization**: Principles are upstream authority. No skill may write
-  to the principles file except through explicit `helix frame` invocation
+  to the principles file except through explicit `/helix frame` invocation
   or direct user editing.
 - **Data Protection**: Principles are committed to git. No secrets should
   appear in principles.
 - **Threats**: A corrupted or adversarial principles file could degrade
   agent judgment (e.g., "never validate anything"). Mitigated by: user
   owns the file, management skill warns about HELIX-breaking principles,
-  and `helix align` can audit principle-to-artifact coherence.
+  and `/helix align` can audit principle-to-artifact coherence.
 
 ## Performance
 
@@ -405,14 +401,14 @@ tension_detection:
 - [ ] **Resolution logic**: project file present → loads project; project
       file absent → loads defaults; project file empty → falls back to
       defaults with warning
-- [ ] **Bootstrap flow**: `helix frame` on empty project creates principles
+- [ ] **Bootstrap flow**: `/helix frame` on empty project creates principles
       file from defaults + user input
 - [ ] **Injection coverage**: every judgment-making action prompt includes
       the resolution step (grep/audit test)
 - [ ] **Tension detection**: known-conflicting pairs are flagged; known-
       compatible pairs are not; resolution section addresses flagged pairs
 - [ ] **Size ceiling**: warnings trigger at 8, 12, 15+ thresholds
-- [ ] **Evolve read-only**: `helix evolve` loads principles but does not
+- [ ] **Evolve read-only**: `/helix evolve` loads principles but does not
       modify the file
 - [ ] **Relocation completeness**: no orphaned references to old
       workflow-rule principle numbers in enforcers, ratchets, or action
@@ -505,6 +501,6 @@ measure).
 |---|---|---|---|
 | Principles injection has no measurable effect on agent behavior | M | H | Start with baseline, research selective injection, measure with DDx metrics |
 | Prompt size overhead from principles reduces agent performance on primary task | L | M | Size ceiling at 12 principles; future selective injection |
-| Users write principles that degrade HELIX behavior | L | M | Management skill warns; `helix align` audits coherence |
+| Users write principles that degrade HELIX behavior | L | M | Management skill warns; `/helix align` audits coherence |
 | DDx document graph lacks needed features, blocking staleness tracking | M | L | Principles work without staleness tracking; it's an enhancement, not a requirement |
 | Workflow rule relocation leaves orphaned references | M | L | Grep-based audit test catches orphans |

@@ -122,7 +122,7 @@ search or document store in v1
 <tr><th>Requires</th><td><em>None</em></td></tr>
 <tr><th>Enables</th><td><em>None</em></td></tr>
 <tr><th>Informs</th><td><a href="/artifact-types/design/solution-design/">Solution Design</a><br><a href="/artifact-types/design/technical-design/">Technical Design</a></td></tr>
-<tr><th>HELIX documents</th><td><a href="https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/02-design/adr/ADR-001-supervisory-control-model.md"><code>docs/helix/02-design/adr/ADR-001-supervisory-control-model.md</code></a></td></tr>
+<tr><th>HELIX documents</th><td><a href="https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/02-design/adr/ADR-002-tracker-write-safety-model.md"><code>docs/helix/02-design/adr/ADR-002-tracker-write-safety-model.md</code></a></td></tr>
 <tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Architecture Decision Record (ADR) Generation Prompt
 
 Write a compact ADR that captures one architecture-significant decision, the

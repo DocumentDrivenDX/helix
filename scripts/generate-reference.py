@@ -169,21 +169,19 @@ HELIX_REAL_EXAMPLES = {
     # Activity 1 — Frame
     "prd":                   "docs/helix/01-frame/prd.md",
     "concerns":              "docs/helix/01-frame/concerns.md",
-    "feature-specification": "docs/helix/01-frame/features/FEAT-001-helix-supervisory-control.md",
+    "feature-specification": "docs/helix/01-frame/features/FEAT-013-runtime-install-coverage.md",
     # Activity 2 — Design
     "architecture":          "docs/helix/02-design/architecture.md",
     "data-design":           "docs/helix/02-design/data-design.md",
     "security-architecture": "docs/helix/02-design/security-architecture.md",
-    # ADR-001 is foundational (supervisory control model); most ADRs cite it.
-    "adr":                   "docs/helix/02-design/adr/ADR-001-supervisory-control-model.md",
     # CONTRACT-001 defines the DDx/HELIX boundary — most-cited downstream.
     "contract":              "docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md",
-    "solution-design":       "docs/helix/02-design/solution-designs/SD-001-helix-supervisory-control.md",
+    "adr":                   "docs/helix/02-design/adr/ADR-002-tracker-write-safety-model.md",
+    "solution-design":       "docs/helix/02-design/solution-designs/SD-002-first-class-principles.md",
     "technical-design":      "docs/helix/02-design/technical-designs/TD-012-artifact-types-navigation.md",
     # Activity 3 — Test
     "test-plan":             "docs/helix/03-test/test-plans/TP-014-helix-workflow-coverage.md",
-    # Activity 4 — Build
-    "implementation-plan":   "docs/helix/04-build/implementation-plan.md",
+    # Activity 4 — Build (no current instance; template-only)
     # Activity 5 — Deploy
     "runbook":               "docs/helix/05-deploy/runbook.md",
     "deployment-checklist":  "docs/helix/05-deploy/deployment-checklist.md",

@@ -1,7 +1,7 @@
 ---
 title: "Plan: Fold DataHelix templates into the HELIX catalog"
 slug: plan-2026-05-17-fold-datahelix-templates
-weight: 340
+weight: 280
 activity: "Design"
 source: "02-design/plan-2026-05-17-fold-datahelix-templates.md"
 generated: true

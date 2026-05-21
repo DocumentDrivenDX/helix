@@ -8,15 +8,11 @@ ddx:
     deps:
       helix.architecture: 49f65c706c77f174496e63379eb42676296da9527a504c90a81c204746968b0c
     reviewed_at: "2026-05-15T04:11:24Z"
-  status: superseded
-  superseded_at: 2026-05-21
-  superseded_reason: |
-    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ---
 # Security Architecture — DDx Agent Execution Surface
 
 **Scope**: `ddx-server` and the agent-execution surface that HELIX delegates
-to (`ddx agent execute-bead`, `ddx agent execute-loop`, `ddx server workers`).
+to (`ddx agent execute-bead`, `ddx agent ddx work`, `ddx server workers`).
 **Status**: Complete
 
 ## Decision
@@ -47,8 +43,8 @@ The primary controls are:
 
 | Boundary | Assets | Trust Change | Control |
 |----------|--------|--------------|---------|
-| Operator shell → `helix run` | Repo working tree, env vars | Operator authority enters the supervisory loop | Filesystem permissions; HELIX never elevates beyond operator UID |
-| `helix run` → `ddx agent execute-bead` | Selected bead, governing artifacts, prompt | Supervisor prompt crosses into DDx-managed execution | Bead claim is single-writer; DDx validates the bead is `ready` and `execution-eligible` before dispatch |
+| Operator shell → `ddx work` | Repo working tree, env vars | Operator authority enters the supervisory loop | Filesystem permissions; HELIX never elevates beyond operator UID |
+| `ddx work` → `ddx agent execute-bead` | Selected bead, governing artifacts, prompt | Supervisor prompt crosses into DDx-managed execution | Bead claim is single-writer; DDx validates the bead is `ready` and `execution-eligible` before dispatch |
 | `ddx-server` ↔ model provider (OpenRouter, Anthropic, etc.) | Prompt body, model output, API key | Plaintext prompt leaves the host; key authenticates | TLS-only client; key in environment (`OPENROUTER_API_KEY`, `ANTHROPIC_API_KEY`); never logged |
 | Loopback HTTP (`127.0.0.1:7743`) | Server control plane (worker status, queue) | Local UNIX-domain trust | Bind to loopback only; remote access is opt-in via Tailscale sidecar |
 | Tailscale (`tsnet`) → `ddx-server` (opt-in) | Same control plane, over WireGuard | Identity-bound mesh access | Tailscale ACLs restrict to operator's tailnet; service still trusts only the authenticated identity |
@@ -60,11 +56,11 @@ The primary controls are:
 |---------------|---------|-------------------------|--------------|
 | Remote code execution via exposed HTTP | Loopback bind by default | `ddx-server` startup config | `ss -lntp` confirms only `127.0.0.1:7743`; integration test asserts non-loopback bind requires explicit flag |
 | API-key exfiltration via committed logs | Keys live in env, never written to disk by the service | DDx executor; agent harness | grep audit on `.ddx/agent-logs/`, `.ddx/exec-runs.d/`; pre-commit secret-scan |
-| Prompt injection writes secrets into bead body | Bead bodies are operator-curated; agent output is captured in execution evidence with size/shape checks | `ddx agent execute-bead` write path | Review-stage `helix review` reads recent execution evidence; pre-commit hook flags suspicious patterns |
+| Prompt injection writes secrets into bead body | Bead bodies are operator-curated; agent output is captured in execution evidence with size/shape checks | `ddx agent execute-bead` write path | Review-stage `/helix review` reads recent execution evidence; pre-commit hook flags suspicious patterns |
 | Stale claim leaves work locked indefinitely | Orphan-recovery sweep with dead-PID + age threshold (`HELIX_ORPHAN_THRESHOLD`, default 7200s) | `ddx bead` claim subsystem | STP-002 test cases cover orphan recovery |
 | Concurrent writers tear `.ddx/beads.jsonl` | `ddx bead` is the single sanctioned writer; per-record file locking | `ddx bead` CLI | Tracker-mutation tests in STP-002; ADR-002 governs the write-safety model |
-| Operator runs untrusted bead body | Beads are repo-scoped artifacts under the operator's review; supervisor stops on ambiguity | `helix run` supervisor; `helix review` | Stop-for-guidance tests; bounded-action contract |
-| Cross-model verification bypass | `helix run --review-agent <other>` routes review to a second model when configured | `helix run` review pass | STP-002 cross-model review test |
+| Operator runs untrusted bead body | Beads are repo-scoped artifacts under the operator's review; supervisor stops on ambiguity | `ddx work` supervisor; `/helix review` | Stop-for-guidance tests; bounded-action contract |
+| Cross-model verification bypass | Runtime-level `--review-agent` flag routes review to a second model when configured | `ddx work` review pass | STP-002 cross-model review test |
 | Tailscale identity drift | Tailscale ACLs are the only authorization for non-loopback access | `tsnet` sidecar config | Operator-owned tailnet ACL; verified by tailnet admin, not by the service |
 
 ## Identity and Access
@@ -111,7 +107,7 @@ The primary controls are:
   releases, orphan-recovery sweeps, model-call failures (with provider name
   but never request bodies), and any non-loopback bind attempts.
 - **Alerting**: This is a developer-local service; alerting is operator-
-  driven through `helix status` and `ddx server workers list`. There is no
+  driven through  and `ddx server workers list`. There is no
   paging surface — the operator is the on-call.
 - **Audit trail**: `.ddx/exec-runs.jsonl` is the canonical execution audit
   log. Each run has a stable `run-id`, governing-artifact references, and a

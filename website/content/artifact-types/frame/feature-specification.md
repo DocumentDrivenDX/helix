@@ -267,7 +267,7 @@ evidence, exception records, and reconciliation exports.
 <tr><th>Requires</th><td><em>None</em></td></tr>
 <tr><th>Enables</th><td><em>None</em></td></tr>
 <tr><th>Informs</th><td><a href="/artifact-types/frame/user-stories/">User Stories</a><br><a href="/artifact-types/design/solution-design/">Solution Design</a><br>Api Contracts<br><a href="/artifact-types/test/test-plan/">Test Plan</a></td></tr>
-<tr><th>HELIX documents</th><td><a href="https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/01-frame/features/FEAT-001-helix-supervisory-control.md"><code>docs/helix/01-frame/features/FEAT-001-helix-supervisory-control.md</code></a></td></tr>
+<tr><th>HELIX documents</th><td><a href="https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/01-frame/features/FEAT-013-runtime-install-coverage.md"><code>docs/helix/01-frame/features/FEAT-013-runtime-install-coverage.md</code></a></td></tr>
 <tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Feature Specification Generation Prompt
 
 Create a feature specification that is precise enough to support design,

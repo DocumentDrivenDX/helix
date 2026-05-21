@@ -1,7 +1,7 @@
 ---
 title: "Feature Specification: FEAT-014 — Workflow Coverage"
 slug: FEAT-014-workflow-coverage
-weight: 150
+weight: 120
 activity: "Frame"
 source: "01-frame/features/FEAT-014-workflow-coverage.md"
 generated: true

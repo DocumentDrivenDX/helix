@@ -1,7 +1,7 @@
 ---
 title: "Feature Specification: FEAT-003 - First-Class Principles"
 slug: FEAT-003-principles
-weight: 40
+weight: 30
 activity: "Frame"
 source: "01-frame/features/FEAT-003-principles.md"
 generated: true
@@ -20,10 +20,6 @@ ddx:
     deps:
       helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
     reviewed_at: "2026-05-15T04:11:24Z"
-  status: superseded
-  superseded_at: 2026-05-21
-  superseded_reason: |
-    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ```
 
 # Feature Specification: FEAT-003 - First-Class Principles
@@ -96,7 +92,7 @@ negate HELIX mechanics (artifact hierarchy, activity gates, tracker semantics).
    document. HELIX defaults are ignored entirely.
 2. If it does not exist, HELIX defaults from `workflows/principles.md` are
    used as the active principles.
-3. On first `helix frame` (or when the user explicitly asks to initialize
+3. On first `/helix frame` (or when the user explicitly asks to initialize
    principles), HELIX copies the defaults into the project location and
    invites the user to customize. From that point, the project owns the file.
 4. The bootstrap prompt should ask the user what their project values, what
@@ -110,13 +106,13 @@ principles and include them as context. Specifically:
 
 | Consumer | How principles apply |
 |----------|---------------------|
-| `helix frame` | Principles shape requirements priorities and feature scoping |
-| `helix design` | Principles inform architecture decisions, ADR trade-offs, solution design choices |
-| `helix build` / implementation | Principles guide coding trade-offs (abstraction level, error handling, API surface) |
-| `helix review` | Principles become review criteria — reviewer checks whether the work aligns with stated values |
-| `helix align` | Principles are part of the alignment audit — do artifacts and implementation reflect the project's stated values? |
-| `helix evolve` | When threading a change through the stack, principles help decide scope and approach |
-| `helix polish` | Issue refinement checks whether acceptance criteria reflect principles |
+| `/helix frame` | Principles shape requirements priorities and feature scoping |
+| `/helix design` | Principles inform architecture decisions, ADR trade-offs, solution design choices |
+| `ddx work` / implementation | Principles guide coding trade-offs (abstraction level, error handling, API surface) |
+| `/helix review` | Principles become review criteria — reviewer checks whether the work aligns with stated values |
+| `/helix align` | Principles are part of the alignment audit — do artifacts and implementation reflect the project's stated values? |
+| `/helix evolve` | When threading a change through the stack, principles help decide scope and approach |
+| `/helix polish` | Issue refinement checks whether acceptance criteria reflect principles |
 
 The injection mechanism is selective: each skill includes the principles most
 relevant to its judgment domain, not a full dump of the document. The right
@@ -150,7 +146,7 @@ This is the baseline to measure against, not the final design.
 
 ### Principle management
 
-A principle management capability (within `helix frame` or as a dedicated
+A principle management capability (within `/helix frame` or as a dedicated
 sub-action) handles:
 
 1. **Add a principle** — user states a new principle; the system checks for
@@ -171,9 +167,9 @@ sub-action) handles:
 4. **Remove / modify** — straightforward editing with a coherence check
    afterward.
 
-### Relationship with `helix evolve`
+### Relationship with `/helix evolve`
 
-`helix evolve` threads changes through the artifact stack. When evolving,
+`/helix evolve` threads changes through the artifact stack. When evolving,
 it must:
 
 - **Read and respect** the active principles — use them as guidance when
@@ -212,7 +208,7 @@ them.
    to the appropriate enforcers and ratchets.
 3. When no project principles exist, HELIX must use the defaults as the
    active principles for all downstream injection.
-4. `helix frame` must bootstrap project principles from HELIX defaults when
+4. `/helix frame` must bootstrap project principles from HELIX defaults when
    no project principles file exists, prompting the user to customize.
 5. Once project principles exist, they take full precedence over HELIX
    defaults.
@@ -241,7 +237,7 @@ them.
 **So that** I have a starting point that I can customize for my project
 
 **Acceptance Criteria:**
-- [ ] Given no `docs/helix/01-frame/principles.md`, when `helix frame` runs,
+- [ ] Given no `docs/helix/01-frame/principles.md`, when `/helix frame` runs,
   then HELIX creates the file from defaults and prompts for customization.
 - [ ] Given the bootstrap runs, when it completes, then the resulting document
   includes both HELIX defaults and any user-specified principles.
@@ -257,9 +253,9 @@ implementations, and reviews
 **Acceptance Criteria:**
 - [ ] Given active principles exist, when any judgment-making skill runs, then
   the skill prompt includes the active principles as context.
-- [ ] Given a principle like "design for simplicity", when `helix design`
+- [ ] Given a principle like "design for simplicity", when `/helix design`
   generates an architecture, then it demonstrably favors simpler options.
-- [ ] Given a principle like "validate your work", when `helix review` runs,
+- [ ] Given a principle like "validate your work", when `/helix review` runs,
   then it checks whether the implementation includes appropriate validation.
 
 ### US-003: Manage principles coherently [FEAT-003]
@@ -352,4 +348,4 @@ principles at all
   upstream dependency of downstream artifacts? Does this require new DDx
   beads?
 - Should principle changes trigger automatic re-review of all dependent
-  artifacts, or only flag them as stale for the next `helix align`?
+  artifacts, or only flag them as stale for the next `/helix align`?

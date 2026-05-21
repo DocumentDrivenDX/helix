@@ -10,10 +10,6 @@ ddx:
       FEAT-003: ea9237a63d44dd850014fa35d891e8e54a9f68ebde157bdd0915065206b45e96
       helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
     reviewed_at: "2026-05-15T04:11:24Z"
-  status: superseded
-  superseded_at: 2026-05-21
-  superseded_reason: |
-    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ---
 # Feature Specification: FEAT-006 — Concerns, Practices, and Context-Digest Beads
 
@@ -246,7 +242,7 @@ The typical flow:
 5. **Context digest** in beads summarizes the concern + practices + ADR rationale
 
 ADRs that modify concern behavior should be cited in the project overrides.
-When an ADR is superseded, `helix polish` must flag affected concerns.
+When an ADR is superseded, `/helix polish` must flag affected concerns.
 
 ### Context digest
 
@@ -330,7 +326,7 @@ Governing: FEAT-007, SD-007, STP-007.
 
 Each XML element is optional — omit it if there is no relevant content.
 
-`helix polish` locates the `<context-digest>` block by tag and replaces it
+`/helix polish` locates the `<context-digest>` block by tag and replaces it
 in-place, preserving the human-written description below. If no digest
 exists yet, it is prepended.
 
@@ -339,13 +335,13 @@ exists yet, it is prepended.
 | Consumer | What's injected | When |
 |----------|----------------|------|
 | `helix triage` | Assembles full context digest into new bead | At bead creation |
-| `helix evolve` | Assembles context digest for beads it creates/modifies | At bead creation |
-| `helix polish` | Refreshes context digest against current upstream | At refinement |
-| `helix build` | Reads context digest from bead (no upstream reads needed) | At implementation |
-| `helix review` | Reads context digest to verify implementation consistency | At review |
-| `helix frame` | Concern selection available for scoping | At framing |
-| `helix design` | Concern constraints inform architecture | At design |
-| `helix align` | Concern drift is an alignment finding | At audit |
+| `/helix evolve` | Assembles context digest for beads it creates/modifies | At bead creation |
+| `/helix polish` | Refreshes context digest against current upstream | At refinement |
+| `ddx work` | Reads context digest from bead (no upstream reads needed) | At implementation |
+| `/helix review` | Reads context digest to verify implementation consistency | At review |
+| `/helix frame` | Concern selection available for scoping | At framing |
+| `/helix design` | Concern constraints inform architecture | At design |
+| `/helix align` | Concern drift is an alignment finding | At audit |
 
 The key insight: **triage and polish are the write points, build and review
 are the read points**. The context digest is written once (at triage) and
@@ -365,11 +361,11 @@ context without paying the read cost.
 4. Project overrides must take full precedence over library practices.
 5. Each concern must declare an `areas` field that controls which beads
    receive its practices in the context digest.
-6. `helix triage` and `helix evolve` must assemble a context digest into
+6. `helix triage` and `/helix evolve` must assemble a context digest into
    every bead they create, including only area-matched concerns.
-7. `helix polish` must refresh the context digest against current upstream
+7. `/helix polish` must refresh the context digest against current upstream
    state and flag material changes.
-8. `helix build` and `helix review` must read the context digest from the
+8. `ddx work` and `/helix review` must read the context digest from the
    bead rather than reconstructing context from upstream files.
 9. The context digest must be compact enough (~1000-1500 tokens) that
    including it in the bead does not materially increase prompt cost.
@@ -403,7 +399,7 @@ context without paying the read cost.
 choices from the start
 
 **Acceptance Criteria:**
-- [ ] Given a HELIX library with concerns, when the user runs `helix frame`,
+- [ ] Given a HELIX library with concerns, when the user runs `/helix frame`,
   then available concerns are presented for selection by category.
 - [ ] Given the user selects "typescript-bun", "a11y-wcag-aa", and
   "o11y-otel", when the selection completes, then
@@ -426,7 +422,7 @@ choices from the start
   then typescript practices appear in its digest.
 
 ### US-003: Self-contained implementation beads [FEAT-006]
-**As a** HELIX operator running `helix run` in the background
+**As a** HELIX operator running `ddx work` in the background
 **I want** implementation beads to contain enough context that the agent
   rarely reads upstream files
 **So that** implementation is faster, cheaper, and more consistent
@@ -446,9 +442,9 @@ choices from the start
 **So that** implementing agents don't work from stale context
 
 **Acceptance Criteria:**
-- [ ] Given a concern is added to the project, when `helix polish` runs,
+- [ ] Given a concern is added to the project, when `/helix polish` runs,
   then beads matching the concern's area scope get updated digests.
-- [ ] Given an ADR is superseded, when `helix polish` runs, then beads
+- [ ] Given an ADR is superseded, when `/helix polish` runs, then beads
   referencing the old ADR get refreshed digests.
 
 ### US-005: Concern decisions traced through ADRs and spikes [FEAT-006]
@@ -496,7 +492,7 @@ choices from the start
   beads whose concern mapping is not yet complete enough to assemble a
   trustworthy digest.
 - **Stale ADR in digest**: If a referenced ADR is superseded after the
-  digest is assembled, `helix polish` must detect the supersession and
+  digest is assembled, `/helix polish` must detect the supersession and
   update the digest.
 - **No area match**: If a bead has no `area:*` labels, only concerns with
   `areas: all` are included.
@@ -547,7 +543,7 @@ choices from the start
   systems, and any other cross-cutting quality attribute.
 - How should practice conflicts between concerns be detected — simple string
   matching on practice categories, or structured categories in concern.md?
-- Should `helix build` ever fall back to reading upstream files when the
+- Should `ddx work` ever fall back to reading upstream files when the
   digest is present? (Proposed: trust the digest, rely on polish.)
 - What area taxonomy should HELIX define? Candidates: `all`, `ui`,
   `api`, `data`, `infra`, `cli`. Should areas be extensible per-project?

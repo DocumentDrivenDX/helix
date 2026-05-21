@@ -143,7 +143,6 @@ Story-level work is tracked via `ddx bead` in `.ddx/beads.jsonl`.
 <tr><th>Requires</th><td><em>None</em></td></tr>
 <tr><th>Enables</th><td><em>None</em></td></tr>
 <tr><th>Informs</th><td><a href="/artifact-types/deploy/release-notes/">Release Notes</a><br><a href="/artifact-types/deploy/deployment-checklist/">Deployment Checklist</a></td></tr>
-<tr><th>HELIX documents</th><td><a href="https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/04-build/implementation-plan.md"><code>docs/helix/04-build/implementation-plan.md</code></a></td></tr>
 <tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Build Plan Generation Prompt
 
 Create the canonical build plan for the Build activity. Keep it short, but preserve the sequencing, issue boundaries, and verification rules needed to execute implementation against the test plan and technical designs.

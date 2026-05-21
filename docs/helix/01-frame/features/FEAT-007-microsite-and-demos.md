@@ -10,10 +10,6 @@ ddx:
       FEAT-006: a44d0a40e5cb883e31c5f6b150a77070fa427bb8f834345908aefaf1cffb38ce
       helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
     reviewed_at: "2026-05-15T04:11:24Z"
-  status: superseded
-  superseded_at: 2026-05-21
-  superseded_reason: |
-    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ---
 # Feature Specification: FEAT-007 — Microsite and Demo Reels
 
@@ -27,7 +23,7 @@ ddx:
 HELIX needs a public-facing documentation site and scripted demo reels that
 show users what HELIX does, how it works, and how to get started. The
 microsite is the primary onboarding surface — it must take a new user from
-"what is this?" to running `helix run` on their own project.
+"what is this?" to running `ddx work` on their own project.
 
 This feature covers both the Hugo+Hextra microsite (`website/`) and the
 reproducible demo reel system (`docs/demos/`). It depends on FEAT-006

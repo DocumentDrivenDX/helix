@@ -251,7 +251,7 @@ Architecture and ADR-001.
 <tr><th>Requires</th><td><em>None</em></td></tr>
 <tr><th>Enables</th><td><em>None</em></td></tr>
 <tr><th>Informs</th><td><a href="/artifact-types/design/technical-design/">Technical Design</a><br><a href="/artifact-types/test/test-plan/">Test Plan</a></td></tr>
-<tr><th>HELIX documents</th><td><a href="https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/02-design/solution-designs/SD-001-helix-supervisory-control.md"><code>docs/helix/02-design/solution-designs/SD-001-helix-supervisory-control.md</code></a></td></tr>
+<tr><th>HELIX documents</th><td><a href="https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/02-design/solution-designs/SD-002-first-class-principles.md"><code>docs/helix/02-design/solution-designs/SD-002-first-class-principles.md</code></a></td></tr>
 <tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Solution Design Generation Prompt
 
 Create a solution design that maps requirements to a concrete approach.
