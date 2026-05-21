@@ -1,0 +1,213 @@
+{
+  "attempt_id": "20260515T003245-87861763",
+  "bead_id": "helix-1940a77b",
+  "base_rev": "ce16a62c6b17c28b41aa2b6ae8046ece96b54196",
+  "created_at": "2026-05-15T00:32:46.029391913Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-1940a77b",
+    "title": "Add first-class contract artifact support in HELIX design phase",
+    "description": "\u003ccontext-digest\u003e\n\u003cprinciples\u003eDesign for Change · Design for Simplicity · Validate Your Work · Make Intent Explicit · Prefer Reversible Decisions\u003c/principles\u003e\n\u003cconcerns\u003ehugo-hextra | demo-asciinema\u003c/concerns\u003e\n\u003cpractices\u003eTheme version: Hextra v0.12.1 — pinned in website/go.mod · Hugo version: 0.159.2 extended — pinned in .github/workflows/pages.yml · Current demos: helix-quickstart (full lifecycle), helix-concerns (drift detection), helix-evolve (requirement threading) · Agent harness: ddx agent run --harness claude — not claude -p\u003c/practices\u003e\n\u003cgoverning\u003eworkflows/phases/02-design/README.md — HELIX design docs, artifact templates, and phase guidance include a first-class contract artifact with explicit selection rules and naming guidance\u003c/governing\u003e\n\u003c/context-digest\u003e\n\nHELIX design guidance already treats contracts as a first-class artifact category (`docs/helix/02-design/contracts/`), and the design gate expects contract docs to exist, but the workflow bundle does not currently ship a dedicated contract artifact template/prompt/meta alongside solution-design, technical-design, ADR, spike, and PoC templates. At the same time, live HELIX repos are using both `API-*` and `CONTRACT-*` identifiers for documents in the contracts directory. This leaves contract-shaped specs underspecified exactly when we need them for reusable protocol/interface definitions such as OpenTelemetry telemetry capture standards, DDx/HELIX boundary contracts, execution-document conventions, CLI/library mutation surfaces, and other cross-project schemas that should be shareable without dragging along feature-level or solution-level baggage.\n\nRequest: add an explicit first-class contract artifact type to HELIX design-phase tooling and documentation. The artifact must be suitable for normative external interface specifications, not just HTTP APIs. It should support protocol/data/interface contracts such as telemetry schemas, cross-project ownership boundaries, authoring conventions, CLI/library mutation surfaces, and other reusable contracts. The artifact definition should make clear that ADRs carry the decision/rationale (WHY), solution designs carry the feature-level approach (HOW for a feature), technical designs carry one bounded slice, and contracts carry the authoritative field-by-field/schema-level/interface-level specification that another team could implement against directly.\n\nRequirements from this discussion:\n1. Define clear selection rules for when to use ADR vs Solution Design vs Technical Design vs Contract.\n2. Ship a contract template/prompt/meta in the HELIX workflow bundle.\n3. Clarify identifier and naming guidance: whether `API-*` remains a subtype, whether `CONTRACT-*` is the canonical prefix, or whether both are supported with explicit scope boundaries.\n4. Make the contract artifact suitable for non-HTTP surfaces, including telemetry/export contracts.\n5. Require contracts to carry exact keys/fields, types, units, enums, precedence rules, formulas, error semantics, examples, and validation checklists where relevant.\n6. Ensure the design gate/enforcer language matches the chosen artifact naming and template support.\n7. Preserve the ability for contracts to be shared across projects without inheriting unrelated feature or solution baggage.\n8. Document how contracts should be referenced from ADRs and solution designs so the normative schema lives in one place rather than being duplicated across artifacts.",
+    "acceptance": "HELIX design docs, artifact templates, and phase guidance include a first-class contract artifact with explicit selection rules and naming guidance; contract template support exists in the workflow bundle; guidance covers non-HTTP protocol/interface contracts such as telemetry schemas; ADR/SD/TD/contract boundaries are unambiguous enough that a telemetry export contract can be placed without artifact-taxonomy confusion",
+    "parent": "helix-13cfe23f",
+    "labels": [
+      "helix",
+      "phase:design",
+      "kind:spec",
+      "area:docs",
+      "area:workflow"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-15T00:31:42Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "2366035",
+      "events": [
+        {
+          "actor": "erik",
+          "body": "tier=cheap harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:06:18.264038475Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=standard harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:06:24.454509572Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=smart harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:06:30.658615494Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"tiers_attempted\":[{\"tier\":\"cheap\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"standard\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"smart\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0}],\"winning_tier\":\"exhausted\",\"total_cost_usd\":0,\"wasted_cost_usd\":0}",
+          "created_at": "2026-05-02T13:06:30.708404311Z",
+          "kind": "escalation-summary",
+          "source": "ddx agent execute-loop",
+          "summary": "winning_tier=exhausted attempts=3 total_cost_usd=0.0000 wasted_cost_usd=0.0000"
+        },
+        {
+          "actor": "erik",
+          "body": "execute-loop: all tiers exhausted — no viable provider found",
+          "created_at": "2026-05-02T13:06:30.784405222Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"cheap\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T00:17:34.780218703Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=cheap"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=cheap harness=agent model=cheap probe=ok\norphan model: cheap",
+          "created_at": "2026-05-03T00:17:34.898351167Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"standard\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T00:17:35.545669093Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=standard"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=standard harness=agent model=standard probe=ok\norphan model: standard",
+          "created_at": "2026-05-03T00:17:35.66006023Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"smart\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T00:17:36.29235564Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=smart"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=smart harness=agent model=smart probe=ok\norphan model: smart",
+          "created_at": "2026-05-03T00:17:36.411211311Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"tiers_attempted\":[{\"tier\":\"cheap\",\"harness\":\"agent\",\"model\":\"cheap\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":1},{\"tier\":\"standard\",\"harness\":\"agent\",\"model\":\"standard\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":1},{\"tier\":\"smart\",\"harness\":\"agent\",\"model\":\"smart\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":1}],\"winning_tier\":\"exhausted\",\"total_cost_usd\":0,\"wasted_cost_usd\":0}",
+          "created_at": "2026-05-03T00:17:36.454691777Z",
+          "kind": "escalation-summary",
+          "source": "ddx agent execute-loop",
+          "summary": "winning_tier=exhausted attempts=3 total_cost_usd=0.0000 wasted_cost_usd=0.0000"
+        },
+        {
+          "actor": "ddx",
+          "body": "escalation exhausted: orphan model: smart\ntier=smart\nprobe_result=ok\nresult_rev=08474b62397ff49ea1de5e2fc50ed145d5b6bee0\nbase_rev=08474b62397ff49ea1de5e2fc50ed145d5b6bee0\nretry_after=2026-05-03T06:17:36Z",
+          "created_at": "2026-05-03T00:17:36.56573117Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T15:04:34.419806593Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider="
+        },
+        {
+          "actor": "ddx",
+          "body": "ResolveRoute: no viable routing candidate: 4 candidates rejected\nresult_rev=5f4d3721d8945b4c81149fe39f218951f10b6947\nbase_rev=5f4d3721d8945b4c81149fe39f218951f10b6947\nretry_after=2026-05-03T21:04:34Z",
+          "created_at": "2026-05-03T15:04:34.600389389Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"grendel-rapid-mlx\",\"resolved_model\":\"mlx-community/Qwen3.6-27B-8bit\",\"fallback_chain\":[],\"actual_power\":5}",
+          "created_at": "2026-05-14T18:01:00.731487143Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=grendel-rapid-mlx model=mlx-community/Qwen3.6-27B-8bit"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"fiz\",\"actual_model\":\"mlx-community/Qwen3.6-27B-8bit\",\"actual_power\":5,\"actual_provider\":\"grendel-rapid-mlx\",\"attempt_id\":\"20260514T175755-d23c2a79\",\"bead_id\":\"helix-1940a77b\",\"inferred_power_class\":\"standard\",\"rejected_route_pins\":null,\"requested_profile\":\"default\",\"routing_intent_degraded\":false,\"routing_intent_note\":\"\",\"routing_intent_source\":\"heuristic\",\"smart_justification\":\"\"}",
+          "created_at": "2026-05-14T18:01:00.806237866Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=heuristic powerClass=standard model=mlx-community/Qwen3.6-27B-8bit harness=fiz"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"actual_power\":5,\"detail\":\"agent: provider error: openai: Post \\\"http://grendel:8000/v1/chat/completions\\\": dial tcp 100.97.179.68:8000: i/o timeout\",\"error\":\"agent: provider error: openai: Post \\\"http://grendel:8000/v1/chat/completions\\\": dial tcp 100.97.179.68:8000: i/o timeout\",\"harness\":\"fiz\",\"model\":\"mlx-community/Qwen3.6-27B-8bit\",\"outcome_reason\":\"provider_connectivity\",\"provider\":\"grendel-rapid-mlx\"}",
+          "created_at": "2026-05-14T18:01:01.004573157Z",
+          "kind": "route-failure",
+          "source": "ddx work",
+          "summary": "provider=grendel-rapid-mlx model=mlx-community/Qwen3.6-27B-8bit connectivity failure"
+        },
+        {
+          "actor": "erik",
+          "body": "agent: provider error: openai: Post \"http://grendel:8000/v1/chat/completions\": dial tcp 100.97.179.68:8000: i/o timeout\npowerClass=standard\nresult_rev=f3d7b7de89a62b02700c25564c7c7897a95f8be5\nbase_rev=7f97067b3541319cac3ee3889691912844d95ae3\nretry_after=2026-05-14T18:16:01Z\noutcome_reason=provider_connectivity",
+          "created_at": "2026-05-14T18:01:01.106321006Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        }
+      ],
+      "execute-loop-cooldown-base-rev": "7f97067b3541319cac3ee3889691912844d95ae3",
+      "execute-loop-failed-routes": [
+        {
+          "actual_power": 5,
+          "at": "2026-05-14T18:01:00Z",
+          "model": "mlx-community/Qwen3.6-27B-8bit",
+          "provider": "grendel-rapid-mlx",
+          "reason": "provider_connectivity"
+        }
+      ],
+      "execute-loop-last-detail": "agent: provider error: openai: Post \"http://grendel:8000/v1/chat/completions\": dial tcp 100.97.179.68:8000: i/o timeout",
+      "execute-loop-last-status": "execution_failed",
+      "execute-loop-retry-after": "2026-05-14T18:16:01Z",
+      "spec-id": "workflows/phases/02-design/README.md",
+      "work-heartbeat-at": "2026-05-15T00:31:42.811027675Z"
+    }
+  },
+  "governing": [
+    {
+      "id": "workflows/phases/02-design/README.md",
+      "path": "workflows/phases/02-design/README.md"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260515T003245-87861763",
+    "prompt": ".ddx/executions/20260515T003245-87861763/prompt.md",
+    "manifest": ".ddx/executions/20260515T003245-87861763/manifest.json",
+    "result": ".ddx/executions/20260515T003245-87861763/result.json",
+    "checks": ".ddx/executions/20260515T003245-87861763/checks.json",
+    "usage": ".ddx/executions/20260515T003245-87861763/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-1940a77b-20260515T003245-87861763"
+  },
+  "prompt_sha": "da3a98df075a7908fc8a2a89fe022d5d4dc1c2f1e5d05ea009780144c1af869c"
+}

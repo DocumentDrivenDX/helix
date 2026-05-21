@@ -4,6 +4,12 @@ ddx:
   depends_on:
     - example.implementation-plan.depositmatch
     - example.test-plan.depositmatch
+  review:
+    self_hash: 02e9e7c9c29b4a335e0e2eceacaaaa6673018042db2a706f89293ab6f58abcbf
+    deps:
+      example.implementation-plan.depositmatch: 8f48b07ab604fe52786de7648f7ab37da251cfade0ea38bb4e802082d4f977de
+      example.test-plan.depositmatch: ba055b639a94e62d3b24f3a7ca270f78c3f17f6bae78b936d399291225d7976f
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Deployment Checklist

@@ -1,0 +1,48 @@
+{
+  "attempt_id": "20260515T034946-f4460134",
+  "bead_id": "helix-c6d7d139",
+  "base_rev": "12172c0d72b2dee88413dfa1ea413af971174c22",
+  "created_at": "2026-05-15T03:49:47.440330397Z",
+  "requested": {
+    "harness": "codex",
+    "model": "gpt-5.4",
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-c6d7d139",
+    "title": "Update plugin metadata to collapsed HELIX scope",
+    "description": "Context: `.claude-plugin/plugin.json` still describes HELIX as `HELIX development control system - supervisory autopilot for AI-assisted software delivery`. The current PRD and install index define HELIX as methodology plus artifact catalog plus one routing skill, not a development control system or supervisory autopilot. Evidence: `docs/install/README.md` lines 3-7 and `docs/helix/01-frame/prd.md` lines 16-19, 53-55, and 88-95.\n\nIn-scope files:\n- .claude-plugin/plugin.json\n- docs/install/claude-code.md if it repeats stale plugin messaging\n- docs/install/README.md only if the package index needs a small cross-reference update\n\nOut-of-scope:\n- Do not change plugin layout semantics unless required by existing tests.\n- Do not remove required manifest fields without updating the corresponding validator intentionally.\n\nImplementation notes: use runtime-neutral product language that matches the collapsed scope. Keep JSON valid and retain required fields expected by the package validator.",
+    "acceptance": "Command: python3 -m json.tool .claude-plugin/plugin.json \u003e/dev/null\nExpected: exits 0.\n\nCommand: bash -lc '! rg -n \"supervisory autopilot|development control system\" .claude-plugin docs/install'\nExpected: exits 0.\n\nCommand: bash tests/validate-skills.sh\nExpected: exits 0.\n\nCommand: git diff --check\nExpected: exits 0.",
+    "labels": [
+      "helix",
+      "phase:build",
+      "area:packaging",
+      "area:docs",
+      "kind:alignment"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-15T03:47:18Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "3499424",
+      "spec-id": "helix.prd",
+      "work-heartbeat-at": "2026-05-15T03:47:18.199026246Z"
+    }
+  },
+  "governing": [
+    {
+      "id": "helix.prd",
+      "path": "docs/helix/01-frame/prd.md",
+      "title": "Product Requirements Document"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260515T034946-f4460134",
+    "prompt": ".ddx/executions/20260515T034946-f4460134/prompt.md",
+    "manifest": ".ddx/executions/20260515T034946-f4460134/manifest.json",
+    "result": ".ddx/executions/20260515T034946-f4460134/result.json",
+    "checks": ".ddx/executions/20260515T034946-f4460134/checks.json",
+    "usage": ".ddx/executions/20260515T034946-f4460134/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-c6d7d139-20260515T034946-f4460134"
+  },
+  "prompt_sha": "637929b9ade943b8eb69a3888d8644d231615dadf8bfabf43a81d8b2dc3a458b"
+}

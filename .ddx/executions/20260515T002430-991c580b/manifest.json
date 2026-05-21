@@ -1,0 +1,85 @@
+{
+  "attempt_id": "20260515T002430-991c580b",
+  "bead_id": "helix-6aa7941f",
+  "base_rev": "b112dc7c2bd714d01a251b603c83eecff8006bfb",
+  "created_at": "2026-05-15T00:24:31.450751723Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-6aa7941f",
+    "title": "Restore opposed double-helix geometry in homepage hero",
+    "description": "Regenerate the transparent homepage hero cutouts so the two strands are phase-opposed like a true double helix, and enlarge the hero visual on the page.",
+    "acceptance": "Hero image shows two opposing strands with clear over-under crossings rather than parallel paths; image remains transparent with no rectangular field; hero visual appears larger on desktop; light and dark site assets and review copies are updated.",
+    "labels": [
+      "helix",
+      "phase:build",
+      "website",
+      "design"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-15T00:22:12Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "2366035",
+      "events": [
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"bragi\",\"resolved_model\":\"qwen3.5-27b\",\"fallback_chain\":[],\"actual_power\":5}",
+          "created_at": "2026-05-14T17:25:38.868504785Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=bragi model=qwen3.5-27b"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"fiz\",\"actual_model\":\"qwen3.5-27b\",\"actual_power\":5,\"actual_provider\":\"bragi\",\"attempt_id\":\"20260514T172234-8e3bbf5f\",\"bead_id\":\"helix-6aa7941f\",\"inferred_power_class\":\"standard\",\"rejected_route_pins\":null,\"requested_profile\":\"default\",\"routing_intent_degraded\":false,\"routing_intent_note\":\"\",\"routing_intent_source\":\"heuristic\",\"smart_justification\":\"\"}",
+          "created_at": "2026-05-14T17:25:38.945562972Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=heuristic powerClass=standard model=qwen3.5-27b harness=fiz"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"actual_power\":5,\"detail\":\"agent: provider error: openai: Post \\\"http://bragi:1234/v1/chat/completions\\\": dial tcp 100.127.38.115:1234: i/o timeout\",\"error\":\"agent: provider error: openai: Post \\\"http://bragi:1234/v1/chat/completions\\\": dial tcp 100.127.38.115:1234: i/o timeout\",\"harness\":\"fiz\",\"model\":\"qwen3.5-27b\",\"outcome_reason\":\"provider_connectivity\",\"provider\":\"bragi\"}",
+          "created_at": "2026-05-14T17:25:39.082067059Z",
+          "kind": "route-failure",
+          "source": "ddx work",
+          "summary": "provider=bragi model=qwen3.5-27b connectivity failure"
+        },
+        {
+          "actor": "erik",
+          "body": "agent: provider error: openai: Post \"http://bragi:1234/v1/chat/completions\": dial tcp 100.127.38.115:1234: i/o timeout\npowerClass=standard\nresult_rev=2d86ab43d13e33dd036226030ad9a728cd9bb2de\nbase_rev=7b166dc113e612f41a0f480e9a2a281a6c9a0eea\nretry_after=2026-05-14T17:40:39Z\noutcome_reason=provider_connectivity",
+          "created_at": "2026-05-14T17:25:39.195548527Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        }
+      ],
+      "execute-loop-cooldown-base-rev": "7b166dc113e612f41a0f480e9a2a281a6c9a0eea",
+      "execute-loop-failed-routes": [
+        {
+          "actual_power": 5,
+          "at": "2026-05-14T17:25:39Z",
+          "model": "qwen3.5-27b",
+          "provider": "bragi",
+          "reason": "provider_connectivity"
+        }
+      ],
+      "execute-loop-last-detail": "agent: provider error: openai: Post \"http://bragi:1234/v1/chat/completions\": dial tcp 100.127.38.115:1234: i/o timeout",
+      "execute-loop-last-status": "execution_failed",
+      "execute-loop-retry-after": "2026-05-14T17:40:39Z",
+      "spec-id": "HOME-HERO-OPPOSED-HELIX",
+      "work-heartbeat-at": "2026-05-15T00:22:12.369373173Z"
+    }
+  },
+  "paths": {
+    "dir": ".ddx/executions/20260515T002430-991c580b",
+    "prompt": ".ddx/executions/20260515T002430-991c580b/prompt.md",
+    "manifest": ".ddx/executions/20260515T002430-991c580b/manifest.json",
+    "result": ".ddx/executions/20260515T002430-991c580b/result.json",
+    "checks": ".ddx/executions/20260515T002430-991c580b/checks.json",
+    "usage": ".ddx/executions/20260515T002430-991c580b/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-6aa7941f-20260515T002430-991c580b"
+  },
+  "prompt_sha": "32a1eb6dc6af2553104aee77394e55f56407df222e40baae828e07444fed68c3"
+}

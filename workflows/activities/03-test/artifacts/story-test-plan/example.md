@@ -5,6 +5,13 @@ ddx:
     - example.user-story.depositmatch.upload-csv
     - example.technical-design.depositmatch.upload-csv
     - example.test-plan.depositmatch
+  review:
+    self_hash: ea5f25266c2652513d7c3623b18bb3b8f9ac0058379e1edcfe305107bdf6a11e
+    deps:
+      example.technical-design.depositmatch.upload-csv: 064c51468da1d444da9c6f65d6c2502487724ac315fa3e6c50f9bbeffd3d69b9
+      example.test-plan.depositmatch: ba055b639a94e62d3b24f3a7ca270f78c3f17f6bae78b936d399291225d7976f
+      example.user-story.depositmatch.upload-csv: ae65ec934b10e577641772c711eafec5a15dbb5854327d8240307341e2053f66
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Story Test Plan: STP-001-upload-csv-files

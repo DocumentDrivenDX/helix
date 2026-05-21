@@ -1,6 +1,13 @@
 ---
 ddx:
   id: TD-XXX
+  review:
+    self_hash: 081ac39c2360ed0034e2a9bc05b5932fbd2baa2930b605c2ab947bf4548a2015
+    deps:
+      FEAT-XXX: a685da86c4c18a509196cb163f264af507cc966f804db574070e108a555bdf02
+      SD-XXX: ea6f092342409cc3f74e945b3ae421392eb4787113b828331c0fdfab359bf86d
+      US-XXX: 48b416257cf7acd8b225b785edcb09a125fed67521af9c8f115ec7dc2fbf23a3
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Technical Design: TD-XXX-[story-name]

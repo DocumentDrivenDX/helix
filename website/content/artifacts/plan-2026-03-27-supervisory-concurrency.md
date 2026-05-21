@@ -1,7 +1,7 @@
 ---
 title: "HELIX Plan: Supervisory Concurrency And Interactive Refinement"
 slug: plan-2026-03-27-supervisory-concurrency
-weight: 310
+weight: 330
 activity: "Design"
 source: "02-design/plan-2026-03-27-supervisory-concurrency.md"
 generated: true

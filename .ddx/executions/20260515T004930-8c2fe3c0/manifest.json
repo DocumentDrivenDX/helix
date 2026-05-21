@@ -1,0 +1,40 @@
+{
+  "attempt_id": "20260515T004930-8c2fe3c0",
+  "bead_id": "helix-be8fa335",
+  "base_rev": "67b63588a4afab1ce4ef741a4ba7e8a8acb92c0f",
+  "created_at": "2026-05-15T00:49:30.928589653Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-be8fa335",
+    "title": "Refresh helix-concerns cast with area-labeled drift finding",
+    "description": "Parent helix-495f0d72 was too large for direct execution because the prompt embedded the full existing asciinema cast. This child is the execution-ready slice.\n\nTask: refresh the checked-in helix-concerns asciinema recording so the public demo shows the fresh-eyes review drift finding bead with a scope-appropriate area label. The expected finding is for tests/drift.test.ts importing vitest instead of bun:test, so area:api is the appropriate label from the demo concerns file.\n\nIn-scope files:\n- docs/demos/helix-concerns/recordings/helix-concerns-20260406-180259.cast\n- docs/demos/helix-concerns/agent-dictionary/*.json only if needed to regenerate the cast consistently\n- docs/demos/helix-concerns/fixtures/** only if needed to keep replay deterministic\n\nOut-of-scope:\n- Other demo recordings\n- Website layout or content outside generated references to this recording\n- HELIX/DDx runtime behavior changes\n\nPreserve asciinema v2 JSON-lines format. Do not hand-edit unrelated transcript content.",
+    "acceptance": "`python3 - \u003c\u003c'PY'\nimport json\nfrom pathlib import Path\np = Path('docs/demos/helix-concerns/recordings/helix-concerns-20260406-180259.cast')\nlines = p.read_text(encoding='utf-8').splitlines()\nassert lines, 'cast is empty'\nfor i, line in enumerate(lines, 1):\n    json.loads(line)\noutputs = []\nfor line in lines[1:]:\n    event = json.loads(line)\n    if len(event) \u003e= 3 and event[1] == 'o':\n        outputs.append(event[2])\ntext = ''.join(outputs)\nassert 'drift: tests/drift.test.ts imports vitest instead of bun:test' in text\nassert 'review-finding' in text\nassert 'area:api' in text\nPY` passes, proving the checked-in cast is valid JSON lines and displays the drift finding with a scope-appropriate area:* label.",
+    "parent": "helix-495f0d72",
+    "labels": [
+      "helix",
+      "phase:build",
+      "area:demo",
+      "area:docs",
+      "area:site"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-15T00:48:01Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "2366035",
+      "spec-id": "docs/demos/helix-concerns/recordings/helix-concerns-20260406-180259.cast",
+      "work-heartbeat-at": "2026-05-15T00:48:01.494661445Z"
+    }
+  },
+  "paths": {
+    "dir": ".ddx/executions/20260515T004930-8c2fe3c0",
+    "prompt": ".ddx/executions/20260515T004930-8c2fe3c0/prompt.md",
+    "manifest": ".ddx/executions/20260515T004930-8c2fe3c0/manifest.json",
+    "result": ".ddx/executions/20260515T004930-8c2fe3c0/result.json",
+    "checks": ".ddx/executions/20260515T004930-8c2fe3c0/checks.json",
+    "usage": ".ddx/executions/20260515T004930-8c2fe3c0/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-be8fa335-20260515T004930-8c2fe3c0"
+  },
+  "prompt_sha": "494f2f00850818bfb2b50d9bbee36a9d0a7085d52e8fdd92babc6ec8d908be51"
+}

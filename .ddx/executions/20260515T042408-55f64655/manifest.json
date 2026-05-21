@@ -1,0 +1,85 @@
+{
+  "attempt_id": "20260515T042408-55f64655",
+  "bead_id": "helix-396b451e",
+  "base_rev": "79a8055af31c6e86219230cc1667733a01371b22",
+  "created_at": "2026-05-15T04:24:08.527920056Z",
+  "requested": {
+    "harness": "codex",
+    "model": "gpt-5.4",
+    "prompt": "synthesized",
+    "min_power": 10
+  },
+  "bead": {
+    "id": "helix-396b451e",
+    "title": "Refresh public artifact projection",
+    "description": "\u003ccontext-digest\u003e\n\u003cconcerns\u003ehugo-hextra | product-microsite-ia | demo-asciinema | e2e-playwright\u003c/concerns\u003e\n\u003cpractices\u003eDefine the site's target audience and what content they need · Theme version: Hextra v0.12.1 — pinned in website/go.mod · Define the primary reader modes before defining the navigation tree. · Reader modes: evaluators, new users, active HELIX users, and contributors · Identify which workflows need demo reels — prioritize the \"first 5 minutes\" experience · Current demos: helix-quickstart (full lifecycle), helix-concerns (drift detection), helix-evolve (requirement threading), helix-experiment (metric-driven optimization)\u003c/practices\u003e\n\u003cadrs\u003eADR-001 HELIX Supervisory Control Model — Supervision must remain live to concurrent local operator activity. A running helix-run session must treat tracker and governing-artifact changes as new control input at safe boundaries. It may not assume that the selected issue is still valid at claim time or close time just because it was valid earlier in the loop. Why: HELIX must preserve bounded execution, authority order, tracker-first work management, and direct interactive operation. It must also reduce orchestration burden by autonomously selecting the least-powerful sufficient next action when authority is available. · ADR-002 HELIX Tracker Write Safety Model — The tracker will not pretend to provide arbitrary multi-writer transactional semantics. Instead, it will define the supported local execution model, require explicit detection or prevention of silent lost updates, and make malformed tracker state a surfaced failure rather than something the rest of HELIX must guess around. Why: HELIX needs a conservative local tracker that is safe enough for agent-driven issue refinement and concurrent local supervision. The tracker must surface malformed state explicitly, define what concurrency/conflict guarantees are supported, and make metadata mutation available through first-class commands instead of direct file edits.\u003c/adrs\u003e\n\u003cgoverning\u003ehelix.architecture — workflows/ is what adopters install; docs/helix/ demonstrates the methodology applied to HELIX's own development. The Hugo microsite (when generated) is a read-only projection of both trees, not a source of truth.\u003c/governing\u003e\n\u003c/context-digest\u003e\n\nContext: The source artifacts under `docs/helix` include newer artifacts that are missing from the Hugo projection under `website/content/artifacts`. Examples: `docs/helix/02-design/contracts/CONTRACT-003-ddx-adapter-boundary.md` and `docs/helix/06-iterate/alignment-reviews/AR-2026-05-14-legacy-supersession.md` exist in source, but no corresponding files exist under `website/content/artifacts/contracts/` or `website/content/artifacts/alignment-reviews/`. The architecture states the microsite is a read-only projection of `workflows/` and `docs/helix/`, not a source of truth. The script `scripts/publish-artifacts.py` publishes `docs/helix` to `website/content/artifacts`.\n\nIn-scope files:\n- website/content/artifacts/** generated projection\n- scripts/publish-artifacts.py only if deterministic projection has a bug\n- docs/helix/** only if source frontmatter must be corrected for publishing\n\nOut-of-scope:\n- Do not hand-edit generated website artifacts when rerunning the publisher is sufficient.\n- Do not change microsite design or navigation beyond projection correctness.\n\nImplementation notes: rerun the artifact publisher after source metadata is healthy. Verify the latest contract and alignment review artifacts appear in the generated site tree.",
+    "acceptance": "Command: python3 scripts/publish-artifacts.py\nExpected: exits 0.\n\nCommand: test -f website/content/artifacts/contracts/CONTRACT-003-ddx-adapter-boundary.md\nExpected: exits 0.\n\nCommand: test -f website/content/artifacts/alignment-reviews/AR-2026-05-14-legacy-supersession.md\nExpected: exits 0.\n\nCommand: git diff --check\nExpected: exits 0.",
+    "labels": [
+      "helix",
+      "phase:build",
+      "area:artifacts",
+      "area:docs",
+      "area:site",
+      "area:website",
+      "kind:backfill"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-15T04:18:32Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "3499424",
+      "events": [
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"codex\",\"resolved_model\":\"gpt-5.4\",\"fallback_chain\":[],\"requested_harness\":\"codex\",\"requested_model\":\"gpt-5.4\"}",
+          "created_at": "2026-05-15T04:22:15.174240274Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=codex model=gpt-5.4"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"attempt_id\":\"20260515T042014-965ecf15\",\"harness\":\"codex\",\"model\":\"gpt-5.4\",\"input_tokens\":367163,\"output_tokens\":4444,\"total_tokens\":371607,\"cost_usd\":0,\"duration_ms\":120179,\"exit_code\":0}",
+          "created_at": "2026-05-15T04:22:15.224015606Z",
+          "kind": "cost",
+          "source": "legacy agent execute-bead",
+          "summary": "tokens=371607 model=gpt-5.4"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"codex\",\"resolved_model\":\"gpt-5.4\",\"fallback_chain\":[],\"requested_harness\":\"codex\",\"requested_model\":\"gpt-5.4\",\"requested_min_power\":8}",
+          "created_at": "2026-05-15T04:24:07.838298404Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=codex model=gpt-5.4"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"attempt_id\":\"20260515T042215-8c298deb\",\"harness\":\"codex\",\"model\":\"gpt-5.4\",\"input_tokens\":322798,\"output_tokens\":3816,\"total_tokens\":326614,\"cost_usd\":0,\"duration_ms\":111466,\"exit_code\":0}",
+          "created_at": "2026-05-15T04:24:07.886499571Z",
+          "kind": "cost",
+          "source": "legacy agent execute-bead",
+          "summary": "tokens=326614 model=gpt-5.4"
+        }
+      ],
+      "spec-id": "helix.architecture",
+      "work-heartbeat-at": "2026-05-15T04:18:32.373751091Z"
+    }
+  },
+  "governing": [
+    {
+      "id": "helix.architecture",
+      "path": "docs/helix/02-design/architecture.md",
+      "title": "Architecture"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260515T042408-55f64655",
+    "prompt": ".ddx/executions/20260515T042408-55f64655/prompt.md",
+    "manifest": ".ddx/executions/20260515T042408-55f64655/manifest.json",
+    "result": ".ddx/executions/20260515T042408-55f64655/result.json",
+    "checks": ".ddx/executions/20260515T042408-55f64655/checks.json",
+    "usage": ".ddx/executions/20260515T042408-55f64655/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-396b451e-20260515T042408-55f64655"
+  },
+  "prompt_sha": "e042e2f654030f2c2c8c2b0522221eb60d3cdb4cd0b7e5b191b8f9a4c1daaf84"
+}

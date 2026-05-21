@@ -1,3 +1,12 @@
+---
+ddx:
+  id: helix.workflow.tracker
+  review:
+    self_hash: b1d3c681bb7f58276c6a81fe90cd7afd3143d11f49ed8889bf879ac84d05d312
+    deps: {}
+    reviewed_at: "2026-05-15T04:11:24Z"
+---
+
 # Document-Driven Development Experience (DDx)
 
 DDx — Document-Driven Development Experience — is the tooling and

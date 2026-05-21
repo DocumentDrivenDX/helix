@@ -3,6 +3,11 @@ ddx:
   id: helix.workflow.principles-resolution
   depends_on:
     - helix.workflow.principles
+  review:
+    self_hash: d1076cf1e1a2097d4a75595dbcbd37d2085503ba9a6591d1181a07795179a104
+    deps:
+      helix.workflow.principles: fb5c6c17965c55103a0fd1d5933d8d7d0b6f531e31ae99d162a9783005017a56
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 # Principles Resolution
 

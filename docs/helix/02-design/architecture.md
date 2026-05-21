@@ -5,6 +5,12 @@ ddx:
     - helix.prd
     - CONTRACT-003
   status: active
+  review:
+    self_hash: 49f65c706c77f174496e63379eb42676296da9527a504c90a81c204746968b0c
+    deps:
+      CONTRACT-003: 30e3e4320bc0643c904e92ee797d6ad8942a480edfae85a158c3a17054323a52
+      helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Architecture

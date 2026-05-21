@@ -1,7 +1,7 @@
 ---
 title: "ADR-002: HELIX Tracker Write Safety Model"
 slug: ADR-002-tracker-write-safety-model
-weight: 180
+weight: 200
 activity: "Design"
 source: "02-design/adr/ADR-002-tracker-write-safety-model.md"
 generated: true
@@ -16,6 +16,12 @@ ddx:
   depends_on:
     - helix.prd
     - ADR-001
+  review:
+    self_hash: 852db3925a3fb93caf0078bfbf138d5881a9be4ddeb70ad6cea96908e08d1343
+    deps:
+      ADR-001: 16f033617d3ab84a6fa5ebd48d0ec171f1999e6332e26dc956fa7b1a7a8b2685
+      helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
+    reviewed_at: "2026-05-15T04:11:24Z"
 ```
 
 # ADR-002: HELIX Tracker Write Safety Model

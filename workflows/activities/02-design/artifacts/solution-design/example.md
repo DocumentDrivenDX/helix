@@ -6,6 +6,14 @@ ddx:
     - example.architecture.depositmatch
     - example.adr.depositmatch.postgresql-system-of-record
     - example.contract.depositmatch.import-session-api
+  review:
+    self_hash: 4d5a2bf5c6b05affdcf7ecc35497aae9f7bb64007e45b62f2a87b42a6914aa00
+    deps:
+      example.adr.depositmatch.postgresql-system-of-record: d068dcadcfb1b7b4cfa6842e63e078f711128e78d5c2dd7e1666506a7c59d9ad
+      example.architecture.depositmatch: 64b7297158175ff16812e401fe093f7624b5ba70b11265a7a4bdf324e50a6bff
+      example.contract.depositmatch.import-session-api: 0f6f77f7dca5d1d05590440459fe958f9620857ed3968839e537655dce27cd04
+      example.feature-specification.depositmatch.csv-import: d85530eb091209cf9989c9cac3bc1f1063358a5b79964ca0e5e7a384fa77c44a
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Solution Design

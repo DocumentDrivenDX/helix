@@ -5,6 +5,11 @@ ddx:
     - helix.prd
   status: superseded
   superseded_by: helix.prd
+  review:
+    self_hash: 16f033617d3ab84a6fa5ebd48d0ec171f1999e6332e26dc956fa7b1a7a8b2685
+    deps:
+      helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 > **SUPERSEDED** — This ADR decided to make `helix-run` the supervisory

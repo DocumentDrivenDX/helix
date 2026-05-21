@@ -1,0 +1,57 @@
+{
+  "attempt_id": "20260515T040603-266893a7",
+  "bead_id": "helix-85be8e37",
+  "base_rev": "70d7794bf6a0af96c0eac07c54b76d510c21e611",
+  "created_at": "2026-05-15T04:06:03.62849799Z",
+  "requested": {
+    "harness": "codex",
+    "model": "gpt-5.4",
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-85be8e37",
+    "title": "Repair HELIX document graph stale metadata",
+    "description": "Context: `ddx doc stale` reports 82 stale or missing dependency findings across HELIX governing artifacts and catalog examples. Concrete examples from the current run include `CONTRACT-003` reporting missing dependency targets `CONTRACT-001` and `CONTRACT-002`, `helix.architecture` missing review hashes for `CONTRACT-003` and `helix.prd`, `helix.principles` missing dependency `helix.product-vision`, and the new CRM example solution design missing review hashes for `crm.prd` and `crm.vision`. The artifact schema says missing dependency IDs are warnings while drafting and blocking before publishing or depending on the artifact.\n\nIn-scope files:\n- docs/helix/** artifact frontmatter and dependency review metadata\n- workflows/** artifact examples/templates only where `ddx doc stale` identifies graph issues\n- docs/examples/crm/** dependency metadata for the new CRM example\n\nOut-of-scope:\n- Do not rewrite artifact content beyond metadata needed to restore graph integrity.\n- Do not change code or runtime behavior.\n- Do not bypass `ddx doc stale` by suppressing checks.\n\nImplementation notes: prefer small, mechanical metadata repairs. Add missing `ddx.id` blocks where a dependency target is a real artifact, update review hash metadata according to the repo's existing pattern, and leave a clear follow-up bead only if a stale finding requires product judgment rather than metadata repair.",
+    "acceptance": "Command: bash -lc 'test -z \"$(ddx doc stale)\"'\nExpected: exits 0.\n\nCommand: bash tests/validate-context-digests.sh\nExpected: exits 0.\n\nCommand: git diff --check\nExpected: exits 0.",
+    "labels": [
+      "helix",
+      "phase:build",
+      "area:docs",
+      "kind:alignment"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-15T04:01:03Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "3499424",
+      "events": [
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness check timed out after 5m0s (helix-85be8e37)\",\"fingerprint\":\"3de07a18c763b3c48ab0477e8e46aa75d36519a2ac4f977ef55c0e706e89d78e\",\"policy_mode\":\"warn-only\",\"reason\":\"timeout\",\"rule_id\":\"pre_claim_intake.timeout\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\"}",
+          "created_at": "2026-05-15T04:06:03.100649612Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "timeout"
+        }
+      ],
+      "spec-id": "helix.prd",
+      "work-heartbeat-at": "2026-05-15T04:01:03.075077196Z"
+    }
+  },
+  "governing": [
+    {
+      "id": "helix.prd",
+      "path": "docs/helix/01-frame/prd.md",
+      "title": "Product Requirements Document"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260515T040603-266893a7",
+    "prompt": ".ddx/executions/20260515T040603-266893a7/prompt.md",
+    "manifest": ".ddx/executions/20260515T040603-266893a7/manifest.json",
+    "result": ".ddx/executions/20260515T040603-266893a7/result.json",
+    "checks": ".ddx/executions/20260515T040603-266893a7/checks.json",
+    "usage": ".ddx/executions/20260515T040603-266893a7/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-85be8e37-20260515T040603-266893a7"
+  },
+  "prompt_sha": "9b06e548f71cac2233bc7d09bfeabda627b6f6193193bd1de4f97fdbece96739"
+}

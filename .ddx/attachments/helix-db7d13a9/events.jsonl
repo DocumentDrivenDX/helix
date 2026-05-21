@@ -1,0 +1,2 @@
+{"actor":"ddx","body":"{\"resolved_provider\":\"\",\"fallback_chain\":[]}","created_at":"2026-05-03T15:02:33.325543291Z","kind":"routing","source":"ddx agent execute-bead","summary":"provider="}
+{"actor":"ddx","body":"ResolveRoute: no viable routing candidate: 4 candidates rejected\nresult_rev=adec7b4d6a2902c7239d0eab5745ef5b57898557\nbase_rev=adec7b4d6a2902c7239d0eab5745ef5b57898557\nretry_after=2026-05-03T21:02:33Z","created_at":"2026-05-03T15:02:33.517193324Z","kind":"execute-bead","source":"ddx agent execute-loop","summary":"execution_failed"}

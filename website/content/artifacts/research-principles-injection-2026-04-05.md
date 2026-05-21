@@ -1,7 +1,7 @@
 ---
 title: "Research: Principles Injection Strategy Effectiveness"
 slug: research-principles-injection-2026-04-05
-weight: 660
+weight: 730
 activity: "Iterate"
 source: "06-iterate/research-principles-injection-2026-04-05.md"
 generated: true
@@ -14,6 +14,11 @@ ddx:
   id: research.principles-injection.2026-04-05
   depends_on:
     - SD-002
+  review:
+    self_hash: e8043861ad95b4deac94d712f03b8541f89698913007c9161d3e1c34ae30aa3f
+    deps:
+      SD-002: 474c29fce056411ad1affcd4a882a83f82b6e24d9887f1c87e105cf871e5f7dc
+    reviewed_at: "2026-05-15T04:11:24Z"
 ```
 
 # Research: Principles Injection Strategy Effectiveness

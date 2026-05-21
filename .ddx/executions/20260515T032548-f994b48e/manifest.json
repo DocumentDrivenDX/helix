@@ -1,0 +1,67 @@
+{
+  "attempt_id": "20260515T032548-f994b48e",
+  "bead_id": "helix-c4c1c9c1",
+  "base_rev": "fe46f272ba48f1984a92a9813a8864b3c46fa960",
+  "created_at": "2026-05-15T03:25:49.007358169Z",
+  "requested": {
+    "harness": "codex",
+    "prompt": "synthesized",
+    "min_power": 8
+  },
+  "bead": {
+    "id": "helix-c4c1c9c1",
+    "title": "Fix polish not-execution-ready validation path",
+    "description": "Context: `bash tests/validate-skills.sh` currently fails with `polish action must define a not-execution-ready flagging path`. The validator checks `workflows/actions/polish.md` for the exact not-execution-ready wording expected by `tests/validate-skills.sh` around lines 426-433. The action already has related intent around acceptance sharpening, but the deterministic gate must pass.\n\nIn-scope files:\n- workflows/actions/polish.md\n- tests/validate-skills.sh only if the current validator assertion is objectively stale or too brittle\n\nOut-of-scope:\n- Do not broaden polish behavior beyond the validation failure.\n- Do not change unrelated skill routes.\n\nImplementation notes: preserve the rule that vague acceptance text such as \"works\", \"correct\", \"complete\", or \"aligned\" is non-measurable unless paired with a named check. The resulting text must make the not-execution-ready flagging path explicit enough for agents and the validator.",
+    "acceptance": "1. `bash tests/validate-skills.sh` passes.\n2. `git diff --check` passes.",
+    "labels": [
+      "helix",
+      "phase:build",
+      "area:skills",
+      "area:workflows",
+      "kind:bug",
+      "ac-quality:needs-refinement"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-15T03:24:18Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "3388657",
+      "events": [
+        {
+          "actor": "",
+          "body": "[{\"ac\":1,\"text\":\"`bash tests/validate-skills.sh` passes.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":2,\"text\":\"`git diff --check` passes.\",\"kind\":\"prose\",\"verifiable\":false}]",
+          "created_at": "2026-05-15T03:24:19.029755332Z",
+          "kind": "ac-quality-low",
+          "source": "preclaim-ac-quality",
+          "summary": "score=0.00 threshold=0.50 verifiable=0/2"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"codex\",\"fallback_chain\":[],\"requested_harness\":\"codex\"}",
+          "created_at": "2026-05-15T03:25:48.439137007Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=codex"
+        }
+      ],
+      "spec-id": "helix.prd",
+      "work-heartbeat-at": "2026-05-15T03:24:18.933726836Z"
+    }
+  },
+  "governing": [
+    {
+      "id": "helix.prd",
+      "path": "docs/helix/01-frame/prd.md",
+      "title": "Product Requirements Document"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260515T032548-f994b48e",
+    "prompt": ".ddx/executions/20260515T032548-f994b48e/prompt.md",
+    "manifest": ".ddx/executions/20260515T032548-f994b48e/manifest.json",
+    "result": ".ddx/executions/20260515T032548-f994b48e/result.json",
+    "checks": ".ddx/executions/20260515T032548-f994b48e/checks.json",
+    "usage": ".ddx/executions/20260515T032548-f994b48e/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-c4c1c9c1-20260515T032548-f994b48e"
+  },
+  "prompt_sha": "05da2a054280c8387ad47e388b797ef3f5c4ba28a1e1219e8d2b423e653598aa"
+}

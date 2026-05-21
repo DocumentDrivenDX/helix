@@ -1,7 +1,7 @@
 ---
 title: "Alignment Review: Legacy CLI and Autopilot Artifact Classification"
 slug: AR-2026-05-12-legacy-cli-autopilot-classification
-weight: 580
+weight: 650
 activity: "Iterate"
 source: "06-iterate/alignment-reviews/AR-2026-05-12-legacy-cli-autopilot-classification.md"
 generated: true
@@ -15,6 +15,11 @@ ddx:
   id: AR-2026-05-12-legacy-cli-autopilot-classification
   depends_on:
     - helix.prd
+  review:
+    self_hash: d0886e00ae0798ff297a1eb6ccb4b0dc1fd6056a71d92c1cc07448735d8d55a7
+    deps:
+      helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
+    reviewed_at: "2026-05-15T04:11:24Z"
 ```
 
 # Alignment Review: Legacy CLI and Autopilot Artifact Classification
@@ -63,7 +68,7 @@ does not modify the artifacts themselves.
 | `docs/helix/02-design/solution-designs/SD-001-helix-supervisory-control.md` | historical/superseded | Designs HELIX as a supervisory control system. Its core premise is incompatible with the current product direction. | Mark superseded. Preserve only concepts that describe artifact authority, alignment triggers, or stop conditions, and move those into runtime-neutral methodology docs or DDx integration docs as appropriate. |
 | `docs/helix/02-design/technical-designs/TD-002-helix-cli.md` | DDx integration only | Describes technical implementation of a CLI wrapper and associated command behavior. This may remain useful for transition or DDx packaging, but it is not a core HELIX technical design. | Move or rewrite under a DDx integration section. Any retained design must state that the CLI is adapter/runtime glue, not HELIX's primary product surface. |
 | `docs/helix/02-design/technical-designs/TD-011-slider-autonomy-implementation.md` | retire | Implements the retired slider-autonomy concept for `helix run`. It deepens runtime-loop ownership and therefore should not govern HELIX. | Retire after confirming no open DDx adapter work still depends on it. If needed, recreate the concept in DDx-owned docs rather than preserving this HELIX technical design. |
-| `docs/helix/03-test/test-plans/TP-002-helix-cli.md` | DDx integration only | Test plan validates wrapper CLI behavior, tracker operations, and run-loop mechanics. These are useful for the DDx adapter or transitional compatibility surface, not for HELIX core. | Move or relabel as DDx adapter test coverage. Core HELIX validation should instead test catalog completeness, artifact schema, and portable alignment skill behavior. |
+| `docs/helix/03-test/test-plans/STP-002-helix-cli.md` | DDx integration only | Test plan validates wrapper CLI behavior, tracker operations, and run-loop mechanics. These are useful for the DDx adapter or transitional compatibility surface, not for HELIX core. | Move or relabel as DDx adapter test coverage. Core HELIX validation should instead test catalog completeness, artifact schema, and portable alignment skill behavior. |
 | `docs/helix/02-design/architecture.md` | needs decision | Currently presents HELIX as a methodology layer running on DDx with `scripts/helix`, one skill per CLI verb, and DDx-owned execution services as core architecture. The repo still needs an architecture artifact, but this one is not aligned. | Rewrite as the runtime-neutral HELIX architecture. Move DDx-specific deployment, tracker, and CLI sections into a separate DDx reference-runtime architecture note. |
 | `docs/helix/04-build/implementation-plan.md` | retire | Build plan is scoped to slider autonomy and `helix run --autonomy`, which is no longer a product direction for HELIX core. | Retire from active build planning. Replace with implementation plans for artifact schema completion, template metadata, portable alignment skill, and public documentation projection. |
 
@@ -80,7 +85,7 @@ does not modify the artifacts themselves.
 ## Recommended Follow-On Work
 
 1. Create a supersession bead to mark FEAT-001, ADR-001, SD-001, and related supervisory-control docs as superseded by the current PRD.
-2. Create a DDx integration documentation bead to move or rewrite FEAT-002, TD-002, and TP-002 as adapter/reference-runtime material.
+2. Create a DDx integration documentation bead to move or rewrite FEAT-002, TD-002, and STP-002 as adapter/reference-runtime material.
 3. Create a retirement bead for FEAT-011, TD-011, and the slider-autonomy build plan.
 4. Create a runtime-neutral architecture rewrite bead for `docs/helix/02-design/architecture.md`.
 5. Create a core validation bead that replaces CLI-wrapper-centric proof with checks for artifact schema completeness, template metadata, and alignment-skill portability.

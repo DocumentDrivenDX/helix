@@ -4,6 +4,12 @@ ddx:
   depends_on:
     - helix.workflow
     - helix.workflow.principles
+  review:
+    self_hash: f50b62b75bd98b088f04296a535d7d486be81b1c7799d2cd90be0c80376346a6
+    deps:
+      helix.workflow: 1225132b3050598055eacb5462639824d78ac204cca2cbeda3611766532e79c8
+      helix.workflow.principles: fb5c6c17965c55103a0fd1d5933d8d7d0b6f531e31ae99d162a9783005017a56
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 # Quality Ratchets
 

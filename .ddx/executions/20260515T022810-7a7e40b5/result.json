@@ -1,0 +1,23 @@
+{
+  "bead_id": "helix-8944c622",
+  "attempt_id": "20260515T022810-7a7e40b5",
+  "base_rev": "c1e28bc8fb65ba5c0c9851cf8dfaca14716bee91",
+  "result_rev": "d73a465f4ee1ed69dda62cf35553824aed5b2987",
+  "outcome": "task_failed",
+  "status": "execution_failed",
+  "detail": "exit status 1",
+  "harness": "claude",
+  "model": "opus",
+  "session_id": "eb-0a470d35",
+  "duration_ms": 29563,
+  "exit_code": 1,
+  "error": "exit status 1",
+  "failure_mode": "unknown",
+  "execution_dir": ".ddx/executions/20260515T022810-7a7e40b5",
+  "prompt_file": ".ddx/executions/20260515T022810-7a7e40b5/prompt.md",
+  "manifest_file": ".ddx/executions/20260515T022810-7a7e40b5/manifest.json",
+  "result_file": ".ddx/executions/20260515T022810-7a7e40b5/result.json",
+  "rate_limit_budget": 300000000000,
+  "started_at": "2026-05-15T02:28:10.813305732Z",
+  "finished_at": "2026-05-15T02:28:40.37678503Z"
+}

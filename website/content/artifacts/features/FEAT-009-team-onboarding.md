@@ -17,6 +17,13 @@ ddx:
     - helix.prd
     - FEAT-007
     - FEAT-008
+  review:
+    self_hash: 90e65b4d6802dc4d1413d4134b47835dc9cc8376d2a06a93f8e4a60f886181cf
+    deps:
+      FEAT-007: d7f507487425873506f2953e58566d946b06d2614a523ebeb9e1e0f68ff71231
+      FEAT-008: 5f84004f080f8d69c84ce1bb208e26461a53bb6063b471658da0d4934ec39214
+      helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
+    reviewed_at: "2026-05-15T04:11:24Z"
 ```
 
 # Feature Specification: FEAT-009 — Team Onboarding Workflow

@@ -8,6 +8,13 @@ ddx:
     - CONTRACT-001
     - CONTRACT-002
   status: draft
+  review:
+    self_hash: 30e3e4320bc0643c904e92ee797d6ad8942a480edfae85a158c3a17054323a52
+    deps:
+      CONTRACT-001: a3a48304a395b3d52c41f7b833e639f4a5ae986e62f58284821687306d3049fb
+      CONTRACT-002: 473794ceba3db29b84547ece5a9c2d976471c67a8f2cba39750220edb188685a
+      helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # CONTRACT-003: DDx Adapter Boundary
@@ -210,99 +217,70 @@ CONTRACT-001 §DDx -> HELIX, which remains authoritative for this surface.
 - HELIX to implement a queue, a tracker, or an execution loop. If DDx needs
   queue semantics, DDx provides them.
 
-## Migration Notes: Known Boundary Leaks
+## Migration Notes: Boundary Leak Ledger
 
-The following places in the current codebase cross the new boundary. Each entry
-carries a file reference; none is a blocking defect today but each should be
-resolved before the next HELIX major release.
+This ledger records the concrete boundary leaks identified during the
+2026-Q2 scope-collapse audit and their current repository state. Keep entries
+when they remain useful as an audit trail; reopen them only if a later edit
+reintroduces the DDx-specific coupling.
 
-### LEAK-1 — Skill body references DDx-specific route names
+### LEAK-1 — Commit guidance now uses runtime-neutral execution language
 
-`skills/helix/SKILL.md:221`
+- **Status:** Resolved
+- **Evidence:** `skills/helix/SKILL.md` §Commit
 
-```
-Preserve DDx execute-bead history: never squash, rebase, amend, or filter
-branches containing execute-bead or `[ddx-*]` commits.
-```
+The earlier leak was the `commit` workflow contract naming DDx-specific
+history markers such as `execute-bead` and `[ddx-*]`. The current contract now
+says to "Preserve history produced by runtime-managed execution," which keeps
+the rule portable across DDx, Claude Code, and Genie while preserving the
+intent of the original safeguard.
 
-The `commit` workflow contract names `execute-bead` and `[ddx-*]` — DDx-specific
-concepts — in the normative skill body. This violates PRD R-4
-(runtime-neutral content) and the R-4 acceptance test (grep for DDx-specific
-commands in skill body must return zero hits). A Claude Code user or Genie user
-has no `execute-bead` history to preserve.
+### LEAK-2 — Review workflow no longer conditions follow-up work on DDx tracking
 
-**Fix:** Replace with runtime-neutral language such as "preserve the commit
-history from managed execution runs produced by the runtime." Add a per-runtime
-packaging note in `docs/install/ddx.md` for the DDx-specific commit-message
-convention.
+- **Status:** Resolved
+- **Evidence:** `skills/helix/SKILL.md` §Review
 
-### LEAK-2 — Skill body gates review filing on DDx/HELIX tracking
+The earlier leak was a DDx/HELIX-specific conditional around filing durable
+follow-up work. The current review contract unconditionally requires durable
+follow-up work for actionable findings, leaving the storage surface to the
+runtime.
 
-`skills/helix/SKILL.md:173`
+### LEAK-3 — Operating discipline now states bead-first rules generically
 
-```
-File durable follow-up work for actionable medium-or-higher findings when
-the project uses DDx/HELIX tracking.
-```
+- **Status:** Resolved
+- **Evidence:** `skills/helix/SKILL.md` §Operating Discipline
 
-The `review` workflow contract conditions follow-up work on runtime presence
-("when the project uses DDx/HELIX tracking"). The skill should produce follow-up
-work unconditionally and let the runtime decide how to surface it.
+The earlier leak named DDx explicitly in the operating-discipline rule for
+checking governed work before editing files. The current text generalizes this
+to "projects with governed work records," which preserves the discipline
+without tying it to one runtime.
 
-**Fix:** Remove the conditional. The skill should always produce follow-up
-work items; whether they land as DDx beads, GitHub issues, or markdown stubs
-is a runtime concern.
+### LEAK-4 — Artifact schema now distinguishes canonical source from DDx install path
 
-### LEAK-3 — Skill body references bead-first rules as DDx-specific
+- **Status:** Resolved
+- **Evidence:** `workflows/artifact-schema.md` §Directory layout conventions
 
-`skills/helix/SKILL.md:275`
+The earlier leak treated `.ddx/plugins/helix/workflows/` as the installed
+catalog location without clarifying that the path varies by runtime. The
+artifact schema now states that install paths are runtime-specific, names the
+DDx plugin path only as the DDx-managed example, and keeps `workflows/` in the
+HELIX repo as the canonical source.
 
-```
-For DDx-backed projects, obey bead-first rules before writing files or tracker
-mutations.
-```
+### LEAK-5 — CONTRACT-001 already carries a pre-collapse supersession note
 
-The operating-discipline section names DDx explicitly in the normative body.
-Bead-first discipline is a good general rule for any work-item–backed runtime.
-The sentence should either be made runtime-neutral or moved to the DDx install
-guide.
+- **Status:** Resolved
+- **Evidence:** `docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md`
+header note
 
-**Fix:** Either generalize ("if the project uses a work-item tracker, check
-open work items before writing files") or move to `docs/install/ddx.md`.
+The earlier leak was the directional framing in CONTRACT-001 that described
+DDx as HELIX's "platform substrate" without any scope-collapse context. The
+current document already opens with a note that marks that framing as
+pre-collapse and points readers to CONTRACT-003 for the current runtime-adapter
+boundary.
 
-### LEAK-4 — Artifact schema directory layout shows DDx plugin path as catalog location
-
-`workflows/artifact-schema.md:279`
-
-```
-The installed catalog lives under `.ddx/plugins/helix/workflows/`, and project
-instances conventionally live under `docs/helix/`.
-```
-
-The artifact-schema specification lists the DDx plugin install path as the
-"installed catalog" location. This is accurate for DDx deployments but will
-mislead Claude Code and Genie adopters who install differently.
-
-**Fix:** Clarify that `.ddx/plugins/helix/workflows/` is the DDx-specific
-install path. The canonical source is `workflows/` in the HELIX repo.
-Per-runtime install paths are described in `docs/install/`.
-
-### LEAK-5 — CONTRACT-001 framing describes DDx as "platform substrate"
-
-`docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md:15`
-
-```
-- **DDx** is the platform substrate.
-- **HELIX** is the workflow and methodology layer built on that substrate.
-```
-
-This framing predates the scope collapse and is now directionally wrong. DDx is
-a runtime adapter, not the substrate. CONTRACT-003 (this document) supersedes
-this framing; CONTRACT-001 retains value as a detailed interface specification
-for the DDx-HELIX shared integration objects.
-
-**Fix:** Add a header note to CONTRACT-001 marking it as pre-collapse and
-pointing to CONTRACT-003 for the current boundary framing.
+No currently open boundary leaks are recorded here. New entries should be added
+only when a file in the repository again crosses the minimal runtime contract
+described above.
 
 ## Validation Checklist
 
@@ -318,7 +296,8 @@ The adapter boundary is healthy when all of the following are true:
       via subprocess calls embedded in skill prose
 - [ ] `docs/install/ddx.md` covers all DDx-specific packaging, naming, and
       invocation notes; none of that detail appears in `skills/helix/SKILL.md`
-- [ ] LEAK-1 through LEAK-4 are resolved or have tracking beads
+- [ ] Every boundary-leak ledger entry has current evidence and is either
+      resolved or linked to active follow-up work
 
 ## References
 

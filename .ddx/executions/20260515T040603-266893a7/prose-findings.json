@@ -1,0 +1,88 @@
+{
+  "ran": true,
+  "changed_docs": [
+    "docs/examples/crm/02-design/solution-design.md",
+    "docs/helix/00-discover/product-vision.md",
+    "docs/helix/01-frame/features/FEAT-001-helix-supervisory-control.md",
+    "docs/helix/01-frame/features/FEAT-002-helix-cli.md",
+    "docs/helix/01-frame/features/FEAT-003-principles.md",
+    "docs/helix/01-frame/features/FEAT-004-plugin-packaging.md",
+    "docs/helix/01-frame/features/FEAT-005-execution-backed-output.md",
+    "docs/helix/01-frame/features/FEAT-006-concerns-practices-context-digest.md",
+    "docs/helix/01-frame/features/FEAT-007-microsite-and-demos.md",
+    "docs/helix/01-frame/features/FEAT-008-artifact-template-quality.md",
+    "docs/helix/01-frame/features/FEAT-009-team-onboarding.md",
+    "docs/helix/01-frame/features/FEAT-010-testing-strategy-templates.md",
+    "docs/helix/01-frame/features/FEAT-012-public-microsite-ia.md",
+    "docs/helix/01-frame/prd.md",
+    "docs/helix/01-frame/principles.md",
+    "docs/helix/02-design/adr/ADR-001-supervisory-control-model.md",
+    "docs/helix/02-design/adr/ADR-002-tracker-write-safety-model.md",
+    "docs/helix/02-design/architecture.md",
+    "docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md",
+    "docs/helix/02-design/contracts/CONTRACT-002-helix-execution-doc-conventions.md",
+    "docs/helix/02-design/contracts/CONTRACT-003-ddx-adapter-boundary.md",
+    "docs/helix/02-design/security-architecture.md",
+    "docs/helix/02-design/solution-designs/SD-001-helix-supervisory-control.md",
+    "docs/helix/02-design/solution-designs/SD-002-first-class-principles.md",
+    "docs/helix/02-design/technical-designs/TD-011-slider-autonomy-implementation.md",
+    "docs/helix/02-design/technical-designs/TD-012-artifact-types-navigation.md",
+    "docs/helix/04-build/implementation-plan-2026-04-11-snapshot.md",
+    "docs/helix/04-build/implementation-plan.md",
+    "docs/helix/06-iterate/alignment-reviews/AR-2026-05-12-legacy-cli-autopilot-classification.md",
+    "docs/helix/06-iterate/alignment-reviews/AR-2026-05-14-legacy-supersession.md",
+    "docs/helix/06-iterate/improvement-backlog.md",
+    "docs/helix/06-iterate/metrics-dashboard.md",
+    "docs/helix/06-iterate/research-principles-injection-2026-04-05.md"
+  ],
+  "findings": [
+    {
+      "file": "docs/helix/01-frame/features/FEAT-007-microsite-and-demos.md",
+      "line": 35,
+      "rule_id": "prose.claim.unsupported",
+      "severity": "advisory",
+      "rationale": "The sentence uses unsupported promotional claims such as \"robust\", \"comprehensive\", and \"seamless\" instead of precise behavior.",
+      "suggested_edit": "Replace the claim with a concrete description of the actual change and its measured effect."
+    },
+    {
+      "file": "docs/helix/01-frame/prd.md",
+      "line": 63,
+      "rule_id": "prose.specificity.actor_action",
+      "severity": "advisory",
+      "rationale": "The sentence says something enables or supports work without naming the actor, action, artifact, or boundary.",
+      "suggested_edit": "Name the actor, action, artifact, or boundary that makes the statement concrete."
+    },
+    {
+      "file": "docs/helix/01-frame/prd.md",
+      "line": 293,
+      "rule_id": "prose.specificity.actor_action",
+      "severity": "advisory",
+      "rationale": "The sentence says something enables or supports work without naming the actor, action, artifact, or boundary.",
+      "suggested_edit": "Name the actor, action, artifact, or boundary that makes the statement concrete."
+    },
+    {
+      "file": "docs/helix/01-frame/prd.md",
+      "line": 295,
+      "rule_id": "prose.specificity.actor_action",
+      "severity": "advisory",
+      "rationale": "The sentence says something enables or supports work without naming the actor, action, artifact, or boundary.",
+      "suggested_edit": "Name the actor, action, artifact, or boundary that makes the statement concrete."
+    },
+    {
+      "file": "docs/helix/02-design/solution-designs/SD-002-first-class-principles.md",
+      "line": 426,
+      "rule_id": "prose.specificity.actor_action",
+      "severity": "advisory",
+      "rationale": "The sentence says something enables or supports work without naming the actor, action, artifact, or boundary.",
+      "suggested_edit": "Name the actor, action, artifact, or boundary that makes the statement concrete."
+    },
+    {
+      "file": "docs/helix/06-iterate/research-principles-injection-2026-04-05.md",
+      "line": 79,
+      "rule_id": "prose.specificity.actor_action",
+      "severity": "advisory",
+      "rationale": "The sentence says something enables or supports work without naming the actor, action, artifact, or boundary.",
+      "suggested_edit": "Name the actor, action, artifact, or boundary that makes the statement concrete."
+    }
+  ]
+}

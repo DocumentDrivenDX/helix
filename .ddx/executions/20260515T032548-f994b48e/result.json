@@ -1,0 +1,22 @@
+{
+  "bead_id": "helix-c4c1c9c1",
+  "attempt_id": "20260515T032548-f994b48e",
+  "base_rev": "fe46f272ba48f1984a92a9813a8864b3c46fa960",
+  "result_rev": "fe46f272ba48f1984a92a9813a8864b3c46fa960",
+  "outcome": "task_failed",
+  "status": "execution_failed",
+  "detail": "ResolveRoute: no viable routing candidate for pins harness=codex min_power=8: 1 candidates rejected",
+  "harness": "codex",
+  "session_id": "eb-b21a38ee",
+  "duration_ms": 29450,
+  "exit_code": 1,
+  "error": "ResolveRoute: no viable routing candidate for pins harness=codex min_power=8: 1 candidates rejected",
+  "failure_mode": "blocked_by_passthrough_constraint",
+  "execution_dir": ".ddx/executions/20260515T032548-f994b48e",
+  "prompt_file": ".ddx/executions/20260515T032548-f994b48e/prompt.md",
+  "manifest_file": ".ddx/executions/20260515T032548-f994b48e/manifest.json",
+  "result_file": ".ddx/executions/20260515T032548-f994b48e/result.json",
+  "rate_limit_budget": 300000000000,
+  "started_at": "2026-05-15T03:25:49.007445794Z",
+  "finished_at": "2026-05-15T03:26:18.458208846Z"
+}

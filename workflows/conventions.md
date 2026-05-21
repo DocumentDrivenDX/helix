@@ -3,6 +3,11 @@ ddx:
   id: helix.workflow.conventions
   depends_on:
     - helix.workflow
+  review:
+    self_hash: a2b087d211b0c27ca2a3cccc2ca481449c9ff6a2d6d08c50572844f7762ea34c
+    deps:
+      helix.workflow: 1225132b3050598055eacb5462639824d78ac204cca2cbeda3611766532e79c8
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 # HELIX Workflow Conventions
 

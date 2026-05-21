@@ -4,6 +4,12 @@ ddx:
   depends_on:
     - FEAT-012
     - FEAT-007
+  review:
+    self_hash: 495d26c473dd0f5ee6f11796f66f7c7ebb6d658b51ad7f6e725a5d037a57db47
+    deps:
+      FEAT-007: d7f507487425873506f2953e58566d946b06d2614a523ebeb9e1e0f68ff71231
+      FEAT-012: fe5c93bc84074e71865b451779c665633aa980ae337dd9fce614fcfdb88d666d
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 # Technical Design: TD-012 — Artifact Types Navigation
 

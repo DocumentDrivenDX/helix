@@ -1,12 +1,25 @@
 ---
 title: "CONTRACT-002: HELIX Execution-Document Conventions"
 slug: CONTRACT-002-helix-execution-doc-conventions
-weight: 230
+weight: 250
 activity: "Design"
 source: "02-design/contracts/CONTRACT-002-helix-execution-doc-conventions.md"
 generated: true
 collection: contracts
 ---
+
+> **Source identity** (from `02-design/contracts/CONTRACT-002-helix-execution-doc-conventions.md`):
+
+```yaml
+ddx:
+  id: CONTRACT-002
+  review:
+    self_hash: 473794ceba3db29b84547ece5a9c2d976471c67a8f2cba39750220edb188685a
+    deps:
+      FEAT-011: c17dda57cddf83a49dcdf1bdccc7ec398a7e75ef0626594c7bfd64f97a284a17
+    reviewed_at: "2026-05-15T04:11:24Z"
+```
+
 # CONTRACT-002: HELIX Execution-Document Conventions
 
 **Status:** Draft  

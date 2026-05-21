@@ -20,7 +20,7 @@ graph LR
     subgraph "🏗️ DESIGN Artifacts"
         SD[Solution Design]
         AD[Architecture Diagrams]
-        API[API Contracts]
+        API[Contracts<br/>CONTRACT-XXX / API-XXX]
         ADR[Architecture Decisions]
         DD[Data Design]
         SA[Security Architecture]
@@ -119,7 +119,7 @@ graph TD
         FS --> TC[Test Cases]
 
         SD[Solution Design] --> AD[Architecture]
-        AD --> API[API Contracts]
+        AD --> API[Contracts]
         API --> CT[Contract Tests]
 
         SR[Security Req] --> TM[Threat Model]
@@ -189,7 +189,7 @@ gantt
     section DESIGN
     Solution Design     :active, design1, after frame3, 3d
     Architecture        :active, design2, after design1, 2d
-    API Contracts       :active, design3, after design2, 2d
+    Contracts           :active, design3, after design2, 2d
     Security Architecture :active, design4, after frame5, 3d
 
     section TEST
@@ -271,7 +271,7 @@ graph LR
 
 ### Critical Dependencies
 1. **PRD → All Design Artifacts**: Requirements drive all technical decisions
-2. **API Contracts → Contract Tests**: Every API must have corresponding tests
+2. **Contracts → Contract Tests**: Every contract (API, telemetry, event, schema, CLI, boundary) must have corresponding tests
 3. **Threat Model → Security Tests**: Each threat must have validation tests
 4. **Test Plan → Build Issues**: Tests define the work that implementation issues must satisfy
 5. **Metrics → Next Iteration PRD**: Production data informs future requirements

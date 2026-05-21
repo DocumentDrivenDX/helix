@@ -19,3 +19,5 @@ generated: true
 - [Feature Specification: FEAT-010 — Testing Strategy Templates](FEAT-010-testing-strategy-templates/)
 - [FEAT-011: Slider Autonomy Control](FEAT-011-slider-autonomy/)
 - [Feature Specification: FEAT-012 — Public Microsite IA](FEAT-012-public-microsite-ia/)
+- [Feature Specification: FEAT-013 — Runtime Install Coverage](FEAT-013-runtime-install-coverage/)
+- [Feature Specification: FEAT-014 — Workflow Coverage](FEAT-014-workflow-coverage/)

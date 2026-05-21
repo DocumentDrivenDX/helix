@@ -44,7 +44,7 @@ after the migration.
 |------|--------|-------|
 | workflow.yml comment | Low | Has `# - workflows/TRACKER.md` comment — cosmetic |
 | TD-002 line numbers | Low | Design doc line refs to tracker.sh are stale — expected for historical docs |
-| TP-002 evidence chain | Low | Test plan references are generic — pre-existing, not migration-related |
+| STP-002 evidence chain | Low | Test plan references are generic — pre-existing, not migration-related |
 
 ### OPEN WORK
 

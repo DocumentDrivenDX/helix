@@ -17,6 +17,8 @@ experiments/
 .ddx/agent-logs/
 .ddx/exec-runs.d/
 .ddx/exec-runs.jsonl
+.ddx/executions/*/embedded/
+.ddx/run-state/
 .ddx/run-state.json
 .ddx/plugins/
 .ddx/server/
@@ -25,6 +27,9 @@ experiments/
 
 # Codex config
 .codex
+
+# Claude Code sub-agent isolation worktrees
+.claude/worktrees/
 
 # Hugo build output
 website/public/

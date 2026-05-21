@@ -5,6 +5,13 @@ ddx:
     - example.security-requirements.depositmatch
     - example.threat-model.depositmatch
     - example.data-design.depositmatch
+  review:
+    self_hash: eefd2c6eed5574e8d2960a55ec226b7e55bd7b09b6131dc02295047c163f13b7
+    deps:
+      example.data-design.depositmatch: dc25da87b6288f686dfb11eae276dd334aca0dce4d6cd562c8da70b7f169a7c5
+      example.security-requirements.depositmatch: 2a1f7efe6e55c1edaa67b76e5a11a49be55e4420d9adc456be5482d417312a43
+      example.threat-model.depositmatch: 28c760cff8d40eab543a794535603b0a70e333e9cd808c45c23b885e621e7602
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Security Architecture

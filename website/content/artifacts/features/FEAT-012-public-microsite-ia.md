@@ -17,6 +17,13 @@ ddx:
     - helix.prd
     - FEAT-006
     - FEAT-007
+  review:
+    self_hash: fe5c93bc84074e71865b451779c665633aa980ae337dd9fce614fcfdb88d666d
+    deps:
+      FEAT-006: a44d0a40e5cb883e31c5f6b150a77070fa427bb8f834345908aefaf1cffb38ce
+      FEAT-007: d7f507487425873506f2953e58566d946b06d2614a523ebeb9e1e0f68ff71231
+      helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
+    reviewed_at: "2026-05-15T04:11:24Z"
 ```
 
 # Feature Specification: FEAT-012 — Public Microsite IA

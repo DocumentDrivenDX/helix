@@ -1,0 +1,52 @@
+{
+  "attempt_id": "20260515T053444-6505ee19",
+  "bead_id": "helix-839e8873",
+  "base_rev": "5afd613725b94c230aed30d42e932b307fdb1c0e",
+  "created_at": "2026-05-15T05:34:44.621672034Z",
+  "requested": {
+    "harness": "codex",
+    "model": "gpt-5.4",
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-839e8873",
+    "title": "cli: repair Helix wrapper align entrypoint",
+    "description": "PROBLEM\n`bin/helix help` and `bin/helix align --help` fail with `/Users/erik/Projects/helix/scripts/helix: No such file or directory`, so this repo cannot run the required `helix align` completion check and the published plugin wrapper is broken.\n\nROOT CAUSE WITH FILE:LINE\n`bin/helix:22` execs `$plugin_root/scripts/helix`, but `scripts/helix` is no longer tracked. `git show --name-status a18d8ba -- scripts/helix bin/helix` shows the scope-collapse commit deleted `scripts/helix` while adding this wrapper. Existing coverage in `tests/validate-skills.sh:237-248` copies `bin/helix` into a temp plugin root and creates a fake temp `scripts/helix`, so it validates delegation mechanics but never proves the real repo/package contains the delegated target.\n\nPROPOSED FIX\nSettle and implement the live contract: either restore a minimal tracked `scripts/helix` for the survivor `help` and `align` surfaces, or update `bin/helix`, docs, and tests to the actual supported entrypoint. The repo checkout must provide a deterministic way to run the alignment completion check.\n\nNON-SCOPE\nDo not resurrect deprecated queue-control wrappers such as `helix run`, `helix build`, `helix check`, `helix worker`, or `helix commit` unless the chosen help/align contract explicitly requires compatibility shims.",
+    "acceptance": "1. Add deterministic validation, suggested as a `test_bin_helix_repo_target_exists` shell check in `tests/validate-skills.sh`, that exercises the real repo `bin/helix` and fails if its delegated target is missing. Do not rely only on temp fake `scripts/helix` probes.\n2. `bin/helix help` exits 0 from a fresh repository checkout and its output matches the current scope-collapse contract in `README.md` and `AGENTS.md`.\n3. `bin/helix align --help` or `bin/helix align repo --dry-run` exits 0 from a fresh repository checkout. If the intended replacement is not a CLI, update `bin/helix`, `README.md`, and `AGENTS.md` to name the deterministic alignment check command instead.\n4. `bash tests/validate-skills.sh` passes.\n5. `bash tests/validate-context-digests.sh` passes.\n6. `git diff --check` passes.\n7. `lefthook run pre-commit` passes.",
+    "labels": [
+      "helix",
+      "phase:build",
+      "area:cli",
+      "area:plugin",
+      "kind:bug",
+      "action:align",
+      "regression:scope-collapse"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-15T05:29:38Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "4037613",
+      "events": [
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness check timed out after 5m0s (helix-839e8873)\",\"fingerprint\":\"3de07a18c763b3c48ab0477e8e46aa75d36519a2ac4f977ef55c0e706e89d78e\",\"policy_mode\":\"warn-only\",\"reason\":\"timeout\",\"rule_id\":\"pre_claim_intake.timeout\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\"}",
+          "created_at": "2026-05-15T05:34:38.969631759Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "timeout"
+        }
+      ],
+      "work-heartbeat-at": "2026-05-15T05:29:38.947866009Z"
+    }
+  },
+  "paths": {
+    "dir": ".ddx/executions/20260515T053444-6505ee19",
+    "prompt": ".ddx/executions/20260515T053444-6505ee19/prompt.md",
+    "manifest": ".ddx/executions/20260515T053444-6505ee19/manifest.json",
+    "result": ".ddx/executions/20260515T053444-6505ee19/result.json",
+    "checks": ".ddx/executions/20260515T053444-6505ee19/checks.json",
+    "usage": ".ddx/executions/20260515T053444-6505ee19/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-839e8873-20260515T053444-6505ee19"
+  },
+  "prompt_sha": "85d598b2fc827efe8f994fcc19f0607e289de759db53581ff07ec0e8c57d46a8"
+}

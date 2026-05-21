@@ -123,7 +123,7 @@ Each pass performs ALL of the following checks. Track changes made per pass.
 - If the governing artifacts let you sharpen the item, rewrite the acceptance
   criteria immediately.
 - If the governing artifacts do **not** let you sharpen the item into explicit
-  measurement criteria, flag it as **not execution-ready** and route it back
+  measurement criteria, flag the bead as **not execution-ready** and route it back
   through planning/polish refinement instead of leaving hidden knowledge to
   decide success.
 - A work item is not execution-ready until the runtime could determine success

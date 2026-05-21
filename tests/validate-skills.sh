@@ -121,6 +121,7 @@ assert_helix_triage_blanket_priming_regression() {
     "$repo_root/.claude-plugin" \
     "$repo_root/docs" \
     "$repo_root/hooks" \
+    "$repo_root/scripts" \
     "$repo_root/skills" \
     "$repo_root/workflows" \
     "$temp_root/"
@@ -209,6 +210,11 @@ PYEOF
 fi
 
 [[ -f "$plugin_hooks" ]] || fail "missing plugin hooks at hooks/hooks.json"
+
+# HELIX ships no checkout CLI: it is artifact templates plus the alignment
+# skill, and runtimes (DDx, Claude Code, Codex CLI, Genie) own execution.
+[[ ! -e "$repo_root/scripts/helix" ]] || fail "scripts/helix must not exist: HELIX ships no checkout CLI"
+[[ ! -e "$repo_root/bin/helix" ]] || fail "bin/helix must not exist: HELIX ships no checkout CLI wrapper"
 
 # Verify that workflows/ references in SKILL.md files resolve from plugin root
 while IFS= read -r wf_ref; do
@@ -341,8 +347,8 @@ assert_file_contains \
   "helix skill must prohibit reintroducing public helix-* skill sprawl"
 assert_file_contains \
   "$repo_root/skills/helix/SKILL.md" \
-  "Require execution-ready beads to name exact files, commands, checks, fields," \
-  "helix polish mode must require explicit measurable acceptance text for execution-ready beads"
+  "Require execution-ready work items to name exact files, commands, checks," \
+  "helix polish mode must require explicit measurable acceptance text for execution-ready work items"
 assert_file_contains \
   "$repo_root/skills/helix/SKILL.md" \
   "not execution-ready and route it back through planning" \
@@ -365,7 +371,7 @@ assert_file_contains \
   "polish action must reject vague non-measurable acceptance wording"
 assert_file_contains \
   "$repo_root/workflows/actions/polish.md" \
-  "flag it as **not execution-ready**" \
+  "flag the bead as **not execution-ready**" \
   "polish action must define a not-execution-ready flagging path"
 assert_file_contains \
   "$repo_root/docs/helix/01-frame/features/FEAT-011-slider-autonomy.md" \

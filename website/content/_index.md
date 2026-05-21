@@ -19,10 +19,41 @@ Product lifecycle for AI.
 Agents do better work with context they can trust. HELIX is a document discipline for teams building software with agents. It turns project intent and evidence into shared memory, then keeps that memory current as the work changes.
 {{< /hextra/hero-subtitle >}}
 
+<div class="helix-hero-actions" aria-label="Homepage actions">
+  <a class="helix-hero-action-primary" href="use/getting-started">Start with HELIX</a>
+  <a class="helix-hero-action-secondary" href="artifacts">Inspect the proof</a>
 </div>
-<figure class="helix-hero-image-panel" aria-label="Document spine double helix">
-  <img class="helix-hero-image helix-hero-image-light" src="hero/concepts/document-spine-helix-light-2026-05-12.png" alt="A document spine double helix connecting human intent, AI execution, and governed artifacts." />
-  <img class="helix-hero-image helix-hero-image-dark" src="hero/concepts/document-spine-helix-dark-2026-05-12.png" alt="" aria-hidden="true" />
+
+</div>
+<figure class="helix-hero-loop" role="img" aria-label="HELIX lifecycle loop from artifacts through alignment review, implementation plan, runtime execution, and evidence or drift back into artifacts">
+  <div class="helix-loop-center">Shared memory loop</div>
+  <div class="helix-loop-node helix-loop-artifacts">
+    <span>01</span>
+    <strong>Artifacts</strong>
+    <em>Intent, requirements, principles, and designs</em>
+  </div>
+  <div class="helix-loop-node helix-loop-review">
+    <span>02</span>
+    <strong>Alignment review</strong>
+    <em>Find stale assumptions before execution</em>
+  </div>
+  <div class="helix-loop-node helix-loop-plan">
+    <span>03</span>
+    <strong>Implementation plan</strong>
+    <em>Bound the change and the verification gate</em>
+  </div>
+  <div class="helix-loop-node helix-loop-runtime">
+    <span>04</span>
+    <strong>Runtime execution</strong>
+    <em>Human, agent, or queued delivery surface</em>
+  </div>
+  <div class="helix-loop-node helix-loop-evidence">
+    <span>05</span>
+    <strong>Evidence / drift</strong>
+    <em>Results update the documents or expose gaps</em>
+  </div>
+  <div class="helix-loop-role helix-loop-human">Human judgment</div>
+  <div class="helix-loop-role helix-loop-agent">Agent work</div>
 </figure>
 </div>
 

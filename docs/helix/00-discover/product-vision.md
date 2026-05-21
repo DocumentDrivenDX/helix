@@ -1,3 +1,12 @@
+---
+ddx:
+  id: helix.product-vision
+  review:
+    self_hash: 79d80961a61599087606ddda314e16409a244db23581fbd2eecd3b66353cebf9
+    deps: {}
+    reviewed_at: "2026-05-15T04:11:24Z"
+---
+
 # Product Vision
 
 ## Mission Statement
@@ -94,4 +103,3 @@ something agents can apply uniformly.
 The agents are ready. The methodology has been ad hoc. The Genie / Cursor /
 Claude Code era will have its TDD-equivalent practice. HELIX is the bet on
 what it looks like: document-driven, agent-friendly, portable.
-

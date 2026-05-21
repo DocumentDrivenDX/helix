@@ -2,7 +2,12 @@
 ddx:
   id: security-architecture
   depends_on:
-    - architecture
+    - helix.architecture
+  review:
+    self_hash: c27ab556fb2dbebb8ab0b5050a060080599304a31d45596132f8f4d717aa2258
+    deps:
+      helix.architecture: 49f65c706c77f174496e63379eb42676296da9527a504c90a81c204746968b0c
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 # Security Architecture — DDx Agent Execution Surface
 
@@ -52,10 +57,10 @@ The primary controls are:
 | Remote code execution via exposed HTTP | Loopback bind by default | `ddx-server` startup config | `ss -lntp` confirms only `127.0.0.1:7743`; integration test asserts non-loopback bind requires explicit flag |
 | API-key exfiltration via committed logs | Keys live in env, never written to disk by the service | DDx executor; agent harness | grep audit on `.ddx/agent-logs/`, `.ddx/exec-runs.d/`; pre-commit secret-scan |
 | Prompt injection writes secrets into bead body | Bead bodies are operator-curated; agent output is captured in execution evidence with size/shape checks | `ddx agent execute-bead` write path | Review-stage `helix review` reads recent execution evidence; pre-commit hook flags suspicious patterns |
-| Stale claim leaves work locked indefinitely | Orphan-recovery sweep with dead-PID + age threshold (`HELIX_ORPHAN_THRESHOLD`, default 7200s) | `ddx bead` claim subsystem | TP-002 test cases cover orphan recovery |
-| Concurrent writers tear `.ddx/beads.jsonl` | `ddx bead` is the single sanctioned writer; per-record file locking | `ddx bead` CLI | Tracker-mutation tests in TP-002; ADR-002 governs the write-safety model |
+| Stale claim leaves work locked indefinitely | Orphan-recovery sweep with dead-PID + age threshold (`HELIX_ORPHAN_THRESHOLD`, default 7200s) | `ddx bead` claim subsystem | STP-002 test cases cover orphan recovery |
+| Concurrent writers tear `.ddx/beads.jsonl` | `ddx bead` is the single sanctioned writer; per-record file locking | `ddx bead` CLI | Tracker-mutation tests in STP-002; ADR-002 governs the write-safety model |
 | Operator runs untrusted bead body | Beads are repo-scoped artifacts under the operator's review; supervisor stops on ambiguity | `helix run` supervisor; `helix review` | Stop-for-guidance tests; bounded-action contract |
-| Cross-model verification bypass | `helix run --review-agent <other>` routes review to a second model when configured | `helix run` review pass | TP-002 cross-model review test |
+| Cross-model verification bypass | `helix run --review-agent <other>` routes review to a second model when configured | `helix run` review pass | STP-002 cross-model review test |
 | Tailscale identity drift | Tailscale ACLs are the only authorization for non-loopback access | `tsnet` sidecar config | Operator-owned tailnet ACL; verified by tailnet admin, not by the service |
 
 ## Identity and Access
@@ -127,9 +132,9 @@ The primary controls are:
 
 ## Security Test Hooks
 
-- TP-002 covers tracker write-safety: claim atomicity, orphan recovery,
+- STP-002 covers tracker write-safety: claim atomicity, orphan recovery,
   unclaim semantics, and supersession.
-- TP-002 covers stop-for-guidance: the supervisor must stop rather than
+- STP-002 covers stop-for-guidance: the supervisor must stop rather than
   escalate when authority is missing.
 - `tests/validate-skills.sh` validates plugin-layout integrity (skills do
   not import from outside the package boundary).

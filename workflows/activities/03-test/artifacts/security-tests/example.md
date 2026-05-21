@@ -6,6 +6,14 @@ ddx:
     - example.threat-model.depositmatch
     - example.security-architecture.depositmatch
     - example.tech-spike.depositmatch
+  review:
+    self_hash: 00be76c876686ebff233fc3829f9df5f6458132e61f4f3d4a9243c7b3f017be8
+    deps:
+      example.security-architecture.depositmatch: eefd2c6eed5574e8d2960a55ec226b7e55bd7b09b6131dc02295047c163f13b7
+      example.security-requirements.depositmatch: 2a1f7efe6e55c1edaa67b76e5a11a49be55e4420d9adc456be5482d417312a43
+      example.tech-spike.depositmatch: 0002d693fd2ec90fdba7005bf51eb0c34ff454274bc969ae3d1b2d9f699561e9
+      example.threat-model.depositmatch: 28c760cff8d40eab543a794535603b0a70e333e9cd808c45c23b885e621e7602
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Security Tests

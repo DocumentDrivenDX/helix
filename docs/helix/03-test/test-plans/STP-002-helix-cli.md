@@ -1,6 +1,6 @@
 ---
 ddx:
-  id: TP-002
+  id: STP-002
   status: partially-superseded
   superseded_by: helix.prd
 ---
@@ -14,7 +14,7 @@ ddx:
 > schema conformance, and portable alignment skill behavior — not wrapper
 > command behavior.
 
-# Test Plan: TP-002-helix-cli
+# Test Plan: STP-002-helix-cli
 
 **Status**: backfilled
 **Backfill Date**: 2026-03-25

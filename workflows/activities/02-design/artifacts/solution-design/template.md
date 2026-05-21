@@ -1,6 +1,11 @@
 ---
 ddx:
   id: SD-XXX
+  review:
+    self_hash: ea6f092342409cc3f74e945b3ae421392eb4787113b828331c0fdfab359bf86d
+    deps:
+      FEAT-XXX: a685da86c4c18a509196cb163f264af507cc966f804db574070e108a555bdf02
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Solution Design

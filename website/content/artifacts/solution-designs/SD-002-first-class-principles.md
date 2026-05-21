@@ -1,7 +1,7 @@
 ---
 title: "Solution Design: SD-002 — First-Class Principles"
 slug: SD-002-first-class-principles
-weight: 340
+weight: 380
 activity: "Design"
 source: "02-design/solution-designs/SD-002-first-class-principles.md"
 generated: true
@@ -16,6 +16,13 @@ ddx:
   depends_on:
     - FEAT-003
     - SD-001
+  review:
+    self_hash: 474c29fce056411ad1affcd4a882a83f82b6e24d9887f1c87e105cf871e5f7dc
+    deps:
+      FEAT-003: ea9237a63d44dd850014fa35d891e8e54a9f68ebde157bdd0915065206b45e96
+      SD-001: 6a40b928fb7c8b82af8cac4d02e56ff3516001b10e40f39843746bbc473b0548
+      helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
+    reviewed_at: "2026-05-15T04:11:24Z"
 ```
 
 # Solution Design: SD-002 — First-Class Principles

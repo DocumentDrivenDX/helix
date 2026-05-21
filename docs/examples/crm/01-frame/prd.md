@@ -262,15 +262,18 @@ work can confirm, override, or refine without re-discovering them.
 7. **Pricing model not yet decided** — has no impact on MVP functional
    scope but affects seat-management UX.
 8. **Data scale**: Workspaces ≤100k records for MVP performance budgets.
-9. **The repo decision is open**: This artifact stack lives in the HELIX
-   repo as a planning exercise; whether it migrates to a dedicated CRM repo
-   is the subject of bead `helix-5129f35d`.
+9. **Repo placement**: This artifact stack stays in the HELIX repo only as a
+   worked example/demo planning artifact. Bead `helix-5129f35d` records the
+   decision and rationale against `helix.prd`; if CRM work becomes product
+   implementation, migrate this directory into a dedicated HELIX-managed CRM
+   project repository.
 
 ### Dependencies
 
 - Design-activity ADRs for stack, hosting, and auth (downstream).
-- Bead `helix-5129f35d` (CRM repo-scope decision) — does not block frame
-  work but governs where subsequent activities land.
+- Bead `helix-5129f35d` (CRM repo-scope decision) — keeps CRM planning here
+  as example/demo material and defines the migration trigger for product
+  implementation.
 
 ## Risks
 

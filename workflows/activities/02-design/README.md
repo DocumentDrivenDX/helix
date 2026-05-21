@@ -80,20 +80,36 @@ Visual system documentation using C4 model:
 
 Defines normative interface and schema specifications that another team can
 implement against directly:
-- **CLI Contracts**: Command structure, options, input/output formats
+- **CLI Contracts**: Command structure, options, input/output formats, exit codes
 - **HTTP/API Contracts**: Endpoints, request/response schemas, error codes
-- **Library Contracts**: Public functions, parameters, return types
-- **Protocol and Event Contracts**: Message shapes, sequencing, compatibility rules
-- **Data Contracts**: JSON schemas, validation rules, units, enums, formulas
+- **Library / SDK Contracts**: Public functions, parameters, return types, errors
+- **Protocol and Event Contracts**: Message shapes, sequencing, ordering, compatibility rules
+- **Telemetry / Metrics / Export Contracts**: Field names, units, enums, formulas, precedence, partition keys
+- **Data Contracts**: JSON schemas, record formats, validation rules, units, enums, formulas
+- **Cross-Project Boundary Contracts**: Ownership splits between systems and the surface that crosses the boundary
+- **Authoring Convention Contracts**: Required keys, naming rules, lifecycle for human-authored or graph-authored documents
 - **Error Contracts**: Error codes, messages, retry behavior, recovery actions
 
 Use a contract when the document is the authoritative field-by-field,
-schema-level, or interface-level specification. Put decision rationale in ADRs,
-feature-level approach in solution designs, and one-slice execution planning in
-technical designs.
+schema-level, or interface-level specification — including non-HTTP surfaces
+such as telemetry exports, mutation APIs, and cross-project ownership
+boundaries. Put decision rationale in ADRs, feature-level approach in solution
+designs, and one-slice execution planning in technical designs.
 
-`CONTRACT-XXX` is the canonical prefix. `API-XXX` remains an allowed subtype
-for API-specific contracts when that narrower label improves clarity.
+**Naming**: `CONTRACT-XXX` is the canonical prefix for all contract types,
+including telemetry, protocol, event, schema, boundary, and authoring
+contracts. `API-XXX` remains an allowed subtype when the contract is solely an
+HTTP/RPC API surface and the narrower label improves clarity. Both prefixes
+live in `docs/helix/02-design/contracts/` and meet the same completeness bar.
+The design gate accepts either prefix; new contracts SHOULD prefer
+`CONTRACT-XXX` unless the API-only scope is unambiguous.
+
+**Cross-project reuse**: A contract may be shared across projects (for example,
+a telemetry export contract consumed by multiple services). When it is, keep
+the contract free of feature-specific narrative, name the consumers in the
+scope section, and version explicitly so consumers can pin to a stable
+revision. Other artifacts (ADRs, solution designs, technical designs) MUST
+reference the contract by ID rather than duplicating its normative fields.
 
 ### 4. Architecture Decision Records (ADRs)
 **Location**: `docs/helix/02-design/adr/ADR-XXX-[title].md`

@@ -1,0 +1,47 @@
+{
+  "attempt_id": "20260515T034225-bc3d51ae",
+  "bead_id": "helix-ccc3059c",
+  "base_rev": "dd03c36ae5ddd621bb169d7025141b888fbdfc83",
+  "created_at": "2026-05-15T03:42:25.9665754Z",
+  "requested": {
+    "harness": "codex",
+    "model": "gpt-5.4",
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-ccc3059c",
+    "title": "Make HELIX routing skill runtime-neutral",
+    "description": "Context: The collapsed HELIX scope says HELIX is methodology, artifact catalog, and one runtime-neutral routing skill. It explicitly does not provide a CLI, tracker, queue, execution loop, or runtime infrastructure. Evidence: `docs/helix/01-frame/prd.md` lines 16-19, 90, 157-167, and `docs/helix/02-design/architecture.md` lines 167-179 and 201-208. Current `skills/helix/SKILL.md` still routes beads, queue, build/run, commit, worker, and tracker concerns, including hits such as `beads/work items`, `queue`, `HELIX/DDx`, `work tracker`, and `background HELIX operator loop`.\n\nIn-scope files:\n- skills/helix/SKILL.md\n- docs/install/* only if a runtime-specific note must move out of the skill body\n- docs/helix/02-design/contracts/CONTRACT-003-ddx-adapter-boundary.md only for directly related references\n\nOut-of-scope:\n- Do not reintroduce public `helix-*` skills.\n- Do not edit DDx runtime skill files under `.agents/skills/ddx` or `.claude/skills/ddx`.\n- Do not remove methodology routes that remain runtime-neutral.\n\nImplementation notes: keep the public skill as the single HELIX entrypoint, but make execution/tracker concepts runtime-neutral or move DDx-specific guidance to install/adapter docs. Preserve the align taxonomy and gap handoff contract.",
+    "acceptance": "Command: bash tests/validate-skills.sh\nExpected: exits 0.\n\nCommand: bash -lc '! rg -n \"DDx|ddx |execute-bead|\\\\[ddx-|\\\\.ddx/|\\\\bbeads?\\\\b|\\\\bqueue\\\\b|\\\\btracker\\\\b|background HELIX run|operator loop\" skills/helix/SKILL.md'\nExpected: exits 0.\n\nCommand: git diff --check\nExpected: exits 0.",
+    "labels": [
+      "helix",
+      "phase:build",
+      "area:skills",
+      "kind:alignment"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-15T03:41:55Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "3530344",
+      "spec-id": "helix.prd",
+      "work-heartbeat-at": "2026-05-15T03:41:55.917369258Z"
+    }
+  },
+  "governing": [
+    {
+      "id": "helix.prd",
+      "path": "docs/helix/01-frame/prd.md",
+      "title": "Product Requirements Document"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260515T034225-bc3d51ae",
+    "prompt": ".ddx/executions/20260515T034225-bc3d51ae/prompt.md",
+    "manifest": ".ddx/executions/20260515T034225-bc3d51ae/manifest.json",
+    "result": ".ddx/executions/20260515T034225-bc3d51ae/result.json",
+    "checks": ".ddx/executions/20260515T034225-bc3d51ae/checks.json",
+    "usage": ".ddx/executions/20260515T034225-bc3d51ae/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-ccc3059c-20260515T034225-bc3d51ae"
+  },
+  "prompt_sha": "6d68bc67b0e5357dbd2b12f083e50b84eb4964d91c473c40112ab769bfaa5c91"
+}

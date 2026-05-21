@@ -1,6 +1,10 @@
 ---
 ddx:
   id: helix.prd
+  review:
+    self_hash: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
+    deps: {}
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 # Product Requirements Document
 

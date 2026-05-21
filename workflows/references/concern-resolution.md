@@ -4,6 +4,12 @@ ddx:
   depends_on:
     - helix.workflow.principles-resolution
     - FEAT-006
+  review:
+    self_hash: b18e4607b5f7bc95bccefdbffadf4575610f67ace9c5327c40be255c2c89783c
+    deps:
+      FEAT-006: a44d0a40e5cb883e31c5f6b150a77070fa427bb8f834345908aefaf1cffb38ce
+      helix.workflow.principles-resolution: d1076cf1e1a2097d4a75595dbcbd37d2085503ba9a6591d1181a07795179a104
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 # Concern and Practices Resolution
 

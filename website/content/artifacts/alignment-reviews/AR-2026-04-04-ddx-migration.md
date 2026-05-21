@@ -1,7 +1,7 @@
 ---
 title: "Alignment Review: DDx Migration"
 slug: AR-2026-04-04-ddx-migration
-weight: 530
+weight: 600
 activity: "Iterate"
 source: "06-iterate/alignment-reviews/AR-2026-04-04-ddx-migration.md"
 generated: true
@@ -53,7 +53,7 @@ after the migration.
 |------|--------|-------|
 | workflow.yml comment | Low | Has `# - workflows/TRACKER.md` comment — cosmetic |
 | TD-002 line numbers | Low | Design doc line refs to tracker.sh are stale — expected for historical docs |
-| TP-002 evidence chain | Low | Test plan references are generic — pre-existing, not migration-related |
+| STP-002 evidence chain | Low | Test plan references are generic — pre-existing, not migration-related |
 
 ### OPEN WORK
 

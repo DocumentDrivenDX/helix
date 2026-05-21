@@ -3,6 +3,11 @@ ddx:
   id: example.business-case.depositmatch
   depends_on:
     - example.product-vision.depositmatch
+  review:
+    self_hash: c09aae8ce2f4fe25d0cc3d021555b75cc6c0e6d713395957b368c7e17b4caf37
+    deps:
+      example.product-vision.depositmatch: 8abbb2fcb552b536f07829f57d91ef3ae8dbf52a6066955222e83d196b59b5ae
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Business Case

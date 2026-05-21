@@ -1,0 +1,22 @@
+status: open
+reason: bash tests/validate-context-digests.sh fails on pre-existing tracker entries in .ddx/beads.jsonl for helix-396b451e and helix-85be8e37, which are outside this bead's named file scope. The contract update for docs/helix/02-design/contracts/CONTRACT-003-ddx-adapter-boundary.md is drafted locally, the stale leak headings are removed, the acceptance grep passes, and git diff --check passes after markdown cleanup, but the required validator remains red until the unrelated tracker metadata bead is resolved.
+
+what_is_done:
+- Rewrote CONTRACT-003's migration section into a current-state boundary leak ledger with resolved status and evidence for LEAK-1 through LEAK-5.
+- Removed the stale LEAK-4 and LEAK-5 headings targeted by this bead's acceptance grep.
+- Updated the validation checklist wording so it refers to current evidence or active follow-up work instead of stale leak numbers.
+
+blocking_evidence:
+- Command: bash -lc '! rg -n "Artifact schema directory layout shows DDx plugin path as catalog location|CONTRACT-001 framing describes DDx as \"platform substrate\"" docs/helix/02-design/contracts/CONTRACT-003-ddx-adapter-boundary.md'
+  Result: exit 0
+- Command: git diff --check
+  Result: exit 0
+- Command: bash tests/validate-context-digests.sh
+  Result: exit 1
+  Failure:
+  - .ddx/beads.jsonl:93 bead helix-396b451e is missing <context-digest> or workflow-authorized explicit omission rationale
+  - .ddx/beads.jsonl:265 bead helix-85be8e37 is missing <context-digest> or workflow-authorized explicit omission rationale
+
+retry_after:
+- Land or otherwise resolve the tracker-metadata work that makes bash tests/validate-context-digests.sh green.
+- Re-run the three bead acceptance commands, then stage only docs/helix/02-design/contracts/CONTRACT-003-ddx-adapter-boundary.md and commit with subject ending [helix-7a4b83f8].

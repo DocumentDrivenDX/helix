@@ -3,6 +3,11 @@ ddx:
   id: helix.workflow.principles
   depends_on:
     - helix.workflow
+  review:
+    self_hash: fb5c6c17965c55103a0fd1d5933d8d7d0b6f531e31ae99d162a9783005017a56
+    deps:
+      helix.workflow: 1225132b3050598055eacb5462639824d78ac204cca2cbeda3611766532e79c8
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 # HELIX Design Principles
 

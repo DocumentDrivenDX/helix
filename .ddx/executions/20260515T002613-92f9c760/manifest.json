@@ -1,0 +1,85 @@
+{
+  "attempt_id": "20260515T002613-92f9c760",
+  "bead_id": "helix-88662386",
+  "base_rev": "80b9e633442022dc761a674241d9e6e95d49de93",
+  "created_at": "2026-05-15T00:26:14.791351597Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-88662386",
+    "title": "Use opaque hero image with CSS-matched background",
+    "description": "Restore the higher-quality non-chroma hero image and blend it by matching the hero section background gradient to the image background, especially on the right side.",
+    "acceptance": "Homepage uses higher-quality non-chroma hero artwork; the right side of the hero background is solid/gradient matched so the image edge is not visible; hero visual is larger; no chroma artifacts remain.",
+    "labels": [
+      "helix",
+      "phase:build",
+      "website",
+      "design"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-15T00:25:22Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "2366035",
+      "events": [
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"grendel\",\"resolved_model\":\"qwen3.5-27b\",\"fallback_chain\":[],\"actual_power\":5}",
+          "created_at": "2026-05-14T17:29:28.739791925Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=grendel model=qwen3.5-27b"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"fiz\",\"actual_model\":\"qwen3.5-27b\",\"actual_power\":5,\"actual_provider\":\"grendel\",\"attempt_id\":\"20260514T172624-64d7c15a\",\"bead_id\":\"helix-88662386\",\"inferred_power_class\":\"standard\",\"rejected_route_pins\":null,\"requested_profile\":\"default\",\"routing_intent_degraded\":false,\"routing_intent_note\":\"\",\"routing_intent_source\":\"heuristic\",\"smart_justification\":\"\"}",
+          "created_at": "2026-05-14T17:29:28.819079903Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=heuristic powerClass=standard model=qwen3.5-27b harness=fiz"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"actual_power\":5,\"detail\":\"agent: provider error: openai: Post \\\"http://grendel:1234/v1/chat/completions\\\": dial tcp 100.97.179.68:1234: i/o timeout\",\"error\":\"agent: provider error: openai: Post \\\"http://grendel:1234/v1/chat/completions\\\": dial tcp 100.97.179.68:1234: i/o timeout\",\"harness\":\"fiz\",\"model\":\"qwen3.5-27b\",\"outcome_reason\":\"provider_connectivity\",\"provider\":\"grendel\"}",
+          "created_at": "2026-05-14T17:29:28.981376316Z",
+          "kind": "route-failure",
+          "source": "ddx work",
+          "summary": "provider=grendel model=qwen3.5-27b connectivity failure"
+        },
+        {
+          "actor": "erik",
+          "body": "agent: provider error: openai: Post \"http://grendel:1234/v1/chat/completions\": dial tcp 100.97.179.68:1234: i/o timeout\npowerClass=standard\nresult_rev=4ef7ddca440aba97097c028d0fae2892db007a3d\nbase_rev=7839aaaa93f02b0f5725fcc163040dbcf5b53519\nretry_after=2026-05-14T17:44:29Z\noutcome_reason=provider_connectivity",
+          "created_at": "2026-05-14T17:29:29.094035617Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        }
+      ],
+      "execute-loop-cooldown-base-rev": "7839aaaa93f02b0f5725fcc163040dbcf5b53519",
+      "execute-loop-failed-routes": [
+        {
+          "actual_power": 5,
+          "at": "2026-05-14T17:29:28Z",
+          "model": "qwen3.5-27b",
+          "provider": "grendel",
+          "reason": "provider_connectivity"
+        }
+      ],
+      "execute-loop-last-detail": "agent: provider error: openai: Post \"http://grendel:1234/v1/chat/completions\": dial tcp 100.97.179.68:1234: i/o timeout",
+      "execute-loop-last-status": "execution_failed",
+      "execute-loop-retry-after": "2026-05-14T17:44:29Z",
+      "spec-id": "HOME-HERO-MATCHED-BG",
+      "work-heartbeat-at": "2026-05-15T00:25:22.101917404Z"
+    }
+  },
+  "paths": {
+    "dir": ".ddx/executions/20260515T002613-92f9c760",
+    "prompt": ".ddx/executions/20260515T002613-92f9c760/prompt.md",
+    "manifest": ".ddx/executions/20260515T002613-92f9c760/manifest.json",
+    "result": ".ddx/executions/20260515T002613-92f9c760/result.json",
+    "checks": ".ddx/executions/20260515T002613-92f9c760/checks.json",
+    "usage": ".ddx/executions/20260515T002613-92f9c760/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-88662386-20260515T002613-92f9c760"
+  },
+  "prompt_sha": "2f972e5faae0f3bc2d71cf58d43fbb0aaf76af121b14efcf01ce56a75dbc46e9"
+}

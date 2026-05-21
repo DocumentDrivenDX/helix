@@ -3,6 +3,11 @@ ddx:
   id: FEAT-003
   depends_on:
     - helix.prd
+  review:
+    self_hash: ea9237a63d44dd850014fa35d891e8e54a9f68ebde157bdd0915065206b45e96
+    deps:
+      helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 # Feature Specification: FEAT-003 - First-Class Principles
 

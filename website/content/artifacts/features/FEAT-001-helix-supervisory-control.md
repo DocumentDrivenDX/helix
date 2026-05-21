@@ -17,6 +17,11 @@ ddx:
     - helix.prd
   status: superseded
   superseded_by: helix.prd
+  review:
+    self_hash: df7d279639d071dc9404f0b779f3e7fcc4bfc6a263dff28fd1ded3a01039a8cd
+    deps:
+      helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
+    reviewed_at: "2026-05-15T04:11:24Z"
 ```
 
 > **SUPERSEDED** — This feature defined `helix-run` as HELIX's supervisory

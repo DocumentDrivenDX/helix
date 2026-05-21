@@ -1,7 +1,7 @@
 ---
 title: "CONTRACT-001 Audit: DDx-Owned Responsibilities vs DDx Implementation"
 slug: CONTRACT-001-audit
-weight: 210
+weight: 230
 activity: "Design"
 source: "02-design/contracts/CONTRACT-001-audit.md"
 generated: true

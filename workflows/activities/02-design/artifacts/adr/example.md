@@ -3,6 +3,11 @@ ddx:
   id: example.adr.depositmatch.postgresql-system-of-record
   depends_on:
     - example.architecture.depositmatch
+  review:
+    self_hash: d068dcadcfb1b7b4cfa6842e63e078f711128e78d5c2dd7e1666506a7c59d9ad
+    deps:
+      example.architecture.depositmatch: 64b7297158175ff16812e401fe093f7624b5ba70b11265a7a4bdf324e50a6bff
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # ADR-001: Use PostgreSQL as the System of Record

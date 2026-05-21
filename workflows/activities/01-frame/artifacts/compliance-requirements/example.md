@@ -3,6 +3,11 @@ ddx:
   id: example.compliance-requirements.depositmatch
   depends_on:
     - example.opportunity-canvas.depositmatch
+  review:
+    self_hash: ec7fb87a927f7e53a9c323e9af8ee73d667e4520ab596c130077d332d2783c9f
+    deps:
+      example.opportunity-canvas.depositmatch: 75303097bfeeed0272bd68f90ef887f9a5e646a1272f9a57ccd0d899ae17497a
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Compliance Requirements

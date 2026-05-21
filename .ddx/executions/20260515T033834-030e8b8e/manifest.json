@@ -1,0 +1,114 @@
+{
+  "attempt_id": "20260515T033834-030e8b8e",
+  "bead_id": "helix-c4c1c9c1",
+  "base_rev": "fe2d40914dc7df1586d2d63fa1664b15da24cc94",
+  "created_at": "2026-05-15T03:38:34.617770248Z",
+  "requested": {
+    "harness": "codex",
+    "model": "gpt-5.4",
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-c4c1c9c1",
+    "title": "Fix polish not-execution-ready validation path",
+    "description": "Context: `bash tests/validate-skills.sh` currently fails with `polish action must define a not-execution-ready flagging path`. The validator checks `workflows/actions/polish.md` for the exact not-execution-ready wording expected by `tests/validate-skills.sh` around lines 426-433. The action already has related intent around acceptance sharpening, but the deterministic gate must pass.\n\nIn-scope files:\n- workflows/actions/polish.md\n- tests/validate-skills.sh only if the current validator assertion is objectively stale or too brittle\n\nOut-of-scope:\n- Do not broaden polish behavior beyond the validation failure.\n- Do not change unrelated skill routes.\n\nImplementation notes: preserve the rule that vague acceptance text such as \"works\", \"correct\", \"complete\", or \"aligned\" is non-measurable unless paired with a named check. The resulting text must make the not-execution-ready flagging path explicit enough for agents and the validator.",
+    "acceptance": "Command: bash tests/validate-skills.sh\nExpected: exits 0.\n\nCommand: git diff --check\nExpected: exits 0.",
+    "labels": [
+      "helix",
+      "phase:build",
+      "area:skills",
+      "area:workflows",
+      "kind:bug"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-15T03:36:06Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "3499424",
+      "events": [
+        {
+          "actor": "",
+          "body": "[{\"ac\":1,\"text\":\"`bash tests/validate-skills.sh` passes.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":2,\"text\":\"`git diff --check` passes.\",\"kind\":\"prose\",\"verifiable\":false}]",
+          "created_at": "2026-05-15T03:24:19.029755332Z",
+          "kind": "ac-quality-low",
+          "source": "preclaim-ac-quality",
+          "summary": "score=0.00 threshold=0.50 verifiable=0/2"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"codex\",\"fallback_chain\":[],\"requested_harness\":\"codex\"}",
+          "created_at": "2026-05-15T03:25:48.439137007Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=codex"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"codex\",\"fallback_chain\":[],\"requested_harness\":\"codex\",\"requested_min_power\":8}",
+          "created_at": "2026-05-15T03:26:18.947704989Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=codex"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"detail\":\"ResolveRoute: no viable routing candidate for pins harness=codex min_power=8: 1 candidates rejected\",\"harness\":\"codex\",\"model\":\"\",\"reason\":\"routing\"}",
+          "created_at": "2026-05-15T03:26:19.099354782Z",
+          "kind": "disruption_detected",
+          "source": "ddx work",
+          "summary": "routing"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"codex\",\"actual_model\":\"\",\"actual_power\":0,\"actual_provider\":\"\",\"attempt_id\":\"20260515T032548-f994b48e\",\"bead_id\":\"helix-c4c1c9c1\",\"inferred_power_class\":\"standard\",\"rejected_route_pins\":null,\"requested_profile\":\"\",\"routing_intent_degraded\":true,\"routing_intent_note\":\"actual route facts unavailable\",\"routing_intent_source\":\"heuristic\",\"smart_justification\":\"\"}",
+          "created_at": "2026-05-15T03:26:19.155014903Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=heuristic powerClass=standard harness=codex note=actual route facts unavailable"
+        },
+        {
+          "actor": "erik",
+          "body": "ResolveRoute: no viable routing candidate for pins harness=codex min_power=8: 1 candidates rejected\nresult_rev=fe46f272ba48f1984a92a9813a8864b3c46fa960\nbase_rev=fe46f272ba48f1984a92a9813a8864b3c46fa960\noutcome_reason=no_viable_provider",
+          "created_at": "2026-05-15T03:26:19.229281593Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "",
+          "body": "[{\"ac\":1,\"text\":\"`bash tests/validate-skills.sh` passes.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":2,\"text\":\"`git diff --check` passes.\",\"kind\":\"prose\",\"verifiable\":false}]",
+          "created_at": "2026-05-15T03:29:17.717209845Z",
+          "kind": "ac-quality-low",
+          "source": "preclaim-ac-quality",
+          "summary": "score=0.00 threshold=0.50 verifiable=0/2"
+        },
+        {
+          "actor": "",
+          "body": "[{\"ac\":1,\"text\":\"`bash tests/validate-skills.sh` passes.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":2,\"text\":\"`git diff --check` passes.\",\"kind\":\"prose\",\"verifiable\":false}]",
+          "created_at": "2026-05-15T03:33:47.767864603Z",
+          "kind": "ac-quality-low",
+          "source": "preclaim-ac-quality",
+          "summary": "score=0.00 threshold=0.50 verifiable=0/2"
+        }
+      ],
+      "spec-id": "helix.prd",
+      "work-heartbeat-at": "2026-05-15T03:36:06.321784924Z"
+    }
+  },
+  "governing": [
+    {
+      "id": "helix.prd",
+      "path": "docs/helix/01-frame/prd.md",
+      "title": "Product Requirements Document"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260515T033834-030e8b8e",
+    "prompt": ".ddx/executions/20260515T033834-030e8b8e/prompt.md",
+    "manifest": ".ddx/executions/20260515T033834-030e8b8e/manifest.json",
+    "result": ".ddx/executions/20260515T033834-030e8b8e/result.json",
+    "checks": ".ddx/executions/20260515T033834-030e8b8e/checks.json",
+    "usage": ".ddx/executions/20260515T033834-030e8b8e/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-c4c1c9c1-20260515T033834-030e8b8e"
+  },
+  "prompt_sha": "255641bb77836dd9cb62ab7c5af0a3e2924159bf3c87d5bb7c8396d8769535c7"
+}

@@ -4,6 +4,12 @@ ddx:
   depends_on:
     - example.deployment-checklist.depositmatch.csv-import
     - example.implementation-plan.depositmatch
+  review:
+    self_hash: 3f1390445de6ce94fda9daf662dce73605ddf07d6ea73f7f0acde563b9af7360
+    deps:
+      example.deployment-checklist.depositmatch.csv-import: 02e9e7c9c29b4a335e0e2eceacaaaa6673018042db2a706f89293ab6f58abcbf
+      example.implementation-plan.depositmatch: 8f48b07ab604fe52786de7648f7ab37da251cfade0ea38bb4e802082d4f977de
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Release Notes - DepositMatch CSV Import v1

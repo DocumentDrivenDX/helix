@@ -3,6 +3,11 @@ ddx:
   id: example.metrics-dashboard.depositmatch.csv-import
   depends_on:
     - example.metric-definition.depositmatch.csv-import-validation-seconds
+  review:
+    self_hash: 55c3a758e5ff9beef2651c46bf668c6a31eab8be6a1f64662166de4135061398
+    deps:
+      example.metric-definition.depositmatch.csv-import-validation-seconds: a1bb2128a1335ff7b306902f4bc6ab433468c93f567943535c641fa2e53d617e
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Metrics Dashboard: DepositMatch CSV Import Pilot Readiness

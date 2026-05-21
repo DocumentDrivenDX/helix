@@ -4,6 +4,12 @@ ddx:
   depends_on:
     - example.technical-design.depositmatch.upload-csv
     - example.story-test-plan.depositmatch.upload-csv
+  review:
+    self_hash: 8f48b07ab604fe52786de7648f7ab37da251cfade0ea38bb4e802082d4f977de
+    deps:
+      example.story-test-plan.depositmatch.upload-csv: ea5f25266c2652513d7c3623b18bb3b8f9ac0058379e1edcfe305107bdf6a11e
+      example.technical-design.depositmatch.upload-csv: 064c51468da1d444da9c6f65d6c2502487724ac315fa3e6c50f9bbeffd3d69b9
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Build Plan

@@ -1,7 +1,7 @@
 ---
 title: "Project Principles"
 slug: principles
-weight: 160
+weight: 180
 activity: "Frame"
 source: "01-frame/principles.md"
 generated: true
@@ -15,6 +15,12 @@ ddx:
   depends_on:
     - helix.prd
     - helix.product-vision
+  review:
+    self_hash: 63b4bf567663fa5d7f4d61531ac1dd51c16cfd1002e51459746c7b874b0fc1da
+    deps:
+      helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
+      helix.product-vision: 79d80961a61599087606ddda314e16409a244db23581fbd2eecd3b66353cebf9
+    reviewed_at: "2026-05-15T04:11:24Z"
 ```
 
 # Project Principles

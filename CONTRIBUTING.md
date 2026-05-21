@@ -66,7 +66,7 @@ If not using the skill:
 1. Run `just test` and `helix doctor`
 2. Build the site: `cd website && hugo --gc --minify`
 3. Re-record stale demos if needed (see `docs/demos/*/README.md`)
-4. Bump version in `scripts/helix` and `.claude-plugin/plugin.json`
+4. Bump version in `.claude-plugin/plugin.json`
 5. Commit: `git commit -m "Release vX.Y.Z"`
 6. Tag: `git tag -a vX.Y.Z -m "vX.Y.Z: summary"`
 7. Push: `git push origin main vX.Y.Z`

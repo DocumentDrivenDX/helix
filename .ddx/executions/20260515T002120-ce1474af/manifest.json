@@ -1,0 +1,85 @@
+{
+  "attempt_id": "20260515T002120-ce1474af",
+  "bead_id": "helix-66e1bc40",
+  "base_rev": "33c5c616cccf8007a4f0f8677d8c42f83b40d073",
+  "created_at": "2026-05-15T00:21:21.765685841Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-66e1bc40",
+    "title": "Restructure homepage IA around loop, helix proof, and adoption journeys",
+    "description": "Implement the fresh-eyes homepage IA: replace duplicate hero helix with a loop graphic, keep the double helix as the worked-example centerpiece, replace generic methodology cards with core artifact spine, platform paths, and public proof/foundations sections.",
+    "acceptance": "Homepage uses the double helix only for the worked-example graph. Hero visual is a distinct loop showing artifacts, alignment review, implementation plan, runtime execution, and evidence/drift. Homepage includes a short how-it-works sequence, prioritized core artifact spine, platform paths, and proof/foundations links. DDx is not visually dominant.",
+    "parent": "helix-e1a72cfc",
+    "labels": [
+      "helix",
+      "website",
+      "phase:build",
+      "area:site"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-15T00:17:15Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "2366035",
+      "events": [
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"grendel-rapid-mlx\",\"resolved_model\":\"mlx-community/Qwen3.6-27B-8bit\",\"fallback_chain\":[],\"actual_power\":5}",
+          "created_at": "2026-05-14T17:21:50.448895042Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=grendel-rapid-mlx model=mlx-community/Qwen3.6-27B-8bit"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"fiz\",\"actual_model\":\"mlx-community/Qwen3.6-27B-8bit\",\"actual_power\":5,\"actual_provider\":\"grendel-rapid-mlx\",\"attempt_id\":\"20260514T171846-62042ba6\",\"bead_id\":\"helix-66e1bc40\",\"inferred_power_class\":\"standard\",\"rejected_route_pins\":null,\"requested_profile\":\"default\",\"routing_intent_degraded\":false,\"routing_intent_note\":\"\",\"routing_intent_source\":\"heuristic\",\"smart_justification\":\"\"}",
+          "created_at": "2026-05-14T17:21:50.516709274Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=heuristic powerClass=standard model=mlx-community/Qwen3.6-27B-8bit harness=fiz"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"actual_power\":5,\"detail\":\"agent: provider error: openai: Post \\\"http://grendel:8000/v1/chat/completions\\\": dial tcp 100.97.179.68:8000: i/o timeout\",\"error\":\"agent: provider error: openai: Post \\\"http://grendel:8000/v1/chat/completions\\\": dial tcp 100.97.179.68:8000: i/o timeout\",\"harness\":\"fiz\",\"model\":\"mlx-community/Qwen3.6-27B-8bit\",\"outcome_reason\":\"provider_connectivity\",\"provider\":\"grendel-rapid-mlx\"}",
+          "created_at": "2026-05-14T17:21:50.63705399Z",
+          "kind": "route-failure",
+          "source": "ddx work",
+          "summary": "provider=grendel-rapid-mlx model=mlx-community/Qwen3.6-27B-8bit connectivity failure"
+        },
+        {
+          "actor": "erik",
+          "body": "agent: provider error: openai: Post \"http://grendel:8000/v1/chat/completions\": dial tcp 100.97.179.68:8000: i/o timeout\npowerClass=standard\nresult_rev=bca662acbea66da38d9ac6a53c9b33662b6b77bf\nbase_rev=34309df2b4fe9c1e6868359ec739ad181bcfeb3c\nretry_after=2026-05-14T17:36:50Z\noutcome_reason=provider_connectivity",
+          "created_at": "2026-05-14T17:21:50.737742504Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        }
+      ],
+      "execute-loop-cooldown-base-rev": "34309df2b4fe9c1e6868359ec739ad181bcfeb3c",
+      "execute-loop-failed-routes": [
+        {
+          "actual_power": 5,
+          "at": "2026-05-14T17:21:50Z",
+          "model": "mlx-community/Qwen3.6-27B-8bit",
+          "provider": "grendel-rapid-mlx",
+          "reason": "provider_connectivity"
+        }
+      ],
+      "execute-loop-last-detail": "agent: provider error: openai: Post \"http://grendel:8000/v1/chat/completions\": dial tcp 100.97.179.68:8000: i/o timeout",
+      "execute-loop-last-status": "execution_failed",
+      "execute-loop-retry-after": "2026-05-14T17:36:50Z",
+      "work-heartbeat-at": "2026-05-15T00:17:15.680634474Z"
+    }
+  },
+  "paths": {
+    "dir": ".ddx/executions/20260515T002120-ce1474af",
+    "prompt": ".ddx/executions/20260515T002120-ce1474af/prompt.md",
+    "manifest": ".ddx/executions/20260515T002120-ce1474af/manifest.json",
+    "result": ".ddx/executions/20260515T002120-ce1474af/result.json",
+    "checks": ".ddx/executions/20260515T002120-ce1474af/checks.json",
+    "usage": ".ddx/executions/20260515T002120-ce1474af/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-66e1bc40-20260515T002120-ce1474af"
+  },
+  "prompt_sha": "3b5d570ce64473762cbebd231f24dcc9dd38821b372f21ce24a1f40eb3b819fd"
+}

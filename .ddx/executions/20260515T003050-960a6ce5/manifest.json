@@ -1,0 +1,92 @@
+{
+  "attempt_id": "20260515T003050-960a6ce5",
+  "bead_id": "helix-deb3fde4",
+  "base_rev": "e6a88fa4cc13fa6fe0000ee497b4d0f30860da1c",
+  "created_at": "2026-05-15T00:30:51.635851933Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-deb3fde4",
+    "title": "Fix FEAT-011 artifact rendering",
+    "description": "FEAT-011 is not rendering on the microsite the same way as the source/test expectation. Compare the source artifact, published artifact, and rendered HTML, then fix the smallest generator/content issue.",
+    "acceptance": "FEAT-011 source and published artifact render consistently with the expected test/source structure. Hugo build passes. Relevant prose or whitespace checks pass.",
+    "labels": [
+      "helix",
+      "phase:build",
+      "area:site",
+      "area:docs"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-15T00:26:50Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "2366035",
+      "events": [
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"bragi-club-3090\",\"resolved_model\":\"qwen3.6-27b-autoround\",\"fallback_chain\":[],\"actual_power\":5}",
+          "created_at": "2026-05-14T17:33:21.589222847Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=bragi-club-3090 model=qwen3.6-27b-autoround"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"fiz\",\"actual_model\":\"qwen3.6-27b-autoround\",\"actual_power\":5,\"actual_provider\":\"bragi-club-3090\",\"attempt_id\":\"20260514T173017-66550167\",\"bead_id\":\"helix-deb3fde4\",\"inferred_power_class\":\"standard\",\"rejected_route_pins\":null,\"requested_profile\":\"default\",\"routing_intent_degraded\":false,\"routing_intent_note\":\"\",\"routing_intent_source\":\"heuristic\",\"smart_justification\":\"\"}",
+          "created_at": "2026-05-14T17:33:21.653532454Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=heuristic powerClass=standard model=qwen3.6-27b-autoround harness=fiz"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"actual_power\":5,\"detail\":\"agent: provider error: openai: Post \\\"http://bragi:8020/v1/chat/completions\\\": dial tcp 100.127.38.115:8020: i/o timeout\",\"error\":\"agent: provider error: openai: Post \\\"http://bragi:8020/v1/chat/completions\\\": dial tcp 100.127.38.115:8020: i/o timeout\",\"harness\":\"fiz\",\"model\":\"qwen3.6-27b-autoround\",\"outcome_reason\":\"provider_connectivity\",\"provider\":\"bragi-club-3090\"}",
+          "created_at": "2026-05-14T17:33:21.780654877Z",
+          "kind": "route-failure",
+          "source": "ddx work",
+          "summary": "provider=bragi-club-3090 model=qwen3.6-27b-autoround connectivity failure"
+        },
+        {
+          "actor": "erik",
+          "body": "agent: provider error: openai: Post \"http://bragi:8020/v1/chat/completions\": dial tcp 100.127.38.115:8020: i/o timeout\npowerClass=standard\nresult_rev=d238ddda57dacf798ffd496626494ffa573cda62\nbase_rev=67e1c4d70fcdaef581b312715451e4ccfba1efbf\nretry_after=2026-05-14T17:48:21Z\noutcome_reason=provider_connectivity",
+          "created_at": "2026-05-14T17:33:21.891142138Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        }
+      ],
+      "execute-loop-cooldown-base-rev": "67e1c4d70fcdaef581b312715451e4ccfba1efbf",
+      "execute-loop-failed-routes": [
+        {
+          "actual_power": 5,
+          "at": "2026-05-14T17:33:21Z",
+          "model": "qwen3.6-27b-autoround",
+          "provider": "bragi-club-3090",
+          "reason": "provider_connectivity"
+        }
+      ],
+      "execute-loop-last-detail": "agent: provider error: openai: Post \"http://bragi:8020/v1/chat/completions\": dial tcp 100.127.38.115:8020: i/o timeout",
+      "execute-loop-last-status": "execution_failed",
+      "execute-loop-retry-after": "2026-05-14T17:48:21Z",
+      "spec-id": "FEAT-011",
+      "work-heartbeat-at": "2026-05-15T00:26:50.141057727Z"
+    }
+  },
+  "governing": [
+    {
+      "id": "FEAT-011",
+      "path": "docs/helix/01-frame/features/FEAT-011-slider-autonomy.md",
+      "title": "FEAT-011: Slider Autonomy Control"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260515T003050-960a6ce5",
+    "prompt": ".ddx/executions/20260515T003050-960a6ce5/prompt.md",
+    "manifest": ".ddx/executions/20260515T003050-960a6ce5/manifest.json",
+    "result": ".ddx/executions/20260515T003050-960a6ce5/result.json",
+    "checks": ".ddx/executions/20260515T003050-960a6ce5/checks.json",
+    "usage": ".ddx/executions/20260515T003050-960a6ce5/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-deb3fde4-20260515T003050-960a6ce5"
+  },
+  "prompt_sha": "aaf08235f939a6b0809358e5e0041d01eea0cf063c6a4da553266f925df953ef"
+}

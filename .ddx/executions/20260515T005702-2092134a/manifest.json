@@ -1,0 +1,312 @@
+{
+  "attempt_id": "20260515T005702-2092134a",
+  "bead_id": "helix-3fdba193",
+  "base_rev": "ecd7f6550d9c4e548c14dc9ef06cfb17e93b2ac0",
+  "created_at": "2026-05-15T00:57:03.661890811Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-3fdba193",
+    "title": "helix-ddx integration harness with contract-matrix exercise and tolerant-parse tests",
+    "description": "Create tests/helix-loop-integration.sh (or equivalent under tests/) that drives real scripts/helix against a stubbed ddx emitting scripted execute-loop --json output. Coverage requirements:\n(a) no_ready_work: helix run exits cleanly with no cycle counted\n(b) single success: one results[] entry with status=success, HELIX applies post-cycle to that bead\n(c) mixed success/failure in one drain\n(d) retry-after cooldown: results[] entry with retry_after set; HELIX does not unclaim or blame\n(e) preserve_ref present: HELIX surfaces it without attempting land\n(f) tolerant parsing: unknown top-level or per-result fields MUST be ignored without error\n(g) strict required fields: missing bead_id or status MUST cause a clear structured error, not a silent pass\n\nCI exercise of the contract matrix produced by the audit bead: each DDx-owned item with a code-link resolution has a harness test asserting the linked behavior; each new-DDx-bead resolution is tracked as skipped-pending; each HELIX-backport resolution has an in-harness fake verifying the HELIX fallback.",
+    "acceptance": "tests/helix-loop-integration.sh runs with exit code 0 on ci.sh and covers the seven enumerated DDx --json response shapes above. Adding a row to CONTRACT-001-audit.md with resolution='code-link:\u003cpath\u003e' triggers a harness test linking to that path; harness fails if the link is broken or the linked behavior is absent. Unknown-field tolerance and missing-required-field strictness are each asserted by at least one fixture with specific stderr/exit-code expectations documented in the test.",
+    "parent": "helix-e26584d7",
+    "labels": [
+      "helix",
+      "phase:build",
+      "area:testing",
+      "area:cli",
+      "area:workflow",
+      "phase-3-prep"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-15T00:54:52Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "2366035",
+      "events": [
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"virtual\",\"resolved_model\":\"recorded\",\"fallback_chain\":[]}",
+          "created_at": "2026-04-17T21:52:39.189740043Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=virtual model=recorded"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=cheap harness=virtual model=recorded probe=ok\nno recorded response for prompt (hash 76611aac24dd2232). Record one with: ddx agent run --harness \u003cname\u003e --record --prompt \u003cfile\u003e",
+          "created_at": "2026-04-17T21:52:39.282351102Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"minimax/minimax-m2.7-20260318\",\"route_reason\":\"discovery\",\"fallback_chain\":[],\"base_url\":\"https://openrouter.ai/api/v1\"}",
+          "created_at": "2026-04-17T22:19:29.274819202Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=minimax/minimax-m2.7-20260318 reason=discovery"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=standard harness=agent model=minimax/minimax-m2.7-20260318 probe=ok\nagent: compaction stuck: consecutive attempts failed to produce a compacted history",
+          "created_at": "2026-04-17T22:19:30.169816996Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"openrouter\",\"resolved_model\":\"minimax/minimax-m2.7\",\"fallback_chain\":[]}",
+          "created_at": "2026-04-17T22:19:36.2082887Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=openrouter model=minimax/minimax-m2.7"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=smart harness=openrouter model=minimax/minimax-m2.7 probe=ok\nexec: no command",
+          "created_at": "2026-04-17T22:19:36.305968678Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"tiers_attempted\":[{\"tier\":\"cheap\",\"harness\":\"virtual\",\"model\":\"recorded\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"standard\",\"harness\":\"agent\",\"model\":\"minimax/minimax-m2.7-20260318\",\"status\":\"execution_failed\",\"cost_usd\":0.8610215399999998,\"duration_ms\":1604199},{\"tier\":\"smart\",\"harness\":\"openrouter\",\"model\":\"minimax/minimax-m2.7\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":0}],\"winning_tier\":\"exhausted\",\"total_cost_usd\":0.8610215399999998,\"wasted_cost_usd\":0.8610215399999998}",
+          "created_at": "2026-04-17T22:19:36.352328517Z",
+          "kind": "escalation-summary",
+          "source": "ddx agent execute-loop",
+          "summary": "winning_tier=exhausted attempts=3 total_cost_usd=0.8610 wasted_cost_usd=0.8610"
+        },
+        {
+          "actor": "ddx",
+          "body": "escalation exhausted: exec: no command\ntier=smart\nprobe_result=ok\nresult_rev=79224a6d292e83be623f43cb3b9177ffdd060f1c\nbase_rev=79224a6d292e83be623f43cb3b9177ffdd060f1c\nretry_after=2026-04-18T04:19:36Z",
+          "created_at": "2026-04-17T22:19:36.478984243Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"claude\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-02T13:08:20.072458205Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=claude"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"attempt_id\":\"20260502T125952-cb345f31\",\"harness\":\"claude\",\"input_tokens\":50,\"output_tokens\":30853,\"total_tokens\":30903,\"cost_usd\":3.1747267499999996,\"duration_ms\":507355,\"exit_code\":0}",
+          "created_at": "2026-05-02T13:08:20.115476414Z",
+          "kind": "cost",
+          "source": "ddx agent execute-bead",
+          "summary": "tokens=30903 cost_usd=3.1747"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"escalation_count\":0,\"fallback_chain\":[],\"final_tier\":\"\",\"requested_profile\":\"\",\"requested_tier\":\"\",\"resolved_model\":\"\",\"resolved_provider\":\"claude\",\"resolved_tier\":\"\"}",
+          "created_at": "2026-05-02T13:08:22.918899373Z",
+          "kind": "routing",
+          "source": "ddx agent execute-loop",
+          "summary": "provider=claude"
+        },
+        {
+          "actor": "erik",
+          "body": "reviewer: reviewer output: no recognizable verdict line (raw output 0 bytes; see .ddx/executions/20260502T130823-4d35a723)",
+          "created_at": "2026-05-02T13:08:23.134877252Z",
+          "kind": "review-error",
+          "source": "ddx agent execute-loop",
+          "summary": "review agent error"
+        },
+        {
+          "actor": "erik",
+          "body": "merged onto current tip\nresult_rev=f594487ea23e324a9f2bd04d4ddbf400639d0d11\nbase_rev=dbac91743b3f1ea24710e310976eae7007d0e83a",
+          "created_at": "2026-05-02T13:08:23.190789973Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "success"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=cheap harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:25:14.515490334Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=standard harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:25:20.743570947Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=smart harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:25:26.982020552Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"tiers_attempted\":[{\"tier\":\"cheap\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"standard\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"smart\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0}],\"winning_tier\":\"exhausted\",\"total_cost_usd\":0,\"wasted_cost_usd\":0}",
+          "created_at": "2026-05-02T13:25:27.034360764Z",
+          "kind": "escalation-summary",
+          "source": "ddx agent execute-loop",
+          "summary": "winning_tier=exhausted attempts=3 total_cost_usd=0.0000 wasted_cost_usd=0.0000"
+        },
+        {
+          "actor": "erik",
+          "body": "execute-loop: all tiers exhausted — no viable provider found",
+          "created_at": "2026-05-02T13:25:27.114312663Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"cheap\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T00:17:11.467375359Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=cheap"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=cheap harness=agent model=cheap probe=ok\norphan model: cheap",
+          "created_at": "2026-05-03T00:17:11.575913213Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"standard\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T00:17:12.221777851Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=standard"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=standard harness=agent model=standard probe=ok\norphan model: standard",
+          "created_at": "2026-05-03T00:17:12.331915203Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"smart\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T00:17:12.98096496Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=smart"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=smart harness=agent model=smart probe=ok\norphan model: smart",
+          "created_at": "2026-05-03T00:17:13.090485271Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"tiers_attempted\":[{\"tier\":\"cheap\",\"harness\":\"agent\",\"model\":\"cheap\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":1},{\"tier\":\"standard\",\"harness\":\"agent\",\"model\":\"standard\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":1},{\"tier\":\"smart\",\"harness\":\"agent\",\"model\":\"smart\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":1}],\"winning_tier\":\"exhausted\",\"total_cost_usd\":0,\"wasted_cost_usd\":0}",
+          "created_at": "2026-05-03T00:17:13.131711825Z",
+          "kind": "escalation-summary",
+          "source": "ddx agent execute-loop",
+          "summary": "winning_tier=exhausted attempts=3 total_cost_usd=0.0000 wasted_cost_usd=0.0000"
+        },
+        {
+          "actor": "ddx",
+          "body": "escalation exhausted: orphan model: smart\ntier=smart\nprobe_result=ok\nresult_rev=7a4dffc607426d5290e9922e917f460a210cb952\nbase_rev=7a4dffc607426d5290e9922e917f460a210cb952\nretry_after=2026-05-03T06:17:13Z",
+          "created_at": "2026-05-03T00:17:13.243651382Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T15:01:41.627006405Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider="
+        },
+        {
+          "actor": "ddx",
+          "body": "ResolveRoute: no viable routing candidate: 4 candidates rejected\nresult_rev=e82445690f6077f3ce1a8b203dd7a0b0fcb94ce6\nbase_rev=e82445690f6077f3ce1a8b203dd7a0b0fcb94ce6\nretry_after=2026-05-03T21:01:41Z",
+          "created_at": "2026-05-03T15:01:41.806158036Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"bragi\",\"resolved_model\":\"qwen3.5-27b\",\"fallback_chain\":[],\"actual_power\":5}",
+          "created_at": "2026-05-14T18:25:04.172665342Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=bragi model=qwen3.5-27b"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"fiz\",\"actual_model\":\"qwen3.5-27b\",\"actual_power\":5,\"actual_provider\":\"bragi\",\"attempt_id\":\"20260514T182156-f407939d\",\"bead_id\":\"helix-3fdba193\",\"inferred_power_class\":\"standard\",\"rejected_route_pins\":null,\"requested_profile\":\"default\",\"routing_intent_degraded\":false,\"routing_intent_note\":\"\",\"routing_intent_source\":\"heuristic\",\"smart_justification\":\"\"}",
+          "created_at": "2026-05-14T18:25:04.23466571Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=heuristic powerClass=standard model=qwen3.5-27b harness=fiz"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"actual_power\":5,\"detail\":\"agent: provider error: openai: Post \\\"http://bragi:1234/v1/chat/completions\\\": dial tcp 100.127.38.115:1234: i/o timeout\",\"error\":\"agent: provider error: openai: Post \\\"http://bragi:1234/v1/chat/completions\\\": dial tcp 100.127.38.115:1234: i/o timeout\",\"harness\":\"fiz\",\"model\":\"qwen3.5-27b\",\"outcome_reason\":\"provider_connectivity\",\"provider\":\"bragi\"}",
+          "created_at": "2026-05-14T18:25:04.355284654Z",
+          "kind": "route-failure",
+          "source": "ddx work",
+          "summary": "provider=bragi model=qwen3.5-27b connectivity failure"
+        },
+        {
+          "actor": "erik",
+          "body": "agent: provider error: openai: Post \"http://bragi:1234/v1/chat/completions\": dial tcp 100.127.38.115:1234: i/o timeout\npowerClass=standard\nresult_rev=7e62046b5b9e8854dda2171de7324d2f8b47bfe6\nbase_rev=2f80cd4e559c352b806fc9e369f0e84b36b4ac94\nretry_after=2026-05-14T18:40:04Z\noutcome_reason=provider_connectivity",
+          "created_at": "2026-05-14T18:25:04.458785391Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        }
+      ],
+      "execute-loop-cooldown-base-rev": "2f80cd4e559c352b806fc9e369f0e84b36b4ac94",
+      "execute-loop-failed-routes": [
+        {
+          "actual_power": 5,
+          "at": "2026-05-14T18:25:04Z",
+          "model": "qwen3.5-27b",
+          "provider": "bragi",
+          "reason": "provider_connectivity"
+        }
+      ],
+      "execute-loop-last-detail": "agent: provider error: openai: Post \"http://bragi:1234/v1/chat/completions\": dial tcp 100.127.38.115:1234: i/o timeout",
+      "execute-loop-last-status": "execution_failed",
+      "execute-loop-retry-after": "2026-05-14T18:40:04Z",
+      "spec-id": "tests/helix-cli.sh",
+      "work-heartbeat-at": "2026-05-15T00:54:52.217208208Z"
+    }
+  },
+  "paths": {
+    "dir": ".ddx/executions/20260515T005702-2092134a",
+    "prompt": ".ddx/executions/20260515T005702-2092134a/prompt.md",
+    "manifest": ".ddx/executions/20260515T005702-2092134a/manifest.json",
+    "result": ".ddx/executions/20260515T005702-2092134a/result.json",
+    "checks": ".ddx/executions/20260515T005702-2092134a/checks.json",
+    "usage": ".ddx/executions/20260515T005702-2092134a/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-3fdba193-20260515T005702-2092134a"
+  },
+  "prompt_sha": "b919187e85b00f6af2c69437998997423c449168ad7b021eb1db66741c0573ed"
+}

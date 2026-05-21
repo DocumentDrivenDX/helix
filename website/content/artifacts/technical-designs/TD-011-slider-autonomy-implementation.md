@@ -1,7 +1,7 @@
 ---
 title: "TD-011: Slider Autonomy Implementation Design (Revised)"
 slug: TD-011-slider-autonomy-implementation
-weight: 370
+weight: 410
 activity: "Design"
 source: "02-design/technical-designs/TD-011-slider-autonomy-implementation.md"
 generated: true
@@ -19,6 +19,14 @@ ddx:
     - ADR-001
   status: superseded
   superseded_by: helix.prd
+  review:
+    self_hash: 969038469ca4fc3f2c655ce5afb25bd48291c5b45b68260d13a3f9f066be16b7
+    deps:
+      ADR-001: 16f033617d3ab84a6fa5ebd48d0ec171f1999e6332e26dc956fa7b1a7a8b2685
+      FEAT-001: df7d279639d071dc9404f0b779f3e7fcc4bfc6a263dff28fd1ded3a01039a8cd
+      FEAT-011: c17dda57cddf83a49dcdf1bdccc7ec398a7e75ef0626594c7bfd64f97a284a17
+      helix.workflow.artifact-hierarchy: 87e2b23a96a1aa90a51bf3b66af5cb60ce98b6b276d8800e5de389cd02f8791b
+    reviewed_at: "2026-05-15T04:11:24Z"
 ```
 
 > **SUPERSEDED** — This technical design implemented the slider autonomy
@@ -363,7 +371,7 @@ validation surface.
 
 **Traceability metadata format**:
 ```markdown
-# TP-036-list-mcp-servers.md
+# STP-036-list-mcp-servers.md
 **User Story**: [[US-036-list-mcp-servers]]
 **Technical Design**: [[TD-036-list-mcp-servers]]
 
@@ -513,13 +521,13 @@ docs/helix/02-design/
   solution-designs/
     SD-001-test-solution.md [[FEAT-001, TD-001]]
   technical-designs/
-    TD-001-first-design.md [[US-001, TP-001]]
+    TD-001-first-design.md [[US-001, STP-001]]
 docs/helix/03-test/
   test-plans/
-    TP-001-first-tests.md [[TD-001]]
+    STP-001-first-tests.md [[TD-001]]
 ```
 
-Test: `helix input "change US-001 acceptance criteria"` should produce beads for TD-001, TP-001, and tests.
+Test: `helix input "change US-001 acceptance criteria"` should produce beads for TD-001, STP-001, and tests.
 
 ## Migration Path
 

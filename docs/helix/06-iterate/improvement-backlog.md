@@ -3,6 +3,11 @@ ddx:
   id: improvement-backlog
   depends_on:
     - metrics-dashboard
+  review:
+    self_hash: 93bc23d6894a3f1b6bf89ff43a0d200421e332c1b40ab8d4ec1b94ff1256f1b4
+    deps:
+      metrics-dashboard: 0934ca6e0913a5da11bb822adb4b4a5e343aaefdf6444af11690eab218a52c6c
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 # Improvement Backlog — HELIX 2026-Q2
 

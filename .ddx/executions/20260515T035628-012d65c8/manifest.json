@@ -1,0 +1,47 @@
+{
+  "attempt_id": "20260515T035628-012d65c8",
+  "bead_id": "helix-7a4b83f8",
+  "base_rev": "5d31b35d8c27344605543ecb62f16586d4aa5433",
+  "created_at": "2026-05-15T03:56:28.688249887Z",
+  "requested": {
+    "harness": "codex",
+    "model": "gpt-5.4",
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-7a4b83f8",
+    "title": "Reconcile stale CONTRACT-003 migration notes",
+    "description": "Context: `docs/helix/02-design/contracts/CONTRACT-003-ddx-adapter-boundary.md` has a `Known Boundary Leaks` section that is partly stale. It still lists some leaks as unresolved even though current files appear to have addressed them. Example: LEAK-4 says `workflows/artifact-schema.md` presents `.ddx/plugins/helix/workflows/` as the installed catalog path, but current `workflows/artifact-schema.md` lines 274-279 already say install path varies by runtime and name `.ddx/plugins/...` only for DDx-managed runtimes. CONTRACT-001 also already has a pre-collapse supersession note.\n\nIn-scope files:\n- docs/helix/02-design/contracts/CONTRACT-003-ddx-adapter-boundary.md\n- docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md only if a referenced note needs a small correction\n- workflows/artifact-schema.md only if CONTRACT-003's claim is still accurate after closer inspection\n\nOut-of-scope:\n- Do not rewrite the full DDx adapter contract unless needed.\n- Do not change runtime behavior or DDx skill files.\n\nImplementation notes: turn stale migration notes into an accurate current-state ledger. Mark resolved leaks as resolved, remove or reframe stale fix instructions, and keep unresolved boundary leaks actionable.",
+    "acceptance": "Command: bash -lc '! rg -n \"Artifact schema directory layout shows DDx plugin path as catalog location|CONTRACT-001 framing describes DDx as \\\\\\\"platform substrate\\\\\\\"\" docs/helix/02-design/contracts/CONTRACT-003-ddx-adapter-boundary.md'\nExpected: exits 0.\n\nCommand: bash tests/validate-context-digests.sh\nExpected: exits 0.\n\nCommand: git diff --check\nExpected: exits 0.",
+    "labels": [
+      "helix",
+      "phase:build",
+      "area:docs",
+      "kind:alignment"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-15T03:52:02Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "3499424",
+      "spec-id": "CONTRACT-003",
+      "work-heartbeat-at": "2026-05-15T03:52:02.529429679Z"
+    }
+  },
+  "governing": [
+    {
+      "id": "CONTRACT-003",
+      "path": "docs/helix/02-design/contracts/CONTRACT-003-ddx-adapter-boundary.md",
+      "title": "CONTRACT-003: DDx Adapter Boundary"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260515T035628-012d65c8",
+    "prompt": ".ddx/executions/20260515T035628-012d65c8/prompt.md",
+    "manifest": ".ddx/executions/20260515T035628-012d65c8/manifest.json",
+    "result": ".ddx/executions/20260515T035628-012d65c8/result.json",
+    "checks": ".ddx/executions/20260515T035628-012d65c8/checks.json",
+    "usage": ".ddx/executions/20260515T035628-012d65c8/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-7a4b83f8-20260515T035628-012d65c8"
+  },
+  "prompt_sha": "5cf6abf7f0fa5fb06600c6f47496c6fda9b8f76fe7ea67f5c629deb9d7a09809"
+}

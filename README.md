@@ -9,8 +9,9 @@ HELIX runs on runtimes. [DDx](https://documentdrivendx.github.io/ddx/) is
 the reference runtime — it provides the agent runtime, the tracker, and the
 execution loop that turn aligned artifacts into running code. Databricks Genie
 and Claude Code are target runtimes. HELIX itself is content (templates,
-prompts, methodology spec) plus the alignment skill. It does not ship a CLI,
-a tracker, or a runtime.
+prompts, methodology spec) plus the alignment skill. HELIX ships no checkout
+CLI; alignment, queue control, tracker behavior, and the broader historical
+command surface belong to runtimes like DDx.
 
 **[Documentation](https://documentdrivendx.github.io/helix/)** · **[Demo Reels](https://documentdrivendx.github.io/helix/demos/)** · **[Getting Started](https://documentdrivendx.github.io/helix/use/getting-started/)**
 

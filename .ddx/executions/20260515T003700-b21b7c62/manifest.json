@@ -1,0 +1,221 @@
+{
+  "attempt_id": "20260515T003700-b21b7c62",
+  "bead_id": "helix-81c0c0df",
+  "base_rev": "8e02407ad76d55f5f0696f6ba2c17aad6a7faee3",
+  "created_at": "2026-05-15T00:37:01.136424256Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-81c0c0df",
+    "title": "Make HELIX consume DDx tier policy backed by ddx-agent model catalog",
+    "description": "\u003ccontext-digest\u003e\n\u003cprinciples\u003eDesign for Change · Design for Simplicity · Validate Your Work · Make Intent Explicit · Prefer Reversible Decisions\u003c/principles\u003e\n\u003cconcerns\u003ehugo-hextra | demo-asciinema\u003c/concerns\u003e\n\u003cpractices\u003eTheme version: Hextra v0.12.1 — pinned in website/go.mod · Hugo version: 0.159.2 extended — pinned in .github/workflows/pages.yml · Current demos: helix-quickstart (full lifecycle), helix-concerns (drift detection), helix-evolve (requirement threading) · Agent harness: ddx agent run --harness claude — not claude -p\u003c/practices\u003e\n\u003cgoverning\u003eworkflows/EXECUTION.md — HELIX design/docs define an integration contract where HELIX selects stage tier and harness constraints while DDx resolves the concrete model via ddx-agent catalog policy\u003c/governing\u003e\n\u003cevidence\u003e\n- scripts/helix currently hardcodes concrete smart/cheap model names in resolve_model(): claude-opus-4-6, claude-sonnet-4-6, gpt-5.4, gpt-5.4-mini.\n- HELIX docs and help text expose --smart-model / --cheap-model and describe concrete defaults in ways that duplicate DDx policy.\n- The desired behavior is: HELIX decides whether a stage needs smart/fast/cheap and which harness family to use; DDx resolves the concrete current model through ddx-agent catalog policy under user constraints.\n- This removes split-brain model policy and avoids HELIX drifting behind current recommended models when ddx-agent catalog data changes.\n\u003c/evidence\u003e\n\u003c/context-digest\u003e\n\nDesign how HELIX should consume DDx tier/model policy backed by ddx-agent's shared model catalog instead of hardcoding concrete model names.\n\nScope:\n- Define the integration contract between HELIX and DDx for tier-based model selection.\n- Decide whether HELIX should pass tier names, family aliases, harness constraints, or another structured request to DDx.\n- Identify compatibility behavior for existing HELIX_SMART_MODEL / HELIX_CHEAP_MODEL overrides and existing CLI flags.\n- Update HELIX execution contract/docs so supervisory stage selection remains in HELIX while concrete model policy is delegated downward through DDx to ddx-agent catalog data.\n- Outline the implementation/test plan for scripts/helix and tests/helix-cli.sh.\n\nNotes:\n- Keep the responsibility split crisp: HELIX owns stage policy (review/design/align vs build/check/polish), DDx owns concrete harness/model resolution, ddx-agent owns reusable model catalog data.\n- The resulting design should avoid reintroducing hardcoded codex/claude model version strings in HELIX.",
+    "acceptance": "HELIX design/docs define an integration contract where HELIX selects stage tier and harness constraints while DDx resolves the concrete model via ddx-agent catalog policy; compatibility for existing HELIX smart/cheap overrides is specified; scripts/helix and tests/helix-cli.sh implementation steps are identified without leaving hardcoded model-version policy in HELIX.",
+    "parent": "helix-13cfe23f",
+    "labels": [
+      "helix",
+      "blocked",
+      "area:cli",
+      "area:testing",
+      "area:workflow"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-15T00:35:47Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "2366035",
+      "events": [
+        {
+          "actor": "erik",
+          "body": "tier=cheap harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:03:46.222597963Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=standard harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:03:52.427461167Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=smart harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:03:58.611373521Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"tiers_attempted\":[{\"tier\":\"cheap\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"standard\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"smart\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0}],\"winning_tier\":\"exhausted\",\"total_cost_usd\":0,\"wasted_cost_usd\":0}",
+          "created_at": "2026-05-02T13:03:58.657518323Z",
+          "kind": "escalation-summary",
+          "source": "ddx agent execute-loop",
+          "summary": "winning_tier=exhausted attempts=3 total_cost_usd=0.0000 wasted_cost_usd=0.0000"
+        },
+        {
+          "actor": "erik",
+          "body": "execute-loop: all tiers exhausted — no viable provider found",
+          "created_at": "2026-05-02T13:03:58.73795933Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=cheap harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:06:33.553233646Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"cheap\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T00:17:16.614917826Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=cheap"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=cheap harness=agent model=cheap probe=ok\norphan model: cheap",
+          "created_at": "2026-05-03T00:17:16.725246052Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"standard\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T00:17:17.131704394Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=standard"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=standard harness=agent model=standard probe=ok\norphan model: standard",
+          "created_at": "2026-05-03T00:17:17.239738708Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"smart\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T00:17:17.896727159Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=smart"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=smart harness=agent model=smart probe=ok\norphan model: smart",
+          "created_at": "2026-05-03T00:17:18.01152817Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"tiers_attempted\":[{\"tier\":\"cheap\",\"harness\":\"agent\",\"model\":\"cheap\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":1},{\"tier\":\"standard\",\"harness\":\"agent\",\"model\":\"standard\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":1},{\"tier\":\"smart\",\"harness\":\"agent\",\"model\":\"smart\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":1}],\"winning_tier\":\"exhausted\",\"total_cost_usd\":0,\"wasted_cost_usd\":0}",
+          "created_at": "2026-05-03T00:17:18.049887437Z",
+          "kind": "escalation-summary",
+          "source": "ddx agent execute-loop",
+          "summary": "winning_tier=exhausted attempts=3 total_cost_usd=0.0000 wasted_cost_usd=0.0000"
+        },
+        {
+          "actor": "ddx",
+          "body": "escalation exhausted: orphan model: smart\ntier=smart\nprobe_result=ok\nresult_rev=fe22ec4095d25bf274041e3fc7d348340a85c812\nbase_rev=fe22ec4095d25bf274041e3fc7d348340a85c812\nretry_after=2026-05-03T06:17:18Z",
+          "created_at": "2026-05-03T00:17:18.162119369Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T15:02:16.116136525Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider="
+        },
+        {
+          "actor": "ddx",
+          "body": "ResolveRoute: no viable routing candidate: 4 candidates rejected\nresult_rev=6c37cdc68ff3f406f5ea68b9723e83ecd7b67730\nbase_rev=6c37cdc68ff3f406f5ea68b9723e83ecd7b67730\nretry_after=2026-05-03T21:02:16Z",
+          "created_at": "2026-05-03T15:02:16.291937909Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"bragi-club-3090\",\"resolved_model\":\"qwen3.6-27b-autoround\",\"fallback_chain\":[],\"actual_power\":5}",
+          "created_at": "2026-05-14T18:13:13.405637619Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=bragi-club-3090 model=qwen3.6-27b-autoround"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"fiz\",\"actual_model\":\"qwen3.6-27b-autoround\",\"actual_power\":5,\"actual_provider\":\"bragi-club-3090\",\"attempt_id\":\"20260514T181009-9c83f743\",\"bead_id\":\"helix-81c0c0df\",\"inferred_power_class\":\"standard\",\"rejected_route_pins\":null,\"requested_profile\":\"default\",\"routing_intent_degraded\":false,\"routing_intent_note\":\"\",\"routing_intent_source\":\"heuristic\",\"smart_justification\":\"\"}",
+          "created_at": "2026-05-14T18:13:13.492739401Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=heuristic powerClass=standard model=qwen3.6-27b-autoround harness=fiz"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"actual_power\":5,\"detail\":\"agent: provider error: openai: Post \\\"http://bragi:8020/v1/chat/completions\\\": dial tcp 100.127.38.115:8020: i/o timeout\",\"error\":\"agent: provider error: openai: Post \\\"http://bragi:8020/v1/chat/completions\\\": dial tcp 100.127.38.115:8020: i/o timeout\",\"harness\":\"fiz\",\"model\":\"qwen3.6-27b-autoround\",\"outcome_reason\":\"provider_connectivity\",\"provider\":\"bragi-club-3090\"}",
+          "created_at": "2026-05-14T18:13:13.634051283Z",
+          "kind": "route-failure",
+          "source": "ddx work",
+          "summary": "provider=bragi-club-3090 model=qwen3.6-27b-autoround connectivity failure"
+        },
+        {
+          "actor": "erik",
+          "body": "agent: provider error: openai: Post \"http://bragi:8020/v1/chat/completions\": dial tcp 100.127.38.115:8020: i/o timeout\npowerClass=standard\nresult_rev=f004d483f72b4eb8381db25ed3e3546e2a3e68dc\nbase_rev=463d04a5ae8c126343d7bf5c17fd1a67996fc2a5\nretry_after=2026-05-14T18:28:13Z\noutcome_reason=provider_connectivity",
+          "created_at": "2026-05-14T18:13:13.745699157Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        }
+      ],
+      "execute-loop-cooldown-base-rev": "463d04a5ae8c126343d7bf5c17fd1a67996fc2a5",
+      "execute-loop-failed-routes": [
+        {
+          "actual_power": 5,
+          "at": "2026-05-14T18:13:13Z",
+          "model": "qwen3.6-27b-autoround",
+          "provider": "bragi-club-3090",
+          "reason": "provider_connectivity"
+        }
+      ],
+      "execute-loop-last-detail": "agent: provider error: openai: Post \"http://bragi:8020/v1/chat/completions\": dial tcp 100.127.38.115:8020: i/o timeout",
+      "execute-loop-last-status": "execution_failed",
+      "execute-loop-retry-after": "2026-05-14T18:28:13Z",
+      "spec-id": "workflows/EXECUTION.md",
+      "work-heartbeat-at": "2026-05-15T00:35:47.700388209Z"
+    }
+  },
+  "governing": [
+    {
+      "id": "workflows/EXECUTION.md",
+      "path": "workflows/EXECUTION.md"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260515T003700-b21b7c62",
+    "prompt": ".ddx/executions/20260515T003700-b21b7c62/prompt.md",
+    "manifest": ".ddx/executions/20260515T003700-b21b7c62/manifest.json",
+    "result": ".ddx/executions/20260515T003700-b21b7c62/result.json",
+    "checks": ".ddx/executions/20260515T003700-b21b7c62/checks.json",
+    "usage": ".ddx/executions/20260515T003700-b21b7c62/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-81c0c0df-20260515T003700-b21b7c62"
+  },
+  "prompt_sha": "bd87c132d4d1558f95be73ae9797cb7d03b563e7dc16c94c8fb75676edad7e09"
+}

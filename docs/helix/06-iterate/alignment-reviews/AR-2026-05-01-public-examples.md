@@ -35,10 +35,10 @@ the slot. That is the textbook authority-inversion failure codex warned about,
 so all eight are descoped.
 
 The supervisory/CLI-stack docs (vision, PRD, FEAT-002, architecture,
-ADR-001, CONTRACT-001, SD-001, TD-002, TP-002) are substantively coherent
+ADR-001, CONTRACT-001, SD-001, TD-002, STP-002) are substantively coherent
 with CONTRACT-001 and survive truth checks. Most need only small drift fixes
 (hardcoded `/home/erik/...` paths in ADR-001 references, `easel.github.io`
-URL in concerns, `.helix/issues.jsonl` legacy paths in SD-001/TP-002). The
+URL in concerns, `.helix/issues.jsonl` legacy paths in SD-001/STP-002). The
 implementation plan is a live project status snapshot — descoped on
 authority-inversion grounds (it is a project artifact, not a methodology
 example).
@@ -58,7 +58,7 @@ example).
 | 9  | contract              | docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md         | publish              | this is the authority anchor; canonically aligned |
 | 10 | solution-design       | docs/helix/02-design/solution-designs/SD-001-helix-supervisory-control.md | descope              | references `.helix/issues.jsonl` (stale) and `[[FEAT-001-helix-supervisory-control]]` resolution unclear; multiple cross-refs need product-intent interpretation |
 | 11 | technical-design      | docs/helix/02-design/technical-designs/TD-002-helix-cli.md                | publish after fixes  | small drift only (`.ddx/context.md` vs `.helix/context.md`) |
-| 12 | test-plan             | docs/helix/03-test/test-plans/TP-002-helix-cli.md                         | descope              | `.helix/issues.jsonl` stale paths and inconsistent context.md location vs TD-002 |
+| 12 | test-plan             | docs/helix/03-test/test-plans/STP-002-helix-cli.md                         | descope              | `.helix/issues.jsonl` stale paths and inconsistent context.md location vs TD-002 |
 | 13 | implementation-plan   | docs/helix/04-build/implementation-plan.md                                | descope              | live project queue snapshot — authority inversion risk |
 | 14 | runbook               | docs/helix/05-deploy/runbook.md                                           | descope              | meta-decision doc, not a runbook |
 | 15 | deployment-checklist  | docs/helix/05-deploy/deployment-checklist.md                              | descope              | meta-decision doc, not a checklist |
@@ -359,7 +359,7 @@ DDx-managed execution and treats the wrapper as compatibility-layer.
 Consistent with FEAT-002, CONTRACT-001, and SD-001.
 
 **Currency issues:**
-- Line 138: states `.ddx/context.md must be regenerated...`. TP-002 line 62
+- Line 138: states `.ddx/context.md must be regenerated...`. STP-002 line 62
   states `.helix/context.md is regenerated...`. One of the two is stale;
   the post-migration convention should be `.ddx/context.md` per the rest of
   the substrate's `.ddx/` location, but resolving this requires confirming
@@ -373,11 +373,11 @@ Consistent with FEAT-002, CONTRACT-001, and SD-001.
 
 **Required fixes:**
 - [ ] Reconcile `.ddx/context.md` (TD-002 line 138) vs `.helix/context.md`
-      (TP-002 line 62) by checking the actual implementation; update
+      (STP-002 line 62) by checking the actual implementation; update
       whichever is wrong. If this requires interpreting product intent,
       escalate to descope this one slug.
 
-### test-plan (`docs/helix/03-test/test-plans/TP-002-helix-cli.md`)
+### test-plan (`docs/helix/03-test/test-plans/STP-002-helix-cli.md`)
 
 **Disposition:** descope
 
@@ -533,7 +533,7 @@ artifact slot should be retained.
    eleven `descope` dispositions.
 
 2. **Stale tracker path `.helix/issues.jsonl`.** SD-001 (line 58) and
-   TP-002 (line 154) still reference `.helix/issues.jsonl`. Per CONTRACT-001,
+   STP-002 (line 154) still reference `.helix/issues.jsonl`. Per CONTRACT-001,
    architecture.md, FEAT-002, and TD-002, the actual tracker is
    `.ddx/beads.jsonl`. These contradictions predate the DDx migration
    captured in CONTRACT-001 and require product-intent interpretation
@@ -541,7 +541,7 @@ artifact slot should be retained.
    descoped under the codex strictness rule.
 
 3. **Inconsistent context-refresh path.** TD-002 (line 138) says
-   `.ddx/context.md`; TP-002 (line 62) says `.helix/context.md`. One is
+   `.ddx/context.md`; STP-002 (line 62) says `.helix/context.md`. One is
    wrong; verifying which requires reading the implementation. Listed as
    a required fix on TD-002.
 
@@ -578,7 +578,7 @@ artifact slot should be retained.
 | data-design                | Author a real worked data-design example for a HELIX-tracked subsystem (e.g. tracker schema, executions log) | M (4–8h) |
 | security-architecture      | Author a real worked security-architecture example for a representative HELIX surface                        | M (4–8h) |
 | solution-design            | Refresh SD-001 against CONTRACT-001: tracker path, naming, post-migration substrate references               | S (2–4h) |
-| test-plan                  | Reconcile TP-002 paths (`.helix/issues.jsonl` → `.ddx/beads.jsonl`; `.helix/context.md` vs `.ddx/context.md`) | S (1–2h) |
+| test-plan                  | Reconcile STP-002 paths (`.helix/issues.jsonl` → `.ddx/beads.jsonl`; `.helix/context.md` vs `.ddx/context.md`) | S (1–2h) |
 | implementation-plan        | Draft a generic implementation-plan worked example (not the live HELIX queue)                                 | M (4–8h) |
 | runbook                    | Author a real worked runbook for a representative service (e.g. ddx-server)                                  | M (4–8h) |
 | deployment-checklist       | Author a real worked deployment checklist for a representative HELIX release                                  | S (2–4h) |
@@ -600,7 +600,7 @@ the publishable set incrementally as each example is authored.
 # slug — they are HELIX-internal decision records about whether the artifact
 # slot should exist (8 cases), live project status snapshots
 # (implementation-plan), or post-migration design docs that still cite the
-# pre-migration tracker path (SD-001, TP-002). Publishing those would
+# pre-migration tracker path (SD-001, STP-002). Publishing those would
 # misteach readers about what each artifact contains.
 #
 # The publishable set is the supervisory/CLI stack: vision, PRD, FEAT-002,

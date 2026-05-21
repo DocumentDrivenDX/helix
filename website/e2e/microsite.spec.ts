@@ -8,24 +8,34 @@ const searchResults = (page: any) =>
 const isGlossaryIndexRoute = (route: string) => /\/reference\/glossary\/?$/.test(route)
 
 test.describe('Homepage', () => {
-  test('loads with hero and three section cards', async ({ page }) => {
+  test('loads with loop hero and refreshed homepage IA', async ({ page }) => {
     await test.step('navigate to homepage', async () => {
       await page.goto('/')
     })
 
     await test.step('verify hero content', async () => {
-      await expect(page.getByText('A methodology for')).toBeVisible()
-      await expect(page.getByText('AI-assisted software')).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Product lifecycle for AI.' })).toBeVisible()
+      await expect(page.getByText('Agents do better work with context they can trust.')).toBeVisible()
+      await expect(page.getByRole('img', { name: /HELIX lifecycle loop/i })).toBeVisible()
+      await expect(page.getByText('Evidence / drift')).toBeVisible()
     })
 
-    await test.step('verify single primary CTA', async () => {
-      await expect(page.getByRole('link', { name: 'Get Started' })).toBeVisible()
+    await test.step('verify adoption and proof paths', async () => {
+      await expect(page.getByRole('link', { name: 'Start with HELIX' })).toBeVisible()
+      await expect(page.getByRole('link', { name: 'Inspect the proof' })).toBeVisible()
     })
 
-    await test.step('verify three section cards', async () => {
-      await expect(page.getByRole('heading', { name: /43 Artifacts/ })).toBeVisible()
-      await expect(page.getByRole('heading', { name: /18 Cross-Cutting Concerns/ })).toBeVisible()
-      await expect(page.getByRole('heading', { name: 'Why HELIX' })).toBeVisible()
+    await test.step('verify refreshed IA sections', async () => {
+      await expect(page.getByRole('heading', { name: 'How it works' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Artifact spine' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Worked example: HELIX governs itself' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Use HELIX where your team already works' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Inspect the foundations' })).toBeVisible()
+    })
+
+    await test.step('verify the double helix is scoped to worked-example proof', async () => {
+      await expect(page.locator('.helix-hero-image-panel')).toHaveCount(0)
+      await expect(page.locator('.helix-graph-visual svg')).toBeVisible()
     })
 
     await test.step('capture full-page screenshot', async () => {
@@ -253,9 +263,9 @@ test.describe('Backward-compat aliases', () => {
 })
 
 test.describe('Navigation Workflows', () => {
-  test('homepage → Get Started → use/getting-started', async ({ page }) => {
+  test('homepage → Start with HELIX → use/getting-started', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('link', { name: 'Get Started' }).click()
+    await page.getByRole('link', { name: 'Start with HELIX' }).click()
     await expect(page).toHaveURL(/\/use\/getting-started/)
   })
 

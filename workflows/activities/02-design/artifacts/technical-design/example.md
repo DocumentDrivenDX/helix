@@ -5,6 +5,13 @@ ddx:
     - example.user-story.depositmatch.upload-csv
     - example.solution-design.depositmatch.csv-import
     - example.contract.depositmatch.import-session-api
+  review:
+    self_hash: 064c51468da1d444da9c6f65d6c2502487724ac315fa3e6c50f9bbeffd3d69b9
+    deps:
+      example.contract.depositmatch.import-session-api: 0f6f77f7dca5d1d05590440459fe958f9620857ed3968839e537655dce27cd04
+      example.solution-design.depositmatch.csv-import: 4d5a2bf5c6b05affdcf7ecc35497aae9f7bb64007e45b62f2a87b42a6914aa00
+      example.user-story.depositmatch.upload-csv: ae65ec934b10e577641772c711eafec5a15dbb5854327d8240307341e2053f66
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Technical Design: TD-001-upload-csv-files

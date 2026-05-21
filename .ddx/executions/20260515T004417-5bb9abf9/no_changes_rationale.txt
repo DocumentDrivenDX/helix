@@ -1,0 +1,15 @@
+status: open
+orchestrator_action: decompose
+reason: Parent bead helix-495f0d72 exceeded the 8000-byte Step 0 size limit because it embedded the full existing helix-concerns asciinema cast. Per the execution instructions, this pass decomposed the work and did not edit the demo artifact.
+
+child_ids:
+- helix-be8fa335
+
+decomposition:
+- helix-be8fa335: Refresh docs/demos/helix-concerns/recordings/helix-concerns-20260406-180259.cast so the review-finding tracker output includes a scope-appropriate area:* label, with a deterministic Python JSON-lines validation command in the child acceptance criteria.
+
+tracker_updates:
+- Created child bead helix-be8fa335 with copied labels helix, phase:build, area:demo, area:docs, area:site.
+- Copied spec-id docs/demos/helix-concerns/recordings/helix-concerns-20260406-180259.cast.
+- Added dependency edge with ddx bead dep add helix-be8fa335 helix-495f0d72.
+- Updated parent notes to "decomposed into helix-be8fa335".

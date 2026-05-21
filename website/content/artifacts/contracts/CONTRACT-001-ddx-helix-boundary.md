@@ -1,12 +1,24 @@
 ---
 title: "CONTRACT-001: DDx / HELIX Boundary Contract"
 slug: CONTRACT-001-ddx-helix-boundary
-weight: 220
+weight: 240
 activity: "Design"
 source: "02-design/contracts/CONTRACT-001-ddx-helix-boundary.md"
 generated: true
 collection: contracts
 ---
+
+> **Source identity** (from `02-design/contracts/CONTRACT-001-ddx-helix-boundary.md`):
+
+```yaml
+ddx:
+  id: CONTRACT-001
+  review:
+    self_hash: a3a48304a395b3d52c41f7b833e639f4a5ae986e62f58284821687306d3049fb
+    deps: {}
+    reviewed_at: "2026-05-15T04:11:24Z"
+```
+
 # CONTRACT-001: DDx / HELIX Boundary Contract
 
 **Status:** Draft  
@@ -173,6 +185,48 @@ These stances apply whether HELIX launches work through DDx-managed execution
 or through a direct non-managed prompt such as `ddx agent run` for planning,
 review, or alignment. The stage selects the stance; DDx resolves the execution
 vehicle and concrete model policy.
+
+### 6. Stage tier and model-policy handoff
+
+HELIX owns the stage-policy decision, not the model catalog. When a HELIX
+runtime adapter needs to express model strength, speed, or cost preference, it
+passes a structured routing request to DDx instead of resolving a provider model
+itself.
+
+The DDx adapter contract is:
+
+- HELIX may pass a DDx routing profile such as `smart`, `fast`, `cheap`, or
+  `default` for the selected stage.
+- HELIX may pass an operator-supplied harness or provider constraint when the
+  user intentionally chooses a runtime family.
+- HELIX may pass numeric power bounds only when the user or bead explicitly
+  supplies them; it should not convert its own stage stance into local numeric
+  model policy.
+- HELIX must not embed provider-specific model version strings as defaults,
+  fallback chains, or stage tables.
+- DDx forwards the routing request to its agent service; the agent service,
+  backed by the shared ddx-agent model catalog, resolves the concrete provider
+  and model under those constraints.
+- DDx records the resolved harness, provider, model, profile or power bounds,
+  and any fallback route in execution evidence so HELIX can measure outcomes
+  without owning model selection.
+
+Default HELIX stage tier intent:
+
+| Stage family | HELIX routing intent | DDx request |
+|---|---|---|
+| Planning and design (`input`, `frame`, `design`, `evolve`) | broad-context reasoning | `--profile smart` unless the operator provides a stronger constraint |
+| Alignment and review (`align`, `review`) | adversarial or drift-seeking reasoning | `--profile smart`; review may also use an alternate harness constraint for cross-harness verification |
+| Managed execution (`build`, `measure`, execution-ready bead work) | bounded implementation under bead acceptance | no local model default; delegate to DDx queue policy, operator constraints, and bead-specific constraints |
+| Supervisory and mechanical routing (`check`, `report`) | concise state classification | `--profile cheap` or `--profile fast` depending on whether cost or latency is the local operator preference |
+| Issue refinement (`polish`, decomposition support) | cheap by default, smart when ambiguity or cross-artifact design risk is detected | start with `--profile cheap`; escalate by explicit DDx retry/power policy, not HELIX hardcoded models |
+
+Exact model names are compatibility constraints, not HELIX policy. If an
+operator supplies an exact model through an environment variable or CLI flag,
+HELIX may forward that string as `--model` without parsing or validating it.
+The exact pin supersedes the stage profile for that dispatch because the user
+has intentionally constrained the route. HELIX still must not use that value as
+a fallback source for other stages.
 
 ## Shared Integration Objects
 

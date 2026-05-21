@@ -6,6 +6,14 @@ ddx:
     - example.prd.depositmatch
     - example.concerns.depositmatch
     - example.feature-specification.depositmatch.csv-import
+  review:
+    self_hash: 64b7297158175ff16812e401fe093f7624b5ba70b11265a7a4bdf324e50a6bff
+    deps:
+      example.concerns.depositmatch: 34738dd02d95489bcc3c00b5be15b630ae9fb15ab4f99f45d0ec1ecd1d3f1c6e
+      example.feature-specification.depositmatch.csv-import: d85530eb091209cf9989c9cac3bc1f1063358a5b79964ca0e5e7a384fa77c44a
+      example.prd.depositmatch: c9c24e1694af4548a6deaad8d92059e365da110148bd9adc44d8640dff9770a4
+      example.product-vision.depositmatch: 8abbb2fcb552b536f07829f57d91ef3ae8dbf52a6066955222e83d196b59b5ae
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Architecture

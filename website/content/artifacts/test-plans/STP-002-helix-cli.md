@@ -1,18 +1,18 @@
 ---
-title: "Test Plan: TP-002-helix-cli"
-slug: TP-002-helix-cli
-weight: 400
+title: "Test Plan: STP-002-helix-cli"
+slug: STP-002-helix-cli
+weight: 450
 activity: "Test"
-source: "03-test/test-plans/TP-002-helix-cli.md"
+source: "03-test/test-plans/STP-002-helix-cli.md"
 generated: true
 collection: test-plans
 ---
 
-> **Source identity** (from `03-test/test-plans/TP-002-helix-cli.md`):
+> **Source identity** (from `03-test/test-plans/STP-002-helix-cli.md`):
 
 ```yaml
 ddx:
-  id: TP-002
+  id: STP-002
   status: partially-superseded
   superseded_by: helix.prd
 ```
@@ -26,7 +26,7 @@ ddx:
 > schema conformance, and portable alignment skill behavior — not wrapper
 > command behavior.
 
-# Test Plan: TP-002-helix-cli
+# Test Plan: STP-002-helix-cli
 
 **Status**: backfilled
 **Backfill Date**: 2026-03-25

@@ -2,10 +2,18 @@
 ddx:
   id: example.security-metrics.depositmatch
   depends_on:
-    - example.metrics-dashboard.depositmatch
+    - example.metrics-dashboard.depositmatch.csv-import
     - example.monitoring-setup.depositmatch
     - example.security-tests.depositmatch
     - example.runbook.depositmatch
+  review:
+    self_hash: dbe60cb67a0fa6e2ec71dc36381bb2b8386de31e7d25978a3071b0f171688709
+    deps:
+      example.metrics-dashboard.depositmatch.csv-import: 55c3a758e5ff9beef2651c46bf668c6a31eab8be6a1f64662166de4135061398
+      example.monitoring-setup.depositmatch: cd2e8ecd82900c19affde80ab89f2ad3e7f5ff19ab3956a8da5dcee8e710b4af
+      example.runbook.depositmatch: 1f52bd1ba196f06837695269f3fee1829dd734eeccdb0ea4274c86c895270229
+      example.security-tests.depositmatch: 00be76c876686ebff233fc3829f9df5f6458132e61f4f3d4a9243c7b3f017be8
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Security Metrics - Pilot Iteration 1

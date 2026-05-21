@@ -27,14 +27,14 @@ Prefer the first matching route:
 | Create a technical design before implementation | design |
 | Reconstruct missing or incomplete docs from evidence | backfill |
 | Fresh-eyes review of recent work, PRs, plans, or implementation | review |
-| Refine beads/work items for execution readiness | polish |
+| Refine planned work for execution readiness | polish |
 | Decide the next safe HELIX action | check or next |
-| Execute one bounded implementation pass | build |
-| Run the bounded operator loop | run |
-| Commit verified HELIX/DDx work | commit |
+| Execute one bounded implementation pass through the active runtime | build |
+| Continue bounded implementation work until a safe stopping point | run |
+| Commit verified HELIX work | commit |
 | Cut a release | release |
 | Run an optimization experiment | experiment |
-| Monitor a background HELIX run | worker |
+| Monitor a long-running HELIX session | worker |
 
 When multiple routes fit, choose the highest-authority planning route first:
 `frame` before `design`, `align` before `evolve` when the task is diagnostic,
@@ -180,7 +180,7 @@ the HELIX artifact stack.
 
 ### Design
 
-Use when implementation needs design authority before build work.
+Use when implementation needs design authority before implementation work.
 
 1. Load governing artifacts, existing designs, implementation context, tests,
    and open work for the scope.
@@ -209,8 +209,7 @@ Use for fresh-eyes review of plans, PRs, implementation, or recent work.
 2. Inspect governing artifacts, changed implementation, tests, and public
    projection relevant to the scope.
 3. Report findings first, ordered by severity, with concrete evidence.
-4. File durable follow-up work for actionable medium-or-higher findings in
-   the project's work tracker.
+4. Record durable follow-up work for actionable medium-or-higher findings.
 
 ### Polish
 
@@ -219,8 +218,8 @@ Use to refine work items before execution.
 1. Load open work for the scope and any governing plan.
 2. Run multiple passes for deduplication, coverage, acceptance quality,
    dependency correctness, sizing, and label hygiene.
-3. Require execution-ready beads to name exact files, commands, checks, fields,
-   or observable repository states.
+3. Require execution-ready work items to name exact files, commands, checks,
+   fields, or observable repository states.
 4. If acceptance cannot be sharpened from governing artifacts, flag the work as
    not execution-ready and route it back through planning.
 
@@ -228,7 +227,7 @@ Use to refine work items before execution.
 
 Use when the safe next action is ambiguous.
 
-1. Inspect the queue, governing artifacts, and known blockers.
+1. Inspect current work state, governing artifacts, and known blockers.
 2. Decide conservatively among build, design, alignment, backfill, polish, wait,
    guidance, or stop.
 3. Do not dispatch another workflow silently.
@@ -236,16 +235,18 @@ Use when the safe next action is ambiguous.
    the §Align gap-to-implementation handoff shape: destination artifact
    type, deliverable shape, suggested next workflow mode, and evidence
    references (paths plus line numbers). Never prescribe a CLI command.
-5. If missing tracked work is discovered, create or recommend explicit work
+5. If missing follow-up work is discovered, create or recommend explicit work
    before returning the next action.
 
 ### Build And Run
 
 Use only when the user explicitly asks for HELIX execution.
 
-1. Build handles one bounded implementation pass for a selected work item.
-2. Run handles the bounded operator loop over ready work.
-3. Stay within the governing bead/work item.
+1. Build handles one bounded implementation pass for a selected scope or work
+   item.
+2. Run handles repeated execution across the currently approved work until a
+   safe stopping point.
+3. Stay within the governing work item or explicitly named scope.
 4. Do not broaden scope beyond the named work.
 5. Verify with the project gate before reporting completion.
 
@@ -256,8 +257,8 @@ Use when verified work should be committed.
 1. Inspect the diff and separate unrelated user changes.
 2. Run the project gate.
 3. Commit only the intended scope with traceable message text.
-4. Preserve managed-execution history: never squash, rebase, amend, or filter
-   branches containing runtime-generated execution commits.
+4. Preserve history produced by runtime-managed execution: never squash,
+   rebase, amend, or filter it.
 
 ### Release
 
@@ -279,11 +280,12 @@ Use for metric-driven optimization loops.
 
 ### Worker
 
-Use to launch and monitor a background HELIX operator loop.
+Use to launch and monitor a long-running HELIX session.
 
-1. Start the run with durable logs and pid capture.
+1. Start the session with durable logs or equivalent runtime-supported status
+   capture.
 2. Poll sparingly for progress, blockers, or completion.
-3. Report status without losing the run evidence.
+3. Report status without losing the recorded evidence.
 4. Stop only when requested or when the workflow reaches a safe stopping point.
 
 ## Alignment Content Migration
@@ -310,8 +312,8 @@ follow-up work are captured durably.
 
 - Use the workflow contracts in this skill as the active interface; consult
   packaged workflow prompts only when deeper mode-specific detail is needed.
-- For projects with a work tracker, obey work-item-first rules before writing
-  files or tracker mutations.
+- For projects with governed work records, check existing work items before
+  editing files or creating more implementation work.
 - Do not silently start implementation when the request is planning, alignment,
   review, or routing.
 - If the correct route is unclear, use check mode rather than guessing.

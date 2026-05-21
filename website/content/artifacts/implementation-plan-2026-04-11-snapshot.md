@@ -1,7 +1,7 @@
 ---
 title: "Implementation Plan — 2026-04-11 Live Queue Snapshot"
 slug: implementation-plan-2026-04-11-snapshot
-weight: 410
+weight: 480
 activity: "Build"
 source: "04-build/implementation-plan-2026-04-11-snapshot.md"
 generated: true
@@ -14,8 +14,15 @@ ddx:
   id: helix.implementation-plan-snapshot
   depends_on:
     - helix.workflow
-    - TP-002
+    - STP-002
     - TD-002
+  review:
+    self_hash: ab1cf04d1c4045001befc5874e396d4e400d58c1017c8d91515b6f122f61bf73
+    deps:
+      STP-002: 5370a293ff2365a1d85b62cff2d1ae1dbabd8c90dd93b8ca86043238065d5a3d
+      TD-002: d99d32264b05175eca7127cb7a89d8a4de41341675eb9306e4bfa9b6d283bcc0
+      helix.workflow: 1225132b3050598055eacb5462639824d78ac204cca2cbeda3611766532e79c8
+    reviewed_at: "2026-05-15T04:11:24Z"
 ```
 
 # Implementation Plan — 2026-04-11 Live Queue Snapshot
@@ -50,7 +57,7 @@ stack.
 - `docs/helix/02-design/technical-designs/TD-003-helix-start-stop.md`
 - `docs/helix/02-design/technical-designs/TD-011-slider-autonomy-implementation.md`
 - `docs/helix/02-design/contracts/API-001-helix-tracker-mutation.md`
-- `docs/helix/03-test/test-plans/TP-002-helix-cli.md`
+- `docs/helix/03-test/test-plans/STP-002-helix-cli.md`
 - `workflows/README.md`
 - `workflows/EXECUTION.md`
 - `workflows/REFERENCE.md`
@@ -94,7 +101,7 @@ surface on 2026-04-11.
 
 | Feature | Status | Current State / Remaining Work |
 |---------|--------|--------------------------------|
-| **FEAT-001** Supervisory Control | ALIGNED | Core bounded supervision remains governed by `TD-002` and `TP-002`, but the execution substrate boundary is shifting downward into DDx. |
+| **FEAT-001** Supervisory Control | ALIGNED | Core bounded supervision remains governed by `TD-002` and `STP-002`, but the execution substrate boundary is shifting downward into DDx. |
 | **FEAT-002** HELIX CLI | PARTIAL | The governing docs now treat `helix run` / `helix build` as compatibility surfaces over DDx-managed execution. Remaining work is implementation-proof and wrapper-correctness follow-ons (`helix-4243dd31`, `helix-ded1e007`, `helix-30814e44`, `helix-fb2ccbb1`, `helix-af902886`). |
 | **FEAT-003** First-Class Principles | COMPLETE | Defaults, bootstrap, and workflow references are in place; no live queue item currently targets FEAT-003 directly. |
 | **FEAT-004** Plugin Packaging | PARTIAL | `.claude-plugin/plugin.json`, `hooks/hooks.json`, `bin/helix`, and `tests/validate-skills.sh` exist; no dedicated open packaging bead is live right now, so remaining risk sits in wrapper-compatibility proof rather than package layout. |
@@ -135,8 +142,8 @@ Recently landed decisions in this chain:
 
 | Order | Area | Governing Artifacts | Notes |
 |-------|------|-------------------|-------|
-| 1 | Redesign execution contract around DDx | FEAT-002, FEAT-011, TD-002, TD-011, CONTRACT-001, TP-002 | Land the governing-doc alignment first (`helix-f3062aa2`), then keep the remaining build beads explicitly ordered beneath the execution-contract epic so wrapper fixes implement the settled contract instead of re-deciding it in code. |
-| 2 | Proof shipped entry surfaces | FEAT-002, FEAT-004, FEAT-011, TD-002, TD-003, TD-011, TP-002 | Close deterministic proof gaps for `bin/helix`, `helix input`, `execute-loop` bookkeeping, selector validation, and the DDx dry-run harness before adding more command-surface drift. |
+| 1 | Redesign execution contract around DDx | FEAT-002, FEAT-011, TD-002, TD-011, CONTRACT-001, STP-002 | Land the governing-doc alignment first (`helix-f3062aa2`), then keep the remaining build beads explicitly ordered beneath the execution-contract epic so wrapper fixes implement the settled contract instead of re-deciding it in code. |
+| 2 | Proof shipped entry surfaces | FEAT-002, FEAT-004, FEAT-011, TD-002, TD-003, TD-011, STP-002 | Close deterministic proof gaps for `bin/helix`, `helix input`, `execute-loop` bookkeeping, selector validation, and the DDx dry-run harness before adding more command-surface drift. |
 | 3 | Make concern-aware steering real | FEAT-006, `docs/helix/01-frame/concerns.md`, concern-resolution guidance | Propagate current context digests into live beads and preserve `area:*` metadata so review-filed work re-enters the queue with the right practices. |
 | 4 | Repair deploy artifact contract consistency | Deploy artifact metadata/templates, review findings | Resolve ordering contradictions and missing artifact references before extending deploy docs further. |
 | 5 | Restore the public site proof lane | FEAT-007, site concerns, Playwright/Hugo verification | Fix route/search regressions and extend deterministic site coverage so the published docs lane is green again. |

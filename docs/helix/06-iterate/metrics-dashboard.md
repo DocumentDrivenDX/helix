@@ -1,8 +1,10 @@
 ---
 ddx:
   id: metrics-dashboard
-  depends_on:
-    - metric-definition
+  review:
+    self_hash: 0934ca6e0913a5da11bb822adb4b4a5e343aaefdf6444af11690eab218a52c6c
+    deps: {}
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 # Metrics Dashboard: HELIX 2026-Q2 (post-`v0.3.3`)
 

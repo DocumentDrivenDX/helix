@@ -3,6 +3,11 @@ ddx:
   id: helix.workflow.reference
   depends_on:
     - helix.workflow
+  review:
+    self_hash: 74c878177cb549ee93a95c7e0dd7b75b19d90b96053de32dc802be8e11adac51
+    deps:
+      helix.workflow: 1225132b3050598055eacb5462639824d78ac204cca2cbeda3611766532e79c8
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 # HELIX Quick Reference Card
 

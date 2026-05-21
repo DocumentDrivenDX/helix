@@ -15,6 +15,11 @@ ddx:
   id: FEAT-002
   status: partially-superseded
   superseded_by: helix.prd
+  review:
+    self_hash: dc83e91027c886f1df2636d7bde0c9b0ba10d5e0a5ca560f0b44aaf9bcf4f4c6
+    deps:
+      FEAT-004: 4c167348ecc29309e3af200b7274f449629bca54615d66ffb87d6d15d05bf25d
+    reviewed_at: "2026-05-15T04:11:24Z"
 ```
 
 > **PARTIALLY SUPERSEDED** — The portions of this feature that describe
@@ -358,7 +363,7 @@ Migration rules:
 - `docs/helix/02-design/technical-designs/TD-002-helix-cli.md`
 - `docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md`
 - `docs/helix/01-frame/features/FEAT-011-slider-autonomy.md`
-- `docs/helix/03-test/test-plans/TP-002-helix-cli.md`
+- `docs/helix/03-test/test-plans/STP-002-helix-cli.md`
 - `workflows/README.md`
 - `workflows/EXECUTION.md`
 - DDx FEAT-004 (beads) and FEAT-006 (agent service)

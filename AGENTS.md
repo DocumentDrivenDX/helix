@@ -40,33 +40,15 @@ ddx agent execute-bead <id> # One bounded bead execution
 ddx doc prose            # Prose-quality check
 ```
 
-HELIX wrappers (transitional — most are slated for removal):
-
-```bash
-helix input "intent"          # Shape intent into governed work items
-helix align [scope]           # Top-down reconciliation audit  (survivor)
-helix frame [scope]           # Create vision, PRD, feature specs  (survivor candidate)
-helix design [scope]          # Iterative design through refinement  (survivor candidate)
-helix evolve "requirement"    # Thread a requirement through the artifacts  (survivor candidate)
-helix review [scope]          # Fresh-eyes review of recent work  (survivor candidate)
-
-# Legacy / slated for removal — these wrap DDx queue control:
-helix run                     # Wrapper over ddx agent execute-loop
-helix build [selector]        # Wrapper over ddx agent execute-bead
-helix check [scope]           # Queue-drain decision wrapper
-helix triage "Title"          # Wrapper over ddx bead create
-helix worker                  # Background-process wrapper
-helix commit [issue-id]       # Commit + build gate wrapper
-helix polish [scope]          # Issue-refinement wrapper
-helix next                    # Show recommended next issue
-helix measure / report        # Execution-evidence wrappers
-```
+HELIX ships no checkout CLI. It is artifact templates plus the alignment
+skill; runtimes (DDx, Claude Code, Codex CLI, Genie) own execution. Historical
+`helix <command>` names still appear in workflow documents as runtime or
+compatibility references, but they are not executable from this checkout.
 
 Validation and build:
 
 ```bash
 just test                     # Run all tests (CLI + skills + state rules + digests)
-bash tests/helix-cli.sh       # Deterministic HELIX wrapper tests
 bash tests/validate-state-rules.sh
 bash tests/validate-context-digests.sh
 bash tests/validate-demo-fixtures.sh
@@ -167,8 +149,8 @@ Key rules:
 Think about HELIX in two layers:
 
 - portable skills packaged from `.agents/skills`
-- the stricter HELIX workflow and CLI contract defined under `workflows/` and
-  executed through `helix`
+- the stricter HELIX workflow contract defined under `workflows/` and executed
+  by runtimes (DDx, Claude Code, Codex CLI, Genie)
 
 HELIX operates as a **double helix** — two interleaved cycles:
 
@@ -193,10 +175,12 @@ Published `SKILL.md` files must declare `name` and `description`; add
 `argument-hint` when the skill accepts a trailing positional argument such as
 a scope, selector, issue ID, or goal.
 
-## HELIX CLI
+## Installation
 
-This repo ships a HELIX CLI (`scripts/helix`) and a Claude Code plugin
-manifest (`.claude-plugin/plugin.json`).
+HELIX ships no checkout CLI. It is artifact templates plus the alignment skill;
+queue control, execution, alignment, and the broader historical
+`helix <command>` surface belong to the runtime (DDx today) or installed
+skills, not to this repository.
 
 ### Primary installation (plugin mode)
 
@@ -211,7 +195,6 @@ Key plugin files:
 - Plugin manifest: `.claude-plugin/plugin.json`
 - Skills directory: `skills/` (auto-discovered by plugin loader)
 - Shared resources: `workflows/`
-- CLI implementation: `scripts/helix`
 
 ### DDx plugin install
 
@@ -234,58 +217,28 @@ copies:
 git clone https://github.com/DocumentDrivenDX/helix.git
 cd helix
 ddx install helix --local . --force
-ln -s "$(pwd)/scripts/helix" ~/.local/bin/helix
-helix doctor --fix
 ```
 
-This symlinks the plugin and skills so edits to your checkout are
-immediately reflected.
-
-After installation, verify with `helix doctor`. Use `helix doctor --fix` to
-repair stale symlinks.
+This symlinks the plugin and skills so edits to your checkout are immediately
+reflected. Use DDx installation commands to repair stale plugin or skill links.
 
 Key paths:
-- CLI implementation: `scripts/helix` (single file, no wrapper)
 - canonical project skill path: `.agents/skills`, `.claude/skills` (symlinks to `skills/`)
 - plugin symlink: `~/.ddx/plugins/helix`
 - user skill paths: `~/.agents/skills`, `~/.claude/skills`
-- `HELIX_ROOT` env var: if set, `scripts/helix` uses it as the repo root
-  instead of resolving from its own location
 
 Useful commands:
 
 ```bash
-helix design auth                     # create design document
-helix polish                          # refine issues before implementation
-helix run --review-every 5
-helix build
-helix check repo
-helix align auth
-helix backfill repo
-helix next                            # show recommended next issue
-helix review                          # fresh-eyes review of last commit
-helix measure ddx-abc123              # verify bead against criteria + gates
-helix report FEAT-003                 # batch report across scope
-helix experiment hx-abc123            # one experiment iteration
-helix experiment --close              # squash-merge and close session
 ddx bead create "Title" --type task --labels helix,activity:build
 ddx bead ready --json            # machine-readable ready queue
 ddx bead ready --json --execution # machine-readable execution-safe queue
 ddx bead status                  # tracker health summary
 ```
 
-`helix run` is the preferred operator loop. It:
-
-- loops only while true ready HELIX execution work exists
-- may route to `helix design` or `helix polish` when supervisory state requires
-  bounded planning or issue refinement before implementation resumes
-- executes one bounded implementation pass at a time
-- may run `helix review` after a successful implementation pass when review
-  automation is enabled
-- runs `check` when the queue drains
-- can run periodic alignment reviews
-
-Do not replace this with an unconditional `while true` loop.
+Historical runtime names such as `helix run` or `helix build` still appear
+elsewhere in the methodology docs as compatibility references, but HELIX ships
+no checkout CLI — those commands are provided by runtimes, not this repository.
 
 ## Demo Recording
 
@@ -327,10 +280,9 @@ virtual agent and builds the Hugo site — no API keys or Docker needed in CI.
 
 ## Testing Requirements for HELIX Changes
 
-If you change any of the following, run the HELIX wrapper harness:
+If you change any of the following, run the deterministic skills validation
+(`bash tests/validate-skills.sh`):
 
-- `scripts/helix`
-- `scripts/tracker.sh`
 - `workflows/actions/check.md`
 - `workflows/actions/implementation.md`
 - `workflows/actions/reconcile-alignment.md`
@@ -385,7 +337,6 @@ contract are presented publicly, run both harnesses.
 Required checks:
 
 ```bash
-bash tests/helix-cli.sh
 bash tests/validate-state-rules.sh
 bash tests/validate-context-digests.sh
 bash tests/validate-demo-fixtures.sh
@@ -394,15 +345,11 @@ bash tests/validate-skills.sh
 git diff --check
 ```
 
-The wrapper tests are intentionally deterministic:
+The skills checks are intentionally deterministic:
 
-- they use temporary git workspaces
-- they stub `codex` and `claude`
-- they verify queue draining, periodic alignment, auto-alignment, dry-run
-  output, tracker operations, and launcher installation behavior
-
-Prefer these deterministic tests over live Codex or Claude calls when
-validating wrapper behavior.
+- they assert HELIX ships no checkout CLI (`scripts/helix`/`bin/helix` absent)
+- they validate skill packaging, metadata, and `workflows/` reference resolution
+- they avoid live Codex or Claude calls when validating checkout behavior
 
 ## Non-Interactive Shell Commands
 

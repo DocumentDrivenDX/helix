@@ -16,6 +16,12 @@ ddx:
   depends_on:
     - helix.prd
     - FEAT-003
+  review:
+    self_hash: a44d0a40e5cb883e31c5f6b150a77070fa427bb8f834345908aefaf1cffb38ce
+    deps:
+      FEAT-003: ea9237a63d44dd850014fa35d891e8e54a9f68ebde157bdd0915065206b45e96
+      helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
+    reviewed_at: "2026-05-15T04:11:24Z"
 ```
 
 # Feature Specification: FEAT-006 — Concerns, Practices, and Context-Digest Beads
@@ -328,7 +334,7 @@ email, push, and in-app channels with per-channel opt-out</governing>
 </context-digest>
 
 Implement user notification preferences per FEAT-007 Section 3.2.
-Governing: FEAT-007, SD-007, TP-007.
+Governing: FEAT-007, SD-007, STP-007.
 ```
 
 Each XML element is optional — omit it if there is no relevant content.

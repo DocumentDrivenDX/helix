@@ -10,6 +10,18 @@ ddx:
     - example.security-requirements.depositmatch
     - example.threat-model.depositmatch
     - example.stakeholder-map.depositmatch
+  review:
+    self_hash: f44b1be941f157ee20ca0791996de7a86d851392579ee74ed772b9f9a07dd0f0
+    deps:
+      example.feature-registry.depositmatch: 227c7c30edf5318187982fad9b7c868365600d4ffb8f92da25b1f932769dddb8
+      example.pr-faq.depositmatch: 102ec8dcd77efb43d6a73143dc4dbfeb1fc95b0ab516a593166bb8b12dd70686
+      example.prd.depositmatch: c9c24e1694af4548a6deaad8d92059e365da110148bd9adc44d8640dff9770a4
+      example.research-plan.depositmatch: e1bd75c90a2407b8d84770a3d822fa64fc9b90fe1d36cfef5f5d615bf6ba6e06
+      example.risk-register.depositmatch: 4cfb9a77765bfa4a63e8ad9d98a656bb5c9b9bfb5c5569389cb8cf73e8c1c3ba
+      example.security-requirements.depositmatch: 2a1f7efe6e55c1edaa67b76e5a11a49be55e4420d9adc456be5482d417312a43
+      example.stakeholder-map.depositmatch: 7a1136a9797454fae7cd398a1eeded819f907aae48866461d6640c2bdcae892c
+      example.threat-model.depositmatch: 28c760cff8d40eab543a794535603b0a70e333e9cd808c45c23b885e621e7602
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Frame Activity Validation Checklist

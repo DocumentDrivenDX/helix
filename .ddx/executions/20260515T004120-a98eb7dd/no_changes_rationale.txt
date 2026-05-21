@@ -1,0 +1,25 @@
+status: proposed
+reason: Operator/user decision required before any CRM frame or design artifacts can be created without contradicting this repository's HELIX product scope.
+
+bead: helix-dfddd64b
+decision_needed: Choose exactly one CRM intake target.
+
+options:
+1. separate_project_repository
+   governing_frame_artifacts: The CRM project's own docs/helix/00-discover/ and docs/helix/01-frame/ tree, in a separate repository or project root initialized to use HELIX.
+2. helix_example_demo_artifact_set
+   governing_frame_artifacts: A clearly scoped example/demo path in this HELIX repository, not docs/helix/01-frame/prd.md as product authority; likely under docs/demos/ or a dedicated example artifact-pack path.
+3. reinterpret_as_helix_product_work
+   governing_frame_artifacts: Existing HELIX governing artifacts under docs/helix/, with the CRM request translated into HELIX methodology/product requirements rather than CRM product requirements.
+
+evidence_read:
+- docs/helix/01-frame/prd.md defines HELIX as methodology, artifact catalog, and one alignment skill; it explicitly excludes domain-specific extensions and runtime infrastructure.
+- workflows/README.md defines the HELIX methodology contract, authority order, and runtime boundary for this repository.
+- docs/helix/01-frame/features/FEAT-011-slider-autonomy.md is superseded by the PRD and only retains historical context for autonomy behavior.
+
+acceptance_status:
+- AC1 not satisfiable in this execution: the execution prompt does not contain an explicit user choice among the three targets.
+- AC2 not satisfiable until AC1 is answered: the governing frame artifact location depends on the chosen target.
+- AC3 blocked by AC1/AC2: follow-on planning beads would be speculative and could contradict docs/helix/01-frame/prd.md or workflows/README.md.
+
+recommended_operator_prompt: "Should the CRM work live in a separate CRM project/repository, in HELIX as an example/demo artifact set, or should it be reinterpreted as HELIX product work? Also name the path or repository where the governing frame artifacts should live."

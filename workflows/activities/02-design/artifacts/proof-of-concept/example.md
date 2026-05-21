@@ -5,6 +5,13 @@ ddx:
     - example.feasibility-study.depositmatch
     - example.data-design.depositmatch
     - example.security-requirements.depositmatch
+  review:
+    self_hash: 1a4e090e57a39c4ba3be9461a32b13865453dab1bd9fc9e6049827da15bd90bf
+    deps:
+      example.data-design.depositmatch: dc25da87b6288f686dfb11eae276dd334aca0dce4d6cd562c8da70b7f169a7c5
+      example.feasibility-study.depositmatch: 356da096953895f8c152a1ac8b880fbc03a3617c1c80516e6f0d3b4033a62c72
+      example.security-requirements.depositmatch: 2a1f7efe6e55c1edaa67b76e5a11a49be55e4420d9adc456be5482d417312a43
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Proof of Concept: CSV Import and Evidence-Backed Match Review

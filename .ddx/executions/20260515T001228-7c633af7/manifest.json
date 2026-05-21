@@ -1,0 +1,231 @@
+{
+  "attempt_id": "20260515T001228-7c633af7",
+  "bead_id": "helix-5129f35d",
+  "base_rev": "c56cd14561a19b8054a03e3ed23bf1edf13de0fe",
+  "created_at": "2026-05-15T00:12:28.559221045Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-5129f35d",
+    "title": "Resolve CRM request scope against current HELIX repo vision",
+    "description": "\u003ccontext-digest\u003e\n\u003cprinciples\u003eDesign for Change · Design for Simplicity · Validate Your Work · Make Intent Explicit · Prefer Reversible Decisions\u003c/principles\u003e\n\u003cconcerns\u003ehugo-hextra | demo-asciinema\u003c/concerns\u003e\n\u003cpractices\u003eDefine the site's target audience and what content they need · Theme version: Hextra v0.12.1 — pinned in website/go.mod · Identify which workflows need demo reels — prioritize the \"first 5 minutes\" experience · Current demos: helix-quickstart (full lifecycle), helix-concerns (drift detection), helix-evolve (requirement threading), helix-experiment (metric-driven optimization)\u003c/practices\u003e\n\u003cgoverning\u003ehelix.prd — composable cross-cutting concerns (tech stacks, a11y, o11y, i18n) with associated practices. Beads created by triage and evolve must carry a compact context digest (~1000-1500 tokens) summarizing active principles, concerns, practices, relevant ADRs, and governing spec context — making beads self-contained execution units that rarely require upstream file reads. See [[FEAT-006]].\u003c/governing\u003e\n\u003c/context-digest\u003e\n\nThe sparse request asks for a new CRM product, but this repository's governing product vision is for HELIX itself. That is a resolvable scope conflict, not a physics-level blocker.\n\nHigh-autonomy handling:\n- Proceed with greenfield CRM planning beads under provisional spec-id CRM-001.\n- Record a decision about whether this CRM work should live in this repo as an example/demo/planning exercise, or be migrated into a dedicated HELIX-managed project repository.",
+    "acceptance": "1. A decision is recorded on whether the CRM work remains in this repo or moves to a dedicated project repo.\n2. If it moves, the target location or migration plan is linked from the parent epic.\n3. If it stays, the rationale is recorded against the HELIX repo's governing scope.",
+    "parent": "helix-db7d13a9",
+    "labels": [
+      "helix",
+      "phase:build",
+      "kind:escalation",
+      "area:docs",
+      "area:workflow",
+      "ac-quality:needs-refinement"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-15T00:11:36Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "2366035",
+      "events": [
+        {
+          "actor": "erik",
+          "body": "tier=cheap harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:04:42.82742771Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=standard harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:04:49.053103524Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=smart harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:04:55.556679198Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"tiers_attempted\":[{\"tier\":\"cheap\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"standard\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"smart\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0}],\"winning_tier\":\"exhausted\",\"total_cost_usd\":0,\"wasted_cost_usd\":0}",
+          "created_at": "2026-05-02T13:04:55.596848054Z",
+          "kind": "escalation-summary",
+          "source": "ddx agent execute-loop",
+          "summary": "winning_tier=exhausted attempts=3 total_cost_usd=0.0000 wasted_cost_usd=0.0000"
+        },
+        {
+          "actor": "erik",
+          "body": "execute-loop: all tiers exhausted — no viable provider found",
+          "created_at": "2026-05-02T13:04:55.675905971Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"cheap\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T00:17:21.521891832Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=cheap"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=cheap harness=agent model=cheap probe=ok\norphan model: cheap",
+          "created_at": "2026-05-03T00:17:21.631362643Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"standard\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T00:17:22.286484473Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=standard"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=standard harness=agent model=standard probe=ok\norphan model: standard",
+          "created_at": "2026-05-03T00:17:22.397474449Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"smart\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T00:17:23.053882818Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=smart"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=smart harness=agent model=smart probe=ok\norphan model: smart",
+          "created_at": "2026-05-03T00:17:23.157995764Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"tiers_attempted\":[{\"tier\":\"cheap\",\"harness\":\"agent\",\"model\":\"cheap\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":1},{\"tier\":\"standard\",\"harness\":\"agent\",\"model\":\"standard\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":1},{\"tier\":\"smart\",\"harness\":\"agent\",\"model\":\"smart\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":1}],\"winning_tier\":\"exhausted\",\"total_cost_usd\":0,\"wasted_cost_usd\":0}",
+          "created_at": "2026-05-03T00:17:23.197841195Z",
+          "kind": "escalation-summary",
+          "source": "ddx agent execute-loop",
+          "summary": "winning_tier=exhausted attempts=3 total_cost_usd=0.0000 wasted_cost_usd=0.0000"
+        },
+        {
+          "actor": "ddx",
+          "body": "escalation exhausted: orphan model: smart\ntier=smart\nprobe_result=ok\nresult_rev=c88129981b6f297ed41f3cea908a71a1a3e3ce55\nbase_rev=c88129981b6f297ed41f3cea908a71a1a3e3ce55\nretry_after=2026-05-03T06:17:23Z",
+          "created_at": "2026-05-03T00:17:23.310045294Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T15:03:07.769812197Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider="
+        },
+        {
+          "actor": "ddx",
+          "body": "ResolveRoute: no viable routing candidate: 4 candidates rejected\nresult_rev=d3514f64a917ed68e0b6267a7fa4ac0ad12bd5e6\nbase_rev=d3514f64a917ed68e0b6267a7fa4ac0ad12bd5e6\nretry_after=2026-05-03T21:03:07Z",
+          "created_at": "2026-05-03T15:03:07.94795437Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "",
+          "body": "[{\"ac\":1,\"text\":\"A decision is recorded on whether the CRM work remains in this repo or moves to a dedicated project repo.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":2,\"text\":\"If it moves, the target location or migration plan is linked from the parent epic.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":3,\"text\":\"If it stays, the rationale is recorded against the HELIX repo's governing scope.\",\"kind\":\"prose\",\"verifiable\":false}]",
+          "created_at": "2026-05-14T17:01:57.390857549Z",
+          "kind": "ac-quality-low",
+          "source": "preclaim-ac-quality",
+          "summary": "score=0.00 threshold=0.50 verifiable=0/3"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"bragi\",\"resolved_model\":\"qwen3.5-27b\",\"fallback_chain\":[],\"actual_power\":5}",
+          "created_at": "2026-05-14T17:06:01.49682208Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=bragi model=qwen3.5-27b"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"fiz\",\"actual_model\":\"qwen3.5-27b\",\"actual_power\":5,\"actual_provider\":\"bragi\",\"attempt_id\":\"20260514T170254-cdc2deb9\",\"bead_id\":\"helix-5129f35d\",\"inferred_power_class\":\"standard\",\"rejected_route_pins\":null,\"requested_profile\":\"default\",\"routing_intent_degraded\":false,\"routing_intent_note\":\"\",\"routing_intent_source\":\"heuristic\",\"smart_justification\":\"\"}",
+          "created_at": "2026-05-14T17:06:01.582969381Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=heuristic powerClass=standard model=qwen3.5-27b harness=fiz"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"actual_power\":5,\"detail\":\"agent: provider error: openai: Post \\\"http://bragi:1234/v1/chat/completions\\\": dial tcp 100.127.38.115:1234: i/o timeout\",\"error\":\"agent: provider error: openai: Post \\\"http://bragi:1234/v1/chat/completions\\\": dial tcp 100.127.38.115:1234: i/o timeout\",\"harness\":\"fiz\",\"model\":\"qwen3.5-27b\",\"outcome_reason\":\"provider_connectivity\",\"provider\":\"bragi\"}",
+          "created_at": "2026-05-14T17:06:01.727729194Z",
+          "kind": "route-failure",
+          "source": "ddx work",
+          "summary": "provider=bragi model=qwen3.5-27b connectivity failure"
+        },
+        {
+          "actor": "erik",
+          "body": "agent: provider error: openai: Post \"http://bragi:1234/v1/chat/completions\": dial tcp 100.127.38.115:1234: i/o timeout\npowerClass=standard\nresult_rev=811e60689acd7ad7de29ff4d667e4ccc47f3b56b\nbase_rev=6dc26727a5449e5fd5a903773078ddaa13f33588\nretry_after=2026-05-14T17:21:01Z\noutcome_reason=provider_connectivity",
+          "created_at": "2026-05-14T17:06:01.834645505Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "",
+          "body": "[{\"ac\":1,\"text\":\"A decision is recorded on whether the CRM work remains in this repo or moves to a dedicated project repo.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":2,\"text\":\"If it moves, the target location or migration plan is linked from the parent epic.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":3,\"text\":\"If it stays, the rationale is recorded against the HELIX repo's governing scope.\",\"kind\":\"prose\",\"verifiable\":false}]",
+          "created_at": "2026-05-15T00:11:36.658810065Z",
+          "kind": "ac-quality-low",
+          "source": "preclaim-ac-quality",
+          "summary": "score=0.00 threshold=0.50 verifiable=0/3"
+        }
+      ],
+      "execute-loop-cooldown-base-rev": "6dc26727a5449e5fd5a903773078ddaa13f33588",
+      "execute-loop-failed-routes": [
+        {
+          "actual_power": 5,
+          "at": "2026-05-14T17:06:01Z",
+          "model": "qwen3.5-27b",
+          "provider": "bragi",
+          "reason": "provider_connectivity"
+        }
+      ],
+      "execute-loop-last-detail": "agent: provider error: openai: Post \"http://bragi:1234/v1/chat/completions\": dial tcp 100.127.38.115:1234: i/o timeout",
+      "execute-loop-last-status": "execution_failed",
+      "execute-loop-retry-after": "2026-05-14T17:21:01Z",
+      "spec-id": "helix.prd",
+      "work-heartbeat-at": "2026-05-15T00:11:36.538912618Z"
+    }
+  },
+  "governing": [
+    {
+      "id": "helix.prd",
+      "path": "docs/helix/01-frame/prd.md",
+      "title": "Product Requirements Document"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260515T001228-7c633af7",
+    "prompt": ".ddx/executions/20260515T001228-7c633af7/prompt.md",
+    "manifest": ".ddx/executions/20260515T001228-7c633af7/manifest.json",
+    "result": ".ddx/executions/20260515T001228-7c633af7/result.json",
+    "checks": ".ddx/executions/20260515T001228-7c633af7/checks.json",
+    "usage": ".ddx/executions/20260515T001228-7c633af7/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-5129f35d-20260515T001228-7c633af7"
+  },
+  "prompt_sha": "a72882e2f06e89a0a793d4a24e469c5a0476a14c19df071b3d0ec7d8c5e8ae2f"
+}

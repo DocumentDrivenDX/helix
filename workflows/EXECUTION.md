@@ -4,6 +4,12 @@ ddx:
   depends_on:
     - helix.workflow
     - helix.workflow.tracker
+  review:
+    self_hash: a975b0523a9037c2d769321e86af0eb3d804cfc143035562c5f40944d8349504
+    deps:
+      helix.workflow: 1225132b3050598055eacb5462639824d78ac204cca2cbeda3611766532e79c8
+      helix.workflow.tracker: b1d3c681bb7f58276c6a81fe90cd7afd3143d11f49ed8889bf879ac84d05d312
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 # HELIX Execution Guide (DDx Reference Runtime)
 
@@ -504,17 +510,101 @@ helix align auth
 helix design auth
 ```
 
+## Model Routing Contract
+
+HELIX's DDx adapter selects the workflow stage and the routing intent for that
+stage. It does not select concrete provider model versions.
+
+When a compatibility wrapper dispatches planning, review, alignment, build, or
+queue-steering work to DDx, it should build a routing request from three
+separate inputs:
+
+| Input | Owner | Examples |
+|---|---|---|
+| Stage tier intent | HELIX | `smart` for design/review/alignment, `cheap` or `fast` for `check`/`report`, DDx default for ordinary managed build work |
+| Runtime-family constraint | Operator / HELIX wrapper | a selected harness, review harness, provider, or profile flag |
+| Concrete model resolution | DDx agent service | provider/model selected from ddx-agent catalog data under the requested profile, power bounds, and user constraints |
+
+The wrapper should express stage tier intent with DDx routing profiles
+(`--profile smart`, `--profile fast`, `--profile cheap`, or no profile for
+DDx default policy). It may also pass `--harness`, `--provider`,
+`--min-power`, or `--max-power` when those values come from an operator flag,
+environment variable, or bead-specific requirement. It must not translate
+`smart` or `cheap` into a provider-specific model name inside HELIX.
+
+Exact model strings remain supported only as compatibility pins. If an
+operator sets a legacy HELIX model override or passes a legacy model flag, the
+wrapper forwards that exact value to DDx as `--model` and omits the stage
+profile for that dispatch. DDx then treats the model as an opaque user
+constraint and the agent-service catalog still owns validation, fallback, and
+route evidence. HELIX must not parse the model string, infer provider family
+from it, or use it as a fallback for other stages.
+
+Compatibility rules:
+
+- `HELIX_MODEL` is a global exact-model pin for compatibility wrappers. It
+  supersedes stage profiles for all wrapper-launched dispatches.
+- `HELIX_SMART_MODEL` and legacy `--smart-model <model>` are deprecated exact
+  pins for stages whose HELIX intent is `smart`. They should produce a warning
+  that `--profile smart` or DDx profile configuration is preferred.
+- `HELIX_CHEAP_MODEL`, `HELIX_CHECK_MODEL`, `HELIX_POLISH_MODEL`, and legacy
+  `--cheap-model <model>` are deprecated exact pins for mechanical or
+  refinement stages. They should not define default cheap models.
+- `HELIX_AGENT`, `HELIX_REVIEW_AGENT`, and corresponding harness flags are
+  harness-family constraints, not model policy. They may be forwarded as
+  `--harness` while DDx resolves the concrete model.
+- If no exact model pin exists, wrapper dry-run and help output must show tier
+  or profile intent, never a provider-specific model version.
+
+Implementation plan for the legacy `scripts/helix` wrapper:
+
+1. Replace any `resolve_model()` table of concrete provider models with a
+   `stage_route_request(stage)` helper that returns `profile`, optional
+   `harness` or `provider`, optional power bounds, and optional exact
+   `model_pin`.
+2. Map stage families to tier intent in one place: `design`/`review`/`align`
+   use `smart`, `check`/`report` use `cheap` or `fast`, `polish` starts with
+   `cheap`, and managed `build` work leaves model selection to DDx unless the
+   operator supplied a constraint.
+3. Assemble DDx commands from that structured request: pass `--profile` for
+   tier intent, pass `--model` only for explicit compatibility pins, and never
+   synthesize a concrete model string in HELIX.
+4. Keep legacy environment variables and flags as aliases that set
+   `model_pin`; emit a deprecation warning and preserve exact passthrough
+   behavior for existing operators.
+5. Remove concrete model defaults from wrapper help, dry-run examples, and
+   tests. Help should describe tiers/profiles and exact-model pins as
+   compatibility overrides.
+
+Test plan for the legacy `tests/helix-cli.sh` harness:
+
+- Add dry-run coverage proving `design`, `review`, and `align` dispatch with
+  `--profile smart` and without `--model` when no exact override is set.
+- Add dry-run coverage proving `check`/`report` and cheap refinement paths
+  dispatch with cheap or fast profile intent and without a hardcoded model.
+- Add coverage proving ordinary managed build dispatch leaves model selection
+  to DDx unless an operator constraint is present.
+- Add compatibility cases for `HELIX_MODEL`, `HELIX_SMART_MODEL`,
+  `HELIX_CHEAP_MODEL`, `HELIX_CHECK_MODEL`, `HELIX_POLISH_MODEL`,
+  `--smart-model`, and `--cheap-model`: each forwards the exact supplied value
+  as `--model`, omits the stage profile for that dispatch, and emits the
+  expected deprecation warning where applicable.
+- Add a negative guard that fails if wrapper output or tests reintroduce
+  provider-specific model version defaults in HELIX-owned policy.
+
 ## Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `HELIX_AGENT` | `codex` | Default agent (`codex` or `claude`) |
 | `HELIX_AGENT_TIMEOUT` | `2700` | Agent timeout in seconds (45 minutes) |
-| `HELIX_MODEL` | — | Override AI model name (e.g., `claude-sonnet-4-6`) |
+| `HELIX_MODEL` | — | Legacy exact-model pin forwarded to DDx as `--model`; supersedes stage profiles |
 | `HELIX_EFFORT` | — | Set reasoning effort level for Claude/Codex |
 | `HELIX_REVIEW_AGENT` | auto | Agent for cross-model reviews (defaults to the other agent) |
-| `HELIX_CHECK_MODEL` | — | Cheaper model for queue-drain decisions |
-| `HELIX_POLISH_MODEL` | — | Cheaper model for issue refinement |
+| `HELIX_SMART_MODEL` | — | Deprecated exact-model pin for stages with `smart` tier intent |
+| `HELIX_CHEAP_MODEL` | — | Deprecated exact-model pin for stages with `cheap` or `fast` tier intent |
+| `HELIX_CHECK_MODEL` | — | Deprecated exact-model pin for queue-drain decisions |
+| `HELIX_POLISH_MODEL` | — | Deprecated exact-model pin for issue refinement |
 | `HELIX_LIBRARY_ROOT` | `<repo>/workflows` | Override the workflow library root |
 | `HELIX_TRACKER_DIR` | `<repo>/.ddx` | Override the tracker directory |
 | `HELIX_BEADS_DIR` | `.beads` | Override the beads interop directory |

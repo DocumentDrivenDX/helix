@@ -5,6 +5,13 @@ ddx:
     - helix.prd
     - FEAT-006
     - FEAT-008
+  review:
+    self_hash: f614ff33fcaaf719ea47361df7dc17739dbb03a8272550b18d5d9593972b43b2
+    deps:
+      FEAT-006: a44d0a40e5cb883e31c5f6b150a77070fa427bb8f834345908aefaf1cffb38ce
+      FEAT-008: 5f84004f080f8d69c84ce1bb208e26461a53bb6063b471658da0d4934ec39214
+      helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 # Feature Specification: FEAT-010 — Testing Strategy Templates
 

@@ -1,0 +1,399 @@
+{
+  "attempt_id": "20260515T005357-813b8d23",
+  "bead_id": "helix-9044bc6c",
+  "base_rev": "999699628eab3ea8125a0ab336a77437954c87a4",
+  "created_at": "2026-05-15T00:53:58.252642016Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-9044bc6c",
+    "title": "helix status: single-pane operator surface with parallel-run mutex",
+    "description": "Consolidate helix status into a single surface answering: (a) current cycle number, (b) currently-executing bead id and claim age, (c) parked beads classified by reason (dep-blocked, retry-parked with next-eligible-time, orphaned-claim), (d) recently-injected supervisory beads (review-finding, alignment-review) with triggering cycle and triggering bead, (e) stop reason of the last run. Implementation is HELIX-side: scripts/helix composes existing DDx JSON primitives (ddx bead list --json, ddx bead blocked --json, ddx agent workers --json, execute-loop --json event log tail). No new ddx subcommand.\n\nParallel-run mutex: second 'helix run' on the same project root must detect an active run (via DDX_PROJECT_ROOT-scoped advisory lock or existing .helix-run.pid) and return exit code 2 with stderr 'helix run: already running (pid=\u003cN\u003e, started=\u003cts\u003e)' BEFORE claiming any bead.\n\nMigration observability counters (written to .ddx/run-state.json or a sibling file on each helix run): ddx_delegation_success_count, ddx_delegation_failure_count with reason classes (missing_binary, too_old, malformed_json, timeout), parallel_run_denied_count, supervisory_injection_count by type.",
+    "acceptance": "1) helix status --json emits a single object with required fields: current_cycle (int), running_bead (object or null), parked_beads (array with {id, reason, next_eligible, age_seconds}), injected_supervisory (array with {id, type, triggering_cycle, triggering_bead}), last_stop_reason (string); jq -e verifies none are missing. 2) helix status completes in under 200ms on a tracker with 100 open beads (measured via time; test fixture seeds the tracker). 3) tests/helix-cli.sh adds a regression where launching a second 'helix run' while the first holds the lock exits 2 with the lock-holder message within 1 second, and does not mutate the tracker. 4) .ddx/run-state.json (or documented sibling) contains the four migration counters and increments them across a scripted run.",
+    "parent": "helix-e26584d7",
+    "labels": [
+      "helix",
+      "phase:build",
+      "area:cli",
+      "area:workflow",
+      "phase-3-prep"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-15T00:52:35Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "2366035",
+      "events": [
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"lmstudio\",\"resolved_model\":\"qwen3.5-27b\",\"fallback_chain\":[]}",
+          "created_at": "2026-04-17T21:52:21.860723859Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=lmstudio model=qwen3.5-27b"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=cheap harness=lmstudio model=qwen3.5-27b probe=ok\nexec: no command",
+          "created_at": "2026-04-17T21:52:21.952071794Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"script\",\"resolved_model\":\"/Users/erik/Projects/helix/.ddx/executions/20260417T215227-b9fb779d/prompt.md\",\"route_reason\":\"direct-override\",\"fallback_chain\":[]}",
+          "created_at": "2026-04-17T21:52:27.569430222Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=script model=/Users/erik/Projects/helix/.ddx/executions/20260417T215227-b9fb779d/prompt.md reason=direct-override"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=standard harness=script model=/Users/erik/Projects/helix/.ddx/executions/20260417T215227-b9fb779d/prompt.md probe=ok\nscript harness: unknown directive \"\u003cexecute-bead\u003e\" at index 0",
+          "created_at": "2026-04-17T21:52:27.656829661Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"openrouter\",\"resolved_model\":\"minimax/minimax-m2.7\",\"fallback_chain\":[]}",
+          "created_at": "2026-04-17T21:52:33.192626809Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=openrouter model=minimax/minimax-m2.7"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=smart harness=openrouter model=minimax/minimax-m2.7 probe=ok\nexec: no command",
+          "created_at": "2026-04-17T21:52:33.288908197Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"tiers_attempted\":[{\"tier\":\"cheap\",\"harness\":\"lmstudio\",\"model\":\"qwen3.5-27b\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"standard\",\"harness\":\"script\",\"model\":\"/Users/erik/Projects/helix/.ddx/executions/20260417T215227-b9fb779d/prompt.md\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"smart\",\"harness\":\"openrouter\",\"model\":\"minimax/minimax-m2.7\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":0}],\"winning_tier\":\"exhausted\",\"total_cost_usd\":0,\"wasted_cost_usd\":0}",
+          "created_at": "2026-04-17T21:52:33.32603682Z",
+          "kind": "escalation-summary",
+          "source": "ddx agent execute-loop",
+          "summary": "winning_tier=exhausted attempts=3 total_cost_usd=0.0000 wasted_cost_usd=0.0000"
+        },
+        {
+          "actor": "ddx",
+          "body": "escalation exhausted: exec: no command\ntier=smart\nprobe_result=ok\nresult_rev=84978cf0247caeefef12e3c451603a8707f63c0e\nbase_rev=84978cf0247caeefef12e3c451603a8707f63c0e\nretry_after=2026-04-18T03:52:33Z",
+          "created_at": "2026-04-17T21:52:33.439518979Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "execute-loop: failed to initialize routing service: agent.New: load config: config: provider \"lucebox\" has unknown type \"lucebox\" (use openai, openrouter, lmstudio, omlx, ollama, or anthropic)",
+          "created_at": "2026-04-28T03:32:41.00000759Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "erik",
+          "body": "execute-loop: failed to initialize routing service: agent.New: load config: config: provider \"lucebox\" has unknown type \"lucebox\" (use openai, openrouter, lmstudio, omlx, ollama, or anthropic)",
+          "created_at": "2026-05-01T07:20:04.494942058Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "erik",
+          "body": "execute-loop: failed to initialize routing service: agent.New: load config: config: provider \"lucebox\" has unknown type \"lucebox\" (use openai, openrouter, lmstudio, omlx, ollama, or anthropic)",
+          "created_at": "2026-05-02T03:31:05.417718385Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "erik",
+          "body": "execute-loop: failed to initialize routing service: agent.New: load config: config: provider \"lucebox\" has unknown type \"lucebox\" (use openai, openrouter, lmstudio, omlx, ollama, or anthropic)",
+          "created_at": "2026-05-02T12:55:13.636153623Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "erik",
+          "body": "execute-loop: failed to initialize routing service: agent.New: load config: config: provider \"lucebox\" has unknown type \"lucebox\" (use openai, openrouter, lmstudio, omlx, ollama, or anthropic)",
+          "created_at": "2026-05-02T12:55:49.083135106Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "erik",
+          "body": "execute-loop: failed to initialize routing service: agent.New: load config: config: provider \"lucebox\" (openai): api_key is required",
+          "created_at": "2026-05-02T12:56:02.704505402Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=cheap harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T12:56:19.79645997Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=standard harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T12:56:25.961259667Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=smart harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T12:56:32.20529598Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"tiers_attempted\":[{\"tier\":\"cheap\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"standard\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"smart\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0}],\"winning_tier\":\"exhausted\",\"total_cost_usd\":0,\"wasted_cost_usd\":0}",
+          "created_at": "2026-05-02T12:56:32.256037338Z",
+          "kind": "escalation-summary",
+          "source": "ddx agent execute-loop",
+          "summary": "winning_tier=exhausted attempts=3 total_cost_usd=0.0000 wasted_cost_usd=0.0000"
+        },
+        {
+          "actor": "erik",
+          "body": "execute-loop: all tiers exhausted — no viable provider found",
+          "created_at": "2026-05-02T12:56:32.338248033Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=cheap harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T12:56:57.857577691Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=standard harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T12:57:03.994394129Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=smart harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T12:57:10.198299656Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"tiers_attempted\":[{\"tier\":\"cheap\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"standard\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"smart\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0}],\"winning_tier\":\"exhausted\",\"total_cost_usd\":0,\"wasted_cost_usd\":0}",
+          "created_at": "2026-05-02T12:57:10.250148054Z",
+          "kind": "escalation-summary",
+          "source": "ddx agent execute-loop",
+          "summary": "winning_tier=exhausted attempts=3 total_cost_usd=0.0000 wasted_cost_usd=0.0000"
+        },
+        {
+          "actor": "erik",
+          "body": "execute-loop: all tiers exhausted — no viable provider found",
+          "created_at": "2026-05-02T12:57:10.326639922Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"claude\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-02T13:25:01.308633287Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=claude"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"attempt_id\":\"20260502T125717-7efa6a10\",\"harness\":\"claude\",\"input_tokens\":82,\"output_tokens\":47577,\"total_tokens\":47659,\"cost_usd\":5.233668249999997,\"duration_ms\":1663952,\"exit_code\":0}",
+          "created_at": "2026-05-02T13:25:01.350151631Z",
+          "kind": "cost",
+          "source": "ddx agent execute-bead",
+          "summary": "tokens=47659 cost_usd=5.2337"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"escalation_count\":0,\"fallback_chain\":[],\"final_tier\":\"\",\"requested_profile\":\"\",\"requested_tier\":\"\",\"resolved_model\":\"\",\"resolved_provider\":\"claude\",\"resolved_tier\":\"\"}",
+          "created_at": "2026-05-02T13:25:05.810777673Z",
+          "kind": "routing",
+          "source": "ddx agent execute-loop",
+          "summary": "provider=claude"
+        },
+        {
+          "actor": "erik",
+          "body": "reviewer: reviewer output: no recognizable verdict line (raw output 0 bytes; see .ddx/executions/20260502T132505-76de5dd8)",
+          "created_at": "2026-05-02T13:25:05.971312638Z",
+          "kind": "review-error",
+          "source": "ddx agent execute-loop",
+          "summary": "review agent error"
+        },
+        {
+          "actor": "erik",
+          "body": "merged onto current tip\nresult_rev=b3e20216233b276e0d06d01f4e739e763cac1a66\nbase_rev=43388d6c647f9a4fcbf5c6dbf38419968210a2ca",
+          "created_at": "2026-05-02T13:25:06.012473608Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "success"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"cheap\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T00:16:54.138878998Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=cheap"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=cheap harness=agent model=cheap probe=ok\norphan model: cheap",
+          "created_at": "2026-05-03T00:16:54.246200605Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"standard\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T00:16:54.892232284Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=standard"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=standard harness=agent model=standard probe=ok\norphan model: standard",
+          "created_at": "2026-05-03T00:16:54.993447859Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"smart\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T00:16:55.63829654Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=smart"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=smart harness=agent model=smart probe=ok\norphan model: smart",
+          "created_at": "2026-05-03T00:16:55.743098318Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"tiers_attempted\":[{\"tier\":\"cheap\",\"harness\":\"agent\",\"model\":\"cheap\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":1},{\"tier\":\"standard\",\"harness\":\"agent\",\"model\":\"standard\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":1},{\"tier\":\"smart\",\"harness\":\"agent\",\"model\":\"smart\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":1}],\"winning_tier\":\"exhausted\",\"total_cost_usd\":0,\"wasted_cost_usd\":0}",
+          "created_at": "2026-05-03T00:16:55.78088317Z",
+          "kind": "escalation-summary",
+          "source": "ddx agent execute-loop",
+          "summary": "winning_tier=exhausted attempts=3 total_cost_usd=0.0000 wasted_cost_usd=0.0000"
+        },
+        {
+          "actor": "ddx",
+          "body": "escalation exhausted: orphan model: smart\ntier=smart\nprobe_result=ok\nresult_rev=97d394b12bc5acc85d1a14b7d47db8689b88949c\nbase_rev=97d394b12bc5acc85d1a14b7d47db8689b88949c\nretry_after=2026-05-03T06:16:55Z",
+          "created_at": "2026-05-03T00:16:55.899613299Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T15:01:24.426694004Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider="
+        },
+        {
+          "actor": "ddx",
+          "body": "ResolveRoute: no viable routing candidate: 4 candidates rejected\nresult_rev=492909067954c3b8adad2e6360a5a77e960c32ac\nbase_rev=492909067954c3b8adad2e6360a5a77e960c32ac\nretry_after=2026-05-03T21:01:24Z",
+          "created_at": "2026-05-03T15:01:24.608058423Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"grendel-rapid-mlx\",\"resolved_model\":\"mlx-community/Qwen3.6-27B-8bit\",\"fallback_chain\":[],\"actual_power\":5}",
+          "created_at": "2026-05-14T18:21:02.512560101Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=grendel-rapid-mlx model=mlx-community/Qwen3.6-27B-8bit"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"fiz\",\"actual_model\":\"mlx-community/Qwen3.6-27B-8bit\",\"actual_power\":5,\"actual_provider\":\"grendel-rapid-mlx\",\"attempt_id\":\"20260514T181757-d281781d\",\"bead_id\":\"helix-9044bc6c\",\"inferred_power_class\":\"standard\",\"rejected_route_pins\":null,\"requested_profile\":\"default\",\"routing_intent_degraded\":false,\"routing_intent_note\":\"\",\"routing_intent_source\":\"heuristic\",\"smart_justification\":\"\"}",
+          "created_at": "2026-05-14T18:21:02.582978965Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=heuristic powerClass=standard model=mlx-community/Qwen3.6-27B-8bit harness=fiz"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"actual_power\":5,\"detail\":\"agent: provider error: openai: Post \\\"http://grendel:8000/v1/chat/completions\\\": dial tcp 100.97.179.68:8000: i/o timeout\",\"error\":\"agent: provider error: openai: Post \\\"http://grendel:8000/v1/chat/completions\\\": dial tcp 100.97.179.68:8000: i/o timeout\",\"harness\":\"fiz\",\"model\":\"mlx-community/Qwen3.6-27B-8bit\",\"outcome_reason\":\"provider_connectivity\",\"provider\":\"grendel-rapid-mlx\"}",
+          "created_at": "2026-05-14T18:21:02.718768236Z",
+          "kind": "route-failure",
+          "source": "ddx work",
+          "summary": "provider=grendel-rapid-mlx model=mlx-community/Qwen3.6-27B-8bit connectivity failure"
+        },
+        {
+          "actor": "erik",
+          "body": "agent: provider error: openai: Post \"http://grendel:8000/v1/chat/completions\": dial tcp 100.97.179.68:8000: i/o timeout\npowerClass=standard\nresult_rev=fff02f70ef053fdf918798edabefea7374d967d4\nbase_rev=17752a05d21b6da3adc1a2c2e5a3abd58f18fd98\nretry_after=2026-05-14T18:36:02Z\noutcome_reason=provider_connectivity",
+          "created_at": "2026-05-14T18:21:02.825414053Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        }
+      ],
+      "execute-loop-cooldown-base-rev": "17752a05d21b6da3adc1a2c2e5a3abd58f18fd98",
+      "execute-loop-failed-routes": [
+        {
+          "actual_power": 5,
+          "at": "2026-05-14T18:21:02Z",
+          "model": "mlx-community/Qwen3.6-27B-8bit",
+          "provider": "grendel-rapid-mlx",
+          "reason": "provider_connectivity"
+        }
+      ],
+      "execute-loop-last-detail": "agent: provider error: openai: Post \"http://grendel:8000/v1/chat/completions\": dial tcp 100.97.179.68:8000: i/o timeout",
+      "execute-loop-last-status": "execution_failed",
+      "execute-loop-retry-after": "2026-05-14T18:36:02Z",
+      "spec-id": "scripts/helix",
+      "work-heartbeat-at": "2026-05-15T00:52:35.30979724Z"
+    }
+  },
+  "paths": {
+    "dir": ".ddx/executions/20260515T005357-813b8d23",
+    "prompt": ".ddx/executions/20260515T005357-813b8d23/prompt.md",
+    "manifest": ".ddx/executions/20260515T005357-813b8d23/manifest.json",
+    "result": ".ddx/executions/20260515T005357-813b8d23/result.json",
+    "checks": ".ddx/executions/20260515T005357-813b8d23/checks.json",
+    "usage": ".ddx/executions/20260515T005357-813b8d23/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-9044bc6c-20260515T005357-813b8d23"
+  },
+  "prompt_sha": "f25aa4f83b6fe24dbb88c7f5c9dd1cb263b94ce25fe7272109bc81c8a140d26b"
+}

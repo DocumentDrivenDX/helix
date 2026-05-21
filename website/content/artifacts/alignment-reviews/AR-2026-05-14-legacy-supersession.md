@@ -1,7 +1,7 @@
 ---
 title: "Alignment Review: Legacy CLI/Autopilot Artifact Supersession"
 slug: AR-2026-05-14-legacy-supersession
-weight: 590
+weight: 660
 activity: "Iterate"
 source: "06-iterate/alignment-reviews/AR-2026-05-14-legacy-supersession.md"
 generated: true
@@ -16,6 +16,12 @@ ddx:
   depends_on:
     - helix.prd
     - AR-2026-05-12-legacy-cli-autopilot-classification
+  review:
+    self_hash: c853e5ce054eefb81ee515ccaf1af6e0be61a7378cddc265b3bdaf2fb62b6f58
+    deps:
+      AR-2026-05-12-legacy-cli-autopilot-classification: d0886e00ae0798ff297a1eb6ccb4b0dc1fd6056a71d92c1cc07448735d8d55a7
+      helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
+    reviewed_at: "2026-05-15T04:11:24Z"
 ```
 
 # Alignment Review: Legacy CLI/Autopilot Artifact Supersession
@@ -40,7 +46,7 @@ identified in that review.
 | `docs/helix/02-design/solution-designs/SD-001-helix-supervisory-control.md` | superseded-by-prd | Added `status: superseded`, `superseded_by: helix.prd`, and SUPERSEDED banner. |
 | `docs/helix/02-design/technical-designs/TD-002-helix-cli.md` | partially-superseded | Added `status: partially-superseded`, `superseded_by: helix.prd`, and PARTIALLY SUPERSEDED banner. Survives as DDx adapter documentation. |
 | `docs/helix/02-design/technical-designs/TD-011-slider-autonomy-implementation.md` | superseded-by-prd | Added `status: superseded`, `superseded_by: helix.prd`, and SUPERSEDED banner. |
-| `docs/helix/03-test/test-plans/TP-002-helix-cli.md` | partially-superseded | Added `status: partially-superseded`, `superseded_by: helix.prd`, and PARTIALLY SUPERSEDED banner. Survives as DDx adapter/transition compatibility test coverage. |
+| `docs/helix/03-test/test-plans/STP-002-helix-cli.md` | partially-superseded | Added `status: partially-superseded`, `superseded_by: helix.prd`, and PARTIALLY SUPERSEDED banner. Survives as DDx adapter/transition compatibility test coverage. |
 | `docs/helix/02-design/architecture.md` | needs-rework | Added `status: needs-rework` frontmatter and NEEDS REWORK banner. Rewrite required; follow-up bead filed (see below). |
 | `docs/helix/02-design/plan-2026-03-27-supervisory-concurrency.md` | superseded-by-prd | Added frontmatter with `status: superseded`, `superseded_by: helix.prd`, and SUPERSEDED banner. |
 | `docs/helix/04-build/implementation-plan.md` | superseded-by-prd | Added `status: superseded`, `superseded_by: helix.prd`, and SUPERSEDED banner. Scoped to FEAT-011 slider autonomy, which is superseded. |

@@ -3,6 +3,13 @@ ddx:
   id: helix.workflow.artifact-hierarchy
   depends_on:
     - helix.workflow
+  review:
+    self_hash: 87e2b23a96a1aa90a51bf3b66af5cb60ce98b6b276d8800e5de389cd02f8791b
+    deps:
+      ADR-001: 16f033617d3ab84a6fa5ebd48d0ec171f1999e6332e26dc956fa7b1a7a8b2685
+      helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
+      helix.workflow: 1225132b3050598055eacb5462639824d78ac204cca2cbeda3611766532e79c8
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 # HELIX Artifact Hierarchy and Naming Conventions
 

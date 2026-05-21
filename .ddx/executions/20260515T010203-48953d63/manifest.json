@@ -1,0 +1,221 @@
+{
+  "attempt_id": "20260515T010203-48953d63",
+  "bead_id": "helix-f966778d",
+  "base_rev": "510de0e9413e257312aa469f74a525e3bb49824b",
+  "created_at": "2026-05-15T01:02:04.380634916Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-f966778d",
+    "title": "Resolve pre-merge build-gate ownership: DDx implementation or CONTRACT-001 amendment",
+    "description": "CONTRACT-001 'Post-Cycle HELIX Behavior' table asserts DDx owns 'Build gate (pre-merge check)'. Verified on 2026-04-17 that no implementation exists: grep of ddx/cli/internal/agent/*.go for lefthook|cargo check|build-health|BuildGate returns nothing. HELIX today runs cargo check / lefthook run pre-commit post-agent-commit and git reverts on failure (scripts/helix:3629-3654).\n\nTwo possible resolutions, chosen by the contract audit (helix-00e2486f):\n\nOption A — DDx implementation: file a new bead in DDx's own tracker for a pre-land build-gate hook (lefthook / cargo check / repo-declared gate script) that runs before fast-forward merge and aborts the attempt with a preserved ref on failure. HELIX keeps its current gate as a belt-and-suspenders guard until DDx ships.\n\nOption B — CONTRACT-001 amendment: amend the Post-Cycle HELIX Behavior table to move 'Build gate (pre-merge check)' from DDx-owned to HELIX-owned. Keep HELIX's existing implementation; document it in CONTRACT-001 as HELIX's responsibility.\n\nThis bead is absorbed if helix-00e2486f's audit resolves it. Otherwise, whichever option is chosen must produce a code change that makes the contract claim true.",
+    "acceptance": "Either (a) a new DDx-side bead is filed in DDx's tracker with deterministic acceptance for a pre-land build-gate and CONTRACT-001 links to it, OR (b) docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md is amended to move 'Build gate (pre-merge check)' from DDx-owned to HELIX-owned in the Post-Cycle table and the contract-audit matrix (helix-00e2486f output) reflects the amendment. Bead closes only when the contract and implementation no longer disagree.",
+    "parent": "helix-e26584d7",
+    "labels": [
+      "helix",
+      "phase:build",
+      "area:cli",
+      "area:workflow",
+      "phase-3-prep"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-15T01:00:37Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "2366035",
+      "events": [
+        {
+          "actor": "erik",
+          "body": "tier=cheap harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:05:59.361540685Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=standard harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:06:05.620933547Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=smart harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:06:11.800475782Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"tiers_attempted\":[{\"tier\":\"cheap\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"standard\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"smart\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0}],\"winning_tier\":\"exhausted\",\"total_cost_usd\":0,\"wasted_cost_usd\":0}",
+          "created_at": "2026-05-02T13:06:11.839037717Z",
+          "kind": "escalation-summary",
+          "source": "ddx agent execute-loop",
+          "summary": "winning_tier=exhausted attempts=3 total_cost_usd=0.0000 wasted_cost_usd=0.0000"
+        },
+        {
+          "actor": "erik",
+          "body": "execute-loop: all tiers exhausted — no viable provider found",
+          "created_at": "2026-05-02T13:06:11.913288872Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"cheap\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T00:17:32.241271327Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=cheap"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=cheap harness=agent model=cheap probe=ok\norphan model: cheap",
+          "created_at": "2026-05-03T00:17:32.355023922Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"standard\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T00:17:32.990674286Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=standard"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=standard harness=agent model=standard probe=ok\norphan model: standard",
+          "created_at": "2026-05-03T00:17:33.103963882Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"smart\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T00:17:33.728783431Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=smart"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=smart harness=agent model=smart probe=ok\norphan model: smart",
+          "created_at": "2026-05-03T00:17:33.840713947Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"tiers_attempted\":[{\"tier\":\"cheap\",\"harness\":\"agent\",\"model\":\"cheap\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":1},{\"tier\":\"standard\",\"harness\":\"agent\",\"model\":\"standard\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":1},{\"tier\":\"smart\",\"harness\":\"agent\",\"model\":\"smart\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":1}],\"winning_tier\":\"exhausted\",\"total_cost_usd\":0,\"wasted_cost_usd\":0}",
+          "created_at": "2026-05-03T00:17:33.87909713Z",
+          "kind": "escalation-summary",
+          "source": "ddx agent execute-loop",
+          "summary": "winning_tier=exhausted attempts=3 total_cost_usd=0.0000 wasted_cost_usd=0.0000"
+        },
+        {
+          "actor": "ddx",
+          "body": "escalation exhausted: orphan model: smart\ntier=smart\nprobe_result=ok\nresult_rev=e9c5eb3fc4c7ea9bad7a0731c1f9f69010b042ee\nbase_rev=e9c5eb3fc4c7ea9bad7a0731c1f9f69010b042ee\nretry_after=2026-05-03T06:17:33Z",
+          "created_at": "2026-05-03T00:17:33.990672105Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T15:04:17.203664593Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider="
+        },
+        {
+          "actor": "ddx",
+          "body": "ResolveRoute: no viable routing candidate: 4 candidates rejected\nresult_rev=434add5685b728658d7885845e56d8763f89f15f\nbase_rev=434add5685b728658d7885845e56d8763f89f15f\nretry_after=2026-05-03T21:04:17Z",
+          "created_at": "2026-05-03T15:04:17.38045231Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"bragi-club-3090\",\"resolved_model\":\"qwen3.6-27b-autoround\",\"fallback_chain\":[],\"actual_power\":5}",
+          "created_at": "2026-05-14T18:33:05.086276646Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=bragi-club-3090 model=qwen3.6-27b-autoround"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"fiz\",\"actual_model\":\"qwen3.6-27b-autoround\",\"actual_power\":5,\"actual_provider\":\"bragi-club-3090\",\"attempt_id\":\"20260514T182959-bcbf09a4\",\"bead_id\":\"helix-f966778d\",\"inferred_power_class\":\"standard\",\"rejected_route_pins\":null,\"requested_profile\":\"default\",\"routing_intent_degraded\":false,\"routing_intent_note\":\"\",\"routing_intent_source\":\"heuristic\",\"smart_justification\":\"\"}",
+          "created_at": "2026-05-14T18:33:05.156588678Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=heuristic powerClass=standard model=qwen3.6-27b-autoround harness=fiz"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"actual_power\":5,\"detail\":\"agent: provider error: openai: Post \\\"http://bragi:8020/v1/chat/completions\\\": dial tcp 100.127.38.115:8020: i/o timeout\",\"error\":\"agent: provider error: openai: Post \\\"http://bragi:8020/v1/chat/completions\\\": dial tcp 100.127.38.115:8020: i/o timeout\",\"harness\":\"fiz\",\"model\":\"qwen3.6-27b-autoround\",\"outcome_reason\":\"provider_connectivity\",\"provider\":\"bragi-club-3090\"}",
+          "created_at": "2026-05-14T18:33:05.295737244Z",
+          "kind": "route-failure",
+          "source": "ddx work",
+          "summary": "provider=bragi-club-3090 model=qwen3.6-27b-autoround connectivity failure"
+        },
+        {
+          "actor": "erik",
+          "body": "agent: provider error: openai: Post \"http://bragi:8020/v1/chat/completions\": dial tcp 100.127.38.115:8020: i/o timeout\npowerClass=standard\nresult_rev=3cd0db313d0467178872b81e8541b0cc6e4e645d\nbase_rev=afb70e6e2782187000443e6a273dabcede104b6e\nretry_after=2026-05-14T18:48:05Z\noutcome_reason=provider_connectivity",
+          "created_at": "2026-05-14T18:33:05.412763063Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"mutually exclusive implementation paths require an upstream decision.: The bead identifies a real contract/implementation disagreement and gives concrete evidence, but it is not safely executable until helix-00e2486f resolves which mutually exclusive path to take. Option A requires filing work in DDx's own tracker and linking CONTRACT-001; Option B requires amending HELIX-owned contract docs and the audit matrix. Choosing between those options is a scope/ownership decision, not an implementation detail.\",\"fingerprint\":\"4a4c61c4c495026c402b5fc3d74cf2535cc4223730d9e55d287891592f499c0c\",\"policy_mode\":\"warn-only\",\"reason\":\"readiness_best_effort\",\"rule_id\":\"pre_claim_intake.readiness_best_effort\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\"}",
+          "created_at": "2026-05-15T01:01:41.173462379Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "readiness_best_effort"
+        }
+      ],
+      "execute-loop-cooldown-base-rev": "afb70e6e2782187000443e6a273dabcede104b6e",
+      "execute-loop-failed-routes": [
+        {
+          "actual_power": 5,
+          "at": "2026-05-14T18:33:05Z",
+          "model": "qwen3.6-27b-autoround",
+          "provider": "bragi-club-3090",
+          "reason": "provider_connectivity"
+        }
+      ],
+      "execute-loop-last-detail": "agent: provider error: openai: Post \"http://bragi:8020/v1/chat/completions\": dial tcp 100.127.38.115:8020: i/o timeout",
+      "execute-loop-last-status": "execution_failed",
+      "execute-loop-retry-after": "2026-05-14T18:48:05Z",
+      "spec-id": "docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md",
+      "work-heartbeat-at": "2026-05-15T01:00:37.433238839Z"
+    }
+  },
+  "governing": [
+    {
+      "id": "docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md",
+      "path": "docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md"
+    }
+  ],
+  "paths": {
+    "dir": ".ddx/executions/20260515T010203-48953d63",
+    "prompt": ".ddx/executions/20260515T010203-48953d63/prompt.md",
+    "manifest": ".ddx/executions/20260515T010203-48953d63/manifest.json",
+    "result": ".ddx/executions/20260515T010203-48953d63/result.json",
+    "checks": ".ddx/executions/20260515T010203-48953d63/checks.json",
+    "usage": ".ddx/executions/20260515T010203-48953d63/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-f966778d-20260515T010203-48953d63"
+  },
+  "prompt_sha": "56b25c152013980a8fa74cb37d87425c0508eb14d497b0072efa09b190cefbe3"
+}

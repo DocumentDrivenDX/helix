@@ -1,7 +1,7 @@
 ---
 title: "Solution Design"
 slug: SD-001-helix-supervisory-control
-weight: 330
+weight: 370
 activity: "Design"
 source: "02-design/solution-designs/SD-001-helix-supervisory-control.md"
 generated: true
@@ -18,6 +18,14 @@ ddx:
     - ADR-001
   status: superseded
   superseded_by: helix.prd
+  review:
+    self_hash: 6a40b928fb7c8b82af8cac4d02e56ff3516001b10e40f39843746bbc473b0548
+    deps:
+      ADR-001: 16f033617d3ab84a6fa5ebd48d0ec171f1999e6332e26dc956fa7b1a7a8b2685
+      FEAT-001: df7d279639d071dc9404f0b779f3e7fcc4bfc6a263dff28fd1ded3a01039a8cd
+      FEAT-004: 4c167348ecc29309e3af200b7274f449629bca54615d66ffb87d6d15d05bf25d
+      SD-002: 474c29fce056411ad1affcd4a882a83f82b6e24d9887f1c87e105cf871e5f7dc
+    reviewed_at: "2026-05-15T04:11:24Z"
 ```
 
 > **SUPERSEDED** — This solution design modeled HELIX as a supervisory

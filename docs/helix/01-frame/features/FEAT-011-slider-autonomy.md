@@ -127,9 +127,9 @@ The system shall verify that artifact flow produces **functional, measurable res
 
 #### Traceability Model (Based on Existing Pattern)
 ```
-FEAT-001 → SD-001 → US-036 → TD-036 → TP-036 → tests → code
+FEAT-001 → SD-001 → US-036 → TD-036 → STP-036 → tests → code
          ↓
-         US-037 → TD-037 → TP-037 → tests → code
+         US-037 → TD-037 → STP-037 → tests → code
 ```
 
 Each layer references upstream via `[[ID]]` notation. Tests reference spec IDs in comments or metadata.

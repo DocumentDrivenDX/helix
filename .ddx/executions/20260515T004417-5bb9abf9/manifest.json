@@ -1,0 +1,259 @@
+{
+  "attempt_id": "20260515T004417-5bb9abf9",
+  "bead_id": "helix-495f0d72",
+  "base_rev": "cdb6d604fdbb69818e23c180ee2ee47dec14542d",
+  "created_at": "2026-05-15T00:44:18.271433494Z",
+  "requested": {
+    "prompt": "synthesized",
+    "min_power": 6
+  },
+  "bead": {
+    "id": "helix-495f0d72",
+    "title": "drift: re-record helix-concerns cast with area-labeled review finding",
+    "description": "\u003ccontext-digest\u003e\n\u003cprinciples\u003eDesign for Change · Design for Simplicity · Validate Your Work · Make Intent Explicit · Prefer Reversible Decisions\u003c/principles\u003e\n\u003cconcerns\u003ehugo-hextra | demo-asciinema | e2e-playwright\u003c/concerns\u003e\n\u003cpractices\u003eDefine the site's target audience and what content they need · Theme version: Hextra v0.12.1 — pinned in website/go.mod · Identify which workflows need demo reels — prioritize the \"first 5 minutes\" experience · Current demos: helix-quickstart (full lifecycle), helix-concerns (drift detection), helix-evolve (requirement threading), helix-experiment (metric-driven optimization) · Identify all user-facing pages and workflows that need testing · Test location: website/e2e/microsite.spec.ts\u003c/practices\u003e\n\u003cadrs\u003eADR-001 HELIX Supervisory Control Model — Supervision must remain live to concurrent local operator activity. A running helix-run session must treat tracker and governing-artifact changes as new control input at safe boundaries. It may not assume that the selected issue is still valid at claim time or close time just because it was valid earlier in the loop. Why: HELIX must preserve bounded execution, authority order, tracker-first work management, and direct interactive operation. It must also reduce orchestration burden by autonomously selecting the least-powerful sufficient next action when authority is available. · ADR-002 HELIX Tracker Write Safety Model — The tracker will not pretend to provide arbitrary multi-writer transactional semantics. Instead, it will define the supported local execution model, require explicit detection or prevention of silent lost updates, and make malformed tracker state a surfaced failure rather than something the rest of HELIX must guess around. Why: HELIX needs a conservative local tracker that is safe enough for agent-driven issue refinement and concurrent local supervision. The tracker must surface malformed state explicitly, define what concurrency/conflict guarantees are supported, and make metadata mutation available through first-class commands instead of direct file edits.\u003c/adrs\u003e\n\u003cgoverning\u003edocs/demos/helix-concerns/recordings/helix-concerns-20260406-180259.cast — {\"version\": 2, \"width\": 100, \"height\": 30, \"timestamp\": 1775498579, \"env\": {\"SHELL\": \"/bin/bash\", \"TERM\": \"xterm-256color\"}, \"title\": \"HELIX Concerns: Preventing Technology Drift\"} [0.005226, \"o\", \"\\r\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\r\\n ACT 1: Create a Bun Project with Concerns\\r\\n\"] [0.005693, \"o\", \"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\r\\n\\r\\n\"] [2.006918, \"o\", \"Installing HELIX...\\r\\n\"] [2.031504, \"o\", \"HELIX Doctor\\r\\n============\\r\\n\\r\\nVersion: helix 0.2.0\\r\\nRoot: /helix\\r\\nMode: --fix (will auto-repair)\\r\\n\\r\\nRequired:\\r\\n\"] [2.03672, \"o\", \" ✓ bash GNU bash, version 5.2.21(1)-release (x86_64-pc-linux-gnu)\\r\\n\"] [2.041669, \"o\", \" ✓ git git version 2.43.0\\r\\n\"] [2.075973, \"o\", \" ✓ ddx DDx v0.0.1-dev\\r\\n\"] [2.076025, \"o\", \"\\r\\nAgent CLIs (at least one required):\\r\\n\"] [2.670243, \"o\", \" ✓ claude 2.1.92 (Claude Code)\\r\\n\"] [2.670443, \"o\", \"\\r\\nOptional:\\r\\n\"] [2.670577, \"o\", \" - tmux not found (optional)\\r\\n\"] [2.746211, \"o\", \" ✓ asciinema asciinema 2.4.0\\r\\n\"] [2.746392, \"o\", \" - hugo not found (optional)\\r\\n\"] [2.746515, \"o\", \" - docker not found (optional)\\r\\n\\r\\nWorkflows:\\r\\n\"] [2.746542, \"o\", \" ✓ workflows /helix/workflows\\r\\n\\r\\nPlugin path:\\r\\n\"] [2.751619, \"o\", \" ✓ plugin /workspace/.ddx/plugins/helix (created)\\r\\n\"] [2.751672, \"o\", \"\\r\\nSkills:\\r\\n\"] [2.757889, \"o\", \" 15 skills found in library\\r\\n\\r\\nSkill symlinks:\\r\\n\"] [2.897456, \"o\", \" ✓ .agents/skills and .claude/skills up to date\\r\\n\\r\\nTracker:\\r\\n\"] [2.900599, \"o\", \" - /workspace/.ddx/beads.jsonl no tracker in this directory\\r\\n\\r\\nFixed: 35 items repaired\\r\\nResult: 6 ok, 3 warnings — ready to go\\r\\n\"] [2.978716, \"o\", \"\\r\\n$ git init hello-bun\\r\\n\"] [2.987622, \"o\", \"Initialized empty Git repository in /workspace/hello-bun/.git/\\r\\n\"] [2.988082, \"o\", \"\\r\\n\"] [3.989458, \"o\", \"$ ddx bead init\\r\\n\"] [4.000998, \"o\", \"Initialized bead storage at /workspace/hello-bun/.ddx/beads.jsonl\\r\\n\"] [4.003112, \"o\", \"\\r\\n\"] [5.015892, \"o\", \"\\r\\nThe concerns file declares: use Bun, Biome, bun:test.\\r\\nNOT Node.js, NOT ESLint, NOT Vitest.\\r\\n\\r\\n\"] [5.015934, \"o\", \"── docs/helix/01-frame/concerns.md ──\\r\\n\"] [5.016866, \"o\", \"# Project Concerns\\r\\n\\r\\n## Active Concerns\\r\\n- typescript-bun (tech-stack)\\r\\n\\r\\n## Area Labels\\r\\n\\r\\n| Label | Applies to |\\r\\n|-------|-----------|\\r\\n| all | Every bead |\\r\\n| api | HTTP server, endpoints |\\r\\n\\r\\n## Project Overrides\\r\\n\\r\\n### typescript-bun\\r\\n- HTTP framework: raw Bun.serve() — no Express, no Fastify\\r\\n- Test framework: bun:test — do not use Vitest or Jest\"] [5.016899, \"o\", \"\\r\\n- Linter/formatter: Biome — do not use ESLint or Prettier\\r\\n\"] [5.017079, \"o\", \"...\\r\\n\\r\\n\"] [9.047416, \"o\", \"\\r\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\r\\n ACT 2: Frame — Agent Sees Concerns\\r\\n\"] [9.047464, \"o\", \"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\r\\n\\r\\n\"] [11.051048, \"o\", \"$ ddx agent run --text \\\"Read docs/helix/01-frame/concerns.md first. Then create Frame-phase artifacts:\\r\\n\\r\\n...\\\"\\r\\n\\r\\n\"] [38.495539, \"o\", \"PRD written to docs/helix/01-frame/prd.md (~35 lines). Key points:\\r\\n\\r\\n- F-1/F-2: GET /health → HTTP 200 JSON {\\\"status\\\":\\\"ok\\\",\\\"uptime\\\":\u0026lt;seconds\u0026gt;}\\r\\n- F-3: all other routes → 404\\r\\n- Constraints locked to Bun.serve(), bun:test, Biome per concerns.md\\r\\n\\r\\nTracker issue created: hello-bun-895585d8 — \\\"Implement /health endpoint per PRD\\\" \\r\\n(--spec-id isn't a supported flag; the spec reference was folded into --description instead.)\\r\\n\\r\\n\"] [41.496894, \"o\", \" ✓ PRD exists\\r\\n── docs/helix/01-frame/prd.md ──\\r\\n\"] [41.497937, \"o\", \"---\\r\\nid: prd\\r\\ntitle: Hello-Bun HTTP Server\\r\\nversion: 0.1.0\\r\\nstatus: draft\\r\\ndate: 2026-04-06\\r\\n---\\r\\n\\r\\n# Product Requirements Document\\r\\n\\r\\n## Overview\\r\\n\\r\\nA minimal HTTP server built with Bun that exposes a health-check endpoint for\\r\\nliveness probing and uptime monitoring.\\r\\n\\r\\n## Goals\\r\\n\\r\\n\"] [41.497963, \"o\", \"- Demonstrate a working Bun HTTP server with a typed JSON response.\\r\\n- Provide a /health endpoint suitable for container health checks.\\r\\n\\r\\n## Non-Goals\\r\\n\\r\\n- Authentication, routing libraries, or middleware frameworks.\\r\\n- Persistent storage or external service calls.\\r\\n\\r\\n\"] [41.498181, \"o\", \"...\\r\\n\\r\\n\"] [43.499376, \"o\", \"Tracker:\\r\\n$ ddx bead list\\r\\n\"] [43.510621, \"o\", \"hello-bun-895585d8 open P1 Implement /health endpoint per PRD [helix,phase:build,area:api]\\r\\n\"] [43.512224, \"o\", \"\\r\\n\"] [46.52958, \"o\", \"\\r\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\r\\n ACT 3: Build — Agent Uses Bun-Native Tools\\r\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\r\\n\\r\\n\"] [48.532576, \"o\", \"$ ddx agent run --text \\\"Read docs/helix/01-frame/concerns.md first — it declares typescript-bun.\\r\\nThen im...\\\"\\r\\n\\r\\n\"] [99.712125, \"o\", \"All done. Here's what was built:\\r\\n\\r\\n| File | Purpose |\\r\\n|---|---|\\r\\n| package.json | Bun project with bun test, biome devDep |\\r\\n| biome.json | Biome linter/formatter (no ESLint/Prettier) |\\r\\n| src/index.ts | Bun.serve() on port 3000 — GET /health → {\\\"status\\\":\\\"ok\\\",\\\"uptime\\\":\u0026lt;n\u0026gt;}, all else → 404 |\\r\\n| tests/health.test.ts | 4 tests via bun:test covering status, content-type, body shape, and 404s |\\r\\n\\r\\nTests: 4 pass, 0 fail. Tracker issue hello-bun-895585d8 marked closed.\\r\\n\\r\\n\"] [102.713488, \"o\", \"Checking what the agent built...\\r\\n\\r\\npackage.json:\\r\\n\"] [102.714497, \"o\", \"{\\r\\n \\\"name\\\": \\\"hello-bun\\\",\\r\\n \\\"version\\\": \\\"0.1.0\\\",\\r\\n \\\"module\\\": \\\"src/index.ts\\\",\\r\\n \\\"type\\\": \\\"module\\\",\\r\\n \\\"scripts\\\": {\\r\\n \\\"start\\\": \\\"bun run src/index.ts\\\",\\r\\n \\\"test\\\": \\\"bun test\\\",\\r\\n \\\"lint\\\": \\\"biome check .\\\",\\r\\n \\\"format\\\": \\\"biome format --write .\\\"\\r\\n },\\r\\n \\\"devDependencies\\\": {\\r\\n \\\"@biomejs/biome\\\": \\\"^1.9.0\\\"\\r\\n }\\r\\n}\\r\\n\"] [102.714669, \"o\", \"\\r\\n ✓ biome.json exists (Biome, not ESLint)\\r\\n\"] [102.71477, \"o\", \" ✓ src/index.ts exists\\r\\n\"] [102.716061, \"o\", \" ✓ Uses Bun.serve() (not Express)\\r\\n ✓ tests/health.test.ts exists\\r\\n\"] [102.717308, \"o\", \" ✓ Uses bun:test (not Vitest)\\r\\n\\r\\n\"] [104.733392, \"o\", \"\\r\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\r\\n ACT 4: Drift — Someone Introduces Node.js Tooling\\r\\n\"] [104.733505, \"o\", \"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\r\\n\\r\\n\"] [106.734925, \"o\", \"A developer adds a test using Vitest instead of bun:test...\\r\\n\\r\\n\"] [106.737729, \"o\", \"── tests/drift.test.ts ──\\r\\n\"] [106.738707, \"o\", \"// Accidentally using Vitest instead of bun:test\\r\\nimport { describe, it, expect } from 'vitest'\\r\\n\\r\\ndescribe('drift example', () =\u0026gt; {\\r\\n it('should use vitest', () =\u0026gt; {\\r\\n expect(1 + 1).toBe(2)\\r\\n })\\r\\n})\\r\\n\"] [106.738884, \"o\", \"...\\r\\n\\r\\n\"] [108.740381, \"o\", \"This violates the typescript-bun concern:\\r\\n ✗ imports from 'vitest' — should be 'bun:test'\\r\\n\\r\\n\"] [110.752377, \"o\", \"\\r\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\r\\n ACT 5: Review — Agent Detects Concern Drift\\r\\n\"] [110.75243, \"o\", \"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\r\\n\\r\\n\"] [112.755427, \"o\", \"$ ddx agent run --text \\\"Read docs/helix/01-frame/concerns.md first — it declares typescript-bun.\\r\\n\\r\\nReview...\\\"\\r\\n\\r\\n\"] [129.212606, \"o\", \"Tracker issue created: hello-bun-c8fc82bc\\r\\n\\r\\n---\\r\\n\\r\\nSummary\\r\\n\\r\\n| File | Line | Violation |\\r\\n|------|------|-----------|\\r\\n| tests/drift.test.ts | 2 | import { describe, it, expect } from 'vitest' — must use bun:test |\\r\\n\\r\\nNo other files changed in the last commit. The only drift is the Vitest import. Fix: replace the import with import { describe, it, expect } from 'bun:test' (and remove vitest from package.json if it was added).\\r\\n\\r\\n\"] [132.213926, \"o\", \"\\r\\nThe agent should have flagged tests/drift.test.ts\\r\\nfor importing from 'vitest' instead of 'bun:test'.\\r\\n\\r\\nTracker (should include drift finding):\\r\\n\"] [132.213992, \"o\", \"$ ddx bead list\\r\\n\"] [132.224084, \"o\", \"hello-bun-895585d8 closed P1 Implement /health endpoint per PRD [helix,phase:build,area:api]\\r\\nhello-bun-c8fc82bc open P0 drift: tests/drift.test.ts imports vitest instead of bun:test [helix,phase:build,review-finding]\\r\\n\"] [132.225351, \"o\", \"\\r\\n\"] [135.228146, \"o\", \"\\r\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\r\\n Demo Complete!\\r\\n\"] [135.228194, \"o\", \"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\r\\n\\r\\n\"] [137.229703, \"o\", \"What you just saw:\\r\\n 1. Concerns declared: typescript-bun (Bun, Biome, bun:test)\\r\\n 2. Agent reads concerns and uses the correct tools\\r\\n 3. Deliberate drift introduced (vitest import)\\r\\n 4. Review catches the drift via concern-aware review\\r\\n\\r\\n\"] [137.229743, \"o\", \"Concerns prevent the technology drift that happens when\\r\\nagents (or developers) reach for familiar tools instead\\r\\nof the project's declared stack.\\r\\n\\r\\n\"]\u003c/governing\u003e\n\u003c/context-digest\u003e\n\nExplicit omission rationale: Follow-on demo refresh bead was created directly during review cleanup and intentionally omits a full context digest until the next polish/triage pass rewrites it with current concern context.\\n\\nImplementation follow-on from helix-438c8a07. The checked-in helix-concerns asciinema recording still shows the pre-contract review finding bead without any area:* label, even after the demo prompt and replay fixture were updated. Re-record the demo (or otherwise refresh the published cast artifact) so the public recording matches the current fresh-eyes review contract.",
+    "acceptance": "A checked-in helix-concerns .cast recording shows the drift finding bead with at least one scope-appropriate area:* label, and the recording remains valid JSON lines.",
+    "parent": "helix-13cfe23f",
+    "labels": [
+      "helix",
+      "phase:build",
+      "area:demo",
+      "area:docs",
+      "area:site"
+    ],
+    "metadata": {
+      "claimed-at": "2026-05-15T00:43:06Z",
+      "claimed-machine": "eitri",
+      "claimed-pid": "2469400",
+      "events": [
+        {
+          "actor": "erik",
+          "body": "tier=cheap harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:05:21.13487095Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=standard harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:05:27.35546221Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "tier=smart harness= model= probe=no viable provider\nno viable harness found",
+          "created_at": "2026-05-02T13:05:33.584236991Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "skipped"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"tiers_attempted\":[{\"tier\":\"cheap\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"standard\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0},{\"tier\":\"smart\",\"status\":\"skipped\",\"cost_usd\":0,\"duration_ms\":0}],\"winning_tier\":\"exhausted\",\"total_cost_usd\":0,\"wasted_cost_usd\":0}",
+          "created_at": "2026-05-02T13:05:33.626438686Z",
+          "kind": "escalation-summary",
+          "source": "ddx agent execute-loop",
+          "summary": "winning_tier=exhausted attempts=3 total_cost_usd=0.0000 wasted_cost_usd=0.0000"
+        },
+        {
+          "actor": "erik",
+          "body": "execute-loop: all tiers exhausted — no viable provider found",
+          "created_at": "2026-05-02T13:05:33.701110925Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"cheap\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T00:17:26.978866641Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=cheap"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=cheap harness=agent model=cheap probe=ok\norphan model: cheap",
+          "created_at": "2026-05-03T00:17:27.090630865Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"standard\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T00:17:27.751714268Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=standard"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=standard harness=agent model=standard probe=ok\norphan model: standard",
+          "created_at": "2026-05-03T00:17:27.869315982Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"agent\",\"resolved_model\":\"smart\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T00:17:28.605833047Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider=agent model=smart"
+        },
+        {
+          "actor": "ddx",
+          "body": "tier=smart harness=agent model=smart probe=ok\norphan model: smart",
+          "created_at": "2026-05-03T00:17:28.718205937Z",
+          "kind": "tier-attempt",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"tiers_attempted\":[{\"tier\":\"cheap\",\"harness\":\"agent\",\"model\":\"cheap\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":1},{\"tier\":\"standard\",\"harness\":\"agent\",\"model\":\"standard\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":1},{\"tier\":\"smart\",\"harness\":\"agent\",\"model\":\"smart\",\"status\":\"execution_failed\",\"cost_usd\":0,\"duration_ms\":1}],\"winning_tier\":\"exhausted\",\"total_cost_usd\":0,\"wasted_cost_usd\":0}",
+          "created_at": "2026-05-03T00:17:28.762561652Z",
+          "kind": "escalation-summary",
+          "source": "ddx agent execute-loop",
+          "summary": "winning_tier=exhausted attempts=3 total_cost_usd=0.0000 wasted_cost_usd=0.0000"
+        },
+        {
+          "actor": "ddx",
+          "body": "escalation exhausted: orphan model: smart\ntier=smart\nprobe_result=ok\nresult_rev=051a40b7d819187fd756b01506b018515984aee0\nbase_rev=051a40b7d819187fd756b01506b018515984aee0\nretry_after=2026-05-03T06:17:28Z",
+          "created_at": "2026-05-03T00:17:28.875631082Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-03T15:03:42.659350304Z",
+          "kind": "routing",
+          "source": "ddx agent execute-bead",
+          "summary": "provider="
+        },
+        {
+          "actor": "ddx",
+          "body": "ResolveRoute: no viable routing candidate: 4 candidates rejected\nresult_rev=f01ef90879d7a4460e6cd8d13ea26acbe42decc8\nbase_rev=f01ef90879d7a4460e6cd8d13ea26acbe42decc8\nretry_after=2026-05-03T21:03:42Z",
+          "created_at": "2026-05-03T15:03:42.835191105Z",
+          "kind": "execute-bead",
+          "source": "ddx agent execute-loop",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"bragi-club-3090\",\"resolved_model\":\"qwen3.6-27b-autoround\",\"fallback_chain\":[],\"actual_power\":5}",
+          "created_at": "2026-05-14T17:13:49.861179529Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=bragi-club-3090 model=qwen3.6-27b-autoround"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"fiz\",\"actual_model\":\"qwen3.6-27b-autoround\",\"actual_power\":5,\"actual_provider\":\"bragi-club-3090\",\"attempt_id\":\"20260514T171045-d683c0cb\",\"bead_id\":\"helix-495f0d72\",\"inferred_power_class\":\"standard\",\"rejected_route_pins\":null,\"requested_profile\":\"default\",\"routing_intent_degraded\":false,\"routing_intent_note\":\"\",\"routing_intent_source\":\"heuristic\",\"smart_justification\":\"\"}",
+          "created_at": "2026-05-14T17:13:49.935669358Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=heuristic powerClass=standard model=qwen3.6-27b-autoround harness=fiz"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"actual_power\":5,\"detail\":\"agent: provider error: openai: Post \\\"http://bragi:8020/v1/chat/completions\\\": dial tcp 100.127.38.115:8020: i/o timeout\",\"error\":\"agent: provider error: openai: Post \\\"http://bragi:8020/v1/chat/completions\\\": dial tcp 100.127.38.115:8020: i/o timeout\",\"harness\":\"fiz\",\"model\":\"qwen3.6-27b-autoround\",\"outcome_reason\":\"provider_connectivity\",\"provider\":\"bragi-club-3090\"}",
+          "created_at": "2026-05-14T17:13:50.070077784Z",
+          "kind": "route-failure",
+          "source": "ddx work",
+          "summary": "provider=bragi-club-3090 model=qwen3.6-27b-autoround connectivity failure"
+        },
+        {
+          "actor": "erik",
+          "body": "agent: provider error: openai: Post \"http://bragi:8020/v1/chat/completions\": dial tcp 100.127.38.115:8020: i/o timeout\npowerClass=standard\nresult_rev=8d3d6759b09bee3a61ccaa1f2a9cf69a59f39903\nbase_rev=c44971ebf772b6d9504b63a4ce761169244306c8\nretry_after=2026-05-14T17:28:50Z\noutcome_reason=provider_connectivity",
+          "created_at": "2026-05-14T17:13:50.183037819Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"grendel\",\"resolved_model\":\"qwen3.5-27b\",\"fallback_chain\":[],\"actual_power\":5}",
+          "created_at": "2026-05-15T00:17:14.796155382Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=grendel model=qwen3.5-27b"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"fiz\",\"actual_model\":\"qwen3.5-27b\",\"actual_power\":5,\"actual_provider\":\"grendel\",\"attempt_id\":\"20260515T001623-22b646c0\",\"bead_id\":\"helix-495f0d72\",\"inferred_power_class\":\"standard\",\"rejected_route_pins\":null,\"requested_profile\":\"default\",\"routing_intent_degraded\":false,\"routing_intent_note\":\"\",\"routing_intent_source\":\"heuristic\",\"smart_justification\":\"\"}",
+          "created_at": "2026-05-15T00:17:14.869283486Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=heuristic powerClass=standard model=qwen3.5-27b harness=fiz"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"actual_power\":5,\"model\":\"qwen3.5-27b\",\"provider\":\"grendel\",\"reason\":\"ladder exhausted at power 5\"}",
+          "created_at": "2026-05-15T00:17:14.961350827Z",
+          "kind": "execution-escalation-aborted",
+          "source": "ddx work",
+          "summary": "escalation aborted: ladder exhausted at power 5 provider=grendel model=qwen3.5-27b"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"actual_power\":5,\"detail\":\"agent: provider error: openai: Post \\\"http://grendel:1234/v1/chat/completions\\\": dial tcp 100.97.179.68:1234: i/o timeout\",\"error\":\"agent: provider error: openai: Post \\\"http://grendel:1234/v1/chat/completions\\\": dial tcp 100.97.179.68:1234: i/o timeout\",\"harness\":\"fiz\",\"model\":\"qwen3.5-27b\",\"outcome_reason\":\"provider_connectivity\",\"provider\":\"grendel\"}",
+          "created_at": "2026-05-15T00:17:15.0483843Z",
+          "kind": "route-failure",
+          "source": "ddx work",
+          "summary": "provider=grendel model=qwen3.5-27b connectivity failure"
+        },
+        {
+          "actor": "erik",
+          "body": "agent: provider error: openai: Post \"http://grendel:1234/v1/chat/completions\": dial tcp 100.97.179.68:1234: i/o timeout\npowerClass=standard\nresult_rev=33ea3e7e127dd542e62b491e059f3ac1b6072c76\nbase_rev=45ad1974a26c7283599178e9a05cc7d6cbeda2f2\noutcome_reason=provider_connectivity",
+          "created_at": "2026-05-15T00:17:15.117319109Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        }
+      ],
+      "execute-loop-cooldown-base-rev": "c44971ebf772b6d9504b63a4ce761169244306c8",
+      "execute-loop-failed-routes": [
+        {
+          "actual_power": 5,
+          "at": "2026-05-14T17:13:50Z",
+          "model": "qwen3.6-27b-autoround",
+          "provider": "bragi-club-3090",
+          "reason": "provider_connectivity"
+        }
+      ],
+      "execute-loop-last-detail": "agent: provider error: openai: Post \"http://bragi:8020/v1/chat/completions\": dial tcp 100.127.38.115:8020: i/o timeout",
+      "execute-loop-last-status": "execution_failed",
+      "execute-loop-retry-after": "2026-05-14T17:28:50Z",
+      "spec-id": "docs/demos/helix-concerns/recordings/helix-concerns-20260406-180259.cast",
+      "triage.power_hint": 6,
+      "work-failed-routes": [
+        {
+          "actual_power": 5,
+          "at": "2026-05-15T00:17:14Z",
+          "count": 1,
+          "model": "qwen3.5-27b",
+          "provider": "grendel",
+          "reason": "provider_connectivity"
+        }
+      ],
+      "work-heartbeat-at": "2026-05-15T00:43:06.816433378Z"
+    }
+  },
+  "paths": {
+    "dir": ".ddx/executions/20260515T004417-5bb9abf9",
+    "prompt": ".ddx/executions/20260515T004417-5bb9abf9/prompt.md",
+    "manifest": ".ddx/executions/20260515T004417-5bb9abf9/manifest.json",
+    "result": ".ddx/executions/20260515T004417-5bb9abf9/result.json",
+    "checks": ".ddx/executions/20260515T004417-5bb9abf9/checks.json",
+    "usage": ".ddx/executions/20260515T004417-5bb9abf9/usage.json",
+    "worktree": "var/tmp/ddx-exec-wt/.execute-bead-wt-helix-495f0d72-20260515T004417-5bb9abf9"
+  },
+  "prompt_sha": "acbd09a770955acb59fed8f97858bd4d3a1570e551ca3d1702bd4410fcfb5374"
+}

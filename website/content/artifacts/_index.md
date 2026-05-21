@@ -19,7 +19,7 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 - [Project Concerns](/artifacts/concerns/)
 - [Product Requirements Document](/artifacts/prd/)
 - [Project Principles](/artifacts/principles/)
-- [features](/artifacts/features/) _(12 items)_
+- [features](/artifacts/features/) _(14 items)_
 
 ## Design
 
@@ -27,18 +27,20 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 - [Data Design — HELIX Bead Tracker](/artifacts/data-design/)
 - [Homepage Worked Example Graph](/artifacts/homepage-worked-example-graph/)
 - [HELIX Plan: Supervisory Concurrency And Interactive Refinement](/artifacts/plan-2026-03-27-supervisory-concurrency/)
+- [Plan: harden the Claude Code install surface](/artifacts/plan-2026-05-17-claude-code-install-hardening/)
+- [Plan: Fold DataHelix templates into the HELIX catalog](/artifacts/plan-2026-05-17-fold-datahelix-templates/)
 - [Security Architecture — DDx Agent Execution Surface](/artifacts/security-architecture/)
 - [adr](/artifacts/adr/) _(2 items)_
 - [contracts](/artifacts/contracts/) _(6 items)_
 - [decisions](/artifacts/decisions/) _(2 items)_
 - [hero image concepts](/artifacts/hero-image-concepts/) _(1 item)_
 - [solution designs](/artifacts/solution-designs/) _(2 items)_
-- [technical designs](/artifacts/technical-designs/) _(4 items)_
+- [technical designs](/artifacts/technical-designs/) _(5 items)_
 
 ## Test
 
 - [executions](/artifacts/executions/) _(1 item)_
-- [test plans](/artifacts/test-plans/) _(1 item)_
+- [test plans](/artifacts/test-plans/) _(3 items)_
 
 ## Build
 

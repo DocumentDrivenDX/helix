@@ -16,6 +16,12 @@ ddx:
   depends_on:
     - helix.prd
     - FEAT-006
+  review:
+    self_hash: d7f507487425873506f2953e58566d946b06d2614a523ebeb9e1e0f68ff71231
+    deps:
+      FEAT-006: a44d0a40e5cb883e31c5f6b150a77070fa427bb8f834345908aefaf1cffb38ce
+      helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
+    reviewed_at: "2026-05-15T04:11:24Z"
 ```
 
 # Feature Specification: FEAT-007 — Microsite and Demo Reels
