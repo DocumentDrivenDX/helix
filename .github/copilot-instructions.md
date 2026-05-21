@@ -71,7 +71,8 @@ authoritative sources before suggesting changes:
 
 ## What this repo is NOT
 
-- Not a CLI distribution: there is no `scripts/helix`, no `bin/helix`.
+- Not a CLI distribution: HELIX ships content (artifact templates + a
+  routing skill), not a binary.
 - Not a tracker: bead state lives in DDx (`~/Projects/ddx/.ddx/`),
   not in HELIX.
 - Not a runtime: HELIX does not execute the work plan — runtimes

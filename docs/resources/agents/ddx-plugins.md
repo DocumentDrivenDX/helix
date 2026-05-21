@@ -143,8 +143,8 @@ the CLI help text.
   - Whatever publishing the DDx registry does to pick up new HELIX
     versions (likely tied to git tags; not observed)
 - The `just install` recipe now runs `ddx install helix --force` directly.
-  The legacy `bash scripts/helix doctor --fix` step was dropped when the
-  `scripts/helix` wrapper was removed.
+  The legacy doctor-fix step was dropped when the HELIX CLI wrapper was
+  removed.
 
 ## Caveats
 
