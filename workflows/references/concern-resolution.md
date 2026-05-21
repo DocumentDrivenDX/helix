@@ -115,9 +115,9 @@ inject concerns at their Activity 0 or Bootstrap step, alongside principles.
 | `check.md` | Activity 0 — load concerns for queue health; Activity 2 checks area label coverage, digest freshness, missing concerns.md |
 | `backfill-helix-docs.md` | Activity 0 — discover active concerns or propose them from evidence; Activity 4 may create concerns.md |
 
-## Concern Selection in helix frame
+## Concern Selection in /helix frame
 
-When `helix frame` runs and no `docs/helix/01-frame/concerns.md` exists:
+When `/helix frame` runs and no `docs/helix/01-frame/concerns.md` exists:
 
 1. List available concerns from `.ddx/plugins/helix/workflows/concerns/` grouped by category.
 2. Ask the user about each category:
@@ -158,7 +158,7 @@ Spike/POC (gather evidence)
 - Project overrides that depart from library defaults must cite the
   governing ADR.
 
-When a referenced ADR is superseded, `helix polish` must flag the
+When a referenced ADR is superseded, `/helix polish` must flag the
 affected concern for re-evaluation.
 
 ## Propagation Completeness
@@ -198,10 +198,10 @@ Use these steps to verify propagation completeness for a scope:
 
 | Trigger | Action |
 |---------|--------|
-| `helix check` Activity 2 | Concern Health — detect propagation gaps, recommend POLISH |
-| `helix polish` Activity 2-N | Concern Propagation Verification — fix gaps during refinement |
-| `helix measure` | Verify concern gates were run and recorded |
-| `helix report` batch mode | Aggregate concern coverage across scope |
+| `/helix check` Activity 2 | Concern Health — detect propagation gaps, recommend POLISH |
+| `/helix polish` Activity 2-N | Concern Propagation Verification — fix gaps during refinement |
+| `/helix measure` | Verify concern gates were run and recorded |
+| `/helix report` batch mode | Aggregate concern coverage across scope |
 
 ### Concern Change Detection
 
@@ -211,4 +211,4 @@ polished:
 1. Check `git log --since=<last-polish-date> -- docs/helix/01-frame/concerns.md workflows/concerns/`
 2. If changes exist, the concern library has been updated and existing beads
    may have stale digests and acceptance criteria.
-3. `helix check` should recommend `POLISH` when concern changes are detected.
+3. `/helix check` should recommend `POLISH` when concern changes are detected.

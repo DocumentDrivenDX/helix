@@ -174,7 +174,7 @@ Load the target bead:
 ddx bead show <id> --json
 ```
 
-If no measurement results exist, recommend running `helix measure <id>` first.
+If no measurement results exist, recommend running `/helix measure <id>` first.
 
 Create follow-on beads:
 ```bash
@@ -188,8 +188,8 @@ Follow-on from bead <parent-id>.
   --acceptance "<testable criteria>"
 ```
 
-Follow-on beads enter the planning helix and will be refined by `helix polish`
-before execution.
+Follow-on beads enter the planning helix and will be refined by `/helix
+polish` before execution.
 
 Close the governing bead:
 ```bash
@@ -218,6 +218,6 @@ RATCHET_STATUS: all-passing | <name> approaching floor
 REPORT_FILE: docs/helix/06-iterate/reports/RPT-YYYY-MM-DD[-scope].md
 ```
 
-The next `helix check` will detect follow-on beads and route appropriately:
+The next `/helix check` will detect follow-on beads and route appropriately:
 `POLISH` for refinement, `BUILD` if already ready, `DESIGN` if design gaps
 are revealed.

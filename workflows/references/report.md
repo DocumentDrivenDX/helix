@@ -32,7 +32,7 @@ Follow-on from bead <parent-id>.
   --acceptance "<testable criteria>"
 ```
 
-Follow-on beads enter the planning helix — they will be refined by `helix
+Follow-on beads enter the planning helix — they will be refined by `/helix
 polish` before execution.
 
 Categories of follow-on work:
@@ -74,7 +74,7 @@ FOLLOW_ON_CREATED: N
 COMMITS: <list>
 ```
 
-## Batch Report (`helix report <scope>`)
+## Batch Report (`/helix report <scope>`)
 
 Batch report aggregates across beads in a scope (epic, area, activity, or
 time range).
@@ -82,8 +82,8 @@ time range).
 ### Input
 
 ```bash
-helix report <scope>          # e.g., FEAT-003, area:auth, activity:build
-helix report --since 2026-04-01
+/helix report <scope>          # e.g., FEAT-003, area:auth, activity:build
+/helix report --since 2026-04-01
 ```
 
 ### Analysis
@@ -122,7 +122,7 @@ descriptions and acceptance criteria but may need polish before execution.
 This is by design: the execution helix produces raw findings, and the planning
 helix refines them into well-specified, concern-threaded, ready beads.
 
-The next `helix check` will detect these beads and route appropriately:
+The next `/helix check` will detect these beads and route appropriately:
 - If they need refinement → `POLISH`
 - If they are already ready → `BUILD`
 - If they reveal design gaps → `DESIGN`

@@ -1,7 +1,7 @@
 ---
 title: "Technical Design: TD-013 — Multi-Runtime Install"
 slug: TD-013-multi-runtime-install
-weight: 430
+weight: 410
 activity: "Design"
 source: "02-design/technical-designs/TD-013-multi-runtime-install.md"
 generated: true
@@ -16,7 +16,10 @@ ddx:
   depends_on:
     - FEAT-013
     - helix.prd
-  status: draft
+  status: superseded
+  superseded_at: 2026-05-21
+  superseded_reason: |
+    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ```
 
 # Technical Design: TD-013 — Multi-Runtime Install

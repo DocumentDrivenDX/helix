@@ -16,7 +16,7 @@ workspace credentials; no PAT, env vars, or CLI required.
 
 import urllib.request, runpy
 urllib.request.urlretrieve(
-    "https://github.com/easel/helix/releases/latest/download/genie-install",
+    "https://github.com/DocumentDrivenDX/helix/releases/latest/download/genie-install",
     "/tmp/genie_install.py",
 )
 g = runpy.run_path("/tmp/genie_install.py")
@@ -46,7 +46,7 @@ export DATABRICKS_TOKEN=<personal access token>
 # export DATABRICKS_PROFILE=<section-name>
 
 # Install
-curl -fsSL https://github.com/easel/helix/releases/latest/download/genie-install -o /tmp/genie-install
+curl -fsSL https://github.com/DocumentDrivenDX/helix/releases/latest/download/genie-install -o /tmp/genie-install
 chmod +x /tmp/genie-install
 /tmp/genie-install                          # user-scoped
 # /tmp/genie-install --shared               # workspace-wide
@@ -100,7 +100,7 @@ genie-install                            # latest release, current user
 genie-install --shared                   # latest release, workspace-wide
 genie-install --main                     # main branch HEAD, current user
 genie-install --main --shared            # main branch, workspace-wide
-genie-install --version v0.3.4           # specific release tag
+genie-install --version v0.5.0           # specific release tag
 genie-install --bundle /path/to/helix    # skip download; install local bundle
 genie-install --target /Workspace/...    # explicit workspace path
 genie-install --repo <owner>/<repo>      # install from a fork
@@ -218,7 +218,7 @@ prefix with `@helix` to force activation.
   auto-resolve paths relative to the skill bundle for files outside
   the inline §Catalog Resolution table. Queries that need to read a
   template's body (not just list types) may fail to find the file at
-  `references/activities/.../template.md`. The 0.3.4+ SKILL.md
+  `references/activities/.../template.md`. The 0.5.0+ SKILL.md
   mitigates the most common queries via the inline index, but heavier
   reads are blocked until the bead resolves.
 - **User-level custom instructions can shadow HELIX behavior.** If
@@ -231,6 +231,17 @@ prefix with `@helix` to force activation.
   `run` modes that depend on running a project gate typically need
   to be paired with a Databricks job, notebook, or CI pipeline rather
   than executed inline.
+
+## Refresh: keeping your HELIX tree current
+
+Refresh is a first-class HELIX mode that brings every artifact instance
+under a project HELIX tree up to date with the current canonical
+templates and prompts. Databricks Genie Code does not have a sub-agent
+dispatch mechanism, so Refresh runs sequentially: each activity directory
+is processed in order (00-discover, then 01-frame, …, through 06-iterate).
+For large artifact trees where parallel processing would be beneficial,
+consider using DDx or another execution runtime alongside Genie for
+faster turnaround.
 
 ## Caveats vs. other runtimes
 
@@ -257,7 +268,7 @@ If you can't run the `genie-install` shebang (e.g. no `uv` on the
 machine), the underlying steps are:
 
 ```bash
-git clone https://github.com/easel/helix /tmp/helix
+git clone https://github.com/DocumentDrivenDX/helix /tmp/helix
 cd /tmp/helix
 bash scripts/build-genie-bundle.sh                  # → dist/genie-bundle/helix/
 python scripts/install-genie.py --target /Users/<you>/.assistant/skills/helix

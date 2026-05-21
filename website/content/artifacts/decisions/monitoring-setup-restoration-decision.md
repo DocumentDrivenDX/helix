@@ -1,7 +1,7 @@
 ---
 title: "Monitoring Setup — Restoration Decision"
 slug: monitoring-setup-restoration-decision
-weight: 510
+weight: 480
 activity: "Deploy"
 source: "05-deploy/decisions/monitoring-setup-restoration-decision.md"
 generated: true

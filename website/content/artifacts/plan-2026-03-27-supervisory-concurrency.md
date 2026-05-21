@@ -1,7 +1,7 @@
 ---
 title: "HELIX Plan: Supervisory Concurrency And Interactive Refinement"
 slug: plan-2026-03-27-supervisory-concurrency
-weight: 330
+weight: 320
 activity: "Design"
 source: "02-design/plan-2026-03-27-supervisory-concurrency.md"
 generated: true
@@ -14,6 +14,9 @@ ddx:
   id: helix.plan-supervisory-concurrency
   status: superseded
   superseded_by: helix.prd
+  superseded_at: 2026-05-21
+  superseded_reason: |
+    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ```
 
 > **SUPERSEDED** — This plan specified concurrent interactive refinement for

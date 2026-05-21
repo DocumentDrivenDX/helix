@@ -26,15 +26,15 @@ Claude Code or Codex.
 
 ## Shape Work
 
-Start by asking the runtime to frame your intent into governed artifacts and
-work items:
+Start by asking your agent to frame your intent into governed artifacts and
+work items. In an agent session with HELIX skills installed:
 
-```bash
-helix input "Build a REST API for managing bookmarks"
+```text
+Use /helix-input to frame "Build a REST API for managing bookmarks".
 ```
 
-That command is a DDx/HELIX integration surface. It turns sparse intent into
-Markdown artifacts plus tracked work that DDx can claim and execute.
+That skill turns sparse intent into Markdown artifacts plus tracked work that
+DDx can claim and execute.
 
 You can also create DDx work items directly:
 
@@ -49,7 +49,7 @@ ddx bead create "Add OAuth login flow" --type task \
 Once the artifacts and work items are ready, use DDx to drain the queue:
 
 ```bash
-ddx agent execute-loop
+ddx work
 ```
 
 DDx claims ready work, dispatches the configured agent harness, records
@@ -58,24 +58,8 @@ execution evidence, and closes completed items.
 For one bounded pass:
 
 ```bash
-ddx agent execute-loop --once
+ddx work --once
 ```
-
-## Transitional HELIX CLI Wrappers
-
-Some HELIX CLI commands remain available for compatibility while DDx takes over
-runtime responsibilities:
-
-```bash
-helix run --agent claude --summary    # Compatibility wrapper over DDx queue drain
-helix build                           # Compatibility bounded build wrapper
-helix start                           # Daemon mode with PID file
-helix status                          # Check progress
-helix stop                            # Stop the daemon
-```
-
-Prefer DDx-owned commands for new automation. Treat the `helix` wrappers as
-transitional integration shims, not the core HELIX product.
 
 ## Interactive Agent Use
 
@@ -94,9 +78,8 @@ Or invoke integration commands directly if your agent exposes them:
 | `/helix-input "build a bookmarks API"` | Shape intent into governed artifacts and DDx work items |
 | `/helix-align` | Run a top-down alignment review over the artifact stack |
 | `/helix-review` | Fresh-eyes review of recent work |
-| `/helix-run` | Transitional wrapper over DDx queue drain |
-| `/helix-build` | Transitional wrapper for one bounded implementation pass |
-| `/helix-triage "Fix login bug"` | Create a DDx-tracked work item |
+| `/helix-frame` | Create or refine product vision, PRD, feature specs |
+| `/helix-evolve "requirement"` | Thread a change through the artifact stack |
 
 ## Related Reading
 

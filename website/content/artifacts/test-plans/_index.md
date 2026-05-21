@@ -7,6 +7,5 @@ generated: true
 
 # test plans
 
-- [Test Plan: STP-002-helix-cli](STP-002-helix-cli/)
 - [TP-014 Appendix A: Real-World Intent Patterns From Session Logs](TP-014-appendix-real-world-patterns/)
 - [Workflow Test Plan: HELIX Across Five Runtimes](TP-014-helix-workflow-coverage/)

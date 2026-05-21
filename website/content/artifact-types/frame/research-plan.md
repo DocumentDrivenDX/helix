@@ -26,6 +26,13 @@ ddx:
     - example.opportunity-canvas.depositmatch
     - example.feasibility-study.depositmatch
     - example.business-case.depositmatch
+  review:
+    self_hash: e1bd75c90a2407b8d84770a3d822fa64fc9b90fe1d36cfef5f5d615bf6ba6e06
+    deps:
+      example.business-case.depositmatch: c09aae8ce2f4fe25d0cc3d021555b75cc6c0e6d713395957b368c7e17b4caf37
+      example.feasibility-study.depositmatch: 356da096953895f8c152a1ac8b880fbc03a3617c1c80516e6f0d3b4033a62c72
+      example.opportunity-canvas.depositmatch: 75303097bfeeed0272bd68f90ef887f9a5e646a1272f9a57ccd0d899ae17497a
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Research Plan: DepositMatch Pilot Validation

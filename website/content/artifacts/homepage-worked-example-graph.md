@@ -1,7 +1,7 @@
 ---
 title: "Homepage Worked Example Graph"
 slug: homepage-worked-example-graph
-weight: 320
+weight: 310
 activity: "Design"
 source: "02-design/homepage-worked-example-graph.md"
 generated: true

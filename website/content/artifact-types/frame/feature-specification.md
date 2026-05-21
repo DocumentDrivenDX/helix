@@ -83,6 +83,14 @@ ddx:
     - example.prd.depositmatch
     - example.principles.depositmatch
     - example.concerns.depositmatch
+  review:
+    self_hash: d85530eb091209cf9989c9cac3bc1f1063358a5b79964ca0e5e7a384fa77c44a
+    deps:
+      example.concerns.depositmatch: 34738dd02d95489bcc3c00b5be15b630ae9fb15ab4f99f45d0ec1ecd1d3f1c6e
+      example.prd.depositmatch: c9c24e1694af4548a6deaad8d92059e365da110148bd9adc44d8640dff9770a4
+      example.principles.depositmatch: bb37a1addd5c152f068dd5c416b6a4ae217847242d0d1b7f9e64406b671de0ed
+      example.product-vision.depositmatch: 8abbb2fcb552b536f07829f57d91ef3ae8dbf52a6066955222e83d196b59b5ae
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Feature Specification: FEAT-001 - CSV Import and Column Mapping
@@ -259,7 +267,7 @@ evidence, exception records, and reconciliation exports.
 <tr><th>Requires</th><td><em>None</em></td></tr>
 <tr><th>Enables</th><td><em>None</em></td></tr>
 <tr><th>Informs</th><td><a href="/artifact-types/frame/user-stories/">User Stories</a><br><a href="/artifact-types/design/solution-design/">Solution Design</a><br>Api Contracts<br><a href="/artifact-types/test/test-plan/">Test Plan</a></td></tr>
-<tr><th>HELIX documents</th><td><a href="https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/01-frame/features/FEAT-002-helix-cli.md"><code>docs/helix/01-frame/features/FEAT-002-helix-cli.md</code></a></td></tr>
+<tr><th>HELIX documents</th><td><a href="https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/01-frame/features/FEAT-001-helix-supervisory-control.md"><code>docs/helix/01-frame/features/FEAT-001-helix-supervisory-control.md</code></a></td></tr>
 <tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Feature Specification Generation Prompt
 
 Create a feature specification that is precise enough to support design,

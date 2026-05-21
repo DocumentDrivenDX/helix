@@ -1,7 +1,7 @@
 ---
 title: "Security Architecture — Restoration Decision"
 slug: security-architecture-restoration-decision
-weight: 300
+weight: 290
 activity: "Design"
 source: "02-design/decisions/security-architecture-restoration-decision.md"
 generated: true

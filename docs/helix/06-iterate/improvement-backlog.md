@@ -8,6 +8,10 @@ ddx:
     deps:
       metrics-dashboard: 0934ca6e0913a5da11bb822adb4b4a5e343aaefdf6444af11690eab218a52c6c
     reviewed_at: "2026-05-15T04:11:24Z"
+  status: superseded
+  superseded_at: 2026-05-21
+  superseded_reason: |
+    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ---
 # Improvement Backlog — HELIX 2026-Q2
 

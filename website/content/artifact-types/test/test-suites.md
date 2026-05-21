@@ -26,6 +26,13 @@ ddx:
     - example.test-plan.depositmatch
     - example.test-procedures.depositmatch
     - example.security-tests.depositmatch
+  review:
+    self_hash: 74cfbb7fab43a7d303eeaaa1fdc676e2e2065b45a7788271f1d14b8c0647f7ea
+    deps:
+      example.security-tests.depositmatch: 00be76c876686ebff233fc3829f9df5f6458132e61f4f3d4a9243c7b3f017be8
+      example.test-plan.depositmatch: ba055b639a94e62d3b24f3a7ca270f78c3f17f6bae78b936d399291225d7976f
+      example.test-procedures.depositmatch: 3eb67c2e262b0428a56dcd882e7233e1b0cfe67d8b4c0366d3b77b594f79a6b6
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Test Suite Structure

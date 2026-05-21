@@ -25,6 +25,12 @@ ddx:
   depends_on:
     - example.prd.depositmatch
     - example.opportunity-canvas.depositmatch
+  review:
+    self_hash: 227c7c30edf5318187982fad9b7c868365600d4ffb8f92da25b1f932769dddb8
+    deps:
+      example.opportunity-canvas.depositmatch: 75303097bfeeed0272bd68f90ef887f9a5e646a1272f9a57ccd0d899ae17497a
+      example.prd.depositmatch: c9c24e1694af4548a6deaad8d92059e365da110148bd9adc44d8640dff9770a4
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Feature Registry

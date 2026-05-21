@@ -31,6 +31,12 @@ ddx:
   depends_on:
     - example.product-vision.depositmatch
     - example.prd.depositmatch
+  review:
+    self_hash: bb37a1addd5c152f068dd5c416b6a4ae217847242d0d1b7f9e64406b671de0ed
+    deps:
+      example.prd.depositmatch: c9c24e1694af4548a6deaad8d92059e365da110148bd9adc44d8640dff9770a4
+      example.product-vision.depositmatch: 8abbb2fcb552b536f07829f57d91ef3ae8dbf52a6066955222e83d196b59b5ae
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Project Principles

@@ -72,7 +72,7 @@ that drives HELIX modes against a tracked work plan.
 ### [Claude Code](claude-code.md)
 
 ```bash
-claude plugin marketplace add easel/helix
+claude plugin marketplace add DocumentDrivenDX/helix
 claude plugin install helix@helix --scope user -y
 ```
 
@@ -85,7 +85,7 @@ shell access. Supports every HELIX route, including `build` and `run`.
 ### [OpenAI Codex CLI](codex.md)
 
 ```bash
-npx skills add easel/helix -a codex
+npx skills add DocumentDrivenDX/helix -a codex
 ```
 
 Install via the Vercel Labs Skills CLI (the cross-runtime install
@@ -129,6 +129,19 @@ with Genie Code (no public chat API).
 to live alongside their data and notebook work. Methodology-only —
 execution-oriented routes typically land in Databricks jobs/notebooks
 or CI pipelines rather than inline.
+
+## Refresh: keeping your HELIX tree current
+
+Refresh is a first-class HELIX mode that brings every artifact instance
+under a project HELIX tree up to date with the current canonical
+templates and prompts. Each runtime supports Refresh with different
+fan-out mechanisms: DDx via `ddx agent run --harness <activity>` per
+activity directory (parallel), Claude Code via the Agent tool per activity
+(parallel), and Codex CLI via `codex agent` sub-runs per activity (parallel).
+Databricks Genie Code and GitHub Copilot do not have sub-agent dispatch,
+so Refresh runs sequentially through each activity directory in order.
+All runtimes use the same underlying HELIX methodology for validation
+and artifact updates.
 
 ## Convergence point: agentskills.io
 

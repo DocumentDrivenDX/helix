@@ -1,7 +1,7 @@
 ---
 title: "Feature Specification: FEAT-004 - Plugin Packaging"
 slug: FEAT-004-plugin-packaging
-weight: 60
+weight: 50
 activity: "Frame"
 source: "01-frame/features/FEAT-004-plugin-packaging.md"
 generated: true
@@ -16,7 +16,7 @@ ddx:
   depends_on:
     - helix.prd
     - FEAT-002
-  status: partially-superseded
+  status: superseded
   superseded_by: helix.prd
   review:
     self_hash: 4c167348ecc29309e3af200b7274f449629bca54615d66ffb87d6d15d05bf25d
@@ -24,6 +24,9 @@ ddx:
       FEAT-002: dc83e91027c886f1df2636d7bde0c9b0ba10d5e0a5ca560f0b44aaf9bcf4f4c6
       helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
     reviewed_at: "2026-05-15T04:11:24Z"
+  superseded_at: 2026-05-21
+  superseded_reason: |
+    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ```
 
 > **PARTIALLY SUPERSEDED** — The portions of this feature that describe

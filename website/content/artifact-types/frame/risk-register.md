@@ -26,6 +26,13 @@ ddx:
     - example.feasibility-study.depositmatch
     - example.research-plan.depositmatch
     - example.compliance-requirements.depositmatch
+  review:
+    self_hash: 4cfb9a77765bfa4a63e8ad9d98a656bb5c9b9bfb5c5569389cb8cf73e8c1c3ba
+    deps:
+      example.compliance-requirements.depositmatch: ec7fb87a927f7e53a9c323e9af8ee73d667e4520ab596c130077d332d2783c9f
+      example.feasibility-study.depositmatch: 356da096953895f8c152a1ac8b880fbc03a3617c1c80516e6f0d3b4033a62c72
+      example.research-plan.depositmatch: e1bd75c90a2407b8d84770a3d822fa64fc9b90fe1d36cfef5f5d615bf6ba6e06
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Risk Register

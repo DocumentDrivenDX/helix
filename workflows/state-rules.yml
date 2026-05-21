@@ -203,12 +203,12 @@ execution_integration:
   commands:
     implementation:
       description: "Execute one ready HELIX execution issue"
-      example: "helix implement"
+      example: "ddx bead execute <id>"
 
     check:
       description: "Decide whether to implement, align, backfill, wait, ask for guidance, or stop"
-      example: "helix check"
+      example: "/helix check"
 
     run:
-      description: "Run the bounded wrapper loop"
-      example: "helix run"
+      description: "Drain the ready queue"
+      example: "ddx work"

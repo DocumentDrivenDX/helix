@@ -45,7 +45,7 @@ Design and engineering values that guide judgment calls throughout the project.
 - Loaded from `docs/helix/01-frame/principles.md` (project-specific)
 - Falls back to `workflows/principles.md` (HELIX defaults) if no project file exists
 - Applied by every action that makes technology or quality choices
-- Only `helix frame` may create or modify the principles file
+- Only the HELIX skill in `frame` mode may create or modify the principles file
 
 Examples: "design for simplicity", "tests first", "local-first UX", "prefer composition over inheritance".
 
@@ -72,7 +72,7 @@ Format: XML-tagged block prepended to the bead description:
 </context-digest>
 ```
 
-Agents read the digest instead of loading upstream files. `helix polish` keeps digests current.
+Agents read the digest instead of loading upstream files. The HELIX skill in `polish` mode keeps digests current.
 
 ## Tracker-Driven Execution
 
@@ -94,7 +94,7 @@ Every HELIX action is intentionally bounded:
 - `review` examines one scope and files findings
 - `design` produces one design document
 
-The supervisor (`helix run`) chains bounded actions based on queue state. No action runs forever. This makes execution predictable, auditable, and interruptible.
+The supervisor (`ddx work`) chains bounded actions based on queue state. No action runs forever. This makes execution predictable, auditable, and interruptible.
 
 ## Cross-Model Verification
 
@@ -104,7 +104,7 @@ HELIX supports using different AI models for implementation and review:
 - A different review agent examines the work with fresh perspective
 - Alternating models provides adversarial review — the reviewer has no implementation blindness
 
-Configured via `helix run --review-agent <agent>` or `HELIX_ALT_AGENT` environment variable.
+Configured via `ddx work --review-agent <agent>` or the `HELIX_ALT_AGENT` environment variable.
 
 ## Epic Focus
 

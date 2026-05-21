@@ -1,7 +1,7 @@
 ---
 title: "HERO-2026-05-12 Document Spine Helix Concept"
 slug: HERO-2026-05-12-document-spine-helix
-weight: 310
+weight: 300
 activity: "Design"
 source: "02-design/hero-image-concepts/HERO-2026-05-12-document-spine-helix.md"
 generated: true

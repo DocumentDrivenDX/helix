@@ -70,6 +70,14 @@ ddx:
     - example.opportunity-canvas.depositmatch
     - example.feasibility-study.depositmatch
     - example.compliance-requirements.depositmatch
+  review:
+    self_hash: 102ec8dcd77efb43d6a73143dc4dbfeb1fc95b0ab516a593166bb8b12dd70686
+    deps:
+      example.compliance-requirements.depositmatch: ec7fb87a927f7e53a9c323e9af8ee73d667e4520ab596c130077d332d2783c9f
+      example.feasibility-study.depositmatch: 356da096953895f8c152a1ac8b880fbc03a3617c1c80516e6f0d3b4033a62c72
+      example.opportunity-canvas.depositmatch: 75303097bfeeed0272bd68f90ef887f9a5e646a1272f9a57ccd0d899ae17497a
+      example.product-vision.depositmatch: 8abbb2fcb552b536f07829f57d91ef3ae8dbf52a6066955222e83d196b59b5ae
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 # PR-FAQ: DepositMatch
 

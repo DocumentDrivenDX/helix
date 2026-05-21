@@ -1,7 +1,7 @@
 ---
 title: "Product Requirements Document"
 slug: prd
-weight: 170
+weight: 160
 activity: "Frame"
 source: "01-frame/prd.md"
 generated: true

@@ -64,7 +64,7 @@ Labels are organizational conventions for triage and traceability.
 | `area:infra` | Infrastructure/deployment work |
 | `area:cli` | CLI tool work |
 
-Area labels are required for [concern](/concerns/) filtering to work. `helix polish` assigns them to unlabeled beads.
+Area labels are required for [concern](/concerns/) filtering to work. The HELIX skill in `polish` mode assigns them to unlabeled beads.
 
 ### Traceability Labels
 
@@ -115,9 +115,9 @@ ddx bead blocked --json
 
 The tracker queue drives the [workflow loop](/use/workflow/):
 
-1. `helix check` inspects the ready queue and recommends the next action
-2. `helix build` claims and executes one ready issue
-3. `helix run` chains check and build until the queue drains
+1. The HELIX skill in `check` mode inspects the ready queue and recommends the next action
+2. `ddx work` claims and executes one ready issue
+3. `ddx work` chains check and build until the queue drains
 
 ### Ready Queue
 
@@ -129,7 +129,7 @@ An issue is **ready** when:
 ### Queue Drain
 
 When the ready queue is empty:
-- `helix check` determines whether this is true exhaustion or a planning gap
+- The HELIX skill in `check` mode determines whether this is true exhaustion or a planning gap
 - `ALIGN` means planning exists but the next work set is unclear
 - `DESIGN` means design authority is missing
 - `POLISH` means issues need refinement
@@ -158,4 +158,4 @@ ddx bead dep add B --blocked-by A
 ddx bead dep tree <id>
 ```
 
-Dependencies affect the ready queue — a bead with unresolved dependencies is not ready. The `helix check` action considers dependency chains when recommending which issue to work next.
+Dependencies affect the ready queue — a bead with unresolved dependencies is not ready. The HELIX skill in `check` mode considers dependency chains when recommending which issue to work next.

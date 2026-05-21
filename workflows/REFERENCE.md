@@ -153,41 +153,35 @@ methodology.
 ```bash
 ddx bead init
 ddx install helix
-helix doctor --fix
+ddx doctor
 ```
 
-Existing DDx installations may publish agent skills that mirror CLI commands:
-`helix-<command>` maps to `helix <command>`. This is a legacy compatibility
-mapping, not a core rule for portable HELIX skills.
+The unified `helix` agent skill is published once per project; the operator
+dispatches modes through `/helix <mode>`.
 
 ### DDx execution commands
 
 ```bash
-helix input "natural language request"
-ddx agent execute-loop
-ddx agent execute-loop --once
-ddx agent execute-bead hx-abc123
-helix run
-helix build
-helix build hx-abc123
-helix check repo
-helix align repo
-helix backfill repo
-helix status
-helix evolve "requirement description"
-helix triage "Issue title" --type task
+/helix input "natural language request"
+ddx work
+ddx work --once
+ddx bead execute hx-abc123
+/helix check repo
+/helix align repo
+/helix backfill repo
+/helix evolve "requirement description"
+ddx bead create "Issue title" --type task --labels helix,activity:build
 ```
 
 Preferred DDx operator path:
 
-1. Use HELIX intake or issue shaping for sparse intent.
-2. Use DDx queue execution for execution-ready work.
-3. Use HELIX check, review, align, design, or polish behavior when HELIX must
-   interpret or route the next action.
+1. Use the `/helix input` skill mode for sparse intent.
+2. Use `ddx work` queue execution for execution-ready work.
+3. Use `/helix check`, `/helix review`, `/helix align`, `/helix design`, or
+   `/helix polish` when HELIX must interpret or route the next action.
 
-`ddx agent execute-loop` is the primary DDx queue-drain command for
-execution-ready beads. `helix run` and `helix build` remain compatibility
-surfaces where HELIX still adds supervisory policy or operator convenience.
+`ddx work` is the primary DDx queue-drain command for execution-ready beads.
+`ddx bead execute <id>` runs one bounded bead.
 
 Execution-ready beads must carry deterministic acceptance and
 success-measurement criteria: exact commands, named checks, or observable repo
@@ -197,21 +191,21 @@ interpretation.
 ### Planning and quality commands
 
 ```bash
-helix input "natural language request"
-helix input "natural language request" --autonomy high
-helix design [scope]
-helix design --rounds 8 auth
-helix polish [scope]
-helix polish --rounds 10
-helix next
-helix review [scope]
-helix experiment [issue-id|goal]
-helix experiment --close
+/helix input "natural language request"
+/helix input "natural language request" --autonomy high
+/helix design [scope]
+/helix design --rounds 8 auth
+/helix polish [scope]
+/helix polish --rounds 10
+/helix review [scope]
+/helix experiment [issue-id|goal]
+/helix experiment --close
 ```
 
-`helix input` is the sparse-intent entrypoint for the autonomy-slider workflow.
-`--autonomy` selects the HELIX-owned behavior contract (`low`, `medium`,
-`high`); the expected default is `medium` when no override is supplied.
+`/helix input` is the sparse-intent entrypoint for the autonomy-slider
+workflow. `--autonomy` selects the HELIX-owned behavior contract (`low`,
+`medium`, `high`); the expected default is `medium` when no override is
+supplied.
 
 ### DDx tracker commands
 
@@ -245,32 +239,30 @@ Recommended DDx labels:
 
 ### DDx-specific decision guide
 
-- Starting new work or a large scope: run the HELIX design path, then polish,
-  then DDx queue execution.
-- Starting from sparse user intent instead of a pre-shaped issue: run HELIX
-  intake and set autonomy when needed.
-- Ready execution issues exist: use DDx queue execution; use a HELIX wrapper
-  when the compatibility routing behavior is still required.
-- Work lacks design authority for safe execution: run the HELIX design path, or
-  let the compatibility supervisor dispatch it from check.
-- Specs changed and open work needs issue refinement before implementation: run
-  the HELIX polish path, or let the compatibility supervisor dispatch it from
-  check.
+- Starting new work or a large scope: run `/helix design`, then `/helix
+  polish`, then `ddx work`.
+- Starting from sparse user intent instead of a pre-shaped issue: run
+  `/helix input` and set autonomy when needed.
+- Ready execution issues exist: use `ddx work` for queue draining.
+- Work lacks design authority for safe execution: run `/helix design`, or let
+  `/helix check` dispatch it.
+- Specs changed and open work needs issue refinement before implementation:
+  run `/helix polish`, or let `/helix check` dispatch it.
 - No ready execution issue, but the planning stack exists and next work is
-  unclear: run alignment and record the review output.
-- Canonical docs are missing or too incomplete to execute safely: run backfill.
+  unclear: run `/helix align` and record the review output.
+- Canonical docs are missing or too incomplete to execute safely: run
+  `/helix backfill`.
 - Work exists but is blocked or already in progress: stop and wait.
-- The queue drains: run check, not a blind loop and not an ad hoc ready-list
-  loop.
-- After implementing an issue: run fresh-eyes review.
+- The queue drains: run `/helix check`, not a blind loop and not an ad hoc
+  ready-list loop.
+- After implementing an issue: run `/helix review`.
 
 ### DDx validation commands
 
-When changing HELIX wrapper behavior, skill packaging docs, or the DDx execution
-contract, the deterministic DDx/HELIX harnesses are:
+When changing skill packaging docs or the DDx execution contract, the
+deterministic harnesses are:
 
 ```bash
-bash tests/helix-cli.sh
 bash tests/validate-skills.sh
 git diff --check
 ```

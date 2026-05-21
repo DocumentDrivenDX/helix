@@ -372,13 +372,13 @@ Under the DDx reference runtime, the queue controls for this hierarchy are:
 ddx bead ready --json
 
 # Execute one ready work item
-helix build
+ddx bead execute <id>
 
 # Decide the next action when the queue drains
-helix check
+/helix check
 
-# Run the wrapper loop
-helix run
+# Drain the ready queue
+ddx work
 ```
 
 See [EXECUTION.md](EXECUTION.md) for the full DDx execution contract.

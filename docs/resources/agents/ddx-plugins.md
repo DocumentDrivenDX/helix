@@ -142,10 +142,9 @@ the CLI help text.
   - `.claude-plugin/plugin.json` `version` field (currently 0.3.3)
   - Whatever publishing the DDx registry does to pick up new HELIX
     versions (likely tied to git tags; not observed)
-- The `just install` recipe currently runs `bash scripts/helix doctor
-  --fix` which fails because `scripts/helix` was removed. Either fix
-  the recipe or remove it; `ddx install helix --force` is the real
-  install command.
+- The `just install` recipe now runs `ddx install helix --force` directly.
+  The legacy `bash scripts/helix doctor --fix` step was dropped when the
+  `scripts/helix` wrapper was removed.
 
 ## Caveats
 

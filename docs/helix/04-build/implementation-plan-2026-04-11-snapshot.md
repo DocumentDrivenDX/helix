@@ -12,6 +12,10 @@ ddx:
       TD-002: d99d32264b05175eca7127cb7a89d8a4de41341675eb9306e4bfa9b6d283bcc0
       helix.workflow: 1225132b3050598055eacb5462639824d78ac204cca2cbeda3611766532e79c8
     reviewed_at: "2026-05-15T04:11:24Z"
+  status: superseded
+  superseded_at: 2026-05-21
+  superseded_reason: |
+    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ---
 # Implementation Plan — 2026-04-11 Live Queue Snapshot
 

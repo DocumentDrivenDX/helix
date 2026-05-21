@@ -5,11 +5,22 @@ prev: /reference/glossary/artifacts
 next: /reference/glossary/concerns
 aliases:
   - /docs/glossary/actions
+ddx:
+  status: superseded
+  superseded_at: 2026-05-21
+  superseded_reason: |
+    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ---
+
+> **SUPERSEDED** — The `helix` CLI surface described here was removed in the
+> HELIX collapse to a content-only methodology. The named actions still exist
+> as modes of the HELIX skill (e.g., `/helix-frame`, `/helix-align`). Queue
+> drain has moved to `ddx work`. This page is retained as a historical
+> reference for action semantics.
 
 # HELIX Actions
 
-Actions are bounded workflow commands and compatibility entrypoints. Each action does one thing and exits. Runtime queue drain belongs to DDx or another execution surface; HELIX keeps the artifact and alignment semantics explicit.
+Actions are bounded workflow modes. Each action does one thing and exits. Runtime queue drain belongs to DDx or another execution surface; HELIX keeps the artifact and alignment semantics explicit.
 
 ## Execution Actions
 

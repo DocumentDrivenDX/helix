@@ -1,7 +1,7 @@
 ---
 title: "Alignment Review: Legacy CLI/Autopilot Artifact Supersession"
 slug: AR-2026-05-14-legacy-supersession
-weight: 660
+weight: 630
 activity: "Iterate"
 source: "06-iterate/alignment-reviews/AR-2026-05-14-legacy-supersession.md"
 generated: true

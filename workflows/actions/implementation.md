@@ -491,10 +491,10 @@ ddx bead close <id>
 ### DDx action input examples
 
 ```
-helix build
-helix build <id>
-helix build US-042
-helix build area:auth
+ddx work
+ddx bead execute <id>
+ddx bead execute US-042
+ddx work --scope area:auth
 ```
 
 ### DDx output trailer
@@ -505,5 +505,5 @@ BEAD_ID: <id>
 FOLLOW_ON_CREATED: N
 ```
 
-If the bead could not be closed, it remains open — the next `helix check` will
-route it appropriately.
+If the bead could not be closed, it remains open — the next `/helix check`
+will route it appropriately.

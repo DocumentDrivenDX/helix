@@ -405,9 +405,9 @@ release artifacts together in the HELIX docs tree.
 ## DDx Integration Appendix
 
 Under the DDx reference runtime, deploy work items live in `.ddx/beads.jsonl`
-and are queried through `ddx bead`. Deploy execution runs via `helix build`
-(one work item per pass) or `helix run` (bounded queue drain), with `helix
-check` deciding next steps when the queue drains. See
+and are queried through `ddx bead`. Deploy execution runs via `ddx bead
+execute <id>` (one work item per pass) or `ddx work` (bounded queue drain),
+with `/helix check` deciding next steps when the queue drains. See
 [../../EXECUTION.md](../../EXECUTION.md) for the full DDx execution contract.
 
 ---

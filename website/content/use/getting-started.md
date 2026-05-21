@@ -87,8 +87,8 @@ curl -fsSL https://raw.githubusercontent.com/DocumentDrivenDX/ddx/main/install.s
 ddx install helix
 ```
 
-After that, DDx-owned commands such as `ddx bead`, `ddx agent execute-loop`, and
-the transitional `helix` CLI wrappers can drive HELIX-shaped work.
+After that, DDx-owned commands such as `ddx bead` and `ddx work` can drive
+HELIX-shaped work.
 
 See [Using HELIX with DDx](../ddx-runtime/) for the DDx-specific path.
 

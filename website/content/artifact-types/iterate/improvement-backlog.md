@@ -30,6 +30,11 @@ ddx:
   id: example.improvement-backlog.depositmatch
   depends_on:
     - example.metrics-dashboard.depositmatch.csv-import
+  review:
+    self_hash: 604f198365df5380b9fd55ba02f1cfcd031ce4ca2f951da6c9dcc28fb0310998
+    deps:
+      example.metrics-dashboard.depositmatch.csv-import: 55c3a758e5ff9beef2651c46bf668c6a31eab8be6a1f64662166de4135061398
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Improvement Backlog

@@ -1,7 +1,7 @@
 ---
 title: "Release Notes — Restoration Decision"
 slug: release-notes-restoration-decision
-weight: 520
+weight: 490
 activity: "Deploy"
 source: "05-deploy/decisions/release-notes-restoration-decision.md"
 generated: true

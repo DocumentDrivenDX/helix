@@ -8,7 +8,6 @@ generated: true
 # features
 
 - [Feature Specification: FEAT-001 - HELIX Supervisory Control](FEAT-001-helix-supervisory-control/)
-- [Feature Specification: FEAT-002 - HELIX CLI](FEAT-002-helix-cli/)
 - [Feature Specification: FEAT-003 - First-Class Principles](FEAT-003-principles/)
 - [Feature Specification: FEAT-004 - Plugin Packaging](FEAT-004-plugin-packaging/)
 - [Feature Specification: FEAT-005 - Execution-Backed Skill Output](FEAT-005-execution-backed-output/)

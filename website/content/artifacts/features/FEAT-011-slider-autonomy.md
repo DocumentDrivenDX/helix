@@ -1,7 +1,7 @@
 ---
 title: "FEAT-011: Slider Autonomy Control"
 slug: FEAT-011-slider-autonomy
-weight: 130
+weight: 120
 activity: "Frame"
 source: "01-frame/features/FEAT-011-slider-autonomy.md"
 generated: true
@@ -15,6 +15,9 @@ ddx:
   id: FEAT-011
   status: superseded
   superseded_by: helix.prd
+  superseded_at: 2026-05-21
+  superseded_reason: |
+    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ```
 
 > **SUPERSEDED** — This feature defined operator-facing autonomy controls

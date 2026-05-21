@@ -324,9 +324,9 @@ closed.
 ### DDx action input examples
 
 ```
-helix polish
-helix polish auth
-helix polish --rounds 10 FEAT-003
+/helix polish
+/helix polish auth
+/helix polish --rounds 10 FEAT-003
 ```
 
 ### DDx output trailer
@@ -344,4 +344,4 @@ BEAD_ID: <governing-bead-id>
 FOLLOW_ON_CREATED: N
 ```
 
-The polished beads are now ready for `helix build` to claim and execute.
+The polished beads are now ready for `ddx work` to claim and execute.

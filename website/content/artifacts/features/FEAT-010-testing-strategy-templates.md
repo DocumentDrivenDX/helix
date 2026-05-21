@@ -1,7 +1,7 @@
 ---
 title: "Feature Specification: FEAT-010 — Testing Strategy Templates"
 slug: FEAT-010-testing-strategy-templates
-weight: 120
+weight: 110
 activity: "Frame"
 source: "01-frame/features/FEAT-010-testing-strategy-templates.md"
 generated: true
@@ -24,6 +24,10 @@ ddx:
       FEAT-008: 5f84004f080f8d69c84ce1bb208e26461a53bb6063b471658da0d4934ec39214
       helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
     reviewed_at: "2026-05-15T04:11:24Z"
+  status: superseded
+  superseded_at: 2026-05-21
+  superseded_reason: |
+    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ```
 
 # Feature Specification: FEAT-010 — Testing Strategy Templates

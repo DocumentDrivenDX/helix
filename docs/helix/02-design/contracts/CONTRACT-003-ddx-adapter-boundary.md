@@ -7,7 +7,7 @@ ddx:
     - helix.prd
     - CONTRACT-001
     - CONTRACT-002
-  status: draft
+  status: superseded
   review:
     self_hash: 30e3e4320bc0643c904e92ee797d6ad8942a480edfae85a158c3a17054323a52
     deps:
@@ -15,6 +15,9 @@ ddx:
       CONTRACT-002: 473794ceba3db29b84547ece5a9c2d976471c67a8f2cba39750220edb188685a
       helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
     reviewed_at: "2026-05-15T04:11:24Z"
+  superseded_at: 2026-05-21
+  superseded_reason: |
+    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ---
 
 # CONTRACT-003: DDx Adapter Boundary

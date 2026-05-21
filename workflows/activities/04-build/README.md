@@ -378,15 +378,15 @@ must verify design fidelity, test intent, and security-sensitive changes.
 
 ## DDx Integration Appendix
 
-Under the DDx reference runtime, build execution is driven by `helix build` or
-`helix run`. Work items are stored in `.ddx/beads.jsonl` and managed through
-`ddx bead`:
+Under the DDx reference runtime, build execution is driven by `ddx work` or
+`ddx bead execute`. Work items are stored in `.ddx/beads.jsonl` and managed
+through `ddx bead`:
 
 ```bash
-helix build              # claim and execute the next ready work item
-helix build issue-abc123 # execute a specific work item
-helix build US-042       # execute a work item linked to a user story
-helix check              # decide the next action when the queue drains
+ddx work                      # drain the ready queue
+ddx bead execute issue-abc123 # execute a specific work item
+ddx bead execute US-042       # execute a work item linked to a user story
+/helix check                  # decide the next action when the queue drains
 ```
 
 See [../../EXECUTION.md](../../EXECUTION.md) for the full DDx execution

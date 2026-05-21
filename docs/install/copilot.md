@@ -143,6 +143,17 @@ another runtime) for the full HELIX loop; use Copilot solo for
 methodology-only HELIX work (alignment, framing, evolve, review,
 polish).
 
+## Refresh: keeping your HELIX tree current
+
+Refresh is a first-class HELIX mode that brings every artifact instance
+under a project HELIX tree up to date with the current canonical
+templates and prompts. GitHub Copilot does not have a sub-agent dispatch
+mechanism, so Refresh runs sequentially: each activity directory is
+processed in order (00-discover, then 01-frame, …, through 06-iterate).
+For large artifact trees where parallel processing would be beneficial,
+consider using DDx or another execution runtime alongside Copilot for
+faster turnaround.
+
 ## Optional: MCP server
 
 If you need HELIX to expose tool calls (artifact catalog queries,

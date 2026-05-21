@@ -31,4 +31,5 @@ Define what the system should do, for whom, and how success will be measured.
   {{< card link="/artifact-types/frame/stakeholder-map/" title="Stakeholder Map" subtitle="Stakeholder and decision-rights map for roles, interests, influence, engagement, RACI ownership, communication cadence, and escalation paths." >}}
   {{< card link="/artifact-types/frame/threat-model/" title="Threat Model" subtitle="Structured analysis of assets, data flows, trust boundaries, STRIDE threats, risk, mitigations, owners, and verification hooks." >}}
   {{< card link="/artifact-types/frame/validation-checklist/" title="Validation Checklist" subtitle="Frame exit gate that verifies completeness, consistency, traceability, evidence, stakeholder review, and readiness to enter Design." >}}
+  {{< card link="/artifact-types/frame/data-prd/" title="Data Product Requirements Document" subtitle="Data-scoped authority document that translates data vision into prioritized, measurable requirements, data quality standards, data consumer expectations, and D…" >}}
 {{< /cards >}}

@@ -25,6 +25,12 @@ ddx:
   depends_on:
     - example.security-requirements.depositmatch
     - example.risk-register.depositmatch
+  review:
+    self_hash: 28c760cff8d40eab543a794535603b0a70e333e9cd808c45c23b885e621e7602
+    deps:
+      example.risk-register.depositmatch: 4cfb9a77765bfa4a63e8ad9d98a656bb5c9b9bfb5c5569389cb8cf73e8c1c3ba
+      example.security-requirements.depositmatch: 2a1f7efe6e55c1edaa67b76e5a11a49be55e4420d9adc456be5482d417312a43
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Threat Model

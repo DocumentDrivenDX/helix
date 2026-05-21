@@ -27,7 +27,7 @@ Acquisition immediately after bootstrap:
 ddx bead list --status open --label kind:planning,action:<name> --json
 ```
 
-If the action was dispatched with a specific scope (e.g., `helix design auth`),
+If the action was dispatched with a specific scope (e.g., `/helix design auth`),
 filter by scope or `spec-id` to find a bead that governs this exact work.
 
 If a matching open bead exists:
@@ -79,30 +79,30 @@ Planning-helix beads use two labels:
 Combined with the standard `helix` label and activity labels, a typical planning
 bead has labels: `helix,kind:planning,action:design,activity:build`.
 
-Execution beads (those consumed by `helix build`) do not carry `kind:planning`
-or `action:*` labels — they carry `activity:build`, `activity:deploy`, or
-`activity:iterate` as before.
+Execution beads (those consumed by `ddx bead execute`) do not carry
+`kind:planning` or `action:*` labels — they carry `activity:build`,
+`activity:deploy`, or `activity:iterate` as before.
 
 ## Exceptions
 
 ### Triage
 
-`helix triage` creates beads — it is the entry point that bootstraps the bead
-graph. Requiring triage to have its own governing bead would be infinite
-regress. Triage is exempt from bead acquisition.
+`ddx bead create` is the entry point that bootstraps the bead graph.
+Requiring triage to have its own governing bead would be infinite regress.
+Triage is exempt from bead acquisition.
 
 ### Check
 
-`helix check` is read-only. It does not modify files and does not require a
+`/helix check` is read-only. It does not modify files and does not require a
 governing bead. It reads both helices and recommends which one needs attention
 next.
 
 ### Operator-created beads
 
 When an operator (human or outer agent) dispatches an action, they may create
-the governing bead themselves via `ddx bead create` or `helix triage` before
-invoking the action. In this case, the action's bead acquisition activity finds
-the existing bead rather than creating a new one. This is the preferred pattern
+the governing bead themselves via `ddx bead create` before invoking the
+action. In this case, the action's bead acquisition activity finds the
+existing bead rather than creating a new one. This is the preferred pattern
 for deliberate work — the operator decides what to do (planning helix), then
 the agent executes it (execution helix).
 

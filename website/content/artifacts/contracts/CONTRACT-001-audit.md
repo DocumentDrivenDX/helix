@@ -1,12 +1,23 @@
 ---
 title: "CONTRACT-001 Audit: DDx-Owned Responsibilities vs DDx Implementation"
 slug: CONTRACT-001-audit
-weight: 230
+weight: 220
 activity: "Design"
 source: "02-design/contracts/CONTRACT-001-audit.md"
 generated: true
 collection: contracts
 ---
+
+> **Source identity** (from `02-design/contracts/CONTRACT-001-audit.md`):
+
+```yaml
+ddx:
+  status: superseded
+  superseded_at: 2026-05-21
+  superseded_reason: |
+    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
+```
+
 # CONTRACT-001 Audit: DDx-Owned Responsibilities vs DDx Implementation
 
 Audit date: 2026-04-17

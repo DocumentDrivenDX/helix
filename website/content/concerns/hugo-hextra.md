@@ -320,17 +320,17 @@ authority order.
 
 ### When evolve or frame changes artifacts
 
-When `helix evolve` or `helix frame` creates or modifies a governing artifact
-that is documented on the microsite, the agent must also update the
-corresponding microsite page. This is not a separate task — it is part of
-completing the evolution. The concern makes this a requirement, not a
+When the HELIX skill runs `evolve` or `frame` mode and creates or modifies a
+governing artifact that is documented on the microsite, the agent must also
+update the corresponding microsite page. This is not a separate task — it is
+part of completing the evolution. The concern makes this a requirement, not a
 suggestion.
 
 Specifically:
 - If a new artifact type is added to `.ddx/plugins/helix/workflows/activities/`, add it to the
   glossary artifacts page with its description from `meta.yml`/`prompt.md`
 - If an artifact's purpose or scope changes, update the glossary entry
-- If a CLI command is added or its behavior changes, update the CLI
+- If a skill mode is added or its behavior changes, update the relevant
   reference page
 - If installation steps change, update Getting Started
 

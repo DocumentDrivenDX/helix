@@ -290,6 +290,6 @@ downstream depends on knowing which repo is canonical.
 - `.github/workflows/test.yml` — current CI test job
 - `.github/workflows/release-genie-bundle.yml` — release workflow that
   ships bundle + installer; candidate host for `install-test-full`
-- `docs/helix/03-test/test-plans/TP-014-helix-workflow-coverage.md`
+- `docs/helix/03-test/test-plans/STP-014-helix-workflow-coverage.md`
   — broader workflow coverage plan; this install hardening plan is
   upstream of it

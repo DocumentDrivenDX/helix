@@ -23,9 +23,16 @@ rollout.
 ddx:
   id: example.monitoring-setup.depositmatch
   depends_on:
-    - example.deployment-checklist.depositmatch
+    - example.deployment-checklist.depositmatch.csv-import
     - example.security-architecture.depositmatch
-    - example.metric-definition.depositmatch
+    - example.metric-definition.depositmatch.csv-import-validation-seconds
+  review:
+    self_hash: cd2e8ecd82900c19affde80ab89f2ad3e7f5ff19ab3956a8da5dcee8e710b4af
+    deps:
+      example.deployment-checklist.depositmatch.csv-import: 02e9e7c9c29b4a335e0e2eceacaaaa6673018042db2a706f89293ab6f58abcbf
+      example.metric-definition.depositmatch.csv-import-validation-seconds: a1bb2128a1335ff7b306902f4bc6ab433468c93f567943535c641fa2e53d617e
+      example.security-architecture.depositmatch: eefd2c6eed5574e8d2960a55ec226b7e55bd7b09b6131dc02295047c163f13b7
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Monitoring Setup

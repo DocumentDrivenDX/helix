@@ -378,11 +378,11 @@ This separation keeps analysis templates reusable while organizing insights wher
 
 Under the DDx reference runtime, iterate work is dispatched through:
 
-- `helix check` — decide the next iterate action
-- `helix align <scope>` — top-down reconciliation
-- `helix review [scope]` — fresh-eyes post-implementation review
-- `helix experiment [scope]` — metric-driven optimization iteration
-- `helix backfill <scope>` — reconstruct missing canonical docs
+- `/helix check` — decide the next iterate action
+- `/helix align <scope>` — top-down reconciliation
+- `/helix review [scope]` — fresh-eyes post-implementation review
+- `/helix experiment [scope]` — metric-driven optimization iteration
+- `/helix backfill <scope>` — reconstruct missing canonical docs
 
 See [../../EXECUTION.md](../../EXECUTION.md) for the full DDx execution
 contract.

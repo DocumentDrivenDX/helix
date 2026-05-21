@@ -26,6 +26,13 @@ ddx:
     - example.compliance-requirements.depositmatch
     - example.risk-register.depositmatch
     - example.pr-faq.depositmatch
+  review:
+    self_hash: 2a1f7efe6e55c1edaa67b76e5a11a49be55e4420d9adc456be5482d417312a43
+    deps:
+      example.compliance-requirements.depositmatch: ec7fb87a927f7e53a9c323e9af8ee73d667e4520ab596c130077d332d2783c9f
+      example.pr-faq.depositmatch: 102ec8dcd77efb43d6a73143dc4dbfeb1fc95b0ab516a593166bb8b12dd70686
+      example.risk-register.depositmatch: 4cfb9a77765bfa4a63e8ad9d98a656bb5c9b9bfb5c5569389cb8cf73e8c1c3ba
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Security Requirements

@@ -92,9 +92,9 @@ Selective injection is appropriate when:
 
 *Evidence*: See `docs/helix/06-iterate/research-principles-injection-2026-04-05.md`
 
-## Bootstrap in helix frame
+## Bootstrap in frame mode
 
-When `helix frame` runs and no `docs/helix/01-frame/principles.md` exists:
+When the HELIX skill runs in `frame` mode and no `docs/helix/01-frame/principles.md` exists:
 
 1. Read `.ddx/plugins/helix/workflows/principles.md` (HELIX defaults).
 2. Present the defaults to the user and ask:
@@ -105,8 +105,8 @@ When `helix frame` runs and no `docs/helix/01-frame/principles.md` exists:
 4. Check for tensions between principles (see Tension Detection below).
 5. Write `docs/helix/01-frame/principles.md`.
 
-The user owns the file from this point forward. Only `helix frame` and
-direct user editing may write to the principles file.
+The user owns the file from this point forward. Only the HELIX skill in
+`frame` mode and direct user editing may write to the principles file.
 
 ## Tension Detection
 

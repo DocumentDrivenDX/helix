@@ -1,7 +1,7 @@
 ---
 title: "Alignment Review: Legacy CLI and Autopilot Artifact Classification"
 slug: AR-2026-05-12-legacy-cli-autopilot-classification
-weight: 650
+weight: 620
 activity: "Iterate"
 source: "06-iterate/alignment-reviews/AR-2026-05-12-legacy-cli-autopilot-classification.md"
 generated: true
@@ -20,6 +20,10 @@ ddx:
     deps:
       helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
     reviewed_at: "2026-05-15T04:11:24Z"
+  status: superseded
+  superseded_at: 2026-05-21
+  superseded_reason: |
+    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ```
 
 # Alignment Review: Legacy CLI and Autopilot Artifact Classification

@@ -29,7 +29,7 @@ The Vercel Labs Skills CLI (`npx skills`) installs HELIX from GitHub
 into Codex's filesystem skill path in one command:
 
 ```bash
-npx skills add easel/helix -a codex
+npx skills add DocumentDrivenDX/helix -a codex
 ```
 
 This drops `skills/helix/SKILL.md` (and supporting files) into the
@@ -45,7 +45,7 @@ For scripted/Docker environments without Node:
 
 ```bash
 # Clone or otherwise place HELIX source somewhere readable
-git clone https://github.com/easel/helix /tmp/helix-src
+git clone https://github.com/DocumentDrivenDX/helix /tmp/helix-src
 
 # Place the skill where Codex discovers it
 mkdir -p ~/.codex/skills/helix
@@ -182,6 +182,17 @@ All HELIX modes are available with Codex CLI:
 For the full HELIX-plus-runtime experience, install DDx alongside
 Codex and use `ddx work` to drive the queue while Codex handles
 individual bead executions.
+
+## Refresh: keeping your HELIX tree current
+
+Refresh is a first-class HELIX mode that brings every artifact instance
+under a project HELIX tree up to date with the current canonical
+templates and prompts. Codex CLI supports Refresh through codex agent
+sub-runs: when you invoke Refresh, Codex dispatches one agent per activity
+directory (00-discover, 01-frame, …, 06-iterate) for parallel processing
+across your artifact tree. You can also run Refresh in sequential mode if
+you prefer a single-threaded pass; both paths use the same underlying
+HELIX methodology.
 
 ## See also
 

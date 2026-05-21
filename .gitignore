@@ -17,13 +17,20 @@ experiments/
 .ddx/agent-logs/
 .ddx/exec-runs.d/
 .ddx/exec-runs.jsonl
-.ddx/executions/*/embedded/
+.ddx/executions/
+.ddx/attachments/
 .ddx/run-state/
 .ddx/run-state.json
 .ddx/plugins/
 .ddx/server/
 .ddx/workers/
 .ddx/worktrees.json
+
+# DDx doctor diagnostic dump (CWD leak from `ddx doctor`)
+doctor/
+
+# DDx install-manifest from worktree-side invocations
+install-manifest.json
 
 # Codex config
 .codex

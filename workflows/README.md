@@ -182,9 +182,9 @@ Published `SKILL.md` files must include `name` and `description`; include an
 goal. A skill package is incomplete if it includes the public skill entrypoints
 without the shared workflow resources they depend on.
 
-Legacy CLI command mirroring is a compatibility rule for existing DDx and HELIX
-wrapper installations, not a core HELIX methodology requirement. See the DDx
-reference-runtime appendix for the retained compatibility mapping.
+Portable HELIX skills do not need to mirror any CLI command surface. The
+unified `/helix <mode>` skill is the operator-facing entry point; runtimes
+own execution.
 
 ## Cross-Cutting Context
 
@@ -348,14 +348,24 @@ ddx bead show <id>
 ddx bead update <id> --claim
 ddx bead close <id>
 ddx bead status
-ddx agent execute-loop
-ddx agent execute-bead <id>
+ddx work
+ddx bead execute <id>
 ddx doc prose
 ```
 
 DDx stores work items as beads and provides queue selection, claims,
 dependencies, execution loops, and status reporting. In DDx-managed projects,
 issues are stored in `.ddx/beads.jsonl` and managed through `ddx bead`.
+
+### DDx-owned runtime primitives (continued)
+
+```bash
+ddx work
+ddx bead execute <id>
+```
+
+`ddx work` drains the ready queue end-to-end. `ddx bead execute <id>` runs
+one bounded bead execution.
 
 ### DDx tracker conventions
 
@@ -392,53 +402,25 @@ success-measurement criteria: exact commands, named checks, or observable repo
 state that DDx-managed execution can use to decide success without hidden human
 interpretation.
 
-### Transitional HELIX wrappers
+### Operator entrypoints
 
-The historical HELIX CLI wrappers are transitional compatibility surfaces around
-DDx runtime behavior and HELIX prompts:
+Operators interact with HELIX through the unified `/helix <mode>` skill in
+agent harnesses (Claude Code, Codex, Gemini, etc.) and through DDx runtime
+commands:
 
-```bash
-helix input "intent"
-helix align [scope]
-helix frame [scope]
-helix design [scope]
-helix evolve "requirement"
-helix review [scope]
-helix run
-helix build [selector]
-helix check [scope]
-helix triage "Title"
-helix worker
-helix commit [issue-id]
-helix polish [scope]
-helix next
-helix measure
-helix report
-```
-
-`helix align` is expected to survive as the alignment/planning entrypoint.
-Queue-control wrappers such as `helix run`, `helix build`, `helix check`,
-`helix worker`, and `helix next` exist for compatibility while execution control
-belongs to the runtime.
-
-### Legacy command mirroring compatibility
-
-Existing DDx and HELIX wrapper installations publish skills using
-`helix-<command>` names that mirror `helix <command>` CLI surfaces. This mapping
-is retained for compatibility only:
-
-- `helix-input` maps to `helix input`
-- `helix-run` maps to `helix run`
-- `helix-build` maps to `helix build`
-- `helix-align` maps to `helix align`
-- `helix-review` maps to `helix review`
-- `helix-design` maps to `helix design`
-- `helix-status` maps to `helix status`
-- `helix-triage` maps to `helix triage`
-- `helix-evolve` maps to `helix evolve`
-
-Do not treat this compatibility mapping as a requirement for future portable
-HELIX skills.
+- `/helix input "<intent>"` — shape sparse intent into governed work
+- `/helix align [scope]` — top-down reconciliation
+- `/helix frame [scope]` — vision, PRD, feature specs
+- `/helix design [scope]` — design documents
+- `/helix evolve "<requirement>"` — thread a requirement through artifacts
+- `/helix review [scope]` — fresh-eyes review after build
+- `/helix check [scope]` — queue-drain decision
+- `/helix polish [scope]` — refine issues before implementation
+- `/helix experiment [scope]` — metric-driven optimization iteration
+- `ddx work` — primary queue-drain substrate
+- `ddx bead execute <id>` — single-bead managed execution
+- `ddx bead create "Title" ...` — create well-structured tracker issues
+- `ddx doctor` — verify and repair the HELIX install
 
 ### DDx operational details
 

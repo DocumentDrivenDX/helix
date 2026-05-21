@@ -1,11 +1,22 @@
 ---
 title: "Security Metrics — HELIX 2026-Q2 (post-`v0.3.3`)"
 slug: security-metrics
-weight: 740
+weight: 710
 activity: "Iterate"
 source: "06-iterate/security-metrics.md"
 generated: true
 ---
+
+> **Source identity** (from `06-iterate/security-metrics.md`):
+
+```yaml
+ddx:
+  status: superseded
+  superseded_at: 2026-05-21
+  superseded_reason: |
+    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
+```
+
 # Security Metrics — HELIX 2026-Q2 (post-`v0.3.3`)
 
 > Illustrative example using representative measurements taken from the

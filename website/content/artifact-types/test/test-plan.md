@@ -33,6 +33,14 @@ ddx:
     - example.feature-specification.depositmatch.csv-import
     - example.user-story.depositmatch.upload-csv
     - example.contract.depositmatch.import-session-api
+  review:
+    self_hash: ba055b639a94e62d3b24f3a7ca270f78c3f17f6bae78b936d399291225d7976f
+    deps:
+      example.contract.depositmatch.import-session-api: 0f6f77f7dca5d1d05590440459fe958f9620857ed3968839e537655dce27cd04
+      example.feature-specification.depositmatch.csv-import: d85530eb091209cf9989c9cac3bc1f1063358a5b79964ca0e5e7a384fa77c44a
+      example.prd.depositmatch: c9c24e1694af4548a6deaad8d92059e365da110148bd9adc44d8640dff9770a4
+      example.user-story.depositmatch.upload-csv: ae65ec934b10e577641772c711eafec5a15dbb5854327d8240307341e2053f66
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Test Plan
@@ -145,7 +153,7 @@ coverage minimums hold; no raw financial fixture values appear in logs.
 <tr><th>Enables</th><td><em>None</em></td></tr>
 <tr><th>Informs</th><td><a href="/artifact-types/build/implementation-plan/">Implementation Plan</a></td></tr>
 <tr><th>Referenced by</th><td><a href="/artifact-types/frame/prd/">PRD</a></td></tr>
-<tr><th>HELIX documents</th><td><a href="https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/03-test/test-plans/TP-002-helix-cli.md"><code>docs/helix/03-test/test-plans/TP-002-helix-cli.md</code></a></td></tr>
+<tr><th>HELIX documents</th><td><a href="https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/03-test/test-plans/TP-014-helix-workflow-coverage.md"><code>docs/helix/03-test/test-plans/TP-014-helix-workflow-coverage.md</code></a></td></tr>
 <tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Test Plan Generation Prompt
 
 Create the project-level test plan for the Test activity. Keep it concise, but include the minimum structure needed to drive failing tests before implementation.

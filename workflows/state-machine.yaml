@@ -135,7 +135,7 @@ activities:
     description: Implement code to pass tests (TDD Green activity)
     artifacts:
       ordered:
-        - implementation-plan    # Plan the build; story-level work decomposed into tracker issues via helix build
+        - implementation-plan    # Plan the build; story-level work decomposed into tracker issues via ddx bead execute
     entry_gate:
       automated:
         - check: activity_complete

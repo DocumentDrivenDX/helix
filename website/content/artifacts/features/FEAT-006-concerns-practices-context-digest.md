@@ -1,7 +1,7 @@
 ---
 title: "Feature Specification: FEAT-006 — Concerns, Practices, and Context-Digest Beads"
 slug: FEAT-006-concerns-practices-context-digest
-weight: 80
+weight: 70
 activity: "Frame"
 source: "01-frame/features/FEAT-006-concerns-practices-context-digest.md"
 generated: true
@@ -22,6 +22,10 @@ ddx:
       FEAT-003: ea9237a63d44dd850014fa35d891e8e54a9f68ebde157bdd0915065206b45e96
       helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
     reviewed_at: "2026-05-15T04:11:24Z"
+  status: superseded
+  superseded_at: 2026-05-21
+  superseded_reason: |
+    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ```
 
 # Feature Specification: FEAT-006 — Concerns, Practices, and Context-Digest Beads

@@ -120,31 +120,31 @@ are not required to understand or adopt the HELIX methodology.
 ```bash
 ddx bead init
 ddx install helix
-helix doctor --fix
+ddx doctor
 ```
 
 Notes:
 
 - `ddx bead init` creates the tracker workspace.
-- `ddx install helix` creates `~/.ddx/plugins/helix` and installs skills into
-  `~/.agents/skills` and `~/.claude/skills`.
-- `helix doctor --fix` verifies and repairs the installation — creates missing
+- `ddx install helix` creates `~/.ddx/plugins/helix` and installs the HELIX
+  skill into `~/.agents/skills` and `~/.claude/skills`.
+- `ddx doctor` verifies and repairs the installation — creates missing
   `.ddx/plugins/helix` symlinks and skill links in the target repo.
-- The repo exposes agent skills named `helix-<command>` at `.agents/skills` and
+- The repo exposes the unified `helix` agent skill at `.agents/skills` and
   `.claude/skills` (symlinks to `skills/`).
 - For Claude Code: `claude --plugin-dir /path/to/helix` discovers skills
   automatically without manual install.
 
 ### DDx execution commands
 
-Preferred DDx wrapper commands:
+Preferred DDx commands:
 
 ```bash
-helix run
-helix build
-helix check repo
-helix align repo
-helix backfill repo
+ddx work
+ddx bead execute <id>
+/helix check repo
+/helix align repo
+/helix backfill repo
 ```
 
 Tracker introspection:
@@ -158,24 +158,22 @@ ddx bead show <id>
 
 ### Minimal Operator Loop
 
-If you are not using `helix run`, use the bounded manual loop from
+If you are not using `ddx work`, use the bounded manual loop from
 [EXECUTION.md](EXECUTION.md):
 
 ```bash
 while [ "$(ddx bead ready --json | awk 'found || /^[{[]/ { found=1; print }' | ddx jq 'length')" -gt 0 ]; do
-  helix build
+  ddx bead execute "$(ddx bead ready --json --execution | ddx jq -r '.[0].id')"
 done
 
-helix check
+/helix check
 ```
 
 ### Validation
 
-When you change HELIX wrapper behavior, skill packaging docs, or the workflow
-contract, run:
+When you change skill packaging docs or the workflow contract, run:
 
 ```bash
-bash tests/helix-cli.sh
 bash tests/validate-skills.sh
 git diff --check
 ```

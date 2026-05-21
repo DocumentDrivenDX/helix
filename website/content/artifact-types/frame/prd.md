@@ -89,6 +89,11 @@ ddx:
   id: example.prd.depositmatch
   depends_on:
     - example.product-vision.depositmatch
+  review:
+    self_hash: c9c24e1694af4548a6deaad8d92059e365da110148bd9adc44d8640dff9770a4
+    deps:
+      example.product-vision.depositmatch: 8abbb2fcb552b536f07829f57d91ef3ae8dbf52a6066955222e83d196b59b5ae
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 # Product Requirements Document
 

@@ -29,11 +29,11 @@ summarizes all cross-cutting concerns and governing context into
 
 | Action | Behavior |
 |--------|----------|
-| `helix triage` | Assemble digest for every new bead |
-| `helix evolve` | Assemble digest for beads it creates or modifies |
-| `helix polish` | Refresh digest against current upstream state |
-| `helix build` | Read digest from bead (do not reassemble) |
-| `helix review` | Read digest to verify consistency |
+| `ddx bead create` | Assemble digest for every new bead |
+| `/helix evolve` | Assemble digest for beads it creates or modifies |
+| `/helix polish` | Refresh digest against current upstream state |
+| `ddx bead execute` | Read digest from bead (do not reassemble) |
+| `/helix review` | Read digest to verify consistency |
 
 ## Assembly Algorithm
 
@@ -80,7 +80,7 @@ summarizes all cross-cutting concerns and governing context into
    block. The rationale must be non-empty and explain why omission is
    allowed for that bead.
    HELIX currently defines exactly one allowed omission path:
-   `helix-input:legacy-migration`. This path is reserved for `helix input`
+   `helix-input:legacy-migration`. This path is reserved for `/helix input`
    when it creates or updates a migrated legacy bead whose upstream concern
    mapping is not yet complete enough to assemble a trustworthy digest.
    Any other bead class must carry a full `<context-digest>`.
@@ -118,7 +118,7 @@ governing spec context. Truncate ADR summaries before dropping them.
 
 ## Refresh at Polish Time
 
-When `helix polish` encounters a bead with an existing
+When `/helix polish` encounters a bead with an existing
 `<context-digest>`:
 
 1. Re-run the assembly algorithm against current upstream state.
@@ -133,7 +133,7 @@ practice overridden, ADR superseded, governing spec amended.
 
 ## Reading the Digest at Build Time
 
-When `helix build` or `helix review` processes a bead with a
+When `ddx bead execute` or `/helix review` processes a bead with a
 `<context-digest>`:
 
 1. Parse the XML tags from the description.
@@ -142,4 +142,4 @@ When `helix build` or `helix review` processes a bead with a
 4. If the digest is missing (legacy bead), fall back to reading upstream
    files directly.
 
-Trust the digest — rely on `helix polish` to keep it current.
+Trust the digest — rely on `/helix polish` to keep it current.

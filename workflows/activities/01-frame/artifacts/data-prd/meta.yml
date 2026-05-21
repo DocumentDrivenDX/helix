@@ -1,0 +1,165 @@
+# Metadata for Data Product Requirements Document (Data PRD)
+
+artifact:
+  name: Data Product Requirements Document
+  id: data-prd
+  type: document
+  activity: frame
+
+description: |
+  Data-scoped authority document that translates data vision into prioritized,
+  measurable requirements, data quality standards, data consumer expectations,
+  and Databricks platform context. Supplements or replaces the general PRD when
+  the primary artifact is a data product (pipeline, warehouse, data platform, or
+  data service).
+
+output:
+  location: docs/helix/01-frame/data-prd.md
+  format: markdown
+  naming: data-prd.md
+  examples:
+    - data-prd.md
+
+validation:
+  required_sections:
+    - executive_summary
+    - problem_statement
+    - goals_and_objectives
+    - data_sources
+    - data_consumers
+    - requirements_overview
+    - data_quality_requirements
+    - databricks_context
+    - success_metrics
+    - risks_and_mitigation
+
+  quality_checks:
+    - check: metrics_quantified
+      description: All success metrics must have numeric targets (throughput, latency, freshness, quality score)
+      severity: blocking
+
+    - check: data_consumers_identified
+      description: Data consumers table must name actual roles, systems, or teams with their use cases
+      severity: blocking
+
+    - check: requirements_prioritized
+      description: Requirements must be categorized as P0/P1/P2
+      severity: blocking
+
+    - check: quality_thresholds_defined
+      description: Data quality requirements must specify acceptable thresholds (completeness %, null %, freshness SLA)
+      severity: blocking
+
+    - check: sources_documented
+      description: Data sources table must list source system, schema, update frequency, and quality baseline
+      severity: warning
+
+    - check: databricks_specifics_complete
+      description: Databricks context must name catalog, schema, medallion layer, and compute tier assumptions
+      severity: warning
+
+  automated_checks:
+    - pattern: "\\[NEEDS CLARIFICATION\\]|\\[TODO\\]|\\[TBD\\]"
+      expected: 0
+      message: Remove all clarification markers before approval
+
+    - pattern: "P0|Must Have"
+      expected: ">0"
+      message: Data PRD must define at least one P0 requirement
+
+variables:
+  - name: data_product_name
+    description: Name of the data product or pipeline
+    required: true
+
+  - name: primary_consumers
+    description: Teams, systems, or roles that consume this data
+    required: true
+
+  - name: source_systems
+    description: Upstream systems providing data (Salesforce, Stripe, APIs, databases)
+    required: true
+
+  - name: freshness_sla
+    description: Expected data freshness (e.g., "hourly", "daily", "real-time")
+    required: false
+
+  - name: catalog_schema
+    description: Target Databricks catalog and schema (e.g., "prod.customer_360")
+    required: false
+
+prompts:
+  generation: prompt.md
+  review: |
+    Review this Data PRD for:
+    1. Clarity of the data problem and business context
+    2. Specific data consumers and their use cases
+    3. Quantified success metrics (throughput, latency, quality)
+    4. Data quality requirements with thresholds
+    5. Databricks platform assumptions (catalog, schema, medallion layer)
+    6. Completeness of source system inventory
+    7. Identification and mitigation of data risks
+
+template:
+  file: template.md
+  sections:
+    - executive_summary: "Write this last; summarize data product purpose and impact"
+    - problem_statement: "Start here; describe the business problem the data product solves"
+    - data_sources: "List upstream systems, schemas, and refresh cadence"
+    - data_consumers: "Name the teams/systems that depend on this data and their use cases"
+    - requirements_overview: "Organized by P0/P1/P2 priority"
+    - data_quality_requirements: "Table with quality dimensions, thresholds, and enforcement"
+    - databricks_context: "Target catalog, schema, medallion layer, compute strategy"
+
+examples:
+  - file: example.md
+    description: Customer 360 data product PRD with Salesforce/Stripe sources, medallion architecture, and SLA requirements
+
+relationships:
+  informed_by:
+    - product-vision
+
+  informs:
+    - data-architecture
+    - feature-specification
+    - user-stories
+
+  referenced_by:
+    - data-architecture
+    - technical-design
+
+references:
+  - title: "Databricks Unity Catalog Documentation"
+    file: docs/resources/databricks-unity-catalog.md
+    relationship: "Grounds catalog, schema, and access control governance for data products"
+
+  - title: "Databricks Medallion Architecture Pattern"
+    file: docs/resources/databricks-medallion-architecture.md
+    relationship: "Grounds Bronze/Silver/Gold layer strategy and data transformation semantics"
+
+  - title: "Databricks Semantic Layer and Delta Live Tables"
+    file: docs/resources/databricks-delta-live-tables.md
+    relationship: "Grounds declarative data quality expectations and pipeline orchestration"
+
+  - title: "Data Mesh and Domain-Driven Data Platform Design"
+    file: docs/resources/data-mesh.md
+    relationship: "Grounds data product thinking and data consumer accountability"
+
+workflow:
+  creation_order: 1
+  review_cycles: 2-3
+  approval_required: true
+  approvers:
+    - Data Product Owner
+    - Data Engineering Lead
+    - Key Data Consumer Stakeholder
+
+tags:
+  - data-engineering
+  - data-product
+  - requirements
+  - databricks
+  - quality
+
+version: 1.0.0
+last_updated: 2026-05-18

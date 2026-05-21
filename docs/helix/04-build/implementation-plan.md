@@ -12,6 +12,9 @@ ddx:
       STP-002: 5370a293ff2365a1d85b62cff2d1ae1dbabd8c90dd93b8ca86043238065d5a3d
       TD-011: 969038469ca4fc3f2c655ce5afb25bd48291c5b45b68260d13a3f9f066be16b7
     reviewed_at: "2026-05-15T04:11:24Z"
+  superseded_at: 2026-05-21
+  superseded_reason: |
+    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ---
 
 > **SUPERSEDED** — This build plan was scoped to slider autonomy (FEAT-011)

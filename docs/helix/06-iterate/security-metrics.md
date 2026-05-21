@@ -1,3 +1,10 @@
+---
+ddx:
+  status: superseded
+  superseded_at: 2026-05-21
+  superseded_reason: |
+    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
+---
 # Security Metrics — HELIX 2026-Q2 (post-`v0.3.3`)
 
 > Illustrative example using representative measurements taken from the

@@ -172,5 +172,5 @@ BEADS_CREATED: N
 BEADS_UPDATED: N
 AUTONOMY_LEVEL: low|medium|high
 CONFLICTS: <description or "none">
-NEXT_ACTION: helix run | helix check | <clarification question>
+NEXT_ACTION: ddx work | /helix check | <clarification question>
 ```

@@ -14,17 +14,17 @@
 |----------|---------|-------|
 | Application | Worker count (healthy / unhealthy), in-flight executions, recent execution success / failure counts, average execution duration | From `ddx server workers list --json`; emitted to `.ddx/exec-runs.jsonl` for historical reads |
 | System | Process memory (RSS), CPU, file-descriptor count, `.ddx/agent-logs/` disk usage | Operator workstation `top` / `du -sh`; not actively scraped |
-| Business | Bead queue depth by status (`open`, `in_progress`, `blocked`, `closed` over the last 24h), close rate | From `ddx bead list --status <s> --json`; surfaced via `helix status` |
-| Custom | Orphan-recovery sweeps performed, claims released, stale-claim age distribution | Computed by HELIX from `events[]` arrays during `helix status` |
+| Business | Bead queue depth by status (`open`, `in_progress`, `blocked`, `closed` over the last 24h), close rate | From `ddx bead list --status <s> --json`; surfaced via `ddx bead status` |
+| Custom | Orphan-recovery sweeps performed, claims released, stale-claim age distribution | Computed from `events[]` arrays during `ddx bead status` |
 
 ## Alerting Rules
 
 | Alert | Condition | Action |
 |-------|-----------|--------|
 | Server unhealthy | `GET /healthz` returns non-200 for 2 consecutive checks | Operator notification: `ddx-server down` (no automated paging — single-operator service) |
-| All workers unhealthy | `ddx server workers list --json` reports zero healthy workers for 60s | Operator-visible: `helix status` and `ddx server workers list` show the failure |
-| Queue blocked depth growing | `ddx bead list --status blocked --json` count grows by ≥3 in the same `helix run` cycle | Operator-visible warning in `helix status`; surfaces as backlog drift |
-| Stale claims exceed threshold | Any `claimed-at` older than `HELIX_ORPHAN_THRESHOLD` (default 7200s) without a recovery sweep | Next `helix run` cycle should sweep; if it doesn't, operator runs `ddx bead unclaim` manually |
+| All workers unhealthy | `ddx server workers list --json` reports zero healthy workers for 60s | Operator-visible: `ddx bead status` and `ddx server workers list` show the failure |
+| Queue blocked depth growing | `ddx bead list --status blocked --json` count grows by ≥3 in the same `ddx work` cycle | Operator-visible warning in `ddx bead status`; surfaces as backlog drift |
+| Stale claims exceed threshold | Any `claimed-at` older than the DDx orphan threshold (default 7200s) without a recovery sweep | Next `ddx work` cycle should sweep; if it doesn't, operator runs `ddx bead unclaim` manually |
 | Provider error spike | `>5` consecutive provider 4xx/5xx responses in `.ddx/agent-logs/` | Operator-visible: tail of agent log; check API key + provider status |
 
 ## Dashboards
@@ -36,7 +36,7 @@
 | Technical | `.ddx/agent-logs/` disk usage; recent execution evidence size in `.ddx/exec-runs.d/`; tracker file size and last-modified timestamp |
 
 In practice the "dashboards" surface for a single-operator developer
-service is `helix status` plus `ddx server workers list`. There is no
+service is `ddx bead status` plus `ddx server workers list`. There is no
 Grafana / Datadog setup; alerting is operator-driven.
 
 ## Logs and Tracing
@@ -55,7 +55,7 @@ Grafana / Datadog setup; alerting is operator-driven.
 
 ### Tracing
 
-- Critical journeys: `helix run` cycle → bead claim → `ddx agent execute-bead`
+- Critical journeys: `ddx work` cycle → bead claim → `ddx bead execute`
   dispatch → provider call → result capture → bead update / close.
 - Sampling: 100% — every agent run produces a durable execution record
   by design. Sampling is not configurable; the audit trail is the
@@ -68,14 +68,14 @@ Grafana / Datadog setup; alerting is operator-driven.
 | Liveness | `GET http://127.0.0.1:7743/healthz` | Process is running and responsive on the loopback bind |
 | Readiness | `ddx server workers list --json` (returns ≥1 healthy worker) | Worker pool is healthy and capable of executing |
 | Tracker integrity | `ddx bead list --status open --json` exits 0 | `.ddx/beads.jsonl` is parseable and locks acquire cleanly |
-| Provider connectivity | `ddx agent execute-bead --dry-run <ready-bead>` | API key resolves; provider TLS handshake succeeds |
+| Provider connectivity | `ddx bead execute --dry-run <ready-bead>` | API key resolves; provider TLS handshake succeeds |
 
 ## SLI/SLO Tracking
 
 | Indicator | SLI | SLO |
 |-----------|-----|-----|
 | Availability | (`/healthz` 200 responses) / (total checks) over a 24h operator session | ≥99% during active sessions |
-| Execution success | (Closed beads with `status: closed`) / (Total claimed beads) over a `helix run` cycle | ≥80% (the rest are blockers, supersessions, or stop-for-guidance — all valid outcomes) |
+| Execution success | (Closed beads with `status: closed`) / (Total claimed beads) over a `ddx work` cycle | ≥80% (the rest are blockers, supersessions, or stop-for-guidance — all valid outcomes) |
 | Tracker durability | (Cycles with no torn writes) / (Total cycles) | 100% (any tear is a release-blocker bug) |
 
 ### Error Budget

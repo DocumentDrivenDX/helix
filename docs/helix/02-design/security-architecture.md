@@ -8,6 +8,10 @@ ddx:
     deps:
       helix.architecture: 49f65c706c77f174496e63379eb42676296da9527a504c90a81c204746968b0c
     reviewed_at: "2026-05-15T04:11:24Z"
+  status: superseded
+  superseded_at: 2026-05-21
+  superseded_reason: |
+    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ---
 # Security Architecture — DDx Agent Execution Surface
 

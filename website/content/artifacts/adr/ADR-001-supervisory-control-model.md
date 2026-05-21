@@ -1,7 +1,7 @@
 ---
 title: "ADR-001: HELIX Supervisory Control Model"
 slug: ADR-001-supervisory-control-model
-weight: 190
+weight: 180
 activity: "Design"
 source: "02-design/adr/ADR-001-supervisory-control-model.md"
 generated: true

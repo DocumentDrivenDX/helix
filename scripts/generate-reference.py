@@ -169,7 +169,7 @@ HELIX_REAL_EXAMPLES = {
     # Activity 1 — Frame
     "prd":                   "docs/helix/01-frame/prd.md",
     "concerns":              "docs/helix/01-frame/concerns.md",
-    "feature-specification": "docs/helix/01-frame/features/FEAT-002-helix-cli.md",
+    "feature-specification": "docs/helix/01-frame/features/FEAT-001-helix-supervisory-control.md",
     # Activity 2 — Design
     "architecture":          "docs/helix/02-design/architecture.md",
     "data-design":           "docs/helix/02-design/data-design.md",
@@ -179,9 +179,9 @@ HELIX_REAL_EXAMPLES = {
     # CONTRACT-001 defines the DDx/HELIX boundary — most-cited downstream.
     "contract":              "docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md",
     "solution-design":       "docs/helix/02-design/solution-designs/SD-001-helix-supervisory-control.md",
-    "technical-design":      "docs/helix/02-design/technical-designs/TD-002-helix-cli.md",
+    "technical-design":      "docs/helix/02-design/technical-designs/TD-012-artifact-types-navigation.md",
     # Activity 3 — Test
-    "test-plan":             "docs/helix/03-test/test-plans/TP-002-helix-cli.md",
+    "test-plan":             "docs/helix/03-test/test-plans/TP-014-helix-workflow-coverage.md",
     # Activity 4 — Build
     "implementation-plan":   "docs/helix/04-build/implementation-plan.md",
     # Activity 5 — Deploy

@@ -1,7 +1,7 @@
 ---
 title: "Feature Specification: FEAT-012 — Public Microsite IA"
 slug: FEAT-012-public-microsite-ia
-weight: 140
+weight: 130
 activity: "Frame"
 source: "01-frame/features/FEAT-012-public-microsite-ia.md"
 generated: true

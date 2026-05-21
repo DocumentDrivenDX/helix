@@ -15,6 +15,9 @@ ddx:
       FEAT-011: c17dda57cddf83a49dcdf1bdccc7ec398a7e75ef0626594c7bfd64f97a284a17
       helix.workflow.artifact-hierarchy: 87e2b23a96a1aa90a51bf3b66af5cb60ce98b6b276d8800e5de389cd02f8791b
     reviewed_at: "2026-05-15T04:11:24Z"
+  superseded_at: 2026-05-21
+  superseded_reason: |
+    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ---
 
 > **SUPERSEDED** — This technical design implemented the slider autonomy

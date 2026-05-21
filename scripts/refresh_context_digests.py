@@ -437,7 +437,6 @@ def bead_paths(item: dict) -> list[str]:
     patterns = [
         re.compile(r"(?:docs|tests|workflows|website|\.ddx)/[A-Za-z0-9_./:-]+\.[A-Za-z0-9-]+"),
         re.compile(r"(?:docs|tests|workflows|website|\.ddx)/[A-Za-z0-9_./:-]+/artifacts\b"),
-        re.compile(r"(?:scripts|bin)/helix\b"),
     ]
     for text in haystacks:
         for pattern in patterns:
@@ -459,15 +458,13 @@ def infer_area_labels(item: dict) -> list[str]:
             labels.add("area:docs")
         if normalized.startswith("tests/"):
             labels.add("area:testing")
-        if normalized.startswith("scripts/") or normalized.startswith("bin/"):
+        if normalized.startswith("scripts/"):
             labels.add("area:cli")
         if normalized.startswith("workflows/") or normalized.startswith(".ddx/"):
             labels.add("area:workflow")
         if "/artifacts/" in normalized or normalized.endswith("/artifacts"):
             labels.add("area:artifacts")
     if "playwright coverage" in title or "deterministic coverage" in title or "deterministic verification" in title:
-        labels.add("area:testing")
-    if "helix-cli.sh hang" in title:
         labels.add("area:testing")
     if "deleted artifact type" in title or "artifact order consistency" in title:
         labels.add("area:artifacts")

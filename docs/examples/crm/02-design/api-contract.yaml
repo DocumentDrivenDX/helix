@@ -1,0 +1,2523 @@
+---
+ddx:
+  id: crm.api-contract
+  type: contract
+  depends_on:
+    - crm.database-schema
+    - ADR-001
+    - ADR-005
+  status: resolved
+---
+
+openapi: 3.0.3
+info:
+  title: CRM API
+  description: |
+    Multi-tenant SaaS CRM API for managing contacts, accounts, leads, opportunities, and activities.
+
+    **Authentication**: JWT Bearer token (Authorization: Bearer <token>) or session cookie.
+
+    **Multi-tenancy**: Workspace scoping is enforced at the middleware level. All endpoints return 403
+    Forbidden or 404 Not Found for cross-workspace access attempts.
+
+    **Soft-delete**: Deleted records are excluded from list/get endpoints by default. Admin parameter
+    `include_deleted=true` can override for recovery workflows.
+
+    **Pagination**: List endpoints support `limit` (default 20, max 100) and `offset` (default 0)
+    query parameters.
+  version: 1.0.0
+  contact:
+    email: api@crm.example.com
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://api.crm.example.com/v1
+    description: Production API
+  - url: http://localhost:3000/v1
+    description: Development API
+
+tags:
+  - name: Authentication
+    description: User sign-up, login, logout, token refresh
+  - name: Contacts
+    description: CRUD operations for contacts
+  - name: Accounts
+    description: CRUD operations for accounts (companies)
+  - name: Leads
+    description: CRUD operations for leads (unqualified prospects)
+  - name: Opportunities
+    description: CRUD operations for opportunities (deals)
+  - name: Activities
+    description: Log and retrieve activities (calls, emails, meetings, notes)
+  - name: Pipeline
+    description: Pipeline views and kanban data
+  - name: Search
+    description: Global search across all record types
+  - name: Import
+    description: CSV bulk import
+  - name: Export
+    description: CSV bulk export
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from /auth/login
+
+  schemas:
+    # Error Schemas
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+        - status
+      properties:
+        error:
+          type: string
+          description: Error type/code
+          example: "validation_error"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Email must be a valid email address"
+        status:
+          type: integer
+          description: HTTP status code
+          example: 400
+        details:
+          type: object
+          description: Additional context for the error
+          example:
+            field: "email"
+            reason: "invalid_format"
+
+    ValidationErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+        - status
+        - errors
+      properties:
+        error:
+          type: string
+          example: "validation_error"
+        message:
+          type: string
+          example: "Request validation failed"
+        status:
+          type: integer
+          example: 422
+        errors:
+          type: array
+          items:
+            type: object
+            required:
+              - field
+              - message
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+
+    # Shared Pagination Schema
+    PaginationMeta:
+      type: object
+      required:
+        - limit
+        - offset
+        - total
+        - has_more
+      properties:
+        limit:
+          type: integer
+          description: Number of records per page
+          example: 20
+        offset:
+          type: integer
+          description: Number of records skipped
+          example: 0
+        total:
+          type: integer
+          description: Total count of records matching the query
+          example: 100
+        has_more:
+          type: boolean
+          description: Whether there are more records
+          example: true
+
+    # User Schema
+    User:
+      type: object
+      required:
+        - id
+        - workspace_id
+        - email
+        - name
+        - role
+        - is_active
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: User unique identifier
+        workspace_id:
+          type: string
+          format: uuid
+          description: Workspace the user belongs to
+        email:
+          type: string
+          format: email
+          description: Email address (unique per workspace)
+        name:
+          type: string
+          maxLength: 255
+          description: Display name
+        role:
+          type: string
+          enum: [rep, manager, admin]
+          description: Role-based access control
+        is_active:
+          type: boolean
+          description: Whether the user account is active
+        created_at:
+          type: string
+          format: date-time
+          description: Account creation timestamp (UTC)
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp (UTC)
+
+    # Account Schema
+    Account:
+      type: object
+      required:
+        - id
+        - workspace_id
+        - name
+        - created_at
+        - created_by
+        - updated_at
+        - updated_by
+        - is_deleted
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Account unique identifier
+        workspace_id:
+          type: string
+          format: uuid
+          description: Workspace the account belongs to
+        name:
+          type: string
+          maxLength: 255
+          description: Company name (unique per workspace)
+        domain:
+          type: string
+          nullable: true
+          description: Email domain for routing
+        industry:
+          type: string
+          nullable: true
+          maxLength: 255
+          description: Industry classification
+        size:
+          type: string
+          enum: [1-10, 11-50, 51-200, 200+]
+          nullable: true
+          description: Company size category
+        created_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+          format: uuid
+          description: User who created this record
+        updated_at:
+          type: string
+          format: date-time
+        updated_by:
+          type: string
+          format: uuid
+          description: User who last updated this record
+        is_deleted:
+          type: boolean
+          description: Soft-delete flag
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: When the record was deleted
+        deleted_by:
+          type: string
+          format: uuid
+          nullable: true
+          description: User who deleted this record
+
+    # Contact Schema
+    Contact:
+      type: object
+      required:
+        - id
+        - workspace_id
+        - name
+        - email
+        - created_at
+        - created_by
+        - updated_at
+        - updated_by
+        - is_deleted
+      properties:
+        id:
+          type: string
+          format: uuid
+        workspace_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 255
+          description: Contact name
+        email:
+          type: string
+          format: email
+          description: Email address (unique per workspace)
+        phone:
+          type: string
+          nullable: true
+          maxLength: 20
+        title:
+          type: string
+          nullable: true
+          maxLength: 255
+          description: Job title
+        account_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Link to employer account
+        created_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+          format: uuid
+        updated_at:
+          type: string
+          format: date-time
+        updated_by:
+          type: string
+          format: uuid
+        is_deleted:
+          type: boolean
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+        deleted_by:
+          type: string
+          format: uuid
+          nullable: true
+
+    # Lead Schema
+    Lead:
+      type: object
+      required:
+        - id
+        - workspace_id
+        - name
+        - email
+        - source
+        - status
+        - created_at
+        - created_by
+        - updated_at
+        - updated_by
+        - is_deleted
+      properties:
+        id:
+          type: string
+          format: uuid
+        workspace_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 255
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          nullable: true
+          maxLength: 20
+        title:
+          type: string
+          nullable: true
+          maxLength: 255
+        company:
+          type: string
+          nullable: true
+          maxLength: 255
+          description: Company name (text; not a foreign key)
+        source:
+          type: string
+          enum: [webinar, referral, email, outbound, other]
+          description: How the lead originated
+        status:
+          type: string
+          enum: [new, working, qualified, disqualified]
+          description: Qualification stage
+        created_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+          format: uuid
+        updated_at:
+          type: string
+          format: date-time
+        updated_by:
+          type: string
+          format: uuid
+        is_deleted:
+          type: boolean
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+        deleted_by:
+          type: string
+          format: uuid
+          nullable: true
+
+    # Opportunity Schema
+    Opportunity:
+      type: object
+      required:
+        - id
+        - workspace_id
+        - name
+        - account_id
+        - owner_id
+        - stage
+        - created_at
+        - created_by
+        - updated_at
+        - updated_by
+        - is_deleted
+      properties:
+        id:
+          type: string
+          format: uuid
+        workspace_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 255
+          description: Deal name
+        account_id:
+          type: string
+          format: uuid
+          description: Link to account (not nullable)
+        owner_id:
+          type: string
+          format: uuid
+          description: Assigned sales rep
+        value:
+          type: number
+          format: double
+          nullable: true
+          description: Deal value in USD
+        stage:
+          type: string
+          enum: [prospect, qualified, proposal, negotiation, closed-won, closed-lost]
+          description: Current pipeline stage
+        close_date:
+          type: string
+          format: date
+          nullable: true
+          description: Expected close date
+        next_step_date:
+          type: string
+          format: date
+          nullable: true
+          description: When the next action is due (drives reminders)
+        next_step_text:
+          type: string
+          nullable: true
+          maxLength: 500
+          description: Description of next action
+        created_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+          format: uuid
+        updated_at:
+          type: string
+          format: date-time
+        updated_by:
+          type: string
+          format: uuid
+        is_deleted:
+          type: boolean
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+        deleted_by:
+          type: string
+          format: uuid
+          nullable: true
+
+    # Activity Schema
+    Activity:
+      type: object
+      required:
+        - id
+        - workspace_id
+        - kind
+        - author_id
+        - occurred_at
+        - record_type
+        - record_id
+        - created_at
+        - created_by
+        - is_deleted
+      properties:
+        id:
+          type: string
+          format: uuid
+        workspace_id:
+          type: string
+          format: uuid
+        kind:
+          type: string
+          enum: [call, email, meeting, note]
+          description: Activity type
+        body:
+          type: string
+          nullable: true
+          description: Activity notes or summary
+        author_id:
+          type: string
+          format: uuid
+          description: User who performed the activity
+        occurred_at:
+          type: string
+          format: date-time
+          description: When the activity occurred (may be in the past)
+        record_type:
+          type: string
+          enum: [contact, account, opportunity]
+          description: What record type this activity references
+        record_id:
+          type: string
+          format: uuid
+          description: ID of the contact, account, or opportunity
+        email_thread_id:
+          type: string
+          nullable: true
+          description: Normalized email thread ID for deduplication (P1)
+        created_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+          format: uuid
+        is_deleted:
+          type: boolean
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+        deleted_by:
+          type: string
+          format: uuid
+          nullable: true
+
+    # Auth Request/Response Schemas
+    SignUpRequest:
+      type: object
+      required:
+        - email
+        - password
+        - name
+        - workspace_name
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email (unique within workspace)
+        password:
+          type: string
+          format: password
+          minLength: 8
+          description: Password (hashed with bcrypt 12+)
+        name:
+          type: string
+          maxLength: 255
+          description: User's display name
+        workspace_name:
+          type: string
+          maxLength: 255
+          description: Name of the new workspace
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    LoginResponse:
+      type: object
+      required:
+        - user
+        - token
+        - expires_in
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+          description: JWT bearer token
+        expires_in:
+          type: integer
+          description: Token expiry in seconds
+        workspace_id:
+          type: string
+          format: uuid
+          description: Current workspace ID
+
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+          description: Refresh token (if using refresh token grant)
+
+    # Pipeline Schema
+    PipelineCard:
+      type: object
+      required:
+        - id
+        - name
+        - account_name
+        - owner_id
+        - value
+        - close_date
+        - next_step_date
+        - is_overdue
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        account_name:
+          type: string
+        owner_id:
+          type: string
+          format: uuid
+        value:
+          type: number
+          format: double
+          nullable: true
+        close_date:
+          type: string
+          format: date
+          nullable: true
+        next_step_date:
+          type: string
+          format: date
+          nullable: true
+        is_overdue:
+          type: boolean
+          description: Whether next_step_date is in the past
+
+    PipelineResponse:
+      type: object
+      required:
+        - stages
+      properties:
+        stages:
+          type: object
+          description: Kanban columns keyed by stage name
+          additionalProperties:
+            type: array
+            items:
+              $ref: "#/components/schemas/PipelineCard"
+
+    # Search Result Schema
+    SearchResult:
+      type: object
+      required:
+        - type
+        - id
+        - name
+      properties:
+        type:
+          type: string
+          enum: [contact, account, lead, opportunity]
+          description: Result record type
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+          nullable: true
+        account_name:
+          type: string
+          nullable: true
+        owner_id:
+          type: string
+          format: uuid
+          nullable: true
+
+    SearchResponse:
+      type: object
+      required:
+        - results
+        - pagination
+      properties:
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/SearchResult"
+        pagination:
+          $ref: "#/components/schemas/PaginationMeta"
+
+    # Import Schema
+    ImportPreviewRow:
+      type: object
+      additionalProperties:
+        type: string
+      example:
+        Name: "John Doe"
+        Email: "john@example.com"
+        Company: "Acme Corp"
+
+    ImportPreviewResponse:
+      type: object
+      required:
+        - headers
+        - rows
+        - total_rows
+      properties:
+        headers:
+          type: array
+          items:
+            type: string
+          description: CSV column headers
+        rows:
+          type: array
+          items:
+            $ref: "#/components/schemas/ImportPreviewRow"
+          description: First 10 rows of the CSV
+        total_rows:
+          type: integer
+          description: Total rows in the file (excluding header)
+
+    ImportCommitRequest:
+      type: object
+      required:
+        - record_type
+        - column_mapping
+      properties:
+        record_type:
+          type: string
+          enum: [contact, account, lead, opportunity]
+          description: What records to import
+        column_mapping:
+          type: object
+          description: "Map CSV columns to entity fields (e.g., {Name: name, Email: email})"
+          additionalProperties:
+            type: string
+
+    ImportErrorRow:
+      type: object
+      required:
+        - row_number
+        - message
+      properties:
+        row_number:
+          type: integer
+        message:
+          type: string
+        field:
+          type: string
+          nullable: true
+
+    ImportCommitResponse:
+      type: object
+      required:
+        - success_count
+        - error_count
+        - errors
+      properties:
+        success_count:
+          type: integer
+          description: Number of successfully imported records
+        error_count:
+          type: integer
+          description: Number of failed rows
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ImportErrorRow"
+          description: Details of failed rows
+
+paths:
+  # ==================== AUTHENTICATION ENDPOINTS ====================
+
+  /auth/signup:
+    post:
+      tags:
+        - Authentication
+      summary: Create workspace and user account
+      operationId: signUp
+      description: |
+        Create a new workspace and the initial admin user. Workspace names are global-unique.
+        Returns JWT token and user info.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignUpRequest"
+      responses:
+        201:
+          description: Account and workspace created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - user
+                  - workspace
+                  - token
+                properties:
+                  user:
+                    $ref: "#/components/schemas/User"
+                  workspace:
+                    type: object
+                    required:
+                      - id
+                      - name
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      name:
+                        type: string
+                  token:
+                    type: string
+                    description: JWT bearer token
+                  expires_in:
+                    type: integer
+                    description: Token expiry in seconds
+        400:
+          description: Validation error (invalid email, weak password, etc.)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+              example:
+                error: "validation_error"
+                message: "Request validation failed"
+                status: 400
+                errors:
+                  - field: "email"
+                    message: "Email must be a valid email address"
+        409:
+          description: Email or workspace already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "conflict"
+                message: "Email already exists in this workspace"
+                status: 409
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Authenticate user and get JWT token
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        200:
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+              example:
+                user:
+                  id: "123e4567-e89b-12d3-a456-426614174000"
+                  workspace_id: "223e4567-e89b-12d3-a456-426614174000"
+                  email: "user@example.com"
+                  name: "John Doe"
+                  role: "rep"
+                  is_active: true
+                  created_at: "2026-05-01T10:00:00Z"
+                  updated_at: "2026-05-01T10:00:00Z"
+                token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                expires_in: 3600
+                workspace_id: "223e4567-e89b-12d3-a456-426614174000"
+        400:
+          description: Invalid credentials or validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "invalid_credentials"
+                message: "Email or password is incorrect"
+                status: 400
+        500:
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: Invalidate session/token
+      operationId: logout
+      security:
+        - BearerAuth: []
+      responses:
+        204:
+          description: Logout successful (no content)
+        401:
+          description: Unauthorized (missing or invalid token)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh JWT token
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshTokenRequest"
+      responses:
+        200:
+          description: Token refreshed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        401:
+          description: Invalid refresh token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ==================== CONTACT ENDPOINTS ====================
+
+  /contacts:
+    get:
+      tags:
+        - Contacts
+      summary: List contacts
+      operationId: listContacts
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+          description: Number of records to return
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+          description: Number of records to skip
+        - name: include_deleted
+          in: query
+          schema:
+            type: boolean
+            default: false
+          description: Include soft-deleted records (admin only)
+      responses:
+        200:
+          description: List of contacts
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - pagination
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Contact"
+                  pagination:
+                    $ref: "#/components/schemas/PaginationMeta"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Forbidden (insufficient permissions)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    post:
+      tags:
+        - Contacts
+      summary: Create a new contact
+      operationId: createContact
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+              properties:
+                name:
+                  type: string
+                  maxLength: 255
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+                  maxLength: 20
+                title:
+                  type: string
+                  maxLength: 255
+                account_id:
+                  type: string
+                  format: uuid
+                  nullable: true
+      responses:
+        201:
+          description: Contact created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contact"
+        400:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        409:
+          description: Email already exists in this workspace
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /contacts/{contact_id}:
+    get:
+      tags:
+        - Contacts
+      summary: Get a contact by ID
+      operationId: getContact
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: contact_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Contact details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contact"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Forbidden (different workspace)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    put:
+      tags:
+        - Contacts
+      summary: Update a contact
+      operationId: updateContact
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: contact_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 255
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+                  maxLength: 20
+                title:
+                  type: string
+                  maxLength: 255
+                account_id:
+                  type: string
+                  format: uuid
+                  nullable: true
+      responses:
+        200:
+          description: Contact updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contact"
+        400:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        409:
+          description: Email already exists in this workspace
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      tags:
+        - Contacts
+      summary: Delete a contact (soft-delete)
+      operationId: deleteContact
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: contact_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        204:
+          description: Contact deleted (soft-delete)
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ==================== ACCOUNT ENDPOINTS ====================
+
+  /accounts:
+    get:
+      tags:
+        - Accounts
+      summary: List accounts
+      operationId: listAccounts
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: include_deleted
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        200:
+          description: List of accounts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Account"
+                  pagination:
+                    $ref: "#/components/schemas/PaginationMeta"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    post:
+      tags:
+        - Accounts
+      summary: Create a new account
+      operationId: createAccount
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  maxLength: 255
+                domain:
+                  type: string
+                  maxLength: 255
+                industry:
+                  type: string
+                  maxLength: 255
+                size:
+                  type: string
+                  enum: [1-10, 11-50, 51-200, 200+]
+      responses:
+        201:
+          description: Account created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        400:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        409:
+          description: Account name already exists in this workspace
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /accounts/{account_id}:
+    get:
+      tags:
+        - Accounts
+      summary: Get an account by ID
+      operationId: getAccount
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Account details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    put:
+      tags:
+        - Accounts
+      summary: Update an account
+      operationId: updateAccount
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 255
+                domain:
+                  type: string
+                  maxLength: 255
+                industry:
+                  type: string
+                  maxLength: 255
+                size:
+                  type: string
+                  enum: [1-10, 11-50, 51-200, 200+]
+      responses:
+        200:
+          description: Account updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        400:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        409:
+          description: Account name already exists in this workspace
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      tags:
+        - Accounts
+      summary: Delete an account (soft-delete)
+      operationId: deleteAccount
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        204:
+          description: Account deleted
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ==================== LEAD ENDPOINTS ====================
+
+  /leads:
+    get:
+      tags:
+        - Leads
+      summary: List leads
+      operationId: listLeads
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [new, working, qualified, disqualified]
+          description: Filter by qualification status
+        - name: include_deleted
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        200:
+          description: List of leads
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Lead"
+                  pagination:
+                    $ref: "#/components/schemas/PaginationMeta"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    post:
+      tags:
+        - Leads
+      summary: Create a new lead
+      operationId: createLead
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - source
+              properties:
+                name:
+                  type: string
+                  maxLength: 255
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+                  maxLength: 20
+                title:
+                  type: string
+                  maxLength: 255
+                company:
+                  type: string
+                  maxLength: 255
+                source:
+                  type: string
+                  enum: [webinar, referral, email, outbound, other]
+                status:
+                  type: string
+                  enum: [new, working, qualified, disqualified]
+                  default: new
+      responses:
+        201:
+          description: Lead created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lead"
+        400:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /leads/{lead_id}:
+    get:
+      tags:
+        - Leads
+      summary: Get a lead by ID
+      operationId: getLead
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: lead_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Lead details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lead"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Lead not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    put:
+      tags:
+        - Leads
+      summary: Update a lead
+      operationId: updateLead
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: lead_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 255
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+                  maxLength: 20
+                title:
+                  type: string
+                  maxLength: 255
+                company:
+                  type: string
+                  maxLength: 255
+                source:
+                  type: string
+                  enum: [webinar, referral, email, outbound, other]
+                status:
+                  type: string
+                  enum: [new, working, qualified, disqualified]
+      responses:
+        200:
+          description: Lead updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lead"
+        400:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Lead not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      tags:
+        - Leads
+      summary: Delete a lead (soft-delete)
+      operationId: deleteLead
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: lead_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        204:
+          description: Lead deleted
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Lead not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ==================== OPPORTUNITY ENDPOINTS ====================
+
+  /opportunities:
+    get:
+      tags:
+        - Opportunities
+      summary: List opportunities
+      operationId: listOpportunities
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: stage
+          in: query
+          schema:
+            type: string
+            enum: [prospect, qualified, proposal, negotiation, closed-won, closed-lost]
+          description: Filter by pipeline stage
+        - name: owner_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Filter by assigned owner
+        - name: include_deleted
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        200:
+          description: List of opportunities
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Opportunity"
+                  pagination:
+                    $ref: "#/components/schemas/PaginationMeta"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    post:
+      tags:
+        - Opportunities
+      summary: Create a new opportunity
+      operationId: createOpportunity
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - account_id
+                - owner_id
+                - stage
+              properties:
+                name:
+                  type: string
+                  maxLength: 255
+                account_id:
+                  type: string
+                  format: uuid
+                owner_id:
+                  type: string
+                  format: uuid
+                value:
+                  type: number
+                  format: double
+                stage:
+                  type: string
+                  enum: [prospect, qualified, proposal, negotiation, closed-won, closed-lost]
+                close_date:
+                  type: string
+                  format: date
+                next_step_date:
+                  type: string
+                  format: date
+                next_step_text:
+                  type: string
+                  maxLength: 500
+      responses:
+        201:
+          description: Opportunity created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Opportunity"
+        400:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Account or owner not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /opportunities/{opportunity_id}:
+    get:
+      tags:
+        - Opportunities
+      summary: Get an opportunity by ID
+      operationId: getOpportunity
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: opportunity_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Opportunity details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Opportunity"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Opportunity not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    put:
+      tags:
+        - Opportunities
+      summary: Update an opportunity
+      operationId: updateOpportunity
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: opportunity_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 255
+                account_id:
+                  type: string
+                  format: uuid
+                owner_id:
+                  type: string
+                  format: uuid
+                value:
+                  type: number
+                  format: double
+                stage:
+                  type: string
+                  enum: [prospect, qualified, proposal, negotiation, closed-won, closed-lost]
+                close_date:
+                  type: string
+                  format: date
+                next_step_date:
+                  type: string
+                  format: date
+                next_step_text:
+                  type: string
+                  maxLength: 500
+      responses:
+        200:
+          description: Opportunity updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Opportunity"
+        400:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Opportunity not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      tags:
+        - Opportunities
+      summary: Delete an opportunity (soft-delete)
+      operationId: deleteOpportunity
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: opportunity_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        204:
+          description: Opportunity deleted
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Opportunity not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ==================== ACTIVITY ENDPOINTS ====================
+
+  /activities:
+    get:
+      tags:
+        - Activities
+      summary: List activities
+      operationId: listActivities
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: record_type
+          in: query
+          schema:
+            type: string
+            enum: [contact, account, opportunity]
+          description: Filter by record type
+        - name: record_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Filter activities for a specific record
+        - name: kind
+          in: query
+          schema:
+            type: string
+            enum: [call, email, meeting, note]
+          description: Filter by activity type
+      responses:
+        200:
+          description: List of activities
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Activity"
+                  pagination:
+                    $ref: "#/components/schemas/PaginationMeta"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    post:
+      tags:
+        - Activities
+      summary: Create a new activity
+      operationId: createActivity
+      security:
+        - BearerAuth: []
+      description: |
+        Create an activity log entry. Activities are immutable after creation (no PUT/PATCH in MVP).
+        `author_id` defaults to the current user.
+        `occurred_at` can be a past timestamp (e.g., log a call from yesterday).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - kind
+                - record_type
+                - record_id
+                - occurred_at
+              properties:
+                kind:
+                  type: string
+                  enum: [call, email, meeting, note]
+                body:
+                  type: string
+                  description: Activity notes or summary
+                author_id:
+                  type: string
+                  format: uuid
+                  description: Defaults to current user if omitted
+                occurred_at:
+                  type: string
+                  format: date-time
+                  description: When the activity occurred (may be in the past)
+                record_type:
+                  type: string
+                  enum: [contact, account, opportunity]
+                record_id:
+                  type: string
+                  format: uuid
+                email_thread_id:
+                  type: string
+                  description: Normalized email thread ID for deduplication (P1)
+      responses:
+        201:
+          description: Activity created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Activity"
+        400:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Referenced record (contact/account/opportunity) not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /activities/{activity_id}:
+    get:
+      tags:
+        - Activities
+      summary: Get an activity by ID
+      operationId: getActivity
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: activity_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Activity details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Activity"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Activity not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      tags:
+        - Activities
+      summary: Delete an activity (soft-delete)
+      operationId: deleteActivity
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: activity_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        204:
+          description: Activity deleted
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Activity not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ==================== PIPELINE ENDPOINT ====================
+
+  /pipeline:
+    get:
+      tags:
+        - Pipeline
+      summary: Get pipeline view (kanban data)
+      operationId: getPipeline
+      security:
+        - BearerAuth: []
+      description: |
+        Returns opportunities grouped by stage (kanban columns). Rep view shows only own opportunities.
+        Manager view shows team opportunities. Response format: { "stage": [ card, card, ... ] }
+      responses:
+        200:
+          description: Pipeline view
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PipelineResponse"
+              example:
+                stages:
+                  prospect:
+                    - id: "123e4567-e89b-12d3-a456-426614174000"
+                      name: "Deal Name"
+                      account_name: "Acme Corp"
+                      owner_id: "223e4567-e89b-12d3-a456-426614174000"
+                      value: 50000.00
+                      close_date: "2026-06-30"
+                      next_step_date: "2026-05-20"
+                      is_overdue: false
+                  qualified:
+                    - id: "323e4567-e89b-12d3-a456-426614174000"
+                      name: "Another Deal"
+                      account_name: "TechCorp"
+                      owner_id: "223e4567-e89b-12d3-a456-426614174000"
+                      value: 75000.00
+                      close_date: "2026-07-15"
+                      next_step_date: "2026-05-25"
+                      is_overdue: true
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ==================== SEARCH ENDPOINT ====================
+
+  /search:
+    get:
+      tags:
+        - Search
+      summary: Global search across all record types
+      operationId: search
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+          description: Search query (substring or full-text)
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+          description: Results per type
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        200:
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResponse"
+              example:
+                results:
+                  - type: "contact"
+                    id: "123e4567-e89b-12d3-a456-426614174000"
+                    name: "John Doe"
+                    email: "john@example.com"
+                    account_name: "Acme Corp"
+                  - type: "account"
+                    id: "223e4567-e89b-12d3-a456-426614174000"
+                    name: "TechCorp Inc"
+                  - type: "opportunity"
+                    id: "323e4567-e89b-12d3-a456-426614174000"
+                    name: "TechCorp Enterprise Deal"
+                    account_name: "TechCorp Inc"
+                    owner_id: "423e4567-e89b-12d3-a456-426614174000"
+                pagination:
+                  limit: 20
+                  offset: 0
+                  total: 42
+                  has_more: true
+        400:
+          description: Missing or empty search query
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ==================== IMPORT ENDPOINTS ====================
+
+  /import/preview:
+    post:
+      tags:
+        - Import
+      summary: Preview CSV file before import
+      operationId: importPreview
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: CSV file upload
+      responses:
+        200:
+          description: CSV preview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportPreviewResponse"
+        400:
+          description: Invalid file format (not CSV)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Forbidden (admin only)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        413:
+          description: File too large (max 10MB)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /import/commit:
+    post:
+      tags:
+        - Import
+      summary: Commit CSV import
+      operationId: importCommit
+      security:
+        - BearerAuth: []
+      description: |
+        Import records from previously uploaded CSV. Validates data, auto-links contacts to accounts
+        by company name match (case-insensitive). Partial success allowed; failed rows reported.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImportCommitRequest"
+      responses:
+        200:
+          description: Import complete (with results and errors)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportCommitResponse"
+              example:
+                success_count: 998
+                error_count: 2
+                errors:
+                  - row_number: 5
+                    field: "email"
+                    message: "Invalid email address"
+                  - row_number: 42
+                    field: "name"
+                    message: "Name is required"
+        400:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Forbidden (admin only)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ==================== EXPORT ENDPOINT ====================
+
+  /export:
+    get:
+      tags:
+        - Export
+      summary: Export records as CSV
+      operationId: export
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: record_type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [contacts, accounts, leads, opportunities, activities]
+          description: Type of records to export
+        - name: include_deleted
+          in: query
+          schema:
+            type: boolean
+            default: false
+          description: Include soft-deleted records (admin only)
+      responses:
+        200:
+          description: CSV file download
+          content:
+            text/csv:
+              schema:
+                type: string
+              example: |
+                id,name,email,account_id,created_at,updated_at
+                123e4567-e89b-12d3-a456-426614174000,John Doe,john@example.com,223e4567-e89b-12d3-a456-426614174000,2026-05-01T10:00:00Z,2026-05-15T14:30:00Z
+                323e4567-e89b-12d3-a456-426614174000,Jane Smith,jane@example.com,223e4567-e89b-12d3-a456-426614174000,2026-05-02T11:00:00Z,2026-05-16T09:45:00Z
+        400:
+          description: Invalid record_type
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Forbidden (insufficient permissions)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+security:
+  - BearerAuth: []

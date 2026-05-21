@@ -26,6 +26,13 @@ ddx:
     - example.product-vision.depositmatch
     - example.data-design.depositmatch
     - example.security-architecture.depositmatch
+  review:
+    self_hash: 0002d693fd2ec90fdba7005bf51eb0c34ff454274bc969ae3d1b2d9f699561e9
+    deps:
+      example.data-design.depositmatch: dc25da87b6288f686dfb11eae276dd334aca0dce4d6cd562c8da70b7f169a7c5
+      example.product-vision.depositmatch: 8abbb2fcb552b536f07829f57d91ef3ae8dbf52a6066955222e83d196b59b5ae
+      example.security-architecture.depositmatch: eefd2c6eed5574e8d2960a55ec226b7e55bd7b09b6131dc02295047c163f13b7
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Technical Spike: CSV Formula Neutralization

@@ -23,18 +23,19 @@ Prefer the first matching route:
 | Create or refine product vision, PRD, feature specs, or user stories | frame |
 | Reconcile artifacts, check traceability, find drift, align documents, or move content between artifact layers | align |
 | Check an artifact instance against its template and prompt; improve in place | validate |
+| Bring every artifact instance up to date with the current templates and prompts | refresh |
 | Thread a new, changed, removed, or incident-driven requirement through existing artifacts | evolve |
 | Create a technical design before implementation | design |
 | Reconstruct missing or incomplete docs from evidence | backfill |
 | Fresh-eyes review of recent work, PRs, plans, or implementation | review |
-| Refine planned work for execution readiness | polish |
+| Refine beads/work items for execution readiness | polish |
 | Decide the next safe HELIX action | check or next |
-| Execute one bounded implementation pass through the active runtime | build |
-| Continue bounded implementation work until a safe stopping point | run |
-| Commit verified HELIX work | commit |
+| Execute one bounded implementation pass | build |
+| Run the bounded operator loop | run |
+| Commit verified HELIX/DDx work | commit |
 | Cut a release | release |
 | Run an optimization experiment | experiment |
-| Monitor a long-running HELIX session | worker |
+| Monitor a background HELIX run | worker |
 
 When multiple routes fit, choose the highest-authority planning route first:
 `frame` before `design`, `align` before `evolve` when the task is diagnostic,
@@ -61,9 +62,9 @@ The seven activities and the artifact types they own:
 | Activity | Artifact types (directory names under `<activity>/artifacts/`) |
 |---|---|
 | `00-discover` | `business-case`, `competitive-analysis`, `opportunity-canvas`, `product-vision`, `resource-summary` |
-| `01-frame` | `compliance-requirements`, `concerns`, `feasibility-study`, `feature-registry`, `feature-specification`, `parking-lot`, `pr-faq`, `prd`, `principles`, `research-plan`, `risk-register`, `security-requirements`, `stakeholder-map`, `threat-model`, `user-stories`, `validation-checklist` |
-| `02-design` | `adr`, `architecture`, `contract`, `data-design`, `proof-of-concept`, `security-architecture`, `solution-design`, `tech-spike`, `technical-design` |
-| `03-test` | `security-tests`, `story-test-plan`, `test-plan`, `test-procedures`, `test-suites` |
+| `01-frame` | `compliance-requirements`, `concerns`, `feasibility-study`, `feature-registry`, `feature-specification`, `parking-lot`, `pr-faq`, `prd`, `principles`, `research-plan`, `risk-register`, `security-requirements`, `stakeholder-map`, `threat-model`, `user-stories`, `validation-checklist`, `data-prd` |
+| `02-design` | `adr`, `architecture`, `contract`, `data-design`, `proof-of-concept`, `security-architecture`, `solution-design`, `tech-spike`, `technical-design`, `data-architecture` |
+| `03-test` | `security-tests`, `story-test-plan`, `test-plan`, `test-procedures`, `test-suites`, `data-quality-expectations` |
 | `04-build` | `implementation-plan` |
 | `05-deploy` | `deployment-checklist`, `monitoring-setup`, `release-notes`, `runbook` |
 | `06-iterate` | `improvement-backlog`, `metric-definition`, `metrics-dashboard`, `security-metrics` |
@@ -78,6 +79,24 @@ require loading the file from one of the resolution paths above.
 If the catalog is at neither location, the runtime has not mounted it;
 report this as a setup gap rather than improvising paths or guessing
 artifact-type names.
+
+## Project Root Resolution
+
+When a workflow mode needs to enumerate artifact instances within the
+operator's project (used by §Refresh and similar batch operations),
+resolve the project HELIX root in this order:
+
+1. Explicit path provided by the operator at invocation
+   (e.g., `refresh docs/helix/`).
+2. Runtime-supplied project-config value when present
+   (`helix_root` in DDx project config; equivalent in other runtimes).
+3. Convention: `docs/helix/` under the runtime's working directory,
+   with sub-directories `00-discover`, `01-frame`, …, `06-iterate`.
+
+If none of the three resolves to a directory containing the expected
+activity sub-directories, surface a setup gap rather than improvising.
+Batch operations on chat-only runtimes (Databricks Genie Code, GitHub
+Copilot) require step 1 — the operator names the root in the prompt.
 
 ## Workflow Contracts
 
@@ -149,11 +168,48 @@ prompt and improve it in place.
 4. Run prompt-section conformance: every section the `prompt.md` asks for is
    answered in the instance or explicitly marked N/A with a reason.
 5. Classify each finding keyed to the relevant template or prompt section
-   using the Align taxonomy: `ALIGNED`, `INCOMPLETE`, `UNDERSPECIFIED`, or
-   `STALE`.
-6. Produce updates: when the user invoked validate to fix, apply the edits
-   in place; when they invoked it to audit, surface a plan using the
-   §Align gap-to-implementation handoff fields.
+   using the Align taxonomy: `ALIGNED`, `INCOMPLETE`, `DIVERGENT`,
+   `UNDERSPECIFIED`, `STALE_PLAN`, or `BLOCKED`.
+6. Produce updates: when the user invoked validate to fix, apply edits
+   in place for every finding the template + prompt comparison can
+   resolve mechanically — typically `INCOMPLETE` findings (missing
+   required sections, stale frontmatter shape, renamed headings). For
+   findings classified as `DIVERGENT`, `UNDERSPECIFIED`, `STALE_PLAN`,
+   or `BLOCKED` — which need human judgement — surface a §Align gap-to-
+   implementation handoff for that specific finding instead of editing.
+   When the user invoked validate to audit, surface a §Align handoff
+   for every non-`ALIGNED` finding regardless of mechanical
+   resolvability.
+
+### Refresh
+
+Use to bring every artifact instance under a project HELIX tree up to
+date with the current canonical templates and prompts. §Refresh is
+§Validate (fix-mode) applied across a whole project in one pass.
+
+1. Resolve the project HELIX root per §Project Root Resolution.
+   Enumerate every artifact instance under it. Group instances by
+   activity directory (00-discover, 01-frame, …, 06-iterate). Skip
+   anything that isn't an artifact instance (READMEs, plan
+   sub-directories, generated files).
+2. For each instance, run §Validate in fix-mode. When the runtime
+   supports sub-agent dispatch, parallelise across the activity groups
+   (one agent per activity); otherwise execute the groups in activity
+   order.
+3. Aggregate the per-instance §Validate outputs into a single report:
+   per-classification counts using the unified taxonomy (`ALIGNED` /
+   `INCOMPLETE` / `DIVERGENT` / `UNDERSPECIFIED` / `STALE_PLAN` /
+   `BLOCKED`) plus the union of every §Align gap-to-implementation
+   handoff §Validate produced.
+4. §Refresh surfaces handoffs in the report. It does **not** itself
+   file work items — that responsibility stays with the runtime: DDx
+   runtimes may file beads in response, Claude Code runtimes may emit
+   tracker issues, chat-only runtimes may simply display the report.
+   This keeps §Refresh runtime-neutral while preserving §Align's
+   tracker-mutation rules for runtimes that have a tracker.
+5. §Refresh is read-only against templates and prompts in the skill
+   catalog. If §Refresh reveals that a template itself needs to change,
+   route through `evolve` against the catalog separately.
 
 ### Evolve
 
@@ -180,7 +236,7 @@ the HELIX artifact stack.
 
 ### Design
 
-Use when implementation needs design authority before implementation work.
+Use when implementation needs design authority before build work.
 
 1. Load governing artifacts, existing designs, implementation context, tests,
    and open work for the scope.
@@ -209,7 +265,8 @@ Use for fresh-eyes review of plans, PRs, implementation, or recent work.
 2. Inspect governing artifacts, changed implementation, tests, and public
    projection relevant to the scope.
 3. Report findings first, ordered by severity, with concrete evidence.
-4. Record durable follow-up work for actionable medium-or-higher findings.
+4. File durable follow-up work for actionable medium-or-higher findings in
+   the project's work tracker.
 
 ### Polish
 
@@ -218,8 +275,8 @@ Use to refine work items before execution.
 1. Load open work for the scope and any governing plan.
 2. Run multiple passes for deduplication, coverage, acceptance quality,
    dependency correctness, sizing, and label hygiene.
-3. Require execution-ready work items to name exact files, commands, checks,
-   fields, or observable repository states.
+3. Require execution-ready beads to name exact files, commands, checks, fields,
+   or observable repository states.
 4. If acceptance cannot be sharpened from governing artifacts, flag the work as
    not execution-ready and route it back through planning.
 
@@ -227,7 +284,7 @@ Use to refine work items before execution.
 
 Use when the safe next action is ambiguous.
 
-1. Inspect current work state, governing artifacts, and known blockers.
+1. Inspect the queue, governing artifacts, and known blockers.
 2. Decide conservatively among build, design, alignment, backfill, polish, wait,
    guidance, or stop.
 3. Do not dispatch another workflow silently.
@@ -235,18 +292,16 @@ Use when the safe next action is ambiguous.
    the §Align gap-to-implementation handoff shape: destination artifact
    type, deliverable shape, suggested next workflow mode, and evidence
    references (paths plus line numbers). Never prescribe a CLI command.
-5. If missing follow-up work is discovered, create or recommend explicit work
+5. If missing tracked work is discovered, create or recommend explicit work
    before returning the next action.
 
 ### Build And Run
 
 Use only when the user explicitly asks for HELIX execution.
 
-1. Build handles one bounded implementation pass for a selected scope or work
-   item.
-2. Run handles repeated execution across the currently approved work until a
-   safe stopping point.
-3. Stay within the governing work item or explicitly named scope.
+1. Build handles one bounded implementation pass for a selected work item.
+2. Run handles the bounded operator loop over ready work.
+3. Stay within the governing bead/work item.
 4. Do not broaden scope beyond the named work.
 5. Verify with the project gate before reporting completion.
 
@@ -257,8 +312,8 @@ Use when verified work should be committed.
 1. Inspect the diff and separate unrelated user changes.
 2. Run the project gate.
 3. Commit only the intended scope with traceable message text.
-4. Preserve history produced by runtime-managed execution: never squash,
-   rebase, amend, or filter it.
+4. Preserve managed-execution history: never squash, rebase, amend, or filter
+   branches containing runtime-generated execution commits.
 
 ### Release
 
@@ -280,12 +335,11 @@ Use for metric-driven optimization loops.
 
 ### Worker
 
-Use to launch and monitor a long-running HELIX session.
+Use to launch and monitor a background HELIX operator loop.
 
-1. Start the session with durable logs or equivalent runtime-supported status
-   capture.
+1. Start the run with durable logs and pid capture.
 2. Poll sparingly for progress, blockers, or completion.
-3. Report status without losing the recorded evidence.
+3. Report status without losing the run evidence.
 4. Stop only when requested or when the workflow reaches a safe stopping point.
 
 ## Alignment Content Migration
@@ -312,8 +366,8 @@ follow-up work are captured durably.
 
 - Use the workflow contracts in this skill as the active interface; consult
   packaged workflow prompts only when deeper mode-specific detail is needed.
-- For projects with governed work records, check existing work items before
-  editing files or creating more implementation work.
+- For projects with a work tracker, obey work-item-first rules before writing
+  files or tracker mutations.
 - Do not silently start implementation when the request is planning, alignment,
   review, or routing.
 - If the correct route is unclear, use check mode rather than guessing.

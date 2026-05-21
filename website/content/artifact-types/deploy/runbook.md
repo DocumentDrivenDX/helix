@@ -23,9 +23,16 @@ recovery, and routine maintenance tied to a deployed system.
 ddx:
   id: example.runbook.depositmatch
   depends_on:
-    - example.deployment-checklist.depositmatch
+    - example.deployment-checklist.depositmatch.csv-import
     - example.monitoring-setup.depositmatch
     - example.security-architecture.depositmatch
+  review:
+    self_hash: 1f52bd1ba196f06837695269f3fee1829dd734eeccdb0ea4274c86c895270229
+    deps:
+      example.deployment-checklist.depositmatch.csv-import: 02e9e7c9c29b4a335e0e2eceacaaaa6673018042db2a706f89293ab6f58abcbf
+      example.monitoring-setup.depositmatch: cd2e8ecd82900c19affde80ab89f2ad3e7f5ff19ab3956a8da5dcee8e710b4af
+      example.security-architecture.depositmatch: eefd2c6eed5574e8d2960a55ec226b7e55bd7b09b6131dc02295047c163f13b7
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Runbook - DepositMatch CSV-First Pilot

@@ -48,6 +48,11 @@ ddx:
   id: example.competitive-analysis.depositmatch
   depends_on:
     - example.product-vision.depositmatch
+  review:
+    self_hash: 732b5273a4a651c0ac6e10f66ce97b29772b1b706582cf8bcc5b72f4767aa793
+    deps:
+      example.product-vision.depositmatch: 8abbb2fcb552b536f07829f57d91ef3ae8dbf52a6066955222e83d196b59b5ae
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Competitive Analysis

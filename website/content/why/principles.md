@@ -107,9 +107,9 @@ participants in the artifact graph, not autocomplete.
 > Agents operate inside bounded loops that stop when human judgment is
 > needed.
 
-The autopilot (`helix run`) wraps DDx's bounded execution loop with HELIX
-supervision. DDx provides the queue-drain primitive — claim a ready bead,
-execute it, close it on success — but HELIX decides *what* counts as
+The HELIX methodology layers supervision on top of DDx's bounded execution
+loop. DDx provides the queue-drain primitive (`ddx work`) — claim a ready
+bead, execute it, close it on success — but HELIX decides *what* counts as
 ready, *which* bead is the highest leverage next move, and *when* to stop
 and ask. When forward progress would require authority that is missing,
 ambiguity that cannot be resolved, or judgment that is genuinely human, the

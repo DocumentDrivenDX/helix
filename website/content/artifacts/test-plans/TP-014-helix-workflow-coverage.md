@@ -1,7 +1,7 @@
 ---
 title: "Workflow Test Plan: HELIX Across Five Runtimes"
 slug: TP-014-helix-workflow-coverage
-weight: 470
+weight: 440
 activity: "Test"
 source: "03-test/test-plans/TP-014-helix-workflow-coverage.md"
 generated: true

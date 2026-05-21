@@ -259,9 +259,9 @@ bead.
 ### DDx action input examples
 
 ```
-helix design
-helix design auth
-helix design --rounds 8 FEAT-003
+/helix design
+/helix design auth
+/helix design --rounds 8 FEAT-003
 ```
 
 ### ACTIVITY N+2 — DDx record results
@@ -281,5 +281,5 @@ BEAD_ID: <governing-bead-id>
 FOLLOW_ON_CREATED: N
 ```
 
-Note: The design document must go through `helix polish` to be decomposed into
-implementable beads before `helix build` can execute against it.
+Note: The design document must go through `/helix polish` to be decomposed
+into implementable beads before `ddx bead execute` can execute against it.

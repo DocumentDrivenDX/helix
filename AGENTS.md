@@ -35,20 +35,20 @@ ddx bead show <id>       # View issue details
 ddx bead update <id> --claim  # Claim work
 ddx bead close <id>      # Complete work
 ddx bead status          # Tracker health
-ddx agent execute-loop   # Primary queue-drain surface
-ddx agent execute-bead <id> # One bounded bead execution
+ddx work                 # Primary queue-drain surface
+ddx bead execute <id>    # One bounded bead execution
 ddx doc prose            # Prose-quality check
 ```
 
-HELIX ships no checkout CLI. It is artifact templates plus the alignment
-skill; runtimes (DDx, Claude Code, Codex CLI, Genie) own execution. Historical
-`helix <command>` names still appear in workflow documents as runtime or
-compatibility references, but they are not executable from this checkout.
+HELIX ships no checkout CLI. It is artifact templates plus the routing skill;
+runtimes (DDx, Claude Code, Codex CLI, Genie) own execution. Operators
+interact through `/helix <mode>` slash commands or runtime CLIs such as
+`ddx work` and `ddx bead`.
 
 Validation and build:
 
 ```bash
-just test                     # Run all tests (CLI + skills + state rules + digests)
+just test                     # Run all tests (skills + state rules + digests)
 bash tests/validate-state-rules.sh
 bash tests/validate-context-digests.sh
 bash tests/validate-demo-fixtures.sh
@@ -70,8 +70,8 @@ restart it at the domain root; paths such as
 ### Starting a background run
 
 ```bash
-nohup helix run > /tmp/helix-run.stdout.log 2> /tmp/helix-run.stderr.log &
-echo $! > /tmp/helix-run.pid
+nohup ddx work > /tmp/ddx-work.stdout.log 2> /tmp/ddx-work.stderr.log &
+echo $! > /tmp/ddx-work.pid
 ```
 
 Defaults are reasonable: agent selection is driven by DDx harness discovery,
@@ -81,13 +81,13 @@ review threshold 100 lines, alignment every 15 cycles, 45-min timeout.
 
 ```bash
 # Is it running?
-kill -0 $(cat /tmp/helix-run.pid) 2>/dev/null && echo "RUNNING" || echo "STOPPED"
+kill -0 $(cat /tmp/ddx-work.pid) 2>/dev/null && echo "RUNNING" || echo "STOPPED"
 
 # Progress
-grep "^helix:" /tmp/helix-run.stderr.log | grep -E "cycle|complete|tokens" | tail -10
+grep -E "cycle|complete|tokens" /tmp/ddx-work.stderr.log | tail -10
 
 # Why did it stop?
-grep "═══\|stopping\|BLOCKER" /tmp/helix-run.stderr.log | tail -5
+grep "═══\|stopping\|BLOCKER" /tmp/ddx-work.stderr.log | tail -5
 ```
 
 ### Consolidating related issues
@@ -134,7 +134,7 @@ Key rules:
 
 - Use the built-in tracker (`ddx bead`); do not use external issue trackers.
 - For general ready-work detection, use `ddx bead ready`, not manual JSONL parsing.
-- For execution selection or `helix run` reasoning, use `ddx bead ready --execution`.
+- For execution selection or `ddx work` reasoning, use `ddx bead ready --execution`.
 - Keep `implementation` single-shot and bounded to one issue per run.
 - Use `check` when the ready queue drains to decide whether to build,
   design, polish, align, backfill, wait, ask for guidance, or stop.
@@ -177,10 +177,9 @@ a scope, selector, issue ID, or goal.
 
 ## Installation
 
-HELIX ships no checkout CLI. It is artifact templates plus the alignment skill;
-queue control, execution, alignment, and the broader historical
-`helix <command>` surface belong to the runtime (DDx today) or installed
-skills, not to this repository.
+HELIX ships no checkout CLI. It is artifact templates plus the routing skill;
+queue control, execution, alignment, and operator dispatch belong to the
+runtime (DDx today) or installed skills, not to this repository.
 
 ### Primary installation (plugin mode)
 
@@ -236,9 +235,9 @@ ddx bead ready --json --execution # machine-readable execution-safe queue
 ddx bead status                  # tracker health summary
 ```
 
-Historical runtime names such as `helix run` or `helix build` still appear
-elsewhere in the methodology docs as compatibility references, but HELIX ships
-no checkout CLI — those commands are provided by runtimes, not this repository.
+Runtime operations such as `ddx work` and `ddx bead execute <id>` are
+provided by DDx, not this repository. Operator-facing methodology routing
+runs through the `/helix <mode>` skill modes.
 
 ## Demo Recording
 
@@ -347,7 +346,7 @@ git diff --check
 
 The skills checks are intentionally deterministic:
 
-- they assert HELIX ships no checkout CLI (`scripts/helix`/`bin/helix` absent)
+- they assert HELIX ships no checkout CLI wrapper (the runtime owns execution)
 - they validate skill packaging, metadata, and `workflows/` reference resolution
 - they avoid live Codex or Claude calls when validating checkout behavior
 
@@ -397,28 +396,28 @@ Pre-commit hooks must remain enabled. Do not use `--no-verify`.
 
 For new features or major work:
 
-1. `helix design [scope]` — create comprehensive design document
-2. `helix polish [scope]` — **decompose the plan into implementable beads**, then refine
-3. `helix run` — execute the implementation loop
+1. `/helix design [scope]` — create comprehensive design document
+2. `/helix polish [scope]` — **decompose the plan into implementable beads**, then refine
+3. `ddx work` — execute the implementation loop
 
 **Step 2 is mandatory.** Without polish, agents encounter undecomposed epics
 during build and attempt ad-hoc decomposition, producing poor breakdowns.
-`helix check` enforces this by recommending `POLISH` when plans exist without
-corresponding beads.
+`/helix check` enforces this by recommending `POLISH` when plans exist
+without corresponding beads.
 
 ## Metric-Driven Optimization
 
 For performance tuning, bundle size reduction, or other measurable optimization:
 
 1. Create a `activity:iterate` issue with the optimization goal
-2. `helix experiment [issue-id|goal]` — runs one experiment iteration
-3. The `helix-experiment` skill loops the action autonomously
+2. `/helix experiment [issue-id|goal]` — runs one experiment iteration
+3. The HELIX skill loops the experiment action autonomously
 4. All existing tests must pass after every iteration — tests are the spec
 5. Prefer simpler solutions; do not add complexity for marginal gains
 6. At session close, the experiment branch is squash-merged and performance
    ratchet floors are updated if thresholds are met
 
-Experiments are operator-invoked. `helix check` does not auto-dispatch them.
+Experiments are operator-invoked. `/helix check` does not auto-dispatch them.
 
 ## Issue Tracking with ddx bead
 

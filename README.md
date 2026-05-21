@@ -87,27 +87,27 @@ progress.
 Shape intent into governed work, then let DDx drain the ready queue:
 
 ```bash
-helix input "Build a REST API for managing bookmarks"
-ddx agent execute-loop
+/helix input "Build a REST API for managing bookmarks"
+ddx work
 ```
 
-The first command runs HELIX's alignment skill against your project's
+The first slash command invokes the HELIX skill against your project's
 artifacts, identifies what needs to change to support the new intent, and
 emits work items in the DDx tracker. The second runs DDx's bounded execution
 loop, dispatching agents to drain the queue. As work happens, the alignment
 skill keeps the governing artifacts in sync.
 
-Inside a Claude Code session, HELIX skills are available as slash commands.
-Skill consolidation is in progress; today's working surface:
+Inside a Claude Code session, HELIX is available through a single skill that
+routes to the appropriate mode:
 
 | Command | What it does |
 |---|---|
-| `/helix-input "build a bookmarks API"` | Shape intent into governed work items |
-| `/helix-align` | Reconcile the artifact tree top-down; emit a plan |
-| `/helix-frame` | Create or refine vision, PRD, feature specs |
-| `/helix-design auth` | Iteratively design a subsystem |
-| `/helix-evolve "add OAuth"` | Thread a new requirement through the artifacts |
-| `/helix-review` | Fresh-eyes review of recent work |
+| `/helix input "build a bookmarks API"` | Shape intent into governed work items |
+| `/helix align` | Reconcile the artifact tree top-down; emit a plan |
+| `/helix frame` | Create or refine vision, PRD, feature specs |
+| `/helix design auth` | Iteratively design a subsystem |
+| `/helix evolve "add OAuth"` | Thread a new requirement through the artifacts |
+| `/helix review` | Fresh-eyes review of recent work |
 
 ## Where the Artifacts Live
 

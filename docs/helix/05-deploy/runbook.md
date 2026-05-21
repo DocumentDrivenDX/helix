@@ -5,10 +5,10 @@
 - Service or component: `ddx-server` — the long-running platform service
   that owns the bead tracker (`.ddx/beads.jsonl`), agent worker pool, and
   execution evidence under `.ddx/exec-runs.d/`.
-- Primary function: Accept `ddx agent execute-bead` / `ddx agent execute-loop`
-  dispatch from HELIX skills, run the resulting model-provider calls, and
-  persist execution records that HELIX consumes during review.
-- Business impact if degraded: HELIX `helix run` and `helix build` cannot
+- Primary function: Accept `ddx bead execute` / `ddx work` dispatch from
+  HELIX skills, run the resulting model-provider calls, and persist
+  execution records that HELIX consumes during review.
+- Business impact if degraded: `ddx work` and `ddx bead execute` cannot
   advance the bead queue. Existing claims may go stale (orphan-recovery
   threshold default 7200s) but no data is lost — `.ddx/beads.jsonl` is
   durable on disk under git.
@@ -24,7 +24,7 @@
 
 | Situation | First dashboard, log, or query | First command or check | Owner |
 |-----------|--------------------------------|------------------------|-------|
-| `helix run` reports `BLOCKED` with no obvious bead-side cause | `helix status` | `ddx server workers list` and `curl -fsS http://127.0.0.1:7743/healthz` | Operator |
+| `ddx work` reports `BLOCKED` with no obvious bead-side cause | `ddx bead status` | `ddx server workers list` and `curl -fsS http://127.0.0.1:7743/healthz` | Operator |
 | Agent dispatch hangs or times out | `.ddx/agent-logs/<latest>` | `ddx server workers list` then `ddx server stop` / `ddx server start` | Operator |
 | Tracker writes appear torn or out of order | `git diff -- .ddx/beads.jsonl` | `ddx bead list --status in_progress --json` to find unreleased claims | Operator |
 | Port 7743 is in use at startup | `ss -lntp '( sport = :7743 )'` | Identify the conflicting process; kill it or change the bind port | Operator |
@@ -34,7 +34,7 @@
 
 | Dependency or boundary | Why it matters | Failure signal | Fallback or escalation |
 |------------------------|----------------|----------------|------------------------|
-| Model provider (OpenRouter, Anthropic, etc.) | Every agent call routes here | 4xx/5xx in agent logs; `ddx agent execute-bead` exits with provider error | Switch provider via env (`OPENROUTER_API_KEY` → `ANTHROPIC_API_KEY` etc.); operator-driven |
+| Model provider (OpenRouter, Anthropic, etc.) | Every agent call routes here | 4xx/5xx in agent logs; `ddx bead execute` exits with provider error | Switch provider via env (`OPENROUTER_API_KEY` → `ANTHROPIC_API_KEY` etc.); operator-driven |
 | `.ddx/beads.jsonl` on local filesystem | Tracker durability | `ddx bead list` errors; corrupt-JSON parse failures | Restore from git: `git checkout .ddx/beads.jsonl` after stopping the server |
 | Loopback port 7743 | Local control-plane access | Bind failure on startup | Kill conflicting process; or set `DDX_SERVER_PORT` to a free port and update `ddx server start` config |
 | `~/.ddx/` user-state dir | Server-managed state outside the repo | Permission errors at startup | Verify ownership; recreate if missing (state is reproducible from repo) |
@@ -44,9 +44,9 @@
 
 | Alert or symptom | Likely causes | Immediate checks | Stop and escalate when |
 |------------------|---------------|------------------|------------------------|
-| `helix run` repeatedly returns `NEXT_ACTION: WAIT` | No ready beads; or queue-drain gate is blocking on missing context | `ddx bead ready --json`; `helix status`; check focused-epic state | Beads exist as ready but workers idle — restart `ddx-server` |
+| `ddx work` repeatedly returns `NEXT_ACTION: WAIT` | No ready beads; or queue-drain gate is blocking on missing context | `ddx bead ready --json`; `ddx bead status`; check focused-epic state | Beads exist as ready but workers idle — restart `ddx-server` |
 | `ddx server workers list` shows zero healthy workers | Server crashed; or all workers wedged on a long model call | Check `.ddx/agent-logs/<latest>`; check `systemctl --user status ddx-server` | Crash loops more than 3x — capture logs and stop, do not restart blindly |
-| `claimed-at` ages exceed `HELIX_ORPHAN_THRESHOLD` (default 7200s) | Worker died without `--unclaim`; orphan recovery not yet swept | Wait for next sweep, or run `ddx bead unclaim <id>` manually after confirming the worker is dead | Recovery does not free the claim — investigate before forcing |
+| `claimed-at` ages exceed DDx orphan threshold (default 7200s) | Worker died without `--unclaim`; orphan recovery not yet swept | Wait for next sweep, or run `ddx bead unclaim <id>` manually after confirming the worker is dead | Recovery does not free the claim — investigate before forcing |
 | Provider 401/403 spikes | API key revoked, expired, or rate-limited | `echo "${OPENROUTER_API_KEY:0:8}…"`; provider dashboard | Key is valid but provider rejects — escalate to provider support |
 | Tracker file shows torn writes | Concurrent direct edit during a live run | `git diff .ddx/beads.jsonl`; check `events[]` for the affected bead | The bead `events[]` log does not match observable state — restore from git |
 
@@ -63,7 +63,7 @@
   3. Run `ddx bead unclaim <id>` to release the claim.
 - Validation:
   - `ddx bead show <id>` reports `status: open` and no claim metadata.
-  - `helix run` resumes and either reclaims or skips per the queue ordering.
+  - `ddx work` resumes and either reclaims or skips per the queue ordering.
 - Escalate to: N/A (operator-only service).
 
 ### Tracker File Corruption
@@ -79,7 +79,7 @@
 - Validation:
   - `ddx bead list --status open --json | jq length` returns the expected
     count.
-  - `helix status` shows a coherent queue.
+  - `ddx bead status` shows a coherent queue.
 - Escalate to: HELIX maintainers via repo issues if corruption is
   reproducible.
 
@@ -95,7 +95,7 @@
   3. If the key is genuinely expired, rotate at the provider, update the
      env, and restart.
 - Validation:
-  - One successful `ddx agent execute-bead --dry-run` against any ready bead.
+  - One successful `ddx bead execute --dry-run` against any ready bead.
 - Escalate to: Provider support if the key is valid but rejected.
 
 ## Rollback and Recovery
@@ -120,14 +120,14 @@
 
 - `curl -fsS http://127.0.0.1:7743/healthz` returns `200 OK`.
 - `ddx server workers list` shows at least one healthy worker.
-- `helix run --dry-run` produces a coherent next-action summary against
+- `ddx work --dry-run` produces a coherent next-action summary against
   the current queue.
 
 ## Routine Operations
 
 | Operation | Trigger or cadence | Command or workflow | Verification |
 |-----------|--------------------|---------------------|--------------|
-| Orphan-claim sweep | Automatic on each `helix run` cycle | Internal — no operator action required | `ddx bead list --status in_progress` shows no claims older than `HELIX_ORPHAN_THRESHOLD` |
+| Orphan-claim sweep | Automatic on each `ddx work` cycle | Internal — no operator action required | `ddx bead list --status in_progress` shows no claims older than the DDx orphan threshold |
 | `.ddx/agent-logs/` rotation | Operator discretion (logs are gitignored runtime state) | Manual: prune older than 30 days | Disk usage in `.ddx/agent-logs/` stays bounded |
 | Worker pool restart | After provider config or env change | `ddx server stop && ddx server start` | One successful execute against a ready bead |
 | API-key rotation | When provider issues a new key | Update env in operator rc; restart server | Single dry-run against a ready bead succeeds |

@@ -1,7 +1,7 @@
 ---
 title: "CONTRACT-001: DDx / HELIX Boundary Contract"
 slug: CONTRACT-001-ddx-helix-boundary
-weight: 240
+weight: 230
 activity: "Design"
 source: "02-design/contracts/CONTRACT-001-ddx-helix-boundary.md"
 generated: true
@@ -17,6 +17,10 @@ ddx:
     self_hash: a3a48304a395b3d52c41f7b833e639f4a5ae986e62f58284821687306d3049fb
     deps: {}
     reviewed_at: "2026-05-15T04:11:24Z"
+  status: superseded
+  superseded_at: 2026-05-21
+  superseded_reason: |
+    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ```
 
 # CONTRACT-001: DDx / HELIX Boundary Contract

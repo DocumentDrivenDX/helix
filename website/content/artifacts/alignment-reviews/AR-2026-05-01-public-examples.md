@@ -1,7 +1,7 @@
 ---
 title: "Alignment Review: Public Examples Audit"
 slug: AR-2026-05-01-public-examples
-weight: 640
+weight: 610
 activity: "Iterate"
 source: "06-iterate/alignment-reviews/AR-2026-05-01-public-examples.md"
 generated: true
@@ -11,6 +11,11 @@ collection: alignment-reviews
 > **Source identity** (from `06-iterate/alignment-reviews/AR-2026-05-01-public-examples.md`):
 
 ```yaml
+ddx:
+  status: superseded
+  superseded_at: 2026-05-21
+  superseded_reason: |
+    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 title: "Alignment Review: Public Examples Audit (2026-05-01)"
 date: 2026-05-01
 scope: HELIX_REAL_EXAMPLES mapping in scripts/generate-reference.py

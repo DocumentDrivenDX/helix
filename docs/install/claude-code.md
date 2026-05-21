@@ -34,14 +34,14 @@ and the catalog reachable at `workflows/activities/...`.
 Two TUI commands inside Claude Code:
 
 ```
-/plugin marketplace add easel/helix
+/plugin marketplace add DocumentDrivenDX/helix
 /plugin install helix@helix
 ```
 
 Or scripted (Dockerfile-friendly), suitable for use in automation:
 
 ```bash
-claude plugin marketplace add easel/helix
+claude plugin marketplace add DocumentDrivenDX/helix
 claude plugin install helix@helix --scope user -y
 ```
 
@@ -51,7 +51,7 @@ Verify with `claude plugin list`:
 ```
 $ claude plugin list
 NAME   VERSION  SOURCE
-helix  0.3.4    easel-helix
+helix  0.5.0    DocumentDrivenDX-helix
 ```
 
 ## Install path B: session-only via `--plugin-dir` (development / CI)
@@ -67,7 +67,7 @@ claude --plugin-dir /path/to/helix
 Or load a remote `.zip` (Claude Code v2.1.128+):
 
 ```bash
-claude --plugin-url https://github.com/easel/helix/archive/v0.3.4.zip
+claude --plugin-url https://github.com/DocumentDrivenDX/helix/archive/v0.5.0.zip
 ```
 
 Session-only loads do not persist. Once Claude Code exits, the plugin
@@ -93,7 +93,7 @@ flow is required for `claude -p`:
 
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
-claude plugin marketplace add easel/helix
+claude plugin marketplace add DocumentDrivenDX/helix
 claude plugin install helix@helix --scope user -y
 echo "List HELIX routing modes" | claude -p
 ```
@@ -107,7 +107,7 @@ claude plugin update helix@helix
 Or set `autoUpdate: true` in the marketplace configuration to auto-pull
 new versions of `helix` whenever the marketplace listing's version
 bumps. Anthropic-official marketplaces auto-update by default;
-third-party marketplaces (including `easel/helix`) default to manual.
+third-party marketplaces (including `DocumentDrivenDX/helix`) default to manual.
 
 Versioning falls through:
 1. Explicit `version` in `plugin.json` (bumped manually on releases)
@@ -181,6 +181,16 @@ markdown, write markdown, search files, and optionally execute a
 shell command. Claude Code provides all of these. If you see HELIX
 skill or workflow content that hard-codes a runtime command in its
 normative body, that is a bug against PRD R-4 and should be filed.
+
+## Refresh: keeping your HELIX tree current
+
+Refresh is a first-class HELIX mode that brings every artifact instance
+under a project HELIX tree up to date with the current canonical
+templates and prompts. Claude Code supports Refresh through the Agent
+tool: when you invoke Refresh, Claude Code dispatches parallel sub-agents
+per activity directory (00-discover, 01-frame, …, 06-iterate) for faster
+processing of large artifact trees. Refresh also runs sequentially if you
+prefer; both paths use the same underlying HELIX methodology.
 
 ## See also
 

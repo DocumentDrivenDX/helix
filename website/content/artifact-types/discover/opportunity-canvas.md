@@ -51,6 +51,13 @@ ddx:
     - example.product-vision.depositmatch
     - example.business-case.depositmatch
     - example.competitive-analysis.depositmatch
+  review:
+    self_hash: 75303097bfeeed0272bd68f90ef887f9a5e646a1272f9a57ccd0d899ae17497a
+    deps:
+      example.business-case.depositmatch: c09aae8ce2f4fe25d0cc3d021555b75cc6c0e6d713395957b368c7e17b4caf37
+      example.competitive-analysis.depositmatch: 732b5273a4a651c0ac6e10f66ce97b29772b1b706582cf8bcc5b72f4767aa793
+      example.product-vision.depositmatch: 8abbb2fcb552b536f07829f57d91ef3ae8dbf52a6066955222e83d196b59b5ae
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Opportunity Canvas

@@ -1,7 +1,7 @@
 ---
 title: "Plan: Fold DataHelix templates into the HELIX catalog"
 slug: plan-2026-05-17-fold-datahelix-templates
-weight: 350
+weight: 340
 activity: "Design"
 source: "02-design/plan-2026-05-17-fold-datahelix-templates.md"
 generated: true
@@ -120,7 +120,7 @@ Each new artifact-type directory needs a `meta.yml` matching
 - `description:`
 - `output:` (location, format, naming, examples)
 - `validation:` (required_sections, quality_checks; deterministic
-  `automated_checks` where possible — see TP-014-A on the catalog's
+  `automated_checks` where possible — see STP-014-A on the catalog's
   R-8 prose-vs-automated split)
 - `prompts:` (generation, review)
 - `template:` (file, sections)
@@ -186,7 +186,7 @@ Specific anchors:
 Each type needs a worked example. Realistic, not toy. Suggested
 domain: a customer-360 pipeline pulling from Salesforce and Stripe
 into a Databricks Lakehouse with Bronze/Silver/Gold layers. (This
-also seeds the `recipe-app` fixture for TP-014 Scenario 5 — pun aside,
+also seeds the `recipe-app` fixture for STP-014 Scenario 5 — pun aside,
 "customer-360" is a more realistic enterprise fixture than a recipe
 app for a data-engineering workflow.)
 
@@ -277,7 +277,7 @@ beads alone with this plan as the design doc.
    via `informed_by` or a new `extends:` field, or stay parallel?
    Defer; revisit if a second domain (ML, security, etc.) shows up
    asking for the same shape.
-2. **R-8 deterministic checks.** TP-014-A flagged that 66% of artifact
+2. **R-8 deterministic checks.** STP-014-A flagged that 66% of artifact
    types lack `automated_checks` in `meta.yml`. The data templates'
    Review Checklists are good candidates for deterministic translation
    (e.g. "all P0 requirements have at least one expectation" → a grep
@@ -318,6 +318,6 @@ beads alone with this plan as the design doc.
 - `workflows/artifact-schema.md` — meta.yml schema
 - `workflows/activities/02-design/artifacts/data-design/` — adjacent
   existing type
-- `docs/helix/03-test/test-plans/TP-014-appendix-real-world-patterns.md`
+- `docs/helix/03-test/test-plans/STP-014-appendix-real-world-patterns.md`
   §Patterns NOT covered — notes catalog R-8 gap and recommends
   prose-first

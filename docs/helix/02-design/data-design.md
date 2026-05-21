@@ -1,3 +1,10 @@
+---
+ddx:
+  status: superseded
+  superseded_at: 2026-05-21
+  superseded_reason: |
+    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
+---
 # Data Design — HELIX Bead Tracker
 
 **Scope**: The `.ddx/beads.jsonl` issue tracker that anchors HELIX execution.

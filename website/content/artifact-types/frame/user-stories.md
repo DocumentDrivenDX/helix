@@ -75,6 +75,11 @@ ddx:
   id: example.user-story.depositmatch.upload-csv
   depends_on:
     - example.feature-specification.depositmatch.csv-import
+  review:
+    self_hash: ae65ec934b10e577641772c711eafec5a15dbb5854327d8240307341e2053f66
+    deps:
+      example.feature-specification.depositmatch.csv-import: d85530eb091209cf9989c9cac3bc1f1063358a5b79964ca0e5e7a384fa77c44a
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # US-001: Upload CSV Files for a Client

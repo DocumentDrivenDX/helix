@@ -259,10 +259,10 @@ Load active concerns following `.ddx/plugins/helix/workflows/references/concern-
 ### Action Input — DDx examples
 
 ```
-helix check
-helix check repo
-helix check FEAT-003
-helix check area:auth
+/helix check
+/helix check repo
+/helix check FEAT-003
+/helix check area:auth
 ```
 
 ### STEP 1 — DDx queue health commands
@@ -287,8 +287,8 @@ Prefer a real `ddx bead ready` view over status-only heuristics.
 
 ### STEP 4 — DDx suggested commands
 
-- `BUILD`: `helix build`
-- `DESIGN`: `helix design <scope>`
-- `POLISH`: `helix polish <scope>`
-- `ALIGN`: `helix align <scope>`
-- `BACKFILL`: `helix backfill <scope>`
+- `BUILD`: `ddx work` (or `ddx bead execute <id>` for a specific bead)
+- `DESIGN`: `/helix design <scope>`
+- `POLISH`: `/helix polish <scope>`
+- `ALIGN`: `/helix align <scope>`
+- `BACKFILL`: `/helix backfill <scope>`

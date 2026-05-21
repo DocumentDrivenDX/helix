@@ -6,15 +6,13 @@
 git clone https://github.com/DocumentDrivenDX/helix.git
 cd helix
 ddx install helix --local . --force
-ln -s "$(pwd)/scripts/helix" ~/.local/bin/helix
-helix doctor --fix
+ddx doctor
 ```
 
 This symlinks the plugin and skills so edits to your checkout are
-immediately reflected. `ddx install --local` will not overwrite the
-`~/.local/bin/helix` symlink on subsequent runs.
+immediately reflected.
 
-Claude Code plugin mode (alternative — skills only, no CLI):
+Claude Code plugin mode (alternative):
 
 ```bash
 claude --plugin-dir /path/to/helix
@@ -23,7 +21,7 @@ claude --plugin-dir /path/to/helix
 ## Testing
 
 ```bash
-just test          # CLI tests + skill validation
+just test          # skill validation + state rules + digests
 just check         # tests + lint
 just lint          # check for stale references
 ```
@@ -31,7 +29,6 @@ just lint          # check for stale references
 Individual test suites:
 
 ```bash
-bash tests/helix-cli.sh       # CLI wrapper integration tests
 bash tests/validate-skills.sh # Skill package structure validation
 ```
 
@@ -63,7 +60,7 @@ contributor tool, not part of the published HELIX skill surface.
 
 If not using the skill:
 
-1. Run `just test` and `helix doctor`
+1. Run `just test` and `ddx doctor`
 2. Build the site: `cd website && hugo --gc --minify`
 3. Re-record stale demos if needed (see `docs/demos/*/README.md`)
 4. Bump version in `.claude-plugin/plugin.json`

@@ -26,6 +26,13 @@ ddx:
     - example.opportunity-canvas.depositmatch
     - example.compliance-requirements.depositmatch
     - example.risk-register.depositmatch
+  review:
+    self_hash: 7a1136a9797454fae7cd398a1eeded819f907aae48866461d6640c2bdcae892c
+    deps:
+      example.compliance-requirements.depositmatch: ec7fb87a927f7e53a9c323e9af8ee73d667e4520ab596c130077d332d2783c9f
+      example.opportunity-canvas.depositmatch: 75303097bfeeed0272bd68f90ef887f9a5e646a1272f9a57ccd0d899ae17497a
+      example.risk-register.depositmatch: 4cfb9a77765bfa4a63e8ad9d98a656bb5c9b9bfb5c5569389cb8cf73e8c1c3ba
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Stakeholder Map

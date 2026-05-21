@@ -33,6 +33,13 @@ ddx:
     - example.user-story.depositmatch.upload-csv
     - example.solution-design.depositmatch.csv-import
     - example.contract.depositmatch.import-session-api
+  review:
+    self_hash: 064c51468da1d444da9c6f65d6c2502487724ac315fa3e6c50f9bbeffd3d69b9
+    deps:
+      example.contract.depositmatch.import-session-api: 0f6f77f7dca5d1d05590440459fe958f9620857ed3968839e537655dce27cd04
+      example.solution-design.depositmatch.csv-import: 4d5a2bf5c6b05affdcf7ecc35497aae9f7bb64007e45b62f2a87b42a6914aa00
+      example.user-story.depositmatch.upload-csv: ae65ec934b10e577641772c711eafec5a15dbb5854327d8240307341e2053f66
+    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Technical Design: TD-001-upload-csv-files
@@ -251,7 +258,7 @@ in development/test environments.
 <tr><th>Requires</th><td><em>None</em></td></tr>
 <tr><th>Enables</th><td><em>None</em></td></tr>
 <tr><th>Informs</th><td><a href="/artifact-types/test/test-plan/">Test Plan</a><br><a href="/artifact-types/build/implementation-plan/">Implementation Plan</a></td></tr>
-<tr><th>HELIX documents</th><td><a href="https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/02-design/technical-designs/TD-002-helix-cli.md"><code>docs/helix/02-design/technical-designs/TD-002-helix-cli.md</code></a></td></tr>
+<tr><th>HELIX documents</th><td><a href="https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/02-design/technical-designs/TD-012-artifact-types-navigation.md"><code>docs/helix/02-design/technical-designs/TD-012-artifact-types-navigation.md</code></a></td></tr>
 <tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Technical Design for User Story Prompt
 
 Create a concise technical design for one user story.
@@ -307,6 +314,13 @@ Use these local resource summaries as grounding:
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
   id: TD-XXX
+  review:
+    self_hash: 081ac39c2360ed0034e2a9bc05b5932fbd2baa2930b605c2ab947bf4548a2015
+    deps:
+      FEAT-XXX: a685da86c4c18a509196cb163f264af507cc966f804db574070e108a555bdf02
+      SD-XXX: ea6f092342409cc3f74e945b3ae421392eb4787113b828331c0fdfab359bf86d
+      US-XXX: 48b416257cf7acd8b225b785edcb09a125fed67521af9c8f115ec7dc2fbf23a3
+    reviewed_at: &quot;2026-05-15T04:11:24Z&quot;
 ---
 
 # Technical Design: TD-XXX-[story-name]

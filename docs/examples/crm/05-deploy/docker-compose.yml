@@ -1,0 +1,48 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: crm-postgres
+    environment:
+      POSTGRES_USER: crm
+      POSTGRES_PASSWORD: dev-password
+      POSTGRES_DB: crm_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crm"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: crm-api
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://crm:dev-password@postgres:5432/crm_dev
+      ENV: development
+      DEBUG: "false"
+      LOG_LEVEL: INFO
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  default:
+    name: crm-network

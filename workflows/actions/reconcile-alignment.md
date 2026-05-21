@@ -477,10 +477,10 @@ exist only as prose in the report.
 ### DDx action input examples
 
 ```
-helix align repo
-helix align auth
-helix align FEAT-003
-helix align US-042
+/helix align repo
+/helix align auth
+/helix align FEAT-003
+/helix align US-042
 ```
 
 ### DDx output trailer

@@ -5,13 +5,22 @@ prev: /use/workflow
 next: /reference/skills
 aliases:
   - /docs/cli
+ddx:
+  status: superseded
+  superseded_at: 2026-05-21
+  superseded_reason: |
+    HELIX collapsed to content-only methodology; CLI surface (scripts/helix, bin/helix, execute-loop, HELIX_SELECTED_ISSUE) was removed in commit 823aa1ac. Historical reference only — do not act on CLI commands in this document.
 ---
 
-The `helix` CLI is a compatibility shell orchestrator that sits on top of DDx
-primitives. It delegates work-item storage to `ddx bead` and agent dispatch to
-`ddx agent`, adding HELIX artifact discipline around runtime execution. New
-workflows should prefer `helix input` for intake and `ddx agent execute-loop`
-for queue drain.
+> **SUPERSEDED** — The `helix` CLI surface documented here was removed in the
+> HELIX collapse to a content-only methodology (commit 823aa1ac). The named
+> actions still exist as modes of the HELIX skill (e.g., `/helix-frame`,
+> `/helix-align`, `/helix-review`). Queue drain has moved to `ddx work`. This
+> page is retained for historical context.
+
+The `helix` CLI was a compatibility shell orchestrator that sat on top of DDx
+primitives. It delegated work-item storage to `ddx bead` and agent dispatch to
+`ddx agent`, adding HELIX artifact discipline around runtime execution.
 
 ## Commands
 
