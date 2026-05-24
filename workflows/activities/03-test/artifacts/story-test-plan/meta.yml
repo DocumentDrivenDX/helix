@@ -55,6 +55,10 @@ validation:
       expected: ">=2"
       message: Must name concrete tests, commands, or fixtures rather than prose only
 
+    - pattern: "US-[0-9]+-AC[0-9]+"
+      expected: ">=1"
+      message: The AC↔test matrix must key each row on the story's stable US-<n>-AC<m> ID
+
   quality_checks:
     - check: acceptance_traced
       description: Every active acceptance criterion maps to at least one concrete failing test

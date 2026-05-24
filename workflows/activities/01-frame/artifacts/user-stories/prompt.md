@@ -83,6 +83,15 @@ clear precondition, one action, one observable outcome. Avoid compound
 criteria ("Given A and B and C, when D, then E and F and G"). Split those
 into separate criteria.
 
+Each criterion carries a **stable AC ID** of the form `US-<n>-AC<m>` (e.g.
+`US-001-AC1`), where `<n>` is this story's number. The ID is stable across edits
+so downstream artifacts reference a specific criterion by name. The story test
+plan (STP) owns the matrix that maps each AC ID to the failing test(s) that
+prove it — do **not** duplicate that matrix here; the story just defines the
+criteria and their IDs. The project-level test plan (TP) aggregates strategy and
+allocates criteria to test layers; it does not restate the per-AC matrix either
+(FEAT-008 FR-6).
+
 ### Edge Cases
 What happens when the user does something unexpected, inputs are invalid,
 or the system is in an unusual state? Each edge case names the condition and
@@ -119,6 +128,7 @@ committing.
 - [ ] "So that" names a measurable outcome, not a tautology
 - [ ] Walkthrough traces a complete path from trigger to outcome
 - [ ] Every acceptance criterion is independently testable (one Given/When/Then)
+- [ ] Every acceptance criterion carries a stable `US-<n>-AC<m>` ID
 - [ ] Test scenarios include concrete values, not placeholders
 - [ ] Story links to parent feature spec by ID
 - [ ] Story names the parent feature requirement IDs it exercises

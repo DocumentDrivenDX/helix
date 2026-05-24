@@ -318,6 +318,22 @@ those wrappers for closure evidence. Narrower package or file commands are for
 debugging after the canonical lane fails; they do not replace the maintained
 closure surface.
 
+**Self-validation mode-gate (must fail on findings).** Verification is not
+complete until the *verify activity* over this work yields no blocking finding.
+This is a workflow-mode gate, not a literal "run validate then align then
+check" command list — running those actions from inside build would recurse the
+loop. Concretely, before closing the item confirm:
+
+- every acceptance criterion the item claims is `SATISFIED`, not merely
+  `UNTESTED`, and
+- the **claims-vs-reality** check passes: the item and the artifacts it touched
+  assert no test, coverage figure, or emitted metric that does not exist —
+  `ASSERTED_UNBACKED` count is **zero** (phantom-claim zero-floor ratchet, see
+  `.ddx/plugins/helix/workflows/ratchets.md` and FEAT-016).
+
+A blocking finding here fails verification exactly like a failing test: fix it
+within scope or leave the item open with a precise status note.
+
 If verification fails:
 
 - fix the problem within the work item scope, or

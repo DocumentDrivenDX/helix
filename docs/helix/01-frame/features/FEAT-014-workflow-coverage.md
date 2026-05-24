@@ -212,6 +212,8 @@ against expectations, no-LLM scenarios pass).
 | SCN-11..14 | TP-014-A extensions implemented | scenario fixtures staged | per-scenario verify scripts run | exit 0 on each |
 | SCN-15..18 | Refusal hardening evidence | bare-`do-it` / scope-complaint / blocker-pushback / check-improvising fixtures | run scenario | runtime refuses to improvise; output names the expected route or clarifying question |
 | ENT-01..03 | Harness entry works | clean repo | `just workflow-test` then `just workflow-test-functional` | both exit 0 |
+| MG-01 | build/evolve/review actions | their action prompts are read | each names a verify-activity mode-gate that fails on findings (not a literal validate+align+check command list) |
+| MG-02 | a completed workflow run | convergence is evaluated | "verified + finding-classes folded into gates" is the criterion; a bare reviewer "SHIP" does not by itself close the loop |
 
 ### Non-Functional Requirements
 
@@ -226,6 +228,40 @@ against expectations, no-LLM scenarios pass).
 - **Auditability**: every recording carries a timestamp and HELIX
   version. Recordings dir contains a `.json` sidecar per recording
   (mirroring `tests/install/genie/recordings/<date>.json`).
+
+## Self-Validation Meta-Gates and Convergence
+
+HELIX's verification activities (`validate`, `align`, `check`) exist but did not
+run *inside* the build/evolve/review loop, so finding-classes recurred. FEAT-014
+mandates that self-validation run as **workflow-mode gates** and defines what
+"done" actually means.
+
+### MG-01: Self-validation runs as workflow-mode gates, not literal commands
+
+The build, evolve, and review actions (and the `measure`/`report` actions they
+embed) MUST each name a **verify-activity gate** that fails on findings. The
+gate is expressed as a workflow mode/activity that must pass — e.g. "the
+acceptance-criteria + claims-vs-reality classification yields no blocking
+finding" — **not** as a literal "run `validate` then `align` then `check`"
+command list. Naming literal action commands would recurse the loop into
+itself; naming the *mode-gate* (the verification activity whose output must be
+clean) does not.
+
+### MG-02: Convergence ≠ "the reviewer says SHIP"
+
+A workflow converges when **(a)** the work is *verified* — acceptance criteria
+satisfied, concern gates green, ratchets within floor, zero `ASSERTED_UNBACKED`
+claims ([[FEAT-016]]) — **and (b)** each finding-class surfaced during the run
+has been *folded back into a gate* so the same class cannot silently recur. A
+reviewer verdict of "SHIP" is evidence, not the definition. Re-splatting the
+whole artifact set on every review is forbidden; progressive `evolve` against
+the specific finding-class is the convergence path.
+
+### MG-03: Cross-reference
+
+The honesty property the meta-gates enforce is governed by [[FEAT-016]]; a
+phantom claim is a blocking finding-class that MUST be folded into a gate, never
+waved through by a reviewer verdict.
 
 ## User Stories
 

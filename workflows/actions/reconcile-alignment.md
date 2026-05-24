@@ -213,12 +213,26 @@ For each user story and feature spec in the reviewed scope:
    - **TESTED_NOT_PASSING** — test exists but fails
    - **UNTESTED** — no test covers this criterion
    - **UNIMPLEMENTED** — no implementation addresses this criterion
+   - **ASSERTED_UNBACKED** — an artifact *claims* this criterion is satisfied, or names a test
+     that covers it, or states a coverage figure or emitted metric, but verification against the
+     implementation finds no backing reality (the named test does not exist, the metric is never
+     emitted, the figure is invented). This is a **phantom claim** — distinct from UNTESTED, which
+     is honest about the gap; ASSERTED_UNBACKED asserts something untrue. It is a
+     traceability-honesty defect.
+3a. **Claims-vs-reality check (honesty rule).** Every artifact assertion about a test, a coverage
+    figure, or an emitted metric/signal must resolve to something that actually exists in the
+    implementation, test suite, or emitted telemetry. Verify each such claim against reality. A
+    claim with no backing is classified ASSERTED_UNBACKED.
 4. Record results in the Gap Register with the governing artifact as planning
    evidence and the test or code file as implementation evidence.
 5. If the project has adopted an acceptance criteria ratchet, compare the
    current satisfaction count against the committed floor. Flag any regression
    — a decrease in SATISFIED criteria that was not accompanied by a floor
    override.
+6. **Phantom-claim floor is zero.** The ASSERTED_UNBACKED count must be 0; any phantom claim is a
+   blocking regression regardless of the satisfaction floor. Resolve each by either making the
+   claim true (add the test / emit the metric) or deleting the claim from the artifact — never by
+   weakening or removing the check.
 
 ## STEP 4 - Gap Classification
 
@@ -377,6 +391,14 @@ report action for the full pattern.
    missing traceability), create follow-on work items.
 3. The execution items created in Step 7 are the primary output — they
    re-enter the planning cycle for polish and then build.
+
+**Convergence criterion.** Alignment converges when the scope is **verified**
+(every gap classified, traceability complete, zero `ASSERTED_UNBACKED` per Step
+3) **and** each finding-class is **folded back into a gate** so it cannot
+silently recur — not when a review simply reports "aligned." Resolve findings by
+**progressive evolve** against the specific gap rather than re-splatting the
+artifact stack; wholesale regeneration discards prior alignment work and
+reintroduces resolved finding-classes.
 
 ## Output Format
 

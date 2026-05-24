@@ -46,3 +46,22 @@
 - Workspace deps: reference with `"workspace:*"` in package.json
 - Lock file: `bun.lock` (text format, committed)
 - Audit: `bun audit` for known vulnerabilities
+
+## Composed-Concern Friction (known)
+- **Bun-native APIs require the Bun runtime at execution, not just at install.**
+  Modules like `bun:sqlite`, `Bun.serve()`, and `Bun.file()` resolve only when
+  the process is the Bun runtime. A tool that shells out to Node — notably
+  `next build`/`next start` from the `react-nextjs` concern — fails to resolve
+  `import { Database } from "bun:sqlite"` because the Next.js build/runtime is
+  Node, not Bun.
+- **Fix: force the Bun runtime with `bun --bun`.** Run Next.js (and any tool
+  that would otherwise spawn Node) under `bun --bun run <script>` so `bun:*`
+  built-ins resolve. Without `--bun`, `bun run next build` still hands execution
+  to Node and the import fails.
+- **Alternative**: keep `bun:sqlite` out of the Next.js build/runtime path —
+  isolate it in a separate Bun-runtime service/process and reach it over an
+  interface the Next.js layer can call. Choose `--bun` for a single-process app;
+  choose isolation when the frontend must build/run under plain Node.
+- When both `typescript-bun` and `react-nextjs` are active, declare which
+  resolution the project uses as a **project override** in `concerns.md` so the
+  choice is explicit rather than rediscovered at build time.

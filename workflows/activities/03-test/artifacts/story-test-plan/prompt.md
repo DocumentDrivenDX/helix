@@ -31,7 +31,10 @@ Use these local resource summaries as grounding:
 
 - the governing `[[US-XXX-*]]` and `[[TD-XXX-*]]` references
 - a tight scope statement plus explicit out-of-scope boundaries
-- a matrix mapping each active acceptance criterion to concrete failing tests
+- a matrix mapping each active acceptance criterion to concrete failing tests,
+  keyed by the story's **stable `US-<n>-AC<m>` ID** (this story-level matrix is
+  the AC↔test traceability surface; the project test plan aggregates strategy
+  and allocates layers but does not duplicate these rows — FEAT-008 FR-6)
 - executable proof details: test file paths, commands, or named test cases
 - setup, fixtures, seed data, mocks, and environment assumptions
 - edge cases and error scenarios that the story must prove before build begins

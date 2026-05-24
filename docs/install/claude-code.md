@@ -158,6 +158,25 @@ Users state intent; the skill routes. Supported shapes:
 - Natural-language ask: "use HELIX to evolve the auth requirement
   through the spec stack". Claude Code matches by skill description.
 
+### Interactive vs headless activation
+
+The `/helix` slash form is an **interactive-session** convenience. In headless
+/ non-interactive runs (`claude -p "..."`, CI, or any pipe), slash commands are
+inert — they are not expanded. To activate HELIX headlessly, phrase the request
+**by skill name or description** so the skill matches:
+
+```bash
+# Headless: name the skill / describe the work — do NOT rely on "/helix ..."
+echo "Use the helix skill to align docs/helix/01-frame/prd.md with the designs" | claude -p
+```
+
+Rule of thumb: interactive → `/helix <mode>`; headless → name "helix" (or
+describe HELIX work) in the prompt. The routing table in
+[`skills/helix/SKILL.md`](../../skills/helix/SKILL.md) is identical for both;
+only the activation phrasing differs. See
+[FEAT-013](../helix/01-frame/features/FEAT-013-runtime-install-coverage.md) for
+the per-runtime activation coverage.
+
 Claude Code resolves the `helix` skill in this order:
 1. `~/.claude/plugins/helix/skills/helix/` (installed plugin)
 2. Session `--plugin-dir` target

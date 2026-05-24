@@ -49,6 +49,23 @@
 - No `any` in component props or hook return types
 - No inline styles — use Tailwind classes
 
+## Composed-Concern Friction with typescript-bun (known)
+- **`next build`/`next start` run under Node, not Bun.** Even when launched with
+  `bun run`, Next.js hands execution to Node. Any Bun-native import in a path
+  Next.js builds or runs — most commonly `import { Database } from "bun:sqlite"`
+  for a colocated data layer — fails to resolve at build time.
+- **Fix: run Next.js under `bun --bun`.** Use `bun --bun run next build` /
+  `bun --bun run dev` so `bun:*` built-ins resolve in the Next.js process.
+  Wire this into the package scripts (e.g. `"dev": "bun --bun next dev"`) so it
+  is not forgotten on CI.
+- **Alternative**: keep `bun:sqlite` (and other `bun:*` built-ins) out of the
+  Next.js runtime — put the data layer in a separate Bun service the Next.js app
+  calls over an API, leaving the frontend free to build under plain Node.
+- Record the chosen resolution as a project override in
+  `docs/helix/01-frame/concerns.md` when both `react-nextjs` and `typescript-bun`
+  are active. See the `typescript-bun` practices "Composed-Concern Friction"
+  section for the runtime-side detail.
+
 ## Accessibility
 - All interactive elements must have accessible labels (aria-label, aria-labelledby, or visible text)
 - shadcn/ui + Radix provide WCAG 2.1 AA keyboard and screen reader support by default — do not override with custom handlers that break accessibility

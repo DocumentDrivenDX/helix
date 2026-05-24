@@ -30,12 +30,26 @@ artifacts unless the scope explicitly asks you to revise them.
    reference for this runtime. Use them to shape requirements priorities. If no
    project principles file exists, note that you will bootstrap one as part of
    this frame action.
-0a. **Load or initialize active concerns** following the concern-resolution
-   reference for this runtime. If `docs/helix/01-frame/concerns.md` does not
-   exist, include concern selection as part of the framing conversation — ask
-   the user about their technology choices and create the concerns document
-   alongside other Frame artifacts. Concern selections inform feasibility,
-   constraints, and deployment sections of the PRD and feature specs.
+0a. **Concern selection is a required Frame step.** Load or initialize active
+   concerns following the concern-resolution reference for this runtime. A frame
+   pass is not complete until concerns are selected (or it is explicitly
+   recorded that no concerns apply) — shipping feature specs with no concern
+   decision is a framing gap, not an acceptable default-empty state (FEAT-006
+   FR-14). If `docs/helix/01-frame/concerns.md` does not exist, resolve the
+   selection by autonomy level (see `input.md` autonomy semantics and FEAT-011):
+   - **`low` / `medium`**: drive concern selection interactively — ask the user
+     per category (tech stack, data, infrastructure, quality) and create the
+     concerns document alongside other Frame artifacts.
+   - **`high`**: **infer** the concern selection from the product's nature
+     (e.g. a web app implies a tech-stack + frontend + `a11y-wcag-aa` concern; an
+     API service implies tech-stack + `o11y-otel` + `security-owasp`), write
+     `concerns.md`, and record each inferred concern as an assumption rather than
+     pausing to ask. Never overwrite an existing `concerns.md` by inference;
+     detect conflicts among inferred concerns per `concern-resolution.md`.
+
+   Concern selections inform feasibility, constraints, and deployment sections of
+   the PRD and feature specs. Selection happens here, once; propagation to beads
+   is a later **gate** owned by `check`/`polish`, not a re-selection.
 
 ## STEP 1 — Discovery
 
@@ -277,8 +291,12 @@ See the measure action for the full pattern.
    and `prompt.md` pass for each artifact.
 3. **Work item creation**: Downstream design work items have been filed for
    each feature spec.
-4. **Concern alignment**: If concerns were selected or updated, verify
-   consistency with artifact content.
+4. **Concern selection (required)**: verify concern selection was performed —
+   `docs/helix/01-frame/concerns.md` exists with an active selection (or an
+   explicit "no concerns apply" record). At high autonomy, verify inferred
+   concerns are recorded as assumptions. Verify consistency with artifact
+   content. A frame pass that produced feature specs but no concern decision
+   fails this gate.
 5. **Record results** on the governing work item via the runtime tracker.
 
 ## STEP 7 — Report

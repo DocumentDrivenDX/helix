@@ -57,6 +57,7 @@ Follow-on categories:
 | `acceptance-failure` | An acceptance criterion could not be satisfied |
 | `concern-gap` | A concern-declared quality gate failed or coverage is missing |
 | `ratchet-regression` | A ratchet measurement dropped below the floor |
+| `phantom-claim` | A claims-vs-reality check classified an artifact assertion as `ASSERTED_UNBACKED` (zero-floor; see `.ddx/plugins/helix/workflows/ratchets.md` and FEAT-016) |
 | `follow-on` | Execution revealed additional work outside scope |
 
 Follow-on work items enter the planning cycle — they will be refined by the

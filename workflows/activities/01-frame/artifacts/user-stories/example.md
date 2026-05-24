@@ -4,10 +4,10 @@ ddx:
   depends_on:
     - example.feature-specification.depositmatch.csv-import
   review:
-    self_hash: ae65ec934b10e577641772c711eafec5a15dbb5854327d8240307341e2053f66
+    self_hash: b87b259be7a0ac9a75516d5868742aed44b6af05ab12d10aa4535a3cae24e9b6
     deps:
       example.feature-specification.depositmatch.csv-import: d85530eb091209cf9989c9cac3bc1f1063358a5b79964ca0e5e7a384fa77c44a
-    reviewed_at: "2026-05-15T04:11:24Z"
+    reviewed_at: "2026-05-24T23:28:08Z"
 ---
 
 # US-001: Upload CSV Files for a Client
@@ -45,15 +45,15 @@ covered by follow-on stories.
 
 ## Acceptance Criteria
 
-- [ ] Given Maya is viewing Acme Dental, when she uploads one valid bank CSV and
-  one valid invoice CSV, then DepositMatch creates one draft import session for
-  Acme Dental and opens mapping review.
-- [ ] Given Maya is viewing Acme Dental, when she uploads a PDF instead of a
-  CSV for either required file, then DepositMatch rejects the file before
-  parsing and keeps the import session in draft.
-- [ ] Given Maya has uploaded both required CSV files, when the files are
-  accepted, then the import session records the client, file names, upload time,
-  and source type for each file.
+- [ ] **US-001-AC1** — Given Maya is viewing Acme Dental, when she uploads one
+  valid bank CSV and one valid invoice CSV, then DepositMatch creates one draft
+  import session for Acme Dental and opens mapping review.
+- [ ] **US-001-AC2** — Given Maya is viewing Acme Dental, when she uploads a PDF
+  instead of a CSV for either required file, then DepositMatch rejects the file
+  before parsing and keeps the import session in draft.
+- [ ] **US-001-AC3** — Given Maya has uploaded both required CSV files, when the
+  files are accepted, then the import session records the client, file names,
+  upload time, and source type for each file.
 
 ## Edge Cases
 
@@ -66,11 +66,11 @@ covered by follow-on stories.
 
 ## Test Scenarios
 
-| Scenario | Input / State | Action | Expected Result |
-|----------|---------------|--------|-----------------|
-| Happy path | Client `Acme Dental`; files `acme-bank-2026-05-08.csv` and `acme-invoices-2026-05-08.csv` | Maya uploads both files | Draft import session is created for Acme Dental and mapping review opens |
-| Wrong file type | Client `Acme Dental`; bank file `statement.pdf`; invoice file `acme-invoices-2026-05-08.csv` | Maya uploads both files | PDF is rejected before parsing; session remains draft |
-| Missing invoice file | Client `Acme Dental`; bank file only | Maya uploads the bank file | Bank file is attached to draft session; mapping review does not open |
+| Scenario | AC ID | Input / State | Action | Expected Result |
+|----------|-------|---------------|--------|-----------------|
+| Happy path | US-001-AC1 | Client `Acme Dental`; files `acme-bank-2026-05-08.csv` and `acme-invoices-2026-05-08.csv` | Maya uploads both files | Draft import session is created for Acme Dental and mapping review opens |
+| Wrong file type | US-001-AC2 | Client `Acme Dental`; bank file `statement.pdf`; invoice file `acme-invoices-2026-05-08.csv` | Maya uploads both files | PDF is rejected before parsing; session remains draft |
+| Missing invoice file | US-001-AC2 | Client `Acme Dental`; bank file only | Maya uploads the bank file | Bank file is attached to draft session; mapping review does not open |
 
 ## Dependencies
 

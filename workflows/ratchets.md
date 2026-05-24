@@ -5,11 +5,11 @@ ddx:
     - helix.workflow
     - helix.workflow.principles
   review:
-    self_hash: f50b62b75bd98b088f04296a535d7d486be81b1c7799d2cd90be0c80376346a6
+    self_hash: 58ab1d0ff5890f281670614f76b23dfc898fe67261014cbc1aae9963375b6db9
     deps:
-      helix.workflow: 1225132b3050598055eacb5462639824d78ac204cca2cbeda3611766532e79c8
-      helix.workflow.principles: fb5c6c17965c55103a0fd1d5933d8d7d0b6f531e31ae99d162a9783005017a56
-    reviewed_at: "2026-05-15T04:11:24Z"
+      helix.workflow: 7dc55815a4649a86879857528c18641203cd554ec682793c2f249e7497a9b2e0
+      helix.workflow.principles: b6e5a4f79219e6edf708798b7860d1f22d7ef0e895de42acf66a160d3f586b33
+    reviewed_at: "2026-05-24T23:28:08Z"
 ---
 # Quality Ratchets
 
@@ -131,6 +131,17 @@ protocol.
 **Co-staging**: when the floor fixture is updated, the sibling planning
 artifact (test plan, acceptance manifest, or equivalent) should be staged in
 the same commit to maintain traceability.
+
+**Phantom-claim sub-ratchet (claims-vs-reality, floor = 0)**: reconcile-alignment Step 3 classifies a
+criterion as `ASSERTED_UNBACKED` when an artifact claims a test, coverage figure, or emitted metric
+that does not actually exist. This is a traceability-*honesty* defect that template-conformance checks
+do not catch — an artifact can be perfectly well-formed and still assert tests that were never written.
+The phantom-claim count is a ratchet with a permanent floor of **zero**: any `ASSERTED_UNBACKED`
+criterion is a blocking regression, resolved only by making the claim true or deleting it (never by
+relaxing the check). Adopting projects enforce it in the same gate as the acceptance-criteria ratchet
+(Build Step 7, Check Step 2, reconcile-alignment Step 3/7). Rationale: external adversarial review
+repeatedly surfaced "the docs claim tests that don't exist"; folding that class back in as a zero-floor
+ratchet makes HELIX catch it internally instead of relying on an outside reviewer.
 
 ### Test Coverage Ratchet
 

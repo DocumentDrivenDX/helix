@@ -20,8 +20,22 @@ You receive:
 - `medium`: Create deterministic non-conflict artifacts. Pause for user input
   when ambiguity or conflict blocks deterministic progress on an affected artifact.
 - `high`: Create downstream artifacts without interactive prompts unless blocked
-  by a physics-level constraint. Create speculative work items for assumptions
-  rather than asking.
+  by a hard-stop constraint. Create speculative work items for assumptions
+  rather than asking. When no `concerns.md` exists, infer the concern selection
+  from the product nature and record it as an assumption (FEAT-011 FR-3).
+
+**Resolution precedence (FEAT-011 FR-2)**: resolve the active level first-match
+wins — (1) per-invocation override (the level passed with the request) →
+(2) governing artifact frontmatter / project policy (`autonomy:` value) →
+(3) runtime default (`medium`). `CLAUDE.md` and runtime-specific instruction
+files are not part of this chain; the autonomy signal lives only in
+runtime-neutral artifacts.
+
+**Invariants (all levels)**: autonomy changes *checkpoint density*, never the
+*stop floor*. A hard stop — a true higher/equal-authority contradiction, an
+unauthorized destructive action, or a human-only decision — stops the workflow
+at every level. Autonomy never collapses the seven-activity loop or skips an
+activity the work requires.
 
 ## Authority Order
 

@@ -98,6 +98,38 @@ activity sub-directories, surface a setup gap rather than improvising.
 Batch operations on chat-only runtimes (Databricks Genie Code, GitHub
 Copilot) require step 1 — the operator names the root in the prompt.
 
+## Autonomy
+
+HELIX expresses an autonomy **policy**; the runtime supplies the agency. The
+policy is a three-position spectrum that controls **how often a workflow pauses
+for confirmation** — never which activities run.
+
+| Level | Behavior |
+|---|---|
+| `low` | Ask before each step and before creating each downstream artifact. Do not infer unconfirmed scope. Concern selection stays interactive. |
+| `medium` (default) | Create deterministic non-conflict artifacts; pause when ambiguity or conflict blocks deterministic progress. Prompt for concern selection when none exists. |
+| `high` | Create downstream artifacts without pausing unless a hard stop blocks progress; record assumptions as speculative work rather than asking. When no concerns are declared, **infer** the concern selection from the product's nature and record it as an assumption. |
+
+**Resolution precedence** (first match wins): per-invocation override →
+governing artifact frontmatter / project policy → runtime default (`medium`).
+The autonomy signal lives only in runtime-neutral artifacts; do not read or
+write it from a runtime instruction file.
+
+**Hard-stop invariant (all levels).** Autonomy changes the *pause threshold*,
+never the *stop floor*. Stop and surface to a human, at any level, when two
+higher-or-equal-authority artifacts truly contradict, when the next action is
+destructive or irreversible and unauthorized, or when a decision only a human
+can make is required. High autonomy proceeds through *resolvable* conflicts
+(recording assumptions); it never proceeds through a hard stop.
+
+**Never-collapse-the-loop invariant (all levels).** Autonomy changes checkpoint
+density only. It never collapses the seven-activity loop into one generic prompt
+and never skips an activity the work requires — a high-autonomy run executes the
+same activities a low-autonomy run would, pausing less often.
+
+Routes that pause (input, frame, evolve, design, build) honor the resolved
+level; routes that select concerns honor the high-autonomy inference path.
+
 ## Workflow Contracts
 
 ### Input
@@ -118,11 +150,22 @@ Use for creating or refining product vision, PRD, feature specs, and user
 stories.
 
 1. Read existing Frame artifacts first.
-2. Read the relevant artifact template and prompt before drafting.
-3. Keep each artifact in its lane: vision is direction, PRD is product scope,
+2. **Select concerns — this is a required Frame step.** A frame pass is not
+   complete until the project's concerns are selected (or it is explicitly
+   recorded that none apply); shipping feature specs with no concern decision is
+   a framing gap, not an acceptable default-empty state. At `low`/`medium`,
+   drive selection interactively by category (tech stack, data, infrastructure,
+   quality). At `high`, infer the selection from the product's nature and record
+   each inferred concern as an assumption. Selection happens here, once;
+   propagation to work items is a later gate owned by `check`/`polish`, not a
+   re-selection.
+3. Read the relevant artifact template and prompt before drafting.
+4. Keep each artifact in its lane: vision is direction, PRD is product scope,
    feature specs are feature behavior, stories are vertical user outcomes.
-4. Validate blocking template checks before treating the artifact as ready.
-5. Create follow-up design or implementation work only after the framing
+5. Give each user-story acceptance criterion a stable `US-<n>-AC<m>` ID in
+   Given/When/Then form so the story test plan can map it to tests by name.
+6. Validate blocking template checks before treating the artifact as ready.
+7. Create follow-up design or implementation work only after the framing
    artifact can govern it.
 
 ### Align
@@ -233,6 +276,10 @@ the HELIX artifact stack.
    updated upstream — do not silently overwrite the downstream; route it
    through the §Align gap-to-implementation handoff instead.
 7. Create follow-up work with dependencies where ordering matters.
+8. Prefer **progressive evolution** of the specific affected artifacts over
+   re-generating the stack. Converge on "verified + each finding-class folded
+   into a gate" (a template check, an acceptance criterion, a concern
+   propagation check, or a ratchet) — not on a bare reviewer "SHIP" verdict.
 
 ### Design
 
@@ -265,8 +312,15 @@ Use for fresh-eyes review of plans, PRs, implementation, or recent work.
 2. Inspect governing artifacts, changed implementation, tests, and public
    projection relevant to the scope.
 3. Report findings first, ordered by severity, with concrete evidence.
-4. File durable follow-up work for actionable medium-or-higher findings in
+4. Run the **claims-vs-reality** check: any artifact assertion of a test,
+   coverage figure, or emitted metric that does not exist is a blocking
+   phantom-claim finding (zero-floor), not a stylistic note.
+5. File durable follow-up work for actionable medium-or-higher findings in
    the project's work tracker.
+6. A clean verdict is necessary but not sufficient: the loop converges only
+   when the work is verified **and** each finding-class is folded back into a
+   gate so it cannot silently recur. Drive fixes by progressive evolve against
+   the specific finding, not by re-generating the artifact or implementation.
 
 ### Polish
 
@@ -303,7 +357,10 @@ Use only when the user explicitly asks for HELIX execution.
 2. Run handles the bounded operator loop over ready work.
 3. Stay within the governing bead/work item.
 4. Do not broaden scope beyond the named work.
-5. Verify with the project gate before reporting completion.
+5. Verify with the project gate before reporting completion. Verification
+   includes the self-validation mode-gate: acceptance criteria satisfied and the
+   claims-vs-reality check clean (zero phantom claims). This is a verify-activity
+   gate, not a literal validate-then-align-then-check command sequence.
 
 ### Commit
 

@@ -140,6 +140,21 @@ enabled = false
 
 Restart Codex after config changes.
 
+## Activation phrasing (by name, not slash)
+
+Codex CLI has no `/helix` slash-command surface. Activate HELIX by **naming the
+skill or describing the work** in the prompt — this is also the correct pattern
+for headless `codex exec` runs, where slash-style commands are inert:
+
+```bash
+codex exec --ephemeral "Use the helix skill to align the PRD with the designs"
+```
+
+The routing table in [`skills/helix/SKILL.md`](../../skills/helix/SKILL.md) is
+the same regardless of phrasing; only activation differs across runtimes. See
+[FEAT-013](../helix/01-frame/features/FEAT-013-runtime-install-coverage.md) for
+per-runtime activation coverage.
+
 ## Auth in Docker / non-interactive
 
 Codex requires authentication. For containerized use:

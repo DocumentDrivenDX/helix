@@ -5,11 +5,11 @@ ddx:
     - helix.prd
     - FEAT-003
   review:
-    self_hash: a44d0a40e5cb883e31c5f6b150a77070fa427bb8f834345908aefaf1cffb38ce
+    self_hash: 86de259dd0c102d55d3c5be0d735ece88f6a08226edc480aabfc4c9640596453
     deps:
-      FEAT-003: ea9237a63d44dd850014fa35d891e8e54a9f68ebde157bdd0915065206b45e96
-      helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
-    reviewed_at: "2026-05-15T04:11:24Z"
+      FEAT-003: cffa789e17a8096655a4a7621d6884e02d2a8dc29da9283bfcca35125eba300d
+      helix.prd: 2b22383538b33c6ecee57f43d85128dfef7d56254766b757aa36439e35f2bfc9
+    reviewed_at: "2026-05-24T23:26:16Z"
 ---
 # Feature Specification: FEAT-006 — Concerns, Practices, and Context-Digest Beads
 
@@ -377,6 +377,20 @@ context without paying the read cost.
     a11y, o11y, i18n).
 13. Concern practices and project overrides must reference governing ADRs
     when an override departs from the library default.
+14. **Concern selection is a required Frame step.** `/helix frame` must select
+    concerns (or explicitly record "no concerns apply") before the frame pass is
+    complete — a project that ships feature specs with no concern decision is a
+    framing gap, not a default-empty state. At autonomy `high`, when no
+    `concerns.md` exists, frame **infers** the selection from the product nature
+    and records each inferred concern as an assumption rather than pausing to
+    ask (see FEAT-011 FR-3). At `low`/`medium`, selection stays interactive.
+15. **Propagation is a gate, separate from selection.** Selection happens once,
+    in Frame. After a concern is added or changed, its practices must propagate
+    to every area-matched bead (context digest, acceptance criteria, quality
+    gates). `/helix check` and `/helix polish` are **propagation gates** — they
+    detect and fix missing propagation; they do not re-perform selection. A
+    `check` run that finds an area-matched bead missing its concern is a
+    blocking propagation finding.
 
 ### Non-Functional Requirements
 

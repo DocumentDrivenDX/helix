@@ -31,6 +31,10 @@ Use these local resource summaries as grounding:
 - test levels and scope
 - framework choices only where they matter
 - coverage targets and critical paths
+- acceptance-criteria **layer allocation** — allocate each in-scope
+  `US-<n>-AC<m>` criterion class to a primary test layer and confirm every P0 is
+  allocated. **Aggregate** the story test plans; do **not** duplicate their
+  per-AC matrix (the STP owns that, keyed by stable AC ID — FEAT-008 FR-6).
 - test data strategy
 - sequencing, dependencies, and infrastructure needs
 - risks that can block test execution

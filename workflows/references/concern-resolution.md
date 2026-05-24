@@ -5,11 +5,11 @@ ddx:
     - helix.workflow.principles-resolution
     - FEAT-006
   review:
-    self_hash: b18e4607b5f7bc95bccefdbffadf4575610f67ace9c5327c40be255c2c89783c
+    self_hash: bd7ed182dbb6f5ebb30d88f1100d4402876dffa3d02401bf9287c87ebbe004d8
     deps:
-      FEAT-006: a44d0a40e5cb883e31c5f6b150a77070fa427bb8f834345908aefaf1cffb38ce
-      helix.workflow.principles-resolution: d1076cf1e1a2097d4a75595dbcbd37d2085503ba9a6591d1181a07795179a104
-    reviewed_at: "2026-05-15T04:11:24Z"
+      FEAT-006: 86de259dd0c102d55d3c5be0d735ece88f6a08226edc480aabfc4c9640596453
+      helix.workflow.principles-resolution: 8e597b16b6ea3bc2c8ae8418de2f4918fd9cb7ceb950a69b7da5ad09707b97c6
+    reviewed_at: "2026-05-24T23:28:08Z"
 ---
 # Concern and Practices Resolution
 
@@ -117,7 +117,17 @@ inject concerns at their Activity 0 or Bootstrap step, alongside principles.
 
 ## Concern Selection in /helix frame
 
-When `/helix frame` runs and no `docs/helix/01-frame/concerns.md` exists:
+Concern **selection** happens once, during Frame, and is a **required** Frame
+step (FEAT-006 FR-14): a frame pass is not complete until concerns are selected
+or it is explicitly recorded that none apply. `check` and `polish` are
+**propagation gates**, not selection — they verify and fix that an
+already-selected concern reached every area-matched bead; they do not perform or
+re-perform selection.
+
+When `/helix frame` runs and no `docs/helix/01-frame/concerns.md` exists, resolve
+selection by the active autonomy level (FEAT-011; see `.ddx/plugins/helix/workflows/actions/input.md`):
+
+**`low` / `medium` — interactive selection:**
 
 1. List available concerns from `.ddx/plugins/helix/workflows/concerns/` grouped by category.
 2. Ask the user about each category:
@@ -129,6 +139,21 @@ When `/helix frame` runs and no `docs/helix/01-frame/concerns.md` exists:
 4. If custom needs exist, document them as project overrides.
 5. Write `docs/helix/01-frame/concerns.md`.
 
+**`high` — inferred selection:**
+
+1. Classify the product nature from the vision / PRD / intent (web app, API
+   service, CLI, data pipeline, library).
+2. Map the nature to candidate library concerns — e.g. web app → a tech-stack
+   concern + a frontend concern + `a11y-wcag-aa`; API service → tech-stack +
+   `o11y-otel` + `security-owasp`.
+3. Write `docs/helix/01-frame/concerns.md` with the inferred selection, recording
+   each inferred concern as an **assumption** (a recorded inference, not a
+   confirmed choice) rather than pausing to ask.
+4. Run the Conflict Detection below over the inferred set; record unresolved
+   conflicts as assumptions to revisit, never as a silent pick.
+5. Never overwrite an existing `concerns.md` by inference — inference only fills
+   an absent selection.
+
 ## Conflict Detection
 
 When a project selects multiple concerns, check for conflicting practices:
@@ -139,6 +164,25 @@ When a project selects multiple concerns, check for conflicting practices:
    the user with a concrete example.
 3. Conflicts must be resolved via project overrides before the concerns
    file is considered complete.
+
+### Composed-concern runtime friction
+
+Some concern pairs declare individually-correct practices that nonetheless
+collide at **runtime/build time** rather than at the practice-value level. These
+do not show up as a "linter A vs linter B" conflict, so check for them
+explicitly when composing concerns:
+
+- **`typescript-bun` + `react-nextjs`**: `bun:*` built-ins (notably
+  `bun:sqlite`) resolve only under the Bun runtime, but `next build`/`next
+  start` execute under Node. The fix is to run Next.js under `bun --bun`, or to
+  keep `bun:*` built-ins out of the Next.js runtime path (isolate the data layer
+  in a separate Bun service). Record the chosen resolution as a project override.
+  See the friction sections in both concerns' `practices.md`.
+
+When a composed-concern friction is identified, resolve it the same way as a
+practice conflict: record the resolution as a **project override** in
+`docs/helix/01-frame/concerns.md` so the build-time choice is explicit rather
+than rediscovered when the build breaks.
 
 ## Relationship to ADRs and Spikes
 
@@ -165,6 +209,11 @@ affected concern for re-evaluation.
 
 When a concern is introduced or changed, it must propagate through the full
 bead lifecycle. This section defines how to verify propagation completeness.
+
+Propagation is a **gate**, distinct from selection. Selection is a one-time
+Frame decision (above). The checks here detect and fix beads that a selected
+concern failed to reach; a `check` run that finds an area-matched bead missing
+its concern is a **blocking propagation finding**, not a prompt to re-select.
 
 ### What Must Propagate
 

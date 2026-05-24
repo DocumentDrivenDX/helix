@@ -55,6 +55,23 @@ ddx:
 
 - P1: [Secondary features] | P2: [Edge cases, rare scenarios]
 
+## Acceptance Criteria Layer Allocation
+
+This project test plan **aggregates** strategy across stories. It does **not**
+restate the per-criterion AC↔test matrix — that lives in each story test plan
+(STP), keyed by stable `US-<n>-AC<m>` IDs (FEAT-008 FR-6). Here, allocate
+criterion *classes* to test layers and confirm every P0 criterion is allocated:
+
+| AC class / source | Story Test Plan(s) | Primary Layer | Why this layer |
+|-------------------|--------------------|---------------|----------------|
+| [e.g. upload/validation criteria] | [[STP-XXX]] | Integration | [boundary + persistence] |
+| [e.g. visible reviewer flow] | [[STP-XXX]] | E2E | [user-observable outcome] |
+
+**Allocation rule**: no P0 acceptance criterion is left unallocated — every
+`US-<n>-AC<m>` from an in-scope story maps to exactly one primary layer here and
+to concrete tests in its STP. The STP owns the per-AC rows; this plan owns the
+layer allocation.
+
 ## Implementation Order
 1. [What must be written first and why]
 2. [What follows]
@@ -100,3 +117,5 @@ Use this checklist when reviewing a test plan:
 - [ ] Build handoff commands are concrete and runnable
 - [ ] Test plan traces back to acceptance criteria from governing feature specs
 - [ ] No untested P0 requirement — every P0 acceptance criterion has a test
+- [ ] Acceptance criteria are allocated to test layers by AC class without
+      duplicating the per-AC `US-<n>-AC<m>` matrix owned by the story test plans

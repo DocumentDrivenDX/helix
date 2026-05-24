@@ -201,6 +201,21 @@ All four review passes constitute the measurement. Record a summary covering:
 - whether AGENTS.md was updated
 - number of learnings items created
 
+## Convergence
+
+A clean review verdict (no findings) is **necessary but not sufficient** for
+convergence. The work converges only when it is **verified** *and* each
+finding-class this review surfaced has been **folded back into a gate** (a
+template check, an acceptance criterion, a concern propagation check, or a
+ratchet) so the same class cannot silently recur. "The reviewer said SHIP" is
+evidence toward verification, never the definition of done.
+
+Drive resolution by **progressive evolve against the specific finding**, not by
+re-splatting the artifact or implementation. Re-generating wholesale discards
+the review investment and reintroduces resolved finding-classes. If a
+finding-class cannot be folded into a gate now, file it as explicit follow-on
+work rather than declaring the loop closed.
+
 ## Report
 
 Close the review cycle. See the report action for the full pattern.

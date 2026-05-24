@@ -64,6 +64,25 @@ For each target work item, verify every acceptance criterion:
 4. If acceptance scripts exist (`scripts/check-acceptance-traceability.sh`,
    `scripts/check-acceptance-coverage.sh`), run them.
 
+## STEP 2.5 - Claims-vs-Reality Check (self-validation mode-gate)
+
+Verification is incomplete until artifact assertions resolve to reality. For
+each target item and the artifacts it touched:
+
+1. For every claim of a test, coverage figure, or emitted metric/signal, verify
+   the referent actually exists (the named test is in the suite and runs, the
+   figure was produced by a real measurement, the metric is emitted).
+2. Classify any unbacked claim as `ASSERTED_UNBACKED` — a phantom claim. This is
+   distinct from `UNTESTED` (honest gap); `ASSERTED_UNBACKED` asserts something
+   untrue.
+3. The phantom-claim floor is **zero**: any `ASSERTED_UNBACKED` claim is a
+   blocking finding regardless of the acceptance-satisfaction count. Resolve it
+   by making the claim true or deleting it — never by relaxing the check (see
+   `.ddx/plugins/helix/workflows/ratchets.md` and FEAT-016).
+
+This is a workflow-mode gate expressed as a measurement, not a recursive call to
+the validate/align actions.
+
 ## STEP 3 - Concern-Declared Quality Gates
 
 For each target work item:

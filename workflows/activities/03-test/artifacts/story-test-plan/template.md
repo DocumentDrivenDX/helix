@@ -25,9 +25,15 @@ ddx:
 
 ## Acceptance Criteria Test Mapping
 
-| Acceptance Criterion | Failing Test(s) to Create or Run | Test Level | File or Command | Setup / Data | Notes |
-|----------------------|----------------------------------|------------|-----------------|--------------|-------|
-| [Given/When/Then criterion] | `[test_name]` | Unit / Integration / Contract / E2E | `tests/...` or `bash ...` | [Fixture, seed, mock] | [Edge case or sequencing note] |
+This matrix is the **story-level** AC↔test traceability surface. Key each row on
+the story's **stable AC ID** (`US-<n>-AC<m>`) so a specific criterion maps to a
+specific failing test. This story test plan owns this matrix; the project-level
+test plan aggregates strategy and allocates layers — it does **not** duplicate
+these rows (FEAT-008 FR-6).
+
+| AC ID | Acceptance Criterion (Given/When/Then) | Failing Test(s) to Create or Run | Test Level | File or Command | Setup / Data | Notes |
+|-------|----------------------------------------|----------------------------------|------------|-----------------|--------------|-------|
+| US-XXX-AC1 | [Given/When/Then criterion] | `[test_name]` | Unit / Integration / Contract / E2E | `tests/...` or `bash ...` | [Fixture, seed, mock] | [Edge case or sequencing note] |
 
 ## Executable Proof
 
@@ -77,7 +83,7 @@ ddx:
 ## Review Checklist
 
 - [ ] References the governing story and technical design
-- [ ] Every active acceptance criterion maps to concrete failing tests
+- [ ] Every active acceptance criterion maps to concrete failing tests, keyed by its stable `US-<n>-AC<m>` ID
 - [ ] File paths, commands, or test identifiers are specific enough to execute
 - [ ] Setup, fixtures, mocks, and seed data are explicit
 - [ ] Edge cases cover real story risks rather than generic boilerplate

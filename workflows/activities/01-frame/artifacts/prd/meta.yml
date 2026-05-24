@@ -17,15 +17,16 @@ output:
   naming: prd.md
 
 validation:
+  # Aligned to prd/template.md section headings (2026-05-24: fixed pre-existing template↔meta drift).
   required_sections:
-    - executive_summary
-    - problem_statement
-    - goals_and_objectives
-    - success_metrics
-    - users_and_personas
-    - requirements_overview
-    - risks_and_mitigation
-    - timeline_and_milestones
+    - summary
+    - problem_and_goals
+    - users_and_scope
+    - requirements
+    - functional_requirements
+    - acceptance_test_sketches
+    - risks
+    - success_criteria
 
   quality_checks:
     - check: metrics_quantified

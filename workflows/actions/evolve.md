@@ -36,6 +36,29 @@ When artifacts disagree, use this precedence:
 Update higher-authority documents FIRST, then propagate downward. Never
 update a lower-authority artifact in a way that contradicts a higher one.
 
+## Evolve Default and Convergence
+
+**Evolve is the default for threading change.** When a new, changed, removed, or
+incident-driven requirement lands, prefer **progressive evolution** — amend the
+specific artifacts the requirement touches — over re-generating ("re-splatting")
+the artifact stack. Re-splat discards prior review investment and reintroduces
+finding-classes that were already resolved. Touch only what the requirement
+affects.
+
+**Convergence is not "the reviewer said SHIP."** An evolution converges when:
+
+1. the updated artifacts are **verified** — consistent with higher authority, no
+   unresolved conflicts, downstream work items created, and the
+   claims-vs-reality check clean (zero `ASSERTED_UNBACKED`; see
+   `.ddx/plugins/helix/workflows/ratchets.md` and FEAT-016); **and**
+2. each **finding-class** surfaced during the pass is **folded back into a gate**
+   (a template check, an acceptance criterion, a concern propagation check, or a
+   ratchet) so the same class cannot silently recur.
+
+A reviewer verdict is evidence toward (1), never a substitute for (2). If a
+finding-class cannot be folded into a gate this pass, file it as explicit
+follow-on work rather than declaring convergence.
+
 ## STEP 0 — Bootstrap
 
 0. **Load active design principles** following the principles-resolution
@@ -212,7 +235,14 @@ See the measure action for the full pattern.
 4. **Concern threading**: If the requirement introduced or changed a concern,
    verify the concern is properly declared and its practices are referenced
    in new work items.
-5. **Record results** on the governing work item via the runtime tracker.
+5. **Self-validation mode-gate (must fail on findings)**: the verify activity
+   over the updated artifacts must yield no blocking finding. This is a
+   workflow-mode gate, not a literal "run validate+align+check" command list —
+   confirm the artifacts are internally consistent and the claims-vs-reality
+   check is clean (`ASSERTED_UNBACKED` count is zero). A blocking finding here
+   means convergence is not reached; fold the finding-class into a gate or file
+   it as follow-on work.
+6. **Record results** on the governing work item via the runtime tracker.
 
 ## STEP 9 — Report
 

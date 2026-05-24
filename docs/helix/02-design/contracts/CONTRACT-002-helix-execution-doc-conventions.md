@@ -2,10 +2,10 @@
 ddx:
   id: CONTRACT-002
   review:
-    self_hash: 473794ceba3db29b84547ece5a9c2d976471c67a8f2cba39750220edb188685a
+    self_hash: d4de625233449d6d880fdad497c72871454f6e4b97a966a53dba03ab84bffaa6
     deps:
-      FEAT-011: c17dda57cddf83a49dcdf1bdccc7ec398a7e75ef0626594c7bfd64f97a284a17
-    reviewed_at: "2026-05-15T04:11:24Z"
+      FEAT-011: 54985eab09e08024445cf798bdbb77d58b61e6cd88cb00eacf6998feb3a03a9e
+    reviewed_at: "2026-05-24T23:26:16Z"
 ---
 
 # CONTRACT-002: HELIX Execution-Document Conventions

@@ -36,11 +36,15 @@ vertical slice — it should cover one complete path from trigger to outcome.]
 
 ## Acceptance Criteria
 
-[Each criterion must be testable. Use Given/When/Then format. An implementer
-should be able to write a passing test from each criterion alone.]
+[Each criterion must be testable and carry a **stable AC ID** of the form
+`US-<n>-AC<m>` (matching this story's number). Use Given/When/Then format — one
+precondition, one action, one observable outcome. The ID is stable: it survives
+edits so the story test plan and tests can reference a specific criterion by
+name. An implementer should be able to write a passing test from each criterion
+alone.]
 
-- [ ] Given [specific precondition], when [specific action], then [observable outcome]
-- [ ] Given [specific precondition], when [specific action], then [observable outcome]
+- [ ] **US-XXX-AC1** — Given [specific precondition], when [specific action], then [observable outcome]
+- [ ] **US-XXX-AC2** — Given [specific precondition], when [specific action], then [observable outcome]
 
 ## Edge Cases
 
@@ -55,10 +59,10 @@ should name the condition and the expected system behavior.]
 [Concrete input/output pairs for the acceptance criteria. An implementer
 should be able to copy these into a test file.]
 
-| Scenario | Input / State | Action | Expected Result |
-|----------|---------------|--------|-----------------|
-| Happy path | [specific state] | [specific action] | [specific result] |
-| [Edge case] | [specific state] | [specific action] | [specific result] |
+| Scenario | AC ID | Input / State | Action | Expected Result |
+|----------|-------|---------------|--------|-----------------|
+| Happy path | US-XXX-AC1 | [specific state] | [specific action] | [specific result] |
+| [Edge case] | US-XXX-AC2 | [specific state] | [specific action] | [specific result] |
 
 ## Dependencies
 

@@ -5,11 +5,12 @@ ddx:
     - helix.prd
     - FEAT-006
   review:
-    self_hash: 5f84004f080f8d69c84ce1bb208e26461a53bb6063b471658da0d4934ec39214
+    self_hash: 5d81abe0f88c72c018ab27b0f7346c25bfddcc6e16468fbc8938a79ac47520b2
     deps:
-      FEAT-006: a44d0a40e5cb883e31c5f6b150a77070fa427bb8f834345908aefaf1cffb38ce
-      helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
-    reviewed_at: "2026-05-15T04:11:24Z"
+      FEAT-006: 86de259dd0c102d55d3c5be0d735ece88f6a08226edc480aabfc4c9640596453
+      FEAT-016: 0547927694455cb8cc78182eaf9be98e149f088326cb9cf46f57538f93ac2d85
+      helix.prd: 2b22383538b33c6ecee57f43d85128dfef7d56254766b757aa36439e35f2bfc9
+    reviewed_at: "2026-05-24T23:26:16Z"
 ---
 # Feature Specification: FEAT-008 — Artifact Template Quality and Completeness
 
@@ -79,6 +80,34 @@ example of a well-written artifact — either inline in the template or as a
 companion file. Exemplars should be drawn from real HELIX projects where
 possible.
 
+### FR-6: AC↔Test Traceability Is a Template Requirement
+
+Templates must bake in acceptance-criteria-to-test traceability so that
+coverage is mechanically checkable rather than asserted in prose:
+
+1. **Stable AC IDs**: user-story acceptance criteria carry stable identifiers
+   of the form `US-<n>-AC<m>` (e.g. `US-001-AC1`). The ID survives edits so
+   downstream artifacts and tests can reference a specific criterion by name.
+2. **Given/When/Then shape**: every acceptance criterion is a single
+   Given/When/Then, one precondition, one action, one observable outcome —
+   compound criteria are split.
+3. **Story-level mapping matrix**: the story test plan owns the per-criterion
+   matrix that maps each `US-<n>-AC<m>` to the failing test(s) that prove it,
+   keyed by the stable AC ID. The test-plan template does **not** duplicate this
+   matrix — it **aggregates** strategy and allocates criteria to test layers
+   (contract / integration / unit / E2E).
+4. **Layer allocation**: the aggregating test plan records which layer verifies
+   each criterion class, so reviewers can see that no P0 criterion is unallocated.
+
+This requirement complements the honesty property in [[FEAT-016]]: stable AC IDs
+let the claims-vs-reality check resolve "this criterion is covered by test X"
+against a specific, named referent rather than against prose.
+
+> **Note**: template-conformance (FR-1..FR-5) catches *missing or weak*
+> sections. It does not catch a well-formed artifact that asserts an untrue
+> claim (a phantom test, an invented coverage figure). That honesty property is
+> governed by [[FEAT-016]] — Artifact Honesty (Claims-vs-Reality).
+
 ## Non-Functional Requirements
 
 ### NFR-1: Template Size
@@ -100,6 +129,10 @@ Existing artifacts must remain valid. New template features are additive.
 3. At least one exemplar artifact exists for each artifact type.
 4. `/helix review` can load the review checklist for the artifact type being
    reviewed and evaluate against it.
+5. User-story acceptance criteria carry stable `US-<n>-AC<m>` IDs in
+   Given/When/Then form; the story test plan maps each AC ID to concrete
+   failing tests; the project test plan aggregates strategy and allocates
+   criteria to test layers without duplicating the story-level matrix.
 
 ## Constraints
 

@@ -2,9 +2,9 @@
 ddx:
   id: helix.prd
   review:
-    self_hash: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
+    self_hash: 2b22383538b33c6ecee57f43d85128dfef7d56254766b757aa36439e35f2bfc9
     deps: {}
-    reviewed_at: "2026-05-15T04:11:24Z"
+    reviewed_at: "2026-05-24T23:26:16Z"
 ---
 # Product Requirements Document
 
@@ -94,7 +94,7 @@ their own execution surfaces.
 - HELIX will not provide a CLI, tracker, queue, or execution engine.
 - HELIX will not impose technology choices or fork by language ecosystem.
 - HELIX will not replace product, design, or architectural judgment.
-- HELIX will not be a fully autonomous coding agent.
+- HELIX will not hard-code one autonomy level: autonomy is a first-class, controllable spectrum (review-every-edit → full one-shot). HELIX expresses the autonomy policy; a capable runtime supplies the agency. (HELIX still ships no execution engine of its own — see above.)
 - HELIX will not flatten the seven-activity loop into one generic prompt.
 
 ## Users and Scope
