@@ -6,6 +6,9 @@ tech-stack
 ## Areas
 all
 
+## Slot
+language-runtime
+
 ## Components
 
 - **Language**: Rust (latest stable; MSRV pinned in `rust-toolchain.toml`)

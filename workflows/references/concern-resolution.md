@@ -5,11 +5,11 @@ ddx:
     - helix.workflow.principles-resolution
     - FEAT-006
   review:
-    self_hash: bd7ed182dbb6f5ebb30d88f1100d4402876dffa3d02401bf9287c87ebbe004d8
+    self_hash: 1c549cb809575c747ffbeb83e31b128d963b7ef7f003a4c8f0bd1849dc156f75
     deps:
-      FEAT-006: 86de259dd0c102d55d3c5be0d735ece88f6a08226edc480aabfc4c9640596453
+      FEAT-006: 13071f5e9ab30fb3ae4ff5bb919c03c65faa4b5cd21990bfc07dbc8566513757
       helix.workflow.principles-resolution: 8e597b16b6ea3bc2c8ae8418de2f4918fd9cb7ceb950a69b7da5ad09707b97c6
-    reviewed_at: "2026-05-24T23:28:08Z"
+    reviewed_at: "2026-05-25T20:17:42Z"
 ---
 # Concern and Practices Resolution
 
@@ -146,12 +146,29 @@ selection by the active autonomy level (FEAT-011; see `.ddx/plugins/helix/workfl
 2. Map the nature to candidate library concerns — e.g. web app → a tech-stack
    concern + a frontend concern + `a11y-wcag-aa`; API service → tech-stack +
    `o11y-otel` + `security-owasp`.
-3. Write `docs/helix/01-frame/concerns.md` with the inferred selection, recording
-   each inferred concern as an **assumption** (a recorded inference, not a
-   confirmed choice) rather than pausing to ask.
-4. Run the Conflict Detection below over the inferred set; record unresolved
+3. **Fill each needed exclusive slot** (FEAT-006 slots; FEAT-011 FR-3). A slot is
+   an exclusive functional position a concern fills — one frontend framework, one
+   language runtime, etc. Determine which slots the product needs (**a web app
+   must fill `frontend-framework`** — leaving it empty and raw-serving HTML is the
+   bug this guards against; a runnable product fills `language-runtime`), then for
+   each needed slot resolve a filler in this order, first match wins:
+   1. **Operator override** — the slot's value in
+      `docs/helix/01-frame/concerns.local.yml`, if that file exists. Read it
+      **before** writing `concerns.md`.
+   2. **Shipped default** — the slot's value in `defaults:` of
+      `.ddx/plugins/helix/workflows/concerns/slots.yml`.
+   3. **Assumption** — if neither supplies a filler, record an assumption to
+      revisit; never make a silent pick.
+   Record the chosen filler **and its source** (`concerns.local.yml override`,
+   `slots.yml default`, or `assumption`) in `concerns.md`. Slot membership is
+   derived: a concern fills slot X iff its `concern.md` `## Slot` names X.
+4. Write `docs/helix/01-frame/concerns.md` with the inferred selection (composable
+   concerns + the resolved slot fillers), recording each inferred concern as an
+   **assumption** (a recorded inference, not a confirmed choice) rather than
+   pausing to ask.
+5. Run the Conflict Detection below over the inferred set; record unresolved
    conflicts as assumptions to revisit, never as a silent pick.
-5. Never overwrite an existing `concerns.md` by inference — inference only fills
+6. Never overwrite an existing `concerns.md` by inference — inference only fills
    an absent selection.
 
 ## Conflict Detection

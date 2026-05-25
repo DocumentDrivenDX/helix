@@ -6,6 +6,9 @@ tech-stack
 ## Areas
 all
 
+## Slot
+language-runtime
+
 ## Components
 
 - **Language**: Scala 2.x (pinned per project)

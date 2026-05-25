@@ -5,6 +5,12 @@ ddx:
   depends_on:
     - helix.prd
     - FEAT-006
+  review:
+    self_hash: 0d31847adee3e2048695700a430e37b6c8c65c93c2ce94dc7d2cc11aa5f4f9eb
+    deps:
+      FEAT-006: 7517c7bf2db366dcdbae3ada995a5c0148955b332cf34d567180dff971d79489
+      helix.prd: 2b22383538b33c6ecee57f43d85128dfef7d56254766b757aa36439e35f2bfc9
+    reviewed_at: "2026-05-25T20:24:24Z"
 ---
 
 # Feature Specification: FEAT-011 — Slider Autonomy
@@ -102,6 +108,26 @@ app implies a frontend + accessibility concern; a CLI implies a tech-stack
 concern) and writes `concerns.md`, recording each inferred concern as an
 assumption. At `low`/`medium`, concern selection stays interactive per
 [[FEAT-006]]. Inference never silently overrides an existing `concerns.md`.
+
+**Exclusive slots are filled deterministically.** For each *needed* exclusive
+slot (the functional positions defined in `workflows/concerns/slots.yml` —
+frontend-framework, language-runtime, etc.; see [[FEAT-006]]), high-autonomy
+inference fills the slot by resolution order, first match wins:
+
+1. **Operator override** — the slot's value in
+   `docs/helix/01-frame/concerns.local.yml` (read before `concerns.md` exists),
+   if present.
+2. **Shipped default** — the slot's value in `slots.yml` `defaults:`.
+3. **Recorded assumption** — if neither supplies a filler, record an assumption
+   to revisit; never make a silent pick.
+
+The chosen filler and its source ("concerns.local.yml override", "slots.yml
+default", or "assumption") are recorded in `concerns.md`. **A web app must fill
+the `frontend-framework` slot** — leaving it empty (raw-served HTML with no
+supported framework) is the failure this requirement exists to prevent; the
+shipped default `react-nextjs` takes effect with no operator configuration. This
+slot-filling only fills *absent* selections; it never overrides an existing
+`concerns.md`.
 
 ### FR-4: Hard-stop invariant (all levels)
 

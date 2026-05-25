@@ -6,6 +6,9 @@ tech-stack
 ## Areas
 web, ui
 
+## Slot
+frontend-framework
+
 ## Components
 
 - **UI Framework**: React 19 — functional components and hooks only

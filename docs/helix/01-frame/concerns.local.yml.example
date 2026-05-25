@@ -1,0 +1,14 @@
+# Operator house-style — concern slot defaults for THIS project (TEMPLATE).
+#
+# This is a non-active EXAMPLE (`.example` suffix). To activate it, copy it to
+# `docs/helix/01-frame/concerns.local.yml` and edit. High-autonomy concern
+# selection reads `concerns.local.yml` (NOT this `.example`) BEFORE concerns.md
+# exists, to override the shipped slot defaults in the library's slots.yml. Each
+# key is a slot; each value is the concern that should fill it. The chosen filler
+# and its source ("concerns.local.yml override") are recorded in concerns.md.
+#
+# With no concerns.local.yml present, selection falls back to the shipped
+# defaults in slots.yml — so leaving this as `.example` lets the shipped default
+# be exercised on its own (e.g. by the regression bench).
+defaults:
+  frontend-framework: react-nextjs   # name any concern whose `## Slot` is this slot; here it equals the shipped default

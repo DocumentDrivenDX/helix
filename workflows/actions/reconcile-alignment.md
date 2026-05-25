@@ -199,6 +199,43 @@ practices:
    `bun audit`), verify those commands are present in CI configuration or
    pre-commit hooks. Missing gates are alignment findings.
 
+### Slot Registry Integrity
+
+A drifted slot registry corrupts high-autonomy concern resolution (FEAT-006
+slots; the filler a slot resolves to comes straight from this registry), so the
+instrument must be checked before its readings are trusted. Reconcile
+`.ddx/plugins/helix/workflows/concerns/slots.yml` against the concern library
+and the operator override; each failure below is a **blocking
+instrument-integrity finding**:
+
+1. **Every `## Slot` names a known slot.** For each concern whose `concern.md`
+   has a `## Slot` section, the named slot must exist as a key under `slots:` in
+   `slots.yml`. A `## Slot` naming an undeclared slot is drift.
+2. **Every default names a matching member.** For each `key: value` under
+   `defaults:`, the concern `value` must exist and its `concern.md` `## Slot`
+   must name that same `key`. A typo default, or a default whose `## Slot`
+   disagrees with the key, is drift.
+3. **Defaults only for exclusive slots.** Every key under `defaults:` must be a
+   slot declared `exclusive: true`. A default on a non-exclusive (or undeclared)
+   slot is drift.
+4. **Overrides name a real slot + concern.** If `docs/helix/01-frame/concerns.local.yml`
+   exists, each `key: value` under its `defaults:` must name a slot present in
+   `slots.yml` and a concern whose `## Slot` matches that key. An override naming
+   an unknown slot or a non-member concern is drift.
+5. **No duplicate default keys.** YAML keeps the *last* of duplicate keys
+   silently rather than erroring, so the keyed-map shape does not by itself
+   guarantee one default per slot. Scan the raw text of each `defaults:` block
+   (`slots.yml` and `concerns.local.yml`) for a slot key appearing more than
+   once; a repeated key is drift — it is the literal "two defaults for one slot"
+   the registry exists to forbid.
+6. **One `## Slot` per concern.** A concern fills exactly one functional
+   position, so its `concern.md` must have at most one `## Slot` section naming a
+   single scalar slot. Multiple `## Slot` sections, or a list value, is drift.
+
+Report each finding with the specific file and key. Resolve by reconciling the
+registry, the concern's `## Slot`, or the override — never by weakening the
+check.
+
 ### Acceptance Criteria Validation
 
 For each user story and feature spec in the reviewed scope:

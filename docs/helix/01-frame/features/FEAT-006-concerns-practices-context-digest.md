@@ -5,11 +5,11 @@ ddx:
     - helix.prd
     - FEAT-003
   review:
-    self_hash: 86de259dd0c102d55d3c5be0d735ece88f6a08226edc480aabfc4c9640596453
+    self_hash: 7517c7bf2db366dcdbae3ada995a5c0148955b332cf34d567180dff971d79489
     deps:
       FEAT-003: cffa789e17a8096655a4a7621d6884e02d2a8dc29da9283bfcca35125eba300d
       helix.prd: 2b22383538b33c6ecee57f43d85128dfef7d56254766b757aa36439e35f2bfc9
-    reviewed_at: "2026-05-24T23:26:16Z"
+    reviewed_at: "2026-05-25T20:24:24Z"
 ---
 # Feature Specification: FEAT-006 — Concerns, Practices, and Context-Digest Beads
 
@@ -130,6 +130,9 @@ tech-stack
 ## Areas
 all
 
+## Slot
+language-runtime
+
 ## Components
 - **Language**: TypeScript (strict mode)
 - **Runtime**: Bun 1.x
@@ -142,6 +145,11 @@ all
 ## ADR References
 - [List ADRs that justify this concern's selection]
 ```
+
+The optional `## Slot` section declares the one functional position this
+concern fills (see "Concern slots" below). It is present only on concerns that
+fill an exclusive slot (a frontend framework, a language runtime); composable
+concerns (a11y, security, testing, o11y, i18n) omit it.
 
 ### Area scoping
 
@@ -163,6 +171,57 @@ declared areas. A concern with `areas: all` always matches. A concern with
 This prevents every bead from getting every concern — an API backend bead
 doesn't need the a11y practices, and a database migration bead doesn't need
 the design system conventions.
+
+### Concern slots
+
+Some concerns compete for the same functional position — a project picks **one**
+frontend framework, **one** language runtime, **one** datastore. Others compose
+freely — a11y, security, testing, o11y, and i18n stack without a single winner.
+A **slot** names an exclusive functional position so inference (and review) has
+a deterministic place to record "which concern fills this position".
+
+Three facts are kept deliberately separate so the same concern cannot be the
+default for two positions, and a position cannot hold two defaults:
+
+| Fact | Nature | Home |
+|------|--------|------|
+| what slot a concern *can* fill | intrinsic (react-nextjs **is** a frontend framework) | `## Slot` in the concern's `concern.md` |
+| which concern wins a slot *by default* | relational (a choice **among** competitors) | `slots.yml` `defaults:` — a map **keyed by slot** |
+| operator house override | same relational shape, per-project | `concerns.local.yml` `defaults:` (layered on top) |
+
+The shipped registry lives at `workflows/concerns/slots.yml`:
+
+```yaml
+slots:
+  frontend-framework: { exclusive: true }
+  language-runtime:    { exclusive: true }
+  datastore:           { exclusive: true }   # slot defined, no library member yet → no default
+  deploy-target:       { exclusive: true }
+defaults:
+  frontend-framework: react-nextjs
+  language-runtime:   typescript-bun
+```
+
+- **"slot", not "role".** The runtime (DDx) already owns "role" for persona
+  bindings; HELIX uses "slot" to avoid the collision.
+- **Membership is derived, never listed.** A concern is a candidate for slot X
+  iff its own `## Slot` names X. There is no `alternatives:` or `conflicts-with:`
+  field and no friction matrix — adding a concern carries zero registry sync
+  burden. The registry only ever holds the one irreducibly-relational fact: the
+  default per slot.
+- **Single default per slot, enforced.** `defaults:` is a map keyed by slot, so
+  the intent is one default per slot. YAML parsers keep the *last* of duplicate
+  keys silently rather than erroring, so the keyed shape alone does not guarantee
+  it — the Slot Registry Integrity check (reconcile-alignment) rejects duplicate
+  keys under `defaults:`, which is what actually makes "two defaults for one slot"
+  impossible. Defaults are declared only for `exclusive` slots.
+- **Operator house override.** A project may pin a different filler per slot in
+  `docs/helix/01-frame/concerns.local.yml` (`defaults:` keyed by slot), read
+  before `concerns.md` exists. It layers on top of the shipped defaults.
+- **Resolution order per needed exclusive slot** (high autonomy): operator
+  override (`concerns.local.yml`) → shipped default (`slots.yml`) → otherwise
+  record an assumption (never a silent pick). The chosen filler and its source
+  are recorded in `concerns.md`. See FR-16 and FEAT-011 FR-3.
 
 ### Practices
 
@@ -391,6 +450,22 @@ context without paying the read cost.
     detect and fix missing propagation; they do not re-perform selection. A
     `check` run that finds an area-matched bead missing its concern is a
     blocking propagation finding.
+16. **Concern slots.** HELIX must define exclusive functional positions
+    (**slots**) that competing concerns fill — one frontend framework, one
+    language runtime, etc. The shipped registry `workflows/concerns/slots.yml`
+    declares each slot and a `defaults:` **map keyed by slot** (so a slot holds
+    exactly one default by construction); a concern declares which slot it can
+    fill via `## Slot` in its `concern.md`. Slot membership is **derived** from
+    `## Slot`, never duplicated in a second list. Defaults are declared only for
+    `exclusive` slots. A project may override a default per slot in
+    `docs/helix/01-frame/concerns.local.yml`. At high autonomy, each *needed*
+    exclusive slot is filled by resolution order operator override
+    (`concerns.local.yml`) → shipped default (`slots.yml`) → recorded assumption
+    (see FEAT-011 FR-3), and the chosen filler plus its source is recorded in
+    `concerns.md`. The registry's integrity (every `## Slot` names a known slot;
+    every default names a concern whose `## Slot` matches that key; defaults only
+    for exclusive slots; overrides name a real slot+concern) is checked during
+    alignment.
 
 ### Non-Functional Requirements
 

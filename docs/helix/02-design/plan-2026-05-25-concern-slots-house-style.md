@@ -28,8 +28,10 @@ slot" representable — the same self-claim drift class as the prd template↔me
 - **Membership is derived, not listed**: a concern is a candidate for slot X iff its own `## Slot` says X.
   Adding a concern carries zero registry sync burden; the registry only ever holds the one
   irreducibly-relational fact (the default per slot).
-- **Two-defaults is unrepresentable, not merely detectable**: `defaults:` is a map keyed by slot, so a
-  slot can hold exactly one default by construction. No "are two both default?" scan is needed.
+- **Two-defaults is forbidden by the integrity check**: `defaults:` is a map keyed by slot (one default
+  per slot), but YAML keeps the *last* of duplicate keys silently rather than erroring — so the keyed shape
+  alone is not the guarantee. The Slot Registry Integrity check rejects duplicate `defaults:` keys, which is
+  what actually makes "two defaults for one slot" impossible. (codex-review fix, 2026-05-25)
 - **Resolution order per needed exclusive slot** (high autonomy): operator override (`concerns.local.yml`)
   → shipped default (`slots.yml`) → otherwise record an assumption (never a silent pick).
 - **A web app must fill the `frontend-framework` slot** — the actual bug was that inference left it empty
@@ -96,7 +98,8 @@ frontend-framework
 4. Keep only what moved/clarified a metric.
 
 ## Invariants
-- "slot" not "role"; defaults live in one keyed map (two-defaults unrepresentable).
+- "slot" not "role"; defaults live in one keyed map + the integrity check rejects duplicate keys (YAML alone
+  is last-wins, so the check is what forbids two-defaults).
 - Membership derived from `## Slot`, never a second list to sync.
 - Runtime neutrality; no `Skill tool_use` in the skill body; don't flatten the loop.
 - Keep `check-workflow-paths` green; re-bless ddx hashes; commit unsigned only if the signer is unavailable.

@@ -156,9 +156,16 @@ stories.
    a framing gap, not an acceptable default-empty state. At `low`/`medium`,
    drive selection interactively by category (tech stack, data, infrastructure,
    quality). At `high`, infer the selection from the product's nature and record
-   each inferred concern as an assumption. Selection happens here, once;
-   propagation to work items is a later gate owned by `check`/`polish`, not a
-   re-selection.
+   each inferred concern as an assumption. **Fill each needed exclusive slot**
+   (a slot is an exclusive functional position — one frontend framework, one
+   language runtime; defined in
+   `.ddx/plugins/helix/workflows/concerns/slots.yml`) by resolution order:
+   operator override (`docs/helix/01-frame/concerns.local.yml`) → shipped default
+   (`slots.yml`) → recorded assumption, and record the chosen filler plus its
+   source in `concerns.md`. A web app must fill `frontend-framework` — the
+   shipped default `react-nextjs` applies with no operator config. Selection
+   happens here, once; propagation to work items is a later gate owned by
+   `check`/`polish`, not a re-selection.
 3. Read the relevant artifact template and prompt before drafting.
 4. Keep each artifact in its lane: vision is direction, PRD is product scope,
    feature specs are feature behavior, stories are vertical user outcomes.

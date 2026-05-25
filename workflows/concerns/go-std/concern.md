@@ -6,6 +6,9 @@ tech-stack
 ## Areas
 all
 
+## Slot
+language-runtime
+
 ## Components
 
 - **Language**: Go (version pinned in `go.mod`)
