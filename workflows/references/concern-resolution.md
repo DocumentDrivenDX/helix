@@ -5,11 +5,11 @@ ddx:
     - helix.workflow.principles-resolution
     - FEAT-006
   review:
-    self_hash: 73c24c83d27eca0afeb3b28a9688eab0cc696117f2f3fede4defdd23eda8fc1f
+    self_hash: 6fe1ab126b1d3c21c3dfd072c6e4f0ac811716b97916e6418b3764a925becbb0
     deps:
-      FEAT-006: 1711c08bf5e041cd041c762594f278d35744351d4a25b8251566de2dd778abd3
+      FEAT-006: d2eab5444f4c023232a08e0774b6738c3d9abf6a4da48b7d59e775750ed1412a
       helix.workflow.principles-resolution: 8e597b16b6ea3bc2c8ae8418de2f4918fd9cb7ceb950a69b7da5ad09707b97c6
-    reviewed_at: "2026-05-25T22:07:44Z"
+    reviewed_at: "2026-05-25T23:54:40Z"
 ---
 # Concern and Practices Resolution
 
@@ -157,6 +157,18 @@ selection by the active autonomy level (FEAT-011; see `.ddx/plugins/helix/workfl
    `verification`** — it only *relaxes the full-stack-e2e form of evidence*,
    recording the specific reason and substituting the strongest observable
    evidence available. See `.ddx/plugins/helix/workflows/concerns/verification/concern.md`.
+2b. **Auto-select `sample-data` for any data-backed product.** A data-backed
+   product — one whose value shows through data it stores and renders — must
+   seed a **governed, varied demo/sample dataset** via a semantic faker (the
+   tech stack's named default: `@faker-js/faker` for `typescript-bun`, `Faker`
+   for `python-uv`, etc.), covering schema-relevant edge cases (empty, long,
+   large, boundary, all status/enum variants), so the running app exercises its
+   empty/overflow/large-number/all-status UI states instead of shipping a couple
+   of thin hardcoded rows. It is composable (no slot); `areas: data` scopes its
+   practices to data-layer beads, so the resolver still selects it for
+   data-backed products **without over-broadening to `all`**. Add it to the
+   inferred selection for every data-backed product, recorded as an assumption.
+   See `.ddx/plugins/helix/workflows/concerns/sample-data/concern.md`.
 3. **Fill each needed exclusive slot** (FEAT-006 slots; FEAT-011 FR-3). A slot is
    an exclusive functional position a concern fills — one frontend framework, one
    language runtime, etc. Determine which slots the product needs (**a web app

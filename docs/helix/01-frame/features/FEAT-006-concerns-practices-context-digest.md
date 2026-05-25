@@ -5,11 +5,11 @@ ddx:
     - helix.prd
     - FEAT-003
   review:
-    self_hash: 1711c08bf5e041cd041c762594f278d35744351d4a25b8251566de2dd778abd3
+    self_hash: d2eab5444f4c023232a08e0774b6738c3d9abf6a4da48b7d59e775750ed1412a
     deps:
       FEAT-003: cffa789e17a8096655a4a7621d6884e02d2a8dc29da9283bfcca35125eba300d
       helix.prd: 2b22383538b33c6ecee57f43d85128dfef7d56254766b757aa36439e35f2bfc9
-    reviewed_at: "2026-05-25T21:21:27Z"
+    reviewed_at: "2026-05-25T23:58:16Z"
 ---
 # Feature Specification: FEAT-006 — Concerns, Practices, and Context-Digest Beads
 
@@ -89,6 +89,7 @@ cover several categories:
 | **Tech stack** | typescript-bun, python-uv, rust-cargo | Runtime, language, package manager |
 | **Infrastructure** | gcp-cloud-run, aws-lambda, k8s | Where it deploys |
 | **Data** | postgres, redis, sqlite | Storage and query layer |
+| **Sample data** | sample-data | Governed seed/demo data (semantic faker, varied shapes + edge cases) that makes a data-backed product feel real and exercises its UI states |
 | **Accessibility** | a11y-wcag-aa | Compliance and UX inclusion |
 | **Internationalization** | i18n-icu | Localization and message format |
 | **Observability** | o11y-otel | Logging, metrics, tracing |
