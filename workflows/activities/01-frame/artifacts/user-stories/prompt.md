@@ -111,6 +111,13 @@ and any external systems or APIs. If another story must be done first, say so.
 Name the parent feature requirement IDs that the story exercises. If the story
 needs behavior that is not in the feature spec, update the feature spec first.
 
+Also name the **PRD functional requirement(s) `FR-n`** this story covers.
+**Every PRD `FR-n` must map to ≥1 user story** — this is a coverage floor that
+reconcile-alignment checks; a `FR-n` with no story is a blocking gap. A single
+story may cover more than one `FR-n`, but **do not bundle unrelated `FR-n`s into
+one story without recorded justification** — unrelated requirements belong in
+separate vertical slices so each can be tested independently.
+
 ### Out of Scope
 What this story explicitly does not cover. Each item should exclude something
 an implementer might reasonably try to include. This prevents scope creep
@@ -132,6 +139,7 @@ committing.
 - [ ] Test scenarios include concrete values, not placeholders
 - [ ] Story links to parent feature spec by ID
 - [ ] Story names the parent feature requirement IDs it exercises
+- [ ] Story names the PRD `FR-n` it covers; bundled unrelated `FR-n`s carry recorded justification
 
 ### Warning
 

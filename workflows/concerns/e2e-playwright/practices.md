@@ -1,5 +1,22 @@
 # Practices: e2e-playwright
 
+## Run the core flow (coverage, not configuration)
+
+Selecting this concern — adding `@playwright/test`, a `playwright.config.ts`, and
+a `.spec` file — is **not** e2e coverage. Coverage means **at least one core
+user-flow has a browser e2e test that actually RUNS GREEN against the running
+app**. A spec that is written but never executed, or that passes only because it
+asserts nothing, does not count. The gate is verification, not the presence of a
+config:
+
+1. Start the app (`webServer` in `playwright.config.ts`, or start it manually).
+2. Run the e2e suite (`npx playwright test`) so the browser drives a core
+   user-flow against the live app.
+3. The core-flow test must pass — exit 0 with a real assertion on the end state.
+
+If the e2e suite was never run against the running app, the AC the flow backs is
+`UNTESTED` (see reconcile-alignment Acceptance Criteria Validation), not covered.
+
 ## Requirements (Frame activity)
 - Identify all user-facing pages and workflows that need testing
 - Define what "test data" means for this project — what states must the UI show?
@@ -74,6 +91,9 @@
 - The demo is documentation — keep it passing, keep it current
 
 ## Quality Gates
+- At least one core user-flow has a browser e2e test that **runs green against
+  the running app** (the run-core-flow gate above — selecting the tool is not
+  coverage)
 - `npx playwright test` passes with zero failures
 - All screenshot baselines are committed and up-to-date
 - Every navigable page has at least one test

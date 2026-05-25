@@ -5,12 +5,12 @@ ddx:
     - helix.prd
     - FEAT-006
   review:
-    self_hash: 5d81abe0f88c72c018ab27b0f7346c25bfddcc6e16468fbc8938a79ac47520b2
+    self_hash: 898b8004c60c52c73185f68b907445f057b797bcc03706bab227b181cc07281f
     deps:
-      FEAT-006: 86de259dd0c102d55d3c5be0d735ece88f6a08226edc480aabfc4c9640596453
-      FEAT-016: 0547927694455cb8cc78182eaf9be98e149f088326cb9cf46f57538f93ac2d85
+      FEAT-006: 1711c08bf5e041cd041c762594f278d35744351d4a25b8251566de2dd778abd3
+      FEAT-016: 226872932728d635279abac06206be77cee1075d787aae7760010941adb9c1e1
       helix.prd: 2b22383538b33c6ecee57f43d85128dfef7d56254766b757aa36439e35f2bfc9
-    reviewed_at: "2026-05-24T23:26:16Z"
+    reviewed_at: "2026-05-25T21:21:27Z"
 ---
 # Feature Specification: FEAT-008 — Artifact Template Quality and Completeness
 
@@ -107,6 +107,25 @@ against a specific, named referent rather than against prose.
 > sections. It does not catch a well-formed artifact that asserts an untrue
 > claim (a phantom test, an invented coverage figure). That honesty property is
 > governed by [[FEAT-016]] — Artifact Honesty (Claims-vs-Reality).
+
+### FR-7: Decomposition Coverage (Story-per-FR, ADR-per-decision)
+
+Templates bake in decomposition expectations so rigor is reproducible rather
+than left to runtime taste:
+
+1. **Story per functional requirement**: PRD functional requirements carry stable
+   `FR-n` IDs and **every `FR-n` maps to ≥1 user story** `US-n`. A story may cover
+   several `FR-n`s but should not bundle *unrelated* requirements without recorded
+   justification. The FR→story mapping is a **coverage floor**, enforced as a
+   blocking gap by reconcile-alignment (Acceptance Criteria Validation) — extra
+   stories are always welcome; only a `FR-n` with no story is a finding.
+2. **ADR per material decision**: a material architecture/technology decision
+   should be recorded in an ADR. This is an **expectation, not a hard gate** —
+   "material" is too fuzzy to gate deterministically, so reviewers surface a
+   missing ADR as a recommendation rather than a blocking failure.
+
+This is a floor on minimum rigor (decomposition + traceability), not a cap and not
+a promise of equal total depth across runtimes.
 
 ## Non-Functional Requirements
 

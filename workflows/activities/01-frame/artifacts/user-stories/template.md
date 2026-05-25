@@ -7,6 +7,7 @@ ddx:
 
 **Feature**: [FEAT-XXX — Feature Name]
 **Feature Requirements**: [REQ-01, REQ-02]
+**PRD Requirements**: [FR-n — the PRD functional requirement(s) this story covers]
 **Priority**: [P0 | P1 | P2]
 **Status**: [Draft | Review | Approved]
 
@@ -69,6 +70,7 @@ should be able to copy these into a test file.]
 - **Stories**: [US-XXX if this story depends on another being done first]
 - **Feature Spec**: [FEAT-XXX]
 - **Feature Requirements**: [REQ-01, REQ-02]
+- **PRD Requirements**: [FR-n — PRD functional requirement(s) this story covers]
 - **External**: [APIs, services, or data this story requires]
 
 ## Out of Scope

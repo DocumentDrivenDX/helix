@@ -20,8 +20,10 @@ slots:
   language-runtime:    { exclusive: true }
   datastore:           { exclusive: true }   # no members in the library yet — slot defined, no default
   deploy-target:       { exclusive: true }
+  e2e-framework:       { exclusive: true }   # the one browser-e2e tool a UI web app runs its core flows through
   # composable positions (compose freely, no single winner) need no slot entry:
-  # a11y, security, testing, o11y, i18n
+  # a11y, security, testing, o11y, i18n. (e2e-kind is composable infra e2e — NOT this slot.)
 defaults:
   frontend-framework: react-nextjs
   language-runtime:   typescript-bun
+  e2e-framework:      e2e-playwright

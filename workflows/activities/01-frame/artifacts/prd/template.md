@@ -73,7 +73,15 @@ the detailed design here.
 
 [Detailed behavioral requirements organized by subsystem or user flow. Each
 requirement should be testable — someone reading it should know how to verify
-whether it's satisfied.]
+whether it's satisfied.
+
+Each functional requirement carries a **stable `FR-n` ID** (e.g. `FR-1`). The ID
+survives edits so downstream artifacts trace to a specific requirement by name:
+every `FR-n` must map to ≥1 user story `US-n`, and reconcile-alignment checks that
+mapping as a coverage floor. Number them sequentially; do not renumber on edit.]
+
+- **FR-1** — [behavioral requirement, testable]
+- **FR-2** — [behavioral requirement, testable]
 
 ## Acceptance Test Sketches
 
@@ -149,6 +157,7 @@ Use this checklist when reviewing a PRD artifact:
 - [ ] Every P0 requirement has an acceptance test sketch
 - [ ] Requirements can trace upward to the Product Vision and downward to downstream artifacts
 - [ ] Functional requirements are testable — each can be verified with specific inputs and expected outputs
+- [ ] Each functional requirement carries a stable `FR-n` ID so user stories can trace to it by name
 - [ ] Technical context names specific versions and interfaces, not vague technology areas
 - [ ] Risks have concrete mitigations ("we do X"), not vague strategies ("we monitor")
 - [ ] Open questions name who can answer and what is blocked

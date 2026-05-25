@@ -238,11 +238,28 @@ check.
 
 ### Acceptance Criteria Validation
 
+This check enforces a **coverage floor (minimum rigor), not equal depth** — more
+stories or tests are always welcome. Flag only **missing required coverage**;
+never penalize a story or suite for having *more* rigor than another.
+
+**Decomposition coverage (FR → story).** Before validating criteria, check that
+every PRD functional requirement maps to a story: for each stable `FR-n` in
+`docs/helix/01-frame/prd.md`, confirm **≥1 user story covers it** (a story names
+the `FR-n` it covers in its header / Dependencies). An `FR-n` with no covering
+story is a **blocking coverage gap**. One story may cover several `FR-n`s, but a
+story bundling **unrelated** `FR-n`s without recorded justification is a finding
+(split it). This requires stable `FR-n` IDs in the PRD; if they are absent, that
+template gap is itself a finding (the mapping is not reproducible without them).
+
 For each user story and feature spec in the reviewed scope:
 
 1. Extract acceptance criteria from the governing artifact.
 2. For each criterion, determine whether:
-   - a test exists that exercises the criterion
+   - a test exists that **exercises** the criterion — it drives the criterion's
+     action and asserts the criterion's observable outcome. A test that merely
+     names the criterion, runs adjacent code, or asserts nothing relevant does
+     **not** exercise it: classify that criterion `UNTESTED`, and if an artifact
+     *claims* the named test covers it, `ASSERTED_UNBACKED` — never "covered".
    - the test passes
    - the implementation satisfies the criterion based on code inspection
 3. Classify each criterion as:
@@ -270,6 +287,14 @@ For each user story and feature spec in the reviewed scope:
    blocking regression regardless of the satisfaction floor. Resolve each by either making the
    claim true (add the test / emit the metric) or deleting the claim from the artifact — never by
    weakening or removing the check.
+7. **AC coverage floor (blocking, with one escape hatch).** Every acceptance criterion must have
+   ≥1 test that *exercises* it (per step 2). A criterion classified `UNTESTED` is a **blocking
+   coverage gap** by default — resolve it by adding an exercising test. The **only** non-blocking
+   resolution is a **recorded reviewed exception**: the criterion is documented as
+   "manual verification accepted" or "non-automatable AC" with the evidence of the manual
+   verification (who verified, what was observed). A criterion is never silently passed as covered
+   when no test exercises it — it is either tested, or carries a recorded reviewed exception. This
+   is a floor: extra tests beyond one-per-AC are always fine and never a finding.
 
 ### Instrument-Integrity Check
 

@@ -104,6 +104,12 @@ These are the detailed behavioral specs. Each one should be testable — someone
 reading it should know how to write an acceptance test. Organize by subsystem
 or user flow, not by priority.
 
+Give each functional requirement a **stable `FR-n` ID** (`FR-1`, `FR-2`, …). The
+ID is the trace anchor: every `FR-n` must be covered by ≥1 user story, and
+reconcile-alignment flags any `FR-n` with no story as a coverage gap. Number
+sequentially and never renumber on edit — downstream stories reference the ID by
+name.
+
 ### Acceptance Test Sketches
 For each P0 requirement, write a concrete scenario: what the user does, what
 input they provide, and what observable result they see. These aren't full test
@@ -174,5 +180,6 @@ committing.
 - [ ] P0 requirements number 7 or fewer
 - [ ] Assumptions are falsifiable
 - [ ] Functional requirements are organized by subsystem or flow, not priority
+- [ ] Each functional requirement carries a stable `FR-n` ID for downstream story traceability
 - [ ] Technical Context names specific versions, not just library names
 - [ ] Open Questions name who can answer and what's blocked

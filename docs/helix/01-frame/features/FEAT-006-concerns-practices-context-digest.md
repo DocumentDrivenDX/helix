@@ -5,11 +5,11 @@ ddx:
     - helix.prd
     - FEAT-003
   review:
-    self_hash: 7517c7bf2db366dcdbae3ada995a5c0148955b332cf34d567180dff971d79489
+    self_hash: 1711c08bf5e041cd041c762594f278d35744351d4a25b8251566de2dd778abd3
     deps:
       FEAT-003: cffa789e17a8096655a4a7621d6884e02d2a8dc29da9283bfcca35125eba300d
       helix.prd: 2b22383538b33c6ecee57f43d85128dfef7d56254766b757aa36439e35f2bfc9
-    reviewed_at: "2026-05-25T20:24:24Z"
+    reviewed_at: "2026-05-25T21:21:27Z"
 ---
 # Feature Specification: FEAT-006 — Concerns, Practices, and Context-Digest Beads
 
@@ -197,10 +197,18 @@ slots:
   language-runtime:    { exclusive: true }
   datastore:           { exclusive: true }   # slot defined, no library member yet → no default
   deploy-target:       { exclusive: true }
+  e2e-framework:       { exclusive: true }   # the one browser-e2e tool a UI web app runs core flows through
 defaults:
   frontend-framework: react-nextjs
   language-runtime:   typescript-bun
+  e2e-framework:      e2e-playwright
 ```
+
+`e2e-framework` is an exclusive slot like the others (a project runs its core
+flows through one browser-e2e tool, default `e2e-playwright`). `e2e-kind` is
+**not** a member — it is composable infra/api e2e, not the browser-e2e slot.
+Filling the slot selects the tool; it is not coverage — a UI web app must also
+have ≥1 core user-flow exercised by a browser e2e that runs green (FEAT-010).
 
 - **"slot", not "role".** The runtime (DDx) already owns "role" for persona
   bindings; HELIX uses "slot" to avoid the collision.

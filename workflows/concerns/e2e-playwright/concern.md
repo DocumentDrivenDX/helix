@@ -6,6 +6,9 @@ testing
 ## Areas
 ui, site
 
+## Slot
+e2e-framework
+
 ## Components
 
 - **Test runner**: Playwright (`@playwright/test`)

@@ -5,11 +5,11 @@ ddx:
     - helix.workflow.principles-resolution
     - FEAT-006
   review:
-    self_hash: 1c549cb809575c747ffbeb83e31b128d963b7ef7f003a4c8f0bd1849dc156f75
+    self_hash: aaafbab2adc35aeb9e56865debd7071bf84ff4d119ab248bdecea99ff792a452
     deps:
-      FEAT-006: 13071f5e9ab30fb3ae4ff5bb919c03c65faa4b5cd21990bfc07dbc8566513757
+      FEAT-006: 1711c08bf5e041cd041c762594f278d35744351d4a25b8251566de2dd778abd3
       helix.workflow.principles-resolution: 8e597b16b6ea3bc2c8ae8418de2f4918fd9cb7ceb950a69b7da5ad09707b97c6
-    reviewed_at: "2026-05-25T20:17:42Z"
+    reviewed_at: "2026-05-25T21:12:02Z"
 ---
 # Concern and Practices Resolution
 
@@ -150,8 +150,9 @@ selection by the active autonomy level (FEAT-011; see `.ddx/plugins/helix/workfl
    an exclusive functional position a concern fills — one frontend framework, one
    language runtime, etc. Determine which slots the product needs (**a web app
    must fill `frontend-framework`** — leaving it empty and raw-serving HTML is the
-   bug this guards against; a runnable product fills `language-runtime`), then for
-   each needed slot resolve a filler in this order, first match wins:
+   bug this guards against; a runnable product fills `language-runtime`; **a web
+   app with a UI must also fill `e2e-framework`** — default `e2e-playwright`),
+   then for each needed slot resolve a filler in this order, first match wins:
    1. **Operator override** — the slot's value in
       `docs/helix/01-frame/concerns.local.yml`, if that file exists. Read it
       **before** writing `concerns.md`.
@@ -162,6 +163,11 @@ selection by the active autonomy level (FEAT-011; see `.ddx/plugins/helix/workfl
    Record the chosen filler **and its source** (`concerns.local.yml override`,
    `slots.yml default`, or `assumption`) in `concerns.md`. Slot membership is
    derived: a concern fills slot X iff its `concern.md` `## Slot` names X.
+   **Filling `e2e-framework` selects the tool; it is not e2e coverage.** A UI web
+   app must additionally have **≥1 core user-flow covered by a browser e2e test
+   that actually RUNS GREEN against the running app** — a config plus a `.spec`
+   file that never runs does not satisfy this. The run-core-flow gate lives in the
+   `e2e-playwright` practices; an unexercised flow's AC is `UNTESTED`, not covered.
 4. Write `docs/helix/01-frame/concerns.md` with the inferred selection (composable
    concerns + the resolved slot fillers), recording each inferred concern as an
    **assumption** (a recorded inference, not a confirmed choice) rather than

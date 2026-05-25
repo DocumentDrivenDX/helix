@@ -6,12 +6,12 @@ ddx:
     - FEAT-006
     - FEAT-008
   review:
-    self_hash: f614ff33fcaaf719ea47361df7dc17739dbb03a8272550b18d5d9593972b43b2
+    self_hash: a2c80390aabe1e7c8e7f2145b712e3dadf3d17b8cdc1b733c9b59ead7be4869d
     deps:
-      FEAT-006: a44d0a40e5cb883e31c5f6b150a77070fa427bb8f834345908aefaf1cffb38ce
-      FEAT-008: 5f84004f080f8d69c84ce1bb208e26461a53bb6063b471658da0d4934ec39214
-      helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
-    reviewed_at: "2026-05-15T04:11:24Z"
+      FEAT-006: 1711c08bf5e041cd041c762594f278d35744351d4a25b8251566de2dd778abd3
+      FEAT-008: 898b8004c60c52c73185f68b907445f057b797bcc03706bab227b181cc07281f
+      helix.prd: 2b22383538b33c6ecee57f43d85128dfef7d56254766b757aa36439e35f2bfc9
+    reviewed_at: "2026-05-25T21:21:27Z"
 ---
 # Feature Specification: FEAT-010 — Testing Strategy Templates
 
@@ -94,6 +94,27 @@ Testing templates that activate based on project concerns:
 - `i18n`: locale testing, string extraction verification.
 - `security`: input validation, authentication boundary testing.
 
+### FR-6: AC→Test Coverage Floor
+
+Every acceptance criterion must trace to **≥1 test that exercises it** — drives
+the criterion's action and asserts its observable outcome. The story test plan's
+per-AC matrix names the asserting behavior (not just a test name) so coverage is
+mechanically checkable. A criterion with no exercising test is a **blocking
+coverage gap** (reconcile-alignment Acceptance Criteria Validation), with one
+escape hatch: a recorded reviewed exception ("manual verification accepted" /
+"non-automatable AC") with evidence. A weak or irrelevant test does not count as
+coverage — it is classified `UNTESTED` / `ASSERTED_UNBACKED`. This is a floor on
+minimum rigor; tests beyond one-per-AC are always welcome.
+
+### FR-7: E2E Core-Flow Coverage
+
+A UI web app fills the `e2e-framework` slot (FEAT-006; default `e2e-playwright`).
+**Selecting the tool is not coverage**: at least one core user-flow must have a
+**browser e2e test that runs green against the running app** — a config plus an
+unexecuted `.spec` file does not satisfy it. The run-core-flow gate lives in the
+`e2e-playwright` practices; reconcile-alignment treats a core flow whose e2e was
+never run against the app as `UNTESTED`.
+
 ## Non-Functional Requirements
 
 ### NFR-1: Framework Agnostic
@@ -119,6 +140,12 @@ tests, and performance benchmarks simultaneously.
 5. At least two concern-specific testing templates exist (e.g., a11y, o11y).
 6. Templates are referenced from `/helix frame` and `/helix plan` prompts
    so agents use them when generating test strategies.
+7. Every acceptance criterion traces to ≥1 exercising test; an untested AC is a
+   blocking coverage gap unless a reviewed manual/non-automatable exception is
+   recorded with evidence (FR-6).
+8. A UI web app fills `e2e-framework` (default `e2e-playwright`) and has ≥1 core
+   user-flow covered by a browser e2e that runs green against the running app —
+   tool selection alone does not satisfy this (FR-7).
 
 ## Constraints
 

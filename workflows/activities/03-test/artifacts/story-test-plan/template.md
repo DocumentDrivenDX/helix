@@ -31,9 +31,15 @@ specific failing test. This story test plan owns this matrix; the project-level
 test plan aggregates strategy and allocates layers — it does **not** duplicate
 these rows (FEAT-008 FR-6).
 
-| AC ID | Acceptance Criterion (Given/When/Then) | Failing Test(s) to Create or Run | Test Level | File or Command | Setup / Data | Notes |
-|-------|----------------------------------------|----------------------------------|------------|-----------------|--------------|-------|
-| US-XXX-AC1 | [Given/When/Then criterion] | `[test_name]` | Unit / Integration / Contract / E2E | `tests/...` or `bash ...` | [Fixture, seed, mock] | [Edge case or sequencing note] |
+Each row must name the **behavior the test asserts** — the specific observable
+outcome it checks — not merely a test name. A row that lists a test name with no
+named assertion does not prove the criterion is *exercised*; reconcile-alignment
+classifies such a criterion `UNTESTED` (or `ASSERTED_UNBACKED` if the named test
+does not exist), not covered.
+
+| AC ID | Acceptance Criterion (Given/When/Then) | Failing Test(s) to Create or Run | Asserted Behavior (what the test verifies) | Test Level | File or Command | Setup / Data | Notes |
+|-------|----------------------------------------|----------------------------------|--------------------------------------------|------------|-----------------|--------------|-------|
+| US-XXX-AC1 | [Given/When/Then criterion] | `[test_name]` | [the concrete outcome the test asserts — e.g. "response is 200 with body {id}"] | Unit / Integration / Contract / E2E | `tests/...` or `bash ...` | [Fixture, seed, mock] | [Edge case or sequencing note] |
 
 ## Executable Proof
 
@@ -84,6 +90,7 @@ these rows (FEAT-008 FR-6).
 
 - [ ] References the governing story and technical design
 - [ ] Every active acceptance criterion maps to concrete failing tests, keyed by its stable `US-<n>-AC<m>` ID
+- [ ] Every AC row names the behavior/assertion the test makes, not just a test name
 - [ ] File paths, commands, or test identifiers are specific enough to execute
 - [ ] Setup, fixtures, mocks, and seed data are explicit
 - [ ] Edge cases cover real story risks rather than generic boilerplate

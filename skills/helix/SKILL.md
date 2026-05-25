@@ -163,14 +163,22 @@ stories.
    operator override (`docs/helix/01-frame/concerns.local.yml`) → shipped default
    (`slots.yml`) → recorded assumption, and record the chosen filler plus its
    source in `concerns.md`. A web app must fill `frontend-framework` — the
-   shipped default `react-nextjs` applies with no operator config. Selection
-   happens here, once; propagation to work items is a later gate owned by
-   `check`/`polish`, not a re-selection.
+   shipped default `react-nextjs` applies with no operator config. A UI web app
+   must also fill `e2e-framework` (default `e2e-playwright`); selecting the tool
+   is not coverage — ≥1 core user-flow must have a browser e2e that runs green
+   against the running app. Selection happens here, once; propagation to work
+   items is a later gate owned by `check`/`polish`, not a re-selection.
 3. Read the relevant artifact template and prompt before drafting.
 4. Keep each artifact in its lane: vision is direction, PRD is product scope,
    feature specs are feature behavior, stories are vertical user outcomes.
 5. Give each user-story acceptance criterion a stable `US-<n>-AC<m>` ID in
    Given/When/Then form so the story test plan can map it to tests by name.
+   Decompose to a **coverage floor** (minimum rigor, not equal depth): every PRD
+   functional requirement `FR-n` maps to ≥1 user story (don't bundle unrelated
+   `FR-n`s without justification), and every acceptance criterion gets ≥1 test
+   that *exercises* it — a named test with no relevant assertion is `UNTESTED`,
+   not covered. An untested AC blocks unless a reviewed manual/non-automatable
+   exception is recorded with evidence.
 6. Validate blocking template checks before treating the artifact as ready.
 7. Create follow-up design or implementation work only after the framing
    artifact can govern it.
