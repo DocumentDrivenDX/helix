@@ -1,0 +1,114 @@
+# Metadata for Design System (DESIGN.md)
+
+artifact:
+  name: Design System
+  id: design-system
+  type: document
+  activity: design
+  level: project
+
+description: |
+  The per-project interface-system instance: the concrete UX/design-system
+  decisions this app commits to. It captures the navigation model and
+  active-state convention, the visual hierarchy, the applicable interaction
+  states, and the design tokens (color / spacing / type). It is the
+  app-specific instance of the interface-quality guidelines the `ux-radix`
+  concern prescribes — NOT a mirror or copy of the concern library. One
+  DESIGN.md per project, like the architecture document.
+
+output:
+  location: docs/helix/02-design/DESIGN.md
+  format: markdown
+  naming: DESIGN.md
+
+validation:
+  required_sections:
+    - navigation_and_active_state
+    - visual_hierarchy
+    - interaction_states
+    - tokens
+    - non_goals
+
+  quality_checks:
+    - check: active_state_convention_defined
+      description: The navigation section names the active-state convention AND requires aria-current="page" on the active nav item
+      severity: blocking
+
+    - check: applicable_states_only
+      description: Interaction states are scoped where-applicable (hover/focus-visible for enabled controls, disabled where it exists, loading for async, empty/error for data/form/content) — not a demand that every element carry every state
+      severity: warning
+
+    - check: tokens_concrete
+      description: Tokens name concrete values (a palette, a spacing scale, a type scale), not placeholders
+      severity: blocking
+
+    - check: non_goals_present
+      description: The non-goals section explicitly excludes runtime architecture, data flow, component implementation internals, and ADR material
+      severity: blocking
+
+  automated_checks:
+    - pattern: 'aria-current'
+      expected: ">=1"
+      message: Must state the aria-current="page" active-nav requirement
+
+    - pattern: "\\[TBD\\]|\\[TODO\\]|\\[NEEDS CLARIFICATION"
+      expected: 0
+      message: Remove all unresolved markers before approval
+
+variables:
+  - name: app_name
+    description: Name of the application this design system governs
+    required: true
+
+  - name: navigation_model
+    description: The app's navigation shape — top nav, sidebar, tabs, or a combination
+    required: true
+
+prompts:
+  generation: prompt.md
+  review: |
+    Review this DESIGN.md for:
+    1. Whether the navigation section names a concrete active-state convention
+       AND requires aria-current="page" on the active nav item
+    2. Whether interaction states are scoped where-applicable, not universally
+    3. Whether the visual hierarchy is concrete enough to build against
+    4. Whether tokens name real values, not placeholders
+    5. Whether the non-goals section keeps architecture, data flow, component
+       implementation internals, and ADR material OUT of this document
+    6. Whether it reads as this app's instance of the guidelines, not a copy of
+       the ux-radix concern library
+
+template:
+  file: template.md
+  sections:
+    - navigation_and_active_state: "The navigation model and the active-state convention (visible active state + aria-current='page' on the active item)."
+    - visual_hierarchy: "How the interface ranks importance — layout, type scale, weight, spacing, and emphasis rules."
+    - interaction_states: "The interaction states this app uses, where applicable (hover/focus-visible, disabled, loading, empty/error)."
+    - tokens: "The design tokens — color palette, spacing scale, type scale — as concrete values."
+    - non_goals: "What this document deliberately does NOT cover (architecture, data flow, component internals, ADRs)."
+
+example:
+  file: example.md
+
+relationships:
+  informed_by:
+    - prd
+    - feature-specification
+
+  informs:
+    - solution-design
+    - technical-design
+    - story-test-plan
+
+  references:
+    - architecture
+
+tags:
+  - design
+  - design-system
+  - ux
+  - interface
+  - tokens
+
+version: 1.0.0
+last_updated: 2026-05-25

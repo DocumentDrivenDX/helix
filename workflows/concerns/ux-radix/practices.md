@@ -35,6 +35,29 @@
 - Pagination or infinite scroll for long lists — prefer pagination for data
   tables, infinite scroll for feeds
 - Back navigation must preserve scroll position and filter state
+- **Current-location feedback (required).** When the user is on a navigable
+  destination, the active nav item MUST show a visible active state **and**
+  carry `aria-current="page"`. The active visual style should be *derived from*
+  that state (or bound to a stable token/class contract) so the cue is both
+  semantic and visible — never a style with no semantic anchor. `aria-current`
+  is also an accessibility signal; this composes with `a11y-wcag-aa`. "No
+  feedback when I click a nav item" is a defect, not a style preference.
+
+### Interaction states (where applicable)
+
+Express interaction states only where the state actually exists for that
+element — this is a where-applicable rule, not a demand that every element
+carry every state:
+
+- **Enabled interactive controls** (buttons, links, toggles, inputs): hover
+  **and** `:focus-visible` styles so keyboard and pointer users both see focus.
+- **Disabled controls** (only where disablement is a real condition): a clear
+  disabled affordance distinct from enabled, with the disabled state conveyed
+  semantically (e.g. `disabled` / `aria-disabled`), not by color alone.
+- **Async actions** (save, submit, fetch-triggering controls): a loading state
+  that blocks double-submission and signals progress.
+- **Data / form / content surfaces**: explicit empty and error states (see
+  Implementation → Empty and loading states), never a blank or silent failure.
 
 ### Selection
 - Checkbox column + header select-all for table multi-select
@@ -110,6 +133,16 @@ Every interactive widget must support:
 - Test empty states render with helpful content, not blank containers
 - Test destructive actions require confirmation (click delete → dialog
   appears → must confirm)
+- **Mechanized current-location cue.** For a UI web app, the browser e2e MUST
+  assert `aria-current="page"` on the active nav item for ≥1 route (navigate →
+  assert the active item carries `aria-current="page"`). This is **required,
+  non-optional**. An active class/style may be asserted *additionally* but is
+  **never a substitute** for the `aria-current` assertion. No pixel/screenshot
+  assertions for this gate — assert the semantic state (and, if checked, a
+  stable class/token), not a rendered image. This is the same assertion the
+  `e2e-playwright` concern requires; it feeds the `verification` gate
+  (`.ddx/plugins/helix/workflows/concerns/verification/practices.md`), turning
+  "does it show me where I am?" into a checkable test.
 
 ## Quality Gates
 
@@ -118,3 +151,9 @@ Every interactive widget must support:
 - No search without empty-state handling
 - No destructive action without confirmation
 - No form without visible validation errors on submit
+- No navigable destination without a visible active state **and**
+  `aria-current="page"` on the active nav item
+- No enabled interactive control without hover **and** `:focus-visible` styles
+- For a UI web app: the browser e2e asserts `aria-current="page"` on the active
+  nav for ≥1 route (required; an active class/style only as an additional
+  assertion, never a substitute; no screenshot assertions)

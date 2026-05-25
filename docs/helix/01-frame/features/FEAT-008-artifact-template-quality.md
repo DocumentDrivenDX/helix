@@ -5,12 +5,12 @@ ddx:
     - helix.prd
     - FEAT-006
   review:
-    self_hash: 898b8004c60c52c73185f68b907445f057b797bcc03706bab227b181cc07281f
+    self_hash: 55c3f5b337e66301e666cdb14967f0ecee4d9eaffae50aa774a44b4ba343a3fd
     deps:
       FEAT-006: 1711c08bf5e041cd041c762594f278d35744351d4a25b8251566de2dd778abd3
       FEAT-016: 226872932728d635279abac06206be77cee1075d787aae7760010941adb9c1e1
       helix.prd: 2b22383538b33c6ecee57f43d85128dfef7d56254766b757aa36439e35f2bfc9
-    reviewed_at: "2026-05-25T21:21:27Z"
+    reviewed_at: "2026-05-25T23:05:20Z"
 ---
 # Feature Specification: FEAT-008 — Artifact Template Quality and Completeness
 
@@ -127,6 +127,33 @@ than left to runtime taste:
 This is a floor on minimum rigor (decomposition + traceability), not a cap and not
 a promise of equal total depth across runtimes.
 
+### FR-8: Interface-Quality Guidelines and the DESIGN.md Artifact
+
+Templates and concern practices must govern interface-quality so a UI is built
+with a legible, consistent design system rather than left to runtime taste:
+
+1. **Required visual cues (`ux-radix`)**: the current page MUST show a visible
+   active state **and** `aria-current="page"` on the active nav item; interactive
+   elements express their states **where applicable** (hover + focus-visible for
+   enabled controls; disabled where disablement exists; loading for async
+   actions; empty/error for data/form/content surfaces). `aria-current` is both a
+   UX and an accessibility cue — keep it consistent with `a11y-wcag-aa`.
+2. **The DESIGN.md artifact**: a governed, project-level artifact
+   (`workflows/activities/02-design/artifacts/design-system/`, output
+   `docs/helix/02-design/DESIGN.md`) captures the app's concrete
+   **interface-system** decisions — navigation model + active-state convention,
+   visual hierarchy, the applicable interaction states, and tokens
+   (color/spacing/type). It is the app-specific *instance* of these guidelines,
+   **not** a mirror of the concern library, and explicitly **excludes** runtime
+   architecture, data flow, component implementation internals, and ADR material
+   (those live in architecture/solution-design/ADRs).
+3. **Mechanized visual-cue verification**: a UI web app's browser e2e MUST assert
+   `aria-current="page"` on the active nav item for ≥1 route (**required,
+   non-optional**). An active class/style may be asserted *additionally* but is
+   **never a substitute** for `aria-current`; no pixel/screenshot assertions for
+   this gate. This makes "does it show me where I am?" a checkable gate that
+   feeds the `verification` concern.
+
 ## Non-Functional Requirements
 
 ### NFR-1: Template Size
@@ -152,6 +179,12 @@ Existing artifacts must remain valid. New template features are additive.
    Given/When/Then form; the story test plan maps each AC ID to concrete
    failing tests; the project test plan aggregates strategy and allocates
    criteria to test layers without duplicating the story-level matrix.
+6. The `ux-radix` practices require current-location feedback (visible active
+   state + `aria-current="page"`) and the where-applicable interaction states; a
+   governed `design-system` artifact (DESIGN.md) exists with the non-goal section
+   excluding architecture/data-flow/impl-internals/ADR material; and a UI web
+   app's browser e2e asserts `aria-current="page"` on the active nav for ≥1 route
+   (required, never substituted by a class/style or screenshot assertion).
 
 ## Constraints
 

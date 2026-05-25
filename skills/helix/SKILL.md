@@ -63,7 +63,7 @@ The seven activities and the artifact types they own:
 |---|---|
 | `00-discover` | `business-case`, `competitive-analysis`, `opportunity-canvas`, `product-vision`, `resource-summary` |
 | `01-frame` | `compliance-requirements`, `concerns`, `feasibility-study`, `feature-registry`, `feature-specification`, `parking-lot`, `pr-faq`, `prd`, `principles`, `research-plan`, `risk-register`, `security-requirements`, `stakeholder-map`, `threat-model`, `user-stories`, `validation-checklist`, `data-prd` |
-| `02-design` | `adr`, `architecture`, `contract`, `data-design`, `proof-of-concept`, `security-architecture`, `solution-design`, `tech-spike`, `technical-design`, `data-architecture` |
+| `02-design` | `adr`, `architecture`, `contract`, `data-design`, `design-system`, `proof-of-concept`, `security-architecture`, `solution-design`, `tech-spike`, `technical-design`, `data-architecture` |
 | `03-test` | `security-tests`, `story-test-plan`, `test-plan`, `test-procedures`, `test-suites`, `data-quality-expectations` |
 | `04-build` | `implementation-plan` |
 | `05-deploy` | `deployment-checklist`, `monitoring-setup`, `release-notes`, `runbook` |
@@ -395,8 +395,12 @@ Use only when the user explicitly asks for HELIX execution.
    not done: for a buildable product, drive the real user flows against the
    **running** system end-to-end with a whole-stack exercise appropriate to the
    product (for a UI web app that means ≥1 core flow via a browser e2e that runs
-   green; for a service/CLI, the equivalent end-to-end invocation against the
-   running system), do an adversarial re-review against the ACs
+   green — and the running UI MUST give current-location feedback: the active
+   nav item shows a visible active state **and** `aria-current="page"`, with the
+   browser e2e asserting that cue for ≥1 route, required and never substituted by
+   a class/style or screenshot assertion; for a service/CLI, the equivalent
+   end-to-end invocation against the running system), do an adversarial
+   re-review against the ACs
    and integration risks, and record the evidence artifacts — the command run +
    its exit status, the target URL/env, the core flows exercised, and the
    re-review checklist. **Verify-don't-trust**: never assert a result you did

@@ -17,6 +17,31 @@ config:
 If the e2e suite was never run against the running app, the AC the flow backs is
 `UNTESTED` (see reconcile-alignment Acceptance Criteria Validation), not covered.
 
+## Assert the current-location cue (mechanized visual-cue gate)
+
+For a UI web app, the browser e2e MUST assert the current-location cue, not
+eyeball it: navigate to a route, then assert that the active nav item carries
+**`aria-current="page"`** for **≥1 route**. This assertion is **required and
+non-optional**.
+
+- Use the **portable** assertion (works across Playwright versions): locate the
+  active nav link, then `await expect(activeNavItem).toHaveAttribute('aria-current', 'page')`.
+  (The `getByRole(..., { current: 'page' })` option exists only in newer
+  Playwright — don't rely on it.)
+- An active class or style MAY be asserted *additionally* (e.g. a stable
+  token/class contract) but is **never a substitute** for the `aria-current`
+  assertion — assert the semantic state first.
+- **No pixel/screenshot assertions for this gate.** Screenshot baselines remain
+  fine for general visual regression, but the current-location cue is verified
+  by asserting the semantic state (and optionally a stable class/token), never
+  by a rendered-image comparison.
+
+This is the same requirement stated by the `ux-radix` concern's current-location
+feedback rule, and it feeds the `verification` gate
+(`.ddx/plugins/helix/workflows/concerns/verification/practices.md`): the
+operator's "clicking Invoices gives no feedback" bug becomes a failing e2e
+assertion until the cue exists.
+
 ## Requirements (Frame activity)
 - Identify all user-facing pages and workflows that need testing
 - Define what "test data" means for this project — what states must the UI show?
@@ -97,6 +122,9 @@ If the e2e suite was never run against the running app, the AC the flow backs is
 - `npx playwright test` passes with zero failures
 - All screenshot baselines are committed and up-to-date
 - Every navigable page has at least one test
+- The browser e2e asserts `aria-current="page"` on the active nav item for ≥1
+  route (required; an active class/style only as an additional assertion, never
+  a substitute; no screenshot assertions for this cue)
 - Every user-facing workflow has at least one end-to-end test
 - Video recording is enabled (not disabled for speed)
 - Demo reel script exists and produces a watchable video
