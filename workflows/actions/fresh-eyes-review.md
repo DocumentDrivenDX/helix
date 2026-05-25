@@ -216,6 +216,15 @@ the review investment and reintroduces resolved finding-classes. If a
 finding-class cannot be folded into a gate now, file it as explicit follow-on
 work rather than declaring the loop closed.
 
+**Intrinsic gates are blocking; external adversarial review is advisory.** The
+intrinsic gates — build, test, template conformance, the phantom-claim count —
+are mechanically checkable and **block** convergence. An external adversarial
+reviewer (a separate tool or model invoked for a second opinion) is **advisory
+input only** and must never be a hard gate: when it hangs, errors, or is
+unavailable, convergence is decided by the intrinsic gates, not stalled waiting
+on it. Feed its findings in as evidence; do not let its availability gate the
+loop.
+
 ## Report
 
 Close the review cycle. See the report action for the full pattern.

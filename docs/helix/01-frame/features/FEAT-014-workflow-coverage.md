@@ -7,6 +7,15 @@ ddx:
     - TP-014
     - TP-014-A
   status: draft
+  review:
+    self_hash: 759c40f844c097c8f4a02a3ae6de1ca4b8867dc7b102cc7d3d62ec15bea06b99
+    deps:
+      FEAT-013: d8601a108b58cf7970aa7e6339770fee9ef0b1c1a3639e75b0ea884abf9a03bc
+      FEAT-016: 226872932728d635279abac06206be77cee1075d787aae7760010941adb9c1e1
+      TP-014: fe45bf000e0976c842065d7ae161456d708b1356f48babb1d283a49aab55bc2e
+      TP-014-A: 3ed320673677753445c6b1280d460ceef06a47c4f0953decd1f0ebbe982717ff
+      helix.prd: 2b22383538b33c6ecee57f43d85128dfef7d56254766b757aa36439e35f2bfc9
+    reviewed_at: "2026-05-25T16:26:54Z"
 ---
 
 # Feature Specification: FEAT-014 — Workflow Coverage
@@ -262,6 +271,47 @@ the specific finding-class is the convergence path.
 The honesty property the meta-gates enforce is governed by [[FEAT-016]]; a
 phantom claim is a blocking finding-class that MUST be folded into a gate, never
 waved through by a reviewer verdict.
+
+## Regression Bench: Validating a Methodology Change
+
+Workflow coverage proves HELIX behaves correctly on a fixed set of scenarios.
+The **regression bench** answers the adjacent question — *did a change to HELIX
+itself actually improve anything?* — and it is the durable asset that separates
+real wins from noise. It is a first-class HELIX experiment (see the
+[experiment action](../../../workflows/actions/experiment.md)), not a one-off
+re-derivation.
+
+### RB-01: Bare-prompt re-run against a committed baseline
+
+The bench fixes a representative brief, records the intrinsic metrics a
+**committed baseline** of the methodology produces from the **bare prompt** (no
+improved content), then re-runs the same brief after the change. The recorded
+baseline — not memory or impression — is the reference point.
+
+### RB-02: Install the improved skill; do not redirect reads
+
+The re-run MUST exercise the change by **installing the improved skill**, never
+by pointing the agent at the changed files. Reading-by-redirection measures
+"the agent was told to use the new thing," not "the new thing is in force," and
+confounds the result.
+
+### RB-03: Intrinsic metrics only
+
+Scoring uses intrinsic, mechanically checkable metrics (build/test pass,
+template conformance, phantom-claim count, concern auto-selection,
+real-vs-stub output) defined via the metric-definition contract. External
+adversarial review is advisory evidence, never a bench metric (the
+intrinsic-gates-blocking / external-review-advisory split, [[FEAT-016]] and the
+fresh-eyes-review and evolve convergence rules).
+
+### RB-04: Convergence and cut rule
+
+A change converges on the bench when it **moves an intrinsic metric relative to
+baseline** and the move survives the confidence floor. A change that does not
+move a metric is **cut**, not kept on faith. "It feels better" is not evidence.
+Fix the instrument before trusting its reading: a metric that disagrees with the
+template it scores (template↔meta drift) is a broken instrument, resolved per
+[[FEAT-016]] before the bench result is believed.
 
 ## User Stories
 

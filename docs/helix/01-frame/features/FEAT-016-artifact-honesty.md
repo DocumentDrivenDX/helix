@@ -4,6 +4,11 @@ ddx:
   status: draft
   depends_on:
     - helix.prd
+  review:
+    self_hash: 226872932728d635279abac06206be77cee1075d787aae7760010941adb9c1e1
+    deps:
+      helix.prd: 2b22383538b33c6ecee57f43d85128dfef7d56254766b757aa36439e35f2bfc9
+    reviewed_at: "2026-05-25T16:26:54Z"
 ---
 
 # Feature Specification: FEAT-016 — Artifact Honesty (Claims-vs-Reality)
@@ -90,6 +95,27 @@ The honesty rule applies to any HELIX artifact that can assert a test, figure,
 or signal — PRDs, feature specs, designs, test plans, alignment reports, and
 status notes — not only test-layer artifacts.
 
+### FR-6: Instrument integrity (honesty applied to the gates themselves)
+
+Artifact honesty extends from artifacts to the **instruments that score them**.
+A gate can lie exactly as an artifact can, and a metric read off a broken
+instrument is a phantom claim about reality. Two instrument-integrity rules:
+
+1. **Template↔meta agreement.** An artifact is scored against its `template.md`
+   (the sections it must contain) and its `meta.yml` (`required_sections`,
+   quality checks). When those two **disagree** — the template carries a section
+   the meta does not require, or the meta requires a section the template omits
+   — the conformance score they jointly produce is untrustworthy. The "prd
+   scored 1/8" finding was this defect: the instrument was drifted, not the
+   artifact bad. Template↔meta drift is a blocking instrument-integrity finding,
+   resolved by reconciling the two — never by trusting the misleading score.
+2. **Verified, reproducible measurement.** A metric definition must name a
+   measurement command that has **actually been run and confirmed** to emit the
+   stated value, with the run recorded in `last_verified`. An
+   asserted-but-unmeasured metric — a number with no run behind it — is
+   `ASSERTED_UNBACKED` exactly like a phantom test. The metric-definition
+   `command_verified` quality check enforces this.
+
 ## Non-Functional Requirements
 
 - **No new measurement infrastructure**: the check reuses the existing
@@ -107,6 +133,8 @@ status notes — not only test-layer artifacts.
 | FEAT-016-AC2 | one or more `ASSERTED_UNBACKED` claims in scope | the phantom-claim ratchet evaluates | the result is a blocking regression even if the acceptance-satisfaction floor is met |
 | FEAT-016-AC3 | an `ASSERTED_UNBACKED` finding | it is resolved | resolution is either making the claim true or deleting it — the check is never relaxed |
 | FEAT-016-AC4 | a PRD or design (non-test artifact) that cites an invented coverage figure | the claims-vs-reality check runs | the claim is flagged `ASSERTED_UNBACKED` |
+| FEAT-016-AC5 | an artifact whose `template.md` and `meta.yml` `required_sections` disagree | reconcile-alignment scores its conformance | template↔meta drift is flagged as a blocking instrument-integrity finding, not reported as a low conformance score for the artifact |
+| FEAT-016-AC6 | a metric definition whose `command` was never run (no `last_verified`) | the metric-definition `command_verified` check runs | the metric is flagged `ASSERTED_UNBACKED` (asserted-but-unmeasured), not trusted as a measurement |
 
 ## Relationships
 

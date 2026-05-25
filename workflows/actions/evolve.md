@@ -59,6 +59,13 @@ A reviewer verdict is evidence toward (1), never a substitute for (2). If a
 finding-class cannot be folded into a gate this pass, file it as explicit
 follow-on work rather than declaring convergence.
 
+**Intrinsic gates are blocking; external adversarial review is advisory.** The
+intrinsic gates — build, test, template conformance, the phantom-claim count —
+block convergence. An external adversarial reviewer (a separate tool or model)
+is advisory input only and must never be a hard gate: when it hangs, errors, or
+is unavailable, convergence is decided by the intrinsic gates, not stalled
+waiting on it.
+
 ## STEP 0 — Bootstrap
 
 0. **Load active design principles** following the principles-resolution

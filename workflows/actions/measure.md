@@ -51,6 +51,21 @@ When artifacts disagree, use this order:
 
 ## STEP 2 - Acceptance Criteria Verification
 
+**Verify, don't trust the self-report.** Measurement re-runs the gates itself;
+it never accepts a pass's self-reported "complete" as evidence. An autonomous
+pass can report success and still have died mid-run — e.g. a run that hit an API
+overload and exited reporting "complete" left the work unfinished; only
+re-running the gates here caught it. Run the verification rather than reading a
+status line. (The bounded operator loop that drives passes — the skill's
+run/worker route — runs this measurement after each pass for the same reason.)
+
+**Tolerate transient failures.** A gate failure caused by a transient condition
+(API overload, network blip, a flaky external dependency) is **retried**, not
+recorded as a real failure or a silent pass. Distinguish a transient error from
+a genuine criterion failure before recording `FAIL`; if a check cannot complete
+because of a transient/external condition, record `PARTIAL` with the reason, not
+`PASS`.
+
 For each target work item, verify every acceptance criterion:
 
 1. Parse the criterion text to determine the verification method:

@@ -30,6 +30,9 @@ validation:
     - check: direction_explicit
       description: The metric must state whether higher or lower values are better
       severity: blocking
+    - check: command_verified
+      description: The command must have actually been run and confirmed to emit the stated value, with the run date recorded in last_verified. A metric whose command was never run (asserted-but-unmeasured) is a phantom claim (FEAT-016), not a verified instrument.
+      severity: blocking
 
 prompts:
   generation: prompt.md

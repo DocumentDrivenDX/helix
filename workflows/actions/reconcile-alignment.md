@@ -234,6 +234,26 @@ For each user story and feature spec in the reviewed scope:
    claim true (add the test / emit the metric) or deleting the claim from the artifact — never by
    weakening or removing the check.
 
+### Instrument-Integrity Check
+
+A gate can lie exactly as an artifact can; fix the instrument before trusting
+its reading. Before reporting any conformance or metric score, verify the
+instrument that produced it (FEAT-016 FR-6):
+
+1. **Template↔meta agreement.** For each artifact scored against its
+   `template.md` and `meta.yml`, confirm the two **agree**: every section the
+   template marks required appears in the meta's `required_sections`, and the
+   meta requires no section the template omits. When they **drift**, the
+   conformance score they jointly produce is untrustworthy — a misleadingly low
+   score reflects a broken instrument, not a bad artifact (this is the "prd
+   scored 1/8" failure mode). Flag template↔meta drift as a **blocking
+   instrument-integrity finding** and resolve it by reconciling the two; do not
+   report the misleading score as the artifact's grade.
+2. **Verified measurement.** A metric definition cited as evidence must name a
+   measurement command that was actually run, with the run recorded in
+   `last_verified`. An asserted-but-unmeasured metric is `ASSERTED_UNBACKED` per
+   the honesty rule above — a number with no run behind it is a phantom claim.
+
 ## STEP 4 - Gap Classification
 
 For each relevant area, assign exactly one classification:

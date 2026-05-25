@@ -5,11 +5,11 @@ ddx:
     - example.test-plan.depositmatch
     - example.deployment-checklist.depositmatch.csv-import
   review:
-    self_hash: a1bb2128a1335ff7b306902f4bc6ab433468c93f567943535c641fa2e53d617e
+    self_hash: 7889a106bd3b349d17124fe2fcd082f9f79c1b12947785617af369273603b0c8
     deps:
       example.deployment-checklist.depositmatch.csv-import: 02e9e7c9c29b4a335e0e2eceacaaaa6673018042db2a706f89293ab6f58abcbf
       example.test-plan.depositmatch: ba055b639a94e62d3b24f3a7ca270f78c3f17f6bae78b936d399291225d7976f
-    reviewed_at: "2026-05-15T04:11:24Z"
+    reviewed_at: "2026-05-25T15:46:40Z"
 ---
 
 # Metric Definition: csv-import-validation-seconds
@@ -30,4 +30,30 @@ labels:
   feature: FEAT-001
   area: import
   signal: latency
+```
+
+## Example: regression-bench metric (methodology/skill change)
+
+A regression bench validates a methodology or skill change. The metric scores a
+fixed brief, the `command` re-runs it from the bare prompt with the improved
+skill installed, and `baseline`/`target` carry the bare-prompt reading versus
+the value that earns the change its keep.
+
+```yaml
+name: recipe-app-build-conformance
+description: Intrinsic conformance score for the recipe-app bench brief run from the bare prompt with the candidate HELIX skill installed (build passes + template-conformant PRD + zero phantom claims).
+unit: score
+direction: higher
+command: bash tests/workflows/run-all.sh --bench recipe-app --score
+output_pattern: "METRIC recipe-app-build-conformance=([0-9]+\\.?[0-9]*)"
+baseline: 0.62
+target: 0.85
+tolerance: "0.05"
+last_verified: "2026-05-25"
+interpretation: Below baseline means the candidate skill change regressed the bench; at or above target means the change earned its keep. A score that disagrees with the PRD it scores (template↔meta drift) is a broken instrument — fix the instrument before trusting the reading (FEAT-016).
+labels:
+  product: helix
+  feature: FEAT-014
+  area: methodology
+  signal: conformance
 ```

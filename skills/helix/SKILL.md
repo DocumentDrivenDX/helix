@@ -280,6 +280,8 @@ the HELIX artifact stack.
    re-generating the stack. Converge on "verified + each finding-class folded
    into a gate" (a template check, an acceptance criterion, a concern
    propagation check, or a ratchet) — not on a bare reviewer "SHIP" verdict.
+   Intrinsic gates (build, test, conformance, phantom-claim count) block;
+   external adversarial review is advisory and never a hard gate.
 
 ### Design
 
@@ -321,6 +323,11 @@ Use for fresh-eyes review of plans, PRs, implementation, or recent work.
    when the work is verified **and** each finding-class is folded back into a
    gate so it cannot silently recur. Drive fixes by progressive evolve against
    the specific finding, not by re-generating the artifact or implementation.
+7. **Intrinsic gates block; external adversarial review is advisory.** The
+   intrinsic gates — build, test, template conformance, the phantom-claim count
+   — block convergence. An external adversarial reviewer (a separate tool or
+   model) is advisory input only and must never be a hard gate: when it hangs,
+   errors, or is unavailable, convergence is decided by the intrinsic gates.
 
 ### Polish
 
@@ -389,6 +396,12 @@ Use for metric-driven optimization loops.
 2. Run bounded iterations.
 3. Measure after each iteration.
 4. Keep changes or revert/adjust based on metric evidence.
+5. To validate a **methodology or skill change** (a workflow prompt, template,
+   or this routing skill), use the **regression bench**: record a committed
+   baseline, run a fixed brief from the bare prompt with the improved skill
+   *installed* (never by redirecting reads), score intrinsic metrics against the
+   baseline, and **keep what moved, cut what didn't**. The bench is the standing
+   answer to "how do we know this change is impactful."
 
 ### Worker
 

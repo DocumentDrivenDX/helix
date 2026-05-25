@@ -16,6 +16,42 @@ the result is recorded in the issue close comment, not as a canonical HELIX doc.
 The only normative artifact the experiment may create or update is a metric
 definition at `docs/helix/06-iterate/metrics/`.
 
+## Regression Bench (validating a methodology or skill change)
+
+When the change under test is a **methodology or skill change** (a workflow
+prompt, an artifact template, the routing skill) rather than product code, run
+it as a **regression bench**. The bench is the same `activity:iterate`
+machinery — metric definition, keep/discard rule, confidence scoring — applied
+to the question "does this change actually matter?" cheaply and without
+self-confirmation bias:
+
+1. **Record a baseline.** Fix a representative brief and run it against a
+   committed baseline of the methodology — the **bare prompt**, no improved
+   content. Record the intrinsic metrics it produces in a metric definition
+   (`baseline`/`target` fields; see the metric-definition template). Commit the
+   baseline so re-runs compare against a fixed point, not a moving memory.
+2. **Make the change.** Land the methodology/skill change under test.
+3. **Install the improved skill, then re-run from the bare prompt.** Re-run the
+   *same brief* with the improved skill **installed** — not by redirecting the
+   agent to read the changed files. Reading-by-redirection confounds the
+   result: it measures "agent told to use the new thing" instead of "the new
+   thing is in force." The bare prompt against the installed skill is the only
+   honest comparison.
+4. **Score intrinsic metrics against the baseline.** Use intrinsic,
+   mechanically checkable metrics (build/test pass, template conformance,
+   phantom-claim count, concern auto-selection, real-vs-stub output) — the same
+   metric-definition contract as any other experiment. Compare to the recorded
+   baseline.
+5. **Keep what moved; cut what didn't.** A change that does not move a metric
+   relative to baseline is **cut**, not kept on faith. "It feels better" is not
+   evidence; the bench is how a methodology change earns its place.
+
+The regression bench is the durable asset: it separates real wins from noise
+and is the standing answer to "how do we know this change is impactful." Fix
+the instrument before trusting its reading — a metric that disagrees with the
+template it scores (template↔meta drift) is a broken instrument, not a bad run
+(see the metric-definition `command_verified` check and FEAT-016).
+
 ## Action Input
 
 You may receive:

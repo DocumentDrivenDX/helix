@@ -334,6 +334,16 @@ loop. Concretely, before closing the item confirm:
 A blocking finding here fails verification exactly like a failing test: fix it
 within scope or leave the item open with a precise status note.
 
+**Verify, don't trust a self-reported "complete."** Run the gates and read their
+real output; never close an item on the strength of a status line claiming
+success. An autonomous pass can report "complete" after dying mid-run (e.g. on
+an API overload) — actually running verification here is what catches it. When a
+gate fails for a **transient** reason (API overload, network blip, flaky
+external dependency), retry it; do not record a transient error as a genuine
+failure, and never paper over it with a self-asserted pass. (The bounded
+operator loop driving these passes — the skill's run/worker route — re-runs
+verification after each pass for the same reason.)
+
 If verification fails:
 
 - fix the problem within the work item scope, or
