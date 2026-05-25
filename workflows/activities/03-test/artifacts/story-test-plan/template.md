@@ -37,9 +37,20 @@ named assertion does not prove the criterion is *exercised*; reconcile-alignment
 classifies such a criterion `UNTESTED` (or `ASSERTED_UNBACKED` if the named test
 does not exist), not covered.
 
-| AC ID | Acceptance Criterion (Given/When/Then) | Failing Test(s) to Create or Run | Asserted Behavior (what the test verifies) | Test Level | File or Command | Setup / Data | Notes |
-|-------|----------------------------------------|----------------------------------|--------------------------------------------|------------|-----------------|--------------|-------|
-| US-XXX-AC1 | [Given/When/Then criterion] | `[test_name]` | [the concrete outcome the test asserts — e.g. "response is 200 with body {id}"] | Unit / Integration / Contract / E2E | `tests/...` or `bash ...` | [Fixture, seed, mock] | [Edge case or sequencing note] |
+Each row must also name the **covering test AND record that the test cites the
+AC ID** in the canonical, parseable syntax `@covers US-<n>-AC<m>` (the structured
+tag in the test body, name, or doc comment). The citation makes AC→test
+traceability machine-checkable. A test that exercises and passes but does **not**
+cite the AC ID is classified `UNCITED_COVERAGE` (not covered for traceability;
+the fix is to add the citation, not a new test) — distinct from `UNTESTED`. The
+citation is an *additional* gate on top of exercise+pass+satisfy, never a
+replacement. The canonical, parseable citation syntax is `@covers US-<n>-AC<m>`
+with numeric stable IDs (e.g. `@covers US-001-AC1`); `US-XXX` below is a
+placeholder for the numeric story id — replace `XXX` with the real number.
+
+| AC ID | Acceptance Criterion (Given/When/Then) | Failing Test(s) to Create or Run | Asserted Behavior (what the test verifies) | AC-ID Citation (`@covers`) | Test Level | File or Command | Setup / Data | Notes |
+|-------|----------------------------------------|----------------------------------|--------------------------------------------|----------------------------|------------|-----------------|--------------|-------|
+| US-001-AC1 | [Given/When/Then criterion] | `[test_name]` | [the concrete outcome the test asserts — e.g. "response is 200 with body {id}"] | `@covers US-001-AC1` | Unit / Integration / Contract / E2E | `tests/...` or `bash ...` | [Fixture, seed, mock] | [Edge case or sequencing note] |
 
 ## Executable Proof
 
@@ -91,6 +102,7 @@ does not exist), not covered.
 - [ ] References the governing story and technical design
 - [ ] Every active acceptance criterion maps to concrete failing tests, keyed by its stable `US-<n>-AC<m>` ID
 - [ ] Every AC row names the behavior/assertion the test makes, not just a test name
+- [ ] Every AC row names the covering test AND records its `@covers US-<n>-AC<m>` citation (canonical AC-ID syntax)
 - [ ] File paths, commands, or test identifiers are specific enough to execute
 - [ ] Setup, fixtures, mocks, and seed data are explicit
 - [ ] Edge cases cover real story risks rather than generic boilerplate

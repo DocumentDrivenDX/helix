@@ -178,7 +178,13 @@ stories.
    `FR-n`s without justification), and every acceptance criterion gets ≥1 test
    that *exercises* it — a named test with no relevant assertion is `UNTESTED`,
    not covered. An untested AC blocks unless a reviewed manual/non-automatable
-   exception is recorded with evidence.
+   exception is recorded with evidence. Every covering test must **cite the AC
+   ID it covers** in the canonical, parseable syntax `@covers US-<n>-AC<m>` so
+   traceability is machine-checkable — an exercising, passing test that omits
+   the citation is `UNCITED_COVERAGE` (fix = add the citation, not a new test),
+   distinct from `UNTESTED`; a test that cites an AC it does not exercise is
+   `ASSERTED_UNBACKED`. Citation is an additional gate on top of
+   exercise+pass+satisfy, never a replacement.
 6. Validate blocking template checks before treating the artifact as ready.
 7. Create follow-up design or implementation work only after the framing
    artifact can govern it.
@@ -383,6 +389,22 @@ Use only when the user explicitly asks for HELIX execution.
    includes the self-validation mode-gate: acceptance criteria satisfied and the
    claims-vs-reality check clean (zero phantom claims). This is a verify-activity
    gate, not a literal validate-then-align-then-check command sequence.
+6. **Not "done" until re-reviewed and the full stack is exercised with recorded
+   evidence** (the `verification` concern — the evidence gate, distinct from
+   `testing` strategy and the `e2e-framework` tooling). A green unit suite is
+   not done: for a buildable product, drive the real user flows against the
+   **running** system end-to-end with a whole-stack exercise appropriate to the
+   product (for a UI web app that means ≥1 core flow via a browser e2e that runs
+   green; for a service/CLI, the equivalent end-to-end invocation against the
+   running system), do an adversarial re-review against the ACs
+   and integration risks, and record the evidence artifacts — the command run +
+   its exit status, the target URL/env, the core flows exercised, and the
+   re-review checklist. **Verify-don't-trust**: never assert a result you did
+   not observe; treat a self-reported "complete" as a hypothesis to verify.
+   Honor the exceptions (library / docs-only / non-buildable work, or
+   full-stack e2e genuinely infeasible — record the reason and substitute the
+   strongest observable evidence). See
+   `.ddx/plugins/helix/workflows/concerns/verification/practices.md`.
 
 ### Commit
 

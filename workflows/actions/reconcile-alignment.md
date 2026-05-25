@@ -262,17 +262,37 @@ For each user story and feature spec in the reviewed scope:
      *claims* the named test covers it, `ASSERTED_UNBACKED` — never "covered".
    - the test passes
    - the implementation satisfies the criterion based on code inspection
+   - the exercising test **cites the AC ID** in the canonical, parseable
+     citation syntax — a structured tag `@covers <AC-ID>` (e.g.
+     `@covers US-001-AC3`) in the test body, name, or a doc comment, using the
+     story's stable `US-<n>-AC<m>` ID. This makes AC→test traceability
+     machine-checkable rather than guessed. The citation is an **additional**
+     gate on top of exercise+pass+satisfy — never a replacement for it; a
+     citation alone, with no exercise, does not cover the criterion.
 3. Classify each criterion as:
-   - **SATISFIED** — test exists, passes, and implementation matches
+   - **SATISFIED** — test exists, passes, **cites the AC ID** in the canonical
+     `@covers <AC-ID>` syntax, and implementation matches. (Exercise + pass +
+     satisfy + citation.)
    - **TESTED_NOT_PASSING** — test exists but fails
+   - **UNCITED_COVERAGE** — the **implementation satisfies** the criterion and a
+     **passing test exercises it**, but no test cites the AC ID in the canonical
+     syntax. The behavior is covered; the criterion is **not covered for AC
+     *traceability***. This is
+     **distinct from `UNTESTED`** (there *is* an exercising test) and from
+     `ASSERTED_UNBACKED` (nothing untrue is asserted). The fix is to **add the
+     `@covers <AC-ID>` citation to the existing test — NOT to write a new
+     test.** Reported as an untraceable-coverage finding, not a missing-test
+     finding.
    - **UNTESTED** — no test covers this criterion
    - **UNIMPLEMENTED** — no implementation addresses this criterion
-   - **ASSERTED_UNBACKED** — an artifact *claims* this criterion is satisfied, or names a test
-     that covers it, or states a coverage figure or emitted metric, but verification against the
-     implementation finds no backing reality (the named test does not exist, the metric is never
-     emitted, the figure is invented). This is a **phantom claim** — distinct from UNTESTED, which
-     is honest about the gap; ASSERTED_UNBACKED asserts something untrue. It is a
-     traceability-honesty defect.
+   - **ASSERTED_UNBACKED** — an artifact *claims* this criterion is satisfied, names a test
+     that covers it, **cites an AC ID via `@covers` from a test that does not actually exercise
+     the criterion**, or states a coverage figure or emitted metric, but verification against the
+     implementation finds no backing reality (the named test does not exist or does not exercise
+     the AC it cites, the metric is never emitted, the figure is invented). This is a **phantom
+     claim** — distinct from UNTESTED, which is honest about the gap, and from UNCITED_COVERAGE,
+     which is honest behavioral coverage merely lacking a citation; ASSERTED_UNBACKED asserts
+     something untrue. It is a traceability-honesty defect.
 3a. **Claims-vs-reality check (honesty rule).** Every artifact assertion about a test, a coverage
     figure, or an emitted metric/signal must resolve to something that actually exists in the
     implementation, test suite, or emitted telemetry. Verify each such claim against reality. A
@@ -295,6 +315,15 @@ For each user story and feature spec in the reviewed scope:
    verification (who verified, what was observed). A criterion is never silently passed as covered
    when no test exercises it — it is either tested, or carries a recorded reviewed exception. This
    is a floor: extra tests beyond one-per-AC are always fine and never a finding.
+8. **AC-citation traceability gate (additional, not a replacement).** On top of the coverage floor,
+   every covering test must **cite the AC ID it exercises** in the canonical `@covers <AC-ID>`
+   syntax (per step 2), so AC→test traceability is machine-checkable. A criterion classified
+   `UNCITED_COVERAGE` (exercises + passes, but no citation) is an **untraceable-coverage finding** —
+   resolve it by **adding the `@covers <AC-ID>` citation to the existing test, NOT by writing a new
+   test**. This gate is **distinct from the coverage floor**: `UNCITED_COVERAGE` ≠ `UNTESTED`
+   (there is an exercising test; only the citation is missing) and ≠ `ASSERTED_UNBACKED` (nothing
+   untrue is asserted). It makes coverage *traceable*, not *more numerous*; it is a floor on
+   traceability, never a cap on tests.
 
 ### Instrument-Integrity Check
 
@@ -416,7 +445,10 @@ After creating execution work items, verify completeness:
 1. For every gap in the Gap Register that is not ALIGNED, confirm at least one
    execution item exists that addresses it.
 2. For every acceptance criterion classified as UNTESTED or UNIMPLEMENTED,
-   confirm at least one execution issue exists that would resolve it.
+   confirm at least one execution issue exists that would resolve it. For every
+   criterion classified `UNCITED_COVERAGE`, confirm an item exists to add the
+   `@covers <AC-ID>` citation to the existing exercising test (not to write a
+   new test).
 3. For every quality concern recorded, confirm either an execution issue exists
    or the concern is explicitly deferred with rationale.
 

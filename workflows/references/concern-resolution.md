@@ -5,11 +5,11 @@ ddx:
     - helix.workflow.principles-resolution
     - FEAT-006
   review:
-    self_hash: aaafbab2adc35aeb9e56865debd7071bf84ff4d119ab248bdecea99ff792a452
+    self_hash: 73c24c83d27eca0afeb3b28a9688eab0cc696117f2f3fede4defdd23eda8fc1f
     deps:
       FEAT-006: 1711c08bf5e041cd041c762594f278d35744351d4a25b8251566de2dd778abd3
       helix.workflow.principles-resolution: 8e597b16b6ea3bc2c8ae8418de2f4918fd9cb7ceb950a69b7da5ad09707b97c6
-    reviewed_at: "2026-05-25T21:12:02Z"
+    reviewed_at: "2026-05-25T22:07:44Z"
 ---
 # Concern and Practices Resolution
 
@@ -146,6 +146,17 @@ selection by the active autonomy level (FEAT-011; see `.ddx/plugins/helix/workfl
 2. Map the nature to candidate library concerns — e.g. web app → a tech-stack
    concern + a frontend concern + `a11y-wcag-aa`; API service → tech-stack +
    `o11y-otel` + `security-owasp`.
+2a. **Auto-select `verification` for any buildable product.** `verification` is
+   the always-on **evidence gate** ("not done until observed evidence of the
+   running system exists"); it is composable (no slot) and composes on top of
+   `testing` and the `e2e-framework` slot — it does not replace either. Add it
+   to the inferred selection for every buildable product, recorded as an
+   assumption. **Exceptions are narrow**: only library / docs-only / non-buildable
+   work (no running stack to exercise) may omit `verification`. A buildable
+   product where full-stack e2e is genuinely infeasible **still selects
+   `verification`** — it only *relaxes the full-stack-e2e form of evidence*,
+   recording the specific reason and substituting the strongest observable
+   evidence available. See `.ddx/plugins/helix/workflows/concerns/verification/concern.md`.
 3. **Fill each needed exclusive slot** (FEAT-006 slots; FEAT-011 FR-3). A slot is
    an exclusive functional position a concern fills — one frontend framework, one
    language runtime, etc. Determine which slots the product needs (**a web app

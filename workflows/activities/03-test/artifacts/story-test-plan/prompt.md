@@ -37,7 +37,12 @@ Use these local resource summaries as grounding:
   and allocates layers but does not duplicate these rows — FEAT-008 FR-6). Each
   row names the **behavior/assertion the test makes** (the observable outcome it
   checks), not just a test name — a named test with no named assertion does not
-  show the criterion is *exercised*
+  show the criterion is *exercised*. Each row also names the **covering test AND
+  records that the test cites the AC ID** in the canonical, parseable syntax
+  `@covers US-<n>-AC<m>` — a test that exercises and passes but does not cite the
+  AC ID is `UNCITED_COVERAGE` (not covered for traceability; fix = add the
+  citation, not a new test), distinct from `UNTESTED`. Citation is an additional
+  gate on top of exercise+pass+satisfy, never a replacement
 - executable proof details: test file paths, commands, or named test cases
 - setup, fixtures, seed data, mocks, and environment assumptions
 - edge cases and error scenarios that the story must prove before build begins
