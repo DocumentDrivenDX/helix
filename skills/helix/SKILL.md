@@ -168,7 +168,18 @@ stories.
    must also fill `e2e-framework` (default `e2e-playwright`); selecting the tool
    is not coverage — ≥1 core user-flow must have a whole-stack e2e that runs green
    against the running app (a browser e2e for a client-rendered UI, or an
-   HTTP+HTML-assertion e2e for a server-rendered one). Selection happens here, once; propagation to work
+   HTTP+HTML-assertion e2e for a server-rendered one). An **operator-facing**
+   product (a human operator manages mutable domain objects or lifecycle state
+   through a UI) selects `admin-console` — the operator's jobs-to-be-done (CRUD +
+   control actions like pause/cancel) built as usable UI, with the primary
+   operator workflow exercised end-to-end *through the UI*. An **account-based /
+   multi-tenant** product (users/tenants/sign-in/roles/principal-scoped data)
+   selects `auth` — real signup→tenant+owner, login/sessions, server-side RBAC +
+   platform-admin, isolation through the principal — and fills the `auth-provider`
+   slot (default `auth-local-sessions`; an external IdP is a swappable filler,
+   never hardcoded). Neither is selected for pure APIs, CLIs, libraries,
+   static content sites, or read-only dashboards (unless an operator UI is
+   explicitly required). Selection happens here, once; propagation to work
    items is a later gate owned by `check`/`polish`, not a re-selection.
 3. Read the relevant artifact template and prompt before drafting.
 4. Keep each artifact in its lane: vision is direction, PRD is product scope,

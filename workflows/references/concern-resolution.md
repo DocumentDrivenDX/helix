@@ -5,11 +5,11 @@ ddx:
     - helix.workflow.principles-resolution
     - FEAT-006
   review:
-    self_hash: b4eb52e6399d149ecc76309fa1225508763d761a7122e961b34c21c07fce5846
+    self_hash: f7f8eba797c2e2060407bb632e3552a6409b2339ae0814d61bd33dcd707c3d7d
     deps:
       FEAT-006: d2eab5444f4c023232a08e0774b6738c3d9abf6a4da48b7d59e775750ed1412a
       helix.workflow.principles-resolution: fe8bbb3f17f8f153acd66e91c48bfb775972ef271361a1c660d1c83c69f15648
-    reviewed_at: "2026-05-26T08:39:01Z"
+    reviewed_at: "2026-05-26T13:40:24Z"
 ---
 # Concern and Practices Resolution
 
@@ -169,6 +169,30 @@ selection by the active autonomy level (FEAT-011; see `workflows/actions/input.m
    data-backed products **without over-broadening to `all`**. Add it to the
    inferred selection for every data-backed product, recorded as an assumption.
    See `workflows/concerns/sample-data/concern.md`.
+2c. **Auto-select `admin-console` for any operator-facing product.** When a human
+   operator / back-office / admin user must **manage mutable domain objects or
+   lifecycle state through a UI**, select `admin-console`: the operator's
+   jobs-to-be-done — CRUD over the core domain objects **plus** the domain's
+   lifecycle/control actions (schedule, pause, cancel, resume, retry, archive,
+   revoke, approve, …) — must be built as **usable UI**, and the **primary
+   operator workflow must be exercised end-to-end through the UI** (not API-only;
+   the form is the `verification` concern's call). It is composable (`areas: ui,
+   api`). Do **not** select it for pure API services, CLIs, libraries, public/
+   marketing content sites, or read-only dashboards unless an operator UI is
+   explicitly required. Record as an assumption. See
+   `workflows/concerns/admin-console/concern.md`.
+2d. **Auto-select `auth` for any account-based / multi-tenant product.** When the
+   product has **accounts, users, tenants, orgs, sign-in/session semantics,
+   roles, or principal-scoped data or actions**, select `auth`: a real signup
+   (provisioning the account/tenant + owner), login/logout/sessions, server-side
+   RBAC + (for multi-tenant) a platform-admin, and isolation enforced **through
+   the authenticated principal** — with the backend behind the `auth-provider`
+   slot. It is composable (`areas: api, data, ui`); also **fill the
+   `auth-provider` slot** (default `auth-local-sessions`; an external IdP like
+   Auth0/OIDC is a swappable filler, never hardcoded). Do **not** select it for
+   anonymous public sites, libraries, single-user local CLIs, or machine-only
+   internal APIs unless user/tenant principals are explicit. Record as an
+   assumption. See `workflows/concerns/auth/concern.md`.
 3. **Fill each needed exclusive slot** (FEAT-006 slots; FEAT-011 FR-3). A slot is
    an exclusive functional position a concern fills — one frontend framework, one
    language runtime, etc. Determine which slots the product needs (**a web app
