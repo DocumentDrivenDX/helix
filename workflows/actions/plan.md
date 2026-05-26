@@ -58,11 +58,23 @@ when they exist.
    or changing API, cost, permissions/credentials, correctness, or operational
    risk — true even for a known vendor, e.g. billing, marketplaces, send-time
    optimization, queue design), do not let the ADR/technical-design commit on
-   assumption. Define a **`tech-spike`** (or `proof-of-concept`) and de-risk it
+   assumption. **Anti-reframe:** "known/low-risk" means design-defining facts are
+   **evidenced** (operator statement, governing artifact, existing implementation,
+   docs/API proof, completed spike) — not model familiarity, and not because you
+   picked a mechanism or named a provider. Name the **top 1-3 design-defining
+   decisions** (API shape, data model, pricing/cost, security/permissions,
+   operational guarantees, decomposition); if any is **assumed**, spike it — even
+   with a provider chosen and its live integration deferred. An operator-marked
+   "spike/unknown" is authoritative. Define a **`tech-spike`** (or
+   `proof-of-concept`) and de-risk it
    first: a **bounded runnable** spike when feasible, else a recorded **blocked
    spike** (why it could not run, what was read/simulated, which decisions stay
-   provisional). Feed the spike's findings into the ADR/technical-design. (Same
-   risk-based rule as `concern-resolution.md` and `evolve.md`; spike artifacts:
+   provisional). The only alternative is a recorded **assumption + residual-risk**
+   note, acceptable only when reversible/non-blocking/provisional or the spike is
+   blocked; a **business** unknown a technical spike can't answer (e.g. pricing) →
+   record guidance-needed or a blocked spike. Feed the spike's findings into the
+   ADR/technical-design. (Same risk-based rule as `concern-resolution.md` and
+   `evolve.md`; spike artifacts:
    `workflows/activities/02-design/artifacts/{tech-spike,proof-of-concept}/`.)
 5. **Load design artifact numbering rules** (required before creating any SD or
    TD artifact):

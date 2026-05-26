@@ -118,6 +118,8 @@ relationships:
   triggers:
     - "Technical approach uncertainty"
     - "Architecture decision risk"
+    - "An unmatched capability or active-concern conflict whose design-defining facts (the top 1-3: API shape, data model, pricing/cost, security/permissions, operational guarantees, or decomposition) are ASSUMED rather than evidenced (operator statement, governing artifact, existing implementation, docs/API proof, or a completed spike) — even when a provider is chosen and its live integration is deferred"
+    - "An operator-marked spike/unknown (authoritative — do not demote to a concern/ADR)"
     - "Implementation complexity unknown"
     - "Technology choice needs validation"
     - "Performance characteristics unclear"

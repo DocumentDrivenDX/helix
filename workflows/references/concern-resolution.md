@@ -5,11 +5,11 @@ ddx:
     - helix.workflow.principles-resolution
     - FEAT-006
   review:
-    self_hash: 884141dd45075506f434dff21772fc66f01291de2d0d4dda7fae907102e05a75
+    self_hash: f211e950cf6c5fee93180100068bf32ddad2c0819bae65c476896f30f10fa22e
     deps:
       FEAT-006: d2eab5444f4c023232a08e0774b6738c3d9abf6a4da48b7d59e775750ed1412a
       helix.workflow.principles-resolution: fe8bbb3f17f8f153acd66e91c48bfb775972ef271361a1c660d1c83c69f15648
-    reviewed_at: "2026-05-26T04:33:49Z"
+    reviewed_at: "2026-05-26T07:17:19Z"
 ---
 # Concern and Practices Resolution
 
@@ -206,6 +206,26 @@ selection by the active autonomy level (FEAT-011; see `workflows/actions/input.m
      when running is infeasible or unsafe (external/paid APIs, missing creds, long
      benchmarks) record a **blocked spike** — why it could not run, what was read
      or simulated instead, and which decisions stay **provisional**.
+   - **Anti-reframe: "known" means EVIDENCED, not familiar.** A capability is
+     "clear/low-risk" only when its design-defining facts are **evidenced** — by an
+     operator statement, a governing artifact, an existing implementation, a
+     docs/API proof, or a completed spike — **not** because the model is familiar
+     with the domain, and **not** because you picked a mechanism or named a
+     provider. Before routing such a capability to a concern or ADR, name its
+     **top 1-3 design-defining decisions** (anything that could change API shape,
+     data model, pricing/cost semantics, security/permissions, operational
+     guarantees, or work decomposition). If any is **assumed** rather than
+     evidenced, that is material uncertainty → `tech-spike`, **even when you have
+     chosen a provider and deferred its live integration** (deferring the live
+     provider de-risks integration timing, not the design-defining decision). An
+     **operator-marked "spike/unknown" is authoritative** evidence of uncertainty —
+     do not demote it to a concern. The only alternative to a spike is a **recorded
+     assumption + residual-risk note**, acceptable *only* when the assumption is
+     reversible/non-blocking, explicitly provisional, or the spike is blocked —
+     never as an equal substitute when the design commits to the assumption. For a
+     **business/product** unknown a technical spike cannot answer (e.g. a pricing
+     model), record **guidance-needed** or a blocked spike instead of forcing a
+     technical spike.
    Do not fabricate a concern for something not yet understood; do not silently
    drop a brief capability. (Same rule applies in `evolve`; see
    `workflows/actions/evolve.md`.)

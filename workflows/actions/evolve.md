@@ -162,9 +162,21 @@ For each affected artifact:
      and de-risk it before committing the design. Prefer a **bounded runnable**
      spike when feasible; when running is infeasible/unsafe (external/paid APIs,
      missing creds, long benchmarks) record a **blocked spike** (why it could not
-     run, what was read/simulated, which decisions stay provisional). Never
-     fabricate a concern for the not-yet-understood, and never silently drop the
-     requirement.
+     run, what was read/simulated, which decisions stay provisional).
+     **Anti-reframe (this is where evolve commonly fails):** "low-risk" means the
+     capability's design-defining facts are **evidenced** (operator statement,
+     governing artifact, existing implementation, docs/API proof, completed spike) —
+     not model familiarity, and not because you picked a mechanism or named a
+     provider. Name the **top 1-3 design-defining decisions** (API shape, data
+     model, pricing/cost, security/permissions, operational guarantees, or
+     decomposition); if any is **assumed**, spike it — **even with a provider
+     chosen and its live integration deferred** (deferral de-risks timing, not the
+     decision). An operator-marked "spike/unknown" is authoritative; don't demote
+     it. The only alternative to a spike is a **recorded assumption + residual-risk
+     note**, and only when reversible/non-blocking/provisional or the spike is
+     blocked. A **business** unknown a technical spike can't answer (e.g. pricing) →
+     record guidance-needed or a blocked spike. Never fabricate a concern for the
+     not-yet-understood, and never silently drop the requirement.
    - Would it change the project's area taxonomy or concern applicability?
 5. For each conflict found, record:
    - Artifact and section (or concern name, for concern conflicts)

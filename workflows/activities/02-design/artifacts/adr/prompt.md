@@ -31,6 +31,23 @@ Use these local resource summaries as grounding:
 - Use one ADR per decision. If the decision has independent parts, split it.
 - Treat accepted ADRs as history. New decisions supersede old records instead
   of rewriting them.
+- **Do not accept a decision whose design-defining facts are assumed.** A
+  decision's design-defining facts (API shape, data model, pricing/cost
+  semantics, security/permissions, operational guarantees, or work decomposition)
+  must be **evidenced** — by an operator statement, a governing artifact, an
+  existing implementation, a docs/API proof, or a completed spike — not by model
+  familiarity, and not because a mechanism was picked or a provider named.
+  Choosing a provider and deferring its live integration does **not** evidence the
+  decision. If a design-defining fact is assumed, the ADR must cite **spike
+  evidence**, record a **blocked-spike rationale**, or carry an explicit
+  **provisional-risk** note (what is assumed, what could invalidate it, and that
+  the assumption is reversible/non-blocking). See the anti-reframe check in
+  `workflows/references/concern-resolution.md` (step 3a). An operator-marked
+  "spike/unknown" may not be accepted as a settled ADR without **spike evidence, a
+  blocked-spike rationale, or an explicit provisional-risk note**. A
+  **business/product** unknown a technical spike can't answer (e.g. a pricing
+  model) → record **guidance-needed** or a blocked spike rather than forcing a
+  technical spike or accepting an assumed decision.
 
 ## Boundary Test
 
