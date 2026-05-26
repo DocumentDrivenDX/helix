@@ -171,8 +171,9 @@ For each affected artifact:
      model, pricing/cost, security/permissions, operational guarantees, or
      decomposition); if any is **assumed**, spike it — **even with a provider
      chosen and its live integration deferred** (deferral de-risks timing, not the
-     decision). An operator-marked "spike/unknown" is authoritative; don't demote
-     it. The only alternative to a spike is a **recorded assumption + residual-risk
+     decision). Deferring the vendor call does not defer the **app-side data it
+     consumes** (e.g. usage-metering events) — that stays build-work for the slice.
+     An operator-marked "spike/unknown" is authoritative; don't demote it. The only alternative to a spike is a **recorded assumption + residual-risk
      note**, and only when reversible/non-blocking/provisional or the spike is
      blocked. A **business** unknown a technical spike can't answer (e.g. pricing) →
      record guidance-needed or a blocked spike. Never fabricate a concern for the

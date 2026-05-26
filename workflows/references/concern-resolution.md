@@ -5,11 +5,11 @@ ddx:
     - helix.workflow.principles-resolution
     - FEAT-006
   review:
-    self_hash: f7f8eba797c2e2060407bb632e3552a6409b2339ae0814d61bd33dcd707c3d7d
+    self_hash: b6429ddbe0c82df0fa35169b1b3dc8198c5ee72d7f1eeb4f36d625ff823ab958
     deps:
       FEAT-006: d2eab5444f4c023232a08e0774b6738c3d9abf6a4da48b7d59e775750ed1412a
       helix.workflow.principles-resolution: fe8bbb3f17f8f153acd66e91c48bfb775972ef271361a1c660d1c83c69f15648
-    reviewed_at: "2026-05-26T13:40:24Z"
+    reviewed_at: "2026-05-26T17:24:59Z"
 ---
 # Concern and Practices Resolution
 
@@ -245,7 +245,11 @@ selection by the active autonomy level (FEAT-011; see `workflows/actions/input.m
      guarantees, or work decomposition). If any is **assumed** rather than
      evidenced, that is material uncertainty → `tech-spike`, **even when you have
      chosen a provider and deferred its live integration** (deferring the live
-     provider de-risks integration timing, not the design-defining decision). An
+     provider de-risks integration timing, not the design-defining decision).
+     Deferring the external call does **not** defer the **app-side data it
+     consumes**: the events/records the app must emit for the integration (e.g.
+     usage-metering events for billing) are **build-work for the runnable slice** —
+     build and verify them now; only the outbound vendor call is deferred. An
      **operator-marked "spike/unknown" is authoritative** evidence of uncertainty —
      do not demote it to a concern. The only alternative to a spike is a **recorded
      assumption + residual-risk note**, acceptable *only* when the assumption is
