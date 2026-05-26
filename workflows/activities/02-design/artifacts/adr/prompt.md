@@ -3,6 +3,15 @@
 Write a compact ADR that captures one architecture-significant decision, the
 alternatives, and the consequences.
 
+## Storage Location
+
+Store at: `docs/helix/02-design/adr/ADR-NNN-<decision-name>.md` — **one decision
+per file**. Naming is canonical and checkable: uppercase `ADR`, a **zero-padded
+3-digit** sequential number, then a kebab-case decision name (e.g.
+`ADR-001-modular-monolith.md`, `ADR-007-auth-tenant-isolation.md`). Do **not** use
+lowercase `adr-` or 4-digit numbers, and do **not** lump multiple decisions into
+one record. reconcile-alignment flags non-canonical names and lumped ADRs.
+
 ## Purpose
 
 An ADR is the **single-decision record** for architecture-significant choices.

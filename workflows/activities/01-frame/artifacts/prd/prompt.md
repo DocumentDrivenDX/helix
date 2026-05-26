@@ -101,8 +101,19 @@ scope.
 
 ### Functional Requirements
 These are the detailed behavioral specs. Each one should be testable — someone
-reading it should know how to write an acceptance test. Organize by subsystem
-or user flow, not by priority.
+reading it should know how to write an acceptance test.
+
+**Group requirements under named subsystems.** Organize FRs by subsystem (not by
+priority) under canonical, parseable headings: `### Subsystem: <name>`. Each
+`FR-n` belongs to **exactly one** subsystem. A subsystem is a cohesive capability
+of the product — the unit that becomes a feature: **one subsystem maps to ~one
+feature spec** (`FEAT-NNN`). This is the PRD↔FEAT boundary — the PRD owns
+*breadth* (it names every subsystem and enumerates all `FR-n` + priorities); the
+feature spec owns *depth* (one subsystem's behavior, ACs, edge cases). A
+multi-subsystem product must not collapse into a single mega-feature, nor should
+one subsystem fragment into many tiny features. (The feature spec's Decomposition
+test resolves borderline cases; reconcile-alignment checks that every subsystem
+maps to a feature.)
 
 Give each functional requirement a **stable `FR-n` ID** (`FR-1`, `FR-2`, …). The
 ID is the trace anchor: every `FR-n` must be covered by ≥1 user story, and
@@ -179,7 +190,7 @@ committing.
 - [ ] Risk mitigations are concrete actions, not "monitor"
 - [ ] P0 requirements number 7 or fewer
 - [ ] Assumptions are falsifiable
-- [ ] Functional requirements are organized by subsystem or flow, not priority
+- [ ] Functional requirements are grouped under canonical `### Subsystem: <name>` headings (each `FR-n` under exactly one subsystem); each subsystem is a capability that maps to ~one feature spec
 - [ ] Each functional requirement carries a stable `FR-n` ID for downstream story traceability
 - [ ] Technical Context names specific versions, not just library names
 - [ ] Open Questions name who can answer and what's blocked

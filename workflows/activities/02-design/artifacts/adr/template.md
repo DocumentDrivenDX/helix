@@ -3,7 +3,9 @@ ddx:
   id: ADR-XXX
 ---
 
-# ADR-[NUMBER]: [Title]
+# ADR-NNN: [Title]
+<!-- Filename: ADR-NNN-<decision-name>.md — uppercase ADR, zero-padded 3-digit, one decision per file. -->
+
 
 | Date | Status | Deciders | Related | Confidence |
 |------|--------|----------|---------|------------|

@@ -251,6 +251,42 @@ story bundling **unrelated** `FR-n`s without recorded justification is a finding
 (split it). This requires stable `FR-n` IDs in the PRD; if they are absent, that
 template gap is itself a finding (the mapping is not reproducible without them).
 
+**Decomposition granularity (PRD subsystem → FEAT → story).** These checks are
+**structural and parseable** — they read the spec files alone
+(`docs/helix/01-frame/`, `02-design/adr/`), not a runtime tracker, so they run as
+report findings even when no work-item source exists. They make decomposition
+*reproducible* across runtimes (the same brief should yield comparable spec
+stacks). All are coverage-floor checks (minimum rigor, never penalize more
+features/stories). Apply once the frame stack is **ready for downstream handoff**
+(design/build); during early draft framing a not-yet-decomposed stack is allowed.
+
+Parsing anchors (exact, so the checks are reproducible): PRD subsystems are the
+`### Subsystem: <name>` headings in `prd.md`; a feature's owned subsystems/FRs are
+the `**Covered PRD Subsystem(s)**` and `**Covered PRD Requirements**` header fields
+in each `FEAT-NNN-*.md`; its split-exemption is the `**Cross-Subsystem Rationale**`
+field; a story's parent feature is the `**Feature**:` header field in each
+`US-NNN-*.md`. Match subsystem names case-insensitively after trimming.
+
+1. **Subsystem → FEAT coverage (blocking @ ready).** For each `### Subsystem:
+   <name>` in `prd.md`, confirm **≥1 feature spec names it** in its
+   `**Covered PRD Subsystem(s)**` field. A subsystem with no feature, **or a frame
+   that has PRD subsystems but zero `FEAT-NNN` specs** (PRD → stories directly,
+   skipping the feature tier), is a **blocking gap**.
+2. **Mega-FEAT (advisory).** A feature whose `**Covered PRD Subsystem(s)**` lists
+   **>1 subsystem** is an advisory finding — likely should split — **unless** its
+   `**Cross-Subsystem Rationale**` field is non-empty (states that the
+   cross-subsystem workflow *is* the feature). Do not block: legitimately
+   cross-cutting features exist.
+3. **FEAT → story (blocking @ ready).** Every `FEAT-NNN` is named by the
+   `**Feature**:` field of **≥1 user story** (mirrors FR→story). A feature no story
+   references is a coverage gap once ready for handoff.
+4. **Artifact naming/structure (advisory).** Flag deviations from canonical,
+   parseable forms: feature specs `FEAT-NNN-<name>.md`; user stories as
+   **one file per story** `US-NNN-<slug>.md` (a single monolithic
+   `user-stories.md` is a finding); ADRs `ADR-NNN-<name>.md` (uppercase, 3-digit;
+   lowercase `adr-` or 4-digit is a finding); one decision per ADR (a lumped ADR
+   is a finding). Non-canonical names break the structural checks above.
+
 For each user story and feature spec in the reviewed scope:
 
 1. Extract acceptance criteria from the governing artifact.

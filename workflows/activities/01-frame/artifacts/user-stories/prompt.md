@@ -30,9 +30,14 @@ Use these local resource summaries as grounding:
 
 ## Key Principles
 
-- **One story, one vertical slice** — a story should trace a complete path
-  from user action to outcome. If it can't be demonstrated end-to-end, it's
-  not a story yet.
+- **One story, one vertical slice** — one persona completing one goal,
+  demonstrable end-to-end in a single flow. If it can't be demonstrated
+  end-to-end, it's not a story yet. The parent feature is the capability
+  envelope; it has as many stories as it has distinct persona-goals. This is the
+  FEAT↔story boundary.
+- **One file per story** — each story is its own `US-NNN-<slug>.md` under
+  `docs/helix/01-frame/user-stories/` (never a single monolithic
+  `user-stories.md`); reconcile-alignment flags a monolithic stories file.
 - **Stable reference** — stories will be referenced by multiple tracker issues
   across design, implementation, and testing. Write them to last.
 - **Implementer-sufficient** — an implementer reading only this story and the

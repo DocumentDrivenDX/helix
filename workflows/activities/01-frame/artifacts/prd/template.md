@@ -71,17 +71,26 @@ the detailed design here.
 
 ## Functional Requirements
 
-[Detailed behavioral requirements organized by subsystem or user flow. Each
-requirement should be testable — someone reading it should know how to verify
-whether it's satisfied.
+[Detailed behavioral requirements grouped under canonical `### Subsystem: <name>`
+headings. Each requirement is testable, and each `FR-n` belongs to exactly one
+subsystem. A subsystem is a cohesive product capability — the unit that maps to
+~one feature spec (`FEAT-NNN`). The PRD owns breadth (all subsystems + `FR-n` +
+priority); feature specs own each subsystem's depth.
 
 Each functional requirement carries a **stable `FR-n` ID** (e.g. `FR-1`). The ID
 survives edits so downstream artifacts trace to a specific requirement by name:
 every `FR-n` must map to ≥1 user story `US-n`, and reconcile-alignment checks that
-mapping as a coverage floor. Number them sequentially; do not renumber on edit.]
+mapping (and that each subsystem maps to a feature) as a coverage floor. Number
+them sequentially; do not renumber on edit.]
+
+### Subsystem: [Name — a cohesive capability that becomes ~one FEAT]
 
 - **FR-1** — [behavioral requirement, testable]
 - **FR-2** — [behavioral requirement, testable]
+
+### Subsystem: [Name]
+
+- **FR-3** — [behavioral requirement, testable]
 
 ## Acceptance Test Sketches
 
@@ -158,6 +167,7 @@ Use this checklist when reviewing a PRD artifact:
 - [ ] Requirements can trace upward to the Product Vision and downward to downstream artifacts
 - [ ] Functional requirements are testable — each can be verified with specific inputs and expected outputs
 - [ ] Each functional requirement carries a stable `FR-n` ID so user stories can trace to it by name
+- [ ] Functional requirements are grouped under canonical `### Subsystem: <name>` headings, each `FR-n` under exactly one subsystem; each subsystem is a capability that maps to ~one feature spec
 - [ ] Technical context names specific versions and interfaces, not vague technology areas
 - [ ] Risks have concrete mitigations ("we do X"), not vague strategies ("we monitor")
 - [ ] Open questions name who can answer and what is blocked

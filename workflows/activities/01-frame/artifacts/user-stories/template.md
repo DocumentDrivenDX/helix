@@ -77,3 +77,13 @@ should be able to copy these into a test file.]
 
 [What this story explicitly does not cover, to prevent scope creep during
 implementation.]
+
+## Review Checklist
+
+Use this checklist when reviewing a user story:
+
+- [ ] Stored as its own file `US-NNN-<slug>.md` (one file per story — never a single monolithic `user-stories.md`)
+- [ ] Covers one persona completing one goal, demonstrable end-to-end in a single flow
+- [ ] Links to its parent `FEAT-NNN` and names the PRD `FR-n` it covers
+- [ ] Every acceptance criterion is independently testable and carries a stable `US-NNN-ACm` ID
+- [ ] Walkthrough traces a complete path from trigger to outcome; at least one edge case documented

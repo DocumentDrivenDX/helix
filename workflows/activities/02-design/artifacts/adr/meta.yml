@@ -23,7 +23,7 @@ description: |
   decisions that revise them create a new ADR marked as superseding the old one.
 
 output:
-  location: docs/helix/02-design/adrs/ADR-{id}-{name}.md
+  location: docs/helix/02-design/adr/ADR-{number}-{decision-name}.md
   format: markdown
   naming: ADR-{number}-{decision-name}.md
   examples:

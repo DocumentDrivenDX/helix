@@ -9,6 +9,13 @@ ddx:
 **Status**: [Draft | Specified | Approved]
 **Priority**: [P0 | P1 | P2]
 **Owner**: [Team/Person]
+**Covered PRD Subsystem(s)**: [Subsystem name(s) from the PRD — normally exactly one]
+**Covered PRD Requirements**: [FR-n, FR-m — the PRD FRs this feature owns]
+**Cross-Subsystem Rationale**: [None — single subsystem. | If more than one subsystem
+is listed above: the rationale that the cross-subsystem workflow IS the feature;
+otherwise split it per the Decomposition test.]
+<!-- reconcile-alignment reads these three fields: a feature spanning >1 subsystem
+with no Cross-Subsystem Rationale is a mega-FEAT finding. -->
 
 ## Overview
 
@@ -31,10 +38,12 @@ of only reacting to current pain.]
 
 ## Functional Areas
 
-[For features that span more than one surface, user mode, workflow stage, or
-domain object, map the areas before writing requirements. This prevents
-unrelated requirements from collapsing into one list. Omit only when the
-feature is a single narrow capability.]
+[For features with more than one surface or stage **within this one capability**,
+map the subordinate areas before writing requirements. Areas are parts of one
+capability — each fails the ship/cut/metric test on its own. Lists of roles,
+lifecycle stages, or distinct domain objects are usually *separate features*, not
+areas (apply the Decomposition test). Omit when the feature is a single narrow
+capability.]
 
 | Area | User question or job | Feature responsibility |
 |------|----------------------|------------------------|
@@ -112,6 +121,8 @@ plausible scope question.]
 
 Use this checklist when reviewing a feature specification:
 
+- [ ] Covered PRD Subsystem(s) and Requirements (`FR-n`) are listed; a feature spanning >1 subsystem carries an explicit cross-subsystem rationale (else split per the Decomposition test)
+- [ ] Functional areas (if any) are subordinate parts of this one capability, not separate capabilities (each fails the ship/cut/metric test on its own)
 - [ ] Overview connects this feature to a specific PRD requirement
 - [ ] Ideal future state describes the desired user-visible outcome, not only current problems
 - [ ] Problem statement describes what exists now and what is broken — not just what is wanted
