@@ -5,11 +5,11 @@ ddx:
     - helix.workflow.principles-resolution
     - FEAT-006
   review:
-    self_hash: 6fe1ab126b1d3c21c3dfd072c6e4f0ac811716b97916e6418b3764a925becbb0
+    self_hash: 89442e40f1dee5134731b1482e545fceeac074335bb0d1ec08edd565d7c670ba
     deps:
       FEAT-006: d2eab5444f4c023232a08e0774b6738c3d9abf6a4da48b7d59e775750ed1412a
-      helix.workflow.principles-resolution: 8e597b16b6ea3bc2c8ae8418de2f4918fd9cb7ceb950a69b7da5ad09707b97c6
-    reviewed_at: "2026-05-25T23:54:40Z"
+      helix.workflow.principles-resolution: fe8bbb3f17f8f153acd66e91c48bfb775972ef271361a1c660d1c83c69f15648
+    reviewed_at: "2026-05-26T03:19:52Z"
 ---
 # Concern and Practices Resolution
 
@@ -33,9 +33,9 @@ cross-cutting context beyond principles.
 Each concern declares an `areas` field in its `concern.md`. The canonical
 area taxonomy is:
 
-| Area value | Matches bead labels | Typical concerns |
+| Area value | Matches work item labels | Typical concerns |
 |------------|-------------------|------------------|
-| `all` | Every bead | Tech stacks, security |
+| `all` | Every work item | Tech stacks, security |
 | `ui` | `area:ui`, `area:frontend` | a11y, i18n, design system |
 | `api` | `area:api`, `area:backend` | o11y, rate limiting |
 | `data` | `area:data` | Data modeling, migration |
@@ -49,30 +49,30 @@ labels in `docs/helix/01-frame/concerns.md` under `## Area Labels`. The
 defaults above cover most projects; add custom areas when needed.
 
 Common HELIX-repo extensions include `docs`, `site`, `demo`, `testing`, and
-`artifacts`. A bead may carry more than one `area:*` label when its scope spans
+`artifacts`. A work item may carry more than one `area:*` label when its scope spans
 more than one surface.
 
 **Matching rules**:
-- `areas: all` matches every bead regardless of labels.
-- `areas: ui` matches beads with `area:ui` or `area:frontend`.
-- `areas: api` matches beads with `area:api` or `area:backend`.
-- A bead with multiple area labels matches any concern that declares any of
+- `areas: all` matches every work item regardless of labels.
+- `areas: ui` matches work items with `area:ui` or `area:frontend`.
+- `areas: api` matches work items with `area:api` or `area:backend`.
+- A work item with multiple area labels matches any concern that declares any of
   those areas.
-- A bead with **no** `area:*` labels matches only concerns with `areas: all`.
+- A work item with **no** `area:*` labels matches only concerns with `areas: all`.
 - Area labels drive matching only. They are not concern names and must not be
   copied into the `<concerns>` field of a context digest.
 
 **Triage/evolve/polish must assign area labels** before assembling the
-context digest. If a bead's area is ambiguous, prefer the more inclusive
+context digest. If a work item's area is ambiguous, prefer the more inclusive
 label or assign multiple labels.
 
 ### Practices
 
 1. Parse the active concerns document for selected concerns (listed under
    `## Active Concerns`).
-2. Filter to concerns matching the current bead's area scope.
+2. Filter to concerns matching the current work item's area scope.
 3. For each matched concern, load
-   `.ddx/plugins/helix/workflows/concerns/<concern-name>/practices.md` from the library.
+   `workflows/concerns/<concern-name>/practices.md` from the library.
 4. Apply project overrides (listed under `## Project Overrides` in the
    concerns document) on top of library practices.
 
@@ -109,7 +109,7 @@ inject concerns at their Activity 0 or Bootstrap step, alongside principles.
 | `plan.md` | Before first refinement round — concerns constrain architecture |
 | `evolve.md` | Activity 0 — concerns affect scope; Activity 3 detects concern conflicts from new requirements |
 | `reconcile-alignment.md` | Activity 0 — concern drift across all layers (code, docs, ADRs); Activity 3 detects per-concern tooling drift |
-| `polish.md` | Bootstrap — verify beads reference correct concern context; area label enforcement for concern matching; acceptance criteria tool consistency |
+| `polish.md` | Bootstrap — verify work items reference correct concern context; area label enforcement for concern matching; acceptance criteria tool consistency |
 | `frame.md` | Bootstrap — concern selection happens during framing |
 | `experiment.md` | Bootstrap — experiments must use declared concerns |
 | `check.md` | Activity 0 — load concerns for queue health; Activity 2 checks area label coverage, digest freshness, missing concerns.md |
@@ -121,15 +121,15 @@ Concern **selection** happens once, during Frame, and is a **required** Frame
 step (FEAT-006 FR-14): a frame pass is not complete until concerns are selected
 or it is explicitly recorded that none apply. `check` and `polish` are
 **propagation gates**, not selection — they verify and fix that an
-already-selected concern reached every area-matched bead; they do not perform or
+already-selected concern reached every area-matched work item; they do not perform or
 re-perform selection.
 
 When `/helix frame` runs and no `docs/helix/01-frame/concerns.md` exists, resolve
-selection by the active autonomy level (FEAT-011; see `.ddx/plugins/helix/workflows/actions/input.md`):
+selection by the active autonomy level (FEAT-011; see `workflows/actions/input.md`):
 
 **`low` / `medium` — interactive selection:**
 
-1. List available concerns from `.ddx/plugins/helix/workflows/concerns/` grouped by category.
+1. List available concerns from `workflows/concerns/` grouped by category.
 2. Ask the user about each category:
    - Tech stack: "What language, runtime, and package manager?"
    - Data: "What database or data layer?"
@@ -156,7 +156,7 @@ selection by the active autonomy level (FEAT-011; see `.ddx/plugins/helix/workfl
    product where full-stack e2e is genuinely infeasible **still selects
    `verification`** — it only *relaxes the full-stack-e2e form of evidence*,
    recording the specific reason and substituting the strongest observable
-   evidence available. See `.ddx/plugins/helix/workflows/concerns/verification/concern.md`.
+   evidence available. See `workflows/concerns/verification/concern.md`.
 2b. **Auto-select `sample-data` for any data-backed product.** A data-backed
    product — one whose value shows through data it stores and renders — must
    seed a **governed, varied demo/sample dataset** via a semantic faker (the
@@ -165,10 +165,10 @@ selection by the active autonomy level (FEAT-011; see `.ddx/plugins/helix/workfl
    large, boundary, all status/enum variants), so the running app exercises its
    empty/overflow/large-number/all-status UI states instead of shipping a couple
    of thin hardcoded rows. It is composable (no slot); `areas: data` scopes its
-   practices to data-layer beads, so the resolver still selects it for
+   practices to data-layer work items, so the resolver still selects it for
    data-backed products **without over-broadening to `all`**. Add it to the
    inferred selection for every data-backed product, recorded as an assumption.
-   See `.ddx/plugins/helix/workflows/concerns/sample-data/concern.md`.
+   See `workflows/concerns/sample-data/concern.md`.
 3. **Fill each needed exclusive slot** (FEAT-006 slots; FEAT-011 FR-3). A slot is
    an exclusive functional position a concern fills — one frontend framework, one
    language runtime, etc. Determine which slots the product needs (**a web app
@@ -180,7 +180,7 @@ selection by the active autonomy level (FEAT-011; see `.ddx/plugins/helix/workfl
       `docs/helix/01-frame/concerns.local.yml`, if that file exists. Read it
       **before** writing `concerns.md`.
    2. **Shipped default** — the slot's value in `defaults:` of
-      `.ddx/plugins/helix/workflows/concerns/slots.yml`.
+      `workflows/concerns/slots.yml`.
    3. **Assumption** — if neither supplies a filler, record an assumption to
       revisit; never make a silent pick.
    Record the chosen filler **and its source** (`concerns.local.yml override`,
@@ -239,7 +239,7 @@ evidence:
 Spike/POC (gather evidence)
   → ADR (record decision with rationale)
     → Concern (index for context assembly)
-      → Context Digest (injected into beads)
+      → Context Digest (injected into work items)
 ```
 
 - A spike or POC investigates a question.
@@ -254,17 +254,17 @@ affected concern for re-evaluation.
 ## Propagation Completeness
 
 When a concern is introduced or changed, it must propagate through the full
-bead lifecycle. This section defines how to verify propagation completeness.
+work item lifecycle. This section defines how to verify propagation completeness.
 
 Propagation is a **gate**, distinct from selection. Selection is a one-time
-Frame decision (above). The checks here detect and fix beads that a selected
-concern failed to reach; a `check` run that finds an area-matched bead missing
+Frame decision (above). The checks here detect and fix work items that a selected
+concern failed to reach; a `check` run that finds an area-matched work item missing
 its concern is a **blocking propagation finding**, not a prompt to re-select.
 
 ### What Must Propagate
 
 When `docs/helix/01-frame/concerns.md` changes (concern added, removed, or
-practices updated), the following must be updated for all beads whose area
+practices updated), the following must be updated for all work items whose area
 matches the changed concern's scope:
 
 1. **Context digests**: The `<context-digest>` block must include the concern
@@ -272,7 +272,7 @@ matches the changed concern's scope:
 2. **Acceptance criteria**: At least one acceptance criterion must reference a
    concern-appropriate tool or practice (e.g., `bun:test` for `typescript-bun`,
    `cargo clippy` for `rust-cargo`).
-3. **Quality gates**: The bead's governing action must run the concern's
+3. **Quality gates**: The work item's governing action must run the concern's
    declared quality gates during the measure activity.
 
 ### How to Check
@@ -280,14 +280,14 @@ matches the changed concern's scope:
 Use these steps to verify propagation completeness for a scope:
 
 1. Load active concerns per the resolution logic above.
-2. For each concern, list all beads in scope with matching area labels.
-3. For each bead:
+2. For each concern, list all work items in scope with matching area labels.
+3. For each work item:
    - Check `<context-digest>` includes the concern. If missing → stale digest.
    - Check acceptance criteria reference concern-appropriate tools. If missing
      or referencing wrong tools → concern gap.
-   - Check that the bead's last `<measure-results>` (if any) includes the
+   - Check that the work item's last `<measure-results>` (if any) includes the
      concern's quality gates. If missing → unmeasured.
-4. Report counts: total beads, beads with full coverage, beads with gaps.
+4. Report counts: total work items, work items with full coverage, work items with gaps.
 
 ### When to Run
 
@@ -300,10 +300,10 @@ Use these steps to verify propagation completeness for a scope:
 
 ### Concern Change Detection
 
-To detect whether concerns have changed since beads were created or last
+To detect whether concerns have changed since work items were created or last
 polished:
 
 1. Check `git log --since=<last-polish-date> -- docs/helix/01-frame/concerns.md workflows/concerns/`
-2. If changes exist, the concern library has been updated and existing beads
+2. If changes exist, the concern library has been updated and existing work items
    may have stale digests and acceptance criteria.
 3. `/helix check` should recommend `POLISH` when concern changes are detected.

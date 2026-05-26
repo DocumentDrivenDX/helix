@@ -79,7 +79,7 @@ Low-confidence claims must either:
 
 ## Tracker Rules
 
-Use the runtime tracker only.
+Use the runtime-provided work-item source only.
 
 Use live tracker commands for queue state: list ready items, show item details,
 and list by status. Stop immediately if the tracker is unavailable.
@@ -170,7 +170,7 @@ evidence extraction pass are complete for the relevant scope.
    selection requires user confirmation before canonization (treat as a guidance
    gate).
 1. Determine the backfill scope.
-2. Verify the runtime tracker is available. Stop immediately if unavailable.
+2. Verify the runtime-provided work-item source is available. Stop immediately if unavailable.
 3. Inventory existing documentation:
    - `docs/helix/`
    - non-HELIX docs
@@ -403,7 +403,7 @@ Create or update the durable report at:
 
 Use the template at:
 
-- `.ddx/plugins/helix/workflows/templates/backfill-report.md`
+- `workflows/templates/backfill-report.md`
 
 The report must capture:
 
@@ -464,8 +464,8 @@ Be precise, evidence-driven, and conservative about canonizing uncertain intent.
 
 ## STEP 9 - Measure
 
-Verify the backfill against the governing bead's acceptance criteria.
-See `.ddx/plugins/helix/workflows/references/measure.md` for the full pattern.
+Verify the backfill against the governing work item's acceptance criteria.
+See `workflows/references/measure.md` for the full pattern.
 
 1. **Artifact completeness**: All missing artifacts identified in Step 2 have
    been created or explicitly deferred with rationale.
@@ -474,7 +474,7 @@ See `.ddx/plugins/helix/workflows/references/measure.md` for the full pattern.
 3. **Concern alignment**: Backfilled artifacts are consistent with declared
    (or proposed) concerns and practices.
 4. **Assumption ledger**: All inferred items are recorded with confidence levels.
-5. **Record results** on the governing work item via the runtime tracker.
+5. **Record results** on the governing work item via the runtime-provided work-item source.
 
 ## STEP 10 - Report
 
@@ -497,56 +497,45 @@ ITEM_ID: <governing-item-id>
 FOLLOW_ON_CREATED: N
 ```
 
-## DDx Integration Appendix
+## Runtime Integration Appendix
 
-This appendix applies when DDx is the active HELIX runtime.
+This appendix covers how a runtime realizes the backfill action. The reference
+paths and work-item acquisition below are runtime-neutral; for the concrete
+commands of a specific runtime, see its install guide (DDx:
+[docs/install/ddx.md](../../docs/install/ddx.md)).
 
-### STEP 0 — DDx bootstrap
+### STEP 0 — Reference resolution
 
-```bash
-ddx bead status  # stop immediately if this fails
-```
+Confirm the runtime-provided work-item source is available before proceeding; stop immediately if
+it is not. Use the runtime's tracker as the authoritative queue source for the
+run.
 
-Use `ddx bead` output as the authoritative queue source for the run.
+Load concerns from `workflows/references/concern-resolution.md`.
+Match observed tooling against concerns in `workflows/concerns/`.
 
-Load concerns from `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
-Match observed tooling against concerns in `.ddx/plugins/helix/workflows/concerns/`.
+Use the runtime-provided work-item source to list ready items, show item
+details, and list items by status.
 
-### STEP 0.5 — DDx bead acquisition
+### STEP 0.5 — Work-item acquisition
 
-```bash
-ddx bead list --status open --label kind:planning,action:backfill --json
+Acquire the governing work item before modifying files or creating tracker
+items, per `workflows/references/bead-first.md`: find an open planning item
+labelled `kind:planning,action:backfill` (claim it if found) or create one with
+labels `helix,kind:planning,action:backfill`, a `<context-digest>` description
+that names the scope being reconstructed and the existing coverage summary from
+the Step 0 inventory, and acceptance "Missing artifacts reconstructed with
+evidence; assumption ledger complete; follow-up issues created for
+guidance-dependent items". All subsequent file modifications and tracker changes
+are governed by this work item. The runtime supplies the work-item store; for
+the concrete commands see its install guide
+([docs/install/ddx.md](../../docs/install/ddx.md) for DDx).
 
-ddx bead update <id> --claim   # if found
+### STEP 8 — Follow-up issues
 
-# if not found:
-ddx bead create "backfill: <scope description>" \
-  --type task \
-  --labels helix,kind:planning,action:backfill \
-  --description "<context-digest>...</context-digest>
-Reconstruct missing HELIX artifacts for <scope>.
-Existing coverage: <summary from Step 0 inventory>" \
-  --acceptance "Missing artifacts reconstructed with evidence; assumption ledger complete; follow-up issues created for guidance-dependent items"
-```
+Encode hard prerequisites between follow-up issues through the runtime-provided work-item source's
+dependency mechanism.
 
-Record the bead ID. All subsequent file modifications and tracker changes are
-governed by this bead.
-
-### STEP 0 — DDx tracker commands
-
-```bash
-ddx bead ready
-ddx bead show <id>
-ddx bead list --status open --json
-```
-
-### STEP 8 — DDx follow-up issues
-
-```bash
-ddx bead dep add <blocked-id> <blocking-id>
-```
-
-### DDx action input examples
+### Action input examples
 
 ```
 helix backfill repo
@@ -556,15 +545,15 @@ helix backfill auth
 ```
 
 When launched by `helix backfill`, the action runs inside an active writable
-session. Use live `ddx bead` commands for tracker state.
+session. Use the runtime's live tracker for queue state.
 
-### DDx output trailer
+### Output trailer
 
 ```
 BACKFILL_STATUS: COMPLETE|GUIDANCE_NEEDED|BLOCKED
 BACKFILL_REPORT: docs/helix/06-iterate/backfill-reports/<file>.md
 RESEARCH_EPIC: <id|none>
 MEASURE_STATUS: PASS|FAIL|PARTIAL
-BEAD_ID: <governing-bead-id>
+ITEM_ID: <governing-item-id>
 FOLLOW_ON_CREATED: N
 ```

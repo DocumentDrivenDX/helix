@@ -127,7 +127,7 @@ mandatory (not just "recommended"):
 - Other active concerns → Check each concern's `practices.md` for design-activity
   requirements and ensure the plan addresses them.
 
-The governing bead's acceptance criteria include concern-mandated section
+The governing work item's acceptance criteria include concern-mandated section
 completeness.
 
 ## STEP 2 through N - Iterative Refinement
@@ -188,7 +188,7 @@ criteria. See the measure action for the full pattern.
    explain why it did not.
 3. **Concern coverage**: Verify each active concern's design-activity requirements
    are addressed in the plan.
-4. **Record results** on the governing work item via the runtime tracker.
+4. **Record results** on the governing work item via the runtime-provided work-item source.
 
 ## ACTIVITY N+3 - Report
 
@@ -221,42 +221,38 @@ FOLLOW_ON_CREATED: N
 - `IN_PROGRESS`: max rounds reached but velocity still high
 - `GUIDANCE_NEEDED`: ambiguity that requires user input before the plan can converge
 
-## DDx Integration Appendix
+## Runtime Integration Appendix
 
-This appendix applies when DDx is the active HELIX runtime.
+This appendix covers how a runtime realizes the design action. The reference
+paths and work-item acquisition below are runtime-neutral; for the concrete
+commands of a specific runtime, see its install guide (DDx:
+[docs/install/ddx.md](../../docs/install/ddx.md)).
 
-### STEP 0 — DDx references
+### STEP 0 — Reference resolution
 
-- Principles: `.ddx/plugins/helix/workflows/references/principles-resolution.md`
-- Concerns: `.ddx/plugins/helix/workflows/references/concern-resolution.md`
-- Solution-design meta: `.ddx/plugins/helix/workflows/activities/02-design/artifacts/solution-design/meta.yml`
-- Technical-design meta: `.ddx/plugins/helix/workflows/activities/02-design/artifacts/technical-design/meta.yml`
+- Principles: `workflows/references/principles-resolution.md`
+- Concerns: `workflows/references/concern-resolution.md`
+- Solution-design meta: `workflows/activities/02-design/artifacts/solution-design/meta.yml`
+- Technical-design meta: `workflows/activities/02-design/artifacts/technical-design/meta.yml`
 
-Validate `depends_on` entries in each artifact's ddx frontmatter before writing.
+Validate `depends_on` entries in each artifact's `ddx:` frontmatter before writing.
 
-### STEP 0.5 — DDx bead acquisition
+### STEP 0.5 — Work-item acquisition
 
-```bash
-ddx bead list --status open --label kind:planning,action:design --json
-# filter by scope or spec-id if dispatched with a scope
+Acquire the governing work item before writing any design content, per
+`workflows/references/bead-first.md`: find an open planning item labelled
+`kind:planning,action:design` (claim it if found, filtering by scope or
+`spec-id` when dispatched with a scope) or create one with labels
+`helix,activity:design,kind:planning,action:design`, a `spec-id` pointing at the
+governing artifact if known, a `<context-digest>` description that names the
+scope to design for and the governing artifacts loaded in Step 0, and acceptance
+"Design document converged with all required sections including concern-mandated
+sections; written to canonical path". All subsequent file modifications are
+governed by this work item. The runtime supplies the work-item store; for the
+concrete commands see its install guide
+([docs/install/ddx.md](../../docs/install/ddx.md) for DDx).
 
-ddx bead update <id> --claim   # if found
-
-# if not found:
-ddx bead create "design: <scope description>" \
-  --type task \
-  --labels helix,activity:design,kind:planning,action:design \
-  --set spec-id=<governing-artifact-if-known> \
-  --description "<context-digest>...</context-digest>
-Create comprehensive design document for <scope>.
-Inputs: <list governing artifacts loaded in Step 0>" \
-  --acceptance "Design document converged with all required sections including concern-mandated sections; written to canonical path"
-```
-
-Record the bead ID. All subsequent file modifications are governed by this
-bead.
-
-### DDx action input examples
+### Action input examples
 
 ```
 /helix design
@@ -264,22 +260,22 @@ bead.
 /helix design --rounds 8 FEAT-003
 ```
 
-### ACTIVITY N+2 — DDx record results
+### ACTIVITY N+2 — Record results
 
-```bash
-ddx bead update <id> --notes "<measure-results>...</measure-results>"
-```
+Record the measure results on the governing work item through the runtime
+tracker.
 
-### DDx output trailer
+### Output trailer
 
 ```
 PLAN_STATUS: CONVERGED|IN_PROGRESS|GUIDANCE_NEEDED
 PLAN_DOCUMENT: docs/helix/02-design/plan-YYYY-MM-DD[-scope].md
 PLAN_ROUNDS: N
 MEASURE_STATUS: PASS|FAIL|PARTIAL
-BEAD_ID: <governing-bead-id>
+ITEM_ID: <governing-item-id>
 FOLLOW_ON_CREATED: N
 ```
 
 Note: The design document must go through `/helix polish` to be decomposed
-into implementable beads before `ddx bead execute` can execute against it.
+into implementable work items before the runtime executes ready work items
+against it.

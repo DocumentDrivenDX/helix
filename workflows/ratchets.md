@@ -5,11 +5,11 @@ ddx:
     - helix.workflow
     - helix.workflow.principles
   review:
-    self_hash: 58ab1d0ff5890f281670614f76b23dfc898fe67261014cbc1aae9963375b6db9
+    self_hash: 9cafde017be3c506e7014f701e0f6bd9e2ea52c91f729a02b37868a370638541
     deps:
-      helix.workflow: 7dc55815a4649a86879857528c18641203cd554ec682793c2f249e7497a9b2e0
+      helix.workflow: e318cf16a8bd1d1b48e5dad0c9c8cedc9b9b6e14940b9788f9ad405ce2e35f56
       helix.workflow.principles: b6e5a4f79219e6edf708798b7860d1f22d7ef0e895de42acf66a160d3f586b33
-    reviewed_at: "2026-05-24T23:28:08Z"
+    reviewed_at: "2026-05-26T02:56:15Z"
 ---
 # Quality Ratchets
 
@@ -99,7 +99,7 @@ The fixture may optionally include a `metric` field referencing a shared metric
 definition at `docs/helix/06-iterate/metrics/<name>.yaml`. When present, the
 metric definition provides the measurement command, output pattern, and
 tolerance — the floor fixture only needs to record the floor value and update
-history. See `.ddx/plugins/helix/workflows/templates/metric-definition.yaml` for the schema.
+history. See `workflows/templates/metric-definition.yaml` for the schema.
 
 ## Three Ratchet Types
 

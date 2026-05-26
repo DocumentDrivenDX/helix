@@ -106,7 +106,7 @@ was not observed.
 
 Every **buildable** product, regardless of language, framework, or domain.
 High autonomy auto-selects this concern for buildable products (see
-`.ddx/plugins/helix/workflows/references/concern-resolution.md`), honoring the
+`workflows/references/concern-resolution.md`), honoring the
 exceptions above. Compose with `testing` (strategy) and the `e2e-framework`
 slot (tooling); `verification` adds the evidence gate on top — it does not
 replace either.

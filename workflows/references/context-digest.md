@@ -6,43 +6,43 @@ ddx:
     - helix.workflow.concern-resolution
     - FEAT-006
   review:
-    self_hash: 1c1b6341e779c63e86e1f4eec80522d231a263a55cb92aab5632bb244da73f8c
+    self_hash: 6bcc49b26670e1ece4f842feac7ccc8756168aea86e5dfcc6333340f493d97c5
     deps:
-      FEAT-006: a44d0a40e5cb883e31c5f6b150a77070fa427bb8f834345908aefaf1cffb38ce
-      helix.workflow.concern-resolution: b18e4607b5f7bc95bccefdbffadf4575610f67ace9c5327c40be255c2c89783c
-      helix.workflow.principles-resolution: d1076cf1e1a2097d4a75595dbcbd37d2085503ba9a6591d1181a07795179a104
-    reviewed_at: "2026-05-15T04:11:24Z"
+      FEAT-006: d2eab5444f4c023232a08e0774b6738c3d9abf6a4da48b7d59e775750ed1412a
+      helix.workflow.concern-resolution: 89442e40f1dee5134731b1482e545fceeac074335bb0d1ec08edd565d7c670ba
+      helix.workflow.principles-resolution: fe8bbb3f17f8f153acd66e91c48bfb775972ef271361a1c660d1c83c69f15648
+    reviewed_at: "2026-05-26T03:19:52Z"
 ---
 # Context Digest Assembly
 
 This reference defines how HELIX assembles a compact context digest into
-beads at creation time, making them self-contained execution units.
+work items at creation time, making them self-contained execution units.
 
 ## Purpose
 
-Implementing agents should be able to work from a bead's description alone
+Implementing agents should be able to work from a work item's description alone
 without reading upstream files in the common case. The context digest
 summarizes all cross-cutting concerns and governing context into
-~1000-1500 tokens prepended to the bead description.
+~1000-1500 tokens prepended to the work item description.
 
 ## When to Assemble
 
 | Action | Behavior |
 |--------|----------|
-| `ddx bead create` | Assemble digest for every new bead |
-| `/helix evolve` | Assemble digest for beads it creates or modifies |
+| Work-item creation (triage) | Assemble digest for every new work item |
+| `/helix evolve` | Assemble digest for work items it creates or modifies |
 | `/helix polish` | Refresh digest against current upstream state |
-| `ddx bead execute` | Read digest from bead (do not reassemble) |
+| Build (execution) | Read digest from work item (do not reassemble) |
 | `/helix review` | Read digest to verify consistency |
 
 ## Assembly Algorithm
 
 1. **Principles**: Load active principles per
-   `.ddx/plugins/helix/workflows/references/principles-resolution.md`. Include the full list
+   `workflows/references/principles-resolution.md`. Include the full list
    as a compact single line (separator: ` · `).
 
 2. **Concerns**: Load active concerns per
-   `.ddx/plugins/helix/workflows/references/concern-resolution.md`. Filter by bead area scope.
+   `workflows/references/concern-resolution.md`. Filter by work item area scope.
    Summarize matched concern names as `name | name | name`.
    The `<concerns>` element contains concern names only; never write
    `area:*` labels or synthetic scope labels there.
@@ -56,34 +56,34 @@ summarizes all cross-cutting concerns and governing context into
       area-matched concern's `## ADR References` section, plus any ADRs
       cited in the project overrides section of `concerns.md`.
    b. **Secondary — spec/topic match**: Match ADR `Related` field against
-      the bead's `spec-id` chain, and match ADR topic against the bead's
+      the work item's `spec-id` chain, and match ADR topic against the work item's
       `area:*` labels. This catches ADRs not yet wired into concerns.
    - For each relevant ADR: extract the decision statement and one-line
      rationale. Do not include alternatives or exploration.
 
 5. **Governing spec**: Load the artifact referenced by `spec-id`.
    Extract:
-   - The specific requirement or acceptance criterion this bead addresses
+   - The specific requirement or acceptance criterion this work item addresses
    - Key constraints relevant to implementation
    - Do not include the full spec — just the governing clause.
 
 6. **Format**: Assemble into XML-tagged block (see format below).
 
-7. **Write**: Prepend the `<context-digest>` block to the bead's
+7. **Write**: Prepend the `<context-digest>` block to the work item's
    `description` field. If a digest already exists, replace it.
    If the repository ships a digest helper script, use it instead of
-   hand-assembling XML so the live queue and future beads stay consistent.
+   hand-assembling XML so the live queue and future work items stay consistent.
    When the governing contract explicitly permits omitting the digest,
-   the bead must carry label `digest:omission-authorized`, the machine-set
+   the work item must carry label `digest:omission-authorized`, the machine-set
    field `digest-omission-path`, and a description that begins with
    `Explicit omission rationale: <reason>` instead of a `<context-digest>`
    block. The rationale must be non-empty and explain why omission is
-   allowed for that bead.
+   allowed for that work item.
    HELIX currently defines exactly one allowed omission path:
    `helix-input:legacy-migration`. This path is reserved for `/helix input`
-   when it creates or updates a migrated legacy bead whose upstream concern
+   when it creates or updates a migrated legacy work item whose upstream concern
    mapping is not yet complete enough to assemble a trustworthy digest.
-   Any other bead class must carry a full `<context-digest>`.
+   Any other work item class must carry a full `<context-digest>`.
 
 ## Digest Format
 
@@ -118,14 +118,14 @@ governing spec context. Truncate ADR summaries before dropping them.
 
 ## Refresh at Polish Time
 
-When `/helix polish` encounters a bead with an existing
+When `/helix polish` encounters a work item with an existing
 `<context-digest>`:
 
 1. Re-run the assembly algorithm against current upstream state.
 2. Compare each section against the existing digest.
 3. If material changes exist:
    - Replace the `<context-digest>` block with the updated version.
-   - Add a note to the bead: "Context digest refreshed: [what changed]".
+   - Add a note to the work item: "Context digest refreshed: [what changed]".
 4. If no changes: leave the digest untouched.
 
 Material changes include: principle added/removed, concern changed,
@@ -133,13 +133,13 @@ practice overridden, ADR superseded, governing spec amended.
 
 ## Reading the Digest at Build Time
 
-When `ddx bead execute` or `/helix review` processes a bead with a
+When build execution or `/helix review` processes a work item with a
 `<context-digest>`:
 
 1. Parse the XML tags from the description.
-2. Use the digest contents as authoritative context for this bead.
+2. Use the digest contents as authoritative context for this work item.
 3. Do not redundantly read the upstream files that the digest summarizes.
-4. If the digest is missing (legacy bead), fall back to reading upstream
+4. If the digest is missing (legacy work item), fall back to reading upstream
    files directly.
 
 Trust the digest — rely on `/helix polish` to keep it current.

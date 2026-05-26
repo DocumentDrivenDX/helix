@@ -33,7 +33,7 @@ When artifacts disagree, use this order:
 
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory.
-1. Verify the runtime tracker is available. Stop immediately if unavailable.
+1. Verify the runtime-provided work-item source is available. Stop immediately if unavailable.
 2. Load active concerns and practices following the concern-resolution
    reference for this runtime.
 3. Load ratchet floor fixtures if the project has adopted quality ratchets.
@@ -93,7 +93,7 @@ each target item and the artifacts it touched:
 3. The phantom-claim floor is **zero**: any `ASSERTED_UNBACKED` claim is a
    blocking finding regardless of the acceptance-satisfaction count. Resolve it
    by making the claim true or deleting it — never by relaxing the check (see
-   `.ddx/plugins/helix/workflows/ratchets.md` and FEAT-016).
+   `workflows/ratchets.md` and FEAT-016).
 
 This is a workflow-mode gate expressed as a measurement, not a recursive call to
 the validate/align actions.
@@ -121,7 +121,7 @@ If the project has adopted quality ratchets:
 
 ## STEP 5 - Concern Propagation Check
 
-Verify that the bead's context digest includes all active concerns for its
+Verify that the work item's context digest includes all active concerns for its
 area scope:
 
 1. If the digest is missing or stale, flag it.
@@ -131,7 +131,7 @@ area scope:
 
 ## STEP 6 - Record Results
 
-Record measurement results on the work item via the runtime tracker. The
+Record measurement results on the work item via the runtime-provided work-item source. The
 result record should capture:
 
 - timestamp
@@ -177,32 +177,39 @@ RATCHETS_PASSED: N
 
 Be precise, quantitative, and evidence-driven.
 
-## DDx Integration Appendix
+## Runtime Integration Appendix
 
-This appendix applies when DDx is the active HELIX runtime.
+This appendix covers how a runtime realizes the measure action. The reference
+paths and work-item acquisition below are runtime-neutral; for the concrete
+commands of a specific runtime, see its install guide (DDx:
+[docs/install/ddx.md](../../docs/install/ddx.md)).
 
-### STEP 0 — DDx bootstrap
+### STEP 0 — Reference resolution
 
-```bash
-ddx bead status  # stop immediately if this fails
-```
+Verify the runtime-provided work-item source is reachable; stop immediately if
+it is not.
 
-Load concerns following `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
-Load ratchet floor fixtures from `.ddx/plugins/helix/workflows/ratchets.md` if adopted.
+Load concerns following `workflows/references/concern-resolution.md`.
+Load ratchet floor fixtures from `workflows/ratchets.md` if adopted.
 
-### STEP 1 — DDx target selection
+### STEP 1 — Target selection
 
-- If an explicit bead ID is given: `ddx bead show <id> --json`
-- If a scope: `ddx bead list --status in_progress --label <scope> --json`
+- If an explicit work-item ID is given: load that item from the
+  runtime-provided work-item source.
+- If a scope: list in-progress items filtered by the scope label from the
+  runtime-provided work-item source.
 
-For each target bead, load the `<measure-results>` block from its notes for
+For each target item, load the `<measure-results>` block from its notes for
 comparison.
 
-### STEP 6 — DDx record results
+### STEP 6 — Record results
 
-```bash
-ddx bead update <id> --notes "<measure-results>
-  <timestamp>$(date -u +%Y-%m-%dT%H:%M:%SZ)</timestamp>
+Record the results on the target work item (in its notes, if the runtime
+provides a notes field) as a `<measure-results>` block of this shape:
+
+```
+<measure-results>
+  <timestamp>YYYY-MM-DDTHH:MM:SSZ</timestamp>
   <status>PASS|FAIL|PARTIAL</status>
   <acceptance>
     <criterion name='...' status='pass|fail' evidence='...'/>
@@ -214,17 +221,20 @@ ddx bead update <id> --notes "<measure-results>
     <ratchet name='...' floor='...' measured='...' status='pass|fail'/>
   </ratchets>
   <propagation digest='fresh|stale|missing' criteria='consistent|inconsistent'/>
-</measure-results>"
+</measure-results>
 ```
 
-### DDx output trailer
+The runtime supplies the work-item store; for the concrete commands see its
+install guide ([docs/install/ddx.md](../../docs/install/ddx.md) for DDx).
+
+### Output trailer
 
 ```
 MEASURE_STATUS: PASS|FAIL|PARTIAL
-BEADS_MEASURED: N
-BEADS_PASSED: N
-BEADS_FAILED: N
-BEADS_PARTIAL: N
+WORK_ITEMS_MEASURED: N
+WORK_ITEMS_PASSED: N
+WORK_ITEMS_FAILED: N
+WORK_ITEMS_PARTIAL: N
 CRITERIA_TOTAL: N
 CRITERIA_PASSED: N
 GATES_RUN: N

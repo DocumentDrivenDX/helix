@@ -11,7 +11,7 @@ description: |
   quality attributes, data rules, security posture, UX conventions, operating
   practices, and project-specific overrides. A concern is active only when it
   changes downstream work across more than one artifact or implementation area.
-  Concerns are selected from `.ddx/plugins/helix/workflows/concerns/` or
+  Concerns are selected from `workflows/concerns/` or
   declared as project-local entries with area scope and practices.
 
 output:
@@ -27,7 +27,7 @@ validation:
 
   quality_checks:
     - check: concerns_are_resolved
-      description: Each selected concern must either exist in .ddx/plugins/helix/workflows/concerns/ or be declared as a project-local concern with scope and practices
+      description: Each selected concern must either exist in workflows/concerns/ or be declared as a project-local concern with scope and practices
       severity: blocking
 
     - check: overrides_cite_adrs

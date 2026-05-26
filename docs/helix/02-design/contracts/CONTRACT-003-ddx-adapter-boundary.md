@@ -8,12 +8,12 @@ ddx:
     - CONTRACT-001
     - CONTRACT-002
   review:
-    self_hash: 30e3e4320bc0643c904e92ee797d6ad8942a480edfae85a158c3a17054323a52
+    self_hash: 7c2fb59f847a930555679eed989233d20f23fe0896bcd50761bbeb4d77352010
     deps:
-      CONTRACT-001: a3a48304a395b3d52c41f7b833e639f4a5ae986e62f58284821687306d3049fb
-      CONTRACT-002: 473794ceba3db29b84547ece5a9c2d976471c67a8f2cba39750220edb188685a
-      helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
-    reviewed_at: "2026-05-15T04:11:24Z"
+      CONTRACT-001: 263a61a4b28fceb6a360b389ca779521becf8d2d26bc2bdb29da0f7cdf0ad839
+      CONTRACT-002: d4de625233449d6d880fdad497c72871454f6e4b97a966a53dba03ab84bffaa6
+      helix.prd: 2b22383538b33c6ecee57f43d85128dfef7d56254766b757aa36439e35f2bfc9
+    reviewed_at: "2026-05-26T03:25:18Z"
 ---
 
 # CONTRACT-003: DDx Adapter Boundary
@@ -254,16 +254,21 @@ checking governed work before editing files. The current text generalizes this
 to "projects with governed work records," which preserves the discipline
 without tying it to one runtime.
 
-### LEAK-4 — Artifact schema now distinguishes canonical source from DDx install path
+### LEAK-4 — Catalog cross-references hardcoded the DDx install path
 
-- **Status:** Resolved
-- **Evidence:** `workflows/artifact-schema.md` §Directory layout conventions
+- **Status:** Resolved (reopened 2026-05-25, re-resolved same day)
+- **Evidence:** `skills/`+`workflows/` contain zero `.ddx/plugins/helix`
+  references; `lefthook.yml` `check-workflow-paths` enforces this.
 
-The earlier leak treated `.ddx/plugins/helix/workflows/` as the installed
-catalog location without clarifying that the path varies by runtime. The
-artifact schema now states that install paths are runtime-specific, names the
-DDx plugin path only as the DDx-managed example, and keeps `workflows/` in the
-HELIX repo as the canonical source.
+`workflows/artifact-schema.md` §Directory layout conventions had clarified that
+install paths are runtime-specific and named the DDx plugin path only as an
+example, so this entry was marked Resolved. The 2026-05-25 audit found the leak
+had **persisted in shipped content**: ~158 cross-reference paths across 52
+`workflows/` files plus 4 in `skills/helix/SKILL.md` still hardcoded
+`.ddx/plugins/helix/workflows/...`. The runtime-neutrality remediation swept all
+of them to the canonical source-relative form `workflows/...` (and to the
+`<plugin-root>/workflows/...` neutral form in `SKILL.md`). The schema note that
+originally justified "Resolved" stands; the catalog body now matches it.
 
 ### LEAK-5 — CONTRACT-001 already carries a pre-collapse supersession note
 
@@ -277,26 +282,99 @@ current document already opens with a note that marks that framing as
 pre-collapse and points readers to CONTRACT-003 for the current runtime-adapter
 boundary.
 
-No currently open boundary leaks are recorded here. New entries should be added
-only when a file in the repository again crosses the minimal runtime contract
-described above.
+### LEAK-6 — The path-check hook enforced the leak instead of preventing it
+
+- **Status:** Resolved
+- **Evidence:** `lefthook.yml` `check-workflow-paths`
+
+The `check-workflow-paths` pre-commit hook was **inverted against the contract**:
+it rejected canonical `workflows/...` paths in shipped content and demanded the
+`.ddx/plugins/helix/workflows/...` install path ("Use
+.ddx/plugins/helix/workflows/ instead"). The hook actively reintroduced LEAK-4
+on every commit. The remediation inverted it: the hook now rejects any
+`.ddx/plugins/helix` layout-leak path in `skills/`+`workflows/` and accepts the
+canonical `workflows/...` form. `ddx:` frontmatter is unaffected (it is not a
+path).
+
+### LEAK-7 — Portable workflow content carried DDx command literals
+
+- **Status:** Resolved
+- **Evidence:** `grep -rnE 'ddx (bead|work|run|try|agent)' skills/ workflows/`
+  returns hits only in `workflows/DDX.md` (the DDx-scoped explainer); concrete
+  DDx commands live in `docs/install/ddx.md`; `lefthook.yml`
+  `check-workflow-paths` now enforces this gate.
+
+Portable methodology content named DDx commands directly (`ddx bead create`,
+`ddx bead execute`, `ddx work`, …) and framed execution as "the runtime
+tracker", which assumes a required tracker/queue/loop that the boundary forbids
+(§"DDx must not require"). The first remediation pass neutralized the action
+prompts, references, activity artifacts, `workflows/README.md`, and
+`workflows/EXECUTION.md` to optional, runtime-provided action phrasing ("the
+runtime-provided work-item source", "the runtime executes ready work items") and
+relocated their concrete `ddx` invocations to the new `docs/install/ddx.md`
+reference-runtime guide.
+
+The 2026-05-25 follow-up pass closed the remaining residual:
+
+- The DDx command appendices in `workflows/REFERENCE.md`,
+  `workflows/QUICKSTART.md`, `workflows/artifact-hierarchy.md`, and
+  `workflows/conventions.md` were relocated to `docs/install/ddx.md` (under
+  per-source headings) and replaced with one-line neutral pointers.
+- `workflows/state-machine.yaml` and `workflows/state-rules.yml` dropped their
+  DDx command literals in favor of runtime-neutral action descriptions that
+  point to the install guides.
+- `workflows/concerns/demo-asciinema/concern.md` lost its DDx-harness mandate
+  (no `ddx agent run`, DDx binary mounts, `.ddx/agent-dictionary`, or
+  virtual-harness behavior), neutralized to the runtime's agent
+  invocation/recording mechanism.
+
+`workflows/DDX.md` (the DDx methodology explainer, analogous to
+`docs/install/ddx.md`) remains intentionally DDx-specific and is the only
+`skills/`+`workflows/` file exempt from the `ddx <verb>` gate. There are no
+remaining portable residuals for this leak.
+
+### LEAK-8 — SKILL.md body hardcoded the DDx plugin path
+
+- **Status:** Resolved
+- **Evidence:** `grep -nE 'ddx |\.ddx/|execute-bead|\[ddx-' skills/helix/SKILL.md`
+  → 0 hits (PRD R-4 acceptance test)
+
+The routing-skill body referenced `.ddx/plugins/helix/` (the `<plugin-root>`
+example and three concern practice-file paths). These violated the PRD R-4
+zero-`ddx`/`.ddx/` acceptance test for `SKILL.md`. The remediation replaced them
+with the `<plugin-root>/workflows/...` neutral form already defined by the
+skill's §Catalog Resolution, and dropped the DDx example from the
+`<plugin-root>` definition (Claude Code's path remains as the illustrative
+example, with per-runtime paths deferred to `docs/install/`).
+
+New entries should be added only when a file in the repository again crosses the
+minimal runtime contract described above.
 
 ## Validation Checklist
 
 The adapter boundary is healthy when all of the following are true:
 
-- [ ] Zero hits for `ddx `, `execute-bead`, `[ddx-`, or `.ddx/` in
-      `skills/helix/SKILL.md` normative body (PRD R-4 acceptance test)
-- [ ] `workflows/artifact-schema.md` is the schema authority; no parallel
+- [x] Zero hits for `ddx `, `execute-bead`, `[ddx-`, or `.ddx/` in
+      `skills/helix/SKILL.md` normative body (PRD R-4 acceptance test) —
+      verified 2026-05-25 (LEAK-8)
+- [x] `workflows/artifact-schema.md` is the schema authority; no parallel
       DDx-internal schema redefines `ddx:` frontmatter
-- [ ] DDx operational fields in `ddx:` frontmatter are ignorable by Claude Code
+- [x] DDx operational fields in `ddx:` frontmatter are ignorable by Claude Code
       and Genie without changing artifact meaning
-- [ ] HELIX routing skill invokes DDx execution through the agent session, not
+- [x] HELIX routing skill invokes DDx execution through the agent session, not
       via subprocess calls embedded in skill prose
-- [ ] `docs/install/ddx.md` covers all DDx-specific packaging, naming, and
-      invocation notes; none of that detail appears in `skills/helix/SKILL.md`
-- [ ] Every boundary-leak ledger entry has current evidence and is either
-      resolved or linked to active follow-up work
+- [x] `docs/install/ddx.md` covers all DDx-specific packaging, naming, and
+      invocation notes; none of that detail appears in `skills/helix/SKILL.md` —
+      guide created 2026-05-25 (LEAK-7)
+- [x] No `.ddx/plugins/helix` layout-leak path in shipped `skills/`+`workflows/`
+      content; `check-workflow-paths` enforces this (LEAK-4, LEAK-6)
+- [x] No `ddx <verb>` command literal (`bead`, `work`, `run`, `try`, `agent`) in
+      shipped `skills/`+`workflows/` content outside `workflows/DDX.md`;
+      `check-workflow-paths` enforces this (LEAK-7)
+- [x] Every boundary-leak ledger entry has current evidence and is resolved —
+      LEAK-7's residual was closed by the 2026-05-25 follow-up pass (DDx command
+      appendices relocated to `docs/install/ddx.md`; state files and the
+      demo-asciinema concern neutralized)
 
 ## References
 

@@ -5,7 +5,7 @@ implementation begins.
 
 "Decompose the plan, check your issues N times, implement once."
 
-Your goal is to decompose design plans into implementable tracker beads and then
+Your goal is to decompose design plans into implementable tracker work items and then
 improve issue quality through multiple refinement passes: deduplication,
 coverage verification against the plan, acceptance criteria sharpening,
 dependency correction, and convergence detection. This front-loaded investment
@@ -41,7 +41,7 @@ You may receive:
    For items without a digest, assemble one and prepend it. If the runtime
    provides a digest refresh helper, use it so area-label inference and digest
    assembly stay deterministic.
-1. Verify the runtime tracker is available. Stop immediately if unavailable.
+1. Verify the runtime-provided work-item source is available. Stop immediately if unavailable.
 2. Load all open work items for the scope.
 3. Load the governing plan document if one exists.
    - Check `docs/helix/02-design/plan-*.md` for the scope
@@ -57,15 +57,15 @@ acquisition reference for the full pattern.
 ## STEP 1 - Plan Decomposition
 
 **This activity runs first and is mandatory when a plan exists.** Plans must be
-decomposed into tracker beads before refinement or implementation can proceed.
+decomposed into tracker work items before refinement or implementation can proceed.
 
 1. Locate the governing plan documents for the scope:
    - `docs/helix/02-design/plan-*.md`
    - `docs/helix/02-design/solution-designs/SD-*.md`
    - Other design artifacts referenced by the scope
-2. For each plan, check whether tracker beads already exist that reference it
+2. For each plan, check whether tracker work items already exist that reference it
    (via `spec-id`, description, or parent epic).
-3. If the plan has **not been decomposed** (no or very few corresponding beads):
+3. If the plan has **not been decomposed** (no or very few corresponding work items):
    a. Read the plan's "Implementation Plan with Dependency Ordering" section
       (or equivalent work breakdown).
    b. Create one work item per implementable slice. Each item must:
@@ -78,8 +78,8 @@ decomposed into tracker beads before refinement or implementation can proceed.
    c. Group related items under an epic if the plan implies multiple
       implementation tracks.
    d. Wire dependencies based on the plan's dependency graph.
-4. If the plan has been partially decomposed, create beads only for uncovered
-   sections — do not duplicate existing beads.
+4. If the plan has been partially decomposed, create work items only for uncovered
+   sections — do not duplicate existing work items.
 
 Only after decomposition is complete (or confirmed already done) should
 refinement passes begin.
@@ -123,7 +123,7 @@ Each pass performs ALL of the following checks. Track changes made per pass.
 - If the governing artifacts let you sharpen the item, rewrite the acceptance
   criteria immediately.
 - If the governing artifacts do **not** let you sharpen the item into explicit
-  measurement criteria, flag the bead as **not execution-ready** and route it back
+  measurement criteria, flag the work item as **not execution-ready** and route it back
   through planning/polish refinement instead of leaving hidden knowledge to
   decide success.
 - A work item is not execution-ready until the runtime could determine success
@@ -219,8 +219,8 @@ recommend additional rounds or user guidance.
 
 ## ACTIVITY N+1 - Measure
 
-Verify the polish pass against the governing bead's acceptance criteria.
-See `.ddx/plugins/helix/workflows/references/measure.md` for the full pattern.
+Verify the polish pass against the governing work item's acceptance criteria.
+See `workflows/references/measure.md` for the full pattern.
 
 1. **Decomposition completeness**: All plans in scope have corresponding work items.
 2. **Convergence**: Change velocity dropped below threshold.
@@ -228,7 +228,7 @@ See `.ddx/plugins/helix/workflows/references/measure.md` for the full pattern.
    context digests and acceptance criteria.
 4. **Dependency integrity**: No circular dependencies; all `spec-id` references
    resolve to existing artifacts.
-5. **Record results** on the governing work item via the runtime tracker.
+5. **Record results** on the governing work item via the runtime-provided work-item source.
 
 ## ACTIVITY N+2 - Report
 
@@ -268,60 +268,55 @@ FOLLOW_ON_CREATED: N
 - `DECOMPOSITION: PARTIAL`: plan partially decomposed, some sections could not
   be broken down without guidance
 
-## DDx Integration Appendix
+## Runtime Integration Appendix
 
-This appendix applies when DDx is the active HELIX runtime.
+This appendix covers how a runtime realizes the polish action. The reference
+paths and work-item acquisition below are runtime-neutral; for the concrete
+commands of a specific runtime, see its install guide (DDx:
+[docs/install/ddx.md](../../docs/install/ddx.md)).
 
-### STEP 0 — DDx bootstrap
+### STEP 0 — Reference resolution
 
-```bash
-ddx bead status  # stop immediately if this fails
-```
+Confirm the runtime-provided work-item source is available before proceeding; stop immediately if
+it is not.
 
-Load principles from `.ddx/plugins/helix/workflows/references/principles-resolution.md`.
-Load concerns from `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
-Refresh context digests per `.ddx/plugins/helix/workflows/references/context-digest.md`.
+Load principles from `workflows/references/principles-resolution.md`.
+Load concerns from `workflows/references/concern-resolution.md`.
+Refresh context digests per `workflows/references/context-digest.md`.
 
-Load open work items:
-```bash
-ddx bead list --status open --json
-ddx bead list --status in_progress --json
-```
+Use the runtime-provided work-item source to load all open and in-progress work
+items for the scope.
 
-### STEP 0.5 — DDx bead acquisition
+### STEP 0.5 — Work-item acquisition
 
-```bash
-ddx bead list --status open --label kind:planning,action:polish --json
+Acquire the governing work item before modifying any work items, per
+`workflows/references/bead-first.md`: find an open planning item labelled
+`kind:planning,action:polish` (claim it if found) or create one with labels
+`helix,activity:design,kind:planning,action:polish`, a `spec-id` pointing at the
+governing plan if known, a `<context-digest>` description that names the scope
+and the plan documents to decompose found in Step 0, and acceptance "All plans
+in scope decomposed into work items; convergence reached (< 3 changes for 2
+consecutive rounds); context digests refreshed; concern-appropriate acceptance
+criteria on all work items". The runtime supplies the work-item store; for the
+concrete commands see its install guide
+([docs/install/ddx.md](../../docs/install/ddx.md) for DDx).
 
-ddx bead update <id> --claim   # if found
+### STEP 1 — Decomposition
 
-# if not found:
-ddx bead create "polish: <scope description>" \
-  --type task \
-  --labels helix,activity:design,kind:planning,action:polish \
-  --set spec-id=<governing-plan-if-known> \
-  --description "<context-digest>...</context-digest>
-Decompose plans and refine beads for <scope>.
-Plans to decompose: <list plan docs found in Step 0>" \
-  --acceptance "All plans in scope decomposed into beads; convergence reached (< 3 changes for 2 consecutive rounds); context digests refreshed; concern-appropriate acceptance criteria on all beads"
-```
+Wire dependencies between the decomposed work items through the runtime
+tracker's dependency mechanism, based on the plan's dependency graph.
 
-### STEP 1 — DDx decomposition
+### ACTIVITY N+1 — Measure
 
-Wire dependencies with `ddx bead dep add` based on the plan's dependency graph.
-
-### ACTIVITY N+1 — DDx measure
-
-```bash
-ddx bead update <id> --notes "<measure-results>...</measure-results>"
-```
+Record the measure results on the governing work item through the runtime
+tracker.
 
 Concern change check: compare git log on
-`.ddx/plugins/helix/workflows/concerns/` and `docs/helix/01-frame/concerns.md`
-against the timestamp of the most recent `kind:planning,action:polish` bead
+`workflows/concerns/` and `docs/helix/01-frame/concerns.md`
+against the timestamp of the most recent `kind:planning,action:polish` work item
 closed.
 
-### DDx action input examples
+### Action input examples
 
 ```
 /helix polish
@@ -329,7 +324,7 @@ closed.
 /helix polish --rounds 10 FEAT-003
 ```
 
-### DDx output trailer
+### Output trailer
 
 ```
 POLISH_STATUS: CONVERGED|IN_PROGRESS
@@ -340,8 +335,9 @@ ISSUES_MODIFIED: count
 ISSUES_CREATED: count (from refinement, not decomposition)
 ISSUES_MERGED: count
 MEASURE_STATUS: PASS|FAIL|PARTIAL
-BEAD_ID: <governing-bead-id>
+ITEM_ID: <governing-item-id>
 FOLLOW_ON_CREATED: N
 ```
 
-The polished beads are now ready for `ddx work` to claim and execute.
+The polished work items are now ready for the runtime's build loop to claim and
+execute.

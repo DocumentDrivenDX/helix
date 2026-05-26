@@ -98,8 +98,8 @@ decides what a test asserts. Keep them separate.
 
 Any **data-backed product** — one whose value shows through data it stores and
 renders. High autonomy auto-selects this concern for data-backed products (see
-`.ddx/plugins/helix/workflows/references/concern-resolution.md`); `areas: data`
-scopes its practices to data-layer beads. Compose with the tech-stack concern
+`workflows/references/concern-resolution.md`); `areas: data`
+scopes its practices to data-layer work items. Compose with the tech-stack concern
 (which fixes the faker library) and with UX concerns (the varied data is what
 exercises the empty/overflow/large-number states the UI must handle).
 

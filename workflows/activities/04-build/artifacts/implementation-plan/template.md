@@ -25,7 +25,7 @@ ddx:
 
 ## Issue Decomposition
 
-Story-level work is tracked via `ddx bead` in `.ddx/beads.jsonl`.
+Story-level work is tracked as work items in the runtime's work-item store.
 
 **Per-issue requirements**:
 - Labels: `helix`, `activity:build`, `kind:build`, `story:US-{story-id}`

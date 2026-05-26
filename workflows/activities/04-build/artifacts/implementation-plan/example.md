@@ -5,11 +5,11 @@ ddx:
     - example.technical-design.depositmatch.upload-csv
     - example.story-test-plan.depositmatch.upload-csv
   review:
-    self_hash: 8f48b07ab604fe52786de7648f7ab37da251cfade0ea38bb4e802082d4f977de
+    self_hash: c470ce1b656f474335d2b2ec376a3e41e3389d5b83c7fcc1b350890b50a42d7c
     deps:
-      example.story-test-plan.depositmatch.upload-csv: ea5f25266c2652513d7c3623b18bb3b8f9ac0058379e1edcfe305107bdf6a11e
+      example.story-test-plan.depositmatch.upload-csv: 20aed2c4e248a67b448b0528b49ae9b2724d5045879ddcda655ad220d1c276ed
       example.technical-design.depositmatch.upload-csv: 064c51468da1d444da9c6f65d6c2502487724ac315fa3e6c50f9bbeffd3d69b9
-    reviewed_at: "2026-05-15T04:11:24Z"
+    reviewed_at: "2026-05-26T02:56:15Z"
 ---
 
 # Build Plan
@@ -49,7 +49,7 @@ or match generation.
 
 ## Issue Decomposition
 
-Story-level work is tracked via `ddx bead` in `.ddx/beads.jsonl`.
+Story-level work is tracked as work items in the runtime's work-item store.
 
 **Per-issue requirements**:
 

@@ -275,7 +275,7 @@ Rules:
 
 The installed catalog path varies by runtime; see `docs/install/` for
 runtime-specific paths. For DDx-managed runtimes the catalog lives under
-`.ddx/plugins/helix/workflows/`; other runtimes use their own conventions.
+`workflows/`; other runtimes use their own conventions.
 Project instances conventionally live under `docs/helix/`.
 
 Catalog layout (example — DDx runtime):

@@ -18,7 +18,7 @@ Use this local resource summary as grounding:
 
 The Parking Lot is not the backlog or tracker. It holds deferred or future work
 that should remain findable without contaminating current scope. Active work
-belongs in the Feature Registry and DDx beads. Rejected work should be closed
+belongs in the Feature Registry and runtime work items. Rejected work should be closed
 or cancelled, not parked forever.
 
 ## Completion Criteria

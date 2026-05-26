@@ -1,7 +1,7 @@
 # Reference: Measure Activity
 
-The measure activity verifies results against a bead's acceptance criteria and
-records evidence on the bead. It runs as an embedded activity within every action
+The measure activity verifies results against a work item's acceptance criteria and
+records evidence on the work item. It runs as an embedded activity within every action
 and is also available as a standalone command.
 
 ## What Measure Checks
@@ -10,19 +10,19 @@ Measure runs these verification steps in order:
 
 ### 1. Acceptance Criteria
 
-For each criterion in the bead's acceptance text:
+For each criterion in the work item's acceptance text:
 
 - Determine the verification method (test command, file existence, manual check).
 - Run the verification.
 - Record pass/fail with evidence (command output, file path, test name).
 
-If the bead has a `spec-id`, check for an acceptance manifest (e.g.,
+If the work item has a `spec-id`, check for an acceptance manifest (e.g.,
 `TP-SD-010.acceptance.toml`) and verify against it.
 
 ### 2. Concern-Declared Quality Gates
 
-Load active concerns per `.ddx/plugins/helix/workflows/references/concern-resolution.md`, filtered
-by the bead's area labels. For each matched concern, run the quality gates
+Load active concerns per `workflows/references/concern-resolution.md`, filtered
+by the work item's area labels. For each matched concern, run the quality gates
 declared in its `practices.md` under `## Quality Gates`:
 
 | Concern | Typical gates |
@@ -39,7 +39,7 @@ commands.
 
 ### 3. Ratchet Enforcement
 
-If the project has adopted quality ratchets (see `.ddx/plugins/helix/workflows/ratchets.md`):
+If the project has adopted quality ratchets (see `workflows/ratchets.md`):
 
 - Load ratchet floor fixtures.
 - Run the enforcement command for each applicable ratchet.
@@ -48,15 +48,15 @@ If the project has adopted quality ratchets (see `.ddx/plugins/helix/workflows/r
 
 ### 4. Concern Propagation Check
 
-Verify that the bead's context digest includes all active concerns for its
+Verify that the work item's context digest includes all active concerns for its
 area scope. If the digest is stale (concerns changed since assembly), flag it.
 
 ## Recording Results
 
-Measurement results are recorded on the bead using structured notes:
+Measurement results are recorded on the work item's notes as a structured
+`<measure-results>` block:
 
-```bash
-ddx bead update <id> --notes "$(cat <<'EOF'
+```xml
 <measure-results>
   <timestamp>2026-04-06T14:30:00Z</timestamp>
   <status>PASS|FAIL|PARTIAL</status>
@@ -70,9 +70,11 @@ ddx bead update <id> --notes "$(cat <<'EOF'
     <ratchet name="coverage" floor="80" measured="83" status="pass"/>
   </ratchets>
 </measure-results>
-EOF
-)"
 ```
+
+Write this block to the work item's notes through the runtime's work-item store; for
+the concrete command see its install guide
+([docs/install/ddx.md](../../docs/install/ddx.md) for DDx).
 
 The `<measure-results>` block is machine-parseable. `helix report` reads it
 when analyzing results.
@@ -80,15 +82,15 @@ when analyzing results.
 ## Standalone Usage
 
 ```bash
-helix measure <bead-id>       # measure a specific bead
-helix measure <scope>         # measure all beads in scope
+helix measure <work-item-id>  # measure a specific work item
+helix measure <scope>         # measure all work items in scope
 helix measure --rerun <id>    # re-run measurement (e.g., after a fix)
 ```
 
 Standalone `helix measure` is useful for:
 
 - Re-measuring after a fix without re-running the full action.
-- Batch measurement across a scope (e.g., verifying all beads in an epic).
+- Batch measurement across a scope (e.g., verifying all work items in an epic).
 - CI/CD integration — run measurement as a gate.
 
 ## Embedded Usage

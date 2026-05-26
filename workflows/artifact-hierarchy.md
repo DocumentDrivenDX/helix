@@ -4,12 +4,12 @@ ddx:
   depends_on:
     - helix.workflow
   review:
-    self_hash: 87e2b23a96a1aa90a51bf3b66af5cb60ce98b6b276d8800e5de389cd02f8791b
+    self_hash: dc0881cdb1498e25bf976cd29b4c6d74981a8345ff8178d7f8a34be44e1216c8
     deps:
-      ADR-001: 16f033617d3ab84a6fa5ebd48d0ec171f1999e6332e26dc956fa7b1a7a8b2685
-      helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
-      helix.workflow: 1225132b3050598055eacb5462639824d78ac204cca2cbeda3611766532e79c8
-    reviewed_at: "2026-05-15T04:11:24Z"
+      ADR-001: 7378dcbdafe49a66a57caba05271b1697f977dd4a9904e299ade220c092c62b3
+      helix.prd: 2b22383538b33c6ecee57f43d85128dfef7d56254766b757aa36439e35f2bfc9
+      helix.workflow: 1b6caaf3ebc6950bc4fff314e09bc0ee1b71deaa9223a4a70a13f399291ad98c
+    reviewed_at: "2026-05-26T03:19:52Z"
 ---
 # HELIX Artifact Hierarchy and Naming Conventions
 
@@ -363,25 +363,12 @@ The runtime supplies the queue inspection, execution loop, and dispatch
 commands that invoke these actions. See the runtime integration appendix for
 concrete command names.
 
-## DDx Integration Appendix
+## Runtime Integration
 
-Under the DDx reference runtime, the queue controls for this hierarchy are:
-
-```bash
-# Inspect the current queue
-ddx bead ready --json
-
-# Execute one ready work item
-ddx bead execute <id>
-
-# Decide the next action when the queue drains
-/helix check
-
-# Drain the ready queue
-ddx work
-```
-
-See [EXECUTION.md](EXECUTION.md) for the full DDx execution contract.
+The runtime supplies the concrete queue controls that inspect, execute, and
+drain ready work for this hierarchy. For DDx-specific queue commands, see
+[docs/install/ddx.md](../docs/install/ddx.md). See [EXECUTION.md](EXECUTION.md)
+for the runtime-neutral execution contract.
 
 ---
 

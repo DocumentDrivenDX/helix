@@ -2,9 +2,9 @@
 ddx:
   id: helix.workflow.tracker
   review:
-    self_hash: b1d3c681bb7f58276c6a81fe90cd7afd3143d11f49ed8889bf879ac84d05d312
+    self_hash: 395b9ef6466577b751192c2b17008cdb3a6db1bc10554786d024e023c6e004f5
     deps: {}
-    reviewed_at: "2026-05-15T04:11:24Z"
+    reviewed_at: "2026-05-26T03:19:52Z"
 ---
 
 # Document-Driven Development Experience (DDx)
@@ -245,8 +245,10 @@ other workflows may implement a subset.
 
 ## HELIX
 
-HELIX is the reference implementation of DDx. It layers workflow-specific
-semantics on top of DDx tools:
+HELIX is a runtime-neutral methodology — an artifact catalog plus one routing
+skill. DDx is one of three runtimes that adapt HELIX content (alongside Claude
+Code and Databricks Code Genie). This section describes how the DDx runtime
+realizes the HELIX workflow on top of DDx tools:
 
 - **Activity labels** (`activity:build`, `activity:design`, etc.) on beads
 - **Spec-id enforcement** linking every bead to its governing artifact
@@ -255,7 +257,10 @@ semantics on top of DDx tools:
 - **Agent orchestration** dispatching to Claude, Codex, virtual (recorded replay), or other agents
 - **Quality ratchets** preventing metric regression
 
-DDx provides the beads, ADRs, and SDs. HELIX provides the workflow that
-drives agents through them.
+DDx provides the beads, ADRs, and SDs and the execution loop, tracker, and
+dispatch that drive agents through them. HELIX provides the methodology and
+artifact catalog those tools execute.
 
-See [Workflow Contract](README.md) for the HELIX-specific operating model.
+See [Workflow Contract](README.md) for the runtime-neutral operating model and
+[CONTRACT-003](../docs/helix/02-design/contracts/CONTRACT-003-ddx-adapter-boundary.md)
+for the DDx adapter boundary.

@@ -39,5 +39,5 @@
 
 ## Incident Response
 - Rotate compromised credentials immediately; do not wait to assess
-- File a security bead with `security` label; treat as P0 if customer data at risk
+- File a security work item with `security` label; treat as P0 if customer data at risk
 - Document the incident in `docs/helix/06-iterate/` post-resolution

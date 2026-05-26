@@ -218,9 +218,9 @@ ENTRYPOINT ["/usr/local/bin/demo.sh"]
 
 ## Agent Credential Mounting
 
-Demo containers that invoke AI agents (via `ddx agent run`)
-need the user's Claude CLI credentials mounted into the container. The Claude
-CLI stores authentication in two locations:
+Demo containers that invoke AI agents (through the runtime's agent invocation
+mechanism) need the user's agent CLI credentials mounted into the container. For
+the Claude Code harness the Claude CLI stores authentication in two locations:
 
 | Host path | Container path | Mode | Purpose |
 |-----------|---------------|------|---------|
@@ -236,7 +236,7 @@ Additional optional mounts:
 | Host path | Container path | Mode | Purpose |
 |-----------|---------------|------|---------|
 | Project repo | `/helix` (or `/project`) | `ro` | Source repo for skill/workflow access |
-| DDx binary | `/usr/local/bin/ddx` | `ro` | DDx CLI (if not installed in image) |
+| Runtime CLI binary | image-dependent | `ro` | The runtime's agent CLI (if not installed in image) |
 | Recordings dir | `/recordings` | `rw` | Asciinema output extraction |
 
 ### Complete `docker run` command
@@ -246,84 +246,54 @@ docker run --rm \
   -v ~/.claude.json:/root/.claude.json:ro \
   -v ~/.claude:/root/.claude \
   -v $(pwd):/helix:ro \
-  -v $(pwd)/../ddx/ddx:/usr/local/bin/ddx:ro \
   -v $(pwd)/docs/demos/<name>/recordings:/recordings \
   <project>-demo
 ```
 
 This pattern is fully autonomous — an agent or CI job can build and run the
-container without interactive authentication. The user's existing Claude CLI
+container without interactive authentication. The user's existing agent CLI
 session is reused.
 
 ### Agent harness
 
-Demo scripts must use `ddx agent run` as the harness:
+Demo scripts invoke the agent through the runtime's agent invocation mechanism,
+which provides output capture, token tracking, and session logging. Pass the
+selected harness and the prompt text the way the runtime expects.
 
-```bash
-ddx agent run \
-  --harness claude \
-  --text "$prompt"
-```
-
-This routes through DDx's agent abstraction, which provides output capture,
-token tracking, and session logging.
-
-### Deterministic replay with virtual harness
+### Deterministic replay
 
 For reproducible demos that produce identical output every time (no tokens
-consumed, no network dependency), use DDx's virtual agent harness.
+consumed, no network dependency), use the runtime's recording/replay mechanism
+if it provides one:
 
-**Step 1 — Record responses** by adding `--record` to a live agent run:
+1. **Record** agent responses on a live run, capturing each prompt→response
+   pair.
+2. **Replay** by switching the agent invocation to the runtime's replay mode,
+   which returns the recorded response without invoking an agent binary or
+   consuming tokens.
 
-```bash
-ddx agent run \
-  --harness claude \
-  --record \
-  --text "$prompt"
-```
-
-This executes the prompt with the real agent and saves the prompt→response
-pair to `.ddx/agent-dictionary/<hash>.json` (hash is a truncated SHA-256 of
-the prompt text).
-
-**Step 2 — Replay** by switching the harness to `virtual`:
+**Demo script pattern** — select live or replay via an environment variable so
+the same script serves both first-run recording and deterministic playback:
 
 ```bash
-ddx agent run \
-  --harness virtual \
-  --text "$prompt"
+HARNESS="${DEMO_HARNESS:-<live-harness>}"
+
+# Invoke the agent through the runtime's agent mechanism with $HARNESS,
+# recording on the first live run and replaying on subsequent runs.
 ```
-
-The virtual harness looks up the prompt hash in the dictionary and returns
-the recorded response. No agent binary is invoked, no tokens are consumed,
-and timing is simulated from the original run.
-
-**Demo script pattern:**
-
-```bash
-HARNESS="${DEMO_HARNESS:-claude}"
-
-ddx agent run \
-  --harness "$HARNESS" \
-  --text "$prompt"
-```
-
-First run: `DEMO_HARNESS=claude ./demo.sh` (live, optionally with `--record`).
-Subsequent runs: `DEMO_HARNESS=virtual ./demo.sh` (deterministic replay).
 
 **Notes:**
-- The `.ddx/agent-dictionary/` directory should be committed to git so
-  recordings are shared and versioned.
-- Re-record when prompts change — the hash is prompt-exact.
-- The virtual harness is always available (`ddx agent list` shows it
-  regardless of installed agent binaries).
+- Commit recorded responses to git so demos are shared and versioned.
+- Re-record when prompts change — recordings are typically prompt-exact.
+- Check whether the runtime's replay mode is available regardless of installed
+  agent binaries.
 
 ### Permissions
 
-Demos need file and command permissions. Do **not** use `--permissions
-unrestricted` — it is unreliable across DDx versions. Instead, the demo
-script should create `.claude/settings.json` with pre-approved permissions
-in the demo project directory before any agent calls:
+Demos need file and command permissions. Do **not** rely on a blanket
+"unrestricted" permissions flag — it is unreliable across runtime versions.
+Instead, the demo script should create `.claude/settings.json` with pre-approved
+permissions in the demo project directory before any agent calls:
 
 ```json
 {
@@ -361,7 +331,6 @@ Copy the `.cast` file to `website/static/demos/` after recording.
      -v ~/.claude.json:/root/.claude.json:ro \
      -v ~/.claude:/root/.claude \
      -v $(pwd):/helix:ro \
-     -v $(pwd)/../ddx/ddx:/usr/local/bin/ddx:ro \
      -v $(pwd)/docs/demos/<name>/recordings:/recordings \
      <project>-demo
    ```

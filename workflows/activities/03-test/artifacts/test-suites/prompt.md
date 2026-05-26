@@ -31,4 +31,4 @@ Use these local resource summaries as grounding:
 - oversized code examples
 - repeated explanations of why tests come first
 
-Use template at `.ddx/plugins/helix/workflows/activities/03-test/artifacts/test-suites/template.md`.
+Use template at `workflows/activities/03-test/artifacts/test-suites/template.md`.

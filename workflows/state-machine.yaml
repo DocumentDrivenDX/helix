@@ -135,7 +135,7 @@ activities:
     description: Implement code to pass tests (TDD Green activity)
     artifacts:
       ordered:
-        - implementation-plan    # Plan the build; story-level work decomposed into tracker issues via ddx bead execute
+        - implementation-plan    # Plan the build; story-level work decomposed into tracker issues
     entry_gate:
       automated:
         - check: activity_complete
@@ -205,17 +205,11 @@ story_flow:
     technical_design: TD
     test_plan: TP
     # Runtime-neutral descriptions: "tracker issue" means any issue-tracking
-    # system. The DDx integration section below maps these to ddx bead commands.
+    # system. Concrete per-runtime commands live in each runtime's install
+    # guide (DDx: docs/install/ddx.md).
     implementation_issue: "tracker issue labeled activity:build"
     deployment_issue: "tracker issue labeled activity:deploy"
     iterate_evidence: "all deploy issue(s) complete with no matching deploy issue remaining not closed, plus optional linked tracker follow-on work; canonical iterate outputs remain shared iteration context"
-
-  # --- DDx integration ---
-  # The following keys are DDx-specific and document how the runtime-neutral
-  # prefix labels above map to DDx bead commands.
-  ddx_integration:
-    implementation_issue: "ddx bead issue labeled activity:build"
-    deployment_issue: "ddx bead issue labeled activity:deploy"
 
   transitions:
     - from: US-{id}

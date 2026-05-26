@@ -18,7 +18,7 @@ ddx:
 
 | Rank | Priority | Item | Evidence | Tracker or Follow-Up Target | Why Now | Confidence | Effort | Status |
 |------|----------|------|----------|-----------------------------|---------|------------|--------|--------|
-| 1 | P1 | [item] | [metric or finding] | [bead ID or explicit target] | [reason] | [high/med/low] | [S/M/L] | [open/blocked] |
+| 1 | P1 | [item] | [metric or finding] | [work item ID or explicit target] | [reason] | [high/med/low] | [S/M/L] | [open/blocked] |
 
 ## Selection for Next Iteration
 

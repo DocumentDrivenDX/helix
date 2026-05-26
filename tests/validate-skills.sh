@@ -341,8 +341,8 @@ assert_file_contains \
   "helix skill must prohibit reintroducing public helix-* skill sprawl"
 assert_file_contains \
   "$repo_root/skills/helix/SKILL.md" \
-  "Require execution-ready beads to name exact files, commands, checks, fields," \
-  "helix polish mode must require explicit measurable acceptance text for execution-ready beads"
+  "Require execution-ready work items to name exact files, commands, checks, fields," \
+  "helix polish mode must require explicit measurable acceptance text for execution-ready work items"
 assert_file_contains \
   "$repo_root/skills/helix/SKILL.md" \
   "not execution-ready and route it back through planning" \
@@ -385,7 +385,7 @@ assert_file_contains \
   "polish action must reject vague non-measurable acceptance wording"
 assert_file_contains \
   "$repo_root/workflows/actions/polish.md" \
-  "flag the bead as **not execution-ready**" \
+  "flag the work item as **not execution-ready**" \
   "polish action must define a not-execution-ready flagging path"
 assert_file_contains \
   "$repo_root/docs/helix/02-design/contracts/CONTRACT-001-ddx-helix-boundary.md" \

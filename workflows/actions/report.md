@@ -18,7 +18,7 @@ You may receive:
 
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory.
-1. Verify the runtime tracker is available.
+1. Verify the runtime-provided work-item source is available.
 2. Load active concerns following the concern-resolution reference for this
    runtime.
 
@@ -57,7 +57,7 @@ Follow-on categories:
 | `acceptance-failure` | An acceptance criterion could not be satisfied |
 | `concern-gap` | A concern-declared quality gate failed or coverage is missing |
 | `ratchet-regression` | A ratchet measurement dropped below the floor |
-| `phantom-claim` | A claims-vs-reality check classified an artifact assertion as `ASSERTED_UNBACKED` (zero-floor; see `.ddx/plugins/helix/workflows/ratchets.md` and FEAT-016) |
+| `phantom-claim` | A claims-vs-reality check classified an artifact assertion as `ASSERTED_UNBACKED` (zero-floor; see `workflows/ratchets.md` and FEAT-016) |
 | `follow-on` | Execution revealed additional work outside scope |
 
 Follow-on work items enter the planning cycle — they will be refined by the
@@ -156,69 +156,59 @@ The next check action will detect these items and route appropriately:
 
 Be precise, quantitative, and evidence-driven.
 
-## DDx Integration Appendix
+## Runtime Integration Appendix
 
-This appendix applies when DDx is the active HELIX runtime.
+This appendix covers how a runtime realizes the report action. The reference
+paths and work-item acquisition below are runtime-neutral; for the concrete
+commands of a specific runtime, see its install guide (DDx:
+[docs/install/ddx.md](../../docs/install/ddx.md)).
 
-### STEP 0 — DDx bootstrap
+### STEP 0 — Reference resolution
 
-```bash
-ddx bead status  # stop immediately if this fails
-```
+Verify the runtime-provided work-item source is reachable; stop immediately if
+it is not.
 
-Load active concerns following `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
+Load active concerns following `workflows/references/concern-resolution.md`.
 
-### Per-bead mode — DDx specifics
+### Per-item mode — runtime specifics
 
-Load the target bead:
-```bash
-ddx bead show <id> --json
-```
+Load the target work item from the runtime-provided work-item source.
 
 If no measurement results exist, recommend running `/helix measure <id>` first.
 
-Create follow-on beads:
-```bash
-ddx bead create "<category>: <description>" \
-  --type task \
-  --labels helix,activity:build \
-  --set spec-id=<governing-artifact> \
-  --description "<context-digest>...</context-digest>
-Follow-on from bead <parent-id>.
-<description of the work needed>" \
-  --acceptance "<testable criteria>"
-```
+Create follow-on work items with labels `helix,activity:build`, `spec-id` set to
+the governing artifact, a `<context-digest>` description naming the parent item
+and the work needed, and testable acceptance criteria. The runtime supplies the
+work-item store; for the concrete commands see its install guide
+([docs/install/ddx.md](../../docs/install/ddx.md) for DDx).
 
-Follow-on beads enter the planning helix and will be refined by `/helix
+Follow-on items enter the planning helix and will be refined by `/helix
 polish` before execution.
 
-Close the governing bead:
-```bash
-ddx bead close <id>
-```
+Close the governing work item once the report is complete.
 
-Per-bead DDx trailer:
+Per-item trailer:
 ```
 REPORT_STATUS: CLOSED|OPEN|FOLLOW_ON
-BEAD_ID: <id>
+ITEM_ID: <id>
 MEASURE_STATUS: PASS|FAIL|PARTIAL
 FOLLOW_ON_CREATED: N
 ```
 
-### Batch mode — DDx trailer
+### Batch mode — trailer
 
 ```
 REPORT_SCOPE: <scope>
-BEADS_TOTAL: N
-BEADS_PASSED: N
-BEADS_FAILED: N
-BEADS_PARTIAL: N
+WORK_ITEMS_TOTAL: N
+WORK_ITEMS_PASSED: N
+WORK_ITEMS_FAILED: N
+WORK_ITEMS_PARTIAL: N
 FOLLOW_ON_TOTAL: N
 CONCERN_COVERAGE: N/M
 RATCHET_STATUS: all-passing | <name> approaching floor
 REPORT_FILE: docs/helix/06-iterate/reports/RPT-YYYY-MM-DD[-scope].md
 ```
 
-The next `/helix check` will detect follow-on beads and route appropriately:
+The next `/helix check` will detect follow-on work items and route appropriately:
 `POLISH` for refinement, `BUILD` if already ready, `DESIGN` if design gaps
 are revealed.

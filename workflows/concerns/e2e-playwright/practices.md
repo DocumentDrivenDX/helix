@@ -38,7 +38,7 @@ non-optional**.
 
 This is the same requirement stated by the `ux-radix` concern's current-location
 feedback rule, and it feeds the `verification` gate
-(`.ddx/plugins/helix/workflows/concerns/verification/practices.md`): the
+(`workflows/concerns/verification/practices.md`): the
 operator's "clicking Invoices gives no feedback" bug becomes a failing e2e
 assertion until the cue exists.
 

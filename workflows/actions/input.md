@@ -53,7 +53,7 @@ When artifacts disagree, use this precedence:
 ## STEP 0 — Bootstrap
 
 1. Read AGENTS.md so project instructions are fresh in working memory.
-2. Verify the runtime tracker is available.
+2. Verify the runtime-provided work-item source is available.
 3. Read `docs/helix/01-frame/` if it exists to load project vision and
    declared concerns.
 
@@ -132,59 +132,57 @@ NEXT_ACTION: run implementation loop | check queue | <clarification question>
 Be precise. If the user's intent was ambiguous and autonomy required you to
 pause, state exactly what clarification is needed.
 
-## DDx Integration Appendix
+## Runtime Integration Appendix
 
-This appendix applies when DDx is the active HELIX runtime.
+This appendix covers how a runtime realizes the input action. The reference
+paths and work-item acquisition below are runtime-neutral; for the concrete
+commands of a specific runtime, see its install guide (DDx:
+[docs/install/ddx.md](../../docs/install/ddx.md)).
 
 ### Bootstrap
 
-Verify the tracker with `ddx bead status`. If it fails, stop immediately.
+Verify the runtime-provided work-item source is reachable. If it fails, stop
+immediately.
 
 ### STEP 1 reference
 
-Explicit constraints or references include bead IDs.
+Explicit constraints or references include work-item IDs.
 
 ### STEP 2 reference
 
-Search for existing governing beads via the tracker.
+Search for existing governing work items via the runtime-provided work-item
+source.
 
-### STEP 3 — DDx work item operations
+### STEP 3 — Work-item operations
 
-```bash
-# Create new work item
-ddx bead create "<title>" \
-  --labels helix,activity:build,kind:implementation \
-  --set spec-id=<governing-artifact> \
-  --acceptance "<testable criteria>"
+Create a new work item with labels `helix,activity:build,kind:implementation`,
+`spec-id` set to the governing artifact, and testable acceptance criteria. To
+refine an existing item, update it in place. To encode a blocker, declare a
+dependency from the blocked item to the blocking item. The runtime supplies the
+work-item store; for the concrete commands see its install guide
+([docs/install/ddx.md](../../docs/install/ddx.md) for DDx).
 
-# Refine existing work item
-ddx bead update <id> ...
-
-# Encode a blocker
-ddx bead dep add <blocked-id> <blocking-id>
-```
-
-After creating a new bead, assemble its `<context-digest>` per
-`.ddx/plugins/helix/workflows/references/context-digest.md`. If the repo ships
-`scripts/refresh_context_digests.py`, use it after bead creation so digest
+After creating a new work item, assemble its `<context-digest>` per
+`workflows/references/context-digest.md`. If the repo ships
+`scripts/refresh_context_digests.py`, use it after item creation so digest
 assembly and area labels stay deterministic.
 
-Omission path: if the this action cannot assemble a digest (legacy bead,
+Omission path: if the this action cannot assemble a digest (legacy work item,
 incomplete concern mapping), use the exact prefix
 `Explicit omission rationale: <reason>`, add label `digest:omission-authorized`,
 and set `digest-omission-path=helix-input:legacy-migration`.
 
-**Autonomy-specific bead creation rules** mirror the normative rules above, with
-speculative beads labeled `kind:speculative` and escalation beads labeled
+**Autonomy-specific work-item creation rules** mirror the normative rules above,
+with speculative items labeled `kind:speculative` and escalation items labeled
 `kind:escalation`.
 
-### STEP 5 — DDx output trailer
+### STEP 5 — Output trailer
 
 ```
 INPUT_STATUS: COMPLETE | NEEDS_CLARIFICATION | BLOCKED
-BEADS_CREATED: N
-BEADS_UPDATED: N
+WORK_ITEMS_CREATED: N
+WORK_ITEMS_UPDATED: N
 AUTONOMY_LEVEL: low|medium|high
 CONFLICTS: <description or "none">
-NEXT_ACTION: ddx work | /helix check | <clarification question>
+NEXT_ACTION: build | /helix check | <clarification question>
 ```

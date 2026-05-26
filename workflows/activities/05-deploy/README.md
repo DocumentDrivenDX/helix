@@ -110,7 +110,7 @@ replace release-scoped notes that are audience-filtered and action-oriented.
 ### Deploy Work Items
 **Output Location**: the runtime's work-item tracker
 
-Deploy work is tracked as `activity:deploy` work items in the runtime tracker
+Deploy work is tracked as `activity:deploy` work items in the runtime-provided work-item source
 rather than per-story deployment markdown plans. These items cover both
 story-scoped rollout execution and release-scoped coordination slices such as
 owners, dependencies, approval handoffs, and communication checkpoints. Deploy
@@ -118,7 +118,7 @@ work items reference the project deployment artifacts and the build items they
 are rolling out using native tracker IDs, dependencies, and labels.
 
 The deleted `story-deployment-plan` artifact stays retired. Its only durable
-responsibility is to define scoped rollout work, and the runtime tracker now
+responsibility is to define scoped rollout work, and the runtime-provided work-item source now
 does that more directly through `activity:deploy` work items linked to the
 governing deploy artifacts.
 
@@ -329,7 +329,7 @@ environments:
 
 ### CI/CD Pipeline
 ```yaml
-# .github/.ddx/plugins/helix/workflows/deploy.yml
+# .github/workflows/deploy.yml
 deploy:
   staging:
     - build
@@ -386,7 +386,7 @@ approval remain human-owned.
 ## File Organization
 
 ### Structure Overview
-- **Deployment Definitions**: `.ddx/plugins/helix/workflows/activities/05-deploy/`
+- **Deployment Definitions**: `workflows/activities/05-deploy/`
   - Templates and prompts for deployment artifacts
   - Action definitions for deployment tasks
 
@@ -402,13 +402,15 @@ approval remain human-owned.
 This separation keeps deploy templates reusable while keeping the canonical
 release artifacts together in the HELIX docs tree.
 
-## DDx Integration Appendix
+## Runtime Integration Appendix
 
-Under the DDx reference runtime, deploy work items live in `.ddx/beads.jsonl`
-and are queried through `ddx bead`. Deploy execution runs via `ddx bead
-execute <id>` (one work item per pass) or `ddx work` (bounded queue drain),
-with `/helix check` deciding next steps when the queue drains. See
-[../../EXECUTION.md](../../EXECUTION.md) for the full DDx execution contract.
+Deploy execution is driven by the runtime: it executes one ready deploy work
+item per pass, or drains the ready queue, with `/helix check` deciding next
+steps when the queue drains. HELIX specifies the action; the runtime supplies
+the work-item store and execution loop. See
+[../../EXECUTION.md](../../EXECUTION.md) for the full runtime-neutral execution
+contract, and the per-runtime install guide for concrete commands
+([docs/install/ddx.md](../../../docs/install/ddx.md) for DDx).
 
 ---
 

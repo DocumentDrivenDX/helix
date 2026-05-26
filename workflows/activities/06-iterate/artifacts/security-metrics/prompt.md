@@ -44,4 +44,4 @@ recommendations ("improve security posture") are not acceptable.
 - [ ] Report covers the same iteration period as `metrics-dashboard.md`
 - [ ] Raw scanner or incident output is summarized, not pasted wholesale
 
-Use the template at `.ddx/plugins/helix/workflows/activities/06-iterate/artifacts/security-metrics/template.md`.
+Use the template at `workflows/activities/06-iterate/artifacts/security-metrics/template.md`.

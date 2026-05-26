@@ -1,7 +1,7 @@
 # HELIX Action: Experiment
 
 You are performing one bounded experiment iteration within a metric-optimization
-session tracked via the runtime tracker.
+session tracked via the runtime-provided work-item source.
 
 Your goal is to hypothesize a change, implement it within scoped files, verify
 correctness, benchmark the result, make a keep/discard decision, log everything,
@@ -85,7 +85,7 @@ Rules:
 
 ## Tracker Rules
 
-Use the runtime tracker only.
+Use the runtime-provided work-item source only.
 
 This action works only on execution work items labeled `activity:iterate`. Exclude
 review items and build/deploy items by default.
@@ -105,7 +105,7 @@ items during execution, and closes the item at session close.
    reference for this runtime. Experiments must use the declared concerns —
    do not introduce alternative tools or frameworks as part of an optimization
    experiment.
-1. Verify the runtime tracker is available. Stop immediately if unavailable.
+1. Verify the runtime-provided work-item source is available. Stop immediately if unavailable.
 2. Load ratchet floor fixtures if the project has adopted quality ratchets.
    Note the current floors so Step 3 can compare against them for auto-bump
    decisions.
@@ -146,7 +146,7 @@ If no eligible item exists, report the reason and exit cleanly.
 
 ### 1.2 Claim Work Item
 
-Claim the selected item via the runtime tracker.
+Claim the selected item via the runtime-provided work-item source.
 
 ### 1.3 Authority Check
 
@@ -461,14 +461,14 @@ git branch -d experiment/<goal>-<date>
 
 ### 3.6 Measure
 
-Record measurement results on the work item via the runtime tracker before
+Record measurement results on the work item via the runtime-provided work-item source before
 closing. See the measure action for the full pattern. Record timestamp, status,
 metric-improvement criterion pass/fail with evidence (baseline, final, delta),
 ratchet values, and experiment iterations/confidence.
 
 ### 3.7 Close Work Item
 
-Close the work item via the runtime tracker with a comprehensive close comment
+Close the work item via the runtime-provided work-item source with a comprehensive close comment
 recording execution evidence:
 
 - Goal and optimization target
@@ -556,44 +556,49 @@ Report these sections in order:
 6. Follow-On Issues Created (if any)
 7. Suggested Next Step (continue iterating, close session, change strategy)
 
-## DDx Integration Appendix
+## Runtime Integration Appendix
 
-This appendix applies when DDx is the active HELIX runtime.
+This appendix covers how a runtime realizes the experiment action. The reference
+paths and work-item acquisition below are runtime-neutral; for the concrete
+commands of a specific runtime, see its install guide (DDx:
+[docs/install/ddx.md](../../docs/install/ddx.md)).
 
-### STEP 0 — DDx references
+### STEP 0 — Reference resolution
 
-- Principles: `.ddx/plugins/helix/workflows/references/principles-resolution.md`
-- Concerns: `.ddx/plugins/helix/workflows/references/concern-resolution.md`
-- Ratchets: `.ddx/plugins/helix/workflows/ratchets.md`
-- Metric-definition template: `.ddx/plugins/helix/workflows/activities/06-iterate/artifacts/metric-definition/template.yaml`
-- Autoresearch-session template: `.ddx/plugins/helix/workflows/activities/06-iterate/artifacts/autoresearch-session/template.md`
-- Autoresearch-worklog template: `.ddx/plugins/helix/workflows/activities/06-iterate/artifacts/autoresearch-worklog/template.md`
+- Principles: `workflows/references/principles-resolution.md`
+- Concerns: `workflows/references/concern-resolution.md`
+- Ratchets: `workflows/ratchets.md`
+- Metric-definition template: `workflows/activities/06-iterate/artifacts/metric-definition/template.yaml`
+- Autoresearch-session template: `workflows/activities/06-iterate/artifacts/autoresearch-session/template.md`
+- Autoresearch-worklog template: `workflows/activities/06-iterate/artifacts/autoresearch-worklog/template.md`
 
-### STEP 1.2 — DDx claim
+### STEP 1.2 — Claim
 
-```bash
-ddx bead update <id> --claim
+Claim the governing work item to prevent concurrent work. The runtime supplies
+the work-item store; for the concrete commands see its install guide
+([docs/install/ddx.md](../../docs/install/ddx.md) for DDx).
+
+### STEP 3.6 — Measure
+
+Record the results on the governing work item (in its notes, if the runtime
+provides a notes field) as a `<measure-results>` block of this shape:
+
 ```
-
-### STEP 3.6 — DDx measure
-
-```bash
-ddx bead update <id> --notes "<measure-results>
-  <timestamp>$(date -u +%Y-%m-%dT%H:%M:%SZ)</timestamp>
+<measure-results>
+  <timestamp>YYYY-MM-DDTHH:MM:SSZ</timestamp>
   <status>PASS|FAIL</status>
   <metric-improvement baseline='<N>' final='<N>' delta='<N>%'/>
   <iterations total='N' kept='N'/>
   <confidence><score></confidence>
-</measure-results>"
+</measure-results>
 ```
 
-### STEP 3.7 — DDx close
+### STEP 3.7 — Close
 
-```bash
-ddx bead close <id> --comment "Experiment closed. <summary>"
-```
+Close the governing work item with a summary comment ("Experiment closed.
+<summary>").
 
-### DDx action input examples
+### Action input examples
 
 ```
 helix experiment
@@ -602,7 +607,7 @@ helix experiment optimize test-suite-runtime
 helix experiment --close <id>
 ```
 
-### DDx output trailer
+### Output trailer
 
 ```
 EXPERIMENT_STATUS: CONVERGED|ITERATION_COMPLETE|NO_IMPROVEMENT|CLOSED
@@ -611,7 +616,7 @@ EXPERIMENT_KEPT: N
 EXPERIMENT_BEST: <metric>=<value> (<delta>% vs baseline)
 EXPERIMENT_CONFIDENCE: <score>
 MEASURE_STATUS: PASS|FAIL|PARTIAL
-BEAD_ID: <governing-bead-id>
+ITEM_ID: <governing-item-id>
 ```
 
 Be precise, quantitative, and operational.

@@ -30,9 +30,9 @@ Use these local resource summaries as grounding:
 
 1. Inspect the Product Vision, PRD, Principles, architecture notes, existing
    repository structure, dependencies, deployment files, and current concern
-   library at `.ddx/plugins/helix/workflows/concerns/`.
+   library at `workflows/concerns/`.
 
-2. List available concerns from `.ddx/plugins/helix/workflows/concerns/`
+2. List available concerns from `workflows/concerns/`
    grouped by category. Include project-local candidate concerns only when the
    repo clearly has a recurring cross-cutting domain that the library does not
    cover.
@@ -53,7 +53,7 @@ Use these local resource summaries as grounding:
    - If overriding library practices, cite the governing ADR when available.
    - If no ADR exists for a significant override, mark it as needing an ADR.
 
-5. Declare the project's area labels — which `area:*` labels will beads use?
+5. Declare the project's area labels — which `area:*` labels will work items use?
    The default set is: `ui`, `api`, `data`, `infra`, `cli`.
 
 6. Check for practice conflicts between selected concerns and resolve them.
@@ -68,7 +68,7 @@ Use these local resource summaries as grounding:
 - Project overrides take full precedence over library practices.
 - Every override should reference a governing ADR when possible.
 - The area taxonomy declared here controls which concerns are injected
-  into which beads via `<context-digest>`.
+  into which work items via `<context-digest>`.
 - If a concern describes product behavior, move it to the PRD or a feature
   spec.
 - If a concern records a one-time technical choice, move it to an ADR.

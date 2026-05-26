@@ -4,10 +4,10 @@ ddx:
   depends_on:
     - helix.workflow
   review:
-    self_hash: a2b087d211b0c27ca2a3cccc2ca481449c9ff6a2d6d08c50572844f7762ea34c
+    self_hash: e1beaa3046c74888867af27366085730b0b272ad6a2a2a12f8d8f435310103ad
     deps:
-      helix.workflow: 1225132b3050598055eacb5462639824d78ac204cca2cbeda3611766532e79c8
-    reviewed_at: "2026-05-15T04:11:24Z"
+      helix.workflow: 1b6caaf3ebc6950bc4fff314e09bc0ee1b71deaa9223a4a70a13f399291ad98c
+    reviewed_at: "2026-05-26T03:19:52Z"
 ---
 # HELIX Workflow Conventions
 
@@ -44,7 +44,7 @@ plus one or more skills.
   skill folders without shared resources is an invalid HELIX install.
 
 Runtime-specific package layouts (for example the DDx plugin's
-`.ddx/plugins/helix/workflows/` and `.agents/skills/` layout) are documented in
+`workflows/` and `.agents/skills/` layout) are documented in
 the runtime integration appendix; the requirements above apply to every layout.
 
 ## Documentation Structure
@@ -486,61 +486,14 @@ These conventions will evolve based on usage. To propose changes:
 3. Show examples of the new approach
 4. Update this document after consensus
 
-## DDx Integration Appendix
+## Runtime Integration
 
-The conventions above are runtime-neutral. The notes below apply to
-DDx-managed HELIX installations.
-
-### DDx workspace layout
-
-DDx installs HELIX content at `.ddx/plugins/helix/workflows/` and stores
-work items in `.ddx/beads.jsonl`. A DDx-managed HELIX project layout includes
-this workspace alongside `docs/helix/`:
-
-```
-project-root/
-├── .ddx/                    # DDx workspace (beads, plugins, hooks)
-│   ├── beads.jsonl          # Work-item tracker storage
-│   └── plugins/helix/       # Installed HELIX content
-├── .agents/skills/          # Published HELIX skills (project-level)
-├── skills/                  # Skill sources for the HELIX package
-└── docs/helix/              # Canonical HELIX activity artifacts
-```
-
-### DDx shared workflow root
-
-Under DDx, the shared workflow resource root is
-`.ddx/plugins/helix/workflows/`. Skills reference shared assets through that
-package-relative root. Installers and plugins must preserve `.agents/skills/`,
-`skills/`, and `.ddx/plugins/helix/workflows/` together.
-
-### DDx work-item tracker
-
-DDx uses a JSONL-backed tracker. See `ddx bead --help` for the full command
-surface. Common tracker introspection:
-
-- `ddx bead ready`, `ddx bead blocked`, and `ddx bead dep tree` replace custom
-  HELIX status fields for queue inspection.
-- The `helix` label identifies HELIX-managed issues in a DDx tracker.
-
-### DDx template paths
-
-DDx-installed templates live at:
-
-- artifact templates: `.ddx/plugins/helix/workflows/activities/<activity>/artifacts/<type>/template.md`
-- refinement template: `.ddx/plugins/helix/workflows/templates/refinement-log.md`
-
-Example artifact bootstrap:
-
-```bash
-sed -n '1,120p' .ddx/plugins/helix/workflows/activities/01-frame/artifacts/prd/prompt.md
-cp -f .ddx/plugins/helix/workflows/activities/01-frame/artifacts/prd/template.md \
-      docs/helix/01-frame/prd.md
-```
-
-For DDx execution behavior, queue control, and operator workflow, see
-[EXECUTION.md](EXECUTION.md). For methodology background and the DDx authority
-model, see [DDX.md](DDX.md).
+The conventions above are runtime-neutral. Each runtime documents its own
+workspace layout, shared-resource root, work-item tracker commands, and template
+paths in its install guide. For DDx-specific workspace, tracker, and template
+details, see [docs/install/ddx.md](../docs/install/ddx.md). For methodology
+background and the DDx authority model, see [DDX.md](DDX.md); for the
+runtime-neutral execution contract, see [EXECUTION.md](EXECUTION.md).
 
 ---
 

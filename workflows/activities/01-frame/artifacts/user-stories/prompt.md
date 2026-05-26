@@ -13,7 +13,7 @@ User stories are **governing design artifacts**, not throwaway tickets. Each
 story defines one persona's complete vertical journey through feature behavior
 that is independently implementable and testable. Tracker issues reference
 stories; stories don't reference tracker issues. Stories are more stable than
-the implementation beads that fulfill them.
+the implementation work items that fulfill them.
 
 The feature spec owns behavior and boundaries. A user story owns a journey
 through that behavior: who starts it, what they do, what the system shows, and
@@ -53,7 +53,7 @@ Use these local resource summaries as grounding:
 | One persona's journey through a feature slice | User Story |
 | Component design, data model, API shape, or build approach | Solution/Technical Design |
 | Detailed fixtures, test harnesses, or automation strategy | Story Test Plan |
-| Work assignment, status, or execution notes | DDx bead or runtime issue |
+| Work assignment, status, or execution notes | runtime work item or issue |
 
 ## Section-by-Section Guidance
 

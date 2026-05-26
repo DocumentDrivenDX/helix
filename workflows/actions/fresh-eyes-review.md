@@ -190,7 +190,7 @@ Rules for filing:
 
 ## Measure
 
-Record review results on the governing work item via the runtime tracker.
+Record review results on the governing work item via the runtime-provided work-item source.
 See the measure action for the full pattern.
 
 All four review passes constitute the measurement. Record a summary covering:
@@ -255,80 +255,75 @@ FOLLOW_ON_CREATED: N
 - `AGENTS_MD_UPDATED`: whether AGENTS.md was modified during this review
 - `LEARNINGS_FILED`: number of learnings items created (0 if none)
 
-## DDx Integration Appendix
+## Runtime Integration Appendix
 
-This appendix applies when DDx is the active HELIX runtime.
+This appendix covers how a runtime realizes the review action. The reference
+paths and work-item acquisition below are runtime-neutral; for the concrete
+commands of a specific runtime, see its install guide (DDx:
+[docs/install/ddx.md](../../docs/install/ddx.md)).
 
-### STEP 0 — DDx references
+### STEP 0 — Reference resolution
 
-- Principles: `.ddx/plugins/helix/workflows/references/principles-resolution.md`
-- Concerns: `.ddx/plugins/helix/workflows/references/concern-resolution.md`
-- Context-digest: `.ddx/plugins/helix/workflows/references/context-digest.md`
-- Security concern practices: `.ddx/plugins/helix/workflows/concerns/security-owasp/practices.md`
-- Observability concern practices: `.ddx/plugins/helix/workflows/concerns/o11y-otel/practices.md`
+- Principles: `workflows/references/principles-resolution.md`
+- Concerns: `workflows/references/concern-resolution.md`
+- Context-digest: `workflows/references/context-digest.md`
+- Security concern practices: `workflows/concerns/security-owasp/practices.md`
+- Observability concern practices: `workflows/concerns/o11y-otel/practices.md`
 
 In the automated execution loop, prefer `commit:<sha>` from the executed
-bead's `closing_commit_sha` when tracker-closure bookkeeping produced a newer
+item's `closing_commit_sha` when tracker-closure bookkeeping produced a newer
 tracker-only commit after the implementation commit.
 
-### STEP 0.5 — DDx bead acquisition
+### STEP 0.5 — Work-item acquisition
 
-```bash
-ddx bead list --status open --label kind:planning,action:review --json
+Acquire the governing work item before modifying files, per
+`workflows/references/bead-first.md`: find an open planning item labelled
+`kind:planning,action:review` (claim it if found) or create one with labels
+`helix,kind:review,kind:planning,action:review`, `spec-id` set to the reviewed
+commit or issue, a `<context-digest>` description naming the fresh-eyes review
+target (last-commit, issue-id, or file-list), and acceptance "All review passes
+complete; findings filed as work items with scope-appropriate area labels;
+AGENTS.md updated if needed". The runtime supplies the work-item store; for the
+concrete commands see its install guide
+([docs/install/ddx.md](../../docs/install/ddx.md) for DDx).
 
-# if not found:
-ddx bead create "review: <scope description>" \
-  --type task \
-  --labels helix,kind:review,kind:planning,action:review \
-  --set spec-id=<reviewed-commit-or-issue> \
-  --description "<context-digest>...</context-digest>
-Fresh-eyes review of <target>.
-Review target: <last-commit|issue-id|file-list>" \
-  --acceptance "All review passes complete; findings filed as beads with scope-appropriate area labels; AGENTS.md updated if needed"
-```
-
-Then assemble or refresh the bead's context digest per
-`.ddx/plugins/helix/workflows/references/context-digest.md`. If the repo ships
+Then assemble or refresh the item's context digest per
+`workflows/references/context-digest.md`. If the repo ships
 `scripts/refresh_context_digests.py`, use it after creation so the digest and
 derived `area:*` labels stay deterministic.
 
-### Filing findings — DDx specifics
+### Filing findings — runtime specifics
 
-```bash
-new_id="$(ddx bead create "<category>: <short description>" \
-  --type task \
-  --labels helix,activity:build,review-finding,<derived-area-labels> \
-  --set spec-id=<governing-artifact-or-file-path> \
-  --description "Review finding from fresh-eyes review.
-File: <file>:<line>
-Category: <category>
-Severity: <severity>
-Description: <full description>
-Suggested fix: <suggested fix>" \
-  --acceptance "<deterministic verification criteria for the fix>")"
-
-python3 scripts/refresh_context_digests.py --apply --bead "$new_id"
-```
+File each finding as a work item with labels
+`helix,activity:build,review-finding,<derived-area-labels>`, `spec-id` set to
+the governing artifact or file path, a description capturing the file and line,
+category, severity, full description, and suggested fix, and acceptance set to
+deterministic verification criteria for the fix. After creating the item,
+assemble or refresh its context digest (e.g. with
+`scripts/refresh_context_digests.py` if the repo ships it).
 
 Derive `area:*` labels: first preserve labels from the reviewed execution
-bead; otherwise infer from the reviewed scope using
+item; otherwise infer from the reviewed scope using
 `docs/helix/01-frame/concerns.md` (or the default taxonomy in
-`.ddx/plugins/helix/workflows/references/concern-resolution.md` when the
+`workflows/references/concern-resolution.md` when the
 project file does not exist).
 
-### Measure — DDx specifics
+### Measure — runtime specifics
 
-```bash
-ddx bead update <id> --notes "<measure-results>
-  <timestamp>$(date -u +%Y-%m-%dT%H:%M:%SZ)</timestamp>
+Record the results on the governing work item (in its notes, if the runtime
+provides a notes field) as a `<measure-results>` block of this shape:
+
+```
+<measure-results>
+  <timestamp>YYYY-MM-DDTHH:MM:SSZ</timestamp>
   <status>CLEAN|ISSUES_FOUND</status>
   <findings total='N' filed='N' critical='N' high='N' medium='N' low='N'/>
   <agents-md-updated>YES|NO</agents-md-updated>
   <learnings-filed>N</learnings-filed>
-</measure-results>"
+</measure-results>
 ```
 
-### DDx action input examples
+### Action input examples
 
 ```
 helix review
@@ -338,7 +333,7 @@ helix review <id>
 helix review src/auth/
 ```
 
-### DDx output trailer
+### Output trailer
 
 ```
 REVIEW_STATUS: CLEAN|ISSUES_FOUND
@@ -347,8 +342,8 @@ FINDINGS_FILED: N
 AGENTS_MD_UPDATED: YES|NO
 LEARNINGS_FILED: N
 MEASURE_STATUS: PASS|FAIL|PARTIAL
-BEAD_ID: <governing-bead-id>
+ITEM_ID: <governing-item-id>
 FOLLOW_ON_CREATED: N
 ```
 
-The filed finding beads re-enter the planning helix for polish and build.
+The filed finding work items re-enter the planning helix for polish and build.

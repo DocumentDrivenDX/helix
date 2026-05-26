@@ -54,9 +54,9 @@ exit_requirements:
 
     # CI/CD configuration
     - check: file_exists
-      path: .github/.ddx/plugins/helix/workflows/test.yml
+      path: .github/workflows/test.yml
       fallback_paths:
-        - .github/.ddx/plugins/helix/workflows/ci.yml
+        - .github/workflows/ci.yml
         - .gitlab-ci.yml
         - Jenkinsfile
         - .circleci/config.yml

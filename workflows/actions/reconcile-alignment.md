@@ -6,7 +6,7 @@ project.
 Your goal is to re-align the implementation with the authoritative planning
 stack, identify explicit divergence, determine whether additional execution
 work remains for the reviewed scope, and produce deterministic next steps using
-the runtime tracker.
+the runtime-provided work-item source.
 
 This action is read-only with respect to product code unless explicitly told to
 make fixes. It may create or update:
@@ -43,7 +43,7 @@ Rules:
 
 ## Tracker Rules
 
-Use the runtime tracker only.
+Use the runtime-provided work-item source only.
 
 ### Review Structure
 
@@ -89,7 +89,7 @@ HELIX labels appropriate to the work activity.
 0c. **Verify context digest freshness**: For work items in scope, check whether
    context digest blocks reflect current upstream state. Stale digests are an
    alignment finding.
-1. Verify the runtime tracker is available. Stop immediately if unavailable.
+1. Verify the runtime-provided work-item source is available. Stop immediately if unavailable.
 2. Determine the review scope.
 3. Break the scope into functional areas.
 4. Reconcile any existing review epic and review issues for the same scope.
@@ -204,7 +204,7 @@ practices:
 A drifted slot registry corrupts high-autonomy concern resolution (FEAT-006
 slots; the filler a slot resolves to comes straight from this registry), so the
 instrument must be checked before its readings are trusted. Reconcile
-`.ddx/plugins/helix/workflows/concerns/slots.yml` against the concern library
+`workflows/concerns/slots.yml` against the concern library
 and the operator override; each failure below is a **blocking
 instrument-integrity finding**:
 
@@ -493,7 +493,7 @@ criteria. See the measure action for the full pattern.
    work item.
 4. **Concern drift**: All concern drift findings are recorded and have
    corresponding execution items.
-5. **Record results** on the governing work item via the runtime tracker.
+5. **Record results** on the governing work item via the runtime-provided work-item source.
 
 ## STEP 10 - Report
 
@@ -548,69 +548,63 @@ FOLLOW_ON_CREATED: N
 
 Be precise, deterministic, and evidence-driven.
 
-## DDx Integration Appendix
+## Runtime Integration Appendix
 
-This appendix applies when DDx is the active HELIX runtime.
+This appendix covers how a runtime realizes the align action. The reference
+paths and work-item acquisition below are runtime-neutral; for the concrete
+commands of a specific runtime, see its install guide (DDx:
+[docs/install/ddx.md](../../docs/install/ddx.md)).
 
-### STEP 0 — DDx bootstrap
+### STEP 0 — Reference resolution
 
-```bash
-ddx bead status  # stop immediately if this fails
-```
+Verify the runtime-provided work-item source is reachable; stop immediately if
+it is not.
 
-- Principles: `.ddx/plugins/helix/workflows/references/principles-resolution.md`
-- Concerns: `.ddx/plugins/helix/workflows/references/concern-resolution.md`
-- Context-digest: `.ddx/plugins/helix/workflows/references/context-digest.md`
-- Ratchets: `.ddx/plugins/helix/workflows/ratchets.md`
-- Alignment-review template: `.ddx/plugins/helix/workflows/templates/alignment-review.md`
+- Principles: `workflows/references/principles-resolution.md`
+- Concerns: `workflows/references/concern-resolution.md`
+- Context-digest: `workflows/references/context-digest.md`
+- Ratchets: `workflows/ratchets.md`
+- Alignment-review template: `workflows/templates/alignment-review.md`
 
-For beads in scope, check whether `<context-digest>` blocks reflect current
+For work items in scope, check whether `<context-digest>` blocks reflect current
 upstream state. Stale digests are an alignment finding.
 
-### STEP 0.5 — DDx bead acquisition
+### STEP 0.5 — Work-item acquisition
 
-```bash
-ddx bead list --status open --label kind:planning,action:align --json
+Acquire the governing work item before modifying files, per
+`workflows/references/bead-first.md`: find an open planning item labelled
+`kind:planning,action:align` (claim it if found) or create one with labels
+`helix,kind:review,kind:planning,action:align`, `spec-id` set to the governing
+artifact if known, a `<context-digest>` description naming the scope of the
+top-down reconciliation review and its functional areas, and acceptance
+"Alignment review complete; all gaps classified; execution items created for
+real gaps; traceability matrix produced". The runtime supplies the work-item
+store; for the concrete commands see its install guide
+([docs/install/ddx.md](../../docs/install/ddx.md) for DDx).
 
-ddx bead update <id> --claim   # if found
-
-# if not found:
-ddx bead create "align: <scope description>" \
-  --type task \
-  --labels helix,kind:review,kind:planning,action:align \
-  --set spec-id=<governing-artifact-if-known> \
-  --description "<context-digest>...</context-digest>
-Top-down reconciliation review for <scope>.
-Scope areas: <list functional areas>" \
-  --acceptance "Alignment review complete; all gaps classified; execution issues created for real gaps; traceability matrix produced"
-```
-
-Whenever this action creates a new bead or materially updates an existing bead
-description, assemble or refresh its context digest per
-`.ddx/plugins/helix/workflows/references/context-digest.md`. If the repo ships
+Whenever this action creates a new work item or materially updates an existing
+item description, assemble or refresh its context digest per
+`workflows/references/context-digest.md`. If the repo ships
 `scripts/refresh_context_digests.py`, use it so digests and `area:*` labels
 stay deterministic.
 
-### STEP 3 — DDx acceptance criteria ratchet
+### STEP 3 — Acceptance criteria ratchet
 
-```bash
-# check ratchet floor fixtures from .ddx/plugins/helix/workflows/ratchets.md
-```
+Check ratchet floor fixtures from `workflows/ratchets.md`.
 
-### STEP 7 — DDx execution work items
+### STEP 7 — Execution work items
 
-```bash
-ddx bead dep add <blocked-id> <blocking-id>
-```
+Where ordering matters, declare a dependency from the blocked item to the
+blocking item.
 
-After creating or materially updating an execution bead, assemble or refresh
+After creating or materially updating an execution item, assemble or refresh
 its context digest; if the repo ships `scripts/refresh_context_digests.py`,
 use it instead of hand-editing digest XML.
 
-Do not close the governing alignment bead while actionable findings still
+Do not close the governing alignment item while actionable findings still
 exist only as prose in the report.
 
-### DDx action input examples
+### Action input examples
 
 ```
 /helix align repo
@@ -619,13 +613,13 @@ exist only as prose in the report.
 /helix align US-042
 ```
 
-### DDx output trailer
+### Output trailer
 
 ```
 ALIGN_STATUS: COMPLETE|INCOMPLETE|BLOCKED
 GAPS_FOUND: N
 EXECUTION_ISSUES_CREATED: N
 MEASURE_STATUS: PASS|FAIL|PARTIAL
-BEAD_ID: <governing-bead-id>
+ITEM_ID: <governing-item-id>
 FOLLOW_ON_CREATED: N
 ```

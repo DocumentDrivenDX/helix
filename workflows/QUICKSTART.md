@@ -4,17 +4,17 @@ ddx:
   depends_on:
     - helix.workflow
   review:
-    self_hash: 376d677e73edbdc44dd24bdf39cb5499c2d7c07dbcafe5e4dc14a8bec50e97f2
+    self_hash: ed890bff9d7718cc5d832b2024f1e7d7c01028c62ee62dbe3718634db566d26e
     deps:
-      helix.workflow: 1225132b3050598055eacb5462639824d78ac204cca2cbeda3611766532e79c8
-    reviewed_at: "2026-05-15T04:11:24Z"
+      helix.workflow: 1b6caaf3ebc6950bc4fff314e09bc0ee1b71deaa9223a4a70a13f399291ad98c
+    reviewed_at: "2026-05-26T03:19:52Z"
 ---
 # HELIX Workflow Quick Start Guide
 
 Use this guide to start a repo on the current HELIX contract without learning
 the whole workflow tree first. The methodology body below is runtime-neutral.
-For DDx-specific bootstrap, queue control, and validation commands, see the
-[DDx Integration Appendix](#ddx-integration-appendix) at the end of this file.
+For DDx-specific bootstrap, queue control, and validation commands, see
+[docs/install/ddx.md](../docs/install/ddx.md).
 
 ## Start Here
 
@@ -38,7 +38,7 @@ Use the bounded action prompts only when you are doing the corresponding work:
 ## Build The Canonical Planning Stack
 
 Prompts and templates live under
-`.ddx/plugins/helix/workflows/activities/<activity>/artifacts/` when HELIX is installed
+`workflows/activities/<activity>/artifacts/` when HELIX is installed
 as a DDx plugin. Other runtimes may resolve the same content from their own
 package layout. Use them to draft or refine the canonical docs under
 `docs/helix/`.
@@ -110,73 +110,9 @@ Execution rules:
 - Need missing docs reconstructed:
   Run backfill with [backfill-helix-docs.md](actions/backfill-helix-docs.md).
 
-## DDx Integration Appendix
+## Runtime Integration
 
-The commands and paths below apply to DDx-managed HELIX installations. They
-are not required to understand or adopt the HELIX methodology.
-
-### Bootstrap A Repo
-
-```bash
-ddx bead init
-ddx install helix
-ddx doctor
-```
-
-Notes:
-
-- `ddx bead init` creates the tracker workspace.
-- `ddx install helix` creates `~/.ddx/plugins/helix` and installs the HELIX
-  skill into `~/.agents/skills` and `~/.claude/skills`.
-- `ddx doctor` verifies and repairs the installation — creates missing
-  `.ddx/plugins/helix` symlinks and skill links in the target repo.
-- The repo exposes the unified `helix` agent skill at `.agents/skills` and
-  `.claude/skills` (symlinks to `skills/`).
-- For Claude Code: `claude --plugin-dir /path/to/helix` discovers skills
-  automatically without manual install.
-
-### DDx execution commands
-
-Preferred DDx commands:
-
-```bash
-ddx work
-ddx bead execute <id>
-/helix check repo
-/helix align repo
-/helix backfill repo
-```
-
-Tracker introspection:
-
-```bash
-ddx bead --help
-ddx bead ready --json
-ddx bead ready --execution
-ddx bead show <id>
-```
-
-### Minimal Operator Loop
-
-If you are not using `ddx work`, use the bounded manual loop from
-[EXECUTION.md](EXECUTION.md):
-
-```bash
-while [ "$(ddx bead ready --json | awk 'found || /^[{[]/ { found=1; print }' | ddx jq 'length')" -gt 0 ]; do
-  ddx bead execute "$(ddx bead ready --json --execution | ddx jq -r '.[0].id')"
-done
-
-/helix check
-```
-
-### Validation
-
-When you change skill packaging docs or the workflow contract, run:
-
-```bash
-bash tests/validate-skills.sh
-git diff --check
-```
-
-For DDx tracker labels, issue examples, and full queue/loop semantics, read
-[EXECUTION.md](EXECUTION.md) and run `ddx bead --help`.
+The bootstrap, queue-control, manual-loop, and validation commands for a given
+runtime live in that runtime's install guide. For DDx-specific commands, see
+[docs/install/ddx.md](../docs/install/ddx.md). For the runtime-neutral execution
+model, read [EXECUTION.md](EXECUTION.md).

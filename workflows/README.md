@@ -192,7 +192,7 @@ HELIX injects three layers of cross-cutting context into judgment-making work:
 
 | Layer | Reference | Project File | Fallback |
 |-------|-----------|-------------|----------|
-| **Principles** | `references/principles-resolution.md` | `docs/helix/01-frame/principles.md` | `.ddx/plugins/helix/workflows/principles.md` defaults |
+| **Principles** | `references/principles-resolution.md` | `docs/helix/01-frame/principles.md` | `workflows/principles.md` defaults |
 | **Concerns & Practices** | `references/concern-resolution.md` | `docs/helix/01-frame/concerns.md` | None |
 | **Context Digest** | `references/context-digest.md` | Runtime-assembled work context | Fall back to upstream reads |
 
@@ -321,8 +321,10 @@ To use HELIX in any runtime:
 5. Run alignment when artifacts, runtime state, or public documentation appear to
    disagree.
 
-For a runtime-specific operator path, use the appendix for your integration.
-DDx is documented below as the current reference runtime.
+For a runtime-specific operator path — the concrete commands that queue,
+execute, and report on work — use the install guide for your integration
+under [`docs/install/`](../docs/install/). The DDx reference-runtime
+commands live in [`docs/install/ddx.md`](../docs/install/ddx.md).
 
 ## Resources and Support
 
@@ -333,115 +335,33 @@ DDx is documented below as the current reference runtime.
 - [Artifact Prompt Roots](REFERENCE.md): canonical prompt and template
   directories by activity
 
-## DDx Reference-Runtime Appendix
+## Runtime Operator Appendix
 
-This appendix preserves the current DDx integration details. They are useful for
-repositories that use DDx as the HELIX runtime, but they are not prerequisites
-for adopting the HELIX methodology.
+HELIX itself ships no commands. Each runtime supplies the operator path that
+queues, executes, and reports on work — and provides the work-item store,
+execution loop, and status reporting. The methodology requirement is only
+that work be governed (work-item-first), measured against acceptance criteria,
+and reported back so follow-on work re-enters planning; *how* a runtime
+realizes that is its own concern.
 
-### DDx-owned runtime primitives
+For the concrete commands of a specific integration, see its install guide
+under [`docs/install/`](../docs/install/):
 
-```bash
-ddx bead ready
-ddx bead ready --execution
-ddx bead show <id>
-ddx bead update <id> --claim
-ddx bead close <id>
-ddx bead status
-ddx work
-ddx bead execute <id>
-ddx doc prose
-```
+- [`docs/install/ddx.md`](../docs/install/ddx.md) — DDx reference runtime
+  (work-item tracker, execution loop, queue guard, model routing).
+- [`docs/install/claude-code.md`](../docs/install/claude-code.md),
+  [`docs/install/codex.md`](../docs/install/codex.md),
+  [`docs/install/copilot.md`](../docs/install/copilot.md),
+  [`docs/install/databricks-genie.md`](../docs/install/databricks-genie.md)
+  — the other supported runtimes.
 
-DDx stores work items as beads and provides queue selection, claims,
-dependencies, execution loops, and status reporting. In DDx-managed projects,
-issues are stored in `.ddx/beads.jsonl` and managed through `ddx bead`.
-
-### DDx-owned runtime primitives (continued)
-
-```bash
-ddx work
-ddx bead execute <id>
-```
-
-`ddx work` drains the ready queue end-to-end. `ddx bead execute <id>` runs
-one bounded bead execution.
-
-### DDx tracker conventions
-
-- Issues are governed by the HELIX authority stack.
-- Issues should cite the canonical artifacts that authorize the work.
-- The tracker is the steering wheel for DDx execution: operators and agents
-  express decomposition, blockers, supersession, and follow-up work through DDx
-  tracker primitives instead of out-of-band task lists.
-- Closing an issue records completion of a task; it does not redefine
-  requirements, design, or tests.
-- If issue execution changes behavior or scope, the governing canonical
-  artifacts must be updated explicitly.
-
-DDx-managed HELIX execution categories are expressed through native issue types,
-parents, dependencies, `spec-id`, and labels rather than custom HELIX queue
-files:
-
-- `activity:build` for story-level implementation work
-- `activity:deploy` for rollout execution work
-- `activity:iterate` and `kind:backlog` for prioritized follow-up work
-- `kind:review` and `kind:review` for reconciliation or audit work
-- `kind:planning` plus `action:<name>` for bead-governed planning actions such
-  as `align`, `design`, or `polish`
-
-### DDx execution guidance
-
-For execution-ready work, the DDx operator path is intake or issue shaping plus
-DDx queue execution. Direct DDx agent execution remains the correct surface for
-non-managed planning, review, alignment, and other prompts that should not
-auto-claim or auto-close beads.
-
-Execution-ready beads should carry deterministic acceptance and
-success-measurement criteria: exact commands, named checks, or observable repo
-state that DDx-managed execution can use to decide success without hidden human
-interpretation.
-
-### Operator entrypoints
-
-Operators interact with HELIX through the unified `/helix <mode>` skill in
-agent harnesses (Claude Code, Codex, Gemini, etc.) and through DDx runtime
-commands:
-
-- `/helix input "<intent>"` — shape sparse intent into governed work
-- `/helix align [scope]` — top-down reconciliation
-- `/helix frame [scope]` — vision, PRD, feature specs
-- `/helix design [scope]` — design documents
-- `/helix evolve "<requirement>"` — thread a requirement through artifacts
-- `/helix review [scope]` — fresh-eyes review after build
-- `/helix check [scope]` — queue-drain decision
-- `/helix polish [scope]` — refine issues before implementation
-- `/helix experiment [scope]` — metric-driven optimization iteration
-- `ddx work` — primary queue-drain substrate
-- `ddx bead execute <id>` — single-bead managed execution
-- `ddx bead create "Title" ...` — create well-structured tracker issues
-- `ddx doctor` — verify and repair the HELIX install
-
-### DDx operational details
-
-For operator flow, queue control, and bounded DDx execution semantics, see
-[EXECUTION.md](EXECUTION.md).
-
-Before a DDx run, group related issues into epics so the runtime can stay on one
-coherent scope and batch its children:
-
-```bash
-epic=$(ddx bead create "Epic: ..." --type epic ...)
-ddx bead update hx-child1 --parent $epic
-ddx bead update hx-child2 --parent $epic
-ddx bead update hx-old --superseded-by hx-new
-ddx bead close hx-old
-```
-
-When the DDx queue drains, use the configured HELIX check or alignment path
-instead of a blind loop. Any HELIX action that produces follow-up suggestions
-should file durable follow-up beads before it closes; prose suggestions alone
-are not enough for DDx to resume work later.
+A runtime that provides a work-item store should govern items by the HELIX
+authority stack, have them cite the canonical artifacts that authorize the
+work, and treat that store as the steering surface for decomposition,
+blockers, supersession, and follow-up work rather than out-of-band task
+lists. Closing a work item records completion; it does not redefine
+requirements, design, or tests — if execution changes behavior or scope,
+update the governing canonical artifacts explicitly.
 
 ---
 

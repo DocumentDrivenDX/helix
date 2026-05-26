@@ -51,4 +51,4 @@ release coordination plan.
 - [ ] Routine operational procedures are explicit or the document says none exist
 - [ ] Escalation and communication paths are explicit
 
-Use the template at `.ddx/plugins/helix/workflows/activities/05-deploy/artifacts/runbook/template.md`.
+Use the template at `workflows/activities/05-deploy/artifacts/runbook/template.md`.

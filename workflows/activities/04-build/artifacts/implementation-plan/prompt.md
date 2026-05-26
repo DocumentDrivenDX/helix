@@ -10,7 +10,7 @@ test-plan context into bounded implementation slices with dependencies,
 validation gates, and closeout evidence.
 
 It is not the tracker. The runtime owns issue state and execution. This artifact
-defines the intended build shape so DDx beads or another runtime can execute
+defines the intended build shape so the runtime's work items can execute
 without inventing scope, ordering, or validation rules.
 
 ## Reference Anchors
@@ -46,9 +46,10 @@ Use this local resource summary as grounding:
 | Design or interface decisions | Solution Design / Technical Design / Contract / ADR |
 | Exact story tests and fixtures | Story Test Plan |
 | Build slice order, dependencies, and validation gates | Implementation Plan |
-| Assignee, live status, claim, execution logs | DDx bead or runtime issue |
+| Assignee, live status, claim, execution logs | runtime work item or issue |
 
 ## Template
 
-`.ddx/plugins/helix/workflows/activities/04-build/artifacts/implementation-plan/template.md`
-For tracker conventions see `ddx bead --help`.
+`workflows/activities/04-build/artifacts/implementation-plan/template.md`
+For tracker conventions see the runtime's install guide (DDx:
+`docs/install/ddx.md`).

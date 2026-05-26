@@ -30,7 +30,7 @@ artifact_patterns:
     build:
       # No filesystem artifact: build-activity state is detected via tracker queries.
       # The old ".helix/" pattern is removed — that path does not exist in the repo.
-      # DDx integration: tracker issues correspond to ddx bead issues labeled activity:build.
+      # Concrete per-runtime tracker commands live in each runtime's install guide (DDx: docs/install/ddx.md).
       type: build-issue
       activity: build
       query_only: true
@@ -39,7 +39,7 @@ artifact_patterns:
     deploy:
       # No filesystem artifact: deploy-activity state is detected via tracker queries.
       # The old ".helix/" pattern is removed — that path does not exist in the repo.
-      # DDx integration: tracker issues correspond to ddx bead issues labeled activity:deploy.
+      # Concrete per-runtime tracker commands live in each runtime's install guide (DDx: docs/install/ddx.md).
       type: deploy-issue
       activity: deploy
       query_only: true
@@ -198,12 +198,14 @@ metadata:
   test_driven: true
   documentation_first: true
 
-# Integration with HELIX execution
+# Integration with HELIX execution. These are runtime-neutral action
+# descriptions; concrete per-runtime commands live in each runtime's install
+# guide (DDx: docs/install/ddx.md).
 execution_integration:
   commands:
     implementation:
       description: "Execute one ready HELIX execution issue"
-      example: "ddx bead execute <id>"
+      example: "the runtime's single-work-item execution command (DDx: docs/install/ddx.md)"
 
     check:
       description: "Decide whether to implement, align, backfill, wait, ask for guidance, or stop"
@@ -211,4 +213,4 @@ execution_integration:
 
     run:
       description: "Drain the ready queue"
-      example: "ddx work"
+      example: "the runtime's queue-drain command (DDx: docs/install/ddx.md)"

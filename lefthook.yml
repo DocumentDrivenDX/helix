@@ -5,8 +5,24 @@ pre-commit:
       glob: "{.claude-plugin/**/*,commands/**/*,skills/**/*,agents/**/*}"
     check-workflow-paths:
       run: |
-        if grep -rn '`workflows/' skills/ workflows/ --include='*.md' --include='*.yaml' --include='*.yml' 2>/dev/null | grep -v '.ddx/plugins/helix/workflows/'; then
-          echo "ERROR: Found bare workflows/ paths. Use .ddx/plugins/helix/workflows/ instead."
-          exit 1
+        fail=0
+        # 1. Reject .ddx/plugins/helix layout-leak paths in shipped content.
+        if grep -rn '\.ddx/plugins/helix' skills/ workflows/ --include='*.md' --include='*.yaml' --include='*.yml' 2>/dev/null; then
+          echo "ERROR: Found a .ddx/plugins/helix layout-leak path in shipped skill/workflow content."
+          echo "The .ddx/plugins/helix/ tree is a DDx install detail and must not leak into portable HELIX content."
+          echo "Use the canonical source-relative path 'workflows/...', or the runtime-neutral '<plugin-root>/workflows/...' form in SKILL.md."
+          echo "DDx-specific install/invocation paths belong only in docs/install/ddx.md."
+          fail=1
         fi
+        # 2. Reject 'ddx <verb>' command literals in portable content. The
+        #    DDx-scoped explainer workflows/DDX.md is exempt; 'ddx:' frontmatter
+        #    is allowed (it is not a command literal and does not match this pattern).
+        if grep -rnE 'ddx (bead|work|run|try|agent)' skills/ workflows/ --include='*.md' --include='*.yaml' --include='*.yml' 2>/dev/null | grep -v '^workflows/DDX.md:'; then
+          echo "ERROR: Found a 'ddx <verb>' command literal in portable HELIX skill/workflow content."
+          echo "Portable methodology content must describe runtime-neutral actions, not concrete ddx commands."
+          echo "Move DDx-specific commands (ddx bead/work/run/try/agent ...) to docs/install/ddx.md and leave a neutral pointer."
+          echo "Only workflows/DDX.md (the DDx-scoped explainer) may name ddx commands; 'ddx:' frontmatter is allowed."
+          fail=1
+        fi
+        exit $fail
       glob: "{skills/**/*.md,workflows/**/*.md,workflows/**/*.yaml,workflows/**/*.yml}"

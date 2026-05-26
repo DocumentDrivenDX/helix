@@ -51,7 +51,7 @@ Rules:
 
 ## Tracker Rules
 
-Use the runtime tracker only.
+Use the runtime-provided work-item source only.
 
 This action works only on execution work items. Exclude review items by default.
 
@@ -88,7 +88,7 @@ rest, and close the issue.
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
-1. Verify the runtime tracker is available. Stop immediately if unavailable.
+1. Verify the runtime-provided work-item source is available. Stop immediately if unavailable.
 2. Inspect the current git worktree.
    - Do not revert unrelated changes.
    - If unrelated changes create commit risk, isolate your work item changes
@@ -280,7 +280,7 @@ When creating follow-on issues:
 - make them atomic and deterministic
 - set `spec-id` to the nearest governing artifact
 - add the correct HELIX labels
-- encode blockers via the runtime tracker's dependency mechanism
+- encode blockers via the runtime-provided work-item source's dependency mechanism
 
 ## STEP 7 - Verification
 
@@ -329,7 +329,7 @@ loop. Concretely, before closing the item confirm:
 - the **claims-vs-reality** check passes: the item and the artifacts it touched
   assert no test, coverage figure, or emitted metric that does not exist —
   `ASSERTED_UNBACKED` count is **zero** (phantom-claim zero-floor ratchet, see
-  `.ddx/plugins/helix/workflows/ratchets.md` and FEAT-016).
+  `workflows/ratchets.md` and FEAT-016).
 
 A blocking finding here fails verification exactly like a failing test: fix it
 within scope or leave the item open with a precise status note.
@@ -358,7 +358,7 @@ artifacts.
 
 ## STEP 7.5 - Measure
 
-Record verification results on the work item via the runtime tracker. See the
+Record verification results on the work item via the runtime-provided work-item source. See the
 measure action for the full pattern.
 
 After verification passes, record the results (timestamp, status, per-criterion
@@ -416,7 +416,7 @@ If the work item is complete:
      full-workspace gate catches cross-crate and cross-module breakage
      that scoped checks miss (e.g., trait/impl mismatches across files).
 7. Push to remote: `git pull --rebase && git push`
-8. Close the work item via the runtime tracker.
+8. Close the work item via the runtime-provided work-item source.
 
 If the worktree contains unrelated changes, commit only the files that belong
 to the work item. Never revert unrelated work just to simplify the commit.
@@ -457,79 +457,62 @@ FOLLOW_ON_CREATED: N
 
 Be precise and deterministic.
 
-## DDx Integration Appendix
+## Runtime Integration Appendix
 
-This appendix applies when DDx is the active HELIX runtime.
+This appendix covers how a runtime realizes the implementation action. The
+reference paths and work-item acquisition below are runtime-neutral; for the
+concrete commands of a specific runtime, see its install guide (DDx:
+[docs/install/ddx.md](../../docs/install/ddx.md)).
 
-### STEP 0 — DDx bootstrap
+### STEP 0 — Reference resolution
 
-```bash
-ddx bead status  # stop immediately if this fails
-```
+- Build-activity enforcer: `workflows/activities/04-build/enforcer.md`
+- Ratchets: `workflows/ratchets.md`
+- Principles: `workflows/references/principles-resolution.md`
+  (default: `workflows/principles.md`)
+- Concerns: `workflows/references/concern-resolution.md`
+- Context-digest: `workflows/references/context-digest.md`
 
-- Build-activity enforcer: `.ddx/plugins/helix/workflows/activities/04-build/enforcer.md`
-- Ratchets: `.ddx/plugins/helix/workflows/ratchets.md`
-- Principles: `.ddx/plugins/helix/workflows/references/principles-resolution.md`
-  (default: `.ddx/plugins/helix/workflows/principles.md`)
-- Concerns: `.ddx/plugins/helix/workflows/references/concern-resolution.md`
-- Context-digest: `.ddx/plugins/helix/workflows/references/context-digest.md`
+Confirm the runtime-provided work-item source is available before proceeding; stop immediately if
+it is not.
 
-### STEP 1-2 — DDx candidate discovery
+### STEP 1-2 — Candidate discovery
 
-```bash
-ddx bead ready
-ddx bead show <id>
-ddx bead dep tree <id>
-```
+Use the runtime-provided work-item source to list ready execution items, show
+item details, and inspect dependency trees so you can rank candidates.
 
-### STEP 3 — DDx claim and load
+### STEP 3 — Claim and load
 
-```bash
-ddx bead show <id> --json        # re-read before claiming
-ddx bead update <id> --claim
-```
+Re-read the selected item, then claim it through the runtime-provided work-item source so
+concurrent work is prevented before loading its governing artifacts.
 
-### STEP 7.5 — DDx measure
+### STEP 7.5 — Measure
 
-```bash
-ddx bead update <id> --notes "<measure-results>
-  <timestamp>$(date -u +%Y-%m-%dT%H:%M:%SZ)</timestamp>
-  <status>PASS|FAIL|PARTIAL</status>
-  <acceptance>
-    <criterion name='...' status='pass|fail' evidence='...'/>
-  </acceptance>
-  <gates>
-    <gate concern='...' command='...' status='pass|fail'/>
-  </gates>
-  <ratchets>
-    <ratchet name='...' floor='...' measured='...' status='pass|fail'/>
-  </ratchets>
-</measure-results>"
-```
+Record verification results on the work item through the runtime-provided work-item source. The
+recorded results should carry a timestamp, an overall PASS|FAIL|PARTIAL status,
+per-criterion acceptance pass/fail with evidence, per-gate concern/command
+pass/fail, and per-ratchet floor-vs-measured pass/fail.
 
-### STEP 8 — DDx close
+### STEP 8 — Close
 
-```bash
-ddx bead show <id> --json   # re-read before closing
-ddx bead close <id>
-```
+Re-read the selected item, then close it through the runtime-provided work-item source with the
+evidence summary.
 
-### DDx action input examples
+### Action input examples
 
 ```
-ddx work
-ddx bead execute <id>
-ddx bead execute US-042
-ddx work --scope area:auth
+helix build
+helix build US-042
+helix build area:auth
 ```
 
-### DDx output trailer
+### Output trailer
 
 ```
 MEASURE_STATUS: PASS|FAIL|PARTIAL
-BEAD_ID: <id>
+ITEM_ID: <governing-item-id>
 FOLLOW_ON_CREATED: N
 ```
 
-If the bead could not be closed, it remains open — the next `/helix check`
+If the work item could not be closed, it remains open — the next `/helix check`
 will route it appropriately.

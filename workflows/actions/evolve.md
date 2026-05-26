@@ -50,7 +50,7 @@ affects.
 1. the updated artifacts are **verified** — consistent with higher authority, no
    unresolved conflicts, downstream work items created, and the
    claims-vs-reality check clean (zero `ASSERTED_UNBACKED`; see
-   `.ddx/plugins/helix/workflows/ratchets.md` and FEAT-016); **and**
+   `workflows/ratchets.md` and FEAT-016); **and**
 2. each **finding-class** surfaced during the pass is **folded back into a gate**
    (a template check, an acceptance criterion, a concern propagation check, or a
    ratchet) so the same class cannot silently recur.
@@ -140,7 +140,7 @@ Search the project's doc tree for governing artifacts in scope:
 
 Use commands like:
 - `find docs/ -name "*.md" | xargs grep -l "keyword"`
-- List open work items from the runtime tracker to find related open items
+- List open work items from the runtime-provided work-item source to find related open items
 
 ## STEP 3 — Conflict Detection
 
@@ -216,7 +216,7 @@ Create work items for the implementation work implied by the updated artifacts:
 
 Search existing open work items for overlap with the new items:
 
-1. Retrieve the current open item queue from the runtime tracker.
+1. Retrieve the current open item queue from the runtime-provided work-item source.
 2. For each new item, check if existing items touch the same files,
    subsystems, or acceptance criteria.
 3. Add dependency links where ordering matters.
@@ -249,7 +249,7 @@ See the measure action for the full pattern.
    check is clean (`ASSERTED_UNBACKED` count is zero). A blocking finding here
    means convergence is not reached; fold the finding-class into a gate or file
    it as follow-on work.
-6. **Record results** on the governing work item via the runtime tracker.
+6. **Record results** on the governing work item via the runtime-provided work-item source.
 
 ## STEP 9 — Report
 
@@ -301,61 +301,56 @@ human resolution, but non-conflicting work was completed.
 `BLOCKED` means the requirement fundamentally contradicts the project's
 governing artifacts and cannot proceed without human decision.
 
-## DDx Integration Appendix
+## Runtime Integration Appendix
 
-This appendix applies when DDx is the active HELIX runtime.
+This appendix covers how a runtime realizes the evolve action. The reference
+paths and work-item acquisition below are runtime-neutral; for the concrete
+commands of a specific runtime, see its install guide (DDx:
+[docs/install/ddx.md](../../docs/install/ddx.md)).
 
-### STEP 0 — DDx references
+### STEP 0 — Reference resolution
 
-- Principles: `.ddx/plugins/helix/workflows/references/principles-resolution.md`
-- Concerns: `.ddx/plugins/helix/workflows/references/concern-resolution.md`
-- Context-digest: `.ddx/plugins/helix/workflows/references/context-digest.md`
-- Feature-specification meta: `.ddx/plugins/helix/workflows/activities/01-frame/artifacts/feature-specification/meta.yml`
-- Solution-design meta: `.ddx/plugins/helix/workflows/activities/02-design/artifacts/solution-design/meta.yml`
-- Technical-design meta: `.ddx/plugins/helix/workflows/activities/02-design/artifacts/technical-design/meta.yml`
+- Principles: `workflows/references/principles-resolution.md`
+- Concerns: `workflows/references/concern-resolution.md`
+- Context-digest: `workflows/references/context-digest.md`
+- Feature-specification meta: `workflows/activities/01-frame/artifacts/feature-specification/meta.yml`
+- Solution-design meta: `workflows/activities/02-design/artifacts/solution-design/meta.yml`
+- Technical-design meta: `workflows/activities/02-design/artifacts/technical-design/meta.yml`
 
 The `<concerns>` element in a context digest must contain matched concern
 names, never `area:*` labels.
 
-### STEP 0.5 — DDx bead acquisition
+### STEP 0.5 — Work-item acquisition
 
-```bash
-ddx bead list --status open --label kind:planning,action:evolve --json
+Acquire the governing work item before modifying files, per
+`workflows/references/bead-first.md`: find an open planning item labelled
+`kind:planning,action:evolve` (claim it if found) or create one with labels
+`helix,activity:design,kind:planning,action:evolve`, a `<context-digest>`
+description naming the requirement being threaded through the artifact stack
+and its source (the `--from` value if provided), and acceptance "Requirement
+threaded through all affected artifacts; no unresolved conflicts; downstream
+work items created with context digests". Record the item ID; all subsequent
+artifact modifications are governed by it. The runtime supplies the work-item
+store; for the concrete commands see its install guide
+([docs/install/ddx.md](../../docs/install/ddx.md) for DDx).
 
-ddx bead update <id> --claim   # if found
+### STEP 2 — Find related items
 
-# if not found:
-ddx bead create "evolve: <requirement summary>" \
-  --type task \
-  --labels helix,activity:design,kind:planning,action:evolve \
-  --description "<context-digest>...</context-digest>
-Thread requirement through artifact stack: <requirement description>.
-Source: <--from value if provided>" \
-  --acceptance "Requirement threaded through all affected artifacts; no unresolved conflicts; downstream beads created with context digests"
-```
+List open work items from the runtime-provided work-item source to find items
+related to the affected subsystems.
 
-Record the bead ID. All subsequent artifact modifications are governed by
-this bead.
+### STEP 6 — Dependency wiring
 
-### STEP 2 — DDx find related items
+List open work items from the runtime-provided work-item source. Where ordering
+matters, declare a dependency from the blocked item to the blocking item. If the
+new requirement supersedes an existing item, mark the old item superseded by the
+new one.
 
-```bash
-ddx bead list --json
-```
+### STEP 7 — Commit
 
-### STEP 6 — DDx dependency wiring
+Commit with a message referencing the requirement and the governing item ID.
 
-```bash
-ddx bead list --status open --json
-ddx bead dep add <blocked-id> <blocking-id>
-ddx bead update <id> --superseded-by <new-id>
-```
-
-### STEP 7 — DDx commit
-
-Commit with a message referencing the requirement and the governing bead ID.
-
-### DDx output trailer
+### Output trailer
 
 ```
 EVOLUTION_STATUS: COMPLETE|CONFLICTS|BLOCKED
@@ -363,6 +358,6 @@ ARTIFACTS_UPDATED: [count]
 ISSUES_CREATED: [count]
 CONFLICTS: [count]
 MEASURE_STATUS: PASS|FAIL|PARTIAL
-BEAD_ID: <governing-bead-id>
+ITEM_ID: <governing-item-id>
 FOLLOW_ON_CREATED: N
 ```

@@ -25,7 +25,7 @@ Use this local resource summary as grounding:
 - Prefer concrete tracker-backed items over vague TODOs.
 - Use metrics, feedback, and retrospective findings as evidence.
 - Make the next selection obvious by sorting by priority and impact.
-- Link each item to the relevant bead, report, or supporting artifact.
+- Link each item to the relevant work item, report, or supporting artifact.
 
 ## Boundary Test
 
@@ -33,7 +33,7 @@ Use this local resource summary as grounding:
 |---|---|
 | Measurement interpretation for this iteration | Metrics Dashboard |
 | Prioritized follow-up candidates and selection rationale | Improvement Backlog |
-| Live issue status, assignee, and execution history | DDx bead or runtime issue |
+| Live issue status, assignee, and execution history | runtime work item or issue |
 | New product requirements or design changes | Appropriate upstream artifact |
 
 ## Completion Criteria

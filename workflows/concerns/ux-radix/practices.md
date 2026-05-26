@@ -141,7 +141,7 @@ Every interactive widget must support:
   assertions for this gate — assert the semantic state (and, if checked, a
   stable class/token), not a rendered image. This is the same assertion the
   `e2e-playwright` concern requires; it feeds the `verification` gate
-  (`.ddx/plugins/helix/workflows/concerns/verification/practices.md`), turning
+  (`workflows/concerns/verification/practices.md`), turning
   "does it show me where I am?" into a checkable test.
 
 ## Quality Gates

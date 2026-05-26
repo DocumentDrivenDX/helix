@@ -4,16 +4,16 @@ ddx:
   depends_on:
     - helix.workflow
   review:
-    self_hash: 74c878177cb549ee93a95c7e0dd7b75b19d90b96053de32dc802be8e11adac51
+    self_hash: f3d64df6fcff492e40828af0363a9db3efaddb5b499ba8373df8b67435b933f7
     deps:
-      helix.workflow: 1225132b3050598055eacb5462639824d78ac204cca2cbeda3611766532e79c8
-    reviewed_at: "2026-05-15T04:11:24Z"
+      helix.workflow: 1b6caaf3ebc6950bc4fff314e09bc0ee1b71deaa9223a4a70a13f399291ad98c
+    reviewed_at: "2026-05-26T03:19:52Z"
 ---
 # HELIX Quick Reference Card
 
-This reference summarizes the runtime-neutral HELIX methodology first. Runtime
-commands and DDx-specific queue guidance are collected in the DDx
-reference-runtime appendix.
+This reference summarizes the runtime-neutral HELIX methodology. Runtime
+commands and runtime-specific queue guidance live in each runtime's install
+guide; for DDx-specific commands, see [docs/install/ddx.md](../docs/install/ddx.md).
 
 ## Canonical Methodology Docs
 
@@ -141,128 +141,9 @@ When changing methodology docs, validate the affected artifact and projection
 paths required by the repository's contribution rules. Runtime-specific tests
 belong to the integration that owns the changed behavior.
 
-## DDx Reference-Runtime Appendix
+## Runtime Integration
 
-DDx is the current reference runtime for HELIX execution. The commands below are
-preserved for DDx-managed repositories, demos, and transitional HELIX wrapper
-compatibility. They are not required to understand or adopt the HELIX
-methodology.
-
-### Bootstrap
-
-```bash
-ddx bead init
-ddx install helix
-ddx doctor
-```
-
-The unified `helix` agent skill is published once per project; the operator
-dispatches modes through `/helix <mode>`.
-
-### DDx execution commands
-
-```bash
-/helix input "natural language request"
-ddx work
-ddx work --once
-ddx bead execute hx-abc123
-/helix check repo
-/helix align repo
-/helix backfill repo
-/helix evolve "requirement description"
-ddx bead create "Issue title" --type task --labels helix,activity:build
-```
-
-Preferred DDx operator path:
-
-1. Use the `/helix input` skill mode for sparse intent.
-2. Use `ddx work` queue execution for execution-ready work.
-3. Use `/helix check`, `/helix review`, `/helix align`, `/helix design`, or
-   `/helix polish` when HELIX must interpret or route the next action.
-
-`ddx work` is the primary DDx queue-drain command for execution-ready beads.
-`ddx bead execute <id>` runs one bounded bead.
-
-Execution-ready beads must carry deterministic acceptance and
-success-measurement criteria: exact commands, named checks, or observable repo
-state that DDx-managed execution can use to decide success without hidden human
-interpretation.
-
-### Planning and quality commands
-
-```bash
-/helix input "natural language request"
-/helix input "natural language request" --autonomy high
-/helix design [scope]
-/helix design --rounds 8 auth
-/helix polish [scope]
-/helix polish --rounds 10
-/helix review [scope]
-/helix experiment [issue-id|goal]
-/helix experiment --close
-```
-
-`/helix input` is the sparse-intent entrypoint for the autonomy-slider
-workflow. `--autonomy` selects the HELIX-owned behavior contract (`low`,
-`medium`, `high`); the expected default is `medium` when no override is
-supplied.
-
-### DDx tracker commands
-
-```bash
-ddx bead ready --json
-ddx bead update <id> --claim
-ddx bead show <id>
-ddx bead dep tree <id>
-ddx bead blocked --json
-ddx bead close <id>
-ddx bead status
-ddx bead import --from jsonl --file .ddx/beads.jsonl
-ddx bead export
-```
-
-See `ddx bead --help` for full tracker conventions and setup guidance.
-
-### DDx tracker labeling
-
-Labels are organizational conventions for triage and traceability. They are not
-required by every runtime and are not part of the portable HELIX methodology.
-
-Recommended DDx labels:
-
-- `helix` identifies HELIX-managed issues in a DDx tracker.
-- Activity labels: `activity:frame`, `activity:design`, `activity:test`, `activity:build`,
-  `activity:deploy`, `activity:iterate`, `kind:review`.
-- Kind labels: `kind:build`, `kind:deploy`, `kind:backlog`, `kind:review`.
-- Traceability labels: `story:US-XXX`, `feature:FEAT-XXX`, `area:<name>`,
-  `source:metrics`.
-
-### DDx-specific decision guide
-
-- Starting new work or a large scope: run `/helix design`, then `/helix
-  polish`, then `ddx work`.
-- Starting from sparse user intent instead of a pre-shaped issue: run
-  `/helix input` and set autonomy when needed.
-- Ready execution issues exist: use `ddx work` for queue draining.
-- Work lacks design authority for safe execution: run `/helix design`, or let
-  `/helix check` dispatch it.
-- Specs changed and open work needs issue refinement before implementation:
-  run `/helix polish`, or let `/helix check` dispatch it.
-- No ready execution issue, but the planning stack exists and next work is
-  unclear: run `/helix align` and record the review output.
-- Canonical docs are missing or too incomplete to execute safely: run
-  `/helix backfill`.
-- Work exists but is blocked or already in progress: stop and wait.
-- The queue drains: run `/helix check`, not a blind loop and not an ad hoc
-  ready-list loop.
-- After implementing an issue: run `/helix review`.
-
-### DDx validation commands
-
-When changing skill packaging docs or the DDx execution contract, the
-deterministic harnesses are:
-
-```bash
-bash tests/validate-skills.sh
-git diff --check
-```
+The methodology actions above are runtime-neutral capability names. Concrete
+commands for executing them — bootstrap, queue control, tracker labeling, and
+validation — belong to each runtime's install guide. For DDx-specific commands,
+see [docs/install/ddx.md](../docs/install/ddx.md).

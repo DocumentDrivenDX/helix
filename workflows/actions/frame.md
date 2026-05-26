@@ -48,7 +48,7 @@ artifacts unless the scope explicitly asks you to revise them.
      detect conflicts among inferred concerns per `concern-resolution.md`.
 
    Concern selections inform feasibility, constraints, and deployment sections of
-   the PRD and feature specs. Selection happens here, once; propagation to beads
+   the PRD and feature specs. Selection happens here, once; propagation to work items
    is a later **gate** owned by `check`/`polish`, not a re-selection.
 
 ## STEP 1 — Discovery
@@ -297,7 +297,7 @@ See the measure action for the full pattern.
    concerns are recorded as assumptions. Verify consistency with artifact
    content. A frame pass that produced feature specs but no concern decision
    fails this gate.
-5. **Record results** on the governing work item via the runtime tracker.
+5. **Record results** on the governing work item via the runtime-provided work-item source.
 
 ## STEP 7 — Report
 
@@ -326,39 +326,36 @@ ITEM_ID: <governing-item-id>
 FOLLOW_ON_CREATED: N
 ```
 
-## DDx Integration Appendix
+## Runtime Integration Appendix
 
-This appendix applies when DDx is the active HELIX runtime.
+This appendix covers how a runtime realizes the frame action. The reference
+paths and work-item acquisition below are runtime-neutral; for the concrete
+commands of a specific runtime, see its install guide (DDx:
+[docs/install/ddx.md](../../docs/install/ddx.md)).
 
-### STEP 0 — DDx references
+### STEP 0 — Reference resolution
 
-- Principles: `.ddx/plugins/helix/workflows/references/principles-resolution.md`
-- Concerns: `.ddx/plugins/helix/workflows/references/concern-resolution.md`
-- Defaults principles file: `.ddx/plugins/helix/workflows/principles.md`
-- Feature-specification meta: `.ddx/plugins/helix/workflows/activities/01-frame/artifacts/feature-specification/meta.yml`
-- Product-vision template: `.ddx/plugins/helix/workflows/activities/00-discover/artifacts/product-vision/`
-- PRD template: `.ddx/plugins/helix/workflows/activities/01-frame/artifacts/prd/`
-- User-stories template: `.ddx/plugins/helix/workflows/activities/01-frame/artifacts/user-stories/`
-- Concerns template: `.ddx/plugins/helix/workflows/activities/01-frame/artifacts/concerns/`
+- Principles: `workflows/references/principles-resolution.md`
+- Concerns: `workflows/references/concern-resolution.md`
+- Defaults principles file: `workflows/principles.md`
+- Feature-specification meta: `workflows/activities/01-frame/artifacts/feature-specification/meta.yml`
+- Product-vision template: `workflows/activities/00-discover/artifacts/product-vision/`
+- PRD template: `workflows/activities/01-frame/artifacts/prd/`
+- User-stories template: `workflows/activities/01-frame/artifacts/user-stories/`
+- Concerns template: `workflows/activities/01-frame/artifacts/concerns/`
 
-### STEP 0.5 — DDx bead acquisition
+### STEP 0.5 — Work-item acquisition
 
-```bash
-ddx bead list --status open --label kind:planning,action:frame --json
+Acquire the governing work item before modifying files, per
+`workflows/references/bead-first.md`: find an open planning item labelled
+`kind:planning,action:frame` (claim it if found) or create one with labels
+`helix,kind:planning,action:frame`, a `<context-digest>` description naming the
+scope and existing artifacts, and acceptance "Artifacts created/updated per type
+requirements; downstream design issues filed; validation gates pass". The
+runtime supplies the work-item store; for the concrete commands see its install
+guide ([docs/install/ddx.md](../../docs/install/ddx.md) for DDx).
 
-ddx bead update <id> --claim   # if found
-
-# if not found:
-ddx bead create "frame: <scope description>" \
-  --type task \
-  --labels helix,kind:planning,action:frame \
-  --description "<context-digest>...</context-digest>
-Create or refine frame-activity artifacts for <scope>.
-Existing artifacts: <summary from Step 1 discovery>" \
-  --acceptance "Artifacts created/updated per type requirements; downstream design issues filed; validation gates pass"
-```
-
-### DDx action input examples
+### Action input examples
 
 ```
 helix frame
@@ -366,7 +363,7 @@ helix frame auth
 helix frame "real-time notifications"
 ```
 
-### DDx output trailer
+### Output trailer
 
 ```
 FRAME_STATUS: COMPLETE|GUIDANCE_NEEDED
@@ -374,6 +371,6 @@ ARTIFACTS_CREATED: N
 ARTIFACTS_UPDATED: N
 ISSUES_CREATED: N
 MEASURE_STATUS: PASS|FAIL|PARTIAL
-BEAD_ID: <governing-bead-id>
+ITEM_ID: <governing-item-id>
 FOLLOW_ON_CREATED: N
 ```

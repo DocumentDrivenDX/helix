@@ -41,7 +41,7 @@ Use these local resource summaries as grounding:
 | Exact external interface contract | Contract |
 | One story's implementation shape, files, tests, and rollback | Technical Design |
 | Test fixtures and detailed test cases | Story Test Plan |
-| Work queue slicing and execution status | Implementation Plan or DDx bead |
+| Work queue slicing and execution status | Implementation Plan or runtime work item |
 
 ## Completion Criteria
 - The story is implementable.

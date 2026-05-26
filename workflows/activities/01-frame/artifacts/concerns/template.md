@@ -10,7 +10,7 @@ are not principles, requirements, ADRs, test plans, or implementation tasks.
 
 ## Active Concerns
 
-<!-- Select from .ddx/plugins/helix/workflows/concerns/ or declare project-local
+<!-- Select from workflows/concerns/ or declare project-local
      entries. Include only concerns that change downstream work across more
      than one artifact or implementation area. -->
 

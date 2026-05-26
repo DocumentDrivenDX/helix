@@ -376,21 +376,16 @@ Common entry points:
 AI is useful for implementation drafting and focused refactoring. Human review
 must verify design fidelity, test intent, and security-sensitive changes.
 
-## DDx Integration Appendix
+## Runtime Integration Appendix
 
-Under the DDx reference runtime, build execution is driven by `ddx work` or
-`ddx bead execute`. Work items are stored in `.ddx/beads.jsonl` and managed
-through `ddx bead`:
+Build execution is driven by the runtime: it drains the ready queue and executes
+each ready work item end-to-end, or executes a single specified work item. When
+the queue drains, `/helix check` decides the next action. HELIX specifies the
+action; the runtime supplies the work-item store and the execution loop.
 
-```bash
-ddx work                      # drain the ready queue
-ddx bead execute issue-abc123 # execute a specific work item
-ddx bead execute US-042       # execute a work item linked to a user story
-/helix check                  # decide the next action when the queue drains
-```
-
-See [../../EXECUTION.md](../../EXECUTION.md) for the full DDx execution
-contract.
+See [../../EXECUTION.md](../../EXECUTION.md) for the full runtime-neutral
+execution contract, and the per-runtime install guide for concrete commands
+([docs/install/ddx.md](../../../docs/install/ddx.md) for DDx).
 
 ---
 

@@ -90,7 +90,7 @@ Rules:
    this runtime. Concern context informs queue health assessment — work items
    without area labels cannot be matched to concerns, and stale context
    digests indicate the queue needs a polish pass.
-1. Verify the runtime tracker is available. Stop immediately if unavailable.
+1. Verify the runtime-provided work-item source is available. Stop immediately if unavailable.
 2. Determine the scope.
 3. Detect whether canonical HELIX docs exist for the scope.
    - check `docs/helix/`
@@ -125,17 +125,17 @@ Check for:
 
 ### Plan Decomposition Health
 
-Plans must be decomposed into tracker beads before implementation can begin.
+Plans must be decomposed into tracker work items before implementation can begin.
 Check for undecomposed plans:
 
 1. Scan `docs/helix/02-design/plan-*.md` and
    `docs/helix/02-design/solution-designs/SD-*.md` for the scope.
-2. For each plan document found, check whether tracker beads exist that
+2. For each plan document found, check whether tracker work items exist that
    reference it (via `spec-id`, description, or parent epic).
-3. If a plan exists but has **no or very few** corresponding beads, the plan
+3. If a plan exists but has **no or very few** corresponding work items, the plan
    is undecomposed. Flag this as a `POLISH` trigger — `polish` is the action
-   that decomposes plans into implementable beads.
-4. If an epic exists for the plan but has no child beads, that is also an
+   that decomposes plans into implementable work items.
+4. If an epic exists for the plan but has no child work items, that is also an
    undecomposed plan — the epic alone is not sufficient for `BUILD`.
 
 An undecomposed plan is a higher-priority signal than ready epics. Do not
@@ -244,19 +244,21 @@ Output these sections in order:
 
 Be concise, explicit, and operational.
 
-## DDx Integration Appendix
+## Runtime Integration Appendix
 
-This appendix applies when DDx is the active HELIX runtime.
+This appendix covers how a runtime realizes the check action. The reference
+paths and work-item acquisition below are runtime-neutral; for the concrete
+commands of a specific runtime, see its install guide (DDx:
+[docs/install/ddx.md](../../docs/install/ddx.md)).
 
-### STEP 0 — DDx bootstrap
+### STEP 0 — Reference resolution
 
-```bash
-ddx bead status  # stop immediately if this fails
-```
+Confirm the runtime-provided work-item source is available before proceeding; stop immediately if
+it is not.
 
-Load active concerns following `.ddx/plugins/helix/workflows/references/concern-resolution.md`.
+Load active concerns following `workflows/references/concern-resolution.md`.
 
-### Action Input — DDx examples
+### Action Input — examples
 
 ```
 /helix check
@@ -265,29 +267,26 @@ Load active concerns following `.ddx/plugins/helix/workflows/references/concern-
 /helix check area:auth
 ```
 
-### STEP 1 — DDx queue health commands
+### STEP 1 — Queue health
 
-```bash
-ddx bead status
-ddx bead ready --json
-ddx bead list --status in_progress --label helix --json
-ddx bead blocked --json
-```
+Use the runtime's tracker as the authoritative queue source: inspect global
+queue health (ready, in-progress, and blocked counts), ready execution items,
+active claimed items, and blocked items. Prefer a real blocker-aware ready view
+over status-only heuristics.
 
-Prefer a real `ddx bead ready` view over status-only heuristics.
+### STEP 2 — Artifact health references
 
-### STEP 2 — DDx artifact health references
-
-- Ratchets: `.ddx/plugins/helix/workflows/ratchets.md`
-- Concern library: `.ddx/plugins/helix/workflows/concerns/`
+- Ratchets: `workflows/ratchets.md`
+- Concern library: `workflows/concerns/`
 - Concern change since last polish: check git log on
-  `.ddx/plugins/helix/workflows/concerns/` and `docs/helix/01-frame/concerns.md`
-  against the timestamp of the most recent `kind:planning,action:polish` bead
-  closed.
+  `workflows/concerns/` and `docs/helix/01-frame/concerns.md`
+  against the timestamp of the most recent `kind:planning,action:polish` work
+  item closed.
 
-### STEP 4 — DDx suggested commands
+### STEP 4 — Suggested next steps
 
-- `BUILD`: `ddx work` (or `ddx bead execute <id>` for a specific bead)
+- `BUILD`: run the runtime's build loop (or single-item managed execution for a
+  specific work item)
 - `DESIGN`: `/helix design <scope>`
 - `POLISH`: `/helix polish <scope>`
 - `ALIGN`: `/helix align <scope>`
