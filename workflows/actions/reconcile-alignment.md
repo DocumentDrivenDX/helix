@@ -189,6 +189,63 @@ Identify:
 Unplanned code paths and dead/orphaned implementations are not a separate loose
 check — they surface as findings in the structured inventory below.
 
+### Review Dimensions (artifact-contract rubric)
+
+Each governing artifact is a **contract with implementation implications**, and the
+review's job is to verify *every* such contract against the code — not an ad-hoc
+prose verdict that can silently omit a whole dimension (the failure mode: a review
+that checks ACs and tooling but never asks whether the ADRs' decisions are honored
+or the NFR targets are met). Review is therefore **artifact-driven**: walk each
+artifact type, check its declared contract, and record the result so coverage is
+auditable. Coverage is a **floor** (every dimension, and every in-scope item within
+it, addressed) and never a **cap** (extra rigor is always welcome, never penalized).
+
+| Dimension | Governing artifact | Contract the code must honor | Sub-check |
+|---|---|---|---|
+| Capability (FR) | PRD `FR-n`, `FEAT-NNN` | the requirement is implemented and traced | Bidirectional Traceability (code→spec) |
+| Acceptance behavior | `US-NNN` ACs | each AC's behavior is exercised by a citing test that drives *that* AC | Acceptance Criteria Validation |
+| Architecture decision | `ADR-NNN` | each accepted decision is reflected in code; no surface contradicts it | ADR Decision Honoring |
+| Concern practice | `concerns.md` + practices | the concern's *behavioral* practices are realized in code (not only its tooling wired) | Concern Drift Detection |
+| Measurable NFR / budget | PRD/`FEAT` NFRs, design budgets | each measurable target is met or has observed evidence | NFR Target Verification |
+| Decomposition | PRD subsystems → FEAT → story | structure is granular and reproducible | Acceptance Criteria Validation (decomposition) |
+| Slot / instrument | `slots.yml`, templates/meta | the resolution + scoring instruments are intact | Slot Registry / Instrument-Integrity |
+
+**Dimension Coverage Matrix (required output).** Emit one row per dimension above.
+Each row carries the **denominators**, so a dimension cannot be counted "done"
+while items inside it are silently skipped:
+
+| Dimension | In-scope items found | Checked | Findings (non-ALIGNED) | Classification | Evidence |
+|---|---|---|---|---|---|
+
+- `In-scope items found` / `Checked` are counts (e.g. ADRs: 8 found / 8 checked;
+  NFRs: 3 found / 3 checked). `Checked` < `found` is itself a completeness gap.
+- `Classification` is the **worst** Step 4 value across the dimension's items
+  (`ALIGNED` only when every item is).
+- A dimension with no artifacts of that type is `N/A — <reason>` and must record
+  the **search evidence** that establishes the absence (where you looked, what
+  glob/grep returned nothing) — an unexamined `N/A` is not acceptable.
+- A dimension row left **absent** is a **blocking review-completeness finding** —
+  silent omission is the gap this rubric exists to close.
+
+**Deterministic floor vs. model judgement.** Many checks here are *structural and
+parseable* — they read the spec + code trees and need no judgement. Run the repo's
+deterministic checker first to compute these reproducibly:
+`scripts/helix_align_check.py` emits the coverage-matrix denominators and the
+structural findings for decomposition (subsystem→FEAT→story, FR→FEAT, mega-FEAT,
+naming), the `@covers` citation *inventory* (which ACs are cited, which citations
+are dangling), and the ADR / NFR *inventories* (counts, status, naming). The
+Slot-Registry Integrity check below is likewise fully deterministic (its six rules
+read `slots.yml` + concern files). Spend model judgement on the **semantic**
+verdicts the script deliberately defers and cannot decide: whether a cited test
+*exercises that exact AC*, whether an ADR's *decision is honored* in code, whether
+a concern's *behavioral practice is realized*, and whether an NFR *target is met*.
+The deterministic pass makes the denominators identical across runtimes (the same
+spec stack yields the same counts); the model pass supplies the behavioral truth
+the counts cannot. If the repo does not ship the checker, perform the same
+structural checks by hand. The checker is Python-3-standard-library-only and reads
+files (no tracker, no harness dependency), so it runs identically under any
+runtime (claude / codex / ddx).
+
 ### Bidirectional Traceability (spec ↔ code)
 
 The spec is the contract; code is a projection of it (see the **Spec Is The
@@ -237,6 +294,42 @@ exercise-not-just-cite rule guards this anti-rot case).
 Both halves are coverage-floor checks: flag missing/ broken traceability, never
 penalize extra rigor.
 
+### ADR Decision Honoring
+
+ADR naming/structure is checked under Acceptance Criteria Validation
+(decomposition). This check is about the **decision itself**: an `accepted` ADR is
+a binding architectural contract, so the code must reflect its decision — not
+merely mention the ADR. For each ADR in scope:
+
+1. **Decision realized (accepted ADRs).** For each `ADR-NNN` with status
+   `accepted`, the *Decision* is observable in the implementation — the chosen
+   mechanism, boundary, or pattern is the one in the code (e.g. ADR "single queue
+   table with row-level locking" → the schema and dequeue path use it; ADR
+   "per-tenant schema isolation" → queries are tenant-scoped). Cite the code
+   evidence. An accepted ADR with no locatable implementation of its decision is
+   `INCOMPLETE` (not yet built) or `UNDERSPECIFIED` (decision too vague to verify —
+   an ADR-quality finding).
+2. **Unaccepted ADR the code depends on.** If the implementation relies on a
+   decision whose ADR is still `proposed` (not yet accepted), the decision is not a
+   binding contract — classify `BLOCKED` or `UNDERSPECIFIED`, resolution
+   `decision-needed` (accept the ADR, or stop depending on it). A `proposed` ADR
+   does not silently become binding because its feature reached build.
+3. **No contradicting surface.** No material surface implements the *rejected*
+   alternative or otherwise contradicts an accepted decision (e.g. an ADR chose
+   library X but a module imports Y for the same role). A contradiction is
+   `DIVERGENT`, resolution `decision-needed` — either the code is wrong or the ADR
+   is stale.
+4. **Supersession / staleness.** An ADR superseded by a later ADR is checked
+   against the **superseding** decision; the superseded one should carry
+   `status: superseded`. When a newer higher-authority artifact (PRD/FEAT) has
+   overtaken an ADR whose status was never updated, classify the ADR `STALE_PLAN`.
+5. **Consequences present.** Where an accepted ADR records *Consequences* that
+   imply code (a required migration, a compatibility shim, a monitoring hook),
+   confirm they exist or are tracked. A missing implied consequence is `INCOMPLETE`.
+
+Report each ADR with its decision, the code evidence (or its absence), and the
+classification.
+
 ### Concern Drift Detection
 
 For each active concern, verify the implementation matches its declared
@@ -257,6 +350,65 @@ practices:
    gate commands (e.g., `cargo deny check advisories`, `govulncheck`,
    `bun audit`), verify those commands are present in CI configuration or
    pre-commit hooks. Missing gates are alignment findings.
+
+The checks above confirm each concern's **tooling** is wired and spot-check a few
+security practices. Make this behavioral verification **explicit and systematic for
+every active concern** — a wired tool does not guarantee the practice is followed
+in the code:
+
+5. **Behavioral practice realization.** Read the concern's practices and check the
+   code embodies them, not just that the tool exists. Sample floor: in a small
+   scope, check **all** material surfaces where the practice must hold; in a larger
+   scope, a set of **named representative surfaces with the selection rationale
+   recorded**, so the sample is reproducible.
+   - **a11y-wcag-aa**: interactive elements have accessible names/roles; the active
+     nav/location is marked (`aria-current`); forms have labels and error
+     associations; keyboard focus is managed.
+   - **security-owasp**: every state-changing or data-returning handler enforces
+     authz and validates/parameterizes input; secrets are not hard-coded;
+     authn/session/cookie handling matches the practice.
+   - **o11y-otel**: the declared spans/metrics/logs are actually emitted on the real
+     code paths, not merely importable.
+   - **verification** concern: claims of behavior are backed by *observed
+     running-system evidence*, not unit-green alone.
+   A practice the tooling is wired for but the code does not follow is `DIVERGENT`
+   (concern-behavior drift), distinct from a missing-tool finding; cite the specific
+   unguarded handler / unlabeled control / unemitted span. This is a coverage floor
+   — more practices verified, or a larger sample, is never a finding.
+
+### NFR Target Verification
+
+Non-functional requirements with a **stated, measurable** target (performance,
+latency, throughput, availability, security posture, scalability,
+accessibility-level) are contracts, so they are verified here against evidence.
+This is distinct from the advisory Quality Evaluation in Step 4: **stated** NFR /
+design-budget contracts are verified here; Step 4 Performance stays advisory for
+*unstated* risks and general quality. **No-duplicate rule:** a stated-NFR failure
+is reported here, not also as a generic Step 4 Performance finding. For each NFR
+stated in the PRD, a `FEAT`, or a design budget, assign a Step 4 classification:
+
+1. **Target is measurable.** The NFR names a target with a number/threshold and a
+   condition (e.g. "p95 < 200ms at 100 rps", "supports 10k tenants", "WCAG 2.1
+   AA"). An NFR stated only as an adjective ("fast", "scalable") is
+   `UNDERSPECIFIED` — it cannot be verified.
+2. **Evidence of meeting it.** Acceptable evidence is an observed measurement (a
+   benchmark/load-test result at representative volume), an **executable guard** (a
+   budget assertion in a test/CI that fails on regression), or an **explicitly
+   reviewed analytical model** tied to a stated proof — not a bare index/query-plan
+   asserted to be sufficient. Classification: target met = `ALIGNED`; target real
+   but no measuring evidence = `INCOMPLETE`; evidence shows the target is *not* met
+   = `DIVERGENT`; target overtaken/superseded by a higher-authority artifact but
+   not updated = `STALE_PLAN`; measurement blocked by an external dependency =
+   `BLOCKED`. (Per the honesty rule, an asserted-but-unmeasured NFR *figure* is also
+   flagged `ASSERTED_UNBACKED` — a phantom claim, zero-tolerance — independent of
+   the Step 4 classification above.)
+3. **Ongoing guard where the target can regress.** A regression-prone budget should
+   have an executable guard, not a one-off measurement; a regression-prone NFR with
+   no guard is `INCOMPLETE`.
+
+Record each NFR, its target, the evidence, and the classification in the Gap
+Register and the Dimension Coverage Matrix. Extra NFRs verified beyond those stated
+are welcome, never a finding.
 
 ### Slot Registry Integrity
 
@@ -364,6 +516,18 @@ For each user story and feature spec in the reviewed scope:
      machine-checkable rather than guessed. The citation is an **additional**
      gate on top of exercise+pass+satisfy — never a replacement for it; a
      citation alone, with no exercise, does not cover the criterion.
+2a. **Cited-test ↔ AC behavioral match (operationalizes the `ASSERTED_UNBACKED`
+    rule below).** A `@covers <AC-ID>` citation only holds when the cited test
+    **drives the scenario of that exact AC** — the same precondition, action, and
+    asserted outcome the AC describes. Do not accept a citation on name-match
+    alone; read the cited test and confirm it exercises *this* AC, not a sibling
+    AC's or adjacent code. Precedence when a citation is wrong (e.g. a test cites
+    `US-005-AC1` "opt-out suppression created" but actually asserts send-exclusion):
+    the **mis-cited AC** is `ASSERTED_UNBACKED` (a phantom traceability claim); the
+    AC the test *actually* exercises, if real and uncited, is `UNCITED_COVERAGE`. Do
+    not double-classify one AC as both `UNTESTED` and `ASSERTED_UNBACKED` — a wrong
+    citation is `ASSERTED_UNBACKED`, honest silence (no citation) is `UNTESTED` or
+    `UNCITED_COVERAGE`. This catches *wrong-AC* citations, not only *no* citation.
 3. Classify each criterion as:
    - **SATISFIED** — test exists, passes, **cites the AC ID** in the canonical
      `@covers <AC-ID>` syntax, and implementation matches. (Exercise + pass +
@@ -469,9 +633,11 @@ For each area classified as ALIGNED or INCOMPLETE, evaluate:
 - **Maintainability** — is the implementation structured for change? Are
   boundaries clean, dependencies explicit, and coupling proportional to
   cohesion?
-- **Performance** — are performance constraints from requirements or design
-  met or testable? Are there obvious scalability risks unaddressed by the
-  planning stack?
+- **Performance (unstated risks only)** — are there obvious scalability or
+  latency risks **not already captured as a stated NFR**? *Stated*
+  performance/scalability targets from requirements or design are verified in
+  STEP 3 NFR Target Verification, not here (see its no-duplicate rule); this
+  bullet covers only general, unstated quality risks the planning stack missed.
 
 Quality concerns do not change the gap classification. Instead, record them as
 supplementary findings in the Gap Register with resolution direction
@@ -502,8 +668,9 @@ Use the template at:
 
 the alignment-review template in the runtime's templates directory.
 
-The report must consolidate all review items into one coherent repo artifact.
-It is the durable output of the review run.
+The report must consolidate all review items into one coherent repo artifact,
+including the Dimension Coverage Matrix from Step 3 so the report shows every
+review dimension was addressed. It is the durable output of the review run.
 
 ## STEP 7 - Execution Work Items
 
@@ -588,7 +755,9 @@ criteria. See the measure action for the full pattern.
    work item.
 4. **Concern drift**: All concern drift findings are recorded and have
    corresponding execution items.
-5. **Record results** on the governing work item via the runtime-provided work-item source.
+5. **Dimension coverage**: Every review dimension appears in the Dimension
+   Coverage Matrix with a classification or a recorded, evidenced `N/A`.
+6. **Record results** on the governing work item via the runtime-provided work-item source.
 
 ## STEP 10 - Report
 
@@ -618,17 +787,18 @@ Produce these sections in order:
 3. Intent Summary
 4. Planning Stack Findings
 5. Implementation Map
-6. Acceptance Criteria Status
-7. Gap Register (with Quality Findings)
-8. Traceability Matrix
-9. Review Item Summary
-10. Execution Items Generated
-11. Item Coverage Verification
-12. Execution Order
-13. Open Decisions
-14. Queue Health and Exhaustion Assessment
-15. Measurement Results
-16. Follow-On Items Created
+6. Dimension Coverage Matrix
+7. Acceptance Criteria Status
+8. Gap Register (with Quality Findings)
+9. Traceability Matrix
+10. Review Item Summary
+11. Execution Items Generated
+12. Item Coverage Verification
+13. Execution Order
+14. Open Decisions
+15. Queue Health and Exhaustion Assessment
+16. Measurement Results
+17. Follow-On Items Created
 
 Then emit the machine-readable trailer:
 
@@ -682,6 +852,23 @@ item description, assemble or refresh its context digest per
 `workflows/references/context-digest.md`. If the repo ships
 `scripts/refresh_context_digests.py`, use it so digests and `area:*` labels
 stay deterministic.
+
+### STEP 3 — Deterministic structural checks
+
+If the repo ships `scripts/helix_align_check.py`, run it first to compute the
+deterministic coverage-matrix denominators and structural findings (decomposition
+coverage, `@covers` citation inventory, ADR / NFR inventory) before the model's
+semantic pass:
+
+```
+python3 scripts/helix_align_check.py --docs-root docs/helix --code-root . --format json
+```
+
+It is Python-3-standard-library-only and reads files only (no tracker / harness
+dependency), so it runs identically across runtimes. Treat its output as the
+reproducible floor and layer the STEP 3 semantic verdicts (AC-exercise,
+ADR-decision-honoring, concern-behavior, NFR-target) on top. `--strict` exits
+non-zero on a blocking structural finding for use as a gate.
 
 ### STEP 3 — Acceptance criteria ratchet
 
