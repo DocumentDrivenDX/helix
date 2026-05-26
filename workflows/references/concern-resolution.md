@@ -5,11 +5,11 @@ ddx:
     - helix.workflow.principles-resolution
     - FEAT-006
   review:
-    self_hash: f211e950cf6c5fee93180100068bf32ddad2c0819bae65c476896f30f10fa22e
+    self_hash: b4eb52e6399d149ecc76309fa1225508763d761a7122e961b34c21c07fce5846
     deps:
       FEAT-006: d2eab5444f4c023232a08e0774b6738c3d9abf6a4da48b7d59e775750ed1412a
       helix.workflow.principles-resolution: fe8bbb3f17f8f153acd66e91c48bfb775972ef271361a1c660d1c83c69f15648
-    reviewed_at: "2026-05-26T07:17:19Z"
+    reviewed_at: "2026-05-26T08:39:01Z"
 ---
 # Concern and Practices Resolution
 
@@ -187,10 +187,14 @@ selection by the active autonomy level (FEAT-011; see `workflows/actions/input.m
    `slots.yml default`, or `assumption`) in `concerns.md`. Slot membership is
    derived: a concern fills slot X iff its `concern.md` `## Slot` names X.
    **Filling `e2e-framework` selects the tool; it is not e2e coverage.** A UI web
-   app must additionally have **≥1 core user-flow covered by a browser e2e test
-   that actually RUNS GREEN against the running app** — a config plus a `.spec`
-   file that never runs does not satisfy this. The run-core-flow gate lives in the
-   `e2e-playwright` practices; an unexercised flow's AC is `UNTESTED`, not covered.
+   app must additionally have **≥1 core user-flow covered by a whole-stack e2e that
+   actually RUNS GREEN against the running app** — a **browser e2e** for a
+   client-rendered UI, or an **HTTP+HTML-assertion e2e** (drive the live server,
+   assert the rendered markup) for a server-rendered one; both are first-class. A
+   config plus a `.spec` file that never runs does not satisfy this. The
+   run-core-flow gate lives in the selected `e2e-framework` filler's practices
+   (e.g. `e2e-playwright` for the browser case) and the `verification` evidence
+   gate; an unexercised flow's AC is `UNTESTED`, not covered.
 3a. **Unmatched capability — decide by RISK, don't ignore or fabricate.** When the
    brief needs a capability with no matching concern (e.g. an email-delivery
    provider, an event-streaming bus, send-time optimization, usage-based billing,

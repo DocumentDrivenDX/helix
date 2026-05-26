@@ -301,10 +301,12 @@ At minimum, verify:
 - **selection↔build coherence (when `verification` is active):** the built system
   honors the **selected concerns and slots** — each selected slot's filler is
   actually used (a selected `frontend-framework: react-nextjs` ⇒ a real React/Next
-  app exists, SSR/RSC fine; a selected UI slot ⇒ a core-flow browser e2e ran
-  green). A selected slot the build **silently abandoned** (selected react-nextjs
-  but shipped a non-React app; selected e2e-playwright but shipped no e2e) is a
-  blocking defect — not a quiet substitution. Changing a selected stack mid-build
+  app exists, SSR/RSC fine; a selected UI slot ⇒ a core-flow whole-stack e2e ran
+  green — a browser e2e for a client-rendered UI, or an HTTP+HTML-assertion e2e for
+  a server-rendered one; both first-class). A selected slot the build **silently
+  abandoned** (selected react-nextjs but shipped a non-React app; selected a UI
+  slot but shipped no core-flow e2e at all) is a blocking defect — not a quiet
+  substitution. Changing a selected stack mid-build
   is allowed only as a **recorded deviation**: update the slot/concern selection in
   `concerns.md`, give a reason tied to an acceptance constraint, update the
   verification plan, and run the substitute evidence. Honor the `verification`

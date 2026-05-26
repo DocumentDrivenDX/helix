@@ -50,10 +50,17 @@ from an actual run, never asserted from memory:
    filler: e.g. a selected `frontend-framework: react-nextjs` means a real
    React/Next app exists (SSR/RSC is fine — the point is React/Next is *present*,
    not that rendering is client-side), and when a UI slot is selected a core
-   user-flow has a browser e2e that **ran green** (the `e2e-framework` concern
-   owns *how*; this gate only refuses-done without that evidence). A selected
-   slot the build silently abandoned — selecting `react-nextjs` then shipping a
-   non-React app, or `e2e-playwright` then shipping no e2e — is what this catches.
+   user-flow has a **whole-stack end-to-end test that ran green against the
+   running system**. That test is a **browser e2e** for a client-rendered UI, or
+   an **HTTP+HTML-assertion e2e** for a server-rendered UI (drive the live server
+   and assert the rendered markup, including a visible active state **and**
+   `aria-current="page"` on the active nav item for ≥1 route). **Both are
+   first-class — a server-rendered slice verified by
+   an HTTP+HTML e2e is NOT a deviation** (the `e2e-framework` concern owns *how*
+   and *which*; this gate only refuses-done without that running-system evidence).
+   A selected slot the build silently abandoned — selecting `react-nextjs` then
+   shipping a non-React app, or shipping **no** core-flow e2e at all — is what
+   this catches.
 
 A completion claim missing any of these five is incomplete — the gate is not
 "tests are green", it is "the stack was exercised, honors what was selected, and

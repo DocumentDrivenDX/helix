@@ -166,8 +166,9 @@ stories.
    source in `concerns.md`. A web app must fill `frontend-framework` — the
    shipped default `react-nextjs` applies with no operator config. A UI web app
    must also fill `e2e-framework` (default `e2e-playwright`); selecting the tool
-   is not coverage — ≥1 core user-flow must have a browser e2e that runs green
-   against the running app. Selection happens here, once; propagation to work
+   is not coverage — ≥1 core user-flow must have a whole-stack e2e that runs green
+   against the running app (a browser e2e for a client-rendered UI, or an
+   HTTP+HTML-assertion e2e for a server-rendered one). Selection happens here, once; propagation to work
    items is a later gate owned by `check`/`polish`, not a re-selection.
 3. Read the relevant artifact template and prompt before drafting.
 4. Keep each artifact in its lane: vision is direction, PRD is product scope,
@@ -395,10 +396,13 @@ Use only when the user explicitly asks for HELIX execution.
    `testing` strategy and the `e2e-framework` tooling). A green unit suite is
    not done: for a buildable product, drive the real user flows against the
    **running** system end-to-end with a whole-stack exercise appropriate to the
-   product (for a UI web app that means ≥1 core flow via a browser e2e that runs
-   green — and the running UI MUST give current-location feedback: the active
+   product (for a UI web app that means ≥1 core flow via a whole-stack e2e that
+   runs green — a **browser e2e** for a client-rendered UI, or an
+   **HTTP+HTML-assertion e2e** for a server-rendered UI; either is first-class.
+   The running UI MUST give current-location feedback: the active
    nav item shows a visible active state **and** `aria-current="page"`, with the
-   browser e2e asserting that cue for ≥1 route, required and never substituted by
+   e2e asserting that cue for ≥1 route (in the rendered markup for a server-
+   rendered UI, via the browser for an SPA), required and never substituted by
    a class/style or screenshot assertion; for a service/CLI, the equivalent
    end-to-end invocation against the running system), do an adversarial
    re-review against the ACs
