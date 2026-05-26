@@ -152,7 +152,19 @@ For each affected artifact:
 4. Check whether the new requirement conflicts with active concerns:
    - Does it introduce a tool, framework, or convention that contradicts a
      declared concern's constraints or practices?
-   - Does it require a technology not covered by any active concern?
+   - Does it require a technology not covered by any active concern? **If so,
+     decide by RISK** (same rule as `concern-resolution.md`): clear/low-risk,
+     well-understood (known provider, standard integration) → add a concern
+     (provider-behind-abstraction) or capture it in an ADR; **material
+     uncertainty** — unknown/changing API, cost, permissions/credentials,
+     correctness, or operational risk (true even for a known vendor: billing,
+     marketplaces, send-time optimization, queue design) → define a **`tech-spike`**
+     and de-risk it before committing the design. Prefer a **bounded runnable**
+     spike when feasible; when running is infeasible/unsafe (external/paid APIs,
+     missing creds, long benchmarks) record a **blocked spike** (why it could not
+     run, what was read/simulated, which decisions stay provisional). Never
+     fabricate a concern for the not-yet-understood, and never silently drop the
+     requirement.
    - Would it change the project's area taxonomy or concern applicability?
 5. For each conflict found, record:
    - Artifact and section (or concern name, for concern conflicts)

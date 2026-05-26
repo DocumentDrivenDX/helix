@@ -5,11 +5,11 @@ ddx:
     - helix.workflow.principles-resolution
     - FEAT-006
   review:
-    self_hash: 89442e40f1dee5134731b1482e545fceeac074335bb0d1ec08edd565d7c670ba
+    self_hash: 884141dd45075506f434dff21772fc66f01291de2d0d4dda7fae907102e05a75
     deps:
       FEAT-006: d2eab5444f4c023232a08e0774b6738c3d9abf6a4da48b7d59e775750ed1412a
       helix.workflow.principles-resolution: fe8bbb3f17f8f153acd66e91c48bfb775972ef271361a1c660d1c83c69f15648
-    reviewed_at: "2026-05-26T03:19:52Z"
+    reviewed_at: "2026-05-26T04:33:49Z"
 ---
 # Concern and Practices Resolution
 
@@ -191,6 +191,24 @@ selection by the active autonomy level (FEAT-011; see `workflows/actions/input.m
    that actually RUNS GREEN against the running app** — a config plus a `.spec`
    file that never runs does not satisfy this. The run-core-flow gate lives in the
    `e2e-playwright` practices; an unexercised flow's AC is `UNTESTED`, not covered.
+3a. **Unmatched capability — decide by RISK, don't ignore or fabricate.** When the
+   brief needs a capability with no matching concern (e.g. an email-delivery
+   provider, an event-streaming bus, send-time optimization, usage-based billing,
+   a marketplace deploy), route it:
+   - **Clear, low-risk, well-understood** (a known provider, a standard
+     integration) → add a concern (provider-behind-abstraction — name the
+     capability/slot, let the provider fill it) or capture the choice in an ADR.
+   - **Material uncertainty** — unknown/changing API, cost, permissions/credentials,
+     correctness, or operational risk (this holds **even for a known vendor**:
+     billing, marketplaces, send-time optimization, queue design) → define a
+     **`tech-spike`** (02-design) and de-risk it before committing the design.
+     Prefer a **bounded, runnable** spike when feasible (small, time/scope-boxed);
+     when running is infeasible or unsafe (external/paid APIs, missing creds, long
+     benchmarks) record a **blocked spike** — why it could not run, what was read
+     or simulated instead, and which decisions stay **provisional**.
+   Do not fabricate a concern for something not yet understood; do not silently
+   drop a brief capability. (Same rule applies in `evolve`; see
+   `workflows/actions/evolve.md`.)
 4. Write `docs/helix/01-frame/concerns.md` with the inferred selection (composable
    concerns + the resolved slot fillers), recording each inferred concern as an
    **assumption** (a recorded inference, not a confirmed choice) rather than

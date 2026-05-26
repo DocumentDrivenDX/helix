@@ -53,6 +53,17 @@ when they exist.
 2. Read the current implementation state relevant to the scope.
 3. Read the current work queue state if the tracker is initialized.
 4. Identify gaps: what questions does the existing planning stack leave open?
+4a. **Spiking is a first-class path to good design — de-risk before you commit.**
+   For any hard or unknown choice (a capability with material uncertainty: unknown
+   or changing API, cost, permissions/credentials, correctness, or operational
+   risk — true even for a known vendor, e.g. billing, marketplaces, send-time
+   optimization, queue design), do not let the ADR/technical-design commit on
+   assumption. Define a **`tech-spike`** (or `proof-of-concept`) and de-risk it
+   first: a **bounded runnable** spike when feasible, else a recorded **blocked
+   spike** (why it could not run, what was read/simulated, which decisions stay
+   provisional). Feed the spike's findings into the ADR/technical-design. (Same
+   risk-based rule as `concern-resolution.md` and `evolve.md`; spike artifacts:
+   `workflows/activities/02-design/artifacts/{tech-spike,proof-of-concept}/`.)
 5. **Load design artifact numbering rules** (required before creating any SD or
    TD artifact):
    - Read the solution-design meta.yml to understand the SD-{number} format,

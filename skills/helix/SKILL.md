@@ -406,7 +406,12 @@ Use only when the user explicitly asks for HELIX execution.
    its exit status, the target URL/env, the core flows exercised, and the
    re-review checklist. **Verify-don't-trust**: never assert a result you did
    not observe; treat a self-reported "complete" as a hypothesis to verify.
-   Honor the exceptions (library / docs-only / non-buildable work, or
+   **Selection↔build coherence**: the built app must honor the *selected* slots —
+   selecting `react-nextjs` then shipping a non-React app, or selecting an e2e
+   framework then shipping no e2e, is a defect, not a quiet substitution (SSR/RSC
+   is fine; the point is React/Next is present). A stack change mid-build is a
+   **recorded deviation** (update the slot in `concerns.md` + reason + evidence),
+   never silent. Honor the exceptions (library / docs-only / non-buildable work, or
    full-stack e2e genuinely infeasible — record the reason and substitute the
    strongest observable evidence). See
    `<plugin-root>/workflows/concerns/verification/practices.md`.

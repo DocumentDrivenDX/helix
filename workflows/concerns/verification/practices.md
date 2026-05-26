@@ -45,10 +45,32 @@ from an actual run, never asserted from memory:
      running system, or only by the unit layer?
    - each integration risk / seam the change touched: was it exercised, or
      assumed?
+5. **Selection↔build coherence** — the built system actually **honors the
+   selected concerns and slots**. For each selected slot, the build uses that
+   filler: e.g. a selected `frontend-framework: react-nextjs` means a real
+   React/Next app exists (SSR/RSC is fine — the point is React/Next is *present*,
+   not that rendering is client-side), and when a UI slot is selected a core
+   user-flow has a browser e2e that **ran green** (the `e2e-framework` concern
+   owns *how*; this gate only refuses-done without that evidence). A selected
+   slot the build silently abandoned — selecting `react-nextjs` then shipping a
+   non-React app, or `e2e-playwright` then shipping no e2e — is what this catches.
 
-A completion claim missing any of these four is incomplete — the gate is not
-"tests are green", it is "the stack was exercised and here is the recorded
-evidence".
+A completion claim missing any of these five is incomplete — the gate is not
+"tests are green", it is "the stack was exercised, honors what was selected, and
+here is the recorded evidence".
+
+## Selected-stack changes are recorded, never silent
+
+Under a large brief an agent may be tempted to quietly retreat from a selected
+slot (drop React for a hand-rolled page, skip the e2e). That **silent retreat is
+a defect** — a selected slot abandoned with no recorded decision and no evidence
+the substitute still satisfies the selected concerns. Changing a selected stack
+mid-build is allowed only as a **recorded deviation**: update the slot/concern
+selection in `concerns.md`, state the reason tied to an acceptance constraint,
+update the verification plan, and run the substitute evidence. (The
+`verification` concern's exceptions — library / docs-only / non-buildable /
+genuinely infeasible e2e, defined in this concern's `concern.md` — are recorded
+the same way.)
 
 ## Verify, don't trust
 
