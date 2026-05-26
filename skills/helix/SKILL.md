@@ -208,7 +208,11 @@ Use for reconciliation, traceability audits, drift checks, and artifact content
 placement reviews.
 
 1. Start from authority: vision, PRD, features/stories, architecture/ADRs,
-   designs, tests, implementation plans, code.
+   designs, tests, implementation plans, code. The spec stack is the contract;
+   code is a projection of it. Traceability is **bidirectional**: every material
+   code surface (route/screen/CLI/API/job/migration) traces to a governing
+   artifact, and every acceptance criterion traces to an exercising test. Unmapped
+   material surfaces and unimplemented criteria are both alignment findings.
 2. Reconstruct intent from planning artifacts before inspecting lower layers.
 3. Classify each gap as `ALIGNED`, `INCOMPLETE`, `DIVERGENT`,
    `UNDERSPECIFIED`, `STALE_PLAN`, or `BLOCKED`.

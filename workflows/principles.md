@@ -4,10 +4,10 @@ ddx:
   depends_on:
     - helix.workflow
   review:
-    self_hash: fb5c6c17965c55103a0fd1d5933d8d7d0b6f531e31ae99d162a9783005017a56
+    self_hash: 2a9c7544929c1d7cf2707b447723a5d17261cd52ca1a6dfabcb3b22f9ae6b0f4
     deps:
-      helix.workflow: 1225132b3050598055eacb5462639824d78ac204cca2cbeda3611766532e79c8
-    reviewed_at: "2026-05-15T04:11:24Z"
+      helix.workflow: 1b6caaf3ebc6950bc4fff314e09bc0ee1b71deaa9223a4a70a13f399291ad98c
+    reviewed_at: "2026-05-26T17:17:30Z"
 ---
 # HELIX Design Principles
 
@@ -22,6 +22,18 @@ Principles guide decisions; they are not workflow rules. Process enforcement
 belongs in activity enforcers and ratchets.
 
 ## Principles
+
+### Spec Is The Contract
+
+The governing artifact stack (vision → PRD → features → stories/ACs → ADRs/design)
+is the contract and the source of truth; code is a **projection** of it. Two
+consequences: (1) cross-implementation comparison and reproduction start from the
+**spec**, not the code surface — equivalence is spec equivalence. (2) Traceability
+is **bidirectional** — every material code surface traces to a governing artifact
+(no code outside spec), and every acceptance criterion traces to an exercising
+test (no spec without implementation). Code that outran its spec and a spec that
+outran its code are both drift. Keep the spec current *with* the code in the same
+change, not best-effort afterward — best-effort spec evolution is not reproducible.
 
 ### Design for Change
 

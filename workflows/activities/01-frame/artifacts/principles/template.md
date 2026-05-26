@@ -36,6 +36,13 @@ semantics).
    is easiest to undo or change later. This changes decisions when confidence
    is low and both options satisfy current requirements.
 
+6. **Spec is the contract** — The governing artifact stack is the source of
+   truth; code is a projection of it. Compare and reproduce from the spec, and
+   keep traceability bidirectional (no material code surface without a governing
+   artifact; no acceptance criterion without an exercising test). This changes
+   decisions when code and spec diverge — fix the projection or update the
+   contract in the same change, rather than letting them drift.
+
 ## Tension Resolution
 
 When principles pull in opposite directions, document the resolution strategy

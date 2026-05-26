@@ -89,7 +89,9 @@ HELIX labels appropriate to the work activity.
 0c. **Verify context digest freshness**: For work items in scope, check whether
    context digest blocks reflect current upstream state. Stale digests are an
    alignment finding.
-1. Verify the runtime-provided work-item source is available. Stop immediately if unavailable.
+1. Verify the runtime-provided work-item source is available. If unavailable, run
+   in **report-only mode** (see below) rather than stopping — the structural
+   checks (Bidirectional Traceability, decomposition, AC validation) still run.
 2. Determine the review scope.
 3. Break the scope into functional areas.
 4. Reconcile any existing review epic and review issues for the same scope.
@@ -113,6 +115,14 @@ HELIX labels appropriate to the work activity.
 Before modifying any tracker work items or writing reports, acquire a governing
 work item for this alignment pass. See the runtime's work-item acquisition
 reference for the full pattern.
+
+**Report-only mode (no work-item source).** When no runtime work-item source is
+available, run the review read-only: emit all findings to the report / stdout with
+**report finding IDs** (not owned issue IDs), and skip tracker acquisition,
+tracker mutation, and Step 7 (execution work items). Every analysis step — the
+Bidirectional Traceability surface map, decomposition granularity, concern/slot
+integrity, and Acceptance Criteria Validation — runs unchanged; only the
+tracker-write steps are skipped. This keeps the action runtime-vendor-neutral.
 
 If this action was reached through a skill or CLI entrypoint, treat that
 entrypoint as a thin launcher only. The governing work item and stored prompt
@@ -175,8 +185,57 @@ Identify:
 - tests
 - feature flags and config switches
 - build and deploy surfaces
-- major unplanned code paths
-- dead or orphaned implementations
+
+Unplanned code paths and dead/orphaned implementations are not a separate loose
+check — they surface as findings in the structured inventory below.
+
+### Bidirectional Traceability (spec ↔ code)
+
+The spec is the contract; code is a projection of it (see the **Spec Is The
+Contract** principle). Traceability runs **both ways** — neither direction is
+primary, because a faithful evolve keeps both current and an unfaithful one can
+break either. These checks are **structural and read the spec + code trees
+directly** (no runtime tracker required — they run as report findings in a
+no-tracker / report-only review).
+
+**code → spec (no surface without a governing artifact).** Inventory the
+**material surfaces** and map each to the artifact that governs it. A *material
+surface* is externally-observable or lifecycle-significant: routes/endpoints,
+screens/pages, CLI commands, **project-owned externally-consumed APIs / extension
+points** (not incidental exported helpers or framework registrations), event
+consumers/jobs, domain migrations, behavior-altering feature flags/config, and
+deploy/runtime surfaces. **Exclude** generated/vendor/build output, framework
+plumbing, passive wrappers, default config, and unexposed scaffolding. Product
+capabilities map to a `FEAT`/`FR`/AC; technical/operational surfaces may map to an
+`ADR`, technical-design, concern, deployment-checklist, runbook, or data-design.
+Emit a **surface map** (one row per surface). `Kind` ∈ {capability, technical,
+non-material}; `Classification` is one of the Step 4 values; `Mapping rationale`
+states why that artifact governs the surface (or why the row is non-material/
+excluded) — without it review-mapping is not reproducible:
+
+| Surface | Evidence (file/path) | Kind | Governing artifact | Mapping rationale | Classification | Disposition |
+|---|---|---|---|---|---|---|
+
+- A material surface with **no** governing artifact is `UNDERSPECIFIED` (shipped
+  but unspecced) or `DIVERGENT` (contradicts its spec) — **blocking once the
+  stack is ready for handoff** (design/build/merge); during draft framing it is
+  advisory. Allow a **temporary-scaffold** disposition only when the surface is
+  unexposed/disabled and tied to a planned resolution.
+- A dead/orphaned implementation (spec gone, code remains) is `STALE_PLAN` or
+  `DIVERGENT`.
+- Legitimate boilerplate/framework code is `Kind: non-material`, `Classification:
+  ALIGNED` — recorded with evidence in `Disposition`, not forced to cite a feature.
+
+**spec → code (no AC without an exercising, citing test).** The Acceptance
+Criteria Validation below is the other half of this gate: every AC traces to an
+exercising `@covers` test. An AC with no implementing+citing test takes its
+existing AC-Validation status (`UNTESTED` / `ASSERTED_UNBACKED` / `UNCITED_COVERAGE`)
+and is logged in the Gap Register; an AC whose **described behavior no longer
+matches the code** (even if a test still passes) is `DIVERGENT`, not covered (the
+exercise-not-just-cite rule guards this anti-rot case).
+
+Both halves are coverage-floor checks: flag missing/ broken traceability, never
+penalize extra rigor.
 
 ### Concern Drift Detection
 
@@ -593,8 +652,8 @@ commands of a specific runtime, see its install guide (DDx:
 
 ### STEP 0 — Reference resolution
 
-Verify the runtime-provided work-item source is reachable; stop immediately if
-it is not.
+Verify the runtime-provided work-item source is reachable; if it is not, run in
+report-only mode (see STEP 0.5) rather than stopping.
 
 - Principles: `workflows/references/principles-resolution.md`
 - Concerns: `workflows/references/concern-resolution.md`
