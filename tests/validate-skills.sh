@@ -419,7 +419,13 @@ import sys
 
 expected_path, actual_path = sys.argv[1:3]
 with open(expected_path, "r", encoding="utf-8") as handle:
-    expected = sorted(entry["id"] for entry in json.load(handle))
+    # `ddx bead ready --execution` includes ready epics (deps satisfied), but HELIX's
+    # execution-ready contract excludes epics — an epic is a container, you execute its
+    # children, not the epic itself (see validate_execution_ready_beads.py + the skip-list
+    # below). Filter epics so the oracle matches that contract.
+    expected = sorted(
+        entry["id"] for entry in json.load(handle) if entry.get("issue_type") != "epic"
+    )
 with open(actual_path, "r", encoding="utf-8") as handle:
     actual = sorted(json.load(handle))
 if expected != actual:
