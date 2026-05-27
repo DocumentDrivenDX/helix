@@ -22,6 +22,7 @@ slots:
   deploy-target:       { exclusive: true }
   e2e-framework:       { exclusive: true }   # the one browser-e2e tool a UI web app runs its core flows through
   auth-provider:       { exclusive: true }   # the one authentication/identity backend (local sessions, Auth0/OIDC, …)
+  architecture-style:  { exclusive: true }   # the one macro layering/dependency style (onion, hexagonal, clean, classic-layered); no default — select on signal
   # composable positions (compose freely, no single winner) need no slot entry:
   # a11y, security, testing, o11y, i18n, verification, admin-console, auth (the product surface). (e2e-kind is
   # composable infra e2e — NOT the e2e-framework slot.)
