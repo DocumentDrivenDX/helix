@@ -502,11 +502,22 @@ For each user story and feature spec in the reviewed scope:
 
 1. Extract acceptance criteria from the governing artifact.
 2. For each criterion, determine whether:
-   - a test exists that **exercises** the criterion — it drives the criterion's
-     action and asserts the criterion's observable outcome. A test that merely
-     names the criterion, runs adjacent code, or asserts nothing relevant does
-     **not** exercise it: classify that criterion `UNTESTED`, and if an artifact
-     *claims* the named test covers it, `ASSERTED_UNBACKED` — never "covered".
+   - a test exists that **exercises** the criterion — via the
+     **interface-appropriate harness** for the criterion's surface (web→Playwright,
+     HTTP API→request client, CLI→shell/`expect`, TUI→tmux, backend/worker→integration;
+     see the `testing` concern's *surface → real-path harness* mapping) it drives the
+     criterion's action **and its guard/negative branch** (the rejection / failure /
+     edge path) against the **running system** where the criterion is observable, and
+     asserts the observed outcome of each. A test that merely names the criterion,
+     runs adjacent code, asserts nothing relevant, **or drives only the happy path and
+     never the guard branch** does **not** exercise it: classify that criterion
+     `UNTESTED` — a guard branch left untested is **not `SATISFIED`** even when the
+     happy-path unit test is green — and if an artifact *claims* the named test covers
+     it, `ASSERTED_UNBACKED` — never "covered". A guard branch genuinely not
+     applicable or not automatable is resolved only by the **recorded reviewed
+     exception** of the AC coverage floor below (step 7: "manual verification
+     accepted" / "non-automatable AC" with evidence — who verified, what was
+     observed); an un-waived untested guard branch leaves the criterion `UNTESTED`.
    - the test passes
    - the implementation satisfies the criterion based on code inspection
    - the exercising test **cites the AC ID** in the canonical, parseable

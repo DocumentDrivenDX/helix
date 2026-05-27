@@ -37,9 +37,16 @@ from an actual run, never asserted from memory:
 2. **Target URL / environment** — where the system was exercised: the base URL
    and port, the environment (local / container / CI), and the data state
    (seeded with what).
-3. **Core flows exercised** — the specific real user flow(s) driven against
-   the running system end-to-end, and the observed outcome of each (what was
-   seen, not what was expected).
+3. **Core flows + guard branches exercised** — the specific real user flow(s)
+   driven against the running system end-to-end, **and, for each governing
+   acceptance criterion, its guard/negative branch** (the rejection / failure /
+   edge path: malformed or missing input, double-submit / idempotency,
+   unauthorized, cross-tenant, out-of-window), with the observed outcome of each
+   (what was seen, not what was expected). **Happy-path-green is not done** — a
+   criterion whose guard branch was never driven on the running system is
+   incomplete. Drive each through the harness its surface dictates (the `testing`
+   concern's *surface → real-path harness* mapping; the `e2e-framework` slot owns
+   the web runner) — Playwright is not the universal verifier.
 4. **Re-review checklist** — a short adversarial pass recorded against:
    - each governing acceptance criterion: was it actually satisfied by the
      running system, or only by the unit layer?
@@ -65,6 +72,16 @@ from an actual run, never asserted from memory:
 A completion claim missing any of these five is incomplete — the gate is not
 "tests are green", it is "the stack was exercised, honors what was selected, and
 here is the recorded evidence".
+
+Write this recorded bundle to the canonical path the build gate checks —
+`docs/helix/04-build/verification-evidence.md` — so "done" is gated on its
+presence plus an adversarial review, not asserted from memory (see the 04-build
+`GATE.yaml` exit requirements). A guard branch that is genuinely not applicable
+or not automatable carries a **recorded reviewed exception** (manual verification
+accepted / non-automatable, with evidence — who verified, what was observed; the
+same escape hatch reconcile-alignment's AC coverage floor uses), never a silent
+omission; an un-waived untested guard branch leaves its acceptance criterion
+`UNTESTED` in reconcile-alignment.
 
 ## Selected-stack changes are recorded, never silent
 
@@ -117,8 +134,9 @@ e2e genuinely infeasible). Under a recorded exception:
 
 - Whole-stack exercise recorded (or a recorded exception with substitute
   evidence) — not unit-green alone.
-- All four evidence artifacts present for buildable work: command + exit
-  status, target URL/env, core flows exercised, re-review checklist.
+- All evidence artifacts present for buildable work: command + exit status,
+  target URL/env, core flows **and each AC's guard/negative branch** exercised
+  on the running system, re-review checklist.
 - Zero asserted-but-unobserved results — every reported outcome traces to a
   run that was watched finish.
 - Re-review pass recorded against the ACs and the integration seams the change

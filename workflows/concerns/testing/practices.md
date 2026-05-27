@@ -92,6 +92,27 @@
 | Fuzz | Crash/panic discovery | campaign | Full | Periodic |
 | Chaos | Failure resilience | varies | Partial | Alongside integration |
 
+## Surface → real-path harness
+
+The harness that *proves* a behavior depends on the surface it lives on. Drive
+each acceptance criterion's real path **and its guard/negative branch** through
+the harness its surface dictates. (Choosing the harness is a testing-strategy
+decision; the `verification` concern's evidence gate only refuses "done" without
+the resulting running-system evidence.)
+
+| Surface | Real-path harness |
+|---|---|
+| Web UI (client-rendered) | Playwright (the `e2e-framework` slot, default `e2e-playwright`) |
+| Server-rendered web | HTTP request + HTML assertion against the live server |
+| HTTP API / webhook | request client (curl/fetch): assert status code **and** body contract, including malformed / empty / unauthorized input |
+| CLI | shell / `expect` driving the real binary, asserting exit status + output |
+| TUI | `tmux` send-keys + capture-pane assertions |
+| Backend job / worker / scheduler | integration test driving the real entry point (not a re-implementation) |
+
+Playwright is the web filler, **not** the universal verifier — a CLI exercised
+only by unit tests, or an API whose malformed-input branch is never POSTed, is
+not verified.
+
 ## Quality Gates
 
 - All tests pass — no exceptions, no skips without linked issues
