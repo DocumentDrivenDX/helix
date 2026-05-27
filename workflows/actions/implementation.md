@@ -395,6 +395,38 @@ Before committing, perform one quick fresh-eyes review:
 
 If issues are found, fix them before proceeding to Step 8.
 
+## STEP 7.7 - Converge (bounded evolve-until-converged)
+
+"Go check your work again" is not optional polish — it is the loop that drives a slice to *done*,
+not to first-green. This step **orchestrates existing checks; it defines no new convergence criterion
+of its own.**
+
+**The single convergence oracle (compose the two canonical definitions; do not restate them):** a
+slice is *converged* iff **both** hold —
+
+1. `reconcile-alignment` reports its STEP 10 **Convergence criterion** met for this scope (every gap
+   classified, traceability complete, zero `ASSERTED_UNBACKED`, each finding-class folded into a gate
+   — including the `Concern→Artifact Realization` check), **and**
+2. the `04-build` `GATE.yaml` **exit_requirements** pass — the it.39 verification evidence gate (every
+   AC's real path **and** guard branch driven on the running system) plus tests/coverage/lint.
+
+**The loop:**
+
+1. Run `reconcile-alignment` on this work item's slice and confirm the `04-build` exit gate.
+2. If the oracle holds → converged; proceed to STEP 8.
+3. Else → **progressive `evolve`** (per `workflows/actions/evolve.md` and reconcile STEP 10's
+   "progressive evolve, not re-splat") targeting the **specific** findings — never regenerate the
+   slice — then re-run STEP 7 (Verification) and return to 7.7.1.
+4. **Bounded:** cap at `CONVERGE_MAX_PASSES` (default **5**). At the cap without convergence, **STOP**:
+   leave the work item **open** with an explicit **NON-CONVERGED** status note listing the unresolved
+   finding-classes — never "done with caveats", never commit it as complete — and surface it to the
+   operator. A bounded loop that halts with an honest non-converged state is the guarantee against
+   both an infinite loop and a false "done".
+
+Runtime: file-by-default — capture each pass's findings as the work item's evidence. Under DDx this is
+**one governing "convergence attempt"** record (bead), with per-pass findings as evidence on it — not
+a bead per finding.
+
 ## STEP 8 - Commit, Gate, Push, And Close
 
 If the work item is complete:
