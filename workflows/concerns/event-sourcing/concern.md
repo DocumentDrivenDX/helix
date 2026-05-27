@@ -196,6 +196,14 @@ consistency and real-time views (projections are eventually consistent), or
 teams with no event-driven experience adopting it blind. There, current-state
 storage is the simpler, correct choice (KISS/YAGNI).
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: event-sourcing for the named slice + event store + snapshot/upcasting + eventual-consistency window
+- TD: event store, rehydration/replay, projections/read-models, idempotent handlers, upcasters
+- DATA_DESIGN: append-only eventstream as system of record; projections are rebuildable views
+- TEST_PLAN: replay rebuilds state; idempotent handler (no double-apply); compensating-event correction
+
 ## ADR References
 
 Record an ADR when selecting event sourcing for a given domain slice (it is a

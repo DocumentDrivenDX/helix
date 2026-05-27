@@ -129,6 +129,12 @@ sibling instead when you have **non-trivial business logic, swappable
 infrastructure, or an isolated-testable-domain requirement**. `areas: all`
 because the layering constrains every buildable work item.
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: classic-layered chosen over inversion siblings; business→data-access coupling accepted
+- TD: presentation→application→domain→data-access tiers, dependencies pointing down
+
 ## ADR References
 
 Record an ADR when selecting classic-layered over a dependency-inversion

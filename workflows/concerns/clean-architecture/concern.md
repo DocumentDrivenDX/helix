@@ -156,6 +156,12 @@ wins per project. Compose with `domain-driven-design` (Entities-ring contents)
 and the tech-stack concern (package system enforcing the import graph).
 `areas: all` because the Dependency Rule constrains every buildable work item.
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: Clean chosen for architecture-style slot; interactor/boundary-DTO ceremony justified by size/longevity
+- TD: Entities/Use-Cases/Interface-Adapters/Frameworks rings, interactors, boundary DTOs, composition root
+
 ## ADR References
 
 Record an ADR when selecting Clean over a slot-sibling

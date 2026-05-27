@@ -170,4 +170,13 @@ system**, not merely defined). Do **not** select it for **flat-fee /
 seat-only-with-no-overage** subscriptions, free products, or non-commercial /
 internal tools where no usage drives a charge.
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: metering + billing model (aggregation function, idempotency, emission, reconciliation)
+- TD: capture on real path / idempotency key / aggregation / rating / emit / reconcile
+- FEAT: which actions are billable and the meter each emits
+- DATA_DESIGN: usage/meter event ledger with dedupe key, retained for audit
+- TEST_PLAN: retried action meters once (idempotency) + metered-total reconciliation
+
 ## ADR References

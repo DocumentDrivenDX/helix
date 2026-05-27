@@ -29,6 +29,13 @@ Use these local resource summaries as grounding:
   examples as readable acceptance specifications without prescribing
   implementation or tooling.
 
+## Active Concerns
+
+For each concern selected in `docs/helix/01-frame/concerns.md`, apply its declared
+`## Artifact Impact` (from `workflows/concerns/<name>/concern.md`) to THIS feature spec — realize the
+FEAT-level obligations it names (usage-metering -> which actions are billable; multi-tenancy -> tenant-scoped ACs). A selected concern whose Artifact Impact names FEAT
+but leaves no trace here is drift (reconcile-alignment Concern->Artifact Realization check).
+
 ## Key Principles
 
 - **Future state before current pain** — describe the desired user-visible

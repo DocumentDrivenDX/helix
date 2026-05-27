@@ -154,6 +154,14 @@ Do **not** select it for ETL that does not run on Databricks, or for a thin
 app with no pipeline — use the generic data-modeling / EIP concerns there, and
 relate (do not duplicate) them here.
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: dataset shape (streaming-table vs materialized-view), expectation policy (warn/drop/fail), CDC strategy
+- TD: declarative datasets + framework-managed DAG/incremental; AUTO CDC / APPLY CHANGES; dev vs prod modes
+- DATA_DESIGN: published streaming tables/materialized views landing in a governed catalog.schema
+- TEST_PLAN: per-dataset data-quality expectations + transformation-logic unit tests
+
 ## ADR References
 
 Record an ADR for the pipeline's dataset shape (streaming-table vs

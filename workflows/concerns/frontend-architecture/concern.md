@@ -228,6 +228,14 @@ server-side validation the client mirrors), and **`sample-data`** (the varied
 seed data that exercises the empty/populated/edge async states this concern
 demands be rendered).
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: per-route rendering strategy (freshness/SEO/personalization) + server-state vs client-state split
+- TD: component/state/data-fetching layers, colocation, one-schema form validation, async-state branches
+- DESIGN_SYSTEM: mandatory async UI states (loading/empty/error/success) as first-class designed surfaces
+- TEST_PLAN: every async view branches on loading/empty/error/success, not only the happy path
+
 ## ADR References
 
 Selecting this concern forces three artifact changes (it does **not** edit

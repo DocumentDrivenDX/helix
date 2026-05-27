@@ -206,6 +206,12 @@ where the deployable count and its seams are decided.
 > split, when justified, follows bounded-context fault lines and each service
 > owns its data.
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: deployable count + split topology, forcing function, microservice-premium readiness, bounded-context fault lines
+- TD: deployable units, module/service boundaries, per-service data ownership, function+trigger for serverless
+
 ## ADR References
 
 Record an ADR for **any topology other than the modular-monolith default**, and

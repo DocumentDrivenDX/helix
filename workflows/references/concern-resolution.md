@@ -193,6 +193,41 @@ selection by the active autonomy level (FEAT-011; see `workflows/actions/input.m
    anonymous public sites, libraries, single-user local CLIs, or machine-only
    internal APIs unless user/tenant principals are explicit. Record as an
    assumption. See `workflows/concerns/auth/concern.md`.
+2e. **Auto-select `domain-driven-design` for any domain-rich business product.** When the
+   product has non-trivial business entities with invariants, lifecycle, and relationships
+   (invoicing, CRM, ordering, billing, scheduling, ledgers — essentially any real business
+   app), select `domain-driven-design`: a ubiquitous language, explicit bounded contexts, and
+   behavior-rich aggregates whose roots enforce invariants in the domain layer. Composable
+   (no slot; `areas: data, api`); compose with the chosen `architecture-style` (DDD = *what* to
+   model, architecture-style = *how* to layer it). Do **not** select it for pure
+   presentation/marketing sites, thin CRUD-only tools with no business rules, or libraries with
+   no domain. Record as an assumption. See `workflows/concerns/domain-driven-design/concern.md`.
+2f. **Scan the full concern library by `## When to use`, high-precision.** Beyond the always-on
+   bullets above, enumerate every concern under `workflows/concerns/` and select one **only when
+   its `## When to use` MUST-have signal matches the product AND its stated negative/exclusion
+   criteria do not fire** — recording, per selected concern, the one-line evidence for why it
+   matched. No global match-all; an unjustified selection is over-selection drift. High-signal
+   triggers: `multi-tenancy` (tenants share the system), `authorization-model` (roles/permissions
+   beyond login), `event-sourcing` (audit/history/timeline is value-bearing), `cqrs` (divergent
+   read/write in a bounded context), `enterprise-integration-patterns` (async messaging / queues /
+   webhooks), `resilience` (synchronous external deps in the request path), `api-style` (any
+   networked interface — default REST or same-repo RPC), `caching-strategy` (read-heavy hot path,
+   tolerable staleness), `relational-data-modeling` (persists relational data),
+   `frontend-architecture` (non-trivial interactive UI), `twelve-factor` (a deployed service),
+   `concurrency-model` (real concurrency / background processing), `usage-metering` (usage-based
+   billing), `mcp-server` (exposes tools/data to LLM agents), the `databricks-*` family (targets
+   the Databricks lakehouse), and the pattern catalogs `design-patterns-gof` /
+   `enterprise-application-patterns` (recurring OO / enterprise persistence decisions). Also **fill
+   the exclusive `architecture-style` slot on signal** (it has no default): `onion-architecture`
+   or `clean-architecture` for a domain-centric system, `hexagonal-architecture` for many
+   symmetric adapters, `classic-layered` for thin/low-ceremony — leave it unfilled (recorded
+   assumption) only for trivial CRUD.
+2g. **Record each selected concern's `## Artifact Impact` into `concerns.md`** (and its context
+   digest). Each concern's `concern.md` declares, under `## Artifact Impact`, which artifacts its
+   selection must change (ADR / FEAT / TD / DATA_DESIGN / IMPLEMENTATION_PLAN / DESIGN_SYSTEM / …).
+   Carrying that forward is what makes the downstream framing/design/build prompts realize it and
+   lets reconcile-alignment's **Concern→Artifact Realization** check verify it — a selected concern
+   that leaves no trace in its declared artifacts is drift.
 3. **Fill each needed exclusive slot** (FEAT-006 slots; FEAT-011 FR-3). A slot is
    an exclusive functional position a concern fills — one frontend framework, one
    language runtime, etc. Determine which slots the product needs (**a web app

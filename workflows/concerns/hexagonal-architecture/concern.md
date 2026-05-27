@@ -151,6 +151,12 @@ per project. Compose with `domain-driven-design` (core contents) and the
 tech-stack concern (package system enforcing the import graph). `areas: all`
 because the port boundary constrains every buildable work item.
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: Hexagonal chosen for architecture-style slot; the driving/driven adapters justifying port symmetry
+- TD: core, driving/driven ports, primary/secondary adapters, composition root
+
 ## ADR References
 
 Record an ADR when selecting hexagonal over a slot-sibling

@@ -169,6 +169,13 @@ trivial** and no performance NFR is at risk. Adding a cache there buys an
 invalidation/staleness problem for no gain — **premature caching is a drift**
 (KISS/YAGNI).
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: cache pattern + invalidation/TTL policy + named staleness budget + consistency trade-off + what is not cached
+- TD: read/write pattern (cache-aside/read-through/write-through/write-behind), stampede protection on hot keys
+- TEST_PLAN: invalidation/staleness behavior + stampede protection (single-flight) on a hot key
+
 ## ADR References
 
 Record an ADR when introducing a cache: the **read-heavy hot path or expensive

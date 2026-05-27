@@ -20,6 +20,13 @@ Use this local resource summary as grounding:
 - `docs/resources/google-small-cls.md` grounds small, reviewable,
   rollback-friendly implementation slices with related tests.
 
+## Active Concerns
+
+For each concern selected in `docs/helix/01-frame/concerns.md`, apply its declared
+`## Artifact Impact` (from `workflows/concerns/<name>/concern.md`) to THIS build plan — realize the
+IMPLEMENTATION_PLAN-level obligations it names (relational-data-modeling -> migration steps; resilience -> guard wiring; usage-metering -> metering wired on the real path). A selected concern whose Artifact Impact names IMPLEMENTATION_PLAN
+but leaves no trace here is drift (reconcile-alignment Concern->Artifact Realization check).
+
 ## Storage Location
 
 `docs/helix/04-build/implementation-plan.md`

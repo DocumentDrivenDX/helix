@@ -248,6 +248,13 @@ the *async-channel* resilience — DLQ, idempotent receiver — to this concern'
 *synchronous-call* resilience), and **`o11y-otel`** (which carries the breaker /
 timeout / shed-load signals so failures are observable).
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: failure-handling strategy — per-dependency timeout/breaker/bulkhead/retry/fallback policy
+- TD: timeout + circuit-breaker + bulkhead + graceful-degradation guards at the outbound-call boundary
+- TEST_PLAN: breaker open/half-open + timeout-fire + fallback paths exercised, not just happy path
+
 ## ADR References
 
 Selecting resilience **forces** a specific ADR: the **failure-handling

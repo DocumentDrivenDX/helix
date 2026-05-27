@@ -146,6 +146,12 @@ with `domain-driven-design` (which governs the core's contents) and with the
 tech-stack concern (whose package/module system enforces the import graph).
 `areas: all` because the dependency rule constrains every buildable work item.
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: Onion chosen for the architecture-style slot over its siblings
+- TD: ring layout, inner-declared ports, outer-ring adapters, composition root
+
 ## ADR References
 
 Record an ADR when selecting Onion over a slot-sibling (`hexagonal` / `clean` /

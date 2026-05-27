@@ -339,6 +339,13 @@ load-shedding — around the execution model), and **`o11y-otel`** (which carrie
 pool-saturation, queue-depth, and job-outcome signals so concurrency is
 observable).
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: in-process execution model (threads/event-loop/actors/CSP/reactive/worker) + bounding strategy + (if async) job idempotency/failure-visibility
+- TD: state ownership/synchronization, bounded concurrency (pool/semaphore/bounded-channel/backpressure), worker model
+- TEST_PLAN: no unbounded concurrency, idempotent background jobs (no double-apply on retry), no leaked processes
+
 ## ADR References
 
 Selecting concurrency-model **forces** a specific ADR: the **concurrency model

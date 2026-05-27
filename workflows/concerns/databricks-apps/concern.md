@@ -143,6 +143,13 @@ service, and hosting work items.
 Do **not** select it for an app hosted off Databricks, or one with no Databricks
 account/lakehouse — use the generic `deploy-target` and frontend concerns there.
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: auth model (app service-principal vs on-behalf-of-user) + durable-state store (UC tables/volumes vs Lakebase)
+- TD: managed serverless runtime, app.yaml manifest + resource bindings, identity model, data access via Unity Catalog
+- IMPLEMENTATION_PLAN: app.yaml command/env/resource-bindings; bind to existing resources (cannot create)
+
 ## ADR References
 
 Record an ADR for the auth model choice (**app service principal vs

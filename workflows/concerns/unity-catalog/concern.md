@@ -174,6 +174,13 @@ scopes its practices to the data, service, and infrastructure work items.
 Do **not** select it for a product that does not store data in Databricks — use
 the generic data-governance / data-modeling concerns there instead.
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: metastore/catalog layout (isolation boundaries), managed-vs-external, group/ownership model for production
+- TD: assets registered in catalog.schema.object; data access through Unity Catalog grants, not around them
+- DATA_DESIGN: namespace placement, grant model, row filters/column masks, governed external locations
+
 ## ADR References
 
 Record an ADR for the metastore/catalog layout (isolation boundaries:

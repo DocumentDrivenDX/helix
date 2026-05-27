@@ -246,6 +246,13 @@ practices to the infrastructure / process-contract work items.
 > the `deploy-target` filler (the runtime that consumes the process); it does
 > not decide any of those.
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: config + state + backing-services strategy (env-sourced config, attached resources, stateless processes), build/release/run + disposability
+- TD: process model (stateless share-nothing, port binding, concurrency), logs to stdout, graceful SIGTERM, admin-as-one-off
+- IMPLEMENTATION_PLAN: deployment checklist/runbook — env-var config, dev/prod parity, immutable releases, migrations as one-off processes
+
 ## ADR References
 
 Selecting this concern **forces ADR content**: the ADR MUST record the

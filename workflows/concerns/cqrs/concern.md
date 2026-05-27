@@ -226,6 +226,14 @@ choice. Fowler's caution applies directly: *for most systems CQRS adds risky
 complexity*; it is **difficult to use well** and should be applied only to the
 bounded contexts that need it, never reflexively to a whole system (KISS/YAGNI).
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: read/write-split decision + consistency model (synchronous shared-store vs eventually-consistent separate-store)
+- TD: separate command/query models, projection/read-model, eventual-consistency handling (staleness, idempotent updates)
+- DATA_DESIGN: read schema (denormalized/materialized view/replica) distinct from write schema + write→read sync
+- TEST_PLAN: idempotent projection updater + read-side reflects committed writes within the staleness window
+
 ## ADR References
 
 Record an ADR when selecting CQRS for a given bounded context. It is a

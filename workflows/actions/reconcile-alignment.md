@@ -206,6 +206,7 @@ it, addressed) and never a **cap** (extra rigor is always welcome, never penaliz
 | Acceptance behavior | `US-NNN` ACs | each AC's behavior is exercised by a citing test that drives *that* AC | Acceptance Criteria Validation |
 | Architecture decision | `ADR-NNN` | each accepted decision is reflected in code; no surface contradicts it | ADR Decision Honoring |
 | Concern practice | `concerns.md` + practices | the concern's *behavioral* practices are realized in code (not only its tooling wired) | Concern Drift Detection |
+| Concern→artifact realization | selected concern's `## Artifact Impact` | each selected concern's declared artifact obligations appear in the generated/evolved artifacts | Concern→Artifact Realization |
 | Measurable NFR / budget | PRD/`FEAT` NFRs, design budgets | each measurable target is met or has observed evidence | NFR Target Verification |
 | Decomposition | PRD subsystems → FEAT → story | structure is granular and reproducible | Acceptance Criteria Validation (decomposition) |
 | Slot / instrument | `slots.yml`, templates/meta | the resolution + scoring instruments are intact | Slot Registry / Instrument-Integrity |
@@ -375,6 +376,34 @@ in the code:
    (concern-behavior drift), distinct from a missing-tool finding; cite the specific
    unguarded handler / unlabeled control / unemitted span. This is a coverage floor
    — more practices verified, or a larger sample, is never a finding.
+
+### Concern→Artifact Realization
+
+Distinct from Concern Drift Detection above (which checks the concern's practices in the **code**),
+this checks the concern's footprint in the **artifacts** — a concern is inert if it was selected but
+left no trace in the documents it governs. For each concern selected in
+`docs/helix/01-frame/concerns.md`, read its `## Artifact Impact` declaration (in
+`workflows/concerns/<name>/concern.md` — the fixed vocabulary ADR / FEAT / TD / SD / DATA_DESIGN /
+IMPLEMENTATION_PLAN / DESIGN_SYSTEM / TEST_PLAN) and verify each named artifact realizes it:
+
+1. **Declared artifact present + realized.** For each artifact key a selected concern's
+   `## Artifact Impact` names, the corresponding artifact exists AND carries the concern's decision —
+   e.g. selected `domain-driven-design` → the technical-design models aggregates/value-objects/
+   repositories and an ADR records the bounded-context/aggregate boundaries; `multi-tenancy` → the
+   data-design has tenant scoping + an isolation ADR; `usage-metering` → the FEAT names billable
+   actions and the implementation-plan wires metering. Cite the artifact evidence.
+2. **Selected-but-inert is a finding.** A concern selected in `concerns.md` whose `## Artifact Impact`
+   names artifact X, but X carries no trace of it, is `UNDERSPECIFIED` (the selection did not
+   propagate) — **advisory during draft framing, blocking at design-exit and at evolve-handoff**.
+   This is the gate that makes a concern *bite*: selecting it without realizing it is drift.
+3. **Floor, not cap.** This is a floor on *selected* concerns only; an unselected concern's
+   obligations need not appear, and extra concern coverage is never a finding.
+
+One check, one output contract — the same `Concern→Artifact Realization` check runs at design-exit
+and inside the evolve-until-converged loop. The model performs it by reading each selected concern's
+`## Artifact Impact` and the artifacts it names. A deterministic floor (which selected concerns name
+which artifacts, and whether those artifacts exist) is a planned `scripts/helix_align_check.py`
+addition to pre-compute the structural part; until then the model performs the full check.
 
 ### NFR Target Verification
 

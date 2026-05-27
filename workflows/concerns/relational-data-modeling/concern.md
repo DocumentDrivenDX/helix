@@ -186,6 +186,14 @@ relational integrity), or for products with **no persistence at all**
 (stateless tools, pure computation, static sites). There, there is no relational
 schema, keys, or migrations to govern (KISS/YAGNI).
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: normalization level + deliberate denormalization (read pattern + consistency mechanism), key choices, migration discipline
+- TD: schema-enforced integrity (NOT NULL/UNIQUE/CHECK/FK), indexing from access patterns
+- DATA_DESIGN: tables/columns/types, primary + foreign keys, normalization, indexes
+- IMPLEMENTATION_PLAN: versioned reversible migrations; destructive changes via expand→backfill→contract
+
 ## ADR References
 
 Record an ADR for the relational design decisions that are costly to reverse:

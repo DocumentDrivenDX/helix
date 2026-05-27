@@ -231,6 +231,13 @@ carry), **`onion-architecture`** (under which messaging adapters are outer-ring
 code), the tech-stack concern (which fixes the broker client/library), and
 `o11y-otel` (which carries the correlation id into traces).
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: broker/transport + delivery guarantee (at-least-once/exactly-once, persistence, ordering)
+- TD: channels, routers, messaging gateway, idempotent receiver, dead-letter/invalid paths
+- TEST_PLAN: idempotent-receiver test (replay applies once) + poison-message dead-letter path
+
 ## ADR References
 
 Record an ADR when choosing the broker/transport and its delivery guarantee

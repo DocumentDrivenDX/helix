@@ -170,4 +170,11 @@ and with `sample-data` (whose seed must respect the aggregates' invariants). Do
 **not** select it for pure presentation/marketing sites, thin CRUD-only
 admin tools with no business rules, or libraries with no domain.
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: bounded-context map + subdomain classification + aggregate boundaries
+- TD: aggregates/value-objects/repositories/domain-services/factories model
+- DATA_DESIGN: schema mirrors aggregate boundaries; cross-aggregate refs by identity
+
 ## ADR References

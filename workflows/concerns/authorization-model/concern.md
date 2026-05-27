@@ -189,6 +189,13 @@ user may do everything), anonymous public sites, or libraries with no principal
 — mere login without differentiated permissions is `auth`'s job, not this
 concern's.
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: permission model (RBAC/ABAC/ReBAC or combination) + PDP/PEP placement (central vs externalized policy engine)
+- TD: central decision point, deny-by-default check on every state-changing/data-returning handler, least privilege
+- TEST_PLAN: negative guard — unauthorized principal gets 403/404, not the effect or the data
+
 ## ADR References
 
 Projects record an ADR when choosing the permission **model** (RBAC / ABAC /

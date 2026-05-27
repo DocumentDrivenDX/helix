@@ -205,6 +205,13 @@ marketing content, where a Transaction Script or plain Active Record is the righ
 answer and the Domain-Model/Data-Mapper machinery is cost without payoff
 (KISS/YAGNI).
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: domain-logic organization (Transaction Script/Domain Model) + data-source pattern (Active Record vs Data Mapper)
+- TD: data-source layer (mapper/Unit-of-Work/Identity-Map), Service Layer boundary, distribution/session-state placement
+- DATA_DESIGN: how the chosen pattern maps domain objects to the schema
+
 ## ADR References
 
 Selecting this concern forces these decisions to be recorded:

@@ -181,6 +181,14 @@ practices to the data-access and service layers. Compose with **`auth`**
 Broken Access Control / IDOR), and **`domain-driven-design`** (tenant is part of
 the model and the aggregate's identity).
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: tenant isolation model (shared-schema/+RLS/schema-per-tenant/db-per-tenant/bridge) + tenant resolution + lifecycle
+- TD: tenant-context propagation from the principal; tenant-scoped data-access choke point
+- DATA_DESIGN: tenant discriminator + scoping (or per-schema/per-db isolation)
+- TEST_PLAN: negative cross-tenant guard — tenant A cannot reach tenant B by id/slug
+
 ## ADR References
 
 Projects record an ADR when choosing the isolation model (shared-schema +

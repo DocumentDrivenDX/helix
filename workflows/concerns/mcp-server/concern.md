@@ -236,6 +236,14 @@ the channel is EIP's), **`auth`/`auth-local-sessions`** (the product's own user
 login, distinct from the OAuth 2.1 agent-token boundary owned here), and the
 tech-stack concern (which fixes the MCP SDK/server framework).
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: primitives exposed, transport (stdio/HTTP) + OAuth 2.1 audience binding, human-in-the-loop + least-privilege scope model
+- TD: tool/resource/prompt modeling, JSON-Schema tool inputs + descriptions, boundary validation, agent-exposure threat controls
+- FEAT: which capabilities are exposed as tools vs resources vs prompts to the agent
+- TEST_PLAN: destructive-tool human-in-the-loop gate, token-audience validation, input-validation on agent args
+
 ## ADR References
 
 Record an ADR when exposing an MCP surface: name the **primitives exposed**

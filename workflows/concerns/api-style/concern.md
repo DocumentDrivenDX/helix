@@ -252,6 +252,13 @@ tool/resource/prompt, transport/auth, and agent-exposure security discipline),
 `security-owasp` (boundary input validation / authz on the exposed surface), and
 the tech-stack concern (which fixes the HTTP/RPC framework and codegen).
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: interface style choice per surface (REST/GraphQL/gRPC/RPC/MCP) + versioning strategy
+- TD: the API contract artifact (OpenAPI/GraphQL SDL/proto/RPC types), error shape, boundary validation, cacheability
+- TEST_PLAN: contract conformance + boundary input-validation tests on the exposed surface
+
 ## ADR References
 
 Record an ADR when selecting a non-default style for an exposed surface
