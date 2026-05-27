@@ -111,4 +111,10 @@ exceptions above. Compose with `testing` (strategy) and the `e2e-framework`
 slot (tooling); `verification` adds the evidence gate on top — it does not
 replace either.
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- TEST_PLAN: whole-stack evidence gate per AC — command + exit status, target env, flows, adversarial re-review
+- ADR: any recorded exception (library/docs-only or full-stack-e2e-infeasible) and its substitute evidence
+
 ## ADR References

@@ -50,6 +50,14 @@ React + Next.js frontend applications. Compose with `typescript-bun` for the
 base TypeScript and Bun runtime concern. This concern adds React-specific UI
 patterns, component library conventions, and E2E testing requirements.
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: React 19 + Next.js App Router as the frontend-framework slot; shadcn/Radix/Tailwind
+- TD: App Router + Server Components, react-hook-form + Zod, shared validation schemas
+- DESIGN_SYSTEM: Tailwind config extends design-system tokens; shadcn/ui component conventions
+- TEST_PLAN: Playwright E2E (not Cypress/Selenium)
+
 ## ADR References
 
 - ADR-010: Frontend validation architecture (Zod shared schemas)

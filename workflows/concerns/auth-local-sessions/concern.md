@@ -53,6 +53,13 @@ operator-chosen external IdP. It is the shipped default; operators override per
 project (`concerns.local.yml: auth-provider: <other-filler>`) to choose an
 external IdP filler instead.
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: local sessions as the auth-provider slot filler (swap recorded when moving to an external IdP)
+- TD: hashed-credential store, HttpOnly server-side sessions, single provider interface
+- DATA_DESIGN: principals with hashed passwords + server-side session store
+
 ## ADR References
 
 Record an ADR when swapping this default for an external IdP filler.

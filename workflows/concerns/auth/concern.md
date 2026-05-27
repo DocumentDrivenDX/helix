@@ -88,6 +88,14 @@ anonymous public sites, libraries, single-user local CLIs, or machine-only
 internal APIs unless user/tenant principals are explicit. Compose with the
 `auth-provider` slot (backend) and `security-owasp` (hardening).
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- FEAT: signup/login/logout + session lifecycle as a real product surface
+- TD: server-side RBAC and principal-scoped isolation behind the swappable auth-provider slot
+- DATA_DESIGN: principals/accounts (tenant) and session storage
+- ADR: auth-provider filler choice (local sessions now, external IdP later) + role model
+
 ## ADR References
 
 Projects record an ADR when choosing or swapping the `auth-provider` filler

@@ -225,4 +225,10 @@ Any project that needs a public-facing documentation site. The Hugo + Hextra
 pattern provides search, responsive design, dark mode, and navigation with
 minimal configuration.
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: Hugo (extended) + Hextra theme via Hugo Modules, GitHub Pages deploy, as the microsite stack
+- TD: website/ layout, pinned theme/Hugo versions, Hugo config (enableGitInfo, unsafe HTML)
+
 ## ADR References

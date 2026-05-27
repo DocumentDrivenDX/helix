@@ -103,4 +103,10 @@ scopes its practices to data-layer work items. Compose with the tech-stack conce
 (which fixes the faker library) and with UX concerns (the varied data is what
 exercises the empty/overflow/large-number states the UI must handle).
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- DATA_DESIGN: governed seed/demo dataset covering empty/long/large/boundary + all status-enum UI states
+- IMPLEMENTATION_PLAN: idempotent re-runnable seed script with explicit faker seed; non-PII, non-production only
+
 ## ADR References

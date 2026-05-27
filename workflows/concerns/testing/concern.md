@@ -117,4 +117,9 @@ Every project. This concern is universal — it applies regardless of language,
 framework, or domain. Compose with language-specific concerns
 (`typescript-bun`, `rust-cargo`, etc.) for tooling-specific test practices.
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- TEST_PLAN: multi-layer strategy (unit/integration/e2e/contract), stubs-over-mocks, fakers-over-fixtures, AC traceability, boundary/property/fuzz/chaos + ratchets
+
 ## ADR References

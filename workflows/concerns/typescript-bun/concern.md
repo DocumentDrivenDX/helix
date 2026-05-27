@@ -48,4 +48,10 @@ monorepos and single-package projects alike. If a project historically drifted
 to Node.js tooling (npm, tsx, prettier, vitest), the concern documents the
 target state and the drift signals above identify what needs correction.
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: TypeScript + Bun (Biome, bun:test) as the language-runtime — not Node/npm/ESLint/Vitest
+- TD: strict tsconfig, Bun-native APIs, workspace layout, Biome config
+
 ## ADR References

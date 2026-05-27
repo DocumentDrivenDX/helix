@@ -111,4 +111,10 @@ requirements and `react-nextjs` for React-specific implementation patterns.
 Framework-agnostic in principle — the patterns are WAI-ARIA standards; Radix
 is the reference implementation for React projects.
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- DESIGN_SYSTEM: WAI-ARIA interaction patterns for search/edit/nav/select/disclosure; Radix primitives; states
+- TEST_PLAN: keyboard navigation, focus-return, active-state, and live-filter behavior checks
+
 ## ADR References

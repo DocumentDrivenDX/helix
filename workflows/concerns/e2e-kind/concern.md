@@ -208,4 +208,9 @@ against the real service stack. Particularly valuable when:
 - Chaos/resilience testing requires pod lifecycle control
 - You want tests to match the production deployment topology
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- TEST_PLAN: E2E against a real ephemeral kind cluster — all dependencies deployed, deterministic seed, self-contained lifecycle
+
 ## ADR References

@@ -350,4 +350,9 @@ terminal-based process. Demo reels are more effective than screenshots for
 showing multi-step workflows and more maintainable than screen recordings
 because they can be regenerated from scripts.
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: Asciinema scripted terminal recordings (Docker-reproducible, microsite-embedded) as the demo-reel mechanism
+
 ## ADR References

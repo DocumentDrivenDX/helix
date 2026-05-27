@@ -88,6 +88,13 @@ dashboards unless an operator UI is explicitly required. Compose with the
 `frontend-framework` slot, `ux-radix`, `verification`, the `e2e-framework` slot,
 and (usually) `auth`.
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- FEAT: operator CRUD over core domain objects + lifecycle/control actions + the primary operator workflow as usable UI
+- DESIGN_SYSTEM: operator UI screens for manage + control actions (not a read-only dashboard)
+- ADR: which operator workflows are in the slice vs deferred (deferral recorded)
+
 ## ADR References
 
 Projects record an ADR when scoping which operator workflows are in the slice

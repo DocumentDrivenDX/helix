@@ -105,4 +105,9 @@ tool microsite. This concern is especially important when the site includes
 generated reference content, artifact catalogs, demos, or documentation that
 serves both evaluators and active users.
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: information-architecture model (reader modes, top-level sections, nav state) for the microsite
+
 ## ADR References
