@@ -39,6 +39,10 @@ lint:
     @git diff --check || true
     @echo "Lint OK"
 
+# Lint hand-authored site prose for AI-writing patterns (see docs/website/content/CLAUDE.md)
+lint-prose:
+    vale docs/website/content
+
 # Install HELIX via DDx (refresh the local snapshot)
 install:
     ddx install helix --force

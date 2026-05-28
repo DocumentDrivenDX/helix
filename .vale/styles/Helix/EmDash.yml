@@ -1,0 +1,6 @@
+extends: existence
+message: "Avoid em dashes in prose. Use a comma, colon, parentheses, or a shorter sentence."
+level: error
+nonword: true
+tokens:
+  - '—'
