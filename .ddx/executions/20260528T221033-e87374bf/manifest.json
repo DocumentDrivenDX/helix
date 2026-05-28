@@ -1,0 +1,57 @@
+{
+  "attempt_id": "20260528T221033-e87374bf",
+  "bead_id": "helix-88435238",
+  "base_rev": "641c70f16ce89d28b212b171ce962fe2d800c16c",
+  "created_at": "2026-05-28T22:10:34.101052274Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-88435238",
+    "title": "INT-CP: GitHub Copilot CLI integration test — install + skill activation + bootstrap scenario",
+    "description": "Create tests/workflows/copilot-cli/ harness that exercises `gh copilot suggest` against operator prompts that should engage the HELIX skill.\n\n**Caveat**: GitHub Copilot CLI's `gh copilot suggest` is shell-command-oriented, not free-form chat. The \"skill activation\" assertion is different from chat runtimes — we test that Copilot, given a HELIX-aware prompt, recognizes and names HELIX modes in its response, rather than generating bespoke shell.\n\n**Deliverables**:\n- run-scenarios.sh + 3 scenario prompts (install-verify, skill-list, bootstrap-style \"explain how HELIX would frame X\")\n- expected/ assertion text\n- vhs recording → INT-CP.gif\n\n**Harness shape** (reuse `tests/install/copilot-cli/Dockerfile`):\n1. Build image with `gh` + Copilot extension\n2. For each scenario: `gh copilot suggest -t shell \"\u003cprompt\u003e\"` (or `-t gh` depending on which `-t` flag gives free-form output in the current Copilot version)\n3. Grep response\n\n**Risk**: docs/install/copilot.md:121-127 says `gh copilot` GA was January 2026. If the current Copilot version's surface has changed since then, the harness will need adaptation.\n\n\u003ccontext-digest\u003e\n\u003cprinciples\u003eValidate Your Work · Runtime Neutrality · Design for Simplicity\u003c/principles\u003e\n\u003cconcerns\u003einstaller-coverage | screencast-evidence | runtime-parity\u003c/concerns\u003e\n\u003cpractices\u003evhs records the Docker run · gh copilot has a different response shape than chat-based runtimes; assertion is \"names HELIX modes when asked\" rather than \"produces artifacts\" · GITHUB_TOKEN required\u003c/practices\u003e\n\u003cgoverning\u003edocs/helix/03-test/test-plans/TP-014-helix-workflow-coverage.md SCN-01 (bootstrap) + SCN-06 (review) · docs/install/copilot-cli.md · existing tests/install/copilot-cli/ scaffolding\u003c/governing\u003e\n\u003c/context-digest\u003e",
+    "acceptance": "(Supersedes the \"grep response\" step in the description.)\n1. `bash tests/workflows/copilot-cli/run-scenarios.sh` exits 0 with GITHUB_TOKEN set.\n2. Activation assertion: the harness asserts on the strongest structured signal `gh copilot` exposes (exit code, structured output, or a documented invocation marker). gh copilot is shell-command-oriented and may expose no skill-invocation event; if so, the harness README explicitly documents this limitation.\n3. Negative control (required even where the signal is weak): the same scenario with HELIX content/skill absent exits NONZERO, so the test is not a vacuous prose grep.\n4. tests/workflows/copilot-cli/recordings/INT-CP.gif generated via vhs and committed. docs/install/copilot.md links it.\n5. Copilot response-shape difference and any activation-signal limitation documented in the harness README. (No routing.jsonl required: gh copilot is not a chat-router runtime.)",
+    "parent": "helix-e3c7d0e4",
+    "labels": [
+      "helix",
+      "phase:test",
+      "activity:test",
+      "kind:test",
+      "area:testing",
+      "area:packaging",
+      "runtime:copilot-cli",
+      "ac-quality:needs-refinement"
+    ],
+    "metadata": {
+      "events": [
+        {
+          "actor": "",
+          "body": "[{\"ac\":1,\"text\":\"`bash tests/workflows/copilot-cli/run-scenarios.sh` exits 0 with GITHUB_TOKEN set.\",\"kind\":\"command\",\"verifiable\":true},{\"ac\":2,\"text\":\"Activation assertion: the harness asserts on the strongest structured signal `gh copilot` exposes (exit code, structured output, or a documented invocation marker). gh copilot is shell-command-oriented and may expose no skill-invocation event; if so, the harness README explicitly documents this limitation.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":3,\"text\":\"Negative control (required even where the signal is weak): the same scenario with HELIX content/skill absent exits NONZERO, so the test is not a vacuous prose grep.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":4,\"text\":\"tests/workflows/copilot-cli/recordings/INT-CP.gif generated via vhs and committed. docs/install/copilot.md links it.\",\"kind\":\"mechanical\",\"verifiable\":true},{\"ac\":5,\"text\":\"Copilot response-shape difference and any activation-signal limitation documented in the harness README. (No routing.jsonl required: gh copilot is not a chat-router runtime.)\",\"kind\":\"prose\",\"verifiable\":false}]",
+          "created_at": "2026-05-28T22:06:18.323713948Z",
+          "kind": "ac-quality-low",
+          "source": "preclaim-ac-quality",
+          "summary": "score=0.40 threshold=0.50 verifiable=2/5"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness route unavailable: runner error: agent: provider error: openai: POST \\\"http://bragi:1234/v1/chat/completions\\\": 502 Bad Gateway\",\"fingerprint\":\"c63725637a9913ddce00e011be60eea8b2b81be343ece9ea787ea628b79ef89d\",\"policy_mode\":\"warn-only\",\"reason\":\"system_unready\",\"rule_id\":\"pre_claim_intake.system_unready\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"c63725637a9913ddce00e011be60eea8b2b81be343ece9ea787ea628b79ef89d\"}",
+          "created_at": "2026-05-28T22:10:06.585314343Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "system_unready"
+        }
+      ],
+      "spec-id": "helix.installer-integration-tests"
+    }
+  },
+  "paths": {
+    "dir": ".ddx/executions/20260528T221033-e87374bf",
+    "prompt": ".ddx/executions/20260528T221033-e87374bf/prompt.md",
+    "manifest": ".ddx/executions/20260528T221033-e87374bf/manifest.json",
+    "result": ".ddx/executions/20260528T221033-e87374bf/result.json",
+    "checks": ".ddx/executions/20260528T221033-e87374bf/checks.json",
+    "usage": ".ddx/executions/20260528T221033-e87374bf/usage.json",
+    "worktree": "Users/erik/Projects/.ddx-exec-wt/.execute-bead-wt-helix-88435238-20260528T221033-e87374bf"
+  },
+  "prompt_sha": "c6c00941cf46fc65200d9b7a740a77246edc9eadafb20d92b8f8c5945dc69117"
+}
