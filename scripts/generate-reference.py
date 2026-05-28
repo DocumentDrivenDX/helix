@@ -14,10 +14,10 @@ Reads:
   workflows/concerns/<slug>/                   -> concern.md, practices.md
 
 Writes:
-  website/content/reference/glossary/artifacts/_index.md
-  website/content/reference/glossary/artifacts/<slug>.md   (one per artifact)
-  website/content/reference/glossary/concerns/_index.md
-  website/content/reference/glossary/concerns/<slug>.md    (one per concern)
+  docs/website/content/reference/glossary/artifacts/_index.md
+  docs/website/content/reference/glossary/artifacts/<slug>.md   (one per artifact)
+  docs/website/content/reference/glossary/concerns/_index.md
+  docs/website/content/reference/glossary/concerns/<slug>.md    (one per concern)
 
 Idempotent — destination directories are wiped and rebuilt on every run.
 
@@ -37,7 +37,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS_SRC = ROOT / "workflows" / "activities"
 CONCERNS_SRC = ROOT / "workflows" / "concerns"
-CONTENT_ROOT = ROOT / "website" / "content"
+CONTENT_ROOT = ROOT / "docs" / "website" / "content"
 ARTIFACTS_DEST = CONTENT_ROOT / "artifact-types"
 CONCERNS_DEST = CONTENT_ROOT / "concerns"
 LEGACY_GLOSSARY = CONTENT_ROOT / "reference" / "glossary"

@@ -6,17 +6,17 @@
 Publish a project's artifacts into the Hugo microsite.
 
 Reads:  <source>/**/*.md            (default: docs/helix/)
-Writes: <dest>/**/*.md               (default: website/content/artifacts/)
+Writes: <dest>/**/*.md               (default: docs/website/content/artifacts/)
 
 The source directory is treated as a HELIX-shaped artifact tree organised by
 activity directory (00-discover/, 01-frame/, ..., 06-iterate/). The activity
 prefix is dropped from destination URLs (it's metadata, not navigation), so:
 
     docs/helix/00-discover/product-vision.md
-      -> website/content/artifacts/product-vision.md
+      -> docs/website/content/artifacts/product-vision.md
 
     docs/helix/02-design/adr/ADR-001-foo.md
-      -> website/content/artifacts/adr/ADR-001-foo.md
+      -> docs/website/content/artifacts/adr/ADR-001-foo.md
 
 Each page carries `activity: <Label>` in its frontmatter so the landing page
 can still group artifacts by where they live in the HELIX loop.
@@ -34,7 +34,7 @@ Intended future home: a DDx skill that any HELIX-using project can invoke.
 
 Usage:
   uv run scripts/publish-artifacts.py
-  uv run scripts/publish-artifacts.py --source docs/helix --dest website/content/artifacts
+  uv run scripts/publish-artifacts.py --source docs/helix --dest docs/website/content/artifacts
 """
 from __future__ import annotations
 
@@ -263,7 +263,7 @@ def main() -> int:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     ap.add_argument("--source", type=Path, default=Path("docs/helix"))
-    ap.add_argument("--dest", type=Path, default=Path("website/content/artifacts"))
+    ap.add_argument("--dest", type=Path, default=Path("docs/website/content/artifacts"))
     ap.add_argument("--project", default="HELIX")
     args = ap.parse_args()
     return publish(args.source.resolve(), args.dest.resolve(), args.project)

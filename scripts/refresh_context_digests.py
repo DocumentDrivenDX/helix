@@ -450,7 +450,7 @@ def infer_area_labels(item: dict) -> list[str]:
     title = item.get("title", "").lower()
     for path in bead_paths(item):
         normalized = path.lower()
-        if normalized.startswith("website/"):
+        if normalized.startswith("website/") or normalized.startswith("docs/website/"):
             labels.add("area:site")
         if normalized.startswith("docs/demos/"):
             labels.add("area:demo")

@@ -118,7 +118,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--glossary",
         type=Path,
-        default=Path("website/content/artifact-types/deploy/_index.md"),
+        default=Path("docs/website/content/artifact-types/deploy/_index.md"),
         help="Path to the shipped artifacts glossary surface.",
     )
     return parser.parse_args()

@@ -5,6 +5,18 @@ title: HELIX
 module:
   imports:
     - path: github.com/imfing/hextra
+  # Content source is isolated under docs/website/content (see that dir's
+  # CLAUDE.md). Declaring mounts replaces Hugo's defaults, so the project's
+  # other component dirs are listed explicitly alongside the relocated content.
+  mounts:
+    - source: ../docs/website/content
+      target: content
+    - source: assets
+      target: assets
+    - source: layouts
+      target: layouts
+    - source: static
+      target: static
 
 enableRobotsTXT: true
 enableGitInfo: true

@@ -123,7 +123,7 @@ docs_dir="$tmpdir/docs-contract"
 mkdir -p "$docs_dir"
 cp -f "$repo_root/workflows/activities/05-deploy/README.md" "$docs_dir/README.md"
 cp -f "$repo_root/workflows/activities/05-deploy/enforcer.md" "$docs_dir/enforcer.md"
-cp -f "$repo_root/website/content/artifact-types/deploy/_index.md" "$docs_dir/artifacts.md"
+cp -f "$repo_root/docs/website/content/artifact-types/deploy/_index.md" "$docs_dir/artifacts.md"
 python3 - "$docs_dir/README.md" <<'PYEOF'
 from pathlib import Path
 import sys
@@ -160,7 +160,7 @@ docs_coexist_dir="$tmpdir/docs-coexist"
 mkdir -p "$docs_coexist_dir"
 cp -f "$repo_root/workflows/activities/05-deploy/README.md" "$docs_coexist_dir/README.md"
 cp -f "$repo_root/workflows/activities/05-deploy/enforcer.md" "$docs_coexist_dir/enforcer.md"
-cp -f "$repo_root/website/content/artifact-types/deploy/_index.md" "$docs_coexist_dir/artifacts.md"
+cp -f "$repo_root/docs/website/content/artifact-types/deploy/_index.md" "$docs_coexist_dir/artifacts.md"
 python3 - "$docs_coexist_dir/README.md" <<'PYEOF'
 from pathlib import Path
 import sys
