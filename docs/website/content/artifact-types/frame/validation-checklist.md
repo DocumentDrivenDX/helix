@@ -97,68 +97,7 @@ story-level acceptance criteria are complete.
 <tr><th>Default location</th><td><code>docs/helix/01-frame/validation-checklist.md</code></td></tr>
 <tr><th>Requires</th><td><em>None</em></td></tr>
 <tr><th>Enables</th><td><em>None</em></td></tr>
-<tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Validation Checklist Generation Prompt
-Create the checklist that decides whether Frame is ready to move forward.
-
-## Reference Anchors
-
-Use this local resource summary as grounding:
-
-- `docs/resources/ibm-requirements-management.md` grounds traceability,
-  validation, verification, and change management expectations.
-
-## Focus
-- Check only the gates that matter: completeness, consistency, traceability, and stakeholder approval.
-- Keep the pass/fail criteria concrete.
-- Avoid duplicating the content already covered by source artifacts.
-- Cite evidence or the missing artifact for every conditional or failed gate.
-
-## Role Boundary
-
-Validation Checklist is not a replacement for PRD review, risk review, or
-stakeholder review. It is the final Frame activity gate: it records whether the
-required artifacts are coherent enough for Design and what conditions remain.
-
-## Completion Criteria
-- The checklist is short and actionable.
-- Blocking gaps are easy to spot.
-- Cross-references are verified.
-- Result is Pass, Conditional Pass, or Fail with named conditions.</code></pre></details></td></tr>
-<tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
-ddx:
-  id: validation-checklist
----
-
-# Frame Activity Validation Checklist
-
-**Status**: [ ] Not Started | [ ] In Progress | [ ] Complete
-**Validated By**: [Name]
-**Date**: [Date]
-**Result**: [ ] Pass | [ ] Conditional Pass | [ ] Fail
-
-## Go / No-Go Gates
-| Gate | Status | Evidence | Blocking Gap |
-|------|--------|----------|--------------|
-| Problem, goals, and success metrics are clear enough to judge outcomes | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |
-| P0 scope is identified, prioritized, and separated from non-goals | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |
-| Features and stories are traceable through IDs and links | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |
-| Acceptance criteria are testable | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |
-| Major risks, dependencies, and external constraints are explicit | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |
-| Frame artifacts do not contradict each other | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |
-| Required stakeholders have reviewed the plan | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |
-
-## Result
-- [ ] **PASS**: Ready for Design activity
-- [ ] **CONDITIONAL PASS**: Proceed with noted conditions
-- [ ] **FAIL**: Address blocking issues first
-
-**Conditions/Notes**:
-[Assessment and any conditions]
-
-## Required Follow-Up
-
-| Item | Owner | Due | Required Before |
-|------|-------|-----|-----------------|
-| [Condition] | [Owner] | [Date] | [Design start / design approval / build start] |</code></pre></details></td></tr>
+<tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Validation Checklist Generation Prompt&#10;Create the checklist that decides whether Frame is ready to move forward.&#10;&#10;## Reference Anchors&#10;&#10;Use this local resource summary as grounding:&#10;&#10;- `docs/resources/ibm-requirements-management.md` grounds traceability,&#10;  validation, verification, and change management expectations.&#10;&#10;## Focus&#10;- Check only the gates that matter: completeness, consistency, traceability, and stakeholder approval.&#10;- Keep the pass/fail criteria concrete.&#10;- Avoid duplicating the content already covered by source artifacts.&#10;- Cite evidence or the missing artifact for every conditional or failed gate.&#10;&#10;## Role Boundary&#10;&#10;Validation Checklist is not a replacement for PRD review, risk review, or&#10;stakeholder review. It is the final Frame activity gate: it records whether the&#10;required artifacts are coherent enough for Design and what conditions remain.&#10;&#10;## Completion Criteria&#10;- The checklist is short and actionable.&#10;- Blocking gaps are easy to spot.&#10;- Cross-references are verified.&#10;- Result is Pass, Conditional Pass, or Fail with named conditions.</code></pre></details></td></tr>
+<tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---&#10;ddx:&#10;  id: validation-checklist&#10;---&#10;&#10;# Frame Activity Validation Checklist&#10;&#10;**Status**: [ ] Not Started | [ ] In Progress | [ ] Complete&#10;**Validated By**: [Name]&#10;**Date**: [Date]&#10;**Result**: [ ] Pass | [ ] Conditional Pass | [ ] Fail&#10;&#10;## Go / No-Go Gates&#10;| Gate | Status | Evidence | Blocking Gap |&#10;|------|--------|----------|--------------|&#10;| Problem, goals, and success metrics are clear enough to judge outcomes | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |&#10;| P0 scope is identified, prioritized, and separated from non-goals | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |&#10;| Features and stories are traceable through IDs and links | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |&#10;| Acceptance criteria are testable | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |&#10;| Major risks, dependencies, and external constraints are explicit | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |&#10;| Frame artifacts do not contradict each other | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |&#10;| Required stakeholders have reviewed the plan | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |&#10;&#10;## Result&#10;- [ ] **PASS**: Ready for Design activity&#10;- [ ] **CONDITIONAL PASS**: Proceed with noted conditions&#10;- [ ] **FAIL**: Address blocking issues first&#10;&#10;**Conditions/Notes**:&#10;[Assessment and any conditions]&#10;&#10;## Required Follow-Up&#10;&#10;| Item | Owner | Due | Required Before |&#10;|------|-------|-----|-----------------|&#10;| [Condition] | [Owner] | [Date] | [Design start / design approval / build start] |</code></pre></details></td></tr>
 </tbody>
 </table>

@@ -469,10 +469,15 @@ def render_reference_row(label: str, value: str) -> str:
 
 
 def render_reference_details(summary: str, content: str) -> str:
+    # Encode newlines as entities so the whole row stays a single physical line.
+    # The reference table is raw HTML embedded in markdown; a blank line inside a
+    # <pre><code> cell would terminate goldmark's HTML block and leak the rest of
+    # the content as rendered markdown (stray headings, broken code display).
+    body = html.escape(content.strip()).replace("\n", "&#10;")
     return (
         "<details>"
         f"<summary>{html.escape(summary)}</summary>"
-        f"<pre><code>{html.escape(content.strip())}</code></pre>"
+        f"<pre><code>{body}</code></pre>"
         "</details>"
     )
 

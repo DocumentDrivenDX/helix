@@ -116,65 +116,7 @@ CSV-first pilot scope.
 <tr><th>Default location</th><td><code>docs/helix/parking-lot.md</code></td></tr>
 <tr><th>Requires</th><td><em>None</em></td></tr>
 <tr><th>Enables</th><td><em>None</em></td></tr>
-<tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Parking Lot Prompt
-Capture deferred work that should not stay in the active path.
-
-## Reference Anchors
-
-Use this local resource summary as grounding:
-
-- `docs/resources/atlassian-product-backlog.md` grounds visible deferred work,
-  reprioritization, and closing items that will not be pursued.
-
-## Focus
-- Record the item, why it is deferred, and where it belongs next.
-- Keep the entry short.
-- Link to any relevant artifact or issue.
-- Include a concrete revisit trigger; &quot;later&quot; is not a trigger.
-
-## Role Boundary
-
-The Parking Lot is not the backlog or tracker. It holds deferred or future work
-that should remain findable without contaminating current scope. Active work
-belongs in the Feature Registry and runtime work items. Rejected work should be closed
-or cancelled, not parked forever.
-
-## Completion Criteria
-- Deferred items are easy to find later.
-- Nothing active is buried here.
-- Every item has source, rationale, owner, and revisit trigger.</code></pre></details></td></tr>
-<tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
-ddx:
-  id: parking-lot
----
-
-# Parking Lot (Deferred / Future Work)
-
-## Policy
-- Rejected items do not belong here; close or cancel them instead.
-- Active work does not belong here; track it in the Feature Registry and DDx.
-- Deferred items must include rationale and revisit trigger.
-- Revisit triggers must be objective enough for another agent to evaluate.
-- Any parked artifact must set `ddx.parking_lot: true` in its frontmatter.
-
-## Deferred / Future Items
-
-### [Item Title]
-- **Type**: Deferred | Future
-- **Artifact Type**: Feature Spec | User Story | ADR | Solution Design | Implementation Plan | Other
-- **Source**: FEAT-XXX / US-XXX / ADR-XXX / external
-- **Rationale**: [Why deferred / why future]
-- **Impact if Omitted**: [Risk/impact]
-- **Dependencies**: [Blocked by / prerequisites]
-- **Revisit Trigger**: [What must happen before reconsidering]
-- **Target Activity/Milestone**: [Activity or release]
-- **Owner**: [Person/team responsible for review]
-- **Last Reviewed**: [Date]
-
-## Parked Artifacts (Links)
-
-### [Artifact Title]
-- **Artifact File**: [path to parked artifact]
-- **Status**: Parking Lot (Deferred | Future)</code></pre></details></td></tr>
+<tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Parking Lot Prompt&#10;Capture deferred work that should not stay in the active path.&#10;&#10;## Reference Anchors&#10;&#10;Use this local resource summary as grounding:&#10;&#10;- `docs/resources/atlassian-product-backlog.md` grounds visible deferred work,&#10;  reprioritization, and closing items that will not be pursued.&#10;&#10;## Focus&#10;- Record the item, why it is deferred, and where it belongs next.&#10;- Keep the entry short.&#10;- Link to any relevant artifact or issue.&#10;- Include a concrete revisit trigger; &quot;later&quot; is not a trigger.&#10;&#10;## Role Boundary&#10;&#10;The Parking Lot is not the backlog or tracker. It holds deferred or future work&#10;that should remain findable without contaminating current scope. Active work&#10;belongs in the Feature Registry and runtime work items. Rejected work should be closed&#10;or cancelled, not parked forever.&#10;&#10;## Completion Criteria&#10;- Deferred items are easy to find later.&#10;- Nothing active is buried here.&#10;- Every item has source, rationale, owner, and revisit trigger.</code></pre></details></td></tr>
+<tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---&#10;ddx:&#10;  id: parking-lot&#10;---&#10;&#10;# Parking Lot (Deferred / Future Work)&#10;&#10;## Policy&#10;- Rejected items do not belong here; close or cancel them instead.&#10;- Active work does not belong here; track it in the Feature Registry and DDx.&#10;- Deferred items must include rationale and revisit trigger.&#10;- Revisit triggers must be objective enough for another agent to evaluate.&#10;- Any parked artifact must set `ddx.parking_lot: true` in its frontmatter.&#10;&#10;## Deferred / Future Items&#10;&#10;### [Item Title]&#10;- **Type**: Deferred | Future&#10;- **Artifact Type**: Feature Spec | User Story | ADR | Solution Design | Implementation Plan | Other&#10;- **Source**: FEAT-XXX / US-XXX / ADR-XXX / external&#10;- **Rationale**: [Why deferred / why future]&#10;- **Impact if Omitted**: [Risk/impact]&#10;- **Dependencies**: [Blocked by / prerequisites]&#10;- **Revisit Trigger**: [What must happen before reconsidering]&#10;- **Target Activity/Milestone**: [Activity or release]&#10;- **Owner**: [Person/team responsible for review]&#10;- **Last Reviewed**: [Date]&#10;&#10;## Parked Artifacts (Links)&#10;&#10;### [Artifact Title]&#10;- **Artifact File**: [path to parked artifact]&#10;- **Status**: Parking Lot (Deferred | Future)</code></pre></details></td></tr>
 </tbody>
 </table>
