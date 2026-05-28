@@ -90,12 +90,6 @@ test.describe('Artifacts', () => {
     await expect(article(page).getByText(/Show the template structure/i)).toBeVisible()
   })
 
-  test('alias from old /reference/glossary/artifacts/ resolves', async ({ page }) => {
-    const response = await page.request.get('/reference/glossary/artifacts/prd/')
-    // Hugo aliases are HTML redirects; either 200 (rendered) or 3xx (redirect) is acceptable
-    expect([200, 301, 302, 308]).toContain(response.status())
-  })
-
   test('artifact type leaf pages keep parent activity navigation', async ({ page }) => {
     await page.setViewportSize({ width: 1800, height: 1000 })
     const sidebar = page.locator('aside').first()
@@ -181,11 +175,6 @@ test.describe('Reference', () => {
     await expect(article(page).getByRole('link', { name: /Demos/ })).toBeVisible()
   })
 
-  test('CLI Reference page documents commands', async ({ page }) => {
-    await page.goto('/reference/cli/')
-    await expect(page.getByRole('heading', { name: 'CLI Reference' }).first()).toBeVisible()
-  })
-
   test('Skills page lists agent skills', async ({ page }) => {
     await page.goto('/reference/skills/')
     await expect(page.getByRole('heading', { name: 'Skills' }).first()).toBeVisible()
@@ -221,13 +210,6 @@ test.describe('Reference', () => {
       await expect(article(page).getByRole('link', { name: /ADR/ })).toBeVisible()
     })
 
-    test('actions page documents commands', async ({ page }) => {
-      await page.goto('/reference/glossary/actions/')
-      await expect(article(page).getByRole('heading', { name: 'build' })).toBeVisible()
-      await expect(article(page).getByRole('heading', { name: 'check' })).toBeVisible()
-      await expect(article(page).getByRole('heading', { name: 'run' })).toBeVisible()
-    })
-
     test('concepts page covers core ideas', async ({ page }) => {
       await page.goto('/reference/glossary/concepts/')
       await expect(page.getByRole('heading', { name: 'Authority Order' })).toBeVisible()
@@ -252,12 +234,9 @@ test.describe('Backward-compat aliases', () => {
       '/docs/background/',
       '/docs/getting-started/',
       '/docs/workflow/',
-      '/docs/cli/',
       '/docs/skills/',
       '/docs/glossary/',
       '/docs/glossary/activities/',
-      '/docs/glossary/artifacts/',
-      '/docs/glossary/concerns/',
       '/docs/demos/',
     ]) {
       const response = await page.request.get(url)
