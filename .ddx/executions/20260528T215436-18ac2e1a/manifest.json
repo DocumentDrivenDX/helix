@@ -1,0 +1,56 @@
+{
+  "attempt_id": "20260528T215436-18ac2e1a",
+  "bead_id": "helix-53c6df33",
+  "base_rev": "5fc94131e9265aa082ace22956e6dabb0938ac98",
+  "created_at": "2026-05-28T21:54:37.187516831Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-53c6df33",
+    "title": "INT-CC: Claude Code integration test — install + skill activation + bootstrap scenario",
+    "description": "Create tests/workflows/claude-code/ harness that exercises live `claude -p` against the HELIX skill bundle inside a Docker container.\n\n**Deliverables**:\n- `tests/workflows/claude-code/run-scenarios.sh` — orchestrator that builds image, runs each scenario, captures output, exits nonzero on any failure\n- `tests/workflows/claude-code/scenarios/install-verify.prompt` — \"Confirm HELIX is installed: list the routing skill name and the artifact catalog activities\"\n- `tests/workflows/claude-code/scenarios/skill-list.prompt` — \"List the HELIX routing modes you can route to. Be concise.\"\n- `tests/workflows/claude-code/scenarios/bootstrap.prompt` — TP-014 SCN-01 prompt: \"I want to build a TODO list app. Use HELIX to capture the framing artifacts.\"\n- `tests/workflows/claude-code/expected/` — assertion-text snippets each scenario response must contain (e.g., \"input\", \"frame\", \"align\" mode names; vision/PRD file artifacts; etc.)\n- `tests/workflows/claude-code/recordings/INT-CC.tape` — vhs script\n- `tests/workflows/claude-code/recordings/INT-CC.gif` — generated recording (committed)\n\n**Harness shape** (reuse `tests/install/claude-code/Dockerfile` as the base image):\n1. `docker build -t helix-int-test:claude-code -f tests/install/claude-code/Dockerfile .`\n2. For each scenario file: `docker run --rm -e ANTHROPIC_API_KEY -v $PWD:/workspace/helix:ro helix-int-test:claude-code bash -c \"claude -p \u003c /workspace/helix/tests/workflows/claude-code/scenarios/\u003cname\u003e.prompt\"`\n3. Grep response for expected text from `expected/\u003cname\u003e.expect`\n4. vhs renders the orchestrator session\n\n\u003ccontext-digest\u003e\n\u003cprinciples\u003eValidate Your Work · Runtime Neutrality · Design for Simplicity\u003c/principles\u003e\n\u003cconcerns\u003einstaller-coverage | screencast-evidence | runtime-parity\u003c/concerns\u003e\n\u003cpractices\u003evhs records the Docker run · scenarios are SCN-01 (bootstrap) plus install-verify + skill-list · ANTHROPIC_API_KEY required at runtime · plugin install via marketplace path\u003c/practices\u003e\n\u003cgoverning\u003edocs/helix/03-test/test-plans/TP-014-helix-workflow-coverage.md SCN-01 (bootstrap) + SCN-06 (review) · docs/install/claude-code.md · existing tests/install/claude-code/ scaffolding\u003c/governing\u003e\n\u003c/context-digest\u003e",
+    "acceptance": "(Supersedes the \"grep response for expected text\" step in the description.)\n1. `bash tests/workflows/claude-code/run-scenarios.sh` exits 0 with valid Claude Code credentials available — OAuth creds mounted into the container (~/.claude/.credentials.json + a minimal ~/.claude.json carrying hasCompletedOnboarding/userID/oauthAccount) OR ANTHROPIC_API_KEY set. Not a hard requirement on the env var.\n2. Activation is asserted from `claude -p --output-format stream-json` (with `--bare` and `--allowed-tools \"Skill(helix)\"` / `--permission-mode` so it is not blocked by a prompt): the harness parses the event stream and requires a tool_use event identifying the `helix` Skill invocation for the bootstrap scenario. Free-text keyword matching of the response is NOT the gate.\n3. Negative control: `bash tests/workflows/claude-code/run-scenarios.sh --no-skill` (skill not installed) exits NONZERO, proving the activation assertion discriminates.\n4. tests/workflows/claude-code/evals/routing.jsonl exists (phrase -\u003e expected helix mode, mirroring .claude/skills/ddx/evals/routing.jsonl) and is exercised by run-scenarios.sh.\n5. Scenarios cover install-verify, skill activation, and SCN-01 bootstrap.\n6. tests/workflows/claude-code/recordings/INT-CC.gif generated via vhs and committed. docs/install/claude-code.md links it as a screencast.",
+    "parent": "helix-e3c7d0e4",
+    "labels": [
+      "helix",
+      "phase:test",
+      "activity:test",
+      "kind:test",
+      "area:testing",
+      "area:packaging",
+      "runtime:claude-code"
+    ],
+    "metadata": {
+      "events": [
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness route unavailable: runner error: agent: provider error: openai: POST \\\"http://bragi:1234/v1/chat/completions\\\": 502 Bad Gateway\",\"fingerprint\":\"c63725637a9913ddce00e011be60eea8b2b81be343ece9ea787ea628b79ef89d\",\"policy_mode\":\"warn-only\",\"reason\":\"system_unready\",\"rule_id\":\"pre_claim_intake.system_unready\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"c63725637a9913ddce00e011be60eea8b2b81be343ece9ea787ea628b79ef89d\"}",
+          "created_at": "2026-05-28T21:47:59.680993602Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "system_unready"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness route unavailable: runner error: agent: provider error: openai: POST \\\"http://bragi:1234/v1/chat/completions\\\": 502 Bad Gateway\",\"fingerprint\":\"c63725637a9913ddce00e011be60eea8b2b81be343ece9ea787ea628b79ef89d\",\"policy_mode\":\"warn-only\",\"reason\":\"system_unready\",\"rule_id\":\"pre_claim_intake.system_unready\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"c63725637a9913ddce00e011be60eea8b2b81be343ece9ea787ea628b79ef89d\"}",
+          "created_at": "2026-05-28T21:54:08.535241986Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "system_unready"
+        }
+      ],
+      "spec-id": "helix.installer-integration-tests"
+    }
+  },
+  "paths": {
+    "dir": ".ddx/executions/20260528T215436-18ac2e1a",
+    "prompt": ".ddx/executions/20260528T215436-18ac2e1a/prompt.md",
+    "manifest": ".ddx/executions/20260528T215436-18ac2e1a/manifest.json",
+    "result": ".ddx/executions/20260528T215436-18ac2e1a/result.json",
+    "checks": ".ddx/executions/20260528T215436-18ac2e1a/checks.json",
+    "usage": ".ddx/executions/20260528T215436-18ac2e1a/usage.json",
+    "worktree": "Users/erik/Projects/.ddx-exec-wt/.execute-bead-wt-helix-53c6df33-20260528T215436-18ac2e1a"
+  },
+  "prompt_sha": "15b55aa65f5262d305fedf778ca7c299b25b24eacca3fedcf8caa73d799f08c0"
+}
