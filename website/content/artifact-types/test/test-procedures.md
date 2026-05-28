@@ -185,7 +185,7 @@ Use these local resource summaries as grounding:
 - the common failure modes worth documenting
 - evidence capture and pass/fail rules
 
-Use template at `.ddx/plugins/helix/workflows/activities/03-test/artifacts/test-procedures/template.md`.</code></pre></details></td></tr>
+Use template at `workflows/activities/03-test/artifacts/test-procedures/template.md`.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
   id: test-procedures

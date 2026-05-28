@@ -16,6 +16,9 @@ tech-stack
 ## Areas
 web, ui
 
+## Slot
+frontend-framework
+
 ## Components
 
 - **UI Framework**: React 19 — functional components and hooks only
@@ -56,6 +59,14 @@ web, ui
 React + Next.js frontend applications. Compose with `typescript-bun` for the
 base TypeScript and Bun runtime concern. This concern adds React-specific UI
 patterns, component library conventions, and E2E testing requirements.
+
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: React 19 + Next.js App Router as the frontend-framework slot; shadcn/Radix/Tailwind
+- TD: App Router + Server Components, react-hook-form + Zod, shared validation schemas
+- DESIGN_SYSTEM: Tailwind config extends design-system tokens; shadcn/ui component conventions
+- TEST_PLAN: Playwright E2E (not Cypress/Selenium)
 
 ## ADR References
 
@@ -114,6 +125,23 @@ Agents working in any of these activities inherit the practices below via the be
 - `bun run test:e2e` — Playwright E2E tests pass (CI only, requires running backend)
 - No `any` in component props or hook return types
 - No inline styles — use Tailwind classes
+
+## Composed-Concern Friction with typescript-bun (known)
+- **`next build`/`next start` run under Node, not Bun.** Even when launched with
+  `bun run`, Next.js hands execution to Node. Any Bun-native import in a path
+  Next.js builds or runs — most commonly `import { Database } from "bun:sqlite"`
+  for a colocated data layer — fails to resolve at build time.
+- **Fix: run Next.js under `bun --bun`.** Use `bun --bun run next build` /
+  `bun --bun run dev` so `bun:*` built-ins resolve in the Next.js process.
+  Wire this into the package scripts (e.g. `"dev": "bun --bun next dev"`) so it
+  is not forgotten on CI.
+- **Alternative**: keep `bun:sqlite` (and other `bun:*` built-ins) out of the
+  Next.js runtime — put the data layer in a separate Bun service the Next.js app
+  calls over an API, leaving the frontend free to build under plain Node.
+- Record the chosen resolution as a project override in
+  `docs/helix/01-frame/concerns.md` when both `react-nextjs` and `typescript-bun`
+  are active. See the `typescript-bun` practices "Composed-Concern Friction"
+  section for the runtime-side detail.
 
 ## Accessibility
 - All interactive elements must have accessible labels (aria-label, aria-labelledby, or visible text)

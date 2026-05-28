@@ -71,8 +71,6 @@ committing.
 - [ ] Risk mitigations are concrete actions, not "monitor"
 - [ ] P0 requirements number 7 or fewer
 - [ ] Assumptions are falsifiable
-- [ ] Functional requirements are organized by subsystem or flow, not priority
-- [ ] Technical Context names specific versions, not just library names
 
 _Additional guidance continues in the full prompt below._
 
@@ -380,8 +378,25 @@ scope.
 
 ### Functional Requirements
 These are the detailed behavioral specs. Each one should be testable — someone
-reading it should know how to write an acceptance test. Organize by subsystem
-or user flow, not by priority.
+reading it should know how to write an acceptance test.
+
+**Group requirements under named subsystems.** Organize FRs by subsystem (not by
+priority) under canonical, parseable headings: `### Subsystem: &lt;name&gt;`. Each
+`FR-n` belongs to **exactly one** subsystem. A subsystem is a cohesive capability
+of the product — the unit that becomes a feature: **one subsystem maps to ~one
+feature spec** (`FEAT-NNN`). This is the PRD↔FEAT boundary — the PRD owns
+*breadth* (it names every subsystem and enumerates all `FR-n` + priorities); the
+feature spec owns *depth* (one subsystem&#x27;s behavior, ACs, edge cases). A
+multi-subsystem product must not collapse into a single mega-feature, nor should
+one subsystem fragment into many tiny features. (The feature spec&#x27;s Decomposition
+test resolves borderline cases; reconcile-alignment checks that every subsystem
+maps to a feature.)
+
+Give each functional requirement a **stable `FR-n` ID** (`FR-1`, `FR-2`, …). The
+ID is the trace anchor: every `FR-n` must be covered by ≥1 user story, and
+reconcile-alignment flags any `FR-n` with no story as a coverage gap. Number
+sequentially and never renumber on edit — downstream stories reference the ID by
+name.
 
 ### Acceptance Test Sketches
 For each P0 requirement, write a concrete scenario: what the user does, what
@@ -452,7 +467,8 @@ committing.
 - [ ] Risk mitigations are concrete actions, not &quot;monitor&quot;
 - [ ] P0 requirements number 7 or fewer
 - [ ] Assumptions are falsifiable
-- [ ] Functional requirements are organized by subsystem or flow, not priority
+- [ ] Functional requirements are grouped under canonical `### Subsystem: &lt;name&gt;` headings (each `FR-n` under exactly one subsystem); each subsystem is a capability that maps to ~one feature spec
+- [ ] Each functional requirement carries a stable `FR-n` ID for downstream story traceability
 - [ ] Technical Context names specific versions, not just library names
 - [ ] Open Questions name who can answer and what&#x27;s blocked</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
@@ -528,9 +544,26 @@ the detailed design here.
 
 ## Functional Requirements
 
-[Detailed behavioral requirements organized by subsystem or user flow. Each
-requirement should be testable — someone reading it should know how to verify
-whether it&#x27;s satisfied.]
+[Detailed behavioral requirements grouped under canonical `### Subsystem: &lt;name&gt;`
+headings. Each requirement is testable, and each `FR-n` belongs to exactly one
+subsystem. A subsystem is a cohesive product capability — the unit that maps to
+~one feature spec (`FEAT-NNN`). The PRD owns breadth (all subsystems + `FR-n` +
+priority); feature specs own each subsystem&#x27;s depth.
+
+Each functional requirement carries a **stable `FR-n` ID** (e.g. `FR-1`). The ID
+survives edits so downstream artifacts trace to a specific requirement by name:
+every `FR-n` must map to ≥1 user story `US-n`, and reconcile-alignment checks that
+mapping (and that each subsystem maps to a feature) as a coverage floor. Number
+them sequentially; do not renumber on edit.]
+
+### Subsystem: [Name — a cohesive capability that becomes ~one FEAT]
+
+- **FR-1** — [behavioral requirement, testable]
+- **FR-2** — [behavioral requirement, testable]
+
+### Subsystem: [Name]
+
+- **FR-3** — [behavioral requirement, testable]
 
 ## Acceptance Test Sketches
 
@@ -606,6 +639,8 @@ Use this checklist when reviewing a PRD artifact:
 - [ ] Every P0 requirement has an acceptance test sketch
 - [ ] Requirements can trace upward to the Product Vision and downward to downstream artifacts
 - [ ] Functional requirements are testable — each can be verified with specific inputs and expected outputs
+- [ ] Each functional requirement carries a stable `FR-n` ID so user stories can trace to it by name
+- [ ] Functional requirements are grouped under canonical `### Subsystem: &lt;name&gt;` headings, each `FR-n` under exactly one subsystem; each subsystem is a capability that maps to ~one feature spec
 - [ ] Technical context names specific versions and interfaces, not vague technology areas
 - [ ] Risks have concrete mitigations (&quot;we do X&quot;), not vague strategies (&quot;we monitor&quot;)
 - [ ] Open questions name who can answer and what is blocked

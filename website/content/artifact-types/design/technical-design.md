@@ -284,6 +284,13 @@ Use these local resource summaries as grounding:
 - `docs/resources/cucumber-executable-specifications.md` grounds mapping
   acceptance criteria to observable tests.
 
+## Active Concerns
+
+For each concern selected in `docs/helix/01-frame/concerns.md`, apply its declared
+`## Artifact Impact` (from `workflows/concerns/&lt;name&gt;/concern.md`) to THIS technical design — realize the
+TD-level obligations it names (domain-driven-design -&gt; aggregates/value-objects/repositories; architecture-style -&gt; layering + dependency direction; cqrs -&gt; command/query split). A selected concern whose Artifact Impact names TD
+but leaves no trace here is drift (reconcile-alignment Concern-&gt;Artifact Realization check).
+
 ## Focus
 - Create a story-level artifact named `docs/helix/02-design/technical-designs/TD-XXX-[name].md`.
 - Map each acceptance criterion to component changes, interfaces, data, security, and tests.
@@ -302,7 +309,7 @@ Use these local resource summaries as grounding:
 | Exact external interface contract | Contract |
 | One story&#x27;s implementation shape, files, tests, and rollback | Technical Design |
 | Test fixtures and detailed test cases | Story Test Plan |
-| Work queue slicing and execution status | Implementation Plan or DDx bead |
+| Work queue slicing and execution status | Implementation Plan or runtime work item |
 
 ## Completion Criteria
 - The story is implementable.

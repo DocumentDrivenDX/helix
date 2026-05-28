@@ -29,14 +29,13 @@ how the behavior will be built.
   build it. Implementation details belong in design docs.
 - **Behavior, not journey** — specify feature behavior and acceptance criteria.
   Put end-to-end user flow narrative in user stories.
-- **One feature, one spec** — if a spec covers two independent capabilities,
-  split it.
+- **One feature, one capability** — a feature spec covers exactly one capability
+  (≈ one PRD subsystem). If it covers two, split it; apply the Decomposition test
+  below to decide. A functional *area* is a sub-part of one capability, not a
+  second capability.
 - **Functional areas before requirements** — when a feature spans multiple
-  surfaces, user modes, workflow stages, or domain objects, name those areas
-  before writing requirements. Group requirements by area instead of producing
-  one flat list.
-- **Separate similar domain objects** — if readers might confuse two things,
-  define them separately before requirements. For example, "Artifacts" are
+  surfaces, stages, or domain objects *within the one capability*, name those
+  areas before writing requirements and group requirements by area instead of
 
 _Additional guidance continues in the full prompt below._
 
@@ -299,6 +298,13 @@ Use these local resource summaries as grounding:
   examples as readable acceptance specifications without prescribing
   implementation or tooling.
 
+## Active Concerns
+
+For each concern selected in `docs/helix/01-frame/concerns.md`, apply its declared
+`## Artifact Impact` (from `workflows/concerns/&lt;name&gt;/concern.md`) to THIS feature spec — realize the
+FEAT-level obligations it names (usage-metering -&gt; which actions are billable; multi-tenancy -&gt; tenant-scoped ACs). A selected concern whose Artifact Impact names FEAT
+but leaves no trace here is drift (reconcile-alignment Concern-&gt;Artifact Realization check).
+
 ## Key Principles
 
 - **Future state before current pain** — describe the desired user-visible
@@ -308,12 +314,16 @@ Use these local resource summaries as grounding:
   build it. Implementation details belong in design docs.
 - **Behavior, not journey** — specify feature behavior and acceptance criteria.
   Put end-to-end user flow narrative in user stories.
-- **One feature, one spec** — if a spec covers two independent capabilities,
-  split it.
+- **One feature, one capability** — a feature spec covers exactly one capability
+  (≈ one PRD subsystem). If it covers two, split it; apply the Decomposition test
+  below to decide. A functional *area* is a sub-part of one capability, not a
+  second capability.
 - **Functional areas before requirements** — when a feature spans multiple
-  surfaces, user modes, workflow stages, or domain objects, name those areas
-  before writing requirements. Group requirements by area instead of producing
-  one flat list.
+  surfaces, stages, or domain objects *within the one capability*, name those
+  areas before writing requirements and group requirements by area instead of
+  producing one flat list. (Areas are subordinate parts of one capability — if an
+  &quot;area&quot; would pass the Decomposition test as its own capability, it is a separate
+  feature, not an area.)
 - **Separate similar domain objects** — if readers might confuse two things,
   define them separately before requirements. For example, &quot;Artifacts&quot; are
   project-specific instances; &quot;Artifact Types&quot; are reusable methodology
@@ -339,6 +349,32 @@ Use these local resource summaries as grounding:
 | Detailed test cases, fixtures, or automation strategy | Test Plan or Story Test Plan |
 | Build sequencing and work slices | Implementation Plan |
 
+## Decomposition — is it a FEAT or a functional area?
+
+The brief decomposes into features at one granularity: **one feature per
+capability**, anchored to the PRD&#x27;s `### Subsystem:` groupings (~one subsystem →
+one `FEAT-NNN`). Use these **layered tests** to place a candidate:
+
+1. **Primary — ship / cut / metric.** A candidate is its own **feature** if all
+   hold:
+   - **Ship/cut:** it could be removed or deferred **without making another
+     *named* capability incoherent** (it stands alone in the parking-lot).
+   - **Metric:** it carries its own **feature-level product/user outcome** as a
+     success metric — not a local counter (a button click or a row count is not a
+     feature metric).
+   If a candidate fails these — it cannot stand alone and has no outcome of its
+   own — it is a **functional area** within a feature, not a feature.
+2. **Tie-breaker — bounded context.** When ship/cut is genuinely ambiguous, split
+   on bounded context / aggregate root: one feature per bounded context; areas are
+   views/stages over the *same* aggregate.
+
+**Anchor:** the PRD names the subsystems; each maps to ~one feature. A
+multi-subsystem brief that produces a single mega-feature, or that produces zero
+feature specs (PRD → stories directly), has skipped this tier — reconcile-alignment
+flags both. A deliberately cross-subsystem feature (the workflow that spans them
+*is* the feature) is allowed, but must say so explicitly in the template&#x27;s
+**Cross-Subsystem Rationale** field (the &quot;Covered PRD Subsystem(s)&quot; /
+&quot;Covered PRD Requirements&quot; fields hold the subsystem names and FR IDs).
 ## Section-by-Section Guidance
 
 ### Overview
@@ -362,16 +398,23 @@ feature. Quantify where possible. Keep it subordinate to the future state; do
 not let the spec become a list of current complaints.
 
 ### Functional Areas
-Use this section whenever a feature has more than one surface, reader mode,
-workflow stage, or domain object. The area map should make clear what belongs
-where before requirements are written.
+Use this section whenever a feature has more than one surface, stage, or domain
+object **within its one capability**. The area map should make clear what belongs
+where before requirements are written. Areas are *subordinate parts* of the
+feature — each fails the Decomposition test on its own (it cannot ship/cut
+independently and has no feature-level outcome of its own).
 
-Examples:
+Examples (areas *inside one capability*):
 
-- Home, Why, Use, Artifact Types, Artifacts, Concerns, Reference, Navigation
-- Intake, Planning, Execution, Review, Reporting
-- Admin, Operator, End user, Auditor
-- API contract, CLI surface, generated docs, validation
+- CSV lead import → field mapping, validation, duplicate handling, confirmation
+- Template editor → block palette, variable insertion, live preview, save/version
+- Campaign scheduler → recipient selection, send-time rules, blackout handling
+
+**Caution:** lists of *roles* (&quot;Admin, Operator, Auditor&quot;), *lifecycle stages*
+(&quot;Intake, Planning, Execution, Review&quot;), or *distinct domain objects* (&quot;Leads,
+Lists, Segments&quot;, &quot;API, CLI, docs&quot;) are usually **separate features**, not areas
+of one — each typically passes the Decomposition test as its own capability.
+Apply the test before treating them as areas.
 
 ### Functional Requirements
 Number each requirement for traceability. Group requirements by functional
@@ -456,6 +499,13 @@ ddx:
 **Status**: [Draft | Specified | Approved]
 **Priority**: [P0 | P1 | P2]
 **Owner**: [Team/Person]
+**Covered PRD Subsystem(s)**: [Subsystem name(s) from the PRD — normally exactly one]
+**Covered PRD Requirements**: [FR-n, FR-m — the PRD FRs this feature owns]
+**Cross-Subsystem Rationale**: [None — single subsystem. | If more than one subsystem
+is listed above: the rationale that the cross-subsystem workflow IS the feature;
+otherwise split it per the Decomposition test.]
+&lt;!-- reconcile-alignment reads these three fields: a feature spanning &gt;1 subsystem
+with no Cross-Subsystem Rationale is a mega-FEAT finding. --&gt;
 
 ## Overview
 
@@ -478,10 +528,12 @@ of only reacting to current pain.]
 
 ## Functional Areas
 
-[For features that span more than one surface, user mode, workflow stage, or
-domain object, map the areas before writing requirements. This prevents
-unrelated requirements from collapsing into one list. Omit only when the
-feature is a single narrow capability.]
+[For features with more than one surface or stage **within this one capability**,
+map the subordinate areas before writing requirements. Areas are parts of one
+capability — each fails the ship/cut/metric test on its own. Lists of roles,
+lifecycle stages, or distinct domain objects are usually *separate features*, not
+areas (apply the Decomposition test). Omit when the feature is a single narrow
+capability.]
 
 | Area | User question or job | Feature responsibility |
 |------|----------------------|------------------------|
@@ -559,6 +611,8 @@ plausible scope question.]
 
 Use this checklist when reviewing a feature specification:
 
+- [ ] Covered PRD Subsystem(s) and Requirements (`FR-n`) are listed; a feature spanning &gt;1 subsystem carries an explicit cross-subsystem rationale (else split per the Decomposition test)
+- [ ] Functional areas (if any) are subordinate parts of this one capability, not separate capabilities (each fails the ship/cut/metric test on its own)
 - [ ] Overview connects this feature to a specific PRD requirement
 - [ ] Ideal future state describes the desired user-visible outcome, not only current problems
 - [ ] Problem statement describes what exists now and what is broken — not just what is wanted

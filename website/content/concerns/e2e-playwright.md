@@ -16,6 +16,9 @@ testing
 ## Areas
 ui, site
 
+## Slot
+e2e-framework
+
 ## Components
 
 - **Test runner**: Playwright (`@playwright/test`)
@@ -187,11 +190,59 @@ Any project with a web UI that users interact with. This includes:
 - Admin dashboards
 - Any HTML output that needs visual consistency
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: Playwright as the e2e-framework slot (real browsers, screenshots, video, traces)
+- TEST_PLAN: per-page + per-workflow E2E in real browsers, seeded data across UI states, committed screenshot baselines
+
 ## ADR References
 
 ## Practices by activity
 
 Agents working in any of these activities inherit the practices below via the bead's context digest.
+
+## Run the core flow (coverage, not configuration)
+
+Selecting this concern — adding `@playwright/test`, a `playwright.config.ts`, and
+a `.spec` file — is **not** e2e coverage. Coverage means **at least one core
+user-flow has a browser e2e test that actually RUNS GREEN against the running
+app**. A spec that is written but never executed, or that passes only because it
+asserts nothing, does not count. The gate is verification, not the presence of a
+config:
+
+1. Start the app (`webServer` in `playwright.config.ts`, or start it manually).
+2. Run the e2e suite (`npx playwright test`) so the browser drives a core
+   user-flow against the live app.
+3. The core-flow test must pass — exit 0 with a real assertion on the end state.
+
+If the e2e suite was never run against the running app, the AC the flow backs is
+`UNTESTED` (see reconcile-alignment Acceptance Criteria Validation), not covered.
+
+## Assert the current-location cue (mechanized visual-cue gate)
+
+For a UI web app, the browser e2e MUST assert the current-location cue, not
+eyeball it: navigate to a route, then assert that the active nav item carries
+**`aria-current="page"`** for **≥1 route**. This assertion is **required and
+non-optional**.
+
+- Use the **portable** assertion (works across Playwright versions): locate the
+  active nav link, then `await expect(activeNavItem).toHaveAttribute('aria-current', 'page')`.
+  (The `getByRole(..., { current: 'page' })` option exists only in newer
+  Playwright — don't rely on it.)
+- An active class or style MAY be asserted *additionally* (e.g. a stable
+  token/class contract) but is **never a substitute** for the `aria-current`
+  assertion — assert the semantic state first.
+- **No pixel/screenshot assertions for this gate.** Screenshot baselines remain
+  fine for general visual regression, but the current-location cue is verified
+  by asserting the semantic state (and optionally a stable class/token), never
+  by a rendered-image comparison.
+
+This is the same requirement stated by the `ux-radix` concern's current-location
+feedback rule, and it feeds the `verification` gate
+(`workflows/concerns/verification/practices.md`): the
+operator's "clicking Invoices gives no feedback" bug becomes a failing e2e
+assertion until the cue exists.
 
 ## Requirements (Frame activity)
 - Identify all user-facing pages and workflows that need testing
@@ -267,9 +318,15 @@ Agents working in any of these activities inherit the practices below via the be
 - The demo is documentation — keep it passing, keep it current
 
 ## Quality Gates
+- At least one core user-flow has a browser e2e test that **runs green against
+  the running app** (the run-core-flow gate above — selecting the tool is not
+  coverage)
 - `npx playwright test` passes with zero failures
 - All screenshot baselines are committed and up-to-date
 - Every navigable page has at least one test
+- The browser e2e asserts `aria-current="page"` on the active nav item for ≥1
+  route (required; an active class/style only as an additional assertion, never
+  a substitute; no screenshot assertions for this cue)
 - Every user-facing workflow has at least one end-to-end test
 - Video recording is enabled (not disabled for speed)
 - Demo reel script exists and produces a watchable video

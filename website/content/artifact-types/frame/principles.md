@@ -124,7 +124,7 @@ Use these local resource summaries as grounding:
 1. **Check for existing principles**: If `docs/helix/01-frame/principles.md`
    already exists, load it and offer to refine rather than replace.
 
-2. **Load HELIX defaults**: Read `.ddx/plugins/helix/workflows/principles.md` for the baseline
+2. **Load HELIX defaults**: Read `workflows/principles.md` for the baseline
    design principles. Present them to the user as the starting point.
 
 3. **Discovery conversation**: Ask the user three questions to surface
@@ -248,6 +248,13 @@ semantics).
 5. **Prefer reversible decisions** — When uncertain, choose the option that
    is easiest to undo or change later. This changes decisions when confidence
    is low and both options satisfy current requirements.
+
+6. **Spec is the contract** — The governing artifact stack is the source of
+   truth; code is a projection of it. Compare and reproduce from the spec, and
+   keep traceability bidirectional (no material code surface without a governing
+   artifact; no acceptance criterion without an exercising test). This changes
+   decisions when code and spec diverge — fix the projection or update the
+   contract in the same change, rather than letting them drift.
 
 ## Tension Resolution
 

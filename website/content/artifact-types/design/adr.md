@@ -118,7 +118,7 @@ search or document store in v1
 <table class="helix-reference-table">
 <tbody>
 <tr><th>Activity</th><td><a href="/reference/glossary/activities/"><strong>Design</strong></a> — Decide how to build it. Capture trade-offs, contracts, and architecture decisions.</td></tr>
-<tr><th>Default location</th><td><code>docs/helix/02-design/adrs/ADR-{id}-{name}.md</code></td></tr>
+<tr><th>Default location</th><td><code>docs/helix/02-design/adr/ADR-{number}-{decision-name}.md</code></td></tr>
 <tr><th>Requires</th><td><em>None</em></td></tr>
 <tr><th>Enables</th><td><em>None</em></td></tr>
 <tr><th>Informs</th><td><a href="/artifact-types/design/solution-design/">Solution Design</a><br><a href="/artifact-types/design/technical-design/">Technical Design</a></td></tr>
@@ -127,6 +127,15 @@ search or document store in v1
 
 Write a compact ADR that captures one architecture-significant decision, the
 alternatives, and the consequences.
+
+## Storage Location
+
+Store at: `docs/helix/02-design/adr/ADR-NNN-&lt;decision-name&gt;.md` — **one decision
+per file**. Naming is canonical and checkable: uppercase `ADR`, a **zero-padded
+3-digit** sequential number, then a kebab-case decision name (e.g.
+`ADR-001-modular-monolith.md`, `ADR-007-auth-tenant-isolation.md`). Do **not** use
+lowercase `adr-` or 4-digit numbers, and do **not** lump multiple decisions into
+one record. reconcile-alignment flags non-canonical names and lumped ADRs.
 
 ## Purpose
 
@@ -156,6 +165,23 @@ Use these local resource summaries as grounding:
 - Use one ADR per decision. If the decision has independent parts, split it.
 - Treat accepted ADRs as history. New decisions supersede old records instead
   of rewriting them.
+- **Do not accept a decision whose design-defining facts are assumed.** A
+  decision&#x27;s design-defining facts (API shape, data model, pricing/cost
+  semantics, security/permissions, operational guarantees, or work decomposition)
+  must be **evidenced** — by an operator statement, a governing artifact, an
+  existing implementation, a docs/API proof, or a completed spike — not by model
+  familiarity, and not because a mechanism was picked or a provider named.
+  Choosing a provider and deferring its live integration does **not** evidence the
+  decision. If a design-defining fact is assumed, the ADR must cite **spike
+  evidence**, record a **blocked-spike rationale**, or carry an explicit
+  **provisional-risk** note (what is assumed, what could invalidate it, and that
+  the assumption is reversible/non-blocking). See the anti-reframe check in
+  `workflows/references/concern-resolution.md` (step 3a). An operator-marked
+  &quot;spike/unknown&quot; may not be accepted as a settled ADR without **spike evidence, a
+  blocked-spike rationale, or an explicit provisional-risk note**. A
+  **business/product** unknown a technical spike can&#x27;t answer (e.g. a pricing
+  model) → record **guidance-needed** or a blocked spike rather than forcing a
+  technical spike or accepting an assumed decision.
 
 ## Boundary Test
 
@@ -179,7 +205,9 @@ ddx:
   id: ADR-XXX
 ---
 
-# ADR-[NUMBER]: [Title]
+# ADR-NNN: [Title]
+&lt;!-- Filename: ADR-NNN-&lt;decision-name&gt;.md — uppercase ADR, zero-padded 3-digit, one decision per file. --&gt;
+
 
 | Date | Status | Deciders | Related | Confidence |
 |------|--------|----------|---------|------------|

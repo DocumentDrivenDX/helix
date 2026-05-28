@@ -16,7 +16,7 @@ test-plan context into bounded implementation slices with dependencies,
 validation gates, and closeout evidence.
 
 It is not the tracker. The runtime owns issue state and execution. This artifact
-defines the intended build shape so DDx beads or another runtime can execute
+defines the intended build shape so the runtime's work items can execute
 without inventing scope, ordering, or validation rules.
 
 ## Example
@@ -32,11 +32,11 @@ ddx:
     - example.technical-design.depositmatch.upload-csv
     - example.story-test-plan.depositmatch.upload-csv
   review:
-    self_hash: 8f48b07ab604fe52786de7648f7ab37da251cfade0ea38bb4e802082d4f977de
+    self_hash: c470ce1b656f474335d2b2ec376a3e41e3389d5b83c7fcc1b350890b50a42d7c
     deps:
-      example.story-test-plan.depositmatch.upload-csv: ea5f25266c2652513d7c3623b18bb3b8f9ac0058379e1edcfe305107bdf6a11e
+      example.story-test-plan.depositmatch.upload-csv: 20aed2c4e248a67b448b0528b49ae9b2724d5045879ddcda655ad220d1c276ed
       example.technical-design.depositmatch.upload-csv: 064c51468da1d444da9c6f65d6c2502487724ac315fa3e6c50f9bbeffd3d69b9
-    reviewed_at: "2026-05-15T04:11:24Z"
+    reviewed_at: "2026-05-26T02:56:15Z"
 ---
 
 # Build Plan
@@ -76,7 +76,7 @@ or match generation.
 
 ## Issue Decomposition
 
-Story-level work is tracked via `ddx bead` in `.ddx/beads.jsonl`.
+Story-level work is tracked as work items in the runtime's work-item store.
 
 **Per-issue requirements**:
 
@@ -155,7 +155,7 @@ test-plan context into bounded implementation slices with dependencies,
 validation gates, and closeout evidence.
 
 It is not the tracker. The runtime owns issue state and execution. This artifact
-defines the intended build shape so DDx beads or another runtime can execute
+defines the intended build shape so the runtime&#x27;s work items can execute
 without inventing scope, ordering, or validation rules.
 
 ## Reference Anchors
@@ -164,6 +164,13 @@ Use this local resource summary as grounding:
 
 - `docs/resources/google-small-cls.md` grounds small, reviewable,
   rollback-friendly implementation slices with related tests.
+
+## Active Concerns
+
+For each concern selected in `docs/helix/01-frame/concerns.md`, apply its declared
+`## Artifact Impact` (from `workflows/concerns/&lt;name&gt;/concern.md`) to THIS build plan — realize the
+IMPLEMENTATION_PLAN-level obligations it names (relational-data-modeling -&gt; migration steps; resilience -&gt; guard wiring; usage-metering -&gt; metering wired on the real path). A selected concern whose Artifact Impact names IMPLEMENTATION_PLAN
+but leaves no trace here is drift (reconcile-alignment Concern-&gt;Artifact Realization check).
 
 ## Storage Location
 
@@ -191,12 +198,13 @@ Use this local resource summary as grounding:
 | Design or interface decisions | Solution Design / Technical Design / Contract / ADR |
 | Exact story tests and fixtures | Story Test Plan |
 | Build slice order, dependencies, and validation gates | Implementation Plan |
-| Assignee, live status, claim, execution logs | DDx bead or runtime issue |
+| Assignee, live status, claim, execution logs | runtime work item or issue |
 
 ## Template
 
-`.ddx/plugins/helix/workflows/activities/04-build/artifacts/implementation-plan/template.md`
-For tracker conventions see `ddx bead --help`.</code></pre></details></td></tr>
+`workflows/activities/04-build/artifacts/implementation-plan/template.md`
+For tracker conventions see the runtime&#x27;s install guide (DDx:
+`docs/install/ddx.md`).</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
   id: implementation-plan
@@ -224,7 +232,7 @@ ddx:
 
 ## Issue Decomposition
 
-Story-level work is tracked via `ddx bead` in `.ddx/beads.jsonl`.
+Story-level work is tracked as work items in the runtime&#x27;s work-item store.
 
 **Per-issue requirements**:
 - Labels: `helix`, `activity:build`, `kind:build`, `story:US-{story-id}`

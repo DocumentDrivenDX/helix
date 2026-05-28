@@ -14,7 +14,7 @@ User stories are **governing design artifacts**, not throwaway tickets. Each
 story defines one persona's complete vertical journey through feature behavior
 that is independently implementable and testable. Tracker issues reference
 stories; stories don't reference tracker issues. Stories are more stable than
-the implementation beads that fulfill them.
+the implementation work items that fulfill them.
 
 The feature spec owns behavior and boundaries. A user story owns a journey
 through that behavior: who starts it, what they do, what the system shows, and
@@ -22,9 +22,14 @@ what outcome proves the slice works.
 
 ## Authoring guidance
 
-- **One story, one vertical slice** — a story should trace a complete path
-  from user action to outcome. If it can't be demonstrated end-to-end, it's
-  not a story yet.
+- **One story, one vertical slice** — one persona completing one goal,
+  demonstrable end-to-end in a single flow. If it can't be demonstrated
+  end-to-end, it's not a story yet. The parent feature is the capability
+  envelope; it has as many stories as it has distinct persona-goals. This is the
+  FEAT↔story boundary.
+- **One file per story** — each story is its own `US-NNN-<slug>.md` under
+  `docs/helix/01-frame/user-stories/` (never a single monolithic
+  `user-stories.md`); reconcile-alignment flags a monolithic stories file.
 - **Stable reference** — stories will be referenced by multiple tracker issues
   across design, implementation, and testing. Write them to last.
 - **Implementer-sufficient** — an implementer reading only this story and the
@@ -32,9 +37,8 @@ what outcome proves the slice works.
   questions.
 - **Test-first friendly** — acceptance criteria and test scenarios should be
   concrete enough to write tests before writing code.
-- **Traceable to feature behavior** — each story should name the feature
-  requirements it exercises. Do not invent behavior outside the parent feature
-  spec.
+
+_Additional guidance continues in the full prompt below._
 
 <details>
 <summary>Quality checklist from the prompt</summary>
@@ -49,9 +53,11 @@ committing.
 - [ ] "So that" names a measurable outcome, not a tautology
 - [ ] Walkthrough traces a complete path from trigger to outcome
 - [ ] Every acceptance criterion is independently testable (one Given/When/Then)
+- [ ] Every acceptance criterion carries a stable `US-<n>-AC<m>` ID
 - [ ] Test scenarios include concrete values, not placeholders
 - [ ] Story links to parent feature spec by ID
 - [ ] Story names the parent feature requirement IDs it exercises
+- [ ] Story names the PRD `FR-n` it covers; bundled unrelated `FR-n`s carry recorded justification
 
 ### Warning
 
@@ -76,10 +82,10 @@ ddx:
   depends_on:
     - example.feature-specification.depositmatch.csv-import
   review:
-    self_hash: ae65ec934b10e577641772c711eafec5a15dbb5854327d8240307341e2053f66
+    self_hash: b87b259be7a0ac9a75516d5868742aed44b6af05ab12d10aa4535a3cae24e9b6
     deps:
       example.feature-specification.depositmatch.csv-import: d85530eb091209cf9989c9cac3bc1f1063358a5b79964ca0e5e7a384fa77c44a
-    reviewed_at: "2026-05-15T04:11:24Z"
+    reviewed_at: "2026-05-24T23:28:08Z"
 ---
 
 # US-001: Upload CSV Files for a Client
@@ -117,15 +123,15 @@ covered by follow-on stories.
 
 ## Acceptance Criteria
 
-- [ ] Given Maya is viewing Acme Dental, when she uploads one valid bank CSV and
-  one valid invoice CSV, then DepositMatch creates one draft import session for
-  Acme Dental and opens mapping review.
-- [ ] Given Maya is viewing Acme Dental, when she uploads a PDF instead of a
-  CSV for either required file, then DepositMatch rejects the file before
-  parsing and keeps the import session in draft.
-- [ ] Given Maya has uploaded both required CSV files, when the files are
-  accepted, then the import session records the client, file names, upload time,
-  and source type for each file.
+- [ ] **US-001-AC1** — Given Maya is viewing Acme Dental, when she uploads one
+  valid bank CSV and one valid invoice CSV, then DepositMatch creates one draft
+  import session for Acme Dental and opens mapping review.
+- [ ] **US-001-AC2** — Given Maya is viewing Acme Dental, when she uploads a PDF
+  instead of a CSV for either required file, then DepositMatch rejects the file
+  before parsing and keeps the import session in draft.
+- [ ] **US-001-AC3** — Given Maya has uploaded both required CSV files, when the
+  files are accepted, then the import session records the client, file names,
+  upload time, and source type for each file.
 
 ## Edge Cases
 
@@ -138,11 +144,11 @@ covered by follow-on stories.
 
 ## Test Scenarios
 
-| Scenario | Input / State | Action | Expected Result |
-|----------|---------------|--------|-----------------|
-| Happy path | Client `Acme Dental`; files `acme-bank-2026-05-08.csv` and `acme-invoices-2026-05-08.csv` | Maya uploads both files | Draft import session is created for Acme Dental and mapping review opens |
-| Wrong file type | Client `Acme Dental`; bank file `statement.pdf`; invoice file `acme-invoices-2026-05-08.csv` | Maya uploads both files | PDF is rejected before parsing; session remains draft |
-| Missing invoice file | Client `Acme Dental`; bank file only | Maya uploads the bank file | Bank file is attached to draft session; mapping review does not open |
+| Scenario | AC ID | Input / State | Action | Expected Result |
+|----------|-------|---------------|--------|-----------------|
+| Happy path | US-001-AC1 | Client `Acme Dental`; files `acme-bank-2026-05-08.csv` and `acme-invoices-2026-05-08.csv` | Maya uploads both files | Draft import session is created for Acme Dental and mapping review opens |
+| Wrong file type | US-001-AC2 | Client `Acme Dental`; bank file `statement.pdf`; invoice file `acme-invoices-2026-05-08.csv` | Maya uploads both files | PDF is rejected before parsing; session remains draft |
+| Missing invoice file | US-001-AC2 | Client `Acme Dental`; bank file only | Maya uploads the bank file | Bank file is attached to draft session; mapping review does not open |
 
 ## Dependencies
 
@@ -185,7 +191,7 @@ User stories are **governing design artifacts**, not throwaway tickets. Each
 story defines one persona&#x27;s complete vertical journey through feature behavior
 that is independently implementable and testable. Tracker issues reference
 stories; stories don&#x27;t reference tracker issues. Stories are more stable than
-the implementation beads that fulfill them.
+the implementation work items that fulfill them.
 
 The feature spec owns behavior and boundaries. A user story owns a journey
 through that behavior: who starts it, what they do, what the system shows, and
@@ -202,9 +208,14 @@ Use these local resource summaries as grounding:
 
 ## Key Principles
 
-- **One story, one vertical slice** — a story should trace a complete path
-  from user action to outcome. If it can&#x27;t be demonstrated end-to-end, it&#x27;s
-  not a story yet.
+- **One story, one vertical slice** — one persona completing one goal,
+  demonstrable end-to-end in a single flow. If it can&#x27;t be demonstrated
+  end-to-end, it&#x27;s not a story yet. The parent feature is the capability
+  envelope; it has as many stories as it has distinct persona-goals. This is the
+  FEAT↔story boundary.
+- **One file per story** — each story is its own `US-NNN-&lt;slug&gt;.md` under
+  `docs/helix/01-frame/user-stories/` (never a single monolithic
+  `user-stories.md`); reconcile-alignment flags a monolithic stories file.
 - **Stable reference** — stories will be referenced by multiple tracker issues
   across design, implementation, and testing. Write them to last.
 - **Implementer-sufficient** — an implementer reading only this story and the
@@ -225,7 +236,7 @@ Use these local resource summaries as grounding:
 | One persona&#x27;s journey through a feature slice | User Story |
 | Component design, data model, API shape, or build approach | Solution/Technical Design |
 | Detailed fixtures, test harnesses, or automation strategy | Story Test Plan |
-| Work assignment, status, or execution notes | DDx bead or runtime issue |
+| Work assignment, status, or execution notes | runtime work item or issue |
 
 ## Section-by-Section Guidance
 
@@ -255,6 +266,15 @@ clear precondition, one action, one observable outcome. Avoid compound
 criteria (&quot;Given A and B and C, when D, then E and F and G&quot;). Split those
 into separate criteria.
 
+Each criterion carries a **stable AC ID** of the form `US-&lt;n&gt;-AC&lt;m&gt;` (e.g.
+`US-001-AC1`), where `&lt;n&gt;` is this story&#x27;s number. The ID is stable across edits
+so downstream artifacts reference a specific criterion by name. The story test
+plan (STP) owns the matrix that maps each AC ID to the failing test(s) that
+prove it — do **not** duplicate that matrix here; the story just defines the
+criteria and their IDs. The project-level test plan (TP) aggregates strategy and
+allocates criteria to test layers; it does not restate the per-AC matrix either
+(FEAT-008 FR-6).
+
 ### Edge Cases
 What happens when the user does something unexpected, inputs are invalid,
 or the system is in an unusual state? Each edge case names the condition and
@@ -274,6 +294,13 @@ and any external systems or APIs. If another story must be done first, say so.
 Name the parent feature requirement IDs that the story exercises. If the story
 needs behavior that is not in the feature spec, update the feature spec first.
 
+Also name the **PRD functional requirement(s) `FR-n`** this story covers.
+**Every PRD `FR-n` must map to ≥1 user story** — this is a coverage floor that
+reconcile-alignment checks; a `FR-n` with no story is a blocking gap. A single
+story may cover more than one `FR-n`, but **do not bundle unrelated `FR-n`s into
+one story without recorded justification** — unrelated requirements belong in
+separate vertical slices so each can be tested independently.
+
 ### Out of Scope
 What this story explicitly does not cover. Each item should exclude something
 an implementer might reasonably try to include. This prevents scope creep
@@ -291,9 +318,11 @@ committing.
 - [ ] &quot;So that&quot; names a measurable outcome, not a tautology
 - [ ] Walkthrough traces a complete path from trigger to outcome
 - [ ] Every acceptance criterion is independently testable (one Given/When/Then)
+- [ ] Every acceptance criterion carries a stable `US-&lt;n&gt;-AC&lt;m&gt;` ID
 - [ ] Test scenarios include concrete values, not placeholders
 - [ ] Story links to parent feature spec by ID
 - [ ] Story names the parent feature requirement IDs it exercises
+- [ ] Story names the PRD `FR-n` it covers; bundled unrelated `FR-n`s carry recorded justification
 
 ### Warning
 
@@ -312,6 +341,7 @@ ddx:
 
 **Feature**: [FEAT-XXX — Feature Name]
 **Feature Requirements**: [REQ-01, REQ-02]
+**PRD Requirements**: [FR-n — the PRD functional requirement(s) this story covers]
 **Priority**: [P0 | P1 | P2]
 **Status**: [Draft | Review | Approved]
 
@@ -341,11 +371,15 @@ vertical slice — it should cover one complete path from trigger to outcome.]
 
 ## Acceptance Criteria
 
-[Each criterion must be testable. Use Given/When/Then format. An implementer
-should be able to write a passing test from each criterion alone.]
+[Each criterion must be testable and carry a **stable AC ID** of the form
+`US-&lt;n&gt;-AC&lt;m&gt;` (matching this story&#x27;s number). Use Given/When/Then format — one
+precondition, one action, one observable outcome. The ID is stable: it survives
+edits so the story test plan and tests can reference a specific criterion by
+name. An implementer should be able to write a passing test from each criterion
+alone.]
 
-- [ ] Given [specific precondition], when [specific action], then [observable outcome]
-- [ ] Given [specific precondition], when [specific action], then [observable outcome]
+- [ ] **US-XXX-AC1** — Given [specific precondition], when [specific action], then [observable outcome]
+- [ ] **US-XXX-AC2** — Given [specific precondition], when [specific action], then [observable outcome]
 
 ## Edge Cases
 
@@ -360,21 +394,32 @@ should name the condition and the expected system behavior.]
 [Concrete input/output pairs for the acceptance criteria. An implementer
 should be able to copy these into a test file.]
 
-| Scenario | Input / State | Action | Expected Result |
-|----------|---------------|--------|-----------------|
-| Happy path | [specific state] | [specific action] | [specific result] |
-| [Edge case] | [specific state] | [specific action] | [specific result] |
+| Scenario | AC ID | Input / State | Action | Expected Result |
+|----------|-------|---------------|--------|-----------------|
+| Happy path | US-XXX-AC1 | [specific state] | [specific action] | [specific result] |
+| [Edge case] | US-XXX-AC2 | [specific state] | [specific action] | [specific result] |
 
 ## Dependencies
 
 - **Stories**: [US-XXX if this story depends on another being done first]
 - **Feature Spec**: [FEAT-XXX]
 - **Feature Requirements**: [REQ-01, REQ-02]
+- **PRD Requirements**: [FR-n — PRD functional requirement(s) this story covers]
 - **External**: [APIs, services, or data this story requires]
 
 ## Out of Scope
 
 [What this story explicitly does not cover, to prevent scope creep during
-implementation.]</code></pre></details></td></tr>
+implementation.]
+
+## Review Checklist
+
+Use this checklist when reviewing a user story:
+
+- [ ] Stored as its own file `US-NNN-&lt;slug&gt;.md` (one file per story — never a single monolithic `user-stories.md`)
+- [ ] Covers one persona completing one goal, demonstrable end-to-end in a single flow
+- [ ] Links to its parent `FEAT-NNN` and names the PRD `FR-n` it covers
+- [ ] Every acceptance criterion is independently testable and carries a stable `US-NNN-ACm` ID
+- [ ] Walkthrough traces a complete path from trigger to outcome; at least one edge case documented</code></pre></details></td></tr>
 </tbody>
 </table>

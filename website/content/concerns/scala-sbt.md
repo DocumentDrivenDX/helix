@@ -16,6 +16,9 @@ tech-stack
 ## Areas
 all
 
+## Slot
+language-runtime
+
 ## Components
 
 - **Language**: Scala 2.x (pinned per project)
@@ -41,6 +44,12 @@ Existing Scala projects on the sbt ecosystem. New Scala services should
 evaluate ZIO + sbt as the default stack. Note: projects actively migrating
 from Scala to TypeScript should prefer `typescript-bun` for new code and
 maintain `scala-sbt` only for the remaining Scala surface.
+
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: Scala + sbt (scalafmt, scalafix, ScalaTest, ZIO where applicable) as the language-runtime
+- TD: sbt-dynver versioning, format/lint gates, build-cache and concurrency conventions
 
 ## ADR References
 

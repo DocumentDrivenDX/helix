@@ -16,6 +16,9 @@ tech-stack
 ## Areas
 all
 
+## Slot
+language-runtime
+
 ## Components
 
 - **Language**: Python 3.12+
@@ -44,6 +47,12 @@ Python projects that benefit from fast dependency resolution and reproducible
 environments. Good for data services, APIs, ML pipelines, CLI tools, and
 libraries. uv is the single tool for venv creation, dependency resolution,
 and script running.
+
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: Python 3.12+ + uv (ruff, pyright, pytest) as the language-runtime
+- TD: pyproject.toml layout, dependency-group conventions, branch-coverage floor
 
 ## ADR References
 

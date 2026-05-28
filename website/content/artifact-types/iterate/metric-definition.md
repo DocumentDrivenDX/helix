@@ -31,11 +31,11 @@ ddx:
     - example.test-plan.depositmatch
     - example.deployment-checklist.depositmatch.csv-import
   review:
-    self_hash: a1bb2128a1335ff7b306902f4bc6ab433468c93f567943535c641fa2e53d617e
+    self_hash: 7889a106bd3b349d17124fe2fcd082f9f79c1b12947785617af369273603b0c8
     deps:
       example.deployment-checklist.depositmatch.csv-import: 02e9e7c9c29b4a335e0e2eceacaaaa6673018042db2a706f89293ab6f58abcbf
       example.test-plan.depositmatch: ba055b639a94e62d3b24f3a7ca270f78c3f17f6bae78b936d399291225d7976f
-    reviewed_at: "2026-05-15T04:11:24Z"
+    reviewed_at: "2026-05-25T15:46:40Z"
 ---
 
 # Metric Definition: csv-import-validation-seconds
@@ -56,6 +56,32 @@ labels:
   feature: FEAT-001
   area: import
   signal: latency
+```
+
+## Example: regression-bench metric (methodology/skill change)
+
+A regression bench validates a methodology or skill change. The metric scores a
+fixed brief, the `command` re-runs it from the bare prompt with the improved
+skill installed, and `baseline`/`target` carry the bare-prompt reading versus
+the value that earns the change its keep.
+
+```yaml
+name: recipe-app-build-conformance
+description: Intrinsic conformance score for the recipe-app bench brief run from the bare prompt with the candidate HELIX skill installed (build passes + template-conformant PRD + zero phantom claims).
+unit: score
+direction: higher
+command: bash tests/workflows/run-all.sh --bench recipe-app --score
+output_pattern: "METRIC recipe-app-build-conformance=([0-9]+\\.?[0-9]*)"
+baseline: 0.62
+target: 0.85
+tolerance: "0.05"
+last_verified: "2026-05-25"
+interpretation: Below baseline means the candidate skill change regressed the bench; at or above target means the change earned its keep. A score that disagrees with the PRD it scores (template↔meta drift) is a broken instrument — fix the instrument before trusting the reading (FEAT-016).
+labels:
+  product: helix
+  feature: FEAT-014
+  area: methodology
+  signal: conformance
 ```
 ``````
 
@@ -123,14 +149,26 @@ ddx:
 ```yaml
 name: [kebab-case-identifier]
 description: [What this metric measures]
-unit: [seconds|bytes|percent|count|...]
+unit: [seconds|bytes|percent|count|score|...]
 direction: [lower|higher]
-command: [repeatable shell command]
+command: [repeatable shell command that actually runs and emits the value]
 output_pattern: &quot;[regex with capture group]&quot;
+baseline: [the value the command produced on a recorded run — measured, not asserted]
+target: [the value that counts as success, in the same unit]
 tolerance: [noise band, e.g. &quot;5%&quot; or &quot;100ms&quot;]
+last_verified: [ISO-8601 date the command was last run and confirmed to emit this value]
 interpretation: [How to read meaningful changes]
 labels:
   [key]: [value]
-```</code></pre></details></td></tr>
+```
+
+**The measurement must be real.** `command` must have actually been run and
+confirmed to emit the value before this metric is trusted; record that run date
+in `last_verified`. A metric whose command was never run — an
+asserted-but-unmeasured number — is a phantom claim (FEAT-016), not a metric.
+`baseline` is what the command *produced*, never a target typed in by hand; for
+a regression bench (a metric validating a methodology/skill change), `baseline`
+is the bare-prompt reading and `target` is the value that earns the change its
+keep.</code></pre></details></td></tr>
 </tbody>
 </table>

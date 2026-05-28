@@ -50,6 +50,13 @@ All projects with network-facing services, user authentication, or data storage.
 Security is a cross-cutting concern — it is not a activity or a separate checklist,
 it applies throughout every activity of development.
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: OWASP Top 10 as the security baseline
+- ADR: security architecture — secret management, TLS, boundary input validation, dependency auditing
+- TEST_PLAN: authz-on-every-protected-endpoint, parameterized-query, and input-validation checks
+
 ## ADR References
 
 ## Practices by activity
@@ -95,5 +102,5 @@ Agents working in any of these activities inherit the practices below via the be
 
 ## Incident Response
 - Rotate compromised credentials immediately; do not wait to assess
-- File a security bead with `security` label; treat as P0 if customer data at risk
+- File a security work item with `security` label; treat as P0 if customer data at risk
 - Document the incident in `docs/helix/06-iterate/` post-resolution

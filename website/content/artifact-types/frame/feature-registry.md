@@ -135,7 +135,7 @@ Use these local resource summaries as grounding:
 
 The Feature Registry is not the PRD, backlog, or tracker. It assigns durable
 feature identity and preserves feature-level traceability. The PRD defines
-requirements; Feature Specifications define behavior; DDx beads track execution.
+requirements; Feature Specifications define behavior; runtime work items track execution.
 
 ## Completion Criteria
 - Entries are brief and complete.

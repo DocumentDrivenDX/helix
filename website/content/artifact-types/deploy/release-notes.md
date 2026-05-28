@@ -213,7 +213,7 @@ and `runbook`), not inside release notes.
 - [ ] Breaking changes, migration guidance, and known issues are clear when relevant
 - [ ] References point readers to deeper docs or support paths when needed
 
-Use the template at `.ddx/plugins/helix/workflows/activities/05-deploy/artifacts/release-notes/template.md`.</code></pre></details></td></tr>
+Use the template at `workflows/activities/05-deploy/artifacts/release-notes/template.md`.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
   id: release-notes

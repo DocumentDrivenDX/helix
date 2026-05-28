@@ -1,0 +1,289 @@
+---
+title: "Unity Catalog (Databricks data governance)"
+slug: unity-catalog
+generated: true
+aliases:
+  - /reference/glossary/concerns/unity-catalog
+---
+
+**Category:** Data-Governance · **Areas:** data, api, infra
+
+## Description
+
+## Category
+data-governance
+
+## Areas
+data, api, infra
+
+## Platform
+
+**Platform-specific (Databricks).** Unity Catalog is Databricks' unified
+governance layer for the lakehouse. This concern is the *specific Databricks
+realization* of the generic data-governance discipline — not a generic
+data-modeling or access-control concern (see `## Boundary`).
+
+## Boundary
+
+This concern owns **how data and AI assets are governed on Databricks** — the
+catalog namespace, the grant model, lineage, and governed external storage. It
+is **Databricks' concrete realization** of data governance and must not be
+restated as, or used to duplicate, the generic neighbors:
+
+- **Generic data modeling / `domain-driven-design`** owns *what the data
+  means* — entities, aggregates, invariants, the logical schema. Unity Catalog
+  owns *where those assets are registered and who may touch them* — the physical
+  `catalog.schema.object` namespace and the GRANT model over it. Model the
+  domain in the domain concern; register and govern it here. Do not re-derive
+  the logical model in this concern.
+- **`security-owasp` / generic authz** owns *application-layer* authentication
+  and authorization (sessions, RBAC in app code, the OWASP risks). Unity Catalog
+  owns *data-layer* governance enforced by the platform at query time
+  (privileges, row filters, column masks, ownership). A Databricks App still
+  authenticates its users at the app layer; Unity Catalog is the additional
+  governance the *data* access flows through. Do not collapse the two — app
+  RBAC is not a substitute for catalog grants, and catalog grants are not a
+  substitute for app authz.
+- **`databricks-declarative-pipelines`** *produces* governed datasets (its
+  streaming tables and materialized views land in a catalog/schema); Unity
+  Catalog *governs* them. The pipeline declares the dataset; this concern owns
+  the grants, ownership, and lineage on the result.
+- **`databricks-apps`** *consumes* governed data; Unity Catalog *governs* the
+  consumption. This concern owns the rule that an app reads through Unity
+  Catalog grants, not around them.
+
+## Components
+
+Unity Catalog organizes every governed asset under a **metastore** (the
+top-level container, one per region) exposing a **three-level namespace**:
+`catalog.schema.object`.
+
+### Namespace — where assets are registered
+- **Metastore** — the top-level container; holds catalogs, plus storage
+  credentials and external locations directly beneath it.
+- **Catalog** — first level; the primary unit of data isolation. Organize by
+  environment (dev/staging/prod) and/or business unit.
+- **Schema** (database) — second level; groups related objects.
+- **Objects** (third level) — **tables** and **views** (tabular), **volumes**
+  (governance for non-tabular files), **models** (registered ML models),
+  **functions** (UDFs). Tables and volumes are **managed** (Unity Catalog owns
+  governance *and* storage lifecycle — preferred) or **external** (governance
+  only; data lives at an external location).
+
+### Securable objects & the grant model
+Every governed asset is a **securable object** on which privileges are granted
+to **users, service principals, or groups**. Privileges are **inherited
+downward**: a grant at the catalog level applies to current and future schemas
+and objects within it; a schema grant applies to its objects.
+
+Key privileges:
+- **`USE CATALOG` / `USE SCHEMA`** — traversal prerequisites; required before
+  any data access on objects beneath.
+- **`SELECT`** — read a table/view/materialized view.
+- **`MODIFY`** — insert/update/delete table data.
+- **`READ VOLUME` / `WRITE VOLUME`** — read/write files in a volume.
+- **`EXECUTE`** — invoke a function or load a registered model for inference.
+- **`BROWSE`** — discover an object and view its metadata (and explore its
+  lineage) **without** data access.
+- **`CREATE TABLE` / `CREATE SCHEMA` / `CREATE CATALOG` / `CREATE VOLUME` /
+  `CREATE FUNCTION` / `CREATE MODEL`** — creation rights at each level.
+- **`MANAGE`** — manage privileges, transfer ownership, delete (close to
+  ownership, but does not auto-grant data privileges).
+- **`ALL PRIVILEGES`** — every applicable privilege (broad; avoid by default).
+- **`EXTERNAL USE SCHEMA`** — access tables via external engines over open APIs.
+
+Every securable object has an **owner** (a user, service principal, or — for
+production assets — a **group**) who can grant/revoke on it.
+
+### Governed external storage
+- **Storage credential** — the cloud identity Unity Catalog uses to reach
+  external cloud storage.
+- **External location** — a governed path (a credential + a cloud URI) over
+  which `READ FILES` / `WRITE FILES` are granted; external tables and external
+  volumes are created beneath governed external locations, never at their root.
+
+### Fine-grained access & lineage
+- **Row filters** and **column masks** apply row-level and column-level security
+  at query time.
+- **Data lineage** is captured automatically (table-, column-, and
+  notebook/job-level) and aggregated across every workspace attached to the
+  metastore; visible to principals with at least `BROWSE`/`SELECT`.
+- **Audit logging** records access automatically.
+
+## Constraints
+
+### Every governed asset is registered and explicitly granted
+- All tables, views, volumes, models, and functions live in the
+  `catalog.schema.object` namespace under a Unity Catalog metastore — **no
+  unmanaged or anonymous data access** (no legacy Hive-metastore / no-isolation
+  tables, no DBFS mounts standing in for governed data).
+- Access is granted **explicitly** via the privilege model; there is no implicit
+  open access. `USE CATALOG`/`USE SCHEMA` plus the specific data privilege
+  (`SELECT`, `MODIFY`, `READ VOLUME`, …) are all required.
+
+### Grant to groups, least-privilege, group ownership for production
+- Grant privileges to **groups, not individual users** (groups provisioned from
+  the IdP via account-level SCIM).
+- Grant the **narrowest** privilege that satisfies the need; avoid
+  `ALL PRIVILEGES` and broad `READ FILES`/`WRITE FILES` on external locations to
+  end users.
+- **Production** catalogs and schemas are **owned by a group**, never an
+  individual — and production jobs run under a **service principal**, not a
+  personal identity.
+
+### Prefer managed; govern external storage through external locations
+- Prefer **managed** tables and volumes (full governance + storage lifecycle).
+- External data is reached only through a governed **external location** built
+  on a **storage credential**; do not create external tables/volumes at an
+  external location's root, and do not mount storage to DBFS that is also used as
+  an external location.
+
+### Isolate by catalog; fine-grained access at the data layer
+- Use the **catalog** as the primary isolation boundary (per environment /
+  business unit).
+- Apply **row filters** and **column masks** for row-/column-level access rather
+  than forking copies of data per audience.
+
+### Data-layer governance is not replaced by app-layer authz
+- Unity Catalog grants are the **data-layer** control and compose with — never
+  substitute for — application-layer authentication/authorization
+  (`security-owasp`). An app reading lakehouse data does so **through** Unity
+  Catalog (see `databricks-apps`), not around it.
+
+## Drift Signals (anti-patterns to reject in review)
+
+- A table/view/volume/model accessed outside the `catalog.schema.object`
+  namespace — legacy Hive metastore, raw DBFS mount, anonymous path → register
+  it in Unity Catalog and grant explicitly
+- Privileges granted to **individual users** instead of groups → grant to
+  IdP-provisioned groups
+- `ALL PRIVILEGES` (or broad `READ FILES`/`WRITE FILES` on an external location)
+  handed to end users → grant the narrowest privilege that satisfies the need
+- A **production** catalog/schema **owned by an individual**, or a production job
+  running under a personal identity → group ownership + service-principal job
+  identity
+- External table/volume created at an external location **root**, or DBFS mount
+  doubling as an external location → create beneath a governed external location;
+  remove the overlapping mount
+- Row-/column-level access solved by forking per-audience data copies → use row
+  filters / column masks
+- App- or pipeline-side code reaching data around the catalog (hardcoded cloud
+  path, direct credential) instead of through Unity Catalog grants → route data
+  access through the catalog
+
+## When to use
+
+Any product whose **data and AI assets live in the Databricks lakehouse** and
+must be governed — registered, access-controlled, and lineage-tracked through
+Unity Catalog. This is the data-governance member of the Databricks platform
+family; select it together with `databricks-apps` (when the product is a
+Databricks-hosted app) and/or `databricks-declarative-pipelines` (when ETL runs
+as declarative pipelines). It is composable (no slot); `areas: data, api, infra`
+scopes its practices to the data, service, and infrastructure work items.
+
+Do **not** select it for a product that does not store data in Databricks — use
+the generic data-governance / data-modeling concerns there instead.
+
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: metastore/catalog layout (isolation boundaries), managed-vs-external, group/ownership model for production
+- TD: assets registered in catalog.schema.object; data access through Unity Catalog grants, not around them
+- DATA_DESIGN: namespace placement, grant model, row filters/column masks, governed external locations
+
+## ADR References
+
+Record an ADR for the metastore/catalog layout (isolation boundaries:
+per-environment vs per-business-unit), the managed-vs-external decision for the
+product's data, and the group/ownership model for production assets. A material
+uncertainty (workspace/metastore topology, external-storage credentials,
+cross-region constraints) is a `tech-spike`, not a silent assumption (see
+`workflows/references/concern-resolution.md`).
+
+## Practices by activity
+
+Agents working in any of these activities inherit the practices below via the bead's context digest.
+
+These practices govern **how data and AI assets are registered, granted, and
+lineage-tracked on Databricks**. They are the Databricks realization of data
+governance; they do not restate the logical data model (`domain-driven-design`)
+or application-layer authz (`security-owasp`) — see the boundary in
+`concern.md`.
+
+## Requirements (Frame activity)
+
+- Decide the **catalog isolation boundary** up front: catalogs per environment
+  (dev/staging/prod), per business unit, or both.
+- Identify every dataset, volume, model, and function the product reads or
+  writes, and the **groups** that need access to each.
+
+## Design
+
+- Lay out the **three-level namespace** (`catalog.schema.object`) for the
+  product's assets; name the metastore/catalog topology in an ADR.
+- Decide **managed vs external** per asset — prefer managed; for external data,
+  design the **external location + storage credential** rather than raw cloud
+  paths or DBFS mounts.
+- Design grants as **group-based, least-privilege**: list `USE CATALOG` /
+  `USE SCHEMA` plus the specific data privilege (`SELECT`, `MODIFY`,
+  `READ VOLUME`, `EXECUTE`, …) each consumer group needs.
+- Design **production ownership** as group ownership, and production job/app
+  identity as a **service principal**.
+- Where row-/column-level access differs by audience, design **row filters** and
+  **column masks** instead of forked data copies.
+
+## Implementation
+
+- Register every asset in Unity Catalog — no Hive-metastore / no-isolation
+  tables, no DBFS-mount-as-data, no anonymous cloud paths.
+- `GRANT` to **groups** (IdP-provisioned via account-level SCIM), never to
+  individual users; grant the **narrowest** privilege (no reflexive
+  `ALL PRIVILEGES`, no broad `READ FILES`/`WRITE FILES` to end users).
+- Create external tables/volumes **beneath** a governed external location, never
+  at its root.
+- Assign **group ownership** to production catalogs/schemas; run production jobs
+  and apps under a **service principal**.
+- Apply **row filters** / **column masks** for fine-grained access.
+- Let consuming pipelines and apps read through the catalog — no hardcoded cloud
+  paths or embedded credentials that bypass grants.
+
+## Testing / Verification
+
+- Verify the namespace: every product asset resolves as
+  `catalog.schema.object` (no legacy/Hive/DBFS path).
+- Verify access control: a principal **without** the required grant is **denied**
+  (negative control), and a principal **with** the grant succeeds — observed,
+  not assumed.
+- Verify grants are **group-scoped** (no individual-user grants) and production
+  assets are **group-owned**.
+- Verify **lineage** is captured for the product's key tables (upstream →
+  downstream visible in Unity Catalog lineage).
+
+## Boundary with neighbors
+
+- **vs domain modeling (`domain-driven-design`)**: model entities/aggregates in
+  the domain concern; register and govern the physical namespace here. Do not
+  re-derive the logical model in catalog terms.
+- **vs `security-owasp` / app authz**: app-layer auth and catalog grants
+  **compose**; neither substitutes for the other. App RBAC does not replace
+  `SELECT`/`MODIFY` grants; catalog grants do not replace app authentication.
+- **vs `databricks-declarative-pipelines`**: the pipeline declares the dataset;
+  this concern owns the grants/ownership/lineage on the result.
+- **vs `databricks-apps`**: the app consumes data; this concern owns the rule
+  that it consumes **through** Unity Catalog.
+
+## Quality Gates
+
+- All tables, views, volumes, and models the product uses are **registered in
+  Unity Catalog** under `catalog.schema.object` — **no unmanaged or anonymous
+  data access** (no Hive metastore, no DBFS-mount data, no raw cloud paths).
+- Access is granted **explicitly** and **to groups** (not individual users),
+  least-privilege (no reflexive `ALL PRIVILEGES`); verified by a **negative
+  control** — an ungranted principal is denied.
+- **Production** catalogs/schemas are **group-owned** and production jobs/apps
+  run under a **service principal**, not a personal identity.
+- External data is reached through a governed **external location** (+ storage
+  credential), not a DBFS mount or raw cloud path; nothing is created at an
+  external location root.
+- Fine-grained access (where required) uses **row filters / column masks**, and
+  **lineage** is captured for the product's key datasets.

@@ -36,6 +36,13 @@ Any project with user-facing web or mobile interfaces. Required for
 public-sector, healthcare, finance, and education. Recommended for all
 consumer-facing products.
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: target WCAG 2.1 AA standard + axe-core + manual screen-reader testing
+- DESIGN_SYSTEM: keyboard-navigable controls, AA contrast ratios, focus management, labeled inputs
+- TEST_PLAN: axe-core automated checks + manual screen-reader passes
+
 ## ADR References
 
 ## Practices by activity

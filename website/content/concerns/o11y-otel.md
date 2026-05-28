@@ -35,6 +35,12 @@ api, backend, infra
 Any project with backend services, APIs, or distributed systems. Essential
 for production debugging, performance monitoring, and incident response.
 
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: OpenTelemetry (traces/metrics/logs) as the observability standard
+- TD: RED metrics on endpoints, trace-context propagation, structured JSON logs with correlation IDs
+
 ## ADR References
 
 ## Practices by activity

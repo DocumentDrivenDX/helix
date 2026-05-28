@@ -187,6 +187,10 @@ Use these local resource summaries as grounding:
 - test levels and scope
 - framework choices only where they matter
 - coverage targets and critical paths
+- acceptance-criteria **layer allocation** — allocate each in-scope
+  `US-&lt;n&gt;-AC&lt;m&gt;` criterion class to a primary test layer and confirm every P0 is
+  allocated. **Aggregate** the story test plans; do **not** duplicate their
+  per-AC matrix (the STP owns that, keyed by stable AC ID — FEAT-008 FR-6).
 - test data strategy
 - sequencing, dependencies, and infrastructure needs
 - risks that can block test execution
@@ -207,7 +211,7 @@ Use these local resource summaries as grounding:
 | Feature behavior or acceptance criteria | Feature Specification or User Story |
 | Implementation sequencing for code changes | Implementation Plan |
 
-Use template at `.ddx/plugins/helix/workflows/activities/03-test/artifacts/test-plan/template.md`.</code></pre></details></td></tr>
+Use template at `workflows/activities/03-test/artifacts/test-plan/template.md`.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---
 ddx:
   id: TP-XXX
@@ -265,6 +269,23 @@ ddx:
 
 - P1: [Secondary features] | P2: [Edge cases, rare scenarios]
 
+## Acceptance Criteria Layer Allocation
+
+This project test plan **aggregates** strategy across stories. It does **not**
+restate the per-criterion AC↔test matrix — that lives in each story test plan
+(STP), keyed by stable `US-&lt;n&gt;-AC&lt;m&gt;` IDs (FEAT-008 FR-6). Here, allocate
+criterion *classes* to test layers and confirm every P0 criterion is allocated:
+
+| AC class / source | Story Test Plan(s) | Primary Layer | Why this layer |
+|-------------------|--------------------|---------------|----------------|
+| [e.g. upload/validation criteria] | [[STP-XXX]] | Integration | [boundary + persistence] |
+| [e.g. visible reviewer flow] | [[STP-XXX]] | E2E | [user-observable outcome] |
+
+**Allocation rule**: no P0 acceptance criterion is left unallocated — every
+`US-&lt;n&gt;-AC&lt;m&gt;` from an in-scope story maps to exactly one primary layer here and
+to concrete tests in its STP. The STP owns the per-AC rows; this plan owns the
+layer allocation.
+
 ## Implementation Order
 1. [What must be written first and why]
 2. [What follows]
@@ -309,6 +330,8 @@ Use this checklist when reviewing a test plan:
 - [ ] Known gaps are documented with accepted risk rationale
 - [ ] Build handoff commands are concrete and runnable
 - [ ] Test plan traces back to acceptance criteria from governing feature specs
-- [ ] No untested P0 requirement — every P0 acceptance criterion has a test</code></pre></details></td></tr>
+- [ ] No untested P0 requirement — every P0 acceptance criterion has a test
+- [ ] Acceptance criteria are allocated to test layers by AC class without
+      duplicating the per-AC `US-&lt;n&gt;-AC&lt;m&gt;` matrix owned by the story test plans</code></pre></details></td></tr>
 </tbody>
 </table>

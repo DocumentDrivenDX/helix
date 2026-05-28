@@ -16,6 +16,9 @@ tech-stack
 ## Areas
 all
 
+## Slot
+language-runtime
+
 ## Components
 
 - **Language**: Go (version pinned in `go.mod`)
@@ -59,6 +62,12 @@ Generated files (`.pb.go`, `.gen.go`, `mock_*.go`) excluded from linting.
 
 All Go projects — CLIs, services, libraries. The standard toolchain and
 `go fmt` are universal; golangci-lint + gosec are the quality layer on top.
+
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: Go + standard toolchain (gofmt, golangci-lint, gosec, govulncheck) as the language-runtime
+- TD: error-wrapping, context-passing, interface-in-consumer conventions; lint baseline
 
 ## ADR References
 

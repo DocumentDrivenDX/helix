@@ -183,6 +183,21 @@ Use these local resource summaries as grounding:
 - `docs/resources/agile-alliance-sizing-spikes.md` grounds spikes as visible,
   time-boxed learning work rather than hidden delivery work.
 
+## Create this when
+For an **unmatched capability, an active-concern conflict, or an operator-marked
+unknown**, the capability&#x27;s **top 1-3 design-defining decisions** (API shape, data
+model, pricing/cost, security/permissions, operational guarantees, or
+decomposition) are **assumed rather than evidenced**. &quot;known/low-risk&quot; requires
+evidence (operator statement, governing artifact, existing implementation,
+docs/API proof, or a completed spike), not model familiarity, and not because a
+mechanism was picked or a provider named. Spike the assumed decision **even when a
+provider is chosen and its live integration is deferred** (deferral de-risks
+integration timing, not the decision). An operator-marked &quot;spike/unknown&quot; is
+authoritative. See the anti-reframe check in
+`workflows/references/concern-resolution.md` (step 3a). For a **business** unknown
+a technical spike can&#x27;t answer (e.g. pricing), record guidance-needed or a
+blocked spike instead.
+
 ## Focus
 - State the question, hypothesis, and method.
 - Keep the investigation small and measurable.

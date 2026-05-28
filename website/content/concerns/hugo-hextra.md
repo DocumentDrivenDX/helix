@@ -220,7 +220,7 @@ GitHub Actions workflow for GitHub Pages deployment:
 ## Drift Signals (anti-patterns to reject in review)
 
 - CLI command added or changed without updating CLI Reference page → update the docs
-- New artifact type in `.ddx/plugins/helix/workflows/activities/` without a glossary entry → add it
+- New artifact type in `workflows/activities/` without a glossary entry → add it
 - Feature spec created or evolved without updating the microsite → update it
 - Install process changed without updating Getting Started → fix it
 - Demo reel recorded but not copied to `website/static/demos/` → publish it
@@ -234,6 +234,12 @@ GitHub Actions workflow for GitHub Pages deployment:
 Any project that needs a public-facing documentation site. The Hugo + Hextra
 pattern provides search, responsive design, dark mode, and navigation with
 minimal configuration.
+
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- ADR: Hugo (extended) + Hextra theme via Hugo Modules, GitHub Pages deploy, as the microsite stack
+- TD: website/ layout, pinned theme/Hugo versions, Hugo config (enableGitInfo, unsafe HTML)
 
 ## ADR References
 
@@ -292,8 +298,8 @@ Any change to a HELIX artifact that is surfaced on the microsite:
 - New, renamed, or removed features → update glossary/artifacts page
 - Changed activities, authority order, or workflow rules → update workflow page
 - New or changed artifact types → update glossary/artifacts with description
-  from `.ddx/plugins/helix/workflows/activities/*/artifacts/<name>/meta.yml` (description field)
-  and `.ddx/plugins/helix/workflows/activities/*/artifacts/<name>/prompt.md` (Purpose section)
+  from `workflows/activities/*/artifacts/<name>/meta.yml` (description field)
+  and `workflows/activities/*/artifacts/<name>/prompt.md` (Purpose section)
 - New or changed concerns → update glossary/concerns page
 - Changed install process → update Getting Started
 - New demo reels → update Demos page and copy cast/video files to
@@ -302,7 +308,7 @@ Any change to a HELIX artifact that is surfaced on the microsite:
 ### Glossary generation from artifact metadata
 
 Each HELIX artifact type has structured metadata at
-`.ddx/plugins/helix/workflows/activities/<NN>-<activity>/artifacts/<name>/`:
+`workflows/activities/<NN>-<activity>/artifacts/<name>/`:
 
 | File | What it provides |
 |------|-----------------|
@@ -327,7 +333,7 @@ part of completing the evolution. The concern makes this a requirement, not a
 suggestion.
 
 Specifically:
-- If a new artifact type is added to `.ddx/plugins/helix/workflows/activities/`, add it to the
+- If a new artifact type is added to `workflows/activities/`, add it to the
   glossary artifacts page with its description from `meta.yml`/`prompt.md`
 - If an artifact's purpose or scope changes, update the glossary entry
 - If a skill mode is added or its behavior changes, update the relevant

@@ -31,10 +31,10 @@ ddx:
   depends_on:
     - example.metrics-dashboard.depositmatch.csv-import
   review:
-    self_hash: 604f198365df5380b9fd55ba02f1cfcd031ce4ca2f951da6c9dcc28fb0310998
+    self_hash: ce764a566bffc81a77e3c174314022a4d2201a32cc6090fab0c585fda4284104
     deps:
       example.metrics-dashboard.depositmatch.csv-import: 55c3a758e5ff9beef2651c46bf668c6a31eab8be6a1f64662166de4135061398
-    reviewed_at: "2026-05-15T04:11:24Z"
+    reviewed_at: "2026-05-26T03:19:52Z"
 ---
 
 # Improvement Backlog
@@ -57,7 +57,7 @@ pilot-readiness review
 
 | Rank | Priority | Item | Evidence | Tracker or Follow-Up Target | Why Now | Confidence | Effort | Status |
 |------|----------|------|----------|-----------------------------|---------|------------|--------|--------|
-| 1 | P1 | Add pilot CSV fixture collection and anonymization workflow | Test Plan risk: fixtures may not match real exports | Follow-up target: create DDx bead before next pilot import story | Realistic fixtures protect mapping and validation work from false confidence | High | M | open |
+| 1 | P1 | Add pilot CSV fixture collection and anonymization workflow | Test Plan risk: fixtures may not match real exports | Follow-up target: create a runtime work item before next pilot import story | Realistic fixtures protect mapping and validation work from false confidence | High | M | open |
 | 2 | P1 | Add upload p95 latency watch item to pilot dashboard | Metrics dashboard: production file sizes may differ from fixture data | Follow-up target: monitoring setup update | Keeps the 5-second validation target honest during pilot rollout | Medium | S | open |
 | 3 | P2 | Add abandoned draft-session cleanup story | Technical Design risk: draft sessions can accumulate | Follow-up target: FEAT-001 follow-on story after upload/mapping | Useful hygiene, but not required for first upload slice | Medium | M | deferred |
 
@@ -115,7 +115,7 @@ Use this local resource summary as grounding:
 - Prefer concrete tracker-backed items over vague TODOs.
 - Use metrics, feedback, and retrospective findings as evidence.
 - Make the next selection obvious by sorting by priority and impact.
-- Link each item to the relevant bead, report, or supporting artifact.
+- Link each item to the relevant work item, report, or supporting artifact.
 
 ## Boundary Test
 
@@ -123,7 +123,7 @@ Use this local resource summary as grounding:
 |---|---|
 | Measurement interpretation for this iteration | Metrics Dashboard |
 | Prioritized follow-up candidates and selection rationale | Improvement Backlog |
-| Live issue status, assignee, and execution history | DDx bead or runtime issue |
+| Live issue status, assignee, and execution history | runtime work item or issue |
 | New product requirements or design changes | Appropriate upstream artifact |
 
 ## Completion Criteria
@@ -150,7 +150,7 @@ ddx:
 
 | Rank | Priority | Item | Evidence | Tracker or Follow-Up Target | Why Now | Confidence | Effort | Status |
 |------|----------|------|----------|-----------------------------|---------|------------|--------|--------|
-| 1 | P1 | [item] | [metric or finding] | [bead ID or explicit target] | [reason] | [high/med/low] | [S/M/L] | [open/blocked] |
+| 1 | P1 | [item] | [metric or finding] | [work item ID or explicit target] | [reason] | [high/med/low] | [S/M/L] | [open/blocked] |
 
 ## Selection for Next Iteration
 

@@ -107,7 +107,7 @@ all
 - **Performance ratchets**: Define quantitative floors for latency,
   throughput, memory, bundle size, or test duration. Commit floors to
   version control. CI fails if the metric regresses below the floor. See
-  `.ddx/plugins/helix/workflows/ratchets.md` for the ratchet pattern.
+  `workflows/ratchets.md` for the ratchet pattern.
 
 ## Drift Signals (anti-patterns to reject in review)
 
@@ -126,6 +126,11 @@ all
 Every project. This concern is universal — it applies regardless of language,
 framework, or domain. Compose with language-specific concerns
 (`typescript-bun`, `rust-cargo`, etc.) for tooling-specific test practices.
+
+## Artifact Impact
+
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+- TEST_PLAN: multi-layer strategy (unit/integration/e2e/contract), stubs-over-mocks, fakers-over-fixtures, AC traceability, boundary/property/fuzz/chaos + ratchets
 
 ## ADR References
 
@@ -211,7 +216,7 @@ Agents working in any of these activities inherit the practices below via the be
 - Store floors in a committed file (e.g., `.ratchets.json`, `ratchets.toml`)
 - CI measures and compares against floor; fails on regression
 - Auto-bump floor when measured value exceeds it by the defined margin
-- See `.ddx/plugins/helix/workflows/ratchets.md` for the full ratchet pattern and override
+- See `workflows/ratchets.md` for the full ratchet pattern and override
   protocol
 
 ## Testing pyramid
@@ -224,6 +229,27 @@ Agents working in any of these activities inherit the practices below via the be
 | Property | Invariants over random input | varies | Full | Alongside unit |
 | Fuzz | Crash/panic discovery | campaign | Full | Periodic |
 | Chaos | Failure resilience | varies | Partial | Alongside integration |
+
+## Surface → real-path harness
+
+The harness that *proves* a behavior depends on the surface it lives on. Drive
+each acceptance criterion's real path **and its guard/negative branch** through
+the harness its surface dictates. (Choosing the harness is a testing-strategy
+decision; the `verification` concern's evidence gate only refuses "done" without
+the resulting running-system evidence.)
+
+| Surface | Real-path harness |
+|---|---|
+| Web UI (client-rendered) | Playwright (the `e2e-framework` slot, default `e2e-playwright`) |
+| Server-rendered web | HTTP request + HTML assertion against the live server |
+| HTTP API / webhook | request client (curl/fetch): assert status code **and** body contract, including malformed / empty / unauthorized input |
+| CLI | shell / `expect` driving the real binary, asserting exit status + output |
+| TUI | `tmux` send-keys + capture-pane assertions |
+| Backend job / worker / scheduler | integration test driving the real entry point (not a re-implementation) |
+
+Playwright is the web filler, **not** the universal verifier — a CLI exercised
+only by unit tests, or an API whose malformed-input branch is never POSTed, is
+not verified.
 
 ## Quality Gates
 
