@@ -39,9 +39,13 @@ lint:
     @git diff --check || true
     @echo "Lint OK"
 
-# Lint hand-authored site prose for AI-writing patterns (see docs/website/content/CLAUDE.md)
+# Lint hand-authored site prose for AI-writing patterns (see docs/website/CLAUDE.md)
 lint-prose:
     vale docs/website/content
+
+# Verify generated/published site content is current and complete
+test-website-generated:
+    bash tests/validate-website-generated.sh
 
 # Install HELIX via DDx (refresh the local snapshot)
 install:
