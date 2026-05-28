@@ -47,6 +47,10 @@ lint-prose:
 test-website-generated:
     bash tests/validate-website-generated.sh
 
+# Check internal links + images in the built site (run a hugo build first)
+check-website-links:
+    python3 scripts/check-website-links.py
+
 # Install HELIX via DDx (refresh the local snapshot)
 install:
     ddx install helix --force
