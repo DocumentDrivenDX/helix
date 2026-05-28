@@ -335,6 +335,79 @@ def make_client():
         )
 
 
+def grant_users_read(client, path: str) -> bool:
+    """Ensure the `users` group has CAN_READ on a workspace directory.
+
+    Required for `--shared` installs: in workspaces with a tight root ACL
+    (only `admins` granted at `/directories/`), every object created under
+    `/Workspace/.assistant/...` inherits admin-only — so non-admin users
+    can't see the skill and Genie won't surface it. This function
+    idempotently adds `users: CAN_READ` if absent.
+
+    Returns True if the grant is in place (already or after update),
+    False on a non-fatal error (logged as a warning). Non-fatal because
+    a user lacking admin can still complete a `--shared` install in a
+    workspace whose root ACL is already permissive; we just couldn't
+    confirm.
+    """
+    try:
+        from databricks.sdk.service.workspace import (
+            WorkspaceObjectAccessControlRequest,
+            WorkspaceObjectPermissionLevel,
+        )
+    except ImportError as exc:
+        info(f"warn: ACL types unavailable in this SDK version ({exc}); skipping ACL grant")
+        return False
+
+    try:
+        status = client.workspace.get_status(path)
+        obj_id = str(status.object_id)
+    except Exception as exc:
+        info(f"warn: get-status {path}: {exc}; skipping ACL grant")
+        return False
+
+    grant_levels = {
+        WorkspaceObjectPermissionLevel.CAN_READ,
+        WorkspaceObjectPermissionLevel.CAN_RUN,
+        WorkspaceObjectPermissionLevel.CAN_EDIT,
+        WorkspaceObjectPermissionLevel.CAN_MANAGE,
+    }
+    try:
+        perms = client.workspace.get_permissions(
+            workspace_object_type="directories",
+            workspace_object_id=obj_id,
+        )
+        for acl in (perms.access_control_list or []):
+            if acl.group_name != "users":
+                continue
+            for p in (acl.all_permissions or []):
+                if p.permission_level in grant_levels:
+                    info(f"ACL OK on {path}: users already has {p.permission_level.value}")
+                    return True
+    except Exception as exc:
+        info(f"warn: get-permissions {path}: {exc}; will attempt grant anyway")
+
+    try:
+        client.workspace.update_permissions(
+            workspace_object_type="directories",
+            workspace_object_id=obj_id,
+            access_control_list=[
+                WorkspaceObjectAccessControlRequest(
+                    group_name="users",
+                    permission_level=WorkspaceObjectPermissionLevel.CAN_READ,
+                ),
+            ],
+        )
+        info(f"granted users CAN_READ on {path}")
+        return True
+    except Exception as exc:
+        info(f"warn: update-permissions {path}: {exc}")
+        info("non-admin users may not see HELIX in Genie. Grant manually:")
+        info(f"  databricks workspace update-permissions directories {obj_id} \\")
+        info(f"    --json '{{\"access_control_list\":[{{\"group_name\":\"users\",\"permission_level\":\"CAN_READ\"}}]}}'")
+        return False
+
+
 def upload(bundle: Path, target: str, client=None) -> int:
     from databricks.sdk.service.workspace import ImportFormat
 
@@ -462,6 +535,16 @@ def _run(args: argparse.Namespace, client=None) -> int:
         rc = upload(bundle, target, client)
         if rc != 0:
             return rc
+
+        # For workspace-wide installs, ensure non-admin users can read the
+        # skill — workspace ACL inheritance defaults to admin-only on
+        # tightly-scoped tenants. Grant on the skill dir AND its parent
+        # (Genie lists the parent to discover skills).
+        if args.shared:
+            parent = str(Path(target).parent)
+            info("ensuring skill is readable by all workspace users")
+            grant_users_read(client, parent)
+            grant_users_read(client, target)
 
         rc = verify(target, client)
         if rc != 0:

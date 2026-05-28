@@ -93,6 +93,42 @@ effect. User-scoped installs override workspace-wide ones for that
 user, useful for testing pre-release content without affecting
 teammates.
 
+### ACLs on `--shared` installs
+
+Workspace objects under `/Workspace/.assistant/skills/` inherit ACLs
+from their parent. On tenants whose root `/directories/` only grants
+`admins` (the default in security-tightened workspaces), an admin-run
+`--shared` install creates the skill dir as admin-readable only —
+non-admin users won't see HELIX even though it's "installed."
+
+The installer detects `--shared` (or any non-`/Users/...` target) and
+idempotently grants `users → CAN_READ` on both the skill dir
+(`/Workspace/.assistant/skills/helix`) and its parent
+(`/Workspace/.assistant/skills`). Genie lists the parent to discover
+skills, so both grants matter. The installer logs the action and
+falls back to a `databricks workspace update-permissions ...` command
+suggestion if the grant call fails (e.g. SDK too old, or non-admin
+runs `--shared` against a workspace that didn't actually need admin
+perms there).
+
+If other users still can't see HELIX after a `--shared` install,
+verify:
+
+```bash
+# 1. Get the directory object IDs.
+databricks workspace get-status /Workspace/.assistant/skills
+databricks workspace get-status /Workspace/.assistant/skills/helix
+
+# 2. Inspect ACLs — `users` group should appear with CAN_READ.
+databricks workspace get-permissions directories <object_id>
+```
+
+The parent `/Workspace/.assistant` itself is left admin-only; it may
+hold a workspace-level `.mcp_servers.json` containing MCP credentials.
+Genie reads `/Workspace/.assistant/skills/helix/SKILL.md` by direct
+path, not by traversing `.assistant` — so granting on the `skills`
+subtree is sufficient.
+
 ## Installer flags
 
 ```text
