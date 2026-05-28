@@ -28,9 +28,9 @@ abstraction, with documentation as the shared context layer.**
 
 HELIX operates as two interleaved cycles:
 
-- **Planning helix**: review, plan, validate — creates and refines the
+- **Planning helix**: review, plan, validate. Creates and refines the
   artifacts that describe what should be true.
-- **Execution helix**: apply, measure, report — uses those artifacts to
+- **Execution helix**: apply, measure, report. Uses those artifacts to
   guide implementation, review outcomes, and feed new evidence back into
   planning.
 
@@ -56,12 +56,12 @@ and propagate up, down, or sideways.
 
 Higher layers govern lower layers. Source code reflects what exists, not what
 should exist. When layers disagree, HELIX resolves by escalating to the
-governing source — not by guessing from code alone.
+governing source, not by guessing from code alone.
 
 ## Seven Activities
 
-Work moves through seven activities. These are not a sequential pipeline — teams
-regularly loop back as they learn — but each activity has a distinct job in the
+Work moves through seven activities. These are not a sequential pipeline (teams
+regularly loop back as they learn), but each activity has a distinct job in the
 artifact graph.
 
 | Activity | Description | Key Activities |
@@ -111,10 +111,10 @@ ADRs ←── Cross-cutting Concerns ────┘
 
 This graph enables:
 
-- **Impact analysis** — when an artifact changes, identify which others are
+- **Impact analysis**: when an artifact changes, identify which others are
   affected
-- **Reconciliation** — verify that dependent artifacts remain consistent
-- **Context synthesis** — a runtime can pull in the governance chain needed
+- **Reconciliation**: verify that dependent artifacts remain consistent
+- **Context synthesis**: a runtime can pull in the governance chain needed
   for a specific change
 
 ## Cross-Cutting Concerns
@@ -146,3 +146,19 @@ The portable alignment skill is the main HELIX surface here. It is where the
 methodology inspects artifact consistency, identifies drift, and helps humans
 choose whether to refine the plan, update artifacts, select a platform task,
 or continue implementation.
+
+## Verification Exit Gate
+
+Passing build, unit tests, and a happy-path end-to-end check is not enough to
+exit the Build activity. The build-exit gate requires that each acceptance
+criterion's behavior be proven through the interface-appropriate harness: web
+via Playwright, an HTTP API via request and response checks, a CLI via shell,
+a TUI via a terminal harness, and backend logic via integration tests. The gate
+guards against work that is locally green but globally incomplete.
+
+## Evolve Until Converged
+
+Build does not stop at first-pass green. The evolve-until-converged loop is a
+bounded loop that re-checks the work against its specs and concerns and
+iterates until it converges. It operationalizes "go check your work again"
+rather than declaring done as soon as the first set of tests passes.

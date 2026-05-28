@@ -26,14 +26,14 @@ without that information is a hypothesis, not a contract.
 
 Agile, in many of its real-world implementations, swung the other way.
 Sprints and standups replaced design documents. The plan moved into
-people's heads — what we're building, why this trade-off, what we tried
+people's heads: what we're building, why this trade-off, what we tried
 last time and why it didn't work. Stand-up notes captured fragments;
 nothing captured the whole.
 
 This works while the team is small and continuous. It breaks down at scale
 or across turnover. When a senior engineer leaves, the institutional
 knowledge of a feature leaves with them. When an AI agent joins the team,
-it has no head to inherit context from — and the agile failure mode
+it has no head to inherit context from, and the agile failure mode
 becomes acute.
 
 Agile fails because **documents are not optional infrastructure**. They
@@ -49,7 +49,7 @@ self-contained tasks where the entire context fits in one prompt.
 
 It breaks down as codebases grow. Agents loop without progress because
 they keep re-deriving requirements from the existing code. Specs drift
-from code, and code drifts from intent, until nobody — human or agent —
+from code, and code drifts from intent, until nobody (human or agent)
 knows which is authoritative. The human becomes a full-time dispatcher,
 re-explaining the same context to every new agent session.
 
@@ -60,7 +60,7 @@ prompts**. Without it, every session is a cold start.
 
 A natural reading of the three failures suggests a compromise: plan a
 little, execute a little, repeat. This is the framing most "agile-plus"
-methodologies adopt — and they inherit a softer version of all three
+methodologies adopt, and they inherit a softer version of all three
 failure modes.
 
 HELIX is a different model entirely. It says:
@@ -73,6 +73,6 @@ Each of these is a structural commitment, not a process tweak. Together
 they describe a development control system where AI agents do real work
 without losing coherence, and humans steer without becoming dispatchers.
 
-The next page — [The Thesis](/why/the-thesis) — describes how that
+The next page, [The Thesis](/why/the-thesis), describes how that
 control system is shaped, and why the result deserves a name distinct
 from what came before.

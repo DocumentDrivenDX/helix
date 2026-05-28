@@ -3,7 +3,7 @@ title: Principles
 weight: 1
 ---
 
-HELIX is a development control system — a framework for keeping AI-assisted
+HELIX is a development control system: a framework for keeping AI-assisted
 software work coherent at scale. The principles below are the load-bearing
 ideas behind that framework.
 
@@ -34,7 +34,7 @@ stages. They are simultaneous processes that exist at every layer.
 > already happened.
 
 Humans and agents both read and write documents. Documents are the durable
-layer between them — the shared state that survives sessions, model
+layer between them: the shared state that survives sessions, model
 upgrades, and team turnover. When a project's institutional knowledge lives
 in someone's head, the project loses that knowledge when the person leaves.
 When it lives in documents that drive execution, the knowledge compounds.
@@ -54,7 +54,7 @@ Vision → PRD → Specs → ADRs → Designs → Tests → Plans → Code
 ```
 
 Source code reflects what exists, not what should exist. If a spec says one
-thing and the code says another, the code is wrong — not because code is
+thing and the code says another, the code is wrong, not because code is
 unimportant, but because code drifts and specs are deliberate. This single
 rule prevents a common failure mode of agentic development: agents that
 infer requirements from existing code and propagate implementation accidents
@@ -81,7 +81,7 @@ works, but the higher artifact always governs.
 
 The layers are not sequential stages. They are lenses at different zoom
 levels, all active simultaneously. The right abstraction for a question
-depends on the question — refining a spec is the right move when a feature
+depends on the question: refining a spec is the right move when a feature
 is unclear, redesigning a system is the right move when constraints have
 shifted, rewriting code is the right move when the spec is correct and the
 code is not.
@@ -93,13 +93,13 @@ code is not.
 
 There is no clean line where "human work" ends and "AI work" begins. A human
 writes a vision. An agent drafts the PRD against it. A human refines. An
-agent implements. A human reviews. Every task has a slider — fully manual,
-fully autonomous, or anywhere in between — and the right position depends
+agent implements. A human reviews. Every task has a slider, from fully manual
+to fully autonomous or anywhere in between, and the right position depends
 on the task's stakes and the team's confidence.
 
-This rules out two failure modes. It rules out "AI replaces the human" —
+This rules out two failure modes. It rules out "AI replaces the human":
 there is no point at which judgment is automated away. It also rules out
-"AI assists but humans do the real work" — agents are first-class
+"AI assists but humans do the work that counts"; agents are first-class
 participants in the artifact graph, not autocomplete.
 
 ## 6. Autonomy is supervised, not unbounded
@@ -108,12 +108,24 @@ participants in the artifact graph, not autocomplete.
 > needed.
 
 The HELIX methodology layers supervision on top of DDx's bounded execution
-loop. DDx provides the queue-drain primitive (`ddx work`) — claim a ready
-bead, execute it, close it on success — but HELIX decides *what* counts as
-ready, *which* bead is the highest leverage next move, and *when* to stop
+loop. DDx provides the queue-drain primitive (`ddx work`): claim a ready
+bead, execute it, close it on success. HELIX decides *what* counts as
+ready, *which* bead is the highest-impact next move, and *when* to stop
 and ask. When forward progress would require authority that is missing,
 ambiguity that cannot be resolved, or judgment that is genuinely human, the
 loop halts and tells the operator exactly what decision is needed and why.
+
+Two build-side guards make that supervision check completion, not just
+green tests. The
+**verification exit gate** holds that passing build, unit tests, and a
+happy-path end-to-end check is not enough to exit Build: each acceptance
+criterion's behavior must be proven through the interface-appropriate harness
+(web via Playwright, an HTTP API via request and response checks, a CLI via
+shell, a TUI via a terminal harness, and backend logic via integration tests),
+guarding against work that is locally green but globally incomplete. The
+**evolve-until-converged loop** is a bounded loop that re-checks the work
+against its specs and concerns and iterates until it converges, rather than
+stopping at first-pass green.
 
 This is what distinguishes HELIX from autonomous agent loops that run until
 they crash or burn through a budget. The supervisory pattern is the
@@ -155,7 +167,7 @@ that fully addresses the problem.
 ---
 
 These eight principles are the *why* of HELIX. The [Use HELIX](/use/)
-section describes the *how* — the workflow, the alignment loop, the
+section describes the *how*: the workflow, the alignment loop, the
 recipes. The [Artifacts](/artifacts/) catalog and the
 [Concerns](/concerns/) library are how those principles get expressed in
 practice.

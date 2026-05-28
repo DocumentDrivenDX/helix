@@ -12,7 +12,7 @@ The built-in tracker is HELIX's execution layer. Issues are called **beads** and
 
 ## Beads
 
-A bead is a work item — the atomic unit of tracked work in HELIX.
+A bead is a work item, the atomic unit of tracked work in HELIX.
 
 | Field | Purpose |
 |-------|---------|
@@ -24,7 +24,7 @@ A bead is a work item — the atomic unit of tracked work in HELIX.
 | **labels** | Organizational tags for triage and traceability |
 | **spec-id** | Reference to the governing artifact (e.g., `FEAT-001`, `TD-003`) |
 | **parent** | Parent epic or issue ID |
-| **deps** | Dependency list — issues that must close before this one is ready |
+| **deps** | Dependency list: issues that must close before this one is ready |
 | **acceptance** | Deterministic criteria that define "done" |
 | **description** | Full description, often prefixed with a [context digest](/reference/glossary/concepts/#context-digest) |
 | **notes** | Execution notes appended during work |
@@ -140,9 +140,9 @@ When the ready queue is empty:
 The `spec-id` field links a bead to its governing artifact. This is how HELIX maintains traceability from execution back to requirements.
 
 Examples:
-- `spec-id: FEAT-001` — governed by feature spec 001
-- `spec-id: TD-003` — governed by technical design 003
-- `spec-id: US-042` — governed by user story 042
+- `spec-id: FEAT-001`: governed by feature spec 001
+- `spec-id: TD-003`: governed by technical design 003
+- `spec-id: US-042`: governed by user story 042
 
 The build action loads the governing artifact referenced by `spec-id` to understand what the issue should accomplish and verify the work against acceptance criteria.
 
@@ -158,4 +158,4 @@ ddx bead dep add B --blocked-by A
 ddx bead dep tree <id>
 ```
 
-Dependencies affect the ready queue — a bead with unresolved dependencies is not ready. The HELIX skill in `check` mode considers dependency chains when recommending which issue to work next.
+Dependencies affect the ready queue: a bead with unresolved dependencies is not ready. The HELIX skill in `check` mode considers dependency chains when recommending which issue to work next.

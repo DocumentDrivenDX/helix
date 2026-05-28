@@ -15,16 +15,16 @@ The ideas that make HELIX work.
 
 When HELIX artifacts disagree, resolve the conflict using this precedence:
 
-1. **Product Vision** — highest authority
+1. **Product Vision** (highest authority)
 2. **Product Requirements** (PRD)
 3. **Feature Specs / User Stories**
 4. **Architecture / ADRs**
 5. **Solution Designs / Technical Designs**
 6. **Test Plans / Tests**
 7. **Implementation Plans**
-8. **Source Code / Build Artifacts** — lowest authority
+8. **Source Code / Build Artifacts** (lowest authority)
 
-Higher-order artifacts govern lower-order artifacts. Tests are executable specifications — code must satisfy tests, not the other way around. Source code is evidence of current state, not the source of truth for requirements.
+Higher-order artifacts govern lower-order artifacts. Tests are executable specifications: code must satisfy tests, not the other way around. Source code is evidence of current state, not the source of truth for requirements.
 
 If a lower-level artifact contradicts a higher one, fix the lower-level artifact. Only change higher-level artifacts when the evidence is strong and the governing artifacts are stale or incomplete.
 
@@ -32,9 +32,9 @@ If a lower-level artifact contradicts a higher one, fix the lower-level artifact
 
 HELIX enforces writing tests before implementation (TDD). The cycle:
 
-1. **Red** (Test activity) — Write a failing test that defines desired behavior
-2. **Green** (Build activity) — Write minimal code to make the test pass
-3. **Refactor** (Build activity) — Improve code quality while keeping tests green
+1. **Red** (Test activity): write a failing test that defines desired behavior
+2. **Green** (Build activity): write minimal code to make the test pass
+3. **Refactor** (Build activity): improve code quality while keeping tests green
 
 Tests are the contract between design and implementation. Build cannot start until tests exist and fail. Implementation is complete when tests pass.
 
@@ -54,11 +54,11 @@ Examples: "design for simplicity", "tests first", "local-first UX", "prefer comp
 A compact summary (~1000-1500 tokens) assembled into tracker beads at triage/polish time. Makes beads self-contained execution units.
 
 Contents:
-- **Principles** — full list, compact format
-- **Concerns** — area-matched concern names
-- **Practices** — key conventions from matched concerns
-- **ADRs** — decision statements and rationale from relevant ADRs
-- **Governing spec** — the specific requirement or constraint this bead addresses
+- **Principles**: full list, compact format
+- **Concerns**: area-matched concern names
+- **Practices**: key conventions from matched concerns
+- **ADRs**: decision statements and rationale from relevant ADRs
+- **Governing spec**: the specific requirement or constraint this bead addresses
 
 Format: XML-tagged block prepended to the bead description:
 
@@ -68,7 +68,7 @@ Format: XML-tagged block prepended to the bead description:
 <concerns>rust-cargo | security-owasp</concerns>
 <practices>clippy pedantic · cargo deny · parameterized queries</practices>
 <adrs>ADR-003 chose Axum over Actix for async compatibility</adrs>
-<governing>FEAT-002 §3.1 — WAL must fsync before acknowledging writes</governing>
+<governing>FEAT-002 §3.1: WAL must fsync before acknowledging writes</governing>
 </context-digest>
 ```
 
@@ -81,7 +81,7 @@ The tracker is HELIX's steering wheel. All work flows through tracker issues (be
 - **Operators steer** by creating, prioritizing, and blocking issues
 - **Agents execute** by claiming and closing issues
 - **The ready queue** is the only durable hand-off mechanism between sessions
-- Follow-up work must be filed as beads before an action closes — prose suggestions without beads are lost
+- Follow-up work must be filed as beads before an action closes; prose suggestions without beads are lost
 
 Every execution issue must cite the canonical artifacts that authorize the work via `spec-id`.
 
@@ -102,7 +102,7 @@ HELIX supports using different AI models for implementation and review:
 
 - The build agent implements code
 - A different review agent examines the work with fresh perspective
-- Alternating models provides adversarial review — the reviewer has no implementation blindness
+- Alternating models provides adversarial review: the reviewer has no implementation blindness
 
 Configured via `ddx work --review-agent <agent>` or the `HELIX_ALT_AGENT` environment variable.
 
@@ -121,10 +121,10 @@ Decomposition IS implementation work. The right response to a hard problem is to
 
 Agents should maximize forward progress:
 
-- **Absorb small adjacent work** — if a fix requires updating a nearby test or doc, do it in the same issue
-- **Stay within scope** — don't expand beyond what the issue asks for
-- **Finish with blocker reports** — if you can't complete the work, explain exactly what's blocked and create follow-on issues
-- **Never stop silently** — a bead must be closed with evidence, or left open with a precise status note
+- **Absorb small adjacent work**: if a fix requires updating a nearby test or doc, do it in the same issue
+- **Stay within scope**: don't expand beyond what the issue asks for
+- **Finish with blocker reports**: if you can't complete the work, explain exactly what's blocked and create follow-on issues
+- **Never stop silently**: a bead must be closed with evidence, or left open with a precise status note
 
 ## Quality Ratchets
 

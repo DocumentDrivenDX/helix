@@ -13,7 +13,7 @@ Contract from the [PRD](https://github.com/DocumentDrivenDX/helix/blob/main/docs
 write the brief, check alignment, create the work plan, run it in the
 factory.
 
-Every demo is a **session record** — a committed `session.jsonl`
+Every demo is a **session record**: a committed `session.jsonl`
 ([source][demos-src]) under `docs/demos/<slug>/`. The asciinema casts on
 this page are deterministic re-renders produced at build time by
 `scripts/demos/render_session.py`. Capture the session once, verify it,
@@ -23,7 +23,7 @@ rebuild the cast whenever you like.
 
 ---
 
-## adopt — Drop HELIX into an existing project
+## adopt: Drop HELIX into an existing project
 
 One install, one ask. The skill lands; the agent gains the artifact
 catalog and can scan whatever's already in the repo. No CLI to learn.
@@ -34,7 +34,7 @@ catalog and can scan whatever's already in the repo. No CLI to learn.
 
 ---
 
-## brief — Author the governing artifacts
+## brief: Author the governing artifacts
 
 Vision → PRD → concerns → first feature spec, all populated from HELIX
 templates by the same skill the agent invokes. The brief is what the
@@ -46,7 +46,7 @@ agent will defend code against on day n.
 
 ---
 
-## align — Detect drift across the artifact graph
+## align: Detect drift across the artifact graph
 
 PRD says one thing; a recent ADR says another. The alignment skill walks
 the graph in authority order and reports an ordered plan to close the
@@ -58,7 +58,7 @@ gap.
 
 ---
 
-## plan — Turn aligned artifacts into bounded work
+## plan: Turn aligned artifacts into bounded work
 
 The planning side of the same skill: decomposes feature specs into beads
 with deterministic acceptance criteria and named evidence. Ready for a
@@ -70,7 +70,7 @@ runtime to execute.
 
 ---
 
-## evolve — Thread a new requirement through the stack
+## evolve: Thread a new requirement through the stack
 
 The product-vision scenario, made concrete: a team adds OAuth alongside
 existing API-key auth. One sentence in; six authority-ordered steps out,
@@ -83,7 +83,7 @@ beads.
 
 ---
 
-## concerns — Catch technology drift before it ships
+## concerns: Catch technology drift before it ships
 
 A project declares `typescript-bun` as its stack concern. The agent
 writes idiomatic-looking code that nonetheless drifts to Node defaults.
@@ -95,7 +95,7 @@ Alignment catches all three drift signals.
 
 ---
 
-## review — Fresh-eyes audit against the same artifacts
+## review: Fresh-eyes audit against the same artifacts
 
 A second agent inspects completed work against the artifacts that govern
 it. Two blocking findings (missing revocation enforcement, missing test),
@@ -107,7 +107,7 @@ one warning (token leak in error log), filed as tracker issues.
 
 ---
 
-## execute — Run a bead end-to-end in the factory
+## execute: Run a bead end-to-end in the factory
 
 The hand-off to the runtime. DDx selects the bead, FZO routes to the
 right model + harness, work runs in a worktree, acceptance gates fire,

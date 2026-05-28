@@ -95,7 +95,7 @@ they are not the public product contract.
 ## Cross-cutting concerns
 
 When you frame a project, you select active [cross-cutting
-concerns](/concerns/) — tech stack, accessibility, observability,
+concerns](/concerns/): tech stack, accessibility, observability,
 security posture. From that point forward, downstream artifacts and work items
 inherit those concerns. Agents make consistent choices because the artifact
 stack tells them what the project values before they start.

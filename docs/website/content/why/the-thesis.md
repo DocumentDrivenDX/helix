@@ -4,10 +4,10 @@ weight: 3
 ---
 
 HELIX is the **methodology layer** for AI-assisted software development.
-It packages seven kinds of work — Discover, Frame, Design, Test, Build,
-Deploy, Iterate — as a catalog of artifact types and prompts, with one
+It packages seven kinds of work (Discover, Frame, Design, Test, Build,
+Deploy, Iterate) as a catalog of artifact types and prompts, with one
 skill that keeps the resulting documents aligned. The execution
-runtime — agent runtime, tracker, queue control — is somebody else's
+runtime (agent runtime, tracker, queue control) is somebody else's
 job. DDx is the reference runtime; Databricks Genie, Claude Code, and
 others can run HELIX with their own per-runtime packages. The two layers together
 give you supervised autonomy: AI agents doing real work, on artifacts you
@@ -20,7 +20,7 @@ can audit, with human judgment exactly where it matters.
 A HELIX project produces artifacts across seven
 [activities](/reference/glossary/activities/): **Discover, Frame, Design,
 Test, Build, Deploy, Iterate**. Each owns a specific set of [artifact
-types](/artifact-types/) — vision documents in Discover, PRDs and feature
+types](/artifact-types/): vision documents in Discover, PRDs and feature
 specs in Frame, ADRs and designs in Design, test plans in Test,
 implementation work in Build, runbooks and monitoring in Deploy,
 alignment reviews and metrics in Iterate.
@@ -35,12 +35,18 @@ When two artifacts disagree, the higher one wins.
 
 ### Concerns inject standards across activities
 
-[Cross-cutting concerns](/concerns/) — accessibility requirements, the
-project's tech stack, observability strategy, security posture — are
+[Cross-cutting concerns](/concerns/), such as accessibility requirements, the
+project's tech stack, observability strategy, and security posture, are
 declared once and propagated into every relevant bead via a *context
 digest*. An agent claiming a bead inherits the active concerns
 automatically. Stack drift, convention drift, and quality-attribute
 amnesia stop being problems an operator has to remember to fix.
+
+Each concern also carries an **artifact-impact contract**: it names the
+artifacts that must change when the concern is selected. Choosing a concern
+without making the matching ADR, technical-design, and test-plan edits is
+drift, and the alignment reconcile check catches it. The concern bites on both
+generated and hand-edited artifacts, not just on the bead context digest.
 
 This is HELIX's answer to "every project needs consistency" without
 forcing any specific tech stack on the framework itself. The standards
@@ -52,11 +58,21 @@ HELIX ships a single skill that reads a project's governing artifacts,
 identifies drift, gaps, and contradictions, and produces a plan to close
 them. It runs against any HELIX-shaped artifact tree on any runtime
 that can read and write markdown. The runtime executes the plan; HELIX
-just keeps the documents honest.
+keeps the documents consistent with each other.
 
 When something requires human judgment the system cannot make for itself
-— authority missing, ambiguity beyond automation, a product question
-only the team can answer — the alignment plan surfaces it and waits.
+(authority missing, ambiguity beyond automation, or a product question
+only the team can answer), the alignment plan surfaces it and waits.
+
+The build side carries two matching guards. The **verification exit gate**
+holds that passing build, unit tests, and a happy-path end-to-end check is not
+enough to exit Build: each acceptance criterion's behavior must be proven
+through the interface-appropriate harness (web via Playwright, an HTTP API via
+request and response checks, a CLI via shell, a TUI via a terminal harness, and
+backend logic via integration tests). It guards against work that is locally
+green but globally incomplete. The **evolve-until-converged loop** then
+re-checks the work against its specs and concerns and iterates until it
+converges, rather than stopping at first-pass green.
 
 ## What this shape buys you
 

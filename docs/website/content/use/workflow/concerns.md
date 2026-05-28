@@ -7,7 +7,7 @@ aliases:
 
 Cross-cutting concerns are a core concept in HELIX. They capture technology
 choices, quality requirements, and conventions that cut across activities, beads,
-and artifacts — and they do it declaratively, so agents can load the right
+and artifacts. They do it declaratively, so agents can load the right
 context without being told twice.
 
 ## The Problem Concerns Solve
@@ -26,13 +26,13 @@ Concerns are that mechanism.
 
 ## How They Work
 
-1. **Declare** — During [Frame](/use/workflow/#the-seven-activities), list active concerns
+1. **Declare**: during [Frame](/use/workflow/#the-seven-activities), list active concerns
    in `docs/helix/01-frame/concerns.md`
-2. **Filter** — Each concern declares which areas it applies to (`all`, `ui`,
+2. **Filter**: each concern declares which areas it applies to (`all`, `ui`,
    `api`, `data`, `infra`, `cli`)
-3. **Inject** — At execution time, HELIX loads area-matched concerns and their
+3. **Inject**: at execution time, HELIX loads area-matched concerns and their
    practices into the agent's context
-4. **Digest** — Context digests carry concern practices into individual beads,
+4. **Digest**: context digests carry concern practices into individual beads,
    making each work item self-contained
 
 ## Concern Library
@@ -88,14 +88,23 @@ component listings and all available concerns.
 
 ## Drift Detection
 
-Tech-stack concerns declare **drift signals** — patterns that indicate the
+Tech-stack concerns declare **drift signals**: patterns that indicate the
 project is straying from its declared technology choices. For example, the
 `typescript-bun` concern flags `npm run` instead of `bun run`, `eslint`
 instead of Biome, and `jest` instead of `bun:test`.
 
 HELIX checks for drift signals during [review](/reference/glossary/actions/#review)
 and [align](/reference/glossary/actions/#align), reporting findings that keep the
-project honest to its own decisions.
+project true to its own decisions.
+
+## Artifact-Impact Contract
+
+Each concern declares an **Artifact Impact** section: the artifacts that must
+change when that concern is selected. Choosing `security-owasp`, for instance,
+obligates the corresponding ADR, technical-design, and test-plan updates.
+Selecting a concern without making those changes is drift, and the alignment
+reconcile check catches it. This makes a concern bite on both
+generated and hand-edited artifacts, not just on the bead context digest.
 
 ## The Knowledge Chain
 
@@ -110,7 +119,7 @@ Spike/POC (gather evidence)
 ```
 
 When a referenced ADR is superseded, [polish](/reference/glossary/actions/#polish)
-flags the affected concern for re-evaluation — ensuring that decisions
+flags the affected concern for re-evaluation, ensuring that decisions
 propagate forward rather than silently going stale.
 
 ## Where Concerns Are Used
