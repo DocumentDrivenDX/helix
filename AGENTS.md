@@ -65,6 +65,18 @@ The local microsite review server must use the `/helix` base path. Do not
 restart it at the domain root; paths such as
 `http://eitri:1315/artifact-types/...` are invalid for local review.
 
+Deploy to a Databricks workspace (Genie) as a skill bundle uploaded via the
+Databricks SDK (no Databricks CLI required). Full runbook:
+[docs/install/databricks-genie.md](docs/install/databricks-genie.md).
+
+```bash
+just genie-build                       # assemble dist/genie-bundle/helix/
+export DATABRICKS_HOST=https://<workspace>   # or set DATABRICKS_PROFILE
+export DATABRICKS_TOKEN=<token>
+just genie-install                     # upload to /Workspace/.assistant/skills/helix
+just genie-verify                      # offline static checks
+```
+
 ## Operational Guide
 
 ### Starting a background run

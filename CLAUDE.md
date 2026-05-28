@@ -10,6 +10,13 @@ Claude-specific notes:
   `/helix design`, `/helix evolve`, `/helix review`)
 - `ddx agent run` is the dispatch surface — avoid calling `claude -p` directly
   in examples or docs
+- to deploy HELIX to a Databricks workspace (Genie), follow the runbook at
+  [docs/install/databricks-genie.md](docs/install/databricks-genie.md); the
+  `just genie-build` / `just genie-install` / `just genie-verify` recipes wrap
+  it (needs `DATABRICKS_HOST`+`DATABRICKS_TOKEN`, or a `DATABRICKS_PROFILE`)
+- site content lives under `docs/website/content/` (Hugo machinery stays in
+  `website/`); hand-authored prose is governed by `docs/website/CLAUDE.md` and
+  linted with `just lint-prose` (Vale)
 - when changing surfaces that touch the runtime boundary (queue, beads,
   agent dispatch), check:
   - `docs/helix/00-discover/product-vision.md` and `docs/helix/01-frame/prd.md`
