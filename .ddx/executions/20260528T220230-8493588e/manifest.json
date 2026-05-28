@@ -1,0 +1,48 @@
+{
+  "attempt_id": "20260528T220230-8493588e",
+  "bead_id": "helix-22ee868f",
+  "base_rev": "2afb1a17aab64f0dff1e7664c51c84375950920b",
+  "created_at": "2026-05-28T22:02:31.211785165Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-22ee868f",
+    "title": "INT-CX: Codex CLI integration test — install + skill activation + bootstrap scenario",
+    "description": "Create tests/workflows/codex-cli/ harness that exercises live `codex exec` against the HELIX skill bundle inside a Docker container.\n\n**Deliverables** (same shape as INT-CC, swap claude-code → codex-cli):\n- run-scenarios.sh + 3 scenario prompts + expected/ + vhs recording\n\n**Harness shape** (reuse `tests/install/codex-cli/Dockerfile`):\n1. Build image with `codex` CLI installed\n2. For each scenario: `docker run --rm -e OPENAI_API_KEY -v ... helix-int-test:codex-cli bash -c \"codex exec --sandbox read-only --skip-git-repo-check \u003c /workspace/helix/tests/workflows/codex-cli/scenarios/\u003cname\u003e.prompt\"`\n3. Grep response for expected text\n4. vhs renders the orchestrator\n\n**Known unknown**: codex skill install location is `~/.codex/skills/helix/` OR `~/.agents/skills/helix/` depending on installer version (see docs/install/codex.md:36). install-verify.prompt must accommodate both, OR the harness should pin the installer version.\n\n\u003ccontext-digest\u003e\n\u003cprinciples\u003eValidate Your Work · Runtime Neutrality · Design for Simplicity\u003c/principles\u003e\n\u003cconcerns\u003einstaller-coverage | screencast-evidence | runtime-parity\u003c/concerns\u003e\n\u003cpractices\u003evhs records the Docker run · scenarios are SCN-01 (bootstrap) plus install-verify + skill-list · OPENAI_API_KEY required · codex exec non-interactive flag\u003c/practices\u003e\n\u003cgoverning\u003edocs/helix/03-test/test-plans/TP-014-helix-workflow-coverage.md SCN-01 (bootstrap) + SCN-06 (review) · docs/install/codex-cli.md · existing tests/install/codex-cli/ scaffolding\u003c/governing\u003e\n\u003c/context-digest\u003e",
+    "acceptance": "(Supersedes the \"grep response for expected text\" step in the description.)\n1. `bash tests/workflows/codex-cli/run-scenarios.sh` exits 0 with valid Codex credentials available — ~/.codex/auth.json mounted into the container OR OPENAI_API_KEY set.\n2. Activation is asserted from Codex's structured output (`codex exec --json` or the installed runtime's machine-readable event stream): the harness requires a tool/skill-invocation event identifying `helix`. If the installed Codex version exposes no structured activation signal, the harness README documents that gap and the test asserts on the strongest available behavioral signal — never a bare prose grep as the sole gate.\n3. Negative control: the bootstrap scenario run with the skill uninstalled exits NONZERO.\n4. tests/workflows/codex-cli/evals/routing.jsonl exists and is exercised.\n5. install-location ambiguity resolved (pin installer version, or assert against both ~/.codex/skills/helix and ~/.agents/skills/helix — see docs/install/codex.md:36).\n6. tests/workflows/codex-cli/recordings/INT-CX.gif generated via vhs and committed. docs/install/codex.md links it.",
+    "parent": "helix-e3c7d0e4",
+    "labels": [
+      "helix",
+      "phase:test",
+      "activity:test",
+      "kind:test",
+      "area:testing",
+      "area:packaging",
+      "runtime:codex-cli"
+    ],
+    "metadata": {
+      "events": [
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness route unavailable: runner error: agent: provider error: openai: POST \\\"http://bragi:1234/v1/chat/completions\\\": 502 Bad Gateway\",\"fingerprint\":\"c63725637a9913ddce00e011be60eea8b2b81be343ece9ea787ea628b79ef89d\",\"policy_mode\":\"warn-only\",\"reason\":\"system_unready\",\"rule_id\":\"pre_claim_intake.system_unready\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"c63725637a9913ddce00e011be60eea8b2b81be343ece9ea787ea628b79ef89d\"}",
+          "created_at": "2026-05-28T22:02:05.073149402Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "system_unready"
+        }
+      ],
+      "spec-id": "helix.installer-integration-tests"
+    }
+  },
+  "paths": {
+    "dir": ".ddx/executions/20260528T220230-8493588e",
+    "prompt": ".ddx/executions/20260528T220230-8493588e/prompt.md",
+    "manifest": ".ddx/executions/20260528T220230-8493588e/manifest.json",
+    "result": ".ddx/executions/20260528T220230-8493588e/result.json",
+    "checks": ".ddx/executions/20260528T220230-8493588e/checks.json",
+    "usage": ".ddx/executions/20260528T220230-8493588e/usage.json",
+    "worktree": "Users/erik/Projects/.ddx-exec-wt/.execute-bead-wt-helix-22ee868f-20260528T220230-8493588e"
+  },
+  "prompt_sha": "85a31cb3c805aca279c037611c8670102835fcc67b3671a7f195671173cefef4"
+}
