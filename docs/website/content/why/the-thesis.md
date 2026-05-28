@@ -4,7 +4,7 @@ weight: 3
 ---
 
 HELIX is the **methodology layer** for AI-assisted software development.
-It packages seven kinds of work (Discover, Frame, Design, Test, Build,
+It packages seven activities (Discover, Frame, Design, Test, Build,
 Deploy, Iterate) as a catalog of artifact types and prompts, with one
 skill that keeps the resulting documents aligned. The execution
 runtime (agent runtime, tracker, queue control) is somebody else's

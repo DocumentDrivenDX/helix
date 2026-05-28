@@ -75,18 +75,18 @@ test.describe('Why HELIX', () => {
 test.describe('Artifacts', () => {
   test('index lists artifacts grouped by activity', async ({ page }) => {
     await page.goto('/artifacts/')
-    // Activity headings should be visible (h2)
-    await expect(page.getByRole('heading', { name: /Activity 0.*Discover/ })).toBeVisible()
-    await expect(page.getByRole('heading', { name: /Activity 1.*Frame/ })).toBeVisible()
-    await expect(page.getByRole('heading', { name: /Activity 6.*Iterate/ })).toBeVisible()
+    // Artifacts are grouped under plain activity-name headings (h2)
+    await expect(page.getByRole('heading', { name: /^Discover/ })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /^Frame/ })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /^Iterate/ })).toBeVisible()
   })
 
-  test('artifact pages render generation prompt and template', async ({ page }) => {
-    await page.goto('/artifacts/prd/')
-    await expect(page.getByRole('heading', { name: /What it is/ })).toBeVisible()
-    await expect(page.getByRole('heading', { name: /Relationships/ })).toBeVisible()
-    // Prompt and template are wrapped in <details>
-    await expect(article(page).getByText(/generation prompt/i).first()).toBeVisible()
+  test('artifact type pages render generation prompt and template', async ({ page }) => {
+    await page.goto('/artifact-types/frame/prd/')
+    await expect(page.getByRole('heading', { name: /Purpose/ }).first()).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Authoring guidance/ })).toBeVisible()
+    // Prompt and template are wrapped in <details> with summary toggles
+    await expect(article(page).getByText(/Show the full generation prompt/i)).toBeVisible()
     await expect(article(page).getByText(/Show the template structure/i)).toBeVisible()
   })
 
@@ -155,13 +155,15 @@ test.describe('Use HELIX', () => {
   test('section landing introduces the how-to layer', async ({ page }) => {
     await page.goto('/use/')
     await expect(article(page).getByRole('link', { name: /Getting Started/ })).toBeVisible()
-    await expect(article(page).getByRole('link', { name: /The Workflow/ })).toBeVisible()
+    await expect(article(page).getByRole('link', { name: /Artifact Types/ })).toBeVisible()
   })
 
   test('Getting Started page has installation instructions', async ({ page }) => {
     await page.goto('/use/getting-started/')
     await expect(article(page).getByText('ddx install helix')).toBeVisible()
-    await expect(article(page).getByText('DDx and HELIX')).toBeVisible()
+    await expect(
+      article(page).getByText('DDx is the reference runtime integration for HELIX'),
+    ).toBeVisible()
   })
 
   test('Workflow page explains activities', async ({ page }) => {
@@ -191,8 +193,10 @@ test.describe('Reference', () => {
 
   test('Demos page shows reels', async ({ page }) => {
     await page.goto('/reference/demos/')
-    await expect(article(page).getByText('Quickstart: Intake to Queue Drain')).toBeVisible()
-    await expect(article(page).getByText('Concerns: Preventing Technology Drift')).toBeVisible()
+    await expect(article(page).getByText('adopt: Drop HELIX into an existing project')).toBeVisible()
+    await expect(
+      article(page).getByText('concerns: Catch technology drift before it ships'),
+    ).toBeVisible()
   })
 
   test.describe('Glossary', () => {
@@ -208,10 +212,10 @@ test.describe('Reference', () => {
 
     test('activities page covers all seven activities with artifact links', async ({ page }) => {
       await page.goto('/reference/glossary/activities/')
-      await expect(page.getByRole('heading', { name: /Activity 0.*Discover/ })).toBeVisible()
-      await expect(page.getByRole('heading', { name: /Activity 1.*Frame/ })).toBeVisible()
-      await expect(page.getByRole('heading', { name: /Activity 4.*Build/ })).toBeVisible()
-      await expect(page.getByRole('heading', { name: /Activity 6.*Iterate/ })).toBeVisible()
+      await expect(page.getByRole('heading', { name: /^Discover/ })).toBeVisible()
+      await expect(page.getByRole('heading', { name: /^Frame/ })).toBeVisible()
+      await expect(page.getByRole('heading', { name: /^Build/ })).toBeVisible()
+      await expect(page.getByRole('heading', { name: /^Iterate/ })).toBeVisible()
       // Artifact links inside activity tables
       await expect(article(page).getByRole('link', { name: 'PRD' })).toBeVisible()
       await expect(article(page).getByRole('link', { name: /ADR/ })).toBeVisible()
@@ -305,9 +309,11 @@ test.describe('Navigation Workflows', () => {
 
   test('artifacts → individual artifact drill-down', async ({ page }) => {
     await page.goto('/artifacts/')
-    await article(page).getByRole('link', { name: /^PRD/ }).first().click()
+    await article(page).getByRole('link', { name: /^Product Requirements Document/ }).first().click()
     await expect(page).toHaveURL(/\/artifacts\/prd\/?$/)
-    await expect(page.getByRole('heading', { name: /What it is/ })).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: 'Product Requirements Document' }).first(),
+    ).toBeVisible()
   })
 })
 
