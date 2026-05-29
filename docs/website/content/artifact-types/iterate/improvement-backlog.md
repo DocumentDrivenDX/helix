@@ -82,7 +82,7 @@ pilot-readiness review
 
 <table class="helix-reference-table">
 <tbody>
-<tr><th>Activity</th><td><a href="/reference/glossary/activities/"><strong>Iterate</strong></a> — Measure, align, and improve. Close the feedback loop back into the planning strand.</td></tr>
+<tr><th>Activity</th><td><a href="../../../reference/glossary/activities/"><strong>Iterate</strong></a> — Measure, align, and improve. Close the feedback loop back into the planning strand.</td></tr>
 <tr><th>Default location</th><td><code>docs/helix/06-iterate/improvement-backlog.md</code></td></tr>
 <tr><th>Requires</th><td><em>None</em></td></tr>
 <tr><th>Enables</th><td><em>None</em></td></tr>

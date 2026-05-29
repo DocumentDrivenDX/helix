@@ -383,6 +383,18 @@ def artifact_url(slug: str, slug_to_url: dict[str, str]) -> str:
     return slug_to_url.get(slug, f"/artifact-types/{slug}/")
 
 
+def artifact_page_relurl(abs_url: str) -> str:
+    """Relativize a root-absolute site path for use in an artifact-type page.
+
+    Artifact-type pages live three levels deep (/artifact-types/<phase>/<slug>/),
+    so a root-relative target becomes relative with three `../` hops. Relative
+    links resolve correctly under any baseURL (root locally, /helix/ in
+    production); a raw <a href="/..."> would drop the base path and 404 on the
+    project site.
+    """
+    return "../../../" + abs_url.lstrip("/")
+
+
 def artifact_output_path(art: dict) -> Path:
     return Path(art["activity"]["slug"]) / f"{art['slug']}.md"
 
@@ -450,7 +462,7 @@ def render_html_relationships(items: list, all_slugs: set, slug_to_url: dict[str
         slug = r["slug"]
         name = html.escape(sidebar_title(r["name"], slug) if slug in all_slugs else r["name"])
         if slug in all_slugs:
-            label = f'<a href="{html.escape(artifact_url(slug, slug_to_url))}">{name}</a>'
+            label = f'<a href="{html.escape(artifact_page_relurl(artifact_url(slug, slug_to_url)))}">{name}</a>'
         else:
             label = name
         if r.get("required") is False:
@@ -509,7 +521,7 @@ def render_artifact_reference_section(
     out.append(render_reference_row(
         "Activity",
         (
-            f'<a href="/reference/glossary/activities/"><strong>{html.escape(activity["label"])}</strong></a>'
+            f'<a href="{artifact_page_relurl("/reference/glossary/activities/")}"><strong>{html.escape(activity["label"])}</strong></a>'
             f" — {html.escape(activity['summary'])}"
         ),
     ))

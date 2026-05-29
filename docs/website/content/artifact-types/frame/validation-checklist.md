@@ -93,7 +93,7 @@ story-level acceptance criteria are complete.
 
 <table class="helix-reference-table">
 <tbody>
-<tr><th>Activity</th><td><a href="/reference/glossary/activities/"><strong>Frame</strong></a> — Define what the system should do, for whom, and how success will be measured.</td></tr>
+<tr><th>Activity</th><td><a href="../../../reference/glossary/activities/"><strong>Frame</strong></a> — Define what the system should do, for whom, and how success will be measured.</td></tr>
 <tr><th>Default location</th><td><code>docs/helix/01-frame/validation-checklist.md</code></td></tr>
 <tr><th>Requires</th><td><em>None</em></td></tr>
 <tr><th>Enables</th><td><em>None</em></td></tr>
