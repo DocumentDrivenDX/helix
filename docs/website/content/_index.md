@@ -146,7 +146,7 @@ Begin with the spine, then add supporting artifacts as the work demands them.
   <a href="artifacts/features/"><span>04</span><strong>Feature Specs</strong><em>Scope</em></a>
   <a href="artifacts/architecture/"><span>05</span><strong>Architecture</strong><em>Structure</em></a>
   <a href="artifacts/test-plans/"><span>06</span><strong>Test Plans</strong><em>Proof</em></a>
-  <a href="artifacts/implementation-plan/"><span>07</span><strong>Implementation Plans</strong><em>Execution</em></a>
+  <a href="artifact-types/build/implementation-plan/"><span>07</span><strong>Implementation Plans</strong><em>Execution</em></a>
 </div>
 
 </section>
@@ -235,7 +235,7 @@ Begin with the spine, then add supporting artifacts as the work demands them.
       <code>Create test plans for the HELIX feature specs.</code>
     </span>
   </a>
-  <a class="helix-graph-node helix-node-left helix-node-implementation" href="artifacts/implementation-plan/">
+  <a class="helix-graph-node helix-node-left helix-node-implementation" href="artifact-types/build/implementation-plan/">
     <b class="helix-step">07</b>
     <span>Execution handoff</span>
     <strong>Implementation Plans</strong>

@@ -23,7 +23,6 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 
 ## Design
 
-- [.plan codex review](/artifacts/.plan-codex-review/)
 - [Architecture](/artifacts/architecture/)
 - [Data Design — HELIX Bead Tracker](/artifacts/data-design/)
 - [Homepage Worked Example Graph](/artifacts/homepage-worked-example-graph/)

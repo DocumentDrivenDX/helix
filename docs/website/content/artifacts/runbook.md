@@ -1,7 +1,7 @@
 ---
 title: "Runbook — `ddx-server`"
 slug: runbook
-weight: 640
+weight: 630
 activity: "Deploy"
 source: "05-deploy/runbook.md"
 generated: true
@@ -156,8 +156,8 @@ cleanup) belongs to the operator's host-level workflow, not this service.
 
 ## References
 
-- Deployment checklist: [`deployment-checklist.md`](deployment-checklist.md)
-- Monitoring setup: [`monitoring-setup.md`](monitoring-setup.md)
-- Architecture: [`../02-design/architecture.md`](../02-design/architecture.md)
-- Security architecture: [`../02-design/security-architecture.md`](../02-design/security-architecture.md)
-- DDx/HELIX boundary contract: [`../02-design/contracts/CONTRACT-001-ddx-helix-boundary.md`](../02-design/contracts/CONTRACT-001-ddx-helix-boundary.md)
+- Deployment checklist: [`deployment-checklist.md`](/artifacts/deployment-checklist/)
+- Monitoring setup: [`monitoring-setup.md`](/artifacts/monitoring-setup/)
+- Architecture: [`../02-design/architecture.md`](/artifacts/architecture/)
+- Security architecture: [`../02-design/security-architecture.md`](/artifacts/security-architecture/)
+- DDx/HELIX boundary contract: [`../02-design/contracts/CONTRACT-001-ddx-helix-boundary.md`](/artifacts/contracts/contract-001-ddx-helix-boundary/)

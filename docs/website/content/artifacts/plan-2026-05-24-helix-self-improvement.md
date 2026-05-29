@@ -1,7 +1,7 @@
 ---
 title: "Plan — HELIX self-improvement from the yolo-demo arc (2026-05-24, rev 2: codex-reviewed)"
 slug: plan-2026-05-24-helix-self-improvement
-weight: 340
+weight: 330
 activity: "Design"
 source: "02-design/plan-2026-05-24-helix-self-improvement.md"
 generated: true

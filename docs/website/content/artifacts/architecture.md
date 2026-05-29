@@ -1,7 +1,7 @@
 ---
 title: "Architecture"
 slug: architecture
-weight: 200
+weight: 190
 activity: "Design"
 source: "02-design/architecture.md"
 generated: true
@@ -40,7 +40,7 @@ things:
 HELIX does not provide a CLI, tracker, queue, or execution loop. Those are
 runtime concerns. The boundary between HELIX portable content and any
 specific runtime is defined in
-[CONTRACT-003](contracts/CONTRACT-003-ddx-adapter-boundary.md).
+[CONTRACT-003](/artifacts/contracts/contract-003-ddx-adapter-boundary/).
 
 ## Level 1: System Context
 
@@ -136,7 +136,7 @@ Each artifact type in the catalog provides four files:
 
 The full `meta.yml` schema — required fields, recommended fields, validation
 entries, id-format, dependency declarations, and extension sections — is
-specified in [`workflows/artifact-schema.md`](../../../workflows/artifact-schema.md).
+specified in [`workflows/artifact-schema.md`](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/artifact-schema.md).
 
 ### Authority order
 
@@ -176,7 +176,7 @@ ddx:
 
 `ddx.id` is the only required field. `ddx.depends_on` builds the traceability
 graph the routing skill traverses. Full field definitions are in
-[`workflows/artifact-schema.md`](../../../workflows/artifact-schema.md).
+[`workflows/artifact-schema.md`](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/artifact-schema.md).
 
 ## Routing Skill
 
@@ -230,7 +230,7 @@ packaging, not in the skill body.
 
 ## Artifact Schema as Runtime Contract
 
-[`workflows/artifact-schema.md`](../../../workflows/artifact-schema.md)
+[`workflows/artifact-schema.md`](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/artifact-schema.md)
 is the contract that lets any compliant runtime register and consume HELIX
 artifact types. A runtime claiming HELIX compatibility must:
 
@@ -270,7 +270,7 @@ bead conventions, Genie-specific descriptor fields — live in `docs/install/`.
 None of that detail appears in the routing skill body or the artifact catalog.
 
 The adapter boundary between HELIX portable content and DDx-specific surfaces is
-specified in [CONTRACT-003](contracts/CONTRACT-003-ddx-adapter-boundary.md).
+specified in [CONTRACT-003](/artifacts/contracts/contract-003-ddx-adapter-boundary/).
 DDx is one reference runtime, not the architecture center.
 
 ## Documentation Projection
@@ -299,7 +299,7 @@ items. This is HELIX-using-DDx, not HELIX-coupled-to-DDx — the same
 relationship any adopter has with their chosen runtime.
 
 The DDx adapter boundary is defined in
-[CONTRACT-003](contracts/CONTRACT-003-ddx-adapter-boundary.md). In brief:
+[CONTRACT-003](/artifacts/contracts/contract-003-ddx-adapter-boundary/). In brief:
 
 - HELIX provides to DDx: artifact catalog, routing skill, artifact-type schema.
 - DDx provides to HELIX (as runtime): bead tracker, ddx work, evidence
@@ -323,10 +323,10 @@ and describes the resolution for each.
 
 ## References
 
-- [Product Vision](../00-discover/product-vision.md)
-- [PRD](../01-frame/prd.md) — especially R-4 (runtime-neutral), R-5 (methodology spec), R-7 (packaging)
-- [CONTRACT-003: DDx Adapter Boundary](contracts/CONTRACT-003-ddx-adapter-boundary.md) — the boundary between HELIX and DDx
-- [Artifact Schema](../../../workflows/artifact-schema.md) — normative schema for `meta.yml` and `ddx:` frontmatter
-- [Routing Skill](../../../skills/helix/SKILL.md) — the single agent-facing surface
-- [workflows/principles.md](../../../workflows/principles.md)
-- [workflows/ratchets.md](../../../workflows/ratchets.md)
+- [Product Vision](/artifacts/product-vision/)
+- [PRD](/artifacts/prd/) — especially R-4 (runtime-neutral), R-5 (methodology spec), R-7 (packaging)
+- [CONTRACT-003: DDx Adapter Boundary](/artifacts/contracts/contract-003-ddx-adapter-boundary/) — the boundary between HELIX and DDx
+- [Artifact Schema](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/artifact-schema.md) — normative schema for `meta.yml` and `ddx:` frontmatter
+- [Routing Skill](https://github.com/DocumentDrivenDX/helix/blob/main/skills/helix/SKILL.md) — the single agent-facing surface
+- [workflows/principles.md](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/principles.md)
+- [workflows/ratchets.md](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/ratchets.md)

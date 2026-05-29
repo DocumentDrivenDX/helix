@@ -389,8 +389,8 @@ With these improvements, HELIX can evolve from a good workflow to a best-in-clas
 
 ## References
 
-- [Microsoft Build 2025: The Age of AI Agents](microsoft-ai-agents-2025.md)
-- [Top AI Agent Frameworks in 2025](ai-agent-frameworks-2025.md)
+- Microsoft Build 2025: The Age of AI Agents
+- Top AI Agent Frameworks in 2025
 - [DevSecOps Best Practices](devsecops-best-practices-2025.md)
 - [Agile Manifesto Principles](agile-manifesto-principles.md)
 - [Twelve-Factor App Methodology](twelve-factor-app-methodology.md)

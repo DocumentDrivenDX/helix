@@ -1,7 +1,7 @@
 ---
 title: "Data Design — HELIX Bead Tracker"
 slug: data-design
-weight: 260
+weight: 250
 activity: "Design"
 source: "02-design/data-design.md"
 generated: true
@@ -23,10 +23,10 @@ generated: true
   mutate during a live `ddx work`), stale-claim recovery, deterministic
   ready/blocked queries, append history preserved in `events`, and forward-
   compatible schema evolution without breaking existing tooling.
-- Authority: [CONTRACT-001](contracts/CONTRACT-001-ddx-helix-boundary.md)
+- Authority: [CONTRACT-001](/artifacts/contracts/contract-001-ddx-helix-boundary/)
   (`ddx bead` and `.ddx/beads.jsonl` belong to DDx; HELIX consumes via the
-  CLI), [ADR-002](adr/) (tracker write safety model — referenced where
-  available), and [API-001](contracts/API-001-helix-tracker-mutation.md)
+  CLI), [ADR-002](/artifacts/adr/) (tracker write safety model — referenced where
+  available), and [API-001](/artifacts/contracts/api-001-helix-tracker-mutation/)
   (HELIX-side mutation surface).
 
 ## Entities and Stores

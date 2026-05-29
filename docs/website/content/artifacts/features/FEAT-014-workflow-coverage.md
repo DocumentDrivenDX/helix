@@ -290,7 +290,7 @@ Workflow coverage proves HELIX behaves correctly on a fixed set of scenarios.
 The **regression bench** answers the adjacent question — *did a change to HELIX
 itself actually improve anything?* — and it is the durable asset that separates
 real wins from noise. It is a first-class HELIX experiment (see the
-[experiment action](../../../workflows/actions/experiment.md)), not a one-off
+[experiment action](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/actions/experiment.md)), not a one-off
 re-derivation.
 
 ### RB-01: Bare-prompt re-run against a committed baseline

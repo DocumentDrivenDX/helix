@@ -1,7 +1,7 @@
 ---
 title: "HERO-2026-05-12 Document Spine Helix Concept"
 slug: HERO-2026-05-12-document-spine-helix
-weight: 290
+weight: 280
 activity: "Design"
 source: "02-design/hero-image-concepts/HERO-2026-05-12-document-spine-helix.md"
 generated: true
@@ -227,7 +227,7 @@ Source: `website/content/_index.md`
 <div class="helix-hero-layout">
 <div class="helix-hero-copy">
 
-{{< hextra/hero-badge link="why/the-thesis" >}}
+{{< hextra/hero-badge link="/why/the-thesis/" >}}
   <span>See the details</span>
   {{< icon name="arrow-circle-right" attributes="height=14" >}}
 {{< /hextra/hero-badge >}}

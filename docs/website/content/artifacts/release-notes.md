@@ -1,7 +1,7 @@
 ---
 title: "Release Notes — HELIX v0.3.3"
 slug: release-notes
-weight: 630
+weight: 620
 activity: "Deploy"
 source: "05-deploy/release-notes.md"
 generated: true
@@ -87,7 +87,7 @@ There are no breaking changes in `v0.3.3`. No operator action is required.
 
 ## References
 
-- Deployment checklist: [`deployment-checklist.md`](deployment-checklist.md)
-- Runbook: [`runbook.md`](runbook.md)
+- Deployment checklist: [`deployment-checklist.md`](/artifacts/deployment-checklist/)
+- Runbook: [`runbook.md`](/artifacts/runbook/)
 - Plugin manifest: `.claude-plugin/plugin.json`
 - Support or escalation path: HELIX repo issue tracker

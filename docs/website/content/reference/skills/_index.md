@@ -1,7 +1,7 @@
 ---
 title: Skills
 weight: 4
-prev: /reference/cli
+prev: /reference
 next: /reference/glossary
 aliases:
   - /docs/skills

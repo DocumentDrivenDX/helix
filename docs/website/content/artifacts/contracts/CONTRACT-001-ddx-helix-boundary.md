@@ -1,7 +1,7 @@
 ---
 title: "CONTRACT-001: DDx / HELIX Boundary Contract"
 slug: CONTRACT-001-ddx-helix-boundary
-weight: 220
+weight: 210
 activity: "Design"
 source: "02-design/contracts/CONTRACT-001-ddx-helix-boundary.md"
 generated: true
@@ -23,11 +23,11 @@ ddx:
 
 **Status:** Draft  
 **Owner:** HELIX maintainers  
-**Related:** [Product Vision](../../00-discover/product-vision.md), [FEAT-011](../../01-frame/features/FEAT-011-slider-autonomy.md), [ADR-001](../adr/ADR-001-supervisory-control-model.md)
+**Related:** [Product Vision](/artifacts/product-vision/), [FEAT-011](/artifacts/features/feat-011-slider-autonomy/), ADR-001
 
 > **Note (2026-Q2 scope collapse):** The "platform substrate" framing in this
 > contract — where DDx is HELIX's substrate and HELIX delegates execution to it
-> — is superseded in part by [CONTRACT-003](CONTRACT-003-ddx-adapter-boundary.md).
+> — is superseded in part by [CONTRACT-003](/artifacts/contracts/contract-003-ddx-adapter-boundary/).
 > After the collapse, DDx is one of three target runtimes rather than the
 > substrate. The shared-object definitions (§Shared Integration Objects) and
 > audit findings remain active and are not invalidated.
@@ -159,7 +159,7 @@ HELIX owns:
   and related workflow stages
 - bead prompt structure
 - workflow wording and intervention policy
-- execution-document authoring conventions for HELIX artifacts (see [CONTRACT-002](CONTRACT-002-helix-execution-doc-conventions.md))
+- execution-document authoring conventions for HELIX artifacts (see [CONTRACT-002](/artifacts/contracts/contract-002-helix-execution-doc-conventions/))
 
 HELIX does **not** expose stage personalities as a separate first-class
 workflow configuration surface. The simpler contract is:
@@ -480,8 +480,8 @@ The boundary is healthy when all of the following are true:
 
 ## References
 
-- [Product Vision](../../00-discover/product-vision.md)
-- [FEAT-011: Slider Autonomy Control](../../01-frame/features/FEAT-011-slider-autonomy.md)
-- [ADR-001: HELIX Supervisory Control Model](../adr/ADR-001-supervisory-control-model.md)
-- [API-001: HELIX Tracker Mutation Surface](API-001-helix-tracker-mutation.md)
-- [CONTRACT-002: HELIX Execution-Document Conventions](CONTRACT-002-helix-execution-doc-conventions.md)
+- [Product Vision](/artifacts/product-vision/)
+- [FEAT-011: Slider Autonomy Control](/artifacts/features/feat-011-slider-autonomy/)
+- ADR-001: HELIX Supervisory Control Model
+- [API-001: HELIX Tracker Mutation Surface](/artifacts/contracts/api-001-helix-tracker-mutation/)
+- [CONTRACT-002: HELIX Execution-Document Conventions](/artifacts/contracts/contract-002-helix-execution-doc-conventions/)

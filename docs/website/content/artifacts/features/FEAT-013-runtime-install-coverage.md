@@ -104,7 +104,7 @@ pointing GitHub Copilot at the routing skill (`skills/helix/SKILL.md`)
 and the artifact catalog (`workflows/activities/`).
 
 [ADAPT-04]. The `skills/helix/SKILL.md` frontmatter MUST conform to the
-[agentskills.io specification](../../resources/agents/agentskills-spec.md)
+[agentskills.io specification](https://github.com/DocumentDrivenDX/helix/blob/main/docs/resources/agents/agentskills-spec.md)
 (parent directory name equals `name:`, required `name` and
 `description` fields, sized to fit a progressive-disclosure model).
 
@@ -249,7 +249,7 @@ under FEAT-013 act as the implementation work items.
   partially superseded; FEAT-013 carries forward the surviving "runtime
   distribution packaging" scope of FEAT-004 and operationalizes it
   across five runtimes.
-- **Informs**: [TD-013](../../02-design/technical-designs/TD-013-multi-runtime-install.md)
+- **Informs**: [TD-013](/artifacts/technical-designs/td-013-multi-runtime-install/)
   technical design.
 - **Referenced by**: `docs/install/*` runtime guides and
   `docs/resources/agents/*` mechanism notes.

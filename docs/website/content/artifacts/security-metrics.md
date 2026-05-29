@@ -1,7 +1,7 @@
 ---
 title: "Security Metrics — HELIX 2026-Q2 (post-`v0.3.3`)"
 slug: security-metrics
-weight: 720
+weight: 710
 activity: "Iterate"
 source: "06-iterate/security-metrics.md"
 generated: true
@@ -16,9 +16,9 @@ generated: true
 > traditional security-metric categories report N/A by design.
 
 **Review Window**: 2026-04-01 → 2026-04-30
-**Authority**: [`security-architecture.md`](../02-design/security-architecture.md),
-[`security-owasp` concern](../../../workflows/concerns/security-owasp/),
-[`CONTRACT-001`](../02-design/contracts/CONTRACT-001-ddx-helix-boundary.md).
+**Authority**: [`security-architecture.md`](/artifacts/security-architecture/),
+[`security-owasp` concern](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/concerns/security-owasp),
+[`CONTRACT-001`](/artifacts/contracts/contract-001-ddx-helix-boundary/).
 
 ## Incident Response
 

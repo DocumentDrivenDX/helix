@@ -11,7 +11,7 @@ ddx:
 
 **Status:** Draft  
 **Owner:** HELIX maintainers  
-**Related:** [Product Vision](../../00-discover/product-vision.md), [FEAT-011](../../01-frame/features/FEAT-011-slider-autonomy.md), [ADR-001](../adr/ADR-001-supervisory-control-model.md)
+**Related:** [Product Vision](../../00-discover/product-vision.md), [FEAT-011](../../01-frame/features/FEAT-011-slider-autonomy.md), ADR-001
 
 > **Note (2026-Q2 scope collapse):** The "platform substrate" framing in this
 > contract — where DDx is HELIX's substrate and HELIX delegates execution to it
@@ -470,6 +470,6 @@ The boundary is healthy when all of the following are true:
 
 - [Product Vision](../../00-discover/product-vision.md)
 - [FEAT-011: Slider Autonomy Control](../../01-frame/features/FEAT-011-slider-autonomy.md)
-- [ADR-001: HELIX Supervisory Control Model](../adr/ADR-001-supervisory-control-model.md)
+- ADR-001: HELIX Supervisory Control Model
 - [API-001: HELIX Tracker Mutation Surface](API-001-helix-tracker-mutation.md)
 - [CONTRACT-002: HELIX Execution-Document Conventions](CONTRACT-002-helix-execution-doc-conventions.md)

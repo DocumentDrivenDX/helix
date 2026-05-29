@@ -218,7 +218,7 @@ seven-activity loop into one generic prompt."
 
 ## References
 
-- [Autonomy Spectrum ADR](../../02-design/adr/ADR-003-autonomy-spectrum.md)
-- [TD-011: Slider Autonomy Implementation](../../02-design/technical-designs/TD-011-slider-autonomy-implementation.md)
-- [CONTRACT-002: HELIX Execution-Document Conventions](../../02-design/contracts/CONTRACT-002-helix-execution-doc-conventions.md)
-- [Input action](../../../workflows/actions/input.md) — implements these semantics
+- [Autonomy Spectrum ADR](/artifacts/adr/adr-003-autonomy-spectrum/)
+- [TD-011: Slider Autonomy Implementation](/artifacts/technical-designs/td-011-slider-autonomy-implementation/)
+- [CONTRACT-002: HELIX Execution-Document Conventions](/artifacts/contracts/contract-002-helix-execution-doc-conventions/)
+- [Input action](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/actions/input.md) — implements these semantics

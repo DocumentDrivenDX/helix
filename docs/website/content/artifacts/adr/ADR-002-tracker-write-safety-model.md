@@ -1,7 +1,7 @@
 ---
 title: "ADR-002: HELIX Tracker Write Safety Model"
 slug: ADR-002-tracker-write-safety-model
-weight: 180
+weight: 170
 activity: "Design"
 source: "02-design/adr/ADR-002-tracker-write-safety-model.md"
 generated: true
@@ -99,6 +99,6 @@ first-class mutation APIs instead of manual JSONL edits
 
 ## References
 
-- [Product Vision](/home/erik/Projects/helix/docs/helix/00-discover/product-vision.md)
-- [PRD](/home/erik/Projects/helix/docs/helix/01-frame/prd.md)
-- [ADR-001](/home/erik/Projects/helix/docs/helix/02-design/adr/ADR-001-supervisory-control-model.md)
+- [Product Vision](/artifacts/product-vision/)
+- [PRD](/artifacts/prd/)
+- ADR-001: HELIX Supervisory Control Model

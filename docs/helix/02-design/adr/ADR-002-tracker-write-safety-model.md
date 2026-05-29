@@ -88,4 +88,4 @@ first-class mutation APIs instead of manual JSONL edits
 
 - [Product Vision](/home/erik/Projects/helix/docs/helix/00-discover/product-vision.md)
 - [PRD](/home/erik/Projects/helix/docs/helix/01-frame/prd.md)
-- [ADR-001](/home/erik/Projects/helix/docs/helix/02-design/adr/ADR-001-supervisory-control-model.md)
+- ADR-001: HELIX Supervisory Control Model

@@ -2,7 +2,7 @@
 title: Workflow
 weight: 3
 prev: /why
-next: /reference/cli
+next: /reference
 aliases:
   - /docs/workflow
 ---

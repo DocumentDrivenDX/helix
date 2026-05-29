@@ -1,7 +1,7 @@
 ---
 title: "ADR-003: Autonomy is a Three-Position Spectrum, Not a Fixed Level"
 slug: ADR-003-autonomy-spectrum
-weight: 190
+weight: 180
 activity: "Design"
 source: "02-design/adr/ADR-003-autonomy-spectrum.md"
 generated: true
@@ -101,7 +101,7 @@ autonomy infers concerns
 
 ## References
 
-- [PRD](../../01-frame/prd.md) — autonomy spectrum goal and seven-activity-loop guarantee
-- [FEAT-011: Slider Autonomy](../../01-frame/features/FEAT-011-slider-autonomy.md)
-- [TD-011: Slider Autonomy Implementation](../technical-designs/TD-011-slider-autonomy-implementation.md)
-- [Input action](../../../workflows/actions/input.md)
+- [PRD](/artifacts/prd/) — autonomy spectrum goal and seven-activity-loop guarantee
+- [FEAT-011: Slider Autonomy](/artifacts/features/feat-011-slider-autonomy/)
+- [TD-011: Slider Autonomy Implementation](/artifacts/technical-designs/td-011-slider-autonomy-implementation/)
+- [Input action](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/actions/input.md)

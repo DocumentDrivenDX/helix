@@ -1,7 +1,7 @@
 ---
 title: "TD-011: Slider Autonomy Implementation"
 slug: TD-011-slider-autonomy-implementation
-weight: 510
+weight: 500
 activity: "Design"
 source: "02-design/technical-designs/TD-011-slider-autonomy-implementation.md"
 generated: true
@@ -165,5 +165,5 @@ workflow-coverage harness ([[FEAT-014]]):
 
 - [[FEAT-011]] — slider autonomy feature
 - [[ADR-003]] — autonomy-spectrum decision
-- [Input action](../../../workflows/actions/input.md)
-- [Concern resolution reference](../../../workflows/references/concern-resolution.md)
+- [Input action](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/actions/input.md)
+- [Concern resolution reference](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/references/concern-resolution.md)

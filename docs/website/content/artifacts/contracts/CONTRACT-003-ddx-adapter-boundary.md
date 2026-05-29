@@ -1,7 +1,7 @@
 ---
 title: "CONTRACT-003: DDx Adapter Boundary"
 slug: CONTRACT-003-ddx-adapter-boundary
-weight: 240
+weight: 230
 activity: "Design"
 source: "02-design/contracts/CONTRACT-003-ddx-adapter-boundary.md"
 generated: true
@@ -32,11 +32,11 @@ ddx:
 
 **Status:** Draft
 **Owner:** HELIX maintainers
-**Related:** [PRD](../../01-frame/prd.md) (R-4, R-7),
-[Minimal Runtime Contract](../../../docs/install/README.md#minimal-runtime-contract),
-[CONTRACT-001](CONTRACT-001-ddx-helix-boundary.md),
-[CONTRACT-002](CONTRACT-002-helix-execution-doc-conventions.md),
-[Artifact Schema](../../../workflows/artifact-schema.md)
+**Related:** [PRD](/artifacts/prd/) (R-4, R-7),
+[Minimal Runtime Contract](https://github.com/DocumentDrivenDX/helix/blob/main/docs/install/README.md#minimal-runtime-contract),
+[CONTRACT-001](/artifacts/contracts/contract-001-ddx-helix-boundary/),
+[CONTRACT-002](/artifacts/contracts/contract-002-helix-execution-doc-conventions/),
+[Artifact Schema](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/artifact-schema.md)
 
 ## Purpose
 
@@ -390,10 +390,10 @@ The adapter boundary is healthy when all of the following are true:
 
 ## References
 
-- [PRD](../../01-frame/prd.md) — R-4 (runtime-neutral), R-7 (per-runtime packages), Constraints
-- [Minimal Runtime Contract](../../../docs/install/README.md#minimal-runtime-contract)
-- [Claude Code install guide](../../../docs/install/claude-code.md)
-- [Artifact Schema](../../../workflows/artifact-schema.md)
-- [Routing Skill](../../../skills/helix/SKILL.md)
-- [CONTRACT-001: DDx / HELIX Boundary Contract](CONTRACT-001-ddx-helix-boundary.md) — pre-collapse shared-object definitions, still authoritative for ddx work result surface
-- [CONTRACT-002: HELIX Execution-Document Conventions](CONTRACT-002-helix-execution-doc-conventions.md)
+- [PRD](/artifacts/prd/) — R-4 (runtime-neutral), R-7 (per-runtime packages), Constraints
+- [Minimal Runtime Contract](https://github.com/DocumentDrivenDX/helix/blob/main/docs/install/README.md#minimal-runtime-contract)
+- [Claude Code install guide](https://github.com/DocumentDrivenDX/helix/blob/main/docs/install/claude-code.md)
+- [Artifact Schema](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/artifact-schema.md)
+- [Routing Skill](https://github.com/DocumentDrivenDX/helix/blob/main/skills/helix/SKILL.md)
+- [CONTRACT-001: DDx / HELIX Boundary Contract](/artifacts/contracts/contract-001-ddx-helix-boundary/) — pre-collapse shared-object definitions, still authoritative for ddx work result surface
+- [CONTRACT-002: HELIX Execution-Document Conventions](/artifacts/contracts/contract-002-helix-execution-doc-conventions/)

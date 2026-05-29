@@ -1,7 +1,7 @@
 ---
 title: "CONTRACT-002: HELIX Execution-Document Conventions"
 slug: CONTRACT-002-helix-execution-doc-conventions
-weight: 230
+weight: 220
 activity: "Design"
 source: "02-design/contracts/CONTRACT-002-helix-execution-doc-conventions.md"
 generated: true
@@ -24,7 +24,7 @@ ddx:
 
 **Status:** Draft  
 **Owner:** HELIX maintainers  
-**Related:** [CONTRACT-001](CONTRACT-001-ddx-helix-boundary.md), [FEAT-011](../../01-frame/features/FEAT-011-slider-autonomy.md), [TD-011](../technical-designs/TD-011-slider-autonomy-implementation.md), [Quality Ratchets](../../../workflows/ratchets.md)
+**Related:** [CONTRACT-001](/artifacts/contracts/contract-001-ddx-helix-boundary/), [FEAT-011](/artifacts/features/feat-011-slider-autonomy/), [TD-011](/artifacts/technical-designs/td-011-slider-autonomy-implementation/), [Quality Ratchets](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/ratchets.md)
 
 ## Purpose
 
@@ -315,10 +315,10 @@ Before an execution document is considered ready, verify:
 
 ## References
 
-- [CONTRACT-001: DDx / HELIX Boundary Contract](CONTRACT-001-ddx-helix-boundary.md)
-- [FEAT-011: Slider Autonomy Control](../../01-frame/features/FEAT-011-slider-autonomy.md)
-- [TD-011: Slider Autonomy Implementation](../technical-designs/TD-011-slider-autonomy-implementation.md)
-- [Quality Ratchets](../../../workflows/ratchets.md)
+- [CONTRACT-001: DDx / HELIX Boundary Contract](/artifacts/contracts/contract-001-ddx-helix-boundary/)
+- [FEAT-011: Slider Autonomy Control](/artifacts/features/feat-011-slider-autonomy/)
+- [TD-011: Slider Autonomy Implementation](/artifacts/technical-designs/td-011-slider-autonomy-implementation/)
+- [Quality Ratchets](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/ratchets.md)
 - `workflows/activities/*/input-gates.yml`
 - `workflows/activities/*/exit-gates.yml`
 - `docs/helix/06-iterate/metrics/*.yaml`

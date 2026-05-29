@@ -27,10 +27,10 @@ to answer enough of the right questions that the artifact stack can govern the
 next decision.
 
 {{< cards >}}
-  {{< card link="/artifact-types/research-plan/" title="Research Plan" subtitle="Plan user, market, or problem-space investigation before committing to requirements." icon="academic-cap" >}}
-  {{< card link="/artifact-types/feasibility-study/" title="Feasibility Study" subtitle="Evaluate viability across technical, business, operational, and resource constraints." icon="scale" >}}
-  {{< card link="/artifact-types/tech-spike/" title="Technical Spike" subtitle="Time-box a specific technical unknown before locking an architecture decision." icon="beaker" >}}
-  {{< card link="/artifact-types/proof-of-concept/" title="Proof of Concept" subtitle="Validate a high-risk technical approach end to end before full implementation." icon="cube-transparent" >}}
+  {{< card link="/artifact-types/frame/research-plan/" title="Research Plan" subtitle="Plan user, market, or problem-space investigation before committing to requirements." icon="academic-cap" >}}
+  {{< card link="/artifact-types/frame/feasibility-study/" title="Feasibility Study" subtitle="Evaluate viability across technical, business, operational, and resource constraints." icon="scale" >}}
+  {{< card link="/artifact-types/design/tech-spike/" title="Technical Spike" subtitle="Time-box a specific technical unknown before locking an architecture decision." icon="beaker" >}}
+  {{< card link="/artifact-types/design/proof-of-concept/" title="Proof of Concept" subtitle="Validate a high-risk technical approach end to end before full implementation." icon="cube-transparent" >}}
 {{< /cards >}}
 
 ## What HELIX borrows from

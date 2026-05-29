@@ -1,7 +1,7 @@
 ---
 title: "Technical Design: TD-013 — Multi-Runtime Install"
 slug: TD-013-multi-runtime-install
-weight: 530
+weight: 520
 activity: "Design"
 source: "02-design/technical-designs/TD-013-multi-runtime-install.md"
 generated: true
@@ -29,7 +29,7 @@ packages), [[CONTRACT-003-ddx-adapter-boundary]]
 - Story-level design covering: the per-runtime adapter files committed
   in the HELIX repo, the Genie packaging scripts, the install
   documentation updates, and the Docker-plus-screencast test harness.
-- Inherits the no-fork policy from [`docs/install/README.md`](../../../install/README.md)
+- Inherits the no-fork policy from [`docs/install/README.md`](https://github.com/DocumentDrivenDX/helix/blob/main/docs/install/README.md)
   and the runtime-neutrality constraint from PRD R-4.
 - Out of scope: changes to the routing skill body, changes to the
   artifact catalog, marketplace listing on third-party registries
@@ -62,7 +62,7 @@ packages), [[CONTRACT-003-ddx-adapter-boundary]]
 isolated Python package for Genie workspace uploads. The HELIX content
 (`skills/helix/`, `workflows/`) stays exactly where it is; everything
 new is either an adapter file, a build/install script, or a test
-scenario. Adopt the [agentskills.io specification](../../../resources/agents/agentskills-spec.md)
+scenario. Adopt the [agentskills.io specification](https://github.com/DocumentDrivenDX/helix/blob/main/docs/resources/agents/agentskills-spec.md)
 as the canonical skill format so the routing skill is portable as-is
 across DDx, Claude Code, Codex CLI, and Genie Code; Copilot consumes
 the same content via `.github/copilot-instructions.md`.
@@ -124,7 +124,7 @@ the same content via `.github/copilot-instructions.md`.
 - **Purpose**: enable Claude Code marketplace install of HELIX.
 - **Interfaces**: read by Claude Code when a user runs
   `/plugin marketplace add easel/helix`.
-- **Schema** (per [claude-code-plugins.md](../../../resources/agents/claude-code-plugins.md)):
+- **Schema** (per [claude-code-plugins.md](https://github.com/DocumentDrivenDX/helix/blob/main/docs/resources/agents/claude-code-plugins.md)):
   ```json
   {
     "name": "helix",

@@ -1,7 +1,7 @@
 ---
 title: "Plan: §Refresh as a first-class HELIX skill behavior"
 slug: plan-2026-05-17-refresh-capability
-weight: 330
+weight: 320
 activity: "Design"
 source: "02-design/plan-2026-05-17-refresh-capability.md"
 generated: true

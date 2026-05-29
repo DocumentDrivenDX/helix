@@ -42,7 +42,7 @@ import argparse
 import re
 import shutil
 import sys
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 # Activity directory name in source -> display label.
 ACTIVITIES: dict[str, str] = {
@@ -57,6 +57,10 @@ ACTIVITIES: dict[str, str] = {
 
 FRONTMATTER_RE = re.compile(r"\A---\s*\n(.*?\n)---\s*\n", re.DOTALL)
 H1_RE = re.compile(r"^#\s+(.+?)\s*$", re.MULTILINE)
+# Inline markdown links and images: [text](target) / ![alt](target).
+LINK_RE = re.compile(r"(!?\[[^\]]*\])\(([^)\s]+)\)")
+GITHUB_BLOB = "https://github.com/DocumentDrivenDX/helix/blob/main"
+EXTERNAL_PREFIXES = ("http://", "https://", "//", "mailto:", "tel:", "data:", "javascript:")
 
 
 def split_frontmatter(text: str) -> tuple[str, str]:
@@ -105,6 +109,8 @@ def collect_artifacts(source: Path) -> list[dict]:
         if not activity_dir.is_dir():
             continue
         for md in sorted(activity_dir.rglob("*.md")):
+            if any(part.startswith(".") for part in md.relative_to(activity_dir).parts):
+                continue  # skip scratch/dotfiles (e.g. .plan-codex-review.md)
             rel = md.relative_to(activity_dir)
             parts = list(rel.parts)
             slug = md.stem
@@ -131,9 +137,74 @@ def collect_artifacts(source: Path) -> list[dict]:
     return records
 
 
-def render_page(rec: dict, source_root: Path, weight: int) -> str:
+def build_url_map(records: list[dict], source_root: Path) -> dict[Path, str]:
+    """Map each published source file (and collection dir) to its site URL."""
+    url_map: dict[Path, str] = {}
+    for rec in records:
+        url = "/artifacts/" + rec["dest_rel"].with_suffix("").as_posix().lower() + "/"
+        url_map[rec["src"].resolve()] = url
+        if rec["collection"]:
+            # A bare directory link (e.g. `adr/`) lands on the collection index.
+            url_map[rec["src"].resolve().parent] = f"/artifacts/{rec['collection'].lower()}/"
+    return url_map
+
+
+def rewrite_links(body: str, src_path: Path, repo_root: Path, url_map: dict[Path, str]) -> str:
+    """Rewrite intra-repo .md cross-links to site URLs (published) or GitHub blobs.
+
+    Source artifacts cross-reference each other and the wider repo with relative
+    `.md` paths that are meaningless on the site. Resolve each against the source
+    file: if it points at a published artifact, link to its site URL; if it points
+    at any other file that exists in the repo, link to the GitHub source; otherwise
+    leave it untouched.
+    """
+    def repl(m: re.Match) -> str:
+        prefix, target = m.group(1), m.group(2)
+        frag = ""
+        if "#" in target:
+            target, _, rest = target.partition("#")
+            frag = "#" + rest
+        low = target.strip().lower()
+        if not target or low.startswith(EXTERNAL_PREFIXES):
+            return m.group(0)
+        if target.startswith("/"):
+            # Absolute filesystem path that leaked into a source doc.
+            idx = target.find("docs/helix/")
+            if idx == -1:
+                return m.group(0)  # genuine site-absolute link
+            resolved = (repo_root / target[idx:]).resolve()
+        else:
+            resolved = (src_path.parent / target).resolve()
+        if resolved in url_map:
+            return f"{prefix}({url_map[resolved]}{frag})"
+        in_repo: Path | None = None
+        try:
+            if resolved.exists():
+                in_repo = resolved.relative_to(repo_root)
+        except ValueError:
+            in_repo = None  # outside the repo
+        if in_repo is None:
+            # Many source docs reference repo files with the wrong `../` depth
+            # (broken on the site and in the raw repo). Re-anchor the tail at a
+            # repo top-level dir if that names a file that actually exists.
+            tail = [p for p in PurePosixPath(target).parts if p not in ("..", ".", "/")]
+            for base in (repo_root, repo_root / "docs"):
+                cand = base.joinpath(*tail) if tail else None
+                if cand and cand.exists():
+                    in_repo = cand.relative_to(repo_root)
+                    break
+        if in_repo is not None:
+            return f"{prefix}({GITHUB_BLOB}/{in_repo.as_posix()}{frag})"
+        return m.group(0)
+
+    return LINK_RE.sub(repl, body)
+
+
+def render_page(rec: dict, source_root: Path, weight: int,
+                repo_root: Path, url_map: dict[Path, str]) -> str:
     text = rec["src"].read_text(encoding="utf-8")
     src_fm, body = split_frontmatter(text)
+    body = rewrite_links(body, rec["src"].resolve(), repo_root, url_map)
     rel_source = rec["src"].relative_to(source_root).as_posix()
 
     fields: list[tuple[str, str]] = [
@@ -229,13 +300,17 @@ def publish(source: Path, dest: Path, project: str) -> int:
     if not records:
         print(f"WARN: no markdown files found under {source}", file=sys.stderr)
 
+    repo_root = source.parent.parent  # docs/helix -> repo root
+    url_map = build_url_map(records, source)
+
     # Emit each page.
     for i, rec in enumerate(records):
         out_path = dest / rec["dest_rel"]
         out_path.parent.mkdir(parents=True, exist_ok=True)
         # Weight ordering: by activity number, then by collection, then by slug.
         # i is the sorted-walk index, so it already encodes the right order.
-        page = render_page(rec, source, weight=(i + 1) * 10)
+        page = render_page(rec, source, weight=(i + 1) * 10,
+                           repo_root=repo_root, url_map=url_map)
         out_path.write_text(page, encoding="utf-8")
 
     # Emit collection indexes for each subdirectory that holds files.

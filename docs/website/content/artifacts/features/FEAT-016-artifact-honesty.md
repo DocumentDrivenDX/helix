@@ -189,7 +189,7 @@ instrument is a phantom claim about reality. Two instrument-integrity rules:
 
 ## References
 
-- [Reconcile-alignment action](../../../workflows/actions/reconcile-alignment.md) — `ASSERTED_UNBACKED` classification and claims-vs-reality check
-- [Quality ratchets](../../../workflows/ratchets.md) — phantom-claim zero-floor sub-ratchet
-- [FEAT-008: Artifact Template Quality](FEAT-008-artifact-template-quality.md)
-- [FEAT-014: Workflow Coverage](FEAT-014-workflow-coverage.md)
+- [Reconcile-alignment action](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/actions/reconcile-alignment.md) — `ASSERTED_UNBACKED` classification and claims-vs-reality check
+- [Quality ratchets](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/ratchets.md) — phantom-claim zero-floor sub-ratchet
+- [FEAT-008: Artifact Template Quality](/artifacts/features/feat-008-artifact-template-quality/)
+- [FEAT-014: Workflow Coverage](/artifacts/features/feat-014-workflow-coverage/)

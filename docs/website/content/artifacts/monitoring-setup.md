@@ -1,7 +1,7 @@
 ---
 title: "Monitoring Setup — `ddx-server`"
 slug: monitoring-setup
-weight: 620
+weight: 610
 activity: "Deploy"
 source: "05-deploy/monitoring-setup.md"
 generated: true
@@ -102,7 +102,7 @@ above degrades; there is no auto-escalation.
 - Immediate containment actions: `ddx server stop` is always safe — claims
   are durable in `.ddx/beads.jsonl` and orphan recovery picks up stale
   claims on next run.
-- Existing runbook links: [`runbook.md`](runbook.md) — the canonical
+- Existing runbook links: [`runbook.md`](/artifacts/runbook/) — the canonical
   incident-response surface.
 
 ### Routing
