@@ -31,17 +31,17 @@ runtime. Each runs the real commands from the install guides.
 In Claude Code, add the marketplace and install the plugin, then verify
 with `claude plugin list`.
 
-{{< asciinema src="install-claude" >}}
+{{< asciinema file="/demos/install-claude.cast" autoplay=true speed=1.5 >}}
 
 In Codex, the Skills CLI drops the skill into `~/.codex/skills/helix/`
 where the session auto-discovers it.
 
-{{< asciinema src="install-codex" >}}
+{{< asciinema file="/demos/install-codex.cast" autoplay=true speed=1.5 >}}
 
 On Databricks Genie, fetch the single-file installer on a dev box and run
 it against your workspace.
 
-{{< asciinema src="install-databricks" >}}
+{{< asciinema file="/demos/install-databricks.cast" autoplay=true speed=1.5 >}}
 
 ---
 
@@ -50,7 +50,7 @@ it against your workspace.
 One install, one ask. The skill lands; the agent gains the artifact
 catalog and can scan whatever's already in the repo. No CLI to learn.
 
-{{< asciinema src="helix-adopt" >}}
+{{< asciinema file="/demos/helix-adopt.cast" autoplay=true speed=1.5 >}}
 
 [Session record](https://github.com/DocumentDrivenDX/helix/blob/main/docs/demos/helix-adopt/session.jsonl)
 
@@ -62,7 +62,7 @@ Vision → PRD → concerns → first feature spec, all populated from HELIX
 templates by the same skill the agent invokes. The brief is what the
 agent will defend code against on day n.
 
-{{< asciinema src="helix-brief" >}}
+{{< asciinema file="/demos/helix-brief.cast" autoplay=true speed=1.5 >}}
 
 [Session record](https://github.com/DocumentDrivenDX/helix/blob/main/docs/demos/helix-brief/session.jsonl)
 
@@ -74,7 +74,7 @@ PRD says one thing; a recent ADR says another. The alignment skill walks
 the graph in authority order and reports an ordered plan to close the
 gap.
 
-{{< asciinema src="helix-align" >}}
+{{< asciinema file="/demos/helix-align.cast" autoplay=true speed=1.5 >}}
 
 [Session record](https://github.com/DocumentDrivenDX/helix/blob/main/docs/demos/helix-align/session.jsonl)
 
@@ -86,7 +86,7 @@ The planning side of the same skill: decomposes feature specs into beads
 with deterministic acceptance criteria and named evidence. Ready for a
 runtime to execute.
 
-{{< asciinema src="helix-plan" >}}
+{{< asciinema file="/demos/helix-plan.cast" autoplay=true speed=1.5 >}}
 
 [Session record](https://github.com/DocumentDrivenDX/helix/blob/main/docs/demos/helix-plan/session.jsonl)
 
@@ -99,7 +99,7 @@ existing API-key auth. One sentence in; six authority-ordered steps out,
 spanning security architecture, ADRs, feature specs, designs, tests, and
 beads.
 
-{{< asciinema src="helix-evolve" >}}
+{{< asciinema file="/demos/helix-evolve.cast" autoplay=true speed=1.5 >}}
 
 [Session record](https://github.com/DocumentDrivenDX/helix/blob/main/docs/demos/helix-evolve/session.jsonl)
 
@@ -111,7 +111,7 @@ A project declares `typescript-bun` as its stack concern. The agent
 writes idiomatic-looking code that nonetheless drifts to Node defaults.
 Alignment catches all three drift signals.
 
-{{< asciinema src="helix-concerns" >}}
+{{< asciinema file="/demos/helix-concerns.cast" autoplay=true speed=1.5 >}}
 
 [Session record](https://github.com/DocumentDrivenDX/helix/blob/main/docs/demos/helix-concerns/session.jsonl)
 
@@ -123,7 +123,7 @@ A second agent inspects completed work against the artifacts that govern
 it. Two blocking findings (missing revocation enforcement, missing test),
 one warning (token leak in error log), filed as tracker issues.
 
-{{< asciinema src="helix-review" >}}
+{{< asciinema file="/demos/helix-review.cast" autoplay=true speed=1.5 >}}
 
 [Session record](https://github.com/DocumentDrivenDX/helix/blob/main/docs/demos/helix-review/session.jsonl)
 
@@ -136,7 +136,7 @@ right model + harness, work runs in a worktree, acceptance gates fire,
 a different model does a cross-review, evidence appends, the bead
 closes.
 
-{{< asciinema src="helix-execute" >}}
+{{< asciinema file="/demos/helix-execute.cast" autoplay=true speed=1.5 >}}
 
 [Session record](https://github.com/DocumentDrivenDX/helix/blob/main/docs/demos/helix-execute/session.jsonl)
 
