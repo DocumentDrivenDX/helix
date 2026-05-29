@@ -67,7 +67,10 @@ jobs:
 
       - name: Build site (Hugo)
         working-directory: website
-        run: hugo --gc --minify
+        # Build with the production base path so the link check validates the
+        # real /helix/-prefixed URLs; a plain root build hides base-path bugs
+        # like raw card links that bypass the baseURL.
+        run: hugo --gc --minify --baseURL "https://documentdrivendx.github.io/helix/"
 
       - name: Check internal links + images
         run: python3 scripts/check-website-links.py

@@ -60,6 +60,12 @@ def resolve(url: str, page: Path, public: Path, base_path: str) -> Path | None:
         return None  # pure fragment, same page
     url = unquote(url)
     if url.startswith("/"):
+        if base_path != "/" and not url.startswith(base_path):
+            # Root-absolute internal link without the base path 404s on a project
+            # site served under base_path (e.g. a hextra card link that bypasses
+            # the baseURL). Point at a guaranteed-missing path so it is reported
+            # as broken with its original url rather than falsely resolving.
+            return public / "__missing_base_path__" / url.lstrip("/")
         rel = url[len(base_path):] if url.startswith(base_path) else url.lstrip("/")
         target = public / rel
     else:

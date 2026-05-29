@@ -47,8 +47,9 @@ lint-prose:
 test-website-generated:
     bash tests/validate-website-generated.sh
 
-# Check internal links + images in the built site (run a hugo build first)
+# Check internal links + images in a production-shaped build (with the /helix base path)
 check-website-links:
+    cd website && hugo --gc --minify --baseURL "https://documentdrivendx.github.io/helix/" >/dev/null
     python3 scripts/check-website-links.py
 
 # Install HELIX via DDx (refresh the local snapshot)
