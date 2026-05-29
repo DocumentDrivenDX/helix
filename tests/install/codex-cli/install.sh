@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
-# Codex CLI install: filesystem copy into ~/.codex/skills/helix/.
+# Codex CLI install scenario.
 #
-# Uses the manual copy path rather than `npx skills add easel/helix -a codex`
-# so the test exercises a locally-mounted HELIX source (the marketplace path
-# requires fetching from GitHub).
+# Two modes:
+#   default (PR-safe): copy skills/helix/ from the mounted local checkout, so
+#     the scenario validates THIS revision without fetching from GitHub.
+#   TEST_PUBLISHED=1 (post-merge smoke): run the REAL documented command,
+#     `npx skills add DocumentDrivenDX/helix -a codex`, which fetches the
+#     published skill from GitHub the way the docs tell users to.
 
 set -euo pipefail
 
@@ -16,11 +19,17 @@ if [[ -n "${OPENAI_API_KEY:-}" ]]; then
     echo "(non-fatal: codex login --with-api-key not available in this version)"
 fi
 
-echo
-echo "→ placing skills/helix/ under ~/.codex/skills/"
-mkdir -p ~/.codex/skills
-rm -rf ~/.codex/skills/helix
-cp -r /workspace/helix/skills/helix ~/.codex/skills/
+if [[ "${TEST_PUBLISHED:-}" == "1" ]]; then
+  echo
+  echo "→ real Skills CLI install from the published repo"
+  npx --yes skills add DocumentDrivenDX/helix -a codex
+else
+  echo
+  echo "→ placing skills/helix/ under ~/.codex/skills/ (PR-safe)"
+  mkdir -p ~/.codex/skills
+  rm -rf ~/.codex/skills/helix
+  cp -r /workspace/helix/skills/helix ~/.codex/skills/
+fi
 
 echo
 echo "→ also vendoring the workflows catalog at ~/.codex/workflows/"
