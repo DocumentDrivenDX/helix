@@ -238,7 +238,9 @@ def render_collection_index(name: str, items: list[dict], weight: int) -> str:
     ])
     lines = [fm, f"# {title}", ""]
     for it in sorted(items, key=lambda r: r["slug"]):
-        lines.append(f"- [{it['title']}]({it['slug']}/)")
+        # Hugo lowercases page URLs; the link must match or it 404s on a
+        # case-sensitive host (it did in production: caps stems vs lowercase dirs).
+        lines.append(f"- [{it['title']}]({it['slug'].lower()}/)")
     lines.append("")
     return "\n".join(lines)
 
@@ -276,11 +278,11 @@ def render_top_index(records: list[dict], project: str, source: Path) -> str:
                 collections.setdefault(r["collection"], []).append(r)
 
         for r in sorted(singletons, key=lambda r: r["slug"]):
-            lines.append(f"- [{r['title']}](/artifacts/{r['slug']}/)")
+            lines.append(f"- [{r['title']}](/artifacts/{r['slug'].lower()}/)")
         for coll_name in sorted(collections.keys()):
             count = len(collections[coll_name])
             lines.append(
-                f"- [{coll_name.replace('-', ' ').replace('_', ' ')}](/artifacts/{coll_name}/) "
+                f"- [{coll_name.replace('-', ' ').replace('_', ' ')}](/artifacts/{coll_name.lower()}/) "
                 f"_({count} {'item' if count == 1 else 'items'})_"
             )
         lines.append("")

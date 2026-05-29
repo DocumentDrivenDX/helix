@@ -18,6 +18,7 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from html.parser import HTMLParser
 from pathlib import Path
@@ -48,7 +49,12 @@ def is_external(url: str) -> bool:
 
 
 def resolve(url: str, page: Path, public: Path, base_path: str) -> Path | None:
-    """Map an internal URL to the file it should resolve to in public/."""
+    """Map an internal URL to the file it should resolve to in public/.
+
+    Normalizes with os.path.normpath (resolves `..`) but never `Path.resolve()`,
+    which case-folds on a case-insensitive filesystem and would mask the
+    caps-link / lowercase-dir mismatch that 404s on a case-sensitive host.
+    """
     url, _ = urldefrag(url)
     if not url:
         return None  # pure fragment, same page
@@ -57,11 +63,11 @@ def resolve(url: str, page: Path, public: Path, base_path: str) -> Path | None:
         rel = url[len(base_path):] if url.startswith(base_path) else url.lstrip("/")
         target = public / rel
     else:
-        target = (page.parent / url).resolve()
+        target = page.parent / url
     # Directory URLs (trailing slash or no extension) map to index.html.
     if url.endswith("/") or target.suffix == "":
         target = target / "index.html"
-    return target
+    return Path(os.path.normpath(target))
 
 
 def main() -> int:
@@ -75,6 +81,11 @@ def main() -> int:
         print(f"FAIL: {public} not found — build the site first (hugo).", file=sys.stderr)
         return 2
 
+    # Case-sensitive set of every real path under public/ (as written to disk).
+    # Membership testing here is case-exact even on a case-insensitive FS, so a
+    # caps link to a lowercase dir is caught locally just as it is on the host.
+    real_paths = {Path(os.path.normpath(p)) for p in public.rglob("*")}
+
     broken: list[str] = []
     checked = 0
     for html_file in sorted(public.rglob("*.html")):
@@ -87,7 +98,7 @@ def main() -> int:
             if target is None:
                 continue
             checked += 1
-            if not target.exists():
+            if target not in real_paths:
                 page = html_file.relative_to(public)
                 broken.append(f"{page} -> {url}")
 

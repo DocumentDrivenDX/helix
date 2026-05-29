@@ -7,4 +7,4 @@ generated: true
 
 # solution designs
 
-- [Solution Design: SD-002 — First-Class Principles](SD-002-first-class-principles/)
+- [Solution Design: SD-002 — First-Class Principles](sd-002-first-class-principles/)

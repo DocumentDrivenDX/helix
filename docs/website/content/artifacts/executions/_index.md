@@ -7,4 +7,4 @@ generated: true
 
 # executions
 
-- [Execution Docs](README/)
+- [Execution Docs](readme/)

@@ -7,5 +7,5 @@ generated: true
 
 # adr
 
-- [ADR-002: HELIX Tracker Write Safety Model](ADR-002-tracker-write-safety-model/)
-- [ADR-003: Autonomy is a Three-Position Spectrum, Not a Fixed Level](ADR-003-autonomy-spectrum/)
+- [ADR-002: HELIX Tracker Write Safety Model](adr-002-tracker-write-safety-model/)
+- [ADR-003: Autonomy is a Three-Position Spectrum, Not a Fixed Level](adr-003-autonomy-spectrum/)

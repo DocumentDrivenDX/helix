@@ -7,4 +7,4 @@ generated: true
 
 # hero image concepts
 
-- [HERO-2026-05-12 Document Spine Helix Concept](HERO-2026-05-12-document-spine-helix/)
+- [HERO-2026-05-12 Document Spine Helix Concept](hero-2026-05-12-document-spine-helix/)

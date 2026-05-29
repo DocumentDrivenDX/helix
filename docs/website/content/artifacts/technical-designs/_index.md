@@ -7,6 +7,6 @@ generated: true
 
 # technical designs
 
-- [TD-011: Slider Autonomy Implementation](TD-011-slider-autonomy-implementation/)
-- [Technical Design: TD-012 — Artifact Types Navigation](TD-012-artifact-types-navigation/)
-- [Technical Design: TD-013 — Multi-Runtime Install](TD-013-multi-runtime-install/)
+- [TD-011: Slider Autonomy Implementation](td-011-slider-autonomy-implementation/)
+- [Technical Design: TD-012 — Artifact Types Navigation](td-012-artifact-types-navigation/)
+- [Technical Design: TD-013 — Multi-Runtime Install](td-013-multi-runtime-install/)
