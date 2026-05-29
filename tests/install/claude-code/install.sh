@@ -1,24 +1,31 @@
 #!/usr/bin/env bash
-# Claude Code install: marketplace add + plugin install.
+# Claude Code install scenario.
 #
-# For CI we use `--plugin-dir` (session-only) against the mounted source,
-# which exercises the same loader as the marketplace flow without requiring
-# the marketplace to be in sync with HEAD.
+# Two modes:
+#   default (PR-safe): load the mounted local checkout as a plugin, so the
+#     scenario validates THIS revision's loader without depending on the
+#     published marketplace.
+#   TEST_PUBLISHED=1 (post-merge smoke): run the REAL marketplace flow the docs
+#     tell users to run — `claude plugin marketplace add DocumentDrivenDX/helix`
+#     then `claude plugin install helix@helix`. This exercises the genuine
+#     HTTPS clone and catches regressions like an SSH-only plugin source.
 
 set -euo pipefail
 
 echo "claude version:"
 claude --version
 
-# Marketplace flow against the mounted source.
-# claude plugin marketplace add /workspace/helix
-# claude plugin install helix@helix --scope user -y
-# For CI sandboxes, use --plugin-dir which loads the local checkout directly:
-
-echo
-echo "→ symlinking the local checkout as a Claude Code plugin"
-mkdir -p ~/.claude/plugins
-ln -sf /workspace/helix ~/.claude/plugins/helix
+if [[ "${TEST_PUBLISHED:-}" == "1" ]]; then
+  echo
+  echo "→ real marketplace install from the published repo (HTTPS clone)"
+  claude plugin marketplace add DocumentDrivenDX/helix
+  claude plugin install helix@helix --scope user -y
+else
+  echo
+  echo "→ loading the local checkout as a Claude Code plugin (PR-safe)"
+  mkdir -p ~/.claude/plugins
+  ln -sf /workspace/helix ~/.claude/plugins/helix
+fi
 
 echo
 echo "claude plugin list:"
