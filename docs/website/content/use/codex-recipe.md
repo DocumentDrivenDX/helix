@@ -6,6 +6,32 @@ weight: 22
 Use this recipe when Codex is the implementation agent and HELIX supplies the
 planning, alignment, and handoff contract. DDx is not required.
 
+## Install the HELIX skill
+
+HELIX ships as a routing skill (`skills/helix/SKILL.md`, compliant with the
+agentskills.io specification) plus the artifact catalog under
+`workflows/activities/`. Installing the skill makes HELIX discoverable in any
+Codex session.
+
+The recommended path uses the Skills CLI, which needs Node.js:
+
+```bash
+npx skills add DocumentDrivenDX/helix -a codex
+```
+
+For scripted or Docker environments without Node, clone the repo over HTTPS and
+copy the skill into the Codex discovery path:
+
+```bash
+git clone https://github.com/DocumentDrivenDX/helix /tmp/helix-src
+mkdir -p ~/.codex/skills/helix
+cp -r /tmp/helix-src/skills/helix/* ~/.codex/skills/helix/
+```
+
+Either way, Codex auto-discovers the skill at session start. The full procedure,
+including DDx symlinks and Docker auth, is in the
+[GitHub install guide](https://github.com/DocumentDrivenDX/helix/blob/main/docs/install/codex.md).
+
 ## What the runtime must provide
 
 Codex, or the environment around it, must provide:

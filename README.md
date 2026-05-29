@@ -59,7 +59,12 @@ between activities in every direction: a failing test reveals a missing
 requirement; a production metric revises the PRD; a vision update propagates
 downstream.
 
-## Install (DDx Runtime)
+## Install
+
+HELIX runs on several runtimes. Pick the one you already use; each install guide
+under [`docs/install/`](docs/install/) has the full procedure.
+
+### DDx Runtime
 
 The fastest path to running HELIX is the DDx runtime.
 
@@ -79,8 +84,58 @@ This adds HELIX's artifact-type catalog and alignment skill to your DDx
 project. You'll also want an agent runtime —
 [Claude Code](https://claude.ai/claude-code) or `codex` — plus `git`.
 
-Other runtimes (Databricks Genie, Claude Code as a standalone skill) are in
-progress.
+### Claude Code (plugin)
+
+The HELIX repo is itself a Claude Code plugin. Inside a Claude Code session, add
+the marketplace and install the plugin:
+
+```text
+/plugin marketplace add DocumentDrivenDX/helix
+/plugin install helix@helix
+```
+
+For automation or a Dockerfile, use the scripted CLI equivalent:
+
+```bash
+claude plugin marketplace add DocumentDrivenDX/helix
+claude plugin install helix@helix --scope user -y
+```
+
+Full procedure: [`docs/install/claude-code.md`](docs/install/claude-code.md).
+
+### Codex (skill)
+
+HELIX installs into Codex as an agentskills.io-compliant routing skill via the
+Skills CLI (needs Node.js):
+
+```bash
+npx skills add DocumentDrivenDX/helix -a codex
+```
+
+Codex auto-discovers the skill at session start. Full procedure, including a
+Node-free filesystem copy: [`docs/install/codex.md`](docs/install/codex.md).
+
+### Databricks Genie
+
+From inside a Databricks notebook, the kernel already carries workspace
+credentials. Run this in a Python cell:
+
+```python
+%pip install --quiet databricks-sdk PyYAML
+
+import urllib.request, runpy
+urllib.request.urlretrieve(
+    "https://github.com/DocumentDrivenDX/helix/releases/latest/download/genie-install",
+    "/tmp/genie_install.py",
+)
+g = runpy.run_path("/tmp/genie_install.py")
+g["install"]()                # user-scoped; g["install"](shared=True) for workspace-wide
+```
+
+From a dev box or CI, set `DATABRICKS_HOST` + `DATABRICKS_TOKEN` (or
+`DATABRICKS_PROFILE`) and run the [`genie-install`](https://github.com/DocumentDrivenDX/helix/releases/latest/download/genie-install)
+release asset directly. Full procedure:
+[`docs/install/databricks-genie.md`](docs/install/databricks-genie.md).
 
 ## Quick Start
 

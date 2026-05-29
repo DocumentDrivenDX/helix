@@ -7,6 +7,38 @@ Use this recipe when Databricks Genie, notebooks, jobs, or agent workflows need
 HELIX-governed planning before analytical or data-product implementation. DDx is
 not required.
 
+## Install the HELIX skill
+
+HELIX installs as a Genie Code skill that Genie auto-discovers by directory scan.
+Start a new Agent-mode chat after installing for it to take effect.
+
+From inside a Databricks notebook the kernel already carries workspace
+credentials, so no setup is needed. Run this in a Python cell:
+
+```python
+%pip install --quiet databricks-sdk PyYAML
+
+import urllib.request, runpy
+urllib.request.urlretrieve(
+    "https://github.com/DocumentDrivenDX/helix/releases/latest/download/genie-install",
+    "/tmp/genie_install.py",
+)
+g = runpy.run_path("/tmp/genie_install.py")
+g["install"]()                # user-scoped; g["install"](shared=True) for workspace-wide
+```
+
+From a dev box or CI, set `DATABRICKS_HOST` and `DATABRICKS_TOKEN` (or
+`DATABRICKS_PROFILE`), then run the installer:
+
+```bash
+curl -fsSL https://github.com/DocumentDrivenDX/helix/releases/latest/download/genie-install -o /tmp/genie-install
+chmod +x /tmp/genie-install
+/tmp/genie-install            # --shared for workspace-wide
+```
+
+The full procedure, including ACLs on shared installs and verification steps, is
+in the [GitHub install guide](https://github.com/DocumentDrivenDX/helix/blob/main/docs/install/databricks-genie.md).
+
 ## What the runtime must provide
 
 The Databricks runtime must provide:
