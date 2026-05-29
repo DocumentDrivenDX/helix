@@ -43,6 +43,8 @@ ALLOWED_SCENARIO_KEYS = {
     "concerns",
     "review",
     "execute",
+    "install",
+    "smoke",
 }
 
 

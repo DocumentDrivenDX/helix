@@ -1,0 +1,8 @@
+{"meta": {"title": "Install HELIX in Codex", "width": 100, "height": 30, "scenario": "install", "timestamp": 1779000000}}
+{"narration": "The Skills CLI installs HELIX from GitHub into the Codex skill path in one command."}
+{"shell": "$ npx skills add DocumentDrivenDX/helix -a codex"}
+{"output": "Fetching DocumentDrivenDX/helix...\n  resolved skill: helix\n  target: codex (~/.codex/skills/)\n✓ installed helix → ~/.codex/skills/helix/\n", "pause_s": 1.0}
+{"narration": "Confirm the skill landed where Codex auto-discovers it."}
+{"shell": "$ ls ~/.codex/skills/helix/"}
+{"output": "SKILL.md\nreferences\n"}
+{"narration": "Codex discovers the skill at session start. Name it in your prompt to route into a HELIX mode.", "pause_s": 1.0}

@@ -1,0 +1,8 @@
+{"version": 2, "width": 100, "height": 30, "timestamp": 1779000000, "env": {"SHELL": "/bin/bash", "TERM": "xterm-256color"}, "title": "Install HELIX in Codex"}
+[0.0, "o", "\r\n\u001b[2m# The Skills CLI installs HELIX from GitHub into the Codex skill path in one command.\u001b[0m\r\n"]
+[1.0, "o", "\r\n\u001b[1;32m$ npx skills add DocumentDrivenDX/helix -a codex\u001b[0m\r\n"]
+[1.4, "o", "Fetching DocumentDrivenDX/helix...\r\n  resolved skill: helix\r\n  target: codex (~/.codex/skills/)\r\n\u2713 installed helix \u2192 ~/.codex/skills/helix/\r\n"]
+[2.4, "o", "\r\n\u001b[2m# Confirm the skill landed where Codex auto-discovers it.\u001b[0m\r\n"]
+[3.4, "o", "\r\n\u001b[1;32m$ ls ~/.codex/skills/helix/\u001b[0m\r\n"]
+[3.8, "o", "SKILL.md\r\nreferences\r\n"]
+[3.9, "o", "\r\n\u001b[2m# Codex discovers the skill at session start. Name it in your prompt to route into a HELIX mode.\u001b[0m\r\n"]

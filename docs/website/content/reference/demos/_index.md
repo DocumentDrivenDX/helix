@@ -23,6 +23,28 @@ rebuild the cast whenever you like.
 
 ---
 
+## Install HELIX in your runtime
+
+Three short reels show the documented install path for each supported
+runtime. Each runs the real commands from the install guides.
+
+In Claude Code, add the marketplace and install the plugin, then verify
+with `claude plugin list`.
+
+{{< asciinema src="install-claude" >}}
+
+In Codex, the Skills CLI drops the skill into `~/.codex/skills/helix/`
+where the session auto-discovers it.
+
+{{< asciinema src="install-codex" >}}
+
+On Databricks Genie, fetch the single-file installer on a dev box and run
+it against your workspace.
+
+{{< asciinema src="install-databricks" >}}
+
+---
+
 ## adopt: Drop HELIX into an existing project
 
 One install, one ask. The skill lands; the agent gains the artifact

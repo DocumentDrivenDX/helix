@@ -26,6 +26,19 @@ EVENT_KEYS = {
 
 REQUIRED_META_FIELDS = {"title", "scenario"}
 
+ALLOWED_SCENARIO_KEYS = {
+    "adopt",
+    "brief",
+    "align",
+    "plan",
+    "evolve",
+    "concerns",
+    "review",
+    "execute",
+    "install",
+    "smoke",
+}
+
 
 def validate(path: Path) -> list[str]:
     errors: list[str] = []
@@ -75,6 +88,12 @@ def validate(path: Path) -> list[str]:
                 if missing:
                     errors.append(
                         f"{path}:{idx}: meta missing required fields: {sorted(missing)}"
+                    )
+                scenario = meta.get("scenario")
+                if scenario is not None and scenario not in ALLOWED_SCENARIO_KEYS:
+                    errors.append(
+                        f"{path}:{idx}: meta scenario '{scenario}' not in "
+                        f"allowed keys {sorted(ALLOWED_SCENARIO_KEYS)}"
                     )
 
         if "assistant" in event:

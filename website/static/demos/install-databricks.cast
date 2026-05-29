@@ -1,0 +1,9 @@
+{"version": 2, "width": 100, "height": 30, "timestamp": 1779000000, "env": {"SHELL": "/bin/bash", "TERM": "xterm-256color"}, "title": "Install HELIX on Databricks Genie"}
+[0.0, "o", "\r\n\u001b[2m# From a dev box, set workspace auth, then fetch and run the single-file installer.\u001b[0m\r\n"]
+[1.0, "o", "\r\n\u001b[1;32m$ export DATABRICKS_HOST=https://my-workspace.azuredatabricks.net\u001b[0m\r\n"]
+[1.4, "o", "\r\n\u001b[1;32m$ export DATABRICKS_TOKEN=dapi***\u001b[0m\r\n"]
+[1.8, "o", "\r\n\u001b[1;32m$ curl -fsSL https://github.com/DocumentDrivenDX/helix/releases/latest/download/genie-install -o /tmp/genie-install\u001b[0m\r\n"]
+[2.2, "o", "\r\n\u001b[1;32m$ chmod +x /tmp/genie-install\u001b[0m\r\n"]
+[2.6, "o", "\r\n\u001b[1;32m$ /tmp/genie-install\u001b[0m\r\n"]
+[3.0, "o", "Building genie bundle from latest release...\r\nUploading to /Users/you@example.com/.assistant/skills/helix\r\n  SKILL.md\r\n  references/activities/ (7 activities)\r\nVerifying install (offline): frontmatter ok, activity dirs present\r\n\u2713 HELIX installed for user you@example.com\r\n"]
+[4.0, "o", "\r\n\u001b[2m# Start a new Agent-mode chat in Genie and HELIX routes your methodology work.\u001b[0m\r\n"]

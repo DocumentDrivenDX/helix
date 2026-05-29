@@ -1,0 +1,9 @@
+{"meta": {"title": "Install HELIX on Databricks Genie", "width": 100, "height": 30, "scenario": "install", "timestamp": 1779000000}}
+{"narration": "From a dev box, set workspace auth, then fetch and run the single-file installer."}
+{"shell": "$ export DATABRICKS_HOST=https://my-workspace.azuredatabricks.net"}
+{"shell": "$ export DATABRICKS_TOKEN=dapi***"}
+{"shell": "$ curl -fsSL https://github.com/DocumentDrivenDX/helix/releases/latest/download/genie-install -o /tmp/genie-install"}
+{"shell": "$ chmod +x /tmp/genie-install"}
+{"shell": "$ /tmp/genie-install"}
+{"output": "Building genie bundle from latest release...\nUploading to /Users/you@example.com/.assistant/skills/helix\n  SKILL.md\n  references/activities/ (7 activities)\nVerifying install (offline): frontmatter ok, activity dirs present\n✓ HELIX installed for user you@example.com\n", "pause_s": 1.0}
+{"narration": "Start a new Agent-mode chat in Genie and HELIX routes your methodology work.", "pause_s": 1.0}

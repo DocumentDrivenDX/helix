@@ -1,0 +1,12 @@
+{"version": 2, "width": 100, "height": 30, "timestamp": 1779000000, "env": {"SHELL": "/bin/bash", "TERM": "xterm-256color"}, "title": "Install HELIX in Claude Code"}
+[0.0, "o", "\r\n\u001b[2m# Inside a Claude Code session, add the HELIX marketplace and install the plugin. No git clone, no symlinks.\u001b[0m\r\n"]
+[1.0, "o", "\r\n\u001b[1;32m/plugin marketplace add DocumentDrivenDX/helix\u001b[0m\r\n"]
+[1.4, "o", "Added marketplace DocumentDrivenDX-helix\r\n  1 plugin available: helix\r\n"]
+[1.5, "o", "\r\n\u001b[1;32m/plugin install helix@helix\u001b[0m\r\n"]
+[1.9, "o", "Installing helix@helix...\r\n  resolved skill: helix\r\n  artifact catalog: workflows/activities/ (7 activities)\r\n\u2713 helix@helix installed (scope: user)\r\n"]
+[2.9, "o", "\r\n\u001b[2m# Confirm the plugin is on the list.\u001b[0m\r\n"]
+[3.9, "o", "\r\n\u001b[1;32mclaude plugin list\u001b[0m\r\n"]
+[4.3, "o", "NAME   VERSION  SOURCE\r\nhelix  0.5.0    DocumentDrivenDX-helix\r\n"]
+[4.4, "o", "\r\n\u001b[2m# The skill is available. One ask routes you into a HELIX mode.\u001b[0m\r\n"]
+[5.4, "o", "\r\n\u001b[1;32m/helix check\u001b[0m\r\n"]
+[5.8, "o", "HELIX router loaded. No docs/helix/ artifacts yet.\r\nNext: run frame to draft a vision and PRD.\r\n"]
