@@ -1,10 +1,30 @@
 #!/usr/bin/env bash
 # Claude Code verify: static skill-layout check, plus optional functional check.
+#
+# Two install modes use different on-disk layouts:
+#   default (PR symlink): install.sh writes ~/.claude/plugins/helix → /workspace/helix,
+#     so the skill is at ~/.claude/plugins/helix/skills/helix.
+#   TEST_PUBLISHED=1 (real marketplace): Claude Code copies the plugin under
+#     ~/.claude/plugins/cache/<version-dir>/ — exact subdir is loader-defined.
 
 set -euo pipefail
 
-SKILL_ROOT="$HOME/.claude/plugins/helix/skills/helix"
 SHARED_VERIFY="/workspace/helix/tests/install/shared/verify-skill-layout.sh"
+
+if [[ "${TEST_PUBLISHED:-}" == "1" ]]; then
+  SKILL_ROOT="$(ls -d "$HOME"/.claude/plugins/cache/*/skills/helix 2>/dev/null | head -1)"
+  if [[ -z "$SKILL_ROOT" ]]; then
+    echo "FAIL: no skill found under ~/.claude/plugins/cache/*/skills/helix"
+    echo "contents of ~/.claude/plugins/cache/:"
+    ls -la "$HOME/.claude/plugins/cache/" 2>/dev/null || echo "(cache dir missing)"
+    exit 1
+  fi
+  echo "→ marketplace skill resolved at: $SKILL_ROOT"
+  echo "→ claude plugin list:"
+  claude plugin list 2>&1 || echo "(non-fatal: plugin list may require API key)"
+else
+  SKILL_ROOT="$HOME/.claude/plugins/helix/skills/helix"
+fi
 
 echo "→ static layout checks"
 bash "$SHARED_VERIFY" "$SKILL_ROOT"

@@ -177,10 +177,21 @@ only the activation phrasing differs. See
 [FEAT-013](../helix/01-frame/features/FEAT-013-runtime-install-coverage.md) for
 the per-runtime activation coverage.
 
-Claude Code resolves the `helix` skill in this order:
-1. `~/.claude/plugins/helix/skills/helix/` (installed plugin)
-2. Session `--plugin-dir` target
-3. Any other plugin-provided skill location enabled for the session
+Claude Code resolves the `helix` skill through the plugin loader. The
+marketplace flow copies the plugin into a per-version directory under the
+local plugin cache, with persistent plugin state in a sibling data tree
+(per Anthropic's [plugin reference](https://code.claude.com/docs/en/plugins-reference)):
+
+- `~/.claude/plugins/cache/<version-dir>/skills/helix/` — the installed
+  plugin. The exact `<version-dir>` name is an internal detail of the
+  loader, not a stable path you should script against.
+- `~/.claude/plugins/data/<id>/` — plugin state, where `<id>` is the
+  install identifier with non-`[a-zA-Z0-9_-]` characters replaced by `-`.
+- Session `--plugin-dir <path>` loads the directory directly for one
+  session, bypassing the cache.
+
+Use `claude plugin list` to confirm the install rather than checking a
+path; the loader location is an implementation detail.
 
 The router then consults its internal routing table in
 `skills/helix/SKILL.md` and picks a mode. Each mode has a workflow
