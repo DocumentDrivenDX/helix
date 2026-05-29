@@ -18,6 +18,7 @@ experiments/
 .ddx/exec-runs.d/
 .ddx/exec-runs.jsonl
 .ddx/executions/
+.ddx/harness-sessions/
 .ddx/attachments/
 .ddx/run-state/
 .ddx/run-state.json
