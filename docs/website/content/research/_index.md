@@ -27,10 +27,10 @@ to answer enough of the right questions that the artifact stack can govern the
 next decision.
 
 {{< cards >}}
-  {{< card link="/artifact-types/frame/research-plan/" title="Research Plan" subtitle="Plan user, market, or problem-space investigation before committing to requirements." icon="academic-cap" >}}
-  {{< card link="/artifact-types/frame/feasibility-study/" title="Feasibility Study" subtitle="Evaluate viability across technical, business, operational, and resource constraints." icon="scale" >}}
-  {{< card link="/artifact-types/design/tech-spike/" title="Technical Spike" subtitle="Time-box a specific technical unknown before locking an architecture decision." icon="beaker" >}}
-  {{< card link="/artifact-types/design/proof-of-concept/" title="Proof of Concept" subtitle="Validate a high-risk technical approach end to end before full implementation." icon="cube-transparent" >}}
+  {{< card link="../artifact-types/frame/research-plan/" title="Research Plan" subtitle="Plan user, market, or problem-space investigation before committing to requirements." icon="academic-cap" >}}
+  {{< card link="../artifact-types/frame/feasibility-study/" title="Feasibility Study" subtitle="Evaluate viability across technical, business, operational, and resource constraints." icon="scale" >}}
+  {{< card link="../artifact-types/design/tech-spike/" title="Technical Spike" subtitle="Time-box a specific technical unknown before locking an architecture decision." icon="beaker" >}}
+  {{< card link="../artifact-types/design/proof-of-concept/" title="Proof of Concept" subtitle="Validate a high-risk technical approach end to end before full implementation." icon="cube-transparent" >}}
 {{< /cards >}}
 
 ## What HELIX borrows from
@@ -61,9 +61,9 @@ publishes research-derived artifacts alongside its governing artifacts, so the
 reasoning chain is inspectable.
 
 {{< cards >}}
-  {{< card link="/artifacts/research-principles-injection-2026-04-05/" title="Principles Injection Study" subtitle="Measured how prompt context changes agent alignment, auditability, and token cost." icon="chart-bar" >}}
-  {{< card link="/artifacts/prompt-iteration-protocol/" title="Prompt Iteration Protocol" subtitle="Defines how HELIX evaluates prompt changes and records evidence during iteration." icon="refresh" >}}
-  {{< card link="/artifacts/metrics-dashboard/" title="Metrics Dashboard" subtitle="Shows how iteration evidence is made visible after release work." icon="presentation-chart-line" >}}
+  {{< card link="../artifacts/research-principles-injection-2026-04-05/" title="Principles Injection Study" subtitle="Measured how prompt context changes agent alignment, auditability, and token cost." icon="chart-bar" >}}
+  {{< card link="../artifacts/prompt-iteration-protocol/" title="Prompt Iteration Protocol" subtitle="Defines how HELIX evaluates prompt changes and records evidence during iteration." icon="refresh" >}}
+  {{< card link="../artifacts/metrics-dashboard/" title="Metrics Dashboard" subtitle="Shows how iteration evidence is made visible after release work." icon="presentation-chart-line" >}}
 {{< /cards >}}
 
 The principles-injection study is the clearest example. It compared baseline,

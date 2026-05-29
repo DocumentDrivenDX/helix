@@ -75,9 +75,9 @@ alignment and planning contract those runtime actions should follow.
 ## What the skill operates on
 
 {{< cards >}}
-  {{< card link="/artifact-types" title="Artifact-Type Catalog" subtitle="The reusable templates, prompts, metadata, and quality criteria that define HELIX document shapes." icon="collection" >}}
-  {{< card link="/artifacts" title="HELIX's Own Artifacts" subtitle="The worked example: HELIX applies its catalog to itself under docs/helix/." icon="document-text" >}}
-  {{< card link="/why/principles/#3-authority-order-governs-reconciliation" title="Authority Order" subtitle="The rule that higher-level intent governs lower-level designs, tests, and implementation plans." icon="scale" >}}
+  {{< card link="../artifact-types" title="Artifact-Type Catalog" subtitle="The reusable templates, prompts, metadata, and quality criteria that define HELIX document shapes." icon="collection" >}}
+  {{< card link="../artifacts" title="HELIX's Own Artifacts" subtitle="The worked example: HELIX applies its catalog to itself under docs/helix/." icon="document-text" >}}
+  {{< card link="../why/principles/#3-authority-order-governs-reconciliation" title="Authority Order" subtitle="The rule that higher-level intent governs lower-level designs, tests, and implementation plans." icon="scale" >}}
 {{< /cards >}}
 
 Artifact types define the reusable shapes. Concrete artifacts are the documents
@@ -91,7 +91,7 @@ fork by platform. A DDx package, a Claude Code skill, or a Databricks
 integration should wrap the same source content and skill contract.
 
 {{< cards >}}
-  {{< card link="/platforms" title="Platform Integrations" subtitle="Compare DDx, Claude Code, Codex, Databricks, and manual operation as runtimes around the same HELIX content." icon="server" >}}
+  {{< card link="../platforms" title="Platform Integrations" subtitle="Compare DDx, Claude Code, Codex, Databricks, and manual operation as runtimes around the same HELIX content." icon="server" >}}
 {{< /cards >}}
 
 ## Legacy wrappers

@@ -58,7 +58,7 @@ DDx is useful for teams that want repeatable execution around the artifact
 stack: work items, claims, dependencies, reviews, and measured outcomes.
 
 {{< cards >}}
-  {{< card link="/use/ddx-runtime" title="Using HELIX with DDx" subtitle="Install and operate the reference runtime integration." icon="terminal" >}}
+  {{< card link="../use/ddx-runtime" title="Using HELIX with DDx" subtitle="Install and operate the reference runtime integration." icon="terminal" >}}
 {{< /cards >}}
 
 ### First 30 minutes with DDx

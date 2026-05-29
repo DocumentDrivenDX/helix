@@ -26,15 +26,15 @@ not the product spine.
 
 {{< cards >}}
   {{< card link="getting-started" title="Getting Started" subtitle="Start from the artifact catalog and invoke the HELIX alignment/planning skill through your runtime." icon="play" >}}
-  {{< card link="/skills" title="Skills" subtitle="Use the portable alignment-and-planning skill, and understand which wrappers are runtime-specific legacy." icon="sparkles" >}}
-  {{< card link="/artifact-types" title="Artifact Types" subtitle="Browse the reusable catalog of HELIX document shapes, templates, prompts, and quality criteria." icon="collection" >}}
-  {{< card link="/artifacts" title="Worked Artifacts" subtitle="Inspect HELIX's own governing artifacts as a self-applied example of the methodology." icon="document-text" >}}
+  {{< card link="../skills" title="Skills" subtitle="Use the portable alignment-and-planning skill, and understand which wrappers are runtime-specific legacy." icon="sparkles" >}}
+  {{< card link="../artifact-types" title="Artifact Types" subtitle="Browse the reusable catalog of HELIX document shapes, templates, prompts, and quality criteria." icon="collection" >}}
+  {{< card link="../artifacts" title="Worked Artifacts" subtitle="Inspect HELIX's own governing artifacts as a self-applied example of the methodology." icon="document-text" >}}
   {{< card link="ddx-runtime" title="Using HELIX with DDx" subtitle="Use DDx as the reference runtime integration when you want a tracker, agent harness, and evidence loop." icon="terminal" >}}
   {{< card link="manual-recipe" title="Manual HELIX Recipe" subtitle="Create the first artifact stack, run alignment, and hand work to implementers without a runtime." icon="pencil" >}}
   {{< card link="claude-code-recipe" title="Claude Code Recipe" subtitle="Use HELIX in Claude Code by prompting artifact edits, alignment, and implementation handoff directly." icon="code" >}}
   {{< card link="codex-recipe" title="Codex Recipe" subtitle="Use HELIX in Codex with scoped file edits, explicit authority, and runtime-neutral handoff prompts." icon="chip" >}}
   {{< card link="databricks-recipe" title="Databricks Recipe" subtitle="Use HELIX with Databricks Genie or agent workflows by treating HELIX artifacts as governed context." icon="database" >}}
-  {{< card link="/platforms" title="Platforms" subtitle="Compare ways to use HELIX with DDx, Claude, Codex, Databricks, or a manual agent workflow." icon="server" >}}
+  {{< card link="../platforms" title="Platforms" subtitle="Compare ways to use HELIX with DDx, Claude, Codex, Databricks, or a manual agent workflow." icon="server" >}}
 {{< /cards >}}
 
 ## How HELIX fits your runtime

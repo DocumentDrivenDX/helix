@@ -30,6 +30,7 @@ import re
 import shutil
 import sys
 import html
+import posixpath
 from pathlib import Path
 
 import yaml
@@ -395,6 +396,19 @@ def artifact_page_relurl(abs_url: str) -> str:
     return "../../../" + abs_url.lstrip("/")
 
 
+def site_relurl(page_url: str, target: str) -> str:
+    """Relative link from page_url to target (both root-absolute site paths).
+
+    The hextra `card` shortcode emits its `link` verbatim without applying the
+    baseURL, so a root-absolute card link 404s on the /helix/ project site. A
+    relative link resolves correctly under any baseURL.
+    """
+    rel = posixpath.relpath(target, page_url)
+    if target.endswith("/") and not rel.endswith("/"):
+        rel += "/"
+    return rel
+
+
 def artifact_output_path(art: dict) -> Path:
     return Path(art["activity"]["slug"]) / f"{art['slug']}.md"
 
@@ -750,14 +764,19 @@ def render_sidebar_separator(title: str, weight: int) -> str:
     return "\n".join(out)
 
 
-def append_artifact_cards(out: list[str], artifacts: list[dict], slug_to_url: dict[str, str]) -> None:
+def append_artifact_cards(
+    out: list[str], artifacts: list[dict], slug_to_url: dict[str, str],
+    page_url: str | None = None,
+) -> None:
     out.append("{{< cards >}}")
     for art in artifacts:
         slug = art["slug"]
         name = get_artifact_name(art["meta"], art["deps"], slug)
         desc = get_artifact_description(art["meta"], art["deps"]) or slug
+        target = artifact_url(slug, slug_to_url)
+        link = site_relurl(page_url, target) if page_url else target
         out.append(
-            f'  {{{{< card link="{artifact_url(slug, slug_to_url)}" '
+            f'  {{{{< card link="{link}" '
             f'title="{name}" subtitle="{card_subtitle(desc, 160)}" >}}}}'
         )
     out.append("{{< /cards >}}")
@@ -886,15 +905,16 @@ def render_activity_index(activity_key: str, activity: dict, artifacts: list, sl
         out.append(activity["contract"])
         out.append("")
 
+    page_url = f"/artifact-types/{activity['slug']}/"
     if core:
         out.append("## Core Artifacts")
         out.append("")
-        append_artifact_cards(out, core, slug_to_url)
+        append_artifact_cards(out, core, slug_to_url, page_url)
 
     if supporting:
         out.append("## Supporting Artifacts")
         out.append("")
-        append_artifact_cards(out, supporting, slug_to_url)
+        append_artifact_cards(out, supporting, slug_to_url, page_url)
 
     return "\n".join(out)
 
