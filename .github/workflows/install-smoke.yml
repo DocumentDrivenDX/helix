@@ -1,0 +1,39 @@
+name: Install Smoke (real published install)
+
+# Runs the documented install commands against the PUBLISHED repo so the genuine
+# user path is exercised (clone protocol, marketplace resolution, skill fetch).
+# Because it installs the published HELIX (not the PR checkout), it runs
+# post-release and on demand, not per-PR. The per-PR loader check stays in the
+# Website workflow's scenarios. Missing credentials degrade gracefully: the
+# install/clone still runs; only the credentialed functional + Genie checks skip.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  install-smoke:
+    runs-on: ubuntu-latest
+    env:
+      TEST_PUBLISHED: "1"
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+      # Run functional checks only when an API key is present.
+      TEST_FUNCTIONAL: ${{ secrets.ANTHROPIC_API_KEY != '' && '1' || '' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Python (Genie scenario)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run per-runtime install scenarios
+        # Docker is preinstalled on ubuntu runners. run-all.sh builds each
+        # image, runs the real install (TEST_PUBLISHED=1), and exits with the
+        # number of failed scenarios.
+        run: bash tests/install/run-all.sh

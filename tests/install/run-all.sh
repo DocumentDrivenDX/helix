@@ -54,8 +54,9 @@ run_terminal_scenario() {
   fi
 
   # Pass auth env into container so functional checks can run when gated.
+  # TEST_PUBLISHED switches a scenario to the real published-marketplace install.
   local env_args=()
-  for v in ANTHROPIC_API_KEY OPENAI_API_KEY GH_TOKEN DATABRICKS_HOST DATABRICKS_TOKEN DATABRICKS_PROFILE TEST_FUNCTIONAL; do
+  for v in ANTHROPIC_API_KEY OPENAI_API_KEY GH_TOKEN DATABRICKS_HOST DATABRICKS_TOKEN DATABRICKS_PROFILE TEST_FUNCTIONAL TEST_PUBLISHED; do
     if [[ -n "${!v:-}" ]]; then env_args+=(-e "$v=${!v}"); fi
   done
 
