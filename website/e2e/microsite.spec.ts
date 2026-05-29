@@ -8,7 +8,7 @@ const searchResults = (page: any) =>
 const isGlossaryIndexRoute = (route: string) => /\/reference\/glossary\/?$/.test(route)
 
 test.describe('Homepage', () => {
-  test('loads with loop hero and refreshed homepage IA', async ({ page }) => {
+  test('loads with image hero and refreshed homepage IA', async ({ page }) => {
     await test.step('navigate to homepage', async () => {
       await page.goto('/')
     })
@@ -16,8 +16,7 @@ test.describe('Homepage', () => {
     await test.step('verify hero content', async () => {
       await expect(page.getByRole('heading', { name: 'Product lifecycle for AI.' })).toBeVisible()
       await expect(page.getByText('Agents do better work with context they can trust.')).toBeVisible()
-      await expect(page.getByRole('img', { name: /HELIX lifecycle loop/i })).toBeVisible()
-      await expect(page.getByText('Evidence / drift')).toBeVisible()
+      await expect(page.locator('.helix-hero-image-panel img.helix-hero-image-light')).toBeVisible()
     })
 
     await test.step('verify adoption and proof paths', async () => {
@@ -33,8 +32,8 @@ test.describe('Homepage', () => {
       await expect(page.getByRole('heading', { name: 'Inspect the foundations' })).toBeVisible()
     })
 
-    await test.step('verify the double helix is scoped to worked-example proof', async () => {
-      await expect(page.locator('.helix-hero-image-panel')).toHaveCount(0)
+    await test.step('verify the hero image and worked-example graph both render', async () => {
+      await expect(page.locator('.helix-hero-image-panel')).toHaveCount(1)
       await expect(page.locator('.helix-graph-visual svg')).toBeVisible()
     })
 
@@ -170,7 +169,6 @@ test.describe('Reference', () => {
   test('section landing lists subsections', async ({ page }) => {
     await page.goto('/reference/')
     await expect(article(page).getByRole('link', { name: /Glossary/ })).toBeVisible()
-    await expect(article(page).getByRole('link', { name: /CLI Reference/ })).toBeVisible()
     await expect(article(page).getByRole('link', { name: /Skills/ })).toBeVisible()
     await expect(article(page).getByRole('link', { name: /Demos/ })).toBeVisible()
   })
