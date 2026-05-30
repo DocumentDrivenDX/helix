@@ -62,16 +62,6 @@ clear, such as `HOME-01`, `TYPE-01`, `NAV-01`, or `FR-01` for narrow features.]
 [PREFIX-01]. [Requirement]
 [PREFIX-02]. [Requirement]
 
-### Acceptance Criteria
-
-[Capture observable examples for the highest-risk or most important
-requirements. Given/When/Then phrasing is allowed but not required. Do not
-describe implementation steps.]
-
-| Requirement | Scenario | Given | When | Then |
-|-------------|----------|-------|------|------|
-| [PREFIX-01] | [Observable case] | [Starting state] | [User/system action] | [Expected result] |
-
 ### Non-Functional Requirements
 
 - **Performance**: [Specific target, e.g., "95th percentile response < 200ms"]
@@ -130,7 +120,7 @@ Use this checklist when reviewing a feature specification:
 - [ ] Requirements are grouped by functional area when a flat list would mix unrelated scopes
 - [ ] Domain objects that sound similar are explicitly separated (for example, artifact instances vs artifact types)
 - [ ] Every functional requirement is testable — you can write an assertion for it
-- [ ] Acceptance criteria cover important happy paths, errors, and edge cases with observable outcomes
+- [ ] Acceptance criteria are defined in the user stories that decompose this feature, not here (ADR-009)
 - [ ] Non-functional requirements have specific numeric targets, not "must be fast"
 - [ ] Edge cases cover realistic failure scenarios, not just happy paths
 - [ ] Success metrics are specific to this feature, not product-level metrics

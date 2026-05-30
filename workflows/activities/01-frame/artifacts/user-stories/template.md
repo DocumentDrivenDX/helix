@@ -37,12 +37,7 @@ vertical slice — it should cover one complete path from trigger to outcome.]
 
 ## Acceptance Criteria
 
-[Each criterion must be testable and carry a **stable AC ID** of the form
-`US-<n>-AC<m>` (matching this story's number). Use Given/When/Then format — one
-precondition, one action, one observable outcome. The ID is stable: it survives
-edits so the story test plan and tests can reference a specific criterion by
-name. An implementer should be able to write a passing test from each criterion
-alone.]
+[See the prompt's Acceptance Criteria guidance for the canonical AC-ID rule.]
 
 - [ ] **US-XXX-AC1** — Given [specific precondition], when [specific action], then [observable outcome]
 - [ ] **US-XXX-AC2** — Given [specific precondition], when [specific action], then [observable outcome]

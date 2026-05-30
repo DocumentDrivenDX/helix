@@ -140,7 +140,6 @@ committing.
 - [ ] "So that" names a measurable outcome, not a tautology
 - [ ] Walkthrough traces a complete path from trigger to outcome
 - [ ] Every acceptance criterion is independently testable (one Given/When/Then)
-- [ ] Every acceptance criterion carries a stable `US-<n>-AC<m>` ID
 - [ ] Test scenarios include concrete values, not placeholders
 - [ ] Story links to parent feature spec by ID
 - [ ] Story names the parent feature requirement IDs it exercises
