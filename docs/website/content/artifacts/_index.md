@@ -44,6 +44,7 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 - [Plan: spike-first ACTIVATION trigger (close the reframe-and-defer escape hatch)](/artifacts/plan-2026-05-26-spike-first-activation/)
 - [Plan: it.34 — "defer the vendor" is NOT a spike; a spike must EXERCISE the real provider and prove its economics (+ build the app-side data; unowned business calls → guidance-needed)](/artifacts/plan-2026-05-26-spike-first-guidance-mandatory/)
 - [Plan — concern-library expansion + make-concerns-bite + iterate-to-convergence (2026-05-27)](/artifacts/plan-2026-05-27-concern-expansion-and-converge/)
+- [Curated page scopes — lock the document boundaries before the prose pass](/artifacts/plan-2026-05-29-curated-page-scopes/)
 - [Prose-quality pass — evaluate and implement the expanded Vale findings](/artifacts/plan-2026-05-29-prose-quality-pass/)
 - [Security Architecture — DDx Agent Execution Surface](/artifacts/security-architecture/)
 - [adr](/artifacts/adr/) _(2 items)_

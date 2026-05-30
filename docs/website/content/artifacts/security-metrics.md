@@ -1,7 +1,7 @@
 ---
 title: "Security Metrics — HELIX 2026-Q2 (post-`v0.3.3`)"
 slug: security-metrics
-weight: 720
+weight: 730
 activity: "Iterate"
 source: "06-iterate/security-metrics.md"
 generated: true
