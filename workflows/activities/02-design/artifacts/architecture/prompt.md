@@ -10,10 +10,8 @@ activity. Its unique job is to describe the durable system shape: boundaries,
 containers, externally visible integrations, deployment topology, critical data
 flows, quality attributes, and structural tradeoffs.
 
-Architecture is not a feature solution design, story technical design, ADR, or
-runbook. ADRs record individual decisions. Solution and technical designs apply
-the architecture to narrower scopes. Operational artifacts inherit deployment
-and quality constraints from architecture.
+For what belongs at this level versus Solution Design and Technical Design, see
+the zoom-stack matrix in `workflows/activities/02-design/README.md`.
 
 ## Reference Anchors
 
@@ -35,14 +33,8 @@ Use these local resource summaries as grounding:
 
 ## Boundary Test
 
-| If you are writing... | Put it in... |
-|---|---|
-| Product behavior, priority, or success metrics | PRD or Feature Specification |
-| One structural decision with alternatives and consequences | ADR |
-| Feature-specific system design | Solution Design |
-| Story-level implementation plan | Technical Design |
-| Endpoint schemas or message formats | Contract |
-| Deployment execution steps, rollback, or release readiness | Deployment Checklist or Runbook |
+See the zoom-stack matrix in `workflows/activities/02-design/README.md` for
+which decisions belong at the system, feature, and story levels.
 
 ## Completion Criteria
 - The views are understandable at a glance.

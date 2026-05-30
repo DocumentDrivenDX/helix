@@ -238,6 +238,34 @@ Technical investigation findings directly inform design artifacts:
 - **Decision Points**: Clear criteria for when investigation provides sufficient evidence
 - **Integration Time**: Budget 1-2 days to integrate findings into design artifacts
 
+## Zoom-Stack: What Belongs at Each Level
+
+Architecture, Solution Design, and Technical Design form a zoom stack over the
+same system: Architecture is system-scope, Solution Design is feature-scope,
+Technical Design is story-scope. Each level owns the decisions at its scope and
+inherits the levels above it. The matrix below is the single source of truth
+for which decision type lands in which artifact; the per-artifact prompts
+cross-reference this table instead of restating the boundary.
+
+| Kind of decision | Architecture (system) | Solution Design (feature) | Technical Design (story) |
+|---|---|---|---|
+| System boundaries, containers, external integrations | Owns | Inherits | Inherits |
+| Deployment topology, infrastructure shape, scaling | Owns | Inherits | Inherits |
+| System-wide quality attributes and tradeoffs | Owns | Inherits | Inherits |
+| Cross-cutting data flow across the whole system | Owns | Inherits | Inherits |
+| Feature-level technical approach and option choice | Inherits | Owns | Inherits |
+| Domain model and component decomposition for one feature | Inherits | Owns | Inherits |
+| Requirement-to-design traceability for a feature | Inherits | Owns | Inherits |
+| Cross-component interaction inside one feature | Inherits | Owns | Inherits |
+| Acceptance-criterion-to-code mapping for one story | Inherits | Inherits | Owns |
+| File, module, and interface changes for one slice | Inherits | Inherits | Owns |
+| Story-scoped test approach, rollback, implementation sequence | Inherits | Inherits | Owns |
+| One architecturally significant decision with alternatives | ADR | ADR | ADR |
+| Exact external interface, schema, or message format | Contract | Contract | Contract |
+
+If a level needs a decision owned by a higher level, stop and update the
+governing artifact first — do not redecide it at the lower level.
+
 ## Artifact Selection Guide
 
 Understanding which artifact to use is critical for maintaining clear documentation. This guide helps you choose the right artifact type for your design documentation needs.

@@ -10,8 +10,9 @@ model, component decomposition, interface usage, and requirement-to-design
 traceability.
 
 It applies Architecture, ADRs, Contracts, and Concerns to one feature or
-cross-component capability. It does not redefine the system architecture. It
-does not plan a single story's code changes; that belongs in Technical Design.
+cross-component capability. For what belongs at this level versus Architecture
+and Technical Design, see the zoom-stack matrix in
+`workflows/activities/02-design/README.md`.
 
 ## Reference Anchors
 
@@ -27,22 +28,15 @@ Use these local resource summaries as grounding:
 - Show the main options and why the chosen one wins.
 - Keep the domain model, decomposition, and tradeoffs concise.
 - Cover cross-component system behavior and feature-level structure.
-- Do not collapse into story-level implementation details; those belong in a
-  technical design (`TD-XXX-*`).
 - Preserve only the decisions needed by build and test.
-- If the feature requires changing Architecture or an accepted ADR, stop and
-  update that governing artifact first.
+- Stay within the feature scope defined in the zoom-stack matrix
+  (`workflows/activities/02-design/README.md`); update the governing artifact
+  first if the feature forces a change at a higher level.
 
 ## Boundary Test
 
-| If you are writing... | Put it in... |
-|---|---|
-| Product/feature behavior and acceptance criteria | Feature Specification |
-| System-wide structure, deployment, and quality attributes | Architecture |
-| One architecture-significant decision | ADR |
-| Exact API/file/event/CLI surface | Contract |
-| Feature-level approach and decomposition | Solution Design |
-| Story-level code plan and file/module changes | Technical Design |
+See the zoom-stack matrix in `workflows/activities/02-design/README.md` for
+which decisions belong at the system, feature, and story levels.
 
 ## Completion Criteria
 - Requirements are mapped.
