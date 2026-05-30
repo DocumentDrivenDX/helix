@@ -1,0 +1,3 @@
+{"phrase":"I want to build a TODO list app. Use HELIX to capture the framing artifacts.","mode":"input-frame","expected_modes":["input","frame"],"expected_artifacts":["product-vision","prd"]}
+{"phrase":"Confirm HELIX is installed: list the routing skill name and the artifact catalog activities.","mode":"verify","expected_modes":["verify","check"],"skill_name":"helix"}
+{"phrase":"List the HELIX routing modes you can route to. Be concise.","mode":"skill-list","expected_modes":["input","frame","align","evolve","design","review"],"skill_name":"helix"}
