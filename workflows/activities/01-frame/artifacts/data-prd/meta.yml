@@ -23,13 +23,12 @@ output:
 validation:
   required_sections:
     - executive_summary
-    - problem_statement
-    - goals_and_objectives
-    - data_sources
+    - problem_and_goals
     - data_consumers
+    - data_sources
     - requirements_overview
     - data_quality_requirements
-    - databricks_context
+    - databricks_specific_technical_context
     - success_metrics
     - risks_and_mitigation
 
@@ -133,12 +132,12 @@ references:
     file: docs/resources/databricks-unity-catalog.md
     relationship: "Grounds catalog, schema, and access control governance for data products"
 
-  - title: "Databricks Medallion Architecture Pattern"
-    file: docs/resources/databricks-medallion-architecture.md
+  - title: "Databricks Lakehouse Medallion Architecture"
+    file: docs/resources/databricks-lakehouse-medallion-architecture.md
     relationship: "Grounds Bronze/Silver/Gold layer strategy and data transformation semantics"
 
-  - title: "Databricks Semantic Layer and Delta Live Tables"
-    file: docs/resources/databricks-delta-live-tables.md
+  - title: "Databricks Semantic Data Platform (SDP)"
+    file: docs/resources/databricks-sdp.md
     relationship: "Grounds declarative data quality expectations and pipeline orchestration"
 
   - title: "Data Mesh and Domain-Driven Data Platform Design"
