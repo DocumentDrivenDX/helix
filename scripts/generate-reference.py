@@ -8,10 +8,13 @@ Generate website reference pages for HELIX artifacts and cross-cutting
 concerns from the upstream source-of-truth in `workflows/`.
 
 Reads:
-  workflows/activities/<activity>/artifacts/<slug>/   -> meta.yml, dependencies.yaml,
-                                                  prompt.md, template.md,
-                                                  example.md (sometimes)
+  workflows/activities/<activity>/artifacts/<slug>/   -> meta.yml, prompt.md,
+                                                  template.md, example.md (sometimes)
   workflows/concerns/<slug>/                   -> concern.md, practices.md
+
+Dependencies (requires/enables/informs/referenced_by) come from `meta.yml`
+under `dependencies.*` and `relationships.*`. See ADR-004 — there is no
+separate `dependencies.yaml` file in the catalog.
 
 Writes:
   docs/website/content/reference/glossary/artifacts/_index.md
@@ -584,7 +587,6 @@ def collect_artifacts():
                 "activity": activity,
                 "src_dir": art_dir,
                 "meta": load_yaml(art_dir / "meta.yml"),
-                "deps": load_yaml(art_dir / "dependencies.yaml"),
                 "prompt": load_text(art_dir / "prompt.md"),
                 "template": load_text(art_dir / "template.md"),
                 "example": load_text(art_dir / "example.md") if (art_dir / "example.md").exists() else None,
@@ -596,26 +598,28 @@ def _safe_dict(value) -> dict:
     return value if isinstance(value, dict) else {}
 
 
-def get_artifact_name(meta: dict, deps: dict, slug: str) -> str:
+def get_artifact_name(meta: dict, slug: str) -> str:
     return (
         _safe_dict(meta.get("artifact")).get("name")
-        or _safe_dict(deps.get("artifact")).get("name")
         or humanize(slug)
     )
 
 
-def get_artifact_description(meta: dict, deps: dict) -> str:
+def get_artifact_description(meta: dict) -> str:
     desc = (
         meta.get("description")
-        or deps.get("description")
         or _safe_dict(meta.get("artifact")).get("description")
         or ""
     )
     return desc.strip() if isinstance(desc, str) else ""
 
 
-def get_relationships(meta: dict, deps: dict) -> dict:
-    """Pull requires/enables/informs/referenced_by from deps + meta."""
+def get_relationships(meta: dict) -> dict:
+    """Pull requires/enables/informs/referenced_by from meta.yml.
+
+    Per ADR-004, `meta.yml` is the single source of truth for artifact-type
+    dependencies — there is no separate `dependencies.yaml` file.
+    """
     out = {"requires": [], "enables": [], "informs": [], "referenced_by": []}
 
     def _bucket_from(source: dict, key: str, name_field: str):
@@ -635,11 +639,10 @@ def get_relationships(meta: dict, deps: dict) -> dict:
             })
         return items
 
-    # deps.yaml is more structured; try it first, fall back to meta.yml
-    out["requires"] = _bucket_from(deps, "requires", "input") or _bucket_from(meta, "requires", "input")
-    out["enables"] = _bucket_from(deps, "enables", "output") or _bucket_from(meta, "enables", "output")
+    out["requires"] = _bucket_from(meta, "requires", "input")
+    out["enables"] = _bucket_from(meta, "enables", "output")
 
-    rel = _safe_dict(deps.get("relationships")) or _safe_dict(meta.get("relationships"))
+    rel = _safe_dict(meta.get("relationships"))
     for slug in rel.get("informs", []) or []:
         if isinstance(slug, str):
             out["informs"].append({"slug": slug, "name": humanize(slug)})
@@ -650,8 +653,8 @@ def get_relationships(meta: dict, deps: dict) -> dict:
     return out
 
 
-def get_output_location(meta: dict, deps: dict) -> str:
-    out = _safe_dict(meta.get("output")) or _safe_dict(deps.get("output"))
+def get_output_location(meta: dict) -> str:
+    out = _safe_dict(meta.get("output"))
     return (out.get("location") or "").strip()
 
 
@@ -677,10 +680,10 @@ def render_relationship_list(items: list, all_slugs: set, slug_to_url: dict[str,
 def render_artifact_page(art: dict, all_slugs: set, slug_to_url: dict[str, str]) -> str:
     slug = art["slug"]
     activity = art["activity"]
-    name = get_artifact_name(art["meta"], art["deps"], slug)
-    desc = get_artifact_description(art["meta"], art["deps"])
-    rels = get_relationships(art["meta"], art["deps"])
-    output = get_output_location(art["meta"], art["deps"])
+    name = get_artifact_name(art["meta"], slug)
+    desc = get_artifact_description(art["meta"])
+    rels = get_relationships(art["meta"])
+    output = get_output_location(art["meta"])
     purpose = extract_markdown_section(art["prompt"], "Purpose")
     key_principles = extract_markdown_section(art["prompt"], "Key Principles")
     lane = extract_markdown_section(art["prompt"], "Stay in Your Lane")
@@ -771,8 +774,8 @@ def append_artifact_cards(
     out.append("{{< cards >}}")
     for art in artifacts:
         slug = art["slug"]
-        name = get_artifact_name(art["meta"], art["deps"], slug)
-        desc = get_artifact_description(art["meta"], art["deps"]) or slug
+        name = get_artifact_name(art["meta"], slug)
+        desc = get_artifact_description(art["meta"]) or slug
         target = artifact_url(slug, slug_to_url)
         link = site_relurl(page_url, target) if page_url else target
         out.append(

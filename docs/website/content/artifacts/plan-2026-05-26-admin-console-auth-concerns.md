@@ -1,7 +1,7 @@
 ---
 title: "Plan: `admin-console` + `auth` concerns — the foundational product surfaces (it.35)"
 slug: plan-2026-05-26-admin-console-auth-concerns
-weight: 420
+weight: 450
 activity: "Design"
 source: "02-design/plan-2026-05-26-admin-console-auth-concerns.md"
 generated: true

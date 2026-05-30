@@ -1,7 +1,7 @@
 ---
 title: "ADR-007: Empty ADR References Headers Are Dropped; Required Only When a Concern Cites a Specific ADR"
 slug: ADR-007-empty-adr-references-headers-dropped
-weight: 190
+weight: 220
 activity: "Design"
 source: "02-design/adr/ADR-007-empty-adr-references-headers-dropped.md"
 generated: true

@@ -1,7 +1,7 @@
 ---
 title: "ADR-005: Concern practices.md is HELIX-activity-keyed"
 slug: ADR-005-concern-practices-activity-keyed
-weight: 190
+weight: 200
 activity: "Design"
 source: "02-design/adr/ADR-005-concern-practices-activity-keyed.md"
 generated: true
