@@ -65,6 +65,16 @@ ddx:
 - **Feasibility**: [Brief]
 - **Decision**: Carry forward | Reject
 
+## Decision Framework
+
+| Criterion | Status | Rationale |
+|-----------|--------|-----------|
+| Technical buildability | Pass / Risk / Fail | [Rationale] |
+| Business value | Pass / Risk / Fail | [Rationale] |
+| Operational supportability | Pass / Risk / Fail | [Rationale] |
+| Compliance readiness | Pass / Risk / Fail | [Rationale] |
+| Resource availability | Pass / Risk / Fail | [Rationale] |
+
 ## Next Steps
 1. [Action]
 2. [Action]
