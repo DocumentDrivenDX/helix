@@ -304,12 +304,13 @@ the HELIX artifact stack.
    reverse by scanning all governing artifacts for `ddx.depends_on` entries
    pointing back at this `ddx.id` (downstream impact).
 3. When `ddx:` frontmatter is absent, fall back to filesystem traversal:
-   activity-numbered directories in the project's HELIX layout supply authority
-   order; artifact-type directories supply the type relationships.
+   activity-numbered directories in the project's HELIX layout supply the
+   authority hierarchy; artifact-type directories supply the type
+   relationships.
 4. Detect conflicts with existing artifacts and open work.
-5. Apply updates in authority order: vision, PRD, feature specs/stories,
-   architecture/ADRs, solution and technical designs, test plans,
-   implementation plans, then code.
+5. Apply updates from the highest-authority artifact down: vision, PRD,
+   feature specs/stories, architecture/ADRs, solution and technical
+   designs, test plans, implementation plans, then code.
 6. Surface conflicts explicitly when a downstream artifact contradicts an
    updated upstream — do not silently overwrite the downstream; route it
    through the §Align gap-to-implementation handoff instead.
@@ -520,8 +521,9 @@ follow-up work are captured durably.
 - Do not silently start implementation when the request is planning, alignment,
   review, or routing.
 - If the correct route is unclear, use check mode rather than guessing.
-- Preserve HELIX authority order: vision, PRD, features/stories, architecture
-  and ADRs, designs, tests, implementation plans, code.
+- Preserve the HELIX artifact authority hierarchy: vision, PRD,
+  features/stories, architecture and ADRs, designs, tests, implementation
+  plans, code.
 - **Short affirmations inherit the prior turn's offered scope.** When the user
   replies with a bare confirmation (`"do it"`, `"yes"`, `"go"`) after the
   prior turn surfaced multiple branches or options, do not silently pick one.

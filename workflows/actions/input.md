@@ -37,7 +37,7 @@ unauthorized destructive action, or a human-only decision — stops the workflow
 at every level. Autonomy never collapses the seven-activity loop or skips an
 activity the work requires.
 
-## Authority Order
+## Authority Hierarchy
 
 When artifacts disagree, use this precedence:
 

@@ -107,8 +107,8 @@ propagate through the full artifact stack:
    the blast radius.
 3. **Detect conflicts** — Compare the proposed change against existing
    artifacts and in-flight work. Flag contradictions.
-4. **Propagate top-down** — Amend artifacts in authority order, highest
-   first. A vision change flows to requirements, then specs, then designs,
+4. **Propagate top-down** — Amend artifacts from the highest-authority
+   artifact down. A vision change flows to requirements, then specs, then designs,
    then test plans. Never update a lower artifact in a way that contradicts
    a higher one already amended.
 5. **Decompose** — Derive implementation work items from the artifact
@@ -139,8 +139,8 @@ Each activity produces artifacts at its level before the next activity begins:
 
 Activities are not strictly sequential — iteration sends realized artifacts
 back through evolution, and early activities may be revisited when assumptions
-prove wrong. But the authority order holds regardless of which activity you
-are in: vision still governs code even during iteration.
+prove wrong. But the authority hierarchy holds regardless of which
+activity you are in: vision still governs code even during iteration.
 
 ## Agent Context Model
 

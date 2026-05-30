@@ -23,7 +23,7 @@ AI-assisted software development is the default practice, but the practice itsel
 
 1. **Catalog.** Define a minimal, complete catalog of artifact types.
 2. **Alignment skill.** Provide a single skill that any AI agent can run.
-3. **Methodology spec.** Specify the authority order and alignment skill contract.
+3. **Methodology spec.** Specify the artifact authority hierarchy and alignment skill contract.
 
 ### Success Metrics
 

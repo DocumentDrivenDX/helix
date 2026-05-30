@@ -20,7 +20,7 @@ You receive:
 - Optional: `--artifact` to target a specific governing artifact
 - Optional: `--from` to indicate the requirement source (incident, feedback, etc.)
 
-## Authority Order
+## Authority Hierarchy
 
 When artifacts disagree, use this precedence:
 
@@ -203,7 +203,7 @@ When a concern conflict is identified, the resolution options are:
 
 ## STEP 4 — Artifact Evolution
 
-For each non-conflicting artifact, in authority order (highest first):
+For each non-conflicting artifact, from the highest-authority artifact down:
 
 1. Read the current document.
 2. Draft the amendment — add, modify, or extend the relevant sections.

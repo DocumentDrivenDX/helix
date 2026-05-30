@@ -30,8 +30,8 @@ the main PRD flow while remaining in its normal directory.
 
 ## Scope Boundary
 
-This document explains authority order, artifact relationships, naming, and
-traceability. It does not define ready-queue logic, loop control, or how to
+This document explains the artifact authority hierarchy, artifact
+relationships, naming, and traceability. It does not define ready-queue logic, loop control, or how to
 select execution work.
 
 For execution behavior, follow the bounded action prompts under `actions/`.
@@ -39,10 +39,10 @@ For runtime-specific tracker, queue, and execution-loop semantics, see the
 runtime integration appendix (the DDx reference integration lives in
 [DDX.md](DDX.md) and [EXECUTION.md](EXECUTION.md)).
 
-## Canonical Authority Order
+## Canonical Authority Hierarchy
 
 Artifact flow and artifact authority are related but not identical. When two
-HELIX artifacts disagree, this is the canonical authority order:
+HELIX artifacts disagree, this is the canonical authority hierarchy:
 
 1. **Product Vision**
 2. **PRD**
@@ -58,8 +58,8 @@ HELIX artifacts disagree, this is the canonical authority order:
 - Feature specifications and user stories refine the PRD and remain above downstream design and implementation artifacts.
 - Tests govern Build activity execution because they are executable specifications, but they are still derived from Frame and Design artifacts.
 - Source code must conform to higher-order artifacts; it does not redefine them.
-- Issues are not part of the canonical authority order. They are execution
-  records derived from authoritative artifacts.
+- Issues are not part of the canonical authority hierarchy. They are
+  execution records derived from authoritative artifacts.
 
 ## Artifact Types and Relationships
 

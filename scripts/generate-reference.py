@@ -809,8 +809,9 @@ def render_artifacts_index(artifacts: list, slug_to_url: dict[str, str]) -> str:
     out.append("- [/artifacts/](/artifacts/) is the worked example: HELIX's own governing artifacts, authored from the catalog under `docs/helix/`.")
     out.append("")
     out.append(
-        "The [HELIX skill](/skills/) uses this catalog and the authority order to "
-        "find drift between concrete artifacts and propose a plan for restoring alignment."
+        "The [HELIX skill](/skills/) uses this catalog and the artifact "
+        "authority hierarchy to find drift between concrete artifacts and "
+        "propose a plan for restoring alignment."
     )
     out.append("")
     out.append(

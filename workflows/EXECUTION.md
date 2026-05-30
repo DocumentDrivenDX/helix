@@ -21,7 +21,8 @@ them. The methodology requirements (work-item-first, steer-through-the-tracker,
 measure-and-record, report-and-feed-back) apply to every runtime; the concrete
 command names and substrate are the runtime's own.
 
-For runtime-neutral methodology — the artifact loop, authority order, the
+For runtime-neutral methodology — the artifact loop, the artifact
+authority hierarchy, the
 methodology actions, and the alignment contract — read [README.md](README.md)
 and [REFERENCE.md](REFERENCE.md) first. For the concrete commands of a specific
 runtime, read its install guide under

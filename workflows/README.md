@@ -30,15 +30,16 @@ agent invocation, review handoffs, and status reporting.
 
 DDx is the current reference runtime and preserves the most complete operational
 integration. Other runtimes can use HELIX without adopting DDx if they honor the
-artifact authority order, activity gates, and alignment methodology described here.
+artifact authority hierarchy, activity gates, and alignment methodology
+described here.
 
 ## Normative Methodology Contract
 
 Treat the following files and directories as the canonical HELIX methodology
 contract:
 
-- [README.md](README.md) for the high-level model, authority order, and runtime
-  boundary
+- [README.md](README.md) for the high-level model, artifact authority
+  hierarchy, and runtime boundary
 - [DDX.md](DDX.md) for historical methodology background and the DDx reference
   integration model
 - `activities/*/artifacts/` for the canonical artifact-type catalog, prompts,
@@ -54,7 +55,7 @@ contract:
 
 Supporting action prompts, activity guides, diagrams, and examples are explanatory
 unless this file explicitly names them as part of the normative contract. If a
-supporting document conflicts with the authority order or artifact catalog,
+supporting document conflicts with the authority hierarchy or artifact catalog,
 follow the higher-authority document and update the stale support document.
 
 ## Artifact Loop
@@ -114,9 +115,9 @@ outputs before allowing progression:
 This test-first approach keeps specifications ahead of implementation and makes
 quality a design constraint rather than a cleanup activity.
 
-## Authority Order
+## Authority Hierarchy
 
-When HELIX artifacts disagree, resolve the conflict using this authority order:
+When HELIX artifacts disagree, resolve the conflict using this authority hierarchy:
 
 1. **Product Vision** (`docs/helix/00-discover/product-vision.md`)
 2. **Product Requirements** (`docs/helix/01-frame/prd.md`)

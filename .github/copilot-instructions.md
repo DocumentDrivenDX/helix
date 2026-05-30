@@ -12,7 +12,7 @@ below.
   plus a single routing skill at `skills/helix/SKILL.md`. There is no
   HELIX CLI, no tracker, no execution loop — those concerns belong to
   runtimes (DDx today, Claude Code, Codex CLI, and Databricks Genie Code).
-- **Authority order.** Vision → PRD → Features/Stories → Architecture +
+- **Artifact authority hierarchy.** Vision → PRD → Features/Stories → Architecture +
   ADRs → Solution Designs + Technical Designs → Test Plans →
   Implementation Plans → Code. Conflicts resolve upward.
 - **Seven-activity loop.** Discover → Frame → Design → Test → Build →
@@ -91,7 +91,7 @@ authoritative sources before suggesting changes:
   drafting.
 - *"Evolve this requirement through the artifacts."* → Apply
   `evolve` mode. Walk the dependency graph in both directions; update
-  in authority order.
+  from the highest-authority artifact down.
 - *"Review the changes on this branch."* → Apply `review` mode.
   Inspect governing artifacts, changed implementation, tests; report
   findings ordered by severity with concrete evidence.

@@ -60,9 +60,9 @@ Supervisor interpretation:
 - `GUIDANCE` means stop and request the missing decision from the user or stakeholder.
 - `STOP` means stop because there is no actionable work in scope.
 
-## Authority Order
+## Authority Hierarchy
 
-When artifacts disagree, use this order:
+When artifacts disagree, use this hierarchy:
 
 1. Product Vision
 2. Product Requirements

@@ -20,8 +20,8 @@ For DDx-specific bootstrap, queue control, and validation commands, see
 
 Read these files in order when you need the canonical contract:
 
-1. [README.md](README.md) — high-level model, authority order, and runtime
-   boundary
+1. [README.md](README.md) — high-level model, artifact authority
+   hierarchy, and runtime boundary
 2. [REFERENCE.md](REFERENCE.md) — activity summary, methodology actions, and
    decision guide
 3. [conventions.md](conventions.md) — documentation layout and naming

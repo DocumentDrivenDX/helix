@@ -16,9 +16,9 @@ You may receive:
 - a scope selector such as `FEAT-003`, `area:auth`, or `activity:build`
 - `--rerun <id>` to re-measure a previously measured item
 
-## Authority Order
+## Authority Hierarchy
 
-When artifacts disagree, use this order:
+When artifacts disagree, use this hierarchy:
 
 1. Product Vision
 2. Product Requirements

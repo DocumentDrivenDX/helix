@@ -18,9 +18,9 @@ You may receive:
 - a scope such as `auth`, `FEAT-003`, `payments`
 - `--rounds N` controlling refinement iterations (default: 5)
 
-## Authority Order
+## Authority Hierarchy
 
-When artifacts disagree, use this order:
+When artifacts disagree, use this hierarchy:
 
 1. Product Vision
 2. Product Requirements

@@ -20,9 +20,9 @@ make fixes. It may create or update:
 You will receive a review scope as an argument. If no scope is given, default
 to the repository.
 
-## Authority Order
+## Authority Hierarchy
 
-When artifacts disagree, use this authority order:
+When artifacts disagree, use this authority hierarchy:
 
 1. Product Vision
 2. Product Requirements

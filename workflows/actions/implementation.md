@@ -27,9 +27,9 @@ You may receive:
 
 If no argument is given, choose the best ready HELIX execution work item.
 
-## Authority Order
+## Authority Hierarchy
 
-When artifacts disagree, use this order:
+When artifacts disagree, use this hierarchy:
 
 1. Product Vision
 2. Product Requirements
@@ -75,7 +75,7 @@ jumping straight to code.
 
 Hard problems should be attacked, not deferred. If the toolchain doesn't compile,
 try to fix it. If the spec is ambiguous, make the best-effort interpretation
-consistent with the authority order and document your reasoning. Only bail when
+consistent with the authority hierarchy and document your reasoning. Only bail when
 there is a genuine contradiction between governing artifacts that you cannot
 resolve, or an intractable technical problem after real effort.
 
@@ -207,7 +207,7 @@ Before editing code or docs, validate:
 
 If context is thin but not contradictory:
 
-- make the best-effort interpretation consistent with the authority order
+- make the best-effort interpretation consistent with the authority hierarchy
 - document your interpretation in the commit message
 - implement the clearest slice of the work
 - create follow-on issues for anything that needs further clarification

@@ -52,7 +52,7 @@ HELIX names seven kinds of work in software development:
 | **Deploy** | Runbook, deployment checklist, monitoring setup, release notes |
 | **Iterate** | Metric definitions, metrics dashboard, improvement backlog |
 
-Activities are connected by an **authority order** — vision governs PRD,
+Activities are connected by an **artifact authority hierarchy** — vision governs PRD,
 PRD governs features, features govern designs, designs govern tests, tests
 govern code. When two artifacts disagree, the higher one wins. Work moves
 between activities in every direction: a failing test reveals a missing

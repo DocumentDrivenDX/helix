@@ -17,8 +17,8 @@ guide; for DDx-specific commands, see [docs/install/ddx.md](../docs/install/ddx.
 
 ## Canonical Methodology Docs
 
-- [README.md](README.md): high-level model, authority order, runtime boundary,
-  and alignment methodology
+- [README.md](README.md): high-level model, artifact authority hierarchy,
+  runtime boundary, and alignment methodology
 - `activities/*/artifacts/`: canonical artifact-type catalog, prompts, templates,
   metadata, and examples
 - [reconcile-alignment.md](actions/reconcile-alignment.md): top-down review
@@ -45,7 +45,7 @@ guide; for DDx-specific commands, see [docs/install/ddx.md](../docs/install/ddx.
 | `05-deploy` | rollout, monitoring, and recovery evidence | `docs/helix/05-deploy/` |
 | `06-iterate` | backlog, reports, metrics, and follow-up planning | `docs/helix/06-iterate/` |
 
-## Authority Order
+## Authority Hierarchy
 
 1. Product Vision
 2. Product Requirements

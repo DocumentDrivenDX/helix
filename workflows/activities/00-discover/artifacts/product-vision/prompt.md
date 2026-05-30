@@ -41,7 +41,7 @@ Product vision is for *direction*. If you find yourself writing about:
 
 | This content | Belongs in |
 |---|---|
-| Methodology, activities, authority order | `workflows/README.md`, activities glossary |
+| Methodology, activities, authority hierarchy | `workflows/README.md`, activities glossary |
 | Market sizing, revenue model, investment rationale | `00-discover/business-case.md` |
 | Competitor analysis or feature-by-feature comparison | `00-discover/competitive-analysis.md` |
 | Principles or judgment lenses | `01-frame/principles.md` |

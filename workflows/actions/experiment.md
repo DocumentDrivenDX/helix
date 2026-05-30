@@ -61,9 +61,9 @@ You may receive:
 - a goal description such as `optimize test-suite-runtime`
 - a `--close` flag directing you to skip iteration and execute Step 3
 
-## Authority Order
+## Authority Hierarchy
 
-When artifacts disagree, use this order:
+When artifacts disagree, use this hierarchy:
 
 1. Product Vision
 2. Product Requirements
