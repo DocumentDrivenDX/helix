@@ -1,7 +1,7 @@
 ---
 title: "Improvement Backlog — HELIX 2026-Q2"
 slug: improvement-backlog
-weight: 670
+weight: 680
 activity: "Iterate"
 source: "06-iterate/improvement-backlog.md"
 generated: true

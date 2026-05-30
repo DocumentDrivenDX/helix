@@ -1,7 +1,7 @@
 ---
 title: "Technical Design: TD-012 — Artifact Types Navigation"
 slug: TD-012-artifact-types-navigation
-weight: 510
+weight: 520
 activity: "Design"
 source: "02-design/technical-designs/TD-012-artifact-types-navigation.md"
 generated: true
