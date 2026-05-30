@@ -209,6 +209,13 @@ across your artifact tree. You can also run Refresh in sequential mode if
 you prefer a single-threaded pass; both paths use the same underlying
 HELIX methodology.
 
+## Integration tests
+
+HELIX integration with Codex CLI is validated by the test harness at
+`tests/workflows/codex-cli/` (see [README](../../tests/workflows/codex-cli/README.md)).
+The harness exercises skill activation, routing, and behavioral correctness via
+`codex exec`. Screencast: [`INT-CX.gif`](../../tests/workflows/codex-cli/recordings/INT-CX.gif).
+
 ## See also
 
 - [`skills/helix/SKILL.md`](../../skills/helix/SKILL.md) — routing skill
@@ -219,3 +226,4 @@ HELIX methodology.
 - [Install README index](README.md)
 - Companion install guides: [Claude Code](claude-code.md),
   [GitHub Copilot](copilot.md), [Databricks Genie Code](databricks-genie.md)
+- Integration test harness: [`tests/workflows/codex-cli/`](../../tests/workflows/codex-cli/)
