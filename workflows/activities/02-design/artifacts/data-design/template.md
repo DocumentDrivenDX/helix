@@ -5,10 +5,17 @@ ddx:
 
 # Data Design
 
+Entity-level data model for the feature or subsystem: logical entities,
+stores, relationships, access patterns, integrity/security constraints, and
+migration strategy. Platform-level concerns (medallion topology, processing
+framework, governance model, pipeline-level quality contracts) live in
+[[data-architecture]].
+
 ## Data Summary
 
 - Scope: [What feature, subsystem, or workflow this data design supports]
-- Storage systems: [Database, queue, cache, object store]
+- Storage systems: [Database, queue, cache, object store — names only; the
+  platform-level rationale lives in [[data-architecture]]]
 - Main concerns: [Consistency, scale, retention, privacy, migration]
 
 ## Entities and Stores
@@ -31,6 +38,9 @@ ddx:
 
 ## Validation and Security
 
+Field-level rules. Pipeline-level masking and access policy live in
+[[data-architecture]] (Governance and Access Control).
+
 | Field or Data Type | Rules / Classification | Protection or Error Handling |
 |--------------------|------------------------|------------------------------|
 | [Field] | [Constraints or classification] | [Masking, encryption, validation, retention] |
@@ -40,3 +50,11 @@ ddx:
 - Tooling: [Migration framework]
 - Approach: [Schema rollout and rollback strategy]
 - Backfill or cleanup: [If needed]
+
+## Cross-References
+
+- [[data-architecture]] — platform/pipeline shape, medallion topology,
+  processing framework, governance model, and pipeline-level quality
+  contracts.
+- [[data-quality-expectations]] — executable field-level and freshness
+  contracts that this model must satisfy.

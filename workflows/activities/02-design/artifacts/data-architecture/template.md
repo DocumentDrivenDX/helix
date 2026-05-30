@@ -5,129 +5,114 @@ ddx:
 
 # Data Architecture
 
+Platform- and pipeline-level shape of the data product: medallion topology,
+processing-framework choices, governance model, and pipeline-level quality
+contracts. Entity-level modelling (logical schema, access patterns,
+constraints, migration) lives in [[data-design]].
+
 ## Overview
 
-[Describe the data product being architected, the business problem it solves, and the system context. Name the key data flows and Databricks platform fit. Reference the [[data-prd]] for the business requirements and success metrics this architecture must satisfy.]
+[Describe the data product being architected, the business problem it solves,
+and the system context. Name the key data flows and platform fit. Reference
+[[data-prd]] for the requirements and success metrics this architecture must
+satisfy.]
 
 ### Scope
 
-[What data flows and systems are covered by this architecture? What is deliberately outside the boundary? Which requirements from [[data-prd]] drive the design decisions?]
+[What data flows and systems are covered. What is deliberately out of bounds.
+Which requirements from [[data-prd]] drive the design decisions.]
 
 ### System Context
 
 | External System | Role | Protocol | Data Volume |
 |-----------------|------|----------|------------|
-| [e.g., Salesforce] | [Source system for customer data] | [REST API, batch export] | [M records/day] |
-| [e.g., Data Warehouse] | [Consumer of aggregated data] | [Delta API, SQL] | [K rows/hour] |
+| [Source system] | [Role in the pipeline] | [API, batch export, CDC] | [Order-of-magnitude per period] |
+| [Consumer system] | [How it consumes Gold] | [Delta share, SQL, API] | [Query volume] |
 
 ```mermaid
 graph TB
-    A["Salesforce<br/>(Source)"] -->|REST API<br/>hourly| B["Databricks<br/>Data Platform"]
-    C["Stripe<br/>(Source)"] -->|S3 batch export| B
-    B -->|Consumption Layer| D["BI Tool<br/>(Looker/Tableau)"]
-    B -->|ML Training| E["ML Platform"]
+    A["Source A"] -->|ingest| B["Data Platform"]
+    C["Source B"] -->|ingest| B
+    B -->|consumption layer| D["BI / Reporting"]
+    B -->|feature store| E["ML Platform"]
 ```
 
 ## Medallion Topology
 
-### Architecture Pattern
+### Layer Strategy
 
-[Describe the medallion layer strategy: Bronze (raw), Silver (validated), Gold (consumption). For each layer, explain the transformation scope, quality gates, and consumer responsibilities.]
+[State the medallion strategy: Bronze (raw), Silver (validated), Gold
+(consumption). For each layer, name the transformation scope, quality gates,
+and consumer responsibilities. Justify the choice against [[data-prd]]
+freshness and quality requirements.]
 
 ### Bronze Layer (Raw Ingestion)
 
-**Purpose**: Land source data in its native form without transformation.
+- **Purpose**: Land source data in its native form without transformation.
+- **Source integration pattern**: [Auto Loader, Streaming Tables, scheduled
+  batch import, CDC]
+- **Schema handling**: [Strict / inferred / evolution policy]
+- **Retention policy**: [Rationale tied to cost and replay needs]
 
-**Source Integration**:
-- Source System: [e.g., Salesforce]
-- Integration Pattern: [Auto Loader, Streaming Tables, scheduled batch import]
-- Schema Validation: [Applied at ingestion, reject if schema mismatch]
-- Retention: [e.g., 7 days rolling window for cost efficiency]
+Responsibilities:
+- Ingest all records from source.
+- Preserve source schema exactly (no renames or coercion).
+- Tag records with ingest timestamp and source-system identifier.
+- Quarantine records that fail schema validation.
 
-**Responsibilities**:
-- Ingest all records from source
-- Preserve source schema exactly (no column renames or type coercion)
-- Tag records with `_ingest_timestamp` and source system identifier
-- Detect and quarantine records that fail schema validation
-
-**Quality Gates**:
-- All records have `_ingest_timestamp` and source system id
-- No truncation of source columns
-- Fail fast if source unavailable for >4 hours
+Quality gates: ingest-metadata presence, no column truncation, source
+availability watchdog.
 
 ### Silver Layer (Validated and Transformed)
 
-**Purpose**: Cleansed, deduplicated, and business-logic-ready data.
+- **Purpose**: Cleansed, deduplicated, business-logic-ready data.
+- **Deduplication strategy**: [Key + ordering rule]
+- **Type coercion / null policy**: [Defaults vs reject]
+- **Referential integrity**: [Which FK relationships are enforced and how]
 
-**Transformations**:
-- Deduplication: [Method: e.g., "keep latest by timestamp", "PK uniqueness constraint"]
-- Data type coercion: [e.g., "convert dates to ISO-8601, currency to numeric"]
-- Null handling: [e.g., "fill defaults, or fail if critical column null"]
-- Referential integrity: [e.g., "customer_id must exist in customer dimension"]
+Join strategy (pipeline-level — entity-level joins live in [[data-design]]):
 
-**Join Strategy**:
-| Join | Left | Right | Type | Cardinality | Latency Impact |
-|------|------|-------|------|-------------|---|
-| [customer enrichment] | `customer_events` | `customer_master` | [Left Outer] | [1:1] | [Add 100ms] |
+| Join | Source Layers | Type | Cardinality | Latency Impact |
+|------|---------------|------|-------------|----------------|
+| [Logical join name] | [Left / Right] | [Inner / Outer] | [1:1 / 1:N] | [Qualitative] |
 
-**Retention**: [e.g., 90 days]
-
-**Responsibilities**:
-- Enforce UNIQUE and NOT NULL constraints per data quality expectations
-- Materialize aggregations needed for Gold layer
-- Document row counts and latency metrics per transformation
-
-**Quality Gates**:
-- Zero duplicates (PK uniqueness)
-- ≥99% NOT NULL on critical columns
-- Row count reconciliation with source ±0.1%
+Quality gates: PK uniqueness, NOT NULL on critical columns, row-count
+reconciliation with Bronze within tolerance.
 
 ### Gold Layer (Consumption)
 
-**Purpose**: Business-ready tables optimized for consumer queries.
+- **Purpose**: Business-ready tables optimised for consumer queries.
+- **Optimisation strategy**: [Partitioning, clustering / z-order, materialised
+  views — at the pipeline level, not column-level]
+- **Retention policy**: [Compliance and analytics horizon]
 
-**Consumption Tables**:
-| Table | Use Case | Consumers | Freshness | Aggregation |
-|-------|----------|-----------|-----------|------------|
-| `customer_360` | Single customer view, 360-degree profile | Analytics, ML | Hourly | None (deduped Silver) |
-| `daily_sales_summary` | Daily revenue by product | Finance, BI | Daily | SUM(amount) by product_date |
+Consumption tables (entity definitions live in [[data-design]]):
 
-**Optimization Strategy**:
-- Partitioning: [e.g., "by date for date-range queries"]
-- Z-order: [e.g., "on customer_id, product_id for filter selectivity"]
-- Caching: [Materialized views for slow queries]
+| Table | Use Case | Consumers | Freshness Target |
+|-------|----------|-----------|------------------|
+| [Gold table name] | [Use case from data-prd] | [Persona] | [Target tied to SLA] |
 
-**Retention**: [e.g., 2 years for compliance and analytics]
-
-**Responsibilities**:
-- Keep Gold current with Silver ingestion cadence
-- Publish schema and SLA via UC catalog comments
-- Monitor query performance; alert if p95 latency > SLA
-
-**Quality Gates**:
-- Sums reconcile between Silver aggregates and Gold tables ±0.01%
-- All customer IDs in Gold exist in Silver Silver
-- Latency ≤SLA (e.g., ≤5 seconds for 90th percentile query)
+Quality gates: aggregate reconciliation with Silver, referential integrity
+across Gold, latency within consumer SLA.
 
 ## Data Flow
 
-[Describe how data moves through the medallion layers. Clarify ingestion frequency, transformation latency, and refresh strategy.]
-
-### Ingestion Flow
+[Describe how data moves through the medallion layers. Clarify ingestion
+frequency, transformation latency, and refresh strategy.]
 
 ```mermaid
 graph LR
-    A["Salesforce API"] -->|Auto Loader<br/>every 15 min| B["Bronze<br/>raw_customers"]
-    B -->|PySpark Job<br/>dedup + validate| C["Silver<br/>customers_validated"]
-    C -->|SQL notebook<br/>daily 9am UTC| D["Gold<br/>customer_360"]
-    D -->|Published to UC| E["Consumers<br/>BI, ML"]
+    A["Source"] -->|ingest pattern| B["Bronze"]
+    B -->|transform job| C["Silver"]
+    C -->|aggregate job| D["Gold"]
+    D -->|published| E["Consumers"]
 ```
 
 ### Incremental vs Full Refresh
 
-- **Bronze**: [Incremental via change data capture, or full reload?]
-- **Silver**: [Incremental updates on specific key columns, or full recalc?]
-- **Gold**: [Append-only fact tables, or snapshot updates?]
+- **Bronze**: [CDC / append / full reload — rationale]
+- **Silver**: [Incremental keys / full recalc — rationale]
+- **Gold**: [Append-only / snapshot / merge — rationale]
 
 ## Processing Semantics
 
@@ -135,206 +120,188 @@ graph LR
 
 | Layer | Strategy | Rationale | SLA Implication |
 |-------|----------|-----------|-----------------|
-| Bronze | [Streaming / Batch / Incremental Batch] | [Why this choice?] | [Freshness achieved] |
-| Silver | [Streaming / Batch / Incremental Batch] | [Why this choice?] | [Freshness achieved] |
-| Gold | [Streaming / Batch / Incremental Batch] | [Why this choice?] | [Freshness achieved] |
+| Bronze | [Streaming / Batch / Incremental] | [Why] | [Freshness achieved] |
+| Silver | [Streaming / Batch / Incremental] | [Why] | [Freshness achieved] |
+| Gold | [Streaming / Batch / Incremental] | [Why] | [Freshness achieved] |
 
 ### Processing Framework
 
-- **Framework**: [Databricks SQL, PySpark, dbt on Databricks, Streaming Tables]
-- **Orchestration**: [Databricks Workflows, Airflow, dbt Cloud]
-- **Failure Handling**: [Retry policy, dead-letter queue, manual intervention?]
+- **Framework**: [Databricks SQL, PySpark, dbt, Streaming Tables, Flink, …]
+- **Orchestration**: [Workflows, Airflow, dbt Cloud, Dagster, …]
+- **Failure handling**: [Retry policy, dead-letter queue, manual intervention]
+- **Idempotence / exactly-once posture**: [Per layer]
+- **Schema evolution policy**: [Auto-add / manual approval / strict]
 
 ### Latency and Throughput Targets
 
-| Stage | Target Latency | Target Throughput | Constraint |
-|-------|-----------------|-------------------|-----------|
-| Salesforce → Bronze | ≤15 minutes | 1M records/day | API rate limit: 100 req/min |
-| Bronze → Silver | ≤30 minutes | 1M records/day | PySpark cluster size |
-| Silver → Gold | ≤2 hours | 100K aggregates/day | SQL query complexity |
+| Stage | Latency Target | Throughput Target | Binding Constraint |
+|-------|----------------|-------------------|--------------------|
+| Source → Bronze | [From data-prd SLA] | [Order of magnitude] | [Rate limit, API quota] |
+| Bronze → Silver | [From data-prd SLA] | [Order of magnitude] | [Compute / dedup cost] |
+| Silver → Gold | [From data-prd SLA] | [Order of magnitude] | [Query complexity] |
 
-## Quality Contracts
+## Pipeline-Level Quality Contracts
 
-[Define expectations as testable EXPECT clauses per Databricks SDP. Each expectation binds the architecture: data violating it is rejected before reaching consumers.]
+[Express the contracts the *pipeline* enforces at each layer boundary.
+Column-level field rules belong in [[data-quality-expectations]]; this
+section names which contracts the architecture commits to enforce and
+where.]
 
-### Bronze Layer Expectations
+### Bronze → Silver
 
-```sql
--- Raw data must match source schema exactly
-EXPECT TABLE raw_customers (
-  customer_id NOT NULL,
-  email NOT NULL,
-  created_at TIMESTAMP NOT NULL,
-  _ingest_timestamp TIMESTAMP NOT NULL GENERATED ALWAYS AS (CURRENT_TIMESTAMP())
-);
-```
+- **Schema contract**: [What Silver requires of Bronze]
+- **Volume contract**: [Acceptable row-count delta]
+- **Freshness contract**: [Max ingest lag before Silver is held]
+- **Violation handling**: [Alert / hold / quarantine]
 
-- **Expectation**: All records ingested within 15 min of source commit
-- **Violation**: Alert; do not advance to Silver
-- **SLA**: Detect within 5 minutes
+### Silver → Gold
 
-### Silver Layer Expectations
+- **Uniqueness contract**: [Which keys are unique at Gold]
+- **Referential contract**: [Which FK relationships are guaranteed]
+- **Aggregate-reconciliation contract**: [Sums and counts must agree within
+  tolerance]
+- **Violation handling**: [Reject / rollback / alert]
 
-```sql
--- Customers must be unique per customer_id, deduplicated by latest timestamp
-EXPECT TABLE customers_validated (
-  customer_id NOT NULL,
-  PRIMARY KEY (customer_id),
-  UNIQUE (customer_id)
-);
-
--- Customer email addresses must be normalized and not null
-EXPECT TABLE customers_validated (
-  email NOT NULL LIKE '%@%.%'
-);
-```
-
-- **Expectation**: ≥99% NOT NULL on `email` and `phone`
-- **Expectation**: Zero duplicate customers (PK uniqueness)
-- **Violation**: Quarantine; manual review before advancing to Gold
-
-### Gold Layer Expectations
-
-```sql
--- Customer 360 must be current within freshness SLA (1 hour)
-EXPECT TABLE customer_360 (
-  MAX(_modified_at) >= CURRENT_TIMESTAMP() - INTERVAL 1 HOUR
-);
-
--- Revenue aggregates must reconcile with Silver within 0.01%
-EXPECT TABLE daily_sales_summary
-  CHECK (
-    SELECT SUM(amount) FROM daily_sales_summary 
-    IS WITHIN 0.01% OF 
-    SELECT SUM(amount) FROM customers_validated
-  );
-```
-
-- **Expectation**: Customer 360 is no older than 1 hour
-- **Expectation**: Daily sales sums reconcile with Silver ±$0.01 per order
-- **Violation**: Reject; roll back to prior snapshot; alert on-call
-
-### Cross-Layer Data Contracts
+### Cross-Layer Contracts
 
 | Contract | Assertion | If Violated |
-|----------|-----------|------------|
-| [Bronze → Silver row count] | [Silver row count ≤ Bronze + 10% for dedup] | [Alert + manual audit] |
-| [Silver → Gold cardinality] | [Gold unique customers = Silver unique customers] | [Reject until reconciled] |
-| [Foreign key integrity] | [All orders.customer_id exist in customer_360] | [Quarantine order; alert] |
+|----------|-----------|-------------|
+| [Row count Bronze → Silver] | [Within tolerance] | [Alert + manual audit] |
+| [Cardinality Silver → Gold] | [Stable across refresh] | [Reject until reconciled] |
+| [FK integrity across Gold] | [No orphans] | [Quarantine + alert] |
+
+Detailed `EXPECT` clauses, field-level constraints, and freshness predicates
+live in [[data-quality-expectations]].
 
 ## Governance and Access Control
 
-### Identity and Access Management
+### Identity and Access Model
 
-| Role | Catalog | Schema | Table | Permissions |
-|------|---------|--------|-------|------------|
-| Data Engineer | `prod` | `customer_360` | All | READ, MODIFY, EXECUTE |
-| Analytics Lead | `prod` | `customer_360` | `customer_360`, `daily_sales_summary` (Gold only) | SELECT |
-| Finance Team | `prod` | `customer_360` | `daily_sales_summary` | SELECT (date ≥ 2 years ago) |
+| Role | Catalog Scope | Layer Access | Permissions |
+|------|---------------|--------------|-------------|
+| [Role from data-prd consumers] | [Catalog / schema] | [Bronze / Silver / Gold] | [SELECT / MODIFY / EXECUTE] |
 
 ### Data Classification and Retention
 
-| Table | Classification | Sensitive Columns | Retention | Masked For |
-|-------|------------------|------------------|-----------|-----------|
-| `raw_customers` | Internal | `ssn`, `credit_card` | 7 days | [Not masked; only admins see] |
-| `customers_validated` | Internal | `email`, `phone` | 90 days | [Non-PII audiences mask these] |
-| `customer_360` | Internal | `email` | 2 years | [Mask for BI tool] |
+| Layer | Classification | Sensitive Categories | Retention Policy | Masking Policy |
+|-------|----------------|----------------------|------------------|----------------|
+| Bronze | [Class] | [Categories — not specific columns; those live in data-design] | [Policy tied to compliance] | [Who sees raw] |
+| Silver | [Class] | [Categories] | [Policy] | [Who sees masked vs raw] |
+| Gold | [Class] | [Categories] | [Policy] | [Default masking for BI] |
 
 ### Fine-Grained Access Control
 
-- **Row-Level Security**: [Do analytics users see only their region's data? Document the policy.]
-- **Column-Level Security**: [Which sensitive columns are masked for which roles?]
-- **Dynamic Views**: [Use UC masking functions to redact PII per caller role?]
+- **Row-level security**: [Tenant / region predicate — policy, not the
+  predicate code, which lives in [[data-design]]]
+- **Column-level security**: [Which classifications are masked for which
+  roles]
+- **Dynamic views**: [Masking-function strategy]
 
-## Databricks Platform Design
+## Platform Design
 
-### Catalog Organization
+### Catalog Organisation
 
 ```
-prod (Catalog)
-├── customer_360 (Schema)
-│   ├── raw_customers (Bronze table)
-│   ├── customers_validated (Silver table)
-│   ├── customer_360 (Gold table)
-│   └── daily_sales_summary (Gold aggregate)
-├── metadata (Schema)
-│   ├── pipeline_runs (audit log)
-│   └── quality_metrics (expectations results)
+[catalog]
+├── [schema]
+│   ├── [bronze table family]
+│   ├── [silver table family]
+│   └── [gold table family]
+├── metadata
+│   ├── pipeline_runs
+│   └── quality_metrics
 ```
 
 ### Compute Strategy
 
-| Workload | Compute Tier | Cluster Size | DBU Budget | Rationale |
-|----------|--------------|--------------|------------|-----------|
-| Bronze ingestion (streaming) | All-purpose | 4 workers (i3.xlarge) | 8 DBU/hour | Continuous streaming |
-| Silver transformation (batch) | Jobs | 8 workers (i3.2xlarge) | 16 DBU/run | Scheduled nightly |
-| Gold aggregation (query) | Serverless SQL | N/A | ~5 DBU/query | Ad-hoc BI queries |
+| Workload | Compute Tier | Sizing Approach | Rationale |
+|----------|--------------|-----------------|-----------|
+| Bronze ingestion | [Tier] | [Auto-scale bounds / fixed] | [Continuous vs scheduled] |
+| Silver transformation | [Tier] | [Sizing approach] | [Batch vs streaming] |
+| Gold consumption | [Tier] | [Sizing approach] | [Query pattern] |
 
-**Cost Optimization**:
-- Spot instances for non-critical workloads: 30% savings
-- Auto-terminate idle clusters: reduce waste
-- Partition pruning and z-order for faster queries: reduce scans
+Cost-shaping levers (qualitative — concrete numbers belong in operational
+runbooks, not the architecture):
+
+- Spot / preemptible instances for retryable workloads.
+- Auto-termination of idle clusters.
+- Partition pruning and clustering for scan reduction.
+- Materialised vs on-demand aggregates.
 
 ### Storage Strategy
 
-| Layer | Format | Compression | Optimization |
-|-------|--------|-------------|--------------|
-| Bronze | Delta | Snappy | Partitioned by date (rolling 7-day window) |
-| Silver | Delta | Snappy | Z-ordered by customer_id, product_id |
-| Gold | Delta | Snappy | Partitioned by date; cached for BI queries |
+| Layer | Format | Partitioning | Clustering / Optimisation |
+|-------|--------|--------------|---------------------------|
+| Bronze | [Delta / Iceberg / …] | [By date / source] | [Compaction policy] |
+| Silver | [Format] | [By key / date] | [Z-order / cluster keys] |
+| Gold | [Format] | [By query predicate] | [Materialised views / cache] |
 
-**Storage Sizing**: ~500 GB Bronze, ~50 GB Silver, ~5 GB Gold (monthly) → ~$25/month at $0.023/GB/month
+### Platform Features in Use
 
-### Databricks Features in Use
+| Feature | Use Case | Configuration Note |
+|---------|----------|--------------------|
+| [Auto Loader / equivalent] | [Bronze ingestion] | [Trigger mode, schema mode] |
+| [Streaming Tables / equivalent] | [Bronze → Silver] | [Trigger / latency target] |
+| [Pipeline orchestrator] | [End-to-end refresh] | [Schedule / dependency] |
+| [Governance catalog] | [Access + lineage] | [Cross-team sharing posture] |
 
-| Feature | Use Case | Configuration |
-|---------|----------|---------------|
-| Auto Loader | Salesforce → Bronze incremental ingestion | Cloud file location: S3, Schema inference enabled |
-| Streaming Tables | Bronze → Silver continuous transformation | Trigger: arrival, 30-second max latency |
-| Delta Live Tables | End-to-end medallion pipeline orchestration | Refresh: hourly for Bronze/Silver, daily for Gold |
-| Unity Catalog | Governance, lineage, fine-grained access | Enable open sharing across teams |
+For non-Databricks platforms, see
+[`docs/resources/databricks-platform-substitution.md`](../../../../../docs/resources/databricks-platform-substitution.md)
+for the platform-equivalent terms.
 
 ## Decisions and Tradeoffs
 
 ### Key Architecture Decisions
 
 | Decision | Choice | Rationale | Alternative Considered | Consequence |
-|----------|--------|-----------|------------------------|------------|
-| [Medallion layers] | [Bronze/Silver/Gold] | [Standard Databricks pattern for quality gates] | [Flat schema, 2-layer] | [Slower queries if using Bronze directly; quality risk] |
-| [Streaming vs Batch for Silver] | [Batch nightly] | [Simplicity, cost] | [Streaming] | [1-2 hour stale window; acceptable for reporting] |
-| [Compute tier for Gold queries] | [Serverless SQL] | [Cost & elasticity; no cluster mgmt] | [All-purpose cluster] | [Higher per-query cost; simpler ops] |
+|----------|--------|-----------|------------------------|-------------|
+| [Medallion layering] | [Choice] | [Why] | [Alternative] | [Tradeoff] |
+| [Streaming vs batch per layer] | [Choice] | [Why] | [Alternative] | [Tradeoff] |
+| [Compute tier per workload] | [Choice] | [Why] | [Alternative] | [Tradeoff] |
 
 ### Performance vs Cost Tradeoffs
 
-- **Real-time ingestion** (streaming Bronze): Freshness ≤5 min, but 40% higher DBU cost
-- **Materialized Gold aggregates**: Faster queries (100ms), but 20% higher storage cost
-- **Spot instances for Silver jobs**: 30% cheaper, but risk of interruption (retry handles it)
+- [Real-time vs near-real-time ingestion — freshness gain vs sustained
+  compute cost]
+- [Materialised vs on-demand Gold aggregates — query latency vs storage]
+- [Spot vs on-demand compute — cost savings vs interruption risk]
 
 ### Known Risks and Mitigations
 
 | Risk | Mitigation |
-|------|-----------|
-| [Salesforce API rate limit causes ingestion backlog] | [Implement exponential backoff; buffer in queue; alert if >1 hour backlog] |
-| [PII in Bronze accessible to all engineers] | [Mask sensitive columns in published views; audit access logs] |
-| [Schema drift in source breaks ingestion] | [Schema registry; auto-detect new columns; manual approval before Silver] |
+|------|------------|
+| [Source rate limit causes backlog] | [Backoff + queue buffering + lag alert] |
+| [PII exposure in Bronze] | [Masked views + audit logs] |
+| [Schema drift from source] | [Schema registry + manual approval gate] |
 
 ---
 
 ## Review Checklist
 
-Use this checklist during review to validate that the data architecture is complete and ready for implementation:
-
-- [ ] **Scope** clearly states which data flows are included and which are out of bounds
-- [ ] **Medallion Topology** defines Bronze, Silver, Gold layer purposes and transformation rules
-- [ ] **Data Flow diagrams** (mermaid) show how data moves through layers and to consumers
-- [ ] **Processing Semantics** explicitly state streaming vs batch for each layer with latency targets
-- [ ] **Quality Contracts** are written as executable EXPECT clauses (SDP, dbt, SQL constraints)
-- [ ] **Failure Handling** specifies what happens when an expectation fails (alert, reject, quarantine)
-- [ ] **Access Control** model covers identity, row-level, column-level, and sensitive data masking
-- [ ] **Databricks Platform Design** names catalog, schema, compute tier, storage strategy, and DBU budget
-- [ ] **Decisions and Tradeoffs** document key choices with rationale and alternatives considered
-- [ ] **Cross-layer data contracts** are defined (sums reconcile, cardinality stable, no orphans)
-- [ ] **SLA per layer** is documented (freshness, latency, availability targets)
-- [ ] No `[TBD]`, `[TODO]`, or `[NEEDS CLARIFICATION]` markers remain
-- [ ] Architecture aligns with requirements in [[data-prd]] and can satisfy success metrics
-- [ ] References link to [[data-quality-expectations]] for detailed EXPECT clauses per layer
+- [ ] **Scope** clearly states which data flows are in / out of bounds.
+- [ ] **Medallion topology** names Bronze / Silver / Gold purposes and
+  transformation rules.
+- [ ] **Data flow diagrams** show how data moves through layers and to
+  consumers.
+- [ ] **Processing semantics** explicitly state streaming vs batch per layer
+  with latency targets tied to [[data-prd]].
+- [ ] **Pipeline-level quality contracts** name which contracts each layer
+  boundary enforces; detailed `EXPECT` clauses are deferred to
+  [[data-quality-expectations]].
+- [ ] **Failure handling** specifies what happens when a contract fails
+  (alert, reject, quarantine, rollback).
+- [ ] **Access control** model covers identity, row-level, column-level,
+  and sensitive-data masking at the policy level.
+- [ ] **Platform design** names catalog organisation, compute tiering, and
+  storage strategy without committing to hardcoded cost numbers.
+- [ ] **Decisions and tradeoffs** document key choices with rationale and
+  alternatives considered.
+- [ ] **Cross-layer contracts** are defined (reconciliation, cardinality,
+  no orphans).
+- [ ] **SLA per layer** is documented (freshness, latency, availability)
+  and traces to [[data-prd]].
+- [ ] No `[TBD]`, `[TODO]`, or `[NEEDS CLARIFICATION]` markers remain.
+- [ ] Entity-level details (logical schema, indexes, migrations, store
+  selection) are deferred to [[data-design]].
+- [ ] For non-Databricks platforms, terms map via
+  `docs/resources/databricks-platform-substitution.md`.
