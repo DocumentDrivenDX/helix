@@ -19,13 +19,11 @@ output:
 validation:
   required_sections:
     - executive_summary
-    - technical_feasibility
-    - business_feasibility
-    - operational_feasibility
-    - resource_feasibility
-    - risk_assessment
-    - recommendations
+    - feasibility_assessment
+    - risks
+    - alternatives
     - decision_framework
+    - next_steps
 
   quality_checks:
     - check: all_dimensions_assessed
