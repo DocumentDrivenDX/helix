@@ -121,13 +121,21 @@ For CI/Docker use, the `gh copilot` CLI (GA January 2026) honors
 `.github/copilot-instructions.md`:
 
 ```bash
-export GH_TOKEN=<personal access token with Copilot license>
+export GITHUB_TOKEN=<personal access token with Copilot license>
 gh copilot suggest "list the HELIX routing modes from skills/helix/SKILL.md"
 ```
 
 The token holder must have an active Copilot license (Pro/Business/
 Enterprise). For non-interactive verification, parse the response for
 expected mode names.
+
+See [Workflow integration test](../workflows/copilot-cli/) for a complete
+harness that exercises skill activation across three scenarios
+(install-verify, skill-list, bootstrap) with vhs recording. Run with:
+
+```bash
+bash tests/workflows/copilot-cli/run-scenarios.sh
+```
 
 ## What Copilot can and cannot do for HELIX
 
