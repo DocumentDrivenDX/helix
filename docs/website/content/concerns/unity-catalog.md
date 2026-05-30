@@ -27,30 +27,17 @@ data-modeling or access-control concern (see `## Boundary`).
 
 This concern owns **how data and AI assets are governed on Databricks** — the
 catalog namespace, the grant model, lineage, and governed external storage. It
-is **Databricks' concrete realization** of data governance and must not be
-restated as, or used to duplicate, the generic neighbors:
+is **Databricks' concrete realization** of data governance.
 
-- **Generic data modeling / `domain-driven-design`** owns *what the data
-  means* — entities, aggregates, invariants, the logical schema. Unity Catalog
-  owns *where those assets are registered and who may touch them* — the physical
-  `catalog.schema.object` namespace and the GRANT model over it. Model the
-  domain in the domain concern; register and govern it here. Do not re-derive
-  the logical model in this concern.
-- **`security-owasp` / generic authz** owns *application-layer* authentication
-  and authorization (sessions, RBAC in app code, the OWASP risks). Unity Catalog
-  owns *data-layer* governance enforced by the platform at query time
-  (privileges, row filters, column masks, ownership). A Databricks App still
-  authenticates its users at the app layer; Unity Catalog is the additional
-  governance the *data* access flows through. Do not collapse the two — app
-  RBAC is not a substitute for catalog grants, and catalog grants are not a
-  substitute for app authz.
-- **`databricks-declarative-pipelines`** *produces* governed datasets (its
-  streaming tables and materialized views land in a catalog/schema); Unity
-  Catalog *governs* them. The pipeline declares the dataset; this concern owns
-  the grants, ownership, and lineage on the result.
-- **`databricks-apps`** *consumes* governed data; Unity Catalog *governs* the
-  consumption. This concern owns the rule that an app reads through Unity
-  Catalog grants, not around them.
+For the auth family (where app-layer `authorization-model` and catalog grants
+**compose** — neither substitutes for the other), see
+[README-auth-family.md](../README-auth-family.md). For the logical domain
+model, defer to `domain-driven-design`: model entities/aggregates there;
+register and govern the physical `catalog.schema.object` namespace here.
+`databricks-declarative-pipelines` *produces* governed datasets; this concern
+owns the grants, ownership, and lineage on the result. `databricks-apps`
+*consumes* governed data; this concern owns the rule that an app reads
+through Unity Catalog grants, not around them.
 
 ## Components
 
@@ -206,9 +193,10 @@ Agents working in any of these activities inherit the practices below via the be
 
 These practices govern **how data and AI assets are registered, granted, and
 lineage-tracked on Databricks**. They are the Databricks realization of data
-governance; they do not restate the logical data model (`domain-driven-design`)
-or application-layer authz (`security-owasp`) — see the boundary in
-`concern.md`.
+governance. For the boundary (composition with `authorization-model` /
+`security-owasp`, `domain-driven-design`, `databricks-apps`,
+`databricks-declarative-pipelines`) see `concern.md` and the auth family
+ownership table at [README-auth-family.md](../README-auth-family.md).
 
 ## Requirements (Frame activity)
 
@@ -258,19 +246,6 @@ or application-layer authz (`security-owasp`) — see the boundary in
   assets are **group-owned**.
 - Verify **lineage** is captured for the product's key tables (upstream →
   downstream visible in Unity Catalog lineage).
-
-## Boundary with neighbors
-
-- **vs domain modeling (`domain-driven-design`)**: model entities/aggregates in
-  the domain concern; register and govern the physical namespace here. Do not
-  re-derive the logical model in catalog terms.
-- **vs `security-owasp` / app authz**: app-layer auth and catalog grants
-  **compose**; neither substitutes for the other. App RBAC does not replace
-  `SELECT`/`MODIFY` grants; catalog grants do not replace app authentication.
-- **vs `databricks-declarative-pipelines`**: the pipeline declares the dataset;
-  this concern owns the grants/ownership/lineage on the result.
-- **vs `databricks-apps`**: the app consumes data; this concern owns the rule
-  that it consumes **through** Unity Catalog.
 
 ## Quality Gates
 

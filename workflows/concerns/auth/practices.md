@@ -2,9 +2,10 @@
 
 These practices realize the `auth` concern: a real, usable authentication &
 account surface, with authorization and isolation enforced through the
-authenticated principal, and the backend behind the `auth-provider` slot. They
-do not restate the provider mechanism (that is the slot filler's, e.g.
-`auth-local-sessions`) or security hardening (that is `security-owasp`).
+authenticated principal, and the backend behind the `auth-provider` slot. For
+the family ownership table (and what `security-owasp`, `authorization-model`,
+`multi-tenancy`, and the `auth-provider` slot own instead of `auth`) see
+[README-auth-family.md](../README-auth-family.md).
 
 ## Design
 

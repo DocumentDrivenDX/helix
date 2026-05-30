@@ -31,38 +31,19 @@ data, api
 This concern owns **isolation between tenants** — that tenant A can never read
 or write tenant B's data, on any path, and the architecture that delivers that
 guarantee (which resources are shared vs dedicated). It is composable and does
-**not** fill a slot. Three neighbours stay distinct:
+**not** fill a slot.
 
-- **`auth`** owns **who you are** — signup, login, sessions, and that a real
-  principal exists and is scoped to its account. `auth` establishes the
-  authenticated principal and the account/tenant it belongs to; **multi-tenancy
-  consumes that principal** and enforces that *every data access stays inside
-  that tenant's boundary*. Auth answers "are you signed in as someone in
-  tenant T?"; multi-tenancy answers "given that, can any code path reach data
-  outside T?". `auth` already states isolation-through-the-principal as a
-  requirement; this concern owns the **enforcement and isolation model** behind
-  it and makes the cross-tenant guard reviewer-checkable. Do not restate
-  signup/session lifecycle here.
-- **`authorization-model`** (a sibling concern) owns **what a user may do
-  *within* a tenant** — roles, permissions, and the actions a principal is
-  allowed to perform on resources they can already legitimately reach.
-  Authorization is *intra-tenant* ("may this member delete this project in
-  *their own* tenant?"). Multi-tenancy is *inter-tenant* ("is this project even
-  in the caller's tenant at all?"). A correct authorization check on a record
-  that belongs to the wrong tenant is still a cross-tenant leak — the tenant
-  predicate must hold *before* the permission check is even meaningful. Compose
-  the two; do not fold authorization rules into this concern.
-- **`security-owasp`** owns general hardening — injection, CSRF, secret
-  handling, input validation, TLS. Cross-tenant access is an instance of OWASP
-  **Broken Access Control / IDOR**; this concern is the tenant-specific,
-  reviewer-checkable refinement of that hardening. `security-owasp` says
-  "authorization checked on every protected endpoint"; multi-tenancy says
-  "every data access carries the tenant predicate, derived from the principal".
+For the family ownership table (auth / authorization-model / multi-tenancy /
+security-owasp, plus the admin-console and unity-catalog neighbors), and the
+ordering invariants (tenant predicate precedes permission; authn precedes
+authz), see [README-auth-family.md](../README-auth-family.md).
 
-This concern owns the one thing those do not state: **there is no query path
-that resolves a record without the tenant predicate, and tenant identity is
-derived from the authenticated principal — never from a client-supplied id
-alone.**
+This concern owns the one thing the rest of the family does not state: **there
+is no query path that resolves a record without the tenant predicate, and
+tenant identity is derived from the authenticated principal — never from a
+client-supplied id alone.** Cross-tenant access is the OWASP Broken Access
+Control / IDOR case `security-owasp` names at the umbrella level; this concern
+is the tenant-specific, reviewer-checkable refinement.
 
 ## Components
 
@@ -213,12 +194,12 @@ mapping) and the tenant lifecycle (provisioning + offboarding).
 Agents working in any of these activities inherit the practices below via the bead's context digest.
 
 These practices govern **isolation between tenants** — that no code path lets
-one tenant reach another's data. They sit alongside `auth` (who you are),
-`authorization-model` (what you may do *within* a tenant), and `security-owasp`
-(general hardening; cross-tenant access is Broken Access Control / IDOR). Their
-one job is to make the **cross-tenant leak** unreachable and **reviewer-checkable**.
-Each MUST/SHOULD below is written so a reviewer can confirm or refute it against
-the diff and the running system.
+one tenant reach another's data. For the family ownership table (auth /
+authorization-model / multi-tenancy / security-owasp) see
+[README-auth-family.md](../README-auth-family.md). Their one job is to make the
+**cross-tenant leak** unreachable and **reviewer-checkable**. Each MUST/SHOULD
+below is written so a reviewer can confirm or refute it against the diff and
+the running system.
 
 ## Choose and record the isolation model (Frame / Design)
 
@@ -303,19 +284,6 @@ the diff and the running system.
   schema/version **SHOULD** be tracked.
 - Offboarding **MUST** be able to export and delete a single tenant's data
   without affecting other tenants.
-
-## Boundary with neighbors
-
-- For **who the principal is** (signup, login, sessions, account bootstrap)
-  defer to `auth`; do not restate it here. This concern consumes the principal.
-- For **what a user may do within their tenant** (roles, permissions) defer to
-  `authorization-model`; this concern only guarantees the record is in the
-  caller's tenant in the first place.
-- For general hardening (injection, CSRF, secrets, TLS, parameterized queries)
-  defer to `security-owasp`; cross-tenant access is its Broken Access Control /
-  IDOR case, refined here for tenants.
-- For the tenant as part of the domain model (tenant as aggregate identity,
-  invariants scoped to a tenant) compose with `domain-driven-design`.
 
 ## Quality Gates
 

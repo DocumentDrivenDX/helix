@@ -13,11 +13,13 @@ auth-provider
 
 This concern is the **default `auth-provider` slot filler** — a real, working,
 self-contained authentication backend that needs no external identity service.
-It supplies the *mechanism* the `auth` concern's product surface sits on. It
-does not define the surface (signup/login/roles UX — that is `auth`) and does
-not own security hardening (that is `security-owasp`). An external IdP
-(Auth0/OIDC, Clerk, …) is a **different filler of the same slot**, swapped in
-without changing call sites.
+It supplies the *mechanism* the `auth` concern's product surface sits on. An
+external IdP (Auth0/OIDC, Clerk, …) is a **different filler of the same slot**,
+swapped in without changing call sites.
+
+For the family ownership table (and the boundaries with `auth`,
+`authorization-model`, `multi-tenancy`, and `security-owasp`) see
+[README-auth-family.md](../README-auth-family.md).
 
 ## Components
 

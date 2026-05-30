@@ -33,39 +33,19 @@ This concern owns the **permission model and its enforcement** — *what* an
 authenticated principal may do to the resources they can legitimately reach, and
 the discipline that every state-changing and data-returning handler asks that
 question and refuses by default. It is composable and does **not** fill a slot.
-Three neighbours stay distinct, and this concern must not duplicate them:
 
-- **`auth`** owns **who you are** — signup, login, sessions, and that a real
-  principal exists and is scoped to its account. `auth` (and the `auth-provider`
-  slot behind it) answers *authentication*: "are you signed in, and as whom?".
-  This concern answers *authorization*: "given who you are, **may** you do this
-  to this resource?". `auth` already names "Authorization (RBAC)" and
-  "enforced server-side" as a requirement of its surface; this concern owns the
-  **model behind that requirement** and makes the per-handler permission check
-  reviewer-checkable. Do not restate signup/session lifecycle here; consume the
-  authenticated principal `auth` establishes.
-- **`multi-tenancy`** owns **isolation between tenants** — that a record is even
-  *in the caller's tenant at all* (an *inter-tenant* guarantee). This concern
-  owns **intra-tenant permissions** — given a record the caller can legitimately
-  reach, *may they do this to it* ("may this member delete this project in
-  *their own* tenant?"). The two compose and are ordered: **the tenant predicate
-  must hold before a permission check is meaningful** — a correct permission
-  check on a record that belongs to the wrong tenant is still a cross-tenant
-  leak, so tenant scoping precedes authorization. `multi-tenancy` states this
-  reciprocally; do not fold tenant isolation into this concern, and do not let a
-  permission check stand in for the tenant predicate.
-- **`security-owasp`** owns general hardening — injection, CSRF, secret
-  handling, input validation, TLS. **Broken Access Control is the OWASP umbrella
-  failure; this concern is the access-control *model* that prevents it.**
-  `security-owasp` says "authorization checked on every protected endpoint";
-  this concern owns *how the decision is modeled and enforced* (deny-by-default,
-  a chosen model, a central decision point) so that the umbrella requirement has
-  a concrete, reviewer-checkable shape.
+For the family ownership table (auth / authorization-model / multi-tenancy /
+security-owasp, plus the admin-console and unity-catalog neighbors), and the
+ordering invariants (tenant predicate precedes permission; authn precedes
+authz; hardening does not substitute for the model), see
+[README-auth-family.md](../README-auth-family.md).
 
-This concern owns the one thing those do not state: **there is a deliberately
-chosen permission model, every state-changing and data-returning handler
-authorizes the principal against it deny-by-default, and a negative test proves
-an unauthorized principal is refused.**
+This concern owns the one thing the rest of the family does not state: **there
+is a deliberately chosen permission model, every state-changing and
+data-returning handler authorizes the principal against it deny-by-default, and
+a negative test proves an unauthorized principal is refused.** Broken Access
+Control is the OWASP umbrella `security-owasp` names; this concern is the
+access-control *model* that prevents it.
 
 ## Components
 
@@ -222,13 +202,12 @@ Agents working in any of these activities inherit the practices below via the be
 
 These practices govern the **permission model and its enforcement** — *what* an
 authenticated principal may do, and the discipline that every privileged handler
-asks and refuses by default. They sit alongside `auth` (who you are),
-`multi-tenancy` (is the record even in your tenant — the predicate that precedes
-any permission check), and `security-owasp` (Broken Access Control is the OWASP
-umbrella this model prevents). Their one job is to make the **missing /
-mis-placed authorization check** unreachable and **reviewer-checkable**. Each
-MUST/SHOULD below is written so a reviewer can confirm or refute it against the
-diff and the running system.
+asks and refuses by default. For the family ownership table (auth /
+authorization-model / multi-tenancy / security-owasp) see
+[README-auth-family.md](../README-auth-family.md). Their one job is to make the
+**missing / mis-placed authorization check** unreachable and
+**reviewer-checkable**. Each MUST/SHOULD below is written so a reviewer can
+confirm or refute it against the diff and the running system.
 
 ## Choose and record the model (Frame / Design)
 
@@ -303,17 +282,6 @@ diff and the running system.
 - For each capability with a permission requirement, **both** the permitted
   (succeeds) and the denied (refused) cases **SHOULD** be exercised, so the
   guard branch is shown to exist and not be vacuously open.
-
-## Boundary with neighbors
-
-- For **who the principal is** (signup, login, sessions, account bootstrap)
-  defer to `auth`; do not restate it here. This concern consumes the principal
-  and decides what it may do.
-- For **is the record even in the caller's tenant** defer to `multi-tenancy`;
-  that predicate precedes — and never replaces — the permission check here.
-- For general hardening (injection, CSRF, secrets, TLS) defer to
-  `security-owasp`; missing/broken authorization is its Broken Access Control
-  case, given a concrete model and per-handler discipline here.
 
 ## Quality Gates
 

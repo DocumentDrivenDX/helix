@@ -20,21 +20,17 @@ api, data, ui
 
 This concern owns the **authentication & account product surface** — that an
 account/multi-tenant product can actually be signed into and is scoped to its
-principals. It is composable and does NOT fill a slot. It defers the *backend*
-to the `auth-provider` slot, and stays out of three neighbours:
+principals, plus **session-token semantics** (issuance, rotation, revocation).
+It is composable and does NOT fill a slot; it defers the *backend* to the
+`auth-provider` slot (default `auth-local-sessions`).
 
-- **`auth-provider`** (the slot, default `auth-local-sessions`) owns the
-  *mechanism* — how identities/sessions are stored and verified, and which
-  provider (local sessions, Auth0/OIDC, Clerk, …) is wired in. `auth` requires
-  the surface; the slot filler supplies the backend.
-- **`security-owasp`** owns *security hardening* — injection, CSRF, secret
-  handling, password storage strength, rate limiting. `auth` requires that
-  isolation and roles are enforced; `security-owasp` governs how safely.
-- **`admin-console`** owns the *operator workflows*; `auth` is what gates them.
+For the family ownership table (auth / authorization-model / multi-tenancy /
+security-owasp, plus the admin-console and unity-catalog neighbors) see
+[README-auth-family.md](../README-auth-family.md).
 
-`auth` owns the one thing those do not state: **an account/tenant product is
-not done until a real principal can sign up, sign in, and act only within their
-authorized scope.**
+`auth` owns the one thing the rest of the family does not state: **an
+account/tenant product is not done until a real principal can sign up, sign in,
+and act only within their authorized scope.**
 
 ## Components
 
@@ -117,9 +113,10 @@ Agents working in any of these activities inherit the practices below via the be
 
 These practices realize the `auth` concern: a real, usable authentication &
 account surface, with authorization and isolation enforced through the
-authenticated principal, and the backend behind the `auth-provider` slot. They
-do not restate the provider mechanism (that is the slot filler's, e.g.
-`auth-local-sessions`) or security hardening (that is `security-owasp`).
+authenticated principal, and the backend behind the `auth-provider` slot. For
+the family ownership table (and what `security-owasp`, `authorization-model`,
+`multi-tenancy`, and the `auth-provider` slot own instead of `auth`) see
+[README-auth-family.md](../README-auth-family.md).
 
 ## Design
 

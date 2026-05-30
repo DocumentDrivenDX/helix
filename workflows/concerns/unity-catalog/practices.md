@@ -2,9 +2,10 @@
 
 These practices govern **how data and AI assets are registered, granted, and
 lineage-tracked on Databricks**. They are the Databricks realization of data
-governance; they do not restate the logical data model (`domain-driven-design`)
-or application-layer authz (`security-owasp`) — see the boundary in
-`concern.md`.
+governance. For the boundary (composition with `authorization-model` /
+`security-owasp`, `domain-driven-design`, `databricks-apps`,
+`databricks-declarative-pipelines`) see `concern.md` and the auth family
+ownership table at [README-auth-family.md](../README-auth-family.md).
 
 ## Requirements (Frame activity)
 
@@ -54,19 +55,6 @@ or application-layer authz (`security-owasp`) — see the boundary in
   assets are **group-owned**.
 - Verify **lineage** is captured for the product's key tables (upstream →
   downstream visible in Unity Catalog lineage).
-
-## Boundary with neighbors
-
-- **vs domain modeling (`domain-driven-design`)**: model entities/aggregates in
-  the domain concern; register and govern the physical namespace here. Do not
-  re-derive the logical model in catalog terms.
-- **vs `security-owasp` / app authz**: app-layer auth and catalog grants
-  **compose**; neither substitutes for the other. App RBAC does not replace
-  `SELECT`/`MODIFY` grants; catalog grants do not replace app authentication.
-- **vs `databricks-declarative-pipelines`**: the pipeline declares the dataset;
-  this concern owns the grants/ownership/lineage on the result.
-- **vs `databricks-apps`**: the app consumes data; this concern owns the rule
-  that it consumes **through** Unity Catalog.
 
 ## Quality Gates
 

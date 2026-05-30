@@ -16,6 +16,22 @@ security
 ## Areas
 all
 
+## Boundary
+
+This concern owns the **hardening posture** for the product (OWASP Top 10:
+injection, CSRF, secret handling, input validation, TLS, dependency auditing,
+parameterized queries, error-detail leakage) and the **audit-logging policy**
+for security-relevant events — what to log on authz denial, login failure,
+privilege escalation. It is composable, applies across every area, and does
+not fill a slot.
+
+For the family ownership table (auth / authorization-model / multi-tenancy /
+security-owasp, plus the admin-console and unity-catalog neighbors) see
+[README-auth-family.md](../README-auth-family.md). Broken Access Control is the
+OWASP umbrella; `authorization-model` is the per-handler model that prevents
+it, and `multi-tenancy` is the tenant-predicate refinement — neither is
+restated here.
+
 ## Components
 
 - **Standard**: OWASP Top 10 (current edition)

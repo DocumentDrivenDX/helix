@@ -23,11 +23,13 @@ auth-provider
 
 This concern is the **default `auth-provider` slot filler** — a real, working,
 self-contained authentication backend that needs no external identity service.
-It supplies the *mechanism* the `auth` concern's product surface sits on. It
-does not define the surface (signup/login/roles UX — that is `auth`) and does
-not own security hardening (that is `security-owasp`). An external IdP
-(Auth0/OIDC, Clerk, …) is a **different filler of the same slot**, swapped in
-without changing call sites.
+It supplies the *mechanism* the `auth` concern's product surface sits on. An
+external IdP (Auth0/OIDC, Clerk, …) is a **different filler of the same slot**,
+swapped in without changing call sites.
+
+For the family ownership table (and the boundaries with `auth`,
+`authorization-model`, `multi-tenancy`, and `security-owasp`) see
+[README-auth-family.md](../README-auth-family.md).
 
 ## Components
 
@@ -80,14 +82,20 @@ Agents working in any of these activities inherit the practices below via the be
 
 These practices realize the default `auth-provider` filler — a working local
 auth backend behind the provider interface the `auth` concern requires. They
-cover the *mechanism*; the surface/roles/isolation requirements are in `auth`,
-and hardening depth is in `security-owasp`.
+cover the *mechanism*; for the family ownership table (auth /
+authorization-model / multi-tenancy / security-owasp) see
+[README-auth-family.md](../README-auth-family.md).
 
-## Implementation
+## Design
 
 - **Provider interface**: expose one auth/identity interface (`signup`,
   `authenticate`, `resolve_principal`, `logout`) that the app calls; keep
   local-session internals behind it.
+- **Swap path**: document how an external IdP filler (Auth0/OIDC) replaces this
+  one — same interface, config-selected, no call-site change.
+
+## Build
+
 - **Passwords**: hash with a salted, work-factored algorithm (PBKDF2/bcrypt/
   argon2); never store or log plaintext; verify in constant time.
 - **Sessions**: issue a server-side session on login, referenced by an HttpOnly
@@ -95,10 +103,8 @@ and hardening depth is in `security-owasp`.
   logout.
 - **Principal resolution**: `resolve_principal` returns the authenticated
   principal (+ account/tenant + role) for the request, or unauthenticated.
-- **Swap path**: document how an external IdP filler (Auth0/OIDC) replaces this
-  one — same interface, config-selected, no call-site change.
 
-## Quality Gates
+## Test
 
 - Passwords are hashed (salted + work-factored); no plaintext anywhere.
 - Session cookie is HttpOnly; sessions validated server-side; logout clears them.
