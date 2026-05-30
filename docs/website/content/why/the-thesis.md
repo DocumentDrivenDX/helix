@@ -42,11 +42,10 @@ digest*. An agent claiming a bead inherits the active concerns
 automatically. Stack drift, convention drift, and quality-attribute
 amnesia stop being problems an operator has to remember to fix.
 
-Each concern also carries an **artifact-impact contract**: it names the
-artifacts that must change when the concern is selected. Choosing a concern
-without making the matching ADR, technical-design, and test-plan edits is
-drift, and the alignment reconcile check catches it. The concern bites on both
-generated and hand-edited artifacts, not just on the bead context digest.
+Each concern carries an
+[artifact-impact contract](/use/workflow/concerns/#artifact-impact-contract)
+naming the artifacts that must change when the concern is selected; the
+alignment reconcile check catches drift.
 
 This is HELIX's answer to "every project needs consistency" without
 forcing any specific tech stack on the framework itself. The standards
@@ -64,15 +63,13 @@ When something requires human judgment the system cannot make for itself
 (authority missing, ambiguity beyond automation, or a product question
 only the team can answer), the alignment plan surfaces it and waits.
 
-The build side carries two matching guards. The **verification exit gate**
-holds that passing build, unit tests, and a happy-path end-to-end check is not
-enough to exit Build: each acceptance criterion's behavior must be proven
-through the interface-appropriate harness (web via Playwright, an HTTP API via
-request and response checks, a CLI via shell, a TUI via a terminal harness, and
-backend logic via integration tests). It guards against work that is locally
-green but globally incomplete. The **evolve-until-converged loop** then
-re-checks the work against its specs and concerns and iterates until it
-converges, rather than stopping at first-pass green.
+Two build-side guards keep the work honest. The
+[verification exit gate](/use/workflow/#verification-exit-gate) requires
+that each acceptance criterion be proven through the interface-appropriate
+harness, not just unit tests and a happy-path check; the
+[evolve-until-converged loop](/use/workflow/#evolve-until-converged) then
+re-runs the work against its specs and concerns until it converges instead
+of stopping at first-pass green.
 
 ## What this shape buys you
 

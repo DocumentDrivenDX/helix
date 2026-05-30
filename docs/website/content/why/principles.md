@@ -115,17 +115,11 @@ and ask. When forward progress would require authority that is missing,
 ambiguity that cannot be resolved, or judgment that is genuinely human, the
 loop halts and tells the operator exactly what decision is needed and why.
 
-Two build-side guards make that supervision check completion, not just
-green tests. The
-**verification exit gate** holds that passing build, unit tests, and a
-happy-path end-to-end check is not enough to exit Build: each acceptance
-criterion's behavior must be proven through the interface-appropriate harness
-(web via Playwright, an HTTP API via request and response checks, a CLI via
-shell, a TUI via a terminal harness, and backend logic via integration tests),
-guarding against work that is locally green but globally incomplete. The
-**evolve-until-converged loop** is a bounded loop that re-checks the work
-against its specs and concerns and iterates until it converges, rather than
-stopping at first-pass green.
+Two build-side guards check completion, not just green tests: the
+[verification exit gate](/use/workflow/#verification-exit-gate) requires
+interface-appropriate proof of each acceptance criterion, and the
+[evolve-until-converged loop](/use/workflow/#evolve-until-converged)
+iterates against specs and concerns until the work converges.
 
 This is what distinguishes HELIX from autonomous agent loops that run until
 they crash or burn through a budget. The supervisory pattern is the

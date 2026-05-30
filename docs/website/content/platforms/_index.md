@@ -48,12 +48,9 @@ worth the additional runtime structure.
 
 ## DDx
 
-DDx is the reference runtime integration for HELIX. Use it when you want HELIX
-artifacts connected to a local tracker, dependency-aware work queue, agent
-execution harness, and evidence model.
-
-DDx is useful for teams that want repeatable execution around the artifact
-stack: work items, claims, dependencies, reviews, and measured outcomes.
+DDx is the reference runtime. Pick it when you need queue-backed delivery
+with claims, dependencies, and recorded evidence. The canonical description
+and install procedure live on [Using HELIX with DDx](/use/ddx-runtime/).
 
 {{< cards >}}
   {{< card link="../use/ddx-runtime" title="Using HELIX with DDx" subtitle="Install and operate the reference runtime integration." icon="terminal" >}}
