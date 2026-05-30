@@ -8,7 +8,7 @@ aliases:
 
 # Tracker
 
-The built-in tracker is HELIX's execution layer. Issues are called **beads** and are stored in `.ddx/beads.jsonl`, managed via `ddx bead` subcommands.
+The built-in tracker is HELIX's execution layer. HELIX calls issues **beads** and stores them in `.ddx/beads.jsonl`, managed via `ddx bead` subcommands.
 
 ## Beads
 

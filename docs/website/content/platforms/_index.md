@@ -31,8 +31,8 @@ methodology should remain understandable without installing DDx.
 ## Decision matrix
 
 Choose the platform by the operating contract you need, not by where HELIX
-"lives." HELIX lives in the artifacts. The platform only decides how planning,
-execution, review, and evidence are routed.
+"lives." HELIX lives in the artifacts. The platform only decides how it routes
+planning, execution, review, and evidence.
 
 | Platform | Best fit | Runtime owns | You still own | Avoid when |
 | --- | --- | --- | --- | --- |
@@ -68,7 +68,7 @@ and install procedure live on [Using HELIX with DDx](/use/ddx-runtime/).
 
 ### DDx usage contract
 
-DDx is allowed to own queue mechanics: claims, dependencies, ready-work
+DDx may own queue mechanics: claims, dependencies, ready-work
 detection, execution loops, and measurement records. It should not become the
 product spine. Product direction still flows through HELIX artifacts, and
 runtime evidence should point back to those artifacts instead of replacing

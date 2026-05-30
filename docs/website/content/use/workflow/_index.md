@@ -111,8 +111,8 @@ execute work.
 The skill stops short of a plan when:
 
 - Authority is missing (no governing artifact for the work).
-- Ambiguity cannot be resolved from existing documents.
-- Product judgment or prioritization is needed.
+- Existing documents cannot resolve the ambiguity.
+- The work needs product judgment or prioritization.
 - A decision requires stakeholder approval.
 
 In these cases the plan flags the open question and waits. Humans
@@ -126,7 +126,7 @@ A typical iteration:
 1. **Intent enters** somewhere: a feature request, a metric flag, an
    incident, a refactor itch.
 2. **Alignment runs** against current artifacts and produces a plan
-   describing which activities are affected.
+   describing which activities the change affects.
 3. **Runtime executes** the plan, creating concrete work items in
    whatever tracker the runtime provides.
 4. **Artifacts update** as work happens: vision revisions, new feature
@@ -156,9 +156,9 @@ tasks, and feed back into the planning helix. Nothing dead-ends at
 ## Verification Exit Gate
 
 Passing build, unit tests, and a happy-path end-to-end check is not
-enough to exit the Build activity. The build-exit gate requires that
-each acceptance criterion's behavior be proven through the
-interface-appropriate harness:
+enough to exit the Build activity. The build-exit gate requires the
+interface-appropriate harness to prove each acceptance criterion's
+behavior:
 
 - **Web**: Playwright or an equivalent browser harness.
 - **HTTP API**: request and response checks against a running service.

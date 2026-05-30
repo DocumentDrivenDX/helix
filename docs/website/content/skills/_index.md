@@ -26,7 +26,7 @@ engine. It answers questions such as:
 - Which upstream artifact governs this change?
 - Which PRDs, feature specs, designs, tests, or deployment artifacts are now
   stale?
-- Which new artifacts should be authored before code changes begin?
+- Which new artifacts should the team write before code changes begin?
 - Which contradictions should a human resolve before implementation proceeds?
 
 The skill is portable because its minimum runtime contract is simple: read
@@ -49,7 +49,7 @@ canonical in the workflow page.
 
 Artifact types define the reusable shapes. Concrete artifacts are the documents
 inside a project. HELIX's own artifacts are public so maintainers and adopters
-can inspect the methodology being used on itself.
+can inspect how HELIX applies the methodology to itself.
 
 ## Runtime packages are not forks
 
@@ -66,8 +66,7 @@ integration should wrap the same source content and skill contract.
 HELIX ships exactly one skill: the umbrella router at `skills/helix/SKILL.md`.
 Operators invoke modes by intent (e.g., "use HELIX to frame this") or with
 the slash form `/helix <mode>`. Earlier shapes of the project shipped
-multiple `helix-*` skills; those have been collapsed into the single
-router.
+multiple `helix-*` skills; the umbrella router now subsumes those.
 
 The durable public concepts are:
 

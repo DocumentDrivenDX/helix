@@ -11,8 +11,8 @@ core concepts, and the tracker primitives.
 
 For the artifact catalog (descriptions, prompts, examples, relationships),
 see [Artifacts](/artifacts/). For cross-cutting concerns, see
-[Concerns](/concerns/). Both have been promoted out of the glossary into
-top-level sections.
+[Concerns](/concerns/). Both now live as top-level sections rather than
+glossary entries.
 
 {{< cards >}}
   {{< card link="activities" title="Activities" subtitle="The seven HELIX activity types, with the artifacts each produces." icon="refresh" >}}

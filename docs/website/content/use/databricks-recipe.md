@@ -13,7 +13,7 @@ HELIX installs as a Genie Code skill that Genie auto-discovers by directory scan
 Start a new Agent-mode chat after installing for it to take effect.
 
 From inside a Databricks notebook the kernel already carries workspace
-credentials, so no setup is needed. Run this in a Python cell:
+credentials, so you need no setup. Run this in a Python cell:
 
 ```python
 %pip install --quiet databricks-sdk PyYAML
@@ -92,7 +92,7 @@ Human review should confirm:
 - The agent did not broaden access beyond approved datasets.
 - Metric definitions match the PRD.
 - Freshness and quality expectations are testable.
-- Operational ownership is named.
+- The artifacts name operational ownership.
 - Unknowns remain visible rather than silently assumed.
 
 ## Recipe 3: create the first implementation handoff
@@ -118,4 +118,4 @@ response.
 
 This keeps Databricks-specific execution inside Databricks while HELIX governs
 why the work exists, what artifacts have authority, and what evidence proves
-the handoff was satisfied.
+the handoff is complete.

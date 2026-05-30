@@ -9,13 +9,13 @@ ideas behind that framework.
 
 These are not workflow rules ("write tests first", "review before merging").
 Those belong in enforcers. These are the design choices that explain why
-HELIX is shaped the way it is. When two implementations of the same
+HELIX takes the shape it does. When two implementations of the same
 workflow could both work, the principles say which one should win.
 
 ## 1. Planning and execution are intertwined
 
-> The framework is named after the double helix because the metaphor encodes
-> the architecture, not because it sounded good.
+> The framework takes its name from the double helix because the metaphor
+> encodes the architecture, not because it sounded good.
 
 Planning and execution are not sequential activities. They happen simultaneously,
 at every zoom level, feeding back into each other continuously. A developer
@@ -98,7 +98,7 @@ to fully autonomous or anywhere in between, and the right position depends
 on the task's stakes and the team's confidence.
 
 This rules out two failure modes. It rules out "AI replaces the human":
-there is no point at which judgment is automated away. It also rules out
+no agent automates judgment away. It also rules out
 "AI assists but humans do the work that counts"; agents are first-class
 participants in the artifact graph, not autocomplete.
 

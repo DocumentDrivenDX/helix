@@ -54,9 +54,9 @@ The skill produces:
 
 The skill follows the project's authority hierarchy: higher-level intent
 governs lower-level documents and implementation plans, and lower-level
-disagreement is drift to reconcile. The canonical eight-level hierarchy
-is defined in
-[Workflow: Authority Hierarchy](/use/workflow/#authority-hierarchy). If
+disagreement is drift to reconcile.
+[Workflow: Authority Hierarchy](/use/workflow/#authority-hierarchy) defines
+the canonical eight-level hierarchy. If
 the repository defines a more specific hierarchy, the skill should use
 that project-local rule and report that it did so.
 

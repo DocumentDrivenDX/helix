@@ -114,7 +114,7 @@ Learn from real signal and feed it back into the loop.
 
 | | |
 |---|---|
-| **Purpose** | Review what was built, capture learnings, inform the next cycle |
+| **Purpose** | Review what shipped, capture learnings, inform the next cycle |
 | **Location** | `docs/helix/06-iterate/` |
 | **Key artifact types** | [Improvement Backlog](/artifact-types/iterate/improvement-backlog/), [Metric Definition](/artifact-types/iterate/metric-definition/), [Metrics Dashboard](/artifact-types/iterate/metrics-dashboard/), [Security Metrics](/artifact-types/iterate/security-metrics/) |
 | **Output** | Findings, metrics, and follow-up work that feed the next iteration |

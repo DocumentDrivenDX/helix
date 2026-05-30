@@ -7,13 +7,13 @@ aliases:
 
 Cross-cutting concerns are a core concept in HELIX. They capture technology
 choices, quality requirements, and conventions that cut across activities, beads,
-and artifacts. They do it declaratively, so agents can load the right
-context without being told twice.
+and artifacts. They do it declaratively, so agents load the right
+context without you repeating yourself.
 
 ## The Problem Concerns Solve
 
-In a multi-activity, multi-agent workflow, the same decisions need to be honored
-everywhere:
+In a multi-activity, multi-agent workflow, every agent must honor the same
+decisions everywhere:
 
 - "We use Bun, not Node" affects build scripts, test runners, CI, and design docs.
 - "OWASP Top 10 compliance" affects every endpoint, every input handler, every
@@ -99,7 +99,7 @@ reporting findings that keep the project true to its own decisions.
 ## Artifact-Impact Contract
 
 Each concern declares an **Artifact Impact** section: the artifacts that must
-change when that concern is selected. Choosing `security-owasp`, for instance,
+change when you select that concern. Choosing `security-owasp`, for instance,
 obligates the corresponding ADR, technical-design, and test-plan updates.
 Selecting a concern without making those changes is drift, and the alignment
 reconcile check catches it. This makes a concern bite on both
@@ -121,7 +121,7 @@ When a referenced ADR is superseded, [review and alignment](/use/workflow/method
 flags the affected concern for re-evaluation, ensuring that decisions
 propagate forward rather than silently going stale.
 
-## Where Concerns Are Used
+## Where HELIX Uses Concerns
 
 Every HELIX action that involves technology or quality choices loads active
 concerns:

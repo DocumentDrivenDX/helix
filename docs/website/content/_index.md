@@ -90,7 +90,7 @@ Pick the guide for your environment and you're up in minutes.
   </a>
   <a class="helix-home-card" href="skills">
     <span class="helix-card-label">3 · Create the work plan</span>
-    <span>Turn the documents into bounded work. Define what to change, what not to change, how success will be checked, and what evidence to collect.</span>
+    <span>Turn the documents into bounded work. Define what to change, what not to change, how to check success, and what evidence to collect.</span>
   </a>
   <a class="helix-home-card" href="platforms">
     <span class="helix-card-label">4 · Run it in the factory</span>

@@ -18,7 +18,7 @@ A HELIX-compliant runtime can:
 That is the full contract. HELIX assumes nothing else: no tracker, no queue,
 no execution loop, no IDE integration, no language toolchain. Items 1 through 3
 are required; item 4 is optional and only some routes (`build`, `run`, `commit`,
-`release`) make use of it.
+`release`) use it.
 
 ## Per-runtime install guides
 
@@ -55,7 +55,7 @@ to localize, dialect, or rewrite the methodology.
 - The normative skill body lives in `skills/helix/SKILL.md` and nowhere else.
 - The artifact catalog lives in `workflows/` and nowhere else.
 - If a runtime requires a shim (a manifest, wrapper, or packaging document),
-  that shim lives inside the per-runtime guide, clearly marked as
+  that shim lives inside the per-runtime guide, explicitly marked as
   runtime-specific. It does not get pushed back into `skills/` or `workflows/`.
 
 Three install paths, one HELIX.

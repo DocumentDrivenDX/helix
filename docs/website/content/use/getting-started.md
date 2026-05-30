@@ -12,7 +12,7 @@ one alignment/planning skill. It can run in any agent runtime that can read and
 write Markdown in your repository.
 
 You do not need a HELIX server, a HELIX tracker, or a HELIX-owned execution
-loop to start. Those can be supplied by your runtime. DDx is the reference
+loop to start. Your runtime can supply those. DDx is the reference
 runtime integration, not the definition of HELIX.
 
 ## The Core Flow

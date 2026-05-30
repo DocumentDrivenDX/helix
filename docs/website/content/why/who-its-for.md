@@ -3,13 +3,13 @@ title: Who it's for
 weight: 4
 ---
 
-HELIX is built for a specific shape of work. It rewards some teams and
+HELIX targets a specific shape of work. It rewards some teams and
 overburdens others. Knowing which side you're on saves time.
 
 ## You should use HELIX if
 
-**You're using AI agents on non-trivial software work.** HELIX is
-designed for the case where agents are real participants in the work, not
+**You're using AI agents on non-trivial software work.** HELIX targets
+the case where agents are real participants in the work, not
 autocomplete inside an IDE, but agents that need durable intent, clear
 authority, and structured context before they change software. If you have
 ever watched an agent loop without making progress because it was
@@ -22,7 +22,7 @@ across model upgrades that make the previous agent obsolete.
 
 **You care about coherence as the project grows.** Some projects can run
 on memory and momentum until they ship. Others need to stay aligned across
-months or years of incremental change. HELIX is built for the second case:
+months or years of incremental change. HELIX targets the second case:
 it pays a small upfront tax in artifacts to prevent the much larger tax
 of drift.
 
@@ -61,8 +61,8 @@ machine-readable context and do not want to maintain it, the method will
 feel heavier than the problem requires.
 
 **You need to ship in a strictly regulated environment where AI cannot
-write code.** Some industries forbid the very pattern HELIX is built
-around. The framework is designed for AI-assisted
+write code.** Some industries forbid the pattern HELIX assumes.
+The framework targets AI-assisted
 work; it does not retrofit cleanly to environments that cannot accept
 that.
 
@@ -81,7 +81,7 @@ HELIX has costs. Every team adopting it pays:
   spec before agents have enough authority to make non-trivial changes.
   For small projects this can feel heavy.
 - **Authority discipline.** Teams must agree which artifacts govern which
-  decisions, how conflicts are resolved, and when changes need to propagate
+  decisions, how to resolve conflicts, and when changes need to propagate
   through the graph.
 - **Platform discipline.** You still need to choose where execution happens:
   DDx, Databricks Genie, Claude Code, or another runtime. HELIX does not
@@ -96,7 +96,7 @@ where the next change is easy to make because the last change was
 properly recorded. Whether that trade is worth it depends on the project.
 
 If you're not sure, the cheapest experiment is to try HELIX on a single
-non-trivial feature. The framework is designed to be adopted incrementally:
+non-trivial feature. Adopt the framework incrementally:
 start by learning the [Methodology](/use/workflow/methodology/), browsing
 the [Artifact Types](/artifact-types/), then applying the smallest useful
 artifact graph to one feature.

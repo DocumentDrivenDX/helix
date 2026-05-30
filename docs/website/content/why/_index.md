@@ -19,8 +19,8 @@ upgrades.
 
 ## Primary journeys
 
-If you skip the prose and just want to orient yourself, the site is organized
-around the journeys HELIX actually supports:
+If you skip the prose and want to orient yourself, the site is organized
+around the journeys HELIX supports:
 
 - **Learn the methodology**: start with [Methodology](/use/workflow/methodology/)
   to understand the double helix, the seven activities, the artifact
@@ -42,7 +42,7 @@ around the journeys HELIX actually supports:
 - **Inspect the research**: read the research pages for the assumptions,
   evidence, and design trade-offs behind the methodology.
 
-## What's actually in the framework
+## What's in the framework
 
 The core framework consists of:
 

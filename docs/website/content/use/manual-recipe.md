@@ -4,7 +4,8 @@ weight: 20
 ---
 
 Use this recipe when humans are driving the project and agents are helpers, not
-queue managers. No DDx tracker, CLI wrapper, or background runtime is required.
+queue managers. This recipe needs no DDx tracker, CLI wrapper, or background
+runtime.
 
 ## What the runtime must provide
 

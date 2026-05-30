@@ -25,7 +25,7 @@ specs in Frame, ADRs and designs in Design, test plans in Test,
 implementation work in Build, runbooks and monitoring in Deploy,
 alignment reviews and metrics in Iterate.
 
-The activities are connected by authority. A vision change propagates
+Authority connects the activities. A vision change propagates
 downstream; a failing test reveals a missing requirement; a production
 metric revises the PRD. Forty-plus artifact types each have a defined
 role, an authoring prompt, a template, and a place in the [authority
@@ -36,16 +36,16 @@ When two artifacts disagree, the higher one wins.
 
 ### Concerns inject standards across activities
 
-[Cross-cutting concerns](/concerns/), such as accessibility requirements, the
-project's tech stack, observability strategy, and security posture, are
-declared once and propagated into every relevant bead via a *context
+A project declares [cross-cutting concerns](/concerns/) once, such as
+accessibility requirements, tech stack, observability strategy, and security
+posture, and HELIX propagates them into every relevant bead via a *context
 digest*. An agent claiming a bead inherits the active concerns
 automatically. Stack drift, convention drift, and quality-attribute
 amnesia stop being problems an operator has to remember to fix.
 
 Each concern carries an
 [artifact-impact contract](/use/workflow/concerns/#artifact-impact-contract)
-naming the artifacts that must change when the concern is selected; the
+naming the artifacts that must change when a project adopts the concern; the
 alignment reconcile check catches drift.
 
 This is HELIX's answer to "every project needs consistency" without
@@ -64,10 +64,10 @@ When something requires human judgment the system cannot make for itself
 (authority missing, ambiguity beyond automation, or a product question
 only the team can answer), the alignment plan surfaces it and waits.
 
-Two build-side guards keep the work honest. The
+Two build-side guards keep the work aligned with its specs. The
 [verification exit gate](/use/workflow/#verification-exit-gate) requires
-that each acceptance criterion be proven through the interface-appropriate
-harness, not just unit tests and a happy-path check; the
+each acceptance criterion to clear the interface-appropriate harness, not
+only unit tests and a happy-path check; the
 [evolve-until-converged loop](/use/workflow/#evolve-until-converged) then
 re-runs the work against its specs and concerns until it converges instead
 of stopping at first-pass green.
@@ -85,16 +85,15 @@ of stopping at first-pass green.
   runtime; keep the discipline.
 - **Compounding feedback.** Every bead leaves execution evidence. Every
   review leaves findings. Every change updates downstream artifacts. The
-  knowledge that produces good work next time is captured by the work
-  that happened this time.
+  work that happened this time captures the knowledge that produces good
+  work next time.
 
 ## Read more
 
-The load-bearing ideas behind these commitments are documented in
-[Principles](/why/principles/). The research basis for the claims above is
-collected in [Research Foundations](/research/), including the methodology for
-time-boxed investigation, the bibliography HELIX borrows from, and published
-research-derived artifacts. The full type catalog is in
+[Principles](/why/principles/) documents the load-bearing ideas behind these
+commitments. [Research Foundations](/research/) collects the research basis for
+the claims above, including the methodology for time-boxed investigation, the
+bibliography HELIX borrows from, and published research-derived artifacts. The full type catalog is in
 [Artifact Types](/artifact-types/); this project's actual instances are in
 [Artifacts](/artifacts/). The cross-cutting standards layer is in
 [Concerns](/concerns/). When you're ready to build, [Use HELIX](/use/)

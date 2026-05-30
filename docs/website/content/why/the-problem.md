@@ -73,6 +73,6 @@ Each of these is a structural commitment, not a process tweak. Together
 they describe a development control system where AI agents do real work
 without losing coherence, and humans steer without becoming dispatchers.
 
-The next page, [The Thesis](/why/the-thesis), describes how that
-control system is shaped, and why the result deserves a name distinct
+The next page, [The Thesis](/why/the-thesis), describes the shape of
+that control system, and why the result deserves a name distinct
 from what came before.

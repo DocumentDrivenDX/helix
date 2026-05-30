@@ -81,7 +81,7 @@ The tracker is HELIX's steering wheel. All work flows through tracker issues (be
 - **Operators steer** by creating, prioritizing, and blocking issues
 - **Agents execute** by claiming and closing issues
 - **The ready queue** is the only durable hand-off mechanism between sessions
-- Follow-up work must be filed as beads before an action closes; prose suggestions without beads are lost
+- File follow-up work as beads before an action closes; prose suggestions without beads disappear
 
 Every execution issue must cite the canonical artifacts that authorize the work via `spec-id`.
 
@@ -132,7 +132,7 @@ A mechanism for ensuring quality metrics only improve over time:
 
 - A **floor** is a committed minimum value for a metric (e.g., 70% test coverage)
 - The floor can only go up, never down
-- If the metric drops below the floor, it's a regression that must be fixed
+- If the metric drops below the floor, it's a regression the team must fix
 - Experiments can auto-bump the floor when improvement exceeds a threshold
 
 Ratchet definitions live in `workflows/ratchets.md` and floor fixtures are committed to the repo.
