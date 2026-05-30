@@ -252,13 +252,13 @@ PoEAA choices and the machinery they pull in. They sit beside
 the **domain-logic and data-source patterns matched to the actual complexity,
 recorded, and not over-built** (KISS/YAGNI).
 
-## Choosing the domain-logic organization
+## Discover
 
 - The domain-logic pattern MUST be chosen against the **assessed complexity of
-  the business logic**, and the choice recorded in an ADR: **Transaction Script**
-  for simple, mostly independent operations; **Domain Model** when the rules,
-  cases, and interactions are genuinely complex; **Table Module** only when a
-  record-set–centric stack/UI justifies it.
+  the business logic**: **Transaction Script** for simple, mostly independent
+  operations; **Domain Model** when the rules, cases, and interactions are
+  genuinely complex; **Table Module** only when a record-set–centric stack/UI
+  justifies it.
 - You SHOULD start with the **simplest** organization the logic warrants and
   refactor *toward* a Domain Model when complexity actually arrives — not stand up
   a Domain Model speculatively for a thin surface.
@@ -266,9 +266,13 @@ recorded, and not over-built** (KISS/YAGNI).
   API, batch, integration) need the same operations or a single
   transaction/orchestration seam is required — not as a reflexive passthrough over
   a single caller.
+- The **session-state** placement (client / server / database) SHOULD be a
+  recorded choice driven by state size, statelessness/affinity needs, and
+  survive-restart requirements — not an accident of the framework.
 
-## Choosing the data-source pattern (Active Record vs Data Mapper)
+## Frame
 
+- The chosen domain-logic organization MUST be recorded in an ADR.
 - The **Active Record vs Data Mapper** decision MUST be made explicitly and
   **recorded in an ADR** — it MUST NOT be left as an implicit ORM default.
 - Choose **Active Record** when domain logic is **simple and maps closely to the
@@ -279,10 +283,19 @@ recorded, and not over-built** (KISS/YAGNI).
   data-source pattern** — it is the mechanism that keeps the domain model ignorant
   of the database and lets repositories return aggregates in domain terms.
   Choosing Active Record under DDD MUST be justified in the ADR.
+
+## Design
+
 - A rich Domain Model MUST NOT be placed on Active Record such that business rules
   bend to the table shape or SQL/row concerns leak into domain objects.
+- The **technical-design** reflects the chosen data-source layer + domain-logic
+  organization, and the **data-design** reflects how that pattern maps objects to
+  the schema.
+- **Remote Facade** and **Data Transfer Object** MUST be introduced only at a real
+  **process/network boundary**; they MUST NOT be added inside a single process
+  where fine-grained calls are free.
 
-## Supplying the Data Mapper machinery
+## Build
 
 - When a Data Mapper backs a non-trivial Domain Model, **Unit of Work** (one
   coordinated commit + concurrency resolution) and **Identity Map** (one in-memory
@@ -291,27 +304,7 @@ recorded, and not over-built** (KISS/YAGNI).
 - **Lazy Load** SHOULD be used where eager-loading a whole graph is wasteful, with
   attention to N+1 read patterns.
 
-## Applying distribution and session patterns only where they pay
-
-- **Remote Facade** and **Data Transfer Object** MUST be introduced only at a real
-  **process/network boundary**; they MUST NOT be added inside a single process
-  where fine-grained calls are free.
-- The **session-state** placement (client / server / database) SHOULD be a
-  recorded choice driven by state size, statelessness/affinity needs, and
-  survive-restart requirements — not an accident of the framework.
-
-## Staying in your lane
-
-- When a construct carries **business meaning** (an aggregate, an invariant, a
-  ubiquitous-language name), the domain semantics belong to
-  `domain-driven-design`; PoEAA describes only the persistence/orchestration
-  **mechanics**. For **Repository** and **Service Layer**, name the domain meaning
-  per DDD and let this concern own the persistence/orchestration machinery.
-- The patterns here fill layers; **which layer code lives in and the dependency
-  direction** belong to `onion-architecture` and MUST NOT be restated. A **generic
-  intra-process OO collaboration** is `design-patterns-gof`, not a PoEAA pattern.
-
-## Quality Gates
+## Test
 
 - The **domain-logic organization** (Transaction Script vs Domain Model vs Table
   Module) is recorded in an ADR and matches the assessed complexity — no Domain
@@ -334,3 +327,16 @@ recorded, and not over-built** (KISS/YAGNI).
 - Every pattern present is named to match the mechanic actually implemented (no
   one-method "Service Layer", no row-returning "Repository") and routes domain
   meaning, macro layering, and generic OO mechanics to their owning concerns.
+
+## Cross-cutting
+
+### Staying in your lane
+
+- When a construct carries **business meaning** (an aggregate, an invariant, a
+  ubiquitous-language name), the domain semantics belong to
+  `domain-driven-design`; PoEAA describes only the persistence/orchestration
+  **mechanics**. For **Repository** and **Service Layer**, name the domain meaning
+  per DDD and let this concern own the persistence/orchestration machinery.
+- The patterns here fill layers; **which layer code lives in and the dependency
+  direction** belong to `onion-architecture` and MUST NOT be restated. A **generic
+  intra-process OO collaboration** is `design-patterns-gof`, not a PoEAA pattern.

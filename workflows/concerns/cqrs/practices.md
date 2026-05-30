@@ -11,7 +11,7 @@ aggregate, defer to DDD; when it references the event store / projections as the
 source of truth, defer to event sourcing. Apply these **per bounded context**
 that selected CQRS — not to every context in the product.
 
-## Decide the bounded context and consistency model before applying
+## Discover
 
 - Confirm the context **earns** CQRS: a **collaborative** domain (many concurrent
   writers), a **task-based UI** (intents map to commands), **divergent read vs.
@@ -19,18 +19,25 @@ that selected CQRS — not to every context in the product.
   neither side. If it is simple CRUD read the same way it is written, do **NOT**
   apply CQRS — use a single model (record the decision; Fowler: CQRS adds risky
   complexity, it is difficult to use well).
+
+## Frame
+
 - Choose and **record the consistency model in an ADR**: **synchronous**
   (read model updated in the write transaction — strongly consistent, simpler,
   same store) vs. **eventually consistent** (read model updated out-of-band,
   separate store — scalable, but a stale-read window). Name the **bounded
   context**, the **decisive signal**, and (if eventually consistent) the
   **synchronization path** and the **staleness window** consumers must tolerate.
+- A **synchronous** consistency model (read model updated in the write
+  transaction, same store) is the simpler choice when strong read-after-write is
+  required; prefer it unless the asymmetry/scale signal justifies the
+  eventually-consistent separation. Whichever is chosen MUST match the ADR.
 - The selection MUST drive the artifacts: the **technical-design** SHOULD show
   separate command/query models, the projection/read-model, and the
   eventual-consistency handling; the **data-design** SHOULD show the read schema
   distinct from the write schema and how they stay in sync.
 
-## Separate the write model from the read model
+## Design
 
 - The model handling **commands** (state changes) MUST be **distinct** from the
   model serving **queries** (reads) within the CQRS-selected context — not one
@@ -40,9 +47,6 @@ that selected CQRS — not to every context in the product.
   method that mutates *and* returns the mutated view conflates the sides.
 - Queries MUST read from the **read model / projection**, NOT by loading
   write-model aggregates to read fields off them.
-
-## Keep the logic in the write model; keep the read model thin
-
 - The **write model** carries the full command-processing stack — input
   validation, business validation, invariants — and IS the
   `domain-driven-design` aggregate (defer there: a command loads the aggregate,
@@ -51,9 +55,6 @@ that selected CQRS — not to every context in the product.
 - The **read model MUST return DTOs / view objects with no domain logic** — no
   invariants, no business rules, no validation stack. It is denormalized and
   query-shaped, optimized for retrieval.
-
-## Name commands for the business task
-
 - Commands MUST be named for the **business task / intent** (`BookHotelRoom`,
   `RateProduct`, `SubmitOrder`), capturing user intent — NOT anemic field
   setters (`SetReservationStatusToReserved`).
@@ -61,7 +62,7 @@ that selected CQRS — not to every context in the product.
   requests** in collaborative domains (a command scoped to a meaningful task
   conflicts less than a coarse "save everything").
 
-## Handle the consistency model explicitly
+## Build
 
 - When the read model is **eventually consistent**, the UI/consumers MUST be
   designed for the **staleness window**: no read-your-write assumption across the
@@ -75,30 +76,8 @@ that selected CQRS — not to every context in the product.
 - Projection / read-model update handlers MUST be **idempotent** — applying the
   same update event twice yields the same read-model state and fires any side
   effect at most once.
-- A **synchronous** consistency model (read model updated in the write
-  transaction, same store) is the simpler choice when strong read-after-write is
-  required; prefer it unless the asymmetry/scale signal justifies the
-  eventually-consistent separation. Whichever is chosen MUST match the ADR.
 
-## Boundary with neighbors
-
-- The **write model is the `domain-driven-design` aggregate** — defer there for
-  its shape, invariants, and the one-aggregate-per-transaction rule; this concern
-  asserts only that **queries bypass that model** and read from a projection, and
-  that CQRS applies **per bounded context**.
-- When composed with **`event-sourcing`**, the **event store IS the write model /
-  source of truth and the projections ARE the read side** — the event
-  immutability, replay, snapshot, and projection-rebuild rules are
-  `event-sourcing`'s; do NOT restate them here. CQRS and event sourcing are
-  **independently adoptable**: CQRS needs no event log, event sourcing needs no
-  command/query split.
-- The **read/write split is INTERNAL, not the wire contract** — a single
-  `api-style` surface (REST/GraphQL/gRPC/RPC) fronts the CQRS-structured service;
-  the command/query DTOs are not the exposed contract. Defer to `api-style` for
-  the wire interface; do not conflate command-vs-query (internal) with
-  mutation-vs-safe-verb (wire).
-
-## Quality Gates
+## Test
 
 - CQRS is **scoped to the bounded context(s) that earn it** (collaborative /
   task-based UI / divergent read-write shape-or-scale / complex domain);
@@ -123,3 +102,16 @@ that selected CQRS — not to every context in the product.
   eventual-consistency handling), and the **data-design** (read schema distinct
   from write schema + sync path) — verifiable that the selection is not silent
   drift.
+
+## Cross-cutting
+
+### Boundary with neighbors
+
+See `concern.md` for the canonical Boundary (vs `domain-driven-design`,
+`event-sourcing`, `api-style`). Idempotent projection updates here are the
+same property `enterprise-integration-patterns` requires of consumers under
+at-least-once delivery — defer there for the cause, apply it here to the
+read-model update path. When composed with event sourcing, the event store
+becomes the write model / source of truth and the projections the read side;
+the immutability/replay/rebuild rules are `event-sourcing`'s — not restated
+here.

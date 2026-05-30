@@ -200,20 +200,25 @@ object/integration mechanics that may implement a role (`design-patterns-gof`,
 `enterprise-integration-patterns`). When a rule below references layering, defer
 to onion for the *how*; this concern asserts the *what*.
 
-## Establish the language and boundaries first
+## Discover
+
+- Classify the area's **subdomain** as core / supporting / generic. Concentrate
+  modeling effort on **core**; do not deeply model a **generic** subdomain that a
+  bought/adopted solution already solves.
+
+## Frame
 
 - Name the **bounded context(s)** the work lives in, and the **ubiquitous
   language** of each: the precise domain terms for the concepts, used identically
   in specs, type names, methods, and events. A term MUST NOT mean two different
   things inside one context.
-- Classify the area's **subdomain** as core / supporting / generic. Concentrate
-  modeling effort on **core**; do not deeply model a **generic** subdomain that a
-  bought/adopted solution already solves.
 - When this context consumes a foreign or legacy model, translate it through an
   **anti-corruption layer** — the foreign concepts MUST NOT leak into this
   context's model.
+- Each Vernon rule is a **default**; a deliberate deviation MUST be recorded in
+  an ADR with its justification.
 
-## Model the building blocks with behavior
+## Design
 
 - Model concepts with **identity and lifecycle** as **entities** (equality by
   identity); model descriptive, replaceable concepts (money, quantity, date
@@ -226,9 +231,6 @@ to onion for the *how*; this concern asserts the *what*.
 - Use a **factory** when constructing a complex aggregate so it is born valid;
   use a **domain service** (stateless) only for logic that genuinely has no home
   on a single entity or value object (e.g. an operation spanning two aggregates).
-
-## Design aggregates by their invariants
-
 - Draw the **aggregate boundary** around exactly the true invariant — the rule
   that MUST stay transactionally consistent — and **no more**. The aggregate
   boundary IS the transactional consistency boundary.
@@ -243,10 +245,8 @@ to onion for the *how*; this concern asserts the *what*.
   must affect another, publish a **domain event** and reconcile with **eventual
   consistency** outside the transaction — do not enlarge the transaction to span
   both roots.
-- Each Vernon rule is a **default**; a deliberate deviation MUST be recorded in
-  an ADR with its justification.
 
-## Keep persistence out of the domain
+## Build
 
 - **Repositories return and accept aggregates** — one repository per aggregate
   root. ORM entities, row structs, query builders, ResultSets, and raw column
@@ -255,26 +255,13 @@ to onion for the *how*; this concern asserts the *what*.
 - The model is expressed in the **ubiquitous language**, not in storage terms;
   persistence conforms to the model, not the reverse. (The dependency-inversion
   mechanism that makes this hold is `onion-architecture`'s practice.)
-
-## Enforce invariants in the domain layer
-
 - Every true invariant is checked **inside the aggregate**, in the domain layer
   — **not** in a controller, request handler, route, or application service, and
   **not** delegated to a database constraint as the sole guard.
 - An application service / handler coordinates (load aggregate → call a root
   method → save via repository); it MUST NOT contain the business rule itself.
 
-## Boundary with neighbors
-
-- For **layering** (where domain/application/infrastructure live, the dependency
-  rule, who defines the repository interface) defer to `onion-architecture`; do
-  not restate it here.
-- A DDD **Factory** / **Domain Event** is a domain role; the GoF mechanic or the
-  messaging transport that implements it belongs to `design-patterns-gof` /
-  `enterprise-integration-patterns`. Name the domain role; do not specify the
-  mechanic here.
-
-## Quality Gates
+## Test
 
 - Each work item's bounded context and ubiquitous language are named; domain
   type/method/event names match that language (no synonym drift, no term with two
@@ -294,3 +281,15 @@ to onion for the *how*; this concern asserts the *what*.
 - Descriptive concepts with invariants (money, ranges, identifiers) are modeled
   as immutable value objects, not bare primitives with rules scattered at call
   sites.
+
+## Cross-cutting
+
+### Boundary with neighbors
+
+- For **layering** (where domain/application/infrastructure live, the dependency
+  rule, who defines the repository interface) defer to `onion-architecture`; do
+  not restate it here.
+- A DDD **Factory** / **Domain Event** is a domain role; the GoF mechanic or the
+  messaging transport that implements it belongs to `design-patterns-gof` /
+  `enterprise-integration-patterns`. Name the domain role; do not specify the
+  mechanic here.

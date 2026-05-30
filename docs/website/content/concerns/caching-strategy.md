@@ -211,7 +211,7 @@ failure-handling policy a cache may participate in (`resilience`), or the schema
 of the store the cache fronts (`relational-data-modeling` / the `datastore`
 slot). A cache is always a derived, disposable copy; the origin is the truth.
 
-## Cache only to hit a stated target
+## Discover
 
 - Add a cache **only** to meet a named **performance NFR** against a **real
   read-heavy hot path or an expensive computation**. Record *which* path /
@@ -221,7 +221,7 @@ slot). A cache is always a derived, disposable copy; the origin is the truth.
 - Before caching an expensive computation, confirm the cost is real (measured),
   not assumed; a material uncertainty is a `tech-spike`, not a silent cache.
 
-## Pick the pattern from the consistency need
+## Frame
 
 - Choose the read/write pattern deliberately and record **why** in the ADR:
   - **cache-aside (lazy)** / **read-through** for read-heavy data tolerant of
@@ -234,8 +234,10 @@ slot). A cache is always a derived, disposable copy; the origin is the truth.
     accepted**.
 - Record the **consistency trade-off** the chosen pattern implies against the
   data's tolerance for staleness — never stumble into write-behind's window.
+- Record in the ADR **what is deliberately not cached** (and why it must stay
+  fresh).
 
-## State invalidation, TTL, and a staleness budget for every cache
+## Design
 
 - Each cached dataset has an explicit **invalidation policy** — a TTL, explicit
   invalidation on write, or both — and a **named staleness budget** (the maximum
@@ -244,9 +246,6 @@ slot). A cache is always a derived, disposable copy; the origin is the truth.
 - When using explicit invalidation, identify **every write path** that affects a
   cached key and invalidate/update on each; a missed write path is a stale-read
   bug. Record the cache **keys** and their TTLs in the technical-design.
-
-## Do not cache correctness-sensitive reads behind a stale copy
-
 - Data where a stale read causes an **incorrect decision or side effect** —
   authorization/permission checks, balances or quotas that gate an action,
   anything needing **read-your-write** — is **not** served from a cache that can
@@ -255,7 +254,7 @@ slot). A cache is always a derived, disposable copy; the origin is the truth.
 - The cache is **never the system of record**: nothing of record lives only in
   the cache; on a miss, eviction, or cache failure the **origin is the truth**.
 
-## Protect hot keys from stampede
+## Build
 
 - For each hot key, ensure expiry or cold start does **not** dogpile the origin:
   apply **single-flight / request coalescing** (one loader, others wait),
@@ -265,17 +264,7 @@ slot). A cache is always a derived, disposable copy; the origin is the truth.
   is desired, record that as a `resilience` degradation decision — the cache
   composes as a fallback, it is not itself the resilience mechanism.
 
-## Boundary with neighbors
-
-- The **performance NFR** owns the target; this concern owns the cache that
-  serves it. Do not restate the latency/throughput number — point at the NFR.
-- **`resilience`** owns timeouts/retries/breakers/fallbacks and whether
-  stale-serve-on-failure is an accepted degradation; this concern owns the
-  cache's read/write/invalidation behavior. Caching ≠ resilience.
-- **`relational-data-modeling`** / the **`datastore`** slot owns the system of
-  record the cache fronts; the cache holds a derived, disposable copy.
-
-## Quality Gates
+## Test
 
 - Every cache **traces to a performance NFR and a real read-heavy hot path or
   expensive computation**; no cache exists without a target it serves (no
@@ -294,3 +283,13 @@ slot). A cache is always a derived, disposable copy; the origin is the truth.
   TTL, or negative cache); a hot-key expiry does not dogpile the origin.
 - **What is deliberately not cached** (and why it must stay fresh) is recorded in
   the ADR.
+
+## Cross-cutting
+
+### Boundary with neighbors
+
+See `concern.md` for the canonical Boundary (vs the performance NFR,
+`resilience`, `relational-data-modeling` / `datastore`). The cache is a
+performance/staleness mechanism — defer failure-handling policy to
+`resilience` and the schema of the system of record to the data-modeling /
+store neighbors.
