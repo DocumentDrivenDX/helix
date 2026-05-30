@@ -1,5 +1,13 @@
 # Threat Modeling Prompt
-Document the project threat model with enough detail to drive mitigations.
+Enumerate threats by STRIDE category and assign mitigation owners.
+
+## Traceability chain
+
+This artifact's place in the security triangle: **threats -> STRIDE +
+mitigation owners**.
+- See `security-requirements` for the testable controls that mitigate each
+  threat.
+- See `compliance-requirements` for the regulations those mitigations satisfy.
 
 ## Reference Anchors
 
@@ -12,18 +20,18 @@ Use these local resource summaries as grounding:
 
 ## Focus
 - Define boundaries, assets, and trust changes first.
-- Analyze threats with STRIDE and map them to controls.
+- Analyze threats with STRIDE and assign each one a mitigation owner.
+- Cross-reference the control(s) in `security-requirements` that mitigate the
+  threat rather than restating control text.
 - Keep risk scoring and mitigation ownership explicit.
 - Treat missing boundaries, unclear assets, or unstated assumptions as findings.
-
-## Role Boundary
-
-Threat Model is not Security Requirements or Security Architecture. It explains
-what can go wrong and where. Security Requirements state what controls must be
-true; Security Architecture places those controls in the design.
+- Do not author control acceptance criteria. Cross-reference
+  `security-requirements`.
+- Do not analyze regulatory applicability. Cross-reference
+  `compliance-requirements`.
 
 ## Completion Criteria
-- The threat surface is clear.
+- The threat surface is clear and threats are categorized by STRIDE.
+- Each high-risk threat has a named mitigation owner and a cross-reference to
+  the mitigating control in `security-requirements`.
 - Important threats are prioritized.
-- Mitigations are concrete.
-- High-risk threats have owners and verification hooks.

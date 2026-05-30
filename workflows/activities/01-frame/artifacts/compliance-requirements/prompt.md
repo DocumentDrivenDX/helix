@@ -1,5 +1,14 @@
 # Compliance Requirements Analysis Prompt
-Document the compliance obligations for this project in the local template.
+Map the external regulations and standards that apply to this project to the
+controls and evidence that satisfy them.
+
+## Traceability chain
+
+This artifact's place in the security triangle: **regulations -> controls**.
+- See `security-requirements` for the testable acceptance criteria that
+  exercise those controls.
+- See `threat-model` for the abuse paths those controls mitigate and the
+  STRIDE owners.
 
 ## Reference Anchors
 
@@ -13,18 +22,16 @@ Use these local resource summaries as grounding:
 ## Focus
 - Identify only the regulations and standards that actually apply to this system.
 - Mark uncertain applicability explicitly and route it to counsel or compliance review.
-- Map each obligation to its source, affected scope, concrete controls, owners, evidence, and timing.
+- Map each obligation to its source, affected scope, the control(s) that satisfy
+  it, owners, evidence, and timing.
 - Keep the result concise and implementation-relevant.
 - Do not invent legal conclusions. State assumptions and review gaps.
-
-## Role Boundary
-
-Compliance Requirements is not Security Requirements or the Threat Model. It
-defines external obligations and the controls/evidence needed to satisfy them.
-Security Requirements turns those obligations into security behavior; Threat
-Model analyzes abuse paths and mitigations.
+- Do not enumerate threats, attacker behavior, or STRIDE categories. Cross-
+  reference `threat-model` for those.
+- Do not author testable acceptance criteria for controls. Cross-reference
+  `security-requirements` for that.
 
 ## Completion Criteria
 - Applicable, not-applicable, and uncertain obligations are identified.
-- Controls, evidence, owners, and deadlines are explicit.
+- Each applicable obligation names the control(s), evidence, owner, and deadline.
 - No generic filler is added.

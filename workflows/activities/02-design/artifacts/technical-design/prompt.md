@@ -9,10 +9,10 @@ unique job is to make one user story buildable by naming the concrete component
 changes, files, interfaces, data model changes, security implications, tests,
 rollback path, and implementation sequence.
 
-It inherits Architecture and Solution Design. It must not redesign the feature
-or system. If the story cannot be implemented without changing the parent
-Solution Design, ADR, Contract, or Architecture, update that governing artifact
-first.
+It inherits Architecture and Solution Design. For what belongs at this level
+versus those higher levels, see the zoom-stack matrix in
+`workflows/activities/02-design/README.md`; if the story forces a change at a
+higher level, update that governing artifact first.
 
 ## Reference Anchors
 
@@ -33,22 +33,14 @@ but leaves no trace here is drift (reconcile-alignment Concern->Artifact Realiza
 ## Focus
 - Create a story-level artifact named `docs/helix/02-design/technical-designs/TD-XXX-[name].md`.
 - Map each acceptance criterion to component changes, interfaces, data, security, and tests.
-- Stay on the vertical slice for the story.
-- Assume the broader architecture is already set by the parent solution design.
-- Do not expand into a feature-wide or system-wide design; that belongs in a
-  solution design (`SD-XXX-*`).
+- Stay on the vertical slice for the story, within the story scope defined in
+  the zoom-stack matrix (`workflows/activities/02-design/README.md`).
 - Keep implementation sequence and rollout or migration notes only when they affect execution.
 
 ## Boundary Test
 
-| If you are writing... | Put it in... |
-|---|---|
-| Feature-wide approach or decomposition | Solution Design |
-| One architectural decision | ADR |
-| Exact external interface contract | Contract |
-| One story's implementation shape, files, tests, and rollback | Technical Design |
-| Test fixtures and detailed test cases | Story Test Plan |
-| Work queue slicing and execution status | Implementation Plan or runtime work item |
+See the zoom-stack matrix in `workflows/activities/02-design/README.md` for
+which decisions belong at the system, feature, and story levels.
 
 ## Completion Criteria
 - The story is implementable.
