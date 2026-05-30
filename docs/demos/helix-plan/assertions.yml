@@ -4,7 +4,7 @@ min_assistant_chars: 1500
 
 expect:
   - kind: narration
-    contains: "authority-ordered"
+    contains: "authority-ranked"
   - kind: prompt
     contains: "HELIX align"
   - kind: tool_call

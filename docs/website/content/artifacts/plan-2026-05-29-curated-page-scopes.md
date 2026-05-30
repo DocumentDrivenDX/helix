@@ -128,11 +128,11 @@ elsewhere).
 - **Out of scope:** what HELIX is; methodology specifics; comparison to other runtimes (that's `platforms/`).
 
 #### `use/workflow/_index.md` — **CANDIDATE FOR ABSORPTION**
-- **Current state:** opens with the seven-activities enumeration and overlaps with methodology.md on the authority-order paragraph.
+- **Current state:** opens with the seven-activities enumeration and overlaps with methodology.md on the authority-hierarchy paragraph.
 - **Proposal:** keep as a thin subsection landing (two sentences + cards to methodology and concerns) — OR absorb into methodology.md and drop the separate `_index.md`. I recommend the absorb-and-drop because the current page does not earn a distinct purpose.
 
 #### `use/workflow/methodology.md` — **CANONICAL HOME for the HELIX procedure**
-- **Scope:** How to run HELIX: the activities flow, authority order, alignment review, build-exit gate (including the harness list), convergence loop.
+- **Scope:** How to run HELIX: the activities flow, the authority hierarchy, alignment review, build-exit gate (including the harness list), convergence loop.
 - **Owns:** the procedural detail; the canonical harness list (Playwright / HTTP / CLI / terminal / integration).
 - **Out of scope:** "what HELIX is"; principle statements (link to principles); the seven-activity names enumerated (link to glossary/activities).
 
@@ -163,7 +163,7 @@ elsewhere).
 - **Out of scope:** "what HELIX is."
 
 #### `reference/glossary/concepts.md`
-- **Scope:** Definitions of HELIX concepts (artifact, bead, concern, authority order, context digest, etc.).
+- **Scope:** Definitions of HELIX concepts (artifact, bead, concern, authority hierarchy, context digest, etc.).
 - **Owns:** the per-concept definitions.
 - **Out of scope:** procedural use of the concepts (link to use/workflow).
 
@@ -185,7 +185,7 @@ elsewhere).
 | `use/workflow/methodology.md` ↔ `why/principles.md` (0.39, harness list) | Same as above. | Same as above. |
 | `use/workflow/concerns.md` ↔ `why/the-thesis.md` (0.31, artifact-impact contract) | `concerns.md` owns the **definition + example**. | `the-thesis.md` keeps the **claim** that concerns carry the contract. |
 | `platforms/_index.md` ↔ `use/ddx-runtime.md` (0.28, DDx description) | `use/ddx-runtime.md` owns the **DDx description + procedure**. | `platforms/_index.md` keeps the **comparison context** only. |
-| `use/workflow/_index.md` ↔ `use/workflow/methodology.md` (0.27, authority order) | `methodology.md` owns the **procedural rule**. | `_index.md` either keeps a one-line reference or is absorbed (see absorption candidate above). |
+| `use/workflow/_index.md` ↔ `use/workflow/methodology.md` (0.27, authority hierarchy) | `methodology.md` owns the **procedural rule**. | `_index.md` either keeps a one-line reference or is absorbed (see absorption candidate above). |
 
 Hidden duplicates the redundancy scanner did not catch (because the
 paragraphs were under the 15-word minimum or split across short paragraphs)

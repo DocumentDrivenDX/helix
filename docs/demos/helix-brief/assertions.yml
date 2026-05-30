@@ -28,4 +28,4 @@ expect:
     args_contain:
       file_path: "US-001"
   - kind: assistant
-    contains: "authority order"
+    contains: "authority hierarchy"

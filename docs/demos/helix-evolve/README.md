@@ -2,7 +2,7 @@
 
 The product-vision scenario, made concrete: a team adds OAuth to a
 service whose PRD says API-keys-only. One sentence in; the evolve
-skill walks the artifact graph in authority order and produces six
+skill walks the artifact graph from the highest-authority artifact down and produces six
 ordered steps spanning security architecture, ADRs, feature specs,
 designs, tests, and beads.
 
@@ -29,6 +29,6 @@ bash tests/validate-demos.sh
 
 ```
 python3 scripts/demos/capture_session.py helix-evolve \
-    --prompt "Add OAuth login alongside the existing API-key auth. Thread the change through the artifact graph in authority order." \
+    --prompt "Add OAuth login alongside the existing API-key auth. Thread the change through the artifact graph from the highest-authority artifact down." \
     --fixture docs/demos/helix-evolve/fixture/
 ```

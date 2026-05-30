@@ -20,7 +20,7 @@ The product-vision UX scenario:
 
 > A team wants to add OAuth login. They describe the intent to their agent.
 > The agent invokes the HELIX alignment skill against existing governing
-> artifacts. The skill produces an authority-ordered plan. The team reviews,
+> artifacts. The skill produces an authority-ranked plan. The team reviews,
 > approves, hands it to the runtime.
 
 ## Scenarios
@@ -29,7 +29,7 @@ The product-vision UX scenario:
 |------|-------|---------------|---------------|
 | adopt | Adopt HELIX in a new project | `ddx install helix` (or equivalent skill install), running `/helix` to discover capabilities, dropping templates into a fresh repo | install + `helix` umbrella |
 | brief | Author the brief | Creating product-vision + PRD + feature spec from templates with the `helix` skill in frame mode | `/helix-frame` |
-| align | Check alignment | Running the alignment skill against an existing artifact set, getting findings, getting an authority-ordered plan | `/helix-align` |
+| align | Check alignment | Running the alignment skill against an existing artifact set, getting findings, getting an authority-ranked plan | `/helix-align` |
 | plan | Create the work plan | Turning aligned artifacts into bounded implementation work — scoped beads with acceptance criteria and evidence expectations | `/helix-align` (planning mode) |
 | evolve | Evolve a requirement | The OAuth-style scenario: a new requirement threads through PRD → feature spec → solution design → security architecture → tracker beads | `/helix-evolve` |
 | concerns | Detect technology drift | Concerns declared in the brief catch local agent decisions that drift from project intent (Bun vs Node-style drift) | `/helix-align` with concerns scope |
