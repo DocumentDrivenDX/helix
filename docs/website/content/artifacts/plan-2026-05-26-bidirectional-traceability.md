@@ -1,7 +1,7 @@
 ---
 title: "Plan — it.36: bidirectional spec↔code traceability gate + spec-is-the-contract principle"
 slug: plan-2026-05-26-bidirectional-traceability
-weight: 420
+weight: 430
 activity: "Design"
 source: "02-design/plan-2026-05-26-bidirectional-traceability.md"
 generated: true

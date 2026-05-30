@@ -1,7 +1,7 @@
 ---
 title: "Monitoring Setup — `ddx-server`"
 slug: monitoring-setup
-weight: 650
+weight: 660
 activity: "Deploy"
 source: "05-deploy/monitoring-setup.md"
 generated: true

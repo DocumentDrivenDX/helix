@@ -1,7 +1,7 @@
 ---
 title: "Plan — integrate the measurement-discipline learnings into HELIX (2026-05-25)"
 slug: plan-2026-05-25-measurement-discipline
-weight: 360
+weight: 370
 activity: "Design"
 source: "02-design/plan-2026-05-25-measurement-discipline.md"
 generated: true

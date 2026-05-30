@@ -1,7 +1,7 @@
 ---
 title: "Rename \"authority order\" to \"authority hierarchy\""
 slug: plan-2026-05-29-rename-authority-order
-weight: 500
+weight: 510
 activity: "Design"
 source: "02-design/plan-2026-05-29-rename-authority-order.md"
 generated: true

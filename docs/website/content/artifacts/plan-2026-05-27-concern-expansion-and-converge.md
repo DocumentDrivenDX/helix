@@ -1,7 +1,7 @@
 ---
 title: "Plan — concern-library expansion + make-concerns-bite + iterate-to-convergence (2026-05-27)"
 slug: plan-2026-05-27-concern-expansion-and-converge
-weight: 470
+weight: 480
 activity: "Design"
 source: "02-design/plan-2026-05-27-concern-expansion-and-converge.md"
 generated: true
