@@ -32,42 +32,11 @@ The skill is portable because its minimum runtime contract is simple: read
 Markdown, search files, write Markdown when approved, and present a plan for
 review.
 
-### Contract at a glance
-
-Inputs:
-
-- A scope, question, artifact path, or work-item reference.
-- The HELIX artifact-type catalog and the project's concrete artifacts.
-- Linked tracker metadata when the runtime provides it.
-- Runtime constraints, including whether the operator allows file writes.
-
-Outputs:
-
-- The authority chain used for the review.
-- Drift, gaps, stale artifacts, and contradictions.
-- Open questions that require a human or upstream artifact decision.
-- A recommended plan for artifact edits, work-item creation, or execution
-  handoff.
-- Markdown edits only when the operator or runtime governance authorizes them.
-
-Authority order:
-
-1. Product vision and principles.
-2. PRDs and requirements.
-3. Feature specs and user stories.
-4. Designs and implementation plans.
-5. Tests, examples, deployment notes, and operational records.
-6. Code and generated outputs.
-
-When authority is missing or contradictory, the skill should not invent a
-decision. It should name the open question, identify the affected artifacts,
-and stop at the planning boundary until the operator resolves it.
-
-Runtime expectation:
-
-The runtime supplies file access, search, optional governed Markdown writes,
-and any queue, tracker, commit, CI, or deployment mechanics. HELIX supplies the
-alignment and planning contract those runtime actions should follow.
+The full inputs, outputs, authority-order rule, open-question behavior, and
+runtime expectations live on the
+[invocation reference](/reference/skills/); the
+[authority order](/use/workflow/#authority-order) itself is canonical in
+the workflow page.
 
 ## What the skill operates on
 

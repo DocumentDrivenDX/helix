@@ -52,22 +52,12 @@ The skill produces:
 
 ### Authority order
 
-HELIX planning is authority-ordered. Higher-level intent governs lower-level
-documents and implementation plans. When artifacts conflict, the skill should
-prefer the highest applicable authority and treat lower-level disagreement as
-drift to reconcile.
-
-The expected order is:
-
-1. Product vision and principles.
-2. PRDs and requirements.
-3. Feature specs and user stories.
-4. Designs and implementation plans.
-5. Tests, examples, deployment notes, and operational records.
-6. Code and generated outputs.
-
-If the repository defines a more specific authority order, the skill should use
-that project-local rule and report that it did so.
+The skill follows the project's authority order: higher-level intent governs
+lower-level documents and implementation plans, and lower-level disagreement
+is drift to reconcile. The canonical eight-level order is defined in
+[Workflow: Authority Order](/use/workflow/#authority-order). If the repository
+defines a more specific order, the skill should use that project-local rule
+and report that it did so.
 
 ### Open-question behavior
 
