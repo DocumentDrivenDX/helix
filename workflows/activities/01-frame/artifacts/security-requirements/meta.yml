@@ -17,10 +17,9 @@ output:
 
 validation:
   required_sections:
-    - security_user_stories
+    - required_controls
     - compliance_requirements
-    - risk_assessment
-    - acceptance_criteria
+    - security_risks
 
   quality_checks:
     - check: all_requirements_have_acceptance_criteria
