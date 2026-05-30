@@ -1,0 +1,221 @@
+{
+  "attempt_id": "20260530T030100-f958367f",
+  "bead_id": "helix-53c6df33",
+  "base_rev": "e06a39c185c6066412af38d7b4c4f1fecd0d1be5",
+  "created_at": "2026-05-30T03:02:41.18053479Z",
+  "requested": {
+    "prompt": "synthesized",
+    "min_power": 5
+  },
+  "bead": {
+    "id": "helix-53c6df33",
+    "title": "INT-CC: Claude Code integration test — install + skill activation + bootstrap scenario",
+    "description": "Create tests/workflows/claude-code/ harness that exercises live `claude -p` against the HELIX skill bundle inside a Docker container.\n\n**Deliverables**:\n- `tests/workflows/claude-code/run-scenarios.sh` — orchestrator that builds image, runs each scenario, captures output, exits nonzero on any failure\n- `tests/workflows/claude-code/scenarios/install-verify.prompt` — \"Confirm HELIX is installed: list the routing skill name and the artifact catalog activities\"\n- `tests/workflows/claude-code/scenarios/skill-list.prompt` — \"List the HELIX routing modes you can route to. Be concise.\"\n- `tests/workflows/claude-code/scenarios/bootstrap.prompt` — TP-014 SCN-01 prompt: \"I want to build a TODO list app. Use HELIX to capture the framing artifacts.\"\n- `tests/workflows/claude-code/expected/` — assertion-text snippets each scenario response must contain (e.g., \"input\", \"frame\", \"align\" mode names; vision/PRD file artifacts; etc.)\n- `tests/workflows/claude-code/recordings/INT-CC.tape` — vhs script\n- `tests/workflows/claude-code/recordings/INT-CC.gif` — generated recording (committed)\n\n**Harness shape** (reuse `tests/install/claude-code/Dockerfile` as the base image):\n1. `docker build -t helix-int-test:claude-code -f tests/install/claude-code/Dockerfile .`\n2. For each scenario file: `docker run --rm -e ANTHROPIC_API_KEY -v $PWD:/workspace/helix:ro helix-int-test:claude-code bash -c \"claude -p \u003c /workspace/helix/tests/workflows/claude-code/scenarios/\u003cname\u003e.prompt\"`\n3. Grep response for expected text from `expected/\u003cname\u003e.expect`\n4. vhs renders the orchestrator session\n\n\u003ccontext-digest\u003e\n\u003cprinciples\u003eValidate Your Work · Runtime Neutrality · Design for Simplicity\u003c/principles\u003e\n\u003cconcerns\u003einstaller-coverage | screencast-evidence | runtime-parity\u003c/concerns\u003e\n\u003cpractices\u003evhs records the Docker run · scenarios are SCN-01 (bootstrap) plus install-verify + skill-list · ANTHROPIC_API_KEY required at runtime · plugin install via marketplace path\u003c/practices\u003e\n\u003cgoverning\u003edocs/helix/03-test/test-plans/TP-014-helix-workflow-coverage.md SCN-01 (bootstrap) + SCN-06 (review) · docs/install/claude-code.md · existing tests/install/claude-code/ scaffolding\u003c/governing\u003e\n\u003c/context-digest\u003e",
+    "acceptance": "(Supersedes the \"grep response for expected text\" step in the description.)\n1. `bash tests/workflows/claude-code/run-scenarios.sh` exits 0 with valid Claude Code credentials available — OAuth creds mounted into the container (~/.claude/.credentials.json + a minimal ~/.claude.json carrying hasCompletedOnboarding/userID/oauthAccount) OR ANTHROPIC_API_KEY set. Not a hard requirement on the env var.\n2. Activation is asserted from `claude -p --output-format stream-json` (with `--bare` and `--allowed-tools \"Skill(helix)\"` / `--permission-mode` so it is not blocked by a prompt): the harness parses the event stream and requires a tool_use event identifying the `helix` Skill invocation for the bootstrap scenario. Free-text keyword matching of the response is NOT the gate.\n3. Negative control: `bash tests/workflows/claude-code/run-scenarios.sh --no-skill` (skill not installed) exits NONZERO, proving the activation assertion discriminates.\n4. tests/workflows/claude-code/evals/routing.jsonl exists (phrase -\u003e expected helix mode, mirroring .claude/skills/ddx/evals/routing.jsonl) and is exercised by run-scenarios.sh.\n5. Scenarios cover install-verify, skill activation, and SCN-01 bootstrap.\n6. tests/workflows/claude-code/recordings/INT-CC.gif generated via vhs and committed. docs/install/claude-code.md links it as a screencast.",
+    "parent": "helix-e3c7d0e4",
+    "labels": [
+      "helix",
+      "phase:test",
+      "activity:test",
+      "kind:test",
+      "area:testing",
+      "area:packaging",
+      "runtime:claude-code"
+    ],
+    "metadata": {
+      "events": [
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness route unavailable: runner error: agent: provider error: openai: POST \\\"http://bragi:1234/v1/chat/completions\\\": 502 Bad Gateway\",\"fingerprint\":\"c63725637a9913ddce00e011be60eea8b2b81be343ece9ea787ea628b79ef89d\",\"policy_mode\":\"warn-only\",\"reason\":\"system_unready\",\"rule_id\":\"pre_claim_intake.system_unready\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"c63725637a9913ddce00e011be60eea8b2b81be343ece9ea787ea628b79ef89d\"}",
+          "created_at": "2026-05-28T21:47:59.680993602Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "system_unready"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness route unavailable: runner error: agent: provider error: openai: POST \\\"http://bragi:1234/v1/chat/completions\\\": 502 Bad Gateway\",\"fingerprint\":\"c63725637a9913ddce00e011be60eea8b2b81be343ece9ea787ea628b79ef89d\",\"policy_mode\":\"warn-only\",\"reason\":\"system_unready\",\"rule_id\":\"pre_claim_intake.system_unready\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"c63725637a9913ddce00e011be60eea8b2b81be343ece9ea787ea628b79ef89d\"}",
+          "created_at": "2026-05-28T21:54:08.535241986Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "system_unready"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"bragi\",\"resolved_model\":\"qwen3.5-27b\",\"fallback_chain\":[],\"actual_power\":5}",
+          "created_at": "2026-05-28T21:58:19.080588239Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=bragi model=qwen3.5-27b"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"fiz\",\"actual_model\":\"qwen3.5-27b\",\"actual_power\":5,\"actual_provider\":\"bragi\",\"attempt_id\":\"20260528T215436-18ac2e1a\",\"bead_id\":\"helix-53c6df33\",\"estimated_difficulty\":\"\",\"rejected_route_pins\":null,\"requested_power_class\":\"standard\",\"requested_profile\":\"default\",\"routing_intent_degraded\":false,\"routing_intent_note\":\"\",\"routing_intent_source\":\"default\"}",
+          "created_at": "2026-05-28T21:58:19.497005106Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=default powerClass=standard model=qwen3.5-27b harness=fiz"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"actual_power\":5,\"detail\":\"agent: provider error: openai: POST \\\"http://bragi:1234/v1/chat/completions\\\": 502 Bad Gateway \",\"endpoint\":\"http://bragi:1234/v1/chat/completions\",\"error\":\"agent: provider error: openai: POST \\\"http://bragi:1234/v1/chat/completions\\\": 502 Bad Gateway \",\"harness\":\"fiz\",\"model\":\"qwen3.5-27b\",\"outcome_reason\":\"provider_connectivity\",\"provider\":\"bragi\",\"timeout_class\":\"bad gateway\"}",
+          "created_at": "2026-05-28T21:58:19.744775762Z",
+          "kind": "route-failure",
+          "source": "ddx work",
+          "summary": "provider=bragi model=qwen3.5-27b endpoint=http://bragi:1234/v1/chat/completions (bad gateway) connectivity failure"
+        },
+        {
+          "actor": "erik",
+          "body": "agent: provider error: openai: POST \"http://bragi:1234/v1/chat/completions\": 502 Bad Gateway \npowerClass=standard\nresult_rev=5fc94131e9265aa082ace22956e6dabb0938ac98\nbase_rev=5fc94131e9265aa082ace22956e6dabb0938ac98\noutcome_reason=provider_connectivity",
+          "created_at": "2026-05-28T21:58:19.829488366Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness route unavailable: lifecycle dispatch: project root mutation rejected (changed existing dirty paths: docs/helix/02-design/hero-image-concepts/HERO-2026-05-12-document-spine-helix.md, docs/website/content/_index.md, docs/website/content/artifacts/.plan-codex-review.md, docs/website/content/artifacts/_index.md, docs/website/content/artifacts/adr/ADR-002-tracker-write-safety-model.md, docs/website/content/artifacts/adr/ADR-003-autonomy-spectrum.md, docs/website/content/artifacts/architecture.md, docs/website/content/artifacts/contracts/API-001-helix-tracker-mutation.md, docs/website/content/artifacts/contracts/CONTRACT-001-ddx-helix-boundary.md, docs/website/content/artifacts/contracts/CONTRACT-002-helix-execution-doc-conventions.md, docs/website/content/artifacts/contracts/CONTRACT-003-ddx-adapter-boundary.md, docs/website/content/artifacts/contracts/README.md, docs/website/content/artifacts/data-design.md, docs/website/content/artifacts/decisions/data-design-restoration-decision.md, docs/website/content/artifacts/decisions/deployment-checklist-restoration-decision.md, docs/website/content/artifacts/decisions/improvement-backlog-restoration-decision.md, docs/website/content/artifacts/decisions/metrics-dashboard-restoration-decision.md, docs/website/content/artifacts/decisions/monitoring-setup-restoration-decision.md, docs/website/content/artifacts/decisions/release-notes-restoration-decision.md, docs/website/content/artifacts/decisions/runbook-restoration-decision.md, docs/website/content/artifacts/decisions/security-architecture-restoration-decision.md, docs/website/content/artifacts/decisions/security-metrics-restoration-decision.md, docs/website/content/artifacts/deployment-checklist.md, docs/website/content/artifacts/executions/README.md, docs/website/content/artifacts/features/FEAT-011-slider-autonomy.md, docs/website/content/artifacts/features/FEAT-013-runtime-install-coverage.md, docs/website/content/artifacts/features/FEAT-014-workflow-coverage.md, docs/website/content/artifacts/features/FEAT-016-artifact-honesty.md, docs/website/content/artifacts/hero-image-concepts/HERO-2026-05-12-document-spine-helix.md, docs/website/content/artifacts/homepage-worked-example-graph.md, docs/website/content/artifacts/improvement-backlog.md, docs/website/content/artifacts/metrics-dashboard.md, docs/website/content/artifacts/monitoring-setup.md, docs/website/content/artifacts/plan-2026-05-17-claude-code-install-hardening.md, docs/website/content/artifacts/plan-2026-05-17-fold-datahelix-templates.md, docs/website/content/artifacts/plan-2026-05-17-refresh-capability.md, docs/website/content/artifacts/plan-2026-05-24-helix-self-improvement.md, docs/website/content/artifacts/plan-2026-05-25-concern-slots-house-style.md, docs/website/content/artifacts/plan-2026-05-25-coverage-determinism.md, docs/website/content/artifacts/plan-2026-05-25-measurement-discipline.md, docs/website/content/artifacts/plan-2026-05-25-runtime-neutrality.md, docs/website/content/artifacts/plan-2026-05-25-sample-data.md, docs/website/content/artifacts/plan-2026-05-25-ux-design.md, docs/website/content/artifacts/plan-2026-05-25-verification-concern.md, docs/website/content/artifacts/plan-2026-05-26-admin-console-auth-concerns.md, docs/website/content/artifacts/plan-2026-05-26-bidirectional-traceability.md, docs/website/content/artifacts/plan-2026-05-26-complex-brief-robustness.md, docs/website/content/artifacts/plan-2026-05-26-decomposition-boundaries.md, docs/website/content/artifacts/plan-2026-05-26-spike-first-activation.md, docs/website/content/artifacts/plan-2026-05-26-spike-first-guidance-mandatory.md, docs/website/content/artifacts/plan-2026-05-27-concern-expansion-and-converge.md, docs/website/content/artifacts/prompt-iteration-protocol.md, docs/website/content/artifacts/release-notes.md, docs/website/content/artifacts/research-principles-injection-2026-04-05.md, docs/website/content/artifacts/runbook.md, docs/website/content/artifacts/security-architecture.md, docs/website/content/artifacts/security-metrics.md, docs/website/content/artifacts/solution-designs/SD-002-first-class-principles.md, docs/website/content/artifacts/technical-designs/TD-011-slider-autonomy-implementation.md, docs/website/content/artifacts/technical-designs/TD-012-artifact-types-navigation.md, docs/website/content/artifacts/technical-designs/TD-013-multi-runtime-install.md, docs/website/content/artifacts/test-plans/TP-014-appendix-real-world-patterns.md, docs/website/content/artifacts/test-plans/TP-014-helix-workflow-coverage.md, docs/website/content/reference/_index.md, docs/website/content/reference/glossary/_index.md, docs/website/content/reference/glossary/activities.md, docs/website/content/reference/skills/_index.md, docs/website/content/research/_index.md, docs/website/content/research/helix-evaluation-2025.md, docs/website/content/use/workflow/_index.md, docs/website/content/use/workflow/concerns.md, scripts/publish-artifacts.py, scripts/publish-resources.py)\",\"fingerprint\":\"cf342acd47f7154290c6da50bfb3ee47ad8cd294e79636a7013c1f57e2675290\",\"policy_mode\":\"warn-only\",\"reason\":\"system_unready\",\"rule_id\":\"pre_claim_intake.system_unready\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"cf342acd47f7154290c6da50bfb3ee47ad8cd294e79636a7013c1f57e2675290\"}",
+          "created_at": "2026-05-29T03:17:43.453751855Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "system_unready"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"detail\":\"route unavailable: no viable routing candidate satisfies requested MinPower 0: no viable routing floor for inferred powerClass standard\",\"harness\":\"\",\"model\":\"\",\"reason\":\"routing\"}",
+          "created_at": "2026-05-29T03:20:20.333390937Z",
+          "kind": "disruption_detected",
+          "source": "ddx work",
+          "summary": "routing"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"\",\"actual_model\":\"\",\"actual_power\":0,\"actual_provider\":\"\",\"attempt_id\":\"\",\"bead_id\":\"helix-53c6df33\",\"estimated_difficulty\":\"\",\"rejected_route_pins\":null,\"requested_power_class\":\"standard\",\"requested_profile\":\"\",\"routing_intent_degraded\":true,\"routing_intent_note\":\"actual route facts unavailable\",\"routing_intent_source\":\"default\"}",
+          "created_at": "2026-05-29T03:20:20.387144456Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=default powerClass=standard note=actual route facts unavailable"
+        },
+        {
+          "actor": "erik",
+          "body": "route unavailable: no viable routing candidate satisfies requested MinPower 0: no viable routing floor for inferred powerClass standard\noutcome_reason=no_viable_provider",
+          "created_at": "2026-05-29T03:20:20.441850849Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness route unavailable: runner error: ResolveRoute: no live provider supports prompt of 1943 tokens with tools=false at policy default\",\"fingerprint\":\"346b6740dd83defb741535492ecc924111d39023f8a98a53c8c97f9dc4297f83\",\"policy_mode\":\"warn-only\",\"reason\":\"system_unready\",\"rule_id\":\"pre_claim_intake.system_unready\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"346b6740dd83defb741535492ecc924111d39023f8a98a53c8c97f9dc4297f83\"}",
+          "created_at": "2026-05-29T03:40:34.300383902Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "system_unready"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"detail\":\"route unavailable: no viable routing candidate satisfies requested MinPower 0: no viable routing floor for inferred powerClass standard\",\"harness\":\"\",\"model\":\"\",\"reason\":\"routing\"}",
+          "created_at": "2026-05-29T03:41:03.646690822Z",
+          "kind": "disruption_detected",
+          "source": "ddx work",
+          "summary": "routing"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"\",\"actual_model\":\"\",\"actual_power\":0,\"actual_provider\":\"\",\"attempt_id\":\"\",\"bead_id\":\"helix-53c6df33\",\"estimated_difficulty\":\"\",\"rejected_route_pins\":null,\"requested_power_class\":\"standard\",\"requested_profile\":\"\",\"routing_intent_degraded\":true,\"routing_intent_note\":\"actual route facts unavailable\",\"routing_intent_source\":\"default\"}",
+          "created_at": "2026-05-29T03:41:03.70687536Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=default powerClass=standard note=actual route facts unavailable"
+        },
+        {
+          "actor": "erik",
+          "body": "route unavailable: no viable routing candidate satisfies requested MinPower 0: no viable routing floor for inferred powerClass standard\noutcome_reason=no_viable_provider",
+          "created_at": "2026-05-29T03:41:03.762726069Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness route unavailable: lifecycle dispatch: project root mutation rejected (changed existing dirty paths: website/e2e/microsite.spec.ts)\",\"fingerprint\":\"5e268166fd1e101857fabf1a20c6fe5f2a1c386f0e4bf51df1f498afe6008070\",\"policy_mode\":\"warn-only\",\"reason\":\"system_unready\",\"rule_id\":\"pre_claim_intake.system_unready\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"5e268166fd1e101857fabf1a20c6fe5f2a1c386f0e4bf51df1f498afe6008070\"}",
+          "created_at": "2026-05-29T04:01:29.041032976Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "system_unready"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"detail\":\"route unavailable: no viable routing candidate satisfies requested MinPower 0: no viable routing floor for inferred powerClass standard\",\"harness\":\"\",\"model\":\"\",\"reason\":\"routing\"}",
+          "created_at": "2026-05-29T04:01:57.866175179Z",
+          "kind": "disruption_detected",
+          "source": "ddx work",
+          "summary": "routing"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"\",\"actual_model\":\"\",\"actual_power\":0,\"actual_provider\":\"\",\"attempt_id\":\"\",\"bead_id\":\"helix-53c6df33\",\"estimated_difficulty\":\"\",\"rejected_route_pins\":null,\"requested_power_class\":\"standard\",\"requested_profile\":\"\",\"routing_intent_degraded\":true,\"routing_intent_note\":\"actual route facts unavailable\",\"routing_intent_source\":\"default\"}",
+          "created_at": "2026-05-29T04:01:57.92142786Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=default powerClass=standard note=actual route facts unavailable"
+        },
+        {
+          "actor": "erik",
+          "body": "route unavailable: no viable routing candidate satisfies requested MinPower 0: no viable routing floor for inferred powerClass standard\noutcome_reason=no_viable_provider",
+          "created_at": "2026-05-29T04:01:57.977784874Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness route unavailable: lifecycle dispatch: project root mutation rejected (changed existing dirty paths: docs/website/content/reference/skills/_index.md, docs/website/content/skills/_index.md)\",\"fingerprint\":\"e8b42e04c4f0faeac2ce6e7ba6919a906976ddf90149a9993f0340e7c626003d\",\"policy_mode\":\"warn-only\",\"reason\":\"system_unready\",\"rule_id\":\"pre_claim_intake.system_unready\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"e8b42e04c4f0faeac2ce6e7ba6919a906976ddf90149a9993f0340e7c626003d\"}",
+          "created_at": "2026-05-30T02:49:53.926014203Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "system_unready"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"claude\",\"resolved_model\":\"haiku\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-30T03:00:58.375982812Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=claude model=haiku"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"attempt_id\":\"20260530T025200-2dc766e6\",\"harness\":\"claude\",\"model\":\"haiku\",\"input_tokens\":471,\"output_tokens\":24310,\"total_tokens\":24781,\"cost_usd\":0.73501345,\"duration_ms\":537069,\"exit_code\":0}",
+          "created_at": "2026-05-30T03:00:58.44565582Z",
+          "kind": "cost",
+          "source": "legacy agent execute-bead",
+          "summary": "tokens=24781 cost_usd=0.7350 model=haiku"
+        }
+      ],
+      "spec-id": "helix.installer-integration-tests",
+      "work-failed-routes": [
+        {
+          "actual_power": 5,
+          "at": "2026-05-28T21:58:19Z",
+          "count": 1,
+          "endpoint": "http://bragi:1234/v1/chat/completions",
+          "model": "qwen3.5-27b",
+          "provider": "bragi",
+          "reason": "provider_connectivity",
+          "timeout_class": "bad gateway"
+        }
+      ]
+    }
+  },
+  "paths": {
+    "dir": ".ddx/executions/20260530T030100-f958367f",
+    "prompt": ".ddx/executions/20260530T030100-f958367f/prompt.md",
+    "manifest": ".ddx/executions/20260530T030100-f958367f/manifest.json",
+    "result": ".ddx/executions/20260530T030100-f958367f/result.json",
+    "checks": ".ddx/executions/20260530T030100-f958367f/checks.json",
+    "usage": ".ddx/executions/20260530T030100-f958367f/usage.json",
+    "worktree": "Users/erik/Projects/.ddx-exec-wt/.execute-bead-wt-helix-53c6df33-20260530T030100-f958367f"
+  },
+  "prompt_sha": "bcbd7ca9a8b60781ace4e7370840d6eb3525a64a3a97a5450a102dfed4b1d17c"
+}
