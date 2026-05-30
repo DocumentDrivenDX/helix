@@ -141,8 +141,8 @@ references:
     file: docs/resources/databricks-lakehouse-architecture.md
     relationship: "Grounds unified storage, compute, and governance model for data products"
 
-  - title: "Databricks Medallion Architecture Pattern"
-    file: docs/resources/databricks-medallion-architecture.md
+  - title: "Databricks Lakehouse Medallion Architecture"
+    file: docs/resources/databricks-lakehouse-medallion-architecture.md
     relationship: "Grounds Bronze/Silver/Gold transformation semantics and layer isolation"
 
   - title: "Databricks Auto Loader and Streaming Tables"
