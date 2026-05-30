@@ -43,6 +43,10 @@ lint:
 lint-prose:
     vale docs/website/content
 
+# Surface cross-file paragraph duplication that token-level Vale rules miss
+check-prose-redundancy:
+    python3 scripts/check-prose-redundancy.py
+
 # Verify generated/published site content is current and complete
 test-website-generated:
     bash tests/validate-website-generated.sh

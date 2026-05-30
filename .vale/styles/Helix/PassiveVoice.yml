@@ -1,0 +1,7 @@
+extends: existence
+message: "Passive voice: '%s'. Prefer active where the actor matters."
+level: warning
+ignorecase: true
+tokens:
+  - '\b(?:am|is|are|was|were|be|been|being)\s+(?:\w+(?:ed|en))\b'
+  - '\b(?:am|is|are|was|were|be|been|being)\s+(?:made|done|told|kept|known|taken|shown|seen|sent|put|set|left|read|paid|met|lost|hit|cut|bought|brought|caught|chosen|driven|fallen|forgotten|frozen|given|hidden|held|sold|spoken|stolen|swept|swung|thought|thrown|understood|won|worn|written|broken|built|burst|dealt|drawn|drunk|eaten|fed|felt|fought|found|forbidden|gotten|grown|heard|laid|laid|led|let|lit|paid|proven|risen|rung|run|said|seen|shaken|shed|shot|shrunk|shut|sung|sunk|spread|stood|stuck|sunk|sworn|taught|torn|told|trodden|undertaken|woken|wound)\b'

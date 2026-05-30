@@ -1,0 +1,21 @@
+extends: existence
+message: "Review '%s' — often a weak hedge. Keep only if it names a real contrast or limit."
+level: warning
+ignorecase: true
+tokens:
+  - '\bjust\b'
+  - '\bvery\b'
+  - '\breally\b'
+  - '\bquite\b'
+  - '\bsimply\b'
+  - '\bactually\b'
+  - '\bbasically\b'
+  - '\bliterally\b'
+  - '\bessentially\b'
+  - '\bgenerally\b'
+  - '\busually\b'
+  - '\boften\b'
+  - '\bsomewhat\b'
+  - '\brather\b'
+  - '\bclearly\b'
+  - '\bobviously\b'

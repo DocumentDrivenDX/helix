@@ -1,0 +1,42 @@
+extends: substitution
+message: "Tighten '%s' → '%s'."
+level: warning
+ignorecase: true
+nonword: false
+swap:
+  in order to: to
+  in order for: so
+  due to the fact that: because
+  the fact that: that
+  in the event that: if
+  at this point in time: now
+  with regard to: about
+  with respect to: about
+  in regards to: about
+  a number of: some
+  the majority of: most
+  on a daily basis: daily
+  on a weekly basis: weekly
+  on a monthly basis: monthly
+  make use of: use
+  makes use of: uses
+  in spite of: despite
+  prior to: before
+  subsequent to: after
+  in conjunction with: with
+  in addition to: besides
+  it should be noted that: (delete)
+  it is important to note that: (delete)
+  it is worth noting that: (delete)
+  please note that: (delete)
+  it is the case that: (delete)
+  as a matter of fact: (delete)
+  needless to say: (delete)
+  in essence: (delete)
+  for the purpose of: for
+  for the purposes of: for
+  in the process of: (delete)
+  has the ability to: can
+  have the ability to: can
+  is able to: can
+  are able to: can

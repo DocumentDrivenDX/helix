@@ -1,0 +1,7 @@
+extends: existence
+message: "Long sentence (>30 words). Split or tighten if it does not earn the length."
+level: warning
+# Match a sentence-shaped run: capital-letter start, 30+ space-separated tokens,
+# ending in a sentence terminator. Approximate, but flags real outliers.
+tokens:
+  - '[A-Z][^.!?\n]*?(?:\s+\S+){30,}[^.!?\n]*[.!?]'
