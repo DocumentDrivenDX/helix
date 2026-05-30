@@ -43,8 +43,8 @@ Human workflow:
 Prompt:
 
 ```text
-Read these HELIX artifacts in authority order: product vision, PRD, feature
-spec, and design note. Identify contradictions, missing decisions, unclear
+Read these HELIX artifacts from highest authority down: product vision,
+PRD, feature spec, and design note. Identify contradictions, missing decisions, unclear
 acceptance criteria, and implementation risks. Do not edit code. Propose
 artifact edits only, and separate facts from assumptions.
 ```
@@ -55,10 +55,10 @@ Alignment asks whether downstream artifacts still obey upstream intent.
 
 Human workflow:
 
-- Give the agent the artifact stack in authority order.
+- Give the agent the artifact stack ordered by authority.
 - Ask it to compare each downstream artifact against its governing upstream
   artifacts.
-- Accept only concrete edits that preserve the authority order.
+- Accept only concrete edits that preserve the authority hierarchy.
 - Update the artifacts by hand or ask the agent to patch only named files.
 
 Prompt:

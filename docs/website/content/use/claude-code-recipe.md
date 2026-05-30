@@ -70,7 +70,7 @@ Prompt Claude Code:
 ```text
 Create the first HELIX artifact stack for <project>. Use these paths:
 <paths>. Start from concise, decision-oriented documents. Mark unknowns as open
-questions. Do not implement product code. Preserve this authority order:
+questions. Do not implement product code. Preserve this authority hierarchy:
 vision -> PRD -> feature spec -> design -> implementation handoff.
 ```
 
@@ -82,8 +82,9 @@ success criteria yourself before asking for implementation.
 Prompt Claude Code:
 
 ```text
-Run a HELIX alignment pass over these files: <artifact paths>. Read each file in
-authority order. Report contradictions, missing downstream coverage, vague
+Run a HELIX alignment pass over these files: <artifact paths>. Read each file
+from the highest-authority artifact down. Report contradictions, missing
+downstream coverage, vague
 acceptance criteria, and stale assumptions. Patch only artifact files I name
 after reviewing your findings.
 ```

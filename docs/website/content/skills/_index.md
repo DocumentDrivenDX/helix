@@ -4,7 +4,8 @@ weight: 4
 ---
 
 HELIX skills are the portable agent-facing surface of the methodology. They
-package the artifact catalog, authority order, and alignment workflow so an AI
+package the artifact catalog, artifact authority hierarchy, and alignment
+workflow so an AI
 runtime can inspect a repository's Markdown artifacts and propose the next
 safe plan. For the methodology behind the skill, see
 [the thesis](/why/the-thesis/); for invocation reference, see
@@ -13,13 +14,13 @@ safe plan. For the methodology behind the skill, see
 ## The core skill
 
 {{< cards >}}
-  {{< card link="#alignment-and-planning" title="Alignment and Planning" subtitle="Find drift, gaps, and contradictions across governing artifacts, then propose an authority-ordered update plan." icon="sparkles" >}}
+  {{< card link="#alignment-and-planning" title="Alignment and Planning" subtitle="Find drift, gaps, and contradictions across governing artifacts, then propose an authority-ranked update plan." icon="sparkles" >}}
 {{< /cards >}}
 
 ### Alignment and Planning
 
-The core HELIX skill reads an artifact set, compares artifacts by authority
-order, and returns a plan for restoring coherence. It is not an execution
+The core HELIX skill reads an artifact set, compares artifacts via the
+authority hierarchy, and returns a plan for restoring coherence. It is not an execution
 engine. It answers questions such as:
 
 - Which upstream artifact governs this change?
@@ -32,18 +33,18 @@ The skill is portable because its minimum runtime contract is simple: read
 Markdown, search files, write Markdown when approved, and present a plan for
 review.
 
-The full inputs, outputs, authority-order rule, open-question behavior, and
-runtime expectations live on the
+The full inputs, outputs, authority-hierarchy rule, open-question
+behavior, and runtime expectations live on the
 [invocation reference](/reference/skills/); the
-[authority order](/use/workflow/#authority-order) itself is canonical in
-the workflow page.
+[authority hierarchy](/use/workflow/#authority-hierarchy) itself is
+canonical in the workflow page.
 
 ## What the skill operates on
 
 {{< cards >}}
   {{< card link="../artifact-types" title="Artifact-Type Catalog" subtitle="The reusable templates, prompts, metadata, and quality criteria that define HELIX document shapes." icon="collection" >}}
   {{< card link="../artifacts" title="HELIX's Own Artifacts" subtitle="The worked example: HELIX applies its catalog to itself under docs/helix/." icon="document-text" >}}
-  {{< card link="../why/principles/#3-authority-order-governs-reconciliation" title="Authority Order" subtitle="The rule that higher-level intent governs lower-level designs, tests, and implementation plans." icon="scale" >}}
+  {{< card link="../why/principles/#3-the-artifact-authority-hierarchy-governs-reconciliation" title="Authority Hierarchy" subtitle="The rule that higher-level intent governs lower-level designs, tests, and implementation plans." icon="scale" >}}
 {{< /cards >}}
 
 Artifact types define the reusable shapes. Concrete artifacts are the documents
@@ -72,6 +73,6 @@ The durable public concepts are:
 
 - Artifact-type catalog
 - Concrete governing artifacts
-- Authority-ordered reconciliation
+- Authority-hierarchy reconciliation
 - One alignment-and-planning skill
 - Runtime integrations that execute or package the method

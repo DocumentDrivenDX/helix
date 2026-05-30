@@ -29,7 +29,8 @@ The activities are connected by authority. A vision change propagates
 downstream; a failing test reveals a missing requirement; a production
 metric revises the PRD. Forty-plus artifact types each have a defined
 role, an authoring prompt, a template, and a place in the [authority
-order](/why/principles/#3-authority-order-governs-reconciliation). When
+hierarchy](/why/principles/#3-the-artifact-authority-hierarchy-governs-reconciliation).
+When
 an artifact is missing or stale, HELIX knows which activity produces it.
 When two artifacts disagree, the higher one wins.
 

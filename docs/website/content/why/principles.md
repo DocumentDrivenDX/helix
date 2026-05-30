@@ -45,7 +45,7 @@ to behaviors. ADRs commit to design choices. Beads commit to
 work-in-progress. Together they form a graph that any agent can traverse
 when it needs context.
 
-## 3. Authority order governs reconciliation
+## 3. The artifact authority hierarchy governs reconciliation
 
 > When artifacts at different layers disagree, the higher layer wins.
 
@@ -60,7 +60,7 @@ rule prevents a common failure mode of agentic development: agents that
 infer requirements from existing code and propagate implementation accidents
 back into specifications.
 
-The authority order is also how change propagates. A vision shift cascades
+The authority hierarchy is also how change propagates. A vision shift cascades
 downward through every layer. A bug report at the code layer can propagate
 up to a spec change and then back down through tests. Either direction
 works, but the higher artifact always governs.

@@ -23,7 +23,8 @@ If you skip the prose and just want to orient yourself, the site is organized
 around the journeys HELIX actually supports:
 
 - **Learn the methodology**: start with [Methodology](/use/workflow/methodology/)
-  to understand the double helix, the seven activities, the authority order,
+  to understand the double helix, the seven activities, the artifact
+  authority hierarchy,
   and how planning and execution stay connected without assuming one runtime.
 - **Inspect worked artifacts**: browse [Artifacts](/artifacts/) to see
   concrete HELIX documents applied to this project.

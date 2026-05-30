@@ -68,7 +68,7 @@ Use these recipes when adopting HELIX in another toolchain:
 {{< cards >}}
   {{< card link="manual-recipe" title="Manual" subtitle="Small teams or early discovery where humans edit artifacts and prompt agents directly." icon="pencil" >}}
   {{< card link="claude-code-recipe" title="Claude Code" subtitle="Claude Code sessions that need HELIX artifact discipline without DDx queue control." icon="code" >}}
-  {{< card link="codex-recipe" title="Codex" subtitle="Codex sessions that need bounded edits, explicit authority order, and handoff-ready work." icon="chip" >}}
+  {{< card link="codex-recipe" title="Codex" subtitle="Codex sessions that need bounded edits, an explicit authority hierarchy, and handoff-ready work." icon="chip" >}}
   {{< card link="databricks-recipe" title="Databricks" subtitle="Databricks Genie or agent workflows that use HELIX artifacts as governed project context." icon="database" >}}
 {{< /cards >}}
 
@@ -77,7 +77,7 @@ Use these recipes when adopting HELIX in another toolchain:
 The core HELIX methodology is runtime-neutral:
 
 - Artifact-type catalog
-- Authority order
+- Authority hierarchy
 - Seven activity loop
 - Alignment-and-planning skill
 

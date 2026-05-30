@@ -71,8 +71,8 @@ agent will defend code against on day n.
 ## align: Detect drift across the artifact graph
 
 PRD says one thing; a recent ADR says another. The alignment skill walks
-the graph in authority order and reports an ordered plan to close the
-gap.
+the graph from highest authority down and reports an ordered plan to
+close the gap.
 
 {{< asciinema file="/demos/helix-align.cast" autoplay=true speed=1.5 >}}
 
@@ -95,7 +95,7 @@ runtime to execute.
 ## evolve: Thread a new requirement through the stack
 
 The product-vision scenario, made concrete: a team adds OAuth alongside
-existing API-key auth. One sentence in; six authority-ordered steps out,
+existing API-key auth. One sentence in; six authority-ranked steps out,
 spanning security architecture, ADRs, feature specs, designs, tests, and
 beads.
 

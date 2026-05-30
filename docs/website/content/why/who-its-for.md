@@ -36,7 +36,7 @@ methodology.
 the artifact graph and alignment practices from the execution surface. You
 can apply the same methodology through DDx, Databricks Genie, Claude Code,
 or another platform as long as the runtime can consume the artifacts and
-respect the authority order.
+respect the authority hierarchy.
 
 **You think in documents.** HELIX assumes that writing down intent, in a
 form your collaborators can read and amend, is worth doing. Teams that
@@ -56,7 +56,7 @@ optimize for projects you intend to throw away.
 
 **You don't use AI agents and don't want the artifact discipline.** A team
 writing all of its own code can still benefit from HELIX's artifact types,
-authority order, and alignment checks. But if you do not need durable
+authority hierarchy, and alignment checks. But if you do not need durable
 machine-readable context and do not want to maintain it, the method will
 feel heavier than the problem requires.
 

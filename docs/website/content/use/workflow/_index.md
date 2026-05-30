@@ -10,8 +10,9 @@ aliases:
   - /docs/workflow/methodology
 ---
 
-How HELIX runs in a project: the activities, the authority order, the
-alignment skill, the build-exit gate, and the convergence loop. For the
+How HELIX runs in a project: the activities, the artifact authority
+hierarchy, the alignment skill, the build-exit gate, and the convergence
+loop. For the
 argument behind the procedure, see [the thesis](/why/the-thesis/) and
 [principles](/why/principles/). For the activity catalog (each activity's
 purpose and artifact types), see the
@@ -33,8 +34,8 @@ tracker, queue, or runtime your platform owns.
 
 ## Multi-Directional Workflow
 
-Changes can enter at any activity. The same authority order resolves them
-regardless of entry point:
+Changes can enter at any activity. The same authority hierarchy
+determines which artifact governs, regardless of entry point:
 
 - **Top-down**: a vision revision propagates into PRD, features, designs,
   tests, code.
@@ -50,9 +51,10 @@ The alignment skill keeps these flows coherent. It walks the artifacts
 on demand, identifies drift in any direction, and produces a plan to
 close it.
 
-## Authority Order
+<span id="authority-order" style="display:block; scroll-margin-top: 6rem;"></span>
+## Authority Hierarchy
 
-When artifacts disagree, HELIX resolves conflicts **up** the order:
+When artifacts disagree, HELIX escalates to the higher-authority artifact:
 
 1. **Product Vision**: what the product should become.
 2. **Product Requirements (PRD)**: what must be built.
@@ -93,7 +95,8 @@ change).
 The portable HELIX skill operates the loop. Given the current artifacts
 and (optionally) a new intent, it:
 
-1. **Walks** the governing artifacts top-down through the authority order.
+1. **Walks** the governing artifacts top-down through the authority
+   hierarchy.
 2. **Identifies** drift, gaps, and contradictions across activities.
 3. **Produces** a plan describing the artifact updates needed to restore
    coherence, ordered by authority.

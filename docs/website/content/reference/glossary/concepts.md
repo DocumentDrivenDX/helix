@@ -11,7 +11,7 @@ aliases:
 
 The ideas that make HELIX work.
 
-## Authority Order
+## Artifact Authority Hierarchy
 
 When HELIX artifacts disagree, resolve the conflict using this precedence:
 
@@ -24,7 +24,7 @@ When HELIX artifacts disagree, resolve the conflict using this precedence:
 7. **Implementation Plans**
 8. **Source Code / Build Artifacts** (lowest authority)
 
-Higher-order artifacts govern lower-order artifacts. Tests are executable specifications: code must satisfy tests, not the other way around. Source code is evidence of current state, not the source of truth for requirements.
+Higher-authority artifacts govern lower-authority artifacts. Tests are executable specifications: code must satisfy tests, not the other way around. Source code is evidence of current state, not the source of truth for requirements.
 
 If a lower-level artifact contradicts a higher one, fix the lower-level artifact. Only change higher-level artifacts when the evidence is strong and the governing artifacts are stale or incomplete.
 

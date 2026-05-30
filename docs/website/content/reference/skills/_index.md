@@ -16,8 +16,8 @@ artifact-coverage list, see [/skills/](/skills/).
 
 The alignment-and-planning skill reconciles a project's governing artifacts. It
 starts from an explicit scope or operator question, reads the relevant Markdown
-artifact set, compares artifacts by authority order, and returns an actionable
-plan for restoring coherence.
+artifact set, compares artifacts via the artifact authority hierarchy,
+and returns an actionable plan for restoring coherence.
 
 Use it to answer questions such as:
 
@@ -50,14 +50,15 @@ The skill produces:
 - A plan for artifact edits, new work items, or runtime execution handoff.
 - Optional Markdown edits when the operator explicitly authorizes writes.
 
-### Authority order
+### Authority hierarchy
 
-The skill follows the project's authority order: higher-level intent governs
-lower-level documents and implementation plans, and lower-level disagreement
-is drift to reconcile. The canonical eight-level order is defined in
-[Workflow: Authority Order](/use/workflow/#authority-order). If the repository
-defines a more specific order, the skill should use that project-local rule
-and report that it did so.
+The skill follows the project's authority hierarchy: higher-level intent
+governs lower-level documents and implementation plans, and lower-level
+disagreement is drift to reconcile. The canonical eight-level hierarchy
+is defined in
+[Workflow: Authority Hierarchy](/use/workflow/#authority-hierarchy). If
+the repository defines a more specific hierarchy, the skill should use
+that project-local rule and report that it did so.
 
 ### Open-question behavior
 

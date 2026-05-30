@@ -47,8 +47,8 @@ governing artifacts first, then identify the smallest safe implementation step.
 
 ## Understand the Artifact Hierarchy
 
-HELIX resolves conflicts by authority order. Higher-level artifacts govern
-lower-level artifacts:
+HELIX resolves conflicts via the artifact authority hierarchy.
+Higher-level artifacts govern lower-level artifacts:
 
 ```text
 Product Vision          "What is this and why?"
