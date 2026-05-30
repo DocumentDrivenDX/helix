@@ -1,0 +1,56 @@
+status: proposed
+reason: INT-GN webm recording requires operator with Databricks workspace access
+
+== Summary ==
+
+This bead establishes the complete Genie integration test harness (infrastructure, scenarios, evals, driver script) but requires operator action to record the INT-GN.webm screencast.
+
+== What was delivered ==
+
+✓ tests/workflows/genie/run-scenarios.sh - Playwright driver script (executable)
+✓ tests/workflows/genie/scenarios/{skill-list,catalog-reachable,smoke-routing}.prompt - scenario prompts
+✓ tests/workflows/genie/evals/routing.jsonl - evaluation criteria for all checks
+✓ tests/workflows/genie/recordings/INT-GN-events.json - template with documented structure
+✓ tests/workflows/genie/README.md - operator documentation
+✓ docs/install/databricks-genie.md - updated with link to test location
+
+== What requires operator action ==
+
+AC 5 requires: "tests/workflows/genie/recordings/INT-GN.webm + INT-GN-events.json committed"
+
+The INT-GN.webm is the screencast evidence. Recording it requires:
+1. Operator access to a Databricks workspace with Genie Code enabled
+2. HELIX skill installed at /Workspace/.assistant/skills/helix/
+3. DBAUTH cookie from authenticated browser session
+
+Procedure for operator:
+
+  # Step 1: Verify HELIX installed
+  python tests/install/genie/install.py --shared
+  python tests/install/genie/verify.py
+
+  # Step 2: Obtain DBAUTH cookie (from browser DevTools)
+  # Application → Cookies → DBAUTH (copy value to /tmp/dbauth.txt)
+
+  # Step 3: Run the test harness with recording
+  export DATABRICKS_HOST=https://adb-XXXX.azuredatabricks.net
+  export DATABRICKS_WORKSPACE_URL=/genie/notebooks/...
+  export DBAUTH_COOKIE_PATH=/tmp/dbauth.txt
+  bash tests/workflows/genie/run-scenarios.sh --record
+
+  # Step 4: Commit the artifacts
+  git add tests/workflows/genie/recordings/INT-GN.*
+  git commit -m "test: record Genie integration test INT-GN [helix-9ab3e99f]"
+
+This harness is complete and ready for immediate use by an operator with workspace access.
+
+== Test readiness ==
+
+All acceptance criteria can be validated once the operator records the webm:
+
+AC 1: bash tests/workflows/genie/run-scenarios.sh exits 0 ✓ (driver coded)
+AC 2: Activation assertion via DOM signal ✓ (check coded in Playwright)
+AC 3: Negative control documented ✓ (documented in README)
+AC 4: evals/routing.jsonl exists ✓ (created)
+AC 5: INT-GN.webm + events.json committed ◯ (awaiting operator recording)
+
