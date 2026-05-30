@@ -49,17 +49,10 @@ Data Architecture describes pipeline topology and data flow, not the detailed
 data model (Data Design), not implementation sequences (Implementation Plan),
 and not individual quality checks (Data Quality Expectations).
 
-**Databricks Platform Substitution:** If you are adopting this on another data
-platform, substitute as follows:
-
-| Databricks Concept | Snowflake Equivalent | BigQuery Equivalent | On-Prem / Other |
-|---|---|---|---|
-| Medallion layers (Bronze/Silver/Gold) | Same pattern applies universally | Same pattern applies universally | Same pattern applies universally |
-| Auto Loader | Snowpipe or native connectors | Dataflow, BigQuery Connector Hub | Apache NiFi, Kafka connectors |
-| Streaming Tables with `EXPECT` clauses | Stream-triggered materialized views + native checks | Dataflow with Beam assertions | Apache Flink with custom state management |
-| Databricks Jobs for orchestration | Snowflake Tasks | Cloud Composer (Airflow) or Cloud Workflows | Apache Airflow, Dagster, dbt Cloud |
-| SDP `EXPECT ... ON VIOLATION ...` | Data Quality checks + Task error handling | BigQuery Data Quality API + Cloud Workflows | dbt tests, Great Expectations, custom assertions |
-| Delta Lake format | Iceberg or proprietary formats | Native BigQuery tables | Apache Parquet, Iceberg, Hudi |
+**Non-Databricks platforms:** see
+`docs/resources/databricks-platform-substitution.md` for the equivalent
+terms on Snowflake, BigQuery, and on-prem stacks. The artifact shape and
+prompt stay the same.
 
 ## Completion Criteria
 
