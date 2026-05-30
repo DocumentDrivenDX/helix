@@ -9,8 +9,9 @@ define exactly what is measured, how to collect it, what unit it uses, whether
 higher or lower is better, what tolerance applies, and how dashboards,
 ratchets, experiments, or monitoring should interpret it.
 
-It is not a dashboard, alert policy, or improvement backlog item. Those artifacts
-consume metric definitions.
+For how this artifact relates to dashboards, security-metrics, and the
+improvement backlog, see the "Metric Four-Way Slice" section of
+`workflows/activities/06-iterate/README.md`.
 
 ## Reference Anchors
 

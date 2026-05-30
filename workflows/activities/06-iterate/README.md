@@ -68,6 +68,30 @@ graph TD
     K -->|No| M[Project Complete]
 ```
 
+## Metric Four-Way Slice
+
+Four iterate artifacts form one slice of the metric loop. Each owns a distinct
+job; together they carry an iteration from "what we measure" to "what we do
+next":
+
+- **Metric Definition** is the contract. It fixes the name, unit, direction,
+  command, and tolerance for one measurement. Every other artifact in the
+  slice cites a metric definition rather than redefining one.
+- **Metrics Dashboard** is the current-values view. It consumes metric
+  definitions, compares current readings against baseline or ratchet floor,
+  and produces an iteration-level decision (improved, regressed, noise).
+- **Security Metrics** is the security slice of the dashboard. It uses the
+  same definition contract but scopes the view to incident response,
+  vulnerability management, application security, and compliance signals.
+- **Improvement Backlog** consumes dashboard signal (including the security
+  slice) and turns it into prioritized follow-up work with an explicit
+  next-iteration selection.
+
+Flow: definitions feed dashboards; the security dashboard is the
+security-shaped slice of the same data; backlog consumes dashboard signal.
+Each artifact prompt cross-references this section instead of restating the
+relationship.
+
 ## Work Items
 
 ### Artifacts
