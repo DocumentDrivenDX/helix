@@ -1,0 +1,27 @@
+{
+  "ran": true,
+  "changed_docs": [
+    "docs/helix/02-design/plan-2026-05-29-rename-authority-order.md",
+    "docs/install/claude-code.md",
+    "docs/website/content/artifacts/_index.md",
+    "docs/website/content/artifacts/plan-2026-05-29-rename-authority-order.md"
+  ],
+  "findings": [
+    {
+      "file": "docs/install/claude-code.md",
+      "line": 240,
+      "rule_id": "prose.specificity.actor_action",
+      "severity": "advisory",
+      "rationale": "The sentence says something enables or supports work without naming the actor, action, artifact, or boundary.",
+      "suggested_edit": "Name the actor, action, artifact, or boundary that makes the statement concrete."
+    },
+    {
+      "file": "docs/website/content/artifacts/_index.md",
+      "line": 42,
+      "rule_id": "prose.claim.unsupported",
+      "severity": "advisory",
+      "rationale": "The sentence uses unsupported promotional claims such as \"robust\", \"comprehensive\", and \"seamless\" instead of precise behavior.",
+      "suggested_edit": "Replace the claim with a concrete description of the actual change and its measured effect."
+    }
+  ]
+}
