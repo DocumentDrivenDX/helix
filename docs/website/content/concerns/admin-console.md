@@ -20,14 +20,14 @@ ui, api
 
 This concern owns the **operator product surface and its workflow-coverage
 target**: for an operator-facing product, the human operator can do their
-jobs-to-be-done from the UI. It is composable and stays out of four neighbours:
+jobs-to-be-done from the UI. It is composable.
 
-- **`verification`** owns *evidence* (work isn't done without an observed run).
-- **`e2e-framework`** (slot) owns the *tool/form* of the e2e (browser runner, or
-  live-server HTTP for server-rendered — `verification` decides which).
-- **`ux-radix`** owns *interaction quality* (active-state, focus, states).
-- **`frontend-framework`** (slot) owns the *stack*; `security-owasp` the
-  hardening; `auth` gates access.
+For access gating, `admin-console` references `auth` — the operator surface is
+what `auth` gates; see [README-auth-family.md](../README-auth-family.md) for
+the auth family ownership table. For evidence (`verification`), the e2e
+tool/form (`e2e-framework` slot), interaction quality (`ux-radix`), the stack
+(`frontend-framework` slot), and hardening (`security-owasp`), see those
+concerns directly.
 
 `admin-console` owns the one thing those do not state: **the operator's
 jobs-to-be-done — CRUD over the core domain objects plus the domain's
@@ -116,9 +116,11 @@ Agents working in any of these activities inherit the practices below via the be
 
 These practices realize the `admin-console` concern: the operator's
 jobs-to-be-done built as usable UI, with the primary operator workflow exercised
-end-to-end through that UI. They do not restate evidence rules (`verification`),
-the e2e tool (`e2e-framework`), interaction quality (`ux-radix`), the stack
-(`frontend-framework`), hardening (`security-owasp`), or access gating (`auth`).
+end-to-end through that UI. Access gating defers to `auth` — see
+[README-auth-family.md](../README-auth-family.md) for the auth family ownership
+table. Evidence rules (`verification`), the e2e tool (`e2e-framework`),
+interaction quality (`ux-radix`), the stack (`frontend-framework`), and
+hardening (`security-owasp`) each live in their own concerns.
 
 ## Design
 

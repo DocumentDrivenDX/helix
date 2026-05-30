@@ -1,12 +1,12 @@
 # Practices: Multi-Tenancy
 
 These practices govern **isolation between tenants** — that no code path lets
-one tenant reach another's data. They sit alongside `auth` (who you are),
-`authorization-model` (what you may do *within* a tenant), and `security-owasp`
-(general hardening; cross-tenant access is Broken Access Control / IDOR). Their
-one job is to make the **cross-tenant leak** unreachable and **reviewer-checkable**.
-Each MUST/SHOULD below is written so a reviewer can confirm or refute it against
-the diff and the running system.
+one tenant reach another's data. For the family ownership table (auth /
+authorization-model / multi-tenancy / security-owasp) see
+[README-auth-family.md](../README-auth-family.md). Their one job is to make the
+**cross-tenant leak** unreachable and **reviewer-checkable**. Each MUST/SHOULD
+below is written so a reviewer can confirm or refute it against the diff and
+the running system.
 
 ## Choose and record the isolation model (Frame / Design)
 
@@ -91,19 +91,6 @@ the diff and the running system.
   schema/version **SHOULD** be tracked.
 - Offboarding **MUST** be able to export and delete a single tenant's data
   without affecting other tenants.
-
-## Boundary with neighbors
-
-- For **who the principal is** (signup, login, sessions, account bootstrap)
-  defer to `auth`; do not restate it here. This concern consumes the principal.
-- For **what a user may do within their tenant** (roles, permissions) defer to
-  `authorization-model`; this concern only guarantees the record is in the
-  caller's tenant in the first place.
-- For general hardening (injection, CSRF, secrets, TLS, parameterized queries)
-  defer to `security-owasp`; cross-tenant access is its Broken Access Control /
-  IDOR case, refined here for tenants.
-- For the tenant as part of the domain model (tenant as aggregate identity,
-  invariants scoped to a tenant) compose with `domain-driven-design`.
 
 ## Quality Gates
 

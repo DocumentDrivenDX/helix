@@ -2,9 +2,11 @@
 
 These practices realize the `admin-console` concern: the operator's
 jobs-to-be-done built as usable UI, with the primary operator workflow exercised
-end-to-end through that UI. They do not restate evidence rules (`verification`),
-the e2e tool (`e2e-framework`), interaction quality (`ux-radix`), the stack
-(`frontend-framework`), hardening (`security-owasp`), or access gating (`auth`).
+end-to-end through that UI. Access gating defers to `auth` — see
+[README-auth-family.md](../README-auth-family.md) for the auth family ownership
+table. Evidence rules (`verification`), the e2e tool (`e2e-framework`),
+interaction quality (`ux-radix`), the stack (`frontend-framework`), and
+hardening (`security-owasp`) each live in their own concerns.
 
 ## Design
 

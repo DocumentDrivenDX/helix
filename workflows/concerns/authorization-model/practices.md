@@ -2,13 +2,12 @@
 
 These practices govern the **permission model and its enforcement** — *what* an
 authenticated principal may do, and the discipline that every privileged handler
-asks and refuses by default. They sit alongside `auth` (who you are),
-`multi-tenancy` (is the record even in your tenant — the predicate that precedes
-any permission check), and `security-owasp` (Broken Access Control is the OWASP
-umbrella this model prevents). Their one job is to make the **missing /
-mis-placed authorization check** unreachable and **reviewer-checkable**. Each
-MUST/SHOULD below is written so a reviewer can confirm or refute it against the
-diff and the running system.
+asks and refuses by default. For the family ownership table (auth /
+authorization-model / multi-tenancy / security-owasp) see
+[README-auth-family.md](../README-auth-family.md). Their one job is to make the
+**missing / mis-placed authorization check** unreachable and
+**reviewer-checkable**. Each MUST/SHOULD below is written so a reviewer can
+confirm or refute it against the diff and the running system.
 
 ## Choose and record the model (Frame / Design)
 
@@ -83,17 +82,6 @@ diff and the running system.
 - For each capability with a permission requirement, **both** the permitted
   (succeeds) and the denied (refused) cases **SHOULD** be exercised, so the
   guard branch is shown to exist and not be vacuously open.
-
-## Boundary with neighbors
-
-- For **who the principal is** (signup, login, sessions, account bootstrap)
-  defer to `auth`; do not restate it here. This concern consumes the principal
-  and decides what it may do.
-- For **is the record even in the caller's tenant** defer to `multi-tenancy`;
-  that predicate precedes — and never replaces — the permission check here.
-- For general hardening (injection, CSRF, secrets, TLS) defer to
-  `security-owasp`; missing/broken authorization is its Broken Access Control
-  case, given a concrete model and per-handler discipline here.
 
 ## Quality Gates
 

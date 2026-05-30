@@ -21,38 +21,19 @@ data, api
 This concern owns **isolation between tenants** — that tenant A can never read
 or write tenant B's data, on any path, and the architecture that delivers that
 guarantee (which resources are shared vs dedicated). It is composable and does
-**not** fill a slot. Three neighbours stay distinct:
+**not** fill a slot.
 
-- **`auth`** owns **who you are** — signup, login, sessions, and that a real
-  principal exists and is scoped to its account. `auth` establishes the
-  authenticated principal and the account/tenant it belongs to; **multi-tenancy
-  consumes that principal** and enforces that *every data access stays inside
-  that tenant's boundary*. Auth answers "are you signed in as someone in
-  tenant T?"; multi-tenancy answers "given that, can any code path reach data
-  outside T?". `auth` already states isolation-through-the-principal as a
-  requirement; this concern owns the **enforcement and isolation model** behind
-  it and makes the cross-tenant guard reviewer-checkable. Do not restate
-  signup/session lifecycle here.
-- **`authorization-model`** (a sibling concern) owns **what a user may do
-  *within* a tenant** — roles, permissions, and the actions a principal is
-  allowed to perform on resources they can already legitimately reach.
-  Authorization is *intra-tenant* ("may this member delete this project in
-  *their own* tenant?"). Multi-tenancy is *inter-tenant* ("is this project even
-  in the caller's tenant at all?"). A correct authorization check on a record
-  that belongs to the wrong tenant is still a cross-tenant leak — the tenant
-  predicate must hold *before* the permission check is even meaningful. Compose
-  the two; do not fold authorization rules into this concern.
-- **`security-owasp`** owns general hardening — injection, CSRF, secret
-  handling, input validation, TLS. Cross-tenant access is an instance of OWASP
-  **Broken Access Control / IDOR**; this concern is the tenant-specific,
-  reviewer-checkable refinement of that hardening. `security-owasp` says
-  "authorization checked on every protected endpoint"; multi-tenancy says
-  "every data access carries the tenant predicate, derived from the principal".
+For the family ownership table (auth / authorization-model / multi-tenancy /
+security-owasp, plus the admin-console and unity-catalog neighbors), and the
+ordering invariants (tenant predicate precedes permission; authn precedes
+authz), see [README-auth-family.md](../README-auth-family.md).
 
-This concern owns the one thing those do not state: **there is no query path
-that resolves a record without the tenant predicate, and tenant identity is
-derived from the authenticated principal — never from a client-supplied id
-alone.**
+This concern owns the one thing the rest of the family does not state: **there
+is no query path that resolves a record without the tenant predicate, and
+tenant identity is derived from the authenticated principal — never from a
+client-supplied id alone.** Cross-tenant access is the OWASP Broken Access
+Control / IDOR case `security-owasp` names at the umbrella level; this concern
+is the tenant-specific, reviewer-checkable refinement.
 
 ## Components
 

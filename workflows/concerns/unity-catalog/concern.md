@@ -17,30 +17,17 @@ data-modeling or access-control concern (see `## Boundary`).
 
 This concern owns **how data and AI assets are governed on Databricks** — the
 catalog namespace, the grant model, lineage, and governed external storage. It
-is **Databricks' concrete realization** of data governance and must not be
-restated as, or used to duplicate, the generic neighbors:
+is **Databricks' concrete realization** of data governance.
 
-- **Generic data modeling / `domain-driven-design`** owns *what the data
-  means* — entities, aggregates, invariants, the logical schema. Unity Catalog
-  owns *where those assets are registered and who may touch them* — the physical
-  `catalog.schema.object` namespace and the GRANT model over it. Model the
-  domain in the domain concern; register and govern it here. Do not re-derive
-  the logical model in this concern.
-- **`security-owasp` / generic authz** owns *application-layer* authentication
-  and authorization (sessions, RBAC in app code, the OWASP risks). Unity Catalog
-  owns *data-layer* governance enforced by the platform at query time
-  (privileges, row filters, column masks, ownership). A Databricks App still
-  authenticates its users at the app layer; Unity Catalog is the additional
-  governance the *data* access flows through. Do not collapse the two — app
-  RBAC is not a substitute for catalog grants, and catalog grants are not a
-  substitute for app authz.
-- **`databricks-declarative-pipelines`** *produces* governed datasets (its
-  streaming tables and materialized views land in a catalog/schema); Unity
-  Catalog *governs* them. The pipeline declares the dataset; this concern owns
-  the grants, ownership, and lineage on the result.
-- **`databricks-apps`** *consumes* governed data; Unity Catalog *governs* the
-  consumption. This concern owns the rule that an app reads through Unity
-  Catalog grants, not around them.
+For the auth family (where app-layer `authorization-model` and catalog grants
+**compose** — neither substitutes for the other), see
+[README-auth-family.md](../README-auth-family.md). For the logical domain
+model, defer to `domain-driven-design`: model entities/aggregates there;
+register and govern the physical `catalog.schema.object` namespace here.
+`databricks-declarative-pipelines` *produces* governed datasets; this concern
+owns the grants, ownership, and lineage on the result. `databricks-apps`
+*consumes* governed data; this concern owns the rule that an app reads
+through Unity Catalog grants, not around them.
 
 ## Components
 
