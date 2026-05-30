@@ -1,0 +1,230 @@
+{
+  "attempt_id": "20260530T054554-aca064f5",
+  "bead_id": "helix-c84ecbc5",
+  "base_rev": "8f283790ecacd6a4a55be85b923658dc877145c9",
+  "created_at": "2026-05-30T05:45:56.105353617Z",
+  "requested": {
+    "prompt": "synthesized",
+    "min_power": 5
+  },
+  "bead": {
+    "id": "helix-c84ecbc5",
+    "title": "INT-DD: DDx integration test — `ddx install` + `ddx work --once` against fixture beads + recording",
+    "description": "Create tests/workflows/ddx/ harness that exercises DDx as the reference runtime — install HELIX, file a fixture bead, run one bead-execution, assert the artifacts.\n\n**Deliverables**:\n- `tests/workflows/ddx/run-scenarios.sh` — orchestrator\n- `tests/workflows/ddx/fixtures/seed-bead.json` — minimal bead spec for SCN-01 bootstrap (sparse intent)\n- `tests/workflows/ddx/expected/` — execution evidence assertions\n- `tests/workflows/ddx/recordings/INT-DD.tape` + `INT-DD.gif`\n\n**Harness shape** (reuse `tests/install/ddx/Dockerfile`):\n1. Build image with `ddx` binary\n2. `ddx install helix --local /workspace/helix --force`\n3. `ddx bead create \u003cSCN-01-prompt-bead\u003e --type task --priority 1 --description ... --acceptance ...`\n4. `ddx work --once --json \u003e result.json`\n5. Grep result.json for routing decision (`route claude/\u003cmodel\u003e`) + execution evidence path\n6. Read execution evidence dir; assert vision.md or PRD.md was produced\n7. vhs renders the whole orchestrator\n\n**Note**: this also exercises the DDx routing surface that's been flaky in this session (ddx-a827d07f, ddx-65d3ba51). If the routing fails, the test should fail loudly so we see it.\n\n\u003ccontext-digest\u003e\n\u003cprinciples\u003eValidate Your Work · Runtime Neutrality · Design for Simplicity\u003c/principles\u003e\n\u003cconcerns\u003einstaller-coverage | screencast-evidence | runtime-parity\u003c/concerns\u003e\n\u003cpractices\u003eDDx is the reference runtime · test is `ddx install helix --local` then `ddx work --once --json` against fixture beads · assertion: routing decision + execution evidence land · vhs recording of the queue drain\u003c/practices\u003e\n\u003cgoverning\u003edocs/helix/03-test/test-plans/TP-014-helix-workflow-coverage.md SCN-01 (bootstrap) + SCN-06 (review) · docs/install/ddx.md · existing tests/install/ddx/ scaffolding\u003c/governing\u003e\n\u003c/context-digest\u003e",
+    "acceptance": "(Activation here is already behavioral, not prose; this tightens it and adds the negative control.)\n1. `bash tests/workflows/ddx/run-scenarios.sh` exits 0 (with an API key for whatever DDx routes to): installs HELIX (`ddx install helix --local /workspace/helix --force`), creates a fixture SCN-01 bead, runs `ddx work --once --json`.\n2. Activation/behavior assertion (structured — keep): parse result.json for the routing decision (`route \u003cprovider\u003e/\u003cmodel\u003e`) AND assert the execution-evidence dir contains the produced artifact (vision.md or PRD.md). Not a prose grep.\n3. Negative control: running the fixture bead with HELIX NOT installed produces no HELIX routing/artifact and exits NONZERO, proving the assertion depends on the skill.\n4. tests/workflows/ddx/recordings/INT-DD.gif generated via vhs and committed, showing install + bead-create + work-once + evidence inspection. docs/install/README.md (DDx section) links it.",
+    "parent": "helix-e3c7d0e4",
+    "labels": [
+      "helix",
+      "phase:test",
+      "activity:test",
+      "kind:test",
+      "area:testing",
+      "area:packaging",
+      "runtime:ddx"
+    ],
+    "metadata": {
+      "events": [
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness route unavailable: runner error: agent: provider error: openai: POST \\\"http://bragi:1234/v1/chat/completions\\\": 502 Bad Gateway\",\"fingerprint\":\"c63725637a9913ddce00e011be60eea8b2b81be343ece9ea787ea628b79ef89d\",\"policy_mode\":\"warn-only\",\"reason\":\"system_unready\",\"rule_id\":\"pre_claim_intake.system_unready\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"c63725637a9913ddce00e011be60eea8b2b81be343ece9ea787ea628b79ef89d\"}",
+          "created_at": "2026-05-28T22:26:01.479781161Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "system_unready"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"count\":5,\"detail\":\"pre-claim warn fingerprint repeated 5 times across 5 distinct bead IDs\",\"distinct_bead_ids\":[\"helix-53c6df33\",\"helix-22ee868f\",\"helix-88435238\",\"helix-9ab3e99f\",\"helix-c84ecbc5\"],\"example_bead_id\":\"helix-53c6df33\",\"example_detail\":\"readiness route unavailable: runner error: agent: provider error: openai: POST \\\"http://bragi:1234/v1/chat/completions\\\": 502 Bad Gateway\",\"example_payload\":{\"bead_id\":\"helix-53c6df33\",\"detail\":\"readiness route unavailable: runner error: agent: provider error: openai: POST \\\"http://bragi:1234/v1/chat/completions\\\": 502 Bad Gateway\",\"fingerprint\":\"c63725637a9913ddce00e011be60eea8b2b81be343ece9ea787ea628b79ef89d\",\"reason\":\"system_unready\"},\"fingerprint\":\"c63725637a9913ddce00e011be60eea8b2b81be343ece9ea787ea628b79ef89d\",\"first_observed_at\":\"2026-05-28T21:54:08Z\",\"reason\":\"preclaim_warn_repeated\"}",
+          "created_at": "2026-05-28T22:26:01.479781161Z",
+          "kind": "operator_attention",
+          "source": "ddx work",
+          "summary": "preclaim_warn_repeated"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness route unavailable: runner error: ResolveRoute: no live provider supports prompt of 1595 tokens with tools=false at policy default\",\"fingerprint\":\"f49c19cea56763ee8f0b7f6ea0161592a3295a97e6621070cc4237d189fc9cb8\",\"policy_mode\":\"warn-only\",\"reason\":\"system_unready\",\"rule_id\":\"pre_claim_intake.system_unready\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"f49c19cea56763ee8f0b7f6ea0161592a3295a97e6621070cc4237d189fc9cb8\"}",
+          "created_at": "2026-05-29T03:36:02.403412357Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "system_unready"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"detail\":\"route unavailable: no viable routing candidate satisfies requested MinPower 0: no viable routing floor for inferred powerClass standard\",\"harness\":\"\",\"model\":\"\",\"reason\":\"routing\"}",
+          "created_at": "2026-05-29T03:36:31.529263348Z",
+          "kind": "disruption_detected",
+          "source": "ddx work",
+          "summary": "routing"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"\",\"actual_model\":\"\",\"actual_power\":0,\"actual_provider\":\"\",\"attempt_id\":\"\",\"bead_id\":\"helix-c84ecbc5\",\"estimated_difficulty\":\"\",\"rejected_route_pins\":null,\"requested_power_class\":\"standard\",\"requested_profile\":\"\",\"routing_intent_degraded\":true,\"routing_intent_note\":\"actual route facts unavailable\",\"routing_intent_source\":\"default\"}",
+          "created_at": "2026-05-29T03:36:31.585752324Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=default powerClass=standard note=actual route facts unavailable"
+        },
+        {
+          "actor": "erik",
+          "body": "route unavailable: no viable routing candidate satisfies requested MinPower 0: no viable routing floor for inferred powerClass standard\noutcome_reason=no_viable_provider",
+          "created_at": "2026-05-29T03:36:31.648295046Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness route unavailable: lifecycle dispatch: project root mutation rejected\",\"fingerprint\":\"8cca69d13ca3aa9a57249b1b86fb0045335c39878a22e755f9f98a79eb000f23\",\"policy_mode\":\"warn-only\",\"reason\":\"system_unready\",\"rule_id\":\"pre_claim_intake.system_unready\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"8cca69d13ca3aa9a57249b1b86fb0045335c39878a22e755f9f98a79eb000f23\"}",
+          "created_at": "2026-05-29T03:56:55.295764807Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "system_unready"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"detail\":\"route unavailable: no viable routing candidate satisfies requested MinPower 0: no viable routing floor for inferred powerClass standard\",\"harness\":\"\",\"model\":\"\",\"reason\":\"routing\"}",
+          "created_at": "2026-05-29T03:57:25.177461224Z",
+          "kind": "disruption_detected",
+          "source": "ddx work",
+          "summary": "routing"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"\",\"actual_model\":\"\",\"actual_power\":0,\"actual_provider\":\"\",\"attempt_id\":\"\",\"bead_id\":\"helix-c84ecbc5\",\"estimated_difficulty\":\"\",\"rejected_route_pins\":null,\"requested_power_class\":\"standard\",\"requested_profile\":\"\",\"routing_intent_degraded\":true,\"routing_intent_note\":\"actual route facts unavailable\",\"routing_intent_source\":\"default\"}",
+          "created_at": "2026-05-29T03:57:25.24629394Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=default powerClass=standard note=actual route facts unavailable"
+        },
+        {
+          "actor": "erik",
+          "body": "route unavailable: no viable routing candidate satisfies requested MinPower 0: no viable routing floor for inferred powerClass standard\noutcome_reason=no_viable_provider",
+          "created_at": "2026-05-29T03:57:25.305622535Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"system_unready: Bead is blocked by repeated routing failures ('no viable routing candidate') in prior attempts. Root cause is undiagnosed: fixture bead schema, DDx routing logic, provider config, or HELIX installation. Cannot execute reliably without understanding why the routing surface is rejecting the bead. Negative control AC is also under-specified (does it skip install entirely, or use a different fixture?). Screencast via vhs inside container is unclear. Forward-compatible once routing blocker is cleared.\",\"fingerprint\":\"d60bc856fb11d66f051ea89ddd1bf47d10197b1a97b22a29ea2e76264e8eef6e\",\"policy_mode\":\"warn-only\",\"reason\":\"system_unready\",\"rule_id\":\"pre_claim_intake.system_unready\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"d60bc856fb11d66f051ea89ddd1bf47d10197b1a97b22a29ea2e76264e8eef6e\"}",
+          "created_at": "2026-05-30T04:50:36.70570412Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "system_unready"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"claude\",\"resolved_model\":\"haiku\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-30T04:59:54.407545215Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=claude model=haiku"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"attempt_id\":\"20260530T045108-58aff80a\",\"harness\":\"claude\",\"model\":\"haiku\",\"input_tokens\":401,\"output_tokens\":18594,\"total_tokens\":18995,\"cost_usd\":0.6566251,\"duration_ms\":524448,\"exit_code\":0}",
+          "created_at": "2026-05-30T04:59:54.474234986Z",
+          "kind": "cost",
+          "source": "legacy agent execute-bead",
+          "summary": "tokens=18995 cost_usd=0.6566 model=haiku"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"claude\",\"resolved_model\":\"haiku\",\"fallback_chain\":[],\"requested_min_power\":5}",
+          "created_at": "2026-05-30T05:13:59.097581118Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=claude model=haiku"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"attempt_id\":\"20260530T045956-d56d8867\",\"harness\":\"claude\",\"model\":\"haiku\",\"input_tokens\":9,\"output_tokens\":156,\"total_tokens\":165,\"cost_usd\":1.0561271,\"duration_ms\":840959,\"exit_code\":0}",
+          "created_at": "2026-05-30T05:13:59.178427796Z",
+          "kind": "cost",
+          "source": "legacy agent execute-bead",
+          "summary": "tokens=165 cost_usd=1.0561 model=haiku"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"attempt_id\":\"20260530T045036-18b43ea6\",\"bead_id\":\"helix-c84ecbc5\",\"budget\":\"30m0s\",\"diagnosis\":\"phase-empty heartbeats (harness/model/route empty) persisted past the 30m0s budget while phase=\\\"running\\\"; released lease and flagged for operator attention\",\"last_activity_at\":\"2026-05-30T05:21:06Z\",\"reason\":\"progress_watchdog\"}",
+          "created_at": "2026-05-30T05:21:06.828575439Z",
+          "kind": "operator_attention",
+          "source": "ddx work",
+          "summary": "progress_watchdog"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"claude\",\"resolved_model\":\"haiku\",\"fallback_chain\":[],\"requested_min_power\":7}",
+          "created_at": "2026-05-30T05:21:08.152330222Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=claude model=haiku"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"attempt_id\":\"20260530T051359-0d24e938\",\"harness\":\"claude\",\"model\":\"haiku\",\"input_tokens\":7,\"output_tokens\":2,\"total_tokens\":9,\"cost_usd\":0,\"duration_ms\":425828,\"exit_code\":-1}",
+          "created_at": "2026-05-30T05:21:08.22036683Z",
+          "kind": "cost",
+          "source": "legacy agent execute-bead",
+          "summary": "tokens=9 model=haiku"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"claude\",\"resolved_model\":\"sonnet\",\"fallback_chain\":[],\"requested_min_power\":8}",
+          "created_at": "2026-05-30T05:25:20.359137335Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=claude model=sonnet"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"claude\",\"resolved_model\":\"opus\",\"fallback_chain\":[],\"requested_min_power\":9}",
+          "created_at": "2026-05-30T05:29:34.098071753Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=claude model=opus"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"system_unready: Bead is well-specified with clear deliverables, atomic scope, and concrete steps. However, prior attempts show a blocking external failure: DDx routing is unavailable ('no viable routing candidate satisfies requested MinPower 0'). This is not a prose or decomposition issue — the routing layer itself is not functional in the current environment, preventing execution. The bead cannot proceed until routing is operational.\",\"fingerprint\":\"d8ef84e60c38bf84096e554de0c88406c254539aacf9cec34c1403d529818b97\",\"policy_mode\":\"warn-only\",\"reason\":\"system_unready\",\"rule_id\":\"pre_claim_intake.system_unready\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"d8ef84e60c38bf84096e554de0c88406c254539aacf9cec34c1403d529818b97\"}",
+          "created_at": "2026-05-30T05:34:17.634641593Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "system_unready"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"claude\",\"resolved_model\":\"haiku\",\"fallback_chain\":[]}",
+          "created_at": "2026-05-30T05:45:54.29682727Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=claude model=haiku"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"attempt_id\":\"20260530T053451-87c0ebf0\",\"harness\":\"claude\",\"model\":\"haiku\",\"input_tokens\":1152,\"output_tokens\":29730,\"total_tokens\":30882,\"cost_usd\":1.0036213500000002,\"duration_ms\":661903,\"exit_code\":0}",
+          "created_at": "2026-05-30T05:45:54.375391718Z",
+          "kind": "cost",
+          "source": "legacy agent execute-bead",
+          "summary": "tokens=30882 cost_usd=1.0036 model=haiku"
+        }
+      ],
+      "spec-id": "helix.installer-integration-tests",
+      "work-consecutive-wedges": {
+        "at": "2026-05-30T05:21:06Z",
+        "count": 1,
+        "last_reason": "progress_watchdog"
+      }
+    }
+  },
+  "paths": {
+    "dir": ".ddx/executions/20260530T054554-aca064f5",
+    "prompt": ".ddx/executions/20260530T054554-aca064f5/prompt.md",
+    "manifest": ".ddx/executions/20260530T054554-aca064f5/manifest.json",
+    "result": ".ddx/executions/20260530T054554-aca064f5/result.json",
+    "checks": ".ddx/executions/20260530T054554-aca064f5/checks.json",
+    "usage": ".ddx/executions/20260530T054554-aca064f5/usage.json",
+    "worktree": "Users/erik/Projects/.ddx-exec-wt/.execute-bead-wt-helix-c84ecbc5-20260530T054554-aca064f5"
+  },
+  "prompt_sha": "992dfb0cef4221c7af8994c43066c782ea3e4f367d8a3fd27ccfe2d1fd3dbf14"
+}
