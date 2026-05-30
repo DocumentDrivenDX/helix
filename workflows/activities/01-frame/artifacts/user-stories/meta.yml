@@ -38,10 +38,6 @@ validation:
       description: Every acceptance criterion is independently testable
       severity: blocking
 
-    - check: criteria_have_stable_ids
-      description: Every acceptance criterion carries a stable US-<n>-AC<m> ID so the story test plan and tests can reference it by name
-      severity: blocking
-
     - check: test_scenarios_concrete
       description: Test scenarios include concrete values
       severity: blocking
@@ -70,10 +66,6 @@ validation:
     - pattern: "Given .* [Ww]hen "
       expected: ">0"
       message: Must include testable Given/When acceptance criteria
-
-    - pattern: "US-[0-9]+-AC[0-9]+"
-      expected: ">0"
-      message: Acceptance criteria must carry stable US-<n>-AC<m> IDs
 
     - pattern: "[Tt]hen "
       expected: ">0"

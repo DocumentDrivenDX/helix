@@ -9,9 +9,11 @@ artifact:
 description: |
   Feature-level authority document that translates PRD requirements into
   precise behavior, boundaries, functional areas, non-functional expectations,
-  acceptance criteria, edge cases, and feature-specific success measures. Broad
-  product-surface, workflow, IA, and documentation features must state the
-  ideal future state and map functional areas before requirements.
+  edge cases, and feature-specific success measures. Acceptance criteria live
+  in user-stories (ADR-009); the feature spec carries FR-IDs and the
+  decomposition test but does not define AC. Broad product-surface, workflow,
+  IA, and documentation features must state the ideal future state and map
+  functional areas before requirements.
 
 output:
   location: docs/helix/01-frame/features/
@@ -23,7 +25,6 @@ validation:
   required_sections:
     - problem_statement
     - functional_requirements
-    - acceptance_criteria
     - non_functional_requirements
     - edge_cases
     - success_metrics
@@ -33,10 +34,6 @@ validation:
   quality_checks:
     - check: requirements_testable
       description: All requirements must be testable
-      severity: blocking
-
-    - check: acceptance_criteria_observable
-      description: Acceptance criteria must describe observable behavior, not implementation steps
       severity: blocking
 
     - check: future_state_first

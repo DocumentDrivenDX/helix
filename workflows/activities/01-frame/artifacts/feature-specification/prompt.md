@@ -1,7 +1,9 @@
 # Feature Specification Generation Prompt
 
 Create a feature specification that is precise enough to support design,
-user story creation, and test planning.
+user story creation, and test planning. The feature spec owns FR-IDs,
+functional areas, and the decomposition test — acceptance criteria live in
+user-stories (see ADR-009) and must not be restated here.
 
 ## Storage Location
 
@@ -11,8 +13,8 @@ Store at: `docs/helix/01-frame/features/FEAT-NNN-<name>.md`
 
 A feature spec is the **feature-level authority for behavior and boundaries**.
 It translates PRD requirements into precise feature behavior, functional areas,
-acceptance criteria, non-functional expectations, edge cases, and
-feature-specific success measures.
+non-functional expectations, edge cases, and feature-specific success measures.
+Acceptance criteria belong to user stories (ADR-009) and are not defined here.
 
 It sits between the PRD (which defines product scope) and user stories (which
 define vertical slices through the feature). The feature spec owns feature
@@ -43,8 +45,8 @@ but leaves no trace here is drift (reconcile-alignment Concern->Artifact Realiza
   explains why the change is needed; it should not be the only organizing frame.
 - **Scope, not solution** — describe what the feature must do, not how to
   build it. Implementation details belong in design docs.
-- **Behavior, not journey** — specify feature behavior and acceptance criteria.
-  Put end-to-end user flow narrative in user stories.
+- **Behavior, not journey** — specify feature behavior and boundaries.
+  Put end-to-end user flow narrative and acceptance criteria in user stories.
 - **One feature, one capability** — a feature spec covers exactly one capability
   (≈ one PRD subsystem). If it covers two, split it; apply the Decomposition test
   below to decide. A functional *area* is a sub-part of one capability, not a
@@ -63,9 +65,6 @@ but leaves no trace here is drift (reconcile-alignment Concern->Artifact Realiza
   content. Stories are separate files with their own lifecycle.
 - **Testable requirements** — every functional requirement should be
   verifiable. If you can't describe how to test it, it's too vague.
-- **Concrete acceptance examples** — add examples for important rules,
-  permissions, errors, and edge cases. They should show observable behavior,
-  not internal steps.
 - **Leave unknowns explicit** — use Open Questions at the bottom rather than
   inventing detail you don't have.
 
@@ -74,8 +73,8 @@ but leaves no trace here is drift (reconcile-alignment Concern->Artifact Realiza
 | If you are writing... | Put it in... |
 |---|---|
 | Product goals, personas, launch priority, or product-level metrics | PRD |
-| Feature behavior, boundaries, acceptance criteria, and edge cases | Feature Specification |
-| A vertical user journey through one or more feature requirements | User Story |
+| Feature behavior, boundaries, and edge cases | Feature Specification |
+| A vertical user journey through one or more feature requirements, with acceptance criteria | User Story |
 | Component choices, data model, APIs, or implementation approach | Solution/Technical Design |
 | Detailed test cases, fixtures, or automation strategy | Test Plan or Story Test Plan |
 | Build sequencing and work slices | Implementation Plan |
@@ -159,12 +158,6 @@ must do — user stories describe how users interact with these capabilities.
 If a requirement mentions two areas joined by "and", split it unless the
 relationship between those areas is itself the requirement.
 
-### Acceptance Criteria
-Capture observable examples for the highest-risk or most important
-requirements. Use concise Given/When/Then phrasing if it helps, but do not
-require Cucumber tooling. Each example should identify the requirement it
-validates and the expected result.
-
 ### Non-Functional Requirements
 Every NFR needs a specific target. "Must be fast" is not a requirement.
 "95th percentile response under 200ms" is. Only include NFRs relevant to
@@ -207,7 +200,6 @@ committing.
 - [ ] Similar domain objects are separated before requirements are written
 - [ ] Functional requirements are grouped by area when a flat list would mix unrelated scopes
 - [ ] Every functional requirement is testable
-- [ ] Acceptance criteria cover the highest-risk requirements with observable examples
 - [ ] Non-functional requirements have specific numeric targets
 - [ ] User stories are referenced by ID (not duplicated inline)
 - [ ] Dependencies name specific feature IDs and external systems

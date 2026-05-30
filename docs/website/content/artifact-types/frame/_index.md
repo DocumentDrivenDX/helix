@@ -13,7 +13,7 @@ Define what the system should do, for whom, and how success will be measured.
   {{< card link="prd/" title="Product Requirements Document" subtitle="Product-scope authority document that translates vision into prioritized, measurable requirements, success metrics, non-goals, assumptions, and acceptance sket…" >}}
   {{< card link="principles/" title="Project Principles" subtitle="Cross-cutting design principles that guide judgment calls across all HELIX activities. They are not requirements, concerns, ADRs, workflow rules, or process en…" >}}
   {{< card link="concerns/" title="Project Concerns" subtitle="Declares the project's active cross-cutting concerns: technology stacks, quality attributes, data rules, security posture, UX conventions, operating practices,…" >}}
-  {{< card link="feature-specification/" title="Feature Specification" subtitle="Feature-level authority document that translates PRD requirements into precise behavior, boundaries, functional areas, non-functional expectations, acceptance…" >}}
+  {{< card link="feature-specification/" title="Feature Specification" subtitle="Feature-level authority document that translates PRD requirements into precise behavior, boundaries, functional areas, non-functional expectations, edge cases,…" >}}
   {{< card link="user-stories/" title="User Stories" subtitle="Stable design artifacts defining vertical user journeys through feature behavior. Each story traces one persona from trigger to outcome, references parent feat…" >}}
 {{< /cards >}}
 
