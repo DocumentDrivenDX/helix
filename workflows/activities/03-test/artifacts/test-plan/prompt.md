@@ -1,17 +1,11 @@
 # Test Plan Generation Prompt
 
-Create the project-level test plan for the Test activity. Keep it concise, but include the minimum structure needed to drive failing tests before implementation.
+Scope: project-level verification strategy — test levels, coverage targets, critical paths, data strategy, infrastructure, sequencing, risks, and build handoff commands.
 
-## Purpose
-
-The Test Plan is the **project-level verification strategy**. Its unique job is
-to define test levels, coverage targets, critical paths, data strategy,
-infrastructure, sequencing, risks, and build handoff commands before
-implementation starts.
-
-It does not contain every story-specific test case. Story Test Plans own the
-exact executable checks for one story. The Test Plan owns the portfolio: what
-must be covered, where confidence should come from, and how CI enforces it.
+Related:
+- [Story Test Plan](../story-test-plan/prompt.md) — per-story AC↔test traceability
+- [Test Suites](../test-suites/prompt.md) — suite inventory and boundaries under `tests/`
+- [Test Procedures](../test-procedures/prompt.md) — runner procedures, commands, evidence capture
 
 ## Reference Anchors
 
