@@ -30,5 +30,3 @@ far cheaper than retrofitting.
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
 - TD: ICU MessageFormat, externalized string catalogs, locale-aware formatting, declared default locale
 - DESIGN_SYSTEM: bidirectional (LTR/RTL) text support
-
-## ADR References

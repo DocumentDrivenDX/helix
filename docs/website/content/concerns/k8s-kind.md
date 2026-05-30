@@ -45,8 +45,6 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - ADR: Kubernetes + kind (Helm, reproducible images) as deployment topology — not docker-compose
 - IMPLEMENTATION_PLAN: Helm charts + env values files, image-build/tag, kind create + install + port-forward workflow
 
-## ADR References
-
 ## Practices by activity
 
 Agents working in any of these activities inherit the practices below via the bead's context digest.

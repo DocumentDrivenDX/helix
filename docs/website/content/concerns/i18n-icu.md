@@ -41,8 +41,6 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - TD: ICU MessageFormat, externalized string catalogs, locale-aware formatting, declared default locale
 - DESIGN_SYSTEM: bidirectional (LTR/RTL) text support
 
-## ADR References
-
 ## Practices by activity
 
 Agents working in any of these activities inherit the practices below via the bead's context digest.

@@ -40,5 +40,3 @@ maintain `scala-sbt` only for the remaining Scala surface.
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
 - ADR: Scala + sbt (scalafmt, scalafix, ScalaTest, ZIO where applicable) as the language-runtime
 - TD: sbt-dynver versioning, format/lint gates, build-cache and concurrency conventions
-
-## ADR References

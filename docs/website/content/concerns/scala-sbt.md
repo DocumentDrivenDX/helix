@@ -51,8 +51,6 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - ADR: Scala + sbt (scalafmt, scalafix, ScalaTest, ZIO where applicable) as the language-runtime
 - TD: sbt-dynver versioning, format/lint gates, build-cache and concurrency conventions
 
-## ADR References
-
 ## Practices by activity
 
 Agents working in any of these activities inherit the practices below via the bead's context digest.

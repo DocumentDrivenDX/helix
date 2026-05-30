@@ -30,5 +30,3 @@ for production debugging, performance monitoring, and incident response.
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
 - ADR: OpenTelemetry (traces/metrics/logs) as the observability standard
 - TD: RED metrics on endpoints, trace-context propagation, structured JSON logs with correlation IDs
-
-## ADR References

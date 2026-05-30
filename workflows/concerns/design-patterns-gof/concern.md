@@ -161,5 +161,3 @@ answer and naming a pattern only adds indirection.
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
 - ADR: each pattern introduced against a named recurring problem + recorded intent
 - TD: the pattern and the variability/duplication it absorbs at the collaboration point
-
-## ADR References

@@ -69,8 +69,6 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - ADR: Go + standard toolchain (gofmt, golangci-lint, gosec, govulncheck) as the language-runtime
 - TD: error-wrapping, context-passing, interface-in-consumer conventions; lint baseline
 
-## ADR References
-
 ## Practices by activity
 
 Agents working in any of these activities inherit the practices below via the bead's context digest.

@@ -32,5 +32,3 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - ADR: target WCAG 2.1 AA standard + axe-core + manual screen-reader testing
 - DESIGN_SYSTEM: keyboard-navigable controls, AA contrast ratios, focus management, labeled inputs
 - TEST_PLAN: axe-core automated checks + manual screen-reader passes
-
-## ADR References

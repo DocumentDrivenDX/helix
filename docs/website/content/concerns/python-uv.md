@@ -54,8 +54,6 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - ADR: Python 3.12+ + uv (ruff, pyright, pytest) as the language-runtime
 - TD: pyproject.toml layout, dependency-group conventions, branch-coverage floor
 
-## ADR References
-
 ## Practices by activity
 
 Agents working in any of these activities inherit the practices below via the bead's context digest.

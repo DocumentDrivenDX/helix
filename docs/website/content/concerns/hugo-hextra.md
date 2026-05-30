@@ -241,8 +241,6 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - ADR: Hugo (extended) + Hextra theme via Hugo Modules, GitHub Pages deploy, as the microsite stack
 - TD: website/ layout, pinned theme/Hugo versions, Hugo config (enableGitInfo, unsafe HTML)
 
-## ADR References
-
 ## Practices by activity
 
 Agents working in any of these activities inherit the practices below via the bead's context digest.

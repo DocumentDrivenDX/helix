@@ -172,8 +172,6 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - ADR: each pattern introduced against a named recurring problem + recorded intent
 - TD: the pattern and the variability/duplication it absorbs at the collaboration point
 
-## ADR References
-
 ## Practices by activity
 
 Agents working in any of these activities inherit the practices below via the bead's context digest.
