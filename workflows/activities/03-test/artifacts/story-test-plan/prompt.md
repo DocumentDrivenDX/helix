@@ -1,18 +1,11 @@
 # Story Test Plan Generation Prompt
 
-Create the canonical story-scoped test plan for one bounded story slice. This
-artifact exists because the project-wide `test-plan.md` does not replace the
-need for per-story acceptance-to-test traceability.
+Scope: one story's acceptance-criteria-to-test traceability — concrete failing tests, fixtures, commands, and setup for a single bounded slice.
 
-## Purpose
-
-Story Test Plan is the **story-level executable verification handoff**. Its
-unique job is to turn one user story's acceptance criteria and technical design
-into concrete failing tests, fixtures, commands, and setup before Build starts.
-
-It inherits the project Test Plan. It does not redefine test strategy, coverage
-targets, or feature-wide risk. It owns the exact evidence needed for one story
-slice.
+Related:
+- [Test Plan](../test-plan/prompt.md) — project-wide strategy this STP inherits
+- [Test Suites](../test-suites/prompt.md) — where these story tests live under `tests/`
+- [Test Procedures](../test-procedures/prompt.md) — how tests get written and run
 
 ## Reference Anchors
 

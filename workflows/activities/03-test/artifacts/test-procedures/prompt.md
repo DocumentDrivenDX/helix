@@ -1,6 +1,11 @@
 # Test Procedures Generation Prompt
 
-Create concise procedures for writing, running, and maintaining tests. Focus on the steps an implementer needs for this project, not general testing advice.
+Scope: procedures for writing, running, and maintaining tests — per-type writing rules, execution commands, validation checks, and evidence capture.
+
+Related:
+- [Test Plan](../test-plan/prompt.md) — project verification strategy these procedures execute
+- [Story Test Plan](../story-test-plan/prompt.md) — per-story tests these procedures apply to
+- [Test Suites](../test-suites/prompt.md) — suite layout these procedures operate on
 
 ## Reference Anchors
 

@@ -1,6 +1,11 @@
 # Test Suites Generation Prompt
 
-Create the test suite layout for the Red activity. Keep it concise and project-specific: define the suite boundaries, the minimum behavior each suite must cover, and any shared data conventions needed to make the tests executable.
+Scope: suite layout under `tests/` — boundaries (contract/integration/unit/E2E), behaviors each suite owns, shared fixtures, and execution commands.
+
+Related:
+- [Test Plan](../test-plan/prompt.md) — project verification strategy these suites realize
+- [Story Test Plan](../story-test-plan/prompt.md) — per-story tests that land in these suites
+- [Test Procedures](../test-procedures/prompt.md) — writing, running, and maintaining the tests in these suites
 
 ## Reference Anchors
 
