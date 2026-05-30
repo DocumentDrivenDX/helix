@@ -74,3 +74,10 @@ ddx:
 
 ### Follow-up
 - [ ] Design updates, additional PoCs, ADRs to create
+
+## Artifacts
+
+Preserved under `proofs-of-concept/{{poc_id}}/`:
+- **Code**: [Working implementation files]
+- **Data**: [Test data and fixtures]
+- **Evidence**: [Logs, screenshots, benchmark output]

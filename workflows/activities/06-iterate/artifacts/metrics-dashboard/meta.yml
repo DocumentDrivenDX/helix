@@ -21,6 +21,7 @@ validation:
     - decision
     - summary
     - metrics_table
+    - interpretation_rules
     - trend_notes
     - follow_up
 
