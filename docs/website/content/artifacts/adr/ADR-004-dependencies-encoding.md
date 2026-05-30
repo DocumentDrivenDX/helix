@@ -118,6 +118,6 @@ to that consumer, not to the catalog.
 
 - [Audit plan 2026-05-30](/artifacts/plan-2026-05-30-artifact-types-and-concerns-audit/)
 - [PRD](/artifacts/prd/)
-- [Artifact schema](/Users/erik/Projects/helix/workflows/artifact-schema.md)
+- [Artifact schema](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/artifact-schema.md)
 - ADR-002: HELIX Tracker Write Safety Model
 - ADR-003: Autonomy Spectrum
