@@ -33,7 +33,7 @@ A team wants to add a new feature. They invoke the HELIX alignment skill against
 
 | Capability | Customer Benefit |
 |---|---|
-| Authority-ordered artifact catalog | Every document has a clear governing relationship |
+| Authority-ranked artifact catalog | Every document has a clear governing relationship |
 | Single alignment skill | Catches drift early |
 
 ## Success Definition

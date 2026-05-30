@@ -86,7 +86,7 @@ their agent, and the agent invoked HELIX's skill.
 
 | Capability | Customer Benefit |
 |---|---|
-| Authority-ordered artifact catalog | Every document has a clear governing relationship; changes propagate predictably |
+| Authority-ranked artifact catalog | Every document has a clear governing relationship; changes propagate predictably |
 | Single alignment skill | Catches drift early without walking the artifact tree by hand |
 | Portable content | Run on any runtime that reads markdown — DDx, Databricks Genie, Claude Code, anything |
 | Document-driven reviews | Audits work on artifacts, not chat transcripts |
