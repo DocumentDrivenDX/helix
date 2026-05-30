@@ -101,7 +101,6 @@ relationships:
   informs:
     - prd
     - risk-register
-    - communication-plan
 
   updated_by:
     - organizational_changes
