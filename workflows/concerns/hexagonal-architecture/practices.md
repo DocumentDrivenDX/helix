@@ -15,7 +15,18 @@ The differentiator versus the sibling dependency-inversion styles (`onion` /
 ports** and the **plurality of adapters per port**, not on an internal
 concentric ring layout.
 
-## Ports owned by the core; dependencies point inward
+## Discover
+
+- Apply full ports-and-adapters only when the **selection signals** in
+  `concern.md` hold — **multiple symmetric driving and/or driven adapters**
+  around one core. For a thin CRUD app with one UI and one datastore and no
+  prospect of a second adapter, the port ceremony is over-engineering — prefer
+  `classic-layered`, recorded as the `architecture-style` choice.
+- Per KISS/YAGNI, do NOT introduce a port for a boundary that has exactly one
+  adapter and no realistic prospect of a second, **unless** the port is needed
+  to keep the core driveable/testable in isolation.
+
+## Design
 
 - Code MUST be organized into an **application core** plus **adapters**, with a
   discoverable mapping from core / driving-adapter / driven-adapter to
@@ -27,9 +38,6 @@ concentric ring layout.
 - A **driven (secondary) port** — the interface for persistence or an external
   system — MUST be declared **in the core** and implemented in a secondary
   adapter. The port interface MUST NOT live in the adapter's package.
-
-## Symmetry of driving and driven sides
-
 - **Driving (primary) adapters** (HTTP, CLI, queue consumer, GUI, test harness)
   MUST call the core only through **driving ports**. **Driven (secondary)
   adapters** (SQL/ORM, message bus, email, third-party clients) MUST be invoked
@@ -41,8 +49,12 @@ concentric ring layout.
   attach a second adapter (a test harness on a driving port; an in-memory fake
   on a driven port) without modifying the core. A port whose single
   implementation is hard-wired is a defect.
+- Data crossing a port MUST be expressed in the **core's own terms** (core
+  objects / DTOs the core owns). Transport shapes (HTTP request/response
+  objects, ORM rows) MUST be translated **inside the adapter** and MUST NOT
+  cross the port into the core.
 
-## Configurable dependency at the boundary
+## Build
 
 - Concrete adapters MUST be instantiated and wired to the core's ports **at
   configuration time by the composition root** — the only place that names
@@ -50,40 +62,12 @@ concentric ring layout.
   adapter.
 - Swapping an adapter (different datastore, CLI instead of HTTP) MUST require
   changes only in that adapter and the wiring, never in the core.
-- Data crossing a port MUST be expressed in the **core's own terms** (core
-  objects / DTOs the core owns). Transport shapes (HTTP request/response
-  objects, ORM rows) MUST be translated **inside the adapter** and MUST NOT
-  cross the port into the core.
-
-## Keep the core driveable in isolation
-
 - The core SHOULD be **exercisable through ports with no real devices or
   databases present** — driven by a test (primary) adapter and backed by fake
   (secondary) adapters. (Writing those tests is the `testing` concern; this
   practice only requires the port seams to exist on both sides.)
 
-## Match the discipline to the product (avoid over-engineering)
-
-- Apply full ports-and-adapters only when the **selection signals** in
-  `concern.md` hold — **multiple symmetric driving and/or driven adapters**
-  around one core. For a thin CRUD app with one UI and one datastore and no
-  prospect of a second adapter, the port ceremony is over-engineering — prefer
-  `classic-layered`, recorded as the `architecture-style` choice.
-- Per KISS/YAGNI, do NOT introduce a port for a boundary that has exactly one
-  adapter and no realistic prospect of a second, **unless** the port is needed
-  to keep the core driveable/testable in isolation.
-
-## Boundary with sibling concerns
-
-- The **contents** of the core are governed by `domain-driven-design`, not here.
-  Verify the model sits inside the hexagon behind ports; do not restate DDD
-  modeling rules.
-- Object-level collaboration patterns inside a layer are `design-patterns-gof`;
-  between-system integration is `enterprise-integration-patterns` (its messaging
-  endpoints are driven adapters under this concern). Hexagonal governs only the
-  macro port boundary across the codebase.
-
-## Quality Gates
+## Test
 
 - Import-graph check: the application core has **zero** dependency edges to any
   adapter, framework, transport, or driver package.
@@ -102,3 +86,15 @@ concentric ring layout.
 - Selection-fit check: multiple symmetric driving/driven adapters justify the
   port ceremony; ports-and-adapters is not wrapped around a single-UI,
   single-datastore thin-CRUD app (else re-select `classic-layered`).
+
+## Cross-cutting
+
+### Boundary with sibling concerns
+
+- The **contents** of the core are governed by `domain-driven-design`, not here.
+  Verify the model sits inside the hexagon behind ports; do not restate DDD
+  modeling rules.
+- Object-level collaboration patterns inside a layer are `design-patterns-gof`;
+  between-system integration is `enterprise-integration-patterns` (its messaging
+  endpoints are driven adapters under this concern). Hexagonal governs only the
+  macro port boundary across the codebase.
