@@ -37,7 +37,7 @@ validation:
       severity: blocking
 
     - check: expectations_trace_to_requirements
-      description: Each expectation must trace to a data quality requirement in the data-prd
+      description: Each expectation must trace to a data quality requirement in the PRD (kind: data)
       severity: blocking
 
     - check: failure_modes_explicit
@@ -110,7 +110,9 @@ examples:
 
 relationships:
   informed_by:
-    - data-prd
+    # `prd` with `kind: data` (per ADR-008) supplies the quality requirements
+    # this artifact translates into executable expectations.
+    - prd
     - data-architecture
 
   informs:

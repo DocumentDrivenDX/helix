@@ -12,7 +12,7 @@ transformation patterns, governance boundaries, quality gates, and critical
 performance or cost tradeoffs.
 
 Data Architecture is not a data model (captured in Data Design), implementation plan,
-or ADR. It is the bridge between Data PRD (requirements) and implementation: "given
+or ADR. It is the bridge between PRD (kind: data) (requirements) and implementation: "given
 these requirements, here is how the pipeline is structured."
 
 ## Reference Anchors
@@ -64,4 +64,4 @@ prompt stay the same.
 - Performance/cost tradeoffs are visible (partitioning, clustering, retention,
   refresh strategy).
 - Deployment topology is concrete (number of clusters, auto-scaling, failover).
-- Major decisions link to Data PRD requirements or include inline rationale.
+- Major decisions link to PRD (kind: data) requirements or include inline rationale.

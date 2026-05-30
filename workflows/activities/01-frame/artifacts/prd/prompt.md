@@ -4,9 +4,23 @@ Create a PRD that frames the problem, product scope, priorities, and success
 criteria clearly enough that downstream feature specs, designs, tests, and
 implementation work can trace back to it.
 
+## Variant Selection (`kind`)
+
+The PRD has two framing variants selected by the `kind` field in `meta.yml`:
+
+- **`kind: product`** (default) — frames general product requirements.
+- **`kind: data`** — frames a data product (pipeline, warehouse, data
+  platform, or data service) with data sources, consumers, quality
+  contracts, and platform context.
+
+The shape of the artifact is unified; sections marked **(kind: data)** below
+swap in the data-product framing when `kind: data`. Per ADR-008, both
+framings share one role and one template — pick the variant that matches the
+authored artifact and follow its conditional guidance.
+
 ## Storage Location
 
-Store at: `docs/helix/01-frame/prd.md`
+Store at: `docs/helix/01-frame/prd.md` (for either variant).
 
 ## Purpose
 
@@ -16,6 +30,14 @@ requirements and boundaries. It sits between the product vision (which defines
 direction) and feature specs (which define feature-level detail). Every design
 decision and implementation choice should trace back to a PRD requirement.
 
+**(kind: data)** When `kind: data`, the PRD is the **data-product-scope
+authority for what data to build and why**. Its job is to translate business
+intent into data-centric requirements: data sources, consumer personas,
+quality contracts, technical constraints (catalog, schema, medallion layer),
+and measurable success metrics. It sits between the Product Vision and the
+data-architecture artifact. Every data pipeline design choice and quality
+expectation should trace back to a Data PRD requirement.
+
 ## Reference Anchors
 
 Use these local resource summaries as grounding:
@@ -23,6 +45,18 @@ Use these local resource summaries as grounding:
 - `docs/resources/atlassian-prd.md` frames a PRD as shared understanding of purpose, behavior, user needs, assumptions, out-of-scope items, and success criteria.
 - `docs/resources/aha-prd-template.md` supports concise cross-functional scope: what is being built, who it is for, and how it delivers value.
 - `docs/resources/ibm-requirements-management.md` grounds measurable, prioritized, traceable requirements and validation/verification discipline.
+
+**(kind: data)** When `kind: data`, also use:
+
+- `docs/resources/databricks-unity-catalog.md` grounds data governance through unified catalog hierarchies (metastore → catalog → schema → volume/table).
+- `docs/resources/databricks-lakehouse-medallion-architecture.md` grounds medallion topology (Bronze/Silver/Gold) and layer responsibilities in a Lakehouse.
+- `docs/resources/databricks-sdp.md` grounds Databricks Semantic Data Platform governance, lineage, and quality contracts through `EXPECT ... ON VIOLATION ...` clauses and SDP-aware pipeline patterns.
+
+If you adopt this on another data platform, substitute Databricks concepts
+with the platform equivalent (Snowflake DB/Schema/Table; BigQuery
+Project/Dataset/Table; Snowpipe/Streaming Inserts for Auto Loader;
+dbt/Great Expectations for SDP `EXPECT` clauses). The medallion pattern
+applies universally.
 
 ## Key Principles
 
@@ -78,6 +112,13 @@ how you'll measure it. "User satisfaction" is not a metric. "NPS > 40 from
 monthly survey of active users" is. Drop the Timeline column — success metrics
 should define what success looks like, not when it happens.
 
+**(kind: data)** When `kind: data`, frame metrics for the data product
+itself: throughput (rows/day), latency (max age end-to-end), quality score
+(percentage of expectations passing), cost per GB or per DBU, freshness-SLA
+compliance, and consumer satisfaction. Each metric still needs a numeric
+target and a named measurement method — e.g., "SLA compliance > 95% measured
+by on-time delivery vs. promised refresh cadence."
+
 ### Non-Goals
 Each non-goal should prevent scope creep on something plausible. "Not a
 general-purpose AI" is only useful if someone might think it is. Test: would
@@ -88,6 +129,16 @@ non-goal.
 Name them. Give them a role, goals, and pain points specific enough to
 validate with a real person. "Alex the Developer" with generic goals is a
 template, not a persona.
+
+**(kind: data)** When `kind: data`, frame this section as **Data Consumers**
+instead of personas. Name actual teams, systems, or roles that consume the
+data, their use case (what decisions they make), their freshness/latency SLA,
+the key dimensions they query, and their access level (row, column, full).
+Add an inventory of upstream **Data Sources** in a parallel section: source
+system, schema/table, owner, update frequency, quality baseline, and notes
+on API limits or retry policy. Generic personas are insufficient for a data
+product — the consumer and source tables drive every downstream design and
+quality decision.
 
 ### Requirements (P0/P1/P2)
 P0 = the product is broken without this. P1 = the product is weak without
@@ -102,6 +153,17 @@ scope.
 ### Functional Requirements
 These are the detailed behavioral specs. Each one should be testable — someone
 reading it should know how to write an acceptance test.
+
+**(kind: data)** When `kind: data`, the functional requirements describe
+**data behavior**: ingestion cadence, deduplication rules, transformation
+contracts, freshness windows, schema-evolution policy, and consumer-facing
+table or feed definitions. Add a **Data Quality Requirements** subsection
+with quality dimensions (completeness, timeliness, accuracy, uniqueness)
+each carrying a P0 threshold, a P1 threshold, a measurement method, and an
+enforcement strategy (alert, reject, quarantine). Reference the
+`data-quality-expectations` artifact for executable `EXPECT` clauses per
+medallion layer; the PRD owns the requirement, the expectations artifact
+owns the contract.
 
 **Group requirements under named subsystems.** Organize FRs by subsystem (not by
 priority) under canonical, parseable headings: `### Subsystem: <name>`. Each
@@ -141,6 +203,17 @@ Stack selection rationale belongs in ADRs (Architecture Decision Records). If
 you're documenting a choice that doesn't have an ADR yet, note it in Open
 Questions. If an existing ADR contradicts what you'd write here, the ADR
 governs until it's superseded.
+
+**(kind: data)** When `kind: data`, frame the technical context as the
+**data-platform context**: target catalog and schema (e.g., `prod.customer_360`),
+medallion layer strategy (Bronze/Silver/Gold scopes and responsibilities),
+ingestion pattern (Auto Loader, Streaming Tables, batch), processing model
+(streaming vs batch vs incremental), compute tier (all-purpose, jobs,
+serverless), storage format (Delta, Parquet), DBU budget assumption, and
+governance posture (data classification, retention policy, audit trail,
+lineage). Pin the access-control model: row-level security, column masking,
+and the catalog policies that enforce it. Same ADR discipline applies — the
+PRD records platform decisions, ADRs justify them.
 
 ### Constraints
 Name real constraints, not aspirational ones. "Must work on mobile" is a

@@ -1,8 +1,9 @@
 ---
 ddx:
   id: example.data-architecture.customer-360
-  depends_on:
-    - example.data-prd.customer-360
+  # Previous depends_on: example.data-prd.customer-360 — dropped when
+  # data-prd collapsed into prd as kind: data variant (ADR-008). No
+  # equivalent example.prd.customer-360 is yet published.
 ---
 
 # Data Architecture: Customer-360 Analytics

@@ -7,7 +7,7 @@ ddx:
 
 ## Overview and Scope
 
-[Define the data product being tested, the medallion layers covered (Bronze, Silver, Gold), and the quality dimensions in scope (completeness, timeliness, accuracy, consistency, uniqueness). Reference the [[data-prd]] for quality requirements and [[data-architecture]] for the layer definitions. This document translates those requirements into executable EXPECT clauses.]
+[Define the data product being tested, the medallion layers covered (Bronze, Silver, Gold), and the quality dimensions in scope (completeness, timeliness, accuracy, consistency, uniqueness). Reference the [[prd]] (kind: data) for quality requirements and [[data-architecture]] for the layer definitions. This document translates those requirements into executable EXPECT clauses.]
 
 ### Quality Dimensions
 
@@ -439,7 +439,7 @@ Use this checklist during review to validate that the data quality expectations 
 - [ ] **Silver Layer Expectations** enforce deduplication, nullability, normalization, and referential integrity
 - [ ] **Gold Layer Expectations** guarantee freshness, consistency, and accuracy for consumer queries
 - [ ] **Expectations are written in executable form**: SDP EXPECT, dbt test, or SQL constraint (not prose)
-- [ ] **Each expectation traces back** to a quality requirement in [[data-prd]] (reference by name)
+- [ ] **Each expectation traces back** to a quality requirement in [[prd]] (kind: data) (reference by name)
 - [ ] **Failure modes are explicit**: What happens when an expectation fails (reject, alert, quarantine)?
 - [ ] **SLA per layer** is documented: freshness target, detection time, recovery time
 - [ ] **Sampling vs exhaustive** is clear: All rows tested, or sample with confidence interval documented?
