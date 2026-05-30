@@ -2,6 +2,10 @@
 
 Create a security metrics report for one iteration.
 
+For how this artifact relates to metric definitions, the metrics dashboard,
+and the improvement backlog, see the "Metric Four-Way Slice" section of
+`workflows/activities/06-iterate/README.md`.
+
 ## Required Inputs
 - Security monitoring and incident data for the iteration period
 - Vulnerability scan results (SAST, DAST, dependency scans)

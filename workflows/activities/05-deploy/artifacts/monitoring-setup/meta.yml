@@ -22,7 +22,7 @@ validation:
     - logs_and_tracing
     - health_checks
     - sli_slo_tracking
-    - incident_response
+    - alert_routing
 
   quality_checks:
     - check: service_specific_signals
@@ -34,8 +34,8 @@ validation:
     - check: health_checks_linked
       description: Health checks should connect to rollout safety and operator verification
       severity: warning
-    - check: incident_response_owned
-      description: Incident response should name escalation ownership and link a runbook entrypoint once one exists
+    - check: alert_routing_owned
+      description: Alert routing should name primary, secondary, and escalation paths and link a runbook entrypoint once one exists
       severity: warning
 
 prompts:

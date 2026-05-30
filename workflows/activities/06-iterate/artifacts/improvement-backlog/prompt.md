@@ -9,9 +9,13 @@ unique job is to convert metrics, feedback, incidents, and retrospective
 learnings into ordered improvement candidates with evidence, rationale, tracker
 or explicit follow-up targets, and a next-iteration selection.
 
-It is not the live tracker. DDx or another runtime owns issue status, assignees,
-and execution history. This artifact explains what should compete for attention
+It is not the live tracker. The runtime owns issue status, assignees, and
+execution history. This artifact explains what should compete for attention
 next and why.
+
+For how this artifact relates to metric definitions, the metrics dashboard,
+and security-metrics, see the "Metric Four-Way Slice" section of
+`workflows/activities/06-iterate/README.md`.
 
 ## Reference Anchors
 

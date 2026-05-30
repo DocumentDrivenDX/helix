@@ -10,9 +10,9 @@ job is to compare current metric values against explicit baselines, interpret
 direction and tolerance, and produce a clear decision about improvement,
 regression, or noise.
 
-It consumes Metric Definitions. It does not redefine metric formulas, command
-semantics, or labels. It informs the Improvement Backlog but does not decide
-implementation work by itself.
+For how this artifact relates to metric definitions, security-metrics, and the
+improvement backlog, see the "Metric Four-Way Slice" section of
+`workflows/activities/06-iterate/README.md`.
 
 ## Reference Anchors
 

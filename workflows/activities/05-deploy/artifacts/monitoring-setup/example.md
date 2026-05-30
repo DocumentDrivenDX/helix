@@ -93,17 +93,10 @@ ddx:
 - Import/review SLO burn above 25% in a day triggers rollout hold and owner
   review.
 
-## Incident Response
+## Alert Routing
 
-### Response Entry Points
-- Primary owner or schedule: DepositMatch on-call engineer.
-- Secondary owner or schedule: platform lead.
-- Immediate containment actions: disable import, pause review decisions, or
-  disable review-log export through feature flags.
-- Existing runbook links: `docs/helix/05-deploy/runbook.md`.
-
-### Routing
-- Primary: application on-call.
+- Primary: application on-call (DepositMatch on-call engineer).
 - Secondary: platform lead.
 - Escalation: product owner for pilot-impact decisions; security lead for data
   exposure or control failure.
+- Runbook entry point: `docs/helix/05-deploy/runbook.md`.

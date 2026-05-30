@@ -62,15 +62,9 @@ ddx:
 ### Error Budget
 - [Budget and escalation thresholds]
 
-## Incident Response
+## Alert Routing
 
-### Response Entry Points
-- Primary owner or schedule: [Who handles the first page]
-- Secondary owner or schedule: [Who backs up the first responder]
-- Immediate containment actions: [Safe first actions before deeper procedures exist]
-- Existing runbook links (optional): [Add links once a runbook exists]
-
-### Routing
-- Primary: [Schedule]
-- Secondary: [Schedule]
-- Escalation: [Manager]
+- Primary: [Schedule receiving first page]
+- Secondary: [Backup schedule]
+- Escalation: [Manager or coordinator path]
+- Runbook entry point: [Link to runbook once it exists]
