@@ -21,12 +21,10 @@ output:
 validation:
   required_sections:
     - objective
-    - scope
     - approach
     - implementation
-    - testing
-    - findings
-    - conclusions
+    - results
+    - analysis
     - recommendations
     - artifacts
 
