@@ -23,7 +23,7 @@ A first-pass audit rated every HELIX artifact type and concern on file completen
 - Completeness: 48/48 artifact types rated `complete`. 49/49 concerns rated `complete`. There are no stubs.
 - Concision: 11/48 artifact types rated `verbose`; 22/49 concerns rated `verbose`. Nothing rated `bloated`.
 - Orthogonality (raw): 63 mutually-suspected artifact pairs and 64 mutually-suspected concern pairs.
-- Orthogonality (after subtracting by-design slot competition — architecture-style, language-runtime, e2e-framework, demo-framework, phase-sibling test/deploy/iterate clusters): ~12 artifact pairs and ~10 concern pairs are real scope-bleed candidates worth a synthesis pass.
+- Orthogonality (after subtracting by-design slot competition — architecture-style, language-runtime, e2e-framework, demo-framework — and the phase-sibling hierarchy/slice patterns under test, deploy, and iterate): ~12 artifact pairs and ~10 concern pairs are real scope-bleed candidates worth a synthesis pass.
 - Systemic issues that affect many items (worth a single sweep, not per-slug fixes):
   - `dependencies.yaml` absent for 48/48 artifact types; `meta.yml.relationships` carries the data instead. Either ratify the convention or generate the file.
   - `meta.yml.validation.required_sections` drifts from `template.md` headings in at least 8 artifact types (`data-prd`, `feasibility-study`, `parking-lot`, `security-requirements`, `proof-of-concept`, `tech-spike`, `validation-checklist`, `metrics-dashboard`). A schema lint would catch every instance.
@@ -61,7 +61,7 @@ Severity rule: `major` = schema lint would fail in current state if it ran; `mod
 
 - 14 concerns have an empty `ADR References` section header (`a11y-wcag-aa`, `demo-asciinema`, `demo-playwright`, `design-patterns-gof`, `e2e-kind`, `e2e-playwright`, `go-std`, `hugo-hextra`, `i18n-icu`, `k8s-kind`, `o11y-otel`, `python-uv`, `rust-cargo`, `scala-sbt`). Decide policy: drop the header when empty, or require at least one anchor ADR per concern.
 - `monitoring-setup` declares `informs: metrics-dashboard` but `metrics-dashboard` is an iterate-phase artifact type, not a deploy sibling. Verify the cross-phase link is intentional.
-- `stakeholder-map` meta references a `communication-plan` artifact that does not exist in any phase. Either create it or drop the reference.
+- `stakeholder-map` meta references a `communication-plan` artifact that does not exist in any phase. Either create it or drop the reference (handled in Phase 1 catalog contract — see scope).
 
 ## Concision gaps
 
@@ -111,7 +111,7 @@ The exit criterion for the orthogonality phases below is that every remaining ov
 
 | Pair | Phase | Class | Overlap | Recommendation |
 |---|---|---|---|---|
-| `prd` / `data-prd` | frame | inheritance | data-prd is a PRD specialization; both define problem/goals/requirements. data-prd's `required_sections` even drift from template | Express inheritance: data-prd declares only data-specific deltas; or merge with a `kind: data` switch (defect-class candidate) |
+| `prd` / `data-prd` | frame | defect (likely inheritance after ADR) | data-prd is a PRD specialization; both define problem/goals/requirements. data-prd's `required_sections` even drift from template. The variant-vs-sibling question is open until an ADR lands | Phase 3 ADR decides; then either restructure data-prd as a delta document or collapse with a `kind: data` switch |
 | `feature-specification` / `user-stories` | frame | slice | Both carry acceptance criteria with stable IDs; FEAT decomposition test restated in both | narrow: FEAT owns FR-n + functional areas; stories own AC-IDs and personas. Already mostly asserted; tighten by removing AC-ID restatements from FEAT prompt |
 | `feature-registry` / `parking-lot` | frame | defect | Registry of FEATs vs registry of deferred FEATs — same shape, different status | ADR: merge into one registry with status enum, or keep separate with explicit lifecycle |
 | `risk-register` / `threat-model` | frame | slice | Both score uncertain bad events with owners and mitigations; threat-model is the security slice | scope-split (already declared): make the cross-link load-bearing — threat-model entries auto-feed risk-register security-class rows |
@@ -134,8 +134,8 @@ The exit criterion for the orthogonality phases below is that every remaining ov
 | `frontend-architecture` / `react-nextjs` / `ux-radix` / `a11y-wcag-aa` | inheritance + defect | Four-way frontend cluster: structural patterns / framework slot / interaction primitives / accessibility. `react-nextjs` and `ux-radix` both prescribe shadcn/Radix usage | confirmed scope-split, plus a defect: pick one owner of shadcn/Radix prescription |
 | `concurrency-model` / `resilience` | slice | Both about graceful degradation under load; idempotency/bounding repeated in both | narrow: concurrency-model = in-process execution; resilience = cross-process call-path. Already asserted; remove neighbor-restatement prose |
 | `caching-strategy` / `resilience` | slice | Cache as fallback overlaps with resilience timeout/bulkhead patterns | confirm cache is a performance/staleness concern, not a stability one; remove resilience cross-references |
-| `o11y-otel` / `resilience` / `verification` | inheritance | Telemetry feeds resilience signals and verification evidence | scope-split: o11y owns the telemetry pipeline; resilience consumes it; verification cites it. Document in o11y-otel |
-| `enterprise-integration-patterns` / `event-sourcing` / `cqrs` | slot + slice | Three messaging-flavored concerns with shared idempotency/correlation MUSTs | keep distinct (different decision levels); cut the duplicated MUST lists |
+| `o11y-otel` / `resilience` / `verification` | slice | Telemetry is consumed by resilience signals and verification evidence; the two consumers are slices on the telemetry pipeline, not specializations of observability | o11y owns the telemetry pipeline as canonical; resilience and verification reference-and-cite the telemetry it produces. Document the consumer relationship in o11y-otel's Boundary section |
+| `enterprise-integration-patterns` / `event-sourcing` / `cqrs` | slice | Three messaging-flavored concerns with shared idempotency/correlation MUSTs. Event-sourcing and CQRS compose, so treating them as a slot would mislead | keep distinct (different decision levels); cut the duplicated MUST lists; document the composition explicitly |
 | `databricks-apps` / `databricks-declarative-pipelines` / `unity-catalog` | inheritance | Platform cluster — apps run on the runtime, pipelines produce data into UC, UC governs access | confirm three are layered; document the layering in each concern's Boundary once |
 | `deployment-topology` / `twelve-factor` / `k8s-kind` | inheritance | Topology decides units, twelve-factor governs per-process operability, k8s-kind is the local-K8s implementation | confirm three-level scope; cut twelve-factor's deployment-topology restatement |
 
@@ -161,6 +161,7 @@ Scope (one phase, multiple deliverables):
 - Decide the dependencies-encoding question: ratify `meta.yml.relationships` as canonical (preferred — single source) and update the rubric, or generate `dependencies.yaml` from `meta.yml` as a build step. Record the decision in an ADR.
 - Handle orphan templates (`security-tests/security-test.go.template`, `test-suites/{unit,integration}-test.go.template`): wire into meta as multi-template, or delete.
 - Fix resource-doc filename inconsistencies (`databricks-lakehouse-medallion-architecture.md` vs `databricks-medallion-architecture.md`).
+- Resolve `stakeholder-map` meta's missing `communication-plan` artifact reference: either create the artifact type or drop the reference.
 - Add a `scripts/helix_validate_artifact_meta.py` check that runs `required_sections` against `template.md` H2s for every artifact type and exits 0; wire into CI.
 
 Exit criterion: the validator passes for all 48 artifact types; the rubric stops flagging dependencies as missing; ADR records the encoding decision; CI gate prevents regression.
@@ -172,10 +173,10 @@ Goal: resolve the orthogonality cases that need no methodology debate — they n
 Prerequisite (decide before edits begin): concern `practices.md` is HELIX-activity-keyed, or topic + quality-gates suffices. Codify the decision in the rubric. This unblocks both the boundary-table edits and Phase 3's concision pass on the 10 topic-keyed concerns (`auth-local-sessions`, `caching-strategy`, `classic-layered`, `cqrs`, `domain-driven-design`, `enterprise-application-patterns`, `hexagonal-architecture`, `mcp-server`, `onion-architecture`, `sample-data`).
 
 Scope — items classified as slot, inheritance, or slice (no methodology change required):
-- Artifact pairs: `feature-specification`/`user-stories` (AC-ID restatement trim), the frame security triangle (`compliance-requirements`/`security-requirements`/`threat-model` — narrow each, link by ID), the design zoom-stack (`architecture`/`solution-design`/`technical-design` — add "what belongs at each level" matrix in design-phase README), `data-architecture`/`data-design` (narrow architecture to platform; trim template), `contract`/`technical-design` (TD's interface section references contract), `monitoring-setup`/`runbook` (remove "Incident Response" from monitoring-setup template), the test four-way (cut role-restating preambles), the iterate metric four-way (document in concern-of-iterate README).
+- Artifact pairs: `feature-specification`/`user-stories` (AC-ID restatement trim), the frame security triangle (`compliance-requirements`/`security-requirements`/`threat-model` — narrow each, link by ID), the design zoom-stack (`architecture`/`solution-design`/`technical-design` — add "what belongs at each level" matrix in design-phase README), `data-architecture`/`data-design` (narrow architecture to platform; trim template), `contract`/`technical-design` (TD's interface section references contract), `monitoring-setup`/`runbook` (remove "Incident Response" from monitoring-setup template), the test four-way (cut role-restating preambles), the iterate metric four-way (document the slice relationship in the 06-iterate README).
 - Concerns: the auth family — write the **family README with the ownership table** (auth = principal/session/account bootstrap; authorization-model = permission semantics; multi-tenancy = tenant predicate; security-owasp = hardening; admin-console = operator-workflow gates referencing auth; unity-catalog = catalog grants composing with authorization-model). Keep concerns separate. Then remove the per-concern restated boundary prose. Also: `testing`/`verification` (cross-link by ID), `e2e-playwright`/`demo-playwright` (remove demo-reel content from e2e-playwright), `concurrency-model`/`resilience` (in-process vs cross-process), `caching-strategy`/`resilience` (remove resilience cross-refs), `o11y-otel`/`resilience`/`verification` (telemetry pipeline ownership), the messaging three-way (cut duplicated MUSTs), the Databricks three-way (layering note in each Boundary), the deploy three-way (cut twelve-factor's deployment-topology restatement).
 
-Exit criterion: every overlap pair listed in the Orthogonality section is classified as slot, inheritance, slice, or defect; slot/inheritance/slice cases each have either a phase-README boundary entry or a one-line cross-reference replacing restated prose; the audit re-run flags no new mutual-suspicion within these clusters; defect cases are unblocked (handed to Phase 3).
+Exit criterion: every overlap pair listed in the Orthogonality section is classified as slot, inheritance, slice, or defect; slot/inheritance/slice cases each have either a phase-README boundary entry or a one-line cross-reference replacing restated prose; the audit re-run leaves no unclassified mutual-suspicion in these clusters; defect cases are unblocked (handed to Phase 3).
 
 ### Phase 3 — Design decisions requiring ADRs (was the hard half of Phase 3)
 
@@ -223,7 +224,15 @@ Exit criterion: re-audit drops `verbose` count by at least 60% across both trees
 
 ## Review log
 
-- 2026-05-30: codex advisory review. Findings and disposition:
+- 2026-05-30 (second pass): codex re-review confirmed all six prior findings are addressed. Six new sharper issues surfaced and incorporated:
+  - `prd`/`data-prd` was classified as `inheritance` while also sent to Phase 3 as a `defect`. Reclassified as `defect (likely inheritance after ADR)` so the row reads consistently with the phase routing.
+  - `o11y-otel`/`resilience`/`verification` was misclassified as `inheritance`. Telemetry is consumed by resilience and verification, not specialized from observability. Reclassified as `slice`.
+  - `enterprise-integration-patterns`/`event-sourcing`/`cqrs` was classified as `slot + slice`. Event-sourcing and CQRS compose, so treating them as a slot misleads. Reclassified as `slice` only.
+  - Phase 2 exit criterion still read "no new mutual-suspicion" — replaced with "no unclassified mutual-suspicion in these clusters".
+  - Phase 2 scope said "concern-of-iterate README" but the same area is marked out-of-scope at the bottom of the plan. Renamed to `06-iterate README` so the work is the phase-level README, not the concern composition model.
+  - `stakeholder-map` → missing `communication-plan` reference had no phase assignment. Added to Phase 1's catalog-contract scope.
+  - Worst-sentence fix: the systemic-issues list called "phase-sibling test/deploy/iterate clusters" slot competition. Those are hierarchy/slice patterns, not slots. Reworded.
+- 2026-05-30 (first pass): codex advisory review. Findings and disposition:
   - **Merge Phases 1 + 2** into "Catalog contract" — adopted. Schema validation, dependencies encoding, orphan templates, and resource references are one policy area, not two streams.
   - **Split Phase 3** into mechanical-edits vs ADR-grade decisions — adopted. New Phase 2 handles slot/inheritance/slice overlaps; new Phase 3 handles defect-class items with an ADR per decision.
   - **Drop dedicated Phase 5; fold practices-format decision into Phase 2 as a prerequisite** — adopted.
