@@ -1,0 +1,48 @@
+{
+  "attempt_id": "20260528T221833-980174c9",
+  "bead_id": "helix-9ab3e99f",
+  "base_rev": "f49221cec1e269270e5e8917503e436a202bfe84",
+  "created_at": "2026-05-28T22:18:33.95588287Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-9ab3e99f",
+    "title": "INT-GN: Databricks Genie Code integration test — Playwright + install verify + bootstrap scenario",
+    "description": "Create tests/workflows/genie/ harness that drives the Databricks Genie Code chat surface via Playwright, exercising the HELIX skill in the Workspace.\n\n**Key difference from other runtimes**: Genie has no chat API and no CLI. Integration test is a Playwright script that:\n1. Launches headless Chromium\n2. Loads workspace URL with DBAUTH cookie auth\n3. Opens Genie Code chat panel\n4. Types each scenario prompt + waits for response completion (Stop button heuristic — see prior 2026-05-17 work in tests/install/genie/recordings/)\n5. Captures full webm + per-prompt event log\n\n**Deliverables**:\n- `tests/workflows/genie/run-scenarios.sh` — Playwright driver (probably calling node + a `playwright.spec.ts` or `genie-driver.py`)\n- `tests/workflows/genie/scenarios/install-verify.prompt`, `skill-list.prompt`, `bootstrap.prompt`\n- `tests/workflows/genie/expected/\u003cname\u003e.expect`\n- `tests/workflows/genie/recordings/INT-GN.webm` + `INT-GN-events.json` (recording IS the screencast)\n- Operator-supplied `DATABRICKS_HOST` + `DATABRICKS_WORKSPACE_URL` env + DBAUTH cookie file at a documented path\n\n**Reuse**: tests/install/genie/recordings/ already has 3 Playwright-driven recordings from 2026-05-16/17. Use the same driver pattern.\n\n\u003ccontext-digest\u003e\n\u003cprinciples\u003eValidate Your Work · Runtime Neutrality · Design for Simplicity\u003c/principles\u003e\n\u003cconcerns\u003einstaller-coverage | screencast-evidence | runtime-parity\u003c/concerns\u003e\n\u003cpractices\u003ePlaywright headless Chromium · auth via DBAUTH cookie (operator provides) · capture webm + per-prompt JSON · the webm IS the screencast (no separate vhs step) · no chat API exists\u003c/practices\u003e\n\u003cgoverning\u003edocs/helix/03-test/test-plans/TP-014-helix-workflow-coverage.md SCN-01 (bootstrap) + SCN-06 (review) · docs/install/genie.md · existing tests/install/genie/ scaffolding\u003c/governing\u003e\n\u003c/context-digest\u003e",
+    "acceptance": "(Supersedes the \"grep response for expected text\" step in the description.)\n1. `bash tests/workflows/genie/run-scenarios.sh` exits 0 with DBAUTH cookie + DATABRICKS_HOST/WORKSPACE_URL set, driving 3 scenarios via headless Playwright.\n2. Activation assertion: Playwright asserts on a structural DOM signal that the HELIX skill engaged (a skill-invocation indicator / tool-call element in the Genie chat transcript), not merely that response text contains mode names.\n3. Negative control: a run against a workspace/session without the HELIX skill installed fails the activation assertion (exits NONZERO). If a no-skill workspace is unavailable, document the substitute control used.\n4. tests/workflows/genie/evals/routing.jsonl exists and is exercised against captured responses.\n5. tests/workflows/genie/recordings/INT-GN.webm + INT-GN-events.json committed (the webm IS the screencast). docs/install/databricks-genie.md links the webm.",
+    "parent": "helix-e3c7d0e4",
+    "labels": [
+      "helix",
+      "phase:test",
+      "activity:test",
+      "kind:test",
+      "area:testing",
+      "area:packaging",
+      "runtime:genie"
+    ],
+    "metadata": {
+      "events": [
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness route unavailable: runner error: agent: provider error: openai: POST \\\"http://bragi:1234/v1/chat/completions\\\": 502 Bad Gateway\",\"fingerprint\":\"c63725637a9913ddce00e011be60eea8b2b81be343ece9ea787ea628b79ef89d\",\"policy_mode\":\"warn-only\",\"reason\":\"system_unready\",\"rule_id\":\"pre_claim_intake.system_unready\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"c63725637a9913ddce00e011be60eea8b2b81be343ece9ea787ea628b79ef89d\"}",
+          "created_at": "2026-05-28T22:18:06.414263286Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "system_unready"
+        }
+      ],
+      "spec-id": "helix.installer-integration-tests"
+    }
+  },
+  "paths": {
+    "dir": ".ddx/executions/20260528T221833-980174c9",
+    "prompt": ".ddx/executions/20260528T221833-980174c9/prompt.md",
+    "manifest": ".ddx/executions/20260528T221833-980174c9/manifest.json",
+    "result": ".ddx/executions/20260528T221833-980174c9/result.json",
+    "checks": ".ddx/executions/20260528T221833-980174c9/checks.json",
+    "usage": ".ddx/executions/20260528T221833-980174c9/usage.json",
+    "worktree": "Users/erik/Projects/.ddx-exec-wt/.execute-bead-wt-helix-9ab3e99f-20260528T221833-980174c9"
+  },
+  "prompt_sha": "e96db3936426f29f3830c501d4f438a842cb5867c5a6c3de15e7079f27182290"
+}
