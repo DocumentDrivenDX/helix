@@ -1,7 +1,7 @@
 ---
 title: "Technical Design: TD-013 — Multi-Runtime Install"
 slug: TD-013-multi-runtime-install
-weight: 560
+weight: 570
 activity: "Design"
 source: "02-design/technical-designs/TD-013-multi-runtime-install.md"
 generated: true

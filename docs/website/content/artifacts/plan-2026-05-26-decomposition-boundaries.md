@@ -1,7 +1,7 @@
 ---
 title: "Plan — it.37: artifact-tier decomposition boundaries (PRD ↔ FEAT ↔ story)"
 slug: plan-2026-05-26-decomposition-boundaries
-weight: 440
+weight: 450
 activity: "Design"
 source: "02-design/plan-2026-05-26-decomposition-boundaries.md"
 generated: true

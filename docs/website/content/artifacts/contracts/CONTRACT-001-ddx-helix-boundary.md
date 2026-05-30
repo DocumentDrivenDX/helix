@@ -1,7 +1,7 @@
 ---
 title: "CONTRACT-001: DDx / HELIX Boundary Contract"
 slug: CONTRACT-001-ddx-helix-boundary
-weight: 210
+weight: 220
 activity: "Design"
 source: "02-design/contracts/CONTRACT-001-ddx-helix-boundary.md"
 generated: true
