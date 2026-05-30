@@ -1,0 +1,16 @@
+{
+  "ran": true,
+  "changed_docs": [
+    "docs/install/copilot.md"
+  ],
+  "findings": [
+    {
+      "file": "docs/install/copilot.md",
+      "line": 10,
+      "rule_id": "prose.specificity.actor_action",
+      "severity": "advisory",
+      "rationale": "The sentence says something enables or supports work without naming the actor, action, artifact, or boundary.",
+      "suggested_edit": "Name the actor, action, artifact, or boundary that makes the statement concrete."
+    }
+  ]
+}
