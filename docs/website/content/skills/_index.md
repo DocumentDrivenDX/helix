@@ -6,12 +6,9 @@ weight: 4
 HELIX skills are the portable agent-facing surface of the methodology. They
 package the artifact catalog, authority order, and alignment workflow so an AI
 runtime can inspect a repository's Markdown artifacts and propose the next
-safe plan.
-
-The product direction is intentionally small: HELIX is methodology content plus
-one alignment-and-planning skill. Runtime mechanics such as queues, trackers,
-claims, commits, and execution loops belong to platforms such as DDx, Claude
-Code, Codex, or Databricks.
+safe plan. For the methodology behind the skill, see
+[the thesis](/why/the-thesis/); for invocation reference, see
+[/reference/skills/](/reference/skills/).
 
 ## The core skill
 

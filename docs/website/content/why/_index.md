@@ -6,24 +6,9 @@ aliases:
   - /docs/background
 ---
 
-HELIX is the **methodology layer** for AI-assisted software development.
-It defines seven activities, the artifacts that populate each, the
-authority order that resolves their conflicts, and the cross-cutting
-concerns that travel with the work. It is runtime-neutral: the same
-methodology can be applied through DDx today, Databricks Genie, Claude
-Code, or another execution surface tomorrow.
-
-The deliverable is intentionally small: a methodology, an artifact catalog,
-and one alignment-and-planning skill that helps teams keep the artifact
-graph coherent. Runtime execution, issue queues, CLI wrappers, and agent
-loops belong to the platform you choose, not to the core HELIX product.
-
-The premise is narrow but load-bearing: AI agents will do real software
-work in the coming decade, and the work needs structure that survives
-turnover, model upgrades, and the temptation to skip the parts that
-don't feel like coding. HELIX is the structure.
-
-This section makes the case in four pages.
+The argument behind HELIX. The four pages below make the case for a
+methodology layer that holds across runtimes, agents, and model
+upgrades.
 
 {{< cards >}}
   {{< card link="the-problem" title="The Problem" subtitle="Why waterfall, agile, and vibe coding each fail in the era of AI-assisted development, and why a compromise of all three doesn't fix the failure." icon="exclamation-circle" >}}

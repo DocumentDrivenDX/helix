@@ -7,12 +7,8 @@ aliases:
   - /docs/skills
 ---
 
-HELIX's durable skill surface is one alignment-and-planning skill. It packages
-the methodology, artifact catalog, and authority-order rules so an AI runtime
-can inspect project artifacts, identify drift, and propose the next safe plan.
-
-The skill is not a queue runner, tracker, commit tool, or implementation loop.
-Those capabilities belong to the runtime that embeds HELIX.
+Technical reference for invoking the HELIX skill. For orientation and the
+artifact-coverage list, see [/skills/](/skills/).
 
 ## Core skill contract
 

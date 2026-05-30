@@ -3,13 +3,11 @@ title: Platforms
 weight: 5
 ---
 
-HELIX is portable methodology content: artifact templates, an artifact-type
-schema, and an alignment/planning skill. A platform is the runtime around that
-content. It may provide a tracker, agent harness, review workflow, evidence
-store, or only a conversational interface.
-
-The same HELIX artifact stack can move across platforms because the core
-contract is plain Markdown plus a small amount of frontmatter.
+The runtime around HELIX. A platform may provide a tracker, agent harness,
+review workflow, evidence store, or only a conversational interface; the
+same artifact stack moves across all of them because the core contract is
+plain Markdown plus a small amount of frontmatter. For what HELIX is, see
+[the thesis](/why/the-thesis/).
 
 ## Boundary: method first, runtime second
 

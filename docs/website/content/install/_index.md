@@ -3,10 +3,8 @@ title: Install HELIX
 weight: 1
 ---
 
-HELIX is a methodology, an artifact-type catalog, and a single routing skill.
-It is not a CLI, a tracker, or a runtime. To use HELIX you make its content
-discoverable from the runtime you already use. Pick the guide that matches your
-environment.
+Pick the install guide for your runtime. For what HELIX is, see
+[the thesis](/why/the-thesis/).
 
 ## Minimal runtime contract
 
