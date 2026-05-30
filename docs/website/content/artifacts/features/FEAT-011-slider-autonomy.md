@@ -147,7 +147,7 @@ Autonomy raises or lowers the **pause threshold**, never the **stop floor**.
 Regardless of level, a workflow must stop and surface to a human when:
 
 - two higher-or-equal-authority artifacts **truly contradict** (a physics-level
-  conflict the authority order cannot reconcile);
+  conflict the authority hierarchy cannot reconcile);
 - the next action is destructive or irreversible (data loss, history rewrite,
   external publish) and was not explicitly authorized;
 - a decision is required that only a human can make (product direction, an

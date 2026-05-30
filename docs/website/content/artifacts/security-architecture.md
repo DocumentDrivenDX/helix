@@ -81,9 +81,10 @@ The primary controls are:
   access is loopback-only and authenticated by UNIX user identity. Remote
   access (opt-in) is authenticated by Tailscale node identity through the
   `tsnet` sidecar; the service trusts the tailnet's ACL.
-- **Authorization**: Authority order is the effective authorization
-  boundary inside HELIX (vision > requirements > design > code per the
-  authority order). At the service layer, write operations are gated by
+- **Authorization**: The artifact authority hierarchy is the effective
+  authorization boundary inside HELIX (vision > requirements > design >
+  code per the authority hierarchy). At the service layer, write
+  operations are gated by
   filesystem permissions on `.ddx/`. The supervisor stops for guidance when
   required authority is missing rather than escalating privilege.
 - **Session or token handling**: Model-provider API keys are session-scoped

@@ -22,7 +22,8 @@ things:
    examples for every artifact type across the seven HELIX activities.
 2. A **routing skill** in `skills/helix/SKILL.md` — the single agent-facing
    surface that reads and writes the catalog's artifact instances.
-3. A **methodology specification** in `workflows/` — authority order, activity
+3. A **methodology specification** in `workflows/` — the artifact
+   authority hierarchy, activity
    conventions, artifact-type schema, principles, and the alignment skill
    contract, expressed in runtime-neutral terms.
 
@@ -127,10 +128,11 @@ The full `meta.yml` schema — required fields, recommended fields, validation
 entries, id-format, dependency declarations, and extension sections — is
 specified in [`workflows/artifact-schema.md`](../../../workflows/artifact-schema.md).
 
-### Authority order
+### Authority hierarchy
 
-Every artifact type declares its position in the authority order. Higher-level
-artifacts govern lower-level ones; conflicts resolve upward:
+Every artifact type declares its position in the artifact authority
+hierarchy. Higher-level artifacts govern lower-level ones; conflicts
+resolve upward:
 
 ```
 product vision
@@ -143,8 +145,8 @@ product vision
 ```
 
 The routing skill's `evolve` mode threads changes downward through this order;
-`align` mode audits consistency across it. Authority order is a HELIX
-invariant — no runtime changes it.
+`align` mode audits consistency across it. The authority hierarchy is a
+HELIX invariant — no runtime changes it.
 
 ### Artifact instance frontmatter
 
@@ -191,7 +193,7 @@ responsibilities.
 | `frame` | Create or refine vision, PRD, feature specs, user stories |
 | `align` | Identify drift, gaps, and contradictions across the artifact graph |
 | `validate` | Check one artifact instance against its type template and prompt |
-| `evolve` | Thread a changed requirement through the authority order |
+| `evolve` | Thread a changed requirement through the authority hierarchy |
 | `design` | Author a technical design before implementation |
 | `backfill` | Reconstruct missing artifacts from evidence |
 | `review` | Fresh-eyes review of plans, PRs, or recent work |
@@ -304,7 +306,7 @@ and describes the resolution for each.
 | Attribute | Strategy |
 |-----------|---------|
 | Runtime portability | Skill body and catalog contain zero runtime-specific commands; portability check on every release (PRD R-4) |
-| Authority-order coherence | `align` mode audits consistency; `evolve` mode propagates change in authority order |
+| Authority-hierarchy coherence | `align` mode audits consistency; `evolve` mode propagates change from the highest-authority artifact down |
 | Catalog completeness | Seven-activity coverage; each type has template, prompt, meta, example |
 | Self-application | `docs/helix/` is authored from HELIX templates; alignment skill runs catch dogfood drift (PRD R-6) |
 | Schema openness | Consumers add extension fields; unknown fields are preserved, not stripped |

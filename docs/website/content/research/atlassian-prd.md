@@ -42,6 +42,6 @@ becoming the design itself.
 
 ## Authority Boundary
 
-This resource does not define HELIX's authority order or artifact stack. The
+This resource does not define HELIX's authority hierarchy or artifact stack. The
 Product Vision still governs direction, and Feature Specifications own
 feature-level requirement detail.

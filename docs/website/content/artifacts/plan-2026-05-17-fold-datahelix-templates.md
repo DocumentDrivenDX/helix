@@ -197,7 +197,7 @@ parallel `customer-360-data` fixture for data-engineering scenarios.
 ### Phase F — Update relationship documentation
 
 - `workflows/artifact-hierarchy.md` — add the new types to the
-  dependency graph (data-prd is below prd in authority order;
+  dependency graph (data-prd is below prd in the authority hierarchy;
   data-architecture is below architecture; data-quality-expectations
   sits between data-architecture and implementation-plan).
 - `workflows/REFERENCE.md` (or whichever doc is the canonical catalog

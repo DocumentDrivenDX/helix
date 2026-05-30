@@ -111,7 +111,7 @@ A hard stop is a condition no autonomy level may pass:
 
 | Condition | Why it is a hard stop |
 |-----------|----------------------|
-| True contradiction between equal/higher-authority artifacts | The authority order cannot reconcile it; picking a side fabricates intent. |
+| True contradiction between equal/higher-authority artifacts | The authority hierarchy cannot reconcile it; picking a side fabricates intent. |
 | Destructive/irreversible unauthorized action | Cannot be undone; consent is required (mirrors the repo destructive-command guard). |
 | Decision only a human can make | Product direction or an external contract change is outside agent authority. |
 

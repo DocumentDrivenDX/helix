@@ -71,7 +71,7 @@ recordings as release evidence.
      `frame`/`design`/`evolve` carry the right shape (frontmatter,
      dependency edges, template-conformant sections).
   3. No fixture for the iterating-change journey, which is HELIX's
-     most-load-bearing claim (authority-order propagation).
+     most-load-bearing claim (authority-hierarchy propagation).
   4. No assertion that HELIX refuses to improvise — yet TP-014-A §5
      documents four real cases where runtimes did improvise when the
      §Operating Discipline contract says they should not.

@@ -12,7 +12,7 @@ There are two related public landing paths:
 - [/artifact-types/](/artifact-types/) is the reusable catalog: document shapes, prompts, and quality rules.
 - [/artifacts/](/artifacts/) is the worked example: HELIX's own governing artifacts, authored from the catalog under `docs/helix/`.
 
-The [HELIX skill](/skills/) uses this catalog and the authority order to find drift between concrete artifacts and propose a plan for restoring alignment.
+The [HELIX skill](/skills/) uses this catalog and the artifact authority hierarchy to find drift between concrete artifacts and propose a plan for restoring alignment.
 
 Browse by activity. Each activity lists the core artifacts first, then the supporting artifacts teams use when they need more detail, risk control, or operational depth.
 

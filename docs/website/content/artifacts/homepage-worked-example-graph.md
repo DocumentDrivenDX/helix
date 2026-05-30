@@ -17,7 +17,7 @@ described, it is represented through HELIX's own governing artifacts.
 The graph should make three ideas visible without requiring a long explanatory
 paragraph:
 
-- HELIX artifacts have an authority order from intent to execution.
+- HELIX artifacts have an authority hierarchy from intent to execution.
 - Human judgment and agent review are both part of artifact iteration.
 - The reusable catalog and the worked example are related but not the same
   thing.
@@ -86,7 +86,7 @@ It should not:
 <div class="helix-authority-graph helix-annotated-graph" aria-label="HELIX governing artifact relationship graph">
   <div class="helix-catalog-label">
     <span>Artifact catalog</span>
-    <strong>Reusable document types in authority order</strong>
+    <strong>Reusable document types in authority hierarchy</strong>
   </div>
   <div class="helix-strand-label helix-human-label">
     <strong>Human judgment</strong>

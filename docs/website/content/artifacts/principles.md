@@ -40,7 +40,8 @@ sense that they steer judgment about how to extend HELIX itself.
 ## Principles
 
 1. **Authority is the resolver.** Conflicts between artifacts resolve up the
-   authority order, never down. Source code never overrides specification.
+   artifact authority hierarchy, never down. Source code never overrides
+   specification.
 
 2. **Documents are the contract.** Every consequential decision lands as an
    artifact update. If a decision is not in the documents, it does not exist.

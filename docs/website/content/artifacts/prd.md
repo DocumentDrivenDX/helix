@@ -64,7 +64,7 @@ have not been given that discipline in a portable, tool-agnostic form.
 2. **Alignment skill.** Provide a single skill that any AI agent can run
    against a project's governing artifacts to identify drift, gaps, and
    contradictions, and produce a plan for closing them.
-3. **Methodology spec.** Specify authority order, the seven-activity control
+3. **Methodology spec.** Specify the artifact authority hierarchy, the seven-activity control
    loop, the artifact-type schema, and the alignment skill contract as a
    runtime-neutral document.
 4. **Stay small.** HELIX is content + one skill. Not a tool, not a platform,
@@ -142,7 +142,7 @@ legacy surfaces that crept across the boundary.
 ### In Scope
 
 - Artifact-type catalog (templates, prompts, quality criteria, examples)
-- Methodology specification (authority order, seven-activity loop, principles)
+- Methodology specification (artifact authority hierarchy, seven-activity loop, principles)
 - Single alignment skill (find drift; produce a plan)
 - Runtime-portable packaging of all of the above (per-runtime packages for
   DDx, Databricks Genie, Claude Code)
@@ -166,9 +166,9 @@ for every activity in the seven-activity loop. Each artifact type carries a
 template (markdown skeleton), a prompt (authoring guidance), quality criteria,
 and an example.
 
-**R-2: Authority-ordered relationships.** Every artifact type declares its
-position in the authority order. Higher-level artifacts govern lower-level
-ones; conflicts resolve up.
+**R-2: Authority-hierarchy relationships.** Every artifact type declares
+its position in the artifact authority hierarchy. Higher-level artifacts
+govern lower-level ones; conflicts resolve up.
 
 **R-3: Alignment skill.** A single skill, deployable to any runtime that can
 read and write markdown, takes an artifact root path plus an optional intent
@@ -183,7 +183,8 @@ references to specific runtime commands, file layouts, or runtimes beyond
 the minimal "read markdown, write markdown, search files" contract.
 
 **R-5: Methodology specification.** A runtime-neutral specification document
-defines the authority order, the seven-activity loop, the artifact-type
+defines the artifact authority hierarchy, the seven-activity loop, the
+artifact-type
 schema, and the alignment skill contract. New runtime consumers can
 implement HELIX compliantly from this spec alone.
 

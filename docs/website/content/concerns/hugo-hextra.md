@@ -296,7 +296,7 @@ same evolution or build pass.
 Any change to a HELIX artifact that is surfaced on the microsite:
 - New or renamed CLI commands → update CLI Reference
 - New, renamed, or removed features → update glossary/artifacts page
-- Changed activities, authority order, or workflow rules → update workflow page
+- Changed activities, authority hierarchy, or workflow rules → update workflow page
 - New or changed artifact types → update glossary/artifacts with description
   from `workflows/activities/*/artifacts/<name>/meta.yml` (description field)
   and `workflows/activities/*/artifacts/<name>/prompt.md` (Purpose section)
@@ -313,7 +313,7 @@ Each HELIX artifact type has structured metadata at
 | File | What it provides |
 |------|-----------------|
 | `meta.yml` | Name, description, dependencies, validation rules, relationships |
-| `prompt.md` | Purpose section — 2-3 paragraphs explaining what the artifact is, why it matters, and how it fits the authority order |
+| `prompt.md` | Purpose section — 2-3 paragraphs explaining what the artifact is, why it matters, and how it fits the authority hierarchy |
 | `template.md` | The structure to fill in |
 | `example.md` | A concrete example |
 
@@ -322,7 +322,7 @@ must include a substantive description for each artifact — not just a one-line
 purpose. Pull the description from `meta.yml` and the Purpose section of
 `prompt.md`. The reader should understand what each artifact is, when to
 create one, and how it relates to artifacts above and below it in the
-authority order.
+authority hierarchy.
 
 ### When evolve or frame changes artifacts
 

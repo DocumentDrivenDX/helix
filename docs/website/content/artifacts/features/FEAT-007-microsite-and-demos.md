@@ -70,7 +70,7 @@ The microsite must include at minimum:
 |---------|---------|--------|
 | **Home** | Hero, value prop, feature grid, embedded demo, CTA | Done |
 | **Getting Started** | Install and first supervised build in under 10 minutes | Done |
-| **Workflow** | Activities, authority order, supervisory loop, stopping conditions | Done |
+| **Workflow** | Activities, authority hierarchy, supervisory loop, stopping conditions | Done |
 | **CLI Reference** | Every command with options, env vars, and examples | Done |
 | **Skills** | Agent skill listing, installation modes, naming conventions | Done |
 | **Glossary** | Definitions for all HELIX terms, organized by category | Done |
@@ -82,10 +82,10 @@ The glossary must define every user-facing HELIX concept:
 
 - **Activities**: All 6 lifecycle activities with key artifacts and commands
 - **Artifacts**: Every artifact type by activity, with file locations and the
-  authority order
+  authority hierarchy
 - **Actions**: Every supervisory command with usage and behavior
 - **Concerns**: The concern library, how filtering works, drift signals
-- **Concepts**: Authority order, TDD, context digests, principles, ratchets,
+- **Concepts**: Authority hierarchy, TDD, context digests, principles, ratchets,
   bounded execution, cross-model verification, epic focus, area taxonomy
 - **Tracker**: Beads, labels, queue control, spec-id, dependencies
 

@@ -154,7 +154,7 @@ Seed content sizes: intent.txt ~30 words, change-request.txt ~40 words, contradi
 **Pass criteria:**
 1. All four artifact types exist.
 2. Each carries `ddx.depends_on` listing its parent.
-3. Authority order preserved.
+3. Authority hierarchy preserved.
 4. Template conformance per `expectations/sections-feat.txt` and `sections-td.txt`.
 5. ADR records a decision; TD references that decision.
 
@@ -190,7 +190,7 @@ Seed content sizes: intent.txt ~30 words, change-request.txt ~40 words, contradi
 
 **Cost:** ~20–30K tokens per runtime (highest-cost scenario).
 
-**Demo-reel (7 beats):** baseline → change request → `evolve` mode announce → streamed edits in authority order → new ADR-002 → ADR-001 in-place edit (`superseded_by`) → alignment-finding tail.
+**Demo-reel (7 beats):** baseline → change request → `evolve` mode announce → streamed edits from the highest-authority artifact down → new ADR-002 → ADR-001 in-place edit (`superseded_by`) → alignment-finding tail.
 
 ---
 
@@ -387,7 +387,7 @@ Implement scenarios in this order to maximize coverage per token spent:
 1. **Scenario 1 (Bootstrap)** — most-used user journey; cheapest functional path; produces the baseline downstream scenarios reuse. Start with DDx + Claude Code; add other runtimes once those are green.
 2. **Scenario 7a (no authority)** — cheap, mostly static, asserts critical refusal behavior.
 3. **Scenario 6 (Review)** — operates on already-staged baseline; high signal-to-noise for catching catalog drift.
-4. **Scenario 3 (Evolve)** — highest-cost but highest-value for asserting authority-order discipline.
+4. **Scenario 3 (Evolve)** — highest-cost but highest-value for asserting authority-hierarchy discipline.
 5. **Scenarios 2, 4, 5** — fill out derive/plan path once 1, 3, 6 are stable.
 6. **Scenarios 7b, 7c** — refinement of negative-path battery.
 

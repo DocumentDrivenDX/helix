@@ -124,7 +124,7 @@ HELIX owns:
 
 ### 3. Artifact-flow policy
 HELIX owns:
-- authority ordering across artifact layers
+- the artifact authority hierarchy across artifact layers
 - change propagation policy through the artifact stack
 - graph traversal policy beyond the primitive graph operations DDx exposes
 - search fallback policy when declared links are incomplete
