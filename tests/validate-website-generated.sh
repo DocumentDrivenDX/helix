@@ -38,7 +38,9 @@ fi
 
 # Coverage signal: every upstream concern and artifact-type has a rendered page.
 src_concerns=$(find workflows/concerns -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
-out_concerns=$(find "$content/concerns" -name '*.md' ! -name '_index.md' | wc -l | tr -d ' ')
+# Family READMEs (e.g. README-auth-family.md) are published alongside concerns
+# but are not concerns themselves; exclude them from the coverage count.
+out_concerns=$(find "$content/concerns" -name '*.md' ! -name '_index.md' ! -name 'README-*.md' | wc -l | tr -d ' ')
 src_arttypes=$(find workflows/activities/*/artifacts -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
 out_arttypes=$(find "$content/artifact-types" -name '*.md' ! -name '_index.md' | wc -l | tr -d ' ')
 
