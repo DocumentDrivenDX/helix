@@ -18,12 +18,9 @@ output:
 
 validation:
   required_sections:
-    - documentation_completeness
-    - quality_gates
-    - stakeholder_validation
-    - cross_reference_validation
-    - exit_criteria_verification
-    - sign_off
+    - go_no_go_gates
+    - result
+    - required_follow_up
 
   quality_checks:
     - check: all_artifacts_validated
