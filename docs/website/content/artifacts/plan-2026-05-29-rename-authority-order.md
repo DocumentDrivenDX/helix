@@ -49,8 +49,8 @@ Two alternatives were considered and rejected:
   precedence rule weakens. Codex review surfaced this and several specific
   sentences where "abstraction hierarchy" reads worse than "authority order".
 - **"Specification hierarchy"** is too narrow. Vision is intent more than
-  specification; Source Code is output, not specification. Either end of the
-  list does not read as "spec".
+  specification; Source Code is output, not specification. Neither end of
+  the list reads as "spec".
 
 "Levels of abstraction" is useful as descriptive prose ("each level is a
 greater abstraction than the one below"), not as the noun phrase for the
@@ -80,16 +80,23 @@ concept.
 - Compatibility for old fragment links: add an explicit HTML anchor next to
   the new heading so deep links to `#authority-order` keep working. Hugo
   `aliases:` only redirects page-level URLs; fragments are browser-side and
-  unaffected. Approach:
+  unaffected. Two approaches, in increasing sturdiness:
 
   ```markdown
   <a id="authority-order"></a>
   ## Authority Hierarchy
   ```
 
-  The `<a id>` renders as an empty anchor next to the heading. After Hugo's
-  default heading-anchor generation, both `#authority-order` and
-  `#authority-hierarchy` resolve to the same scroll position.
+  The raw anchor renders because `markup.goldmark.renderer.unsafe: true` is
+  set in `website/hugo.yaml`. Both `#authority-order` and
+  `#authority-hierarchy` will navigate to the heading. **Caveat surfaced by
+  codex review**: Hextra applies a sticky-header offset to its generated
+  heading anchors via a CSS scroll-margin / offset span; the bare `<a id>`
+  does not get that offset, so the scroll position lands a few pixels
+  differently for the legacy fragment than for the canonical one. Sturdier
+  approach: add a small `legacy-anchor` shortcode (or a raw `<span>` matching
+  Hextra's offset pattern) and browser-test both fragments in a deployed
+  page before declaring the migration done.
 
 ## What does NOT change
 
@@ -179,16 +186,19 @@ Revised order:
 
 After all commits land:
 
-- The grep target must include every tree the rename touches. Codex flagged
-  that the original grep set missed `docs/demos`, `docs/resources`,
-  `tests/refresh`, `.github/copilot-instructions.md`, and
-  `scripts/generate-reference.py`. Full final-check command:
+- The grep target must include every tree the rename touches **and every
+  variant of the phrase**. Codex flagged that the prior plan's grep was
+  case-sensitive and only matched `authority order|authority-order`,
+  missing `Authority Order`, `authority-ordered`, and `authority ordering`.
+  It also missed the committed `.cast` files under `website/static/demos/`.
+  Full final-check command:
 
   ```sh
-  grep -rln 'authority order\|authority-order' \
+  grep -RnliE 'authority[- ]order(ed|ing)?' \
     docs/website/content docs/helix workflows skills \
     docs/demos docs/resources tests/refresh tests/install \
-    .github .vale README.md AGENTS.md CLAUDE.md scripts/generate-reference.py \
+    .github .vale README.md AGENTS.md CLAUDE.md \
+    scripts/generate-reference.py website/static/demos \
     | grep -v plan-2026-05-29-rename-authority-order.md \
     | grep -v plan-2026-05-29-prose-quality-pass.md \
     | grep -v plan-2026-05-29-curated-page-scopes.md
