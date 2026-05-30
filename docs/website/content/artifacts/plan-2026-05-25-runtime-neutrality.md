@@ -1,7 +1,7 @@
 ---
 title: "Plan — DDx-reference runtime-neutrality remediation (2026-05-25)"
 slug: plan-2026-05-25-runtime-neutrality
-weight: 410
+weight: 480
 activity: "Design"
 source: "02-design/plan-2026-05-25-runtime-neutrality.md"
 generated: true

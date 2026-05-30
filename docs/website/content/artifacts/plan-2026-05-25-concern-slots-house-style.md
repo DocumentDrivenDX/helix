@@ -1,7 +1,7 @@
 ---
 title: "Plan — concern slots + operator house-style (2026-05-25)"
 slug: plan-2026-05-25-concern-slots-house-style
-weight: 380
+weight: 450
 activity: "Design"
 source: "02-design/plan-2026-05-25-concern-slots-house-style.md"
 generated: true

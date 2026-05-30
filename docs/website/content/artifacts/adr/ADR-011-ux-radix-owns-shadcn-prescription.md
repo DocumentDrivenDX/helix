@@ -1,7 +1,7 @@
 ---
 title: "ADR-011: ux-radix owns Radix and shadcn prescriptions; react-nextjs references"
 slug: ADR-011-ux-radix-owns-shadcn-prescription
-weight: 250
+weight: 260
 activity: "Design"
 source: "02-design/adr/ADR-011-ux-radix-owns-shadcn-prescription.md"
 generated: true

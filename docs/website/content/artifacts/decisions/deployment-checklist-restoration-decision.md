@@ -1,7 +1,7 @@
 ---
 title: "Deployment Checklist — Restoration Decision"
 slug: deployment-checklist-restoration-decision
-weight: 640
+weight: 710
 activity: "Deploy"
 source: "05-deploy/decisions/deployment-checklist-restoration-decision.md"
 generated: true

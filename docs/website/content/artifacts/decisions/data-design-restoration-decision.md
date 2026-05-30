@@ -1,7 +1,7 @@
 ---
 title: "Data Design — Restoration Decision"
 slug: data-design-restoration-decision
-weight: 300
+weight: 370
 activity: "Design"
 source: "02-design/decisions/data-design-restoration-decision.md"
 generated: true
