@@ -1,0 +1,269 @@
+{
+  "attempt_id": "20260530T034153-1d19a76a",
+  "bead_id": "helix-88435238",
+  "base_rev": "26d9696ad8742e1b6529d22c95b63894e272afe8",
+  "created_at": "2026-05-30T03:41:54.875662823Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-88435238",
+    "title": "INT-CP: GitHub Copilot CLI integration test — install + skill activation + bootstrap scenario",
+    "description": "Create tests/workflows/copilot-cli/ harness that exercises `gh copilot suggest` against operator prompts that should engage the HELIX skill.\n\n**Caveat**: GitHub Copilot CLI's `gh copilot suggest` is shell-command-oriented, not free-form chat. The \"skill activation\" assertion is different from chat runtimes — we test that Copilot, given a HELIX-aware prompt, recognizes and names HELIX modes in its response, rather than generating bespoke shell.\n\n**Deliverables**:\n- run-scenarios.sh + 3 scenario prompts (install-verify, skill-list, bootstrap-style \"explain how HELIX would frame X\")\n- expected/ assertion text\n- vhs recording → INT-CP.gif\n\n**Harness shape** (reuse `tests/install/copilot-cli/Dockerfile`):\n1. Build image with `gh` + Copilot extension\n2. For each scenario: `gh copilot suggest -t shell \"\u003cprompt\u003e\"` (or `-t gh` depending on which `-t` flag gives free-form output in the current Copilot version)\n3. Grep response\n\n**Risk**: docs/install/copilot.md:121-127 says `gh copilot` GA was January 2026. If the current Copilot version's surface has changed since then, the harness will need adaptation.\n\n\u003ccontext-digest\u003e\n\u003cprinciples\u003eValidate Your Work · Runtime Neutrality · Design for Simplicity\u003c/principles\u003e\n\u003cconcerns\u003einstaller-coverage | screencast-evidence | runtime-parity\u003c/concerns\u003e\n\u003cpractices\u003evhs records the Docker run · gh copilot has a different response shape than chat-based runtimes; assertion is \"names HELIX modes when asked\" rather than \"produces artifacts\" · GITHUB_TOKEN required\u003c/practices\u003e\n\u003cgoverning\u003edocs/helix/03-test/test-plans/TP-014-helix-workflow-coverage.md SCN-01 (bootstrap) + SCN-06 (review) · docs/install/copilot-cli.md · existing tests/install/copilot-cli/ scaffolding\u003c/governing\u003e\n\u003c/context-digest\u003e",
+    "acceptance": "(Supersedes the \"grep response\" step in the description.)\n1. `bash tests/workflows/copilot-cli/run-scenarios.sh` exits 0 with GITHUB_TOKEN set.\n2. Activation assertion: the harness asserts on the strongest structured signal `gh copilot` exposes (exit code, structured output, or a documented invocation marker). gh copilot is shell-command-oriented and may expose no skill-invocation event; if so, the harness README explicitly documents this limitation.\n3. Negative control (required even where the signal is weak): the same scenario with HELIX content/skill absent exits NONZERO, so the test is not a vacuous prose grep.\n4. tests/workflows/copilot-cli/recordings/INT-CP.gif generated via vhs and committed. docs/install/copilot.md links it.\n5. Copilot response-shape difference and any activation-signal limitation documented in the harness README. (No routing.jsonl required: gh copilot is not a chat-router runtime.)",
+    "parent": "helix-e3c7d0e4",
+    "labels": [
+      "helix",
+      "phase:test",
+      "activity:test",
+      "kind:test",
+      "area:testing",
+      "area:packaging",
+      "runtime:copilot-cli",
+      "ac-quality:needs-refinement"
+    ],
+    "metadata": {
+      "events": [
+        {
+          "actor": "",
+          "body": "[{\"ac\":1,\"text\":\"`bash tests/workflows/copilot-cli/run-scenarios.sh` exits 0 with GITHUB_TOKEN set.\",\"kind\":\"command\",\"verifiable\":true},{\"ac\":2,\"text\":\"Activation assertion: the harness asserts on the strongest structured signal `gh copilot` exposes (exit code, structured output, or a documented invocation marker). gh copilot is shell-command-oriented and may expose no skill-invocation event; if so, the harness README explicitly documents this limitation.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":3,\"text\":\"Negative control (required even where the signal is weak): the same scenario with HELIX content/skill absent exits NONZERO, so the test is not a vacuous prose grep.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":4,\"text\":\"tests/workflows/copilot-cli/recordings/INT-CP.gif generated via vhs and committed. docs/install/copilot.md links it.\",\"kind\":\"mechanical\",\"verifiable\":true},{\"ac\":5,\"text\":\"Copilot response-shape difference and any activation-signal limitation documented in the harness README. (No routing.jsonl required: gh copilot is not a chat-router runtime.)\",\"kind\":\"prose\",\"verifiable\":false}]",
+          "created_at": "2026-05-28T22:06:18.323713948Z",
+          "kind": "ac-quality-low",
+          "source": "preclaim-ac-quality",
+          "summary": "score=0.40 threshold=0.50 verifiable=2/5"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness route unavailable: runner error: agent: provider error: openai: POST \\\"http://bragi:1234/v1/chat/completions\\\": 502 Bad Gateway\",\"fingerprint\":\"c63725637a9913ddce00e011be60eea8b2b81be343ece9ea787ea628b79ef89d\",\"policy_mode\":\"warn-only\",\"reason\":\"system_unready\",\"rule_id\":\"pre_claim_intake.system_unready\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"c63725637a9913ddce00e011be60eea8b2b81be343ece9ea787ea628b79ef89d\"}",
+          "created_at": "2026-05-28T22:10:06.585314343Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "system_unready"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"bragi\",\"resolved_model\":\"qwen3.5-27b\",\"fallback_chain\":[],\"actual_power\":5}",
+          "created_at": "2026-05-28T22:14:18.697862248Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=bragi model=qwen3.5-27b"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"fiz\",\"actual_model\":\"qwen3.5-27b\",\"actual_power\":5,\"actual_provider\":\"bragi\",\"attempt_id\":\"20260528T221033-e87374bf\",\"bead_id\":\"helix-88435238\",\"estimated_difficulty\":\"\",\"rejected_route_pins\":null,\"requested_power_class\":\"standard\",\"requested_profile\":\"default\",\"routing_intent_degraded\":false,\"routing_intent_note\":\"\",\"routing_intent_source\":\"default\"}",
+          "created_at": "2026-05-28T22:14:19.010603964Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=default powerClass=standard model=qwen3.5-27b harness=fiz"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"actual_power\":5,\"detail\":\"agent: provider error: openai: POST \\\"http://bragi:1234/v1/chat/completions\\\": 502 Bad Gateway \",\"endpoint\":\"http://bragi:1234/v1/chat/completions\",\"error\":\"agent: provider error: openai: POST \\\"http://bragi:1234/v1/chat/completions\\\": 502 Bad Gateway \",\"harness\":\"fiz\",\"model\":\"qwen3.5-27b\",\"outcome_reason\":\"provider_connectivity\",\"provider\":\"bragi\",\"timeout_class\":\"bad gateway\"}",
+          "created_at": "2026-05-28T22:14:19.179259459Z",
+          "kind": "route-failure",
+          "source": "ddx work",
+          "summary": "provider=bragi model=qwen3.5-27b endpoint=http://bragi:1234/v1/chat/completions (bad gateway) connectivity failure"
+        },
+        {
+          "actor": "erik",
+          "body": "agent: provider error: openai: POST \"http://bragi:1234/v1/chat/completions\": 502 Bad Gateway \npowerClass=standard\nresult_rev=641c70f16ce89d28b212b171ce962fe2d800c16c\nbase_rev=641c70f16ce89d28b212b171ce962fe2d800c16c\noutcome_reason=provider_connectivity",
+          "created_at": "2026-05-28T22:14:19.235737498Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "",
+          "body": "[{\"ac\":1,\"text\":\"`bash tests/workflows/copilot-cli/run-scenarios.sh` exits 0 with GITHUB_TOKEN set.\",\"kind\":\"command\",\"verifiable\":true},{\"ac\":2,\"text\":\"Activation assertion: the harness asserts on the strongest structured signal `gh copilot` exposes (exit code, structured output, or a documented invocation marker). gh copilot is shell-command-oriented and may expose no skill-invocation event; if so, the harness README explicitly documents this limitation.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":3,\"text\":\"Negative control (required even where the signal is weak): the same scenario with HELIX content/skill absent exits NONZERO, so the test is not a vacuous prose grep.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":4,\"text\":\"tests/workflows/copilot-cli/recordings/INT-CP.gif generated via vhs and committed. docs/install/copilot.md links it.\",\"kind\":\"mechanical\",\"verifiable\":true},{\"ac\":5,\"text\":\"Copilot response-shape difference and any activation-signal limitation documented in the harness README. (No routing.jsonl required: gh copilot is not a chat-router runtime.)\",\"kind\":\"prose\",\"verifiable\":false}]",
+          "created_at": "2026-05-29T03:24:23.948342067Z",
+          "kind": "ac-quality-low",
+          "source": "preclaim-ac-quality",
+          "summary": "score=0.40 threshold=0.50 verifiable=2/5"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness route unavailable: runner error: ResolveRoute: no live provider supports prompt of 1669 tokens with tools=false at policy default\",\"fingerprint\":\"f111b630b2e85f2bbdd0a1d47e46ecd0f1353aab00f9d22eb35efaaffb15605e\",\"policy_mode\":\"warn-only\",\"reason\":\"system_unready\",\"rule_id\":\"pre_claim_intake.system_unready\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"f111b630b2e85f2bbdd0a1d47e46ecd0f1353aab00f9d22eb35efaaffb15605e\"}",
+          "created_at": "2026-05-29T03:27:59.119315631Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "system_unready"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"detail\":\"route unavailable: no viable routing candidate satisfies requested MinPower 0: no viable routing floor for inferred powerClass standard\",\"harness\":\"\",\"model\":\"\",\"reason\":\"routing\"}",
+          "created_at": "2026-05-29T03:28:28.167508685Z",
+          "kind": "disruption_detected",
+          "source": "ddx work",
+          "summary": "routing"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"\",\"actual_model\":\"\",\"actual_power\":0,\"actual_provider\":\"\",\"attempt_id\":\"\",\"bead_id\":\"helix-88435238\",\"estimated_difficulty\":\"\",\"rejected_route_pins\":null,\"requested_power_class\":\"standard\",\"requested_profile\":\"\",\"routing_intent_degraded\":true,\"routing_intent_note\":\"actual route facts unavailable\",\"routing_intent_source\":\"default\"}",
+          "created_at": "2026-05-29T03:28:28.222236202Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=default powerClass=standard note=actual route facts unavailable"
+        },
+        {
+          "actor": "erik",
+          "body": "route unavailable: no viable routing candidate satisfies requested MinPower 0: no viable routing floor for inferred powerClass standard\noutcome_reason=no_viable_provider",
+          "created_at": "2026-05-29T03:28:28.275463095Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "",
+          "body": "[{\"ac\":1,\"text\":\"`bash tests/workflows/copilot-cli/run-scenarios.sh` exits 0 with GITHUB_TOKEN set.\",\"kind\":\"command\",\"verifiable\":true},{\"ac\":2,\"text\":\"Activation assertion: the harness asserts on the strongest structured signal `gh copilot` exposes (exit code, structured output, or a documented invocation marker). gh copilot is shell-command-oriented and may expose no skill-invocation event; if so, the harness README explicitly documents this limitation.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":3,\"text\":\"Negative control (required even where the signal is weak): the same scenario with HELIX content/skill absent exits NONZERO, so the test is not a vacuous prose grep.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":4,\"text\":\"tests/workflows/copilot-cli/recordings/INT-CP.gif generated via vhs and committed. docs/install/copilot.md links it.\",\"kind\":\"mechanical\",\"verifiable\":true},{\"ac\":5,\"text\":\"Copilot response-shape difference and any activation-signal limitation documented in the harness README. (No routing.jsonl required: gh copilot is not a chat-router runtime.)\",\"kind\":\"prose\",\"verifiable\":false}]",
+          "created_at": "2026-05-29T03:45:07.374300544Z",
+          "kind": "ac-quality-low",
+          "source": "preclaim-ac-quality",
+          "summary": "score=0.40 threshold=0.50 verifiable=2/5"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness route unavailable: runner error: ResolveRoute: no live provider supports prompt of 1729 tokens with tools=false at policy default\",\"fingerprint\":\"3ea96fd6d89bf8606e99273c6eb4ab4a8c784c334672d299944e8c5cc7deca32\",\"policy_mode\":\"warn-only\",\"reason\":\"system_unready\",\"rule_id\":\"pre_claim_intake.system_unready\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"3ea96fd6d89bf8606e99273c6eb4ab4a8c784c334672d299944e8c5cc7deca32\"}",
+          "created_at": "2026-05-29T03:48:41.12852001Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "system_unready"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"detail\":\"route unavailable: no viable routing candidate satisfies requested MinPower 0: no viable routing floor for inferred powerClass standard\",\"harness\":\"\",\"model\":\"\",\"reason\":\"routing\"}",
+          "created_at": "2026-05-29T03:49:10.542400563Z",
+          "kind": "disruption_detected",
+          "source": "ddx work",
+          "summary": "routing"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"\",\"actual_model\":\"\",\"actual_power\":0,\"actual_provider\":\"\",\"attempt_id\":\"\",\"bead_id\":\"helix-88435238\",\"estimated_difficulty\":\"\",\"rejected_route_pins\":null,\"requested_power_class\":\"standard\",\"requested_profile\":\"\",\"routing_intent_degraded\":true,\"routing_intent_note\":\"actual route facts unavailable\",\"routing_intent_source\":\"default\"}",
+          "created_at": "2026-05-29T03:49:10.59749266Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=default powerClass=standard note=actual route facts unavailable"
+        },
+        {
+          "actor": "erik",
+          "body": "route unavailable: no viable routing candidate satisfies requested MinPower 0: no viable routing floor for inferred powerClass standard\noutcome_reason=no_viable_provider",
+          "created_at": "2026-05-29T03:49:10.654184965Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "",
+          "body": "[{\"ac\":1,\"text\":\"`bash tests/workflows/copilot-cli/run-scenarios.sh` exits 0 with GITHUB_TOKEN set.\",\"kind\":\"command\",\"verifiable\":true},{\"ac\":2,\"text\":\"Activation assertion: the harness asserts on the strongest structured signal `gh copilot` exposes (exit code, structured output, or a documented invocation marker). gh copilot is shell-command-oriented and may expose no skill-invocation event; if so, the harness README explicitly documents this limitation.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":3,\"text\":\"Negative control (required even where the signal is weak): the same scenario with HELIX content/skill absent exits NONZERO, so the test is not a vacuous prose grep.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":4,\"text\":\"tests/workflows/copilot-cli/recordings/INT-CP.gif generated via vhs and committed. docs/install/copilot.md links it.\",\"kind\":\"mechanical\",\"verifiable\":true},{\"ac\":5,\"text\":\"Copilot response-shape difference and any activation-signal limitation documented in the harness README. (No routing.jsonl required: gh copilot is not a chat-router runtime.)\",\"kind\":\"prose\",\"verifiable\":false}]",
+          "created_at": "2026-05-29T04:06:01.148230065Z",
+          "kind": "ac-quality-low",
+          "source": "preclaim-ac-quality",
+          "summary": "score=0.40 threshold=0.50 verifiable=2/5"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness route unavailable: lifecycle dispatch: project root mutation rejected\",\"fingerprint\":\"8cca69d13ca3aa9a57249b1b86fb0045335c39878a22e755f9f98a79eb000f23\",\"policy_mode\":\"warn-only\",\"reason\":\"system_unready\",\"rule_id\":\"pre_claim_intake.system_unready\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"8cca69d13ca3aa9a57249b1b86fb0045335c39878a22e755f9f98a79eb000f23\"}",
+          "created_at": "2026-05-29T04:09:34.454480229Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "system_unready"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"detail\":\"route unavailable: no viable routing candidate satisfies requested MinPower 0: no viable routing floor for inferred powerClass standard\",\"harness\":\"\",\"model\":\"\",\"reason\":\"routing\"}",
+          "created_at": "2026-05-29T04:10:04.148674102Z",
+          "kind": "disruption_detected",
+          "source": "ddx work",
+          "summary": "routing"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"\",\"actual_model\":\"\",\"actual_power\":0,\"actual_provider\":\"\",\"attempt_id\":\"\",\"bead_id\":\"helix-88435238\",\"estimated_difficulty\":\"\",\"rejected_route_pins\":null,\"requested_power_class\":\"standard\",\"requested_profile\":\"\",\"routing_intent_degraded\":true,\"routing_intent_note\":\"actual route facts unavailable\",\"routing_intent_source\":\"default\"}",
+          "created_at": "2026-05-29T04:10:04.205892407Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=default powerClass=standard note=actual route facts unavailable"
+        },
+        {
+          "actor": "erik",
+          "body": "route unavailable: no viable routing candidate satisfies requested MinPower 0: no viable routing floor for inferred powerClass standard\noutcome_reason=no_viable_provider",
+          "created_at": "2026-05-29T04:10:04.267104959Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "",
+          "body": "[{\"ac\":1,\"text\":\"`bash tests/workflows/copilot-cli/run-scenarios.sh` exits 0 with GITHUB_TOKEN set.\",\"kind\":\"command\",\"verifiable\":true},{\"ac\":2,\"text\":\"Activation assertion: the harness asserts on the strongest structured signal `gh copilot` exposes (exit code, structured output, or a documented invocation marker). gh copilot is shell-command-oriented and may expose no skill-invocation event; if so, the harness README explicitly documents this limitation.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":3,\"text\":\"Negative control (required even where the signal is weak): the same scenario with HELIX content/skill absent exits NONZERO, so the test is not a vacuous prose grep.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":4,\"text\":\"tests/workflows/copilot-cli/recordings/INT-CP.gif generated via vhs and committed. docs/install/copilot.md links it.\",\"kind\":\"mechanical\",\"verifiable\":true},{\"ac\":5,\"text\":\"Copilot response-shape difference and any activation-signal limitation documented in the harness README. (No routing.jsonl required: gh copilot is not a chat-router runtime.)\",\"kind\":\"prose\",\"verifiable\":false}]",
+          "created_at": "2026-05-30T03:25:41.834860775Z",
+          "kind": "ac-quality-low",
+          "source": "preclaim-ac-quality",
+          "summary": "score=0.40 threshold=0.50 verifiable=2/5"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness check timed out after 5m0s (helix-88435238)\",\"fingerprint\":\"e7b1dbb440a1447678a65240ec85d80ea7aec61b48ae559b32b00acbb72cc6b0\",\"policy_mode\":\"warn-only\",\"reason\":\"timeout\",\"rule_id\":\"pre_claim_intake.timeout\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"e7b1dbb440a1447678a65240ec85d80ea7aec61b48ae559b32b00acbb72cc6b0\"}",
+          "created_at": "2026-05-30T03:30:41.747254428Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "timeout"
+        },
+        {
+          "actor": "",
+          "body": "[{\"ac\":1,\"text\":\"`bash tests/workflows/copilot-cli/run-scenarios.sh` exits 0 with GITHUB_TOKEN set.\",\"kind\":\"command\",\"verifiable\":true},{\"ac\":2,\"text\":\"Activation assertion: the harness asserts on the strongest structured signal `gh copilot` exposes (exit code, structured output, or a documented invocation marker). gh copilot is shell-command-oriented and may expose no skill-invocation event; if so, the harness README explicitly documents this limitation.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":3,\"text\":\"Negative control (required even where the signal is weak): the same scenario with HELIX content/skill absent exits NONZERO, so the test is not a vacuous prose grep.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":4,\"text\":\"tests/workflows/copilot-cli/recordings/INT-CP.gif generated via vhs and committed. docs/install/copilot.md links it.\",\"kind\":\"mechanical\",\"verifiable\":true},{\"ac\":5,\"text\":\"Copilot response-shape difference and any activation-signal limitation documented in the harness README. (No routing.jsonl required: gh copilot is not a chat-router runtime.)\",\"kind\":\"prose\",\"verifiable\":false}]",
+          "created_at": "2026-05-30T03:31:17.822069146Z",
+          "kind": "ac-quality-low",
+          "source": "preclaim-ac-quality",
+          "summary": "score=0.40 threshold=0.50 verifiable=2/5"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness check timed out after 5m0s (helix-88435238)\",\"fingerprint\":\"e7b1dbb440a1447678a65240ec85d80ea7aec61b48ae559b32b00acbb72cc6b0\",\"policy_mode\":\"warn-only\",\"reason\":\"timeout\",\"rule_id\":\"pre_claim_intake.timeout\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"e7b1dbb440a1447678a65240ec85d80ea7aec61b48ae559b32b00acbb72cc6b0\"}",
+          "created_at": "2026-05-30T03:36:17.763523234Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "timeout"
+        },
+        {
+          "actor": "",
+          "body": "[{\"ac\":1,\"text\":\"`bash tests/workflows/copilot-cli/run-scenarios.sh` exits 0 with GITHUB_TOKEN set.\",\"kind\":\"command\",\"verifiable\":true},{\"ac\":2,\"text\":\"Activation assertion: the harness asserts on the strongest structured signal `gh copilot` exposes (exit code, structured output, or a documented invocation marker). gh copilot is shell-command-oriented and may expose no skill-invocation event; if so, the harness README explicitly documents this limitation.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":3,\"text\":\"Negative control (required even where the signal is weak): the same scenario with HELIX content/skill absent exits NONZERO, so the test is not a vacuous prose grep.\",\"kind\":\"prose\",\"verifiable\":false},{\"ac\":4,\"text\":\"tests/workflows/copilot-cli/recordings/INT-CP.gif generated via vhs and committed. docs/install/copilot.md links it.\",\"kind\":\"mechanical\",\"verifiable\":true},{\"ac\":5,\"text\":\"Copilot response-shape difference and any activation-signal limitation documented in the harness README. (No routing.jsonl required: gh copilot is not a chat-router runtime.)\",\"kind\":\"prose\",\"verifiable\":false}]",
+          "created_at": "2026-05-30T03:36:47.928781056Z",
+          "kind": "ac-quality-low",
+          "source": "preclaim-ac-quality",
+          "summary": "score=0.40 threshold=0.50 verifiable=2/5"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"unknown classification \\\"refinable\\\": expected one of ready, needs_refine, needs_split, operator_required, system_unready\",\"fingerprint\":\"02553f0ef79948438d572808ca581f572282a55519385a869e44cfbcb8713efe\",\"policy_mode\":\"warn-only\",\"reason\":\"system_unready\",\"rule_id\":\"pre_claim_intake.system_unready\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"02553f0ef79948438d572808ca581f572282a55519385a869e44cfbcb8713efe\"}",
+          "created_at": "2026-05-30T03:41:24.687992313Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "system_unready"
+        }
+      ],
+      "spec-id": "helix.installer-integration-tests",
+      "work-failed-routes": [
+        {
+          "actual_power": 5,
+          "at": "2026-05-28T22:14:19Z",
+          "count": 1,
+          "endpoint": "http://bragi:1234/v1/chat/completions",
+          "model": "qwen3.5-27b",
+          "provider": "bragi",
+          "reason": "provider_connectivity",
+          "timeout_class": "bad gateway"
+        }
+      ]
+    }
+  },
+  "paths": {
+    "dir": ".ddx/executions/20260530T034153-1d19a76a",
+    "prompt": ".ddx/executions/20260530T034153-1d19a76a/prompt.md",
+    "manifest": ".ddx/executions/20260530T034153-1d19a76a/manifest.json",
+    "result": ".ddx/executions/20260530T034153-1d19a76a/result.json",
+    "checks": ".ddx/executions/20260530T034153-1d19a76a/checks.json",
+    "usage": ".ddx/executions/20260530T034153-1d19a76a/usage.json",
+    "worktree": "Users/erik/Projects/.ddx-exec-wt/.execute-bead-wt-helix-88435238-20260530T034153-1d19a76a"
+  },
+  "prompt_sha": "03ef881af368d750dab04d502acd74d52b4a0d7259705b62ce0ba6977cf27521"
+}

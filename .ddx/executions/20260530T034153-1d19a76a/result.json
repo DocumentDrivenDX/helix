@@ -1,0 +1,43 @@
+{
+  "bead_id": "helix-88435238",
+  "attempt_id": "20260530T034153-1d19a76a",
+  "base_rev": "26d9696ad8742e1b6529d22c95b63894e272afe8",
+  "result_rev": "207bbc10c80096230673981d415097d7ea4ffee5",
+  "implementation_rev": "207bbc10c80096230673981d415097d7ea4ffee5",
+  "landed_rev": "207bbc10c80096230673981d415097d7ea4ffee5",
+  "landed_branch": "helix-website-isolate-prose-2026-05-28",
+  "outcome": "merged",
+  "status": "success",
+  "detail": "success",
+  "orchestrator_status": "success",
+  "candidate_ref": "refs/ddx/iterations/20260530T034153-1d19a76a/0",
+  "cycle_trace": [
+    {
+      "cycle_index": 0,
+      "attempt_id": "20260530T034153-1d19a76a",
+      "result_rev": "207bbc10c80096230673981d415097d7ea4ffee5",
+      "implementer_route": {
+        "harness": "claude",
+        "model": "haiku"
+      },
+      "review_result": {},
+      "final_decision": "success"
+    }
+  ],
+  "harness": "claude",
+  "model": "haiku",
+  "session_id": "eb-8dbb7026",
+  "duration_ms": 531859,
+  "tokens": 20456,
+  "cost_usd": 0.5742394500000001,
+  "exit_code": 0,
+  "project_root": "/Users/erik/Projects/helix",
+  "execution_dir": ".ddx/executions/20260530T034153-1d19a76a",
+  "prompt_file": ".ddx/executions/20260530T034153-1d19a76a/prompt.md",
+  "manifest_file": ".ddx/executions/20260530T034153-1d19a76a/manifest.json",
+  "result_file": ".ddx/executions/20260530T034153-1d19a76a/result.json",
+  "usage_file": ".ddx/executions/20260530T034153-1d19a76a/usage.json",
+  "rate_limit_budget": 300000000000,
+  "started_at": "2026-05-30T03:41:54.881812232Z",
+  "finished_at": "2026-05-30T03:50:46.741707045Z"
+}
