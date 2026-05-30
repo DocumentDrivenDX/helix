@@ -43,8 +43,6 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - DESIGN_SYSTEM: keyboard-navigable controls, AA contrast ratios, focus management, labeled inputs
 - TEST_PLAN: axe-core automated checks + manual screen-reader passes
 
-## ADR References
-
 ## Practices by activity
 
 Agents working in any of these activities inherit the practices below via the bead's context digest.

@@ -62,5 +62,3 @@ additional deny-level lints.
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
 - ADR: Rust + Cargo workspace (clippy, fmt, cargo-deny/machete, pinned toolchain) as the language-runtime
 - TD: workspace lints, error-handling (thiserror/anyhow), unsafe policy, profile conventions
-
-## ADR References

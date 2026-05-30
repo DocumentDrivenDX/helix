@@ -25,9 +25,6 @@ e2e-framework
 - **Browser engines**: Chromium (default), optionally Firefox and WebKit
 - **Screenshot snapshots**: Visual regression detection via `toHaveScreenshot()`
 - **Video recording**: Full test execution videos for human review
-- **Demo reel**: A dedicated slow-paced Playwright script that produces a
-  polished walkthrough video of the application for stakeholder review,
-  README embedding, or onboarding
 - **Trace files**: Playwright traces for debugging failures
 - **Test data**: Fake/seed data that exercises every meaningful UI state
 
@@ -195,8 +192,6 @@ Any project with a web UI that users interact with. This includes:
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
 - ADR: Playwright as the e2e-framework slot (real browsers, screenshots, video, traces)
 - TEST_PLAN: per-page + per-workflow E2E in real browsers, seeded data across UI states, committed screenshot baselines
-
-## ADR References
 
 ## Practices by activity
 

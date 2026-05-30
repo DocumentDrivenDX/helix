@@ -365,8 +365,6 @@ because they can be regenerated from scripts.
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
 - ADR: Asciinema scripted terminal recordings (Docker-reproducible, microsite-embedded) as the demo-reel mechanism
 
-## ADR References
-
 ## Practices by activity
 
 Agents working in any of these activities inherit the practices below via the bead's context digest.

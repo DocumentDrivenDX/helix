@@ -43,5 +43,3 @@ and script running.
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
 - ADR: Python 3.12+ + uv (ruff, pyright, pytest) as the language-runtime
 - TD: pyproject.toml layout, dependency-group conventions, branch-coverage floor
-
-## ADR References

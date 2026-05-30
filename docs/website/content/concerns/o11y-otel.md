@@ -41,8 +41,6 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - ADR: OpenTelemetry (traces/metrics/logs) as the observability standard
 - TD: RED metrics on endpoints, trace-context propagation, structured JSON logs with correlation IDs
 
-## ADR References
-
 ## Practices by activity
 
 Agents working in any of these activities inherit the practices below via the bead's context digest.

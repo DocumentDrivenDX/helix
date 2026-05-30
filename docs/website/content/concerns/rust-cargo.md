@@ -73,8 +73,6 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - ADR: Rust + Cargo workspace (clippy, fmt, cargo-deny/machete, pinned toolchain) as the language-runtime
 - TD: workspace lints, error-handling (thiserror/anyhow), unsafe policy, profile conventions
 
-## ADR References
-
 ## Practices by activity
 
 Agents working in any of these activities inherit the practices below via the bead's context digest.
