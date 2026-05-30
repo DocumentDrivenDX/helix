@@ -483,25 +483,11 @@ reference those concerns at the seam and stay on the execution model.
 
 ## Boundary with neighbors
 
-- **vs `enterprise-integration-patterns`**: the **channel/queue a worker
-  consumes** across a system boundary — its delivery guarantee, DLQ, router,
-  correlation id, wire shape — is EIP. The **worker pool's concurrency, the
-  job's idempotency, and its in-process failure visibility** are here. Idempotency
-  is shared vocabulary (EIP's Idempotent Receiver vs an idempotent job), split by
-  cause: EIP because the *channel* redelivers, this concern because the *worker*
-  retries. Do not restate channel/DLQ rules here.
-- **vs `resilience`**: a **bounded work pool / semaphore / bounded channel that
-  caps in-flight work in steady state** is here (the execution model's native
-  bound). A **bulkhead** (per-dependency pool isolation), **load-shedding** under
-  overload, the **circuit breaker** and **timeout** are `resilience` (failure
-  containment). Backpressure as the steady-state shape of the execution model is
-  here; load-shedding as a failure response is resilience. Do not restate
-  breaker/bulkhead/shed machinery here.
-- **vs `deployment-topology`**: **in-process** execution (threads / event loop /
-  goroutines / worker pool inside one deployable) is here; **process-level
-  scaling** (replica count, monolith-vs-microservices) is deployment-topology.
-  A horizontally-scaled fleet still needs an in-process model per replica — that
-  per-replica model is here.
+See `concern.md` for the canonical Boundary (vs `enterprise-integration-patterns`,
+`resilience`, `deployment-topology`). These practices stay on the in-process
+execution model; reach to the neighbor named there for channel/DLQ rules
+(EIP), bulkhead/breaker/load-shedding (`resilience`), or replica/deployable
+count (`deployment-topology`).
 
 ## Quality Gates
 

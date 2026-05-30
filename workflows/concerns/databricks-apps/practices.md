@@ -56,14 +56,11 @@ model (`unity-catalog`) — see the boundary in `concern.md`.
 
 ## Boundary with neighbors
 
-- **vs `frontend-framework`**: the UI framework runs inside this runtime; this
-  concern owns hosting/identity/data wiring, not components/routing/styling.
-- **vs generic `deploy-target`**: Databricks Apps **is** the deploy target here
-  (managed serverless) — do not stand up parallel self-hosted hosting.
-- **vs `unity-catalog`**: this concern owns *that* data access flows through the
-  catalog and *which identity* is used; the catalog concern owns the grant model.
-- **vs `security-owasp` / `auth`**: the platform supplies app service principal +
-  OAuth + on-behalf-of-user; compose with the app's own RBAC, do not duplicate.
+See `concern.md` for the canonical Boundary (vs `frontend-framework`, generic
+`deploy-target`, `unity-catalog`, `security-owasp` / `auth`). Composition in
+the Databricks family: this concern hosts; `databricks-declarative-pipelines`
+produces the data; `unity-catalog` governs it — each owns its piece, none
+restates the others.
 
 ## Quality Gates
 

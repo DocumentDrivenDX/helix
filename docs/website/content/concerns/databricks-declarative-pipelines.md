@@ -239,15 +239,11 @@ cross-system messaging (`enterprise-integration-patterns`) — see the boundary 
 
 ## Boundary with neighbors
 
-- **vs domain modeling**: realize the logical model here; do not re-derive it.
-- **vs `enterprise-integration-patterns`**: a pipeline reading a broker source
-  respects EIP's at-least-once/idempotency reality at the ingestion edge, but the
-  expectation/DAG/incremental machinery is **not** EIP's channel/router
-  machinery — keep cross-system messaging in EIP.
-- **vs `unity-catalog`**: this concern produces the datasets; the catalog concern
-  governs them (grants/ownership/lineage).
-- **vs `testing`/`verification`**: expectations are **in-pipeline** data-quality
-  control; compose with unit/e2e testing, do not let one substitute for the other.
+See `concern.md` for the canonical Boundary (vs domain modeling,
+`enterprise-integration-patterns`, `unity-catalog`, `testing` /
+`verification`). Composition in the Databricks family: this concern produces
+the data; `unity-catalog` governs it; `databricks-apps` hosts apps that
+consume it — each owns its piece, none restates the others.
 
 ## Quality Gates
 

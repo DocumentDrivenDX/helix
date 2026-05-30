@@ -351,19 +351,13 @@ they reference those concerns at the seam and stay on the wire.
 
 ## Boundary with neighbors
 
-- **vs `domain-driven-design`**: DDD decides the **fact and its invariant** — a
-  domain event reconciling aggregates inside a bounded context. EIP decides the
-  **channel, delivery guarantee, and wire shape** that carries that fact across
-  the boundary. Do not re-decide the domain model here; do not let DDD own the
-  transport.
-- **vs `onion-architecture`**: messaging clients, gateways, and consumers are
-  **outer-ring** adapters; the inner layer declares the port, the EIP adapter
-  implements it. Do not restate the dependency rule; do honor it (no broker
-  import inward).
-- **vs `design-patterns-gof`**: GoF Observer / an in-process event bus is
-  **not** a Message Channel substitute for a real system boundary — it has no
-  durability, delivery guarantee, retry, or dead-letter path. Use a channel when
-  the boundary is real.
+See `concern.md` for the canonical Boundary (vs `domain-driven-design`,
+`onion-architecture`, `design-patterns-gof`). EIP owns the at-least-once
+channel-delivery model that *causes* the redelivery downstream consumers must
+absorb — `concurrency-model` (in-process workers), `event-sourcing` (event
+handlers), and `cqrs` (projection updaters) each apply the resulting
+idempotency requirement at their own surface; this concern does not restate
+their application of it.
 
 ## Quality Gates
 
