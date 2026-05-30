@@ -1,0 +1,21 @@
+{
+  "id": "SCN-01-bootstrap",
+  "title": "SCN-01: Bootstrap recipe-sharing app vision and PRD",
+  "type": "task",
+  "priority": 1,
+  "labels": [
+    "helix",
+    "phase:test",
+    "activity:frame",
+    "kind:test"
+  ],
+  "spec_id": "helix.installer-integration-tests",
+  "description": "Bootstrap a recipe-sharing app from sparse user intent into governed artifacts (vision.md and prd.md).\n\nIntent: Build a recipe-sharing app for amateur cooks. Users browse, save, and post recipes; they can like and comment on recipes they find. Include basic ratings and reviews. Design it to be mobile-first so people can access it anywhere.\n\nThis bead exercises HELIX SCN-01 (bootstrap from intent → vision + PRD) and validates the HELIX skill activation within the DDx reference runtime.",
+  "acceptance": [
+    "Produces docs/helix/00-discover/product-vision.md with ddx: frontmatter containing id, status, and type fields",
+    "Produces docs/helix/01-frame/prd.md with ddx: frontmatter containing id, status, and depends_on: [helix.product-vision]",
+    "product-vision.md contains required sections: ## Problem Space, ## Vision Statement",
+    "prd.md contains required sections: ## Overview, ## User Personas, ## Features, ## Success Metrics",
+    "Both files are valid markdown with proper frontmatter YAML syntax"
+  ]
+}
