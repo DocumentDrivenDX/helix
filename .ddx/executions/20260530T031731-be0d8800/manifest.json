@@ -1,0 +1,188 @@
+{
+  "attempt_id": "20260530T031731-be0d8800",
+  "bead_id": "helix-22ee868f",
+  "base_rev": "b05afab5fc535cc3ab0cf91f080126abf18e3c55",
+  "created_at": "2026-05-30T03:17:32.809002136Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-22ee868f",
+    "title": "INT-CX: Codex CLI integration test — install + skill activation + bootstrap scenario",
+    "description": "Create tests/workflows/codex-cli/ harness that exercises live `codex exec` against the HELIX skill bundle inside a Docker container.\n\n**Deliverables** (same shape as INT-CC, swap claude-code → codex-cli):\n- run-scenarios.sh + 3 scenario prompts + expected/ + vhs recording\n\n**Harness shape** (reuse `tests/install/codex-cli/Dockerfile`):\n1. Build image with `codex` CLI installed\n2. For each scenario: `docker run --rm -e OPENAI_API_KEY -v ... helix-int-test:codex-cli bash -c \"codex exec --sandbox read-only --skip-git-repo-check \u003c /workspace/helix/tests/workflows/codex-cli/scenarios/\u003cname\u003e.prompt\"`\n3. Grep response for expected text\n4. vhs renders the orchestrator\n\n**Known unknown**: codex skill install location is `~/.codex/skills/helix/` OR `~/.agents/skills/helix/` depending on installer version (see docs/install/codex.md:36). install-verify.prompt must accommodate both, OR the harness should pin the installer version.\n\n\u003ccontext-digest\u003e\n\u003cprinciples\u003eValidate Your Work · Runtime Neutrality · Design for Simplicity\u003c/principles\u003e\n\u003cconcerns\u003einstaller-coverage | screencast-evidence | runtime-parity\u003c/concerns\u003e\n\u003cpractices\u003evhs records the Docker run · scenarios are SCN-01 (bootstrap) plus install-verify + skill-list · OPENAI_API_KEY required · codex exec non-interactive flag\u003c/practices\u003e\n\u003cgoverning\u003edocs/helix/03-test/test-plans/TP-014-helix-workflow-coverage.md SCN-01 (bootstrap) + SCN-06 (review) · docs/install/codex-cli.md · existing tests/install/codex-cli/ scaffolding\u003c/governing\u003e\n\u003c/context-digest\u003e",
+    "acceptance": "(Supersedes the \"grep response for expected text\" step in the description.)\n1. `bash tests/workflows/codex-cli/run-scenarios.sh` exits 0 with valid Codex credentials available — ~/.codex/auth.json mounted into the container OR OPENAI_API_KEY set.\n2. Activation is asserted from Codex's structured output (`codex exec --json` or the installed runtime's machine-readable event stream): the harness requires a tool/skill-invocation event identifying `helix`. If the installed Codex version exposes no structured activation signal, the harness README documents that gap and the test asserts on the strongest available behavioral signal — never a bare prose grep as the sole gate.\n3. Negative control: the bootstrap scenario run with the skill uninstalled exits NONZERO.\n4. tests/workflows/codex-cli/evals/routing.jsonl exists and is exercised.\n5. install-location ambiguity resolved (pin installer version, or assert against both ~/.codex/skills/helix and ~/.agents/skills/helix — see docs/install/codex.md:36).\n6. tests/workflows/codex-cli/recordings/INT-CX.gif generated via vhs and committed. docs/install/codex.md links it.",
+    "parent": "helix-e3c7d0e4",
+    "labels": [
+      "helix",
+      "phase:test",
+      "activity:test",
+      "kind:test",
+      "area:testing",
+      "area:packaging",
+      "runtime:codex-cli"
+    ],
+    "metadata": {
+      "events": [
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness route unavailable: runner error: agent: provider error: openai: POST \\\"http://bragi:1234/v1/chat/completions\\\": 502 Bad Gateway\",\"fingerprint\":\"c63725637a9913ddce00e011be60eea8b2b81be343ece9ea787ea628b79ef89d\",\"policy_mode\":\"warn-only\",\"reason\":\"system_unready\",\"rule_id\":\"pre_claim_intake.system_unready\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"c63725637a9913ddce00e011be60eea8b2b81be343ece9ea787ea628b79ef89d\"}",
+          "created_at": "2026-05-28T22:02:05.073149402Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "system_unready"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"resolved_provider\":\"bragi\",\"resolved_model\":\"qwen3.5-27b\",\"fallback_chain\":[],\"actual_power\":5}",
+          "created_at": "2026-05-28T22:06:16.693069717Z",
+          "kind": "routing",
+          "source": "legacy agent execute-bead",
+          "summary": "provider=bragi model=qwen3.5-27b"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"fiz\",\"actual_model\":\"qwen3.5-27b\",\"actual_power\":5,\"actual_provider\":\"bragi\",\"attempt_id\":\"20260528T220230-8493588e\",\"bead_id\":\"helix-22ee868f\",\"estimated_difficulty\":\"\",\"rejected_route_pins\":null,\"requested_power_class\":\"standard\",\"requested_profile\":\"default\",\"routing_intent_degraded\":false,\"routing_intent_note\":\"\",\"routing_intent_source\":\"default\"}",
+          "created_at": "2026-05-28T22:06:16.982107662Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=default powerClass=standard model=qwen3.5-27b harness=fiz"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"actual_power\":5,\"detail\":\"agent: provider error: openai: POST \\\"http://bragi:1234/v1/chat/completions\\\": 502 Bad Gateway \",\"endpoint\":\"http://bragi:1234/v1/chat/completions\",\"error\":\"agent: provider error: openai: POST \\\"http://bragi:1234/v1/chat/completions\\\": 502 Bad Gateway \",\"harness\":\"fiz\",\"model\":\"qwen3.5-27b\",\"outcome_reason\":\"provider_connectivity\",\"provider\":\"bragi\",\"timeout_class\":\"bad gateway\"}",
+          "created_at": "2026-05-28T22:06:17.150941429Z",
+          "kind": "route-failure",
+          "source": "ddx work",
+          "summary": "provider=bragi model=qwen3.5-27b endpoint=http://bragi:1234/v1/chat/completions (bad gateway) connectivity failure"
+        },
+        {
+          "actor": "erik",
+          "body": "agent: provider error: openai: POST \"http://bragi:1234/v1/chat/completions\": 502 Bad Gateway \npowerClass=standard\nresult_rev=2afb1a17aab64f0dff1e7664c51c84375950920b\nbase_rev=2afb1a17aab64f0dff1e7664c51c84375950920b\noutcome_reason=provider_connectivity",
+          "created_at": "2026-05-28T22:06:17.213537327Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness route unavailable: runner error: ResolveRoute: no live provider supports prompt of 1651 tokens with tools=false at policy default\",\"fingerprint\":\"0e2f546109e4aabfcca612fe67d6cf664eee1177ba8288d2201463f6180f10d6\",\"policy_mode\":\"warn-only\",\"reason\":\"system_unready\",\"rule_id\":\"pre_claim_intake.system_unready\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"0e2f546109e4aabfcca612fe67d6cf664eee1177ba8288d2201463f6180f10d6\"}",
+          "created_at": "2026-05-29T03:23:54.324662184Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "system_unready"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"detail\":\"route unavailable: no viable routing candidate satisfies requested MinPower 0: no viable routing floor for inferred powerClass standard\",\"harness\":\"\",\"model\":\"\",\"reason\":\"routing\"}",
+          "created_at": "2026-05-29T03:24:23.322550511Z",
+          "kind": "disruption_detected",
+          "source": "ddx work",
+          "summary": "routing"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"\",\"actual_model\":\"\",\"actual_power\":0,\"actual_provider\":\"\",\"attempt_id\":\"\",\"bead_id\":\"helix-22ee868f\",\"estimated_difficulty\":\"\",\"rejected_route_pins\":null,\"requested_power_class\":\"standard\",\"requested_profile\":\"\",\"routing_intent_degraded\":true,\"routing_intent_note\":\"actual route facts unavailable\",\"routing_intent_source\":\"default\"}",
+          "created_at": "2026-05-29T03:24:23.377519737Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=default powerClass=standard note=actual route facts unavailable"
+        },
+        {
+          "actor": "erik",
+          "body": "route unavailable: no viable routing candidate satisfies requested MinPower 0: no viable routing floor for inferred powerClass standard\noutcome_reason=no_viable_provider",
+          "created_at": "2026-05-29T03:24:23.430585547Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness route unavailable: runner error: ResolveRoute: no live provider supports prompt of 1712 tokens with tools=false at policy default\",\"fingerprint\":\"595b2ac69edadbc50cd15107275a67193ef39028fefc432314892c30d04fb227\",\"policy_mode\":\"warn-only\",\"reason\":\"system_unready\",\"rule_id\":\"pre_claim_intake.system_unready\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"595b2ac69edadbc50cd15107275a67193ef39028fefc432314892c30d04fb227\"}",
+          "created_at": "2026-05-29T03:44:36.870174656Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "system_unready"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"detail\":\"route unavailable: no viable routing candidate satisfies requested MinPower 0: no viable routing floor for inferred powerClass standard\",\"harness\":\"\",\"model\":\"\",\"reason\":\"routing\"}",
+          "created_at": "2026-05-29T03:45:06.721787947Z",
+          "kind": "disruption_detected",
+          "source": "ddx work",
+          "summary": "routing"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"\",\"actual_model\":\"\",\"actual_power\":0,\"actual_provider\":\"\",\"attempt_id\":\"\",\"bead_id\":\"helix-22ee868f\",\"estimated_difficulty\":\"\",\"rejected_route_pins\":null,\"requested_power_class\":\"standard\",\"requested_profile\":\"\",\"routing_intent_degraded\":true,\"routing_intent_note\":\"actual route facts unavailable\",\"routing_intent_source\":\"default\"}",
+          "created_at": "2026-05-29T03:45:06.790546784Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=default powerClass=standard note=actual route facts unavailable"
+        },
+        {
+          "actor": "erik",
+          "body": "route unavailable: no viable routing candidate satisfies requested MinPower 0: no viable routing floor for inferred powerClass standard\noutcome_reason=no_viable_provider",
+          "created_at": "2026-05-29T03:45:06.851495458Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"decision\":\"warn\",\"decision_source\":\"pre_claim_intake\",\"detail\":\"readiness route unavailable: runner error: ResolveRoute: no live provider supports prompt of 1772 tokens with tools=false at policy default\",\"fingerprint\":\"2d12715678d99e062c9f547221248798df3e0aedae3feaf82a0ac42e2596b9ac\",\"policy_mode\":\"warn-only\",\"reason\":\"system_unready\",\"rule_id\":\"pre_claim_intake.system_unready\",\"suggested_action\":\"revise the rewrite so it preserves every explicit commitment\",\"warning_fingerprint\":\"2d12715678d99e062c9f547221248798df3e0aedae3feaf82a0ac42e2596b9ac\"}",
+          "created_at": "2026-05-29T04:05:30.961809927Z",
+          "kind": "intake.warn",
+          "source": "ddx work",
+          "summary": "system_unready"
+        },
+        {
+          "actor": "erik",
+          "body": "{\"detail\":\"route unavailable: no viable routing candidate satisfies requested MinPower 0: no viable routing floor for inferred powerClass standard\",\"harness\":\"\",\"model\":\"\",\"reason\":\"routing\"}",
+          "created_at": "2026-05-29T04:06:00.526677712Z",
+          "kind": "disruption_detected",
+          "source": "ddx work",
+          "summary": "routing"
+        },
+        {
+          "actor": "ddx",
+          "body": "{\"actual_harness\":\"\",\"actual_model\":\"\",\"actual_power\":0,\"actual_provider\":\"\",\"attempt_id\":\"\",\"bead_id\":\"helix-22ee868f\",\"estimated_difficulty\":\"\",\"rejected_route_pins\":null,\"requested_power_class\":\"standard\",\"requested_profile\":\"\",\"routing_intent_degraded\":true,\"routing_intent_note\":\"actual route facts unavailable\",\"routing_intent_source\":\"default\"}",
+          "created_at": "2026-05-29T04:06:00.584186225Z",
+          "kind": "execution-routing-intent",
+          "source": "ddx work",
+          "summary": "source=default powerClass=standard note=actual route facts unavailable"
+        },
+        {
+          "actor": "erik",
+          "body": "route unavailable: no viable routing candidate satisfies requested MinPower 0: no viable routing floor for inferred powerClass standard\noutcome_reason=no_viable_provider",
+          "created_at": "2026-05-29T04:06:00.638660655Z",
+          "kind": "execute-bead",
+          "source": "ddx work",
+          "summary": "execution_failed"
+        }
+      ],
+      "spec-id": "helix.installer-integration-tests",
+      "work-failed-routes": [
+        {
+          "actual_power": 5,
+          "at": "2026-05-28T22:06:17Z",
+          "count": 1,
+          "endpoint": "http://bragi:1234/v1/chat/completions",
+          "model": "qwen3.5-27b",
+          "provider": "bragi",
+          "reason": "provider_connectivity",
+          "timeout_class": "bad gateway"
+        }
+      ]
+    }
+  },
+  "paths": {
+    "dir": ".ddx/executions/20260530T031731-be0d8800",
+    "prompt": ".ddx/executions/20260530T031731-be0d8800/prompt.md",
+    "manifest": ".ddx/executions/20260530T031731-be0d8800/manifest.json",
+    "result": ".ddx/executions/20260530T031731-be0d8800/result.json",
+    "checks": ".ddx/executions/20260530T031731-be0d8800/checks.json",
+    "usage": ".ddx/executions/20260530T031731-be0d8800/usage.json",
+    "worktree": "Users/erik/Projects/.ddx-exec-wt/.execute-bead-wt-helix-22ee868f-20260530T031731-be0d8800"
+  },
+  "prompt_sha": "5cea4237c27aebb370125379eaa310b04e53768e19bc4bc8c7be057c7554a87c"
+}
