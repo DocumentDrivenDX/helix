@@ -1,0 +1,61 @@
+{
+  "test_run": "INT-GN",
+  "timestamp": "2026-05-30T04:00:00Z",
+  "scenarios": [
+    {
+      "scenario": "install-verify",
+      "timestamp": "2026-05-30T04:00:05Z",
+      "skill_invocation_found": false,
+      "events": [
+        {
+          "type": "console",
+          "text": "[Genie] Loading skill: helix",
+          "timestamp": "2026-05-30T04:00:05Z"
+        },
+        {
+          "type": "network",
+          "method": "GET",
+          "url": "https://workspace.azuredatabricks.net/api/2.0/workspace/get-status",
+          "status": 200,
+          "timestamp": "2026-05-30T04:00:06Z"
+        }
+      ]
+    },
+    {
+      "scenario": "skill-list",
+      "timestamp": "2026-05-30T04:00:15Z",
+      "skill_invocation_found": true,
+      "events": [
+        {
+          "type": "skill_activation",
+          "selector": ":has-text(\"helix\")",
+          "timestamp": "2026-05-30T04:00:18Z"
+        },
+        {
+          "type": "console",
+          "text": "[Skill] helix routing modes: input, frame, align, ...",
+          "timestamp": "2026-05-30T04:00:19Z"
+        }
+      ]
+    },
+    {
+      "scenario": "bootstrap",
+      "timestamp": "2026-05-30T04:00:25Z",
+      "skill_invocation_found": true,
+      "events": [
+        {
+          "type": "skill_activation",
+          "selector": "[data-skill=\"helix\"]",
+          "timestamp": "2026-05-30T04:00:28Z"
+        },
+        {
+          "type": "network",
+          "method": "POST",
+          "url": "https://workspace.azuredatabricks.net/api/2.0/workspace/import-objects",
+          "status": 200,
+          "timestamp": "2026-05-30T04:00:30Z"
+        }
+      ]
+    }
+  ]
+}

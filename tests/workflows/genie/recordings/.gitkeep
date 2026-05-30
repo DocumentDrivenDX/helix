@@ -1,0 +1,3 @@
+# Recording directory for Genie Code integration test
+# INT-GN.webm: Playwright headless Chromium recording of the test scenarios
+# INT-GN-events.json: Per-scenario event logs from the test run

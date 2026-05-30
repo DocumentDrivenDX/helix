@@ -248,6 +248,27 @@ with classifications (`ALIGNED`, `INCOMPLETE`, `DIVERGENT`,
 If Genie doesn't pick HELIX automatically on a relevant prompt,
 prefix with `@helix` to force activation.
 
+## Integration test
+
+For automated end-to-end verification across three scenarios (install-verify,
+skill-list, bootstrap), see the Playwright-based integration test at
+`tests/workflows/genie/`. The test drives headless Chromium against your
+workspace, asserts on structural DOM signals of skill activation, and
+captures a webm screencast as evidence:
+
+- **Screencast**: `tests/workflows/genie/recordings/INT-GN.webm`
+- **Events log**: `tests/workflows/genie/recordings/INT-GN-events.json`
+- **Documentation**: `tests/workflows/genie/README.md`
+
+Run the test locally after install to verify the full workflow:
+
+```bash
+export DATABRICKS_HOST=https://<workspace>.azuredatabricks.net
+export DATABRICKS_WORKSPACE_URL=https://<workspace>.azuredatabricks.net/?o=<org-id>
+export DBAUTH_COOKIE_PATH=/path/to/dbauth.txt
+bash tests/workflows/genie/run-scenarios.sh
+```
+
 ## Known limitations
 
 - **Bead `helix-96f7dd34` (open)**: Genie's filesystem tool does not
