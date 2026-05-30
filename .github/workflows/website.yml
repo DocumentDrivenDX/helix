@@ -10,7 +10,9 @@ on:
       - 'scripts/publish-artifacts.py'
       - 'scripts/publish-resources.py'
       - 'scripts/check-website-links.py'
+      - 'scripts/helix_validate_artifact_meta.py'
       - 'tests/validate-website-generated.sh'
+      - 'workflows/activities/**/artifacts/**'
       - '.vale.ini'
       - '.vale/**'
       - '.github/workflows/website.yml'
@@ -64,6 +66,9 @@ jobs:
 
       - name: Generator drift + coverage gate
         run: bash tests/validate-website-generated.sh
+
+      - name: Validate artifact-type schemas
+        run: uv run scripts/helix_validate_artifact_meta.py
 
       - name: Build site (Hugo)
         working-directory: website

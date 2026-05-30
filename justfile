@@ -51,6 +51,10 @@ check-prose-redundancy:
 test-website-generated:
     bash tests/validate-website-generated.sh
 
+# Validate artifact-type schemas (meta.yml required_sections <-> template.md H2s)
+validate-artifact-schemas:
+    python3 scripts/helix_validate_artifact_meta.py
+
 # Check internal links + images in a production-shaped build (with the /helix base path)
 check-website-links:
     cd website && hugo --gc --minify --baseURL "https://documentdrivendx.github.io/helix/" >/dev/null
