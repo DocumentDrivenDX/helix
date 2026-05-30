@@ -149,6 +149,27 @@ backfill, validate, polish, check, build, run, commit, release,
 experiment, worker (or a faithful subset) and references the
 `helix` skill.
 
+## Integration test screencast
+
+The HELIX Claude Code integration test exercises the skill with three scenarios:
+install verification, skill-list routing, and bootstrap (SCN-01). See the
+screencast:
+
+![HELIX Claude Code Integration Test](../../tests/workflows/claude-code/recordings/INT-CC.gif)
+
+Or run the tests yourself with valid credentials:
+
+```bash
+export ANTHROPIC_API_KEY="sk-ant-..."
+bash tests/workflows/claude-code/run-scenarios.sh
+```
+
+To verify the negative control (skill not invoked when not allowed):
+
+```bash
+bash tests/workflows/claude-code/run-scenarios.sh --no-skill
+```
+
 ## How invocation works
 
 Users state intent; the skill routes. Supported shapes:
