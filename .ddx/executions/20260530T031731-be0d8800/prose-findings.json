@@ -1,0 +1,62 @@
+{
+  "ran": true,
+  "changed_docs": [
+    "docs/install/codex.md",
+    "docs/website/content/reference/demos/_index.md",
+    "docs/website/content/reference/glossary/_index.md",
+    "docs/website/content/reference/glossary/concepts.md",
+    "docs/website/content/reference/skills/_index.md",
+    "docs/website/content/skills/_index.md",
+    "docs/website/content/use/_index.md",
+    "docs/website/content/use/claude-code-recipe.md",
+    "docs/website/content/use/getting-started.md",
+    "docs/website/content/use/manual-recipe.md",
+    "docs/website/content/use/workflow/_index.md",
+    "docs/website/content/why/_index.md",
+    "docs/website/content/why/principles.md",
+    "docs/website/content/why/the-thesis.md",
+    "docs/website/content/why/who-its-for.md"
+  ],
+  "findings": [
+    {
+      "file": "docs/install/codex.md",
+      "line": 39,
+      "rule_id": "prose.specificity.actor_action",
+      "severity": "advisory",
+      "rationale": "The sentence says something enables or supports work without naming the actor, action, artifact, or boundary.",
+      "suggested_edit": "Name the actor, action, artifact, or boundary that makes the statement concrete."
+    },
+    {
+      "file": "docs/install/codex.md",
+      "line": 205,
+      "rule_id": "prose.specificity.actor_action",
+      "severity": "advisory",
+      "rationale": "The sentence says something enables or supports work without naming the actor, action, artifact, or boundary.",
+      "suggested_edit": "Name the actor, action, artifact, or boundary that makes the statement concrete."
+    },
+    {
+      "file": "docs/website/content/reference/glossary/concepts.md",
+      "line": 101,
+      "rule_id": "prose.specificity.actor_action",
+      "severity": "advisory",
+      "rationale": "The sentence says something enables or supports work without naming the actor, action, artifact, or boundary.",
+      "suggested_edit": "Name the actor, action, artifact, or boundary that makes the statement concrete."
+    },
+    {
+      "file": "docs/website/content/use/workflow/_index.md",
+      "line": 88,
+      "rule_id": "prose.specificity.actor_action",
+      "severity": "advisory",
+      "rationale": "The sentence says something enables or supports work without naming the actor, action, artifact, or boundary.",
+      "suggested_edit": "Name the actor, action, artifact, or boundary that makes the statement concrete."
+    },
+    {
+      "file": "docs/website/content/why/_index.md",
+      "line": 23,
+      "rule_id": "prose.specificity.actor_action",
+      "severity": "advisory",
+      "rationale": "The sentence says something enables or supports work without naming the actor, action, artifact, or boundary.",
+      "suggested_edit": "Name the actor, action, artifact, or boundary that makes the statement concrete."
+    }
+  ]
+}
