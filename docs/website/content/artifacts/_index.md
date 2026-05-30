@@ -47,6 +47,7 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 - [Curated page scopes — lock the document boundaries before the prose pass](/artifacts/plan-2026-05-29-curated-page-scopes/)
 - [Prose-quality pass — evaluate and implement the expanded Vale findings](/artifacts/plan-2026-05-29-prose-quality-pass/)
 - [Rename "authority order" to "authority hierarchy"](/artifacts/plan-2026-05-29-rename-authority-order/)
+- [Artifact-type and concern audit — gaps and remediation plan](/artifacts/plan-2026-05-30-artifact-types-and-concerns-audit/)
 - [Security Architecture — DDx Agent Execution Surface](/artifacts/security-architecture/)
 - [adr](/artifacts/adr/) _(2 items)_
 - [contracts](/artifacts/contracts/) _(5 items)_
