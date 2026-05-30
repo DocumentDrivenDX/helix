@@ -1,7 +1,7 @@
 ---
 title: "Plan — complex-brief robustness: verification ENFORCEMENT + spike-first for unknowns (2026-05-26)"
 slug: plan-2026-05-26-complex-brief-robustness
-weight: 470
+weight: 540
 activity: "Design"
 source: "02-design/plan-2026-05-26-complex-brief-robustness.md"
 generated: true

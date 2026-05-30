@@ -1,7 +1,7 @@
 ---
 title: "CONTRACT-003: DDx Adapter Boundary"
 slug: CONTRACT-003-ddx-adapter-boundary
-weight: 270
+weight: 340
 activity: "Design"
 source: "02-design/contracts/CONTRACT-003-ddx-adapter-boundary.md"
 generated: true

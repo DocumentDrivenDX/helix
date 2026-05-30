@@ -49,7 +49,7 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 - [Rename "authority order" to "authority hierarchy"](/artifacts/plan-2026-05-29-rename-authority-order/)
 - [Artifact-type and concern audit — gaps and remediation plan](/artifacts/plan-2026-05-30-artifact-types-and-concerns-audit/)
 - [Security Architecture — DDx Agent Execution Surface](/artifacts/security-architecture/)
-- [adr](/artifacts/adr/) _(6 items)_
+- [adr](/artifacts/adr/) _(13 items)_
 - [contracts](/artifacts/contracts/) _(5 items)_
 - [decisions](/artifacts/decisions/) _(2 items)_
 - [hero image concepts](/artifacts/hero-image-concepts/) _(1 item)_

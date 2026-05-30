@@ -1,7 +1,7 @@
 ---
 title: "Plan — sample-data concern (semantic faker, varied shapes) (2026-05-25)"
 slug: plan-2026-05-25-sample-data
-weight: 420
+weight: 490
 activity: "Design"
 source: "02-design/plan-2026-05-25-sample-data.md"
 generated: true
