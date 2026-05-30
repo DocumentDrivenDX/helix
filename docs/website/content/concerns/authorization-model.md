@@ -38,7 +38,7 @@ For the family ownership table (auth / authorization-model / multi-tenancy /
 security-owasp, plus the admin-console and unity-catalog neighbors), and the
 ordering invariants (tenant predicate precedes permission; authn precedes
 authz; hardening does not substitute for the model), see
-[README-auth-family.md](../README-auth-family.md).
+[README-auth-family.md](../readme-auth-family/).
 
 This concern owns the one thing the rest of the family does not state: **there
 is a deliberately chosen permission model, every state-changing and
@@ -204,7 +204,7 @@ These practices govern the **permission model and its enforcement** — *what* a
 authenticated principal may do, and the discipline that every privileged handler
 asks and refuses by default. For the family ownership table (auth /
 authorization-model / multi-tenancy / security-owasp) see
-[README-auth-family.md](../README-auth-family.md). Their one job is to make the
+[README-auth-family.md](../readme-auth-family/). Their one job is to make the
 **missing / mis-placed authorization check** unreachable and
 **reviewer-checkable**. Each MUST/SHOULD below is written so a reviewer can
 confirm or refute it against the diff and the running system.

@@ -29,7 +29,7 @@ swapped in without changing call sites.
 
 For the family ownership table (and the boundaries with `auth`,
 `authorization-model`, `multi-tenancy`, and `security-owasp`) see
-[README-auth-family.md](../README-auth-family.md).
+[README-auth-family.md](../readme-auth-family/).
 
 ## Components
 
@@ -84,7 +84,7 @@ These practices realize the default `auth-provider` filler — a working local
 auth backend behind the provider interface the `auth` concern requires. They
 cover the *mechanism*; for the family ownership table (auth /
 authorization-model / multi-tenancy / security-owasp) see
-[README-auth-family.md](../README-auth-family.md).
+[README-auth-family.md](../readme-auth-family/).
 
 ## Design
 

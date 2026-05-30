@@ -27,7 +27,7 @@ not fill a slot.
 
 For the family ownership table (auth / authorization-model / multi-tenancy /
 security-owasp, plus the admin-console and unity-catalog neighbors) see
-[README-auth-family.md](../README-auth-family.md). Broken Access Control is the
+[README-auth-family.md](../readme-auth-family/). Broken Access Control is the
 OWASP umbrella; `authorization-model` is the per-handler model that prevents
 it, and `multi-tenancy` is the tenant-predicate refinement — neither is
 restated here.

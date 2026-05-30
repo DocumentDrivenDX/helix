@@ -1028,7 +1028,7 @@ def render_concern_page(c: dict) -> str:
     if c["concern_md"]:
         out.append("## Description")
         out.append("")
-        out.append(strip_first_h1(c["concern_md"]).strip())
+        out.append(rewrite_family_readme_links(strip_first_h1(c["concern_md"]).strip()))
         out.append("")
 
     if c["practices_md"]:
@@ -1039,10 +1039,25 @@ def render_concern_page(c: dict) -> str:
             "via the bead's context digest."
         )
         out.append("")
-        out.append(strip_first_h1(c["practices_md"]).strip())
+        out.append(rewrite_family_readme_links(strip_first_h1(c["practices_md"]).strip()))
         out.append("")
 
     return "\n".join(out)
+
+
+def rewrite_family_readme_links(md: str) -> str:
+    """Rewrite source-tree links like `../README-auth-family.md` to the Hugo URL.
+
+    In `workflows/concerns/<slug>/concern.md`, the family README sits at
+    `../README-auth-family.md`. The website mirror flattens concerns to
+    `concerns/<slug>.md`, and Hugo serves the README at `/concerns/readme-auth-family/`.
+    Rewrite so the published link points at the published page.
+    """
+    return re.sub(
+        r"\]\(\.\./README-([a-z0-9-]+)\.md\)",
+        lambda m: f"](../readme-{m.group(1)}/)",
+        md,
+    )
 
 
 def render_concerns_index(concerns: list) -> str:
@@ -1159,6 +1174,23 @@ def main() -> None:
     # Per-concern pages
     for c in concerns:
         (CONCERNS_DEST / f"{c['slug']}.md").write_text(render_concern_page(c))
+
+    # Family-level READMEs (e.g. README-auth-family.md) live alongside the
+    # per-concern directories in workflows/concerns/ and are referenced by
+    # `../README-auth-family.md` links from concern.md files. Publish them
+    # at the same flat level so those links resolve in Hugo.
+    for readme in sorted(CONCERNS_SRC.glob("README-*.md")):
+        body = load_text(readme)
+        title = "Auth family — ownership table"
+        # Strip first H1 to avoid duplicate-title leak
+        body = strip_first_h1(body)
+        frontmatter = (
+            "---\n"
+            f"title: \"{title}\"\n"
+            "generated: true\n"
+            "---\n\n"
+        )
+        (CONCERNS_DEST / readme.name).write_text(frontmatter + body)
 
     # Concerns index
     (CONCERNS_DEST / "_index.md").write_text(render_concerns_index(concerns))

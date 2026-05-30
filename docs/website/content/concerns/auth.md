@@ -26,7 +26,7 @@ It is composable and does NOT fill a slot; it defers the *backend* to the
 
 For the family ownership table (auth / authorization-model / multi-tenancy /
 security-owasp, plus the admin-console and unity-catalog neighbors) see
-[README-auth-family.md](../README-auth-family.md).
+[README-auth-family.md](../readme-auth-family/).
 
 `auth` owns the one thing the rest of the family does not state: **an
 account/tenant product is not done until a real principal can sign up, sign in,
@@ -116,7 +116,7 @@ account surface, with authorization and isolation enforced through the
 authenticated principal, and the backend behind the `auth-provider` slot. For
 the family ownership table (and what `security-owasp`, `authorization-model`,
 `multi-tenancy`, and the `auth-provider` slot own instead of `auth`) see
-[README-auth-family.md](../README-auth-family.md).
+[README-auth-family.md](../readme-auth-family/).
 
 ## Design
 

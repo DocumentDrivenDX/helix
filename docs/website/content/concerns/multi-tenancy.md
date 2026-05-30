@@ -36,7 +36,7 @@ guarantee (which resources are shared vs dedicated). It is composable and does
 For the family ownership table (auth / authorization-model / multi-tenancy /
 security-owasp, plus the admin-console and unity-catalog neighbors), and the
 ordering invariants (tenant predicate precedes permission; authn precedes
-authz), see [README-auth-family.md](../README-auth-family.md).
+authz), see [README-auth-family.md](../readme-auth-family/).
 
 This concern owns the one thing the rest of the family does not state: **there
 is no query path that resolves a record without the tenant predicate, and
@@ -196,7 +196,7 @@ Agents working in any of these activities inherit the practices below via the be
 These practices govern **isolation between tenants** — that no code path lets
 one tenant reach another's data. For the family ownership table (auth /
 authorization-model / multi-tenancy / security-owasp) see
-[README-auth-family.md](../README-auth-family.md). Their one job is to make the
+[README-auth-family.md](../readme-auth-family/). Their one job is to make the
 **cross-tenant leak** unreachable and **reviewer-checkable**. Each MUST/SHOULD
 below is written so a reviewer can confirm or refute it against the diff and
 the running system.

@@ -103,8 +103,8 @@ to that consumer, not to the catalog.
 
 ## References
 
-- [Audit plan 2026-05-30](/Users/erik/Projects/helix/docs/helix/02-design/plan-2026-05-30-artifact-types-and-concerns-audit.md)
-- [PRD](/Users/erik/Projects/helix/docs/helix/01-frame/prd.md)
-- [Artifact schema](/Users/erik/Projects/helix/workflows/artifact-schema.md)
+- [Audit plan 2026-05-30](../plan-2026-05-30-artifact-types-and-concerns-audit.md)
+- [PRD](../../01-frame/prd.md)
+- [Artifact schema](../../../../workflows/artifact-schema.md)
 - ADR-002: HELIX Tracker Write Safety Model
 - ADR-003: Autonomy Spectrum

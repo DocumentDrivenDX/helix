@@ -31,7 +31,7 @@ is **Databricks' concrete realization** of data governance.
 
 For the auth family (where app-layer `authorization-model` and catalog grants
 **compose** — neither substitutes for the other), see
-[README-auth-family.md](../README-auth-family.md). For the logical domain
+[README-auth-family.md](../readme-auth-family/). For the logical domain
 model, defer to `domain-driven-design`: model entities/aggregates there;
 register and govern the physical `catalog.schema.object` namespace here.
 `databricks-declarative-pipelines` *produces* governed datasets; this concern
@@ -196,7 +196,7 @@ lineage-tracked on Databricks**. They are the Databricks realization of data
 governance. For the boundary (composition with `authorization-model` /
 `security-owasp`, `domain-driven-design`, `databricks-apps`,
 `databricks-declarative-pipelines`) see `concern.md` and the auth family
-ownership table at [README-auth-family.md](../README-auth-family.md).
+ownership table at [README-auth-family.md](../readme-auth-family/).
 
 ## Requirements (Frame activity)
 
