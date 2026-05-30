@@ -14,13 +14,13 @@ constraints, migration) lives in [[data-design]].
 
 [Describe the data product being architected, the business problem it solves,
 and the system context. Name the key data flows and platform fit. Reference
-[[data-prd]] for the requirements and success metrics this architecture must
+[[prd]] (kind: data) for the requirements and success metrics this architecture must
 satisfy.]
 
 ### Scope
 
 [What data flows and systems are covered. What is deliberately out of bounds.
-Which requirements from [[data-prd]] drive the design decisions.]
+Which requirements from [[prd]] (kind: data) drive the design decisions.]
 
 ### System Context
 
@@ -43,7 +43,7 @@ graph TB
 
 [State the medallion strategy: Bronze (raw), Silver (validated), Gold
 (consumption). For each layer, name the transformation scope, quality gates,
-and consumer responsibilities. Justify the choice against [[data-prd]]
+and consumer responsibilities. Justify the choice against [[prd]] (kind: data)
 freshness and quality requirements.]
 
 ### Bronze Layer (Raw Ingestion)
@@ -90,7 +90,7 @@ Consumption tables (entity definitions live in [[data-design]]):
 
 | Table | Use Case | Consumers | Freshness Target |
 |-------|----------|-----------|------------------|
-| [Gold table name] | [Use case from data-prd] | [Persona] | [Target tied to SLA] |
+| [Gold table name] | [Use case from PRD (kind: data)] | [Persona] | [Target tied to SLA] |
 
 Quality gates: aggregate reconciliation with Silver, referential integrity
 across Gold, latency within consumer SLA.
@@ -136,9 +136,9 @@ graph LR
 
 | Stage | Latency Target | Throughput Target | Binding Constraint |
 |-------|----------------|-------------------|--------------------|
-| Source → Bronze | [From data-prd SLA] | [Order of magnitude] | [Rate limit, API quota] |
-| Bronze → Silver | [From data-prd SLA] | [Order of magnitude] | [Compute / dedup cost] |
-| Silver → Gold | [From data-prd SLA] | [Order of magnitude] | [Query complexity] |
+| Source → Bronze | [From PRD (kind: data) SLA] | [Order of magnitude] | [Rate limit, API quota] |
+| Bronze → Silver | [From PRD (kind: data) SLA] | [Order of magnitude] | [Compute / dedup cost] |
+| Silver → Gold | [From PRD (kind: data) SLA] | [Order of magnitude] | [Query complexity] |
 
 ## Pipeline-Level Quality Contracts
 
@@ -179,7 +179,7 @@ live in [[data-quality-expectations]].
 
 | Role | Catalog Scope | Layer Access | Permissions |
 |------|---------------|--------------|-------------|
-| [Role from data-prd consumers] | [Catalog / schema] | [Bronze / Silver / Gold] | [SELECT / MODIFY / EXECUTE] |
+| [Role from PRD (kind: data) consumers] | [Catalog / schema] | [Bronze / Silver / Gold] | [SELECT / MODIFY / EXECUTE] |
 
 ### Data Classification and Retention
 
@@ -284,7 +284,7 @@ for the platform-equivalent terms.
 - [ ] **Data flow diagrams** show how data moves through layers and to
   consumers.
 - [ ] **Processing semantics** explicitly state streaming vs batch per layer
-  with latency targets tied to [[data-prd]].
+  with latency targets tied to [[prd]] (kind: data).
 - [ ] **Pipeline-level quality contracts** name which contracts each layer
   boundary enforces; detailed `EXPECT` clauses are deferred to
   [[data-quality-expectations]].
@@ -299,7 +299,7 @@ for the platform-equivalent terms.
 - [ ] **Cross-layer contracts** are defined (reconciliation, cardinality,
   no orphans).
 - [ ] **SLA per layer** is documented (freshness, latency, availability)
-  and traces to [[data-prd]].
+  and traces to [[prd]] (kind: data).
 - [ ] No `[TBD]`, `[TODO]`, or `[NEEDS CLARIFICATION]` markers remain.
 - [ ] Entity-level details (logical schema, indexes, migrations, store
   selection) are deferred to [[data-design]].

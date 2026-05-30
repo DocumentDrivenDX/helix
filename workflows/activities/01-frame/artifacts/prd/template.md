@@ -1,9 +1,16 @@
 ---
 ddx:
   id: prd
+kind: product  # `product` (default) frames general product requirements; `data` frames a data product (pipeline, warehouse, data platform, or service). See ADR-008.
 ---
 
 # Product Requirements Document
+
+> **Variant guidance.** This template carries both the default `product`
+> framing and a `data` framing. Sections marked **(kind: data)** apply when
+> `kind: data` and replace the corresponding `product` framing above them.
+> When `kind: product`, ignore the **(kind: data)** blocks. The shape of the
+> document is the same; the framing is parameterized.
 
 ## Summary
 
@@ -11,7 +18,12 @@ ddx:
 building, who uses it, what problem it solves, the solution approach, and the
 top 2-3 success metrics. Write this last — it should be a distillation of the
 full PRD, not an introduction. Someone who reads only this section should
-understand the product well enough to decide whether to read the rest.]
+understand the product well enough to decide whether to read the rest.
+
+**(kind: data)** Frame this as a standalone 1-pager for the **data product**:
+what data we are building, who consumes it, the business problem it solves,
+the data solution approach (sources, medallion layer strategy, consumption
+shape), and the top 2-3 success metrics (freshness, quality, cost).]
 
 ## Problem and Goals
 
@@ -19,7 +31,12 @@ understand the product well enough to decide whether to read the rest.]
 
 [What is broken or missing? Who is affected? Be specific about the failure
 mode — not "users struggle with X" but "users spend N hours per week doing X
-because Y doesn't exist."]
+because Y doesn't exist."
+
+**(kind: data)** Be specific about the data failure mode — not "users
+struggle with reporting" but "sales analysts spend 4 hours per week
+reconciling pipeline outputs with source systems because current freshness
+is 24 hours and source data changes hourly."]
 
 ### Goals
 
@@ -31,6 +48,17 @@ because Y doesn't exist."]
 | Metric | Target | Measurement Method |
 |--------|--------|--------------------|
 | [Metric] | [Numeric target] | [Named tool or process] |
+
+**(kind: data)** When `kind: data`, frame metrics for the data product
+itself (throughput, latency, quality score, cost per GB). Include a baseline
+and cadence column:
+
+| Metric | Target | Baseline | Measurement Method | Cadence |
+|--------|--------|----------|--------------------|---------|
+| [Throughput] | [e.g., 1M rows/day] | [Current: 100K rows/day] | [COUNT(*) from production table] | Daily |
+| [Latency] | [e.g., ≤1 hour end-to-end] | [Current: 4 hours] | [MAX(ingestion_timestamp) - MAX(source_timestamp)] | Hourly |
+| [Quality Score] | [e.g., ≥98%] | [Current: 85%] | [Automated quality checks pass rate] | Daily |
+| [Cost per GB] | [e.g., $0.05/GB/month] | [Current: $0.12/GB/month] | [DBU spend / data volume] | Monthly |
 
 ### Non-Goals
 
@@ -50,6 +78,31 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
 ### Secondary Persona: [Name]
 
 [Same structure]
+
+### (kind: data) Data Consumers
+
+[When `kind: data`, replace the persona blocks with concrete data consumers.]
+
+#### Primary Consumer: [Name/Role]
+
+**Team**: [Data Engineering, Analytics, Product, Finance, etc.]
+**Use Case**: [What they do with the data; what decision it informs]
+**Frequency**: [Real-time, daily, weekly, ad-hoc]
+**Key Tables/Feeds**: [Which outputs matter most]
+
+#### Data Consumer Requirements Table
+
+| Consumer | Use Case | Freshness SLA | Latency Tolerance | Key Dimensions | Access Level |
+|----------|----------|---------------|-------------------|----------------|--------------|
+| [Team] | [What they do] | [e.g., hourly] | [max delay] | [customer_id, product_id, ...] | [Row-level, Column-level, or Full] |
+
+### (kind: data) Data Sources
+
+[Inventory of upstream systems supplying this data product.]
+
+| Source System | Schema / Table | Owner | Update Frequency | Quality Baseline | Notes |
+|---------------|----------------|-------|------------------|------------------|-------|
+| [e.g., Salesforce] | [e.g., Accounts, Opportunities] | [Team] | [hourly, daily, on-demand] | [% completeness, freshness] | [Data model version, API limits, retry policy] |
 
 ## Requirements
 
@@ -92,6 +145,19 @@ them sequentially; do not renumber on edit.]
 
 - **FR-3** — [behavioral requirement, testable]
 
+### (kind: data) Data Quality Requirements
+
+[When `kind: data`, add this subsection. Quality dimensions with numeric
+thresholds and enforcement strategy. Reference `data-quality-expectations`
+for executable `EXPECT` clauses per medallion layer.]
+
+| Dimension | P0 Threshold | P1 Threshold | Measurement Method | Enforcement |
+|-----------|--------------|--------------|--------------------|-------------|
+| Completeness | [e.g., ≥99%] | [e.g., ≥95%] | [Count NULLs / total rows] | [Alert if below P0] |
+| Timeliness | [e.g., ≤1 hour lag] | [e.g., ≤4 hour lag] | [MAX(ingestion_time) - MAX(source_time)] | [Reject data if exceeds P0] |
+| Accuracy | [e.g., ≥98% match to source] | [e.g., ≥95% match] | [Row-count reconciliation + sample audit] | [Manual review + auto-reject if P0 fails] |
+| Uniqueness | [e.g., PK has no duplicates] | [as P0] | [COUNT(*) = COUNT(DISTINCT PK)] | [Fail ingestion] |
+
 ## Acceptance Test Sketches
 
 [For each P0 requirement, describe a concrete scenario with inputs and
@@ -115,6 +181,28 @@ here isn't backed by an ADR yet, note it in Open Questions.]
 - **Data/Storage**: [e.g., PostgreSQL 16, Redis 7]
 - **APIs**: [e.g., OpenAPI spec at docs/api/v2.yaml]
 - **Platform Targets**: [e.g., Linux, macOS; browser: Chrome/Firefox/Safari latest]
+
+### (kind: data) Data Platform Context
+
+[When `kind: data`, replace the stack list above with platform context.]
+
+- **Target Catalog**: [e.g., `prod`, `analytics`, or domain-specific catalog]
+- **Target Schema**: [e.g., `customer_360`, `payment_events`]
+- **Medallion Layers**: Bronze (raw), Silver (validated), Gold (business)
+- **Access Control Model**: [UC policies, row-level security, column masking]
+
+| Feature | Decision | Rationale |
+|---------|----------|-----------|
+| Ingestion Pattern | [Auto Loader, Streaming Tables, batch] | [Why this choice?] |
+| Processing Model | [Streaming, Batch, Incremental] | [Freshness SLA and cost tradeoff] |
+| Compute Tier | [All-purpose, Jobs, Serverless] | [Workload characteristics, cost model] |
+| Storage Format | [Delta, Parquet, CSV] | [Durability, query performance needs] |
+| DBU Budget (Monthly) | [Estimated spend] | [Based on row volume, freshness, complexity] |
+
+- **Data Classification**: [Public, Internal, Sensitive, PII]
+- **Retention Policy**: [e.g., Bronze: 7 days, Silver: 90 days, Gold: 2 years]
+- **Audit Trail**: [Who accessed what, when, why]
+- **Lineage Tracking**: [Table-to-table dependencies for impact analysis]
 
 ## Constraints, Assumptions, Dependencies
 

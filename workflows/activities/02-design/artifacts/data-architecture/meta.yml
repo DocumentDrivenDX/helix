@@ -122,7 +122,9 @@ examples:
 
 relationships:
   informed_by:
-    - data-prd
+    # `prd` covers both framings via its `kind` field (ADR-008): `kind: data`
+    # supplies data-source, consumer, quality, and platform context; default
+    # `kind: product` supplies general product framing.
     - prd
     - data-design
 

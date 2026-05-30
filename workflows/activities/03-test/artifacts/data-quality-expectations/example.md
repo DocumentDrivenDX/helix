@@ -2,7 +2,8 @@
 ddx:
   id: example.data-quality-expectations.customer-360
   depends_on:
-    - example.data-prd.customer-360
+    # Previous: example.data-prd.customer-360 — dropped when data-prd
+    # collapsed into prd as kind: data variant (ADR-008).
     - example.data-architecture.customer-360
 ---
 

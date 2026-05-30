@@ -9,7 +9,22 @@ artifact:
 description: |
   Product-scope authority document that translates vision into prioritized,
   measurable requirements, success metrics, non-goals, assumptions, and
-  acceptance sketches.
+  acceptance sketches. The `kind` field selects the framing variant: the
+  default `product` variant frames general product requirements; the `data`
+  variant frames a data product (pipeline, warehouse, data platform, or data
+  service) with data sources, consumers, quality contracts, and platform
+  context. The shape of the artifact is unified; the framing is parameterized.
+
+kind:
+  enum:
+    - product
+    - data
+  default: product
+  description: |
+    Framing variant for this PRD. `product` (default) frames general product
+    requirements. `data` frames a data product with data-source, consumer,
+    quality-contract, and platform-context guidance. New variants require an
+    ADR (see ADR-008).
 
 output:
   location: docs/helix/01-frame/prd.md

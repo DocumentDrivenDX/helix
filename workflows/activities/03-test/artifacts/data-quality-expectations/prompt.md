@@ -5,7 +5,7 @@ testable predicates on data shape, completeness, accuracy, and freshness.
 
 ## Purpose
 
-Data Quality Expectations is the **contract layer between Data PRD (what quality
+Data Quality Expectations is the **contract layer between PRD (kind: data) (what quality
 is needed) and implementation** (how to verify it). Its unique job is to define
 measurable quality assertions as executable tests: data should not be released
 to consumers until these contracts are satisfied.
@@ -28,7 +28,7 @@ Use these local resource summaries as grounding:
 
 ## Focus
 
-- For each requirement in the Data PRD, write at least one testable expectation.
+- For each requirement in the PRD (kind: data), write at least one testable expectation.
 - Group expectations by layer (Bronze, Silver, Gold) and validate at the
   appropriate layer.
 - Use SDP `EXPECT` syntax for Databricks Streaming Tables, dbt tests for
@@ -55,7 +55,7 @@ platform, substitute as follows:
 
 ## Completion Criteria
 
-- Every P0 requirement from Data PRD has at least one corresponding expectation.
+- Every P0 requirement from PRD (kind: data) has at least one corresponding expectation.
 - Expectations are grouped by layer (Bronze input validation, Silver
   transformation contracts, Gold business rule verification).
 - Expectations are written in the platform's native syntax (SDP `EXPECT`,
