@@ -108,12 +108,16 @@ Configured via `ddx work --review-agent <agent>` or the `HELIX_ALT_AGENT` enviro
 
 ## Epic Focus
 
+<!-- vale Helix.Hedges = NO -->
 When the supervisor encounters a large scope (epic), it decomposes rather than deferring:
+<!-- vale Helix.Hedges = YES -->
 
 1. Break the epic into subtask issues
 2. Implement the first subtask
 3. Review, then continue to the next
+<!-- vale Helix.PassiveVoice = NO -->
 4. Close the epic when all subtasks are done
+<!-- vale Helix.PassiveVoice = YES -->
 
 Decomposition IS implementation work. The right response to a hard problem is to break it into smaller pieces, not to bail.
 
@@ -124,7 +128,9 @@ Agents should maximize forward progress:
 - **Absorb small adjacent work**: if a fix requires updating a nearby test or doc, do it in the same issue
 - **Stay within scope**: don't expand beyond what the issue asks for
 - **Finish with blocker reports**: if you can't complete the work, explain exactly what's blocked and create follow-on issues
+<!-- vale Helix.PassiveVoice = NO -->
 - **Never stop silently**: a bead must be closed with evidence, or left open with a precise status note
+<!-- vale Helix.PassiveVoice = YES -->
 
 ## Quality Ratchets
 
@@ -135,7 +141,9 @@ A mechanism for ensuring quality metrics only improve over time:
 - If the metric drops below the floor, it's a regression the team must fix
 - Experiments can auto-bump the floor when improvement exceeds a threshold
 
+<!-- vale Helix.PassiveVoice = NO -->
 Ratchet definitions live in `workflows/ratchets.md` and floor fixtures are committed to the repo.
+<!-- vale Helix.PassiveVoice = YES -->
 
 ## Area Taxonomy
 

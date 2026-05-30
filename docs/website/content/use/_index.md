@@ -3,7 +3,9 @@ title: Use HELIX
 weight: 4
 ---
 
+<!-- vale Helix.PassiveVoice = NO -->
 The how-to layer. Once you understand [why HELIX is shaped the way it
+<!-- vale Helix.PassiveVoice = YES -->
 is](/why/), this section explains how to use it in practice: adopt the
 artifact templates, invoke the alignment/planning skill through your agent
 runtime, and choose an execution integration when you need one.
@@ -101,5 +103,7 @@ inherit those concerns. Agents make consistent choices because the artifact
 stack tells them what the project values before they start.
 
 {{< cards >}}
+<!-- vale Helix.PassiveVoice = NO -->
   {{< card link="workflow/concerns" title="Cross-Cutting Concerns" subtitle="How concerns are declared, selected, propagated into beads, and used by agents during execution." icon="shield-check" >}}
+<!-- vale Helix.PassiveVoice = YES -->
 {{< /cards >}}

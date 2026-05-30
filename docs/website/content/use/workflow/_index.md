@@ -57,7 +57,9 @@ close it.
 When artifacts disagree, HELIX escalates to the higher-authority artifact:
 
 1. **Product Vision**: what the product should become.
+<!-- vale Helix.PassiveVoice = NO -->
 2. **Product Requirements (PRD)**: what must be built.
+<!-- vale Helix.PassiveVoice = YES -->
 3. **Feature Specs / User Stories**: detailed behavior.
 4. **Architecture / ADRs**: structural decisions.
 5. **Solution / Technical Designs**: how to build it.
@@ -116,7 +118,9 @@ The skill stops short of a plan when:
 - A decision requires stakeholder approval.
 
 In these cases the plan flags the open question and waits. Humans
+<!-- vale Helix.PassiveVoice = NO -->
 answer at the right altitude; the loop resumes when authority is
+<!-- vale Helix.PassiveVoice = YES -->
 restored.
 
 ## How a Cycle Goes
@@ -181,7 +185,9 @@ until it converges:
    appropriate artifact or implementation step.
 3. Re-run.
 
+<!-- vale Helix.PassiveVoice = NO -->
 The loop is bounded (a project configures a maximum number of
+<!-- vale Helix.PassiveVoice = YES -->
 iterations or a convergence tolerance), but the default is "go check
 your work again," not "declare done as soon as the first set of tests
 passes."

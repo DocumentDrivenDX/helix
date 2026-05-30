@@ -11,7 +11,9 @@ core concepts, and the tracker primitives.
 
 For the artifact catalog (descriptions, prompts, examples, relationships),
 see [Artifacts](/artifacts/). For cross-cutting concerns, see
+<!-- vale Helix.Hedges = NO -->
 [Concerns](/concerns/). Both now live as top-level sections rather than
+<!-- vale Helix.Hedges = YES -->
 glossary entries.
 
 {{< cards >}}

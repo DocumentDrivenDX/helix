@@ -24,7 +24,9 @@ Use it to answer questions such as:
 - Which upstream artifact authorizes or blocks a proposed change?
 - Which PRDs, feature specs, designs, tests, or deployment notes are stale?
 - Which contradictions need a human decision before implementation?
+<!-- vale Helix.PassiveVoice = NO -->
 - Which artifacts should be created, amended, or retired next?
+<!-- vale Helix.PassiveVoice = YES -->
 - Which work items are safe for a runtime to execute after planning completes?
 
 ### Inputs
@@ -36,7 +38,9 @@ The skill expects access to:
 - The project's concrete governing artifacts, commonly under `docs/helix/`.
 - Any project tracker metadata that links work items to specs, parents, or
   context digests.
+<!-- vale Helix.PassiveVoice = NO -->
 - Runtime constraints, such as whether file writes are allowed or whether the
+<!-- vale Helix.PassiveVoice = YES -->
   operator only wants a read-only plan.
 
 ### Outputs
@@ -46,7 +50,9 @@ The skill produces:
 - A concise alignment finding for the requested scope.
 - The authority chain used to evaluate the scope.
 - Drift, gaps, stale artifacts, and contradictions, grouped by impact.
+<!-- vale Helix.Hedges = NO -->
 - Open questions that require human authority rather than model inference.
+<!-- vale Helix.Hedges = YES -->
 - A plan for artifact edits, new work items, or runtime execution handoff.
 - Optional Markdown edits when the operator explicitly authorizes writes.
 

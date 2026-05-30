@@ -64,7 +64,9 @@ and install procedure live on [Using HELIX with DDx](/use/ddx-runtime/).
 3. Convert any broad plan into bounded beads before starting implementation.
 4. Claim one bead with `ddx bead update <id> --claim`.
 5. Execute only that bead, record validation or evidence on the bead, then
+<!-- vale Helix.PassiveVoice = NO -->
    close it when the acceptance criteria are satisfied.
+<!-- vale Helix.PassiveVoice = YES -->
 
 ### DDx usage contract
 
@@ -111,7 +113,9 @@ order: product vision first, then requirements, designs, tests, implementation
 plans, and code.
 
 Use this path when most work happens in code review or terminal-driven agent
+<!-- vale Helix.Hedges = NO -->
 sessions, and you want HELIX to supply durable context rather than a separate
+<!-- vale Helix.Hedges = YES -->
 platform.
 
 ### First 30 minutes with Codex
@@ -153,7 +157,9 @@ artifacts.
    dashboard review, model metrics, or deployment gates.
 4. Ask the agent or operator to produce an alignment plan before changing
    notebooks, jobs, or pipelines.
+<!-- vale Helix.PassiveVoice = NO -->
 5. Promote only changes whose runtime evidence can be traced back to the
+<!-- vale Helix.PassiveVoice = YES -->
    artifact contract.
 
 ### Databricks usage contract

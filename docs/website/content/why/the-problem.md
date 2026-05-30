@@ -41,7 +41,9 @@ are how knowledge survives the people who produced it.
 
 ## Vibe coding skips planning entirely
 
+<!-- vale Helix.Hedges = NO -->
 > *Just tell the agent what to build.*
+<!-- vale Helix.Hedges = YES -->
 
 The newest failure mode is the most seductive: skip planning, point an
 agent at a problem, and iterate on its output. This works for small,

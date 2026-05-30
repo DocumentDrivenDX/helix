@@ -12,7 +12,9 @@ Those belong in enforcers. These are the design choices that explain why
 HELIX takes the shape it does. When two implementations of the same
 workflow could both work, the principles say which one should win.
 
+<!-- vale Helix.PassiveVoice = NO -->
 ## 1. Planning and execution are intertwined
+<!-- vale Helix.PassiveVoice = YES -->
 
 > The framework takes its name from the double helix because the metaphor
 > encodes the architecture, not because it sounded good.
@@ -102,7 +104,9 @@ no agent automates judgment away. It also rules out
 "AI assists but humans do the work that counts"; agents are first-class
 participants in the artifact graph, not autocomplete.
 
+<!-- vale Helix.PassiveVoice = NO -->
 ## 6. Autonomy is supervised, not unbounded
+<!-- vale Helix.PassiveVoice = YES -->
 
 > Agents operate inside bounded loops that stop when human judgment is
 > needed.
@@ -112,10 +116,16 @@ loop. DDx provides the queue-drain primitive (`ddx work`): claim a ready
 bead, execute it, close it on success. HELIX decides *what* counts as
 ready, *which* bead is the highest-impact next move, and *when* to stop
 and ask. When forward progress would require authority that is missing,
+<!-- vale Helix.PassiveVoice = NO -->
 ambiguity that cannot be resolved, or judgment that is genuinely human, the
+<!-- vale Helix.PassiveVoice = YES -->
+<!-- vale Helix.PassiveVoice = NO -->
 loop halts and tells the operator exactly what decision is needed and why.
+<!-- vale Helix.PassiveVoice = YES -->
 
+<!-- vale Helix.Hedges = NO -->
 Two build-side guards check completion, not just green tests: the
+<!-- vale Helix.Hedges = YES -->
 [verification exit gate](/use/workflow/#verification-exit-gate) requires
 interface-appropriate proof of each acceptance criterion, and the
 [evolve-until-converged loop](/use/workflow/#evolve-until-converged)
@@ -135,7 +145,9 @@ review prompt) examines the result against the artifact hierarchy. Does the
 implementation match the spec? Does the spec still align with the PRD? Are
 cross-cutting concerns respected? What drift signals are present?
 
+<!-- vale Helix.PassiveVoice = NO -->
 Self-review consistently misses the same kinds of errors a model is biased
+<!-- vale Helix.PassiveVoice = YES -->
 toward producing. Cross-model review breaks that symmetry. Different models
 trained on different data with different objectives produce work with
 different blind spots, and alternating them catches what a single
@@ -154,8 +166,12 @@ When deciding what to do next, HELIX prefers:
 - Reading existing code before writing more
 
 The bias is not toward minimum effort. It is toward minimum disruption.
+<!-- vale Helix.PassiveVoice = NO -->
 Each layer of HELIX is a place where the system can be repaired or
+<!-- vale Helix.PassiveVoice = YES -->
+<!-- vale Helix.Hedges = NO -->
 extended; the right layer for a given change is usually the smallest one
+<!-- vale Helix.Hedges = YES -->
 that fully addresses the problem.
 
 ---

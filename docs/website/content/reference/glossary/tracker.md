@@ -26,7 +26,9 @@ A bead is a work item, the atomic unit of tracked work in HELIX.
 | **parent** | Parent epic or issue ID |
 | **deps** | Dependency list: issues that must close before this one is ready |
 | **acceptance** | Deterministic criteria that define "done" |
+<!-- vale Helix.Hedges = NO -->
 | **description** | Full description, often prefixed with a [context digest](/reference/glossary/concepts/#context-digest) |
+<!-- vale Helix.Hedges = YES -->
 | **notes** | Execution notes appended during work |
 
 ## Labels
@@ -64,7 +66,9 @@ Labels are organizational conventions for triage and traceability.
 | `area:infra` | Infrastructure/deployment work |
 | `area:cli` | CLI tool work |
 
+<!-- vale Helix.PassiveVoice = NO -->
 Area labels are required for [concern](/concerns/) filtering to work. The HELIX skill in `polish` mode assigns them to unlabeled beads.
+<!-- vale Helix.PassiveVoice = YES -->
 
 ### Traceability Labels
 

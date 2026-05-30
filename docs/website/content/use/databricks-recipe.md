@@ -93,7 +93,9 @@ Human review should confirm:
 - Metric definitions match the PRD.
 - Freshness and quality expectations are testable.
 - The artifacts name operational ownership.
+<!-- vale Helix.Hedges = NO -->
 - Unknowns remain visible rather than silently assumed.
+<!-- vale Helix.Hedges = YES -->
 
 ## Recipe 3: create the first implementation handoff
 

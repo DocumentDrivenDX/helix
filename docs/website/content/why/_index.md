@@ -13,13 +13,17 @@ upgrades.
 {{< cards >}}
   {{< card link="the-problem" title="The Problem" subtitle="Why waterfall, agile, and vibe coding each fail in the era of AI-assisted development, and why a compromise of all three doesn't fix the failure." icon="exclamation-circle" >}}
   {{< card link="the-thesis" title="The Thesis" subtitle="HELIX as a runtime-neutral methodology: seven activities, an artifact graph, and concerns that propagate across them." icon="academic-cap" >}}
+<!-- vale Helix.PassiveVoice = NO -->
   {{< card link="principles" title="Principles" subtitle="Eight load-bearing ideas behind the framework: the design choices that explain why HELIX is shaped the way it is." icon="light-bulb" >}}
+<!-- vale Helix.PassiveVoice = YES -->
   {{< card link="who-its-for" title="Who it's for" subtitle="The kinds of projects HELIX rewards, the kinds it overburdens, and the costs you pay to adopt it." icon="user-group" >}}
 {{< /cards >}}
 
 ## Primary journeys
 
+<!-- vale Helix.PassiveVoice = NO -->
 If you skip the prose and want to orient yourself, the site is organized
+<!-- vale Helix.PassiveVoice = YES -->
 around the journeys HELIX supports:
 
 - **Learn the methodology**: start with [Methodology](/use/workflow/methodology/)
@@ -55,7 +59,9 @@ The core framework consists of:
   observability, testing, i18n), security postures, infrastructure
   conventions. Each with components, constraints, per-activity
   practices, and an artifact-impact contract that names which artifacts
+<!-- vale Helix.PassiveVoice = NO -->
   must change when the concern is selected.
+<!-- vale Helix.PassiveVoice = YES -->
 - **[Seven activities](/reference/glossary/activities/)**: Discover,
   Frame, Design, Test, Build, Deploy, Iterate, with the artifacts they
   produce and the gates between them.

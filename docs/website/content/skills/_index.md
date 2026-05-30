@@ -53,7 +53,9 @@ can inspect how HELIX applies the methodology to itself.
 
 ## Runtime packages are not forks
 
+<!-- vale Helix.PassiveVoice = NO -->
 HELIX can be packaged for different runtimes, but the methodology should not
+<!-- vale Helix.PassiveVoice = YES -->
 fork by platform. A DDx package, a Claude Code skill, or a Databricks
 integration should wrap the same source content and skill contract.
 

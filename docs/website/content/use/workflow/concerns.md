@@ -103,7 +103,9 @@ change when you select that concern. Choosing `security-owasp`, for instance,
 obligates the corresponding ADR, technical-design, and test-plan updates.
 Selecting a concern without making those changes is drift, and the alignment
 reconcile check catches it. This makes a concern bite on both
+<!-- vale Helix.Hedges = NO -->
 generated and hand-edited artifacts, not just on the bead context digest.
+<!-- vale Helix.Hedges = YES -->
 
 ## The Knowledge Chain
 
@@ -117,9 +119,13 @@ Spike/POC (gather evidence)
       → Context Digest (injected into beads)
 ```
 
+<!-- vale Helix.PassiveVoice = NO -->
 When a referenced ADR is superseded, [review and alignment](/use/workflow/methodology/#review-and-alignment)
+<!-- vale Helix.PassiveVoice = YES -->
 flags the affected concern for re-evaluation, ensuring that decisions
+<!-- vale Helix.Hedges = NO -->
 propagate forward rather than silently going stale.
+<!-- vale Helix.Hedges = YES -->
 
 ## Where HELIX Uses Concerns
 

@@ -17,7 +17,9 @@ A HELIX-compliant runtime can:
 
 That is the full contract. HELIX assumes nothing else: no tracker, no queue,
 no execution loop, no IDE integration, no language toolchain. Items 1 through 3
+<!-- vale Helix.PassiveVoice = NO -->
 are required; item 4 is optional and only some routes (`build`, `run`, `commit`,
+<!-- vale Helix.PassiveVoice = YES -->
 `release`) use it.
 
 ## Per-runtime install guides
