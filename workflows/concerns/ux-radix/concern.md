@@ -8,7 +8,12 @@ ui, frontend
 
 ## Components
 
-- **Primitives**: Radix UI (headless, accessible by default)
+- **Primitives**: Radix UI (headless, accessible by default) — this concern is
+  the canonical owner of the Radix prescription; other concerns reference here
+- **Component library**: shadcn/ui (copied components, not an npm dependency)
+  built on top of Radix — this concern is the canonical owner of the shadcn
+  prescription; framework concerns (e.g. `react-nextjs`) reference here rather
+  than re-prescribing
 - **Patterns**: WAI-ARIA design patterns for all interactive widgets
 - **Scope**: Searching, editing, navigation, selection, and disclosure
 
@@ -109,12 +114,17 @@ Any project with interactive user interfaces that involve searching, editing,
 navigating, or selecting data. Composes with `a11y-wcag-aa` for compliance
 requirements and `react-nextjs` for React-specific implementation patterns.
 Framework-agnostic in principle — the patterns are WAI-ARIA standards; Radix
-is the reference implementation for React projects.
+is the reference implementation for React projects, and shadcn/ui is the
+prescribed component library that wraps Radix for React projects.
 
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- DESIGN_SYSTEM: WAI-ARIA interaction patterns for search/edit/nav/select/disclosure; Radix primitives; states
+- ADR: shadcn/ui + Radix as the UI-primitives prescription (component library copied, not npm dep)
+- DESIGN_SYSTEM: WAI-ARIA interaction patterns for search/edit/nav/select/disclosure; Radix primitives; shadcn component conventions; states
 - TEST_PLAN: keyboard navigation, focus-return, active-state, and live-filter behavior checks
 
 ## ADR References
+
+- ADR-011: ux-radix owns the Radix and shadcn component-library prescription;
+  framework concerns reference rather than re-prescribe

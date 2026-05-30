@@ -76,6 +76,22 @@ carry every state:
 
 ## Implementation
 
+### Component library (canonical owner)
+
+This concern is the canonical owner of the Radix and shadcn/ui prescription.
+Framework concerns (e.g. `react-nextjs`) MUST reference this concern for UI
+primitives instead of re-prescribing shadcn or Radix themselves.
+
+- Use **shadcn/ui** as the component library, built on Radix primitives.
+- shadcn components are **copied into the project** (e.g. via
+  `npx shadcn@latest add <component>`) and customized in `components/ui/` —
+  shadcn is NOT installed as an npm dependency.
+- Customize copied shadcn components to match the project's design tokens;
+  keep the Radix-based accessibility behavior intact (do not override keyboard
+  or focus handlers with custom logic that breaks the WAI-ARIA contract).
+- For headless behavior not covered by shadcn, use the underlying Radix
+  primitive directly.
+
 ### Radix component mapping
 
 | Pattern | Radix Primitive | Notes |

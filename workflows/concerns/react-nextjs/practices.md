@@ -9,8 +9,10 @@
 - Use Next.js App Router: layouts in `app/layout.tsx`, pages in `app/page.tsx`, route groups with `(groupName)/`
 - Default to React Server Components — add `"use client"` only for interactive components (forms, modals, dropdowns, client state)
 - Component hierarchy: page (server) → layout (server) → interactive widget (client)
-- shadcn/ui for UI primitives — copy components via `npx shadcn@latest add <component>`, customize in `components/ui/`
-- Radix UI for accessible headless primitives underlying shadcn
+- UI primitives and component library: see the `ux-radix` concern — it is the
+  canonical owner of the shadcn/ui + Radix prescription (copy-not-install,
+  customization, primitive selection). Compose `ux-radix` when this concern
+  is selected for UI work.
 - Design tokens (colors, spacing, typography) in `tailwind.config.ts` — components reference tokens, not raw values
 - Forms: one Zod schema per entity in `@apogee/shared`, resolved via `@hookform/resolvers/zod`
 - Data tables: TanStack React Table with column definitions typed against shared schemas
@@ -22,7 +24,8 @@
 - Hooks: `use` prefix, one file per hook in `hooks/` directory
 - Server Components: default export async functions, fetch data directly
 - Client Components: `"use client"` directive at top of file, minimize scope
-- Tailwind classes: use `cn()` utility (from shadcn) for conditional classes — no `classnames` or `clsx` separately
+- Tailwind classes: use a `cn()` utility for conditional classes — no
+  `classnames` or `clsx` used separately
 - Forms pattern:
   ```tsx
   const form = useForm<SchemaType>({ resolver: zodResolver(schema) });
@@ -68,6 +71,8 @@
 
 ## Accessibility
 - All interactive elements must have accessible labels (aria-label, aria-labelledby, or visible text)
-- shadcn/ui + Radix provide WCAG 2.1 AA keyboard and screen reader support by default — do not override with custom handlers that break accessibility
+- Accessible UI-primitive behavior (keyboard, focus, screen reader) is
+  governed by the `ux-radix` concern — do not override Radix/shadcn handlers
+  in ways that break the WAI-ARIA contract
 - Color contrast must meet WCAG AA (4.5:1 for normal text, 3:1 for large text)
 - Forms must associate labels with inputs and display validation errors accessibly
