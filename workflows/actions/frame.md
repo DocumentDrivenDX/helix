@@ -246,10 +246,12 @@ If you drafted or updated user stories, also check:
 
 ### Validation gate
 
-After refinement, read `dependencies.yaml` and `prompt.md` from each artifact
-directory you touched. Verify all **blocking** quality checks pass. If any
-fail, revise the artifact before proceeding to Step 4. Do not commit an
-artifact that fails a blocking check.
+After refinement, read `meta.yml` (specifically the `validation.quality_checks`
+section) and `prompt.md` from each artifact directory you touched. Verify all
+**blocking** quality checks pass. If any fail, revise the artifact before
+proceeding to Step 4. Do not commit an artifact that fails a blocking check.
+See ADR-004 for why validation rules live in `meta.yml` rather than a separate
+`dependencies.yaml`.
 
 ## STEP 3.5 — Principles Bootstrap (if needed)
 
@@ -287,8 +289,8 @@ See the measure action for the full pattern.
 
 1. **Artifact completeness**: All required artifacts for the scope have been
    created or updated.
-2. **Validation gates**: All blocking quality checks from `dependencies.yaml`
-   and `prompt.md` pass for each artifact.
+2. **Validation gates**: All blocking quality checks from `meta.yml`
+   (`validation.quality_checks`) and `prompt.md` pass for each artifact.
 3. **Work item creation**: Downstream design work items have been filed for
    each feature spec.
 4. **Concern selection (required)**: verify concern selection was performed —

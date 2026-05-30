@@ -31,7 +31,8 @@ Criteria to proceed to Design activity (defined in `GATE.yaml`):
 
 The Frame activity produces four core artifacts. Each artifact directory under
 `artifacts/` includes `template.md` (structure), `prompt.md` (section-by-section
-guidance and quality checklist), and `dependencies.yaml` (validation rules).
+guidance and quality checklist), and `meta.yml` (validation rules and
+type-level dependencies; see ADR-004).
 
 ### 1. Product Requirements Document (PRD)
 

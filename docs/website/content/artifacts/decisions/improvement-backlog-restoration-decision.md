@@ -1,7 +1,7 @@
 ---
 title: "Improvement Backlog — Restoration Decision"
 slug: improvement-backlog-restoration-decision
-weight: 690
+weight: 720
 activity: "Iterate"
 source: "06-iterate/decisions/improvement-backlog-restoration-decision.md"
 generated: true

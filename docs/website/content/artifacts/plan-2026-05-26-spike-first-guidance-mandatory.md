@@ -1,7 +1,7 @@
 ---
 title: "Plan: it.34 — \"defer the vendor\" is NOT a spike; a spike must EXERCISE the real provider and prove its economics (+ build the app-side data; unowned business calls → guidance-needed)"
 slug: plan-2026-05-26-spike-first-guidance-mandatory
-weight: 470
+weight: 500
 activity: "Design"
 source: "02-design/plan-2026-05-26-spike-first-guidance-mandatory.md"
 generated: true

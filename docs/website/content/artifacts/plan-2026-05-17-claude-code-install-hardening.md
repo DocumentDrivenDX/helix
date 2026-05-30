@@ -1,7 +1,7 @@
 ---
 title: "Plan: harden the Claude Code install surface"
 slug: plan-2026-05-17-claude-code-install-hardening
-weight: 310
+weight: 340
 activity: "Design"
 source: "02-design/plan-2026-05-17-claude-code-install-hardening.md"
 generated: true
