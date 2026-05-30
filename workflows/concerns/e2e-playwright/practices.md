@@ -102,18 +102,11 @@ assertion until the cue exists.
   - Debugging flaky tests (video shows timing/race conditions)
 - In CI, upload `test-results/` as a build artifact for post-hoc review
 
-## Demo Reel
-- Create `e2e/demo.spec.ts` — a single test that walks through the entire app
-- Seed with realistic data that makes the demo compelling (populated states,
-  not empty states)
-- Set viewport to 1280x720 for clean video output
-- Pace with `page.waitForTimeout()`: 1-2s between clicks, 2-3s on key screens
-- Use `test.step()` to narrate each section in the test output
-- Structure: Dashboard overview -> key workflows -> detail pages -> settings
-- Run separately: `npx playwright test e2e/demo.spec.ts`
-- Output video lives in `test-results/` — convert to `.mp4` for embedding
-- Re-record after significant UI changes
-- The demo is documentation — keep it passing, keep it current
+## Demo reels — delegated to `demo-playwright`
+
+Scripted walkthrough videos (viewport, pacing, narrative structure,
+post-processing) belong to `demo-playwright`. Select that concern alongside
+this one when a reel is needed; do not author demo specs here.
 
 ## Quality Gates
 - At least one core user-flow has a browser e2e test that **runs green against
@@ -127,7 +120,6 @@ assertion until the cue exists.
   a substitute; no screenshot assertions for this cue)
 - Every user-facing workflow has at least one end-to-end test
 - Video recording is enabled (not disabled for speed)
-- Demo reel script exists and produces a watchable video
 - No tests skip or are marked `.only`
 
 ## CI Integration

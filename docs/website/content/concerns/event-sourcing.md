@@ -322,20 +322,14 @@ not to every entity in the product.
 
 ## Boundary with neighbors
 
-- The **aggregate, its invariants, and its emitted domain events** are
-  `domain-driven-design`'s — defer there for the model; this concern persists
-  and rehydrates that aggregate.
-- The **event store is an outer-ring adapter** behind an inner-declared port —
-  defer to `onion-architecture` for the layering/dependency direction; do not
-  restate the dependency rule.
-- A **stored event is not an integration message**. Publishing events to other
-  systems/contexts (channels, transformation, delivery) is
-  `enterprise-integration-patterns`' — an event handler may emit an integration
-  event, but do not conflate the stream-of-record with the wire message.
-- The **read side / projections** are commonly the **CQRS** read model; name
-  CQRS as the companion, do not define the full command/query segregation here.
-- Use a **real event store** (per-entity stream reads + optimistic concurrency),
-  not a message broker, as the system of record.
+See `concern.md` for the canonical Boundary (vs `domain-driven-design`,
+`enterprise-integration-patterns`, `onion-architecture`, `sample-data`, and
+the **CQRS** companion). Idempotent application of events here is the same
+property `enterprise-integration-patterns` requires of consumers under
+at-least-once delivery — defer there for the channel-delivery rule, apply it
+here to projection/read-model updates. The event store is a real event store
+(per-entity stream reads + optimistic concurrency), not a message broker
+standing in as the system of record.
 
 ## Quality Gates
 

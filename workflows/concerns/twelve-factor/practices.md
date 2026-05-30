@@ -88,15 +88,11 @@ at the codebase, the release artifact, or the runbook and confirm or reject it.
 
 ## Stay in your lane (boundary with sibling concerns)
 
-- Do **not** decide how many deployables the system ships as or where their
-  seams fall here — that is `deployment-topology`. This concern is the contract
-  **each** deployable honors.
-- Do **not** specify log schema, span naming, trace context, or metric names
-  here — that is `o11y-otel`. This concern only says the event stream goes to
-  **stdout** and the process does not manage log files.
-- Do **not** review cluster / Helm / image-build / secret-injection mechanics
-  here — that is `k8s-kind` / the `deploy-target` filler. This concern produces
-  the process the runtime consumes; it does not specify the runtime.
+See `concern.md` for the canonical Boundary (vs `deployment-topology`,
+`o11y-otel`, `k8s-kind` / the `deploy-target` filler). These practices are
+the per-process operational contract — defer to the neighbor named there for
+the deployable count and seams, the log/metric/trace schema, and the cluster
+/ Helm / image-build mechanics.
 
 ## Artifact impact (what selecting this changes)
 

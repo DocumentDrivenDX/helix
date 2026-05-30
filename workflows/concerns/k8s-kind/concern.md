@@ -6,6 +6,16 @@ infrastructure
 ## Areas
 infra
 
+## Boundary
+
+This concern is a **runtime implementation** that hosts whatever deployables
+`deployment-topology` chose to ship (one modular monolith or many
+microservices — both run here). It owns cluster / Helm chart / image-build /
+local-kind workflow mechanics. It does **not** decide the deployable count
+or seams (`deployment-topology`), the per-process operational contract each
+deployable honors (`twelve-factor`), or the telemetry the deployables emit
+(`o11y-otel`).
+
 ## Components
 
 - **Local cluster**: `kind` (Kubernetes in Docker) — NOT docker-compose

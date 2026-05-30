@@ -108,24 +108,11 @@ metrics/traces these guards emit into). They reference those concerns at the sea
 
 ## Boundary with neighbors
 
-- **vs `enterprise-integration-patterns`**: EIP owns **async-channel**
-  resilience — a Dead Letter Channel for poison messages, an Idempotent Receiver
-  because an at-least-once *channel* will redeliver, Guaranteed Delivery against a
-  broker crash. This concern owns **synchronous-call** resilience — the timeout,
-  breaker, bulkhead, and fallback on a blocking in-the-call-path dependency.
-  **Idempotency is shared but split:** EIP's is the receiver's defense against
-  channel redelivery; this concern's is the **precondition that makes a
-  synchronous auto-retry safe.** When the boundary is a queue/broker, use EIP;
-  when it is a blocking synchronous call, use resilience. Do not duplicate.
-- **vs `verification`**: this concern states the behavior that must be true (the
-  breaker opens, the timeout fires, the fallback serves); `verification` is the
-  gate that refuses "done" until those guard branches were **exercised against the
-  running system**. Hand the open/half-open and timeout paths to the verification
-  evidence gate; do not restate the gate here.
-- **vs `o11y-otel`**: this concern requires guard activity to be **observable**;
-  `o11y-otel` owns the metric/trace/log plumbing that carries it. Emit
-  breaker-state and timeout/shed events into that pipeline; do not re-specify the
-  pipeline.
+See `concern.md` for the canonical Boundary (vs `enterprise-integration-patterns`,
+`verification`, `o11y-otel`). These practices stay on synchronous-call
+stability; defer to the neighbor named there for async-channel resilience
+(EIP), the evidence gate that proves the guards ran (`verification`), and the
+telemetry pipeline that carries breaker/timeout/shed signals (`o11y-otel`).
 
 ## Quality Gates
 
