@@ -23,6 +23,7 @@ validation:
     - hypothesis
     - approach
     - findings
+    - analysis
     - conclusions
     - recommendations
     - artifacts

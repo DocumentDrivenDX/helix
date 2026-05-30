@@ -5,6 +5,11 @@ ddx:
 
 # Parking Lot (Deferred / Future Work)
 
+## Purpose
+
+[Why this parking lot exists and what it covers — scope of deferred / future
+work tracked here without distorting current commitments.]
+
 ## Policy
 - Rejected items do not belong here; close or cancel them instead.
 - Active work does not belong here; track it in the Feature Registry and DDx.
