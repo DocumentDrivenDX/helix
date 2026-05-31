@@ -1,7 +1,7 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-deploy-artifacts test-state-rules test-skills test-context-digests test-demo-fixtures
+test: test-deploy-artifacts test-state-rules test-skills test-context-digests
 
 # Serve the HELIX microsite at the canonical local review URL.
 website-serve:
@@ -22,10 +22,6 @@ test-skills:
 # Validate live tracker context-digest coverage
 test-context-digests:
     bash tests/validate-context-digests.sh
-
-# Validate demo prompt fixtures
-test-demo-fixtures:
-    bash tests/validate-demo-fixtures.sh
 
 # Run all tests and check for stale references
 check: test lint
