@@ -27,9 +27,9 @@ validation:
     - medallion_topology
     - data_flow
     - processing_semantics
-    - quality_contracts
-    - governance_and_access
-    - databricks_platform_design
+    - pipeline_level_quality_contracts
+    - governance_and_access_control
+    - platform_design
     - decisions_and_tradeoffs
 
   quality_checks:
@@ -111,9 +111,9 @@ template:
     - medallion_topology: "Bronze (raw ingestion), Silver (transformed), Gold (consumption) layer strategy"
     - data_flow: "Diagrams or descriptions of how data moves through layers"
     - processing_semantics: "Is this streaming, batch, or incremental batch? Why?"
-    - quality_contracts: "EXPECT rules per layer; what makes data trustworthy?"
-    - governance_and_access: "Who can access what? Row-level, column-level, catalog policies"
-    - databricks_platform_design: "Compute tier, storage strategy, catalog/schema organization, SDP expectations"
+    - pipeline_level_quality_contracts: "EXPECT rules per layer; what makes data trustworthy?"
+    - governance_and_access_control: "Who can access what? Row-level, column-level, catalog policies"
+    - platform_design: "Compute tier, storage strategy, catalog/schema organization, SDP expectations"
     - decisions_and_tradeoffs: "Why these choices? What were the alternatives?"
 
 examples:

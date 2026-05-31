@@ -32,7 +32,7 @@ but leaves no trace here is drift (reconcile-alignment Concern->Artifact Realiza
 
 ## Focus
 - Create a story-level artifact named `docs/helix/02-design/technical-designs/TD-XXX-[name].md`.
-- Map each acceptance criterion to component changes, interfaces, data, security, and tests.
+- Realize each governing-story AC-ID (US-{n}-AC{m}) through component changes, interfaces, data, security, and tests; reference AC-IDs, do not restate AC text (ADR-009 — AC ownership lives in user-stories).
 - Stay on the vertical slice for the story, within the story scope defined in
   the zoom-stack matrix (`workflows/activities/02-design/README.md`).
 - Keep implementation sequence and rollout or migration notes only when they affect execution.

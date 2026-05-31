@@ -21,7 +21,7 @@ validation:
     - rollout_plan
     - verification_checks
     - rollback_triggers
-    - go_no_go
+    - go_or_no_go_decision
 
   quality_checks:
     - check: service_specific_steps

@@ -27,18 +27,6 @@ ddx:
 - Does not implement column mapping, row validation, import confirmation, or
   match generation.
 
-## Acceptance Criteria
-
-1. **Given** Maya is viewing Acme Dental, **When** she uploads one valid bank
-   CSV and one valid invoice CSV, **Then** DepositMatch creates one draft import
-   session for Acme Dental and opens mapping review.
-2. **Given** Maya is viewing Acme Dental, **When** she uploads a PDF instead of
-   a CSV for either required file, **Then** DepositMatch rejects the file before
-   parsing and keeps the import session in draft.
-3. **Given** Maya has uploaded both required CSV files, **When** the files are
-   accepted, **Then** the import session records the client, file names, upload
-   time, and source type for each file.
-
 ## Technical Approach
 
 **Strategy**: Implement the API-001 upload contract in the Fastify API and add a
@@ -168,16 +156,18 @@ CREATE TABLE import_files (
 
 ## Testing
 
-- [ ] **Unit**: `importUploadService` rejects missing files, non-CSV files, and
-  inaccessible clients.
-- [ ] **Integration**: API route returns API-001 success shape and stores draft
-  session/file metadata in one transaction.
-- [ ] **API**: Contract tests for 201, 400 `missing-import-file`, 415
-  `unsupported-import-file-type`, and 503 `import-storage-unavailable`.
+Each governing-story AC-ID is realized below (ADR-009 — AC text lives in [[US-001]], not here):
+
+- [ ] **Unit** (US-001-AC1, US-001-AC2): `importUploadService` rejects missing
+  files, non-CSV files, and inaccessible clients.
+- [ ] **Integration** (US-001-AC1, US-001-AC3): API route returns API-001
+  success shape and stores draft session/file metadata in one transaction.
+- [ ] **API** (US-001-AC2): Contract tests for 201, 400 `missing-import-file`,
+  415 `unsupported-import-file-type`, and 503 `import-storage-unavailable`.
 - [ ] **Security**: Verify raw CSV row values are absent from logs for failed
   and successful uploads.
-- [ ] **UI**: Upload component routes to `next.href` after successful upload and
-  renders problem-details errors.
+- [ ] **UI** (US-001-AC1): Upload component routes to `next.href` after
+  successful upload and renders problem-details errors.
 
 ## Migration & Rollback
 

@@ -24,16 +24,13 @@ output:
 
 validation:
   required_sections:
-    - story_reference
-    - acceptance_criteria_review
     - technical_approach
     - component_changes
-    - testing_approach
-    - definition_of_done
+    - testing
 
   quality_checks:
-    - check: acceptance_criteria_mapped
-      description: Every acceptance criterion must map to technical implementation
+    - check: acceptance_criteria_realized
+      description: Each governing-story AC-ID (US-{n}-AC{m}) is realized by the technical changes; AC text is not restated here (ADR-009 — AC ownership lives in user-stories).
       severity: blocking
 
     - check: api_contracts_defined
@@ -61,9 +58,9 @@ validation:
       expected: ">=1"
       message: Must reference the solution design
 
-    - pattern: "acceptance criteri"
+    - pattern: "US-\\d{3}-AC\\d+"
       expected: ">=1"
-      message: Must review acceptance criteria
+      message: Must reference at least one governing story AC-ID (US-{n}-AC{m}); do not restate AC text (ADR-009)
 
 cross_references:
   must_reference:
@@ -103,13 +100,11 @@ prompts:
 template:
   file: template.md
   sections:
-    - story_reference: "Link to user story and feature"
-    - acceptance_criteria_review: "What must be satisfied"
     - technical_approach: "How to implement"
     - component_changes: "What needs to be modified"
     - api_design: "Interface specifications"
     - data_model: "Schema changes"
-    - testing_approach: "How to verify"
+    - testing: "How to verify; reference governing-story AC-IDs (US-{n}-AC{m})"
 
 example:
   file: example.md

@@ -18,7 +18,7 @@ output:
 validation:
   required_sections:
     - system_description
-    - stride_analysis
+    - stride_threat_analysis
     - risk_assessment
     - mitigation_strategies
 

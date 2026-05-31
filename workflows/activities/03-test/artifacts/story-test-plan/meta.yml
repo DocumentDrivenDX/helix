@@ -37,7 +37,7 @@ validation:
   required_sections:
     - story_reference
     - scope_and_objective
-    - acceptance_criteria_mapping
+    - acceptance_criteria_test_mapping
     - executable_proof
     - data_and_setup
     - build_handoff
