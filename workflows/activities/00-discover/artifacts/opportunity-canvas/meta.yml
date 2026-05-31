@@ -22,7 +22,7 @@ validation:
     - solution_concept
     - key_metrics
     - unfair_advantage
-    - go_nogo_checklist
+    - go_no_go_decision
 
   quality_checks:
     - check: problem_validated

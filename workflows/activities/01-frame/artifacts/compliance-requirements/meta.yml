@@ -17,9 +17,9 @@ output:
 
 validation:
   required_sections:
-    - regulatory_landscape_analysis
+    - applicable_regulations
     - compliance_requirements_matrix
-    - data_classification
+    - data_classification_and_handling
     - implementation_plan
 
   quality_checks:

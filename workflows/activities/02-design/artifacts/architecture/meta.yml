@@ -23,8 +23,8 @@ output:
 
 validation:
   required_sections:
-    - system_context
-    - container_diagram
+    - level_1_system_context
+    - level_2_container_diagram
     - deployment
     - data_flow
     - quality_attributes
@@ -99,8 +99,8 @@ prompts:
 template:
   file: template.md
   sections:
-    - system_context: "Show the system, the actors, and the external systems. Skip if there's only one actor and no externals — that's noise."
-    - container_diagram: "Required. Each container names its technology, responsibilities, and how it communicates."
+    - level_1_system_context: "Show the system, the actors, and the external systems. Skip if there's only one actor and no externals — that's noise."
+    - level_2_container_diagram: "Required. Each container names its technology, responsibilities, and how it communicates."
     - component_diagram: "Optional. Include only when implementation choices need this level. Most teams ship without it."
     - deployment: "Required when the system runs anywhere non-trivial. Name regions, instance counts, scaling triggers, backup paths."
     - data_flow: "One sequence diagram for the most important user journey or operational flow. Pick the one most likely to fail."

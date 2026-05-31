@@ -40,6 +40,33 @@ def extract_h2_slugs(template_path: Path) -> list[str]:
     return slugs
 
 
+def extract_output_format(meta_path: Path) -> str | None:
+    """Extract `output.format` from a HELIX meta.yml, or None if absent.
+
+    The validator's H2-vs-required_sections check only applies to markdown
+    artifacts. YAML artifacts (metric-definition, etc.) declare their schema
+    by YAML keys, not template H2s, so they are skipped.
+    """
+    text = meta_path.read_text(encoding="utf-8").splitlines()
+    in_output = False
+    for line in text:
+        if re.match(r"^output\s*:\s*$", line):
+            in_output = True
+            continue
+        if in_output:
+            if line and not line.startswith((" ", "\t")) and ":" in line:
+                return None
+            m = re.match(r"^\s+format\s*:\s*(.+?)\s*$", line)
+            if m:
+                value = m.group(1).strip()
+                if (value.startswith('"') and value.endswith('"')) or (
+                    value.startswith("'") and value.endswith("'")
+                ):
+                    value = value[1:-1]
+                return value
+    return None
+
+
 def extract_required_sections(meta_path: Path) -> list[str] | None:
     """Parse out validation.required_sections from a HELIX meta.yml.
 
@@ -126,6 +153,11 @@ def validate(art_dir: Path) -> list[str]:
     meta_path = art_dir / "meta.yml"
     template_path = art_dir / "template.md"
     failures: list[str] = []
+
+    # Skip non-markdown artifacts: their schema lives in YAML keys, not H2s.
+    fmt = extract_output_format(meta_path)
+    if fmt and fmt.lower() != "markdown":
+        return failures
 
     required = extract_required_sections(meta_path)
     if not required:

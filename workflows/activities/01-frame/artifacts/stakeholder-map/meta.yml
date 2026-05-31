@@ -18,12 +18,11 @@ output:
 
 validation:
   required_sections:
-    - stakeholder_identification
+    - primary_stakeholders_high_influence_high_interest
+    - secondary_stakeholders_variable_influence_interest
     - raci_matrix
     - power_interest_grid
     - communication_plan
-    - engagement_strategy
-    - escalation_path
 
   quality_checks:
     - check: raci_completeness

@@ -17,22 +17,9 @@ output:
 
 validation:
   required_sections:
+    - press_release
     - internal_product_argument
-    - core_thesis
-    - mechanism
-    - quality_model
-    - decision_autonomy_boundary
-    - press_release_headline
-    - press_release_subhead
-    - press_release_summary
-    - the_problem
-    - the_solution
-    - leader_quote
-    - how_it_works
-    - customer_quote
-    - availability
-    - external_faqs
-    - internal_faqs
+    - faq
     - downstream_projection
 
   quality_checks:

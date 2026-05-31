@@ -37,9 +37,8 @@ reuse_policy: |
 validation:
   required_sections:
     - testing_strategy
-    - test_levels
     - coverage_requirements
-    - critical_paths
+    - acceptance_criteria_layer_allocation
 
   pattern_checks:
     - pattern: "P0|P1|P2|Critical"

@@ -22,11 +22,6 @@ ddx:
 - Do not redefine cross-component architecture here; that belongs in `SD-XXX`
 - Governing artifacts: [User Story, Solution Design, Contracts, Concerns]
 
-## Acceptance Criteria
-
-1. **Given** [precondition], **When** [action], **Then** [expected outcome]
-2. **Given** [precondition], **When** [action], **Then** [expected outcome]
-
 ## Technical Approach
 
 **Strategy**: [Brief description]
@@ -129,7 +124,7 @@ CREATE TABLE [table_name] (
 
 Use this checklist when reviewing a technical design:
 
-- [ ] Acceptance criteria use Given/When/Then format and are verifiable
+- [ ] Each governing-story AC-ID (US-{n}-AC{m}) is realized by the technical changes (AC text is not restated here — ADR-009)
 - [ ] Technical approach inherits from the parent solution design — no contradictions
 - [ ] Key decisions have documented rationale
 - [ ] Trade-offs are explicit — what we gain and what we lose

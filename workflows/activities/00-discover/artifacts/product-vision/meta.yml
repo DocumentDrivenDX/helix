@@ -22,7 +22,7 @@ validation:
     - vision
     - user_experience
     - target_market
-    - value_propositions
+    - key_value_propositions
     - success_definition
     - why_now
 

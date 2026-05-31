@@ -24,11 +24,10 @@ output:
 validation:
   required_sections:
     - problem_statement
-    - functional_requirements
-    - non_functional_requirements
-    - edge_cases
+    - requirements
+    - edge_cases_and_error_handling
     - success_metrics
-    - constraints
+    - constraints_and_assumptions
     - out_of_scope
 
   quality_checks:
