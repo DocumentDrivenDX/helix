@@ -59,7 +59,7 @@ test.describe('Why HELIX', () => {
   test('principles page covers all eight', async ({ page }) => {
     await page.goto('/why/principles/')
     await expect(page.getByRole('heading', { name: /1\.\s+Planning and execution/ })).toBeVisible()
-    await expect(page.getByRole('heading', { name: /3\.\s+Authority order/ })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /3\.\s+The artifact authority hierarchy/ })).toBeVisible()
     await expect(page.getByRole('heading', { name: /6\.\s+Autonomy is supervised/ })).toBeVisible()
     await expect(page.getByRole('heading', { name: /8\.\s+Least power wins/ })).toBeVisible()
   })
@@ -210,7 +210,7 @@ test.describe('Reference', () => {
 
     test('concepts page covers core ideas', async ({ page }) => {
       await page.goto('/reference/glossary/concepts/')
-      await expect(page.getByRole('heading', { name: 'Authority Order' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Artifact Authority Hierarchy' })).toBeVisible()
       await expect(page.getByRole('heading', { name: 'Context Digest' })).toBeVisible()
     })
 
