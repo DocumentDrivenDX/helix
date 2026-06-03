@@ -51,7 +51,7 @@ Verify with `claude plugin list`:
 ```
 $ claude plugin list
 NAME   VERSION  SOURCE
-helix  0.5.0    DocumentDrivenDX-helix
+helix  0.5.2    DocumentDrivenDX-helix
 ```
 
 ## Install path B: session-only via `--plugin-dir` (development / CI)
@@ -67,7 +67,7 @@ claude --plugin-dir /path/to/helix
 Or load a remote `.zip` (Claude Code v2.1.128+):
 
 ```bash
-claude --plugin-url https://github.com/DocumentDrivenDX/helix/archive/v0.5.0.zip
+claude --plugin-url https://github.com/DocumentDrivenDX/helix/archive/v0.5.2.zip
 ```
 
 Session-only loads do not persist. Once Claude Code exits, the plugin

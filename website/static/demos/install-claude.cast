@@ -6,7 +6,7 @@
 [1.9, "o", "Installing helix@helix...\r\n  resolved skill: helix\r\n  artifact catalog: workflows/activities/ (7 activities)\r\n\u2713 helix@helix installed (scope: user)\r\n"]
 [2.9, "o", "\r\n\u001b[2m# Confirm the plugin is on the list.\u001b[0m\r\n"]
 [3.9, "o", "\r\n\u001b[1;32mclaude plugin list\u001b[0m\r\n"]
-[4.3, "o", "NAME   VERSION  SOURCE\r\nhelix  0.5.0    DocumentDrivenDX-helix\r\n"]
+[4.3, "o", "NAME   VERSION  SOURCE\r\nhelix  0.5.2    DocumentDrivenDX-helix\r\n"]
 [4.4, "o", "\r\n\u001b[2m# The skill is available. One ask routes you into a HELIX mode.\u001b[0m\r\n"]
 [5.4, "o", "\r\n\u001b[1;32m/helix check\u001b[0m\r\n"]
 [5.8, "o", "HELIX router loaded. No docs/helix/ artifacts yet.\r\nNext: run frame to draft a vision and PRD.\r\n"]
