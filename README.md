@@ -90,14 +90,14 @@ The HELIX repo is itself a Claude Code plugin. Inside a Claude Code session, add
 the marketplace and install the plugin:
 
 ```text
-/plugin marketplace add DocumentDrivenDX/helix
+/plugin marketplace add https://github.com/DocumentDrivenDX/helix
 /plugin install helix@helix
 ```
 
 For automation or a Dockerfile, use the scripted CLI equivalent:
 
 ```bash
-claude plugin marketplace add DocumentDrivenDX/helix
+claude plugin marketplace add https://github.com/DocumentDrivenDX/helix
 claude plugin install helix@helix --scope user -y
 ```
 

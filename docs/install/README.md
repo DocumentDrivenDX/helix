@@ -72,7 +72,7 @@ that drives HELIX modes against a tracked work plan.
 ### [Claude Code](claude-code.md)
 
 ```bash
-claude plugin marketplace add DocumentDrivenDX/helix
+claude plugin marketplace add https://github.com/DocumentDrivenDX/helix
 claude plugin install helix@helix --scope user -y
 ```
 

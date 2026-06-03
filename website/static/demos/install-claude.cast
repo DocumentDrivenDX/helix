@@ -1,6 +1,6 @@
 {"version": 2, "width": 100, "height": 30, "timestamp": 1779000000, "env": {"SHELL": "/bin/bash", "TERM": "xterm-256color"}, "title": "Install HELIX in Claude Code"}
 [0.0, "o", "\r\n\u001b[2m# Inside a Claude Code session, add the HELIX marketplace and install the plugin. No git clone, no symlinks.\u001b[0m\r\n"]
-[1.0, "o", "\r\n\u001b[1;32m/plugin marketplace add DocumentDrivenDX/helix\u001b[0m\r\n"]
+[1.0, "o", "\r\n\u001b[1;32m/plugin marketplace add https://github.com/DocumentDrivenDX/helix\u001b[0m\r\n"]
 [1.4, "o", "Added marketplace DocumentDrivenDX-helix\r\n  1 plugin available: helix\r\n"]
 [1.5, "o", "\r\n\u001b[1;32m/plugin install helix@helix\u001b[0m\r\n"]
 [1.9, "o", "Installing helix@helix...\r\n  resolved skill: helix\r\n  artifact catalog: workflows/activities/ (7 activities)\r\n\u2713 helix@helix installed (scope: user)\r\n"]
