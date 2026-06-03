@@ -34,14 +34,14 @@ and the catalog reachable at `workflows/activities/...`.
 Two TUI commands inside Claude Code:
 
 ```
-/plugin marketplace add DocumentDrivenDX/helix
+/plugin marketplace add https://github.com/DocumentDrivenDX/helix
 /plugin install helix@helix
 ```
 
 Or scripted (Dockerfile-friendly), suitable for use in automation:
 
 ```bash
-claude plugin marketplace add DocumentDrivenDX/helix
+claude plugin marketplace add https://github.com/DocumentDrivenDX/helix
 claude plugin install helix@helix --scope user -y
 ```
 
@@ -93,7 +93,7 @@ flow is required for `claude -p`:
 
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
-claude plugin marketplace add DocumentDrivenDX/helix
+claude plugin marketplace add https://github.com/DocumentDrivenDX/helix
 claude plugin install helix@helix --scope user -y
 echo "List HELIX routing modes" | claude -p
 ```

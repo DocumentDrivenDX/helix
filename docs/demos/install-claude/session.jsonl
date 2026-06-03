@@ -1,6 +1,6 @@
 {"meta": {"title": "Install HELIX in Claude Code", "width": 100, "height": 30, "scenario": "install", "timestamp": 1779000000}}
 {"narration": "Inside a Claude Code session, add the HELIX marketplace and install the plugin. No git clone, no symlinks."}
-{"shell": "/plugin marketplace add DocumentDrivenDX/helix"}
+{"shell": "/plugin marketplace add https://github.com/DocumentDrivenDX/helix"}
 {"output": "Added marketplace DocumentDrivenDX-helix\n  1 plugin available: helix\n"}
 {"shell": "/plugin install helix@helix"}
 {"output": "Installing helix@helix...\n  resolved skill: helix\n  artifact catalog: workflows/activities/ (7 activities)\n✓ helix@helix installed (scope: user)\n", "pause_s": 1.0}
