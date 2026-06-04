@@ -77,6 +77,14 @@ genie-verify:
 install-test:
     bash tests/install/run-all.sh
 
+# Validate helix-family bench fixture structure (stdlib-only walker)
+test-family-fixtures-structure:
+    python3 tests/family/validate_fixture_structure.py
+
+# Dry-run a single helix-family bench fixture (no claude invocation yet)
+test-family-fixture-dry-run FIXTURE:
+    python3 tests/family/run_fixture.py {{FIXTURE}}
+
 # Show test count
 count:
     @echo "Skill files: $(find skills -name 'SKILL.md' | wc -l)"
