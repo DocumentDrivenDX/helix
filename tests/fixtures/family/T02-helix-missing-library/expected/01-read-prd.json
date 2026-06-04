@@ -1,0 +1,12 @@
+{
+  "assert": "prose_match",
+  "must_match_all": [
+    "(?i)inventory",
+    "(?i)reconcil"
+  ],
+  "must_not_match": [
+    "(?i)helix-library.*(not installed|missing|required)",
+    "(?i)setup-gap"
+  ],
+  "rationale": "Existing docs are read-only-OK without the library; setup-gap must not fire on read."
+}

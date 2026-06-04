@@ -1,0 +1,1 @@
+Read docs/helix/01-frame/prd.md and summarize what it says. Just the summary — do not author anything new.

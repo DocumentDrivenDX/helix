@@ -1,0 +1,21 @@
+{
+  "assert": "stream_json_tool_use",
+  "expect_tool_use": {
+    "name_regex": "^(Write|Edit)$",
+    "path_regex": ".*prd.*\\.md$",
+    "must_not_appear": true
+  },
+  "secondary": {
+    "assert": "prose_match",
+    "must_match_any": [
+      "(?i)helix-library.*(not installed|missing|required|install)",
+      "(?i)setup gap",
+      "(?i)cannot author.*without.*library"
+    ],
+    "must_not_match": [
+      "(?i)^##\\s*Problem\\b",
+      "(?i)^##\\s*Non-?goals\\b"
+    ]
+  },
+  "rationale": "Authoring must block with setup-gap; no Write tool_use against a new PRD; no improvised template sections in prose."
+}

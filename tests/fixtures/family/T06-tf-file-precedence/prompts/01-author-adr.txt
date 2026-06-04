@@ -1,0 +1,1 @@
+Record an ADR for our subnet layout — two private subnets across AZs, no public subnet. Capture context, decision, and consequences.

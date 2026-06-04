@@ -1,0 +1,12 @@
+{
+  "assert": "validator_exit",
+  "command": "python3 library/scripts/helix_graph_check.py workspace/graph.yml",
+  "expect_exit_nonzero": true,
+  "stderr_match_any": [
+    "(?i)bare slug",
+    "(?i)must be namespaced",
+    "(?i)missing namespace",
+    "(?i)expected library: or local:"
+  ],
+  "rationale": "Bare slug 'adr' must be rejected by the validator with a clear error."
+}

@@ -1,0 +1,9 @@
+# Methodology graph.yml with a local override binding.
+# The design-phase ADR node binds to local:my-adr instead of library:adr.
+
+nodes:
+  - id: 02-design/adr
+    activity: 02-design
+    binds: local:my-adr
+    requires:
+      - 01-frame/prd

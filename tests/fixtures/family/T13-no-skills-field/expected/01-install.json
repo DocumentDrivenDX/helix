@@ -1,0 +1,12 @@
+{
+  "assert": "install_result",
+  "command": "claude plugin install --from-dir workspace/",
+  "expect_exit_zero": true,
+  "stderr_must_not_match": [
+    "(?i)missing.*skills",
+    "(?i)required field.*skills",
+    "(?i)invalid plugin\\.json"
+  ],
+  "on_failure_followup": "Update fixture README to record the actual Claude Code behaviour and activate the skills/_data/SKILL.md workaround across the family.",
+  "rationale": "Data-only plugin with no skills field must install cleanly; failure forces the documented workaround."
+}

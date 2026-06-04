@@ -1,0 +1,23 @@
+{
+  "assert": "stream_json_tool_use",
+  "forbid_tool_use": [
+    {
+      "name_regex": "^Write$",
+      "path_regex": "^docs/(adr|helix)/"
+    }
+  ],
+  "secondary": {
+    "assert": "prose_match",
+    "must_match_all": [
+      "(?i)helix-infra",
+      "(?i)\\bhelix\\b"
+    ],
+    "must_match_any": [
+      "(?i)disambiguat",
+      "(?i)which methodology",
+      "(?i)pick (one|a methodology)",
+      "(?i)HELIX_METHODOLOGY"
+    ]
+  },
+  "rationale": "Mixed signals → must surface BOTH methodologies in a disambiguation banner and NOT write before the user disambiguates."
+}

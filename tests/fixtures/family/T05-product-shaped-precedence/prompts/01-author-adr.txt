@@ -1,0 +1,1 @@
+Record an ADR for our SSO approach — we're picking OIDC over SAML. Capture context, decision, and consequences.

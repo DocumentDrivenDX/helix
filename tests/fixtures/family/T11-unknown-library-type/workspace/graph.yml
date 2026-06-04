@@ -1,0 +1,8 @@
+# INVALID: library:not-a-real-type does not exist in the library.
+
+nodes:
+  - id: 02-design/phantom
+    activity: 02-design
+    binds: library:not-a-real-type    # <-- UNKNOWN TYPE
+    requires:
+      - 01-frame/prd

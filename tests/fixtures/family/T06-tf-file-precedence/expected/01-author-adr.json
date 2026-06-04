@@ -1,0 +1,24 @@
+{
+  "assert": "stream_json_tool_use",
+  "expect_tool_use": {
+    "name_regex": "^Write$",
+    "path_regex": "^docs/adr/\\d{4}.*\\.md$"
+  },
+  "forbid_tool_use": [
+    {
+      "name_regex": "^Write$",
+      "path_regex": "^docs/helix/"
+    }
+  ],
+  "secondary": {
+    "assert": "prose_match",
+    "must_not_match": [
+      "(?i)helix-library.*(not installed|missing)"
+    ],
+    "allow_match_any": [
+      "(?i)treating this as helix-infra",
+      "(?i)disambiguat"
+    ]
+  },
+  "rationale": "main.tf present, no docs/helix/ → helix-infra wins; ADR to docs/adr/."
+}

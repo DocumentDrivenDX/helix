@@ -1,0 +1,17 @@
+{
+  "assert": "prose_match",
+  "must_match_any": [
+    "(?i)prd",
+    "(?i)adr",
+    "(?i)runbook",
+    "(?i)no methodology",
+    "(?i)data(-| )only",
+    "(?i)library"
+  ],
+  "must_not_match": [
+    "(?i)^#\\s*Problem\\b",
+    "(?i)discover phase",
+    "(?i)frame phase"
+  ],
+  "rationale": "Library is data-only; it may list types or declare itself inert, but must not start a methodology walk."
+}

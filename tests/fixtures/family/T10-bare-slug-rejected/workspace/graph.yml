@@ -1,0 +1,9 @@
+# INVALID: bare slug "adr" is missing namespace.
+# Validator must reject.
+
+nodes:
+  - id: 02-design/adr
+    activity: 02-design
+    binds: adr            # <-- BARE SLUG, should be library:adr or local:adr
+    requires:
+      - 01-frame/prd

@@ -1,0 +1,25 @@
+{
+  "assert": "stream_json_tool_use",
+  "expect_tool_use": {
+    "name_regex": "^Write$",
+    "path_regex": "^docs/helix/02-design/.*\\.md$"
+  },
+  "forbid_tool_use": [
+    {
+      "name_regex": "^Write$",
+      "path_regex": "^docs/adr/"
+    }
+  ],
+  "secondary": {
+    "assert": "prose_match",
+    "must_not_match": [
+      "(?i)helix-library.*(not installed|missing)"
+    ],
+    "allow_match_any": [
+      "(?i)treating this as helix",
+      "(?i)use helix-infra to override",
+      "(?i)disambiguat"
+    ]
+  },
+  "rationale": "Product-shaped repo (docs/helix/, no *.tf) → helix wins. Disambiguation banner allowed; silent helix-infra pick forbidden."
+}

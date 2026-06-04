@@ -1,0 +1,11 @@
+{
+  "assert": "validator_exit",
+  "command": "python3 library/scripts/helix_graph_check.py workspace/graph.yml",
+  "expect_exit_nonzero": true,
+  "stderr_match_any": [
+    "(?i)unknown library type",
+    "(?i)not found in library",
+    "(?i)not-a-real-type"
+  ],
+  "rationale": "library:not-a-real-type must be rejected; the error should name the offending type."
+}

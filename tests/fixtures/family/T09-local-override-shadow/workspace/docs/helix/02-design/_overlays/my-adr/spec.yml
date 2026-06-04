@@ -1,0 +1,18 @@
+id: local:my-adr
+extends: library:adr
+description: |
+  Local ADR shape for product decisions that affect external
+  customers. Adds a required "Customer Impact" section beyond the
+  canonical ADR shape.
+
+required_sections:
+  - Context
+  - Decision
+  - Consequences
+  - Customer Impact
+
+section_order:
+  - Context
+  - Decision
+  - Customer Impact
+  - Consequences

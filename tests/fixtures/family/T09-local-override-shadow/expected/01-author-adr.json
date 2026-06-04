@@ -1,0 +1,18 @@
+{
+  "assert": "stream_json_tool_use",
+  "expect_tool_use": {
+    "name_regex": "^Write$",
+    "path_regex": "^docs/helix/02-design/.*\\.md$",
+    "content_regex_all": [
+      "library_type:\\s*local:my-adr",
+      "(?m)^##\\s*Customer Impact\\b"
+    ]
+  },
+  "secondary": {
+    "assert": "prose_match",
+    "must_not_match": [
+      "library_type:\\s*library:adr"
+    ]
+  },
+  "rationale": "Local override shadows library:adr for this binding; written ADR uses local:my-adr frontmatter and includes the override-added Customer Impact section."
+}
