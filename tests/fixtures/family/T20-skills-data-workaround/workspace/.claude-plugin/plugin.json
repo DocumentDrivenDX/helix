@@ -1,0 +1,6 @@
+{
+  "name": "helix-library",
+  "version": "0.1.0",
+  "description": "helix-library data plugin — skills:_data workaround variant",
+  "skills": ["skills/_data"]
+}

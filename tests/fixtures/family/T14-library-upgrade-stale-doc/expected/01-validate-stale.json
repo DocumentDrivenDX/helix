@@ -1,0 +1,11 @@
+{
+  "assert": "validator_exit",
+  "command": "python3 library/scripts/helix_graph_check.py --library-overlay workspace/library-overlay --doc workspace/docs/helix/01-frame/prd.md",
+  "expect_exit_nonzero": false,
+  "stderr_match_any": [
+    "(?i)success metrics",
+    "(?i)library_type_version.*1\\.0\\.0",
+    "(?i)stale|drift|migrate|upgrade hint"
+  ],
+  "rationale": "Library v1.1.0 adds 'Success Metrics' as required; the stale doc on disk is library_type_version 1.0.0. Contract A (the one this fixture pins): validator emits a non-fatal drift warning naming the missing section, but does NOT fail-build on pre-existing docs (read-only-OK semantics). The doc still validates (exit 0) but stderr surfaces a migration hint. This pins which of the two acceptable behaviors (warn vs. error) the family commits to."
+}

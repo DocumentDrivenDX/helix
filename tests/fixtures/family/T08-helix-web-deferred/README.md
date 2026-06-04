@@ -1,3 +1,7 @@
+---
+status: deferred
+---
+
 # T8 — library + helix + helix-web [DEFERRED]
 
 ## Status
@@ -29,7 +33,11 @@ plugin would be speculative.
 
 ## What lives here
 
-Only this README. No `workspace/`, no `prompts/`, no `expected/`,
-no `plugins-installed.txt`. The runner skips fixtures whose
-`plugins-installed.txt` is absent (or, alternatively, sees the
-DEFERRED tag in this README and reports SKIPPED).
+Only this README with `status: deferred` frontmatter. No
+`workspace/`, no `prompts/`, no `expected/`, no
+`plugins-installed.txt`.
+
+**Runner rule (pinned):** the runner SKIPS a fixture iff its
+`README.md` has top-level frontmatter `status: deferred`. Absence
+of `plugins-installed.txt` is NOT a skip signal — it would be a
+fixture-authoring error elsewhere. One rule, not "or alternatively."

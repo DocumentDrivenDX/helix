@@ -1,0 +1,1 @@
+Create a new PRD for a feature called "Saved Carts" — letting customers persist a cart across devices.

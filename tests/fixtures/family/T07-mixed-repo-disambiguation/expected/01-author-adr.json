@@ -3,14 +3,14 @@
   "forbid_tool_use": [
     {
       "name_regex": "^Write$",
-      "path_regex": "^docs/(adr|helix)/"
+      "path_regex": ".*\\.md$"
     }
   ],
   "secondary": {
     "assert": "prose_match",
     "must_match_all": [
       "(?i)helix-infra",
-      "(?i)\\bhelix\\b"
+      "(?i)(?<!-)\\bhelix\\b(?!-)"
     ],
     "must_match_any": [
       "(?i)disambiguat",
@@ -19,5 +19,5 @@
       "(?i)HELIX_METHODOLOGY"
     ]
   },
-  "rationale": "Mixed signals → must surface BOTH methodologies in a disambiguation banner and NOT write before the user disambiguates."
+  "rationale": "Mixed signals → MUST surface BOTH methodologies. The bare-helix token uses negative lookarounds ((?<!-)\\bhelix\\b(?!-)) so 'helix-library' / 'helix-infra' alone do NOT satisfy must_match_all — the prose must reference the product methodology by its bare name. NO markdown Write at all before disambiguation (universe-wide forbid, not just docs/(adr|helix)/)."
 }

@@ -1,0 +1,4 @@
+# T12b: methodology declares NO section_aliases for library:adr.
+# Companion to T12 — proves the alias is the load-bearing input.
+id: helix
+section_aliases: {}

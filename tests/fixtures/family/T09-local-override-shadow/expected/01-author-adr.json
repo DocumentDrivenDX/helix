@@ -5,8 +5,13 @@
     "path_regex": "^docs/helix/02-design/.*\\.md$",
     "content_regex_all": [
       "library_type:\\s*local:my-adr",
-      "(?m)^##\\s*Customer Impact\\b"
-    ]
+      "(?m)^##\\s*Customer Impact\\b",
+      "(?s)##\\s*Decision[\\s\\S]*##\\s*Customer Impact[\\s\\S]*##\\s*Consequences"
+    ],
+    "content_regex_forbid": [
+      "(?s)##\\s*Consequences[\\s\\S]*##\\s*Customer Impact"
+    ],
+    "exactly_one": true
   },
   "secondary": {
     "assert": "prose_match",
@@ -14,5 +19,5 @@
       "library_type:\\s*library:adr"
     ]
   },
-  "rationale": "Local override shadows library:adr for this binding; written ADR uses local:my-adr frontmatter and includes the override-added Customer Impact section."
+  "rationale": "Local override shadows library:adr. The override declares section_order Decision → Customer Impact → Consequences; this fixture pins that order and forbids the canonical-only order (Consequences before Customer Impact). Without an order assertion, an impl that ignores section_order silently breaks the override contract."
 }

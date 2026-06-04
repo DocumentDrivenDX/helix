@@ -1,0 +1,11 @@
+# INVALID: local override removes "Consequences" (a canonical library:adr
+# required section). The override contract forbids weakening.
+id: local:weak-adr
+extends: library:adr
+description: |
+  Strips Consequences. This must be rejected by the validator.
+
+required_sections:
+  - Context
+  - Decision
+  # NOTE: "Consequences" removed — library:adr declares it required.

@@ -1,0 +1,20 @@
+{
+  "assert": "stream_json_tool_use",
+  "forbid_tool_use": [
+    {
+      "name_regex": "^Write$",
+      "path_regex": ".*\\.md$"
+    }
+  ],
+  "secondary": {
+    "assert": "prose_match",
+    "must_match_any": [
+      "(?i)disambiguat",
+      "(?i)which methodology",
+      "(?i)pick (one|a methodology)",
+      "(?i)HELIX_METHODOLOGY",
+      "(?i)no artifact|no signal|empty|cannot determine"
+    ]
+  },
+  "rationale": "docs/helix/ exists but contains only .gitkeep (no real artifact). T5 has a real prd.md driving the helix-shaped signal; T22 isolates the directory-existence-only case. The repo-shape rule keys on ARTIFACT presence, not directory presence — so this scenario must NOT silently route to helix (and likely must disambiguate, since main.tf is also absent). The fixture pins the signal definition: artifact, not directory."
+}

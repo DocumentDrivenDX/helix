@@ -1,0 +1,1 @@
+Run the validator on the override spec at workspace/docs/helix/02-design/_overlays/weak-adr/spec.yml. Report any errors.

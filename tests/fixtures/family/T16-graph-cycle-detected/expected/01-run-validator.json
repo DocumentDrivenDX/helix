@@ -1,0 +1,11 @@
+{
+  "assert": "validator_exit",
+  "command": "python3 library/scripts/helix_graph_check.py workspace/graph.yml",
+  "expect_exit_nonzero": true,
+  "stderr_match_all": [
+    "(?i)cycle|cyclic|circular",
+    "01-frame/node-a",
+    "02-design/node-b"
+  ],
+  "rationale": "Cycle (A requires B, B requires A) with no allowed_cycles annotation must be rejected. Diagnostic MUST name BOTH offending node ids; cycle detection that names only one node (or none) is unactionable. Design §10 sells the validator as gating this; without this fixture two impls could pass T10/T11 while differing on cycle detection."
+}

@@ -1,0 +1,16 @@
+{
+  "assert": "install_result",
+  "command_resolver": "claude plugins --help",
+  "command_candidates": [
+    "claude plugins install workspace/",
+    "claude plugin install workspace/",
+    "claude plugins install --from-dir workspace/",
+    "claude plugin install --from-dir workspace/"
+  ],
+  "expect_exit_nonzero": true,
+  "stderr_match_any": [
+    "(?i)malformed|invalid|frontmatter|skill\\.md",
+    "(?i)missing.*trigger|missing.*description|yaml"
+  ],
+  "rationale": "Negative companion to T20. A malformed SKILL.md (unterminated frontmatter, missing required fields) must FAIL install with a diagnostic, not silently succeed leaving a broken skill on disk. Pairs with T20 to prove the workaround is enforced, not just declared."
+}

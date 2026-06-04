@@ -1,17 +1,21 @@
 {
   "assert": "prose_match",
   "must_match_any": [
-    "(?i)prd",
-    "(?i)adr",
-    "(?i)runbook",
+    "(?i)\\bprd\\b",
+    "(?i)\\badr\\b",
+    "(?i)\\brunbook\\b",
     "(?i)no methodology",
-    "(?i)data(-| )only",
-    "(?i)library"
+    "(?i)data(-| )only"
   ],
   "must_not_match": [
     "(?i)^#\\s*Problem\\b",
     "(?i)discover phase",
-    "(?i)frame phase"
+    "(?i)frame phase",
+    "(?i)\\b(authoring|let me (start|create|write)|I'?ll (create|write|draft|begin))\\b"
   ],
-  "rationale": "Library is data-only; it may list types or declare itself inert, but must not start a methodology walk."
+  "expect_tool_use": {
+    "name_regex": "^(Edit|Write|Bash)$",
+    "must_not_appear": true
+  },
+  "rationale": "Library is data-only. Prose may name types or declare inert; it must NOT signal routing-into-authoring, and the session MUST NOT mutate the filesystem (Edit/Write/Bash blocked)."
 }

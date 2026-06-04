@@ -8,14 +8,13 @@
   "secondary": {
     "assert": "prose_match",
     "must_match_any": [
-      "(?i)helix-library.*(not installed|missing|required|install)",
-      "(?i)setup gap",
+      "(?i)helix-library[^.\\n]{0,80}(not installed|missing|required|please install)",
+      "(?i)setup[- ]gap",
       "(?i)cannot author.*without.*library"
     ],
     "must_not_match": [
-      "(?i)^##\\s*Problem\\b",
-      "(?i)^##\\s*Non-?goals\\b"
+      "(?i)^#{1,4}\\s*(Problem|Goals?|Non-?goals?|Risks?|Success metrics?|Out of scope)\\b"
     ]
   },
-  "rationale": "Authoring must block with setup-gap; no Write tool_use against a new PRD; no improvised template sections in prose."
+  "rationale": "Authoring blocks with setup-gap. The setup-gap pattern requires a library name token AND a non-installed verb within 80 chars (the bare word 'install' alone is too loose). Multi-anchor template forbidden: any canonical PRD section heading (h1-h4) in prose counts as improvisation."
 }

@@ -1,0 +1,7 @@
+# INVALID: extends: target does not exist in the library.
+# Parallel to T11 but for the override surface.
+id: local:orphan-adr
+extends: library:not-a-real-base
+required_sections:
+  - Context
+  - Decision

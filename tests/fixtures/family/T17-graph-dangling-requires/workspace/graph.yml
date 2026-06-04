@@ -1,0 +1,9 @@
+# INVALID: requires points at a node id that does not exist in this file.
+# Validator must detect the dangling edge.
+
+nodes:
+  - id: 02-design/adr
+    activity: 02-design
+    binds: library:adr
+    requires:
+      - 01-frame/this-node-does-not-exist

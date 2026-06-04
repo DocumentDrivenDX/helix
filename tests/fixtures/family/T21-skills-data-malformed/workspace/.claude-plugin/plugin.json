@@ -1,0 +1,6 @@
+{
+  "name": "helix-library",
+  "version": "0.1.0",
+  "description": "MALFORMED: declares skills/_data but the SKILL.md is broken",
+  "skills": ["skills/_data"]
+}

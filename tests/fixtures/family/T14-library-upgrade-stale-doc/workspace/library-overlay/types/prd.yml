@@ -1,0 +1,10 @@
+# Simulates a UPGRADED library where library:prd v1.1.0 adds a new
+# required section "Success Metrics" not present in v1.0.0.
+# This overlay is mounted at run time to model the upgrade-in-place.
+id: library:prd
+version: "1.1.0"
+required_sections:
+  - Problem
+  - Goals
+  - Non-goals
+  - Success Metrics   # NEW in 1.1.0
