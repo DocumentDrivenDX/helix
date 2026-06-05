@@ -1,0 +1,28 @@
+=== E3 --changed-only correctness ===
+
+Status: DEFERRED.
+
+Reason: helix_check.py does not yet expose a --changed-only <ref> flag.
+
+Evidence:
+  $ python3 family-test/library/scripts/helix_check.py marker --help
+  usage: helix_check.py marker [-h] [--methodology METHODOLOGY]
+                               [--library-types LIBRARY_TYPES] [--strict]
+                               [--json] [--no-instance]
+                               [--cross-methodology-edges {allow,warn,deny}]
+                               [--allow-empty-scope]
+                               marker_path
+  → no --changed-only.
+
+  $ grep -n "changed.only\|changed_only" family-test/library/scripts/helix_check.py
+  (no matches)
+
+Per the brief: "If validator does NOT yet support --changed-only, mark
+E3 as deferred and note in result."
+
+When the flag lands, the test shape is:
+  1. fixture with ~10 docs (consumer/clean is 3 docs; would need to grow,
+     or use a synthetic fixture).
+  2. modify one doc, capture full-tree wall-clock T_full.
+  3. modify one doc, run with --changed-only <prev-ref>, capture T_changed.
+  4. assert same exit code and same finding set; assert T_changed < T_full.

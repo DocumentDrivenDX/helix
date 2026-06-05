@@ -1,0 +1,34 @@
+=== E2 GitHub Actions workflow ===
+
+Deliverable: family-test/.github/workflows/family-validation.yml
+
+YAML parse: OK (python3 -c "import yaml; yaml.safe_load(...)" succeeded)
+
+Local simulation of workflow steps:
+
+[Step 3: bash run-tests.sh]
+  → 24/24 PASS (full vertical-slice test driver)
+
+[Step 4: validate clean fixture --strict]
+  python3 library/scripts/helix_check.py marker consumer/clean/.helix.yml \
+    --methodology helix=methodology-product --library-types library/types --strict
+  → exit 0 (clean fixture is valid)
+
+[Step 5: spot-check broken fixtures under --strict; each must fail]
+  OK:   bad-edge-kind exit=1
+  OK:   missing-target exit=1
+  OK:   three-errors exit=4
+  OK:   malformed-marker-escape exit=4
+  OK:   malformed-marker-dup-id exit=4
+  OK:   malformed-marker-missing-scope exit=4
+  OK:   planned-but-resolved exit=1
+  OK:   unknown-methodology exit=4
+  OK:   intra-doc-edges-negative exit=1
+  → fail=0 (all expected-failures failed as expected)
+
+NOTE: GitHub Actions only picks up workflows located at the repo root
+(/.github/workflows/). The workflow under family-test/.github/workflows/
+documents the intended CI contract for the vertical slice. To activate
+it on CI, copy or symlink to /.github/workflows/family-validation.yml.
+The plan accepts the workflow's existence as the deliverable for this
+phase; running it requires CI to pick it up (per the brief).
