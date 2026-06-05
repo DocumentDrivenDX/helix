@@ -1,0 +1,65 @@
+# Docker harness for family-test skill-activation + round-trip probes.
+#
+# Build:
+#   docker build \
+#     --build-arg HOST_UID=$(id -u) \
+#     --build-arg HOST_GID=$(id -g) \
+#     -t family-test-claude:latest \
+#     -f family-test/docker/Dockerfile.claude \
+#     family-test/docker/
+#
+# Pinned Claude CLI version. Override at build time with:
+#   --build-arg CLAUDE_VERSION=<version>
+#   --build-arg CLAUDE_INSTALL_URL=<url>
+#
+# This image installs the claude CLI as a non-root user matching the host
+# UID/GID so mounted volumes have sane permissions. It carries NO plugins —
+# run-probe.sh installs plugins per-probe from a clean state.
+
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        ca-certificates curl git python3 jq sudo gosu \
+    && rm -rf /var/lib/apt/lists/*
+
+# Match host UID:GID so /workspace volume writes back as the host user.
+ARG HOST_UID=1000
+ARG HOST_GID=1000
+RUN set -eux; \
+    # ubuntu:24.04 ships with a default 'ubuntu' user at 1000:1000 — drop it
+    # if it collides with our requested UID, then create our user.
+    if getent passwd "$HOST_UID" >/dev/null; then \
+        existing="$(getent passwd "$HOST_UID" | cut -d: -f1)"; \
+        userdel -r "$existing" 2>/dev/null || true; \
+    fi; \
+    if getent group "$HOST_GID" >/dev/null; then \
+        existing_g="$(getent group "$HOST_GID" | cut -d: -f1)"; \
+        groupdel "$existing_g" 2>/dev/null || true; \
+    fi; \
+    groupadd -g "$HOST_GID" probe; \
+    useradd -m -u "$HOST_UID" -g "$HOST_GID" -s /bin/bash probe
+
+# Install Claude Code CLI. Pin via build arg.
+# Default URL is Anthropic's canonical installer (same as tests/install/claude-code/).
+ARG CLAUDE_VERSION="2.1.163"
+ARG CLAUDE_INSTALL_URL="https://claude.ai/install.sh"
+ENV CLAUDE_VERSION="${CLAUDE_VERSION}"
+
+USER probe
+WORKDIR /home/probe
+
+RUN curl -fsSL "$CLAUDE_INSTALL_URL" -o /tmp/install-claude.sh \
+    && bash /tmp/install-claude.sh "$CLAUDE_VERSION" \
+    && rm -f /tmp/install-claude.sh
+
+ENV PATH="/home/probe/.local/bin:/home/probe/.local/share/claude/versions:$PATH"
+
+# Sanity check: claude is on PATH.
+RUN claude --version
+
+WORKDIR /workspace
+
+# Default command prints version. Probes override CMD via `docker run`.
+CMD ["claude", "--version"]

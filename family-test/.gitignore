@@ -1,0 +1,6 @@
+# Docker harness scratch space (evidence files, prompt staging).
+.tmp/
+
+# Python caches.
+__pycache__/
+*.pyc
