@@ -1,0 +1,21 @@
+--- family-test/probe-fixtures/bucket-d/migration-corpus/ADR-001.md
+  - remove relationships.{informs, depends_on}
+  + add ddx.links entries:
+      - { kind: informs  to: FEAT-002 }
+      - { kind: requires to: PRD-001 }
+
+--- family-test/probe-fixtures/bucket-d/migration-corpus/FEAT-001.md
+  - remove top-level keys: depends_on
+  + add ddx.links entries:
+      - { kind: requires to: PRD-001 }
+      - { kind: requires to: PRD-002 }
+
+--- family-test/probe-fixtures/bucket-d/migration-corpus/PRD-001.md
+  - remove relationships.{informs, depends_on}
+  - drop (no equivalent): relationships.{referenced_by}
+  + add ddx.links entries:
+      - { kind: informs  to: FEAT-001 }
+      - { kind: informs  to: FEAT-002 }
+      - { kind: requires to: VISION-001 }
+
+summary: would-edit=3 scanned=5

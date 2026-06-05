@@ -1,0 +1,18 @@
+--require-clean CI gate check
+
+=== --require-clean on dirty corpus (should exit 1) ===
+$ set -o pipefail
+$ python3 family-test/library/scripts/migrate_relationships_to_links.py \
+    family-test/probe-fixtures/bucket-d/migration-corpus --require-clean --quiet
+summary: would-edit=3 scanned=5
+exit=1                                            # PASS: non-zero on legacy frontmatter
+
+=== --require-clean on already-migrated corpus (should exit 0) ===
+$ python3 family-test/library/scripts/migrate_relationships_to_links.py \
+    family-test/probe-fixtures/bucket-d/migration-corpus-applied --require-clean --quiet
+summary: would-edit=0 scanned=5
+exit=0                                            # PASS: clean tree
+
+Note: earlier tee'd runs reported exit=0 — that was pipefail-off masking the
+real exit code of the python process; verified by running with
+`set -o pipefail` and by direct python invocation.

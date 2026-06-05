@@ -1,0 +1,10 @@
+--- first apply ---
+APPLIED family-test/probe-fixtures/bucket-d/migration-corpus-applied/ADR-001.md
+APPLIED family-test/probe-fixtures/bucket-d/migration-corpus-applied/FEAT-001.md
+APPLIED family-test/probe-fixtures/bucket-d/migration-corpus-applied/PRD-001.md
+
+summary: applied=3 scanned=5
+--- second apply (no-op expected) ---
+
+summary: applied=0 scanned=5
+second-apply exit=0
