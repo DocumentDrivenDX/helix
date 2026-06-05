@@ -1,0 +1,5 @@
+[run] f2-1000 corpus=perf-corpus-1000 extra=
+  exit_code=0
+  wall_clock_s=1.567
+  findings=0
+  docs_in_corpus=1000

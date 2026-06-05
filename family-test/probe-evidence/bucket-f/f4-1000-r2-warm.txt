@@ -1,0 +1,5 @@
+[run] f4-1000-r2-warm corpus=perf-corpus-1000 extra=--use-cache
+  exit_code=0
+  wall_clock_s=0.157
+  findings=0
+  docs_in_corpus=1000

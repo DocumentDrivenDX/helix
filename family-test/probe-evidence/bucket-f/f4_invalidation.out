@@ -1,0 +1,28 @@
+F4 invalidation matrix
+======================
+[step 0] cold (no cache)
+  f4-step0-cold: wall=1.6504 exit=0
+[step 1] warm (no changes)
+  f4-step1-warm: wall=0.1719 exit=0
+[step 2] touch ONE instance → expect partial re-walk
+  f4-step2-one-instance: wall=0.4764 exit=0
+[step 3] touch graph.yml → expect full re-walk of that methodology
+  f4-step3-graph: wall=1.7547 exit=0
+[step 4] touch library type meta.yml → expect re-walk of that type
+  f4-step4-meta: wall=1.7417 exit=0
+[step 5] touch MARKER → expect full re-walk
+  f4-step5-marker: wall=1.7756 exit=0
+
+step0 cold            : 1.650s
+step1 warm rerun      : 0.172s  ratio=10.4% (plan: <=30%)
+step2 one instance    : 0.476s   (expect ~warm, only 1 doc re-checked)
+step3 graph touch     : 1.755s (expect ~cold, methodology-wide invalidation)
+step4 meta touch      : 1.742s  (expect ~cold, type-wide invalidation)
+step5 marker touch    : 1.776s (expect ~cold, full re-walk)
+
+invalidation-matrix assertions:
+  PASS  warm<30%cold
+  PASS  one-instance ~warm
+  PASS  graph-touch ~cold
+  PASS  meta-touch ~cold
+  PASS  marker-touch ~cold

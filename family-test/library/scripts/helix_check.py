@@ -21,8 +21,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -30,6 +32,30 @@ from typing import Any
 import yaml
 
 EXIT_CLEAN, EXIT_I, EXIT_G, EXIT_T, EXIT_M, EXIT_R, EXIT_U = 0, 1, 2, 3, 4, 5, 64
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Per-process caches. Cheap memoization so a marker walk over N instances is
+# O(N) instead of O(N^2). Keyed on resolved path string. Mutable so tests
+# can reset between runs if needed.
+
+_INSTANCE_INDEX_CACHE: dict[str, dict[str, str]] = {}
+_META_CACHE: dict[str, dict] = {}
+_GRAPH_CACHE: dict[str, dict] = {}
+_DOCS_SCANNED = {"count": 0}
+_CEILING_S: float | None = None
+_START_T: float = 0.0
+
+
+def _ceiling_check() -> None:
+    """Raise SystemExit(5) with stderr message if wall-clock budget exhausted."""
+    if _CEILING_S is None:
+        return
+    if (time.monotonic() - _START_T) > _CEILING_S:
+        sys.stderr.write(
+            f"ceiling: >{_CEILING_S}s wall-clock exceeded "
+            f"(docs scanned so far: {_DOCS_SCANNED['count']})\n"
+        )
+        sys.exit(EXIT_R)
 
 # Code → severity (E = error / contributes to exit; W = warning, only at --strict)
 ERROR_CODES = {
@@ -105,6 +131,7 @@ class Report:
                 for f in self.findings
             ],
             "exit_code": self.exit_code(strict),
+            "docs_scanned": _DOCS_SCANNED["count"],
         }
 
 
@@ -285,8 +312,14 @@ def cmd_graph(graph_path: Path, library_types_root: Path | None, report: Report)
 # Subcommand: instance
 
 def build_instance_index(scope_root: Path) -> dict[str, Path]:
+    key = str(scope_root)
+    cached = _INSTANCE_INDEX_CACHE.get(key)
+    if cached is not None:
+        # Convert back to Paths
+        return {k: Path(v) for k, v in cached.items()}
     index: dict[str, Path] = {}
     if not scope_root.is_dir():
+        _INSTANCE_INDEX_CACHE[key] = {}
         return index
     for md in scope_root.rglob("*.md"):
         try:
@@ -303,6 +336,7 @@ def build_instance_index(scope_root: Path) -> dict[str, Path]:
         ddx = fm.get("ddx") or {}
         if "id" in ddx:
             index[ddx["id"]] = md
+    _INSTANCE_INDEX_CACHE[key] = {k: str(v) for k, v in index.items()}
     return index
 
 
@@ -337,10 +371,15 @@ def _check_instance_sections(
     meta_path = library_types_root / inst_type / "meta.yml"
     if not meta_path.exists():
         return
-    try:
-        meta = yaml.safe_load(meta_path.read_text()) or {}
-    except yaml.YAMLError:
-        return
+    meta_key = str(meta_path)
+    if meta_key in _META_CACHE:
+        meta = _META_CACHE[meta_key]
+    else:
+        try:
+            meta = yaml.safe_load(meta_path.read_text()) or {}
+        except yaml.YAMLError:
+            return
+        _META_CACHE[meta_key] = meta
     required = meta.get("required_sections", []) or []
     if not required:
         return
@@ -421,9 +460,14 @@ def cmd_instance(
         return
 
     graph_path = methodology_root / "workflows/graph.yml"
-    graph = load_yaml(graph_path, report, "I200")
-    if graph is None:
-        return
+    graph_key = str(graph_path)
+    if graph_key in _GRAPH_CACHE:
+        graph = _GRAPH_CACHE[graph_key]
+    else:
+        graph = load_yaml(graph_path, report, "I200")
+        if graph is None:
+            return
+        _GRAPH_CACHE[graph_key] = graph
 
     # Build node map keyed by type
     nodes_by_type_id: dict[str, dict] = {}  # type_id → node dict
@@ -642,6 +686,25 @@ def validate_marker_schema(marker: dict, marker_path: Path, marker_dir: Path, re
     return survived
 
 
+def _load_disk_cache(marker_dir: Path) -> dict:
+    p = marker_dir / ".helix" / "index.json"
+    if not p.exists():
+        return {}
+    try:
+        return json.loads(p.read_text())
+    except Exception:
+        return {}
+
+
+def _save_disk_cache(marker_dir: Path, data: dict) -> None:
+    d = marker_dir / ".helix"
+    d.mkdir(exist_ok=True)
+    try:
+        (d / "index.json").write_text(json.dumps(data))
+    except Exception:
+        pass
+
+
 def cmd_marker(
     marker_path: Path,
     methodology_resolver: dict[str, Path],
@@ -650,6 +713,7 @@ def cmd_marker(
     no_instance: bool = False,
     cross_methodology_edges_mode: str = "warn",
     allow_empty_scope: bool = False,
+    use_cache: bool = False,
 ) -> None:
     marker = load_yaml(marker_path, report, "M001")
     if marker is None:
@@ -691,7 +755,43 @@ def cmd_marker(
     if no_instance:
         return
 
-    # Dispatch instance mode for every md doc under each known scope
+    # Cache-correctness invalidation matrix (design F4):
+    #   - marker mtime change → full re-walk (no entries survive)
+    #   - graph.yml mtime change → invalidate all instances of that methodology
+    #   - library type meta.yml mtime → invalidate all instances of that type
+    #   - per-instance mtime unchanged → skip re-validation
+    disk_cache = _load_disk_cache(marker_dir) if use_cache else {}
+    prev_entries = disk_cache.get("entries", {}) if use_cache else {}
+    prev_marker_mtime = disk_cache.get("marker_mtime")
+    prev_graph_mtimes = disk_cache.get("graph_mtimes", {})
+    prev_type_mtimes = disk_cache.get("type_mtimes", {})
+
+    cur_marker_mtime = marker_path.stat().st_mtime
+    marker_changed = (prev_marker_mtime != cur_marker_mtime)
+
+    cur_graph_mtimes = {}
+    invalidated_methodologies = set()
+    for entry in marker["methodologies"]:
+        mid = entry["id"]
+        if mid not in methodology_resolver:
+            continue
+        gp = methodology_resolver[mid] / "workflows/graph.yml"
+        if gp.exists():
+            cur_graph_mtimes[mid] = gp.stat().st_mtime
+            if prev_graph_mtimes.get(mid) != cur_graph_mtimes[mid]:
+                invalidated_methodologies.add(mid)
+
+    cur_type_mtimes = {}
+    invalidated_types = set()
+    if library_types_root and library_types_root.is_dir():
+        for meta_path in library_types_root.glob("*/meta.yml"):
+            tid = meta_path.parent.name
+            cur_type_mtimes[tid] = meta_path.stat().st_mtime
+            if prev_type_mtimes.get(tid) != cur_type_mtimes[tid]:
+                invalidated_types.add(tid)
+
+    new_entries: dict[str, dict] = {}
+
     for entry in marker["methodologies"]:
         mid = entry["id"]
         if mid not in methodology_resolver:
@@ -700,9 +800,55 @@ def cmd_marker(
         if not scope.is_dir():
             continue
         for md in sorted(scope.rglob("*.md")):
-            cmd_instance(md, marker, marker_dir, methodology_resolver, report,
-                         cross_methodology_edges_mode=cross_methodology_edges_mode,
-                         library_types_root=library_types_root)
+            md_key = str(md)
+            cur_mtime = md.stat().st_mtime
+            prev_entry = prev_entries.get(md_key)
+
+            # Skip when cache hit AND nothing higher invalidates this entry
+            can_skip = (
+                use_cache
+                and not marker_changed
+                and mid not in invalidated_methodologies
+                and prev_entry is not None
+                and prev_entry.get("mtime") == cur_mtime
+                and prev_entry.get("methodology") == mid
+                and prev_entry.get("type") not in invalidated_types
+            )
+            if can_skip:
+                # Replay stashed findings (none for clean docs)
+                for f in prev_entry.get("findings", []) or []:
+                    report.add(Finding(**f))
+                new_entries[md_key] = prev_entry
+            else:
+                before = len(report.findings)
+                cmd_instance(md, marker, marker_dir, methodology_resolver, report,
+                             cross_methodology_edges_mode=cross_methodology_edges_mode,
+                             library_types_root=library_types_root)
+                new_findings = report.findings[before:]
+                # Snapshot the doc's type (best-effort, for type-invalidation matrix)
+                doc_type = None
+                fm = extract_frontmatter(md, Report())
+                if fm:
+                    doc_type = (fm.get("ddx") or {}).get("type")
+                new_entries[md_key] = {
+                    "mtime": cur_mtime,
+                    "methodology": mid,
+                    "type": doc_type,
+                    "findings": [
+                        {"code": f.code, "msg": f.msg, "file": f.file, "line": f.line}
+                        for f in new_findings
+                    ],
+                }
+            _DOCS_SCANNED["count"] += 1
+            _ceiling_check()
+
+    if use_cache:
+        _save_disk_cache(marker_dir, {
+            "marker_mtime": cur_marker_mtime,
+            "graph_mtimes": cur_graph_mtimes,
+            "type_mtimes": cur_type_mtimes,
+            "entries": new_entries,
+        })
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -722,6 +868,10 @@ def main(argv: list[str]) -> int:
     p_marker.add_argument("--no-instance", action="store_true")
     p_marker.add_argument("--cross-methodology-edges", choices=["allow", "warn", "deny"], default="warn")
     p_marker.add_argument("--allow-empty-scope", action="store_true")
+    p_marker.add_argument("--ceiling-s", type=float, default=None,
+                          help="abort with exit=5 if wall-clock exceeds N seconds")
+    p_marker.add_argument("--use-cache", action="store_true",
+                          help="enable on-disk .helix/index.json incremental cache (F4)")
 
     p_graph = sub.add_parser("graph")
     p_graph.add_argument("methodology_root", type=Path)
@@ -757,11 +907,16 @@ def main(argv: list[str]) -> int:
         return out
 
     if args.cmd == "marker":
+        global _CEILING_S, _START_T
+        _CEILING_S = args.ceiling_s
+        _START_T = time.monotonic()
+        _DOCS_SCANNED["count"] = 0
         resolver = parse_methodologies(args.methodology)
         cmd_marker(args.marker_path, resolver, args.library_types, report,
                    no_instance=args.no_instance,
                    cross_methodology_edges_mode=args.cross_methodology_edges,
-                   allow_empty_scope=args.allow_empty_scope)
+                   allow_empty_scope=args.allow_empty_scope,
+                   use_cache=args.use_cache)
     elif args.cmd == "graph":
         graph_path = args.methodology_root / "workflows/graph.yml"
         cmd_graph(graph_path, args.library_types, report)

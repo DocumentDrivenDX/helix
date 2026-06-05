@@ -1,0 +1,5 @@
+[run] f3-5000-ceiling corpus=perf-corpus-5000 extra=--ceiling-s 10
+  exit_code=5
+  wall_clock_s=10.145
+  findings=(no-json-output;see-stderr)
+  docs_in_corpus=5000
