@@ -31,8 +31,8 @@
 
 set -euo pipefail
 
-if [[ $# -ne 4 ]]; then
-    echo "usage: $0 <fixture-dir> <plugins-spec> <prompt-file> <evidence-file>" >&2
+if [[ $# -lt 4 || $# -gt 5 ]]; then
+    echo "usage: $0 <fixture-dir> <plugins-spec> <prompt-file> <evidence-file> [<cwd-rel>]" >&2
     exit 1
 fi
 
@@ -40,6 +40,7 @@ FIXTURE_DIR="$1"
 PLUGINS_SPEC="$2"
 PROMPT_FILE="$3"
 EVIDENCE_FILE="$4"
+CWD_REL="${5:-}"    # optional subdirectory under fixture to use as cwd
 
 if [[ ! -d "$FIXTURE_DIR" ]]; then
     echo "FAIL: fixture-dir does not exist: $FIXTURE_DIR" >&2
@@ -119,12 +120,17 @@ exec claude -p '"$PLUGIN_DIRS_ARGS"' --output-format stream-json --verbose < /pr
 # Run claude. We need stdin from prompt file AND capture stdout to evidence.
 # Mount prompt as /probe/prompt (read-only). Mount fixture as /workspace.
 set +e
+WORKDIR="/workspace"
+if [[ -n "$CWD_REL" ]]; then
+    WORKDIR="/workspace/$CWD_REL"
+fi
+
 docker run --rm \
     "${AUTH_ARGS[@]}" \
     "${PLUGIN_MOUNTS[@]}" \
     -v "$FIXTURE_DIR:/workspace" \
     -v "$PROMPT_FILE:/probe/prompt:ro" \
-    -w /workspace \
+    -w "$WORKDIR" \
     "$IMAGE" \
     bash -c "$BOOTSTRAP" \
     >"$EVIDENCE_FILE" 2>"$EVIDENCE_FILE.stderr"

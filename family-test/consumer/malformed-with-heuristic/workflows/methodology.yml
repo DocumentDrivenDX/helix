@@ -1,0 +1,4 @@
+id: helix
+version: 1
+# This file is the heuristic-fallback signal. The skill MUST NOT fall back
+# to it when .helix.yml exists but is malformed. design §1.4.

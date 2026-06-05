@@ -59,36 +59,48 @@ the host with `python3 family-test/library/scripts/helix_check.py`.
 
 ### Bucket A — Skill activation (Docker-required)
 
-**Question:** does Claude Code actually let a methodology skill drive
-activation off `.helix.yml`? The design assumes the SKILL.md prose can
-instruct the agent to read the marker and respect it — but no harness today
-proves this. If activation can't be marker-driven, the design needs
-fallback to slash-command-only and we lose the per-repo declaration win.
+**Question:** does the methodology skill, once active, *do work that wouldn't
+happen without it*? The 2026-06-05 v1 attempt treated "did Skill(helix) fire
+in stream-json" as the gate, then tried to discriminate by asking surface
+questions ("what methodology is active"). That failed: the marker is plain
+YAML, and any agent — skill or no skill — can `Read` it and answer
+correctly. Surface naming is not what the skill provides.
 
-**Probe split below isolates "agent claims helix is active" from "agent
-actually reads the marker and acts on it". Functional prompts MUST NOT
-mention the marker, methodology, or activation by name — otherwise A1
-can pass for the wrong reason (LLM pattern-matching the prompt).**
+**v2 redesign (this section, 2026-06-05 post-validation-results):** all
+Bucket A probes are now **functional**. Each probe asks the agent to take
+an action whose CORRECTNESS requires the skill's contract to be honored —
+write to the right scope, refuse an unauthorized methodology, stop on a
+malformed marker, walk up to find the marker, emit the exact fallback
+banner. Pass criteria are checked against the *result*, not against
+"did Skill fire."
 
-| Probe | What to set up | Pass criteria |
+A1a (surface "name the methodology"), A1b (negative control with plugin
+uninstalled), A2 (JSON `{active: []}`), A2b (banner from heuristic-only
+state) are RETIRED as architecture gates. They live on under
+`skill-prompt-defects.md` as polish targets, not contracts.
+
+| Probe | What to set up | Pass criteria (functional) |
 |---|---|---|
-| **A1a — happy path (declarative)** | Plugins installed; workspace `/workspace/` with `.helix.yml` listing `helix` and `root: docs/helix/`. Prompt: *"Show me what methodologies are active in this repo."* | Stream-json shows `Read` tool_use against `.helix.yml` BEFORE the assistant message. Final message names `helix` and only `helix`. |
-| **A1b — happy path (control: plugin NOT installed)** | Same `.helix.yml`, but ONLY `helix-library` plugin loaded — no `helix` methodology plugin. Same prompt. | Agent does NOT claim helix is active. Either reads `.helix.yml` and reports it lists helix but no resolver is available (M005 banner), OR says nothing is active. Critically: must not improvise. |
-| **A1c — happy path (functional, marker not mentioned)** | Same as A1a. Prompt: *"Create a PRD for a coffee-ordering service."* (Prompt contains no methodology / active / marker / config wording.) | First relevant tool_use is `Read` on `.helix.yml` (or `Glob` for `.helix.yml`). Final write lands under the marker's `root:` path (`docs/helix/`). If the agent writes outside that root, fail. |
-| **A2 — no marker, no heuristic (machine-checkable)** | Workspace with NO `.helix.yml` and NO `workflows/` or methodology heuristic files. Prompt verbatim: *"Using repository configuration only, report active methodology IDs as JSON: { active: [] }"* | Stdout JSON parses; `active == []`; no `Write`/`Edit` tool_use in stream-json; no prose claiming helix is active. |
-| **A2b — no marker, heuristic present (fallback banner)** | Workspace with NO `.helix.yml` but a `workflows/methodology.yml` fixture present (heuristic trigger). Same prompt as A1a. | Agent emits the exact fallback banner from design §1.3. Does NOT proceed with helix-specific edits. |
-| **A3 — scope respect** | Workspace with `.helix.yml` listing helix scoped to `services/api/docs/helix/`. cwd outside that path. Prompt: *"Create a PRD."* (no path hint) | Agent declines or asks for scope clarification. Does NOT write into the wrong directory. Stream-json shows no `Write` outside `services/api/docs/helix/`. |
-| **A4 — multi-methodology** | `.helix.yml` listing helix + helix-infra at different scopes; prompt *"What's the active methodology here?"* (run twice — once with cwd under helix scope, once under helix-infra scope). | First invocation picks helix, second picks helix-infra. Per design §1.5 resolution chain. |
-| **A5 — explicit prefix wins (PINNED)** | `.helix.yml` listing helix only; prompt prefixed `/helix intent`. Then second run with `/helix-infra intent` (helix-infra NOT in marker). | **Pin per design §1.5 rule 1:** explicit prefix wins IF the methodology is a marker member. Run 1: honors `/helix` (it is in marker). Run 2: rejects `/helix-infra` with diagnostic "helix-infra not authorized by .helix.yml" — marker membership IS the authorization boundary. |
-| **A6 — malformed marker + heuristics (NEW)** | `.helix.yml` exists but is malformed (e.g. invalid YAML, or missing `version:`, or `root:` outside repo). `workflows/methodology.yml` heuristic file ALSO present. Prompt: *"Create a PRD."* | Agent STOPS with the marker parse error from design §1.4. Does NOT fall back to heuristics. Asserts design §1.4 "asymmetry is intentional" rule: heuristics fire only when marker is ABSENT, not when marker is BROKEN. |
+| **A1 — write under scope (functional, marker not mentioned)** | Plugins installed; workspace `/workspace/` with `.helix.yml` listing `helix` and `root: docs/helix/`. Prompt: *"Create a PRD for a coffee-ordering service."* (no methodology / active / marker / config wording) | A `Write` lands under `docs/helix/` (per marker `root:`). Frontmatter includes `ddx.methodology: helix` AND `ddx.type: prd`. Validator (`helix_check.py instance`) exits 0 on the produced file. |
+| **A2 — write refused outside scope** | `.helix.yml` listing helix scoped to `services/api/docs/helix/`. cwd at `/workspace/` (outside the scope). Prompt: *"Create a PRD."* | No `Write` outside `services/api/docs/helix/`. Agent surfaces the scope mismatch and asks for clarification (or writes correctly under the scope). Fix the v1 A3 non-determinism by checking the run >= 3 times; all three must respect scope. |
+| **A3 — upward marker walk** | `.helix.yml` at `/workspace/.helix.yml` listing helix scoped to `docs/helix/`. cwd at `/workspace/docs/helix/` (subdir of root). Plugins installed. Prompt: *"Create a PRD for X."* | Agent walks up to find the marker (a `Read` of `../.helix.yml` or `git rev-parse --show-toplevel` + read). Write lands under the marker's root. v1 A4 caught this missing; v2 asserts the fix in `SKILL.md §1`. |
+| **A4 — marker authorization (explicit prefix rejected)** | `.helix.yml` lists helix ONLY (helix-infra plugin installed but not in marker). Prompt: *"/helix-infra intent: add a cloudflare zone."* | Agent REJECTS with a diagnostic naming `.helix.yml` as the authorization boundary. No `Write` happens. No helix-infra-specific file lands. Quote from prior A5 passing: "the methodology is governed by .helix.yml, and it gates helix-infra off here." Re-verify after fixes. |
+| **A5 — refuse fallback on malformed marker** | `.helix.yml` exists but is malformed (YAML parse error). `workflows/methodology.yml` heuristic file ALSO present (would otherwise trigger fallback). Prompt: *"Create a PRD for X."* | Agent STOPS with the marker parse error. Does NOT fall back to heuristics. No `Write` occurs. v1 A6 passed; v2 re-verifies under the corrected runner. |
+| **A6 — literal banner on fallback** | `.helix.yml` absent; `workflows/methodology.yml` heuristic present. Prompt: *"Create a PRD for X."* | Agent emits the **literal banner** from design §1.3 verbatim: `No .helix.yml found. Activating helix by heuristic (path: workflows/methodology.yml). Run /helix init-marker to make this explicit.` Then proceeds. Asserts SKILL.md §2 emission discipline. (v1 A2b conveyed the spirit but not the literal text; v2 requires literal.) |
+| **A7 — cwd-rooted multi-methodology routing** | `.helix.yml` lists helix at `docs/helix/` AND helix-infra at `infra/`. Run twice: cwd `/workspace/docs/helix/api/`, prompt *"Create a PRD for X."*; cwd `/workspace/infra/terraform/cloudflare/`, prompt *"Plan adding zone X."* | Run 1: write under `docs/helix/`. Run 2: write under `infra/`. v1 A4 caught the upward-walk bug; v2 A7 verifies routing once that's fixed. |
 
-**Effort:** ~3 hours including Docker harness.
-**Blocking:** none — runnable today.
+**v2 gate condition:** all 7 probes PASS in 3 consecutive runs (determinism
+check). Any single non-deterministic failure fails the gate.
+
+**Effort (v2):** ~2h to re-run on the corrected SKILL.md.
+
 **Failure modes that matter:**
-- A1c writes a PRD without reading `.helix.yml` → marker is theatre, agent uses its prior. Design needs slash-command-required, not marker-authoritative.
-- A2 emits prose claiming helix active despite no marker/heuristics → hallucinated activation; SKILL.md prose is insufficient.
-- A6 falls back to heuristics on malformed marker → silent degradation, contradicts design §1.4.
-- Multi-methodology routing is non-deterministic → freeze the §1.5 ordering and add a test fixture.
+- A1 writes outside `docs/helix/` → scope contract is theatre; skill prompt insufficient.
+- A2 writes outside scope on ANY of 3 runs → non-deterministic, sk ip not gated.
+- A3 doesn't walk up → SKILL.md §1 didn't land; agent gives up at cwd.
+- A4 honors `/helix-infra` despite marker exclusion → authorization boundary not enforced; design §1.5 rule 1 needs harder enforcement.
+- A5 falls back to heuristics on malformed marker → silent degradation, contradicts design §1.4.
+- A6 emits non-literal banner → fallback contract is too soft; users can't grep for the marker-recommendation prompt.
 
 ---
 

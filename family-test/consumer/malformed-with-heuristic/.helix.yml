@@ -1,0 +1,7 @@
+helix_version: 1
+methodologies:
+  - id: helix
+    root: docs/helix/
+  # malformed: unclosed flow + tab indent below
+	id: malformed
+  invalid: [1, 2,
