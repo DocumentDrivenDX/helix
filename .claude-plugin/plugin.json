@@ -9,6 +9,5 @@
   "homepage": "https://github.com/DocumentDrivenDX/helix",
   "repository": "https://github.com/DocumentDrivenDX/helix",
   "license": "MIT",
-  "skills": "./skills/",
-  "hooks": "./hooks/hooks.json"
+  "skills": "./skills/"
 }

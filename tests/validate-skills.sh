@@ -182,7 +182,7 @@ try:
 except json.JSONDecodeError as e:
     print(f"invalid JSON in {path}: {e}", file=sys.stderr)
     sys.exit(1)
-required = ("name", "version", "description", "skills", "hooks")
+required = ("name", "version", "description", "skills")
 missing = [k for k in required if not manifest.get(k)]
 if missing:
     print(f"plugin.json missing required fields: {', '.join(missing)}", file=sys.stderr)
@@ -190,8 +190,10 @@ if missing:
 if manifest["skills"] != "./skills/":
     print(f"plugin.json skills must be ./skills/ (got {manifest['skills']!r})", file=sys.stderr)
     sys.exit(1)
-if manifest["hooks"] != "./hooks/hooks.json":
-    print(f"plugin.json hooks must be ./hooks/hooks.json (got {manifest['hooks']!r})", file=sys.stderr)
+# plugin.json must NOT declare a "hooks" field: Claude Code auto-loads the
+# standard hooks/hooks.json, and an explicit reference causes a duplicate-load error.
+if "hooks" in manifest:
+    print("plugin.json must not declare a 'hooks' field; hooks/hooks.json is auto-loaded", file=sys.stderr)
     sys.exit(1)
 try:
     hooks = json.load(open(plugin_hooks))
