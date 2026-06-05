@@ -1,0 +1,8 @@
+{
+  "name": "helix-library",
+  "version": "0.1.0",
+  "description": "Universal artifact-type catalog + validator. Data plugin (no skills field per probe 2026-06-04).",
+  "author": {"name": "DocumentDrivenDX"},
+  "homepage": "https://github.com/DocumentDrivenDX/helix",
+  "license": "MIT"
+}

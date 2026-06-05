@@ -1,0 +1,9 @@
+{
+  "name": "helix",
+  "version": "0.1.0",
+  "description": "HELIX product methodology — slim slice for vertical-slice testing.",
+  "author": {"name": "DocumentDrivenDX"},
+  "homepage": "https://github.com/DocumentDrivenDX/helix",
+  "license": "MIT",
+  "skills": "./skills/"
+}

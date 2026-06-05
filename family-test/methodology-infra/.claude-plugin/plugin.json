@@ -1,0 +1,8 @@
+{
+  "name": "helix-infra",
+  "version": "0.1.0",
+  "description": "HELIX IaC operator methodology — slim slice.",
+  "author": {"name": "DocumentDrivenDX"},
+  "license": "MIT",
+  "skills": "./skills/"
+}

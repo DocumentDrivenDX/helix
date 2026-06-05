@@ -1,0 +1,16 @@
+version: 1
+methodology:
+  id: helix-infra
+  library_version: "^1.0.0"
+  validator_contract: 1
+
+activities:
+  - { id: 01-intent, exit_gate: intent-validation }
+
+nodes:
+  - { id: change-intent,        type: "local:change-intent",    activity: 01-intent, cardinality: many, role: exit-gate }
+  - { id: intent-validation,    type: "local:exit-gate",        activity: 01-intent, cardinality: singleton, role: exit-gate }
+
+edges: []
+
+external_edges: []

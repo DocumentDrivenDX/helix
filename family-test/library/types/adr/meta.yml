@@ -1,0 +1,26 @@
+id: adr
+name: Architectural Decision Record
+version: 1.0.0
+summary: |
+  Records a non-obvious decision: context, drivers, options, choice, consequences.
+
+required_sections:
+  - context
+  - decision_drivers
+  - considered_options
+  - decision
+  - consequences
+  - status
+
+quality_checks:
+  - id: consequences_specific
+    description: Consequences section names specific positive and negative outcomes.
+    severity: blocking
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+tags: [decision, cross-cutting]

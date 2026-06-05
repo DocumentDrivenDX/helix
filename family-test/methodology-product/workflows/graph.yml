@@ -1,0 +1,55 @@
+version: 1
+methodology:
+  id: helix
+  library_version: ^1.0.0
+  validator_contract: 1
+activities:
+- id: 01-frame
+  exit_gate: prd-validation
+- id: 02-design
+  exit_gate: design-validation
+nodes:
+- id: prd
+  type: library:prd
+  activity: 01-frame
+  cardinality: many
+  role: exit-gate
+- id: adr
+  type: library:adr
+  activity: 02-design
+  cardinality: many
+  scope: cross-cutting
+- id: feature-specification
+  type: local:feature-specification
+  activity: 01-frame
+  cardinality: many
+- id: prd-validation
+  type: local:exit-gate
+  activity: 01-frame
+  cardinality: singleton
+  role: exit-gate
+- id: design-validation
+  type: local:exit-gate
+  activity: 02-design
+  cardinality: singleton
+  role: exit-gate
+edges:
+- from: prd
+  to: feature-specification
+  kind: informs
+  required: false
+- from: adr
+  to: feature-specification
+  kind: informs
+  required: false
+- from: adr
+  to: adr
+  kind: supersedes
+  required: false
+allowed_cycles: []
+external_edges:
+- from_type: prd
+  to_methodology: helix-infra
+  to_type: change-intent
+  kind: informs
+  required: false
