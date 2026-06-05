@@ -1,0 +1,15 @@
+id: adr
+name: Architectural Decision Record
+version: 1.0.0
+summary: ADR shape unchanged in v2.
+
+required_sections:
+  - context
+  - decision_drivers
+  - considered_options
+  - decision
+  - consequences
+  - status
+
+template:
+  file: template.md

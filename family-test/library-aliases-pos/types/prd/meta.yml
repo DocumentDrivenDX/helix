@@ -1,0 +1,21 @@
+id: prd
+name: Product Requirements Document
+version: 1.0.0
+summary: |
+  Template uses "## FR" alias instead of canonical "## Functional Requirements".
+
+required_sections:
+  - summary
+  - problem
+  - users
+  - functional_requirements
+  - non_functional_requirements
+  - success_metrics
+  - out_of_scope
+
+section_aliases:
+  functional_requirements: [functional-requirements, frs, fr]
+  non_functional_requirements: [non-functional-requirements, nfrs, nfr]
+
+template:
+  file: template.md

@@ -1,0 +1,8 @@
+helix_version: 1
+methodologies:
+  - id: helix
+    root: docs/helix/
+  - id: helix-mobile
+    root: mobile/
+defaults:
+  methodology: helix

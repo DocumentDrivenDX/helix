@@ -53,3 +53,8 @@ external_edges:
   to_type: change-intent
   kind: informs
   required: false
+- from_type: prd
+  to_methodology: helix-mobile
+  to_type: mobile-story
+  kind: informs
+  required: false

@@ -35,7 +35,7 @@ EXIT_CLEAN, EXIT_I, EXIT_G, EXIT_T, EXIT_M, EXIT_R, EXIT_U = 0, 1, 2, 3, 4, 5, 6
 ERROR_CODES = {
     "M001","M002","M003","M004","M006",
     "G103","G104","G105","G201","G202","G203",
-    "T003",
+    "T002","T003","T004",
     "I101","I104","I200",
     "R010",
 }
@@ -77,7 +77,7 @@ class Report:
 
     def exit_code(self, strict: bool = False) -> int:
         # Pick the highest-class error present. Class order: M > T > G > I (highest exit code wins; but design has I=1, G=2, T=3, M=4, R=5)
-        rank = {"M": EXIT_M, "T": EXIT_T, "G": EXIT_G, "I": EXIT_I, "R": EXIT_R}
+        rank = {"M": EXIT_M, "T": EXIT_T, "G": EXIT_G, "I": EXIT_I, "R": EXIT_R, "W": EXIT_I}
         ec = EXIT_CLEAN
         for f in self.findings:
             if f.is_error(strict):
@@ -166,17 +166,24 @@ def cmd_type(types_root: Path, report: Report) -> None:
         for key in ("id", "required_sections", "version"):
             if key not in meta:
                 report.add_code("T002", f"missing required key `{key}:`", file=str(meta_path))
-        # Required sections vs template H2s
+        # Required sections vs template H2s (honoring section_aliases)
         tmpl = meta_path.parent / "template.md"
         if tmpl.exists():
             h2_slugs = {slugify_h2(ln) for ln in tmpl.read_text().splitlines() if ln.startswith("## ")}
+            aliases_map = meta.get("section_aliases") or {}
             for sec in meta.get("required_sections", []) or []:
-                if sec not in h2_slugs:
-                    report.add_code(
-                        "T004",
-                        f"required_section `{sec}` not found as H2 in template.md",
-                        file=str(meta_path),
-                    )
+                # Canonical match, or any alias matches an H2 slug
+                if sec in h2_slugs:
+                    continue
+                aliases = aliases_map.get(sec, []) or []
+                alias_slugs = {re.sub(r"[^a-z0-9]+", "_", a.lower()).strip("_") for a in aliases}
+                if h2_slugs & alias_slugs:
+                    continue
+                report.add_code(
+                    "T004",
+                    f"required_section `{sec}` not found as H2 in template.md",
+                    file=str(meta_path),
+                )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -299,6 +306,80 @@ def build_instance_index(scope_root: Path) -> dict[str, Path]:
     return index
 
 
+def _parse_major(v: Any) -> int | None:
+    if v is None:
+        return None
+    try:
+        s = str(v).strip()
+        return int(s.split(".", 1)[0])
+    except (ValueError, AttributeError):
+        return None
+
+
+def _check_instance_sections(
+    doc_path: Path,
+    ddx: dict,
+    library_types_root: Path | None,
+    report: Report,
+    fm_raw: dict,
+) -> None:
+    """B1: check instance H2s against library required_sections.
+
+    Honors library_type_version pin: if pin major < library major, missing
+    newly-introduced sections fire as I010 (warn). Without pin, missing
+    sections fire as T004 (error).
+    """
+    if library_types_root is None or not library_types_root.is_dir():
+        return
+    inst_type = ddx.get("type")
+    if not inst_type:
+        return
+    meta_path = library_types_root / inst_type / "meta.yml"
+    if not meta_path.exists():
+        return
+    try:
+        meta = yaml.safe_load(meta_path.read_text()) or {}
+    except yaml.YAMLError:
+        return
+    required = meta.get("required_sections", []) or []
+    if not required:
+        return
+    aliases_map = meta.get("section_aliases") or {}
+    lib_major = _parse_major(meta.get("version"))
+    pin_major = _parse_major(ddx.get("library_type_version"))
+
+    # Extract instance H2 slugs
+    text = doc_path.read_text()
+    body = _FRONTMATTER_RE.sub("", text, count=1)
+    h2_slugs = {slugify_h2(ln) for ln in body.splitlines() if ln.startswith("## ")}
+
+    # For each required section, check canonical or alias
+    for sec in required:
+        if sec in h2_slugs:
+            continue
+        aliases = aliases_map.get(sec, []) or []
+        alias_slugs = {re.sub(r"[^a-z0-9]+", "_", a.lower()).strip("_") for a in aliases}
+        if h2_slugs & alias_slugs:
+            continue
+        # Missing. Choose severity:
+        # If a pin exists and pin_major < lib_major → I010 deprecation warn.
+        # Otherwise → T004 error.
+        if pin_major is not None and lib_major is not None and pin_major < lib_major:
+            report.add_code(
+                "I010",
+                f"required_section `{sec}` missing — instance pins "
+                f"library_type_version {ddx.get('library_type_version')} < current {meta.get('version')}; "
+                f"deprecation grace (re-pin or add section)",
+                file=str(doc_path),
+            )
+        else:
+            report.add_code(
+                "T004",
+                f"required_section `{sec}` not present in instance",
+                file=str(doc_path),
+            )
+
+
 def cmd_instance(
     doc_path: Path,
     marker: dict,
@@ -306,6 +387,7 @@ def cmd_instance(
     methodology_resolver: dict[str, Path],
     report: Report,
     cross_methodology_edges_mode: str = "warn",
+    library_types_root: Path | None = None,
 ) -> None:
     """Validate one instance document against the active methodology graph(s)."""
     fm = extract_frontmatter(doc_path, report)
@@ -314,11 +396,22 @@ def cmd_instance(
         report.add_code("W004", f"instance has no ddx frontmatter", file=str(doc_path))
         return
 
+    # W005: legacy `relationships:` block alongside ddx.links
+    if "relationships" in fm and ((fm.get("ddx") or {}).get("links") is not None):
+        report.add_code(
+            "W005",
+            f"instance carries both legacy `relationships:` block and new `ddx.links:` — drop the legacy block",
+            file=str(doc_path),
+        )
+
     ddx = fm.get("ddx") or {}
     inst_methodology = ddx.get("methodology")
     if not inst_methodology:
         report.add_code("I200", f"missing `ddx.methodology:`", file=str(doc_path))
         return
+
+    # Section-presence check against library shape (B1 / B6).
+    _check_instance_sections(doc_path, ddx, library_types_root, report, fm)
 
     # Resolve the methodology's graph
     methodology_root = methodology_resolver.get(inst_methodology)
@@ -608,7 +701,8 @@ def cmd_marker(
             continue
         for md in sorted(scope.rglob("*.md")):
             cmd_instance(md, marker, marker_dir, methodology_resolver, report,
-                         cross_methodology_edges_mode=cross_methodology_edges_mode)
+                         cross_methodology_edges_mode=cross_methodology_edges_mode,
+                         library_types_root=library_types_root)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -639,6 +733,7 @@ def main(argv: list[str]) -> int:
     p_inst.add_argument("doc", type=Path)
     p_inst.add_argument("--marker", type=Path, required=True)
     p_inst.add_argument("--methodology", action="append", default=[])
+    p_inst.add_argument("--library-types", type=Path)
     p_inst.add_argument("--strict", action="store_true")
     p_inst.add_argument("--json", action="store_true")
     p_inst.add_argument("--cross-methodology-edges", choices=["allow", "warn", "deny"], default="warn")
@@ -677,7 +772,8 @@ def main(argv: list[str]) -> int:
             resolver = parse_methodologies(args.methodology)
             marker.setdefault("_installed", list(resolver.keys()))
             cmd_instance(args.doc, marker, args.marker.parent.resolve(), resolver, report,
-                         cross_methodology_edges_mode=args.cross_methodology_edges)
+                         cross_methodology_edges_mode=args.cross_methodology_edges,
+                         library_types_root=args.library_types)
     elif args.cmd == "type":
         cmd_type(args.types_root, report)
     else:

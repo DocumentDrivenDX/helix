@@ -1,0 +1,17 @@
+id: prd
+name: Product Requirements Document
+version: 1.0.0
+summary: |
+  Template uses "## FR" but section_aliases is REMOVED — must FAIL T004.
+
+required_sections:
+  - summary
+  - problem
+  - users
+  - functional_requirements
+  - non_functional_requirements
+  - success_metrics
+  - out_of_scope
+
+template:
+  file: template.md

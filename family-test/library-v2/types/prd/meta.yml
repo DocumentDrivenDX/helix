@@ -1,0 +1,33 @@
+id: prd
+name: Product Requirements Document
+version: 2.0.0
+summary: |
+  Captures the WHAT and WHY of a product change. v2 adds rollout_plan.
+
+required_sections:
+  - summary
+  - problem
+  - users
+  - functional_requirements
+  - non_functional_requirements
+  - success_metrics
+  - out_of_scope
+  - rollout_plan
+
+section_aliases:
+  functional_requirements: [functional-requirements, frs, fr]
+  non_functional_requirements: [non-functional-requirements, nfrs, nfr]
+
+quality_checks:
+  - id: success_metrics_measurable
+    description: Each success metric has a measurable target.
+    severity: blocking
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+tags: [framing, requirements]
+# INVARIANT: no `relationships:` block (design §2.1).
