@@ -27,9 +27,10 @@ fi
 
 mkdir -p "$EVIDENCE_DIR"
 
-if [[ -z "${ANTHROPIC_API_KEY:-}" && ! -f ~/.claude/.credentials.json ]]; then
-    echo "FAIL: neither ANTHROPIC_API_KEY nor ~/.claude/.credentials.json present"
-    echo "Set ANTHROPIC_API_KEY and re-run."
+if [[ -z "${ANTHROPIC_API_KEY:-}" \
+      && ! -f "${HELIX_PROBE_TOKEN_FILE:-/Users/erik/.cache/family-test-auth/token}" \
+      && ! -f ~/.claude/.credentials.json ]]; then
+    echo "FAIL: no auth source (ANTHROPIC_API_KEY, token file, or credentials.json)"
     exit 2
 fi
 

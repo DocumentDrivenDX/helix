@@ -62,25 +62,44 @@ IMAGE="${PROBE_IMAGE:-family-test-claude:latest}"
 # locations. On macOS+OrbStack, /home/erik/... is NOT bind-mountable;
 # /Users/erik/... is. Probe both.
 AUTH_ARGS=()
+# Auth strategy (2026-06-05 finding):
+# - ANTHROPIC_API_KEY env (Console API keys, sk-ant-api03-…) works as x-api-key
+# - Long-lived OAuth token from `claude setup-token` (sk-ant-oat01-…) is sent
+#   as Bearer by claude CLI ONLY when read from disk creds, NOT via the env
+# - Disk creds: claude refuses if expiresAt < now (even with a long-lived token);
+#   we synthesize a creds file with a far-future expiresAt at run time
+TOKEN_FILE="${HELIX_PROBE_TOKEN_FILE:-/Users/erik/.cache/family-test-auth/token}"
+HOST_CLAUDE_JSON="${HELIX_PROBE_HOST_CLAUDE_JSON:-/Users/erik/.cache/family-test-auth/host-claude.json}"
+GEN_CREDS=""
 if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
     AUTH_ARGS+=(-e "ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY")
+elif [[ -f "$TOKEN_FILE" ]]; then
+    # Build a credentials.json with the long-lived token + far-future expiresAt.
+    # Must live under /Users/* on OrbStack so the docker daemon can bind-mount it
+    # (Linux-VM-side /tmp/ is invisible to the macOS-side daemon).
+    GEN_DIR="/Users/erik/.cache/family-test-auth"
+    mkdir -p "$GEN_DIR"
+    GEN_CREDS="$GEN_DIR/probe-creds-$$-$RANDOM.json"
+    chmod 600 "$GEN_CREDS" 2>/dev/null || true
+    python3 - "$TOKEN_FILE" "$GEN_CREDS" <<'PY'
+import json, sys, time
+tok = open(sys.argv[1]).read().strip()
+creds = {"claudeAiOauth": {
+    "accessToken": tok,
+    "refreshToken": "",
+    "expiresAt": int((time.time() + 365*24*3600) * 1000),
+    "scopes": ["user:file_upload","user:inference","user:mcp_servers","user:profile","user:sessions:claude_code"],
+    "subscriptionType": "max",
+    "rateLimitTier": "max-claude-2x",
+}}
+json.dump(creds, open(sys.argv[2], "w"))
+PY
+    AUTH_ARGS+=(-v "$GEN_CREDS:/home/probe/.claude/.credentials.json")
+    if [[ -f "$HOST_CLAUDE_JSON" ]]; then
+        AUTH_ARGS+=(-v "$HOST_CLAUDE_JSON:/probe/host-claude.json:ro")
+    fi
 fi
-
-CRED_FILE="${CLAUDE_CREDENTIALS_FILE:-}"
-if [[ -z "$CRED_FILE" ]]; then
-    for candidate in \
-        "/Users/$(id -un)/.claude/.credentials.json" \
-        "$HOME/.claude/.credentials.json"
-    do
-        if [[ -f "$candidate" ]]; then
-            CRED_FILE="$candidate"
-            break
-        fi
-    done
-fi
-if [[ -n "$CRED_FILE" && -f "$CRED_FILE" ]]; then
-    AUTH_ARGS+=(-v "$CRED_FILE:/home/probe/.claude/.credentials.json:ro")
-fi
+trap '[[ -n "$GEN_CREDS" ]] && rm -f "$GEN_CREDS"' EXIT
 
 if [[ ${#AUTH_ARGS[@]} -eq 0 ]]; then
     echo "WARN: no ANTHROPIC_API_KEY and no readable .credentials.json" >&2
@@ -114,6 +133,10 @@ fi
 # stream-json to stdout, captured by docker -> EVIDENCE_FILE on host.
 BOOTSTRAP='
 set -euo pipefail
+if [[ -f /probe/host-claude.json ]]; then
+    cp /probe/host-claude.json ~/.claude.json
+    chmod 600 ~/.claude.json
+fi
 exec claude -p '"$PLUGIN_DIRS_ARGS"' --output-format stream-json --verbose < /probe/prompt
 '
 
