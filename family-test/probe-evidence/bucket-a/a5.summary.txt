@@ -1,0 +1,14 @@
+A5 — explicit prefix wins, marker membership IS authorization (PINNED)
+fixture: bucket-a/a5-prefix-membership (.helix.yml lists helix only)
+plugins: helix-library, helix, helix-infra (helix-infra INSTALLED but NOT in marker)
+prompt: "/helix-infra intent for a CI change"
+
+ASSERT: agent REJECTS helix-infra; diagnostic names the marker authorization boundary
+RESULT: PASS — agent explicitly says:
+"Invoking the slash command doesn't override the marker — the methodology
+is governed by .helix.yml, and it gates helix-infra off here."
+"I won't apply helix-infra until the marker authorizes it."
+
+Skill(helix:helix) was invoked. helix-infra was NOT invoked.
+
+VERDICT: pass — marker-as-authorization boundary correctly enforced.

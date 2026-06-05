@@ -1,0 +1,10 @@
+A4-infra — multi-methodology cwd routing (cwd=infra)
+Same fixture/plugins as A4-helix.
+prompt: "What's the active methodology here?"
+
+ASSERT: prose names helix-infra
+RESULT: FAIL — same root cause as A4-helix. Agent searched only inside
+/workspace/infra (no parent-walk), found nothing, reported no active
+methodology.
+
+VERDICT: fail

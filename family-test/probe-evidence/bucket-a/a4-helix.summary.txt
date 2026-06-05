@@ -1,0 +1,14 @@
+A4-helix — multi-methodology cwd routing (cwd=docs/helix)
+fixture: bucket-a/a4-multi (.helix.yml at root lists helix@docs/helix/ + helix-infra@infra/)
+plugins: helix-library, helix, helix-infra
+prompt: "What's the active methodology here?"
+
+ASSERT: prose names helix (because cwd is docs/helix/)
+RESULT: FAIL — agent could not find .helix.yml from cwd=/workspace/docs/helix
+(it only looked DOWN, not UP). Reported "no active methodology".
+
+This is a routing-discovery bug: the methodology skill doesn't walk UP
+from cwd to find the marker. The design assumes cwd-based routing but
+the skill prompt doesn't instruct an upward marker search.
+
+VERDICT: fail

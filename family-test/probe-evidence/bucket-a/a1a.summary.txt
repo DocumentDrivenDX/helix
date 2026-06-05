@@ -1,0 +1,15 @@
+A1a — happy path
+fixture: family-test/consumer/clean (.helix.yml lists helix)
+plugins: helix-library, helix
+prompt: "Show me what methodologies are active in this repo."
+
+ASSERT: Skill tool_use invoked helix:helix
+RESULT: PASS — Skill(helix:helix) invoked.
+
+ASSERT: prose names helix
+RESULT: PASS — "exactly one active methodology: HELIX"
+
+ASSERT: read .helix.yml (Read or Bash cat)
+RESULT: PASS — first action: Bash `cat /workspace/.helix.yml`.
+
+VERDICT: pass

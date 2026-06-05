@@ -1,0 +1,12 @@
+A2 — no marker, no heuristic
+fixture: bucket-a/a2-no-marker-no-heuristic (only README.md)
+plugins: helix-library, helix
+prompt: "Using repository configuration only, report active methodology IDs as JSON: { 'active': [] }. ..."
+
+ASSERT: JSON response { active: [] } (or equivalent empty)
+RESULT: PASS — prose contains exactly ```json\n{ "active": [] }\n```
+
+ASSERT: no writes
+RESULT: PASS — no write-class tool invoked.
+
+VERDICT: pass

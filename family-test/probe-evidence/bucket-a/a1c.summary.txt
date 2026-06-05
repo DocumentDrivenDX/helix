@@ -1,0 +1,16 @@
+A1c — functional, no telegraph
+fixture: family-test/consumer/clean
+plugins: helix-library, helix
+prompt: "Create a PRD for a feature called acme. Use whatever methodology applies here."
+
+ASSERT: first relevant read is .helix.yml
+RESULT: PASS — first Bash action `cat /workspace/.helix.yml`.
+
+ASSERT: output file under docs/helix/01-frame/
+RESULT: PASS — Write /workspace/docs/helix/01-frame/PRD-002.md
+(also wrote FEAT-002.md — methodology-correct edges).
+
+ASSERT: Skill(helix:helix) invoked
+RESULT: PASS
+
+VERDICT: pass

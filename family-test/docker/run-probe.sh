@@ -86,10 +86,12 @@ if [[ ${#AUTH_ARGS[@]} -eq 0 ]]; then
     echo "WARN: claude -p will likely fail at auth step" >&2
 fi
 
-# Plugin mount args. Each entry in PLUGINS_SPEC gets symlinked into
-# ~/.claude/plugins/<basename> inside the container at start time.
+# Plugin mount args. Each entry in PLUGINS_SPEC is mounted into the
+# container and loaded via `claude --plugin-dir` (the supported install
+# mechanism — symlinking under ~/.claude/plugins/ does NOT actually
+# register plugins; `installed_plugins.json` is the registry).
 PLUGIN_MOUNTS=()
-PLUGIN_NAMES=()
+PLUGIN_DIRS_ARGS=""
 if [[ -n "$PLUGINS_SPEC" ]]; then
     IFS=',' read -r -a PLUGIN_PATHS <<<"$PLUGINS_SPEC"
     for p in "${PLUGIN_PATHS[@]}"; do
@@ -103,7 +105,7 @@ if [[ -n "$PLUGINS_SPEC" ]]; then
         fi
         name="$(basename "$p")"
         PLUGIN_MOUNTS+=(-v "$p:/plugins-src/$name:ro")
-        PLUGIN_NAMES+=("$name")
+        PLUGIN_DIRS_ARGS="$PLUGIN_DIRS_ARGS --plugin-dir /plugins-src/$name"
     done
 fi
 
@@ -111,11 +113,7 @@ fi
 # stream-json to stdout, captured by docker -> EVIDENCE_FILE on host.
 BOOTSTRAP='
 set -euo pipefail
-mkdir -p ~/.claude/plugins
-for n in '"${PLUGIN_NAMES[*]:-}"'; do
-    ln -sfn "/plugins-src/$n" "$HOME/.claude/plugins/$n"
-done
-exec claude -p --output-format stream-json --verbose < /probe/prompt
+exec claude -p '"$PLUGIN_DIRS_ARGS"' --output-format stream-json --verbose < /probe/prompt
 '
 
 # Run claude. We need stdin from prompt file AND capture stdout to evidence.

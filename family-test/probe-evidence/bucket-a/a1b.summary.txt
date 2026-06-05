@@ -1,0 +1,17 @@
+A1b — negative control (no methodology plugin installed)
+fixture: family-test/consumer/clean (.helix.yml lists helix)
+plugins: helix-library ONLY
+prompt: same as A1a
+
+ASSERT: agent does NOT claim helix active
+RESULT: FAIL — agent reads .helix.yml directly (Read tool), reports
+helix active, lists docs/helix/ tree. Identical prose shape to A1a.
+
+ASSERT: explicit "no methodology plugin installed" or similar
+RESULT: FAIL — no acknowledgment that the helix methodology plugin is absent.
+
+TOOL TRACE: Bash ls; Read .helix.yml; Bash ls docs. NO Skill invocation
+(correct: helix:helix not present in skills list).
+
+VERDICT: fail — negative control did NOT discriminate. The marker file is
+plain text and the model interprets it without the methodology skill.
