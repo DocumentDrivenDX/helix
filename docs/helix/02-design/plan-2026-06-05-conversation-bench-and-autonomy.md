@@ -1,0 +1,930 @@
+# Plan: Conversation-bench + Autonomy slider + Flow model
+
+- **Date:** 2026-06-05 (revised in-turn with flow-model additions)
+- **Status:** plan, awaiting review
+- **Companions:**
+  - [design-2026-06-04-helix-family-marker-and-linkages.md](./design-2026-06-04-helix-family-marker-and-linkages.md)
+  - [validation-plan-2026-06-05-vertical-slice-completion.md](./validation-plan-2026-06-05-vertical-slice-completion.md)
+  - [validation-results-2026-06-05.md](./validation-results-2026-06-05.md)
+- **Trigger:** v2 Bucket A swept 8 probes in Docker. 7 of 8 showed `skill_calls = []` — the helix skill *loads* but does not *engage* on prompts like "Create a PRD for X." The agent authors from general knowledge, ignoring the marker. v1 and v2 both prove the marker / linkage architecture is sound when the skill engages; both fail to prove the skill engages reliably. This plan addresses three coupled gaps: a behavioural test corpus, the skill-engagement levers themselves, and an autonomy slider that controls how aggressively the engaged skill proceeds.
+
+## What this plan covers
+
+1. **The conversation bench** — a corpus of utterances + expected behaviour the family validates against. Replaces the ad-hoc Bucket A probe set with a growable library.
+2. **Skill engagement repair** — the `description:` keyword surface, slash commands, routing evals, and the skill-router contract. Without this, no marker matters.
+3. **Cascading flow logic** — the graph used at *runtime* (not just validation): when user asks for type X, the skill consults `graph.yml` for prerequisites and either authors them or offers to.
+4. **Autonomy slider** — a sibling-to-marker declaration that controls ask-vs-do behaviour. Skill+documents say *what's next*; autonomy says *whether to ask before doing it*.
+5. **Flow model (new — §11–§14)** — promote "methodology" to "flow" in terminology and schema; add the missing **data-pipeline** flow; let a single flow be **instantiated multiple times** in one repo; and define how flows **share documents** when they cooperate.
+
+These five are tightly coupled: the bench tests engagement, engagement enables cascading, cascading is shaped by autonomy, and all of it runs over a family of cooperating flows (not a single methodology).
+
+## What this plan does NOT cover
+
+- The remaining v2 Bucket A probes (a2-a7) — they're real defects but blocked on engagement first.
+- Bucket C frontmatter round-trip — also blocked on engagement.
+- The stdlib-only validator port — pure mechanical follow-up.
+- Real monorepo reorganization — happens after this plan delivers, not before.
+
+---
+
+## §1 The conversation bench
+
+### 1.1 What it is
+
+A growable corpus of *behavioural contracts*: each entry is a user utterance (or short conversation), an expected agent behaviour, and the runtime context (marker state, autonomy level, plugins). The bench is the regression suite for skill engagement and the iteration surface for prompt/SKILL.md tuning.
+
+The existing `tests/fixtures/family/T*/` matrix tests **the validator** (does a static analyzer catch contract violations?). The conversation bench tests **the agent** (does it route, engage, and offer the right next step?). These are complementary, not competing.
+
+### 1.2 Per-conversation layout
+
+```
+family-test/bench/conversations/
+└── C001-lets-start-a-helix-project/
+    ├── README.md                 # what this scenario asserts and why
+    ├── workspace/                # the repo the agent sees (.helix.yml + tree)
+    ├── plugins.txt               # plugins to install (library + methodologies)
+    ├── autonomy.yml              # autonomy level for this run (optional)
+    ├── conversation.yml          # one or more user prompts (multi-turn)
+    └── expected.yml              # structural + semantic assertions
+```
+
+### 1.3 `conversation.yml` shape
+
+```yaml
+turns:
+  - user: |
+      Let's start a helix project for a coffee-ordering app.
+    # Optionally:
+    # autonomy_override: guided  # override the workspace's autonomy.yml for this turn
+    # cwd: services/api          # change cwd inside the workspace for this turn
+```
+
+Multi-turn conversations are first-class. Turns alternate user → agent; the runner replays the prior turns' assistant outputs as conversation history when sending each new user turn.
+
+### 1.4 `expected.yml` shape — the assertion model
+
+Three layers, layered loose-to-strict. A conversation must satisfy ALL layers it declares.
+
+```yaml
+# Layer 1 — STRUCTURAL (programmatic; never flaky)
+structural:
+  skill_invoked:                    # the skill MUST be called via the Skill tool
+    - name: helix
+      # Optionally pin the args slot:
+      args_pattern: "frame|discover|intent"
+  no_skill_invoked: []               # the skill MUST NOT be called (negative control)
+  tools_used_at_least:               # this tool must appear at least once
+    - Read: { path_pattern: ".helix.yml$" }
+  tools_used_at_most:                # NO Write/Edit outside this glob (scope guard)
+    Write:
+      forbidden_path_pattern: ".*"
+      allowed_path_pattern: "docs/helix/.*\\.md$"
+  first_relevant_tool:               # the FIRST tool of these names must match
+    candidates: [Read, Bash]
+    must_match_path_pattern: "(\\.helix\\.yml|git rev-parse)"
+  writes_exactly:                    # exact file paths (for one-shot autonomous probes)
+    - "docs/helix/00-discover/product-vision.md"
+  result_is_error: false
+
+# Layer 2 — SEMANTIC (judge LLM; deterministic temperature=0)
+semantic:
+  prose_must_include:
+    - intent: "Offers to create a product vision as the first artifact"
+      not_exact_string: true        # judge can match paraphrase
+    - intent: "Names the active methodology (helix) and why it activated"
+  prose_must_NOT_include:
+    - intent: "Mentions adding a non-helix methodology (e.g. helix-infra)"
+    - intent: "Claims a methodology is active that's not in the marker"
+
+# Layer 3 — NEXT-ACTION (the cascade)
+next_action:
+  offered:                           # the agent explicitly offers (or executes) ONE of these
+    - draft_artifact: product-vision
+    - add_methodology_to_marker: helix
+  not_offered:
+    - draft_artifact: prd            # PRD requires vision first; should NOT be offered ahead
+```
+
+Layer 1 is regex/path-match against stream-json — never flaky if the underlying behaviour is deterministic. Layer 2 uses a judge LLM at `temperature=0` with a structured rubric prompt; flakier but covers paraphrase. Layer 3 is a structured-output assertion that requires the agent to emit a JSON envelope alongside prose (we wire this via a `--system-prompt-file` instruction the bench runner injects, OR via the autonomy contract — see §4.6).
+
+### 1.5 Initial corpus — what we seed v1 with
+
+| ID | Utterance | Workspace state | Active flows | Autonomy | Expected behaviour |
+|---|---|---|---|---|---|
+| C001 | "Let's start a helix project for a coffee-ordering app" | empty | none | guided | Skill fires; explains HELIX briefly; offers to add product flow marker + create product-vision |
+| C002 | "Let's create a PRD" | empty | none | guided | Skill fires; "no marker" diagnostic; offers to add product flow + create vision (PRD's prereq) |
+| C003 | "Let's create a PRD" | has product-vision but no marker | none | guided | Skill fires; offers to add product flow marker; PRD draft proceeds with vision as informs |
+| C004 | "Let's create a PRD" | marker active, vision exists | helix | guided | Skill fires; drafts PRD that informs from vision; ddx.links populated |
+| C005 | "Let's create a PRD" | marker active, no vision | helix | guided | Skill fires; surfaces vision-prerequisite; offers to draft vision first |
+| C006 | "Let's create a PRD" | marker active, no vision | helix | autonomous | Skill fires; drafts vision THEN PRD without asking |
+| C007 | "Let's create a website" | empty | none | guided | Skill fires; offers to add helix-web methodology + create page-spec/IA artifact |
+| C008 | "Let's manage our infrastructure" | empty | none | guided | Skill fires; offers to add helix-infra + create change-intent |
+| C009 | "Let's deploy the site" | helix-web marker active, build complete | helix-web | guided | Skill fires; routes to deploy activity within helix-web (NOT helix-infra) |
+| C010 | "Let's deploy the site" | both helix-web and helix-infra active, site at services/web/ | both | guided | Skill fires; cwd-disambiguates to helix-web's deploy flow |
+| C011 | "What methodologies are active here?" | marker has helix + helix-infra | both | any | Skill fires; literal answer derived from marker (NOT prose guess) |
+| C012 | "Create an ADR for choosing Postgres" | helix active, no vision/PRD yet | helix | guided | Skill fires; ADRs are cross-cutting and OK without upstream artifacts; drafts ADR with empty depends_on chain |
+| C013 | "Update the PRD to add a new requirement" | PRD-001 exists | helix | guided | Skill fires; Edit (not Write); preserves frontmatter byte-equivalent; ddx.links unchanged |
+| C014 | "/helix-infra intent: rotate the provider" | marker has helix only | helix | guided | Skill REJECTS; cites marker as authorization boundary; no write |
+| C015 | "What's next?" | helix marker, vision exists, no PRD | helix | guided | Skill fires; reads graph; suggests PRD as the next downstream node |
+| C016 | "Plan the rollout" (ambiguous) | both helix and helix-infra active | both | guided | Skill fires; disambiguation banner; asks which flow |
+| C017 | (same as C016) | both active, autonomy=autonomous | both | autonomous | Skill picks defaults.methodology from marker without asking |
+| C018 | "Let's iterate on the current sprint" | helix active, multiple PRDs | helix | guided | Skill fires; routes to 06-iterate activity; offers metrics-dashboard or improvement-backlog |
+| C019 | (random non-methodology question) "What's the population of Tokyo?" | helix active | helix | guided | Skill does NOT fire (negative control — random questions don't engage methodology) |
+| C020 | "Help me understand HELIX" | empty | none | guided | Skill fires; explains the methodology; offers to set up a marker |
+
+20 entries cover: positive engagement (C001-C010, C012, C015, C018, C020), cascading prerequisites (C002, C003, C005, C006), authorization boundary (C014), autonomy gradient (C006, C017 vs C005, C016), negative control (C019), multi-flow disambiguation (C009, C010, C016, C017), surface-naming (C011). The next 50-100 entries can be authored as defects surface during iteration.
+
+### 1.6 What "pass" means
+
+A conversation PASSES iff:
+- Layer 1 assertions ALL hold (programmatic, deterministic)
+- Layer 2 assertions ALL pass via judge LLM with `judge_confidence >= 0.8` AND `agreement_2_of_3` if we re-judge (avoids judge flakiness for borderline cases)
+- Layer 3 assertions hold
+
+A bench RUN reports per-conversation pass/fail, an aggregate pass rate, and a per-conversation evidence dump under `family-test/probe-evidence/bench/C<id>/`.
+
+A bench BATCH (used in CI / iteration) runs each conversation N times (`--determinism N`, default 3) and reports flakiness (PASS in N-of-N vs P-of-N). Flake-tolerant policy: a conversation is "stable-pass" iff N-of-N runs PASS. "Flaky" if P-of-N for P < N but > 0. "Stable-fail" if 0-of-N. CI gates on stable-pass; flakes route to an investigation queue.
+
+### 1.7 Bench is a corpus, not a contract
+
+The bench is a *living* corpus we add to as defects surface. It is NOT a fixed contract the design must hit. The right framing: each conversation is a hypothesis about what the family should do, and the bench tells us where reality diverges. When reality wins (e.g., we accept that "what's the population of Tokyo" should sometimes engage the skill for context-establishment), we update the expectation. The bench is not infallible authority; the methodology and the user's judgement are.
+
+### 1.8 Why not generative?
+
+We could LLM-generate conversation candidates and have a judge score them. Tempting, but premature: we don't yet trust the engagement signal, so generated tests would mostly test the generator. v1 corpus is hand-authored; once we have a stable engagement floor, v2 corpus can grow via LLM augmentation with human review.
+
+---
+
+## §2 Skill engagement repair
+
+### 2.1 Why engagement fails today
+
+v2 probe sweep evidence:
+- `skill_calls = []` in 7 of 8 probes
+- A1 prompt "Create a PRD for a coffee-ordering service" → agent writes a PRD straight from general knowledge
+- A4 prompt "/helix-infra intent: …" → Claude responds "Unknown command: /helix-infra"
+
+Two diagnoses, one for each failure mode:
+
+**a) The skill's `description:` field doesn't claim the work.** SKILL.md says:
+
+> HELIX product methodology. Activates when `.helix.yml` lists `helix` as active OR when fallback heuristics fire. Distinct from the helix-library skill, which is data-only.
+
+That's a positioning statement, not a router input. Claude's skill router scans descriptions for keyword anchors when deciding which (if any) skill matches a user prompt. "Create a PRD" doesn't match any noun in the description. So the router doesn't surface helix to Claude as a candidate skill.
+
+**b) Slash commands aren't registered.** A4 expected `/helix-infra` to be a routable slash command. Claude reports "Unknown command" because we never declared it. Slash commands are first-class in the plugin manifest and have to be wired explicitly.
+
+### 2.2 The fix — description as anchor surface
+
+Rewrite SKILL.md frontmatter to surface the verbs and nouns the router needs:
+
+```yaml
+---
+name: helix
+description: |
+  HELIX product methodology — drives the family's product flow.
+
+  Activate this skill when the user asks to:
+    - start, begin, or scaffold a helix project
+    - create, draft, write, or edit a PRD (Product Requirements Document)
+    - create, draft, write, or edit a product vision, opportunity canvas,
+      feature specification, user story, ADR, technical design, test plan,
+      runbook, or release notes
+    - frame, design, test, build, deploy, or iterate on a product
+    - plan a sprint or rollout for product work
+    - review or audit a product methodology artifact
+    - answer "what's next" in a product workflow
+
+  Do NOT activate for infrastructure work (terraform/opentofu), website
+  content authoring, or sales/ops work — those are sibling skills
+  (helix-infra, helix-web, etc.).
+
+  Distinct from helix-library (a data-only catalog plugin).
+version: 0.2.0
+license: MIT
+---
+```
+
+The key change: the description LISTS the verbs and nouns. Claude routes a user prompt to the skill with the highest description match. "Create a PRD" now matches; "Update the PRD" matches; "What's next?" matches when combined with "product workflow" context.
+
+### 2.3 Slash commands as the explicit override
+
+Even with strong descriptions, users may want guaranteed routing. Wire slash commands in `.claude-plugin/plugin.json` (or whatever the current spec uses):
+
+```json
+{
+  "name": "helix",
+  "version": "0.2.0",
+  "skills": "./skills/",
+  "slashCommands": [
+    {"name": "helix",         "description": "Engage HELIX (auto-route by verb)"},
+    {"name": "helix-frame",   "description": "Engage HELIX framing (PRD, FEAT, US)"},
+    {"name": "helix-design",  "description": "Engage HELIX design (ADR, TD)"},
+    {"name": "helix-iterate", "description": "Engage HELIX iterate (metrics)"},
+    {"name": "helix-review",  "description": "Audit a HELIX artifact"}
+  ]
+}
+```
+
+helix-infra ships `helix-infra`, `helix-infra-intent`, `helix-infra-plan`, `helix-infra-apply-verify`. helix-web ships `helix-web`, `helix-web-design`, `helix-web-build`, `helix-web-deploy`.
+
+Slash-command names MUST be globally unique across installed plugins. Per the v1 implementation plan's open question (slash-namespace ADR, deferred to v1.1), we use plugin-prefixed names (`helix-frame` not `frame`) to avoid collisions. C014's expected rejection of `/helix-infra` works because the slash command IS registered by helix-infra but the marker forbids activation; the skill enforces the marker check.
+
+### 2.4 Routing evals — `evals/routing.jsonl`
+
+Per the integration-test contract memory ([[project_skill_integration_test_contract]]): assert skill ACTIVATION via stream-json tool_use + negative control. Apply that pattern here.
+
+Each methodology plugin ships `evals/routing.jsonl`:
+
+```jsonl
+{"prompt": "Create a PRD for a coffee app", "expected_skill": "helix"}
+{"prompt": "Draft an ADR for choosing Postgres", "expected_skill": "helix"}
+{"prompt": "What's next in this project?", "expected_skill": "helix", "context": "product-shaped repo"}
+{"prompt": "Add a Cloudflare DNS zone for example.com", "expected_skill": "helix-infra"}
+{"prompt": "Rotate the AWS provider version", "expected_skill": "helix-infra"}
+{"prompt": "Build a marketing site for our launch", "expected_skill": "helix-web"}
+{"prompt": "Deploy the docs site to Cloudflare Pages", "expected_skill": "helix-web"}
+{"prompt": "What's the population of Tokyo?", "expected_skill": null}
+{"prompt": "Help me debug a regex", "expected_skill": null}
+```
+
+The bench runner reads these and runs a low-overhead probe per row: invoke claude with all family methodology plugins installed, send the prompt, parse for which `Skill(...)` tool_use fires. Assert it matches `expected_skill` (or null = no skill engaged).
+
+This is a fast loop (~1s per row when batched) and gives us a real routing signal. Aim for 100+ rows by v1 ship, growing as defects surface.
+
+### 2.5 Wired into existing test surfaces
+
+- `family-test/bench/routing-evals/<methodology>.jsonl` lives next to `conversations/`
+- `bash family-test/bench/run-routing-evals.sh` runs them all
+- `just bench` runs routing evals + the conversation bench
+- CI gates on `--strict` mode: routing eval pass rate >= 90%, conversation bench stable-pass rate >= 80% (initial; bump as iteration improves things)
+
+### 2.6 What we expect to land
+
+After §2 implementation, A1 should reliably fire `Skill(helix)` and respect the marker. A4's `/helix-infra` should be a recognized slash command. The v2 sweep should go from 1/8 to 6/8 or 7/8 passing. Remaining failures are then *real* skill-prompt defects (§3 cascade logic gaps) rather than engagement failures.
+
+---
+
+## §3 Cascading flow logic — graph at runtime
+
+### 3.1 What this fixes
+
+C002 and C005 fail today because the skill doesn't know that a PRD requires a vision. The information IS in `graph.yml` (the `informs` and `requires` edges) but the skill prose doesn't *consult* it.
+
+When the user says "let's create a PRD" with autonomy=guided:
+
+1. Skill engages (§2)
+2. Skill reads `.helix.yml`, identifies active methodology (helix)
+3. Skill reads helix's `graph.yml`
+4. Skill looks up the node for `library:prd`
+5. Skill finds incoming `requires` and `informs` edges: `product-vision informs prd` (`required: true`)
+6. Skill checks the instance index for `library:product-vision` instances; finds none
+7. Skill SURFACES the prerequisite: "A PRD's framing is informed by a product vision. None exists yet. Want me to draft a vision first, then the PRD?"
+
+This is the graph used as runtime routing aid, not just as validator input.
+
+### 3.2 SKILL.md additions
+
+Section §1 (Locate the marker) already lands. Add a new §7 to SKILL.md:
+
+> **§7 Consult the graph before authoring.**
+>
+> When the user asks for a new artifact of type `T` in the active methodology M:
+>
+> 1. Read M's `workflows/graph.yml`.
+> 2. Find the node `n` where `n.type` matches `library:T` or `local:T`.
+> 3. Enumerate incoming edges to `n` with `kind` in `{requires, contains, informs}`.
+> 4. For each such edge `(src → n, kind, required)`:
+>    - If `required: true` AND no instance of `src.type` exists in this methodology's scope, surface this as a prerequisite. Per the autonomy slider (§8), either ask whether to draft `src` first, or draft it autonomously.
+>    - If `required: false` AND no instance of `src.type` exists, note it as a "consider also drafting" but do not block.
+> 5. Once prerequisites are present (or the user has chosen to skip them), proceed to author the requested artifact.
+> 6. After authoring, populate `ddx.links` to point at the upstream instances. Do NOT invent links; only link to existing instances unless `status: planned` is acceptable per the marker.
+
+### 3.3 Adding methodology to marker (cascading flow trigger)
+
+C001 / C002 scenario: user asks for HELIX work in a repo with no `.helix.yml`. Per §2 the skill engages; per autonomy=guided the skill offers to add the marker before doing anything else:
+
+```
+This repo has no .helix.yml. I'll add one for the product flow so HELIX
+methodologies can run here. The file declares which flows are active
+and where their artifacts live.
+
+Proposed .helix.yml:
+
+    helix_version: 1
+    methodologies:
+      - id: helix
+        root: docs/helix/
+
+OK to add this?
+```
+
+Under autonomy=autonomous, the skill just adds the marker and proceeds. Under autonomy=manual, the skill stops and asks for explicit confirmation. See §4.
+
+### 3.4 Multi-methodology detection from prompts
+
+C007 ("Let's create a website") and C008 ("Let's manage our infrastructure") engage helix's skill router via the description's catch-all "do NOT activate for" clauses pointing at sibling skills. The right behaviour: each methodology's SKILL.md description claims its own verbs. helix-web's description claims "website, page-spec, IA, design system." helix-infra's claims "terraform, tofu, infrastructure, cloudflare, DNS."
+
+When the user prompt matches helix-web's verbs and helix-web is NOT in the marker, the helix-web skill (when installed) should engage, detect the missing marker entry, and offer to add it — same pattern as §3.3 but for a different methodology.
+
+When ambiguity is real (C010, C016: both helix-web and helix-infra could plausibly own "deploy the site"), §1.5 resolution chain applies: cwd-under-scope wins; otherwise the disambiguation banner asks the user.
+
+---
+
+## §4 Autonomy slider
+
+### 4.1 What it is
+
+An orthogonal declaration alongside the marker: *given that a methodology is active, how aggressively should the skill proceed without asking?* The skill+documents define WHAT's next; autonomy defines WHETHER to ask before doing it.
+
+### 4.2 Where it lives
+
+Layered config, resolved in order (last wins):
+
+1. **Repo default** — `.helix.yml` carries an optional `autonomy:` key (committed, team-level baseline)
+2. **User local** — `~/.config/helix/autonomy.yml` (per-user override, never committed)
+3. **Repo user local** — `.helix-autonomy.yml` in the repo root (gitignored, per-user-per-repo override)
+4. **Env var** — `HELIX_AUTONOMY=<level>` (per-invocation override; CI uses this)
+5. **Prompt prefix** — `/helix-autonomous frame ...` (per-prompt override, see §4.5)
+
+Default if none set: `guided`.
+
+The marker (committed) declares which flows are ACTIVE (a structural team decision); autonomy declares how the agent operates within those flows (often a personal preference, sometimes a team policy). Splitting the files lets each be set/version-controlled at the right granularity. Combining them into `.helix.yml` was considered and rejected: per-user autonomy preferences would otherwise either pollute the committed marker or be untrackable.
+
+### 4.3 Levels
+
+| Level | What the skill does | When to use |
+|---|---|---|
+| `manual` | Engages, reads context, surfaces *what would happen*. Asks for explicit confirmation before ANY tool use (Read, Write, Edit, Bash). | Learning the methodology, building trust, security-sensitive contexts. |
+| `guided` (default) | Engages, reads context freely, asks before any Write/Edit/Bash that changes state. Cascade prerequisites are surfaced and asked about. | Day-to-day human-in-the-loop work. |
+| `autonomous` | Engages, reads, writes, cascades automatically. Stops only at irreducible decisions (e.g. choosing between two equally-valid graph routes; ambiguous methodology activation). | Trusted automation; CI; one-shot deliveries with known scope. |
+| `aggressive` | Engages, marches through the entire methodology graph autonomously, only stopping at unrecoverable ambiguity or external-resource gates (e.g. needs a secret you haven't provided). | Demos, batched bootstrap, dry-runs. Carries risk; not a default. |
+
+A fifth level `off` disables autonomy declaration entirely — the skill behaves as if no autonomy file existed (which today means `guided`). Used to neutralize a layered config without removing it.
+
+### 4.4 Schema
+
+```yaml
+# .helix-autonomy.yml or repo-default in .helix.yml under `autonomy:`
+autonomy:
+  default: guided                    # required
+  per_methodology:                   # optional, overrides default for a methodology
+    helix:        guided
+    helix-infra:  manual             # extra caution on infra
+    helix-web:    autonomous
+  per_activity:                      # optional, overrides for an activity name
+    "01-frame":   guided
+    "05-deploy":  manual             # never auto-deploy
+  stop_at:                           # specific events ALWAYS pause regardless of level
+    - cross_methodology_edge_creation
+    - marker_edit                    # adding methodology to .helix.yml
+    - branch_or_merge                # git state changes
+    - secret_read                    # accessing .env / credentials files
+```
+
+`stop_at` is a per-repo list of HARD stops the skill must always confirm before executing, regardless of level. It's the safety net under aggressive automation.
+
+### 4.5 Per-prompt override
+
+Two surfaces:
+
+- **Slash prefix**: `/helix-autonomous frame draft a vision and PRD for X` engages helix at level=autonomous for this turn only. `/helix-manual` forces manual mode.
+- **Env var**: `HELIX_AUTONOMY=autonomous claude -p "..."` for headless / CI runs.
+
+The prefix is per-turn (one prompt). The env var is per-invocation (lifespan of the claude process).
+
+### 4.6 How the skill consults autonomy
+
+Add SKILL.md §8:
+
+> **§8 Apply the autonomy level.**
+>
+> Before any tool use that mutates state (Write, Edit, Bash that writes, git, install), determine the effective autonomy:
+>
+> 1. Read the per-prompt override (slash prefix or `HELIX_AUTONOMY` env).
+> 2. If absent, read `.helix-autonomy.yml` from the repo root.
+> 3. If absent, read `~/.config/helix/autonomy.yml`.
+> 4. If absent, read `.helix.yml`'s `autonomy:` block.
+> 5. Default to `guided` if no source defines it.
+>
+> Then dispatch:
+>
+> - `manual` → state the proposed action, list its effects, ask "OK to proceed?"
+> - `guided` → state the proposed action briefly, ask before *first* state-changing tool use of this conversation. Subsequent state-changing tool uses within the same turn proceed silently UNLESS the action touches a `stop_at` event.
+> - `autonomous` → proceed without asking; surface results after the fact. Stop on `stop_at` or irreducible ambiguity.
+> - `aggressive` → as `autonomous` but also takes initiative across the full graph (e.g. drafts ALL prerequisites + the requested artifact in one pass).
+
+The bench tests this matrix via conversations C005 (guided, asks) vs C006 (autonomous, just does) vs C017 (autonomous, multi-flow disambiguation).
+
+### 4.7 Stop-at semantics
+
+`stop_at` events the skill MUST always confirm:
+
+| Event | When it fires | Why |
+|---|---|---|
+| `marker_edit` | Skill proposes to add/edit `.helix.yml` | Marker is a load-bearing team decision; never edit without confirmation. |
+| `cross_methodology_edge_creation` | Instance edge declares `cross_methodology: true` | Cross-method coupling deserves an explicit moment. |
+| `branch_or_merge` | git state changes (checkout, merge, push) | Hardly anything the skill should auto-do. |
+| `secret_read` | Skill reads `.env`, `*.tfvars`, `credentials.json`, etc. | Even in autonomous mode, secrets are a stop. |
+| `large_diff` | A single Write/Edit changes more than ~500 lines | Avoid runaway autonomous edits. |
+| `apply` (infra-specific) | helix-infra's `tofu apply` step | Production-affecting; always confirm. |
+
+`stop_at` is per-repo (committed in `.helix-autonomy.yml` or `.helix.yml`). Defaults defined by each methodology's own SKILL.md; repo can extend or relax.
+
+### 4.8 What "one-shot" looks like in practice
+
+User runs `HELIX_AUTONOMY=aggressive claude -p "build a coffee-ordering app from scratch"`.
+
+Skill engages (description matches "build … app"), reads no marker (none exists), under aggressive autonomy:
+
+1. Drafts `.helix.yml` listing helix at `docs/helix/`. *No confirm: marker_edit is in stop_at? Yes. → Confirm.* Falls back to guided behaviour for this one step.
+2. After marker confirmed, drafts `docs/helix/00-discover/product-vision.md`.
+3. Drafts `docs/helix/01-frame/PRD-001.md` with `ddx.links: [{kind: informs, to: VISION-001}]`.
+4. Drafts FEATs and user-stories per the graph's `contains` edges.
+5. Hits `branch_or_merge` stop if it wants to commit; asks; proceeds on user OK.
+6. Reports the full work back as a summary.
+
+aggressive ≠ uncontrolled. `stop_at` is the safety net that keeps the user in the loop for irreversibles. The bench validates the loop holds.
+
+---
+
+## §5 Test infrastructure
+
+### 5.1 Runner stack
+
+```
+family-test/bench/
+├── conversations/           §1 conversation library
+├── routing-evals/           §2 fast routing probes per methodology
+├── judge/                   §5.2 LLM-judge prompts + harness
+├── docker/                  Docker harness (already exists; reused)
+├── run-bench.sh             top-level driver — runs everything
+├── run-conversations.sh     conversation library only
+├── run-routing.sh           routing evals only
+└── report.py                aggregates per-run results into a markdown report
+```
+
+The Docker harness from family-test/docker/ stays as-is. The bench layers on top: a conversation runner that takes a conversation dir, materializes the workspace + plugins + autonomy + marker, drives the multi-turn dialog through the harness, and asserts via Layer 1/2/3.
+
+### 5.2 Judge LLM
+
+Layer 2 (semantic) assertions use a judge LLM call:
+
+- Model: same family as the agent under test (claude-sonnet-4-6 baseline; lighter haiku for speed)
+- Temperature: 0
+- System prompt: a fixed rubric that takes (expected intent, actual prose) and returns `{matches: bool, confidence: float, rationale: string}`
+- Re-judge policy: borderline cases (confidence 0.5-0.8) are re-judged 2 more times; majority wins
+
+Judge LLM cost ≈ 1 cent per conversation per Layer-2 assertion. 100 conversations × 5 assertions × 3 judge runs = ~1500 judge calls per bench batch, ~$15 worst case. Acceptable for iteration; we batch in CI to once per merge to main.
+
+### 5.3 Determinism + flakiness reporting
+
+Each conversation runs `--determinism N` (default 3). Aggregator records:
+
+- **Stable pass**: N-of-N
+- **Flake**: P-of-N for 0 < P < N (recorded with per-run pass/fail signature)
+- **Stable fail**: 0-of-N
+
+CI gate: stable-pass rate >= configured threshold (initial 80%, ratcheted up via the existing ratchet pattern). Flakes route to `bench-flakes.md` for investigation.
+
+### 5.4 CI wiring
+
+- `just bench` — local runner; iterates fast
+- `just bench --routing` — fast routing-only pass (~30s)
+- GitHub Actions: `bench.yml` runs the full bench on every PR touching `family-test/bench/` or `family-test/methodology-*/skills/`
+- Ratchet: a separate `bench-ratchet.yml` records stable-pass / flake rates monthly and prevents regression (matches the existing helix ratchet pattern)
+
+### 5.5 Out of band — judge calibration
+
+Once a quarter, sample 20 random Layer-2 judgements and have a human review. If human-judge disagreement > 5%, retune the rubric. Lightweight; covers judge drift.
+
+---
+
+## §6 Implementation sequencing
+
+Order matters: each step unblocks the next.
+
+| Step | What | Effort | Verification |
+|---|---|---|---|
+| **6.1** | SKILL.md description rewrite + slashCommands wiring (§2.2, §2.3) | 2h | Routing evals: `Create a PRD` → Skill(helix); `/helix-frame` recognized |
+| **6.2** | Bench runner skeleton — Layer 1 only, no judge yet (§5.1) | 4h | C001/C004/C019 pass on hand-run |
+| **6.3** | Routing-evals JSONL + runner (§2.4) | 2h | 50+ rows, 90%+ pass rate |
+| **6.4** | Conversation library v1 (20 entries from §1.5) | 6h | 14 of 20 stable-pass (70% floor) |
+| **6.5** | Autonomy schema + skill consultation (§4) | 4h | C005 (guided asks) and C006 (autonomous proceeds) both stable-pass |
+| **6.6** | Cascade logic in SKILL.md (§3.2) + bench validates C002/C003/C005 | 3h | C005 surfaces vision prerequisite with autonomy=guided |
+| **6.7** | Judge LLM harness + Layer 2 assertions (§5.2) | 4h | 5+ conversations exercise Layer 2; judge calibration noted |
+| **6.8** | Layer 3 next-action structured assertions (§1.4) | 3h | C001 asserts offered=draft_artifact:product-vision |
+| **6.9** | Helix-web methodology skeleton + slashCommands + description (§3.4) | 5h | C007 stable-pass |
+| **6.10** | Multi-flow disambiguation via cwd + marker §1.5 (already in SKILL.md, extend bench) | 2h | C010/C016/C017 stable-pass |
+| **6.11** | `stop_at` plumbing + tests (§4.7) | 3h | aggressive scenario refuses to edit marker without confirm |
+| **6.12** | CI wiring + ratchet (§5.4) | 2h | GHA gates on stable-pass rate >= 80% |
+| **6.13** | Documentation pass — autonomy.md, bench.md, skill-author guide | 4h | Operator can author a new bench entry in <30min |
+
+Total: ~44 hours (~5.5 days). Within the family architecture's overall budget; smaller than v1 implementation plan (~55h) because the test-first work front-loads the gates.
+
+Each step ships independently behind the gate. If §6.1 doesn't move routing-eval pass rate above ~60%, halt — the description anchor approach isn't the right lever and we need to dig deeper before continuing.
+
+---
+
+## §7 Risks I'm signing up for
+
+1. **Description-anchor approach may not move routing reliably.** Claude's skill router heuristics are not fully documented; if "Create a PRD" still routes to a generic answer, we may need stronger surfaces (custom slash commands as the ONLY route; hard-required prefix). Mitigation: §6.1 is the early gate; halt and rethink if routing-eval pass rate stays below 60%.
+
+2. **Judge LLM flakiness.** Layer 2 assertions add variability and cost. Mitigation: §5.5 calibration; layer-1 contracts are the floor; semantic assertions are advisory until trusted.
+
+3. **Autonomy mis-clicks.** A user with autonomy=aggressive could trigger unexpected writes. Mitigation: `stop_at` defaults to the destructive set; aggressive is NOT a default; the SKILL.md hard-codes the safety list.
+
+4. **Conversation corpus rot.** Seeded entries reflect *current* assumptions about good agent behaviour. They will become stale. Mitigation: each conversation has a `README.md` documenting WHY this is expected; periodic prune; deliberate freshness reviews.
+
+5. **Method-specific bench growth.** As helix-web, helix-infra, helix-sales accrue, the bench grows multiplicatively. Mitigation: shared shape (conversation.yml + expected.yml), per-methodology subdirs, routing evals are the per-methodology surface; cross-method conversations live in a `cross/` subdir.
+
+6. **Slash-command collisions across methodologies.** v1 implementation plan deferred the slash-namespace ADR. This plan assumes plugin-prefixed slash commands (`helix-frame` not `frame`). If two methodologies both want `/build`, they collide unless namespaced. Resolution: enforce prefix in the methodology's plugin.json validator; fail at install time.
+
+7. **The autonomy file proliferates.** Three levels of config (repo, user-global, user-local) is a lot. Mitigation: documented precedence; `helix-doctor autonomy --resolve` command that prints the effective level + where it came from. Low cost to add.
+
+---
+
+## §8 Acceptance — when this plan ships
+
+- §6.1-6.4: routing evals >= 90%, conversation bench v1 >= 14/20 stable-pass.
+- §6.5-6.6: C005 vs C006 demonstrate the autonomy slider working (one asks, one doesn't).
+- §6.7-6.8: judge LLM operational, Layer 3 next-action assertions on 5+ conversations.
+- §6.9-6.10: helix-web ships + multi-flow scenarios pass.
+- §6.11-6.12: stop_at protects irreversibles; CI gates regressions.
+- §6.13: a new operator can author a bench conversation in under 30 minutes.
+
+Once these hold, the family is "iteration-ready": skill defects surface as bench failures; SKILL.md changes ship behind bench gates; autonomy is observable and tunable. The monorepo reorganization (deferred from prior plans) then happens against a measured floor of reliability.
+
+---
+
+## §9 Open questions for review
+
+1. **`autonomy:` inside `.helix.yml` vs separate `.helix-autonomy.yml`?** I'm choosing separate (per §4.2 rationale). Codex might disagree; the trade is single-file simplicity vs. per-user vs team config separation.
+2. **Judge LLM cost ceiling for CI.** ~$15 per bench batch is modest; do we want to gate (e.g. only judge a 20-conversation subset on PR; full 100 on merge)?
+3. **Routing eval threshold for §6.1 halt.** Proposed 60%. Could be too lenient (we accept too much) or too strict (we halt on noise). Codex view?
+4. **`stop_at` defaults.** The list in §4.7 reflects my intuition. Operator experience may add `external_api_call`, `delete`, `force_push`, etc. Worth specifying as a starting set in v1 or letting it accrete?
+5. **Slash-command namespace.** Per v1 implementation plan, this was deferred. This plan assumes plugin-prefix. Do we want the ADR now, before slashCommands ship in §6.1?
+
+---
+
+## §10 Out of scope for this plan
+
+- The actual stdlib-only validator port (still mechanical follow-up).
+- The monorepo reorganization (lands after this).
+- helix-sales / helix-ops / other future flows (this plan introduces helix-data; sales/ops still later).
+- DDx bead schema `graph_node:` field changes.
+- Cross-flow *enforced* `requires` edges (this plan keeps cross-flow to advisory `informs` for v1; §13.4 sketches the v2 enforced-edge approach).
+
+---
+
+## §11 Terminology shift — methodology → flow
+
+HELIX is no longer a single methodology with one workflow. It is a **family of cooperating flows**. The terminology should reflect that.
+
+| Old term | New term | Why |
+|---|---|---|
+| methodology | flow | "Flow" reads naturally for "product flow," "data-pipeline flow," "infra flow." "Methodology" is heavier and harder to compose. |
+| methodology plugin | flow plugin | Per-flow plugin (helix, helix-infra, helix-web, helix-data) |
+| methodology graph (`workflows/graph.yml`) | flow graph (`workflows/graph.yml`) | File name stays; concept is a flow's type-pair graph |
+| methodology activation | flow activation | When a flow's skill engages for a given prompt + marker |
+| HELIX (capitalised) | HELIX | Unchanged. Names the family. |
+
+The marker's top-level list of active flows changes key name: `methodologies:` → `flows:`. v1-shape markers (with `methodologies:`) keep working via a one-cycle deprecation alias (validator emits **M020 warn**: "`methodologies:` is the legacy key; rename to `flows:` before v2 lands"). v2 schema turns it into M020 error.
+
+### 11.1 What changes in artifacts
+
+- `docs/helix/02-design/design-2026-06-04-helix-family-marker-and-linkages.md` — refactor in place; rename every "methodology" → "flow" except in historical context references; add a §0.1 "Terminology" block explaining the rename and the deprecation alias.
+- `docs/helix/02-design/validation-plan-2026-06-05-vertical-slice-completion.md` — same rename pass.
+- This plan — already uses "flow" in new sections; older sections renamed in the same edit pass.
+- README at the family root (`family-test/README.md`, eventually `helix/README.md`) — promote the flow concept to top-billing: "HELIX is a family of cooperating flows for product, data pipeline, infrastructure, website, and more."
+- `library/schemas/marker.schema.json` — accepts BOTH `flows:` and `methodologies:` for one cycle; emits M020 on the latter.
+- `SKILL.md` files — every methodology reference becomes flow.
+
+The rename is mechanical but touches many files. We do it as a single PR in §6.0 (added below).
+
+### 11.2 What doesn't change
+
+- The directory structure `library/types/`, `<flow>/workflows/graph.yml`, `<flow>/skills/<id>/SKILL.md` etc.
+- The on-disk file names — `.helix.yml`, `graph.yml`, `meta.yml`.
+- The plugin marketplace shape.
+- Existing per-flow content (helix, helix-infra) — only their internal "methodology" prose updates.
+
+### 11.3 Why now
+
+We're about to ship slash commands (§2.3), a conversation bench (§1), and a fourth flow (data-pipeline). All of these will codify "methodology" in user-visible surfaces if we don't rename first. Cheaper to rename now than to deprecate slash names and bench fixtures later.
+
+---
+
+## §12 The data-pipeline flow (helix-data)
+
+The fourth flow ships alongside helix, helix-infra, helix-web. It owns the type space the family currently fits into `data-prd`, `data-architecture`, `data-design`, `data-quality-expectations`, `metric-definition`, `metrics-dashboard` — but generalises beyond product-data.
+
+### 12.1 What it covers
+
+Data-pipeline flow handles the lifecycle of:
+
+- Ingest → transform → publish pipelines (Airflow, dbt, Databricks DLT, Dataflow, Beam, Flink, custom)
+- Data contracts (producers ↔ consumers)
+- Quality enforcement (expectations, freshness SLAs, schema evolution)
+- Lineage and observability of data assets
+- Migration and backfill operations
+
+Not in scope for helix-data: the apps that emit or consume data (those are helix product flow); the cloud accounts and IAM that host them (helix-infra); the UI dashboards that visualise them (helix-web).
+
+### 12.2 Activities (initial sketch — codex review will sharpen)
+
+| Activity | Purpose | Primary artifacts |
+|---|---|---|
+| 00-discover | Identify the data product, sources, consumers, SLAs needed | `data-product-brief`, `consumer-inventory` |
+| 01-frame | Specify what the pipeline produces and the contracts it honours | `data-prd`, `data-quality-expectations` |
+| 02-design | Topology, transformations, storage, governance | `data-architecture`, `data-design`, ADRs |
+| 03-test | Quality contracts as executable tests; backfill rehearsal | `data-quality-tests`, `backfill-plan` |
+| 04-build | Pipeline code; orchestration; deployment artifacts | `implementation-plan`, `deployment-checklist` |
+| 05-deploy | Production rollout; monitoring wired | `runbook`, `monitoring-setup` |
+| 06-iterate | Freshness regressions, schema evolution, cost tuning | `metrics-dashboard`, `improvement-backlog` |
+
+helix-data reuses library types where they fit (ADR, metrics-dashboard, runbook, monitoring-setup) and adds data-specific types (`data-prd`, `data-architecture`, `data-quality-expectations`, `data-product-brief`, `consumer-inventory`, `data-quality-tests`, `backfill-plan`).
+
+### 12.3 Slash commands
+
+```
+/helix-data
+/helix-data-discover
+/helix-data-frame
+/helix-data-design
+/helix-data-test
+/helix-data-build
+/helix-data-deploy
+/helix-data-iterate
+```
+
+### 12.4 SKILL.md description verbs
+
+```
+- design, build, test, deploy, iterate on a data pipeline
+- specify a data contract or producer/consumer schema
+- author data-prd, data-architecture, data-design, or data-quality-expectations
+- define quality expectations, freshness SLAs, backfill plans
+- design Bronze/Silver/Gold medallion topologies
+- plan dbt models, Airflow DAGs, Databricks DLT pipelines
+```
+
+### 12.5 Cross-flow edges helix-data participates in
+
+- `helix:prd informs helix-data:data-prd` (the product PRD frames the data product)
+- `helix-data:data-product-brief informs helix-infra:change-intent` (when the pipeline needs new infra)
+- `helix-web:design-system informs helix-data:metrics-dashboard` (dashboards inherit visual language)
+- `helix-data:metrics-dashboard informs helix:improvement-backlog` (metrics feed back into product iteration)
+
+All advisory `informs`, declared in each source flow's `external_edges:` (per the existing cross-method rule).
+
+### 12.6 Bench corpus additions
+
+| ID | Utterance | Active flows | Autonomy | Expected |
+|---|---|---|---|---|
+| C021 | "Let's set up a customer-ingest pipeline" | none | guided | helix-data engages; offers to add helix-data to marker; drafts data-product-brief |
+| C022 | "Define a data contract for the customer events" | helix-data | guided | helix-data engages; drafts contract; if no producer/consumer identified, asks |
+| C023 | "Add quality checks for the orders pipeline" | helix-data | guided | helix-data engages; drafts data-quality-expectations; suggests testable EXPECT rules |
+| C024 | "Backfill the last 90 days of customer events" | helix-data, autonomy=manual | manual | helix-data engages; refuses to execute; drafts backfill-plan; asks for explicit approve |
+| C025 | "Our PRD needs a new metric we can measure" | helix + helix-data both active | guided | Cross-flow: helix engages first (PRD), surfaces that the metric needs helix-data; offers to draft a data-prd and a metric-definition |
+
+These extend §1.5's table to 25 entries for v1; data-pipeline flow has 5 dedicated rows including one cross-flow scenario.
+
+---
+
+## §13 Multi-instance flows + document sharing
+
+### 13.1 The need
+
+A single repo may run the same flow in multiple subtrees. Two examples:
+
+- **Monorepo with multiple data pipelines** (`pipelines/customer-ingest/`, `pipelines/orders-fulfillment/`) each independently using the helix-data flow.
+- **Monorepo with multiple product surfaces** (`services/api/`, `services/admin/`) each using helix product flow.
+
+Today's marker can't express this — every flow's `root:` is unique, and re-listing a flow with two roots collides on the `id` key.
+
+### 13.2 Marker schema v2 — `instance:` discriminator
+
+Add an optional `instance:` field per entry. The unique key becomes `(id, instance)`. `instance:` defaults to `default`.
+
+```yaml
+helix_version: 2
+
+flows:
+  - id: helix
+    instance: api               # default omitted in this example
+    root: services/api/docs/helix/
+  - id: helix
+    instance: admin
+    root: services/admin/docs/helix/
+  - id: helix-data
+    instance: customer-ingest
+    root: pipelines/customer-ingest/docs/helix/
+  - id: helix-data
+    instance: orders
+    root: pipelines/orders-fulfillment/docs/helix/
+  - id: helix-infra
+    root: infra/                # instance defaults to "default"
+```
+
+The validator (M-class) enforces `(id, instance)` uniqueness (M030); duplicates are hard-fail. The cwd-routing rule (§1.5) is extended: cwd-under-root resolves to one `(id, instance)` pair; ambiguity (cwd under two roots, possible with nested scopes) falls to the explicit prefix / env / default chain.
+
+### 13.3 Instance-qualified document ownership
+
+Instance documents carry the qualified id:
+
+```yaml
+ddx:
+  id: PRD-001
+  type: prd
+  flow: helix
+  instance: api
+  ...
+```
+
+`ddx.methodology:` is renamed to `ddx.flow:`. v1 documents with `ddx.methodology:` continue to validate during the deprecation cycle (W005 → W020 path).
+
+The validator (I-class) computes instance indexes per `(flow, instance)`. Within an instance, `ddx.links` resolve against that instance's index. Cross-instance links are a new shape (§13.4).
+
+### 13.4 Cross-instance document sharing
+
+Two flows (or two instances of the same flow) may want to reference the same document. Three sub-cases:
+
+#### Case A — Read-only cross-instance reference
+
+`helix.admin:PRD-007` informs `helix.api:FEAT-014` (api team's feature was informed by the admin team's PRD). Declared the same way as cross-flow edges:
+
+```yaml
+# in helix/api flow's graph.yml
+external_edges:
+  - from_type: feature-specification
+    to_flow: helix
+    to_instance: admin
+    to_type: prd
+    kind: informed_by    # NEW kind: inverse advisory (we are informed by them)
+    cardinality: many-to-one
+    required: false
+```
+
+Instance frontmatter:
+
+```yaml
+ddx:
+  id: FEAT-014
+  type: feature-specification
+  flow: helix
+  instance: api
+  links:
+    - { kind: informed_by, to: "helix.admin:PRD-007", cross_instance: true }
+```
+
+`informed_by` is the inverse of `informs` — used when the SOURCE flow's graph doesn't authorise outbound (it's a different team's flow that already shipped) but the TARGET flow wants to record the lineage. Advisory only.
+
+#### Case B — Shared-document model
+
+A single document is OWNED by one `(flow, instance)` and explicitly REFERENCED by others. This is what `informs`/`informed_by` already cover.
+
+Variant: when one doc is co-authored by two flows (e.g. a contract sits between product and data), it remains owned by ONE flow per the marker, but both flows can SUBSCRIBE to it via the bench (and the doctor reports `unaligned-coauthor` if the two flows' frontmatter expectations diverge).
+
+#### Case C — Same physical document mounted into multiple flows
+
+Rejected for v1. Symlinks or two-flow ownership of a single file path is a footgun (multiple `ddx.flow:` claims). If two flows truly need shared state, the right move is a single owner + cross-instance reads (Case A).
+
+### 13.5 Instance autonomy
+
+Autonomy can be set per `(flow, instance)`:
+
+```yaml
+autonomy:
+  default: guided
+  per_flow:
+    "helix.api":   guided
+    "helix.admin": autonomous
+    "helix-data.customer-ingest": manual
+    "helix-data.orders":          autonomous
+    "helix-infra":                manual
+```
+
+`per_methodology:` is renamed `per_flow:`.
+
+### 13.6 Bench corpus additions for multi-instance
+
+| ID | Utterance | Marker | Autonomy | Expected |
+|---|---|---|---|---|
+| C026 | "Create a PRD" (cwd `services/api/`) | helix.api + helix.admin | guided | helix engages, scopes to api; PRD lands under api/ |
+| C027 | "Reference admin's PRD from this feature" | both instances active | guided | helix engages; adds `informed_by` link to `helix.admin:PRD-007`; surfaces external_edges authorisation |
+| C028 | "Add a data pipeline for orders" | helix.api + helix-data.customer-ingest | guided | helix-data engages; offers to add a NEW instance `helix-data.orders` to marker; multi-instance plumbing |
+| C029 | "What's active here?" (cwd `pipelines/orders-fulfillment/`) | helix.api + helix-data.customer-ingest + helix-data.orders | guided | Skill names `helix-data.orders` only (cwd-disambiguates) |
+| C030 | "Set autonomy to autonomous for the admin PRD work" | helix.api + helix.admin | guided | Skill offers to edit `.helix-autonomy.yml` to add `per_flow: { "helix.admin": autonomous }` |
+
+Five more bench rows — 30 total for v1 ship.
+
+### 13.7 Validator changes for multi-instance
+
+Add to `helix_check.py`:
+
+- M030: duplicate `(id, instance)` in marker → hard stop
+- M031: `instance:` declared as empty string → M001 (already covers empty values)
+- I130: cross-instance reference to non-existent `(flow, instance)` → error (analogous to I101)
+- I131: cross-instance reference where target instance is in marker but not authorised by `external_edges` → warn
+
+Edge resolver builds `instance_index: {(flow, instance, id): file_path}` instead of `{id: file_path}`. Walks each flow-instance's `root:` separately. Instance-local edges resolve against the source's instance index only.
+
+### 13.8 Cost of the schema bump
+
+`helix_version: 1` markers continue to work for one minor cycle. Their `methodologies:` block is treated as `flows:` with `instance: default`. M020 (legacy key) warns. v2 markers (`helix_version: 2`) MUST use `flows:` + optional `instance:`. The migration script from prior plans (`migrate_relationships_to_links.py`) gets a sibling `migrate_marker_v1_to_v2.py` that rewrites v1 markers and instance docs in place.
+
+The cost is real but the timing is right: this plan is the largest single addition to the family architecture so far; folding the marker bump into the same iteration avoids two breaking changes spaced apart.
+
+---
+
+## §14 Cooperating flows — interaction patterns
+
+When multiple flows are active in one repo, they cooperate via:
+
+1. **Cross-flow `external_edges`** (already in design): one flow authorises outbound informs to another.
+2. **Marker-mediated activation**: only flows the marker lists can act in this repo. Engagement of a non-marker flow's slash command is rejected (§A5/A4).
+3. **Cwd-disambiguated routing** (§1.5): when multiple flows could plausibly engage, cwd-under-root wins.
+4. **Shared library types**: every flow draws its artifact types from the same `library/`. ADR, principles, concerns are universal; flow-specific types extend.
+5. **Cross-instance lineage** (§13.4): documents owned by one flow-instance can be referenced from another.
+
+### 14.1 Where cooperation gets sharp
+
+Three concrete scenarios the bench must cover (extending §1.5):
+
+| Scenario | Expected behaviour |
+|---|---|
+| Product PRD declares it needs a data pipeline. Marker has helix + helix-data. | helix engages first; surfaces helix-data prerequisite; offers to also fire helix-data to draft a `data-product-brief` and link cross-flow |
+| Data pipeline's monitoring-setup needs cloudflare DNS for the dashboard URL. Marker has helix-data + helix-infra. | helix-data engages; surfaces helix-infra prerequisite; offers to author a helix-infra change-intent and link cross-flow |
+| User says "what's blocked?" in a multi-flow project | helix engages (catch-all for "what's next/blocked"); reads ALL active flows' graphs; reports per-flow exit-gate status |
+
+### 14.2 What this means for SKILL.md
+
+Each flow's SKILL.md gains a §9:
+
+> **§9 Cross-flow awareness.**
+>
+> When authoring an artifact that has a cross-flow edge in your graph's `external_edges:`, check whether the target flow is active in the marker. If yes, surface the cross-flow link as a draft suggestion (or auto-author it per autonomy). If no, note that the cross-flow link would be ideal but the target flow is not active in this repo; offer to add it to the marker.
+
+This is what makes the four flows actually *cooperate* instead of merely co-exist.
+
+---
+
+## §15 Revised implementation sequencing
+
+The original §6 sequencing assumed three flows (helix, helix-infra, helix-web). With the additions in §11-§14, sequencing becomes:
+
+| Step | What | Effort | Verification |
+|---|---|---|---|
+| **§6.0 (NEW)** | Terminology rename pass (methodology → flow) across the design docs, marker schema (with M020 alias), and SKILL.md prose. Marker schema accepts both keys for one cycle. | 4h | grep finds no "methodology" outside historical refs; v1 markers still validate |
+| §6.1 | SKILL.md description rewrite + slashCommands wiring (§2.2, §2.3) | 2h | Routing evals: `Create a PRD` → Skill(helix); `/helix-frame` recognised |
+| §6.2 | Bench runner skeleton — Layer 1 only, no judge yet (§5.1) | 4h | C001/C004/C019 pass on hand-run |
+| §6.3 | Routing-evals JSONL + runner (§2.4) | 2h | 50+ rows, 90%+ pass rate |
+| §6.4 | Conversation library v1 (25 entries from §1.5 + §12.6 data conversations) | 8h | 18 of 25 stable-pass (72% floor) |
+| §6.5 | Autonomy schema + skill consultation (§4) | 4h | C005 (guided asks) and C006 (autonomous proceeds) both stable-pass |
+| §6.6 | Cascade logic in SKILL.md (§3.2) + bench validates C002/C003/C005 | 3h | C005 surfaces vision prerequisite |
+| §6.7 | Judge LLM harness + Layer 2 assertions (§5.2) | 4h | 5+ conversations exercise Layer 2 |
+| §6.8 | Layer 3 next-action structured assertions (§1.4) | 3h | C001 asserts offered=draft_artifact:product-vision |
+| §6.9 | Helix-web flow scaffold + slashCommands + description (§3.4) | 5h | C007 stable-pass |
+| **§6.9b (NEW)** | Helix-data flow scaffold (§12) — activities, library type adds (data-product-brief, consumer-inventory, data-quality-tests, backfill-plan), graph.yml, SKILL.md | 8h | C021-C025 stable-pass; helix-data ADR self-validates |
+| §6.10 | Multi-flow disambiguation via cwd + marker §1.5 (extend bench) | 2h | C010/C016/C017 stable-pass |
+| **§6.10b (NEW)** | Multi-instance marker support (§13) — schema v2, validator M030/I130/I131, instance-aware index | 6h | C026-C029 stable-pass; v1 marker still validates with M020 warn |
+| **§6.10c (NEW)** | Cross-instance/`informed_by` edge support (§13.4) | 3h | C027 (cross-instance reference) stable-pass |
+| §6.11 | `stop_at` plumbing + tests (§4.7) | 3h | aggressive scenario refuses to edit marker without confirm |
+| §6.12 | CI wiring + ratchet (§5.4) | 2h | GHA gates on stable-pass rate ≥ 80% |
+| **§6.12b (NEW)** | Marker v1→v2 migration script + bench | 3h | tool rewrites a v1 marker corpus to v2 cleanly; idempotent |
+| §6.13 | Documentation pass — autonomy.md, bench.md, flows.md (NEW), skill-author guide | 6h | Operator can author a bench entry in <30min; flow concept top-billed in README |
+
+Total: ~73 hours (~9 days). Up from the prior 44h. The new additions (§6.0, §6.9b, §6.10b/c, §6.12b) account for ~24h; the rest is +3h for the wider bench corpus and +3h docs.
+
+---
+
+## §16 Updated risks
+
+In addition to §7's risks:
+
+8. **Terminology rename is invasive.** Touches design docs, SKILL.md, marker, validator, install docs, every fixture readme. Mitigation: single PR via codemod (`sed -i` with a curated word list + manual review); deprecation alias on the marker key gives a one-cycle escape valve.
+
+9. **Multi-instance marker schema is a v2.** v1 markers MUST keep working during the cycle. Mitigation: validator accepts both shapes; M020 / W020 warn but don't block; migration script ready before v2 hard-stops the old shape.
+
+10. **Cross-instance edges could explode in number.** A 5-flow repo with 3 instances each = up to 30 cross-edges per type. Mitigation: cross-instance edges are advisory `informs/informed_by` only; no enforced cardinality; rendering tools can collapse by default.
+
+11. **helix-data overlaps with the existing data-* types.** The existing HELIX types (`data-prd`, `data-architecture`) were product-data flavoured. Promoting them to helix-data ownership risks breaking existing instances. Mitigation: the library type meta.yml stays methodology-agnostic; helix-data's graph.yml references them via `library:data-prd` like any other flow. Existing instances under helix product flow continue to validate; cross-flow edges document the handoff.
+
+12. **Four flows × many slash commands = command soup.** Mitigation: per-flow prefix is mandatory (slash-namespace ADR finally lands as part of §6.1); bench routing-evals enforce that no flow ships a colliding command name.
+
+---
+
+## §17 Additional open questions
+
+In addition to §9's questions:
+
+6. **Should `instance:` default to `default` or be required?** Requiring it makes single-instance markers more verbose; defaulting makes the multi-instance case slightly more error-prone (you can declare instance: default twice by accident; M030 catches it but it's a footgun).
+
+7. **Should cross-flow `informed_by` edges count toward `required` cardinality?** Probably not (advisory direction), but worth a codex pin.
+
+8. **Is helix-data's activity set right at 7 activities?** Or does data-pipeline want fewer (Discover, Build, Operate)? Codex pass should sharpen this.
+
+9. **Should the marker schema bump be a separate plan?** §13's marker v2 is substantial. Argument for separate: smaller blast radius per PR. Argument for combined: avoids two breaking changes spaced apart. Current plan: combined. Worth reconsidering at review.
+
+10. **How aggressively does the bench corpus need to grow before §6.13 ships?** 25 conversations is a lot to author. We could ship a smaller v1 (15 conversations covering only the critical scenarios) and grow to 25 in §6.13. Trade: less coverage at gate vs. faster ship.
