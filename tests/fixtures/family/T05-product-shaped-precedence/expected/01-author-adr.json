@@ -18,13 +18,13 @@
   "secondary": {
     "assert": "prose_match",
     "must_not_match": [
-      "(?i)helix-library.*(not installed|missing)"
+      "(?i)helix-library.*(not installed|missing)",
+      "(?i)disambiguat"
     ],
     "allow_match_any": [
-      "(?i)treating this as helix",
-      "(?i)use helix-infra to override",
-      "(?i)disambiguat"
+      "(?i)marker.*helix",
+      "(?i)default.*helix"
     ]
   },
-  "rationale": "Product-shaped repo (docs/helix/, no *.tf) → helix wins. EXACTLY ONE Write to docs/helix/02-design/*.md. The second forbid_tool_use is a universe-bounding rule: any markdown Write outside docs/helix/02-design/ (third-location escapes like 'decisions/' or 'adr/0001.md') is forbidden, not just docs/adr/."
+  "rationale": "Marker declares BOTH methodologies; defaults.methodology: helix wins. EXACTLY ONE Write to docs/helix/02-design/*.md. Disambiguation prose is forbidden — the marker is the operator's intent and the agent must NOT surface a disambiguation banner when the marker resolves. Distinguishes new T5 (marker present) from T07 (mixed signals, marker absent or non-defaulting)."
 }

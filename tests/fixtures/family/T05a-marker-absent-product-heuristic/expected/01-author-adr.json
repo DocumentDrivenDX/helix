@@ -1,0 +1,27 @@
+{
+  "assert": "stream_json_tool_use",
+  "expect_tool_use": {
+    "name_regex": "^Write$",
+    "path_regex": "^docs/helix/02-design/.*\\.md$",
+    "exactly_one": true
+  },
+  "forbid_tool_use": [
+    {
+      "name_regex": "^Write$",
+      "path_regex": "^docs/adr/"
+    }
+  ],
+  "secondary": {
+    "assert": "prose_match",
+    "must_match_any": [
+      "(?i)no \\.helix\\.yml",
+      "(?i)\\.helix\\.yml.*absent",
+      "(?i)heuristic",
+      "(?i)init-marker"
+    ],
+    "must_not_match": [
+      "(?i)helix-library.*(not installed|missing)"
+    ]
+  },
+  "rationale": "Marker absent → heuristic fallback. The fallback banner is part of the contract (§1.3) — silent activation is the failure mode the marker prevents, so the absent-marker path MUST surface the one-time banner. Product-shape repo → helix wins by frozen heuristics; ADR to docs/helix/02-design/."
+}

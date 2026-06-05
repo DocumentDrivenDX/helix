@@ -1,0 +1,28 @@
+{
+  "assert": "stream_json_tool_use",
+  "expect_tool_use": {
+    "name_regex": "^(Edit|Write)$",
+    "path_regex": "^docs/helix/01-frame/prd\\.md$",
+    "exactly_one": true
+  },
+  "secondary": {
+    "assert": "filesystem_content",
+    "path": "workspace/docs/helix/01-frame/prd.md",
+    "content_regex_all": [
+      "^---\\n",
+      "(?m)^depends_on:",
+      "(?m)^\\s*- FEAT-001",
+      "(?m)^\\s*- FEAT-002",
+      "(?m)^x-team-owner:\\s*sales-platform",
+      "(?m)^\\s*id:\\s*PRD-001",
+      "(?m)^\\s*type:\\s*prd",
+      "(?m)^#\\s*PRD-001",
+      "(?i)Sales modernization PRD .* OIDC SSO"
+    ],
+    "content_regex_forbid": [
+      "(?m)^\\s*links:\\s*$",
+      "(?m)^\\s*ddx:\\s*\\n(?:.*\\n)*?\\s*links:"
+    ]
+  },
+  "rationale": "Determinism: legacy `depends_on:` and vendor `x-team-owner:` MUST survive the round-trip. The skill MUST NOT auto-generate `ddx.links:` from `depends_on:` on incidental edits (forbidden patterns guard against both top-level and nested-under-ddx translation). The body must contain the requested summary line."
+}

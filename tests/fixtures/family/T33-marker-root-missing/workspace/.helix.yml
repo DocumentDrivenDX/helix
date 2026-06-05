@@ -1,0 +1,4 @@
+helix_version: 1
+methodologies:
+  - id: helix
+    root: docs/helix/    # path does NOT exist in workspace; M006 expected

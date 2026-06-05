@@ -1,0 +1,15 @@
+{
+  "assert": "validator_exit",
+  "command": "python3 library/scripts/helix_check.py marker workspace/.helix.yml",
+  "expect_exit_nonzero": true,
+  "stderr_match_all": [
+    "I101",
+    "PRD-001",
+    "FEAT-999",
+    "(?i)(nearest|did you mean|closest)",
+    "FEAT-009",
+    "FEAT-019",
+    "(?i)status:\\s*planned"
+  ],
+  "rationale": "Unresolved target FEAT-999. Diagnostic MUST cite I101, PRD-001, the missing id, the nearest-ids hint (FEAT-009/FEAT-019), AND mention `status: planned` as the escape hatch for forward references. Per S4 review fold: the planned-option must appear so authors with a real forward reference can act without deleting the edge."
+}

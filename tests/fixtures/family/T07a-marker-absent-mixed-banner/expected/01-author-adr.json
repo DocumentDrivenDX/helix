@@ -1,0 +1,25 @@
+{
+  "assert": "stream_json_tool_use",
+  "forbid_tool_use": [
+    {
+      "name_regex": "^Write$",
+      "path_regex": ".*\\.md$"
+    }
+  ],
+  "secondary": {
+    "assert": "prose_match",
+    "must_match_all": [
+      "(?i)helix-infra",
+      "(?i)(?<!-)\\bhelix\\b(?!-)"
+    ],
+    "must_match_any": [
+      "(?i)disambiguat",
+      "(?i)which methodology",
+      "(?i)pick (one|a methodology)",
+      "(?i)HELIX_METHODOLOGY",
+      "(?i)\\.helix\\.yml",
+      "(?i)init-marker"
+    ]
+  },
+  "rationale": "Marker absent + both signals present → frozen heuristic fallback's tie-break MUST surface a disambiguation banner naming BOTH methodologies (bare 'helix' via negative-lookaround) and offer the marker as the fix. NO markdown Write before disambiguation."
+}

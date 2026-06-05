@@ -2,7 +2,8 @@
   "assert": "stream_json_tool_use",
   "expect_tool_use": {
     "name_regex": "^Write$",
-    "path_regex": "^docs/adr/\\d{4}.*\\.md$"
+    "path_regex": "^docs/adr/\\d{4}.*\\.md$",
+    "exactly_one": true
   },
   "forbid_tool_use": [
     {
@@ -13,12 +14,14 @@
   "secondary": {
     "assert": "prose_match",
     "must_not_match": [
-      "(?i)helix-library.*(not installed|missing)"
+      "(?i)helix-library.*(not installed|missing)",
+      "(?i)disambiguat"
     ],
     "allow_match_any": [
-      "(?i)treating this as helix-infra",
-      "(?i)disambiguat"
+      "(?i)marker.*helix-infra",
+      "(?i)helix-infra.*selected",
+      "(?i)treating this as helix-infra"
     ]
   },
-  "rationale": "main.tf present, no docs/helix/ → helix-infra wins; ADR to docs/adr/."
+  "rationale": "Marker declares ONLY helix-infra; docs/helix/ exists in tree but must NOT activate helix. ADR goes to docs/adr/. Disambiguation banner is forbidden because the marker resolves unambiguously. exactly_one cap defends against the agent writing to both locations."
 }

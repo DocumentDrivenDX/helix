@@ -1,0 +1,5 @@
+# Fixture-level runner config.
+# Runner spawns the agent with cwd set to workspace/<cwd>, not workspace root.
+# This is the first fixture to exercise cwd-as-resolution-signal; runner PR5
+# must honor cwd: or this fixture is dead-on-arrival.
+cwd: services/web/infra/terraform

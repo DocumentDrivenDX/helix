@@ -1,0 +1,13 @@
+{
+  "assert": "validator_exit",
+  "command": "python3 library/scripts/helix_check.py marker workspace/.helix.yml",
+  "expect_exit_nonzero": true,
+  "stderr_match_all": [
+    "M006",
+    "docs/helix/",
+    "helix",
+    "(?i)(does not exist|missing|not.*directory)",
+    "(?i)allow-empty-scope"
+  ],
+  "rationale": "Marker root: docs/helix/ does not resolve. M006 hard stop. Diagnostic MUST cite the code, the methodology id, the unresolved path, the failure reason, AND the --allow-empty-scope escape hatch so a fresh-repo operator knows the recovery path without reading the design doc."
+}

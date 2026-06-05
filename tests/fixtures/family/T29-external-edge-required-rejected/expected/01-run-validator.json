@@ -1,0 +1,13 @@
+{
+  "assert": "validator_exit",
+  "command": "python3 library/scripts/helix_check.py graph workspace/ --types library/types",
+  "expect_exit_nonzero": true,
+  "stderr_match_all": [
+    "G104",
+    "(?i)external_edges",
+    "(?i)required",
+    "helix-infra",
+    "(?i)(advisory|bilateral|deferred)"
+  ],
+  "rationale": "external_edges[].required: true must hard-fail G104. Diagnostic MUST cite the code, the offending block, the target methodology id, and the rationale (advisory / bilateral deferral) so authors know WHY this is forbidden — not just that it is. Without the rationale, the next author re-discovers the design decision."
+}

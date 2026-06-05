@@ -1,0 +1,1 @@
+Add a one-line summary to the body of docs/helix/01-frame/prd.md right under the H1: "Sales modernization PRD — adopt OIDC SSO." Keep the frontmatter untouched.

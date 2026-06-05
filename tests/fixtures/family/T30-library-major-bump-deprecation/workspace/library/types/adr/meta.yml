@@ -1,0 +1,14 @@
+id: adr
+name: Architecture Decision Record
+version: 2.0.0   # MAJOR bump: added customer_impact required section
+
+required_sections:
+  - context
+  - decision
+  - customer_impact   # NEW in 2.0.0 — instances pinned to 1.x get I010 grace
+  - consequences
+
+quality_checks: []
+prompts: {}
+template: {}
+tags: [design, decision]

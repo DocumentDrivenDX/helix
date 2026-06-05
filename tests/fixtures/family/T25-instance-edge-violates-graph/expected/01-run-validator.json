@@ -1,0 +1,14 @@
+{
+  "assert": "validator_exit",
+  "command": "python3 library/scripts/helix_check.py marker workspace/.helix.yml",
+  "expect_exit_nonzero": true,
+  "stderr_match_all": [
+    "G201",
+    "PRD-001",
+    "(?i)requires",
+    "(?i)prd",
+    "(?i)feature-specification",
+    "(?i)informs"
+  ],
+  "rationale": "Wrong-kind edge: PRD-001 declares requires→FEAT-001 but graph only permits informs. Diagnostic MUST cite G201, the instance id, the offending kind ('requires'), the source/target types, and the allowed-kinds hint ('informs'). Missing any of these makes the diagnostic unactionable."
+}

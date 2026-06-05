@@ -1,0 +1,13 @@
+{
+  "assert": "validator_exit",
+  "command": "python3 library/scripts/helix_check.py marker workspace/.helix.yml",
+  "expect_exit_zero": true,
+  "stderr_match_none": [
+    "I101",
+    "I120",
+    "I121",
+    "G140",
+    "G104"
+  ],
+  "rationale": "Both methodologies active in marker; cross-methodology informs declared in external_edges; target CI-001 resolves in helix-infra's instance index. Exit 0. Negative anchors guard against the four cross-methodology error codes (I101 if cross-id treated as local, I120/I121 if marker/install state misread, G140 if external_edge target methodology mismatched, G104 if external_edge tries required: true)."
+}

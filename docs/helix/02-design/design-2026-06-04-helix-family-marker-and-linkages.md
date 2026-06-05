@@ -72,6 +72,21 @@ methodology id; the same file declares which methodology flavors apply.
 couples the file to one agent harness. TOML was considered and rejected:
 the rest of the family (graph.yml, meta.yml, methodology.yml) is YAML.
 
+**Discovery walk + stray-marker rule.** The validator walks upward from
+cwd to the git root searching for `.helix.yml`. The FIRST one found is
+the active marker. After resolution the validator scans the whole tree
+under the git root for additional `.helix.yml` files; every stray
+marker (any `.helix.yml` other than the active one) emits warning
+**M010** ("nested .helix.yml found; v1 ignores nested markers, parent:
+semantics reserved for v2"). v1 ignores them; v2 may flip M010 to error
+or use the reserved `parent:` field to implement nested overrides.
+
+A separate `helix_check.py marker --discover` mode runs ONLY the tree
+scan (no activation) for one-shot linting: it prints every `.helix.yml`
+under cwd with its relative path and an exit code of 0 if exactly one
+marker is found, otherwise non-zero. CI invokes `--discover` to catch
+stray markers that the activation walk would warn about silently.
+
 ### 1.2 Schema
 
 One required top-level key `methodologies:` (list). Optional top-level
@@ -123,14 +138,22 @@ intentional: the marker exists precisely to eliminate silent
 misroutes; soft-failing it would reintroduce the failure mode it
 prevents.
 
-- **YAML parse error** → hard stop, print file + line + parse message.
-- **`root:` escapes the repo root** → hard stop.
-- **Duplicate `id:` in `methodologies:`** → hard stop.
-- **`defaults.methodology:` not in `methodologies:`** → hard stop.
+- **YAML parse error** → hard stop (M001), print file + line + parse message.
+- **`root:` escapes the repo root** → hard stop (M002).
+- **Duplicate `id:` in `methodologies:`** → hard stop (M003).
+- **`defaults.methodology:` not in `methodologies:`** → hard stop (M004).
 - **Unknown `id:` (no installed plugin matches)** → that entry is
-  ignored with a diagnostic; OTHER entries proceed. Rationale: a
+  ignored with diagnostic M005; OTHER entries proceed. Rationale: a
   missing plugin is recoverable (`install the plugin`) and shouldn't
   black-hole the entire repo.
+- **`root:` path resolves to a directory that does not exist on disk
+  (or exists but is not a directory)** → hard stop M006, naming the
+  offending entry and the unresolved path. The marker is supposed to
+  eliminate typos in scope declarations; silently treating a missing
+  scope as "zero instances" reintroduces the false-green failure mode.
+  Escape hatch: `--allow-empty-scope` demotes M006 to a warning so a
+  fresh repo can declare `root: docs/helix/` before any instances
+  exist. CI runs without that flag and catches dead scopes.
 
 ### 1.5 Resolution of "which methodology is active right now"
 
@@ -262,6 +285,41 @@ version: 1.0.0
 The type validator (§4) hard-fails on any `meta.yml` that carries a
 `relationships:` key under exit code class 3 (T-class).
 
+**Library type version semantics (semver).** The `version:` on a
+library type is semver-tracked. The validator interprets shape changes:
+
+- **Adding** a `required_sections` entry is a MAJOR bump.
+- **Renaming** a section without an alias is a MAJOR bump.
+- **Adding** an optional/aliased section, tightening a `quality_check`
+  severity, adding a `section_aliases` entry are MINOR bumps.
+- **Documentation / `summary` / `tags` / prompt prose** edits are PATCH bumps.
+
+The library publish gate (T-mode validator) emits **T010** if a
+shape-affecting change ships without bumping `version:` accordingly.
+
+**Instance-shape resolution against version.** Type-shape checks
+validate against the currently-resolved library version (the version
+on disk now), NOT against the instance's advisory `library_type_version:`
+pin. BUT the instance pin gates whether NEW constraints fire as ERROR
+vs DEPRECATION-WARNING:
+
+- If `library_type_version:` declared on the instance has the SAME
+  major as the currently-resolved library version → constraints fire
+  as errors (normal mode).
+- If `library_type_version:` has a LOWER major than the currently-
+  resolved version → NEWLY-introduced required sections fire as
+  **I010 deprecation warning** for one major-version cycle, citing
+  the prior-major pin and the major bump that introduced the new
+  section. The hook does not block; CI in --strict mode upgrades
+  I010 to error.
+- If the instance has no `library_type_version:` field → treat as
+  matching current major (no grace period). Authors who want grace
+  must opt in by pinning.
+
+This closes the verification-exit-gate failure mode where a library
+update silently breaks pre-commit on every uncommitted ADR: a major
+bump gives in-flight instances one cycle to migrate.
+
 ### 2.2 Layer 2 — Methodology `graph.yml`: TYPE-PAIR allowed edges
 
 The graph declares which type-pair edges are allowed and at what
@@ -301,6 +359,23 @@ methodologies. A bilateral declaration doubles the maintenance surface
 for the advisory `informs` cases that are the only cross-methodology
 edges anyone has asked for. If a future methodology needs ENFORCED
 cross-methodology `requires`, that's a separate amendment.
+
+**`external_edges[]` entries MUST NOT carry `required: true`.** The
+graph validator hard-fails (**G104**) any external edge with
+`required: true`. Rationale: enforced cross-methodology prerequisites
+are the deferred bilateral-mechanism case (§6.2); permitting
+`required: true` on an external edge would let a downstream
+methodology silently invalidate every existing source-methodology
+instance the moment the edge gets added to the graph. With external
+edges always advisory, adding a new external edge never invalidates
+existing instances retroactively — only new instances feel the
+optional `informs` traceability slot.
+
+Additionally, **`external_edges[].kind:` MUST be `informs` or an
+`x-`-namespaced kind** (G105). `requires` / `contains` /
+`supersedes` are forbidden across methodologies in v1; they imply
+enforcement or instance lifecycle the bilateral mechanism is needed
+to safely express.
 
 ```yaml
 # product/workflows/graph.yml — fragment
@@ -440,6 +515,21 @@ Field rules:
 - `supersedes:` targets MAY use the `@v<n>` suffix when the prior
   generation has been archived; instance check warns if the target
   isn't marked superseded.
+- `status:` on an individual edge entry is one of `present` (default)
+  or `planned`. `planned` is the typed escape hatch for forward
+  references to unauthored docs: the iterative-design case where the
+  PRD is authored before its FEATs exist. `status: planned` downgrades
+  the unresolved-target error **I101** to warning **I103** (forward
+  reference unresolved) outside of exit-gate checks. At exit-gate
+  time for the source activity, a `status: planned` entry that STILL
+  fails to resolve is upgraded back to error I101 — the planned slot
+  is for in-flight work, not permanent escape. A `status: planned`
+  entry that DOES resolve to an existing id is itself an error
+  (**I104** "use status: present once the target exists") so authors
+  don't leave the placeholder marker after the target is authored.
+  The I101 diagnostic mentions both the nearest-id hint AND the
+  `status: planned` option, so authors can distinguish typo vs. forward
+  reference at the point of failure.
 
 ### 2.4 Resolution contract (binds all three layers)
 
@@ -450,16 +540,60 @@ The validator (§4) loads the marker, builds a per-methodology
 1. Look up `(source_type, kind, target_type)` in the active
    methodology's `edges:` (or `external_edges:` if
    `cross_methodology: true`). If absent → error class I/G.
-2. If the edge is in `external_edges:` and the target methodology is
-   NOT in the active marker → WARNING (target unreachable in this
-   repo), unless `--strict-cross-method` upgrades to error.
+2. If the edge is in `external_edges:`, distinguish two unreachable
+   modes:
+   - **2a** target methodology absent from the active marker but its
+     plugin IS installed on disk → WARNING **I120** ("link to inactive
+     methodology; add `<id>:` to .helix.yml or remove the edge").
+   - **2b** target methodology plugin NOT installed on disk → WARNING
+     **I121** ("link to uninstalled methodology; install
+     `<plugin-id>` or remove the edge"). Distinct diagnostics matter
+     because the operator's next step differs.
+   Both downgradable-by-default to error via
+   `--cross-methodology-edges deny` or `--strict-cross-method`. At
+   graph-load time the active methodology's `external_edges:` are
+   themselves walked; any entry whose target methodology is absent
+   from the marker emits **G140** once per graph load (not per
+   instance edge that uses it), to surface graph drift even before
+   any instance references it.
 3. Resolve `to:` against the appropriate instance index. Unresolved →
-   error (unless `scope: intra-document`).
+   error I101 (unless `scope: intra-document` or
+   `status: planned` — see §2.3).
 4. Apply per-edge `required: true|false` against source-node
    cardinality — at-least-one-required edges generate errors only at
    activity-exit-gate time (a fresh PRD doesn't fail just for being new).
+   `required: true` is NEVER honored on `external_edges:` (rejected at
+   graph-load time by G104 in §2.2); cross-methodology edges therefore
+   never invalidate existing instances retroactively when added.
 
-### 2.5 Drop list (what the relaxation removes)
+### 2.5 Frontmatter write contract
+
+The skill MUST round-trip instance frontmatter through a
+key-preserving emitter so that incidental edits never silently rewrite
+shape. Specifically:
+
+1. **Preserve unknown keys verbatim.** Use stdlib `yaml.safe_load`
+   into an `OrderedDict` (or insertion-ordered dict, Python ≥ 3.7),
+   then `yaml.safe_dump(..., sort_keys=False, allow_unicode=True)` so
+   round-trip preserves key order. Unknown top-level keys
+   (`depends_on:`, `relationships:`, vendor-namespaced `x-*:`) MUST
+   survive the round-trip byte-equivalent (modulo trailing whitespace
+   normalization).
+2. **Legacy → new key translation is migration-script-only.** The
+   skill never translates legacy `depends_on:` or `relationships:`
+   into `ddx.links:` on incidental edits. Translation is performed
+   ONLY by the explicit migration script in §5.4. Determinism rule:
+   two `/helix` agent runs on the same legacy-frontmatter PRD must
+   produce byte-equivalent frontmatter.
+3. **Validator surfaces coexistence.** When both legacy and new keys
+   are present on the same instance, the validator emits warning
+   **W005** ("legacy + ddx.links coexist; run
+   `library/scripts/migrate_relationships_to_links.py` to consolidate")
+   pointing at the migrate command. The hook does not block on W005.
+4. **No drop on rewrite.** A skill that strips a key it does not
+   understand on rewrite is a contract violation tested by T32.
+
+### 2.6 Drop list (what the relaxation removes)
 
 - `relationships:` block from library `meta.yml` (Layer 1).
 - `referenced_by:` / `informed_by:` from methodology `graph.yml`
@@ -489,6 +623,17 @@ JSON Schema cannot express:
    node; every `external_edges[].to_type` is plausible against the
    target methodology IF the target methodology is loaded.
 3. **Acyclicity over `requires` + `contains`** modulo `allowed_cycles`.
+   **Self-loop rule (per S5 review item):** a type-pair edge with
+   `from_type == to_type` on a kind in the acyclicity walk
+   (`requires`, `contains`) is treated as a one-node cycle. It
+   requires an explicit `allowed_cycles` entry for that
+   (from_type, to_type, kind) triple; without one the validator
+   emits **G103** ("same-type self-loop on walked kind requires
+   allowed_cycles entry"). Self-loops on non-walked kinds
+   (`informs`, `supersedes`, `may_surface`) pass without an
+   `allowed_cycles` entry, but the schema-level check emits a single
+   **G133** info-level note per graph listing them so they cannot
+   accidentally proliferate.
 4. **Exit-gate role** — every `activities[].exit_gate` references a
    node with `role: exit-gate`.
 
@@ -622,6 +767,12 @@ helix_check.py type <types-root>
 | 5    | R     | resolver / install error (library not found on disk)             |
 | 64   | U     | usage error (bad flag)                                           |
 
+W-class records (W003, W004, W005, R020 etc.) are warnings that do not
+raise the exit code under default flags; under `--strict` they
+upgrade to the matching error class (W003 → T003 contextually,
+W004 → I050, etc.). The summary block always includes a `W:` count
+so the JSON consumer can surface warnings even at exit 0.
+
 Exit code reflects the HIGHEST violation class encountered. The run is
 EXHAUSTIVE — every violation reachable from the input is collected and
 emitted, not just the first. The deterministic-checks memory: one run
@@ -738,6 +889,48 @@ exit 1
 
 All three errors come from ONE run. No short-circuit.
 
+### 4.7 Performance contract + instance index cache
+
+The marker / instance walk re-reads every doc under each scope's
+`root:` on each invocation. With three invocation points (hook,
+skill, CI) and 5000+ instance corpora possible, the naive walk is the
+ergonomic risk: a slow pre-commit gets `--no-verify`-d.
+
+**Budget.** Marker-mode wall-clock budget on a 2024-class laptop
+(stdlib py3, no native deps):
+
+| Corpus size | Budget |
+| ----------- | ------ |
+| ≤ 100 docs  | 2s     |
+| ≤ 1,000 docs | 5s    |
+| ≤ 10,000 docs | 30s  |
+| > 10,000     | emits R-class warning **R020** ("consider --cache; perf budget exceeded") |
+
+When R020 fires the validator recommends `.helix/index.json` cache
+mode but completes the run.
+
+**Cache mode** (`--cache .helix/index.json`, or `--cache` shorthand
+defaulting to that path):
+
+- The validator persists `{doc_path, mtime_ns, ddx.id, edges_hash}`
+  for every successfully-parsed instance.
+- On subsequent runs the validator `stat()`s each doc; only docs
+  whose mtime_ns > cache re-parse. Renames are detected by missing
+  path + unchanged id; deletes by missing path + missing id.
+- `.helix/index.json` is a derived artifact (`.gitignore`-d by the
+  hook installer); corruption forces a full re-walk on next run, not
+  a hard failure. Cache parity is asserted by a checksum over
+  `sorted([(doc_path, ddx.id, edges_hash)])` that the validator emits
+  with `--json`.
+- The pre-commit hook defaults to cache mode; CI defaults to no-cache
+  for fully-deterministic results.
+
+**Incremental mode** (`--changed-only <git-ref>`): the validator
+asks git for the diff against `<git-ref>` and limits the walk to
+changed docs plus their declared edge targets (catch
+rename-without-update). Designed for `pre-push` hooks against
+upstream/main.
+
 ---
 
 ## §5 Couples with prior design (what changes, what stays)
@@ -801,6 +994,33 @@ the first cycle; the validator's instance-mode flag
 `--require-links false` is the default during migration and flips to
 true after the deprecation window.
 
+**Transition phase matrix (resolves S7 review item).** The relaxation
+ships in two named library versions with explicit validator-contract
+behavior at each phase. `helix_version:` in the marker is the operator
+opt-in to strict-from-day-one.
+
+| Phase | Library version | Marker `helix_version:` | Library `meta.yml relationships:` | Instance lacks `ddx.links:` | `--require-links` default |
+| ----- | --------------- | ----------------------- | --------------------------------- | --------------------------- | ------------------------- |
+| A     | 1.0.0           | 1                       | T-warning (W003), not error       | W-warning (W004)            | false                     |
+| A     | 1.0.0           | 2                       | T-error (T003)                    | I-error (I050)              | true                      |
+| B     | 1.1.0 (~30 days after A) | 1              | T-error (T003)                    | W-warning (W004)            | false                     |
+| B     | 1.1.0           | 2                       | T-error (T003)                    | I-error (I050)              | true                      |
+| C     | 1.2.0 (≥60 days after A) | any            | T-error                           | I-error (I050)              | true                      |
+
+Phase A ships the validator and migration script; the library
+publishes type strips in a migration PR but does not break consumer
+repos that still have legacy frontmatter. Phase B is the cutover for
+the LIBRARY: in-tree types must be clean. Phase C is the cutover for
+INSTANCES: every consumer must have run the migration or pinned
+explicitly. Operators who want strict-mode from day one set
+`helix_version: 2` in the marker; the validator then enforces Phase B
++ C behavior regardless of library version.
+
+The migration script ships with a `--dry-run` mode (default) that
+prints proposed edits without writing; CI in consumer repos uses
+`--dry-run --require-clean` to fail the build if migration would
+edit any file (signal that the migration PR has not landed yet).
+
 ---
 
 ## §6 Tradeoffs + open questions
@@ -852,14 +1072,15 @@ true after the deprecation window.
   existing doc with soft frontmatter. Lean: warn for the deprecation
   cycle, then flip to error.
 - **Nested markers** — a polyglot monorepo where one subtree wants its
-  own family declaration distinct from the parent. Deferred. Schema
-  reserves a `parent:` field for the future override semantics.
+  own family declaration distinct from the parent. Deferred to v2; v1
+  emits warning M010 for any stray nested marker (§1.1) so the case is
+  visible. Schema reserves a `parent:` field for v2 override semantics.
 - **Pre-commit scope** — staged-only vs staged-plus-edge-targets.
   Targets-too catches rename-without-update; staged-only is faster.
   Default: targets-too with `--staged-only` flag.
-- **Instance corpus indexing** — walk-on-invoke vs cached
-  `.helix/index.json`. Default: walk; revisit if measurably slow on
-  100+ doc corpora.
+- **Instance corpus indexing** — RESOLVED in §4.7: walk by default,
+  `.helix/index.json` cache opt-in via `--cache` (hook default),
+  R020 warning when corpus exceeds the budget.
 - **Structured fix suggestions** — should `hint:` be parseable
   `{action, from, to}` data the skill can auto-apply, or only prose?
   Lean prose; auto-apply risks the skill silently rewriting frontmatter

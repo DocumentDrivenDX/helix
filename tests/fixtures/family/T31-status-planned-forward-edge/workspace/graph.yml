@@ -1,0 +1,12 @@
+version: 1
+methodology:
+  id: helix
+  library_version: "^1.0.0"
+  validator_contract: 1
+
+nodes:
+  - { id: prd,                   type: library:prd,                   activity: 01-frame, cardinality: many }
+  - { id: feature-specification, type: library:feature-specification, activity: 01-frame, cardinality: many }
+
+edges:
+  - { from: prd, to: feature-specification, kind: informs, required: false }

@@ -1,0 +1,1 @@
+Run python3 library/scripts/helix_check.py marker workspace/.helix.yml and report exit code and any warnings.

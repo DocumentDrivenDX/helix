@@ -1,0 +1,17 @@
+{
+  "assert": "validator_exit",
+  "command": "python3 library/scripts/helix_check.py instance workspace/docs/helix/02-design/adr-001.md --marker workspace/.helix.yml --library-root workspace/library",
+  "expect_exit_zero": true,
+  "stderr_match_all": [
+    "I010",
+    "ADR-001",
+    "(?i)customer_impact",
+    "1\\.0\\.0",
+    "2\\.0\\.0",
+    "(?i)(deprecat|grace|major)"
+  ],
+  "stderr_match_none": [
+    "(?i)ERROR\\s"
+  ],
+  "rationale": "Instance pinned to library_type_version: 1.0.0; library now ships 2.0.0 with a NEW required section. I010 deprecation warning, exit 0 under defaults. Diagnostic MUST cite the prior pin AND the new section AND the major-bump rationale so authors understand the grace cycle, not just the symptom."
+}

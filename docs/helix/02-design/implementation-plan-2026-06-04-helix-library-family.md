@@ -1,9 +1,10 @@
 # Implementation Plan: helix-library Family (monorepo, test-first)
 
 - **Date:** 2026-06-04
-- **Status:** Phase 4 of 6 — adversarial review folded; ready to execute
+- **Status:** Phase 5 of 6 — marker + linkage review folded; ready to execute
 - **Companion docs:**
   - [design-2026-06-03-helix-library-split.md](./design-2026-06-03-helix-library-split.md)
+  - [design-2026-06-04-helix-family-marker-and-linkages.md](./design-2026-06-04-helix-family-marker-and-linkages.md) (marker + linkage extension)
   - [plan-2026-06-03-helix-library-FINAL.md](./plan-2026-06-03-helix-library-FINAL.md) §0 (monorepo amendment)
   - [plan-2026-06-03-helix-library-migration.md](./plan-2026-06-03-helix-library-migration.md) (preserved as historical)
   - [test-plan-2026-06-04-helix-library-family.md](./test-plan-2026-06-04-helix-library-family.md) (executable spec)
@@ -11,6 +12,15 @@
 This is the implementation plan that replaces the 14-PR/55h sibling-
 repo plan from the FINAL doc with a 6-PR monorepo shape and folds in
 the Phase 3 adversarial review.
+
+**Phase 5 update (2026-06-04):** the marker + linkage relaxation
+design (design-2026-06-04-helix-family-marker-and-linkages.md) lands
+as PR7 and PR8 after the monorepo base. Phase 4 review of the marker
+design was folded into the design doc (M006, M010, I010, I101/I103/
+I104, I120/I121, G103/G104/G105/G133/G140, W003/W004/W005, R020) and
+into the fixture set: T5/T6/T7 reshaped to validate marker-resolves
+behavior, T5a/T6a/T7a preserve the heuristic fallback under absent
+marker, T24-T33 lock the new contracts. Effort updated below.
 
 ---
 
@@ -158,7 +168,103 @@ removes per-repo CI ceremony.
 - **Effort:** ~2h.
 - **Rollback:** delete the tag, unpublish the marketplace (or publish a v1.0.1 with the rollback). v1.0.0 with a known regression should be yanked, not silently superseded.
 
-**Total estimate:** ~30h (PR1 5h + PR2 7h + PR3 5h + PR4 3h + PR5 8h + PR6 2h). Within the FINAL §0 envelope of 25–30h.
+### PR7 — Marker file (.helix.yml) + validator subcommands
+
+- **Title:** `helix-family: marker file, validator marker/graph/instance/type subcommands`
+- **Files added:**
+  - `library/schemas/marker.schema.json` — JSON Schema for `.helix.yml`
+    (helix_version, methodologies, defaults, cross_methodology_edges).
+  - `library/schemas/graph.schema.json` — JSON Schema for `graph.yml`
+    (nodes, edges, allowed_cycles, external_edges).
+  - `library/scripts/helix_check.py` — single py3-stdlib script, four
+    subcommands (`marker`, `graph`, `instance`, `type`) per
+    design-2026-06-04 §4.
+  - `library/scripts/migrate_relationships_to_links.py` — migration
+    script per design-2026-06-04 §5.4. Default `--dry-run`.
+  - Root `.helix.yml` for this monorepo (declares helix at
+    `product/` and helix-infra at `infra/`).
+- **Files changed:**
+  - `product/skills/helix/SKILL.md` — read marker on activation, log
+    one-line resolution banner (`marker → helix (scope: docs/helix/)`).
+  - Heuristic-fallback path (frozen) retained behind a single
+    `_resolve_methodology_from_heuristics()` helper.
+- **Verification gate:**
+  - T05 (marker resolves both methodologies, defaults wins).
+  - T06 (marker silences undeclared product methodology).
+  - T07 (cwd-under-scope wins).
+  - T05a / T06a / T07a (frozen heuristic fallback under absent marker).
+  - T28 (nested marker M010 warning).
+  - T33 (root: path missing M006 hard stop).
+  - T24 (validator marker mode exits clean on a happy-path corpus).
+- **Effort:** ~9h (4h schemas + validator skeleton, 2h marker walk +
+  M010 + M006, 1h migration script skeleton, 1h skill activation
+  changes, 1h fixture wiring).
+- **Rollback:** revert. Marker is opt-in; frozen heuristic fallback
+  keeps existing repos working.
+
+### PR8 — Linkage relaxation (library shape only, graph + instance edges)
+
+- **Title:** `helix-family: linkage relaxation (drop type relationships, add graph.yml / ddx.links)`
+- **Files added:**
+  - `product/workflows/graph.yml` — extracted from prior `meta.yml
+    relationships:` per design-2026-06-04 §2.2 + Phase B migration.
+  - `infra/workflows/graph.yml` — same for helix-infra.
+  - Validator semantics for I101/I103/I104/I120/I121, G103/G104/
+    G105/G133/G140/G201, T003/T010, I010, W003/W004/W005, R020.
+- **Files changed:**
+  - `library/types/*/meta.yml` — strip `relationships:` from every
+    promoted type (Phase B of §5.4 transition matrix).
+  - PRD/FEAT/ADR templates — add `ddx.links: []` placeholder under
+    frontmatter and document the new edge format.
+  - `product/skills/helix/SKILL.md` — round-trip frontmatter per
+    §2.5 write contract (key-preserving emitter, no incidental
+    legacy → new translation).
+- **Verification gate:**
+  - T24 (instance edge respects graph).
+  - T25 (instance edge violates graph — G201).
+  - T26 (instance edge target missing — I101 + nearest + planned hint).
+  - T27 (cross-methodology informs edge resolves).
+  - T29 (external_edge required: true → G104).
+  - T30 (library major bump → I010 deprecation warning).
+  - T31 (status: planned downgrade to I103).
+  - T32 (skill rewrite preserves unknown frontmatter keys).
+  - Library-mode validator self-test: every shipped type meta.yml
+    parses clean (no relationships:).
+- **Effort:** ~10h (3h graph extraction, 3h instance validator + edge
+  resolution + status:planned + cross-methodology routing, 1h
+  library_type_version semver semantics, 1h frontmatter round-trip
+  in skill, 2h fixture wiring + library type strip).
+- **Rollback:** revert. The migration script is dry-run by default;
+  Phase A library version (1.0.0) accepts both shapes so a rollback
+  PR can ship the prior shape without breaking instances.
+
+### PR9 — Performance cache + --changed-only incremental mode (split from PR7/PR8)
+
+- **Title:** `helix-family: .helix/index.json cache + --changed-only mode`
+- **Files added:**
+  - `library/scripts/helix_check.py` cache subsystem (per
+    design-2026-06-04 §4.7): `--cache .helix/index.json` with
+    `{doc_path, mtime_ns, ddx.id, edges_hash}`.
+  - `.gitignore` entry for `.helix/index.json` written by hook
+    installer.
+  - Pre-commit hook update: `helix_check.py instance --cache
+    --changed-only HEAD` for fast-feedback.
+- **Verification gate:**
+  - Synthetic-corpus perf fixture (deferred to v1.1; defensive
+    10s/100MB ceiling in PR5 runner protects against regression now).
+  - Cache parity self-test: validator output is byte-equivalent with
+    and without `--cache`.
+- **Effort:** ~4h (2h cache logic, 1h --changed-only git plumbing,
+  1h hook wiring + .gitignore).
+- **Rollback:** revert. Cache is opt-in via flag; rolling back just
+  takes the fast path away.
+
+**Total estimate:** ~53h (PR1 5h + PR2 7h + PR3 5h + PR4 3h + PR5 8h
++ PR6 2h + PR7 9h + PR8 10h + PR9 4h). Original FINAL §0 envelope
+was 25–30h; the marker + linkage relaxation adds ~23h of new work
+covering scope explicitly declared in Phase 3 design and Phase 4
+review. PR1–PR6 (the prior monorepo baseline) remain unchanged at
+30h.
 
 ---
 
@@ -177,6 +283,12 @@ already covered as Acceptance gates.
 | Two implementations of `helix_graph_check.py` (validator) diverge on diagnostic strings | All validator fixtures use `stderr_match_all` requiring both a category pattern AND the offending identifier — diagnostic strings are part of the contract surface. |
 | Library upgrade fixture (T14) commits to contract A (warn-on-stale) but a user prefers contract B | Documented in T14 README: flipping `expect_exit_nonzero: true` is a 1-line change if the family elects contract B. PR2 reviewers should consciously confirm contract A. |
 | Bench fixtures are non-deterministic on prose | Every fixture's load-bearing assertion is structural (tool_use, exit code, filesystem) — prose is corroborative. The runner is deterministic on structure (test plan §Runner mechanics). |
+| PR7 marker walk slow on 1k+ doc corpora; users `--no-verify` the hook | PR9 ships the `.helix/index.json` cache + `--changed-only HEAD` mode (design §4.7). Until PR9 the runner's defensive 10s/100MB ceiling catches regressions; the perf budget table sets the contract. |
+| PR8 frontmatter round-trip drops or reorders unknown keys (S8 regression) | T32 locks the round-trip contract: legacy `depends_on:` and vendor `x-team-owner:` must survive byte-equivalent. Skill must use insertion-ordered dict + `sort_keys=False`. |
+| PR8 library type strip lands before consumer repos migrate (S7 cutover) | Phase A library 1.0.0 ships T003 as WARNING (W003); Phase B 1.1.0 flips to ERROR after ~30 days. `helix_version: 2` marker opts a repo into strict-from-day-one. Transition matrix lives in design §5.4. |
+| Cross-methodology edge points at uninstalled methodology (S6) | I120 (inactive) vs I121 (uninstalled) split diagnostics direct the operator to the right next step. G140 fires once per graph load when active graph's external_edges reference inactive methodologies. |
+| Library major bump breaks all in-flight instances (S3) | I010 deprecation warning fires for one major cycle when instance pins a prior major; design §2.1 codifies the semver semantics. T30 is the regression guard. |
+| Stray nested `.helix.yml` files create silent ignore (S1) | M010 warning fires once per stray marker. `helix_check.py marker --discover` mode scans the whole tree for one-shot lint. T28 covers the warning; CI runs `--discover` to surface count. |
 
 ---
 
