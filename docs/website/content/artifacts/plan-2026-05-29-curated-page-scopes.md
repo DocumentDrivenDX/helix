@@ -1,7 +1,7 @@
 ---
 title: "Curated page scopes — lock the document boundaries before the prose pass"
 slug: plan-2026-05-29-curated-page-scopes
-weight: 590
+weight: 660
 activity: "Design"
 source: "02-design/plan-2026-05-29-curated-page-scopes.md"
 generated: true

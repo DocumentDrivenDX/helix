@@ -1,7 +1,7 @@
 ---
 title: "Metrics Dashboard: HELIX 2026-Q2 (post-`v0.3.3`)"
 slug: metrics-dashboard
-weight: 830
+weight: 970
 activity: "Iterate"
 source: "06-iterate/metrics-dashboard.md"
 generated: true

@@ -24,8 +24,15 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 ## Design
 
 - [Architecture](/artifacts/architecture/)
+- [Bench Build Results — 2026-06-05](/artifacts/bench-build-results-2026-06-05/)
+- [First post-P14 full-bench run — 2026-06-06](/artifacts/bench-build-results-2026-06-06-first-run/)
 - [Data Design — HELIX Bead Tracker](/artifacts/data-design/)
+- [Design: helix-library Split](/artifacts/design-2026-06-03-helix-library-split/)
+- [HELIX Family: Marker File + Type/Flow/Instance Linkage Relaxation](/artifacts/design-2026-06-04-helix-family-marker-and-linkages/)
+- [Family Marker + Linkage Relaxation — Entry-Point Report](/artifacts/family-marker-linkages-report-2026-06-04/)
+- [helix-family Readiness Report](/artifacts/family-readiness-report-2026-06-04/)
 - [Homepage Worked Example Graph](/artifacts/homepage-worked-example-graph/)
+- [Implementation Plan: helix-library Family (monorepo, test-first)](/artifacts/implementation-plan-2026-06-04-helix-library-family/)
 - [Plan: harden the Claude Code install surface](/artifacts/plan-2026-05-17-claude-code-install-hardening/)
 - [Plan: Fold DataHelix templates into the HELIX catalog](/artifacts/plan-2026-05-17-fold-datahelix-templates/)
 - [Plan: §Refresh as a first-class HELIX skill behavior](/artifacts/plan-2026-05-17-refresh-capability/)
@@ -48,7 +55,14 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 - [Prose-quality pass — evaluate and implement the expanded Vale findings](/artifacts/plan-2026-05-29-prose-quality-pass/)
 - [Rename "authority order" to "authority hierarchy"](/artifacts/plan-2026-05-29-rename-authority-order/)
 - [Artifact-type and concern audit — gaps and remediation plan](/artifacts/plan-2026-05-30-artifact-types-and-concerns-audit/)
+- [Plan: helix-infra sibling repo](/artifacts/plan-2026-06-03-helix-infra-sibling/)
+- [FINAL Plan: helix-library Split — REVISED POST-MONOREPO 2026-06-04](/artifacts/plan-2026-06-03-helix-library-final/)
+- [Plan: helix-library Migration](/artifacts/plan-2026-06-03-helix-library-migration/)
+- [Plan: Conversation-bench + Autonomy slider + Flow model](/artifacts/plan-2026-06-05-conversation-bench-and-autonomy/)
 - [Security Architecture — DDx Agent Execution Surface](/artifacts/security-architecture/)
+- [Test Plan: helix Family Bench Fixtures](/artifacts/test-plan-2026-06-04-helix-library-family/)
+- [Validation Plan — Vertical Slice Completion](/artifacts/validation-plan-2026-06-05-vertical-slice-completion/)
+- [HELIX Family Vertical-Slice Validation Results — 2026-06-05](/artifacts/validation-results-2026-06-05/)
 - [adr](/artifacts/adr/) _(13 items)_
 - [contracts](/artifacts/contracts/) _(5 items)_
 - [decisions](/artifacts/decisions/) _(2 items)_

@@ -1,7 +1,7 @@
 ---
 title: "Prose-quality pass — evaluate and implement the expanded Vale findings"
 slug: plan-2026-05-29-prose-quality-pass
-weight: 600
+weight: 670
 activity: "Design"
 source: "02-design/plan-2026-05-29-prose-quality-pass.md"
 generated: true

@@ -59,7 +59,7 @@ tracker rather than per-story markdown plans. Build work items:
 - define deterministic implementation steps
 - close independently once verification criteria are met
 
-The canonical execution methodology action for ready work is **build**: it
+The canonical execution flow action for ready work is **build**: it
 handles one work item per run — select or load a ready execution item, claim
 it, validate governing artifacts, perform the scoped work, run required
 verification, create follow-on items when needed, commit with traceability,

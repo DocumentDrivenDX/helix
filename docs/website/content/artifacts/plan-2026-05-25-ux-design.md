@@ -1,7 +1,7 @@
 ---
 title: "Plan — UX interface guidelines (ux-radix active-state) + DESIGN.md artifact (2026-05-25)"
 slug: plan-2026-05-25-ux-design
-weight: 500
+weight: 570
 activity: "Design"
 source: "02-design/plan-2026-05-25-ux-design.md"
 generated: true

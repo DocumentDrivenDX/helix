@@ -375,7 +375,7 @@ deploy:
 ## Using AI Assistance
 
 Deploy execution is driven by deploy work items processed through the **build**
-methodology action (the runtime's bounded execution surface). Create or update
+flow action (the runtime's bounded execution surface). Create or update
 the deploy artifacts your release needs under `docs/helix/05-deploy/`:
 `deployment-checklist`, `monitoring-setup`, `runbook`, and `release-notes`.
 

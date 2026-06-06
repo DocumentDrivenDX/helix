@@ -3,7 +3,7 @@
 ## Requirements
 
 - Define the primary reader modes before defining the navigation tree.
-- State which top-level pages answer evaluation, onboarding, methodology,
+- State which top-level pages answer evaluation, onboarding, flow,
   reference, and proof questions.
 - Identify the pages that must be reachable without opening an abstract
   grouping page.

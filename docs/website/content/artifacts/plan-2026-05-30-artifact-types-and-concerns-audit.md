@@ -1,7 +1,7 @@
 ---
 title: "Artifact-type and concern audit — gaps and remediation plan"
 slug: plan-2026-05-30-artifact-types-and-concerns-audit
-weight: 620
+weight: 690
 activity: "Design"
 source: "02-design/plan-2026-05-30-artifact-types-and-concerns-audit.md"
 generated: true
