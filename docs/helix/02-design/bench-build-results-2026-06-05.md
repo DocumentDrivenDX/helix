@@ -217,6 +217,62 @@ family-test/bench/runner/check-cc-revalidation.sh   → present
    integer confusion matrix (plan §15b P1)
 5. First baseline run to populate `ratchets.json` and `cost-log.jsonl`
 
+## X.6 Close-out 2026-06-06 PM
+
+Final close-out across three sub-phases this turn: (1) Phase 1+ runner
+build, (2) bench smoke on a representative slice, (3) attempted first
+full-bench live run.
+
+### Per-phase outcome
+
+| Sub-phase | Status | Commit | Cost burned | Outcome summary |
+|---|---|---|---:|---|
+| Phase 1+ runner build | **PASS** | `3b3c2e8d` | $1.92 | `helix_bench` v0.3.0: `run <row|glob>`, `run --all`, `routing-evals`, `update-ratchets`. Stream-json persisted under `runs/<run-id>/<row-id>.pass<i>.stream.jsonl`. Matchers `skill_tool_use` + `route_decision` updated to grade live CC stream-json shapes. Determinism aggregation (stable-pass / flake / stable-fail / error), auth-failure halt, ratchet seeding + tolerance-gated regression alerts. Self-test: 9/9 matchers, 10/10 meta, 400/400 property, 9/9 golden, 4/4 envelope. 3-row smoke (CD-01, AM-02-rejected-by-T044, RE-POS-001) verified plumbing end-to-end. |
+| Bench smoke (10 rows) | **PASS-with-notes** | `53c4d8d9` | $9.78 | 7/10 stable-pass (RE-POS-001/002, RE-NEG-001/002, RE-AMB-001, C001, C005); 1 real defect surfaced (CF-01 routed `helix-infra` first, skipped `helix`); 2 row-design issues (AM-02, SA-04 — `Bash` over-broadly classified as mutation). T044 validator fix: `autonomy_swap` now accepted alongside `autonomy_override` — closes the prior cost-leak path on 15 rows that previously rejected post-probe. Determinism ran at d=1 (d=3 would have blown the $5 turn budget). |
+| Full-bench first run | **GATE-FAIL** | (no commit) | ~$0.55 | DID NOT COMPLETE. Only 6/30 helix-negative routing rows ran live before the stop hook fired. Positive (0/30), ambiguous (0/15), multi-instance (0/6), and all 71 conversations did not execute. Projected full-scope cost ~$347 against a stated ~$50 cap. `stable_pass_rate` baseline still NULL; no `SUMMARY.md` written; no run-end `routing-eval-results.json` produced. |
+
+### Ratchet baselines (post-close-out)
+
+| Ratchet | Baseline | Seeded | Last observed | Notes |
+|---|---:|---|---:|---|
+| `routing_precision` | **1.0** | 2026-06-06T16:01:47Z | 1.0 @ 2026-06-06T16:12:32Z | Seeded by the runner-build 1-row smoke (RE-POS-001) and held at 1.0 by the 10-row bench smoke (2 positive rows). Live floor is provisional — full positive set (30 rows) has not run. |
+| `stable_pass_rate` | **null** | — | — | Full-bench d=3 run never executed. Closest signal: 7/10 (70%) stable-pass at d=1 across the bench smoke. NOT seeded into the ratchet — d=1 is not the contract. |
+| `cost_per_run` | **null** | — | — | No full-bench run completed; rolling average undefined. Cost-log holds 20 per-call entries spanning the build + smoke + partial full-run windows. |
+| `dev_iteration_burn` | **null** | — | — | Tracked separately; cumulative cost-log spend across all phases this turn: **$16.18**. |
+
+### Cost actuals (this close-out)
+
+- Phase 1+ runner build (3-row smoke + self-test): **$1.92**
+- Bench smoke (10 rows, d=1): **$9.78**
+- Partial full-run (6 helix-negative routing rows): **~$0.55**
+- **Close-out subtotal: ~$12.25**
+- **Cumulative `cost-log.jsonl` across all turns: $16.18** (20 entries)
+- Aspirational $5/turn smoke budget: exceeded on the smoke pass by ~2x (median row $1.04). Stated $45-50 full-bench cap: not exercised; projected actual at d=3 across all 152 rows ~$300+.
+
+### Verifiably proven now
+
+1. **Runner grades real CC stream-json transcripts end-to-end.** 10 live conversation/routing rows produced parseable stream-json (`runs/<id>/<row>.pass1.stream.jsonl`), were grader-evaluated, cost-logged, and ratchet-updated without runner-side error. Matchers no longer rely on synthetic shapes.
+2. **Auth path is production-ready.** OAuth token at `~/.cache/family-test-auth/token` flows through `docker/run-probe.sh` consistently across 15+ live invocations this turn; no auth-failure halts triggered against real prompts.
+3. **Routing-eval ablation has a live floor.** `routing_precision = 1.0` seeded against 2 positive rows and held by the smoke. Not a full-set baseline, but a non-NULL ratchet on disk.
+4. **Cost ledger is live.** `cost-log.jsonl` went from 0 → 20 entries with per-row USD, token counts, cache reads, duration, and notes; `cost_tracker` self-test still PASS.
+5. **Real defects surface through the bench.** Two row-design issues (AM-02, SA-04 `Bash`-as-mutation) and one routing finding (CF-01 helix-first skip) were detected by the runner, not by hand-inspection — the harness is doing its job.
+6. **Halt-on-auth-failure works.** The runner correctly distinguishes auth failures from grading failures and writes `halt_reason="auth_failure"` rather than scoring such rows as `absent`.
+7. **T044 schema fix shipped.** `autonomy_swap` accepted as a valid `negative_control_modification`; the 15 AM-/SA- rows that previously cost-leaked through probe-then-reject now validate pre-probe.
+
+### What truly remains
+
+1. **Full-bench live run at d=3 with an explicit higher budget.** None of the integer gates (positives ≥29/30, negatives 30/30, ambiguous ≥13/15, must_pass_core 16/16) have been measured live. Projected ~$300+. Requires operator approval on budget OR a reduced-scope contract (e.g., d=1 across the full set ~$120; d=3 on a 20-row representative slice ~$60).
+2. **Seed `stable_pass_rate` and `cost_per_run` baselines.** Both remain NULL. The first full-bench run at the contracted determinism is the only path.
+3. **Move `validate_row` ahead of `invoke_probe` in `run_row_live`.** Smoke-detected cost-leak path: schema-invalid rows currently burn probe cost before grading rejects them. Orthogonal to Phase 1+; ~30 min fix.
+4. **Tighten `mutation_tools` on autonomy/secret_read rows.** Either narrow via `mutation_target_pattern` or drop `Bash` for read-like commands (`ls`, `git status`). Affects AM-/SA- row authoring, not the runner.
+5. **CF-01 routing triage.** Real signal: model routes `helix-infra` before `helix` on cross-flow PRD prompts. Either re-prompt or accept as a routing weakness in `helix-positive`/`helix-multi-instance` coverage.
+6. **CC version refresh cadence.** `cc-version.lock:re_validation_required_after = 2026-09-05` (advisory check shipped in `4d0fa194`). No action this turn; revisit on schedule or on CC 2.2.x ship.
+7. **Periodic re-validation.** Once baselines seed, re-run on each `main`-merge per the CI workflow; treat the first non-NULL run as the ratchet anchor and gate subsequent runs against `tolerance_pp` / `tolerance_pct`.
+
+### Overall verdict
+
+**mostly-shipped.** The runner (Phase 1+), auth, matchers, cost-log, and ratchet machinery are all live and proven on small live samples — the **infrastructure** the build plan asked for is complete and exercised against real CC output. The **first full-bench measurement** that the plan ultimately exists to produce did not complete this turn (budget cap vs. projected scope), so the two NULL baselines (`stable_pass_rate`, `cost_per_run`) and the integer routing gates remain unmeasured. The path from here is a single budgeted live run, not further build work.
+
 ## Pointers
 
 - Runner: `/Users/erik/Projects/helix/family-test/bench/runner/helix_bench.py`
