@@ -539,4 +539,57 @@ if not filecmp.cmp(backup, generated, shallow=False):
 PYEOF
 rm -f "$graph_tmp" "$graph_tmp.committed"
 
+# Family-test methodology SKILL.md frontmatter: enforce agentskills.io spec
+# AND the runtime-specific limits we hit in benchmarking:
+#   - codex: description max 1024 chars (HARD: codex refuses to load over)
+#   - claude-code: 1024 recommended
+# v0.2.2 of helix had a 1670-char description that broke every codex
+# routing-eval call. This guard catches that class of regression.
+python3 - "$repo_root" <<'PYEOF' || fail "family-test SKILL.md frontmatter check failed"
+import sys, yaml, glob, os
+repo_root = sys.argv[1]
+patterns = [
+    os.path.join(repo_root, "family-test", "methodology-*", "skills", "*", "SKILL.md"),
+]
+errors = []
+checked = 0
+for pat in patterns:
+    for path in glob.glob(pat):
+        checked += 1
+        text = open(path).read()
+        if not text.startswith("---\n"):
+            errors.append(f"{path}: missing frontmatter")
+            continue
+        end = text.find("\n---\n", 4)
+        if end == -1:
+            errors.append(f"{path}: unterminated frontmatter")
+            continue
+        try:
+            fm = yaml.safe_load(text[4:end])
+        except yaml.YAMLError as e:
+            errors.append(f"{path}: YAML parse error: {e}")
+            continue
+        if not isinstance(fm, dict):
+            errors.append(f"{path}: frontmatter is not a mapping")
+            continue
+        name = fm.get("name", "")
+        desc = fm.get("description", "")
+        expected_name = os.path.basename(os.path.dirname(path))
+        if name != expected_name:
+            errors.append(f"{path}: name '{name}' != dir basename '{expected_name}'")
+        if not desc:
+            errors.append(f"{path}: description is empty")
+            continue
+        n = len(desc)
+        if n > 1024:
+            errors.append(f"{path}: description {n} chars exceeds 1024 (codex hard limit, claude-code recommended limit)")
+        if n < 1:
+            errors.append(f"{path}: description must be 1..1024 chars (got {n})")
+print(f"checked {checked} family-test methodology SKILL.md files")
+if errors:
+    for e in errors:
+        print(f"  FAIL: {e}", file=sys.stderr)
+    sys.exit(1)
+PYEOF
+
 printf 'validated %d HELIX skills\n' "${#expected_skills[@]}"
