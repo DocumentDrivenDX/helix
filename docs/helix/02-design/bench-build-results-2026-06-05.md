@@ -6,10 +6,12 @@ Final verification report for the helix-family conversation-bench build plan
 ## Headline
 
 - **Self-test:** PASS (exit 0).
-- **Authored rows:** 155 (target 160 — see §Rows).
+- **Authored rows:** 162 (155 prior + 3 CF + 4 RC; see §Rows and §X.5).
 - **Worked example:** `helix_check.py example --strict --adversarial-coverage` exits 0.
 - **Regression suite:** `family-test/run-tests.sh` 27/27 PASS after a meta.yml
   fix on six new helix-data library types (see §Findings).
+- **Remaining-items closure (2026-06-06):** 4 of 5 prior remaining items
+  closed; full-bench live run blocked on Phase 1+ runner (see §X.5).
 
 ## Per-phase status
 
@@ -54,12 +56,12 @@ shows one commit per phase landing in order, ending at P15 docs.
 | Warm-context | 5 | 5 | WC-01..05 |
 | Verbose-stuck | 4 | 4 | VS-01..04 |
 | Meta-tests | 10 | 10 | MT01-MT10 under `runner/meta-tests/` |
-| Cross-flow scenarios | 3 | embedded | covered by C021/C022/C025; no standalone prefix |
-| Rename-compat rows | 4 | embedded | covered by B8a/B8b/B8c (existing T01-T38) |
-| **Total** | **162** (160 + 2 dual-role meta) | **155** | gap: 5 dedicated cross-flow + rename rows not surfaced as standalone directories — coverage exists via embedded coverage in conversations + T01-T38 |
+| Cross-flow scenarios | 3 | 3 | CF-01..03 standalone (added 2026-06-06; previously embedded in C021/C022/C025) |
+| Rename-compat rows | 4 | 4 | RC-01..04 validator-rows standalone (added 2026-06-06; B8a/B8b/B8c remain) |
+| **Total** | **162** (160 + 2 dual-role meta) | **162** | gap closed 2026-06-06 |
 
-Row directories under `bench/conversations/` total 64; routing JSONL totals 81;
-meta-tests total 10. Grand authored total = **155**.
+Row directories under `bench/conversations/` total 71 (was 64 + CF-01..03 + RC-01..04);
+routing JSONL totals 81; meta-tests total 10. Grand authored total = **162**.
 
 Gap relative to 160: dedicated standalone rows for "cross-flow" (3) and
 "rename" (4) were absorbed into existing rows (C021/C022/C025 carry cross-flow
@@ -151,11 +153,69 @@ FAIL: 0
 
 ## Next action
 
-Land this verification commit (`docs: bench build results 2026-06-05`)
-together with the six meta.yml `version:` fixes, then either (a) author
-the 7 missing standalone rows (cross-flow + rename) and re-verify, or
-(b) ship as-is and trigger the first post-P14 full-bench run to seed
-ratchet baselines, treating the 7 missing rows as P16 backlog.
+Build the Phase 1+ runner (run-all subcommand, per-row stream-json CC
+invocation via `run-probe.sh`, determinism=3 stable-pass aggregation,
+routing-evals grading subcommand). Once available, export
+`ANTHROPIC_API_KEY` (or use the OAuth token at
+`~/.cache/family-test-auth/token` already verified live) and run
+`helix_bench.py run --all --determinism 3` to seed `ratchets.json`
+baselines and `cost-log.jsonl`. Plan §19's $45 budget assumes the
+harness exists; ~$0.022 has been burned to date on the live smoke probe.
+
+## X.5 Remaining-items completion (2026-06-06)
+
+Closure pass for the 5 items called out in §Remaining work. Worked in
+five parallel sub-phases; verification rerun this turn confirms all
+non-blocked items landed and the bench is still green.
+
+### Per-item status
+
+| # | Item | Status | Commit | Notes |
+|---|---|---|---|---|
+| 1 | 3 standalone cross-flow discriminator rows | **done** | `b253b750` | CF-01-prd-needs-infra, CF-02-pipeline-needs-dns, CF-03-whats-blocked-multi-flow; CF-01/02 use typed `route_decision` (routing_signal=explicit_skill_tool_use); CF-03 uses `skill_tool_use` pinning Skill(helix-data) with all three flows in the structural block; all tier=must_pass_core; self-test green post-add |
+| 2 | 4 standalone rename-compat rows | **done** | `dba2de34` | RC-01..04 as validator-rows (marker.yml + expected-validator-output.txt) covering v1-loads, v2-loads, mixed-cycle, strict-v2-rejects-legacy. New validator codes M040 (both keys present) and M041 (helix_version:2 + legacy `methodologies:`); new `kind: validator-row` mode in runner; all 27 family-tests still PASS |
+| 3 | First full-bench live run to seed ratchets + cost-log | **still-pending** | `7938f35a` (scaffold only) | Blocked: runner v0.2.0 is Phase 0a (validate-only); no `run --all` subcommand, no per-row stream-json CC invocation, no `routing-evals` subcommand. Auth IS production-ready (Docker smoke probe PASS at $0.022). Ratchets remain NULL by design; cost-log seeded with one smoke-probe entry. See `bench-build-results-2026-06-06-first-run.md` for full diagnosis |
+| 4 | Pre-commit hook: `helix_check.py type --strict` on library/types/** | **done** | `fd52b62b` | Wired into existing `lefthook.yml` as `check-library-types` rule with glob `family-test/library/types/**/*`. Abort-on-broken-meta verified live: removed `version:` from monitoring-setup/meta.yml, commit aborted with T002 exit 3. Documented in `family-test/bench/README.md` |
+| 5 | CC version re-validation cadence | **done** | `4d0fa194` | New procedure doc `family-test/bench/docs/cc-version-revalidation.md` (why-pinned, when-revalidate, ratchet re-baseline gate with >5% stable_pass_rate regression halt). New `check-cc-revalidation.sh` parses `re_validation_required_after` from `family-test/bench/cc-version.lock` and warns to stderr if past deadline (always exit 0; advisory). Wired into both `lefthook.yml` pre-commit AND `.github/workflows/family-bench.yml` self-test job |
+
+### Verification rerun (this turn)
+
+```
+python3 family-test/bench/runner/helix_bench.py self-test
+  → matchers 9/9, meta 10/10, property 400/400, golden 9/9,
+    cost_tracker PASS, failure_dump PASS, envelope-pass 4/4
+  → self-test overall: PASS
+
+bash family-test/run-tests.sh
+  → PASS: 27, FAIL: 0 (B8a/B8b/B8c rename gate green)
+
+lefthook.yml
+  → check-library-types rule present, glob family-test/library/types/**/*
+  → check-cc-revalidation rule present, advisory (|| true)
+
+family-test/bench/cc-version.lock           → present
+family-test/bench/docs/cc-version-revalidation.md   → present
+family-test/bench/runner/check-cc-revalidation.sh   → present
+```
+
+### Bench-state snapshot
+
+- **Conversation rows:** 71 (was 64; +CF-01..03, +RC-01..04)
+- **Routing JSONL rows:** 81 (unchanged)
+- **Meta-tests:** 10 (unchanged)
+- **Grand authored total:** **162** (target hit)
+- **Ratchets seeded:** NO (Phase 1+ runner not built)
+- **Cost-log seeded:** partial — 1 smoke-probe entry; full-bench actual = N/A
+- **Live spend to date:** ~$0.022 (Docker smoke probe)
+
+### Phase 1+ runner backlog (to unblock item #3)
+
+1. `run --all` subcommand iterating `bench/conversations/`
+2. Per-row stream-json CC invocation via `runner/run-probe.sh`
+3. Determinism=3 stable-pass aggregation
+4. `routing-evals` subcommand grading the 4 JSONL files against the
+   integer confusion matrix (plan §15b P1)
+5. First baseline run to populate `ratchets.json` and `cost-log.jsonl`
 
 ## Pointers
 
