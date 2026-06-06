@@ -1,5 +1,6 @@
 id: reconciliation-suite
 title: Reconciliation Suite
+version: 1.0.0
 owner_flow: helix-data
 purpose: Defines source-to-sink invariants, alert thresholds, and operational response references for detecting data drift or loss across pipeline boundaries.
 required_sections:

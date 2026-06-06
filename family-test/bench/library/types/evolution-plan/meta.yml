@@ -1,5 +1,6 @@
 id: evolution-plan
 title: Evolution Plan
+version: 1.0.0
 owner_flow: helix-data
 purpose: Plans a schema, semantic, or contract evolution with migration timing, consumer notification, rollback, and success criteria.
 required_sections:

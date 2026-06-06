@@ -1,5 +1,6 @@
 id: data-quality-tests
 title: Data Quality Tests
+version: 1.0.0
 owner_flow: helix-data
 purpose: Defines the concrete checks, fixtures, and accepted temporary failures used to validate a data artifact before and after release.
 required_sections:

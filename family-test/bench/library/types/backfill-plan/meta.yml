@@ -1,5 +1,6 @@
 id: backfill-plan
 title: Backfill Plan
+version: 1.0.0
 owner_flow: helix-data
 purpose: Describes a bounded historical or corrective data replay, including scope, safety checks, runtime expectations, rollback, and consumer communication.
 required_sections:

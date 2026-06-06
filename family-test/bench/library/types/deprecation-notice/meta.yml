@@ -1,5 +1,6 @@
 id: deprecation-notice
 title: Deprecation Notice
+version: 1.0.0
 owner_flow: helix-data
 purpose: Announces the retirement of a data artifact, names its successor, identifies affected consumers, and fixes the final decommission date.
 required_sections:
