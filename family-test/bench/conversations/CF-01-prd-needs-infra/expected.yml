@@ -1,0 +1,53 @@
+tier: must_pass_core
+category: conversation-library
+phase: P5
+status: authored-pending-verification
+notes: |
+  CF-01 (plan §1.5 + §14.1). Marker has helix + helix-infra at
+  separate scopes (docs/helix/ vs infra/). PRD-001 (approved) names
+  the cross-flow prerequisite in prose: "deploying this requires a
+  Cloudflare zone." Prompt "The PRD says we need new infra. Plan the
+  change." is a canonical cross-flow ask.
+
+  Per plan §14.1: helix engages FIRST (PRD owner — must read PRD-001
+  to ground the plan); then surfaces the helix-infra cross-flow
+  prerequisite (Cloudflare zone) rather than planning infra in a
+  vacuum.
+
+  Layer 1 floor at P5: route_decision lands on helix (the
+  first-engaged flow) via explicit_skill_tool_use signal. Cross-flow
+  handoff to helix-infra is graded by Layer 2/3 at P7+ when the
+  judge is wired and cross-flow rows are scored multi-layer.
+
+  Discrimination: plugins_remove the helix skill — the prompt loses
+  its first-engaged flow (helix-infra doesn't own "PRD"); agent
+  plans infra in a vacuum and the routing observable for helix
+  cannot fire.
+
+  Standalone cross-flow row (codex review feedback): isolates
+  helix→helix-infra discrimination from C021/C022/C025 which carry
+  single-flow floors.
+
+discriminator:
+  assertion_id: route_decision
+  observable:
+    matcher_type: routing_observable
+    expected_flow_instance: helix
+    routing_signal: explicit_skill_tool_use
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      Without methodology-product the helix skill is unregistered;
+      the prompt no longer has a first-engaged flow (helix-infra
+      doesn't own "PRD"). The agent — given only methodology-infra —
+      plans infra in a vacuum without reading PRD-001 as a helix
+      artifact. The explicit_skill_tool_use signal for helix cannot
+      fire. Verdict flips present → absent, proving the helix
+      engagement was plugin-driven (not prompt-language driven by
+      the word "PRD").
+
+structural:
+  skill_invoked:
+    - name: helix
