@@ -1,0 +1,6 @@
+helix_version: 1
+methodologies:
+  - id: helix-data
+    root: docs/helix/
+defaults:
+  methodology: helix-data
