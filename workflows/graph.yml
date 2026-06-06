@@ -220,6 +220,10 @@ edges:
   to: prd
   kind: informs
   required: false
+- from: business-case
+  to: resource-summary
+  kind: informs
+  required: false
 - from: competitive-analysis
   to: business-case
   kind: informs
@@ -309,6 +313,10 @@ edges:
   kind: informs
   required: false
 - from: feature-specification
+  to: contract
+  kind: informs
+  required: false
+- from: feature-specification
   to: test-plan
   kind: informs
   required: false
@@ -394,6 +402,10 @@ edges:
   required: false
 - from: user-stories
   to: solution-design
+  kind: informs
+  required: false
+- from: user-stories
+  to: story-test-plan
   kind: informs
   required: false
 - from: adr
@@ -586,10 +598,6 @@ edges:
   required: false
 - from: deployment-checklist
   to: monitoring-setup
-  kind: informs
-  required: false
-- from: monitoring-setup
-  to: metrics-dashboard
   kind: informs
   required: false
 - from: metric-definition

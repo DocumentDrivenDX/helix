@@ -106,8 +106,7 @@ relationships:
     - feature-specification
   informs:
     - solution-design
-    - test-cases
-    - tracker-issues
+    - story-test-plan
 
 tracking:
   id_format: US-NNN

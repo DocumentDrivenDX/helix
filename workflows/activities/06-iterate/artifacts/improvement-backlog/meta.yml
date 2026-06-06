@@ -58,8 +58,6 @@ relationships:
   informed_by:
     - metrics-dashboard
     - security-metrics
-  informs:
-    - tracker issues
 
 tags:
   - iterate

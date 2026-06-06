@@ -123,7 +123,7 @@ relationships:
   informs:
     - user-stories
     - solution-design
-    - api-contracts
+    - contract
     - test-plan
 
   registered_in:
