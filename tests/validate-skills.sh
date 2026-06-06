@@ -182,7 +182,7 @@ try:
 except json.JSONDecodeError as e:
     print(f"invalid JSON in {path}: {e}", file=sys.stderr)
     sys.exit(1)
-required = ("name", "version", "description", "skills", "hooks")
+required = ("name", "version", "description", "skills")
 missing = [k for k in required if not manifest.get(k)]
 if missing:
     print(f"plugin.json missing required fields: {', '.join(missing)}", file=sys.stderr)
@@ -190,25 +190,34 @@ if missing:
 if manifest["skills"] != "./skills/":
     print(f"plugin.json skills must be ./skills/ (got {manifest['skills']!r})", file=sys.stderr)
     sys.exit(1)
-if manifest["hooks"] != "./hooks/hooks.json":
-    print(f"plugin.json hooks must be ./hooks/hooks.json (got {manifest['hooks']!r})", file=sys.stderr)
+# Claude Code v2.1.x auto-loads hooks/hooks.json from the standard location.
+# Declaring manifest.hooks pointing at that same path causes a duplicate-load
+# error and the plugin refuses to install. Reject the field here to prevent
+# regression: any future hooks declaration must use a non-standard path.
+if "hooks" in manifest and manifest["hooks"] == "./hooks/hooks.json":
+    print("plugin.json: manifest.hooks must not duplicate the auto-loaded "
+          "./hooks/hooks.json — remove the field or point at an additional path",
+          file=sys.stderr)
     sys.exit(1)
-try:
-    hooks = json.load(open(plugin_hooks))
-except json.JSONDecodeError as e:
-    print(f"invalid JSON in {plugin_hooks}: {e}", file=sys.stderr)
-    sys.exit(1)
-if not isinstance(hooks, dict):
-    print(f"{plugin_hooks} must contain a JSON object", file=sys.stderr)
-    sys.exit(1)
-if "version" not in hooks or "hooks" not in hooks:
-    print(f"{plugin_hooks} must define version and hooks keys", file=sys.stderr)
-    sys.exit(1)
+# The standard hooks file is optional; when present, validate shape.
+import os
+if os.path.exists(plugin_hooks):
+    try:
+        hooks = json.load(open(plugin_hooks))
+    except json.JSONDecodeError as e:
+        print(f"invalid JSON in {plugin_hooks}: {e}", file=sys.stderr)
+        sys.exit(1)
+    if not isinstance(hooks, dict):
+        print(f"{plugin_hooks} must contain a JSON object", file=sys.stderr)
+        sys.exit(1)
+    if "version" not in hooks or "hooks" not in hooks:
+        print(f"{plugin_hooks} must define version and hooks keys", file=sys.stderr)
+        sys.exit(1)
 PYEOF
   [[ $? -eq 0 ]] || fail "plugin.json validation failed"
 fi
 
-[[ -f "$plugin_hooks" ]] || fail "missing plugin hooks at hooks/hooks.json"
+# hooks/hooks.json is optional — Claude Code auto-loads if present.
 
 # Verify that workflows/ references in SKILL.md files resolve from plugin root
 while IFS= read -r wf_ref; do

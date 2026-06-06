@@ -1,0 +1,58 @@
+name: Install Test (per-PR)
+
+# Runs the install scenario against THIS PR's checkout to catch load-time
+# regressions before merge. Two modes both exercise the local revision:
+#   - default --plugin-dir: catches SKILL.md/manifest defects at parse time
+#   - TEST_LOCAL_MARKETPLACE=1: exercises the real `plugin install` code path
+#     against a git-init'd copy of the checkout
+#
+# Both modes assert via init-JSON parse that plugins[] contains helix and
+# skills[] contains helix:helix and no helix-plugin MCP server failed.
+#
+# Gated on ANTHROPIC_API_KEY secret presence — without auth the init probe
+# can't run and the test reports SKIP not PASS (so PRs from forks without
+# secrets explicitly skip rather than false-pass).
+#
+# Why per-PR and not post-merge:
+#   install-smoke.yml runs against the PUBLISHED repo on tag push. By then a
+#   broken install has already merged. This workflow blocks it earlier.
+
+on:
+  pull_request:
+    branches: [main]
+    # Skip when the PR only touches docs/notes outside the install surface.
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - '!skills/helix/SKILL.md'
+      - '!.claude-plugin/**'
+  workflow_dispatch:
+
+jobs:
+  install-test:
+    runs-on: ubuntu-latest
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+
+      - name: Build install-test image
+        run: docker build -t helix-install-test:claude-code tests/install/claude-code/
+
+      - name: Default mode (--plugin-dir + init-JSON probe)
+        run: |
+          docker run --rm \
+            -e ANTHROPIC_API_KEY \
+            -v "$GITHUB_WORKSPACE:/workspace/helix:ro" \
+            helix-install-test:claude-code \
+            bash -c "install.sh && verify.sh"
+
+      - name: Local-marketplace mode (real plugin install code path)
+        run: |
+          docker run --rm \
+            -e ANTHROPIC_API_KEY \
+            -e TEST_LOCAL_MARKETPLACE=1 \
+            -v "$GITHUB_WORKSPACE:/workspace/helix:ro" \
+            helix-install-test:claude-code \
+            bash -c "install.sh && verify.sh"
