@@ -1,0 +1,8 @@
+turns:
+  - user: |
+      Draft a full PRD for an enterprise coffee-ordering platform.
+      Cover background, goals, non-goals, personas, ~25 user stories,
+      acceptance criteria for each, the data model, ~20 risks, the
+      rollout plan, and the success metrics in exhaustive detail —
+      target at least 600 lines so reviewers have full context. Write
+      it to `docs/helix/01-frame/PRD-001-coffee.md`. Use HELIX.

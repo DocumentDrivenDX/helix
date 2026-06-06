@@ -131,6 +131,68 @@ same activities a low-autonomy run would, pausing less often.
 Routes that pause (input, frame, evolve, design, build) honor the resolved
 level; routes that select concerns honor the high-autonomy inference path.
 
+## Apply The Autonomy Level
+
+A second-axis autonomy declaration is layered on top of the policy spectrum
+above for runtimes that support an explicit operator-facing level
+(`manual` / `guided` / `autonomous` / `aggressive`). When that declaration is
+present, consult it before every state-changing tool use.
+
+Before any tool use that mutates state (Write, Edit, Bash that writes, git,
+install), determine the effective autonomy by reading sources in this order;
+the first source that defines a level wins:
+
+1. **Per-prompt override** — slash prefix (`/helix-autonomous`, `/helix-manual`)
+   or `HELIX_AUTONOMY=<level>` environment variable.
+2. **Repo-user-local override** — `.helix-autonomy.yml` at the repo root
+   (gitignored; per-user-per-repo).
+3. **User default** — `~/.config/helix/autonomy.yml` (per-user, all repos).
+4. **Repo default** — the `autonomy:` block in `.helix.yml`
+   (committed, team baseline).
+5. **Skill default** — `guided` if no source defines a level.
+
+Then dispatch on the resolved level:
+
+- `manual` — state the proposed action, list its effects, and ask
+  "OK to proceed?" before ANY tool use (Read, Write, Edit, Bash).
+- `guided` — state the proposed action briefly. Ask before the *first*
+  state-changing tool use in the conversation. Subsequent state-changing
+  tool uses within the same turn proceed silently UNLESS the action touches
+  a `stop_at` event.
+- `autonomous` — proceed without asking; surface results after the fact.
+  Stop only on a `stop_at` event or irreducible ambiguity (e.g. two equally
+  valid graph routes, an ambiguous methodology activation).
+- `aggressive` — as `autonomous`, but additionally take initiative across the
+  full methodology graph (e.g. draft ALL declared prerequisites plus the
+  requested artifact in one pass). Still honors `stop_at` and irreducible
+  ambiguity.
+
+`stop_at` is a hard floor that fires at every level, including `autonomous`
+and `aggressive`. The authoritative trigger list lives at
+`library/skill-prompts/stop-at-triggers.yml`. Load it at graph-mode start
+and consult each trigger's matcher before every mutating tool use. A repo
+may add triggers via `stop_at_extensions:` in `.helix-autonomy.yml`; the
+active set is the union of base + extensions. Base triggers cannot be
+removed.
+
+The base v1 triggers are:
+
+| Trigger id | Fires on |
+|---|---|
+| `marker_edit` | Write/Edit on `.helix.yml` or `.helix-autonomy.yml` |
+| `cross_methodology_edge_creation` | Write/Edit that introduces `cross_methodology: true` or `cross_instance: true` |
+| `branch_or_merge` | Bash running `git checkout|merge|push|reset|rebase|cherry-pick` or `gh pr merge|create` |
+| `secret_read` | Read or Bash targeting `.env`, `.tfvars`, `credentials.json`, `.pem`, `id_rsa(.pub)`, `private_key`, `.key`, `secrets/` |
+| `large_diff` | Single Write/Edit whose content exceeds 500 lines (per tool_use, not aggregated) |
+| `apply` | Bash running `terraform apply`, `tofu apply`, `databricks jobs|pipelines run|update`, `kubectl apply|delete|patch` |
+
+When a trigger matches, emit an explicit confirmation prompt that names the
+trigger and the proposed action, then wait for the operator's reply. The
+prompt must be distinct from generic affirmations — at minimum, restate the
+action and ask whether to proceed (e.g. "About to run `terraform apply` in
+infra/prod — should I proceed?"). Generic `ok?` / `yes?` prompts do not
+satisfy the contract.
+
 ## Workflow Contracts
 
 ### Input

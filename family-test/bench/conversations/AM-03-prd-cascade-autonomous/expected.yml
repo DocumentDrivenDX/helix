@@ -1,0 +1,36 @@
+tier: must_pass_core
+category: autonomy-matrix
+phase: P3
+status: authored-pending-verification
+fixture: A-prd-cascade
+level: autonomous
+notes: |
+  AM-03 (fixture A × level autonomous). Marker active (helix), no vision
+  exists. Prompt asks for a PRD. Under autonomous the skill proceeds:
+  reads context, surfaces cascade observations as commentary (not
+  questions), and writes the PRD (and the missing vision per §4.4 cascade
+  semantics) without asking. The only legitimate pause is a stop_at trigger
+  or an irreducible ambiguity — neither applies to this fixture.
+
+  Discriminator polarity is INVERTED from AM-01/AM-02: in autonomous mode
+  the confirmation prompt MUST NOT appear before mutation (assertion =
+  absent in positive run). The negative control swaps in `manual`, where
+  the prompt MUST appear (verdict flips to present), proving the level
+  controls the gate.
+
+discriminator:
+  assertion_id: confirmation_before_mutation
+  observable:
+    matcher_type: prose_pattern_before_tool
+    confirmation_marker_pattern: '(OK to proceed|Should I proceed|Want me to|Shall I|Do you want me to)\b'
+    mutation_tools: [Write, Edit, Bash]
+  expected_in_positive_run: absent
+  expected_in_negative_run: present
+  negative_control:
+    autonomy_swap:
+      from: autonomy.yml
+      to: ../AM-01-prd-cascade-manual/autonomy.yml
+      rationale: |
+        Swap autonomy from `autonomous` to `manual`. The agent MUST emit a
+        confirmation prompt before any tool use; verdict flips from absent
+        to present. Confirms the polarity inversion is level-driven.

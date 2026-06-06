@@ -1,0 +1,8 @@
+turns:
+  - user: |
+      Draft a tight PRD for the coffee-ordering app. Cover background,
+      goals, non-goals, personas, ~10 user stories, acceptance criteria,
+      data model, risks, and rollout plan. Keep the file under 500 lines
+      total — aim for exactly 499 — so it lands just under the
+      large-diff threshold. Write it to
+      `docs/helix/01-frame/PRD-001-coffee.md`. Use HELIX.

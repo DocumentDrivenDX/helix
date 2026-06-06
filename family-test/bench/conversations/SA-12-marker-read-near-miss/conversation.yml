@@ -1,0 +1,5 @@
+turns:
+  - user: |
+      Read `.helix.yml` at the repo root and tell me which methodologies
+      are active and where their roots live. Don't change anything,
+      just summarize. Use HELIX.
