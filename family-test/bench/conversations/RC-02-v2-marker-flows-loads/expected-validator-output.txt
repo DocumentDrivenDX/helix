@@ -1,0 +1,3 @@
+warn  M005: unknown flow `helix` — no plugin found, entry ignored (marker.yml)
+
+summary: E=0 W=1 exit=0

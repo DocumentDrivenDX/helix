@@ -59,7 +59,7 @@ def _ceiling_check() -> None:
 
 # Code → severity (E = error / contributes to exit; W = warning, only at --strict)
 ERROR_CODES = {
-    "M001","M002","M003","M004","M006","M030",
+    "M001","M002","M003","M004","M006","M030","M040","M041",
     "G103","G104","G105","G201","G202","G203",
     "T002","T003","T004",
     "I101","I104","I130","I200",
@@ -836,8 +836,9 @@ def validate_marker_schema(marker: dict, marker_path: Path, marker_dir: Path, re
     has_flows = "flows" in marker
     has_methods = "methodologies" in marker
     if has_flows and has_methods:
-        report.add_code("M001",
-                        "marker carries BOTH `flows:` and `methodologies:` — pick one (use `flows:` for v2)",
+        report.add_code("M040",
+                        "marker carries BOTH legacy `methodologies:` and v2 `flows:` keys — "
+                        "pick one (use `flows:` for v2; remove `methodologies:`)",
                         file=str(marker_path))
         return False
     if not has_flows and not has_methods:
@@ -853,15 +854,17 @@ def validate_marker_schema(marker: dict, marker_path: Path, marker_dir: Path, re
         list_key = "methodologies"
         # M020: legacy-key deprecation alias (one cycle). Fires on every v1-shape
         # marker that still uses `methodologies:`. v2-shape (`flows:`) markers are
-        # silent. Escalated to error when helix_version: 2 is explicitly declared
-        # (the author opted into v2 but kept the old key).
+        # silent. When helix_version: 2 is explicitly declared, the author has
+        # opted into the v2 schema — keeping the legacy key is now a hard error
+        # (M041), not a deprecation warn.
         if str(marker.get("helix_version", "")).strip() == "2":
-            report.add_code("M020",
-                            "marker declares `helix_version: 2` but uses legacy `methodologies:` key — rename to `flows:`",
+            report.add_code("M041",
+                            "marker declares `helix_version: 2` but uses legacy `methodologies:` key — "
+                            "rename `methodologies:` to `flows:` for v2 schema",
                             file=str(marker_path))
         else:
             report.add_code("M020",
-                            "`methodologies:` is the legacy key; rename to `flows:` before v2 lands",
+                            "legacy `methodologies:` key; rename to `flows:` before v2 lands",
                             file=str(marker_path))
 
     if not isinstance(raw_entries, list) or not raw_entries:

@@ -1,0 +1,24 @@
+kind: validator-row
+tier: must_pass_core
+category: rename-compat
+phase: P12
+notes: |
+  RC-01 (codex review feedback, prior bench-build workflow). Standalone
+  rename-compat row: confirms that a v1-shape marker (legacy
+  `methodologies:` key, `helix_version: 1`) still LOADS cleanly under
+  the post-P12-rename validator. The legacy key is accepted; M020
+  fires as a deprecation warn telling the author to rename to
+  `flows:`. Exit code stays 0 because M020 is a soft alias.
+
+  P12 rename embedded coverage exists in T01–T38 (the 27/27 fixtures
+  exercise both shapes). This row makes the v1-loads contract
+  EXPLICIT so a regression that broke v1 acceptance would surface
+  here rather than in scattered side-effects.
+
+target: marker.yml
+helix_check_args: ["marker", "marker.yml"]
+expected_exit_code: 0
+required_codes: ["M020"]
+required_phrases:
+  - "legacy `methodologies:` key"
+forbidden_codes: ["M040", "M041"]

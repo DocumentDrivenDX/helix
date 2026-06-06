@@ -866,6 +866,118 @@ def load_row(row_dir: Path) -> dict[str, Any]:
     return yaml.safe_load(expected_path.read_text()) or {}
 
 
+# ---------------------------------------------------------------------------
+# Validator-row mode (RC-01..RC-04 family)
+#
+# A "validator row" exercises helix_check.py directly (not a CC stream-json
+# transcript). Shape: `expected.yml` carries `kind: validator-row`, names the
+# helix_check.py args, and declares expected exit code + required/forbidden
+# codes + required diagnostic phrases. The runner exec's helix_check.py from
+# the row dir and asserts.
+# ---------------------------------------------------------------------------
+
+
+HELIX_CHECK_PATH = REPO_ROOT / "library" / "scripts" / "helix_check.py"
+
+
+def is_validator_row(expected: dict[str, Any]) -> bool:
+    return isinstance(expected, dict) and expected.get("kind") == "validator-row"
+
+
+def validate_validator_row(row_dir: Path, expected: dict[str, Any]) -> dict[str, Any]:
+    """Minimal shape-validation for a validator-row's expected.yml.
+
+    Distinct from discriminator validation (T040-T047): validator rows have
+    their own schema since they don't carry observable/negative_control.
+    """
+    args = expected.get("helix_check_args")
+    if not isinstance(args, list) or not args:
+        raise RowRejection(
+            "T040", "validator-row expected.yml missing `helix_check_args:` list"
+        )
+    target = expected.get("target")
+    if target:
+        target_path = row_dir / target
+        if not target_path.exists():
+            raise RowRejection(
+                "T040", f"validator-row target `{target}` missing from {row_dir}"
+            )
+    if "expected_exit_code" not in expected:
+        raise RowRejection(
+            "T040", "validator-row expected.yml missing `expected_exit_code:`"
+        )
+    return {
+        "kind": "validator-row",
+        "helix_check_args": [str(a) for a in args],
+        "expected_exit_code": int(expected["expected_exit_code"]),
+        "required_codes": list(expected.get("required_codes") or []),
+        "forbidden_codes": list(expected.get("forbidden_codes") or []),
+        "required_phrases": list(expected.get("required_phrases") or []),
+    }
+
+
+def run_validator_row(row_dir: Path) -> int:
+    """Execute helix_check.py against a validator row and check the contract.
+
+    Returns 0 on pass, non-zero on any failed assertion. Prints a JSON
+    summary to stdout for parity with `run_row`.
+    """
+    import subprocess
+
+    try:
+        expected = load_row(row_dir)
+        norm = validate_validator_row(row_dir, expected)
+    except RowRejection as e:
+        print(f"REJECT {e.code} {row_dir.name}: {e.detail}", file=sys.stderr)
+        return 1
+
+    if not HELIX_CHECK_PATH.exists():
+        print(
+            f"REJECT R010 {row_dir.name}: helix_check.py not found at {HELIX_CHECK_PATH}",
+            file=sys.stderr,
+        )
+        return 1
+
+    cmd = [sys.executable, str(HELIX_CHECK_PATH)] + norm["helix_check_args"]
+    proc = subprocess.run(
+        cmd, cwd=str(row_dir), capture_output=True, text=True
+    )
+    out = proc.stdout + proc.stderr
+    actual_exit = proc.returncode
+
+    failures: list[str] = []
+    if actual_exit != norm["expected_exit_code"]:
+        failures.append(
+            f"exit code: expected {norm['expected_exit_code']}, got {actual_exit}"
+        )
+    for code in norm["required_codes"]:
+        # Match the validator's "ERROR <CODE>:" / "warn  <CODE>:" line shape.
+        if not re.search(rf"\b{re.escape(code)}\b", out):
+            failures.append(f"required code `{code}` not in output")
+    for code in norm["forbidden_codes"]:
+        if re.search(rf"\b{re.escape(code)}\b", out):
+            failures.append(f"forbidden code `{code}` present in output")
+    for phrase in norm["required_phrases"]:
+        if phrase not in out:
+            failures.append(f"required phrase `{phrase}` not in output")
+
+    summary = {
+        "row": str(row_dir),
+        "kind": "validator-row",
+        "cmd": cmd,
+        "actual_exit_code": actual_exit,
+        "expected_exit_code": norm["expected_exit_code"],
+        "status": "pass" if not failures else "fail",
+        "failures": failures,
+    }
+    print(json.dumps(summary, indent=2))
+    if failures:
+        print("\n--- helix_check.py output ---", file=sys.stderr)
+        print(out, file=sys.stderr)
+        return 1
+    return 0
+
+
 def validate_row(
     row_dir: Path,
     whitelist: Whitelist | None = None,
@@ -874,6 +986,8 @@ def validate_row(
     whitelist = whitelist or Whitelist.load()
     banned = banned or BannedPatterns.load()
     expected = load_row(row_dir)
+    if is_validator_row(expected):
+        return validate_validator_row(row_dir, expected)
     return validate_discriminator(expected, whitelist, banned)
 
 
@@ -1658,8 +1772,21 @@ def run_envelope_self_test(verbose: bool = True) -> tuple[int, dict[str, Any]]:
 def run_row(row_dir: Path, determinism: int = 1) -> int:
     """Phase 0a row-run validates the row but defers CC invocation.
 
+    For validator-rows (RC-* family) the runner actually executes
+    helix_check.py and asserts the contract — no CC required.
+
     Returns 0 if the row validates; non-zero on rejection.
     """
+    # Detect validator-row early so we route to actual execution, not
+    # discriminator validation.
+    try:
+        expected = load_row(row_dir)
+    except RowRejection as e:
+        print(f"REJECT {e.code} {row_dir.name}: {e.detail}", file=sys.stderr)
+        return 1
+    if is_validator_row(expected):
+        return run_validator_row(row_dir)
+
     try:
         norm = validate_row(row_dir)
     except RowRejection as e:

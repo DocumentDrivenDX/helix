@@ -1,0 +1,26 @@
+kind: validator-row
+tier: must_pass_core
+category: rename-compat
+phase: P12
+notes: |
+  RC-03 (codex review feedback, prior bench-build workflow). Standalone
+  rename-compat row: a marker that carries BOTH the legacy
+  `methodologies:` key AND the v2 `flows:` key is a mid-migration
+  artifact — the author started renaming but didn't finish. The
+  validator MUST reject it (no ambiguity about which list is
+  authoritative) with a marker-class hard error (exit 4, M040).
+
+  Diagnostic MUST name BOTH keys so the author sees what to fix.
+
+  Validator extension: M040 added as a new code (was previously
+  collapsed into M001). M040 is distinct so this contract is
+  independently observable from generic schema errors.
+
+target: marker.yml
+helix_check_args: ["marker", "marker.yml"]
+expected_exit_code: 4
+required_codes: ["M040"]
+required_phrases:
+  - "methodologies:"
+  - "flows:"
+forbidden_codes: ["M001"]
