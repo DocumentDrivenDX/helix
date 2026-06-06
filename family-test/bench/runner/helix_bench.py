@@ -856,13 +856,21 @@ def validate_discriminator(
                 f"negative_control.plugins_remove {plugins_remove!r} contains no methodology plugin (no-op for skill engagement)",
             )
         modifications_seen.append("plugins_remove")
-    for key in ("workspace_swap", "marker_edit", "autonomy_override", "graph_swap"):
+    for key in (
+        "workspace_swap",
+        "marker_edit",
+        "autonomy_override",
+        "autonomy_swap",
+        "graph_swap",
+    ):
         if neg.get(key):
             modifications_seen.append(key)
     if not modifications_seen:
         raise RowRejection(
             "T044",
-            "negative_control has no observable-changing modification (need plugins_remove, marker_edit, graph_swap, workspace_swap, or autonomy_override)",
+            "negative_control has no observable-changing modification "
+            "(need plugins_remove, marker_edit, graph_swap, workspace_swap, "
+            "autonomy_override, or autonomy_swap)",
         )
 
     return {
