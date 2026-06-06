@@ -1,0 +1,39 @@
+version: 1
+methodology:
+  id: helix
+  library_version: ^1.0.0
+  validator_contract: 1
+activities:
+- id: 01-frame
+  exit_gate: prd-validation
+nodes:
+- id: prd
+  type: library:prd
+  activity: 01-frame
+  cardinality: many
+  role: exit-gate
+- id: feature-specification
+  type: local:feature-specification
+  activity: 01-frame
+  cardinality: many
+- id: prd-validation
+  type: local:exit-gate
+  activity: 01-frame
+  cardinality: singleton
+  role: exit-gate
+edges:
+- from: prd
+  to: feature-specification
+  kind: informs
+  required: false
+allowed_cycles: []
+# Cross-instance authorisation: api-instance FEATs may declare
+# `informed_by` against admin-instance PRDs. Advisory only; not required.
+external_edges:
+- from_type: feature-specification
+  to_flow: helix
+  to_instance: admin
+  to_type: prd
+  kind: informed_by
+  cardinality: many-to-one
+  required: false

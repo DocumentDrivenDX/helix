@@ -1,0 +1,5 @@
+turns:
+  - user: |
+      Validate the workspace. `services/api/01-frame/FEAT-014-billing.md`
+      declares `informed_by` against `helix.admin:PRD-007`. Is that link
+      still healthy? Use HELIX.

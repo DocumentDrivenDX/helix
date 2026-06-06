@@ -369,10 +369,10 @@ def cmd_graph(graph_path: Path, library_types_root: Path | None, report: Report)
                 f"has `required: true` — forbidden (cross-methodology edges are advisory)",
                 file=str(graph_path),
             )
-        if ext.get("kind") not in ("informs",) and not str(ext.get("kind", "")).startswith("x-"):
+        if ext.get("kind") not in ("informs", "informed_by") and not str(ext.get("kind", "")).startswith("x-"):
             report.add_code(
                 "G105",
-                f"external_edges kind `{ext.get('kind')}` must be `informs` or `x-*` "
+                f"external_edges kind `{ext.get('kind')}` must be `informs`, `informed_by`, or `x-*` "
                 f"(cross-methodology `requires`/`contains`/`supersedes` forbidden in v1)",
                 file=str(graph_path),
             )
@@ -546,9 +546,11 @@ def cmd_instance(
         )
 
     ddx = fm.get("ddx") or {}
-    inst_methodology = ddx.get("methodology")
+    # Accept v1 (`ddx.methodology:`) and v2 (`ddx.flow:`) interchangeably.
+    # P12 will deprecate the v1 key via W020; for now both shapes resolve.
+    inst_methodology = ddx.get("flow") or ddx.get("methodology")
     if not inst_methodology:
-        report.add_code("I200", f"missing `ddx.methodology:`", file=str(doc_path))
+        report.add_code("I200", f"missing `ddx.flow:` (or legacy `ddx.methodology:`)", file=str(doc_path))
         return
 
     # Section-presence check against library shape (B1 / B6).
@@ -584,9 +586,10 @@ def cmd_instance(
     }
     external_edges_by_kv = {}
     for ext in graph.get("external_edges", []) or []:
+        # v2 graphs use `to_flow:`; v1 use `to_methodology:` — accept both.
         key = (
             ext.get("from_type"),
-            ext.get("to_methodology"),
+            ext.get("to_flow") or ext.get("to_methodology"),
             ext.get("to_type"),
             ext.get("kind"),
         )
@@ -675,6 +678,35 @@ def cmd_instance(
                     f"edge {i}: cross-instance `{kind}` from `{source_node_id}` "
                     f"to `{target_flow}.{target_instance}:{target_id}` not authorised in external_edges",
                     file=str(doc_path))
+                continue
+
+            # Stale-target check (§13.4 case A): target (flow, instance) authorised
+            # AND in marker, but the target document is missing OR carries
+            # `status: superseded` / `status: deprecated` in its frontmatter.
+            # Locate the target instance's scope via marker entries and resolve.
+            target_entry = next(
+                (m for m in marker.get("methodologies", []) or []
+                 if m.get("id") == target_flow and m.get("instance", "default") == target_instance),
+                None,
+            )
+            if target_entry is not None:
+                target_scope = (marker_dir / target_entry["root"]).resolve()
+                target_index = build_instance_index(target_scope)
+                target_doc = target_index.get(target_id)
+                if target_doc is None:
+                    report.add_code("I131",
+                        f"edge {i}: cross-instance target `{target_flow}.{target_instance}:{target_id}` "
+                        f"not found under scope `{target_scope}` (stale target — instance superseded or renamed)",
+                        file=str(doc_path))
+                else:
+                    target_fm = extract_frontmatter(target_doc, Report()) or {}
+                    tstatus = ((target_fm.get("ddx") or {}).get("status")
+                               or target_fm.get("status"))
+                    if tstatus in ("superseded", "deprecated"):
+                        report.add_code("I131",
+                            f"edge {i}: cross-instance target `{target_flow}.{target_instance}:{target_id}` "
+                            f"is `status: {tstatus}` (stale target — update link to the successor)",
+                            file=str(doc_path))
             continue
 
         # Cross-methodology
