@@ -26,3 +26,7 @@ pre-commit:
         fi
         exit $fail
       glob: "{skills/**/*.md,workflows/**/*.md,workflows/**/*.yaml,workflows/**/*.yml}"
+    check-library-types:
+      run: |
+        python3 family-test/library/scripts/helix_check.py type family-test/library/types --strict
+      glob: "family-test/library/types/**/*"

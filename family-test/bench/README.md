@@ -42,3 +42,21 @@ and meta-test updates.
 The runner ships in `runner/` (Phase 0a). `--self-test` drives meta-tests +
 property tests + golden-schema checks + matcher-vacuity checks before any
 bench run.
+
+## Pre-commit hook: library type validation
+
+`lefthook.yml` runs `family-test/library/scripts/helix_check.py type
+family-test/library/types --strict` on every commit that touches
+`family-test/library/types/**/*`. This catches missing required keys
+(e.g. `version:`) before they land — the gap that motivated the hook
+after P9 of the bench-build workflow shipped 6 types missing `version:`.
+
+The check runs only when staged files match the glob, so commits that
+don't touch library types are unaffected. To run it manually:
+
+```
+python3 family-test/library/scripts/helix_check.py type \
+    family-test/library/types --strict
+```
+
+Install hooks via `lefthook install` (one-time per clone).
