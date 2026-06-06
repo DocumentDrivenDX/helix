@@ -1,0 +1,19 @@
+turns:
+  - user: |
+      What's the actual difference between a stock and a broth in
+      cooking? My grandmother claims they're the same thing.
+  - user: |
+      Why do my Python type hints fail at runtime when I do
+      `from __future__ import annotations`? I want them validated, not
+      treated as strings.
+  - user: |
+      Plan a 5-day trip to Lisbon for someone who hates crowds and
+      loves architecture. Late September, mid-range budget.
+  - user: |
+      What's the simplest way to explain Bell's theorem to a smart
+      high schooler? Stay clear of "spooky action" hand-waving.
+  - user: |
+      Recommend a low-maintenance ground cover for shade in USDA zone
+      6 that out-competes English ivy. Native if possible.
+  - user: |
+      Help me understand HELIX.

@@ -1,0 +1,36 @@
+tier: must_pass_core
+category: warm-context
+phase: P6
+status: authored-pending-verification
+notes: |
+  WC-05 (plan §15c Phase 6). Warm-context variant of C020. Empty
+  workspace. Five unrelated turns (cooking, Python types, Lisbon,
+  Bell's theorem, ground cover) precede "Help me understand HELIX"
+  at turn 6.
+
+  The probe is explanatory; the skill MUST engage so the explanation
+  is authoritative (SKILL.md / library) rather than training-
+  paraphrased — same contract as C020 with the warm-context delta.
+
+  Layer 1 floor: Skill(helix, ...) tool_use on turn 6.
+
+  Discrimination: plugins_remove kills engagement; verdict flips.
+
+discriminator:
+  assertion_id: skill_tool_use
+  observable:
+    matcher_type: skill_tool_use
+    skill_id: helix
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      No methodology-product → no helix skill → no Skill(helix)
+      tool_use. The agent may still describe HELIX from training but
+      the tool_use event is absent. Verdict flips present → absent,
+      isolating warm-context engagement as skill-driven.
+
+structural:
+  skill_invoked:
+    - name: helix

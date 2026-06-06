@@ -1,0 +1,21 @@
+turns:
+  - user: |
+      My houseplant — a fiddle leaf fig — keeps dropping leaves from
+      the bottom. South-facing window, watered weekly, soil drains well.
+      What am I likely getting wrong?
+  - user: |
+      Explain the difference between `git reset --soft`, `--mixed`, and
+      `--hard` in one paragraph, including which one I want if I made a
+      commit on the wrong branch.
+  - user: |
+      I'm cycling London → Edinburgh in August. Suggest a 7-day route
+      that avoids motorways and includes at least two coastal stretches.
+  - user: |
+      How does the Bayer pattern in a digital camera sensor get
+      reconstructed into full-colour pixels? Keep it intuitive, not
+      mathematical.
+  - user: |
+      Recommend a board game for four adults who like Wingspan but want
+      something with more direct interaction.
+  - user: |
+      Let's create a PRD.

@@ -1,0 +1,20 @@
+turns:
+  - user: |
+      My espresso pulls are coming out sour even though I'm using a
+      medium-dark roast at 1:2 in 28s. Grind feels fine. What dial
+      should I turn first?
+  - user: |
+      Translate "the meeting has been moved to Thursday at three" into
+      formal Japanese. Note any nuance differences I should know about.
+  - user: |
+      In Rust, when should I use `Arc<Mutex<T>>` vs `Arc<RwLock<T>>`?
+      Specifically for a cache that's read 100x per write.
+  - user: |
+      Picture me a Saturday morning hike under 5 miles within an hour
+      of Portland, Oregon, with a waterfall payoff. Dog-friendly.
+  - user: |
+      What's the deal with sourdough starter "discard"? Is it really
+      necessary to throw it out, or is there a feeding schedule that
+      avoids waste?
+  - user: |
+      What's next?

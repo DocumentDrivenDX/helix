@@ -1,0 +1,22 @@
+turns:
+  - user: |
+      What's the forecast going to look like in Reykjavik next week? I'm
+      packing for a trip and want to know if I'll need a heavier jacket
+      or if a fleece will do.
+  - user: |
+      Write me a Python regex that matches an IPv4 address but rejects
+      anything where any octet starts with a leading zero (so "01.2.3.4"
+      is invalid but "10.2.3.4" is fine).
+  - user: |
+      Three days in Tokyo with a 7-year-old who loves trains. Give me an
+      itinerary that keeps walking under 4km a day and leaves time for
+      a Yamanote Line ride.
+  - user: |
+      My focaccia keeps coming out dense instead of airy. I'm using a
+      75% hydration dough, bulk ferment 4h at room temp, then 12h cold.
+      What's the most likely culprit?
+  - user: |
+      Recommend three albums similar to Bon Iver's "22, A Million" —
+      something with electronic textures but still acoustic at heart.
+  - user: |
+      Let's start a helix project for a coffee-ordering app.

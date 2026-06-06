@@ -1,0 +1,36 @@
+tier: must_pass_core
+category: warm-context
+phase: P6
+status: authored-pending-verification
+notes: |
+  WC-02 (plan §15c Phase 6). Warm-context variant of C002. Five
+  unrelated turns (houseplants, git, cycling, camera sensors, board
+  games) precede the C002 probe "Let's create a PRD" at turn 6.
+  "PRD" is the router-anchor noun (plan §2.2); the skill MUST engage
+  on turn 6 despite five turns of unrelated context.
+
+  Layer 1 floor: Skill(helix, ...) tool_use on turn 6. WC-02 inherits
+  C002's structural floor (engagement only); cascade-surfacing prose
+  is judged at P7+, not here.
+
+  Discrimination: plugins_remove kills engagement; tool_use absent.
+
+discriminator:
+  assertion_id: skill_tool_use
+  observable:
+    matcher_type: skill_tool_use
+    skill_id: helix
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      Without methodology-product the helix skill is unregistered;
+      Claude has no Skill(helix) to call. The agent may still draft a
+      PRD-shaped document from training but cannot emit the tool_use
+      event. Verdict flips present → absent, isolating warm-context
+      engagement as skill-driven.
+
+structural:
+  skill_invoked:
+    - name: helix

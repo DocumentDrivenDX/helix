@@ -1,0 +1,19 @@
+turns:
+  - user: |
+      My cat keeps knocking glasses off the kitchen counter. Tried
+      double-sided tape and the citrus spray. What actually works long
+      term without making her miserable?
+  - user: |
+      Walk me through the Carnot cycle in three sentences using a
+      household analogy. No equations.
+  - user: |
+      I have leftover roast chicken, half a jar of harissa, and a bunch
+      of cilantro. Give me a dinner that hits the table in 30 minutes.
+  - user: |
+      What's the difference between IPv6 SLAAC and DHCPv6, and which
+      one does the average home router use by default?
+  - user: |
+      Recommend a sci-fi novel that pairs hard worldbuilding with a
+      tight first-person voice. Already read everything by Ted Chiang.
+  - user: |
+      What methodologies are active here?
