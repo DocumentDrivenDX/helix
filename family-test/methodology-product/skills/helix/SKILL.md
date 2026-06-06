@@ -1,7 +1,34 @@
 ---
 name: helix
-description: HELIX product flow. Authors and edits PRDs, ADRs, technical designs, feature specs, user stories, test plans, runbooks, and release notes. Engage FIRST on any product-shaped prompt that names a HELIX artifact (PRD, ADR, FEAT, story, runbook) or asks to "plan a change", "frame the work", or "decide what to do" — including when the change involves infrastructure (Cloudflare, AWS, GCP, OpenTofu, Terraform). Read the named PRD/ADR/FEAT to ground the plan, then surface downstream flows (e.g. helix-infra) as cross-flow prerequisites rather than deferring routing to them.
-version: 0.2.1
+description: |
+  HELIX product flow. Activate this skill when the user asks to:
+    - frame, align, decompose, prioritize, propose, capture, review, decide,
+      evolve, refresh, or release product/feature/requirements work
+    - create, edit, refine, or review any HELIX artifact: PRD, ADR, FEAT,
+      feature spec, technical design, implementation plan, test plan, runbook,
+      release notes, user stories, roadmap brief, requirements
+    - plan a change, frame the work, or decide what is next — INCLUDING when
+      the change touches infrastructure (Cloudflare, AWS, GCP, OpenTofu,
+      Terraform). Read the named PRD/ADR/FEAT to ground the plan, then surface
+      downstream flows as cross-flow prerequisites.
+  Activate WITHOUT being told if the prompt uses any of those verbs against a
+  product/feature/requirements object even when no HELIX artifact is named
+  (e.g. "frame the opportunity", "review the architecture", "prioritize the
+  next product bet").
+  DO NOT activate on pure downstream-flow action verbs without a product
+  framing — DEFER to the named sibling flow:
+    - helix-infra: terraform/tofu/kubectl, provision/destroy/rotate a resource,
+      set up CI pipeline, manage credentials
+    - helix-data: backfill/ingest a table, migrate a schema, profile a source,
+      write a data contract
+    - helix-web (if loaded): deploy a feature, ship to production, add
+      monitoring for a flow, optimize page performance
+  If the prompt names a downstream-flow verb without a product object (e.g.
+  "Backfill the events table", "Rotate the database credentials"), stay silent
+  — let the sibling skill engage. If the operator prefixes a sibling flow
+  explicitly (`/helix-infra ...` or `HELIX_METHODOLOGY=helix-infra ...`),
+  honor the prefix and stay silent.
+version: 0.2.2
 license: MIT
 ---
 
