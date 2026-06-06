@@ -34,6 +34,34 @@ run() {
   fi
 }
 
+# Match an exit code AND require certain codes are ABSENT from the output.
+run_without_codes() {
+  local name="$1"
+  local expected="$2"
+  local forbidden_codes="$3"  # space-separated
+  shift 3
+  local out
+  out=$(python3 "$VALIDATOR" "$@" 2>&1)
+  local actual=$?
+  local present=""
+  for code in $forbidden_codes; do
+    if grep -q "$code" <<<"$out"; then
+      present="$present $code"
+    fi
+  done
+  if [ "$actual" -eq "$expected" ] && [ -z "$present" ]; then
+    echo "PASS  $name  (exit $actual, no forbidden codes)"
+    PASS=$((PASS + 1))
+  else
+    echo "FAIL  $name  (expected exit $expected got $actual; forbidden codes present:$present)"
+    echo "----- output -----"
+    echo "$out" | sed 's/^/    /'
+    echo "------------------"
+    FAIL=$((FAIL + 1))
+    FAILURES+=("$name")
+  fi
+}
+
 # Match an exit code AND require certain codes appear in the output.
 run_with_codes() {
   local name="$1"
@@ -182,6 +210,21 @@ run_with_codes "B6b library-broken-aliases (no aliases, ## FR) → T004, exit 3"
 # B7: exhaustive collection — three independent errors in one run
 run_with_codes "B7 three-errors → I101 (bad kind) + I101 (missing) + M005, exit 1" 1 "I101 M005" \
   marker "$ROOT/consumer/three-errors/.helix.yml" \
+  --methodology "helix=$METHODOLOGY" \
+  --library-types "$LIBRARY/types"
+
+# B8: P12 terminology rename gate — M020 fires on v1 (legacy `methodologies:`), silent on v2 (`flows:`).
+run_with_codes "B8a clean v1 marker → M020 fires, exit 0" 0 "M020" \
+  marker "$ROOT/consumer/clean/.helix.yml" \
+  --methodology "helix=$METHODOLOGY" \
+  --library-types "$LIBRARY/types"
+run_without_codes "B8b clean v2 marker (flows:) → M020 silent, exit 0" 0 "M020" \
+  marker "$ROOT/consumer/clean-v2/.helix.yml" \
+  --flow "helix=$METHODOLOGY" \
+  --library-types "$LIBRARY/types"
+# B8c: v2 marker still works under legacy --methodology flag alias (one-cycle compat).
+run_without_codes "B8c v2 marker with legacy --methodology flag alias → M020 silent, exit 0" 0 "M020" \
+  marker "$ROOT/consumer/clean-v2/.helix.yml" \
   --methodology "helix=$METHODOLOGY" \
   --library-types "$LIBRARY/types"
 

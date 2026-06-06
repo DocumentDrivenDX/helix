@@ -1,11 +1,12 @@
 ---
 name: helix-infra
-description: HELIX IaC operator methodology — slim slice.
+description: HELIX IaC operator flow — slim slice.
 version: 0.1.0
 license: MIT
 ---
 
-# HELIX IaC methodology (slice)
+# HELIX IaC flow (slice)
 
-Activates when `.helix.yml` lists `helix-infra` as an active methodology
-under a scope containing OpenTofu/Terraform work.
+Activates when `.helix.yml` lists `helix-infra` as an active flow
+(legacy marker key `methodologies:` accepted under M020 warn) under a
+scope containing OpenTofu/Terraform work.

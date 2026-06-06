@@ -10,7 +10,7 @@
 
 ## What's already proven
 
-The 13/13 family-test suite locks: marker parsing + 4 hard-fail rules, graph parsing, type-mode `relationships:` forbidden, instance edge resolution against the graph, missing-target hint, `status: planned` forward refs, cross-methodology authorization via `external_edges`, `--cross-methodology-edges` warn vs deny.
+The 13/13 family-test suite locks: marker parsing + 4 hard-fail rules, graph parsing, type-mode `relationships:` forbidden, instance edge resolution against the graph, missing-target hint, `status: planned` forward refs, cross-flow authorization via `external_edges`, `--cross-methodology-edges` warn vs deny.
 
 ## What's NOT yet proven — the gap list
 
@@ -59,35 +59,35 @@ the host with `python3 family-test/library/scripts/helix_check.py`.
 
 ### Bucket A — Skill activation (Docker-required)
 
-**Question:** does the methodology skill, once active, *do work that wouldn't
+**Question:** does the flow skill, once active, *do work that wouldn't
 happen without it*? The 2026-06-05 v1 attempt treated "did Skill(helix) fire
 in stream-json" as the gate, then tried to discriminate by asking surface
-questions ("what methodology is active"). That failed: the marker is plain
+questions ("what flow is active"). That failed: the marker is plain
 YAML, and any agent — skill or no skill — can `Read` it and answer
 correctly. Surface naming is not what the skill provides.
 
 **v2 redesign (this section, 2026-06-05 post-validation-results):** all
 Bucket A probes are now **functional**. Each probe asks the agent to take
 an action whose CORRECTNESS requires the skill's contract to be honored —
-write to the right scope, refuse an unauthorized methodology, stop on a
+write to the right scope, refuse an unauthorized flow, stop on a
 malformed marker, walk up to find the marker, emit the exact fallback
 banner. Pass criteria are checked against the *result*, not against
 "did Skill fire."
 
-A1a (surface "name the methodology"), A1b (negative control with plugin
+A1a (surface "name the flow"), A1b (negative control with plugin
 uninstalled), A2 (JSON `{active: []}`), A2b (banner from heuristic-only
 state) are RETIRED as architecture gates. They live on under
 `skill-prompt-defects.md` as polish targets, not contracts.
 
 | Probe | What to set up | Pass criteria (functional) |
 |---|---|---|
-| **A1 — write under scope (functional, marker not mentioned)** | Plugins installed; workspace `/workspace/` with `.helix.yml` listing `helix` and `root: docs/helix/`. Prompt: *"Create a PRD for a coffee-ordering service."* (no methodology / active / marker / config wording) | A `Write` lands under `docs/helix/` (per marker `root:`). Frontmatter includes `ddx.methodology: helix` AND `ddx.type: prd`. Validator (`helix_check.py instance`) exits 0 on the produced file. |
+| **A1 — write under scope (functional, marker not mentioned)** | Plugins installed; workspace `/workspace/` with `.helix.yml` listing `helix` and `root: docs/helix/`. Prompt: *"Create a PRD for a coffee-ordering service."* (no flow / active / marker / config wording) | A `Write` lands under `docs/helix/` (per marker `root:`). Frontmatter includes `ddx.flow: helix` AND `ddx.type: prd`. Validator (`helix_check.py instance`) exits 0 on the produced file. |
 | **A2 — write refused outside scope** | `.helix.yml` listing helix scoped to `services/api/docs/helix/`. cwd at `/workspace/` (outside the scope). Prompt: *"Create a PRD."* | No `Write` outside `services/api/docs/helix/`. Agent surfaces the scope mismatch and asks for clarification (or writes correctly under the scope). Fix the v1 A3 non-determinism by checking the run >= 3 times; all three must respect scope. |
 | **A3 — upward marker walk** | `.helix.yml` at `/workspace/.helix.yml` listing helix scoped to `docs/helix/`. cwd at `/workspace/docs/helix/` (subdir of root). Plugins installed. Prompt: *"Create a PRD for X."* | Agent walks up to find the marker (a `Read` of `../.helix.yml` or `git rev-parse --show-toplevel` + read). Write lands under the marker's root. v1 A4 caught this missing; v2 asserts the fix in `SKILL.md §1`. |
-| **A4 — marker authorization (explicit prefix rejected)** | `.helix.yml` lists helix ONLY (helix-infra plugin installed but not in marker). Prompt: *"/helix-infra intent: add a cloudflare zone."* | Agent REJECTS with a diagnostic naming `.helix.yml` as the authorization boundary. No `Write` happens. No helix-infra-specific file lands. Quote from prior A5 passing: "the methodology is governed by .helix.yml, and it gates helix-infra off here." Re-verify after fixes. |
+| **A4 — marker authorization (explicit prefix rejected)** | `.helix.yml` lists helix ONLY (helix-infra plugin installed but not in marker). Prompt: *"/helix-infra intent: add a cloudflare zone."* | Agent REJECTS with a diagnostic naming `.helix.yml` as the authorization boundary. No `Write` happens. No helix-infra-specific file lands. Quote from prior A5 passing: "the flow is governed by .helix.yml, and it gates helix-infra off here." Re-verify after fixes. |
 | **A5 — refuse fallback on malformed marker** | `.helix.yml` exists but is malformed (YAML parse error). `workflows/methodology.yml` heuristic file ALSO present (would otherwise trigger fallback). Prompt: *"Create a PRD for X."* | Agent STOPS with the marker parse error. Does NOT fall back to heuristics. No `Write` occurs. v1 A6 passed; v2 re-verifies under the corrected runner. |
 | **A6 — literal banner on fallback** | `.helix.yml` absent; `workflows/methodology.yml` heuristic present. Prompt: *"Create a PRD for X."* | Agent emits the **literal banner** from design §1.3 verbatim: `No .helix.yml found. Activating helix by heuristic (path: workflows/methodology.yml). Run /helix init-marker to make this explicit.` Then proceeds. Asserts SKILL.md §2 emission discipline. (v1 A2b conveyed the spirit but not the literal text; v2 requires literal.) |
-| **A7 — cwd-rooted multi-methodology routing** | `.helix.yml` lists helix at `docs/helix/` AND helix-infra at `infra/`. Run twice: cwd `/workspace/docs/helix/api/`, prompt *"Create a PRD for X."*; cwd `/workspace/infra/terraform/cloudflare/`, prompt *"Plan adding zone X."* | Run 1: write under `docs/helix/`. Run 2: write under `infra/`. v1 A4 caught the upward-walk bug; v2 A7 verifies routing once that's fixed. |
+| **A7 — cwd-rooted multi-flow routing** | `.helix.yml` lists helix at `docs/helix/` AND helix-infra at `infra/`. Run twice: cwd `/workspace/docs/helix/api/`, prompt *"Create a PRD for X."*; cwd `/workspace/infra/terraform/cloudflare/`, prompt *"Plan adding zone X."* | Run 1: write under `docs/helix/`. Run 2: write under `infra/`. v1 A4 caught the upward-walk bug; v2 A7 verifies routing once that's fixed. |
 
 **v2 gate condition:** all 7 probes PASS in 3 consecutive runs (determinism
 check). Any single non-deterministic failure fails the gate.
@@ -113,12 +113,12 @@ Adds to the family-test slice. Pure validator work.
 | **B1 — I010 library major bump deprecation** | Two library versions: `library/types/prd/meta.yml` v1.0.0 with 7 required sections, archived `library-v2/types/prd/meta.yml` v2.0.0 with 8. Instance pins `library_type_version: 1.0.0` but missing the 8th section. | Validator emits I010 warning (deprecation), exit 0. Without the pin → T-class error, exit 3. |
 | **B2 — I104 status:planned with resolved target** | PRD with `{kind: informs, to: FEAT-001, status: planned}` where FEAT-001 exists. | I104 error: "use status: present once the target exists". Exit 1. |
 | **B3 — W005 legacy + new coexistence** | Instance with BOTH `relationships: {informs: [FEAT-001]}` and `ddx.links: [{kind: informs, to: FEAT-001}]`. | W005 warning pointing at the migration script. Exit 0 (or 1 under `--strict`). |
-| **B4 — M005 unknown methodology** | `.helix.yml` lists `helix` (installed) + `helix-mobile` (no resolver). | M005 warning for helix-mobile, helix proceeds normally. Exit 0. |
+| **B4 — M005 unknown flow** | `.helix.yml` lists `helix` (installed) + `helix-mobile` (no resolver). | M005 warning for helix-mobile, helix proceeds normally. Exit 0. |
 | **B5a — intra-document edges (positive)** | PRD with `{kind: contains, to: FR-1, scope: intra-document}` where FR-1 is an H2 section in the same doc. | Validator does NOT resolve `FR-1` against the cross-document index; resolves it against intra-doc sections. Clean exit 0. |
 | **B5b — intra-document edges (paired negative)** | Same PRD but `scope: cross-document` (or scope omitted) for the same `to: FR-1`. | Validator MUST fail — `FR-1` is not a cross-document target. This catches the "all scope-tagged links silently dropped" failure mode where B5a passes for the wrong reason. Exit 1, finding code names FR-1 as unresolved. |
 | **B6a — section_aliases (positive)** | Library type meta declares `section_aliases: {functional_requirements: [fr]}`. Instance template uses `## FR`. | Type-mode validation passes; the alias works. |
 | **B6b — section_aliases (paired negative)** | Same template (`## FR`) but `section_aliases` REMOVED from library meta. | Type-mode validation FAILS T004 (required section `functional_requirements` not found). Confirms the alias is what carried B6a, not a permissive matcher. |
-| **B7 — exhaustive collection (exact counts)** | One PRD with **exactly three** independent errors: (1) bad edge kind `{kind: bogus}`, (2) missing target `{kind: informs, to: NOPE-999}`, (3) `.helix.yml` references unknown methodology `helix-mobile`. | Validator surfaces EXACTLY 3 findings in one run. Finding codes: `[I101, I102, M005]` (or whatever the spec pins — must be deterministic). Exit code = highest class per design §4.3 (I101 is I-class error = exit 1). |
+| **B7 — exhaustive collection (exact counts)** | One PRD with **exactly three** independent errors: (1) bad edge kind `{kind: bogus}`, (2) missing target `{kind: informs, to: NOPE-999}`, (3) `.helix.yml` references unknown flow `helix-mobile`. | Validator surfaces EXACTLY 3 findings in one run. Finding codes: `[I101, I102, M005]` (or whatever the spec pins — must be deterministic). Exit code = highest class per design §4.3 (I101 is I-class error = exit 1). |
 
 **How to run:** add scenarios to `family-test/consumer/` + extend `run-tests.sh`. Each follows the existing fixture pattern.
 **Effort:** ~4 hours total (paired negatives added).
@@ -199,7 +199,7 @@ load-bearing architecture question but doesn't gate the validator path.
 
 ```
 1. A1a/A1b/A1c, A2, A2b  (~2h)   skill activation: happy path + controls + machine-checkable negative
-2. A3, A4, A5, A6  (~1.5h)       scope + multi-methodology + pinned override + malformed-marker stop
+2. A3, A4, A5, A6  (~1.5h)       scope + multi-flow + pinned override + malformed-marker stop
 3. B1–B7 (with paired negatives) (~4h)   mechanical validator extensions
 4. C1–C3 (Docker)  (~1.5h)               frontmatter round-trip (depends on A passing)
 5. D1 (family-test) + D2 (real corpus) + D3 idempotent  (~3h)   migration script
@@ -229,7 +229,7 @@ The vertical slice is "validation complete" when:
 3. Bucket E shows a hook actually aborting a bad commit; CI actually failing red; E3 changed-only is correctness-equivalent to full run.
 4. Bucket F shows the perf budget is met (or PyYAML baseline + gap noted) and the ceiling triggers cleanly with exit code 5; F4 cache invalidation matrix passes.
 
-At that point we have a validator and a methodology architecture proven across static checks, agent behavior, and hooks/CI. Then the monorepo reorganization (PR1 of the implementation plan) is just file moves with confidence.
+At that point we have a validator and a flow architecture proven across static checks, agent behavior, and hooks/CI. Then the monorepo reorganization (PR1 of the implementation plan) is just file moves with confidence.
 
 ## Open questions for the user — RESOLVED
 

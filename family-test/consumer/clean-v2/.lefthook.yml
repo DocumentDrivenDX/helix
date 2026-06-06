@@ -1,0 +1,8 @@
+pre-commit:
+  commands:
+    helix-validate:
+      # Validate the family marker + all instances under it.
+      # Runs whenever staged changes touch .helix.yml or any docs/helix/** file.
+      # FAMILY_TEST_ROOT must point to family-test/ (set by the harness or .envrc).
+      run: python3 "$FAMILY_TEST_ROOT/library/scripts/helix_check.py" marker .helix.yml --methodology "helix=$FAMILY_TEST_ROOT/methodology-product" --library-types "$FAMILY_TEST_ROOT/library/types" --strict
+      glob: "{.helix.yml,docs/helix/**/*.md}"

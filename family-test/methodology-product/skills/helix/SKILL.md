@@ -1,29 +1,11 @@
 ---
 name: helix
-description: |
-  HELIX product methodology — drives the family's product flow.
-
-  Activate this skill when the user asks to:
-    - start, begin, or scaffold a helix project
-    - create, draft, write, or edit a PRD (Product Requirements Document)
-    - create, draft, write, or edit a product vision, opportunity canvas,
-      feature specification, user story, ADR, technical design, test plan,
-      runbook, or release notes
-    - frame, design, test, build, deploy, or iterate on a product
-    - plan a sprint or rollout for product work
-    - review or audit a product methodology artifact
-    - answer "what's next" in a product workflow
-
-  Do NOT activate for infrastructure work (terraform/opentofu), website
-  content authoring, or sales/ops work — those are sibling skills
-  (helix-infra, helix-web, etc.).
-
-  Distinct from helix-library (a data-only catalog plugin).
+description: HELIX product flow. Authors and edits PRDs, ADRs, technical designs, feature specs, user stories, test plans, runbooks, and release notes.
 version: 0.2.0
 license: MIT
 ---
 
-# HELIX product methodology
+# HELIX product flow
 
 ## Activation discipline (do these in order, every time the skill engages)
 
@@ -43,10 +25,11 @@ root one).
 
 ### 2. Decide activation state
 
-- **Marker present and well-formed**: parse it. The set of `methodologies[]`
-  entries is authoritative. If `helix` is listed, this skill is active for
-  the listed `root:` scope. If `helix` is NOT listed but a different
-  methodology is, defer to that methodology's skill — do not also activate.
+- **Marker present and well-formed**: parse it. The set of `flows[]`
+  entries (v2; legacy alias `methodologies[]:` accepted under M020 warn) is
+  authoritative. If `helix` is listed, this skill is active for the listed
+  `root:` scope. If `helix` is NOT listed but a different flow is, defer to
+  that flow's skill — do not also activate.
 
 - **Marker present and malformed** (YAML parse error, missing required keys,
   root outside repo, duplicate id, root resolves to nonexistent dir): STOP.
@@ -56,7 +39,8 @@ root one).
   prevents."
 
 - **Marker absent, heuristic file present** (`workflows/methodology.yml`,
-  `docs/helix/` tree, etc.): emit this banner verbatim before any other
+  `docs/helix/` tree, etc. — the legacy heuristic filename is retained for
+  back-compat detection): emit this banner verbatim before any other
   output:
 
       No .helix.yml found. Activating helix by heuristic (path: workflows/methodology.yml).
@@ -65,18 +49,18 @@ root one).
   Substitute the actual heuristic-path that triggered activation. Then
   proceed.
 
-- **Marker absent, no heuristic**: report no active methodology. If asked
+- **Marker absent, no heuristic**: report no active flow. If asked
   for a machine-readable response, return `{"active": []}`. Do not
   improvise that helix is active.
 
 ### 3. Enforce scope
 
 For every operation that writes or edits a file, check that the target path
-is INSIDE the active methodology's `root:` from the marker. If the user
+is INSIDE the active flow's `root:` from the marker. If the user
 asks for a write outside that scope:
 
 - Refuse the write.
-- Surface the marker entry that scoped the methodology and the offending
+- Surface the marker entry that scoped the flow and the offending
   target path.
 - Ask whether they want to (a) update the marker to broaden scope, or (b)
   redirect the write to under the scope, or (c) cancel.
@@ -84,18 +68,18 @@ asks for a write outside that scope:
 Do NOT silently write outside scope. Scope is the marker's contract; the
 skill enforces it.
 
-When the marker declares multiple methodologies at different scopes, the
-methodology whose `root:` contains the cwd wins. If cwd is outside every
+When the marker declares multiple flows at different scopes, the
+flow whose `root:` contains the cwd wins. If cwd is outside every
 declared scope, follow design §1.5 resolution chain (explicit prefix →
-HELIX_METHODOLOGY env → cwd-under-root → defaults.methodology → single
-entry → disambiguation banner with deterministic tie-break by listed
-order).
+HELIX_FLOW env (legacy HELIX_METHODOLOGY) → cwd-under-root →
+defaults.flow (legacy defaults.methodology) → single entry →
+disambiguation banner with deterministic tie-break by listed order).
 
 ### 4. Author / edit artifacts
 
 When asked to author or edit an instance document, follow the type's
 `template.md` and `prompt.md` from the helix-library plugin. Look up the
-type via the methodology's `graph.yml` — every node points at a
+type via the flow's `graph.yml` — every node points at a
 `library:<slug>` or `local:<slug>` type, and the library tree mounts at
 `~/.claude/plugins/<marketplace>/helix-library/<version>/`.
 
@@ -103,18 +87,19 @@ Instance edges (PRD → FEAT, ADR → technical-design, etc.) belong in the
 instance's frontmatter under `ddx.links:` per design §2.3. Never embed
 edges in the body or in this skill's prompts.
 
-Cross-methodology edges (e.g. PRD informs `helix-infra:CI-NNN`) must be
+Cross-flow edges (e.g. PRD informs `helix-infra:CI-NNN`) must be
 declared in `external_edges:` of `workflows/graph.yml` first, then in the
-instance frontmatter with `cross_methodology: true`.
+instance frontmatter with `cross_flow: true` (legacy alias
+`cross_methodology: true` accepted for one cycle).
 
 ### 5. Authorization boundary
 
-The marker's `methodologies:` list is the authorization boundary. Per
-design §1.5 rule 1, an explicit `/helix <verb>` prefix wins ONLY if helix
-is a marker member. If the user runs `/helix-infra intent` and helix-infra
-is NOT in `.helix.yml`, REJECT with a diagnostic naming the marker as the
-authorization gate. Do not activate the other methodology even with
-explicit prefix.
+The marker's `flows:` list (legacy `methodologies:`) is the authorization
+boundary. Per design §1.5 rule 1, an explicit `/helix <verb>` prefix wins
+ONLY if helix is a marker member. If the user runs `/helix-infra intent`
+and helix-infra is NOT in `.helix.yml`, REJECT with a diagnostic naming
+the marker as the authorization gate. Do not activate the other flow even
+with explicit prefix.
 
 ### 6. Frontmatter round-trip
 
@@ -128,64 +113,3 @@ Legacy → new key translation (e.g. `relationships:` → `ddx.links:`) is
 done ONLY by the explicit migration script
 `library/scripts/migrate_relationships_to_links.py`. Never translate as a
 side effect of an incidental edit.
-
-<!-- §7–§9 reserved for forthcoming activation/scope/authoring sections. -->
-
-### 10. Do not auto-populate `ddx.links` from `graph.yml`
-
-Per design §2.7 (Edge Authority Asymmetry, Invariant 1): the graph
-declares what edges are *possible*; instance frontmatter declares what
-edges are *actual*. The skill is the deliberator between them and MUST
-NOT mechanically join one to the other.
-
-**Prohibition.** When authoring or editing an instance document, you
-MUST NOT write entries into `ddx.links` solely because `graph.yml`
-permits a type-pair-with-kind edge between this instance's type and
-another type present in the workspace. A graph edge is a *candidate
-catalog*, not a populate instruction.
-
-**Required behaviour.** When `graph.yml` declares a candidate edge from
-this type to another type AND one or more concrete instance targets of
-that other type exist in the workspace:
-
-1. Enumerate the candidate targets (by `ddx.id` and short title).
-2. Surface them in your reply as candidate edges, naming the edge kind
-   from the graph (e.g., "PRD informs FEAT-001 (Checkout), FEAT-002
-   (Order queue)?").
-3. Ask the operator which (if any) to add to `ddx.links` before you
-   write the file. The operator's explicit naming — by id, title, or
-   "all of them" — is what authorizes the edge.
-4. Write `ddx.links` with only the entries the operator named. If the
-   operator declines all candidates, write `ddx.links: []` (or omit if
-   the schema permits absence).
-
-**Autonomy does NOT relax this.** Under `autonomy=guided`,
-`autonomy=autonomous`, OR `autonomy=aggressive`, the prohibition holds.
-`autonomous` excuses the skill from confirming each in-scope mechanical
-write (creating the file under the marker's root, filling boilerplate
-sections from the template, etc.). It does NOT excuse skipping edge
-deliberation: writing an `ddx.links` entry the operator has not named is
-out-of-scope at every autonomy level. Edge authoring is implicitly in
-the `stop_at` set.
-
-**Exception — operator already named the edge.** If the operator's
-prompt explicitly names both endpoints AND the edge kind (e.g.,
-"Create a PRD that informs FEAT-001 and FEAT-002"), you may write the
-named edges into `ddx.links` directly under `autonomous`. Under
-`guided` or `manual`, confirm before writing per those levels'
-defaults. The trigger for the exception is operator naming, not graph
-co-presence.
-
-**Failure mode this prevents.** A skill that reads
-`graph.yml`, sees `prd informs feature-specification`, scans the
-workspace for FEATs, and writes `ddx.links: [FEAT-001, FEAT-002]`
-without prompting has converted Layer 2 (possibility) into Layer 3
-(actuality) by mechanical join. The graph stops being a candidate
-catalog and starts being a populate instruction; instance edges stop
-reflecting authoring intent and start reflecting type co-presence. This
-erodes the traceability signal the three-layer split exists to
-preserve.
-
-The bench category `edge-asymmetry` (rows EA-01..EA-04) is the
-regression test for this prohibition. Halting the bench on any
-EA-NN failure is a P4 invariant.

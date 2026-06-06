@@ -1,7 +1,7 @@
 ---
 name: helix-data
 description: |
-  HELIX data-pipeline methodology. Activate this skill when the user asks to:
+  HELIX data-pipeline flow. Activate this skill when the user asks to:
     - design, build, validate, or operate a data pipeline
     - profile a data source or document a producer schema
     - specify a data contract or producer/consumer schema
@@ -19,7 +19,7 @@ version: 0.1.0
 license: MIT
 ---
 
-# HELIX data-pipeline methodology
+# HELIX data-pipeline flow
 
 This skill owns the lifecycle of ingest → transform → publish pipelines,
 data contracts, quality enforcement, lineage, and backfill/evolution
@@ -38,11 +38,11 @@ for `.helix.yml` at the top of the worktree.
 
 ### 2. Decide activation state
 
-- **Marker present and well-formed**: parse it. The set of
-  `methodologies[]` entries is authoritative. If `helix-data` is listed,
-  this skill is active for the listed `root:` scope. If `helix-data` is
-  NOT listed but a different methodology is, defer to that methodology's
-  skill — do not also activate.
+- **Marker present and well-formed**: parse it. The set of `flows[]`
+  entries (v2; legacy alias `methodologies[]:` accepted under M020 warn)
+  is authoritative. If `helix-data` is listed, this skill is active for
+  the listed `root:` scope. If `helix-data` is NOT listed but a different
+  flow is, defer to that flow's skill — do not also activate.
 
 - **Marker present and malformed** (YAML parse error, missing required
   keys, root outside repo, duplicate id, root resolves to nonexistent
@@ -56,7 +56,7 @@ for `.helix.yml` at the top of the worktree.
   `helix-data` entry to a new `.helix.yml`. Do NOT silently proceed
   with writes outside an explicit marker scope.
 
-- **Marker absent, no matching verbs**: report no active methodology.
+- **Marker absent, no matching verbs**: report no active flow.
   Do not improvise that helix-data is active.
 
 ### 3. Enforce scope
@@ -66,7 +66,7 @@ path is INSIDE the active `helix-data` instance's `root:` from the
 marker. If the user asks for a write outside that scope:
 
 - Refuse the write.
-- Surface the marker entry that scoped the methodology and the offending
+- Surface the marker entry that scoped the flow and the offending
   target path.
 - Ask whether they want to (a) update the marker to broaden scope, (b)
   redirect the write under the scope, or (c) cancel.
@@ -75,14 +75,15 @@ When the marker declares multiple `helix-data` instances (e.g.
 `helix-data.customer-ingest`, `helix-data.orders`) at different roots,
 the instance whose `root:` contains the cwd wins. If cwd is outside every
 declared scope, follow the §1.5 resolution chain in the design (explicit
-prefix → HELIX_METHODOLOGY env → cwd-under-root → defaults.methodology →
-single entry → disambiguation banner with deterministic tie-break).
+prefix → HELIX_FLOW env (legacy HELIX_METHODOLOGY) → cwd-under-root →
+defaults.flow (legacy defaults.methodology) → single entry →
+disambiguation banner with deterministic tie-break).
 
 ### 4. Author / edit artifacts
 
 When asked to author or edit an instance document, follow the type's
 `template.md` and `prompt.md` from the helix-library plugin. Look up the
-type via this methodology's `graph.yml` — every node points at a
+type via this flow's `graph.yml` — every node points at a
 `library:<slug>` or `local:<slug>` type, and the library tree mounts at
 `~/.claude/plugins/<marketplace>/helix-library/<version>/`.
 
@@ -91,15 +92,16 @@ data-quality-expectations, etc.) belong in the instance's frontmatter
 under `ddx.links:`. Never embed edges in the body or in this skill's
 prompts.
 
-Cross-methodology edges (e.g. `data-product-brief informs
+Cross-flow edges (e.g. `data-product-brief informs
 helix-infra:change-intent`) must be declared in `external_edges:` of
 `workflows/graph.yml` first, then in the instance frontmatter with
-`cross_methodology: true`.
+`cross_flow: true` (legacy alias `cross_methodology: true` accepted for
+one cycle).
 
 ### 5. Authorization boundary
 
-The marker's `methodologies:` list is the authorization boundary. An
-explicit `/helix-data <verb>` prefix wins ONLY if `helix-data` is a
+The marker's `flows:` list (legacy `methodologies:`) is the authorization
+boundary. An explicit `/helix-data <verb>` prefix wins ONLY if `helix-data` is a
 marker member. If the user runs `/helix-data contract` and `helix-data`
 is NOT in `.helix.yml`, REJECT with a diagnostic naming the marker as
 the authorization gate, and offer to add `helix-data` to the marker as
@@ -122,7 +124,7 @@ When the user asks for a new artifact of type `T`:
    `{requires, contains, informs}`.
 4. For each such edge `(src → n, kind, required)`:
    - If `required: true` AND no instance of `src.type` exists in this
-     methodology's scope, surface this as a prerequisite. Per the
+     flow's scope, surface this as a prerequisite. Per the
      autonomy slider (§8), either ask whether to draft `src` first, or
      draft it autonomously.
    - If `required: false` AND no instance of `src.type` exists, note it
@@ -172,8 +174,8 @@ When authoring an artifact that has a cross-flow edge:
 1. Check whether the target flow is active in the marker.
 2. If yes, surface the cross-flow link as a draft suggestion (or
    auto-author it per autonomy). Populate the instance frontmatter's
-   `ddx.links` with the cross-flow target and set
-   `cross_methodology: true`.
+   `ddx.links` with the cross-flow target and set `cross_flow: true`
+   (legacy alias `cross_methodology: true` accepted for one cycle).
 3. If no, note that the cross-flow link would be ideal but the target
    flow is not active in this repo; offer to add it to the marker.
 

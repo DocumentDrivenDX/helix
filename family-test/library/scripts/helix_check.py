@@ -105,12 +105,21 @@ class Report:
     def exit_code(self, strict: bool = False) -> int:
         # Pick the highest-class error present. Class order: M > T > G > I (highest exit code wins; but design has I=1, G=2, T=3, M=4, R=5)
         rank = {"M": EXIT_M, "T": EXIT_T, "G": EXIT_G, "I": EXIT_I, "R": EXIT_R, "W": EXIT_I, "A": EXIT_I}
+        # Soft-escalation overrides: codes whose --strict escalation should NOT bump
+        # the exit code to the full marker (M) class. M020 is an advisory rename
+        # alias, not a structural marker violation; under --strict it should
+        # behave like a W (exit 1), not like M001/M002.
+        soft_escalate = {"M020": EXIT_I}
         ec = EXIT_CLEAN
         for f in self.findings:
             if f.is_error(strict):
-                cls = f.code[0]
-                if rank.get(cls, 0) > ec:
-                    ec = rank[cls]
+                if f.code in soft_escalate:
+                    cls_exit = soft_escalate[f.code]
+                else:
+                    cls = f.code[0]
+                    cls_exit = rank.get(cls, 0)
+                if cls_exit > ec:
+                    ec = cls_exit
         return ec
 
     def render(self, strict: bool = False) -> str:
@@ -305,7 +314,7 @@ def cmd_example_adversarial_coverage(example_root: Path, report: Report) -> None
 # Subcommand: graph
 
 def cmd_graph(graph_path: Path, library_types_root: Path | None, report: Report) -> dict | None:
-    """Validate a methodology graph.yml. Returns parsed graph or None on hard failure."""
+    """Validate a flow graph.yml. Returns parsed graph or None on hard failure."""
     g = load_yaml(graph_path, report, "G201")
     if g is None:
         return None
@@ -365,15 +374,15 @@ def cmd_graph(graph_path: Path, library_types_root: Path | None, report: Report)
         if ext.get("required") is True:
             report.add_code(
                 "G104",
-                f"external_edges entry to `{ext.get('to_methodology')}:{ext.get('to_type')}` "
-                f"has `required: true` — forbidden (cross-methodology edges are advisory)",
+                f"external_edges entry to `{ext.get('to_flow') or ext.get('to_methodology')}:{ext.get('to_type')}` "
+                f"has `required: true` — forbidden (cross-flow edges are advisory)",
                 file=str(graph_path),
             )
         if ext.get("kind") not in ("informs", "informed_by") and not str(ext.get("kind", "")).startswith("x-"):
             report.add_code(
                 "G105",
                 f"external_edges kind `{ext.get('kind')}` must be `informs`, `informed_by`, or `x-*` "
-                f"(cross-methodology `requires`/`contains`/`supersedes` forbidden in v1)",
+                f"(cross-flow `requires`/`contains`/`supersedes` forbidden in v1)",
                 file=str(graph_path),
             )
 
@@ -525,12 +534,12 @@ def cmd_instance(
     doc_path: Path,
     marker: dict,
     marker_dir: Path,
-    methodology_resolver: dict[str, Path],
+    flow_resolver: dict[str, Path],
     report: Report,
-    cross_methodology_edges_mode: str = "warn",
+    cross_flow_edges_mode: str = "warn",
     library_types_root: Path | None = None,
 ) -> None:
-    """Validate one instance document against the active methodology graph(s)."""
+    """Validate one instance document against the active flow graph(s)."""
     fm = extract_frontmatter(doc_path, report)
     if fm is None:
         # No frontmatter — design says deprecation cycle warning W004
@@ -546,24 +555,24 @@ def cmd_instance(
         )
 
     ddx = fm.get("ddx") or {}
-    # Accept v1 (`ddx.methodology:`) and v2 (`ddx.flow:`) interchangeably.
-    # P12 will deprecate the v1 key via W020; for now both shapes resolve.
-    inst_methodology = ddx.get("flow") or ddx.get("methodology")
-    if not inst_methodology:
+    # Accept v2 (`ddx.flow:`) and v1 (`ddx.methodology:`) interchangeably.
+    # The v1 key is the legacy alias; M020 governs the marker-level rename.
+    inst_flow = ddx.get("flow") or ddx.get("methodology")
+    if not inst_flow:
         report.add_code("I200", f"missing `ddx.flow:` (or legacy `ddx.methodology:`)", file=str(doc_path))
         return
 
     # Section-presence check against library shape (B1 / B6).
     _check_instance_sections(doc_path, ddx, library_types_root, report, fm)
 
-    # Resolve the methodology's graph
-    methodology_root = methodology_resolver.get(inst_methodology)
-    if not methodology_root:
-        report.add_code("I120" if inst_methodology in marker.get("_installed", []) else "I121",
-                        f"link to methodology `{inst_methodology}` not in resolver", file=str(doc_path))
+    # Resolve the flow's graph
+    flow_root = flow_resolver.get(inst_flow)
+    if not flow_root:
+        report.add_code("I120" if inst_flow in marker.get("_installed", []) else "I121",
+                        f"link to flow `{inst_flow}` not in resolver", file=str(doc_path))
         return
 
-    graph_path = methodology_root / "workflows/graph.yml"
+    graph_path = flow_root / "workflows/graph.yml"
     graph_key = str(graph_path)
     if graph_key in _GRAPH_CACHE:
         graph = _GRAPH_CACHE[graph_key]
@@ -595,15 +604,15 @@ def cmd_instance(
         )
         external_edges_by_kv[key] = ext
 
-    # Build instance index for this methodology (consumer's scope under marker)
-    methodology_entry = next(
-        (m for m in marker.get("methodologies", []) or [] if m.get("id") == inst_methodology),
+    # Build instance index for this flow (consumer's scope under marker)
+    flow_entry = next(
+        (m for m in marker.get("methodologies", []) or [] if m.get("id") == inst_flow),
         None,
     )
-    if not methodology_entry:
-        report.add_code("I200", f"instance methodology `{inst_methodology}` not in marker", file=str(doc_path))
+    if not flow_entry:
+        report.add_code("I200", f"instance flow `{inst_flow}` not in marker", file=str(doc_path))
         return
-    scope_root = (marker_dir / methodology_entry["root"]).resolve()
+    scope_root = (marker_dir / flow_entry["root"]).resolve()
     instance_index = build_instance_index(scope_root)
 
     # Determine source node id from the instance's `ddx.type`
@@ -621,7 +630,7 @@ def cmd_instance(
             break
     if not source_node:
         report.add_code("I200",
-                        f"instance type `{inst_type}` does not map to any node in {inst_methodology}'s graph",
+                        f"instance type `{inst_type}` does not map to any node in {inst_flow}'s graph",
                         file=str(doc_path))
         return
 
@@ -633,14 +642,14 @@ def cmd_instance(
         target = link.get("to")
         status = link.get("status", "present")
         scope = link.get("scope")
-        cross = link.get("cross_methodology", False)
+        cross = link.get("cross_flow", False) or link.get("cross_methodology", False)
 
         # Intra-document edges (FR-N, US-N-ACm) — not resolved against external index
         if scope == "intra-document":
             continue
 
         # Cross-instance (§13.4 case A): target shape is "flow.instance:id" or link
-        # carries `cross_instance: true`. Handled BEFORE plain cross-methodology so
+        # carries `cross_instance: true`. Handled BEFORE plain cross-flow so
         # the dotted-flow.instance form doesn't get mis-parsed.
         cross_instance = link.get("cross_instance", False)
         is_dotted_target = isinstance(target, str) and ":" in target and "." in target.split(":", 1)[0]
@@ -709,41 +718,41 @@ def cmd_instance(
                             file=str(doc_path))
             continue
 
-        # Cross-methodology
+        # Cross-flow
         if cross or (isinstance(target, str) and ":" in target and not target.startswith("@")):
             # Parse qualified target
             if ":" in (target or ""):
-                target_methodology, target_id = target.split(":", 1)
+                target_flow, target_id = target.split(":", 1)
             else:
-                target_methodology, target_id = "?", target
+                target_flow, target_id = "?", target
 
             # Look up in external_edges
-            ext_key = (source_node_id, target_methodology, None, kind)
-            # Loose match: we look for source_node_id, target_methodology, kind, ignoring to_type
+            ext_key = (source_node_id, target_flow, None, kind)
+            # Loose match: we look for source_node_id, target_flow, kind, ignoring to_type
             ext_match = None
             for key, ext in external_edges_by_kv.items():
-                if key[0] == source_node_id and key[1] == target_methodology and key[3] == kind:
+                if key[0] == source_node_id and key[1] == target_flow and key[3] == kind:
                     ext_match = ext
                     break
             if not ext_match:
                 report.add_code(
                     "I101",
-                    f"edge {i}: cross-methodology `{kind}` from `{source_node_id}` "
-                    f"to `{target_methodology}:{target_id}` not authorized in external_edges",
+                    f"edge {i}: cross-flow `{kind}` from `{source_node_id}` "
+                    f"to `{target_flow}:{target_id}` not authorized in external_edges",
                     file=str(doc_path),
                 )
                 continue
 
-            # Is target methodology in active marker?
-            if target_methodology not in [m["id"] for m in marker.get("methodologies", []) or []]:
-                code = "I121" if target_methodology not in marker.get("_installed", []) else "I120"
-                if cross_methodology_edges_mode == "deny":
+            # Is target flow in active marker?
+            if target_flow not in [m["id"] for m in marker.get("methodologies", []) or []]:
+                code = "I121" if target_flow not in marker.get("_installed", []) else "I120"
+                if cross_flow_edges_mode == "deny":
                     report.add_code("I101",
-                        f"edge {i}: cross-methodology target `{target_methodology}` not active "
+                        f"edge {i}: cross-flow target `{target_flow}` not active "
                         f"(deny mode)", file=str(doc_path))
                 else:
                     report.add_code(code,
-                        f"edge {i}: cross-methodology target `{target_methodology}` not in marker",
+                        f"edge {i}: cross-flow target `{target_flow}` not in marker",
                         file=str(doc_path))
             continue
 
@@ -785,7 +794,7 @@ def cmd_instance(
                 target_node = n; break
         if not target_node:
             report.add_code("I200",
-                f"edge {i}: target `{target}` has type `{target_type}` not declared in `{inst_methodology}`'s graph",
+                f"edge {i}: target `{target}` has type `{target_type}` not declared in `{inst_flow}`'s graph",
                 file=str(doc_path))
             continue
 
@@ -811,8 +820,9 @@ def validate_marker_schema(marker: dict, marker_path: Path, marker_dir: Path, re
     """M001-M006/M030 hard-fail rules from design §1.4 + §13.7.
 
     Schema v2 (helix_version: 2) accepts `flows:` with optional `instance:` per entry.
-    Schema v1 (`methodologies:`) is accepted with M020 deprecation warn.
-    After validation, marker["methodologies"] holds the normalized entry list where each
+    Schema v1 (`methodologies:`) is accepted with M020 deprecation warn (alias on the
+    legacy key). After validation, marker["methodologies"] holds the normalized entry
+    list (the internal cache key is preserved for one cycle of back-compat) where each
     entry has an injected `instance` field (defaulting to "default"). Uniqueness key is
     (id, instance) — duplicates fire M030.
 
@@ -841,10 +851,17 @@ def validate_marker_schema(marker: dict, marker_path: Path, marker_dir: Path, re
     else:
         raw_entries = marker.get("methodologies")
         list_key = "methodologies"
-        # M020: legacy key warn (only fires when helix_version: 2 is declared).
+        # M020: legacy-key deprecation alias (one cycle). Fires on every v1-shape
+        # marker that still uses `methodologies:`. v2-shape (`flows:`) markers are
+        # silent. Escalated to error when helix_version: 2 is explicitly declared
+        # (the author opted into v2 but kept the old key).
         if str(marker.get("helix_version", "")).strip() == "2":
             report.add_code("M020",
                             "marker declares `helix_version: 2` but uses legacy `methodologies:` key — rename to `flows:`",
+                            file=str(marker_path))
+        else:
+            report.add_code("M020",
+                            "`methodologies:` is the legacy key; rename to `flows:` before v2 lands",
                             file=str(marker_path))
 
     if not isinstance(raw_entries, list) or not raw_entries:
@@ -884,7 +901,7 @@ def validate_marker_schema(marker: dict, marker_path: Path, marker_dir: Path, re
         # would map to instance "default" (i.e. v1-style duplicate), prefer M003.
         if pair in pairs_seen:
             if inst == "default" and mid in ids_seen_for_default:
-                report.add_code("M003", f"duplicate methodology id `{mid}` (instance `{inst}`)",
+                report.add_code("M003", f"duplicate flow id `{mid}` (instance `{inst}`)",
                                 file=str(marker_path))
             else:
                 report.add_code("M030",
@@ -914,13 +931,15 @@ def validate_marker_schema(marker: dict, marker_path: Path, marker_dir: Path, re
         normalized.append(entry)
 
     # Normalize: regardless of v1/v2 input shape, downstream code reads
-    # marker["methodologies"]. Preserve original keys too for round-trip.
+    # marker["methodologies"]. The internal cache key keeps the legacy spelling
+    # for one cycle so the rename stays additive — downstream consumers see a
+    # stable shape while authors migrate to `flows:`.
     marker["methodologies"] = normalized
 
-    # M004: defaults.methodology must be in methodologies list (by id, or by
-    # qualified `flow.instance` for v2). v2 marker may use `defaults.flow:` synonym.
+    # M004: defaults.flow (v2) / defaults.methodology (v1 legacy) must be in the
+    # flows list (by id, or by qualified `flow.instance` for v2).
     defaults = marker.get("defaults") or {}
-    dm = defaults.get("methodology") or defaults.get("flow")
+    dm = defaults.get("flow") or defaults.get("methodology")
     if dm:
         if "." in dm:
             df, di = dm.split(".", 1)
@@ -974,7 +993,7 @@ def resolve_cwd_to_instance(
       marker     — already-validated marker dict (post `validate_marker_schema`)
       cwd        — absolute cwd path
       repo_root  — absolute repo root (the directory containing .helix.yml)
-      env_flow   — optional value of HELIX_METHODOLOGY env (or v2 HELIX_FLOW)
+      env_flow   — optional value of HELIX_FLOW env (or legacy HELIX_METHODOLOGY)
 
     Returns either:
       ("resolved",   flow_id, instance) — single (flow, instance) result
@@ -990,7 +1009,7 @@ def resolve_cwd_to_instance(
       5. |K|>1  → pick deepest (longest components). Single deepest → resolved.
                   Multiple deepest (siblings at equal depth, or identical roots):
                   i. env_flow names one of K_max → resolved(that one)
-                  ii. defaults.{methodology,flow} names one of K_max → resolved
+                  ii. defaults.{flow,methodology} names one of K_max → resolved
                   iii. else ambiguous(K_max)
     """
     cwd = Path(cwd).resolve()
@@ -1028,7 +1047,7 @@ def resolve_cwd_to_instance(
         return ("resolved", e["id"], e["instance"])
 
     # 5b: genuine sibling tie. Disambiguation chain.
-    # i. env_flow (HELIX_METHODOLOGY / HELIX_FLOW). Accepts either bare flow id
+    # i. env_flow (HELIX_FLOW / legacy HELIX_METHODOLOGY). Accepts either bare flow id
     # (matches if exactly one entry in K_max has that id) or qualified "flow.instance".
     if env_flow:
         ef = env_flow.strip()
@@ -1043,9 +1062,9 @@ def resolve_cwd_to_instance(
                 e = matching[0]
                 return ("resolved", e["id"], e["instance"])
 
-    # ii. defaults.{methodology,flow}
+    # ii. defaults.{flow,methodology}
     defaults = marker.get("defaults") or {}
-    dm = defaults.get("methodology") or defaults.get("flow")
+    dm = defaults.get("flow") or defaults.get("methodology")
     if dm:
         if "." in dm:
             dm_flow, dm_instance = dm.split(".", 1)
@@ -1083,11 +1102,11 @@ def _save_disk_cache(marker_dir: Path, data: dict) -> None:
 
 def cmd_marker(
     marker_path: Path,
-    methodology_resolver: dict[str, Path],
+    flow_resolver: dict[str, Path],
     library_types_root: Path | None,
     report: Report,
     no_instance: bool = False,
-    cross_methodology_edges_mode: str = "warn",
+    cross_flow_edges_mode: str = "warn",
     allow_empty_scope: bool = False,
     use_cache: bool = False,
 ) -> None:
@@ -1099,12 +1118,12 @@ def cmd_marker(
     if not validate_marker_schema(marker, marker_path, marker_dir, report):
         return
 
-    # M005: warn on unknown methodologies; proceed with known ones
+    # M005: warn on unknown flows; proceed with known ones
     # M006: root resolves to nonexistent directory → hard stop unless --allow-empty-scope
     for entry in marker["methodologies"]:
         mid = entry["id"]
-        if mid not in methodology_resolver:
-            report.add_code("M005", f"unknown methodology `{mid}` — no plugin found, entry ignored",
+        if mid not in flow_resolver:
+            report.add_code("M005", f"unknown flow `{mid}` — no plugin found, entry ignored",
                             file=str(marker_path))
             continue
         scope = (marker_dir / entry["root"]).resolve()
@@ -1116,15 +1135,15 @@ def cmd_marker(
                 report.add_code("M006", f"`{mid}` root `{entry['root']}` does not resolve to a directory",
                                 file=str(marker_path))
 
-    # Track installed methodologies for I120/I121 discrimination
-    marker.setdefault("_installed", list(methodology_resolver.keys()))
+    # Track installed flows for I120/I121 discrimination
+    marker.setdefault("_installed", list(flow_resolver.keys()))
 
-    # Dispatch graph mode for each known methodology
+    # Dispatch graph mode for each known flow
     for entry in marker["methodologies"]:
         mid = entry["id"]
-        if mid not in methodology_resolver:
+        if mid not in flow_resolver:
             continue
-        graph_path = methodology_resolver[mid] / "workflows/graph.yml"
+        graph_path = flow_resolver[mid] / "workflows/graph.yml"
         if graph_path.exists():
             cmd_graph(graph_path, library_types_root, report)
 
@@ -1133,7 +1152,7 @@ def cmd_marker(
 
     # Cache-correctness invalidation matrix (design F4):
     #   - marker mtime change → full re-walk (no entries survive)
-    #   - graph.yml mtime change → invalidate all instances of that methodology
+    #   - graph.yml mtime change → invalidate all instances of that flow
     #   - library type meta.yml mtime → invalidate all instances of that type
     #   - per-instance mtime unchanged → skip re-validation
     disk_cache = _load_disk_cache(marker_dir) if use_cache else {}
@@ -1146,16 +1165,16 @@ def cmd_marker(
     marker_changed = (prev_marker_mtime != cur_marker_mtime)
 
     cur_graph_mtimes = {}
-    invalidated_methodologies = set()
+    invalidated_flows = set()
     for entry in marker["methodologies"]:
         mid = entry["id"]
-        if mid not in methodology_resolver:
+        if mid not in flow_resolver:
             continue
-        gp = methodology_resolver[mid] / "workflows/graph.yml"
+        gp = flow_resolver[mid] / "workflows/graph.yml"
         if gp.exists():
             cur_graph_mtimes[mid] = gp.stat().st_mtime
             if prev_graph_mtimes.get(mid) != cur_graph_mtimes[mid]:
-                invalidated_methodologies.add(mid)
+                invalidated_flows.add(mid)
 
     cur_type_mtimes = {}
     invalidated_types = set()
@@ -1170,7 +1189,7 @@ def cmd_marker(
 
     for entry in marker["methodologies"]:
         mid = entry["id"]
-        if mid not in methodology_resolver:
+        if mid not in flow_resolver:
             continue
         scope = (marker_dir / entry["root"]).resolve()
         if not scope.is_dir():
@@ -1184,10 +1203,10 @@ def cmd_marker(
             can_skip = (
                 use_cache
                 and not marker_changed
-                and mid not in invalidated_methodologies
+                and mid not in invalidated_flows
                 and prev_entry is not None
                 and prev_entry.get("mtime") == cur_mtime
-                and prev_entry.get("methodology") == mid
+                and prev_entry.get("flow") == mid
                 and prev_entry.get("type") not in invalidated_types
             )
             if can_skip:
@@ -1197,8 +1216,8 @@ def cmd_marker(
                 new_entries[md_key] = prev_entry
             else:
                 before = len(report.findings)
-                cmd_instance(md, marker, marker_dir, methodology_resolver, report,
-                             cross_methodology_edges_mode=cross_methodology_edges_mode,
+                cmd_instance(md, marker, marker_dir, flow_resolver, report,
+                             cross_flow_edges_mode=cross_flow_edges_mode,
                              library_types_root=library_types_root)
                 new_findings = report.findings[before:]
                 # Snapshot the doc's type (best-effort, for type-invalidation matrix)
@@ -1208,7 +1227,7 @@ def cmd_marker(
                     doc_type = (fm.get("ddx") or {}).get("type")
                 new_entries[md_key] = {
                     "mtime": cur_mtime,
-                    "methodology": mid,
+                    "flow": mid,
                     "type": doc_type,
                     "findings": [
                         {"code": f.code, "msg": f.msg, "file": f.file, "line": f.line}
@@ -1236,13 +1255,16 @@ def main(argv: list[str]) -> int:
 
     p_marker = sub.add_parser("marker")
     p_marker.add_argument("marker_path", type=Path)
-    p_marker.add_argument("--methodology", action="append", default=[],
-                          help="<id>=<path-to-methodology-root>, repeatable")
+    # v2 flag name is `--flow`; `--methodology` retained as deprecated alias for one cycle.
+    p_marker.add_argument("--flow", "--methodology", action="append", default=[], dest="flow",
+                          help="<id>=<path-to-flow-root>, repeatable")
     p_marker.add_argument("--library-types", type=Path)
     p_marker.add_argument("--strict", action="store_true")
     p_marker.add_argument("--json", action="store_true")
     p_marker.add_argument("--no-instance", action="store_true")
-    p_marker.add_argument("--cross-methodology-edges", choices=["allow", "warn", "deny"], default="warn")
+    p_marker.add_argument("--cross-flow-edges", "--cross-methodology-edges",
+                          dest="cross_flow_edges",
+                          choices=["allow", "warn", "deny"], default="warn")
     p_marker.add_argument("--allow-empty-scope", action="store_true")
     p_marker.add_argument("--ceiling-s", type=float, default=None,
                           help="abort with exit=5 if wall-clock exceeds N seconds")
@@ -1250,7 +1272,7 @@ def main(argv: list[str]) -> int:
                           help="enable on-disk .helix/index.json incremental cache (F4)")
 
     p_graph = sub.add_parser("graph")
-    p_graph.add_argument("methodology_root", type=Path)
+    p_graph.add_argument("flow_root", type=Path)
     p_graph.add_argument("--library-types", type=Path)
     p_graph.add_argument("--strict", action="store_true")
     p_graph.add_argument("--json", action="store_true")
@@ -1258,11 +1280,13 @@ def main(argv: list[str]) -> int:
     p_inst = sub.add_parser("instance")
     p_inst.add_argument("doc", type=Path)
     p_inst.add_argument("--marker", type=Path, required=True)
-    p_inst.add_argument("--methodology", action="append", default=[])
+    p_inst.add_argument("--flow", "--methodology", action="append", default=[], dest="flow")
     p_inst.add_argument("--library-types", type=Path)
     p_inst.add_argument("--strict", action="store_true")
     p_inst.add_argument("--json", action="store_true")
-    p_inst.add_argument("--cross-methodology-edges", choices=["allow", "warn", "deny"], default="warn")
+    p_inst.add_argument("--cross-flow-edges", "--cross-methodology-edges",
+                        dest="cross_flow_edges",
+                        choices=["allow", "warn", "deny"], default="warn")
 
     p_type = sub.add_parser("type")
     p_type.add_argument("types_root", type=Path)
@@ -1280,11 +1304,11 @@ def main(argv: list[str]) -> int:
     args = parser.parse_args(argv)
     report = Report()
 
-    def parse_methodologies(items: list[str]) -> dict[str, Path]:
+    def parse_flows(items: list[str]) -> dict[str, Path]:
         out = {}
         for it in items:
             if "=" not in it:
-                report.add_code("R010", f"--methodology requires <id>=<path>, got `{it}`")
+                report.add_code("R010", f"--flow requires <id>=<path>, got `{it}`")
                 continue
             mid, path = it.split("=", 1)
             out[mid] = Path(path)
@@ -1295,23 +1319,23 @@ def main(argv: list[str]) -> int:
         _CEILING_S = args.ceiling_s
         _START_T = time.monotonic()
         _DOCS_SCANNED["count"] = 0
-        resolver = parse_methodologies(args.methodology)
+        resolver = parse_flows(args.flow)
         cmd_marker(args.marker_path, resolver, args.library_types, report,
                    no_instance=args.no_instance,
-                   cross_methodology_edges_mode=args.cross_methodology_edges,
+                   cross_flow_edges_mode=args.cross_flow_edges,
                    allow_empty_scope=args.allow_empty_scope,
                    use_cache=args.use_cache)
     elif args.cmd == "graph":
-        graph_path = args.methodology_root / "workflows/graph.yml"
+        graph_path = args.flow_root / "workflows/graph.yml"
         cmd_graph(graph_path, args.library_types, report)
     elif args.cmd == "instance":
         # Need the marker context
         marker = load_yaml(args.marker, report, "M001")
         if marker is not None and validate_marker_schema(marker, args.marker, args.marker.parent.resolve(), report):
-            resolver = parse_methodologies(args.methodology)
+            resolver = parse_flows(args.flow)
             marker.setdefault("_installed", list(resolver.keys()))
             cmd_instance(args.doc, marker, args.marker.parent.resolve(), resolver, report,
-                         cross_methodology_edges_mode=args.cross_methodology_edges,
+                         cross_flow_edges_mode=args.cross_flow_edges,
                          library_types_root=args.library_types)
     elif args.cmd == "type":
         cmd_type(args.types_root, report)

@@ -1,4 +1,4 @@
-# HELIX Family: Marker File + Type/Methodology/Instance Linkage Relaxation
+# HELIX Family: Marker File + Type/Flow/Instance Linkage Relaxation
 
 Status: design (Phase 3 of 6 of the marker+linkage workflow)
 Date: 2026-06-04
@@ -11,7 +11,11 @@ Coupled docs: plan-2026-06-03-helix-library-FINAL.md, implementation-plan-2026-0
 
 ## §0 Architecture amendment (relative to design-2026-06-03-helix-library-split.md)
 
-Two architectural changes land on top of the library/methodology split:
+### §0.1 Terminology
+
+This document uses the v2 family terminology: a HELIX flow is what was called a methodology in v1. The marker key `flows:` is canonical; `methodologies:` is accepted via the M020 deprecation alias for one cycle. CLI flag `--flow` is canonical; `--methodology` is a one-cycle alias. Env var `HELIX_FLOW` supersedes `HELIX_METHODOLOGY` (still accepted). See plan-2026-06-05-conversation-bench-and-autonomy.md §11 for the full rename mapping.
+
+Two architectural changes land on top of the library/flow split:
 
 1. **Activation moves from heuristics to explicit declaration via a marker
    file `.helix.yml` at the repo root.** Today's detection signals
@@ -23,7 +27,7 @@ Two architectural changes land on top of the library/methodology split:
 
 2. **Inter-artifact linkages are split three ways.** Today, `meta.yml`
    carries `relationships: {depends_on, informs, referenced_by}` at the
-   TYPE level, mixing methodology-graph information with portable
+   TYPE level, mixing flow-graph information with portable
    artifact shape. Under the relaxation:
 
    - **Library `meta.yml`** carries SHAPE ONLY (`required_sections`,
@@ -32,25 +36,25 @@ Two architectural changes land on top of the library/methodology split:
      kind. The Phase 1 inventory confirms this is already the de-facto
      pattern (most types have empty `relationships:`; helix-infra types
      declare none at all).
-   - **Methodology `graph.yml`** declares which TYPE-PAIR edges are
-     allowed in this methodology, with edge kind and per-pair
-     cardinality / strength. The methodology's outbound
-     cross-methodology edges live in a sibling `external_edges:` /
-     `cross_methodology:` block in the same file.
+   - **Flow `graph.yml`** declares which TYPE-PAIR edges are
+     allowed in this flow, with edge kind and per-pair
+     cardinality / strength. The flow's outbound
+     cross-flow edges live in a sibling `external_edges:` /
+     `cross_flow:` block in the same file.
    - **Instance frontmatter** (under `ddx.links:`) declares the specific
      edges THIS instance has, referencing siblings by stable id (never
      file path). The validator resolves edges against the active
-     methodology graph(s), which are named by the marker.
+     flow graph(s), which are named by the marker.
 
 The two changes are coupled: the marker file is the input that tells the
-validator (and the skill) WHICH methodology graphs to load and validate
-instance edges against. Cross-methodology edges (e.g. a product PRD that
-informs an infra change-intent) work ONLY when both methodologies appear
-in the active marker and the source methodology has authorized the edge
+validator (and the skill) WHICH flow graphs to load and validate
+instance edges against. Cross-flow edges (e.g. a product PRD that
+informs an infra change-intent) work ONLY when both flows appear
+in the active marker and the source flow has authorized the edge
 in its `external_edges:` block.
 
 Everything from design-2026-06-03 §0–§5 (monorepo topology, library
-contents, `meta.yml` shape, methodology skeleton, library type
+contents, `meta.yml` shape, flow skeleton, library type
 versioning) stays. §6 (graph) is extended (additional edge kinds,
 `external_edges:`). §7.5 (co-activation precedence) is partly
 superseded: rules 1, 2, 5 survive as fallback; rules 3, 4 are subsumed
@@ -66,7 +70,7 @@ by the marker. §8 conflicts already resolved stay resolved.
 or the cwd if no git root is found. Single file, no nested overrides in
 v1. The dotfile-at-root convention matches `.editorconfig`, `.gitignore`,
 `.prettierrc`. The name `helix` is the FAMILY name (marketplace), not a
-methodology id; the same file declares which methodology flavors apply.
+flow id; the same file declares which flow flavors apply.
 
 `.claude-plugin/methodologies.yml` was considered and rejected: it
 couples the file to one agent harness. TOML was considered and rejected:
@@ -89,15 +93,15 @@ stray markers that the activation walk would warn about silently.
 
 ### 1.2 Schema
 
-One required top-level key `methodologies:` (list). Optional top-level
-keys `helix_version:`, `defaults:`, `cross_methodology_edges:`. Optional
+One required top-level key `flows:` (list). Optional top-level
+keys `helix_version:`, `defaults:`, `cross_flow_edges:`. Optional
 per-entry keys `version:`, `concerns:`.
 
 ```yaml
 # .helix.yml — schema (informal; JSON Schema at library/schemas/marker.schema.json)
 helix_version: 1                       # marker schema version (REQUIRED in v1)
 
-methodologies:                         # REQUIRED; list of {id, root, ...}
+flows:                         # REQUIRED; list of {id, root, ...}
   - id: <plugin-id>                    # must match methodology.yml `id:`
     root: <repo-relative-path>         # where instances live; must stay inside repo
     version: "<semver>"                # OPTIONAL; advisory pin
@@ -106,12 +110,12 @@ methodologies:                         # REQUIRED; list of {id, root, ...}
       disabled: [<concern-slug>, ...]
 
 defaults:                              # OPTIONAL; resolves generic prompts
-  methodology: <id>                    # must be one of the listed methodologies
+  flow: <id>                    # must be one of the listed flows
 
-cross_methodology_edges:               # OPTIONAL; per-repo allowlist
+cross_flow_edges:               # OPTIONAL; per-repo allowlist
   allow:
-    - from: <src-methodology>:<src-type>
-      to:   <dst-methodology>:<dst-type>
+    - from: <src-flow>:<src-type>
+      to:   <dst-flow>:<dst-type>
       kind: <edge-kind>
 ```
 
@@ -128,7 +132,7 @@ Run /helix init-marker to make this explicit.
 
 Heuristic activation is FROZEN — no new detection signals get added; the
 marker is the growth path. Refusing to activate would punish every
-existing HELIX install. Silently activating the first methodology found
+existing HELIX install. Silently activating the first flow found
 hides drift. The banner is the explicit middle path.
 
 ### 1.4 Hard-fail rules (no partial activation on malformed marker)
@@ -140,8 +144,8 @@ prevents.
 
 - **YAML parse error** → hard stop (M001), print file + line + parse message.
 - **`root:` escapes the repo root** → hard stop (M002).
-- **Duplicate `id:` in `methodologies:`** → hard stop (M003).
-- **`defaults.methodology:` not in `methodologies:`** → hard stop (M004).
+- **Duplicate `id:` in `flows:`** → hard stop (M003).
+- **`defaults.flow:` not in `flows:`** → hard stop (M004).
 - **Unknown `id:` (no installed plugin matches)** → that entry is
   ignored with diagnostic M005; OTHER entries proceed. Rationale: a
   missing plugin is recoverable (`install the plugin`) and shouldn't
@@ -155,16 +159,16 @@ prevents.
   fresh repo can declare `root: docs/helix/` before any instances
   exist. CI runs without that flag and catches dead scopes.
 
-### 1.5 Resolution of "which methodology is active right now"
+### 1.5 Resolution of "which flow is active right now"
 
-When the marker lists 2+ methodologies, the skill chooses one per
+When the marker lists 2+ flows, the skill chooses one per
 invocation:
 
-1. Explicit `/<methodology-id> <verb>` prefix wins.
-2. `HELIX_METHODOLOGY=<id>` env var wins.
-3. cwd under one methodology's `root:` wins.
-4. `defaults.methodology:` in the marker wins.
-5. If exactly one methodology is listed, it wins.
+1. Explicit `/<flow-id> <verb>` prefix wins.
+2. `HELIX_FLOW=<id>` env var wins.
+3. cwd under one flow's `root:` wins.
+4. `defaults.flow:` in the marker wins.
+5. If exactly one flow is listed, it wins.
 6. Otherwise emit the disambiguation banner from the prior §7.5 (single
    line; deterministic tie-break by listed order, NOT alphabetical —
    the marker IS the operator's intent).
@@ -175,7 +179,7 @@ invocation:
 
 ```yaml
 helix_version: 1
-methodologies:
+flows:
   - id: helix
     root: docs/helix/
 ```
@@ -185,7 +189,7 @@ methodologies:
 ```yaml
 helix_version: 1
 
-methodologies:
+flows:
   - id: helix
     root: docs/helix/
     version: "1.0.0"
@@ -197,20 +201,20 @@ methodologies:
     version: "0.2.0"
 
 defaults:
-  methodology: helix
+  flow: helix
 
-cross_methodology_edges:
+cross_flow_edges:
   allow:
     - from: helix:prd
       to:   helix-infra:change-intent
       kind: informs
 ```
 
-**Malformed (unknown methodology id).**
+**Malformed (unknown flow id).**
 
 ```yaml
 helix_version: 1
-methodologies:
+flows:
   - id: helix
     root: docs/helix/
   - id: helix-mobile          # not installed
@@ -220,8 +224,8 @@ methodologies:
 Expected diagnostic (entry ignored, others proceed):
 
 ```
-.helix.yml: unknown methodology id 'helix-mobile' at line 5.
-Installed methodologies: [helix, helix-infra]
+.helix.yml: unknown flow id 'helix-mobile' at line 5.
+Installed flows: [helix, helix-infra]
 This entry is ignored. Other entries (helix) will activate.
 To install: see https://<family-marketplace>/plugins
 ```
@@ -229,28 +233,28 @@ To install: see https://<family-marketplace>/plugins
 **Malformed (root escapes repo) — hard stop.**
 
 ```
-.helix.yml: root path '../../shared/helix/' for methodology 'helix'
+.helix.yml: root path '../../shared/helix/' for flow 'helix'
 escapes the repo root (.git is at /repos/acme/). Refusing to activate.
 Fix: use a repo-relative path that stays inside this repo.
 ```
 
 ---
 
-## §2 Linkage relaxation (type / methodology / instance cut)
+## §2 Linkage relaxation (type / flow / instance cut)
 
 ### 2.1 Layer 1 — Library type `meta.yml`: SHAPE ONLY
 
 Removing `relationships:` from library `meta.yml` is a structural rule
 the type validator enforces. A library type is portable across
-methodologies; encoding edges at the type level re-couples it to one
-methodology's vocabulary.
+flows; encoding edges at the type level re-couples it to one
+flow's vocabulary.
 
 ```yaml
 # library/types/prd/meta.yml
 id: prd
 name: Product Requirements Document
 summary: |
-  Captures the WHAT and WHY of a product change. Methodology-agnostic shape.
+  Captures the WHAT and WHY of a product change. Flow-agnostic shape.
 
 required_sections:
   - summary
@@ -320,7 +324,7 @@ This closes the verification-exit-gate failure mode where a library
 update silently breaks pre-commit on every uncommitted ADR: a major
 bump gives in-flight instances one cycle to migrate.
 
-### 2.2 Layer 2 — Methodology `graph.yml`: TYPE-PAIR allowed edges
+### 2.2 Layer 2 — Flow `graph.yml`: TYPE-PAIR allowed edges
 
 The graph declares which type-pair edges are allowed and at what
 strength. Edge kinds are CLOSED at five values:
@@ -345,27 +349,27 @@ them. Renderers may surface them. Promoting an `x-` kind to a closed
 kind costs a validator contract bump (§4).
 
 **Cardinality and strength live on the type-pair edge in the
-methodology graph, not on the type and not in instance frontmatter.**
+flow graph, not on the type and not in instance frontmatter.**
 The graph row carries `required: true|false` (default `false`) and
 optional `cardinality: one-to-one|one-to-many|many-to-many`. The same
 type pair can appear in different activities with different strengths.
 
-**Cross-methodology edges are declared by the SOURCE methodology only,
+**Cross-flow edges are declared by the SOURCE flow only,
 in an `external_edges:` block in the same `graph.yml`.** The target
-methodology does not declare anything. Rationale: a separate bridge
+flow does not declare anything. Rationale: a separate bridge
 file adds a third linkage location and creates the "who owns the
 bridge?" drift mode the inventory already shows for un-graphed
-methodologies. A bilateral declaration doubles the maintenance surface
-for the advisory `informs` cases that are the only cross-methodology
-edges anyone has asked for. If a future methodology needs ENFORCED
-cross-methodology `requires`, that's a separate amendment.
+flows. A bilateral declaration doubles the maintenance surface
+for the advisory `informs` cases that are the only cross-flow
+edges anyone has asked for. If a future flow needs ENFORCED
+cross-flow `requires`, that's a separate amendment.
 
 **`external_edges[]` entries MUST NOT carry `required: true`.** The
 graph validator hard-fails (**G104**) any external edge with
-`required: true`. Rationale: enforced cross-methodology prerequisites
+`required: true`. Rationale: enforced cross-flow prerequisites
 are the deferred bilateral-mechanism case (§6.2); permitting
 `required: true` on an external edge would let a downstream
-methodology silently invalidate every existing source-methodology
+flow silently invalidate every existing source-flow
 instance the moment the edge gets added to the graph. With external
 edges always advisory, adding a new external edge never invalidates
 existing instances retroactively — only new instances feel the
@@ -373,14 +377,14 @@ optional `informs` traceability slot.
 
 Additionally, **`external_edges[].kind:` MUST be `informs` or an
 `x-`-namespaced kind** (G105). `requires` / `contains` /
-`supersedes` are forbidden across methodologies in v1; they imply
+`supersedes` are forbidden across flows in v1; they imply
 enforcement or instance lifecycle the bilateral mechanism is needed
 to safely express.
 
 ```yaml
 # product/workflows/graph.yml — fragment
 version: 1
-methodology:
+flow:
   id: helix
   library_version: "^1.0.0"
   validator_contract: 1
@@ -450,7 +454,7 @@ allowed_cycles:
       superseding PRD instances carry `supersedes: [PRD-003]` in frontmatter.
 
 external_edges:
-  - to_methodology: helix-infra
+  - to_flow: helix-infra
     from_type:      prd
     to_type:        change-intent
     kind:           informs
@@ -466,7 +470,7 @@ external_edges:
 
 Edges in instance frontmatter live under `ddx.links:` as a LIST (same
 target may appear with different kinds). Targets are id strings
-resolved against the active methodologies' instance indexes. Path-based
+resolved against the active flows' instance indexes. Path-based
 references are rejected — they bake repo layout into documents.
 
 Existing `ddx.id` and `ddx.review` fields are untouched and
@@ -482,7 +486,7 @@ prose in helix-infra).
 ddx:
   id: PRD-001
   type: prd                              # library type id
-  methodology: helix                     # methodology that owns this instance
+  flow: helix                     # flow that owns this instance
   library_type_version: 1.0.0            # advisory; pairs with marker version
 
   review:                                # runtime-managed; unchanged
@@ -496,7 +500,7 @@ ddx:
     - { kind: contains,  to: FR-1, scope: intra-document }
     - { kind: supersedes, to: PRD-001@v0 }
     - { kind: informs,   to: "helix-infra:CI-2026-06-runtime-boundary",
-        cross_methodology: true }
+        cross_flow: true }
 ---
 ```
 
@@ -505,9 +509,9 @@ Field rules:
 - `kind:` must be one of the five closed kinds OR an `x-` namespaced
   string (warning, not error).
 - `to:` is an id. For local edges, an id resolvable in this
-  methodology's instance index. For cross-methodology edges, a
-  qualified id `<methodology-id>:<instance-id>` and
-  `cross_methodology: true`.
+  flow's instance index. For cross-flow edges, a
+  qualified id `<flow-id>:<instance-id>` and
+  `cross_flow: true`.
 - `scope: intra-document` marks containment edges to in-body anchors
   (FR-n, US-n-ACm); these are NOT resolved against the cross-document
   index. They exist in frontmatter so traceability tooling can render
@@ -533,26 +537,26 @@ Field rules:
 
 ### 2.4 Resolution contract (binds all three layers)
 
-The validator (§4) loads the marker, builds a per-methodology
-`instance_index: {ddx.id → file_path}` by walking each methodology's
+The validator (§4) loads the marker, builds a per-flow
+`instance_index: {ddx.id → file_path}` by walking each flow's
 `root:`, then for each `ddx.links[]` entry:
 
 1. Look up `(source_type, kind, target_type)` in the active
-   methodology's `edges:` (or `external_edges:` if
-   `cross_methodology: true`). If absent → error class I/G.
+   flow's `edges:` (or `external_edges:` if
+   `cross_flow: true`). If absent → error class I/G.
 2. If the edge is in `external_edges:`, distinguish two unreachable
    modes:
-   - **2a** target methodology absent from the active marker but its
+   - **2a** target flow absent from the active marker but its
      plugin IS installed on disk → WARNING **I120** ("link to inactive
-     methodology; add `<id>:` to .helix.yml or remove the edge").
-   - **2b** target methodology plugin NOT installed on disk → WARNING
-     **I121** ("link to uninstalled methodology; install
+     flow; add `<id>:` to .helix.yml or remove the edge").
+   - **2b** target flow plugin NOT installed on disk → WARNING
+     **I121** ("link to uninstalled flow; install
      `<plugin-id>` or remove the edge"). Distinct diagnostics matter
      because the operator's next step differs.
    Both downgradable-by-default to error via
    `--cross-methodology-edges deny` or `--strict-cross-method`. At
-   graph-load time the active methodology's `external_edges:` are
-   themselves walked; any entry whose target methodology is absent
+   graph-load time the active flow's `external_edges:` are
+   themselves walked; any entry whose target flow is absent
    from the marker emits **G140** once per graph load (not per
    instance edge that uses it), to surface graph drift even before
    any instance references it.
@@ -563,7 +567,7 @@ The validator (§4) loads the marker, builds a per-methodology
    cardinality — at-least-one-required edges generate errors only at
    activity-exit-gate time (a fresh PRD doesn't fail just for being new).
    `required: true` is NEVER honored on `external_edges:` (rejected at
-   graph-load time by G104 in §2.2); cross-methodology edges therefore
+   graph-load time by G104 in §2.2); cross-flow edges therefore
    never invalidate existing instances retroactively when added.
 
 ### 2.5 Frontmatter write contract
@@ -596,7 +600,7 @@ shape. Specifically:
 ### 2.6 Drop list (what the relaxation removes)
 
 - `relationships:` block from library `meta.yml` (Layer 1).
-- `referenced_by:` / `informed_by:` from methodology `graph.yml`
+- `referenced_by:` / `informed_by:` from flow `graph.yml`
   (computed inverse views).
 - Path-based markdown links as canonical edges (still allowed as prose
   references; no longer the traceability source of truth).
@@ -612,7 +616,7 @@ deliberator between them.
 - **Layer 1 (library `meta.yml`)** declares the type's intrinsic shape.
   It has NO authority over edges. Whether two types may relate is decided
   one layer up.
-- **Layer 2 (methodology `graph.yml`)** declares what edges are
+- **Layer 2 (flow `graph.yml`)** declares what edges are
   *possible* — the type-pair-with-kind whitelist (cf. §2.2). An edge
   appearing in `graph.yml` is a **candidate**, not an obligation.
 - **Layer 3 (instance frontmatter `ddx.links`)** declares what edges are
@@ -676,7 +680,7 @@ JSON Schema cannot express:
 2. **Edge endpoint resolution** — every `edges[].from/to` references a
    declared node id; every `external_edges[].from_type` is a local
    node; every `external_edges[].to_type` is plausible against the
-   target methodology IF the target methodology is loaded.
+   target flow IF the target flow is loaded.
 3. **Acyclicity over `requires` + `contains`** modulo `allowed_cycles`.
    **Self-loop rule (per S5 review item):** a type-pair edge with
    `from_type == to_type` on a kind in the acyclicity walk
@@ -708,7 +712,7 @@ Per-edge `required: true|false` (default `false`) on the type-pair edge
 declares whether instances of the source type MUST emit at least one
 edge of this kind to the target type. The validator translates
 `required: true` into an exit-gate-time check; it does NOT block
-authoring of a fresh node. This separates "this methodology demands
+authoring of a fresh node. This separates "this flow demands
 traceability" (graph) from "this PRD happens to inform two FEATs"
 (instance).
 
@@ -721,7 +725,7 @@ for single-pair constraints.
 ### 3.4 `allowed_cycles` — per type-pair-with-kind, with rationale
 
 The HELIX 06-iterate → 01-frame loop is intentional. Cycle exemption
-is declared at the methodology level, with rationale, scoped to a
+is declared at the flow level, with rationale, scoped to a
 type-pair-and-kind triple:
 
 ```yaml
@@ -737,23 +741,23 @@ allowed_cycles:
 Instance-level supersession chains (a runaway 17-deep chain) get a
 runtime warning at instance-check time; they are not a graph violation.
 
-### 3.5 Cross-methodology block — `external_edges:`
+### 3.5 Cross-flow block — `external_edges:`
 
 ONE canonical location, ONE direction (source authorizes). See §2.2
-example. The validator never reads the target methodology's graph for
-the cross edge; it only checks that the target methodology is in the
+example. The validator never reads the target flow's graph for
+the cross edge; it only checks that the target flow is in the
 active marker (otherwise warn) and that the target id resolves in the
-target methodology's instance index (otherwise warn).
+target flow's instance index (otherwise warn).
 
 This is intentional asymmetry. If `helix-infra` is silent about being
 informed by `helix:prd`, that's fine — `informs` is advisory. If a
-future methodology needs ENFORCED cross-methodology prerequisites (hard
+future flow needs ENFORCED cross-flow prerequisites (hard
 `requires`), it must propose a bilateral mechanism; this design does
 NOT extend `external_edges:` to handle that case.
 
 ### 3.6 Full worked example
 
-See §2.2 for the methodology graph; see §2.3 for the matching instance
+See §2.2 for the flow graph; see §2.3 for the matching instance
 frontmatter; see §4.3 for the validator runs against both.
 
 ---
@@ -769,15 +773,15 @@ validator, one CI, no by-copy drift).
 | Subcommand | Layer | Caller                              |
 | ---------- | ----- | ----------------------------------- |
 | `type`     | 1     | library CI                          |
-| `graph`    | 2     | methodology CI                      |
+| `graph`    | 2     | flow CI                      |
 | `instance` | 3     | pre-commit hook, skill runtime, repo CI |
 | `marker`   | 0     | consuming-repo CI (THE entrypoint)  |
 
 The `marker` subcommand is the entrypoint a consuming repo runs: it
 parses `.helix.yml`, dispatches `graph` against each declared
-methodology, and dispatches `instance` against every doc under each
+flow, and dispatches `instance` against every doc under each
 scope's `root:`. The other subcommands are individually invocable for
-library CI and methodology CI to gate before publication.
+library CI and flow CI to gate before publication.
 
 ### 4.2 CLI signatures
 
@@ -789,8 +793,8 @@ helix_check.py marker <path-to-.helix.yml>
     [--no-instance]                   # marker+graphs only, skip walking scopes
     [--library-root PATH]             # override resolver chain (testing)
 
-# (2) Graph mode — methodology-repo CI
-helix_check.py graph <methodology-root>
+# (2) Graph mode — flow-repo CI
+helix_check.py graph <flow-root>
     --types PATH [--types PATH ...]   # type catalog roots; repeatable
     [--schema PATH]                   # default: <library>/schemas/graph.schema.json
     [--strict] [--json | --json-out PATH]
@@ -799,7 +803,7 @@ helix_check.py graph <methodology-root>
 # (3) Instance mode — pre-commit hook + skill runtime
 helix_check.py instance <doc-or-dir> [<doc-or-dir> ...]
     --marker <path-to-.helix.yml>     # required; selects active graphs
-    [--scope <methodology-id>]        # restrict to one active methodology
+    [--scope <flow-id>]        # restrict to one active flow
     [--cross-methodology-edges allow|warn|deny]   # default: warn
     [--staged-only]                   # hook optimization
     [--strict] [--json | --json-out PATH]
@@ -839,7 +843,7 @@ must surface everything; CI shouldn't need N rounds to drain a backlog.
 - Structured JSON to stdout with `--json`, or to a file with
   `--json-out <path>`.
 - Each violation is a record:
-  `{code, layer, severity, instance_id, methodology, location, message, hint}`
+  `{code, layer, severity, instance_id, flow, location, message, hint}`
   with codes namespaced `T###` `G###` `I###` `M###` `R###`.
 
 ```json
@@ -856,7 +860,7 @@ must surface everything; CI shouldn't need N rounds to drain a backlog.
      "message":"edge target FEAT-099 not found in instance corpus",
      "hint":"check the id; nearest matches: FEAT-009, FEAT-019"},
     {"code":"G201","layer":"graph","severity":"error",
-     "methodology":"helix",
+     "flow":"helix",
      "location":"product/workflows/graph.yml:edges[7]",
      "message":"edge type 'informs' not allowed between 'prd' and 'adr' under active graph",
      "hint":"ADR is informed_BY prd; the edge belongs on the ADR side as informs from prd"}
@@ -893,20 +897,20 @@ ERROR T003  library/types/feature-specification/meta.yml
   relationships block is present on a library type (forbidden under
   linkage-relaxation; relationships belong in graph.yml, not meta.yml).
   fix: delete the `relationships:` key; encode the type-pair edges in
-       the methodology's graph.yml under nodes/edges.
+       the flow's graph.yml under nodes/edges.
   hint: see docs/helix/02-design/design-2026-06-04-helix-family-marker-and-linkages.md §2.1
 exit 3
 ```
 
-**(b) Graph error (G-class) — methodology CI catches an illegal type-pair edge:**
+**(b) Graph error (G-class) — flow CI catches an illegal type-pair edge:**
 
 ```
 $ python3 ../library/scripts/helix_check.py graph workflows/ \
       --types ../library/types --types workflows/artifacts
 ERROR G201  product/workflows/graph.yml:42
   node `prd` declares informs -> `tech-spike`, but `tech-spike` is not
-  a declared node in this methodology.
-  active methodology: helix
+  a declared node in this flow.
+  active flow: helix
   fix: either add a node `tech-spike` to graph.yml, or remove the edge.
   hint: did you mean `feature-specification`?
 
@@ -929,7 +933,7 @@ ERROR I101  docs/helix/01-frame/PRD-001.md:frontmatter.ddx.links[0]
   fix: correct the id, or create the missing FEAT-099 first.
 
 ERROR G201  docs/helix/01-frame/PRD-001.md:frontmatter.ddx.links[1]
-  PRD-001 declares informs -> ADR-002, but the active methodology graph
+  PRD-001 declares informs -> ADR-002, but the active flow graph
   (helix) forbids `informs` between `prd` and `adr`.
   allowed edges from prd: informs->feature-specification, informs->user-stories,
                           informs->principles, informs->test-plan
@@ -996,8 +1000,8 @@ upstream/main.
   (single-signal-wins) and 4 (alphabetical tie-break) are deleted; the
   marker IS the operator's intent. Rules 1, 2, 5 survive as a fallback
   block when `.helix.yml` is absent.
-- **Per-methodology heuristic detection** (file globs, prompt
-  patterns) is FROZEN. New methodologies do not add heuristics; they
+- **Per-flow heuristic detection** (file globs, prompt
+  patterns) is FROZEN. New flows do not add heuristics; they
   add marker support.
 - **Validator drift mode** for instance-level checks is closed: the
   validator that interprets the marker is the same binary that
@@ -1008,7 +1012,7 @@ upstream/main.
 - **`relationships:` in `library/types/*/meta.yml`** is removed.
   Migration step in the family-readiness work strips it from all
   promoted types and validates absence.
-- **`referenced_by:` and `informed_by:` keys** in any methodology
+- **`referenced_by:` and `informed_by:` keys** in any flow
   graph are dropped; the validator computes inverse views.
 - **Prior §6.1.1 edge-kind table** (three kinds) is extended to five
   (adds `contains`, `supersedes`); the three original kinds keep their
@@ -1018,7 +1022,7 @@ upstream/main.
 
 - **Monorepo topology, library contents, library type versioning**
   (design-2026-06-03 §0–§4) unchanged.
-- **Methodology skeleton, activity manifests** (§5) unchanged.
+- **Flow skeleton, activity manifests** (§5) unchanged.
 - **Catalog resolution chain** (§7.3) unchanged; the validator's
   `--library-root` flag uses the same chain.
 - **Cross-cutting nodes** (ADR, concerns, principles — §8.5)
@@ -1036,7 +1040,7 @@ walks the current `helix` and `helix-infra` repos and:
 
 1. Strips `relationships:` from every `library/types/*/meta.yml` and
    collects the removed edges.
-2. Folds the collected edges into the appropriate methodology's
+2. Folds the collected edges into the appropriate flow's
    `graph.yml` `edges:` list with `required: false` (humans tighten
    later).
 3. For each instance with body-prose ID citations (FEAT/ADR "Related"
@@ -1083,16 +1087,16 @@ edit any file (signal that the migration PR has not landed yet).
 ### 6.1 Tradeoffs accepted
 
 - **Marker hard-fails on malformed shape, soft-fails on unknown
-  methodology id.** Asymmetric on purpose: the marker exists to
+  flow id.** Asymmetric on purpose: the marker exists to
   eliminate silent misroutes, so a parse error must be loud; a
   missing-plugin id is recoverable and shouldn't black-hole the repo.
 - **Heuristic fallback keeps two activation paths.** Zero migration
   friction for existing installs; cost is the legacy heuristic path
   must be kept tested. The path is FROZEN — no growth — so the cost is
   bounded.
-- **Cross-methodology edges authorized only by source.** Asymmetric;
+- **Cross-flow edges authorized only by source.** Asymmetric;
   the target may be surprised by inbound `informs`. Acceptable because
-  `informs` is advisory-forward; if/when ENFORCED cross-methodology
+  `informs` is advisory-forward; if/when ENFORCED cross-flow
   edges are needed, a separate bilateral mechanism gets designed.
 - **Edge kinds CLOSED at five.** New semantics require a validator
   contract bump. `x-vendor-kind` escape hatch keeps experimentation
@@ -1116,11 +1120,11 @@ edit any file (signal that the migration PR has not landed yet).
 
 ### 6.2 Open questions
 
-- **Cross-methodology `requires` (enforced, not advisory)** — the only
-  cross-methodology edges this design handles are `informs`. A real
-  enforced prerequisite across methodologies (e.g. infra
+- **Cross-flow `requires` (enforced, not advisory)** — the only
+  cross-flow edges this design handles are `informs`. A real
+  enforced prerequisite across flows (e.g. infra
   apply-evidence MUST precede a product release-notes) needs a
-  bilateral mechanism; deferred to whichever methodology first asks.
+  bilateral mechanism; deferred to whichever flow first asks.
 - **Skill-time strictness** — does instance-mode at skill-invocation
   BLOCK on warnings or only on errors? `--strict` is the safest reading
   of the verification-exit-gate memory but raises the floor for every
@@ -1143,8 +1147,8 @@ edit any file (signal that the migration PR has not landed yet).
 - **`intra-document` containment edges in frontmatter** — overlap with
   body anchors. May collapse to body-only in v2 if traceability tooling
   doesn't need them.
-- **`supersedes:` as a methodology-level edge kind vs instance-only**
-  — currently both. Could collapse to instance-only if no methodology
+- **`supersedes:` as a flow-level edge kind vs instance-only**
+  — currently both. Could collapse to instance-only if no flow
   needs to forbid supersession for a given type.
 - **`helix_version:` field** — semver-tracked schema version for the
   marker; `validator_contract:` in graph.yml; `library_type_version:`
