@@ -21,7 +21,19 @@
     "not gate' and writes the observed value back; subsequent runs gate."
   ],
   "version": 1,
-  "updated_at": null,
+  "updated_at": "2026-06-06T03:57:50Z",
+  "last_attempt": {
+    "timestamp": "2026-06-06T03:57:50Z",
+    "outcome": "scaffold_only",
+    "reason": "Phase 0a runner (helix_bench.py v0.2.0) validates structurally and executes validator-rows directly via helix_check.py, but stream-json CC invocation for non-validator rows is deferred to Phase 1+ (see runner line 1802). Auth is live: OAuth token at ~/.cache/family-test-auth/token authenticates, family-test/docker smoke probe PASS ($0.022 actual). 4/4 validator rows (RC-01..RC-04) pass live. stable_pass_rate and routing_precision baselines remain null until the Phase 1+ runner can drive all 71 conversations + 81 routing-evals through claude -p end-to-end.",
+    "partial_floor": {
+      "validator_rows_live_pass": "4/4 (RC-01..RC-04)",
+      "layer1_structural_pass": "51/71 conversations (20 AM-/SA- rows reject T044: negative_control schema)",
+      "smoke_probe_cost_usd_actual": 0.02203825,
+      "smoke_probe_session_id": "65855e7d-be12-425c-9852-e69f4c6e4bfe"
+    },
+    "next_action": "Build Phase 1+ runner: stream-json CC invocation per row, transcript persistence, Layer 1+Layer 2 grading, determinism=3 stable_pass_rate computation, routing-evals subcommand. Then re-run with auth available to seed baselines."
+  },
   "ratchets": {
     "stable_pass_rate": {
       "description": "min %% of bench rows that stable-pass at determinism=3",
