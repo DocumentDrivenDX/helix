@@ -1,18 +1,18 @@
 {
   "$comment": [
-    "Bench ratchets (plan §15c P14, §19.4). Updated after each main-merge",
+    "Bench ratchets (plan \u00a715c P14, \u00a719.4). Updated after each main-merge",
     "bench run. The CI workflow reads this file; a regression beyond the",
     "declared tolerance fails the job (and posts a PR comment summarising).",
     "",
     "Three ratchet streams:",
-    "  stable_pass_rate    — % of bench rows verdicting stable-pass at",
-    "                        determinism=3. Plan §19.4 alert threshold:",
+    "  stable_pass_rate    \u2014 % of bench rows verdicting stable-pass at",
+    "                        determinism=3. Plan \u00a719.4 alert threshold:",
     "                        5pp drop run-over-run.",
-    "  routing_precision   — positive-prompt precision on the 75 routing",
-    "                        evals. Plan §19.4 alert threshold: 2pp drop.",
-    "  cost_per_run        — rolling 30-day avg full-bench $/run. Plan",
-    "                        §19.4 alert threshold: 25% above baseline.",
-    "  dev_iteration_burn  — separate one-time stream (plan §19.2) for the",
+    "  routing_precision   \u2014 positive-prompt precision on the 75 routing",
+    "                        evals. Plan \u00a719.4 alert threshold: 2pp drop.",
+    "  cost_per_run        \u2014 rolling 30-day avg full-bench $/run. Plan",
+    "                        \u00a719.4 alert threshold: 25% above baseline.",
+    "  dev_iteration_burn  \u2014 separate one-time stream (plan \u00a719.2) for the",
     "                        P0-P15 build-out. Tracked so steady-state CI",
     "                        cost is not conflated with infra setup.",
     "",
@@ -21,7 +21,7 @@
     "not gate' and writes the observed value back; subsequent runs gate."
   ],
   "version": 1,
-  "updated_at": "2026-06-06T03:57:50Z",
+  "updated_at": "2026-06-06T16:01:47.928946+00:00",
   "last_attempt": {
     "timestamp": "2026-06-06T03:57:50Z",
     "outcome": "scaffold_only",
@@ -45,11 +45,14 @@
     },
     "routing_precision": {
       "description": "positive-prompt precision on the 75 routing evals",
-      "baseline": null,
+      "baseline": 1.0,
       "tolerance_pp": 2,
       "direction": "higher_is_better",
       "source": "helix_bench routing-evals (positive set)",
-      "alert_action": "fail CI; routing-positive regression is a hard-gate"
+      "alert_action": "fail CI; routing-positive regression is a hard-gate",
+      "last_observed": 1.0,
+      "last_observed_at": "2026-06-06T16:01:47.928930+00:00",
+      "seeded_at": "2026-06-06T16:01:47.928930+00:00"
     },
     "cost_per_run": {
       "description": "rolling 30-day avg full-bench $/run (cost_tracker.py)",
@@ -60,7 +63,7 @@
       "alert_action": "warn on PR; fail on main if sustained"
     },
     "dev_iteration_burn": {
-      "description": "P0-P15 one-time bench infra dev burn (plan §19.2 ~$1850)",
+      "description": "P0-P15 one-time bench infra dev burn (plan \u00a719.2 ~$1850)",
       "baseline": null,
       "tolerance_pct": null,
       "direction": "lower_is_better",

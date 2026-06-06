@@ -38,10 +38,17 @@ except ImportError:  # pragma: no cover
     sys.exit(2)
 
 
-VERSION = "0.2.0"
+VERSION = "0.3.0"
 
 REPO_ROOT = Path(__file__).resolve().parents[2]  # family-test/bench/runner -> family-test
+FAMILY_TEST_ROOT = REPO_ROOT  # alias for clarity in Phase 1+ runner code
 BENCH_ROOT = Path(__file__).resolve().parents[1]
+CONVERSATIONS_DIR = BENCH_ROOT / "conversations"
+ROUTING_EVALS_DIR = BENCH_ROOT / "routing-evals"
+RUNS_DIR = BENCH_ROOT / "runs"
+RUN_PROBE_SH = FAMILY_TEST_ROOT / "docker" / "run-probe.sh"
+RATCHETS_PATH = BENCH_ROOT / "ratchets.json"
+COST_LOG_PATH = BENCH_ROOT / "runner" / "cost-log.jsonl"
 SCHEMA_WHITELIST = BENCH_ROOT / "library" / "schemas" / "discriminator-whitelist.yml"
 SCHEMA_BANNED = BENCH_ROOT / "library" / "schemas" / "banned-matcher-patterns.yml"
 META_TESTS_DIR = BENCH_ROOT / "runner" / "meta-tests"
@@ -256,22 +263,38 @@ def _all_mutation_tools() -> set[str]:
     return {"Write", "Edit", "NotebookEdit", "MultiEdit"}
 
 
+def _skill_tool_use_matches(tu: ToolUse, skill_id: str) -> bool:
+    """True iff tool_use names the requested skill.
+
+    CC stream-json shapes observed:
+      - {"name": "Skill", "input": {"skill_id": "helix"}}            (synthetic)
+      - {"name": "Skill", "input": {"skill": "helix"}}               (live)
+      - {"name": "Skill", "input": {"skill": "helix:helix"}}         (live, plugin-qualified)
+      - {"name": "Skill(helix)"}                                     (synthetic-friendly)
+      - {"name": "helix"}                                            (synthetic-friendly)
+    """
+    if tu.name == f"Skill({skill_id})":
+        return True
+    if tu.name == skill_id:
+        return True
+    if tu.name == "Skill":
+        sid = tu.input.get("skill_id")
+        if sid == skill_id:
+            return True
+        skill = tu.input.get("skill")
+        if isinstance(skill, str):
+            # tolerate `<plugin>:<skill>` and plain `<skill>` forms
+            parts = skill.split(":")
+            if parts[-1] == skill_id or skill == skill_id:
+                return True
+    return False
+
+
 def matcher_skill_tool_use(params: dict[str, Any], t: Transcript) -> MatchResult:
     skill_id = params.get("skill_id")
     if not skill_id:
         raise RowRejection("T043", "skill_tool_use requires skill_id")
-    hits = []
-    for tu in t.tool_uses:
-        # CC encodes skill calls as a Skill tool_use with input.skill_id or
-        # as a tool named Skill with the skill_id in input. Be tolerant.
-        if tu.name == "Skill" and tu.input.get("skill_id") == skill_id:
-            hits.append(tu.index)
-            continue
-        if tu.name == f"Skill({skill_id})":
-            hits.append(tu.index)
-            continue
-        if tu.name == skill_id:  # synthetic-friendly: tool named with skill id
-            hits.append(tu.index)
+    hits = [tu.index for tu in t.tool_uses if _skill_tool_use_matches(tu, skill_id)]
     return MatchResult(
         verdict="present" if hits else "absent",
         details={"hit_indices": hits, "skill_id": skill_id},
@@ -635,13 +658,11 @@ def matcher_route_decision(params: dict[str, Any], t: Transcript) -> MatchResult
     )
     if signal == "explicit_skill_tool_use":
         for tu in t.tool_uses:
-            if tu.name == "Skill" and tu.input.get("skill_id") == flow_id:
+            if _skill_tool_use_matches(tu, flow_id):
                 if not instance or tu.input.get("instance") == instance:
                     return MatchResult(
                         "present", {"matched": tu.index, "signal": signal}
                     )
-            if tu.name == flow_id:
-                return MatchResult("present", {"matched": tu.index, "signal": signal})
         return MatchResult("absent", {"signal": signal})
     if signal == "prose_attribution":
         if expected in t.assistant_text:
@@ -1808,6 +1829,741 @@ def run_row(row_dir: Path, determinism: int = 1) -> int:
 
 
 # ---------------------------------------------------------------------------
+# Phase 1+ — live CC invocation, multi-turn, determinism aggregation, runs/,
+# routing-evals, ratchet integration.
+#
+# Per-row CC invocation uses family-test/docker/run-probe.sh as the harness:
+#   run-probe.sh <fixture-dir> <plugins-spec> <prompt-file> <evidence-file>
+# auth is supplied by the script (ANTHROPIC_API_KEY env OR token at
+# ~/.cache/family-test-auth/token). Plugins listed in plugins.txt map to
+# `<FAMILY_TEST_ROOT>/<name>` (e.g. `methodology-product`, `library`).
+# ---------------------------------------------------------------------------
+
+
+import datetime as _dt
+import subprocess
+import time as _time
+import uuid as _uuid
+
+
+def new_run_id() -> str:
+    """ISO-ish run id used to namespace runs/<run-id>/ directories."""
+    ts = _dt.datetime.now(_dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    return f"{ts}-{_uuid.uuid4().hex[:6]}"
+
+
+def resolve_plugins(plugins_file: Path) -> list[Path]:
+    """Read plugins.txt and resolve each plugin name to a host directory.
+
+    Convention: each line names a plugin under FAMILY_TEST_ROOT/. Empty
+    lines and `#` comments are skipped.
+    """
+    if not plugins_file.exists():
+        return []
+    paths: list[Path] = []
+    for raw in plugins_file.read_text().splitlines():
+        name = raw.strip()
+        if not name or name.startswith("#"):
+            continue
+        candidate = FAMILY_TEST_ROOT / name
+        if not candidate.is_dir():
+            raise FileNotFoundError(
+                f"plugin '{name}' not found at {candidate}"
+            )
+        paths.append(candidate)
+    return paths
+
+
+def load_conversation(row_dir: Path) -> list[str]:
+    """Return ordered list of user-turn prompts from conversation.yml."""
+    conv_path = row_dir / "conversation.yml"
+    if not conv_path.exists():
+        raise FileNotFoundError(f"missing conversation.yml in {row_dir}")
+    doc = yaml.safe_load(conv_path.read_text()) or {}
+    turns = doc.get("turns") or []
+    out: list[str] = []
+    for t in turns:
+        if not isinstance(t, dict):
+            continue
+        if "user" in t and t["user"] is not None:
+            out.append(str(t["user"]).rstrip())
+    return out
+
+
+def _stitch_multi_turn_prompt(turns: list[str]) -> str:
+    """Concatenate multi-turn user turns into a single prompt.
+
+    Headless `claude -p` does not natively replay a turn history. For
+    multi-turn rows we serialize the conversation with explicit role
+    markers so the model sees the full context in a single pass. The
+    final turn carries the assertion target; earlier turns establish
+    warm-context state. This is the pragmatic Phase 1 approach.
+    """
+    if len(turns) == 1:
+        return turns[0]
+    parts = []
+    for i, t in enumerate(turns, start=1):
+        parts.append(f"--- Turn {i} (user) ---\n{t}")
+    parts.append(
+        "--- End of prior turns ---\n"
+        "Respond only to the FINAL user turn above; treat earlier turns "
+        "as conversation history that already occurred."
+    )
+    return "\n\n".join(parts)
+
+
+def invoke_probe(
+    fixture_dir: Path,
+    plugins: list[Path],
+    prompt: str,
+    evidence_file: Path,
+    cwd_rel: str = "",
+    timeout_s: int = 600,
+) -> tuple[int, str]:
+    """Run run-probe.sh once and return (returncode, stderr_text).
+
+    The probe writes stream-json to `evidence_file`. stderr is captured
+    separately for diagnostics (the script writes a sibling .stderr file
+    too — we read it after the run for richer error reporting).
+    """
+    if not RUN_PROBE_SH.exists():
+        raise FileNotFoundError(f"run-probe.sh not found at {RUN_PROBE_SH}")
+    # Docker requires absolute paths for bind mounts.
+    fixture_dir = fixture_dir.resolve()
+    evidence_file = evidence_file.resolve()
+    plugins = [p.resolve() for p in plugins]
+    evidence_file.parent.mkdir(parents=True, exist_ok=True)
+    prompt_file = evidence_file.with_suffix(evidence_file.suffix + ".prompt.txt")
+    prompt_file.write_text(prompt)
+    plugins_spec = ",".join(str(p) for p in plugins)
+    cmd = [
+        "bash",
+        str(RUN_PROBE_SH),
+        str(fixture_dir),
+        plugins_spec,
+        str(prompt_file),
+        str(evidence_file),
+    ]
+    if cwd_rel:
+        cmd.append(cwd_rel)
+    try:
+        proc = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=timeout_s, check=False
+        )
+    except subprocess.TimeoutExpired as e:
+        return 124, f"timeout after {timeout_s}s: {e}"
+    return proc.returncode, proc.stderr or ""
+
+
+def _stream_json_result_event(events: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """Find a `result` event in stream-json (usage + final cost)."""
+    for ev in events:
+        if ev.get("type") == "result":
+            return ev
+    return None
+
+
+def _detect_auth_failure(evidence_text: str) -> bool:
+    """Heuristic: stream-json evidence shows auth failure."""
+    needles = (
+        "authentication_failed",
+        "Not logged in",
+        "Please run /login",
+        "Invalid API key",
+        "invalid_api_key",
+    )
+    return any(n in evidence_text for n in needles)
+
+
+def _grade_row_transcript(
+    row_dir: Path, transcript: Transcript
+) -> dict[str, Any]:
+    """Grade a row's parsed transcript against its discriminator."""
+    norm = validate_row(row_dir)
+    aid = norm["assertion_id"]
+    matcher = MATCHER_REGISTRY[aid]
+    try:
+        result = matcher(norm["params"], transcript)
+    except RowRejection as e:
+        return {
+            "verdict": "error",
+            "error": str(e),
+            "assertion_id": aid,
+            "details": {},
+        }
+    expected = norm["expected_in_positive_run"]
+    return {
+        "assertion_id": aid,
+        "verdict": result.verdict,
+        "expected_verdict": expected,
+        "pass": result.verdict == expected,
+        "details": result.details,
+    }
+
+
+def _log_cost_from_evidence(
+    evidence_file: Path,
+    row_id: str,
+    duration_s: float,
+    phase: str = "bench",
+    extra_notes: dict[str, Any] | None = None,
+) -> dict[str, Any] | None:
+    """Parse the row's stream-json, log a cost entry, return the result event."""
+    if not evidence_file.exists():
+        return None
+    try:
+        text = evidence_file.read_text()
+    except Exception:
+        return None
+    events: list[dict[str, Any]] = []
+    for line in text.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            events.append(json.loads(line))
+        except json.JSONDecodeError:
+            continue
+    result_ev = _stream_json_result_event(events)
+    sys.path.insert(0, str(BENCH_ROOT / "runner"))
+    try:
+        import cost_tracker  # type: ignore
+    except ImportError:
+        return result_ev
+    if result_ev is not None:
+        entry = cost_tracker.from_result_event(
+            result_ev,
+            row_id=row_id,
+            phase=phase,
+            duration_s=duration_s,
+            notes=extra_notes or {},
+        )
+        cost_tracker.record(entry, path=COST_LOG_PATH)
+    return result_ev
+
+
+def run_row_live(
+    row_dir: Path,
+    run_dir: Path,
+    determinism: int = 1,
+    timeout_s: int = 600,
+    verbose: bool = True,
+) -> dict[str, Any]:
+    """Live-execute a row N times, persist transcripts, grade each pass.
+
+    Returns a dict:
+      {
+        "row_id": str,
+        "kind": "validator-row" | "conversation",
+        "passes": [ {pass_idx, evidence_file, verdict, pass, ...} ... ],
+        "aggregate": "stable-pass" | "flake" | "stable-fail" | "error",
+      }
+    """
+    row_id = row_dir.name
+    out: dict[str, Any] = {
+        "row_id": row_id,
+        "row_dir": str(row_dir),
+        "determinism": determinism,
+        "passes": [],
+        "aggregate": "stable-fail",
+    }
+
+    # Validator row: deterministic — run once via helix_check.py.
+    expected = load_row(row_dir)
+    if is_validator_row(expected):
+        rc = run_validator_row(row_dir)
+        out["kind"] = "validator-row"
+        out["passes"] = [{"pass_idx": 0, "exit_code": rc, "pass": rc == 0}]
+        out["aggregate"] = "stable-pass" if rc == 0 else "stable-fail"
+        return out
+
+    out["kind"] = "conversation"
+    fixture_dir = row_dir / "workspace"
+    if not fixture_dir.is_dir():
+        out["aggregate"] = "error"
+        out["error"] = f"missing workspace dir: {fixture_dir}"
+        return out
+
+    try:
+        plugins = resolve_plugins(row_dir / "plugins.txt")
+    except FileNotFoundError as e:
+        out["aggregate"] = "error"
+        out["error"] = str(e)
+        return out
+
+    turns = load_conversation(row_dir)
+    if not turns:
+        out["aggregate"] = "error"
+        out["error"] = "conversation.yml has no user turns"
+        return out
+    prompt = _stitch_multi_turn_prompt(turns)
+
+    pass_verdicts: list[bool] = []
+    for i in range(determinism):
+        evidence_file = run_dir / f"{row_id}.pass{i}.stream.jsonl"
+        if verbose:
+            print(f"[run {row_id} pass {i+1}/{determinism}] invoking probe...", file=sys.stderr)
+        t0 = _time.monotonic()
+        rc, stderr = invoke_probe(
+            fixture_dir, plugins, prompt, evidence_file, timeout_s=timeout_s
+        )
+        dt = _time.monotonic() - t0
+        pass_record: dict[str, Any] = {
+            "pass_idx": i,
+            "evidence_file": str(evidence_file),
+            "probe_rc": rc,
+            "duration_s": round(dt, 3),
+        }
+        # detect auth failure -> bubble up as halt signal
+        evidence_text = evidence_file.read_text() if evidence_file.exists() else ""
+        if rc != 0 and _detect_auth_failure(evidence_text + "\n" + stderr):
+            pass_record["error"] = "auth_failure"
+            pass_record["pass"] = False
+            pass_record["stderr_tail"] = stderr[-400:]
+            out["passes"].append(pass_record)
+            out["aggregate"] = "error"
+            out["halt_reason"] = "auth_failure"
+            return out
+        if rc != 0:
+            pass_record["error"] = f"probe rc={rc}"
+            pass_record["stderr_tail"] = stderr[-400:]
+        # log cost regardless of pass/fail (so we still see token burn)
+        result_ev = _log_cost_from_evidence(
+            evidence_file,
+            row_id=row_id,
+            duration_s=dt,
+            phase="bench",
+            extra_notes={"pass_idx": i, "probe_rc": rc},
+        )
+        if result_ev is not None:
+            pass_record["session_id"] = result_ev.get("session_id")
+            pass_record["total_cost_usd"] = result_ev.get("total_cost_usd")
+        # parse + grade
+        try:
+            transcript = Transcript.parse(evidence_file)
+        except Exception as e:
+            pass_record["error"] = pass_record.get("error") or f"parse: {e}"
+            pass_record["pass"] = False
+            out["passes"].append(pass_record)
+            pass_verdicts.append(False)
+            continue
+        grade = _grade_row_transcript(row_dir, transcript)
+        pass_record.update(grade)
+        pass_record["pass"] = bool(grade.get("pass"))
+        pass_verdicts.append(pass_record["pass"])
+        out["passes"].append(pass_record)
+        if verbose:
+            mark = "PASS" if pass_record["pass"] else "FAIL"
+            print(f"  [{mark}] verdict={grade.get('verdict')} expected={grade.get('expected_verdict')}", file=sys.stderr)
+
+    # determinism aggregation
+    if not pass_verdicts:
+        out["aggregate"] = "error"
+    elif all(pass_verdicts):
+        out["aggregate"] = "stable-pass"
+    elif not any(pass_verdicts):
+        out["aggregate"] = "stable-fail"
+    else:
+        out["aggregate"] = "flake"
+    return out
+
+
+def _discover_conversation_rows(target: str | None) -> list[Path]:
+    """Resolve a row-dir-or-glob argument into a sorted list of row dirs."""
+    if target is None:
+        return sorted(
+            p for p in CONVERSATIONS_DIR.iterdir() if p.is_dir()
+        )
+    p = Path(target)
+    if p.is_dir():
+        return [p]
+    # treat as glob relative to conversations/
+    pattern = target
+    if not pattern.startswith("/"):
+        matches = sorted(CONVERSATIONS_DIR.glob(pattern))
+    else:
+        matches = sorted(Path("/").glob(pattern.lstrip("/")))
+    return [m for m in matches if m.is_dir()]
+
+
+def run_rows(
+    rows: list[Path],
+    determinism: int = 1,
+    run_id: str | None = None,
+    timeout_s: int = 600,
+    verbose: bool = True,
+    json_out: Path | None = None,
+) -> tuple[int, dict[str, Any]]:
+    """Drive one or more rows live, aggregate, write runs/<run-id>/aggregate.json."""
+    run_id = run_id or new_run_id()
+    run_dir = RUNS_DIR / run_id
+    run_dir.mkdir(parents=True, exist_ok=True)
+    aggregate: dict[str, Any] = {
+        "run_id": run_id,
+        "started_at": _dt.datetime.now(_dt.timezone.utc).isoformat(),
+        "determinism": determinism,
+        "total": 0,
+        "stable_pass": 0,
+        "flake": 0,
+        "stable_fail": 0,
+        "error": 0,
+        "rows": [],
+    }
+    rc_overall = 0
+    halted = False
+    for row_dir in rows:
+        try:
+            result = run_row_live(
+                row_dir, run_dir, determinism=determinism,
+                timeout_s=timeout_s, verbose=verbose,
+            )
+        except (RowRejection, FileNotFoundError) as e:
+            result = {
+                "row_id": row_dir.name,
+                "row_dir": str(row_dir),
+                "aggregate": "error",
+                "error": str(e),
+                "passes": [],
+            }
+        aggregate["rows"].append(result)
+        aggregate["total"] += 1
+        agg = result.get("aggregate", "error")
+        if agg == "stable-pass":
+            aggregate["stable_pass"] += 1
+        elif agg == "flake":
+            aggregate["flake"] += 1
+        elif agg == "stable-fail":
+            aggregate["stable_fail"] += 1
+            rc_overall = max(rc_overall, 1)
+        else:
+            aggregate["error"] += 1
+            rc_overall = max(rc_overall, 1)
+        if result.get("halt_reason") == "auth_failure":
+            halted = True
+            aggregate["halted"] = "auth_failure"
+            break
+    aggregate["completed_at"] = _dt.datetime.now(_dt.timezone.utc).isoformat()
+    total = aggregate["total"] or 1
+    aggregate["stable_pass_rate"] = round(aggregate["stable_pass"] / total, 4)
+    (run_dir / "aggregate.json").write_text(json.dumps(aggregate, indent=2))
+    if json_out:
+        json_out.parent.mkdir(parents=True, exist_ok=True)
+        json_out.write_text(json.dumps(aggregate, indent=2))
+    if verbose:
+        print(
+            f"\nrun {run_id}: total={aggregate['total']} "
+            f"stable_pass={aggregate['stable_pass']} flake={aggregate['flake']} "
+            f"stable_fail={aggregate['stable_fail']} error={aggregate['error']} "
+            f"stable_pass_rate={aggregate['stable_pass_rate']}",
+            file=sys.stderr,
+        )
+        if halted:
+            print(f"HALTED: {aggregate['halted']}", file=sys.stderr)
+    return rc_overall, aggregate
+
+
+# ---------------------------------------------------------------------------
+# Routing evals (plan §15b P1: positives >=29/30, negatives 30/30,
+# ambiguous >=13/15 with 0 unsafe)
+# ---------------------------------------------------------------------------
+
+
+# Empty/no-op fixture for routing probes: no plugins beyond library + helix
+# methodology. We use the consumer/clean fixture if available; else a tmp dir.
+def _routing_fixture() -> Path:
+    """Resolve the host fixture dir to mount for routing probes."""
+    candidate = FAMILY_TEST_ROOT / "consumer" / "clean"
+    if candidate.is_dir():
+        return candidate
+    # fallback: an empty tmp dir under bench/runs/
+    tmp = RUNS_DIR / "_routing_fixture"
+    tmp.mkdir(parents=True, exist_ok=True)
+    return tmp
+
+
+def _routing_plugins() -> list[Path]:
+    """Default plugin set for routing probes: library + methodology-product."""
+    plugins: list[Path] = []
+    for name in ("library", "methodology-product"):
+        p = FAMILY_TEST_ROOT / name
+        if p.is_dir():
+            plugins.append(p)
+    return plugins
+
+
+def _probe_fired_skill(transcript: Transcript, skill_id: str) -> bool:
+    """True iff transcript carries a Skill(skill_id) tool_use."""
+    res = matcher_skill_tool_use({"skill_id": skill_id}, transcript)
+    return res.verdict == "present"
+
+
+def run_routing_evals(
+    jsonl_paths: list[Path],
+    run_id: str | None = None,
+    timeout_s: int = 300,
+    limit: int | None = None,
+    verbose: bool = True,
+) -> tuple[int, dict[str, Any]]:
+    """Run routing probes against the supplied jsonl(s).
+
+    Each line is {id, prompt, expected_skill | candidate_flows / correct_route, ...}.
+    For each prompt we invoke `claude -p` once via run-probe.sh and check
+    whether the expected Skill tool_use fires.
+    """
+    run_id = run_id or new_run_id()
+    run_dir = RUNS_DIR / run_id
+    run_dir.mkdir(parents=True, exist_ok=True)
+    fixture = _routing_fixture()
+    plugins = _routing_plugins()
+    results: list[dict[str, Any]] = []
+    summary: dict[str, Any] = {
+        "run_id": run_id,
+        "started_at": _dt.datetime.now(_dt.timezone.utc).isoformat(),
+        "files": [str(p) for p in jsonl_paths],
+        "by_set": {},
+    }
+    halted = False
+    for jsonl in jsonl_paths:
+        set_name = jsonl.stem
+        set_stats = {
+            "total": 0, "expected_fire": 0, "fired": 0,
+            "expected_no_fire": 0, "no_fire": 0,
+            "unsafe": 0, "correct": 0,
+        }
+        with jsonl.open() as fh:
+            for line_no, line in enumerate(fh, 1):
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    row = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if limit and set_stats["total"] >= limit:
+                    break
+                set_stats["total"] += 1
+                rid = row.get("id", f"{set_name}-{line_no}")
+                prompt = row.get("prompt", "")
+                expected_skill = row.get("expected_skill")
+                correct_route = row.get("correct_route")
+                # Negative set: expected_skill is null -> Skill SHOULD NOT fire
+                # Positive set: expected_skill = 'helix' -> Skill SHOULD fire with skill_id=helix
+                # Ambiguous: correct_route names the target skill_id
+                target = expected_skill if expected_skill is not None else correct_route
+                evidence_file = run_dir / f"routing-{set_name}-{rid}.stream.jsonl"
+                t0 = _time.monotonic()
+                rc, stderr = invoke_probe(
+                    fixture, plugins, prompt, evidence_file, timeout_s=timeout_s
+                )
+                dt = _time.monotonic() - t0
+                evidence_text = evidence_file.read_text() if evidence_file.exists() else ""
+                if rc != 0 and _detect_auth_failure(evidence_text + "\n" + stderr):
+                    results.append({
+                        "set": set_name, "id": rid, "error": "auth_failure",
+                        "stderr_tail": stderr[-400:],
+                    })
+                    halted = True
+                    break
+                _log_cost_from_evidence(
+                    evidence_file, row_id=f"routing-{rid}",
+                    duration_s=dt, phase="bench",
+                    extra_notes={"set": set_name, "probe_rc": rc},
+                )
+                try:
+                    transcript = Transcript.parse(evidence_file)
+                except Exception as e:
+                    results.append({
+                        "set": set_name, "id": rid, "error": f"parse: {e}",
+                    })
+                    continue
+                # Extract any skill ids that fired (Skill tool_use)
+                fired_skills: list[str] = []
+                for tu in transcript.tool_uses:
+                    sid: str | None = None
+                    if tu.name == "Skill":
+                        sid = tu.input.get("skill_id")
+                        if not sid:
+                            skill = tu.input.get("skill")
+                            if isinstance(skill, str):
+                                sid = skill.split(":")[-1]
+                    elif tu.name.startswith("Skill("):
+                        sid = tu.name[len("Skill("):-1]
+                    elif tu.name in ("helix", "helix-web", "helix-infra", "helix-data"):
+                        sid = tu.name
+                    if sid:
+                        fired_skills.append(sid)
+                fired_skills = sorted(set(fired_skills))
+                fired_target = bool(target) and _probe_fired_skill(transcript, target)
+                fired_any = len(fired_skills) > 0
+                record: dict[str, Any] = {
+                    "set": set_name,
+                    "id": rid,
+                    "prompt": prompt,
+                    "expected_skill": expected_skill,
+                    "correct_route": correct_route,
+                    "fired_skills": list(fired_skills),
+                    "fired_target": fired_target,
+                    "fired_any": fired_any,
+                    "duration_s": round(dt, 3),
+                    "probe_rc": rc,
+                }
+                if target is None:
+                    # negative set: ANY skill fire = wrong
+                    record["correct"] = not fired_any
+                    set_stats["expected_no_fire"] += 1
+                    if not fired_any:
+                        set_stats["no_fire"] += 1
+                        set_stats["correct"] += 1
+                else:
+                    set_stats["expected_fire"] += 1
+                    if fired_target:
+                        set_stats["fired"] += 1
+                        set_stats["correct"] += 1
+                    # ambiguous: "unsafe" = fired a *wrong* skill family that
+                    # is not in candidate_flows
+                    cand = row.get("candidate_flows") or []
+                    if cand and fired_any and not fired_target:
+                        wrong_fires = [s for s in fired_skills if s not in cand]
+                        if wrong_fires:
+                            set_stats["unsafe"] += 1
+                            record["unsafe"] = True
+                    record["correct"] = fired_target
+                results.append(record)
+                if verbose:
+                    mark = "OK" if record.get("correct") else "XX"
+                    print(
+                        f"[routing {mark}] {set_name}/{rid}: "
+                        f"target={target} fired={fired_skills}",
+                        file=sys.stderr,
+                    )
+        summary["by_set"][set_name] = set_stats
+        if halted:
+            break
+    # Compute precision (positives only): correct fires / total positives
+    pos_stats = summary["by_set"].get("helix-positive", {})
+    precision = 0.0
+    if pos_stats.get("expected_fire"):
+        precision = pos_stats["fired"] / pos_stats["expected_fire"]
+    summary["routing_precision"] = round(precision, 4)
+    summary["completed_at"] = _dt.datetime.now(_dt.timezone.utc).isoformat()
+    summary["results"] = results
+    if halted:
+        summary["halted"] = "auth_failure"
+    # Plan gates
+    gates = {
+        "positives_pass": False,
+        "negatives_pass": False,
+        "ambiguous_pass": False,
+        "unsafe_zero": True,
+    }
+    pos = summary["by_set"].get("helix-positive", {})
+    neg = summary["by_set"].get("helix-negative", {})
+    amb = summary["by_set"].get("helix-ambiguous", {})
+    gates["positives_pass"] = pos.get("correct", 0) >= 29 and pos.get("expected_fire", 0) >= 30
+    gates["negatives_pass"] = neg.get("correct", 0) == neg.get("expected_no_fire", 0) and neg.get("expected_no_fire", 0) >= 30
+    gates["ambiguous_pass"] = amb.get("correct", 0) >= 13
+    gates["unsafe_zero"] = amb.get("unsafe", 0) == 0
+    summary["gates"] = gates
+    summary["all_gates_pass"] = all(gates.values())
+    (run_dir / "routing-eval-results.json").write_text(json.dumps(summary, indent=2))
+    if verbose:
+        print(
+            f"\nrouting-evals {run_id}: precision={summary['routing_precision']}; "
+            f"gates={gates}",
+            file=sys.stderr,
+        )
+    rc_overall = 0 if (summary["all_gates_pass"] and not halted) else 1
+    return rc_overall, summary
+
+
+# ---------------------------------------------------------------------------
+# Ratchet integration
+# ---------------------------------------------------------------------------
+
+
+def update_ratchets(
+    stable_pass_rate: float | None = None,
+    routing_precision: float | None = None,
+    cost_per_run: float | None = None,
+    last_attempt: dict[str, Any] | None = None,
+    ratchets_path: Path = RATCHETS_PATH,
+    verbose: bool = True,
+) -> tuple[int, dict[str, Any]]:
+    """Write computed metrics back into ratchets.json with regression check.
+
+    Returns (exit_code, alerts). exit 0 = no >5% regression vs baseline OR
+    baseline was null (first run; we seed it). exit 1 = regression alert
+    fired on any tracked stream.
+    """
+    if not ratchets_path.exists():
+        raise FileNotFoundError(f"ratchets.json missing at {ratchets_path}")
+    doc = json.loads(ratchets_path.read_text())
+    alerts: list[str] = []
+    streams = doc.get("ratchets") or {}
+
+    def apply(stream_name: str, observed: float, tolerance_key: str = "tolerance_pp", direction: str = "higher_is_better") -> None:
+        s = streams.get(stream_name)
+        if not s:
+            return
+        baseline = s.get("baseline")
+        tol = s.get(tolerance_key)
+        s["last_observed"] = observed
+        s["last_observed_at"] = _dt.datetime.now(_dt.timezone.utc).isoformat()
+        if baseline is None:
+            # seed
+            s["baseline"] = observed
+            s["seeded_at"] = s["last_observed_at"]
+            if verbose:
+                print(f"  ratchet {stream_name}: seeded baseline = {observed}")
+            return
+        if tol is None:
+            return
+        if direction == "higher_is_better":
+            # regression = observed drops by more than tol points/percent
+            if tolerance_key == "tolerance_pp":
+                regression = (baseline - observed) * 100 > tol
+            else:
+                regression = (baseline - observed) / max(baseline, 1e-9) * 100 > tol
+            if regression:
+                alerts.append(
+                    f"{stream_name}: REGRESSION baseline={baseline} observed={observed} "
+                    f"tolerance={tol} ({tolerance_key})"
+                )
+        else:  # lower_is_better
+            if tolerance_key == "tolerance_pp":
+                regression = (observed - baseline) * 100 > tol
+            else:
+                regression = (observed - baseline) / max(baseline, 1e-9) * 100 > tol
+            if regression:
+                alerts.append(
+                    f"{stream_name}: REGRESSION (higher cost) baseline={baseline} "
+                    f"observed={observed} tolerance={tol} ({tolerance_key})"
+                )
+
+    if stable_pass_rate is not None:
+        apply("stable_pass_rate", stable_pass_rate, "tolerance_pp", "higher_is_better")
+    if routing_precision is not None:
+        apply("routing_precision", routing_precision, "tolerance_pp", "higher_is_better")
+    if cost_per_run is not None:
+        apply("cost_per_run", cost_per_run, "tolerance_pct", "lower_is_better")
+
+    doc["updated_at"] = _dt.datetime.now(_dt.timezone.utc).isoformat()
+    if last_attempt is not None:
+        doc["last_attempt"] = last_attempt
+    if alerts:
+        doc["alerts"] = alerts
+    else:
+        doc.pop("alerts", None)
+    ratchets_path.write_text(json.dumps(doc, indent=2) + "\n")
+    if verbose:
+        for a in alerts:
+            print(f"ALERT: {a}", file=sys.stderr)
+        if not alerts:
+            print(f"ratchets: no regressions (updated {ratchets_path.name})", file=sys.stderr)
+    return (1 if alerts else 0), {"alerts": alerts, "ratchets_path": str(ratchets_path)}
+
+
+# ---------------------------------------------------------------------------
 # Layer 2 — semantic judge LLM (plan §5.2, §6.7, §18.2)
 # ---------------------------------------------------------------------------
 
@@ -2509,9 +3265,20 @@ def main(argv: list[str] | None = None) -> int:
     p_validate = sub.add_parser("validate-row", help="load + validate a row's expected.yml")
     p_validate.add_argument("row_dir", type=Path)
 
-    p_run = sub.add_parser("run", help="run a row (Phase 0a: validate only)")
-    p_run.add_argument("row_dir", type=Path)
+    p_run = sub.add_parser("run", help="run row(s) live via Docker harness")
+    p_run.add_argument("row_dir", type=str, nargs="?", default=None,
+                       help="row dir or glob under conversations/")
+    p_run.add_argument("--all", action="store_true",
+                       help="run every row under conversations/")
     p_run.add_argument("--determinism", type=int, default=1)
+    p_run.add_argument("--json-out", type=Path, default=None,
+                       help="write aggregate.json copy to this path")
+    p_run.add_argument("--timeout", type=int, default=600,
+                       help="per-row probe timeout in seconds")
+    p_run.add_argument("--run-id", default=None,
+                       help="override the generated run id")
+    p_run.add_argument("--validate-only", action="store_true",
+                       help="legacy Phase 0a behaviour — validate only, no live CC")
     p_run.add_argument(
         "--layer",
         type=int,
@@ -2580,6 +3347,30 @@ def main(argv: list[str] | None = None) -> int:
         help="path to envelope-pass stream-json (overrides row default)",
     )
 
+    p_route = sub.add_parser(
+        "routing-evals",
+        help="run routing-eval prompts and grade Skill(helix) fires",
+    )
+    p_route.add_argument(
+        "--jsonl",
+        type=Path,
+        action="append",
+        default=None,
+        help="path to a routing-evals jsonl file (repeatable; default = all 4 sets)",
+    )
+    p_route.add_argument("--run-id", default=None)
+    p_route.add_argument("--timeout", type=int, default=300)
+    p_route.add_argument("--limit", type=int, default=None,
+                         help="cap rows per jsonl (smoke / fast-path)")
+
+    p_ratchet = sub.add_parser(
+        "update-ratchets",
+        help="write computed metrics back to ratchets.json (regression-aware)",
+    )
+    p_ratchet.add_argument("--stable-pass-rate", type=float, default=None)
+    p_ratchet.add_argument("--routing-precision", type=float, default=None)
+    p_ratchet.add_argument("--cost-per-run", type=float, default=None)
+
     args = parser.parse_args(argv)
     if args.version:
         print(f"helix_bench {VERSION}")
@@ -2602,13 +3393,38 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "run":
         if args.layer == 2:
             code, _ = run_layer2(
-                args.row_dir,
+                Path(args.row_dir),
                 transcript_path=args.transcript,
                 backend=args.judge_backend,
                 model=args.judge_model,
             )
             return code
-        return run_row(args.row_dir, determinism=args.determinism)
+        if args.validate_only:
+            if not args.row_dir:
+                print("--validate-only requires a row_dir", file=sys.stderr)
+                return 2
+            return run_row(Path(args.row_dir), determinism=args.determinism)
+        # Live mode (Phase 1+)
+        if args.all:
+            rows = _discover_conversation_rows(None)
+        else:
+            if not args.row_dir:
+                print("run requires <row_dir> or --all", file=sys.stderr)
+                return 2
+            rows = _discover_conversation_rows(args.row_dir)
+            if not rows:
+                print(f"no rows matched '{args.row_dir}'", file=sys.stderr)
+                return 2
+        rc, agg = run_rows(
+            rows,
+            determinism=args.determinism,
+            run_id=args.run_id,
+            timeout_s=args.timeout,
+            json_out=args.json_out,
+        )
+        if args.all:
+            update_ratchets(stable_pass_rate=agg.get("stable_pass_rate"))
+        return rc
     if args.cmd == "layer2":
         code, _ = run_layer2(
             args.row_dir,
@@ -2624,6 +3440,23 @@ def main(argv: list[str] | None = None) -> int:
             calibration_path=args.calibration_set,
         )
         return code
+    if args.cmd == "routing-evals":
+        paths = list(args.jsonl) if args.jsonl else sorted(ROUTING_EVALS_DIR.glob("*.jsonl"))
+        if not paths:
+            print(f"no routing-eval jsonl files found", file=sys.stderr)
+            return 2
+        rc, summary = run_routing_evals(
+            paths, run_id=args.run_id, timeout_s=args.timeout, limit=args.limit,
+        )
+        update_ratchets(routing_precision=summary.get("routing_precision"))
+        return rc
+    if args.cmd == "update-ratchets":
+        rc, _ = update_ratchets(
+            stable_pass_rate=args.stable_pass_rate,
+            routing_precision=args.routing_precision,
+            cost_per_run=args.cost_per_run,
+        )
+        return rc
     if args.cmd == "envelope-pass":
         if len(args.row_dir) == 1 and (
             args.no_envelope_transcript or args.envelope_transcript
