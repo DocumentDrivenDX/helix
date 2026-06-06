@@ -1,0 +1,8 @@
+# MT03 — discriminator block missing entirely.
+# Runner MUST reject with T040.
+meta_test:
+  id: MT03
+  expected_rejection: T040
+structural:
+  skill_invoked:
+    - name: helix

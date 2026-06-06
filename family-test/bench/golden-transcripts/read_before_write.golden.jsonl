@@ -1,0 +1,6 @@
+{"type":"system","subtype":"init","session_id":"golden-read-before-write"}
+{"type":"assistant","message":{"content":[{"type":"text","text":"Reading the marker before drafting anything."}]}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Read","input":{"file_path":"/repo/.helix.yml"}}]}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"Marker authorizes product flow. Drafting the PRD."}]}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Write","input":{"file_path":"/repo/docs/helix/01-frame/prd.md"}}]}}
+{"type":"result","subtype":"success","is_error":false}

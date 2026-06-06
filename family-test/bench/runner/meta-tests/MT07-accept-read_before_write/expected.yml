@@ -1,0 +1,16 @@
+# MT07 — well-formed read_before_write row; runner must accept + grade as ordered.
+meta_test:
+  id: MT07
+  expected_acceptance: true
+  expected_verdict: ordered
+discriminator:
+  assertion_id: read_before_write
+  observable:
+    matcher_type: tool_use_order
+    first_tool: Read
+    second_tool: Write
+    target_pattern: "\\.helix\\.yml$"
+  expected_in_positive_run: ordered
+  expected_in_negative_run: reversed
+  negative_control:
+    plugins_remove: [methodology-product]

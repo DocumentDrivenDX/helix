@@ -1,0 +1,10 @@
+cc_version: 2.1.163
+assertion_id: graph_edge_observed
+expected_verdict: present
+description: |
+  Agent reads methodology graph.yml and surfaces the prd→feature-specification
+  edge in prose. Verifies file_read matcher binds reading + surfacing.
+params:
+  graph_path: "graph\\.yml$"
+  expected_edge_signature: "prd informs feature-specification"
+source: synthetic

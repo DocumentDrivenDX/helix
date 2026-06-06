@@ -1,0 +1,5 @@
+# Runtime failure dumps — never committed.
+# Phase 0b's failure_dump.scaffold_self_test() writes into _selftest/ on every
+# self-test invocation; production failures land under <row-id>-<utc>/.
+*
+!.gitignore

@@ -44,6 +44,11 @@ REPO_ROOT = Path(__file__).resolve().parents[2]  # family-test/bench/runner -> f
 BENCH_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_WHITELIST = BENCH_ROOT / "library" / "schemas" / "discriminator-whitelist.yml"
 SCHEMA_BANNED = BENCH_ROOT / "library" / "schemas" / "banned-matcher-patterns.yml"
+META_TESTS_DIR = BENCH_ROOT / "runner" / "meta-tests"
+PROPERTY_TESTS_DIR = BENCH_ROOT / "runner" / "property-tests"
+GOLDEN_DIR = BENCH_ROOT / "golden-transcripts"
+TRANSCRIPT_SCHEMA = BENCH_ROOT / "runner" / "transcript_schema.yml"
+CC_VERSION_LOCK = BENCH_ROOT / "cc-version.lock"
 
 
 # ---------------------------------------------------------------------------
@@ -1101,6 +1106,256 @@ def run_smoke(verbose: bool = True) -> tuple[int, dict[str, Any]]:
 
 
 # ---------------------------------------------------------------------------
+# Phase 0b — meta-tests, property tests, golden schema, cost + observability
+# ---------------------------------------------------------------------------
+
+
+def run_meta_tests(verbose: bool = True) -> tuple[int, dict[str, Any]]:
+    """Walk family-test/bench/runner/meta-tests and grade all 10 cases.
+
+    Reject rows (MT01-MT05) MUST raise the labeled `expected_rejection` code.
+    Accept rows (MT06-MT10) MUST validate AND, when a transcript.jsonl is
+    present, the matcher's verdict MUST equal `expected_verdict`.
+    """
+    whitelist = Whitelist.load()
+    banned = BannedPatterns.load()
+    summary: dict[str, Any] = {
+        "total": 0,
+        "pass": 0,
+        "fail": [],
+    }
+    if not META_TESTS_DIR.exists():
+        return 1, {"error": f"meta-tests dir missing: {META_TESTS_DIR}"}
+    for row_dir in sorted(META_TESTS_DIR.iterdir()):
+        if not row_dir.is_dir():
+            continue
+        expected_path = row_dir / "expected.yml"
+        if not expected_path.exists():
+            continue
+        summary["total"] += 1
+        try:
+            doc = yaml.safe_load(expected_path.read_text()) or {}
+        except yaml.YAMLError as e:
+            summary["fail"].append({"row": row_dir.name, "err": f"yaml parse: {e}"})
+            continue
+        meta = doc.get("meta_test") or {}
+        expected_rejection = meta.get("expected_rejection")
+        expected_acceptance = meta.get("expected_acceptance", False)
+        try:
+            norm = validate_discriminator(doc, whitelist, banned)
+        except RowRejection as e:
+            if expected_rejection and e.code == expected_rejection:
+                summary["pass"] += 1
+            else:
+                summary["fail"].append(
+                    {
+                        "row": row_dir.name,
+                        "expected_rejection": expected_rejection,
+                        "got_code": e.code,
+                        "detail": e.detail,
+                    }
+                )
+            continue
+        # Validator accepted the row.
+        if expected_rejection:
+            summary["fail"].append(
+                {
+                    "row": row_dir.name,
+                    "expected_rejection": expected_rejection,
+                    "got_code": "ACCEPTED",
+                    "detail": "validator did not raise",
+                }
+            )
+            continue
+        if not expected_acceptance:
+            summary["fail"].append(
+                {"row": row_dir.name, "err": "row missing expected_acceptance/_rejection"}
+            )
+            continue
+        transcript_path = row_dir / "transcript.jsonl"
+        if not transcript_path.exists():
+            # accept-only row with no transcript: validation alone is the pass condition
+            summary["pass"] += 1
+            continue
+        # Grade matcher against the transcript.
+        try:
+            transcript = Transcript.parse(transcript_path)
+            matcher = MATCHER_REGISTRY[norm["assertion_id"]]
+            result = matcher(norm["params"], transcript)
+        except Exception as e:  # pragma: no cover (path is exercised below)
+            summary["fail"].append(
+                {"row": row_dir.name, "err": f"grade error: {e}"}
+            )
+            continue
+        expected_verdict = meta.get("expected_verdict")
+        if expected_verdict and result.verdict != expected_verdict:
+            summary["fail"].append(
+                {
+                    "row": row_dir.name,
+                    "expected_verdict": expected_verdict,
+                    "got_verdict": result.verdict,
+                    "details": result.details,
+                }
+            )
+        else:
+            summary["pass"] += 1
+
+    ok = summary["pass"] == summary["total"] and not summary["fail"]
+    if verbose:
+        print(f"meta-tests: {summary['pass']}/{summary['total']} pass")
+        for f in summary["fail"]:
+            print(f"  FAIL {f}")
+    return (0 if ok else 1), summary
+
+
+def run_property_tests(verbose: bool = True) -> tuple[int, dict[str, Any]]:
+    """Run the 4-property property-tests harness (100 cases each)."""
+    sys.path.insert(0, str(PROPERTY_TESTS_DIR))
+    try:
+        import properties  # type: ignore
+    finally:
+        # leave sys.path mutated for the rest of the process; harmless
+        pass
+    s = properties.run_all(dump_dir=None)
+    ok = s["total_fail"] == 0
+    if verbose:
+        print(
+            f"property-tests: {s['total_pass']}/{s['total_pass'] + s['total_fail']} pass "
+            f"({s['cases_per_property']} cases × {len(s['properties'])} properties)"
+        )
+        for name, p in s["properties"].items():
+            if p["fail"]:
+                print(f"  FAIL {name}: {p['fail']} cases")
+                for f in p["failures"]:
+                    print(f"    - {f}")
+    return (0 if ok else 1), s
+
+
+def validate_golden_transcript(jsonl_path: Path, meta_path: Path) -> tuple[bool, str]:
+    """Validate one golden against the transcript_schema contract.
+
+    Checks:
+      - jsonl parses cleanly as one JSON object per non-empty line
+      - every event type is in allowed_event_types
+      - the meta-header carries cc_version, assertion_id, expected_verdict, description
+      - cc_version equals cc-version.lock claude_code_version
+      - assertion_id is in the whitelist
+      - the goldens' transcripts produce verdict == expected_verdict when graded
+    """
+    schema = yaml.safe_load(TRANSCRIPT_SCHEMA.read_text())
+    allowed = set(schema.get("allowed_event_types") or [])
+    if not jsonl_path.exists():
+        return False, f"golden jsonl missing: {jsonl_path}"
+    events: list[dict[str, Any]] = []
+    for line_no, raw in enumerate(jsonl_path.read_text().splitlines(), start=1):
+        line = raw.strip()
+        if not line:
+            continue
+        try:
+            ev = json.loads(line)
+        except json.JSONDecodeError as e:
+            return False, f"{jsonl_path.name} line {line_no}: invalid JSON: {e}"
+        if not isinstance(ev, dict):
+            return False, f"{jsonl_path.name} line {line_no}: event not a JSON object"
+        etype = ev.get("type")
+        if etype not in allowed:
+            return False, f"{jsonl_path.name} line {line_no}: event type '{etype}' not in {sorted(allowed)}"
+        events.append(ev)
+    if not meta_path.exists():
+        return False, f"golden meta missing: {meta_path}"
+    meta = yaml.safe_load(meta_path.read_text()) or {}
+    required_meta = ["cc_version", "assertion_id", "expected_verdict", "description"]
+    for key in required_meta:
+        if key not in meta:
+            return False, f"{meta_path.name}: missing required key '{key}'"
+    if len(str(meta.get("description") or "").strip()) < 20:
+        return False, f"{meta_path.name}: description must be >= 20 chars"
+    pinned = yaml.safe_load(CC_VERSION_LOCK.read_text()) or {}
+    if meta["cc_version"] != pinned.get("claude_code_version"):
+        return (
+            False,
+            f"{meta_path.name}: cc_version {meta['cc_version']!r} != pin {pinned.get('claude_code_version')!r}",
+        )
+    whitelist = Whitelist.load()
+    if meta["assertion_id"] not in whitelist.by_id:
+        return False, f"{meta_path.name}: assertion_id not in whitelist"
+    # Grade the transcript with the declared matcher + params.
+    transcript = Transcript.from_events(events)
+    matcher = MATCHER_REGISTRY[meta["assertion_id"]]
+    try:
+        params = meta.get("params") or {}
+        result = matcher(params, transcript)
+    except RowRejection as e:
+        return False, f"{meta_path.name}: matcher rejected: {e}"
+    if result.verdict != meta["expected_verdict"]:
+        return (
+            False,
+            f"{meta_path.name}: graded verdict {result.verdict!r} != expected {meta['expected_verdict']!r} (details={result.details})",
+        )
+    return True, "ok"
+
+
+def run_golden_schema_check(verbose: bool = True) -> tuple[int, dict[str, Any]]:
+    """Validate every golden transcript pair under family-test/bench/golden-transcripts/."""
+    summary: dict[str, Any] = {"total": 0, "pass": 0, "fail": []}
+    if not GOLDEN_DIR.exists():
+        return 1, {"error": f"golden-transcripts dir missing: {GOLDEN_DIR}"}
+    for jsonl in sorted(GOLDEN_DIR.glob("*.golden.jsonl")):
+        meta = jsonl.with_suffix("").with_suffix(".meta.yml")
+        summary["total"] += 1
+        ok, msg = validate_golden_transcript(jsonl, meta)
+        if ok:
+            summary["pass"] += 1
+        else:
+            summary["fail"].append({"golden": jsonl.name, "err": msg})
+    ok = summary["pass"] == summary["total"] and not summary["fail"]
+    if verbose:
+        print(f"golden-transcripts: {summary['pass']}/{summary['total']} pass")
+        for f in summary["fail"]:
+            print(f"  FAIL {f}")
+    return (0 if ok else 1), summary
+
+
+def run_phase0b_self_test(verbose: bool = True) -> tuple[int, dict[str, Any]]:
+    """Aggregate self-test: smoke (0a) + meta + property + golden + cost + dump."""
+    overall: dict[str, Any] = {}
+    rc = 0
+
+    code, summary = run_smoke(verbose=verbose)
+    overall["smoke"] = summary
+    rc = max(rc, code)
+
+    code, summary = run_meta_tests(verbose=verbose)
+    overall["meta_tests"] = summary
+    rc = max(rc, code)
+
+    code, summary = run_property_tests(verbose=verbose)
+    overall["property_tests"] = summary
+    rc = max(rc, code)
+
+    code, summary = run_golden_schema_check(verbose=verbose)
+    overall["golden_transcripts"] = summary
+    rc = max(rc, code)
+
+    # cost tracker self-test (arithmetic round-trip)
+    sys.path.insert(0, str(BENCH_ROOT / "runner"))
+    import cost_tracker  # type: ignore
+    cc = cost_tracker.self_test()
+    overall["cost_tracker"] = {"exit_code": cc}
+    rc = max(rc, cc)
+
+    # failure-dump scaffold self-test (4 artifacts present)
+    import failure_dump  # type: ignore
+    fd = failure_dump.scaffold_self_test()
+    overall["failure_dump"] = {"exit_code": fd}
+    rc = max(rc, fd)
+
+    if verbose:
+        print(f"self-test overall: {'PASS' if rc == 0 else 'FAIL'}")
+    return rc, overall
+
+
+# ---------------------------------------------------------------------------
 # Row run (placeholder for Phase 0a; full CC invocation is Phase 1+)
 # ---------------------------------------------------------------------------
 
@@ -1160,7 +1415,7 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     if args.cmd == "self-test":
-        code, _ = run_smoke(verbose=True)
+        code, _ = run_phase0b_self_test(verbose=True)
         return code
     if args.cmd == "validate-row":
         try:

@@ -1,0 +1,2 @@
+{"type":"tool_use","name":"Write","input":{"file_path":"/repo/docs/helix/01-frame/prd.md"}}
+{"type":"tool_use","name":"Edit","input":{"file_path":"/repo/docs/helix/00-discover/product-vision.md"}}

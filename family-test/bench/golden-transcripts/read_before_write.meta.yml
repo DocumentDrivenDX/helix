@@ -1,0 +1,11 @@
+cc_version: 2.1.163
+assertion_id: read_before_write
+expected_verdict: ordered
+description: |
+  Agent reads .helix.yml before any Write/Edit. Verifies tool_use_order
+  matcher returns 'ordered' for correctly-sequenced tool invocations.
+params:
+  first_tool: Read
+  second_tool: Write
+  target_pattern: "\\.helix\\.yml$"
+source: synthetic

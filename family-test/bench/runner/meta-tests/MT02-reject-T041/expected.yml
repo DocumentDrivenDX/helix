@@ -1,0 +1,14 @@
+# MT02 — unknown assertion_id (not in whitelist, no schema_bump_required).
+# Runner MUST reject with T041.
+meta_test:
+  id: MT02
+  expected_rejection: T041
+discriminator:
+  assertion_id: definitely_not_a_real_assertion
+  observable:
+    matcher_type: skill_tool_use
+    skill_id: helix
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]

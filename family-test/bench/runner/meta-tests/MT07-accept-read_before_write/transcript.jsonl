@@ -1,0 +1,3 @@
+{"type":"tool_use","name":"Read","input":{"file_path":"/repo/.helix.yml"}}
+{"type":"text","text":"Marker confirms product flow."}
+{"type":"tool_use","name":"Write","input":{"file_path":"/repo/docs/helix/01-frame/prd.md"}}

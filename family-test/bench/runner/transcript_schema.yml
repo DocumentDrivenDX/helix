@@ -1,0 +1,51 @@
+# transcript_schema.yml — stream-json shape contract for golden transcripts
+#
+# Per plan §1.4 / §1.4b / Phase 0b: each golden transcript under
+# family-test/bench/golden-transcripts/ MUST match this contract. The contract
+# describes the JSONL event shape we accept from `claude -p --output-format
+# stream-json` AND the synthetic flat-shape we accept for hand-authored
+# fixtures (Transcript._extract_content_blocks tolerates both).
+#
+# Helix_bench.py self-test validates every golden_transcripts/*.golden.jsonl
+# against this schema. A golden ALSO carries an out-of-band header file
+# (`<name>.meta.yml`) recording cc_version, assertion_id, expected_verdict.
+
+format_version: 1
+event_jsonl: true                    # one JSON object per line; blank lines ok
+allowed_event_types:
+  - system                           # CC session/system events (informational)
+  - assistant                        # wraps message.content[] with text + tool_use blocks
+  - user                             # tool_result blocks from harness
+  - tool_use                         # synthetic flat shape (fixtures only)
+  - text                             # synthetic flat shape (fixtures only)
+  - result                           # CC final-turn result event
+
+# Shape 1: native CC stream-json (assistant event)
+assistant_event:
+  required: [type, message]
+  message_required: [content]
+  content_block_types: [text, tool_use, tool_result]
+  text_block_required: [type, text]
+  tool_use_block_required: [type, name, input]
+  tool_use_input_type: object
+
+# Shape 2: synthetic flat tool_use (hand-authored fixtures)
+synthetic_tool_use_event:
+  required: [type, name, input]
+  type_value: tool_use
+
+# Shape 3: synthetic flat text
+synthetic_text_event:
+  required: [type, text]
+  type_value: text
+
+# Meta header schema (golden-transcripts/<name>.meta.yml)
+meta_header:
+  required:
+    - cc_version                     # MUST equal cc-version.lock claude_code_version
+    - assertion_id                   # MUST be in discriminator-whitelist
+    - expected_verdict               # one of: present, absent, ordered, reversed
+    - description                    # human-readable, ≥20 chars
+  optional:
+    - params                         # matcher params if the golden also exercises matchers
+    - source                         # provenance: synthetic | recorded | hand-edited

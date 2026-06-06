@@ -1,0 +1,3 @@
+{"type":"system","subtype":"init","session_id":"golden-literal-or-banner-text"}
+{"type":"assistant","message":{"content":[{"type":"text","text":"No .helix.yml found. Activating helix by heuristic.\nProceeding to draft product-vision as the first frame artifact."}]}}
+{"type":"result","subtype":"success","is_error":false}

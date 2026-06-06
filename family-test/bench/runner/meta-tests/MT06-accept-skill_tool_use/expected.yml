@@ -1,0 +1,14 @@
+# MT06 — well-formed skill_tool_use row; runner must accept + grade as present.
+meta_test:
+  id: MT06
+  expected_acceptance: true
+  expected_verdict: present
+discriminator:
+  assertion_id: skill_tool_use
+  observable:
+    matcher_type: skill_tool_use
+    skill_id: helix
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]

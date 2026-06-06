@@ -1,0 +1,16 @@
+# MT05 — matcher argument is in banned-patterns list (vacuous matcher).
+# exact_text='helix' is in banned_text_patterns (flow-name-only attribution).
+# Runner MUST reject with T047.
+meta_test:
+  id: MT05
+  expected_rejection: T047
+discriminator:
+  assertion_id: literal_or_banner_text
+  observable:
+    matcher_type: text_match
+    exact_text: helix
+    occurrence_count: 1
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]

@@ -1,0 +1,3 @@
+{"type":"system","subtype":"init","session_id":"golden-refusal-no-write"}
+{"type":"assistant","message":{"content":[{"type":"text","text":"I cannot proceed: the marker does not authorize helix-infra in this scope. Add helix-infra to .helix.yml or run from a directory whose marker authorizes it."}]}}
+{"type":"result","subtype":"success","is_error":false}

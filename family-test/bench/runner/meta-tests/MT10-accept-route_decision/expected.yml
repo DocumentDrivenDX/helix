@@ -1,0 +1,15 @@
+# MT10 — well-formed route_decision row; runner must accept + grade as present.
+meta_test:
+  id: MT10
+  expected_acceptance: true
+  expected_verdict: present
+discriminator:
+  assertion_id: route_decision
+  observable:
+    matcher_type: routing_observable
+    expected_flow_instance: "helix-web:web"
+    routing_signal: explicit_skill_tool_use
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-web]
