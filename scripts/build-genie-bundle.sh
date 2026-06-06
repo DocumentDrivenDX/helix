@@ -89,11 +89,16 @@ echo "✓ copied $SRC_CATALOG → $OUT_DIR/references/activities/"
 cp -r "$SRC_LIBRARY" "$OUT_DIR/library"
 echo "✓ copied $SRC_LIBRARY → $OUT_DIR/library/"
 
-# Also vendor workflows/concerns so slots.yml + per-concern practices.md resolve.
+# Also vendor workflows/concerns so slots.yml + per-concern practices.md resolve,
+# and workflows/graph.yml so §"Consult The Graph Before Authoring" resolves.
+mkdir -p "$OUT_DIR/workflows"
 if [[ -d workflows/concerns ]]; then
-  mkdir -p "$OUT_DIR/workflows"
   cp -r workflows/concerns "$OUT_DIR/workflows/concerns"
   echo "✓ copied workflows/concerns → $OUT_DIR/workflows/concerns/"
+fi
+if [[ -f workflows/graph.yml ]]; then
+  cp workflows/graph.yml "$OUT_DIR/workflows/graph.yml"
+  echo "✓ copied workflows/graph.yml → $OUT_DIR/workflows/graph.yml"
 fi
 
 # Report what we built.

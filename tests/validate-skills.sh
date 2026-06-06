@@ -494,6 +494,7 @@ required = {
     "workflows/concerns/slots.yml",
     "workflows/concerns/verification/practices.md",
     "workflows/concerns/sample-data/practices.md",
+    "workflows/graph.yml",
 }
 import os
 missing = [p for p in required if not os.path.exists(os.path.join(repo_root, p))]
@@ -506,5 +507,27 @@ if not_referenced:
     print(f"DRIFT — these paths exist in the shipped tree but are no longer referenced by SKILL.md: {not_referenced}", file=sys.stderr)
 sys.exit(1 if (missing or not_referenced) else 0)
 PYEOF
+
+# workflows/graph.yml drift: regenerate from meta.yml into a temp file and diff
+# against the committed copy. Catches "meta.yml relationships.informs changed
+# but graph.yml wasn't regenerated."
+graph_tmp="$(mktemp)"
+python3 - "$repo_root" "$graph_tmp" <<'PYEOF' || fail "workflows/graph.yml is stale — run scripts/generate_graph.py"
+import subprocess, sys, shutil, os, filecmp
+repo_root, tmp = sys.argv[1], sys.argv[2]
+# Run generator with output redirected to tmp via env-side-channel: easiest is
+# to invoke it normally then move the result.
+backup = tmp + ".committed"
+shutil.copy(os.path.join(repo_root, "workflows", "graph.yml"), backup)
+subprocess.check_call([sys.executable, os.path.join(repo_root, "scripts", "generate_graph.py")],
+                      stderr=subprocess.DEVNULL)
+generated = os.path.join(repo_root, "workflows", "graph.yml")
+if not filecmp.cmp(backup, generated, shallow=False):
+    # Restore committed version so the working tree isn't dirtied by the check.
+    shutil.copy(backup, generated)
+    print("DRIFT: workflows/graph.yml does not match what scripts/generate_graph.py would emit from current meta.yml", file=sys.stderr)
+    sys.exit(1)
+PYEOF
+rm -f "$graph_tmp" "$graph_tmp.committed"
 
 printf 'validated %d HELIX skills\n' "${#expected_skills[@]}"
