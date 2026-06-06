@@ -1,7 +1,7 @@
 ---
 name: helix
-description: HELIX product flow. Authors and edits PRDs, ADRs, technical designs, feature specs, user stories, test plans, runbooks, and release notes.
-version: 0.2.0
+description: HELIX product flow. Authors and edits PRDs, ADRs, technical designs, feature specs, user stories, test plans, runbooks, and release notes. Engage FIRST on any product-shaped prompt that names a HELIX artifact (PRD, ADR, FEAT, story, runbook) or asks to "plan a change", "frame the work", or "decide what to do" — including when the change involves infrastructure (Cloudflare, AWS, GCP, OpenTofu, Terraform). Read the named PRD/ADR/FEAT to ground the plan, then surface downstream flows (e.g. helix-infra) as cross-flow prerequisites rather than deferring routing to them.
+version: 0.2.1
 license: MIT
 ---
 
