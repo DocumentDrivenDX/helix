@@ -1,0 +1,59 @@
+{
+  "$comment": [
+    "Bench ratchets (plan §15c P14, §19.4). Updated after each main-merge",
+    "bench run. The CI workflow reads this file; a regression beyond the",
+    "declared tolerance fails the job (and posts a PR comment summarising).",
+    "",
+    "Three ratchet streams:",
+    "  stable_pass_rate    — % of bench rows verdicting stable-pass at",
+    "                        determinism=3. Plan §19.4 alert threshold:",
+    "                        5pp drop run-over-run.",
+    "  routing_precision   — positive-prompt precision on the 75 routing",
+    "                        evals. Plan §19.4 alert threshold: 2pp drop.",
+    "  cost_per_run        — rolling 30-day avg full-bench $/run. Plan",
+    "                        §19.4 alert threshold: 25% above baseline.",
+    "  dev_iteration_burn  — separate one-time stream (plan §19.2) for the",
+    "                        P0-P15 build-out. Tracked so steady-state CI",
+    "                        cost is not conflated with infra setup.",
+    "",
+    "Baselines are NULL until the first post-P14 main-merge full-bench run",
+    "establishes them. The workflow treats NULL baselines as 'first run; do",
+    "not gate' and writes the observed value back; subsequent runs gate."
+  ],
+  "version": 1,
+  "updated_at": null,
+  "ratchets": {
+    "stable_pass_rate": {
+      "description": "min %% of bench rows that stable-pass at determinism=3",
+      "baseline": null,
+      "tolerance_pp": 5,
+      "direction": "higher_is_better",
+      "source": "helix_bench run --determinism=3 (post-main-merge full bench)",
+      "alert_action": "fail CI; require codex review on regression"
+    },
+    "routing_precision": {
+      "description": "positive-prompt precision on the 75 routing evals",
+      "baseline": null,
+      "tolerance_pp": 2,
+      "direction": "higher_is_better",
+      "source": "helix_bench routing-evals (positive set)",
+      "alert_action": "fail CI; routing-positive regression is a hard-gate"
+    },
+    "cost_per_run": {
+      "description": "rolling 30-day avg full-bench $/run (cost_tracker.py)",
+      "baseline": null,
+      "tolerance_pct": 25,
+      "direction": "lower_is_better",
+      "source": "family-test/bench/runner/cost-log.jsonl",
+      "alert_action": "warn on PR; fail on main if sustained"
+    },
+    "dev_iteration_burn": {
+      "description": "P0-P15 one-time bench infra dev burn (plan §19.2 ~$1850)",
+      "baseline": null,
+      "tolerance_pct": null,
+      "direction": "lower_is_better",
+      "source": "cost-log.jsonl entries tagged phase=dev_iteration",
+      "alert_action": "tracked separately; no automatic gate"
+    }
+  }
+}
