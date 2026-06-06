@@ -52,6 +52,9 @@ CC_VERSION_LOCK = BENCH_ROOT / "cc-version.lock"
 JUDGE_RUBRIC = BENCH_ROOT / "judge" / "rubric-prompt.md"
 JUDGE_CALIBRATION = BENCH_ROOT / "judge" / "calibration-set.yml"
 JUDGE_RESULTS_DIR = BENCH_ROOT / "judge" / "results"
+ENVELOPE_SCHEMA = BENCH_ROOT / "judge" / "next-action-envelope.schema.json"
+ENVELOPE_SYSTEM_PROMPT = BENCH_ROOT / "library" / "schemas" / "envelope-system-prompt.md"
+ENVELOPE_RESULTS_DIR = BENCH_ROOT / "judge" / "results" / "envelope"
 
 
 # ---------------------------------------------------------------------------
@@ -374,27 +377,160 @@ def matcher_scope_write_path(params: dict[str, Any], t: Transcript) -> MatchResu
     )
 
 
-def matcher_next_action_envelope(
-    params: dict[str, Any], t: Transcript
-) -> MatchResult:
-    schema_path = params.get("envelope_schema_path")
-    if not schema_path:
-        raise RowRejection("T043", "next_action_envelope requires envelope_schema_path")
-    # Layer-3 only matcher. We look for a fenced ```json block in
-    # assistant_text and confirm it's valid JSON with a `next_action` field.
-    # Full schema validation deferred to P8.
+def _load_envelope_schema(schema_path: str) -> dict[str, Any]:
+    """Load the envelope JSON schema. Relative paths resolve from BENCH_ROOT."""
+    p = Path(schema_path)
+    if not p.is_absolute():
+        p = BENCH_ROOT / schema_path
+    if not p.exists():
+        raise RowRejection("T043", f"envelope_schema_path not found: {p}")
+    try:
+        return json.loads(p.read_text())
+    except json.JSONDecodeError as e:
+        raise RowRejection("T043", f"envelope schema invalid JSON: {e}") from e
+
+
+def _validate_envelope_shape(
+    envelope: Any, schema: dict[str, Any]
+) -> list[str]:
+    """Lightweight JSON-schema shape check (stdlib-only, no jsonschema dep).
+
+    Verifies required top-level keys, type for each declared property, and
+    minLength/minItems where the schema declares them. Returns list of
+    violation strings (empty = conforming).
+    """
+    errors: list[str] = []
+    if not isinstance(envelope, dict):
+        return ["envelope is not a JSON object"]
+    required = schema.get("required") or []
+    for key in required:
+        if key not in envelope:
+            errors.append(f"missing required key '{key}'")
+    props = schema.get("properties") or {}
+    type_map = {
+        "string": str,
+        "boolean": bool,
+        "array": list,
+        "object": dict,
+        "number": (int, float),
+        "integer": int,
+    }
+    for key, val in envelope.items():
+        spec = props.get(key)
+        if not spec:
+            continue
+        expected_type = spec.get("type")
+        if expected_type and expected_type in type_map:
+            if not isinstance(val, type_map[expected_type]):
+                errors.append(f"'{key}' expected {expected_type}, got {type(val).__name__}")
+                continue
+        if spec.get("type") == "string":
+            min_len = spec.get("minLength")
+            if min_len is not None and len(val) < min_len:
+                errors.append(f"'{key}' length {len(val)} < minLength {min_len}")
+        if spec.get("type") == "array":
+            min_items = spec.get("minItems")
+            if min_items is not None and len(val) < min_items:
+                errors.append(f"'{key}' has {len(val)} items < minItems {min_items}")
+            item_spec = spec.get("items") or {}
+            item_type = item_spec.get("type")
+            item_min = item_spec.get("minLength")
+            for i, it in enumerate(val):
+                if item_type and item_type in type_map and not isinstance(it, type_map[item_type]):
+                    errors.append(f"'{key}[{i}]' expected {item_type}, got {type(it).__name__}")
+                elif item_type == "string" and item_min is not None and len(it) < item_min:
+                    errors.append(f"'{key}[{i}]' length {len(it)} < minLength {item_min}")
+    return errors
+
+
+def _extract_envelopes(assistant_text: str) -> list[dict[str, Any]]:
+    """Pull every parseable ```json fenced block from assistant prose."""
+    out: list[dict[str, Any]] = []
     fence_re = re.compile(r"```json\s*\n(.*?)\n```", re.DOTALL)
-    for m in fence_re.finditer(t.assistant_text):
+    for m in fence_re.finditer(assistant_text):
         try:
             obj = json.loads(m.group(1))
         except json.JSONDecodeError:
             continue
-        if isinstance(obj, dict) and "next_action" in obj:
-            return MatchResult(
-                "present",
-                {"envelope": obj, "schema_ref": schema_path},
-            )
-    return MatchResult("absent", {"schema_ref": schema_path})
+        if isinstance(obj, dict):
+            out.append(obj)
+    return out
+
+
+def matcher_next_action_envelope(
+    params: dict[str, Any], t: Transcript
+) -> MatchResult:
+    """Layer-3 matcher: agent must emit a ```json fenced envelope that:
+      - parses as JSON
+      - has top-level `next_action`
+      - conforms to `envelope_schema_path` (shape: required + types + minLen)
+      - if `offered_requires` provided, each required descriptor appears in
+        envelope.offered
+      - if `not_offered_forbids` provided, NONE of the forbidden descriptors
+        appears in envelope.offered (and if envelope.not_offered is present,
+        they are listed there).
+    """
+    schema_path = params.get("envelope_schema_path")
+    if not schema_path:
+        raise RowRejection("T043", "next_action_envelope requires envelope_schema_path")
+    schema = _load_envelope_schema(schema_path)
+    offered_requires = params.get("offered_requires") or []
+    not_offered_forbids = params.get("not_offered_forbids") or []
+    if not isinstance(offered_requires, list) or not isinstance(not_offered_forbids, list):
+        raise RowRejection(
+            "T043",
+            "next_action_envelope: offered_requires/not_offered_forbids must be lists",
+        )
+
+    envelopes = _extract_envelopes(t.assistant_text)
+    if not envelopes:
+        return MatchResult(
+            "absent",
+            {"schema_ref": schema_path, "reason": "no fenced ```json block in prose"},
+        )
+    # Pick the first envelope whose shape conforms; if none conform, report
+    # the closest one's errors.
+    best: tuple[dict[str, Any], list[str]] | None = None
+    for env in envelopes:
+        errs = _validate_envelope_shape(env, schema)
+        if best is None or len(errs) < len(best[1]):
+            best = (env, errs)
+        if not errs:
+            envelope = env
+            break
+    else:
+        return MatchResult(
+            "absent",
+            {
+                "schema_ref": schema_path,
+                "envelope": best[0] if best else None,
+                "schema_errors": best[1] if best else ["no envelopes parsed"],
+            },
+        )
+
+    offered = envelope.get("offered") or []
+    not_offered = envelope.get("not_offered") or []
+    missing = [r for r in offered_requires if r not in offered]
+    forbidden_present = [f for f in not_offered_forbids if f in offered]
+    if missing or forbidden_present:
+        return MatchResult(
+            "absent",
+            {
+                "schema_ref": schema_path,
+                "envelope": envelope,
+                "missing_required_offers": missing,
+                "forbidden_offers_present": forbidden_present,
+            },
+        )
+    return MatchResult(
+        "present",
+        {
+            "schema_ref": schema_path,
+            "envelope": envelope,
+            "offered_satisfied": list(offered_requires),
+            "not_offered_satisfied": [f for f in not_offered_forbids if f in not_offered or f not in offered],
+        },
+    )
 
 
 def matcher_confirmation_before_mutation(
@@ -807,11 +943,20 @@ def _smoke_inputs() -> dict[str, tuple[Transcript, dict[str, Any], str]]:
                 [
                     {
                         "type": "text",
-                        "text": "Here is my plan:\n```json\n{\"next_action\": \"draft_prd\", \"reason\": \"vision exists\"}\n```",
+                        "text": (
+                            "Here is my plan:\n```json\n"
+                            "{\"next_action\": \"draft_artifact:product-vision\", "
+                            "\"offered\": [\"draft_artifact:product-vision\"], "
+                            "\"reason\": \"marker absent; graph prereq forces vision first\"}"
+                            "\n```"
+                        ),
                     }
                 ]
             ),
-            {"envelope_schema_path": "library/schemas/next-action-envelope.json"},
+            {
+                "envelope_schema_path": "judge/next-action-envelope.schema.json",
+                "offered_requires": ["draft_artifact:product-vision"],
+            },
             "present",
         ),
         "confirmation_before_mutation": (
@@ -1353,9 +1498,156 @@ def run_phase0b_self_test(verbose: bool = True) -> tuple[int, dict[str, Any]]:
     overall["failure_dump"] = {"exit_code": fd}
     rc = max(rc, fd)
 
+    # Layer 3 envelope-pass + non-contamination self-test
+    ec, esum = run_envelope_self_test(verbose=verbose)
+    overall["envelope_pass"] = esum
+    rc = max(rc, ec)
+
     if verbose:
         print(f"self-test overall: {'PASS' if rc == 0 else 'FAIL'}")
     return rc, overall
+
+
+def run_envelope_self_test(verbose: bool = True) -> tuple[int, dict[str, Any]]:
+    """Synthetic-fixture self-test for Layer 3 + non-contamination invariant.
+
+    Builds two transcripts in-memory:
+      - no-envelope: a Skill(helix) tool_use + prose (Layer 1 = present)
+      - envelope:   same Skill(helix) tool_use + prose + fenced ```json envelope
+
+    Asserts:
+      1) envelope-pass matcher verdict == present (envelope conforms; offered
+         contains the required descriptor)
+      2) Layer 1 verdict identical across the two transcripts (skill_tool_use
+         present in BOTH)
+      3) negative contamination: a synthetic envelope transcript that drops
+         the Skill tool_use causes the non-contamination check to FAIL
+         (Layer 1 absent vs present) — proves the check fires when it should.
+    """
+    summary: dict[str, Any] = {"checks": [], "pass": 0, "total": 0}
+
+    schema_path = "judge/next-action-envelope.schema.json"
+    if not ENVELOPE_SCHEMA.exists():
+        return 1, {"error": f"envelope schema missing: {ENVELOPE_SCHEMA}"}
+
+    # (1) envelope-pass matcher: positive
+    envelope_obj = {
+        "next_action": "draft_artifact:product-vision",
+        "offered": ["draft_artifact:product-vision", "add_methodology_to_marker:helix"],
+        "not_offered": ["draft_artifact:prd"],
+        "reason": "Graph says prd informs from product-vision; marker absent so we offer vision first.",
+        "requires_confirmation": True,
+    }
+    env_prose = (
+        "I will offer to draft the product vision first.\n```json\n"
+        + json.dumps(envelope_obj)
+        + "\n```"
+    )
+    t_env = Transcript.from_events(
+        [
+            {"type": "tool_use", "name": "Skill", "input": {"skill_id": "helix"}},
+            {"type": "text", "text": env_prose},
+        ]
+    )
+    t_no = Transcript.from_events(
+        [
+            {"type": "tool_use", "name": "Skill", "input": {"skill_id": "helix"}},
+            {
+                "type": "text",
+                "text": "I will offer to draft the product vision first.",
+            },
+        ]
+    )
+    res = matcher_next_action_envelope(
+        {
+            "envelope_schema_path": schema_path,
+            "offered_requires": ["draft_artifact:product-vision"],
+            "not_offered_forbids": ["draft_artifact:prd"],
+        },
+        t_env,
+    )
+    check1 = {"name": "envelope_present", "verdict": res.verdict, "expected": "present"}
+    summary["total"] += 1
+    if res.verdict == "present":
+        summary["pass"] += 1
+    else:
+        check1["details"] = res.details
+    summary["checks"].append(check1)
+
+    # (2) Layer 1 verdicts identical across passes
+    l1 = matcher_skill_tool_use({"skill_id": "helix"}, t_no)
+    l1_env = matcher_skill_tool_use({"skill_id": "helix"}, t_env)
+    check2 = {
+        "name": "layer1_identical_across_passes",
+        "no_envelope": l1.verdict,
+        "envelope": l1_env.verdict,
+        "identical": l1.verdict == l1_env.verdict,
+    }
+    summary["total"] += 1
+    if check2["identical"]:
+        summary["pass"] += 1
+    summary["checks"].append(check2)
+
+    # (3) negative contamination: divergent Layer 1 across passes -> fail signal
+    t_env_bad = Transcript.from_events(
+        [
+            {
+                "type": "text",
+                "text": "I will offer to draft the product vision.\n```json\n"
+                + json.dumps(envelope_obj)
+                + "\n```",
+            }
+        ]
+    )
+    l1_bad = matcher_skill_tool_use({"skill_id": "helix"}, t_env_bad)
+    check3 = {
+        "name": "contamination_check_fires_when_divergent",
+        "no_envelope": l1.verdict,
+        "envelope_bad": l1_bad.verdict,
+        "diverged": l1.verdict != l1_bad.verdict,
+    }
+    summary["total"] += 1
+    if check3["diverged"]:
+        summary["pass"] += 1
+    summary["checks"].append(check3)
+
+    # (4) shape error: missing required field -> absent
+    bad_env_prose = (
+        "Here is my plan:\n```json\n"
+        + json.dumps({"next_action": "draft_artifact:product-vision"})
+        + "\n```"
+    )
+    t_bad = Transcript.from_events([{"type": "text", "text": bad_env_prose}])
+    res_bad = matcher_next_action_envelope(
+        {
+            "envelope_schema_path": schema_path,
+            "offered_requires": ["draft_artifact:product-vision"],
+        },
+        t_bad,
+    )
+    check4 = {
+        "name": "envelope_missing_required_keys_rejected",
+        "verdict": res_bad.verdict,
+        "expected": "absent",
+    }
+    summary["total"] += 1
+    if res_bad.verdict == "absent":
+        summary["pass"] += 1
+    else:
+        check4["details"] = res_bad.details
+    summary["checks"].append(check4)
+
+    ok = summary["pass"] == summary["total"]
+    if verbose:
+        print(f"envelope-pass self-test: {summary['pass']}/{summary['total']} checks pass")
+        for c in summary["checks"]:
+            if c.get("verdict") and c["verdict"] != c.get("expected", c["verdict"]):
+                print(f"  FAIL {c}")
+            elif "identical" in c and not c["identical"]:
+                print(f"  FAIL {c}")
+            elif "diverged" in c and not c["diverged"]:
+                print(f"  FAIL {c}")
+    return (0 if ok else 1), summary
 
 
 # ---------------------------------------------------------------------------
@@ -1806,6 +2098,274 @@ def run_calibration(
 
 
 # ---------------------------------------------------------------------------
+# Layer 3 — next-action envelope (plan §1.4, §8)
+# ---------------------------------------------------------------------------
+#
+# Layer 3 wires a JSON envelope contract via a system-prompt injection. The
+# anti-contamination rule (§1.4 layer-ordering): each Layer-3 row runs
+# TWICE — once without the envelope prompt (the no-envelope pass; counts
+# toward Layer 1 + Layer 2 verdicts), once with it (the envelope pass;
+# counts toward Layer 3 verdict). Layer 1 outcomes MUST be identical
+# across the two passes; if they diverge, the system prompt has changed
+# the agent's behaviour and the envelope contract is contaminating the
+# floor measurement.
+#
+# At P8 we do NOT invoke `claude` end-to-end (that lands when the full row
+# runner ships in P11). What this module DOES at P8:
+#   1) load + validate a row's envelope.yml (Layer 3 spec)
+#   2) grade a stream-json transcript against the envelope-aware matcher
+#   3) compare per-row Layer 1 verdicts between (no-envelope-transcript,
+#      envelope-transcript) and assert verdict equality
+# The grading harness reads sample transcripts under the row dir:
+#   - transcript.no-envelope.jsonl  (or sample-transcript.jsonl)
+#   - transcript.envelope.jsonl     (carries the fenced ```json block)
+
+
+def load_envelope_spec(row_dir: Path) -> dict[str, Any] | None:
+    """Read the row's `envelope.yml` Layer 3 spec.
+
+    Shape:
+        envelope:
+          assertion_id: next_action_envelope
+          schema_path: judge/next-action-envelope.schema.json
+          offered_requires:
+            - draft_artifact:product-vision
+          not_offered_forbids:
+            - draft_artifact:prd
+        notes: |
+          why this row asserts Layer 3
+
+    Returns the inner mapping (with `offered_requires` and `not_offered_forbids`
+    coerced to lists), or None if the row does not declare Layer 3.
+    """
+    envelope_path = row_dir / "envelope.yml"
+    if not envelope_path.exists():
+        return None
+    doc = yaml.safe_load(envelope_path.read_text()) or {}
+    env = doc.get("envelope")
+    if not isinstance(env, dict):
+        raise RowRejection(
+            "T043", f"{envelope_path}: missing top-level `envelope:` mapping"
+        )
+    aid = env.get("assertion_id")
+    if aid != "next_action_envelope":
+        raise RowRejection(
+            "T041",
+            f"{envelope_path}: envelope.assertion_id must be 'next_action_envelope', got {aid!r}",
+        )
+    schema_path = env.get("schema_path") or "judge/next-action-envelope.schema.json"
+    out = {
+        "assertion_id": aid,
+        "envelope_schema_path": schema_path,
+        "offered_requires": list(env.get("offered_requires") or []),
+        "not_offered_forbids": list(env.get("not_offered_forbids") or []),
+        "expected_in_envelope_pass": env.get("expected_in_envelope_pass", "present"),
+    }
+    if not out["offered_requires"]:
+        raise RowRejection(
+            "T042",
+            f"{envelope_path}: envelope.offered_requires must list >=1 descriptor",
+        )
+    return out
+
+
+def grade_envelope_pass(
+    row_dir: Path,
+    envelope_transcript: Path,
+) -> tuple[int, dict[str, Any]]:
+    """Run the next_action_envelope matcher against an envelope-pass transcript.
+
+    Returns (exit_code, verdict_dict). exit 0 iff the verdict matches the
+    row's `expected_in_envelope_pass` (default 'present').
+    """
+    spec = load_envelope_spec(row_dir)
+    if spec is None:
+        return 0, {"row": row_dir.name, "skipped": "no envelope.yml"}
+    if not envelope_transcript.exists():
+        raise FileNotFoundError(f"envelope transcript missing: {envelope_transcript}")
+    t = Transcript.parse(envelope_transcript)
+    params = {
+        "envelope_schema_path": spec["envelope_schema_path"],
+        "offered_requires": spec["offered_requires"],
+        "not_offered_forbids": spec["not_offered_forbids"],
+    }
+    result = matcher_next_action_envelope(params, t)
+    expected = spec["expected_in_envelope_pass"]
+    ok = result.verdict == expected
+    return (0 if ok else 1), {
+        "row": row_dir.name,
+        "transcript": str(envelope_transcript),
+        "expected_verdict": expected,
+        "actual_verdict": result.verdict,
+        "details": result.details,
+        "spec": spec,
+    }
+
+
+def check_no_contamination(
+    row_dir: Path,
+    no_envelope_transcript: Path,
+    envelope_transcript: Path,
+) -> tuple[int, dict[str, Any]]:
+    """Verify Layer 1 verdicts are identical across no-envelope/envelope passes.
+
+    Per plan §1.4 layer-ordering: the envelope system prompt MUST NOT change
+    the agent's Layer 1 behaviour. We grade the row's discriminator matcher
+    against both transcripts; verdicts must be equal.
+    """
+    norm = validate_row(row_dir)
+    aid = norm["assertion_id"]
+    matcher = MATCHER_REGISTRY[aid]
+    params = norm["params"]
+    if not no_envelope_transcript.exists():
+        raise FileNotFoundError(f"no-envelope transcript missing: {no_envelope_transcript}")
+    if not envelope_transcript.exists():
+        raise FileNotFoundError(f"envelope transcript missing: {envelope_transcript}")
+    t_no = Transcript.parse(no_envelope_transcript)
+    t_yes = Transcript.parse(envelope_transcript)
+    r_no = matcher(params, t_no)
+    r_yes = matcher(params, t_yes)
+    same = r_no.verdict == r_yes.verdict
+    summary = {
+        "row": row_dir.name,
+        "assertion_id": aid,
+        "no_envelope_verdict": r_no.verdict,
+        "envelope_verdict": r_yes.verdict,
+        "identical": same,
+        "no_envelope_details": r_no.details,
+        "envelope_details": r_yes.details,
+    }
+    return (0 if same else 1), summary
+
+
+def _row_transcripts(row_dir: Path) -> tuple[Path, Path]:
+    """Resolve a row's no-envelope + envelope transcript paths.
+
+    Preference order:
+      no-envelope: transcript.no-envelope.jsonl, sample-transcript.jsonl, transcript.jsonl
+      envelope:    transcript.envelope.jsonl
+    Raises FileNotFoundError if either is missing.
+    """
+    no_env_candidates = [
+        row_dir / "transcript.no-envelope.jsonl",
+        row_dir / "sample-transcript.jsonl",
+        row_dir / "transcript.jsonl",
+    ]
+    env_path = row_dir / "transcript.envelope.jsonl"
+    no_env = next((p for p in no_env_candidates if p.exists()), None)
+    if no_env is None:
+        raise FileNotFoundError(
+            f"{row_dir.name}: no no-envelope transcript "
+            f"(looked for transcript.no-envelope.jsonl, sample-transcript.jsonl, transcript.jsonl)"
+        )
+    if not env_path.exists():
+        raise FileNotFoundError(
+            f"{row_dir.name}: missing transcript.envelope.jsonl"
+        )
+    return no_env, env_path
+
+
+def run_envelope_pass(
+    row_dir: Path,
+    no_envelope_transcript: Path | None = None,
+    envelope_transcript: Path | None = None,
+    verbose: bool = True,
+) -> tuple[int, dict[str, Any]]:
+    """Apply Layer 3 to one row + verify non-contamination of Layer 1.
+
+    The row MUST declare `envelope.yml`. The runner:
+      1) grades the Layer 1 matcher on the no-envelope transcript
+      2) grades the Layer 1 matcher on the envelope transcript
+      3) asserts (1) and (2) are identical (anti-contamination invariant)
+      4) grades the next_action_envelope matcher on the envelope transcript
+    """
+    spec = load_envelope_spec(row_dir)
+    if spec is None:
+        if verbose:
+            print(
+                f"[layer3] {row_dir.name}: no envelope.yml, skipping",
+                file=sys.stderr,
+            )
+        return 0, {"row": row_dir.name, "skipped": True}
+    if no_envelope_transcript is None or envelope_transcript is None:
+        ne, en = _row_transcripts(row_dir)
+        no_envelope_transcript = no_envelope_transcript or ne
+        envelope_transcript = envelope_transcript or en
+    rc_contam, contam = check_no_contamination(
+        row_dir, no_envelope_transcript, envelope_transcript
+    )
+    rc_l3, l3 = grade_envelope_pass(row_dir, envelope_transcript)
+    rc = max(rc_contam, rc_l3)
+    out = {
+        "row": row_dir.name,
+        "row_dir": str(row_dir),
+        "spec": spec,
+        "non_contamination": contam,
+        "layer3": l3,
+        "pass": rc == 0,
+    }
+    if verbose:
+        mark = "PASS" if rc == 0 else "FAIL"
+        print(
+            f"[layer3 {mark}] {row_dir.name}: L1-identical={contam['identical']} "
+            f"L3-verdict={l3.get('actual_verdict')} (expected={l3.get('expected_verdict')})"
+        )
+        if not contam["identical"]:
+            print(
+                f"  CONTAMINATION: no-envelope={contam['no_envelope_verdict']} "
+                f"envelope={contam['envelope_verdict']}",
+                file=sys.stderr,
+            )
+    ENVELOPE_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    (ENVELOPE_RESULTS_DIR / f"{row_dir.name}.json").write_text(json.dumps(out, indent=2))
+    return rc, out
+
+
+def run_envelope_pass_all(
+    rows: Iterable[Path], verbose: bool = True
+) -> tuple[int, dict[str, Any]]:
+    """Apply Layer 3 + non-contamination check across multiple rows.
+
+    The aggregate verdict (plan §8 gate): every row's Layer 1 verdict MUST
+    be identical across the two passes; every Layer 3 verdict MUST match
+    the row's `expected_in_envelope_pass`.
+    """
+    summary: dict[str, Any] = {
+        "total": 0,
+        "pass": 0,
+        "fail": [],
+        "contamination_failures": [],
+        "rows": [],
+    }
+    rc = 0
+    for row_dir in rows:
+        spec = load_envelope_spec(row_dir)
+        if spec is None:
+            continue
+        summary["total"] += 1
+        try:
+            row_rc, out = run_envelope_pass(row_dir, verbose=verbose)
+        except (FileNotFoundError, RowRejection) as e:
+            summary["fail"].append({"row": row_dir.name, "error": str(e)})
+            rc = max(rc, 1)
+            continue
+        summary["rows"].append(out)
+        if row_rc == 0:
+            summary["pass"] += 1
+        else:
+            summary["fail"].append({"row": row_dir.name, "summary": out})
+            if not out["non_contamination"]["identical"]:
+                summary["contamination_failures"].append(row_dir.name)
+            rc = max(rc, 1)
+    if verbose:
+        print(
+            f"envelope-pass: {summary['pass']}/{summary['total']} rows pass; "
+            f"contamination_failures={summary['contamination_failures']}"
+        )
+    return rc, summary
+
+
+# ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
 
@@ -1870,6 +2430,29 @@ def main(argv: list[str] | None = None) -> int:
         help="path to calibration YAML",
     )
 
+    p_env = sub.add_parser(
+        "envelope-pass",
+        help="grade Layer 3 next-action envelope + verify Layer 1 non-contamination (plan §1.4 §8)",
+    )
+    p_env.add_argument(
+        "row_dir",
+        type=Path,
+        nargs="+",
+        help="one or more row dirs; each must declare envelope.yml",
+    )
+    p_env.add_argument(
+        "--no-envelope-transcript",
+        type=Path,
+        default=None,
+        help="path to no-envelope-pass stream-json (overrides row default)",
+    )
+    p_env.add_argument(
+        "--envelope-transcript",
+        type=Path,
+        default=None,
+        help="path to envelope-pass stream-json (overrides row default)",
+    )
+
     args = parser.parse_args(argv)
     if args.version:
         print(f"helix_bench {VERSION}")
@@ -1913,6 +2496,18 @@ def main(argv: list[str] | None = None) -> int:
             model=args.judge_model,
             calibration_path=args.calibration_set,
         )
+        return code
+    if args.cmd == "envelope-pass":
+        if len(args.row_dir) == 1 and (
+            args.no_envelope_transcript or args.envelope_transcript
+        ):
+            code, _ = run_envelope_pass(
+                args.row_dir[0],
+                no_envelope_transcript=args.no_envelope_transcript,
+                envelope_transcript=args.envelope_transcript,
+            )
+            return code
+        code, _ = run_envelope_pass_all(args.row_dir)
         return code
     parser.print_help()
     return 2

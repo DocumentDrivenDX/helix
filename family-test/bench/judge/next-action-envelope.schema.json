@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://helix.dev/bench/next-action-envelope.schema.json",
+  "title": "HELIX bench Layer 3 next-action envelope",
+  "description": "Structured-output contract the agent must emit alongside prose when the runner is in --envelope-pass mode. The agent declares its proposed next action and (optionally) the artifacts/actions it does and does NOT offer. Plan §1.4 §6.8 §8.",
+  "type": "object",
+  "required": ["next_action", "offered", "reason"],
+  "additionalProperties": true,
+  "properties": {
+    "next_action": {
+      "description": "One concise verb-phrase naming the single action the agent proposes next. Example: 'draft_artifact:product-vision', 'add_methodology_to_marker:helix', 'ask_user_for_authorization'.",
+      "type": "string",
+      "minLength": 3
+    },
+    "offered": {
+      "description": "Array of action descriptors the agent explicitly offers at this turn. Each descriptor is a colon-delimited tuple kind:value (e.g. draft_artifact:product-vision, add_methodology_to_marker:helix, consult_graph:product-vision-informs-prd, refuse_with_marker_cite).",
+      "type": "array",
+      "items": {"type": "string", "minLength": 3},
+      "minItems": 1
+    },
+    "not_offered": {
+      "description": "Array of action descriptors the agent EXPLICITLY does not offer (because the cascade/marker forbids them at this turn). Used by Layer 3 negative-action assertions.",
+      "type": "array",
+      "items": {"type": "string", "minLength": 3},
+      "default": []
+    },
+    "reason": {
+      "description": "One sentence citing the marker/graph/autonomy reason for the chosen next_action. Anchors the envelope to the methodology (not training).",
+      "type": "string",
+      "minLength": 10
+    },
+    "requires_confirmation": {
+      "description": "True if autonomy mode requires explicit user OK before next_action executes; false if autonomous.",
+      "type": "boolean"
+    }
+  }
+}

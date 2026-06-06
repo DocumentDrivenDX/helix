@@ -1,0 +1,5 @@
+{"type":"system","subtype":"init","session_id":"C002-no-envelope"}
+{"type":"assistant","message":{"content":[{"type":"text","text":"I'm engaging the helix skill because \"PRD\" is a helix router-anchor."}]}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Skill","input":{"skill_id":"helix","args":"frame"}}]}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"Two things before I write a PRD: (1) there's no `.helix.yml` marker yet, so I need to add the helix flow; (2) the graph says PRD informs from product-vision, and there's no vision artifact yet. I'd like to bootstrap the marker and draft the product vision first; the PRD lands after that. Should I proceed?"}]}}
+{"type":"result","subtype":"success","is_error":false}

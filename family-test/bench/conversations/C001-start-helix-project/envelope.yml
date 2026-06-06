@@ -1,0 +1,23 @@
+# C001 Layer 3 (next-action envelope) — plan §1.4 §6.8 §8.
+#
+# Empty workspace, no marker, autonomy=guided, prompt "Let's start a helix
+# project for a coffee-ordering app". The agent's envelope at turn 1 MUST
+# offer to (a) draft the upstream artifact (product-vision) and/or
+# (b) add helix to the marker. It MUST NOT offer to draft PRD ahead of
+# vision (graph: prd informs from product-vision).
+
+envelope:
+  assertion_id: next_action_envelope
+  schema_path: judge/next-action-envelope.schema.json
+  offered_requires:
+    - draft_artifact:product-vision
+    - add_methodology_to_marker:helix
+  not_offered_forbids:
+    - draft_artifact:prd
+  expected_in_envelope_pass: present
+
+notes: |
+  Pairs with the row's Layer 1 (skill_tool_use) and Layer 2 (vision-offer
+  prose). Layer 3 raises the floor from "engaged with right framing" to
+  "explicit machine-readable proposal", and the not_offered guard catches
+  the cascade-skip failure mode where the agent jumps straight to PRD.

@@ -1,0 +1,8 @@
+{"type":"system","subtype":"init","session_id":"C006-envelope"}
+{"type":"assistant","message":{"content":[{"type":"text","text":"Helix is active and autonomy is autonomous; engaging the helix skill for the PRD request."}]}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Skill","input":{"skill_id":"helix","args":"frame"}}]}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"Graph: prd informs from product-vision; no vision artifact exists. I'll draft the product vision first, then write the PRD with `informs: product-vision` wired in. Proceeding."}]}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Write","input":{"file_path":"docs/helix/00-discover/product-vision.md"}}]}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Write","input":{"file_path":"docs/helix/01-frame/prd.md"}}]}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"```json\n{\"next_action\": \"draft_artifact:product-vision\", \"offered\": [\"draft_artifact:product-vision\", \"draft_artifact:prd\"], \"not_offered\": [\"ask_user_for_authorization\"], \"reason\": \"Marker authorizes helix; autonomy=autonomous so no confirmation; graph: prd informs from product-vision so vision drafts first, then prd.\", \"requires_confirmation\": false}\n```"}]}}
+{"type":"result","subtype":"success","is_error":false}

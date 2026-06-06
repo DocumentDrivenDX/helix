@@ -1,0 +1,6 @@
+{"type":"system","subtype":"init","session_id":"C015-no-envelope"}
+{"type":"assistant","message":{"content":[{"type":"text","text":"Engaging the helix skill to answer \"what's next\" against your active flows."}]}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Skill","input":{"skill_id":"helix","args":"next"}}]}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Read","input":{"file_path":"plugins/methodology-product/skills/helix/graph.yml"}}]}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"Graph: prd informs from product-vision. Your product-vision is approved and there's no PRD yet, so the next artifact is the PRD. I can draft it under `docs/helix/01-frame/prd.md` with `informs: product-vision` wired in."}]}}
+{"type":"result","subtype":"success","is_error":false}
