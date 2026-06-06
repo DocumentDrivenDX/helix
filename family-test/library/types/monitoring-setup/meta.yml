@@ -1,0 +1,13 @@
+id: monitoring-setup
+name: Monitoring Setup
+version: 1.0.0
+summary: |
+  Alert catalogue, routing, dashboards, and alert hygiene rules.
+
+required_sections:
+  - alert_catalog
+  - routing
+  - dashboards
+  - alert_hygiene
+
+tags: [data, helix-data, operate]

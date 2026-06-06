@@ -13,6 +13,12 @@ required_sections:
   - non_consumers
   - open_questions
 
+section_aliases:
+  non_consumers:
+    - "Non-Consumers (out of scope)"
+    - "Non-Consumers"
+    - "Out of Scope"
+
 quality_checks:
   - id: consumers_and_sla_specific
     description: Consumers and freshness SLA name concrete systems, cadences, and measurable targets.

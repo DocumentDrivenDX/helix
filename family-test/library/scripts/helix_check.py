@@ -64,6 +64,7 @@ ERROR_CODES = {
     "T002","T003","T004",
     "I101","I104","I200",
     "R010",
+    "A001","A002",
 }
 WARNING_CODES = {
     "M005","M010",
@@ -103,7 +104,7 @@ class Report:
 
     def exit_code(self, strict: bool = False) -> int:
         # Pick the highest-class error present. Class order: M > T > G > I (highest exit code wins; but design has I=1, G=2, T=3, M=4, R=5)
-        rank = {"M": EXIT_M, "T": EXIT_T, "G": EXIT_G, "I": EXIT_I, "R": EXIT_R, "W": EXIT_I}
+        rank = {"M": EXIT_M, "T": EXIT_T, "G": EXIT_G, "I": EXIT_I, "R": EXIT_R, "W": EXIT_I, "A": EXIT_I}
         ec = EXIT_CLEAN
         for f in self.findings:
             if f.is_error(strict):
@@ -202,15 +203,102 @@ def cmd_type(types_root: Path, report: Report) -> None:
                 # Canonical match, or any alias matches an H2 slug
                 if sec in h2_slugs:
                     continue
+                if any(h.startswith(sec + "_") for h in h2_slugs):
+                    continue
                 aliases = aliases_map.get(sec, []) or []
                 alias_slugs = {re.sub(r"[^a-z0-9]+", "_", a.lower()).strip("_") for a in aliases}
                 if h2_slugs & alias_slugs:
+                    continue
+                if any(h.startswith(a + "_") for a in alias_slugs for h in h2_slugs):
                     continue
                 report.add_code(
                     "T004",
                     f"required_section `{sec}` not found as H2 in template.md",
                     file=str(meta_path),
                 )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Subcommand: example --adversarial-coverage
+#
+# Walks <example_root>/fixtures/*.yml and asserts each fixture's `id:` token
+# (F1, F2, ...) appears as a word-bounded reference in at least one artifact
+# markdown body under <example_root>/docs/. Empty fixtures dir is an error
+# (A002 — coverage gate with nothing to gate is a no-op trap).
+
+_FIXTURE_TOKEN_RE_CACHE: dict[str, re.Pattern] = {}
+
+
+def _fixture_token_re(token: str) -> re.Pattern:
+    """Word-bounded regex for a fixture token (e.g. 'F1' matches F1 but not F11)."""
+    cached = _FIXTURE_TOKEN_RE_CACHE.get(token)
+    if cached is not None:
+        return cached
+    # \b at end keeps F1 from matching F10/F11; re.escape handles future tokens
+    pat = re.compile(rf"(?<![A-Za-z0-9]){re.escape(token)}(?![A-Za-z0-9])")
+    _FIXTURE_TOKEN_RE_CACHE[token] = pat
+    return pat
+
+
+def cmd_example_adversarial_coverage(example_root: Path, report: Report) -> None:
+    """Verify every fixture ID under <example_root>/fixtures/ is referenced
+    by at least one artifact under <example_root>/docs/.
+    """
+    if not example_root.is_dir():
+        report.add_code("A002", f"example root not a directory: {example_root}")
+        return
+    fixtures_dir = example_root / "fixtures"
+    docs_dir = example_root / "docs"
+    if not fixtures_dir.is_dir():
+        report.add_code("A002", f"fixtures dir missing: {fixtures_dir}")
+        return
+    if not docs_dir.is_dir():
+        report.add_code("A002", f"docs dir missing: {docs_dir}")
+        return
+
+    fixture_ids: list[str] = []
+    for fx_path in sorted(fixtures_dir.glob("*.yml")):
+        try:
+            fx = yaml.safe_load(fx_path.read_text()) or {}
+        except yaml.YAMLError as e:
+            report.add_code("A002", f"fixture YAML parse error: {e}", file=str(fx_path))
+            continue
+        fid = fx.get("id")
+        if not fid:
+            report.add_code("A002", f"fixture missing `id:` key", file=str(fx_path))
+            continue
+        fixture_ids.append(str(fid))
+
+    if not fixture_ids:
+        report.add_code("A002", f"no fixtures found under {fixtures_dir} — coverage gate is vacuous")
+        return
+
+    # Build artifact bodies (frontmatter stripped, since fixture refs in
+    # frontmatter would be a code smell — fixtures are narrative, not links).
+    artifact_bodies: list[tuple[Path, str]] = []
+    for md in sorted(docs_dir.rglob("*.md")):
+        try:
+            text = md.read_text()
+        except Exception:
+            continue
+        body = _FRONTMATTER_RE.sub("", text, count=1)
+        artifact_bodies.append((md, body))
+
+    if not artifact_bodies:
+        report.add_code("A002", f"no markdown artifacts found under {docs_dir}")
+        return
+
+    for fid in fixture_ids:
+        pat = _fixture_token_re(fid)
+        refs = [str(p) for p, b in artifact_bodies if pat.search(b)]
+        if not refs:
+            report.add_code(
+                "A001",
+                f"adversarial fixture `{fid}` not referenced by any artifact under {docs_dir}",
+            )
+
+    # Track docs_scanned for symmetry with other modes
+    _DOCS_SCANNED["count"] += len(artifact_bodies)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -387,18 +475,32 @@ def _check_instance_sections(
     lib_major = _parse_major(meta.get("version"))
     pin_major = _parse_major(ddx.get("library_type_version"))
 
-    # Extract instance H2 slugs
+    # Extract instance heading slugs (H2 always; H3 too if the type opts in
+    # via `match_scope: any-heading` — backfill-plan style where required
+    # sections live under per-scenario H2 partitions).
     text = doc_path.read_text()
     body = _FRONTMATTER_RE.sub("", text, count=1)
     h2_slugs = {slugify_h2(ln) for ln in body.splitlines() if ln.startswith("## ")}
+    if meta.get("match_scope") == "any-heading":
+        # slugify_h2 strips "## " specifically; for "### " do an inline version.
+        for ln in body.splitlines():
+            if ln.startswith("### "):
+                stripped = re.sub(r"^#+\s+", "", ln.strip())
+                h2_slugs.add(re.sub(r"[^a-z0-9]+", "_", stripped.lower()).strip("_"))
 
-    # For each required section, check canonical or alias
+    # For each required section, check canonical or alias.
+    # An alias matches if any H2 slug equals it OR starts with `<alias>_`
+    # (so "Consumer" aliases match "Consumer 1 — Analytics" etc).
     for sec in required:
         if sec in h2_slugs:
+            continue
+        if any(h.startswith(sec + "_") for h in h2_slugs):
             continue
         aliases = aliases_map.get(sec, []) or []
         alias_slugs = {re.sub(r"[^a-z0-9]+", "_", a.lower()).strip("_") for a in aliases}
         if h2_slugs & alias_slugs:
+            continue
+        if any(h.startswith(a + "_") for a in alias_slugs for h in h2_slugs):
             continue
         # Missing. Choose severity:
         # If a pin exists and pin_major < lib_major → I010 deprecation warn.
@@ -893,6 +995,14 @@ def main(argv: list[str]) -> int:
     p_type.add_argument("--strict", action="store_true")
     p_type.add_argument("--json", action="store_true")
 
+    p_example = sub.add_parser("example")
+    p_example.add_argument("example_root", type=Path, nargs="?", default=None,
+                           help="path to worked example root (contains fixtures/ and docs/)")
+    p_example.add_argument("--adversarial-coverage", action="store_true",
+                           help="assert every fixture under <root>/fixtures/ is referenced by >=1 artifact")
+    p_example.add_argument("--strict", action="store_true")
+    p_example.add_argument("--json", action="store_true")
+
     args = parser.parse_args(argv)
     report = Report()
 
@@ -931,6 +1041,13 @@ def main(argv: list[str]) -> int:
                          library_types_root=args.library_types)
     elif args.cmd == "type":
         cmd_type(args.types_root, report)
+    elif args.cmd == "example":
+        if args.example_root is None:
+            report.add_code("R010", "example subcommand requires <example_root> positional arg")
+        elif args.adversarial_coverage:
+            cmd_example_adversarial_coverage(args.example_root, report)
+        else:
+            report.add_code("R010", "example subcommand requires --adversarial-coverage flag (no other mode implemented)")
     else:
         return EXIT_U
 

@@ -1,0 +1,15 @@
+id: improvement-backlog
+name: Improvement Backlog
+version: 1.0.0
+summary: |
+  Tracked items captured from operate and evolve cycles that feed product iteration.
+
+required_sections:
+  - backlog
+
+section_aliases:
+  backlog:
+    - "Backlog"
+    - "Items"
+
+tags: [data, helix-data, evolve]

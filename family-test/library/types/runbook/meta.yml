@@ -1,0 +1,14 @@
+id: runbook
+name: Runbook
+version: 1.0.0
+summary: |
+  Operational response procedures for each known failure mode, with capture-as-golden discipline.
+
+required_sections:
+  - capture_as_golden
+
+section_aliases:
+  capture_as_golden:
+    - "Capture as golden"
+
+tags: [data, helix-data, operate]

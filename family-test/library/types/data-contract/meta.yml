@@ -13,6 +13,13 @@ required_sections:
   - evolution_policy
   - termination_clauses
 
+section_aliases:
+  consumer:
+    - "Consumers"
+  evolution_policy:
+    - "Evolution Policy"
+    - "Evolution Policy (breaking / non-breaking surface)"
+
 quality_checks:
   - id: contract_obligations_testable
     description: Contract names both parties and states testable schema, semantic, freshness, evolution, and termination obligations.

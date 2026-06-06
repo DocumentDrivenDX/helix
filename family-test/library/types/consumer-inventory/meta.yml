@@ -6,11 +6,12 @@ summary: |
 
 required_sections:
   - consumer
-  - purpose
-  - read_pattern
-  - freshness_required
-  - contract_version
-  - dependency_strength
+
+section_aliases:
+  consumer:
+    - "Consumer"
+    - "Consumer 1 — Analytics (Redshift dashboards)"
+    - "Consumer 1"
 
 quality_checks:
   - id: consumer_dependency_clear

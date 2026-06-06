@@ -6,6 +6,10 @@ required_sections:
   - reconciliation_rules
   - alert_thresholds
   - response_runbook_ref
+section_aliases:
+  response_runbook_ref:
+    - "Response Runbook Reference"
+    - "Response Runbook Ref"
 optional_sections:
   - sampling_strategy
   - historical_baseline

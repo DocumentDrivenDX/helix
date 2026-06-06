@@ -1,0 +1,14 @@
+id: metrics-dashboard
+name: Metrics Dashboard
+version: 1.0.0
+summary: |
+  Operator-facing dashboards that surface cost, schema health, skew, PII, lineage, and freshness.
+
+required_sections:
+  - operator_overview
+
+section_aliases:
+  operator_overview:
+    - "Operator Overview"
+
+tags: [data, helix-data, operate]

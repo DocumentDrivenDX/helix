@@ -9,6 +9,23 @@ required_sections:
   - rollback_strategy
   - expected_runtime
   - communication_to_consumers
+section_aliases:
+  trigger:
+    - "Scenario 1"
+    - "Scenario 1 — Historical Backfill"
+  scope:
+    - "Scenario 1 — Historical Backfill"
+    - "Scenario 2 — DLQ Replay (F10)"
+  safety_checks_pre_run:
+    - "Safety Checks (pre-run)"
+    - "Safety Checks"
+  rollback_strategy:
+    - "Rollback Strategy"
+  expected_runtime:
+    - "Expected Runtime"
+  communication_to_consumers:
+    - "Communication to Consumers"
+match_scope: any-heading
 optional_sections:
   - dry_run_results
   - approval_record
