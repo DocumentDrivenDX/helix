@@ -59,17 +59,17 @@ def _ceiling_check() -> None:
 
 # Code → severity (E = error / contributes to exit; W = warning, only at --strict)
 ERROR_CODES = {
-    "M001","M002","M003","M004","M006",
+    "M001","M002","M003","M004","M006","M030",
     "G103","G104","G105","G201","G202","G203",
     "T002","T003","T004",
-    "I101","I104","I200",
+    "I101","I104","I130","I200",
     "R010",
     "A001","A002",
 }
 WARNING_CODES = {
-    "M005","M010",
+    "M005","M010","M020",
     "G133","G140",
-    "I010","I103","I120","I121",
+    "I010","I103","I120","I121","I131",
     "W003","W004","W005",
 }
 
@@ -636,6 +636,47 @@ def cmd_instance(
         if scope == "intra-document":
             continue
 
+        # Cross-instance (§13.4 case A): target shape is "flow.instance:id" or link
+        # carries `cross_instance: true`. Handled BEFORE plain cross-methodology so
+        # the dotted-flow.instance form doesn't get mis-parsed.
+        cross_instance = link.get("cross_instance", False)
+        is_dotted_target = isinstance(target, str) and ":" in target and "." in target.split(":", 1)[0]
+        if cross_instance or is_dotted_target:
+            if ":" in (target or ""):
+                qual, target_id = target.split(":", 1)
+            else:
+                qual, target_id = "", target
+            if "." in qual:
+                target_flow, target_instance = qual.split(".", 1)
+            else:
+                target_flow, target_instance = qual, "default"
+
+            # I130: target (flow, instance) not in marker
+            marker_pairs = {(m["id"], m.get("instance", "default"))
+                            for m in marker.get("methodologies", []) or []}
+            if (target_flow, target_instance) not in marker_pairs:
+                report.add_code("I130",
+                    f"edge {i}: cross-instance target `{target_flow}.{target_instance}:{target_id}` "
+                    f"references unknown (flow, instance) pair (not in marker)",
+                    file=str(doc_path))
+                continue
+
+            # I131: target instance present in marker but the source flow's
+            # external_edges doesn't authorise the cross-instance kind.
+            ext_match = None
+            for key, ext in external_edges_by_kv.items():
+                # external_edges entries for cross-instance use `to_flow:` and may
+                # optionally carry `to_instance:`. Loose match on (source, to_flow, kind).
+                if key[0] == source_node_id and key[1] == target_flow and key[3] == kind:
+                    ext_match = ext
+                    break
+            if not ext_match:
+                report.add_code("I131",
+                    f"edge {i}: cross-instance `{kind}` from `{source_node_id}` "
+                    f"to `{target_flow}.{target_instance}:{target_id}` not authorised in external_edges",
+                    file=str(doc_path))
+            continue
+
         # Cross-methodology
         if cross or (isinstance(target, str) and ":" in target and not target.startswith("@")):
             # Parse qualified target
@@ -735,35 +776,96 @@ def cmd_instance(
 # Subcommand: marker
 
 def validate_marker_schema(marker: dict, marker_path: Path, marker_dir: Path, report: Report) -> bool:
-    """M001-M006 hard-fail rules from design §1.4. Returns True if marker survives."""
+    """M001-M006/M030 hard-fail rules from design §1.4 + §13.7.
+
+    Schema v2 (helix_version: 2) accepts `flows:` with optional `instance:` per entry.
+    Schema v1 (`methodologies:`) is accepted with M020 deprecation warn.
+    After validation, marker["methodologies"] holds the normalized entry list where each
+    entry has an injected `instance` field (defaulting to "default"). Uniqueness key is
+    (id, instance) — duplicates fire M030.
+
+    Returns True if marker survives.
+    """
     if not isinstance(marker, dict):
         report.add_code("M001", "marker must be a mapping", file=str(marker_path))
         return False
-    if "methodologies" not in marker:
-        report.add_code("M001", "marker missing required `methodologies:` list", file=str(marker_path))
+
+    # Schema-version detection: accept either `flows:` (v2) or `methodologies:` (v1).
+    has_flows = "flows" in marker
+    has_methods = "methodologies" in marker
+    if has_flows and has_methods:
+        report.add_code("M001",
+                        "marker carries BOTH `flows:` and `methodologies:` — pick one (use `flows:` for v2)",
+                        file=str(marker_path))
         return False
-    if not isinstance(marker["methodologies"], list) or not marker["methodologies"]:
-        report.add_code("M001", "`methodologies:` must be a non-empty list", file=str(marker_path))
+    if not has_flows and not has_methods:
+        report.add_code("M001", "marker missing required `flows:` (v2) or `methodologies:` (v1) list",
+                        file=str(marker_path))
         return False
 
-    ids_seen = set()
+    if has_flows:
+        raw_entries = marker.get("flows")
+        list_key = "flows"
+    else:
+        raw_entries = marker.get("methodologies")
+        list_key = "methodologies"
+        # M020: legacy key warn (only fires when helix_version: 2 is declared).
+        if str(marker.get("helix_version", "")).strip() == "2":
+            report.add_code("M020",
+                            "marker declares `helix_version: 2` but uses legacy `methodologies:` key — rename to `flows:`",
+                            file=str(marker_path))
+
+    if not isinstance(raw_entries, list) or not raw_entries:
+        report.add_code("M001", f"`{list_key}:` must be a non-empty list", file=str(marker_path))
+        return False
+
+    pairs_seen: set[tuple[str, str]] = set()
+    ids_seen_for_default: set[str] = set()
     survived = True
-    for i, entry in enumerate(marker["methodologies"]):
+    normalized: list[dict] = []
+    for i, entry in enumerate(raw_entries):
         if not isinstance(entry, dict):
-            report.add_code("M001", f"methodologies[{i}] must be a mapping", file=str(marker_path))
+            report.add_code("M001", f"{list_key}[{i}] must be a mapping", file=str(marker_path))
             survived = False; continue
         mid = entry.get("id")
         if not mid:
-            report.add_code("M001", f"methodologies[{i}] missing `id:`", file=str(marker_path))
+            report.add_code("M001", f"{list_key}[{i}] missing `id:`", file=str(marker_path))
             survived = False; continue
-        if mid in ids_seen:
-            report.add_code("M003", f"duplicate methodology id `{mid}`", file=str(marker_path))
+
+        # instance: optional, default "default". Empty string → M001 (per §13.7 M031 note,
+        # rolled into M001 covers empty values).
+        if "instance" in entry:
+            inst = entry.get("instance")
+            if not isinstance(inst, str) or not inst.strip():
+                report.add_code("M001",
+                                f"{list_key}[{i}] (`{mid}`) `instance:` must be a non-empty string",
+                                file=str(marker_path))
+                survived = False; continue
+            inst = inst.strip()
+        else:
+            inst = "default"
+        entry["instance"] = inst
+
+        pair = (mid, inst)
+        # M030: duplicate (id, instance) → hard fail.
+        # M003 retained for backwards-compat: when same id appears twice and BOTH
+        # would map to instance "default" (i.e. v1-style duplicate), prefer M003.
+        if pair in pairs_seen:
+            if inst == "default" and mid in ids_seen_for_default:
+                report.add_code("M003", f"duplicate methodology id `{mid}` (instance `{inst}`)",
+                                file=str(marker_path))
+            else:
+                report.add_code("M030",
+                                f"duplicate (id, instance) pair (`{mid}`, `{inst}`)",
+                                file=str(marker_path))
             survived = False
-        ids_seen.add(mid)
+        pairs_seen.add(pair)
+        if inst == "default":
+            ids_seen_for_default.add(mid)
 
         root = entry.get("root")
         if not root:
-            report.add_code("M001", f"methodologies[{i}] (`{mid}`) missing `root:`", file=str(marker_path))
+            report.add_code("M001", f"{list_key}[{i}] (`{mid}`) missing `root:`", file=str(marker_path))
             survived = False; continue
         try:
             root_resolved = (marker_dir / root).resolve()
@@ -777,15 +879,155 @@ def validate_marker_schema(marker: dict, marker_path: Path, marker_dir: Path, re
         except Exception as e:
             report.add_code("M001", f"`{mid}` root path invalid: {e}", file=str(marker_path))
             survived = False; continue
+        normalized.append(entry)
 
-    # M004: defaults.methodology must be in methodologies
+    # Normalize: regardless of v1/v2 input shape, downstream code reads
+    # marker["methodologies"]. Preserve original keys too for round-trip.
+    marker["methodologies"] = normalized
+
+    # M004: defaults.methodology must be in methodologies list (by id, or by
+    # qualified `flow.instance` for v2). v2 marker may use `defaults.flow:` synonym.
     defaults = marker.get("defaults") or {}
-    dm = defaults.get("methodology")
-    if dm and dm not in ids_seen:
-        report.add_code("M004", f"defaults.methodology `{dm}` not in methodologies list", file=str(marker_path))
-        survived = False
+    dm = defaults.get("methodology") or defaults.get("flow")
+    if dm:
+        if "." in dm:
+            df, di = dm.split(".", 1)
+            if not any(e["id"] == df and e["instance"] == di for e in normalized):
+                report.add_code("M004",
+                    f"defaults.{'flow' if 'flow' in defaults else 'methodology'} `{dm}` "
+                    f"not in {list_key} list", file=str(marker_path))
+                survived = False
+        else:
+            if dm not in {e["id"] for e in normalized}:
+                report.add_code("M004",
+                    f"defaults.{'flow' if 'flow' in defaults else 'methodology'} `{dm}` "
+                    f"not in {list_key} list", file=str(marker_path))
+                survived = False
 
     return survived
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# resolve_cwd_to_instance — design §13.6b
+#
+# Path-component-aware matching (NOT string prefix). Equal-depth ties at the
+# SAME or SIBLING level return AMBIGUOUS — never silent alphabetical selection.
+
+def _path_components(p: Path) -> tuple[str, ...]:
+    """Absolute path → tuple of components, with empty trailing component removed."""
+    s = str(p)
+    parts = [x for x in s.split(os.sep) if x != ""]
+    return tuple(parts)
+
+
+def _is_path_prefix(a: Path, b: Path) -> bool:
+    """True iff components(a) is a prefix of components(b). Component-aware:
+    "/a/bc" is NOT a path prefix of "/a/bcd"."""
+    ca = _path_components(a)
+    cb = _path_components(b)
+    if len(ca) > len(cb):
+        return False
+    return cb[: len(ca)] == ca
+
+
+def resolve_cwd_to_instance(
+    marker: dict,
+    cwd: Path,
+    repo_root: Path,
+    env_flow: str | None = None,
+) -> tuple[str, str, str] | tuple[str, list[tuple[str, str]]]:
+    """Resolve a current working directory to a (flow, instance) pair per §13.6b.
+
+    Inputs:
+      marker     — already-validated marker dict (post `validate_marker_schema`)
+      cwd        — absolute cwd path
+      repo_root  — absolute repo root (the directory containing .helix.yml)
+      env_flow   — optional value of HELIX_METHODOLOGY env (or v2 HELIX_FLOW)
+
+    Returns either:
+      ("resolved",   flow_id, instance) — single (flow, instance) result
+      ("no_match",   [])                — no scope contains cwd; caller falls through
+      ("ambiguous",  [(flow_id, instance), ...]) — multiple equal-depth candidates
+                                                   AND env/defaults could not break tie
+
+    Algorithm (§13.6b):
+      1. abs_root_k = repo_root / entry["root"] for each entry
+      2. K = { entries whose abs_root is a path-prefix of cwd OR equal to cwd }
+      3. |K|==0 → no_match
+      4. |K|==1 → resolved(that entry)
+      5. |K|>1  → pick deepest (longest components). Single deepest → resolved.
+                  Multiple deepest (siblings at equal depth, or identical roots):
+                  i. env_flow names one of K_max → resolved(that one)
+                  ii. defaults.{methodology,flow} names one of K_max → resolved
+                  iii. else ambiguous(K_max)
+    """
+    cwd = Path(cwd).resolve()
+    repo_root = Path(repo_root).resolve()
+
+    entries = marker.get("methodologies") or []
+    # Each entry already has injected `instance:` from validate_marker_schema.
+
+    # Step 1-2: build candidate set K
+    K: list[dict] = []
+    for entry in entries:
+        abs_root = (repo_root / entry["root"]).resolve()
+        if _is_path_prefix(abs_root, cwd):
+            K.append(entry)
+
+    # Step 3: no match
+    if not K:
+        return ("no_match", [])
+
+    # Step 4: single match
+    if len(K) == 1:
+        e = K[0]
+        return ("resolved", e["id"], e["instance"])
+
+    # Step 5: nested / overlapping — pick deepest
+    def depth(e: dict) -> int:
+        return len(_path_components((repo_root / e["root"]).resolve()))
+
+    max_depth = max(depth(e) for e in K)
+    K_max = [e for e in K if depth(e) == max_depth]
+
+    # 5a: single deepest wins
+    if len(K_max) == 1:
+        e = K_max[0]
+        return ("resolved", e["id"], e["instance"])
+
+    # 5b: genuine sibling tie. Disambiguation chain.
+    # i. env_flow (HELIX_METHODOLOGY / HELIX_FLOW). Accepts either bare flow id
+    # (matches if exactly one entry in K_max has that id) or qualified "flow.instance".
+    if env_flow:
+        ef = env_flow.strip()
+        if "." in ef:
+            ef_flow, ef_instance = ef.split(".", 1)
+            for e in K_max:
+                if e["id"] == ef_flow and e["instance"] == ef_instance:
+                    return ("resolved", e["id"], e["instance"])
+        else:
+            matching = [e for e in K_max if e["id"] == ef]
+            if len(matching) == 1:
+                e = matching[0]
+                return ("resolved", e["id"], e["instance"])
+
+    # ii. defaults.{methodology,flow}
+    defaults = marker.get("defaults") or {}
+    dm = defaults.get("methodology") or defaults.get("flow")
+    if dm:
+        if "." in dm:
+            dm_flow, dm_instance = dm.split(".", 1)
+            for e in K_max:
+                if e["id"] == dm_flow and e["instance"] == dm_instance:
+                    return ("resolved", e["id"], e["instance"])
+        else:
+            matching = [e for e in K_max if e["id"] == dm]
+            if len(matching) == 1:
+                e = matching[0]
+                return ("resolved", e["id"], e["instance"])
+
+    # iii. ambiguous. Caller (skill / runner) emits the disambiguation banner.
+    return ("ambiguous", [(e["id"], e["instance"]) for e in K_max])
 
 
 def _load_disk_cache(marker_dir: Path) -> dict:
