@@ -26,7 +26,17 @@ bench/
 
 See `cc-version.lock`. CI bench job reads this; if the container CC version
 doesn't match, the build fails. Re-validation cadence: 90 days OR when CC
-hits a trigger version, whichever comes first.
+hits a trigger version, whichever comes first. Full procedure +
+re-baseline gates: [`docs/cc-version-revalidation.md`](docs/cc-version-revalidation.md).
+
+The deadline is surfaced two ways so it can't be missed:
+
+- `lefthook.yml` → `check-cc-revalidation` runs on every commit and prints
+  `WARN: CC version re-validation overdue` if past. Advisory, never blocks.
+- `.github/workflows/family-bench.yml` self-test job runs the same script
+  so the warning shows up in CI logs even when work skips local commits.
+
+Both use `family-test/bench/runner/check-cc-revalidation.sh`.
 
 ## Assertion DSL
 

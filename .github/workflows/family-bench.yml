@@ -114,6 +114,11 @@ jobs:
           python-version: "3.12"
       - name: Verify CC version pin present
         run: test -f family-test/bench/cc-version.lock
+      - name: Warn if CC version re-validation is overdue
+        # Advisory: prints WARN to the workflow log if cc-version.lock's
+        # re_validation_required_after has passed. Never fails the job —
+        # see family-test/bench/docs/cc-version-revalidation.md.
+        run: bash family-test/bench/runner/check-cc-revalidation.sh
       - name: helix_bench self-test (matcher + meta + property + golden)
         run: python3 family-test/bench/runner/helix_bench.py self-test
 
