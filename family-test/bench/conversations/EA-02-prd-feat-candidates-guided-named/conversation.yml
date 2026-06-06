@@ -1,0 +1,4 @@
+turns:
+  - user: |
+      Create a PRD for the coffee-ordering app that covers the order
+      entry flow we already started in FEAT-001. Use HELIX.

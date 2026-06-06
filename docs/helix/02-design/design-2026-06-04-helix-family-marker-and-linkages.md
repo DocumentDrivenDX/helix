@@ -603,6 +603,61 @@ shape. Specifically:
 - Implicit precedence rules 3 and 4 from prior §7.5 (subsumed by
   marker + §1.5 resolution chain).
 
+### 2.7 Edge Authority Asymmetry (Invariant 1)
+
+The three layers do not merely partition shape from edges from instances —
+they assign distinct **authorities** to each layer, and the skill is the
+deliberator between them.
+
+- **Layer 1 (library `meta.yml`)** declares the type's intrinsic shape.
+  It has NO authority over edges. Whether two types may relate is decided
+  one layer up.
+- **Layer 2 (methodology `graph.yml`)** declares what edges are
+  *possible* — the type-pair-with-kind whitelist (cf. §2.2). An edge
+  appearing in `graph.yml` is a **candidate**, not an obligation.
+- **Layer 3 (instance frontmatter `ddx.links`)** declares what edges are
+  *actual* for a specific document. Every instance edge is a deliberate
+  authoring decision.
+
+**The skill MUST NOT mechanically populate `ddx.links` from `graph.yml`
+edges.** Auto-populating instance edges from type-pair candidates — at
+any autonomy level, including `autonomous` and `aggressive` — is a
+contract violation. The graph enumerates what *could* be linked; the
+skill's job is to surface those candidates to the operator (or, when the
+operator has clearly named both endpoints, to confirm the link is
+intentional) and only then write the edge into `ddx.links`.
+
+**Why this asymmetry holds.** A graph edge `prd informs feature-specification`
+declares that *some* PRDs *may* inform *some* feature-specifications. It
+does NOT declare that the PRD being authored right now informs FEAT-001,
+FEAT-002, or any particular FEAT instance. That decision is content —
+it belongs to the human author. The skill that infers "graph says
+informs, so I'll wire ddx.links to every FEAT" turns a possibility
+catalog into a mechanical join and erodes the traceability signal the
+graph is supposed to certify.
+
+**Autonomy does not relax this.** `autonomy=autonomous` excuses the skill
+from confirming each *in-scope mechanical write* (e.g., creating the PRD
+file under the marker's root). It does NOT excuse skipping the
+deliberation that turns a graph candidate into an instance edge —
+deliberation is the asymmetry. Under `autonomous`, the skill must still
+surface candidate edges and ask before populating `ddx.links`. The
+`stop_at` set therefore implicitly includes "writing an `ddx.links` entry
+not previously named by the operator" at every autonomy level.
+
+**How the bench enforces.** The conversation bench category
+`edge-asymmetry` (plan §1.5b, rows EA-01..EA-04) supplies a workspace
+with existing FEAT-001 and FEAT-002, a graph declaring
+`prd informs feature-specification` (required:false), and the prompt
+"Create a PRD". The runner asserts the agent surfaces FEAT-001 / FEAT-002
+as candidate informs targets and asks before writing `ddx.links`. Rows
+EA-01/EA-02 run under `autonomy=guided`; EA-03/EA-04 run under
+`autonomy=autonomous`. PASS in both autonomy levels requires the same
+deliberation prose. A failure mode where the skill writes
+`ddx.links: [FEAT-001, FEAT-002]` silently — even when authoring the PRD
+file is in-scope — fails the row and halts the bench (P4 halt
+condition).
+
 ---
 
 ## §3 graph.yml format + worked example
