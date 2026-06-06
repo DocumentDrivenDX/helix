@@ -1,0 +1,3 @@
+{"id":"RE-POS-001","prompt":"Create a PRD for a mobile onboarding flow that reduces first-week churn for new subscribers.","expected_skill":"helix","rationale":"The request asks for product requirements document authoring."}
+{"id":"RE-POS-002","prompt":"Draft a feature spec for calendar sync, including scope, user value, edge cases, and acceptance criteria.","expected_skill":"helix","rationale":"The request is about creating a structured feature specification."}
+{"id":"RE-POS-003","prompt":"Write user stories for an internal procurement dashboard used by finance analysts and department managers.","expected_skill":"helix","rationale":"The request asks for user-story artifact creation."}

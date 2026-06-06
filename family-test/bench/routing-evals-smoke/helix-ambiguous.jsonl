@@ -1,0 +1,1 @@
+{"id":"RE-AMB-001","prompt":"Plan the next release","candidate_flows":["helix","helix-infra"],"correct_route":"helix","rationale":"Release planning is a product-lifecycle concern (PRD/feature scope, iterate flow). helix-infra owns deploy/rollout mechanics, not release-scope decisions. With marker default.methodology=helix the chain resolves to helix."}

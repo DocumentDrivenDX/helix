@@ -1,0 +1,76 @@
+{
+  "row": "C005-create-prd-marker-no-vision",
+  "row_dir": "/Users/erik/Projects/helix/family-test/bench/conversations/C005-create-prd-marker-no-vision",
+  "spec": {
+    "assertion_id": "next_action_envelope",
+    "envelope_schema_path": "judge/next-action-envelope.schema.json",
+    "offered_requires": [
+      "draft_artifact:product-vision",
+      "ask_user_for_authorization"
+    ],
+    "not_offered_forbids": [
+      "draft_artifact:prd"
+    ],
+    "expected_in_envelope_pass": "present"
+  },
+  "non_contamination": {
+    "row": "C005-create-prd-marker-no-vision",
+    "assertion_id": "skill_tool_use",
+    "no_envelope_verdict": "present",
+    "envelope_verdict": "present",
+    "identical": true,
+    "no_envelope_details": {
+      "hit_indices": [
+        1
+      ],
+      "skill_id": "helix"
+    },
+    "envelope_details": {
+      "hit_indices": [
+        1
+      ],
+      "skill_id": "helix"
+    }
+  },
+  "layer3": {
+    "row": "C005-create-prd-marker-no-vision",
+    "transcript": "/Users/erik/Projects/helix/family-test/bench/conversations/C005-create-prd-marker-no-vision/transcript.envelope.jsonl",
+    "expected_verdict": "present",
+    "actual_verdict": "present",
+    "details": {
+      "schema_ref": "judge/next-action-envelope.schema.json",
+      "envelope": {
+        "next_action": "ask_user_for_authorization",
+        "offered": [
+          "draft_artifact:product-vision",
+          "ask_user_for_authorization"
+        ],
+        "not_offered": [
+          "draft_artifact:prd"
+        ],
+        "reason": "Marker authorizes helix; graph: prd informs from product-vision; no vision in docs/helix/00-discover/. Autonomy=guided so I confirm before writing the upstream artifact.",
+        "requires_confirmation": true
+      },
+      "offered_satisfied": [
+        "draft_artifact:product-vision",
+        "ask_user_for_authorization"
+      ],
+      "not_offered_satisfied": [
+        "draft_artifact:prd"
+      ]
+    },
+    "spec": {
+      "assertion_id": "next_action_envelope",
+      "envelope_schema_path": "judge/next-action-envelope.schema.json",
+      "offered_requires": [
+        "draft_artifact:product-vision",
+        "ask_user_for_authorization"
+      ],
+      "not_offered_forbids": [
+        "draft_artifact:prd"
+      ],
+      "expected_in_envelope_pass": "present"
+    }
+  },
+  "pass": true
+}
