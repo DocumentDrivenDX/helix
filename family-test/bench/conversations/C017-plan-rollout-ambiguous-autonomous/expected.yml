@@ -1,0 +1,47 @@
+tier: exploratory
+category: conversation-library
+phase: P5b
+status: authored-pending-verification
+fixture: C017-plan-rollout-ambiguous-autonomous
+level: autonomous
+notes: |
+  C017 (plan §1.5). Same ambiguity as C016 (both helix and helix-infra
+  in marker) but `defaults.methodology: helix` is declared and
+  autonomy=autonomous. The skill MUST honour defaults and route to
+  helix without asking. No disambiguation banner; no pre-mutation
+  confirmation.
+
+  Routing signal: prose_attribution. Agent's prose must reference
+  helix (the chosen flow) when announcing the route. The route
+  decision is observable structurally.
+
+  Pair-row: marker_edit negative control removes
+  `defaults.methodology`. Without the explicit default, autonomous
+  mode has no clean way to discriminate; the route_decision verdict
+  for helix flips from present to absent.
+
+discriminator:
+  assertion_id: route_decision
+  observable:
+    matcher_type: routing_observable
+    expected_flow_instance: 'helix'
+    routing_signal: prose_attribution
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    marker_edit:
+      from: workspace/.helix.yml
+      to_content: |
+        helix_version: 1
+        methodologies:
+          - id: helix
+            root: docs/helix/
+          - id: helix-infra
+            root: docs/helix-infra/
+      rationale: |
+        Drop the `defaults.methodology: helix` key from the marker.
+        Autonomous mode no longer has a deterministic discriminator;
+        the agent must either fall back to the disambiguation banner
+        (forbidden under autonomous? or pick by heuristic) or refuse.
+        Either way, the prose_attribution to "helix" specifically is
+        no longer reliable. Verdict flips from present → absent.

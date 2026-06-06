@@ -1,0 +1,42 @@
+tier: exploratory
+category: conversation-library
+phase: P5b
+status: authored-pending-verification
+fixture: C008-manage-infrastructure-empty
+level: guided
+notes: |
+  C008 (plan §1.5). Empty workspace. The verb "manage our
+  infrastructure" routes to helix-infra (description anchor per §5.1).
+  Under guided autonomy the skill must engage and offer to (a) add
+  helix-infra to the marker and (b) draft a change-intent artifact,
+  asking before the first state-changing tool_use.
+
+  Matcher: confirmation_before_mutation captures helix-infra-naming
+  deliberation OR canonical pre-write confirmation language. Pattern
+  ≥20 chars per T047 minimum-length guard.
+
+  Pair-row: plugin-remove negative control. Without methodology-infra
+  loaded, "infrastructure" does not anchor to a HELIX-family
+  description; the agent will not propose helix-infra by name.
+
+discriminator:
+  assertion_id: confirmation_before_mutation
+  observable:
+    matcher_type: prose_pattern_before_tool
+    # Pattern captures helix-infra-naming deliberation: explicit
+    # mention of helix-infra, change-intent, or canonical pre-write
+    # confirmation language. Longest alternation ≥20 chars; T047
+    # minimum-length guard satisfied.
+    confirmation_marker_pattern: '(add (the )?helix-infra( methodology| flow| marker)?|draft (a |the )?change-intent|set up helix-infra|Should I (proceed|create|draft|add)|Want me to (create|draft|add|set up)|OK to (create|draft|add))'
+    mutation_tools: [Write, Edit]
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-infra]
+    rationale: |
+      With methodology-infra removed, "manage our infrastructure"
+      no longer anchors to a HELIX-family description. The agent may
+      scaffold terraform-shaped files from training but will not
+      propose helix-infra by name or surface change-intent as the
+      first artifact to draft. Confirmation matcher verdict flips
+      from present → absent.
