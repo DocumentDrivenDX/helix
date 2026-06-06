@@ -1682,7 +1682,11 @@ Per the §1.5b inventory:
 | Verbose-but-stuck | 4 | 1 | 3 | 12 |
 | Meta-tests | 10 | 0 (synthetic) | 1 | 0 |
 
-Total model calls per full bench run: ~645. At Sonnet rates ~$0.06/call → ~$39/full-run. Plus Layer 2 judge calls (~80 rows × 3 = 240 calls @ ~$0.02 each) → ~$5. Plus Layer 3 envelope-pass calls (~5 rows × 2 = 10 extra) → ~$1. **Full bench: ~$45 per complete run.** (Was $44; +$1 from the 6 added rows.)
+Total model calls per full bench run: ~645. **Original estimate was wrong by ~6×** — actual Sonnet cost observed at $0.06/call assumed minimal cache + light multi-turn; real runs land at ~$0.30–$1.20/call once context (skill tree + workspace mount) is paid for. Full bench at Sonnet: **~$300, not $45**.
+
+**Model-tier policy (2026-06-06 recalibration).** The runner now takes a `--model` flag (default: `claude-sonnet-4-6` for conversation rows). Rows may declare `model: claude-haiku-4-5` in `expected.yml` to opt into the cheaper Haiku model. **Routing-evals always use Haiku** (`claude-haiku-4-5`) — the integer-gate decision (Skill fires / doesn't fire) is binary; the cheaper model is sufficient. Haiku is roughly 1–5× cheaper per call than Sonnet on output tokens (price ratio depends on input/cache mix); for the bench's high-cache-read profile we observe **~$0.001–0.005/call output cost** for Haiku vs **$0.06/call** for Sonnet at list rates, suggesting a full bench at Haiku is **~$3–$15** vs **~$300** for Sonnet.
+
+Plus Layer 2 judge calls (~80 rows × 3 = 240 calls @ ~$0.02 each) → ~$5. Plus Layer 3 envelope-pass calls (~5 rows × 2 = 10 extra) → ~$1. **Full bench (Haiku-baseline, Sonnet only for rows that explicitly require it): ~$10–$25 per complete run.**
 
 ### 19.2 Budget gates (revised per codex finding #9)
 
