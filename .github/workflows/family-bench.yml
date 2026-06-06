@@ -47,6 +47,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Install PyYAML
+        run: pip install PyYAML
 
       - name: Compute affected categories
         id: compute
@@ -96,6 +98,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Install PyYAML
+        run: pip install PyYAML
       - name: Run diff-to-category acceptance tests
         run: python3 family-test/bench/runner/test_diff_to_category.py
 
@@ -112,6 +116,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Install PyYAML
+        run: pip install PyYAML
       - name: Verify CC version pin present
         run: test -f family-test/bench/cc-version.lock
       - name: Warn if CC version re-validation is overdue
