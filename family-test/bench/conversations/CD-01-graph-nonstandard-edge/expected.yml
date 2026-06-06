@@ -1,0 +1,32 @@
+tier: must_pass_core
+category: graph-discrimination
+phase: P2
+status: authored-pending-verification  # P2 authors rows; live-grading wiring is P3+
+notes: |
+  CD-01: graph carries a non-standard project-local edge
+  `market-validation-brief requires prd` (required:true). The skill, having
+  consulted graph.yml, must surface the market-validation-brief prerequisite
+  before authoring the PRD. The signature string appears verbatim in the
+  graph fixture so the matcher can verify "surfaced" deterministically.
+
+  Discrimination contract: a paired negative run (CD-02 fixture's graph,
+  swapped in via graph_swap) MUST NOT surface the unusual prerequisite —
+  proving the graph drove the answer, not general HELIX knowledge.
+
+discriminator:
+  assertion_id: graph_edge_observed
+  observable:
+    matcher_type: file_read
+    graph_path: 'methodology-product/workflows/graph\.yml$'
+    expected_edge_signature: 'market-validation-brief requires prd'
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    graph_swap:
+      from: workspace/.helix-fixture/methodology-product/workflows/graph.yml
+      to: ../CD-02-positive-control-no-edge/workspace/.helix-fixture/methodology-product/workflows/graph.yml
+      rationale: |
+        Swap in the canonical graph (CD-02 fixture) that lacks the non-standard
+        edge. The skill should still engage and read the graph, but must NOT
+        surface a `market-validation-brief requires prd` prerequisite because
+        the edge is no longer declared.

@@ -1,0 +1,50 @@
+version: 1
+methodology:
+  id: helix
+  library_version: ^1.0.0
+  validator_contract: 1
+activities:
+- id: 00-discover
+  exit_gate: discover-validation
+- id: 01-frame
+  exit_gate: prd-validation
+nodes:
+- id: product-vision
+  type: library:product-vision
+  activity: 00-discover
+  cardinality: singleton
+- id: market-validation-brief
+  type: local:market-validation-brief
+  activity: 00-discover
+  cardinality: many
+- id: prd
+  type: library:prd
+  activity: 01-frame
+  cardinality: many
+  role: exit-gate
+- id: prd-validation
+  type: local:exit-gate
+  activity: 01-frame
+  cardinality: singleton
+  role: exit-gate
+- id: discover-validation
+  type: local:exit-gate
+  activity: 00-discover
+  cardinality: singleton
+  role: exit-gate
+edges:
+# CD-03 positive workspace carries the SAME non-standard edge as CD-01
+# (market-validation-brief requires prd). The negative-control modifier
+# removes the methodology-product plugin entirely, so the skill cannot
+# engage and the cascade cannot surface — proving the graph-driven
+# prerequisite arose from the engaged skill, not from a Claude default.
+- from: market-validation-brief
+  to: prd
+  kind: requires
+  required: true
+- from: product-vision
+  to: prd
+  kind: informs
+  required: false
+allowed_cycles: []
+external_edges: []

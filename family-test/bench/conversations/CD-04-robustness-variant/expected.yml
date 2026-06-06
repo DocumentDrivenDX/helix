@@ -1,0 +1,35 @@
+tier: must_pass_core
+category: graph-discrimination
+phase: P2
+status: authored-pending-verification
+notes: |
+  CD-04 (robustness variant): a DIFFERENT non-standard required edge from
+  CD-01 — `regulatory-impact-assessment requires prd` in a regulated
+  healthcare-pretext workspace. Defends against the failure mode where the
+  skill memorised the specific phrase "market-validation-brief" in CD-01
+  rather than learning the graph-consultation discipline.
+
+  Verdict contract: the skill must surface the regulatory-impact-assessment
+  prerequisite ONLY because graph.yml declares it. Same negative-control
+  pattern as CD-01: swap in CD-02's canonical graph and the surfacing must
+  disappear.
+
+discriminator:
+  assertion_id: graph_edge_observed
+  observable:
+    matcher_type: file_read
+    graph_path: 'methodology-product/workflows/graph\.yml$'
+    expected_edge_signature: 'regulatory-impact-assessment requires prd'
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    graph_swap:
+      from: workspace/.helix-fixture/methodology-product/workflows/graph.yml
+      to: ../CD-02-positive-control-no-edge/workspace/.helix-fixture/methodology-product/workflows/graph.yml
+      rationale: |
+        Swap in the canonical graph (CD-02 fixture) that lacks the
+        regulatory-impact-assessment edge. The skill should engage and read
+        the graph, but must NOT surface the regulatory-impact-assessment
+        prerequisite because no such edge is declared. Confirms graph
+        content — not industry context, not the word "regulatory" in the
+        prompt — drove the surfacing in the positive run.

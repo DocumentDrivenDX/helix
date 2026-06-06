@@ -1,0 +1,32 @@
+tier: must_pass_core
+category: graph-discrimination
+phase: P2
+status: authored-pending-verification
+notes: |
+  CD-02 (positive control to CD-01): identical workspace and prompt to CD-01,
+  but the graph.yml does NOT carry the non-standard
+  `market-validation-brief requires prd` edge. The skill must engage, read the
+  graph, and proceed with the PRD WITHOUT surfacing a market-validation-brief
+  prerequisite — because no such edge is declared. This is the row that
+  guarantees the CD-01 surfacing was graph-driven, not training-driven.
+
+  Signature is identical to CD-01 so the matcher is the same. Verdicts flip
+  by virtue of the workspace's graph content alone.
+
+discriminator:
+  assertion_id: graph_edge_observed
+  observable:
+    matcher_type: file_read
+    graph_path: 'methodology-product/workflows/graph\.yml$'
+    expected_edge_signature: 'market-validation-brief requires prd'
+  expected_in_positive_run: absent
+  expected_in_negative_run: present
+  negative_control:
+    graph_swap:
+      from: workspace/.helix-fixture/methodology-product/workflows/graph.yml
+      to: ../CD-01-graph-nonstandard-edge/workspace/.helix-fixture/methodology-product/workflows/graph.yml
+      rationale: |
+        Swap in CD-01's graph (which DECLARES the non-standard edge). When the
+        skill consults that graph it MUST surface the
+        market-validation-brief prerequisite. Verdict flips from absent to
+        present, proving the row discriminates on graph content.
