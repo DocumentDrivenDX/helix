@@ -1,0 +1,51 @@
+---
+id: F5
+slug: customer-initiated-deletion
+title: Customer initiated deletion right to be forgotten
+category: deletion
+scenario: |
+  On 2026-06-05, support received a GDPR Article 17 erasure request for customer cus_9A18 from a signed account owner. The customer had 18 months of Stripe webhooks in raw_events, 42 rows in dim_customer history, and 1,311 revenue facts tied by customer_id.
+
+  The deletion must propagate through raw_events.payload jsonb, dim_customer PII columns, fact_revenue foreign-key-only rows, and downstream marketing_segments materialized in Looker. The pipeline must preserve non-PII financial records where legally allowed while removing or anonymizing personal data.
+
+  The support ticket did not include the required signed deletion ticket id, and marketing_segments had no documented owner in the consumer inventory. The operational question was whether the runbook could drive a deletion with a 30-day SLA and notify consumers affected by aggregate segment changes.
+
+  The symptom was a stalled privacy request at day 21 because engineering, analytics, and marketing disagreed on whether fact_revenue should be deleted, anonymized, or retained. This fixture tests whether the lifecycle artifacts settle that decision before the request arrives.
+adversarial_signal: |
+  If the methodology misses deletion propagation, the company may violate a 30-day erasure SLA while raw PII remains in Redshift and Looker extracts. Teams can also over-delete financial facts and damage auditability.
+
+  The blast radius includes regulatory exposure, customer support escalation, inconsistent customer state across BI tools, and re-identification risk from marketing_segments that still include the deleted customer.
+expected_handling:
+  detection:
+    - The runbook intake check rejects deletion work without a signed deletion ticket.
+    - The governance-classification artifact identifies which fields in raw_events, dim_customer, and fact_revenue contain PII.
+    - A deletion coverage query lists every table and Looker materialization containing cus_9A18.
+    - The SLA monitor tracks days remaining until the 30-day Article 17 deadline.
+    - The consumer notification log flags marketing_segments as a downstream consumer requiring notice.
+    - The post-deletion quality check verifies that no approved PII field contains cus_9A18 identifiers.
+  response:
+    - The privacy owner obtains or attaches the signed deletion ticket before execution begins.
+    - The on-call masks or removes PII sub-keys in raw_events.payload for cus_9A18 according to retention policy.
+    - The data engineer deletes or anonymizes dim_customer PII columns for the customer.
+    - The team retains fact_revenue rows only if the governance classification confirms they are FK-only and non-PII.
+    - The Looker owner rebuilds marketing_segments and records the segment membership delta.
+    - The on-call sends consumer notifications and closes the request only after verification passes.
+  prevention:
+    - The governance-classification artifact marks PII, FK-only, and aggregate-only data for every affected table.
+    - The evolution-plan defines how deletion requirements change when new downstream materializations are added.
+    - The deprecation-notice artifact defines consumer notification content for deletion-impacting semantic changes.
+    - The runbook defines the signed ticket requirement, 30-day SLA, and verification evidence.
+    - The lifecycle review requires downstream consumer ownership before materialized segments are published.
+    - The method requires deletion behavior to be specified for jsonb payloads and modeled columns separately.
+artifacts_referencing:
+  - governance-classification
+  - evolution-plan
+  - deprecation-notice
+  - runbook
+acceptance_criteria:
+  - The runbook artifact requires a signed deletion ticket before deleting or anonymizing cus_9A18.
+  - The runbook artifact states a 30-day SLA for GDPR Article 17 requests.
+  - The governance-classification artifact marks fact_revenue as FK-only with no PII columns.
+  - The governance-classification artifact covers raw_events.payload jsonb deletion handling.
+  - The deprecation-notice artifact includes consumer notification for marketing_segments.
+  - The evolution-plan artifact requires deletion behavior review when new downstream consumers are added.

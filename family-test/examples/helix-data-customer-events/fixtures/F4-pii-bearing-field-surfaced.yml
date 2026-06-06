@@ -1,0 +1,50 @@
+---
+id: F4
+slug: pii-bearing-field-surfaced
+title: PII bearing field surfaced
+category: pii
+scenario: |
+  On 2026-06-04 between 09:00 UTC and 12:00 UTC, 2,918 customer.created webhooks included raw customer.email inside metadata.billing_contact.email. The email was supposed to be tokenized through Stripe's token vault before the payload reached the ingest endpoint.
+
+  The Kinesis producer wrote the payload unchanged to raw_events.payload jsonb. Glue preserved the jsonb field because raw_events is the forensic source of truth and the governance scan only classified named Redshift columns.
+
+  A dbt model dim_customer extracted payload:metadata.billing_contact.email into customer_email for analyst convenience. Tableau users in the BI group could query the resulting field even though the customer-events domain was approved only for tokenized customer identifiers.
+
+  The symptom was a privacy review finding after an analyst joined dim_customer to marketing_segments. The fixture tests whether governance classification inspects jsonb sub-keys and whether the runbook handles PII that reached downstream BI.
+adversarial_signal: |
+  If the methodology misses jsonb sub-keys, raw PII can bypass the classification process while appearing compliant at the named-column level. The leak is easy to miss because raw_events.payload is expected to contain vendor data.
+
+  The blast radius includes unauthorized email exposure in Tableau, breach notification analysis, loss of customer trust, and possible violation of internal data minimization policy for the customer-events pipeline.
+expected_handling:
+  detection:
+    - A governance-classification scan inspects raw_events.payload jsonb sub-keys for email patterns.
+    - A data-design check flags any dbt model that extracts unapproved PII from raw_events.payload.
+    - The BI access audit identifies Tableau workbooks querying dim_customer.customer_email.
+    - The PII monitor alerts when customer.email or metadata.billing_contact.email appears in raw_events.
+    - A dbt test fails if dim_customer exposes customer_email without approved classification metadata.
+    - The runbook alert includes the field path and the first affected ingestion window.
+  response:
+    - The on-call disables Tableau access to dim_customer.customer_email or removes the field from the published model.
+    - The on-call quarantines raw_events records containing metadata.billing_contact.email for privacy review.
+    - The privacy owner opens an incident ticket with the 09:00 UTC to 12:00 UTC exposure window.
+    - The data engineer patches dbt to use the tokenized customer identifier instead of raw email.
+    - The team backfills dim_customer after redacting or tokenizing the extracted email values.
+    - The on-call documents which Tableau workbooks and users accessed the leaked field.
+  prevention:
+    - The governance-classification artifact defines classification rules for jsonb sub-keys, not only named columns.
+    - The data-design artifact states raw_events.payload may contain vendor PII and must not be surfaced directly.
+    - The runbook defines immediate containment steps for PII discovered in raw, modeled, and BI layers.
+    - The lifecycle review requires every dbt extraction from raw_events.payload to cite a governance classification.
+    - The design requires token vault enforcement before Kinesis publication for customer identity fields.
+    - The governance artifact lists customer.email and metadata.billing_contact.email as restricted PII field paths.
+artifacts_referencing:
+  - governance-classification
+  - data-design
+  - runbook
+acceptance_criteria:
+  - The governance-classification artifact classifies raw_events.payload.metadata.billing_contact.email as restricted PII.
+  - The data-design artifact forbids dbt models from exposing raw customer.email to Tableau.
+  - The runbook artifact includes containment steps for PII discovered in raw_events.payload jsonb.
+  - The worked example identifies dim_customer.customer_email as an unauthorized surfaced field.
+  - The governance-classification artifact states that jsonb sub-keys are scanned.
+  - The runbook requires an access audit for Tableau workbooks that queried the leaked field.

@@ -1,0 +1,51 @@
+---
+id: F9
+slug: partition-skew-hot-key
+title: Partition skew hot key
+category: skew
+scenario: |
+  On 2026-06-04, enterprise customer ENT-00471 generated 41 percent of daily customer-events volume because of high-volume usage-based billing. The customer produced 6.8 million events out of 16.5 million total events for the day.
+
+  Redshift fact_events was DISTKEY'd on customer_id because most consumers join it to dim_customer. Downstream joins against dim_customer concentrated ENT-00471 rows on a single compute slice while other slices were lightly loaded.
+
+  The dbt model mart_usage_revenue ran 12x slower than the rest of the workload, increasing from 9 minutes to 108 minutes. No row-level data quality test failed because every event was valid and complete.
+
+  The fixture tests whether helix-data requires skew checks and physical design review when a key can become too hot for the chosen distribution strategy.
+adversarial_signal: |
+  If the methodology misses skew, the pipeline appears correct but becomes operationally unusable under one large customer. The same design that works for normal tenants fails during enterprise growth.
+
+  The blast radius includes missed dashboard refresh windows, blocked finance reporting, Redshift queue saturation, and pressure to scale the cluster instead of fixing distribution design.
+expected_handling:
+  detection:
+    - A data-quality-tests skew check fires when any customer_id exceeds 5 percent of daily volume.
+    - The metrics dashboard reports ENT-00471 at 41 percent of daily customer-events volume.
+    - Redshift system tables show a single compute slice handling most fact_events rows for the join.
+    - The dbt run log shows mart_usage_revenue runtime increased from 9 minutes to 108 minutes.
+    - The data-design review flags customer_id as a risky DISTKEY for high-volume tenants.
+    - The alert includes the hot customer_id, share of volume, and affected models.
+  response:
+    - The on-call confirms that data correctness checks pass and the issue is physical skew.
+    - The data engineer evaluates alternative distribution styles such as EVEN or compound sort keys.
+    - The team tests a revised fact_events distribution strategy on the 2026-06-04 partition.
+    - The on-call reruns mart_usage_revenue after the distribution change or mitigation.
+    - The incident record captures before-and-after runtime and slice distribution metrics.
+    - The runbook directs escalation if runtime threatens finance dashboard SLAs.
+  prevention:
+    - The data-architecture artifact defines distribution-key selection criteria and skew limits.
+    - The data-design artifact identifies customer_id as a potential hot key for enterprise tenants.
+    - The data-quality-tests artifact includes the 5 percent single-customer volume threshold.
+    - The runbook documents how to diagnose Redshift slice skew and mitigate hot keys.
+    - The lifecycle review requires load testing with an enterprise high-volume customer fixture.
+    - The architecture requires performance checks for joins used by downstream dbt marts.
+artifacts_referencing:
+  - data-architecture
+  - data-design
+  - data-quality-tests
+  - runbook
+acceptance_criteria:
+  - The data-quality-tests artifact contains a skew assertion for any customer_id above 5 percent of daily events.
+  - The data-architecture artifact explains the Redshift DISTKEY choice for fact_events.
+  - The data-design artifact names ENT-00471 as the high-volume tenant fixture.
+  - The runbook artifact includes a Redshift slice-skew diagnostic query.
+  - The worked example records the 41 percent volume share and 12x runtime regression.
+  - The data-architecture artifact proposes a mitigation when customer_id is too skewed for DISTKEY use.

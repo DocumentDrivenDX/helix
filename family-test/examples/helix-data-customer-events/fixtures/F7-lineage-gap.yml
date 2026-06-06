@@ -1,0 +1,50 @@
+---
+id: F7
+slug: lineage-gap
+title: Lineage gap
+category: lineage
+scenario: |
+  The downstream dbt model mart_customer_ltv joins fact_revenue and fact_subscriptions to calculate customer lifetime value. Finance uses the model for Q2 revenue audit support and expects DataHub to show upstream Stripe webhook lineage.
+
+  On 2026-06-05, auditors found that DataHub listed fact_revenue upstream as unknown source. The Glue job that loads fact_revenue emitted batch logs but did not emit OpenLineage events with the Stripe webhook namespace or Kinesis stream identity.
+
+  fact_subscriptions had complete lineage, so the issue looked partial rather than catastrophic. The missing edge made it impossible to prove which Stripe event types and partitions fed fact_revenue for Q2.
+
+  The symptom was an audit evidence gap, not a failed pipeline. This fixture tests whether helix-data treats lineage as a required operational control and gives the runbook a repair path.
+adversarial_signal: |
+  If the methodology misses lineage, the data can be numerically correct but unauditable. During finance review, the team cannot prove that mart_customer_ltv came from Stripe webhooks rather than an unknown or manual source.
+
+  The blast radius includes failed audit evidence, blocked revenue sign-off, slow incident analysis, and inability to assess downstream impact when raw_events or fact_revenue changes.
+expected_handling:
+  detection:
+    - The lineage-spec requires OpenLineage events from Glue jobs into DataHub for each fact table.
+    - A monitoring check fails when fact_revenue has unknown source lineage in DataHub.
+    - The lineage audit compares dbt manifest dependencies against DataHub upstream edges.
+    - The Glue job log is checked for namespace customer-events.stripe_webhooks and job facet fact_revenue.
+    - A weekly lineage completeness report flags mart_customer_ltv dependencies with missing upstream edges.
+    - The runbook alert includes the missing source, target table, and affected audit period.
+  response:
+    - The on-call confirms fact_revenue lineage is missing while fact_subscriptions lineage is present.
+    - The data engineer updates the Glue job to emit OpenLineage events with the Stripe webhook namespace.
+    - The team backfills DataHub lineage metadata for Q2 fact_revenue partitions.
+    - The on-call attaches dbt manifest evidence showing mart_customer_ltv depends on fact_revenue and fact_subscriptions.
+    - The finance audit owner receives the repaired lineage report and backfill timestamp.
+    - The incident is closed only after DataHub shows raw_events to fact_revenue to mart_customer_ltv.
+  prevention:
+    - The lineage-spec artifact declares required namespaces, datasets, and job facets for Glue and dbt.
+    - The data-design artifact identifies fact_revenue as an audited revenue table requiring complete lineage.
+    - The runbook defines lineage repair and audit-evidence generation steps.
+    - The lifecycle review requires lineage completeness checks before publishing finance-facing marts.
+    - The design requires dbt exposures to be connected to DataHub lineage records.
+    - The lineage-spec defines a completeness SLO for revenue-critical models.
+artifacts_referencing:
+  - lineage-spec
+  - data-design
+  - runbook
+acceptance_criteria:
+  - The lineage-spec artifact requires OpenLineage emission from Glue for fact_revenue.
+  - The lineage-spec artifact names the Stripe webhook namespace used for customer-events.
+  - The data-design artifact marks mart_customer_ltv as finance-audited downstream data.
+  - The runbook artifact includes steps to backfill DataHub lineage for Q2 fact_revenue.
+  - The worked example verifies DataHub lineage from raw_events to fact_revenue to mart_customer_ltv.
+  - The runbook includes audit evidence handoff to finance after lineage repair.

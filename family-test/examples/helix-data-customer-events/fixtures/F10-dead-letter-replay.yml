@@ -1,0 +1,51 @@
+---
+id: F10
+slug: dead-letter-replay
+title: Dead letter replay
+category: dead-letter
+scenario: |
+  Over the 48-hour window from 2026-06-03 00:00 UTC through 2026-06-04 23:59 UTC, the Glue schema-validation stage rejected 3,127 Stripe events. Stripe had deployed a new tax_details.tax_id shape that the current data-contract rejected.
+
+  The rejected records accumulated in the S3 dead-letter bucket s3://customer-events-dlq/glue/schema-validation/. Some events were fully rejected before fact tables, while 214 records were partially accepted into raw_events before failing typed extraction into fact_tax_details.
+
+  After the contract is updated through the F3 evolution path, the team must replay only the 48-hour DLQ window. The replay must not double-process event_ids that were already accepted into raw_events or partially modeled.
+
+  The symptom was a growing DLQ and missing tax attributes in downstream dbt models. This fixture tests whether the design, tests, runbook, and backfill plan specify bounded replay with idempotency.
+adversarial_signal: |
+  If the methodology misses DLQ replay rules, teams either leave 3,127 valid events stranded or replay them unsafely. Unsafe replay can duplicate raw_events, duplicate revenue-side facts, or overwrite manually corrected rows.
+
+  The blast radius includes incomplete tax reporting, corrupted fact tables, and a replay procedure that works once by luck but cannot be audited or repeated.
+expected_handling:
+  detection:
+    - A data-quality-tests rule alerts when schema-validation DLQ count is above zero for tax_details events.
+    - The monitoring check reports 3,127 rejected events over the 48-hour window.
+    - The Glue validator records rejection reason tax_details.tax_id_shape_mismatch.
+    - The DLQ manifest includes event_id, event_type, rejection_time, and partial_acceptance_state.
+    - A replay readiness check compares DLQ event_ids to raw_events and fact_tax_details before execution.
+    - The runbook alert links the DLQ bucket prefix and contract version that rejected the events.
+  response:
+    - The on-call waits for the contract update from the schema evolution path before replay.
+    - The data engineer creates a bounded replay manifest for 2026-06-03 through 2026-06-04.
+    - The replay job uses event_id idempotency to skip records already accepted into raw_events.
+    - The replay job repairs partially accepted records in fact_tax_details without duplicating raw facts.
+    - The on-call re-runs affected dbt models and validates tax attribute completeness.
+    - The team archives the DLQ manifest and replay result counts for audit.
+  prevention:
+    - The data-design artifact defines DLQ layout, required metadata, and partial acceptance states.
+    - The data-quality-tests artifact monitors DLQ volume and rejection reasons by contract version.
+    - The runbook defines bounded replay steps and idempotency checks.
+    - The backfill-plan artifact specifies the 48-hour replay window and affected models.
+    - The lifecycle review requires every schema validator to write replayable DLQ records.
+    - The design requires replay to honor the same event_id idempotency key as live ingest.
+artifacts_referencing:
+  - data-design
+  - data-quality-tests
+  - runbook
+  - backfill-plan
+acceptance_criteria:
+  - The data-design artifact specifies the S3 DLQ metadata fields event_id, event_type, rejection_time, and partial_acceptance_state.
+  - The data-quality-tests artifact alerts when schema-validation DLQ count is above zero.
+  - The runbook artifact describes replay from the DLQ without double-processing event_id values.
+  - The backfill-plan artifact bounds replay to 2026-06-03 through 2026-06-04.
+  - The worked example names 3,127 rejected events and 214 partially accepted records.
+  - The runbook requires post-replay validation of raw_events and fact_tax_details counts.

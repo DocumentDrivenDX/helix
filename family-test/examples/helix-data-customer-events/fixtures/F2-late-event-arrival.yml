@@ -1,0 +1,50 @@
+---
+id: F2
+slug: late-event-arrival
+title: Late event arrival out of order by 6h
+category: late-arrival
+scenario: |
+  On 2026-06-05, a Stripe regional outage delayed 4,200 customer.subscription.updated events generated between 00:11 UTC and 01:53 UTC. The webhooks arrived at the ingest endpoint between 07:02 UTC and 07:19 UTC, about six hours after the business event timestamps.
+
+  The 02:00 UTC Glue job had already finalized the 2026-06-05 daily partition in Redshift fact_subscriptions. The dbt incremental model ran at 02:30 UTC and marked subscription_status_snapshot for the day as complete.
+
+  When the delayed Kinesis records arrived, they carried correct Stripe created timestamps but later ingestion_time values. The pipeline had no explicit watermark policy for whether closed partitions can be reopened or whether late-arrival records must be written to a side table.
+
+  The symptom was 4,200 subscription updates missing from the executive churn dashboard until a manual dbt full refresh was run. The fixture tests whether helix-data forces the partition closure and late-arrival policy into design and monitoring artifacts.
+adversarial_signal: |
+  If the methodology does not catch this, the pipeline silently loses out-of-order business events. Churn, renewal, and subscription cohort reports can be wrong for any day that Stripe delivers events after the batch watermark.
+
+  The blast radius is larger than one partition: downstream dbt incremental consumers assume a closed partition is immutable, so backfills without a declared policy can create split truth between Redshift facts and Tableau extracts.
+expected_handling:
+  detection:
+    - A monitoring-setup metric tracks max ingestion_time minus event_created_time by event_type and partition.
+    - A data-quality-tests rule fails when late customer.subscription.updated records exceed the allowed watermark threshold.
+    - A partition completeness check flags 4,200 events with event_created_time inside a finalized UTC day.
+    - The Glue log reports late_arrival_count for the 2026-06-05 partition before writing fact_subscriptions.
+    - The dbt freshness check shows source raw_events is newer than the finalized subscription_status_snapshot.
+    - The alert names the affected partition, event_type, and late-arrival count.
+  response:
+    - The on-call checks whether the data-design policy says to reopen closed partitions or write a late-arrival side table.
+    - The on-call pauses downstream Tableau extract refreshes for subscription dashboards.
+    - The on-call backfills fact_subscriptions for 2026-06-05 if the policy permits reopening the closed partition.
+    - The on-call writes delayed records to subscription_late_arrivals if the policy forbids reopening.
+    - The on-call re-runs dbt incremental models with the documented late-arrival selector.
+    - The on-call verifies that all 4,200 event_ids are represented in the approved sink.
+  prevention:
+    - The data-design artifact specifies the event-time watermark and allowed lateness for each subscription event type.
+    - The data-design artifact defines the closed-partition behavior for six-hour late arrivals.
+    - The data-quality-tests artifact includes checks comparing event_created_time to ingestion_time.
+    - The monitoring-setup artifact defines alerts for late-arrival count and age by partition.
+    - The design states whether late records are backfilled into fact tables or stored in late_arrival side tables.
+    - The lifecycle review requires dbt incremental models to honor the declared watermark policy.
+artifacts_referencing:
+  - data-design
+  - data-quality-tests
+  - monitoring-setup
+acceptance_criteria:
+  - The data-design artifact specifies an allowed_lateness window for customer.subscription.updated.
+  - The data-design artifact states whether the 2026-06-05 partition is reopened or written to a side table.
+  - The data-quality-tests artifact contains a rule for ingestion_time minus event_created_time above the watermark.
+  - The monitoring-setup artifact defines a late_arrival_count alert scoped by event_type and partition.
+  - The worked example includes a dbt rerun or side-table handling path for 4,200 late records.
+  - The monitoring-setup artifact names the 02:00 UTC partition finalization boundary.

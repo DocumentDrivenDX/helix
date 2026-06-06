@@ -1,0 +1,50 @@
+---
+id: F1
+slug: duplicate-webhook-id
+title: Duplicate webhook ID
+category: idempotency
+scenario: |
+  On 2026-06-04 from 14:18:02 UTC to 14:18:59 UTC, the Stripe webhook endpoint for customer-events returned HTTP 504 for one payment_intent.succeeded event after the ingest service had already accepted the body. Stripe retried the same webhook with event_id evt_3Pq9AbLkS0dR42 within 60 seconds.
+
+  The Kinesis producer used a random uuid as the partition record id instead of an idempotency_key derived from Stripe event.id. Both attempts were written to the customer-events-raw Kinesis stream and landed as two records in raw_events with the same payload.id and different ingestion_id values.
+
+  Glue ETL processed both records during the 15:00 UTC run and inserted two rows into Redshift fact_payment_events. The daily_revenue dbt model grouped by payment_intent_id and event_time, not event_id, so the same $42.00 payment was counted twice in the 2026-06-04 daily_revenue fact.
+
+  The immediate symptom was a $42.00 mismatch for one customer account in the revenue QA notebook. The real test is whether the lifecycle artifacts specify idempotency before the webhook is ever connected to Kinesis.
+adversarial_signal: |
+  If the methodology misses this, Stripe retries become revenue. The finance dashboard can overstate daily_revenue whenever the ingest endpoint flaps, and the duplicate is hard to see because both rows have valid Stripe signatures and valid event timestamps.
+
+  A small duplicate demonstrates a larger blast radius: a one-hour 504 incident during a product launch could duplicate thousands of payment_intent.succeeded events and trigger incorrect ARR reporting, customer success alerts, and billing reconciliation work.
+expected_handling:
+  detection:
+    - A data-quality-tests rule checks raw_events for duplicate payload.id values within the same event_type and UTC day.
+    - A Redshift uniqueness test fails on fact_payment_events.event_id before daily_revenue is materialized.
+    - The monitoring dashboard raises an ingest_retry_duplicate_count metric above zero for the 14:00 UTC hour.
+    - The Kinesis producer log emits a warning when the same Stripe event.id is accepted more than once in a 24-hour dedupe window.
+    - The revenue reconciliation job reports the duplicated event_id in the Stripe-to-fact diff output.
+    - The runbook alert includes both ingestion_id values and the original Stripe event_id.
+  response:
+    - The on-call pauses the affected dbt daily_revenue run before publishing the 2026-06-04 partition.
+    - The on-call queries raw_events by payload.id and confirms both Kinesis sequence numbers for evt_3Pq9AbLkS0dR42.
+    - The on-call deletes or quarantines the later duplicate before re-running fact_payment_events for the affected hour.
+    - The on-call re-runs dbt models daily_revenue and mart_revenue_snapshot for 2026-06-04.
+    - The on-call records the duplicate event_id, incident window, and corrected revenue delta in the incident ticket.
+    - The on-call verifies that downstream dbt exposures no longer contain two rows for the same event_id.
+  prevention:
+    - The data-contract specifies event_id as the natural idempotency key sourced from Stripe payload.id.
+    - The data-contract requires the Kinesis producer to use event_id for dedupe before write acceptance.
+    - The data-quality-tests artifact defines uniqueness checks for raw_events.payload.id and fact_payment_events.event_id.
+    - The runbook defines a duplicate-webhook remediation path with quarantine, replay, and dbt rebuild steps.
+    - The contract states the dedupe retention window is at least seven days to cover Stripe retry behavior.
+    - The lifecycle review requires idempotency coverage before any payment-bearing event type is accepted.
+artifacts_referencing:
+  - data-contract
+  - data-quality-tests
+  - runbook
+acceptance_criteria:
+  - The data-contract artifact specifies an idempotency_key field whose source is Stripe event.id.
+  - The data-quality-tests artifact contains a uniqueness assertion for raw_events.payload.id by event_type and UTC day.
+  - The data-quality-tests artifact contains a uniqueness assertion for fact_payment_events.event_id.
+  - The runbook artifact documents how to quarantine a duplicate raw_events record and rebuild affected dbt models.
+  - The worked example names evt_3Pq9AbLkS0dR42 as a duplicate webhook test case.
+  - The runbook includes a verification query proving daily_revenue contains one row per Stripe event_id.
