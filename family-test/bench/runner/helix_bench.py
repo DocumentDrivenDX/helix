@@ -53,6 +53,13 @@ CONVERSATIONS_DIR = BENCH_ROOT / "conversations"
 ROUTING_EVALS_DIR = BENCH_ROOT / "routing-evals"
 RUNS_DIR = BENCH_ROOT / "runs"
 RUN_PROBE_SH = FAMILY_TEST_ROOT / "docker" / "run-probe.sh"
+RUN_PROBE_CODEX_SH = BENCH_ROOT / "runner" / "run-probe-codex.sh"
+
+# Supported runtimes for `invoke_probe` dispatch. Default is claude
+# (`run-probe.sh` Docker harness). Codex runs on-host via
+# `run-probe-codex.sh`. OpenCode reserved for future extension.
+SUPPORTED_RUNTIMES = ("claude", "codex", "opencode")
+DEFAULT_RUNTIME = "claude"
 RATCHETS_PATH = BENCH_ROOT / "ratchets.json"
 COST_LOG_PATH = BENCH_ROOT / "runner" / "cost-log.jsonl"
 SCHEMA_WHITELIST = BENCH_ROOT / "library" / "schemas" / "discriminator-whitelist.yml"
@@ -249,6 +256,65 @@ class Transcript:
         if event.get("type") in {"tool_use", "text"} and not blocks:
             blocks.append(event)
         return blocks
+
+    @classmethod
+    def parse_codex(cls, source: str | Path) -> "Transcript":
+        """Parse a codex `--json` JSONL transcript into the common shape.
+
+        Codex emits a different event shape from claude stream-json:
+          {"type":"item.completed","item":{"type":"agent_message","text":...}}
+          {"type":"item.completed","item":{"type":"command_execution","command":...}}
+          {"type":"item.completed","item":{"type":"file_change","changes":[{path,kind}]}}
+        We map:
+          agent_message     → text block
+          command_execution → tool_use name="Bash" input={"command": ...}
+          file_change(kind=add)    → tool_use name="Write" input={"file_path": ...}
+          file_change(kind=update) → tool_use name="Edit"  input={"file_path": ...}
+          file_change(kind=delete) → tool_use name="Edit"  input={"file_path": ...}
+
+        Only `item.completed` events are considered (in_progress duplicates).
+        """
+        if isinstance(source, Path):
+            text = source.read_text()
+        else:
+            text = source
+        synthetic_events: list[dict[str, Any]] = []
+        for line_no, raw in enumerate(text.splitlines(), start=1):
+            line = raw.strip()
+            if not line:
+                continue
+            try:
+                ev = json.loads(line)
+            except json.JSONDecodeError as e:
+                raise ValueError(f"line {line_no}: invalid JSON: {e}") from e
+            if ev.get("type") != "item.completed":
+                continue
+            item = ev.get("item") or {}
+            itype = item.get("type")
+            if itype == "agent_message":
+                txt = item.get("text") or ""
+                if txt:
+                    synthetic_events.append({"type": "text", "text": txt})
+            elif itype == "command_execution":
+                cmd = item.get("command") or ""
+                synthetic_events.append({
+                    "type": "tool_use",
+                    "name": "Bash",
+                    "input": {"command": cmd},
+                })
+            elif itype == "file_change":
+                for change in item.get("changes") or []:
+                    if not isinstance(change, dict):
+                        continue
+                    path = change.get("path") or ""
+                    kind = change.get("kind") or ""
+                    tool_name = "Write" if kind == "add" else "Edit"
+                    synthetic_events.append({
+                        "type": "tool_use",
+                        "name": tool_name,
+                        "input": {"file_path": path},
+                    })
+        return cls.from_events(synthetic_events)
 
 
 # ---------------------------------------------------------------------------
@@ -2013,20 +2079,28 @@ def invoke_probe(
     cwd_rel: str = "",
     timeout_s: int = 600,
     model: str | None = None,
+    runtime: str = DEFAULT_RUNTIME,
 ) -> tuple[int, str]:
-    """Run run-probe.sh once and return (returncode, stderr_text).
+    """Run a probe once and return (returncode, stderr_text).
 
-    The probe writes stream-json to `evidence_file`. stderr is captured
-    separately for diagnostics (the script writes a sibling .stderr file
-    too — we read it after the run for richer error reporting).
+    The probe writes JSONL events to `evidence_file`. stderr is captured
+    separately for diagnostics.
 
-    `model` (if set) is forwarded as the HELIX_PROBE_MODEL env var so
-    run-probe.sh appends `--model <id>` to the in-container `claude -p`
-    invocation. None = use the container's claude CLI default.
+    `model` (if set) is forwarded as HELIX_PROBE_MODEL so the underlying
+    probe script appends `--model <id>` to its invocation.
+
+    `runtime` selects the harness:
+      - "claude":   family-test/docker/run-probe.sh  (Docker, claude stream-json)
+      - "codex":    family-test/bench/runner/run-probe-codex.sh (host, codex --json)
+      - "opencode": not implemented (raises ValueError)
     """
-    if not RUN_PROBE_SH.exists():
-        raise FileNotFoundError(f"run-probe.sh not found at {RUN_PROBE_SH}")
-    # Docker requires absolute paths for bind mounts.
+    if runtime not in SUPPORTED_RUNTIMES:
+        raise ValueError(f"unknown runtime {runtime!r}; supported: {SUPPORTED_RUNTIMES}")
+    if runtime == "opencode":
+        raise NotImplementedError("opencode runtime probe not implemented yet")
+    probe_script = RUN_PROBE_SH if runtime == "claude" else RUN_PROBE_CODEX_SH
+    if not probe_script.exists():
+        raise FileNotFoundError(f"probe script not found at {probe_script}")
     fixture_dir = fixture_dir.resolve()
     evidence_file = evidence_file.resolve()
     plugins = [p.resolve() for p in plugins]
@@ -2036,7 +2110,7 @@ def invoke_probe(
     plugins_spec = ",".join(str(p) for p in plugins)
     cmd = [
         "bash",
-        str(RUN_PROBE_SH),
+        str(probe_script),
         str(fixture_dir),
         plugins_spec,
         str(prompt_file),
@@ -2057,6 +2131,13 @@ def invoke_probe(
     except subprocess.TimeoutExpired as e:
         return 124, f"timeout after {timeout_s}s: {e}"
     return proc.returncode, proc.stderr or ""
+
+
+def parse_runtime_transcript(evidence_file: Path, runtime: str) -> Transcript:
+    """Parse a probe's evidence file using the correct runtime shape."""
+    if runtime == "codex":
+        return Transcript.parse_codex(evidence_file)
+    return Transcript.parse(evidence_file)
 
 
 def _stream_json_result_event(events: list[dict[str, Any]]) -> dict[str, Any] | None:
@@ -2080,20 +2161,43 @@ def _detect_auth_failure(evidence_text: str) -> bool:
 
 
 def _grade_row_transcript(
-    row_dir: Path, transcript: Transcript
+    row_dir: Path,
+    transcript: Transcript,
+    runtime: str = DEFAULT_RUNTIME,
 ) -> dict[str, Any]:
-    """Grade a row's parsed transcript against its discriminator."""
+    """Grade a row's parsed transcript against its discriminator.
+
+    For runtimes that lack a Skill tool surface (codex), we degrade
+    skill-tool-based assertions to prose_attribution per plan §1.4b: the
+    matcher whitelist already allows the route_decision matcher to use
+    `routing_signal: prose_attribution` as a runtime-independent fallback.
+    """
     norm = validate_row(row_dir)
     aid = norm["assertion_id"]
+    params = dict(norm["params"])
+    fallback_used: str | None = None
+    if runtime == "codex":
+        if aid == "skill_tool_use":
+            # Reinterpret as prose_attribution against the skill_id.
+            skill_id = params.get("skill_id") or ""
+            params = {"expected_flow_instance": skill_id, "routing_signal": "prose_attribution"}
+            aid = "route_decision"
+            fallback_used = "skill_tool_use→route_decision/prose_attribution"
+        elif aid == "route_decision" and params.get("routing_signal") == "explicit_skill_tool_use":
+            params = dict(params)
+            params["routing_signal"] = "prose_attribution"
+            fallback_used = "route_decision/explicit_skill_tool_use→prose_attribution"
     matcher = MATCHER_REGISTRY[aid]
     try:
-        result = matcher(norm["params"], transcript)
+        result = matcher(params, transcript)
     except RowRejection as e:
         return {
             "verdict": "error",
             "error": str(e),
             "assertion_id": aid,
             "details": {},
+            "runtime": runtime,
+            "fallback_used": fallback_used,
         }
     expected = norm["expected_in_positive_run"]
     return {
@@ -2102,6 +2206,8 @@ def _grade_row_transcript(
         "expected_verdict": expected,
         "pass": result.verdict == expected,
         "details": result.details,
+        "runtime": runtime,
+        "fallback_used": fallback_used,
     }
 
 
@@ -2173,6 +2279,7 @@ def run_row_live(
     timeout_s: int = 600,
     verbose: bool = True,
     model: str = DEFAULT_MODEL,
+    runtime: str = DEFAULT_RUNTIME,
 ) -> dict[str, Any]:
     """Live-execute a row N times, persist transcripts, grade each pass.
 
@@ -2225,19 +2332,20 @@ def run_row_live(
 
     row_model = resolve_row_model(row_dir, model)
     out["model"] = row_model
+    out["runtime"] = runtime
 
     pass_verdicts: list[bool] = []
     for i in range(determinism):
         evidence_file = run_dir / f"{row_id}.pass{i}.stream.jsonl"
         if verbose:
             print(
-                f"[run {row_id} pass {i+1}/{determinism}] model={row_model} invoking probe...",
+                f"[run {row_id} pass {i+1}/{determinism}] runtime={runtime} model={row_model} invoking probe...",
                 file=sys.stderr,
             )
         t0 = _time.monotonic()
         rc, stderr = invoke_probe(
             fixture_dir, plugins, prompt, evidence_file,
-            timeout_s=timeout_s, model=row_model,
+            timeout_s=timeout_s, model=row_model, runtime=runtime,
         )
         dt = _time.monotonic() - t0
         pass_record: dict[str, Any] = {
@@ -2272,14 +2380,14 @@ def run_row_live(
             pass_record["total_cost_usd"] = result_ev.get("total_cost_usd")
         # parse + grade
         try:
-            transcript = Transcript.parse(evidence_file)
+            transcript = parse_runtime_transcript(evidence_file, runtime)
         except Exception as e:
             pass_record["error"] = pass_record.get("error") or f"parse: {e}"
             pass_record["pass"] = False
             out["passes"].append(pass_record)
             pass_verdicts.append(False)
             continue
-        grade = _grade_row_transcript(row_dir, transcript)
+        grade = _grade_row_transcript(row_dir, transcript, runtime=runtime)
         pass_record.update(grade)
         pass_record["pass"] = bool(grade.get("pass"))
         pass_verdicts.append(pass_record["pass"])
@@ -2326,6 +2434,7 @@ def run_rows(
     verbose: bool = True,
     json_out: Path | None = None,
     model: str = DEFAULT_MODEL,
+    runtime: str = DEFAULT_RUNTIME,
 ) -> tuple[int, dict[str, Any]]:
     """Drive one or more rows live, aggregate, write runs/<run-id>/aggregate.json."""
     run_id = run_id or new_run_id()
@@ -2336,6 +2445,7 @@ def run_rows(
         "started_at": _dt.datetime.now(_dt.timezone.utc).isoformat(),
         "determinism": determinism,
         "default_model": model,
+        "runtime": runtime,
         "total": 0,
         "stable_pass": 0,
         "flake": 0,
@@ -2350,6 +2460,7 @@ def run_rows(
             result = run_row_live(
                 row_dir, run_dir, determinism=determinism,
                 timeout_s=timeout_s, verbose=verbose, model=model,
+                runtime=runtime,
             )
         except (RowRejection, FileNotFoundError) as e:
             result = {
@@ -2438,6 +2549,7 @@ def run_routing_evals(
     limit: int | None = None,
     verbose: bool = True,
     model: str = ROUTING_EVAL_MODEL,
+    runtime: str = DEFAULT_RUNTIME,
 ) -> tuple[int, dict[str, Any]]:
     """Run routing probes against the supplied jsonl(s).
 
@@ -2459,6 +2571,7 @@ def run_routing_evals(
         "started_at": _dt.datetime.now(_dt.timezone.utc).isoformat(),
         "files": [str(p) for p in jsonl_paths],
         "model": model,
+        "runtime": runtime,
         "by_set": {},
     }
     halted = False
@@ -2493,7 +2606,7 @@ def run_routing_evals(
                 t0 = _time.monotonic()
                 rc, stderr = invoke_probe(
                     fixture, plugins, prompt, evidence_file,
-                    timeout_s=timeout_s, model=model,
+                    timeout_s=timeout_s, model=model, runtime=runtime,
                 )
                 dt = _time.monotonic() - t0
                 evidence_text = evidence_file.read_text() if evidence_file.exists() else ""
@@ -2507,10 +2620,10 @@ def run_routing_evals(
                 _log_cost_from_evidence(
                     evidence_file, row_id=f"routing-{rid}",
                     duration_s=dt, phase="bench",
-                    extra_notes={"set": set_name, "probe_rc": rc, "model": model},
+                    extra_notes={"set": set_name, "probe_rc": rc, "model": model, "runtime": runtime},
                 )
                 try:
-                    transcript = Transcript.parse(evidence_file)
+                    transcript = parse_runtime_transcript(evidence_file, runtime)
                 except Exception as e:
                     results.append({
                         "set": set_name, "id": rid, "error": f"parse: {e}",
@@ -2532,8 +2645,22 @@ def run_routing_evals(
                         sid = tu.name
                     if sid:
                         fired_skills.append(sid)
+                # Codex has no Skill tool. Fall back to prose_attribution:
+                # the agent's assistant text naming a known helix-* skill id
+                # is the runtime-independent routing signal (plan §1.4b).
+                if runtime == "codex":
+                    text_lc = transcript.assistant_text.lower()
+                    for sid in ("helix-web", "helix-infra", "helix-data", "helix"):
+                        # name-match — checked longest-first so "helix-web"
+                        # does not get masked by "helix"
+                        if sid in text_lc:
+                            fired_skills.append(sid)
+                            break
                 fired_skills = sorted(set(fired_skills))
-                fired_target = bool(target) and _probe_fired_skill(transcript, target)
+                if runtime == "codex" and target:
+                    fired_target = target in fired_skills
+                else:
+                    fired_target = bool(target) and _probe_fired_skill(transcript, target)
                 fired_any = len(fired_skills) > 0
                 record: dict[str, Any] = {
                     "set": set_name,
@@ -3423,6 +3550,12 @@ def main(argv: list[str] | None = None) -> int:
                        help=f"claude model id forwarded to `claude -p --model` "
                             f"(default: {DEFAULT_MODEL}); per-row override via "
                             "`model:` in expected.yml takes precedence")
+    p_run.add_argument("--runtime", default=DEFAULT_RUNTIME,
+                       choices=list(SUPPORTED_RUNTIMES),
+                       help=f"probe runtime (default: {DEFAULT_RUNTIME}). "
+                            "claude → Docker harness + stream-json; codex → "
+                            "on-host `codex exec --json`; opencode not "
+                            "implemented")
     p_run.add_argument(
         "--layer",
         type=int,
@@ -3509,6 +3642,9 @@ def main(argv: list[str] | None = None) -> int:
     p_route.add_argument("--model", default=ROUTING_EVAL_MODEL,
                          help=f"claude model id (default: {ROUTING_EVAL_MODEL}, "
                               "cheaper Haiku — routing is a binary gate)")
+    p_route.add_argument("--runtime", default=DEFAULT_RUNTIME,
+                         choices=list(SUPPORTED_RUNTIMES),
+                         help=f"probe runtime (default: {DEFAULT_RUNTIME})")
 
     p_ratchet = sub.add_parser(
         "update-ratchets",
@@ -3562,13 +3698,18 @@ def main(argv: list[str] | None = None) -> int:
             if not rows:
                 print(f"no rows matched '{args.row_dir}'", file=sys.stderr)
                 return 2
+        # Same fallback as routing: codex API rejects claude model ids.
+        eff_model = args.model
+        if args.runtime == "codex" and eff_model == DEFAULT_MODEL:
+            eff_model = ""
         rc, agg = run_rows(
             rows,
             determinism=args.determinism,
             run_id=args.run_id,
             timeout_s=args.timeout,
             json_out=args.json_out,
-            model=args.model,
+            model=eff_model,
+            runtime=args.runtime,
         )
         if args.all:
             update_ratchets(stable_pass_rate=agg.get("stable_pass_rate"))
@@ -3593,9 +3734,16 @@ def main(argv: list[str] | None = None) -> int:
         if not paths:
             print(f"no routing-eval jsonl files found", file=sys.stderr)
             return 2
+        # When --runtime codex and --model wasn't explicitly overridden away
+        # from the claude default, fall back to "" so the codex probe uses
+        # the codex CLI's configured default (claude model ids 400 on the
+        # codex API).
+        eff_model = args.model
+        if args.runtime == "codex" and eff_model == ROUTING_EVAL_MODEL:
+            eff_model = ""
         rc, summary = run_routing_evals(
             paths, run_id=args.run_id, timeout_s=args.timeout,
-            limit=args.limit, model=args.model,
+            limit=args.limit, model=eff_model, runtime=args.runtime,
         )
         update_ratchets(routing_precision=summary.get("routing_precision"))
         return rc

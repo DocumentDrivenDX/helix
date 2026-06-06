@@ -21,7 +21,7 @@
     "not gate' and writes the observed value back; subsequent runs gate."
   ],
   "version": 1,
-  "updated_at": "2026-06-06T16:12:32.175091+00:00",
+  "updated_at": "2026-06-06T17:05:22.536420+00:00",
   "last_attempt": {
     "timestamp": "2026-06-06T03:57:50Z",
     "outcome": "scaffold_only",
@@ -50,8 +50,8 @@
       "direction": "higher_is_better",
       "source": "helix_bench routing-evals (positive set)",
       "alert_action": "fail CI; routing-positive regression is a hard-gate",
-      "last_observed": 1.0,
-      "last_observed_at": "2026-06-06T16:12:32.175083+00:00",
+      "last_observed": 0.0,
+      "last_observed_at": "2026-06-06T17:05:22.536413+00:00",
       "seeded_at": "2026-06-06T16:01:47.928930+00:00"
     },
     "cost_per_run": {
@@ -70,5 +70,8 @@
       "source": "cost-log.jsonl entries tagged phase=dev_iteration",
       "alert_action": "tracked separately; no automatic gate"
     }
-  }
+  },
+  "alerts": [
+    "routing_precision: REGRESSION baseline=1.0 observed=0.0 tolerance=2 (tolerance_pp)"
+  ]
 }
