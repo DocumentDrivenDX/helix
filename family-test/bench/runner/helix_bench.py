@@ -38,7 +38,13 @@ except ImportError:  # pragma: no cover
     sys.exit(2)
 
 
-VERSION = "0.3.0"
+VERSION = "0.3.1"
+
+# Default model for conversation rows. Routing-evals always use the cheaper
+# Haiku model (the integer-gate decision is binary; cheaper model is
+# sufficient — see plan §19.1). Rows may override via `model:` in expected.yml.
+DEFAULT_MODEL = "claude-sonnet-4-6"
+ROUTING_EVAL_MODEL = "claude-haiku-4-5"
 
 REPO_ROOT = Path(__file__).resolve().parents[2]  # family-test/bench/runner -> family-test
 FAMILY_TEST_ROOT = REPO_ROOT  # alias for clarity in Phase 1+ runner code
@@ -1607,6 +1613,80 @@ def run_golden_schema_check(verbose: bool = True) -> tuple[int, dict[str, Any]]:
     return (0 if ok else 1), summary
 
 
+def run_model_plumbing_self_test(verbose: bool = True) -> tuple[int, dict[str, Any]]:
+    """Verify --model flag is plumbed through to run-probe.sh and per-row override.
+
+    Three checks (all offline; no docker invocation):
+      1) `resolve_row_model` honours a per-row `model:` override in expected.yml
+      2) `resolve_row_model` falls back to the default when no override
+      3) `run-probe.sh` injects `--model <id>` into its in-container claude
+         invocation when HELIX_PROBE_MODEL is set (verified by shellcheck-grade
+         grep over the script body — the BOOTSTRAP is built from this env var)
+    """
+    import tempfile
+
+    summary: dict[str, Any] = {"checks": [], "pass": 0, "total": 0}
+
+    # (1) per-row override is respected
+    with tempfile.TemporaryDirectory() as td:
+        row = Path(td) / "row"
+        row.mkdir()
+        (row / "expected.yml").write_text("model: claude-haiku-4-5\n")
+        observed = resolve_row_model(row, DEFAULT_MODEL)
+        check1 = {
+            "name": "per_row_override_respected",
+            "observed": observed,
+            "expected": "claude-haiku-4-5",
+            "pass": observed == "claude-haiku-4-5",
+        }
+        summary["total"] += 1
+        if check1["pass"]:
+            summary["pass"] += 1
+        summary["checks"].append(check1)
+
+    # (2) default applies when no override
+    with tempfile.TemporaryDirectory() as td:
+        row = Path(td) / "row"
+        row.mkdir()
+        (row / "expected.yml").write_text("kind: validator-row\n")
+        observed = resolve_row_model(row, DEFAULT_MODEL)
+        check2 = {
+            "name": "default_applies_when_no_override",
+            "observed": observed,
+            "expected": DEFAULT_MODEL,
+            "pass": observed == DEFAULT_MODEL,
+        }
+        summary["total"] += 1
+        if check2["pass"]:
+            summary["pass"] += 1
+        summary["checks"].append(check2)
+
+    # (3) run-probe.sh references HELIX_PROBE_MODEL and emits `--model`
+    probe_text = RUN_PROBE_SH.read_text() if RUN_PROBE_SH.exists() else ""
+    plumbed = "HELIX_PROBE_MODEL" in probe_text and "--model" in probe_text
+    check3 = {
+        "name": "run_probe_plumbs_model_flag",
+        "pass": plumbed,
+        "detail": (
+            "found HELIX_PROBE_MODEL + --model in run-probe.sh"
+            if plumbed
+            else "missing HELIX_PROBE_MODEL or --model in run-probe.sh"
+        ),
+    }
+    summary["total"] += 1
+    if plumbed:
+        summary["pass"] += 1
+    summary["checks"].append(check3)
+
+    ok = summary["pass"] == summary["total"]
+    if verbose:
+        print(f"model-plumbing self-test: {summary['pass']}/{summary['total']} checks pass")
+        for c in summary["checks"]:
+            if not c["pass"]:
+                print(f"  FAIL {c}")
+    return (0 if ok else 1), summary
+
+
 def run_phase0b_self_test(verbose: bool = True) -> tuple[int, dict[str, Any]]:
     """Aggregate self-test: smoke (0a) + meta + property + golden + cost + dump."""
     overall: dict[str, Any] = {}
@@ -1645,6 +1725,11 @@ def run_phase0b_self_test(verbose: bool = True) -> tuple[int, dict[str, Any]]:
     ec, esum = run_envelope_self_test(verbose=verbose)
     overall["envelope_pass"] = esum
     rc = max(rc, ec)
+
+    # --model flag plumbing (default + per-row override + probe-script wiring)
+    mc, msum = run_model_plumbing_self_test(verbose=verbose)
+    overall["model_plumbing"] = msum
+    rc = max(rc, mc)
 
     if verbose:
         print(f"self-test overall: {'PASS' if rc == 0 else 'FAIL'}")
@@ -1927,12 +2012,17 @@ def invoke_probe(
     evidence_file: Path,
     cwd_rel: str = "",
     timeout_s: int = 600,
+    model: str | None = None,
 ) -> tuple[int, str]:
     """Run run-probe.sh once and return (returncode, stderr_text).
 
     The probe writes stream-json to `evidence_file`. stderr is captured
     separately for diagnostics (the script writes a sibling .stderr file
     too — we read it after the run for richer error reporting).
+
+    `model` (if set) is forwarded as the HELIX_PROBE_MODEL env var so
+    run-probe.sh appends `--model <id>` to the in-container `claude -p`
+    invocation. None = use the container's claude CLI default.
     """
     if not RUN_PROBE_SH.exists():
         raise FileNotFoundError(f"run-probe.sh not found at {RUN_PROBE_SH}")
@@ -1954,9 +2044,15 @@ def invoke_probe(
     ]
     if cwd_rel:
         cmd.append(cwd_rel)
+    env = os.environ.copy()
+    if model:
+        env["HELIX_PROBE_MODEL"] = model
+    else:
+        env.pop("HELIX_PROBE_MODEL", None)
     try:
         proc = subprocess.run(
-            cmd, capture_output=True, text=True, timeout=timeout_s, check=False
+            cmd, capture_output=True, text=True, timeout=timeout_s,
+            check=False, env=env,
         )
     except subprocess.TimeoutExpired as e:
         return 124, f"timeout after {timeout_s}s: {e}"
@@ -2050,12 +2146,33 @@ def _log_cost_from_evidence(
     return result_ev
 
 
+def resolve_row_model(row_dir: Path, default_model: str) -> str:
+    """Return the model id for a row: per-row override or default.
+
+    A row may declare `model: claude-haiku-4-5` at the top level of
+    `expected.yml` to opt into a cheaper model. The runner respects this and
+    threads it through to `claude -p --model <id>`.
+    """
+    expected_path = row_dir / "expected.yml"
+    if not expected_path.exists():
+        return default_model
+    try:
+        doc = yaml.safe_load(expected_path.read_text()) or {}
+    except yaml.YAMLError:
+        return default_model
+    override = doc.get("model") if isinstance(doc, dict) else None
+    if isinstance(override, str) and override.strip():
+        return override.strip()
+    return default_model
+
+
 def run_row_live(
     row_dir: Path,
     run_dir: Path,
     determinism: int = 1,
     timeout_s: int = 600,
     verbose: bool = True,
+    model: str = DEFAULT_MODEL,
 ) -> dict[str, Any]:
     """Live-execute a row N times, persist transcripts, grade each pass.
 
@@ -2106,14 +2223,21 @@ def run_row_live(
         return out
     prompt = _stitch_multi_turn_prompt(turns)
 
+    row_model = resolve_row_model(row_dir, model)
+    out["model"] = row_model
+
     pass_verdicts: list[bool] = []
     for i in range(determinism):
         evidence_file = run_dir / f"{row_id}.pass{i}.stream.jsonl"
         if verbose:
-            print(f"[run {row_id} pass {i+1}/{determinism}] invoking probe...", file=sys.stderr)
+            print(
+                f"[run {row_id} pass {i+1}/{determinism}] model={row_model} invoking probe...",
+                file=sys.stderr,
+            )
         t0 = _time.monotonic()
         rc, stderr = invoke_probe(
-            fixture_dir, plugins, prompt, evidence_file, timeout_s=timeout_s
+            fixture_dir, plugins, prompt, evidence_file,
+            timeout_s=timeout_s, model=row_model,
         )
         dt = _time.monotonic() - t0
         pass_record: dict[str, Any] = {
@@ -2141,7 +2265,7 @@ def run_row_live(
             row_id=row_id,
             duration_s=dt,
             phase="bench",
-            extra_notes={"pass_idx": i, "probe_rc": rc},
+            extra_notes={"pass_idx": i, "probe_rc": rc, "model": row_model},
         )
         if result_ev is not None:
             pass_record["session_id"] = result_ev.get("session_id")
@@ -2201,6 +2325,7 @@ def run_rows(
     timeout_s: int = 600,
     verbose: bool = True,
     json_out: Path | None = None,
+    model: str = DEFAULT_MODEL,
 ) -> tuple[int, dict[str, Any]]:
     """Drive one or more rows live, aggregate, write runs/<run-id>/aggregate.json."""
     run_id = run_id or new_run_id()
@@ -2210,6 +2335,7 @@ def run_rows(
         "run_id": run_id,
         "started_at": _dt.datetime.now(_dt.timezone.utc).isoformat(),
         "determinism": determinism,
+        "default_model": model,
         "total": 0,
         "stable_pass": 0,
         "flake": 0,
@@ -2223,7 +2349,7 @@ def run_rows(
         try:
             result = run_row_live(
                 row_dir, run_dir, determinism=determinism,
-                timeout_s=timeout_s, verbose=verbose,
+                timeout_s=timeout_s, verbose=verbose, model=model,
             )
         except (RowRejection, FileNotFoundError) as e:
             result = {
@@ -2311,12 +2437,16 @@ def run_routing_evals(
     timeout_s: int = 300,
     limit: int | None = None,
     verbose: bool = True,
+    model: str = ROUTING_EVAL_MODEL,
 ) -> tuple[int, dict[str, Any]]:
     """Run routing probes against the supplied jsonl(s).
 
     Each line is {id, prompt, expected_skill | candidate_flows / correct_route, ...}.
     For each prompt we invoke `claude -p` once via run-probe.sh and check
     whether the expected Skill tool_use fires.
+
+    Default model is `claude-haiku-4-5` (plan §19.1): the integer-gate
+    decision is binary; cheaper model is sufficient.
     """
     run_id = run_id or new_run_id()
     run_dir = RUNS_DIR / run_id
@@ -2328,6 +2458,7 @@ def run_routing_evals(
         "run_id": run_id,
         "started_at": _dt.datetime.now(_dt.timezone.utc).isoformat(),
         "files": [str(p) for p in jsonl_paths],
+        "model": model,
         "by_set": {},
     }
     halted = False
@@ -2361,7 +2492,8 @@ def run_routing_evals(
                 evidence_file = run_dir / f"routing-{set_name}-{rid}.stream.jsonl"
                 t0 = _time.monotonic()
                 rc, stderr = invoke_probe(
-                    fixture, plugins, prompt, evidence_file, timeout_s=timeout_s
+                    fixture, plugins, prompt, evidence_file,
+                    timeout_s=timeout_s, model=model,
                 )
                 dt = _time.monotonic() - t0
                 evidence_text = evidence_file.read_text() if evidence_file.exists() else ""
@@ -2375,7 +2507,7 @@ def run_routing_evals(
                 _log_cost_from_evidence(
                     evidence_file, row_id=f"routing-{rid}",
                     duration_s=dt, phase="bench",
-                    extra_notes={"set": set_name, "probe_rc": rc},
+                    extra_notes={"set": set_name, "probe_rc": rc, "model": model},
                 )
                 try:
                     transcript = Transcript.parse(evidence_file)
@@ -3287,6 +3419,10 @@ def main(argv: list[str] | None = None) -> int:
                        help="override the generated run id")
     p_run.add_argument("--validate-only", action="store_true",
                        help="legacy Phase 0a behaviour — validate only, no live CC")
+    p_run.add_argument("--model", default=DEFAULT_MODEL,
+                       help=f"claude model id forwarded to `claude -p --model` "
+                            f"(default: {DEFAULT_MODEL}); per-row override via "
+                            "`model:` in expected.yml takes precedence")
     p_run.add_argument(
         "--layer",
         type=int,
@@ -3370,6 +3506,9 @@ def main(argv: list[str] | None = None) -> int:
     p_route.add_argument("--timeout", type=int, default=300)
     p_route.add_argument("--limit", type=int, default=None,
                          help="cap rows per jsonl (smoke / fast-path)")
+    p_route.add_argument("--model", default=ROUTING_EVAL_MODEL,
+                         help=f"claude model id (default: {ROUTING_EVAL_MODEL}, "
+                              "cheaper Haiku — routing is a binary gate)")
 
     p_ratchet = sub.add_parser(
         "update-ratchets",
@@ -3429,6 +3568,7 @@ def main(argv: list[str] | None = None) -> int:
             run_id=args.run_id,
             timeout_s=args.timeout,
             json_out=args.json_out,
+            model=args.model,
         )
         if args.all:
             update_ratchets(stable_pass_rate=agg.get("stable_pass_rate"))
@@ -3454,7 +3594,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"no routing-eval jsonl files found", file=sys.stderr)
             return 2
         rc, summary = run_routing_evals(
-            paths, run_id=args.run_id, timeout_s=args.timeout, limit=args.limit,
+            paths, run_id=args.run_id, timeout_s=args.timeout,
+            limit=args.limit, model=args.model,
         )
         update_ratchets(routing_precision=summary.get("routing_precision"))
         return rc

@@ -2,7 +2,7 @@
 # Run a skill-activation probe inside the Docker harness.
 #
 # Usage:
-#   run-probe.sh <fixture-dir> <plugins-spec> <prompt-file> <evidence-file>
+#   run-probe.sh <fixture-dir> <plugins-spec> <prompt-file> <evidence-file> [<cwd-rel>]
 #
 # Arguments:
 #   fixture-dir   absolute path on host to mount at /workspace
@@ -14,6 +14,11 @@
 #                 `claude -p`. Read by the container, NOT executed.
 #   evidence-file absolute path on host where stream-json output is written.
 #                 Parent dir must exist and be writable by the host user.
+#
+# Model selection: set the HELIX_PROBE_MODEL env var to the claude model id
+# (e.g. `claude-haiku-4-5`, `claude-sonnet-4-6`). Defaults to whatever the
+# container's claude CLI picks. Routing-evals + Haiku-default policy lives in
+# the runner (helix_bench.py), which sets this env var per invocation.
 #
 # Authentication: the script forwards either:
 #   - ANTHROPIC_API_KEY (env)        OR
@@ -131,13 +136,19 @@ fi
 
 # Build the in-container bootstrap. Reads prompt from /probe/prompt, writes
 # stream-json to stdout, captured by docker -> EVIDENCE_FILE on host.
+MODEL_ARG=""
+MODEL_ENV_PASS=()
+if [[ -n "${HELIX_PROBE_MODEL:-}" ]]; then
+    MODEL_ARG=" --model ${HELIX_PROBE_MODEL}"
+    MODEL_ENV_PASS+=(-e "HELIX_PROBE_MODEL=${HELIX_PROBE_MODEL}")
+fi
 BOOTSTRAP='
 set -euo pipefail
 if [[ -f /probe/host-claude.json ]]; then
     cp /probe/host-claude.json ~/.claude.json
     chmod 600 ~/.claude.json
 fi
-exec claude -p '"$PLUGIN_DIRS_ARGS"' --output-format stream-json --verbose < /probe/prompt
+exec claude -p '"$PLUGIN_DIRS_ARGS$MODEL_ARG"' --output-format stream-json --verbose < /probe/prompt
 '
 
 # Run claude. We need stdin from prompt file AND capture stdout to evidence.
@@ -150,6 +161,7 @@ fi
 
 docker run --rm \
     "${AUTH_ARGS[@]}" \
+    "${MODEL_ENV_PASS[@]}" \
     "${PLUGIN_MOUNTS[@]}" \
     -v "$FIXTURE_DIR:/workspace" \
     -v "$PROMPT_FILE:/probe/prompt:ro" \
