@@ -208,6 +208,31 @@ The expanded whitelist (9 assertion_ids) covers the behavioural surface the benc
 
 **New assertion IDs require schema bump.** Adding an `assertion_id` to the whitelist is a methodology contract change. The runner emits T046 on unknown IDs; new IDs cannot ship via individual conversation rows (they must land in `library/schemas/discriminator-whitelist.yml` as a coordinated change with the runner and meta-tests). This prevents the "matcher proliferation" failure mode where every row authors a one-off matcher type.
 
+**Matcher vacuity guard (codex-4 #2).** Whitelisted matchers can still ship with generic regex/prose patterns that always match — pushing the old vacuity problem one layer down. The runner's self-test rejects rows whose matcher arguments are in the banned-patterns list at `library/schemas/banned-matcher-patterns.yml`:
+
+```yaml
+# library/schemas/banned-matcher-patterns.yml — initial v1 set
+banned_regex_patterns:
+  - '^\.\*$'             # matches anything
+  - '^\.$'               # matches single char
+  - '^\.\+$'             # matches 1+ chars
+  - '^(yes|ok|sure)$'    # near-empty affirmations
+  - '^(cannot|unable|wont|will not)$'  # near-empty refusals
+  - '^\w{1,3}$'          # 1-3 word matches
+banned_text_patterns:
+  - ''                   # empty literal
+  - 'helix'              # flow-name-only attribution (route_decision)
+  - 'methodology'        # too generic
+  - 'ok'
+  - 'yes'
+minimum_lengths:
+  literal_or_banner_text: 20    # banner / literal must be ≥20 chars
+  confirmation_before_mutation: 8   # confirmation pattern must capture ≥8 chars distinct from `^(ok|yes)$`
+  refusal_no_write: 12          # refusal_text_pattern must match ≥12 chars
+```
+
+T047 (matcher_vacuous) rejects rows that ship with matcher arguments matching any banned pattern. The banned list itself evolves with edge-case rejections and is versioned alongside the assertion_id whitelist. Without this guard, a row could declare assertion_id=literal_or_banner_text with `exact_text: "helix"` and pass trivially every time the agent says the flow name.
+
 Codex's "vacuous discriminator" meta-tests (added to the meta-tests category in §1.5b; 5 of the 10 are now intentionally vacuous discriminators):
 
 | Meta-test | What it checks |
@@ -1343,7 +1368,8 @@ Gate model: each phase has a verification floor; the next phase does not start u
 
 | Phase | What | Effort | Gate (must be measurable) |
 |---|---|---|---|
-| **P0 — Foundation** | Bench runner skeleton (Layer 1 only); routing-eval runner; CC version pin (§19); cost-tracking infra (§19); discriminator-required loader with typed assertion DSL whitelist (§1.4b); **property-based tests for Layer 1 assertions** (codex #8 — promoted from v1.1 deferral). Property generators produce transcripts with known properties (e.g., `read_before_write` true/false) and verify the assertion engine classifies them correctly | 12h | Synthetic-input meta-test passes 10/10 (5 vacuous-discriminator rejections + 5 valid positives); property tests cover ≥4 assertion types (skill_tool_use, read_before_write, scope_write_path, graph_edge_observed); runner rejects rows failing T040-T044 |
+| **P0a — Foundation: runner + assertions** (codex-4 split — was P0 at 12h, optimistic) | Bench runner skeleton (Layer 1 only); stream-json parser; discriminator-required loader; typed assertion DSL whitelist with 9 matchers (skill_tool_use, read_before_write, graph_edge_observed, scope_write_path, next_action_envelope, confirmation_before_mutation, refusal_no_write, literal_or_banner_text, route_decision); T040-T046 rejection logic; **matcher vacuity guard (codex-4 #2)**: self-test rejects rows whose regex/prose matcher patterns are generic — `.*`, `yes\|ok`, `cannot\|unable`, bare flow-name-only attribution. Specific banned patterns committed at `library/schemas/banned-matcher-patterns.yml`. | 12h | Runner loads + parses stream-json; 9 matchers implemented; T040-T046 + matcher-vacuity guard reject malformed rows; smoke test passes against 1 synthetic positive transcript per matcher |
+| **P0b — Foundation: meta + property + goldens + cost** | 10 meta-test transcripts (5 vacuous-discriminator rejections MT01-MT05 + 5 positive); property-based generators for 4 properties (read_before_write, scope_write_path, skill_tool_use, graph_edge_observed) at 100 cases each; **9 golden transcripts** (one per assertion_id, codex-4 #3 NOTE — corrected from "5"); CC version pin file; cost-tracking infra; bench `--self-test` driver; **failure observability (codex-4 #6)**: on row fail, runner dumps transcript + per-matcher trace + expected vs actual + negative-control diff to `family-test/bench/failures/<row-id>-<timestamp>/` | 12h | Meta-test passes 10/10; property tests pass on 4 properties; 9 golden transcripts validate against `transcript_schema.yml`; `--self-test` exits 0; cost-tracking records per-run cost; failure-dump scaffold writes the right artifact set for any forced-failure row |
 | **P1 — Engagement gate (NEEDS ABLATION)** | Description anchors + slash commands + 75-row routing-eval set (30 pos + 30 neg + 15 ambig); ablation across 4 description shapes (baseline / verb-list / `when_to_use` / minimal); truncation-budget probe via `/doctor` | 8h | Integer confusion-matrix gates (per codex finding #3): positives **≥29/30** skill engagement; negatives **30/30** no engagement; ambiguous **≥13/15** correct route AND **0/15** unsafe unauthorized routes. Precision/recall computed for report; integer counts are the gate. Hard halt if no description shape clears all four integer thresholds. |
 | **P2 — Cascade discrimination** | SKILL.md cascade prose (§3.2); graph-discrimination fixtures (custom non-standard edge); 4 rows verify graph was read | 6h | Discrimination fixture passes (agent surfaces unusual prereq) AND negative-control passes (agent does NOT surface it when edge absent) |
 | **P3 — Autonomy matrix + stop_at trigger spec** | 4-level autonomy (`manual`/`guided`/`autonomous`/`aggressive`); stop_at trigger spec file (`library/skill-prompts/stop-at-triggers.yml`); 8 matrix rows + **12 trigger rows (6 positive + 6 near-miss negative per codex-2 #5)** | 14h (was 10h; +4h for the 6 near-miss negative trigger rows + their fixture authoring) | Confirmation count + write count contract holds across all 4 levels; every stop_at type fires under `aggressive`; every near-miss negative confirms the matcher does NOT false-positive; spec file shape-validated by validator |
@@ -1360,14 +1386,12 @@ Gate model: each phase has a verification floor; the next phase does not start u
 | **P14 — CI + cost gate + ratchet + diff-based escalation** | GitHub Actions; cost-per-run cap; ratchet on stable-pass rate + cost trend; **diff-based PR escalation (codex-3 #5 — this is an engineering task, not a config setting)**: path taxonomy (`bench-categories.yml` mapping file globs to bench categories), fallback behaviour (any unmatched path → full bench), CI workflow that diffs the PR and selects the affected category set, acceptance tests proving the mapping (positive: SKILL.md edit → conversation+routing run; positive: stop-at-triggers.yml edit → stop_at run; negative: unrelated file edit → self-test only) | 10h (was 4h; +6h for diff escalation engineering) | Full bench runs in CI on main; cost ≤ §19 budget; ratchet alerts on >5% stable-pass regression OR >25% cost regression; **diff-escalation acceptance tests pass (3 positive + 1 negative)**; CI per-PR run picks the right category subset deterministically |
 | **P15 — Documentation + author guide** | `flows.md`, `bench.md`, `autonomy.md`, `skill-author-guide.md`; how to author a new bench row in <30min | 6h | New operator authors a valid bench row + paired negative + discriminator in ≤30min during dogfood test |
 
-**Total: ~175h (~22 days).** Per codex-3 honest re-accounting:
-- P3 +4h (12 trigger rows now, was 6 — 6 positive + 6 near-miss negative)
-- P5 +4h (full must_pass_core enumeration; routing-negative relocation of C019)
-- P9 +16h (12 library types at ~1.5h each + adversarial coverage + worked example walked end-to-end = realistic 32h, was 16h)
-- P10 +2h (6 multi-instance rows + path-component matching, was 4 rows)
-- P14 +6h (diff-based PR escalation is its own engineering task)
+**Total: ~187h (~23 days).** Per codex-4 #1 honest re-pass:
+- P0a +0h (renamed from P0; 12h unchanged for runner + 9 matchers + vacuity guard)
+- P0b +12h (NEW; codex-4 #1 split — 10 meta + property + 9 goldens + CC pin + cost + self-test + failure-observability dumps; was bundled into 12h alongside runner/matchers, optimistic)
+- Other phases unchanged from codex-3 fold-in
 
-Previous 145h estimate was still optimistic per codex-3 #6. Corpus authoring alone is ~55-60h; P9 alone is now ~32h. No deferrals. The "one change" (typed DSL + property tests + category gates + diff-escalation engineering) is fully absorbed.
+Codex-4 verdict: ready with these small additions. No deferrals.
 
 ### 15b.1 What can run in parallel
 
@@ -1395,7 +1419,7 @@ Across all phases (post codex-3 fold-in):
 - 5 worked examples (1 per flow: helix product, helix-infra, helix-web, helix-data; plus a cross-flow example showing 2 flows cooperating)
 - **11 adversarial data fixtures** for helix-data (F1-F11 per §12.7; was F1-F6) — audit-complete set
 - 1 CC version pin + re-validation cadence
-- **5 golden transcripts + 1 transcript schema** (§19.2b — catches CC stream-json schema drift)
+- **9 golden transcripts + 1 transcript schema** (§19.2b — catches CC stream-json schema drift; codex-4 #3 NOTE corrected count to 9, one per assertion_id)
 - 1 cost budget + ratchet + diff-based PR escalation
 - **1 typed assertion DSL whitelist** (`library/schemas/discriminator-whitelist.yml`) — **9 assertion_ids** at v1 (skill_tool_use, read_before_write, graph_edge_observed, scope_write_path, next_action_envelope, **confirmation_before_mutation, refusal_no_write, literal_or_banner_text, route_decision** — last 4 added per codex-3 #1); new IDs require runner + schema bump
 - 12 named invariants spec'd (§0.5 + per-phase preconditions)
@@ -1408,20 +1432,27 @@ Every row, example, fixture, gate, and invariant maps to a phase. Nothing is lef
 
 The 1500-line plan is the design record. The checklist below is what a contributor opens to execute. Each phase: gate → action → halt-condition.
 
-### Phase 0 — Foundation [12h, gates: 10/10 meta + property tests + T040-T044 reject vacuous]
+### Phase 0a — Foundation: runner + assertions [12h, gates: 9 matchers + T040-T047 reject vacuous + matcher-vacuity guard]
 
 - [ ] Implement bench runner skeleton (Layer 1 only): YAML loader, stream-json parser, assertion engine
 - [ ] Load typed-DSL whitelist from `library/schemas/discriminator-whitelist.yml` (9 assertion_ids)
-- [ ] Implement runner rejects: T040 (no discriminator), T041 (unknown assertion_id), T042 (positive==negative verdict), T043 (unparseable matcher), T044 (no-op negative-control), T046 (new assertion_id not in whitelist)
+- [ ] Implement runner rejects: T040 (no discriminator), T041 (unknown assertion_id), T042 (positive==negative verdict), T043 (unparseable matcher), T044 (no-op negative-control), T046 (new assertion_id not in whitelist), T047 (matcher_vacuous per banned-patterns list)
+- [ ] Author `library/schemas/banned-matcher-patterns.yml` (banned regex/text patterns + minimum lengths per matcher type)
 - [ ] Implement 9 matchers: skill_tool_use, read_before_write, graph_edge_observed, scope_write_path, next_action_envelope, confirmation_before_mutation, refusal_no_write, literal_or_banner_text, route_decision
+
+**Halt**: any matcher accepts a banned pattern at self-test.
+
+### Phase 0b — Foundation: meta + property + goldens + cost + observability [12h]
+
 - [ ] Write 10 meta-test transcripts (5 vacuous-discriminator rejections MT01-MT05 + 5 positive)
 - [ ] Write property-based generators for 4 properties (read_before_write, scope_write_path, skill_tool_use, graph_edge_observed) with 100 cases each
 - [ ] Pin CC version: `family-test/bench/cc-version.lock` = 2.1.163
-- [ ] Write 5 golden transcripts + transcript_schema.yml
-- [ ] Wire `--self-test`: runs meta-tests + property tests + golden-schema check
-- [ ] Cost-tracking infra: per-run cost recorded; ratchet baseline established
+- [ ] Write 9 golden transcripts (one per assertion_id) + transcript_schema.yml
+- [ ] Wire `--self-test`: runs meta-tests + property tests + golden-schema check + matcher-vacuity check
+- [ ] Cost-tracking infra: per-run cost recorded; ratchet baseline established; separate `dev_iteration_burn` ratchet
+- [ ] **Failure observability**: on row fail, runner dumps transcript + per-matcher trace + expected vs actual + negative-control diff to `family-test/bench/failures/<row-id>-<timestamp>/`
 
-**Halt**: meta-test fails any of 10, OR property test fails, OR runner accepts a vacuous discriminator, OR golden transcript fails schema match.
+**Halt**: meta-test fails any of 10, OR property test fails, OR runner accepts a vacuous discriminator, OR golden transcript fails schema match, OR failure-dump scaffold produces incomplete artifacts.
 
 ### Phase 1 — Engagement gate [8h, integer gates: 29/30 pos, 30/30 neg, 13/15 ambig + 0 unsafe]
 
@@ -1539,7 +1570,7 @@ The 1500-line plan is the design record. The checklist below is what a contribut
 - [ ] `flows.md`, `bench.md`, `autonomy.md`, `skill-author-guide.md`
 - [ ] New operator authors a valid row + paired negative + discriminator in ≤30min (dogfood test)
 
-**Total: 175h (~22 days).** Phase order is dependency-driven; P0 → P1 are hard gates; P2-P4 can pair with P5 corpus authoring; P9 / P10 / P11 / P12 can pipeline once P0-P5 stabilize; P14 / P15 close the cycle.
+**Total: 187h (~23 days).** Phase order is dependency-driven; P0a → P0b → P1 are hard gates; P2-P4 can pair with P5 corpus authoring; P9 / P10 / P11 / P12 can pipeline once P0a-P5 stabilize; P14 / P15 close the cycle.
 
 ---
 
@@ -1663,13 +1694,15 @@ Codex correctly flagged that routing-only PR runs miss regressions in autonomy, 
 
 Monthly cost estimate at 50 PR runs (avg ~$10/run with mix) + 10 main merges + 30 nightly thirds + 4 weekly = 500 + 440 + 450 + 200 = **~$1590/month**. Down from ~$2240 because most PRs run smaller affected-category surface, not full routing-only-vs-full bifurcation. Ratchet (§19.4) catches runaway cost.
 
+**Development-iteration burn (separate from steady-state CI, codex-4 #7).** During P0-P15 the team will iterate on the bench infrastructure itself: re-running rows after fixing flakes, debugging matcher logic, calibrating thresholds. Honest estimate: ~25 dev-iteration full-bench runs over the 22-day execution window + ~100 partial-bench iterations × ~$5 = ~$1625 one-time dev-iteration burn. Plus judge calibration iteration ~$200. Total P0-P15 dev burn ~**$1850 one-time**, on top of monthly steady-state. Tracked in a separate cost ratchet (`dev_iteration_burn`) so steady-state monthly cost isn't conflated with one-time setup.
+
 ### 19.2b Transcript schema + golden parser fixtures (codex-3 #9)
 
 CC version pin alone doesn't protect us from stream-json schema changes within a CC version (events get added; tool_use shape evolves). The bench parser depends on specific event shapes (`{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Skill","input":{...}}]}}`). A change in this shape silently breaks every Layer 1 assertion.
 
 Pin both:
 
-1. `family-test/bench/golden-transcripts/` — 5 hand-curated stream-json transcripts (one per assertion_id) representing the expected shape. Each carries `cc_version`, `assertion_id`, and the expected assertion verdict.
+1. `family-test/bench/golden-transcripts/` — **9 hand-curated stream-json transcripts (one per assertion_id, codex-4 #3 NOTE — was incorrectly listed as 5)** representing the expected shape. Each carries `cc_version`, `assertion_id`, and the expected assertion verdict.
 2. `family-test/bench/parsers/transcript_schema.yml` — shape contract the parser validates against on load.
 
 The bench's `--self-test` runs the parser against the golden transcripts; if any golden transcript fails to match the schema, the bench refuses to run. On CC version upgrade, the upgrade procedure includes regenerating goldens with the new version and confirming the parser still extracts the same assertion verdicts. Schema-evolution drift is caught at the golden-parser boundary, not silently in the bench results.
