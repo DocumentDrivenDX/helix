@@ -75,19 +75,94 @@ Multi-turn conversations are first-class. Turns alternate user → agent; the ru
 
 Three layers, layered loose-to-strict. A conversation must satisfy ALL layers it declares.
 
-**Each conversation MUST carry a discriminator** per Invariant 3 (§0.5). The discriminator field at the top of `expected.yml` names what observable would differ if the skill failed to engage:
+**Each conversation MUST carry a discriminator** per Invariant 3 (§0.5). Codex's blocking finding #2 (2026-06-05): a prose discriminator is shape-correct but meaning-vacuous. Replace with a **typed assertion DSL**:
 
 ```yaml
 discriminator:
-  contract: "agent reads .helix.yml before any Write tool_use"
-  positive_observable: "stream-json shows Read(.helix.yml) at index < first Write"
+  # Required: assertion_id from the whitelist (§1.4b)
+  assertion_id: skill_tool_use                     # one of the whitelist
+  # The SAME observable query runs in positive AND negative.
+  observable:
+    matcher_type: skill_tool_use
+    skill_id: helix
+  # Verdicts must be opposite in positive and negative runs:
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  # Negative-control modification (auto-applied by runner):
   negative_control:
     workspace: same
-    plugins: [helix-library]                    # methodology plugin REMOVED
-    expected_outcome: "no Skill tool_use; no Read(.helix.yml); agent writes from general knowledge"
+    plugins_remove: [methodology-product]          # methodology plugin REMOVED
 ```
 
-The runner enforces: every `expected.yml` declares this; the negative-control row is auto-generated and runs alongside the positive. A row PASSES only if positive PASS and negative-control PASS (i.e., the negative produces the expected non-skill behaviour). This catches plan §6.5's "skill engaged for the wrong reason" failure mode by construction.
+The runner enforces (T040-T044):
+- **T040**: missing `discriminator:` → reject row
+- **T041**: `assertion_id` not in whitelist → reject row
+- **T042**: `expected_in_positive_run == expected_in_negative_run` → reject as vacuous
+- **T043**: observable matcher unparseable → reject row
+- **T044**: negative-control modification doesn't actually change the observable's input class → reject as no-op
+
+A row PASSES only if positive run produces `expected_in_positive_run` AND negative-control run produces `expected_in_negative_run`. If both produce the same outcome regardless of skill presence, the discriminator is meaningless and the bench refuses to grade it.
+
+### 1.4b Discriminating observable whitelist (typed assertion DSL)
+
+The set of allowed `assertion_id` values, each tied to a specific matcher type. The runner's loader validates against this whitelist:
+
+```yaml
+# library/schemas/discriminator-whitelist.yml
+allowed_assertions:
+  - id: skill_tool_use
+    matcher_type: skill_tool_use
+    matcher_params: [skill_id]              # required
+    description: |
+      Asserts a Skill(<skill_id>) tool_use event appears in stream-json.
+      Positive: present; negative-control: absent (after plugin removal).
+
+  - id: read_before_write
+    matcher_type: tool_use_order
+    matcher_params: [first_tool, second_tool, target_pattern]
+    description: |
+      Asserts a Read(target_pattern) tool_use appears at an earlier index
+      than any Write/Edit. Positive: ordered; negative-control: absent or
+      reversed.
+
+  - id: graph_edge_observed
+    matcher_type: file_read
+    matcher_params: [graph_path, expected_edge_signature]
+    description: |
+      Asserts the agent read the methodology graph.yml file. The
+      negative-control swaps the workspace's graph.yml for one lacking
+      the expected_edge_signature; positive must still surface the edge,
+      negative must NOT surface it (proves graph drove the answer, not
+      training).
+
+  - id: scope_write_path
+    matcher_type: write_path_constraint
+    matcher_params: [allowed_root, forbidden_pattern]
+    description: |
+      Asserts all Write/Edit tool_use file_paths fall under allowed_root.
+      Negative-control: plugin removed; agent's writes WILL escape root
+      (proving the marker drove the constraint, not general intuition).
+
+  - id: next_action_envelope
+    matcher_type: json_envelope
+    matcher_params: [envelope_schema_path]
+    description: |
+      Asserts the agent emits a JSON envelope conforming to schema.
+      Layer 3 only — runs in a separate envelope pass (§1.4 ordering
+      constraint).
+```
+
+Codex's "vacuous discriminator" meta-tests (added to the meta-tests category in §1.5b; 5 of the 10 are now intentionally vacuous discriminators):
+
+| Meta-test | What it checks |
+|---|---|
+| MT01 | discriminator with `expected_in_positive == expected_in_negative` → runner rejects (T042) |
+| MT02 | discriminator with unknown `assertion_id` → runner rejects (T041) |
+| MT03 | discriminator missing `negative_control` → runner rejects (T040) |
+| MT04 | discriminator where `plugins_remove` doesn't include any methodology plugin → runner rejects (T044) |
+| MT05 | discriminator whose observable is structurally valid but the matcher always matches every transcript → runner rejects (T043 by static check + smoke run) |
+
+The remaining 5 meta-tests are positive synthetic transcripts that exercise each whitelisted `assertion_id` correctly. The runner's `--self-test` mode runs all 10 before every bench run; CI gate halts on any failure.
 
 ```yaml
 # Layer 1 — STRUCTURAL (programmatic; never flaky)
@@ -171,11 +246,11 @@ The 20 entries above are the happy-path seed. Full v1 corpus inventory by verifi
 | **Routing evals (ambiguous, multi-flow)** | 15 | Each row: prompt could plausibly match 2+ flows; assertion specifies which wins per §1.5 resolution chain. |
 | **Conversation library (happy paths)** | 25 | C001-C025 from §1.5 + §12.6 (full 25, including helix-data rows). Each carries a paired negative control per §0.5 Invariant 3. |
 | **Autonomy matrix** | 8 | 2 fixtures × 4 levels (manual/guided/autonomous/aggressive). Same prompt; assert confirmation count and write count differ per level deterministically. |
-| **Stop_at triggers** | 6 | One row per stop_at type (marker_edit, cross_methodology_edge_creation, branch_or_merge, secret_read, large_diff, apply). Each: setup that would trigger the event under autonomy=aggressive; assert agent stops before executing. |
+| **Stop_at triggers (positive + near-miss negative)** | 12 | Per codex finding #5: 6 positive rows (one per trigger: marker_edit, cross_methodology_edge_creation, branch_or_merge, secret_read, large_diff, apply) + **6 paired near-miss negatives** (`.env.example` must NOT fire secret_read; `terraform plan` must NOT fire apply; 499-line edit must NOT fire large_diff; `gh pr view` / `git status` must NOT fire branch_or_merge; non-cross-instance link must NOT fire cross_methodology_edge_creation; Read/Bash on `.helix.yml` (not Write) must NOT fire marker_edit). Each positive proves matcher fires; each negative proves matcher avoids false positives. |
 | **Graph-discrimination** | 4 | Custom non-standard edge in graph.yml (e.g., `library:prd requires library:market-validation-brief`). Positive: agent surfaces the unusual prerequisite (proves graph was read). Negative: same workspace without the edge, agent must NOT surface it. Confirms the cascade logic actually consults graph.yml rather than relying on general HELIX knowledge. |
 | **Edge Authority Asymmetry** | 4 | Per §0.5 Invariant 1. Graph: `prd informs feature-specification` (required: false). Workspace: existing FEAT-001, FEAT-002. Prompt: "Create a PRD." PASS if agent surfaces candidate links and asks. FAIL if agent silently auto-populates ddx.links. Run at autonomy=guided AND autonomy=autonomous; assertion contract: even autonomous requires deliberation, not auto-fill. |
 | **Cross-flow cascade** | 3 | §14.1 scenarios: PRD-needs-infra (helix → helix-infra), pipeline-needs-DNS (helix-data → helix-infra), "what's blocked" (multi-flow status query). |
-| **Multi-instance routing** | 4 | Cwd-resolution algorithm verification per §13.9 (NEW): cwd inside instance A's root, cwd inside instance B's root, cwd above both, cwd at exact boundary. |
+| **Multi-instance routing** | 6 | Cwd-resolution algorithm verification per §13.6b: (1) no match falls through, (2) single match, (3) nested roots — longest wins, (4) boundary, (5) sibling-tie with env override, (6) sibling-tie without env — emits banner, asks user. Sibling-tie path-component matching specifically (codex #6) MUST NOT silently auto-select alphabetically. |
 | **Cross-instance lineage** | 3 | C027 plus 2 more: stale-target detection (target instance superseded), instance-rename impact analysis. |
 | **Rename / v1-compat** | 4 | M020 legacy-key alias fires; existing T01-T38 fixtures still pass; fresh v2 marker with `flows:` validates; migration script v1→v2 idempotent. |
 | **Warm-context** | 5 | Replay 5 unrelated turns of conversation history before sending the probe. Each: a conversation row from the happy-path set, asserted to still engage despite context dilution. |
@@ -866,7 +941,7 @@ Activate this skill when the user asks to:
 - `helix:prd informs helix-data:data-product-brief` (product PRD frames the data product)
 - `helix-data:data-product-brief informs helix-infra:change-intent` (pipeline needs new infra)
 - `helix-data:metrics-dashboard informs helix:improvement-backlog` (metrics feed product iteration)
-- `helix-data:lineage-spec informs helix-web:design-system` (dashboards inherit visual language)
+- `helix-web:design-system informs helix-data:metrics-dashboard` (dashboards inherit visual language)
 
 All advisory `informs`, declared in each source flow's `external_edges:` (per the existing cross-flow rule, §13.4 doesn't change this).
 
@@ -911,40 +986,22 @@ The example is validated by `helix_check.py marker examples/helix-data-customer-
 
 helix-data shipping verifiable means the example walks clean end-to-end. No flow is real until its worked example validates.
 
-### 12.3 Slash commands
+**Adversarial data fixtures (codex finding #7).** Static marker validation is necessary but NOT sufficient — it doesn't surface idempotency, late arrivals, PII, lineage gaps, or reconciliation failures. The worked example MUST ship with these six fixture scenarios committed under `examples/helix-data-customer-events/fixtures/`, each tied to specific artifacts:
 
-```
-/helix-data
-/helix-data-discover
-/helix-data-frame
-/helix-data-design
-/helix-data-test
-/helix-data-build
-/helix-data-deploy
-/helix-data-iterate
-```
+| Fixture scenario | What it adversarially exercises | Which artifacts must reference it |
+|---|---|---|
+| **F1 — Duplicate webhook ID** | Idempotency on retry; deduplication strategy | `data-contract`, `data-quality-tests`, `runbook` |
+| **F2 — Late event arrival** (delivered out-of-order by 6h) | Late-arrival handling; watermark policy | `data-design`, `data-quality-tests`, `monitoring-setup` |
+| **F3 — Schema-version drift** (producer adds optional field; producer changes type of existing field) | Schema evolution policy; backwards compatibility surface | `data-contract`, `evolution-plan`, `data-quality-tests` |
+| **F4 — PII-bearing field surfaced** (email in webhook payload that was supposed to be tokenized) | PII classification + redaction; access tier downgrade | `governance-classification`, `data-design`, `runbook` |
+| **F5 — Customer-initiated deletion** (right-to-be-forgotten request requires propagating delete through pipeline) | Redaction propagation; consumer notification | `governance-classification`, `evolution-plan`, `deprecation-notice`, `runbook` |
+| **F6 — Source/sink reconciliation mismatch** (Stripe says N events, Redshift shows N-7) | Reconciliation rules + escalation path | `reconciliation-suite`, `runbook`, `monitoring-setup` |
 
-### 12.4 SKILL.md description verbs
+Each fixture is committed as `fixtures/F<n>-<slug>.yml` describing the scenario + expected handling. The worked example's artifacts MUST include references to these fixtures by ID (the validator checks that the listed artifacts mention F1-F6 by ID — bench validates F1-F6 coverage via `helix_check.py example --adversarial-coverage`).
 
-```
-- design, build, test, deploy, iterate on a data pipeline
-- specify a data contract or producer/consumer schema
-- author data-prd, data-architecture, data-design, or data-quality-expectations
-- define quality expectations, freshness SLAs, backfill plans
-- design Bronze/Silver/Gold medallion topologies
-- plan dbt models, Airflow DAGs, Databricks DLT pipelines
-```
+Without these adversarial fixtures, the worked example is a sanitized sketch that proves the schema but not the methodology. With them, the example proves helix-data's lifecycle stages actually catch the failure modes data engineers care about.
 
-### 12.5 Cross-flow edges helix-data participates in
-
-- `helix:prd informs helix-data:data-prd` (the product PRD frames the data product)
-- `helix-data:data-product-brief informs helix-infra:change-intent` (when the pipeline needs new infra)
-- `helix-web:design-system informs helix-data:metrics-dashboard` (dashboards inherit visual language)
-- `helix-data:metrics-dashboard informs helix:improvement-backlog` (metrics feed back into product iteration)
-
-All advisory `informs`, declared in each source flow's `external_edges:` (per the existing cross-method rule).
-
-### 12.6 Bench corpus additions
+### 12.8 Bench corpus additions
 
 | ID | Utterance | Active flows | Autonomy | Expected |
 |---|---|---|---|---|
@@ -952,7 +1009,7 @@ All advisory `informs`, declared in each source flow's `external_edges:` (per th
 | C022 | "Define a data contract for the customer events" | helix-data | guided | helix-data engages; drafts contract; if no producer/consumer identified, asks |
 | C023 | "Add quality checks for the orders pipeline" | helix-data | guided | helix-data engages; drafts data-quality-expectations; suggests testable EXPECT rules |
 | C024 | "Backfill the last 90 days of customer events" | helix-data, autonomy=manual | manual | helix-data engages; refuses to execute; drafts backfill-plan; asks for explicit approve |
-| C025 | "Our PRD needs a new metric we can measure" | helix + helix-data both active | guided | Cross-flow: helix engages first (PRD), surfaces that the metric needs helix-data; offers to draft a data-prd and a metric-definition |
+| C025 | "Our PRD needs a new metric we can measure" | helix + helix-data both active | guided | Cross-flow: helix engages first (PRD), surfaces that the metric needs helix-data; offers to draft a data-product-brief and a metric-definition |
 
 These extend §1.5's table to 25 entries for v1; data-pipeline flow has 5 dedicated rows including one cross-flow scenario.
 
@@ -1087,28 +1144,49 @@ Five more bench rows — 30 total for v1 ship.
 
 ### 13.6b Cwd-resolution algorithm (multi-instance disambiguation)
 
-When the user's cwd matters for routing (§1.5 resolution chain rule 3), the algorithm for picking one `(flow, instance)` is:
+Per codex finding #6 (2026-06-05), this algorithm uses **path-component-aware matching** (not string-prefix). Equal-depth ties at the SAME or SIBLING level return **ambiguous** — never silent alphabetical selection.
 
 ```
 Given: marker M with flows = [(f1, i1, root1), (f2, i2, root2), ...]
        cwd C (absolute path)
        repo_root R (path containing .git/)
 
+Definitions:
+  components(P) = path P split on /, with empty trailing component removed
+                  (e.g., components("/a/b/") = ["a", "b"])
+  is_path_prefix(A, B) = components(A) is a prefix of components(B)
+                  (NOT string prefix; "a/bc/" is NOT a path prefix of "a/bcd/")
+
 1. Resolve all roots to absolute: abs_root_k = R / root_k
-2. Compute candidates: K = { k : C is under abs_root_k }
-   (under = abs_root_k is a prefix of C, OR C == abs_root_k)
+2. Compute candidates: K = { k : is_path_prefix(abs_root_k, C) OR abs_root_k == C }
 3. If |K| == 0:
-     no scope matches → fall through to next rule in §1.5 (env, defaults, single-entry)
+     no scope matches → fall through to next rule in §1.5
+     (HELIX_METHODOLOGY env → defaults.methodology → single entry → disambiguation banner)
 4. If |K| == 1:
      return that single (flow, instance)
-5. If |K| > 1 (nested roots case):
-     return the entry with the LONGEST abs_root_k (most specific scope wins).
-     If ties on length: deterministic alphabetical sort on (flow_id, instance_id).
-6. If C is at the exact root boundary (C == abs_root_k for some k):
-     that root counts as "under" itself. Step 5 still applies.
+5. If |K| > 1 (nested or overlapping roots):
+     compute depth_k = len(components(abs_root_k)) for each k in K
+     let K_max = { k in K : depth_k is maximal }
+     5a. If |K_max| == 1:
+           return that (flow, instance)
+     5b. If |K_max| > 1 (genuine ambiguity — siblings at equal depth, or
+         identical-root-with-different-flows):
+           return ambiguous; fall through to disambiguation step:
+              i. HELIX_METHODOLOGY env if it names one of K_max → that one
+              ii. defaults.methodology if it names one of K_max → that one
+              iii. else emit the §1.5 disambiguation banner naming all K_max
+                   candidates; ASK the user. NEVER silently pick alphabetically.
 ```
 
-Documented in `library/scripts/helix_check.py` as `resolve_cwd_to_instance()`. Verified by 4 bench rows in §1.5b "Multi-instance routing" category covering each branch (no match, single match, nested + longest wins, boundary).
+Rationale change from prior version: alphabetical tiebreak can silently route a user's write to the wrong sibling instance — exactly the failure mode the marker was supposed to eliminate. Path-component matching also prevents the silent failure where one root is a textual prefix of another but not a parent (`services/api/` vs `services/api-admin/`).
+
+Documented in `library/scripts/helix_check.py` as `resolve_cwd_to_instance()`. Verified by 6 bench rows in §1.5b "Multi-instance routing" category (was 4; expanded for codex #6):
+1. no match — falls through
+2. single match — returns it
+3. nested roots, longest wins — returns innermost
+4. boundary (cwd == root) — returns that root
+5. sibling roots at equal depth, env present — env wins
+6. sibling roots at equal depth, no env — emits banner, asks user (does NOT auto-route)
 
 ### 13.7 Validator changes for multi-instance
 
@@ -1204,12 +1282,12 @@ Gate model: each phase has a verification floor; the next phase does not start u
 
 | Phase | What | Effort | Gate (must be measurable) |
 |---|---|---|---|
-| **P0 — Foundation** | Bench runner skeleton (Layer 1 only); routing-eval runner; CC version pin (§19); cost-tracking infra (§19); discriminator-required loader | 8h | Synthetic-input meta-test passes 9/10 on the 10 hand-authored "fake transcripts"; runner rejects rows lacking `discriminator:` with T040 |
-| **P1 — Engagement gate (NEEDS ABLATION)** | Description anchors + slash commands + 75-row routing-eval set (30 pos + 30 neg + 15 ambig); ablation across 4 description shapes (baseline / verb-list / `when_to_use` / minimal); truncation-budget probe via `/doctor` | 8h | One description shape achieves **95% precision on positives AND 100% recall on negatives AND defined disambiguation on ambiguous**. Hard halt if no shape clears 90%/95%/defined. |
+| **P0 — Foundation** | Bench runner skeleton (Layer 1 only); routing-eval runner; CC version pin (§19); cost-tracking infra (§19); discriminator-required loader with typed assertion DSL whitelist (§1.4b); **property-based tests for Layer 1 assertions** (codex #8 — promoted from v1.1 deferral). Property generators produce transcripts with known properties (e.g., `read_before_write` true/false) and verify the assertion engine classifies them correctly | 12h | Synthetic-input meta-test passes 10/10 (5 vacuous-discriminator rejections + 5 valid positives); property tests cover ≥4 assertion types (skill_tool_use, read_before_write, scope_write_path, graph_edge_observed); runner rejects rows failing T040-T044 |
+| **P1 — Engagement gate (NEEDS ABLATION)** | Description anchors + slash commands + 75-row routing-eval set (30 pos + 30 neg + 15 ambig); ablation across 4 description shapes (baseline / verb-list / `when_to_use` / minimal); truncation-budget probe via `/doctor` | 8h | Integer confusion-matrix gates (per codex finding #3): positives **≥29/30** skill engagement; negatives **30/30** no engagement; ambiguous **≥13/15** correct route AND **0/15** unsafe unauthorized routes. Precision/recall computed for report; integer counts are the gate. Hard halt if no description shape clears all four integer thresholds. |
 | **P2 — Cascade discrimination** | SKILL.md cascade prose (§3.2); graph-discrimination fixtures (custom non-standard edge); 4 rows verify graph was read | 6h | Discrimination fixture passes (agent surfaces unusual prereq) AND negative-control passes (agent does NOT surface it when edge absent) |
 | **P3 — Autonomy matrix + stop_at trigger spec** | 4-level autonomy (`manual`/`guided`/`autonomous`/`aggressive`); stop_at trigger spec file (`library/skill-prompts/stop-at-triggers.yml`); 8 matrix rows + 6 trigger rows | 10h | Confirmation count + write count contract holds across all 4 levels; every stop_at type fires under `aggressive`; spec file shape-validated by validator |
 | **P4 — Edge Authority Asymmetry** | Named invariant added to design §2.7; 4 negative fixtures; SKILL.md §10 explicitly prohibits auto-population | 4h | Auto-population fixture FAILS when skill silently writes ddx.links; PASSES when skill surfaces and asks (under both guided AND autonomous) |
-| **P5 — Conversation library (25 rows)** | C001-C025 from §1.5 + §12.6; each with paired negative control; Layer 1 + discriminator | 12h | 22 of 25 stable-pass (3-of-3 determinism); flaky rows logged with stream-json diffs |
+| **P5 — Conversation library (25 rows; split must_pass_core / exploratory)** | C001-C025 from §1.5 + §12.8; each with paired negative control + typed discriminator. Each row carries `tier: must_pass_core` or `tier: exploratory` in `expected.yml`. **must_pass_core** rows (15): C001, C002, C005, C006, C012, C014, C019, C020, C021, C022, C024, C025, plus 3 chosen during P5 authoring. **exploratory** rows (10): everything else. | 12h | **must_pass_core: 15/15 stable-pass 3-of-3.** **exploratory: ≥7/10 stable-pass 3-of-3.** No row marked must_pass_core may regress to exploratory without a written rationale + design-doc change. Per codex finding #4: do not ship with known core failures. |
 | **P6 — Warm-context (5 rows)** | Replay 5 unrelated turns of history before each probe; assert engagement holds | 3h | All 5 stable-pass 3-of-3; engagement rate matches cold-start within 5pp |
 | **P7 — Layer 2 judge LLM (semantic)** | Judge prompt + calibration set + harness; apply to 10 conversations; cost tracking | 6h | Judge agreement with human classification ≥ 90% on the calibration set; cost per judge call within §19 budget |
 | **P8 — Layer 3 next-action structured assertions** | JSON envelope injection (separate pass to avoid contaminating Layer 1); 5 conversations exercise it | 4h | Layer 1 outcomes IDENTICAL across no-envelope and envelope passes (proves no contamination); Layer 3 assertions on 5 rows stable-pass |
@@ -1221,7 +1299,9 @@ Gate model: each phase has a verification floor; the next phase does not start u
 | **P14 — CI + cost gate + ratchet** | GitHub Actions; cost-per-run cap; ratchet on stable-pass rate + cost trend | 4h | Full bench runs in CI; cost ≤ §19 budget; ratchet alerts on >5% stable-pass regression OR >25% cost regression |
 | **P15 — Documentation + author guide** | `flows.md`, `bench.md`, `autonomy.md`, `skill-author-guide.md`; how to author a new bench row in <30min | 6h | New operator authors a valid bench row + paired negative + discriminator in ≤30min during dogfood test |
 
-**Total: ~108h (~13.5 days).** Slightly over my earlier ~102h estimate because P3 absorbs the stop_at trigger spec authoring (~3h) and P9 absorbs the 12 library types (~4h additional). All within "ship a verifiable v1" intent.
+**Total: ~145h (~18 days).** Per codex finding #10 — honest accounting after the assertion DSL work (P0 +4h), property tests in P0 (P0 +4h), 6 near-miss negatives for stop_at (P3 +4h), adversarial data fixtures for helix-data (P9 +8h), expanded multi-instance routing rows (P10 +2h), must_pass_core/exploratory authoring discipline (P5 +4h), and the typed-DSL meta-tests (~5h migration of meta-test category). Codex's read of 140-160h is now within plan; previous 108h was hand-waving.
+
+The total includes corpus authoring (~55h after the must_pass_core split work, was 50h). No deferrals. Codex's "one change" (typed DSL + property tests + category gates) is absorbed.
 
 ### 15b.1 What can run in parallel
 
@@ -1234,23 +1314,26 @@ Practical sequencing on a single contributor: P0 → P1 (hard gate) → P2 → P
 
 ### 15b.2 Halt conditions (each phase has one)
 
-- **P1**: no description shape clears 90% positive / 95% negative. Halt and rethink the engagement approach — likely needs slash-command-required mode or `when_to_use` adoption.
+- **P0**: meta-test passes < 10/10 OR property tests fail OR runner accepts a vacuous discriminator. Halt — the bench itself is broken, no point grading anything on top of it.
+- **P1**: no description shape clears the integer thresholds (positives ≥29/30 AND negatives 30/30 AND ambiguous ≥13/15 with 0 unsafe). Halt and rethink the engagement approach — likely needs slash-command-required mode or `when_to_use` adoption.
 - **P2**: graph-discrimination fixture passes via general HELIX knowledge, not graph.yml reading. Halt and add stronger graph-reading instrumentation to SKILL.md.
 - **P3**: autonomy levels produce non-deterministic confirmation counts across 3 runs. Halt and tighten SKILL.md §8 prose; the levels are not crisp enough.
 - **P4**: auto-population fixture passes (skill silently writes ddx.links). Halt — this is a load-bearing invariant violation; needs SKILL.md hard prohibition + bench-mode runner check.
 - **P9**: worked example fails to validate after authoring. Halt — the new library type shapes are wrong; iterate before declaring helix-data ready.
 - **P12**: any existing T01-T38 fixture regresses after rename. Halt and identify which rename step broke compat; the M020 alias is the contract here.
 
-### 15b.3 Verification floor totals
+### 15b.3 Verification floor totals (revised post-codex-2)
 
 Across all phases:
-- 150 bench rows (75 routing + 25 conversations + 8 autonomy + 6 stop_at + 4 graph-discrim + 4 edge-asymmetry + 3 cross-flow + 4 multi-instance + 3 cross-instance + 4 rename + 5 warm-context + 4 verbose-stuck + 10 meta-tests = 150)
+- **158 bench rows** (75 routing + 25 conversations [15 must_pass_core + 10 exploratory] + 8 autonomy + 12 stop_at [6 positive + 6 near-miss negative] + 4 graph-discrim + 4 edge-asymmetry + 3 cross-flow + 6 multi-instance [was 4] + 3 cross-instance + 4 rename + 5 warm-context + 4 verbose-stuck + 10 meta-tests [5 vacuous-discriminator rejections + 5 positive] = 163; the 158 number excludes 5 meta-tests that are runner self-checks not bench rows)
 - 5 worked examples (1 per flow: helix product, helix-infra, helix-web, helix-data; plus the cross-flow example showing 2 flows cooperating)
+- **6 adversarial data fixtures** for helix-data (F1-F6 per §12.7) committed alongside the worked example
 - 1 CC version pin + re-validation cadence
 - 1 cost budget + ratchet
+- **1 typed assertion DSL whitelist** (`library/schemas/discriminator-whitelist.yml`) — 5 assertion_ids at v1; new IDs require runner + schema bump
 - 12 named invariants spec'd (§0.5 + per-phase preconditions)
 
-Every row, example, gate, and invariant maps to a phase. Nothing is left as "we'll figure out testing later."
+Every row, example, fixture, gate, and invariant maps to a phase. Nothing is left as "we'll figure out testing later."
 
 ---
 
@@ -1311,9 +1394,18 @@ Layer 2 (semantic) judgements need a separate calibration set:
 
 Calibration runs quarterly OR on judge prompt change OR on model upgrade. Disagreement >10% halts judge-LLM use until rubric retuned.
 
-### 18.3 Assertion-engine fuzzing (deferred to v1.1, noted here)
+### 18.3 Property-based testing of Layer 1 (NOT deferred — codex finding #8 promoted to P0)
 
-Property-based testing of the Layer 1 assertions: generate transcripts with known properties (e.g., "agent reads marker before write" is true/false) and verify the assertions correctly classify. Out of scope for v1 corpus but on the deferred list.
+Property generators produce stream-json transcripts with known properties — e.g., a transcript where `Read(.helix.yml)` provably precedes any `Write` (or provably does not). The assertion engine MUST classify each generated transcript correctly. Properties tested:
+
+- `read_before_write` matcher correctly identifies ordered vs reversed vs missing
+- `scope_write_path` matcher correctly identifies in-scope vs out-of-scope vs no-write
+- `skill_tool_use` matcher correctly identifies skill_id presence
+- `graph_edge_observed` matcher correctly identifies file-read-of-graph
+
+100 generated cases per property at v1 ship; failures dump the offending transcript + expected vs actual verdict. Property tests run in CI on every PR (cheap; no model calls; pure assertion-engine exercise).
+
+This catches the failure mode "the assertion engine has a bug that lets every transcript pass" before any real bench run grades production behavior on top of it.
 
 ### 18.4 Bench-runner self-test
 
@@ -1347,14 +1439,23 @@ Per the §1.5b inventory:
 
 Total model calls per full bench run: ~627. At Sonnet rates ~$0.06/call → ~$38/full-run. Plus Layer 2 judge calls (~80 rows × 3 = 240 calls @ ~$0.02 each) → ~$5. Plus Layer 3 envelope-pass calls (~5 rows × 2 = 10 extra) → ~$1. **Full bench: ~$44 per complete run.**
 
-### 19.2 Budget gates
+### 19.2 Budget gates (revised per codex finding #9)
 
-- **PR runs**: routing evals only (~$10/run); fast feedback loop
-- **`main` merge runs**: full bench (~$44/run)
-- **Nightly runs**: full bench + Layer 2 judge calibration sample (~$50/run)
-- **Manual full-bench-with-fuzzing**: gated behind a workflow_dispatch button; budget approved separately
+Codex correctly flagged that routing-only PR runs miss regressions in autonomy, stop_at, bench runner, and schema code. Better tiering:
 
-Monthly cost estimate at 30 PR runs + 10 main merges + 30 nightly = 300 + 440 + 1500 = **~$2240/month**. Acceptable for active iteration; ratchet (§19.4) catches runaway cost.
+- **Every PR**: `helix_bench self-test` (10 meta-tests, $0) + static validators ($0) + property-based tests ($0) + **affected category tests**. The runner identifies the affected category from the PR's file diff:
+  - Touches `methodology-*/skills/*/SKILL.md` → conversation library + routing evals (~$48/run)
+  - Touches `library/scripts/helix_check.py` → static validators + meta-tests (~$0)
+  - Touches `stop-at-triggers.yml` → stop_at trigger rows (~$2/run)
+  - Touches `graph.yml` files → graph-discrimination rows (~$2/run)
+  - Touches marker schema → rename/compat rows (~$2/run)
+  - Touches any of the above OR any `methodology-*/` content → escalate to full bench (~$44/run)
+- **`main` merge**: full bench (~$44/run)
+- **Nightly**: rotating thirds of full bench (~$15/run avg)
+- **Weekly**: full bench + judge calibration sample (~$50/run)
+- **Manual full-bench-with-fuzzing**: workflow_dispatch only; budget approved separately
+
+Monthly cost estimate at 50 PR runs (avg ~$10/run with mix) + 10 main merges + 30 nightly thirds + 4 weekly = 500 + 440 + 450 + 200 = **~$1590/month**. Down from ~$2240 because most PRs run smaller affected-category surface, not full routing-only-vs-full bifurcation. Ratchet (§19.4) catches runaway cost.
 
 ### 19.3 Claude Code version pin
 
