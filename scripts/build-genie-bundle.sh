@@ -25,6 +25,7 @@ cd "$REPO_ROOT"
 
 SRC_SKILL="skills/helix/SKILL.md"
 SRC_CATALOG="workflows/activities"
+SRC_LIBRARY="library"
 
 if [[ ! -f "$SRC_SKILL" ]]; then
   echo "error: $SRC_SKILL not found" >&2
@@ -32,6 +33,10 @@ if [[ ! -f "$SRC_SKILL" ]]; then
 fi
 if [[ ! -d "$SRC_CATALOG" ]]; then
   echo "error: $SRC_CATALOG not found" >&2
+  exit 3
+fi
+if [[ ! -d "$SRC_LIBRARY" ]]; then
+  echo "error: $SRC_LIBRARY not found (SKILL.md references library/skill-prompts/...)" >&2
   exit 3
 fi
 
@@ -81,9 +86,20 @@ echo "✓ copied SKILL.md → $OUT_DIR/SKILL.md"
 cp -r "$SRC_CATALOG" "$OUT_DIR/references/activities"
 echo "✓ copied $SRC_CATALOG → $OUT_DIR/references/activities/"
 
+cp -r "$SRC_LIBRARY" "$OUT_DIR/library"
+echo "✓ copied $SRC_LIBRARY → $OUT_DIR/library/"
+
+# Also vendor workflows/concerns so slots.yml + per-concern practices.md resolve.
+if [[ -d workflows/concerns ]]; then
+  mkdir -p "$OUT_DIR/workflows"
+  cp -r workflows/concerns "$OUT_DIR/workflows/concerns"
+  echo "✓ copied workflows/concerns → $OUT_DIR/workflows/concerns/"
+fi
+
 # Report what we built.
 SKILL_BYTES=$(stat -c%s "$OUT_DIR/SKILL.md")
 ACTIVITY_COUNT=$(find "$OUT_DIR/references/activities" -mindepth 1 -maxdepth 1 -type d | wc -l)
+LIBRARY_FILES=$(find "$OUT_DIR/library" -type f | wc -l)
 FILE_COUNT=$(find "$OUT_DIR" -type f | wc -l)
 
 echo
@@ -91,6 +107,7 @@ echo "Genie bundle built:"
 echo "  path:        $OUT_DIR"
 echo "  SKILL.md:    $SKILL_BYTES bytes"
 echo "  activities:  $ACTIVITY_COUNT"
+echo "  library:     $LIBRARY_FILES files"
 echo "  total files: $FILE_COUNT"
 echo
 echo "Next: python scripts/install-genie.py --bundle $OUT_DIR"

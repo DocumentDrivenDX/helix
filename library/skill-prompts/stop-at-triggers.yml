@@ -1,0 +1,56 @@
+# stop_at triggers — base set (v1)
+#
+# Per plan §4.7 — `stop_at` events the HELIX skill MUST always confirm before
+# executing, regardless of autonomy level. The validator, bench, and skill all
+# consult this single committed file as the authoritative trigger list.
+#
+# Loaded by:
+#   - the skill at graph-mode start (consulted before every mutating tool_use)
+#   - the validator (G150) at config-parse time (shape-validated against
+#     stop-at-triggers.schema.json)
+#   - the bench runner (P3 stop_at rows) — each trigger has a positive row that
+#     proves the matcher fires and a near-miss negative row that proves the
+#     matcher does NOT false-positive
+#
+# Extension rule: repos extend via `stop_at_extensions:` in `.helix-autonomy.yml`.
+# The active trigger set is the union of base + extensions. Base triggers cannot
+# be removed (only extended) — `stop_at` is a hard floor per Invariant 2.
+
+version: 1
+
+triggers:
+  - id: marker_edit
+    matcher:
+      tool_use_name: [Write, Edit]
+      file_path_pattern: '(^|/)\.helix\.yml$|(^|/)\.helix-autonomy\.yml$'
+    rationale: Marker is a load-bearing team decision; never edit without confirmation.
+
+  - id: cross_methodology_edge_creation
+    matcher:
+      tool_use_name: [Write, Edit]
+      content_must_match: 'cross_methodology:\s*true|cross_instance:\s*true'
+    rationale: Cross-method coupling deserves an explicit moment.
+
+  - id: branch_or_merge
+    matcher:
+      tool_use_name: Bash
+      command_pattern: '^\s*(git\s+(checkout|merge|push|reset|rebase|cherry-pick)|gh\s+pr\s+(merge|create))'
+    rationale: Hardly anything the skill should auto-do at the git level.
+
+  - id: secret_read
+    matcher:
+      tool_use_name: [Read, Bash]
+      target_pattern: '\.env(\.|$)|\.tfvars$|credentials\.json$|\.pem$|id_rsa(\.pub)?$|private_key|\.key$|secrets/'
+    rationale: Even in autonomous mode, secrets are a stop.
+
+  - id: large_diff
+    matcher:
+      tool_use_name: [Write, Edit]
+      content_line_count_min: 500       # per-tool_use, not aggregated
+    rationale: Avoid runaway autonomous edits.
+
+  - id: apply
+    matcher:
+      tool_use_name: Bash
+      command_pattern: '\b(tofu|terraform)\s+apply\b|\bdatabricks\s+(jobs|pipelines)\s+(run|update)\b|\bkubectl\s+(apply|delete|patch)\b'
+    rationale: Production-affecting infra/deploy commands always confirm.

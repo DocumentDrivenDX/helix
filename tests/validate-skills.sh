@@ -476,4 +476,35 @@ grep -Fq "validated measurable acceptance on 0 execution-ready bead(s)" "$flagge
   "flagged acceptance fixture should be skipped once it is marked not execution-ready"
 rm -f "$flagged_output"
 
+# Assert every path SKILL.md instructs the runtime to load actually exists in
+# the shipped tree. Catches drift like "SKILL.md references library/foo.yml
+# but only family-test/library/foo.yml is shipped" — a defect that lets the
+# plugin install while leaving the skill unable to load its resources at
+# runtime.
+python3 - "$repo_root/skills/helix/SKILL.md" "$repo_root" <<'PYEOF' || fail "SKILL.md references a path that does not exist in the shipped tree"
+import re, sys
+skill_path, repo_root = sys.argv[1], sys.argv[2]
+text = open(skill_path).read()
+# Patterns the skill instructs the runtime to load. Only check repo-relative
+# paths the agent is told to Read; skip operator-only paths (docs/helix/...
+# which lives in the user's project, not the plugin), in-text examples, and
+# absent-but-optional graph.yml (workflows/graph.yml — known gap; not shipped).
+required = {
+    "library/skill-prompts/stop-at-triggers.yml",
+    "workflows/concerns/slots.yml",
+    "workflows/concerns/verification/practices.md",
+    "workflows/concerns/sample-data/practices.md",
+}
+import os
+missing = [p for p in required if not os.path.exists(os.path.join(repo_root, p))]
+# Also assert each path appears verbatim in SKILL.md — guards against the
+# reverse drift (we ship a file, SKILL.md stops referencing it).
+not_referenced = [p for p in required if p not in text]
+if missing:
+    print(f"SHIPPING DEFECT — SKILL.md references these paths but they do not exist in the shipped tree: {missing}", file=sys.stderr)
+if not_referenced:
+    print(f"DRIFT — these paths exist in the shipped tree but are no longer referenced by SKILL.md: {not_referenced}", file=sys.stderr)
+sys.exit(1 if (missing or not_referenced) else 0)
+PYEOF
+
 printf 'validated %d HELIX skills\n' "${#expected_skills[@]}"
