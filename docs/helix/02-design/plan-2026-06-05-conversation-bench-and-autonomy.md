@@ -150,7 +150,63 @@ allowed_assertions:
       Asserts the agent emits a JSON envelope conforming to schema.
       Layer 3 only — runs in a separate envelope pass (§1.4 ordering
       constraint).
+
+  - id: confirmation_before_mutation
+    matcher_type: prose_pattern_before_tool
+    matcher_params: [confirmation_marker_pattern, mutation_tools]
+    description: |
+      Asserts the agent emits text matching confirmation_marker_pattern
+      (e.g., "OK to proceed?", "Want me to", "Should I") at an index
+      EARLIER than the first occurrence of any mutation_tools tool_use
+      (default: [Write, Edit, Bash-with-mutation-command]). Covers
+      autonomy=guided/manual "asked before write" and stop_at "explicit
+      confirmation before executing" claims. Negative-control: same
+      workspace with autonomy=autonomous; assertion should fire EXCEPT
+      that no confirmation pattern is required (rows declare the
+      autonomy-level matrix to discriminate).
+
+  - id: refusal_no_write
+    matcher_type: no_mutation_plus_text
+    matcher_params: [refusal_text_pattern]
+    description: |
+      Asserts ZERO Write/Edit tool_use AND prose contains
+      refusal_text_pattern (e.g., authorization-boundary language,
+      stop-on-malformed diagnostic). Covers A4 "rejects unauthorized
+      flow", A6 "stops on malformed marker", and the
+      cross-methodology-edge stop scenario. Negative-control: same
+      prompt with marker that DOES authorize → agent proceeds with
+      Writes; assertion verdict flips.
+
+  - id: literal_or_banner_text
+    matcher_type: text_match
+    matcher_params: [exact_text | regex_pattern, occurrence_count]
+    description: |
+      Asserts the agent's final-turn prose contains a specific literal
+      string OR matches a regex pattern, with required occurrence
+      count. Covers A2b/A6 banner emission ("No .helix.yml found.
+      Activating helix by heuristic..."), explicit marker citation in
+      A4 refusals, and surface-naming claims. Strict by default to
+      prevent paraphrase drift; use regex_pattern when paraphrase is
+      acceptable. Negative-control: agent produces a structurally
+      similar but non-literal output.
+
+  - id: route_decision
+    matcher_type: routing_observable
+    matcher_params: [expected_flow_instance, routing_signal]
+    description: |
+      Asserts the agent's routing decision (per §1.5 / §13.6b
+      resolution chain) lands on the expected_flow_instance tuple.
+      routing_signal options: explicit_skill_tool_use (agent invokes
+      Skill(flow_id, args)), prose_attribution (agent names the flow),
+      first_write_under_root (writes target instance root). Covers
+      multi-instance routing rows, cwd-disambiguation, env override.
+      Negative-control: identical prompt with the expected
+      flow_instance removed from marker.
 ```
+
+The expanded whitelist (9 assertion_ids) covers the behavioural surface the bench actually grades. Without these additions, rows could ship with a non-vacuous `skill_tool_use` discriminator while the row's REAL expected behaviour (confirmation, refusal, literal banner, routing decision) was judged loosely by Layer 2 only or not at all. The DSL now structurally enforces what the prose claims.
+
+**New assertion IDs require schema bump.** Adding an `assertion_id` to the whitelist is a methodology contract change. The runner emits T046 on unknown IDs; new IDs cannot ship via individual conversation rows (they must land in `library/schemas/discriminator-whitelist.yml` as a coordinated change with the runner and meta-tests). This prevents the "matcher proliferation" failure mode where every row authors a one-off matcher type.
 
 Codex's "vacuous discriminator" meta-tests (added to the meta-tests category in §1.5b; 5 of the 10 are now intentionally vacuous discriminators):
 
@@ -996,10 +1052,15 @@ helix-data shipping verifiable means the example walks clean end-to-end. No flow
 | **F4 — PII-bearing field surfaced** (email in webhook payload that was supposed to be tokenized) | PII classification + redaction; access tier downgrade | `governance-classification`, `data-design`, `runbook` |
 | **F5 — Customer-initiated deletion** (right-to-be-forgotten request requires propagating delete through pipeline) | Redaction propagation; consumer notification | `governance-classification`, `evolution-plan`, `deprecation-notice`, `runbook` |
 | **F6 — Source/sink reconciliation mismatch** (Stripe says N events, Redshift shows N-7) | Reconciliation rules + escalation path | `reconciliation-suite`, `runbook`, `monitoring-setup` |
+| **F7 — Lineage gap** (downstream consumer's lineage shows the pipeline as the source but no upstream link to Stripe) | Lineage emission completeness; OpenLineage / DataHub coverage | `lineage-spec`, `data-design`, `runbook` |
+| **F8 — Cost overrun** (Glue job costs 5x budgeted; partition explosion or unbounded scan) | Cost monitoring; query/plan review gates | `data-architecture`, `monitoring-setup`, `metrics-dashboard`, `improvement-backlog` |
+| **F9 — Partition skew / hot key** (one customer_id accounts for 40% of events; downstream join skew) | Partitioning strategy; skew detection + remediation | `data-architecture`, `data-design`, `data-quality-tests`, `runbook` |
+| **F10 — Dead-letter / replay** (malformed events accumulate in DLQ; need replay strategy after schema fix) | Dead-letter handling + bounded replay procedure | `data-design`, `data-quality-tests`, `runbook`, `backfill-plan` |
+| **F11 — Consumer-side breaking schema mismatch** (downstream consumer was hard-coded to old schema; doesn't notice breaking change until production error) | Consumer-side contract verification + breaking-change communication chain | `data-contract`, `consumer-inventory`, `evolution-plan`, `deprecation-notice` |
 
-Each fixture is committed as `fixtures/F<n>-<slug>.yml` describing the scenario + expected handling. The worked example's artifacts MUST include references to these fixtures by ID (the validator checks that the listed artifacts mention F1-F6 by ID — bench validates F1-F6 coverage via `helix_check.py example --adversarial-coverage`).
+Each fixture is committed as `fixtures/F<n>-<slug>.yml` describing the scenario + expected handling. The worked example's artifacts MUST include references to these fixtures by ID (the validator checks that the listed artifacts mention F1-F11 by ID — bench validates coverage via `helix_check.py example --adversarial-coverage`). **F1-F11 is the audit-complete set** (codex-3 #5: lineage gap, cost overrun, partition skew, dead-letter, consumer-side mismatch were the audit-completeness gaps in the F1-F6 baseline).
 
-Without these adversarial fixtures, the worked example is a sanitized sketch that proves the schema but not the methodology. With them, the example proves helix-data's lifecycle stages actually catch the failure modes data engineers care about.
+Without these adversarial fixtures, the worked example is a sanitized sketch that proves the schema but not the methodology. With them, the example proves helix-data's lifecycle stages actually catch the failure modes data engineers care about — including operational ones (cost, skew, dead-letter) that the F1-F6 set under-covered.
 
 ### 12.8 Bench corpus additions
 
@@ -1285,23 +1346,28 @@ Gate model: each phase has a verification floor; the next phase does not start u
 | **P0 — Foundation** | Bench runner skeleton (Layer 1 only); routing-eval runner; CC version pin (§19); cost-tracking infra (§19); discriminator-required loader with typed assertion DSL whitelist (§1.4b); **property-based tests for Layer 1 assertions** (codex #8 — promoted from v1.1 deferral). Property generators produce transcripts with known properties (e.g., `read_before_write` true/false) and verify the assertion engine classifies them correctly | 12h | Synthetic-input meta-test passes 10/10 (5 vacuous-discriminator rejections + 5 valid positives); property tests cover ≥4 assertion types (skill_tool_use, read_before_write, scope_write_path, graph_edge_observed); runner rejects rows failing T040-T044 |
 | **P1 — Engagement gate (NEEDS ABLATION)** | Description anchors + slash commands + 75-row routing-eval set (30 pos + 30 neg + 15 ambig); ablation across 4 description shapes (baseline / verb-list / `when_to_use` / minimal); truncation-budget probe via `/doctor` | 8h | Integer confusion-matrix gates (per codex finding #3): positives **≥29/30** skill engagement; negatives **30/30** no engagement; ambiguous **≥13/15** correct route AND **0/15** unsafe unauthorized routes. Precision/recall computed for report; integer counts are the gate. Hard halt if no description shape clears all four integer thresholds. |
 | **P2 — Cascade discrimination** | SKILL.md cascade prose (§3.2); graph-discrimination fixtures (custom non-standard edge); 4 rows verify graph was read | 6h | Discrimination fixture passes (agent surfaces unusual prereq) AND negative-control passes (agent does NOT surface it when edge absent) |
-| **P3 — Autonomy matrix + stop_at trigger spec** | 4-level autonomy (`manual`/`guided`/`autonomous`/`aggressive`); stop_at trigger spec file (`library/skill-prompts/stop-at-triggers.yml`); 8 matrix rows + 6 trigger rows | 10h | Confirmation count + write count contract holds across all 4 levels; every stop_at type fires under `aggressive`; spec file shape-validated by validator |
+| **P3 — Autonomy matrix + stop_at trigger spec** | 4-level autonomy (`manual`/`guided`/`autonomous`/`aggressive`); stop_at trigger spec file (`library/skill-prompts/stop-at-triggers.yml`); 8 matrix rows + **12 trigger rows (6 positive + 6 near-miss negative per codex-2 #5)** | 14h (was 10h; +4h for the 6 near-miss negative trigger rows + their fixture authoring) | Confirmation count + write count contract holds across all 4 levels; every stop_at type fires under `aggressive`; every near-miss negative confirms the matcher does NOT false-positive; spec file shape-validated by validator |
 | **P4 — Edge Authority Asymmetry** | Named invariant added to design §2.7; 4 negative fixtures; SKILL.md §10 explicitly prohibits auto-population | 4h | Auto-population fixture FAILS when skill silently writes ddx.links; PASSES when skill surfaces and asks (under both guided AND autonomous) |
-| **P5 — Conversation library (25 rows; split must_pass_core / exploratory)** | C001-C025 from §1.5 + §12.8; each with paired negative control + typed discriminator. Each row carries `tier: must_pass_core` or `tier: exploratory` in `expected.yml`. **must_pass_core** rows (15): C001, C002, C005, C006, C012, C014, C019, C020, C021, C022, C024, C025, plus 3 chosen during P5 authoring. **exploratory** rows (10): everything else. | 12h | **must_pass_core: 15/15 stable-pass 3-of-3.** **exploratory: ≥7/10 stable-pass 3-of-3.** No row marked must_pass_core may regress to exploratory without a written rationale + design-doc change. Per codex finding #4: do not ship with known core failures. |
+| **P5 — Conversation library (25 rows; fully enumerated split)** | C001-C025 from §1.5 + §12.8; each with paired negative control + typed discriminator. Each row carries `tier: must_pass_core` or `tier: exploratory` in `expected.yml`. **must_pass_core (16 rows, per codex-3 #3, fully enumerated, no TBD):** C001, C002, C004, C005, C006, C010, C011, C012, C014, C015, C020, C021, C022, C023, C024, C025. **exploratory (8 rows):** C003, C007, C008, C009, C013, C016, C017, C018. **Moved out of conversation core entirely:** C019 (negative-control routing question) — re-classified as a routing-eval negative row, not a conversation row; covered by §1.5b routing-evals category. | 16h (was 12h; +4h for full enumeration, must_pass_core authoring discipline, and routing-relocation of C019) | **must_pass_core: 16/16 stable-pass 3-of-3.** **exploratory: ≥6/8 stable-pass 3-of-3** (was ≥7/10; new ratio reflects revised count). No row marked must_pass_core may regress to exploratory without a written rationale + design-doc change. Core is FINAL at this gate — no "TBD" rows. |
 | **P6 — Warm-context (5 rows)** | Replay 5 unrelated turns of history before each probe; assert engagement holds | 3h | All 5 stable-pass 3-of-3; engagement rate matches cold-start within 5pp |
 | **P7 — Layer 2 judge LLM (semantic)** | Judge prompt + calibration set + harness; apply to 10 conversations; cost tracking | 6h | Judge agreement with human classification ≥ 90% on the calibration set; cost per judge call within §19 budget |
 | **P8 — Layer 3 next-action structured assertions** | JSON envelope injection (separate pass to avoid contaminating Layer 1); 5 conversations exercise it | 4h | Layer 1 outcomes IDENTICAL across no-envelope and envelope passes (proves no contamination); Layer 3 assertions on 5 rows stable-pass |
-| **P9 — helix-data (data-native lifecycle, 12 library types, worked example)** | Codex's data-native activities (§12.2 revised); 12 new library types with shapes (§12.3); helix-data graph.yml + SKILL.md; full worked example walked end-to-end (§12.7); 5 bench rows | 16h | Worked example validates clean (`helix_check.py marker --strict` exit 0); 5 helix-data bench rows stable-pass; cross-flow `external_edges` validate |
-| **P10 — Multi-instance schema v2 + cwd-resolution algorithm** | Marker schema v2 (`flows:` + optional `instance:`); validator M030/I130/I131; cwd-resolution algorithm (§13.6b); 4 routing rows | 8h | All existing T01-T38 fixtures pass; 4 multi-instance routing rows stable-pass; nested-root and boundary cases deterministic |
+| **P9 — helix-data (data-native lifecycle, 12 library types, worked example, 11 adversarial fixtures)** | Codex's data-native activities (§12.2 revised); 12 new library types with shapes (§12.3) — each needs meta.yml + template.md + prompt.md + example.md (~50 lines each = ~600 lines catalog); helix-data graph.yml + SKILL.md; full worked example walked end-to-end (§12.7); **11 adversarial fixtures F1-F11 (was 6; codex-3 #5 added F7-F11)**; 5 bench rows + per-fixture artifact references | 32h (was 16h; codex-3 #4 honest accounting — 12 type authoring at ~1.5h each ≈ 18h; worked example with adversarial coverage ≈ 8h; bench rows + graph + SKILL.md ≈ 6h) | (1) Worked example validates clean: `helix_check.py marker examples/helix-data-customer-events/.helix.yml --strict` exit 0. (2) **`helix_check.py example --adversarial-coverage examples/helix-data-customer-events/` exit 0** (per codex-3 #4 — explicit P9 gate; checks every F1-F11 fixture is referenced by ≥1 artifact). (3) 5 helix-data bench rows stable-pass. (4) Cross-flow `external_edges` validate. |
+| **P10 — Multi-instance schema v2 + cwd-resolution algorithm** | Marker schema v2 (`flows:` + optional `instance:`); validator M030/I130/I131; cwd-resolution algorithm (§13.6b); **6 routing rows (was 4; codex-2 #6 added the 2 sibling-tie cases)** | 10h (was 8h; +2h for the additional 2 routing rows + path-component-matching implementation) | All existing T01-T38 fixtures pass; 6 multi-instance routing rows stable-pass; nested-root, boundary, AND sibling-tie cases deterministic (sibling-tie WITHOUT env emits ambiguous banner; sibling-tie WITH env routes to env target — never silent alphabetical) |
 | **P11 — Cross-instance + `informed_by` edges** | Validator I130/I131; bench rows for stale-target detection + impact analysis; cross-instance reference resolves | 4h | Stale-target row: validator emits I131 within 100ms; impact analysis report lists the stale target; cross-instance happy path stable-pass |
 | **P12 — Terminology rename + M020 alias** | Bulk codemod methodology→flow across design docs, validator, SKILL.md prose; M020 deprecation alias on marker key | 5h | Zero regressions in any T01-T38 fixture under both v1 (`methodologies:`) and v2 (`flows:`) shapes; M020 fires correctly on v1; M020 is silent on v2 |
 | **P13 — Verbose-but-stuck verification** | 4 rows targeting "skill engages but doesn't read marker/graph before writing"; SKILL.md §1.5 ordering rule | 4h | Ordering assertion fires on all 4 rows; positive rows show Read → Read → Write order; negative-control rows show Write before Read |
-| **P14 — CI + cost gate + ratchet** | GitHub Actions; cost-per-run cap; ratchet on stable-pass rate + cost trend | 4h | Full bench runs in CI; cost ≤ §19 budget; ratchet alerts on >5% stable-pass regression OR >25% cost regression |
+| **P14 — CI + cost gate + ratchet + diff-based escalation** | GitHub Actions; cost-per-run cap; ratchet on stable-pass rate + cost trend; **diff-based PR escalation (codex-3 #5 — this is an engineering task, not a config setting)**: path taxonomy (`bench-categories.yml` mapping file globs to bench categories), fallback behaviour (any unmatched path → full bench), CI workflow that diffs the PR and selects the affected category set, acceptance tests proving the mapping (positive: SKILL.md edit → conversation+routing run; positive: stop-at-triggers.yml edit → stop_at run; negative: unrelated file edit → self-test only) | 10h (was 4h; +6h for diff escalation engineering) | Full bench runs in CI on main; cost ≤ §19 budget; ratchet alerts on >5% stable-pass regression OR >25% cost regression; **diff-escalation acceptance tests pass (3 positive + 1 negative)**; CI per-PR run picks the right category subset deterministically |
 | **P15 — Documentation + author guide** | `flows.md`, `bench.md`, `autonomy.md`, `skill-author-guide.md`; how to author a new bench row in <30min | 6h | New operator authors a valid bench row + paired negative + discriminator in ≤30min during dogfood test |
 
-**Total: ~145h (~18 days).** Per codex finding #10 — honest accounting after the assertion DSL work (P0 +4h), property tests in P0 (P0 +4h), 6 near-miss negatives for stop_at (P3 +4h), adversarial data fixtures for helix-data (P9 +8h), expanded multi-instance routing rows (P10 +2h), must_pass_core/exploratory authoring discipline (P5 +4h), and the typed-DSL meta-tests (~5h migration of meta-test category). Codex's read of 140-160h is now within plan; previous 108h was hand-waving.
+**Total: ~175h (~22 days).** Per codex-3 honest re-accounting:
+- P3 +4h (12 trigger rows now, was 6 — 6 positive + 6 near-miss negative)
+- P5 +4h (full must_pass_core enumeration; routing-negative relocation of C019)
+- P9 +16h (12 library types at ~1.5h each + adversarial coverage + worked example walked end-to-end = realistic 32h, was 16h)
+- P10 +2h (6 multi-instance rows + path-component matching, was 4 rows)
+- P14 +6h (diff-based PR escalation is its own engineering task)
 
-The total includes corpus authoring (~55h after the must_pass_core split work, was 50h). No deferrals. Codex's "one change" (typed DSL + property tests + category gates) is absorbed.
+Previous 145h estimate was still optimistic per codex-3 #6. Corpus authoring alone is ~55-60h; P9 alone is now ~32h. No deferrals. The "one change" (typed DSL + property tests + category gates + diff-escalation engineering) is fully absorbed.
 
 ### 15b.1 What can run in parallel
 
@@ -1324,16 +1390,156 @@ Practical sequencing on a single contributor: P0 → P1 (hard gate) → P2 → P
 
 ### 15b.3 Verification floor totals (revised post-codex-2)
 
-Across all phases:
-- **158 bench rows** (75 routing + 25 conversations [15 must_pass_core + 10 exploratory] + 8 autonomy + 12 stop_at [6 positive + 6 near-miss negative] + 4 graph-discrim + 4 edge-asymmetry + 3 cross-flow + 6 multi-instance [was 4] + 3 cross-instance + 4 rename + 5 warm-context + 4 verbose-stuck + 10 meta-tests [5 vacuous-discriminator rejections + 5 positive] = 163; the 158 number excludes 5 meta-tests that are runner self-checks not bench rows)
-- 5 worked examples (1 per flow: helix product, helix-infra, helix-web, helix-data; plus the cross-flow example showing 2 flows cooperating)
-- **6 adversarial data fixtures** for helix-data (F1-F6 per §12.7) committed alongside the worked example
+Across all phases (post codex-3 fold-in):
+- **160 bench rows** (75 routing [includes routing-negative-relocated C019] + 24 conversations [16 must_pass_core + 8 exploratory] + 8 autonomy + 12 stop_at [6 positive + 6 near-miss negative] + 4 graph-discrim + 4 edge-asymmetry + 3 cross-flow + 6 multi-instance [4 → 6 per codex-2 #6] + 3 cross-instance + 4 rename + 5 warm-context + 4 verbose-stuck + 10 meta-tests [5 vacuous + 5 positive] = 162; 160 excludes 2 meta-tests that double as runner self-checks)
+- 5 worked examples (1 per flow: helix product, helix-infra, helix-web, helix-data; plus a cross-flow example showing 2 flows cooperating)
+- **11 adversarial data fixtures** for helix-data (F1-F11 per §12.7; was F1-F6) — audit-complete set
 - 1 CC version pin + re-validation cadence
-- 1 cost budget + ratchet
-- **1 typed assertion DSL whitelist** (`library/schemas/discriminator-whitelist.yml`) — 5 assertion_ids at v1; new IDs require runner + schema bump
+- **5 golden transcripts + 1 transcript schema** (§19.2b — catches CC stream-json schema drift)
+- 1 cost budget + ratchet + diff-based PR escalation
+- **1 typed assertion DSL whitelist** (`library/schemas/discriminator-whitelist.yml`) — **9 assertion_ids** at v1 (skill_tool_use, read_before_write, graph_edge_observed, scope_write_path, next_action_envelope, **confirmation_before_mutation, refusal_no_write, literal_or_banner_text, route_decision** — last 4 added per codex-3 #1); new IDs require runner + schema bump
 - 12 named invariants spec'd (§0.5 + per-phase preconditions)
 
 Every row, example, fixture, gate, and invariant maps to a phase. Nothing is left as "we'll figure out testing later."
+
+---
+
+## §15c Execution checklist (distilled — codex-3 #8)
+
+The 1500-line plan is the design record. The checklist below is what a contributor opens to execute. Each phase: gate → action → halt-condition.
+
+### Phase 0 — Foundation [12h, gates: 10/10 meta + property tests + T040-T044 reject vacuous]
+
+- [ ] Implement bench runner skeleton (Layer 1 only): YAML loader, stream-json parser, assertion engine
+- [ ] Load typed-DSL whitelist from `library/schemas/discriminator-whitelist.yml` (9 assertion_ids)
+- [ ] Implement runner rejects: T040 (no discriminator), T041 (unknown assertion_id), T042 (positive==negative verdict), T043 (unparseable matcher), T044 (no-op negative-control), T046 (new assertion_id not in whitelist)
+- [ ] Implement 9 matchers: skill_tool_use, read_before_write, graph_edge_observed, scope_write_path, next_action_envelope, confirmation_before_mutation, refusal_no_write, literal_or_banner_text, route_decision
+- [ ] Write 10 meta-test transcripts (5 vacuous-discriminator rejections MT01-MT05 + 5 positive)
+- [ ] Write property-based generators for 4 properties (read_before_write, scope_write_path, skill_tool_use, graph_edge_observed) with 100 cases each
+- [ ] Pin CC version: `family-test/bench/cc-version.lock` = 2.1.163
+- [ ] Write 5 golden transcripts + transcript_schema.yml
+- [ ] Wire `--self-test`: runs meta-tests + property tests + golden-schema check
+- [ ] Cost-tracking infra: per-run cost recorded; ratchet baseline established
+
+**Halt**: meta-test fails any of 10, OR property test fails, OR runner accepts a vacuous discriminator, OR golden transcript fails schema match.
+
+### Phase 1 — Engagement gate [8h, integer gates: 29/30 pos, 30/30 neg, 13/15 ambig + 0 unsafe]
+
+- [ ] Write 30 positive routing-eval rows (helix should engage)
+- [ ] Write 30 negative routing-eval rows (helix MUST NOT engage)
+- [ ] Write 15 ambiguous routing-eval rows (multi-flow disambiguation)
+- [ ] Ablate 4 description shapes: baseline, verb-list, when_to_use, minimal
+- [ ] Probe truncation budget via `/doctor` or empirical truncation test
+- [ ] Score each shape's confusion matrix
+- [ ] Pick the winning shape; commit it
+
+**Halt**: no shape clears positives ≥29/30 AND negatives 30/30 AND ambiguous ≥13/15 AND 0 unsafe.
+
+### Phase 2 — Cascade discrimination [6h]
+
+- [ ] Author SKILL.md §7 (graph consultation discipline)
+- [ ] Write 4 graph-discrimination rows: non-standard edge in graph.yml (positive); same workspace without the edge (negative)
+- [ ] Verify agent surfaces unusual prereq when edge exists; does NOT when absent
+
+**Halt**: discrimination fixture passes via general HELIX knowledge, not graph.yml reading.
+
+### Phase 3 — Autonomy + stop_at [14h]
+
+- [ ] Implement autonomy levels in SKILL.md §8
+- [ ] Author `library/skill-prompts/stop-at-triggers.yml` (6 triggers)
+- [ ] Write 8 autonomy matrix rows (2 fixtures × 4 levels)
+- [ ] Write 6 positive stop_at trigger rows
+- [ ] Write 6 near-miss negative stop_at rows (.env.example must NOT fire, etc.)
+
+**Halt**: autonomy levels non-deterministic across 3 runs, OR any near-miss negative false-positives.
+
+### Phase 4 — Edge Authority Asymmetry [4h]
+
+- [ ] Add §2.7 to design doc; SKILL.md §10 prohibits auto-population
+- [ ] Write 4 negative-control auto-population fixtures
+- [ ] Verify agent surfaces+asks; never silently writes ddx.links from graph
+
+**Halt**: agent silently writes ddx.links from graph edges (invariant violation).
+
+### Phase 5 — Conversation library [16h]
+
+- [ ] Author 16 must_pass_core rows (fully enumerated; no TBD): C001, C002, C004, C005, C006, C010, C011, C012, C014, C015, C020, C021, C022, C023, C024, C025
+- [ ] Author 8 exploratory rows: C003, C007, C008, C009, C013, C016, C017, C018
+- [ ] Move C019 to routing-evals negative category
+- [ ] Each row has typed discriminator + paired negative control
+- [ ] Run determinism=3
+
+**Halt**: any must_pass_core row regresses (16/16 required).
+
+### Phase 6 — Warm-context [3h]
+
+- [ ] Write 5 warm-context rows (replay 5 unrelated turns)
+- [ ] Engagement rate within 5pp of cold-start
+
+### Phase 7 — Layer 2 judge LLM [6h]
+
+- [ ] Write judge rubric prompt + 20-row calibration set
+- [ ] Apply Layer 2 to ≥5 conversations
+- [ ] Judge-human agreement ≥90% on calibration
+
+### Phase 8 — Layer 3 next-action [4h]
+
+- [ ] Implement envelope-pass runner
+- [ ] Write 5 Layer 3 rows
+- [ ] Verify Layer 1 outcomes identical across passes (no contamination)
+
+### Phase 9 — helix-data [32h]
+
+- [ ] Author 12 library types (meta.yml + template.md + prompt.md + example.md each ≈ 18h)
+- [ ] Author helix-data graph.yml + SKILL.md
+- [ ] Author worked example end-to-end across all 7 activities ≈ 8h
+- [ ] Author 11 adversarial fixtures F1-F11
+- [ ] Each artifact references its F-fixtures
+- [ ] Write 5 helix-data bench rows
+- [ ] Run `helix_check.py marker --strict` AND `helix_check.py example --adversarial-coverage`
+
+**Halt**: worked example fails either check, OR adversarial coverage gap.
+
+### Phase 10 — Multi-instance [10h]
+
+- [ ] Marker schema v2 (`flows:` + optional `instance:`)
+- [ ] Validator M030/I130/I131
+- [ ] Implement path-component-aware `resolve_cwd_to_instance()`
+- [ ] Write 6 routing rows (no match, single, nested, boundary, sibling-tie-env, sibling-tie-no-env)
+
+**Halt**: any existing T01-T38 regresses, OR sibling-tie auto-routes silently.
+
+### Phase 11 — Cross-instance + `informed_by` [4h]
+
+- [ ] Validator I130/I131
+- [ ] Write 3 cross-instance rows (stale-target, rename impact, happy path)
+
+### Phase 12 — Terminology rename [5h]
+
+- [ ] Bulk codemod methodology→flow in design docs, validator, SKILL.md prose
+- [ ] M020 alias on marker key
+- [ ] All T01-T38 + new bench corpus still passes under both v1 and v2 markers
+
+### Phase 13 — Verbose-but-stuck [4h]
+
+- [ ] SKILL.md §1.5 ordering rule
+- [ ] Write 4 ordering rows
+
+### Phase 14 — CI + ratchet + diff escalation [10h]
+
+- [ ] Author `bench-categories.yml` (path globs → category list)
+- [ ] Implement diff-to-category mapper (codex-3 #5)
+- [ ] Implement CI workflow: PR diff → category selection → bench run
+- [ ] Acceptance tests: 3 positive cases + 1 negative case
+- [ ] Cost gate ≤ §19 budget
+- [ ] Ratchets: stable_pass_rate, routing_precision, cost_per_run
+
+### Phase 15 — Documentation [6h]
+
+- [ ] `flows.md`, `bench.md`, `autonomy.md`, `skill-author-guide.md`
+- [ ] New operator authors a valid row + paired negative + discriminator in ≤30min (dogfood test)
+
+**Total: 175h (~22 days).** Phase order is dependency-driven; P0 → P1 are hard gates; P2-P4 can pair with P5 corpus authoring; P9 / P10 / P11 / P12 can pipeline once P0-P5 stabilize; P14 / P15 close the cycle.
 
 ---
 
@@ -1424,20 +1630,20 @@ Per the §1.5b inventory:
 | Category | Rows | Model calls per row | Determinism | Total calls/run |
 |---|---|---|---|---|
 | Routing evals | 75 | 1 (single probe) | 3 | 225 |
-| Conversation library | 25 | 2 avg (multi-turn) | 3 | 150 |
+| Conversation library | 24 (was 25; C019 moved to routing-negative) | 2 avg (multi-turn) | 3 | 144 |
 | Autonomy matrix | 8 | 2 avg | 3 | 48 |
-| Stop_at triggers | 6 | 1 | 3 | 18 |
+| Stop_at triggers | 12 (was 6; codex-2 #5 near-miss negatives) | 1 | 3 | 36 |
 | Graph-discrimination | 4 | 1 | 3 | 12 |
 | Edge Authority Asymmetry | 4 | 1 | 3 | 12 |
 | Cross-flow cascade | 3 | 3 avg | 3 | 27 |
-| Multi-instance routing | 4 | 1 | 3 | 12 |
+| Multi-instance routing | 6 (was 4; codex-2 #6 sibling-tie cases) | 1 | 3 | 18 |
 | Cross-instance | 3 | 1 | 3 | 9 |
 | Rename / compat | 4 | 1 | 3 | 12 |
 | Warm-context | 5 | 6 avg (replayed history) | 3 | 90 |
 | Verbose-but-stuck | 4 | 1 | 3 | 12 |
 | Meta-tests | 10 | 0 (synthetic) | 1 | 0 |
 
-Total model calls per full bench run: ~627. At Sonnet rates ~$0.06/call → ~$38/full-run. Plus Layer 2 judge calls (~80 rows × 3 = 240 calls @ ~$0.02 each) → ~$5. Plus Layer 3 envelope-pass calls (~5 rows × 2 = 10 extra) → ~$1. **Full bench: ~$44 per complete run.**
+Total model calls per full bench run: ~645. At Sonnet rates ~$0.06/call → ~$39/full-run. Plus Layer 2 judge calls (~80 rows × 3 = 240 calls @ ~$0.02 each) → ~$5. Plus Layer 3 envelope-pass calls (~5 rows × 2 = 10 extra) → ~$1. **Full bench: ~$45 per complete run.** (Was $44; +$1 from the 6 added rows.)
 
 ### 19.2 Budget gates (revised per codex finding #9)
 
@@ -1456,6 +1662,17 @@ Codex correctly flagged that routing-only PR runs miss regressions in autonomy, 
 - **Manual full-bench-with-fuzzing**: workflow_dispatch only; budget approved separately
 
 Monthly cost estimate at 50 PR runs (avg ~$10/run with mix) + 10 main merges + 30 nightly thirds + 4 weekly = 500 + 440 + 450 + 200 = **~$1590/month**. Down from ~$2240 because most PRs run smaller affected-category surface, not full routing-only-vs-full bifurcation. Ratchet (§19.4) catches runaway cost.
+
+### 19.2b Transcript schema + golden parser fixtures (codex-3 #9)
+
+CC version pin alone doesn't protect us from stream-json schema changes within a CC version (events get added; tool_use shape evolves). The bench parser depends on specific event shapes (`{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Skill","input":{...}}]}}`). A change in this shape silently breaks every Layer 1 assertion.
+
+Pin both:
+
+1. `family-test/bench/golden-transcripts/` — 5 hand-curated stream-json transcripts (one per assertion_id) representing the expected shape. Each carries `cc_version`, `assertion_id`, and the expected assertion verdict.
+2. `family-test/bench/parsers/transcript_schema.yml` — shape contract the parser validates against on load.
+
+The bench's `--self-test` runs the parser against the golden transcripts; if any golden transcript fails to match the schema, the bench refuses to run. On CC version upgrade, the upgrade procedure includes regenerating goldens with the new version and confirming the parser still extracts the same assertion verdicts. Schema-evolution drift is caught at the golden-parser boundary, not silently in the bench results.
 
 ### 19.3 Claude Code version pin
 
