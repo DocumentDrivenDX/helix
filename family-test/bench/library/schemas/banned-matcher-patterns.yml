@@ -1,0 +1,29 @@
+# Banned matcher patterns — initial v1 set (plan §1.4b)
+#
+# Matcher vacuity guard (codex-4 #2). Whitelisted matchers can still ship with
+# generic regex/prose patterns that always match — pushing the old vacuity
+# problem one layer down. The runner's self-test rejects rows whose matcher
+# arguments are in this banned list (T047 matcher_vacuous).
+#
+# The banned list evolves with edge-case rejections and is versioned alongside
+# the assertion_id whitelist.
+
+banned_regex_patterns:
+  - '^\.\*$'             # matches anything
+  - '^\.$'               # matches single char
+  - '^\.\+$'             # matches 1+ chars
+  - '^(yes|ok|sure)$'    # near-empty affirmations
+  - '^(cannot|unable|wont|will not)$'  # near-empty refusals
+  - '^\w{1,3}$'          # 1-3 word matches
+
+banned_text_patterns:
+  - ''                   # empty literal
+  - 'helix'              # flow-name-only attribution (route_decision)
+  - 'methodology'        # too generic
+  - 'ok'
+  - 'yes'
+
+minimum_lengths:
+  literal_or_banner_text: 20    # banner / literal must be ≥20 chars
+  confirmation_before_mutation: 8   # confirmation pattern must capture ≥8 chars distinct from `^(ok|yes)$`
+  refusal_no_write: 12          # refusal_text_pattern must match ≥12 chars
