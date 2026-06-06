@@ -1,0 +1,2 @@
+{"type": "tool_use", "name": "Read", "input": {"file_path": "/skill/graph.yml"}}
+{"type": "text", "text": "Graph says prd informs feature-specification; I'll surface that."}

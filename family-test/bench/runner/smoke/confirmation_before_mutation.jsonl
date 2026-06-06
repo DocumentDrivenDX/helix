@@ -1,0 +1,2 @@
+{"type": "text", "text": "Should I proceed to draft the PRD now?"}
+{"type": "tool_use", "name": "Write", "input": {"file_path": "/repo/docs/helix/01-frame/prd.md"}}

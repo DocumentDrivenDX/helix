@@ -1,0 +1,10 @@
+discriminator:
+  assertion_id: no_such_id
+  observable:
+    matcher_type: skill_tool_use
+    skill_id: helix
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove:
+    - methodology-product
