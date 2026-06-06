@@ -1,0 +1,55 @@
+tier: must_pass_core
+category: verbose-but-stuck
+phase: P13
+status: authored-pending-verification
+fixture: VS-01-read-marker-and-graph-before-prd-update
+level: guided
+notes: |
+  VS-01 (plan §1.5b verbose-but-stuck). SKILL.md §1.5 (added in P13)
+  declares: BEFORE any Write/Edit, the skill MUST Read `.helix.yml`
+  AND the active flow's `workflows/graph.yml`. This row exercises the
+  rule on a PRD-update prompt against a marker-active workspace.
+
+  Positive contract: at least one Read tool_use whose file_path matches
+  `(\.helix\.yml|graph\.yml)$` precedes the first Edit (or Write) the
+  skill emits against PRD-001. The matcher's single target_pattern
+  spans both files per plan §15c P13 (target_pattern includes both
+  .helix.yml and graph.yml); a Read of either file before the first
+  mutation satisfies the rule's structural floor. The SKILL.md §1.5
+  prose extends this to "both Reads required" — graded as Layer 2
+  prose by the judge in a follow-up phase; Layer 1 (this discriminator)
+  enforces the ordering invariant non-vacuously.
+
+  Discrimination (Invariant 3): with `plugins_remove: [methodology-product]`
+  the helix skill is not registered; the agent cannot emit `Skill(helix)`
+  and has no marker-aware ordering discipline. The agent may still
+  edit the file from training, but the strict
+  "Read-marker-or-graph before Edit" ordering is not reliably present.
+  Matcher verdict flips ordered → reversed/absent.
+
+discriminator:
+  assertion_id: read_before_write
+  observable:
+    matcher_type: tool_use_order
+    first_tool: Read
+    second_tool: Edit
+    # target_pattern matches either the marker (.helix.yml) OR the
+    # methodology graph (workflows/graph.yml). Per plan §15c P13 the
+    # pattern includes BOTH files; ordering verdict requires at least
+    # one Read of either to precede the first Edit.
+    target_pattern: '(\.helix\.yml|workflows/graph\.yml)$'
+  expected_in_positive_run: ordered
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      Removing methodology-product unregisters the helix skill and its
+      §1.5 ordering rule. The agent may still update PRD-001 from
+      training, but the marker / graph Read-before-Edit discipline is
+      skill-specific. Without the skill, the matcher no longer observes
+      a Read of `.helix.yml` or `workflows/graph.yml` preceding the
+      Edit; verdict flips from `ordered` to `absent`.
+
+structural:
+  skill_invoked:
+    - name: helix

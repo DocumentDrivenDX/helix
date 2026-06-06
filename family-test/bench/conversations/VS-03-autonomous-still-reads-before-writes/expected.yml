@@ -1,0 +1,48 @@
+tier: must_pass_core
+category: verbose-but-stuck
+phase: P13
+status: authored-pending-verification
+fixture: VS-03-autonomous-still-reads-before-writes
+level: autonomous
+notes: |
+  VS-03 (plan §1.5b verbose-but-stuck). Autonomy-invariance of the
+  SKILL.md §1.5 ordering rule. At autonomy=autonomous the skill MAY
+  proceed without a pre-write confirmation ask, but it MUST NOT skip
+  the marker + graph Reads. This row catches the
+  "autonomous = skip everything" failure mode.
+
+  Positive contract: a Read tool_use whose file_path matches
+  `(\.helix\.yml|workflows/graph\.yml)$` precedes the first Write
+  creating the PRD. Layer 1 (this discriminator) enforces the
+  structural ordering; SKILL.md §1.5 prose declares the
+  autonomy-invariance explicitly so the contract is auditable.
+
+  Discrimination (Invariant 3): with `plugins_remove: [methodology-product]`
+  the helix skill is unregistered; §1.5 does not engage. The agent may
+  draft a PRD from training under autonomous autonomy, but the strict
+  Read-of-marker-or-graph before Write ordering is no longer reliable.
+
+discriminator:
+  assertion_id: read_before_write
+  observable:
+    matcher_type: tool_use_order
+    first_tool: Read
+    second_tool: Write
+    # target_pattern matches either the marker (.helix.yml) OR the
+    # methodology graph (workflows/graph.yml). Plan §15c P13 specifies
+    # the pattern includes BOTH files.
+    target_pattern: '(\.helix\.yml|workflows/graph\.yml)$'
+  expected_in_positive_run: ordered
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      With methodology-product removed the helix skill is not
+      registered and §1.5 does not engage. Under autonomous autonomy
+      the agent may still emit a PRD-shaped Write from training, but
+      the marker/graph Read-before-Write discipline is skill-specific.
+      Verdict flips from `ordered` to `absent`.
+
+structural:
+  skill_invoked:
+    - name: helix

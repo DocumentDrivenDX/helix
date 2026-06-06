@@ -23,6 +23,51 @@ each level between top and cwd if the design ever supports nested markers
 (v1 ignores nested per design §1.1; warn M010 if you find any beyond the
 root one).
 
+### 1.5 Read marker AND graph before any Write/Edit (ordering invariant)
+
+The activation discipline above (§1) MUST complete in this exact order BEFORE
+the skill emits any `Write` or `Edit` tool_use:
+
+1. `Read` `.helix.yml` (the marker). This binds activation state, scope
+   `root:`, and the `flows[]` authorization boundary (§5).
+2. `Read` `workflows/graph.yml` for the active flow (mounted by the
+   methodology plugin; the helix product flow lives at
+   `methodology-product/workflows/graph.yml`). This binds the type catalog
+   (every node points at `library:<slug>` or `local:<slug>`), the upstream
+   prerequisites (e.g. `prd informs product-vision`), and the candidate
+   edges the authoring step in §4 must surface rather than auto-populate.
+
+Skipping either Read is a contract violation, EVEN IF the skill has
+already engaged (Skill tool_use fired). The failure mode this rule
+prevents — "skill loaded but wrote without reading marker/graph" — is the
+verbose-but-stuck pattern: the agent narrates HELIX-shaped reasoning
+from training while the marker scope, the type catalog, and the
+prerequisite chain go unconsulted. The resulting artifact looks
+plausible but is unanchored to the workspace's actual contract.
+
+Concretely:
+
+- The FIRST `Write` or `Edit` tool_use in the session MUST be preceded
+  by at least one `Read` matching `.helix.yml` AND at least one `Read`
+  matching `workflows/graph.yml` (or the active flow's graph path under
+  the methodology plugin mount).
+- The order between the two Reads is not constrained (marker-first is
+  the natural sequence, but graph-first is acceptable for
+  graph-query-only prompts like C015 "What's next?").
+- This ordering invariant is independent of autonomy level. Under
+  `autonomy=autonomous` the skill MAY proceed without operator
+  confirmation, but it MUST NOT skip the two Reads — autonomy waives
+  the human-in-the-loop ask, not the workspace-grounding contract.
+
+If the marker is absent and the skill is engaging by heuristic (§2
+banner case), the `Read` for `.helix.yml` is satisfied by the failed
+lookup itself (the Read tool_use occurred even though the file did not
+exist); the `Read` for `workflows/graph.yml` is still required before
+any Write/Edit because the type catalog binds artifact templates.
+
+The bench enforces this invariant via the `read_before_write` matcher
+on every Verbose-but-stuck (VS-NN) row (plan §1.5b).
+
 ### 2. Decide activation state
 
 - **Marker present and well-formed**: parse it. The set of `flows[]`
