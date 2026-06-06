@@ -1,0 +1,38 @@
+tier: must_pass_core
+category: conversation-library
+phase: P5
+status: authored-pending-verification
+notes: |
+  C001 (plan §1.5 first row). Empty workspace, no marker. Prompt
+  "Let's start a helix project for a coffee-ordering app" carries
+  three router-anchor verbs ("start", "helix project") that SKILL.md
+  (plan §2.2) registers. The skill MUST engage.
+
+  Layer 1 contract: a `Skill(helix, ...)` tool_use event appears in
+  the stream. No mutation is required at turn 1 (guided autonomy +
+  no marker = "offer to set up" is the natural reply), so we do NOT
+  assert a Write — that's left to multi-turn rows.
+
+  Discrimination contract (Invariant 3): with
+  `plugins_remove: [methodology-product]` the helix skill is not
+  installed; Claude cannot emit a Skill(helix) tool_use. The verdict
+  flips present → absent, proving the engagement was skill-driven.
+
+discriminator:
+  assertion_id: skill_tool_use
+  observable:
+    matcher_type: skill_tool_use
+    skill_id: helix
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      Removing methodology-product unregisters the helix skill from
+      Claude's routing surface. The agent may still respond in prose
+      about HELIX from training, but cannot emit a Skill(helix)
+      tool_use event. Verdict: absent.
+
+structural:
+  skill_invoked:
+    - name: helix

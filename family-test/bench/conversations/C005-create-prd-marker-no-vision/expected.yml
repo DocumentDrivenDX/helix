@@ -1,0 +1,32 @@
+tier: must_pass_core
+category: conversation-library
+phase: P5
+status: authored-pending-verification
+notes: |
+  C005 (plan §1.5). Marker active (helix), no vision. Prompt
+  "Let's create a PRD" under autonomy=guided. The skill MUST engage
+  AND surface the prerequisite (graph: prd informs product-vision).
+  This is the cascade-surfacing canonical case.
+
+  Layer 1 floor: Skill(helix) invocation. The cascade-language
+  surfacing is graded by Layer 2 (judge) in P7. C005 vs C006 prove
+  the autonomy gradient is wired (one asks, one proceeds).
+
+  Discrimination: plugins_remove kills engagement.
+
+discriminator:
+  assertion_id: skill_tool_use
+  observable:
+    matcher_type: skill_tool_use
+    skill_id: helix
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      No methodology plugin → no helix skill → no Skill(helix)
+      tool_use. Verdict: absent.
+
+structural:
+  skill_invoked:
+    - name: helix

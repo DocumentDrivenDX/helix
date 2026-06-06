@@ -1,0 +1,42 @@
+tier: must_pass_core
+category: conversation-library
+phase: P5
+status: authored-pending-verification
+notes: |
+  C011 (plan §1.5). Marker active with helix + helix-infra. Prompt
+  "What methodologies are active here?" is a status question that
+  MUST be answered LITERALLY from the marker, not from training
+  guesses. The skill engages and surfaces both ids.
+
+  Layer 1 floor: a literal_or_banner_text pattern requiring BOTH
+  flow ids ("helix" AND "helix-infra") to appear in the answer.
+  Pattern is ≥20 chars to clear T047 banned-matcher minimum.
+
+  Discrimination: swapping the marker to helix-only means the
+  literal answer no longer contains "helix-infra"; verdict flips.
+
+discriminator:
+  assertion_id: literal_or_banner_text
+  observable:
+    matcher_type: text_match
+    regex_pattern: 'helix-infra[^a-zA-Z0-9_-].{0,200}\bhelix\b|\bhelix\b[^a-zA-Z0-9_-].{0,200}helix-infra'
+    occurrence_count: 1
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    marker_edit:
+      from: workspace/.helix.yml
+      inline_to: |
+        helix_version: 1
+        methodologies:
+          - id: helix
+            root: docs/helix/
+      rationale: |
+        With only helix in the marker, a truthful answer cannot
+        contain "helix-infra"; the compound pattern cannot match.
+        Verdict flips present → absent, proving the answer was
+        marker-derived (not training-derived or prompt-echoed).
+
+structural:
+  skill_invoked:
+    - name: helix

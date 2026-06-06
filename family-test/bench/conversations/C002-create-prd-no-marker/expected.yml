@@ -1,0 +1,36 @@
+tier: must_pass_core
+category: conversation-library
+phase: P5
+status: authored-pending-verification
+notes: |
+  C002 (plan §1.5 second row). Empty workspace, no marker. Prompt
+  "Let's create a PRD" carries the router-anchor noun "PRD". Under
+  autonomy=guided the skill MUST engage and surface BOTH:
+    - the missing marker (engagement boundary diagnostic, plan §2.4);
+    - the cascade prerequisite (graph says PRD informs from
+      product-vision; vision MUST exist or be drafted first, plan §3.2).
+
+  This row's Layer 1 floor is `Skill(helix)` invocation. Layer 2/3
+  (cascade surfacing in prose) lands in later phases per the
+  layer-ordering constraint (§1.4).
+
+  Discrimination: plugins_remove kills the skill; engagement absent.
+
+discriminator:
+  assertion_id: skill_tool_use
+  observable:
+    matcher_type: skill_tool_use
+    skill_id: helix
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      Without the methodology-product plugin the helix skill is
+      unregistered; Claude cannot invoke Skill(helix). The agent may
+      still produce a PRD-shaped document from training, but the
+      tool_use event is absent. Verdict flips present → absent.
+
+structural:
+  skill_invoked:
+    - name: helix

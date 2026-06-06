@@ -1,0 +1,30 @@
+tier: must_pass_core
+category: conversation-library
+phase: P5
+status: authored-pending-verification
+notes: |
+  C006 (plan §1.5). Marker active (helix), no vision. autonomy=
+  autonomous. The skill engages and proceeds — drafting the vision
+  THEN the PRD without asking. Pair contract with C005.
+
+  Layer 1 floor: Skill(helix) tool_use.
+
+  Discrimination: plugins_remove kills engagement.
+
+discriminator:
+  assertion_id: skill_tool_use
+  observable:
+    matcher_type: skill_tool_use
+    skill_id: helix
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      Without methodology-product the helix skill is unregistered.
+      Claude may still write a PRD-shaped file from training, but
+      Skill(helix) tool_use is absent. Verdict flips.
+
+structural:
+  skill_invoked:
+    - name: helix

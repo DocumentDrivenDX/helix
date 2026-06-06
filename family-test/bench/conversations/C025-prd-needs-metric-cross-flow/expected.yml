@@ -1,0 +1,37 @@
+tier: must_pass_core
+category: conversation-library
+phase: P5
+status: authored-pending-verification
+notes: |
+  C025 (plan §1.5 + §12.8). Marker has helix + helix-data. Prompt
+  "Our PRD needs a new metric we can measure" is a cross-flow ask.
+  Per plan §14.1: helix engages FIRST (PRD owner); then surfaces the
+  helix-data prerequisite (metric-definition + data-product-brief)
+  and offers cross-flow linking.
+
+  Layer 1 floor at P5: Skill(helix) tool_use MUST appear (the
+  first-engaged flow). Cross-flow handoff (Skill(helix-data) later
+  in the same turn) is graded by Layer 2 / Layer 3 at P7+ when
+  the judge is wired and cross-flow rows are scored multi-layer.
+
+  Discrimination: plugins_remove the helix skill — the prompt loses
+  its first-engaged flow; Skill(helix) cannot fire.
+
+discriminator:
+  assertion_id: skill_tool_use
+  observable:
+    matcher_type: skill_tool_use
+    skill_id: helix
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      Without methodology-product the helix skill is unregistered;
+      the prompt no longer has a first-engaged flow (helix-data
+      doesn't own "PRD"). Skill(helix) tool_use absent. Verdict
+      flips present → absent.
+
+structural:
+  skill_invoked:
+    - name: helix
