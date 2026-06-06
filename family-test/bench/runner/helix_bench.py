@@ -38,7 +38,7 @@ except ImportError:  # pragma: no cover
     sys.exit(2)
 
 
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 
 REPO_ROOT = Path(__file__).resolve().parents[2]  # family-test/bench/runner -> family-test
 BENCH_ROOT = Path(__file__).resolve().parents[1]
@@ -49,6 +49,9 @@ PROPERTY_TESTS_DIR = BENCH_ROOT / "runner" / "property-tests"
 GOLDEN_DIR = BENCH_ROOT / "golden-transcripts"
 TRANSCRIPT_SCHEMA = BENCH_ROOT / "runner" / "transcript_schema.yml"
 CC_VERSION_LOCK = BENCH_ROOT / "cc-version.lock"
+JUDGE_RUBRIC = BENCH_ROOT / "judge" / "rubric-prompt.md"
+JUDGE_CALIBRATION = BENCH_ROOT / "judge" / "calibration-set.yml"
+JUDGE_RESULTS_DIR = BENCH_ROOT / "judge" / "results"
 
 
 # ---------------------------------------------------------------------------
@@ -1386,6 +1389,423 @@ def run_row(row_dir: Path, determinism: int = 1) -> int:
 
 
 # ---------------------------------------------------------------------------
+# Layer 2 — semantic judge LLM (plan §5.2, §6.7, §18.2)
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class JudgeResult:
+    """Verdict returned by the Layer 2 judge LLM.
+
+    matches: assertion verdict (true = assertion holds; false = violated)
+    confidence: 0..1; >= 0.8 = stable, 0.5..0.8 = borderline (re-judge), < 0.5
+        = genuinely ambiguous
+    rationale: 1-2 sentence cited justification
+    raw: raw judge stdout (kept for failure-dump)
+    """
+
+    matches: bool
+    confidence: float
+    rationale: str
+    raw: str = ""
+
+
+JUDGE_BACKEND_DEFAULT = os.environ.get("HELIX_BENCH_JUDGE_BACKEND", "claude")
+JUDGE_MODEL_DEFAULT = os.environ.get("HELIX_BENCH_JUDGE_MODEL", "haiku")
+
+
+def _build_judge_input(intent: str, polarity: str, actual_prose: str) -> str:
+    """Format the JSON payload the rubric expects."""
+    return json.dumps(
+        {
+            "polarity": polarity,
+            "intent": intent,
+            "actual_prose": actual_prose,
+        },
+        ensure_ascii=False,
+    )
+
+
+def _parse_judge_output(raw: str) -> JudgeResult:
+    """Extract {matches, confidence, rationale} JSON from judge stdout.
+
+    Tolerant of fenced output or trailing prose; pulls the first JSON object
+    whose keys are a superset of {matches, confidence, rationale}.
+    """
+    # Strip common fence shapes.
+    text = raw.strip()
+    fenced = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.DOTALL)
+    if fenced:
+        text = fenced.group(1)
+    # Find first plausible JSON object.
+    candidates = re.findall(r"\{[^{}]*\}", text, re.DOTALL)
+    # also try the whole text in case it's a single object containing braces
+    candidates = [text] + candidates
+    for cand in candidates:
+        try:
+            obj = json.loads(cand)
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(obj, dict):
+            continue
+        if {"matches", "confidence", "rationale"}.issubset(obj.keys()):
+            return JudgeResult(
+                matches=bool(obj["matches"]),
+                confidence=float(obj["confidence"]),
+                rationale=str(obj["rationale"]),
+                raw=raw,
+            )
+    raise ValueError(f"could not parse judge output: {raw[:400]}")
+
+
+def invoke_judge(
+    intent: str,
+    polarity: str,
+    actual_prose: str,
+    backend: str = JUDGE_BACKEND_DEFAULT,
+    model: str = JUDGE_MODEL_DEFAULT,
+    timeout_s: int = 120,
+    rubric_path: Path = JUDGE_RUBRIC,
+) -> JudgeResult:
+    """Dispatch one judge call. Backend = 'claude' | 'codex' | 'stub'.
+
+    `stub` is a deterministic offline judge used by self-test: it does a case-
+    insensitive substring/keyword match between intent keywords and prose,
+    flipped by polarity. It never calls an LLM and is suitable only for unit
+    tests / smoke runs.
+    """
+    if backend == "stub":
+        return _stub_judge(intent, polarity, actual_prose)
+    if not rubric_path.exists():
+        raise FileNotFoundError(f"missing judge rubric at {rubric_path}")
+    rubric = rubric_path.read_text()
+    payload = _build_judge_input(intent, polarity, actual_prose)
+    if backend == "claude":
+        return _invoke_claude_judge(rubric, payload, model=model, timeout_s=timeout_s)
+    if backend == "codex":
+        return _invoke_codex_judge(rubric, payload, timeout_s=timeout_s)
+    raise ValueError(f"unknown judge backend: {backend}")
+
+
+def _invoke_claude_judge(
+    rubric: str, payload: str, model: str, timeout_s: int
+) -> JudgeResult:
+    import subprocess
+
+    # Use the `claude` CLI in headless mode. Temperature is fixed in CC.
+    # We compose: system = rubric; user = payload JSON; output = text.
+    cmd = [
+        "claude",
+        "-p",
+        payload,
+        "--model",
+        model,
+        "--system-prompt",
+        rubric,
+        "--output-format",
+        "text",
+    ]
+    proc = subprocess.run(
+        cmd, capture_output=True, text=True, timeout=timeout_s, check=False
+    )
+    if proc.returncode != 0:
+        raise RuntimeError(
+            f"claude judge exited {proc.returncode}: {proc.stderr[:400]}"
+        )
+    return _parse_judge_output(proc.stdout)
+
+
+def _invoke_codex_judge(rubric: str, payload: str, timeout_s: int) -> JudgeResult:
+    import subprocess
+
+    # codex exec takes a single prompt; we concatenate rubric + payload with a
+    # boundary so the judge knows which is which.
+    prompt = (
+        rubric
+        + "\n\n---\n"
+        + "INPUT (judge this):\n"
+        + payload
+        + "\n\nReturn only the JSON object.\n"
+    )
+    cmd = ["codex", "exec", "--skip-git-repo-check", prompt]
+    proc = subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+        timeout=timeout_s,
+        check=False,
+        stdin=subprocess.DEVNULL,
+    )
+    if proc.returncode != 0:
+        raise RuntimeError(
+            f"codex judge exited {proc.returncode}: {proc.stderr[:400]}"
+        )
+    return _parse_judge_output(proc.stdout)
+
+
+def _stub_judge(intent: str, polarity: str, actual_prose: str) -> JudgeResult:
+    """Deterministic offline judge for self-test.
+
+    Builds a tiny keyword set from `intent` (lowercased nouns/verbs >=4
+    chars) and asks: does the prose contain at least one keyword AND not
+    contain an obvious negation of it. This is a sanity-grade signal only;
+    real judgments require the LLM path.
+    """
+    stop = {
+        "the", "and", "for", "with", "that", "this", "from", "into", "names",
+        "name", "active", "first", "before", "after", "would", "could",
+        "should", "offers", "offer", "mentions", "mention", "asks", "ask",
+        "explicit", "claims", "claim", "marker", "methodology",
+    }
+    keywords = [
+        w for w in re.findall(r"[a-zA-Z][a-zA-Z\-]{3,}", intent.lower())
+        if w not in stop
+    ]
+    prose_l = actual_prose.lower()
+    hits = [k for k in keywords if k in prose_l]
+    has_meaning = len(hits) >= 1
+    # crude negation: "won't" "not " "no need" "don't" "instead of"
+    negated = any(
+        n in prose_l for n in ["won't", "won’t", "don't", "don’t", "no need",
+                              "not now", "instead of", "skip", "cannot",
+                              "can't", "can’t"]
+    )
+    present = has_meaning and not negated
+    if polarity == "must_NOT_include":
+        matches = not present
+    else:
+        matches = present
+    return JudgeResult(
+        matches=matches,
+        confidence=0.85 if has_meaning else 0.6,
+        rationale=f"stub-judge: keywords matched={hits}, negated={negated}",
+        raw="<stub>",
+    )
+
+
+def load_semantic_assertions(row_dir: Path) -> list[dict[str, Any]]:
+    """Read a row's Layer 2 assertions.
+
+    Looks for `semantic.yml` in the row dir (preferred — keeps L1 file
+    untouched), falling back to a `semantic:` block in `expected.yml`.
+    Returns a list of {polarity, intent} dicts.
+    """
+    out: list[dict[str, Any]] = []
+    semantic_path = row_dir / "semantic.yml"
+    blob: dict[str, Any] | None = None
+    if semantic_path.exists():
+        blob = yaml.safe_load(semantic_path.read_text()) or {}
+    else:
+        expected = row_dir / "expected.yml"
+        if expected.exists():
+            blob = (yaml.safe_load(expected.read_text()) or {}).get("semantic")
+    if not blob:
+        return out
+    for item in blob.get("prose_must_include", []) or []:
+        out.append({"polarity": "must_include", "intent": item.get("intent") or item})
+    for item in blob.get("prose_must_NOT_include", []) or []:
+        out.append(
+            {"polarity": "must_NOT_include", "intent": item.get("intent") or item}
+        )
+    return out
+
+
+def extract_actual_prose(transcript_or_text: str | Transcript) -> str:
+    if isinstance(transcript_or_text, Transcript):
+        return transcript_or_text.assistant_text
+    # Try to parse as transcript JSONL first; if that fails, treat as raw text.
+    try:
+        t = Transcript.parse(transcript_or_text)
+        return t.assistant_text or transcript_or_text
+    except Exception:
+        return transcript_or_text
+
+
+def judge_with_rejudge(
+    intent: str,
+    polarity: str,
+    actual_prose: str,
+    backend: str,
+    model: str,
+    borderline_low: float = 0.5,
+    borderline_high: float = 0.8,
+    max_rejudges: int = 2,
+) -> dict[str, Any]:
+    """Run the judge once; re-judge up to `max_rejudges` more times if the
+    confidence falls in (borderline_low, borderline_high). Majority vote on
+    `matches` wins; the final confidence is the mean over runs.
+    """
+    runs: list[JudgeResult] = [
+        invoke_judge(intent, polarity, actual_prose, backend=backend, model=model)
+    ]
+    if borderline_low < runs[0].confidence < borderline_high:
+        for _ in range(max_rejudges):
+            runs.append(
+                invoke_judge(
+                    intent, polarity, actual_prose, backend=backend, model=model
+                )
+            )
+    matches_votes = sum(1 for r in runs if r.matches)
+    matches_final = matches_votes * 2 >= len(runs)
+    mean_conf = sum(r.confidence for r in runs) / len(runs)
+    return {
+        "matches": matches_final,
+        "confidence": mean_conf,
+        "rationale": runs[0].rationale,
+        "n_runs": len(runs),
+        "votes_true": matches_votes,
+        "per_run": [
+            {"matches": r.matches, "confidence": r.confidence, "rationale": r.rationale}
+            for r in runs
+        ],
+    }
+
+
+def run_layer2(
+    row_dir: Path,
+    transcript_path: Path | None = None,
+    backend: str = JUDGE_BACKEND_DEFAULT,
+    model: str = JUDGE_MODEL_DEFAULT,
+    verbose: bool = True,
+) -> tuple[int, dict[str, Any]]:
+    """Apply Layer 2 to one row.
+
+    Requires either:
+      - row_dir / 'transcript.jsonl' (default), OR
+      - --transcript pointing at a stream-json file
+
+    For Phase 7 with rows that lack a recorded transcript, we look for
+    `row_dir / 'sample-prose.md'` which holds a representative prose sample
+    (so the judge can be exercised without invoking CC).
+    """
+    semantic = load_semantic_assertions(row_dir)
+    if not semantic:
+        if verbose:
+            print(
+                f"[layer2] {row_dir.name}: no semantic.yml, skipping",
+                file=sys.stderr,
+            )
+        return 0, {"row": str(row_dir), "skipped": True}
+    if transcript_path is None:
+        for cand in ("transcript.jsonl", "sample-transcript.jsonl", "sample-prose.md"):
+            p = row_dir / cand
+            if p.exists():
+                transcript_path = p
+                break
+    if transcript_path is None or not transcript_path.exists():
+        raise FileNotFoundError(
+            f"no transcript/prose under {row_dir} (looked for transcript.jsonl, "
+            "sample-transcript.jsonl, sample-prose.md)"
+        )
+    raw = transcript_path.read_text()
+    if transcript_path.suffix == ".jsonl":
+        actual_prose = extract_actual_prose(raw)
+    else:
+        actual_prose = raw
+    per_assertion: list[dict[str, Any]] = []
+    all_pass = True
+    for sem in semantic:
+        result = judge_with_rejudge(
+            sem["intent"], sem["polarity"], actual_prose, backend=backend, model=model
+        )
+        per_assertion.append(
+            {
+                "intent": sem["intent"],
+                "polarity": sem["polarity"],
+                **result,
+                "verdict": "pass" if result["matches"] else "fail",
+            }
+        )
+        if not result["matches"]:
+            all_pass = False
+    out = {
+        "row": str(row_dir),
+        "transcript": str(transcript_path),
+        "backend": backend,
+        "model": model,
+        "assertions": per_assertion,
+        "all_pass": all_pass,
+    }
+    if verbose:
+        print(json.dumps(out, indent=2))
+    return 0 if all_pass else 1, out
+
+
+def run_calibration(
+    backend: str = JUDGE_BACKEND_DEFAULT,
+    model: str = JUDGE_MODEL_DEFAULT,
+    calibration_path: Path = JUDGE_CALIBRATION,
+    verbose: bool = True,
+) -> tuple[int, dict[str, Any]]:
+    """Run the calibration set and report judge↔human agreement.
+
+    Plan §18.2 contract: judge must agree with human verdict on >= 18/20
+    (90%). Disagreement > 2 halts judge-LLM use until rubric retuned.
+    """
+    data = yaml.safe_load(calibration_path.read_text()) or {}
+    rows = data.get("calibration", [])
+    if not rows:
+        raise RuntimeError(f"empty calibration set: {calibration_path}")
+    per_row: list[dict[str, Any]] = []
+    agree = 0
+    for row in rows:
+        rid = row.get("id", "?")
+        intent = row["intent"]
+        polarity = row["polarity"]
+        prose = row["actual_prose"]
+        human = bool(row["human_verdict"])
+        try:
+            judged = invoke_judge(
+                intent, polarity, prose, backend=backend, model=model
+            )
+            agreed = judged.matches == human
+            agree += int(agreed)
+            per_row.append(
+                {
+                    "id": rid,
+                    "polarity": polarity,
+                    "human": human,
+                    "judge": judged.matches,
+                    "confidence": judged.confidence,
+                    "agreed": agreed,
+                    "rationale": judged.rationale,
+                }
+            )
+            if verbose:
+                mark = "OK" if agreed else "XX"
+                print(
+                    f"[calib {mark}] {rid} human={human} judge={judged.matches} "
+                    f"conf={judged.confidence:.2f}"
+                )
+        except Exception as e:
+            per_row.append({"id": rid, "error": str(e), "agreed": False})
+            if verbose:
+                print(f"[calib ER] {rid} error: {e}", file=sys.stderr)
+    n = len(rows)
+    pass_floor = 18  # plan §18.2 hard gate at n=20
+    summary = {
+        "backend": backend,
+        "model": model,
+        "n": n,
+        "agreed": agree,
+        "agreement_rate": agree / n if n else 0,
+        "pass_floor": pass_floor,
+        "passed": agree >= pass_floor,
+        "rows": per_row,
+    }
+    if verbose:
+        print(
+            f"\nCalibration: {agree}/{n} agreed "
+            f"({summary['agreement_rate']:.0%}); "
+            f"{'PASS' if summary['passed'] else 'FAIL'} (floor {pass_floor})"
+        )
+    JUDGE_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    out_path = JUDGE_RESULTS_DIR / "calibration-latest.json"
+    out_path.write_text(json.dumps(summary, indent=2))
+    return (0 if summary["passed"] else 1), summary
+
+
+# ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
 
@@ -1405,6 +1825,50 @@ def main(argv: list[str] | None = None) -> int:
     p_run = sub.add_parser("run", help="run a row (Phase 0a: validate only)")
     p_run.add_argument("row_dir", type=Path)
     p_run.add_argument("--determinism", type=int, default=1)
+    p_run.add_argument(
+        "--layer",
+        type=int,
+        default=1,
+        choices=[1, 2],
+        help="layer to grade (1=structural, 2=semantic judge LLM)",
+    )
+    p_run.add_argument(
+        "--transcript",
+        type=Path,
+        default=None,
+        help="stream-json transcript path (Layer 2; defaults to row transcript.jsonl)",
+    )
+    p_run.add_argument(
+        "--judge-backend",
+        default=JUDGE_BACKEND_DEFAULT,
+        choices=["claude", "codex", "stub"],
+        help="Layer 2 judge backend (env HELIX_BENCH_JUDGE_BACKEND)",
+    )
+    p_run.add_argument(
+        "--judge-model",
+        default=JUDGE_MODEL_DEFAULT,
+        help="Layer 2 judge model id",
+    )
+
+    p_layer2 = sub.add_parser(
+        "layer2", help="grade Layer 2 (semantic) for a row given a transcript"
+    )
+    p_layer2.add_argument("row_dir", type=Path)
+    p_layer2.add_argument("--transcript", type=Path, default=None)
+    p_layer2.add_argument("--judge-backend", default=JUDGE_BACKEND_DEFAULT,
+                          choices=["claude", "codex", "stub"])
+    p_layer2.add_argument("--judge-model", default=JUDGE_MODEL_DEFAULT)
+
+    p_calib = sub.add_parser(
+        "calibrate", help="run judge calibration set (plan §18.2)"
+    )
+    p_calib.add_argument("--judge-backend", default=JUDGE_BACKEND_DEFAULT,
+                         choices=["claude", "codex", "stub"])
+    p_calib.add_argument("--judge-model", default=JUDGE_MODEL_DEFAULT)
+    p_calib.add_argument(
+        "--calibration-set", type=Path, default=JUDGE_CALIBRATION,
+        help="path to calibration YAML",
+    )
 
     args = parser.parse_args(argv)
     if args.version:
@@ -1426,7 +1890,30 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(norm, indent=2))
         return 0
     if args.cmd == "run":
+        if args.layer == 2:
+            code, _ = run_layer2(
+                args.row_dir,
+                transcript_path=args.transcript,
+                backend=args.judge_backend,
+                model=args.judge_model,
+            )
+            return code
         return run_row(args.row_dir, determinism=args.determinism)
+    if args.cmd == "layer2":
+        code, _ = run_layer2(
+            args.row_dir,
+            transcript_path=args.transcript,
+            backend=args.judge_backend,
+            model=args.judge_model,
+        )
+        return code
+    if args.cmd == "calibrate":
+        code, _ = run_calibration(
+            backend=args.judge_backend,
+            model=args.judge_model,
+            calibration_path=args.calibration_set,
+        )
+        return code
     parser.print_help()
     return 2
 

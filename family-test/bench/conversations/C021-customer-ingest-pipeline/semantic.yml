@@ -1,0 +1,13 @@
+# C021 Layer 2 — routes to helix-data (not helix or helix-infra).
+# Empty workspace + "customer-ingest pipeline" prompt activates helix-data per
+# plan §12.4 router anchors. Layer 1 checks the Skill(helix-data) tool_use;
+# Layer 2 confirms the prose actually frames this as a helix-data flow and
+# does not bleed into helix-infra (which would mis-route to terraform-first).
+
+prose_must_include:
+  - intent: "Routes the request to helix-data (not helix or helix-infra)"
+  - intent: "Names a starting helix-data artifact (data-contract or data-prd or pipeline-spec)"
+
+prose_must_NOT_include:
+  - intent: "Routes the pipeline through helix-infra instead of helix-data"
+  - intent: "Claims a methodology is active that's not in the marker"

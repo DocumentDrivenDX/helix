@@ -1,0 +1,77 @@
+{
+  "row": "family-test/bench/conversations/C001-start-helix-project",
+  "transcript": "family-test/bench/conversations/C001-start-helix-project/sample-prose.md",
+  "backend": "claude",
+  "model": "haiku",
+  "assertions": [
+    {
+      "intent": "Offers to create a product vision as the first artifact",
+      "polarity": "must_include",
+      "matches": true,
+      "confidence": 0.95,
+      "rationale": "The prose explicitly states 'Let me set the marker to authorize the helix flow and then draft a product vision for the coffee-ordering app as the first artifact.' This is a direct offer phrased with 'Let me' and unambiguously identifies the product vision as the first artifact.",
+      "n_runs": 1,
+      "votes_true": 1,
+      "per_run": [
+        {
+          "matches": true,
+          "confidence": 0.95,
+          "rationale": "The prose explicitly states 'Let me set the marker to authorize the helix flow and then draft a product vision for the coffee-ordering app as the first artifact.' This is a direct offer phrased with 'Let me' and unambiguously identifies the product vision as the first artifact."
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "intent": "Names the active methodology (helix) and why it activated",
+      "polarity": "must_include",
+      "matches": true,
+      "confidence": 0.95,
+      "rationale": "The prose explicitly names helix as the active methodology ('I'm engaging the helix skill', 'the helix methodology') and clearly states why it activated: 'because your `.helix.yml` doesn't exist yet and you asked to \"start a helix project\" \u2014 that's the router-anchor for the helix methodology.' Both required elements are present and articulated.",
+      "n_runs": 1,
+      "votes_true": 1,
+      "per_run": [
+        {
+          "matches": true,
+          "confidence": 0.95,
+          "rationale": "The prose explicitly names helix as the active methodology ('I'm engaging the helix skill', 'the helix methodology') and clearly states why it activated: 'because your `.helix.yml` doesn't exist yet and you asked to \"start a helix project\" \u2014 that's the router-anchor for the helix methodology.' Both required elements are present and articulated."
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "intent": "Mentions adding a non-helix methodology (e.g. helix-infra)",
+      "polarity": "must_NOT_include",
+      "matches": true,
+      "confidence": 0.95,
+      "rationale": "The prose discusses only the helix methodology and explicitly states 'I'll keep scope to `docs/helix/`' and focuses entirely on engaging 'the helix skill' and 'the helix flow.' There is no mention whatsoever of helix-infra or any other non-helix methodology being added.",
+      "n_runs": 1,
+      "votes_true": 1,
+      "per_run": [
+        {
+          "matches": true,
+          "confidence": 0.95,
+          "rationale": "The prose discusses only the helix methodology and explicitly states 'I'll keep scope to `docs/helix/`' and focuses entirely on engaging 'the helix skill' and 'the helix flow.' There is no mention whatsoever of helix-infra or any other non-helix methodology being added."
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "intent": "Claims a methodology is active that's not in the marker",
+      "polarity": "must_NOT_include",
+      "matches": true,
+      "confidence": 0.95,
+      "rationale": "The prose explicitly states '`.helix.yml` doesn't exist yet' and 'Let me set the marker to authorize the helix flow' \u2014 it acknowledges the marker's absence and plans to create authorization before activating the methodology. The forbidden pattern (claiming an active unauthorized methodology) is absent; the prose correctly identifies the prerequisite and intends to satisfy it.",
+      "n_runs": 1,
+      "votes_true": 1,
+      "per_run": [
+        {
+          "matches": true,
+          "confidence": 0.95,
+          "rationale": "The prose explicitly states '`.helix.yml` doesn't exist yet' and 'Let me set the marker to authorize the helix flow' \u2014 it acknowledges the marker's absence and plans to create authorization before activating the methodology. The forbidden pattern (claiming an active unauthorized methodology) is absent; the prose correctly identifies the prerequisite and intends to satisfy it."
+        }
+      ],
+      "verdict": "pass"
+    }
+  ],
+  "all_pass": true
+}

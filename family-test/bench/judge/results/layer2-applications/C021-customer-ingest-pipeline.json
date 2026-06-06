@@ -1,0 +1,77 @@
+{
+  "row": "family-test/bench/conversations/C021-customer-ingest-pipeline",
+  "transcript": "family-test/bench/conversations/C021-customer-ingest-pipeline/sample-prose.md",
+  "backend": "claude",
+  "model": "haiku",
+  "assertions": [
+    {
+      "intent": "Routes the request to helix-data (not helix or helix-infra)",
+      "polarity": "must_include",
+      "matches": true,
+      "confidence": 0.95,
+      "rationale": "The prose explicitly states 'I'm engaging helix-data (not helix or helix-infra)' and provides reasoning by identifying 'helix-data router anchors' in the request keywords, directly asserting the routing decision with the required negation of the alternatives.",
+      "n_runs": 1,
+      "votes_true": 1,
+      "per_run": [
+        {
+          "matches": true,
+          "confidence": 0.95,
+          "rationale": "The prose explicitly states 'I'm engaging helix-data (not helix or helix-infra)' and provides reasoning by identifying 'helix-data router anchors' in the request keywords, directly asserting the routing decision with the required negation of the alternatives."
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "intent": "Names a starting helix-data artifact (data-contract or data-prd or pipeline-spec)",
+      "polarity": "must_include",
+      "matches": true,
+      "confidence": 0.96,
+      "rationale": "The prose explicitly names 'draft the data-contract artifact for customer events' and positions it as 'step one', clearly identifying data-contract as the starting helix-data artifact. The phrase 'the contract pins schema, partition keys, and PII fields before any pipeline code lands' further confirms this as the initial artifact.",
+      "n_runs": 1,
+      "votes_true": 1,
+      "per_run": [
+        {
+          "matches": true,
+          "confidence": 0.96,
+          "rationale": "The prose explicitly names 'draft the data-contract artifact for customer events' and positions it as 'step one', clearly identifying data-contract as the starting helix-data artifact. The phrase 'the contract pins schema, partition keys, and PII fields before any pipeline code lands' further confirms this as the initial artifact."
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "intent": "Routes the pipeline through helix-infra instead of helix-data",
+      "polarity": "must_NOT_include",
+      "matches": true,
+      "confidence": 0.95,
+      "rationale": "The prose explicitly states \"I'm engaging helix-data (not helix or helix-infra)\", directly rejecting the forbidden pattern of routing through helix-infra. The agent routes through helix-data instead.",
+      "n_runs": 1,
+      "votes_true": 1,
+      "per_run": [
+        {
+          "matches": true,
+          "confidence": 0.95,
+          "rationale": "The prose explicitly states \"I'm engaging helix-data (not helix or helix-infra)\", directly rejecting the forbidden pattern of routing through helix-infra. The agent routes through helix-data instead."
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "intent": "Claims a methodology is active that's not in the marker",
+      "polarity": "must_NOT_include",
+      "matches": true,
+      "confidence": 0.95,
+      "rationale": "The prose explicitly states 'Workspace is empty, so step one is to wire the marker for helix-data' \u2014 it treats marker-wiring as a prerequisite action to come, not a claim that helix-data is already active. The agent is planning to activate it, not asserting it is active.",
+      "n_runs": 1,
+      "votes_true": 1,
+      "per_run": [
+        {
+          "matches": true,
+          "confidence": 0.95,
+          "rationale": "The prose explicitly states 'Workspace is empty, so step one is to wire the marker for helix-data' \u2014 it treats marker-wiring as a prerequisite action to come, not a claim that helix-data is already active. The agent is planning to activate it, not asserting it is active."
+        }
+      ],
+      "verdict": "pass"
+    }
+  ],
+  "all_pass": true
+}
