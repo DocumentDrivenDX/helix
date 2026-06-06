@@ -1,0 +1,12 @@
+id: reconciliation-suite
+title: Reconciliation Suite
+owner_flow: helix-data
+purpose: Defines source-to-sink invariants, alert thresholds, and operational response references for detecting data drift or loss across pipeline boundaries.
+required_sections:
+  - reconciliation_rules
+  - alert_thresholds
+  - response_runbook_ref
+optional_sections:
+  - sampling_strategy
+  - historical_baseline
+validator_notes: T-class validation checks that rules compare named source and sink measures, thresholds are numeric or clearly bounded, and a response runbook reference is present.

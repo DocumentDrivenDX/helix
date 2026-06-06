@@ -1,0 +1,26 @@
+id: consumer-inventory
+name: Consumer Inventory
+version: 1.0.0
+summary: |
+  Records each downstream consumer, use case, access pattern, freshness need, contract version, and dependency strength.
+
+required_sections:
+  - consumer
+  - purpose
+  - read_pattern
+  - freshness_required
+  - contract_version
+  - dependency_strength
+
+quality_checks:
+  - id: consumer_dependency_clear
+    description: Inventory names one consumer with purpose, read pattern, freshness, contract version, and dependency strength.
+    severity: blocking
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+tags: [data, helix-data, consumer]

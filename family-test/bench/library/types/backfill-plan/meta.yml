@@ -1,0 +1,15 @@
+id: backfill-plan
+title: Backfill Plan
+owner_flow: helix-data
+purpose: Describes a bounded historical or corrective data replay, including scope, safety checks, runtime expectations, rollback, and consumer communication.
+required_sections:
+  - trigger
+  - scope
+  - safety_checks_pre_run
+  - rollback_strategy
+  - expected_runtime
+  - communication_to_consumers
+optional_sections:
+  - dry_run_results
+  - approval_record
+validator_notes: T-class validation checks that the scope includes a date range and partition selector, safety and rollback sections are present, and consumer communication is explicit.

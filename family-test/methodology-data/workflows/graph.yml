@@ -1,0 +1,118 @@
+version: 1
+methodology:
+  id: helix-data
+  library_version: "^1.0.0"
+  validator_contract: 1
+
+activities:
+  - { id: 00-discover-profile, exit_gate: discover-validation }
+  - { id: 01-contract,         exit_gate: contract-validation }
+  - { id: 02-design,           exit_gate: design-validation }
+  - { id: 03-validate,         exit_gate: validate-validation }
+  - { id: 04-build,            exit_gate: build-validation }
+  - { id: 05-operate,          exit_gate: operate-validation }
+  - { id: 06-evolve-backfill,  exit_gate: evolve-validation }
+
+nodes:
+  # 00-discover-profile
+  - { id: data-product-brief,   type: "library:data-product-brief",   activity: 00-discover-profile, cardinality: many, role: exit-gate }
+  - { id: source-profile,       type: "library:source-profile",       activity: 00-discover-profile, cardinality: many }
+  - { id: consumer-inventory,   type: "library:consumer-inventory",   activity: 00-discover-profile, cardinality: many }
+  - { id: discover-validation,  type: "local:exit-gate",              activity: 00-discover-profile, cardinality: singleton, role: exit-gate }
+
+  # 01-contract
+  - { id: data-contract,             type: "library:data-contract",             activity: 01-contract, cardinality: many, role: exit-gate }
+  - { id: data-quality-expectations, type: "library:data-quality-expectations", activity: 01-contract, cardinality: many }
+  - { id: governance-classification, type: "library:governance-classification", activity: 01-contract, cardinality: many }
+  - { id: contract-validation,       type: "local:exit-gate",                   activity: 01-contract, cardinality: singleton, role: exit-gate }
+
+  # 02-design
+  - { id: data-architecture, type: "library:data-architecture", activity: 02-design, cardinality: many, role: exit-gate }
+  - { id: data-design,       type: "library:data-design",       activity: 02-design, cardinality: many }
+  - { id: adr,               type: "library:adr",               activity: 02-design, cardinality: many, scope: cross-cutting }
+  - { id: design-validation, type: "local:exit-gate",           activity: 02-design, cardinality: singleton, role: exit-gate }
+
+  # 03-validate
+  - { id: data-quality-tests,    type: "library:data-quality-tests",    activity: 03-validate, cardinality: many, role: exit-gate }
+  - { id: backfill-plan,         type: "library:backfill-plan",         activity: 03-validate, cardinality: many }
+  - { id: reconciliation-suite,  type: "library:reconciliation-suite",  activity: 03-validate, cardinality: many }
+  - { id: validate-validation,   type: "local:exit-gate",               activity: 03-validate, cardinality: singleton, role: exit-gate }
+
+  # 04-build
+  - { id: implementation-plan, type: "library:implementation-plan", activity: 04-build, cardinality: many, role: exit-gate }
+  - { id: lineage-spec,        type: "library:lineage-spec",        activity: 04-build, cardinality: many }
+  - { id: build-validation,    type: "local:exit-gate",             activity: 04-build, cardinality: singleton, role: exit-gate }
+
+  # 05-operate
+  - { id: runbook,             type: "library:runbook",             activity: 05-operate, cardinality: many, role: exit-gate }
+  - { id: monitoring-setup,    type: "library:monitoring-setup",    activity: 05-operate, cardinality: many }
+  - { id: metrics-dashboard,   type: "library:metrics-dashboard",   activity: 05-operate, cardinality: many }
+  - { id: operate-validation,  type: "local:exit-gate",             activity: 05-operate, cardinality: singleton, role: exit-gate }
+
+  # 06-evolve-backfill
+  - { id: evolution-plan,       type: "library:evolution-plan",       activity: 06-evolve-backfill, cardinality: many, role: exit-gate }
+  - { id: deprecation-notice,   type: "library:deprecation-notice",   activity: 06-evolve-backfill, cardinality: many }
+  - { id: improvement-backlog,  type: "library:improvement-backlog",  activity: 06-evolve-backfill, cardinality: many }
+  - { id: evolve-validation,    type: "local:exit-gate",              activity: 06-evolve-backfill, cardinality: singleton, role: exit-gate }
+
+edges:
+  # 00-discover-profile internal: brief frames profile + inventory
+  - { from: data-product-brief, to: source-profile,     kind: informs,  required: false }
+  - { from: data-product-brief, to: consumer-inventory, kind: informs,  required: false }
+
+  # 00 → 01: profile + inventory feed the contract
+  - { from: data-product-brief, to: data-contract,             kind: informs,  required: false }
+  - { from: source-profile,     to: data-contract,             kind: informs,  required: false }
+  - { from: consumer-inventory, to: data-contract,             kind: requires, required: true  }
+
+  # 01 internal: contract anchors expectations + governance
+  - { from: data-contract, to: data-quality-expectations, kind: requires, required: true }
+  - { from: data-contract, to: governance-classification, kind: informs,  required: true }
+
+  # 01 → 02: contract + governance shape the design
+  - { from: data-contract,             to: data-architecture, kind: informs, required: true  }
+  - { from: governance-classification, to: data-architecture, kind: informs, required: false }
+  - { from: data-architecture,         to: data-design,       kind: informs, required: false }
+  - { from: adr,                       to: data-design,       kind: informs, required: false }
+  - { from: adr,                       to: adr,               kind: supersedes, required: false }
+
+  # 02 → 03: design + expectations drive validation work
+  - { from: data-quality-expectations, to: data-quality-tests,   kind: requires, required: true  }
+  - { from: data-contract,             to: backfill-plan,        kind: requires, required: true  }
+  - { from: data-architecture,         to: backfill-plan,        kind: informs,  required: false }
+  - { from: data-design,               to: reconciliation-suite, kind: informs,  required: false }
+
+  # 03 → 04: validate gates build
+  - { from: data-quality-tests, to: implementation-plan, kind: informs, required: true  }
+  - { from: data-design,        to: implementation-plan, kind: informs, required: true  }
+  - { from: data-architecture,  to: lineage-spec,        kind: informs, required: false }
+
+  # 04 → 05: build artifacts inform operate
+  - { from: implementation-plan, to: runbook,           kind: informs, required: true  }
+  - { from: lineage-spec,        to: monitoring-setup,  kind: informs, required: false }
+  - { from: data-quality-tests,  to: monitoring-setup,  kind: informs, required: false }
+  - { from: data-architecture,   to: metrics-dashboard, kind: informs, required: false }
+
+  # 05 → 06: operate feeds evolve
+  - { from: data-contract,        to: evolution-plan,      kind: requires, required: true  }
+  - { from: consumer-inventory,   to: evolution-plan,      kind: informs,  required: true  }
+  - { from: evolution-plan,       to: deprecation-notice,  kind: informs,  required: true  }
+  - { from: consumer-inventory,   to: deprecation-notice,  kind: requires, required: true  }
+  - { from: metrics-dashboard,    to: improvement-backlog, kind: informs,  required: false }
+
+allowed_cycles: []
+
+external_edges:
+  # Outbound: helix-data → helix-infra (pipeline needs new infra)
+  - from_type: data-product-brief
+    to_methodology: helix-infra
+    to_type: change-intent
+    kind: informs
+    required: false
+
+  # Outbound: helix-data → helix (metrics feed product iteration)
+  - from_type: metrics-dashboard
+    to_methodology: helix
+    to_type: improvement-backlog
+    kind: informs
+    required: false

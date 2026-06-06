@@ -1,0 +1,27 @@
+id: source-profile
+name: Source Profile
+version: 1.0.0
+summary: |
+  Captures source-system shape, observed behavior, privacy classification, and ingestion risks.
+
+required_sections:
+  - source_system
+  - schema_snapshot
+  - volume_estimates
+  - freshness_observed
+  - pii_classification
+  - producers_contacted
+  - risks_and_unknowns
+
+quality_checks:
+  - id: source_observations_evidenced
+    description: Source profile includes concrete schema fields, volumes, observed freshness, contacts, and risks.
+    severity: blocking
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+tags: [data, helix-data, source]

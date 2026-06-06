@@ -1,0 +1,14 @@
+id: evolution-plan
+title: Evolution Plan
+owner_flow: helix-data
+purpose: Plans a schema, semantic, or contract evolution with migration timing, consumer notification, rollback, and success criteria.
+required_sections:
+  - breaking_changes
+  - migration_window
+  - consumer_notification_plan
+  - rollback_plan
+  - success_criteria
+optional_sections:
+  - compatibility_matrix
+  - dual_write_period
+validator_notes: T-class validation checks that breaking changes are explicit, migration and rollback windows are bounded, and success criteria are measurable.

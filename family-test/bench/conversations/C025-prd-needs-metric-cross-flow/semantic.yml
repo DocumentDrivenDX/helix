@@ -1,0 +1,16 @@
+# C025 Layer 2 — cross-flow handoff helix → helix-data.
+# Marker has both helix and helix-data. "PRD" anchors fire helix first
+# (the PRD-owning flow); "metric we can measure" surfaces the helix-data
+# prerequisite. Layer 1 floor is Skill(helix) tool_use (first-engaged).
+# Layer 2 confirms the prose names BOTH a helix artifact (metric-definition)
+# AND offers a helix-data handoff (data-product-brief), with cross-flow
+# linking — not silent auto-population.
+
+prose_must_include:
+  - intent: "Engages helix first because the prompt names PRD (helix-owned artifact)"
+  - intent: "Surfaces helix-data as a downstream prerequisite for the measurable metric"
+  - intent: "Offers cross-flow linking (informs/informed_by) rather than silently writing ddx.links"
+
+prose_must_NOT_include:
+  - intent: "Engages helix-data first, treating PRD as a data-flow artifact"
+  - intent: "Silently auto-populates cross-flow edges without asking the operator"

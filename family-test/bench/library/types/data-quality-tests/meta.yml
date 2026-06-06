@@ -1,0 +1,12 @@
+id: data-quality-tests
+title: Data Quality Tests
+owner_flow: helix-data
+purpose: Defines the concrete checks, fixtures, and accepted temporary failures used to validate a data artifact before and after release.
+required_sections:
+  - test_inventory
+  - fixtures
+  - known_failures
+optional_sections:
+  - coverage_notes
+  - owning_team
+validator_notes: T-class validation checks that every required section exists, test inventory rows include id, name, expectation_id, and run_frequency, and fixture references are resolvable.
