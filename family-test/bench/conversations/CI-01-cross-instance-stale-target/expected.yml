@@ -24,7 +24,7 @@ discriminator:
   observable:
     matcher_type: text_match
     regex_pattern: '(stale|superseded|deprecated)[^\n]{0,80}(PRD-007|target|link)|PRD-007[^\n]{0,80}(superseded|stale|deprecated|PRD-009)'
-    occurrence_count: ">=1"
+    occurrence_count: 1
   expected_in_positive_run: present
   expected_in_negative_run: absent
   negative_control:

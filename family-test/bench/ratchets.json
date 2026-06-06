@@ -21,7 +21,7 @@
     "not gate' and writes the observed value back; subsequent runs gate."
   ],
   "version": 1,
-  "updated_at": "2026-06-06T20:56:43.794548+00:00",
+  "updated_at": "2026-06-06T23:10:29.349502+00:00",
   "last_attempt": {
     "timestamp": "2026-06-06T03:57:50Z",
     "outcome": "scaffold_only",
@@ -37,11 +37,14 @@
   "ratchets": {
     "stable_pass_rate": {
       "description": "min %% of bench rows that stable-pass at determinism=3",
-      "baseline": null,
+      "baseline": 0.4722,
       "tolerance_pp": 5,
       "direction": "higher_is_better",
       "source": "helix_bench run --determinism=3 (post-main-merge full bench)",
-      "alert_action": "fail CI; require codex review on regression"
+      "alert_action": "fail CI; require codex review on regression",
+      "last_observed": 0.4722,
+      "last_observed_at": "2026-06-06T23:10:29.349478+00:00",
+      "seeded_at": "2026-06-06T23:10:29.349478+00:00"
     },
     "routing_precision": {
       "description": "positive-prompt precision on the 75 routing evals",
@@ -50,17 +53,20 @@
       "direction": "higher_is_better",
       "source": "helix_bench routing-evals (positive set)",
       "alert_action": "fail CI; routing-positive regression is a hard-gate",
-      "last_observed": 1.0,
-      "last_observed_at": "2026-06-06T20:56:43.794535+00:00",
+      "last_observed": 0.6667,
+      "last_observed_at": "2026-06-06T23:10:29.349494+00:00",
       "seeded_at": "2026-06-06T16:01:47.928930+00:00"
     },
     "cost_per_run": {
       "description": "rolling 30-day avg full-bench $/run (cost_tracker.py)",
-      "baseline": null,
+      "baseline": 141.76,
       "tolerance_pct": 25,
       "direction": "lower_is_better",
       "source": "family-test/bench/runner/cost-log.jsonl",
-      "alert_action": "warn on PR; fail on main if sustained"
+      "alert_action": "warn on PR; fail on main if sustained",
+      "last_observed": 141.76,
+      "last_observed_at": "2026-06-06T23:10:29.349499+00:00",
+      "seeded_at": "2026-06-06T23:10:29.349499+00:00"
     },
     "dev_iteration_burn": {
       "description": "P0-P15 one-time bench infra dev burn (plan \u00a719.2 ~$1850)",
@@ -70,5 +76,8 @@
       "source": "cost-log.jsonl entries tagged phase=dev_iteration",
       "alert_action": "tracked separately; no automatic gate"
     }
-  }
+  },
+  "alerts": [
+    "routing_precision: REGRESSION baseline=1.0 observed=0.6667 tolerance=2 (tolerance_pp)"
+  ]
 }
