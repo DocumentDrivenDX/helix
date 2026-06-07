@@ -21,6 +21,44 @@ license: MIT
 
 # HELIX product flow
 
+## When to engage (read first; non-negotiable)
+
+You ENGAGE this skill — call `Skill(helix)` — whenever any of these is true,
+regardless of whether the artifact content is attached, the workspace is
+empty, or the request looks like a generic task. Engaging means routing
+through this skill; only this skill knows how to locate the marker, read
+the graph, and surface prerequisites.
+
+- The prompt names a HELIX artifact (PRD, ADR, FEAT, feature spec,
+  technical design, implementation plan, test plan, runbook, release
+  notes, user stories, roadmap brief, requirements) — even when the
+  prompt asks you to *review* or *expand* one whose content is not
+  attached. Engage; THIS SKILL knows how to resolve the artifact path
+  from the marker + graph + cwd, you do not.
+- The prompt uses a HELIX planning verb (frame, align, decompose,
+  prioritize, propose, capture, review, decide, evolve, refresh,
+  release) against a product/feature/requirements object.
+- The prompt asks "what's next", "plan the change", "decide what to do",
+  or any cross-flow query that needs the marker to answer.
+
+You DO NOT engage (stay silent — let the named sibling engage) when:
+
+- The prompt is prefixed `/helix-infra`, `/helix-data`, or `/helix-web`,
+  OR the operator sets `HELIX_METHODOLOGY=<sibling>` or `HELIX_FLOW=<sibling>`
+  in the environment. The explicit prefix wins — this skill does not
+  also activate.
+- The prompt uses a pure sibling action verb without product framing
+  (see the description for the full DEFER list).
+
+If engaging would conflict with the marker's `flows[]` authorization (helix
+is not listed), §5 takes precedence — reject with a marker-pointing
+diagnostic, do not silently engage by heuristic.
+
+Verbose-but-stuck anti-pattern: narrating HELIX-shaped reasoning in
+assistant text WITHOUT calling `Skill(helix)` is a contract violation.
+The Skill tool_use must fire as the FIRST tool_use of the turn when any
+of the engage conditions above is true.
+
 ## Activation discipline (do these in order, every time the skill engages)
 
 ### 1. Locate the marker
@@ -84,11 +122,37 @@ on every Verbose-but-stuck (VS-NN) row (plan §1.5b).
 
 ### 2. Decide activation state
 
+Before anything else: check the explicit operator overrides. They win
+over marker contents (per design §1.5 resolution chain rule 1).
+
+- **Explicit sibling prefix in the prompt** (`/helix-infra ...`,
+  `/helix-data ...`, `/helix-web ...`): the user has named a sibling
+  flow as the authority. Stay silent. Do NOT engage even if helix is
+  listed in `flows[]`. Let the named sibling skill engage.
+- **Env override** (`HELIX_METHODOLOGY=<sibling>` or `HELIX_FLOW=<sibling>`):
+  same handling as explicit prefix. Stay silent.
+
+Only after both overrides are checked, evaluate the marker:
+
 - **Marker present and well-formed**: parse it. The set of `flows[]`
   entries (v2; legacy alias `methodologies[]:` accepted under M020 warn) is
   authoritative. If `helix` is listed, this skill is active for the listed
   `root:` scope. If `helix` is NOT listed but a different flow is, defer to
   that flow's skill — do not also activate.
+
+- **Multiple helix instances in `flows[]`** (the marker declares
+  `flows: [{id: helix, instance: web, root: services/web/}, {id: helix,
+  instance: mobile, root: apps/mobile/}]`): you do NOT auto-pick. Emit the
+  disambiguation banner:
+
+      Multiple helix instances declared: <instance-1> (root: <root-1>),
+      <instance-2> (root: <root-2>). Re-run with the explicit prefix
+      `/helix:<instance-name>` or set HELIX_INSTANCE=<name>.
+
+  Then stay silent. Do not call `Skill(helix)`. The cwd-under-scope rule
+  (§3) does NOT promote one instance over the other when the prompt is
+  ambiguous — only an explicit prefix, env override, or cwd that lies
+  inside exactly one `root:` resolves it.
 
 - **Marker present and malformed** (YAML parse error, missing required keys,
   root outside repo, duplicate id, root resolves to nonexistent dir): STOP.
