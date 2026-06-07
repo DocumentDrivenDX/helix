@@ -833,6 +833,139 @@ def matcher_route_decision(params: dict[str, Any], t: Transcript) -> MatchResult
     raise RowRejection("T043", f"unknown routing_signal: {signal}")
 
 
+def matcher_route_decision_internal(
+    params: dict[str, Any], t: Transcript
+) -> MatchResult:
+    """Grade the canonical single-skill internal-routing decision.
+
+    Post canonical-promotion (the bench tests skills/helix/SKILL.md with
+    internal routing — no sibling Skill ever fires), the routing decision is
+    SEPARATE from the Skill tool_use. Skill(helix) ALWAYS fires; the
+    mode-specific observable BEHAVIOR after engagement tells us whether the
+    skill correctly routed to product / infra / data / web.
+
+    Params:
+      mode: one of "product" / "infra" / "data" / "web"
+
+    The matcher checks the mode's behavior conjunction (per skills/helix/
+    SKILL.md §"Internal routing modes"). It passes if ANY 2 of the 3 mode-
+    specific signals fire — that's tighter than the "prose says routing to
+    mode X" surface signal which is gameable.
+    """
+    mode = params.get("mode")
+    if not mode:
+        raise RowRejection("T043", "route_decision_internal requires mode")
+    if mode not in ("product", "infra", "data", "web"):
+        raise RowRejection(
+            "T043",
+            f"route_decision_internal mode must be one of product/infra/data/web (got {mode!r})",
+        )
+
+    text_lc = t.assistant_text.lower()
+    read_paths = [
+        (tu.input.get("file_path") or tu.input.get("path") or "")
+        for tu in t.tool_uses
+        if tu.name == "Read"
+    ]
+    bash_cmds = [
+        tu.input.get("command", "")
+        for tu in t.tool_uses
+        if tu.name == "Bash"
+    ]
+
+    def any_read_matches(*needles: str) -> bool:
+        return any(any(n in p for n in needles) for p in read_paths)
+
+    def any_bash_matches(*needles: str) -> bool:
+        return any(any(n in c for n in needles) for c in bash_cmds)
+
+    # Per-mode signal triples. Pass requires any 2 of 3.
+    if mode == "product":
+        signals = {
+            "read_marker_and_graph": any_read_matches(".helix.yml")
+                and any_read_matches("graph.yml"),
+            "read_upstream_artifact": any_read_matches(
+                "product-vision", "/prd", "feature-spec", "/feat-",
+                "/PRD-", "/FEAT-", "/ADR-", "principles",
+            ),
+            "cite_ddx_links": (
+                "ddx.links" in t.assistant_text
+                or "informs:" in t.assistant_text
+                or "ddx.links:" in t.assistant_text
+            ),
+        }
+    elif mode == "infra":
+        signals = {
+            "consult_stop_at": any_read_matches("stop-at-triggers")
+                or "stop_at" in text_lc
+                or "apply trigger" in text_lc
+                or "secret_read trigger" in text_lc,
+            "read_infra_artifact": any_read_matches(
+                "architecture", "runbook", "deployment-checklist",
+                "security-architecture", "tofu", "terraform",
+            ),
+            "confirm_before_apply": (
+                ("ok to proceed" in text_lc or "shall i proceed" in text_lc
+                 or "should i proceed" in text_lc or "want me to" in text_lc)
+                and any_bash_matches(
+                    "terraform", "tofu", "kubectl",
+                    "rotate", "credentials",
+                )
+            ) or (
+                # Or: explicit "I won't run X without confirmation" prose.
+                any(
+                    k in text_lc
+                    for k in ("apply", "tofu", "terraform", "kubectl",
+                              "credentials", "rotate")
+                )
+                and ("confirmation" in text_lc or "confirm before" in text_lc)
+            ),
+        }
+    elif mode == "data":
+        signals = {
+            "read_data_artifact": any_read_matches(
+                "data-contract", "data-quality-expectations",
+                "data-architecture", "data-design",
+            ),
+            "cite_producer_or_pii": any(
+                k in text_lc
+                for k in ("producer", "consumer", "pii",
+                          "governance", "classification")
+            ),
+            "defer_schema_change": (
+                ("stop_at" in text_lc or "confirmation" in text_lc
+                 or "ok to proceed" in text_lc)
+                and any(k in text_lc for k in
+                        ("schema", "backfill", "ingest", "migrate"))
+            ),
+        }
+    else:  # web
+        signals = {
+            "read_web_artifact": any_read_matches(
+                "architecture", "design-system", "monitoring-setup",
+                "runbook", "release-notes",
+            ),
+            "cite_web_vocab": any(
+                k in text_lc
+                for k in ("web vitals", "rum", "page error", "page perf",
+                          "lcp", "cls", "fid", "ttfb", "checkout flow")
+            ),
+            "defer_prod_deploy": (
+                ("stop_at" in text_lc or "confirmation" in text_lc
+                 or "ok to proceed" in text_lc)
+                and any(k in text_lc for k in
+                        ("deploy", "ship", "production", "rollout"))
+            ),
+        }
+
+    fired = [k for k, v in signals.items() if v]
+    verdict = "present" if len(fired) >= 2 else "absent"
+    return MatchResult(
+        verdict,
+        {"mode": mode, "fired_signals": fired, "all_signals": list(signals.keys())},
+    )
+
+
 MATCHER_REGISTRY: dict[str, Matcher] = {
     "skill_tool_use": matcher_skill_tool_use,
     "read_before_write": matcher_read_before_write,
@@ -843,6 +976,7 @@ MATCHER_REGISTRY: dict[str, Matcher] = {
     "refusal_no_write": matcher_refusal_no_write,
     "literal_or_banner_text": matcher_literal_or_banner_text,
     "route_decision": matcher_route_decision,
+    "route_decision_internal": matcher_route_decision_internal,
 }
 
 
@@ -2093,10 +2227,16 @@ def new_run_id() -> str:
 
 
 def resolve_plugins(plugins_file: Path) -> list[Path]:
-    """Read plugins.txt and resolve each plugin name to a host directory.
+    """Read plugins.txt and resolve each entry to a host directory.
 
-    Convention: each line names a plugin under FAMILY_TEST_ROOT/. Empty
-    lines and `#` comments are skipped.
+    Each line is either:
+      - an absolute path (e.g. /Users/erik/Projects/helix) — used as-is;
+        this is the canonical-install convention post-promotion
+      - a relative name under FAMILY_TEST_ROOT/ (legacy multi-flow research
+        layout — `methodology-product`, `library`, etc.) — resolved relative
+        to FAMILY_TEST_ROOT
+
+    Empty lines and `#` comments are skipped.
     """
     if not plugins_file.exists():
         return []
@@ -2105,7 +2245,10 @@ def resolve_plugins(plugins_file: Path) -> list[Path]:
         name = raw.strip()
         if not name or name.startswith("#"):
             continue
-        candidate = FAMILY_TEST_ROOT / name
+        if name.startswith("/"):
+            candidate = Path(name)
+        else:
+            candidate = FAMILY_TEST_ROOT / name
         if not candidate.is_dir():
             raise FileNotFoundError(
                 f"plugin '{name}' not found at {candidate}"
@@ -2613,26 +2756,24 @@ def _routing_fixture() -> Path:
 
 
 def _routing_plugins() -> list[Path]:
-    """Plugin set for routing probes: library + every methodology-* plugin.
+    """Plugin set for routing probes: the canonical install at the repo root.
 
-    Loads ALL methodology-* plugins (product, data, infra, web if present)
-    so sibling skills can engage when an ambiguous prompt targets a
-    sibling flow. Loading only methodology-product made every
-    target=helix-{data,infra,web} prompt a guaranteed FAIL because the
-    sibling SKILL never registered.
+    The repo IS the plugin per .claude-plugin/plugin.json — one plugin
+    shipping one skill (`helix`) with internal routing to product/infra/data/
+    web modes. The bench loads the same install path that users get from
+    the marketplace, mounted via --plugin-dir.
+
+    Previous shape (research fork: library/ + methodology-{product,data,
+    infra,web}/) is gone after the canonical-promotion refactor. If a future
+    multi-plugin layout returns, this function is the only spot that needs
+    updating.
     """
-    plugins: list[Path] = []
-    library = FAMILY_TEST_ROOT / "library"
-    if library.is_dir():
-        plugins.append(library)
-    for entry in sorted(FAMILY_TEST_ROOT.iterdir()):
-        if not entry.is_dir():
-            continue
-        if not entry.name.startswith("methodology-"):
-            continue
-        if (entry / ".claude-plugin" / "plugin.json").is_file():
-            plugins.append(entry)
-    return plugins
+    repo_root = FAMILY_TEST_ROOT.parent
+    if not (repo_root / ".claude-plugin" / "plugin.json").is_file():
+        raise FileNotFoundError(
+            f"canonical plugin manifest missing at {repo_root}/.claude-plugin/plugin.json"
+        )
+    return [repo_root]
 
 
 def _probe_fired_skill(transcript: Transcript, skill_id: str) -> bool:

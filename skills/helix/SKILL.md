@@ -1,6 +1,22 @@
 ---
 name: helix
-description: Route HELIX methodology work to the right planning, alignment, design, review, execution, or release workflow. Use when the user asks to use HELIX, work with HELIX artifacts, align documents, frame requirements, design a change, evolve specs, review work, decide what is next, or manage HELIX-governed work without naming a specific helix-* skill.
+description: |
+  HELIX skill — single entrypoint for product/feature/requirements work,
+  infrastructure changes, data pipelines, and web/frontend operations.
+  Engage on prompts to frame, align, decompose, prioritize, propose,
+  capture, review, decide, evolve, or release work — also without naming
+  a HELIX artifact (e.g. "frame the opportunity", "review the
+  architecture"). Engage on any named HELIX artifact: PRD, ADR, FEAT,
+  feature spec, technical design, implementation plan, test plan,
+  runbook, release notes, user stories, roadmap brief, requirements.
+  Engage on infra verbs (terraform/tofu/kubectl, provision/destroy/
+  rotate, CI, credentials), data verbs (backfill/ingest/migrate a table
+  or schema, profile a source, data contract), web verbs (deploy/ship,
+  monitoring, page perf) — these route INTERNALLY to the matching mode.
+  Engage on "what's next" / "plan the change" / cross-flow queries.
+  Once engaged, route to one of: product, infra, data, web. Honor
+  explicit prefix (/helix-infra → infra mode) or HELIX_METHODOLOGY= env
+  override.
 argument-hint: "[intent or scope]"
 ---
 
@@ -12,6 +28,222 @@ fits, then follow the matching workflow contract below.
 
 Rule: do not add separate public `helix-*` skills. Add or refine a route inside
 this skill instead.
+
+## When to engage (read first; non-negotiable)
+
+You ENGAGE this skill — call `Skill(helix)` — whenever any of these is true,
+regardless of whether the artifact content is attached, the workspace is
+empty, or the request looks like a generic task. Once engaged, you route
+INTERNALLY to one of four modes (product / infra / data / web). The skill
+does not have sibling skills to defer to — internal routing is the only
+routing.
+
+Engage when:
+
+- The prompt names a HELIX artifact (PRD, ADR, FEAT, feature spec,
+  technical design, implementation plan, test plan, runbook, release
+  notes, user stories, roadmap brief, requirements) — even when the
+  prompt asks you to *review* or *expand* one whose content is not
+  attached. Engage; THIS SKILL knows how to resolve the artifact path
+  from the marker + graph + cwd, you do not.
+- The prompt uses a HELIX planning verb (frame, align, decompose,
+  prioritize, propose, capture, review, decide, evolve, refresh,
+  release) against a product/feature/requirements object → route to
+  **product** mode.
+- The prompt uses an IaC verb (terraform/tofu/kubectl, provision/destroy/
+  rotate, set up CI, manage credentials) → route to **infra** mode
+  AFTER consulting `stop_at` triggers.
+- The prompt uses a data-pipeline verb (backfill/ingest/migrate a table
+  or schema, profile a source, write a data contract) → route to
+  **data** mode.
+- The prompt uses a web/frontend verb (deploy/ship to production, add
+  monitoring for a user-facing flow, optimize page performance) → route
+  to **web** mode AFTER consulting `stop_at` triggers.
+- The prompt asks "what's next", "plan the change", "decide what to do",
+  or any cross-flow query that needs the marker to answer → route to
+  the §Check And Next contract.
+
+Operator overrides (rare but honored):
+
+- Explicit prefix `/helix-infra ...`, `/helix-data ...`, `/helix-web ...`
+  pins the internal mode for the rest of the prompt. Engage and route
+  directly to the named mode without re-evaluating triggers.
+- `HELIX_METHODOLOGY=<mode>` env (legacy alias for `HELIX_FLOW=<mode>`)
+  sets the session-default internal mode.
+
+Verbose-but-stuck anti-pattern: narrating HELIX-shaped reasoning in
+assistant text WITHOUT calling `Skill(helix)` is a contract violation.
+The Skill tool_use must fire as the FIRST tool_use of the turn when any
+of the engage conditions above is true.
+
+## Internal routing modes
+
+After engagement, the skill drives behavior by mode. The bench grades by
+mode-specific observable behavior (the `route_decision_internal` matcher),
+not by a narrated routing intent.
+
+| Mode | Triggers | Required observable behavior (any 2 satisfy the matcher) |
+|---|---|---|
+| `product` | HELIX artifact named; planning verb against product/feature/requirements; cross-flow query | (a) Read `.helix.yml` AND `workflows/graph.yml` BEFORE any Write/Edit (`read_before_write` matcher); (b) Read of named upstream artifacts (vision, PRD, feature spec) per the graph BEFORE drafting; (c) cite `ddx.links` / `informs` edges in any new artifact |
+| `infra` | IaC verb (terraform/tofu/kubectl, provision/destroy/rotate); CI/credentials ops | (a) Consult `library/skill-prompts/stop-at-triggers.yml` for `apply` or `secret_read` triggers BEFORE any Bash; (b) Read of infra-shaped artifacts (architecture, runbook, deployment-checklist); (c) explicit confirmation prompt before terraform/tofu/kubectl/credential operations |
+| `data` | Data-pipeline verb (backfill/ingest/migrate, profile a source, data contract) | (a) Read of data-contract / data-quality-expectations / data-architecture artifacts; (b) cite producer/consumer or PII/governance posture in prose; (c) defer schema mutations behind a `stop_at` confirmation |
+| `web` | Web/frontend verb (deploy/ship, add monitoring for a user flow, optimize page perf) | (a) Read of architecture / design-system / monitoring-setup / runbook artifacts in the deploy-flow scope; (b) cite Web Vitals / RUM / page-error vocabulary in prose; (c) defer production deploys behind a `stop_at` confirmation |
+
+Skipping the mode-required behavior is a routing failure even if the Skill
+tool_use fires. The bench measures this.
+
+## Activation discipline (do these in order, every time the skill engages)
+
+### 1. Locate the marker
+
+Find `.helix.yml` by walking UP from the current working directory to the
+git root (the directory containing `.git/`). Stop at the first `.helix.yml`
+encountered. If the cwd is `/repo/services/api/docs/helix/` and the marker
+lives at `/repo/.helix.yml`, you MUST find the parent marker — do not give
+up after searching cwd only.
+
+Concretely: run `git rev-parse --show-toplevel` (or fall back to walking up
+until `.git/` is found), then check for `.helix.yml` at the top.
+
+### 1.5 Read marker AND graph before any Write/Edit (ordering invariant)
+
+The FIRST `Write` or `Edit` tool_use in the session MUST be preceded by at
+least one `Read` matching `.helix.yml` AND at least one `Read` matching
+`workflows/graph.yml`. Skipping either is a contract violation, EVEN IF the
+Skill tool_use has already fired. The failure mode this rule prevents — the
+verbose-but-stuck pattern — is the agent narrating HELIX-shaped reasoning
+from training while the marker scope, the type catalog, and the prerequisite
+chain go unconsulted. The resulting artifact looks plausible but is
+unanchored to the workspace's actual contract.
+
+The order between the two Reads is not constrained: marker-first is the
+natural sequence; graph-first is acceptable for graph-query-only prompts
+like "What's next?" (no Write/Edit follows).
+
+This ordering invariant is independent of autonomy level. Under
+`autonomous` the skill MAY proceed without operator confirmation, but it
+MUST NOT skip the two Reads — autonomy waives the human-in-the-loop ask,
+not the workspace-grounding contract.
+
+If the marker is absent and the skill is engaging by heuristic (§2 banner
+case), the `Read` for `.helix.yml` is satisfied by the failed lookup itself
+(the Read tool_use occurred even though the file did not exist); the `Read`
+for `workflows/graph.yml` is still required before any Write/Edit because
+the type catalog binds artifact templates.
+
+The bench enforces this via the `read_before_write` matcher.
+
+### 2. Decide activation state
+
+Before anything else: check the explicit operator overrides. They win over
+marker contents.
+
+- **Explicit prefix in the prompt** (`/helix-infra ...`, `/helix-data ...`,
+  `/helix-web ...`): pins the internal mode for this turn. Engage,
+  skip mode re-evaluation, route directly to the named mode.
+- **Env override** (`HELIX_METHODOLOGY=<mode>` or `HELIX_FLOW=<mode>`):
+  same handling — pins the session-default internal mode.
+
+Only after overrides are checked, evaluate the marker:
+
+- **Marker present and well-formed**: parse it. The `flows[]` list (legacy
+  alias `methodologies[]:` accepted under M020 warn) is the authorization
+  boundary. If `helix` is listed, this skill is active for the listed
+  `root:` scope. If `helix` is NOT listed (the marker only declares a
+  non-helix flow), defer to that flow's process — do not engage.
+
+- **Multiple helix instances in `flows[]`** (e.g.
+  `flows: [{id: helix, instance: web, root: services/web/}, {id: helix,
+  instance: mobile, root: apps/mobile/}]`): you do NOT auto-pick. Emit the
+  disambiguation banner:
+
+      Multiple helix instances declared: <instance-1> (root: <root-1>),
+      <instance-2> (root: <root-2>). Re-run with the explicit prefix
+      `/helix:<instance-name>` or set HELIX_INSTANCE=<name>.
+
+  Then stay silent. Do not call `Skill(helix)`. The cwd-under-scope rule
+  (§3) does NOT promote one instance over the other when the prompt is
+  ambiguous — only an explicit prefix, env override, or cwd that lies
+  inside exactly one `root:` resolves it.
+
+- **Marker present and malformed** (YAML parse error, missing required keys,
+  root outside repo, duplicate id, root resolves to nonexistent dir): STOP.
+  Report the marker error verbatim with file and line. Do NOT fall back to
+  heuristics.
+
+- **Marker absent, heuristic file present** (`workflows/methodology.yml`,
+  `docs/helix/` tree, etc. — legacy heuristic filename retained for
+  back-compat detection): emit this banner verbatim before any other
+  output:
+
+      No .helix.yml found. Activating helix by heuristic (path: <heuristic-path>).
+      Run /helix init-marker to make this explicit.
+
+  Substitute the actual heuristic-path that triggered activation. Then
+  proceed.
+
+- **Marker absent, no heuristic**: report no active flow. If asked for a
+  machine-readable response, return `{"active": []}`. Do not improvise
+  that helix is active.
+
+### 3. Enforce scope
+
+For every operation that writes or edits a file, check that the target path
+is INSIDE the active flow's `root:` from the marker. If the user asks for
+a write outside that scope:
+
+- Refuse the write.
+- Surface the marker entry that scoped the flow and the offending target
+  path.
+- Ask whether they want to (a) update the marker to broaden scope, or
+  (b) redirect the write to under the scope, or (c) cancel.
+
+Do NOT silently write outside scope. Scope is the marker's contract.
+
+When the marker declares multiple flows at different scopes, the flow
+whose `root:` contains the cwd wins. If cwd is outside every declared
+scope, follow the resolution chain: explicit prefix → HELIX_FLOW env
+(legacy HELIX_METHODOLOGY) → cwd-under-root → defaults.flow → single
+entry → disambiguation banner with deterministic tie-break by listed
+order.
+
+### 4. Author / edit artifacts
+
+When asked to author or edit an instance document, follow the type's
+`template.md` and `prompt.md` from the library. Look up the type via the
+flow's `workflows/graph.yml` — every node points at a `library:<slug>`
+or `local:<slug>` type, and the library tree is at the canonical install
+root (`library/` after this install).
+
+Instance edges (PRD → FEAT, ADR → technical-design, etc.) belong in the
+instance's frontmatter under `ddx.links:`. Never embed edges in the body
+or in this skill's prompts.
+
+Cross-flow edges (e.g. PRD informs an infra-mode artifact) must be
+declared in `external_edges:` of `workflows/graph.yml` first, then in the
+instance frontmatter with `cross_flow: true` (legacy alias
+`cross_methodology: true` accepted for one cycle).
+
+### 5. Authorization boundary
+
+The marker's `flows:` list is the authorization boundary. An explicit
+`/helix <verb>` prefix wins ONLY if `helix` is a marker member. If the
+user runs `/helix-infra intent` and the marker does NOT list helix,
+REJECT with a diagnostic naming the marker as the authorization gate.
+Do not activate even with explicit prefix.
+
+### 6. Frontmatter round-trip
+
+Never rewrite unknown frontmatter keys. When you edit an instance
+document's body, preserve `ddx.id`, `ddx.review`, `ddx.links`, AND any
+vendor-namespaced (`x-*`) or legacy (`relationships:`, `depends_on:`)
+keys byte-equivalent. Key order is preserved (insertion-order dict +
+`yaml.safe_dump(..., sort_keys=False)`).
+
+Legacy → new key translation (e.g. `relationships:` → `ddx.links:`) is
+done ONLY by the explicit migration script
+`library/scripts/migrate_relationships_to_links.py`. Never translate as
+a side effect of an incidental edit.
 
 ## Routing Rules
 

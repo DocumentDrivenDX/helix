@@ -74,17 +74,14 @@ def test_positive_skill_md() -> None:
     check("does NOT include stop_at", "stop_at" not in r["categories"],
           f"got {r['categories']}")
 
-    # family-test methodology skill should also match
-    r = run_cli("family-test/methodology-product/skills/helix/SKILL.md")
-    check("methodology-* SKILL.md also matches",
-          {"conversation", "routing"}.issubset(set(r["categories"])),
-          f"got {r['categories']}")
+    # (the legacy family-test/methodology-* fork was removed post canonical-
+    # promotion; canonical skills/helix/SKILL.md is the only skill path now)
 
 
 def test_positive_stop_at() -> None:
     """P2. stop-at-triggers.yml edit → stop_at rows."""
     print("\nP2. stop-at-triggers.yml edit → stop_at")
-    r = run_cli("family-test/library/skill-prompts/stop-at-triggers.yml")
+    r = run_cli("library/skill-prompts/stop-at-triggers.yml")
     check("stop_at in categories", "stop_at" in r["categories"],
           f"got {r['categories']}")
     check("only stop_at (not full bench)", set(r["categories"]) == {"stop_at"},
@@ -94,7 +91,7 @@ def test_positive_stop_at() -> None:
 def test_positive_marker_schema() -> None:
     """P3. marker schema edit → rename / compat rows."""
     print("\nP3. marker schema edit → rename_compat")
-    r = run_cli("family-test/library/scripts/helix_check.py")
+    r = run_cli("library/scripts/helix_check.py")
     check("rename_compat in categories", "rename_compat" in r["categories"],
           f"got {r['categories']}")
     check("does NOT escalate to full", "full" not in r["categories"],
@@ -144,7 +141,7 @@ def test_multi_rule_pr_unions() -> None:
     print("\nI2. Multi-rule PR unions category contributions")
     r = run_cli(
         "skills/helix/SKILL.md",
-        "family-test/library/skill-prompts/stop-at-triggers.yml",
+        "library/skill-prompts/stop-at-triggers.yml",
     )
     cats = set(r["categories"])
     check("conversation included", "conversation" in cats, f"got {sorted(cats)}")
@@ -169,7 +166,7 @@ def test_diff_file_mode() -> None:
     print("\nI4. --diff file mode")
     with tempfile.NamedTemporaryFile("w", suffix=".txt", delete=False) as f:
         f.write("skills/helix/SKILL.md\n")
-        f.write("family-test/library/skill-prompts/stop-at-triggers.yml\n")
+        f.write("library/skill-prompts/stop-at-triggers.yml\n")
         diff_path = Path(f.name)
     try:
         proc = subprocess.run(

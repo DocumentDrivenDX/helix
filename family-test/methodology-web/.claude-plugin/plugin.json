@@ -1,8 +1,0 @@
-{
-  "name": "helix-web",
-  "version": "0.1.0",
-  "description": "HELIX web/frontend operator methodology — slim slice.",
-  "author": {"name": "DocumentDrivenDX"},
-  "license": "MIT",
-  "skills": "./skills/"
-}

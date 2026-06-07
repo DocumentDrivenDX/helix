@@ -539,17 +539,20 @@ if not filecmp.cmp(backup, generated, shallow=False):
 PYEOF
 rm -f "$graph_tmp" "$graph_tmp.committed"
 
-# Family-test methodology SKILL.md frontmatter: enforce agentskills.io spec
-# AND the runtime-specific limits we hit in benchmarking:
+# Canonical SKILL.md frontmatter check: enforce agentskills.io spec AND the
+# runtime-specific limits we hit in benchmarking:
 #   - codex: description max 1024 chars (HARD: codex refuses to load over)
 #   - claude-code: 1024 recommended
 # v0.2.2 of helix had a 1670-char description that broke every codex
 # routing-eval call. This guard catches that class of regression.
-python3 - "$repo_root" <<'PYEOF' || fail "family-test SKILL.md frontmatter check failed"
+#
+# Targets the canonical install at skills/helix/SKILL.md (post canonical-
+# promotion; the family-test/methodology-* research fork was removed).
+python3 - "$repo_root" <<'PYEOF' || fail "canonical SKILL.md frontmatter check failed"
 import sys, yaml, glob, os
 repo_root = sys.argv[1]
 patterns = [
-    os.path.join(repo_root, "family-test", "methodology-*", "skills", "*", "SKILL.md"),
+    os.path.join(repo_root, "skills", "*", "SKILL.md"),
 ]
 errors = []
 checked = 0
@@ -585,7 +588,7 @@ for pat in patterns:
             errors.append(f"{path}: description {n} chars exceeds 1024 (codex hard limit, claude-code recommended limit)")
         if n < 1:
             errors.append(f"{path}: description must be 1..1024 chars (got {n})")
-print(f"checked {checked} family-test methodology SKILL.md files")
+print(f"checked {checked} canonical SKILL.md file(s)")
 if errors:
     for e in errors:
         print(f"  FAIL: {e}", file=sys.stderr)

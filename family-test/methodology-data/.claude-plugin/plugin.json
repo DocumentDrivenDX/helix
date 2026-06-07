@@ -1,8 +1,0 @@
-{
-  "name": "helix-data",
-  "version": "0.1.0",
-  "description": "HELIX data-pipeline methodology — discover/profile, contract, design, validate, build, operate, evolve.",
-  "author": {"name": "DocumentDrivenDX"},
-  "license": "MIT",
-  "skills": "./skills/"
-}

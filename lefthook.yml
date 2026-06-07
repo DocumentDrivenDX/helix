@@ -26,10 +26,11 @@ pre-commit:
         fi
         exit $fail
       glob: "{skills/**/*.md,workflows/**/*.md,workflows/**/*.yaml,workflows/**/*.yml}"
-    check-library-types:
-      run: |
-        python3 family-test/library/scripts/helix_check.py type family-test/library/types --strict
-      glob: "family-test/library/types/**/*"
+    # check-library-types disabled after canonical-promotion: the
+    # family-test/library/ research fork was removed in favor of the
+    # canonical type catalog at workflows/activities/*/artifacts/<type>/.
+    # If/when a top-level library/types/ tree gets stood up, re-enable with
+    # a path pointing there + a helix_check.py colocated under library/scripts/.
     check-cc-revalidation:
       # Advisory warning, never blocks. Surfaces CC version pin deadline on
       # every commit so the 90-day re-validation cadence can't slip silently.

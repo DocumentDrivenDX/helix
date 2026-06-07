@@ -53,7 +53,6 @@ rules:
     description: "SKILL.md edit → conversation library + routing evals (plan §19.2)"
     globs:
       - "skills/**/SKILL.md"
-      - "family-test/methodology-*/skills/**/SKILL.md"
     categories: [conversation, routing]
 
   # ---------------------------------------------------------------------------
@@ -62,7 +61,6 @@ rules:
   - id: stop_at_triggers
     description: "stop-at-triggers.yml edit → stop_at trigger rows (plan §19.2)"
     globs:
-      - "family-test/library/skill-prompts/stop-at-triggers.yml"
       - "library/skill-prompts/stop-at-triggers.yml"
     categories: [stop_at]
 
@@ -72,7 +70,6 @@ rules:
   - id: graph_yml
     description: "graph.yml edit → graph-discrimination + cross-flow rows (plan §19.2)"
     globs:
-      - "family-test/methodology-*/workflows/graph.yml"
       - "workflows/**/graph.yml"
     categories: [graph_discrim, cross_flow, verbose_stuck]
 
@@ -84,7 +81,6 @@ rules:
   - id: marker_schema
     description: "marker schema edit → rename/compat + multi-instance rows (plan §19.2)"
     globs:
-      - "family-test/library/scripts/helix_check.py"
       - "library/scripts/helix_check.py"
     categories: [rename_compat, multi_instance, cross_instance]
 
@@ -178,11 +174,10 @@ rules:
   # (these can ripple in ways path-globs can't easily anticipate; escalate)
   # ---------------------------------------------------------------------------
   - id: methodology_content
-    description: "methodology library/types/workflows edited → full bench"
+    description: "canonical workflows/library edited → full bench"
     globs:
-      - "family-test/methodology-*/workflows/**"
-      - "family-test/library/types/**"
-      - "family-test/bench/library/types/**"
+      - "workflows/**"
+      - "library/types/**"
     categories: [full]
 
   # ---------------------------------------------------------------------------

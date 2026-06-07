@@ -1,0 +1,166 @@
+# library/skill-prompts/autonomy.yml — INFORMATIONAL ONLY
+#
+# This file holds per-level worked examples + the stop_at_extensions schema
+# + long-form rationale paragraphs. It is NOT the normative autonomy
+# contract — the normative rules (resolution precedence, the 4 operator-
+# facing levels, the 3-level policy spectrum, the hard-stop invariant) live
+# INLINE in skills/helix/SKILL.md sections "Autonomy" and "Apply The
+# Autonomy Level". Edits here document examples; edits THERE change
+# behavior.
+#
+# Consumed by:
+#   - operators reading the YAML for clarity on a specific level's behavior
+#   - repos overriding stop_at_extensions in .helix-autonomy.yml (schema below)
+#   - the bench, ONLY as supplementary evidence on autonomy-matrix rows when
+#     diagnosing why an AM-* row failed
+
+version: 1
+
+# ----------------------------------------------------------------------------
+# Per-level worked examples
+# ----------------------------------------------------------------------------
+# Each level shows what a confirmation prompt looks like in practice. The
+# operator-facing levels are: manual / guided / autonomous / aggressive.
+# The policy-spectrum levels are: low / medium / high.
+
+operator_levels:
+
+  manual:
+    behavior: "Ask before EVERY tool use, including Read and diagnostic Bash."
+    example_confirmation: |
+      Before I Read .helix.yml to locate the marker, OK to proceed? (manual)
+    example_session: |
+      User: Let's create a PRD for the coffee-ordering app. Use HELIX.
+      Assistant: I'm engaging HELIX in manual autonomy. Before I Read the
+      marker (.helix.yml) to ground the work, OK to proceed?
+      [WAIT for operator reply before any tool_use]
+    rationale: |
+      Manual is for high-trust scenarios where the operator wants visibility
+      into every action — first-run on a new repo, security-sensitive work,
+      or training a junior operator on the HELIX workflow.
+
+  guided:
+    behavior: "Ask before the FIRST state-changing tool use; subsequent
+              state-changing tools proceed silently UNLESS a stop_at trigger
+              fires. Read tool_use never requires confirmation."
+    example_confirmation: |
+      I'll Write docs/helix/01-frame/PRD.md with the new content. OK to
+      proceed? (guided — confirming first state-changing operation)
+    rationale: |
+      Guided is the default. It balances visibility (operator sees what's
+      about to land) against velocity (subsequent edits don't require
+      re-confirmation). Most HELIX flows fit this shape.
+
+  autonomous:
+    behavior: "Proceed without asking; surface results AFTER the fact. Stop
+              ONLY on a stop_at trigger or irreducible ambiguity (two equally
+              valid graph routes, an unresolvable marker)."
+    example_session: |
+      User: Frame the opportunity for the analytics product. Use HELIX
+            autonomous.
+      Assistant: [Skill(helix) tool_use → Read .helix.yml → Read
+                  workflows/graph.yml → Write docs/helix/00-discover/
+                  product-vision.md → Write docs/helix/01-frame/PRD.md]
+      Drafted product-vision.md and PRD.md. Next graph-prerequisite is
+      principles.md — proceed?
+    rationale: |
+      Autonomous is for routine work where the operator has already
+      validated the shape. The hard-stop invariant still fires (stop_at on
+      `apply`, `secret_read`, etc.) — autonomy waives the question, not
+      the floor.
+
+  aggressive:
+    behavior: "As autonomous, but ALSO draft every declared prerequisite +
+              the requested artifact in one pass. Initiative across the
+              full methodology graph. Still honors stop_at and irreducible
+              ambiguity."
+    example_session: |
+      User: Aggressive: draft the PRD for the mobile onboarding work.
+      Assistant: [Skill(helix) tool_use → Read .helix.yml → Read
+                  workflows/graph.yml → identifies prereqs: vision,
+                  principles → Writes all three in one pass]
+      Drafted product-vision.md, principles.md, and PRD.md (cross-linked
+      via ddx.links). No stop_at triggers fired.
+    rationale: |
+      Aggressive is for power-user / batch-authoring scenarios. The risk
+      is over-drafting (creating artifacts the operator would have wanted
+      to leave for later). Use only when the operator has explicitly opted
+      in.
+
+# ----------------------------------------------------------------------------
+# Policy spectrum (parallel axis to operator levels; controls pause density)
+# ----------------------------------------------------------------------------
+
+policy_spectrum:
+
+  low:
+    behavior: "Ask before each step AND before creating each downstream
+              artifact. Do not infer unconfirmed scope. Concern selection
+              stays interactive."
+    when_used: |
+      First-time HELIX users learning the workflow. Audit/compliance work
+      where every decision needs a paper trail.
+
+  medium:
+    behavior: "Create deterministic non-conflict artifacts; pause when
+              ambiguity or conflict blocks deterministic progress. Prompt
+              for concern selection when none exists. (Default.)"
+    when_used: |
+      Standard HELIX work for an established operator.
+
+  high:
+    behavior: "Create downstream artifacts without pausing unless a hard
+              stop blocks progress; record assumptions as speculative work
+              rather than asking. When no concerns are declared, INFER the
+              concern selection from the product's nature and record it as
+              an assumption."
+    when_used: |
+      Repeated workflows on a well-known product. The operator trusts the
+      assumptions and reviews them in batch later.
+
+# ----------------------------------------------------------------------------
+# stop_at_extensions schema
+# ----------------------------------------------------------------------------
+# Repos extend the base trigger list (library/skill-prompts/stop-at-triggers.yml)
+# by declaring `stop_at_extensions:` in .helix-autonomy.yml. Base triggers
+# cannot be removed; the active set is the union of base + extensions.
+
+stop_at_extensions_schema:
+  version: 1
+  example: |
+    # .helix-autonomy.yml at repo root
+    stop_at_extensions:
+      - id: db_migration
+        matcher:
+          tool_use_name: Bash
+          command_pattern: '\b(alembic|prisma migrate|sqitch deploy)\b'
+        rationale: "Schema migrations should always pause."
+      - id: notify_pagerduty
+        matcher:
+          tool_use_name: Bash
+          command_pattern: 'pd events create|pagerduty.*trigger'
+        rationale: "Paging humans requires explicit operator confirmation."
+
+# ----------------------------------------------------------------------------
+# Resolution precedence (informational reference)
+# ----------------------------------------------------------------------------
+# The normative resolution chain lives in skills/helix/SKILL.md §"Apply The
+# Autonomy Level". Documented here for cross-reference only.
+
+resolution_precedence:
+  1: per_prompt_override        # slash prefix or HELIX_AUTONOMY= env
+  2: repo_user_local_override   # .helix-autonomy.yml (gitignored)
+  3: user_default               # ~/.config/helix/autonomy.yml
+  4: repo_default               # autonomy: block in .helix.yml
+  5: skill_default              # "guided"
+
+# ----------------------------------------------------------------------------
+# Never-collapse-the-loop invariant (informational)
+# ----------------------------------------------------------------------------
+# The normative invariant lives in skills/helix/SKILL.md. Restated here for
+# clarity:
+#
+#   Autonomy changes checkpoint DENSITY only. It NEVER collapses the
+#   seven-activity loop into one generic prompt and NEVER skips an activity
+#   the work requires. A high-autonomy/aggressive run executes the same
+#   activities a low-autonomy/manual run would — it just pauses less often.

@@ -5,7 +5,16 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "$0")/../../.." && pwd)"
 cd "$repo_root"
 
-script=family-test/library/scripts/migrate_relationships_to_links.py
+# Probe-fixture for migrate_relationships_to_links.py (historical bucket-d
+# evidence). The script was part of the family-test/library/ research fork
+# which was removed during canonical promotion. If you need to reproduce
+# bucket-d evidence, restore the script from git history at sha 0d1a858a^
+# or earlier, place it under a path of your choice, and set `script=` below.
+script=${HELIX_MIGRATE_SCRIPT:-library/scripts/migrate_relationships_to_links.py}
+if [[ ! -f "$script" ]]; then
+  echo "SKIP: migrate script not present at $script (family-test/library/ was removed)" >&2
+  exit 0
+fi
 fixtures=family-test/probe-fixtures/bucket-d/migration-corpus
 workdir=family-test/probe-fixtures/bucket-d/migration-corpus-applied
 evidence=family-test/probe-evidence/bucket-d
