@@ -2613,12 +2613,25 @@ def _routing_fixture() -> Path:
 
 
 def _routing_plugins() -> list[Path]:
-    """Default plugin set for routing probes: library + methodology-product."""
+    """Plugin set for routing probes: library + every methodology-* plugin.
+
+    Loads ALL methodology-* plugins (product, data, infra, web if present)
+    so sibling skills can engage when an ambiguous prompt targets a
+    sibling flow. Loading only methodology-product made every
+    target=helix-{data,infra,web} prompt a guaranteed FAIL because the
+    sibling SKILL never registered.
+    """
     plugins: list[Path] = []
-    for name in ("library", "methodology-product"):
-        p = FAMILY_TEST_ROOT / name
-        if p.is_dir():
-            plugins.append(p)
+    library = FAMILY_TEST_ROOT / "library"
+    if library.is_dir():
+        plugins.append(library)
+    for entry in sorted(FAMILY_TEST_ROOT.iterdir()):
+        if not entry.is_dir():
+            continue
+        if not entry.name.startswith("methodology-"):
+            continue
+        if (entry / ".claude-plugin" / "plugin.json").is_file():
+            plugins.append(entry)
     return plugins
 
 
