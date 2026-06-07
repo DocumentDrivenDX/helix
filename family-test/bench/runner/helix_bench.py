@@ -54,10 +54,12 @@ ROUTING_EVALS_DIR = BENCH_ROOT / "routing-evals"
 RUNS_DIR = BENCH_ROOT / "runs"
 RUN_PROBE_SH = FAMILY_TEST_ROOT / "docker" / "run-probe.sh"
 RUN_PROBE_CODEX_SH = BENCH_ROOT / "runner" / "run-probe-codex.sh"
+RUN_PROBE_OPENCODE_SH = BENCH_ROOT / "runner" / "run-probe-opencode.sh"
 
 # Supported runtimes for `invoke_probe` dispatch. Default is claude
 # (`run-probe.sh` Docker harness). Codex runs on-host via
-# `run-probe-codex.sh`. OpenCode reserved for future extension.
+# `run-probe-codex.sh`. OpenCode runs on-host via `run-probe-opencode.sh`,
+# discovering SKILL.md via the workspace's .claude/skills/ tree.
 SUPPORTED_RUNTIMES = ("claude", "codex", "opencode")
 DEFAULT_RUNTIME = "claude"
 RATCHETS_PATH = BENCH_ROOT / "ratchets.json"
@@ -314,6 +316,85 @@ class Transcript:
                         "name": tool_name,
                         "input": {"file_path": path},
                     })
+        return cls.from_events(synthetic_events)
+
+    @classmethod
+    def parse_opencode(cls, source: str | Path) -> "Transcript":
+        """Parse an opencode `--format json` NDJSON transcript.
+
+        opencode emits events with the shape:
+          {"type":"tool_use","part":{"tool":"skill","state":{"status":"completed","input":{"name":"helix"},"output":"..."}}}
+          {"type":"tool_use","part":{"tool":"bash","state":{"input":{"command":"..."}}}}
+          {"type":"tool_use","part":{"tool":"read","state":{"input":{"file_path":"..."}}}}
+          {"type":"tool_use","part":{"tool":"write","state":{"input":{"file_path":"...","content":"..."}}}}
+          {"type":"tool_use","part":{"tool":"edit","state":{"input":{"file_path":"..."}}}}
+          {"type":"message_part","part":{"type":"text","text":"..."}}
+          {"type":"step_start"} / {"type":"step_finish"} / {"type":"error", ...}
+
+        Mapped to the common transcript shape:
+          skill              → tool_use name="Skill" input={"skill_id": <name>}
+          bash               → tool_use name="Bash"  input={"command": ...}
+          read               → tool_use name="Read"  input={"file_path": ...}
+          write              → tool_use name="Write" input={"file_path": ...}
+          edit/multi-edit    → tool_use name="Edit"  input={"file_path": ...}
+          message_part text  → text block
+        """
+        if isinstance(source, Path):
+            text = source.read_text()
+        else:
+            text = source
+        synthetic_events: list[dict[str, Any]] = []
+        for line_no, raw in enumerate(text.splitlines(), start=1):
+            line = raw.strip()
+            if not line:
+                continue
+            try:
+                ev = json.loads(line)
+            except json.JSONDecodeError as e:
+                raise ValueError(f"line {line_no}: invalid JSON: {e}") from e
+            etype = ev.get("type")
+            part = ev.get("part") or {}
+            if etype == "tool_use":
+                tool = part.get("tool") or ""
+                state = part.get("state") or {}
+                inp = state.get("input") or {}
+                if tool == "skill":
+                    skill_name = inp.get("name") or ""
+                    if skill_name:
+                        synthetic_events.append({
+                            "type": "tool_use",
+                            "name": "Skill",
+                            "input": {"skill_id": skill_name},
+                        })
+                elif tool == "bash":
+                    synthetic_events.append({
+                        "type": "tool_use",
+                        "name": "Bash",
+                        "input": {"command": inp.get("command") or ""},
+                    })
+                elif tool == "read":
+                    synthetic_events.append({
+                        "type": "tool_use",
+                        "name": "Read",
+                        "input": {"file_path": inp.get("file_path") or inp.get("path") or ""},
+                    })
+                elif tool == "write":
+                    synthetic_events.append({
+                        "type": "tool_use",
+                        "name": "Write",
+                        "input": {"file_path": inp.get("file_path") or inp.get("path") or ""},
+                    })
+                elif tool in ("edit", "multi_edit", "multi-edit"):
+                    synthetic_events.append({
+                        "type": "tool_use",
+                        "name": "Edit",
+                        "input": {"file_path": inp.get("file_path") or inp.get("path") or ""},
+                    })
+            elif etype == "message_part":
+                if part.get("type") == "text":
+                    txt = part.get("text") or ""
+                    if txt:
+                        synthetic_events.append({"type": "text", "text": txt})
         return cls.from_events(synthetic_events)
 
 
@@ -2092,13 +2173,16 @@ def invoke_probe(
     `runtime` selects the harness:
       - "claude":   family-test/docker/run-probe.sh  (Docker, claude stream-json)
       - "codex":    family-test/bench/runner/run-probe-codex.sh (host, codex --json)
-      - "opencode": not implemented (raises ValueError)
+      - "opencode": family-test/bench/runner/run-probe-opencode.sh (host, opencode --format json)
     """
     if runtime not in SUPPORTED_RUNTIMES:
         raise ValueError(f"unknown runtime {runtime!r}; supported: {SUPPORTED_RUNTIMES}")
-    if runtime == "opencode":
-        raise NotImplementedError("opencode runtime probe not implemented yet")
-    probe_script = RUN_PROBE_SH if runtime == "claude" else RUN_PROBE_CODEX_SH
+    if runtime == "claude":
+        probe_script = RUN_PROBE_SH
+    elif runtime == "codex":
+        probe_script = RUN_PROBE_CODEX_SH
+    else:  # opencode
+        probe_script = RUN_PROBE_OPENCODE_SH
     if not probe_script.exists():
         raise FileNotFoundError(f"probe script not found at {probe_script}")
     fixture_dir = fixture_dir.resolve()
@@ -2137,6 +2221,8 @@ def parse_runtime_transcript(evidence_file: Path, runtime: str) -> Transcript:
     """Parse a probe's evidence file using the correct runtime shape."""
     if runtime == "codex":
         return Transcript.parse_codex(evidence_file)
+    if runtime == "opencode":
+        return Transcript.parse_opencode(evidence_file)
     return Transcript.parse(evidence_file)
 
 
