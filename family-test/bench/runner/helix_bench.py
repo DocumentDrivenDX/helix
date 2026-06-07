@@ -2786,6 +2786,62 @@ def _probe_fired_skill(transcript: Transcript, skill_id: str) -> bool:
     return res.verdict == "present"
 
 
+# §13.6b multi-instance disambiguation banner. Two-line verbatim form:
+#   Multiple helix instances declared: <name> (root: <path>), ...
+#   Re-run with the explicit prefix /helix:<instance-name> or set HELIX_INSTANCE=<name>.
+_MI_BANNER_ANCHORS = (
+    "Multiple helix instances declared",
+    "Re-run with the explicit prefix",
+)
+_MI_DOWNSTREAM_MUTATION_TOOLS = {"Write", "Edit", "MultiEdit", "NotebookEdit", "Bash"}
+
+
+def _multi_instance_banner_pass(transcript: Transcript) -> bool:
+    """True iff the transcript carries the §13.6b disambiguation banner AND
+    does NOT execute any downstream mutation tool (Write/Edit/MultiEdit/
+    NotebookEdit/Bash) after the banner is emitted.
+
+    Used by run_routing_evals to grant PASS to helix-multi-instance rows
+    where the skill correctly engaged, read the marker, detected multiple
+    helix instances, and safely aborted with the banner instead of guessing.
+    """
+    text = transcript.assistant_text
+    if not all(anchor in text for anchor in _MI_BANNER_ANCHORS):
+        return False
+    # Banner is present in assistant prose. Now confirm no downstream
+    # mutation tool was invoked AFTER the banner appeared. We use the
+    # ordered timeline so a Write/Edit/Bash that occurred BEFORE the
+    # banner (unlikely but possible during marker inspection — Bash for
+    # ls/grep IS a mutation tool in our enumeration) does not falsely
+    # disqualify a correct safe-stop. The semantics that matter: once
+    # the skill emits the banner, it must stop and not mutate the repo.
+    banner_idx: int | None = None
+    for idx, kind, val in transcript.timeline:
+        if kind == "text" and isinstance(val, str) and all(
+            anchor in val for anchor in _MI_BANNER_ANCHORS
+        ):
+            banner_idx = idx
+            break
+    if banner_idx is None:
+        # Banner anchors are split across multiple text blocks. Treat the
+        # first block containing EITHER anchor as the banner index — the
+        # joined `assistant_text` already proved both anchors are present.
+        for idx, kind, val in transcript.timeline:
+            if kind == "text" and isinstance(val, str) and any(
+                anchor in val for anchor in _MI_BANNER_ANCHORS
+            ):
+                banner_idx = idx
+                break
+    if banner_idx is None:
+        return False
+    for idx, kind, val in transcript.timeline:
+        if idx <= banner_idx:
+            continue
+        if kind == "tool_use" and getattr(val, "name", "") in _MI_DOWNSTREAM_MUTATION_TOOLS:
+            return False
+    return True
+
+
 def run_routing_evals(
     jsonl_paths: list[Path],
     run_id: str | None = None,
@@ -2919,10 +2975,23 @@ def run_routing_evals(
                     "probe_rc": rc,
                 }
                 if target is None:
-                    # negative set: ANY skill fire = wrong
-                    record["correct"] = not fired_any
+                    # negative set: ANY skill fire = wrong, EXCEPT for the
+                    # helix-multi-instance set where the skill is expected to
+                    # engage, read the marker, and either resolve OR emit a
+                    # disambiguation banner and abort. When the skill engages
+                    # AND emits the §13.6b banner AND does NOT execute
+                    # downstream mutation tools (Write/Edit/Bash), that is
+                    # the correct safe-stop behavior and counts as PASS.
+                    mi_banner_exempt = False
+                    if set_name == "helix-multi-instance" and fired_any:
+                        mi_banner_exempt = _multi_instance_banner_pass(
+                            transcript
+                        )
+                        if mi_banner_exempt:
+                            record["multi_instance_banner_pass"] = True
+                    record["correct"] = (not fired_any) or mi_banner_exempt
                     set_stats["expected_no_fire"] += 1
-                    if not fired_any:
+                    if record["correct"]:
                         set_stats["no_fire"] += 1
                         set_stats["correct"] += 1
                 else:

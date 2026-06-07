@@ -215,6 +215,20 @@ flow's `workflows/graph.yml` — every node points at a `library:<slug>`
 or `local:<slug>` type, and the library tree is at the canonical install
 root (`library/` after this install).
 
+**Edit existing instances; Write only new ones.** When the requested
+artifact already exists at the resolved path, use `Edit` (target the
+specific lines/sections changing), NOT `Write` (which replaces the file
+body and discards any operator-added content not in the new draft).
+Verify the file exists via `Read` before deciding: a successful Read of
+the resolved path means the instance is live and any modification MUST
+go through `Edit`; only a missing-file outcome authorizes `Write`. This
+applies to every operator verb that mutates an existing artifact —
+"update", "modify", "amend", "add a requirement to", "thread X through"
+— regardless of how small the change is. Replacing a live PRD/FEAT/ADR
+via `Write` to add one bullet is a contract violation even when the
+new body looks correct, because frontmatter round-trip (§6) and
+operator-added content outside the model's draft are silently dropped.
+
 Instance edges (PRD → FEAT, ADR → technical-design, etc.) belong in the
 instance's frontmatter under `ddx.links:`. Never embed edges in the body
 or in this skill's prompts.
@@ -226,11 +240,35 @@ instance frontmatter with `cross_flow: true` (legacy alias
 
 ### 5. Authorization boundary
 
+**REJECT — do not engage** when the prompt names a flow (via explicit
+prefix `/helix-<flow>` or natural-language equivalent like "use the
+helix-infra flow") that the marker's `flows:` list does NOT authorize.
+This rule is non-negotiable and overrides every engage-by-default
+trigger in §"When to engage" and every mode-routing rule below it. An
+explicit prefix is a *request* to activate a flow; the marker is the
+*authorization* to do so. No marker authorization, no activation —
+even when the prefix is explicit, even when the user is insistent,
+even when the work looks routine.
+
+Emit this diagnostic verbatim (substituting the actual flow name and
+marker path), then STOP — no Read of artifacts, no Write, no Edit, no
+mode routing, no "but I can still help with…" offer:
+
+    Refusing to activate: the requested flow `<flow-name>` is not
+    listed in the authorization boundary at `<marker-path>`. The
+    marker authorizes only: <comma-separated list of marker flows>.
+    To proceed, either (a) add `<flow-name>` to the marker's `flows:`
+    list, or (b) re-run with a flow the marker authorizes.
+
+Concretely: if the marker declares only `flows: [{id: helix, ...}]`
+and the prompt is `/helix-infra intent: rotate the provider`, the
+requested flow is `helix-infra`, which is NOT `helix`. Reject. Do
+not silently route to infra mode under the `helix` flow — the
+prefix named a different flow, and re-interpreting it as the
+authorized flow is a contract violation.
+
 The marker's `flows:` list is the authorization boundary. An explicit
-`/helix <verb>` prefix wins ONLY if `helix` is a marker member. If the
-user runs `/helix-infra intent` and the marker does NOT list helix,
-REJECT with a diagnostic naming the marker as the authorization gate.
-Do not activate even with explicit prefix.
+`/helix <verb>` prefix wins ONLY if `helix` is a marker member.
 
 ### 6. Frontmatter round-trip
 
@@ -244,6 +282,45 @@ Legacy → new key translation (e.g. `relationships:` → `ddx.links:`) is
 done ONLY by the explicit migration script
 `library/scripts/migrate_relationships_to_links.py`. Never translate as
 a side effect of an incidental edit.
+
+## Concern slot resolution
+
+A **slot** is an exclusive functional position a project must fill exactly
+once (one frontend framework, one language runtime, one e2e tool, one auth
+backend). Slots are declared in the shipped library at
+`<plugin-root>/workflows/concerns/slots.yml` — load it from the canonical
+install root (the same `<plugin-root>` used by §Catalog Resolution). The
+file declares exclusive slots plus shipped defaults; membership in a slot
+is **derived** from each concern's own `## Slot` section, never listed in
+`slots.yml`.
+
+For every needed exclusive slot, resolve the filler in this fixed order
+(first match wins):
+
+1. **Operator override** — `docs/helix/01-frame/concerns.local.yml` in the
+   project tree. Read this BEFORE concerns.md exists, during high-autonomy
+   concern selection.
+2. **Shipped default** — the `defaults:` map in `slots.yml`.
+3. **Recorded assumption** — if neither source resolves, infer from the
+   product's nature and record it as an assumption in `concerns.md`.
+
+Exclusive slots and their shipped defaults (current `slots.yml`):
+
+| Slot | Shipped default |
+|---|---|
+| `frontend-framework` | `react-nextjs` |
+| `language-runtime` | `typescript-bun` |
+| `e2e-framework` | `e2e-playwright` |
+| `auth-provider` | `auth-local-sessions` |
+| `datastore` | — (no default; select on signal) |
+| `deploy-target` | — (no default; select on signal) |
+| `architecture-style` | — (no default; select on signal) |
+
+**Contract**: select each needed slot **once per session** during §Frame
+step 2, and record the chosen filler PLUS its source (`operator-override`,
+`shipped-default`, or `assumption`) in `concerns.md`. Propagation to work
+items and downstream artifacts is a later gate (owned by `check`/`polish`),
+never a re-selection.
 
 ## Routing Rules
 
@@ -676,7 +753,10 @@ Use to refine work items before execution.
 
 ### Check And Next
 
-Use when the safe next action is ambiguous.
+Use when the safe next action is ambiguous, when the user asks "what's
+next" / "what's blocked" / "plan the change", or when a single ask
+straddles two or more flows declared in the marker (e.g. the prompt
+names a data-pipeline artifact whose blocker is an infra prerequisite).
 
 1. Inspect the queue, governing artifacts, and known blockers.
 2. Decide conservatively among build, design, alignment, backfill, polish, wait,
@@ -688,6 +768,88 @@ Use when the safe next action is ambiguous.
    references (paths plus line numbers). Never prescribe a CLI command.
 5. If missing tracked work is discovered, create or recommend explicit work
    before returning the next action.
+
+#### Cross-flow ask — owner-flow first, then prerequisite fan-out
+
+A **cross-flow ask** is any prompt whose answer requires consulting more
+than one flow in the marker. Three shapes recur:
+
+- **Single-artifact ask whose blocker lives in another flow.** Example:
+  "The monitoring dashboard needs a DNS record. Set this up." The
+  monitoring-setup artifact is owned by `helix-data` (it lives under
+  `pipelines/<scope>/` per the marker); the DNS record is owned by
+  `helix-infra`. The data flow is the **owner-flow** because it owns
+  the artifact named in the prompt. Infra is a **prerequisite-flow**
+  that must satisfy a precondition before the data-flow item ships.
+- **Multi-flow status query.** Example: "What's blocked across the
+  project?" / "What's next?" against a marker with two or more flows.
+  Every active flow in the marker is a candidate owner — none can be
+  silently dropped.
+- **PRD-needs-infra ask.** Example: "The PRD needs new infra — plan
+  it." Product owns the PRD (owner-flow); infra owns the provisioning
+  artifact downstream. The PRD edit and the infra plan are TWO
+  artifacts in TWO flows, linked by a cross-flow edge.
+
+Cross-flow contract (every cross-flow ask):
+
+1. **Engage owner-flow first.** Identify the flow whose `root:` owns
+   the named artifact (or the artifact the prompt's noun phrase most
+   directly names). Call `Skill(<owner-flow>)` — `Skill(helix-data)`,
+   `Skill(helix-infra)`, `Skill(helix-web)`, or `Skill(helix)` — as
+   the first flow-skill tool_use of the turn. Do not jump straight to
+   the prerequisite flow because its verb (DNS, deploy, provision)
+   appears in the prompt — that's the verbose-but-stuck anti-pattern
+   in cross-flow shape. The artifact's home flow wins.
+2. **Read the owner-flow's named upstream artifacts.** From the
+   marker's `root:` for the owner-flow, locate and Read the artifact
+   the prompt references (e.g. `monitoring-setup.md`,
+   `data-product-brief.md`, `prd-*.md`) BEFORE proposing any action.
+   For each upstream named in `ddx.links:` or `informs` edges that
+   the answer depends on, Read it too. Catalogue which artifacts
+   exist (with path + status from frontmatter) and which are missing.
+3. **Fan out to prerequisite-flows.** For each cross-flow
+   prerequisite the owner-flow surfaces (e.g. the monitoring-setup
+   prose says "dashboard URL needs DNS"; the PRD's acceptance
+   criteria require a new VPC), call `Skill(<prerequisite-flow>)`
+   for THAT flow before drafting the prerequisite-flow action. Each
+   active flow that owns part of the answer gets its own Skill
+   tool_use — silent multi-flow narration from a single skill call
+   is a contract violation.
+4. **For a multi-flow status query** ("what's blocked across the
+   project?", "what's next?"), engage EVERY flow listed in the
+   marker. Call `Skill(<flow-id>)` once per flow before reporting
+   per-flow status. Answering from prose alone — reading the
+   workspace files without firing a Skill tool_use for each flow —
+   is the failure mode this rule prevents.
+
+Cross-flow response shape (always emit all three):
+
+- **Named upstream artifacts and their state.** A list of the
+  artifacts the answer depends on, each annotated `exists` (with
+  path + frontmatter `status:` if present) or `missing` (with the
+  graph node that says it should exist). Example:
+  `pipelines/customer-events/monitoring-setup.md` (exists,
+  status: in-progress); `infra/dns/customer-events.tf` (missing,
+  required by monitoring-setup prose).
+- **Cross-flow prerequisites.** Name each prerequisite as
+  "`<owner-flow>` needs `<prerequisite-flow>` to <verb> <object>
+  before `<owner-flow>` can <ship-verb> <artifact>". Example:
+  "helix-data needs helix-infra to provision the DNS record for
+  `customer-events.metrics.example.com` before helix-data can mark
+  monitoring-setup ready."
+- **Concrete next action per flow.** For each flow with an action
+  pending, emit a §Align gap-to-implementation handoff: destination
+  artifact type (e.g. `network-iac` under `infra/`), the flow's mode
+  (product / infra / data / web), and evidence paths with line
+  numbers (e.g. `pipelines/customer-events/monitoring-setup.md:20`).
+  Never prescribe a CLI command; the operator chooses dispatch.
+
+Do not skip the owner-flow Skill call because the prompt is short or
+the prerequisite verb is loud. Do not collapse multiple flows into a
+single Skill call. The bench grades cross-flow rows by counting
+per-flow `Skill(helix-<id>)` tool_use events; a confident prose
+answer with no per-flow Skill call is the exact failure CF-02 and
+CF-03 measure.
 
 ### Build And Run
 

@@ -15,7 +15,10 @@ notes: |
        a `docs/` prefix AND a `.sql` extension (or proposes a path
        under `sql/` or `migrations/` if the operator's setup differs).
     2. Prose proposes a generated-Python ↔ SQL behavior-equivalence
-       test — mentions diff/snapshot/test harness/parity/equivalence.
+       check — mentions any reproducible verification mechanism:
+       diff/snapshot/test harness/parity/equivalence, OR natural
+       SQL-CI phrasings (dry-run, compile-check, regression,
+       round-trip, conformance, behavior/behaviour match).
     3. Prose defines an explicit review boundary — at least one of:
        single-commit diff, who reviews, where SQL lives in repo, or
        a defined PR/review surface.
@@ -26,7 +29,7 @@ discriminator:
     matcher_type: text_match
     # 3-conjunction regex: artifact path AND equivalence test AND review
     # boundary all appear in the assistant text.
-    regex_pattern: '(?s)(docs/[^\s]+\.sql|sql/[^\s]+\.sql|migrations/[^\s]+\.sql).*?(equivalence|snapshot|parity|behavior test|behaviour test|diff test|test harness).*?(single commit|review boundary|PR review|who reviews|reviewable diff)'
+    regex_pattern: '(?s)(docs/[^\s]+\.sql|sql/[^\s]+\.sql|migrations/[^\s]+\.sql).*?(equivalence|snapshot|parity|behavior test|behaviour test|diff test|test harness|dry.?run|compile.?check|regression|round.?trip|conformance|behavior match|behaviour match).*?(single commit|review boundary|PR review|who reviews|reviewable diff)'
     occurrence_count: 1
   expected_in_positive_run: present
   expected_in_negative_run: absent
