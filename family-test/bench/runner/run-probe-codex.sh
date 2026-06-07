@@ -144,16 +144,26 @@ fi
 # Run codex with:
 #   --json                    JSONL event stream to stdout
 #   --skip-git-repo-check     fixture dirs may not be git repos
-#   --sandbox workspace-write let agent write under fixture, not the host
-#   --dangerously-bypass-approvals-and-sandbox  headless; no approvals
+#   --sandbox read-only       agent may READ workspace files (incl. SKILL.md)
+#                             but CANNOT write/exec/git. This prevents the
+#                             sandbox-escape pattern we saw with workspace-write
+#                             + bypass-approvals: codex ran `ddx bead close`,
+#                             `git push`, etc. against the live repo.
+#   -c approval_policy=never  auto-approve under sandbox without hanging
 #   -C <workdir>              agent cwd
 #   --ephemeral               no persisted session
+#
+# Trade-off: read-only means codex cannot create artifacts. For routing-evals
+# (which only need the agent's skill-engagement decision), this is correct.
+# If a future probe needs codex to write, set HELIX_CODEX_SANDBOX=workspace-write
+# explicitly to opt into the looser sandbox for that run.
+CODEX_SANDBOX="${HELIX_CODEX_SANDBOX:-read-only}"
 set +e
 CODEX_HOME="$RUN_CODEX_HOME" codex exec \
     --json \
     --skip-git-repo-check \
-    --sandbox workspace-write \
-    --dangerously-bypass-approvals-and-sandbox \
+    --sandbox "$CODEX_SANDBOX" \
+    -c 'approval_policy="never"' \
     --ephemeral \
     "${MODEL_ARG[@]}" \
     -C "$WORKDIR" \
