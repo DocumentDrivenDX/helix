@@ -1,0 +1,5 @@
+turns:
+  - user: |
+      Our E0 baseline is 500 queues @ 5m/min per queue. The PRD says
+      E1 = 10,000 queues. Is that realistic at E0 scale? Recalibrate the
+      target or explain why it's feasible.

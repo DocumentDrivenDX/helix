@@ -1,0 +1,6 @@
+turns:
+  - user: |
+      We have 8 design gaps in the spec. Use a workflow to: (1) create a
+      plan for each, (2) have codex adversarially review each plan, (3)
+      detect conflicts, (4) synthesize a unified roadmap. Do NOT modify
+      specs; write to .workflow-scratch.

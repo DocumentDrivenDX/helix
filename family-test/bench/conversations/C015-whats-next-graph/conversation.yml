@@ -1,3 +1,4 @@
 turns:
   - user: |
-      What's next?
+      What's next given that we need 1000 concurrent queues and 10m/hr
+      schedule rate? Has the design shifted?

@@ -1,0 +1,39 @@
+tier: exploratory
+category: upstream-discovery
+phase: P4-G5
+status: authored-pending-verification
+fixture: G5-upstream-discovery
+level: guided
+notes: |
+  G5 (audit-driven). Real-usage pattern from tablespec session: operator
+  asks the skill to discover constraints from a separate upstream
+  project, reconcile with the local spec, and flag breaking changes.
+
+  PASS contract:
+    1. Skill(helix) tool_use fires.
+    2. At least one Read or Bash tool_use that targets an external
+       path (NOT under the workspace) — e.g. cloning a sibling repo,
+       grepping a parent dir, or fetching an external URL.
+    3. Prose lists at least one upstream constraint AND uses the
+       phrase "breaking change" OR "incompatibility" OR "conflict".
+
+  FAIL modes:
+    - Agent answers from training without external discovery.
+    - Agent writes a reconciliation doc without surfacing the
+      breaking-change items.
+
+discriminator:
+  assertion_id: literal_or_banner_text
+  observable:
+    matcher_type: text_match
+    regex_pattern: '(breaking change|incompatibility|incompatible|conflict|backward.?incompat)'
+    occurrence_count: 1
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [helix]
+    rationale: |
+      Without canonical helix, an agent may identify some constraints
+      but won't structure the response around the reconciliation +
+      breaking-change-flagging contract. Skill activation drives the
+      framing.

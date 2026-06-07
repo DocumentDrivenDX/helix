@@ -984,8 +984,12 @@ MATCHER_REGISTRY: dict[str, Matcher] = {
 # Discriminator validation (T040-T047)
 # ---------------------------------------------------------------------------
 
-# Known methodology plugin prefixes for T044's "no-op negative control" check.
-METHODOLOGY_PLUGIN_PREFIXES = ("methodology-", "helix-")
+# Plugin identifiers accepted by T044's negative-control "observable-changing
+# modification" check. Post canonical-promotion the canonical install is
+# `helix` (the plugin directory under .claude-plugin/, also valid as the repo
+# root path); the legacy `methodology-*` / `helix-*` prefixes are kept so
+# existing bench rows continue to validate.
+METHODOLOGY_PLUGIN_PREFIXES = ("methodology-", "helix-", "helix")
 
 
 def _check_matcher_vacuity(

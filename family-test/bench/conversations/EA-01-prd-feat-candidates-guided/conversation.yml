@@ -1,3 +1,5 @@
 turns:
   - user: |
-      Create a PRD for the coffee-ordering app. Use HELIX.
+      Design a payment system PRD. Check if the requirements conflict with
+      the existing order-lifecycle ADR. Use HELIX and read both before
+      drafting.

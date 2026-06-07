@@ -1,4 +1,5 @@
 turns:
   - user: |
-      The product vision is approved. Draft the PRD for the coffee-ordering
-      app.
+      The product vision landed. Before drafting the PRD, read the vision
+      and the concerns doc. Then propose the PRD structure and acceptance
+      criteria.

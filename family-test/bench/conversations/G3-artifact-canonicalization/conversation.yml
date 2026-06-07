@@ -1,0 +1,5 @@
+turns:
+  - user: |
+      The raw-to-ingest transformation is auto-generated Python. Convert
+      this to a canonical SQL artifact that we commit, review as a single
+      diff, and can run independently. Design the process.
