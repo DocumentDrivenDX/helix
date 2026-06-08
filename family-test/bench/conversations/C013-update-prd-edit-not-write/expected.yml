@@ -26,7 +26,7 @@ discriminator:
     # The matcher requires both the Read AND the Edit to target this
     # file, in that order.
     target_pattern: 'PRD-001-coffee-ordering\.md$'
-  expected_in_positive_run: present
+  expected_in_positive_run: ordered
   expected_in_negative_run: absent
   negative_control:
     plugins_remove: [methodology-product]

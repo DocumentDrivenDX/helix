@@ -24,13 +24,15 @@ allowed_assertions:
 
   - id: graph_edge_observed
     matcher_type: file_read
-    matcher_params: [graph_path, expected_edge_signature]
+    matcher_params: [graph_path, "expected_edge_signature | expected_edge_regex"]
     description: |
       Asserts the agent read the methodology graph.yml file. The
       negative-control swaps the workspace's graph.yml for one lacking
-      the expected_edge_signature; positive must still surface the edge,
-      negative must NOT surface it (proves graph drove the answer, not
-      training).
+      the expected_edge_signature/expected_edge_regex; positive must still
+      surface the edge, negative must NOT surface it (proves graph drove
+      the answer, not training). Use expected_edge_signature for exact
+      string match; use expected_edge_regex (case-insensitive) when
+      Sonnet's natural paraphrasing should be accepted.
 
   - id: scope_write_path
     matcher_type: write_path_constraint

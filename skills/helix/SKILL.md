@@ -152,6 +152,25 @@ Only after overrides are checked, evaluate the marker:
   `root:` scope. If `helix` is NOT listed (the marker only declares a
   non-helix flow), defer to that flow's process — do not engage.
 
+- **Multiple distinct flows in `flows[]` with an ambiguous verb** (e.g.
+  `flows: [{id: helix, root: docs/helix/}, {id: helix-infra, root:
+  docs/helix-infra/}]` and the prompt uses a verb like "plan the rollout"
+  that could mean product-rollout planning under `helix` OR infrastructure
+  rollout planning under `helix-infra`): apply the resolution chain first:
+  explicit prefix → HELIX_FLOW env → cwd-under-root → `defaults.flow` in
+  the marker. If the chain does not resolve — no override, no env, cwd is
+  outside every declared `root:`, no `defaults.flow` key — you MUST emit
+  the disambiguation banner naming BOTH candidate flows and asking which one
+  applies:
+
+      Ambiguous request: both `helix` (root: <helix-root>) and `helix-infra` (root: <infra-root>) are active — which flow should handle this?
+      Re-run with the explicit prefix `/helix` or `/helix-infra`, or set HELIX_FLOW=<id>.
+
+  Substitute the actual `root:` values from the marker. Do NOT silently
+  pick one flow. Do NOT route to infra mode under the `helix` flow just
+  because the prompt contains an infra-adjacent noun. Wait for the operator
+  to choose.
+
 - **Multiple helix instances in `flows[]`** (e.g.
   `flows: [{id: helix, instance: web, root: services/web/}, {id: helix,
   instance: mobile, root: apps/mobile/}]`): you do NOT auto-pick. Emit the
@@ -241,14 +260,18 @@ instance frontmatter with `cross_flow: true` (legacy alias
 ### 5. Authorization boundary
 
 **REJECT — do not engage** when the prompt names a flow (via explicit
-prefix `/helix-<flow>` or natural-language equivalent like "use the
+prefix `/helix-<flow>`, env-override `HELIX_METHODOLOGY=<flow>` or
+`HELIX_FLOW=<flow>`, or natural-language equivalent like "use the
 helix-infra flow") that the marker's `flows:` list does NOT authorize.
 This rule is non-negotiable and overrides every engage-by-default
 trigger in §"When to engage" and every mode-routing rule below it. An
-explicit prefix is a *request* to activate a flow; the marker is the
-*authorization* to do so. No marker authorization, no activation —
-even when the prefix is explicit, even when the user is insistent,
-even when the work looks routine.
+explicit prefix or env override is a *request* to activate a flow; the
+marker is the *authorization* to do so. No marker authorization, no
+activation — even when the prefix is explicit, even when the user is
+insistent, even when the work looks routine. The §2 operator-override
+priority (prefix/env wins over marker for mode-routing decisions) does
+NOT bypass this check — it applies only when the requested flow is
+already authorized by the marker.
 
 Emit this diagnostic verbatim (substituting the actual flow name and
 marker path), then STOP — no Read of artifacts, no Write, no Edit, no
@@ -261,14 +284,15 @@ mode routing, no "but I can still help with…" offer:
     list, or (b) re-run with a flow the marker authorizes.
 
 Concretely: if the marker declares only `flows: [{id: helix, ...}]`
-and the prompt is `/helix-infra intent: rotate the provider`, the
-requested flow is `helix-infra`, which is NOT `helix`. Reject. Do
-not silently route to infra mode under the `helix` flow — the
-prefix named a different flow, and re-interpreting it as the
+and the prompt is `HELIX_METHODOLOGY=helix-infra rotate the upstream DNS
+provider`, the requested flow is `helix-infra`, which is NOT `helix`.
+Reject. Do not silently route to infra mode under the `helix` flow —
+the env override named a different flow, and re-interpreting it as the
 authorized flow is a contract violation.
 
 The marker's `flows:` list is the authorization boundary. An explicit
-`/helix <verb>` prefix wins ONLY if `helix` is a marker member.
+`/helix <verb>` prefix or `HELIX_METHODOLOGY=helix` env override wins
+ONLY if `helix` is a marker member.
 
 ### 6. Frontmatter round-trip
 

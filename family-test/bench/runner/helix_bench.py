@@ -492,15 +492,21 @@ def matcher_read_before_write(params: dict[str, Any], t: Transcript) -> MatchRes
 def matcher_graph_edge_observed(params: dict[str, Any], t: Transcript) -> MatchResult:
     graph_path = params.get("graph_path")
     expected_edge = params.get("expected_edge_signature")
-    if not graph_path or not expected_edge:
+    expected_edge_regex = params.get("expected_edge_regex")
+    if not graph_path or (not expected_edge and not expected_edge_regex):
         raise RowRejection(
             "T043",
-            "graph_edge_observed requires graph_path and expected_edge_signature",
+            "graph_edge_observed requires graph_path and expected_edge_signature or expected_edge_regex",
         )
     try:
         graph_re = re.compile(graph_path)
     except re.error as e:
         raise RowRejection("T043", f"graph_path unparseable: {e}") from e
+    if expected_edge_regex:
+        try:
+            edge_re = re.compile(expected_edge_regex, re.IGNORECASE)
+        except re.error as e:
+            raise RowRejection("T043", f"expected_edge_regex unparseable: {e}") from e
     read_indices = [
         tu.index
         for tu in t.tool_uses
@@ -509,7 +515,10 @@ def matcher_graph_edge_observed(params: dict[str, Any], t: Transcript) -> MatchR
             tu.input.get("file_path") or tu.input.get("path") or ""
         )
     ]
-    surfaced = expected_edge in t.assistant_text
+    if expected_edge_regex:
+        surfaced = bool(edge_re.search(t.assistant_text))
+    else:
+        surfaced = expected_edge in t.assistant_text
     if read_indices and surfaced:
         return MatchResult(
             "present", {"read_indices": read_indices, "surfaced": True}

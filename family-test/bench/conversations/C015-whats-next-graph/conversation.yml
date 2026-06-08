@@ -1,4 +1,5 @@
 turns:
   - user: |
-      What's next given that we need 1000 concurrent queues and 10m/hr
-      schedule rate? Has the design shifted?
+      The product vision for the coffee-ordering app (VIS-001) is
+      approved. What's next? Which HELIX artifact should we work on,
+      and what upstream node informs it?

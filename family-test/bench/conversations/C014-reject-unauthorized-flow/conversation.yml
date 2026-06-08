@@ -1,3 +1,5 @@
 turns:
   - user: |
-      /helix-infra intent: rotate the provider
+      HELIX_METHODOLOGY=helix-infra rotate the upstream DNS provider for the
+      production zone — capture this as a change intent so we can plan the
+      rollout window.

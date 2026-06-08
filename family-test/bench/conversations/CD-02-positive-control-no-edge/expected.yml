@@ -10,15 +10,16 @@ notes: |
   prerequisite — because no such edge is declared. This is the row that
   guarantees the CD-01 surfacing was graph-driven, not training-driven.
 
-  Signature is identical to CD-01 so the matcher is the same. Verdicts flip
-  by virtue of the workspace's graph content alone.
+  Signature is widened relative to CD-01 ('market-validation-brief' vs the
+  full phrase) to match Sonnet's natural paraphrasing (e.g. arrow notation).
+  Verdicts flip by virtue of the workspace's graph content alone.
 
 discriminator:
   assertion_id: graph_edge_observed
   observable:
     matcher_type: file_read
     graph_path: 'methodology-product/workflows/graph\.yml$'
-    expected_edge_signature: 'market-validation-brief requires prd'
+    expected_edge_signature: 'market-validation-brief'
   expected_in_positive_run: absent
   expected_in_negative_run: present
   negative_control:
