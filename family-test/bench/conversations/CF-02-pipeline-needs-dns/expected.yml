@@ -31,21 +31,24 @@ discriminator:
   assertion_id: route_decision
   observable:
     matcher_type: routing_observable
-    expected_flow_instance: helix-data
+    expected_flow_instance: helix
     routing_signal: explicit_skill_tool_use
   expected_in_positive_run: present
   expected_in_negative_run: absent
   negative_control:
-    plugins_remove: [methodology-data]
+    plugins_remove: [helix]
     rationale: |
-      Without methodology-data the helix-data skill is unregistered;
-      the prompt no longer has a first-engaged flow (helix-infra
-      doesn't own "monitoring dashboard"). The agent — given only
-      methodology-infra — never reads monitoring-setup.md and sets
-      up DNS in a vacuum. The explicit_skill_tool_use signal for
-      helix-data cannot fire. Verdict flips present → absent,
-      proving the helix-data engagement was plugin-driven (not
-      prompt-language driven by the words "dashboard" or "DNS").
+      Post canonical-promotion (single skill, internal routing modes
+      product/infra/data/web), this cross-flow DNS-pipeline ask routes
+      to the canonical helix skill (internally to the data mode that
+      reads monitoring-setup.md and surfaces the cross-flow infra
+      prerequisite). With the canonical helix plugin removed, no Skill
+      tool_use can fire — the agent lacks marker/graph context and
+      sets up DNS in a vacuum. Verdict flips present → absent, proving
+      engagement was skill-driven (not prompt-language driven by the
+      words "dashboard" or "DNS"). (Originally targeted helix-data
+      under the multi-flow research design; updated post canonical-
+      skill collapse.)
 
 structural:
   skill_invoked:

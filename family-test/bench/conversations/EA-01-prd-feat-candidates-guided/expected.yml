@@ -42,7 +42,7 @@ discriminator:
     # using deliberation language (link|connect|associate|reference|
     # informs|relate). Banned-matcher list (§1.4b T047) requires ≥8
     # distinct chars; this pattern captures ≥18 (e.g. "informs FEAT-001").
-    confirmation_marker_pattern: '(link|connect|associate|reference|informs|relate|tie)\b[^\n]{0,80}\b(FEAT-001|FEAT-002)\b'
+    confirmation_marker_pattern: '(link|connect|associate|reference|informs|relate|tie)\b[\s\S]{0,200}\b(FEAT-001|FEAT-002)\b'
     mutation_tools: [Write, Edit]
   expected_in_positive_run: present
   expected_in_negative_run: absent

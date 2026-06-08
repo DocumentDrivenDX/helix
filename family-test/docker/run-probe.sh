@@ -61,6 +61,26 @@ mkdir -p "$(dirname "$EVIDENCE_FILE")"
 
 IMAGE="${PROBE_IMAGE:-family-test-claude:latest}"
 
+# Ensure the bench probe image exists. OrbStack (and some Docker configs)
+# garbage-collect locally-built unused images after ~30 minutes idle, which
+# breaks multi-row bench loops mid-flight. Rebuild on demand if the image
+# is missing — ~1-2s overhead when cached, vs the 4-5 min per-probe wall
+# time, so the cost is acceptable. The Dockerfile lives next to this
+# script so the build is reproducible.
+if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
+    DOCKERFILE_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+    if [[ -f "$DOCKERFILE_DIR/Dockerfile.claude" ]]; then
+        echo "INFO: $IMAGE missing locally — rebuilding from $DOCKERFILE_DIR/Dockerfile.claude" >&2
+        if ! docker build -q -t "$IMAGE" -f "$DOCKERFILE_DIR/Dockerfile.claude" "$DOCKERFILE_DIR" >&2; then
+            echo "FAIL: docker build of $IMAGE failed" >&2
+            exit 2
+        fi
+    else
+        echo "WARN: $IMAGE missing AND Dockerfile.claude not found at $DOCKERFILE_DIR" >&2
+        # Proceed; docker run will surface the same error visibly.
+    fi
+fi
+
 # Build auth args.
 # Credential file selection: prefer CLAUDE_CREDENTIALS_FILE if set
 # (must be a docker-bind-visible path), else fall back to common

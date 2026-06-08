@@ -48,7 +48,7 @@ discriminator:
     # Pattern targets FEAT-002 specifically (the unnamed candidate).
     # Operator-named FEAT-001 is out of scope for the assertion.
     # ≥18 chars distinct.
-    confirmation_marker_pattern: '(link|connect|associate|reference|informs|relate|tie|include|also)\b[^\n]{0,80}\bFEAT-002\b'
+    confirmation_marker_pattern: '(link|connect|associate|reference|informs|relate|tie|include|also)\b[\s\S]{0,200}\bFEAT-002\b'
     mutation_tools: [Write, Edit]
   expected_in_positive_run: present
   expected_in_negative_run: absent

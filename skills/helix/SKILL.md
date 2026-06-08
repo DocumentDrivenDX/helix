@@ -494,11 +494,17 @@ Then dispatch on the resolved level:
   a `stop_at` event.
 - `autonomous` — proceed without asking; surface results after the fact.
   Stop only on a `stop_at` event or irreducible ambiguity (e.g. two equally
-  valid graph routes, an ambiguous methodology activation).
+  valid graph routes, an ambiguous methodology activation). **Even when
+  silently routing via `defaults.flow` / `defaults.methodology`, prose-
+  attribute the routing decision in your FIRST text block** — name the
+  chosen flow ("Routing to helix because the marker's default flow is
+  helix") so downstream readers and bench graders can confirm the routing
+  decision. Silent routing is operationally allowed; silent-AND-unspoken
+  routing is a contract violation.
 - `aggressive` — as `autonomous`, but additionally take initiative across the
   full methodology graph (e.g. draft ALL declared prerequisites plus the
   requested artifact in one pass). Still honors `stop_at` and irreducible
-  ambiguity.
+  ambiguity. Same prose-attribution rule as `autonomous`.
 
 `stop_at` is a hard floor that fires at every level, including `autonomous`
 and `aggressive`. The authoritative trigger list lives at

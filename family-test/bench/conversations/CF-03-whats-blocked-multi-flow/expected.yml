@@ -33,19 +33,24 @@ discriminator:
   assertion_id: skill_tool_use
   observable:
     matcher_type: skill_tool_use
-    skill_id: helix-data
+    skill_id: helix
   expected_in_positive_run: present
   expected_in_negative_run: absent
   negative_control:
-    plugins_remove: [methodology-product, methodology-data, methodology-infra]
+    plugins_remove: [helix]
     rationale: |
-      With only `library` installed no per-flow skill is registered
-      (no helix, no helix-data, no helix-infra). The agent can only
-      answer from prose/training/general knowledge and cannot query
-      any flow's status. Skill(helix-data) tool_use cannot fire.
-      Verdict flips present → absent, proving the per-flow
-      engagement was plugin-driven (not prompt-language driven by
-      the words "blocked" or "project").
+      Post canonical-promotion (single skill, internal routing modes),
+      the project-wide cross-flow status query is the canonical helix
+      skill's "Check And Next" / cross-flow internal mode. With the
+      canonical helix plugin removed, no Skill tool_use can fire — the
+      agent can only answer from prose/training/general knowledge and
+      cannot query the workspace marker or graph for cross-flow status.
+      Verdict flips present → absent, proving cross-flow engagement
+      was skill-driven, not prompt-language driven by the words
+      "blocked" or "project". (Originally targeted skill_id: helix-data
+      under the multi-flow research design; updated to skill_id: helix
+      after the canonical-skill collapse — see docs/helix/02-design/
+      phase7-results-2026-06-08.md.)
 
 structural:
   skill_invoked:

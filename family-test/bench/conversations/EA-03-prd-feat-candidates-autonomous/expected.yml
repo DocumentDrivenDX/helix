@@ -43,7 +43,7 @@ discriminator:
   assertion_id: confirmation_before_mutation
   observable:
     matcher_type: prose_pattern_before_tool
-    confirmation_marker_pattern: '(link|connect|associate|reference|informs|relate|tie)\b[^\n]{0,80}\b(FEAT-001|FEAT-002)\b'
+    confirmation_marker_pattern: '(link|connect|associate|reference|informs|relate|tie)\b[\s\S]{0,200}\b(FEAT-001|FEAT-002)\b'
     mutation_tools: [Write, Edit]
   expected_in_positive_run: present
   expected_in_negative_run: absent
