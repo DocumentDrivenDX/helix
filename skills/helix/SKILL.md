@@ -277,11 +277,15 @@ Emit this diagnostic verbatim (substituting the actual flow name and
 marker path), then STOP — no Read of artifacts, no Write, no Edit, no
 mode routing, no "but I can still help with…" offer:
 
-    Refusing to activate: the requested flow `<flow-name>` is not
-    listed in the authorization boundary at `<marker-path>`. The
-    marker authorizes only: <comma-separated list of marker flows>.
+    Cannot engage <flow-name> here — the requested flow `<flow-name>`
+    is not authorized: the .helix.yml marker does not list it.
+    The marker authorizes only: <comma-separated list of marker flows>.
     To proceed, either (a) add `<flow-name>` to the marker's `flows:`
     list, or (b) re-run with a flow the marker authorizes.
+
+Your refusal prose MUST include: (a) the name of the requested flow,
+and (b) a phrase stating the .helix.yml marker does not list or
+authorize it. Use the verbatim template above — do not paraphrase it.
 
 Concretely: if the marker declares only `flows: [{id: helix, ...}]`
 and the prompt is `HELIX_METHODOLOGY=helix-infra rotate the upstream DNS

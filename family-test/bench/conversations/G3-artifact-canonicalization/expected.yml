@@ -35,7 +35,10 @@ discriminator:
     # naturally proposes dbt models/ or transforms/ layouts); added single PR,
     # one PR, one.file to p3; switched to lookahead conjunction so the three
     # elements can appear in any order.
-    regex_pattern: '(?s)(?=.*?(docs/[^\s]+\.sql|sql/[^\s]+\.sql|migrations/[^\s]+\.sql|models/[^\s]+\.sql|transforms/[^\s]+\.sql))(?=.*?(equivalence|snapshot|parity|behavior test|behaviour test|diff test|test harness|dry.?run|compile.?check|regression|round.?trip|conformance|behavior match|behaviour match))(?=.*?(single commit|review boundary|PR review|who reviews|reviewable diff|single PR|one PR|one.file))'
+    # Widened (T2): added transformations/.{0,300}?\.sql to p1 — Sonnet
+    # sometimes proposes a directory-tree layout with 'transformations/'
+    # as root and 'transform.sql' as the leaf (Phase 8 pass0 pattern).
+    regex_pattern: '(?s)(?=.*?(docs/[^\s]+\.sql|sql/[^\s]+\.sql|migrations/[^\s]+\.sql|models/[^\s]+\.sql|transforms/[^\s]+\.sql|transformations/.{0,300}?\.sql))(?=.*?(equivalence|snapshot|parity|behavior test|behaviour test|diff test|test harness|dry.?run|compile.?check|regression|round.?trip|conformance|behavior match|behaviour match))(?=.*?(single commit|review boundary|PR review|who reviews|reviewable diff|single PR|one PR|one.file))'
     occurrence_count: 1
   expected_in_positive_run: present
   expected_in_negative_run: absent

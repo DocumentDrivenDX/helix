@@ -13,8 +13,8 @@ nodes:
   type: library:product-vision
   activity: 00-discover
   cardinality: singleton
-- id: regulatory-impact-assessment
-  type: local:regulatory-impact-assessment
+- id: hipaa-control-mapping
+  type: local:hipaa-control-mapping
   activity: 00-discover
   cardinality: many
 - id: prd
@@ -39,7 +39,7 @@ edges:
 # discipline. The edge is industry-pretexted (regulated-domain repo) but the
 # discrimination contract is identical: surface the unusual prerequisite ONLY
 # because the graph declared it.
-- from: regulatory-impact-assessment
+- from: hipaa-control-mapping
   to: prd
   kind: requires
   required: true

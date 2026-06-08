@@ -1,0 +1,75 @@
+version: 1
+methodology:
+  id: helix
+  library_version: ^1.0.0
+  validator_contract: 1
+activities:
+- id: 00-discover
+  exit_gate: discover-validation
+- id: 01-frame
+  exit_gate: prd-validation
+- id: 02-design
+  exit_gate: design-validation
+nodes:
+- id: product-vision
+  type: library:product-vision
+  activity: 00-discover
+  cardinality: singleton
+- id: stakeholder-impact-assessment-CDE-a7f3
+  type: local:stakeholder-impact-assessment-CDE-a7f3
+  activity: 00-discover
+  cardinality: many
+- id: prd
+  type: library:prd
+  activity: 01-frame
+  cardinality: many
+  role: exit-gate
+- id: feature-specification
+  type: local:feature-specification
+  activity: 01-frame
+  cardinality: many
+- id: adr
+  type: library:adr
+  activity: 02-design
+  cardinality: many
+  scope: cross-cutting
+- id: prd-validation
+  type: local:exit-gate
+  activity: 01-frame
+  cardinality: singleton
+  role: exit-gate
+- id: design-validation
+  type: local:exit-gate
+  activity: 02-design
+  cardinality: singleton
+  role: exit-gate
+- id: discover-validation
+  type: local:exit-gate
+  activity: 00-discover
+  cardinality: singleton
+  role: exit-gate
+edges:
+# Non-standard, project-local edge under test (CD-02 negative-control fixture):
+# PRDs in this project REQUIRE a stakeholder-impact-assessment-CDE-a7f3 before authoring.
+# This edge name is intentionally project-local and invented — it has no canonical
+# HELIX existence and cannot be answered from training knowledge. The discrimination
+# assertion requires the skill to READ this graph and surface the prerequisite, not
+# recall it from model weights.
+- from: stakeholder-impact-assessment-CDE-a7f3
+  to: prd
+  kind: requires
+  required: true
+- from: product-vision
+  to: prd
+  kind: informs
+  required: false
+- from: prd
+  to: feature-specification
+  kind: informs
+  required: false
+- from: adr
+  to: feature-specification
+  kind: informs
+  required: false
+allowed_cycles: []
+external_edges: []
