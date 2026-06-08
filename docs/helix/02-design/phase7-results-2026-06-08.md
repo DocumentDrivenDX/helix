@@ -107,3 +107,68 @@ If the 6 Docker-broken Tier-4 rows recover at the same rate as the tested rows (
 - discriminator-whitelist.yml: document `expected_edge_regex` alternative
 - skills/helix/SKILL.md: disambiguation banner rule + auth boundary for env-override
 - docs/helix/01-frame/FEAT-X-receipt-export.md: G4 workspace fixture
+
+---
+
+## Final updated results (after catchup + G-rerun2)
+
+The original Phase 7 run had 11 rows broken by docker image eviction.
+Subsequent reruns (after rebuilding the family-test-claude:latest image
+twice) captured real transcripts for 19 of 21 rows. G4 and G5 fell to a
+THIRD docker eviction during the G-rerun2 batch and remain BROKEN.
+
+### Combined runs
+
+| Run dir | Rows | Coverage |
+|---|---|---|
+| `phase7-retest-20260608T015359Z` | 10 with content, 11 empty | Original workflow retest |
+| `phase7-catchup-20260608T023838Z` | 12 reran (11 broken from retest + CD-02 added) | After 1st image rebuild |
+| `phase7-g-rerun2-20260608T035913Z` | 1 with content (G3), 2 empty (G4, G5) | After 2nd image rebuild — image evicted partway |
+
+### Combined headline: **7/21 stable_pass (33.3%)**
+
+### stable_pass (7 rows)
+
+`C008`, `C013`, `C015`, `C016`, `C024`, `CD-01`, `CD-03` — all Tier-4 stable-fail recoveries. Phase 7 prompt rewrites + discriminator widenings + expected.yml fixes did the work.
+
+### flake (5 rows — close to stable but inconsistent)
+
+`C011` [P/F/F], `EA-01` [F/F/P], `EA-02` [F/P/F], `EA-03` [P/F/F], `EA-04` [P/F/F]. Each passes 1 of 3 — the rewrites moved the rows from baseline 0/3 to 1/3 but determinism is poor. Could become stable with another iteration of prompt sharpening OR by accepting the 1-of-3 as "engaged correctly under one model sample."
+
+### stable_fail (7 rows)
+
+`C014` (regex `[^\n]` ate the multi-line refusal — discriminator defect), `C017` (autonomous-mode silent routing — model doesn't surface "helix" by prose attribution), `CD-02`, `CD-04`, `CF-02`, `CF-03`, `G3` — all 0/3 on the canonical install. C014 is a discriminator-fix, the others are real skill behavior gaps in the multi-flow disambiguation, concern definition, and cross-flow query modes that the canonical promotion didn't address.
+
+### broken — STILL (2 rows)
+
+`G4-orchestration-with-gates`, `G5-upstream-discovery`: docker image evicted again during the G-rerun2 batch. Need a more reliable bench harness (image pinning, layer caching, or local-only execution) before attempting Stage 5b.
+
+## Stage 5b recommendation: still NO
+
+The 7 stable_pass rows are a real ~33% recovery from 0/21 baseline. But:
+
+1. **Docker eviction is structural.** Every multi-row bench loop ≥30 min has hit at least one image eviction. Stage 5b would be 71 conv rows × 3 passes = 213 probes × ~5 min/probe = ~17 hours wall-clock — guaranteed to hit multiple evictions. Ratchets seeded from a partially-broken run aren't trustworthy.
+2. **Flake bucket is large** (5 rows at 1/3 each). Need to settle whether these are model-sample variance (acceptable at 1/3) or real determinism failures.
+3. **6 rows still stable_fail.** The Phase 7 work caught the synthetic-prompt issue but left these uncovered.
+
+## Phase 8 surface (when ready)
+
+1. **Bench infra: pin or warm-cache `family-test-claude:latest`** so it survives 30-min idle periods. Either rebuild-before-each-probe (~1s overhead per probe vs current 4-5 min probe time — acceptable), or push to a local registry the harness pulls from, or use `docker save` / `docker load` cycle in the bench wrapper.
+2. **C014 regex fix**: change `[^\n]` to `[\s\S]` in the discriminator regex; should land 3 stable_pass on the next bench.
+3. **C017 autonomous routing**: investigate why `defaults.methodology: helix` doesn't drive Sonnet to name "helix" in autonomous mode. Add a hint to SKILL.md that autonomous mode SHOULD prose-attribute the routing decision even when silently following defaults.
+4. **CD-02 / CD-04 / CF-02 / CF-03**: investigate transcripts to find skill-body gaps. Likely additional cross-flow and concern-slot wording.
+5. **EA-01..04 flake reduction**: if the matcher is genuinely 1-of-3 ish, consider relaxing stable-pass criteria for EA-* rows specifically OR add an explicit FEAT-naming-vocabulary clause to SKILL.md.
+6. **Then Stage 5b** ($260, but only after infra fixes prevent eviction-induced noise).
+
+## Aggregate scoreboard (across all phases this session)
+
+**Stable-pass rows verified during the session** (combining Phase 5a + Tier 4 + Phase 7):
+- 4 autonomy matrix (AM-01..06 — Phase 5a)
+- C003 marker-edge (Phase 5a)
+- C018 iterate (Phase 5a)
+- G1 spec-gap-orchestration (Phase 5a)
+- G2 scale-recalibration (Tier 4 — discriminator widening)
+- 6 MI-* multi-instance (Tier 4 — matcher fix)
+- 7 Phase 7 recoveries (C008, C013, C015, C016, C024, CD-01, CD-03)
+
+**Total: 21 stable_pass rows confirmed.** From a pre-port baseline near 0/24 measurable on the failing subset.
