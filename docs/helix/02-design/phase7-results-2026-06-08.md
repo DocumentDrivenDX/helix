@@ -9,7 +9,7 @@
 | 11 rows broken (Docker image eviction) | — | N/A (infrastructure failure) | — |
 | **16 Tier-4 stable-fail set (recoveries)** | **0/16** | **6/10 tested = 60% of tested rows** | **+6** |
 
-Cost actual: ~$6 (28 passing-probe transcripts; 11 × 3 passes failed at docker pull).
+Cost actual: ~$25 (26 cost-log entries captured; C024 pass1/2 and CD-03 pass1/2 cost not logged due to Docker failure during aggregation; 11 rows × 3 passes produced empty transcripts at docker pull with no API cost).
 
 Run: `phase7-retest-20260608T015359Z` on `claude-sonnet-4-6`, determinism=3, timeout=240s.
 
@@ -95,9 +95,9 @@ If the 6 Docker-broken Tier-4 rows recover at the same rate as the tested rows (
 
 | Phase | Cost | Notes |
 |---|---|---|
-| Phase 7 re-bench (10 working rows × 3 passes) | ~$6 | Docker image eviction cut 11 rows short |
+| Phase 7 re-bench (10 working rows × 3 passes) | ~$25 | Docker image eviction cut 11 rows short |
 | Phase 6 Tier 4 | ~$40 | Baseline |
-| Phase 7 total | ~$46 | Cumulative |
+| Phase 7 total | ~$65 | Cumulative |
 
 ## Files changed in Phase 7 (commit a28693e2)
 
