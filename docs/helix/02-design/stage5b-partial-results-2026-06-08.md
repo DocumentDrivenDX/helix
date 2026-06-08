@@ -1,11 +1,29 @@
-# Stage 5b — partial results + bench infra defect surfaced
+# Stage 5b — partial results + API rate limit hit
 
 ## Status: incomplete
 
 The Phase 9+5b workflow (`w1qjvx3yi`) failed at the grade-agent step because
-the final agent didn't call StructuredOutput within its budget. Before that
-the routing leg ran and the conv leg never started. The workflow has been
-killed; this doc captures what we know.
+the final agent didn't call StructuredOutput within its budget. The routing
+leg ran 81 probes but 43 of them hit the **Claude API weekly rate limit**
+mid-flight — not docker eviction as initially diagnosed.
+
+## Correction to original diagnosis
+
+Original draft claimed docker eviction. **That was wrong.** Forensic on
+RE-POS-002's stream.jsonl shows the actual cause:
+
+```json
+{"type":"rate_limit_event","rate_limit_info":{"status":"rejected",
+ "overageStatus":"rejected","overageDisabledReason":"out_of_credits"}}
+{"type":"assistant","message":{"content":[{"type":"text",
+ "text":"You've hit your weekly limit · resets Jun 11, 4am (UTC)"}]}}
+```
+
+The probes received a one-line synthetic "rate limit hit" response. The
+runner counted these as failures (no Skill tool_use → fired_skills=[]),
+duration ~2-5s (no inference happened), probe_rc=3.
+
+The Phase 8.1 rebuild-on-demand docker fix is fine; not implicated.
 
 ## What landed before the failure (committed to main)
 
@@ -27,25 +45,19 @@ killed; this doc captures what we know.
 
 The 30 helix-negative + 6 MI-* + 1 helix-positive RE-POS-001 = 37 probes ran cleanly. The other 44 hit docker eviction. The bench infra fix from Phase 8.1 (rebuild-on-demand inside `run-probe.sh`) tested clean in isolation but didn't survive sustained ~80-min bench load.
 
-## Diagnosed defect: 8.1 fix is racy
+## Real diagnosis: API weekly quota exhausted
 
-Manual verification — delete the image, run `run-probe.sh` once, image is
-rebuilt and probe succeeds. Stderr shows the INFO rebuild message exactly
-as expected.
+The OAuth token's max-2x weekly limit ran out partway through Stage 5b.
+`resetsAt: 1781150400` (2026-06-11 04:00 UTC) — about 54 hours from
+the time of failure. Once the quota was hit, every subsequent probe
+returned the synthetic rate-limit-rejected response and the bench
+counted them all as failures.
 
-Under sustained bench load (`helix_bench.py routing-evals` calling
-run-probe.sh ~80 times in sequence), 43 invocations failed with empty
-stderr files and exit code 3. Two hypotheses:
-
-1. **Race condition**: docker GC fires WHILE a probe is mid-build,
-   leaving an inconsistent image state. The next probe's `docker image
-   inspect` succeeds (because the image NAME is still pinned) but the
-   actual content is gone. The `docker run` fails at content-pull time
-   and the stderr gets overwritten because the run-probe.sh redirects
-   `2>"$EVIDENCE_FILE.stderr"` AFTER the auth-args + plugin-args setup,
-   so rebuild messages from THAT iteration aren't preserved.
-2. **OrbStack-specific GC bug**: OrbStack may be evicting the image
-   asynchronously even while `docker image inspect` reports it present.
+The runner SHOULD detect this and halt instead of marching through the
+remaining ~40 probes producing fake-failure data. Phase 10 surface:
+add a rate-limit-detect-and-halt path to `helix_bench.py` that parses
+the init-line's `rate_limit_event` and aborts the loop if `status ==
+"rejected"`.
 
 ## Stage 5b conv — did not run
 
@@ -77,19 +89,15 @@ once the docker infra is bulletproof.
 
 ## Next steps (Phase 10)
 
-1. **Fix run-probe.sh properly**:
-   - Move the image-presence check to a SEPARATE script that runs ONCE
-     before each loop (not per-probe)
-   - OR add a docker-image-watcher loop script that just `docker pull/build`
-     every ~5 min while a bench is running
-   - OR pin the image with `--restart=unless-stopped` on a sentinel
-     container that prevents GC
-2. **Verify Phase 9 fixes**: re-bench the 14 rows from Phase 8's stable-fail
-   set + the 6 Phase 9 edited rows = ~20 rows × 3 passes
-3. **Then** Stage 5b for ratchet seeding (only after Phase 10 infra is
-   bulletproof — this is the second time docker eviction has broken a
-   bench run mid-flight, and pretending it's solved would just produce
-   another partial result)
+1. **Add rate-limit-detect to helix_bench.py**: parse init-line's
+   `rate_limit_event` from claude stream-json; if `status: rejected`,
+   halt the loop immediately and emit a clear message. ~20 LOC in
+   the runner. Prevents wasting time + accumulating fake failures.
+2. **Wait for quota reset** (resetsAt: 2026-06-11 04:00 UTC, ~54h
+   from failure).
+3. **Verify Phase 9 fixes**: re-bench the 14 rows from Phase 8's stable-fail
+   set + the 6 Phase 9 edited rows = ~20 rows × 3 passes (~$30).
+4. **Then** Stage 5b for ratchet seeding.
 
 ## Spend
 
