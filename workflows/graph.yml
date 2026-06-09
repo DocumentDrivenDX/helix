@@ -448,6 +448,14 @@ edges:
   to: technical-design
   kind: informs
   required: false
+- from: contract
+  to: test-suites
+  kind: informs
+  required: false
+- from: contract
+  to: implementation-plan
+  kind: informs
+  required: false
 - from: data-architecture
   to: data-quality-expectations
   kind: informs

@@ -1,7 +1,7 @@
 ---
 title: "Runbook — Restoration Decision"
 slug: runbook-restoration-decision
-weight: 880
+weight: 930
 activity: "Deploy"
 source: "05-deploy/decisions/runbook-restoration-decision.md"
 generated: true

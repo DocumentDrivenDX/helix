@@ -587,8 +587,26 @@ stories.
    explicitly required). Selection happens here, once; propagation to work
    items is a later gate owned by `check`/`polish`, not a re-selection.
 3. Read the relevant artifact template and prompt before drafting.
-4. Keep each artifact in its lane: vision is direction, PRD is product scope,
-   feature specs are feature behavior, stories are vertical user outcomes.
+4. Keep each artifact in its lane:
+   - Product Vision is direction.
+   - PRD is product scope: capabilities, outcomes, priorities, metrics, and
+     non-goals.
+   - Feature specs are feature behavior, boundaries, edge cases, and
+     decomposition.
+   - User stories are vertical user journeys and observable acceptance
+     criteria.
+   - Contracts are exact shared interface surface: API/CLI/event/schema/config/
+     telemetry/adapter commands, flags, fields, payloads, status codes, error
+     semantics, versioning rules, stability rules, and examples.
+   - Solution Design is the feature-level technical approach, domain model,
+     component decomposition, and interface usage.
+   - Technical Design is the story-level implementation design: files,
+     component changes, tests, rollback, sequence, and references to governing
+     Contracts.
+   Exact shared interface surface belongs in Contract, not PRD, Feature Spec,
+   User Story, Solution Design, or Technical Design. Those artifacts may name or
+   reference the need for an interface; they do not define the normative
+   surface inline.
 5. Give each user-story acceptance criterion a stable `US-<n>-AC<m>` ID in
    Given/When/Then form so the story test plan can map it to tests by name.
    Decompose to a **coverage floor** (minimum rigor, not equal depth): every PRD

@@ -1,7 +1,7 @@
 ---
 title: "HELIX Family Vertical-Slice Validation Results — 2026-06-05"
 slug: validation-results-2026-06-05
-weight: 810
+weight: 860
 activity: "Design"
 source: "02-design/validation-results-2026-06-05.md"
 generated: true

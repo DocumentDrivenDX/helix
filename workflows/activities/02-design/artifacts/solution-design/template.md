@@ -67,7 +67,7 @@ erDiagram
 - **Purpose**: [What it does]
 - **Responsibilities**: [List]
 - **Requirements Addressed**: [Which requirements]
-- **Interfaces**: [How it communicates]
+- **Interfaces**: [How it communicates at feature level; exact shared surface links to Contract IDs]
 - **Owned by TDs**: [Story-level work that will be designed later]
 
 ### Component Interactions
@@ -131,7 +131,7 @@ Use this checklist when reviewing a solution design:
 - [ ] Domain model captures all entities and their relationships
 - [ ] Business rules are specific enough to implement
 - [ ] System decomposition assigns every requirement to at least one component
-- [ ] Component interfaces are defined — not just names, but how they communicate
+- [ ] Component interfaces name how components communicate and link Contract IDs for exact shared surfaces
 - [ ] Technology rationale explains why each choice was made, not just what was chosen
 - [ ] Traceability table maps every requirement to a component and test strategy
 - [ ] Gaps section lists any requirements not fully addressed with mitigation plans

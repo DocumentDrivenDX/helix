@@ -1,7 +1,7 @@
 ---
 title: "FINAL Plan: helix-library Split — REVISED POST-MONOREPO 2026-06-04"
 slug: plan-2026-06-03-helix-library-FINAL
-weight: 710
+weight: 740
 activity: "Design"
 source: "02-design/plan-2026-06-03-helix-library-FINAL.md"
 generated: true

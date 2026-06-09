@@ -56,7 +56,8 @@ Use these local resource summaries as grounding:
 | Product-level scope, personas, priorities, or metrics | PRD |
 | Complete feature behavior, functional areas, and edge cases | Feature Specification |
 | One persona's journey through a feature slice | User Story |
-| Component design, data model, API shape, or build approach | Solution/Technical Design |
+| Exact API/CLI/event/schema surface, commands, flags, fields, payloads, status codes, error semantics, or compatibility rules | Contract |
+| Component design, data model, interface usage, or build approach | Solution/Technical Design |
 | Detailed fixtures, test harnesses, or automation strategy | Story Test Plan |
 | Work assignment, status, or execution notes | runtime work item or issue |
 
@@ -88,6 +89,13 @@ clear precondition, one action, one observable outcome. Avoid compound
 criteria ("Given A and B and C, when D, then E and F and G"). Split those
 into separate criteria.
 
+Acceptance criteria may reference a Contract ID when exact interface behavior
+matters, but they must not define the shared surface inline. Do not put
+specific endpoints, command flags, payload fields, status codes, error codes,
+event schemas, config keys, telemetry fields, or adapter signatures in ACs; put
+that normative detail in a Contract and keep the AC focused on the observable
+outcome.
+
 Each criterion carries a **stable AC ID** of the form `US-<n>-AC<m>` (e.g.
 `US-001-AC1`), where `<n>` is this story's number. The ID is stable across edits
 so downstream artifacts reference a specific criterion by name. The story test
@@ -111,6 +119,8 @@ edge case from the section above. Name specific values, not placeholders.
 ### Dependencies
 Name other stories this one depends on (by ID), the parent feature spec,
 and any external systems or APIs. If another story must be done first, say so.
+Name Contract IDs for exact interface surfaces instead of restating those
+surfaces here.
 
 ### Traceability
 Name the parent feature requirement IDs that the story exercises. If the story
@@ -144,6 +154,7 @@ committing.
 - [ ] Story links to parent feature spec by ID
 - [ ] Story names the parent feature requirement IDs it exercises
 - [ ] Story names the PRD `FR-n` it covers; bundled unrelated `FR-n`s carry recorded justification
+- [ ] Exact API/CLI/event/schema/config/telemetry/adapter surface is linked to a Contract, not defined inline
 
 ### Warning
 

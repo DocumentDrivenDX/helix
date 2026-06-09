@@ -56,6 +56,10 @@ validation:
       description: Requirements must be categorized as P0/P1/P2
       severity: blocking
 
+    - check: no_surface_leak
+      description: PRD functional requirements must not define exact API, CLI, event, schema, config, telemetry, or adapter surfaces; use Contract artifacts for normative interface detail
+      severity: blocking
+
     - check: risks_mitigated
       description: Each risk must have a mitigation strategy
       severity: warning

@@ -59,6 +59,10 @@ validation:
       description: Should not specify HOW, only WHAT
       severity: warning
 
+    - check: no_surface_leak
+      description: Feature specs may name high-level interface dependencies but must not define exact API, CLI, event, schema, config, telemetry, or adapter surfaces; use Contract artifacts for normative interface detail
+      severity: blocking
+
   automated_checks:
     - pattern: "\\[NEEDS CLARIFICATION"
       expected: 0

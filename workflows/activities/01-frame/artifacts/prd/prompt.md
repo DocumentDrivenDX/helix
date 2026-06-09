@@ -82,6 +82,7 @@ Product requirements are for product scope. If you find yourself writing about:
 | Positioning, target market, long-horizon strategic success | `00-discover/product-vision.md` |
 | Detailed feature behavior and edge cases | `01-frame/features/FEAT-*.md` |
 | User journey phrasing independent of product-level requirements | `01-frame/user-stories.md` |
+| Exact command invocations, CLI flags, endpoints, schemas, payloads, error codes, config keys, or adapter signatures | `02-design/contracts/` |
 | Architecture choices or implementation approach | `02-design/` |
 | Detailed test cases and fixtures | `03-test/` |
 | Build sequencing and execution slices | `04-build/implementation-plan.md` |
@@ -146,13 +147,15 @@ this. P2 = the product is better with this. If you have more than 7 P0s,
 you're not prioritizing.
 
 Each requirement should be stable enough to trace into feature specs and tests.
-If a requirement describes a screen, algorithm, API field, or implementation
-sequence in detail, move that detail downstream and keep the PRD at product
-scope.
+If a requirement describes a screen, algorithm, API field, command flag,
+payload, error code, or implementation sequence in detail, move that detail to
+the owning downstream artifact and keep the PRD at product scope. Exact
+interface surface belongs in a Contract.
 
 ### Functional Requirements
-These are the detailed behavioral specs. Each one should be testable — someone
-reading it should know how to write an acceptance test.
+Functional requirements are product-level capability and outcome requirements
+grouped by subsystem. Each one should be testable without defining exact
+interface, API, CLI, event, schema, config, telemetry, or adapter surface.
 
 **(kind: data)** When `kind: data`, the functional requirements describe
 **data behavior**: ingestion cadence, deduplication rules, transformation
@@ -182,6 +185,13 @@ ID is the trace anchor: every `FR-n` must be covered by ≥1 user story, and
 reconcile-alignment flags any `FR-n` with no story as a coverage gap. Number
 sequentially and never renumber on edit — downstream stories reference the ID by
 name.
+
+**Surface boundary example.** Do not write a PRD requirement as
+``FR-1: `tool autotune --gpu-tier high --write-config` writes config.toml``.
+Write the product requirement as `FR-1: Operators can generate a validated
+runtime profile for the selected hardware tier and persist it for future runs`,
+then add a handoff or link to a Contract for the exact command, flags, config
+keys, exit codes, and compatibility rules.
 
 ### Acceptance Test Sketches
 For each P0 requirement, write a concrete scenario: what the user does, what

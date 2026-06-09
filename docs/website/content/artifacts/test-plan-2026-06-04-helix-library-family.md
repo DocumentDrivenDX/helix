@@ -1,7 +1,7 @@
 ---
 title: "Test Plan: helix Family Bench Fixtures"
 slug: test-plan-2026-06-04-helix-library-family
-weight: 790
+weight: 830
 activity: "Design"
 source: "02-design/test-plan-2026-06-04-helix-library-family.md"
 generated: true

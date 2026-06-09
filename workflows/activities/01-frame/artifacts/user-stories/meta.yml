@@ -46,6 +46,10 @@ validation:
       description: Walkthrough traces a complete path from trigger to outcome
       severity: blocking
 
+    - check: no_surface_leak
+      description: User stories may reference Contract IDs but must not define exact API, CLI, event, schema, config, telemetry, or adapter surfaces in acceptance criteria or dependencies
+      severity: blocking
+
     - check: edge_cases_present
       description: At least one edge case documented
       severity: warning

@@ -75,7 +75,8 @@ but leaves no trace here is drift (reconcile-alignment Concern->Artifact Realiza
 | Product goals, personas, launch priority, or product-level metrics | PRD |
 | Feature behavior, boundaries, and edge cases | Feature Specification |
 | A vertical user journey through one or more feature requirements, with acceptance criteria | User Story |
-| Component choices, data model, APIs, or implementation approach | Solution/Technical Design |
+| Exact API/CLI/event/schema surface, commands, flags, fields, payloads, status codes, error semantics, or compatibility rules | Contract |
+| Feature-level technical approach, component choices, domain/data model, interface usage, or implementation approach | Solution/Technical Design |
 | Detailed test cases, fixtures, or automation strategy | Test Plan or Story Test Plan |
 | Build sequencing and work slices | Implementation Plan |
 
@@ -154,6 +155,10 @@ single-area features.
 
 Each requirement should be independently testable. These are what the feature
 must do — user stories describe how users interact with these capabilities.
+A feature spec may name a high-level interface dependency such as "depends on a
+search API", but exact endpoints, commands, flags, payload fields, status codes,
+error semantics, config keys, telemetry fields, event schemas, and adapter
+signatures are normative surface and belong in a Contract.
 
 If a requirement mentions two areas joined by "and", split it unless the
 relationship between those areas is itself the requirement.
@@ -203,6 +208,7 @@ committing.
 - [ ] Non-functional requirements have specific numeric targets
 - [ ] User stories are referenced by ID (not duplicated inline)
 - [ ] Dependencies name specific feature IDs and external systems
+- [ ] Exact API/CLI/event/schema/config/telemetry/adapter surface is linked to a Contract, not defined inline
 - [ ] No `[NEEDS CLARIFICATION]` markers remain
 
 ### Warning

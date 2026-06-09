@@ -55,7 +55,11 @@ capability.]
 
 [Each requirement should be testable. Group requirements by functional area
 when the feature has multiple areas. Use stable prefixes that make the scope
-clear, such as `HOME-01`, `TYPE-01`, `NAV-01`, or `FR-01` for narrow features.]
+clear, such as `HOME-01`, `TYPE-01`, `NAV-01`, or `FR-01` for narrow features.
+Name high-level interface dependencies when needed, but do not define exact
+API/CLI/event/schema/config/telemetry/adapter surface here; link or request a
+Contract for commands, flags, endpoints, fields, payloads, status codes, error
+semantics, and compatibility rules.]
 
 #### [Area Name]
 
@@ -99,7 +103,7 @@ not the product-level metrics from the PRD.]
 ## Dependencies
 
 - **Other features**: [FEAT-XXX if this feature depends on another]
-- **External services**: [APIs, libraries, or systems this feature requires]
+- **External services**: [APIs, libraries, or systems this feature requires; exact surface lives in Contract artifacts]
 - **PRD requirements**: [Which P0/P1/P2 requirements this addresses]
 
 ## Out of Scope
@@ -127,5 +131,6 @@ Use this checklist when reviewing a feature specification:
 - [ ] Dependencies reference real artifact IDs (FEAT-XXX, external APIs)
 - [ ] Out of scope excludes things someone might reasonably assume are in scope
 - [ ] No implementation details ("use X library", "create Y table") — specify WHAT not HOW
+- [ ] No exact API/CLI/event/schema/config/telemetry/adapter surface is defined inline; normative surface links to Contract artifacts
 - [ ] Feature is consistent with governing PRD requirements
 - [ ] No `[NEEDS CLARIFICATION]` markers remain unresolved for P0 features

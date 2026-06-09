@@ -1,7 +1,7 @@
 ---
 title: "Plan: helix-library Migration"
 slug: plan-2026-06-03-helix-library-migration
-weight: 720
+weight: 750
 activity: "Design"
 source: "02-design/plan-2026-06-03-helix-library-migration.md"
 generated: true

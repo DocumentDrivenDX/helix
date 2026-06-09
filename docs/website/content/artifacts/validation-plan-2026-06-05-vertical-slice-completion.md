@@ -1,7 +1,7 @@
 ---
 title: "Validation Plan — Vertical Slice Completion"
 slug: validation-plan-2026-06-05-vertical-slice-completion
-weight: 800
+weight: 850
 activity: "Design"
 source: "02-design/validation-plan-2026-06-05-vertical-slice-completion.md"
 generated: true

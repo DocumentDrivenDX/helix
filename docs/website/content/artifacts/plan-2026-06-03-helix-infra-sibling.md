@@ -1,7 +1,7 @@
 ---
 title: "Plan: helix-infra sibling repo"
 slug: plan-2026-06-03-helix-infra-sibling
-weight: 700
+weight: 730
 activity: "Design"
 source: "02-design/plan-2026-06-03-helix-infra-sibling.md"
 generated: true
