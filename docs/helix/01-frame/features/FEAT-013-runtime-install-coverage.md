@@ -83,15 +83,18 @@ up-to-date `description` aligned with the PRD ("methodology + artifact
 catalog + alignment skill", not "supervisory autopilot").
 
 [ADAPT-02]. The repo MUST contain `.claude-plugin/marketplace.json`
-listing the HELIX plugin so Claude Code users can run
-`/plugin marketplace add easel/helix` followed by `/plugin install
-helix@helix`.
+listing the HELIX plugin so Claude Code users can install HELIX through
+the native plugin marketplace flow without manual filesystem copying.
 
-[ADAPT-03]. The repo MUST contain `.github/copilot-instructions.md`
+[ADAPT-03]. The repo MUST contain `.codex-plugin/plugin.json` listing
+the HELIX plugin so Codex users can install HELIX through the native
+plugin marketplace flow without falling back to standalone skill copying.
+
+[ADAPT-04]. The repo MUST contain `.github/copilot-instructions.md`
 pointing GitHub Copilot at the routing skill (`skills/helix/SKILL.md`)
 and the artifact catalog (`workflows/activities/`).
 
-[ADAPT-04]. The `skills/helix/SKILL.md` frontmatter MUST conform to the
+[ADAPT-05]. The `skills/helix/SKILL.md` frontmatter MUST conform to the
 [agentskills.io specification](../../resources/agents/agentskills-spec.md)
 (parent directory name equals `name:`, required `name` and
 `description` fields, sized to fit a progressive-disclosure model).
@@ -163,8 +166,9 @@ verify steps, and captures all screencasts in one invocation.
 | Requirement | Scenario | Given | When | Then |
 |---|---|---|---|---|
 | ADAPT-01 | description string is current | repo at HEAD | `jq -r .description .claude-plugin/plugin.json` | output does not contain "supervisory autopilot" |
-| ADAPT-02 | Claude Code marketplace flow works | a clean Claude Code env | `claude plugin marketplace add easel/helix && claude plugin install helix@helix --scope user -y` | plugin appears in `claude plugin list` |
-| ADAPT-03 | Copilot instructions auto-discovered | a clean repo checkout | `gh copilot suggest "what HELIX modes exist?"` | response names align/frame/evolve/review modes |
+| ADAPT-02 | Claude Code marketplace flow works | a clean Claude Code env | documented Claude Code marketplace install flow runs | plugin appears in the runtime plugin list |
+| ADAPT-03 | Codex marketplace flow works | a clean Codex CLI env | documented Codex marketplace install flow runs | plugin appears in the runtime plugin list |
+| ADAPT-04 | Copilot instructions auto-discovered | a clean repo checkout | `gh copilot suggest "what HELIX modes exist?"` | response names align/frame/evolve/review modes |
 | GENIE-01,02,03 | Genie bundle installs and verifies | a clean Databricks workspace + admin PAT | `python scripts/install-genie.py && python scripts/verify-genie.py` | verification reports success without browser interaction |
 | DOC-01..04 | docs reflect verified reality | `docs/install/` contents | `grep -rn "git clone" docs/install/ \| grep -v "no-fork policy"` | zero matches in install procedure sections |
 | TEST-01..06 | Docker harness passes | `tests/install/` | `just install-test` | every runtime scenario produces a captured screencast in its directory |

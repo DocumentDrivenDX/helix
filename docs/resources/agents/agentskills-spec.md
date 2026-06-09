@@ -108,7 +108,7 @@ install path.
   should be referenced from the skill body, not inlined. The catalog
   already lives outside the skill directory, which fits the spec's
   progressive-disclosure intent.
-- Cross-runtime install via `npx skills add easel/helix` could work for
+- Cross-runtime install via `npx skills add DocumentDrivenDX/helix` could work for
   local-agent installs (Claude Code, Codex CLI). It does not work for
   Genie Code workspace installs or for DDx; those have their own paths.
 

@@ -119,6 +119,7 @@ assert_helix_triage_blanket_priming_regression() {
     "$repo_root/.agents" \
     "$repo_root/.claude" \
     "$repo_root/.claude-plugin" \
+    "$repo_root/.codex-plugin" \
     "$repo_root/docs" \
     "$repo_root/hooks" \
     "$repo_root/skills" \
@@ -170,13 +171,15 @@ PYEOF
 
 plugin_manifest="$repo_root/.claude-plugin/plugin.json"
 [[ -f "$plugin_manifest" ]] || fail "missing plugin manifest at .claude-plugin/plugin.json"
+codex_plugin_manifest="$repo_root/.codex-plugin/plugin.json"
+[[ -f "$codex_plugin_manifest" ]] || fail "missing Codex plugin manifest at .codex-plugin/plugin.json"
 plugin_hooks="$repo_root/hooks/hooks.json"
 
 # Validate plugin.json is parseable JSON with required fields
 if command -v python3 &>/dev/null; then
-  python3 - "$plugin_manifest" "$plugin_hooks" <<'PYEOF'
+  python3 - "$plugin_manifest" "$codex_plugin_manifest" "$plugin_hooks" <<'PYEOF'
 import json, sys
-path, plugin_hooks = sys.argv[1:3]
+path, codex_path, plugin_hooks = sys.argv[1:4]
 try:
     manifest = json.load(open(path))
 except json.JSONDecodeError as e:
@@ -198,6 +201,94 @@ if "hooks" in manifest and manifest["hooks"] == "./hooks/hooks.json":
     print("plugin.json: manifest.hooks must not duplicate the auto-loaded "
           "./hooks/hooks.json — remove the field or point at an additional path",
           file=sys.stderr)
+    sys.exit(1)
+
+try:
+    codex_manifest = json.load(open(codex_path))
+except json.JSONDecodeError as e:
+    print(f"invalid JSON in {codex_path}: {e}", file=sys.stderr)
+    sys.exit(1)
+allowed_codex_fields = {
+    "id",
+    "name",
+    "version",
+    "description",
+    "skills",
+    "apps",
+    "mcpServers",
+    "interface",
+    "author",
+    "homepage",
+    "repository",
+    "license",
+    "keywords",
+}
+unknown = sorted(set(codex_manifest) - allowed_codex_fields)
+if unknown:
+    print(f"Codex plugin.json unsupported fields: {', '.join(unknown)}", file=sys.stderr)
+    sys.exit(1)
+required_codex = ("name", "version", "description", "skills", "author", "interface")
+missing = [k for k in required_codex if not codex_manifest.get(k)]
+if missing:
+    print(f"Codex plugin.json missing required fields: {', '.join(missing)}", file=sys.stderr)
+    sys.exit(1)
+if codex_manifest["name"] != manifest["name"]:
+    print("Codex plugin.json name must match Claude plugin.json name", file=sys.stderr)
+    sys.exit(1)
+if codex_manifest["version"] != manifest["version"]:
+    print("Codex plugin.json version must match Claude plugin.json version", file=sys.stderr)
+    sys.exit(1)
+if codex_manifest["description"] != manifest["description"]:
+    print("Codex plugin.json description must match Claude plugin.json description", file=sys.stderr)
+    sys.exit(1)
+if codex_manifest["skills"] != "./skills/":
+    print(
+        f"Codex plugin.json skills must be ./skills/ (got {codex_manifest['skills']!r})",
+        file=sys.stderr,
+    )
+    sys.exit(1)
+author = codex_manifest.get("author")
+if not isinstance(author, dict) or not author.get("name"):
+    print("Codex plugin.json author.name is required", file=sys.stderr)
+    sys.exit(1)
+interface = codex_manifest.get("interface")
+if not isinstance(interface, dict):
+    print("Codex plugin.json interface must be an object", file=sys.stderr)
+    sys.exit(1)
+required_interface = (
+    "displayName",
+    "shortDescription",
+    "longDescription",
+    "developerName",
+    "category",
+    "capabilities",
+    "defaultPrompt",
+)
+missing_interface = [k for k in required_interface if not interface.get(k)]
+if missing_interface:
+    print(
+        "Codex plugin.json interface missing required fields: "
+        + ", ".join(missing_interface),
+        file=sys.stderr,
+    )
+    sys.exit(1)
+if not isinstance(interface["capabilities"], list) or not all(
+    isinstance(value, str) and value.strip() for value in interface["capabilities"]
+):
+    print("Codex plugin.json interface.capabilities must be an array of strings", file=sys.stderr)
+    sys.exit(1)
+default_prompt = interface["defaultPrompt"]
+if not isinstance(default_prompt, list) or not default_prompt:
+    print("Codex plugin.json interface.defaultPrompt must be a non-empty array", file=sys.stderr)
+    sys.exit(1)
+if len(default_prompt) > 3 or any(
+    not isinstance(prompt, str) or not prompt.strip() or len(prompt) > 128
+    for prompt in default_prompt
+):
+    print(
+        "Codex plugin.json interface.defaultPrompt entries must be 1-3 non-empty strings at most 128 characters",
+        file=sys.stderr,
+    )
     sys.exit(1)
 # The standard hooks file is optional; when present, validate shape.
 import os

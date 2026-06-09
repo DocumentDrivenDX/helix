@@ -103,17 +103,18 @@ claude plugin install helix@helix --scope user -y
 
 Full procedure: [`docs/install/claude-code.md`](docs/install/claude-code.md).
 
-### Codex (skill)
+### Codex (plugin)
 
-HELIX installs into Codex as an agentskills.io-compliant routing skill via the
-Skills CLI (needs Node.js):
+HELIX installs into Codex as a plugin from the HELIX marketplace:
 
 ```bash
-npx skills add DocumentDrivenDX/helix -a codex
+codex plugin marketplace add DocumentDrivenDX/helix
+codex plugin add helix@helix
 ```
 
-Codex auto-discovers the skill at session start. Full procedure, including a
-Node-free filesystem copy: [`docs/install/codex.md`](docs/install/codex.md).
+The plugin carries the same agentskills.io-compliant routing skill and
+artifact catalog. Full procedure, including the Skills CLI and filesystem-copy
+fallbacks: [`docs/install/codex.md`](docs/install/codex.md).
 
 ### Databricks Genie
 

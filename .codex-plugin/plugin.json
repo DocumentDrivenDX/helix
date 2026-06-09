@@ -1,0 +1,39 @@
+{
+  "name": "helix",
+  "version": "0.6.1",
+  "description": "HELIX methodology, artifact catalog, and routing skill for AI-assisted development.",
+  "author": {
+    "name": "DocumentDrivenDX",
+    "url": "https://github.com/DocumentDrivenDX"
+  },
+  "homepage": "https://documentdrivendx.github.io/helix/",
+  "repository": "https://github.com/DocumentDrivenDX/helix",
+  "license": "MIT",
+  "keywords": [
+    "helix",
+    "document-driven-development",
+    "requirements",
+    "agent-skills",
+    "codex"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "HELIX",
+    "shortDescription": "Document-driven development workflow for Codex.",
+    "longDescription": "HELIX packages the artifact catalog and routing skill for planning, aligning, reviewing, and evolving software work in Codex.",
+    "developerName": "DocumentDrivenDX",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Review"
+    ],
+    "websiteURL": "https://documentdrivendx.github.io/helix/",
+    "defaultPrompt": [
+      "Use the helix skill to frame this product idea.",
+      "Use the helix skill to review the current plan.",
+      "Use the helix skill to align the PRD and designs."
+    ],
+    "brandColor": "#2563EB"
+  }
+}

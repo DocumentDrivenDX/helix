@@ -85,13 +85,15 @@ shell access. Supports every HELIX route, including `build` and `run`.
 ### [OpenAI Codex CLI](codex.md)
 
 ```bash
-npx skills add DocumentDrivenDX/helix -a codex
+codex plugin marketplace add DocumentDrivenDX/helix
+codex plugin add helix@helix
 ```
 
-Install via the Vercel Labs Skills CLI (the cross-runtime install
-helper from agentskills.io). Drops HELIX into `~/.codex/skills/helix/`
-for filesystem-scan auto-discovery. A direct filesystem-copy fallback
-is available for Dockerfile/no-Node environments.
+Install via Codex's plugin marketplace flow. The HELIX repo ships both
+the Codex plugin manifest and a marketplace listing; the plugin exposes
+the same agentskills.io-compliant routing skill. The Skills CLI and
+direct filesystem-copy paths remain available for older Codex CLI
+versions and Dockerfile/no-Node environments.
 
 **Best fit for:** terminal-native Codex sessions with full agentskills
 spec compliance.

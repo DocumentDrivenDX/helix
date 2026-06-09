@@ -30,7 +30,7 @@ install more than one if you use more than one.
 
 {{< cards >}}
   {{< card link="../use/claude-code-recipe" title="Claude Code" subtitle="Install HELIX as a Claude Code skill, user-global or per-repo. Supports every HELIX route including build and run." icon="code" >}}
-  {{< card link="../use/codex-recipe" title="Codex CLI + Copilot" subtitle="Covers the OpenAI Codex CLI (AGENTS.md discovery) and GitHub Copilot Workspace (editor-scoped instructions)." icon="chip" >}}
+  {{< card link="../use/codex-recipe" title="Codex CLI + Copilot" subtitle="Covers the OpenAI Codex CLI plugin path and GitHub Copilot Workspace editor-scoped instructions." icon="chip" >}}
   {{< card link="../use/databricks-recipe" title="Databricks Code Genie" subtitle="Upload the skill bundle to workspace storage and register it as a Genie skill. Shared across the workspace." icon="database" >}}
 {{< /cards >}}
 

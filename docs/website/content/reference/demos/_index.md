@@ -33,8 +33,8 @@ with `claude plugin list`.
 
 {{< asciinema file="/demos/install-claude.cast" autoplay=true speed=1.5 >}}
 
-In Codex, the Skills CLI drops the skill into `~/.codex/skills/helix/`
-where the session auto-discovers it.
+In Codex, the plugin manager installs HELIX from the configured marketplace.
+Older recordings may show the Skills CLI fallback.
 
 {{< asciinema file="/demos/install-codex.cast" autoplay=true speed=1.5 >}}
 
