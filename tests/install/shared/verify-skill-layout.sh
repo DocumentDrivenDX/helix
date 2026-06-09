@@ -38,10 +38,17 @@ fi
 
 EXPECTED_NAME="$(basename "$SKILL_ROOT")"
 
-# Parse frontmatter with python (POSIX-compatible enough).
+# Parse frontmatter with python (POSIX-compatible enough). Uses PyYAML so
+# YAML block scalars (description: |) are handled correctly — the earlier
+# regex-only parser caught only single-line descriptions and would silently
+# pass a block-scalar SKILL.md with a real description of any length.
 python3 - "$SKILL_MD" "$EXPECTED_NAME" <<'PY'
 import sys
-import re
+try:
+    import yaml
+except ImportError:
+    print("FAIL: PyYAML required (apt install python3-yaml or pip install PyYAML)", file=sys.stderr)
+    sys.exit(1)
 
 path, expected_name = sys.argv[1], sys.argv[2]
 with open(path) as f:
@@ -56,26 +63,34 @@ if end == -1:
     print(f"FAIL: {path} frontmatter unterminated (no closing ---)", file=sys.stderr)
     sys.exit(1)
 
-fm = content[4:end]
-name_match = re.search(r"^name:\s*(.+?)\s*$", fm, re.M)
-desc_match = re.search(r"^description:\s*(.+?)\s*$", fm, re.M)
+try:
+    fm = yaml.safe_load(content[4:end])
+except yaml.YAMLError as e:
+    print(f"FAIL: {path} frontmatter YAML parse error: {e}", file=sys.stderr)
+    sys.exit(1)
+if not isinstance(fm, dict):
+    print(f"FAIL: {path} frontmatter is not a mapping", file=sys.stderr)
+    sys.exit(1)
 
-if not name_match:
+name = fm.get("name", "")
+desc = fm.get("description", "")
+
+if not name:
     print(f"FAIL: {path} frontmatter missing `name`", file=sys.stderr)
     sys.exit(1)
-if name_match.group(1).strip() != expected_name:
-    print(f"FAIL: name `{name_match.group(1).strip()}` != dir basename `{expected_name}` (agentskills.io invariant)", file=sys.stderr)
+if name != expected_name:
+    print(f"FAIL: name `{name}` != dir basename `{expected_name}` (agentskills.io invariant)", file=sys.stderr)
     sys.exit(1)
 
-if not desc_match or not desc_match.group(1).strip():
+if not desc:
     print(f"FAIL: {path} frontmatter missing/empty `description`", file=sys.stderr)
     sys.exit(1)
-desc_len = len(desc_match.group(1).strip())
+desc_len = len(desc)
 if desc_len < 1 or desc_len > 1024:
-    print(f"FAIL: description {desc_len} chars (1..1024 expected per agentskills.io spec)", file=sys.stderr)
+    print(f"FAIL: description {desc_len} chars (1..1024 expected per agentskills.io spec; codex enforces 1024 hard)", file=sys.stderr)
     sys.exit(1)
 
-print(f"ok: SKILL.md frontmatter (name={expected_name}, description={desc_len} chars)")
+print(f"ok: SKILL.md frontmatter (name={name}, description={desc_len} chars)")
 PY
 
 # Check parent dir for legacy helix-* siblings.

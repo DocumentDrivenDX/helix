@@ -1,0 +1,9 @@
+__install_only__
+
+This fixture exercises the plugin installer, not a Claude prompt.
+The runner uses expected/01-install.json command_candidates to drive
+`claude plugins install workspace/` (or equivalent) and asserts on
+exit code + filesystem mount, not on model output.
+
+A real prompt is unnecessary here; this file exists to satisfy the
+fixture structural contract (one prompts/<stem> per expected/<stem>).

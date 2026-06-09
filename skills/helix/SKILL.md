@@ -1,6 +1,22 @@
 ---
 name: helix
-description: Route HELIX methodology work to the right planning, alignment, design, review, execution, or release workflow. Use when the user asks to use HELIX, work with HELIX artifacts, align documents, frame requirements, design a change, evolve specs, review work, decide what is next, or manage HELIX-governed work without naming a specific helix-* skill.
+description: |
+  HELIX skill — single entrypoint for product/feature/requirements work,
+  infrastructure changes, data pipelines, and web/frontend operations.
+  Engage on prompts to frame, align, decompose, prioritize, propose,
+  capture, review, decide, evolve, or release work — also without naming
+  a HELIX artifact (e.g. "frame the opportunity", "review the
+  architecture"). Engage on any named HELIX artifact: PRD, ADR, FEAT,
+  feature spec, technical design, implementation plan, test plan,
+  runbook, release notes, user stories, roadmap brief, requirements.
+  Engage on infra verbs (terraform/tofu/kubectl, provision/destroy/
+  rotate, CI, credentials), data verbs (backfill/ingest/migrate a table
+  or schema, profile a source, data contract), web verbs (deploy/ship,
+  monitoring, page perf) — these route INTERNALLY to the matching mode.
+  Engage on "what's next" / "plan the change" / cross-flow queries.
+  Once engaged, route to one of: product, infra, data, web. Honor
+  explicit prefix (/helix-infra → infra mode) or HELIX_METHODOLOGY= env
+  override.
 argument-hint: "[intent or scope]"
 ---
 
@@ -12,6 +28,327 @@ fits, then follow the matching workflow contract below.
 
 Rule: do not add separate public `helix-*` skills. Add or refine a route inside
 this skill instead.
+
+## When to engage (read first; non-negotiable)
+
+You ENGAGE this skill — call `Skill(helix)` — whenever any of these is true,
+regardless of whether the artifact content is attached, the workspace is
+empty, or the request looks like a generic task. Once engaged, you route
+INTERNALLY to one of four modes (product / infra / data / web). The skill
+does not have sibling skills to defer to — internal routing is the only
+routing.
+
+Engage when:
+
+- The prompt names a HELIX artifact (PRD, ADR, FEAT, feature spec,
+  technical design, implementation plan, test plan, runbook, release
+  notes, user stories, roadmap brief, requirements) — even when the
+  prompt asks you to *review* or *expand* one whose content is not
+  attached. Engage; THIS SKILL knows how to resolve the artifact path
+  from the marker + graph + cwd, you do not.
+- The prompt uses a HELIX planning verb (frame, align, decompose,
+  prioritize, propose, capture, review, decide, evolve, refresh,
+  release) against a product/feature/requirements object → route to
+  **product** mode.
+- The prompt uses an IaC verb (terraform/tofu/kubectl, provision/destroy/
+  rotate, set up CI, manage credentials) → route to **infra** mode
+  AFTER consulting `stop_at` triggers.
+- The prompt uses a data-pipeline verb (backfill/ingest/migrate a table
+  or schema, profile a source, write a data contract) → route to
+  **data** mode.
+- The prompt uses a web/frontend verb (deploy/ship to production, add
+  monitoring for a user-facing flow, optimize page performance) → route
+  to **web** mode AFTER consulting `stop_at` triggers.
+- The prompt asks "what's next", "plan the change", "decide what to do",
+  or any cross-flow query that needs the marker to answer → route to
+  the §Check And Next contract.
+
+Operator overrides (rare but honored):
+
+- Explicit prefix `/helix-infra ...`, `/helix-data ...`, `/helix-web ...`
+  pins the internal mode for the rest of the prompt. Engage and route
+  directly to the named mode without re-evaluating triggers.
+- `HELIX_METHODOLOGY=<mode>` env (legacy alias for `HELIX_FLOW=<mode>`)
+  sets the session-default internal mode.
+
+Verbose-but-stuck anti-pattern: narrating HELIX-shaped reasoning in
+assistant text WITHOUT calling `Skill(helix)` is a contract violation.
+The Skill tool_use must fire as the FIRST tool_use of the turn when any
+of the engage conditions above is true.
+
+## Internal routing modes
+
+After engagement, the skill drives behavior by mode. The bench grades by
+mode-specific observable behavior (the `route_decision_internal` matcher),
+not by a narrated routing intent.
+
+| Mode | Triggers | Required observable behavior (any 2 satisfy the matcher) |
+|---|---|---|
+| `product` | HELIX artifact named; planning verb against product/feature/requirements; cross-flow query | (a) Read `.helix.yml` AND `workflows/graph.yml` BEFORE any Write/Edit (`read_before_write` matcher); (b) Read of named upstream artifacts (vision, PRD, feature spec) per the graph BEFORE drafting; (c) cite `ddx.links` / `informs` edges in any new artifact |
+| `infra` | IaC verb (terraform/tofu/kubectl, provision/destroy/rotate); CI/credentials ops | (a) Consult `library/skill-prompts/stop-at-triggers.yml` for `apply` or `secret_read` triggers BEFORE any Bash; (b) Read of infra-shaped artifacts (architecture, runbook, deployment-checklist); (c) explicit confirmation prompt before terraform/tofu/kubectl/credential operations |
+| `data` | Data-pipeline verb (backfill/ingest/migrate, profile a source, data contract) | (a) Read of data-contract / data-quality-expectations / data-architecture artifacts; (b) cite producer/consumer or PII/governance posture in prose; (c) defer schema mutations behind a `stop_at` confirmation |
+| `web` | Web/frontend verb (deploy/ship, add monitoring for a user flow, optimize page perf) | (a) Read of architecture / design-system / monitoring-setup / runbook artifacts in the deploy-flow scope; (b) cite Web Vitals / RUM / page-error vocabulary in prose; (c) defer production deploys behind a `stop_at` confirmation |
+
+Skipping the mode-required behavior is a routing failure even if the Skill
+tool_use fires. The bench measures this.
+
+## Activation discipline (do these in order, every time the skill engages)
+
+### 1. Locate the marker
+
+Find `.helix.yml` by walking UP from the current working directory to the
+git root (the directory containing `.git/`). Stop at the first `.helix.yml`
+encountered. If the cwd is `/repo/services/api/docs/helix/` and the marker
+lives at `/repo/.helix.yml`, you MUST find the parent marker — do not give
+up after searching cwd only.
+
+Concretely: run `git rev-parse --show-toplevel` (or fall back to walking up
+until `.git/` is found), then check for `.helix.yml` at the top.
+
+### 1.5 Read marker AND graph before any Write/Edit (ordering invariant)
+
+The FIRST `Write` or `Edit` tool_use in the session MUST be preceded by at
+least one `Read` matching `.helix.yml` AND at least one `Read` matching
+`workflows/graph.yml`. Skipping either is a contract violation, EVEN IF the
+Skill tool_use has already fired. The failure mode this rule prevents — the
+verbose-but-stuck pattern — is the agent narrating HELIX-shaped reasoning
+from training while the marker scope, the type catalog, and the prerequisite
+chain go unconsulted. The resulting artifact looks plausible but is
+unanchored to the workspace's actual contract.
+
+The order between the two Reads is not constrained: marker-first is the
+natural sequence; graph-first is acceptable for graph-query-only prompts
+like "What's next?" (no Write/Edit follows).
+
+This ordering invariant is independent of autonomy level. Under
+`autonomous` the skill MAY proceed without operator confirmation, but it
+MUST NOT skip the two Reads — autonomy waives the human-in-the-loop ask,
+not the workspace-grounding contract.
+
+If the marker is absent and the skill is engaging by heuristic (§2 banner
+case), the `Read` for `.helix.yml` is satisfied by the failed lookup itself
+(the Read tool_use occurred even though the file did not exist); the `Read`
+for `workflows/graph.yml` is still required before any Write/Edit because
+the type catalog binds artifact templates.
+
+The bench enforces this via the `read_before_write` matcher.
+
+### 2. Decide activation state
+
+Before anything else: check the explicit operator overrides. They win over
+marker contents.
+
+- **Explicit prefix in the prompt** (`/helix-infra ...`, `/helix-data ...`,
+  `/helix-web ...`): pins the internal mode for this turn. Engage,
+  skip mode re-evaluation, route directly to the named mode.
+- **Env override** (`HELIX_METHODOLOGY=<mode>` or `HELIX_FLOW=<mode>`):
+  same handling — pins the session-default internal mode.
+
+Only after overrides are checked, evaluate the marker:
+
+- **Marker present and well-formed**: parse it. The `flows[]` list (legacy
+  alias `methodologies[]:` accepted under M020 warn) is the authorization
+  boundary. If `helix` is listed, this skill is active for the listed
+  `root:` scope. If `helix` is NOT listed (the marker only declares a
+  non-helix flow), defer to that flow's process — do not engage.
+
+- **Multiple distinct flows in `flows[]` with an ambiguous verb** (e.g.
+  `flows: [{id: helix, root: docs/helix/}, {id: helix-infra, root:
+  docs/helix-infra/}]` and the prompt uses a verb like "plan the rollout"
+  that could mean product-rollout planning under `helix` OR infrastructure
+  rollout planning under `helix-infra`): apply the resolution chain first:
+  explicit prefix → HELIX_FLOW env → cwd-under-root → `defaults.flow` in
+  the marker. If the chain does not resolve — no override, no env, cwd is
+  outside every declared `root:`, no `defaults.flow` key — you MUST emit
+  the disambiguation banner naming BOTH candidate flows and asking which one
+  applies:
+
+      Ambiguous request: both `helix` (root: <helix-root>) and `helix-infra` (root: <infra-root>) are active — which flow should handle this?
+      Re-run with the explicit prefix `/helix` or `/helix-infra`, or set HELIX_FLOW=<id>.
+
+  Substitute the actual `root:` values from the marker. Do NOT silently
+  pick one flow. Do NOT route to infra mode under the `helix` flow just
+  because the prompt contains an infra-adjacent noun. Wait for the operator
+  to choose.
+
+- **Multiple helix instances in `flows[]`** (e.g.
+  `flows: [{id: helix, instance: web, root: services/web/}, {id: helix,
+  instance: mobile, root: apps/mobile/}]`): you do NOT auto-pick. Emit the
+  disambiguation banner:
+
+      Multiple helix instances declared: <instance-1> (root: <root-1>),
+      <instance-2> (root: <root-2>). Re-run with the explicit prefix
+      `/helix:<instance-name>` or set HELIX_INSTANCE=<name>.
+
+  Then stay silent. Do not call `Skill(helix)`. The cwd-under-scope rule
+  (§3) does NOT promote one instance over the other when the prompt is
+  ambiguous — only an explicit prefix, env override, or cwd that lies
+  inside exactly one `root:` resolves it.
+
+- **Marker present and malformed** (YAML parse error, missing required keys,
+  root outside repo, duplicate id, root resolves to nonexistent dir): STOP.
+  Report the marker error verbatim with file and line. Do NOT fall back to
+  heuristics.
+
+- **Marker absent, heuristic file present** (`workflows/methodology.yml`,
+  `docs/helix/` tree, etc. — legacy heuristic filename retained for
+  back-compat detection): emit this banner verbatim before any other
+  output:
+
+      No .helix.yml found. Activating helix by heuristic (path: <heuristic-path>).
+      Run /helix init-marker to make this explicit.
+
+  Substitute the actual heuristic-path that triggered activation. Then
+  proceed.
+
+- **Marker absent, no heuristic**: report no active flow. If asked for a
+  machine-readable response, return `{"active": []}`. Do not improvise
+  that helix is active.
+
+### 3. Enforce scope
+
+For every operation that writes or edits a file, check that the target path
+is INSIDE the active flow's `root:` from the marker. If the user asks for
+a write outside that scope:
+
+- Refuse the write.
+- Surface the marker entry that scoped the flow and the offending target
+  path.
+- Ask whether they want to (a) update the marker to broaden scope, or
+  (b) redirect the write to under the scope, or (c) cancel.
+
+Do NOT silently write outside scope. Scope is the marker's contract.
+
+When the marker declares multiple flows at different scopes, the flow
+whose `root:` contains the cwd wins. If cwd is outside every declared
+scope, follow the resolution chain: explicit prefix → HELIX_FLOW env
+(legacy HELIX_METHODOLOGY) → cwd-under-root → defaults.flow → single
+entry → disambiguation banner with deterministic tie-break by listed
+order.
+
+### 4. Author / edit artifacts
+
+When asked to author or edit an instance document, follow the type's
+`template.md` and `prompt.md` from the library. Look up the type via the
+flow's `workflows/graph.yml` — every node points at a `library:<slug>`
+or `local:<slug>` type, and the library tree is at the canonical install
+root (`library/` after this install).
+
+**Edit existing instances; Write only new ones.** When the requested
+artifact already exists at the resolved path, use `Edit` (target the
+specific lines/sections changing), NOT `Write` (which replaces the file
+body and discards any operator-added content not in the new draft).
+Verify the file exists via `Read` before deciding: a successful Read of
+the resolved path means the instance is live and any modification MUST
+go through `Edit`; only a missing-file outcome authorizes `Write`. This
+applies to every operator verb that mutates an existing artifact —
+"update", "modify", "amend", "add a requirement to", "thread X through"
+— regardless of how small the change is. Replacing a live PRD/FEAT/ADR
+via `Write` to add one bullet is a contract violation even when the
+new body looks correct, because frontmatter round-trip (§6) and
+operator-added content outside the model's draft are silently dropped.
+
+Instance edges (PRD → FEAT, ADR → technical-design, etc.) belong in the
+instance's frontmatter under `ddx.links:`. Never embed edges in the body
+or in this skill's prompts.
+
+Cross-flow edges (e.g. PRD informs an infra-mode artifact) must be
+declared in `external_edges:` of `workflows/graph.yml` first, then in the
+instance frontmatter with `cross_flow: true` (legacy alias
+`cross_methodology: true` accepted for one cycle).
+
+### 5. Authorization boundary
+
+**REJECT — do not engage** when the prompt names a flow (via explicit
+prefix `/helix-<flow>`, env-override `HELIX_METHODOLOGY=<flow>` or
+`HELIX_FLOW=<flow>`, or natural-language equivalent like "use the
+helix-infra flow") that the marker's `flows:` list does NOT authorize.
+This rule is non-negotiable and overrides every engage-by-default
+trigger in §"When to engage" and every mode-routing rule below it. An
+explicit prefix or env override is a *request* to activate a flow; the
+marker is the *authorization* to do so. No marker authorization, no
+activation — even when the prefix is explicit, even when the user is
+insistent, even when the work looks routine. The §2 operator-override
+priority (prefix/env wins over marker for mode-routing decisions) does
+NOT bypass this check — it applies only when the requested flow is
+already authorized by the marker.
+
+Emit this diagnostic verbatim (substituting the actual flow name and
+marker path), then STOP — no Read of artifacts, no Write, no Edit, no
+mode routing, no "but I can still help with…" offer:
+
+    Cannot engage <flow-name> here — the requested flow `<flow-name>`
+    is not authorized: the .helix.yml marker does not list it.
+    The marker authorizes only: <comma-separated list of marker flows>.
+    To proceed, either (a) add `<flow-name>` to the marker's `flows:`
+    list, or (b) re-run with a flow the marker authorizes.
+
+Your refusal prose MUST include: (a) the name of the requested flow,
+and (b) a phrase stating the .helix.yml marker does not list or
+authorize it. Use the verbatim template above — do not paraphrase it.
+
+Concretely: if the marker declares only `flows: [{id: helix, ...}]`
+and the prompt is `HELIX_METHODOLOGY=helix-infra rotate the upstream DNS
+provider`, the requested flow is `helix-infra`, which is NOT `helix`.
+Reject. Do not silently route to infra mode under the `helix` flow —
+the env override named a different flow, and re-interpreting it as the
+authorized flow is a contract violation.
+
+The marker's `flows:` list is the authorization boundary. An explicit
+`/helix <verb>` prefix or `HELIX_METHODOLOGY=helix` env override wins
+ONLY if `helix` is a marker member.
+
+### 6. Frontmatter round-trip
+
+Never rewrite unknown frontmatter keys. When you edit an instance
+document's body, preserve `ddx.id`, `ddx.review`, `ddx.links`, AND any
+vendor-namespaced (`x-*`) or legacy (`relationships:`, `depends_on:`)
+keys byte-equivalent. Key order is preserved (insertion-order dict +
+`yaml.safe_dump(..., sort_keys=False)`).
+
+Legacy → new key translation (e.g. `relationships:` → `ddx.links:`) is
+done ONLY by the explicit migration script
+`library/scripts/migrate_relationships_to_links.py`. Never translate as
+a side effect of an incidental edit.
+
+## Concern slot resolution
+
+A **slot** is an exclusive functional position a project must fill exactly
+once (one frontend framework, one language runtime, one e2e tool, one auth
+backend). Slots are declared in the shipped library at
+`<plugin-root>/workflows/concerns/slots.yml` — load it from the canonical
+install root (the same `<plugin-root>` used by §Catalog Resolution). The
+file declares exclusive slots plus shipped defaults; membership in a slot
+is **derived** from each concern's own `## Slot` section, never listed in
+`slots.yml`.
+
+For every needed exclusive slot, resolve the filler in this fixed order
+(first match wins):
+
+1. **Operator override** — `docs/helix/01-frame/concerns.local.yml` in the
+   project tree. Read this BEFORE concerns.md exists, during high-autonomy
+   concern selection.
+2. **Shipped default** — the `defaults:` map in `slots.yml`.
+3. **Recorded assumption** — if neither source resolves, infer from the
+   product's nature and record it as an assumption in `concerns.md`.
+
+Exclusive slots and their shipped defaults (current `slots.yml`):
+
+| Slot | Shipped default |
+|---|---|
+| `frontend-framework` | `react-nextjs` |
+| `language-runtime` | `typescript-bun` |
+| `e2e-framework` | `e2e-playwright` |
+| `auth-provider` | `auth-local-sessions` |
+| `datastore` | — (no default; select on signal) |
+| `deploy-target` | — (no default; select on signal) |
+| `architecture-style` | — (no default; select on signal) |
+
+**Contract**: select each needed slot **once per session** during §Frame
+step 2, and record the chosen filler PLUS its source (`operator-override`,
+`shipped-default`, or `assumption`) in `concerns.md`. Propagation to work
+items and downstream artifacts is a later gate (owned by `check`/`polish`),
+never a re-selection.
 
 ## Routing Rules
 
@@ -131,6 +468,74 @@ same activities a low-autonomy run would, pausing less often.
 Routes that pause (input, frame, evolve, design, build) honor the resolved
 level; routes that select concerns honor the high-autonomy inference path.
 
+## Apply The Autonomy Level
+
+A second-axis autonomy declaration is layered on top of the policy spectrum
+above for runtimes that support an explicit operator-facing level
+(`manual` / `guided` / `autonomous` / `aggressive`). When that declaration is
+present, consult it before every state-changing tool use.
+
+Before any tool use that mutates state (Write, Edit, Bash that writes, git,
+install), determine the effective autonomy by reading sources in this order;
+the first source that defines a level wins:
+
+1. **Per-prompt override** — slash prefix (`/helix-autonomous`, `/helix-manual`)
+   or `HELIX_AUTONOMY=<level>` environment variable.
+2. **Repo-user-local override** — `.helix-autonomy.yml` at the repo root
+   (gitignored; per-user-per-repo).
+3. **User default** — `~/.config/helix/autonomy.yml` (per-user, all repos).
+4. **Repo default** — the `autonomy:` block in `.helix.yml`
+   (committed, team baseline).
+5. **Skill default** — `guided` if no source defines a level.
+
+Then dispatch on the resolved level:
+
+- `manual` — state the proposed action, list its effects, and ask
+  "OK to proceed?" before ANY tool use (Read, Write, Edit, Bash).
+- `guided` — state the proposed action briefly. Ask before the *first*
+  state-changing tool use in the conversation. Subsequent state-changing
+  tool uses within the same turn proceed silently UNLESS the action touches
+  a `stop_at` event.
+- `autonomous` — proceed without asking; surface results after the fact.
+  Stop only on a `stop_at` event or irreducible ambiguity (e.g. two equally
+  valid graph routes, an ambiguous methodology activation). **Even when
+  silently routing via `defaults.flow` / `defaults.methodology`, prose-
+  attribute the routing decision in your FIRST text block** — name the
+  chosen flow ("Routing to helix because the marker's default flow is
+  helix") so downstream readers and bench graders can confirm the routing
+  decision. Silent routing is operationally allowed; silent-AND-unspoken
+  routing is a contract violation.
+- `aggressive` — as `autonomous`, but additionally take initiative across the
+  full methodology graph (e.g. draft ALL declared prerequisites plus the
+  requested artifact in one pass). Still honors `stop_at` and irreducible
+  ambiguity. Same prose-attribution rule as `autonomous`.
+
+`stop_at` is a hard floor that fires at every level, including `autonomous`
+and `aggressive`. The authoritative trigger list lives at
+`library/skill-prompts/stop-at-triggers.yml`. Load it at graph-mode start
+and consult each trigger's matcher before every mutating tool use. A repo
+may add triggers via `stop_at_extensions:` in `.helix-autonomy.yml`; the
+active set is the union of base + extensions. Base triggers cannot be
+removed.
+
+The base v1 triggers are:
+
+| Trigger id | Fires on |
+|---|---|
+| `marker_edit` | Write/Edit on `.helix.yml` or `.helix-autonomy.yml` |
+| `cross_methodology_edge_creation` | Write/Edit that introduces `cross_methodology: true` or `cross_instance: true` |
+| `branch_or_merge` | Bash running `git checkout|merge|push|reset|rebase|cherry-pick` or `gh pr merge|create` |
+| `secret_read` | Read or Bash targeting `.env`, `.tfvars`, `credentials.json`, `.pem`, `id_rsa(.pub)`, `private_key`, `.key`, `secrets/` |
+| `large_diff` | Single Write/Edit whose content exceeds 500 lines (per tool_use, not aggregated) |
+| `apply` | Bash running `terraform apply`, `tofu apply`, `databricks jobs|pipelines run|update`, `kubectl apply|delete|patch` |
+
+When a trigger matches, emit an explicit confirmation prompt that names the
+trigger and the proposed action, then wait for the operator's reply. The
+prompt must be distinct from generic affirmations — at minimum, restate the
+action and ask whether to proceed (e.g. "About to run `terraform apply` in
+infra/prod — should I proceed?"). Generic `ok?` / `yes?` prompts do not
+satisfy the contract.
+
 ## Workflow Contracts
 
 ### Input
@@ -182,8 +587,26 @@ stories.
    explicitly required). Selection happens here, once; propagation to work
    items is a later gate owned by `check`/`polish`, not a re-selection.
 3. Read the relevant artifact template and prompt before drafting.
-4. Keep each artifact in its lane: vision is direction, PRD is product scope,
-   feature specs are feature behavior, stories are vertical user outcomes.
+4. Keep each artifact in its lane:
+   - Product Vision is direction.
+   - PRD is product scope: capabilities, outcomes, priorities, metrics, and
+     non-goals.
+   - Feature specs are feature behavior, boundaries, edge cases, and
+     decomposition.
+   - User stories are vertical user journeys and observable acceptance
+     criteria.
+   - Contracts are exact shared interface surface: API/CLI/event/schema/config/
+     telemetry/adapter commands, flags, fields, payloads, status codes, error
+     semantics, versioning rules, stability rules, and examples.
+   - Solution Design is the feature-level technical approach, domain model,
+     component decomposition, and interface usage.
+   - Technical Design is the story-level implementation design: files,
+     component changes, tests, rollback, sequence, and references to governing
+     Contracts.
+   Exact shared interface surface belongs in Contract, not PRD, Feature Spec,
+   User Story, Solution Design, or Technical Design. Those artifacts may name or
+   reference the need for an interface; they do not define the normative
+   surface inline.
 5. Give each user-story acceptance criterion a stable `US-<n>-AC<m>` ID in
    Given/When/Then form so the story test plan can map it to tests by name.
    Decompose to a **coverage floor** (minimum rigor, not equal depth): every PRD
@@ -382,7 +805,10 @@ Use to refine work items before execution.
 
 ### Check And Next
 
-Use when the safe next action is ambiguous.
+Use when the safe next action is ambiguous, when the user asks "what's
+next" / "what's blocked" / "plan the change", or when a single ask
+straddles two or more flows declared in the marker (e.g. the prompt
+names a data-pipeline artifact whose blocker is an infra prerequisite).
 
 1. Inspect the queue, governing artifacts, and known blockers.
 2. Decide conservatively among build, design, alignment, backfill, polish, wait,
@@ -394,6 +820,88 @@ Use when the safe next action is ambiguous.
    references (paths plus line numbers). Never prescribe a CLI command.
 5. If missing tracked work is discovered, create or recommend explicit work
    before returning the next action.
+
+#### Cross-flow ask — owner-flow first, then prerequisite fan-out
+
+A **cross-flow ask** is any prompt whose answer requires consulting more
+than one flow in the marker. Three shapes recur:
+
+- **Single-artifact ask whose blocker lives in another flow.** Example:
+  "The monitoring dashboard needs a DNS record. Set this up." The
+  monitoring-setup artifact is owned by `helix-data` (it lives under
+  `pipelines/<scope>/` per the marker); the DNS record is owned by
+  `helix-infra`. The data flow is the **owner-flow** because it owns
+  the artifact named in the prompt. Infra is a **prerequisite-flow**
+  that must satisfy a precondition before the data-flow item ships.
+- **Multi-flow status query.** Example: "What's blocked across the
+  project?" / "What's next?" against a marker with two or more flows.
+  Every active flow in the marker is a candidate owner — none can be
+  silently dropped.
+- **PRD-needs-infra ask.** Example: "The PRD needs new infra — plan
+  it." Product owns the PRD (owner-flow); infra owns the provisioning
+  artifact downstream. The PRD edit and the infra plan are TWO
+  artifacts in TWO flows, linked by a cross-flow edge.
+
+Cross-flow contract (every cross-flow ask):
+
+1. **Engage owner-flow first.** Identify the flow whose `root:` owns
+   the named artifact (or the artifact the prompt's noun phrase most
+   directly names). Call `Skill(<owner-flow>)` — `Skill(helix-data)`,
+   `Skill(helix-infra)`, `Skill(helix-web)`, or `Skill(helix)` — as
+   the first flow-skill tool_use of the turn. Do not jump straight to
+   the prerequisite flow because its verb (DNS, deploy, provision)
+   appears in the prompt — that's the verbose-but-stuck anti-pattern
+   in cross-flow shape. The artifact's home flow wins.
+2. **Read the owner-flow's named upstream artifacts.** From the
+   marker's `root:` for the owner-flow, locate and Read the artifact
+   the prompt references (e.g. `monitoring-setup.md`,
+   `data-product-brief.md`, `prd-*.md`) BEFORE proposing any action.
+   For each upstream named in `ddx.links:` or `informs` edges that
+   the answer depends on, Read it too. Catalogue which artifacts
+   exist (with path + status from frontmatter) and which are missing.
+3. **Fan out to prerequisite-flows.** For each cross-flow
+   prerequisite the owner-flow surfaces (e.g. the monitoring-setup
+   prose says "dashboard URL needs DNS"; the PRD's acceptance
+   criteria require a new VPC), call `Skill(<prerequisite-flow>)`
+   for THAT flow before drafting the prerequisite-flow action. Each
+   active flow that owns part of the answer gets its own Skill
+   tool_use — silent multi-flow narration from a single skill call
+   is a contract violation.
+4. **For a multi-flow status query** ("what's blocked across the
+   project?", "what's next?"), engage EVERY flow listed in the
+   marker. Call `Skill(<flow-id>)` once per flow before reporting
+   per-flow status. Answering from prose alone — reading the
+   workspace files without firing a Skill tool_use for each flow —
+   is the failure mode this rule prevents.
+
+Cross-flow response shape (always emit all three):
+
+- **Named upstream artifacts and their state.** A list of the
+  artifacts the answer depends on, each annotated `exists` (with
+  path + frontmatter `status:` if present) or `missing` (with the
+  graph node that says it should exist). Example:
+  `pipelines/customer-events/monitoring-setup.md` (exists,
+  status: in-progress); `infra/dns/customer-events.tf` (missing,
+  required by monitoring-setup prose).
+- **Cross-flow prerequisites.** Name each prerequisite as
+  "`<owner-flow>` needs `<prerequisite-flow>` to <verb> <object>
+  before `<owner-flow>` can <ship-verb> <artifact>". Example:
+  "helix-data needs helix-infra to provision the DNS record for
+  `customer-events.metrics.example.com` before helix-data can mark
+  monitoring-setup ready."
+- **Concrete next action per flow.** For each flow with an action
+  pending, emit a §Align gap-to-implementation handoff: destination
+  artifact type (e.g. `network-iac` under `infra/`), the flow's mode
+  (product / infra / data / web), and evidence paths with line
+  numbers (e.g. `pipelines/customer-events/monitoring-setup.md:20`).
+  Never prescribe a CLI command; the operator chooses dispatch.
+
+Do not skip the owner-flow Skill call because the prompt is short or
+the prerequisite verb is loud. Do not collapse multiple flows into a
+single Skill call. The bench grades cross-flow rows by counting
+per-flow `Skill(helix-<id>)` tool_use events; a confident prose
+answer with no per-flow Skill call is the exact failure CF-02 and
+CF-03 measure.
 
 ### Build And Run
 
@@ -491,6 +999,45 @@ Use to launch and monitor a background HELIX operator loop.
 2. Poll sparingly for progress, blockers, or completion.
 3. Report status without losing the run evidence.
 4. Stop only when requested or when the workflow reaches a safe stopping point.
+
+## Consult The Graph Before Authoring
+
+When the user asks for a new artifact of type `T` in the active methodology `M`
+(per the resolved marker), consult `M`'s `workflows/graph.yml` before drafting.
+This is the runtime use of the methodology graph: the same edges the validator
+checks govern what the skill should surface as prerequisites at authoring time.
+
+1. Read `M`'s `workflows/graph.yml` (resolved via the §Catalog Resolution path
+   for the active methodology's plugin root).
+2. Find the node `n` whose `type` matches `library:T` or `local:T`.
+3. Enumerate incoming edges to `n` whose `kind` is one of
+   `{requires, contains, informs}`.
+4. For each such edge `(src → n, kind, required)`:
+   - If `required: true` AND no instance of `src.type` exists in this
+     methodology's instance scope, **surface this as a prerequisite**. Per the
+     resolved §Autonomy level, either ask whether to draft `src` first
+     (`low`/`medium`), or draft `src` autonomously then `n` (`high`).
+   - If `required: false` AND no instance of `src.type` exists, note it as a
+     "consider also drafting" but do not block authoring of `n`.
+5. Only after prerequisites are present (or the operator has explicitly chosen
+   to skip them) proceed to author the requested artifact.
+6. After authoring, populate `ddx.links` to point at existing upstream
+   instances. **Do not invent links**: per Edge Authority Asymmetry, types
+   declare what is possible and instances declare what is actual. Every
+   `ddx.links` entry is a deliberate authoring decision, never a mechanical
+   projection of a graph edge.
+
+Graph consultation is **per-authoring**, not per-session: re-consult on every
+new artifact request because the instance scope may have changed since the
+previous turn (operator-side edits, parallel work, evolve passes).
+
+If the graph carries a **non-standard or locally-added edge** (a project's
+`workflows/graph.yml` introduces an edge not in the canonical HELIX library —
+e.g. `prd requires market-validation-brief`), the same rules apply: a graph
+edge governs what the skill surfaces, regardless of whether the edge matches
+general HELIX knowledge. Surfacing only the canonical edges and skipping the
+graph-declared ones is a graph-consultation defect, not an acceptable
+shorthand.
 
 ## Alignment Content Migration
 

@@ -1,0 +1,5 @@
+{"type":"system","subtype":"init","session_id":"golden-scope-write-path"}
+{"type":"assistant","message":{"content":[{"type":"text","text":"All writes will land under the helix artifact root."}]}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Write","input":{"file_path":"/repo/docs/helix/01-frame/prd.md"}}]}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Edit","input":{"file_path":"/repo/docs/helix/00-discover/product-vision.md"}}]}}
+{"type":"result","subtype":"success","is_error":false}

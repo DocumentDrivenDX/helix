@@ -38,6 +38,10 @@ vertical slice — it should cover one complete path from trigger to outcome.]
 ## Acceptance Criteria
 
 [See the prompt's Acceptance Criteria guidance for the canonical AC-ID rule.]
+Acceptance criteria describe observable outcomes. If exact API, CLI, event,
+schema, config, telemetry, or adapter behavior matters, reference the Contract
+ID instead of defining endpoints, commands, flags, payloads, fields, status
+codes, or signatures inline.
 
 - [ ] **US-XXX-AC1** — Given [specific precondition], when [specific action], then [observable outcome]
 - [ ] **US-XXX-AC2** — Given [specific precondition], when [specific action], then [observable outcome]
@@ -66,7 +70,7 @@ should be able to copy these into a test file.]
 - **Feature Spec**: [FEAT-XXX]
 - **Feature Requirements**: [REQ-01, REQ-02]
 - **PRD Requirements**: [FR-n — PRD functional requirement(s) this story covers]
-- **External**: [APIs, services, or data this story requires]
+- **External**: [APIs, services, data, or Contract IDs this story requires; exact surface lives in Contract artifacts]
 
 ## Out of Scope
 
@@ -82,3 +86,4 @@ Use this checklist when reviewing a user story:
 - [ ] Links to its parent `FEAT-NNN` and names the PRD `FR-n` it covers
 - [ ] Every acceptance criterion is independently testable and carries a stable `US-NNN-ACm` ID
 - [ ] Walkthrough traces a complete path from trigger to outcome; at least one edge case documented
+- [ ] No exact API/CLI/event/schema/config/telemetry/adapter surface is defined inline; normative surface links to Contract artifacts

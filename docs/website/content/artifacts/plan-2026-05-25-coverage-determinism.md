@@ -1,7 +1,7 @@
 ---
 title: "Plan — decomposition/coverage determinism + e2e expectation (2026-05-25)"
 slug: plan-2026-05-25-coverage-determinism
-weight: 460
+weight: 560
 activity: "Design"
 source: "02-design/plan-2026-05-25-coverage-determinism.md"
 generated: true

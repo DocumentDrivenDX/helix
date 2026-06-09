@@ -1,0 +1,10 @@
+{
+  "assert": "validator_exit",
+  "command": "python3 library/scripts/helix_graph_check.py workspace/graph.yml",
+  "expect_exit_nonzero": true,
+  "stderr_match_all": [
+    "(?i)unknown library type|not found in library",
+    "not-a-real-type"
+  ],
+  "rationale": "Unknown library type must be rejected AND the diagnostic MUST name the offending type by string ('not-a-real-type'). A generic 'unknown library type' message that omits the offending name is unactionable."
+}

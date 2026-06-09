@@ -1,0 +1,7 @@
+# Methodology declares an alias for library:adr's Decision section.
+id: helix
+section_aliases:
+  library:adr:
+    Decision:
+      - Outcome
+      - Choice

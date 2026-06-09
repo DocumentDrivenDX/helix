@@ -1,0 +1,44 @@
+tier: exploratory
+category: conversation-library
+phase: P5b
+status: authored-pending-verification
+fixture: C018-iterate-current-sprint
+level: guided
+notes: |
+  C018 (plan §1.5). Helix marker active, three approved PRDs exist.
+  Operator says "let's iterate on the current sprint." The skill
+  must engage and route to helix's 06-iterate phase, naming either
+  the phase itself or one of its canonical artifacts
+  (metrics-dashboard, improvement-backlog) as the next action.
+
+  Matcher: literal_or_banner_text with regex_pattern. Pattern matches
+  "06-iterate" OR a canonical iterate-phase artifact name. Banned-
+  pattern guard (T047) requires ≥20 chars; longest alternation
+  captures ≥21 chars.
+
+  Pair-row: plugin-remove negative control. Without methodology-
+  product loaded, the helix-specific phase names (06-iterate,
+  metrics-dashboard, improvement-backlog) are not in the agent's
+  authority surface; the matcher flips to absent.
+
+discriminator:
+  assertion_id: literal_or_banner_text
+  observable:
+    matcher_type: text_match
+    # Pattern matches helix-specific iterate-phase nomenclature. The
+    # "06-iterate" anchor + artifact names are skill-loaded vocabulary
+    # the model does not produce by default from training.
+    regex_pattern: '\b(06-iterate|metrics-dashboard|improvement-backlog|iterate phase)\b'
+    occurrence_count: 1
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      With methodology-product removed, the skill cannot engage. The
+      helix-specific iterate-phase vocabulary (06-iterate,
+      metrics-dashboard, improvement-backlog) is not training-default
+      output for the verb "iterate on the sprint." The agent may
+      respond generically (review velocity, retro, etc) without
+      naming these helix artifacts. Verdict flips from present →
+      absent.

@@ -1,0 +1,29 @@
+tier: must_pass_core
+category: conversation-library
+phase: P5
+status: authored-pending-verification
+notes: |
+  C023 (plan §1.5 + §12.8). Marker active (helix-data). Prompt
+  "Add quality checks for the orders pipeline" → 03-validate activity
+  (`data-quality-expectations`, `data-quality-tests`).
+
+  Layer 1 floor: Skill(helix-data) tool_use.
+
+  Discrimination: plugins_remove kills the helix-data skill.
+
+discriminator:
+  assertion_id: skill_tool_use
+  observable:
+    matcher_type: skill_tool_use
+    skill_id: helix-data
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-data]
+    rationale: |
+      No methodology-data → no helix-data skill → no Skill(helix-data)
+      tool_use. Verdict flips.
+
+structural:
+  skill_invoked:
+    - name: helix-data

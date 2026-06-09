@@ -1,0 +1,23 @@
+# C005 Layer 3 (next-action envelope) — plan §1.4 §6.8 §8.
+#
+# Marker active (helix), no vision artifact, autonomy=guided, prompt
+# "Let's create a PRD". This is the canonical cascade-surfacing case.
+# Layer 3 forces the agent to declare the cascade redirect in a
+# machine-readable form: offered draft_artifact:product-vision and
+# ask_user_for_authorization (guided autonomy = ask before write),
+# not_offered draft_artifact:prd.
+
+envelope:
+  assertion_id: next_action_envelope
+  schema_path: judge/next-action-envelope.schema.json
+  offered_requires:
+    - draft_artifact:product-vision
+    - ask_user_for_authorization
+  not_offered_forbids:
+    - draft_artifact:prd
+  expected_in_envelope_pass: present
+
+notes: |
+  Pairs with C006 (same workspace, autonomous). C005 envelope must carry
+  ask_user_for_authorization; C006 envelope must NOT (proves the autonomy
+  gradient is wired through the envelope channel too, not only Layer 1).

@@ -119,6 +119,7 @@ assert_helix_triage_blanket_priming_regression() {
     "$repo_root/.agents" \
     "$repo_root/.claude" \
     "$repo_root/.claude-plugin" \
+    "$repo_root/.codex-plugin" \
     "$repo_root/docs" \
     "$repo_root/hooks" \
     "$repo_root/skills" \
@@ -170,13 +171,15 @@ PYEOF
 
 plugin_manifest="$repo_root/.claude-plugin/plugin.json"
 [[ -f "$plugin_manifest" ]] || fail "missing plugin manifest at .claude-plugin/plugin.json"
+codex_plugin_manifest="$repo_root/.codex-plugin/plugin.json"
+[[ -f "$codex_plugin_manifest" ]] || fail "missing Codex plugin manifest at .codex-plugin/plugin.json"
 plugin_hooks="$repo_root/hooks/hooks.json"
 
 # Validate plugin.json is parseable JSON with required fields
 if command -v python3 &>/dev/null; then
-  python3 - "$plugin_manifest" "$plugin_hooks" <<'PYEOF'
+  python3 - "$plugin_manifest" "$codex_plugin_manifest" "$plugin_hooks" <<'PYEOF'
 import json, sys
-path, plugin_hooks = sys.argv[1:3]
+path, codex_path, plugin_hooks = sys.argv[1:4]
 try:
     manifest = json.load(open(path))
 except json.JSONDecodeError as e:
@@ -190,27 +193,122 @@ if missing:
 if manifest["skills"] != "./skills/":
     print(f"plugin.json skills must be ./skills/ (got {manifest['skills']!r})", file=sys.stderr)
     sys.exit(1)
-# plugin.json must NOT declare a "hooks" field: Claude Code auto-loads the
-# standard hooks/hooks.json, and an explicit reference causes a duplicate-load error.
-if "hooks" in manifest:
-    print("plugin.json must not declare a 'hooks' field; hooks/hooks.json is auto-loaded", file=sys.stderr)
+# Claude Code v2.1.x auto-loads hooks/hooks.json from the standard location.
+# Declaring manifest.hooks pointing at that same path causes a duplicate-load
+# error and the plugin refuses to install. Reject the field here to prevent
+# regression: any future hooks declaration must use a non-standard path.
+if "hooks" in manifest and manifest["hooks"] == "./hooks/hooks.json":
+    print("plugin.json: manifest.hooks must not duplicate the auto-loaded "
+          "./hooks/hooks.json — remove the field or point at an additional path",
+          file=sys.stderr)
     sys.exit(1)
+
 try:
-    hooks = json.load(open(plugin_hooks))
+    codex_manifest = json.load(open(codex_path))
 except json.JSONDecodeError as e:
-    print(f"invalid JSON in {plugin_hooks}: {e}", file=sys.stderr)
+    print(f"invalid JSON in {codex_path}: {e}", file=sys.stderr)
     sys.exit(1)
-if not isinstance(hooks, dict):
-    print(f"{plugin_hooks} must contain a JSON object", file=sys.stderr)
+allowed_codex_fields = {
+    "id",
+    "name",
+    "version",
+    "description",
+    "skills",
+    "apps",
+    "mcpServers",
+    "interface",
+    "author",
+    "homepage",
+    "repository",
+    "license",
+    "keywords",
+}
+unknown = sorted(set(codex_manifest) - allowed_codex_fields)
+if unknown:
+    print(f"Codex plugin.json unsupported fields: {', '.join(unknown)}", file=sys.stderr)
     sys.exit(1)
-if "version" not in hooks or "hooks" not in hooks:
-    print(f"{plugin_hooks} must define version and hooks keys", file=sys.stderr)
+required_codex = ("name", "version", "description", "skills", "author", "interface")
+missing = [k for k in required_codex if not codex_manifest.get(k)]
+if missing:
+    print(f"Codex plugin.json missing required fields: {', '.join(missing)}", file=sys.stderr)
     sys.exit(1)
+if codex_manifest["name"] != manifest["name"]:
+    print("Codex plugin.json name must match Claude plugin.json name", file=sys.stderr)
+    sys.exit(1)
+if codex_manifest["version"] != manifest["version"]:
+    print("Codex plugin.json version must match Claude plugin.json version", file=sys.stderr)
+    sys.exit(1)
+if codex_manifest["description"] != manifest["description"]:
+    print("Codex plugin.json description must match Claude plugin.json description", file=sys.stderr)
+    sys.exit(1)
+if codex_manifest["skills"] != "./skills/":
+    print(
+        f"Codex plugin.json skills must be ./skills/ (got {codex_manifest['skills']!r})",
+        file=sys.stderr,
+    )
+    sys.exit(1)
+author = codex_manifest.get("author")
+if not isinstance(author, dict) or not author.get("name"):
+    print("Codex plugin.json author.name is required", file=sys.stderr)
+    sys.exit(1)
+interface = codex_manifest.get("interface")
+if not isinstance(interface, dict):
+    print("Codex plugin.json interface must be an object", file=sys.stderr)
+    sys.exit(1)
+required_interface = (
+    "displayName",
+    "shortDescription",
+    "longDescription",
+    "developerName",
+    "category",
+    "capabilities",
+    "defaultPrompt",
+)
+missing_interface = [k for k in required_interface if not interface.get(k)]
+if missing_interface:
+    print(
+        "Codex plugin.json interface missing required fields: "
+        + ", ".join(missing_interface),
+        file=sys.stderr,
+    )
+    sys.exit(1)
+if not isinstance(interface["capabilities"], list) or not all(
+    isinstance(value, str) and value.strip() for value in interface["capabilities"]
+):
+    print("Codex plugin.json interface.capabilities must be an array of strings", file=sys.stderr)
+    sys.exit(1)
+default_prompt = interface["defaultPrompt"]
+if not isinstance(default_prompt, list) or not default_prompt:
+    print("Codex plugin.json interface.defaultPrompt must be a non-empty array", file=sys.stderr)
+    sys.exit(1)
+if len(default_prompt) > 3 or any(
+    not isinstance(prompt, str) or not prompt.strip() or len(prompt) > 128
+    for prompt in default_prompt
+):
+    print(
+        "Codex plugin.json interface.defaultPrompt entries must be 1-3 non-empty strings at most 128 characters",
+        file=sys.stderr,
+    )
+    sys.exit(1)
+# The standard hooks file is optional; when present, validate shape.
+import os
+if os.path.exists(plugin_hooks):
+    try:
+        hooks = json.load(open(plugin_hooks))
+    except json.JSONDecodeError as e:
+        print(f"invalid JSON in {plugin_hooks}: {e}", file=sys.stderr)
+        sys.exit(1)
+    if not isinstance(hooks, dict):
+        print(f"{plugin_hooks} must contain a JSON object", file=sys.stderr)
+        sys.exit(1)
+    if "version" not in hooks or "hooks" not in hooks:
+        print(f"{plugin_hooks} must define version and hooks keys", file=sys.stderr)
+        sys.exit(1)
 PYEOF
   [[ $? -eq 0 ]] || fail "plugin.json validation failed"
 fi
 
-[[ -f "$plugin_hooks" ]] || fail "missing plugin hooks at hooks/hooks.json"
+# hooks/hooks.json is optional — Claude Code auto-loads if present.
 
 # Verify that workflows/ references in SKILL.md files resolve from plugin root
 while IFS= read -r wf_ref; do
@@ -477,5 +575,115 @@ python3 "$repo_root/scripts/validate_execution_ready_beads.py" \
 grep -Fq "validated measurable acceptance on 0 execution-ready bead(s)" "$flagged_output" || fail \
   "flagged acceptance fixture should be skipped once it is marked not execution-ready"
 rm -f "$flagged_output"
+
+# Assert every path SKILL.md instructs the runtime to load actually exists in
+# the shipped tree. Catches drift like "SKILL.md references library/foo.yml
+# but only family-test/library/foo.yml is shipped" — a defect that lets the
+# plugin install while leaving the skill unable to load its resources at
+# runtime.
+python3 - "$repo_root/skills/helix/SKILL.md" "$repo_root" <<'PYEOF' || fail "SKILL.md references a path that does not exist in the shipped tree"
+import re, sys
+skill_path, repo_root = sys.argv[1], sys.argv[2]
+text = open(skill_path).read()
+# Patterns the skill instructs the runtime to load. Only check repo-relative
+# paths the agent is told to Read; skip operator-only paths (docs/helix/...
+# which lives in the user's project, not the plugin), in-text examples, and
+# absent-but-optional graph.yml (workflows/graph.yml — known gap; not shipped).
+required = {
+    "library/skill-prompts/stop-at-triggers.yml",
+    "workflows/concerns/slots.yml",
+    "workflows/concerns/verification/practices.md",
+    "workflows/concerns/sample-data/practices.md",
+    "workflows/graph.yml",
+}
+import os
+missing = [p for p in required if not os.path.exists(os.path.join(repo_root, p))]
+# Also assert each path appears verbatim in SKILL.md — guards against the
+# reverse drift (we ship a file, SKILL.md stops referencing it).
+not_referenced = [p for p in required if p not in text]
+if missing:
+    print(f"SHIPPING DEFECT — SKILL.md references these paths but they do not exist in the shipped tree: {missing}", file=sys.stderr)
+if not_referenced:
+    print(f"DRIFT — these paths exist in the shipped tree but are no longer referenced by SKILL.md: {not_referenced}", file=sys.stderr)
+sys.exit(1 if (missing or not_referenced) else 0)
+PYEOF
+
+# workflows/graph.yml drift: regenerate from meta.yml into a temp file and diff
+# against the committed copy. Catches "meta.yml relationships.informs changed
+# but graph.yml wasn't regenerated."
+graph_tmp="$(mktemp)"
+python3 - "$repo_root" "$graph_tmp" <<'PYEOF' || fail "workflows/graph.yml is stale — run scripts/generate_graph.py"
+import subprocess, sys, shutil, os, filecmp
+repo_root, tmp = sys.argv[1], sys.argv[2]
+# Run generator with output redirected to tmp via env-side-channel: easiest is
+# to invoke it normally then move the result.
+backup = tmp + ".committed"
+shutil.copy(os.path.join(repo_root, "workflows", "graph.yml"), backup)
+subprocess.check_call([sys.executable, os.path.join(repo_root, "scripts", "generate_graph.py")],
+                      stderr=subprocess.DEVNULL)
+generated = os.path.join(repo_root, "workflows", "graph.yml")
+if not filecmp.cmp(backup, generated, shallow=False):
+    # Restore committed version so the working tree isn't dirtied by the check.
+    shutil.copy(backup, generated)
+    print("DRIFT: workflows/graph.yml does not match what scripts/generate_graph.py would emit from current meta.yml", file=sys.stderr)
+    sys.exit(1)
+PYEOF
+rm -f "$graph_tmp" "$graph_tmp.committed"
+
+# Canonical SKILL.md frontmatter check: enforce agentskills.io spec AND the
+# runtime-specific limits we hit in benchmarking:
+#   - codex: description max 1024 chars (HARD: codex refuses to load over)
+#   - claude-code: 1024 recommended
+# v0.2.2 of helix had a 1670-char description that broke every codex
+# routing-eval call. This guard catches that class of regression.
+#
+# Targets the canonical install at skills/helix/SKILL.md (post canonical-
+# promotion; the family-test/methodology-* research fork was removed).
+python3 - "$repo_root" <<'PYEOF' || fail "canonical SKILL.md frontmatter check failed"
+import sys, yaml, glob, os
+repo_root = sys.argv[1]
+patterns = [
+    os.path.join(repo_root, "skills", "*", "SKILL.md"),
+]
+errors = []
+checked = 0
+for pat in patterns:
+    for path in glob.glob(pat):
+        checked += 1
+        text = open(path).read()
+        if not text.startswith("---\n"):
+            errors.append(f"{path}: missing frontmatter")
+            continue
+        end = text.find("\n---\n", 4)
+        if end == -1:
+            errors.append(f"{path}: unterminated frontmatter")
+            continue
+        try:
+            fm = yaml.safe_load(text[4:end])
+        except yaml.YAMLError as e:
+            errors.append(f"{path}: YAML parse error: {e}")
+            continue
+        if not isinstance(fm, dict):
+            errors.append(f"{path}: frontmatter is not a mapping")
+            continue
+        name = fm.get("name", "")
+        desc = fm.get("description", "")
+        expected_name = os.path.basename(os.path.dirname(path))
+        if name != expected_name:
+            errors.append(f"{path}: name '{name}' != dir basename '{expected_name}'")
+        if not desc:
+            errors.append(f"{path}: description is empty")
+            continue
+        n = len(desc)
+        if n > 1024:
+            errors.append(f"{path}: description {n} chars exceeds 1024 (codex hard limit, claude-code recommended limit)")
+        if n < 1:
+            errors.append(f"{path}: description must be 1..1024 chars (got {n})")
+print(f"checked {checked} canonical SKILL.md file(s)")
+if errors:
+    for e in errors:
+        print(f"  FAIL: {e}", file=sys.stderr)
+    sys.exit(1)
+PYEOF
 
 printf 'validated %d HELIX skills\n' "${#expected_skills[@]}"

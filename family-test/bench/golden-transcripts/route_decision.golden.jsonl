@@ -1,0 +1,4 @@
+{"type":"system","subtype":"init","session_id":"golden-route-decision"}
+{"type":"assistant","message":{"content":[{"type":"text","text":"Multiple instances active. The cwd resolves to the web instance; routing to helix-web:web."}]}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Skill","input":{"skill_id":"helix-web","instance":"web"}}]}}
+{"type":"result","subtype":"success","is_error":false}

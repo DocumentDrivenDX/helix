@@ -1,0 +1,5 @@
+turns:
+  - user: |
+      Tablespec should work with both Spark and Databricks. Check the
+      Databricks-side code in the new org for constraints we haven't
+      captured. Reconcile with our spec and flag breaking changes.

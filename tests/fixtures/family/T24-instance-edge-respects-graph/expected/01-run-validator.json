@@ -1,0 +1,12 @@
+{
+  "assert": "validator_exit",
+  "command": "python3 library/scripts/helix_check.py marker workspace/.helix.yml",
+  "expect_exit_zero": true,
+  "stderr_match_none": [
+    "(?i)error",
+    "I101",
+    "G201",
+    "G104"
+  ],
+  "rationale": "Happy path: PRD-001 informs FEAT-001 is permitted by graph.edges, FEAT-001 resolves in instance_index. Exit 0, no error records. Negative anchor matchers guard against any of the linkage-relaxation error codes leaking."
+}

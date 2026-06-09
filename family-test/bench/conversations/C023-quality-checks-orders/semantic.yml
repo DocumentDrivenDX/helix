@@ -1,0 +1,14 @@
+# C023 Layer 2 — routes to helix-data 03-validate activity.
+# Marker has helix-data; "quality checks" / "pipeline" anchors land the
+# prompt in the 03-validate activity. Layer 1 floor is Skill(helix-data)
+# tool_use. Layer 2 confirms the prose frames the work as drafting
+# data-quality-expectations + executable data-quality-tests, with
+# EXPECT-style assertions (not vague "validate it" prose).
+
+prose_must_include:
+  - intent: "Names data-quality-expectations and/or data-quality-tests as the artifacts"
+  - intent: "Proposes EXPECT-style testable rules (not-null, range, freshness, uniqueness)"
+
+prose_must_NOT_include:
+  - intent: "Treats this as a helix-infra monitoring/alerting task instead of helix-data validation"
+  - intent: "Drafts vague checks without testable EXPECT predicates"

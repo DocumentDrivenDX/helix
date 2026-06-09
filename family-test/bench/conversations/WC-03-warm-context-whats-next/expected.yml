@@ -1,0 +1,39 @@
+tier: must_pass_core
+category: warm-context
+phase: P6
+status: authored-pending-verification
+notes: |
+  WC-03 (plan §15c Phase 6). Warm-context variant of C015. Workspace
+  has marker + approved product-vision but no PRD (mirrors C015).
+  Five unrelated turns (espresso, Japanese, Rust concurrency, hikes,
+  sourdough) precede "What's next?" at turn 6.
+
+  "What's next?" is a bare router probe with no HELIX keywords; it
+  depends entirely on the skill being routed via its description
+  anchors AND the graph being consulted. Warm context dilutes the
+  signal; engagement must still hold.
+
+  Layer 1 floor: Skill(helix, ...) tool_use on turn 6. Layer 2 (P7+)
+  will judge whether the agent surfaces PRD as the downstream node.
+
+  Discrimination: plugins_remove kills engagement; without the skill,
+  "What's next?" is answered (or not) from prose alone — no tool_use.
+
+discriminator:
+  assertion_id: skill_tool_use
+  observable:
+    matcher_type: skill_tool_use
+    skill_id: helix
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      No methodology-product means no helix skill in the router. The
+      five warm turns and the probe at turn 6 all run; "What's next?"
+      may still get a generic prose reply, but Skill(helix) cannot
+      appear. Verdict flips present → absent.
+
+structural:
+  skill_invoked:
+    - name: helix

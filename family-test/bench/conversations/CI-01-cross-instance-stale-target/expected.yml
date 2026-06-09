@@ -1,0 +1,37 @@
+tier: must_pass_core
+category: cross-instance-lineage
+phase: P11
+status: authored-pending-verification
+notes: |
+  CI-01: stale-target detection on a cross-instance `informed_by` edge.
+  Workspace has a multi-instance marker (helix.api + helix.admin). The
+  api-instance feature FEAT-014 declares
+  `{ kind: informed_by, to: "helix.admin:PRD-007", cross_instance: true }`.
+  The target PRD-007 (admin instance) carries `ddx.status: superseded`
+  and `superseded_by: PRD-009`.
+
+  Validator gate (plan §6.10c / P11 acceptance):
+    helix_check.py marker should emit I131 within 100ms identifying the
+    stale target. The discriminator below verifies the SKILL surfaces
+    the stale lineage in prose so the operator sees it without grepping
+    validator output.
+
+  Pair-row: CI-03 (happy path) — identical workspace but PRD-007 carries
+  no superseded status. The discriminator's prose pattern MUST NOT fire.
+
+discriminator:
+  assertion_id: literal_or_banner_text
+  observable:
+    matcher_type: text_match
+    regex_pattern: '(stale|superseded|deprecated)[^\n]{0,80}(PRD-007|target|link)|PRD-007[^\n]{0,80}(superseded|stale|deprecated|PRD-009)'
+    occurrence_count: 1
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    workspace_swap:
+      from: workspace/services/admin/01-frame/PRD-007-pricing.md
+      to: ../CI-03-cross-instance-happy-path/workspace/services/admin/01-frame/PRD-007-pricing.md
+      rationale: |
+        Swap in CI-03's PRD-007 fixture, which has no `superseded`
+        status. The skill should resolve the cross-instance link cleanly
+        and MUST NOT emit stale-target prose.

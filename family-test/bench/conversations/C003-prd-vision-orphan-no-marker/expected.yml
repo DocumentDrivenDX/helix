@@ -1,0 +1,48 @@
+tier: exploratory
+category: conversation-library
+phase: P5b
+status: authored-pending-verification
+fixture: C003-prd-vision-orphan-no-marker
+level: guided
+notes: |
+  C003 (plan §1.5). Workspace has an approved product-vision but no
+  `.helix.yml` marker. Operator asks to create a PRD. Under guided
+  autonomy, the skill must (a) engage on the orphan-artifact heuristic
+  (HELIX-shaped artifact present but unmarked), (b) surface the missing
+  marker as a prerequisite to PRD authoring, and (c) ASK before the
+  first state-changing tool_use — either to write `.helix.yml` or to
+  draft the PRD.
+
+  Confirmation matcher captures the marker-aware deliberation: prose
+  that mentions adding a marker / activating helix / setting up
+  `.helix.yml` before the first Write/Edit, OR the canonical
+  pre-mutation phrasing ("Should I proceed", "Want me to", "OK to
+  create").
+
+  Pair-row: paired against the plugin-removed negative control. Without
+  methodology-product loaded, the skill cannot engage on orphan-artifact
+  heuristics; the agent's draft (if any) will not pause to discuss
+  marker setup.
+
+discriminator:
+  assertion_id: confirmation_before_mutation
+  observable:
+    matcher_type: prose_pattern_before_tool
+    # Pattern captures ≥20 chars of marker-aware deliberation OR the
+    # canonical pre-write confirmation language. Banned-pattern guard
+    # (T047) requires ≥8 distinct chars; longest alternation captures
+    # ≥30 chars (e.g. "add a .helix.yml marker").
+    confirmation_marker_pattern: '(add (a |the )?\.helix\.yml|activate (the )?helix (methodology|marker|flow)|set up the marker|Should I (proceed|create|draft)|Want me to (create|draft|add)|OK to (create|draft|add))'
+    mutation_tools: [Write, Edit]
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      With the helix methodology plugin removed, the skill cannot
+      engage on the orphan-artifact heuristic (no marker → no rule
+      that says "look for orphan VIS-001"). The agent may draft a
+      PRD-shaped file from training, but it will not surface
+      `.helix.yml` activation or the marker cascade prerequisite, so
+      the confirmation_marker_pattern cannot match. Verdict flips
+      from present → absent.

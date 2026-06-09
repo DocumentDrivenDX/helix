@@ -1,0 +1,14 @@
+{
+  "assert": "stream_json_tool_use",
+  "expect_tool_use": {
+    "name_regex": "^Write$",
+    "path_regex": "docs/helix/01-frame/.*express.*\\.md$",
+    "content_regex_all": [
+      "library_type:\\s*library:prd",
+      "library_type_version:\\s*[\"']?1\\.1\\.0",
+      "(?m)^##\\s*Success Metrics\\b"
+    ],
+    "exactly_one": true
+  },
+  "rationale": "New authoring MUST conform to the upgraded shape: library_type_version 1.1.0 in frontmatter AND the new required 'Success Metrics' section present. Pins contract A's second half: pre-existing docs get a warning (01); newly authored docs MUST satisfy the upgraded contract (02). Without this fixture the family can warn on stale docs but silently let new docs ship without Success Metrics."
+}

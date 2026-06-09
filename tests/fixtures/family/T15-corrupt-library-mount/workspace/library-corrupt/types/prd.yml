@@ -1,0 +1,6 @@
+# Truncated mid-document. Simulates a network-interrupted install or
+# an EROFS truncation. Methodology must produce a diagnostic distinct
+# from the setup-gap, and MUST NOT fall back to improvising the template.
+id: library:prd
+version: "1.0
+required_sec

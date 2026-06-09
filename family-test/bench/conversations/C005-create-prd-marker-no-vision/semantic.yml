@@ -1,0 +1,14 @@
+# C005 Layer 2 — cascade-surfacing under guided autonomy.
+# The marker is active and helix is the authorized flow; vision is missing.
+# Plan §1.5 row C005: skill MUST surface the prerequisite (graph: prd informs
+# product-vision) and OFFER to draft the vision first — without proceeding
+# silently (that's C006's autonomous variant).
+
+prose_must_include:
+  - intent: "Surfaces the cascade prerequisite (PRD requires vision)"
+  - intent: "Offers to draft the product vision before the PRD"
+  - intent: "Names the active methodology (helix) and why it activated"
+
+prose_must_NOT_include:
+  - intent: "Offers to draft the PRD ahead of the prerequisite vision"
+  - intent: "Mentions adding a non-helix methodology (e.g. helix-infra)"

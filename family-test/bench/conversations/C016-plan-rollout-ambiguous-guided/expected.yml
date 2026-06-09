@@ -1,0 +1,49 @@
+tier: exploratory
+category: conversation-library
+phase: P5b
+status: authored-pending-verification
+fixture: C016-plan-rollout-ambiguous-guided
+level: guided
+notes: |
+  C016 (plan §1.5). Both helix and helix-infra active in marker; no
+  cwd or defaults disambiguator. Verb "plan the rollout" is ambiguous
+  across both. Under guided autonomy the skill MUST emit a
+  disambiguation banner naming both candidate flows and asking which
+  one applies.
+
+  Matcher: literal_or_banner_text with regex_pattern (paraphrase
+  tolerated). Pattern requires both flow names AND interrogative
+  language in proximity. Banned-pattern guard (T047) requires ≥20
+  distinct chars; the alternation captures ≥30.
+
+  Pair-row: marker_edit negative control that removes helix-infra
+  from the marker. With only one flow active, ambiguity collapses
+  and the banner should NOT appear.
+
+discriminator:
+  assertion_id: literal_or_banner_text
+  observable:
+    matcher_type: text_match
+    # Pattern requires both `helix` (not followed by hyphen) AND
+    # `helix-infra` in proximity (≤120 chars) AND interrogative
+    # language. `helix(?!-)` is helix-the-product-flow specifically;
+    # `helix-infra` is the infra flow. Captures the disambiguation
+    # banner regardless of which order the agent names them.
+    regex_pattern: '\bhelix(?!-)\b[^\n]{0,120}\bhelix-infra\b[^\n]{0,120}(which|choose|pick|select|\?)|\bhelix-infra\b[^\n]{0,120}\bhelix(?!-)\b[^\n]{0,120}(which|choose|pick|select|\?)'
+    occurrence_count: 1
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    marker_edit:
+      from: workspace/.helix.yml
+      to_content: |
+        helix_version: 1
+        methodologies:
+          - id: helix
+            root: docs/helix/
+      rationale: |
+        Drop helix-infra from the marker so only helix is active.
+        "Plan the rollout" is no longer ambiguous; the skill routes
+        to helix without asking. The disambiguation banner (both
+        flows named + interrogative) cannot match — verdict flips
+        from present → absent.

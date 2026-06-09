@@ -1,0 +1,76 @@
+{
+  "row": "C015-whats-next-graph",
+  "row_dir": "/Users/erik/Projects/helix/family-test/bench/conversations/C015-whats-next-graph",
+  "spec": {
+    "assertion_id": "next_action_envelope",
+    "envelope_schema_path": "judge/next-action-envelope.schema.json",
+    "offered_requires": [
+      "draft_artifact:prd",
+      "consult_graph:product-vision-informs-prd"
+    ],
+    "not_offered_forbids": [
+      "draft_artifact:product-vision"
+    ],
+    "expected_in_envelope_pass": "present"
+  },
+  "non_contamination": {
+    "row": "C015-whats-next-graph",
+    "assertion_id": "skill_tool_use",
+    "no_envelope_verdict": "present",
+    "envelope_verdict": "present",
+    "identical": true,
+    "no_envelope_details": {
+      "hit_indices": [
+        1
+      ],
+      "skill_id": "helix"
+    },
+    "envelope_details": {
+      "hit_indices": [
+        1
+      ],
+      "skill_id": "helix"
+    }
+  },
+  "layer3": {
+    "row": "C015-whats-next-graph",
+    "transcript": "/Users/erik/Projects/helix/family-test/bench/conversations/C015-whats-next-graph/transcript.envelope.jsonl",
+    "expected_verdict": "present",
+    "actual_verdict": "present",
+    "details": {
+      "schema_ref": "judge/next-action-envelope.schema.json",
+      "envelope": {
+        "next_action": "draft_artifact:prd",
+        "offered": [
+          "draft_artifact:prd",
+          "consult_graph:product-vision-informs-prd"
+        ],
+        "not_offered": [
+          "draft_artifact:product-vision"
+        ],
+        "reason": "Graph edge product-vision -> prd; vision approved and PRD absent, so prd is the downstream cascade node. Vision is not offered because it already exists.",
+        "requires_confirmation": true
+      },
+      "offered_satisfied": [
+        "draft_artifact:prd",
+        "consult_graph:product-vision-informs-prd"
+      ],
+      "not_offered_satisfied": [
+        "draft_artifact:product-vision"
+      ]
+    },
+    "spec": {
+      "assertion_id": "next_action_envelope",
+      "envelope_schema_path": "judge/next-action-envelope.schema.json",
+      "offered_requires": [
+        "draft_artifact:prd",
+        "consult_graph:product-vision-informs-prd"
+      ],
+      "not_offered_forbids": [
+        "draft_artifact:product-vision"
+      ],
+      "expected_in_envelope_pass": "present"
+    }
+  },
+  "pass": true
+}

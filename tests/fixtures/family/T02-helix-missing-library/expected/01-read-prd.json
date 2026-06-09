@@ -1,0 +1,24 @@
+{
+  "assert": "stream_json_tool_use",
+  "expect_tool_use": {
+    "name_regex": "^Read$",
+    "path_regex": "docs/helix/01-frame/prd\\.md$"
+  },
+  "secondary": {
+    "assert": "prose_match",
+    "must_match_all": [
+      "(?i)\\binventory\\b",
+      "(?i)reconcil"
+    ],
+    "must_match_any": [
+      "\\$40k",
+      "2%",
+      "\\bWMS\\b"
+    ],
+    "must_not_match": [
+      "(?i)helix-library.*(not installed|missing|required)",
+      "(?i)setup[- ]gap"
+    ]
+  },
+  "rationale": "Existing docs are read-only-OK without the library. The Read tool_use must fire against the PRD path (proves the agent opened the file), and the prose must cite a verbatim token from the body ($40k / 2% / WMS) that a generic hallucination would not produce."
+}

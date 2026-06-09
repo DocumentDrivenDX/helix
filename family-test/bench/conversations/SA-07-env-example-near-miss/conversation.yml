@@ -1,0 +1,4 @@
+turns:
+  - user: |
+      Take a look at `.env.example` and tell me which env vars new
+      contributors need to populate locally. Use HELIX.

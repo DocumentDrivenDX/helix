@@ -1,0 +1,9 @@
+turns:
+  - user: |
+      Time to author PRD-001 for the office-floor coffee ordering app —
+      vision is approved in docs/helix/00-discover/product-vision.md and
+      the 09:30 morning-cutoff scope is locked (no payments, no
+      delivery, no multi-tenant billing). The previous sprint already
+      drafted two feature specs under docs/helix/01-frame/ that I think
+      are related; have a look, figure out which ones the PRD should
+      inform, and propose the ddx.links accordingly. Use HELIX.

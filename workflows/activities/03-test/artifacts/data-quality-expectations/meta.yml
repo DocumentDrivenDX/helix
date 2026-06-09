@@ -37,7 +37,7 @@ validation:
       severity: blocking
 
     - check: expectations_trace_to_requirements
-      description: Each expectation must trace to a data quality requirement in the PRD (kind: data)
+      description: "Each expectation must trace to a data quality requirement in the PRD (kind: data)"
       severity: blocking
 
     - check: failure_modes_explicit

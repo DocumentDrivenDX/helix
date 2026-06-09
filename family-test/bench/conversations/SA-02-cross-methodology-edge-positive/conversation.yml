@@ -1,0 +1,6 @@
+turns:
+  - user: |
+      FEAT-001 depends on infra deliverables in our helix-infra workflow.
+      Add a `ddx.links` entry to `docs/helix/01-frame/FEAT-001-checkout.md`
+      with `cross_methodology: true` pointing at the helix-infra change
+      intent `CI-014`. Use HELIX.

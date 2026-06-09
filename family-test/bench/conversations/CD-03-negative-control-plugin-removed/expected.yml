@@ -1,0 +1,37 @@
+tier: must_pass_core
+category: graph-discrimination
+phase: P2
+status: authored-pending-verification
+notes: |
+  CD-03 (negative-control via plugin removal): workspace carries the SAME
+  non-standard `market-validation-brief requires prd` edge as CD-01. The
+  positive run grades exactly like CD-01 (skill engages, reads graph,
+  surfaces the prerequisite). The negative-control run REMOVES the
+  methodology-product plugin entirely — the skill cannot engage, so the
+  cascade cannot fire, so the signature cannot appear.
+
+  This row pairs the graph-content discriminator (CD-01/CD-02) with a
+  plugin-removal discriminator: it proves the surfacing depends on the
+  engaged methodology skill, not on Claude's prior HELIX knowledge.
+
+  The matcher uses expected_edge_regex (rather than expected_edge_signature)
+  to accept Sonnet's natural paraphrasing of the edge (e.g.
+  "market-validation-brief → prd  kind: requires") while still requiring
+  both artifact names to co-appear in the response.
+
+discriminator:
+  assertion_id: graph_edge_observed
+  observable:
+    matcher_type: file_read
+    graph_path: 'methodology-product/workflows/graph\.yml$'
+    expected_edge_regex: 'market-validation-brief\b.{0,120}\b(prd|PRD)\b|\b(prd|PRD)\b.{0,120}\bmarket-validation-brief\b'
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      Remove the methodology-product plugin so the helix skill is not
+      mounted. Without the engaged skill, the graph is never read and the
+      non-standard prerequisite cannot be surfaced. Verifies that the
+      cascade in CD-01 was driven by the engaged skill, not by Claude's
+      training-data familiarity with the word "PRD".

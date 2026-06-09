@@ -114,9 +114,6 @@ relationships:
     - assumptions-constraints
 
   informs:
-    - project-planning
-    - budget-planning
-    - contingency-planning
 
   tracked_through:
     - all_phases

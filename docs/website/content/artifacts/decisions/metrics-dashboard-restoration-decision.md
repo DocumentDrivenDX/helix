@@ -1,7 +1,7 @@
 ---
 title: "Metrics Dashboard — Restoration Decision"
 slug: metrics-dashboard-restoration-decision
-weight: 800
+weight: 990
 activity: "Iterate"
 source: "06-iterate/decisions/metrics-dashboard-restoration-decision.md"
 generated: true

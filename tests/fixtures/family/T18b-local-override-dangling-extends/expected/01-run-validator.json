@@ -1,0 +1,10 @@
+{
+  "assert": "validator_exit",
+  "command": "python3 library/scripts/helix_graph_check.py --override workspace/docs/helix/02-design/_overlays/orphan-adr/spec.yml",
+  "expect_exit_nonzero": true,
+  "stderr_match_all": [
+    "(?i)unknown library type|not found in library|extends.*not found|unknown base type",
+    "not-a-real-base"
+  ],
+  "rationale": "Override 'extends:' pointing at a non-existent library type must be rejected. Parallel to T11 (binds: unknown type) but on the override surface. Diagnostic must name the missing base type by string."
+}

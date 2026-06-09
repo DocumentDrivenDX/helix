@@ -1,0 +1,45 @@
+tier: exploratory
+category: orchestration
+phase: P4-G1
+status: authored-pending-verification
+fixture: G1-spec-gap-orchestration
+level: guided
+notes: |
+  G1 (audit-driven gap row). Real-usage pattern from pqueue session:
+  operator dispatches a multi-agent workflow with external (codex)
+  adversarial review and a synthesis step. The skill engages, fans out
+  the work via Workflow tool, and respects the "do NOT modify specs"
+  guardrail.
+
+  PASS contract:
+    1. Skill(helix) tool_use fires (engagement floor).
+    2. Workflow tool dispatched (any Task / Workflow tool_use).
+    3. Codex external review invoked OR explicit prose acknowledging
+       "have codex review" plan.
+    4. NO Write/Edit to a path under docs/helix/ (the spec dir) during
+       the turn — writes only to .workflow-scratch/ or below.
+
+  FAIL modes:
+    - Skill never engages (Invariant 2 violation).
+    - Agent writes directly to docs/helix/01-frame/PRD-*.md or any spec
+      path (violates "do NOT modify specs").
+    - Agent attempts single-pass synthesis without workflow dispatch.
+
+discriminator:
+  assertion_id: scope_write_path
+  observable:
+    matcher_type: write_path_constraint
+    allowed_root: .workflow-scratch/
+    forbidden_pattern: ^docs/helix/
+    rationale: |
+      The user explicitly said "Do NOT modify specs; write to
+      .workflow-scratch." A spec mutation IS the failure.
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [helix]
+    rationale: |
+      With canonical helix loaded, the skill engages, surfaces the
+      "don't modify specs" constraint, and routes writes to
+      .workflow-scratch. With it removed, untrained behavior would
+      naively write to docs/helix.

@@ -1,0 +1,20 @@
+kind: validator-row
+tier: must_pass_core
+category: rename-compat
+phase: P12
+notes: |
+  RC-02 (codex review feedback, prior bench-build workflow). Standalone
+  rename-compat row: confirms that a v2-shape marker (canonical
+  `flows:` key) loads cleanly under the post-P12-rename validator and
+  that M020 does NOT fire (the rename target shape is silent — only
+  the legacy spelling triggers the deprecation warn).
+
+  Paired with RC-01 (v1-loads): together they assert both directions
+  of the additive rename — old shape still works, new shape doesn't
+  trigger spurious warns.
+
+target: marker.yml
+helix_check_args: ["marker", "marker.yml"]
+expected_exit_code: 0
+required_codes: []
+forbidden_codes: ["M020", "M040", "M041"]

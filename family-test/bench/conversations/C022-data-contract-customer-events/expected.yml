@@ -1,0 +1,30 @@
+tier: must_pass_core
+category: conversation-library
+phase: P5
+status: authored-pending-verification
+notes: |
+  C022 (plan §1.5 + §12.8). Marker active (helix-data). Prompt
+  "Define a data contract for the customer events" is a canonical
+  01-contract activity ask. The skill MUST engage and draft a
+  `data-contract`.
+
+  Layer 1 floor: Skill(helix-data) tool_use.
+
+  Discrimination: plugins_remove kills the helix-data skill.
+
+discriminator:
+  assertion_id: skill_tool_use
+  observable:
+    matcher_type: skill_tool_use
+    skill_id: helix-data
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-data]
+    rationale: |
+      No methodology-data → no helix-data skill → no Skill(helix-data)
+      tool_use. Verdict flips.
+
+structural:
+  skill_invoked:
+    - name: helix-data

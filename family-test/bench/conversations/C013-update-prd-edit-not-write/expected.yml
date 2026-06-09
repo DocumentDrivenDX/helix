@@ -1,0 +1,39 @@
+tier: exploratory
+category: conversation-library
+phase: P5b
+status: authored-pending-verification
+fixture: C013-update-prd-edit-not-write
+level: guided
+notes: |
+  C013 (plan §1.5). PRD-001 exists with approved frontmatter; operator
+  asks to add a new requirement. The skill must Read the existing file
+  before modifying it, and prefer Edit over Write to preserve
+  frontmatter byte-equivalent. read_before_write asserts the strict
+  ordering: Read(PRD-001) appears before the first Edit/Write
+  targeting that file.
+
+  Pair-row: plugin-remove negative control. Without methodology-product
+  loaded, the skill cannot engage; the agent's update strategy is
+  training-driven and ordering is no longer reliably Read-first.
+
+discriminator:
+  assertion_id: read_before_write
+  observable:
+    matcher_type: tool_use_order
+    first_tool: Read
+    second_tool: Edit
+    # target_pattern matches the PRD-001 file the operator referenced.
+    # The matcher requires both the Read AND the Edit to target this
+    # file, in that order.
+    target_pattern: 'PRD-001-coffee-ordering\.md$'
+  expected_in_positive_run: ordered
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      With methodology-product removed, the skill cannot engage. The
+      agent may still update the PRD from training, but the marker-
+      aware "Read first, preserve frontmatter, Edit not Write" rule
+      is helix-specific. Strict Read-before-Edit ordering on
+      PRD-001-coffee-ordering.md is no longer reliable; matcher
+      verdict flips from present → absent.

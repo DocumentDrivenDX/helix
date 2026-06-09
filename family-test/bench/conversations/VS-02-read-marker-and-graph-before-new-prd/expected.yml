@@ -1,0 +1,48 @@
+tier: must_pass_core
+category: verbose-but-stuck
+phase: P13
+status: authored-pending-verification
+fixture: VS-02-read-marker-and-graph-before-new-prd
+level: guided
+notes: |
+  VS-02 (plan §1.5b verbose-but-stuck). New-PRD creation against a
+  marker-active workspace with vision already approved. SKILL.md §1.5
+  requires the skill to Read `.helix.yml` AND `workflows/graph.yml`
+  BEFORE the first Write tool_use that creates the PRD.
+
+  Positive contract: a Read tool_use whose file_path matches
+  `(\.helix\.yml|workflows/graph\.yml)$` precedes the first Write
+  targeting any new `docs/helix/01-frame/PRD-*.md` file. The matcher
+  uses a single regex that spans both files per plan §15c P13.
+
+  Discrimination (Invariant 3): with `plugins_remove: [methodology-product]`
+  the helix skill is not registered. The agent may still draft a PRD
+  from training, but the §1.5 marker/graph Read-before-Write discipline
+  is skill-specific. Without the skill engaged, the matcher's strict
+  ordering verdict flips from `ordered` to `absent`.
+
+discriminator:
+  assertion_id: read_before_write
+  observable:
+    matcher_type: tool_use_order
+    first_tool: Read
+    second_tool: Write
+    # target_pattern matches either the marker (.helix.yml) OR the
+    # methodology graph (workflows/graph.yml). Per plan §15c P13 the
+    # pattern includes BOTH files; an ordered verdict requires at least
+    # one Read of either before the first Write.
+    target_pattern: '(\.helix\.yml|workflows/graph\.yml)$'
+  expected_in_positive_run: ordered
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      Without methodology-product the helix skill is not registered;
+      its §1.5 ordering rule does not engage. The agent may emit a
+      PRD-shaped Write from training, but the strict Read-of-marker-or-
+      graph before that Write is no longer reliable. Matcher verdict
+      flips from `ordered` to `absent`.
+
+structural:
+  skill_invoked:
+    - name: helix

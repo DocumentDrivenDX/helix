@@ -1,0 +1,51 @@
+---
+id: F11
+slug: consumer-side-schema-mismatch
+title: Consumer side breaking schema mismatch
+category: consumer-contract
+scenario: |
+  Stripe's 2026-05 product change introduced a paused subscription state. The customer-events producer extended fact_subscriptions.status from active, canceled, and past_due to include paused, then bumped the data-contract version from 1.4 to 1.5.
+
+  The producer classified the enum extension as additive and the Glue and Redshift pipeline loaded the value successfully. No upstream data-quality-tests failed because paused was allowed under contract version 1.5.
+
+  The downstream revenue-ops Tableau workbook had a hardcoded CASE statement that mapped unknown status values to NULL. For 11 days, $2.1M of paused subscription revenue dropped out of the executive dashboard before a VP noticed the discrepancy.
+
+  The symptom was a consumer-side break from an upstream additive change. This fixture tests whether the methodology inventories consumers and routes enum extensions through evolution-plan and deprecation-notice when consumers have brittle logic.
+adversarial_signal: |
+  If the methodology only checks producer compatibility, additive schema changes can still break downstream consumers. The data lands correctly but executive reporting drops material revenue because consumer assumptions were not tracked.
+
+  The blast radius includes $2.1M missing from the dashboard, 11 days of incorrect executive reporting, manual revenue-ops repair, and loss of trust in contract versioning.
+expected_handling:
+  detection:
+    - The consumer-inventory lists revenue-ops Tableau as a consumer of fact_subscriptions.status.
+    - The data-contract compatibility review flags enum extensions as consumer-sensitive even when producer-additive.
+    - A dashboard reconciliation check compares paused subscription revenue in Redshift to Tableau output.
+    - The evolution-plan identifies consumers with hardcoded CASE logic for subscription status.
+    - The deprecation-notice process notifies revenue-ops before version 1.5 is published.
+    - The monitoring report shows paused revenue mapped to NULL in the workbook for 11 days.
+  response:
+    - The on-call confirms paused rows exist in fact_subscriptions and are absent from the Tableau dashboard.
+    - The revenue-ops owner updates the CASE statement to map paused to the approved status bucket.
+    - The analytics engineer refreshes the Tableau extract for the affected 11-day window.
+    - The data owner sends a consumer-impact notice documenting the contract 1.4 to 1.5 enum extension.
+    - The team backfills executive dashboard snapshots to include the $2.1M paused revenue.
+    - The incident ticket records why an additive producer change was consumer-breaking.
+  prevention:
+    - The data-contract artifact classifies enum additions as additive but consumer-impacting.
+    - The consumer-inventory artifact records Tableau workbooks, owners, fields used, and brittle transformations.
+    - The evolution-plan artifact requires consumer validation for status enum changes.
+    - The deprecation-notice artifact defines notice timing for contract version 1.4 to 1.5.
+    - The lifecycle review requires dashboard reconciliation for material revenue fields after enum changes.
+    - The contract requires unknown enum handling to preserve revenue rather than mapping to NULL.
+artifacts_referencing:
+  - data-contract
+  - consumer-inventory
+  - evolution-plan
+  - deprecation-notice
+acceptance_criteria:
+  - The data-contract artifact lists paused as an allowed fact_subscriptions.status value in version 1.5.
+  - The data-contract artifact states that enum additions require consumer-impact review.
+  - The consumer-inventory artifact includes the revenue-ops Tableau workbook and its owner.
+  - The evolution-plan artifact includes validation for hardcoded status CASE statements.
+  - The deprecation-notice artifact describes the 1.4 to 1.5 contract change and consumer action required.
+  - The worked example verifies that $2.1M paused subscription revenue is not mapped to NULL.

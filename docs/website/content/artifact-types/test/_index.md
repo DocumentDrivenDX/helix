@@ -20,5 +20,5 @@ Define how we know it works. Plans, suites, and procedures that bind specs to im
   {{< card link="security-tests/" title="Security Tests" subtitle="Security verification matrix that maps material threats and controls to executable tests, evidence, and residual-risk decisions." >}}
   {{< card link="test-procedures/" title="Test Procedures" subtitle="Repeatable operator procedures for running planned tests, capturing evidence, and applying pass/fail rules consistently." >}}
   {{< card link="test-suites/" title="Test Suites" subtitle="Inventory of executable test suites with boundaries, coverage ownership, commands, runtime expectations, and evidence outputs." >}}
-  {{< card link="data-quality-expectations/" title="Data Quality Expectations" subtitle="data-quality-expectations" >}}
+  {{< card link="data-quality-expectations/" title="Data Quality Expectations" subtitle="Defines quality contracts as testable predicates on data shape, completeness, timeliness, and correctness before implementation begins. Data quality expectatio…" >}}
 {{< /cards >}}

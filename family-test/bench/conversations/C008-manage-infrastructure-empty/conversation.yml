@@ -1,0 +1,8 @@
+turns:
+  - user: |
+      We need to wire helix-infra into this repo so we can start tracking
+      our Route53 DNS zone, Postgres 16 RDS instance, and Vault secrets
+      rotation as managed change intents — right now all three are hand-
+      administered and nothing is written down. There is no .helix.yml yet.
+      Set up helix-infra and propose a first change-intent artifact, but
+      check with me before writing any files. Use HELIX.

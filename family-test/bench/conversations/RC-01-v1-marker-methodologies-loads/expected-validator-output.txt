@@ -1,0 +1,4 @@
+warn  M020: legacy `methodologies:` key; rename to `flows:` before v2 lands (marker.yml)
+warn  M005: unknown flow `helix` — no plugin found, entry ignored (marker.yml)
+
+summary: E=0 W=2 exit=0

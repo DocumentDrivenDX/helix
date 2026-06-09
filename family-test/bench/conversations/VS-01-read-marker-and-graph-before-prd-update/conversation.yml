@@ -1,0 +1,4 @@
+turns:
+  - user: |
+      Update PRD-001 to add a new requirement: support gift-card payments
+      at checkout.

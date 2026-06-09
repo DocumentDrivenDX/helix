@@ -1,0 +1,6 @@
+helix_version: 1
+methodologies:
+  - id: helix
+    root: services/web/docs/helix/
+  - id: helix-infra
+    root: services/web/infra/terraform/

@@ -1,0 +1,34 @@
+{
+  "assert": "install_result",
+  "command_resolver": "claude plugins --help",
+  "command_candidates": [
+    "claude plugins install workspace/",
+    "claude plugin install workspace/",
+    "claude plugins install --from-dir workspace/",
+    "claude plugin install --from-dir workspace/"
+  ],
+  "expect_exit_zero": true,
+  "post_install_assert": {
+    "type": "filesystem",
+    "paths_must_exist": [
+      "~/.claude/plugins/helix-library/.claude-plugin/plugin.json",
+      "~/.claude/plugins/helix-library/skills/_data/SKILL.md"
+    ]
+  },
+  "tertiary": {
+    "assert": "stream_json_tool_use",
+    "expect_tool_use": {
+      "name_regex": "^(Edit|Write|Bash)$",
+      "must_not_appear": true
+    },
+    "secondary": {
+      "assert": "prose_match",
+      "must_not_match": [
+        "(?i)^#\\s*Problem\\b",
+        "(?i)starting (the )?(discover|frame) phase",
+        "(?i)\\b(let me (start|create|write)|I'?ll (create|write|draft|begin))\\b"
+      ]
+    }
+  },
+  "rationale": "Positive test for the skills/_data workaround. plugin.json with skills: ['skills/_data'] and a SKILL.md frontmatter declaring 'trigger: never' must (a) install cleanly, (b) leave the SKILL.md on disk, and (c) NEVER route on any prompt — even an adversarially compound 'list types, start discover, write an ADR'. T13 forks the architecture into two paths; this is the on-path test for the documented fallback."
+}

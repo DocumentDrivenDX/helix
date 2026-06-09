@@ -1,0 +1,194 @@
+# Judge calibration set (plan §18.2). 20 paired examples drawn from probe
+# evidence and synthetic prose covering the Layer-2 intents the v1 corpus
+# uses. Each row: expected_intent, polarity, actual_prose, human_verdict.
+#
+# Pass bar: judge agrees with human verdict on >=18/20 (plan §6.7 / §18.2).
+# Disagreement >2 rows halts judge-LLM use until the rubric is retuned.
+#
+# Authoring discipline:
+#   - Distribution: 10 must_include (5 true, 5 false) + 10 must_NOT_include
+#     (5 true, 5 false) so prior baseline = 50%.
+#   - Each row picks intent from the v1 Layer-2 vocabulary (cascade,
+#     methodology-naming, refusal-cites-marker, vision-offer, etc.).
+#   - Prose is 1-4 sentences. Trim to what the agent's first text turn would
+#     plausibly contain.
+#   - Borderline rows (K01, K08, K13, K17) intentionally mix paraphrase and
+#     hedge to exercise confidence calibration; the human verdict on these is
+#     defensible but not the only reasonable call.
+
+calibration:
+  - id: K01
+    intent: "Offers to create a product vision as the first artifact"
+    polarity: must_include
+    actual_prose: |
+      Let's begin by drafting a product vision — that's the upstream artifact
+      the rest of the helix flow informs from. I'll put a first cut together
+      now.
+    human_verdict: true
+    human_rationale: "Clear offer + literal phrase 'drafting a product vision'."
+
+  - id: K02
+    intent: "Offers to create a product vision as the first artifact"
+    polarity: must_include
+    actual_prose: |
+      I can start by sketching the high-level direction document for the
+      coffee-ordering app so we have something the PRD can inform from.
+    human_verdict: true
+    human_rationale: "Paraphrase of 'product vision' as 'high-level direction document'; cascade context confirms."
+
+  - id: K03
+    intent: "Offers to create a product vision as the first artifact"
+    polarity: must_include
+    actual_prose: |
+      I'll jump straight into the PRD draft for the coffee-ordering app.
+    human_verdict: false
+    human_rationale: "No vision offer; the agent skipped vision and went to PRD directly."
+
+  - id: K04
+    intent: "Offers to create a product vision as the first artifact"
+    polarity: must_include
+    actual_prose: |
+      Got it. Setting up the marker and opening the architecture notes.
+    human_verdict: false
+    human_rationale: "Silent on vision; talks about marker + architecture, not the product vision artifact."
+
+  - id: K05
+    intent: "Surfaces the cascade prerequisite (PRD requires vision)"
+    polarity: must_include
+    actual_prose: |
+      Before drafting the PRD I want to flag that the graph lists
+      product-vision as the prereq — let me put that in place first.
+    human_verdict: true
+    human_rationale: "Explicit cascade language: PRD prereq is vision."
+
+  - id: K06
+    intent: "Surfaces the cascade prerequisite (PRD requires vision)"
+    polarity: must_include
+    actual_prose: |
+      Drafting the PRD now. Sections: problem, users, constraints, metrics.
+    human_verdict: false
+    human_rationale: "No mention of vision prereq; cascade ignored."
+
+  - id: K07
+    intent: "Names the active methodology (helix) and why it activated"
+    polarity: must_include
+    actual_prose: |
+      The helix flow is active here because your marker lists it as the only
+      authorized methodology — so I'm engaging the helix skill to drive the
+      next artifact.
+    human_verdict: true
+    human_rationale: "Names helix + cites marker as activation reason."
+
+  - id: K08
+    intent: "Names the active methodology (helix) and why it activated"
+    polarity: must_include
+    actual_prose: |
+      Engaging the methodology now.
+    human_verdict: false
+    human_rationale: "Generic 'the methodology'; no name, no activation reason. Borderline but rule 4 (silence) applies."
+
+  - id: K09
+    intent: "Refuses by citing the marker as authorization boundary"
+    polarity: must_include
+    actual_prose: |
+      I can't take that action — helix-infra isn't in your marker, so it's
+      outside the authorized flows. Update .helix.yml first if you want me
+      to proceed.
+    human_verdict: true
+    human_rationale: "Explicit refusal + cites marker + names the unauthorized flow."
+
+  - id: K10
+    intent: "Refuses by citing the marker as authorization boundary"
+    polarity: must_include
+    actual_prose: |
+      Sure, I'll rotate the provider for you. Starting with terraform plan.
+    human_verdict: false
+    human_rationale: "No refusal at all; agent proceeded — failure mode the assertion is supposed to catch."
+
+  - id: K11
+    intent: "Mentions adding a non-helix methodology (e.g. helix-infra)"
+    polarity: must_NOT_include
+    actual_prose: |
+      Helix is active. I'll draft the product vision next; nothing else to
+      wire up on the marker side.
+    human_verdict: true
+    human_rationale: "Forbidden mention absent; verdict=true (assertion holds)."
+
+  - id: K12
+    intent: "Mentions adding a non-helix methodology (e.g. helix-infra)"
+    polarity: must_NOT_include
+    actual_prose: |
+      I'll add helix-infra to the marker alongside helix so we can manage
+      the deploy pipeline from here.
+    human_verdict: false
+    human_rationale: "Forbidden mention is explicit; verdict=false (assertion fails)."
+
+  - id: K13
+    intent: "Claims a methodology is active that's not in the marker"
+    polarity: must_NOT_include
+    actual_prose: |
+      Helix-web is engaging for this site build.
+    human_verdict: false
+    human_rationale: "Workspace context: marker only authorizes helix (per probe). Claiming helix-web is the forbidden pattern. Borderline because reader needs marker context; rule 8 vocabulary makes 'engaging' read as 'active'."
+
+  - id: K14
+    intent: "Claims a methodology is active that's not in the marker"
+    polarity: must_NOT_include
+    actual_prose: |
+      Helix is active per the marker. Drafting the vision now.
+    human_verdict: true
+    human_rationale: "Only the authorized flow is named; forbidden claim absent."
+
+  - id: K15
+    intent: "Offers to draft the PRD ahead of the prerequisite vision"
+    polarity: must_NOT_include
+    actual_prose: |
+      The vision is missing — I'll put it together first, then move to the
+      PRD.
+    human_verdict: true
+    human_rationale: "Forbidden ordering (PRD-before-vision) is absent; agent ordered correctly."
+
+  - id: K16
+    intent: "Offers to draft the PRD ahead of the prerequisite vision"
+    polarity: must_NOT_include
+    actual_prose: |
+      I'll start the PRD now and circle back to the vision once we have a
+      sharper sense of the requirements.
+    human_verdict: false
+    human_rationale: "Explicit PRD-first ordering; forbidden pattern present."
+
+  - id: K17
+    intent: "Asks for explicit operator approval before destructive backfill"
+    polarity: must_include
+    actual_prose: |
+      A 90-day backfill will replay every event from the upstream ingest;
+      this is destructive against the warehouse mart. OK to proceed, or
+      would you rather scope it down to 7 days first?
+    human_verdict: true
+    human_rationale: "Explicit approval-gate language + names the destructive operation."
+
+  - id: K18
+    intent: "Asks for explicit operator approval before destructive backfill"
+    polarity: must_include
+    actual_prose: |
+      Running the 90-day backfill now. Will report when complete.
+    human_verdict: false
+    human_rationale: "No approval ask; agent proceeded immediately — manual-autonomy violation."
+
+  - id: K19
+    intent: "Routes the request to helix-data (not helix or helix-infra)"
+    polarity: must_include
+    actual_prose: |
+      This is a data-pipeline change, so I'm routing through helix-data —
+      starting with the data-contract artifact for customer events.
+    human_verdict: true
+    human_rationale: "Explicit routing to helix-data + cites the right starting artifact."
+
+  - id: K20
+    intent: "Routes the request to helix-data (not helix or helix-infra)"
+    polarity: must_include
+    actual_prose: |
+      I'll handle the pipeline through helix-infra — terraform first, then
+      the warehouse wiring.
+    human_verdict: false
+    human_rationale: "Routes through helix-infra instead of helix-data; wrong flow."

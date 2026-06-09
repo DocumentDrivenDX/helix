@@ -1,0 +1,50 @@
+tier: exploratory
+category: artifact-design
+phase: P4-G3
+status: authored-pending-verification
+fixture: G3-artifact-canonicalization
+level: guided
+notes: |
+  G3 (audit-driven). Real-usage pattern from tablespec session: operator
+  asks to convert generated/procedural code into a reviewable canonical
+  artifact. The skill must engage, propose a concrete artifact path,
+  define a behavior-equivalence test, and set a review boundary.
+
+  PASS contract (codex-review-tightened conjunction; ALL 3 required):
+    1. Prose names a concrete proposed artifact path with a `.sql`
+       extension under any recognized prefix: docs/, sql/, migrations/,
+       models/, or transforms/ (Sonnet may propose dbt models/ or a
+       transforms/ layout depending on stack assumptions).
+    2. Prose proposes a generated-Python ↔ SQL behavior-equivalence
+       check — mentions any reproducible verification mechanism:
+       diff/snapshot/test harness/parity/equivalence, OR natural
+       SQL-CI phrasings (dry-run, compile-check, regression,
+       round-trip, conformance, behavior/behaviour match).
+    3. Prose defines an explicit review boundary — at least one of:
+       single-commit diff, single PR, one PR, one-file diff, who
+       reviews, where SQL lives in repo, or a defined PR/review surface.
+       Elements may appear in any order.
+
+discriminator:
+  assertion_id: literal_or_banner_text
+  observable:
+    matcher_type: text_match
+    # 3-conjunction regex: artifact path AND equivalence test AND review
+    # boundary all appear in the assistant text (order-independent).
+    # Widened (T1): added models/ and transforms/ prefixes to p1 (Sonnet
+    # naturally proposes dbt models/ or transforms/ layouts); added single PR,
+    # one PR, one.file to p3; switched to lookahead conjunction so the three
+    # elements can appear in any order.
+    # Widened (T2): added transformations/.{0,300}?\.sql to p1 — Sonnet
+    # sometimes proposes a directory-tree layout with 'transformations/'
+    # as root and 'transform.sql' as the leaf (Phase 8 pass0 pattern).
+    regex_pattern: '(?s)(?=.*?(docs/[^\s]+\.sql|sql/[^\s]+\.sql|migrations/[^\s]+\.sql|models/[^\s]+\.sql|transforms/[^\s]+\.sql|transformations/.{0,300}?\.sql))(?=.*?(equivalence|snapshot|parity|behavior test|behaviour test|diff test|test harness|dry.?run|compile.?check|regression|round.?trip|conformance|behavior match|behaviour match))(?=.*?(single commit|review boundary|PR review|who reviews|reviewable diff|single PR|one PR|one.file))'
+    occurrence_count: 1
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [helix]
+    rationale: |
+      Without canonical helix, an agent may propose SQL but won't
+      structure it as a HELIX artifact with explicit review boundary.
+      The skill's product/data mode disciplines artifact design.

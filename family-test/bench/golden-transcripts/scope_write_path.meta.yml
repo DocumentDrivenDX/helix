@@ -1,0 +1,11 @@
+cc_version: 2.1.163
+assertion_id: scope_write_path
+expected_verdict: present
+description: |
+  All Write/Edit file_paths fall under /repo/docs/helix/ and none match the
+  forbidden \.env$ pattern. Verifies write_path_constraint matcher returns
+  'present' when all writes are in-scope.
+params:
+  allowed_root: "^/repo/docs/helix/"
+  forbidden_pattern: "\\.env$"
+source: synthetic

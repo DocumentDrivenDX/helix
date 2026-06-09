@@ -1,0 +1,11 @@
+turns:
+  - user: |
+      Draft the PRD under docs/helix/01-frame/ for the morning
+      coffee-ordering app (VIS-001 is approved). It needs to cover the
+      order-entry flow we already started in
+      docs/helix/01-frame/FEAT-001-order-entry.md — same 09:30 cutoff,
+      same cup/milk/floor capture. There may be other drafted
+      feature-specs in 01-frame that the PRD should informs-link;
+      surface anything you find as a candidate and check with me
+      before wiring it into ddx.links — don't auto-include things I
+      haven't approved. Use HELIX.

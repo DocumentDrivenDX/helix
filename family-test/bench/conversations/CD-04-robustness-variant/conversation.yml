@@ -1,0 +1,13 @@
+turns:
+  - user: |
+      I want to draft PRD-001 at docs/helix/01-frame/PRD-001.md for the
+      patient-onboarding portal described in VIS-001
+      (docs/helix/00-discover/product-vision.md) — a HIPAA-equivalent
+      regulated clinic network handling intake, consent, and insurance
+      collection before first visit, with billing and scheduling explicitly
+      out of scope. Before writing anything, consult this workspace's
+      methodology graph and tell me what upstream artifacts or
+      prerequisites it declares for a PRD here — call out anything
+      non-standard or project-local that isn't part of canonical HELIX,
+      so I know what I need to satisfy first. Then propose the PRD draft.
+      Use HELIX.

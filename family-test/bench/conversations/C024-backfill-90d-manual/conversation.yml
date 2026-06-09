@@ -1,0 +1,9 @@
+turns:
+  - user: |
+      We had a schema drift in the customer_events pipeline late last
+      week and the last 90 days of rows in the staging warehouse are
+      missing the `tenant_id` column. I need to backfill those 90 days
+      from the raw event log into staging.customer_events so downstream
+      marts recover. Use HELIX (the helix-data methodology declared in
+      .helix.yml) to plan the change against docs/helix/ before
+      touching anything.

@@ -1,0 +1,2 @@
+{"id":"RE-NEG-001","prompt":"What is the capital city of Kazakhstan?","expected_skill":null,"rationale":"This is a direct factual knowledge question, not product or methodology work."}
+{"id":"RE-NEG-002","prompt":"Who wrote the novel Middlemarch?","expected_skill":null,"rationale":"This asks for a literary fact and does not involve HELIX artifacts or planning."}

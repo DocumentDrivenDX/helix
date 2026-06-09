@@ -20,12 +20,13 @@ ddx:
 ## Summary
 
 OpenAI Codex CLI adopts the agentskills.io specification for skills.
-There is **no native `codex skill install` subcommand**. Skills are
-installed by placing a `SKILL.md` directory under one of the discovered
-filesystem locations, either manually or via the in-session
-`$skill-installer` directive. A separate marketplace mechanism exists
-for "plugins" (`codex plugin marketplace ...`) but the marketplace flow
-covers plugins, not individual skills.
+There is **no native `codex skill install` subcommand** for standalone
+skills. Current Codex includes a plugin manager:
+`codex plugin marketplace add`, `codex plugin add`, and
+`codex plugin marketplace upgrade`. A plugin can carry a `skills`
+directory through `.codex-plugin/plugin.json`; standalone skills are
+still installed by placing a `SKILL.md` directory under one of the
+discovered filesystem locations.
 
 ## Filesystem discovery paths
 
@@ -109,17 +110,18 @@ Changes require restarting the Codex session.
 
 ## Plugins (distinct from skills)
 
-Codex has a separate "plugin" concept with marketplace support:
+Codex has a separate "plugin" concept with marketplace commands:
 
 ```bash
 codex plugin marketplace add <github-url-or-git-url-or-ssh-or-local-dir>
+codex plugin add <plugin>@<marketplace>
 codex plugin marketplace remove <name>
-codex plugin marketplace upgrade
+codex plugin marketplace upgrade [marketplace]
 ```
 
 The TUI `/plugins` slash command lists installed plugins. Plugins
-appear to bundle multiple skills and other extensions; individual
-skills can still be installed independently.
+can bundle skills and other extensions; individual skills can still be
+installed independently through filesystem discovery.
 
 ## Update / uninstall
 
@@ -176,13 +178,16 @@ device authorization flow).
   spec and works under Codex.
 - For Codex testing in Docker:
   1. Install Codex CLI in the base image
-  2. `mkdir -p ~/.codex/skills/helix && cp -r /tmp/helix-src/skills/helix/* ~/.codex/skills/helix/`
-  3. Also copy the catalog: `cp -r /tmp/helix-src/workflows /workspace/workflows` (referenced from skill body)
-  4. `printenv OPENAI_API_KEY | codex login --with-api-key`
-  5. `codex exec --ephemeral "list HELIX routing modes"` — verify
-- There is no "one command, install HELIX" path for Codex CLI. The
-  closest is `npx skills add easel/helix -a codex` which requires
-  Node.js but uses the cross-runtime CLI.
+  2. Prefer `codex plugin marketplace add DocumentDrivenDX/helix`
+     followed by `codex plugin add helix@helix`
+  3. For older CLI builds, fall back to
+     `mkdir -p ~/.codex/skills/helix && cp -r /tmp/helix-src/skills/helix/* ~/.codex/skills/helix/`
+  4. Also copy the catalog: `cp -r /tmp/helix-src/workflows /workspace/workflows` (referenced from skill body)
+  5. `printenv OPENAI_API_KEY | codex login --with-api-key`
+  6. `codex exec --ephemeral "list HELIX routing modes"` — verify
+- The user install path is the plugin pair:
+  `codex plugin marketplace add DocumentDrivenDX/helix` and
+  `codex plugin add helix@helix`.
 
 ## Caveats
 

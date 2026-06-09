@@ -46,19 +46,14 @@ ddx:
 
 ## API/Interface Design
 
-```yaml
-endpoint: /api/v1/[resource]
-method: POST
-request:
-  type: object
-  properties:
-    field1: string
-response:
-  type: object
-  properties:
-    id: string
-    status: string
-```
+Reference the governing Contract for any exact shared API, CLI, event, schema,
+config, telemetry, or adapter surface. This TD may describe story-level usage
+and local wiring, but it must not define endpoints, commands, flags, payload
+fields, status codes, error semantics, or adapter signatures inline.
+
+| Surface | Governing Contract | Story-Level Usage |
+|---------|--------------------|-------------------|
+| [API/CLI/event/schema] | [CONTRACT-XXX or API-XXX] | [How this story uses it] |
 
 ## Data Model Changes
 
@@ -96,7 +91,7 @@ CREATE TABLE [table_name] (
 
 - [ ] **Unit**: [What to test]
 - [ ] **Integration**: [What integrations to test]
-- [ ] **API**: [Endpoints to test]
+- [ ] **Contract**: [CONTRACT/API IDs and story-specific cases to test]
 - [ ] **Security**: [Security scenarios]
 
 ## Migration & Rollback
@@ -129,7 +124,7 @@ Use this checklist when reviewing a technical design:
 - [ ] Key decisions have documented rationale
 - [ ] Trade-offs are explicit — what we gain and what we lose
 - [ ] Component changes clearly describe current state vs. changes
-- [ ] API/interface design includes request and response schemas
+- [ ] API/interface design references Contract IDs for exact shared surfaces instead of defining schemas inline
 - [ ] Data model changes include migration SQL
 - [ ] Integration points specify fallback behavior for external dependencies
 - [ ] Security section addresses authentication, authorization, and data protection

@@ -1,0 +1,31 @@
+tier: must_pass_core
+category: conversation-library
+phase: P5
+status: authored-pending-verification
+notes: |
+  C020 (plan §1.5). Empty workspace. Prompt "Help me understand HELIX"
+  is an explanatory ask. The skill MUST engage so the explanation is
+  authoritative (sourced from SKILL.md / library), not training-
+  paraphrased.
+
+  Layer 1 floor: Skill(helix) tool_use.
+
+  Discrimination: plugins_remove kills engagement; verdict flips.
+
+discriminator:
+  assertion_id: skill_tool_use
+  observable:
+    matcher_type: skill_tool_use
+    skill_id: helix
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      No methodology plugin → no helix skill → no Skill(helix). The
+      agent may still describe HELIX from training, but the tool_use
+      event is absent. Verdict: absent.
+
+structural:
+  skill_invoked:
+    - name: helix

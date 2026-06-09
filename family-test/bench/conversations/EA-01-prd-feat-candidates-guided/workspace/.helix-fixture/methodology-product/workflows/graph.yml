@@ -1,0 +1,66 @@
+version: 1
+methodology:
+  id: helix
+  library_version: ^1.0.0
+  validator_contract: 1
+activities:
+- id: 00-discover
+  exit_gate: discover-validation
+- id: 01-frame
+  exit_gate: prd-validation
+- id: 02-design
+  exit_gate: design-validation
+nodes:
+- id: product-vision
+  type: library:product-vision
+  activity: 00-discover
+  cardinality: singleton
+- id: prd
+  type: library:prd
+  activity: 01-frame
+  cardinality: many
+  role: exit-gate
+- id: feature-specification
+  type: local:feature-specification
+  activity: 01-frame
+  cardinality: many
+- id: adr
+  type: library:adr
+  activity: 02-design
+  cardinality: many
+  scope: cross-cutting
+- id: prd-validation
+  type: local:exit-gate
+  activity: 01-frame
+  cardinality: singleton
+  role: exit-gate
+- id: design-validation
+  type: local:exit-gate
+  activity: 02-design
+  cardinality: singleton
+  role: exit-gate
+- id: discover-validation
+  type: local:exit-gate
+  activity: 00-discover
+  cardinality: singleton
+  role: exit-gate
+edges:
+# Edge under test (EA-01..EA-04, design §2.7 Invariant 1):
+# `prd informs feature-specification` — required: false. The graph
+# declares this type-pair-with-kind as POSSIBLE; instance edges are
+# decided at the instance layer by the operator. The skill MUST NOT
+# auto-populate ddx.links on the PRD from this candidate set.
+- from: product-vision
+  to: prd
+  kind: informs
+  required: false
+- from: prd
+  to: feature-specification
+  kind: informs
+  required: false
+- from: adr
+  to: feature-specification
+  kind: informs
+  required: false
+allowed_cycles: []
+external_edges: []

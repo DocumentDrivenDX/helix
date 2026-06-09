@@ -1,0 +1,10 @@
+{
+  "assert": "validator_exit",
+  "command": "python3 library/scripts/helix_graph_check.py workspace/graph.yml",
+  "expect_exit_nonzero": true,
+  "stderr_match_all": [
+    "(?i)bare slug|must be namespaced|missing namespace|expected library: or local:",
+    "02-design/adr"
+  ],
+  "rationale": "Bare slug must be rejected AND the diagnostic must name the offending node id (02-design/adr) so the user can find it. Without naming the node, the error is unactionable on a 500-node graph."
+}

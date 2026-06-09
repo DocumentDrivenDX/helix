@@ -9,6 +9,12 @@ unique job is to make one user story buildable by naming the concrete component
 changes, files, interfaces, data model changes, security implications, tests,
 rollback path, and implementation sequence.
 
+Technical Design applies shared interface contracts; it does not define them.
+When exact API, CLI, event, schema, config, telemetry, or adapter surface is
+needed, reference the governing Contract ID. If the story uncovers a missing or
+changed shared surface, create or update the Contract first, then reference it
+from the TD.
+
 It inherits Architecture and Solution Design. For what belongs at this level
 versus those higher levels, see the zoom-stack matrix in
 `workflows/activities/02-design/README.md`; if the story forces a change at a
@@ -35,6 +41,9 @@ but leaves no trace here is drift (reconcile-alignment Concern->Artifact Realiza
 - Realize each governing-story AC-ID (US-{n}-AC{m}) through component changes, interfaces, data, security, and tests; reference AC-IDs, do not restate AC text (ADR-009 — AC ownership lives in user-stories).
 - Stay on the vertical slice for the story, within the story scope defined in
   the zoom-stack matrix (`workflows/activities/02-design/README.md`).
+- Reference Contract IDs for exact commands, endpoints, payloads, error
+  semantics, config keys, telemetry fields, event schemas, and adapter
+  signatures instead of defining those normative surfaces inline.
 - Keep implementation sequence and rollout or migration notes only when they affect execution.
 
 ## Boundary Test
@@ -45,6 +54,8 @@ which decisions belong at the system, feature, and story levels.
 ## Completion Criteria
 - The story is implementable.
 - Key interfaces, changes, and test coverage are explicit.
+- Shared interface changes are captured in Contract artifacts before this TD
+  references them.
 - The design stays compact.
 - The output is clearly story-level and disambiguated from a solution design.
 - The implementation sequence can be turned into one or more small,

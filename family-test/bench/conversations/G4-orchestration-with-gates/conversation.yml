@@ -1,0 +1,6 @@
+turns:
+  - user: |
+      Implement FEAT-X (Receipt export, spec at docs/helix/01-frame/FEAT-X-receipt-export.md)
+      using this plan: (1) write unit tests, (2) implement, (3) run tests,
+      (4) run security review, (5) draft commit message. Use subagents for
+      3-4, codex for 5, fail-stop on test failure.

@@ -20,8 +20,8 @@ packages), [[CONTRACT-003-ddx-adapter-boundary]]
 - Inherits the no-fork policy from [`docs/install/README.md`](../../../install/README.md)
   and the runtime-neutrality constraint from PRD R-4.
 - Out of scope: changes to the routing skill body, changes to the
-  artifact catalog, marketplace listing on third-party registries
-  beyond what the agentskills.io spec enables.
+  artifact catalog, and marketplace listings outside the repo-owned
+  plugin catalogs.
 - Governing artifacts: FEAT-013, PRD, agentskills.io spec, per-runtime
   research notes under `docs/resources/agents/`.
 
@@ -37,8 +37,8 @@ packages), [[CONTRACT-003-ddx-adapter-boundary]]
    `/Workspace/.assistant/skills/helix/` and `python scripts/verify-genie.py`
    reports success without invoking any chat API.
 3. **Given** a Claude Code user with API key, **when** they run
-   `claude plugin marketplace add easel/helix && claude plugin install
-   helix@helix --scope user -y`, **then** the plugin loads and
+   `claude plugin marketplace add DocumentDrivenDX/helix && claude
+   plugin install helix@helix --scope user -y`, **then** the plugin loads and
    `claude -p "list HELIX routing modes"` returns a response naming
    `align`, `frame`, `evolve`, `review`, `polish`.
 4. **Given** the HELIX repo, **when** `grep -rn '"supervisory autopilot"'
@@ -63,15 +63,16 @@ the same content via `.github/copilot-instructions.md`.
   `~/.ddx/plugins/helix/.claude-plugin/`.
 - **Marketplace lives in the same repo as the plugin.** The
   `.claude-plugin/marketplace.json` file sits alongside `plugin.json`
-  in the HELIX repo. Users add `easel/helix` as a marketplace and
-  install the `helix` plugin from it. This avoids a second repo for
+  in the HELIX repo. Users add `DocumentDrivenDX/helix` as a marketplace
+  and install the `helix` plugin from it. This avoids a second repo for
   distribution.
-- **Codex CLI has no native install command.** Two paths are documented:
-  `npx skills add easel/helix -a codex` (cross-runtime CLI from Vercel
-  Labs, requires Node) and a manual `mkdir + cp` Dockerfile recipe. No
-  Codex-specific adapter file is added to the repo since Codex
-  discovers skills from `~/.codex/skills/` or `~/.agents/skills/` and
-  consumes the existing `skills/helix/SKILL.md` directly.
+- **Codex CLI uses a native plugin install path.** Current Codex exposes
+  `codex plugin marketplace add` and `codex plugin add`; HELIX therefore
+  ships `.codex-plugin/plugin.json` at the repo root and uses the existing
+  in-repo marketplace listing for `helix@helix`. The Skills CLI
+  (`npx skills add DocumentDrivenDX/helix -a codex`) and manual
+  filesystem copy remain fallback paths for older CLI builds and
+  Dockerfile/no-Node environments.
 - **Copilot uses `.github/copilot-instructions.md` only.** GitHub App
   extensions were deprecated November 2025; MCP is the alternative for
   tool-using extensions but methodology-only HELIX does not need tools.
@@ -109,9 +110,9 @@ the same content via `.github/copilot-instructions.md`.
 
 ### New: `.claude-plugin/marketplace.json`
 
-- **Purpose**: enable Claude Code marketplace install of HELIX.
+- **Purpose**: Claude Code marketplace install of HELIX.
 - **Interfaces**: read by Claude Code when a user runs
-  `/plugin marketplace add easel/helix`.
+  `/plugin marketplace add DocumentDrivenDX/helix`.
 - **Schema** (per [claude-code-plugins.md](../../../resources/agents/claude-code-plugins.md)):
   ```json
   {
@@ -139,7 +140,7 @@ the same content via `.github/copilot-instructions.md`.
 
 ### New: `.github/copilot-instructions.md`
 
-- **Purpose**: enable GitHub Copilot auto-discovery of HELIX as
+- **Purpose**: GitHub Copilot auto-discovery of HELIX as
   repo-scoped instruction content. Adopter repos can copy this file
   verbatim or include it via a symlink/include.
 - **Interfaces**: read automatically by Copilot CLI, IDE Copilot Chat,
@@ -200,7 +201,7 @@ the same content via `.github/copilot-instructions.md`.
 - **Current State**: recommends user-global symlink as the primary
   path.
 - **Changes**: marketplace flow becomes primary
-  (`/plugin marketplace add easel/helix` + `/plugin install
+  (`/plugin marketplace add DocumentDrivenDX/helix` + `/plugin install
   helix@helix`); `--plugin-dir` documented as the dev/CI fallback;
   user-global symlink described as a development-only convenience.
 - **Files**: `docs/install/claude-code.md`
@@ -210,9 +211,11 @@ the same content via `.github/copilot-instructions.md`.
 - **Current State**: covers both Codex CLI and Copilot/Copilot
   extensions in one doc with "git clone" as the install method.
 - **Changes**: scope narrows to OpenAI Codex CLI only. "git clone"
-  replaced with `npx skills add easel/helix -a codex` (primary) and a
-  manual `mkdir + cp` Docker recipe (fallback). Renamed to retain the
-  same filename for backward link compatibility.
+  replaced with `codex plugin marketplace add DocumentDrivenDX/helix`
+  plus `codex plugin add helix@helix` (primary), with
+  `npx skills add DocumentDrivenDX/helix -a codex` and manual
+  `mkdir + cp` as fallbacks. Renamed to retain the same filename for
+  backward link compatibility.
 - **Files**: `docs/install/codex.md`
 
 ### New: `docs/install/copilot.md`
@@ -408,11 +411,11 @@ FEAT-013. Phase 0–1 are blocking for the tomorrow Genie milestone.
 | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|
 | Claude Code marketplace flow needs a separate marketplace repo, not in-tree | Medium | Medium | Test with `claude --plugin-dir` first; only commit `marketplace.json` after confirming in-repo flow works |
-| `npx skills add` does not accept HELIX's directory structure | Low | Medium | Test the command against current `easel/helix` before promoting it to canonical install path; fall back to manual recipe in docs |
+| `codex plugin add` does not accept HELIX's directory structure | Low | Medium | Test the command against current `DocumentDrivenDX/helix` before promoting it to canonical install path; fall back to Skills CLI or manual recipe in docs |
 | Genie SDK upload corrupts Markdown trees | Medium | High | Dry-run against a user-scoped workspace path first; never run against `/Workspace/.assistant/skills/` on first attempt |
 | Functional checks burn budget in CI | Low | Medium | Gate behind `TEST_FUNCTIONAL=1`; default to static-only |
 | Screencasts go stale and mislead users | Medium | Medium | Embed HELIX version in each recording; lint as part of release ratchet |
-| Marketplace name collision with a hypothetical third-party `helix` | Low | Medium | Document the canonical `easel/helix` reference; refuse install if `.claude-plugin/marketplace.json` points elsewhere |
+| Marketplace name collision with a hypothetical third-party `helix` | Low | Medium | Document the canonical `DocumentDrivenDX/helix` reference; refuse install if `.claude-plugin/marketplace.json` points elsewhere |
 
 ## Open Questions
 

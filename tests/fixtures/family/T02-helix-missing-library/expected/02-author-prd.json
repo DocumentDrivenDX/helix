@@ -1,0 +1,20 @@
+{
+  "assert": "stream_json_tool_use",
+  "expect_tool_use": {
+    "name_regex": "^(Write|Edit)$",
+    "path_regex": ".*prd.*\\.md$",
+    "must_not_appear": true
+  },
+  "secondary": {
+    "assert": "prose_match",
+    "must_match_any": [
+      "(?i)helix-library[^.\\n]{0,80}(not installed|missing|required|please install)",
+      "(?i)setup[- ]gap",
+      "(?i)cannot author.*without.*library"
+    ],
+    "must_not_match": [
+      "(?i)^#{1,4}\\s*(Problem|Goals?|Non-?goals?|Risks?|Success metrics?|Out of scope)\\b"
+    ]
+  },
+  "rationale": "Authoring blocks with setup-gap. The setup-gap pattern requires a library name token AND a non-installed verb within 80 chars (the bare word 'install' alone is too loose). Multi-anchor template forbidden: any canonical PRD section heading (h1-h4) in prose counts as improvisation."
+}

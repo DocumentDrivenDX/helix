@@ -1,0 +1,15 @@
+# MT08 — well-formed scope_write_path row; runner must accept + grade as present.
+meta_test:
+  id: MT08
+  expected_acceptance: true
+  expected_verdict: present
+discriminator:
+  assertion_id: scope_write_path
+  observable:
+    matcher_type: write_path_constraint
+    allowed_root: "^/repo/docs/helix/"
+    forbidden_pattern: "\\.env$"
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]

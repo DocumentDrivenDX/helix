@@ -1,0 +1,4 @@
+helix_version: 1
+methodologies:
+  - id: helix-infra
+    root: infra/terraform/

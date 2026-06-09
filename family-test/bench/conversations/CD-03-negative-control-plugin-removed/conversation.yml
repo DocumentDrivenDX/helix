@@ -1,0 +1,8 @@
+turns:
+  - user: |
+      I want to draft PRD-001 off the VIS-001 product vision at
+      docs/helix/00-discover/product-vision.md (the office-floor
+      morning-order queue, payments + delivery out of scope). Before I
+      write it, consult the methodology graph and tell me what
+      prerequisites it declares for the prd node — anything non-standard
+      I should satisfy first? Then propose the draft. Use HELIX.

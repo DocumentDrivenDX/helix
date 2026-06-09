@@ -1,0 +1,9 @@
+{
+  "assert": "validator_exit",
+  "command": "python3 library/scripts/helix_graph_check.py --methodology workspace/methodology.yml workspace/docs/adr/0001-pick-postgres.md",
+  "expect_exit_nonzero": true,
+  "stderr_match_all": [
+    "(?i)missing.*decision|required section.*decision"
+  ],
+  "rationale": "Negative companion to T12. Same doc (uses ## Outcome instead of ## Decision) but methodology declares NO section_aliases. Must FAIL with a 'missing Decision' diagnostic. The T12 ↔ T12b pair proves the alias is the load-bearing input: T12 passes only because of the alias declaration, not because the validator silently skips required-section checks."
+}

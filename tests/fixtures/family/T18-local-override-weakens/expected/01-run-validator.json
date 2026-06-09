@@ -1,0 +1,10 @@
+{
+  "assert": "validator_exit",
+  "command": "python3 library/scripts/helix_graph_check.py --override workspace/docs/helix/02-design/_overlays/weak-adr/spec.yml",
+  "expect_exit_nonzero": true,
+  "stderr_match_all": [
+    "(?i)weaken|removes? required|cannot remove|must not weaken|additive only",
+    "Consequences"
+  ],
+  "rationale": "Override contract has an unstated 'must not weaken' invariant. T9 only tests the happy additive path (Customer Impact added). Without this fixture an impl could silently allow overrides that strip canonical required sections, producing docs that pass local validation but break library:adr consumers downstream. Diagnostic must name the stripped section ('Consequences')."
+}

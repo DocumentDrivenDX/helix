@@ -1,0 +1,50 @@
+---
+id: F6
+slug: source-sink-reconciliation-mismatch
+title: Source sink reconciliation mismatch
+category: reconciliation
+scenario: |
+  Stripe Dashboard exports show 18,742 charge.succeeded events for UTC day 2026-06-04. Redshift fact_charges contains 18,735 rows for the same event_type and day after the 03:00 UTC Glue load and dbt fact build completed.
+
+  The seven missing events exceed the 0.01 percent tolerance in the finance control. Kinesis shard metrics show no obvious data loss, but Glue processed_count for the 01:00 UTC batch is seven lower than the raw_events count for that hour.
+
+  The pipeline has four hops that can drop or filter records: webhook ingress, Kinesis publishing, Glue ETL, and Redshift loading. Reconciliation must identify exactly which seven Stripe event_ids dropped and between which two hops the loss occurred.
+
+  The symptom was a finance close blocker because the charge count could not be tied out to Stripe. This fixture tests whether reconciliation artifacts require event-level diffing, not only aggregate counts.
+adversarial_signal: |
+  If the methodology only compares high-level totals, seven missing charge.succeeded events can hide in the daily close. The amount impact could be small or material, and the team cannot prove which system of record is correct.
+
+  The blast radius includes misstated charge volume, delayed finance close, manual spreadsheet reconciliation, and reduced trust in the customer-events pipeline as an auditable revenue source.
+expected_handling:
+  detection:
+    - The reconciliation-suite compares Stripe exported event_ids to Redshift fact_charges event_ids for each UTC day.
+    - A monitoring-setup alert fires when the count gap exceeds 0.01 percent.
+    - The reconciliation report lists the exact seven missing Stripe event_ids.
+    - Hop-level counters compare webhook accepted, Kinesis published, Glue processed, and Redshift inserted counts.
+    - The Glue job logs rejected and filtered charge.succeeded records by event_id.
+    - The dashboard highlights that the 01:00 UTC batch is the first mismatched hop.
+  response:
+    - The on-call downloads the Stripe export for 2026-06-04 and verifies the 18,742 source count.
+    - The on-call runs the reconciliation-suite event_id diff against raw_events and fact_charges.
+    - The on-call determines whether the seven events are absent before Kinesis, absent after Glue, or missing after Redshift load.
+    - The on-call replays the seven event_ids from the earliest complete hop.
+    - The on-call re-runs fact_charges and downstream dbt revenue models for the affected day.
+    - The on-call escalates to the owning service if webhook-to-Kinesis loss is confirmed.
+  prevention:
+    - The reconciliation-suite artifact defines source-to-sink event_id reconciliation for charge.succeeded.
+    - The monitoring-setup artifact defines the 0.01 percent tolerance and alert routing.
+    - The runbook specifies how to isolate loss between webhook, Kinesis, Glue, and Redshift.
+    - The lifecycle review requires hop-level counters for every revenue-bearing event type.
+    - The reconciliation design stores enough event_id evidence to support replay and audit.
+    - The runbook includes a finance-close escalation path for unresolved reconciliation gaps.
+artifacts_referencing:
+  - reconciliation-suite
+  - runbook
+  - monitoring-setup
+acceptance_criteria:
+  - The reconciliation-suite artifact compares Stripe Dashboard event_ids with fact_charges.event_id.
+  - The monitoring-setup artifact alerts when the source-sink count gap exceeds 0.01 percent.
+  - The runbook artifact describes how to locate loss between webhook, Kinesis, Glue, and Redshift.
+  - The worked example names 18,742 source events and 18,735 Redshift rows for 2026-06-04.
+  - The reconciliation-suite artifact outputs the exact missing seven event_ids.
+  - The runbook includes replay steps from the earliest complete hop.

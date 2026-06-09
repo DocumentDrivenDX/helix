@@ -1,0 +1,15 @@
+A2b — no marker, heuristic present
+fixture: bucket-a/a2b-heuristic-no-marker (workflows/methodology.yml only)
+plugins: helix-library, helix
+prompt: "Show me what methodologies are active."
+
+ASSERT: exact banner text from design §1.3:
+"No .helix.yml found. Activating <id> by heuristic..."
+
+RESULT: FAIL — agent detected the heuristic and named helix, but did NOT
+emit the exact banner string. Prose says "Activation here is inferred,
+not authoritative" — close in spirit, but design §1.3 mandates a literal
+phrase the skill is supposed to print.
+
+VERDICT: fail — banner contract not enforced. The skill activated
+(Skill helix:helix in tool trace) but did not emit the specified text.

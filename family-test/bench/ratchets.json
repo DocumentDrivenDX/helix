@@ -1,0 +1,83 @@
+{
+  "$comment": [
+    "Bench ratchets (plan \u00a715c P14, \u00a719.4). Updated after each main-merge",
+    "bench run. The CI workflow reads this file; a regression beyond the",
+    "declared tolerance fails the job (and posts a PR comment summarising).",
+    "",
+    "Three ratchet streams:",
+    "  stable_pass_rate    \u2014 % of bench rows verdicting stable-pass at",
+    "                        determinism=3. Plan \u00a719.4 alert threshold:",
+    "                        5pp drop run-over-run.",
+    "  routing_precision   \u2014 positive-prompt precision on the 75 routing",
+    "                        evals. Plan \u00a719.4 alert threshold: 2pp drop.",
+    "  cost_per_run        \u2014 rolling 30-day avg full-bench $/run. Plan",
+    "                        \u00a719.4 alert threshold: 25% above baseline.",
+    "  dev_iteration_burn  \u2014 separate one-time stream (plan \u00a719.2) for the",
+    "                        P0-P15 build-out. Tracked so steady-state CI",
+    "                        cost is not conflated with infra setup.",
+    "",
+    "Baselines are NULL until the first post-P14 main-merge full-bench run",
+    "establishes them. The workflow treats NULL baselines as 'first run; do",
+    "not gate' and writes the observed value back; subsequent runs gate."
+  ],
+  "version": 1,
+  "updated_at": "2026-06-08T00:39:19.347763+00:00",
+  "last_attempt": {
+    "timestamp": "2026-06-06T03:57:50Z",
+    "outcome": "scaffold_only",
+    "reason": "Phase 0a runner (helix_bench.py v0.2.0) validates structurally and executes validator-rows directly via helix_check.py, but stream-json CC invocation for non-validator rows is deferred to Phase 1+ (see runner line 1802). Auth is live: OAuth token at ~/.cache/family-test-auth/token authenticates, family-test/docker smoke probe PASS ($0.022 actual). 4/4 validator rows (RC-01..RC-04) pass live. stable_pass_rate and routing_precision baselines remain null until the Phase 1+ runner can drive all 71 conversations + 81 routing-evals through claude -p end-to-end.",
+    "partial_floor": {
+      "validator_rows_live_pass": "4/4 (RC-01..RC-04)",
+      "layer1_structural_pass": "51/71 conversations (20 AM-/SA- rows reject T044: negative_control schema)",
+      "smoke_probe_cost_usd_actual": 0.02203825,
+      "smoke_probe_session_id": "65855e7d-be12-425c-9852-e69f4c6e4bfe"
+    },
+    "next_action": "Build Phase 1+ runner: stream-json CC invocation per row, transcript persistence, Layer 1+Layer 2 grading, determinism=3 stable_pass_rate computation, routing-evals subcommand. Then re-run with auth available to seed baselines."
+  },
+  "ratchets": {
+    "stable_pass_rate": {
+      "description": "min %% of bench rows that stable-pass at determinism=3",
+      "baseline": 0.4722,
+      "tolerance_pp": 5,
+      "direction": "higher_is_better",
+      "source": "helix_bench run --determinism=3 (post-main-merge full bench)",
+      "alert_action": "fail CI; require codex review on regression",
+      "last_observed": 0.4722,
+      "last_observed_at": "2026-06-06T23:10:29.349478+00:00",
+      "seeded_at": "2026-06-06T23:10:29.349478+00:00"
+    },
+    "routing_precision": {
+      "description": "positive-prompt precision on the 75 routing evals",
+      "baseline": 1.0,
+      "tolerance_pp": 2,
+      "direction": "higher_is_better",
+      "source": "helix_bench routing-evals (positive set)",
+      "alert_action": "fail CI; routing-positive regression is a hard-gate",
+      "last_observed": 0.0,
+      "last_observed_at": "2026-06-08T00:39:19.347756+00:00",
+      "seeded_at": "2026-06-06T16:01:47.928930+00:00"
+    },
+    "cost_per_run": {
+      "description": "rolling 30-day avg full-bench $/run (cost_tracker.py)",
+      "baseline": 141.76,
+      "tolerance_pct": 25,
+      "direction": "lower_is_better",
+      "source": "family-test/bench/runner/cost-log.jsonl",
+      "alert_action": "warn on PR; fail on main if sustained",
+      "last_observed": 141.76,
+      "last_observed_at": "2026-06-06T23:10:29.349499+00:00",
+      "seeded_at": "2026-06-06T23:10:29.349499+00:00"
+    },
+    "dev_iteration_burn": {
+      "description": "P0-P15 one-time bench infra dev burn (plan \u00a719.2 ~$1850)",
+      "baseline": null,
+      "tolerance_pct": null,
+      "direction": "lower_is_better",
+      "source": "cost-log.jsonl entries tagged phase=dev_iteration",
+      "alert_action": "tracked separately; no automatic gate"
+    }
+  },
+  "alerts": [
+    "routing_precision: REGRESSION baseline=1.0 observed=0.0 tolerance=2 (tolerance_pp)"
+  ]
+}

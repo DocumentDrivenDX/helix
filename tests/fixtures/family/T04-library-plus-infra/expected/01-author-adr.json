@@ -1,0 +1,22 @@
+{
+  "assert": "stream_json_tool_use",
+  "expect_tool_use": {
+    "name_regex": "^Write$",
+    "path_regex": "^docs/adr/\\d{4}.*\\.md$",
+    "content_regex_all": [
+      "library_type:\\s*library:adr",
+      "(?m)^##\\s*Context\\b",
+      "(?m)^##\\s*Decision\\b",
+      "(?m)^##\\s*Consequences\\b"
+    ],
+    "exactly_one": true
+  },
+  "secondary": {
+    "assert": "prose_match",
+    "must_not_match": [
+      "(?i)docs/helix/02-design",
+      "(?i)helix-library.*(not installed|missing)"
+    ]
+  },
+  "rationale": "helix-infra routes; ADR lands at docs/adr/NNNN-*.md with library:adr frontmatter AND the canonical ADR sections (Context/Decision/Consequences). EXACTLY ONE Write — a one-liner with only frontmatter does not exercise the library:adr schema."
+}

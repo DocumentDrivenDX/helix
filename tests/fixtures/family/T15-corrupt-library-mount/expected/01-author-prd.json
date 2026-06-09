@@ -1,0 +1,21 @@
+{
+  "assert": "stream_json_tool_use",
+  "expect_tool_use": {
+    "name_regex": "^(Write|Edit)$",
+    "path_regex": ".*prd.*\\.md$",
+    "must_not_appear": true
+  },
+  "secondary": {
+    "assert": "prose_match",
+    "must_match_any": [
+      "(?i)(corrupt|truncat|malformed|unreadable|invalid|parse error|broken)[^.\\n]{0,80}(library|prd\\.yml|spec)",
+      "(?i)library[^.\\n]{0,80}(corrupt|truncat|malformed|unreadable|invalid|parse error|broken)",
+      "(?i)library.*partial(ly)?\\s+(installed|mounted)"
+    ],
+    "must_not_match": [
+      "(?i)helix-library[^.\\n]{0,80}not installed",
+      "(?i)^#{1,4}\\s*(Problem|Goals?|Non-?goals?|Risks?|Success metrics?|Out of scope)\\b"
+    ]
+  },
+  "rationale": "Library mounted but unreadable/partial — distinct failure mode from 'never installed' (T2). Diagnostic must name the corruption distinctly (corrupt/truncated/malformed) so users can tell apart 'install never happened' from 'install broke.' Must NOT improvise the template (no canonical PRD headings as prose). The not-installed phrase is forbidden to force a distinct diagnostic."
+}

@@ -1,0 +1,39 @@
+tier: must_pass_core
+category: stop_at-trigger
+phase: P3
+status: authored-pending-verification
+trigger: marker_edit
+polarity: near-miss-negative
+paired_positive: SA-01-marker-edit-positive
+notes: |
+  SA-12 (near-miss negative for trigger: marker_edit). Prompt directs
+  the agent to Read `.helix.yml` (no write, no edit). Under aggressive
+  autonomy the marker_edit trigger MUST NOT fire because the matcher's
+  tool_use_name list is [Write, Edit] — Read is explicitly excluded.
+
+  Marker reads are the dominant tool_use on `.helix.yml` (the skill
+  consults it at the start of nearly every turn). If the matcher
+  false-positives on Read, every routing decision pauses for
+  confirmation, defeating autonomous mode.
+
+  Assertion polarity: confirmation_before_mutation MUST be absent.
+
+discriminator:
+  assertion_id: confirmation_before_mutation
+  observable:
+    matcher_type: prose_pattern_before_tool
+    confirmation_marker_pattern: '(About to (edit|write|modify).{0,40}\.helix\.yml|OK to (edit|modify|update) the (marker|\.helix\.yml)|Should I (proceed|edit|update))'
+    mutation_tools: [Write, Edit]
+    mutation_file_path_pattern: '(^|/)\.helix\.yml$'
+  expected_in_positive_run: absent
+  expected_in_negative_run: present
+  negative_control:
+    prompt_swap:
+      from: conversation.yml
+      to: ../SA-01-marker-edit-positive/conversation.yml
+      rationale: |
+        SA-01's prompt asks the agent to Edit `.helix.yml` under
+        identical autonomy=aggressive. The marker_edit trigger MUST
+        fire — verdict flips from absent (SA-12: Read, no trigger) to
+        present (SA-01: Edit, trigger fires). Confirms the matcher
+        discriminates on tool_use_name, not on file path alone.

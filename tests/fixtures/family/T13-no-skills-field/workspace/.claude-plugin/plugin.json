@@ -1,0 +1,7 @@
+{
+  "name": "helix-library",
+  "version": "0.1.0",
+  "description": "helix family data plugin: 30 universal artifact types + shared concerns",
+  "author": "helix family",
+  "license": "MIT"
+}

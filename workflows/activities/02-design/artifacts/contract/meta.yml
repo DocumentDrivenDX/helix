@@ -69,13 +69,15 @@ workflow:
 
 relationships:
   informed_by:
+    - feature-specification
     - architecture
     - solution-design
-    - technical-design
     - adr
   informs:
     - test-plan
     - technical-design
+    - test-suites
+    - implementation-plan
 
 tags:
   - design

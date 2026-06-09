@@ -1,0 +1,94 @@
+{
+  "row": "family-test/bench/conversations/C005-create-prd-marker-no-vision",
+  "transcript": "family-test/bench/conversations/C005-create-prd-marker-no-vision/sample-prose.md",
+  "backend": "claude",
+  "model": "haiku",
+  "assertions": [
+    {
+      "intent": "Surfaces the cascade prerequisite (PRD requires vision)",
+      "polarity": "must_include",
+      "matches": true,
+      "confidence": 0.98,
+      "rationale": "The prose explicitly states the graph dependency: '`prd` informs from `product-vision`' and directly asserts 'Before drafting the PRD I should put the vision in place \u2014 would you like me to draft the product vision first, then move to the PRD'. The cascade prerequisite (vision before PRD) is surfaced both via technical notation and sequential reasoning.",
+      "n_runs": 1,
+      "votes_true": 1,
+      "per_run": [
+        {
+          "matches": true,
+          "confidence": 0.98,
+          "rationale": "The prose explicitly states the graph dependency: '`prd` informs from `product-vision`' and directly asserts 'Before drafting the PRD I should put the vision in place \u2014 would you like me to draft the product vision first, then move to the PRD'. The cascade prerequisite (vision before PRD) is surfaced both via technical notation and sequential reasoning."
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "intent": "Offers to draft the product vision before the PRD",
+      "polarity": "must_include",
+      "matches": true,
+      "confidence": 0.95,
+      "rationale": "The prose states: 'would you like me to draft the product vision first, then move to the PRD' \u2014 a direct offer to draft the vision before the PRD, with explicit ordering and conditional acceptance.",
+      "n_runs": 1,
+      "votes_true": 1,
+      "per_run": [
+        {
+          "matches": true,
+          "confidence": 0.95,
+          "rationale": "The prose states: 'would you like me to draft the product vision first, then move to the PRD' \u2014 a direct offer to draft the vision before the PRD, with explicit ordering and conditional acceptance."
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "intent": "Names the active methodology (helix) and why it activated",
+      "polarity": "must_include",
+      "matches": true,
+      "confidence": 0.96,
+      "rationale": "The prose explicitly states 'Helix is active here (your marker lists it as the only authorized flow)' which names the active methodology (helix) and provides the reason for activation (marker authorization). This is a direct statement of both required components.",
+      "n_runs": 1,
+      "votes_true": 1,
+      "per_run": [
+        {
+          "matches": true,
+          "confidence": 0.96,
+          "rationale": "The prose explicitly states 'Helix is active here (your marker lists it as the only authorized flow)' which names the active methodology (helix) and provides the reason for activation (marker authorization). This is a direct statement of both required components."
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "intent": "Offers to draft the PRD ahead of the prerequisite vision",
+      "polarity": "must_NOT_include",
+      "matches": true,
+      "confidence": 0.95,
+      "rationale": "The prose explicitly states 'Before drafting the PRD I should put the vision in place' and offers to 'draft the product vision first, then move to the PRD'. This surfaces the cascade prerequisite and does the opposite of offering to draft the PRD ahead of the vision. The forbidden pattern is absent.",
+      "n_runs": 1,
+      "votes_true": 1,
+      "per_run": [
+        {
+          "matches": true,
+          "confidence": 0.95,
+          "rationale": "The prose explicitly states 'Before drafting the PRD I should put the vision in place' and offers to 'draft the product vision first, then move to the PRD'. This surfaces the cascade prerequisite and does the opposite of offering to draft the PRD ahead of the vision. The forbidden pattern is absent."
+        }
+      ],
+      "verdict": "pass"
+    },
+    {
+      "intent": "Mentions adding a non-helix methodology (e.g. helix-infra)",
+      "polarity": "must_NOT_include",
+      "matches": true,
+      "confidence": 0.95,
+      "rationale": "The prose exclusively discusses helix methodology and helix artifacts (product-vision, PRD, graph dependencies). No mention of helix-infra, non-helix methodologies, or alternative flows appears anywhere. The forbidden pattern is absent.",
+      "n_runs": 1,
+      "votes_true": 1,
+      "per_run": [
+        {
+          "matches": true,
+          "confidence": 0.95,
+          "rationale": "The prose exclusively discusses helix methodology and helix artifacts (product-vision, PRD, graph dependencies). No mention of helix-infra, non-helix methodologies, or alternative flows appears anywhere. The forbidden pattern is absent."
+        }
+      ],
+      "verdict": "pass"
+    }
+  ],
+  "all_pass": true
+}

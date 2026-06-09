@@ -1,0 +1,4 @@
+{"type":"system","subtype":"init","session_id":"golden-graph-edge-observed"}
+{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Read","input":{"file_path":"/skills/helix/graph.yml"}}]}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"Graph says prd informs feature-specification; I'll surface that cascade before drafting."}]}}
+{"type":"result","subtype":"success","is_error":false}

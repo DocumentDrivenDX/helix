@@ -1,0 +1,5 @@
+turns:
+  - user: |
+      Run `gh pr view 1234` and `git status` and summarize what the
+      open PR is changing and whether our working tree is clean. Use
+      HELIX.

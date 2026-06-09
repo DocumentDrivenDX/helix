@@ -1,0 +1,11 @@
+cc_version: 2.1.163
+assertion_id: literal_or_banner_text
+expected_verdict: present
+description: |
+  Agent emits the heuristic-activation banner verbatim. Verifies the
+  text_match matcher recognises the exact literal string and respects
+  the 20-char minimum-length vacuity floor.
+params:
+  exact_text: "No .helix.yml found. Activating helix by heuristic."
+  occurrence_count: 1
+source: synthetic

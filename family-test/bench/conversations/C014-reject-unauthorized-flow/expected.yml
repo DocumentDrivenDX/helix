@@ -1,0 +1,53 @@
+tier: must_pass_core
+category: conversation-library
+phase: P5
+status: authored-pending-verification
+notes: |
+  C014 (plan §1.5). Marker has helix only. Prompt invokes
+  helix-infra via the `HELIX_METHODOLOGY=helix-infra` env-override
+  form (the leading-slash `/helix-infra` form is intercepted by
+  Claude Code's slash-command parser before the skill engages; the
+  env-override form reaches the skill, which then enforces the
+  marker). The marker forbids helix-infra activation. The skill MUST
+  refuse AND cite the marker as the authorization boundary AND emit
+  zero Write/Edit.
+
+  Layer 1 floor: refusal_no_write — zero mutation tool_use events
+  AND prose contains authorization-boundary language naming
+  helix-infra and the marker.
+
+  Pattern captures ≥14 chars (clearing the banned-matcher minimum
+  of 12 for refusal_no_write).
+
+  Discrimination: swap to a marker that DOES authorize helix-infra
+  → agent proceeds, Writes appear, refusal text vanishes. Verdict
+  flips.
+
+discriminator:
+  assertion_id: refusal_no_write
+  observable:
+    matcher_type: no_mutation_plus_text
+    refusal_text_pattern: '(helix-infra|that flow|requested flow)[\s\S]{0,160}(not (active|authorized|in the marker)|marker (does not|doesn''t) (list|authorize|include)|outside the (authorized|active) (flows|scope))'
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    marker_edit:
+      from: workspace/.helix.yml
+      inline_to: |
+        helix_version: 1
+        methodologies:
+          - id: helix
+            root: docs/helix/
+          - id: helix-infra
+            root: infra/
+      rationale: |
+        With helix-infra also authorized in the marker, the skill
+        no longer has grounds to refuse. The agent proceeds with
+        change-intent authoring (Write tool_use appears) and the
+        refusal pattern cannot match (no marker-rejection language).
+        Verdict flips present → absent, proving the refusal was
+        marker-driven, not prompt-driven.
+
+structural:
+  skill_invoked:
+    - name: helix

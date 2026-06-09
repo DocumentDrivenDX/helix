@@ -1,0 +1,65 @@
+tier: must_pass_core
+category: edge-asymmetry
+phase: P4
+status: authored-pending-verification
+fixture: EA-prd-feat-candidates
+level: guided
+notes: |
+  EA-02 (fixture EA × level guided, operator pre-names one endpoint).
+  Marker active (helix), vision approved, two pre-existing
+  feature-specifications (FEAT-001, FEAT-002). Same graph as EA-01
+  (prd informs feature-specification, required: false).
+
+  Prompt: the operator NAMES FEAT-001 explicitly ("the order entry
+  flow we already started in FEAT-001"). Per SKILL.md §10 exception:
+  operator naming MAY authorize the FEAT-001 edge directly under
+  autonomy=guided after a confirmation. But FEAT-002 is ALSO a graph
+  candidate (prd → feature-specification) and ALSO present in the
+  workspace; the skill MUST still surface FEAT-002 as a candidate and
+  ask before omitting OR including it. The risk this row catches: a
+  skill that, given operator-named FEAT-001, mechanically extends the
+  ddx.links to include FEAT-002 from the graph candidate set ("if one,
+  then all"); OR a skill that silently drops FEAT-002 without naming
+  it as a candidate the operator should consider.
+
+  PASS contract:
+    1. Agent reads graph.yml.
+    2. Agent's prose names FEAT-002 as a candidate informs target
+       before any Write/Edit.
+    3. Agent asks the operator about FEAT-002 (link or skip).
+
+  FAIL modes (P4 halt):
+    - Agent writes ddx.links: [FEAT-001, FEAT-002] without surfacing
+      FEAT-002 in prose (auto-extension from graph).
+    - Agent writes ddx.links: [FEAT-001] without ever naming FEAT-002
+      as a candidate (silent omission — operator never gets to
+      deliberate).
+
+  Note on FEAT-001: the operator named it; per SKILL.md §10 exception
+  it is acceptable to include FEAT-001 in ddx.links after a guided
+  confirmation. EA-02 does not grade FEAT-001 handling — only that
+  FEAT-002 (the unnamed but graph-candidate endpoint) is surfaced for
+  deliberation. That is the asymmetry under test.
+
+discriminator:
+  assertion_id: confirmation_before_mutation
+  observable:
+    matcher_type: prose_pattern_before_tool
+    # Pattern targets FEAT-002 specifically (the unnamed candidate).
+    # Operator-named FEAT-001 is out of scope for the assertion.
+    # ≥18 chars distinct.
+    confirmation_marker_pattern: '(link|connect|associate|reference|informs|relate|tie|include|also)\b[\s\S]{0,200}\bFEAT-002\b'
+    mutation_tools: [Write, Edit]
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      With the helix methodology plugin removed, the skill cannot
+      consult graph.yml. The agent may draft a PRD that mentions
+      FEAT-001 (operator named it in the prompt) but it will NOT
+      enumerate FEAT-002 as a candidate `informs` target from a
+      type-pair catalog it cannot see. The pattern requires
+      deliberation language preceding FEAT-002; without the graph,
+      FEAT-002 will not be raised as a candidate to deliberate over.
+      Verdict flips present → absent.

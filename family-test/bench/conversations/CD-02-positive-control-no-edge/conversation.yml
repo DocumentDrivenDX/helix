@@ -1,0 +1,3 @@
+turns:
+  - user: |
+      I want to draft PRD-001 for the coffee-ordering app. Consult the methodology graph and tell me what prerequisites or upstream artifacts it declares — anything non-standard? Then propose the draft. Use HELIX.

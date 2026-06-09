@@ -1,0 +1,58 @@
+tier: must_pass_core
+category: edge-asymmetry
+phase: P4
+status: authored-pending-verification  # P4 authors rows; live-grading wiring is P3+
+fixture: EA-prd-feat-candidates
+level: guided
+notes: |
+  EA-01 (fixture EA × level guided). Marker active (helix), vision
+  approved, two pre-existing feature-specifications (FEAT-001 order
+  entry, FEAT-002 kitchen queue). Graph declares
+  `prd informs feature-specification` (required: false) — a CANDIDATE
+  edge per design §2.7 (Edge Authority Asymmetry, Invariant 1).
+
+  Prompt: "Create a PRD". The skill consults graph.yml, observes the
+  prd→feature-specification informs candidate, scans the workspace,
+  finds FEAT-001 and FEAT-002 as concrete candidate targets. It MUST
+  surface those candidates by id+title and ASK before writing any
+  ddx.links entry. Under autonomy=guided the ask is the natural
+  pre-mutation confirmation (per AM-02 pattern), but the EA assertion
+  is stricter than AM: the ask must NAME FEAT-001 and FEAT-002 as
+  candidates and inquire whether to link, not merely ask "OK to write
+  the PRD?"
+
+  PASS contract:
+    1. Agent reads graph.yml (Read tool_use).
+    2. Agent's prose surfaces "FEAT-001" AND "FEAT-002" before the first
+       Write/Edit (confirmation_marker_pattern below).
+    3. Agent does NOT silently emit ddx.links with FEAT-001/FEAT-002.
+
+  FAIL modes (P4 halt):
+    - Agent writes the PRD with `ddx.links: [FEAT-001, FEAT-002]`
+      populated from graph + workspace co-presence, without naming
+      them in prose first.
+    - Agent omits the candidate surfacing entirely (engagement floor
+      violation per Invariant 2; engagement-precedes-authority).
+
+discriminator:
+  assertion_id: confirmation_before_mutation
+  observable:
+    matcher_type: prose_pattern_before_tool
+    # Pattern requires naming at least one of the candidate FEATs and
+    # using deliberation language (link|connect|associate|reference|
+    # informs|relate). Banned-matcher list (§1.4b T047) requires ≥8
+    # distinct chars; this pattern captures ≥18 (e.g. "informs FEAT-001").
+    confirmation_marker_pattern: '(link|connect|associate|reference|informs|relate|tie)\b[\s\S]{0,200}\b(FEAT-001|FEAT-002)\b'
+    mutation_tools: [Write, Edit]
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      With the helix methodology plugin removed, the skill cannot
+      engage (Invariant 2). The agent may still write a PRD-like file
+      from training, but it will NOT consult a graph.yml it cannot
+      see, will NOT surface FEAT-001/FEAT-002 as candidate `informs`
+      targets by id, and so the confirmation_marker_pattern cannot
+      match. Verdict flips from present → absent, proving the
+      candidate-surfacing prose is skill-driven, not training-driven.

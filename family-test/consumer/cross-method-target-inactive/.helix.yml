@@ -1,0 +1,6 @@
+helix_version: 1
+
+methodologies:
+  - id: helix
+    root: docs/helix/
+# NOTE: helix-infra is NOT in the marker, even though the PRD links to it

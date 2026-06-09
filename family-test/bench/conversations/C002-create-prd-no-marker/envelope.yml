@@ -1,0 +1,23 @@
+# C002 Layer 3 (next-action envelope) — plan §1.4 §6.8 §8.
+#
+# Empty workspace, no marker, autonomy=guided, prompt "Let's create a PRD".
+# The router-anchor is "PRD" but the cascade prerequisite (graph: prd
+# informs from product-vision) forces the envelope to redirect.
+# Layer 3 catches the failure mode where the agent silently writes a PRD
+# without surfacing the missing upstream.
+
+envelope:
+  assertion_id: next_action_envelope
+  schema_path: judge/next-action-envelope.schema.json
+  offered_requires:
+    - draft_artifact:product-vision
+    - add_methodology_to_marker:helix
+  not_offered_forbids:
+    - draft_artifact:prd
+  expected_in_envelope_pass: present
+
+notes: |
+  Same engagement contract as C001 but the prompt explicitly names PRD,
+  so the not_offered guard is sharper here: any envelope listing
+  draft_artifact:prd in `offered` is a cascade-skip failure even though
+  the user literally asked for PRD.

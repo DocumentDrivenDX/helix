@@ -1,0 +1,49 @@
+tier: must_pass_core
+category: verbose-but-stuck
+phase: P13
+status: authored-pending-verification
+fixture: VS-04-read-marker-and-graph-before-adr
+level: guided
+notes: |
+  VS-04 (plan §1.5b verbose-but-stuck). Cross-cutting ADR authoring.
+  Per `methodology-product/workflows/graph.yml` the `adr` node is
+  `scope: cross-cutting` — it has no upstream prerequisites. This row
+  asserts that the SKILL.md §1.5 ordering rule (Read `.helix.yml`
+  AND `workflows/graph.yml` before any Write/Edit) applies even when
+  the artifact has no cascade dependencies. The rule is independent
+  of edge prerequisites.
+
+  Positive contract: a Read tool_use matching
+  `(\.helix\.yml|workflows/graph\.yml)$` precedes the first Write
+  creating the new ADR. The matcher's regex spans both files per plan
+  §15c P13.
+
+  Discrimination (Invariant 3): plugin removal unregisters the skill;
+  the agent may draft an ADR from training but loses the §1.5
+  marker/graph Read-before-Write discipline. Verdict flips from
+  `ordered` to `absent`.
+
+discriminator:
+  assertion_id: read_before_write
+  observable:
+    matcher_type: tool_use_order
+    first_tool: Read
+    second_tool: Write
+    # target_pattern matches either the marker (.helix.yml) OR the
+    # methodology graph (workflows/graph.yml). Plan §15c P13 specifies
+    # the pattern includes BOTH files.
+    target_pattern: '(\.helix\.yml|workflows/graph\.yml)$'
+  expected_in_positive_run: ordered
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      Without methodology-product the helix skill is not registered;
+      its §1.5 ordering rule does not engage. The agent may emit an
+      ADR-shaped Write from training (ADRs are a generic concept), but
+      the strict Read-of-marker-or-graph before Write ordering is
+      skill-specific. Matcher verdict flips from `ordered` to `absent`.
+
+structural:
+  skill_invoked:
+    - name: helix

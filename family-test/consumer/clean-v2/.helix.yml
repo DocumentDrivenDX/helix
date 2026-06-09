@@ -1,0 +1,6 @@
+helix_version: 2
+flows:
+  - id: helix
+    root: docs/helix/
+defaults:
+  flow: helix

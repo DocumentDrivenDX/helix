@@ -261,10 +261,12 @@ cross-reference this table instead of restating the boundary.
 | File, module, and interface changes for one slice | Inherits | Inherits | Owns |
 | Story-scoped test approach, rollback, implementation sequence | Inherits | Inherits | Owns |
 | One architecturally significant decision with alternatives | ADR | ADR | ADR |
-| Exact external interface, schema, or message format | Contract | Contract | Contract |
+| Exact external interface, command, schema, config, telemetry field, event/message format, adapter signature, error semantics, or compatibility rule | Contract | Contract | Contract |
 
 If a level needs a decision owned by a higher level, stop and update the
-governing artifact first — do not redecide it at the lower level.
+governing artifact first — do not redecide it at the lower level. If Solution
+Design or Technical Design discovers missing shared interface surface, update
+or create the Contract first, then reference the Contract by ID.
 
 ## Artifact Selection Guide
 

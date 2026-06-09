@@ -1,0 +1,9 @@
+turns:
+  - user: |
+      Our Grafana monitoring dashboard for the customer-events pipeline
+      can't ship until the hostname `customer-events.metrics.example.com`
+      becomes routable — the outstanding work is captured in
+      `pipelines/customer-events/monitoring-setup.md` (MON-001, status
+      in-progress, linked to DP-001). The on-call team can't reach it
+      during an incident without that DNS record. Figure out the
+      cross-flow work this implies and propose next steps. Use HELIX.

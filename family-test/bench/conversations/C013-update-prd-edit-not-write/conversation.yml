@@ -1,0 +1,9 @@
+turns:
+  - user: |
+      Update PRD-001 at docs/helix/01-frame/PRD-001-coffee-ordering.md to
+      add a fourth requirement (R4): customers can pay with a stored
+      gift-card balance at checkout, including partial redemption when
+      the balance is less than the order total. The PRD is already
+      approved, so preserve the existing frontmatter and the R1-R3
+      wording exactly — only add the new requirement under the
+      Requirements section. Use HELIX.

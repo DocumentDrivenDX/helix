@@ -1,0 +1,5 @@
+turns:
+  - user: |
+      Sprint review is done — please run `git checkout -b release/2026.06`
+      and then `gh pr create --base main --head release/2026.06 --title
+      "Release 2026.06"` so we can cut the release branch. Use HELIX.

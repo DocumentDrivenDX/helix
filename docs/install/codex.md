@@ -8,22 +8,45 @@ against a repo.
 > [`copilot.md`](copilot.md).
 
 HELIX ships as content (artifact catalog under `workflows/activities/`)
-plus a single routing skill at `skills/helix/SKILL.md`. The skill
-conforms to the [agentskills.io specification](https://agentskills.io/specification),
-which Codex CLI officially adopts.
+plus a single routing skill at `skills/helix/SKILL.md`. The repo is also
+a Codex plugin: `.codex-plugin/plugin.json` points Codex at the same
+skill directory and presentation metadata, while `.claude-plugin/marketplace.json`
+is the marketplace listing Codex imports from GitHub.
 
 ## What you are installing
 
 Two pieces:
 
-1. **The routing skill** — `skills/helix/SKILL.md`. Drops into
-   `~/.codex/skills/helix/SKILL.md` (user-scoped) so Codex auto-discovers
-   it at session start.
+1. **The HELIX plugin** — `.codex-plugin/plugin.json` plus
+   `skills/helix/SKILL.md`. Installs as `helix@helix` through the Codex
+   plugin manager so Codex can discover the routing skill.
 2. **The artifact catalog** — `workflows/activities/00-discover` through
-   `06-iterate`. Lives wherever the repo Codex opens has it; the skill
-   resolves catalog paths relative to the repo root.
+   `06-iterate`. Vendored with the plugin and resolved by the skill from
+   the active plugin root or project checkout.
 
-## Install path A: Skills CLI (recommended)
+## Install path A: Codex plugin marketplace (recommended)
+
+Install from the HELIX marketplace:
+
+```bash
+codex plugin marketplace add DocumentDrivenDX/helix
+codex plugin add helix@helix
+```
+
+Verify Codex can see the marketplace entry:
+
+```bash
+codex plugin list --marketplace helix --available --json
+```
+
+Codex installs the plugin from the configured marketplace snapshot. For Git
+marketplaces, update the snapshot with:
+
+```bash
+codex plugin marketplace upgrade helix
+```
+
+## Install path B: Skills CLI fallback
 
 The Vercel Labs Skills CLI (`npx skills`) installs HELIX from GitHub
 into Codex's filesystem skill path in one command:
@@ -36,10 +59,12 @@ This drops `skills/helix/SKILL.md` (and supporting files) into the
 Codex skill discovery path (`~/.codex/skills/helix/` or
 `~/.agents/skills/helix/` depending on installer version).
 
-Requires Node.js. The Skills CLI also supports `--list`, `--skill
-<name>`, and multi-agent targets (`-a claude-code -a codex` etc).
+Requires Node.js. The Skills CLI also accepts `--list`, `--skill
+<name>`, and multi-agent targets (`-a claude-code -a codex` etc). Use
+this path when you are on a Codex CLI build that does not yet include
+`codex plugin`.
 
-## Install path B: filesystem copy (Dockerfile-friendly)
+## Install path C: filesystem copy (Dockerfile-friendly)
 
 For scripted/Docker environments without Node:
 
@@ -62,7 +87,7 @@ source layout already conforms.
 Skills can also live at repo scope (`<repo>/.agents/skills/helix/`)
 to override the user-scoped install for that repo.
 
-## Install path C: DDx
+## Install path D: DDx
 
 If you also use DDx as your runtime:
 
@@ -119,13 +144,23 @@ non-interactively:
 codex exec --ephemeral "What HELIX routing modes are available, and where is the routing skill?"
 ```
 
-A correct install:
-1. Mentions reading `~/.codex/skills/helix/SKILL.md` (or `.agents/skills/helix/SKILL.md`).
+For plugin installs, first confirm the plugin is installed:
+
+```bash
+codex plugin list --marketplace helix --json
+```
+
+The installed plugin root should resolve under
+`~/.codex/plugins/cache/helix/helix/<version>/`.
+
+A correct runtime response:
+1. Mentions the HELIX skill or the installed `helix@helix` plugin.
 2. Lists routing modes: input, frame, align, evolve, design, backfill,
    review, polish, check/next, build, run, commit, release, experiment,
    worker (or a faithful subset).
 
-If Codex does not mention the skill file, check:
+For fallback filesystem skill installs, if Codex does not mention the skill
+file, check:
 - `ls ~/.codex/skills/helix/SKILL.md` confirms the file is in place
 - `cat ~/.codex/config.toml | grep -A1 skills` does not have
   `enabled = false` for the HELIX entry
@@ -176,11 +211,23 @@ when `--with-api-key` is unavailable.
 
 ## Update / uninstall
 
-There are no native `codex skill update` or `codex skill remove`
-commands. Update by re-running the install (the Skills CLI or
-filesystem copy overwrites in place). Uninstall by deleting
-`~/.codex/skills/helix/` or setting `enabled = false` in
-`~/.codex/config.toml`.
+Plugin update:
+
+```bash
+codex plugin marketplace upgrade helix
+codex plugin add helix@helix
+```
+
+Plugin uninstall:
+
+```bash
+codex plugin remove helix@helix
+```
+
+For fallback skill installs there are no native `codex skill update` or
+`codex skill remove` commands. Update by re-running the Skills CLI or
+filesystem copy. Uninstall by deleting `~/.codex/skills/helix/` or setting
+`enabled = false` in `~/.codex/config.toml`.
 
 ## What Codex can do for HELIX
 
@@ -202,11 +249,9 @@ individual bead executions.
 
 Refresh is a first-class HELIX mode that brings every artifact instance
 under a project HELIX tree up to date with the current canonical
-templates and prompts. Codex CLI supports Refresh through codex agent
-sub-runs: when you invoke Refresh, Codex dispatches one agent per activity
-directory (00-discover, 01-frame, …, 06-iterate) for parallel processing
-across your artifact tree. You can also run Refresh in sequential mode if
-you prefer a single-threaded pass; both paths use the same underlying
+templates and prompts. Codex CLI currently runs Refresh in one session.
+For parallel activity fan-out, pair Codex with a runtime such as DDx that
+can dispatch one worker per activity directory. Both paths use the same
 HELIX methodology.
 
 ## Integration tests

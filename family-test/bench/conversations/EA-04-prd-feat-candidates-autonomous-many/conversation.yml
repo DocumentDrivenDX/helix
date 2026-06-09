@@ -1,0 +1,9 @@
+turns:
+  - user: |
+      I need a PRD drafted at docs/helix/01-frame/PRD-001.md that turns
+      the approved VIS-001 vision (morning office-floor beverage ordering
+      against the 09:30 kitchen cutoff) into framed requirements. The
+      team has already been sketching feature-specifications under
+      docs/helix/01-frame/ ahead of the PRD — figure out which of those
+      drafts the PRD should actually inform and propose the ddx.links
+      accordingly; don't just wire every FEAT in the folder. Use HELIX.

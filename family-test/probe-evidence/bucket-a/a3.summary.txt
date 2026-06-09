@@ -1,0 +1,19 @@
+A3 — scope respect
+fixture: bucket-a/a3-scope-respect (.helix.yml scopes helix to services/api/docs/helix/, cwd=repo root)
+plugins: helix-library, helix
+prompt: "Create a PRD."
+
+ASSERT: agent declines OR asks for scope clarification; no writes outside scope
+RESULT: MIXED —
+ - Did ask clarifying question (AskUserQuestion) — partial credit.
+ - Then attempted to Write /workspace/PRD.md (at the repo ROOT, OUTSIDE
+   the scoped methodology subtree services/api/docs/helix/).
+ - Write was blocked by harness permission policy, NOT by the agent's
+   scope-awareness.
+
+The agent did not detect that the requested write target was out of scope.
+On the first run (pre-fix), the agent placed the PRD inside the scoped
+subtree (services/api/docs/helix/PRD.md) — that was the correct behavior.
+On this run, it picked the wrong path. Non-deterministic.
+
+VERDICT: fail — scope respect is not reliable. Single-run sample.

@@ -1,0 +1,36 @@
+tier: must_pass_core
+category: conversation-library
+phase: P5
+status: authored-pending-verification
+notes: |
+  C004 (plan §1.5). Marker active (helix), approved product-vision in
+  the workspace. Prompt "Let's create a PRD" is the happy-path
+  cascade: graph edge `prd informs product-vision` is satisfied
+  (vision exists), so the PRD may be drafted with ddx.links pointing
+  at VIS-001.
+
+  Layer 1 floor: `Skill(helix)` invocation.
+
+  Future-phase Layer 2/3 contract (NOT asserted at P5 floor, but
+  noted for P7+ judge wiring): prose mentions VIS-001 as the
+  informing artifact; the drafted PRD frontmatter populates
+  `ddx.links: [VIS-001]`.
+
+  Discrimination: plugins_remove kills engagement; verdict flips.
+
+discriminator:
+  assertion_id: skill_tool_use
+  observable:
+    matcher_type: skill_tool_use
+    skill_id: helix
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      Without the methodology-product plugin the helix skill cannot
+      load; Claude cannot emit Skill(helix). Verdict: absent.
+
+structural:
+  skill_invoked:
+    - name: helix

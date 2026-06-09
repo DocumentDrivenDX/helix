@@ -1,0 +1,11 @@
+cc_version: 2.1.163
+assertion_id: route_decision
+expected_verdict: present
+description: |
+  Agent routes to helix-web:web via explicit Skill tool_use carrying the
+  instance discriminator. Verifies the routing_observable matcher reads
+  expected_flow_instance + routing_signal=explicit_skill_tool_use.
+params:
+  expected_flow_instance: "helix-web:web"
+  routing_signal: explicit_skill_tool_use
+source: synthetic

@@ -1,0 +1,10 @@
+turns:
+  - user: |
+      Standup is in 20 minutes and I need a project-wide blocked-items
+      readout. Per `.helix.yml` we've got three active HELIX flows —
+      helix under `docs/helix/`, helix-data under `pipelines/orders/`,
+      and helix-infra under `infra/` — each with at least one
+      in-progress artifact (PRD-002, DP-002, NET-001). Walk all three
+      active methodologies and tell me, per flow, what's in-progress
+      and what's holding it. Don't answer from prose — engage each
+      flow's skill so I get the real status, not a summary.

@@ -1,0 +1,4 @@
+{"type":"system","subtype":"init","session_id":"golden-confirmation-before-mutation"}
+{"type":"assistant","message":{"content":[{"type":"text","text":"I'm about to draft the PRD at docs/helix/01-frame/prd.md. Should I proceed?"}]}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Write","input":{"file_path":"/repo/docs/helix/01-frame/prd.md"}}]}}
+{"type":"result","subtype":"success","is_error":false}

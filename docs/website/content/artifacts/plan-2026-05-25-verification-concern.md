@@ -1,7 +1,7 @@
 ---
 title: "Plan — aggressive-verification concern + AC-citation traceability (2026-05-25)"
 slug: plan-2026-05-25-verification-concern
-weight: 510
+weight: 610
 activity: "Design"
 source: "02-design/plan-2026-05-25-verification-concern.md"
 generated: true

@@ -46,7 +46,7 @@ content lives in two places in this repo:
   `workflows/artifact-schema.md` carry the methodology invariants.
 
 When a per-runtime guide and the skill or catalog disagree, the skill
-and catalog win. The guides are about how a particular runtime finds
+and catalog govern. The guides are about how a particular runtime finds
 and invokes this content, not about what the content says.
 
 ## Per-runtime install guides
@@ -65,7 +65,7 @@ DDx is the reference runtime. `ddx install helix` clones HELIX into
 `~/.ddx/plugins/helix/` (uses the Claude Code plugin format, so the
 same content serves both runtimes).
 
-**Best fit for:** the full HELIX-plus-runtime experience. DDx provides
+**Best fit for:** the full HELIX-plus-runtime experience. DDx owns
 the bead queue, execution loop, evidence capture, and worker process
 that drives HELIX modes against a tracked work plan.
 
@@ -79,22 +79,24 @@ claude plugin install helix@helix --scope user -y
 Install via the Claude Code plugin marketplace. The HELIX repo ships
 both the plugin manifest and the marketplace listing.
 
-**Best fit for:** local development with full read/write/search and
-shell access. Supports every HELIX route, including `build` and `run`.
+**Best fit for:** local development with read/write/search and shell
+access. Claude Code can run every HELIX route, including `build` and `run`.
 
 ### [OpenAI Codex CLI](codex.md)
 
 ```bash
-npx skills add DocumentDrivenDX/helix -a codex
+codex plugin marketplace add DocumentDrivenDX/helix
+codex plugin add helix@helix
 ```
 
-Install via the Vercel Labs Skills CLI (the cross-runtime install
-helper from agentskills.io). Drops HELIX into `~/.codex/skills/helix/`
-for filesystem-scan auto-discovery. A direct filesystem-copy fallback
-is available for Dockerfile/no-Node environments.
+Install via Codex's plugin marketplace flow. The HELIX repo ships both
+the Codex plugin manifest and a marketplace listing; the plugin exposes
+the same agentskills.io-compliant routing skill. The Skills CLI and
+direct filesystem-copy paths remain available for older Codex CLI
+versions and Dockerfile/no-Node environments.
 
-**Best fit for:** terminal-native Codex sessions with full agentskills
-spec compliance.
+**Best fit for:** terminal-native Codex sessions that load HELIX through
+the Codex plugin manager.
 
 ### [GitHub Copilot](copilot.md)
 
@@ -134,14 +136,12 @@ or CI pipelines rather than inline.
 
 Refresh is a first-class HELIX mode that brings every artifact instance
 under a project HELIX tree up to date with the current canonical
-templates and prompts. Each runtime supports Refresh with different
-fan-out mechanisms: DDx via `ddx agent run --harness <activity>` per
-activity directory (parallel), Claude Code via the Agent tool per activity
-(parallel), and Codex CLI via `codex agent` sub-runs per activity (parallel).
-Databricks Genie Code and GitHub Copilot do not have sub-agent dispatch,
-so Refresh runs sequentially through each activity directory in order.
-All runtimes use the same underlying HELIX methodology for validation
-and artifact updates.
+templates and prompts. Runtime fan-out differs by host: DDx can dispatch
+one `ddx agent run --harness <activity>` per activity directory, and
+Claude Code can use one Agent tool run per activity. Codex CLI,
+Databricks Genie Code, and GitHub Copilot run Refresh sequentially unless
+an external runtime such as DDx performs the fan-out. All runtimes use
+the same HELIX methodology for validation and artifact updates.
 
 ## Convergence point: agentskills.io
 

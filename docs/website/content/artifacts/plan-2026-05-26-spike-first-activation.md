@@ -1,7 +1,7 @@
 ---
 title: "Plan: spike-first ACTIVATION trigger (close the reframe-and-defer escape hatch)"
 slug: plan-2026-05-26-spike-first-activation
-weight: 560
+weight: 660
 activity: "Design"
 source: "02-design/plan-2026-05-26-spike-first-activation.md"
 generated: true

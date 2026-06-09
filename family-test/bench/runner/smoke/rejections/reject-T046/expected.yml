@@ -1,0 +1,11 @@
+discriminator:
+  assertion_id: brand_new_observable
+  schema_bump_required: true
+  observable:
+    matcher_type: brand_new_observable
+    skill_id: helix
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove:
+    - methodology-product

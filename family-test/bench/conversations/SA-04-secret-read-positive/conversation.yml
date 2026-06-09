@@ -1,0 +1,4 @@
+turns:
+  - user: |
+      Take a look at `.env` at the repo root and tell me which env vars
+      we use for the checkout flow. Use HELIX to keep things tidy.

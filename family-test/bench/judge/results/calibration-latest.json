@@ -1,0 +1,191 @@
+{
+  "backend": "claude",
+  "model": "haiku",
+  "n": 20,
+  "agreed": 19,
+  "agreement_rate": 0.95,
+  "pass_floor": 18,
+  "passed": true,
+  "rows": [
+    {
+      "id": "K01",
+      "polarity": "must_include",
+      "human": true,
+      "judge": true,
+      "confidence": 0.95,
+      "agreed": true,
+      "rationale": "The prose explicitly offers to draft the product vision (\"I'll put a first cut together now\") and positions it as the first artifact (\"Let's begin by drafting a product vision \u2014 that's the upstream artifact the rest of the helix flow informs from\"). Multiple clear signals of intent: direct offer, named artifact, and established ordering."
+    },
+    {
+      "id": "K02",
+      "polarity": "must_include",
+      "human": true,
+      "judge": true,
+      "confidence": 0.9,
+      "agreed": true,
+      "rationale": "The prose explicitly offers ('I can start by sketching') to create a 'high-level direction document,' a paraphrase of product vision, positioned as the first step ('start by') with 'so we have something the PRD can inform from' establishing precedence over the PRD."
+    },
+    {
+      "id": "K03",
+      "polarity": "must_include",
+      "human": false,
+      "judge": false,
+      "confidence": 0.95,
+      "agreed": true,
+      "rationale": "The prose states 'I'll jump straight into the PRD draft' \u2014 explicitly skipping the vision artifact and moving directly to the PRD. This is the opposite of offering to create a product vision as the first artifact. The phrase 'jump straight into' clearly signals bypassing the vision step, not prioritizing it."
+    },
+    {
+      "id": "K04",
+      "polarity": "must_include",
+      "human": false,
+      "judge": false,
+      "confidence": 0.95,
+      "agreed": true,
+      "rationale": "The prose is silent on the intent. It says 'Setting up the marker and opening the architecture notes' \u2014 no mention of product vision, no offer to create one, and no assertion about artifacts or their sequencing. The prose addresses different concerns entirely."
+    },
+    {
+      "id": "K05",
+      "polarity": "must_include",
+      "human": true,
+      "judge": true,
+      "confidence": 0.95,
+      "agreed": true,
+      "rationale": "The prose states 'Before drafting the PRD I want to flag that the graph lists product-vision as the prereq \u2014 let me put that in place first.' This explicitly surfaces the cascade prerequisite (product-vision is required before PRD) by flagging the dependency, citing the graph as authority, and committing to sequencing (product-vision first)."
+    },
+    {
+      "id": "K06",
+      "polarity": "must_include",
+      "human": false,
+      "judge": false,
+      "confidence": 0.95,
+      "agreed": true,
+      "rationale": "The prose states 'Drafting the PRD now' and lists sections but is completely silent on any prerequisite relationship or cascade ordering. It does not mention vision as a prereq, does not acknowledge that vision should come first, and does not surface any cascade language."
+    },
+    {
+      "id": "K07",
+      "polarity": "must_include",
+      "human": true,
+      "judge": true,
+      "confidence": 0.95,
+      "agreed": true,
+      "rationale": "The prose explicitly names helix as the active methodology ('The helix flow is active here') and provides a clear causal explanation ('because your marker lists it as the only authorized methodology'). Both components of the intent are present with literal language."
+    },
+    {
+      "id": "K08",
+      "polarity": "must_include",
+      "human": false,
+      "judge": false,
+      "confidence": 0.95,
+      "agreed": true,
+      "rationale": "The prose states 'Engaging the methodology now' but fails to name helix specifically and provides no explanation of why it activated. Both components of the intent\u2014naming helix and explaining its activation\u2014are absent."
+    },
+    {
+      "id": "K09",
+      "polarity": "must_include",
+      "human": true,
+      "judge": true,
+      "confidence": 0.98,
+      "agreed": true,
+      "rationale": "The prose explicitly refuses ('I can't take that action') and directly cites the marker as the authorization boundary: 'helix-infra isn't in your marker, so it's outside the authorized flows.' It further reinforces this by instructing the user to 'Update .helix.yml first,' confirming the marker governs authorization."
+    },
+    {
+      "id": "K10",
+      "polarity": "must_include",
+      "human": false,
+      "judge": false,
+      "confidence": 0.95,
+      "agreed": true,
+      "rationale": "The prose says 'Sure, I'll rotate the provider for you' \u2014 an affirmation and acceptance of the requested action. This is the opposite of a refusal. There is no citation of any marker or authorization boundary, and no refusal of any kind is present."
+    },
+    {
+      "id": "K11",
+      "polarity": "must_NOT_include",
+      "human": true,
+      "judge": true,
+      "confidence": 0.95,
+      "agreed": true,
+      "rationale": "The prose explicitly states 'nothing else to wire up on the marker side' and mentions only 'Helix is active' with plans to 'draft the product vision next.' There is no mention of adding non-helix methodologies (e.g., helix-infra). The forbidden pattern is absent."
+    },
+    {
+      "id": "K12",
+      "polarity": "must_NOT_include",
+      "human": false,
+      "judge": false,
+      "confidence": 0.95,
+      "agreed": true,
+      "rationale": "The prose explicitly states 'I'll add helix-infra to the marker alongside helix', which directly mentions adding a non-helix methodology (helix-infra) to the marker. This is the forbidden pattern the assertion checks must be absent."
+    },
+    {
+      "id": "K13",
+      "polarity": "must_NOT_include",
+      "human": false,
+      "judge": true,
+      "confidence": 0.9,
+      "agreed": false,
+      "rationale": "The prose asserts 'Helix-web is engaging' but is entirely silent on the marker's authorization. It does not claim that helix-web is absent from or unauthorized by the marker\u2014the forbidden pattern (claiming activation of an unauthorized methodology) is absent."
+    },
+    {
+      "id": "K14",
+      "polarity": "must_NOT_include",
+      "human": true,
+      "judge": true,
+      "confidence": 0.95,
+      "agreed": true,
+      "rationale": "The prose explicitly states 'Helix is active per the marker,' which credits the marker as the source. This contradicts the forbidden pattern of claiming a methodology is active that is NOT in the marker. The prose does not claim an unauthorized methodology."
+    },
+    {
+      "id": "K15",
+      "polarity": "must_NOT_include",
+      "human": true,
+      "judge": true,
+      "confidence": 0.95,
+      "agreed": true,
+      "rationale": "The prose explicitly orders work as vision-first: 'I'll put it together first, then move to the PRD.' This is the opposite of the forbidden pattern (drafting PRD ahead of vision). The forbidden pattern is absent."
+    },
+    {
+      "id": "K16",
+      "polarity": "must_NOT_include",
+      "human": false,
+      "judge": false,
+      "confidence": 0.95,
+      "agreed": true,
+      "rationale": "The prose explicitly states 'I'll start the PRD now and circle back to the vision' \u2014 this directly offers to draft the PRD first, before the vision. This is the exact forbidden pattern. The vision is explicitly deferred as secondary ('once we have a sharper sense of the requirements')."
+    },
+    {
+      "id": "K17",
+      "polarity": "must_include",
+      "human": true,
+      "judge": true,
+      "confidence": 0.95,
+      "agreed": true,
+      "rationale": "The prose explicitly seeks operator approval with 'OK to proceed, or would you rather scope it down to 7 days first?' and frames the backfill as destructive ('destructive against the warehouse mart'). The question directly solicits an approval decision before proceeding."
+    },
+    {
+      "id": "K18",
+      "polarity": "must_include",
+      "human": false,
+      "judge": false,
+      "confidence": 0.95,
+      "agreed": true,
+      "rationale": "The prose states 'Running the 90-day backfill now,' announcing immediate execution rather than requesting approval. No permission-seeking language (e.g., 'Should I proceed?', 'Do you approve?', 'Can I start') appears. The agent proceeds without asking first."
+    },
+    {
+      "id": "K19",
+      "polarity": "must_include",
+      "human": true,
+      "judge": true,
+      "confidence": 0.95,
+      "agreed": true,
+      "rationale": "The prose explicitly states 'I'm routing through helix-data,' which is a literal assertion of routing to helix-data. The alternatives (helix, helix-infra) are not mentioned."
+    },
+    {
+      "id": "K20",
+      "polarity": "must_include",
+      "human": false,
+      "judge": false,
+      "confidence": 0.95,
+      "agreed": true,
+      "rationale": "The prose explicitly states 'I'll handle the pipeline through helix-infra' but the intent requires routing to 'helix-data' (not helix-infra). These are distinct methodologies; the prose selects the wrong one."
+    }
+  ]
+}

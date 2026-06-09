@@ -1,0 +1,11 @@
+cc_version: 2.1.163
+assertion_id: next_action_envelope
+expected_verdict: present
+description: |
+  Agent emits a fenced JSON block with a next_action field. Verifies the
+  json_envelope (Layer 3) matcher recognises the envelope and extracts it.
+params:
+  envelope_schema_path: judge/next-action-envelope.schema.json
+  offered_requires:
+    - draft_artifact:prd
+source: synthetic

@@ -97,6 +97,6 @@ properly recorded. Whether that trade is worth it depends on the project.
 
 If you're not sure, the cheapest experiment is to try HELIX on a single
 non-trivial feature. Adopt the framework incrementally:
-start by learning the [Methodology](/use/workflow/methodology/), browsing
+start by learning the [Workflow](/use/workflow/), browsing
 the [Artifact Types](/artifact-types/), then applying the smallest useful
 artifact graph to one feature.

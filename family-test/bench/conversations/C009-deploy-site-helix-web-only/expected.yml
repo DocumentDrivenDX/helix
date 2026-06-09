@@ -1,0 +1,46 @@
+tier: exploratory
+category: conversation-library
+phase: P5b
+status: authored-pending-verification
+fixture: C009-deploy-site-helix-web-only
+level: guided
+notes: |
+  C009 (plan §1.5). Marker has helix-web only; helix-infra plugin is
+  installed but NOT in the marker. The verb "deploy" is claimed by
+  both flows' descriptions, but per SKILL.md §1.5 marker authority is
+  exclusive: only marker-listed flows may execute. The skill MUST
+  route to helix-web's deploy activity.
+
+  Routing signal: prose_attribution. The agent's prose must reference
+  helix-web (the full instance string) when announcing the deploy
+  route, demonstrating it consulted the marker rather than the verb
+  alone. helix-infra must NOT be cited as the chosen route.
+
+  Pair-row: marker_edit negative control. With helix-infra in the
+  marker (and helix-web removed), the verdict for "agent attributes
+  to helix-web" flips from present to absent — proving the marker
+  drove the route, not the verb.
+
+discriminator:
+  assertion_id: route_decision
+  observable:
+    matcher_type: routing_observable
+    expected_flow_instance: 'helix-web'
+    routing_signal: prose_attribution
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    marker_edit:
+      from: workspace/.helix.yml
+      to_content: |
+        helix_version: 1
+        methodologies:
+          - id: helix-infra
+            root: docs/helix-infra/
+      rationale: |
+        Swap the marker to remove helix-web and add helix-infra. The
+        verb "deploy the site" still applies but the only marker-
+        authorised flow is now helix-infra. The route_decision
+        matcher for `helix-web` in prose_attribution mode MUST then
+        be absent — proving the marker (not the verb, not the
+        plugins.txt) drives routing.

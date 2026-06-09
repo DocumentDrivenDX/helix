@@ -1,0 +1,103 @@
+# Discriminating observable whitelist (typed assertion DSL)
+# Per plan §1.4b — the set of allowed `assertion_id` values, each tied to a
+# specific matcher type. The runner's loader validates against this whitelist.
+#
+# Adding a new assertion_id is a methodology contract change: the runner emits
+# T046 on unknown IDs, so new IDs MUST land here as a coordinated change with
+# the runner and meta-tests.
+
+allowed_assertions:
+  - id: skill_tool_use
+    matcher_type: skill_tool_use
+    matcher_params: [skill_id]              # required
+    description: |
+      Asserts a Skill(<skill_id>) tool_use event appears in stream-json.
+      Positive: present; negative-control: absent (after plugin removal).
+
+  - id: read_before_write
+    matcher_type: tool_use_order
+    matcher_params: [first_tool, second_tool, target_pattern]
+    description: |
+      Asserts a Read(target_pattern) tool_use appears at an earlier index
+      than any Write/Edit. Positive: ordered; negative-control: absent or
+      reversed.
+
+  - id: graph_edge_observed
+    matcher_type: file_read
+    matcher_params: [graph_path, "expected_edge_signature | expected_edge_regex"]
+    description: |
+      Asserts the agent read the methodology graph.yml file. The
+      negative-control swaps the workspace's graph.yml for one lacking
+      the expected_edge_signature/expected_edge_regex; positive must still
+      surface the edge, negative must NOT surface it (proves graph drove
+      the answer, not training). Use expected_edge_signature for exact
+      string match; use expected_edge_regex (case-insensitive) when
+      Sonnet's natural paraphrasing should be accepted.
+
+  - id: scope_write_path
+    matcher_type: write_path_constraint
+    matcher_params: [allowed_root, forbidden_pattern]
+    description: |
+      Asserts all Write/Edit tool_use file_paths fall under allowed_root.
+      Negative-control: plugin removed; agent's writes WILL escape root
+      (proving the marker drove the constraint, not general intuition).
+
+  - id: next_action_envelope
+    matcher_type: json_envelope
+    matcher_params: [envelope_schema_path]
+    description: |
+      Asserts the agent emits a JSON envelope conforming to schema.
+      Layer 3 only — runs in a separate envelope pass (§1.4 ordering
+      constraint).
+
+  - id: confirmation_before_mutation
+    matcher_type: prose_pattern_before_tool
+    matcher_params: [confirmation_marker_pattern, mutation_tools]
+    description: |
+      Asserts the agent emits text matching confirmation_marker_pattern
+      (e.g., "OK to proceed?", "Want me to", "Should I") at an index
+      EARLIER than the first occurrence of any mutation_tools tool_use
+      (default: [Write, Edit, Bash-with-mutation-command]). Covers
+      autonomy=guided/manual "asked before write" and stop_at "explicit
+      confirmation before executing" claims. Negative-control: same
+      workspace with autonomy=autonomous; assertion should fire EXCEPT
+      that no confirmation pattern is required (rows declare the
+      autonomy-level matrix to discriminate).
+
+  - id: refusal_no_write
+    matcher_type: no_mutation_plus_text
+    matcher_params: [refusal_text_pattern]
+    description: |
+      Asserts ZERO Write/Edit tool_use AND prose contains
+      refusal_text_pattern (e.g., authorization-boundary language,
+      stop-on-malformed diagnostic). Covers A4 "rejects unauthorized
+      flow", A6 "stops on malformed marker", and the
+      cross-methodology-edge stop scenario. Negative-control: same
+      prompt with marker that DOES authorize → agent proceeds with
+      Writes; assertion verdict flips.
+
+  - id: literal_or_banner_text
+    matcher_type: text_match
+    matcher_params: [exact_text | regex_pattern, occurrence_count]
+    description: |
+      Asserts the agent's final-turn prose contains a specific literal
+      string OR matches a regex pattern, with required occurrence
+      count. Covers A2b/A6 banner emission ("No .helix.yml found.
+      Activating helix by heuristic..."), explicit marker citation in
+      A4 refusals, and surface-naming claims. Strict by default to
+      prevent paraphrase drift; use regex_pattern when paraphrase is
+      acceptable. Negative-control: agent produces a structurally
+      similar but non-literal output.
+
+  - id: route_decision
+    matcher_type: routing_observable
+    matcher_params: [expected_flow_instance, routing_signal]
+    description: |
+      Asserts the agent's routing decision (per §1.5 / §13.6b
+      resolution chain) lands on the expected_flow_instance tuple.
+      routing_signal options: explicit_skill_tool_use (agent invokes
+      Skill(flow_id, args)), prose_attribution (agent names the flow),
+      first_write_under_root (writes target instance root). Covers
+      multi-instance routing rows, cwd-disambiguation, env override.
+      Negative-control: identical prompt with the expected
+      flow_instance removed from marker.

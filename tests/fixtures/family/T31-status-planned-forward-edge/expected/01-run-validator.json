@@ -1,0 +1,16 @@
+{
+  "assert": "validator_exit",
+  "command": "python3 library/scripts/helix_check.py marker workspace/.helix.yml",
+  "expect_exit_zero": true,
+  "stderr_match_all": [
+    "I103",
+    "PRD-001",
+    "FEAT-999",
+    "(?i)planned|forward"
+  ],
+  "stderr_match_none": [
+    "I101\\s",
+    "(?i)ERROR\\s"
+  ],
+  "rationale": "status: planned downgrades the unresolved-target error I101 to warning I103 in instance mode. The diagnostic must say `planned` so the author knows the downgrade was honored (and not a separate, different warning). I101 (the hard code) must NOT appear — that's the regression signal."
+}

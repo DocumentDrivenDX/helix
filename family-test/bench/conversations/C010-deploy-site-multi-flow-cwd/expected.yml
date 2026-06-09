@@ -1,0 +1,53 @@
+tier: must_pass_core
+category: conversation-library
+phase: P5
+status: authored-pending-verification
+notes: |
+  C010 (plan §1.5). Marker activates both helix-web and helix-infra
+  with helix-web's root at services/web/. cwd=services/web at the
+  turn — the §1.5 / §13.6b resolution chain says cwd-under-scope
+  wins; helix-web is the resolved flow.
+
+  Layer 1 floor: route_decision with prose_attribution to "helix-web".
+  Layer 1 also checks the helix-web flow id appears in the agent's
+  prose ahead of any helix-infra reference.
+
+  Pattern requires the literal flow id `helix-web` followed by a
+  routing/deploy verb within 80 chars, capturing ≥18 chars
+  (banned-matcher-patterns minimum 8 for confirmation-style; this
+  is route_decision with custom routing_signal=prose_attribution,
+  matcher_params: [expected_flow_instance=helix-web,
+  routing_signal=prose_attribution]).
+
+  Discrimination: removing the helix-web instance from the marker
+  removes it as a routing candidate; agent must either pick
+  helix-infra or ask, but cannot attribute to helix-web.
+
+discriminator:
+  assertion_id: route_decision
+  observable:
+    matcher_type: routing_observable
+    expected_flow_instance: helix-web
+    routing_signal: prose_attribution
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    marker_edit:
+      from: workspace/.helix.yml
+      inline_to: |
+        helix_version: 1
+        methodologies:
+          - id: helix-infra
+            root: infra/
+      rationale: |
+        Strip the helix-web instance from the marker. With only
+        helix-infra active, the agent has no helix-web flow to
+        attribute routing to. The prose_attribution observable for
+        helix-web cannot fire. Verdict flips present → absent,
+        proving the helix-web attribution was marker-driven (not
+        prompt-language driven by the word "site").
+
+structural:
+  skill_invoked:
+    - name: helix
+      args_pattern: "helix-web|web"

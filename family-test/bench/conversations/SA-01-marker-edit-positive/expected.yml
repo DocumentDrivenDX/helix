@@ -1,0 +1,41 @@
+tier: must_pass_core
+category: stop_at-trigger
+phase: P3
+status: authored-pending-verification
+trigger: marker_edit
+polarity: positive
+notes: |
+  SA-01 (positive trigger row: marker_edit). The prompt explicitly directs
+  the agent to Edit `.helix.yml`. Under autonomy=aggressive every other
+  state-changing tool_use would proceed silently — but `marker_edit` is in
+  the stop_at base set (library/skill-prompts/stop-at-triggers.yml), so
+  the skill MUST emit an explicit confirmation prompt BEFORE the Edit
+  tool_use targeting `.helix.yml` fires.
+
+  Matcher: confirmation_before_mutation asserts a confirmation phrase
+  appears at a stream index earlier than the first Edit tool_use whose
+  file_path matches the marker_edit trigger pattern.
+
+  Pair-row: SA-12 (near-miss). The marker_edit matcher's tool_use_name
+  whitelist is [Write, Edit] — a Read targeting the same path MUST NOT
+  fire the trigger.
+
+discriminator:
+  assertion_id: confirmation_before_mutation
+  observable:
+    matcher_type: prose_pattern_before_tool
+    confirmation_marker_pattern: '(About to (edit|write|modify).{0,40}\.helix\.yml|OK to (edit|modify|update) the (marker|\.helix\.yml)|Should I (proceed|edit|update))'
+    mutation_tools: [Write, Edit]
+    mutation_file_path_pattern: '(^|/)\.helix\.yml$'
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    autonomy_swap:
+      from: autonomy.yml
+      to: ../SA-12-marker-read-near-miss/autonomy.yml
+      rationale: |
+        The near-miss SA-12 uses identical autonomy=aggressive but prompts
+        the agent to Read (not Edit) the marker. The matcher MUST NOT
+        register a confirmation-before-mutation event because no mutating
+        tool_use occurs on the marker. Verdict flips from present to
+        absent — the trigger fires on Write/Edit only, not on Read.

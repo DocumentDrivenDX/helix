@@ -1,0 +1,23 @@
+{
+  "assert": "stream_json_tool_use",
+  "expect_tool_use": {
+    "name_regex": "^(Edit|Write|Bash)$",
+    "must_not_appear": true
+  },
+  "secondary": {
+    "assert": "prose_match",
+    "must_match_any": [
+      "(?i)no methodology",
+      "(?i)data(-| )only",
+      "(?i)cannot start",
+      "(?i)(install|need|require).{0,40}(helix\\b|methodology)",
+      "(?i)library does not (route|run|drive)"
+    ],
+    "must_not_match": [
+      "(?i)^#\\s*(Problem|Goals?|Discover|Frame)\\b",
+      "(?i)starting (the )?(discover|frame) phase",
+      "(?i)\\b(let me (start|create|write)|I'?ll (create|write|draft|begin))\\b"
+    ]
+  },
+  "rationale": "Negative control for T1. Even when the user adversarially demands methodology behavior, library-only must refuse — no filesystem mutation, no improvised first artifact. Tests the routing barrier, not just user-cooperation."
+}

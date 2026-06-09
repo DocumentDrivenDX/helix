@@ -108,7 +108,10 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
 
 Each requirement should trace to the Product Vision and be specific enough to
 drive feature specs, designs, tests, and implementation work without embedding
-the detailed design here.
+the detailed design here. Exact command invocations, CLI flags, endpoints,
+schemas, payloads, error codes, config keys, telemetry fields, event shapes,
+and adapter signatures belong in `02-design/contracts/`, not in PRD
+requirements.
 
 ### Must Have (P0)
 
@@ -124,11 +127,13 @@ the detailed design here.
 
 ## Functional Requirements
 
-[Detailed behavioral requirements grouped under canonical `### Subsystem: <name>`
-headings. Each requirement is testable, and each `FR-n` belongs to exactly one
-subsystem. A subsystem is a cohesive product capability — the unit that maps to
-~one feature spec (`FEAT-NNN`). The PRD owns breadth (all subsystems + `FR-n` +
-priority); feature specs own each subsystem's depth.
+[Product-level capability and outcome requirements grouped under canonical
+`### Subsystem: <name>` headings. Each requirement is testable without defining
+exact API, CLI, event, schema, config, telemetry, or adapter surface. Each
+`FR-n` belongs to exactly one subsystem. A subsystem is a cohesive product
+capability — the unit that maps to ~one feature spec (`FEAT-NNN`). The PRD owns
+breadth (all subsystems + `FR-n` + priority); feature specs own each subsystem's
+depth, and Contracts own exact shared interface surfaces.
 
 Each functional requirement carries a **stable `FR-n` ID** (e.g. `FR-1`). The ID
 survives edits so downstream artifacts trace to a specific requirement by name:
@@ -138,12 +143,12 @@ them sequentially; do not renumber on edit.]
 
 ### Subsystem: [Name — a cohesive capability that becomes ~one FEAT]
 
-- **FR-1** — [behavioral requirement, testable]
-- **FR-2** — [behavioral requirement, testable]
+- **FR-1** — [product capability or outcome requirement, testable]
+- **FR-2** — [product capability or outcome requirement, testable]
 
 ### Subsystem: [Name]
 
-- **FR-3** — [behavioral requirement, testable]
+- **FR-3** — [product capability or outcome requirement, testable]
 
 ### (kind: data) Data Quality Requirements
 

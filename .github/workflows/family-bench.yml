@@ -1,0 +1,206 @@
+# HELIX conversation-bench CI (plan §15c P14, §19.2).
+#
+# Three triggers:
+#   pull_request — diff the PR, select affected categories via
+#                  diff-to-category.py, run only that subset (≤$10/PR target)
+#   push (main)  — run the full bench, update ratchet baselines
+#   schedule     — nightly partial; weekly full + calibration (placeholders)
+#
+# `self_test` (matcher + meta + property + golden + CC version check) runs
+# unconditionally. Everything else is gated on the diff selection so a
+# README-only PR costs $0 in model calls.
+
+name: family-bench
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      categories:
+        description: "Override category list (comma-separated)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  pull-requests: write   # allow ratchet-regression comment on PRs
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Diff → category selection. PRs go through diff-to-category.py; main and
+  # workflow_dispatch run the full bench (or override).
+  # ---------------------------------------------------------------------------
+  select-categories:
+    runs-on: ubuntu-latest
+    outputs:
+      categories: ${{ steps.compute.outputs.categories }}
+      categories_json: ${{ steps.compute.outputs.categories_json }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # need base..HEAD for `git diff --name-only`
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install PyYAML
+        run: pip install PyYAML
+
+      - name: Compute affected categories
+        id: compute
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapper=family-test/bench/runner/diff-to-category.py
+
+          case "${{ github.event_name }}" in
+            pull_request)
+              base="${{ github.event.pull_request.base.sha }}"
+              head="${{ github.event.pull_request.head.sha }}"
+              git diff --name-only "$base...$head" > /tmp/diff.txt
+              echo "Changed files:" && cat /tmp/diff.txt
+              python3 "$mapper" --diff /tmp/diff.txt --json > /tmp/result.json
+              ;;
+            push)
+              # main merge: run the full bench unconditionally
+              echo "main merge → full bench"
+              python3 "$mapper" --files unknown/forces/full.bench --json > /tmp/result.json
+              ;;
+            workflow_dispatch)
+              override="${{ inputs.categories }}"
+              if [[ -n "$override" ]]; then
+                echo "workflow_dispatch override: $override"
+                python3 -c "import json; print(json.dumps({'categories': '$override'.split(',')}))" > /tmp/result.json
+              else
+                python3 "$mapper" --files unknown/forces/full.bench --json > /tmp/result.json
+              fi
+              ;;
+          esac
+
+          cat /tmp/result.json
+          cats=$(python3 -c "import json; print(' '.join(json.load(open('/tmp/result.json'))['categories']))")
+          cats_json=$(python3 -c "import json; print(json.dumps(json.load(open('/tmp/result.json'))['categories']))")
+          echo "categories=$cats" >> "$GITHUB_OUTPUT"
+          echo "categories_json=$cats_json" >> "$GITHUB_OUTPUT"
+
+  # ---------------------------------------------------------------------------
+  # Acceptance tests for the mapper itself. Must pass before any category job
+  # runs (so a broken mapper can't silently skip coverage).
+  # ---------------------------------------------------------------------------
+  mapper-acceptance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install PyYAML
+        run: pip install PyYAML
+      - name: Run diff-to-category acceptance tests
+        run: python3 family-test/bench/runner/test_diff_to_category.py
+
+  # ---------------------------------------------------------------------------
+  # Always-on self-test. Plan §18.4: meta-test fails → bench refuses to grade
+  # anything. We run it before any priced model call so a broken bench can't
+  # quietly burn budget.
+  # ---------------------------------------------------------------------------
+  self-test:
+    runs-on: ubuntu-latest
+    needs: [select-categories, mapper-acceptance]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install PyYAML
+        run: pip install PyYAML
+      - name: Verify CC version pin present
+        run: test -f family-test/bench/cc-version.lock
+      - name: Warn if CC version re-validation is overdue
+        # Advisory: prints WARN to the workflow log if cc-version.lock's
+        # re_validation_required_after has passed. Never fails the job —
+        # see family-test/bench/docs/cc-version-revalidation.md.
+        run: bash family-test/bench/runner/check-cc-revalidation.sh
+      - name: helix_bench self-test (matcher + meta + property + golden)
+        run: python3 family-test/bench/runner/helix_bench.py self-test
+
+  # ---------------------------------------------------------------------------
+  # Run the selected category subset. Each job is a matrix entry. Skip if the
+  # category was not selected by the diff mapper (`contains(...)` guard).
+  #
+  # NOTE: actual `helix_bench run <category>` invocation is wired in P11/P12
+  # bench-row sweep work; for P14 we wire the SELECTION + SELF-TEST + RATCHET
+  # READING gates. The per-category `helix_bench run` step is a placeholder
+  # that exits 0 today and will be replaced as each category's row sweep
+  # lands.
+  # ---------------------------------------------------------------------------
+  bench:
+    runs-on: ubuntu-latest
+    needs: [select-categories, self-test]
+    strategy:
+      fail-fast: false
+      matrix:
+        category:
+          - conversation
+          - routing
+          - autonomy
+          - stop_at
+          - graph_discrim
+          - edge_asymmetry
+          - cross_flow
+          - multi_instance
+          - cross_instance
+          - rename_compat
+          - warm_context
+          - verbose_stuck
+          - meta
+    steps:
+      - name: Skip if category not selected
+        id: gate
+        run: |
+          selected="${{ needs.select-categories.outputs.categories }}"
+          if [[ " $selected " == *" ${{ matrix.category }} "* ]]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Category ${{ matrix.category }} not selected — skipping"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.run == 'true'
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.run == 'true'
+        with:
+          python-version: "3.12"
+      - name: Run category (placeholder until P11/P12 sweep wires real run)
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          echo "category=${{ matrix.category }} would invoke helix_bench"
+          # Wired in subsequent phases:
+          # python3 family-test/bench/runner/helix_bench.py run \
+          #   --category ${{ matrix.category }} --determinism 3
+
+  # ---------------------------------------------------------------------------
+  # Ratchet check (plan §19.4). Runs after the category bench jobs settle.
+  # On PR: warns on regression. On main: updates baselines and fails on
+  # regression beyond tolerance.
+  # ---------------------------------------------------------------------------
+  ratchets:
+    runs-on: ubuntu-latest
+    needs: [self-test, bench]
+    if: always() && !cancelled()
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Read ratchets baseline
+        run: |
+          python3 -c "import json; d=json.load(open('family-test/bench/ratchets.json')); print('ratchets:', list(d['ratchets'].keys()))"
+      - name: Ratchet check (placeholder until baselines established)
+        run: |
+          echo "Ratchet streams: stable_pass_rate, routing_precision, cost_per_run, dev_iteration_burn"
+          echo "Baselines are NULL until first post-P14 main-merge run; gating activates after."

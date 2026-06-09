@@ -1,0 +1,41 @@
+tier: must_pass_core
+category: graph-discrimination
+phase: P2
+status: authored-pending-verification
+notes: |
+  CD-02 (positive control to CD-01): identical workspace and prompt to CD-01,
+  but the graph.yml does NOT carry the non-standard
+  `stakeholder-impact-assessment-CDE-a7f3 requires prd` edge. The skill must
+  engage, read the graph, and proceed with the PRD WITHOUT surfacing a
+  stakeholder-impact-assessment-CDE-a7f3 prerequisite — because no such edge
+  is declared. This is the row that guarantees the CD-01 surfacing was
+  graph-driven, not training-driven.
+
+  The edge name is intentionally project-local and invented
+  (stakeholder-impact-assessment-CDE-a7f3). It has no canonical HELIX
+  existence and cannot be recalled from training knowledge — defeating the
+  training-memory shortcut where the model surfaces a plausible HELIX artifact
+  name without actually reading the graph. The file_read matcher fires only
+  when read_indices is non-empty AND the edge name appears in prose.
+
+  Verdicts flip by virtue of the workspace's graph content alone.
+
+discriminator:
+  assertion_id: graph_edge_observed
+  observable:
+    matcher_type: file_read
+    graph_path: 'methodology-product/workflows/graph\.yml$'
+    expected_edge_signature: 'stakeholder-impact-assessment-CDE-a7f3'
+  expected_in_positive_run: absent
+  expected_in_negative_run: present
+  negative_control:
+    graph_swap:
+      from: workspace/.helix-fixture/methodology-product/workflows/graph.yml
+      to: workspace/.helix-fixture-negative/methodology-product/workflows/graph.yml
+      rationale: |
+        Swap in the local negative-control graph (which DECLARES the
+        non-standard stakeholder-impact-assessment-CDE-a7f3 edge). The edge
+        name is intentionally un-guessable from training — the skill must
+        READ the graph to surface it. Verdict flips from absent to present,
+        proving the row discriminates on graph content rather than model
+        weights.

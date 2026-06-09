@@ -1,0 +1,55 @@
+tier: must_pass_core
+category: conversation-library
+phase: P5
+status: authored-pending-verification
+notes: |
+  CF-02 (plan §1.5 + §14.1). Marker has helix-data + helix-infra at
+  separate scopes (pipelines/customer-events/ vs infra/). The
+  helix-data flow has monitoring-setup.md (in-progress) whose prose
+  says "dashboard URL needs DNS." Prompt "The monitoring dashboard
+  needs a DNS record. Set this up." is a canonical cross-flow ask.
+
+  Per plan §14.1: helix-data engages FIRST (monitoring dashboard
+  owner — must read monitoring-setup.md to ground the plan); then
+  surfaces the helix-infra cross-flow prerequisite (DNS record)
+  rather than setting up DNS in a vacuum.
+
+  Layer 1 floor at P5: route_decision lands on helix-data (the
+  first-engaged flow) via explicit_skill_tool_use signal. Cross-flow
+  handoff to helix-infra is graded by Layer 2/3 at P7+.
+
+  Discrimination: plugins_remove the helix-data skill — the prompt
+  loses its first-engaged flow (helix-infra doesn't own "monitoring
+  dashboard"); agent sets up DNS in a vacuum and the routing
+  observable for helix-data cannot fire.
+
+  Standalone cross-flow row (codex review feedback): isolates
+  helix-data→helix-infra discrimination from C021/C022/C025 which
+  carry single-flow floors.
+
+discriminator:
+  assertion_id: route_decision
+  observable:
+    matcher_type: routing_observable
+    expected_flow_instance: helix
+    routing_signal: explicit_skill_tool_use
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [helix]
+    rationale: |
+      Post canonical-promotion (single skill, internal routing modes
+      product/infra/data/web), this cross-flow DNS-pipeline ask routes
+      to the canonical helix skill (internally to the data mode that
+      reads monitoring-setup.md and surfaces the cross-flow infra
+      prerequisite). With the canonical helix plugin removed, no Skill
+      tool_use can fire — the agent lacks marker/graph context and
+      sets up DNS in a vacuum. Verdict flips present → absent, proving
+      engagement was skill-driven (not prompt-language driven by the
+      words "dashboard" or "DNS"). (Originally targeted helix-data
+      under the multi-flow research design; updated post canonical-
+      skill collapse.)
+
+structural:
+  skill_invoked:
+    - name: helix-data

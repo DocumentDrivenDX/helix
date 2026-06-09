@@ -1,0 +1,10 @@
+# Docker harness scratch space (evidence files, prompt staging).
+.tmp/
+
+# Python caches.
+__pycache__/
+*.pyc
+
+# Bucket F perf corpora — generated, do not commit (5000 docs is huge).
+# Re-create with: python3 probe-evidence/bucket-f/gen_corpus.py <N> perf-corpus-<N>
+perf-corpus-*/

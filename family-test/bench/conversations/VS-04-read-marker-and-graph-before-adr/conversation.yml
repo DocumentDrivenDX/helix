@@ -1,0 +1,3 @@
+turns:
+  - user: |
+      Record an ADR for choosing Postgres as the primary datastore.

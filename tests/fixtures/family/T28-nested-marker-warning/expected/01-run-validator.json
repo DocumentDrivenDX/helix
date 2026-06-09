@@ -1,0 +1,21 @@
+{
+  "assert": "validator_exit",
+  "command": "python3 library/scripts/helix_check.py marker workspace/.helix.yml --json-out workspace/result.json",
+  "expect_exit_zero": true,
+  "stderr_match_all": [
+    "M010",
+    "services/api/\\.helix\\.yml",
+    "(?i)nested|stray|reserved"
+  ],
+  "stderr_match_none": [
+    "(?i)ERROR\\s"
+  ],
+  "filesystem_assert": {
+    "path": "workspace/result.json",
+    "json_path_match": {
+      "$.summary.W": ">=1",
+      "$.violations[?(@.code == 'M010')].location": "services/api/.helix.yml"
+    }
+  },
+  "rationale": "M010 fires once per stray marker (here, services/api/.helix.yml). Warning, not error: exit 0 under defaults. Diagnostic names the stray path and references the reserved-for-v2 semantics. The JSON output records the violation so CI tooling can act on it independently of stderr parsing."
+}

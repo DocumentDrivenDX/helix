@@ -5,8 +5,9 @@
 #   default (PR-safe): copy skills/helix/ from the mounted local checkout, so
 #     the scenario validates THIS revision without fetching from GitHub.
 #   TEST_PUBLISHED=1 (post-merge smoke): run the REAL documented command,
-#     `npx skills add DocumentDrivenDX/helix -a codex`, which fetches the
-#     published skill from GitHub the way the docs tell users to.
+#     `codex plugin marketplace add DocumentDrivenDX/helix` and
+#     `codex plugin add helix@helix`, which fetch the published plugin from
+#     GitHub the way the docs tell users to.
 
 set -euo pipefail
 
@@ -21,8 +22,9 @@ fi
 
 if [[ "${TEST_PUBLISHED:-}" == "1" ]]; then
   echo
-  echo "→ real Skills CLI install from the published repo"
-  npx --yes skills add DocumentDrivenDX/helix -a codex
+  echo "→ real Codex plugin install from the published repo"
+  codex plugin marketplace add DocumentDrivenDX/helix
+  codex plugin add helix@helix
 else
   echo
   echo "→ placing skills/helix/ under ~/.codex/skills/ (PR-safe)"

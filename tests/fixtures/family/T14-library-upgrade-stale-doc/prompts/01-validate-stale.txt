@@ -1,0 +1,1 @@
+Run the library validator against docs/helix/01-frame/prd.md. The library has just been upgraded to 1.1.0 (see workspace/library-overlay/types/prd.yml). Report whether the existing doc is flagged.

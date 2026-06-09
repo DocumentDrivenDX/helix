@@ -1,0 +1,30 @@
+D2 — dry-run against real corpus
+
+invocations:
+  python3 family-test/library/scripts/migrate_relationships_to_links.py docs/helix --dry-run
+  python3 family-test/library/scripts/migrate_relationships_to_links.py docs --dry-run
+  python3 family-test/library/scripts/migrate_relationships_to_links.py workflows --dry-run
+
+results:
+  docs/helix : scanned=96  would-edit=0
+  docs       : scanned=496 would-edit=0
+  workflows  : scanned=308 would-edit=0
+
+interpretation:
+  The real corpus has NO instance files carrying legacy `relationships:` or
+  top-level `depends_on:` frontmatter keys today. Confirmed independently with
+
+      grep -rlE "^(relationships|depends_on):" docs/ workflows/
+
+  (no matches — only design-doc mentions of the keys in body prose, which
+  the script correctly ignores because they're not in frontmatter).
+
+  Migration risk against real corpus: NONE — nothing to migrate, so the
+  --apply pass would be a no-op. The script's value is forward-looking:
+  it guards against new legacy frontmatter sneaking in (via
+  --require-clean in CI) and provides the migration path for downstream
+  consumers (helix-infra, datahelix, external) that still carry the
+  legacy shape.
+
+  Per user instruction, --apply was NOT run against the real corpus.
+  D2 stays dry-run-only.

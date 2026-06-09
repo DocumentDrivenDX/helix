@@ -1,0 +1,27 @@
+{
+  "assert": "stream_json_tool_use",
+  "expect_tool_use": {
+    "name_regex": "^Write$",
+    "path_regex": "^docs/adr/\\d{4}.*\\.md$",
+    "exactly_one": true
+  },
+  "forbid_tool_use": [
+    {
+      "name_regex": "^Write$",
+      "path_regex": "^docs/helix/"
+    }
+  ],
+  "secondary": {
+    "assert": "prose_match",
+    "must_match_any": [
+      "(?i)no \\.helix\\.yml",
+      "(?i)\\.helix\\.yml.*absent",
+      "(?i)heuristic",
+      "(?i)init-marker"
+    ],
+    "must_not_match": [
+      "(?i)helix-library.*(not installed|missing)"
+    ]
+  },
+  "rationale": "Marker absent + *.tf signal → heuristic fallback resolves to helix-infra. Banner required. exactly_one cap. Regression guard for the infra branch of the FROZEN fallback path."
+}

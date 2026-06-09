@@ -1,0 +1,59 @@
+tier: must_pass_core
+category: conversation-library
+phase: P5
+status: authored-pending-verification
+notes: |
+  CF-03 (plan §1.5 + §14.1). Marker has all three flows: helix,
+  helix-data, helix-infra. Each flow has at least one in-progress
+  artifact in its scope. Prompt "What's blocked across the project?"
+  is a canonical multi-flow status query.
+
+  Per plan §14.1: a project-wide status query MUST engage all
+  active flows so each can report its own in-progress work. The
+  agent MUST NOT answer from prose/training alone.
+
+  Layer 1 floor at P5: skill_tool_use for helix-data. helix-data
+  is the most plugin-discriminating flow for this row — the
+  negative control removes all three methodology plugins (only
+  `library` remains), unregistering every flow skill; the
+  Skill(helix-data) tool_use cannot fire. The "all three engage"
+  property is graded at Layer 2/3 when the judge is wired (P7+);
+  the structural block records all three flows for that pass.
+
+  Discrimination: plugins_remove all three methodology plugins
+  (keep only library) — no per-flow skill is registered; agent
+  answers from prose/general knowledge with no per-flow status
+  query. Skill(helix-data) tool_use cannot fire.
+
+  Standalone cross-flow row (codex review feedback): isolates the
+  multi-flow status-query pattern from C021/C022/C025 which carry
+  single-flow floors.
+
+discriminator:
+  assertion_id: skill_tool_use
+  observable:
+    matcher_type: skill_tool_use
+    skill_id: helix
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [helix]
+    rationale: |
+      Post canonical-promotion (single skill, internal routing modes),
+      the project-wide cross-flow status query is the canonical helix
+      skill's "Check And Next" / cross-flow internal mode. With the
+      canonical helix plugin removed, no Skill tool_use can fire — the
+      agent can only answer from prose/training/general knowledge and
+      cannot query the workspace marker or graph for cross-flow status.
+      Verdict flips present → absent, proving cross-flow engagement
+      was skill-driven, not prompt-language driven by the words
+      "blocked" or "project". (Originally targeted skill_id: helix-data
+      under the multi-flow research design; updated to skill_id: helix
+      after the canonical-skill collapse — see docs/helix/02-design/
+      phase7-results-2026-06-08.md.)
+
+structural:
+  skill_invoked:
+    - name: helix
+    - name: helix-data
+    - name: helix-infra

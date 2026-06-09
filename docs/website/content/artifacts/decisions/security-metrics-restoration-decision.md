@@ -1,7 +1,7 @@
 ---
 title: "Security Metrics — Restoration Decision"
 slug: security-metrics-restoration-decision
-weight: 810
+weight: 1000
 activity: "Iterate"
 source: "06-iterate/decisions/security-metrics-restoration-decision.md"
 generated: true

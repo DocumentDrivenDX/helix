@@ -1,0 +1,32 @@
+tier: must_pass_core
+category: cross-instance-lineage
+phase: P11
+status: authored-pending-verification
+notes: |
+  CI-03: cross-instance happy path. Multi-instance marker
+  (helix.api + helix.admin), FEAT-014 declares `informed_by` against
+  the healthy admin-instance PRD-007, the api graph's `external_edges`
+  authorises the cross-instance kind. The validator must report a
+  clean exit (no I130/I131). The skill must resolve the lineage and
+  name PRD-007 alongside its status (drafted) without any stale-target
+  prose.
+
+  Paired with CI-01 (stale-target swap) and CI-02 (rename impact swap).
+  This row is the canonical positive control for both negatives.
+
+discriminator:
+  assertion_id: literal_or_banner_text
+  observable:
+    matcher_type: text_match
+    regex_pattern: 'PRD-007[^\n]{0,80}(drafted|healthy|current|active)|informed_by[^\n]{0,80}PRD-007'
+    occurrence_count: 1
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    workspace_swap:
+      from: workspace/services/admin/01-frame/PRD-007-pricing.md
+      to: ../CI-01-cross-instance-stale-target/workspace/services/admin/01-frame/PRD-007-pricing.md
+      rationale: |
+        Swap in CI-01's superseded PRD-007. The skill must now surface
+        stale-target prose (matched by CI-01's regex), and the
+        "drafted/healthy/current/active" pattern here MUST NOT fire.

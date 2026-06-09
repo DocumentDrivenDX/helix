@@ -1,0 +1,1 @@
+List the document types you know about. Then start the discover phase. Then create an ADR for picking Postgres.

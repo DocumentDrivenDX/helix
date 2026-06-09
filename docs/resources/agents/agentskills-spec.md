@@ -18,8 +18,8 @@ ddx:
 An open standard for packaging AI-agent "skills" as a directory
 containing a `SKILL.md` markdown file with YAML frontmatter. Adopted by
 30+ tools by March 2026 including Claude Code, OpenAI Codex CLI, Cursor,
-VS Code with Copilot, Gemini CLI, and Databricks Genie Code. Provides a
-common skill format so a single skill source can be installed across
+VS Code with Copilot, Gemini CLI, and Databricks Genie Code. The spec defines
+a common skill format so a single skill source can be installed across
 multiple runtimes without forking.
 
 ## File layout
@@ -108,7 +108,7 @@ install path.
   should be referenced from the skill body, not inlined. The catalog
   already lives outside the skill directory, which fits the spec's
   progressive-disclosure intent.
-- Cross-runtime install via `npx skills add easel/helix` could work for
+- Cross-runtime install via `npx skills add DocumentDrivenDX/helix` works for
   local-agent installs (Claude Code, Codex CLI). It does not work for
   Genie Code workspace installs or for DDx; those have their own paths.
 

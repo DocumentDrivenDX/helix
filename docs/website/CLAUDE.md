@@ -7,6 +7,9 @@ drafting or editing one.
 
 This guide governs the hand-authored narrative: `_index.md` and the pages under
 `why/`, `use/`, `install/`, `platforms/`, `skills/`, and `reference/`.
+It extends the methodology-level Documentation Voice contract in
+[`workflows/conventions.md`](../../workflows/conventions.md); these site rules
+are stricter editorial guidance for public pages, not a separate HELIX voice.
 
 It does not govern the generated and published trees, which are projections of
 upstream sources and must be edited there, not here:

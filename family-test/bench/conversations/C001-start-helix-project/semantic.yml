@@ -1,0 +1,11 @@
+# C001 Layer 2 (semantic) assertions — plan §1.4b + §6.7.
+# Layer 1 (skill_tool_use) is the floor. Layer 2 grades whether the agent's
+# prose accompanying the skill invocation surfaces the right framing.
+
+prose_must_include:
+  - intent: "Offers to create a product vision as the first artifact"
+  - intent: "Names the active methodology (helix) and why it activated"
+
+prose_must_NOT_include:
+  - intent: "Mentions adding a non-helix methodology (e.g. helix-infra)"
+  - intent: "Claims a methodology is active that's not in the marker"

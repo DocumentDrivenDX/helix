@@ -1,0 +1,36 @@
+tier: must_pass_core
+category: cross-instance-lineage
+phase: P11
+status: authored-pending-verification
+notes: |
+  CI-02: cross-instance rename impact. The admin instance renamed
+  PRD-007 → PRD-008. Two api-instance features (FEAT-014, FEAT-015)
+  still declare `informed_by` against `helix.admin:PRD-007`. The
+  validator emits I131 once per orphan downstream; the skill must
+  produce an impact list that names BOTH FEAT-014 AND FEAT-015 so the
+  operator can re-pin in one pass.
+
+  Validator gate (plan §6.10c / P11 acceptance):
+    helix_check.py marker emits I131 listing both
+    `services/api/01-frame/FEAT-014-billing.md` and FEAT-015 within
+    100ms — the impact-analysis source of truth.
+
+  Discriminator: skill's prose must mention BOTH feature ids in its
+  impact list (one occurrence each minimum).
+
+discriminator:
+  assertion_id: literal_or_banner_text
+  observable:
+    matcher_type: text_match
+    regex_pattern: 'FEAT-014[\s\S]*FEAT-015|FEAT-015[\s\S]*FEAT-014'
+    occurrence_count: 1
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    workspace_swap:
+      from: workspace/services/api/01-frame/FEAT-015-receipts.md
+      to: ../CI-03-cross-instance-happy-path/workspace/services/api/01-frame/FEAT-015-receipts.md
+      rationale: |
+        CI-03's FEAT-015 either points at the renamed id (PRD-008) or
+        is absent. With only one downstream remaining the impact list
+        is a single entry; the "both ids" regex must not fire.

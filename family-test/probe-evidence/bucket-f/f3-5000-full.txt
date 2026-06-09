@@ -1,0 +1,5 @@
+[run] f3-5000-full corpus=perf-corpus-5000 extra=
+  exit_code=0
+  wall_clock_s=19.104
+  findings=0
+  docs_in_corpus=5000

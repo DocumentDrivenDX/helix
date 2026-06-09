@@ -1,0 +1,3 @@
+{"type":"system","subtype":"init","session_id":"golden-next-action-envelope"}
+{"type":"assistant","message":{"content":[{"type":"text","text":"Here is the next action envelope:\n```json\n{\"next_action\": \"draft_artifact:prd\", \"offered\": [\"draft_artifact:prd\", \"consult_graph:product-vision-informs-prd\"], \"not_offered\": [\"draft_artifact:product-vision\"], \"reason\": \"product-vision is already approved; graph says prd is the next downstream frame artifact.\", \"requires_confirmation\": false}\n```"}]}}
+{"type":"result","subtype":"success","is_error":false}

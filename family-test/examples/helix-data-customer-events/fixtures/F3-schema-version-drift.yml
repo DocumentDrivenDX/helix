@@ -1,0 +1,50 @@
+---
+id: F3
+slug: schema-version-drift
+title: Schema version drift
+category: schema-evolution
+scenario: |
+  On Tuesday 2026-06-02, Stripe added an optional currency_conversion object to checkout.session.completed. The object included source_currency, target_currency, and exchange_rate fields and appeared in 9,814 raw_events records that week.
+
+  On Friday 2026-06-05, an internal billing-v2 producer changed amount on customer.subscription.created from an integer number of cents to a formatted string such as "$42.00". The change affected 1,206 events before the producer team noticed the Redshift load errors.
+
+  Both changes landed in the same customer-events Kinesis stream and were processed by the same Glue schema-validation stage. The additive Stripe block should be accepted under a compatible contract version, while the amount type change should be treated as breaking.
+
+  The symptom was confusing: checkout.session.completed continued to load, while customer.subscription.created records accumulated validation failures. The fixture tests whether the method distinguishes additive-safe drift from breaking drift and routes the breaking change through evolution-plan and deprecation-notice.
+adversarial_signal: |
+  If the methodology treats all drift the same, teams either block safe Stripe additions or silently accept destructive type changes. Blocking every additive field creates operational noise; accepting a cents-to-string amount change corrupts revenue facts.
+
+  The blast radius is direct revenue misstatement. A string value like "$42.00" can be parsed inconsistently by Glue, dbt, and Redshift loaders, producing NULL amounts, dollars-as-cents errors, or failed batch loads.
+expected_handling:
+  detection:
+    - A data-quality-tests contract compatibility check classifies currency_conversion as additive and optional.
+    - A schema type test rejects customer.subscription.created.amount when it is not an integer number of cents.
+    - The Glue validator logs schema_change_type as additive_safe for Stripe and breaking_type_change for billing-v2.
+    - The contract drift monitor reports both changes in the same weekly schema-drift digest.
+    - The failed-record report lists the 1,206 affected billing-v2 event_ids.
+    - The dbt source test fails before amount values reach fact_subscriptions.
+  response:
+    - The on-call allows currency_conversion through raw_events while preserving the unmodeled jsonb block.
+    - The on-call quarantines billing-v2 customer.subscription.created records with string amount values.
+    - The producer owner is paged with the failing contract version and field path amount.
+    - The evolution-plan is opened to define a compatible amount_v2 migration if string amounts are required.
+    - A deprecation-notice is drafted only for the breaking producer-side type change.
+    - The on-call replays quarantined billing-v2 records after amount is restored to integer cents or mapped explicitly.
+  prevention:
+    - The data-contract defines compatibility classes for additive optional fields, removed fields, and type changes.
+    - The data-contract states amount is integer cents for customer.subscription.created.
+    - The evolution-plan defines approval steps for breaking field type changes.
+    - The deprecation-notice template requires consumer impact, dates, and migration guidance for breaking changes.
+    - The data-quality-tests artifact includes per-field type assertions for revenue-bearing fields.
+    - The lifecycle review requires every producer to declare a schema version before publishing to Kinesis.
+artifacts_referencing:
+  - data-contract
+  - evolution-plan
+  - data-quality-tests
+acceptance_criteria:
+  - The data-contract artifact marks checkout.session.completed.currency_conversion as additive and optional.
+  - The data-contract artifact defines customer.subscription.created.amount as integer cents.
+  - The data-quality-tests artifact rejects amount values formatted as strings such as "$42.00".
+  - The evolution-plan artifact describes the approval path for breaking producer type changes.
+  - The worked example routes the billing-v2 amount change through evolution-plan and deprecation-notice.
+  - The fixture distinguishes the Tuesday Stripe addition from the Friday billing-v2 breaking change.

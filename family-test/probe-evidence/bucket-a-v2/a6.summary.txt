@@ -1,0 +1,2 @@
+banner_found: False
+text_snippet: "\nI'll create a brief PRD for a coffee-ordering service.\nCreated a draft PRD at `/workspace/coffee-ordering-prd.md` (pending your approval of the write).\n\nIt covers the essentials in a brief format:\n\n- **Summary / Problem** — order-ahead to skip the line; cafés lose peak-hour sales to abandonment\n- *"

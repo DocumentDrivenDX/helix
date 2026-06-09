@@ -1,0 +1,18 @@
+version: 1
+methodology:
+  id: helix
+  library_version: "^1.0.0"
+  validator_contract: 1
+
+nodes:
+  - { id: prd, type: library:prd, activity: 01-frame, cardinality: many }
+
+edges: []
+
+external_edges:
+  # INVALID: cross-methodology required: true is forbidden in v1 per §2.2.
+  - to_methodology: helix-infra
+    from_type: prd
+    to_type: change-intent
+    kind: informs
+    required: true

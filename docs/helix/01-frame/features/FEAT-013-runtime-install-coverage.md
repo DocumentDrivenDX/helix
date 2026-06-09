@@ -68,7 +68,7 @@ research only recently stabilized.
 |---|---|---|
 | Repo adapters | "What files in the repo make HELIX installable on my runtime?" | Commit the adapter files each runtime expects |
 | Install docs | "Which command do I run for my runtime?" | Document one canonical install command per runtime |
-| Genie packaging | "How do I get HELIX into a Databricks workspace?" | Provide bundle assembly + upload scripts |
+| Genie packaging | "How do I get HELIX into a Databricks workspace?" | Assemble the bundle and upload it through scripts |
 | Install verification | "Did the install work?" | Per-runtime verification scripts (static + functional) |
 | Test harness | "Does the install path still work on this release?" | Docker-based scenarios + screencast captures |
 
@@ -83,15 +83,18 @@ up-to-date `description` aligned with the PRD ("methodology + artifact
 catalog + alignment skill", not "supervisory autopilot").
 
 [ADAPT-02]. The repo MUST contain `.claude-plugin/marketplace.json`
-listing the HELIX plugin so Claude Code users can run
-`/plugin marketplace add easel/helix` followed by `/plugin install
-helix@helix`.
+listing the HELIX plugin so Claude Code users can install HELIX through
+the native plugin marketplace flow without manual filesystem copying.
 
-[ADAPT-03]. The repo MUST contain `.github/copilot-instructions.md`
+[ADAPT-03]. The repo MUST contain `.codex-plugin/plugin.json` listing
+the HELIX plugin so Codex users can install HELIX through the native
+plugin marketplace flow without falling back to standalone skill copying.
+
+[ADAPT-04]. The repo MUST contain `.github/copilot-instructions.md`
 pointing GitHub Copilot at the routing skill (`skills/helix/SKILL.md`)
 and the artifact catalog (`workflows/activities/`).
 
-[ADAPT-04]. The `skills/helix/SKILL.md` frontmatter MUST conform to the
+[ADAPT-05]. The `skills/helix/SKILL.md` frontmatter MUST conform to the
 [agentskills.io specification](../../resources/agents/agentskills-spec.md)
 (parent directory name equals `name:`, required `name` and
 `description` fields, sized to fit a progressive-disclosure model).
@@ -137,10 +140,10 @@ subdirectory per runtime (`ddx/`, `claude-code/`, `codex-cli/`,
 `copilot-cli/`, `genie/`).
 
 [TEST-02]. Each terminal-based runtime (DDx, Claude Code, Codex CLI,
-Copilot CLI) MUST provide a Dockerfile, an install script, a
+Copilot CLI) MUST include a Dockerfile, an install script, a
 verification script, and a `vhs` `.tape` file for screencast capture.
 
-[TEST-03]. The Genie test scenario MUST provide the SDK install
+[TEST-03]. The Genie test scenario MUST include the SDK install
 script, the offline verification script, a manual browser verification
 procedure, and a captured screencast of the manual verification.
 
@@ -154,7 +157,7 @@ that the response names a known set of HELIX routing modes drawn from
 `tests/install/shared/expected-modes.txt`. Functional checks SHOULD be
 gated behind an environment variable to control token cost.
 
-[TEST-06]. The repo MUST provide a top-level entry point (justfile
+[TEST-06]. The repo MUST include a top-level entry point (justfile
 recipe or single script) that builds all images, runs all install +
 verify steps, and captures all screencasts in one invocation.
 
@@ -163,8 +166,9 @@ verify steps, and captures all screencasts in one invocation.
 | Requirement | Scenario | Given | When | Then |
 |---|---|---|---|---|
 | ADAPT-01 | description string is current | repo at HEAD | `jq -r .description .claude-plugin/plugin.json` | output does not contain "supervisory autopilot" |
-| ADAPT-02 | Claude Code marketplace flow works | a clean Claude Code env | `claude plugin marketplace add easel/helix && claude plugin install helix@helix --scope user -y` | plugin appears in `claude plugin list` |
-| ADAPT-03 | Copilot instructions auto-discovered | a clean repo checkout | `gh copilot suggest "what HELIX modes exist?"` | response names align/frame/evolve/review modes |
+| ADAPT-02 | Claude Code marketplace flow works | a clean Claude Code env | documented Claude Code marketplace install flow runs | plugin appears in the runtime plugin list |
+| ADAPT-03 | Codex marketplace flow works | a clean Codex CLI env | documented Codex marketplace install flow runs | plugin appears in the runtime plugin list |
+| ADAPT-04 | Copilot instructions auto-discovered | a clean repo checkout | `gh copilot suggest "what HELIX modes exist?"` | response names align/frame/evolve/review modes |
 | GENIE-01,02,03 | Genie bundle installs and verifies | a clean Databricks workspace + admin PAT | `python scripts/install-genie.py && python scripts/verify-genie.py` | verification reports success without browser interaction |
 | DOC-01..04 | docs reflect verified reality | `docs/install/` contents | `grep -rn "git clone" docs/install/ \| grep -v "no-fork policy"` | zero matches in install procedure sections |
 | TEST-01..06 | Docker harness passes | `tests/install/` | `just install-test` | every runtime scenario produces a captured screencast in its directory |
@@ -218,9 +222,9 @@ under FEAT-013 act as the implementation work items.
   this constraint and combines headless install verification with
   manual browser-screencast verification.
 - The cross-runtime `npx skills add` CLI is real but only installs to
-  local agent paths. It is the recommended install path for Codex CLI
-  (and a viable alternative for Claude Code in `--plugin-dir` mode) but
-  not for Genie or Copilot.
+  local agent paths. It is the fallback install path for older Codex CLI
+  builds and a viable alternative for Claude Code skill-path installs,
+  but not for Genie or Copilot.
 
 ## Dependencies
 

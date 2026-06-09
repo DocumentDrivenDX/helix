@@ -1,0 +1,1 @@
+Run the graph/doc validator on workspace/docs/adr/0001-pick-postgres.md using the methodology config in workspace/methodology.yml. Report the result.

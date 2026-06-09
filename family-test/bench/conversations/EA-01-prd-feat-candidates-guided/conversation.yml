@@ -1,0 +1,9 @@
+turns:
+  - user: |
+      The product vision in docs/helix/00-discover/product-vision.md is
+      approved. I need a PRD for the morning coffee-ordering app — scope it
+      to the operator-side ordering flow (09:30 cutoff, kiosk surface, floor
+      aggregation). There are already a couple of feature specs under
+      docs/helix/01-frame/ from last sprint; check whether this PRD should
+      inform any of them and surface the candidates before writing anything.
+      Ask me before wiring any ddx.links. Use HELIX.

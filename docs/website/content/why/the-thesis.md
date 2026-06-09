@@ -72,6 +72,17 @@ only unit tests and a happy-path check; the
 re-runs the work against its specs and concerns until it converges instead
 of stopping at first-pass green.
 
+## A family of flows
+
+HELIX itself is a meta-methodology: a family of flows that share the
+artifact library and authority rules but specialize for different work
+shapes. The product flow (`helix`) covers vision, PRDs, and feature
+specs. `helix-infra` covers infrastructure change. `helix-data` covers
+data products, contracts, and expectations. `helix-web` covers website
+and content work. A project's `.helix.yml` marker declares which flows
+are active; the alignment skill loads the matching flow graphs and
+checks instance edges against them.
+
 ## What this shape buys you
 
 - **Coherence at scale.** The artifact graph grows with the project.

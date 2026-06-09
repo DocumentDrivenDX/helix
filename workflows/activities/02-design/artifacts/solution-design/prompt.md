@@ -28,6 +28,10 @@ Use these local resource summaries as grounding:
 - Show the main options and why the chosen one wins.
 - Keep the domain model, decomposition, and tradeoffs concise.
 - Cover cross-component system behavior and feature-level structure.
+- Name interface usage or needed interface work at feature level, but keep exact
+  API, CLI, event, schema, config, telemetry, and adapter surface in Contract
+  artifacts. If the solution needs exact fields, commands, payloads, or error
+  semantics, link to or request a Contract.
 - Preserve only the decisions needed by build and test.
 - Stay within the feature scope defined in the zoom-stack matrix
   (`workflows/activities/02-design/README.md`); update the governing artifact

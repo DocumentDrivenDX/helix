@@ -1,0 +1,10 @@
+cc_version: 2.1.163
+assertion_id: confirmation_before_mutation
+expected_verdict: present
+description: |
+  Agent emits a confirmation marker ("Should I proceed?") before the first
+  Write tool_use. Verifies prose_pattern_before_tool matcher enforces ordering.
+params:
+  confirmation_marker_pattern: "(Should I|OK to proceed|Want me to)"
+  mutation_tools: [Write, Edit]
+source: synthetic

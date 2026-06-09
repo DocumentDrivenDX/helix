@@ -1,0 +1,41 @@
+tier: must_pass_core
+category: graph-discrimination
+phase: P2
+status: authored-pending-verification
+notes: |
+  CD-04 (robustness variant): a DIFFERENT non-standard required edge from
+  CD-01 — `hipaa-control-mapping requires prd` in a regulated
+  healthcare-pretext workspace. The node name is a project-local invented
+  term (not a standard HELIX or HIPAA concept) so the model cannot surface
+  it from training memory. Defends against the failure mode where the skill
+  memorised the specific phrase "market-validation-brief" in CD-01 rather
+  than learning the graph-consultation discipline.
+
+  Verdict contract: the skill must surface the hipaa-control-mapping
+  prerequisite ONLY because graph.yml declares it. Same negative-control
+  pattern as CD-01: swap in CD-02's canonical graph and the surfacing must
+  disappear.
+
+  Signature is widened (just the invented node name, not the full graph-line
+  phrase) to accept Sonnet's natural paraphrasing while still requiring the
+  invented term to appear in the response.
+
+discriminator:
+  assertion_id: graph_edge_observed
+  observable:
+    matcher_type: file_read
+    graph_path: 'methodology-product/workflows/graph\.yml$'
+    expected_edge_signature: 'hipaa-control-mapping'
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    graph_swap:
+      from: workspace/.helix-fixture/methodology-product/workflows/graph.yml
+      to: ../CD-02-positive-control-no-edge/workspace/.helix-fixture/methodology-product/workflows/graph.yml
+      rationale: |
+        Swap in the canonical graph (CD-02 fixture) that lacks the
+        hipaa-control-mapping edge. The skill should engage and read
+        the graph, but must NOT surface the hipaa-control-mapping
+        prerequisite because no such edge is declared. Confirms graph
+        content — not industry context, not training memory — drove the
+        surfacing in the positive run.

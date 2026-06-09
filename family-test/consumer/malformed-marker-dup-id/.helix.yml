@@ -1,0 +1,6 @@
+helix_version: 1
+methodologies:
+  - id: helix
+    root: docs/helix/
+  - id: helix              # M003 duplicate id
+    root: docs/another/

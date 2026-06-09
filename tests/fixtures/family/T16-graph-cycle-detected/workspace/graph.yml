@@ -1,0 +1,15 @@
+# INVALID: A requires B, B requires A. No allowed_cycles annotation.
+# Validator must detect the cycle and exit non-zero.
+
+nodes:
+  - id: 01-frame/node-a
+    activity: 01-frame
+    binds: library:prd
+    requires:
+      - 02-design/node-b
+
+  - id: 02-design/node-b
+    activity: 02-design
+    binds: library:adr
+    requires:
+      - 01-frame/node-a

@@ -1,0 +1,9 @@
+cc_version: 2.1.163
+assertion_id: skill_tool_use
+expected_verdict: present
+description: |
+  Agent invokes Skill(helix) explicitly. Verifies skill_tool_use matcher
+  recognises the native stream-json assistant.tool_use Skill block.
+params:
+  skill_id: helix
+source: synthetic

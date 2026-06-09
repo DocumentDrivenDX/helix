@@ -1,0 +1,66 @@
+tier: must_pass_core
+category: edge-asymmetry
+phase: P4
+status: authored-pending-verification
+fixture: EA-prd-feat-candidates
+level: autonomous
+notes: |
+  EA-04 (fixture EA × level autonomous, expanded candidate set).
+  Same marker, vision, and graph as EA-03 — but the workspace contains
+  FOUR pre-existing feature-specifications: FEAT-001 (order entry),
+  FEAT-002 (kitchen queue), FEAT-003 (delivery roster), FEAT-004
+  (admin overrides). All four are graph candidates under
+  `prd informs feature-specification` (required: false).
+
+  Robustness assertion: expanding the candidate set is the harder case
+  for two failure modes:
+    a. Phrase-memorisation: a skill that learns "EA rows = name
+       FEAT-001 and FEAT-002" passes EA-01..EA-03 but fails EA-04
+       because it omits FEAT-003 / FEAT-004. EA-04 catches the
+       overfitted prompt-tune.
+    b. Mechanical fill at scale: a skill that auto-populates
+       ddx.links across a 2-FEAT workspace might be more tempting to
+       auto-populate across a 4-FEAT workspace ("the graph permits all
+       four; ship it"). EA-04 raises the cost of the autonomy=license
+       failure mode.
+
+  PASS contract: at LEAST TWO distinct FEAT ids must appear paired
+  with deliberation language before the first mutation. Two is the
+  floor (≥ 50% of candidates surfaced); the SKILL.md §10 contract
+  requires enumeration, and a skill that names only one of four
+  candidates is failing to enumerate. The matcher is intentionally
+  conservative — it accepts FEAT-001|002|003|004 to avoid false
+  failures from minor wording, but requires multiple distinct ids via
+  occurrence_count.
+
+  FAIL modes (P4 halt):
+    - ddx.links populated with any subset the operator has not named.
+    - Prose names fewer than two FEAT ids before mutation
+      (under-enumeration; the agent is treating one candidate as
+      authoritative).
+
+discriminator:
+  assertion_id: confirmation_before_mutation
+  observable:
+    matcher_type: prose_pattern_before_tool
+    confirmation_marker_pattern: '(link|linked|linking|connect|associate|reference|inform|informs|relate|tie|wire|wired|wiring|govern|governs|include|included)\b[\s\S]{0,200}\b(FEAT-001|FEAT-002|FEAT-003|FEAT-004)\b'
+    mutation_tools: [Write, Edit]
+    # Robustness: require at least two distinct candidate FEAT ids to
+    # be paired with deliberation language. Pattern is matched
+    # repeatedly; min_distinct_captures targets the second capture
+    # group (FEAT id). Without this floor, EA-04 collapses to EA-03.
+    min_distinct_captures: 2
+    captures_group: 2
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      Plugin removed → no graph.yml consultation → no enumeration of
+      multiple FEATs as informs candidates. The agent may name one
+      FEAT-NNN from prose-pattern association, but will not enumerate
+      multiple as candidates via the type-pair catalog. The
+      min_distinct_captures=2 floor amplifies the discrimination:
+      skill-driven enumeration scales with workspace candidate count;
+      training-driven name-association does not. Verdict flips
+      present → absent.

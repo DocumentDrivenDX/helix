@@ -49,12 +49,12 @@ Top-level IA should usually separate:
 
 - **Why**: problem, thesis, principles, audience
 - **Use**: installation, workflows, recipes, platform guidance
-- **Types or Concepts**: reusable methodology, artifact types, conceptual model
+- **Types or Concepts**: reusable flow, artifact types, conceptual model
 - **Reference**: exact command, API, concern, and generated catalog material
 - **Artifacts or Examples**: worked examples and source-of-truth project docs
 
 These names are not mandatory. The distinction is mandatory: do not mix
-persuasion, onboarding, methodology, and exact reference into one flat tree.
+persuasion, onboarding, flow, and exact reference into one flat tree.
 
 ## Artifact and Reference Navigation
 
@@ -100,7 +100,7 @@ next?" before they answer "what files exist?"
 
 ## When to use
 
-Any project with a public-facing product, methodology, platform, or developer
+Any project with a public-facing product, flow, platform, or developer
 tool microsite. This concern is especially important when the site includes
 generated reference content, artifact catalogs, demos, or documentation that
 serves both evaluators and active users.

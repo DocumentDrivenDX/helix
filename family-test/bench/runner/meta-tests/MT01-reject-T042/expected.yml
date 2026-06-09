@@ -1,0 +1,14 @@
+# MT01 — vacuous discriminator: positive == negative verdict.
+# Runner MUST reject with T042.
+meta_test:
+  id: MT01
+  expected_rejection: T042
+discriminator:
+  assertion_id: skill_tool_use
+  observable:
+    matcher_type: skill_tool_use
+    skill_id: helix
+  expected_in_positive_run: present
+  expected_in_negative_run: present
+  negative_control:
+    plugins_remove: [methodology-product]

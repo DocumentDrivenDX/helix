@@ -1,0 +1,14 @@
+id: prd
+name: Product Requirements Document
+version: 1.0.0
+summary: Library type with forbidden relationships block — must fail T003.
+
+required_sections:
+  - summary
+
+relationships:                        # FORBIDDEN per design §2.1 — must trigger T003
+  depends_on: [product-vision]
+  informs: [feature-specification]
+
+template:
+  file: template.md

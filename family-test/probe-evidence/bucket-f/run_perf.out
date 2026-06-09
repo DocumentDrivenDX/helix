@@ -1,0 +1,32 @@
+[run] f1-100 corpus=perf-corpus-100 extra=
+  exit_code=0
+  wall_clock_s=0.339
+  findings=0
+  docs_in_corpus=100
+[run] f2-1000 corpus=perf-corpus-1000 extra=
+  exit_code=0
+  wall_clock_s=1.567
+  findings=0
+  docs_in_corpus=1000
+[run] f3-5000-ceiling corpus=perf-corpus-5000 extra=--ceiling-s 10
+  exit_code=5
+  wall_clock_s=10.145
+  findings=(no-json-output;see-stderr)
+  docs_in_corpus=5000
+[run] f3-5000-full corpus=perf-corpus-5000 extra=
+  exit_code=0
+  wall_clock_s=19.104
+  findings=0
+  docs_in_corpus=5000
+[run] f4-1000-r1-cold corpus=perf-corpus-1000 extra=--use-cache
+  exit_code=0
+  wall_clock_s=1.762
+  findings=0
+  docs_in_corpus=1000
+[run] f4-1000-r2-warm corpus=perf-corpus-1000 extra=--use-cache
+  exit_code=0
+  wall_clock_s=0.157
+  findings=0
+  docs_in_corpus=1000
+
+[done] evidence at /Users/erik/Projects/helix/family-test/probe-evidence/bucket-f/

@@ -1,0 +1,51 @@
+version: 1
+methodology:
+  id: helix
+  library_version: ^1.0.0
+  validator_contract: 1
+activities:
+- id: 00-discover
+  exit_gate: discover-validation
+- id: 01-frame
+  exit_gate: prd-validation
+nodes:
+- id: product-vision
+  type: library:product-vision
+  activity: 00-discover
+  cardinality: singleton
+- id: hipaa-control-mapping
+  type: local:hipaa-control-mapping
+  activity: 00-discover
+  cardinality: many
+- id: prd
+  type: library:prd
+  activity: 01-frame
+  cardinality: many
+  role: exit-gate
+- id: prd-validation
+  type: local:exit-gate
+  activity: 01-frame
+  cardinality: singleton
+  role: exit-gate
+- id: discover-validation
+  type: local:exit-gate
+  activity: 00-discover
+  cardinality: singleton
+  role: exit-gate
+edges:
+# CD-04 robustness fixture: a DIFFERENT non-standard edge from CD-01.
+# Defends against the failure mode where the skill memorised the specific
+# phrase "market-validation-brief" rather than learning the graph-consultation
+# discipline. The edge is industry-pretexted (regulated-domain repo) but the
+# discrimination contract is identical: surface the unusual prerequisite ONLY
+# because the graph declared it.
+- from: hipaa-control-mapping
+  to: prd
+  kind: requires
+  required: true
+- from: product-vision
+  to: prd
+  kind: informs
+  required: false
+allowed_cycles: []
+external_edges: []

@@ -1,0 +1,5 @@
+turns:
+  - user: |
+      Edit `docs/helix/01-frame/FEAT-001-checkout.md` and add a single
+      ddx.links entry: `{kind: informed_by, to: PRD-001}`. Just a normal
+      intra-flow link, no cross-methodology flag. Use HELIX.

@@ -1,0 +1,67 @@
+Bucket F — perf + scale evidence (PyYAML baseline)
+===================================================
+
+Runtime: Python 3 with PyYAML 6.0.3 (production validator is stdlib-only;
+this slice uses PyYAML for ergonomics — F0 establishes the baseline numbers
+the stdlib port can be compared against).
+
+Validator changes shipped alongside this bucket:
+  - per-process caches for instance index, library type meta.yml, graph.yml
+    (eliminates O(N^2) walk where every per-doc validation re-built the index)
+  - --use-cache flag enabling .helix/index.json on-disk incremental cache
+  - --ceiling-s flag aborting with exit=5 + stderr message when wall-clock
+    budget exhausted (F3 ceiling semantics)
+  - JSON output now reports docs_scanned (correctness counter)
+
+F1 — 100 docs
+  wall:           ~0.34s        (budget: <1s)         PASS
+  exit_code:      0
+  docs_scanned:   100           (=100 expected)        PASS
+  artifacts:      f1-100.{json,txt,stderr,wall_s}
+
+F2 — 1000 docs
+  wall:           ~1.57s        (budget: <10s)        PASS
+  exit_code:      0
+  docs_scanned:   1000          (=1000 expected)       PASS
+  artifacts:      f2-1000.{json,txt,stderr,wall_s}
+
+F3 — 5000 docs (ceiling)
+  Two configurations:
+  (a) --ceiling-s 10:
+       wall:        ~10.15s
+       exit_code:   5
+       stderr:      "ceiling: >10.0s wall-clock exceeded (docs scanned so far: ~2200)"
+       PASS — exits cleanly with the documented ceiling code + message
+  (b) no ceiling (informational):
+       wall:        ~19.1s
+       exit_code:   0
+       docs_scanned: 5000        (=5000 expected)      PASS
+  artifacts:      f3-5000-ceiling.* and f3-5000-full.*
+
+F4 — cache correctness
+  cold run (cache empty):     ~1.76s
+  warm rerun (no changes):    ~0.16s     ratio = 9%    PASS (budget: <=30%)
+  artifacts:      f4-1000-r1-cold.*, f4-1000-r2-warm.*
+
+  Invalidation matrix (f4_invalidation.sh, log at f4-invalidation.log):
+    step0 cold                 1.650s
+    step1 warm rerun           0.172s    10.4% of cold      PASS
+    step2 touch 1 instance     0.476s    ~3x warm (single-doc cost)  PASS
+    step3 touch graph.yml      1.755s    ~cold (methodology re-walk)  PASS
+    step4 touch meta.yml       1.742s    ~cold (type re-walk)         PASS
+    step5 touch marker         1.776s    ~cold (full re-walk)         PASS
+
+  All 5 invalidation assertions pass (see f4_invalidation.out).
+
+Pre-baseline note (raw, before caching scaffold)
+  The unscaffolded validator was O(N^2): every instance re-built the full
+  scope index. Measured numbers were:
+    100  docs: ~2.9s
+    1000 docs: ~292s
+  (5000 was extrapolated to ~2h and not run.)
+  This is documented here as the "what the cache prevents" baseline.
+
+Scope deferred
+  - The validator now ships a working incremental cache; the design's
+    longer-form mtime+content-hash matrix can extend this.
+  - PyYAML → stdlib port is a separate work item.

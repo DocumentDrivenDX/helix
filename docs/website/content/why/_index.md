@@ -26,7 +26,7 @@ If you skip the prose and want to orient yourself, the site is organized
 <!-- vale Helix.PassiveVoice = YES -->
 around the journeys HELIX supports:
 
-- **Learn the methodology**: start with [Methodology](/use/workflow/methodology/)
+- **Learn the workflow**: start with [Workflow](/use/workflow/)
   to understand the double helix, the seven activities, the artifact
   authority hierarchy,
   and how planning and execution stay connected without assuming one runtime.
@@ -69,6 +69,13 @@ The core framework consists of:
   artifact graph, reports inconsistencies, and recommends the next planning
   action. Runtime commands and CLI wrappers are compatibility surfaces, not
   the spine of the methodology.
+- **A family of flows**: the same methodology specialized for different
+  work shapes. `helix` is the product flow (vision, PRD, feature specs).
+  `helix-infra` covers infrastructure change. `helix-data` covers data
+  products (contracts, expectations, governance). `helix-web` covers
+  website and content work. Each flow reuses the shared artifact library
+  and adds flow-local types; a project's `.helix.yml` declares which flows
+  are active.
 
 Once the *why* lands, [Use HELIX](/use/) shows you how to install the
 framework, define your project's first artifacts, choose a platform, and

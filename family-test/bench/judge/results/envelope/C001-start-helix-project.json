@@ -1,0 +1,77 @@
+{
+  "row": "C001-start-helix-project",
+  "row_dir": "/Users/erik/Projects/helix/family-test/bench/conversations/C001-start-helix-project",
+  "spec": {
+    "assertion_id": "next_action_envelope",
+    "envelope_schema_path": "judge/next-action-envelope.schema.json",
+    "offered_requires": [
+      "draft_artifact:product-vision",
+      "add_methodology_to_marker:helix"
+    ],
+    "not_offered_forbids": [
+      "draft_artifact:prd"
+    ],
+    "expected_in_envelope_pass": "present"
+  },
+  "non_contamination": {
+    "row": "C001-start-helix-project",
+    "assertion_id": "skill_tool_use",
+    "no_envelope_verdict": "present",
+    "envelope_verdict": "present",
+    "identical": true,
+    "no_envelope_details": {
+      "hit_indices": [
+        1
+      ],
+      "skill_id": "helix"
+    },
+    "envelope_details": {
+      "hit_indices": [
+        1
+      ],
+      "skill_id": "helix"
+    }
+  },
+  "layer3": {
+    "row": "C001-start-helix-project",
+    "transcript": "/Users/erik/Projects/helix/family-test/bench/conversations/C001-start-helix-project/transcript.envelope.jsonl",
+    "expected_verdict": "present",
+    "actual_verdict": "present",
+    "details": {
+      "schema_ref": "judge/next-action-envelope.schema.json",
+      "envelope": {
+        "next_action": "add_methodology_to_marker:helix",
+        "offered": [
+          "add_methodology_to_marker:helix",
+          "draft_artifact:product-vision"
+        ],
+        "not_offered": [
+          "draft_artifact:prd",
+          "draft_artifact:feature-spec"
+        ],
+        "reason": "Marker absent; graph (product-vision -> prd -> feature-spec) requires product-vision before any downstream artifact, so we bootstrap the marker and offer the upstream node.",
+        "requires_confirmation": true
+      },
+      "offered_satisfied": [
+        "draft_artifact:product-vision",
+        "add_methodology_to_marker:helix"
+      ],
+      "not_offered_satisfied": [
+        "draft_artifact:prd"
+      ]
+    },
+    "spec": {
+      "assertion_id": "next_action_envelope",
+      "envelope_schema_path": "judge/next-action-envelope.schema.json",
+      "offered_requires": [
+        "draft_artifact:product-vision",
+        "add_methodology_to_marker:helix"
+      ],
+      "not_offered_forbids": [
+        "draft_artifact:prd"
+      ],
+      "expected_in_envelope_pass": "present"
+    }
+  },
+  "pass": true
+}

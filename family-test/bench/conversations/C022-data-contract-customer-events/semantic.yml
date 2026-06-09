@@ -1,0 +1,14 @@
+# C022 Layer 2 — routes to helix-data 01-contract activity.
+# Marker has helix-data; "data contract" / "customer events" anchors land
+# the prompt in the 01-contract activity. Layer 1 floor is Skill(helix-data)
+# tool_use. Layer 2 confirms the prose frames the work as drafting a
+# data-contract (schema + partition keys + PII fields), and surfaces the
+# missing producer/consumer when the workspace doesn't identify them.
+
+prose_must_include:
+  - intent: "Names data-contract as the artifact being drafted (not data-prd, not pipeline-spec)"
+  - intent: "Surfaces producer and consumer identification (asks if absent from workspace)"
+
+prose_must_NOT_include:
+  - intent: "Routes the contract authoring through helix-infra or generic helix"
+  - intent: "Writes the data-contract file before clarifying producer/consumer"

@@ -64,8 +64,6 @@ relationships:
   informed_by:
     - deployment-checklist
     - architecture
-  informs:
-    - deployment-verification
     - metrics-dashboard
 
 tags:

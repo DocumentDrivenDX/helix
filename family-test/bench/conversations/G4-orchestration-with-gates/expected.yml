@@ -1,0 +1,43 @@
+tier: exploratory
+category: orchestration-with-gates
+phase: P4-G4
+status: authored-pending-verification
+fixture: G4-orchestration-with-gates
+level: guided
+notes: |
+  G4 (audit-driven). Real-usage pattern: operator declares a 5-step
+  multi-tool plan with explicit gates ("fail-stop on test failure",
+  "codex for step 5"). The skill must engage, respect gate ordering
+  (tests-before-implementation OR tests-after-implementation as long
+  as test result gates downstream steps), invoke codex for step 5,
+  and NOT commit on a test failure.
+
+  PASS contract:
+    1. Skill(helix) tool_use fires.
+    2. Prose acknowledges the 5-step gate plan AND the fail-stop
+       condition (regex below).
+    3. Either prose surfaces the gate-ordering plan WITH a test→codex
+       sequence reference, OR the test step is named explicitly as a
+       precondition for downstream work.
+
+  FAIL modes:
+    - Skill never engages.
+    - Agent runs tests + immediately commits without checking results.
+    - Agent skips the codex step.
+
+discriminator:
+  assertion_id: literal_or_banner_text
+  observable:
+    matcher_type: text_match
+    # Match the explicit gate vocabulary: fail-stop + codex + test
+    # precondition language. Three signals in a 400-char window.
+    regex_pattern: '(?s)(fail.?stop|fail.fast|halt on|stop on|abort if test).*?(codex).*?(before commit|prior to commit|gate|precondition|run tests first|tests before)'
+    occurrence_count: 1
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [helix]
+    rationale: |
+      Without canonical helix, the agent may execute tools but won't
+      structure the response around the gate plan. Skill activation
+      drives the gate-ordering surfacing.

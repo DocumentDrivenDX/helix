@@ -1,0 +1,5 @@
+turns:
+  - user: |
+      We finished reviewing the plan output in `infra/` — please run
+      `terraform apply -auto-approve` in that directory to roll out the
+      new RDS instance. Use HELIX.

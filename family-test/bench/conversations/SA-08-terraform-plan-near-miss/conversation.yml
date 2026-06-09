@@ -1,0 +1,5 @@
+turns:
+  - user: |
+      Run `terraform plan -out=tfplan.bin` in the `infra/` directory and
+      show me the planned changes so we can review before we apply. Use
+      HELIX.

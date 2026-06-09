@@ -1,0 +1,204 @@
+# Diff-to-category mapping for the conversation bench (plan §15c P14, §19.2).
+#
+# A PR's changed files are intersected with the `globs` of each rule below;
+# every matching rule contributes its `categories` to the run plan. If no rule
+# matches any changed path, the mapper falls back to `unmatched_fallback`
+# (default: `full`) per plan §19.2.
+#
+# Special category names:
+#   self_test  — runner `--self-test` (10 meta + property + golden + matcher
+#                vacuity); $0 model cost
+#   full       — every category below (safety fallback for unmatched paths so
+#                we never silently skip coverage on a refactor we didn't
+#                anticipate)
+#
+# Glob semantics: fnmatch with `**` for any number of path components (handled
+# in diff-to-category.py). Paths are repo-relative POSIX (forward slashes).
+#
+# Authority asymmetry: ADDING a category to a rule is cheap (more coverage).
+# REMOVING one risks silently regressing skill behaviour; require codex review
+# on PRs that shrink any rule's `categories` list.
+
+version: 1
+unmatched_fallback: full
+
+# Categories the runner knows how to execute. The mapper validates that every
+# category referenced by a rule is registered here; the workflow uses these
+# names as job-matrix entries.
+categories:
+  - self_test
+  - conversation
+  - routing
+  - autonomy
+  - stop_at
+  - graph_discrim
+  - edge_asymmetry
+  - cross_flow
+  - multi_instance
+  - cross_instance
+  - rename_compat
+  - warm_context
+  - verbose_stuck
+  - meta
+  - full
+
+# Rules are evaluated in order. EVERY matching rule contributes; first-match
+# does NOT short-circuit (a PR can reasonably touch both SKILL.md and the
+# stop-at trigger file).
+rules:
+  # ---------------------------------------------------------------------------
+  # Skill prose — drives routing + every conversation flow
+  # ---------------------------------------------------------------------------
+  - id: skill_md
+    description: "SKILL.md edit → conversation library + routing evals (plan §19.2)"
+    globs:
+      - "skills/**/SKILL.md"
+    categories: [conversation, routing]
+
+  # ---------------------------------------------------------------------------
+  # stop_at trigger config — only the stop_at rows exercise the trigger matcher
+  # ---------------------------------------------------------------------------
+  - id: stop_at_triggers
+    description: "stop-at-triggers.yml edit → stop_at trigger rows (plan §19.2)"
+    globs:
+      - "library/skill-prompts/stop-at-triggers.yml"
+    categories: [stop_at]
+
+  # ---------------------------------------------------------------------------
+  # graph.yml — cascade discrimination + cross-flow + verbose-but-stuck care
+  # ---------------------------------------------------------------------------
+  - id: graph_yml
+    description: "graph.yml edit → graph-discrimination + cross-flow rows (plan §19.2)"
+    globs:
+      - "workflows/**/graph.yml"
+    categories: [graph_discrim, cross_flow, verbose_stuck]
+
+  # ---------------------------------------------------------------------------
+  # Marker schema — rename / compat invariant + multi-instance routing
+  # (validate_marker_schema lives in helix_check.py; any change risks v1/v2
+  # marker compat)
+  # ---------------------------------------------------------------------------
+  - id: marker_schema
+    description: "marker schema edit → rename/compat + multi-instance rows (plan §19.2)"
+    globs:
+      - "library/scripts/helix_check.py"
+    categories: [rename_compat, multi_instance, cross_instance]
+
+  # ---------------------------------------------------------------------------
+  # Bench runner / matchers / schemas — meta-tests + self-test only
+  # (touching the runner can't regress production skill behaviour; it CAN
+  # regress the bench's ability to grade, which the meta-tests guard)
+  # ---------------------------------------------------------------------------
+  - id: bench_runner
+    description: "bench runner edit → meta-tests + self-test (plan §19.2)"
+    globs:
+      - "family-test/bench/runner/**"
+      - "family-test/bench/library/schemas/**"
+      - "family-test/bench/golden-transcripts/**"
+    categories: [self_test, meta]
+
+  # ---------------------------------------------------------------------------
+  # Bench corpus row authoring — re-run only the touched category
+  # (per-row prefix maps deterministically; we infer the category from the
+  # row directory name)
+  # ---------------------------------------------------------------------------
+  - id: bench_row_conversation_C
+    description: "C-prefix conversation row edited → conversation only"
+    globs:
+      - "family-test/bench/conversations/C0*/**"
+      - "family-test/bench/conversations/C1*/**"
+      - "family-test/bench/conversations/C2*/**"
+    categories: [conversation]
+
+  - id: bench_row_autonomy
+    description: "AM-* row edited → autonomy only"
+    globs:
+      - "family-test/bench/conversations/AM-*/**"
+    categories: [autonomy]
+
+  - id: bench_row_stop_at
+    description: "SA-* row edited → stop_at only"
+    globs:
+      - "family-test/bench/conversations/SA-*/**"
+    categories: [stop_at]
+
+  - id: bench_row_graph_discrim
+    description: "CD-* row edited → graph_discrim only"
+    globs:
+      - "family-test/bench/conversations/CD-*/**"
+    categories: [graph_discrim]
+
+  - id: bench_row_edge_asymmetry
+    description: "EA-* row edited → edge_asymmetry only"
+    globs:
+      - "family-test/bench/conversations/EA-*/**"
+    categories: [edge_asymmetry]
+
+  - id: bench_row_cross_instance
+    description: "CI-* row edited → cross_instance only"
+    globs:
+      - "family-test/bench/conversations/CI-*/**"
+    categories: [cross_instance]
+
+  - id: bench_row_warm_context
+    description: "WC-* row edited → warm_context only"
+    globs:
+      - "family-test/bench/conversations/WC-*/**"
+    categories: [warm_context]
+
+  - id: bench_row_verbose_stuck
+    description: "VS-* row edited → verbose_stuck only"
+    globs:
+      - "family-test/bench/conversations/VS-*/**"
+    categories: [verbose_stuck]
+
+  - id: routing_evals
+    description: "routing-evals JSONL edit → routing only"
+    globs:
+      - "family-test/bench/routing-evals/**"
+    categories: [routing]
+
+  # ---------------------------------------------------------------------------
+  # Bench config (categories.yml itself, ratchets, cc-version pin) — meta only
+  # ---------------------------------------------------------------------------
+  - id: bench_config
+    description: "bench config edited → self-test only"
+    globs:
+      - "family-test/bench/bench-categories.yml"
+      - "family-test/bench/ratchets.json"
+      - "family-test/bench/cc-version.lock"
+    categories: [self_test]
+
+  # ---------------------------------------------------------------------------
+  # Methodology library types / activity definitions — full bench
+  # (these can ripple in ways path-globs can't easily anticipate; escalate)
+  # ---------------------------------------------------------------------------
+  - id: methodology_content
+    description: "canonical workflows/library edited → full bench"
+    globs:
+      - "workflows/**"
+      - "library/types/**"
+    categories: [full]
+
+  # ---------------------------------------------------------------------------
+  # Pure-doc / pure-website changes — self-test only (no skill behaviour risk)
+  # ---------------------------------------------------------------------------
+  - id: docs_only
+    description: "docs/website-only edit → self-test only"
+    globs:
+      - "docs/**/*.md"
+      - "docs/website/**"
+      - "website/**"
+      - "README.md"
+      - "AGENTS.md"
+      - "CLAUDE.md"
+    categories: [self_test]
+
+  # ---------------------------------------------------------------------------
+  # CI workflow itself — self-test only (workflow change validates by running)
+  # ---------------------------------------------------------------------------
+  - id: ci_workflow
+    description: ".github workflow edit → self-test only"
+    globs:
+      - ".github/workflows/**"
+    categories: [self_test]

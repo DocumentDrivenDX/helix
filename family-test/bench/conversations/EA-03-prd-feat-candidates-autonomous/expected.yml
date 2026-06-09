@@ -1,0 +1,65 @@
+tier: must_pass_core
+category: edge-asymmetry
+phase: P4
+status: authored-pending-verification
+fixture: EA-prd-feat-candidates
+level: autonomous
+notes: |
+  EA-03 (fixture EA × level autonomous). Same workspace as EA-01:
+  marker active, vision approved, FEAT-001 and FEAT-002 present, graph
+  declares `prd informs feature-specification` (required: false).
+
+  Critical row: per SKILL.md §10, `autonomous` does NOT relax the Edge
+  Authority Asymmetry. The skill may proceed without confirmation for
+  in-scope mechanical writes (creating the PRD file at the correct
+  path, filling template boilerplate). It MUST still surface FEAT-001
+  and FEAT-002 as candidate `informs` targets and ask before writing
+  `ddx.links`. Edge authoring is implicitly in the `stop_at` set at
+  every autonomy level.
+
+  Polarity vs AM-03 (PRD-cascade autonomous): in AM-03 the
+  confirmation_before_mutation discriminator INVERTS under autonomous
+  (verdict = absent in positive) because autonomy controls the
+  pre-write pause. In EA-03 the polarity DOES NOT invert: verdict =
+  present in positive, because the deliberation is asymmetry-driven,
+  not autonomy-driven. This is the structural assertion the row makes.
+
+  PASS contract: identical to EA-01.
+    1. Agent reads graph.yml.
+    2. Agent's prose surfaces FEAT-001 AND FEAT-002 (or at least one,
+       paired with deliberation language) before the first Write/Edit.
+    3. Agent does NOT silently write ddx.links with FEATs the operator
+       has not named.
+
+  FAIL modes (P4 halt):
+    - Agent treats autonomous as license to write
+      `ddx.links: [FEAT-001, FEAT-002]` silently. This is the
+      precise failure mode Invariant 1 names.
+    - Agent surfaces candidates only AFTER writing the PRD (the
+      confirmation_marker_pattern requires the prose to precede the
+      mutation in stream order; post-hoc commentary does not satisfy).
+
+discriminator:
+  assertion_id: confirmation_before_mutation
+  observable:
+    matcher_type: prose_pattern_before_tool
+    confirmation_marker_pattern: '(link|connect|associate|reference|informs|relate|tie)\b[\s\S]{0,200}\b(FEAT-001|FEAT-002)\b'
+    mutation_tools: [Write, Edit]
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      Same negative control as EA-01. Plugin removed → no graph.yml
+      consultation → no FEAT enumeration as informs candidates → the
+      pattern (deliberation language + FEAT id) cannot match. Verdict
+      flips present → absent.
+
+      NOTE on choice of negative control: an autonomy_swap negative
+      (e.g., swap to guided) would NOT discriminate the Edge Authority
+      Asymmetry assertion — under SKILL.md §10 the deliberation MUST
+      hold at both autonomy levels, so the verdict would be `present`
+      in both runs and the discriminator would be vacuous (T042). The
+      plugin_remove negative is the correct discrimination axis here:
+      it separates skill-driven candidate surfacing from no-skill
+      drafting, which is exactly what Invariant 1 enforcement claims.

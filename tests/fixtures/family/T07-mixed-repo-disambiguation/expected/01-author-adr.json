@@ -1,0 +1,29 @@
+{
+  "assert": "stream_json_tool_use",
+  "expect_tool_use": {
+    "name_regex": "^Write$",
+    "path_regex": "^(?:.*/)?docs/adr/\\d{4}.*\\.md$",
+    "exactly_one": true
+  },
+  "forbid_tool_use": [
+    {
+      "name_regex": "^Write$",
+      "path_regex": "docs/helix/"
+    }
+  ],
+  "secondary": {
+    "assert": "prose_match",
+    "must_not_match": [
+      "(?i)disambiguat",
+      "(?i)which methodology",
+      "(?i)pick (one|a methodology)",
+      "(?i)HELIX_METHODOLOGY"
+    ],
+    "allow_match_any": [
+      "(?i)cwd.*infra",
+      "(?i)scope.*helix-infra",
+      "(?i)marker.*helix-infra"
+    ]
+  },
+  "rationale": "cwd is under services/web/infra/terraform/, which matches helix-infra's root: per the marker. Disambiguation prose is FORBIDDEN — cwd resolves the ambiguity per §1.5 rule 3. The path_regex tolerates either workspace-root-relative or cwd-relative ADR paths because the runner's cwd is inside the workspace."
+}

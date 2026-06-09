@@ -1,0 +1,30 @@
+tier: must_pass_core
+category: conversation-library
+phase: P5
+status: authored-pending-verification
+notes: |
+  C012 (plan §1.5). Marker active (helix), no vision or PRD. ADRs
+  carry scope:cross-cutting in graph.yml so they're NOT gated by
+  upstream cascade. Prompt "Create an ADR for choosing Postgres".
+  The skill engages and may draft an ADR with empty depends_on.
+
+  Layer 1 floor: Skill(helix) tool_use.
+
+  Discrimination: plugins_remove kills engagement.
+
+discriminator:
+  assertion_id: skill_tool_use
+  observable:
+    matcher_type: skill_tool_use
+    skill_id: helix
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      No methodology plugin → no helix skill → no Skill(helix).
+      Verdict: absent.
+
+structural:
+  skill_invoked:
+    - name: helix

@@ -1,0 +1,35 @@
+tier: must_pass_core
+category: autonomy-matrix
+phase: P3
+status: authored-pending-verification
+fixture: A-prd-cascade
+level: aggressive
+notes: |
+  AM-04 (fixture A × level aggressive). Marker active (helix), no vision
+  exists. Prompt asks for a PRD. Under aggressive the skill marches the
+  full graph autonomously — drafts the vision AND the PRD AND any other
+  declared upstream prerequisites in one pass, surfacing only at a
+  stop_at trigger or unrecoverable ambiguity. No confirmation prompt
+  before mutation; multiple Write tool_uses (vision + PRD at minimum).
+
+  Discriminator polarity is absent (as in AM-03). Per plan §4.8 example:
+  aggressive ≠ uncontrolled — stop_at still fires (e.g. if the skill
+  tried to edit `.helix.yml` it would pause). This fixture's workspace
+  has the marker already present, so no marker_edit trigger fires.
+
+discriminator:
+  assertion_id: confirmation_before_mutation
+  observable:
+    matcher_type: prose_pattern_before_tool
+    confirmation_marker_pattern: '(OK to proceed|Should I proceed|Want me to|Shall I|Do you want me to)\b'
+    mutation_tools: [Write, Edit, Bash]
+  expected_in_positive_run: absent
+  expected_in_negative_run: present
+  negative_control:
+    autonomy_swap:
+      from: autonomy.yml
+      to: ../AM-01-prd-cascade-manual/autonomy.yml
+      rationale: |
+        Swap autonomy from `aggressive` to `manual`. The agent MUST emit a
+        confirmation prompt before any tool use; verdict flips from absent
+        to present. Confirms the polarity inversion is level-driven.

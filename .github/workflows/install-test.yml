@@ -1,0 +1,98 @@
+name: Install Test (per-PR)
+
+# Runs the install scenario against THIS PR's checkout to catch load-time
+# regressions before merge. Two modes both exercise the local revision:
+#   - default --plugin-dir: catches SKILL.md/manifest defects at parse time
+#   - TEST_LOCAL_MARKETPLACE=1: exercises the real `plugin install` code path
+#     against a git-init'd copy of the checkout
+#
+# Both modes assert via init-JSON parse that plugins[] contains helix and
+# skills[] contains helix:helix and no helix-plugin MCP server failed.
+#
+# Auth: accepts either secret (set ONE):
+#   - ANTHROPIC_API_KEY  (Console API key sk-ant-api03-...) — preferred
+#   - CLAUDE_OAUTH_TOKEN (claude setup-token output sk-ant-oat01-...) —
+#     synthesized into a credentials.json on the runner
+# Set with: gh secret set ANTHROPIC_API_KEY   (or CLAUDE_OAUTH_TOKEN)
+# Without auth the init probe can't run and the job FAILS (does not silently
+# skip — the whole point is to gate broken installs out of main).
+#
+# Why per-PR and not post-merge:
+#   install-smoke.yml runs against the PUBLISHED repo on tag push. By then a
+#   broken install has already merged. This workflow blocks it earlier.
+
+on:
+  pull_request:
+    branches: [main]
+    # Skip when the PR only touches docs/notes outside the install surface.
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - '!skills/helix/SKILL.md'
+      - '!.claude-plugin/**'
+  workflow_dispatch:
+
+jobs:
+  install-test:
+    runs-on: ubuntu-latest
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      CLAUDE_OAUTH_TOKEN: ${{ secrets.CLAUDE_OAUTH_TOKEN }}
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+
+      - name: Verify auth available
+        run: |
+          if [[ -z "$ANTHROPIC_API_KEY" && -z "$CLAUDE_OAUTH_TOKEN" ]]; then
+            echo "::error::Neither ANTHROPIC_API_KEY nor CLAUDE_OAUTH_TOKEN secret is set."
+            echo "::error::Set one with: gh secret set ANTHROPIC_API_KEY   (or CLAUDE_OAUTH_TOKEN)"
+            echo "::error::The init-JSON probe needs auth to assert the plugin loads."
+            exit 1
+          fi
+
+      - name: Synthesize credentials.json (when using OAuth token)
+        if: env.CLAUDE_OAUTH_TOKEN != '' && env.ANTHROPIC_API_KEY == ''
+        run: |
+          mkdir -p creds
+          python3 - <<'PY'
+          import json, os, time
+          creds = {"claudeAiOauth": {
+              "accessToken": os.environ["CLAUDE_OAUTH_TOKEN"],
+              "refreshToken": "",
+              "expiresAt": int((time.time() + 365*24*3600) * 1000),
+              "scopes": ["user:file_upload","user:inference","user:mcp_servers","user:profile","user:sessions:claude_code"],
+              "subscriptionType": "max",
+              "rateLimitTier": "max-claude-2x",
+          }}
+          json.dump(creds, open("creds/.credentials.json", "w"))
+          PY
+
+      - name: Build install-test image
+        run: docker build -t helix-install-test:claude-code tests/install/claude-code/
+
+      - name: Default mode (--plugin-dir + init-JSON probe)
+        run: |
+          AUTH_MOUNT=()
+          if [[ -n "$ANTHROPIC_API_KEY" ]]; then
+            AUTH_ARGS=(-e ANTHROPIC_API_KEY)
+          else
+            AUTH_ARGS=(-v "$PWD/creds/.credentials.json:/root/.claude/.credentials.json:ro")
+          fi
+          docker run --rm "${AUTH_ARGS[@]}" \
+            -v "$GITHUB_WORKSPACE:/workspace/helix:ro" \
+            helix-install-test:claude-code \
+            bash -c "install.sh && verify.sh"
+
+      - name: Local-marketplace mode (real plugin install code path)
+        run: |
+          if [[ -n "$ANTHROPIC_API_KEY" ]]; then
+            AUTH_ARGS=(-e ANTHROPIC_API_KEY)
+          else
+            AUTH_ARGS=(-v "$PWD/creds/.credentials.json:/root/.claude/.credentials.json:ro")
+          fi
+          docker run --rm "${AUTH_ARGS[@]}" \
+            -e TEST_LOCAL_MARKETPLACE=1 \
+            -v "$GITHUB_WORKSPACE:/workspace/helix:ro" \
+            helix-install-test:claude-code \
+            bash -c "install.sh && verify.sh"

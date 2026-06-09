@@ -1,0 +1,5 @@
+id: helix
+version: 1
+# Legacy heuristic-trigger file. Predates .helix.yml convention.
+# The skill, on finding no .helix.yml but finding this file, should emit
+# the literal banner from design §1.3 and proceed.

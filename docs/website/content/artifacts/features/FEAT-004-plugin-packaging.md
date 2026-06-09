@@ -101,16 +101,15 @@ helix/                              # plugin root
 ```json
 {
   "name": "helix",
-  "version": "0.1.0",
-  "description": "HELIX development control system — supervisory autopilot for AI-assisted software delivery",
+  "version": "0.6.1",
+  "description": "HELIX methodology, artifact catalog, and routing skill for AI-assisted development.",
   "author": {
-    "name": "Erik LaBianca",
-    "url": "https://github.com/easel"
+    "name": "DocumentDrivenDX",
+    "url": "https://github.com/DocumentDrivenDX"
   },
-  "repository": "https://github.com/easel/helix",
+  "repository": "https://github.com/DocumentDrivenDX/helix",
   "license": "MIT",
-  "skills": "./skills/",
-  "hooks": "./hooks/hooks.json"
+  "skills": "./skills/"
 }
 ```
 

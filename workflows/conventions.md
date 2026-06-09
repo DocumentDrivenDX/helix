@@ -28,6 +28,36 @@ When conventions and execution guidance disagree, follow:
 3. The runtime integration appendix for your runtime (e.g. the DDx
    reference-runtime integration in [DDX.md](DDX.md) and [EXECUTION.md](EXECUTION.md))
 
+## Documentation Voice
+
+HELIX documentation is written for humans and agents that need to preserve
+context while making decisions. The voice is precise, economical, and
+mechanism-first.
+
+Use tight vocabulary:
+
+- Prefer the exact artifact, command, field, status, metric, or constraint over
+  broad nouns such as "process", "workflow", "system", or "quality" when a
+  narrower term exists.
+- Reuse canonical HELIX terms consistently: activity, artifact, concern,
+  work item, acceptance criterion, ratchet, runtime, and evidence. Do not
+  introduce synonyms that force readers or agents to remember extra mappings.
+- Name uncertainty as an open question, assumption, risk, or blocker. Do not
+  bury it in hedged prose.
+- Keep claims scoped to the artifact's authority. A PRD states product scope; an
+  ADR records a decision; a test plan names verification strategy; a runtime
+  work item tracks execution.
+- Replace value language with observable consequences. Say what changes, what
+  is blocked, what is measured, or what evidence proves the claim.
+- Remove filler that does not carry context. If a sentence can disappear without
+  changing a decision, trace link, acceptance criterion, or next action, delete
+  it.
+
+Artifact prompts may add type-specific style rules, but they must preserve this
+contract. Public website prose may add stricter editorial rules; it must not
+weaken the methodology-level requirement for precise vocabulary and scoped
+claims.
+
 ## Skill Resource Boundary
 
 HELIX content is published as a package containing shared workflow resources

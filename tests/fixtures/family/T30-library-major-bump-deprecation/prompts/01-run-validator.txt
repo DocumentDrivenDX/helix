@@ -1,0 +1,1 @@
+Run python3 library/scripts/helix_check.py instance workspace/docs/helix/02-design/adr-001.md --marker workspace/.helix.yml --library-root workspace/library and report the exit code and warnings.

@@ -1,0 +1,47 @@
+tier: exploratory
+category: numbers-driven-design
+phase: P4-G2
+status: authored-pending-verification
+fixture: G2-scale-recalibration
+level: guided
+notes: |
+  G2 (audit-driven). Real-usage pattern from pqueue session: operator
+  presents concrete throughput numbers and asks whether the PRD target
+  is feasible at observed scale. The skill must engage, do the math
+  (or explicitly state assumptions), and either propose a PRD update or
+  defend the current number with rationale.
+
+  PASS contract (codex-review-tightened conjunction):
+    1. Skill(helix) tool_use fires.
+    2. Read of docs/helix/01-frame/PRD-001-queue-scaling.md (or any
+       file matching PRD-*) BEFORE prose response.
+    3. Prose contains an explicit throughput calculation — at least one
+       number paired with a throughput-style unit (queues, min, hr, msg,
+       messages, sec) connected to a second unit or number by a ratio
+       operator ('/', '-', '×', or 'x'). Compound rate units like
+       'msg/min', 'queue-min/min', or '833 msg/sec' satisfy this.
+    4. EITHER an Edit/Write to PRD-001-queue-scaling.md is observed
+       AND the new throughput number appears in the diff, OR the
+       assistant explicitly states "no change to PRD" with a numbered
+       rationale (at least 2 numbered points).
+
+  FAIL modes:
+    - Skill never engages.
+    - Agent answers without doing the math.
+    - Agent silently writes a new PRD number without reading the old.
+
+discriminator:
+  assertion_id: literal_or_banner_text
+  observable:
+    matcher_type: text_match
+    regex_pattern: '\d[\d,.]*\s*(queues?|min|hr|msg|messages?|sec)\s*[/×x-]\s*(\d|min|sec|hr|s|queue)'
+    occurrence_count: 1
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [helix]
+    rationale: |
+      Without the canonical skill, an untrained agent may quote the
+      numbers but won't surface the explicit throughput ratio. The
+      skill's "product mode → read upstream artifact" contract is what
+      drives the math.

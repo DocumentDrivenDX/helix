@@ -1,0 +1,42 @@
+tier: must_pass_core
+category: warm-context
+phase: P6
+status: authored-pending-verification
+notes: |
+  WC-01 (plan §15c Phase 6). Warm-context variant of C001. Five
+  unrelated turns (weather, regex, Tokyo travel, baking, music) precede
+  the C001 probe ("Let's start a helix project for a coffee-ordering
+  app") at turn 6. The assertion is unchanged from C001: the helix
+  skill MUST engage on turn 6 despite context dilution.
+
+  Layer 1 floor: a Skill(helix, ...) tool_use event appears in the
+  stream on turn 6. Earlier turns are unrelated so they are expected
+  NOT to trigger the skill — only the final probe should.
+
+  Engagement-rate gate (plan §15b row): the WC-01..WC-05 pass rate must
+  land within 5pp of the equivalent cold-start rows (C001, C002, C015,
+  C011, C020). Falling outside that band signals routing is sensitive
+  to context dilution.
+
+  Discrimination: plugins_remove kills the skill registration; the
+  agent cannot emit Skill(helix) even when the probe lands at turn 6.
+
+discriminator:
+  assertion_id: skill_tool_use
+  observable:
+    matcher_type: skill_tool_use
+    skill_id: helix
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      Removing methodology-product unregisters the helix skill. The
+      five unrelated turns and the probe at turn 6 all run, but the
+      router has no helix skill to surface; Skill(helix) cannot
+      appear. Verdict flips present → absent, proving turn-6
+      engagement was skill-driven and not a prose echo of "helix".
+
+structural:
+  skill_invoked:
+    - name: helix

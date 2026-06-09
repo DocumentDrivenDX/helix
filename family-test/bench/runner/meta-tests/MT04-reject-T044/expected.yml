@@ -1,0 +1,15 @@
+# MT04 — negative_control has no methodology-changing modification.
+# plugins_remove targets a non-methodology plugin → no-op.
+# Runner MUST reject with T044.
+meta_test:
+  id: MT04
+  expected_rejection: T044
+discriminator:
+  assertion_id: skill_tool_use
+  observable:
+    matcher_type: skill_tool_use
+    skill_id: helix
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [some-unrelated-formatter-plugin]

@@ -1,0 +1,5 @@
+turns:
+  - user: |
+      The PRD lists three new infra components, each with gaps. Use a
+      workflow: plan each gap, have codex review each plan, synthesize,
+      then propose next steps. Don't modify specs yet.

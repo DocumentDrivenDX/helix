@@ -1,0 +1,5 @@
+turns:
+  - user: |
+      We have a rollout coming up next sprint and I want a plan for it.
+      Use HELIX to figure out the right next step — `.helix.yml` is at the
+      repo root, and I'd rather not pick the wrong flow by accident.

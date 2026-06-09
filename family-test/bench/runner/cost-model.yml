@@ -1,0 +1,12 @@
+# Per-1M-token pricing for the bench runner's cost tracker.
+# Update when claude-code pricing changes; the runner reads this file on each
+# cost computation (no code change needed).
+#
+# Source: claude-opus-4-7 list price as of 2026-06-05.
+
+model: claude-opus-4-7
+per_million_tokens:
+  input_tokens: 15.00
+  output_tokens: 75.00
+  cache_creation_input_tokens: 18.75
+  cache_read_input_tokens: 1.50

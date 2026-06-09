@@ -62,9 +62,9 @@ source-file storage adapter and persist draft session metadata in PostgreSQL.
 
 ### New: API Import Session Route
 
-- **Purpose**: Implement `POST /v1/clients/{clientId}/import-sessions`.
-- **Interfaces**: Input: authenticated multipart request with `bankFile` and
-  `invoiceFile`; Output: API-001 success or problem-details error response.
+- **Purpose**: Implement the API-001 import session route.
+- **Interfaces**: Input/output semantics are governed by API-001; this TD owns
+  local route wiring only.
 - **Files**: `apps/api/src/routes/importSessions.ts`,
   `apps/api/src/schemas/importSessionSchemas.ts`
 
@@ -80,25 +80,9 @@ source-file storage adapter and persist draft session metadata in PostgreSQL.
 
 ## API/Interface Design
 
-Use API-001 without changing the contract.
-
-```yaml
-endpoint: /v1/clients/{clientId}/import-sessions
-method: POST
-request:
-  contentType: multipart/form-data
-  parts:
-    bankFile: csv file, required, max 10MB
-    invoiceFile: csv file, required, max 10MB
-response:
-  status: 201
-  body:
-    importSessionId: uuid
-    clientId: uuid
-    status: draft
-    files: uploaded file metadata
-    next.href: mapping endpoint
-```
+| Surface | Governing Contract | Story-Level Usage |
+|---------|--------------------|-------------------|
+| Import session API | API-001 | Route handler, upload service, and UI client call the existing contract without changing its normative surface. |
 
 ## Data Model Changes
 

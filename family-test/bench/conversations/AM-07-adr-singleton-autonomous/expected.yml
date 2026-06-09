@@ -1,0 +1,31 @@
+tier: must_pass_core
+category: autonomy-matrix
+phase: P3
+status: authored-pending-verification
+fixture: B-adr-singleton
+level: autonomous
+notes: |
+  AM-07 (fixture B × level autonomous). Marker active (helix), no upstream
+  prereqs needed. Prompt asks for an ADR. Under autonomous the skill
+  proceeds directly to Read + Write without confirmation. Single Write
+  tool_use for the ADR; no Bash beyond context reads.
+
+  Discriminator polarity inverted (absent in positive run). Pair-row
+  contract identical to AM-03 but without the cascade variable.
+
+discriminator:
+  assertion_id: confirmation_before_mutation
+  observable:
+    matcher_type: prose_pattern_before_tool
+    confirmation_marker_pattern: '(OK to proceed|Should I proceed|Want me to|Shall I|Do you want me to)\b'
+    mutation_tools: [Write, Edit, Bash]
+  expected_in_positive_run: absent
+  expected_in_negative_run: present
+  negative_control:
+    autonomy_swap:
+      from: autonomy.yml
+      to: ../AM-05-adr-singleton-manual/autonomy.yml
+      rationale: |
+        Swap autonomy from `autonomous` to `manual`. The agent MUST emit a
+        confirmation prompt before any tool use; verdict flips from absent
+        to present.

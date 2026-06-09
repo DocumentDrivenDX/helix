@@ -1,0 +1,30 @@
+{
+  "assert": "stream_json_tool_use",
+  "expect_tool_use": {
+    "name_regex": "^Write$",
+    "path_regex": "^docs/helix/02-design/.*\\.md$",
+    "exactly_one": true
+  },
+  "forbid_tool_use": [
+    {
+      "name_regex": "^Write$",
+      "path_regex": "^docs/adr/"
+    },
+    {
+      "name_regex": "^Write$",
+      "path_regex": "^(?!docs/helix/02-design/).+\\.md$"
+    }
+  ],
+  "secondary": {
+    "assert": "prose_match",
+    "must_not_match": [
+      "(?i)helix-library.*(not installed|missing)",
+      "(?i)disambiguat"
+    ],
+    "allow_match_any": [
+      "(?i)marker.*helix",
+      "(?i)default.*helix"
+    ]
+  },
+  "rationale": "Marker declares BOTH methodologies; defaults.methodology: helix wins. EXACTLY ONE Write to docs/helix/02-design/*.md. Disambiguation prose is forbidden — the marker is the operator's intent and the agent must NOT surface a disambiguation banner when the marker resolves. Distinguishes new T5 (marker present) from T07 (mixed signals, marker absent or non-defaulting)."
+}

@@ -93,7 +93,7 @@ project is straying from its declared technology choices. For example, the
 `typescript-bun` concern flags `npm run` instead of `bun run`, `eslint`
 instead of Biome, and `jest` instead of `bun:test`.
 
-HELIX checks for drift signals during [review and alignment](/use/workflow/methodology/#review-and-alignment),
+HELIX checks for drift signals during [review and alignment](/use/workflow/#review-and-alignment),
 reporting findings that keep the project true to its own decisions.
 
 ## Artifact-Impact Contract
@@ -120,7 +120,7 @@ Spike/POC (gather evidence)
 ```
 
 <!-- vale Helix.PassiveVoice = NO -->
-When a referenced ADR is superseded, [review and alignment](/use/workflow/methodology/#review-and-alignment)
+When a referenced ADR is superseded, [review and alignment](/use/workflow/#review-and-alignment)
 <!-- vale Helix.PassiveVoice = YES -->
 flags the affected concern for re-evaluation, ensuring that decisions
 <!-- vale Helix.Hedges = NO -->

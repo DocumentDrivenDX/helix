@@ -1,0 +1,51 @@
+---
+id: F8
+slug: cost-overrun
+title: Cost overrun
+category: cost
+scenario: |
+  The nightly Glue ETL job aggregate_fact_events_hourly cost $8,400 for 2026-06-03, compared with the approved $1,650 daily budget. The job scanned raw_events, grouped by event_type and partition keys, and wrote Redshift fact_events_hourly.
+
+  The root cause was a producer adding session_trace_id to the partitioning expression through an unreviewed configuration change. The field had near-unique cardinality, which exploded partition count from 24 hourly partitions to 41,000 partitions.
+
+  Glue performed an unbounded scan and reshuffle across the full customer-events day. CloudWatch billing alarms fired 14 hours late because the threshold was configured as monthly spend, not daily job spend.
+
+  The symptom was a surprise $8,400 job charge and delayed morning pipeline completion. This fixture tests whether architecture, monitoring, metrics, and improvement backlog artifacts require cost budgets and cardinality controls.
+adversarial_signal: |
+  If the methodology misses cost controls, a single high-cardinality field can turn a routine ETL job into a material cloud bill. The pipeline still produces data, so functional tests alone do not catch the failure.
+
+  The blast radius includes a $42K weekly Glue bill if the issue repeats for five nights, missed SLAs from slow reshuffles, and pressure to disable necessary data products without knowing the root cause.
+expected_handling:
+  detection:
+    - The monitoring-setup artifact defines a daily Glue spend alert for aggregate_fact_events_hourly.
+    - The metrics-dashboard shows actual daily cost versus the $1,650 budget.
+    - A data-architecture check rejects partition keys above the approved cardinality threshold.
+    - The Glue job emits partition_count and shuffle_bytes metrics for every nightly run.
+    - A cost anomaly alert fires when job spend exceeds 120 percent of the daily budget.
+    - The dashboard links the 41,000 partition count to session_trace_id cardinality.
+  response:
+    - The on-call stops any queued rerun of aggregate_fact_events_hourly for 2026-06-03.
+    - The data engineer removes session_trace_id from the partitioning expression.
+    - The on-call reruns the job with the approved hourly partition keys and validates a 24-partition output.
+    - The platform owner changes the CloudWatch alarm from monthly aggregate spend to daily job-level spend.
+    - The team records the cost delta and root cause in the incident ticket.
+    - The improvement-backlog receives a follow-up to enforce partition-key review automatically.
+  prevention:
+    - The data-architecture artifact declares allowed partition keys and cardinality limits.
+    - The monitoring-setup artifact defines daily job-level cost alarms, not only monthly thresholds.
+    - The metrics-dashboard artifact displays cost, partition count, scanned bytes, and shuffle bytes.
+    - The improvement-backlog captures automation for partition-key cardinality validation.
+    - The lifecycle review requires cost budget approval for every scheduled Glue job.
+    - The architecture forbids unreviewed producer fields from becoming physical partition keys.
+artifacts_referencing:
+  - data-architecture
+  - monitoring-setup
+  - metrics-dashboard
+  - improvement-backlog
+acceptance_criteria:
+  - The data-architecture artifact specifies that session_trace_id is not an allowed partition key.
+  - The data-architecture artifact defines a maximum partition cardinality for fact_events_hourly.
+  - The monitoring-setup artifact defines a daily Glue spend alarm for the $1,650 budget.
+  - The metrics-dashboard artifact shows actual cost, budget, partition_count, and shuffle_bytes.
+  - The improvement-backlog artifact includes an item for automated partition-key cardinality checks.
+  - The worked example names the $8,400 cost and 41,000 partition failure.

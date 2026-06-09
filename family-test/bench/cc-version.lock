@@ -1,0 +1,7 @@
+claude_code_version: 2.1.163
+pinned_at: 2026-06-05
+last_validated: 2026-06-05
+re_validation_required_after: 2026-09-05    # 90 days
+re_validation_trigger_versions:
+  - 2.2.x
+  - 2.1.200+

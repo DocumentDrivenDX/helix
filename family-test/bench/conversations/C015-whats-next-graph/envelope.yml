@@ -1,0 +1,25 @@
+# C015 Layer 3 (next-action envelope) — plan §1.4 §6.8 §8.
+#
+# Marker active (helix), approved vision exists, no PRD. Prompt "What's
+# next?" requires the agent to consult graph.yml and surface the next
+# downstream node. Envelope contract: offered MUST contain
+# draft_artifact:prd (the cascade-next), and MUST NOT contain
+# draft_artifact:product-vision (already done, asking for it would be a
+# cascade regression).
+
+envelope:
+  assertion_id: next_action_envelope
+  schema_path: judge/next-action-envelope.schema.json
+  offered_requires:
+    - draft_artifact:prd
+    - consult_graph:product-vision-informs-prd
+  not_offered_forbids:
+    - draft_artifact:product-vision
+  expected_in_envelope_pass: present
+
+notes: |
+  Layer 3 here proves the agent ACTUALLY USED graph.yml (consult_graph
+  appears in offered) rather than guessing from prose. Catches the
+  failure mode where the agent answers "PRD" from training without
+  citing the edge — the consult_graph descriptor is the citation in
+  machine-readable form.

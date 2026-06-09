@@ -1,0 +1,75 @@
+name: family-test marker validation
+
+# Bucket-E deliverable. This workflow validates every consumer fixture
+# under family-test/consumer/ using the marker mode of helix_check.py.
+#
+# IMPORTANT: GitHub Actions only picks up workflows located at the repo
+# root in .github/workflows/. To activate this workflow, copy or symlink
+# it to /.github/workflows/family-validation.yml at the repo root. Its
+# existence under family-test/ documents the intended CI contract for
+# the vertical slice.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'family-test/**'
+      - '.github/workflows/family-validation.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'family-test/**'
+      - '.github/workflows/family-validation.yml'
+  workflow_dispatch:
+
+jobs:
+  validate-fixtures:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: family-test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Run the vertical-slice test driver
+        run: bash run-tests.sh
+
+      - name: Validate clean fixture (must pass)
+        run: |
+          python3 library/scripts/helix_check.py marker \
+            consumer/clean/.helix.yml \
+            --methodology helix=methodology-product \
+            --library-types library/types \
+            --strict
+
+      - name: Spot-check representative broken fixtures (each must fail)
+        run: |
+          set +e
+          fail=0
+          for fixture in bad-edge-kind missing-target three-errors \
+                         malformed-marker-escape malformed-marker-dup-id \
+                         malformed-marker-missing-scope \
+                         planned-but-resolved unknown-methodology \
+                         intra-doc-edges-negative; do
+            python3 library/scripts/helix_check.py marker \
+              "consumer/$fixture/.helix.yml" \
+              --methodology "helix=methodology-product" \
+              --library-types library/types \
+              --strict >/dev/null 2>&1
+            rc=$?
+            if [ "$rc" -eq 0 ]; then
+              echo "FAIL: $fixture was expected to fail but exited 0"
+              fail=1
+            else
+              echo "OK:   $fixture failed as expected (exit $rc)"
+            fi
+          done
+          exit $fail

@@ -1,0 +1,12 @@
+turns:
+  - user: |
+      I want to draft PRD-001 at docs/helix/01-frame/PRD-001.md for the
+      office-floor coffee queue described in VIS-001
+      (docs/helix/00-discover/product-vision.md) — targeting ~50 floors at
+      pilot, morning-only ordering window, kitchen-side consolidated queue,
+      with payments/delivery/multi-tenant billing explicitly out of scope.
+      Before you write anything, consult this workspace's methodology graph
+      and tell me what upstream artifacts or prerequisites it declares for a
+      PRD here — call out anything non-standard or project-local I should
+      know about that isn't part of canonical HELIX. Then propose the PRD
+      draft. Use HELIX.

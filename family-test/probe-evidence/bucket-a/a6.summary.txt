@@ -1,0 +1,18 @@
+A6 — malformed marker + heuristics → STOP not fall back
+fixture: bucket-a/a6-malformed (.helix.yml has tab-indent + unclosed flow; workflows/methodology.yml present)
+plugins: helix-library, helix
+prompt: "Show me what methodologies are active."
+
+ASSERT: agent reports marker error; does NOT fall back to heuristics
+RESULT: PASS — agent says:
+"I can't give you a confident answer here ... The authoritative config,
+.helix.yml, is invalid YAML and can't be loaded."
+"Why I'm not just answering 'helix': The workflows/methodology.yml file
+suggests helix is active ... but it's explicitly labeled a heuristic
+fallback, not the real config. If I quoted it as the answer, I'd be
+presenting a guess as fact while the authoritative file is broken."
+
+Skill(helix:helix) was invoked (proves skill loaded). Skill correctly
+refused to fall back to heuristic when marker is malformed.
+
+VERDICT: pass

@@ -1,0 +1,6 @@
+helix_version: 1
+methodologies:
+  - id: helix-web
+    root: services/web/
+  - id: helix-infra
+    root: infra/

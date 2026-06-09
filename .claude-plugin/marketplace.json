@@ -9,6 +9,7 @@
     {
       "name": "helix",
       "description": "HELIX methodology, artifact catalog, and routing skill for AI-assisted development.",
+      "version": "0.6.1",
       "source": {
         "source": "url",
         "url": "https://github.com/DocumentDrivenDX/helix.git"

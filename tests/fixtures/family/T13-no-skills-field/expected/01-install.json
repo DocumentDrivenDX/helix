@@ -1,0 +1,27 @@
+{
+  "assert": "install_result",
+  "command_resolver": "claude plugins --help",
+  "command_candidates": [
+    "claude plugins install workspace/",
+    "claude plugin install workspace/",
+    "claude plugins install --from-dir workspace/",
+    "claude plugin install --from-dir workspace/"
+  ],
+  "expect_exit_zero": true,
+  "stderr_must_not_match": [
+    "(?i)missing.*skills",
+    "(?i)required field.*skills",
+    "(?i)invalid plugin\\.json"
+  ],
+  "post_install_assert": {
+    "type": "filesystem",
+    "paths_must_exist": [
+      "~/.claude/plugins/helix-library/.claude-plugin/plugin.json"
+    ],
+    "paths_must_be_readable": [
+      "~/.claude/plugins/helix-library/.claude-plugin/plugin.json"
+    ]
+  },
+  "on_failure_followup": "Update fixture README to record actual Claude Code behaviour and activate the skills/_data/SKILL.md workaround (see T20). This field is operational guidance, not a falsifiable assertion.",
+  "rationale": "Data-only plugin must install cleanly AND leave a readable plugin.json on disk. Install exit code alone is insufficient — install can succeed-as-no-op without mounting. The runner first probes `claude plugins --help` to choose the canonical install CLI (the design has not pinned which form is correct; --from-dir may not exist on the shipped harness). Filesystem assertion proves 'mounted', not just 'install exited 0'."
+}

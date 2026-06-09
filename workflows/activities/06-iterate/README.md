@@ -336,7 +336,7 @@ Track these metrics across iterations to measure improvement:
 
 ## Analysis Tools
 
-Iterate work is driven by the cross-activity methodology actions (**align**,
+Iterate work is driven by the cross-activity flow actions (**align**,
 **review**, **experiment**) and metric definitions in
 `artifacts/metric-definition/`. See the runtime integration appendix below
 for the concrete dispatch commands.
@@ -372,7 +372,7 @@ The Iterate activity outputs directly influence the next Frame activity:
 
 ## Using AI Assistance
 
-Iterate work is decided through the **check** methodology action and the
+Iterate work is decided through the **check** flow action and the
 canonical cross-activity action prompts:
 - `actions/reconcile-alignment.md`
 - `actions/backfill-helix-docs.md`

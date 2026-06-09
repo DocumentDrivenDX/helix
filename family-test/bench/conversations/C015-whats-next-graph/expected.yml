@@ -1,0 +1,37 @@
+tier: must_pass_core
+category: conversation-library
+phase: P5
+status: authored-pending-verification
+notes: |
+  C015 (plan §1.5). Marker active (helix), approved vision, no PRD.
+  Prompt "What's next?" requires consulting graph.yml and emitting
+  the next downstream node (PRD).
+
+  Layer 1 floor: Skill(helix) tool_use.
+
+  Layer 2 (P7 wiring): prose names "PRD" as the next artifact AND
+  cites the vision as the upstream informing node. C015's spec is
+  intentionally Layer-1 minimal at P5 so the row can land as
+  stable-pass before judge wiring; the structural floor is
+  engagement.
+
+  Discrimination: plugins_remove kills engagement.
+
+discriminator:
+  assertion_id: skill_tool_use
+  observable:
+    matcher_type: skill_tool_use
+    skill_id: helix
+  expected_in_positive_run: present
+  expected_in_negative_run: absent
+  negative_control:
+    plugins_remove: [methodology-product]
+    rationale: |
+      No methodology plugin → no helix skill → no Skill(helix).
+      The agent may still reply with a plausible "what's next"
+      sentence from training, but the tool_use event is absent.
+      Verdict flips.
+
+structural:
+  skill_invoked:
+    - name: helix

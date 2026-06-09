@@ -1,0 +1,10 @@
+{
+  "assert": "validator_exit",
+  "command": "python3 library/scripts/helix_graph_check.py --methodology workspace/methodology.yml workspace/docs/adr/0001-pick-postgres.md",
+  "expect_exit_zero": true,
+  "stderr_must_not_match": [
+    "(?i)missing.*decision",
+    "(?i)required section.*decision"
+  ],
+  "rationale": "section_aliases lets ## Outcome stand in for canonical ## Decision; doc must validate clean."
+}

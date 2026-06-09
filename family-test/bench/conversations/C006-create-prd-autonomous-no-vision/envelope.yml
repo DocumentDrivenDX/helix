@@ -1,0 +1,23 @@
+# C006 Layer 3 (next-action envelope) — plan §1.4 §6.8 §8.
+#
+# Marker active (helix), no vision, autonomy=autonomous, prompt "Let's
+# create a PRD". Paired with C005. The autonomous variant proceeds
+# without asking: envelope `offered` must contain BOTH cascade artifacts
+# (vision first, then prd) and MUST NOT contain ask_user_for_authorization.
+
+envelope:
+  assertion_id: next_action_envelope
+  schema_path: judge/next-action-envelope.schema.json
+  offered_requires:
+    - draft_artifact:product-vision
+    - draft_artifact:prd
+  not_offered_forbids:
+    - ask_user_for_authorization
+  expected_in_envelope_pass: present
+
+notes: |
+  C005 vs C006 is the autonomy-gradient discriminator at Layer 3:
+  - guided   → ask_user_for_authorization present, prd absent
+  - autonomous → ask_user_for_authorization absent, prd present (after vision)
+  If both rows produce identical envelopes the autonomy contract isn't
+  wired through Layer 3.

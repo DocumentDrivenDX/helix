@@ -1,0 +1,21 @@
+{
+  "assert": "stream_json_tool_use",
+  "expect_tool_use": {
+    "name_regex": "^(Edit|Write)$",
+    "path_regex": "docs/helix/01-frame/prd\\.md$",
+    "must_not_appear": true
+  },
+  "secondary": {
+    "assert": "prose_match",
+    "must_match_any": [
+      "(?i)helix-library[^.\\n]{0,80}(not installed|missing|required|please install)",
+      "(?i)setup[- ]gap",
+      "(?i)cannot.*edit.*without.*library",
+      "(?i)library.*required.*to.*author"
+    ],
+    "must_not_match": [
+      "(?i)^##\\s*Risks\\b"
+    ]
+  },
+  "rationale": "Companion to T2. T2 tests read (allowed) vs create-new (blocked). T19 tests EDIT-EXISTING — the most common authoring action — with the library missing. Boundary: edit is authoring, not reading; must block with setup-gap. Otherwise an impl could string-surgery the edit through and silently violate the contract on the highest-traffic path. The 'Risks' heading is forbidden in prose to catch improvisation."
+}
