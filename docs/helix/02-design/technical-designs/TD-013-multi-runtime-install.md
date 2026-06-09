@@ -20,8 +20,8 @@ packages), [[CONTRACT-003-ddx-adapter-boundary]]
 - Inherits the no-fork policy from [`docs/install/README.md`](../../../install/README.md)
   and the runtime-neutrality constraint from PRD R-4.
 - Out of scope: changes to the routing skill body, changes to the
-  artifact catalog, marketplace listing on third-party registries
-  beyond what the agentskills.io spec enables.
+  artifact catalog, and marketplace listings outside the repo-owned
+  plugin catalogs.
 - Governing artifacts: FEAT-013, PRD, agentskills.io spec, per-runtime
   research notes under `docs/resources/agents/`.
 
@@ -110,7 +110,7 @@ the same content via `.github/copilot-instructions.md`.
 
 ### New: `.claude-plugin/marketplace.json`
 
-- **Purpose**: enable Claude Code marketplace install of HELIX.
+- **Purpose**: Claude Code marketplace install of HELIX.
 - **Interfaces**: read by Claude Code when a user runs
   `/plugin marketplace add DocumentDrivenDX/helix`.
 - **Schema** (per [claude-code-plugins.md](../../../resources/agents/claude-code-plugins.md)):
@@ -140,7 +140,7 @@ the same content via `.github/copilot-instructions.md`.
 
 ### New: `.github/copilot-instructions.md`
 
-- **Purpose**: enable GitHub Copilot auto-discovery of HELIX as
+- **Purpose**: GitHub Copilot auto-discovery of HELIX as
   repo-scoped instruction content. Adopter repos can copy this file
   verbatim or include it via a symlink/include.
 - **Interfaces**: read automatically by Copilot CLI, IDE Copilot Chat,

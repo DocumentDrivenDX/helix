@@ -80,7 +80,7 @@ research only recently stabilized.
 |---|---|---|
 | Repo adapters | "What files in the repo make HELIX installable on my runtime?" | Commit the adapter files each runtime expects |
 | Install docs | "Which command do I run for my runtime?" | Document one canonical install command per runtime |
-| Genie packaging | "How do I get HELIX into a Databricks workspace?" | Provide bundle assembly + upload scripts |
+| Genie packaging | "How do I get HELIX into a Databricks workspace?" | Assemble the bundle and upload it through scripts |
 | Install verification | "Did the install work?" | Per-runtime verification scripts (static + functional) |
 | Test harness | "Does the install path still work on this release?" | Docker-based scenarios + screencast captures |
 
@@ -152,10 +152,10 @@ subdirectory per runtime (`ddx/`, `claude-code/`, `codex-cli/`,
 `copilot-cli/`, `genie/`).
 
 [TEST-02]. Each terminal-based runtime (DDx, Claude Code, Codex CLI,
-Copilot CLI) MUST provide a Dockerfile, an install script, a
+Copilot CLI) MUST include a Dockerfile, an install script, a
 verification script, and a `vhs` `.tape` file for screencast capture.
 
-[TEST-03]. The Genie test scenario MUST provide the SDK install
+[TEST-03]. The Genie test scenario MUST include the SDK install
 script, the offline verification script, a manual browser verification
 procedure, and a captured screencast of the manual verification.
 
@@ -169,7 +169,7 @@ that the response names a known set of HELIX routing modes drawn from
 `tests/install/shared/expected-modes.txt`. Functional checks SHOULD be
 gated behind an environment variable to control token cost.
 
-[TEST-06]. The repo MUST provide a top-level entry point (justfile
+[TEST-06]. The repo MUST include a top-level entry point (justfile
 recipe or single script) that builds all images, runs all install +
 verify steps, and captures all screencasts in one invocation.
 
@@ -234,9 +234,9 @@ under FEAT-013 act as the implementation work items.
   this constraint and combines headless install verification with
   manual browser-screencast verification.
 - The cross-runtime `npx skills add` CLI is real but only installs to
-  local agent paths. It is the recommended install path for Codex CLI
-  (and a viable alternative for Claude Code in `--plugin-dir` mode) but
-  not for Genie or Copilot.
+  local agent paths. It is the fallback install path for older Codex CLI
+  builds and a viable alternative for Claude Code skill-path installs,
+  but not for Genie or Copilot.
 
 ## Dependencies
 

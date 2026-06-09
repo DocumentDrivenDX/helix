@@ -25,8 +25,9 @@ rebuild the cast whenever you like.
 
 ## Install HELIX in your runtime
 
-Three short reels show the documented install path for each supported
-runtime. Each runs the real commands from the install guides.
+Three short reels show runtime install sessions. The committed recordings are
+historical session records; the text below names the current install path when
+a recording uses an older fallback.
 
 In Claude Code, add the marketplace and install the plugin, then verify
 with `claude plugin list`.
@@ -34,7 +35,7 @@ with `claude plugin list`.
 {{< asciinema file="/demos/install-claude.cast" autoplay=true speed=1.5 >}}
 
 In Codex, the plugin manager installs HELIX from the configured marketplace.
-Older recordings may show the Skills CLI fallback.
+This recording still shows the Skills CLI fallback.
 
 {{< asciinema file="/demos/install-codex.cast" autoplay=true speed=1.5 >}}
 

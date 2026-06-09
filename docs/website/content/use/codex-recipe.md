@@ -13,22 +13,22 @@ HELIX ships as a Codex plugin that carries the routing skill
 plus the artifact catalog under `workflows/activities/`. Installing the plugin
 makes HELIX discoverable in any Codex session.
 
-The recommended path uses Codex's plugin manager:
+Use Codex's plugin manager:
 
 ```bash
 codex plugin marketplace add DocumentDrivenDX/helix
 codex plugin add helix@helix
 ```
 
-For older Codex CLI builds without `codex plugin`, the Skills CLI fallback still
-installs the same routing skill:
+For older Codex CLI builds without `codex plugin`, the Skills CLI fallback
+copies `skills/helix/SKILL.md` into Codex's skill path:
 
 ```bash
 npx skills add DocumentDrivenDX/helix -a codex
 ```
 
-For scripted or Docker environments without Node or plugin support, clone the
-repo over HTTPS and copy the skill into the Codex discovery path:
+For scripted or Docker environments without Node or `codex plugin`, clone
+the repo over HTTPS and copy the skill into the Codex discovery path:
 
 ```bash
 git clone https://github.com/DocumentDrivenDX/helix /tmp/helix-src
@@ -42,7 +42,7 @@ procedure, including updates, DDx symlinks, and Docker auth, is in the
 
 ## What the runtime must provide
 
-Codex, or the environment around it, must provide:
+Codex, or the environment around it, must define:
 
 - Explicit working directory and file scope.
 - Clear instructions about which artifacts govern the task.

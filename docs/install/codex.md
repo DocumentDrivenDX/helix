@@ -11,7 +11,7 @@ HELIX ships as content (artifact catalog under `workflows/activities/`)
 plus a single routing skill at `skills/helix/SKILL.md`. The repo is also
 a Codex plugin: `.codex-plugin/plugin.json` points Codex at the same
 skill directory and presentation metadata, while `.claude-plugin/marketplace.json`
-provides the marketplace listing Codex can import from GitHub.
+is the marketplace listing Codex imports from GitHub.
 
 ## What you are installing
 
@@ -33,7 +33,7 @@ codex plugin marketplace add DocumentDrivenDX/helix
 codex plugin add helix@helix
 ```
 
-Verify Codex can see the plugin:
+Verify Codex can see the marketplace entry:
 
 ```bash
 codex plugin list --marketplace helix --available --json
@@ -59,7 +59,7 @@ This drops `skills/helix/SKILL.md` (and supporting files) into the
 Codex skill discovery path (`~/.codex/skills/helix/` or
 `~/.agents/skills/helix/` depending on installer version).
 
-Requires Node.js. The Skills CLI also supports `--list`, `--skill
+Requires Node.js. The Skills CLI also accepts `--list`, `--skill
 <name>`, and multi-agent targets (`-a claude-code -a codex` etc). Use
 this path when you are on a Codex CLI build that does not yet include
 `codex plugin`.
@@ -144,13 +144,23 @@ non-interactively:
 codex exec --ephemeral "What HELIX routing modes are available, and where is the routing skill?"
 ```
 
-A correct install:
-1. Mentions reading `~/.codex/skills/helix/SKILL.md` (or `.agents/skills/helix/SKILL.md`).
+For plugin installs, first confirm the plugin is installed:
+
+```bash
+codex plugin list --marketplace helix --json
+```
+
+The installed plugin root should resolve under
+`~/.codex/plugins/cache/helix/helix/<version>/`.
+
+A correct runtime response:
+1. Mentions the HELIX skill or the installed `helix@helix` plugin.
 2. Lists routing modes: input, frame, align, evolve, design, backfill,
    review, polish, check/next, build, run, commit, release, experiment,
    worker (or a faithful subset).
 
-If Codex does not mention the skill file, check:
+For fallback filesystem skill installs, if Codex does not mention the skill
+file, check:
 - `ls ~/.codex/skills/helix/SKILL.md` confirms the file is in place
 - `cat ~/.codex/config.toml | grep -A1 skills` does not have
   `enabled = false` for the HELIX entry
@@ -201,7 +211,7 @@ when `--with-api-key` is unavailable.
 
 ## Update / uninstall
 
-Plugin install:
+Plugin update:
 
 ```bash
 codex plugin marketplace upgrade helix
@@ -239,11 +249,9 @@ individual bead executions.
 
 Refresh is a first-class HELIX mode that brings every artifact instance
 under a project HELIX tree up to date with the current canonical
-templates and prompts. Codex CLI supports Refresh through codex agent
-sub-runs: when you invoke Refresh, Codex dispatches one agent per activity
-directory (00-discover, 01-frame, …, 06-iterate) for parallel processing
-across your artifact tree. You can also run Refresh in sequential mode if
-you prefer a single-threaded pass; both paths use the same underlying
+templates and prompts. Codex CLI currently runs Refresh in one session.
+For parallel activity fan-out, pair Codex with a runtime such as DDx that
+can dispatch one worker per activity directory. Both paths use the same
 HELIX methodology.
 
 ## Integration tests

@@ -21,7 +21,7 @@ ddx:
 
 OpenAI Codex CLI adopts the agentskills.io specification for skills.
 There is **no native `codex skill install` subcommand** for standalone
-skills. Current Codex does provide a plugin manager:
+skills. Current Codex includes a plugin manager:
 `codex plugin marketplace add`, `codex plugin add`, and
 `codex plugin marketplace upgrade`. A plugin can carry a `skills`
 directory through `.codex-plugin/plugin.json`; standalone skills are
@@ -110,7 +110,7 @@ Changes require restarting the Codex session.
 
 ## Plugins (distinct from skills)
 
-Codex has a separate "plugin" concept with marketplace support:
+Codex has a separate "plugin" concept with marketplace commands:
 
 ```bash
 codex plugin marketplace add <github-url-or-git-url-or-ssh-or-local-dir>
@@ -185,7 +185,7 @@ device authorization flow).
   4. Also copy the catalog: `cp -r /tmp/helix-src/workflows /workspace/workflows` (referenced from skill body)
   5. `printenv OPENAI_API_KEY | codex login --with-api-key`
   6. `codex exec --ephemeral "list HELIX routing modes"` — verify
-- The one-command-adjacent user path is the plugin pair:
+- The user install path is the plugin pair:
   `codex plugin marketplace add DocumentDrivenDX/helix` and
   `codex plugin add helix@helix`.
 

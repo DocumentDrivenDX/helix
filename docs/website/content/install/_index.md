@@ -29,7 +29,7 @@ verification for one runtime. Pick the one that matches your environment;
 install more than one if you use more than one.
 
 {{< cards >}}
-  {{< card link="../use/claude-code-recipe" title="Claude Code" subtitle="Install HELIX as a Claude Code skill, user-global or per-repo. Supports every HELIX route including build and run." icon="code" >}}
+  {{< card link="../use/claude-code-recipe" title="Claude Code" subtitle="Install HELIX as a Claude Code plugin through the marketplace or a local plugin directory." icon="code" >}}
   {{< card link="../use/codex-recipe" title="Codex CLI + Copilot" subtitle="Covers the OpenAI Codex CLI plugin path and GitHub Copilot Workspace editor-scoped instructions." icon="chip" >}}
   {{< card link="../use/databricks-recipe" title="Databricks Code Genie" subtitle="Upload the skill bundle to workspace storage and register it as a Genie skill. Shared across the workspace." icon="database" >}}
 {{< /cards >}}
@@ -47,7 +47,7 @@ lives in two places:
   for every artifact type.
 
 When a per-runtime guide and the skill or catalog disagree, the skill and
-catalog win.
+catalog govern.
 
 ## No-fork policy
 
@@ -60,4 +60,4 @@ to localize, dialect, or rewrite the methodology.
   that shim lives inside the per-runtime guide, explicitly marked as
   runtime-specific. It does not get pushed back into `skills/` or `workflows/`.
 
-Three install paths, one HELIX.
+Three runtime guides, one HELIX source.

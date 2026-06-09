@@ -6,9 +6,9 @@ needs at every level — vision, requirements, design, tests, deploy, metrics �
 plus a single alignment skill that keeps them in sync as the work moves.
 
 HELIX runs on runtimes. [DDx](https://documentdrivendx.github.io/ddx/) is
-the reference runtime — it provides the agent runtime, the tracker, and the
-execution loop that turn aligned artifacts into running code. Databricks Genie
-and Claude Code are target runtimes. HELIX itself is content (templates,
+the reference runtime: it owns the agent runtime, tracker, and execution loop
+that turn aligned artifacts into code. Claude Code, Codex CLI, GitHub Copilot,
+and Databricks Genie are target runtimes. HELIX itself is content (templates,
 prompts, methodology spec) plus the alignment skill. HELIX ships no checkout
 CLI; alignment, queue control, tracker behavior, and the broader historical
 command surface belong to runtimes like DDx.
@@ -52,9 +52,9 @@ HELIX names seven kinds of work in software development:
 | **Deploy** | Runbook, deployment checklist, monitoring setup, release notes |
 | **Iterate** | Metric definitions, metrics dashboard, improvement backlog |
 
-Activities are connected by an **artifact authority hierarchy** — vision governs PRD,
+Activities are connected by an **artifact authority hierarchy**: vision governs PRD,
 PRD governs features, features govern designs, designs govern tests, tests
-govern code. When two artifacts disagree, the higher one wins. Work moves
+govern code. When two artifacts disagree, the higher-authority artifact governs. Work moves
 between activities in every direction: a failing test reveals a missing
 requirement; a production metric revises the PRD; a vision update propagates
 downstream.
@@ -148,7 +148,7 @@ ddx work
 ```
 
 The first slash command invokes the HELIX skill against your project's
-artifacts, identifies what needs to change to support the new intent, and
+artifacts, computes the artifact changes required by the new intent, and
 emits work items in the DDx tracker. The second runs DDx's bounded execution
 loop, dispatching agents to drain the queue. As work happens, the alignment
 skill keeps the governing artifacts in sync.
@@ -194,10 +194,9 @@ activities run in sequence — they don't.
 ## DDx as Runtime
 
 [DDx](https://documentdrivendx.github.io/ddx/) is where execution lives. DDx
-provides the work tracker (beads), the agent dispatch harness, the
-execution-evidence store, the document graph, and the queue-drain loop. HELIX
-provides the methodology, the artifact catalog, and the alignment skill that
-runs on top.
+owns the work tracker (beads), agent dispatch harness, execution-evidence
+store, document graph, and queue-drain loop. HELIX carries the methodology,
+artifact catalog, and alignment skill that run on top.
 
 The split is intentional: HELIX is portable methodology + content. DDx is one
 runtime that knows how to run that content. Other runtimes can run the
