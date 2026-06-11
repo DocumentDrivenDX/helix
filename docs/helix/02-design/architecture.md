@@ -5,11 +5,11 @@ ddx:
     - helix.prd
     - CONTRACT-003
   review:
-    self_hash: 49f65c706c77f174496e63379eb42676296da9527a504c90a81c204746968b0c
+    self_hash: 8b13992ac119f6bc4c1033f3af547203bfe96704172392d90a540f508ad62c4f
     deps:
-      CONTRACT-003: 30e3e4320bc0643c904e92ee797d6ad8942a480edfae85a158c3a17054323a52
-      helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
-    reviewed_at: "2026-05-15T04:11:24Z"
+      CONTRACT-003: 7c2fb59f847a930555679eed989233d20f23fe0896bcd50761bbeb4d77352010
+      helix.prd: e11b46de6300cc84460245fcfd6739210ce38406a76f90e32d26685938302eb1
+    reviewed_at: "2026-06-11T15:34:51Z"
 ---
 
 # Architecture
@@ -23,9 +23,9 @@ things:
 2. A **routing skill** in `skills/helix/SKILL.md` — the single agent-facing
    surface that reads and writes the catalog's artifact instances.
 3. A **methodology specification** in `workflows/` — the artifact
-   authority hierarchy, activity
-   conventions, artifact-type schema, principles, and the alignment skill
-   contract, expressed in runtime-neutral terms.
+   authority hierarchy, activity conventions, artifact-type schema,
+   principles, flow contract, and workflow-mode contracts, expressed in
+   runtime-neutral terms.
 
 HELIX does not provide a CLI, tracker, queue, or execution loop. Those are
 runtime concerns. The boundary between HELIX portable content and any
@@ -60,6 +60,65 @@ graph TB
 The team never invokes a HELIX command, because there is not one. They invoke
 their agent runtime, and the runtime invokes the HELIX routing skill.
 
+## Vocabulary Contract
+
+HELIX uses the following terms in the architecture and in the routing skill.
+Keeping them separate prevents the marker, graph, catalog, and runtime
+boundaries from collapsing into one overloaded "methodology" concept.
+
+| Term | Meaning |
+|------|---------|
+| methodology | The portable HELIX content library: artifact catalog, graph, templates, prompts, workflow-mode contracts, and runtime-neutral rules. |
+| flow | One active application of a methodology to a bounded project scope. A repo can run multiple flows at once, such as the core product flow and a microsite flow. |
+| scope instance | The concrete root declared for one flow in `.helix.yml`, such as `docs/helix/` or `website/`. It bounds where the routing skill may read and write for that flow. |
+| artifact instance | One project document authored from a catalog artifact type, carrying `ddx.id` and optional graph metadata in frontmatter. |
+| domain lane | A domain-shaped flow specialization, such as product, web, infra, or data. A lane can use the same HELIX methodology while selecting different concerns and handoff rules. |
+| workflow mode | A behavior inside the public `helix` skill, such as `frame`, `align`, `validate`, `evolve`, `design`, `polish`, or `review`. Modes are not separate public skills. |
+| public skill | `skills/helix/SKILL.md`, the single operator-facing entry point that resolves the active flow, then dispatches to a workflow mode. |
+
+The marker file governs active scope. In the current marker schema,
+`helix_version: 2` uses `flows:` as the canonical key:
+
+```yaml
+helix_version: 2
+flows:
+  - id: helix
+    instance: product
+    root: docs/helix/
+  - id: helix
+    instance: microsite
+    root: website/
+defaults:
+  flow: helix:product
+```
+
+`methodologies:` is the legacy marker key. Parsers may accept it for migration
+compatibility, but new markers use `flows:` because a methodology may be
+applied through more than one active flow.
+
+The generated catalog graph intentionally still uses a singular
+`methodology:` key. That key identifies the library that graph nodes come
+from, not an active project scope. Graph nodes use `library:<slug>` for
+catalog-owned artifact types and may use `local:<slug>` for project-local
+types. Cross-flow edges live in `external_edges:` and must be mirrored by
+instance frontmatter with `cross_flow: true`; `cross_methodology: true` is a
+legacy alias accepted only for migration.
+
+Colon-qualified IDs carry this same distinction:
+
+- `library:prd` means the PRD artifact type from the HELIX catalog.
+- `local:launch-checklist` means a project-local artifact type.
+- `helix:product:PRD-001` means an artifact instance in the `helix` product
+  flow.
+- `helix:microsite:DESIGN-001` means an artifact instance in the `helix`
+  microsite flow.
+
+Within a flow, ordinary `ddx.depends_on` links are same-scope links.
+Cross-scope links connect two instances of the same methodology in different
+roots. Cross-lane links connect different domain lanes, such as product to
+infra. Both are cross-flow links in the marker and graph contract; the domain
+name only clarifies why the link crosses a boundary.
+
 ## Level 2: Container Diagram
 
 ```mermaid
@@ -91,7 +150,7 @@ graph TB
 
 | Container | Technology | Responsibilities |
 |-----------|------------|-----------------|
-| `skills/helix/SKILL.md` | Markdown (skill frontmatter + body) | Single agent-facing surface; all routing modes; reads/writes artifact instances |
+| `skills/helix/SKILL.md` | Markdown (skill frontmatter + body) | Single agent-facing surface; all workflow modes; resolves active flows; reads/writes artifact instances |
 | `workflows/activities/` | Markdown + YAML | Artifact type definitions: template, prompt, meta.yml, example per type |
 | `workflows/artifact-schema.md` | Markdown spec | Normative schema for `meta.yml` and `ddx:` instance frontmatter |
 | `workflows/` (non-activity dirs) | Markdown | Methodology spec: principles, concerns, activity contracts, alignment guidance |
@@ -144,9 +203,9 @@ product vision
                            └─ implementation plans · code
 ```
 
-The routing skill's `evolve` mode threads changes downward through this order;
-`align` mode audits consistency across it. The authority hierarchy is a
-HELIX invariant — no runtime changes it.
+The routing skill's `evolve` workflow mode threads changes downward through
+this order; `align` audits consistency across it. The authority hierarchy is a
+HELIX invariant; runtimes execute against it but do not redefine it.
 
 ### Artifact instance frontmatter
 
@@ -166,7 +225,9 @@ ddx:
 ```
 
 `ddx.id` is the only required field. `ddx.depends_on` builds the traceability
-graph the routing skill traverses. Full field definitions are in
+graph the routing skill traverses inside the active flow. Cross-flow
+relationships use the marker and graph contract described above. Full field
+definitions are in
 [`workflows/artifact-schema.md`](../../../workflows/artifact-schema.md).
 
 ## Routing Skill
@@ -185,7 +246,7 @@ loads the skill exposes the same capability set.
 The skill never writes to a tracker, queue, or evidence store. Those are runtime
 responsibilities.
 
-### Routing modes
+### Workflow Modes
 
 | Mode | Purpose |
 |------|---------|
@@ -205,25 +266,28 @@ responsibilities.
 
 ### Skill composability
 
-The routing skill reads the artifact catalog at runtime; it does not bundle
+The routing skill reads the artifact catalog when a workflow mode needs a
+template, prompt, or quality rule; it does not bundle
 catalog content inside the skill body. This means:
 
-- Any runtime that installs the HELIX package exposes the same routing modes.
+- Any runtime that installs the HELIX package exposes the same workflow modes.
 - Catalog updates (new artifact types, revised templates) take effect without
   changing the skill body.
 - The skill body contains zero runtime-specific commands (PRD R-4). Per-runtime
   packaging notes live in `docs/install/<runtime>.md`.
 
 The skill's normative behavior is self-contained. Runtimes may surface
-additional affordances (bead authoring, ddx work delegation, prose checking)
-through their own packaging layers; those extensions live in per-runtime
-packaging, not in the skill body.
+additional affordances through their own packaging layers, such as work-item
+authoring, queue execution, evidence capture, or prose checking. Those
+extensions are runtime behavior, not HELIX specification state, and they do not
+belong in the skill body.
 
 ## Artifact Schema as Runtime Contract
 
 [`workflows/artifact-schema.md`](../../../workflows/artifact-schema.md)
 is the contract that lets any compliant runtime register and consume HELIX
-artifact types. A runtime claiming HELIX compatibility must:
+artifact types and artifact instances. A runtime claiming HELIX compatibility
+must:
 
 1. Read `meta.yml` for artifact-type metadata.
 2. Resolve `ddx.id` and `ddx.depends_on` in instance frontmatter for graph
@@ -232,18 +296,38 @@ artifact types. A runtime claiming HELIX compatibility must:
    internal documentation.
 4. Preserve unknown fields rather than stripping them.
 
-The schema is intentionally open. Runtimes may add extension fields under `ddx:`
-for operational state, but those fields must be ignorable by other runtimes
-without changing artifact meaning.
+The schema is intentionally open. Runtimes may add extension fields under
+`ddx:` for operational state, but those fields must be ignorable by other
+runtimes without changing artifact meaning. Specification fields state
+artifact intent, relationships, and constraints; runtime operational fields
+record execution details for that runtime.
 
-Minimum runtime primitives required to run the alignment skill:
+Minimum runtime primitives required to run the routing skill:
 
 1. Read markdown files from the project filesystem.
 2. Write markdown files to the project filesystem.
 3. Search files by path or pattern.
 
-Shell execution (item 4) is optional. A runtime satisfying only items 1–3 can
-run every HELIX routing mode that does not involve direct code execution.
+Shell execution is optional. A runtime satisfying only items 1-3 can run every
+HELIX workflow mode that does not involve direct code execution.
+
+## Scripts, Runtime Behavior, And Specifications
+
+HELIX's product surface is documents plus the public routing skill. Repository
+scripts are ancillary helpers for maintaining or packaging that content. They
+may generate reference pages, publish dogfood artifacts into the microsite, or
+validate catalog consistency, but they are not an operator-facing HELIX CLI and
+they do not define methodology behavior.
+
+Runtime behavior belongs to the runtime. A runtime may provide a tracker, queue,
+execution loop, evidence store, sandbox, model router, or installer. HELIX can
+describe the artifact handoff those runtime features must honor, but the
+runtime owns the concrete mechanism.
+
+Specifications capture intended behavior and constraints. They do not track
+whether a particular script, package, or runtime adapter has already caught up
+to that intent. Gaps between intent and current code are tracked as work items,
+review findings, or release notes outside the specification body.
 
 ## Packaging
 
@@ -271,7 +355,7 @@ HELIX maintains two complementary documentation trees:
 | Tree | Role |
 |------|------|
 | `workflows/` | Methodology specification — artifact-type schema, activity contracts, principles, concerns, alignment guidance. This is the normative content. |
-| `docs/helix/` | Dogfood — HELIX's own governing artifacts, authored from HELIX templates. The dogfood is itself subject to alignment skill runs. |
+| `docs/helix/` | Dogfood — HELIX's own governing artifacts, authored from HELIX templates. The dogfood is itself subject to `align` workflow-mode runs. |
 
 `workflows/` is what adopters install; `docs/helix/` demonstrates the
 methodology applied to HELIX's own development. The Hugo microsite (when
@@ -308,7 +392,7 @@ and describes the resolution for each.
 | Runtime portability | Skill body and catalog contain zero runtime-specific commands; portability check on every release (PRD R-4) |
 | Authority-hierarchy coherence | `align` mode audits consistency; `evolve` mode propagates change from the highest-authority artifact down |
 | Catalog completeness | Seven-activity coverage; each type has template, prompt, meta, example |
-| Self-application | `docs/helix/` is authored from HELIX templates; alignment skill runs catch dogfood drift (PRD R-6) |
+| Self-application | `docs/helix/` is authored from HELIX templates; `align` workflow-mode runs catch dogfood drift (PRD R-6) |
 | Schema openness | Consumers add extension fields; unknown fields are preserved, not stripped |
 | Distribution breadth | Three packaging targets (DDx, Claude Code, Genie); source never forked (PRD R-7) |
 
