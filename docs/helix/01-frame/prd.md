@@ -2,9 +2,9 @@
 ddx:
   id: helix.prd
   review:
-    self_hash: 2b22383538b33c6ecee57f43d85128dfef7d56254766b757aa36439e35f2bfc9
+    self_hash: e11b46de6300cc84460245fcfd6739210ce38406a76f90e32d26685938302eb1
     deps: {}
-    reviewed_at: "2026-05-24T23:26:16Z"
+    reviewed_at: "2026-06-11T15:28:06Z"
 ---
 # Product Requirements Document
 
@@ -12,10 +12,11 @@ ddx:
 
 HELIX is a software development methodology and artifact catalog for
 AI-assisted teams. It ships portable content (templates for ~32 artifact
-types, authoring prompts, methodology documentation) plus a single skill
-that keeps the governing artifacts aligned. The primary user experience is
-invoking the alignment skill against a project's existing documents and
-getting a plan for the changes needed to keep them coherent.
+types, authoring prompts, methodology documentation) plus a single routing
+skill that operates HELIX workflow modes against a project's governing
+artifacts. The primary user experience is invoking the `helix` skill through
+an agent runtime to frame, validate, align, evolve, review, or polish the
+project's documents and produce the next document-driven plan.
 
 HELIX does not provide a CLI, a tracker, an execution loop, or any runtime
 infrastructure. Those are runtime concerns. DDx is the reference runtime;
@@ -49,11 +50,12 @@ have not been given that discipline in a portable, tool-agnostic form.
 1. **Catalog.** Define a minimal, complete catalog of artifact types covering
    software development from intent through deployment to feedback. Each type
    carries a template, an authoring prompt, and quality criteria.
-2. **Alignment skill.** Provide a single skill that any AI agent can run
-   against a project's governing artifacts to identify drift, gaps, and
-   contradictions, and produce a plan for closing them.
+2. **Routing skill.** Provide a single runtime-portable skill that routes
+   HELIX-owned workflow modes against a project's governing artifacts.
+   Alignment is a required mode: it identifies drift, gaps, and
+   contradictions, then produces a plan for closing them.
 3. **Methodology spec.** Specify the artifact authority hierarchy, the seven-activity control
-   loop, the artifact-type schema, and the alignment skill contract as a
+   loop, the artifact-type schema, and the routing skill contract as a
    runtime-neutral document.
 4. **Stay small.** HELIX is content + one skill. Not a tool, not a platform,
    not a CLI. Resist scope creep into runtime territory.
@@ -85,7 +87,7 @@ their own execution surfaces.
 |---|---|---|---|
 | Runtime breadth | 3 documented runtime deployments (DDx, Databricks Genie, one other) | Release audit | 12 months |
 | Adoption | 50+ repos using HELIX templates as their artifact catalog | GitHub search; community survey | 18 months |
-| Alignment quality | Healthy artifact sets average < 3 findings per skill run | Periodic sample across reference repos | Ongoing |
+| Alignment quality | Healthy artifact sets average < 3 findings per `align` mode run | Periodic sample across reference repos | Ongoing |
 | Authoring quality | HELIX-template PRDs pass first-pass review at higher rates than free-form equivalents | Comparative review study | 12 months |
 | Skill portability | Zero runtime-specific commands in skill body | Automated check on every release | Ongoing |
 
@@ -114,14 +116,14 @@ the cost of writing a methodology from scratch for each project.
 **Role**: Any AI runtime (Claude Code, Genie, Cursor, etc.) executing work
 against a HELIX-governed artifact set.
 **Goals**: Have a defined set of artifacts to read, a defined set to produce,
-and a single skill to invoke for alignment.
+and a single skill to invoke for HELIX workflow modes, including alignment.
 **Pain Points**: Ambiguous context, drift between sessions, no standard for
 "is this work complete."
 
 ### Tertiary Persona: HELIX Maintainer
 
 **Role**: Maintainer of the HELIX content catalog, the methodology spec, and
-the alignment skill.
+the routing skill.
 **Goals**: Keep the catalog tight; keep the methodology coherent; ship
 portable improvements.
 **Pain Points**: Resisting feature creep into runtime territory; pruning
@@ -131,7 +133,7 @@ legacy surfaces that crept across the boundary.
 
 - Artifact-type catalog (templates, prompts, quality criteria, examples)
 - Methodology specification (artifact authority hierarchy, seven-activity loop, principles)
-- Single alignment skill (find drift; produce a plan)
+- Single routing skill (route HELIX workflow modes; find drift; produce a plan)
 - Runtime-portable packaging of all of the above (per-runtime packages for
   DDx, Databricks Genie, Claude Code)
 - HELIX's own self-application — its development artifacts in `docs/helix/`
@@ -158,9 +160,10 @@ and an example.
 its position in the artifact authority hierarchy. Higher-level artifacts
 govern lower-level ones; conflicts resolve up.
 
-**R-3: Alignment skill.** A single skill, deployable to any runtime that can
-read and write markdown, takes an artifact root path plus an optional intent
-and produces:
+**R-3: Routing skill.** A single skill, deployable to any runtime that can
+read and write markdown, routes a user's intent to HELIX-owned workflow modes
+for a project artifact graph. The skill must support alignment as a core mode:
+given an artifact root plus optional intent, it produces:
 (a) a structured alignment report listing gaps, drift, and contradictions in
     the governing artifacts;
 (b) a plan describing the artifact updates needed to close them, ordered by
@@ -173,7 +176,7 @@ the minimal "read markdown, write markdown, search files" contract.
 **R-5: Methodology specification.** A runtime-neutral specification document
 defines the artifact authority hierarchy, the seven-activity loop, the
 artifact-type
-schema, and the alignment skill contract. New runtime consumers can
+schema, and the routing skill contract. New runtime consumers can
 implement HELIX compliantly from this spec alone.
 
 **R-6: Self-application.** HELIX's own development artifacts in `docs/helix/`
@@ -193,8 +196,9 @@ they are expressed in a form that runtimes with prose-checker support
 (notably DDx via `ddx doc prose`) can enforce.
 
 **R-9: Per-artifact-type rule scoping.** Quality criteria attach to artifact
-types; alignment skill applies type-scoped checks to instances based on ID
-prefix or path. Requires upstream DDx feature (file separately on DDx queue).
+types; the `align` workflow mode applies type-scoped checks to instances based
+on ID prefix or path. Runtime-specific prose checkers may enforce those rules,
+but the rule source remains the artifact catalog.
 
 #### P2
 
@@ -211,27 +215,29 @@ content is installed, then 7 activity directories exist under `workflows/
 activities/`, each with at least one artifact-type directory; each artifact-type
 directory contains `template.md`, `prompt.md`, `meta.yml`, and an example.
 
-**R-3 (alignment skill):** Given a project with vision, PRD, feature specs,
-but no design artifacts, when the alignment skill runs, then the output
-report identifies the design gap and the plan describes which solution
-designs to author, in what order, with traceability back to the affected
-features.
+**R-3 (routing skill):** Given a project with vision, PRD, feature specs,
+but no design artifacts, when the `helix` skill routes the request to its
+`align` workflow mode, then the output report identifies the design gap and
+the plan describes which solution designs to author, in what order, with
+traceability back to the affected features. Given a request that names another
+document workflow mode, the same skill routes to that mode without requiring a
+separate public skill.
 
-**R-4 (runtime-neutral):** Given the alignment skill source, when grep is
+**R-4 (runtime-neutral):** Given the routing skill source, when grep is
 run for runtime-specific commands (`ddx `, `helix `, `bead`, `.helix/`),
 then zero hits in the skill's normative body. References are allowed only in
 per-runtime package metadata (the DDx-plugin manifest, the Genie skill
 descriptor, etc.).
 
-**R-6 (self-application):** Given the HELIX repo, when the alignment skill is
-run against `docs/helix/`, then the resulting report has fewer findings than
-on the same date one quarter prior — i.e. the dogfood improves over time.
+**R-6 (self-application):** Given the HELIX repo, when the `align` workflow
+mode runs against `docs/helix/`, then the resulting report has fewer findings
+than on the same date one quarter prior — i.e. the dogfood improves over time.
 
 ### Technical Context
 
 HELIX content is authored in Markdown with YAML frontmatter using the `ddx:`
 namespace (an open schema HELIX adopts; DDx happens to consume it). The
-alignment skill is authored in Markdown with frontmatter compatible with
+routing skill is authored in Markdown with frontmatter compatible with
 mainstream agent skill formats (Claude Code-compatible). Artifact templates
 and prompts are plain Markdown.
 
@@ -257,9 +263,9 @@ package uses whatever metadata format its target requires.
 - The catalog cannot fork by language ecosystem.
 
 **Assumptions:**
-- AI agents capable of executing the alignment skill have file-read/write
-  tools and reasonable context window for an governing artifacts (typically tens of
-  files).
+- AI agents capable of executing the routing skill have file-read/write
+  tools and a reasonable context window for governing artifacts (typically tens
+  of files).
 - Packages can package markdown content for their runtime; the
   packaging mechanics vary but the source content is uniform.
 
@@ -275,35 +281,16 @@ package uses whatever metadata format its target requires.
 
 | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|
-| Methodology adoption is slow because "just write the code" is the durable default | High | High | Keep HELIX minimal; the alignment skill must produce value on the first run; ship a strong getting-started narrative |
+| Methodology adoption is slow because "just write the code" is the durable default | High | High | Keep HELIX minimal; the routing skill must produce value on the first run; ship a strong getting-started narrative |
 | Runtime fragmentation makes package maintenance unsustainable | Medium | High | Define minimal runtime contract early; small packages, not forks; treat runtime breadth as a release-quality metric |
-| Alignment skill produces noisy or wrong findings | Medium | High | Skill is HELIX's primary development focus; quality criteria in templates are explicit and testable; ratchets on finding precision |
-| Old HELIX work leaks runtime coupling into new content | Medium | Medium | Decoupling beads in the queue; automated check on each release for runtime refs in skill body |
-| Documentation staleness | Medium | Medium | The alignment skill itself catches stale documents; HELIX dogfoods its own catalog |
+| Align mode produces noisy or wrong findings | Medium | High | The routing skill's alignment behavior is a primary development focus; quality criteria in templates are explicit and testable; ratchets on finding precision |
+| Old HELIX work leaks runtime coupling into new content | Medium | Medium | Keep the product boundary explicit; automated check on each release for runtime refs in skill body |
+| Documentation staleness | Medium | Medium | The `align` workflow mode catches stale documents; HELIX dogfoods its own catalog |
 | Transferability — HELIX cannot be taught without its creator present | Medium | High | Onboarding doc is P1 deliverable; new-teammate review gates the next release |
 
 ## Open Questions
 
-- What is the canonical name and location of the alignment skill? (Working
-  name: `skills/helix-align/`. Could also be `helix-plan`. Single source of
-  truth either way.)
-- What is the minimal runtime contract for an alignment-capable runtime?
-  (Probably: file read, file write, file search, optional shell exec. Needs
-  written spec.)
-- How does HELIX express type-scoped quality rules before DDx's prose-checker
-  supports artifact-type scoping? Interim approach: prose guidance in
-  `prompt.md`. Long-term: structured `rules:` block in `meta.yml` once DDx
-  supports it.
-- Legacy features defining the removed HELIX runtime surface (supervisory
-  control, the CLI wrapper, execution-backed output, autonomy slider,
-  parts of the original plugin packaging) were removed in commit 823aa1ac
-  when HELIX collapsed to content + skill. Surviving feature specs:
-  `FEAT-003-principles`, `FEAT-004-plugin-packaging`,
-  `FEAT-006-concerns-practices-context-digest`,
-  `FEAT-008-artifact-template-quality`, `FEAT-009-team-onboarding`,
-  `FEAT-010-testing-strategy-templates`, `FEAT-013-runtime-install-coverage`,
-  `FEAT-014-workflow-coverage`.
-- Does HELIX itself need any tooling beyond the alignment skill (e.g., a
+- Does HELIX itself need any tooling beyond the routing skill (e.g., a
   catalog validator, a release-time portability check)? If yes, where does
   that tooling live — in HELIX, or as a DDx contribution?
 
@@ -314,9 +301,9 @@ HELIX is successful when:
 1. A new team can adopt the methodology by reading the vision, the PRD, and
    the methodology spec, and installing the content catalog via a runtime
    package — without further guidance from a HELIX maintainer.
-2. The alignment skill runs against a real project's governing artifacts and
-   produces a plan that a human can review and approve in under 10 minutes.
+2. The `align` workflow mode runs against a real project's governing artifacts
+   and produces a plan that a human can review and approve in under 10 minutes.
 3. At least three runtimes have working packages; teams can pick the one
    that fits their environment.
 4. HELIX's own `docs/helix/` is visibly authored from its own catalog — the
-   dogfood is healthy by the alignment skill's own measure.
+   dogfood is healthy by the `align` workflow mode's own measure.
