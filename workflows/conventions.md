@@ -4,10 +4,10 @@ ddx:
   depends_on:
     - helix.workflow
   review:
-    self_hash: e1beaa3046c74888867af27366085730b0b272ad6a2a2a12f8d8f435310103ad
+    self_hash: 61c67d01edc02c5c49da4aef8a76346ed131e8b434dd1013bea9c5142212d5f3
     deps:
-      helix.workflow: 1b6caaf3ebc6950bc4fff314e09bc0ee1b71deaa9223a4a70a13f399291ad98c
-    reviewed_at: "2026-05-26T03:19:52Z"
+      helix.workflow: 24bc127a783c568be4813f8a7665c82abc04056dd94718eda32a51fa9191b543
+    reviewed_at: "2026-06-11T15:47:44Z"
 ---
 # HELIX Workflow Conventions
 
@@ -470,7 +470,8 @@ Addresses bugs discovered during implementation activity.
 - [ ] Issues clearly documented and categorized
 - [ ] Impact assessment completed
 - [ ] Stakeholder approval obtained (if scope changes)
-- [ ] Current implementation status captured
+- [ ] Intended artifact change, acceptance impact, and required evidence are
+      explicit
 
 **Post-Refinement Validation**:
 - [ ] All affected activity documents updated
