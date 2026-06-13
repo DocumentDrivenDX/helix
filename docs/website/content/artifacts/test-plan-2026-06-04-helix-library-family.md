@@ -6,6 +6,9 @@ activity: "Design"
 source: "02-design/test-plan-2026-06-04-helix-library-family.md"
 generated: true
 ---
+
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 # Test Plan: helix Family Bench Fixtures
 
 - **Date:** 2026-06-04

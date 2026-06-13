@@ -219,10 +219,15 @@ def render_page(rec: dict, source_root: Path, weight: int,
         fields.append(("collection", rec["collection"]))
 
     fm = render_frontmatter(fields)
-    preamble = ""
+    preamble = (
+        "\n> **Dogfood example.** This generated page publishes HELIX's own "
+        "project artifact from `docs/helix/`. Use it as example evidence and "
+        "source traceability, not as adopter doctrine. Historical plans and "
+        "reports may describe retired architecture.\n\n"
+    )
     if src_fm.strip():
-        preamble = (
-            "\n> **Source identity** (from "
+        preamble += (
+            "> **Source identity** (from "
             f"`{rel_source}`):\n\n```yaml\n{src_fm.rstrip()}\n```\n\n"
         )
     return fm + preamble + body.lstrip("\n")
@@ -236,7 +241,15 @@ def render_collection_index(name: str, items: list[dict], weight: int) -> str:
         ("weight", str(weight)),
         ("generated", "true"),
     ])
-    lines = [fm, f"# {title}", ""]
+    lines = [
+        fm,
+        f"# {title}",
+        "",
+        "> **Dogfood collection.** These generated pages publish HELIX's own "
+        "project artifacts. Use them as examples and source traceability, not "
+        "as adopter doctrine.",
+        "",
+    ]
     for it in sorted(items, key=lambda r: r["slug"]):
         # Hugo lowercases page URLs; the link must match or it 404s on a
         # case-sensitive host (it did in production: caps stems vs lowercase dirs).
@@ -255,9 +268,14 @@ def render_top_index(records: list[dict], project: str, source: Path) -> str:
         fm,
         f"# {project} — Artifacts",
         "",
-        f"The actual governing artifacts of the {project} project, organised by "
-        "the HELIX activity they belong to. Each page is the live content of the "
-        "corresponding source document; edits should be made in the source, not here.",
+        f"Generated dogfood artifacts from the {project} project. This section "
+        "shows how this repository applies HELIX to itself; it is example "
+        "evidence and source traceability, not the main adoption path or "
+        "adopter doctrine. Historical plans and reports may describe retired "
+        "architecture.",
+        "",
+        "Each page is the live content of the corresponding source document; "
+        "edits should be made in the source, not here.",
         "",
         f"_Auto-generated from `{source.name}/` by `scripts/publish-artifacts.py`._",
         "",

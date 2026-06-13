@@ -36,27 +36,21 @@ menu:
     - name: Why HELIX
       pageRef: /why
       weight: 1
-    - name: Artifacts
-      pageRef: /artifacts
+    - name: Use HELIX
+      pageRef: /use
       weight: 2
     - name: Types
       pageRef: /artifact-types
       weight: 3
-    - name: Skills
-      pageRef: /skills
-      weight: 4
     - name: Concerns
       pageRef: /concerns
-      weight: 5
-    - name: Use HELIX
-      pageRef: /use
-      weight: 6
+      weight: 4
     - name: Platforms
       pageRef: /platforms
-      weight: 7
+      weight: 5
     - name: Reference
       pageRef: /reference
-      weight: 8
+      weight: 6
     - name: GitHub
       url: https://github.com/DocumentDrivenDX/helix
       weight: 10

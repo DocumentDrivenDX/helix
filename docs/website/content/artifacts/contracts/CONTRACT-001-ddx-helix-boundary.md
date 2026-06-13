@@ -8,6 +8,8 @@ generated: true
 collection: contracts
 ---
 
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 > **Source identity** (from `02-design/contracts/CONTRACT-001-ddx-helix-boundary.md`):
 
 ```yaml

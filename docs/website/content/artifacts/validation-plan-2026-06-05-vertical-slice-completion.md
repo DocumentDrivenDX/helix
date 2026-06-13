@@ -6,6 +6,9 @@ activity: "Design"
 source: "02-design/validation-plan-2026-06-05-vertical-slice-completion.md"
 generated: true
 ---
+
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 # Validation Plan — Vertical Slice Completion
 
 - **Date:** 2026-06-05

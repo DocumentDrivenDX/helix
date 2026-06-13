@@ -7,6 +7,9 @@ source: "05-deploy/decisions/monitoring-setup-restoration-decision.md"
 generated: true
 collection: decisions
 ---
+
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 # Monitoring Setup — Restoration Decision
 
 > Historical decision; superseded by the worked example at `docs/helix/05-deploy/monitoring-setup.md`.

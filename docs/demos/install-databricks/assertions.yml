@@ -1,0 +1,17 @@
+slug: install-databricks
+min_duration_s: 2
+min_assistant_chars: 0
+
+expect:
+  - kind: narration
+    contains: "workspace auth"
+  - kind: shell
+    contains: "DATABRICKS_HOST"
+  - kind: shell
+    contains: "DATABRICKS_TOKEN"
+  - kind: shell
+    contains: "/tmp/genie-install"
+  - kind: output
+    contains: "HELIX installed"
+  - kind: narration
+    contains: "Genie"

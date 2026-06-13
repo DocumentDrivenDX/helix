@@ -6,6 +6,9 @@ activity: "Design"
 source: "02-design/bench-build-results-2026-06-06-first-run.md"
 generated: true
 ---
+
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 # First post-P14 full-bench run — 2026-06-06
 
 Supplement to `bench-build-results-2026-06-05.md`. Records the outcome of

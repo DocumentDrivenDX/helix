@@ -4,28 +4,38 @@ min_assistant_chars: 150
 
 expect:
   - kind: narration
-    contains: "bounded implementation pass"
+    contains: "DDx owns the runtime handoff"
   - kind: prompt
     contains_all:
-      - "HELIX build mode"
+      - "DDx execution pass"
       - "bead-001"
   - kind: tool_call
-    contains: "helix"
+    name: Bash
+    args_contain:
+      command: "ddx bead execute"
   - kind: tool_call
-    contains_all:
-      - "Read"
-      - "beads.jsonl"
+    name: Read
+    args_contain:
+      file_path: "beads.jsonl"
   - kind: tool_call
-    contains: "FEAT-001-csv-ingest.md"
+    name: Read
+    args_contain:
+      file_path: "FEAT-001-csv-ingest.md"
   - kind: tool_call
-    contains: "schema-mapping.yaml"
+    name: Write
+    args_contain:
+      file_path: "schema-mapping.yaml"
   - kind: tool_call
-    contains: "header_sniffer_test.go"
+    name: Write
+    args_contain:
+      file_path: "header_sniffer_test.go"
   - kind: tool_call
-    contains: "go test"
+    name: Bash
+    args_contain:
+      command: "go test"
   - kind: assistant
     contains_all:
-      - "Acceptance"
+      - "DDx execution completed"
       - "OWASP A03"
       - "3 fixtures"
       - "Scope held to bead-001"

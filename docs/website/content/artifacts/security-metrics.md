@@ -6,6 +6,9 @@ activity: "Iterate"
 source: "06-iterate/security-metrics.md"
 generated: true
 ---
+
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 # Security Metrics — HELIX 2026-Q2 (post-`v0.3.3`)
 
 > Illustrative example using representative measurements taken from the

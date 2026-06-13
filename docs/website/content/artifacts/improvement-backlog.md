@@ -7,6 +7,8 @@ source: "06-iterate/improvement-backlog.md"
 generated: true
 ---
 
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 > **Source identity** (from `06-iterate/improvement-backlog.md`):
 
 ```yaml

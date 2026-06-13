@@ -1,6 +1,6 @@
 {"meta": {"title": "HELIX evolve: thread a new requirement through the artifact graph", "width": 100, "height": 30, "scenario": "evolve", "timestamp": 1778789087}}
-{"narration": "The classic example from the product vision: 'We want OAuth login.' One sentence. The evolve skill walks the depends_on graph in both directions and orders updates by authority."}
-{"prompt": "/helix-evolve Add OAuth login alongside the existing API-key auth. Walk the depends_on graph in both directions and order updates by authority."}
+{"narration": "The classic example from the product vision: 'We want OAuth login.' One sentence. The helix skill's evolve mode walks the depends_on graph in both directions and orders updates by authority."}
+{"prompt": "/helix evolve Add OAuth login alongside the existing API-key auth. Walk the depends_on graph in both directions and order updates by authority."}
 {"tool_call": {"name": "Skill", "args": {"skill": "helix", "args": "evolve: Add OAuth login alongside the existing API-key auth"}}}
 {"tool_result": "Launching skill: helix"}
 {"tool_call": {"name": "Bash", "args": {"command": "find docs/helix -type f -not -path '*/.*'", "description": "Enumerate governing artifacts"}}}

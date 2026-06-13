@@ -7,7 +7,7 @@ expect:
     contains: "OAuth"
   - kind: prompt
     contains_all:
-      - "helix-evolve"
+      - "/helix evolve"
       - "depends_on"
   - kind: tool_call
     name: Skill

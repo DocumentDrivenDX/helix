@@ -6,6 +6,9 @@ activity: "Design"
 source: "02-design/family-marker-linkages-report-2026-06-04.md"
 generated: true
 ---
+
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 # Family Marker + Linkage Relaxation — Entry-Point Report
 
 - **Date:** 2026-06-04

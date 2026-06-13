@@ -8,6 +8,8 @@ generated: true
 collection: test-plans
 ---
 
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 > **Source identity** (from `03-test/test-plans/TP-014-helix-workflow-coverage.md`):
 
 ```yaml

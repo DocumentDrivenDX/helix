@@ -6,6 +6,9 @@ activity: "Design"
 source: "02-design/plan-2026-05-24-helix-self-improvement.md"
 generated: true
 ---
+
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 # Plan — HELIX self-improvement from the yolo-demo arc (2026-05-24, rev 2: codex-reviewed)
 
 ## Context

@@ -1,4 +1,4 @@
-# helix-review demo
+# helix review demo
 
 A second agent audits the work for bead-OAUTH-03 against the same
 security-architecture artifact that authorized it. The implementation
@@ -32,6 +32,6 @@ bash tests/validate-demos.sh
 
 ```
 python3 scripts/demos/capture_session.py helix-review \
-    --prompt "Review bead-OAUTH-03 against its governing artifacts. Report every finding, file follow-on beads for blocking ones, and flag warnings." \
+    --prompt "Use /helix review on bead-OAUTH-03 against its governing artifacts. Report every finding, file follow-on runtime work for blocking ones, and flag warnings." \
     --fixture docs/demos/helix-review/fixture/
 ```

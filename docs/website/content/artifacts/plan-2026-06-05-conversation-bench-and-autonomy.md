@@ -6,6 +6,9 @@ activity: "Design"
 source: "02-design/plan-2026-06-05-conversation-bench-and-autonomy.md"
 generated: true
 ---
+
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 # Plan: Conversation-bench + Autonomy slider + Flow model
 
 - **Date:** 2026-06-05 (revised in-turn with flow-model additions)

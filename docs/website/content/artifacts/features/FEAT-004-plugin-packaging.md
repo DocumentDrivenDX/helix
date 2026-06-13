@@ -8,6 +8,8 @@ generated: true
 collection: features
 ---
 
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 > **Source identity** (from `01-frame/features/FEAT-004-plugin-packaging.md`):
 
 ```yaml

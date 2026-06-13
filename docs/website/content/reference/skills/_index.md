@@ -7,17 +7,17 @@ aliases:
   - /docs/skills
 ---
 
-Technical reference for invoking the HELIX skill. For orientation and the
+Technical reference for invoking the `helix` skill. For orientation and the
 artifact-coverage list, see [/skills/](/skills/).
 
 ## Core skill contract
 
 ### Purpose
 
-The alignment-and-planning skill reconciles a project's governing artifacts. It
-starts from an explicit scope or operator question, reads the relevant Markdown
-artifact set, compares artifacts via the artifact authority hierarchy,
-and returns an actionable plan for restoring coherence.
+The `helix` skill reconciles a project's governing artifacts. It starts from an
+explicit scope or operator question, reads the relevant Markdown artifact set,
+compares artifacts via the artifact authority hierarchy, chooses a workflow
+mode, and returns an actionable plan for restoring coherence.
 
 Use it to answer questions such as:
 
@@ -37,7 +37,7 @@ The skill expects access to:
 - The HELIX artifact-type catalog from `workflows/activities/*/artifacts/`.
 - The project's concrete governing artifacts, commonly under `docs/helix/`.
 - Any project tracker metadata that links work items to specs, parents, or
-  context digests.
+  context digests, when a runtime has one.
 <!-- vale Helix.PassiveVoice = NO -->
 - Runtime constraints, such as whether file writes are allowed or whether the
 <!-- vale Helix.PassiveVoice = YES -->
@@ -81,7 +81,7 @@ Good open questions name:
 
 ### Runtime expectations
 
-A runtime embedding the skill should provide only a small capability set:
+A runtime embedding the skill needs only a small capability set:
 
 - Read Markdown and repository files.
 - Search for artifact references and linked work items.
@@ -94,13 +94,11 @@ The runtime remains responsible for claims, locks, background workers, commits,
 pull requests, CI, measurement, and deployment. HELIX supplies the planning
 contract those actions should respect.
 
-| `helix-worker` | Runtime background process management |
-| `helix-backfill` | Recovery workflow for missing documentation |
-
-Aliases such as `helix-implement` and `helix-plan` are also legacy
-compatibility names. New public documentation and integrations should lead with
-the alignment-and-planning contract, then describe any runtime-specific wrappers
-as packaging details.
+Workflow modes such as `frame`, `review`, `polish`, and `check` are modes of
+the `helix` skill. Runtime integrations may expose convenience commands around
+those modes, but those wrappers are packaging details. New public documentation
+and integrations should lead with `helix`, then describe any runtime-specific
+entrypoints as local invocation syntax.
 
 ## Packaging shape
 
@@ -109,12 +107,12 @@ front matter:
 
 ```yaml
 ---
-name: helix-align
-description: 'Run a HELIX alignment and planning review for a selected scope.'
+name: helix
+description: 'Route HELIX document and workflow requests to the right mode.'
 argument-hint: "[scope]"
 ---
 ```
 
 That file format is a packaging mechanism, not the methodology itself. A
 Claude Code skill, Codex skill, DDx plugin, Databricks integration, or manual
-operator guide should all wrap the same alignment-and-planning contract.
+operator guide should all wrap the same `helix` routing contract.

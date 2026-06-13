@@ -1,10 +1,10 @@
 # helix-execute demo
 
 The hand-off to the runtime. DDx selects the next ready bead
-(bead-001), FZO routes it by preset + harness, the agent executes
+(bead-001), routes it through the configured harness, the agent executes
 inside a throwaway worktree, the deterministic acceptance gate fires,
-a different model does a cross-review, and evidence is appended on
-merge. HELIX stays offstage — its job was the artifacts.
+a reviewer checks the result, and evidence is appended on merge. HELIX stays
+offstage — its job was the artifacts.
 
 ## Files
 
@@ -27,7 +27,7 @@ bash tests/validate-demos.sh
 ## Re-capture from a live agent
 
 The execute scenario is a runtime demo, not an alignment-skill demo.
-To re-capture, drive a real `ddx bead next --execute` invocation
+To re-capture, drive a real `ddx bead execute <id>` invocation
 against this fixture and translate its event stream — `capture_session.py`
 is geared at Claude sessions, not raw runtime output, so this
 session is the one demo most likely to stay hand-edited.

@@ -7,6 +7,8 @@ generated: true
 
 # features
 
+> **Dogfood collection.** These generated pages publish HELIX's own project artifacts. Use them as examples and source traceability, not as adopter doctrine.
+
 - [Feature Specification: FEAT-003 - First-Class Principles](feat-003-principles/)
 - [Feature Specification: FEAT-004 - Plugin Packaging](feat-004-plugin-packaging/)
 - [Feature Specification: FEAT-006 — Concerns, Practices, and Context-Digest Beads](feat-006-concerns-practices-context-digest/)

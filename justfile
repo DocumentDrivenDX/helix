@@ -1,7 +1,7 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-deploy-artifacts test-state-rules test-skills test-surface-leakage test-context-digests
+test: test-deploy-artifacts test-state-rules test-skills test-surface-leakage test-microsite-doctrine test-context-digests
 
 # Serve the HELIX microsite at the canonical local review URL.
 website-serve:
@@ -22,6 +22,10 @@ test-skills:
 # Validate Frame/TD artifacts do not define exact interface surfaces outside Contract
 test-surface-leakage:
     bash tests/validate-surface-leakage.sh
+
+# Validate public microsite doctrine and demo source records
+test-microsite-doctrine:
+    bash tests/validate-microsite-doctrine.sh
 
 # Validate live tracker context-digest coverage
 test-context-digests:

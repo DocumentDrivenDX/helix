@@ -13,20 +13,20 @@ A HELIX-compliant runtime can:
 1. **Read markdown files** from the project's filesystem.
 2. **Write markdown files** to the project's filesystem.
 3. **Search files** by path or pattern across the project.
-4. **Optionally execute a shell command** for verification or build/run modes.
+4. **Optionally execute a shell command** for runtime-owned verification.
 
 That is the full contract. HELIX assumes nothing else: no tracker, no queue,
 no execution loop, no IDE integration, no language toolchain. Items 1 through 3
 <!-- vale Helix.PassiveVoice = NO -->
-are required; item 4 is optional and only some routes (`build`, `run`, `commit`,
+are required; item 4 is optional and belongs to the runtime, not the HELIX
 <!-- vale Helix.PassiveVoice = YES -->
-`release`) use it.
+methodology contract.
 
 ## Per-runtime install guides
 
-Each guide is self-contained: file layout, install steps, invocation, and
-verification for one runtime. Pick the one that matches your environment;
-install more than one if you use more than one.
+Each guide names the file layout, install steps, invocation, and verification
+for one runtime. Pick the one that matches your environment; install more than
+one if you use more than one.
 
 {{< cards >}}
   {{< card link="../use/claude-code-recipe" title="Claude Code" subtitle="Install HELIX as a Claude Code plugin through the marketplace or a local plugin directory." icon="code" >}}
@@ -36,8 +36,8 @@ install more than one if you use more than one.
 
 ## Source of truth
 
-The runtime install guides are packaging notes. The normative HELIX content
-lives in two places:
+Runtime install guides are packaging notes. The normative HELIX content lives
+in two places:
 
 - **[Skills](/skills)**: the single routing skill with one public entry point
   (`helix`), one routing table, and one set of per-mode workflow contracts.

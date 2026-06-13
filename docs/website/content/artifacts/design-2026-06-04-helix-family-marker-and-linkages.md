@@ -6,6 +6,9 @@ activity: "Design"
 source: "02-design/design-2026-06-04-helix-family-marker-and-linkages.md"
 generated: true
 ---
+
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 # HELIX Family: Marker File + Type/Flow/Instance Linkage Relaxation
 
 Status: design (Phase 3 of 6 of the marker+linkage workflow)

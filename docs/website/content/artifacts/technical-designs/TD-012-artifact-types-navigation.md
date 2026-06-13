@@ -8,6 +8,8 @@ generated: true
 collection: technical-designs
 ---
 
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 > **Source identity** (from `02-design/technical-designs/TD-012-artifact-types-navigation.md`):
 
 ```yaml

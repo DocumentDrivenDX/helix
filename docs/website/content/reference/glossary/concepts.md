@@ -30,13 +30,16 @@ If a lower-level artifact contradicts a higher one, fix the lower-level artifact
 
 ## Specification-First Development
 
-HELIX enforces writing tests before implementation (TDD). The cycle:
+HELIX asks teams to state intent before implementation. Tests are one way to
+turn intent into executable evidence. A common cycle is:
 
 1. **Red** (Test activity): write a failing test that defines desired behavior
 2. **Green** (Build activity): write minimal code to make the test pass
-3. **Refactor** (Build activity): improve code quality while keeping tests green
+3. **Refactor** (Build activity): simplify the implementation while keeping tests green
 
-Tests are the contract between design and implementation. Build cannot start until tests exist and fail. Implementation is complete when tests pass.
+Tests connect design and implementation, but they are not the only authority.
+Runtime evidence records whether a work item is complete; tests prove the
+observable behavior named by the governing artifacts.
 
 ## Principles
 
@@ -51,7 +54,9 @@ Examples: "design for simplicity", "tests first", "local-first UX", "prefer comp
 
 ## Context Digest
 
-A compact summary (~1000-1500 tokens) assembled into tracker beads at triage/polish time. Makes beads self-contained execution units.
+A compact summary assembled for runtime work at triage or polish time. In DDx,
+the digest is commonly prepended to a bead description so the work item is
+self-contained.
 
 Contents:
 - **Principles**: full list, compact format
@@ -72,18 +77,20 @@ Format: XML-tagged block prepended to the bead description:
 </context-digest>
 ```
 
-Agents read the digest instead of loading upstream files. The HELIX skill in `polish` mode keeps digests current.
+Agents read the digest as a bounded context package. The `helix` skill in
+`polish` mode can propose digest updates when the runtime uses them.
 
-## Tracker-Driven Execution
+## Runtime-Tracked Execution
 
-The tracker is HELIX's steering wheel. All work flows through tracker issues (beads):
+Some runtimes, including DDx, use tracked work items as the execution handoff:
 
 - **Operators steer** by creating, prioritizing, and blocking issues
 - **Agents execute** by claiming and closing issues
 - **The ready queue** is the only durable hand-off mechanism between sessions
 - File follow-up work as beads before an action closes; prose suggestions without beads disappear
 
-Every execution issue must cite the canonical artifacts that authorize the work via `spec-id`.
+Every execution issue should cite the canonical artifacts that authorize the
+work via a field such as `spec-id`.
 
 ## Bounded Execution
 
@@ -94,17 +101,20 @@ Every HELIX action is intentionally bounded:
 - `review` examines one scope and files findings
 - `design` produces one design document
 
-The supervisor (`ddx work`) chains bounded actions based on queue state. No action runs forever. This makes execution predictable, auditable, and interruptible.
+A runtime supervisor such as `ddx work` can chain bounded actions based on queue
+state. No HELIX action needs to run forever. This makes execution predictable,
+auditable, and interruptible.
 
 ## Cross-Model Verification
 
-HELIX supports using different AI models for implementation and review:
+HELIX permits different AI models for implementation and review:
 
 - The build agent implements code
 - A different review agent examines the work with fresh perspective
-- Alternating models provides adversarial review: the reviewer has no implementation blindness
+- Alternating models creates adversarial review: the reviewer has no implementation blindness
 
-Configured via `ddx work --review-agent <agent>` or the `HELIX_ALT_AGENT` environment variable.
+Configured by the runtime. In DDx, review routing is runtime configuration, not
+a HELIX environment-variable contract.
 
 ## Epic Focus
 
@@ -134,7 +144,7 @@ Agents should maximize forward progress:
 
 ## Quality Ratchets
 
-A mechanism for ensuring quality metrics only improve over time:
+A mechanism for keeping metric floors monotonic:
 
 - A **floor** is a committed minimum value for a metric (e.g., 70% test coverage)
 - The floor can only go up, never down

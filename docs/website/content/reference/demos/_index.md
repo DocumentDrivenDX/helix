@@ -8,10 +8,9 @@ aliases:
 
 # Demos
 
-Eight scenarios show HELIX in motion against the four-step Core Workflow
+Eight scenarios show HELIX in motion against the four-step core workflow
 Contract from the [PRD](https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/01-frame/prd.md):
-write the brief, check alignment, create the work plan, run it in the
-factory.
+write the brief, check alignment, create the work plan, hand it to the runtime.
 
 Every demo is a **session record**: a committed `session.jsonl`
 ([source][demos-src]) under `docs/demos/<slug>/`. The asciinema casts on
@@ -71,9 +70,8 @@ agent will defend code against on day n.
 
 ## align: Detect drift across the artifact graph
 
-PRD says one thing; a recent ADR says another. The alignment skill walks
-the graph from highest authority down and reports an ordered plan to
-close the gap.
+PRD says one thing; a recent ADR says another. The `helix` skill walks the
+graph from highest authority down and reports an ordered plan to close the gap.
 
 {{< asciinema file="/demos/helix-align.cast" autoplay=true speed=1.5 >}}
 
@@ -81,11 +79,11 @@ close the gap.
 
 ---
 
-## plan: Turn aligned artifacts into bounded work
+## plan: Identify planning gaps
 
-The planning side of the same skill: decomposes feature specs into beads
-with deterministic acceptance criteria and named evidence. Ready for a
-runtime to execute.
+The planning side of the same skill produces authority-ranked gaps. Each gap
+names the destination artifact, deliverable shape, next workflow mode, and
+evidence references. This demo stops before runtime work exists.
 
 {{< asciinema file="/demos/helix-plan.cast" autoplay=true speed=1.5 >}}
 
@@ -98,7 +96,7 @@ runtime to execute.
 The product-vision scenario, made concrete: a team adds OAuth alongside
 existing API-key auth. One sentence in; six authority-ranked steps out,
 spanning security architecture, ADRs, feature specs, designs, tests, and
-beads.
+runtime work.
 
 {{< asciinema file="/demos/helix-evolve.cast" autoplay=true speed=1.5 >}}
 
@@ -122,7 +120,7 @@ Alignment catches all three drift signals.
 
 A second agent inspects completed work against the artifacts that govern
 it. Two blocking findings (missing revocation enforcement, missing test),
-one warning (token leak in error log), filed as tracker issues.
+one warning (token leak in error log), filed as runtime work.
 
 {{< asciinema file="/demos/helix-review.cast" autoplay=true speed=1.5 >}}
 
@@ -130,12 +128,11 @@ one warning (token leak in error log), filed as tracker issues.
 
 ---
 
-## execute: Run a bead end-to-end in the factory
+## execute: Hand a bead to DDx
 
-The hand-off to the runtime. DDx selects the bead, FZO routes to the
-right model + harness, work runs in a worktree, acceptance gates fire,
-a different model does a cross-review, evidence appends, the bead
-closes.
+The runtime handoff. DDx selects the bead, routes to the configured harness,
+work runs in a worktree, acceptance gates fire, review runs, evidence appends,
+and the bead closes. HELIX stays offstage; its job was the artifacts.
 
 {{< asciinema file="/demos/helix-execute.cast" autoplay=true speed=1.5 >}}
 

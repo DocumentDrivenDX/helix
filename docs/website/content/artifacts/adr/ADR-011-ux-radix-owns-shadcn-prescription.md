@@ -7,6 +7,9 @@ source: "02-design/adr/ADR-011-ux-radix-owns-shadcn-prescription.md"
 generated: true
 collection: adr
 ---
+
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 # ADR-011: ux-radix owns Radix and shadcn prescriptions; react-nextjs references
 
 | Date | Status | Deciders | Related | Confidence |

@@ -7,6 +7,9 @@ source: "02-design/contracts/API-001-helix-tracker-mutation.md"
 generated: true
 collection: contracts
 ---
+
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 # API Contract: HELIX Tracker Mutation Surface [FEAT-002]
 
 **Contract ID**: API-001

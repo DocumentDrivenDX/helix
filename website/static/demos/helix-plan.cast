@@ -1,6 +1,6 @@
 {"version": 2, "width": 100, "height": 30, "timestamp": 1764950700, "env": {"SHELL": "/bin/bash", "TERM": "xterm-256color"}, "title": "HELIX plan: authority-ranked gaps, ready for the next mode"}
-[0.0, "o", "\r\n\u001b[2m# Brief and PRD are aligned. Run HELIX align in plan mode for an authority-ranked gap list \u2014 each one handing off cleanly to the next workflow.\u001b[0m\r\n"]
-[1.0, "o", "\r\n\u001b[36m> Use HELIX align on this project and produce an authority-ranked plan. For each non-aligned gap, name the destination artifact type, the deliverable shape, the suggested next workflow mode, and evidence references.\u001b[0m\r\n"]
+[0.0, "o", "\r\n\u001b[2m# Brief and PRD are aligned. Run /helix align for an authority-ranked gap list \u2014 each one handing off cleanly to the next workflow mode.\u001b[0m\r\n"]
+[1.0, "o", "\r\n\u001b[36m> Use /helix align on this project and produce an authority-ranked plan. For each non-aligned gap, name the destination artifact type, the deliverable shape, the suggested next workflow mode, and evidence references.\u001b[0m\r\n"]
 [2.0, "o", "\u001b[2m  \u2699 Skill(skill='helix', args='align')\u001b[0m\r\n"]
 [2.5, "o", "\u001b[2m  \u2192 Launching skill: helix\u001b[0m\r\n"]
 [2.8, "o", "\u001b[2m  \u2699 Bash(command=\"find docs/helix -type f -name '*.md'\", description='Inventory authority artifacts')\u001b[0m\r\n"]

@@ -6,6 +6,9 @@ activity: "Design"
 source: "02-design/plan-2026-05-27-concern-expansion-and-converge.md"
 generated: true
 ---
+
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 # Plan — concern-library expansion + make-concerns-bite + iterate-to-convergence (2026-05-27)
 
 Plan-of-record for the current program (dogfoods the plan-as-file model). Captured as a file

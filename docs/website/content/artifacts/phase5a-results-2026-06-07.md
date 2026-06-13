@@ -6,6 +6,9 @@ activity: "Design"
 source: "02-design/phase5a-results-2026-06-07.md"
 generated: true
 ---
+
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 # Phase 5a results — canonical promotion targeted re-bench
 
 ## Headline

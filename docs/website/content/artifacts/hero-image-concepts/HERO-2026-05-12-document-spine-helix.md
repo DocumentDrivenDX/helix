@@ -7,6 +7,9 @@ source: "02-design/hero-image-concepts/HERO-2026-05-12-document-spine-helix.md"
 generated: true
 collection: hero-image-concepts
 ---
+
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 # HERO-2026-05-12 Document Spine Helix Concept
 
 ## Purpose

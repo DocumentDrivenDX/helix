@@ -8,7 +8,7 @@ aliases:
 ---
 
 Start with the artifacts. HELIX is a methodology, an artifact-type catalog, and
-one alignment/planning skill. It can run in any agent runtime that can read and
+one `helix` routing skill. It can run in any agent runtime that can read and
 write Markdown in your repository.
 
 You do not need a HELIX server, a HELIX tracker, or a HELIX-owned execution
@@ -23,8 +23,8 @@ runtime integration, not the definition of HELIX.
 2. **Create or collect your governing documents.** Put the highest-authority
    artifacts first: product vision, PRD, feature specs, and the design artifacts
    that explain current decisions. Existing Markdown docs are valid inputs.
-3. **Invoke the HELIX alignment/planning skill.** Ask your agent/runtime to use
-   HELIX to reconcile the artifact stack, identify drift, and propose the next
+3. **Invoke the `helix` skill.** Ask your agent/runtime to reconcile the
+   artifact stack, identify drift, choose a workflow mode, and propose the next
    bounded planning or implementation step.
 4. **Let your runtime execute the work.** The runtime can be DDx, Claude Code,
    Codex, Databricks Genie, a CI workflow, or a local agent harness. HELIX
@@ -58,13 +58,13 @@ Product Vision          "What is this and why?"
            -> Work Item "What is the next bounded change?"
 ```
 
-If a feature spec contradicts the PRD, the PRD wins. If a design contradicts a
-feature spec, the feature spec wins. The alignment skill exists to find those
-conflicts before implementation spreads them through the codebase.
+If a feature spec contradicts the PRD, the PRD governs. If a design contradicts
+a feature spec, the feature spec governs. The `helix` skill exists to find
+those conflicts before a runtime spreads them through the codebase.
 
 ## What Your Runtime Must Provide
 
-HELIX is intentionally small. A compatible runtime only needs to provide a few
+HELIX is intentionally small. A compatible runtime needs only these
 capabilities:
 
 - Read and write Markdown artifacts in the repository.
@@ -78,8 +78,8 @@ more coherent without becoming one of them.
 
 ## Using DDx
 
-DDx is the reference runtime integration for HELIX. It provides a document
-library, a dependency-aware tracker, an agent harness, and execution evidence.
+DDx is the reference runtime integration for HELIX. It ships a document library,
+a dependency-aware tracker, an agent harness, and execution evidence.
 Use DDx when you want a ready-made queue and review loop around HELIX artifacts.
 
 ```bash
@@ -96,8 +96,10 @@ See [Using HELIX with DDx](../ddx-runtime/) for the DDx-specific path.
 
 - Browse the [artifact-type catalog](/artifact-types/) for templates,
   generation prompts, and expected relationships.
-- Review the projected [HELIX self-artifacts](/artifacts/) to see HELIX applied
-  to itself.
+- Learn [multiple flows and microsites](../multiple-flows/) when one repository
+  has a product scope and a documentation-site scope.
+- Review the generated [HELIX dogfood artifacts](/artifacts/) as example
+  evidence, not as the main adoption path.
 - Read [Why HELIX](/why/) for the principles behind the methodology layer.
 - Continue to [The Workflow](../workflow/) for the lifecycle activities and where
   alignment fits.

@@ -7,6 +7,9 @@ source: "02-design/adr/ADR-014-architecture-style-slot-shape-deferred.md"
 generated: true
 collection: adr
 ---
+
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 # ADR-014: Deferred: architecture-style slot occupants remain four separate concerns
 
 | Date | Status | Deciders | Related | Confidence |

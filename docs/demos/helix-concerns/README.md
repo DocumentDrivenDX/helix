@@ -2,7 +2,7 @@
 
 The fixture declares `typescript-bun` as the project's tech-stack
 concern (Bun runtime, `bun:test`, Biome, `bun` script runner). The
-code drifts from that contract in three places. The alignment skill
+code drifts from that contract in three places. The `helix` skill
 should report all three.
 
 ## Files
@@ -25,6 +25,6 @@ bash tests/validate-demos.sh
 
 ```
 python3 scripts/demos/capture_session.py helix-concerns \
-    --prompt "Run alignment against the typescript-bun concern. Report every drift signal you find and propose a remediation plan." \
+    --prompt "Run /helix align against the typescript-bun concern. Report every drift signal you find and propose a remediation plan." \
     --fixture docs/demos/helix-concerns/fixture/
 ```

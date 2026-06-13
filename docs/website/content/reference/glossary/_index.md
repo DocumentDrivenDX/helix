@@ -6,8 +6,8 @@ aliases:
   - /docs/glossary
 ---
 
-Vocabulary for the HELIX system. The activities, the workflow actions, the
-core concepts, and the tracker primitives.
+Vocabulary for the HELIX system. The activities, workflow actions, core
+concepts, and DDx reference-runtime tracker primitives.
 
 For the artifact catalog (descriptions, prompts, examples, relationships),
 see [Artifacts](/artifacts/). For cross-cutting concerns, see
@@ -20,5 +20,5 @@ glossary entries.
   {{< card link="activities" title="Activities" subtitle="The seven HELIX activity types, with the artifacts each produces." icon="refresh" >}}
   {{< card link="../../use/workflow/" title="Actions" subtitle="Bounded workflow commands and compatibility entrypoints: frame, design, build, review, align." icon="play" >}}
   {{< card link="concepts" title="Concepts" subtitle="Core ideas: authority hierarchy, context digests, ratchets, principles." icon="light-bulb" >}}
-  {{< card link="tracker" title="Tracker" subtitle="Beads, labels, dependencies, and queue control on top of DDx." icon="clipboard-list" >}}
+  {{< card link="tracker" title="DDx Tracker" subtitle="Beads, labels, dependencies, and queue control in the reference runtime." icon="clipboard-list" >}}
 {{< /cards >}}

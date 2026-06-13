@@ -6,13 +6,17 @@ aliases:
   - /docs/glossary/tracker
 ---
 
-# Tracker
+# DDx Tracker
 
-The built-in tracker is HELIX's execution layer. HELIX calls issues **beads** and stores them in `.ddx/beads.jsonl`, managed via `ddx bead` subcommands.
+DDx is the reference runtime integration for HELIX. Its tracker stores work
+items as **beads** in `.ddx/beads.jsonl`, managed via `ddx bead` subcommands.
+HELIX can use those beads as runtime evidence and work handoff, but HELIX does
+not require a tracker or ship one as part of the methodology.
 
 ## Beads
 
-A bead is a work item, the atomic unit of tracked work in HELIX.
+A bead is a DDx work item. In a HELIX project, a bead should cite the governing
+artifact that authorizes the work.
 
 | Field | Purpose |
 |-------|---------|
@@ -67,7 +71,8 @@ Labels are organizational conventions for triage and traceability.
 | `area:cli` | CLI tool work |
 
 <!-- vale Helix.PassiveVoice = NO -->
-Area labels are required for [concern](/concerns/) filtering to work. The HELIX skill in `polish` mode assigns them to unlabeled beads.
+Area labels let DDx and HELIX-aware agents match [concerns](/concerns/) to
+runtime work. A `polish` pass may propose labels when a runtime uses beads.
 <!-- vale Helix.PassiveVoice = YES -->
 
 ### Traceability Labels
@@ -117,9 +122,9 @@ ddx bead blocked --json
 
 ## Queue Control
 
-The tracker queue drives the [workflow loop](/use/workflow/):
+In DDx, the tracker queue can drive the [workflow loop](/use/workflow/):
 
-1. The HELIX skill in `check` mode inspects the ready queue and recommends the next action
+1. The `helix` skill in `check` mode can inspect the ready queue and recommend the next action
 2. `ddx work` claims and executes one ready issue
 3. `ddx work` chains check and build until the queue drains
 
@@ -141,14 +146,17 @@ When the ready queue is empty:
 
 ## spec-id
 
-The `spec-id` field links a bead to its governing artifact. This is how HELIX maintains traceability from execution back to requirements.
+The `spec-id` field links a bead to its governing artifact. This is how a DDx
+runtime preserves traceability from execution back to HELIX requirements.
 
 Examples:
 - `spec-id: FEAT-001`: governed by feature spec 001
 - `spec-id: TD-003`: governed by technical design 003
 - `spec-id: US-042`: governed by user story 042
 
-The build action loads the governing artifact referenced by `spec-id` to understand what the issue should accomplish and verify the work against acceptance criteria.
+Runtime execution loads the governing artifact referenced by `spec-id` to
+understand what the issue should accomplish and verify the work against
+acceptance criteria.
 
 ## Dependency Management
 
@@ -162,4 +170,6 @@ ddx bead dep add B --blocked-by A
 ddx bead dep tree <id>
 ```
 
-Dependencies affect the ready queue: a bead with unresolved dependencies is not ready. The HELIX skill in `check` mode considers dependency chains when recommending which issue to work next.
+Dependencies affect the ready queue: a bead with unresolved dependencies is not
+ready. A HELIX `check` pass can consider dependency chains when recommending
+which issue to work next in DDx.

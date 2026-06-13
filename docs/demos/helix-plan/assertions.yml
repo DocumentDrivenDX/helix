@@ -6,7 +6,7 @@ expect:
   - kind: narration
     contains: "authority-ranked"
   - kind: prompt
-    contains: "HELIX align"
+    contains: "/helix align"
   - kind: tool_call
     name: Skill
     args_contain:

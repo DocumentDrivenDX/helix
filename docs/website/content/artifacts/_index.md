@@ -6,7 +6,9 @@ generated: true
 
 # HELIX — Artifacts
 
-The actual governing artifacts of the HELIX project, organised by the HELIX activity they belong to. Each page is the live content of the corresponding source document; edits should be made in the source, not here.
+Generated dogfood artifacts from the HELIX project. This section shows how this repository applies HELIX to itself; it is example evidence and source traceability, not the main adoption path or adopter doctrine. Historical plans and reports may describe retired architecture.
+
+Each page is the live content of the corresponding source document; edits should be made in the source, not here.
 
 _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 

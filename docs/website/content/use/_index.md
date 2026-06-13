@@ -7,7 +7,7 @@ weight: 4
 The how-to layer. Once you understand [why HELIX is shaped the way it
 <!-- vale Helix.PassiveVoice = YES -->
 is](/why/), this section explains how to use it in practice: adopt the
-artifact templates, invoke the alignment/planning skill through your agent
+artifact templates, invoke the `helix` routing skill through your agent
 runtime, and choose an execution integration when you need one.
 
 ## The public HELIX surfaces
@@ -16,10 +16,10 @@ HELIX has three public surfaces:
 
 - **Artifact types** define the reusable catalog: templates, prompts,
   metadata, and quality criteria.
-- **Project artifacts** are concrete documents authored from those types. The
-  HELIX repo publishes its own artifacts as a worked example.
-- **Skills** give an agent the method for aligning those artifacts and planning
-  safe updates.
+- **Project artifacts** are concrete documents authored from those types.
+  HELIX's own artifacts are published separately as a dogfood example.
+- **The `helix` skill** gives an agent the routing contract for reading those
+  artifacts, choosing a workflow mode, and planning safe updates.
 
 Runtime integrations sit around those surfaces. DDx is the reference runtime,
 not the product spine.
@@ -27,10 +27,11 @@ not the product spine.
 ## Start here
 
 {{< cards >}}
-  {{< card link="getting-started" title="Getting Started" subtitle="Start from the artifact catalog and invoke the HELIX alignment/planning skill through your runtime." icon="play" >}}
-  {{< card link="../skills" title="Skills" subtitle="Use the portable alignment-and-planning skill, and understand which wrappers are runtime-specific legacy." icon="sparkles" >}}
+  {{< card link="getting-started" title="Getting Started" subtitle="Start from the artifact catalog and invoke the HELIX routing skill through your runtime." icon="play" >}}
+  {{< card link="multiple-flows" title="Multiple Flows and Microsites" subtitle="Use one helix skill across product and docs scopes without creating sibling public skills." icon="collection" >}}
+  {{< card link="../skills" title="The helix Skill" subtitle="Use the portable routing skill and understand how modes map to artifact work." icon="sparkles" >}}
   {{< card link="../artifact-types" title="Artifact Types" subtitle="Browse the reusable catalog of HELIX document shapes, templates, prompts, and quality criteria." icon="collection" >}}
-  {{< card link="../artifacts" title="Worked Artifacts" subtitle="Inspect HELIX's own governing artifacts as a self-applied example of the methodology." icon="document-text" >}}
+  {{< card link="../artifacts" title="Dogfood Artifacts" subtitle="Inspect HELIX's generated self-docs as example evidence, not adopter doctrine." icon="document-text" >}}
   {{< card link="ddx-runtime" title="Using HELIX with DDx" subtitle="Use DDx as the reference runtime integration when you want a tracker, agent harness, and evidence loop." icon="terminal" >}}
   {{< card link="manual-recipe" title="Manual HELIX Recipe" subtitle="Create the first artifact stack, run alignment, and hand work to implementers without a runtime." icon="pencil" >}}
   {{< card link="claude-code-recipe" title="Claude Code Recipe" subtitle="Use HELIX in Claude Code by prompting artifact edits, alignment, and implementation handoff directly." icon="code" >}}
@@ -46,8 +47,8 @@ mechanics: agent dispatch, work tracking, review, and evidence capture.
 
 - **Manual.** You ask an agent to create or review specific HELIX artifacts,
   then decide what to accept.
-- **Runtime-assisted.** Your agent invokes the HELIX alignment/planning skill
-  before creating work items or changing code.
+- **Runtime-assisted.** Your agent invokes the `helix` skill before creating
+  work items or changing code.
 - **Integrated.** A runtime such as DDx wraps HELIX artifacts with a tracker,
   queue, execution harness, and evidence model.
 
@@ -81,7 +82,7 @@ The core HELIX methodology is runtime-neutral:
 - Artifact-type catalog
 - Authority hierarchy
 - Seven activity loop
-- Alignment-and-planning skill
+- One `helix` routing skill
 
 Runtime behavior is platform-specific:
 
@@ -90,9 +91,9 @@ Runtime behavior is platform-specific:
 - Claim, review, commit, and release workflows
 - Evidence capture and reporting
 
-Legacy `helix-*` wrappers in this repository belong to the transitional runtime
-surface. They may remain useful while DDx and other integrations mature, but
-they are not the public product contract.
+Workflow modes such as `frame`, `review`, and `polish` are modes of the one
+`helix` skill. Runtime-specific commands may wrap those modes, but wrappers are
+packaging details, not public methodology.
 
 ## Cross-cutting concerns
 
@@ -104,6 +105,6 @@ stack tells them what the project values before they start.
 
 {{< cards >}}
 <!-- vale Helix.PassiveVoice = NO -->
-  {{< card link="workflow/concerns" title="Cross-Cutting Concerns" subtitle="How concerns are declared, selected, propagated into beads, and used by agents during execution." icon="shield-check" >}}
+  {{< card link="workflow/concerns" title="Cross-Cutting Concerns" subtitle="How concerns are declared, selected, propagated into runtime work, and used by agents during execution." icon="shield-check" >}}
 <!-- vale Helix.PassiveVoice = YES -->
 {{< /cards >}}

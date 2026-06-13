@@ -11,7 +11,7 @@ aliases:
 ---
 
 How HELIX runs in a project: the activities, the artifact authority
-hierarchy, the alignment skill, the build-exit gate, and the convergence
+hierarchy, the `helix` skill, the verification gate, and the convergence
 loop. For the
 argument behind the procedure, see [the thesis](/why/the-thesis/) and
 [principles](/why/principles/). For the activity catalog (each activity's
@@ -47,9 +47,9 @@ determines which artifact governs, regardless of entry point:
 - **From running systems**: unstructured feedback ("I don't like how this
   looks") routes to the layer it applies to.
 
-The alignment skill keeps these flows coherent. It walks the artifacts
-on demand, identifies drift in any direction, and produces a plan to
-close it.
+The `helix` skill keeps these flows coherent. It walks the artifacts on demand,
+identifies drift in any direction, chooses the matching workflow mode, and
+produces a plan to close it.
 
 <span id="authority-order" style="display:block; scroll-margin-top: 6rem;"></span>
 ## Authority Hierarchy
@@ -69,7 +69,7 @@ When artifacts disagree, HELIX escalates to the higher-authority artifact:
 
 Higher layers govern lower layers. Source code reflects what exists, not
 what should exist. If a higher layer is missing, HELIX does not infer
-intent from lower layers; the alignment skill flags the gap instead.
+intent from lower layers; the `helix` skill flags the gap instead.
 
 ## Artifact Graph
 
@@ -87,20 +87,20 @@ ADRs ←── Cross-cutting Concerns ────┘
   └──→ Context Digests ──→ Runtime Work Context
 ```
 
-The graph enables impact analysis (which artifacts a change affects),
-reconciliation (verifying dependent artifacts remain consistent), and
-context synthesis (a runtime pulls the governance chain for a specific
-change).
+Teams use the graph for impact analysis (which artifacts a change affects),
+reconciliation (verifying dependent artifacts remain consistent), and context
+synthesis (a runtime pulls the governance chain for a specific change).
 
-## The Alignment Skill
+## The helix Skill
 
-The portable HELIX skill operates the loop. Given the current artifacts
-and (optionally) a new intent, it:
+The portable `helix` skill operates the loop. Given the current artifacts and
+(optionally) a new intent, it:
 
-1. **Walks** the governing artifacts top-down through the authority
+1. **Resolves** the active scope from the marker, current directory, or prompt.
+2. **Walks** the governing artifacts top-down through the authority
    hierarchy.
-2. **Identifies** drift, gaps, and contradictions across activities.
-3. **Produces** a plan describing the artifact updates needed to restore
+3. **Identifies** drift, gaps, and contradictions across activities.
+4. **Produces** a plan describing the artifact updates needed to restore
    coherence, ordered by authority.
 
 The plan is the output. A runtime (DDx, Databricks Genie, Claude Code,
@@ -129,19 +129,18 @@ A typical iteration:
 
 1. **Intent enters** somewhere: a feature request, a metric flag, an
    incident, a refactor itch.
-2. **Alignment runs** against current artifacts and produces a plan
+2. **HELIX runs** against current artifacts and produces a plan
    describing which activities the change affects.
 3. **Runtime executes** the plan, creating concrete work items in
-   whatever tracker the runtime provides.
+   the runtime-owned tracker.
 4. **Artifacts update** as work happens: vision revisions, new feature
    specs, fresh ADRs, additional tests, code changes.
 5. **Iterate captures** what happened: metrics, alignment reviews,
    improvement backlog.
 6. **Intent enters again**, feeding the next pass.
 
-The loop does not "finish." It runs continuously, with the alignment
-skill catching drift before it accumulates and the runtime executing
-work between alignment passes.
+The loop does not "finish." It runs continuously, with `helix` catching drift
+before it accumulates and the runtime executing work between review passes.
 
 ## Review and Alignment
 

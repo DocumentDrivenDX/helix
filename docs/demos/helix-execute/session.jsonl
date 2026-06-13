@@ -1,10 +1,10 @@
-{"meta": {"title": "HELIX build: one bounded implementation pass against a governing bead", "width": 100, "height": 30, "scenario": "execute", "timestamp": 1778789166}}
-{"narration": "Planning is done. A runtime hands the skill a specific bead; build mode runs one bounded implementation pass against the artifacts that govern it."}
+{"meta": {"title": "DDx execute: one bounded implementation pass against a governing bead", "width": 100, "height": 30, "scenario": "execute", "timestamp": 1778789166}}
+{"narration": "Planning is done. DDx owns the runtime handoff: it claims one bead, loads the governing artifacts, runs the configured agent, and records evidence."}
 {"shell": "$ ls .ddx/beads.jsonl docs/helix/01-frame/features/"}
 {"output": ".ddx/beads.jsonl\ndocs/helix/01-frame/features/FEAT-001-csv-ingest.md\n"}
-{"prompt": "Use HELIX build mode on bead-001 (CSV header sniffer) in .ddx/beads.jsonl. Read the bead's governing artifacts and acceptance criteria, then execute one bounded implementation pass: write the header sniffer tests, the implementation, and the schema-mapping.yaml. Do not broaden scope beyond bead-001."}
-{"tool_call": {"name": "Skill", "args": {"skill": "helix", "args": "build mode on bead-001"}}}
-{"tool_result": "Launching skill: helix"}
+{"prompt": "Run one DDx execution pass for bead-001 (CSV header sniffer). Load the governing artifacts and acceptance criteria, then execute only that bead: write the header sniffer tests, the implementation, and the schema-mapping.yaml. Do not broaden scope beyond bead-001."}
+{"tool_call": {"name": "Bash", "args": {"command": "ddx bead execute bead-001", "description": "Run one bounded DDx bead execution"}}}
+{"tool_result": "claiming bead-001\nloading spec-id FEAT-001-csv-ingest\nstarting configured agent harness"}
 {"tool_call": {"name": "Read", "args": {"file_path": ".ddx/beads.jsonl"}}}
 {"tool_result": "bead-001: CSV header sniffer · acceptance: schema-mapping.yaml exists; 3 fixtures; go test passes; OWASP A03 clean"}
 {"tool_call": {"name": "Read", "args": {"file_path": "docs/helix/01-frame/features/FEAT-001-csv-ingest.md"}}}
@@ -16,10 +16,10 @@
 {"tool_result": "header sniffer + LoadMapping"}
 {"tool_call": {"name": "Write", "args": {"file_path": "tests/header_sniffer_test.go"}}}
 {"tool_result": "3 fixtures: acme exact-match · beta case-insensitive + reordered · unknown headers → error"}
-{"narration": "The acceptance contract is the gate. Now run it.", "pause_s": 0.6}
+{"narration": "The acceptance contract is the gate. The runtime records the checks as execution evidence.", "pause_s": 0.6}
 {"tool_call": {"name": "Bash", "args": {"command": "go test ./... && go vet ./..."}}}
 {"tool_result": "ok  github.com/telepathdata/csv-ingest/tests  0.002s\nvet OK"}
 {"tool_call": {"name": "Bash", "args": {"command": "gosec -include=G201,G202,G203,G204 ./..."}}}
 {"tool_result": "0 issues (OWASP A03 injection rules clean)"}
-{"assistant": "Bead-001 complete. Acceptance verified:\n\n- schema-mapping.yaml at project root — adding a new payer is YAML-only per US-INGEST-3.\n- tests/header_sniffer_test.go — 3 fixtures: acme exact-match, beta case-insensitive + reordered, unknown headers → error.\n- go test ./... passes; go vet clean.\n- OWASP A03 (Injection) — scoped gosec scan returns 0 issues. No exec, no SQL, no template render.\n\nNote: default gosec also flags G304 (path traversal in LoadMapping) — that's CWE-22 / OWASP A01, outside this bead's acceptance. Surfacing for a separate hardening bead.\n\nScope held to bead-001; bead-002 (validator) and bead-004 (CLI) untouched.", "pace_ms": 18}
+{"assistant": "DDx execution completed bead-001. Acceptance verified:\n\n- schema-mapping.yaml at project root — adding a new payer is YAML-only per US-INGEST-3.\n- tests/header_sniffer_test.go — 3 fixtures: acme exact-match, beta case-insensitive + reordered, unknown headers → error.\n- go test ./... passes; go vet clean.\n- OWASP A03 (Injection) — scoped gosec scan returns 0 issues. No exec, no SQL, no template render.\n\nNote: default gosec also flags G304 (path traversal in LoadMapping) — that's CWE-22 / OWASP A01, outside this bead's acceptance. Surfacing for a separate hardening bead.\n\nScope held to bead-001; bead-002 (validator) and bead-004 (CLI) untouched. Evidence appended to the bead for review.", "pace_ms": 18}
 {"narration": "One bead, one bounded pass. The skill stayed inside the governing artifacts; the runtime decides what comes next.", "pause_s": 2.5}

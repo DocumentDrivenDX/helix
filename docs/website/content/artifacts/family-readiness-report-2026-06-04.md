@@ -6,6 +6,9 @@ activity: "Design"
 source: "02-design/family-readiness-report-2026-06-04.md"
 generated: true
 ---
+
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 # helix-family Readiness Report
 
 - **Date:** 2026-06-04

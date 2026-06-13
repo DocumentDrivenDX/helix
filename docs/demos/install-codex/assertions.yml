@@ -1,0 +1,15 @@
+slug: install-codex
+min_duration_s: 2
+min_assistant_chars: 0
+
+expect:
+  - kind: narration
+    contains: "installs HELIX"
+  - kind: shell
+    contains: "npx skills add DocumentDrivenDX/helix -a codex"
+  - kind: output
+    contains: "resolved skill: helix"
+  - kind: shell
+    contains: "ls ~/.codex/skills/helix/"
+  - kind: narration
+    contains: "route into a HELIX mode"

@@ -7,6 +7,9 @@ source: "02-design/adr/ADR-010-feature-registry-parking-lot-handoff.md"
 generated: true
 collection: adr
 ---
+
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 # ADR-010: feature-registry and parking-lot stay separate with an explicit handoff
 
 | Date | Status | Deciders | Related | Confidence |

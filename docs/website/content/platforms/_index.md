@@ -3,7 +3,7 @@ title: Platforms
 weight: 5
 ---
 
-The runtime around HELIX. A platform may provide a tracker, agent harness,
+The runtime around HELIX. A platform may add a tracker, agent harness,
 review workflow, evidence store, or only a conversational interface; the
 same artifact stack moves across all of them because the core contract is
 plain Markdown plus a small amount of frontmatter. For what HELIX is, see
@@ -12,7 +12,7 @@ plain Markdown plus a small amount of frontmatter. For what HELIX is, see
 ## Boundary: method first, runtime second
 
 HELIX's public spine is the [artifact-type catalog](/artifact-types/), the
-[worked HELIX artifacts](/artifacts/), and the [portable skill](/skills/) that
+[dogfood HELIX artifacts](/artifacts/), and the [portable skill](/skills/) that
 keeps them aligned. Platforms are integration choices around that spine.
 
 DDx is the reference runtime because it demonstrates tracker-backed execution,
@@ -80,8 +80,8 @@ them.
 
 Claude Code can use HELIX as a skill package and artifact discipline. The
 common pattern is direct agent interaction: ask Claude to read the governing
-artifacts, invoke the HELIX alignment/planning skill, and apply the resulting
-plan to Markdown files or code changes.
+artifacts, invoke the `helix` skill, and apply the resulting plan to Markdown
+files or code changes.
 
 Use this path when your team wants interactive steering and review, but does
 not need a runtime-owned queue for every change.
@@ -93,7 +93,7 @@ In this mode, treat the HELIX skill as the product surface and any historical
 
 1. Open a repo that contains the HELIX artifact stack.
 2. Ask Claude to read the governing artifacts before proposing work.
-3. Invoke the HELIX alignment/planning skill for the intended scope.
+3. Invoke the `helix` skill for the intended scope.
 4. Review the plan before allowing edits.
 5. Keep the change bounded to the reviewed scope and update artifacts when the
    implementation changes the product contract.
@@ -172,14 +172,14 @@ criteria in Markdown so they remain reviewable outside the Databricks runtime.
 ## Manual or mixed operation
 
 You can also use HELIX without a dedicated platform. Keep the artifacts in
-your repository, ask an agent to apply the alignment skill against them, and
+your repository, ask an agent to apply HELIX against them, and
 review the proposed plan before any implementation work begins.
 
 Many teams will mix modes: manual planning for high-judgment changes, Claude
 or Codex for interactive implementation, DDx for queued execution, and
 Databricks for domain-specific runtime work.
 
-When mixing modes, keep the artifact catalog and alignment skill as the shared
+When mixing modes, keep the artifact catalog and `helix` skill as the shared
 contract. Let each runtime own only the mechanics it is good at.
 
 ### First 30 minutes manually

@@ -7,6 +7,9 @@ source: "03-test/executions/README.md"
 generated: true
 collection: executions
 ---
+
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 # Execution Docs
 
 This directory reserves the canonical location for `EXEC-*` execution

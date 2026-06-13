@@ -6,6 +6,9 @@ activity: "Design"
 source: "02-design/phase7-results-2026-06-08.md"
 generated: true
 ---
+
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 # Phase 7 results — synthetic-prompt rewrite verification
 
 ## Headline

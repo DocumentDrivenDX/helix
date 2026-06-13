@@ -21,20 +21,21 @@ test.describe('Homepage', () => {
 
     await test.step('verify adoption and proof paths', async () => {
       await expect(page.getByRole('link', { name: 'Start with HELIX' })).toBeVisible()
-      await expect(page.getByRole('link', { name: 'Inspect the proof' })).toBeVisible()
+      await expect(page.getByRole('link', { name: 'Browse the catalog' })).toBeVisible()
     })
 
     await test.step('verify refreshed IA sections', async () => {
       await expect(page.getByRole('heading', { name: 'How it works' })).toBeVisible()
       await expect(page.getByRole('heading', { name: 'Artifact spine' })).toBeVisible()
-      await expect(page.getByRole('heading', { name: 'Worked example: HELIX governs itself' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Use more than one flow scope' })).toBeVisible()
       await expect(page.getByRole('heading', { name: 'Use HELIX where your team already works' })).toBeVisible()
       await expect(page.getByRole('heading', { name: 'Inspect the foundations' })).toBeVisible()
     })
 
-    await test.step('verify the hero image and worked-example graph both render', async () => {
+    await test.step('verify the hero image renders and worked example is firewalled', async () => {
       await expect(page.locator('.helix-hero-image-panel')).toHaveCount(1)
-      await expect(page.locator('.helix-graph-visual svg')).toBeVisible()
+      await expect(page.getByText('Dogfood example')).toBeVisible()
+      await expect(page.locator('.helix-graph-visual svg')).toHaveCount(0)
     })
 
     await test.step('capture full-page screenshot', async () => {
@@ -74,6 +75,8 @@ test.describe('Why HELIX', () => {
 test.describe('Artifacts', () => {
   test('index lists artifacts grouped by activity', async ({ page }) => {
     await page.goto('/artifacts/')
+    await expect(article(page).getByText(/Generated dogfood artifacts/)).toBeVisible()
+    await expect(article(page).getByText(/not the main adoption path or adopter doctrine/)).toBeVisible()
     // Artifacts are grouped under plain activity-name headings (h2)
     await expect(page.getByRole('heading', { name: /^Discover/ })).toBeVisible()
     await expect(page.getByRole('heading', { name: /^Frame/ })).toBeVisible()
@@ -148,6 +151,7 @@ test.describe('Use HELIX', () => {
   test('section landing introduces the how-to layer', async ({ page }) => {
     await page.goto('/use/')
     await expect(article(page).getByRole('link', { name: /Getting Started/ })).toBeVisible()
+    await expect(article(page).getByRole('link', { name: /Multiple Flows and Microsites/ })).toBeVisible()
     await expect(article(page).getByRole('link', { name: /Artifact Types/ })).toBeVisible()
   })
 
@@ -162,6 +166,16 @@ test.describe('Use HELIX', () => {
   test('Workflow page explains activities', async ({ page }) => {
     await page.goto('/use/workflow/')
     await expect(page.getByRole('heading', { name: 'Workflow' }).first()).toBeVisible()
+  })
+
+  test('Multiple flows page explains microsite scope without sibling public skills', async ({
+    page,
+  }) => {
+    await page.goto('/use/multiple-flows/')
+    await expect(page.getByRole('heading', { name: 'Multiple Flows and Microsites' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Microsite-docs Template' })).toBeVisible()
+    await expect(article(page).locator('pre').getByText('kind: helix')).toHaveCount(2)
+    await expect(article(page).getByText('They are not separate public')).toBeVisible()
   })
 })
 
@@ -214,8 +228,9 @@ test.describe('Reference', () => {
       await expect(page.getByRole('heading', { name: 'Context Digest' })).toBeVisible()
     })
 
-    test('tracker page documents beads', async ({ page }) => {
+    test('tracker page documents DDx beads as reference-runtime concepts', async ({ page }) => {
       await page.goto('/reference/glossary/tracker/')
+      await expect(page.getByRole('heading', { name: 'DDx Tracker' }).first()).toBeVisible()
       await expect(article(page).getByText('ddx bead').first()).toBeVisible()
       await expect(article(page).getByRole('heading', { name: 'Activity Labels' })).toBeVisible()
     })
@@ -250,7 +265,7 @@ test.describe('Navigation Workflows', () => {
     await expect(page).toHaveURL(/\/use\/getting-started/)
   })
 
-  test('top nav: Why / Artifacts / Concerns / Use / Reference', async ({ page }) => {
+  test('top nav: Why / Use / Types / Concerns / Platforms / Reference', async ({ page }) => {
     await page.goto('/')
     const nav = page.getByRole('navigation').first()
 
@@ -259,10 +274,16 @@ test.describe('Navigation Workflows', () => {
       await expect(page).toHaveURL(/\/why\/?$/)
     })
 
-    await test.step('Artifacts', async () => {
+    await test.step('Use HELIX', async () => {
       await page.goto('/')
-      await nav.getByRole('link', { name: 'Artifacts' }).first().click()
-      await expect(page).toHaveURL(/\/artifacts\/?$/)
+      await nav.getByRole('link', { name: 'Use HELIX' }).first().click()
+      await expect(page).toHaveURL(/\/use\/?$/)
+    })
+
+    await test.step('Types', async () => {
+      await page.goto('/')
+      await nav.getByRole('link', { name: 'Types' }).first().click()
+      await expect(page).toHaveURL(/\/artifact-types\/?$/)
     })
 
     await test.step('Concerns', async () => {
@@ -271,10 +292,10 @@ test.describe('Navigation Workflows', () => {
       await expect(page).toHaveURL(/\/concerns\/?$/)
     })
 
-    await test.step('Use HELIX', async () => {
+    await test.step('Platforms', async () => {
       await page.goto('/')
-      await nav.getByRole('link', { name: 'Use HELIX' }).first().click()
-      await expect(page).toHaveURL(/\/use\/?$/)
+      await nav.getByRole('link', { name: 'Platforms' }).first().click()
+      await expect(page).toHaveURL(/\/platforms\/?$/)
     })
 
     await test.step('Reference', async () => {

@@ -7,6 +7,8 @@ source: "06-iterate/research-principles-injection-2026-04-05.md"
 generated: true
 ---
 
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 > **Source identity** (from `06-iterate/research-principles-injection-2026-04-05.md`):
 
 ```yaml

@@ -6,6 +6,9 @@ activity: "Design"
 source: "02-design/plan-2026-05-26-spike-first-activation.md"
 generated: true
 ---
+
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 # Plan: spike-first ACTIVATION trigger (close the reframe-and-defer escape hatch)
 
 Date: 2026-05-26 · Scope: methodology (concern-resolution + evolve + plan/design route + tech-spike artifact)

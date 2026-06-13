@@ -1,9 +1,9 @@
-# helix-plan demo
+# helix plan demo
 
-The brief is written and aligned. The plan side of the alignment
-skill decomposes the feature spec into bounded beads — each with
-deterministic acceptance criteria and named evidence — that a
-runtime can execute.
+The brief is written and aligned. `/helix align` produces an authority-ranked
+planning gap list. Each gap names the destination artifact, deliverable shape,
+next workflow mode, and evidence references so a runtime or operator can
+continue without guessing.
 
 ## Files
 
@@ -16,9 +16,8 @@ runtime can execute.
   - `docs/helix/01-frame/features/FEAT-001-csv-ingest.md` with
     US-INGEST-1..4
 
-The session's four beads (header sniffer, row validator, Parquet
-writer, CLI surface) trace directly to FEAT-001's user stories and
-acceptance.
+The session deliberately stops before runtime work exists. Its output routes
+missing implementation work to `polish` after design and test artifacts exist.
 
 ## Rebuild the cast
 
@@ -31,6 +30,6 @@ bash tests/validate-demos.sh
 
 ```
 python3 scripts/demos/capture_session.py helix-plan \
-    --prompt "Decompose FEAT-001 into bounded beads with deterministic acceptance criteria and named evidence." \
+    --prompt "Use /helix align to produce authority-ranked planning gaps with destination artifacts, deliverable shapes, next modes, and evidence references." \
     --fixture docs/demos/helix-plan/fixture/
 ```

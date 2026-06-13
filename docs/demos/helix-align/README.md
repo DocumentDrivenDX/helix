@@ -1,7 +1,7 @@
-# helix-align demo
+# helix align demo
 
 A HELIX-governed project has a PRD saying API-keys-only and an ADR
-proposing a pivot to OAuth. The alignment skill walks the artifact
+proposing a pivot to OAuth. The `helix` skill walks the artifact
 graph from the highest-authority artifact down and reports three findings plus a plan
 ordered by which artifact governs which.
 
@@ -15,8 +15,8 @@ ordered by which artifact governs which.
   - `docs/helix/02-design/adr/ADR-002-oauth-pivot.md`
     (proposes OAuth, supersedes ADR-001)
 
-The contradiction between PRD R-3 and ADR-002 is what the alignment
-skill should find.
+The contradiction between PRD R-3 and ADR-002 is what `/helix align` should
+find.
 
 ## Rebuild the cast
 
@@ -34,7 +34,7 @@ produces the same `.cast`.
 
 ```
 python3 scripts/demos/capture_session.py helix-align \
-    --prompt "Run the alignment skill on this project and produce an authority-ranked plan to resolve any contradictions." \
+    --prompt "Run /helix align on this project and produce an authority-ranked plan to resolve any contradictions." \
     --fixture docs/demos/helix-align/fixture/
 ```
 

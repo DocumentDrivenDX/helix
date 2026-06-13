@@ -30,7 +30,7 @@ Start by asking your agent to frame your intent into governed artifacts and
 work items. In an agent session with HELIX skills installed:
 
 ```text
-Use /helix-input to frame "Build a REST API for managing bookmarks".
+Use /helix frame to frame "Build a REST API for managing bookmarks".
 ```
 
 That skill turns sparse intent into Markdown artifacts plus tracked work that
@@ -75,14 +75,15 @@ Or invoke integration commands directly if your agent exposes them:
 
 | Command | What it does in the DDx integration |
 |---------|-------------------------------------|
-| `/helix-input "build a bookmarks API"` | Shape intent into governed artifacts and DDx work items |
-| `/helix-align` | Run a top-down alignment review over the artifact stack |
-| `/helix-review` | Fresh-eyes review of recent work |
-| `/helix-frame` | Create or refine product vision, PRD, feature specs |
-| `/helix-evolve "requirement"` | Thread a change through the artifact stack |
+| `/helix input "build a bookmarks API"` | Shape sparse intent into governed artifacts and DDx work items |
+| `/helix review` | Review the artifact stack or recent work against governing artifacts |
+| `/helix frame` | Create or refine product vision, PRD, and feature specs |
+| `/helix evolve "requirement"` | Thread a change through the artifact stack |
+| `ddx work` | Execute runtime-owned queued work after HELIX planning |
 
 ## Related Reading
 
 - Start with the runtime-neutral [Getting Started](../getting-started/) guide.
 - Browse the [artifact-type catalog](/artifact-types/) for HELIX templates.
-- Review the projected [HELIX self-artifacts](/artifacts/) for a worked example.
+- Review the generated [HELIX dogfood artifacts](/artifacts/) as an example
+  corpus, not as adopter doctrine.

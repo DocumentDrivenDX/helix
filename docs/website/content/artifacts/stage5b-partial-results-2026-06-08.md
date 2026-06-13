@@ -6,6 +6,9 @@ activity: "Design"
 source: "02-design/stage5b-partial-results-2026-06-08.md"
 generated: true
 ---
+
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 # Stage 5b — partial results + API rate limit hit
 
 ## Status: incomplete

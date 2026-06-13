@@ -6,6 +6,9 @@ activity: "Design"
 source: "02-design/plan-2026-05-26-spike-first-guidance-mandatory.md"
 generated: true
 ---
+
+> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+
 # Plan: it.34 — "defer the vendor" is NOT a spike; a spike must EXERCISE the real provider and prove its economics (+ build the app-side data; unowned business calls → guidance-needed)
 
 Date: 2026-05-26 · Scope: methodology (concern-resolution + evolve + plan + tech-spike & adr artifacts) · Branch: helix-self-improvement-2026-05-24

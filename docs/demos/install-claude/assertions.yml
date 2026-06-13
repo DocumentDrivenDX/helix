@@ -1,0 +1,17 @@
+slug: install-claude
+min_duration_s: 2
+min_assistant_chars: 0
+
+expect:
+  - kind: narration
+    contains: "install the plugin"
+  - kind: shell
+    contains: "/plugin marketplace add"
+  - kind: shell
+    contains: "/plugin install helix@helix"
+  - kind: output
+    contains: "resolved skill: helix"
+  - kind: shell
+    contains: "claude plugin list"
+  - kind: shell
+    contains: "/helix check"
