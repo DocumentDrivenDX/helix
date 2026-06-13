@@ -183,7 +183,7 @@ uncertainty (source-system semantics, ingestion volume, CDC ordering) is a
 
 ## Practices by activity
 
-Agents working in any of these activities inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below through runtime work context, such as a DDx bead context digest.
 
 These practices govern **declarative ETL on Databricks** — declaring datasets,
 transformations, and data-quality expectations and letting the framework manage

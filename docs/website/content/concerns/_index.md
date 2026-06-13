@@ -9,7 +9,7 @@ aliases:
 
 **Cross-cutting concerns** are HELIX's mechanism for declaring shared standards once and propagating them everywhere agents work.
 
-A concern bundles a description, components, constraints, and drift signals with per-activity practices. When an agent claims a bead, HELIX synthesizes a *context digest* that includes the active concerns — so the agent makes consistent technology choices, follows the project's conventions, and respects quality requirements without having to re-derive them from the codebase.
+A concern bundles a description, components, constraints, and drift signals with per-activity practices. When a runtime prepares a work item, HELIX can synthesize runtime work context that includes the active concerns. The agent then makes consistent technology choices, follows the project's conventions, and respects quality requirements without having to re-derive them from the codebase.
 
 Concerns are how HELIX answers "every project needs this kind of consistency" without forcing any specific tech stack on the framework itself.
 

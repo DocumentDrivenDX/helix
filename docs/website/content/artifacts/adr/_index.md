@@ -7,7 +7,7 @@ generated: true
 
 # adr
 
-> **Dogfood collection.** These generated pages publish HELIX's own project artifacts. Use them as examples and source traceability, not as adopter doctrine.
+> **Examples from HELIX's own docs.** These generated pages come from `docs/helix/`. Use them to see the method in practice; start with the [artifact-type catalog](/artifact-types/) for reusable templates.
 
 - [ADR-002: HELIX Tracker Write Safety Model](adr-002-tracker-write-safety-model/)
 - [ADR-003: Autonomy is a Three-Position Spectrum, Not a Fixed Level](adr-003-autonomy-spectrum/)

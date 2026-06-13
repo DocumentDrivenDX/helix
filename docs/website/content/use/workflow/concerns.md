@@ -6,8 +6,8 @@ aliases:
 ---
 
 Cross-cutting concerns are a core concept in HELIX. They capture technology
-choices, quality requirements, and conventions that cut across activities, beads,
-and artifacts. They do it declaratively, so agents load the right
+choices, quality requirements, and conventions that cut across activities,
+runtime work items, and artifacts. They do it declaratively, so agents load the right
 context without you repeating yourself.
 
 ## The Problem Concerns Solve
@@ -32,8 +32,8 @@ Concerns are that mechanism.
    `api`, `data`, `infra`, `cli`)
 3. **Inject**: at execution time, HELIX loads area-matched concerns and their
    practices into the agent's context
-4. **Digest**: context digests carry concern practices into individual beads,
-   making each work item self-contained
+4. **Attach runtime context**: runtime work context carries concern practices
+   into individual work items, making each work item self-contained
 
 ## Concern Library
 
@@ -104,7 +104,7 @@ obligates the corresponding ADR, technical-design, and test-plan updates.
 Selecting a concern without making those changes is drift, and the alignment
 reconcile check catches it. This makes a concern bite on both
 <!-- vale Helix.Hedges = NO -->
-generated and hand-edited artifacts, not just on the bead context digest.
+generated and hand-edited artifacts, not just on runtime work context.
 <!-- vale Helix.Hedges = YES -->
 
 ## The Knowledge Chain
@@ -116,7 +116,7 @@ chain:
 Spike/POC (gather evidence)
   → ADR (record decision with rationale)
     → Concern (index for context assembly)
-      → Context Digest (injected into beads)
+      → Runtime work context (injected into work items)
 ```
 
 <!-- vale Helix.PassiveVoice = NO -->

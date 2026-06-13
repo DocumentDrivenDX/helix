@@ -181,7 +181,7 @@ operator overrides the `architecture-style` choice per project.
 
 ## Practices by activity
 
-Agents working in any of these activities inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below through runtime work context, such as a DDx bead context digest.
 
 These practices make Martin's **Dependency Rule** ("source code dependencies
 can only point inwards; nothing in an inner circle knows anything about an outer

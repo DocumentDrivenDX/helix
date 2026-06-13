@@ -54,7 +54,7 @@ Throwaway prototypes are throwaway by design. HELIX optimizes for
 projects that need to stay coherent past the first ship; it doesn't
 optimize for projects you intend to throw away.
 
-**You don't use AI agents and don't want the artifact discipline.** A team
+**You don't use AI agents and don't want the document maintenance.** A team
 writing all of its own code can still benefit from HELIX's artifact types,
 authority hierarchy, and alignment checks. But if you do not need durable
 machine-readable context and do not want to maintain it, the method will
@@ -76,7 +76,7 @@ HELIX as optional governance around it.
 
 HELIX has costs. Every team adopting it pays:
 
-- **Up-front artifact discipline.** A one-paragraph idea won't run; you
+- **Up-front document work.** A one-paragraph idea won't run; you
   need at least a vision, a requirements outline, and a first feature
   spec before agents have enough authority to make non-trivial changes.
   For small projects this can feel heavy.

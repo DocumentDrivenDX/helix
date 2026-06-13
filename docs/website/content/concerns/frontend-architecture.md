@@ -272,7 +272,7 @@ assumption (see `workflows/references/concern-resolution.md`).
 
 ## Practices by activity
 
-Agents working in any of these activities inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below through runtime work context, such as a DDx bead context digest.
 
 ## Requirements (Frame activity)
 

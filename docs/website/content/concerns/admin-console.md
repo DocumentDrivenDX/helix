@@ -112,7 +112,7 @@ and which are deferred (with the deferral recorded, not silent).
 
 ## Practices by activity
 
-Agents working in any of these activities inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below through runtime work context, such as a DDx bead context digest.
 
 These practices realize the `admin-console` concern: the operator's
 jobs-to-be-done built as usable UI, with the primary operator workflow exercised

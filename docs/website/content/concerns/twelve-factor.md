@@ -279,7 +279,7 @@ a `tech-spike`, not a silent gap (see
 
 ## Practices by activity
 
-Agents working in any of these activities inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below through runtime work context, such as a DDx bead context digest.
 
 These practices make the **per-process operational contract** checkable in
 review. They govern **how each deployed process is configured, holds state,

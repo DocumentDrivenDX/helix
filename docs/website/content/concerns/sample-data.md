@@ -123,7 +123,7 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 
 ## Practices by activity
 
-Agents working in any of these activities inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below through runtime work context, such as a DDx bead context digest.
 
 These practices govern the **app seed/demo dataset** a data-backed product ships
 with — the data that makes it feel real and drives every UI state. They do not

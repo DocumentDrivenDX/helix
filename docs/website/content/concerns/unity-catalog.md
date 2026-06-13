@@ -189,7 +189,7 @@ cross-region constraints) is a `tech-spike`, not a silent assumption (see
 
 ## Practices by activity
 
-Agents working in any of these activities inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below through runtime work context, such as a DDx bead context digest.
 
 These practices govern **how data and AI assets are registered, granted, and
 lineage-tracked on Databricks**. They are the Databricks realization of data

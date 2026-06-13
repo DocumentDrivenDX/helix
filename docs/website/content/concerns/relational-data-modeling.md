@@ -218,7 +218,7 @@ shape truly needs denormalization is a `tech-spike`, not a silent assumption
 
 ## Practices by activity
 
-Agents working in any of these activities inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below through runtime work context, such as a DDx bead context digest.
 
 These practices govern **the relational schema and how it evolves** — its
 normalization, keys, constraints, indexes, and migrations. They do **not**

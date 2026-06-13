@@ -241,7 +241,7 @@ objects to the schema).
 
 ## Practices by activity
 
-Agents working in any of these activities inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below through runtime work context, such as a DDx bead context digest.
 
 These practices govern **how domain logic is organized** and **how objects move
 to and from a data source** in an enterprise application — the load-bearing

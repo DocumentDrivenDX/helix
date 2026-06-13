@@ -373,7 +373,7 @@ to de-risk before committing, not a silent assumption (see
 
 ## Practices by activity
 
-Agents working in any of these activities inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below through runtime work context, such as a DDx bead context digest.
 
 These practices govern the **in-process / in-service execution model** — how
 concurrent work runs within one service, how its shared mutable state is owned

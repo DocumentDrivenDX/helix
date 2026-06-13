@@ -5,20 +5,22 @@ prev: /use/getting-started
 next: /use/ddx-runtime
 ---
 
-HELIX can govern more than one artifact stack in the same repository. Use this
-when one project has distinct durable surfaces, such as a product and the
-microsite that explains it.
+HELIX can govern more than one set of project documents in the same repository.
+Use this when one repository contains distinct durable surfaces, such as a
+product and the microsite that explains it. After reading this page, you can
+decide whether those surfaces need separate flow scopes.
 
-The public surface is still one `helix` skill. Multiple flows are scope
-instances that tell the skill which artifact root owns the current question.
-They are not separate public `helix-web`, `helix-data`, or `helix-infra`
-skills.
+The public surface is still one HELIX skill. A flow scope is one governed
+artifact root, such as `docs/helix` for product documents or `docs/website` for
+website documents. Multiple flows tell the skill which root owns the current
+question. They are not separate public `helix-web`, `helix-data`, or
+`helix-infra` skills.
 
 ## Terms
 
 | Term | Meaning |
 | --- | --- |
-| Methodology | The HELIX artifact discipline: activities, artifact types, authority hierarchy, concerns, and workflow modes. |
+| Methodology | The HELIX document method: activities, artifact types, authority hierarchy, concerns, and workflow modes. |
 | Flow scope | One governed artifact root declared in `.helix.yml`. |
 | Domain lane | Product, web, data, infra, or another subject lens that shapes context and stop rules inside the `helix` skill. |
 | Workflow mode | A HELIX action such as `frame`, `design`, `polish`, `check`, or `review`. |
@@ -34,11 +36,11 @@ quality checks.
 They should have separate roots because they answer different questions:
 
 - Product flow: "What should the product be?"
-- Microsite flow: "How should the product be explained and published?"
+- Microsite flow: "How should this site explain and publish the product?"
 
-The microsite can read product artifacts as source material, but it should not
-rewrite product doctrine without handing that decision back to the product
-flow.
+The microsite can read product artifacts as source material, but product
+positioning changes should go back through the product flow before they become
+public guidance.
 
 ## Marker shape
 
@@ -60,8 +62,8 @@ flows:
     template: microsite-docs
 ```
 
-The `kind: helix` value says both entries use the same public `helix` skill.
-The `id` selects the scope. The `lanes` value tells the skill which domain
+The `kind: helix` value says both entries use the same public HELIX skill.
+Use `id` to select the scope. Use `lanes` to tell the skill which domain
 vocabulary to prefer after it has resolved the owner scope.
 
 When a request could apply to more than one scope, HELIX resolves the owner in
@@ -97,13 +99,13 @@ Template parameters:
 | --- | --- |
 | `source` | Artifact root to publish, such as `docs/helix` or `docs/website`. |
 | `destination` | Site route, such as `/examples/helix-docs/` or `/artifacts/`. |
-| `nav` | `hidden`, `reference`, or `main`. Default to `hidden` for project dogfood. Use `main` only for adopter-facing doctrine. |
+| `nav` | `hidden`, `reference`, or `main`. Default to `hidden` for internal examples. Use `main` only for pages intended as adoption guidance. |
 | `audience` | Who the rendered pages serve: adopter, maintainer, contributor, or internal operator. |
-| `collection_label` | Visible label such as "Dogfood corpus", "Examples", or "Project docs". |
+| `collection_label` | Visible label such as "HELIX example docs", "Examples", or "Project docs". |
 | `include` / `exclude` | Path rules that keep stale, internal, or historical material out of adopter guidance. |
-| `frontmatter` | Generated fields for source path, collection label, generated status, and historical warnings. |
+| `frontmatter` | Generated fields for source path, collection label, publication status, and historical warnings. |
 
-HELIX's own `/artifacts/` section is one instance of this template. It renders
-the project's self-docs as dogfood evidence. It is not the main adoption path,
-and generated pages may contain historical decisions that are useful as
-evidence but not current user guidance.
+HELIX's own `/artifacts/` section is one instance of this template. It publishes
+the project's own documents as examples. It is not the main adoption path. Some
+pages may describe historical decisions that are useful context, not current
+user guidance.

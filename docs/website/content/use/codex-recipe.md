@@ -8,9 +8,9 @@ planning, alignment, and handoff contract. DDx is not required.
 
 ## Install the HELIX plugin
 
-HELIX ships as a Codex plugin that carries the routing skill
+HELIX ships as a Codex plugin that carries the HELIX skill
 (`skills/helix/SKILL.md`, compliant with the agentskills.io specification)
-plus the artifact catalog under `workflows/activities/`. Installing the plugin
+plus the artifact-type catalog under `workflows/activities/`. Installing the plugin
 makes HELIX discoverable in any Codex session.
 
 Use Codex's plugin manager:
@@ -89,8 +89,9 @@ After approving corrections:
 
 ```text
 Apply the approved alignment edits only to <artifact paths>. Keep the authority
-order intact. Do not touch implementation files, generated references, tracker
-state, or site navigation.
+hierarchy intact: higher-level documents govern lower-level documents. Do not
+touch implementation files, generated references, tracker state, or site
+navigation.
 ```
 
 ## Recipe 3: create the first implementation handoff

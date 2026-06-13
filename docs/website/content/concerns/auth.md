@@ -109,7 +109,7 @@ Projects record an ADR when choosing or swapping the `auth-provider` filler
 
 ## Practices by activity
 
-Agents working in any of these activities inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below through runtime work context, such as a DDx bead context digest.
 
 These practices realize the `auth` concern: a real, usable authentication &
 account surface, with authorization and isolation enforced through the

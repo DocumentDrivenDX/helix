@@ -34,7 +34,7 @@ test.describe('Homepage', () => {
 
     await test.step('verify the hero image renders and worked example is firewalled', async () => {
       await expect(page.locator('.helix-hero-image-panel')).toHaveCount(1)
-      await expect(page.getByText('Dogfood example')).toBeVisible()
+      await expect(page.getByText('HELIX example docs').first()).toBeVisible()
       await expect(page.locator('.helix-graph-visual svg')).toHaveCount(0)
     })
 
@@ -65,9 +65,9 @@ test.describe('Why HELIX', () => {
     await expect(page.getByRole('heading', { name: /8\.\s+Least power wins/ })).toBeVisible()
   })
 
-  test('thesis page describes the methodology layer', async ({ page }) => {
+  test('thesis page describes the document method', async ({ page }) => {
     await page.goto('/why/the-thesis/')
-    await expect(article(page).getByText(/methodology layer/i)).toBeVisible()
+    await expect(article(page).getByText(/document method/i).first()).toBeVisible()
     await expect(article(page).getByText(/seven activities/i).first()).toBeVisible()
   })
 })
@@ -75,12 +75,21 @@ test.describe('Why HELIX', () => {
 test.describe('Artifacts', () => {
   test('index lists artifacts grouped by activity', async ({ page }) => {
     await page.goto('/artifacts/')
-    await expect(article(page).getByText(/Generated dogfood artifacts/)).toBeVisible()
-    await expect(article(page).getByText(/not the main adoption path or adopter doctrine/)).toBeVisible()
+    await expect(page.getByText(/Generated examples from the HELIX project.s own HELIX documents/)).toBeVisible()
+    await expect(page.getByText(/artifact-type catalog/).first()).toBeVisible()
     // Artifacts are grouped under plain activity-name headings (h2)
     await expect(page.getByRole('heading', { name: /^Discover/ })).toBeVisible()
     await expect(page.getByRole('heading', { name: /^Frame/ })).toBeVisible()
     await expect(page.getByRole('heading', { name: /^Iterate/ })).toBeVisible()
+  })
+
+  test('generated artifact wrappers explain source and examples', async ({ page }) => {
+    await page.goto('/artifacts/prd/')
+    await expect(page.getByText(/Example from HELIX.s own docs/)).toBeVisible()
+    await expect(page.getByText(/Source identity/)).toBeVisible()
+
+    await page.goto('/artifacts/adr/')
+    await expect(page.getByText(/Examples from HELIX.s own docs/)).toBeVisible()
   })
 
   test('artifact type pages render generation prompt and template', async ({ page }) => {
@@ -153,10 +162,13 @@ test.describe('Use HELIX', () => {
     await expect(article(page).getByRole('link', { name: /Getting Started/ })).toBeVisible()
     await expect(article(page).getByRole('link', { name: /Multiple Flows and Microsites/ })).toBeVisible()
     await expect(article(page).getByRole('link', { name: /Artifact Types/ })).toBeVisible()
+    await expect(article(page).getByText(/Artifact types are reusable HELIX document patterns/)).toBeVisible()
+    await expect(article(page).getByText(/HELIX Example Docs/)).toBeVisible()
   })
 
   test('Getting Started page has installation instructions', async ({ page }) => {
     await page.goto('/use/getting-started/')
+    await expect(article(page).getByText(/Start with documents, not tooling/)).toBeVisible()
     await expect(article(page).getByText('ddx install helix')).toBeVisible()
     await expect(
       article(page).getByText('DDx is the reference runtime integration for HELIX'),
@@ -225,7 +237,7 @@ test.describe('Reference', () => {
     test('concepts page covers core ideas', async ({ page }) => {
       await page.goto('/reference/glossary/concepts/')
       await expect(page.getByRole('heading', { name: 'Artifact Authority Hierarchy' })).toBeVisible()
-      await expect(page.getByRole('heading', { name: 'Context Digest' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Runtime Work Context' })).toBeVisible()
     })
 
     test('tracker page documents DDx beads as reference-runtime concepts', async ({ page }) => {

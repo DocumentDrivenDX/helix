@@ -191,7 +191,7 @@ mapping) and the tenant lifecycle (provisioning + offboarding).
 
 ## Practices by activity
 
-Agents working in any of these activities inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below through runtime work context, such as a DDx bead context digest.
 
 These practices govern **isolation between tenants** — that no code path lets
 one tenant reach another's data. For the family ownership table (auth /

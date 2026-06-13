@@ -220,10 +220,10 @@ def render_page(rec: dict, source_root: Path, weight: int,
 
     fm = render_frontmatter(fields)
     preamble = (
-        "\n> **Dogfood example.** This generated page publishes HELIX's own "
-        "project artifact from `docs/helix/`. Use it as example evidence and "
-        "source traceability, not as adopter doctrine. Historical plans and "
-        "reports may describe retired architecture.\n\n"
+        "\n> **Example from HELIX's own docs.** This generated page comes from "
+        "`docs/helix/`. Use it to see the method in practice; start with the "
+        "[artifact-type catalog](/artifact-types/) for reusable templates. "
+        "Historical plans and reports may describe retired architecture.\n\n"
     )
     if src_fm.strip():
         preamble += (
@@ -245,9 +245,9 @@ def render_collection_index(name: str, items: list[dict], weight: int) -> str:
         fm,
         f"# {title}",
         "",
-        "> **Dogfood collection.** These generated pages publish HELIX's own "
-        "project artifacts. Use them as examples and source traceability, not "
-        "as adopter doctrine.",
+        "> **Examples from HELIX's own docs.** These generated pages come from "
+        "`docs/helix/`. Use them to see the method in practice; start with the "
+        "[artifact-type catalog](/artifact-types/) for reusable templates.",
         "",
     ]
     for it in sorted(items, key=lambda r: r["slug"]):
@@ -268,11 +268,11 @@ def render_top_index(records: list[dict], project: str, source: Path) -> str:
         fm,
         f"# {project} — Artifacts",
         "",
-        f"Generated dogfood artifacts from the {project} project. This section "
-        "shows how this repository applies HELIX to itself; it is example "
-        "evidence and source traceability, not the main adoption path or "
-        "adopter doctrine. Historical plans and reports may describe retired "
-        "architecture.",
+        f"Generated examples from the {project} project's own HELIX documents. "
+        "Use this section to see how the method looks in practice. To create "
+        "documents for your project, start with the "
+        "[artifact-type catalog](/artifact-types/). Historical plans and reports "
+        "may describe retired architecture.",
         "",
         "Each page is the live content of the corresponding source document; "
         "edits should be made in the source, not here.",

@@ -7,7 +7,7 @@ source: "02-design/plan-2026-05-24-helix-self-improvement.md"
 generated: true
 ---
 
-> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+> **Example from HELIX's own docs.** This generated page comes from `docs/helix/`. Use it to see the method in practice; start with the [artifact-type catalog](/artifact-types/) for reusable templates. Historical plans and reports may describe retired architecture.
 
 # Plan — HELIX self-improvement from the yolo-demo arc (2026-05-24, rev 2: codex-reviewed)
 

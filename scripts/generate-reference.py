@@ -802,14 +802,14 @@ def render_artifacts_index(artifacts: list, slug_to_url: dict[str, str]) -> str:
         "HELIX defines a catalog of **artifact types** — categories of governing "
         "document, each with a template, an authoring prompt, metadata, and quality "
         "criteria. Every project applying HELIX produces concrete artifacts that "
-        "instantiate these types. Artifact types are reusable methodology content; "
-        "they are not tied to DDx or any other runtime."
+        "instantiate these types. Artifact types are reusable HELIX document "
+        "patterns; they are not tied to DDx or any other runtime."
     )
     out.append("")
     out.append("There are two related public landing paths:")
     out.append("")
-    out.append("- [/artifact-types/](/artifact-types/) is the reusable catalog: document shapes, prompts, and quality rules.")
-    out.append("- [/artifacts/](/artifacts/) is the worked example: HELIX's own governing artifacts, authored from the catalog under `docs/helix/`.")
+    out.append("- [/artifact-types/](/artifact-types/) is the artifact-type catalog: HELIX document shapes, prompts, and quality rules.")
+    out.append("- [/artifacts/](/artifacts/) publishes examples from HELIX's own project documents, authored from the catalog under `docs/helix/`.")
     out.append("")
     out.append(
         "The [HELIX skill](/skills/) uses this catalog and the artifact "
@@ -846,7 +846,7 @@ def render_activity_index(artifacts: list, slug_to_url: dict[str, str]) -> str:
     out.append("---")
     out.append("")
     out.append(
-        "The activity view shows the full artifact catalog in HELIX flow order. "
+        "The activity view shows the full artifact-type catalog in HELIX flow order. "
         "Each activity lists the core artifacts first, followed by supporting "
         "artifacts used when the project needs more evidence or control."
     )
@@ -1036,7 +1036,7 @@ def render_concern_page(c: dict) -> str:
         out.append("")
         out.append(
             "Agents working in any of these activities inherit the practices below "
-            "via the bead's context digest."
+            "through runtime work context, such as a DDx bead context digest."
         )
         out.append("")
         out.append(rewrite_family_readme_links(strip_first_h1(c["practices_md"]).strip()))
@@ -1089,12 +1089,11 @@ def render_concerns_index(concerns: list) -> str:
     out.append("")
     out.append(
         "A concern bundles a description, components, constraints, and "
-        "drift signals with per-activity practices. When an agent claims a "
-        "bead, HELIX synthesizes a *context digest* that includes the "
-        "active concerns — so the agent makes consistent technology "
-        "choices, follows the project's conventions, and respects "
-        "quality requirements without having to re-derive them from "
-        "the codebase."
+        "drift signals with per-activity practices. When a runtime prepares "
+        "a work item, HELIX can synthesize runtime work context that includes "
+        "the active concerns. The agent then makes consistent technology "
+        "choices, follows the project's conventions, and respects quality "
+        "requirements without having to re-derive them from the codebase."
     )
     out.append("")
     out.append(

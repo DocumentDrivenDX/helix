@@ -262,7 +262,7 @@ the read/write needs truly diverge is a `tech-spike`, not a silent assumption
 
 ## Practices by activity
 
-Agents working in any of these activities inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below through runtime work context, such as a DDx bead context digest.
 
 These practices govern **separating the write model (commands) from the read
 model(s) (queries) within a bounded context, and managing the consistency

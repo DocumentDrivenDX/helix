@@ -7,7 +7,7 @@ generated: true
 
 # contracts
 
-> **Dogfood collection.** These generated pages publish HELIX's own project artifacts. Use them as examples and source traceability, not as adopter doctrine.
+> **Examples from HELIX's own docs.** These generated pages come from `docs/helix/`. Use them to see the method in practice; start with the [artifact-type catalog](/artifact-types/) for reusable templates.
 
 - [API Contract: HELIX Tracker Mutation Surface [FEAT-002]](api-001-helix-tracker-mutation/)
 - [CONTRACT-001: DDx / HELIX Boundary Contract](contract-001-ddx-helix-boundary/)

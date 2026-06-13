@@ -8,7 +8,7 @@ generated: true
 collection: solution-designs
 ---
 
-> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+> **Example from HELIX's own docs.** This generated page comes from `docs/helix/`. Use it to see the method in practice; start with the [artifact-type catalog](/artifact-types/) for reusable templates. Historical plans and reports may describe retired architecture.
 
 > **Source identity** (from `02-design/solution-designs/SD-002-first-class-principles.md`):
 

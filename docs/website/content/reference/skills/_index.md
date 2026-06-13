@@ -37,7 +37,7 @@ The skill expects access to:
 - The HELIX artifact-type catalog from `workflows/activities/*/artifacts/`.
 - The project's concrete governing artifacts, commonly under `docs/helix/`.
 - Any project tracker metadata that links work items to specs, parents, or
-  context digests, when a runtime has one.
+  runtime work context, when a runtime has one.
 <!-- vale Helix.PassiveVoice = NO -->
 - Runtime constraints, such as whether file writes are allowed or whether the
 <!-- vale Helix.PassiveVoice = YES -->

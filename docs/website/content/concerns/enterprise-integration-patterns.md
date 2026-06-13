@@ -258,7 +258,7 @@ not a silent assumption (see `workflows/references/concern-resolution.md`).
 
 ## Practices by activity
 
-Agents working in any of these activities inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below through runtime work context, such as a DDx bead context digest.
 
 These practices govern **asynchronous messaging and cross-system integration** —
 the channels, message shapes, routers, transformers, endpoints, and operational

@@ -6,7 +6,7 @@ generated: true
 
 # HELIX — Artifacts
 
-Generated dogfood artifacts from the HELIX project. This section shows how this repository applies HELIX to itself; it is example evidence and source traceability, not the main adoption path or adopter doctrine. Historical plans and reports may describe retired architecture.
+Generated examples from the HELIX project's own HELIX documents. Use this section to see how the method looks in practice. To create documents for your project, start with the [artifact-type catalog](/artifact-types/). Historical plans and reports may describe retired architecture.
 
 Each page is the live content of the corresponding source document; edits should be made in the source, not here.
 

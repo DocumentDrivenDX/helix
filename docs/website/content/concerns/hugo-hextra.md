@@ -243,7 +243,7 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 
 ## Practices by activity
 
-Agents working in any of these activities inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below through runtime work context, such as a DDx bead context digest.
 
 ## Requirements (Frame activity)
 - Define the site's target audience and what content they need

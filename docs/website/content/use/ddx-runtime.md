@@ -6,7 +6,7 @@ next: /use/workflow
 ---
 
 DDx is the reference runtime integration for HELIX. Use it when you want HELIX's
-artifact discipline connected to a dependency-aware tracker, an agent harness,
+document patterns connected to a dependency-aware tracker, an agent harness,
 and recorded execution evidence.
 
 DDx is not required to use HELIX. It is one runtime that knows how to execute
@@ -83,7 +83,7 @@ Or invoke integration commands directly if your agent exposes them:
 
 ## Related Reading
 
-- Start with the runtime-neutral [Getting Started](../getting-started/) guide.
+- Start with the portable [Getting Started](../getting-started/) guide.
 - Browse the [artifact-type catalog](/artifact-types/) for HELIX templates.
-- Review the generated [HELIX dogfood artifacts](/artifacts/) as an example
-  corpus, not as adopter doctrine.
+- Review [HELIX's own example docs](/artifacts/) to see how this repository
+  applies the method to itself.

@@ -3,21 +3,21 @@ title: The Thesis
 weight: 3
 ---
 
-HELIX is the **methodology layer** for AI-assisted software development.
-It packages seven activities (Discover, Frame, Design, Test, Build,
-Deploy, Iterate) as a catalog of artifact types and prompts, with one
-`helix` routing skill that keeps the resulting documents aligned. The execution
-runtime (agent runtime, tracker, queue control) is somebody else's
-job. DDx is the reference runtime; Databricks Genie, Claude Code, and
-others can run HELIX with their own per-runtime packages. The two layers together
-give you supervised autonomy: AI agents doing real work, on artifacts you
-can audit, with human judgment exactly where it matters.
+HELIX is a document method for AI-assisted software development. It defines
+seven activities (Discover, Frame, Design, Test, Build, Deploy, Iterate),
+reusable document patterns called artifact types, and one HELIX skill that helps
+agents keep the resulting documents aligned.
+
+HELIX does not own execution. Your runtime owns agent sessions, file edits,
+trackers, queues, and validation. DDx is the reference runtime; Databricks
+Genie, Claude Code, Codex, and manual workflows can also use HELIX when they can
+read and write the project artifacts.
 
 ## Three structural commitments
 
 ### Activities and artifacts give the work its shape
 
-A HELIX project produces artifacts across seven
+A HELIX project produces artifacts, meaning concrete project documents, across seven
 [activities](/reference/glossary/activities/): **Discover, Frame, Design,
 Test, Build, Deploy, Iterate**. Each owns a specific set of [artifact
 types](/artifact-types/): vision documents in Discover, PRDs and feature
@@ -54,7 +54,7 @@ are project-owned. The injection mechanism is universal.
 
 ### One `helix` skill closes the loop
 
-HELIX ships a single routing skill that reads a project's governing artifacts,
+HELIX ships a single skill that reads a project's governing artifacts,
 selects the relevant workflow mode, identifies drift, gaps, and contradictions,
 and produces a plan to close them. It runs against any HELIX-shaped artifact
 tree on any runtime that can read and write markdown. The runtime executes the
@@ -77,9 +77,9 @@ of stopping at first-pass green.
 HELIX can govern more than one artifact root in the same repository. A product
 scope can own vision, PRDs, and feature specs while a microsite scope owns the
 public information architecture, demos, and publishing rules. Both scopes use
-the same public `helix` skill. Domain lanes such as product, web, data, and
-infra shape context after the owner scope is resolved; they are not sibling
-public skills.
+the same public `helix` skill. After the owner scope resolves, domain lanes such
+as product, web, data, and infra shape context; they are not sibling public
+skills.
 
 A project's `.helix.yml` marker declares which flow scopes are active. The
 marker is the authorization boundary: the skill may route within declared
@@ -96,7 +96,7 @@ one scope.
   someone's head.
 - **Runtime portability.** The same methodology + content runs on DDx,
   Databricks Genie, Claude Code, or a plain agent shell. Pick the
-  runtime; keep the discipline.
+  runtime; keep the document method.
 - **Compounding feedback.** Runtime evidence and reviews feed back into
   governed artifacts. The work that happened this time captures the knowledge
   that produces good work next time.
@@ -106,9 +106,9 @@ one scope.
 [Principles](/why/principles/) documents the load-bearing ideas behind these
 commitments. [Research Foundations](/research/) collects the research basis for
 the claims above, including the methodology for time-boxed investigation, the
-bibliography HELIX borrows from, and published research-derived artifacts. The full type catalog is in
-[Artifact Types](/artifact-types/); this project's actual instances are in
-[Artifacts](/artifacts/). The cross-cutting standards layer is in
-[Concerns](/concerns/). When you're ready to build, [Use HELIX](/use/)
-walks through installing, defining your project's first artifacts, and
-running your first artifact review.
+bibliography HELIX borrows from, and published research-derived artifacts. The
+full type catalog is in [Artifact Types](/artifact-types/); HELIX's own project
+examples are in [Artifacts](/artifacts/). The cross-cutting standards layer is
+in [Concerns](/concerns/). When you're ready to build, [Use HELIX](/use/) walks
+through installation, first artifacts, platform choices, and the first artifact
+review.

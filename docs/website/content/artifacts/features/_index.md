@@ -7,7 +7,7 @@ generated: true
 
 # features
 
-> **Dogfood collection.** These generated pages publish HELIX's own project artifacts. Use them as examples and source traceability, not as adopter doctrine.
+> **Examples from HELIX's own docs.** These generated pages come from `docs/helix/`. Use them to see the method in practice; start with the [artifact-type catalog](/artifact-types/) for reusable templates.
 
 - [Feature Specification: FEAT-003 - First-Class Principles](feat-003-principles/)
 - [Feature Specification: FEAT-004 - Plugin Packaging](feat-004-plugin-packaging/)

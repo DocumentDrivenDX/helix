@@ -3,17 +3,17 @@ title: Platforms
 weight: 5
 ---
 
-The runtime around HELIX. A platform may add a tracker, agent harness,
-review workflow, evidence store, or only a conversational interface; the
-same artifact stack moves across all of them because the core contract is
-plain Markdown plus a small amount of frontmatter. For what HELIX is, see
-[the thesis](/why/the-thesis/).
+Choose where HELIX runs. A runtime is the tool that reads HELIX documents and
+does work with them, such as Claude Code, Codex, DDx, or Databricks. The same
+artifact stack, meaning the same set of project documents, can move across
+those tools because HELIX is Markdown plus a small amount of frontmatter. For
+what HELIX is, see [the thesis](/why/the-thesis/).
 
 ## Boundary: method first, runtime second
 
-HELIX's public spine is the [artifact-type catalog](/artifact-types/), the
-[dogfood HELIX artifacts](/artifacts/), and the [portable skill](/skills/) that
-keeps them aligned. Platforms are integration choices around that spine.
+HELIX's public spine is the [artifact-type catalog](/artifact-types/), meaning
+the reusable document patterns, and the [HELIX skill](/skills/) that keeps
+project documents aligned. Platforms are integration choices around that spine.
 
 DDx is the reference runtime because it demonstrates tracker-backed execution,
 queueing, and evidence capture. It is not required to adopt HELIX, and the
@@ -22,10 +22,10 @@ methodology should remain understandable without installing DDx.
 ## Choose the amount of runtime you want
 
 {{< cards >}}
-  {{< card link="#ddx" title="DDx" subtitle="Reference integration with tracker, queue, agent execution, and evidence capture." icon="terminal" >}}
+  {{< card link="#ddx" title="DDx" subtitle="Use HELIX with a tracker, queue, agent execution, and recorded evidence." icon="terminal" >}}
   {{< card link="#claude-code" title="Claude Code" subtitle="Use HELIX skills directly in an agent session while keeping artifacts in the repo." icon="sparkles" >}}
   {{< card link="#codex" title="Codex" subtitle="Use HELIX as repository guidance for code-focused agent sessions and reviews." icon="code" >}}
-  {{< card link="#databricks" title="Databricks" subtitle="Use HELIX artifacts and alignment planning around data and analytics engineering work." icon="database" >}}
+  {{< card link="#databricks" title="Databricks" subtitle="Use HELIX documents to guide data, notebook, and analytics engineering work." icon="database" >}}
 {{< /cards >}}
 
 ## Decision matrix
@@ -38,7 +38,7 @@ planning, execution, review, and evidence.
 | --- | --- | --- | --- | --- |
 | DDx | Queue-backed delivery with traceable work, claims, dependencies, and evidence | Tracker, ready queue, bounded execution loop, measurement records | Product judgment, artifact authority, review decisions | You only need occasional planning or conversational review |
 | Claude Code | Interactive artifact planning, design refinement, and repo-local edits | Agent session, skill invocation, file edits under human steering | Scope control, acceptance criteria, final review | You need durable queue semantics across many workers |
-| Codex | Code-focused implementation and review against repository guidance | Terminal-oriented agent work, patching, code review, local reasoning | Bead scope, validation choices, merge readiness | The work is mostly product discovery with no code or artifact changes |
+| Codex | Code-focused implementation and review against repository guidance | Terminal-oriented agent work, patching, code review, local reasoning | DDx work item scope or reviewed plan scope, validation choices, merge readiness | The work is mostly product discovery with no code or artifact changes |
 | Databricks | Data products, notebooks, jobs, analytics apps, and platform engineering | Domain runtime, notebooks/jobs, workspace execution, data evidence | Markdown artifact authority, promotion criteria, governance | You expect HELIX to replace Databricks workflows or permissions |
 | Manual or mixed | High-judgment planning, small teams, or staged adoption | Human coordination and selected agent sessions | The full operating loop and evidence discipline | Nobody is accountable for keeping artifacts current |
 
@@ -78,10 +78,10 @@ them.
 
 ## Claude Code
 
-Claude Code can use HELIX as a skill package and artifact discipline. The
-common pattern is direct agent interaction: ask Claude to read the governing
-artifacts, invoke the `helix` skill, and apply the resulting plan to Markdown
-files or code changes.
+Claude Code can use HELIX as a skill package for maintaining governed project
+documents. The common pattern is direct agent interaction: ask Claude to read
+the governing artifacts, invoke the `helix` skill, and apply the resulting plan
+to Markdown files or code changes.
 
 Use this path when your team wants interactive steering and review, but does
 not need a runtime-owned queue for every change.
@@ -108,9 +108,9 @@ accepted decisions need to land in the Markdown artifacts, tracker, or code.
 ## Codex
 
 Codex can use HELIX as repository-native guidance for implementation, review,
-and documentation work. The artifact stack gives the agent a stable authority
-order: product vision first, then requirements, designs, tests, implementation
-plans, and code.
+and documentation work. The artifact stack gives the agent a stable artifact
+authority hierarchy: product vision first, then requirements, designs, tests,
+implementation plans, and code.
 
 Use this path when most work happens in code review or terminal-driven agent
 <!-- vale Helix.Hedges = NO -->
@@ -120,7 +120,7 @@ platform.
 
 ### First 30 minutes with Codex
 
-1. Identify the bead, pull request, or explicit scope Codex should operate on.
+1. Identify the DDx work item, pull request, or explicit scope Codex should operate on.
 2. Point Codex at the relevant HELIX artifacts and acceptance criteria.
 3. Require a bounded edit plan before file changes.
 4. Let Codex modify only the files in scope.
@@ -131,9 +131,9 @@ platform.
 
 Codex should use HELIX as authority for repository work: code changes,
 implementation notes, documentation edits, and reviews. It should not invent
-scope beyond the bead or reviewed plan. When Codex discovers missing product
-direction, the correct output is an artifact update or follow-up work item,
-not silent expansion of the implementation.
+scope beyond the DDx work item or reviewed plan. When Codex discovers missing
+product direction, the correct output is an artifact update or follow-up work
+item, not silent expansion of the implementation.
 
 ## Databricks
 
@@ -179,8 +179,8 @@ Many teams will mix modes: manual planning for high-judgment changes, Claude
 or Codex for interactive implementation, DDx for queued execution, and
 Databricks for domain-specific runtime work.
 
-When mixing modes, keep the artifact catalog and `helix` skill as the shared
-contract. Let each runtime own only the mechanics it is good at.
+When mixing modes, keep the artifact-type catalog and `helix` skill as the
+shared contract. Let each runtime own only the mechanics it is good at.
 
 ### First 30 minutes manually
 

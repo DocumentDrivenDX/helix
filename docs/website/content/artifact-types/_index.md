@@ -5,12 +5,12 @@ weight: 3
 generated: true
 ---
 
-HELIX defines a catalog of **artifact types** — categories of governing document, each with a template, an authoring prompt, metadata, and quality criteria. Every project applying HELIX produces concrete artifacts that instantiate these types. Artifact types are reusable methodology content; they are not tied to DDx or any other runtime.
+HELIX defines a catalog of **artifact types** — categories of governing document, each with a template, an authoring prompt, metadata, and quality criteria. Every project applying HELIX produces concrete artifacts that instantiate these types. Artifact types are reusable HELIX document patterns; they are not tied to DDx or any other runtime.
 
 There are two related public landing paths:
 
-- [/artifact-types/](/artifact-types/) is the reusable catalog: document shapes, prompts, and quality rules.
-- [/artifacts/](/artifacts/) is the worked example: HELIX's own governing artifacts, authored from the catalog under `docs/helix/`.
+- [/artifact-types/](/artifact-types/) is the artifact-type catalog: HELIX document shapes, prompts, and quality rules.
+- [/artifacts/](/artifacts/) publishes examples from HELIX's own project documents, authored from the catalog under `docs/helix/`.
 
 The [HELIX skill](/skills/) uses this catalog and the artifact authority hierarchy to find drift between concrete artifacts and propose a plan for restoring alignment.
 

@@ -78,7 +78,7 @@ Record an ADR when swapping this default for an external IdP filler.
 
 ## Practices by activity
 
-Agents working in any of these activities inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below through runtime work context, such as a DDx bead context digest.
 
 These practices realize the default `auth-provider` filler — a working local
 auth backend behind the provider interface the `auth` concern requires. They

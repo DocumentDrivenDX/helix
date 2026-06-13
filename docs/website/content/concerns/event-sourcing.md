@@ -224,7 +224,7 @@ window.
 
 ## Practices by activity
 
-Agents working in any of these activities inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below through runtime work context, such as a DDx bead context digest.
 
 These practices govern **persisting a slice of state as an append-only log of
 events that is the source of truth**, deriving current state by replay. They do

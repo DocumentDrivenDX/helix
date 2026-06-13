@@ -154,7 +154,7 @@ or when an operator overrides the `architecture-style` choice per project.
 
 ## Practices by activity
 
-Agents working in any of these activities inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below through runtime work context, such as a DDx bead context digest.
 
 These practices make the **downward layering rule** (each layer depends only on
 the layer beneath it; lower layers never depend on higher ones) checkable in

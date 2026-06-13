@@ -52,20 +52,20 @@ Design and engineering values that guide judgment calls throughout the project.
 
 Examples: "design for simplicity", "tests first", "local-first UX", "prefer composition over inheritance".
 
-## Context Digest
+## Runtime Work Context
 
-A compact summary assembled for runtime work at triage or polish time. In DDx,
-the digest is commonly prepended to a bead description so the work item is
-self-contained.
+A runtime assembles this compact summary at triage or polish time. DDx calls it
+a context digest and commonly prepends it to a bead description so the DDx work
+item is self-contained.
 
 Contents:
 - **Principles**: full list, compact format
 - **Concerns**: area-matched concern names
 - **Practices**: key conventions from matched concerns
 - **ADRs**: decision statements and rationale from relevant ADRs
-- **Governing spec**: the specific requirement or constraint this bead addresses
+- **Governing spec**: the specific requirement or constraint this work item addresses
 
-Format: XML-tagged block prepended to the bead description:
+Format: XML-tagged block prepended to the work-item description:
 
 ```xml
 <context-digest>
@@ -87,7 +87,7 @@ Some runtimes, including DDx, use tracked work items as the execution handoff:
 - **Operators steer** by creating, prioritizing, and blocking issues
 - **Agents execute** by claiming and closing issues
 - **The ready queue** is the only durable hand-off mechanism between sessions
-- File follow-up work as beads before an action closes; prose suggestions without beads disappear
+- File follow-up work as DDx beads before an action closes; prose suggestions without tracked work items disappear
 
 Every execution issue should cite the canonical artifacts that authorize the
 work via a field such as `spec-id`.
@@ -139,7 +139,7 @@ Agents should maximize forward progress:
 - **Stay within scope**: don't expand beyond what the issue asks for
 - **Finish with blocker reports**: if you can't complete the work, explain exactly what's blocked and create follow-on issues
 <!-- vale Helix.PassiveVoice = NO -->
-- **Never stop silently**: a bead must be closed with evidence, or left open with a precise status note
+- **Never stop silently**: a DDx bead must be closed with evidence, or left open with a precise status note
 <!-- vale Helix.PassiveVoice = YES -->
 
 ## Quality Ratchets
@@ -157,15 +157,17 @@ Ratchet definitions live in `workflows/ratchets.md` and floor fixtures are commi
 
 ## Area Taxonomy
 
-Areas scope which [concerns](/concerns/) apply to which beads:
+Areas scope which [concerns](/concerns/) apply to which runtime work items:
 
 | Area | Typical scope | Example concerns |
 |------|--------------|-----------------|
-| `all` | Every bead | Tech stacks, security |
+| `all` | Every work item | Tech stacks, security |
 | `ui` | Frontend, web | a11y, i18n |
 | `api` | Backend, server | o11y, rate limiting |
 | `data` | Database, storage | Data modeling |
 | `infra` | Deployment, CI | k8s, monitoring |
 | `cli` | CLI tools | CLI conventions |
 
-Projects define their area labels in `docs/helix/01-frame/concerns.md`. A bead with `area:ui` gets a11y practices; a database migration bead does not.
+Projects define their area labels in `docs/helix/01-frame/concerns.md`. A DDx
+bead with `area:ui` gets a11y practices; a database migration work item does
+not.

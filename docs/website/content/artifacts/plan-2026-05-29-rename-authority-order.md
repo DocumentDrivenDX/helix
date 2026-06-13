@@ -7,7 +7,7 @@ source: "02-design/plan-2026-05-29-rename-authority-order.md"
 generated: true
 ---
 
-> **Dogfood example.** This generated page publishes HELIX's own project artifact from `docs/helix/`. Use it as example evidence and source traceability, not as adopter doctrine. Historical plans and reports may describe retired architecture.
+> **Example from HELIX's own docs.** This generated page comes from `docs/helix/`. Use it to see the method in practice; start with the [artifact-type catalog](/artifact-types/) for reusable templates. Historical plans and reports may describe retired architecture.
 
 > **Source identity** (from `02-design/plan-2026-05-29-rename-authority-order.md`):
 

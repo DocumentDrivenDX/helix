@@ -3,8 +3,8 @@ title: Install HELIX
 weight: 1
 ---
 
-Pick the install guide for your runtime. For what HELIX is, see
-[the thesis](/why/the-thesis/).
+Pick the install guide for the tool that will run HELIX, such as Claude Code,
+Codex, DDx, or Databricks. For what HELIX is, see [the thesis](/why/the-thesis/).
 
 ## Minimal runtime contract
 
@@ -39,12 +39,12 @@ one if you use more than one.
 Runtime install guides are packaging notes. The normative HELIX content lives
 in two places:
 
-- **[Skills](/skills)**: the single routing skill with one public entry point
-  (`helix`), one routing table, and one set of per-mode workflow contracts.
+- **[Skills](/skills)**: the HELIX skill with one public entry point (`helix`),
+  one routing table, and one set of per-mode workflow contracts.
   There are no separate public `helix-*` skills.
-- **[Artifact types](/artifact-types)**: the artifact-type catalog and
-  methodology specification. Templates, prompts, quality criteria, and examples
-  for every artifact type.
+- **[Artifact types](/artifact-types)**: HELIX document patterns, including
+  templates, prompts, quality criteria, and examples for PRDs, ADRs, test plans,
+  runbooks, and related documents.
 
 When a per-runtime guide and the skill or catalog disagree, the skill and
 catalog govern.
@@ -55,7 +55,7 @@ The per-runtime guides exist so adopters can install HELIX. They do not exist
 to localize, dialect, or rewrite the methodology.
 
 - The normative skill body lives in `skills/helix/SKILL.md` and nowhere else.
-- The artifact catalog lives in `workflows/` and nowhere else.
+- The artifact-type catalog lives in `workflows/` and nowhere else.
 - If a runtime requires a shim (a manifest, wrapper, or packaging document),
   that shim lives inside the per-runtime guide, explicitly marked as
   runtime-specific. It does not get pushed back into `skills/` or `workflows/`.

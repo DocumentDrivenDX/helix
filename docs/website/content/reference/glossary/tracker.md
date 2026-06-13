@@ -31,7 +31,7 @@ artifact that authorizes the work.
 | **deps** | Dependency list: issues that must close before this one is ready |
 | **acceptance** | Deterministic criteria that define "done" |
 <!-- vale Helix.Hedges = NO -->
-| **description** | Full description, often prefixed with a [context digest](/reference/glossary/concepts/#context-digest) |
+| **description** | Full description, often prefixed with [runtime work context](/reference/glossary/concepts/#runtime-work-context) |
 <!-- vale Helix.Hedges = YES -->
 | **notes** | Execution notes appended during work |
 
@@ -160,7 +160,7 @@ acceptance criteria.
 
 ## Dependency Management
 
-Beads can declare dependencies on other beads:
+DDx beads can declare dependencies on other DDx beads:
 
 ```bash
 # B cannot start until A is closed
@@ -170,6 +170,6 @@ ddx bead dep add B --blocked-by A
 ddx bead dep tree <id>
 ```
 
-Dependencies affect the ready queue: a bead with unresolved dependencies is not
-ready. A HELIX `check` pass can consider dependency chains when recommending
-which issue to work next in DDx.
+Dependencies affect the ready queue: a DDx bead with unresolved dependencies is
+not ready. A HELIX `check` pass can consider dependency chains when
+recommending which issue to work next in DDx.

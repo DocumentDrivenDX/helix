@@ -46,12 +46,12 @@ Pick the guide for your environment and you're up in minutes.
   <a class="helix-home-card" href="install">
     <span class="helix-card-label">Claude Code</span>
     <strong>Install as a Claude Code skill</strong>
-    <span>User-global or per-repo. Installs the single <code>helix</code> routing skill.</span>
+    <span>User-global or per-repo. Installs the HELIX skill that reads project docs and proposes the next update.</span>
   </a>
   <a class="helix-home-card" href="install">
     <span class="helix-card-label">Codex CLI + Copilot</span>
     <strong>Discover via AGENTS.md or editor instructions</strong>
-    <span>Full flow on the Codex CLI; read-mostly HELIX work on Copilot surfaces.</span>
+    <span>Use HELIX for codebase-aware planning in Codex and read-only guidance in Copilot surfaces.</span>
   </a>
   <a class="helix-home-card" href="install">
     <span class="helix-card-label">Databricks Code Genie</span>
@@ -73,28 +73,27 @@ Pick the guide for your environment and you're up in minutes.
 ## How it works
 
 <p class="helix-section-intro">
-  Getting started with HELIX is simple: install it into your agent, then work
-  through prompts as you normally would. The HELIX skill helps the agent read
-  and update the document graph while you stay in control. That graph gives the
-  agent the context it needs to create, check, and hand off quality plans.
+  Start by installing HELIX into the tool where your agent works. The HELIX
+  skill reads your project documents, finds missing or stale context, and
+  proposes the next document update. You stay in control of what changes.
 </p>
 
 <div class="helix-home-grid helix-loop-steps">
   <a class="helix-home-card" href="artifact-types">
     <span class="helix-card-label">1 · Write the brief</span>
-    <span>Say what the agent should know. Capture the goal, requirements, constraints, and decisions before the agent starts changing files.</span>
+    <span>Capture the goal, requirements, constraints, and decisions before the agent starts changing files.</span>
   </a>
   <a class="helix-home-card" href="artifacts">
     <span class="helix-card-label">2 · Check alignment</span>
-    <span>Find stale assumptions, missing context, and contradictions across the document graph.</span>
+    <span>Find stale assumptions, missing context, and contradictions across your project documents.</span>
   </a>
   <a class="helix-home-card" href="skills">
     <span class="helix-card-label">3 · Create the work plan</span>
-    <span>Turn the documents into bounded work. Define what to change, what not to change, how to check success, and what evidence to collect.</span>
+    <span>Turn the documents into bounded work: what to change, what to leave alone, and how to check success.</span>
   </a>
   <a class="helix-home-card" href="platforms">
     <span class="helix-card-label">4 · Hand off to a runtime</span>
-    <span>Send the plan to the place work gets done. Use DDx, Claude, Codex, Databricks, or a manual workflow. Capture the result and feed it back into the documents.</span>
+    <span>Send the plan to DDx, Claude, Codex, Databricks, or a manual workflow, then feed the result back into the documents.</span>
   </a>
 </div>
 
@@ -132,22 +131,21 @@ Begin with the spine, then add supporting artifacts as the work demands them.
 ## Use more than one flow scope
 
 <p class="helix-section-intro">
-  A product and its documentation site can both use HELIX without becoming two
-  public skills. Declare separate flow scopes, keep each artifact stack in its
-  own root, and let the same <code>helix</code> routing skill choose the right
-  workflow mode for the scope.
+  A product and its documentation site can both use HELIX. Declare separate
+  flow scopes, meaning separate roots for separate sets of HELIX documents, and
+  use the same HELIX skill for both.
 </p>
 
 <div class="helix-home-grid helix-proof-grid">
   <a class="helix-home-card helix-card-human" href="use/multiple-flows">
-    <span class="helix-card-label">Multiple flows</span>
+    <span class="helix-card-label">Multiple document scopes</span>
     <strong>Product docs and microsite docs can live side by side</strong>
-    <span>Learn the marker shape, scope rules, and microsite-docs template pattern.</span>
+    <span>Learn how one repository can keep product documents and website documents separate.</span>
   </a>
   <a class="helix-home-card helix-card-connect" href="artifacts">
-    <span class="helix-card-label">Dogfood example</span>
+    <span class="helix-card-label">HELIX example docs</span>
     <strong>HELIX renders its own docs as a separate example corpus</strong>
-    <span>This generated area is proof and source traceability, not adopter doctrine.</span>
+    <span>See how this repository uses HELIX without treating those pages as setup instructions.</span>
   </a>
 </div>
 
@@ -161,8 +159,8 @@ Begin with the spine, then add supporting artifacts as the work demands them.
 
 ## Use HELIX where your team already works
 
-HELIX is Markdown and methodology. The runtime supplies file editing, review,
-execution, and evidence capture.
+HELIX is Markdown and method. The runtime, meaning the tool doing the work,
+supplies file editing, review, execution, and evidence capture.
 
 <div class="helix-home-grid helix-platform-grid">
   <a class="helix-home-card" href="use/manual-recipe">
@@ -183,7 +181,7 @@ execution, and evidence capture.
   <a class="helix-home-card" href="use/ddx-runtime">
     <span class="helix-card-label">DDx</span>
     <strong>Reference runtime for queued execution</strong>
-    <span>Map HELIX plans to beads when queue control and execution evidence matter.</span>
+    <span>Map HELIX plans to DDx work items when queue control and execution evidence matter.</span>
   </a>
   <a class="helix-home-card" href="use/databricks-recipe">
     <span class="helix-card-label">Databricks</span>
@@ -202,18 +200,18 @@ execution, and evidence capture.
 
 ## Inspect the foundations
 
-The method is public: the catalog, research foundation, and HELIX dogfood corpus
-are all inspectable. The dogfood corpus shows how this repository applies
-HELIX to itself; the reusable doctrine lives in the catalog and use guides.
+The method is public: the document-pattern catalog, research foundation, and
+HELIX's own example docs are all inspectable. Use the example docs to see the
+method in practice; use the catalog and guides to apply it to your project.
 
 <div class="helix-home-grid helix-proof-grid">
   <a class="helix-home-card helix-card-human" href="artifacts">
-    <span class="helix-card-label">Dogfood corpus</span>
+    <span class="helix-card-label">HELIX example docs</span>
     <strong>HELIX governs itself in public</strong>
-    <span>Read the generated self-docs with source links and historical context labels.</span>
+    <span>Read HELIX's own project documents and follow links back to their source files.</span>
   </a>
   <a class="helix-home-card helix-card-ai" href="artifact-types">
-    <span class="helix-card-label">Artifact catalog</span>
+    <span class="helix-card-label">Artifact-type catalog</span>
     <strong>Reusable prompts, templates, and quality guidance</strong>
     <span>Browse the document types and learn which ones are core versus supporting.</span>
   </a>

@@ -3,7 +3,7 @@
 {"shell": "/plugin marketplace add https://github.com/DocumentDrivenDX/helix"}
 {"output": "Added marketplace DocumentDrivenDX-helix\n  1 plugin available: helix\n"}
 {"shell": "/plugin install helix@helix"}
-{"output": "Installing helix@helix...\n  resolved skill: helix\n  artifact catalog: workflows/activities/ (7 activities)\n✓ helix@helix installed (scope: user)\n", "pause_s": 1.0}
+{"output": "Installing helix@helix...\n  resolved skill: helix\n  artifact-type catalog: workflows/activities/ (7 activities)\n✓ helix@helix installed (scope: user)\n", "pause_s": 1.0}
 {"narration": "Confirm the plugin is on the list."}
 {"shell": "claude plugin list"}
 {"output": "NAME   VERSION  SOURCE\nhelix  0.5.2    DocumentDrivenDX-helix\n"}

@@ -236,7 +236,7 @@ uncertainty about the topology (unknown load profile, unproven boundaries) is a
 
 ## Practices by activity
 
-Agents working in any of these activities inherit the practices below via the bead's context digest.
+Agents working in any of these activities inherit the practices below through runtime work context, such as a DDx bead context digest.
 
 These practices make the **topology decision** (how many independently
 deployable units, and where their seams fall) checkable in review. They govern

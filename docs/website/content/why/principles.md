@@ -10,7 +10,7 @@ ideas behind that framework.
 These are not workflow rules ("write tests first", "review before merging").
 Those belong in enforcers. These are the design choices that explain why
 HELIX takes the shape it does. When two implementations of the same
-workflow could both work, the principles say which one should win.
+workflow could both work, the principles say which one should govern.
 
 <!-- vale Helix.PassiveVoice = NO -->
 ## 1. Planning and execution are intertwined
@@ -41,15 +41,15 @@ upgrades, and team turnover. When a project's institutional knowledge lives
 in someone's head, the project loses that knowledge when the person leaves.
 When it lives in documents that drive execution, the knowledge compounds.
 
-Every [artifact in HELIX](/artifacts/) has a deliberate role. Vision
+Every [artifact type in HELIX](/artifact-types/) has a deliberate role. Vision
 documents commit to direction. PRDs commit to requirements. Specs commit
-to behaviors. ADRs commit to design choices. Beads commit to
-work-in-progress. Together they form a graph that any agent can traverse
-when it needs context.
+to behaviors. ADRs commit to design choices. Runtime work items, such as DDx
+beads, commit to work-in-progress. Together they form a graph that any agent can
+traverse when it needs context.
 
 ## 3. The artifact authority hierarchy governs reconciliation
 
-> When artifacts at different layers disagree, the higher layer wins.
+> When artifacts at different layers disagree, the higher layer governs.
 
 ```
 Vision → PRD → Specs → ADRs → Designs → Tests → Plans → Code
@@ -112,10 +112,10 @@ participants in the artifact graph, not autocomplete.
 > needed.
 
 The HELIX methodology layers supervision on top of DDx's bounded execution
-loop. DDx provides the queue-drain primitive (`ddx work`): claim a ready
-bead, execute it, close it on success. HELIX decides *what* counts as
-ready, *which* bead is the highest-impact next move, and *when* to stop
-and ask. When forward progress would require authority that is missing,
+loop. DDx supplies the queue-drain primitive (`ddx work`): claim a ready DDx
+work item, execute it, close it on success. HELIX decides *what* counts as
+ready, *which* work item is the highest-impact next move, and *when* to stop and
+ask. When forward progress would require authority that is missing,
 <!-- vale Helix.PassiveVoice = NO -->
 ambiguity that cannot be resolved, or judgment that is genuinely human, the
 <!-- vale Helix.PassiveVoice = YES -->
@@ -178,6 +178,6 @@ that fully addresses the problem.
 
 These eight principles are the *why* of HELIX. The [Use HELIX](/use/)
 section describes the *how*: the workflow, the alignment loop, the
-recipes. The [Artifacts](/artifacts/) catalog and the
+recipes. The [artifact-type catalog](/artifact-types/) and the
 [Concerns](/concerns/) library are how those principles get expressed in
 practice.

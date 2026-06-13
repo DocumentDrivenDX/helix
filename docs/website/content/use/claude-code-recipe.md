@@ -3,8 +3,8 @@ title: Claude Code HELIX Recipe
 weight: 21
 ---
 
-Use this recipe when Claude Code is the agent runtime and HELIX provides the
-artifact discipline. DDx is optional; Claude Code can apply HELIX by reading and
+Use this recipe when Claude Code is the agent runtime and HELIX supplies the
+document patterns. DDx is optional; Claude Code can apply HELIX by reading and
 editing artifacts directly.
 
 ## Install the HELIX plugin
@@ -44,7 +44,7 @@ That load does not persist past the session. The full procedure is in the
 
 ## What the runtime must provide
 
-Claude Code must provide:
+Claude Code owns:
 
 - Repository-aware context loading for the selected artifact files.
 - File-scoped edits that avoid unrelated changes.
@@ -57,7 +57,7 @@ edits, but humans decide which artifact changes become governing context.
 
 ## Recipe 1: create the first artifact stack
 
-Create these files in your project, using the artifact catalog as the shape:
+Create these files in your project, using the artifact-type catalog as the shape:
 
 - `docs/helix/00-discover/product-vision.md`
 - `docs/helix/01-frame/prd.md`
