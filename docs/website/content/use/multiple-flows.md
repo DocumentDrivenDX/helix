@@ -13,8 +13,7 @@ decide whether those surfaces need separate flow scopes.
 The public surface is still one HELIX skill. A flow scope is one governed
 artifact root, such as `docs/helix` for product documents or `docs/website` for
 website documents. Multiple flows tell the skill which root owns the current
-question. They are not separate public `helix-web`, `helix-data`, or
-`helix-infra` skills.
+question. They are not separate domain-specific skills.
 
 ## Terms
 
