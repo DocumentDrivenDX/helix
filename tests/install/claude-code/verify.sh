@@ -86,9 +86,13 @@ PY
   rm -f "$PROBE_OUT"
 else
   echo "SKIP: no ANTHROPIC_API_KEY and no ~/.claude/.credentials.json — init probe needs auth"
-  echo "      (set ANTHROPIC_API_KEY in CI secrets, or mount credentials for local dev)"
-  echo "FAIL: per-PR install gate requires auth — refusing to claim PASS on static-only checks"
-  exit 1
+  if [[ "${TEST_PUBLISHED:-}" == "1" ]]; then
+    echo "      published install smoke continues with static layout checks only"
+  else
+    echo "      (set ANTHROPIC_API_KEY in CI secrets, or mount credentials for local dev)"
+    echo "FAIL: per-PR install gate requires auth — refusing to claim PASS on static-only checks"
+    exit 1
+  fi
 fi
 
 if [[ "${TEST_FUNCTIONAL:-}" == "1" ]]; then

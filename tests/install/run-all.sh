@@ -12,6 +12,7 @@ set -uo pipefail
 
 cd "$(dirname "$0")"
 TESTS_DIR="$PWD"
+REPO_ROOT="$(cd "$TESTS_DIR/../.." && pwd -P)"
 
 if [[ -f ".env" ]]; then
   set -a; source .env; set +a
@@ -56,13 +57,33 @@ run_terminal_scenario() {
   # Pass auth env into container so functional checks can run when gated.
   # TEST_PUBLISHED switches a scenario to the real published-marketplace install.
   local env_args=()
-  for v in ANTHROPIC_API_KEY OPENAI_API_KEY GH_TOKEN DATABRICKS_HOST DATABRICKS_TOKEN DATABRICKS_PROFILE TEST_FUNCTIONAL TEST_PUBLISHED; do
+  for v in ANTHROPIC_API_KEY OPENAI_API_KEY GH_TOKEN DATABRICKS_HOST DATABRICKS_TOKEN DATABRICKS_PROFILE TEST_PUBLISHED; do
     if [[ -n "${!v:-}" ]]; then env_args+=(-e "$v=${!v}"); fi
   done
+  if [[ "${TEST_FUNCTIONAL:-}" == "1" ]]; then
+    if [[ "${TEST_PUBLISHED:-}" == "1" ]]; then
+      case "$name" in
+        claude-code)
+          [[ -n "${ANTHROPIC_API_KEY:-}" ]] && env_args+=(-e TEST_FUNCTIONAL=1)
+          ;;
+        codex-cli)
+          [[ -n "${OPENAI_API_KEY:-}" ]] && env_args+=(-e TEST_FUNCTIONAL=1)
+          ;;
+        copilot-cli)
+          [[ -n "${GH_TOKEN:-}" ]] && env_args+=(-e TEST_FUNCTIONAL=1)
+          ;;
+        *)
+          env_args+=(-e TEST_FUNCTIONAL=1)
+          ;;
+      esac
+    else
+      env_args+=(-e TEST_FUNCTIONAL=1)
+    fi
+  fi
 
   # Mount the repo root so install.sh can use the local source.
   if ! docker run --rm "${env_args[@]}" \
-      -v "$TESTS_DIR/../..:/workspace/helix:ro" \
+      -v "$REPO_ROOT:/workspace/helix:ro" \
       "$image"; then
     echo "FAIL: scenario $name (install or verify exit non-zero)"
     failed=$((failed + 1))

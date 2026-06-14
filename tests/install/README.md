@@ -36,7 +36,11 @@ captures screencasts via `vhs`. Required env vars (per
 | `TEST_FUNCTIONAL` | all (gated) | set to `1` to enable LLM-based checks |
 | `TEST_GENIE` | genie | set to `1` to require Genie scenario to run |
 
-DDx requires no credentials and is the smoke-test default.
+DDx requires no credentials. Published DDx install smoke skips, with an
+explicit reason, while the current DDx installer still requires the retired
+`scripts/helix` checkout CLI.
+On published-release smoke runs, missing runtime credentials skip only the
+credentialed functional probes; static install and layout checks still run.
 
 ## What each check asserts
 

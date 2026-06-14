@@ -25,12 +25,14 @@ if [[ "${TEST_PUBLISHED:-}" == "1" ]]; then
   echo "→ real Codex plugin install from the published repo"
   codex plugin marketplace add DocumentDrivenDX/helix
   codex plugin add helix@helix
+  SKILL_ROOT="$(find "$HOME/.codex/plugins/cache" -path '*/skills/helix' -type d 2>/dev/null | sort -V | tail -1 || true)"
 else
   echo
   echo "→ placing skills/helix/ under ~/.codex/skills/ (PR-safe)"
   mkdir -p ~/.codex/skills
   rm -rf ~/.codex/skills/helix
   cp -r /workspace/helix/skills/helix ~/.codex/skills/
+  SKILL_ROOT="$HOME/.codex/skills/helix"
 fi
 
 echo
@@ -40,4 +42,10 @@ ln -sf /workspace/helix/workflows ~/.codex/workflows
 
 echo
 echo "install complete; checking installed location..."
-ls -la ~/.codex/skills/helix/ | head
+if [[ -z "${SKILL_ROOT:-}" || ! -d "$SKILL_ROOT" ]]; then
+  echo "FAIL: installed helix skill not found"
+  find "$HOME/.codex" -maxdepth 6 -type d 2>/dev/null | sort | sed -n '1,120p'
+  exit 1
+fi
+echo "skill root: $SKILL_ROOT"
+ls -la "$SKILL_ROOT" | head

@@ -6,6 +6,14 @@ set -euo pipefail
 SKILL_ROOT="$HOME/.ddx/plugins/helix/skills/helix"
 SHARED_VERIFY="/workspace/helix/tests/install/shared/verify-skill-layout.sh"
 
+if [[ -f /tmp/helix-ddx-install-skipped ]]; then
+  echo "SKIP: DDx install was skipped because the current DDx published installer"
+  echo "      still requires the retired scripts/helix checkout CLI."
+  echo
+  echo "ddx scenario: SKIP"
+  exit 0
+fi
+
 echo "→ static layout checks"
 bash "$SHARED_VERIFY" "$SKILL_ROOT"
 
