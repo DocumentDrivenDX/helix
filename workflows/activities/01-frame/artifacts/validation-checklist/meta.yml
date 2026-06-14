@@ -6,6 +6,8 @@ artifact:
   type: checklist
   activity: frame
 
+voice: artifact-signal
+
 description: |
   Frame exit gate that verifies completeness, consistency, traceability,
   evidence, stakeholder review, and readiness to enter Design.

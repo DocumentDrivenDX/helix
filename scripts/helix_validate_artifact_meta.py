@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
-"""Validate artifact-type schemas: required_sections must match template H2s.
+"""Validate artifact-type schemas.
+
+Checks:
+- required_sections must match template H2s.
+- artifact voice profile references must exist in workflows/voice.yml.
 
 For every artifact under workflows/activities/<phase>/artifacts/<slug>/, read
 meta.yml and extract validation.required_sections (list of section IDs). Then
 read template.md, extract its H2 headings, slugify each (lowercase, replace
 runs of non-alphanumeric with single underscore, strip leading/trailing
-underscores). Assert every required_section appears as an H2 slug.
+underscores). Assert every required_section appears as an H2 slug. Also read
+the artifact's top-level `voice` declaration, when present, and assert all
+profile references exist in the canonical voice registry.
 
 Stdlib-only: meta.yml is parsed by a small purpose-built reader that handles
 the limited shape used by HELIX artifact meta files (mapping keys, list of
@@ -23,6 +29,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 ACTIVITIES_ROOT = REPO_ROOT / "workflows" / "activities"
+VOICE_REGISTRY = REPO_ROOT / "workflows" / "voice.yml"
 
 
 def slugify(heading: str) -> str:
@@ -134,6 +141,92 @@ def extract_required_sections(meta_path: Path) -> list[str] | None:
     return items
 
 
+def strip_yaml_scalar(value: str) -> str:
+    value = value.strip()
+    if "#" in value:
+        value = value.split("#", 1)[0].strip()
+    if (value.startswith('"') and value.endswith('"')) or (
+        value.startswith("'") and value.endswith("'")
+    ):
+        value = value[1:-1]
+    return value
+
+
+def load_voice_registry(path: Path) -> tuple[str, set[str], list[str]]:
+    """Extract default_profile and profiles from workflows/voice.yml."""
+    failures: list[str] = []
+    if not path.exists():
+        return "", set(), [f"missing voice registry: {path.relative_to(REPO_ROOT)}"]
+
+    default_profile = ""
+    profiles: set[str] = set()
+    in_profiles = False
+
+    for line in path.read_text(encoding="utf-8").splitlines():
+        m = re.match(r"^default_profile\s*:\s*(.+?)\s*$", line)
+        if m:
+            default_profile = strip_yaml_scalar(m.group(1))
+            continue
+
+        if re.match(r"^profiles\s*:\s*$", line):
+            in_profiles = True
+            continue
+
+        if in_profiles:
+            if line and not line.startswith((" ", "\t")) and ":" in line:
+                in_profiles = False
+                continue
+            m = re.match(r"^\s{2}([a-z0-9][a-z0-9-]*)\s*:\s*$", line)
+            if m:
+                profiles.add(m.group(1))
+
+    if not default_profile:
+        failures.append("workflows/voice.yml: missing default_profile")
+    if not profiles:
+        failures.append("workflows/voice.yml: no profiles declared")
+    if default_profile and profiles and default_profile not in profiles:
+        failures.append(
+            f"workflows/voice.yml: default_profile '{default_profile}' "
+            "is not declared under profiles"
+        )
+
+    return default_profile, profiles, failures
+
+
+def extract_voice_references(meta_path: Path, default_profile: str) -> list[str]:
+    """Extract profile references from top-level `voice`."""
+    lines = meta_path.read_text(encoding="utf-8").splitlines()
+    for i, line in enumerate(lines):
+        m = re.match(r"^voice\s*:\s*(.*?)\s*$", line)
+        if not m:
+            continue
+
+        inline = strip_yaml_scalar(m.group(1))
+        if inline:
+            return [inline]
+
+        refs: list[str] = []
+        in_overrides = False
+        for child in lines[i + 1 :]:
+            if child and not child.startswith((" ", "\t")) and ":" in child:
+                break
+            profile = re.match(r"^\s+profile\s*:\s*(.+?)\s*$", child)
+            if profile:
+                refs.append(strip_yaml_scalar(profile.group(1)))
+                in_overrides = False
+                continue
+            if re.match(r"^\s+overrides\s*:\s*$", child):
+                in_overrides = True
+                continue
+            if in_overrides:
+                override = re.match(r"^\s+[a-zA-Z0-9_-]+\s*:\s*(.+?)\s*$", child)
+                if override:
+                    refs.append(strip_yaml_scalar(override.group(1)))
+        return refs or [default_profile]
+
+    return [default_profile]
+
+
 def iter_artifact_dirs() -> list[Path]:
     dirs: list[Path] = []
     if not ACTIVITIES_ROOT.is_dir():
@@ -148,11 +241,18 @@ def iter_artifact_dirs() -> list[Path]:
     return dirs
 
 
-def validate(art_dir: Path) -> list[str]:
+def validate(art_dir: Path, default_voice_profile: str, voice_profiles: set[str]) -> list[str]:
     """Return a list of failure messages for this artifact (empty if clean)."""
     meta_path = art_dir / "meta.yml"
     template_path = art_dir / "template.md"
     failures: list[str] = []
+
+    for voice_ref in extract_voice_references(meta_path, default_voice_profile):
+        if voice_ref not in voice_profiles:
+            failures.append(
+                f"{art_dir.relative_to(REPO_ROOT)}: voice profile '{voice_ref}' "
+                "is not declared in workflows/voice.yml"
+            )
 
     # Skip non-markdown artifacts: their schema lives in YAML keys, not H2s.
     fmt = extract_output_format(meta_path)
@@ -183,8 +283,10 @@ def validate(art_dir: Path) -> list[str]:
 def main() -> int:
     art_dirs = iter_artifact_dirs()
     all_failures: list[str] = []
+    default_voice_profile, voice_profiles, registry_failures = load_voice_registry(VOICE_REGISTRY)
+    all_failures.extend(registry_failures)
     for art_dir in art_dirs:
-        all_failures.extend(validate(art_dir))
+        all_failures.extend(validate(art_dir, default_voice_profile, voice_profiles))
 
     if all_failures:
         for msg in all_failures:
@@ -192,7 +294,10 @@ def main() -> int:
         print(f"\nFAIL: {len(all_failures)} drift(s) across {len(art_dirs)} artifact type(s)")
         return 1
 
-    print(f"OK: {len(art_dirs)} artifact type(s) validated (required_sections <-> template H2s)")
+    print(
+        f"OK: {len(art_dirs)} artifact type(s) validated "
+        "(required_sections <-> template H2s, voice profiles)"
+    )
     return 0
 
 

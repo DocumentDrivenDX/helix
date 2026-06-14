@@ -4,6 +4,8 @@ artifact:
   type: document
   activity: deploy
 
+voice: artifact-signal
+
 description: |
   Release-scoped communication artifact that summarizes shipped user-visible
   and operator-visible changes, required actions, and known caveats for one

@@ -6,6 +6,8 @@ artifact:
   type: collection
   activity: frame
 
+voice: artifact-signal
+
 description: |
   Feature-level authority document that translates PRD requirements into
   precise behavior, boundaries, functional areas, non-functional expectations,

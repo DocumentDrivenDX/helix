@@ -6,6 +6,8 @@ artifact:
   type: document
   activity: frame
 
+voice: artifact-signal
+
 description: |
   Cross-cutting design principles that guide judgment calls across all HELIX
   activities. They are not requirements, concerns, ADRs, workflow rules, or process

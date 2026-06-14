@@ -4,6 +4,8 @@ artifact:
   type: document
   activity: test
 
+voice: artifact-signal
+
 description: |
   Security verification matrix that maps material threats and controls to
   executable tests, evidence, and residual-risk decisions.

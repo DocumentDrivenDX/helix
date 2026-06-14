@@ -7,6 +7,8 @@ artifact:
   activity: design
   level: project
 
+voice: artifact-signal
+
 description: |
   The per-project interface-system instance: the concrete UX/design-system
   decisions this app commits to. It captures the navigation model and

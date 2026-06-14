@@ -6,6 +6,8 @@ artifact:
   type: document
   activity: frame
 
+voice: artifact-signal
+
 description: |
   Stakeholder and decision-rights map for roles, interests, influence,
   engagement, RACI ownership, communication cadence, and escalation paths.

@@ -1,9 +1,11 @@
 # HELIX Website Voice
 
-This guide governs public website copy: home, install, why, use, skills,
-platforms, reference landing pages, cards, banners, and generated page
-preambles. It does not change HELIX methodology terms; it defines how to
-introduce them to a reader seeing HELIX for the first time.
+This guide applies the `public-site` profile from
+[`workflows/voice.yml`](../../workflows/voice.yml) to public website copy:
+home, install, why, use, skills, platforms, reference landing pages, cards,
+banners, and generated page preambles. It does not change HELIX methodology
+terms; it defines how to introduce them to a reader seeing HELIX for the first
+time.
 
 ## Reader
 

@@ -6,6 +6,8 @@ artifact:
   type: collection
   activity: frame
 
+voice: artifact-signal
+
 description: |
   Stable design artifacts defining vertical user journeys through feature
   behavior. Each story traces one persona from trigger to outcome, references

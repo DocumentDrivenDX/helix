@@ -215,10 +215,10 @@ marker.
 ### 4. Author / edit artifacts
 
 When asked to author or edit an instance document, follow the type's
-`template.md` and `prompt.md` from the library. Look up the type via the
-flow's `workflows/graph.yml` — every node points at a `library:<slug>`
-or `local:<slug>` type, and the library tree is at the canonical install
-root (`library/` after this install).
+`template.md`, `prompt.md`, `meta.yml`, and active voice profile from the
+library. Look up the type via the flow's `workflows/graph.yml` — every node
+points at a `library:<slug>` or `local:<slug>` type, and the library tree is at
+the canonical install root (`library/` after this install).
 
 **Edit existing instances; Write only new ones.** When the requested
 artifact already exists at the resolved path, use `Edit` (target the
@@ -338,7 +338,7 @@ Prefer the first matching route:
 | Convert rough intent into governed HELIX work | input |
 | Create or refine product vision, PRD, feature specs, or user stories | frame |
 | Reconcile artifacts, check traceability, find drift, align documents, or move content between artifact layers | align |
-| Check an artifact instance against its template and prompt; improve in place | validate |
+| Check an artifact instance against its template and prompt; edit resolvable findings in place | validate |
 | Bring every artifact instance up to date with the current templates and prompts | refresh |
 | Thread a new, changed, removed, or incident-driven requirement through existing artifacts | evolve |
 | Create a technical design before implementation | design |
@@ -391,6 +391,44 @@ require loading the file from one of the resolution paths above.
 If the catalog is at neither location, the runtime has not mounted it;
 report this as a setup gap rather than improvising paths or guessing
 artifact-type names.
+
+## Voice Resolution
+
+When a workflow mode authors, validates, refreshes, reviews, or rewrites a
+HELIX artifact, load the voice registry from the same mounted content root used
+by §Catalog Resolution:
+
+1. `references/voice.yml` — relative to this `SKILL.md` in skill-bundle
+   layouts that copy shared workflow resources into `references/`.
+2. `<plugin-root>/workflows/voice.yml` — in plugin installs that vendor the
+   source tree.
+
+Resolve the active profile from the artifact type's `meta.yml`:
+
+- `voice: <profile>` means use that profile.
+- `voice.profile: <profile>` means use that primary profile and preserve any
+  declared overrides.
+- Missing `voice` means use the registry's `default_profile`, currently
+  `artifact-signal`.
+
+The standard profiles are:
+
+| Profile | Conciseness | Use |
+|---|---:|---|
+| `machine-facts` | 1/10 | Extracted facts, context digests, generated indexes, and machine-facing state. |
+| `artifact-signal` | 2/10 | HELIX artifacts, templates, prompts, metadata, alignment reports, and validation reports. |
+| `public-site` | 3/10 | Microsite pages, public demos, public introductions, and catalog summaries. |
+
+Apply the profile as artifact contract, not as generic polish. For
+`artifact-signal`, lead with decisions, requirements, constraints, evidence,
+risks, or open questions; preserve IDs, paths, commands, metrics, statuses,
+trace links, assumptions, non-goals, and acceptance criteria; and keep
+specifications focused on intent rather than implementation status.
+
+If Sloptimizer is available in the runtime, you may ask it to audit or rewrite
+against the active HELIX voice profile. If it is not available, continue by
+applying the profile directly. HELIX must not require Sloptimizer to author or
+validate artifacts.
 
 ## Project Root Resolution
 
@@ -561,7 +599,8 @@ stories.
    static content sites, or read-only dashboards (unless an operator UI is
    explicitly required). Selection happens here, once; propagation to work
    items is a later gate owned by `check`/`polish`, not a re-selection.
-3. Read the relevant artifact template and prompt before drafting.
+3. Read the relevant artifact template, prompt, meta.yml, and active voice
+   profile before drafting.
 4. Keep each artifact in its lane:
    - Product Vision is direction.
    - PRD is product scope: capabilities, outcomes, priorities, metrics, and
@@ -634,26 +673,35 @@ placement reviews.
 ### Validate
 
 Use to check a single artifact instance against its governing template and
-prompt and improve it in place.
+prompt, then edit resolvable findings in place.
 
 1. Load the artifact instance and resolve its artifact type: read `ddx:`
    frontmatter when present (`ddx.type`, else inferred from `ddx.id`
    prefix); otherwise resolve by path or filename pattern against the
    artifact-type catalog the runtime exposes.
-2. Load the artifact-type's `template.md`, `prompt.md`, and `meta.yml`
-   from the resolved catalog path (see §Catalog Resolution).
+2. Load the artifact-type's `template.md`, `prompt.md`, `meta.yml`, and active
+   voice profile from the resolved catalog path (see §Catalog Resolution and
+   §Voice Resolution).
 3. Run structural conformance: required section headings from `template.md`
    are present, and required frontmatter fields from `meta.yml` are
    populated.
 4. Run prompt-section conformance: every section the `prompt.md` asks for is
    answered in the instance or explicitly marked N/A with a reason.
-5. Classify each finding keyed to the relevant template or prompt section
+5. Run voice conformance against the active profile, then classify each finding
+   keyed to the relevant template, prompt, meta.yml, or voice-profile section
    using the Align taxonomy: `ALIGNED`, `INCOMPLETE`, `DIVERGENT`,
-   `UNDERSPECIFIED`, `STALE_PLAN`, or `BLOCKED`.
+   `UNDERSPECIFIED`, `STALE_PLAN`, or `BLOCKED`. For `artifact-signal`, flag
+   filler, unscoped claims, unsupported implementation-status language in
+   specifications, missing actors, hidden assumptions, and prose that smooths
+   away artifact IDs, paths, commands, metrics, statuses, acceptance criteria,
+   or trace links. If Sloptimizer is available, it may perform this pass using
+   the active HELIX profile as constraints; otherwise apply the profile
+   directly.
 6. Produce updates: when the user invoked validate to fix, apply edits
-   in place for every finding the template + prompt comparison can
-   resolve mechanically — typically `INCOMPLETE` findings (missing
-   required sections, stale frontmatter shape, renamed headings). For
+   in place for every finding the template, prompt, metadata, or voice-profile
+   comparison can resolve mechanically — typically `INCOMPLETE` findings
+   (missing required sections, stale frontmatter shape, renamed headings,
+   unsupported filler, or unscoped claims). For
    findings classified as `DIVERGENT`, `UNDERSPECIFIED`, `STALE_PLAN`,
    or `BLOCKED` — which need human judgement — surface a §Align gap-to-
    implementation handoff for that specific finding instead of editing.

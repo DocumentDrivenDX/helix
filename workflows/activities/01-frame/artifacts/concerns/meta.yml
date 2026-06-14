@@ -6,6 +6,8 @@ artifact:
   type: singleton
   activity: frame
 
+voice: artifact-signal
+
 description: |
   Declares the project's active cross-cutting concerns: technology stacks,
   quality attributes, data rules, security posture, UX conventions, operating

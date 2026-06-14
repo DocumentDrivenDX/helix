@@ -6,6 +6,8 @@ artifact:
   type: document
   activity: frame
 
+voice: artifact-signal
+
 description: |
   Working-backwards launch narrative and internal FAQ that test customer
   outcome, mechanism, autonomy boundary, feasibility, economics, and scope.

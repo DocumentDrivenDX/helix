@@ -4,6 +4,8 @@ artifact:
   type: document
   activity: test
 
+voice: artifact-signal
+
 description: |
   Inventory of executable test suites with boundaries, coverage ownership,
   commands, runtime expectations, and evidence outputs.

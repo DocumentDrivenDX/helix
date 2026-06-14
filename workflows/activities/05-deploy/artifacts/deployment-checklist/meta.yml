@@ -4,6 +4,8 @@ artifact:
   type: document
   activity: deploy
 
+voice: artifact-signal
+
 description: |
   Short, execution-ready release readiness checklist that captures the
   technical go/no-go checks, rollout verification, and rollback triggers for a

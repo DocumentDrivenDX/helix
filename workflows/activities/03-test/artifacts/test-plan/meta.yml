@@ -7,6 +7,8 @@ artifact:
   activity: test
   level: project
 
+voice: artifact-signal
+
 id_format:
   prefix: TP
   pattern: "TP-[0-9]{3}"

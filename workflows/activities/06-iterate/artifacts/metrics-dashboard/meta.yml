@@ -4,6 +4,8 @@ artifact:
   type: document
   activity: iterate
 
+voice: artifact-signal
+
 description: |
   Iteration-level metrics summary that compares current values to a prior
   baseline and answers whether the latest change improved, regressed, or stayed

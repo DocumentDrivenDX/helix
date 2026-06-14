@@ -7,6 +7,8 @@ artifact:
   activity: design
   level: feature
 
+voice: artifact-signal
+
 description: |
   Feature-level solution design that explains the chosen approach for a
   feature or cross-component capability. It maps requirements to a concrete

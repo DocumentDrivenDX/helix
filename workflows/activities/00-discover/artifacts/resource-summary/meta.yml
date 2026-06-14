@@ -7,6 +7,8 @@ artifact:
   activity: discover
   optional: true
 
+voice: artifact-signal
+
 description: |
   Concise summary of an external resource used to ground HELIX artifact
   guidance. Captures what the source says, why it matters, and how far its

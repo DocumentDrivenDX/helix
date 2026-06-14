@@ -4,6 +4,8 @@ artifact:
   type: document
   activity: design
 
+voice: artifact-signal
+
 description: |
   Design-level data architecture covering entities, stores, access patterns,
   constraints, and migration strategy.

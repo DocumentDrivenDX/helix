@@ -6,6 +6,8 @@ artifact:
   type: document
   activity: discover
 
+voice: artifact-signal
+
 description: |
   North star document defining the product's target customer, current
   alternative, desired future state, and strategic success measures. First

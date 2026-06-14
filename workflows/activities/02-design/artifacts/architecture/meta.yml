@@ -6,6 +6,8 @@ artifact:
   type: document
   activity: design
 
+voice: artifact-signal
+
 description: |
   Captures the C4 views the team needs to build and review the system —
   System Context, Container, Component (where helpful), Deployment, and

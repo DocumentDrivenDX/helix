@@ -122,6 +122,7 @@ assert_helix_triage_blanket_priming_regression() {
     "$repo_root/.codex-plugin" \
     "$repo_root/docs" \
     "$repo_root/hooks" \
+    "$repo_root/scripts" \
     "$repo_root/skills" \
     "$repo_root/workflows" \
     "$temp_root/"
@@ -168,6 +169,12 @@ PYEOF
 }
 
 # ---------- Plugin layout checks ----------
+
+if command -v python3 >/dev/null 2>&1; then
+  python3 "$repo_root/scripts/helix_validate_artifact_meta.py"
+else
+  fail "python3 is required for artifact metadata validation"
+fi
 
 plugin_manifest="$repo_root/.claude-plugin/plugin.json"
 [[ -f "$plugin_manifest" ]] || fail "missing plugin manifest at .claude-plugin/plugin.json"
@@ -595,6 +602,7 @@ required = {
     "workflows/concerns/verification/practices.md",
     "workflows/concerns/sample-data/practices.md",
     "workflows/graph.yml",
+    "workflows/voice.yml",
 }
 import os
 missing = [p for p in required if not os.path.exists(os.path.join(repo_root, p))]

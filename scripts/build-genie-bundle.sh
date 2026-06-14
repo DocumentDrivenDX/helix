@@ -25,6 +25,7 @@ cd "$REPO_ROOT"
 
 SRC_SKILL="skills/helix/SKILL.md"
 SRC_CATALOG="workflows/activities"
+SRC_VOICE="workflows/voice.yml"
 SRC_LIBRARY="library"
 
 if [[ ! -f "$SRC_SKILL" ]]; then
@@ -33,6 +34,10 @@ if [[ ! -f "$SRC_SKILL" ]]; then
 fi
 if [[ ! -d "$SRC_CATALOG" ]]; then
   echo "error: $SRC_CATALOG not found" >&2
+  exit 3
+fi
+if [[ ! -f "$SRC_VOICE" ]]; then
+  echo "error: $SRC_VOICE not found" >&2
   exit 3
 fi
 if [[ ! -d "$SRC_LIBRARY" ]]; then
@@ -86,6 +91,9 @@ echo "✓ copied SKILL.md → $OUT_DIR/SKILL.md"
 cp -r "$SRC_CATALOG" "$OUT_DIR/references/activities"
 echo "✓ copied $SRC_CATALOG → $OUT_DIR/references/activities/"
 
+cp "$SRC_VOICE" "$OUT_DIR/references/voice.yml"
+echo "✓ copied $SRC_VOICE → $OUT_DIR/references/voice.yml"
+
 cp -r "$SRC_LIBRARY" "$OUT_DIR/library"
 echo "✓ copied $SRC_LIBRARY → $OUT_DIR/library/"
 
@@ -99,6 +107,10 @@ fi
 if [[ -f workflows/graph.yml ]]; then
   cp workflows/graph.yml "$OUT_DIR/workflows/graph.yml"
   echo "✓ copied workflows/graph.yml → $OUT_DIR/workflows/graph.yml"
+fi
+if [[ -f "$SRC_VOICE" ]]; then
+  cp "$SRC_VOICE" "$OUT_DIR/workflows/voice.yml"
+  echo "✓ copied $SRC_VOICE → $OUT_DIR/workflows/voice.yml"
 fi
 
 # Report what we built.

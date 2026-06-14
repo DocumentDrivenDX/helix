@@ -6,6 +6,8 @@ artifact:
   type: register
   activity: frame
 
+voice: artifact-signal
+
 description: |
   Action register for uncertain events that could change project outcome,
   scored with probability, impact, owner, trigger, response, and review cadence.

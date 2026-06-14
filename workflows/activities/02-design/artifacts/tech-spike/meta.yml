@@ -7,6 +7,8 @@ artifact:
   activity: design
   optional: true
 
+voice: artifact-signal
+
 description: |
   Time-boxed investigation that answers one technical question with evidence
   before implementation.

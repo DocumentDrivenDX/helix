@@ -4,6 +4,8 @@ artifact:
   type: document
   activity: test
 
+voice: artifact-signal
+
 description: |
   Repeatable operator procedures for running planned tests, capturing evidence,
   and applying pass/fail rules consistently.

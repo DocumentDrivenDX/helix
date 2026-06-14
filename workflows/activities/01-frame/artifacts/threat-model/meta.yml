@@ -6,6 +6,8 @@ artifact:
   type: document
   activity: frame
 
+voice: artifact-signal
+
 description: |
   Structured analysis of assets, data flows, trust boundaries, STRIDE threats,
   risk, mitigations, owners, and verification hooks.

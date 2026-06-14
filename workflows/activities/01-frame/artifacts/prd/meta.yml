@@ -6,6 +6,8 @@ artifact:
   type: document
   activity: frame
 
+voice: artifact-signal
+
 description: |
   Product-scope authority document that translates vision into prioritized,
   measurable requirements, success metrics, non-goals, assumptions, and

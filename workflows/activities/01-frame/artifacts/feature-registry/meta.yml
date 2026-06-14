@@ -6,6 +6,8 @@ artifact:
   type: registry
   activity: frame
 
+voice: artifact-signal
+
 description: |
   Compact source of truth for feature IDs, names, status, priority, owner,
   dependencies, and artifact trace links.

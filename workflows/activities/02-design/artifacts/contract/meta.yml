@@ -5,6 +5,8 @@ artifact:
   activity: design
   level: interface
 
+voice: artifact-signal
+
 description: |
   Normative interface and schema contract that another team can implement
   against directly, including API, CLI, protocol, event, and data contracts.

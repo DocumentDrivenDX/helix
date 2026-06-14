@@ -7,6 +7,8 @@ artifact:
   activity: test
   level: story
 
+voice: artifact-signal
+
 id_format:
   prefix: STP
   pattern: "STP-[0-9]{3}"

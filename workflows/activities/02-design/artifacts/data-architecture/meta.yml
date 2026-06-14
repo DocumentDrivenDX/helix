@@ -6,6 +6,8 @@ artifact:
   type: document
   activity: design
 
+voice: artifact-signal
+
 description: |
   Captures the data pipeline architecture, medallion topology, streaming vs batch
   semantics, processing frameworks, governance model, and quality contracts. The

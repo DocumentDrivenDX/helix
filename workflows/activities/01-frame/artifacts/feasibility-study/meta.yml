@@ -7,6 +7,8 @@ artifact:
   activity: frame
   optional: true
 
+voice: artifact-signal
+
 description: |
   Pre-commitment viability assessment across technical, business, operational,
   resource, schedule, compliance, risk, and alternative dimensions.

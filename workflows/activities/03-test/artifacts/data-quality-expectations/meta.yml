@@ -6,6 +6,8 @@ artifact:
   type: document
   activity: test
 
+voice: artifact-signal
+
 description: |
   Defines quality contracts as testable predicates on data shape, completeness,
   timeliness, and correctness before implementation begins. Data quality

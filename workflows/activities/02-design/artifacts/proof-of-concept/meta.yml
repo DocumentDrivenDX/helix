@@ -7,6 +7,8 @@ artifact:
   activity: design
   optional: true
 
+voice: artifact-signal
+
 description: |
   Minimal working implementation that validates a risky technical concept
   end-to-end before production design or build commitment.

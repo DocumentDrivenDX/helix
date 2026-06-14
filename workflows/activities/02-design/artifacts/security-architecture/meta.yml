@@ -4,6 +4,8 @@ artifact:
   type: document
   activity: design
 
+voice: artifact-signal
+
 description: |
   Design-level security architecture that maps trust boundaries, controls,
   and security decisions to implementation and testing.

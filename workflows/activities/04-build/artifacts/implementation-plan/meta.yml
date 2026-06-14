@@ -4,6 +4,8 @@ artifact:
   type: document
   activity: build
 
+voice: artifact-signal
+
 description: |
   Build-activity plan that decomposes approved design into implementation slices,
   sequencing, ownership, validation gates, and evidence expectations. It turns

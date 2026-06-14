@@ -7,6 +7,8 @@ artifact:
   activity: frame
   optional: true
 
+voice: artifact-signal
+
 description: |
   Time-boxed plan for answering specific uncertainty before requirements,
   design, or investment decisions harden.

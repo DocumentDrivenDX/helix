@@ -6,6 +6,8 @@ artifact:
   type: registry
   activity: frame
 
+voice: artifact-signal
+
 description: |
   Registry for deferred or future work that should remain visible but outside
   current scope until a specific revisit trigger is met.

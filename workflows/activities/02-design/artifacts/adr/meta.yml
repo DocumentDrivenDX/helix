@@ -7,6 +7,8 @@ artifact:
   activity: design
   level: project
 
+voice: artifact-signal
+
 id_format:
   prefix: ADR
   pattern: "ADR-[0-9]{3}"

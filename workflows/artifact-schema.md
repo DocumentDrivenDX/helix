@@ -61,6 +61,7 @@ workflows/activities/02-design/artifacts/adr/meta.yml
 | --- | --- | --- |
 | `artifact.level` | string | Granularity tier the artifact targets, such as `project`, `feature`, `story`, or `interface`. Use when the type can exist at multiple levels of the artifact hierarchy. |
 | `artifact.optional` | boolean | Whether the artifact type is conditional rather than generally expected in its activity. Omit or set `false` for normal activity artifacts. |
+| `voice` | string or mapping | Voice profile for generated and reviewed instances of this artifact type. Omit to inherit `artifact-signal` from `workflows/voice.yml`; use a string for a direct profile reference or a mapping when the type needs a primary profile plus bounded overrides. |
 | `output.naming` | string | Naming pattern for an instance, such as `prd.md`, `FEAT-{number}-{title}.md`, or `ADR-{number}-{title}.md`. |
 | `output.examples` | list | Example filenames demonstrating the naming pattern. |
 | `id_format` | mapping | Identifier shape for instances of this type. See [Instance ID format](#instance-id-format-id_format) below. |
@@ -106,6 +107,54 @@ instance IDs are shaped:
 
 Singleton artifact types (one instance per project) may omit `id_format`
 because their `ddx.id` is fixed (for example `helix.product-vision`).
+
+### Voice profile (`voice`)
+
+HELIX artifact types may declare the voice profile that authoring,
+validation, refresh, and optional prose-review tools should apply. The
+canonical profile registry lives at:
+
+```text
+workflows/voice.yml
+```
+
+If `voice` is omitted from a `meta.yml`, consumers must apply the registry's
+`default_profile`, currently `artifact-signal`. This default is intentional:
+HELIX artifacts are durable signal shared by humans and LLMs, not public
+marketing copy and not runtime execution state.
+
+Use a direct string when the whole artifact type uses one profile:
+
+```yaml
+voice: artifact-signal
+```
+
+Use a mapping when the artifact type has a primary profile and bounded
+section-level overrides:
+
+```yaml
+voice:
+  profile: artifact-signal
+  overrides:
+    press_release: public-site
+    generated_context: machine-facts
+```
+
+Consumers must ignore unknown mapping keys and preserve them when rewriting
+metadata. They must treat unknown profile references as validation failures
+because an unknown profile changes authoring behavior.
+
+The standard profiles are:
+
+| Profile | Conciseness | Intended use |
+| --- | ---: | --- |
+| `machine-facts` | 1/10 | Extracted facts, context digests, generated indexes, and other machine-facing state. |
+| `artifact-signal` | 2/10 | HELIX artifacts, templates, prompts, metadata, alignment reports, and validation reports. |
+| `public-site` | 3/10 | Microsite pages, public demos, generated public introductions, and catalog summaries for novice readers. |
+
+Sloptimizer and other prose tools may consume these profiles when installed,
+but HELIX does not require them. The profile is methodology data; optional
+tools are enforcement or rewrite engines.
 
 ### Dependency entries
 

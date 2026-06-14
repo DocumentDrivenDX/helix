@@ -30,9 +30,11 @@ When conventions and execution guidance disagree, follow:
 
 ## Documentation Voice
 
-HELIX documentation is written for humans and agents that need to preserve
-context while making decisions. The voice is precise, economical, and
-mechanism-first.
+HELIX documentation uses the canonical profiles in [voice.yml](voice.yml).
+Artifact authoring defaults to `artifact-signal`: conciseness 2/10, written for
+humans and agents that need to preserve context while making decisions. Public
+website copy uses `public-site`: conciseness 3/10, written for smart novice
+readers. Machine-facing extracted state uses `machine-facts`: conciseness 1/10.
 
 Use tight vocabulary:
 
@@ -54,9 +56,9 @@ Use tight vocabulary:
   it.
 
 Artifact prompts may add type-specific style rules, but they must preserve this
-contract. Public website prose may add stricter editorial rules; it must not
-weaken the methodology-level requirement for precise vocabulary and scoped
-claims.
+contract. Public website prose may add stricter editorial rules through the
+`public-site` profile; it must not weaken the methodology-level requirement for
+precise vocabulary and scoped claims.
 
 ## Skill Resource Boundary
 

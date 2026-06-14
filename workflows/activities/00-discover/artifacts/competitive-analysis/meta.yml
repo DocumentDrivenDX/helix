@@ -6,6 +6,8 @@ artifact:
   type: document
   activity: discover
 
+voice: artifact-signal
+
 description: |
   Market landscape and positioning analysis. Identifies direct rivals,
   substitutes, competitive pressure, and defensible differentiation.

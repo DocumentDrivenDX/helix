@@ -6,6 +6,8 @@ artifact:
   type: document
   activity: discover
 
+voice: artifact-signal
+
 description: |
   Discover synthesis gate for problem, customer, value, solution concept,
   metrics, advantage, and go/no-go readiness.
