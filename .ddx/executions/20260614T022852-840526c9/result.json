@@ -1,0 +1,59 @@
+{
+  "bead_id": "helix-e29bdb52",
+  "attempt_id": "20260614T022852-840526c9",
+  "base_rev": "207219316b82b340253f85a9da18e65e2cada9db",
+  "result_rev": "8dfd1d1cda5a00065a78546c2fe8b74c6b28bdae",
+  "implementation_rev": "8dfd1d1cda5a00065a78546c2fe8b74c6b28bdae",
+  "landed_rev": "8dfd1d1cda5a00065a78546c2fe8b74c6b28bdae",
+  "landed_branch": "main",
+  "outcome": "merged",
+  "status": "success",
+  "detail": "success",
+  "orchestrator_status": "success",
+  "candidate_ref": "refs/ddx/iterations/20260614T022852-840526c9/0",
+  "cycle_trace": [
+    {
+      "cycle_index": 0,
+      "attempt_id": "20260614T022852-840526c9",
+      "result_rev": "8dfd1d1cda5a00065a78546c2fe8b74c6b28bdae",
+      "implementer_route": {
+        "harness": "claude",
+        "model": "sonnet"
+      },
+      "requested_route": {
+        "harness": "claude",
+        "model": "sonnet"
+      },
+      "actual_route": {
+        "harness": "claude",
+        "model": "sonnet"
+      },
+      "review_result": {},
+      "final_decision": "success",
+      "failure_class": "none",
+      "retry_action": "close",
+      "escalation_count": 0,
+      "review_status": "skipped",
+      "review_skip_reason": "review_not_configured",
+      "review_classification": "review_skipped",
+      "land_status": "landed",
+      "reconcile_status": "not_applicable"
+    }
+  ],
+  "harness": "claude",
+  "model": "sonnet",
+  "session_id": "eb-b2061d57",
+  "duration_ms": 508377,
+  "tokens": 27361,
+  "cost_usd": 1.6624572999999998,
+  "exit_code": 0,
+  "project_root": "/Users/erik/Projects/helix",
+  "execution_dir": ".ddx/executions/20260614T022852-840526c9",
+  "prompt_file": ".ddx/executions/20260614T022852-840526c9/prompt.md",
+  "manifest_file": ".ddx/executions/20260614T022852-840526c9/manifest.json",
+  "result_file": ".ddx/executions/20260614T022852-840526c9/result.json",
+  "usage_file": ".ddx/executions/20260614T022852-840526c9/usage.json",
+  "rate_limit_budget": 300000000000,
+  "started_at": "2026-06-14T02:28:53.474214233Z",
+  "finished_at": "2026-06-14T02:37:21.851817025Z"
+}
