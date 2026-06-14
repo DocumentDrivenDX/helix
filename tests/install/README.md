@@ -33,12 +33,12 @@ captures screencasts via `vhs`. Required env vars (per
 | `GH_TOKEN` | copilot-cli | must have Copilot license attached |
 | `DATABRICKS_HOST` | genie | workspace URL |
 | `DATABRICKS_TOKEN` | genie | PAT or OAuth |
-| `TEST_FUNCTIONAL` | all (gated) | set to `1` to enable LLM-based checks |
+| `TEST_FUNCTIONAL` | plugin CLI scenarios (gated) | set to `1` to enable LLM-based checks |
 | `TEST_GENIE` | genie | set to `1` to require Genie scenario to run |
 
-DDx requires no credentials. Published DDx install smoke skips, with an
-explicit reason, while the current DDx installer still requires the retired
-`scripts/helix` checkout CLI.
+Published smoke uses marketplace and plugin install paths. It does not exercise
+the legacy `ddx install helix` path; HELIX releases as plugin metadata,
+artifact templates, and the routing skill.
 On published-release smoke runs, missing runtime credentials skip only the
 credentialed functional probes; static install and layout checks still run.
 
@@ -60,7 +60,6 @@ credentialed functional probes; static install and layout checks still run.
 
 | Scenario | Auth | Headless? |
 |---|---|---|
-| `ddx/` | none | yes |
 | `claude-code/` | ANTHROPIC_API_KEY | yes (claude -p) |
 | `codex-cli/` | OPENAI_API_KEY | yes (codex exec --ephemeral) |
 | `copilot-cli/` | GH_TOKEN + Copilot license | yes (gh copilot suggest) |

@@ -24,8 +24,10 @@ if command -v vhs >/dev/null 2>&1; then VHS=1; fi
 DOCKER=""
 if command -v docker >/dev/null 2>&1; then DOCKER=1; fi
 
-# Terminal scenarios (Docker-based)
-TERMINAL_SCENARIOS=(ddx claude-code codex-cli copilot-cli)
+# Terminal scenarios (Docker-based). Published smoke covers the supported
+# marketplace/plugin install surfaces; DDx's legacy `ddx install helix` path is
+# intentionally not part of the release gate.
+TERMINAL_SCENARIOS=(claude-code codex-cli copilot-cli)
 
 failed=0
 
