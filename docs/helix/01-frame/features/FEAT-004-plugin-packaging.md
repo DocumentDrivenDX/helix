@@ -5,11 +5,11 @@ ddx:
     - helix.prd
     - FEAT-002
   review:
-    self_hash: 4c167348ecc29309e3af200b7274f449629bca54615d66ffb87d6d15d05bf25d
+    self_hash: 47becbfdcc27c6c7cda3ea4c9f2edd049f313c4fa2063325f6dc6816129cdc82
     deps:
-      FEAT-002: dc83e91027c886f1df2636d7bde0c9b0ba10d5e0a5ca560f0b44aaf9bcf4f4c6
-      helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
-    reviewed_at: "2026-05-15T04:11:24Z"
+      FEAT-002: a423a845f2d8f6dcdbc1d0536b9ce733ca42d7adaef32c06683a59aac96b7912
+      helix.prd: e11b46de6300cc84460245fcfd6739210ce38406a76f90e32d26685938302eb1
+    reviewed_at: "2026-06-14T02:49:03Z"
 ---
 # Feature Specification: FEAT-004 - Plugin Packaging
 
@@ -35,7 +35,7 @@ plugin manifest — no manual installer step required.
 
 - **Current situation**: `install-local-skills.sh` symlinks each skill into
   `~/.claude/skills/` and `~/.agents/skills/`, and installs a CLI launcher
-  into `~/.local/the HELIX skill`. Adding a new skill (e.g., `helix-worker`) has no
+  into `~/.local/bin`. Adding a new skill has no
   effect until the installer is re-run. Users hit "Unknown skill" errors with
   no indication that a reinstall is needed.
 - **Pain points**:
@@ -61,12 +61,9 @@ The HELIX repo root *is* the plugin root. No separate build or copy step:
 helix/                              # plugin root
 ├── .claude-plugin/
 │   └── plugin.json                 # manifest
-├── skills/                         # 17+ skills, auto-discovered
-│   ├── the HELIX skill/
-│   │   └── SKILL.md
-│   ├── helix-worker/
-│   │   └── SKILL.md
-│   └── ...
+├── skills/                         # single public skill, auto-discovered
+│   └── helix/
+│       └── SKILL.md
 ├── workflows/                      # shared resource library
 │   ├── actions/
 │   ├── EXECUTION.md
@@ -102,7 +99,7 @@ helix/                              # plugin root
 
 Key decisions:
 - `skills` points to the existing `skills/` directory — no move needed.
-- `the HELIX skill` is a thin wrapper that invokes `${CLAUDE_PLUGIN_ROOT}/the HELIX skill`.
+- The `helix` skill (`skills/helix/SKILL.md`) is discovered automatically.
   The plugin loader adds `bin/` to `PATH` automatically.
 - Skills reference shared resources via `${CLAUDE_PLUGIN_ROOT}/workflows/`.
 - No `commands/` directory — HELIX uses skills exclusively.
@@ -142,9 +139,9 @@ The installer should:
 
 ### Skill namespacing
 
-When installed as a plugin, skills are namespaced: `/helix:the HELIX skill`,
-`/helix:helix-worker`, etc. The unqualified names (`/the HELIX skill`) continue to
-work when no other plugin provides a conflicting skill name.
+When installed as a plugin, the skill is namespaced as `/helix:helix`. The
+unqualified name (`/helix`) continues to work when no other plugin provides
+a conflicting skill name.
 
 ## Requirements
 

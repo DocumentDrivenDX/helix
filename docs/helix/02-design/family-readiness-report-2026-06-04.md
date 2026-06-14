@@ -13,6 +13,11 @@ plan, and a runner for the helix-family architecture. No HELIX tree
 reorganisation happened in this workflow. The actual monorepo move is the
 next user-approved workflow run.
 
+> **Supersession note (2026-06-14):** This is a historical planning report.
+> The helix-family architecture (helix-library + helix-infra subdirectories
+> in a monorepo) described here was not adopted. The current architecture is
+> a single `helix` plugin. Preserved as a planning record.
+
 ---
 
 ## 1. State summary — what got built

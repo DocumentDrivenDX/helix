@@ -4,6 +4,11 @@ Status: revised post-codex-review, ready to implement
 Author: claude (Opus 4.7)
 Reviewer: codex (gpt-5, 2026-06-03)
 
+> **Supersession note (2026-06-14):** This is a historical plan document.
+> The `helix-infra` sibling repo was not adopted. The current architecture
+> is a single `helix` plugin. Preserved as a record of the IaC methodology
+> design work.
+
 ## Codex-driven revisions applied (summary)
 
 1. `03-apply` → `03-apply-verify`. Verification is an explicit gate inside the
