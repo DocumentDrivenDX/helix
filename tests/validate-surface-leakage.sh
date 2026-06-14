@@ -49,4 +49,36 @@ grep -Fq "td-inline-api.md" "$tmp_output" || {
   exit 1
 }
 
+echo "Checking allowed retired-public-surface fixtures..."
+$validator --retired-public-surfaces \
+  --retired-allow-glob "tests/fixtures/surface-leakage/retired-public/allowed/historical/**" \
+  "$fixtures/retired-public/allowed"
+
+echo "Checking disallowed retired-public-surface fixtures..."
+if $validator --retired-public-surfaces \
+  "$fixtures/retired-public/disallowed" >"$tmp_output" 2>&1; then
+  echo "FAIL: disallowed retired public surface fixtures should produce RETIRED_PUBLIC_SURFACE findings" >&2
+  exit 1
+fi
+
+grep -Fq "RETIRED_PUBLIC_SURFACE" "$tmp_output" || {
+  echo "FAIL: retired public surface validator did not emit RETIRED_PUBLIC_SURFACE findings" >&2
+  cat "$tmp_output" >&2
+  exit 1
+}
+
+for fixture in env-routing.md sibling-skill.md scope-selector.md missing-script.md spec-status.md; do
+  grep -Fq "$fixture" "$tmp_output" || {
+    echo "FAIL: retired public surface fixture was not reported: $fixture" >&2
+    cat "$tmp_output" >&2
+    exit 1
+  }
+done
+
+grep -Fq "SURFACE_LEAK" "$tmp_output" && {
+  echo "FAIL: retired public surface failures must not use SURFACE_LEAK class" >&2
+  cat "$tmp_output" >&2
+  exit 1
+}
+
 echo "OK: surface-leakage validator fixtures pass"

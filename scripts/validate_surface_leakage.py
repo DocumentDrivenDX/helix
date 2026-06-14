@@ -10,6 +10,7 @@ adapter signatures belong in Contract artifacts.
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import json
 import re
 import sys
@@ -45,6 +46,33 @@ class Finding:
             "rule": self.rule,
             "text": self.text,
             "suggested_destination": self.destination,
+        }
+
+
+@dataclass(frozen=True)
+class RetiredSurfaceRule:
+    name: str
+    regex: re.Pattern[str]
+    description: str
+    replacement: str
+
+
+@dataclass
+class RetiredSurfaceFinding:
+    path: Path
+    line: int
+    rule: str
+    text: str
+    replacement: str
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "class": "RETIRED_PUBLIC_SURFACE",
+            "path": str(self.path),
+            "line": self.line,
+            "rule": self.rule,
+            "text": self.text,
+            "replacement": self.replacement,
         }
 
 
@@ -87,6 +115,48 @@ RULES: tuple[PatternRule, ...] = (
 )
 
 
+RETIRED_SURFACE_RULES: tuple[RetiredSurfaceRule, ...] = (
+    RetiredSurfaceRule(
+        "helix_env_routing",
+        re.compile(r"\bHELIX_(?:FLOW|METHODOLOGY)\b"),
+        "Retired environment-variable routing surface",
+        "Put flow scope in marker files and artifacts; do not route HELIX with env vars.",
+    ),
+    RetiredSurfaceRule(
+        "public_sibling_skill",
+        re.compile(
+            r"\b(?:helix-(?:data|infra|web))\b[^\n]{0,80}\b(?:skill|plugin|methodolog(?:y|ies)|flow)\b"
+            r"|\b(?:skill|plugin|methodolog(?:y|ies)|flow)\b[^\n]{0,80}\b(?:helix-(?:data|infra|web))\b",
+            re.IGNORECASE,
+        ),
+        "Retired public sibling HELIX skill/flow claim",
+        "Describe one public `helix` skill with internal flows or domain lanes.",
+    ),
+    RetiredSurfaceRule(
+        "helix_scope_selector",
+        re.compile(r"(?<![:\w/])\/helix:[A-Za-z0-9_.-]+\b"),
+        "Retired public /helix:<scope> selector",
+        "Use `/helix <mode>` and describe scope in project artifacts.",
+    ),
+    RetiredSurfaceRule(
+        "missing_checkout_script",
+        re.compile(r"(?<![\w/])scripts/helix(?:\b|[./-])"),
+        "Retired checkout script reference",
+        "HELIX ships documents, templates, and one skill; runtime CLIs own execution.",
+    ),
+    RetiredSurfaceRule(
+        "spec_tracks_implementation_status",
+        re.compile(
+            r"\b(?:spec|specification|artifact)s?\b[^\n]{0,100}\bimplementation status\b"
+            r"|\bimplementation status\b[^\n]{0,100}\b(?:spec|specification|artifact)s?\b",
+            re.IGNORECASE,
+        ),
+        "Specification-as-implementation-status wording",
+        "Specifications capture intent; gaps and implementation state belong in plans, beads, reports, or evaluations.",
+    ),
+)
+
+
 SCAN_SECTIONS: dict[str, set[str]] = {
     "prd": {"functional requirements"},
     "feature-specification": {
@@ -115,6 +185,17 @@ def iter_markdown_paths(paths: list[Path]) -> list[Path]:
         if path.is_dir():
             found.extend(sorted(p for p in path.rglob("*.md") if p.is_file()))
         elif path.is_file() and path.suffix.lower() in {".md", ".mdx"}:
+            found.append(path)
+    return found
+
+
+def iter_text_paths(paths: list[Path]) -> list[Path]:
+    suffixes = {".md", ".mdx", ".yml", ".yaml", ".jsonl", ".txt"}
+    found: list[Path] = []
+    for path in paths:
+        if path.is_dir():
+            found.extend(sorted(p for p in path.rglob("*") if p.is_file() and p.suffix.lower() in suffixes))
+        elif path.is_file() and path.suffix.lower() in suffixes:
             found.append(path)
     return found
 
@@ -197,11 +278,91 @@ def validate_file(path: Path) -> list[Finding]:
     return findings
 
 
+def is_inline_retired_allowlisted(lines: list[str], index: int) -> bool:
+    start = max(0, index - 3)
+    window = "\n".join(lines[start : index + 1]).lower()
+    return "retired-public-surface: allow" in window
+
+
+def is_path_allowlisted(path: Path, patterns: list[str]) -> bool:
+    rel = str(path)
+    try:
+        rel = str(path.relative_to(REPO_ROOT))
+    except ValueError:
+        pass
+    return any(fnmatch.fnmatch(rel, pattern) for pattern in patterns)
+
+
+def validate_retired_public_surfaces(
+    path: Path,
+    path_allowlist: list[str],
+) -> list[RetiredSurfaceFinding]:
+    if is_path_allowlisted(path, path_allowlist):
+        return []
+
+    text = path.read_text(encoding="utf-8")
+    lines = text.splitlines()
+    findings: list[RetiredSurfaceFinding] = []
+
+    for index, line in enumerate(lines, start=1):
+        if is_inline_retired_allowlisted(lines, index - 1):
+            continue
+        for rule in RETIRED_SURFACE_RULES:
+            if rule.regex.search(line):
+                findings.append(
+                    RetiredSurfaceFinding(
+                        path=path,
+                        line=index,
+                        rule=rule.name,
+                        text=line.strip(),
+                        replacement=rule.replacement,
+                    )
+                )
+                break
+    return findings
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("paths", nargs="+", type=Path, help="Markdown files or directories to scan")
     parser.add_argument("--json", action="store_true", help="Emit findings as JSON")
+    parser.add_argument(
+        "--retired-public-surfaces",
+        action="store_true",
+        help="Scan for retired HELIX public surfaces instead of Contract surface leakage",
+    )
+    parser.add_argument(
+        "--retired-allow-glob",
+        action="append",
+        default=[],
+        help="Glob, relative to repo root, allowed to contain retired public-surface text",
+    )
     args = parser.parse_args()
+
+    if args.retired_public_surfaces:
+        retired_findings: list[RetiredSurfaceFinding] = []
+        for path in iter_text_paths(args.paths):
+            retired_findings.extend(
+                validate_retired_public_surfaces(path, args.retired_allow_glob)
+            )
+
+        if args.json:
+            print(json.dumps([finding.to_dict() for finding in retired_findings], indent=2))
+        elif retired_findings:
+            for finding in retired_findings:
+                rel = finding.path
+                try:
+                    rel = finding.path.relative_to(REPO_ROOT)
+                except ValueError:
+                    pass
+                print(
+                    f"RETIRED_PUBLIC_SURFACE {rel}:{finding.line} "
+                    f"rule={finding.rule} -> {finding.replacement}: {finding.text}"
+                )
+        else:
+            print("OK: no retired public HELIX surfaces detected")
+
+        return 1 if retired_findings else 0
 
     findings: list[Finding] = []
     for path in iter_markdown_paths(args.paths):
