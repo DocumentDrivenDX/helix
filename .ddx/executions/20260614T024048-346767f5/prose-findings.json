@@ -1,0 +1,8 @@
+{
+  "ran": true,
+  "changed_docs": [
+    "docs/helix/01-frame/features/FEAT-004-plugin-packaging.md",
+    "docs/helix/02-design/family-readiness-report-2026-06-04.md",
+    "docs/helix/02-design/plan-2026-06-03-helix-infra-sibling.md"
+  ]
+}
