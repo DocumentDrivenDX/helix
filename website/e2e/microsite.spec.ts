@@ -183,11 +183,11 @@ test.describe('Use HELIX', () => {
   test('Multiple flows page explains microsite scope without sibling public skills', async ({
     page,
   }) => {
-    await page.goto('/use/multiple-flows/')
+    await page.goto('/use/multiple-flows/', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { name: 'Multiple Flows and Microsites' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Microsite-docs Template' })).toBeVisible()
     await expect(article(page).locator('pre').getByText('kind: helix')).toHaveCount(2)
-    await expect(article(page).getByText('They are not separate public')).toBeVisible()
+    await expect(article(page).getByText('They are not separate domain-specific skills')).toBeVisible()
   })
 })
 
