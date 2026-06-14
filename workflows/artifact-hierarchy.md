@@ -4,12 +4,12 @@ ddx:
   depends_on:
     - helix.workflow
   review:
-    self_hash: dc0881cdb1498e25bf976cd29b4c6d74981a8345ff8178d7f8a34be44e1216c8
+    self_hash: 3069096975c6d508c64b8c17197cd9ae2885e77f128a83a859e69c05ec11c267
     deps:
       ADR-001: 7378dcbdafe49a66a57caba05271b1697f977dd4a9904e299ade220c092c62b3
-      helix.prd: 2b22383538b33c6ecee57f43d85128dfef7d56254766b757aa36439e35f2bfc9
-      helix.workflow: 1b6caaf3ebc6950bc4fff314e09bc0ee1b71deaa9223a4a70a13f399291ad98c
-    reviewed_at: "2026-05-26T03:19:52Z"
+      helix.prd: e11b46de6300cc84460245fcfd6739210ce38406a76f90e32d26685938302eb1
+      helix.workflow: 24bc127a783c568be4813f8a7665c82abc04056dd94718eda32a51fa9191b543
+    reviewed_at: "2026-06-14T03:20:37Z"
 ---
 # HELIX Artifact Hierarchy and Naming Conventions
 

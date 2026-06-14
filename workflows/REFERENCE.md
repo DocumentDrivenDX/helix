@@ -4,10 +4,10 @@ ddx:
   depends_on:
     - helix.workflow
   review:
-    self_hash: f3d64df6fcff492e40828af0363a9db3efaddb5b499ba8373df8b67435b933f7
+    self_hash: 20f2847c5757003f2acbd195e28e166f8a53c6f18258b44544fd4b285bdf917a
     deps:
-      helix.workflow: 1b6caaf3ebc6950bc4fff314e09bc0ee1b71deaa9223a4a70a13f399291ad98c
-    reviewed_at: "2026-05-26T03:19:52Z"
+      helix.workflow: 24bc127a783c568be4813f8a7665c82abc04056dd94718eda32a51fa9191b543
+    reviewed_at: "2026-06-14T03:20:37Z"
 ---
 # HELIX Quick Reference Card
 

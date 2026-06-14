@@ -6,8 +6,8 @@ ddx:
   review:
     self_hash: 2a9c7544929c1d7cf2707b447723a5d17261cd52ca1a6dfabcb3b22f9ae6b0f4
     deps:
-      helix.workflow: 1b6caaf3ebc6950bc4fff314e09bc0ee1b71deaa9223a4a70a13f399291ad98c
-    reviewed_at: "2026-05-26T17:17:30Z"
+      helix.workflow: 24bc127a783c568be4813f8a7665c82abc04056dd94718eda32a51fa9191b543
+    reviewed_at: "2026-06-14T03:20:37Z"
 ---
 # HELIX Design Principles
 

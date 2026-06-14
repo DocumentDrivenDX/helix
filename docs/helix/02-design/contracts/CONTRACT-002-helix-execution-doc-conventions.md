@@ -4,8 +4,8 @@ ddx:
   review:
     self_hash: d4de625233449d6d880fdad497c72871454f6e4b97a966a53dba03ab84bffaa6
     deps:
-      FEAT-011: 54985eab09e08024445cf798bdbb77d58b61e6cd88cb00eacf6998feb3a03a9e
-    reviewed_at: "2026-05-24T23:26:16Z"
+      FEAT-011: 905c11d3cfbeb7ad9563d300562b3cf4757ad5726d51a2fcbb78a472b01c4a3f
+    reviewed_at: "2026-06-14T03:20:37Z"
 ---
 
 # CONTRACT-002: HELIX Execution-Document Conventions

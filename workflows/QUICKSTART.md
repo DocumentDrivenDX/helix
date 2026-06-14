@@ -4,10 +4,10 @@ ddx:
   depends_on:
     - helix.workflow
   review:
-    self_hash: ed890bff9d7718cc5d832b2024f1e7d7c01028c62ee62dbe3718634db566d26e
+    self_hash: 5f973ce25b38cdc8ece5d3e45feb061bc9c4214c6bb2da9b95a03966e1cd44ac
     deps:
-      helix.workflow: 1b6caaf3ebc6950bc4fff314e09bc0ee1b71deaa9223a4a70a13f399291ad98c
-    reviewed_at: "2026-05-26T03:19:52Z"
+      helix.workflow: 24bc127a783c568be4813f8a7665c82abc04056dd94718eda32a51fa9191b543
+    reviewed_at: "2026-06-14T03:20:37Z"
 ---
 # HELIX Workflow Quick Start Guide
 

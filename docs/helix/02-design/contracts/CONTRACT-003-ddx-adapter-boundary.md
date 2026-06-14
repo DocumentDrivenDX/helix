@@ -10,10 +10,10 @@ ddx:
   review:
     self_hash: 7c2fb59f847a930555679eed989233d20f23fe0896bcd50761bbeb4d77352010
     deps:
-      CONTRACT-001: 263a61a4b28fceb6a360b389ca779521becf8d2d26bc2bdb29da0f7cdf0ad839
+      CONTRACT-001: dc76185009f91bf32c34a6d4480d655c97ff6bcc2dea91b0b6d3778363d922c4
       CONTRACT-002: d4de625233449d6d880fdad497c72871454f6e4b97a966a53dba03ab84bffaa6
-      helix.prd: 2b22383538b33c6ecee57f43d85128dfef7d56254766b757aa36439e35f2bfc9
-    reviewed_at: "2026-05-26T03:25:18Z"
+      helix.prd: e11b46de6300cc84460245fcfd6739210ce38406a76f90e32d26685938302eb1
+    reviewed_at: "2026-06-14T03:20:37Z"
 ---
 
 # CONTRACT-003: DDx Adapter Boundary

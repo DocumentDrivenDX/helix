@@ -5,11 +5,11 @@ ddx:
     - helix.prd
     - helix.product-vision
   review:
-    self_hash: 63b4bf567663fa5d7f4d61531ac1dd51c16cfd1002e51459746c7b874b0fc1da
+    self_hash: 23db2c830aa9a8cabe8d7b6701b4da13bbe04bc979a9c0dc24900f1de2093cf2
     deps:
-      helix.prd: 703d5ebaa378d037fd5ff6cbdf43e015ee014ca6a29b5df0b4c67ba9b117a510
-      helix.product-vision: 79d80961a61599087606ddda314e16409a244db23581fbd2eecd3b66353cebf9
-    reviewed_at: "2026-05-15T04:11:24Z"
+      helix.prd: e11b46de6300cc84460245fcfd6739210ce38406a76f90e32d26685938302eb1
+      helix.product-vision: 13555b55d11d13ad2c01657a4f3b9c421867ca9f41dfb575c829ecb7c0990164
+    reviewed_at: "2026-06-14T03:20:37Z"
 ---
 # Project Principles
 

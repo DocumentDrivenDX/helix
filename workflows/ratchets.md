@@ -7,9 +7,9 @@ ddx:
   review:
     self_hash: 9cafde017be3c506e7014f701e0f6bd9e2ea52c91f729a02b37868a370638541
     deps:
-      helix.workflow: e318cf16a8bd1d1b48e5dad0c9c8cedc9b9b6e14940b9788f9ad405ce2e35f56
-      helix.workflow.principles: b6e5a4f79219e6edf708798b7860d1f22d7ef0e895de42acf66a160d3f586b33
-    reviewed_at: "2026-05-26T02:56:15Z"
+      helix.workflow: 24bc127a783c568be4813f8a7665c82abc04056dd94718eda32a51fa9191b543
+      helix.workflow.principles: 2a9c7544929c1d7cf2707b447723a5d17261cd52ca1a6dfabcb3b22f9ae6b0f4
+    reviewed_at: "2026-06-14T03:20:37Z"
 ---
 # Quality Ratchets
 
