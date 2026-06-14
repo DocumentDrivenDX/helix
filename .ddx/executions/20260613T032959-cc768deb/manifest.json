@@ -1,0 +1,37 @@
+{
+  "attempt_id": "20260613T032959-cc768deb",
+  "bead_id": "helix-e29bdb52",
+  "base_rev": "79d21dd56cc543418197e4088aa8994de7b1a8f6",
+  "created_at": "2026-06-13T03:30:00.911179048Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-e29bdb52",
+    "title": "Supersede stale family marker public-surface claims",
+    "description": "Update docs/helix/02-design/design-2026-06-04-helix-family-marker-and-linkages.md with a surgical supersession note. Preserve useful marker/schema/link material: flows:, instance:, cross_flow_edges:, external_edges, and helix_version strict-link semantics. Retract or mark historical only the sibling public-skill/flow interpretation, HELIX-public env-var routing, HELIX-public CLI interpretations, nonexistent validator/schema references, and current-looking sibling architecture claims. Clarify that runtime-owned --flow/--methodology flags, if present, are not HELIX public product surface. Out of scope: rewriting the whole historical design, changing validators, changing SKILL.md, or turning this dated design into a status tracker.",
+    "acceptance": "1. rg -n \"superseded|historical|architecture.md\" docs/helix/02-design/design-2026-06-04-helix-family-marker-and-linkages.md shows a clear supersession note.\n2. rg -n \"flows:|instance:|cross_flow_edges|helix_version\" docs/helix/02-design/design-2026-06-04-helix-family-marker-and-linkages.md confirms canonical marker material remains.\n3. rg -n \"HELIX_FLOW|HELIX_METHODOLOGY|helix-data|helix-infra|helix-web|/helix:\" docs/helix/02-design/design-2026-06-04-helix-family-marker-and-linkages.md shows only historical/superseded/runtime-owned context.\n4. ddx doc stamp docs/helix/02-design/design-2026-06-04-helix-family-marker-and-linkages.md exits 0 after review.\n5. git diff --check passes.",
+    "parent": "helix-4046d784",
+    "labels": [
+      "helix",
+      "kind:implementation",
+      "phase:build",
+      "plan-2026-06-11-flow-architecture",
+      "area:docs",
+      "area:family-marker"
+    ],
+    "metadata": {
+      "spec-id": "PLAN-2026-06-11-FLOW-ARCHITECTURE"
+    }
+  },
+  "paths": {
+    "dir": ".ddx/executions/20260613T032959-cc768deb",
+    "prompt": ".ddx/executions/20260613T032959-cc768deb/prompt.md",
+    "manifest": ".ddx/executions/20260613T032959-cc768deb/manifest.json",
+    "result": ".ddx/executions/20260613T032959-cc768deb/result.json",
+    "checks": ".ddx/executions/20260613T032959-cc768deb/checks.json",
+    "usage": ".ddx/executions/20260613T032959-cc768deb/usage.json",
+    "worktree": "Users/erik/Projects/.ddx-exec-wt/.execute-bead-wt-helix-e29bdb52-20260613T032959-cc768deb"
+  },
+  "prompt_sha": "7f0baff5490db033d60d91fe8a9a31eda422b038560ab473ed7abe0ca8ff9079"
+}
