@@ -1,3 +1,12 @@
+---
+ddx:
+  id: helix.design-family-marker-linkages
+  review:
+    self_hash: 3d8827c818c248f746908e51f24d6c0f6df1b568e5a91d9d39cd76e63a4e4267
+    deps: {}
+    reviewed_at: "2026-06-14T02:36:35Z"
+---
+
 # HELIX Family: Marker File + Type/Flow/Instance Linkage Relaxation
 
 Status: design (Phase 3 of 6 of the marker+linkage workflow)
@@ -9,11 +18,31 @@ Coupled docs: plan-2026-06-03-helix-library-FINAL.md, implementation-plan-2026-0
 
 ---
 
+> **Supersession note (2026-06-14):** This is a historical design document.
+> The marker schema (`flows:`, `helix_version:`, `cross_flow_edges:`) and the
+> three-layer instance linkage model remain canonical. The following claims are
+> retracted or superseded:
+>
+> - **Sibling flow architecture** — `helix-infra`, `helix-web`, `helix-data`
+>   references throughout this doc are *historical illustrations only*; they are
+>   not shipping public HELIX flows. The current architecture is a single `helix`
+>   flow. See `docs/helix/architecture.md` for the current shape.
+> - **HELIX-public env-var routing** — `HELIX_FLOW` / `HELIX_METHODOLOGY` are
+>   runtime-owned dispatch flags, not HELIX public product surface.
+> - **HELIX-public CLI interpretations** — `/<flow-id>` prefix routing,
+>   `--flow` / `--methodology` flags are runtime-owned; not a HELIX skill
+>   public interface.
+> - **Validator and schema references** — `library/schemas/*.schema.json` and
+>   `library/scripts/helix_check.py` are aspirational design; these files do
+>   not ship in the current codebase.
+
+---
+
 ## §0 Architecture amendment (relative to design-2026-06-03-helix-library-split.md)
 
 ### §0.1 Terminology
 
-This document uses the v2 family terminology: a HELIX flow is what was called a methodology in v1. The marker key `flows:` is canonical; `methodologies:` is accepted via the M020 deprecation alias for one cycle. CLI flag `--flow` is canonical; `--methodology` is a one-cycle alias. Env var `HELIX_FLOW` supersedes `HELIX_METHODOLOGY` (still accepted). See plan-2026-06-05-conversation-bench-and-autonomy.md §11 for the full rename mapping.
+This document uses the v2 family terminology: a HELIX flow is what was called a methodology in v1. The marker key `flows:` is canonical; `methodologies:` is accepted via the M020 deprecation alias for one cycle. CLI flag `--flow` is canonical; `--methodology` is a one-cycle alias. Env var `HELIX_FLOW` supersedes `HELIX_METHODOLOGY` (still accepted). See plan-2026-06-05-conversation-bench-and-autonomy.md §11 for the full rename mapping. _[Runtime-owned: `HELIX_FLOW`, `HELIX_METHODOLOGY`, `--flow`, and `--methodology` are DDx/runtime dispatch mechanisms — not HELIX public product surface; see supersession note above.]_
 
 Two architectural changes land on top of the library/flow split:
 
@@ -34,7 +63,7 @@ Two architectural changes land on top of the library/flow split:
      `prompts`, `template`, `quality_checks`, `section_aliases`). No
      `relationships:`, no `can_link_to:`, no edge information of any
      kind. The Phase 1 inventory confirms this is already the de-facto
-     pattern (most types have empty `relationships:`; helix-infra types
+     pattern (most types have empty `relationships:`; helix-infra types (historical illustration)
      declare none at all).
    - **Flow `graph.yml`** declares which TYPE-PAIR edges are
      allowed in this flow, with edge kind and per-pair
@@ -165,7 +194,7 @@ When the marker lists 2+ flows, the skill chooses one per
 invocation:
 
 1. Explicit `/<flow-id> <verb>` prefix wins.
-2. `HELIX_FLOW=<id>` env var wins.
+2. `HELIX_FLOW=<id>` env var wins. _(runtime-owned — see supersession note)_
 3. cwd under one flow's `root:` wins.
 4. `defaults.flow:` in the marker wins.
 5. If exactly one flow is listed, it wins.
@@ -184,7 +213,7 @@ flows:
     root: docs/helix/
 ```
 
-**Mixed monorepo (product + infra).**
+**Mixed monorepo (product + infra).** _[Historical illustration — `helix-infra` is not a shipping public flow; see supersession note above.]_
 
 ```yaml
 helix_version: 1
@@ -210,7 +239,7 @@ cross_flow_edges:
       kind: informs
 ```
 
-**Malformed (unknown flow id).**
+**Malformed (unknown flow id).** _[Historical illustration — `helix-infra` in the diagnostic below is not a shipping public flow; see supersession note above.]_
 
 ```yaml
 helix_version: 1
@@ -453,8 +482,8 @@ allowed_cycles:
       06-iterate learnings re-open 01-frame. Each pass is a new walk;
       superseding PRD instances carry `supersedes: [PRD-003]` in frontmatter.
 
-external_edges:
-  - to_flow: helix-infra
+external_edges:  # [historical illustration — helix-infra is not a shipping public flow; see supersession note]
+  - to_flow: helix-infra        # historical illustration — not a shipping public flow
     from_type:      prd
     to_type:        change-intent
     kind:           informs
@@ -479,7 +508,7 @@ runtime-managed. The relaxation is ADDITIVE: a document without
 (traceability degraded, shape still enforced). A migration script (§5)
 proposes `ddx.links:` entries from existing body prose (FEAT/ADR
 "Related" cells, `depends_on` lists already in some frontmatter, paired-with
-prose in helix-infra).
+prose in helix-infra (historical illustration)).
 
 ```yaml
 ---
@@ -499,7 +528,7 @@ ddx:
     - { kind: informs,   to: FEAT-002 }
     - { kind: contains,  to: FR-1, scope: intra-document }
     - { kind: supersedes, to: PRD-001@v0 }
-    - { kind: informs,   to: "helix-infra:CI-2026-06-runtime-boundary",
+    - { kind: informs,   to: "helix-infra:CI-2026-06-runtime-boundary",   # historical illustration
         cross_flow: true }
 ---
 ```
@@ -749,7 +778,7 @@ the cross edge; it only checks that the target flow is in the
 active marker (otherwise warn) and that the target id resolves in the
 target flow's instance index (otherwise warn).
 
-This is intentional asymmetry. If `helix-infra` is silent about being
+This is intentional asymmetry. If `helix-infra` (historical illustration) is silent about being
 informed by `helix:prd`, that's fine — `informs` is advisory. If a
 future flow needs ENFORCED cross-flow prerequisites (hard
 `requires`), it must propose a bilateral mechanism; this design does
@@ -1036,7 +1065,8 @@ upstream/main.
 ### 5.4 Migration
 
 A one-shot script (`library/scripts/migrate_relationships_to_links.py`)
-walks the current `helix` and `helix-infra` repos and:
+walks the current `helix` and `helix-infra` repos (historical — `helix-infra` is
+not a shipping public flow; see supersession note) and:
 
 1. Strips `relationships:` from every `library/types/*/meta.yml` and
    collects the removed edges.
@@ -1044,7 +1074,7 @@ walks the current `helix` and `helix-infra` repos and:
    `graph.yml` `edges:` list with `required: false` (humans tighten
    later).
 3. For each instance with body-prose ID citations (FEAT/ADR "Related"
-   cells, helix-infra "Paired with" prose, frontmatter `depends_on`
+   cells, helix-infra "Paired with" prose (historical illustration), frontmatter `depends_on`
    lists), proposes `ddx.links:` entries as a PR.
 4. Adds a `.helix.yml` skeleton at the repo root.
 
@@ -1103,7 +1133,7 @@ edit any file (signal that the migration PR has not landed yet).
   cheap.
 - **Instance edges resolved by id, not file path.** Bakes a stable id
   scheme into HELIX. Existing instances already have stable
-  `ddx.id` values; helix-infra instances (no frontmatter today) must
+  `ddx.id` values; helix-infra instances (historical illustration; no frontmatter today) must
   acquire `ddx.id` as part of the migration.
 - **`contains:` and `supersedes:` are graph-level edge kinds AND
   instance-level annotations.** Slightly redundant for cases where
