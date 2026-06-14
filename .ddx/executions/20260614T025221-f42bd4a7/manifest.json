@@ -1,0 +1,37 @@
+{
+  "attempt_id": "20260614T025221-f42bd4a7",
+  "bead_id": "helix-b831b88e",
+  "base_rev": "4b50cf1a54e304b5f024105cfc0c6d0331e5133e",
+  "created_at": "2026-06-14T02:52:23.091661185Z",
+  "requested": {
+    "prompt": "synthesized"
+  },
+  "bead": {
+    "id": "helix-b831b88e",
+    "title": "Align user website docs with the single helix flow model",
+    "description": "\u003ccontext-digest\u003e\n\u003cconcerns\u003ehugo-hextra | product-microsite-ia | demo-asciinema | e2e-playwright\u003c/concerns\u003e\n\u003cpractices\u003eDefine the site's target audience and what content they need · Theme version: Hextra v0.12.1 — pinned in website/go.mod · Define the primary reader modes before defining the navigation tree. · Reader modes: evaluators, new users, active HELIX users, and contributors · Identify which workflows need demo reels — prioritize the \"first 5 minutes\" experience · Current demos: helix-quickstart (full lifecycle), helix-concerns (drift detection), helix-evolve (requirement threading), helix-experiment (metric-driven optimization)\u003c/practices\u003e\n\u003cadrs\u003eADR-002 HELIX Tracker Write Safety Model — The tracker will not pretend to provide arbitrary multi-writer transactional semantics. Instead, it will define the supported local execution model, require explicit detection or prevention of silent lost updates, and make malformed tracker state a surfaced failure rather than something the rest of HELIX must guess around. Why: HELIX needs a conservative local tracker that is safe enough for agent-driven issue refinement and concurrent local supervision. The tracker must surface malformed state explicitly, define what concurrency/conflict guarantees are supported, and make metadata mutation available through first-class commands instead of direct file edits. · ADR-003 Autonomy is a Three-Position Spectrum, Not a Fixed Level — We adopt a three-position autonomy spectrum — low, medium, high, default medium — that controls checkpoint density only. The level changes how often a workflow pauses for confirmation; it never changes which activities run or whether a hard stop is honored. Why: HELIX must express an autonomy policy that a capable runtime honors, with a fixed vocabulary, a deterministic resolution order, and two invariants: a hard stop no level may pass, and a guarantee that autonomy never collapses the activity loop. The policy must be runtime-neutral — no CLAUDE.md dependency, no runtime config schema. · ADR-004 Artifact Dependencies Are Encoded in meta.yml.relationships Only (No Separate dependencies.yaml) — Type-level validation (required_sections, quality_checks, Why: The catalog must have a single source of truth for artifact-type dependencies. The rubric must stop asking for a file the catalog does not produce. Any consumer that currently mentions dependencies.yaml must be repointed at meta.yml so the rubric and the workflow agree.\u003c/adrs\u003e\n\u003cgoverning\u003ePLAN-2026-06-11-FLOW-ARCHITECTURE\u003c/governing\u003e\n\u003c/context-digest\u003e\n\nUpdate hand-authored website/user docs and regenerate generated mirrors so public documentation teaches the current HELIX surface: documents, markers, artifact templates, graph/catalog concepts, and the single helix routing skill. Remove or mark historical current-looking sibling skills/flows, env-var routing, user-facing scripts/binaries, CLI flags, status-tracking-in-specs language, and stale name: helix-align examples. Exact Codex sweep targets are docs/install/codex.md and docs/website/content/use/codex-recipe.md; expected outcome is no-op unless retired wording is found. In scope: docs/website/content install/use/reference/workflow/ddx-runtime/why/artifacts pages, generated artifact mirrors, and generation commands. Out of scope: changing product source docs except to fix source-before-mirror issues.",
+    "acceptance": "1. rg -n \"HELIX_FLOW|HELIX_METHODOLOGY|HELIX_INSTANCE|name: helix-align|helix-data|helix-infra|helix-web|/helix:\" docs/website/content docs/install returns no current public-surface hits outside historical/compatibility labels and known false-positive patterns.\n2. python3 scripts/publish-artifacts.py exits 0 after docs/helix source changes.\n3. python3 scripts/generate-reference.py exits 0 if reference/generated pages are affected.\n4. docs/install/codex.md and docs/website/content/use/codex-recipe.md are swept and either unchanged with no hits or updated with retired wording removed.\n5. just lint-prose or ddx doc prose passes when the Vale environment is valid; otherwise the Vale version blocker is recorded.\n6. git diff --check passes.",
+    "parent": "helix-4046d784",
+    "labels": [
+      "helix",
+      "kind:implementation",
+      "phase:build",
+      "plan-2026-06-11-flow-architecture",
+      "area:docs",
+      "area:site"
+    ],
+    "metadata": {
+      "spec-id": "PLAN-2026-06-11-FLOW-ARCHITECTURE"
+    }
+  },
+  "paths": {
+    "dir": ".ddx/executions/20260614T025221-f42bd4a7",
+    "prompt": ".ddx/executions/20260614T025221-f42bd4a7/prompt.md",
+    "manifest": ".ddx/executions/20260614T025221-f42bd4a7/manifest.json",
+    "result": ".ddx/executions/20260614T025221-f42bd4a7/result.json",
+    "checks": ".ddx/executions/20260614T025221-f42bd4a7/checks.json",
+    "usage": ".ddx/executions/20260614T025221-f42bd4a7/usage.json",
+    "worktree": "Users/erik/Projects/.ddx-exec-wt/.execute-bead-wt-helix-b831b88e-20260614T025221-f42bd4a7"
+  },
+  "prompt_sha": "7b901e621d45e459872b07acc6c2b56d86fd65c5576a5d90c6bc1835bb4dd88c"
+}
