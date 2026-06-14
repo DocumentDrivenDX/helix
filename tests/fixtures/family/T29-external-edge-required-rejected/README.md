@@ -1,5 +1,9 @@
 # T29 — external_edge with required: true fails G104 [HIGH RISK]
 
+**Flow classification:** current external-edge invariant. This fixture preserves
+the `required: false` rule for cross-artifact references that leave the local
+artifact graph.
+
 ## Scenario
 
 A `graph.yml` declares an `external_edges:` entry with

@@ -1,3 +1,4 @@
+# flow_classification: legacy sibling-flow row for retired public helix-data skill
 # C021 Layer 2 — routes to helix-data (not helix or helix-infra).
 # Empty workspace + "customer-ingest pipeline" prompt activates helix-data per
 # plan §12.4 router anchors. Layer 1 checks the Skill(helix-data) tool_use;

@@ -1,3 +1,4 @@
+# flow_classification: legacy sibling-flow row for retired public helix-data skill
 # C023 Layer 2 — routes to helix-data 03-validate activity.
 # Marker has helix-data; "quality checks" / "pipeline" anchors land the
 # prompt in the 03-validate activity. Layer 1 floor is Skill(helix-data)

@@ -1,3 +1,4 @@
+# flow_classification: legacy sibling-flow fixture for retired public helix-infra skill
 turns:
   - user: |
       We need to wire helix-infra into this repo so we can start tracking

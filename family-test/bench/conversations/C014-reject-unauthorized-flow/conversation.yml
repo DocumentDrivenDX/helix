@@ -1,3 +1,4 @@
+# flow_classification: legacy env-override fixture for retired HELIX_METHODOLOGY contract
 turns:
   - user: |
       HELIX_METHODOLOGY=helix-infra rotate the upstream DNS provider for the

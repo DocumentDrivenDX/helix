@@ -2,7 +2,12 @@ tier: must_pass_core
 category: conversation-library
 phase: P5
 status: authored-pending-verification
+flow_classification: current-single-skill-with-internal-data-flow
 notes: |
+  Current-contract compatibility row: first public engagement is
+  helix; helix-data remains only as an internal flow surface in the
+  cross-flow prose.
+
   C025 (plan §1.5 + §12.8). Marker has helix + helix-data. Prompt
   "Our PRD needs a new metric we can measure" is a cross-flow ask.
   Per plan §14.1: helix engages FIRST (PRD owner); then surfaces the

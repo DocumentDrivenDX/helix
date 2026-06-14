@@ -2,6 +2,7 @@ kind: validator-row
 tier: must_pass_core
 category: rename-compat
 phase: P12
+flow_classification: marker-key-rename-compatibility-not-strict-v2
 notes: |
   RC-02 (codex review feedback, prior bench-build workflow). Standalone
   rename-compat row: confirms that a v2-shape marker (canonical

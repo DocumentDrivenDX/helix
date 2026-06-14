@@ -1,5 +1,8 @@
 # T23 — HELIX_METHODOLOGY env override exercised
 
+- **Flow classification:** legacy env-override fixture. Retained only to
+  document and retire the pre-flow `HELIX_METHODOLOGY` contract; it is not
+  current user guidance.
 - **Installed:** `helix-library`, `helix`, `helix-infra`
 - **Env:** `HELIX_METHODOLOGY=helix-infra` (see `env.txt`)
 - **Risk:** medium (contract-surface verification)
@@ -14,10 +17,10 @@ in the runner environment. The env MUST win.
 
 T7's expected/ lists `HELIX_METHODOLOGY` as an acceptable
 disambiguation hint in prose, but no fixture actually USES the
-env var. The env override is a contract surface — if it's not
-tested, an impl can fail to honor it and still pass T1-T22. Either
-the env variable is part of the contract (this fixture) or it
-should be removed from the design.
+env var. This fixture records why the env variable was removed from
+the current contract: runtime environment state is too implicit for a
+document tool whose routing should be visible in marker files and
+artifacts.
 
 ## Runner mechanics
 

@@ -1,5 +1,9 @@
 # T27 — cross-methodology informs edge resolves [HIGH RISK]
 
+**Flow classification:** legacy sibling-flow fixture. Retained as compatibility
+evidence for the old cross-methodology design; it is not current user guidance
+for the single public `helix` skill and flow marker model.
+
 ## Scenario
 
 Marker declares helix + helix-infra. helix `graph.yml`

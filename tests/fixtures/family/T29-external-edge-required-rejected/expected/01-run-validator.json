@@ -9,5 +9,7 @@
     "helix-infra",
     "(?i)(advisory|bilateral|deferred)"
   ],
-  "rationale": "external_edges[].required: true must hard-fail G104. Diagnostic MUST cite the code, the offending block, the target methodology id, and the rationale (advisory / bilateral deferral) so authors know WHY this is forbidden — not just that it is. Without the rationale, the next author re-discovers the design decision."
+  "rationale": "Flow classification: Current external-edge invariant; helix-infra is fixture data, not a public skill recommendation. external_edges[].required: true must hard-fail G104. Diagnostic MUST cite the code, the offending block, the target methodology id, and the rationale (advisory / bilateral deferral) so authors know WHY this is forbidden — not just that it is. Without the rationale, the next author re-discovers the design decision.",
+  "flow_classification": "current-external-edge-invariant",
+  "classification_reason": "Current external-edge invariant; helix-infra is fixture data, not a public skill recommendation."
 }

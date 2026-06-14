@@ -3,6 +3,9 @@
 **Category:** rename-compat (standalone) — codex review feedback
 **Phase:** P12 (terminology rename: methodology → flow)
 **Tier:** must_pass_core
+**Flow classification:** legacy marker-key compatibility. This row only covers
+the v1 `methodologies:` spelling; strict `helix_version: 2` behavior is covered
+separately by RC-04.
 
 ## What this asserts
 

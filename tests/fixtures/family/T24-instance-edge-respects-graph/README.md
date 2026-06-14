@@ -1,4 +1,7 @@
-# T24 — instance edge respects methodology graph → validator clean [HIGH RISK]
+# T24 — artifact-instance link respects artifact graph → validator clean [HIGH RISK]
+
+**Flow classification:** current artifact-instance link control. This fixture
+does not define a scope-instance or multi-flow routing rule.
 
 ## Scenario
 
@@ -9,7 +12,7 @@ plus a FEAT-001 instance that exists in the corpus.
 
 ## Why it matters
 
-Positive path for the linkage relaxation. The validator must:
+Positive path for the artifact linkage relaxation. The validator must:
 1. Read the marker, resolve scope to docs/helix/.
 2. Walk the corpus, build instance_index {PRD-001, FEAT-001}.
 3. For each ddx.links[] entry, look up (source_type, kind,
@@ -32,4 +35,4 @@ disambiguate which step regresses.
 
 ## Risk
 
-HIGH. Positive baseline for §2.3 and §2.4 resolution contract.
+HIGH. Positive baseline for the artifact-instance resolution contract.

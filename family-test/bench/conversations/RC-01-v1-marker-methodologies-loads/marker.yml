@@ -1,4 +1,5 @@
 helix_version: 1
+# flow_classification: legacy marker-key compatibility; methodologies is accepted with warning
 methodologies:
   - id: helix
     root: docs/helix/

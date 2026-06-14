@@ -1,5 +1,8 @@
 # T3 — library + helix (happy path)
 
+**Flow classification:** current single-skill baseline. Mentions of other
+historical skill ids are negative controls only.
+
 ## Scenario
 
 Both `helix-library` and `helix` are installed. Workspace is a normal

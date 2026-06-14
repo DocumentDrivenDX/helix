@@ -1,5 +1,9 @@
 # T7a — marker absent, mixed repo, disambiguation banner [HIGH RISK]
 
+**Flow classification:** legacy heuristic fallback fixture. Retained to protect
+pre-marker workspaces while documenting that marker-based flows are current
+guidance.
+
 ## Scenario
 
 Same install set as T7 but NO `.helix.yml`. Workspace contains BOTH

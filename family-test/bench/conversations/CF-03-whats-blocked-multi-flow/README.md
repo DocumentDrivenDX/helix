@@ -3,6 +3,9 @@
 **Category:** conversation-library (cross-flow discriminators) (plan §1.5b + §14.1)
 **Phase:** P5
 **Tier:** must_pass_core
+**Flow classification:** compatibility row for the flow rename. Current
+contract: one public `helix` skill aggregates internal flow status; the old
+flow ids remain only as artifact-scope labels in this fixture.
 
 ## What this asserts
 

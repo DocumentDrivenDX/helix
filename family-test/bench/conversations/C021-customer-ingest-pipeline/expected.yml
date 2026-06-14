@@ -2,7 +2,11 @@ tier: must_pass_core
 category: conversation-library
 phase: P5
 status: authored-pending-verification
+flow_classification: legacy-sibling-flow
 notes: |
+  Legacy sibling-flow research row; retained as an expected-failing
+  data-flow probe for the retired public helix-data skill design.
+
   C021 (plan §1.5 + §12.8). Empty workspace. Prompt sets up a
   customer-ingest pipeline. Router-anchor verbs ("set up", "pipeline",
   "ingest") activate helix-data per plan §12.4.

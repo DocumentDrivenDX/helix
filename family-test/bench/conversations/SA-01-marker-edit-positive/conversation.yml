@@ -1,3 +1,4 @@
+# flow_classification: legacy sibling-flow safety row for retired public helix-infra skill
 turns:
   - user: |
       We're adopting helix-infra alongside helix in this repo. Update

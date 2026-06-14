@@ -2,7 +2,11 @@ tier: must_pass_core
 category: warm-context
 phase: P6
 status: authored-pending-verification
+flow_classification: legacy-terminology-compatibility
 notes: |
+  Legacy terminology row; retained as compatibility coverage for
+  warm-context marker status answers that still say "methodologies".
+
   WC-04 (plan §15c Phase 6). Warm-context variant of C011. Marker has
   both helix and helix-infra active. Five unrelated turns (cats,
   thermodynamics, dinner, IPv6, sci-fi) precede "What methodologies

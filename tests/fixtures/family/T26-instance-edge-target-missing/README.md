@@ -1,5 +1,8 @@
 # T26 — instance edge target missing → I101 with nearest-ids hint [HIGH RISK]
 
+**Flow classification:** current artifact-instance link control. This fixture
+does not define a scope-instance or multi-flow routing rule.
+
 ## Scenario
 
 Same setup as T24/T25 but PRD-001 declares `informs → FEAT-999`,

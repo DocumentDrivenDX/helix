@@ -16,5 +16,7 @@
       "(?i)no artifact|no signal|empty|cannot determine"
     ]
   },
-  "rationale": "docs/helix/ exists but contains only .gitkeep (no real artifact). T5 has a real prd.md driving the helix-shaped signal; T22 isolates the directory-existence-only case. The repo-shape rule keys on ARTIFACT presence, not directory presence — so this scenario must NOT silently route to helix (and likely must disambiguate, since main.tf is also absent). The fixture pins the signal definition: artifact, not directory."
+  "rationale": "Flow classification: Legacy heuristic fallback fixture; directory-only is not a current flow signal. docs/helix/ exists but contains only .gitkeep (no real artifact). T5 has a real prd.md driving the helix-shaped signal; T22 isolates the directory-existence-only case. The repo-shape rule keys on ARTIFACT presence, not directory presence — so this scenario must NOT silently route to helix (and likely must disambiguate, since main.tf is also absent). The fixture pins the signal definition: artifact, not directory.",
+  "flow_classification": "legacy-heuristic-fallback",
+  "classification_reason": "Legacy heuristic fallback fixture; directory-only is not a current flow signal."
 }

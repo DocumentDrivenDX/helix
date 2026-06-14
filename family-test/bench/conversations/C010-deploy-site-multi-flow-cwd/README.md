@@ -3,6 +3,9 @@
 **Category:** conversation-library (happy paths) (plan §1.5b)
 **Phase:** P5
 **Tier:** must_pass_core
+**Flow classification:** legacy sibling-flow research row. Retained as an
+expected-failing cwd-disambiguation probe for the retired public `helix-web`
+and `helix-infra` skill design; not current HELIX user guidance.
 
 ## What this asserts
 

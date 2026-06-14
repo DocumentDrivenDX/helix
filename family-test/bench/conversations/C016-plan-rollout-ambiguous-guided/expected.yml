@@ -4,7 +4,11 @@ phase: P5b
 status: authored-pending-verification
 fixture: C016-plan-rollout-ambiguous-guided
 level: guided
+flow_classification: legacy-sibling-flow
 notes: |
+  Legacy sibling-flow research row; retained as an expected-failing
+  disambiguation probe for the retired public helix-infra skill design.
+
   C016 (plan §1.5). Both helix and helix-infra active in marker; no
   cwd or defaults disambiguator. Verb "plan the rollout" is ambiguous
   across both. Under guided autonomy the skill MUST emit a

@@ -1,3 +1,4 @@
+# flow_classification: legacy sibling-flow row for retired public helix-data skill
 # C024 Layer 2 — manual autonomy + destructive backfill = approval-gate.
 # Layer 1 (confirmation_before_mutation) checks the prose-before-tool
 # pattern. Layer 2 confirms the *meaning*: explicit approval ask, names the

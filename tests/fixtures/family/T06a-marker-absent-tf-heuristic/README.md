@@ -1,5 +1,9 @@
 # T6a — marker absent, *.tf-only repo, heuristic fallback fires [MEDIUM RISK]
 
+**Flow classification:** legacy heuristic fallback fixture. Retained to protect
+pre-marker workspaces while documenting that marker-based flows are current
+guidance.
+
 ## Scenario
 
 Same install set as T6 but NO `.helix.yml`. Workspace contains

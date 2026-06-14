@@ -1,2 +1,3 @@
+# flow_classification: legacy sibling-flow fixture for retired public helix-infra skill
 helix-library
 helix-infra

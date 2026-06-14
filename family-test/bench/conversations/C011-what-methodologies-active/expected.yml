@@ -2,7 +2,11 @@ tier: must_pass_core
 category: conversation-library
 phase: P5
 status: authored-pending-verification
+flow_classification: legacy-terminology-compatibility
 notes: |
+  Legacy terminology row; retained as compatibility coverage for
+  marker status answers that still say "methodologies".
+
   C011 (plan §1.5). Marker active with helix + helix-infra. Prompt
   "What methodologies are active here?" is a status question that
   MUST be answered LITERALLY from the marker, not from training

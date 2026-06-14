@@ -11,5 +11,7 @@
       "path_regex": "^docs/helix/02-design/"
     }
   ],
-  "rationale": "T5 is the inverse of this fixture: same product-shaped workspace, but HELIX_METHODOLOGY=helix-infra is set in env. The env override MUST win over the repo-shape signal — ADR lands at docs/adr/, NOT docs/helix/02-design/. T7's expected/ mentions HELIX_METHODOLOGY as a banner option but no fixture EXERCISES the env. Without this fixture an impl can fail to honor the env and still pass the matrix."
+  "rationale": "Flow classification: Legacy env-override fixture for retired HELIX_METHODOLOGY contract. T5 is the inverse of this fixture: same product-shaped workspace, but HELIX_METHODOLOGY=helix-infra is set in env. The env override MUST win over the repo-shape signal — ADR lands at docs/adr/, NOT docs/helix/02-design/. T7's expected/ mentions HELIX_METHODOLOGY as a banner option but no fixture EXERCISES the env. Without this fixture an impl can fail to honor the env and still pass the matrix.",
+  "flow_classification": "legacy-env-override",
+  "classification_reason": "Legacy env-override fixture for retired HELIX_METHODOLOGY contract."
 }

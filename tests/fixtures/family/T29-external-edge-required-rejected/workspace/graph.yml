@@ -1,4 +1,5 @@
 version: 1
+# flow_classification: current external-edge invariant; helix-infra is fixture data
 methodology:
   id: helix
   library_version: "^1.0.0"

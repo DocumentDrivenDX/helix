@@ -3,6 +3,9 @@
 **Category:** rename-compat (standalone) — codex review feedback
 **Phase:** P12 (terminology rename: methodology → flow)
 **Tier:** must_pass_core
+**Flow classification:** marker-key rename compatibility. This row rejects a
+mixed spelling during the rename; it is not artifact-link or scope-instance
+coverage.
 
 ## What this asserts
 

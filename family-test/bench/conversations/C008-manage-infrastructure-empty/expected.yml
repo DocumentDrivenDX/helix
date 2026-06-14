@@ -4,7 +4,11 @@ phase: P5b
 status: authored-pending-verification
 fixture: C008-manage-infrastructure-empty
 level: guided
+flow_classification: legacy-sibling-flow
 notes: |
+  Legacy sibling-flow research row; retained as an expected-failing
+  router probe for the retired public helix-infra skill design.
+
   C008 (plan §1.5). Empty workspace. The verb "manage our
   infrastructure" routes to helix-infra (description anchor per §5.1).
   Under guided autonomy the skill must engage and offer to (a) add

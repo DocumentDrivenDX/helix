@@ -3,6 +3,9 @@
 **Category:** conversation-library (happy paths) (plan §1.5b)
 **Phase:** P5
 **Tier:** must_pass_core
+**Flow classification:** legacy terminology row. Retained only to keep warm
+compatibility coverage for marker status answers that still say
+"methodologies"; current user-facing language is "flows".
 
 ## What this asserts
 

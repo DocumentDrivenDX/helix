@@ -2,7 +2,12 @@ tier: must_pass_core
 category: conversation-library
 phase: P5
 status: authored-pending-verification
+flow_classification: current-single-skill-with-internal-data-and-infra-flows
 notes: |
+  Current-contract compatibility row: first public engagement is
+  helix; helix-data and helix-infra remain only as internal flow
+  surfaces in the cross-flow prose.
+
   CF-02 (plan §1.5 + §14.1). Marker has helix-data + helix-infra at
   separate scopes (pipelines/customer-events/ vs infra/). The
   helix-data flow has monitoring-setup.md (in-progress) whose prose

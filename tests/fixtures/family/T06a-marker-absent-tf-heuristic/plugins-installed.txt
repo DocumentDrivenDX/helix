@@ -1,3 +1,4 @@
+# flow_classification: legacy heuristic fallback fixture for retired public helix-infra skill
 helix-library
 helix
 helix-infra

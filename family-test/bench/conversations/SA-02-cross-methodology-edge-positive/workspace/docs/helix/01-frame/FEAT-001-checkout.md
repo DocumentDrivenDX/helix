@@ -4,6 +4,7 @@ title: Checkout flow
 status: drafted
 ddx:
   links: []
+flow_classification: legacy sibling-flow safety fixture
 ---
 
 # FEAT-001 — Checkout flow

@@ -1,3 +1,4 @@
+# flow_classification: legacy heuristic fallback fixture; directory-only is not a current flow signal
 helix-library
 helix
 helix-infra

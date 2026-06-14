@@ -1,3 +1,5 @@
+<!-- flow_classification: current single-skill sample with internal helix-data flow prose -->
+
 "PRD" anchors this to helix (the PRD-owning flow), so I'm engaging
 helix first. The ask — "a new metric we can measure" — has two halves
 that span flows: helix owns the `metric-definition` artifact (the

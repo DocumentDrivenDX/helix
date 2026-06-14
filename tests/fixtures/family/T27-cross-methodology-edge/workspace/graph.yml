@@ -1,4 +1,5 @@
 version: 1
+# flow_classification: legacy sibling-flow fixture for retired cross-methodology contract
 methodology:
   id: helix
   library_version: "^1.0.0"

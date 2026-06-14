@@ -3,6 +3,9 @@
 **Category:** conversation-library (cross-flow discriminators) (plan §1.5b + §14.1)
 **Phase:** P5
 **Tier:** must_pass_core
+**Flow classification:** compatibility row for the flow rename. Current
+contract: first public engagement is `helix`; `helix-data` and `helix-infra`
+are internal flow surfaces, not separate public skills.
 
 ## What this asserts
 

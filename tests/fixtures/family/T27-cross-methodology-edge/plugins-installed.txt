@@ -1,3 +1,4 @@
+# flow_classification: legacy sibling-flow fixture for retired cross-methodology contract
 helix-library
 helix
 helix-infra

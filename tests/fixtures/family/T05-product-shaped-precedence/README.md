@@ -1,5 +1,9 @@
 # T5 — marker declares both methodologies → both active, scoped [HIGH RISK]
 
+**Flow classification:** legacy marker-routing fixture. Retained as a frozen
+compatibility probe for the old `methodologies:` marker and public
+`helix-infra` sibling-skill design.
+
 ## Scenario
 
 `helix-library`, `helix`, and `helix-infra` are all installed. The

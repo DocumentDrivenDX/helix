@@ -23,5 +23,7 @@
       "(?i)treating this as helix-infra"
     ]
   },
-  "rationale": "Marker declares ONLY helix-infra; docs/helix/ exists in tree but must NOT activate helix. ADR goes to docs/adr/. Disambiguation banner is forbidden because the marker resolves unambiguously. exactly_one cap defends against the agent writing to both locations."
+  "rationale": "Flow classification: Legacy marker-routing fixture for retired public helix-infra skill. Marker declares ONLY helix-infra; docs/helix/ exists in tree but must NOT activate helix. ADR goes to docs/adr/. Disambiguation banner is forbidden because the marker resolves unambiguously. exactly_one cap defends against the agent writing to both locations.",
+  "flow_classification": "legacy-marker-routing",
+  "classification_reason": "Legacy marker-routing fixture for retired public helix-infra skill."
 }

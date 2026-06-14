@@ -3,6 +3,9 @@
 **Category:** conversation library (plan §1.5 row C009)
 **Phase:** P5b
 **Tier:** exploratory
+**Flow classification:** legacy sibling-flow research row. Retained as an
+expected-failing router probe for the retired public `helix-web` skill design;
+not current HELIX user guidance.
 
 ## Scenario
 

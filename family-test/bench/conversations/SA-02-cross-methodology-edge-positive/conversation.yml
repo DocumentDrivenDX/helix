@@ -1,3 +1,4 @@
+# flow_classification: legacy sibling-flow safety row for retired cross-methodology contract
 turns:
   - user: |
       FEAT-001 depends on infra deliverables in our helix-infra workflow.

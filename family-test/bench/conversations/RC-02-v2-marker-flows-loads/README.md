@@ -3,6 +3,9 @@
 **Category:** rename-compat (standalone) — codex review feedback
 **Phase:** P12 (terminology rename: methodology → flow)
 **Tier:** must_pass_core
+**Flow classification:** marker-key rename compatibility. This row covers the
+canonical `flows:` key on the compatibility marker shape; it is not
+`helix_version: 2` strict-link or strict-marker coverage.
 
 ## What this asserts
 

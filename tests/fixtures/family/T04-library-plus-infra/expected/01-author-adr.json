@@ -18,5 +18,7 @@
       "(?i)helix-library.*(not installed|missing)"
     ]
   },
-  "rationale": "helix-infra routes; ADR lands at docs/adr/NNNN-*.md with library:adr frontmatter AND the canonical ADR sections (Context/Decision/Consequences). EXACTLY ONE Write — a one-liner with only frontmatter does not exercise the library:adr schema."
+  "rationale": "Flow classification: Legacy sibling-flow fixture for retired public helix-infra skill. helix-infra routes; ADR lands at docs/adr/NNNN-*.md with library:adr frontmatter AND the canonical ADR sections (Context/Decision/Consequences). EXACTLY ONE Write — a one-liner with only frontmatter does not exercise the library:adr schema.",
+  "flow_classification": "legacy-sibling-flow",
+  "classification_reason": "Legacy sibling-flow fixture for retired public helix-infra skill."
 }

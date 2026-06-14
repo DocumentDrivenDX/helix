@@ -2,7 +2,12 @@ tier: must_pass_core
 category: conversation-library
 phase: P5
 status: authored-pending-verification
+flow_classification: legacy-sibling-flow
 notes: |
+  Legacy sibling-flow research row; retained as an expected-failing
+  cwd-disambiguation probe for the retired public helix-web and
+  helix-infra skill design.
+
   C010 (plan §1.5). Marker activates both helix-web and helix-infra
   with helix-web's root at services/web/. cwd=services/web at the
   turn — the §1.5 / §13.6b resolution chain says cwd-under-scope

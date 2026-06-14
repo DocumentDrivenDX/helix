@@ -6,7 +6,9 @@ status: deferred
 
 ## Status
 
-**Deferred.** `helix-web` does not exist yet as a methodology plugin.
+**Deferred legacy fixture.** `helix-web` was a proposed sibling methodology
+plugin in the research fork. Current HELIX exposes one public `helix` skill
+with internal flows; this file remains only as historical numbering ballast.
 
 This fixture slot is reserved so that:
 

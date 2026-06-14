@@ -2,7 +2,11 @@ tier: must_pass_core
 category: conversation-library
 phase: P5
 status: authored-pending-verification
+flow_classification: legacy-sibling-flow
 notes: |
+  Legacy sibling-flow research row; retained as an expected-failing
+  data-flow probe for the retired public helix-data skill design.
+
   C023 (plan §1.5 + §12.8). Marker active (helix-data). Prompt
   "Add quality checks for the orders pipeline" → 03-validate activity
   (`data-quality-expectations`, `data-quality-tests`).

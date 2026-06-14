@@ -1,5 +1,8 @@
 # T4 — library + helix-infra (happy path)
 
+**Flow classification:** legacy sibling-flow fixture. Retained as a frozen
+compatibility probe for the retired public `helix-infra` skill design.
+
 ## Scenario
 
 `helix-library` and `helix-infra` are installed (no `helix`). The

@@ -3,6 +3,9 @@
 **Category:** conversation-library (happy paths) (plan §1.5b + §12.8)
 **Phase:** P5
 **Tier:** must_pass_core
+**Flow classification:** legacy sibling-flow research row. Retained as an
+expected-failing data-flow probe for the retired public `helix-data` skill
+design; current HELIX routes data work through the single public `helix` skill.
 
 ## What this asserts
 

@@ -1,3 +1,5 @@
+<!-- flow_classification: legacy sibling-flow sample prose for retired public helix-data skill -->
+
 Helix-data is active, so I'm engaging the 01-contract activity. "Data
 contract" for "customer events" maps to the `data-contract` library
 type — the artifact that pins event schema, partition keys, and PII

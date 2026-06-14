@@ -4,7 +4,11 @@ phase: P5b
 status: authored-pending-verification
 fixture: C017-plan-rollout-ambiguous-autonomous
 level: autonomous
+flow_classification: legacy-sibling-flow
 notes: |
+  Legacy sibling-flow research row; retained as an expected-failing
+  default-selection probe for the retired public helix-infra skill design.
+
   C017 (plan §1.5). Same ambiguity as C016 (both helix and helix-infra
   in marker) but `defaults.methodology: helix` is declared and
   autonomy=autonomous. The skill MUST honour defaults and route to

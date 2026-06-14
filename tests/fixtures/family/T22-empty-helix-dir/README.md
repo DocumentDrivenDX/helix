@@ -1,5 +1,7 @@
 # T22 — docs/helix/ exists but empty (only .gitkeep)
 
+- **Flow classification:** legacy heuristic fallback fixture. Retained to
+  prove directory presence alone is not a current flow activation signal.
 - **Installed:** `helix-library`, `helix`, `helix-infra`
 - **Risk:** medium (signal-definition pin)
 

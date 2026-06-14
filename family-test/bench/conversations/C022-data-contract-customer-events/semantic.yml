@@ -1,3 +1,4 @@
+# flow_classification: legacy sibling-flow row for retired public helix-data skill
 # C022 Layer 2 — routes to helix-data 01-contract activity.
 # Marker has helix-data; "data contract" / "customer events" anchors land
 # the prompt in the 01-contract activity. Layer 1 floor is Skill(helix-data)

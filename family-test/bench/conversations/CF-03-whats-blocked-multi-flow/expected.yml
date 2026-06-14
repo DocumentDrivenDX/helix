@@ -2,7 +2,12 @@ tier: must_pass_core
 category: conversation-library
 phase: P5
 status: authored-pending-verification
+flow_classification: current-single-skill-with-internal-cross-flow-status
 notes: |
+  Current-contract compatibility row: one public helix skill answers
+  cross-flow status; old flow ids remain only as artifact-scope
+  labels in this fixture.
+
   CF-03 (plan §1.5 + §14.1). Marker has all three flows: helix,
   helix-data, helix-infra. Each flow has at least one in-progress
   artifact in its scope. Prompt "What's blocked across the project?"

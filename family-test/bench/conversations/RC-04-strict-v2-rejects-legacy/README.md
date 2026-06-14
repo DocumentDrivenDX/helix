@@ -3,6 +3,9 @@
 **Category:** rename-compat (standalone) — codex review feedback
 **Phase:** P12 (terminology rename: methodology → flow)
 **Tier:** must_pass_core
+**Flow classification:** strict marker-key compatibility. This is the strict
+`helix_version: 2` marker-key row; it does not cover T24-T26 artifact-instance
+link semantics.
 
 ## What this asserts
 

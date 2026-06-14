@@ -2,7 +2,12 @@ tier: must_pass_core
 category: conversation-library
 phase: P5
 status: authored-pending-verification
+flow_classification: current-single-skill-with-internal-infra-flow
 notes: |
+  Current-contract compatibility row: first public engagement is
+  helix; helix-infra remains only as an internal flow surface in the
+  cross-flow prose.
+
   CF-01 (plan §1.5 + §14.1). Marker has helix + helix-infra at
   separate scopes (docs/helix/ vs infra/). PRD-001 (approved) names
   the cross-flow prerequisite in prose: "deploying this requires a

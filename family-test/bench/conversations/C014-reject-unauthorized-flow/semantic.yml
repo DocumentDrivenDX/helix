@@ -1,3 +1,4 @@
+# flow_classification: legacy env-override/sibling-flow row
 # C014 Layer 2 — refusal-cites-marker-authorization.
 # Layer 1 (refusal_no_write) checks the prose-pattern + zero-mutation. Layer
 # 2 confirms the *meaning* of the refusal: cites the marker as the

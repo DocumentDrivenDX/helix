@@ -1,4 +1,5 @@
 helix_version: 1
+# flow_classification: marker-key rename compatibility; mixed methodologies and flows is rejected
 methodologies:
   - id: helix
     root: docs/helix/

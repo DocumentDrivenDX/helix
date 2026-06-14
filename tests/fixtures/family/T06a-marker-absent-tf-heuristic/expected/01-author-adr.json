@@ -23,5 +23,7 @@
       "(?i)helix-library.*(not installed|missing)"
     ]
   },
-  "rationale": "Marker absent + *.tf signal → heuristic fallback resolves to helix-infra. Banner required. exactly_one cap. Regression guard for the infra branch of the FROZEN fallback path."
+  "rationale": "Flow classification: Legacy heuristic fallback fixture for retired public helix-infra skill. Marker absent + *.tf signal → heuristic fallback resolves to helix-infra. Banner required. exactly_one cap. Regression guard for the infra branch of the FROZEN fallback path.",
+  "flow_classification": "legacy-heuristic-fallback",
+  "classification_reason": "Legacy heuristic fallback fixture for retired public helix-infra skill."
 }

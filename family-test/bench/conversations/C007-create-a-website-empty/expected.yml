@@ -4,7 +4,11 @@ phase: P5b
 status: authored-pending-verification
 fixture: C007-create-a-website-empty
 level: guided
+flow_classification: legacy-sibling-flow
 notes: |
+  Legacy sibling-flow research row; retained as an expected-failing
+  router probe for the retired public helix-web skill design.
+
   C007 (plan §1.5). Empty workspace, no marker, no artifacts. The verb
   "create a website" routes to helix-web (description anchor per
   §3.4). Under guided autonomy, the skill must engage and offer to

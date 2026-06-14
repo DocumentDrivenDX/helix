@@ -2,7 +2,12 @@ tier: must_pass_core
 category: conversation-library
 phase: P5
 status: authored-pending-verification
+flow_classification: legacy-env-override-sibling-flow
 notes: |
+  Legacy env-override/sibling-flow research row; retained as an
+  expected-failing authorization-boundary probe for the retired public
+  helix-infra skill design.
+
   C014 (plan §1.5). Marker has helix only. Prompt invokes
   helix-infra via the `HELIX_METHODOLOGY=helix-infra` env-override
   form (the leading-slash `/helix-infra` form is intercepted by

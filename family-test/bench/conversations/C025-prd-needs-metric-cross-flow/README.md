@@ -3,6 +3,9 @@
 **Category:** conversation-library (happy paths) (plan §1.5b + §12.8)
 **Phase:** P5
 **Tier:** must_pass_core
+**Flow classification:** compatibility row for the flow rename. Current
+contract: first public engagement is `helix`; `helix-data` is an internal flow
+surface, not a separate public skill.
 
 ## What this asserts
 

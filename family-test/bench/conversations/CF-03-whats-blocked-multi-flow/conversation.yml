@@ -1,3 +1,4 @@
+# flow_classification: current single-skill row with internal flow-scope labels
 turns:
   - user: |
       Standup is in 20 minutes and I need a project-wide blocked-items
