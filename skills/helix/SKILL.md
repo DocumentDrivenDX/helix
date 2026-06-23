@@ -106,13 +106,23 @@ until `.git/` is found), then check for `.helix.yml` at the top.
 ### 1.5 Read marker AND graph before any Write/Edit (ordering invariant)
 
 The FIRST `Write` or `Edit` tool_use in the session MUST be preceded by at
-least one `Read` matching `.helix.yml` AND at least one `Read` matching
-`workflows/graph.yml`. Skipping either is a contract violation, EVEN IF the
-Skill tool_use has already fired. The failure mode this rule prevents — the
-verbose-but-stuck pattern — is the agent narrating HELIX-shaped reasoning
-from training while the marker scope, the type catalog, and the prerequisite
-chain go unconsulted. The resulting artifact looks plausible but is
-unanchored to the workspace's actual contract.
+least one `Read` of the `.helix.yml` marker AND at least one `Read` that
+**successfully binds the methodology graph** via §Catalog Resolution. Skipping
+either is a contract violation, EVEN IF the Skill tool_use has already fired.
+The failure mode this rule prevents — the verbose-but-stuck pattern — is the
+agent narrating HELIX-shaped reasoning from training while the marker scope,
+the type catalog, and the prerequisite chain go unconsulted. The resulting
+artifact looks plausible but is unanchored to the workspace's actual contract.
+
+A graph bind is **always achievable**: §Catalog Resolution ends at the
+`references/` floor that ships beside this SKILL.md, so `graph.yml` resolves in
+every install and every repo state. A missing in-tree `workflows/graph.yml` is
+therefore NEVER a reason to stop, defer, or skip artifact edits — it only means
+the bind comes from a later resolution step (the floor). "I cannot find the
+graph, so I will avoid HELIX artifact edits" is a contract violation, not a
+valid degraded mode: bind the graph from the floor and proceed. A `Read` whose
+target does not resolve does NOT satisfy this contract — the graph must
+actually bind.
 
 The order between the two Reads is not constrained: marker-first is the
 natural sequence; graph-first is acceptable for graph-query-only prompts
@@ -125,11 +135,15 @@ not the workspace-grounding contract.
 
 If the marker is absent and the skill is engaging by heuristic (§2 banner
 case), the `Read` for `.helix.yml` is satisfied by the failed lookup itself
-(the Read tool_use occurred even though the file did not exist); the `Read`
-for `workflows/graph.yml` is still required before any Write/Edit because
-the type catalog binds artifact templates.
+(the Read tool_use occurred even though the file did not exist). The graph
+`Read` is still required, and is satisfied by the §Catalog Resolution bind —
+the `references/` floor when no in-tree graph exists — because the type catalog
+binds artifact templates regardless of marker presence. The marker-absent
+heuristic case therefore still authorizes artifact edits: it binds the floor.
 
-The bench enforces this via the `read_before_write` matcher.
+The bench enforces this via the `read_before_write` matcher, which accepts a
+graph `Read` from any §Catalog Resolution source (in-tree `workflows/graph.yml`,
+a marker `graph:` pointer, or the `references/` floor).
 
 ### 2. Decide activation state
 
@@ -186,7 +200,10 @@ Evaluate the marker before resolving lane or workflow mode:
       Run /helix init-marker to make this explicit.
 
   Substitute the actual heuristic-path that triggered activation. Then
-  proceed.
+  proceed — this is an authorized flow: bind the catalog via §Catalog
+  Resolution (the `references/` floor when no in-tree graph exists) and author
+  artifacts normally. A `docs/helix/` tree without a marker is NOT a reason to
+  decline artifact edits.
 
 - **Marker absent, no heuristic**: report no active flow. If asked for a
   machine-readable response, return `{"active": []}`. Do not improvise
@@ -294,12 +311,12 @@ edit.
 
 A **slot** is an exclusive functional position a project must fill exactly
 once (one frontend framework, one language runtime, one e2e tool, one auth
-backend). Slots are declared in the shipped library at
-`<plugin-root>/workflows/concerns/slots.yml` — load it from the canonical
-install root (the same `<plugin-root>` used by §Catalog Resolution). The
-file declares exclusive slots plus shipped defaults; membership in a slot
-is **derived** from each concern's own `## Slot` section, never listed in
-`slots.yml`.
+backend). Slots are declared in the shipped catalog at `concerns/slots.yml`, resolved
+via §Catalog Resolution — the in-tree `workflows/concerns/slots.yml` when a
+vendored tree is present, otherwise the `references/concerns/slots.yml` floor
+beside this SKILL.md (which always resolves). The file declares exclusive slots
+plus shipped defaults; membership in a slot is **derived** from each concern's
+own `## Slot` section, never listed in `slots.yml`.
 
 For every needed exclusive slot, resolve the filler in this fixed order
 (first match wins):
@@ -355,19 +372,34 @@ lacks governing artifact coverage.
 
 ## Catalog Resolution
 
-When a workflow mode needs an artifact template, prompt, or quality
-criteria, resolve catalog paths against the mounted skill content, in
-this order of preference:
+When a workflow mode needs an artifact template, prompt, quality criteria, or
+the methodology graph, resolve the path in this deterministic order. The first
+source that resolves wins; resolution ALWAYS succeeds because the `references/`
+floor (step 3) ships beside this SKILL.md.
 
-1. `references/activities/<NN>-<activity>/artifacts/<type>/` — relative
-   to this `SKILL.md`. This is the agentskills.io progressive-disclosure
-   layout used by skill bundles (e.g. Databricks Genie Code, the Vercel
-   Labs Skills CLI install path).
-2. `<plugin-root>/workflows/activities/<NN>-<activity>/artifacts/<type>/`
-   in plugin installs that vendor the source tree. The `<plugin-root>`
-   placeholder is the runtime's plugin path (for example
-   `~/.claude/plugins/helix/` under Claude Code); each runtime's install
-   guide under `docs/install/` names the concrete location for that runtime.
+1. **Marker `graph:` pointer** — if the active `.helix.yml` declares a
+   `graph:` (or `catalog:`) path and it resolves, bind it. If the pointer is
+   set but does not resolve, emit a one-line warning and fall through to the
+   next step — a broken pointer never blocks and never short-circuits.
+2. **In-tree catalog** — `workflows/graph.yml` and
+   `workflows/activities/<NN>-<activity>/artifacts/<type>/`, found by walking
+   up from the current working directory to the directory containing the
+   resolved `.helix.yml` marker. This is the self-hosting / methodology-source
+   case (the HELIX repo itself, and any consumer that vendors the catalog).
+   **Skip this step entirely when there is no marker** (heuristic activation):
+   there is no anchor to walk to, so fall through to the floor.
+3. **`references/` floor** — `references/graph.yml` and
+   `references/activities/<NN>-<activity>/artifacts/<type>/`, relative to this
+   `SKILL.md`. A committed synced copy of the in-tree catalog that ships with
+   the skill in EVERY install (plugin, bundle, vendored tree), so a graph and
+   templates always resolve here when no fresher source above did. This is the
+   agentskills.io progressive-disclosure layout used by skill bundles.
+
+State which source bound when it is not the floor (e.g. "catalog: in-tree
+`workflows/graph.yml`" or "catalog: marker `graph:` pointer") so an operator
+can see when the skill reasons against a vendored vs. shipped catalog. There is
+no "catalog not mounted" outcome: the floor is the catalog of last resort, and
+an unresolved catalog is impossible by construction.
 
 The seven activities and the artifact types they own:
 
@@ -382,26 +414,26 @@ The seven activities and the artifact types they own:
 | `06-iterate` | `improvement-backlog`, `metric-definition`, `metrics-dashboard`, `security-metrics` |
 
 Each artifact-type directory contains `template.md`, `prompt.md`,
-`meta.yml`, and an `example.md` (or `example-*.md`). Common queries
-("list artifact types under activity 01-frame", "what's the path to
-the prd template") can be answered from this table without traversing
-the filesystem; deeper queries that need template or prompt content
-require loading the file from one of the resolution paths above.
-
-If the catalog is at neither location, the runtime has not mounted it;
-report this as a setup gap rather than improvising paths or guessing
-artifact-type names.
+`meta.yml`, and an `example.md` (or `example-*.md`). This table answers
+**metadata queries only** — "list artifact types under activity 01-frame",
+"what's the path to the prd template" — without traversing the filesystem.
+It is NOT a catalog of record: **authoring** any artifact requires binding the
+real `template.md` / `prompt.md` / `meta.yml` for the type from a resolution
+source above (always available via the floor). Authoring from the table alone
+produces an unanchored artifact and is not permitted. Deeper queries that need
+template or prompt content load the file from the resolved source.
 
 ## Voice Resolution
 
 When a workflow mode authors, validates, refreshes, reviews, or rewrites a
-HELIX artifact, load the voice registry from the same mounted content root used
-by §Catalog Resolution:
+HELIX artifact, load the voice registry `voice.yml` via the same deterministic
+order as §Catalog Resolution (first that resolves wins; the floor always
+resolves):
 
-1. `references/voice.yml` — relative to this `SKILL.md` in skill-bundle
-   layouts that copy shared workflow resources into `references/`.
-2. `<plugin-root>/workflows/voice.yml` — in plugin installs that vendor the
-   source tree.
+1. In-tree `workflows/voice.yml` — walking up to the marker-bearing directory;
+   skipped when there is no marker.
+2. `references/voice.yml` floor — relative to this `SKILL.md`, shipped with the
+   skill in every install.
 
 Resolve the active profile from the artifact type's `meta.yml`:
 
@@ -577,8 +609,9 @@ stories.
    quality). At `high`, infer the selection from the product's nature and record
    each inferred concern as an assumption. **Fill each needed exclusive slot**
    (a slot is an exclusive functional position — one frontend framework, one
-   language runtime; defined in
-   `<plugin-root>/workflows/concerns/slots.yml`) by resolution order:
+   language runtime; defined in `concerns/slots.yml`, resolved via §Catalog
+   Resolution — the `references/concerns/slots.yml` floor when no in-tree
+   catalog is present) by resolution order:
    operator override (`docs/helix/01-frame/concerns.local.yml`) → shipped default
    (`slots.yml`) → recorded assumption, and record the chosen filler plus its
    source in `concerns.md`. A web app must fill `frontend-framework` — the
@@ -930,11 +963,15 @@ surfaces; the runtime does.
 3. Name the verification evidence the runtime must record before reporting
    completion. For buildable products, this includes observable end-to-end
    evidence against the running system when feasible, plus a claims-vs-reality
-   check with zero phantom claims. See
-   `<plugin-root>/workflows/concerns/verification/practices.md`.
+   check with zero phantom claims. See the in-tree
+   `workflows/concerns/verification/practices.md`, or the
+   `references/concerns/verification/practices.md` floor — resolved via
+   §Catalog Resolution (the floor always resolves).
 4. For data-backed products, require governed sample or seed data with
    synthetic non-PII values and enough variation to exercise schema-relevant
-   states. See `<plugin-root>/workflows/concerns/sample-data/practices.md`.
+   states. See the in-tree `workflows/concerns/sample-data/practices.md`, or the
+   `references/concerns/sample-data/practices.md` floor — resolved via §Catalog
+   Resolution (the floor always resolves).
 5. Do not prescribe runtime commands from the skill body. Point to the
    runtime's install or operator guide for concrete execution, source control,
    packaging, or loop commands.
@@ -957,12 +994,13 @@ Use for metric-driven optimization loops.
 ## Consult The Graph Before Authoring
 
 When the user asks for a new artifact of type `T` in the active methodology `M`
-(per the resolved marker), consult `M`'s `workflows/graph.yml` before drafting.
-This is the runtime use of the methodology graph: the same edges the validator
-checks govern what the skill should surface as prerequisites at authoring time.
+(per the resolved marker), consult `M`'s graph before drafting. This is the
+runtime use of the methodology graph: the same edges the validator checks
+govern what the skill should surface as prerequisites at authoring time.
 
-1. Read `M`'s `workflows/graph.yml` (resolved via the §Catalog Resolution path
-   for the active methodology's plugin root).
+1. Read `M`'s `graph.yml`, bound via §Catalog Resolution (in-tree
+   `workflows/graph.yml`, a marker `graph:` pointer, or the `references/`
+   floor — whichever resolves first).
 2. Find the node `n` whose `type` matches `library:T` or `local:T`.
 3. Enumerate incoming edges to `n` whose `kind` is one of
    `{requires, contains, informs}`.

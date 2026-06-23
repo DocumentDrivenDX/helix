@@ -1,0 +1,84 @@
+# Metadata for Resource Summary
+
+artifact:
+  name: Resource Summary
+  id: resource-summary
+  type: document
+  activity: discover
+  optional: true
+
+voice: artifact-signal
+
+description: |
+  Concise summary of an external resource used to ground HELIX artifact
+  guidance. Captures what the source says, why it matters, and how far its
+  authority extends.
+
+output:
+  location: docs/resources/[resource-slug].md
+  format: markdown
+  naming: "[resource-slug].md"
+
+validation:
+  required_sections:
+    - source
+    - summary
+    - relevant_findings
+    - helix_usage
+    - authority_boundary
+
+  quality_checks:
+    - check: source_url_present
+      description: Source URL is named and linked
+      severity: blocking
+
+    - check: summary_concise
+      description: Summary captures the useful idea without reproducing the source
+      severity: blocking
+
+    - check: usage_specific
+      description: HELIX usage names the artifact or concern the resource supports
+      severity: blocking
+
+    - check: boundary_clear
+      description: Boundary explains what the source does not govern
+      severity: warning
+
+prompts:
+  generation: prompt.md
+  review: |
+    Review this resource summary for:
+    1. Accurate summary of the source's relevant contribution
+    2. Clear connection to a HELIX artifact, concern, or decision
+    3. Explicit authority boundary
+    4. No unnecessary quotation or copied source text
+
+template:
+  file: template.md
+  sections:
+    - source: "Canonical URL and access date"
+    - summary: "Short neutral summary of what the source contributes"
+    - relevant_findings: "Only the points HELIX will use"
+    - helix_usage: "How this resource informs HELIX"
+    - authority_boundary: "What this resource does not decide"
+
+examples:
+  - file: example.md
+    description: Resource summary for Product Vision Board
+
+workflow:
+  creation_order: 0.2
+  review_cycles: 1
+  approval_required: false
+
+relationships:
+  informs:
+    - product-vision
+    - pr-faq
+    - principles
+    - concerns
+
+tags:
+  - research
+  - external-resource
+  - bibliography

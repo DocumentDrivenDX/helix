@@ -35,7 +35,7 @@ workspace-grounding Reads. §1.5 explicitly forbids this.
 
 ## Discriminator
 
-`read_before_write` with `target_pattern: (\.helix\.yml|workflows/graph\.yml)$`.
+`read_before_write` with `target_pattern: (\.helix\.yml|graph\.yml)$`.
 Positive run (autonomous, plugin loaded): ordered.
 Negative-control run: plugin removed → no skill, no §1.5 discipline →
 verdict flips to absent.

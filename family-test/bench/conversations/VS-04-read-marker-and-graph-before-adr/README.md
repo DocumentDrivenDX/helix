@@ -42,7 +42,7 @@ cascade position.
 
 ## Discriminator
 
-`read_before_write` with `target_pattern: (\.helix\.yml|workflows/graph\.yml)$`.
+`read_before_write` with `target_pattern: (\.helix\.yml|graph\.yml)$`.
 Positive run: ordered. Negative-control (plugin removed): the agent
 may emit an ADR from training, but the marker/graph Reads are not
 reliably ordered before the Write.

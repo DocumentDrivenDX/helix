@@ -1,0 +1,80 @@
+# HELIX voice profiles.
+#
+# These profiles are methodology data. Runtimes and optional prose tools may
+# consume them, but HELIX remains usable when no prose tool is installed.
+
+version: 1
+default_profile: artifact-signal
+
+profiles:
+  machine-facts:
+    conciseness: 1
+    audience:
+      - LLM context assemblers
+      - deterministic validators
+      - humans checking extracted state
+    purpose: Preserve facts, identifiers, edges, and evidence with the least possible prose.
+    use_for:
+      - context digests
+      - extracted state summaries
+      - generated indexes
+    required_moves:
+      - Put identifiers, paths, statuses, commands, metrics, dates, and edges before explanation.
+      - Prefer lists, tables, and key-value lines over paragraphs.
+      - Keep every claim scoped to its cited artifact, run, or source.
+    avoid:
+      - narrative setup
+      - persuasion
+      - background that can be recovered from the cited source
+      - synonyms for canonical HELIX terms
+
+  artifact-signal:
+    conciseness: 2
+    audience:
+      - humans maintaining project intent
+      - LLMs carrying artifact context across sessions
+      - reviewers checking traceability and authority
+    purpose: Carry durable project signal between humans and LLMs without hiding decisions in prose.
+    use_for:
+      - HELIX artifact instances
+      - artifact templates and prompts
+      - artifact-type metadata
+      - alignment and validation reports
+    required_moves:
+      - Lead with the decision, requirement, constraint, evidence, risk, or open question.
+      - Use the exact artifact, field, command, metric, status, or trace ID when one exists.
+      - Preserve artifact authority: PRDs state product scope, ADRs record decisions, test plans name verification strategy, and work items track execution.
+      - Name assumptions, unknowns, blockers, and non-goals explicitly.
+      - Prefer short paragraphs, compact tables, and bounded bullets over narrative buildup.
+      - Keep specifications focused on intent; track implementation gaps in plans, reports, or work items.
+    avoid:
+      - implementation-status language in specifications
+      - marketing copy
+      - generic methodology exposition
+      - hedged filler such as "it is important to note"
+      - unsupported claims about tests, metrics, validation, ratchets, or completion
+      - smoothing away IDs, paths, commands, acceptance criteria, risks, or trace links
+
+  public-site:
+    conciseness: 3
+    audience:
+      - smart novice evaluators
+      - new HELIX users
+      - active HELIX users looking for reference material
+      - contributors orienting to the project
+    purpose: Explain HELIX to public readers with enough local context to stand alone.
+    use_for:
+      - microsite pages
+      - generated website introductions
+      - public demos
+      - public catalog summaries
+    required_moves:
+      - Define the page's key terms on first use or link to the definition.
+      - State what the reader can do with the page before diving into detail.
+      - Make card, table, and module copy understandable without assuming prior page context.
+      - Separate public explanation from generated artifact evidence.
+    avoid:
+      - unexplained "the catalog", "the flow", or "the methodology" references
+      - internal-only shorthand
+      - proof-source disclaimers that read like doctrine
+      - duplicated explanations across adjacent pages

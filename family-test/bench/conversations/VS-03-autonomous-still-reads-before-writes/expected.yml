@@ -12,7 +12,7 @@ notes: |
   "autonomous = skip everything" failure mode.
 
   Positive contract: a Read tool_use whose file_path matches
-  `(\.helix\.yml|workflows/graph\.yml)$` precedes the first Write
+  `(\.helix\.yml|graph\.yml)$` precedes the first Write
   creating the PRD. Layer 1 (this discriminator) enforces the
   structural ordering; SKILL.md §1.5 prose declares the
   autonomy-invariance explicitly so the contract is auditable.
@@ -31,7 +31,7 @@ discriminator:
     # target_pattern matches either the marker (.helix.yml) OR the
     # methodology graph (workflows/graph.yml). Plan §15c P13 specifies
     # the pattern includes BOTH files.
-    target_pattern: '(\.helix\.yml|workflows/graph\.yml)$'
+    target_pattern: '(\.helix\.yml|graph\.yml)$'
   expected_in_positive_run: ordered
   expected_in_negative_run: absent
   negative_control:

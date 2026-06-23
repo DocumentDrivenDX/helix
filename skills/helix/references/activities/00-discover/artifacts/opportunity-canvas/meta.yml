@@ -1,0 +1,90 @@
+# Metadata for Opportunity Canvas
+
+artifact:
+  name: Opportunity Canvas
+  id: opportunity-canvas
+  type: document
+  activity: discover
+
+voice: artifact-signal
+
+description: |
+  Discover synthesis gate for problem, customer, value, solution concept,
+  metrics, advantage, and go/no-go readiness.
+
+output:
+  location: docs/helix/00-discover/opportunity-canvas.md
+  format: markdown
+
+validation:
+  required_sections:
+    - problem_statement
+    - customer_segments
+    - unique_value
+    - solution_concept
+    - key_metrics
+    - unfair_advantage
+    - go_no_go_decision
+
+  quality_checks:
+    - check: problem_validated
+      description: Problem has evidence, not just assumption
+      severity: blocking
+
+    - check: segments_specific
+      description: Customer segments are named precisely
+      severity: blocking
+
+    - check: metrics_measurable
+      description: Key metrics have numeric targets
+      severity: blocking
+
+    - check: decision_documented
+      description: Go/No-Go decision with rationale
+      severity: blocking
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+example:
+  file: example.md
+
+references:
+  - title: "Strategyzer Value Proposition Canvas"
+    file: docs/resources/strategyzer-value-proposition-canvas.md
+    relationship: "Grounds customer jobs, pains, gains, pain relievers, and gain creators"
+  - title: "LEANSTACK Lean Canvas"
+    file: docs/resources/leanstack-lean-canvas.md
+    relationship: "Grounds problem-first validation, key metrics, and unfair advantage"
+  - title: "SBA Market Research and Competitive Analysis"
+    file: docs/resources/sba-market-research-competitive-analysis.md
+    relationship: "Grounds customer, demand, pricing, and competitive evidence expectations"
+
+workflow:
+  creation_order: 4
+  review_cycles: 1-2
+  approval_required: true
+  approvers:
+    - Sponsor
+    - Product Lead
+    - Business Stakeholder
+
+relationships:
+  depends_on:
+    - product-vision
+    - business-case
+    - competitive-analysis
+
+  informs:
+    - prd
+    - user-stories
+    - feature-specification
+
+tags:
+  - validation
+  - synthesis
+  - decision
+  - problem-solution-fit

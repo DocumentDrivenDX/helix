@@ -1,0 +1,99 @@
+activity: build
+number: "04"
+
+entry_requirements:
+  automated:
+    - check: previous_phase_complete
+      activity: 03-test
+
+    - check: file_exists
+      path: docs/helix/03-test/test-plan.md
+      description: "Test plan from Test activity must exist"
+
+    - check: tests_exist
+      path: tests
+      description: "Test suites from Test activity must exist"
+
+    - check: tests_failing
+      command: "npm test || go test ./... || pytest"
+      description: "Tests must be failing (Red activity ready for implementation)"
+
+    - check: file_exists
+      path: .github/workflows/test.yml
+      fallback_paths:
+        - .github/workflows/ci.yml
+        - .gitlab-ci.yml
+      description: "CI/CD pipeline configured for tests"
+
+  manual:
+    - "Test suites reviewed and approved"
+    - "Security test suite validated"
+
+exit_requirements:
+  automated:
+    # All tests passing
+    - check: tests_passing
+      command: "npm test || go test ./... || pytest"
+      description: "All tests must pass"
+
+    # Coverage thresholds
+    - check: coverage_threshold
+      threshold: 80
+      command: "npm run coverage || go test -cover ./... || pytest --cov"
+      description: "Code coverage must be at least 80%"
+
+    # Security scan
+    - check: security_scan_clean
+      command: "npm audit --audit-level=high || gosec ./... || bandit -r ."
+      severity: high
+      description: "No high or critical security vulnerabilities"
+
+    # Linting passes
+    - check: lint_clean
+      command: "npm run lint || golangci-lint run || flake8"
+      description: "No linting errors"
+
+    # Build artifacts
+    - check: file_exists
+      path: docs/helix/04-build/implementation-plan.md
+      description: "Implementation plan must exist"
+
+    # Source code exists
+    - check: dir_not_empty
+      path: src
+      fallback_paths:
+        - lib
+        - pkg
+        - internal
+      description: "Source code directory must contain implementation"
+
+    # Documentation updated
+    - check: file_exists
+      path: README.md
+      description: "README must exist"
+
+    - check: file_exists
+      path: CHANGELOG.md
+      description: "CHANGELOG must exist"
+
+    # No debug/development artifacts
+    - check: grep_absent
+      pattern: "console\\.log|fmt\\.Print|print\\(|debugger"
+      path: src/**/*
+      fallback_paths:
+        - lib/**/*
+        - pkg/**/*
+      description: "No debug statements in production code"
+
+    # Verification evidence — running-system, including each AC's guard/negative
+    # branch (the verification concern is the authority for the record's contents).
+    - check: file_exists
+      path: docs/helix/04-build/verification-evidence.md
+      description: "Verification evidence record must exist: command+exit, target URL/env, core flows AND each governing AC's guard/negative branch exercised on the RUNNING system via the interface-appropriate harness, plus the re-review checklist (per the verification concern)"
+
+  manual:
+    - "Code review completed and approved"
+    - "Performance benchmarks validated"
+    - "Verification evidence reviewed (adversarial): every governing AC's guard/negative branch was driven on the RUNNING system via the interface-appropriate harness (web→Playwright, HTTP API→request client, CLI→shell, TUI→tmux, backend→integration). Happy-path-green is not done; an un-waived untested guard branch is not done."
+
+next_activity: deploy

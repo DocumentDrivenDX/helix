@@ -594,8 +594,11 @@ skill_path, repo_root = sys.argv[1], sys.argv[2]
 text = open(skill_path).read()
 # Patterns the skill instructs the runtime to load. Only check repo-relative
 # paths the agent is told to Read; skip operator-only paths (docs/helix/...
-# which lives in the user's project, not the plugin), in-text examples, and
-# absent-but-optional graph.yml (workflows/graph.yml — known gap; not shipped).
+# which lives in the user's project, not the plugin) and in-text examples.
+# The `references/` floor ships beside SKILL.md so §Catalog Resolution always
+# resolves a graph/template in plugin installs that package only ./skills/; it
+# is a synced copy of the workflows/ catalog, kept in lockstep by the
+# sync_references.py diff check below.
 required = {
     "library/skill-prompts/stop-at-triggers.yml",
     "workflows/concerns/slots.yml",
@@ -637,6 +640,22 @@ if not filecmp.cmp(backup, generated, shallow=False):
     sys.exit(1)
 PYEOF
 rm -f "$graph_tmp" "$graph_tmp.committed"
+
+# skills/helix/references/ floor sync: the committed floor MUST be an exact copy
+# of the workflows/ catalog. Re-sync into a temp dir and diff bidirectionally
+# (diff -r reports files present on only one side too), catching both drift and
+# orphaned/missing floor files. Run the graph generator first so the floor's
+# graph.yml is compared against the freshly-generated workflows/graph.yml.
+ref_tmp="$(mktemp -d)"
+if ! python3 "$repo_root/scripts/sync_references.py" "$ref_tmp" >/dev/null; then
+  rm -rf "$ref_tmp"
+  fail "sync_references.py failed"
+fi
+if ! diff -r "$ref_tmp" "$repo_root/skills/helix/references" >/dev/null 2>&1; then
+  rm -rf "$ref_tmp"
+  fail "skills/helix/references/ is out of sync with workflows/ — run: python3 scripts/sync_references.py"
+fi
+rm -rf "$ref_tmp"
 
 # Canonical SKILL.md frontmatter check: enforce agentskills.io spec AND the
 # runtime-specific limits we hit in benchmarking:

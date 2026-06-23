@@ -14,7 +14,7 @@ notes: |
   of edge prerequisites.
 
   Positive contract: a Read tool_use matching
-  `(\.helix\.yml|workflows/graph\.yml)$` precedes the first Write
+  `(\.helix\.yml|graph\.yml)$` precedes the first Write
   creating the new ADR. The matcher's regex spans both files per plan
   §15c P13.
 
@@ -32,7 +32,7 @@ discriminator:
     # target_pattern matches either the marker (.helix.yml) OR the
     # methodology graph (workflows/graph.yml). Plan §15c P13 specifies
     # the pattern includes BOTH files.
-    target_pattern: '(\.helix\.yml|workflows/graph\.yml)$'
+    target_pattern: '(\.helix\.yml|graph\.yml)$'
   expected_in_positive_run: ordered
   expected_in_negative_run: absent
   negative_control:

@@ -1,0 +1,68 @@
+artifact:
+  name: Security Tests
+  id: security-tests
+  type: document
+  activity: test
+
+voice: artifact-signal
+
+description: |
+  Security verification matrix that maps material threats and controls to
+  executable tests, evidence, and residual-risk decisions.
+
+output:
+  location: docs/helix/03-test/security-tests.md
+  format: markdown
+  naming: security-tests.md
+
+validation:
+  required_sections:
+    - scope
+    - test_matrix
+    - abuse_cases
+    - evidence
+    - residual_risk
+
+  quality_checks:
+    - check: risks_mapped_to_tests
+      description: Each material security risk should map to at least one concrete test or explicit residual-risk decision
+      severity: blocking
+    - check: evidence_recorded
+      description: Security test results should include reproducible commands, tool output, or review evidence
+      severity: blocking
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+example:
+  file: example.md
+
+references:
+  - title: "OWASP Application Security Verification Standard"
+    file: docs/resources/owasp-asvs.md
+    relationship: "Grounds verifiable application security controls"
+  - title: "OWASP Web Security Testing Guide"
+    file: docs/resources/owasp-wstg.md
+    relationship: "Grounds concrete web and API security test scenarios"
+  - title: "OWASP Threat Modeling Cheat Sheet"
+    file: docs/resources/owasp-threat-modeling-cheat-sheet.md
+    relationship: "Grounds threat-to-test traceability"
+
+relationships:
+  informed_by:
+    - security-requirements
+    - threat-model
+    - security-architecture
+  informs:
+    - test-plan
+    - security-metrics
+
+tags:
+  - test
+  - security
+  - verification
+
+version: 1.0.0

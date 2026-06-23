@@ -37,7 +37,7 @@ discriminator:
     # methodology graph (workflows/graph.yml). Per plan §15c P13 the
     # pattern includes BOTH files; ordering verdict requires at least
     # one Read of either to precede the first Edit.
-    target_pattern: '(\.helix\.yml|workflows/graph\.yml)$'
+    target_pattern: '(\.helix\.yml|graph\.yml)$'
   expected_in_positive_run: ordered
   expected_in_negative_run: absent
   negative_control:

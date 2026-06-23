@@ -1,0 +1,66 @@
+artifact:
+  name: Test Procedures
+  id: test-procedures
+  type: document
+  activity: test
+
+voice: artifact-signal
+
+description: |
+  Repeatable operator procedures for running planned tests, capturing evidence,
+  and applying pass/fail rules consistently.
+
+output:
+  location: docs/helix/03-test/test-procedures.md
+  format: markdown
+  naming: test-procedures.md
+
+validation:
+  required_sections:
+    - scope
+    - prerequisites
+    - procedures
+    - evidence_capture
+    - pass_fail_rules
+
+  quality_checks:
+    - check: procedures_reproducible
+      description: Procedures must be specific enough for another operator to repeat
+      severity: blocking
+    - check: evidence_expectations_clear
+      description: Each procedure should state what evidence proves the result
+      severity: blocking
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+example:
+  file: example.md
+
+references:
+  - title: "Google Test Sizes"
+    file: docs/resources/google-test-sizes.md
+    relationship: "Grounds different execution expectations for small, medium, and large tests"
+  - title: "Practical Test Pyramid"
+    file: docs/resources/fowler-practical-test-pyramid.md
+    relationship: "Grounds procedure differences across unit, integration, and end-to-end tests"
+  - title: "Cucumber Executable Specifications"
+    file: docs/resources/cucumber-executable-specifications.md
+    relationship: "Grounds acceptance-example procedures without replacing implementation tests"
+
+relationships:
+  informed_by:
+    - test-plan
+    - story-test-plan
+  informs:
+    - test-suites
+
+tags:
+  - test
+  - procedures
+  - evidence
+
+version: 1.0.0

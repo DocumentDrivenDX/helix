@@ -1,0 +1,168 @@
+# Metadata for Data Quality Expectations
+
+artifact:
+  name: Data Quality Expectations
+  id: data-quality-expectations
+  type: document
+  activity: test
+
+voice: artifact-signal
+
+description: |
+  Defines quality contracts as testable predicates on data shape, completeness,
+  timeliness, and correctness before implementation begins. Data quality
+  expectations are written using Databricks SDP EXPECT clauses (or equivalent
+  frameworks on other platforms: dbt tests, Great Expectations, custom SQL
+  constraints). They bind the data architecture and guard data product delivery:
+  every row, column, and feed entering or leaving a medallion layer must satisfy
+  its expectations.
+
+output:
+  location: docs/helix/03-test/data-quality-expectations.md
+  format: markdown
+  naming: data-quality-expectations.md
+  examples:
+    - data-quality-expectations.md
+
+validation:
+  required_sections:
+    - overview_and_scope
+    - bronze_layer_expectations
+    - silver_layer_expectations
+    - gold_layer_expectations
+    - cross_layer_contracts
+    - failure_handling_and_sla
+
+  quality_checks:
+    - check: expectations_testable
+      description: Each expectation must be written in a syntax that can be executed (SDP EXPECT, dbt test, SQL constraint, or regex)
+      severity: blocking
+
+    - check: expectations_trace_to_requirements
+      description: "Each expectation must trace to a data quality requirement in the PRD (kind: data)"
+      severity: blocking
+
+    - check: failure_modes_explicit
+      description: For each layer, document what happens when an expectation fails (alert, quarantine, reject)
+      severity: blocking
+
+    - check: sla_per_layer
+      description: SLA for each layer must specify max latency before data is considered stale
+      severity: warning
+
+    - check: sampling_vs_exhaustive_clear
+      description: Expectations must clarify whether checks are exhaustive or sampled (and sample rate)
+      severity: warning
+
+  automated_checks:
+    - pattern: "EXPECT|NOT NULL|UNIQUE|IN\\(|BETWEEN|LIKE|CHECK\\(|dbt test|Great Expectations"
+      expected: ">0"
+      message: Data quality expectations must include at least one testable assertion
+
+    - pattern: "\\[TBD\\]|\\[TODO\\]|\\[NEEDS CLARIFICATION\\]"
+      expected: 0
+      message: Remove all unresolved markers before approval
+
+variables:
+  - name: data_product_name
+    description: Name of the data product being tested
+    required: true
+
+  - name: medallion_layers
+    description: List of medallion layers (Bronze, Silver, Gold) in scope
+    required: true
+
+  - name: key_dimensions
+    description: Primary data quality dimensions (completeness, timeliness, accuracy, consistency)
+    required: true
+
+  - name: failure_sla
+    description: How quickly must data quality failures be detected and escalated?
+    required: false
+
+  - name: test_framework
+    description: Tool or language for expressing expectations (SDP EXPECT, dbt, Great Expectations, SQL)
+    required: false
+
+prompts:
+  generation: prompt.md
+  review: |
+    Review this data quality expectations document for:
+    1. Expectations are written in executable form (SDP EXPECT, dbt, SQL, etc.)
+    2. Each expectation traces to a data quality requirement
+    3. Failure modes are explicit (reject, alert, quarantine, retry)
+    4. Latency SLA per layer is documented
+    5. Sampling strategy (exhaustive vs sampled) is clear
+    6. Cross-layer data contracts are defined (e.g., aggregate sums reconcile)
+    7. Test coverage aligns with data product risk (P0 requirements have multiple expectations)
+
+template:
+  file: template.md
+  sections:
+    - overview_and_scope: "Scope by medallion layer; define quality dimensions and test philosophy"
+    - bronze_layer_expectations: "Raw data validation; completeness, format, schema, freshness"
+    - silver_layer_expectations: "Transformed data validation; uniqueness, referential integrity, business logic"
+    - gold_layer_expectations: "Consumption layer validation; aggregate correctness, SLA compliance, consumer guarantees"
+    - cross_layer_contracts: "Data contracts between layers (sums reconcile, cardinality stable, no orphans)"
+    - failure_handling_and_sla: "What triggers failure? How quickly is it detected and escalated?"
+
+examples:
+  - file: example.md
+    description: Customer 360 data quality expectations with SDP EXPECT clauses per medallion layer, failure modes, and recovery SLA
+
+relationships:
+  informed_by:
+    # `prd` with `kind: data` (per ADR-008) supplies the quality requirements
+    # this artifact translates into executable expectations.
+    - prd
+    - data-architecture
+
+  informs:
+    - test-plan
+    - story-test-plan
+    - implementation-plan
+
+  referenced_by:
+    - implementation-plan
+    - runbook
+    - monitoring-setup
+
+references:
+  - title: "Databricks SDP (Semantic Data Platform) EXPECT Clauses"
+    file: docs/resources/databricks-sdp-expect.md
+    relationship: "Grounds declarative data quality assertions using SDP syntax"
+
+  - title: "dbt Tests and Assertions"
+    file: docs/resources/dbt-tests.md
+    relationship: "Grounds testing patterns for transformation logic and data model validation"
+
+  - title: "Great Expectations Framework"
+    file: docs/resources/great-expectations.md
+    relationship: "Grounds comprehensive data profiling and expectation library for complex quality rules"
+
+  - title: "Data Quality Dimensions and Metrics"
+    file: docs/resources/data-quality-dimensions.md
+    relationship: "Grounds formal definitions of completeness, timeliness, accuracy, and consistency"
+
+  - title: "TDWI Data Quality Framework"
+    file: docs/resources/tdwi-data-quality.md
+    relationship: "Grounds assessment, measurement, and improvement of data quality dimensions"
+
+workflow:
+  creation_order: 1
+  review_cycles: 1-2
+  approval_required: true
+  approvers:
+    - Data Quality Owner
+    - Data Engineering Lead
+    - Data Product Owner
+
+tags:
+  - data-engineering
+  - quality
+  - testing
+  - databricks
+  - sdp
+
+version: 1.0.0
+last_updated: 2026-05-18

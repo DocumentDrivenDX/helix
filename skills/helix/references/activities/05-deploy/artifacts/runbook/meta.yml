@@ -1,0 +1,86 @@
+artifact:
+  name: Runbook
+  id: runbook
+  type: document
+  activity: deploy
+
+voice: artifact-signal
+
+description: |
+  Service-specific operational procedures for on-call response, rollback,
+  recovery, and routine maintenance tied to a deployed system.
+
+output:
+  location: docs/helix/05-deploy/runbook.md
+  format: markdown
+  naming: runbook.md
+
+validation:
+  required_sections:
+    - service_summary
+    - operator_entry_points
+    - dependencies_and_failure_boundaries
+    - alert_triage
+    - common_incident_procedures
+    - rollback_and_recovery
+    - routine_operations
+    - escalation_and_communications
+
+  quality_checks:
+    - check: service_specific_actions
+      description: Procedures must use service-specific checks and commands rather than generic infrastructure filler
+      severity: blocking
+    - check: signal_to_response_mapping
+      description: Alerts or symptoms must map to first checks, decisions, and next actions
+      severity: blocking
+    - check: rollback_recovery_validated
+      description: Rollback and recovery steps must include prerequisites and validation points
+      severity: blocking
+    - check: escalation_defined
+      description: Escalation ownership and communication paths must be explicit
+      severity: warning
+    - check: bounded_operational_scope
+      description: Routine operations should stay limited to recurring procedures the service owner actually performs
+      severity: warning
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+example:
+  file: example.md
+
+references:
+  - title: "Google SRE Incident Management Guide"
+    file: docs/resources/google-sre-incident-management-guide.md
+    relationship: "Grounds alert response, ownership, escalation, mitigation, and follow-up"
+  - title: "Google SRE: Release Engineering"
+    file: docs/resources/google-sre-release-engineering.md
+    relationship: "Grounds rollback and release-control procedures"
+
+workflow:
+  creation_order: 3
+  review_cycles: 1
+  approval_required: true
+  approvers:
+    - Technical Lead
+    - On-Call Owner
+
+relationships:
+  informed_by:
+    - architecture
+    - deployment-checklist
+    - monitoring-setup
+    - security-architecture
+
+tags:
+  - deploy
+  - operations
+  - runbook
+  - incidents
+  - recovery
+
+version: 1.0.0
+last_updated: 2026-04-10

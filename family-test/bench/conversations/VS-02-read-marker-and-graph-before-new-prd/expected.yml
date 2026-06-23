@@ -11,7 +11,7 @@ notes: |
   BEFORE the first Write tool_use that creates the PRD.
 
   Positive contract: a Read tool_use whose file_path matches
-  `(\.helix\.yml|workflows/graph\.yml)$` precedes the first Write
+  `(\.helix\.yml|graph\.yml)$` precedes the first Write
   targeting any new `docs/helix/01-frame/PRD-*.md` file. The matcher
   uses a single regex that spans both files per plan §15c P13.
 
@@ -31,7 +31,7 @@ discriminator:
     # methodology graph (workflows/graph.yml). Per plan §15c P13 the
     # pattern includes BOTH files; an ordered verdict requires at least
     # one Read of either before the first Write.
-    target_pattern: '(\.helix\.yml|workflows/graph\.yml)$'
+    target_pattern: '(\.helix\.yml|graph\.yml)$'
   expected_in_positive_run: ordered
   expected_in_negative_run: absent
   negative_control:

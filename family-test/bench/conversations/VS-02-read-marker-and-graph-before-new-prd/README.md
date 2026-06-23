@@ -37,7 +37,7 @@ file precedes the first Write.
 
 ## Discriminator
 
-`read_before_write` with `target_pattern: (\.helix\.yml|workflows/graph\.yml)$`.
+`read_before_write` with `target_pattern: (\.helix\.yml|graph\.yml)$`.
 Positive run: ordered. Negative-control run (plugin removed): the agent
 may still emit a PRD from training, but the marker/graph Reads are no
 longer reliably in the lead position.

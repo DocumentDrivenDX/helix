@@ -1,0 +1,79 @@
+artifact:
+  name: Security Metrics
+  id: security-metrics
+  type: document
+  activity: iterate
+
+voice: artifact-signal
+
+description: |
+  Iteration-level security posture report that turns incidents, vulnerabilities,
+  control results, and compliance gaps into trend-backed improvement work.
+
+output:
+  location: docs/helix/06-iterate/security-metrics.md
+  format: markdown
+  naming: security-metrics.md
+
+validation:
+  required_sections:
+    - incident_response
+    - vulnerability_management
+    - application_security
+    - compliance_status
+    - security_posture_trend
+    - recommendations
+
+  quality_checks:
+    - check: trend_comparison_explicit
+      description: Trend comparison must be explicit for each security area
+      severity: blocking
+    - check: actionable_recommendations
+      description: Recommendations must be specific enough to become tracker issues
+      severity: blocking
+    - check: root_cause_documented
+      description: Critical and high-severity incidents must include root cause notes
+      severity: warning
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+example:
+  file: example.md
+
+references:
+  - title: "NIST Cybersecurity Measurement Guidance"
+    file: docs/resources/nist-cybersecurity-measurement-guidance.md
+    relationship: "Grounds risk-based, trend-oriented security measurement"
+  - title: "OWASP Application Security Verification Standard"
+    file: docs/resources/owasp-asvs.md
+    relationship: "Grounds application-security control coverage"
+  - title: "Google SRE Incident Management Guide"
+    file: docs/resources/google-sre-incident-management-guide.md
+    relationship: "Grounds incident response measurement and follow-up"
+
+workflow:
+  creation_order: 2
+  review_cycles: 1
+  approval_required: true
+  approvers:
+    - Technical Lead
+    - Product Owner
+
+relationships:
+  informed_by:
+    - metrics-dashboard
+  informs:
+    - improvement-backlog
+
+tags:
+  - iterate
+  - security
+  - metrics
+  - report
+
+version: 1.0.0
+last_updated: 2026-04-09
