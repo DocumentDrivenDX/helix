@@ -473,9 +473,26 @@ def matcher_read_before_write(params: dict[str, Any], t: Transcript) -> MatchRes
             or tu.input.get("filepath")
             or ""
         )
-        if tu.name == first_tool and target_re.search(path):
-            if first_idx is None:
-                first_idx = tu.index
+        # A target read is either a native read-tool call on a matching path
+        # (claude `Read`), or a shell command referencing the target. codex and
+        # opencode read files via sed/cat/test/rg, which parse_codex/parse_opencode
+        # map to a `Bash` tool_use carrying the path inside `input.command` — the
+        # path never reaches a file_path field, so without this the matcher is
+        # blind to every codex/opencode read and scores `absent`.
+        cmd = tu.input.get("command") or ""
+        is_target_read = tu.name == first_tool and target_re.search(path)
+        if not is_target_read and tu.name == "Bash" and cmd:
+            # The path is embedded mid-command with shell quoting/wrappers
+            # (e.g. `/bin/zsh -lc "sed -n '1,220p' .helix.yml"`), so an
+            # end-anchored target_pattern won't match the whole command string.
+            # Apply it per shell token instead.
+            is_target_read = any(
+                target_re.search(tok)
+                for tok in re.split(r"""[\s"'`=()]+""", cmd)
+                if tok
+            )
+        if is_target_read and first_idx is None:
+            first_idx = tu.index
         if tu.name == second_tool or tu.name.startswith(f"{second_tool}("):
             if second_idx is None:
                 second_idx = tu.index
@@ -1642,6 +1659,55 @@ def run_smoke(verbose: bool = True) -> tuple[int, dict[str, Any]]:
             )
         else:
             summary["matchers_pass"] += 1
+
+    # Codex/opencode runtime guard: those harnesses read files via shell
+    # (sed/cat/test/rg), which parse_codex/parse_opencode map to a `Bash`
+    # tool_use carrying the path in `input.command` — NOT a Read+file_path.
+    # read_before_write must still see the read (regression: real codex runs
+    # scored `absent` because the matcher was blind to shell reads). The
+    # negative case proves a Bash command that does NOT touch the target is not
+    # miscounted as a read.
+    _rbw_params = {
+        "first_tool": "Read",
+        "second_tool": "Write",
+        "target_pattern": r"(\.helix\.yml|graph\.yml)$",
+    }
+    _codex_rbw_cases = [
+        (
+            "codex_read_before_write_positive",
+            _synthetic_transcript([
+                # Realistic codex shape: shell wrapper + quotes, path mid-string
+                # (the end-anchored target_pattern only matches per shell token).
+                {"type": "tool_use", "name": "Bash",
+                 "input": {"command": "/bin/zsh -lc \"sed -n '1,220p' .helix.yml\""}},
+                {"type": "tool_use", "name": "Bash",
+                 "input": {"command": "/bin/zsh -lc \"test -f skills/helix/references/graph.yml "
+                                       "&& sed -n '1,220p' skills/helix/references/graph.yml\""}},
+                {"type": "tool_use", "name": "Write",
+                 "input": {"file_path": "/repo/docs/helix/prd.md"}},
+            ]),
+            "ordered",
+        ),
+        (
+            "codex_read_before_write_negative",
+            _synthetic_transcript([
+                {"type": "tool_use", "name": "Bash", "input": {"command": "ls docs/helix"}},
+                {"type": "tool_use", "name": "Write",
+                 "input": {"file_path": "/repo/docs/helix/prd.md"}},
+            ]),
+            "reversed",
+        ),
+    ]
+    for name, transcript, expected in _codex_rbw_cases:
+        summary["matchers_total"] += 1
+        result = matcher_read_before_write(_rbw_params, transcript)
+        if result.verdict == expected:
+            summary["matchers_pass"] += 1
+        else:
+            summary["matchers_fail"].append(
+                {"assertion_id": name, "expected": expected,
+                 "got": result.verdict, "details": result.details}
+            )
 
     # Rejection: each malformed row must trip exactly its labeled code.
     tmp_dir = BENCH_ROOT / "runner" / "smoke" / "rejections"
