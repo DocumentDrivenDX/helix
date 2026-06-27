@@ -1,7 +1,7 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-deploy-artifacts test-state-rules test-skills test-surface-leakage test-microsite-doctrine test-context-digests
+test: test-deploy-artifacts test-state-rules test-skills test-surface-leakage test-microsite-doctrine test-context-digests test-actions
 
 # Serve the HELIX microsite at the canonical local review URL.
 website-serve:
@@ -30,6 +30,10 @@ test-microsite-doctrine:
 # Validate live tracker context-digest coverage
 test-context-digests:
     bash tests/validate-context-digests.sh
+
+# Validate action prompts are well-formed and registered in a route
+test-actions:
+    bash tests/validate-actions.sh
 
 # Run all tests and check for stale references
 check: test lint

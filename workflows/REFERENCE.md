@@ -29,7 +29,17 @@ guide; for DDx-specific commands, see [docs/install/ddx.md](../docs/install/ddx.
   implementation
 - [fresh-eyes-review.md](actions/fresh-eyes-review.md): post-implementation
   review
+- [converge.md](actions/converge.md): adversarial-review-until-clean loop with an
+  explicit stop rule (the enforced "review until it converges")
 - [experiment.md](actions/experiment.md): metric-driven optimization iteration
+- [genesis.md](actions/genesis.md): cold-start bootstrap of a new project
+  (name → research → vision → scaffold)
+- [project-audit.md](actions/project-audit.md): orientation entry-point composing
+  check + reconcile-alignment into one state report
+- [decompose-module.md](actions/decompose-module.md): iterative oversized-module
+  decomposition behind a per-iteration verify gate
+- [e2e-ladder.md](actions/e2e-ladder.md): build up end-to-end coverage as a ladder
+  of increasingly complex real-client scenarios
 - [metric-definition.yaml](templates/metric-definition.yaml): shared metric
   definitions
 

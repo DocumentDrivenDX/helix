@@ -101,6 +101,11 @@ was not observed.
   the evidence
 - Components pass in isolation, system never exercised end-to-end →
   locally-correct / globally-wrong; exercise the running stack
+- An agent/network-facing surface (MCP server, OAuth/SSO login, a remote
+  endpoint) declared done on unit tests, with no real client ever completing the
+  handshake/login against the real address → not done; the runtime boundary is
+  exactly where unit-green hides the defect (the connection, the token exchange,
+  the cert, localhost-vs-real-host). Drive a real client end-to-end before "done".
 
 ## When to use
 

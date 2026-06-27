@@ -143,6 +143,22 @@ relaxing the check). Adopting projects enforce it in the same gate as the accept
 repeatedly surfaced "the docs claim tests that don't exist"; folding that class back in as a zero-floor
 ratchet makes HELIX catch it internally instead of relying on an outside reviewer.
 
+**Incompleteness-marker sub-ratchet (hollow-completeness, floor = 0)**: the `scope-discipline` concern
+refuses a satisfied-claimed acceptance criterion whose code path still contains an incompleteness marker —
+the mechanically-detectable set the 04-build `GATE.yaml` stub check greps for (`unimplemented!()`,
+`todo!()`, `panic!("not implemented")`, `NotImplementedError` / `raise NotImplemented`,
+`throw new Error("not implemented")`), plus the manual-review forms the grep cannot see (an empty
+placeholder body, a "facade" wrapper with nothing behind it). This is the *under-delivery* twin of the phantom claim: the phantom claim asserts a
+test that does not exist; the incompleteness marker asserts done over code that does not run. The count
+of incompleteness markers on AC-exercised production paths is a ratchet with a permanent floor of
+**zero**: any such marker is a blocking regression, resolved by finishing the implementation or by
+recording an explicit phased-placeholder exception that no satisfied criterion depends on (per the
+`scope-discipline` concern) — never by relaxing the check. Adopting projects enforce it in the same
+gate as the acceptance-criteria and phantom-claim ratchets (Build Step 7 / the 04-build `GATE.yaml`
+stub check, Check Step 2, reconcile-alignment Step 3/7). Rationale: harvested operator sessions showed
+agents repeatedly shipping stubbed or "facade" paths under a done claim, which the operator then had to
+catch by hand; a zero-floor ratchet makes HELIX catch it internally.
+
 ### Test Coverage Ratchet
 
 **What it measures**: source-line coverage percentage (or equivalent) produced

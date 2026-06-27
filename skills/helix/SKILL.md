@@ -4,7 +4,8 @@ description: |
   HELIX skill — single public entrypoint for HELIX document and workflow
   work. Engage on prompts to frame, align, decompose, prioritize,
   propose, capture, review, decide, validate, evolve, refresh, design,
-  backfill, or polish governed artifacts. Engage on any named HELIX
+  backfill, polish, converge, audit, or bootstrap (genesis) governed
+  artifacts and work. Engage on any named HELIX
   artifact: PRD, ADR, FEAT, feature spec, technical design,
   implementation plan, test plan, runbook, release notes, user stories,
   roadmap brief, requirements. Product, web, infra, and data are domain
@@ -364,6 +365,11 @@ Prefer the first matching route:
 | Refine work items for execution readiness | polish |
 | Decide the next safe HELIX action | check or next |
 | Run an optimization experiment | experiment |
+| Bootstrap a brand-new project from bare intent (name, research, vision, scaffold) | genesis |
+| Drive a plan or completed work to convergence: review adversarially, fix, re-review until clean | converge |
+| Audit where a project stands (specs↔impl↔tests↔ACs aligned? complete? next action?) | project-audit |
+| Decompose an oversized code module/file into encapsulated units behind a verify gate | decompose-module |
+| Build up end-to-end coverage as a ladder of increasingly complex real-client scenarios | e2e-ladder |
 
 When multiple routes fit, choose the highest-authority planning route first:
 `frame` before `design`, `align` before `evolve` when the task is diagnostic,
