@@ -85,6 +85,17 @@ exit_requirements:
         - pkg/**/*
       description: "No debug statements in production code"
 
+    # Scope discipline — no hollow stubs on shipped code (the scope-discipline
+    # concern is the authority; TODO/FIXME judgement is the manual item below).
+    - check: grep_absent
+      pattern: "unimplemented!\\(|todo!\\(|panic!\\(\"[Nn]ot implemented|NotImplementedError|raise NotImplemented|throw new Error\\(\"[Nn]ot implemented"
+      path: src/**/*
+      fallback_paths:
+        - lib/**/*
+        - pkg/**/*
+        - internal/**/*
+      description: "No incompleteness stubs (unimplemented!/todo!/not-implemented) in production code — a path an acceptance criterion claims to satisfy must run real code, not a placeholder (per the scope-discipline concern; a deliberately phased stub carries a recorded exception and no satisfied AC)"
+
     # Verification evidence — running-system, including each AC's guard/negative
     # branch (the verification concern is the authority for the record's contents).
     - check: file_exists
@@ -94,6 +105,7 @@ exit_requirements:
   manual:
     - "Code review completed and approved"
     - "Performance benchmarks validated"
-    - "Verification evidence reviewed (adversarial): every governing AC's guard/negative branch was driven on the RUNNING system via the interface-appropriate harness (web→Playwright, HTTP API→request client, CLI→shell, TUI→tmux, backend→integration). Happy-path-green is not done; an un-waived untested guard branch is not done."
+    - "Verification evidence reviewed (adversarial): every governing AC's guard/negative branch was driven on the RUNNING system via the interface-appropriate harness (web→Playwright, HTTP API→request client, MCP/agent surface→real client handshake, auth/SSO→real login flow, real-network/remote surface→exercised on the real address not localhost-stub, CLI→shell, TUI→tmux, backend→integration). Happy-path-green is not done; an un-waived untested guard branch is not done."
+    - "Scope discipline reviewed (per the scope-discipline concern): the change builds exactly what the acceptance criteria asked for — no unrequested features/abstractions/config (gold-plating), no pre-release legacy-compat shim without a released consumer, no requested capability silently narrowed (e.g. shipped read-only) without a recorded tradeoff, and the diff is contained to the work item's stated scope. Any phased placeholder is recorded and covered by no satisfied AC."
 
 next_activity: deploy

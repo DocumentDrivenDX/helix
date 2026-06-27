@@ -31,6 +31,7 @@ activities:
     contract_docs:
       - workflows/activities/00-discover/README.md
       - workflows/activities/00-discover/GATE.yaml
+      - workflows/actions/genesis.md
 
   - id: frame
     order: 1
@@ -64,6 +65,9 @@ activities:
       - workflows/activities/04-build/README.md
       - workflows/activities/04-build/GATE.yaml
       - workflows/actions/implementation.md
+      - workflows/actions/converge.md
+      - workflows/actions/decompose-module.md
+      - workflows/actions/e2e-ladder.md
 
   - id: deploy
     order: 5
@@ -83,3 +87,4 @@ activities:
       - workflows/actions/check.md
       - workflows/actions/reconcile-alignment.md
       - workflows/actions/backfill-helix-docs.md
+      - workflows/actions/project-audit.md

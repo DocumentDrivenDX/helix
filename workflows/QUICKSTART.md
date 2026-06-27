@@ -30,10 +30,20 @@ Read these files in order when you need the canonical contract:
 
 Use the bounded action prompts only when you are doing the corresponding work:
 
+- [input.md](actions/input.md)
+- [frame.md](actions/frame.md)
+- [evolve.md](actions/evolve.md)
 - [implementation.md](actions/implementation.md)
+- [measure.md](actions/measure.md)
 - [check.md](actions/check.md)
 - [reconcile-alignment.md](actions/reconcile-alignment.md)
 - [backfill-helix-docs.md](actions/backfill-helix-docs.md)
+- [report.md](actions/report.md)
+- [converge.md](actions/converge.md)
+- [genesis.md](actions/genesis.md)
+- [project-audit.md](actions/project-audit.md)
+- [decompose-module.md](actions/decompose-module.md)
+- [e2e-ladder.md](actions/e2e-ladder.md)
 
 ## Build The Canonical Planning Stack
 
