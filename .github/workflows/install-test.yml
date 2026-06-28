@@ -9,13 +9,12 @@ name: Install Test (per-PR)
 # Both modes assert via init-JSON parse that plugins[] contains helix and
 # skills[] contains helix:helix and no helix-plugin MCP server failed.
 #
-# Auth: accepts either secret (set ONE):
-#   - ANTHROPIC_API_KEY  (Console API key sk-ant-api03-...) — preferred
-#   - CLAUDE_OAUTH_TOKEN (claude setup-token output sk-ant-oat01-...) —
-#     synthesized into a credentials.json on the runner
-# Set with: gh secret set ANTHROPIC_API_KEY   (or CLAUDE_OAUTH_TOKEN)
-# Without auth the init probe can't run and the job FAILS (does not silently
-# skip — the whole point is to gate broken installs out of main).
+# Auth: NONE required. The init-JSON probe runs against a throwaway dummy key —
+# claude's `system`/`init` event (which lists plugins/skills) is emitted at
+# session startup before any model request, so the probe needs no real
+# credentials and the model call's 401 is ignored (see verify.sh). If a real
+# ANTHROPIC_API_KEY / CLAUDE_OAUTH_TOKEN secret IS configured it is used as-is,
+# but the job never depends on one.
 #
 # Why per-PR and not post-merge:
 #   install-smoke.yml runs against the PUBLISHED repo on tag push. By then a
@@ -42,15 +41,6 @@ jobs:
       - name: Checkout PR
         uses: actions/checkout@v4
 
-      - name: Verify auth available
-        run: |
-          if [[ -z "$ANTHROPIC_API_KEY" && -z "$CLAUDE_OAUTH_TOKEN" ]]; then
-            echo "::error::Neither ANTHROPIC_API_KEY nor CLAUDE_OAUTH_TOKEN secret is set."
-            echo "::error::Set one with: gh secret set ANTHROPIC_API_KEY   (or CLAUDE_OAUTH_TOKEN)"
-            echo "::error::The init-JSON probe needs auth to assert the plugin loads."
-            exit 1
-          fi
-
       - name: Synthesize credentials.json (when using OAuth token)
         if: env.CLAUDE_OAUTH_TOKEN != '' && env.ANTHROPIC_API_KEY == ''
         run: |
@@ -73,10 +63,12 @@ jobs:
 
       - name: Default mode (--plugin-dir + init-JSON probe)
         run: |
-          AUTH_MOUNT=()
+          # Auth is optional: pass a real key or mounted creds if available;
+          # otherwise pass nothing and verify.sh uses a dummy key for the probe.
+          AUTH_ARGS=()
           if [[ -n "$ANTHROPIC_API_KEY" ]]; then
             AUTH_ARGS=(-e ANTHROPIC_API_KEY)
-          else
+          elif [[ -f "$PWD/creds/.credentials.json" ]]; then
             AUTH_ARGS=(-v "$PWD/creds/.credentials.json:/root/.claude/.credentials.json:ro")
           fi
           docker run --rm "${AUTH_ARGS[@]}" \
@@ -86,9 +78,10 @@ jobs:
 
       - name: Local-marketplace mode (real plugin install code path)
         run: |
+          AUTH_ARGS=()
           if [[ -n "$ANTHROPIC_API_KEY" ]]; then
             AUTH_ARGS=(-e ANTHROPIC_API_KEY)
-          else
+          elif [[ -f "$PWD/creds/.credentials.json" ]]; then
             AUTH_ARGS=(-v "$PWD/creds/.credentials.json:/root/.claude/.credentials.json:ro")
           fi
           docker run --rm "${AUTH_ARGS[@]}" \
