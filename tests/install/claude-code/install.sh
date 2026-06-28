@@ -27,8 +27,12 @@ elif [[ "${TEST_LOCAL_MARKETPLACE:-}" == "1" ]]; then
   echo
   echo "→ marketplace install against the LOCAL checkout (rewrites marketplace.json)"
   cp -r /workspace/helix /tmp/helix-local
-  # Claude Code's git-clone source needs a fetchable repo; init one in /tmp.
+  # Claude Code's git-clone source needs a fetchable repo; init a fresh one in
+  # /tmp. Drop the .git copied from the mounted checkout first — otherwise the
+  # seed `git commit` finds nothing to commit (tree already matches the copied
+  # HEAD) and exits 1 under `set -e`.
   cd /tmp/helix-local
+  rm -rf .git
   git init -q
   git add -A
   git -c user.email=ci@helix -c user.name=ci commit -qm seed
