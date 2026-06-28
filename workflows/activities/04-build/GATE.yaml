@@ -106,6 +106,7 @@ exit_requirements:
     - "Code review completed and approved"
     - "Performance benchmarks validated"
     - "Verification evidence reviewed (adversarial): every governing AC's guard/negative branch was driven on the RUNNING system via the interface-appropriate harness (web→Playwright, HTTP API→request client, MCP/agent surface→real client handshake, auth/SSO→real login flow, real-network/remote surface→exercised on the real address not localhost-stub, CLI→shell, TUI→tmux, backend→integration). Happy-path-green is not done; an un-waived untested guard branch is not done."
+    - "Downstream-consumer evidence reviewed (adversarial): when a change has a named downstream consumer in another repo, done requires evidence that the consumer pulled the change and exercised its integration; local gate-green alone is not enough."
     - "Scope discipline reviewed (per the scope-discipline concern): the change builds exactly what the acceptance criteria asked for — no unrequested features/abstractions/config (gold-plating), no pre-release legacy-compat shim without a released consumer, no requested capability silently narrowed (e.g. shipped read-only) without a recorded tradeoff, and the diff is contained to the work item's stated scope. Any phased placeholder is recorded and covered by no satisfied AC."
 
 next_activity: deploy

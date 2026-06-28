@@ -14,6 +14,9 @@ evidence behind it.
 - Identify the integration seams the change touches — the boundaries where a
   locally-correct component can be globally wrong. These become the re-review
   checklist.
+- If the change has a named downstream consumer in another repo, record the
+  evidence you will need at done: the consumer pulled the change and exercised
+  its integration. Local gate-green alone is not enough.
 - If the work is library / docs-only / non-buildable, or full-stack e2e is
   genuinely infeasible, record the applicable exception (see `concern.md`) and
   the substitute evidence now, not at the gate.
