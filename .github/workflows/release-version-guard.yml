@@ -1,0 +1,57 @@
+name: Release version guard
+
+# On a version tag push, assert all plugin manifests declare the pushed tag's
+# version. Catches "tagged a release but forgot to bump the manifests" — which
+# silently ships a tag that plugin updaters ignore, because Claude Code resolves
+# a plugin's version from plugin.json's `version` field (an unchanged version
+# keeps the cached copy on every user's machine).
+#
+# PR-time mutual consistency of the three manifests is enforced by
+# tests/validate-skills.sh (the `test` job); this gate adds the tag↔version check
+# that only applies at release.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Version tag to check (e.g. v0.9.2)'
+        required: true
+
+jobs:
+  version-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assert manifest versions match the release tag
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          EXPECTED="${TAG#v}"
+          echo "release tag: $TAG -> expected version: $EXPECTED"
+          python3 - "$EXPECTED" <<'PY'
+          import json, sys
+          expected = sys.argv[1]
+          checks = {
+              ".claude-plugin/plugin.json": lambda m: m["version"],
+              ".codex-plugin/plugin.json": lambda m: m["version"],
+              ".claude-plugin/marketplace.json":
+                  lambda m: next(p["version"] for p in m["plugins"] if p["name"] == "helix"),
+          }
+          bad = []
+          for path, get in checks.items():
+              try:
+                  v = get(json.load(open(path)))
+              except (OSError, KeyError, StopIteration, json.JSONDecodeError) as e:
+                  bad.append(f"{path}: could not read version ({e})")
+                  continue
+              if v != expected:
+                  bad.append(f"{path}: {v!r} != tag {expected!r}")
+          if bad:
+              print("::error::manifest version(s) do not match the release tag:")
+              for b in bad:
+                  print(f"::error::  {b}")
+              sys.exit(1)
+          print(f"OK: all manifests declare version {expected}")
+          PY
