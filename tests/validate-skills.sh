@@ -308,8 +308,16 @@ if os.path.exists(plugin_hooks):
     if not isinstance(hooks, dict):
         print(f"{plugin_hooks} must contain a JSON object", file=sys.stderr)
         sys.exit(1)
-    if "version" not in hooks or "hooks" not in hooks:
-        print(f"{plugin_hooks} must define version and hooks keys", file=sys.stderr)
+    if "hooks" not in hooks:
+        print(f"{plugin_hooks} must define a 'hooks' key", file=sys.stderr)
+        sys.exit(1)
+    # 'version' is NOT part of the Claude Code plugin hooks schema (it belongs in
+    # plugin.json), and Codex's strict parser rejects it ("unknown field
+    # version, expected hooks"). Keep hooks.json to {"hooks": {...}} so the single
+    # shared file loads in BOTH runtimes.
+    if "version" in hooks:
+        print(f"{plugin_hooks} must not contain a 'version' key — it is not part "
+              "of the plugin hooks schema and Codex rejects it", file=sys.stderr)
         sys.exit(1)
 PYEOF
   [[ $? -eq 0 ]] || fail "plugin.json validation failed"
