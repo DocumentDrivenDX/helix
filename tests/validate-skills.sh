@@ -181,12 +181,13 @@ plugin_manifest="$repo_root/.claude-plugin/plugin.json"
 codex_plugin_manifest="$repo_root/.codex-plugin/plugin.json"
 [[ -f "$codex_plugin_manifest" ]] || fail "missing Codex plugin manifest at .codex-plugin/plugin.json"
 plugin_hooks="$repo_root/hooks/hooks.json"
+marketplace_manifest="$repo_root/.claude-plugin/marketplace.json"
 
 # Validate plugin.json is parseable JSON with required fields
 if command -v python3 &>/dev/null; then
-  python3 - "$plugin_manifest" "$codex_plugin_manifest" "$plugin_hooks" <<'PYEOF'
+  python3 - "$plugin_manifest" "$codex_plugin_manifest" "$plugin_hooks" "$marketplace_manifest" <<'PYEOF'
 import json, sys
-path, codex_path, plugin_hooks = sys.argv[1:4]
+path, codex_path, plugin_hooks, marketplace_path = sys.argv[1:5]
 try:
     manifest = json.load(open(path))
 except json.JSONDecodeError as e:
@@ -244,6 +245,25 @@ if codex_manifest["name"] != manifest["name"]:
     sys.exit(1)
 if codex_manifest["version"] != manifest["version"]:
     print("Codex plugin.json version must match Claude plugin.json version", file=sys.stderr)
+    sys.exit(1)
+# The marketplace entry version must also match. Claude Code resolves a plugin's
+# version from plugin.json's `version` field, so a drifted marketplace.json (or a
+# manifest left un-bumped at release) silently ships a version the updater ignores.
+# Keep all three locked together at PR time; the release tag guard checks them
+# against the tag at release time.
+try:
+    market = json.load(open(marketplace_path))
+except (OSError, json.JSONDecodeError) as e:
+    print(f"invalid or missing marketplace.json at {marketplace_path}: {e}", file=sys.stderr)
+    sys.exit(1)
+market_entries = [p for p in market.get("plugins", []) if p.get("name") == manifest["name"]]
+if not market_entries:
+    print(f"marketplace.json has no plugin entry named {manifest['name']!r}", file=sys.stderr)
+    sys.exit(1)
+market_version = market_entries[0].get("version")
+if market_version != manifest["version"]:
+    print(f"marketplace.json version {market_version!r} must match plugin.json version "
+          f"{manifest['version']!r}", file=sys.stderr)
     sys.exit(1)
 if codex_manifest["description"] != manifest["description"]:
     print("Codex plugin.json description must match Claude plugin.json description", file=sys.stderr)
