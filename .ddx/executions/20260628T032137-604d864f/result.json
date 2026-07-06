@@ -8,8 +8,9 @@
   "landed_branch": "main",
   "outcome": "merged",
   "status": "success",
-  "detail": "success",
+  "detail": "checkout_sync_deferred: .ddx/beads.jsonl",
   "orchestrator_status": "success",
+  "reason": "checkout_sync_deferred: .ddx/beads.jsonl",
   "candidate_ref": "refs/ddx/iterations/20260628T032137-604d864f/0",
   "cycle_trace": [
     {
