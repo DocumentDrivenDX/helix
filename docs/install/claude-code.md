@@ -27,7 +27,11 @@ helix/
 
 When you install the `helix` plugin, Claude Code makes the skill
 discoverable as `helix` (callable as `/helix` or by description match)
-and the catalog reachable at `workflows/activities/...`.
+and the catalog reachable from the plugin root at
+`workflows/activities/...`. Generated release packages may instead carry
+the same catalog beside the skill at `skills/helix/references/...`; that
+tree is produced from `workflows/` during packaging and is not committed
+as source.
 
 ## Install path A: marketplace (canonical)
 
@@ -219,11 +223,12 @@ The router then consults its internal routing table in
 contract in the same file.
 
 When a routed mode needs a template, prompt, or quality rubric, it
-opens the matching file under
-`workflows/activities/<activity>/artifacts/<type>/`. For example,
-framing a PRD reads
-`workflows/activities/01-frame/artifacts/prd/template.md` and
-`prompt.md`.
+opens the matching file through the skill's catalog resolution order.
+Source-checkout installs use
+`workflows/activities/<activity>/artifacts/<type>/`; generated packages
+use `skills/helix/references/activities/<activity>/artifacts/<type>/`.
+For example, framing a PRD reads the PRD `template.md` and `prompt.md`
+from whichever catalog path the installed layout exposes.
 
 ## Per-runtime contract
 

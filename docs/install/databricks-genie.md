@@ -66,6 +66,9 @@ helix/
   SKILL.md             # required: YAML frontmatter + Markdown body
   references/
     activities/        # HELIX artifact catalog under here
+    concerns/          # concern registry and practices
+    graph.yml          # artifact authority graph
+    voice.yml          # response style contract
 ```
 
 Required frontmatter:
@@ -208,7 +211,7 @@ databricks workspace delete --recursive /Users/<you>/.assistant/skills/helix
 ## Verifying the install
 
 The installer runs offline verification automatically (file presence,
-frontmatter parse, activity-dir presence). For an additional
+frontmatter parse, generated-reference floor presence). For an additional
 end-to-end check, open Genie Code in Agent mode and run:
 
 **Step 1.** Confirm the skill loaded and routes:

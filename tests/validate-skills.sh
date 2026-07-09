@@ -623,10 +623,9 @@ text = open(skill_path).read()
 # Patterns the skill instructs the runtime to load. Only check repo-relative
 # paths the agent is told to Read; skip operator-only paths (docs/helix/...
 # which lives in the user's project, not the plugin) and in-text examples.
-# The `references/` floor ships beside SKILL.md so §Catalog Resolution always
-# resolves a graph/template in plugin installs that package only ./skills/; it
-# is a synced copy of the workflows/ catalog, kept in lockstep by the
-# sync_references.py diff check below.
+# Source checkouts keep workflows/ as the canonical catalog. Generated plugin
+# packages ship a references/ floor beside SKILL.md so §Catalog Resolution
+# resolves a graph/template after marketplace installation.
 required = {
     "library/skill-prompts/stop-at-triggers.yml",
     "workflows/concerns/slots.yml",
@@ -669,21 +668,27 @@ if not filecmp.cmp(backup, generated, shallow=False):
 PYEOF
 rm -f "$graph_tmp" "$graph_tmp.committed"
 
-# skills/helix/references/ floor sync: the committed floor MUST be an exact copy
-# of the workflows/ catalog. Re-sync into a temp dir and diff bidirectionally
-# (diff -r reports files present on only one side too), catching both drift and
-# orphaned/missing floor files. Run the graph generator first so the floor's
-# graph.yml is compared against the freshly-generated workflows/graph.yml.
+# The references floor is generated package output, not source. Build the
+# package into a temp dir and verify that its floor is an exact copy of the
+# workflows/ catalog. Run the graph generator first so the floor's graph.yml is
+# compared against freshly-generated workflows/graph.yml.
+[[ ! -e "$repo_root/skills/helix/references" ]] || \
+  fail "skills/helix/references/ is generated package output and must not be committed on main"
 ref_tmp="$(mktemp -d)"
+pkg_tmp="$(mktemp -d)"
 if ! python3 "$repo_root/scripts/sync_references.py" "$ref_tmp" >/dev/null; then
-  rm -rf "$ref_tmp"
+  rm -rf "$ref_tmp" "$pkg_tmp"
   fail "sync_references.py failed"
 fi
-if ! diff -r "$ref_tmp" "$repo_root/skills/helix/references" >/dev/null 2>&1; then
-  rm -rf "$ref_tmp"
-  fail "skills/helix/references/ is out of sync with workflows/ — run: python3 scripts/sync_references.py"
+if ! bash "$repo_root/scripts/build-plugin-package.sh" --out "$pkg_tmp" >/dev/null; then
+  rm -rf "$ref_tmp" "$pkg_tmp"
+  fail "build-plugin-package.sh failed"
 fi
-rm -rf "$ref_tmp"
+if ! diff -r "$ref_tmp" "$pkg_tmp/helix/skills/helix/references" >/dev/null 2>&1; then
+  rm -rf "$ref_tmp" "$pkg_tmp"
+  fail "generated plugin package references/ is out of sync with workflows/ — run: bash scripts/build-plugin-package.sh"
+fi
+rm -rf "$ref_tmp" "$pkg_tmp"
 
 # Canonical SKILL.md frontmatter check: enforce agentskills.io spec AND the
 # runtime-specific limits we hit in benchmarking:

@@ -115,15 +115,16 @@ agent narrating HELIX-shaped reasoning from training while the marker scope,
 the type catalog, and the prerequisite chain go unconsulted. The resulting
 artifact looks plausible but is unanchored to the workspace's actual contract.
 
-A graph bind is **always achievable**: §Catalog Resolution ends at the
-`references/` floor that ships beside this SKILL.md, so `graph.yml` resolves in
-every install and every repo state. A missing in-tree `workflows/graph.yml` is
-therefore NEVER a reason to stop, defer, or skip artifact edits — it only means
-the bind comes from a later resolution step (the floor). "I cannot find the
-graph, so I will avoid HELIX artifact edits" is a contract violation, not a
-valid degraded mode: bind the graph from the floor and proceed. A `Read` whose
-target does not resolve does NOT satisfy this contract — the graph must
-actually bind.
+A graph bind is **always achievable** in supported layouts: §Catalog Resolution
+ends at either the HELIX source-checkout `workflows/` catalog or the generated
+package `references/` floor beside this SKILL.md, so `graph.yml` resolves in
+source checkouts and marketplace-installed packages. A missing project-local
+`workflows/graph.yml` is therefore NEVER a reason to stop, defer, or skip
+artifact edits — it only means the bind comes from a later resolution step.
+"I cannot find the graph, so I will avoid HELIX artifact edits" is a contract
+violation, not a valid degraded mode: bind the graph from source checkout or the
+package floor and proceed. A `Read` whose target does not resolve does NOT
+satisfy this contract — the graph must actually bind.
 
 The order between the two Reads is not constrained: marker-first is the
 natural sequence; graph-first is acceptable for graph-query-only prompts
@@ -138,13 +139,15 @@ If the marker is absent and the skill is engaging by heuristic (§2 banner
 case), the `Read` for `.helix.yml` is satisfied by the failed lookup itself
 (the Read tool_use occurred even though the file did not exist). The graph
 `Read` is still required, and is satisfied by the §Catalog Resolution bind —
-the `references/` floor when no in-tree graph exists — because the type catalog
-binds artifact templates regardless of marker presence. The marker-absent
-heuristic case therefore still authorizes artifact edits: it binds the floor.
+the HELIX source-checkout catalog or the generated package `references/` floor
+when no project-local graph exists — because the type catalog binds artifact
+templates regardless of marker presence. The marker-absent heuristic case
+therefore still authorizes artifact edits: it binds the shipped catalog.
 
 The bench enforces this via the `read_before_write` matcher, which accepts a
 graph `Read` from any §Catalog Resolution source (in-tree `workflows/graph.yml`,
-a marker `graph:` pointer, or the `references/` floor).
+a marker `graph:` pointer, the HELIX source-checkout `workflows/graph.yml`, or
+the generated package `references/` floor).
 
 ### 2. Decide activation state
 
@@ -380,8 +383,9 @@ lacks governing artifact coverage.
 
 When a workflow mode needs an artifact template, prompt, quality criteria, or
 the methodology graph, resolve the path in this deterministic order. The first
-source that resolves wins; resolution ALWAYS succeeds because the `references/`
-floor (step 3) ships beside this SKILL.md.
+source that resolves wins; resolution ALWAYS succeeds in supported layouts
+because source checkouts carry `workflows/` and generated packages carry the
+`references/` floor beside this SKILL.md.
 
 1. **Marker `graph:` pointer** — if the active `.helix.yml` declares a
    `graph:` (or `catalog:`) path and it resolves, bind it. If the pointer is
@@ -393,19 +397,27 @@ floor (step 3) ships beside this SKILL.md.
    resolved `.helix.yml` marker. This is the self-hosting / methodology-source
    case (the HELIX repo itself, and any consumer that vendors the catalog).
    **Skip this step entirely when there is no marker** (heuristic activation):
-   there is no anchor to walk to, so fall through to the floor.
-3. **`references/` floor** — `references/graph.yml` and
+   there is no anchor to walk to, so fall through to the source-checkout or
+   package floor.
+3. **HELIX source-checkout catalog** — `../../workflows/graph.yml` and
+   `../../workflows/activities/<NN>-<activity>/artifacts/<type>/`, relative to
+   this `SKILL.md` when it lives at `skills/helix/SKILL.md` inside a HELIX
+   source checkout or DDx plugin checkout. This keeps local `--plugin-dir
+   /path/to/helix` and checkout-style development installs self-sufficient
+   without committing generated `skills/helix/references/` bytes to source.
+4. **Generated `references/` floor** — `references/graph.yml` and
    `references/activities/<NN>-<activity>/artifacts/<type>/`, relative to this
-   `SKILL.md`. A committed synced copy of the in-tree catalog that ships with
-   the skill in EVERY install (plugin, bundle, vendored tree), so a graph and
-   templates always resolve here when no fresher source above did. This is the
-   agentskills.io progressive-disclosure layout used by skill bundles.
+   `SKILL.md`. A generated copy of the source catalog that ships in marketplace
+   plugin packages and standalone skill bundles, so a graph and templates
+   resolve when no fresher source above did. This is the agentskills.io
+   progressive-disclosure layout used by skill bundles.
 
-State which source bound when it is not the floor (e.g. "catalog: in-tree
-`workflows/graph.yml`" or "catalog: marker `graph:` pointer") so an operator
-can see when the skill reasons against a vendored vs. shipped catalog. There is
-no "catalog not mounted" outcome: the floor is the catalog of last resort, and
-an unresolved catalog is impossible by construction.
+State which source bound when it is not the generated floor (e.g. "catalog:
+in-tree `workflows/graph.yml`", "catalog: source-checkout `workflows/graph.yml`",
+or "catalog: marker `graph:` pointer") so an operator can see when the skill
+reasons against a vendored, source-checkout, or packaged catalog. There is no
+"catalog not mounted" outcome in a supported checkout or package; a package
+missing both source `workflows/` and generated `references/` is invalid.
 
 The seven activities and the artifact types they own:
 
@@ -433,13 +445,14 @@ template or prompt content load the file from the resolved source.
 
 When a workflow mode authors, validates, refreshes, reviews, or rewrites a
 HELIX artifact, load the voice registry `voice.yml` via the same deterministic
-order as §Catalog Resolution (first that resolves wins; the floor always
-resolves):
+order as §Catalog Resolution (first that resolves wins):
 
 1. In-tree `workflows/voice.yml` — walking up to the marker-bearing directory;
    skipped when there is no marker.
-2. `references/voice.yml` floor — relative to this `SKILL.md`, shipped with the
-   skill in every install.
+2. HELIX source-checkout `../../workflows/voice.yml` — relative to this
+   `SKILL.md` when it lives at `skills/helix/SKILL.md`.
+3. Generated `references/voice.yml` floor — relative to this `SKILL.md`,
+   shipped with marketplace plugin packages and standalone skill bundles.
 
 Resolve the active profile from the artifact type's `meta.yml`:
 

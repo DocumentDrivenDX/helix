@@ -13,6 +13,11 @@ a Codex plugin: `.codex-plugin/plugin.json` points Codex at the same
 skill directory and presentation metadata, while `.claude-plugin/marketplace.json`
 is the marketplace listing Codex imports from GitHub.
 
+Source checkouts keep the catalog only in `workflows/`. Generated
+plugin packages materialize a skill-local `references/` copy from that
+source so Codex installations that copy only the skill subtree are still
+self-contained.
+
 ## What you are installing
 
 Two pieces:
@@ -21,8 +26,10 @@ Two pieces:
    `skills/helix/SKILL.md`. Installs as `helix@helix` through the Codex
    plugin manager so Codex can discover the routing skill.
 2. **The artifact catalog** — `workflows/activities/00-discover` through
-   `06-iterate`. Vendored with the plugin and resolved by the skill from
-   the active plugin root or project checkout.
+   `06-iterate`, plus `workflows/concerns/`, `workflows/graph.yml`, and
+   `workflows/voice.yml`. Source installs resolve it from `workflows/`;
+   generated package installs resolve the same bytes from
+   `skills/helix/references/`.
 
 ## Install path A: Codex plugin marketplace (recommended)
 
@@ -46,35 +53,22 @@ marketplaces, update the snapshot with:
 codex plugin marketplace upgrade helix
 ```
 
-## Install path B: Skills CLI fallback
+## Install path B: generated package filesystem copy (Dockerfile-friendly)
 
-The Vercel Labs Skills CLI (`npx skills`) installs HELIX from GitHub
-into Codex's filesystem skill path in one command:
-
-```bash
-npx skills add DocumentDrivenDX/helix -a codex
-```
-
-This drops `skills/helix/SKILL.md` (and supporting files) into the
-Codex skill discovery path (`~/.codex/skills/helix/` or
-`~/.agents/skills/helix/` depending on installer version).
-
-Requires Node.js. The Skills CLI also accepts `--list`, `--skill
-<name>`, and multi-agent targets (`-a claude-code -a codex` etc). Use
-this path when you are on a Codex CLI build that does not yet include
-`codex plugin`.
-
-## Install path C: filesystem copy (Dockerfile-friendly)
-
-For scripted/Docker environments without Node:
+For scripted/Docker environments without Node, build the package and
+copy the generated, self-contained skill subtree:
 
 ```bash
 # Clone or otherwise place HELIX source somewhere readable
 git clone https://github.com/DocumentDrivenDX/helix /tmp/helix-src
+cd /tmp/helix-src
+
+# Materialize skills/helix/references/ from workflows/
+bash scripts/build-plugin-package.sh --out /tmp/helix-package
 
 # Place the skill where Codex discovers it
 mkdir -p ~/.codex/skills/helix
-cp -r /tmp/helix-src/skills/helix/* ~/.codex/skills/helix/
+cp -Rf /tmp/helix-package/helix/skills/helix/. ~/.codex/skills/helix/
 
 # Verify discovery (sub-second; loads frontmatter only)
 codex --version
@@ -87,7 +81,7 @@ source layout already conforms.
 Skills can also live at repo scope (`<repo>/.agents/skills/helix/`)
 to override the user-scoped install for that repo.
 
-## Install path D: DDx
+## Install path C: DDx
 
 If you also use DDx as your runtime:
 
@@ -103,6 +97,15 @@ ln -s ~/.ddx/plugins/helix/skills/helix ~/.codex/skills/helix
 ```
 
 This keeps a single source updated via `ddx install helix --force`.
+
+## Legacy Skills CLI note
+
+The Vercel Labs Skills CLI (`npx skills`) can install skills into local
+filesystem paths, but HELIX source no longer commits a generated
+`skills/helix/references/` tree. If a Skills CLI version copies only
+`skills/helix/` from GitHub source, the installed skill is missing its
+catalog. Prefer the Codex plugin marketplace or the generated package
+filesystem copy above.
 
 ## Optional: AGENTS.md pointer at the repo root
 

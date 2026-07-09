@@ -4,7 +4,7 @@
 # Asserts:
 #   - Claude and Codex plugin manifests agree on repo/version/skill path
 #   - plugin.json repository URL matches marketplace.json plugins[0].source.url
-#   - No easel/helix references in docs/install/ (should be DocumentDrivenDX/helix)
+#   - No easel/helix references in install docs or release installer
 #   - Install docs reference the canonical repo (from marketplace.json)
 #
 # Exit codes:
@@ -25,6 +25,7 @@ PLUGIN_JSON="$REPO_ROOT/.claude-plugin/plugin.json"
 CODEX_PLUGIN_JSON="$REPO_ROOT/.codex-plugin/plugin.json"
 MARKETPLACE_JSON="$REPO_ROOT/.claude-plugin/marketplace.json"
 INSTALL_DOCS_DIR="$REPO_ROOT/docs/install"
+GENIE_INSTALL="$REPO_ROOT/scripts/genie-install"
 
 if [[ ! -f "$PLUGIN_JSON" ]]; then
   echo "FAIL: plugin.json not found at $PLUGIN_JSON" >&2
@@ -43,6 +44,11 @@ fi
 
 if [[ ! -d "$INSTALL_DOCS_DIR" ]]; then
   echo "FAIL: install docs dir not found at $INSTALL_DOCS_DIR" >&2
+  exit 1
+fi
+
+if [[ ! -f "$GENIE_INSTALL" ]]; then
+  echo "FAIL: genie-install not found at $GENIE_INSTALL" >&2
   exit 1
 fi
 
@@ -133,11 +139,11 @@ PY
 )
 
 # Check for unwanted easel/helix references
-if grep -rE 'easel/helix' "$INSTALL_DOCS_DIR" 2>/dev/null; then
-  echo "FAIL: unwanted 'easel/helix' references found in $INSTALL_DOCS_DIR" >&2
+if grep -rE 'easel/helix' "$INSTALL_DOCS_DIR" "$GENIE_INSTALL" 2>/dev/null; then
+  echo "FAIL: unwanted 'easel/helix' references found in install docs or genie-install" >&2
   exit 1
 fi
-echo "ok: no unwanted 'easel/helix' references in install docs"
+echo "ok: no unwanted 'easel/helix' references in install docs or genie-install"
 
 # Check that install docs reference the canonical repo
 if ! grep -rE "DocumentDrivenDX/helix" "$INSTALL_DOCS_DIR" >/dev/null 2>&1; then

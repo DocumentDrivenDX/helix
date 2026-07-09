@@ -8,6 +8,7 @@
 #   - SKILL.md frontmatter parses as YAML
 #   - frontmatter `name` equals basename(<skill-root>)  (agentskills.io invariant)
 #   - frontmatter `description` is 1..1024 chars
+#   - catalog is reachable either from a source checkout or generated package
 #   - no sibling helix-* directories (legacy pre-collapse layout)
 #   - no .git directory inside <skill-root> (not a working tree)
 #
@@ -101,6 +102,26 @@ if find "$PARENT" -maxdepth 1 -type d -name 'helix-*' -not -path "$SKILL_ROOT" 2
   exit 1
 fi
 echo "ok: no legacy helix-* sibling directories"
+
+# Check that the HELIX catalog is reachable in one of the two supported
+# installed layouts:
+#   source checkout:    skills/helix/SKILL.md + ../../workflows/
+#   generated package: skills/helix/SKILL.md + references/
+# Genie bundles pass the bundle root as <skill-root>, so references/ at the
+# root is also accepted.
+SOURCE_GRAPH="$SKILL_ROOT/../../workflows/graph.yml"
+SOURCE_PRD_TEMPLATE="$SKILL_ROOT/../../workflows/activities/01-frame/artifacts/prd/template.md"
+PACKAGE_GRAPH="$SKILL_ROOT/references/graph.yml"
+PACKAGE_PRD_TEMPLATE="$SKILL_ROOT/references/activities/01-frame/artifacts/prd/template.md"
+if [[ -f "$SOURCE_GRAPH" && -f "$SOURCE_PRD_TEMPLATE" ]]; then
+  echo "ok: catalog reachable through source checkout workflows/"
+elif [[ -f "$PACKAGE_GRAPH" && -f "$PACKAGE_PRD_TEMPLATE" ]]; then
+  echo "ok: catalog reachable through generated package references/"
+else
+  echo "FAIL: HELIX catalog not reachable from $SKILL_ROOT" >&2
+  echo "      expected source checkout at ../../workflows/ or package floor at references/" >&2
+  exit 1
+fi
 
 # Check that skill root is not itself a git working tree.
 if [[ -e "$SKILL_ROOT/.git" ]]; then

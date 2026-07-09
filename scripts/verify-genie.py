@@ -39,6 +39,19 @@ EXPECTED_ACTIVITIES = [
     "06-iterate",
 ]
 
+EXPECTED_REFERENCE_ENTRIES = [
+    "activities",
+    "concerns",
+    "graph.yml",
+    "voice.yml",
+]
+
+EXPECTED_CONCERN_ENTRIES = [
+    "slots.yml",
+    "sample-data",
+    "verification",
+]
+
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
@@ -138,7 +151,18 @@ def main() -> int:
         f"{len(desc)} chars (1..1024 expected)",
     )
 
-    # 3. references/activities/ tree.
+    # 3. references/ floor generated from workflows/.
+    references_path = f"{target}/references"
+    try:
+        ref_objs = list(w.workspace.list(references_path))
+        ref_names = {o.path.split("/")[-1] for o in ref_objs}
+    except Exception as exc:
+        record("references/ present", False, str(exc))
+        return 5
+    record("references/ present", True, f"{len(ref_objs)} entries")
+    for entry in EXPECTED_REFERENCE_ENTRIES:
+        record(f"references/{entry} present", entry in ref_names)
+
     activities_path = f"{target}/references/activities"
     try:
         act_objs = list(w.workspace.list(activities_path))
@@ -150,6 +174,17 @@ def main() -> int:
 
     for activity in EXPECTED_ACTIVITIES:
         record(f"activity {activity} present", activity in act_names)
+
+    concerns_path = f"{target}/references/concerns"
+    try:
+        concern_objs = list(w.workspace.list(concerns_path))
+        concern_names = {o.path.split("/")[-1] for o in concern_objs}
+    except Exception as exc:
+        record("references/concerns present", False, str(exc))
+        return 5
+    record("references/concerns present", True, f"{len(concern_objs)} entries")
+    for entry in EXPECTED_CONCERN_ENTRIES:
+        record(f"references/concerns/{entry} present", entry in concern_names)
 
     failed = [c for c in checks if not c[1]]
     print()
