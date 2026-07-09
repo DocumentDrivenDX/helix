@@ -14,13 +14,12 @@ fi
 SCRATCH=/tmp/copilot-helix-adopter
 rm -rf "$SCRATCH"
 mkdir -p "$SCRATCH/.github"
-cp /workspace/helix/.github/copilot-instructions.md "$SCRATCH/.github/"
+cp -f /workspace/helix/.github/copilot-instructions.md "$SCRATCH/.github/"
 
 # Also vendor the routing skill so prompts can reference it.
 mkdir -p "$SCRATCH/skills"
-cp -r /workspace/helix/skills/helix "$SCRATCH/skills/"
-mkdir -p "$SCRATCH/workflows"
-ln -sf /workspace/helix/workflows "$SCRATCH/workflows"
+cp -Rf /workspace/helix/skills/helix "$SCRATCH/skills/"
+ln -sfn /workspace/helix/workflows "$SCRATCH/workflows"
 
 git init -q "$SCRATCH" || true
 echo "✓ scratch adopter repo at $SCRATCH"
