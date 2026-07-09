@@ -107,7 +107,7 @@ CORE_ARTIFACTS = {
 }
 
 SUPPORTING_ARTIFACTS = {
-    "00-discover": ["business-case", "competitive-analysis", "opportunity-canvas", "resource-summary"],
+    "00-discover": ["business-case", "competitive-analysis", "data-flow-analysis", "opportunity-canvas", "resource-summary"],
     "01-frame": [
         "compliance-requirements",
         "feasibility-study",
