@@ -20,4 +20,5 @@ Validate that an opportunity is worth pursuing before committing to a developmen
   {{< card link="competitive-analysis/" title="Competitive Analysis" subtitle="Market landscape and positioning analysis. Identifies direct rivals, substitutes, competitive pressure, and defensible differentiation." >}}
   {{< card link="opportunity-canvas/" title="Opportunity Canvas" subtitle="Discover synthesis gate for problem, customer, value, solution concept, metrics, advantage, and go/no-go readiness." >}}
   {{< card link="resource-summary/" title="Resource Summary" subtitle="Concise summary of an external resource used to ground HELIX artifact guidance. Captures what the source says, why it matters, and how far its authority extend…" >}}
+  {{< card link="market-analysis/" title="Market Analysis" subtitle="Multi-source market sizing, growth, and strategic-implications synthesis for a candidate opportunity. Grounds later competitive positioning and investment deci…" >}}
 {{< /cards >}}

@@ -36,6 +36,7 @@ Concerns are how HELIX answers "every project needs this kind of consistency" wi
   {{< card link="i18n-icu" title="Internationalization (ICU MessageFormat)" subtitle="ui, frontend" >}}
   {{< card link="o11y-otel" title="Observability (OpenTelemetry)" subtitle="api, backend, infra" >}}
   {{< card link="sample-data" title="Sample Data" subtitle="data" >}}
+  {{< card link="scope-discipline" title="Scope Discipline" subtitle="all" >}}
   {{< card link="testing" title="Testing" subtitle="all" >}}
   {{< card link="ux-radix" title="UX Interaction Patterns (Radix)" subtitle="ui, frontend" >}}
   {{< card link="verification" title="Verification" subtitle="all" >}}
