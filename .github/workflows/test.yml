@@ -31,5 +31,11 @@ jobs:
       - name: Validate skill packages
         run: bash tests/validate-skills.sh
 
+      - name: Validate generated plugin package
+        run: bash tests/validate-plugin-package.sh
+
+      - name: Validate generated Genie bundle
+        run: bash tests/validate-genie-bundle.sh
+
       - name: Validate demo session records
         run: bash tests/validate-demos.sh
