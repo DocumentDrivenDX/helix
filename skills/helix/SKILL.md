@@ -411,7 +411,7 @@ The seven activities and the artifact types they own:
 
 | Activity | Artifact types (directory names under `<activity>/artifacts/`) |
 |---|---|
-| `00-discover` | `business-case`, `competitive-analysis`, `opportunity-canvas`, `product-vision`, `resource-summary` |
+| `00-discover` | `business-case`, `competitive-analysis`, `data-flow-analysis`, `opportunity-canvas`, `product-vision`, `resource-summary` |
 | `01-frame` | `compliance-requirements`, `concerns`, `feasibility-study`, `feature-registry`, `feature-specification`, `parking-lot`, `pr-faq`, `prd`, `principles`, `research-plan`, `risk-register`, `security-requirements`, `stakeholder-map`, `threat-model`, `user-stories`, `validation-checklist`, `data-prd` |
 | `02-design` | `adr`, `architecture`, `contract`, `data-design`, `design-system`, `proof-of-concept`, `security-architecture`, `solution-design`, `tech-spike`, `technical-design`, `data-architecture` |
 | `03-test` | `security-tests`, `story-test-plan`, `test-plan`, `test-procedures`, `test-suites`, `data-quality-expectations` |

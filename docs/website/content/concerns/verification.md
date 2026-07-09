@@ -56,6 +56,9 @@ duplicate the other two:
   `practices.md`: the command run + its exit status, the target URL/env, the
   core flows exercised, and a short re-review checklist against the ACs and
   integration risks.
+- If the change has a named downstream consumer in another repo, "done"
+  requires evidence that the consumer pulled the change and its integration was
+  exercised. Local gate-green alone is not enough.
 - This catches **locally-correct / globally-wrong** work: components that pass
   in isolation but fail when composed into the running system.
 
@@ -111,6 +114,14 @@ was not observed.
   the evidence
 - Components pass in isolation, system never exercised end-to-end →
   locally-correct / globally-wrong; exercise the running stack
+- An agent/network-facing surface (MCP server, OAuth/SSO login, a remote
+  endpoint) declared done on unit tests, with no real client ever completing the
+  handshake/login against the real address → not done; the runtime boundary is
+  exactly where unit-green hides the defect (the connection, the token exchange,
+  the cert, localhost-vs-real-host). Drive a real client end-to-end before "done".
+- A change with a named downstream consumer declared done on local gate-green
+  alone, with no observed downstream-consumer evidence → not done; the consumer
+  must pull the change and exercise the integration.
 
 ## When to use
 
@@ -147,6 +158,9 @@ evidence behind it.
 - Identify the integration seams the change touches — the boundaries where a
   locally-correct component can be globally wrong. These become the re-review
   checklist.
+- If the change has a named downstream consumer in another repo, record the
+  evidence you will need at done: the consumer pulled the change and exercised
+  its integration. Local gate-green alone is not enough.
 - If the work is library / docs-only / non-buildable, or full-stack e2e is
   genuinely infeasible, record the applicable exception (see `concern.md`) and
   the substitute evidence now, not at the gate.
