@@ -4,7 +4,7 @@ linkTitle: "Opportunity Canvas"
 slug: opportunity-canvas
 activity: "Discover"
 artifactRole: "supporting"
-weight: 13
+weight: 14
 generated: true
 ---
 

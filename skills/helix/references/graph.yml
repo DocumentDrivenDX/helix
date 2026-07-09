@@ -31,6 +31,10 @@ nodes:
   type: library:competitive-analysis
   activity: 00-discover
   cardinality: many
+- id: data-flow-analysis
+  type: library:data-flow-analysis
+  activity: 00-discover
+  cardinality: many
 - id: opportunity-canvas
   type: library:opportunity-canvas
   activity: 00-discover
@@ -233,6 +237,18 @@ edges:
   kind: informs
   required: false
 - from: competitive-analysis
+  to: prd
+  kind: informs
+  required: false
+- from: data-flow-analysis
+  to: data-design
+  kind: informs
+  required: false
+- from: data-flow-analysis
+  to: feasibility-study
+  kind: informs
+  required: false
+- from: data-flow-analysis
   to: prd
   kind: informs
   required: false

@@ -4,7 +4,7 @@ linkTitle: "Resource Summary"
 slug: resource-summary
 activity: "Discover"
 artifactRole: "supporting"
-weight: 14
+weight: 15
 generated: true
 ---
 

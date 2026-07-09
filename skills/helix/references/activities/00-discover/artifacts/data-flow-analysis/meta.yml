@@ -1,0 +1,88 @@
+# Metadata for Data Flow Analysis
+
+artifact:
+  name: Data Flow Analysis
+  id: data-flow-analysis
+  type: document
+  activity: discover
+
+voice: artifact-signal
+
+description: |
+  As-is documentation of one existing business process or data flow: its
+  actors, sources, sinks, data structures, transformations, and constraints,
+  captured during Discover before any future-state solution is chosen.
+  Grounds modernization decisions in what the current flow actually does.
+
+output:
+  location: docs/helix/00-discover/data-flow-analysis-[flow-name].md
+  format: markdown
+  naming: "data-flow-analysis-[flow-name].md"
+
+validation:
+  required_sections:
+    - flow_summary
+    - actors
+    - sources_and_sinks
+    - data_and_data_structures
+    - transformations
+    - constraints
+    - scale_and_complexity
+    - risks_assumptions_and_modernization_notes
+
+  quality_checks:
+    - check: sources_and_sinks_named
+      description: Every source and sink is named concretely (system, table, file, API), not described vaguely
+      severity: blocking
+
+    - check: actors_typed
+      description: Every actor is identified as a Person or an Automated System, with their role in the flow
+      severity: blocking
+
+    - check: business_value_stated
+      description: Flow Summary states explicitly why this process exists
+      severity: blocking
+
+    - check: constraints_captured
+      description: Format, timing, volume, or access constraints on inputs and outputs are captured
+      severity: warning
+
+    - check: modernization_notes_present
+      description: Risks, assumptions, and modernization recommendations are captured, not left blank
+      severity: warning
+
+    - check: scale_estimated
+      description: Overall complexity or scale of the flow is estimated, even roughly
+      severity: warning
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+example:
+  file: example.md
+
+workflow:
+  creation_order: 3
+  review_cycles: 1
+  approval_required: false
+  approvers:
+    - Technical Lead
+
+relationships:
+  informs:
+    - data-design
+    - feasibility-study
+    - prd
+
+tags:
+  - data
+  - discovery
+  - legacy
+  - migration
+  - as-is
+
+version: 1.0.0
+last_updated: 2026-07-09
