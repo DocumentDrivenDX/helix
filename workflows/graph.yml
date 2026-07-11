@@ -35,6 +35,10 @@ nodes:
   type: library:data-flow-analysis
   activity: 00-discover
   cardinality: many
+- id: market-analysis
+  type: library:market-analysis
+  activity: 00-discover
+  cardinality: many
 - id: opportunity-canvas
   type: library:opportunity-canvas
   activity: 00-discover
@@ -250,6 +254,18 @@ edges:
   required: false
 - from: data-flow-analysis
   to: prd
+  kind: informs
+  required: false
+- from: market-analysis
+  to: competitive-analysis
+  kind: informs
+  required: false
+- from: market-analysis
+  to: business-case
+  kind: informs
+  required: false
+- from: market-analysis
+  to: opportunity-canvas
   kind: informs
   required: false
 - from: opportunity-canvas

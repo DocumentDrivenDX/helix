@@ -1,0 +1,77 @@
+# Metadata for Market Analysis
+
+artifact:
+  name: Market Analysis
+  id: market-analysis
+  type: document
+  activity: discover
+
+voice: artifact-signal
+
+description: |
+  Multi-source market sizing, growth, and strategic-implications synthesis
+  for a candidate opportunity. Grounds later competitive positioning and
+  investment decisions in external market-report evidence, before a
+  sub-approach, sourcing, or positioning decision has been made.
+
+output:
+  location: docs/helix/00-discover/market-analysis.md
+  format: markdown
+
+validation:
+  required_sections:
+    - concept
+    - market_size_growth
+    - competitive_landscape
+    - key_drivers
+    - strategic_implications
+    - open_questions
+    - sources
+
+  quality_checks:
+    - check: sizing_sourced
+      description: Market sizing figures cite a source
+      severity: blocking
+
+    - check: sub_approaches_scoped
+      description: Concept names the distinct sub-approaches or segments considered, not one collapsed pitch
+      severity: warning
+
+    - check: open_questions_present
+      description: At least one open question is deferred to Frame rather than answered here
+      severity: warning
+
+    - check: sources_listed
+      description: Every cited figure traces to an entry in Sources
+      severity: blocking
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+example:
+  file: example.md
+
+references:
+  - title: "SBA Market Research and Competitive Analysis"
+    file: docs/resources/sba-market-research-competitive-analysis.md
+    relationship: "Grounds market sizing, pricing, demand, and competitive evidence expectations"
+
+workflow:
+  creation_order: 0.5
+  review_cycles: 1
+  approval_required: false
+
+relationships:
+  informs:
+    - competitive-analysis
+    - business-case
+    - opportunity-canvas
+
+tags:
+  - market
+  - research
+  - sizing
+  - discover
