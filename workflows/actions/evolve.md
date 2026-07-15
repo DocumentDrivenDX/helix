@@ -123,7 +123,25 @@ Search the project's doc tree for governing artifacts in scope:
 3. Build an ordered list of artifacts to review, highest authority first.
 4. For each artifact, note its current state and the section(s) that will
    need updating.
-5. **If the evolution will create new numbered artifacts**, load the relevant
+5. Build the artifact impact graph before deciding the update set:
+   - Read every governing artifact's frontmatter under the active HELIX root.
+   - Prefer canonical `ddx.links` for instance edges. This is the same field
+     authoring uses when it links artifacts.
+   - Treat typed `ddx.links` entries with `kind: informs`, `contains`, or
+     `enables` as downstream edges from the current artifact to the target.
+   - Treat typed `ddx.links` entries with `kind: informed_by`, `depends_on`,
+     `requires`, or `references` as upstream edges from the current artifact to
+     its authority. Untyped string entries are upstream shorthand.
+   - Compatibility: if and only if `ddx.links` is absent, read legacy
+     `ddx.depends_on`, top-level `depends_on`, and
+     `relationships.depends_on` as upstream edges, and
+     `relationships.informs` / `relationships.referenced_by` as downstream
+     edges. Preserve legacy fields, but do not translate or mass-migrate them
+     during an incidental Evolve pass.
+   - Record non-empty upstream and downstream impact sets when the graph has
+     matching artifacts. If either side is empty, explicitly state whether the
+     empty set is a real graph fact or a fallback to filesystem authority.
+6. **If the evolution will create new numbered artifacts**, load the relevant
    meta.yml files and determine the next available IDs now — before writing
    anything:
    - **New feature spec (FEAT-NNN)**: read the feature-specification meta.yml,
@@ -212,10 +230,10 @@ For each non-conflicting artifact, from the highest-authority artifact down:
 4. For any **new** artifact being written (not an update to an existing file):
    - Confirm the ID was assigned from the scanned-next-ID computed in Step 2,
      not guessed.
-   - Inspect the artifact frontmatter `depends_on` list. For each referenced
-     ID, verify the target artifact exists on disk before writing. If a target
-     is missing, either remove the dependency or stop and request guidance.
-     Never write an artifact with a broken `depends_on` reference.
+   - Inspect the artifact frontmatter `ddx.links` list. For each referenced ID,
+     verify the target artifact exists on disk before writing. If a target is
+     missing, either remove the link or stop and request guidance. Never write
+     an artifact with a broken `ddx.links` reference.
 5. Write the update.
 6. If the project uses acceptance manifests (`.acceptance.toml`), update
    those too with new or modified acceptance criteria.

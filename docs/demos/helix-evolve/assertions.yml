@@ -8,7 +8,7 @@ expect:
   - kind: prompt
     contains_all:
       - "/helix evolve"
-      - "depends_on"
+      - "ddx.links"
   - kind: tool_call
     name: Skill
     args_contain:
@@ -29,7 +29,7 @@ expect:
       file_path: "FEAT-OAUTH"
   - kind: assistant
     contains_all:
-      - "depends_on"
+      - "ddx.links"
       - "authority"
   - kind: narration
     contains: "authority"
