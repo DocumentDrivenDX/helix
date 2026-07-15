@@ -1,6 +1,6 @@
 {
   "name": "helix",
-  "version": "0.10.2",
+  "version": "0.10.3",
   "description": "HELIX methodology, artifact catalog, and routing skill for AI-assisted development.",
   "author": {
     "name": "DocumentDrivenDX",
