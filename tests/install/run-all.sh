@@ -28,6 +28,8 @@ if command -v docker >/dev/null 2>&1; then DOCKER=1; fi
 # marketplace/plugin install surfaces; DDx's legacy `ddx install helix` path is
 # intentionally not part of the release gate.
 TERMINAL_SCENARIOS=(claude-code codex-cli copilot-cli)
+# Host-side scenarios (no Docker required). Exit 77 = skip, not failure.
+HOST_SCENARIOS=(grok-build)
 
 failed=0
 
@@ -100,8 +102,56 @@ run_terminal_scenario() {
   echo "PASS: $name"
 }
 
+run_host_scenario() {
+  local name="$1"
+  local dir="$TESTS_DIR/$name"
+  echo
+  echo "============================================================"
+  echo "scenario: $name (host)"
+  echo "============================================================"
+  if [[ ! -x "$dir/install.sh" || ! -x "$dir/verify.sh" ]]; then
+    # allow non-executable; bash them
+    if [[ ! -f "$dir/install.sh" || ! -f "$dir/verify.sh" ]]; then
+      echo "FAIL: missing install.sh or verify.sh in $dir"
+      failed=$((failed + 1))
+      return
+    fi
+  fi
+  set +e
+  HELIX_ROOT="$REPO_ROOT" bash "$dir/install.sh"
+  local inst=$?
+  set -e
+  if [[ $inst -eq 77 ]]; then
+    echo "SKIP: $name (install reported skip)"
+    return
+  fi
+  if [[ $inst -ne 0 ]]; then
+    echo "FAIL: $name install exit $inst"
+    failed=$((failed + 1))
+    return
+  fi
+  set +e
+  HELIX_ROOT="$REPO_ROOT" bash "$dir/verify.sh"
+  local ver=$?
+  set -e
+  if [[ $ver -eq 77 ]]; then
+    echo "SKIP: $name (verify reported skip)"
+    return
+  fi
+  if [[ $ver -ne 0 ]]; then
+    echo "FAIL: $name verify exit $ver"
+    failed=$((failed + 1))
+    return
+  fi
+  echo "PASS: $name"
+}
+
 for scenario in "${TERMINAL_SCENARIOS[@]}"; do
   run_terminal_scenario "$scenario"
+done
+
+for scenario in "${HOST_SCENARIOS[@]}"; do
+  run_host_scenario "$scenario"
 done
 
 # Genie scenario: not Docker. Calls scripts directly.
