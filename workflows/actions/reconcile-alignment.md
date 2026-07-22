@@ -40,6 +40,15 @@ Rules:
 - Source code reflects current state but does not redefine the plan.
 - If a higher layer is missing or contradictory, do not infer intent from lower layers.
 - Prefer aligning code to plan. Propose plan changes only when strongly justified.
+- **Desired-state:** specs describe the desired future. Do not shrink requirements
+  to match incomplete code without operator intent. Code ahead of docs is
+  plan-to-code honesty (`STALE_PLAN`); evolving specs to match code requires
+  explicit operator intent or an approved handoff — never auto-bless impl as plan.
+- **Four-field handoff** for every non-ALIGNED gap: destination artifact type,
+  deliverable shape, suggested next workflow mode, evidence path:line.
+- **Evidence-gated implement work:** before filing build items, verify residual
+  against code/tests; prefer story/AC floor items when only docs lag; close or
+  re-scope only when residual is already green with recorded evidence.
 
 ## Tracker Rules
 

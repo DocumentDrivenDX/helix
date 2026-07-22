@@ -11,7 +11,8 @@ description: |
   roadmap brief, requirements. Product, web, infra, and data are domain
   lanes that shape context and stop rules; they are not sibling public
   skills or workflow modes. Engage on "what's next" / "plan the change"
-  / cross-flow queries.
+  / cross-flow queries. Engage on desired state vs implementation,
+  specs behind code, and pruning beads against specs.
 argument-hint: "[intent or scope]"
 ---
 
@@ -27,10 +28,21 @@ this skill instead.
 
 ## When to engage (read first; non-negotiable)
 
-You ENGAGE this skill — call `Skill(helix)` — whenever any of these is true,
-regardless of whether the artifact content is attached, the workspace is
-empty, or the request looks like a generic task. Once engaged, you route
-by four separate axes:
+You ENGAGE this skill whenever any of these is true, regardless of whether
+the artifact content is attached, the workspace is empty, or the request
+looks like a generic task. **Engagement is the first tool action of the turn**
+(dual-path by host):
+
+- **Skill-tool hosts** (Claude Code `Skill` tool, Codex/opencode skill tool):
+  invoke `Skill(helix)` (or the host's equivalent skill-load tool for `helix`)
+  as the first tool action. Narrating HELIX-shaped reasoning without that
+  invocation is a contract violation on these hosts.
+- **Hosts without a skill tool** (for example Grok Build): the first action
+  MUST load this `SKILL.md` body via the host mechanism (`/helix`, skill
+  auto-load, or a read of this skill's path). That load is the engagement
+  event.
+
+Once engaged, you route by four separate axes:
 
 1. **Scope instance** — which `flows:` entry in `.helix.yml` owns the target
    artifact or requested project area.
@@ -71,9 +83,10 @@ Engage when:
   §Check And Next contract.
 
 Verbose-but-stuck anti-pattern: narrating HELIX-shaped reasoning in
-assistant text WITHOUT calling `Skill(helix)` is a contract violation.
-The Skill tool_use must fire as the FIRST tool_use of the turn when any
-of the engage conditions above is true.
+assistant text WITHOUT an engagement action (skill-tool invoke on
+skill-tool hosts, or SKILL.md load on other hosts) is a contract
+violation. The engagement action must be the first tool action of the
+turn when any of the engage conditions above is true.
 
 ## Routing Axes
 
@@ -236,11 +249,12 @@ marker.
 
 ### 4. Author / edit artifacts
 
-When asked to author or edit an instance document, follow the type's
-`template.md`, `prompt.md`, `meta.yml`, and active voice profile from the
-library. Look up the type via the flow's `workflows/graph.yml` — every node
-points at a `library:<slug>` or `local:<slug>` type, and the library tree is at
-the canonical install root (`library/` after this install).
+When asked to author or edit an instance document, **first bind the type's
+`template.md`, `prompt.md`, `meta.yml`, and active voice profile** from the
+resolved catalog (§Catalog Resolution). Do not author from the activity
+table alone. Look up the type via the bound graph — every node points at a
+`library:<slug>` or `local:<slug>` type, and the library tree is at the
+canonical install root (`library/` after this install).
 
 **Edit existing instances; Write only new ones.** When the requested
 artifact already exists at the resolved path, use `Edit` (target the
@@ -738,13 +752,22 @@ placement reviews.
    code surface (route/screen/CLI/API/job/migration) traces to a governing
    artifact, and every acceptance criterion traces to an exercising test. Unmapped
    material surfaces and unimplemented criteria are both alignment findings.
-2. Reconstruct intent from planning artifacts before inspecting lower layers.
-3. Classify each gap as `ALIGNED`, `INCOMPLETE`, `DIVERGENT`,
+2. **Desired-state rule (with intent guard).** Specs describe the **desired**
+   future state. Code behind specs → residual work items (beads/tracker), not
+   silent requirement shrinks. Code ahead of docs → classify as plan-to-code
+   honesty (`STALE_PLAN` / honesty evolve). Evolving specs to match code
+   requires **operator intent** (explicit request or approved handoff) — do
+   not auto-bless unapproved implementation as plan authority. Code reflects
+   state; it does not redefine plan alone.
+3. Reconstruct intent from planning artifacts before inspecting lower layers.
+4. Classify each gap as `ALIGNED`, `INCOMPLETE`, `DIVERGENT`,
    `UNDERSPECIFIED`, `STALE_PLAN`, or `BLOCKED`.
-4. Produce one durable alignment report when the action is more than a
+5. Produce one durable alignment report when the action is more than a
    conversational review. The report must remain reviewable by a human in
-   under ten minutes.
-5. For every non-aligned gap (`INCOMPLETE`, `UNDERSPECIFIED`, `DIVERGENT`,
+   under ten minutes. Prefer the alignment-review template under the catalog
+   (`workflows/templates/alignment-review.md` or the package
+   `references/templates/` path when present).
+6. For every non-aligned gap (`INCOMPLETE`, `UNDERSPECIFIED`, `DIVERGENT`,
    `STALE_PLAN`), the handoff to implementation must name all four of:
    - **Destination artifact type** (e.g. PRD, FEAT, US, ADR, TD, TP) where
      the gap is resolved.
@@ -755,8 +778,12 @@ placement reviews.
      already governed — never a CLI command.
    - **Evidence references**: artifact paths plus line numbers (or section
      anchors) supporting the finding.
-6. Create or identify follow-up work for every non-aligned gap using the
-   handoff fields above.
+7. Create or identify follow-up work for every non-aligned gap using the
+   handoff fields above. **Evidence-gated implement work:** before filing
+   build/implement items, require concrete residual evidence (paths, tests,
+   commands). Prefer story/AC floor items when only docs/traceability lag.
+   "Residual already green" means a governing AC is exercised by a passing
+   test (or a recorded exception). Close or re-scope only with that evidence.
 
 ### Validate
 
@@ -924,9 +951,13 @@ Use to refine work items before execution.
 1. Load open work for the scope and any governing plan.
 2. Run multiple passes for deduplication, coverage, acceptance quality,
    dependency correctness, sizing, and label hygiene.
-3. Require execution-ready work items to name exact files, commands, checks, fields,
+3. **Evidence gate for implement/build items:** verify residual against
+   code/tests before keeping or filing build work. Prefer story/AC floor
+   items when only docs lag. Close or re-scope items whose residual is
+   already green (passing tests cite the AC, or documented exception).
+4. Require execution-ready work items to name exact files, commands, checks, fields,
    or observable repository states.
-4. If acceptance cannot be sharpened from governing artifacts, flag the work as
+5. If acceptance cannot be sharpened from governing artifacts, flag the work as
    not execution-ready and route it back through planning.
 
 ### Check And Next
