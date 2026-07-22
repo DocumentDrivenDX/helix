@@ -152,5 +152,37 @@ if ! grep -rE "DocumentDrivenDX/helix" "$INSTALL_DOCS_DIR" >/dev/null 2>&1; then
 fi
 echo "ok: install docs reference canonical repo ($MARKER_REPO)"
 
+# Grok install guide (sixth runtime)
+GROK_MD="$INSTALL_DOCS_DIR/grok.md"
+if [[ ! -f "$GROK_MD" ]]; then
+  echo "FAIL: missing docs/install/grok.md" >&2
+  exit 1
+fi
+echo "ok: docs/install/grok.md exists"
+
+if ! grep -q 'grok plugin install' "$GROK_MD"; then
+  echo "FAIL: docs/install/grok.md must document grok plugin install" >&2
+  exit 1
+fi
+echo "ok: grok.md documents grok plugin install"
+
+if ! grep -qE -- '--trust' "$GROK_MD"; then
+  echo "FAIL: docs/install/grok.md must mention --trust (or trust flow)" >&2
+  exit 1
+fi
+echo "ok: grok.md documents trust"
+
+if ! grep -qE 'fall.?through|need not vendor|do not copy|need not copy' "$GROK_MD" "$INSTALL_DOCS_DIR/README.md"; then
+  echo "FAIL: grok guide or README must state no-local-template / fall-through doctrine" >&2
+  exit 1
+fi
+echo "ok: no-local-template / fall-through doctrine present"
+
+if ! grep -qE '\[Grok Build\]\(grok\.md\)|docs/install/grok\.md|Grok Build' "$INSTALL_DOCS_DIR/README.md"; then
+  echo "FAIL: docs/install/README.md must link or list Grok Build runtime" >&2
+  exit 1
+fi
+echo "ok: README lists Grok Build runtime"
+
 echo
 echo "validate-install-consistency: PASS"

@@ -15,6 +15,15 @@ directory so runtimes that install only the skill subtree remain
 self-contained. That directory is package output, not a second source of
 truth.
 
+### No local template copies (adopter default)
+
+Normal adopter projects need not vendor HELIX templates. Install the HELIX
+plugin (or package floor) and keep project content as `.helix.yml` plus
+instance docs under the flow root (typically `docs/helix/`). If project-local
+`workflows/` is absent, catalog resolution **falls through** to the plugin.
+Project-local `workflows/` remains valid for self-hosting and intentional
+methodology forks and outranks the installed plugin when present.
+
 ## Minimal runtime contract
 
 A HELIX-compliant runtime can:
@@ -60,7 +69,7 @@ source.
 
 ## Per-runtime install guides
 
-Five supported runtimes. Each guide is self-contained: file layout,
+Six supported runtimes. Each guide is self-contained: file layout,
 install steps, invocation, and verification. Pick the one that matches
 your environment; install more than one if you use more than one.
 
@@ -106,6 +115,20 @@ Dockerfile/no-Node environments.
 
 **Best fit for:** terminal-native Codex sessions that load HELIX through
 the Codex plugin manager.
+
+### [Grok Build](grok.md)
+
+```bash
+grok plugin install DocumentDrivenDX/helix --trust
+# development:
+grok plugin install /path/to/helix --trust
+```
+
+Install via Grok's plugin manager. Full-repo installs bind the catalog at
+`<plugin-root>/workflows/`; adopters need not copy templates into the project.
+
+**Best fit for:** Grok Build TUI/CLI sessions that should load HELIX as a
+plugin without vendoring the methodology catalog into each product repo.
 
 ### [GitHub Copilot](copilot.md)
 
@@ -154,9 +177,10 @@ the same HELIX methodology for validation and artifact updates.
 
 ## Convergence point: agentskills.io
 
-Claude Code, Codex CLI, Cursor, VS Code/Copilot, Gemini CLI, and
+Claude Code, Codex CLI, Grok Build, Cursor, VS Code/Copilot, Gemini CLI, and
 Databricks Genie Code all adopt the open
-[Agent Skills specification](https://agentskills.io/specification).
+[Agent Skills specification](https://agentskills.io/specification)
+(or load agentskills-shaped skill packages).
 HELIX's `skills/helix/SKILL.md` is agentskills-compliant: required
 `name` and `description` frontmatter, parent directory name equal to
 `name:`, progressive-disclosure layout with heavy content in
