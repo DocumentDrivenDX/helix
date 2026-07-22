@@ -117,13 +117,14 @@ start, add a HELIX section to `AGENTS.md` at the repo root:
 
 This repo uses HELIX (methodology + artifact catalog + one routing skill).
 
-- Routing skill: `skills/helix/SKILL.md`
-- Artifact catalog: `workflows/activities/` (00-discover through 06-iterate)
-- Methodology spec: `workflows/README.md`, `workflows/principles.md`
+- Routing skill: installed helix plugin / `skills/helix/SKILL.md`
+- Artifact catalog: plugin `workflows/` or package `references/` (fall-through
+  when the project does not vendor templates); optional local `workflows/`
+- Instance docs: `docs/helix/` (or the flow root in `.helix.yml`)
 
 When the user asks to use HELIX, align documents, frame requirements,
 design a change, evolve specs, review work, or otherwise touch
-HELIX-governed material, load `skills/helix/SKILL.md` and follow the
+HELIX-governed material, load the helix skill and follow the
 routing table inside it. Do not invent new `helix-*` skills.
 ```
 

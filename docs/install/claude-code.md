@@ -50,6 +50,11 @@ claude plugin install helix@helix --scope user -y
 ```
 
 After install, the skill is available in any Claude Code session.
+Adopter product repos need not copy `workflows/` templates; missing
+project-local catalogs **fall through** to the installed plugin (see skill
+§Catalog Resolution). Vendoring `workflows/` remains valid for self-host
+and intentional forks and outranks the plugin when present.
+
 Verify with `claude plugin list`:
 
 ```
