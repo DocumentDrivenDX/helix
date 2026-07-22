@@ -1,7 +1,7 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-deploy-artifacts test-state-rules test-skills test-plugin-package test-genie-bundle test-surface-leakage test-microsite-doctrine test-context-digests test-actions
+test: test-deploy-artifacts test-state-rules test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-surface-leakage test-microsite-doctrine test-context-digests test-actions
 
 # Serve the HELIX microsite at the canonical local review URL.
 website-serve:
@@ -22,6 +22,10 @@ test-skills:
 # Validate generated plugin package layout and source/catalog sync
 test-plugin-package:
     bash tests/validate-plugin-package.sh
+
+# Validate catalog fall-through path availability (filesystem only)
+test-plugin-catalog-resolution:
+    bash tests/validate-plugin-catalog-resolution.sh
 
 # Validate generated Databricks Genie bundle layout and source/catalog sync
 test-genie-bundle:

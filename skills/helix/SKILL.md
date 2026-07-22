@@ -116,15 +116,16 @@ the type catalog, and the prerequisite chain go unconsulted. The resulting
 artifact looks plausible but is unanchored to the workspace's actual contract.
 
 A graph bind is **always achievable** in supported layouts: §Catalog Resolution
-ends at either the HELIX source-checkout `workflows/` catalog or the generated
-package `references/` floor beside this SKILL.md, so `graph.yml` resolves in
-source checkouts and marketplace-installed packages. A missing project-local
-`workflows/graph.yml` is therefore NEVER a reason to stop, defer, or skip
-artifact edits — it only means the bind comes from a later resolution step.
-"I cannot find the graph, so I will avoid HELIX artifact edits" is a contract
-violation, not a valid degraded mode: bind the graph from source checkout or the
-package floor and proceed. A `Read` whose target does not resolve does NOT
-satisfy this contract — the graph must actually bind.
+falls through marker pointer → project-local `workflows/` → source-checkout /
+full plugin-dir `../../workflows/` → plugin env root (`$GROK_PLUGIN_ROOT` /
+`$CLAUDE_PLUGIN_ROOT`) → generated package `references/` floor beside this
+SKILL.md. A missing project-local `workflows/graph.yml` is therefore NEVER a
+reason to stop, defer, or skip artifact edits — it only means the bind comes
+from a later resolution step. "I cannot find the graph, so I will avoid HELIX
+artifact edits" is a contract violation, not a valid degraded mode: bind the
+graph from source checkout, plugin root, or the package floor and proceed. A
+`Read` whose target does not resolve does NOT satisfy this contract — the graph
+must actually bind.
 
 The order between the two Reads is not constrained: marker-first is the
 natural sequence; graph-first is acceptable for graph-query-only prompts
@@ -146,8 +147,8 @@ therefore still authorizes artifact edits: it binds the shipped catalog.
 
 The bench enforces this via the `read_before_write` matcher, which accepts a
 graph `Read` from any §Catalog Resolution source (in-tree `workflows/graph.yml`,
-a marker `graph:` pointer, the HELIX source-checkout `workflows/graph.yml`, or
-the generated package `references/` floor).
+a marker `graph:` pointer, the HELIX source-checkout `workflows/graph.yml`, a
+plugin-env-root catalog, or the generated package `references/` floor).
 
 ### 2. Decide activation state
 
@@ -381,41 +382,72 @@ lacks governing artifact coverage.
 
 ## Catalog Resolution
 
-When a workflow mode needs an artifact template, prompt, quality criteria, or
-the methodology graph, resolve the path in this deterministic order. The first
-source that resolves wins; resolution ALWAYS succeeds in supported layouts
-because source checkouts carry `workflows/` and generated packages carry the
-`references/` floor beside this SKILL.md.
+When a workflow mode needs an artifact template, prompt, quality criteria,
+voice registry, concerns library, stop-triggers, or the methodology graph,
+resolve paths in this deterministic **fall-through** order. The first source
+that resolves wins. Do **not** demote project-local or source-checkout ranks
+below the installed plugin — adopters without local templates succeed by
+falling through, not by reordering authority.
+
+Resolution ALWAYS succeeds in supported layouts: full-repo installs and
+source checkouts carry `workflows/`; generated packages carry the
+`references/` floor beside this SKILL.md; plugin hosts may also expose
+`$GROK_PLUGIN_ROOT` / `$CLAUDE_PLUGIN_ROOT`.
 
 1. **Marker `graph:` pointer** — if the active `.helix.yml` declares a
    `graph:` (or `catalog:`) path and it resolves, bind it. If the pointer is
    set but does not resolve, emit a one-line warning and fall through to the
    next step — a broken pointer never blocks and never short-circuits.
-2. **In-tree catalog** — `workflows/graph.yml` and
+2. **In-tree project catalog** — `workflows/graph.yml` and
    `workflows/activities/<NN>-<activity>/artifacts/<type>/`, found by walking
    up from the current working directory to the directory containing the
    resolved `.helix.yml` marker. This is the self-hosting / methodology-source
-   case (the HELIX repo itself, and any consumer that vendors the catalog).
+   case (the HELIX repo itself, and any consumer that intentionally vendors
+   the catalog). **Keep this rank above the installed plugin** so self-host
+   and forks are not silently overridden by a marketplace copy.
    **Skip this step entirely when there is no marker** (heuristic activation):
-   there is no anchor to walk to, so fall through to the source-checkout or
-   package floor.
-3. **HELIX source-checkout catalog** — `../../workflows/graph.yml` and
-   `../../workflows/activities/<NN>-<activity>/artifacts/<type>/`, relative to
-   this `SKILL.md` when it lives at `skills/helix/SKILL.md` inside a HELIX
-   source checkout or DDx plugin checkout. This keeps local `--plugin-dir
-   /path/to/helix` and checkout-style development installs self-sufficient
-   without committing generated `skills/helix/references/` bytes to source.
-4. **Generated `references/` floor** — `references/graph.yml` and
+   there is no anchor to walk to, so fall through to later steps.
+3. **Source-checkout / full plugin-dir catalog** — resolve the realpath of
+   this `SKILL.md`, then bind `../../workflows/graph.yml` and
+   `../../workflows/activities/<NN>-<activity>/artifacts/<type>/` when the
+   skill lives at `skills/helix/SKILL.md` inside a HELIX source checkout,
+   `claude --plugin-dir` / `grok --plugin-dir` tree, DDx plugin checkout, or
+   a full-repo plugin install (for example Grok
+   `~/.grok/installed-plugins/<id>/` with `workflows/` at the plugin root).
+   This keeps checkout-style installs self-sufficient without committing
+   generated `skills/helix/references/` bytes to source.
+4. **Plugin env root (additive)** — if steps 2–3 did not bind and
+   `$GROK_PLUGIN_ROOT` or `$CLAUDE_PLUGIN_ROOT` is set in the environment
+   (plugin hooks and some host sessions), try in order:
+   - `<env-root>/workflows/graph.yml` (and matching `activities/…`)
+   - `<env-root>/skills/helix/references/graph.yml` (and matching
+     `activities/…` under that floor)
+   Use the realpath of env roots when present. This step is **only** a
+   fall-through when the project has no local catalog and the relative
+   source-checkout path from this SKILL.md did not resolve.
+5. **Generated `references/` floor** — `references/graph.yml` and
    `references/activities/<NN>-<activity>/artifacts/<type>/`, relative to this
    `SKILL.md`. A generated copy of the source catalog that ships in marketplace
    plugin packages and standalone skill bundles, so a graph and templates
    resolve when no fresher source above did. This is the agentskills.io
    progressive-disclosure layout used by skill bundles.
+6. **Fail closed** — if no step binds, stop with a diagnostic listing every
+   path attempted. Never invent templates from training data.
+
+**Same-source rule:** once a catalog source binds, load graph, templates,
+prompts, meta, voice, concerns, and stop-triggers from that **same** bind
+(or the matching sibling path under that root). Do not mix plugin templates
+with a different source's voice or concerns.
+
+**Invariant:** missing project-local `workflows/` is **success** when a later
+step binds. Adopter projects need only `.helix.yml` and instance docs under
+the flow root; they do not need to copy templates.
 
 State which source bound when it is not the generated floor (e.g. "catalog:
 in-tree `workflows/graph.yml`", "catalog: source-checkout `workflows/graph.yml`",
-or "catalog: marker `graph:` pointer") so an operator can see when the skill
-reasons against a vendored, source-checkout, or packaged catalog. There is no
+"catalog: plugin env root `$GROK_PLUGIN_ROOT/workflows`", or "catalog: marker
+`graph:` pointer") so an operator can see when the skill reasons against a
+vendored, source-checkout, plugin, or packaged catalog. There is no
 "catalog not mounted" outcome in a supported checkout or package; a package
 missing both source `workflows/` and generated `references/` is invalid.
 
@@ -445,13 +477,17 @@ template or prompt content load the file from the resolved source.
 
 When a workflow mode authors, validates, refreshes, reviews, or rewrites a
 HELIX artifact, load the voice registry `voice.yml` via the same deterministic
-order as §Catalog Resolution (first that resolves wins):
+fall-through order as §Catalog Resolution (first that resolves wins; same
+source as the bound graph):
 
 1. In-tree `workflows/voice.yml` — walking up to the marker-bearing directory;
    skipped when there is no marker.
-2. HELIX source-checkout `../../workflows/voice.yml` — relative to this
-   `SKILL.md` when it lives at `skills/helix/SKILL.md`.
-3. Generated `references/voice.yml` floor — relative to this `SKILL.md`,
+2. Source-checkout / full plugin-dir `../../workflows/voice.yml` — relative to
+   this `SKILL.md` when it lives at `skills/helix/SKILL.md`.
+3. Plugin env root — `$GROK_PLUGIN_ROOT` / `$CLAUDE_PLUGIN_ROOT` →
+   `workflows/voice.yml` then `skills/helix/references/voice.yml` (only if
+   steps 1–2 miss).
+4. Generated `references/voice.yml` floor — relative to this `SKILL.md`,
    shipped with marketplace plugin packages and standalone skill bundles.
 
 Resolve the active profile from the artifact type's `meta.yml`:
