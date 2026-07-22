@@ -54,6 +54,17 @@ Before modifying any work items, acquire a governing work item for this polish
 pass to record progress and govern changes. See the runtime's work-item
 acquisition reference for the full pattern.
 
+## STEP 0.75 - Evidence gate (before filing or keeping build work)
+
+For every open or proposed `activity:build` / implement item in scope:
+
+1. Check residual against code and tests (paths, greps, named suites).
+2. If the governing AC is already exercised by a passing test (or a recorded
+   exception), **close or re-scope** the item — do not leave stale implement work.
+3. If only story/AC documentation lags shipped code, prefer frame/story floor
+   items over new implement items.
+4. Record evidence (path:line or test name) on the item when keeping it open.
+
 ## STEP 1 - Plan Decomposition
 
 **This activity runs first and is mandatory when a plan exists.** Plans must be

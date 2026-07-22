@@ -47,11 +47,19 @@
 |-----------------|-----------|----------------|--------|----------|
 | [ID] | [criterion] | [test path or "none"] | [SATISFIED/TESTED_NOT_PASSING/UNTESTED/UNIMPLEMENTED] | [refs] |
 
+## Desired-state posture
+
+- Specs = **desired** future state (do not shrink requirements to match incomplete code without operator intent).
+- Code behind specs → residual work items with evidence.
+- Code ahead of docs → honesty evolve only with **operator intent**; classify as `STALE_PLAN` until approved.
+
 ## Gap Register
 
-| Area | Classification | Planning Evidence | Implementation Evidence | Resolution Direction | Issue |
-|------|----------------|-------------------|------------------------|----------------------|-------|
-| [Area] | [ALIGNED/INCOMPLETE/DIVERGENT/UNDERSPECIFIED/STALE_PLAN/BLOCKED] | [refs] | [refs] | [code-to-plan/plan-to-code/decision-needed/quality-improvement] | [ID] |
+| Area | Classification | Destination type | Deliverable shape | Next mode | Evidence (path:line) | Resolution Direction | Issue |
+|------|----------------|------------------|-------------------|-----------|----------------------|----------------------|-------|
+| [Area] | [ALIGNED/INCOMPLETE/DIVERGENT/UNDERSPECIFIED/STALE_PLAN/BLOCKED] | [PRD/FEAT/US/ADR/…] | [concrete add] | [frame/design/evolve/…] | [refs] | [code-to-plan/plan-to-code/decision-needed/quality-improvement] | [ID] |
+
+Four-field handoff (required for every non-ALIGNED row): destination artifact type, deliverable shape, suggested next workflow mode, evidence path:line.
 
 ### Quality Findings
 
