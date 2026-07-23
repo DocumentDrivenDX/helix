@@ -45,7 +45,7 @@ Observed layout (Phase 0): full tree under
 
 ```bash
 grok plugin install DocumentDrivenDX/helix --trust
-# pin optional: DocumentDrivenDX/helix@v0.10.3
+# pin optional: DocumentDrivenDX/helix@v0.11.0
 ```
 
 Use a full-repo install so `workflows/` is present. If a future install shape
@@ -88,7 +88,7 @@ In a session:
 Or natural language: “Use the helix skill to list workflow modes.”
 
 Expect engagement (skill load), then a short routing response naming modes
-such as frame, align, design, evolve, review, polish, check.
+such as frame, grill, align, design, evolve, review, polish, check.
 
 **Headless / non-interactive:** name the skill in the prompt; do not rely on
 slash expansion if the host does not expand `/helix` outside the TUI.

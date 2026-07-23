@@ -12,7 +12,8 @@ description: |
   lanes that shape context and stop rules; they are not sibling public
   skills or workflow modes. Engage on "what's next" / "plan the change"
   / cross-flow queries. Engage on desired state vs implementation,
-  specs behind code, and pruning beads against specs.
+  specs behind code, and pruning beads against specs. Engage on
+  "grill me", stress-test a plan or design, or one-question interviews.
 argument-hint: "[intent or scope]"
 ---
 
@@ -81,6 +82,8 @@ Engage when:
 - The prompt asks "what's next", "plan the change", "decide what to do",
   or any cross-flow query that needs the marker to answer → use the
   §Check And Next contract.
+- The prompt asks to "grill me", "interview me" about a plan/design, or to
+  stress-test decisions one question at a time → use the §Grill contract.
 
 Verbose-but-stuck anti-pattern: narrating HELIX-shaped reasoning in
 assistant text WITHOUT an engagement action (skill-tool invoke on
@@ -372,6 +375,7 @@ Prefer the first matching route:
 | User intent | Workflow mode |
 |---|---|
 | Convert rough intent into governed HELIX work | input |
+| Grill / interview / stress-test a plan or design until shared understanding (one question at a time) | grill |
 | Create or refine product vision, PRD, feature specs, or user stories | frame |
 | Reconcile artifacts, check traceability, find drift, align documents, or move content between artifact layers | align |
 | Check an artifact instance against its template and prompt; edit resolvable findings in place | validate |
@@ -392,7 +396,9 @@ Prefer the first matching route:
 When multiple routes fit, choose the highest-authority planning route first:
 `frame` before `design`, `align` before `evolve` when the task is diagnostic,
 and `evolve` before handing work to the runtime when requested implementation
-lacks governing artifact coverage.
+lacks governing artifact coverage. Prefer `grill` over `input`/`frame`/`design`
+when the operator asks to be interviewed or to stress-test decisions before
+authoring; do not steal generic turns that only say "plan" without grill intent.
 
 ## Catalog Resolution
 
@@ -663,6 +669,44 @@ Use for sparse user intent that needs to become governed HELIX work.
    authority is missing.
 4. Keep created work standalone: include context, acceptance criteria, labels,
    parent/dependency relationships, and verification commands.
+
+### Grill
+
+Use to stress-test a plan, design, or change via a decision-tree interview
+until shared understanding. Distills the grilling technique (one question at a
+time, recommended answers, facts vs decisions). Full procedure:
+`workflows/actions/grill.md` in source checkouts; this section is normative for
+all installs.
+
+**Why a mode (not only `input`):** grill is stop-before-act interview discipline;
+`input` converts intent into governed work items. Operators must be able to
+invoke interview-only without drafting PRDs or filing implement beads.
+
+1. Bind marker and catalog; load governing artifacts; explore the environment
+   for **facts**.
+2. Build a decision tree of open choices (dependency-ordered), not a bulk
+   questionnaire.
+3. **Interactive:** ask **one question at a time**; wait for the answer. Each
+   question includes a **recommended answer** and short rationale (cite
+   path:line when known). Decisions go to the operator; facts are looked up.
+4. **Headless / non-interactive** (`claude -p`, `codex exec`, `ddx agent run`,
+   CI, one-shot): emit in one response the full decision tree, recommended
+   answers, assumptions for unresolved operator-only decisions, and the
+   §Align handoff. Do **not** block waiting for answers.
+5. **Hard floor (all autonomy levels):** until the operator confirms shared
+   understanding (interactive) or the headless one-shot completes, do **not**
+   Write/Edit product source, file implement/build beads, or apply/deploy.
+   This is a `stop_at`-style checkpoint; it does not rewrite autonomy source
+   precedence for other pauses.
+6. Do **not** create a free-floating `CONTEXT.md` as authority. After confirm,
+   durable decisions land via handoff into existing catalog types (PRD, FEAT,
+   ADR, technical-design, concerns, etc.).
+7. On confirm (or headless completion), emit a §Align handoff with all four
+   fields: destination artifact type, deliverable shape, next mode
+   (`frame` | `design` | `evolve` | `polish` | `validate` | `backfill` | runtime
+   handoff when already governed), evidence references.
+8. Do not silently start frame/design/build in the same turn unless the
+   operator asks.
 
 ### Frame
 

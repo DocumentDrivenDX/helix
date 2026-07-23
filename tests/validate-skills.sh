@@ -515,6 +515,41 @@ assert_file_contains \
   "Bring every artifact instance up to date with the current templates and prompts | refresh" \
   "helix skill must have routing row for refresh"
 assert_file_contains \
+  "$repo_root/skills/helix/SKILL.md" \
+  "### Grill" \
+  "helix skill must have Grill section under Workflow Contracts"
+assert_file_contains \
+  "$repo_root/skills/helix/SKILL.md" \
+  "one question at a time" \
+  "helix grill mode must require one question at a time"
+assert_file_contains \
+  "$repo_root/skills/helix/SKILL.md" \
+  "recommended answer" \
+  "helix grill mode must require a recommended answer per question"
+assert_file_contains \
+  "$repo_root/skills/helix/SKILL.md" \
+  "stress-test a plan or design until shared understanding" \
+  "helix skill must route grill intents to mode grill"
+assert_file_contains \
+  "$repo_root/workflows/actions/grill.md" \
+  "one question at a time" \
+  "grill action must encode one-question interview discipline"
+assert_file_contains \
+  "$repo_root/workflows/actions/grill.md" \
+  "recommended answer" \
+  "grill action must require recommended answers"
+assert_file_contains \
+  "$repo_root/workflows/actions/grill.md" \
+  "Do not** Write/Edit product source" \
+  "grill action must forbid product mutation until confirm"
+assert_file_not_contains \
+  "$repo_root/workflows/actions/grill.md" \
+  "CONTEXT.md as governing authority" \
+  "grill action must not promote CONTEXT.md as authority"
+if [[ -d "$repo_root/skills/helix-grill" || -d "$repo_root/skills/grill-me" ]]; then
+  fail "must not add public helix-grill or grill-me skill directories"
+fi
+assert_file_contains \
   "$repo_root/workflows/actions/polish.md" \
   "Treat \"works\", \"correct\", \"complete\", \"aligned\", or similar adjectives" \
   "polish action must reject vague non-measurable acceptance wording"
