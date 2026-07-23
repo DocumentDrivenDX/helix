@@ -159,7 +159,7 @@ The installed plugin root should resolve under
 
 A correct runtime response:
 1. Mentions the HELIX skill or the installed `helix@helix` plugin.
-2. Lists routing modes: input, frame, align, evolve, design, backfill,
+2. Lists routing modes: input, grill, frame, align, evolve, design, backfill,
    review, polish, check/next, build, run, commit, release, experiment,
    worker (or a faithful subset).
 
