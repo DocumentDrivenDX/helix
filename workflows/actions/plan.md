@@ -1,14 +1,13 @@
 # HELIX Action: Plan
 
-You are creating a comprehensive design plan for a HELIX project scope.
+You are creating a design plan for a HELIX project scope.
 
-Your goal is to produce a thorough markdown design document through iterative
-self-critique and refinement, capturing architecture, interfaces, error
-handling, security, testing strategy, and implementation ordering — all before
-any code is written or issues are created.
+Your goal is the **minimal design that governs implementation without inventing
+scope**: architecture, interfaces, errors, security, testing strategy, and
+implementation ordering needed to build — not a completeness exercise.
 
-This action is intentionally front-loaded. Invest deeply in planning quality
-now to prevent expensive rework during implementation.
+Prefer short, implementable plans. Process redesign mid-delivery is not a plan
+outcome; ship the product unit (or methodology content that changes behavior).
 
 ## Action Input
 
@@ -16,7 +15,7 @@ You may receive:
 
 - no argument (default: repo-wide plan)
 - a scope such as `auth`, `FEAT-003`, `payments`
-- `--rounds N` controlling refinement iterations (default: 5)
+- `--rounds N` controlling refinement iterations (default: 2)
 
 ## Authority Hierarchy
 
@@ -102,93 +101,72 @@ pattern.
 
 ## STEP 1 - First Draft
 
-Produce a comprehensive design document covering ALL of the following sections.
-Do not skip sections; mark them "N/A" with rationale if genuinely inapplicable.
+Produce a design document covering the sections that are **load-bearing for this
+scope**. Mark others N/A with a one-line reason. Do not invent content to fill
+shells.
+
+When vision/PRD exist, each major implementation slice must name the **product
+outcome** it advances. Reject slices that only deepen process machinery
+(schema/digest/audit redesigns with no product outcome).
+
+Candidate sections (use what this scope needs):
 
 1. **Problem Statement and User Impact**
-   - What problem does this solve? Who benefits? What happens if we don't solve it?
-2. **Requirements Analysis**
-   - Functional requirements (what the system must do)
-   - Non-functional requirements (performance, scalability, reliability)
-   - Constraints (technology, timeline, compliance)
-3. **Architecture Decisions**
-   - For each decision: state the question, list alternatives considered,
-     explain the chosen approach and why alternatives were rejected
+2. **Requirements Analysis** (functional, non-functional, constraints)
+3. **Architecture Decisions** (question, alternatives, choice, why)
 4. **Interface Contracts**
-   - APIs, CLIs, configuration surfaces, file formats
-   - Input validation rules and error response formats
 5. **Data Model**
-   - Entities, relationships, storage, migration strategy
 6. **Error Handling Strategy**
-   - Error categories, retry policies, fallback behavior, user-facing messages
 7. **Security Considerations**
-   - Attack surfaces, authentication, authorization, data protection
-   - Threat model for new surfaces introduced
 8. **Test Strategy**
-   - What to test at each level (unit, integration, e2e)
-   - Critical paths that must have coverage before shipping
-9. **Implementation Plan with Dependency Ordering**
-   - Work breakdown into issue-sized slices
-   - Dependency graph showing what must be built first
-   - Parallel tracks that can proceed independently
-10. **Risk Register**
-    - Known risks, likelihood, impact, mitigation strategy
+9. **Implementation Plan with Dependency Ordering** — each slice needs an
+   observable validation command or evidence path (not a milestone name)
+10. **Risk Register** (include deferred rigor as tracker/parking-lot items)
 11. **Observability**
-    - Logging, metrics, alerting, dashboards
 
 ### Concern-Mandated Sections
 
 If active concerns require specific design coverage, those sections are
-mandatory (not just "recommended"):
+mandatory for this scope:
 
-- `security-owasp` active → Section 7 (Security Considerations) must include
-  OWASP-aligned threat model, not just a placeholder.
-- `o11y-otel` active → Section 11 (Observability) must include OpenTelemetry
-  instrumentation plan with specific spans, metrics, and trace propagation.
-- `a11y-wcag-aa` active → Add a **12. Accessibility** section covering WCAG AA
-  compliance strategy for all user-facing surfaces.
+- `security-owasp` active → Security must include OWASP-aligned threat model
+- `o11y-otel` active → Observability must include concrete OTel plan
+- `a11y-wcag-aa` active → Accessibility (WCAG AA) for user-facing surfaces
 - Other active concerns → Check each concern's `practices.md` for design-activity
-  requirements and ensure the plan addresses them.
-
-The governing work item's acceptance criteria include concern-mandated section
-completeness.
+  requirements
 
 ## STEP 2 through N - Iterative Refinement
 
 For each subsequent round:
 
 1. Re-read AGENTS.md to refresh project context.
-2. **Assume there are 80+ elements you have missed or underspecified.** This is
-   not a suggestion — actively search for gaps in every section.
-3. Challenge every assumption, interface, error path, and edge case.
-4. For each section, ask:
+2. Fill only **material** gaps that would block implementation or contradict
+   vision/PRD. Do not hunt for completeness theater.
+3. Challenge assumptions, interfaces, error paths, and edge cases that matter
+   for this scope.
+4. Ask when relevant (not every section every round):
    - What happens when this fails?
-   - What happens at 10x scale?
-   - What happens when the input is malformed?
-   - What happens when a dependency is unavailable?
-   - What would a security reviewer flag?
-   - What would an oncall engineer need at 3am?
-5. Add missing:
-   - Error handling paths and recovery procedures
-   - Concurrency considerations and race conditions
-   - Migration strategies and backward compatibility
-   - Rollback procedures
-   - Monitoring and observability hooks
-   - Performance constraints and benchmarks
-   - Security attack surfaces
-6. Track changes between rounds in a **Refinement Delta** section at the end:
-   - Round number
-   - Count of substantive changes
-   - Summary of what changed and why
+   - What happens when input is malformed or a dependency is unavailable?
+   - What would a security reviewer flag on new surfaces?
+5. Add missing detail only when it blocks a build slice or a real defect path.
+6. Track changes between rounds in a **Refinement Delta** (round, count,
+   summary) — optional once the plan is implementable.
 
 ## Convergence Detection
 
-Track a refinement velocity metric: count of substantive changes per round.
-A substantive change is one that affects behavior, interfaces, error handling,
-security, or architecture — not formatting or wording.
+Stop when **either**:
 
-When velocity drops below 5 substantive changes for two consecutive rounds,
-declare convergence and stop refinement.
+1. **Implementable early-stop** — all of:
+   - Open design decisions closed or spike-recorded
+   - Each build slice has a validation **command or evidence path**
+   - No unresolved contradiction with vision/PRD when those exist
+   - Shared constraints listed
+   - Concern-mandated plan obligations present or N/A
+2. **Velocity stop** — substantive changes drop below 5 for two consecutive
+   rounds (a substantive change affects behavior, interfaces, error handling,
+   security, or architecture — not formatting)
+
+Do not keep refining for round count prestige.
 
 ## ACTIVITY N+1 - Finalize
 
@@ -205,12 +183,14 @@ declare convergence and stop refinement.
 Verify the design document against the governing work item's acceptance
 criteria. See the measure action for the full pattern.
 
-1. **Acceptance criteria**: Verify the design document exists at the canonical
-   path and contains all required sections (including concern-mandated ones).
-2. **Convergence**: Confirm refinement velocity dropped below threshold or
-   explain why it did not.
-3. **Concern coverage**: Verify each active concern's design-activity requirements
-   are addressed in the plan.
+1. **Acceptance criteria**: Design document exists at the canonical path;
+   load-bearing + concern-mandated sections are present (or N/A with reason);
+   each major slice names an outcome (when vision/PRD exist) and a
+   command/evidence validation path.
+2. **Convergence**: Implementable early-stop **or** velocity stop, or explain
+   why neither was met.
+3. **Concern coverage**: Each active concern's design-activity requirements are
+   addressed or N/A.
 4. **Record results** on the governing work item via the runtime-provided work-item source.
 
 ## ACTIVITY N+3 - Report
@@ -240,8 +220,8 @@ ITEM_ID: <governing-item-id>
 FOLLOW_ON_CREATED: N
 ```
 
-- `CONVERGED`: refinement velocity dropped below threshold
-- `IN_PROGRESS`: max rounds reached but velocity still high
+- `CONVERGED`: implementable early-stop or velocity stop
+- `IN_PROGRESS`: max rounds reached but not yet implementable
 - `GUIDANCE_NEEDED`: ambiguity that requires user input before the plan can converge
 
 ## Runtime Integration Appendix
@@ -269,10 +249,10 @@ Acquire the governing work item before writing any design content, per
 `helix,activity:design,kind:planning,action:design`, a `spec-id` pointing at the
 governing artifact if known, a `<context-digest>` description that names the
 scope to design for and the governing artifacts loaded in Step 0, and acceptance
-"Design document converged with all required sections including concern-mandated
-sections; written to canonical path". All subsequent file modifications are
-governed by this work item. The runtime supplies the work-item store; for the
-concrete commands see its install guide
+"Design document implementable: load-bearing + concern-mandated sections (or
+N/A); slices have command/evidence validation; written to canonical path". All
+subsequent file modifications are governed by this work item. The runtime
+supplies the work-item store; for the concrete commands see its install guide
 ([docs/install/ddx.md](../../docs/install/ddx.md) for DDx).
 
 ### Action input examples

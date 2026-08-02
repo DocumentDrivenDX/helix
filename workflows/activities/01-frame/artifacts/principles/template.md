@@ -43,11 +43,19 @@ semantics).
    decisions when code and spec diverge — fix the projection or update the
    contract in the same change, rather than letting them drift.
 
+7. **Deliverable over machinery** — Ship the product unit; process machinery is
+   a derivative (bound it, freeze it, deliver). Deferred rigor is a tracker or
+   parking-lot item, not a redesign tranche. Do not skip tests, product ACs,
+   claims-vs-reality, or scope-discipline. When process rounds outrun delivered
+   units, stop and deliver.
+
 ## Tension Resolution
 
 When principles pull in opposite directions, document the resolution strategy
 here. Each entry should name the two principles, describe when they conflict,
 and state how to decide.
 
-*No tensions identified yet. As you add project-specific principles, use this
-section to resolve any conflicts with existing principles.*
+- **Deliverable over machinery vs. Validate your work**: keep real evidence;
+  do not invent gates for completeness theater.
+- **Deliverable over machinery vs. Spec is the contract**: product specs stay
+  authoritative; freeze process meta-work mid-delivery, not required product ACs.

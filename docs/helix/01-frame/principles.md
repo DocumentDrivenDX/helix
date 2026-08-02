@@ -52,6 +52,10 @@ sense that they steer judgment about how to extend HELIX itself.
 7. **Discipline over improvisation.** AI agents improvise well; the value of
    HELIX is the discipline that makes improvisation reviewable.
 
+8. **Deliverable Over Machinery.** Ship the unit (for HELIX: the template,
+   skill, or prompt that changes behavior); freeze process redesign mid-delivery.
+   Do not skip real defect checks to "go faster."
+
 ## Tension Resolution
 
 | When these pull against each other | Resolve by |
@@ -59,6 +63,7 @@ sense that they steer judgment about how to extend HELIX itself.
 | **Less is more** vs. methodology depth | Trim. If a methodology detail can live in `workflows/` or a glossary page rather than a flagship artifact, move it there. |
 | **HELIX doesn't run anything** vs. operator convenience | Move the convenience to the runtime adapter, not HELIX. Wrappers that shorten DDx invocations are DDx's job. |
 | **Documents are the contract** vs. ship-it pressure | Capture the decision as a document update before merging; otherwise the change exists only in code and the artifact graph diverges. |
+| **Deliverable Over Machinery** vs. completeness theater | Ship the unit; file deferred rigor as a tracker item, not a redesign tranche. |
 
 ## Size Guidance
 

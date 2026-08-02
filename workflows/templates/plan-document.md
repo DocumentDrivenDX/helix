@@ -76,3 +76,4 @@
 ## Governing Artifacts
 
 {{Cross-references to vision, PRD, feature specs, architecture docs}}
+Name the vision/PRD outcomes this plan advances (or N/A with reason).

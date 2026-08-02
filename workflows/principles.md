@@ -65,6 +65,16 @@ When two options are otherwise equivalent, choose the one that is easier to
 undo. Commit to irreversible choices deliberately, with documented rationale.
 Reversibility buys options; irreversibility spends them.
 
+### Deliverable Over Machinery
+
+Ship the product unit (vision/PRD capability, user-visible slice, or — when the
+product is methodology — the template/skill/prompt that changes behavior).
+Process machinery is a derivative: bound it, freeze it, deliver. Deferred rigor
+is a tracker item or parking-lot line, not a redesign tranche. Prefer checks
+that catch real defects; kill work that only deepens process. Do not use this
+principle to skip tests, product ACs, claims-vs-reality, or scope-discipline.
+When process rounds outrun delivered units, stop and deliver.
+
 ## Tension Resolution
 
 These principles can conflict. When they do, apply the principle whose
@@ -80,6 +90,12 @@ Common tensions:
 - **Design for Change vs. Simplicity**: extensibility points add structure.
   Add them only when the change direction is known; do not extend for
   hypothetical futures.
+- **Deliverable Over Machinery vs. Validate Your Work**: keep real evidence
+  gates (build, test, claims-vs-reality); do not invent gates for completeness
+  theater.
+- **Deliverable Over Machinery vs. Spec Is The Contract**: product specs stay
+  authoritative; freeze process meta-work mid-delivery, not required product
+  ACs for the ship unit.
 
 ## Size Guidance
 

@@ -1197,6 +1197,11 @@ follow-up work are captured durably.
 
 ## Operating Discipline
 
+- Prefer the product unit (or methodology content that changes behavior) over
+  process redesign. Bound process machinery, freeze it, deliver.
+- **Freeze redirect:** `Machinery frozen as-is. Deliver the unit now — no schema/digest/governance redesign until it ships (unless the unit *is* that methodology content).`
+- Do not skip real defect checks (tests, product ACs, claims-vs-reality,
+  scope-discipline) under cover of shipping faster.
 - Use the workflow contracts in this skill as the active interface; consult
   packaged workflow prompts only when deeper mode-specific detail is needed.
 - For projects with a work tracker, obey work-item-first rules before writing
