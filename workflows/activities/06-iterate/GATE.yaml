@@ -1,6 +1,12 @@
 activity: iterate
 number: "06"
 
+# Scope note: these entry requirements gate the METRIC LOOP artifacts
+# (metric-definition, metrics-dashboard, security-metrics,
+# improvement-backlog), which need a deployed, monitored system to measure.
+# The human-cadence pair (iteration-plan, status-report) is exempt: a first
+# iteration plan is authored before anything is deployed. Normative text in
+# this activity's README ("Human cadence pair").
 entry_requirements:
   automated:
     - check: previous_phase_complete

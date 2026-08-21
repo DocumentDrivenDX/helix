@@ -1,0 +1,62 @@
+artifact:
+  name: Status Report
+  id: status-report
+  type: document
+  activity: iterate
+
+voice: artifact-signal
+
+description: |
+  Point-in-time record of an iteration against its plan: outcome status with
+  evidence per claim, trades executed against the plan's trade rules,
+  blockers with the decisions they need, and next steps. The review or
+  checkpoint record that teams and stakeholders read; the runtime tracker
+  stays the live status surface.
+
+output:
+  location: docs/helix/06-iterate/status-report-[iteration-id]-[date].md
+  format: markdown
+  naming: status-report-[iteration-id]-[date].md
+
+validation:
+  required_sections:
+    - summary
+    - outcome_status
+    - changes_and_trades
+    - blockers_and_risks
+    - next_steps
+
+  quality_checks:
+    - check: status_traces_plan
+      description: Every outcome row must cite the iteration plan's outcome ID it reports against
+      severity: blocking
+    - check: evidence_cited
+      description: Every status claim cites evidence — done and at-risk cite the proof or the threat (demo, test, commit, metric), on-track cites observable progress so far, dropped cites the trade or escalation; an evidence-free claim is a phantom claim
+      severity: blocking
+    - check: trades_reference_rules
+      description: Every executed trade must reference the plan's trade rules or name who approved the deviation
+      severity: warning
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+example:
+  file: example.md
+
+relationships:
+  informed_by:
+    - iteration-plan
+    - metrics-dashboard
+  informs:
+    - improvement-backlog
+
+tags:
+  - iterate
+  - status
+  - reporting
+  - iteration
+
+version: 1.0.0

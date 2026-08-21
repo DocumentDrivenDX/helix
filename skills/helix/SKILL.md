@@ -8,10 +8,13 @@ description: |
   artifacts and work. Engage on any named HELIX
   artifact: PRD, ADR, FEAT, feature spec, technical design,
   implementation plan, test plan, runbook, release notes, user stories,
-  roadmap brief, requirements. Product, web, infra, and data are domain
+  roadmap, iteration plan, status report, requirements. Product, web,
+  infra, and data are domain
   lanes that shape context and stop rules; they are not sibling public
   skills or workflow modes. Engage on "what's next" / "plan the change"
-  / cross-flow queries. Engage on desired state vs implementation,
+  / cross-flow queries. Engage on human-iteration planning: sequence a
+  roadmap, define workstreams, cut a sprint/iteration plan, write a
+  status report. Engage on desired state vs implementation,
   specs behind code, and pruning beads against specs. Engage on
   "grill me", stress-test a plan or design, or one-question interviews.
 argument-hint: "[intent or scope]"
@@ -62,7 +65,8 @@ Engage when:
 
 - The prompt names a HELIX artifact (PRD, ADR, FEAT, feature spec,
   technical design, implementation plan, test plan, runbook, release
-  notes, user stories, roadmap brief, requirements) — even when the
+  notes, user stories, roadmap, iteration plan, status report,
+  requirements) — even when the
   prompt asks you to *review* or *expand* one whose content is not
   attached. Engage; THIS SKILL knows how to resolve the artifact path
   from the marker + graph + cwd, you do not.
@@ -385,6 +389,7 @@ Prefer the first matching route:
 | Reconstruct missing or incomplete docs from evidence | backfill |
 | Fresh-eyes review of recent work, PRs, plans, or implementation | review |
 | Refine work items for execution readiness | polish |
+| Plan or report a human iteration — sequence a roadmap, define workstreams, cut an iteration/sprint plan, write a status report | iterate |
 | Decide the next safe HELIX action | check or next |
 | Run an optimization experiment | experiment |
 | Bootstrap a brand-new project from bare intent (name, research, vision, scaffold) | genesis |
@@ -399,6 +404,14 @@ and `evolve` before handing work to the runtime when requested implementation
 lacks governing artifact coverage. Prefer `grill` over `input`/`frame`/`design`
 when the operator asks to be interviewed or to stress-test decisions before
 authoring; do not steal generic turns that only say "plan" without grill intent.
+
+Iteration-cadence precedence: authoring or updating a roadmap, iteration
+plan, or status report routes to `iterate` even when a change triggers it —
+re-sequencing a roadmap after a revision trigger is `iterate`, not `evolve`
+(`evolve` threads a requirement change through the artifact stack).
+Reviewing an iteration against its plan is `iterate` (a status report);
+`review` stays fresh-eyes critique of work products, PRs, and plans as
+artifacts.
 
 ## Catalog Resolution
 
@@ -476,12 +489,12 @@ The seven activities and the artifact types they own:
 | Activity | Artifact types (directory names under `<activity>/artifacts/`) |
 |---|---|
 | `00-discover` | `business-case`, `competitive-analysis`, `data-flow-analysis`, `opportunity-canvas`, `product-vision`, `resource-summary` |
-| `01-frame` | `compliance-requirements`, `concerns`, `feasibility-study`, `feature-registry`, `feature-specification`, `parking-lot`, `pr-faq`, `prd`, `principles`, `research-plan`, `risk-register`, `security-requirements`, `stakeholder-map`, `threat-model`, `user-stories`, `validation-checklist`, `data-prd` |
+| `01-frame` | `compliance-requirements`, `concerns`, `feasibility-study`, `feature-registry`, `feature-specification`, `parking-lot`, `pr-faq`, `prd`, `principles`, `research-plan`, `risk-register`, `roadmap`, `security-requirements`, `stakeholder-map`, `threat-model`, `user-stories`, `validation-checklist`, `data-prd` |
 | `02-design` | `adr`, `architecture`, `contract`, `data-design`, `design-system`, `proof-of-concept`, `security-architecture`, `solution-design`, `tech-spike`, `technical-design`, `data-architecture` |
 | `03-test` | `security-tests`, `story-test-plan`, `test-plan`, `test-procedures`, `test-suites`, `data-quality-expectations` |
 | `04-build` | `implementation-plan` |
 | `05-deploy` | `deployment-checklist`, `monitoring-setup`, `release-notes`, `runbook` |
-| `06-iterate` | `improvement-backlog`, `metric-definition`, `metrics-dashboard`, `security-metrics` |
+| `06-iterate` | `improvement-backlog`, `iteration-plan`, `metric-definition`, `metrics-dashboard`, `security-metrics`, `status-report` |
 
 Each artifact-type directory contains `template.md`, `prompt.md`,
 `meta.yml`, and an `example.md` (or `example-*.md`). This table answers
@@ -689,8 +702,8 @@ invoke interview-only without drafting PRDs or filing implement beads.
 3. **Interactive:** ask **one question at a time**; wait for the answer. Each
    question includes a **recommended answer** and short rationale (cite
    path:line when known). Decisions go to the operator; facts are looked up.
-4. **Headless / non-interactive** (`claude -p`, `codex exec`, `ddx agent run`,
-   CI, one-shot): emit in one response the full decision tree, recommended
+4. **Headless / non-interactive** (`claude -p`, `codex exec`, a runtime's
+   headless dispatch, CI, one-shot): emit in one response the full decision tree, recommended
    answers, assumptions for unresolved operator-only decisions, and the
    §Align handoff. Do **not** block waiting for answers.
 5. **Hard floor (all autonomy levels):** until the operator confirms shared
@@ -1003,6 +1016,73 @@ Use to refine work items before execution.
    or observable repository states.
 5. If acceptance cannot be sharpened from governing artifacts, flag the work as
    not execution-ready and route it back through planning.
+
+### Iterate
+
+Use to plan or report a human iteration: sequence a roadmap, define
+workstreams, cut an iteration plan from the backlog and roadmap, or record
+status against the active plan. This is the human-cadence loop of activity
+`06-iterate`; runtime execution loops stay with the runtime
+(§Runtime Handoff).
+
+**Skip test — apply per artifact, before authoring.** These artifacts exist
+to coordinate people; they cut risk only when there is coordination to do.
+Each is authored only when its own predicate holds (conditions joined by
+OR — any one suffices; none → skip that artifact):
+
+- `roadmap`: two or more workstreams exist, OR sequencing across two or
+  more future iterations is contested.
+- `iteration-plan`: the iteration has two or more owners, OR two or more
+  workstreams, OR ends in a review with an audience.
+- `status-report`: the report has an audience (a review, a client
+  checkpoint, a stakeholder update).
+
+When an artifact's predicate fails, the tracker and the governing specs
+already carry that work. Authoring all three because the types exist is
+process as deliverable, which this methodology forbids (Deliverable Over
+Machinery).
+
+1. Read the governing artifacts first: PRD, roadmap, improvement backlog,
+   and the active iteration plan when one exists.
+2. Sequencing (`roadmap`): define the workstream registry and order framed
+   outcomes across iterations with dependencies, confidence, and rationale;
+   commit nothing beyond the stated horizon. Workstream aliases are stable
+   `WS-<n>` — assigned sequentially, never reused or renumbered; a closed
+   workstream keeps its alias. Aliases are unique within one flow instance.
+   Downstream artifacts reference aliases and never mint workstreams; work
+   items preserve the alias — as a label where the runtime supports labels
+   (e.g. `ws:WS-1`, prefixed with the flow instance when several flows
+   share one store), otherwise in the item's title or reference field.
+3. Planning (`iteration-plan`): a time-boxed commitment — a falsifiable
+   goal, and per participating workstream exactly one Good, one Better, and
+   one Best outcome with owners and acceptance evidence. Good is the
+   protected floor: never traded, and once committed its ID, text, and
+   acceptance evidence are immutable for the iteration — a Good that
+   becomes impossible is an escalation recorded in the status report with
+   its decider named, never an in-place edit or re-tier. Best drops first,
+   then Better; a workstream that cannot fill all three tiers is not
+   participating this iteration, never partially committed. Workstream
+   aliases come from the roadmap when one exists; a roadmap-less plan has
+   one implicit workstream and uses no aliases — a second workstream means
+   author the registry first. Every outcome maps to at least one task;
+   outcome and task IDs are unique within the plan (fully qualified as
+   `<iteration-id>.<id>`).
+4. **Plan-owns-membership invariant**: the plan owns commitment membership —
+   task rows select existing work items by ID, and rows without one are the
+   source from which the runtime creates items (via §Runtime Handoff),
+   back-referencing each new ID in the plan. The tracker owns live status
+   and execution history; the plan's Status column is planning-time state
+   only. Never turn the plan into the live tracker, and never let
+   hand-added tracker items silently widen the plan — scope changes route
+   back through the plan.
+5. Reporting (`status-report`): outcome status against the plan's IDs with
+   evidence per claim, whatever the status — done and at-risk cite proof or
+   threat, on-track cites observable progress, dropped cites the trade or
+   escalation; an evidence-free claim is a phantom claim. Trades cite the
+   plan's trade rules; a Good at risk names its decider.
+6. Close the loop: review learnings land in the improvement backlog, and
+   revision triggers may re-sequence the roadmap. Do not fork an untracked
+   side-plan.
 
 ### Check And Next
 

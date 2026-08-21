@@ -245,9 +245,15 @@ runtime integration appendix.
 - Project-level implementation plans decompose execution into tracker work items.
 - Improvement backlog documents summarize and prioritize backlog work items
   stored in the tracker.
-- Iteration planning selects work-item sets for the next cycle by ID.
+- Iteration plans own commitment membership: they select existing work items
+  by ID where items already exist, and their task tables are the source from
+  which the runtime creates missing items — each created item's ID is then
+  back-referenced in the plan. The tracker owns live status either way, and
+  hand-added tracker items never silently widen the plan.
 - Reports and retrospectives should emit follow-up work items instead of
-  embedding durable task lists in canonical docs.
+  embedding durable task lists in canonical docs. An iteration plan's task
+  table is a commitment declaration, not a live task list: its Status column
+  records planning-time state and is not maintained after work items derive.
 
 ## Naming Conventions
 

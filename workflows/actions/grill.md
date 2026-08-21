@@ -27,7 +27,7 @@ confirms shared understanding.
 
 - Scope: plan, design, PRD, FEAT, change request, or free-form intent.
 - Autonomy: resolved per HELIX (does not change which activities run).
-- Interactive channel: present (TUI/chat) or absent (headless/`-p`/`codex exec`/`ddx agent run`).
+- Interactive channel: present (TUI/chat) or absent (headless/`-p`/`codex exec`/a runtime's headless dispatch).
 
 ## Hard floor (all autonomy levels)
 
@@ -77,7 +77,7 @@ own catalog authoring under normal HELIX rules.
 ## Headless / non-interactive procedure
 
 When there is no interactive answer channel (`claude -p`, `codex exec`,
-`ddx agent run`, CI, Grok one-shot, etc.):
+a runtime's headless dispatch, CI, Grok one-shot, etc.):
 
 1. Still engage, bind catalog, load artifacts, explore facts.
 2. Emit in **one response**:

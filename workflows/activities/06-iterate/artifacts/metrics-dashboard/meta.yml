@@ -64,6 +64,7 @@ relationships:
     - metric-definition
   informs:
     - improvement-backlog
+    - status-report
 
 tags:
   - iterate

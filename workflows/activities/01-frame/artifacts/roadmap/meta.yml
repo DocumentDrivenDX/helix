@@ -1,0 +1,69 @@
+artifact:
+  name: Roadmap
+  id: roadmap
+  type: document
+  activity: frame
+
+voice: artifact-signal
+
+description: |
+  Frame-activity sequencing artifact that orders framed capabilities and
+  outcomes across iterations or horizons, with dependencies, confidence, and
+  ordering rationale. It turns PRD priorities and backlog selections into a
+  revisable delivery sequence. It commits sequence, not owners or dates —
+  that commitment is the iteration plan's job.
+
+output:
+  location: docs/helix/01-frame/roadmap.md
+  format: markdown
+  naming: roadmap.md
+
+validation:
+  required_sections:
+    - horizon_and_cadence
+    - workstreams
+    - sequenced_outcomes
+    - revision_triggers
+
+  quality_checks:
+    - check: outcomes_trace
+      description: Each sequenced outcome must cite the governing artifact (PRD requirement, feature spec, or backlog item) it delivers
+      severity: blocking
+    - check: sequencing_justified
+      description: Ordering must state its rationale (dependency, risk, or value) rather than being arbitrary
+      severity: blocking
+    - check: horizon_bounded
+      description: The roadmap must state its horizon; nothing beyond the horizon is committed
+      severity: warning
+    - check: workstream_ids_stable
+      description: Each workstream carries a stable WS-<n> alias, assigned sequentially and never reused or renumbered; every sequenced outcome references one
+      severity: blocking
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+example:
+  file: example.md
+
+references:
+  - title: "SAFe Framework 2025"
+    file: docs/resources/safe-framework-2025.md
+    relationship: "Grounds outcome-based, horizon-bounded roadmaps that stay revisable as evidence arrives"
+
+relationships:
+  informed_by:
+    - prd
+    - improvement-backlog
+  informs:
+    - iteration-plan
+
+tags:
+  - frame
+  - planning
+  - sequencing
+  - iteration
+
+version: 1.0.0

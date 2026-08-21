@@ -185,8 +185,13 @@ activities:
         - metrics-dashboard      # Collect data
         - security-metrics       # Security-specific learnings
         - improvement-backlog    # Plan improvements
+        - iteration-plan         # Human cadence: commit the next time-box (exempt from entry gate)
+        - status-report          # Human cadence: record outcomes against the plan (exempt from entry gate)
       parallel: []
     entry_gate:
+      # Gates the metric-loop artifacts only; the human-cadence pair
+      # (iteration-plan, status-report) is exempt — see 06-iterate GATE.yaml
+      # and README "Human cadence pair".
       automated:
         - check: activity_complete
           activity: deploy
@@ -195,7 +200,7 @@ activities:
         - check: file_exists
           path: docs/helix/06-iterate/improvement-backlog.md
       manual:
-        - "Next iteration scope decided"
+        - "Next iteration scope decided (an iteration plan is authored when its skip test warrants one)"
     next_activity: frame  # Loop back
 
 # Story-level state machine (parallel to project-level)

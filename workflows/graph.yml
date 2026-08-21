@@ -95,6 +95,10 @@ nodes:
   type: library:risk-register
   activity: 01-frame
   cardinality: many
+- id: roadmap
+  type: library:roadmap
+  activity: 01-frame
+  cardinality: many
 - id: security-requirements
   type: library:security-requirements
   activity: 01-frame
@@ -207,6 +211,10 @@ nodes:
   type: library:improvement-backlog
   activity: 06-iterate
   cardinality: many
+- id: iteration-plan
+  type: library:iteration-plan
+  activity: 06-iterate
+  cardinality: many
 - id: metric-definition
   type: library:metric-definition
   activity: 06-iterate
@@ -217,6 +225,10 @@ nodes:
   cardinality: many
 - id: security-metrics
   type: library:security-metrics
+  activity: 06-iterate
+  cardinality: many
+- id: status-report
+  type: library:status-report
   activity: 06-iterate
   cardinality: many
 edges:
@@ -384,6 +396,10 @@ edges:
   to: feature-registry
   kind: informs
   required: false
+- from: prd
+  to: roadmap
+  kind: informs
+  required: false
 - from: research-plan
   to: prd
   kind: informs
@@ -402,6 +418,10 @@ edges:
   required: false
 - from: research-plan
   to: risk-register
+  kind: informs
+  required: false
+- from: roadmap
+  to: iteration-plan
   kind: informs
   required: false
 - from: security-requirements
@@ -640,6 +660,18 @@ edges:
   to: monitoring-setup
   kind: informs
   required: false
+- from: improvement-backlog
+  to: iteration-plan
+  kind: informs
+  required: false
+- from: improvement-backlog
+  to: roadmap
+  kind: informs
+  required: false
+- from: iteration-plan
+  to: status-report
+  kind: informs
+  required: false
 - from: metric-definition
   to: metrics-dashboard
   kind: informs
@@ -652,7 +684,15 @@ edges:
   to: improvement-backlog
   kind: informs
   required: false
+- from: metrics-dashboard
+  to: status-report
+  kind: informs
+  required: false
 - from: security-metrics
+  to: improvement-backlog
+  kind: informs
+  required: false
+- from: status-report
   to: improvement-backlog
   kind: informs
   required: false

@@ -60,6 +60,9 @@ relationships:
   informed_by:
     - metrics-dashboard
     - security-metrics
+  informs:
+    - iteration-plan
+    - roadmap
 
 tags:
   - iterate

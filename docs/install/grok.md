@@ -45,7 +45,7 @@ Observed layout (Phase 0): full tree under
 
 ```bash
 grok plugin install DocumentDrivenDX/helix --trust
-# pin optional: DocumentDrivenDX/helix@v0.11.1
+# pin optional: DocumentDrivenDX/helix@v0.12.0
 ```
 
 Use a full-repo install so `workflows/` is present. If a future install shape

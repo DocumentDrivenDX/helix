@@ -1,0 +1,78 @@
+artifact:
+  name: Iteration Plan
+  id: iteration-plan
+  type: document
+  activity: iterate
+
+voice: artifact-signal
+
+description: |
+  Time-boxed commitment for one human iteration: a falsifiable goal, exactly
+  one Good, one Better, and one Best outcome per participating workstream
+  with owners and acceptance evidence, the trade rules that protect the goal
+  under pressure (Best drops first, then Better; Good never), and stable-ID
+  task tables that select existing work items by ID or are the source from
+  which the runtime creates missing ones. The plan owns commitment
+  membership; the runtime's tracker owns live state. It is not the live
+  tracker.
+
+output:
+  location: docs/helix/06-iterate/iteration-plan-[iteration-id].md
+  format: markdown
+  naming: iteration-plan-[iteration-id].md
+
+validation:
+  required_sections:
+    - iteration_goal
+    - committed_outcomes
+    - trade_rules
+    - tasks
+
+  quality_checks:
+    - check: outcomes_good_better_best
+      description: Every participating workstream commits exactly one Good, one Better, and one Best outcome, each with an owner and acceptance evidence; a workstream sitting out is listed as not participating, never partially committed
+      severity: blocking
+    - check: good_immutable
+      description: A committed Good outcome's ID, text, and acceptance evidence are immutable for the iteration; replacement is an escalation recorded in the status report with its decider named, never an in-place edit or re-tier
+      severity: blocking
+    - check: outcomes_tasked
+      description: Every committed outcome maps to at least one task row, so deriving work items from the task tables covers the whole commitment
+      severity: blocking
+    - check: tasks_identifiable
+      description: Every task row must carry a stable ID, unique within the plan (fully qualified as <iteration-id>.<task-id>), and either name an existing work item or be marked for creation
+      severity: blocking
+    - check: goal_falsifiable
+      description: The iteration goal must state what evidence at review makes the iteration a success
+      severity: warning
+    - check: workstreams_from_registry
+      description: Workstream aliases must come from the roadmap's registry (WS-<n>) when a roadmap exists; a roadmap-less plan has one implicit workstream and uses no aliases; the plan never mints new workstreams
+      severity: blocking
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+example:
+  file: example.md
+
+references:
+  - title: "Agile Manifesto Principles"
+    file: docs/resources/agile-manifesto-principles.md
+    relationship: "Grounds time-boxed commitment, sustainable cadence, and working evidence as the measure of progress"
+
+relationships:
+  informed_by:
+    - roadmap
+    - improvement-backlog
+  informs:
+    - status-report
+
+tags:
+  - iterate
+  - planning
+  - commitment
+  - iteration
+
+version: 1.0.0

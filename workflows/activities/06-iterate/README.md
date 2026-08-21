@@ -70,9 +70,10 @@ graph TD
 
 ## Metric Four-Way Slice
 
-Four iterate artifacts form one slice of the metric loop. Each owns a distinct
-job; together they carry an iteration from "what we measure" to "what we do
-next":
+Four iterate artifacts form one slice of the metric loop (the human cadence
+pair — iteration-plan and status-report — has its own section below). Each
+owns a distinct job; together they carry an iteration from "what we measure"
+to "what we do next":
 
 - **Metric Definition** is the contract. It fixes the name, unit, direction,
   command, and tolerance for one measurement. Every other artifact in the
@@ -91,6 +92,35 @@ Flow: definitions feed dashboards; the security dashboard is the
 security-shaped slice of the same data; backlog consumes dashboard signal.
 Each artifact prompt cross-references this section instead of restating the
 relationship.
+
+## Human cadence pair
+
+Two further iterate artifacts — `iteration-plan` and `status-report` — form
+the human cadence pair. They document a team's time-boxed loop, not the
+metric loop, and the ownership boundary is:
+
+- **Iteration Plan** owns the commitment: the falsifiable goal, one
+  Good/Better/Best outcome per participating workstream, trade rules, and
+  the task tables work items derive from. It consumes the improvement
+  backlog's next-iteration selection and the roadmap's current slot.
+- **Status Report** owns commitment accounting: point-in-time outcome status
+  against the plan's IDs, trades, blockers, and decisions needed. It
+  *consumes* dashboard signal as evidence; it never interprets measurements.
+- **Metrics Dashboard** keeps measurement interpretation: current readings
+  against baseline or ratchet floor, and the iteration-level
+  improved/regressed/noise decision. A status report citing a metric cites
+  the dashboard's reading; it does not re-derive it.
+
+The status report is not a resurrection of the retired
+`story-iteration-report`: that artifact was story-scoped, and its
+responsibilities stay where the section below assigns them. The status
+report's scope is the human iteration as committed in the iteration plan.
+
+**Lifecycle note**: this activity's entry gate (deployed, monitored system)
+gates the metric loop only. The human cadence pair is exempt — the first
+iteration plan of a project is authored before anything is deployed, and
+both artifacts follow their own skip tests (see the routing skill's
+`iterate` contract) rather than the gate.
 
 ## Work Items
 

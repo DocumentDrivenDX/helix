@@ -124,6 +124,7 @@ relationships:
     - feature-specification
     - user-stories
     - feature-registry
+    - roadmap
 
   referenced_by:
     - solution-design
