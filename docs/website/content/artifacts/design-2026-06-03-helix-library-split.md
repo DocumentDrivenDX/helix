@@ -1,7 +1,7 @@
 ---
 title: "Design: helix-library Split"
 slug: design-2026-06-03-helix-library-split
-weight: 410
+weight: 420
 activity: "Design"
 source: "02-design/design-2026-06-03-helix-library-split.md"
 generated: true

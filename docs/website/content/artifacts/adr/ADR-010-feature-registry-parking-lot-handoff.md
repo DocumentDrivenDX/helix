@@ -1,7 +1,7 @@
 ---
 title: "ADR-010: feature-registry and parking-lot stay separate with an explicit handoff"
 slug: ADR-010-feature-registry-parking-lot-handoff
-weight: 250
+weight: 260
 activity: "Design"
 source: "02-design/adr/ADR-010-feature-registry-parking-lot-handoff.md"
 generated: true

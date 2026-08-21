@@ -21,7 +21,7 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 - [Project Concerns](/artifacts/concerns/)
 - [Product Requirements Document](/artifacts/prd/)
 - [Project Principles](/artifacts/principles/)
-- [features](/artifacts/features/) _(12 items)_
+- [features](/artifacts/features/) _(13 items)_
 
 ## Design
 

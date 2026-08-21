@@ -1,7 +1,7 @@
 ---
 title: "ADR-004: Artifact Dependencies Are Encoded in `meta.yml.relationships` Only (No Separate `dependencies.yaml`)"
 slug: ADR-004-dependencies-encoding
-weight: 190
+weight: 200
 activity: "Design"
 source: "02-design/adr/ADR-004-dependencies-encoding.md"
 generated: true

@@ -1,7 +1,7 @@
 ---
 title: "ADR-009: Acceptance Criteria Live in User-Stories; Feature-Specification Owns Functional Areas and Decomposition"
 slug: ADR-009-acceptance-criteria-ownership
-weight: 240
+weight: 250
 activity: "Design"
 source: "02-design/adr/ADR-009-acceptance-criteria-ownership.md"
 generated: true

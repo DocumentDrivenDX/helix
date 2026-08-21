@@ -1,7 +1,7 @@
 ---
 title: "ADR-014: Deferred: architecture-style slot occupants remain four separate concerns"
 slug: ADR-014-architecture-style-slot-shape-deferred
-weight: 290
+weight: 300
 activity: "Design"
 source: "02-design/adr/ADR-014-architecture-style-slot-shape-deferred.md"
 generated: true

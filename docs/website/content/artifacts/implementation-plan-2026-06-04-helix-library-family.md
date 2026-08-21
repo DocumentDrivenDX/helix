@@ -1,7 +1,7 @@
 ---
 title: "Implementation Plan: helix-library Family (monorepo, test-first)"
 slug: implementation-plan-2026-06-04-helix-library-family
-weight: 470
+weight: 480
 activity: "Design"
 source: "02-design/implementation-plan-2026-06-04-helix-library-family.md"
 generated: true

@@ -1,7 +1,7 @@
 ---
 title: "Phase 5a results — canonical promotion targeted re-bench"
 slug: phase5a-results-2026-06-07
-weight: 480
+weight: 490
 activity: "Design"
 source: "02-design/phase5a-results-2026-06-07.md"
 generated: true

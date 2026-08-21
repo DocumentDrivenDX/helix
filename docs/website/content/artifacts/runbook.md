@@ -1,7 +1,7 @@
 ---
 title: "Runbook — `ddx-server`"
 slug: runbook
-weight: 970
+weight: 980
 activity: "Deploy"
 source: "05-deploy/runbook.md"
 generated: true

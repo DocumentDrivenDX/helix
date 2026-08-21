@@ -1,7 +1,7 @@
 ---
 title: "Bench Build Results — 2026-06-05"
 slug: bench-build-results-2026-06-05
-weight: 310
+weight: 320
 activity: "Design"
 source: "02-design/bench-build-results-2026-06-05.md"
 generated: true

@@ -1,7 +1,7 @@
 ---
 title: "Family Marker + Linkage Relaxation — Entry-Point Report"
 slug: family-marker-linkages-report-2026-06-04
-weight: 430
+weight: 440
 activity: "Design"
 source: "02-design/family-marker-linkages-report-2026-06-04.md"
 generated: true

@@ -1,7 +1,7 @@
 ---
 title: "Phase 8 results — bench infra + 5 surgical fixes"
 slug: phase8-results-2026-06-08
-weight: 500
+weight: 510
 activity: "Design"
 source: "02-design/phase8-results-2026-06-08.md"
 generated: true

@@ -1,7 +1,7 @@
 ---
 title: "helix-family Readiness Report"
 slug: family-readiness-report-2026-06-04
-weight: 440
+weight: 450
 activity: "Design"
 source: "02-design/family-readiness-report-2026-06-04.md"
 generated: true

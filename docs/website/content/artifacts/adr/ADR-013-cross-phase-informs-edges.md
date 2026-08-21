@@ -1,7 +1,7 @@
 ---
 title: "ADR-013: Cross-phase informs edges are valid when declared on the downstream artifact"
 slug: ADR-013-cross-phase-informs-edges
-weight: 280
+weight: 290
 activity: "Design"
 source: "02-design/adr/ADR-013-cross-phase-informs-edges.md"
 generated: true

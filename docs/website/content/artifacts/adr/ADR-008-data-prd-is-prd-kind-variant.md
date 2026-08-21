@@ -1,7 +1,7 @@
 ---
 title: "ADR-008: data-PRD Is a Kind-Switch Variant of PRD, Not a Sibling Artifact"
 slug: ADR-008-data-prd-is-prd-kind-variant
-weight: 230
+weight: 240
 activity: "Design"
 source: "02-design/adr/ADR-008-data-prd-is-prd-kind-variant.md"
 generated: true

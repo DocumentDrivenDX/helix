@@ -1,7 +1,7 @@
 ---
 title: "Phase 7 results — synthetic-prompt rewrite verification"
 slug: phase7-results-2026-06-08
-weight: 490
+weight: 500
 activity: "Design"
 source: "02-design/phase7-results-2026-06-08.md"
 generated: true

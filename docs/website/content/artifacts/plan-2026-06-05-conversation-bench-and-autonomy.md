@@ -1,7 +1,7 @@
 ---
 title: "Plan: Conversation-bench + Autonomy slider + Flow model"
 slug: plan-2026-06-05-conversation-bench-and-autonomy
-weight: 760
+weight: 770
 activity: "Design"
 source: "02-design/plan-2026-06-05-conversation-bench-and-autonomy.md"
 generated: true

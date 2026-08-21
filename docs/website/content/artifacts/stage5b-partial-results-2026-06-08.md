@@ -1,7 +1,7 @@
 ---
 title: "Stage 5b — partial results + API rate limit hit"
 slug: stage5b-partial-results-2026-06-08
-weight: 790
+weight: 800
 activity: "Design"
 source: "02-design/stage5b-partial-results-2026-06-08.md"
 generated: true

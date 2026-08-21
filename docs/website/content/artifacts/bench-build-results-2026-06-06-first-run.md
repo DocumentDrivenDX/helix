@@ -1,7 +1,7 @@
 ---
 title: "First post-P14 full-bench run — 2026-06-06"
 slug: bench-build-results-2026-06-06-first-run
-weight: 320
+weight: 330
 activity: "Design"
 source: "02-design/bench-build-results-2026-06-06-first-run.md"
 generated: true

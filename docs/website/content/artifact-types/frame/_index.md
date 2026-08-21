@@ -31,4 +31,5 @@ Define what the system should do, for whom, and how success will be measured.
   {{< card link="stakeholder-map/" title="Stakeholder Map" subtitle="Stakeholder and decision-rights map for roles, interests, influence, engagement, RACI ownership, communication cadence, and escalation paths." >}}
   {{< card link="threat-model/" title="Threat Model" subtitle="Structured analysis of assets, data flows, trust boundaries, STRIDE threats, risk, mitigations, owners, and verification hooks." >}}
   {{< card link="validation-checklist/" title="Validation Checklist" subtitle="Frame exit gate that verifies completeness, consistency, traceability, evidence, stakeholder review, and readiness to enter Design." >}}
+  {{< card link="roadmap/" title="Roadmap" subtitle="Frame-activity sequencing artifact that orders framed capabilities and outcomes across iterations or horizons, with dependencies, confidence, and ordering rati…" >}}
 {{< /cards >}}

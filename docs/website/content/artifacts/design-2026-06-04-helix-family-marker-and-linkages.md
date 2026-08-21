@@ -1,7 +1,7 @@
 ---
 title: "HELIX Family: Marker File + Type/Flow/Instance Linkage Relaxation"
 slug: design-2026-06-04-helix-family-marker-and-linkages
-weight: 420
+weight: 430
 activity: "Design"
 source: "02-design/design-2026-06-04-helix-family-marker-and-linkages.md"
 generated: true

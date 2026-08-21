@@ -1,7 +1,7 @@
 ---
 title: "Phase 6 Tier 4 results — canonical-iteration verification re-bench"
 slug: tier4-results-2026-06-08
-weight: 840
+weight: 850
 activity: "Design"
 source: "02-design/tier4-results-2026-06-08.md"
 generated: true

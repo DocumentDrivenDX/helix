@@ -1,7 +1,7 @@
 ---
 title: "ADR-002: HELIX Tracker Write Safety Model"
 slug: ADR-002-tracker-write-safety-model
-weight: 170
+weight: 180
 activity: "Design"
 source: "02-design/adr/ADR-002-tracker-write-safety-model.md"
 generated: true

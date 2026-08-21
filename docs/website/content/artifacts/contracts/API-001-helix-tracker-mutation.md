@@ -1,7 +1,7 @@
 ---
 title: "API Contract: HELIX Tracker Mutation Surface [FEAT-002]"
 slug: API-001-helix-tracker-mutation
-weight: 330
+weight: 340
 activity: "Design"
 source: "02-design/contracts/API-001-helix-tracker-mutation.md"
 generated: true
