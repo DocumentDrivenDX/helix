@@ -16,11 +16,17 @@ Dependencies (requires/enables/informs/referenced_by) come from `meta.yml`
 under `dependencies.*` and `relationships.*`. See ADR-004 — there is no
 separate `dependencies.yaml` file in the catalog.
 
+Also reads:
+  skills/helix/SKILL.md                        -> "## Routing Rules" table and
+                                                  "## Workflow Contracts" sections
+
 Writes:
   docs/website/content/reference/glossary/artifacts/_index.md
   docs/website/content/reference/glossary/artifacts/<slug>.md   (one per artifact)
   docs/website/content/reference/glossary/concerns/_index.md
   docs/website/content/reference/glossary/concerns/<slug>.md    (one per concern)
+  docs/website/content/reference/workflow-modes/_index.md
+  docs/website/content/reference/workflow-modes/<mode>.md       (one per contract)
 
 Idempotent — destination directories are wiped and rebuilt on every run.
 
@@ -45,6 +51,9 @@ CONTENT_ROOT = ROOT / "docs" / "website" / "content"
 ARTIFACTS_DEST = CONTENT_ROOT / "artifact-types"
 CONCERNS_DEST = CONTENT_ROOT / "concerns"
 LEGACY_GLOSSARY = CONTENT_ROOT / "reference" / "glossary"
+SKILL_SRC = ROOT / "skills" / "helix" / "SKILL.md"
+SKILL_REL = "skills/helix/SKILL.md"
+MODES_DEST = CONTENT_ROOT / "reference" / "workflow-modes"
 
 ACTIVITIES = {
     "00-discover": {
@@ -293,7 +302,7 @@ def shift_headings(content: str, by: int = 1) -> str:
             # Count existing # marks
             level = len(line) - len(line.lstrip("#"))
             if 1 <= level <= 6 and (len(line) > level and line[level] == " "):
-                new_level = min(level + by, 6)
+                new_level = max(1, min(level + by, 6))
                 out.append("#" * new_level + line[level:])
                 continue
         out.append(line)
@@ -1126,6 +1135,174 @@ def render_concerns_index(concerns: list) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Workflow modes (from the HELIX skill)
+#
+# skills/helix/SKILL.md is the source of truth for routing and the per-mode
+# workflow contracts. The pages below are a projection of two of its sections:
+#   ## Routing Rules       -> intent -> mode table on the section index
+#   ## Workflow Contracts  -> one page per "### <Mode>" contract
+# Parsing failures are hard errors so the website drift gate catches skill
+# restructuring instead of silently publishing an empty section.
+
+
+SKILL_GENERATED_NOTE = (
+    f"Generated from [`{SKILL_REL}`]({HELIX_REPO_BLOB_BASE}/{SKILL_REL}), "
+    "the HELIX skill. Edit the skill, not this page."
+)
+
+
+def mode_slug(title: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
+
+
+def parse_routing_rules(section: str) -> list[tuple[str, str]]:
+    """Parse the intent -> mode table from the '## Routing Rules' body."""
+    header_seen = False
+    routes: list[tuple[str, str]] = []
+    for line in section.splitlines():
+        line = line.strip()
+        if not line.startswith("|"):
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        if len(cells) != 2:
+            continue
+        if cells == ["User intent", "Workflow mode"]:
+            header_seen = True
+            continue
+        if set(cells[0]) <= set("-: "):
+            continue  # separator row
+        routes.append((cells[0], cells[1]))
+    if not header_seen or not routes:
+        print(
+            f"ERROR: could not parse the 'User intent | Workflow mode' table under "
+            f"'## Routing Rules' in {SKILL_REL}. The skill was restructured — "
+            "update parse_routing_rules() in scripts/generate-reference.py.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    return routes
+
+
+def parse_workflow_contracts(section: str) -> list[dict]:
+    """Split the '## Workflow Contracts' body into per-'### <Mode>' contracts."""
+    contracts: list[dict] = []
+    for chunk in ("\n" + section).split("\n### ")[1:]:
+        title, _, body = chunk.partition("\n")
+        title = title.strip()
+        if not title:
+            continue
+        contracts.append({
+            "title": title,
+            "slug": mode_slug(title),
+            "body": body.strip("\n"),
+        })
+    if not contracts:
+        print(
+            f"ERROR: no '### <Mode>' contract sections found under "
+            f"'## Workflow Contracts' in {SKILL_REL}. The skill was restructured — "
+            "update parse_workflow_contracts() in scripts/generate-reference.py.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    return contracts
+
+
+def parse_skill_workflow_modes() -> tuple[list[tuple[str, str]], list[dict]]:
+    md = load_text(SKILL_SRC)
+    if not md:
+        print(f"ERROR: {SKILL_REL} not found or empty.", file=sys.stderr)
+        sys.exit(1)
+    routing = extract_markdown_section(md, "Routing Rules")
+    if not routing:
+        print(f"ERROR: '## Routing Rules' section missing from {SKILL_REL}.", file=sys.stderr)
+        sys.exit(1)
+    contracts_body = extract_markdown_section(md, "Workflow Contracts")
+    if not contracts_body:
+        print(f"ERROR: '## Workflow Contracts' section missing from {SKILL_REL}.", file=sys.stderr)
+        sys.exit(1)
+    return parse_routing_rules(routing), parse_workflow_contracts(contracts_body)
+
+
+def contract_slug_for_mode(mode: str, contract_slugs: set[str]) -> str | None:
+    """Map a routing-table mode cell to a contract page slug, if one exists.
+
+    'check or next' maps to the 'Check And Next' contract; modes with no
+    dedicated contract section (e.g. genesis) return None and render unlinked.
+    """
+    for candidate in (mode, mode.replace(" or ", " and ")):
+        slug = mode_slug(candidate)
+        if slug in contract_slugs:
+            return slug
+    return None
+
+
+def contract_first_paragraph(body: str) -> str:
+    for para in body.split("\n\n"):
+        para = " ".join(para.split())
+        if para and not para.startswith(("#", "|", "-", "1.")):
+            return para
+    return ""
+
+
+def render_mode_page(contract: dict, weight: int) -> str:
+    out: list[str] = []
+    out.append("---")
+    out.append(f"title: {yaml_quote(contract['title'])}")
+    out.append(f"slug: {contract['slug']}")
+    out.append(f"weight: {weight}")
+    out.append("generated: true")
+    out.append("---")
+    out.append("")
+    out.append(SKILL_GENERATED_NOTE)
+    out.append("")
+    # The '### <Mode>' heading became the page title; promote '####'
+    # subsections to '##' so the page has sensible internal levels.
+    out.append(shift_headings(contract["body"], by=-2).strip())
+    out.append("")
+    return "\n".join(out)
+
+
+def render_modes_index(routes: list[tuple[str, str]], contracts: list[dict]) -> str:
+    contract_slugs = {c["slug"] for c in contracts}
+
+    out: list[str] = []
+    out.append("---")
+    out.append("title: Workflow Modes")
+    out.append("weight: 2")
+    out.append("generated: true")
+    out.append("---")
+    out.append("")
+    out.append(
+        "The HELIX skill routes every request to one **workflow mode**: a bounded "
+        "document or workflow action with its own contract. The table below maps "
+        "user intent to the mode the skill selects; each linked mode opens the "
+        "full contract the skill follows."
+    )
+    out.append("")
+    out.append(SKILL_GENERATED_NOTE.replace("this page", "these pages"))
+    out.append("")
+    out.append("| User intent | Workflow mode |")
+    out.append("|---|---|")
+    for intent, mode in routes:
+        slug = contract_slug_for_mode(mode, contract_slugs)
+        cell = f"[{mode}]({slug})" if slug else mode
+        out.append(f"| {intent} | {cell} |")
+    out.append("")
+    out.append("## Contracts")
+    out.append("")
+    out.append("{{< cards >}}")
+    for c in contracts:
+        subtitle = card_subtitle(contract_first_paragraph(c["body"]) or c["title"], 160)
+        out.append(
+            f'  {{{{< card link="{c["slug"]}" '
+            f'title="{c["title"]}" subtitle="{subtitle}" >}}}}'
+        )
+    out.append("{{< /cards >}}")
+    out.append("")
+    return "\n".join(out)
+
+
+# ---------------------------------------------------------------------------
 # Main
 
 
@@ -1136,6 +1313,7 @@ def main() -> None:
 
     artifacts = collect_artifacts()
     concerns = collect_concerns()
+    routes, contracts = parse_skill_workflow_modes()
 
     all_slugs = {a["slug"] for a in artifacts}
     slug_to_url = {
@@ -1194,6 +1372,16 @@ def main() -> None:
     # Concerns index
     (CONCERNS_DEST / "_index.md").write_text(render_concerns_index(concerns))
 
+    # Workflow-mode pages (projection of skills/helix/SKILL.md)
+    if MODES_DEST.exists():
+        shutil.rmtree(MODES_DEST)
+    MODES_DEST.mkdir(parents=True)
+    (MODES_DEST / "_index.md").write_text(render_modes_index(routes, contracts))
+    for idx, contract in enumerate(contracts, start=1):
+        (MODES_DEST / f"{contract['slug']}.md").write_text(
+            render_mode_page(contract, idx * 10)
+        )
+
     # Remove legacy locations under /reference/glossary/ (now at top level)
     for legacy in (
         LEGACY_GLOSSARY / "artifacts.md",
@@ -1209,6 +1397,7 @@ def main() -> None:
 
     print(f"Generated {len(artifacts)} artifact pages → {ARTIFACTS_DEST.relative_to(ROOT)}/")
     print(f"Generated {len(concerns)} concern pages   → {CONCERNS_DEST.relative_to(ROOT)}/")
+    print(f"Generated {len(contracts)} workflow-mode pages → {MODES_DEST.relative_to(ROOT)}/")
 
 
 if __name__ == "__main__":
