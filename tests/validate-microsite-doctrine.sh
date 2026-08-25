@@ -137,6 +137,15 @@ def is_research(path: pathlib.Path) -> bool:
     return len(parts) >= 4 and parts[:4] == ("docs", "website", "content", "research")
 
 
+def is_generated_workflow_modes(path: pathlib.Path) -> bool:
+    # Generated projection of skills/helix/SKILL.md (scripts/generate-reference.py).
+    # Verbatim skill prose is governed in the skill source, not by public-copy rules.
+    parts = path.parts
+    return len(parts) >= 5 and parts[:5] == (
+        "docs", "website", "content", "reference", "workflow-modes"
+    )
+
+
 def is_demo_fixture(path: pathlib.Path) -> bool:
     parts = path.parts
     return len(parts) >= 2 and parts[:2] == ("docs", "demos") and (
@@ -155,7 +164,10 @@ def strict_files() -> list[pathlib.Path]:
     return sorted(
         p
         for p in files
-        if not is_artifact_body(p) and not is_research(p) and not is_demo_fixture(p)
+        if not is_artifact_body(p)
+        and not is_research(p)
+        and not is_demo_fixture(p)
+        and not is_generated_workflow_modes(p)
     )
 
 

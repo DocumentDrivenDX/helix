@@ -17,7 +17,7 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
 content="docs/website/content"
-generated_dirs=("$content/artifact-types" "$content/concerns" "$content/artifacts" "$content/research")
+generated_dirs=("$content/artifact-types" "$content/concerns" "$content/artifacts" "$content/research" "$content/reference/workflow-modes")
 
 echo "Regenerating site reference content from upstream sources..."
 uv run scripts/generate-reference.py >/dev/null
