@@ -19,7 +19,9 @@ on:
       - 'v*'
 
 permissions:
-  contents: write  # required to attach assets to a release
+  contents: write      # required to attach assets to a release
+  id-token: write      # OIDC identity for Sigstore signing
+  attestations: write  # store the build-provenance attestation
 
 jobs:
   build-and-publish:
@@ -69,6 +71,11 @@ jobs:
           cp scripts/genie-install dist/release/genie-install
           ls -la dist/release
 
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: dist/release/*
+
       - name: Attach assets to release
         uses: softprops/action-gh-release@v2
         with:
@@ -101,3 +108,13 @@ jobs:
 
             See [docs/install/databricks-genie.md](https://github.com/${{ github.repository }}/blob/${{ steps.tag.outputs.ref_name }}/docs/install/databricks-genie.md)
             for the full guide.
+
+            ## Verify provenance
+
+            Every asset carries a signed SLSA build-provenance attestation
+            (Sigstore). Verify a download came from this repo's release
+            workflow:
+
+            ```bash
+            gh attestation verify <downloaded-asset> -R ${{ github.repository }}
+            ```
