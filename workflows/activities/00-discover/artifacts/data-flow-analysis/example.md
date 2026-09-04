@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.data-flow-analysis.depositmatch
+  authoring:
+    home: repo
 ---
 
 # Data Flow Analysis

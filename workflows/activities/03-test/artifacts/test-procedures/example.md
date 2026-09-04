@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.test-procedures.depositmatch
+  authoring:
+    home: repo
   depends_on:
     - example.test-plan.depositmatch
     - example.story-test-plan.depositmatch.upload-csv

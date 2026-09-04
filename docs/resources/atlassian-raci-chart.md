@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.atlassian-raci-chart
+  authoring:
+    home: repo
 ---
 
 # Atlassian RACI Chart

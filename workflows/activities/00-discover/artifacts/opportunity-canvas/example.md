@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.opportunity-canvas.depositmatch
+  authoring:
+    home: repo
   depends_on:
     - example.product-vision.depositmatch
     - example.business-case.depositmatch

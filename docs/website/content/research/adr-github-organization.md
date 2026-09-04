@@ -8,6 +8,8 @@ generated: true
 ```yaml
 ddx:
   id: resource.adr-github-organization
+  authoring:
+    home: repo
 ```
 
 # Architectural Decision Records

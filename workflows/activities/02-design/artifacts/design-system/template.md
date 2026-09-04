@@ -1,6 +1,8 @@
 ---
 ddx:
   id: design-system
+  authoring:
+    home: repo
 ---
 
 # DESIGN.md — [App Name]

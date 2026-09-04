@@ -14,6 +14,8 @@ generated: true
 ```yaml
 ddx:
   id: helix.design-family-marker-linkages
+  authoring:
+    home: repo
   review:
     self_hash: 3d8827c818c248f746908e51f24d6c0f6df1b568e5a91d9d39cd76e63a4e4267
     deps: {}

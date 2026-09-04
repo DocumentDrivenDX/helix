@@ -242,11 +242,16 @@ ddx:
 ---
 ```
 
-### Required field
+### Required fields
 
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `ddx.id` | string | Stable artifact instance ID used for traceability and dependency references. |
+| `ddx.authoring.home` | string | Where the artifact is authored: `repo` or `external-tool`. See [Authoring home](#authoring-home). |
+
+Both are required in every instance that carries a `ddx:` block. An artifact
+with no frontmatter at all remains a valid prose artifact under
+[Compatibility rules](#compatibility-rules); it is simply not graph-addressable.
 
 ### Recommended fields
 
@@ -262,10 +267,115 @@ ddx:
 | `ddx.updated` | string | Last meaningful update date in ISO `YYYY-MM-DD` format. |
 | `ddx.tags` | list of strings | Instance-level labels for search and routing. |
 
+### Authoring home
+
+Every instance that carries a `ddx:` block declares where it is authored.
+
+```yaml
+ddx:
+  id: TD-022
+  authoring:
+    home: repo
+```
+
+| `home` | Meaning |
+| --- | --- |
+| `repo` | The Markdown file is the document. It is authored, reviewed, and edited in place. |
+| `external-tool` | The document is authored in an external collaboration tool. The Markdown file carries the artifact's identity and, once content has landed, a copy of it. |
+
+`home` is fixed when the artifact is created and does not change over its life.
+The test for `external-tool` is a demonstrated need for heavy human
+manipulation of format or content — the kind of work a collaboration tool does
+well and a Markdown file does badly. A document that meets that test meets it
+from the outset, and a document that later copies its content into the
+repository does not thereby become repo-authored. Changing `home` is a
+deliberate migration, not a state transition.
+
+Prefer `repo` when the classification is unclear. A document wrongly marked
+`repo` costs one awkward migration if it turns out to need a tool; a document
+wrongly marked `external-tool` routes every future edit through a checkout
+cycle it never needed.
+
+When `home: repo`, no other `authoring` field is permitted.
+
+#### External-tool fields
+
+| Field | Type | Required | Meaning |
+| --- | --- | --- | --- |
+| `authoring.state` | string | yes | `checked-out` or `checked-in`. |
+| `authoring.tool` | string | yes | Short identifier for the tool, such as `google-slides`, `miro`, or `figma`. |
+| `authoring.origin` | string | yes | URL of the document in the external tool. Permanent: it remains the write surface after content lands. |
+| `authoring.export` | string | after first check-in | Repository-relative path to the committed original file exported from the tool. A path, not a URL. |
+
+| `state` | Meaning |
+| --- | --- |
+| `checked-out` | The document is being authored in the external tool. Before its first check-in the body carries identity and description only; on a later checkout the previously checked-in content stays in place as the last known copy. Not dependable either way. |
+| `checked-in` | The body matches the external document as of the check-in. It is the read surface for every consumer; `origin` remains the write surface. |
+
+`state` is terminal in neither direction. A `checked-in` document returns to
+`checked-out` for its next revision and reuses the same `origin` and `export`.
+Checking a document out again never deletes content the repository already
+has — the body and `export` from the previous check-in remain until the next
+one replaces them.
+
+Operational state does not belong in `authoring`. Who holds a checked-out
+document, when they took it, and when they expect to return it are tracker or
+pull-request concerns, under the same exclusion that applies to queue claims
+and assignees.
+
+Example, checked out:
+
+```yaml
+ddx:
+  id: SD-004
+  type: solution-design
+  status: draft
+  authoring:
+    home: external-tool
+    state: checked-out
+    tool: google-slides
+    origin: https://docs.google.com/presentation/d/1AbC.../edit
+```
+
+Example, checked in:
+
+```yaml
+ddx:
+  id: SD-004
+  type: solution-design
+  status: draft
+  authoring:
+    home: external-tool
+    state: checked-in
+    tool: google-slides
+    origin: https://docs.google.com/presentation/d/1AbC.../edit
+    export: docs/helix/02-design/solution-designs/assets/SD-004-prebill-review.pptx
+```
+
+#### Dependability of a checked-out artifact
+
+An artifact with `authoring.state: checked-out` is present but not dependable:
+its ID resolves, and its content does not exist in the repository.
+
+- It must not carry `ddx.status: approved`.
+- A downstream artifact must not be approved while any artifact it depends on
+  is checked out.
+
+This is the blocking condition described under
+[`depends_on` graph semantics](#depends_on-graph-semantics), reached by a
+different route: there the target is absent, here the target is present and
+empty.
+
+Edges pointing at a checked-out artifact take the default edge `status:
+present`. The file exists; `status: planned` is for targets that have not been
+authored at all.
+
 ### Optional extension fields
 
 Consumers may define additional fields under `ddx:` when they are portable and
-safe to ignore. Current catalog examples include `parking_lot: true`, which
+safe to ignore. `ddx.authoring` is a defined field rather than an extension
+precisely because it is not safe to ignore: a consumer that skips
+`state: checked-out` will edit a document whose authority lies elsewhere. Current catalog examples include `parking_lot: true`, which
 marks a deferred-work artifact as a parking lot. Runtime-specific operational
 state should not be stored in artifact frontmatter unless another runtime can
 ignore it without changing artifact meaning.
@@ -414,11 +524,14 @@ Consumers should be conservative readers and careful writers:
 ## Compatibility rules
 
 1. Adding optional or recommended fields is backwards-compatible.
-2. Removing required fields is a breaking schema change.
-3. Renaming `ddx:` is a breaking schema change and should not be done lightly.
-4. New consumers should support at least `ddx.id` and `ddx.depends_on` before
+2. Adding a required field is a breaking schema change: instances written
+   against the prior version are non-conformant until they are retrofitted.
+   Ship the retrofit with the schema change.
+3. Removing required fields is a breaking schema change.
+4. Renaming `ddx:` is a breaking schema change and should not be done lightly.
+5. New consumers should support at least `ddx.id` and `ddx.depends_on` before
    claiming HELIX artifact compatibility.
-5. Existing artifacts that lack frontmatter may still be valid prose artifacts,
+6. Existing artifacts that lack frontmatter may still be valid prose artifacts,
    but they are not fully graph-addressable until they have a `ddx.id`.
-6. The artifact catalog may be richer than a given consumer. Partial consumers
+7. The artifact catalog may be richer than a given consumer. Partial consumers
    should declare which fields they read.

@@ -1,6 +1,8 @@
 ---
 ddx:
   id: crm.readme
+  authoring:
+    home: repo
 ---
 
 # CRM Example - Worked Example Artifacts

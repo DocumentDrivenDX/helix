@@ -8,6 +8,8 @@ generated: true
 ```yaml
 ddx:
   id: resource.arc42-solution-strategy
+  authoring:
+    home: repo
 ```
 
 # arc42 Solution Strategy and Building Block View

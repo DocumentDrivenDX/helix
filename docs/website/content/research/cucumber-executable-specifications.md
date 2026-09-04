@@ -8,6 +8,8 @@ generated: true
 ```yaml
 ddx:
   id: resource.cucumber-executable-specifications
+  authoring:
+    home: repo
 ```
 
 # Cucumber Executable Specifications

@@ -1,6 +1,8 @@
 ---
 ddx:
   id: helix.workflow.concern-resolution
+  authoring:
+    home: repo
   depends_on:
     - helix.workflow.principles-resolution
     - FEAT-006

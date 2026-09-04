@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.doj-feasibility-study
+  authoring:
+    home: repo
 ---
 
 # DOJ Feasibility Study

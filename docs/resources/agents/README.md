@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.agents.index
+  authoring:
+    home: repo
 ---
 
 # Agent Plugin/Skill Mechanisms — Research Index

@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.monitoring-setup.depositmatch
+  authoring:
+    home: repo
   depends_on:
     - example.deployment-checklist.depositmatch.csv-import
     - example.security-architecture.depositmatch

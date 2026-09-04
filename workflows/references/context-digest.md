@@ -1,6 +1,8 @@
 ---
 ddx:
   id: helix.workflow.context-digest
+  authoring:
+    home: repo
   depends_on:
     - helix.workflow.principles-resolution
     - helix.workflow.concern-resolution

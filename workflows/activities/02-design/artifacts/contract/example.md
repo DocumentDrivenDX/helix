@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.contract.depositmatch.import-session-api
+  authoring:
+    home: repo
   depends_on:
     - example.architecture.depositmatch
     - example.feature-specification.depositmatch.csv-import

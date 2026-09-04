@@ -1,6 +1,8 @@
 ---
 ddx:
   id: US-XXX
+  authoring:
+    home: repo
 ---
 
 # US-XXX: [Story Title]

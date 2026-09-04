@@ -8,6 +8,8 @@ generated: true
 ```yaml
 ddx:
   id: resource.ftc-safeguards-rule
+  authoring:
+    home: repo
 ```
 
 # FTC Safeguards Rule

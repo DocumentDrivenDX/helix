@@ -1,6 +1,8 @@
 ---
 ddx:
   id: deployment-checklist
+  authoring:
+    home: repo
 ---
 
 # Deployment Checklist

@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.deployment-checklist.depositmatch.csv-import
+  authoring:
+    home: repo
   depends_on:
     - example.implementation-plan.depositmatch
     - example.test-plan.depositmatch

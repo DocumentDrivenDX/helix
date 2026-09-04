@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.adr.depositmatch.postgresql-system-of-record
+  authoring:
+    home: repo
   depends_on:
     - example.architecture.depositmatch
   review:

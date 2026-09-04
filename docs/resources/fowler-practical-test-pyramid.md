@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.fowler-practical-test-pyramid
+  authoring:
+    home: repo
 ---
 
 # The Practical Test Pyramid

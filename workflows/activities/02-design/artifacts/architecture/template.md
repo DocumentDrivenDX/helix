@@ -1,6 +1,8 @@
 ---
 ddx:
   id: architecture
+  authoring:
+    home: repo
 ---
 
 # Architecture

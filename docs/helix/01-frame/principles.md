@@ -1,6 +1,8 @@
 ---
 ddx:
   id: helix.principles
+  authoring:
+    home: repo
   depends_on:
     - helix.prd
     - helix.product-vision

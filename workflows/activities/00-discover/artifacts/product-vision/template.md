@@ -1,6 +1,8 @@
 ---
 ddx:
   id: product-vision
+  authoring:
+    home: repo
 ---
 
 # Product Vision

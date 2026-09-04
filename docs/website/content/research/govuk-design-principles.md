@@ -8,6 +8,8 @@ generated: true
 ```yaml
 ddx:
   id: resource.govuk-design-principles
+  authoring:
+    home: repo
 ```
 
 # GOV.UK Government Design Principles

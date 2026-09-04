@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.pmi-risk-analysis-management
+  authoring:
+    home: repo
 ---
 
 # PMI Risk Analysis and Management

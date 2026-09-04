@@ -1,6 +1,8 @@
 ---
 ddx:
   id: implementation-plan
+  authoring:
+    home: repo
 ---
 
 # Build Plan

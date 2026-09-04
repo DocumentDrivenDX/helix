@@ -1,6 +1,8 @@
 ---
 ddx:
   id: crm.vision
+  authoring:
+    home: repo
 ---
 
 # Product Vision

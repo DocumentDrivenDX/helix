@@ -1,6 +1,8 @@
 ---
 ddx:
   id: test-procedures
+  authoring:
+    home: repo
 ---
 
 # Test Procedures

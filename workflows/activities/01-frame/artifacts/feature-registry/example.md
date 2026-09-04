@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.feature-registry.depositmatch
+  authoring:
+    home: repo
   depends_on:
     - example.prd.depositmatch
     - example.opportunity-canvas.depositmatch

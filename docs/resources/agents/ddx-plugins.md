@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.agents.ddx-plugins
+  authoring:
+    home: repo
 ---
 
 # DDx Plugin Mechanism

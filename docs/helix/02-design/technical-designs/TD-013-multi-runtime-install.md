@@ -1,6 +1,8 @@
 ---
 ddx:
   id: TD-013
+  authoring:
+    home: repo
   depends_on:
     - FEAT-013
     - helix.prd

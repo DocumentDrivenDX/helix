@@ -1,6 +1,8 @@
 ---
 ddx:
   id: CRM-DESIGN-004
+  authoring:
+    home: repo
   type: security-design
   status: resolved
   depends_on:

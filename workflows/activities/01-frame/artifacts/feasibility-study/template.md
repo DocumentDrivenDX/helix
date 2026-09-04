@@ -1,6 +1,8 @@
 ---
 ddx:
   id: feasibility-study
+  authoring:
+    home: repo
 ---
 
 # Feasibility Study: {{project_name}}

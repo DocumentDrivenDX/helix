@@ -1,6 +1,8 @@
 ---
 ddx:
   id: improvement-backlog
+  authoring:
+    home: repo
   depends_on:
     - metrics-dashboard
   review:

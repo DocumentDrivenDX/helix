@@ -1,6 +1,8 @@
 ---
 ddx:
   id: ADR-004
+  authoring:
+    home: repo
   type: architecture-decision-record
   status: resolved
   decision_date: 2026-05-18

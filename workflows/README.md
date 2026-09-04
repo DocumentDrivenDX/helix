@@ -1,6 +1,8 @@
 ---
 ddx:
   id: helix.workflow
+  authoring:
+    home: repo
 ---
 # HELIX Workflow
 

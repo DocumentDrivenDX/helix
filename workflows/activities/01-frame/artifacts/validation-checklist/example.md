@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.validation-checklist.depositmatch
+  authoring:
+    home: repo
   depends_on:
     - example.prd.depositmatch
     - example.pr-faq.depositmatch

@@ -15,6 +15,8 @@ collection: contracts
 ```yaml
 ddx:
   id: CONTRACT-003
+  authoring:
+    home: repo
   type: contract
   activity: design
   depends_on:

@@ -1,6 +1,8 @@
 ---
 ddx:
   id: crm.prd
+  authoring:
+    home: repo
 ---
 
 # Product Requirements Document

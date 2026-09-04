@@ -1,6 +1,8 @@
 ---
 ddx:
   id: CONTRACT-XXX
+  authoring:
+    home: repo
 ---
 
 # Contract

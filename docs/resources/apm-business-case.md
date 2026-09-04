@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.apm-business-case
+  authoring:
+    home: repo
 ---
 
 # APM Business Case Guidance

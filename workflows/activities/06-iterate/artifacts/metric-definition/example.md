@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.metric-definition.depositmatch.csv-import-validation-seconds
+  authoring:
+    home: repo
   depends_on:
     - example.test-plan.depositmatch
     - example.deployment-checklist.depositmatch.csv-import

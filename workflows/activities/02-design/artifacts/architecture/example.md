@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.architecture.depositmatch
+  authoring:
+    home: repo
   depends_on:
     - example.product-vision.depositmatch
     - example.prd.depositmatch

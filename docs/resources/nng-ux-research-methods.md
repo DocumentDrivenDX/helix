@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.nng-ux-research-methods
+  authoring:
+    home: repo
 ---
 
 # NN/g UX Research Methods

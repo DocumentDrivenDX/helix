@@ -26,6 +26,9 @@ pre-commit:
         fi
         exit $fail
       glob: "{skills/**/*.md,workflows/**/*.md,workflows/**/*.yaml,workflows/**/*.yml}"
+    check-authoring-home:
+      run: bash scripts/check-authoring-home.sh
+      glob: "{docs/helix/**/*.md,docs/examples/**/*.md,docs/resources/**/*.md,workflows/**/*.md}"
     # check-library-types disabled after canonical-promotion: the
     # family-test/library/ research fork was removed in favor of the
     # canonical type catalog at workflows/activities/*/artifacts/<type>/.

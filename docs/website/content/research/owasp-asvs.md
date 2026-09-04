@@ -8,6 +8,8 @@ generated: true
 ```yaml
 ddx:
   id: resource.owasp-asvs
+  authoring:
+    home: repo
 ```
 
 # OWASP Application Security Verification Standard

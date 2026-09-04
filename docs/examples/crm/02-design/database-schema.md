@@ -1,6 +1,8 @@
 ---
 ddx:
   id: crm.database-schema
+  authoring:
+    home: repo
   type: data-design
   depends_on:
     - crm.solution-design

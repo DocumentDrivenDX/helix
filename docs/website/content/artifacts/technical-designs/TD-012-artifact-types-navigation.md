@@ -15,6 +15,8 @@ collection: technical-designs
 ```yaml
 ddx:
   id: TD-012
+  authoring:
+    home: repo
   depends_on:
     - FEAT-012
     - FEAT-007

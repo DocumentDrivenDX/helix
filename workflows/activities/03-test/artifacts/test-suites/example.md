@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.test-suites.depositmatch
+  authoring:
+    home: repo
   depends_on:
     - example.test-plan.depositmatch
     - example.test-procedures.depositmatch

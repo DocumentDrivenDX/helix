@@ -1,6 +1,8 @@
 ---
 ddx:
   id: parking-lot
+  authoring:
+    home: repo
 ---
 
 # Parking Lot (Deferred / Future Work)

@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.nist-cybersecurity-measurement-guidance
+  authoring:
+    home: repo
 ---
 
 # NIST Cybersecurity Measurement Guidance

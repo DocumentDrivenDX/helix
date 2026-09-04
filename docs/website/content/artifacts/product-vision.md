@@ -14,6 +14,8 @@ generated: true
 ```yaml
 ddx:
   id: helix.product-vision
+  authoring:
+    home: repo
   review:
     self_hash: 79d80961a61599087606ddda314e16409a244db23581fbd2eecd3b66353cebf9
     deps: {}

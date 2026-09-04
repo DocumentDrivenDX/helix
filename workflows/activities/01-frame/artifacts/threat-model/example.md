@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.threat-model.depositmatch
+  authoring:
+    home: repo
   depends_on:
     - example.security-requirements.depositmatch
     - example.risk-register.depositmatch

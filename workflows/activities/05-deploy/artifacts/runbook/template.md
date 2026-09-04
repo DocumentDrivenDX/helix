@@ -1,6 +1,8 @@
 ---
 ddx:
   id: runbook
+  authoring:
+    home: repo
 ---
 
 # Runbook - [Service / System]

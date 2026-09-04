@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.atlassian-product-backlog
+  authoring:
+    home: repo
 ---
 
 # Atlassian Product Backlog

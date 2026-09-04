@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.ibm-requirements-management
+  authoring:
+    home: repo
 ---
 
 # IBM Requirements Management

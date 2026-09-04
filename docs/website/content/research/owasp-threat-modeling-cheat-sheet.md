@@ -8,6 +8,8 @@ generated: true
 ```yaml
 ddx:
   id: resource.owasp-threat-modeling-cheat-sheet
+  authoring:
+    home: repo
 ```
 
 # OWASP Threat Modeling Cheat Sheet

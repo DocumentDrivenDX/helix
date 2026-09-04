@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.google-test-sizes
+  authoring:
+    home: repo
 ---
 
 # Google Testing Blog: Test Sizes

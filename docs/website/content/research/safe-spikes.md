@@ -8,6 +8,8 @@ generated: true
 ```yaml
 ddx:
   id: resource.safe-spikes
+  authoring:
+    home: repo
 ```
 
 # SAFe Spikes

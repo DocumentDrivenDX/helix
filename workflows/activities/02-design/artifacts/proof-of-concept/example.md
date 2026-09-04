@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.proof-of-concept.depositmatch
+  authoring:
+    home: repo
   depends_on:
     - example.feasibility-study.depositmatch
     - example.data-design.depositmatch

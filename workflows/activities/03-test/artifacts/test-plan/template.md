@@ -1,6 +1,8 @@
 ---
 ddx:
   id: TP-XXX
+  authoring:
+    home: repo
 ---
 
 # Test Plan

@@ -1,6 +1,8 @@
 ---
 ddx:
   id: business-case
+  authoring:
+    home: repo
 ---
 
 # Business Case

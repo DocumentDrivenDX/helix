@@ -8,6 +8,8 @@ generated: true
 ```yaml
 ddx:
   id: resource.google-small-cls
+  authoring:
+    home: repo
 ```
 
 # Google Engineering Practices: Small CLs

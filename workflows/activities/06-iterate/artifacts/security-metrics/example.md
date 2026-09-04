@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.security-metrics.depositmatch
+  authoring:
+    home: repo
   depends_on:
     - example.metrics-dashboard.depositmatch.csv-import
     - example.monitoring-setup.depositmatch

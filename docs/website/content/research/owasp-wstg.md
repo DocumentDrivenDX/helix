@@ -8,6 +8,8 @@ generated: true
 ```yaml
 ddx:
   id: resource.owasp-wstg
+  authoring:
+    home: repo
 ```
 
 # OWASP Web Security Testing Guide

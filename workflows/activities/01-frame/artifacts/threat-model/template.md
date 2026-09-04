@@ -1,6 +1,8 @@
 ---
 ddx:
   id: threat-model
+  authoring:
+    home: repo
 ---
 
 # Threat Model

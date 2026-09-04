@@ -8,6 +8,8 @@ generated: true
 ```yaml
 ddx:
   id: resource.aha-prd-template
+  authoring:
+    home: repo
 ```
 
 # Aha! Product Requirements Document Template

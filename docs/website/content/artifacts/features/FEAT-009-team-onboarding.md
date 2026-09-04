@@ -15,6 +15,8 @@ collection: features
 ```yaml
 ddx:
   id: FEAT-009
+  authoring:
+    home: repo
   depends_on:
     - helix.prd
     - FEAT-007

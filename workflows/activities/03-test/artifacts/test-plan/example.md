@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.test-plan.depositmatch
+  authoring:
+    home: repo
   depends_on:
     - example.prd.depositmatch
     - example.feature-specification.depositmatch.csv-import

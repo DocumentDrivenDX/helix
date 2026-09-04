@@ -1,6 +1,8 @@
 ---
 ddx:
   id: security-architecture
+  authoring:
+    home: repo
   depends_on:
     - helix.architecture
   review:

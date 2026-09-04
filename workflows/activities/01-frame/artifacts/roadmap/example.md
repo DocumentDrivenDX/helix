@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.roadmap.depositmatch
+  authoring:
+    home: repo
   depends_on:
     - example.prd.depositmatch
 ---

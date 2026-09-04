@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.strategyzer-value-proposition-canvas
+  authoring:
+    home: repo
 ---
 
 # Strategyzer Value Proposition Canvas

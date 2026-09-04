@@ -8,6 +8,8 @@ generated: true
 ```yaml
 ddx:
   id: resource.product-vision-board
+  authoring:
+    home: repo
 ```
 
 # Product Vision Board

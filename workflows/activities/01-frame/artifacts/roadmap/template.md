@@ -1,6 +1,8 @@
 ---
 ddx:
   id: roadmap
+  authoring:
+    home: repo
 ---
 
 # Roadmap

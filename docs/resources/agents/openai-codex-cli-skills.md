@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.agents.openai-codex-cli-skills
+  authoring:
+    home: repo
 ---
 
 # OpenAI Codex CLI Skill Mechanism

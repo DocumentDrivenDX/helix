@@ -1,6 +1,8 @@
 ---
 ddx:
   id: FEAT-XXX
+  authoring:
+    home: repo
 ---
 
 # Feature Specification: FEAT-XXX — [Feature Name]

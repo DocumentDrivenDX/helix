@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.data-quality-expectations.customer-360
+  authoring:
+    home: repo
   depends_on:
     # Previous: example.data-prd.customer-360 — dropped when data-prd
     # collapsed into prd as kind: data variant (ADR-008).

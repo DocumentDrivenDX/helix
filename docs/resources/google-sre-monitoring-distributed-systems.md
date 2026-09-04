@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.google-sre-monitoring-distributed-systems
+  authoring:
+    home: repo
 ---
 
 # Google SRE: Monitoring Distributed Systems

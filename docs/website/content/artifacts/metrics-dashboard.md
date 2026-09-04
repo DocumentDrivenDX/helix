@@ -14,6 +14,8 @@ generated: true
 ```yaml
 ddx:
   id: metrics-dashboard
+  authoring:
+    home: repo
   review:
     self_hash: 0934ca6e0913a5da11bb822adb4b4a5e343aaefdf6444af11690eab218a52c6c
     deps: {}

@@ -1,6 +1,8 @@
 ---
 ddx:
   id: plan.claude-code-install-hardening
+  authoring:
+    home: repo
   status: draft
 ---
 

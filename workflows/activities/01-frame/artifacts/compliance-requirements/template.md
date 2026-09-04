@@ -1,6 +1,8 @@
 ---
 ddx:
   id: compliance-requirements
+  authoring:
+    home: repo
 ---
 
 # Compliance Requirements

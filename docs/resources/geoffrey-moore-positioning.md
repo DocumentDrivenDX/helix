@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.geoffrey-moore-positioning
+  authoring:
+    home: repo
 ---
 
 # Geoffrey Moore Positioning Template

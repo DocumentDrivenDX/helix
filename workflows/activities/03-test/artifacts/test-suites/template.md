@@ -1,6 +1,8 @@
 ---
 ddx:
   id: test-suites
+  authoring:
+    home: repo
 ---
 
 # Test Suite Structure

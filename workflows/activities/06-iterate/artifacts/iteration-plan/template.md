@@ -1,6 +1,8 @@
 ---
 ddx:
   id: iteration-plan
+  authoring:
+    home: repo
 ---
 
 # Iteration Plan
