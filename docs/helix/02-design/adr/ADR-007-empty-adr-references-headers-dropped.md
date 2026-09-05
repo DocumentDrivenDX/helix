@@ -1,6 +1,8 @@
 ---
 ddx:
   id: ADR-007
+  authoring:
+    home: repo
   depends_on:
     - helix.prd
 ---

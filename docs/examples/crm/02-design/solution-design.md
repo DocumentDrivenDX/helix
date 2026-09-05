@@ -1,6 +1,8 @@
 ---
 ddx:
   id: crm.solution-design
+  authoring:
+    home: repo
   type: solution-design
   depends_on:
     - crm.prd

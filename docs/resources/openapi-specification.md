@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.openapi-specification
+  authoring:
+    home: repo
 ---
 
 # OpenAPI Specification

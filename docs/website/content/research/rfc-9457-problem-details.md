@@ -8,6 +8,8 @@ generated: true
 ```yaml
 ddx:
   id: resource.rfc-9457-problem-details
+  authoring:
+    home: repo
 ```
 
 # RFC 9457 Problem Details for HTTP APIs

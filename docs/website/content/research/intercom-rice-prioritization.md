@@ -8,6 +8,8 @@ generated: true
 ```yaml
 ddx:
   id: resource.intercom-rice-prioritization
+  authoring:
+    home: repo
 ```
 
 # Intercom RICE Prioritization

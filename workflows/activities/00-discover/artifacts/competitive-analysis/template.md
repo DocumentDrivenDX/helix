@@ -1,6 +1,8 @@
 ---
 ddx:
   id: competitive-analysis
+  authoring:
+    home: repo
 ---
 
 # Competitive Analysis

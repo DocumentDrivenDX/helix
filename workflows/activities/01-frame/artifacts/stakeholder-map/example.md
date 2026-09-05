@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.stakeholder-map.depositmatch
+  authoring:
+    home: repo
   depends_on:
     - example.opportunity-canvas.depositmatch
     - example.compliance-requirements.depositmatch

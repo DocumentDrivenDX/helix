@@ -1,6 +1,8 @@
 ---
 ddx:
   id: data-flow-analysis
+  authoring:
+    home: repo
 ---
 
 # Data Flow Analysis

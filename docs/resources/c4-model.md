@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.c4-model
+  authoring:
+    home: repo
 ---
 
 # C4 Model for Visualising Software Architecture

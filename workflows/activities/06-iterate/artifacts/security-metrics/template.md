@@ -1,6 +1,8 @@
 ---
 ddx:
   id: security-metrics
+  authoring:
+    home: repo
 ---
 
 # Security Metrics - [Iteration / Date Range]

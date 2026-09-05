@@ -1,6 +1,8 @@
 ---
 ddx:
   id: ADR-201
+  authoring:
+    home: repo
   type: product-decision-record
   status: resolved
   depends_on:

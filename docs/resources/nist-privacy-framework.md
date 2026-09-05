@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.nist-privacy-framework
+  authoring:
+    home: repo
 ---
 
 # NIST Privacy Framework

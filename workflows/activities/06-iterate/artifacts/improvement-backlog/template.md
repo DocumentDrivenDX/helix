@@ -1,6 +1,8 @@
 ---
 ddx:
   id: improvement-backlog
+  authoring:
+    home: repo
 ---
 
 # Improvement Backlog

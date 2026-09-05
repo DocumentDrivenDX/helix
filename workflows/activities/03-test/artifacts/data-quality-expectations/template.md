@@ -1,6 +1,8 @@
 ---
 ddx:
   id: data-quality-expectations
+  authoring:
+    home: repo
 ---
 
 # Data Quality Expectations

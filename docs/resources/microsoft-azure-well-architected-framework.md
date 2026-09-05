@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.microsoft-azure-well-architected-framework
+  authoring:
+    home: repo
 ---
 
 # Microsoft Azure Well-Architected Framework

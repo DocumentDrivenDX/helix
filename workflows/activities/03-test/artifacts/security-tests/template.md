@@ -1,6 +1,8 @@
 ---
 ddx:
   id: security-tests
+  authoring:
+    home: repo
 ---
 
 # Security Tests

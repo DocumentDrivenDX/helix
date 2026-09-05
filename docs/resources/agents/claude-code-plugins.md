@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.agents.claude-code-plugins
+  authoring:
+    home: repo
 ---
 
 # Claude Code Plugin Mechanism

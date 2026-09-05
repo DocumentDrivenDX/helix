@@ -1,6 +1,8 @@
 ---
 ddx:
   id: helix.workflow.tracker
+  authoring:
+    home: repo
   review:
     self_hash: 395b9ef6466577b751192c2b17008cdb3a6db1bc10554786d024e023c6e004f5
     deps: {}

@@ -1,6 +1,8 @@
 ---
 ddx:
   id: stakeholder-map
+  authoring:
+    home: repo
 ---
 
 # Stakeholder Map

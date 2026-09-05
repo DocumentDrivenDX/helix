@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.resource-summary.product-vision-board
+  authoring:
+    home: repo
 ---
 
 # Product Vision Board

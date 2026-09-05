@@ -1,6 +1,8 @@
 ---
 ddx:
   id: helix.prd
+  authoring:
+    home: repo
   review:
     self_hash: e11b46de6300cc84460245fcfd6739210ce38406a76f90e32d26685938302eb1
     deps: {}

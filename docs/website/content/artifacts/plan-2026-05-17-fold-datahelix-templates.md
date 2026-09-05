@@ -14,6 +14,8 @@ generated: true
 ```yaml
 ddx:
   id: plan.fold-datahelix-templates
+  authoring:
+    home: repo
   status: draft
 ```
 

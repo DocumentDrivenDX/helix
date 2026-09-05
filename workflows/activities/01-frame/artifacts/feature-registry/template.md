@@ -1,6 +1,8 @@
 ---
 ddx:
   id: feature-registry
+  authoring:
+    home: repo
 ---
 
 # Feature Registry

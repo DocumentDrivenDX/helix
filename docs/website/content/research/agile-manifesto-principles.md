@@ -8,6 +8,8 @@ generated: true
 ```yaml
 ddx:
   id: resource.agile-manifesto-principles
+  authoring:
+    home: repo
 ```
 
 # The 12 Principles Behind the Agile Manifesto

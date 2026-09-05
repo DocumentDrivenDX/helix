@@ -1,6 +1,8 @@
 ---
 ddx:
   id: data-architecture
+  authoring:
+    home: repo
 ---
 
 # Data Architecture

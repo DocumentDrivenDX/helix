@@ -1,6 +1,8 @@
 ---
 ddx:
   id: status-report
+  authoring:
+    home: repo
 ---
 
 # Status Report

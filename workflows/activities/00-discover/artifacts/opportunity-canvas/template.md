@@ -1,6 +1,8 @@
 ---
 ddx:
   id: opportunity-canvas
+  authoring:
+    home: repo
 ---
 
 # Opportunity Canvas

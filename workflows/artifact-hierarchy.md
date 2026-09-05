@@ -1,6 +1,8 @@
 ---
 ddx:
   id: helix.workflow.artifact-hierarchy
+  authoring:
+    home: repo
   depends_on:
     - helix.workflow
   review:

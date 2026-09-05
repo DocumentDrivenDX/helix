@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.improvement-backlog.depositmatch
+  authoring:
+    home: repo
   depends_on:
     - example.metrics-dashboard.depositmatch.csv-import
   review:

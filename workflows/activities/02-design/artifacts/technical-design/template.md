@@ -1,6 +1,8 @@
 ---
 ddx:
   id: TD-XXX
+  authoring:
+    home: repo
   review:
     self_hash: 081ac39c2360ed0034e2a9bc05b5932fbd2baa2930b605c2ab947bf4548a2015
     deps:

@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.agents.databricks-genie-code-skills
+  authoring:
+    home: repo
 ---
 
 # Databricks Genie Code Skill Mechanism

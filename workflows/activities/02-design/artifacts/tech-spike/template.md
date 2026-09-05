@@ -1,6 +1,8 @@
 ---
 ddx:
   id: SPIKE-XXX
+  authoring:
+    home: repo
 ---
 
 # Technical Spike: {{spike_title}}

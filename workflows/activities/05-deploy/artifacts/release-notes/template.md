@@ -1,6 +1,8 @@
 ---
 ddx:
   id: release-notes
+  authoring:
+    home: repo
 ---
 
 # Release Notes - [Release / Version]

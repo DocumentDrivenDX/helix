@@ -1,6 +1,8 @@
 ---
 ddx:
   id: helix.workflow.ratchets
+  authoring:
+    home: repo
   depends_on:
     - helix.workflow
     - helix.workflow.principles

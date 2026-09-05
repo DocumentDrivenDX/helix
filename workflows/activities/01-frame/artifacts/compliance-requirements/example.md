@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.compliance-requirements.depositmatch
+  authoring:
+    home: repo
   depends_on:
     - example.opportunity-canvas.depositmatch
   review:

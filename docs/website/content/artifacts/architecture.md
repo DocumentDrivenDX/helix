@@ -14,6 +14,8 @@ generated: true
 ```yaml
 ddx:
   id: helix.architecture
+  authoring:
+    home: repo
   depends_on:
     - helix.prd
     - CONTRACT-003

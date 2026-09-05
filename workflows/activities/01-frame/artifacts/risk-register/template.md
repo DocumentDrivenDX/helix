@@ -1,6 +1,8 @@
 ---
 ddx:
   id: risk-register
+  authoring:
+    home: repo
 ---
 
 # Risk Register

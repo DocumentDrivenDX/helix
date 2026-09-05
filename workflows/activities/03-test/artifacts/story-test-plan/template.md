@@ -1,6 +1,8 @@
 ---
 ddx:
   id: STP-XXX
+  authoring:
+    home: repo
 ---
 
 # Story Test Plan: STP-XXX-[story-name]

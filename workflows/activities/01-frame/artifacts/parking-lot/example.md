@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.parking-lot.depositmatch
+  authoring:
+    home: repo
   parking_lot: true
   depends_on:
     - example.feature-registry.depositmatch

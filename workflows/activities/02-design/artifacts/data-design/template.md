@@ -1,6 +1,8 @@
 ---
 ddx:
   id: data-design
+  authoring:
+    home: repo
 ---
 
 # Data Design

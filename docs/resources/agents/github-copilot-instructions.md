@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.agents.github-copilot-instructions
+  authoring:
+    home: repo
 ---
 
 # GitHub Copilot Extension Mechanism

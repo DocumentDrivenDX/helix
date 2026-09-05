@@ -8,6 +8,8 @@ generated: true
 ```yaml
 ddx:
   id: resource.atlassian-prd
+  authoring:
+    home: repo
 ```
 
 # Atlassian Product Requirements Document

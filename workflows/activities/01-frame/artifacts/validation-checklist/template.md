@@ -1,6 +1,8 @@
 ---
 ddx:
   id: validation-checklist
+  authoring:
+    home: repo
 ---
 
 # Frame Activity Validation Checklist

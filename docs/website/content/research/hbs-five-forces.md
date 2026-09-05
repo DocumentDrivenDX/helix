@@ -8,6 +8,8 @@ generated: true
 ```yaml
 ddx:
   id: resource.hbs-five-forces
+  authoring:
+    home: repo
 ```
 
 # HBS Five Forces

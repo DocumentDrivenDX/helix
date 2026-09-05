@@ -1,6 +1,8 @@
 ---
 ddx:
   id: TP-014
+  authoring:
+    home: repo
   depends_on:
     - FEAT-013
     - TD-013

@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.safe-spikes
+  authoring:
+    home: repo
 ---
 
 # SAFe Spikes

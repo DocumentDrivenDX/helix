@@ -1,6 +1,8 @@
 ---
 ddx:
   id: helix.workflow.quickstart
+  authoring:
+    home: repo
   depends_on:
     - helix.workflow
   review:

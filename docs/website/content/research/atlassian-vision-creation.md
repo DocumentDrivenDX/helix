@@ -8,6 +8,8 @@ generated: true
 ```yaml
 ddx:
   id: resource.atlassian-vision-creation
+  authoring:
+    home: repo
 ```
 
 # Atlassian Vision Creation

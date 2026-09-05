@@ -15,6 +15,8 @@ collection: contracts
 ```yaml
 ddx:
   id: CONTRACT-001
+  authoring:
+    home: repo
   review:
     self_hash: a3a48304a395b3d52c41f7b833e639f4a5ae986e62f58284821687306d3049fb
     deps: {}

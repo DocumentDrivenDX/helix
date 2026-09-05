@@ -15,6 +15,8 @@ collection: adr
 ```yaml
 ddx:
   id: ADR-009
+  authoring:
+    home: repo
   depends_on:
     - helix.prd
 ```

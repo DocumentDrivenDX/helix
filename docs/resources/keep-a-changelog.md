@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.keep-a-changelog
+  authoring:
+    home: repo
 ---
 
 # Keep a Changelog

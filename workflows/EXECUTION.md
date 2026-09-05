@@ -1,6 +1,8 @@
 ---
 ddx:
   id: helix.workflow.execution
+  authoring:
+    home: repo
   depends_on:
     - helix.workflow
     - helix.workflow.tracker

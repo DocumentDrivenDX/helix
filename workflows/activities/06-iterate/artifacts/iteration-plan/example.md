@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.iteration-plan.depositmatch
+  authoring:
+    home: repo
   depends_on:
     - example.roadmap.depositmatch
     - example.improvement-backlog.depositmatch

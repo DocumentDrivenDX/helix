@@ -1,6 +1,8 @@
 ---
 ddx:
   id: POC-XXX
+  authoring:
+    home: repo
 ---
 
 # Proof of Concept: {{poc_title}}

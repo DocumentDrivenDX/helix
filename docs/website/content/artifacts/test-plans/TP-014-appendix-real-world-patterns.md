@@ -15,6 +15,8 @@ collection: test-plans
 ```yaml
 ddx:
   id: TP-014-A
+  authoring:
+    home: repo
   depends_on:
     - TP-014
     - FEAT-013

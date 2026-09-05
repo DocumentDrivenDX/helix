@@ -8,6 +8,8 @@ generated: true
 ```yaml
 ddx:
   id: resource.sba-market-research-competitive-analysis
+  authoring:
+    home: repo
 ```
 
 # SBA Market Research and Competitive Analysis

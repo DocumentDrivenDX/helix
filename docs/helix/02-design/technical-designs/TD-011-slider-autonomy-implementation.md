@@ -1,6 +1,8 @@
 ---
 ddx:
   id: TD-011
+  authoring:
+    home: repo
   depends_on:
     - FEAT-011
     - ADR-003

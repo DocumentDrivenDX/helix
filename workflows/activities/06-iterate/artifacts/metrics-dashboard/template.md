@@ -1,6 +1,8 @@
 ---
 ddx:
   id: metrics-dashboard
+  authoring:
+    home: repo
 ---
 
 # Metrics Dashboard: [iteration or release]

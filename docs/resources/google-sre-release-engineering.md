@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.google-sre-release-engineering
+  authoring:
+    home: repo
 ---
 
 # Google SRE: Release Engineering

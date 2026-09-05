@@ -1,6 +1,8 @@
 ---
 ddx:
   id: SD-002
+  authoring:
+    home: repo
   depends_on:
     - FEAT-003
     - SD-001

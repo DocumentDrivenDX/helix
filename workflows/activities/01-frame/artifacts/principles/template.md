@@ -1,6 +1,8 @@
 ---
 ddx:
   id: principles
+  authoring:
+    home: repo
 ---
 
 # Project Principles

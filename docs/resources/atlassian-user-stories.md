@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.atlassian-user-stories
+  authoring:
+    home: repo
 ---
 
 # Atlassian User Stories

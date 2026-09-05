@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.fowler-evolutionary-database-design
+  authoring:
+    home: repo
 ---
 
 # Fowler Evolutionary Database Design

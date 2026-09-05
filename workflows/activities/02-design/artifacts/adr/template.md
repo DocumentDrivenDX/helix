@@ -1,6 +1,8 @@
 ---
 ddx:
   id: ADR-XXX
+  authoring:
+    home: repo
 ---
 
 # ADR-NNN: [Title]

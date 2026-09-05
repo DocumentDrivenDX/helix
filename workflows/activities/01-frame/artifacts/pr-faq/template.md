@@ -1,6 +1,8 @@
 ---
 ddx:
   id: pr-faq
+  authoring:
+    home: repo
 ---
 
 # PR-FAQ: [PRODUCT NAME]

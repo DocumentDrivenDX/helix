@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.google-sre-incident-management-guide
+  authoring:
+    home: repo
 ---
 
 # Google SRE Incident Management Guide

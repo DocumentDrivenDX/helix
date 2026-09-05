@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.leanstack-lean-canvas
+  authoring:
+    home: repo
 ---
 
 # LEANSTACK Lean Canvas

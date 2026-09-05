@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.google-cloud-architecture-decision-records
+  authoring:
+    home: repo
 ---
 
 # Google Cloud Architecture Decision Records Overview

@@ -1,6 +1,8 @@
 ---
 ddx:
   id: monitoring-setup
+  authoring:
+    home: repo
 ---
 
 # Monitoring Setup

@@ -15,6 +15,8 @@ collection: features
 ```yaml
 ddx:
   id: FEAT-017
+  authoring:
+    home: repo
   depends_on:
     - helix.prd
   status: draft

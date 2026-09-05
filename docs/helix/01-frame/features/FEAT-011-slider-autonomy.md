@@ -1,6 +1,8 @@
 ---
 ddx:
   id: FEAT-011
+  authoring:
+    home: repo
   status: draft
   depends_on:
     - helix.prd

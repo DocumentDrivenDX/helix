@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.agents.agentskills-spec
+  authoring:
+    home: repo
 ---
 
 # Agent Skills Specification (agentskills.io)

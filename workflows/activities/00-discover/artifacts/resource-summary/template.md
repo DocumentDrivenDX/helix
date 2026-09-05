@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource-summary
+  authoring:
+    home: repo
 ---
 
 # [Resource Title]

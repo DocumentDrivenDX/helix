@@ -1,6 +1,8 @@
 ---
 ddx:
   id: SD-XXX
+  authoring:
+    home: repo
   review:
     self_hash: ea6f092342409cc3f74e945b3ae421392eb4787113b828331c0fdfab359bf86d
     deps:

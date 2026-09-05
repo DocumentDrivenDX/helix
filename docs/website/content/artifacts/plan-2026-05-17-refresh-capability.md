@@ -14,6 +14,8 @@ generated: true
 ```yaml
 ddx:
   id: plan.refresh-capability
+  authoring:
+    home: repo
   status: draft
 ```
 

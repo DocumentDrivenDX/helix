@@ -8,6 +8,8 @@ generated: true
 ```yaml
 ddx:
   id: resource.agile-alliance-sizing-spikes
+  authoring:
+    home: repo
 ```
 
 # Agile Alliance Sizing Spikes

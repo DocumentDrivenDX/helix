@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.tech-spike.depositmatch
+  authoring:
+    home: repo
   depends_on:
     - example.product-vision.depositmatch
     - example.data-design.depositmatch

@@ -1,6 +1,8 @@
 ---
 ddx:
   id: research.principles-injection.2026-04-05
+  authoring:
+    home: repo
   depends_on:
     - SD-002
   review:

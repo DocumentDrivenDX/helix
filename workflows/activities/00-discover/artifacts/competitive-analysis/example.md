@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.competitive-analysis.depositmatch
+  authoring:
+    home: repo
   depends_on:
     - example.product-vision.depositmatch
   review:

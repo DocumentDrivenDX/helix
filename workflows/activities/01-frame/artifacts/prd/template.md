@@ -1,6 +1,8 @@
 ---
 ddx:
   id: prd
+  authoring:
+    home: repo
 kind: product  # `product` (default) frames general product requirements; `data` frames a data product (pipeline, warehouse, data platform, or service). See ADR-008.
 ---
 

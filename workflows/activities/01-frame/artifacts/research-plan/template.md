@@ -1,6 +1,8 @@
 ---
 ddx:
   id: research-plan
+  authoring:
+    home: repo
 ---
 
 # Research Plan: {{research_topic}}

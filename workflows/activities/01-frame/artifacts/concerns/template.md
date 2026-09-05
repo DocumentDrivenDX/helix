@@ -1,6 +1,8 @@
 ---
 ddx:
   id: concerns
+  authoring:
+    home: repo
 ---
 
 # Project Concerns

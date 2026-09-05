@@ -1,6 +1,8 @@
 ---
 ddx:
   id: security-requirements
+  authoring:
+    home: repo
 ---
 
 # Security Requirements

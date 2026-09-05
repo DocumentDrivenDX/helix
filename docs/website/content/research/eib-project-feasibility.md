@@ -8,6 +8,8 @@ generated: true
 ```yaml
 ddx:
   id: resource.eib-project-feasibility
+  authoring:
+    home: repo
 ```
 
 # EIB Project Feasibility

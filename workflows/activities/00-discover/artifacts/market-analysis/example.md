@@ -1,6 +1,8 @@
 ---
 ddx:
   id: market-analysis
+  authoring:
+    home: repo
 ---
 
 # Market Analysis: SMB Expense-Report Automation

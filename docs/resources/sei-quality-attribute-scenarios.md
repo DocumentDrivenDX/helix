@@ -1,6 +1,8 @@
 ---
 ddx:
   id: resource.sei-quality-attribute-scenarios
+  authoring:
+    home: repo
 ---
 
 # SEI Reasoning About Software Quality Attributes

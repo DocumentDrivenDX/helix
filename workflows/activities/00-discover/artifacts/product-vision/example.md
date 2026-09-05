@@ -1,6 +1,8 @@
 ---
 ddx:
   id: example.product-vision.depositmatch
+  authoring:
+    home: repo
 ---
 # Product Vision
 

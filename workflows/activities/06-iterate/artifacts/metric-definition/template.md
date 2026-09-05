@@ -1,6 +1,8 @@
 ---
 ddx:
   id: METRIC-name
+  authoring:
+    home: repo
 ---
 
 # Metric Definition: [NAME]
