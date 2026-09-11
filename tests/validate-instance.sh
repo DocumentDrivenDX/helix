@@ -12,29 +12,27 @@ trap 'rm -rf "$tmpdir"' EXIT
 
 fail() { echo "FAIL: $*" >&2; exit 1; }
 
-# Catalog examples that satisfy their own validation block must pass.
-for example in \
-  01-frame/artifacts/prd \
-  02-design/artifacts/adr \
-  06-iterate/artifacts/status-report \
-  01-frame/artifacts/feature-registry \
-  01-frame/artifacts/risk-register \
-  03-test/artifacts/story-test-plan \
-  06-iterate/artifacts/metric-definition; do
-  path="$repo_root/workflows/activities/$example/example.md"
+# Every catalog example must satisfy its own type's validation block and
+# resolve to the type whose directory it lives in.
+count=0
+for path in "$repo_root"/workflows/activities/*/artifacts/*/example*.md; do
+  type_id="$(basename "$(dirname "$path")")"
+  rel="${path#"$repo_root"/workflows/activities/}"
   python3 "$validator" "$path" >"$tmpdir/out" 2>&1 \
-    || fail "$example/example.md should validate cleanly:
+    || fail "$rel should validate cleanly:
 $(cat "$tmpdir/out")"
-  grep -q "type=${example##*/} " "$tmpdir/out" \
-    || fail "$example/example.md should resolve to type ${example##*/}:
+  grep -q "type=$type_id " "$tmpdir/out" \
+    || fail "$rel should resolve to type $type_id:
 $(cat "$tmpdir/out")"
+  count=$((count + 1))
 done
+[ "$count" -ge 50 ] || fail "expected to validate every catalog example, ran $count"
 
 # Broken PRD: missing required section, leftover placeholder, failed catalog regex.
 if python3 "$validator" "$fixtures/broken-prd.md" --catalog "$repo_root/workflows" >"$tmpdir/broken.out" 2>&1; then
   fail "broken-prd.md should exit 1"
 fi
-for check in required_sections.success_criteria placeholder automated_checks.0; do
+for check in required_sections.success_criteria placeholder pattern_checks.0; do
   grep -Eq "^BLOCKING +$check " "$tmpdir/broken.out" \
     || fail "broken-prd.md output should contain blocking check '$check':
 $(cat "$tmpdir/broken.out")"
@@ -48,7 +46,7 @@ data = json.loads(proc.stdout)
 assert proc.returncode == 1, proc.returncode
 assert data["type"] == "prd" and data["catalog"] and data["instance"], data
 checks = {f["check"] for f in data["findings"] if f["severity"] == "blocking"}
-assert {"required_sections.success_criteria", "placeholder", "automated_checks.0"} <= checks, checks
+assert {"required_sections.success_criteria", "placeholder", "pattern_checks.0"} <= checks, checks
 assert data["summary"]["blocking"] == len([f for f in data["findings"] if f["severity"] == "blocking"]) >= 3, data["summary"]
 assert all(f["check"] == "placeholder" and f["line"] for f in data["findings"] if f["check"] == "placeholder"), "placeholder findings need a line"
 PYEOF
@@ -66,4 +64,4 @@ python3 "$validator" "$tmpdir/untyped.md" --catalog "$repo_root/workflows" --typ
   fail "--type prd on an empty document should still fail required_sections"
 grep -q "type=prd " "$tmpdir/typed.out" || fail "--type should select the prd type"
 
-echo "OK: validate-instance.py passes catalog examples, rejects the broken PRD fixture, and errors on unresolvable types"
+echo "OK: validate-instance.py passes all $count catalog examples, rejects the broken PRD fixture, and errors on unresolvable types"

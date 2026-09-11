@@ -7,10 +7,11 @@ Usage:
 Checks run, in order:
   frontmatter        ddx.id, ddx.type/ddx.activity, ddx.authoring.home
   required_sections  each catalog section id must be an H2 in the instance
-  pattern_checks     regex entries {pattern, expected, message}
-  automated_checks   regex entries (same shape) plus field rules
-                     (type: unique_constraint, not_equals); other rule types
-                     are reported as unsupported without failing
+  pattern_checks     regex entries {pattern, expected, message[, severity]}
+                     where expected is 0 (must not match) or >=N
+  automated_checks   rule entries {check, type, field[, severity, message]}
+                     with type unique_constraint, or not_equals plus `value`;
+                     other rule types are reported as unsupported without failing
   placeholder        leftover template markers ([TODO], TBD, [Fill in], ...)
 
 Exit codes: 0 = no blocking findings, 1 = blocking findings, 2 = usage or
@@ -273,7 +274,7 @@ def check_rule_entries(key: str, entries: list, body: str, base: int, report: Re
                 report.add(severity, check, f"{message} (pattern /{entry['pattern']}/ matched {len(matches)}, expected {expected})", line)
             continue
         field = entry.get("field")
-        rule = entry.get("type") or ("not_equals" if "not_equals" in entry else None)
+        rule = entry.get("type")
         if rule == "unique_constraint" and field:
             values = field_values(body, str(field))
             dupes = sorted({v for v in values if values.count(v) > 1})
@@ -283,7 +284,7 @@ def check_rule_entries(key: str, entries: list, body: str, base: int, report: Re
                 report.add("info", check, f"field '{field}' not found in tables or **Label**: lines; check skipped")
         elif rule == "not_equals" and field:
             values = field_values(body, str(field))
-            bad = [v for v in values if v == str(entry.get("not_equals"))]
+            bad = [v for v in values if v == str(entry.get("value"))]
             if bad:
                 report.add(severity, check, f"{message}: {field} is placeholder '{bad[0]}' in {len(bad)} place(s)")
             elif not values:

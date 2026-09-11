@@ -1,7 +1,7 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance
+test: test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable
 
 # Serve the HELIX microsite at the canonical local review URL.
 website-serve:

@@ -29,6 +29,7 @@ Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/hel
 | Audit where a project stands (specs↔impl↔tests↔ACs aligned? complete? next action?) | [project-audit](project-audit) |
 | Decompose an oversized code module/file into encapsulated units behind a verify gate | [decompose-module](decompose-module) |
 | Build up end-to-end coverage as a ladder of increasingly complex real-client scenarios | [e2e-ladder](e2e-ladder) |
+| Turn governed artifacts into a deck, one-pager, or brief for clients, sponsors, or executives | [present](present) |
 | Hand governed work to the runtime for execution, source control, or packaging | [runtime-handoff](runtime-handoff) |
 
 ## Contracts
@@ -49,6 +50,7 @@ Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/hel
   {{< card link="input" title="Input" subtitle="Use for sparse user intent that needs to become governed HELIX work." >}}
   {{< card link="iterate" title="Iterate" subtitle="Use to plan or report a human iteration: sequence a roadmap, define workstreams, cut an iteration plan from the backlog and roadmap, or record status against t…" >}}
   {{< card link="polish" title="Polish" subtitle="Use to refine work items before execution." >}}
+  {{< card link="present" title="Present" subtitle="Use to turn governed artifacts into something a person outside the project can read or watch: a deck, a one-pager, or a brief, worth showing a client, sponsor,…" >}}
   {{< card link="project-audit" title="Project Audit" subtitle="Use on entry to a project with stale context to answer one question: where does this project stand? Are specs, implementation, tests, and acceptance criteria a…" >}}
   {{< card link="refresh" title="Refresh" subtitle="Use to bring every artifact instance under a project HELIX tree up to date with the current canonical templates and prompts. §Refresh is §Validate (fix-mode) a…" >}}
   {{< card link="review" title="Review" subtitle="Use for fresh-eyes review of plans, PRs, implementation, or recent work." >}}

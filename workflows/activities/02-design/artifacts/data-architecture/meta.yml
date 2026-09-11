@@ -59,13 +59,13 @@ validation:
       description: Databricks cluster size, DBU budget, storage tier, and scaling strategy must be sketched
       severity: warning
 
-  automated_checks:
+  pattern_checks:
     - pattern: "\\[TBD\\]|\\[TODO\\]|\\[NEEDS CLARIFICATION\\]"
       expected: 0
       message: Remove all unresolved markers before approval
 
     - pattern: "EXPECT|quality|SLA|freshness"
-      expected: ">0"
+      expected: ">=1"
       message: Data architecture must name quality expectations and SLAs
 
 variables:

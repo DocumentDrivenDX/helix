@@ -11,9 +11,10 @@ description: |
   cross-flow queries, and human-iteration planning (roadmap, workstreams,
   sprint plan, status report). Engage on desired state vs implementation,
   specs behind code, and pruning work items against specs. Engage on "grill
-  me" or stress-testing a plan one question at a time. Product, web, infra,
-  and data are domain lanes that shape context and stop rules, not sibling
-  skills or workflow modes.
+  me" or stress-testing a plan one question at a time. Engage on decks,
+  slides, one-pagers, briefs, and client-ready or executive documents built
+  from governed artifacts (present). Product, web, infra, and data are
+  domain lanes that shape context and stop rules, not sibling skills.
 argument-hint: "[intent or scope]"
 ---
 
@@ -63,6 +64,9 @@ Engage when:
   any cross-flow query that needs the marker to answer → `check` mode.
 - The prompt asks to "grill me", "interview me" about a plan/design, or to
   stress-test decisions one question at a time → `grill` mode.
+- The prompt asks for a deck, slides, pitch, board or exec update,
+  one-pager, brief, memo, or a client-ready or customer-facing document
+  built from project artifacts → `present` mode.
 
 ## Routing Axes
 
@@ -222,6 +226,7 @@ Prefer the first matching route:
 | Audit where a project stands (specs↔impl↔tests↔ACs aligned? complete? next action?) | project-audit |
 | Decompose an oversized code module/file into encapsulated units behind a verify gate | decompose-module |
 | Build up end-to-end coverage as a ladder of increasingly complex real-client scenarios | e2e-ladder |
+| Turn governed artifacts into a deck, one-pager, or brief for clients, sponsors, or executives | present |
 | Hand governed work to the runtime for execution, source control, or packaging | runtime-handoff |
 
 When multiple routes fit, choose the highest-authority planning route first:
@@ -258,8 +263,13 @@ Mode files: `workflows/modes/input.md`, `workflows/modes/grill.md`,
 `workflows/modes/check.md`, `workflows/modes/experiment.md`,
 `workflows/modes/genesis.md`, `workflows/modes/converge.md`,
 `workflows/modes/project-audit.md`, `workflows/modes/decompose-module.md`,
-`workflows/modes/e2e-ladder.md`, `workflows/modes/runtime-handoff.md`, plus
-the shared `workflows/modes/_authoring.md` and `workflows/modes/_report.md`.
+`workflows/modes/e2e-ladder.md`, `workflows/modes/present.md`,
+`workflows/modes/runtime-handoff.md`, plus the shared
+`workflows/modes/_authoring.md` and `workflows/modes/_report.md`. The
+`present` mode also reads `workflows/deliverables/theme.yml`,
+`workflows/deliverables/slide-patterns.yml`, and
+`workflows/deliverables/deliverable-mappings.yml` (floor:
+`references/deliverables/`).
 
 ## Catalog Resolution
 
@@ -310,7 +320,7 @@ source):
 | `03-test` | `security-tests`, `story-test-plan`, `test-plan`, `test-procedures`, `test-suites`, `data-quality-expectations` |
 | `04-build` | `implementation-plan` |
 | `05-deploy` | `deployment-checklist`, `monitoring-setup`, `release-notes`, `runbook` |
-| `06-iterate` | `improvement-backlog`, `iteration-plan`, `metric-definition`, `metrics-dashboard`, `security-metrics`, `status-report` |
+| `06-iterate` | `deliverable`, `improvement-backlog`, `iteration-plan`, `metric-definition`, `metrics-dashboard`, `security-metrics`, `status-report` |
 
 Each type directory holds `template.md`, `prompt.md`, `meta.yml`, and an
 `example.md`. Concern slots and their shipped defaults live in

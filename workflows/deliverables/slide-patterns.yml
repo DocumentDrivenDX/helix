@@ -1,0 +1,173 @@
+# Slide patterns for HELIX deliverables.
+#
+# The present mode picks one pattern per unit of content. A pattern says when
+# it earns its place, what it may hold, what visual it needs, and how the
+# renderer should lay it out. Limits are hard limits: a unit that overflows a
+# pattern is two units, not a denser slide.
+#
+# Rules that apply to every pattern:
+#   - The title is a claim in the human-facing voice, never a label.
+#   - Reading only the titles must tell the story.
+#   - Every content slide carries a visual (chart, diagram, table, image, or
+#     a typographic stat); text-only content slides are a gate failure.
+#   - One idea per slide. Supporting detail goes to speaker notes.
+#   - Every number on the slide has a source in the script's Sources appendix.
+#   - Variety: no three consecutive slides of the same pattern; at most one
+#     stat-callout per section; a comparison or table at most every third
+#     slide.
+
+version: 1
+
+patterns:
+  - id: title
+    use_when: First slide of every deck.
+    holds: [deck title as the takeaway claim, subtitle naming audience and occasion, presenter and date]
+    limits: { title_words: 12, subtitle_words: 18 }
+    visual: Full-bleed brand surface in the primary hue or a single hero image; no bullets.
+    layout: Title lower-left third, subtitle beneath, presenter/date bottom-left in caption size.
+    avoid:
+      - "company logo as the only visual"
+      - "generic 'Overview' titles"
+
+  - id: agenda
+    use_when: Decks of 10 or more slides, or when the audience expects to know the ask timing.
+    holds: [3 to 5 section titles, each a claim, optionally with a time budget]
+    limits: { items: 5, words_per_item: 10 }
+    visual: Numbered list with the section rule motif; the current section highlighted when reused as a divider.
+    layout: Left column list, right column reserved for a one-line "what we need from you today".
+    avoid:
+      - "agenda items that are labels ('Background', 'Next steps')"
+
+  - id: section-divider
+    use_when: Between sections in decks of 12 or more slides.
+    holds: [section number, section claim title, one-sentence bridge]
+    limits: { title_words: 12, bridge_words: 25 }
+    visual: Dark surface (the dark/light sandwich) with the section rule motif.
+    layout: Large number top-left, title centered-left, bridge sentence below.
+    avoid:
+      - "dividers for sections of one slide"
+
+  - id: claim-evidence
+    use_when: The default content slide. A claim supported by two to four pieces of evidence.
+    holds: [claim title, 2 to 4 evidence bullets, one visual]
+    limits: { bullets: 4, words_per_bullet: 14, body_words: 60 }
+    visual: Required. A chart, diagram, screenshot, or table that shows the evidence; the bullets interpret it.
+    layout: Visual takes 55 to 60 percent of the width on one side; bullets on the other; no visual above bullets.
+    avoid:
+      - "bullets that restate the visual"
+      - "sub-bullets"
+      - "more than one visual"
+
+  - id: stat-callout
+    use_when: One number carries the slide's meaning (a result, a size, a change).
+    holds: [the number, its unit and direction, a one-line claim, the comparison baseline]
+    limits: { stats: 3, words_total: 30 }
+    visual: The number itself in stat_callout size, colored in the semantic hue (positive, negative, neutral).
+    layout: Number centered or left-aligned at 60 to 72 pt; claim beneath; baseline and source in caption size.
+    avoid:
+      - "more than three numbers"
+      - "decorative icons"
+      - "unsourced figures"
+
+  - id: two-column-comparison
+    use_when: Two options, before/after, current/proposed, or us/them.
+    holds: [two column headers as claims, 3 to 5 parallel rows, one verdict line]
+    limits: { rows: 5, words_per_cell: 12 }
+    visual: The two columns are the visual; a check/cross or color coding marks the preferred side.
+    layout: Equal columns with a thin divider; verdict line full-width beneath.
+    avoid:
+      - "three or more columns (use table)"
+      - "unequal row counts"
+
+  - id: table
+    use_when: Structured data with three or more dimensions the audience will read row by row.
+    holds: [claim title, a table of at most 6 columns by 7 rows, one highlighted cell or row]
+    limits: { columns: 6, rows: 7, words_per_cell: 8 }
+    visual: The table, with the surface_alt fill on the highlighted row and the border color on rules.
+    layout: Table full-width beneath the title; source in the footer.
+    avoid:
+      - "tables as bullet substitutes"
+      - "more than one highlight"
+      - "tiny type below 12 pt"
+
+  - id: timeline
+    use_when: Roadmaps, phases, iteration sequencing, or history.
+    holds: [claim title, 3 to 6 milestones with dates or horizons, the current position marker]
+    limits: { milestones: 6, words_per_milestone: 10 }
+    visual: A horizontal line with milestone markers in the primary hue; the present marked in the secondary hue.
+    layout: Timeline across the middle; labels alternate above and below to avoid collisions.
+    avoid:
+      - "more than six milestones"
+      - "day-level precision on a multi-quarter horizon"
+
+  - id: process-flow
+    use_when: How something works or will work, in steps.
+    holds: [claim title, 3 to 5 steps with a verb each, one caption on the step that matters most]
+    limits: { steps: 5, words_per_step: 8 }
+    visual: Chevron or node-and-arrow flow left to right in the primary hue; the key step in the secondary hue.
+    layout: Flow across the middle third; caption beneath the highlighted step.
+    avoid:
+      - "loops and branches (split into two slides)"
+      - "swimlanes with more than three lanes"
+
+  - id: quote
+    use_when: A customer, user, or stakeholder said it better than we can.
+    holds: [the quote, attribution with role, a one-line claim relating it to the story]
+    limits: { quote_words: 40 }
+    visual: "Typographic: the quote at subtitle size with a large opening mark in the accent hue."
+    layout: Quote centered-left occupying the middle; attribution beneath in muted; claim in the footer band.
+    avoid:
+      - "invented or composite quotes"
+      - "quotes without a named role"
+
+  - id: risk-matrix
+    use_when: Presenting risks with likelihood and impact, and the mitigation owner.
+    holds: [claim title, 3 to 6 risks plotted or tabled with likelihood, impact, and mitigation]
+    limits: { risks: 6, words_per_mitigation: 12 }
+    visual: A 2x2 or 3x3 grid with risks as labeled dots, or a table when mitigation text matters more than position.
+    layout: Grid on the left 55 percent, mitigations keyed by number on the right.
+    avoid:
+      - "risks without a mitigation"
+      - "red/green as the only encoding (use shape or label too)"
+
+  - id: ask-next-steps
+    use_when: The last content slide of every deck that seeks a decision or action.
+    holds: [the ask as a claim, 2 to 4 next steps each with an owner and a date, what happens if no decision]
+    limits: { steps: 4, words_per_step: 14 }
+    visual: Numbered steps with owner and date columns; the ask in a highlighted band.
+    layout: Ask band at the top in the secondary hue on surface_alt; steps beneath.
+    avoid:
+      - "'Questions?' slides"
+      - "steps without an owner"
+      - "thank-you slides"
+
+  - id: appendix-sources
+    use_when: Every deck; after the ask. Not presented, but present.
+    holds: [numbered sources mapping each cited figure or claim to a governing artifact section]
+    limits: { rows: 20, words_per_row: 20 }
+    visual: A two-column list (claim, source) in caption size.
+    layout: Plain list; may run to a second appendix slide.
+    avoid:
+      - "links without a section name"
+      - "sources the deck never cites"
+
+density:
+  words_per_content_slide_max: 60
+  bullets_per_slide_max: 5
+  consecutive_same_pattern_max: 2
+  stat_callouts_per_section_max: 1
+  slides_per_minute_of_talk: 0.5   # a 20-minute slot is at most 10 content slides
+
+story_spines:
+  - id: pyramid
+    use_when: Decisions and recommendations. Answer first.
+    order: [answer, three supporting reasons, evidence per reason, ask]
+  - id: situation-complication-resolution
+    use_when: Proposals and pitches.
+    order: [situation, complication, resolution, proof, ask]
+  - id: plan-actual-next
+    use_when: Status reviews and checkpoints.
+    order: [commitments, what happened with evidence, trades and blockers, next steps, asks]
+  - id: problem-solution-evidence
+    use_when: Product walkthroughs and demos.
+    order: [who and what hurts, what changes, proof it works, what it costs, ask]
