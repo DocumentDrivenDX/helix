@@ -98,3 +98,4 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 - [Research: Principles Injection Strategy Effectiveness](/artifacts/research-principles-injection-2026-04-05/)
 - [Security Metrics — HELIX 2026-Q2 (post-`v0.3.3`)](/artifacts/security-metrics/)
 - [decisions](/artifacts/decisions/) _(3 items)_
+- [deliverables](/artifacts/deliverables/) _(1 item)_

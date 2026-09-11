@@ -85,8 +85,9 @@ layout:
     max_words_one_pager: 450
 
 motif:
-  # One repeated visual device gives a deck identity. Default: a thin rule in
-  # the secondary hue under the section label (not under the title).
-  section_rule: { color: secondary, weight_pt: 2 }
+  # One repeated visual device gives a deck identity. Default: a numbered
+  # circle in the secondary hue beside each slide title. Never an accent line
+  # under a title or a color bar along an edge; those read as generated filler.
+  section_marker: { shape: circle, color: secondary, size_in: 0.55, font: display }
   slide_number: { position: bottom-right, size_pt: 10, color: muted }
   footer_source: { position: bottom-left, size_pt: 9, color: muted }

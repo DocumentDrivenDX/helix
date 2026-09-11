@@ -1,7 +1,7 @@
 ---
 title: "Research: Principles Injection Strategy Effectiveness"
 slug: research-principles-injection-2026-04-05
-weight: 1050
+weight: 1060
 activity: "Iterate"
 source: "06-iterate/research-principles-injection-2026-04-05.md"
 generated: true

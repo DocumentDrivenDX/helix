@@ -1,7 +1,7 @@
 ---
 title: "HELIX Prompt Iteration Protocol and Evaluation Rubric"
 slug: prompt-iteration-protocol
-weight: 1040
+weight: 1050
 activity: "Iterate"
 source: "06-iterate/prompt-iteration-protocol.md"
 generated: true
