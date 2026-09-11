@@ -1,7 +1,7 @@
 ---
 title: "Your agents can ship with the discipline your best teams already use"
 slug: DEL-001-helix-evaluation-deck
-weight: 1020
+weight: 480
 activity: "Iterate"
 source: "06-iterate/deliverables/DEL-001-helix-evaluation-deck.md"
 generated: true

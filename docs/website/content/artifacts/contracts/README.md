@@ -1,7 +1,7 @@
 ---
 title: "Contracts"
 slug: README
-weight: 380
+weight: 360
 activity: "Design"
 source: "02-design/contracts/README.md"
 generated: true

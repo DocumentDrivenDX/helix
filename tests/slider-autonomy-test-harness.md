@@ -497,7 +497,7 @@ Only semantic failures should directly drive changes to FEAT-011 / TD-011 behavi
 ## Relationship to Other Test Docs
 
 - `tests/prompt-engineering-harness.md` compares prompt variants using preserved bead attempts.
-- `docs/helix/06-iterate/prompt-iteration-protocol.md` defines the repeatable scoring rubric and decision loop for those experiments.
+- `docs/archive/helix/06-iterate/prompt-iteration-protocol.md` defines the repeatable scoring rubric and decision loop for those experiments.
 - `tests/scenarios/` provides reusable scenario fixtures.
 - `CONTRACT-001` defines the DDx / HELIX ownership split.
 - `CONTRACT-002` defines the execution-doc conventions that make required-execution and ratchet behavior discoverable.

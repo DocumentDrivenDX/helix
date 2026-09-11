@@ -80,7 +80,7 @@ template | content not already in runbook moves there
 
 ## References
 
-- [Plan: artifact-types-and-concerns audit (2026-05-30)](../plan-2026-05-30-artifact-types-and-concerns-audit.md)
+- [Plan: artifact-types-and-concerns audit (2026-05-30)](../../../archive/helix/02-design/plan-2026-05-30-artifact-types-and-concerns-audit.md)
 - [PRD](/home/erik/Projects/helix/docs/helix/01-frame/prd.md)
 - `workflows/activities/05-deploy/artifacts/monitoring-setup/template.md`
 - `workflows/activities/05-deploy/artifacts/runbook/template.md`

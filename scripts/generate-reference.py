@@ -198,10 +198,8 @@ HELIX_REAL_EXAMPLES = {
     "test-plan":             "docs/helix/03-test/test-plans/TP-014-helix-workflow-coverage.md",
     # Activity 4 — Build (no current instance; template-only)
     # Activity 5 — Deploy
-    "runbook":               "docs/helix/05-deploy/runbook.md",
     "deployment-checklist":  "docs/helix/05-deploy/deployment-checklist.md",
     "release-notes":         "docs/helix/05-deploy/release-notes.md",
-    "monitoring-setup":      "docs/helix/05-deploy/monitoring-setup.md",
     # Activity 6 — Iterate
     "improvement-backlog":   "docs/helix/06-iterate/improvement-backlog.md",
     "metrics-dashboard":     "docs/helix/06-iterate/metrics-dashboard.md",
@@ -228,10 +226,8 @@ HELIX_REAL_EXAMPLES_PUBLISHABLE = {
     "data-design",
     "security-architecture",
     "implementation-plan",
-    "runbook",
     "deployment-checklist",
     "release-notes",
-    "monitoring-setup",
     "improvement-backlog",
     "metrics-dashboard",
     "security-metrics",

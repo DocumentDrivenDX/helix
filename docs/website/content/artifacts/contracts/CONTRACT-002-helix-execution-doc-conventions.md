@@ -1,7 +1,7 @@
 ---
 title: "CONTRACT-002: HELIX Execution-Document Conventions"
 slug: CONTRACT-002-helix-execution-doc-conventions
-weight: 360
+weight: 340
 activity: "Design"
 source: "02-design/contracts/CONTRACT-002-helix-execution-doc-conventions.md"
 generated: true
@@ -222,7 +222,7 @@ execution:
   required: true
 metric:
   name: principles-injection-alignment
-  definition: docs/helix/06-iterate/metrics/principles-injection-alignment.yaml
+  definition: docs/archive/helix/06-iterate/metrics/principles-injection-alignment.yaml
 ```
 
 ### Ratchet-backed executions
