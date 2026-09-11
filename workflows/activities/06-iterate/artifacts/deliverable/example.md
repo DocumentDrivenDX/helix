@@ -18,7 +18,7 @@ ddx:
       kind: informed_by
 ---
 
-# A three-month pilot can win back reviewer hours at bookkeeping firms
+# A three-month pilot wins back reviewer hours
 
 ## Brief
 
@@ -49,15 +49,15 @@ ddx:
 
   | # | Beat | Title (claim) | Message | Exhibit |
   |---|---|---|---|---|
-  | 1 | takeaway | A three-month pilot can win back reviewer hours at bookkeeping firms | takeaway | title slide |
-  | 2 | recommendation | Approve a three-month pilot that shows reviewers the evidence behind each match | M2 | three-step process strip |
-  | 3 | opportunity | Firms spend $1.2B a year on deposit matching; $180M is reachable | M1 | two stat callouts |
+  | 1 | takeaway | A three-month pilot wins back reviewer hours | takeaway | title slide |
+  | 2 | recommendation | Approve a pilot that shows reviewers the evidence | M2 | three-step process strip |
+  | 3 | opportunity | Firms spend $1.2B a year on reviewers matching deposits | M1 | two stat callouts |
   | 4 | problem | Firms lose reviewer capacity to manual deposit matching every week | M1 | annotated spreadsheet |
   | 5 | alternatives | A CSV-first pilot tests reviewer trust faster than bank feeds | M2 | two-column comparison |
-  | 6 | investment | Year one costs $262,000; the pilot plan breaks even in month 18 | M3 | cost table with breakeven marker |
-  | 7 | risks | Three risks decide the pilot, and each one has a mitigation | M4 | risk grid |
+  | 6 | investment | The pilot costs $262,000 and breaks even in month 18 | M3 | cost table with breakeven marker |
+  | 7 | risks | Three risks decide the pilot, each with a mitigation | M4 | risk grid |
   | 8 | conditions | Two conditions gate any spend beyond the pilot | M4 | two condition cards |
-  | 9 | ask | Approve the pilot budget and name a pilot recruiter by month end | takeaway | ask band and steps |
+  | 9 | ask | Approve the pilot budget and name a recruiter | takeaway | ask band and steps |
   | 10 | sources | Sources | all | source table |
 
 - **Concept coverage** (every concept group the inventory surfaced, in authority order):
@@ -76,7 +76,7 @@ ddx:
 
 ## Content
 
-### 1. A three-month pilot can win back reviewer hours at bookkeeping firms
+### 1. A three-month pilot wins back reviewer hours
 
 **Pattern**: title
 **Body**:
@@ -85,7 +85,7 @@ ddx:
 **Notes**: Open with the takeaway sentence from the brief. Say up front that the ask comes on the last slide and takes two decisions.
 **Sources**: S1
 
-### 2. Approve a three-month pilot that shows reviewers the evidence behind each match
+### 2. Approve a pilot that shows reviewers the evidence
 
 **Pattern**: claim-evidence
 **Body**:
@@ -97,7 +97,7 @@ ddx:
 **Notes**: This is the answer-first slide. The rest of the deck supports it: the size of the problem, why this scope, what it costs, what could go wrong, and what we need today.
 **Sources**: S1, S2
 
-### 3. Firms spend $1.2B a year on deposit matching; $180M is reachable
+### 3. Firms spend $1.2B a year on reviewers matching deposits
 
 **Pattern**: stat-callout
 **Body**:
@@ -132,7 +132,7 @@ ddx:
 **Notes**: The alternatives table in the business case also rejects doing nothing for a quarter; mention it only if asked. The comparison is about what we learn fastest.
 **Sources**: S6
 
-### 6. Year one costs $262,000; the pilot plan breaks even in month 18
+### 6. The pilot costs $262,000 and breaks even in month 18
 
 **Pattern**: table
 **Body**:
@@ -143,7 +143,7 @@ ddx:
 **Notes**: Years two and three are in the appendix source; do not present them unless a partner asks. The three-year return figure depends on pricing we have not validated, so lead with the year-one number the committee approves.
 **Sources**: S7, S8
 
-### 7. Three risks decide the pilot, and each one has a mitigation
+### 7. Three risks decide the pilot, each with a mitigation
 
 **Pattern**: risk-matrix
 **Body**:
@@ -165,7 +165,7 @@ ddx:
 **Notes**: These are the conditions in the business case recommendation. They are the sponsor's protection against scope creep and the team's protection against building on unvalidated demand.
 **Sources**: S2, S10
 
-### 9. Approve the pilot budget and name a pilot recruiter by month end
+### 9. Approve the pilot budget and name a recruiter
 
 **Pattern**: ask-next-steps
 **Body**:

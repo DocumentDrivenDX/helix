@@ -90,6 +90,10 @@ which units). Voice: the `human-facing` profile in `voice.yml`.
    every content slide) and the time budget (`slides_per_minute_of_talk`,
    with the flow's `keep_when_short` order when the slot is tight). A unit
    that overflows its pattern's limits is two units, not a denser slide.
+   Vary the page: a run of claim-evidence slides alternates the visual's
+   side; a relationship (a stack, a loop, a hub) is a `diagram`, not a
+   bullet list; a pivot in the argument may be a `statement`; icons name
+   parts (a layer, a spoke, a column, a step) and never decorate.
 5. **Write the script** in the `deliverable` template with the
    `human-facing` voice: claim titles, bodies inside the pattern limits, a
    visual specification per unit (what the chart or diagram shows, its
@@ -107,19 +111,27 @@ which units). Voice: the `human-facing` profile in `voice.yml`.
    `title.slop` and `horizontal_logic` checks in `scripts/check-deliverable.py`
    name each offending title by rule: contrastive reversal, colon list,
    imperative chain, listicle, stacked negation, forced triplet, flattery,
-   aphorism, universal claim, over-length. Rewrite: each title is one
-   sentence with a subject, a verb, and one concrete noun, under 10 words
-   where possible, carrying the unit's number when the source states one,
-   saying what something does rather than what it is not; read the titles
-   aloud in order so each connects to its neighbor. Validate: re-run the pass
+   aphorism, universal claim, mannered phrase, inventory count, hedge,
+   over-length. Rewrite: each title is one sentence with a subject, a verb,
+   and one concrete noun, eight words or fewer where possible and never more
+   than ten (one line at title size); it carries the unit's number when that
+   number is an outcome the source states, and leaves catalog sizes (how
+   many templates, modes, hosts) to the body; no filler adverb; it says what
+   something does rather than what it is not. Read the titles aloud in order
+   so each connects to its neighbor. Validate: re-run the pass
    until it is clean and sync the titles-only list under `## Story` with the
    unit headings. A body written under a slop title inherits its shape, so
    titles are fixed first.
 6. **Theme.** Resolve palette and typography from the project's
-   `design-system` artifact when it declares them, else `theme.yml`. One hue
-   dominates; the secondary supports; the accent is rare. Charts follow the
-   theme's categorical order and the host's data-visualization rules when
-   available.
+   `design-system` artifact when it declares them, else `theme.yml`. Pick
+   the look by room and record it in the Brief: `editorial` (serif display,
+   dark ends, light content) for evaluation calls and board packs,
+   `technical` (one sans family, light throughout, square markers) for
+   engineering audiences, `bold` (dark throughout, the secondary hue leads)
+   for pitches and keynotes, `classic` (serif display, no marker shape) for
+   proposals and printed briefs. One hue dominates; the secondary supports;
+   the accent is rare. Charts follow the theme's categorical order and the
+   host's data-visualization rules when available.
 7. **Render.** Targets are equal: a slide file (`.pptx`) through the host's
    presentation tooling and a self-contained HTML page for the browser, each
    from the same script, plus a PDF whenever the host can export one. A

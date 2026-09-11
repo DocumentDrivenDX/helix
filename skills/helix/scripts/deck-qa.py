@@ -231,8 +231,8 @@ def check_slide(n: int, shapes: list[dict], W: float, H: float, add) -> None:
                 add(n, "BLOCKING", "text-collision", f"{label(a)} overlaps {label(b)}")
     for a in texts:
         for b in shapes:
-            if b is a or has_text(b) or b["kind"] == "line":
-                continue
+            if b is a or has_text(b) or b["kind"] == "line" or b["name"].startswith("guide"):
+                continue   # a shape named guide* is a decorative guide (a ring, a connector) that passes behind labels by design
             if overlap_area(a, b) > 0.05 and not contains(a, b) and not contains(b, a):
                 add(n, "WARNING", "text-crosses-shape", f"{label(a)} crosses the edge of {b['name']}")
         for ln in (s for s in shapes if s["kind"] == "line"):

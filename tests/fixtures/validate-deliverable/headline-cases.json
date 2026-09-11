@@ -2,82 +2,125 @@
   {
     "name": "deck_title_flattery",
     "headline": "Your agents can ship with the discipline your best teams already use",
-    "expected_rules": ["Flattery"]
+    "expected_rules": [
+      "Flattery",
+      "Length"
+    ]
   },
   {
     "name": "deck_title_trailing_is_not",
     "headline": "AI-assisted development is now the default, and the practice behind it is not",
-    "expected_rules": ["ContrastiveReversal", "Length"]
+    "expected_rules": [
+      "ContrastiveReversal",
+      "Length"
+    ]
   },
   {
     "name": "deck_title_colon_list_every_team",
     "headline": "Three failures repeat on every AI-assisted team: drift, local decisions, lost context",
-    "expected_rules": ["ColonList", "UniversalClaim"]
+    "expected_rules": [
+      "ColonList",
+      "Length",
+      "UniversalClaim"
+    ]
   },
   {
     "name": "deck_title_universal_teams_switch",
     "headline": "Teams switch when every change traces back to a governing document",
-    "expected_rules": ["UniversalClaim"]
+    "expected_rules": [
+      "Length",
+      "UniversalClaim"
+    ]
   },
   {
     "name": "deck_title_comma_not_a",
     "headline": "HELIX is a methodology you adopt, not a platform you join",
-    "expected_rules": ["ContrastiveReversal"]
+    "expected_rules": [
+      "ContrastiveReversal",
+      "Length"
+    ]
   },
   {
     "name": "deck_title_imperative_chain",
     "headline": "Write the brief, check alignment, plan the work, run it in your own factory",
-    "expected_rules": ["ImperativeChain", "Length"]
+    "expected_rules": [
+      "ImperativeChain",
+      "Length"
+    ]
   },
   {
     "name": "deck_title_listicle",
     "headline": "Five things change once the catalog and the alignment skill are in place",
-    "expected_rules": ["Listicle", "Length"]
+    "expected_rules": [
+      "Listicle",
+      "Length"
+    ]
   },
   {
     "name": "deck_title_hold_ourselves_to",
     "headline": "Fewer than 3 alignment findings per run is the health bar we hold ourselves to",
-    "expected_rules": ["Flattery", "Length"]
+    "expected_rules": [
+      "Flattery",
+      "Length"
+    ]
   },
   {
     "name": "deck_title_stacked_negation_triplet",
     "headline": "HELIX takes no runtime, no tracker, and no technology choice away from you",
-    "expected_rules": ["StackedNegation", "Triplet", "Length"]
+    "expected_rules": [
+      "StackedNegation",
+      "Triplet",
+      "Length"
+    ]
   },
   {
     "name": "deck_title_two_verb_ask_over_length",
     "headline": "Run HELIX on one project this quarter and measure the drift it catches",
-    "expected_rules": ["Length"]
+    "expected_rules": [
+      "Length"
+    ]
   },
   {
     "name": "colon_reveal",
     "headline": "The best part: it learns",
-    "expected_rules": ["ColonReveal"]
+    "expected_rules": [
+      "ColonReveal"
+    ]
   },
   {
     "name": "negative_listing_opener",
     "headline": "Not a tool, a method",
-    "expected_rules": ["ContrastiveReversal"]
+    "expected_rules": [
+      "ContrastiveReversal"
+    ]
   },
   {
     "name": "not_just_but",
     "headline": "Not just faster builds but fewer rollbacks",
-    "expected_rules": ["ContrastiveReversal"]
+    "expected_rules": [
+      "ContrastiveReversal"
+    ]
   },
   {
     "name": "less_more",
     "headline": "Less process, more shipping",
-    "expected_rules": ["ContrastiveReversal"]
+    "expected_rules": [
+      "ContrastiveReversal"
+    ]
   },
   {
     "name": "aphorism_is_the_new",
     "headline": "Documentation is the new code review",
-    "expected_rules": ["Aphorism"]
+    "expected_rules": [
+      "Aphorism"
+    ]
   },
   {
     "name": "aphorism_trailing_matters",
     "headline": "Only the drift you catch matters",
-    "expected_rules": ["Aphorism"]
+    "expected_rules": [
+      "Aphorism"
+    ]
   },
   {
     "name": "good_document_discipline",
@@ -131,12 +174,12 @@
   },
   {
     "name": "good_two_decisions_in_one_ask",
-    "headline": "Approve the pilot budget and name a pilot recruiter by month end",
+    "headline": "Approve the budget and name a recruiter by month end",
     "expected_rules": []
   },
   {
     "name": "good_number_with_thousands_comma",
-    "headline": "Year one costs $262,000; the pilot plan breaks even in month 18",
+    "headline": "Year one costs $262,000 and breaks even in month 18",
     "expected_rules": []
   },
   {
@@ -153,13 +196,20 @@
     "name": "headings_mode_unit_number_stripped",
     "mode": "headings",
     "text": "# Deck\n\n### 3. Three failures repeat on every AI-assisted team: drift, local decisions, lost context\n\n- HELIX is a methodology you adopt, not a platform you join\n",
-    "expected_rules": ["ColonList", "UniversalClaim"]
+    "expected_rules": [
+      "ColonList",
+      "Length",
+      "UniversalClaim"
+    ]
   },
   {
     "name": "all_lines_mode_reads_outline",
     "mode": "all-lines",
     "text": "1. Document discipline catches agent drift before review\n2. HELIX is a methodology you adopt, not a platform you join\n| table | row |\n",
-    "expected_rules": ["ContrastiveReversal"]
+    "expected_rules": [
+      "ContrastiveReversal",
+      "Length"
+    ]
   },
   {
     "name": "headings_mode_skips_fence_and_frontmatter",
@@ -170,12 +220,16 @@
   {
     "name": "mannered_earns_its_keep",
     "headline": "Documentation earns its keep on every review",
-    "expected_rules": ["Mannered"]
+    "expected_rules": [
+      "Mannered"
+    ]
   },
   {
     "name": "mannered_under_the_hood",
     "headline": "Under the hood, one table carries every transport",
-    "expected_rules": ["Mannered"]
+    "expected_rules": [
+      "Mannered"
+    ]
   },
   {
     "name": "mannered_literal_negative",
@@ -185,6 +239,51 @@
   {
     "name": "url_colon_negative",
     "headline": "Install from https://example.com/releases",
+    "expected_rules": []
+  },
+  {
+    "name": "inventory_count_ships_with",
+    "headline": "HELIX answers with 53 document templates across a seven-activity loop",
+    "expected_rules": [
+      "InventoryCount"
+    ]
+  },
+  {
+    "name": "inventory_count_routes_number_word",
+    "headline": "One skill routes twenty-one modes over those documents",
+    "expected_rules": [
+      "InventoryCount"
+    ]
+  },
+  {
+    "name": "inventory_negative_evidence_count",
+    "headline": "One alignment check found three drifted specs before coding",
+    "expected_rules": []
+  },
+  {
+    "name": "hedge_also",
+    "headline": "Every layer also yields documents people outside engineering read",
+    "expected_rules": [
+      "Hedge"
+    ]
+  },
+  {
+    "name": "hedge_simply",
+    "headline": "Alignment simply reads the documents",
+    "expected_rules": [
+      "Hedge"
+    ]
+  },
+  {
+    "name": "length_eleven_plus",
+    "headline": "Each document layer governs the next one, from vision down to code",
+    "expected_rules": [
+      "Length"
+    ]
+  },
+  {
+    "name": "good_ten_words_exactly",
+    "headline": "Each document layer governs the next, from vision to code",
     "expected_rules": []
   }
 ]

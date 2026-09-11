@@ -8,7 +8,7 @@ must contain.
 ## Before writing
 
 - Confirm the Brief fields: audience, occasion, decision sought, time slot or
-  page budget, kind, constraints, takeaway. At `low`/`medium` autonomy, ask
+  page budget, kind, constraints, look, takeaway. At `low`/`medium` autonomy, ask
   for missing fields in one message. At `high`, infer and record each
   inference under Assumptions and gaps. No audience or no decision sought
   means stop; there is nothing to present yet.

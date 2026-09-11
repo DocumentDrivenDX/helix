@@ -24,6 +24,7 @@ ddx:
 - **Time slot or page budget**: [minutes or pages]
 - **Kind**: [deck | one-pager | brief]
 - **Constraints**: [brand, confidentiality, house rules]
+- **Look**: [editorial | technical | bold | classic; the theme's font pairing, surfaces, and marker, chosen by room]
 - **Scope**: [paths or artifact ids the deliverable may draw on, for example docs/helix and workflows/README.md]
 - **Breadth**: [survey | deep-dive]
 - **Angle**: [the lens, or none]

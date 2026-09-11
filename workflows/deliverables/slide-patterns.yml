@@ -6,7 +6,8 @@
 # pattern is two units, not a denser slide.
 #
 # Rules that apply to every pattern:
-#   - The title is a claim in the human-facing voice, never a label.
+#   - The title is a claim in the human-facing voice, never a label: eight
+#     words or fewer where possible, ten at most, one line at title size.
 #   - Reading only the titles must tell the story.
 #   - Every content slide carries a visual (chart, diagram, table, image, or
 #     a typographic stat); text-only content slides are a gate failure.
@@ -14,7 +15,11 @@
 #   - Every number on the slide has a source in the script's Sources appendix.
 #   - Variety: no three consecutive slides of the same pattern; at most one
 #     stat-callout per section; a comparison or table at most every third
-#     slide.
+#     slide; at least one diagram or statement in every ten content slides.
+#   - Icons name things, never decorate: a panel, a spoke, a layer, a column
+#     header, or a step may carry one icon from the set in
+#     skills/helix/scripts/icons (named on the Visual line); a slide never
+#     carries an icon for its own sake.
 
 version: 1
 
@@ -22,7 +27,7 @@ patterns:
   - id: title
     use_when: First slide of every deck.
     holds: [deck title as the takeaway claim, subtitle naming audience and occasion, presenter and date]
-    limits: { title_words: 12, subtitle_words: 18 }
+    limits: { title_words: 10, subtitle_words: 18 }
     visual: Full-bleed brand surface in the primary hue or a single hero image; no bullets.
     layout: Title lower-left third, subtitle beneath, presenter/date bottom-left in caption size.
     avoid:
@@ -41,7 +46,7 @@ patterns:
   - id: section-divider
     use_when: Between sections in decks of 12 or more slides.
     holds: [section number, section claim title, one-sentence bridge]
-    limits: { title_words: 12, bridge_words: 25 }
+    limits: { title_words: 10, bridge_words: 25 }
     visual: Dark surface (the dark/light sandwich) with the section rule motif.
     layout: Large number top-left, title centered-left, bridge sentence below.
     avoid:
@@ -99,6 +104,27 @@ patterns:
     avoid:
       - "more than six milestones"
       - "day-level precision on a multi-quarter horizon"
+
+  - id: diagram
+    use_when: A figure carries the slide, showing how parts relate (a stack, a loop, a hub), or a short list that wants an icon per row.
+    holds: [claim title, one figure of 3 to 8 labeled parts, one caption on the part that matters most]
+    limits: { parts: 8, words_per_part: 8, body_words: 60 }
+    visual: "Required, full width, one of the diagram kinds in visual-specs.md: layer-stack, cycle, hub, icon-list, process-flow, timeline. Icons name the parts; the highlight sits on the part the title is about."
+    layout: Figure across the body area beneath the title; the body bullets supply each part's detail and do not render separately.
+    avoid:
+      - "figures with more than eight parts (split, or use a table)"
+      - "decorative icons that do not name their part"
+      - "two figures on one slide"
+
+  - id: statement
+    use_when: A pivot in the argument that one sentence carries, such as the takeaway restated, the category named, or the boundary drawn.
+    holds: [the claim as the title at display size, one supporting sentence, an optional source line]
+    limits: { title_words: 10, body_words: 40 }
+    visual: The type is the visual; the hero marker on the right carries one icon that names the claim.
+    layout: Title lower-left at 44 pt on the look's end surface, supporting line beneath, hero marker right.
+    avoid:
+      - "more than one statement per section"
+      - "a statement where the body would prove more than the title"
 
   - id: process-flow
     use_when: How something works or will work, in steps.

@@ -84,10 +84,48 @@ layout:
     columns: 1
     max_words_one_pager: 450
 
+looks:
+  # A look is a font pairing, a surface mode, a marker shape, and the hue that
+  # leads. The Brief's **Look** line picks one (the renderer's `--look` flag
+  # overrides); `default` applies otherwise. Every family renders true to
+  # width in PowerPoint, Keynote, Google Slides, and LibreOffice, so the QA
+  # raster is trustworthy. Choose by room, not by taste: `editorial` for
+  # evaluation calls and board packs, `technical` for engineering audiences
+  # and walkthroughs, `bold` for pitches and keynotes, `classic` for
+  # proposals and printed briefs.
+  default: editorial
+  editorial:
+    display: { family: Georgia, weight: 700 }
+    body: { family: Arial }
+    surfaces: sandwich      # dark title, dividers, statements, and ask; light content
+    marker: circle
+    dominant: primary
+  technical:
+    display: { family: Arial, weight: 700 }
+    body: { family: Arial }
+    surfaces: light         # light throughout; the type carries the contrast
+    marker: square
+    dominant: primary
+    scale: { slide_title: 34, deck_title: 44 }
+  bold:
+    display: { family: "Trebuchet MS", weight: 700 }
+    body: { family: Arial }
+    surfaces: dark          # dark throughout; hue fills stay saturated
+    marker: circle
+    dominant: secondary
+    scale: { slide_title: 38, deck_title: 48 }
+  classic:
+    display: { family: "Times New Roman", weight: 700 }
+    body: { family: Arial }
+    surfaces: light
+    marker: none            # numbers stand alone in the support hue
+    dominant: primary
+
 motif:
   # One repeated visual device gives a deck identity. Default: a numbered
   # circle in the secondary hue beside each slide title. Never an accent line
   # under a title or a color bar along an edge; those read as generated filler.
-  section_marker: { shape: circle, color: secondary, size_in: 0.55, font: display }
+  section_marker: { shape: circle, color: secondary, size_in: 0.55, font: display }   # shape follows the look's `marker`
+  icons: skills/helix/scripts/icons   # monochrome line icons named on Visual lines (`icons:`, `icon:`); see visual-specs.md
   slide_number: { position: bottom-right, size_pt: 10, color: muted }
   footer_source: { position: bottom-left, size_pt: 9, color: muted }

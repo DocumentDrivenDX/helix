@@ -19,7 +19,8 @@ mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
 RULES = {"contrastive reversal": "ContrastiveReversal", "colon list": "ColonList", "colon reveal": "ColonReveal",
          "imperative chain": "ImperativeChain", "listicle count": "Listicle", "stacked negation": "StackedNegation",
          "rule-of-three list": "Triplet", "flattery": "Flattery", "pseudo-aphorism": "Aphorism",
-         "universal claim": "UniversalClaim", "over-length": "Length", "mannered phrase": "Mannered"}
+         "universal claim": "UniversalClaim", "over-length": "Length", "mannered phrase": "Mannered",
+         "inventory count": "InventoryCount", "hedge": "Hedge"}
 def rules_for(title):
     out = set()
     for msg in mod.title_slop(title):

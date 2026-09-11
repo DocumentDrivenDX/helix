@@ -84,6 +84,21 @@ _APHORISM = [re.compile(p, re.I) for p in (
     r"\b(?:wins|matters|counts)\s*[.!]?$", r"\bat scale\s*[.!]?$", r"\bthe hard way\b", r"\bchanges everything\b",
     r"\bhere to stay\b", r"\bthe future of\b", r"\bwelcome to\b",
 )]
+_COUNT = (
+    r"(?:\d[\d,]*|a dozen|dozens|hundreds|thousands|"
+    r"(?:twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:-(?:one|two|three|four|five|six|seven|eight|nine))?|"
+    r"eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|"
+    r"two|three|four|five|six|seven|eight|nine|ten)"
+)
+_INVENTORY_VERBS = (
+    r"(?:with|has|have|had|offers?|ships?|includes?|provides?|contains?|routes?|spans?|across|covers?|"
+    r"supports?|brings?|delivers?|packs?|features?|comes with|made (?:up )?of|consists? of|bundles?|"
+    r"holds?|carries|carry|adds?|lists?|boasts?|totals?|comprises?)"
+)
+_HEDGES = re.compile(
+    r"\b(?:also|(?<!not )just|simply|really|actually|basically|essentially|arguably|perhaps|maybe|somewhat|"
+    r"quite|very|truly|genuinely|literally|surprisingly|frankly|honestly|fairly|rather|pretty)\b", re.I)
+_TITLE_MAX_WORDS, _TITLE_TARGET_WORDS = 10, 8
 _MANNERED = (  # vendored from sloptimizer assets/vale/styles/Sloptimizer/ManneredProse.yml; tests/validate-headline-sync.sh keeps it equal
     '\\bearns? (?:its|their) keep\\b',
     '\\b(?:a|the|one) (?:dial|knob|lever) worth (?:turning|pulling)\\b',
@@ -190,9 +205,15 @@ def title_slop(title: str) -> list[str]:
         if m:
             out.append(f"mannered phrase {m.group(0)!r}; say what you mean in plain words: the thing, the action, or the number")
             break
+    m = re.search(rf"\b{_INVENTORY_VERBS}\s+(?:(?:over|more than|about|nearly|some|up to|around|another)\s+)?{_COUNT}\s+(?:[\w-]+\s+){{0,2}}?[A-Za-z][\w-]*s\b", t, re.I)
+    if m:
+        out.append(f"inventory count {m.group(0)!r}; the size of the catalog is body, the title says what it does for the reader")
+    m = _HEDGES.search(t)
+    if m:
+        out.append(f"hedge {m.group(0)!r}; delete it, or scope the claim with a number")
     n = len(re.findall(r"[A-Za-z0-9$%][\w$%.,'’-]*", t))
-    if n > 12:
-        out.append(f"over-length ({n} words); aim under 10, hard stop 12")
+    if n > _TITLE_MAX_WORDS:
+        out.append(f"over-length ({n} words); aim for {_TITLE_TARGET_WORDS} or fewer, hard stop {_TITLE_MAX_WORDS}")
     return out
 
 
@@ -202,10 +223,10 @@ def content_words(title: str) -> set[str]:
     for w in re.findall(r"[a-z0-9]+", title.lower()):
         if w in _TITLE_STOPWORDS or len(w) < 3:
             continue
-        for suffix in ("ing", "es", "ed", "s"):
-            if len(w) > 4 and w.endswith(suffix):
-                w = w[: -len(suffix)]
-                break
+        if len(w) > 4 and w.endswith(("ing", "ed")):
+            w = w[:-3] if w.endswith("ing") else w[:-2]
+        elif len(w) > 4 and w.endswith("s"):
+            w = w[:-2] if w.endswith(("ses", "xes", "zes", "ches", "shes")) else w[:-1]   # gates -> gate, templates -> template
         out.add(w)
     return out
 

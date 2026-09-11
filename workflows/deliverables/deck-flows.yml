@@ -52,7 +52,7 @@ flows:
       - name: change
         answers: What has changed in the world that makes this urgent now?
         required: true
-        patterns: [claim-evidence, timeline]
+        patterns: [claim-evidence, timeline, statement]
         guidance: Name the shift before the product; the shift is why the audience should care.
       - name: problem
         answers: Who hurts because of that change, and what does it cost them today?
@@ -67,7 +67,7 @@ flows:
       - name: why-now
         answers: Why could this not have been built before?
         required: false
-        patterns: [claim-evidence, timeline]
+        patterns: [claim-evidence, timeline, statement]
         guidance: Merge into `change` when the budget is under 10 slides.
       - name: market
         answers: How big is the prize, counted from the bottom up?
@@ -77,7 +77,7 @@ flows:
       - name: product
         answers: What does it look like in the customer's hands?
         required: false
-        patterns: [claim-evidence, process-flow]
+        patterns: [claim-evidence, process-flow, diagram]
         guidance: One screenshot or one flow; the demo, not the feature list.
       - name: traction
         answers: What proof do you have that it works?
@@ -153,7 +153,7 @@ flows:
       - name: what-changed
         answers: What in your world makes the old way stop working?
         required: true
-        patterns: [claim-evidence, timeline]
+        patterns: [claim-evidence, timeline, statement]
         guidance: A change the audience already lives with; do not argue it, name it.
       - name: cost-of-today
         answers: What does the current way cost you, concretely?
@@ -163,12 +163,12 @@ flows:
       - name: what-it-is
         answers: What is the thing, in one picture and one sentence?
         required: true
-        patterns: [claim-evidence, process-flow]
+        patterns: [claim-evidence, process-flow, diagram]
         guidance: Category first (a method, a tool, a service), then the one picture that shows its shape.
       - name: how-it-works
         answers: What happens, step by step, when your team uses it?
         required: true
-        patterns: [process-flow, claim-evidence]
+        patterns: [process-flow, diagram, claim-evidence]
         guidance: Three to five steps with a verb each; mark the step that replaces the manual work.
       - name: what-changes
         answers: What is different for your team afterwards?
@@ -183,7 +183,7 @@ flows:
       - name: boundaries
         answers: What does it not do, and what stays yours?
         required: true
-        patterns: [claim-evidence, two-column-comparison]
+        patterns: [claim-evidence, two-column-comparison, statement]
         guidance: Answer the objection the audience is forming; non-goals are the strongest trust signal in this flow.
       - name: cost-and-risk
         answers: What does adopting cost, and what could go wrong?
@@ -250,7 +250,7 @@ flows:
       - name: variance
         answers: Where are we off, and why?
         required: true
-        patterns: [claim-evidence, two-column-comparison]
+        patterns: [claim-evidence, two-column-comparison, statement]
         guidance: Cause, not blame; each variance with what has already been done about it.
       - name: risks-and-blockers
         answers: What could stop the next period?
@@ -330,7 +330,7 @@ flows:
       - name: recommended-option
         answers: What exactly does the recommended option involve?
         required: true
-        patterns: [claim-evidence, process-flow]
+        patterns: [claim-evidence, process-flow, diagram]
         guidance: Scope and non-scope in the same breath; the mechanism in three to five steps.
       - name: return
         answers: What do we get back, and when?
@@ -410,7 +410,7 @@ flows:
       - name: walkthrough
         answers: What happens at each step, and what does the user see?
         required: true
-        patterns: [process-flow, claim-evidence]
+        patterns: [process-flow, diagram, claim-evidence]
         guidance: Two to four slides, one step each, screenshot or flow per slide, the result of the step in the title.
       - name: before-and-after
         answers: What changed for the user compared with the old way?
@@ -485,7 +485,7 @@ flows:
       - name: lowlights
         answers: What went wrong, and what is being done?
         required: true
-        patterns: [claim-evidence, two-column-comparison]
+        patterns: [claim-evidence, two-column-comparison, statement]
         guidance: Stated as plainly as the highlights; each with the action already taken and the owner.
       - name: financials
         answers: Where do cash, revenue, and runway stand?
@@ -500,7 +500,7 @@ flows:
       - name: strategic-questions
         answers: Where do we want the board's judgment?
         required: true
-        patterns: [claim-evidence, two-column-comparison]
+        patterns: [claim-evidence, two-column-comparison, statement]
         guidance: One to three questions with the options and management's view.
       - name: ask
         answers: What decisions or approvals do we need today?
@@ -555,12 +555,12 @@ flows:
       - name: what-changed
         answers: What happened that means the current path is not enough?
         required: true
-        patterns: [claim-evidence, timeline]
+        patterns: [claim-evidence, timeline, statement]
         guidance: The event or trend, with a date; the reason the session exists.
       - name: where-we-are-going
         answers: What does the better state look like, concretely?
         required: true
-        patterns: [claim-evidence, two-column-comparison]
+        patterns: [claim-evidence, two-column-comparison, statement]
         guidance: What could be, next to what is; a picture the team can describe back.
       - name: how-we-get-there
         answers: What is the plan, in phases?
