@@ -1,0 +1,606 @@
+# Deck flows for the HELIX present mode.
+#
+# One entry per occasion. A flow is the ordered list of beats a deck of that
+# kind needs, the question each beat answers, the slide patterns it may use
+# (ids from slide-patterns.yml), how the beats hand off to each other, what
+# to leave out, and the checklist the storyboard must pass. deck-craft.md
+# holds the reasoning and the sources; a reader should be able to storyboard
+# from this file alone.
+#
+# Conventions:
+#   - Beats are in deck order. `required: true` beats appear in every deck of
+#     the flow; optional beats appear when a message needs them and the
+#     budget allows.
+#   - `length_budget` counts content slides (title, agenda, and the sources
+#     appendix are not counted) at 0.5 slides per minute of talk, capped at
+#     12 without an explicit exception. `keep_when_short` is the beat order
+#     to keep when the budget is below the required count.
+#   - Every deck opens with the `title` pattern, closes with `ask-next-steps`
+#     followed by `appendix-sources`, and adds `agenda` at 10 or more slides.
+#   - Titles are claims, never labels. Read in order, the titles must form
+#     the argument (horizontal logic); each body must prove its title
+#     (vertical logic).
+#   - `legacy_spines` maps the story spine ids that deliverable-mappings.yml
+#     still names as `default_spine` to the flow that replaced them.
+
+version: 1
+
+legacy_spines:
+  pyramid: proposal
+  situation-complication-resolution: evaluation-briefing
+  plan-actual-next: executive-status
+  problem-solution-evidence: product-walkthrough
+
+flows:
+  - id: investor-pitch
+    purpose: Persuade an investor that the company is worth a next meeting or a check.
+    audience:
+      posture: Skeptical, pattern-matching against many other decks, deciding in the first minutes whether to keep listening.
+      decision: Take the next meeting, run diligence, or pass.
+    length_budget:
+      minutes_5: 3
+      minutes_10: 5
+      minutes_20: 10
+      minutes_30: 12
+      keep_when_short: [purpose, problem, solution, traction, ask]
+    beats:
+      - name: purpose
+        answers: What does this company do, in one sentence?
+        required: true
+        patterns: [title]
+        guidance: The title slide states the company purpose as a declarative claim, not a category label.
+      - name: change
+        answers: What has changed in the world that makes this urgent now?
+        required: true
+        patterns: [claim-evidence, timeline]
+        guidance: Name the shift before the product; the shift is why the audience should care.
+      - name: problem
+        answers: Who hurts because of that change, and what does it cost them today?
+        required: true
+        patterns: [claim-evidence, stat-callout, quote]
+        guidance: One named customer type, one concrete cost; no abstract pain.
+      - name: solution
+        answers: What do you do about it, and why is that different from what exists?
+        required: true
+        patterns: [claim-evidence, process-flow, two-column-comparison]
+        guidance: State the mechanism in the customer's words; save features for the product beat.
+      - name: why-now
+        answers: Why could this not have been built before?
+        required: false
+        patterns: [claim-evidence, timeline]
+        guidance: Merge into `change` when the budget is under 10 slides.
+      - name: market
+        answers: How big is the prize, counted from the bottom up?
+        required: true
+        patterns: [stat-callout, claim-evidence]
+        guidance: Customers times price, from your real target segment; one number on the slide, the arithmetic in the notes.
+      - name: product
+        answers: What does it look like in the customer's hands?
+        required: false
+        patterns: [claim-evidence, process-flow]
+        guidance: One screenshot or one flow; the demo, not the feature list.
+      - name: traction
+        answers: What proof do you have that it works?
+        required: true
+        patterns: [stat-callout, claim-evidence, quote]
+        guidance: The strongest single number, with its baseline and date; a customer quote if the number is early.
+      - name: business-model
+        answers: How do you make money, and from whom?
+        required: true
+        patterns: [claim-evidence, table]
+        guidance: Who pays, how much, how often; one line per revenue stream.
+      - name: competition
+        answers: Who else solves this, and why do you win?
+        required: true
+        patterns: [two-column-comparison, table]
+        guidance: Name real alternatives including doing nothing; the verdict line says why you win, not that they are bad.
+      - name: team
+        answers: Why are you the people to do this?
+        required: true
+        patterns: [claim-evidence]
+        guidance: Each person's one relevant proof, not a résumé.
+      - name: financials
+        answers: What happens to the numbers over the next 18 to 24 months?
+        required: false
+        patterns: [table, timeline]
+        guidance: Milestones the money buys; detailed projections go to the appendix.
+      - name: ask
+        answers: How much are you raising, for what, and what will be true when it is spent?
+        required: true
+        patterns: [ask-next-steps]
+        guidance: Amount, use of funds, milestones, and the next step with a date.
+      - name: sources
+        answers: Where does each figure come from?
+        required: true
+        patterns: [appendix-sources]
+        guidance: Every number on a slide maps to a source row.
+    transitions:
+      - The change slide raises "so who is affected"; the problem slide answers with a named customer and cost.
+      - The problem slide raises "what fixes it"; the solution slide answers with the mechanism.
+      - The solution slide raises "is that a business"; market, traction, and model answer in that order.
+      - Competition answers "why you and not them"; team answers "why you can execute"; the ask closes with the takeaway's words.
+    leave_out:
+      - Company history and founding story unless it is the traction.
+      - Feature lists; one product slide at most.
+      - Vanity metrics (signups without retention, press mentions).
+      - Detailed financial models; appendix only.
+      - Any term the investor would have to ask about.
+    checklist:
+      - Titles read in order state the case for the raise without the bodies.
+      - The market number is bottom-up and its arithmetic is in the notes.
+      - The traction slide holds one number with baseline and date.
+      - Competition names doing nothing as an alternative.
+      - The ask states amount, use, milestones, and the next step.
+      - Content slide count is within the budget for the slot.
+
+  - id: evaluation-briefing
+    purpose: Help a buyer or adopter decide whether to try a product or method on their own work.
+    audience:
+      posture: Interested but wary of switching cost; they will weigh the claim against what they already do and look for what it does not do.
+      decision: Run a bounded trial, adopt, or pass.
+    length_budget:
+      minutes_5: 3
+      minutes_10: 5
+      minutes_20: 10
+      minutes_30: 12
+      keep_when_short: [takeaway, cost-of-today, what-it-is, proof, ask]
+    beats:
+      - name: takeaway
+        answers: What will be true for you if you adopt this?
+        required: true
+        patterns: [title]
+        guidance: The title is the takeaway sentence in the audience's vocabulary; the subtitle names them and the occasion.
+      - name: what-changed
+        answers: What in your world makes the old way stop working?
+        required: true
+        patterns: [claim-evidence, timeline]
+        guidance: A change the audience already lives with; do not argue it, name it.
+      - name: cost-of-today
+        answers: What does the current way cost you, concretely?
+        required: true
+        patterns: [claim-evidence, stat-callout, quote]
+        guidance: Two or three failure modes the audience recognizes, each with the moment it shows up.
+      - name: what-it-is
+        answers: What is the thing, in one picture and one sentence?
+        required: true
+        patterns: [claim-evidence, process-flow]
+        guidance: Category first (a method, a tool, a service), then the one picture that shows its shape.
+      - name: how-it-works
+        answers: What happens, step by step, when your team uses it?
+        required: true
+        patterns: [process-flow, claim-evidence]
+        guidance: Three to five steps with a verb each; mark the step that replaces the manual work.
+      - name: what-changes
+        answers: What is different for your team afterwards?
+        required: true
+        patterns: [two-column-comparison, table]
+        guidance: Today on the left, after on the right, parallel rows; the verdict line names the biggest change.
+      - name: proof
+        answers: What evidence shows it works, and which numbers are still targets?
+        required: true
+        patterns: [stat-callout, claim-evidence, quote]
+        guidance: Results labeled as results, targets labeled as targets; never mix the two on one slide.
+      - name: boundaries
+        answers: What does it not do, and what stays yours?
+        required: true
+        patterns: [claim-evidence, two-column-comparison]
+        guidance: Answer the objection the audience is forming; non-goals are the strongest trust signal in this flow.
+      - name: cost-and-risk
+        answers: What does adopting cost, and what could go wrong?
+        required: false
+        patterns: [risk-matrix, table]
+        guidance: Time, people, and reversibility; each risk with its mitigation.
+      - name: ask
+        answers: What is the smallest reversible trial that would settle the question?
+        required: true
+        patterns: [ask-next-steps]
+        guidance: One project, one period, one measure to judge it by, owners and dates.
+      - name: sources
+        answers: Where does each claim come from?
+        required: true
+        patterns: [appendix-sources]
+        guidance: Every claim and figure maps to a governing document section.
+    transitions:
+      - What-changed raises "what does that cost me"; cost-of-today answers with the audience's own failure modes.
+      - Cost-of-today raises "what would fix it"; what-it-is answers in one picture, how-it-works shows the steps.
+      - How-it-works raises "so what changes for us"; what-changes answers with before and after.
+      - What-changes raises "prove it"; proof answers and separates results from targets.
+      - Proof raises "what is the catch"; boundaries answers with what it does not do.
+      - The ask repeats the takeaway's words and sizes the trial by the proof slide's measure.
+    leave_out:
+      - The author's architecture, roadmap, and internal vocabulary.
+      - Every capability; only the ones a message needs.
+      - Comparisons that disparage what the audience uses today.
+      - Targets presented as results.
+    checklist:
+      - Titles read in order move from the audience's problem to a trial they can say yes to.
+      - The what-it-is slide names the category before any capability.
+      - Proof labels every target as a target.
+      - Boundaries states at least two things the offering does not do.
+      - The ask names one project, one period, one measure, and owners.
+      - No body uses a term the audience would need defined.
+
+  - id: executive-status
+    purpose: Tell a steering committee or QBR audience where the work stands against plan and what they must decide.
+    audience:
+      posture: Time-poor, reading for variance and risk, deciding whether to intervene.
+      decision: Continue as planned, change scope or resources, or escalate.
+    length_budget:
+      minutes_5: 3
+      minutes_10: 5
+      minutes_20: 10
+      minutes_30: 12
+      keep_when_short: [headline, results, variance, decisions-needed, ask]
+    beats:
+      - name: headline
+        answers: In one sentence, where does the work stand?
+        required: true
+        patterns: [title]
+        guidance: State the overall condition and the one decision needed; no "Q3 update" titles.
+      - name: commitments
+        answers: What did we say we would deliver by now?
+        required: true
+        patterns: [table, timeline]
+        guidance: The plan of record as the committee last saw it; unchanged wording.
+      - name: results
+        answers: What happened against those commitments?
+        required: true
+        patterns: [table, stat-callout, claim-evidence]
+        guidance: Plan next to actual, one row per commitment; the one number that matters most gets the callout.
+      - name: variance
+        answers: Where are we off, and why?
+        required: true
+        patterns: [claim-evidence, two-column-comparison]
+        guidance: Cause, not blame; each variance with what has already been done about it.
+      - name: risks-and-blockers
+        answers: What could stop the next period?
+        required: true
+        patterns: [risk-matrix, table]
+        guidance: Three to six, each with owner and mitigation; blockers outside the team's control marked as such.
+      - name: decisions-needed
+        answers: What must this group decide today?
+        required: true
+        patterns: [two-column-comparison, claim-evidence]
+        guidance: Each decision with its options and the recommended one; a status deck without a decision is a report, not a meeting.
+      - name: next-period
+        answers: What will be true at the next review?
+        required: true
+        patterns: [timeline, table]
+        guidance: The next commitments in the same wording the next deck will repeat.
+      - name: ask
+        answers: What do you need from this group, by when?
+        required: true
+        patterns: [ask-next-steps]
+        guidance: The decisions above with owners and dates, and what happens without them.
+      - name: sources
+        answers: Where does each figure come from?
+        required: true
+        patterns: [appendix-sources]
+        guidance: Each figure maps to the status report or plan section it came from.
+    transitions:
+      - Commitments raise "did it happen"; results answer row by row.
+      - Results raise "why not"; variance answers per row that missed.
+      - Variance raises "what could go wrong next"; risks answer with owners.
+      - Risks raise "what do you need from us"; decisions-needed and the ask answer.
+      - Next-period restates the commitments the following deck will open with.
+    leave_out:
+      - Activity lists and effort narratives; outcomes only.
+      - Good news without a commitment it fulfils.
+      - Risks without an owner or mitigation.
+      - Detail behind any number; notes and appendix.
+    checklist:
+      - Titles read in order give the condition, the variance, and the decision.
+      - Every commitment row has a result row.
+      - Every variance names a cause and an action taken.
+      - At least one decision is asked of the group.
+      - Next-period commitments are worded so the next deck can reuse them.
+
+  - id: proposal
+    purpose: Win approval and resources for a course of action.
+    audience:
+      posture: Accountable for the spend, comparing this against alternatives and against doing nothing.
+      decision: Approve, approve with conditions, defer, or reject.
+    length_budget:
+      minutes_5: 3
+      minutes_10: 5
+      minutes_20: 10
+      minutes_30: 12
+      keep_when_short: [recommendation, complication, recommended-option, return, ask]
+    beats:
+      - name: recommendation
+        answers: What are you asking us to approve, and what do we get?
+        required: true
+        patterns: [title]
+        guidance: Answer first; the title is the recommendation and its main condition.
+      - name: situation
+        answers: What do we all already agree is true?
+        required: true
+        patterns: [claim-evidence, stat-callout]
+        guidance: One slide, only facts the audience accepts; it exists to set up the complication.
+      - name: complication
+        answers: What changed, or what is at stake if nothing changes?
+        required: true
+        patterns: [claim-evidence, stat-callout, timeline]
+        guidance: The cost of inaction, with a number and a date.
+      - name: options-considered
+        answers: What could we do, and why were the others set aside?
+        required: true
+        patterns: [table, two-column-comparison]
+        guidance: Two to four options including doing nothing, scored on the criteria the audience uses.
+      - name: recommended-option
+        answers: What exactly does the recommended option involve?
+        required: true
+        patterns: [claim-evidence, process-flow]
+        guidance: Scope and non-scope in the same breath; the mechanism in three to five steps.
+      - name: return
+        answers: What do we get back, and when?
+        required: true
+        patterns: [stat-callout, claim-evidence]
+        guidance: One return figure with its baseline and the date it lands; the model in the notes.
+      - name: cost
+        answers: What does it cost in money, people, and time?
+        required: true
+        patterns: [table, stat-callout]
+        guidance: Total cost of the option, phased if it is phased; no hidden run costs.
+      - name: risks
+        answers: What could make this fail, and what will we do about it?
+        required: true
+        patterns: [risk-matrix]
+        guidance: Three to six risks with likelihood, impact, and a named mitigation.
+      - name: plan
+        answers: What happens first, and when will we know it is working?
+        required: false
+        patterns: [timeline, process-flow]
+        guidance: Milestones with the first checkpoint the approver can use to stop it.
+      - name: ask
+        answers: What decision do you need today, and what happens without it?
+        required: true
+        patterns: [ask-next-steps]
+        guidance: The approval sought, the next steps with owners and dates, the cost of no decision.
+      - name: sources
+        answers: Where does each figure come from?
+        required: true
+        patterns: [appendix-sources]
+        guidance: Each figure maps to the business case or analysis section behind it.
+    transitions:
+      - The title states the answer; situation and complication explain why the question arose.
+      - Complication raises "what are the choices"; options-considered answers and points at the recommendation.
+      - Recommended-option raises "is it worth it"; return and cost answer in that order.
+      - Cost raises "what could go wrong"; risks answer with mitigations.
+      - The ask repeats the title's recommendation with the first checkpoint as the condition.
+    leave_out:
+      - Options nobody would choose, added to make the recommendation look good.
+      - Benefits that cannot be tied to a figure or a date.
+      - Implementation detail beyond the first checkpoint.
+      - Background the approver already has.
+    checklist:
+      - The title states the recommendation; a reader of titles alone can approve or reject.
+      - Doing nothing appears among the options with its cost.
+      - Return and cost are on separate slides with sourced figures.
+      - Every risk has a mitigation and an owner.
+      - The ask names the decision and what happens without it.
+
+  - id: product-walkthrough
+    purpose: Show what the product does in the user's terms so the audience can judge it against their own work.
+    audience:
+      posture: Curious and comparing against what they use; they want to see it, not hear about it.
+      decision: Try it, give feedback, or approve the next stage.
+    length_budget:
+      minutes_5: 3
+      minutes_10: 5
+      minutes_20: 10
+      minutes_30: 12
+      keep_when_short: [promise, who-and-pain, walkthrough, before-and-after, ask]
+    beats:
+      - name: promise
+        answers: What will the user be able to do after this?
+        required: true
+        patterns: [title]
+        guidance: The outcome for the user, not the product name.
+      - name: who-and-pain
+        answers: Who is the user, and what hurts in their day?
+        required: true
+        patterns: [claim-evidence, quote]
+        guidance: One named role, one recurring moment of friction.
+      - name: scenario
+        answers: What is the concrete job we are about to watch?
+        required: true
+        patterns: [claim-evidence]
+        guidance: One task with a start state and a finish state; the demo follows this exactly.
+      - name: walkthrough
+        answers: What happens at each step, and what does the user see?
+        required: true
+        patterns: [process-flow, claim-evidence]
+        guidance: Two to four slides, one step each, screenshot or flow per slide, the result of the step in the title.
+      - name: before-and-after
+        answers: What changed for the user compared with the old way?
+        required: true
+        patterns: [two-column-comparison, stat-callout]
+        guidance: Same task, old way and new way, one measure (time, steps, errors).
+      - name: proof-and-limits
+        answers: What do we know works, and where does it stop today?
+        required: true
+        patterns: [claim-evidence, table]
+        guidance: Evidence from real use next to the current limits; limits stated plainly build trust.
+      - name: whats-next
+        answers: What is coming, and when?
+        required: false
+        patterns: [timeline]
+        guidance: Three to six milestones; only when the audience decides on the roadmap.
+      - name: ask
+        answers: What do we want the audience to do with what they saw?
+        required: true
+        patterns: [ask-next-steps]
+        guidance: Try it, give feedback by a date, or approve the next stage; owners named.
+      - name: sources
+        answers: Where does each claim come from?
+        required: true
+        patterns: [appendix-sources]
+        guidance: Each claim maps to the design, release notes, or PR-FAQ section behind it.
+    transitions:
+      - Who-and-pain raises "show me"; scenario sets up the exact task; walkthrough shows it step by step.
+      - Each walkthrough title states the result of its step and sets up the next step.
+      - The last step raises "so what did that save"; before-and-after answers with one measure.
+      - Before-and-after raises "does it hold up"; proof-and-limits answers both halves.
+      - The ask asks for the smallest action that gets the audience using it.
+    leave_out:
+      - Architecture and implementation detail.
+      - Features the scenario does not touch.
+      - Superlatives; the measure on before-and-after does the work.
+      - Roadmap detail unless the audience decides on it.
+    checklist:
+      - Titles read in order tell the scenario from pain to result.
+      - Every walkthrough slide has a screenshot or flow and one step.
+      - Before-and-after uses one measure with a sourced figure.
+      - Limits are stated on the proof slide.
+      - The ask is an action the audience can take this week.
+
+  - id: board-update
+    purpose: Give a board the state of the company or program against plan and the questions that need its judgment.
+    audience:
+      posture: Fiduciary, reading ahead of the meeting, looking for what changed and what is being hidden.
+      decision: Approve, advise, or escalate; confirm the plan of record.
+    length_budget:
+      minutes_5: 3
+      minutes_10: 5
+      minutes_20: 10
+      minutes_30: 12
+      keep_when_short: [headline, scorecard, lowlights, risks, ask]
+    beats:
+      - name: headline
+        answers: In one sentence, how is the company or program doing against plan?
+        required: true
+        patterns: [title]
+        guidance: The condition and the one thing the board must weigh in on.
+      - name: scorecard
+        answers: How do the agreed metrics stand against plan?
+        required: true
+        patterns: [table]
+        guidance: The same metrics every meeting, plan and actual, the one that moved most highlighted.
+      - name: highlights
+        answers: What went right that the board should know about?
+        required: true
+        patterns: [claim-evidence, stat-callout]
+        guidance: Two or three, each tied to a scorecard row; no news without a number.
+      - name: lowlights
+        answers: What went wrong, and what is being done?
+        required: true
+        patterns: [claim-evidence, two-column-comparison]
+        guidance: Stated as plainly as the highlights; each with the action already taken and the owner.
+      - name: financials
+        answers: Where do cash, revenue, and runway stand?
+        required: false
+        patterns: [table, stat-callout]
+        guidance: Required for a company board; optional for a program board.
+      - name: risks
+        answers: What could change the plan before the next meeting?
+        required: true
+        patterns: [risk-matrix]
+        guidance: Top risks with likelihood, impact, and owner; new since last meeting marked.
+      - name: strategic-questions
+        answers: Where do we want the board's judgment?
+        required: true
+        patterns: [claim-evidence, two-column-comparison]
+        guidance: One to three questions with the options and management's view.
+      - name: ask
+        answers: What decisions or approvals do we need today?
+        required: true
+        patterns: [ask-next-steps]
+        guidance: Approvals sought, owners, dates, and what stays open without them.
+      - name: sources
+        answers: Where does each figure come from?
+        required: true
+        patterns: [appendix-sources]
+        guidance: Each figure maps to the status report, roadmap, or financial section it came from.
+    transitions:
+      - Headline states the condition; scorecard proves it row by row.
+      - Scorecard raises "what drove the moves"; highlights and lowlights answer, tied to rows.
+      - Lowlights raise "what else could go wrong"; risks answer with owners.
+      - Risks raise "where do you want our help"; strategic-questions and the ask answer.
+      - Send the deck ahead; the meeting starts from the strategic questions, not the scorecard.
+    leave_out:
+      - Operational detail below the scorecard's metrics.
+      - Highlights that are activity, not outcome.
+      - Anything the board saw last meeting, unless it changed.
+      - Surprises saved for the room.
+    checklist:
+      - Titles read in order give condition, causes, risks, and the board's questions.
+      - The scorecard uses the same metrics as the last deck.
+      - Lowlights are as specific as highlights and each has an owner.
+      - Every strategic question comes with management's recommendation.
+      - The deck reads standalone as a send-ahead.
+
+  - id: internal-alignment
+    purpose: Get a team to commit to a direction and know their part in it.
+    audience:
+      posture: Wanting to know what changes for them, wary of slogans, listening for what is expected and by when.
+      decision: Commit to the direction and start on their part.
+    length_budget:
+      minutes_5: 3
+      minutes_10: 5
+      minutes_20: 10
+      minutes_30: 12
+      keep_when_short: [why-we-are-here, where-we-are-going, how-we-get-there, what-it-means-for-you, ask]
+    beats:
+      - name: why-we-are-here
+        answers: What is this session for, in one sentence?
+        required: true
+        patterns: [title]
+        guidance: The destination as a claim about the team, not a project name.
+      - name: where-we-are
+        answers: What is true today that we all recognize?
+        required: true
+        patterns: [claim-evidence, stat-callout]
+        guidance: What is, stated plainly, including what is working; the team must see itself in it.
+      - name: what-changed
+        answers: What happened that means the current path is not enough?
+        required: true
+        patterns: [claim-evidence, timeline]
+        guidance: The event or trend, with a date; the reason the session exists.
+      - name: where-we-are-going
+        answers: What does the better state look like, concretely?
+        required: true
+        patterns: [claim-evidence, two-column-comparison]
+        guidance: What could be, next to what is; a picture the team can describe back.
+      - name: how-we-get-there
+        answers: What is the plan, in phases?
+        required: true
+        patterns: [timeline, process-flow]
+        guidance: Three to six milestones with the present marked; the next one in detail, the rest in outline.
+      - name: what-it-means-for-you
+        answers: What changes in each group's work, starting when?
+        required: true
+        patterns: [table, claim-evidence]
+        guidance: One row per team or role; what starts, what stops, what stays.
+      - name: how-we-will-know
+        answers: How will we tell it is working?
+        required: true
+        patterns: [stat-callout, table]
+        guidance: Two or three measures with today's value and the target date.
+      - name: ask
+        answers: What do we need from each of you this week?
+        required: true
+        patterns: [ask-next-steps]
+        guidance: The first concrete action per group, with owners and dates.
+      - name: sources
+        answers: Where does each claim come from?
+        required: true
+        patterns: [appendix-sources]
+        guidance: Each claim maps to the roadmap, vision, or iteration plan section behind it.
+    transitions:
+      - Where-we-are raises "so why change"; what-changed answers with the event.
+      - What-changed raises "change to what"; where-we-are-going answers with the picture.
+      - Where-we-are-going raises "how"; how-we-get-there answers with the phases.
+      - The plan raises "what about me"; what-it-means-for-you answers per group.
+      - How-we-will-know raises "what first"; the ask answers with this week's action.
+    leave_out:
+      - Slogans and value words without a concrete consequence.
+      - Organization charts unless roles change.
+      - Plan detail beyond the next milestone.
+      - Praise or blame for individuals.
+    checklist:
+      - Titles read in order move from what is to what could be to what each group does first.
+      - What-changed carries a date or an event, not a mood.
+      - Every group in the room has a row on what-it-means-for-you.
+      - Measures on how-we-will-know have today's value and a target date.
+      - The ask is this week's action per group with an owner.

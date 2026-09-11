@@ -159,15 +159,9 @@ density:
   slides_per_minute_of_talk: 0.5   # a 20-minute slot is at most 10 content slides
 
 story_spines:
-  - id: pyramid
-    use_when: Decisions and recommendations. Answer first.
-    order: [answer, three supporting reasons, evidence per reason, ask]
-  - id: situation-complication-resolution
-    use_when: Proposals and pitches.
-    order: [situation, complication, resolution, proof, ask]
-  - id: plan-actual-next
-    use_when: Status reviews and checkpoints.
-    order: [commitments, what happened with evidence, trades and blockers, next steps, asks]
-  - id: problem-solution-evidence
-    use_when: Product walkthroughs and demos.
-    order: [who and what hurts, what changes, proof it works, what it costs, ask]
+  # Narrative order lives in deck-flows.yml: one flow per occasion with the
+  # ordered beats, the question each answers, allowed patterns, length
+  # budgets, transition rules, and a checklist. deck-craft.md explains why.
+  # The spine ids that deliverable-mappings.yml still names as default_spine
+  # resolve through deck-flows.yml `legacy_spines`.
+  source: deck-flows.yml

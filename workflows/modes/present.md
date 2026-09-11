@@ -11,9 +11,11 @@ client-ready or customer-facing document, "make this presentable".
 
 Reference data (resolved via §Catalog Resolution, `deliverables/` in the
 bound catalog): `theme.yml` (palette, typography, layout limits),
-`slide-patterns.yml` (pattern catalog, density rules, story spines), and
-`deliverable-mappings.yml` (which sections of which source types feed which
-units). Voice: the `human-facing` profile in `voice.yml`.
+`slide-patterns.yml` (pattern catalog, density rules), `deck-flows.yml`
+(ordered beats, budgets, and transition rules per occasion),
+`deck-craft.md` (the reasoning behind the flows and the storyboard tests),
+and `deliverable-mappings.yml` (which sections of which source types feed
+which units). Voice: the `human-facing` profile in `voice.yml`.
 
 ## Contract
 
@@ -32,28 +34,60 @@ units). Voice: the `human-facing` profile in `voice.yml`.
    duplicates. Read every source section you project. Content the
    deliverable needs that no artifact holds (`gaps_to_ask`) becomes a
    question or a recorded assumption, never an invented fact.
-3. **Story spine.** Pick the spine by occasion (`story_spines` in
-   `slide-patterns.yml`): pyramid for decisions, situation-complication-
-   resolution for proposals, plan-actual-next for status, problem-solution-
-   evidence for walkthroughs. Write the one-sentence takeaway the audience
-   should leave with, then the claim titles that build to it. Reading only
-   the titles must tell the story; if it does not, rewrite the titles before
-   touching bodies.
-4. **Pattern selection.** Give each unit one pattern from
-   `slide-patterns.yml` by content shape, honoring the density rules (no
-   three consecutive units of one pattern, at most one stat callout per
-   section, a visual on every content slide) and the time budget
-   (`slides_per_minute_of_talk`). A unit that overflows its pattern's limits
-   is two units, not a denser slide.
+3. **Storyboard.** Choose the flow by occasion from `deck-flows.yml`
+   (`investor-pitch`, `evaluation-briefing`, `executive-status`, `proposal`,
+   `product-walkthrough`, `board-update`, `internal-alignment`); a
+   `default_spine` in `deliverable-mappings.yml` resolves through the file's
+   `legacy_spines` map. Then, before any body text:
+   - Distill. Write the one-sentence takeaway the audience should leave
+     with; the three to five messages that make it true, ranked by how much
+     each moves the audience's decision; and an evidence table with one row
+     per message naming the source sections and the figure, example, or
+     comparison each supplies. A message with no source section is a gap to
+     ask about or an assumption to record, not a message.
+   - Title every beat. One claim title per beat in the flow, each mapped to
+     a message, with a one-line note of the exhibit that will prove it.
+     Optional beats enter only when a message needs them; required beats no
+     source can fill become a question or a recorded assumption.
+   - Horizontal-logic test. Read the titles in order. Each title answers the
+     question the previous title raised and sets up the next; the last
+     content title is the ask in the takeaway's words; a reader of the
+     titles alone can state the argument and the decision. Rewrite titles
+     until it passes. Only then write bodies.
+   Record the flow, takeaway, messages with evidence, and the beat-to-title
+   table under `## Story`.
+4. **Pattern selection.** Give each unit one pattern from the beat's allowed
+   set in `deck-flows.yml`, chosen by content shape from
+   `slide-patterns.yml`, honoring the density rules (no three consecutive
+   units of one pattern, at most one stat callout per section, a visual on
+   every content slide) and the time budget (`slides_per_minute_of_talk`,
+   with the flow's `keep_when_short` order when the slot is tight). A unit
+   that overflows its pattern's limits is two units, not a denser slide.
 5. **Write the script** in the `deliverable` template with the
    `human-facing` voice: claim titles, bodies inside the pattern limits, a
    visual specification per unit (what the chart or diagram shows, its
    series and source, not just "chart"), speaker notes carrying the detail
    the slide omits, and a Sources appendix mapping every figure and claim to
-   a governing artifact section. Subset the sources when the audience needs
-   less; never contradict them. No HELIX vocabulary in bodies: artifact IDs,
-   activity names, work-item terms, and acceptance-criterion codes live only
-   in the Sources appendix and the frontmatter.
+   a governing artifact section. Each body proves its title and nothing
+   else; one number per beat, the rest in notes. Subset the sources when
+   the audience needs less; never contradict them. No HELIX vocabulary in
+   bodies: artifact IDs, activity names, work-item terms, and
+   acceptance-criterion codes live only in the Sources appendix and the
+   frontmatter.
+   Then run the titles through the headline pass before touching bodies
+   again. Detect: a prose tool with a headline target (Sloptimizer's
+   `slop-audit.sh --target headline`) or, on hosts without one, the
+   `title.slop` and `horizontal_logic` checks in `scripts/check-deliverable.py`
+   name each offending title by rule: contrastive reversal, colon list,
+   imperative chain, listicle, stacked negation, forced triplet, flattery,
+   aphorism, universal claim, over-length. Rewrite: each title is one
+   sentence with a subject, a verb, and one concrete noun, under 10 words
+   where possible, carrying the unit's number when the source states one,
+   saying what something does rather than what it is not; read the titles
+   aloud in order so each connects to its neighbor. Validate: re-run the pass
+   until it is clean and sync the titles-only list under `## Story` with the
+   unit headings. A body written under a slop title inherits its shape, so
+   titles are fixed first.
 6. **Theme.** Resolve palette and typography from the project's
    `design-system` artifact when it declares them, else `theme.yml`. One hue
    dominates; the secondary supports; the accent is rare. Charts follow the
@@ -67,12 +101,20 @@ units). Voice: the `human-facing` profile in `voice.yml`.
    under `## Render`. On a host with no rendering tooling, stop after the
    script and say which host can render it.
 8. **Pre-flight gate.** The deliverable is not done until every check
-   passes; a failure loops back to step 5 or 7, never to "good enough":
+   passes; a failure loops back to step 3, 5, or 7, never to "good enough":
    - Script checks (`scripts/check-deliverable.py <script>` beside this
      skill, or by hand on hosts without scripts): every unit has a claim
      title, a pattern, a visual, notes, and sources; no placeholder text; no
      HELIX vocabulary in bodies; word and bullet limits per pattern; density
      rules; every number in a body appears in Sources.
+   - Titles: the headline pass is clean (`title.slop` reports nothing) and
+     no consecutive titles fail `horizontal_logic`.
+   - Horizontal logic: re-run the titles-only read on the finished script;
+     the titles still form the argument and end in the ask. A failure goes
+     back to step 3.
+   - Vertical logic: every body proves its title with the evidence on the
+     slide, and every title is proven by its body. A title the body cannot
+     prove is rewritten to what the body proves, or the unit is cut.
    - Fidelity: each claim in the script traces to the cited source section
      and does not contradict it. Re-read the source for every stat callout.
    - Voice: the `human-facing` profile, checked with the host's prose lint
@@ -83,6 +125,8 @@ units). Voice: the `human-facing` profile in `voice.yml`.
    - File: the rendered file opens and validates with the host's checker
      (for `.pptx`, the presentation tooling's validator; for HTML, the page
      renders without console errors).
+   - Flow checklist: every item in the chosen flow's `checklist` in
+     `deck-flows.yml` holds.
 9. **Hand-off.** Save the script under the flow root (default
    `06-iterate/deliverables/DEL-<nnn>-<slug>.md`) with `ddx.links` to every
    source artifact and `authoring.export` pointing at the renders. Report:

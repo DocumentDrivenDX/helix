@@ -35,11 +35,11 @@ ddx:
 - **Spine**: pyramid
 - **Titles-only read**:
   1. A three-month pilot can win back reviewer hours at bookkeeping firms
-  2. Approve a bounded pilot: CSV import, evidence-backed matching, exception ownership
-  3. Reconciliation labor is a $1.2B problem, and $180M of it is within reach
+  2. Approve a three-month pilot that shows reviewers the evidence behind each match
+  3. Firms spend $1.2B a year on deposit matching; $180M is reachable
   4. Firms lose reviewer capacity to manual deposit matching every week
-  5. A CSV-first pilot beats integrating bank feeds first
-  6. Year one costs $262,000 and the plan breaks even in month 18
+  5. A CSV-first pilot tests reviewer trust faster than bank feeds
+  6. Year one costs $262,000; the pilot plan breaks even in month 18
   7. Three risks decide the pilot, and each one has a mitigation
   8. Two conditions gate any spend beyond the pilot
   9. Approve the pilot budget and name a pilot recruiter by month end
@@ -52,11 +52,11 @@ ddx:
 **Pattern**: title
 **Body**:
 - Investment review, prepared for the sponsor and approving partners
-**Visual**: full-bleed primary-hue surface with the deck title lower-left and the review date beneath
+**Visual**: kind: none. Full-bleed dark surface with the deck title lower-left, the hollow marker motif on the right, and the review date beneath
 **Notes**: Open with the takeaway sentence from the brief. Say up front that the ask comes on the last slide and takes two decisions.
 **Sources**: S1
 
-### 2. Approve a bounded pilot: CSV import, evidence-backed matching, exception ownership
+### 2. Approve a three-month pilot that shows reviewers the evidence behind each match
 
 **Pattern**: claim-evidence
 **Body**:
@@ -64,18 +64,18 @@ ddx:
 - Reviewers see the evidence behind every suggested match before approving it
 - Every exception has a named owner instead of a shared spreadsheet
 - Spend beyond the pilot waits for two measured conditions
-**Visual**: three-step process strip (import, review, own exceptions) drawn from the pilot scope in the business case, with the review step highlighted
+**Visual**: kind: process-flow | steps: Import; Review; Own exceptions | highlight: 2 | caption: reviewers see the evidence first. Three-step process strip drawn from the pilot scope in the business case, with the review step highlighted
 **Notes**: This is the answer-first slide. The rest of the deck supports it: the size of the problem, why this scope, what it costs, what could go wrong, and what we need today.
 **Sources**: S1, S2
 
-### 3. Reconciliation labor is a $1.2B problem, and $180M of it is within reach
+### 3. Firms spend $1.2B a year on deposit matching; $180M is reachable
 
 **Pattern**: stat-callout
 **Body**:
 - $1.2B spent yearly on reconciliation labor and tools across small firms
 - $180M of that sits in firms of the size we can serve
 - Both figures are planning assumptions until the research plan validates them
-**Visual**: two stat callouts, $1.2B in the primary hue and $180M in the secondary hue, baseline caption naming the firm counts behind each
+**Visual**: kind: stat | stats: $1.2B / spent yearly on reconciliation labor and tools across 60,000 small firms; $180M / within reach at the 9,000 firms of the size we can serve | label: planning assumption. Two stat callouts from the opportunity sizing, $1.2B in the primary hue and $180M in the secondary hue, the firm counts as baseline captions
 **Notes**: The total assumes 60,000 small bookkeeping firms spending about $20,000 a year each. The reachable slice is the 9,000 firms with five to twenty-five staff. Say plainly that confidence is low and that the pilot is partly how we raise it.
 **Sources**: S3, S4
 
@@ -87,11 +87,11 @@ ddx:
 - Matching happens across exports, bank statements, and email threads
 - Closing the spreadsheet throws away the evidence behind each match
 - Firm owners pay for saved time only when they can audit the result
-**Visual**: annotated screenshot of a typical matching spreadsheet with the three places evidence goes missing circled in the secondary hue
+**Visual**: kind: panels | items: Exports / matching happens across exports, bank statements, and email threads; Spreadsheet / closing it throws away the evidence behind each match; Audit / owners pay for saved time only when they can audit the result. Three panels standing in for the annotated matching-spreadsheet screenshot, each marking a place evidence goes missing
 **Notes**: Keep this to the lived experience; the sponsor knows the pain. The point is that time saved without an audit trail is not something a firm will pay for.
 **Sources**: S5
 
-### 5. A CSV-first pilot beats integrating bank feeds first
+### 5. A CSV-first pilot tests reviewer trust faster than bank feeds
 
 **Pattern**: two-column-comparison
 **Body**:
@@ -99,18 +99,18 @@ ddx:
 - Bank feeds first: stronger automation story; longer build, higher integration risk, slower learning
 - Spreadsheet templates: cheapest; keeps no evidence and does not reduce context switching
 - Verdict: CSV-first, because the open question is trust, not automation
-**Visual**: two columns headed "CSV-first pilot" and "Bank feeds first" with four parallel rows and the verdict line beneath; the preferred column carries the check mark
+**Visual**: kind: two-column | left: CSV-first pilot | right: Bank feeds first | rows: Learns about reviewer trust in weeks / Stronger automation story; Needs pilot recruiting and careful data handling / Longer build and higher integration risk; Answers the open question first / Slower learning about the open question | prefer: left | verdict: CSV-first, because the open question is trust, not automation. Two columns from the alternatives table in the business case with the check mark on the preferred column
 **Notes**: The alternatives table in the business case also rejects doing nothing for a quarter; mention it only if asked. The comparison is about what we learn fastest.
 **Sources**: S6
 
-### 6. Year one costs $262,000 and the plan breaks even in month 18
+### 6. Year one costs $262,000; the pilot plan breaks even in month 18
 
 **Pattern**: table
 **Body**:
 - Year one: $180,000 development, $12,000 infrastructure, $40,000 go-to-market, $30,000 operations
 - Year one revenue of $120,000 leaves a $142,000 shortfall we fund deliberately
 - Breakeven arrives in month 18 if pilot conversion and pricing hold
-**Visual**: four-row cost table for year one with the total row highlighted, and a small breakeven marker at month 18 in the footer
+**Visual**: kind: table | columns: Year one line / Amount | rows: Development / $180,000; Infrastructure / $12,000; Go-to-market / $40,000; Operations / $30,000; Total / $262,000 | highlight: 5. Five-row cost table for year one from the investment section with the total row highlighted; the month-18 breakeven stays in the body
 **Notes**: Years two and three are in the appendix source; do not present them unless a partner asks. The three-year return figure depends on pricing we have not validated, so lead with the year-one number the committee approves.
 **Sources**: S7, S8
 
@@ -121,7 +121,7 @@ ddx:
 - Exports vary too much: recruit pilots across three accounting systems, map per client
 - Reviewers distrust suggestions: show evidence before approval, require reviewer acceptance
 - Firms will not pay enough: validate willingness to pay before widening scope
-**Visual**: likelihood-by-impact grid with the three risks as numbered dots and the mitigations keyed by number on the right
+**Visual**: kind: risk-grid | risks: Exports vary too much / high / medium; Reviewers distrust suggestions / medium / high; Firms will not pay enough / medium / high. Likelihood-by-impact grid from the risk assessment with the three risks as numbered dots and the mitigations from the body keyed by number on the right
 **Notes**: The export-variability risk is the most likely and the one the recruiter can reduce before build starts, which is why the ask names a recruiter.
 **Sources**: S9
 
@@ -132,7 +132,7 @@ ddx:
 - Recruit at least five pilot firms before expanding beyond import and review
 - Measure median reconciliation time and suggestion accuracy during the first two months
 - A paid product waits until weekly reconciliation falls under 3 minutes per client
-**Visual**: two condition cards with a checkbox each and the 3-minute target as a small callout beneath
+**Visual**: kind: panels | items: Five pilot firms / recruited before expanding beyond import and review; Two measures / median reconciliation time and suggestion accuracy in the first two months. Two condition cards from the recommendation, with the 3-minute paid-product target in the body
 **Notes**: These are the conditions in the business case recommendation. They are the sponsor's protection against scope creep and the team's protection against building on unvalidated demand.
 **Sources**: S2, S10
 
@@ -144,7 +144,7 @@ ddx:
 - Name the partner who recruits five pilot firms, by month end
 - Product lead reports median reconciliation time at the two-month checkpoint
 - No decision today delays the pilot a full quarter and keeps firms in manual matching
-**Visual**: ask band in the secondary hue on the alternate surface, then three numbered steps with owner and date columns
+**Visual**: kind: none | owners: investment committee; a named partner; product lead | dates: today; month end; two-month checkpoint. Ask band in the secondary hue, then three numbered steps with owner and date columns filled from the body
 **Notes**: Stop talking after the ask. If the committee wants the three-year numbers, they are in the appendix source and the business case.
 **Sources**: S7, S10
 
@@ -153,7 +153,7 @@ ddx:
 **Pattern**: appendix-sources
 **Body**:
 - Every figure and claim above maps to a section of the business case or product vision listed below
-**Visual**: two-column source list in caption size, claim on the left, artifact section on the right
+**Visual**: kind: none. Two-column source list in caption size, claim on the left, artifact section on the right
 **Notes**: Not presented.
 **Sources**: S1
 

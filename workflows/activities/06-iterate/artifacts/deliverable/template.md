@@ -28,11 +28,21 @@ ddx:
 
 ## Story
 
-- **Spine**: [pyramid | situation-complication-resolution | plan-actual-next | problem-solution-evidence]
-- **Titles-only read**:
-  1. [unit 1 claim title]
-  2. [unit 2 claim title]
+- **Flow**: [flow id from deck-flows.yml, chosen by occasion]
+- **Takeaway**: [the sentence every title builds to; same words as the Brief]
+- **Messages** (three to five claims that make the takeaway true, ranked by the audience's decision; each with the source sections that prove it):
+  1. [message as a claim] (evidence: [path#section], [figure or example it supplies])
+  2. [message as a claim] (evidence: [path#section], [...])
   3. [...]
+- **Beats and titles** (one row per beat in the flow; titles written before any body):
+
+  | # | Beat | Title (claim) | Message | Exhibit |
+  |---|---|---|---|---|
+  | 1 | [beat name] | [claim title] | [M1] | [one line: what will prove the title] |
+  | 2 | [beat name] | [claim title] | [M2] | [...] |
+  | [n] | ask | [the ask as a claim] | [takeaway] | [ask band, steps with owners and dates] |
+
+- **Horizontal-logic test**: [pass, or the titles rewritten to make it pass: each title answers the question the previous one raised; the titles alone give the argument and the ask]
 
 ## Content
 
@@ -82,4 +92,4 @@ ddx:
 
 - **Theme**: [project design-system | deliverables/theme.yml]
 - **Targets**: [pptx path], [html path], [pdf path]
-- **Gate**: script checks [pass/fail with check ids], fidelity [pass], voice [pass], visual [every slide rendered to an image and inspected on <date>], file [validator result]
+- **Gate**: script checks [pass/fail with check ids], horizontal logic [pass], vertical logic [pass], fidelity [pass], voice [pass], visual [every slide rendered to an image and inspected on <date>], file [validator result]
