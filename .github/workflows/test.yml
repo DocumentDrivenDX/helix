@@ -25,6 +25,9 @@ jobs:
       - name: Validate deploy artifact graph
         run: bash tests/validate-deploy-artifacts.sh
 
+      - name: Validate headline rules stay in sync with sloptimizer
+        run: bash tests/validate-headline-sync.sh
+
       - name: Validate deliverable scripts
         run: bash tests/validate-deliverable.sh
 

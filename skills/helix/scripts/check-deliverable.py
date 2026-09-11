@@ -140,6 +140,9 @@ def title_slop(title: str) -> list[str]:
     m = re.search(rf"^{_GROUP_NOUNS}\s+{_GROUP_VERBS}\b", t, re.I) or re.search(rf"\b(?:every|all|any)\s+(?:[\w-]+\s+)?{_GROUP_NOUNS}\b", t, re.I)
     if m:
         out.append(f"universal claim {m.group(0)!r}; scope it to which teams, how many, measured where")
+    n = len(re.findall(r"[A-Za-z0-9$%][\w$%.,'’-]*", t))
+    if n > 12:
+        out.append(f"over-length ({n} words); aim under 10, hard stop 12")
     return out
 
 

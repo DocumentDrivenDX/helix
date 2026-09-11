@@ -1,0 +1,170 @@
+[
+  {
+    "name": "deck_title_flattery",
+    "headline": "Your agents can ship with the discipline your best teams already use",
+    "expected_rules": ["Flattery"]
+  },
+  {
+    "name": "deck_title_trailing_is_not",
+    "headline": "AI-assisted development is now the default, and the practice behind it is not",
+    "expected_rules": ["ContrastiveReversal", "Length"]
+  },
+  {
+    "name": "deck_title_colon_list_every_team",
+    "headline": "Three failures repeat on every AI-assisted team: drift, local decisions, lost context",
+    "expected_rules": ["ColonList", "UniversalClaim"]
+  },
+  {
+    "name": "deck_title_universal_teams_switch",
+    "headline": "Teams switch when every change traces back to a governing document",
+    "expected_rules": ["UniversalClaim"]
+  },
+  {
+    "name": "deck_title_comma_not_a",
+    "headline": "HELIX is a methodology you adopt, not a platform you join",
+    "expected_rules": ["ContrastiveReversal"]
+  },
+  {
+    "name": "deck_title_imperative_chain",
+    "headline": "Write the brief, check alignment, plan the work, run it in your own factory",
+    "expected_rules": ["ImperativeChain", "Length"]
+  },
+  {
+    "name": "deck_title_listicle",
+    "headline": "Five things change once the catalog and the alignment skill are in place",
+    "expected_rules": ["Listicle", "Length"]
+  },
+  {
+    "name": "deck_title_hold_ourselves_to",
+    "headline": "Fewer than 3 alignment findings per run is the health bar we hold ourselves to",
+    "expected_rules": ["Flattery", "Length"]
+  },
+  {
+    "name": "deck_title_stacked_negation_triplet",
+    "headline": "HELIX takes no runtime, no tracker, and no technology choice away from you",
+    "expected_rules": ["StackedNegation", "Triplet", "Length"]
+  },
+  {
+    "name": "deck_title_two_verb_ask_over_length",
+    "headline": "Run HELIX on one project this quarter and measure the drift it catches",
+    "expected_rules": ["Length"]
+  },
+  {
+    "name": "colon_reveal",
+    "headline": "The best part: it learns",
+    "expected_rules": ["ColonReveal"]
+  },
+  {
+    "name": "negative_listing_opener",
+    "headline": "Not a tool, a method",
+    "expected_rules": ["ContrastiveReversal"]
+  },
+  {
+    "name": "not_just_but",
+    "headline": "Not just faster builds but fewer rollbacks",
+    "expected_rules": ["ContrastiveReversal"]
+  },
+  {
+    "name": "less_more",
+    "headline": "Less process, more shipping",
+    "expected_rules": ["ContrastiveReversal"]
+  },
+  {
+    "name": "aphorism_is_the_new",
+    "headline": "Documentation is the new code review",
+    "expected_rules": ["Aphorism"]
+  },
+  {
+    "name": "aphorism_trailing_matters",
+    "headline": "Only the drift you catch matters",
+    "expected_rules": ["Aphorism"]
+  },
+  {
+    "name": "good_document_discipline",
+    "headline": "Document discipline catches agent drift before review",
+    "expected_rules": []
+  },
+  {
+    "name": "good_most_developers",
+    "headline": "Most developers now ship agent-written code every day",
+    "expected_rules": []
+  },
+  {
+    "name": "good_agent_code_drifts",
+    "headline": "Agent code drifts from its specs and decisions",
+    "expected_rules": []
+  },
+  {
+    "name": "good_helix_traces",
+    "headline": "HELIX traces every agent change to a governing document",
+    "expected_rules": []
+  },
+  {
+    "name": "good_helix_ships",
+    "headline": "HELIX ships document templates and one alignment skill",
+    "expected_rules": []
+  },
+  {
+    "name": "good_alignment_pass",
+    "headline": "One alignment pass finds three affected specs before coding",
+    "expected_rules": []
+  },
+  {
+    "name": "good_reviews_audit",
+    "headline": "Alignment reviews audit documents instead of chat transcripts",
+    "expected_rules": []
+  },
+  {
+    "name": "good_healthy_set",
+    "headline": "A healthy document set averages under 3 findings per run",
+    "expected_rules": []
+  },
+  {
+    "name": "good_runtime_you_own",
+    "headline": "HELIX runs on the runtime and tracker you own",
+    "expected_rules": []
+  },
+  {
+    "name": "good_pilot_ask",
+    "headline": "Pilot HELIX on one project this quarter",
+    "expected_rules": []
+  },
+  {
+    "name": "good_two_decisions_in_one_ask",
+    "headline": "Approve the pilot budget and name a pilot recruiter by month end",
+    "expected_rules": []
+  },
+  {
+    "name": "good_number_with_thousands_comma",
+    "headline": "Year one costs $262,000; the pilot plan breaks even in month 18",
+    "expected_rules": []
+  },
+  {
+    "name": "good_clock_time_colon",
+    "headline": "The 10:30 standup moves to 9:00 on Mondays",
+    "expected_rules": []
+  },
+  {
+    "name": "good_sourced_number",
+    "headline": "Q3 churn fell 12% after prebill review",
+    "expected_rules": []
+  },
+  {
+    "name": "headings_mode_unit_number_stripped",
+    "mode": "headings",
+    "text": "# Deck\n\n### 3. Three failures repeat on every AI-assisted team: drift, local decisions, lost context\n\n- HELIX is a methodology you adopt, not a platform you join\n",
+    "expected_rules": ["ColonList", "UniversalClaim"]
+  },
+  {
+    "name": "all_lines_mode_reads_outline",
+    "mode": "all-lines",
+    "text": "1. Document discipline catches agent drift before review\n2. HELIX is a methodology you adopt, not a platform you join\n| table | row |\n",
+    "expected_rules": ["ContrastiveReversal"]
+  },
+  {
+    "name": "headings_mode_skips_fence_and_frontmatter",
+    "mode": "headings",
+    "text": "---\ntitle: Not a tool, a method\n---\n```text\n# Not a tool, a method\n```\n## Reconciliation and schema drift\n",
+    "expected_rules": []
+  }
+]
