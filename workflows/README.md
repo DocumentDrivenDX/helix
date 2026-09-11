@@ -349,15 +349,14 @@ and reported back so follow-on work re-enters planning; *how* a runtime
 realizes that is its own concern.
 
 For the concrete commands of a specific integration, see its install guide
-under [`docs/install/`](../docs/install/):
+in [`docs/install/README.md`](../docs/install/README.md), which has a
+section per host (Claude Code, Codex, Copilot, Grok Build, Databricks
+Genie, DDx):
 
 - [`docs/install/ddx.md`](../docs/install/ddx.md) — DDx reference runtime
   (work-item tracker, execution loop, queue guard, model routing).
-- [`docs/install/claude-code.md`](../docs/install/claude-code.md),
-  [`docs/install/codex.md`](../docs/install/codex.md),
-  [`docs/install/copilot.md`](../docs/install/copilot.md),
-  [`docs/install/databricks-genie.md`](../docs/install/databricks-genie.md)
-  — the other supported runtimes.
+- [`docs/install/databricks-genie.md`](../docs/install/databricks-genie.md)
+  — the Databricks Genie deploy runbook.
 
 A runtime that provides a work-item store should govern items by the HELIX
 authority stack, have them cite the canonical artifacts that authorize the

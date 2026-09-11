@@ -38,7 +38,7 @@ cp -r /tmp/helix-src/skills/helix/* ~/.codex/skills/helix/
 
 Either way, Codex discovers the HELIX skill at session start. The full
 procedure, including updates, DDx symlinks, and Docker auth, is in the
-[GitHub install guide](https://github.com/DocumentDrivenDX/helix/blob/main/docs/install/codex.md).
+[GitHub install guide](https://github.com/DocumentDrivenDX/helix/blob/main/docs/install/README.md#openai-codex-cli).
 
 ## What the runtime must provide
 

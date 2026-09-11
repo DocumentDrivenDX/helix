@@ -381,7 +381,7 @@ The adapter boundary is healthy when all of the following are true:
 
 - [PRD](../../01-frame/prd.md) — R-4 (runtime-neutral), R-7 (per-runtime packages), Constraints
 - [Minimal Runtime Contract](../../../docs/install/README.md#minimal-runtime-contract)
-- [Claude Code install guide](../../../docs/install/claude-code.md)
+- [Install guide, Claude Code section](../../../docs/install/README.md#claude-code)
 - [Artifact Schema](../../../workflows/artifact-schema.md)
 - [Routing Skill](../../../skills/helix/SKILL.md)
 - [CONTRACT-001: DDx / HELIX Boundary Contract](CONTRACT-001-ddx-helix-boundary.md) — pre-collapse shared-object definitions, still authoritative for ddx work result surface

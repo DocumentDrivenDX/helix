@@ -1,7 +1,7 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable
+test: test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable
 
 # Serve the HELIX microsite at the canonical local review URL.
 website-serve:
@@ -26,6 +26,10 @@ test-plugin-catalog-resolution:
 # Validate generated Databricks Genie bundle layout and source/catalog sync
 test-genie-bundle:
     bash tests/validate-genie-bundle.sh
+
+# Validate install surfaces: manifests agree, one install guide, Copilot file is a pointer
+test-install-consistency:
+    bash tests/validate-install-consistency.sh
 
 # Validate Frame/TD artifacts do not define exact interface surfaces outside Contract
 test-surface-leakage:

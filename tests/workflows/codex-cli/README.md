@@ -16,7 +16,7 @@ Codex CLI supports two skill installation paths depending on installer version:
 - **Path A** (newer): `~/.codex/skills/helix/` (primary, [agentskills.io](https://agentskills.io) standard)
 - **Path B** (older): `~/.agents/skills/helix/` (legacy)
 
-The test harness checks both locations during skill installation and verifies the skill is discoverable at whichever path the installer chose. See [docs/install/codex.md:36](../../docs/install/codex.md) for version history.
+The test harness checks both locations during skill installation and verifies the skill is discoverable at whichever path the installer chose. See the [Codex CLI section of the install guide](../../docs/install/README.md#openai-codex-cli).
 
 ## Running the tests
 
@@ -97,11 +97,11 @@ cd tests/workflows/codex-cli/recordings
 vhs < INT-CX.tape
 ```
 
-Output: `INT-CX.gif` (committed to the repo, linked in [docs/install/codex.md](../../docs/install/codex.md))
+Output: `INT-CX.gif` (committed to the repo)
 
 ## See also
 
-- [docs/install/codex.md](../../docs/install/codex.md) — Codex CLI skill installation guide
+- [docs/install/README.md#openai-codex-cli](../../docs/install/README.md#openai-codex-cli) — Codex CLI install notes
 - [tests/workflows/claude-code/](../claude-code/) — Claude Code equivalent harness
 - [tests/install/codex-cli/](../../tests/install/codex-cli/) — Docker image definition
 - [skills/helix/SKILL.md](../../skills/helix/SKILL.md) — HELIX routing skill

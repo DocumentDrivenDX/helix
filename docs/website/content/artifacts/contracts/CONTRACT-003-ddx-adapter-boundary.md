@@ -395,7 +395,7 @@ The adapter boundary is healthy when all of the following are true:
 
 - [PRD](/artifacts/prd/) — R-4 (runtime-neutral), R-7 (per-runtime packages), Constraints
 - [Minimal Runtime Contract](https://github.com/DocumentDrivenDX/helix/blob/main/docs/install/README.md#minimal-runtime-contract)
-- [Claude Code install guide](https://github.com/DocumentDrivenDX/helix/blob/main/docs/install/claude-code.md)
+- [Install guide, Claude Code section](https://github.com/DocumentDrivenDX/helix/blob/main/docs/install/README.md#claude-code)
 - [Artifact Schema](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/artifact-schema.md)
 - [Routing Skill](https://github.com/DocumentDrivenDX/helix/blob/main/skills/helix/SKILL.md)
 - [CONTRACT-001: DDx / HELIX Boundary Contract](/artifacts/contracts/contract-001-ddx-helix-boundary/) — pre-collapse shared-object definitions, still authoritative for ddx work result surface

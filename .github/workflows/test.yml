@@ -37,6 +37,9 @@ jobs:
       - name: Validate generated Genie bundle
         run: bash tests/validate-genie-bundle.sh
 
+      - name: Validate install surfaces and Copilot pointer
+        run: bash tests/validate-install-consistency.sh
+
       - name: Validate demo session records
         run: bash tests/validate-demos.sh
 

@@ -40,7 +40,7 @@ helix  0.12.0   DocumentDrivenDX-helix
 Development and CI scenarios that need to test a local checkout before
 publishing can load it for one session with `claude --plugin-dir /path/to/helix`.
 That load does not persist past the session. The full procedure is in the
-[GitHub install guide](https://github.com/DocumentDrivenDX/helix/blob/main/docs/install/claude-code.md).
+[GitHub install guide](https://github.com/DocumentDrivenDX/helix/blob/main/docs/install/README.md#claude-code).
 
 ## What the runtime must provide
 

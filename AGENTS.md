@@ -109,10 +109,10 @@ Key plugin files:
 
 ### Other runtimes
 
-Per-runtime install guides live under `docs/install/` (DDx, Claude Code,
-Codex, Copilot, Databricks Genie, Grok). For working on HELIX itself, the
-project-local `.agents/skills` and `.claude/skills` entries are symlinks to
-`skills/`, so edits are live immediately.
+The install guide is `docs/install/README.md`, with a section per host (DDx,
+Claude Code, Codex, Copilot, Databricks Genie, Grok). For working on HELIX
+itself, the project-local `.agents/skills` and `.claude/skills` entries are
+symlinks to `skills/`, so edits are live immediately.
 
 ## Demo Recording
 
