@@ -166,5 +166,25 @@
     "mode": "headings",
     "text": "---\ntitle: Not a tool, a method\n---\n```text\n# Not a tool, a method\n```\n## Reconciliation and schema drift\n",
     "expected_rules": []
+  },
+  {
+    "name": "mannered_earns_its_keep",
+    "headline": "Documentation earns its keep on every review",
+    "expected_rules": ["Mannered"]
+  },
+  {
+    "name": "mannered_under_the_hood",
+    "headline": "Under the hood, one table carries every transport",
+    "expected_rules": ["Mannered"]
+  },
+  {
+    "name": "mannered_literal_negative",
+    "headline": "One typed table carries every transport",
+    "expected_rules": []
+  },
+  {
+    "name": "url_colon_negative",
+    "headline": "Install from https://example.com/releases",
+    "expected_rules": []
   }
 ]

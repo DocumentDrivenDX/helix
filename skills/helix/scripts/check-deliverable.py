@@ -84,6 +84,51 @@ _APHORISM = [re.compile(p, re.I) for p in (
     r"\b(?:wins|matters|counts)\s*[.!]?$", r"\bat scale\s*[.!]?$", r"\bthe hard way\b", r"\bchanges everything\b",
     r"\bhere to stay\b", r"\bthe future of\b", r"\bwelcome to\b",
 )]
+_MANNERED = (  # vendored from sloptimizer assets/vale/styles/Sloptimizer/ManneredProse.yml; tests/validate-headline-sync.sh keeps it equal
+    '\\bearns? (?:its|their) keep\\b',
+    '\\b(?:a|the|one) (?:dial|knob|lever) worth (?:turning|pulling)\\b',
+    '\\b(?:dials|knobs|levers) (?:to|worth) (?:turn|pull|turning|pulling)\\b',
+    '\\bpulls? (?:its|their|his|her) (?:own )?weight\\b',
+    '\\bpunch(?:es)? above (?:its|their) weight\\b',
+    '\\b(?:do|does|did|doing) (?:the|all the|most of the) heavy lifting\\b',
+    '\\b(?:is|are|was|were) doing (?:a lot of|most of the|the real|all the) work\\b',
+    '\\bmoves? the needle\\b',
+    '\\blow-hanging fruit\\b',
+    '\\btable stakes\\b',
+    '\\bnorth star\\b',
+    '\\bsilver bullet\\b',
+    '\\bsecret sauce\\b',
+    '\\bunder the hood\\b',
+    '\\bdouble-edged sword\\b',
+    '\\bcuts both ways\\b',
+    '\\ba tale of two\\b',
+    "\\bthe lion(?:'|’)s share\\b",
+    '\\bboils? down to\\b',
+    '\\bthe elephant in the room\\b',
+    '\\bthe beating heart of\\b',
+    '\\ba breath of fresh air\\b',
+    '\\bthrough the lens of\\b',
+    '\\bat the intersection of\\b',
+    '\\bfirst-class citizen\\b',
+    '\\bin lockstep\\b',
+    '\\bwears? (?:two|many|several|multiple) hats\\b',
+    '\\bpaints? a (?:clear |vivid |fuller |complete )?picture\\b',
+    '\\bthe wheels (?:come|came|fall|fell) off\\b',
+    '\\bload-bearing (?:assumption|claim|idea|sentence|word|phrase|question|decision|detail|premise|distinction)\\b',
+    '\\bthe connective tissue (?:of|between)\\b',
+    '\\bthe glue that holds\\b',
+    '\\bthe plumbing (?:of|behind|underneath)\\b',
+    '\\bthe scaffolding (?:of|for|around)\\b',
+    '\\bthe engine (?:of|behind|driving)\\b',
+    '\\bshine[sd]? a light on\\b',
+    '\\bpeel(?:s|ing)? back the (?:layers|curtain|onion)\\b',
+    '\\bthe tip of the iceberg\\b',
+    '\\bthe missing piece of the puzzle\\b',
+    '\\ba (?:seat|place) at the table\\b',
+    '\\bat a crossroads\\b',
+    '\\bthe (?:road|path) ahead\\b',
+    '\\bfull circle\\b',
+)
 _TITLE_STOPWORDS = {
     "a", "an", "the", "and", "or", "but", "of", "to", "in", "on", "at", "by", "for", "with", "from", "into", "than",
     "that", "this", "these", "those", "it", "its", "is", "are", "was", "were", "be", "been", "as", "if", "when",
@@ -102,7 +147,7 @@ def title_slop(title: str) -> list[str]:
         if m:
             out.append(f"contrastive reversal {m.group(0).strip()!r}; state the positive claim")
             break
-    m = re.search(r"(?<!\d):(?!\d)\s*(.+)$", t)
+    m = re.search(r"(?<!\d):(?!\d|//)\s*(.+)$", t)
     if m and m.group(1).strip():
         items = [i for i in re.split(r",\s+|\s+(?:and|or)\s+", m.group(1)) if i.strip()]
         if len(items) >= 2:
@@ -140,6 +185,11 @@ def title_slop(title: str) -> list[str]:
     m = re.search(rf"^{_GROUP_NOUNS}\s+{_GROUP_VERBS}\b", t, re.I) or re.search(rf"\b(?:every|all|any)\s+(?:[\w-]+\s+)?{_GROUP_NOUNS}\b", t, re.I)
     if m:
         out.append(f"universal claim {m.group(0)!r}; scope it to which teams, how many, measured where")
+    for pat in _MANNERED:
+        m = re.search(pat, t, re.I)
+        if m:
+            out.append(f"mannered phrase {m.group(0)!r}; say what you mean in plain words: the thing, the action, or the number")
+            break
     n = len(re.findall(r"[A-Za-z0-9$%][\w$%.,'’-]*", t))
     if n > 12:
         out.append(f"over-length ({n} words); aim under 10, hard stop 12")

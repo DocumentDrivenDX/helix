@@ -19,7 +19,7 @@ mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
 RULES = {"contrastive reversal": "ContrastiveReversal", "colon list": "ColonList", "colon reveal": "ColonReveal",
          "imperative chain": "ImperativeChain", "listicle count": "Listicle", "stacked negation": "StackedNegation",
          "rule-of-three list": "Triplet", "flattery": "Flattery", "pseudo-aphorism": "Aphorism",
-         "universal claim": "UniversalClaim", "over-length": "Length"}
+         "universal claim": "UniversalClaim", "over-length": "Length", "mannered phrase": "Mannered"}
 def rules_for(title):
     out = set()
     for msg in mod.title_slop(title):
@@ -50,6 +50,26 @@ if [[ -n "$upstream" ]]; then
     fail "vendored headline-cases.json differs from $upstream; copy it over, update .SOURCE, and make title_slop agree"
   fi
   echo "vendored fixture matches upstream: $upstream"
+  mannered="$(dirname "$upstream")/../../assets/vale/styles/Sloptimizer/ManneredProse.yml"
+  if [[ -f "$mannered" ]]; then
+    python3 - "$repo_root/skills/helix/scripts/check-deliverable.py" "$mannered" <<'PYEOF' || fail "_MANNERED in check-deliverable.py differs from sloptimizer's ManneredProse.yml tokens; re-vendor the list"
+import importlib.util, sys
+spec = importlib.util.spec_from_file_location("cd", sys.argv[1]); mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+tokens, intok = [], False
+for raw in open(sys.argv[2], encoding="utf-8").read().splitlines():
+    line = raw.strip()
+    if not raw.startswith((" ", "-")) and line.endswith(":"):
+        intok = line == "tokens:"; continue
+    if intok and line.startswith("- "):
+        t = line[2:].strip()
+        if t[0] == t[-1] and t[0] in "'\"":
+            t = t[1:-1].replace("''", "'") if t[0] == "'" else t[1:-1]
+        tokens.append(t)
+if list(mod._MANNERED) != tokens:
+    print(f"port has {len(mod._MANNERED)} tokens, upstream has {len(tokens)}", file=sys.stderr); sys.exit(1)
+print(f"mannered token list matches upstream ({len(tokens)} tokens)")
+PYEOF
+  fi
 else
   echo "sloptimizer source not present; skipped byte comparison (see $(basename "$source_note"))"
 fi

@@ -4,5 +4,6 @@
 # agree on every case in this file. To re-sync: copy the upstream file over
 # headline-cases.json, update the three lines below, and make title.slop agree.
 upstream_path=skills/sloptimizer/tests/fixtures/headline-cases.json
-upstream_commit=eb13ce6
-sha256=dd5138b40136f1fd0440048e3092ffa8043765499eb470b0898b18bee8202924
+mannered_tokens=skills/sloptimizer/assets/vale/styles/Sloptimizer/ManneredProse.yml
+upstream_commit=3c5f4cd
+sha256=98f9ae2ec2b488eedf7706ebfe9c490ce5fec5b48fe5324a8e1a3be3735d5aa6
