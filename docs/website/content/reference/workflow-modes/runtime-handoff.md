@@ -1,11 +1,11 @@
 ---
 title: "Runtime Handoff"
 slug: runtime-handoff
-weight: 140
+weight: 200
 generated: true
 ---
 
-Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/helix/blob/main/skills/helix/SKILL.md), the HELIX skill. Edit the skill, not this page.
+Generated from [`workflows/modes/runtime-handoff.md`](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/modes/runtime-handoff.md), the mode contract the HELIX skill loads. Edit that file, not this page.
 
 Use when a workflow mode concludes that the next step is execution, source
 control, packaging, or a long-lived operator loop. HELIX does not own those

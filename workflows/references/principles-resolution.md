@@ -92,7 +92,7 @@ Selective injection is appropriate when:
 | Polish / refinement | Make Intent Explicit, Prefer Reversible Decisions |
 | Frame / requirements | Design for Change, Make Intent Explicit |
 
-*Evidence*: See `docs/helix/06-iterate/research-principles-injection-2026-04-05.md`
+*Evidence*: See `docs/archive/helix/06-iterate/research-principles-injection-2026-04-05.md`
 
 ## Bootstrap in frame mode
 

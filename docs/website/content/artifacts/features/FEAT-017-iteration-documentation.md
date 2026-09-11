@@ -214,8 +214,7 @@ next plan, closing the 06-iterate loop.
 - **Lifecycle**: the 06-iterate entry gate (deployed, monitored system)
   gates the metric-loop artifacts only; the human cadence pair is exempt —
   a project's first iteration plan precedes any deployment. Recorded in
-  the activity's GATE.yaml scope note, README "Human cadence pair", and
-  `workflows/state-machine.yaml`.
+  the activity's GATE.yaml scope note and README "Human cadence pair".
 - **Ownership boundary**: `metrics-dashboard` keeps measurement
   interpretation; `status-report` owns commitment accounting against the
   plan and cites dashboard readings rather than re-deriving them

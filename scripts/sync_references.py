@@ -13,6 +13,10 @@ package-local `references/` directory:
     workflows/activities/  -> references/activities/   (templates/prompts/examples)
     workflows/voice.yml    -> references/voice.yml
     workflows/concerns/    -> references/concerns/
+    workflows/modes/       -> references/modes/       (mode contracts)
+    workflows/actions/     -> references/actions/     (action procedures)
+    workflows/templates/   -> references/templates/   (report templates)
+    workflows/deliverables/-> references/deliverables/ (theme, slide patterns, mappings)
 
 Single source of truth: edit under `workflows/`, regenerate graph.yml
 (scripts/generate_graph.py), then build/validate the plugin package. Drift
@@ -42,6 +46,10 @@ FILES = [
 TREES = [
     ("workflows/activities", "activities"),
     ("workflows/concerns", "concerns"),
+    ("workflows/modes", "modes"),
+    ("workflows/actions", "actions"),
+    ("workflows/templates", "templates"),
+    ("workflows/deliverables", "deliverables"),
 ]
 
 

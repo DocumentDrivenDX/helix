@@ -18,7 +18,7 @@
       "(?i)pick (one|a methodology)",
       "(?i)HELIX_METHODOLOGY",
       "(?i)\\.helix\\.yml",
-      "(?i)init-marker"
+      "(?i)\\.helix\\.yml marker"
     ]
   },
   "rationale": "Flow classification: Legacy heuristic fallback fixture for retired public helix-infra skill. Marker absent + both signals present → frozen heuristic fallback's tie-break MUST surface a disambiguation banner naming BOTH methodologies (bare 'helix' via negative-lookaround) and offer the marker as the fix. NO markdown Write before disambiguation.",

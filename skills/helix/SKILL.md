@@ -1,22 +1,20 @@
 ---
 name: helix
 description: |
-  HELIX skill — single public entrypoint for HELIX document and workflow
-  work. Engage on prompts to frame, align, decompose, prioritize,
-  propose, capture, review, decide, validate, evolve, refresh, design,
-  backfill, polish, converge, audit, or bootstrap (genesis) governed
-  artifacts and work. Engage on any named HELIX
-  artifact: PRD, ADR, FEAT, feature spec, technical design,
-  implementation plan, test plan, runbook, release notes, user stories,
-  roadmap, iteration plan, status report, requirements. Product, web,
-  infra, and data are domain
-  lanes that shape context and stop rules; they are not sibling public
-  skills or workflow modes. Engage on "what's next" / "plan the change"
-  / cross-flow queries. Engage on human-iteration planning: sequence a
-  roadmap, define workstreams, cut a sprint/iteration plan, write a
-  status report. Engage on desired state vs implementation,
-  specs behind code, and pruning beads against specs. Engage on
-  "grill me", stress-test a plan or design, or one-question interviews.
+  HELIX skill, the single public entrypoint for HELIX document and workflow
+  work. Engage on prompts to frame, align, validate, evolve, refresh, design,
+  backfill, review, polish, converge, audit, grill, or bootstrap (genesis)
+  governed artifacts and work. Engage on any named HELIX artifact: PRD, ADR,
+  FEAT, feature spec, technical design, implementation plan, test plan,
+  runbook, release notes, user stories, roadmap, iteration plan, status
+  report, requirements. Engage on "what's next", "plan the change",
+  cross-flow queries, and human-iteration planning (roadmap, workstreams,
+  sprint plan, status report). Engage on desired state vs implementation,
+  specs behind code, and pruning work items against specs. Engage on "grill
+  me" or stress-testing a plan one question at a time. Engage on decks,
+  slides, one-pagers, briefs, and client-ready or executive documents built
+  from governed artifacts (present). Product, web, infra, and data are
+  domain lanes that shape context and stop rules, not sibling skills.
 argument-hint: "[intent or scope]"
 ---
 
@@ -24,282 +22,166 @@ argument-hint: "[intent or scope]"
 
 Use this as the HELIX entrypoint. Users should not need to memorize individual
 workflow skill names. Resolve the active scope, choose the relevant domain lane,
-route to the smallest HELIX workflow mode that fits, then follow the matching
-workflow contract below.
+route to the smallest HELIX workflow mode that fits, then load and follow that
+mode's contract from the catalog (§Mode Contracts).
 
 Rule: do not add separate public `helix-*` skills. Add or refine a route inside
 this skill instead.
 
 ## When to engage (read first; non-negotiable)
 
-You ENGAGE this skill whenever any of these is true, regardless of whether
-the artifact content is attached, the workspace is empty, or the request
-looks like a generic task. **Engagement is the first tool action of the turn**
-(dual-path by host):
+Engage this skill whenever any condition below is true, regardless of whether
+the artifact content is attached, the workspace is empty, or the request looks
+like a generic task. Engagement is the first tool action of the turn:
 
-- **Skill-tool hosts** (Claude Code `Skill` tool, Codex/opencode skill tool):
-  invoke `Skill(helix)` (or the host's equivalent skill-load tool for `helix`)
-  as the first tool action. Narrating HELIX-shaped reasoning without that
-  invocation is a contract violation on these hosts.
-- **Hosts without a skill tool** (for example Grok Build): the first action
-  MUST load this `SKILL.md` body via the host mechanism (`/helix`, skill
-  auto-load, or a read of this skill's path). That load is the engagement
-  event.
+- **Skill-tool hosts** (Claude Code, Codex, opencode): invoke the `helix`
+  skill through the host's skill tool first.
+- **Hosts without a skill tool**: load this `SKILL.md` body via the host
+  mechanism (`/helix`, skill auto-load, or a read of this file) first.
 
-Once engaged, you route by four separate axes:
-
-1. **Scope instance** — which `flows:` entry in `.helix.yml` owns the target
-   artifact or requested project area.
-2. **Domain lane** — product, web, infra, data, or another documented lane
-   implied by the scope and artifact concerns.
-3. **Workflow mode** — one HELIX document/workflow action such as `frame`,
-   `align`, `validate`, `evolve`, `design`, `polish`, `review`, `refresh`,
-   or `check`.
-4. **Autonomy / stop rules** — whether the runtime can proceed or must pause
-   before a state-changing action.
-
-The skill does not have sibling public skills to defer to. Domain lanes are
-internal context, not public skill names.
+Narrating HELIX-shaped reasoning without that engagement action is a contract
+violation.
 
 Engage when:
 
-- The prompt names a HELIX artifact (PRD, ADR, FEAT, feature spec,
-  technical design, implementation plan, test plan, runbook, release
-  notes, user stories, roadmap, iteration plan, status report,
-  requirements) — even when the
-  prompt asks you to *review* or *expand* one whose content is not
-  attached. Engage; THIS SKILL knows how to resolve the artifact path
-  from the marker + graph + cwd, you do not.
-- The prompt uses a HELIX planning verb (frame, align, decompose,
-  prioritize, propose, capture, review, decide, evolve, refresh) against
-  a product/feature/requirements object → use the product domain lane and
-  the matching workflow mode.
+- The prompt names a HELIX artifact (PRD, ADR, FEAT, feature spec, technical
+  design, implementation plan, test plan, runbook, release notes, user
+  stories, roadmap, iteration plan, status report, requirements), even when
+  it asks to *review* or *expand* one whose content is not attached. This
+  skill resolves the artifact path from the marker, graph, and cwd.
+- The prompt uses a HELIX planning verb (frame, align, decompose, prioritize,
+  propose, capture, review, decide, evolve, refresh) against a
+  product/feature/requirements object → product lane, matching mode.
 - The prompt uses an IaC verb (terraform/tofu/kubectl, provision/destroy/
-  rotate, set up CI, manage credentials) → use the infra domain lane
-  AFTER consulting `stop_at` triggers.
-- The prompt uses a data-pipeline verb (backfill/ingest/migrate a table
-  or schema, profile a source, write a data contract) → use the data
-  domain lane.
+  rotate, set up CI, manage credentials) → infra lane, after consulting
+  `stop_at` triggers.
+- The prompt uses a data-pipeline verb (backfill/ingest/migrate a table or
+  schema, profile a source, write a data contract) → data lane.
 - The prompt uses a web/frontend verb (deploy/ship to production, add
-  monitoring for a user-facing flow, optimize page performance) → use the
-  web domain lane AFTER consulting `stop_at` triggers.
-- The prompt asks "what's next", "plan the change", "decide what to do",
-  or any cross-flow query that needs the marker to answer → use the
-  §Check And Next contract.
+  monitoring for a user-facing flow, optimize page performance) → web lane,
+  after consulting `stop_at` triggers.
+- The prompt asks "what's next", "plan the change", "decide what to do", or
+  any cross-flow query that needs the marker to answer → `check` mode.
 - The prompt asks to "grill me", "interview me" about a plan/design, or to
-  stress-test decisions one question at a time → use the §Grill contract.
-
-Verbose-but-stuck anti-pattern: narrating HELIX-shaped reasoning in
-assistant text WITHOUT an engagement action (skill-tool invoke on
-skill-tool hosts, or SKILL.md load on other hosts) is a contract
-violation. The engagement action must be the first tool action of the
-turn when any of the engage conditions above is true.
+  stress-test decisions one question at a time → `grill` mode.
+- The prompt asks for a deck, slides, pitch, board or exec update,
+  one-pager, brief, memo, or a client-ready or customer-facing document
+  built from project artifacts → `present` mode.
 
 ## Routing Axes
 
-After engagement, the skill drives behavior by domain lane plus workflow mode.
-Lane selection chooses context and stop rules; workflow-mode selection chooses
-the document action contract.
+Once engaged, route by four axes:
+
+1. **Scope instance**: which `flows:` entry in `.helix.yml` owns the target
+   artifact or requested project area.
+2. **Domain lane**: product, web, infra, data, or another documented lane
+   implied by the scope and artifact concerns. Lanes are internal context,
+   never public skill names.
+3. **Workflow mode**: one HELIX document/workflow action (§Routing Rules).
+4. **Autonomy / stop rules**: whether the runtime can proceed or must pause
+   before a state-changing action (§Autonomy).
 
 | Domain lane | Triggers | Required observable behavior |
 |---|---|---|
-| `product` | HELIX artifact named; planning verb against product/feature/requirements; cross-flow query | (a) Read `.helix.yml` AND `workflows/graph.yml` BEFORE any Write/Edit (`read_before_write` matcher); (b) Read of named upstream artifacts (vision, PRD, feature spec) per the graph BEFORE drafting; (c) cite `ddx.links` / `informs` edges in any new artifact |
-| `infra` | IaC verb (terraform/tofu/kubectl, provision/destroy/rotate); CI/credentials ops | (a) Consult `library/skill-prompts/stop-at-triggers.yml` for `apply` or `secret_read` triggers BEFORE any Bash; (b) Read of infra-shaped artifacts (architecture, runbook, deployment-checklist); (c) explicit confirmation prompt before terraform/tofu/kubectl/credential operations |
-| `data` | Data-pipeline verb (backfill/ingest/migrate, profile a source, data contract) | (a) Read of data-contract / data-quality-expectations / data-architecture artifacts; (b) cite producer/consumer or PII/governance posture in prose; (c) defer schema mutations behind a `stop_at` confirmation |
-| `web` | Web/frontend verb (deploy/ship, add monitoring for a user flow, optimize page perf) | (a) Read of architecture / design-system / monitoring-setup / runbook artifacts in the deploy-flow scope; (b) cite Web Vitals / RUM / page-error vocabulary in prose; (c) defer production deploys behind a `stop_at` confirmation |
+| `product` | HELIX artifact named; planning verb against product/feature/requirements; cross-flow query | (a) Read `.helix.yml` AND the bound graph BEFORE any Write/Edit; (b) Read named upstream artifacts (vision, PRD, feature spec) per the graph BEFORE drafting; (c) cite `ddx.links` / `informs` edges in any new artifact |
+| `infra` | IaC verb (terraform/tofu/kubectl, provision/destroy/rotate); CI/credentials ops | (a) Consult `library/skill-prompts/stop-at-triggers.yml` for `apply` or `secret_read` triggers BEFORE any Bash; (b) Read infra-shaped artifacts (architecture, runbook, deployment-checklist); (c) explicit confirmation prompt before terraform/tofu/kubectl/credential operations |
+| `data` | Data-pipeline verb (backfill/ingest/migrate, profile a source, data contract) | (a) Read data-contract / data-quality-expectations / data-architecture artifacts; (b) cite producer/consumer or PII/governance posture in prose; (c) defer schema mutations behind a `stop_at` confirmation |
+| `web` | Web/frontend verb (deploy/ship, add monitoring for a user flow, optimize page perf) | (a) Read architecture / design-system / monitoring-setup / runbook artifacts in the deploy-flow scope; (b) cite Web Vitals / RUM / page-error vocabulary in prose; (c) defer production deploys behind a `stop_at` confirmation |
 
 Skipping lane-required behavior is a routing failure even if the workflow mode
 is otherwise correct.
 
-## Activation discipline (do these in order, every time the skill engages)
+## Activation Discipline (in order, every time the skill engages)
 
 ### 1. Locate the marker
 
-Find `.helix.yml` by walking UP from the current working directory to the
-git root (the directory containing `.git/`). Stop at the first `.helix.yml`
-encountered. If the cwd is `/repo/services/api/docs/helix/` and the marker
-lives at `/repo/.helix.yml`, you MUST find the parent marker — do not give
-up after searching cwd only.
+Find `.helix.yml` by walking up from the current working directory to the
+repository root (the directory containing `.git/`). Stop at the first marker
+found. A marker at the repository root governs work started in any
+subdirectory; do not give up after searching cwd only.
 
-Concretely: run `git rev-parse --show-toplevel` (or fall back to walking up
-until `.git/` is found), then check for `.helix.yml` at the top.
+### 2. Read the marker and bind the graph before any Write/Edit
 
-### 1.5 Read marker AND graph before any Write/Edit (ordering invariant)
+Before the first Write or Edit of the session, read the `.helix.yml` marker
+and bind the methodology graph via §Catalog Resolution. Skipping either is a
+contract violation: it produces artifacts narrated from training rather than
+anchored to the workspace's catalog and prerequisite chain. A graph bind is
+always achievable in supported layouts, so a missing project-local
+`workflows/` is never a reason to stop or skip edits; bind from a later
+resolution step and proceed. A read whose target does not resolve does not
+count. The order of the two reads is not constrained. This invariant is
+independent of autonomy level: `high` autonomy waives the human-in-the-loop
+ask, not workspace grounding. When the marker is absent and the skill engages
+by heuristic (§3), the failed marker lookup satisfies the marker read and the
+shipped catalog satisfies the graph bind.
 
-The FIRST `Write` or `Edit` tool_use in the session MUST be preceded by at
-least one `Read` of the `.helix.yml` marker AND at least one `Read` that
-**successfully binds the methodology graph** via §Catalog Resolution. Skipping
-either is a contract violation, EVEN IF the Skill tool_use has already fired.
-The failure mode this rule prevents — the verbose-but-stuck pattern — is the
-agent narrating HELIX-shaped reasoning from training while the marker scope,
-the type catalog, and the prerequisite chain go unconsulted. The resulting
-artifact looks plausible but is unanchored to the workspace's actual contract.
+### 3. Decide activation state
 
-A graph bind is **always achievable** in supported layouts: §Catalog Resolution
-falls through marker pointer → project-local `workflows/` → source-checkout /
-full plugin-dir `../../workflows/` → plugin env root (`$GROK_PLUGIN_ROOT` /
-`$CLAUDE_PLUGIN_ROOT`) → generated package `references/` floor beside this
-SKILL.md. A missing project-local `workflows/graph.yml` is therefore NEVER a
-reason to stop, defer, or skip artifact edits — it only means the bind comes
-from a later resolution step. "I cannot find the graph, so I will avoid HELIX
-artifact edits" is a contract violation, not a valid degraded mode: bind the
-graph from source checkout, plugin root, or the package floor and proceed. A
-`Read` whose target does not resolve does NOT satisfy this contract — the graph
-must actually bind.
+- **Marker present and well-formed**: the `flows[]` list (legacy alias
+  `methodologies[]`, accepted with a warning) is the authorization boundary.
+  If `helix` is listed, this skill is active for the listed `root:` scope. If
+  not, defer to the listed flow's process. A minimal marker:
 
-The order between the two Reads is not constrained: marker-first is the
-natural sequence; graph-first is acceptable for graph-query-only prompts
-like "What's next?" (no Write/Edit follows).
+      flows:
+        - id: helix
+          root: docs/helix/
 
-This ordering invariant is independent of autonomy level. Under
-`autonomous` the skill MAY proceed without operator confirmation, but it
-MUST NOT skip the two Reads — autonomy waives the human-in-the-loop ask,
-not the workspace-grounding contract.
-
-If the marker is absent and the skill is engaging by heuristic (§2 banner
-case), the `Read` for `.helix.yml` is satisfied by the failed lookup itself
-(the Read tool_use occurred even though the file did not exist). The graph
-`Read` is still required, and is satisfied by the §Catalog Resolution bind —
-the HELIX source-checkout catalog or the generated package `references/` floor
-when no project-local graph exists — because the type catalog binds artifact
-templates regardless of marker presence. The marker-absent heuristic case
-therefore still authorizes artifact edits: it binds the shipped catalog.
-
-The bench enforces this via the `read_before_write` matcher, which accepts a
-graph `Read` from any §Catalog Resolution source (in-tree `workflows/graph.yml`,
-a marker `graph:` pointer, the HELIX source-checkout `workflows/graph.yml`, a
-plugin-env-root catalog, or the generated package `references/` floor).
-
-### 2. Decide activation state
-
-Evaluate the marker before resolving lane or workflow mode:
-
-- **Marker present and well-formed**: parse it. The `flows[]` list (legacy
-  alias `methodologies[]:` accepted under M020 warn) is the authorization
-  boundary. If `helix` is listed, this skill is active for the listed
-  `root:` scope. If `helix` is NOT listed (the marker only declares a
-  non-helix flow), defer to that flow's process — do not engage.
-
-- **Multiple distinct flows in `flows[]` with an ambiguous verb** (e.g.
-  `flows: [{id: helix, root: docs/helix/}, {id: helix-infra, root:
-  docs/helix-infra/}]` and the prompt uses a verb like "plan the rollout"
-  that could mean product-rollout planning under `helix` OR infrastructure
-  rollout planning under `helix-infra`): apply the resolution chain first:
-  cwd-under-root → `defaults.flow` in the marker → single entry. If the
-  chain does not resolve — cwd is outside every declared `root:`, no
-  `defaults.flow` key, and no single entry — emit the disambiguation banner
-  naming BOTH candidate flows and asking which one applies:
-
-      Ambiguous request: both `helix` (root: <helix-root>) and `helix-infra` (root: <infra-root>) are active — which flow should handle this?
-      Reply with the flow id or scope root to use for this turn.
-
-  Substitute the actual `root:` values from the marker. Do NOT silently
-  pick one flow. Do NOT route to the infra domain lane under the `helix` flow just
-  because the prompt contains an infra-adjacent noun. Wait for the operator
-  to choose.
-
-- **Multiple helix instances in `flows[]`** (e.g.
-  `flows: [{id: helix, instance: web, root: services/web/}, {id: helix,
-  instance: mobile, root: apps/mobile/}]`): if cwd lies inside exactly one
-  `root:`, choose that scope instance and state the choice. Otherwise emit the
-  disambiguation banner:
-
-      Multiple helix instances declared: <instance-1> (root: <root-1>),
-      <instance-2> (root: <root-2>). Reply with the instance name or root to
-      use for this turn.
-
-  Then stop until the operator chooses. The cwd-under-scope rule (§3)
-  resolves only when cwd lies inside exactly one `root:`.
-
-- **Marker present and malformed** (YAML parse error, missing required keys,
-  root outside repo, duplicate id, root resolves to nonexistent dir): STOP.
-  Report the marker error verbatim with file and line. Do NOT fall back to
-  heuristics.
-
-- **Marker absent, heuristic file present** (`workflows/methodology.yml`,
-  `docs/helix/` tree, etc. — legacy heuristic filename retained for
-  back-compat detection): emit this banner verbatim before any other
-  output:
+- **Several distinct flows and an ambiguous verb** (for example `helix` and
+  `helix-infra`, prompt "plan the rollout"): resolve cwd-under-root →
+  `defaults.flow` → single entry. If none resolves, emit the disambiguation
+  banner naming both candidate flows with their roots and ask which applies.
+  Do not silently pick one, and do not route to the infra lane under `helix`
+  because the prompt contains an infra-adjacent noun.
+- **Several helix instances** (`instance:` values with different roots): if
+  cwd lies inside exactly one root, choose it and say so; otherwise emit the
+  banner listing instances and roots, then stop until the operator chooses.
+- **Marker present and malformed** (YAML error, missing required keys, root
+  outside repo, duplicate id, nonexistent root): STOP and report the error
+  with file and line. Do not fall back to heuristics.
+- **Marker absent, heuristic present** (`docs/helix/` tree or
+  `workflows/methodology.yml`): emit this banner before any other output,
+  then proceed with the shipped catalog; a `docs/helix/` tree without a
+  marker is not a reason to decline edits:
 
       No .helix.yml found. Activating helix by heuristic (path: <heuristic-path>).
-      Run /helix init-marker to make this explicit.
-
-  Substitute the actual heuristic-path that triggered activation. Then
-  proceed — this is an authorized flow: bind the catalog via §Catalog
-  Resolution (the `references/` floor when no in-tree graph exists) and author
-  artifacts normally. A `docs/helix/` tree without a marker is NOT a reason to
-  decline artifact edits.
+      Add a .helix.yml marker at the repository root to make this explicit.
 
 - **Marker absent, no heuristic**: report no active flow. If asked for a
-  machine-readable response, return `{"active": []}`. Do not improvise
-  that helix is active.
+  machine-readable response, return `{"active": []}`.
 
-### 3. Enforce scope
+### 4. Enforce scope
 
-For every operation that writes or edits a file, check that the target path
-is INSIDE the active flow's `root:` from the marker. If the user asks for
-a write outside that scope:
+Every write or edit must target a path inside the active flow's `root:`. For
+a write outside scope: refuse, surface the marker entry that scoped the flow
+and the offending path, and ask whether to (a) broaden the marker, (b)
+redirect under scope, or (c) cancel. When several flows are declared, the
+flow whose root contains the cwd wins; otherwise follow the §3 resolution
+chain. Never invent a selector outside the marker.
 
-- Refuse the write.
-- Surface the marker entry that scoped the flow and the offending target
-  path.
-- Ask whether they want to (a) update the marker to broaden scope, or
-  (b) redirect the write to under the scope, or (c) cancel.
+### 5. Author and edit artifacts
 
-Do NOT silently write outside scope. Scope is the marker's contract.
+Before authoring or editing an instance, bind the type's `template.md`,
+`prompt.md`, `meta.yml`, and active voice profile from the resolved catalog
+and load `modes/_authoring.md` (graph prerequisites, links, edge rules). Do
+not author from the activity table alone.
 
-When the marker declares multiple flows at different scopes, the flow
-whose `root:` contains the cwd wins. If cwd is outside every declared
-scope, follow the resolution chain: cwd-under-root → defaults.flow →
-single entry → disambiguation banner. Do not invent a selector outside the
-marker.
+Edit existing instances; Write only new ones. Verify with a Read: a
+successful Read of the resolved path means the instance is live and every
+modification, however small, goes through Edit, which preserves frontmatter
+and operator-added content. Only a missing file authorizes Write.
 
-### 4. Author / edit artifacts
+Instance edges (PRD → FEAT, ADR → technical design) belong in the instance's
+frontmatter under `ddx.links:`, never in the body or in this skill. Cross-flow
+edges are declared in `external_edges:` of the graph first, then in the
+instance with `cross_flow: true` (legacy alias `cross_methodology: true`).
 
-When asked to author or edit an instance document, **first bind the type's
-`template.md`, `prompt.md`, `meta.yml`, and active voice profile** from the
-resolved catalog (§Catalog Resolution). Do not author from the activity
-table alone. Look up the type via the bound graph — every node points at a
-`library:<slug>` or `local:<slug>` type, and the library tree is at the
-canonical install root (`library/` after this install).
+### 6. Authorization boundary
 
-**Edit existing instances; Write only new ones.** When the requested
-artifact already exists at the resolved path, use `Edit` (target the
-specific lines/sections changing), NOT `Write` (which replaces the file
-body and discards any operator-added content not in the new draft).
-Verify the file exists via `Read` before deciding: a successful Read of
-the resolved path means the instance is live and any modification MUST
-go through `Edit`; only a missing-file outcome authorizes `Write`. This
-applies to every operator verb that mutates an existing artifact —
-"update", "modify", "amend", "add a requirement to", "thread X through"
-— regardless of how small the change is. Replacing a live PRD/FEAT/ADR
-via `Write` to add one bullet is a contract violation even when the
-new body looks correct, because frontmatter round-trip (§6) and
-operator-added content outside the model's draft are silently dropped.
-
-Instance edges (PRD → FEAT, ADR → technical-design, etc.) belong in the
-instance's frontmatter under `ddx.links:`. Never embed edges in the body
-or in this skill's prompts.
-
-Cross-flow edges (e.g. PRD informs an infra-mode artifact) must be
-declared in `external_edges:` of `workflows/graph.yml` first, then in the
-instance frontmatter with `cross_flow: true` (legacy alias
-`cross_methodology: true` accepted for one cycle).
-
-### 5. Authorization boundary
-
-**REJECT — do not engage** when the prompt names a flow in natural language
-or through a runtime-owned alias and the marker's `flows:` list does NOT
-authorize it.
-This rule is non-negotiable and overrides every engage-by-default trigger in
-§"When to engage" and every lane-routing rule below it. A runtime alias or user
-phrase is a request to activate a flow; the marker is the authorization to do
-so. No marker authorization, no activation, even when the user is insistent and
-the work looks routine.
-
-Emit this diagnostic verbatim (substituting the actual flow name and
-marker path), then STOP — no Read of artifacts, no Write, no Edit, no
-mode routing, no "but I can still help with…" offer:
+Reject, without engaging, any prompt that names a flow (in natural language or
+through a runtime alias) that the marker's `flows:` list does not authorize.
+This overrides every engage trigger. Emit this diagnostic, substituting the
+flow name and marker flows, then stop with no reads, writes, routing, or
+"but I can still help" offer:
 
     Cannot engage <flow-name> here — the requested flow `<flow-name>`
     is not authorized: the .helix.yml marker does not list it.
@@ -307,70 +189,17 @@ mode routing, no "but I can still help with…" offer:
     To proceed, either (a) add `<flow-name>` to the marker's `flows:`
     list, or (b) re-run with a flow the marker authorizes.
 
-Your refusal prose MUST include: (a) the name of the requested flow,
-and (b) a phrase stating the .helix.yml marker does not list or
-authorize it. Use the verbatim template above — do not paraphrase it.
+Re-interpreting an unauthorized flow as an authorized one (routing
+`helix-infra` work through the infra lane under `helix`) is a violation.
+Runtime aliases may choose among marker-authorized flows; they cannot broaden
+the marker.
 
-Concretely: if the marker declares only `flows: [{id: helix, ...}]` and the
-prompt asks to use `helix-infra` for an upstream DNS provider, the requested
-flow is `helix-infra`, which is not authorized. Reject. Do not silently route
-to the infra domain lane under the `helix` flow; re-interpreting the requested
-flow as the authorized flow is a contract violation.
+### 7. Frontmatter round-trip
 
-The marker's `flows:` list is the authorization boundary. Runtime-owned aliases
-or convenience flags may choose among marker-authorized flows, but they cannot
-broaden the marker.
-
-### 6. Frontmatter round-trip
-
-Never rewrite unknown frontmatter keys. When you edit an instance
-document's body, preserve `ddx.id`, `ddx.review`, `ddx.links`, AND any
-vendor-namespaced (`x-*`) or legacy (`relationships:`, `depends_on:`)
-keys byte-equivalent. Key order is preserved (insertion-order dict +
-`yaml.safe_dump(..., sort_keys=False)`).
-
-Legacy → new key translation (e.g. `relationships:` → `ddx.links:`) is
-explicit migration work. Never translate as a side effect of an incidental
-edit.
-
-## Concern slot resolution
-
-A **slot** is an exclusive functional position a project must fill exactly
-once (one frontend framework, one language runtime, one e2e tool, one auth
-backend). Slots are declared in the shipped catalog at `concerns/slots.yml`, resolved
-via §Catalog Resolution — the in-tree `workflows/concerns/slots.yml` when a
-vendored tree is present, otherwise the `references/concerns/slots.yml` floor
-beside this SKILL.md (which always resolves). The file declares exclusive slots
-plus shipped defaults; membership in a slot is **derived** from each concern's
-own `## Slot` section, never listed in `slots.yml`.
-
-For every needed exclusive slot, resolve the filler in this fixed order
-(first match wins):
-
-1. **Operator override** — `docs/helix/01-frame/concerns.local.yml` in the
-   project tree. Read this BEFORE concerns.md exists, during high-autonomy
-   concern selection.
-2. **Shipped default** — the `defaults:` map in `slots.yml`.
-3. **Recorded assumption** — if neither source resolves, infer from the
-   product's nature and record it as an assumption in `concerns.md`.
-
-Exclusive slots and their shipped defaults (current `slots.yml`):
-
-| Slot | Shipped default |
-|---|---|
-| `frontend-framework` | `react-nextjs` |
-| `language-runtime` | `typescript-bun` |
-| `e2e-framework` | `e2e-playwright` |
-| `auth-provider` | `auth-local-sessions` |
-| `datastore` | — (no default; select on signal) |
-| `deploy-target` | — (no default; select on signal) |
-| `architecture-style` | — (no default; select on signal) |
-
-**Contract**: select each needed slot **once per session** during §Frame
-step 2, and record the chosen filler PLUS its source (`operator-override`,
-`shipped-default`, or `assumption`) in `concerns.md`. Propagation to work
-items and downstream artifacts is a later gate (owned by `check`/`polish`),
-never a re-selection.
+Never rewrite unknown frontmatter keys. When editing a body, preserve
+`ddx.id`, `ddx.review`, `ddx.links`, vendor-namespaced (`x-*`) and legacy
+(`relationships:`, `depends_on:`) keys byte-equivalent and in order. Legacy →
+new key translation is explicit migration work, never a side effect.
 
 ## Routing Rules
 
@@ -390,927 +219,215 @@ Prefer the first matching route:
 | Fresh-eyes review of recent work, PRs, plans, or implementation | review |
 | Refine work items for execution readiness | polish |
 | Plan or report a human iteration — sequence a roadmap, define workstreams, cut an iteration/sprint plan, write a status report | iterate |
-| Decide the next safe HELIX action | check or next |
+| Decide the next safe HELIX action | check |
 | Run an optimization experiment | experiment |
 | Bootstrap a brand-new project from bare intent (name, research, vision, scaffold) | genesis |
 | Drive a plan or completed work to convergence: review adversarially, fix, re-review until clean | converge |
 | Audit where a project stands (specs↔impl↔tests↔ACs aligned? complete? next action?) | project-audit |
 | Decompose an oversized code module/file into encapsulated units behind a verify gate | decompose-module |
 | Build up end-to-end coverage as a ladder of increasingly complex real-client scenarios | e2e-ladder |
+| Turn governed artifacts into a deck, one-pager, or brief for clients, sponsors, or executives | present |
+| Hand governed work to the runtime for execution, source control, or packaging | runtime-handoff |
 
 When multiple routes fit, choose the highest-authority planning route first:
 `frame` before `design`, `align` before `evolve` when the task is diagnostic,
 and `evolve` before handing work to the runtime when requested implementation
 lacks governing artifact coverage. Prefer `grill` over `input`/`frame`/`design`
 when the operator asks to be interviewed or to stress-test decisions before
-authoring; do not steal generic turns that only say "plan" without grill intent.
+authoring; do not steal generic turns that only say "plan" without grill
+intent.
 
-Iteration-cadence precedence: authoring or updating a roadmap, iteration
-plan, or status report routes to `iterate` even when a change triggers it —
-re-sequencing a roadmap after a revision trigger is `iterate`, not `evolve`
-(`evolve` threads a requirement change through the artifact stack).
+Iteration-cadence precedence: authoring or updating a roadmap, iteration plan,
+or status report routes to `iterate` even when a change triggers it.
 Reviewing an iteration against its plan is `iterate` (a status report);
-`review` stays fresh-eyes critique of work products, PRs, and plans as
-artifacts.
+`review` stays fresh-eyes critique of work products, PRs, and plans.
+
+## Mode Contracts
+
+Each mode's contract is one file, `modes/<mode>.md`, in the bound catalog:
+`workflows/modes/` in source checkouts and vendored trees, `references/modes/`
+in generated packages, resolved by §Catalog Resolution. After routing, load
+the routed mode's file before acting and follow it as the active interface.
+Modes that create or edit artifact instances also load `modes/_authoring.md`.
+Reports (alignment, validation, refresh, check) use the shape in
+`modes/_report.md` so runtimes and evaluations can consume them. Mode files
+point at their deeper procedure under `actions/` when one exists; consult it
+only when the contract needs more step detail.
+
+Mode files: `workflows/modes/input.md`, `workflows/modes/grill.md`,
+`workflows/modes/frame.md`, `workflows/modes/align.md`,
+`workflows/modes/validate.md`, `workflows/modes/refresh.md`,
+`workflows/modes/evolve.md`, `workflows/modes/design.md`,
+`workflows/modes/backfill.md`, `workflows/modes/review.md`,
+`workflows/modes/polish.md`, `workflows/modes/iterate.md`,
+`workflows/modes/check.md`, `workflows/modes/experiment.md`,
+`workflows/modes/genesis.md`, `workflows/modes/converge.md`,
+`workflows/modes/project-audit.md`, `workflows/modes/decompose-module.md`,
+`workflows/modes/e2e-ladder.md`, `workflows/modes/present.md`,
+`workflows/modes/runtime-handoff.md`, plus the shared
+`workflows/modes/_authoring.md` and `workflows/modes/_report.md`. The
+`present` mode also reads `workflows/deliverables/theme.yml`,
+`workflows/deliverables/slide-patterns.yml`, and
+`workflows/deliverables/deliverable-mappings.yml` (floor:
+`references/deliverables/`).
 
 ## Catalog Resolution
 
-When a workflow mode needs an artifact template, prompt, quality criteria,
-voice registry, concerns library, stop-triggers, or the methodology graph,
-resolve paths in this deterministic **fall-through** order. The first source
-that resolves wins. Do **not** demote project-local or source-checkout ranks
-below the installed plugin — adopters without local templates succeed by
-falling through, not by reordering authority.
+When a mode needs a mode contract, artifact template, prompt, quality
+criteria, voice registry, concerns library, slots, stop triggers, or the
+methodology graph, resolve paths in this deterministic fall-through order; the
+first source that resolves wins. Never demote project-local or
+source-checkout ranks below an installed plugin.
 
-Resolution ALWAYS succeeds in supported layouts: full-repo installs and
-source checkouts carry `workflows/`; generated packages carry the
-`references/` floor beside this SKILL.md; plugin hosts may also expose
-`$GROK_PLUGIN_ROOT` / `$CLAUDE_PLUGIN_ROOT`.
+1. **Marker `graph:` pointer**: if the active `.helix.yml` declares a
+   `graph:` (or `catalog:`) path that resolves, bind it. A set-but-broken
+   pointer emits a one-line warning and falls through; it never blocks.
+2. **In-tree project catalog**: `workflows/graph.yml`, `workflows/modes/`,
+   and `workflows/activities/<NN>-<activity>/artifacts/<type>/`, found by
+   walking up from cwd to the directory holding the resolved marker. This is
+   the self-hosting case (the HELIX repo and consumers that vendor the
+   catalog). Skip this step when there is no marker.
+3. **Source-checkout / full plugin-dir catalog**: from the realpath of this
+   `SKILL.md`, bind `../../workflows/...` when the skill lives at
+   `skills/helix/SKILL.md` inside a HELIX checkout, a `--plugin-dir` tree, or
+   a full-repo plugin install.
+4. **Plugin env root (additive)**: if steps 2–3 did not bind and
+   `$GROK_PLUGIN_ROOT` or `$CLAUDE_PLUGIN_ROOT` is set, try
+   `<env-root>/workflows/...` then `<env-root>/skills/helix/references/...`.
+5. **Generated `references/` floor**: `references/graph.yml`,
+   `references/modes/`, `references/activities/...`, `references/concerns/`,
+   `references/actions/`, `references/templates/`, and
+   `references/voice.yml` relative to this `SKILL.md`, shipped in plugin
+   packages and skill bundles so a catalog always resolves.
+6. **Fail closed**: if nothing binds, stop with a diagnostic listing every
+   path attempted. Never invent templates or contracts from training data.
 
-1. **Marker `graph:` pointer** — if the active `.helix.yml` declares a
-   `graph:` (or `catalog:`) path and it resolves, bind it. If the pointer is
-   set but does not resolve, emit a one-line warning and fall through to the
-   next step — a broken pointer never blocks and never short-circuits.
-2. **In-tree project catalog** — `workflows/graph.yml` and
-   `workflows/activities/<NN>-<activity>/artifacts/<type>/`, found by walking
-   up from the current working directory to the directory containing the
-   resolved `.helix.yml` marker. This is the self-hosting / methodology-source
-   case (the HELIX repo itself, and any consumer that intentionally vendors
-   the catalog). **Keep this rank above the installed plugin** so self-host
-   and forks are not silently overridden by a marketplace copy.
-   **Skip this step entirely when there is no marker** (heuristic activation):
-   there is no anchor to walk to, so fall through to later steps.
-3. **Source-checkout / full plugin-dir catalog** — resolve the realpath of
-   this `SKILL.md`, then bind `../../workflows/graph.yml` and
-   `../../workflows/activities/<NN>-<activity>/artifacts/<type>/` when the
-   skill lives at `skills/helix/SKILL.md` inside a HELIX source checkout,
-   `claude --plugin-dir` / `grok --plugin-dir` tree, DDx plugin checkout, or
-   a full-repo plugin install (for example Grok
-   `~/.grok/installed-plugins/<id>/` with `workflows/` at the plugin root).
-   This keeps checkout-style installs self-sufficient without committing
-   generated `skills/helix/references/` bytes to source.
-4. **Plugin env root (additive)** — if steps 2–3 did not bind and
-   `$GROK_PLUGIN_ROOT` or `$CLAUDE_PLUGIN_ROOT` is set in the environment
-   (plugin hooks and some host sessions), try in order:
-   - `<env-root>/workflows/graph.yml` (and matching `activities/…`)
-   - `<env-root>/skills/helix/references/graph.yml` (and matching
-     `activities/…` under that floor)
-   Use the realpath of env roots when present. This step is **only** a
-   fall-through when the project has no local catalog and the relative
-   source-checkout path from this SKILL.md did not resolve.
-5. **Generated `references/` floor** — `references/graph.yml` and
-   `references/activities/<NN>-<activity>/artifacts/<type>/`, relative to this
-   `SKILL.md`. A generated copy of the source catalog that ships in marketplace
-   plugin packages and standalone skill bundles, so a graph and templates
-   resolve when no fresher source above did. This is the agentskills.io
-   progressive-disclosure layout used by skill bundles.
-6. **Fail closed** — if no step binds, stop with a diagnostic listing every
-   path attempted. Never invent templates from training data.
+Same-source rule: once a catalog source binds, load graph, modes, templates,
+prompts, meta, voice, concerns, and stop triggers from that same bind. State
+which source bound when it is not the generated floor (for example "catalog:
+in-tree `workflows/graph.yml`"). Adopter projects need only `.helix.yml` and
+instance documents; they never need to copy templates.
 
-**Same-source rule:** once a catalog source binds, load graph, templates,
-prompts, meta, voice, concerns, and stop-triggers from that **same** bind
-(or the matching sibling path under that root). Do not mix plugin templates
-with a different source's voice or concerns.
-
-**Invariant:** missing project-local `workflows/` is **success** when a later
-step binds. Adopter projects need only `.helix.yml` and instance docs under
-the flow root; they do not need to copy templates.
-
-State which source bound when it is not the generated floor (e.g. "catalog:
-in-tree `workflows/graph.yml`", "catalog: source-checkout `workflows/graph.yml`",
-"catalog: plugin env root `$GROK_PLUGIN_ROOT/workflows`", or "catalog: marker
-`graph:` pointer") so an operator can see when the skill reasons against a
-vendored, source-checkout, plugin, or packaged catalog. There is no
-"catalog not mounted" outcome in a supported checkout or package; a package
-missing both source `workflows/` and generated `references/` is invalid.
-
-The seven activities and the artifact types they own:
+The seven activities and the artifact types they own (metadata queries only;
+authoring always binds the real template, prompt, and meta from a resolved
+source):
 
 | Activity | Artifact types (directory names under `<activity>/artifacts/`) |
 |---|---|
-| `00-discover` | `business-case`, `competitive-analysis`, `data-flow-analysis`, `opportunity-canvas`, `product-vision`, `resource-summary` |
-| `01-frame` | `compliance-requirements`, `concerns`, `feasibility-study`, `feature-registry`, `feature-specification`, `parking-lot`, `pr-faq`, `prd`, `principles`, `research-plan`, `risk-register`, `roadmap`, `security-requirements`, `stakeholder-map`, `threat-model`, `user-stories`, `validation-checklist`, `data-prd` |
+| `00-discover` | `business-case`, `competitive-analysis`, `data-flow-analysis`, `market-analysis`, `opportunity-canvas`, `product-vision`, `resource-summary` |
+| `01-frame` | `compliance-requirements`, `concerns`, `feasibility-study`, `feature-registry`, `feature-specification`, `parking-lot`, `pr-faq`, `prd`, `principles`, `research-plan`, `risk-register`, `roadmap`, `security-requirements`, `stakeholder-map`, `threat-model`, `user-stories`, `validation-checklist` |
 | `02-design` | `adr`, `architecture`, `contract`, `data-design`, `design-system`, `proof-of-concept`, `security-architecture`, `solution-design`, `tech-spike`, `technical-design`, `data-architecture` |
 | `03-test` | `security-tests`, `story-test-plan`, `test-plan`, `test-procedures`, `test-suites`, `data-quality-expectations` |
 | `04-build` | `implementation-plan` |
 | `05-deploy` | `deployment-checklist`, `monitoring-setup`, `release-notes`, `runbook` |
-| `06-iterate` | `improvement-backlog`, `iteration-plan`, `metric-definition`, `metrics-dashboard`, `security-metrics`, `status-report` |
+| `06-iterate` | `deliverable`, `improvement-backlog`, `iteration-plan`, `metric-definition`, `metrics-dashboard`, `security-metrics`, `status-report` |
 
-Each artifact-type directory contains `template.md`, `prompt.md`,
-`meta.yml`, and an `example.md` (or `example-*.md`). This table answers
-**metadata queries only** — "list artifact types under activity 01-frame",
-"what's the path to the prd template" — without traversing the filesystem.
-It is NOT a catalog of record: **authoring** any artifact requires binding the
-real `template.md` / `prompt.md` / `meta.yml` for the type from a resolution
-source above (always available via the floor). Authoring from the table alone
-produces an unanchored artifact and is not permitted. Deeper queries that need
-template or prompt content load the file from the resolved source.
+Each type directory holds `template.md`, `prompt.md`, `meta.yml`, and an
+`example.md`. Concern slots and their shipped defaults live in
+`workflows/concerns/slots.yml` (floor: `references/concerns/slots.yml`);
+defaults are starting points a project overrides, not choices HELIX imposes.
 
 ## Voice Resolution
 
-When a workflow mode authors, validates, refreshes, reviews, or rewrites a
-HELIX artifact, load the voice registry `voice.yml` via the same deterministic
-fall-through order as §Catalog Resolution (first that resolves wins; same
-source as the bound graph):
-
-1. In-tree `workflows/voice.yml` — walking up to the marker-bearing directory;
-   skipped when there is no marker.
-2. Source-checkout / full plugin-dir `../../workflows/voice.yml` — relative to
-   this `SKILL.md` when it lives at `skills/helix/SKILL.md`.
-3. Plugin env root — `$GROK_PLUGIN_ROOT` / `$CLAUDE_PLUGIN_ROOT` →
-   `workflows/voice.yml` then `skills/helix/references/voice.yml` (only if
-   steps 1–2 miss).
-4. Generated `references/voice.yml` floor — relative to this `SKILL.md`,
-   shipped with marketplace plugin packages and standalone skill bundles.
-
-Resolve the active profile from the artifact type's `meta.yml`:
-
-- `voice: <profile>` means use that profile.
-- `voice.profile: <profile>` means use that primary profile and preserve any
-  declared overrides.
-- Missing `voice` means use the registry's `default_profile`, currently
-  `artifact-signal`.
-
-The standard profiles are:
+Load the voice registry (`workflows/voice.yml`, floor `references/voice.yml`)
+from the same bind as the graph. Resolve the active profile from the artifact
+type's `meta.yml`: `voice: <profile>` or `voice.profile: <profile>` (with
+declared section overrides); a missing `voice` means the registry's
+`default_profile` (`artifact-signal`).
 
 | Profile | Conciseness | Use |
 |---|---:|---|
-| `machine-facts` | 1/10 | Extracted facts, context digests, generated indexes, and machine-facing state. |
-| `artifact-signal` | 2/10 | HELIX artifacts, templates, prompts, metadata, alignment reports, and validation reports. |
-| `public-site` | 3/10 | Microsite pages, public demos, public introductions, and catalog summaries. |
+| `machine-facts` | 1/10 | Extracted facts, context digests, generated indexes, machine-facing state. |
+| `artifact-signal` | 2/10 | HELIX artifacts, templates, prompts, metadata, alignment and validation reports. |
+| `public-site` | 3/10 | Microsite pages, public demos, introductions, catalog summaries. |
+| `human-facing` | 5/10 | Deliverables projected for clients, sponsors, and executives: decks, one-pagers, briefs. Subset the source, never contradict it; no HELIX vocabulary in the body. |
 
-Apply the profile as artifact contract, not as generic polish. For
+Apply the profile as artifact contract, not generic polish. For
 `artifact-signal`, lead with decisions, requirements, constraints, evidence,
 risks, or open questions; preserve IDs, paths, commands, metrics, statuses,
-trace links, assumptions, non-goals, and acceptance criteria; and keep
-specifications focused on intent rather than implementation status.
-
-If Sloptimizer is available in the runtime, you may ask it to audit or rewrite
-against the active HELIX voice profile. If it is not available, continue by
-applying the profile directly. HELIX must not require Sloptimizer to author or
-validate artifacts.
+trace links, assumptions, non-goals, and acceptance criteria; keep
+specifications focused on intent rather than implementation status. A prose
+tool (for example Sloptimizer) may audit or rewrite against the active
+profile when available; HELIX never requires one.
 
 ## Project Root Resolution
 
-When a workflow mode needs to enumerate artifact instances within the
-operator's project (used by §Refresh and similar batch operations),
-resolve the project HELIX root in this order:
-
-1. Explicit path provided by the operator at invocation
-   (e.g., `refresh docs/helix/`).
-2. Runtime-supplied project-config value when present
-   (`helix_root` in DDx project config; equivalent in other runtimes).
-3. Convention: `docs/helix/` under the runtime's working directory,
-   with sub-directories `00-discover`, `01-frame`, …, `06-iterate`.
-
-If none of the three resolves to a directory containing the expected
-activity sub-directories, surface a setup gap rather than improvising.
-Batch operations on chat-only runtimes (Databricks Genie Code, GitHub
-Copilot) require step 1 — the operator names the root in the prompt.
+When a mode enumerates artifact instances in the operator's project (refresh
+and similar batch operations), resolve the project HELIX root in order:
+(1) an explicit path given at invocation; (2) a runtime-supplied project
+config value when present; (3) the convention `docs/helix/` under the working
+directory with `00-discover` … `06-iterate` subdirectories. If none resolves
+to a directory with the expected activity subdirectories, surface a setup gap
+rather than improvising. Chat-only runtimes require option 1.
 
 ## Autonomy
 
-HELIX expresses an autonomy **policy**; the runtime supplies the agency. The
-policy is a three-position spectrum that controls **how often a workflow pauses
-for confirmation** — never which activities run.
+HELIX expresses an autonomy policy; the runtime supplies the agency. The
+policy is a three-position spectrum controlling how often a workflow pauses
+for confirmation, never which activities run.
 
 | Level | Behavior |
 |---|---|
 | `low` | Ask before each step and before creating each downstream artifact. Do not infer unconfirmed scope. Concern selection stays interactive. |
 | `medium` (default) | Create deterministic non-conflict artifacts; pause when ambiguity or conflict blocks deterministic progress. Prompt for concern selection when none exists. |
-| `high` | Create downstream artifacts without pausing unless a hard stop blocks progress; record assumptions as speculative work rather than asking. When no concerns are declared, **infer** the concern selection from the product's nature and record it as an assumption. |
+| `high` | Create downstream artifacts without pausing unless a hard stop blocks progress; record assumptions rather than asking. Infer concern selection from the product's nature and record it as an assumption. |
 
-**Resolution precedence** (first match wins): per-invocation override →
-governing artifact frontmatter / project policy → runtime default (`medium`).
-The autonomy signal lives only in runtime-neutral artifacts; do not read or
-write it from a runtime instruction file.
+Resolution precedence (first match wins): per-invocation override (the
+operator names a level in the prompt) → the `autonomy:` block in `.helix.yml`
+→ default `medium`. The autonomy signal lives only in runtime-neutral
+artifacts.
 
-**Hard-stop invariant (all levels).** Autonomy changes the *pause threshold*,
-never the *stop floor*. Stop and surface to a human, at any level, when two
-higher-or-equal-authority artifacts truly contradict, when the next action is
-destructive or irreversible and unauthorized, or when a decision only a human
-can make is required. High autonomy proceeds through *resolvable* conflicts
-(recording assumptions); it never proceeds through a hard stop.
+Hard-stop invariant (all levels): autonomy changes the pause threshold, never
+the stop floor. Stop and surface to a human when two higher-or-equal-authority
+artifacts truly contradict, when the next action is destructive or
+irreversible and unauthorized, or when a decision only a human can make is
+required. Never-collapse-the-loop invariant: autonomy changes checkpoint
+density only; a high-autonomy run executes the same activities a low-autonomy
+run would, pausing less often.
 
-**Never-collapse-the-loop invariant (all levels).** Autonomy changes checkpoint
-density only. It never collapses the seven-activity loop into one generic prompt
-and never skips an activity the work requires — a high-autonomy run executes the
-same activities a low-autonomy run would, pausing less often.
-
-Workflow modes that pause (`input`, `frame`, `evolve`, `design`) honor the
-resolved level; runtime handoff honors the runtime's own pause policy. Routes
-that select concerns honor the high-autonomy inference path.
-
-## Apply The Autonomy Level
-
-A second-axis autonomy declaration is layered on top of the policy spectrum
-above for runtimes that support an explicit operator-facing level
-(`manual` / `guided` / `autonomous` / `aggressive`). When that declaration is
-present, consult it before every state-changing tool use.
-
-Before any tool use that mutates state (Write, Edit, Bash that writes, git,
-install), determine the effective autonomy by reading sources in this order;
-the first source that defines a level wins:
-
-1. **Per-prompt override** — slash prefix (`/helix-autonomous`, `/helix-manual`)
-   or `HELIX_AUTONOMY=<level>` environment variable.
-2. **Repo-user-local override** — `.helix-autonomy.yml` at the repo root
-   (gitignored; per-user-per-repo).
-3. **User default** — `~/.config/helix/autonomy.yml` (per-user, all repos).
-4. **Repo default** — the `autonomy:` block in `.helix.yml`
-   (committed, team baseline).
-5. **Skill default** — `guided` if no source defines a level.
-
-Then dispatch on the resolved level:
-
-- `manual` — state the proposed action, list its effects, and ask
-  "OK to proceed?" before ANY tool use (Read, Write, Edit, Bash).
-- `guided` — state the proposed action briefly. Ask before the *first*
-  state-changing tool use in the conversation. Subsequent state-changing
-  tool uses within the same turn proceed silently UNLESS the action touches
-  a `stop_at` event.
-- `autonomous` — proceed without asking; surface results after the fact.
-  Stop only on a `stop_at` event or irreducible ambiguity (e.g. two equally
-  valid graph routes, an ambiguous methodology activation). **Even when
-  silently routing via `defaults.flow` / `defaults.methodology`, prose-
-  attribute the routing decision in your FIRST text block** — name the
-  chosen flow ("Routing to helix because the marker's default flow is
-  helix") so downstream readers and bench graders can confirm the routing
-  decision. Silent routing is operationally allowed; silent-AND-unspoken
-  routing is a contract violation.
-- `aggressive` — as `autonomous`, but additionally take initiative across the
-  full methodology graph (e.g. draft ALL declared prerequisites plus the
-  requested artifact in one pass). Still honors `stop_at` and irreducible
-  ambiguity. Same prose-attribution rule as `autonomous`.
-
-`stop_at` is a hard floor that fires at every level, including `autonomous`
-and `aggressive`. The authoritative trigger list lives at
-`library/skill-prompts/stop-at-triggers.yml`. Load it at graph-mode start
-and consult each trigger's matcher before every mutating tool use. A repo
-may add triggers via `stop_at_extensions:` in `.helix-autonomy.yml`; the
-active set is the union of base + extensions. Base triggers cannot be
-removed.
-
-The base v1 triggers are:
+Stop triggers (`stop_at`) are a hard floor at every level. The authoritative
+list is `library/skill-prompts/stop-at-triggers.yml`; load it when the skill
+engages and consult it before every state-changing tool call. A repo may add
+triggers under `autonomy.stop_at_extensions:` in `.helix.yml`; base triggers
+cannot be removed.
 
 | Trigger id | Fires on |
 |---|---|
-| `marker_edit` | Write/Edit on `.helix.yml` or `.helix-autonomy.yml` |
-| `cross_methodology_edge_creation` | Write/Edit that introduces `cross_methodology: true` or `cross_instance: true` |
+| `marker_edit` | Write/Edit on `.helix.yml` |
+| `cross_methodology_edge_creation` | Write/Edit introducing `cross_methodology: true` or `cross_instance: true` |
 | `branch_or_merge` | Bash running `git checkout|merge|push|reset|rebase|cherry-pick` or `gh pr merge|create` |
 | `secret_read` | Read or Bash targeting `.env`, `.tfvars`, `credentials.json`, `.pem`, `id_rsa(.pub)`, `private_key`, `.key`, `secrets/` |
-| `large_diff` | Single Write/Edit whose content exceeds 500 lines (per tool_use, not aggregated) |
+| `large_diff` | Single Write/Edit whose content exceeds 500 lines (per call) |
 | `apply` | Bash running `terraform apply`, `tofu apply`, `databricks jobs|pipelines run|update`, `kubectl apply|delete|patch` |
 
-When a trigger matches, emit an explicit confirmation prompt that names the
-trigger and the proposed action, then wait for the operator's reply. The
-prompt must be distinct from generic affirmations — at minimum, restate the
-action and ask whether to proceed (e.g. "About to run `terraform apply` in
-infra/prod — should I proceed?"). Generic `ok?` / `yes?` prompts do not
-satisfy the contract.
-
-## Workflow Contracts
-
-### Input
-
-Use for sparse user intent that needs to become governed HELIX work.
-
-1. Clarify scope only when missing information would make the resulting work
-   unsafe or unactionable.
-2. Identify governing artifacts that already exist.
-3. Produce or update planning work items rather than implementation work when
-   authority is missing.
-4. Keep created work standalone: include context, acceptance criteria, labels,
-   parent/dependency relationships, and verification commands.
-
-### Grill
-
-Use to stress-test a plan, design, or change via a decision-tree interview
-until shared understanding. Distills the grilling technique (one question at a
-time, recommended answers, facts vs decisions). Full procedure:
-`workflows/actions/grill.md` in source checkouts; this section is normative for
-all installs.
-
-**Why a mode (not only `input`):** grill is stop-before-act interview discipline;
-`input` converts intent into governed work items. Operators must be able to
-invoke interview-only without drafting PRDs or filing implement beads.
-
-1. Bind marker and catalog; load governing artifacts; explore the environment
-   for **facts**.
-2. Build a decision tree of open choices (dependency-ordered), not a bulk
-   questionnaire.
-3. **Interactive:** ask **one question at a time**; wait for the answer. Each
-   question includes a **recommended answer** and short rationale (cite
-   path:line when known). Decisions go to the operator; facts are looked up.
-4. **Headless / non-interactive** (`claude -p`, `codex exec`, a runtime's
-   headless dispatch, CI, one-shot): emit in one response the full decision tree, recommended
-   answers, assumptions for unresolved operator-only decisions, and the
-   §Align handoff. Do **not** block waiting for answers.
-5. **Hard floor (all autonomy levels):** until the operator confirms shared
-   understanding (interactive) or the headless one-shot completes, do **not**
-   Write/Edit product source, file implement/build beads, or apply/deploy.
-   This is a `stop_at`-style checkpoint; it does not rewrite autonomy source
-   precedence for other pauses.
-6. Do **not** create a free-floating `CONTEXT.md` as authority. After confirm,
-   durable decisions land via handoff into existing catalog types (PRD, FEAT,
-   ADR, technical-design, concerns, etc.).
-7. On confirm (or headless completion), emit a §Align handoff with all four
-   fields: destination artifact type, deliverable shape, next mode
-   (`frame` | `design` | `evolve` | `polish` | `validate` | `backfill` | runtime
-   handoff when already governed), evidence references.
-8. Do not silently start frame/design/build in the same turn unless the
-   operator asks.
-
-### Frame
-
-Use for creating or refining product vision, PRD, feature specs, and user
-stories.
-
-1. Read existing Frame artifacts first.
-2. **Select concerns — this is a required Frame step.** A frame pass is not
-   complete until the project's concerns are selected (or it is explicitly
-   recorded that none apply); shipping feature specs with no concern decision is
-   a framing gap, not an acceptable default-empty state. At `low`/`medium`,
-   drive selection interactively by category (tech stack, data, infrastructure,
-   quality). At `high`, infer the selection from the product's nature and record
-   each inferred concern as an assumption. **Fill each needed exclusive slot**
-   (a slot is an exclusive functional position — one frontend framework, one
-   language runtime; defined in `concerns/slots.yml`, resolved via §Catalog
-   Resolution — the `references/concerns/slots.yml` floor when no in-tree
-   catalog is present) by resolution order:
-   operator override (`docs/helix/01-frame/concerns.local.yml`) → shipped default
-   (`slots.yml`) → recorded assumption, and record the chosen filler plus its
-   source in `concerns.md`. A web app must fill `frontend-framework` — the
-   shipped default `react-nextjs` applies with no operator config. A UI web app
-   must also fill `e2e-framework` (default `e2e-playwright`); selecting the tool
-   is not coverage — ≥1 core user-flow must have a whole-stack e2e that runs green
-   against the running app (a browser e2e for a client-rendered UI, or an
-   HTTP+HTML-assertion e2e for a server-rendered one). An **operator-facing**
-   product (a human operator manages mutable domain objects or lifecycle state
-   through a UI) selects `admin-console` — the operator's jobs-to-be-done (CRUD +
-   control actions like pause/cancel) built as usable UI, with the primary
-   operator workflow exercised end-to-end *through the UI*. An **account-based /
-   multi-tenant** product (users/tenants/sign-in/roles/principal-scoped data)
-   selects `auth` — real signup→tenant+owner, login/sessions, server-side RBAC +
-   platform-admin, isolation through the principal — and fills the `auth-provider`
-   slot (default `auth-local-sessions`; an external IdP is a swappable filler,
-   never hardcoded). Neither is selected for pure APIs, CLIs, libraries,
-   static content sites, or read-only dashboards (unless an operator UI is
-   explicitly required). Selection happens here, once; propagation to work
-   items is a later gate owned by `check`/`polish`, not a re-selection.
-3. Read the relevant artifact template, prompt, meta.yml, and active voice
-   profile before drafting.
-4. Keep each artifact in its lane:
-   - Product Vision is direction.
-   - PRD is product scope: capabilities, outcomes, priorities, metrics, and
-     non-goals.
-   - Feature specs are feature behavior, boundaries, edge cases, and
-     decomposition.
-   - User stories are vertical user journeys and observable acceptance
-     criteria.
-   - Contracts are exact shared interface surface: API/CLI/event/schema/config/
-     telemetry/adapter commands, flags, fields, payloads, status codes, error
-     semantics, versioning rules, stability rules, and examples.
-   - Solution Design is the feature-level technical approach, domain model,
-     component decomposition, and interface usage.
-   - Technical Design is the story-level implementation design: files,
-     component changes, tests, rollback, sequence, and references to governing
-     Contracts.
-   Exact shared interface surface belongs in Contract, not PRD, Feature Spec,
-   User Story, Solution Design, or Technical Design. Those artifacts may name or
-   reference the need for an interface; they do not define the normative
-   surface inline.
-5. Give each user-story acceptance criterion a stable `US-<n>-AC<m>` ID in
-   Given/When/Then form so the story test plan can map it to tests by name.
-   Decompose to a **coverage floor** (minimum rigor, not equal depth): every PRD
-   functional requirement `FR-n` maps to ≥1 user story (don't bundle unrelated
-   `FR-n`s without justification), and every acceptance criterion gets ≥1 test
-   that *exercises* it — a named test with no relevant assertion is `UNTESTED`,
-   not covered. An untested AC blocks unless a reviewed manual/non-automatable
-   exception is recorded with evidence. Every covering test must **cite the AC
-   ID it covers** in the canonical, parseable syntax `@covers US-<n>-AC<m>` so
-   traceability is machine-checkable — an exercising, passing test that omits
-   the citation is `UNCITED_COVERAGE` (fix = add the citation, not a new test),
-   distinct from `UNTESTED`; a test that cites an AC it does not exercise is
-   `ASSERTED_UNBACKED`. Citation is an additional gate on top of
-   exercise+pass+satisfy, never a replacement.
-6. Validate blocking template checks before treating the artifact as ready.
-7. Create follow-up design or implementation work only after the framing
-   artifact can govern it.
-
-### Align
-
-Use for reconciliation, traceability audits, drift checks, and artifact content
-placement reviews.
-
-1. Start from authority: vision, PRD, features/stories, architecture/ADRs,
-   designs, tests, implementation plans, code. The spec stack is the contract;
-   code is a projection of it. Traceability is **bidirectional**: every material
-   code surface (route/screen/CLI/API/job/migration) traces to a governing
-   artifact, and every acceptance criterion traces to an exercising test. Unmapped
-   material surfaces and unimplemented criteria are both alignment findings.
-2. **Desired-state rule (with intent guard).** Specs describe the **desired**
-   future state. Code behind specs → residual work items (beads/tracker), not
-   silent requirement shrinks. Code ahead of docs → classify as plan-to-code
-   honesty (`STALE_PLAN` / honesty evolve). Evolving specs to match code
-   requires **operator intent** (explicit request or approved handoff) — do
-   not auto-bless unapproved implementation as plan authority. Code reflects
-   state; it does not redefine plan alone.
-3. Reconstruct intent from planning artifacts before inspecting lower layers.
-4. Classify each gap as `ALIGNED`, `INCOMPLETE`, `DIVERGENT`,
-   `UNDERSPECIFIED`, `STALE_PLAN`, or `BLOCKED`.
-5. Produce one durable alignment report when the action is more than a
-   conversational review. The report must remain reviewable by a human in
-   under ten minutes. Prefer the alignment-review template under the catalog
-   (`workflows/templates/alignment-review.md` or the package
-   `references/templates/` path when present).
-6. For every non-aligned gap (`INCOMPLETE`, `UNDERSPECIFIED`, `DIVERGENT`,
-   `STALE_PLAN`), the handoff to implementation must name all four of:
-   - **Destination artifact type** (e.g. PRD, FEAT, US, ADR, TD, TP) where
-     the gap is resolved.
-   - **Deliverable shape**: the concrete content to add (e.g. "a TD section
-     answering X", "a US covering Y", "an ADR recording the Z choice").
-   - **Suggested next workflow mode** (`frame`, `design`, `polish`,
-     `validate`, `evolve`, `backfill`) or runtime handoff when execution is
-     already governed — never a CLI command.
-   - **Evidence references**: artifact paths plus line numbers (or section
-     anchors) supporting the finding.
-7. Create or identify follow-up work for every non-aligned gap using the
-   handoff fields above. **Evidence-gated implement work:** before filing
-   build/implement items, require concrete residual evidence (paths, tests,
-   commands). Prefer story/AC floor items when only docs/traceability lag.
-   "Residual already green" means a governing AC is exercised by a passing
-   test (or a recorded exception). Close or re-scope only with that evidence.
-
-### Validate
-
-Use to check a single artifact instance against its governing template and
-prompt, then edit resolvable findings in place.
-
-1. Load the artifact instance and resolve its artifact type: read `ddx:`
-   frontmatter when present (`ddx.type`, else inferred from `ddx.id`
-   prefix); otherwise resolve by path or filename pattern against the
-   artifact-type catalog the runtime exposes.
-2. Load the artifact-type's `template.md`, `prompt.md`, `meta.yml`, and active
-   voice profile from the resolved catalog path (see §Catalog Resolution and
-   §Voice Resolution).
-3. Run structural conformance: required section headings from `template.md`
-   are present, and required frontmatter fields from `meta.yml` are
-   populated.
-4. Run prompt-section conformance: every section the `prompt.md` asks for is
-   answered in the instance or explicitly marked N/A with a reason.
-5. Run voice conformance against the active profile, then classify each finding
-   keyed to the relevant template, prompt, meta.yml, or voice-profile section
-   using the Align taxonomy: `ALIGNED`, `INCOMPLETE`, `DIVERGENT`,
-   `UNDERSPECIFIED`, `STALE_PLAN`, or `BLOCKED`. For `artifact-signal`, flag
-   filler, unscoped claims, unsupported implementation-status language in
-   specifications, missing actors, hidden assumptions, and prose that smooths
-   away artifact IDs, paths, commands, metrics, statuses, acceptance criteria,
-   or trace links. If Sloptimizer is available, it may perform this pass using
-   the active HELIX profile as constraints; otherwise apply the profile
-   directly.
-6. Produce updates: when the user invoked validate to fix, apply edits
-   in place for every finding the template, prompt, metadata, or voice-profile
-   comparison can resolve mechanically — typically `INCOMPLETE` findings
-   (missing required sections, stale frontmatter shape, renamed headings,
-   unsupported filler, or unscoped claims). For
-   findings classified as `DIVERGENT`, `UNDERSPECIFIED`, `STALE_PLAN`,
-   or `BLOCKED` — which need human judgement — surface a §Align gap-to-
-   implementation handoff for that specific finding instead of editing.
-   When the user invoked validate to audit, surface a §Align handoff
-   for every non-`ALIGNED` finding regardless of mechanical
-   resolvability.
-
-### Refresh
-
-Use to bring every artifact instance under a project HELIX tree up to
-date with the current canonical templates and prompts. §Refresh is
-§Validate (fix-mode) applied across a whole project in one pass.
-
-1. Resolve the project HELIX root per §Project Root Resolution.
-   Enumerate every artifact instance under it. Group instances by
-   activity directory (00-discover, 01-frame, …, 06-iterate). Skip
-   anything that isn't an artifact instance (READMEs, plan
-   sub-directories, generated files).
-2. For each instance, run §Validate in fix-mode. When the runtime
-   supports sub-agent dispatch, parallelise across the activity groups
-   (one agent per activity); otherwise execute the groups in activity
-   order.
-3. Aggregate the per-instance §Validate outputs into a single report:
-   per-classification counts using the unified taxonomy (`ALIGNED` /
-   `INCOMPLETE` / `DIVERGENT` / `UNDERSPECIFIED` / `STALE_PLAN` /
-   `BLOCKED`) plus the union of every §Align gap-to-implementation
-   handoff §Validate produced.
-4. §Refresh surfaces handoffs in the report. It does **not** itself
-   file work items — that responsibility stays with the runtime: DDx
-   runtimes may file work items in response, Claude Code runtimes may emit
-   tracker issues, chat-only runtimes may simply display the report.
-   This keeps §Refresh runtime-neutral while preserving §Align's
-   tracker-mutation rules for runtimes that have a tracker.
-5. §Refresh is read-only against templates and prompts in the skill
-   catalog. If §Refresh reveals that a template itself needs to change,
-   route through `evolve` against the catalog separately.
-
-### Evolve
-
-Use when the user wants to add, remove, amend, or thread a requirement through
-the HELIX artifact stack.
-
-1. Read the entry artifact's frontmatter; collect its `ddx.id` and
-   `ddx.links` list. `ddx.links` is the canonical instance-edge field used
-   by both authoring and Evolve.
-2. Build the impact graph from every governing artifact's `ddx.links` entries,
-   then walk it in both directions:
-   - typed downstream entries (`kind: informs`, `contains`, or `enables`) point
-     from the current artifact to the target they inform;
-   - typed upstream entries (`kind: informed_by`, `depends_on`, `requires`, or
-     `references`) point from the current artifact to the authority it relies on;
-   - untyped string entries are accepted as upstream shorthand for existing
-     project documents.
-   The upstream impact set is every artifact reachable through upstream edges;
-   the downstream impact set is every artifact reached by reversing upstream
-   edges and following downstream entries.
-3. Compatibility: if `ddx.links` is absent, Evolve MAY read legacy
-   `ddx.depends_on`, top-level `depends_on`, or `relationships.depends_on` as
-   upstream edges, and `relationships.informs` / `relationships.referenced_by`
-   as downstream edges. If canonical `ddx.links` is present, it wins; preserve
-   legacy fields byte-for-byte but do not silently translate or mass-migrate
-   them during an incidental Evolve pass.
-4. When `ddx:` frontmatter is absent, fall back to filesystem traversal:
-   activity-numbered directories in the project's HELIX layout supply the
-   authority hierarchy; artifact-type directories supply the type
-   relationships.
-5. Detect conflicts with existing artifacts and open work.
-6. Apply updates from the highest-authority artifact down: vision, PRD,
-   feature specs/stories, architecture/ADRs, solution and technical
-   designs, test plans, implementation plans, then code.
-7. Surface conflicts explicitly when a downstream artifact contradicts an
-   updated upstream — do not silently overwrite the downstream; route it
-   through the §Align gap-to-implementation handoff instead.
-8. Create follow-up work with dependencies where ordering matters.
-9. Prefer **progressive evolution** of the specific affected artifacts over
-   re-generating the stack. Converge on "verified + each finding-class folded
-   into a gate" (a template check, an acceptance criterion, a concern
-   propagation check, or a ratchet) — not on a bare reviewer "SHIP" verdict.
-   Intrinsic gates (build, test, conformance, phantom-claim count) block;
-   external adversarial review is advisory and never a hard gate.
-
-### Design
-
-Use when implementation needs design authority before build work.
-
-1. Load governing artifacts, existing designs, implementation context, tests,
-   and open work for the scope.
-2. Draft problem statement, requirements, architecture decisions, interfaces,
-   data model, errors, security, testing, sequencing, risks, and observability.
-3. Iterate through self-critique until material changes converge.
-4. Write the design to the project HELIX design location.
-5. Derive ordered, verifiable implementation work from the design.
-
-### Backfill
-
-Use to reconstruct missing or incomplete HELIX artifacts from evidence.
-
-1. Read available evidence: artifacts, implementation, tests, delivery notes,
-   and recorded decisions.
-2. Separate confirmed facts from inference.
-3. Reconstruct only what the evidence supports.
-4. Mark uncertainty explicitly.
-5. Create follow-up work for unresolved authority gaps.
-
-### Review
-
-Use for fresh-eyes review of plans, PRs, implementation, or recent work.
-
-1. Scope the review narrowly.
-2. Inspect governing artifacts, changed implementation, tests, and public
-   projection relevant to the scope.
-3. Report findings first, ordered by severity, with concrete evidence.
-4. Run the **claims-vs-reality** check: any artifact assertion of a test,
-   coverage figure, or emitted metric that does not exist is a blocking
-   phantom-claim finding (zero-floor), not a stylistic note.
-5. File durable follow-up work for actionable medium-or-higher findings in
-   the project's work tracker.
-6. A clean verdict is necessary but not sufficient: the loop converges only
-   when the work is verified **and** each finding-class is folded back into a
-   gate so it cannot silently recur. Drive fixes by progressive evolve against
-   the specific finding, not by re-generating the artifact or implementation.
-7. **Intrinsic gates block; external adversarial review is advisory.** The
-   intrinsic gates — build, test, template conformance, the phantom-claim count
-   — block convergence. An external adversarial reviewer (a separate tool or
-   model) is advisory input only and must never be a hard gate: when it hangs,
-   errors, or is unavailable, convergence is decided by the intrinsic gates.
-
-### Polish
-
-Use to refine work items before execution.
-
-1. Load open work for the scope and any governing plan.
-2. Run multiple passes for deduplication, coverage, acceptance quality,
-   dependency correctness, sizing, and label hygiene.
-3. **Evidence gate for implement/build items:** verify residual against
-   code/tests before keeping or filing build work. Prefer story/AC floor
-   items when only docs lag. Close or re-scope items whose residual is
-   already green (passing tests cite the AC, or documented exception).
-4. Require execution-ready work items to name exact files, commands, checks, fields,
-   or observable repository states.
-5. If acceptance cannot be sharpened from governing artifacts, flag the work as
-   not execution-ready and route it back through planning.
-
-### Iterate
-
-Use to plan or report a human iteration: sequence a roadmap, define
-workstreams, cut an iteration plan from the backlog and roadmap, or record
-status against the active plan. This is the human-cadence loop of activity
-`06-iterate`; runtime execution loops stay with the runtime
-(§Runtime Handoff).
-
-**Skip test — apply per artifact, before authoring.** These artifacts exist
-to coordinate people; they cut risk only when there is coordination to do.
-Each is authored only when its own predicate holds (conditions joined by
-OR — any one suffices; none → skip that artifact):
-
-- `roadmap`: two or more workstreams exist, OR sequencing across two or
-  more future iterations is contested.
-- `iteration-plan`: the iteration has two or more owners, OR two or more
-  workstreams, OR ends in a review with an audience.
-- `status-report`: the report has an audience (a review, a client
-  checkpoint, a stakeholder update).
-
-When an artifact's predicate fails, the tracker and the governing specs
-already carry that work. Authoring all three because the types exist is
-process as deliverable, which this methodology forbids (Deliverable Over
-Machinery).
-
-1. Read the governing artifacts first: PRD, roadmap, improvement backlog,
-   and the active iteration plan when one exists.
-2. Sequencing (`roadmap`): define the workstream registry and order framed
-   outcomes across iterations with dependencies, confidence, and rationale;
-   commit nothing beyond the stated horizon. Workstream aliases are stable
-   `WS-<n>` — assigned sequentially, never reused or renumbered; a closed
-   workstream keeps its alias. Aliases are unique within one flow instance.
-   Downstream artifacts reference aliases and never mint workstreams; work
-   items preserve the alias — as a label where the runtime supports labels
-   (e.g. `ws:WS-1`, prefixed with the flow instance when several flows
-   share one store), otherwise in the item's title or reference field.
-3. Planning (`iteration-plan`): a time-boxed commitment — a falsifiable
-   goal, and per participating workstream exactly one Good, one Better, and
-   one Best outcome with owners and acceptance evidence. Good is the
-   protected floor: never traded, and once committed its ID, text, and
-   acceptance evidence are immutable for the iteration — a Good that
-   becomes impossible is an escalation recorded in the status report with
-   its decider named, never an in-place edit or re-tier. Best drops first,
-   then Better; a workstream that cannot fill all three tiers is not
-   participating this iteration, never partially committed. Workstream
-   aliases come from the roadmap when one exists; a roadmap-less plan has
-   one implicit workstream and uses no aliases — a second workstream means
-   author the registry first. Every outcome maps to at least one task;
-   outcome and task IDs are unique within the plan (fully qualified as
-   `<iteration-id>.<id>`).
-4. **Plan-owns-membership invariant**: the plan owns commitment membership —
-   task rows select existing work items by ID, and rows without one are the
-   source from which the runtime creates items (via §Runtime Handoff),
-   back-referencing each new ID in the plan. The tracker owns live status
-   and execution history; the plan's Status column is planning-time state
-   only. Never turn the plan into the live tracker, and never let
-   hand-added tracker items silently widen the plan — scope changes route
-   back through the plan.
-5. Reporting (`status-report`): outcome status against the plan's IDs with
-   evidence per claim, whatever the status — done and at-risk cite proof or
-   threat, on-track cites observable progress, dropped cites the trade or
-   escalation; an evidence-free claim is a phantom claim. Trades cite the
-   plan's trade rules; a Good at risk names its decider.
-6. Close the loop: review learnings land in the improvement backlog, and
-   revision triggers may re-sequence the roadmap. Do not fork an untracked
-   side-plan.
-
-### Check And Next
-
-Use when the safe next action is ambiguous, when the user asks "what's
-next" / "what's blocked" / "plan the change", or when a single ask
-straddles two or more flows declared in the marker (e.g. the prompt
-names a data-pipeline artifact whose blocker is an infra prerequisite).
-
-1. Inspect the queue, governing artifacts, and known blockers.
-2. Decide conservatively among design, alignment, backfill, polish, runtime
-   handoff, wait, guidance, or stop.
-3. Do not dispatch another workflow silently.
-4. When recommending the next action against a specific gap, name it using
-   the §Align gap-to-implementation handoff shape: destination artifact
-   type, deliverable shape, suggested next workflow mode, and evidence
-   references (paths plus line numbers). Never prescribe a CLI command.
-5. If missing tracked work is discovered, create or recommend explicit work
-   before returning the next action.
-
-#### Cross-flow ask — owner-flow first, then prerequisite fan-out
-
-A **cross-flow ask** is any prompt whose answer requires consulting more
-than one flow in the marker. Three shapes recur:
-
-- **Single-artifact ask whose blocker lives in another flow.** Example:
-  "The monitoring dashboard needs a DNS record. Set this up." The
-  monitoring-setup artifact is owned by `helix-data` (it lives under
-  `pipelines/<scope>/` per the marker); the DNS record is owned by
-  `helix-infra`. The data flow is the **owner-flow** because it owns
-  the artifact named in the prompt. Infra is a **prerequisite-flow**
-  that must satisfy a precondition before the data-flow item ships.
-- **Multi-flow status query.** Example: "What's blocked across the
-  project?" / "What's next?" against a marker with two or more flows.
-  Every active flow in the marker is a candidate owner — none can be
-  silently dropped.
-- **PRD-needs-infra ask.** Example: "The PRD needs new infra — plan
-  it." Product owns the PRD (owner-flow); infra owns the provisioning
-  artifact downstream. The PRD edit and the infra plan are TWO
-  artifacts in TWO flows, linked by a cross-flow edge.
-
-Cross-flow contract (every cross-flow ask):
-
-1. **Resolve the owner flow first.** Identify the flow whose `root:` owns
-   the named artifact (or the artifact the prompt's noun phrase most
-   directly names). Do not jump straight to the prerequisite flow because
-   its verb (DNS, deploy, provision) appears in the prompt. The artifact's
-   home flow wins.
-2. **Read the owner-flow's named upstream artifacts.** From the
-   marker's `root:` for the owner-flow, locate and Read the artifact
-   the prompt references (e.g. `monitoring-setup.md`,
-   `data-product-brief.md`, `prd-*.md`) BEFORE proposing any action.
-   For each upstream named in `ddx.links:` or `informs` edges that
-   the answer depends on, Read it too. Catalogue which artifacts
-   exist (with path + status from frontmatter) and which are missing.
-3. **Fan out to prerequisite flows.** For each cross-flow
-   prerequisite the owner-flow surfaces (e.g. the monitoring-setup
-   prose says "dashboard URL needs DNS"; the PRD's acceptance
-   criteria require a new VPC), read that prerequisite flow's scoped
-   artifacts before drafting the prerequisite-flow action. Each active flow
-   that owns part of the answer gets its own scoped artifact read and its own
-   handoff in the response.
-4. **For a multi-flow status query** ("what's blocked across the
-   project?", "what's next?"), inspect every relevant flow listed in the
-   marker before reporting per-flow status. Answering from generic prose alone
-   without reading the scoped artifacts is the failure mode this rule prevents.
-
-Cross-flow response shape (always emit all three):
-
-- **Named upstream artifacts and their state.** A list of the
-  artifacts the answer depends on, each annotated `exists` (with
-  path + frontmatter `status:` if present) or `missing` (with the
-  graph node that says it should exist). Example:
-  `pipelines/customer-events/monitoring-setup.md` (exists,
-  status: in-progress); `infra/dns/customer-events.tf` (missing,
-  required by monitoring-setup prose).
-- **Cross-flow prerequisites.** Name each prerequisite as
-  "`<owner-flow>` needs `<prerequisite-flow>` to <verb> <object>
-  before `<owner-flow>` can <ship-verb> <artifact>". Example:
-  "helix-data needs helix-infra to provision the DNS record for
-  `customer-events.metrics.example.com` before helix-data can mark
-  monitoring-setup ready."
-- **Concrete next action per flow.** For each flow with an action
-  pending, emit a §Align gap-to-implementation handoff: destination
-  artifact type (e.g. `network-iac` under `infra/`), the flow's domain lane
-  when relevant, suggested workflow mode or runtime handoff, and evidence paths
-  with line numbers (e.g. `pipelines/customer-events/monitoring-setup.md:20`).
-  Never prescribe a CLI command; the operator chooses dispatch.
-
-Do not skip owner-flow resolution because the prompt is short or the
-prerequisite verb is loud. Do not collapse multiple flows into a single
-undifferentiated answer.
-
-### Runtime Handoff
-
-Use when a workflow mode concludes that the next step is execution, source
-control, packaging, or a long-lived operator loop. HELIX does not own those
-surfaces; the runtime does.
-
-1. Name the governed work item or artifact gap that is ready for runtime
-   action.
-2. Name the domain lane and scope instance the runtime should preserve.
-3. Name the verification evidence the runtime must record before reporting
-   completion. For buildable products, this includes observable end-to-end
-   evidence against the running system when feasible, plus a claims-vs-reality
-   check with zero phantom claims. See the in-tree
-   `workflows/concerns/verification/practices.md`, or the
-   `references/concerns/verification/practices.md` floor — resolved via
-   §Catalog Resolution (the floor always resolves).
-4. For data-backed products, require governed sample or seed data with
-   synthetic non-PII values and enough variation to exercise schema-relevant
-   states. See the in-tree `workflows/concerns/sample-data/practices.md`, or the
-   `references/concerns/sample-data/practices.md` floor — resolved via §Catalog
-   Resolution (the floor always resolves).
-5. Do not prescribe runtime commands from the skill body. Point to the
-   runtime's install or operator guide for concrete execution, source control,
-   packaging, or loop commands.
-
-### Experiment
-
-Use for metric-driven optimization loops.
-
-1. Define the goal, metric, baseline, intervention, and stop condition.
-2. Run bounded iterations.
-3. Measure after each iteration.
-4. Keep changes or revert/adjust based on metric evidence.
-5. To validate a **methodology or skill change** (a workflow prompt, template,
-   or this routing skill), use the **regression bench**: record a committed
-   baseline, run a fixed brief from the bare prompt with the improved skill
-   *installed* (never by redirecting reads), score intrinsic metrics against the
-   baseline, and **keep what moved, cut what didn't**. The bench is the standing
-   answer to "how do we know this change is impactful."
-
-## Consult The Graph Before Authoring
-
-When the user asks for a new artifact of type `T` in the active methodology `M`
-(per the resolved marker), consult `M`'s graph before drafting. This is the
-runtime use of the methodology graph: the same edges the validator checks
-govern what the skill should surface as prerequisites at authoring time.
-
-1. Read `M`'s `graph.yml`, bound via §Catalog Resolution (in-tree
-   `workflows/graph.yml`, a marker `graph:` pointer, or the `references/`
-   floor — whichever resolves first).
-2. Find the node `n` whose `type` matches `library:T` or `local:T`.
-3. Enumerate incoming edges to `n` whose `kind` is one of
-   `{requires, contains, informs}`.
-4. For each such edge `(src → n, kind, required)`:
-   - If `required: true` AND no instance of `src.type` exists in this
-     methodology's instance scope, **surface this as a prerequisite**. Per the
-     resolved §Autonomy level, either ask whether to draft `src` first
-     (`low`/`medium`), or draft `src` autonomously then `n` (`high`).
-   - If `required: false` AND no instance of `src.type` exists, note it as a
-     "consider also drafting" but do not block authoring of `n`.
-5. Only after prerequisites are present (or the operator has explicitly chosen
-   to skip them) proceed to author the requested artifact.
-6. After authoring, populate `ddx.links` to point at existing upstream
-   instances. **Do not invent links**: per Edge Authority Asymmetry, types
-   declare what is possible and instances declare what is actual. Every
-   `ddx.links` entry is a deliberate authoring decision, never a mechanical
-   projection of a graph edge.
-
-Graph consultation is **per-authoring**, not per-session: re-consult on every
-new artifact request because the instance scope may have changed since the
-previous turn (operator-side edits, parallel work, evolve passes).
-
-If the graph carries a **non-standard or locally-added edge** (a project's
-`workflows/graph.yml` introduces an edge not in the canonical HELIX library —
-e.g. `prd requires market-validation-brief`), the same rules apply: a graph
-edge governs what the skill surfaces, regardless of whether the edge matches
-general HELIX knowledge. Surfacing only the canonical edges and skipping the
-graph-declared ones is a graph-consultation defect, not an acceptable
-shorthand.
-
-## Alignment Content Migration
-
-If a user asks whether content belongs in the right HELIX document, use align
-mode. The alignment output must include a content migration ledger for every
-misplaced content unit:
-
-| Field | Required content |
-|---|---|
-| Source | Artifact path and line references |
-| Content unit | Small named chunk of content |
-| Classification | `keep`, `move`, `split`, `delete`, `needs-new-artifact`, or `decision-needed` |
-| Destination | Exact destination artifact path or artifact type |
-| Content to add | Destination-shaped draft content |
-| Template fit | Destination section and blocking/warning checks |
-| Destination risks | Any template check the proposed addition would fail |
-| Follow-up | Tracker issue ID or explicit issue to create |
-
-Do not remove content from one artifact unless the destination content and
-follow-up work are captured durably.
+When a trigger matches, name the trigger and the proposed action, ask whether
+to proceed, and wait ("About to run `terraform apply` in infra/prod — should
+I proceed?"). Generic `ok?` prompts do not satisfy the contract. At every
+level, name the routing decision in the first text block when routing
+silently via `defaults.flow`; silent routing is allowed, unspoken routing is
+not.
 
 ## Operating Discipline
 
 - Prefer the product unit (or methodology content that changes behavior) over
   process redesign. Bound process machinery, freeze it, deliver.
-- **Freeze redirect:** `Machinery frozen as-is. Deliver the unit now — no schema/digest/governance redesign until it ships (unless the unit *is* that methodology content).`
 - Do not skip real defect checks (tests, product ACs, claims-vs-reality,
-  scope-discipline) under cover of shipping faster.
-- Use the workflow contracts in this skill as the active interface; consult
-  packaged workflow prompts only when deeper mode-specific detail is needed.
+  scope discipline) under cover of shipping faster.
 - For projects with a work tracker, obey work-item-first rules before writing
-  files or tracker mutations.
-- Do not silently start implementation when the request is planning, alignment,
-  review, or routing.
-- If the correct route is unclear, use check mode rather than guessing.
-- Preserve the HELIX artifact authority hierarchy: vision, PRD,
-  features/stories, architecture and ADRs, designs, tests, implementation
-  plans, code.
-- **Short affirmations inherit the prior turn's offered scope.** When the user
-  replies with a bare confirmation (`"do it"`, `"yes"`, `"go"`) after the
-  prior turn surfaced multiple branches or options, do not silently pick one.
-  Ask which branch, or — if only one was recommended — restate it verbatim
-  before acting.
-- **Scope complaints and pasted-evidence reactions route to `align` or
-  `evolve`, not to direct edits.** When the user pastes a snippet and says
-  something like "this isn't going to scale" or "what is this BS", treat the
-  complaint as evidence for §Align (find the upstream artifact that should
-  govern the pattern) or §Evolve (thread the new constraint through the
-  artifacts). Do not patch the pasted code in place.
-- **Operator pushback on a reported blocker triggers an alignment surface,
-  not a retry.** When the user pushes back on a claim like "this is blocked"
-  or "you said this couldn't be done", the response must name the specific
-  artifact-line evidence behind the blocker and route through the §Align
-  handoff fields. Retrying the same operation without diagnosis is
-  forbidden.
-- **`check` mode returns status; design changes are a follow-up turn.** When
-  asked "what's the situation with X" or "is X needed", surface the current
-  state plus a §Align-shaped next-step recommendation. Do not bundle a design
-  proposal in the same turn — the operator decides whether to invoke
-  `design` or `evolve` next.
+  files or mutating the tracker.
+- Do not silently start implementation when the request is planning,
+  alignment, review, or routing. If the correct route is unclear, use `check`
+  rather than guessing.
+- Preserve the artifact authority hierarchy: vision, PRD, features/stories,
+  architecture and ADRs, designs, tests, implementation plans, code.
+- Short affirmations ("do it", "yes") inherit the prior turn's offered scope.
+  When several branches were offered, ask which; when one was recommended,
+  restate it exactly before acting.
+- Scope complaints and pasted-evidence reactions ("this isn't going to
+  scale") route to `align` or `evolve`, never to direct edits of the pasted
+  code.
+- Operator pushback on a reported blocker triggers an alignment surface, not
+  a retry: name the artifact-line evidence behind the blocker and route
+  through the §Align handoff fields.
+- `check` returns status; design changes are a follow-up turn the operator
+  chooses.

@@ -78,3 +78,31 @@ profiles:
       - internal-only shorthand
       - proof-source disclaimers that read like doctrine
       - duplicated explanations across adjacent pages
+
+  human-facing:
+    conciseness: 5
+    audience:
+      - decision-makers, sponsors, and executives
+      - clients and customers
+      - readers with no HELIX or engineering vocabulary
+    purpose: Help a reader decide or act, in their own vocabulary, without a HELIX glossary.
+    use_for:
+      - decks, one-pagers, briefs, and memos projected from governed artifacts
+      - client-facing status and proposal documents
+      - any artifact section a meta.yml override marks human-facing
+    required_moves:
+      - Open with what it means for the reader, then the evidence, then the ask.
+      - Make every title and heading a claim, not a label ("Churn falls 12% with prebill review", not "Results").
+      - Define or drop every HELIX and engineering term; no artifact IDs, activity names, work-item vocabulary, or acceptance-criterion codes in the body. Provenance goes in an appendix or the frontmatter.
+      - One idea per paragraph, bullet, or slide; concrete consequences over value language.
+      - Give every number a source; trace every claim to a governing artifact section.
+      - Vary sentence length; active voice; plain verbs.
+      - Subset the governing artifact when the audience needs less; never contradict it.
+    avoid:
+      - em dashes, filler tokens (delve, leverage, seamless, robust, landscape), rhetorical reversals, rule-of-three padding
+      - bold-label bullets and TL;DR labels
+      - reader-steering tics ("worth noting", "the real X", "the candid version")
+      - hedges and unsupported claims
+      - placeholder text and template brackets
+      - internal shorthand ("the catalog", "the flow") and process narration
+

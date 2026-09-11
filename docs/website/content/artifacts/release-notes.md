@@ -1,7 +1,7 @@
 ---
-title: "Release Notes — HELIX v0.3.3"
+title: "Release Notes — HELIX v0.12.0"
 slug: release-notes
-weight: 970
+weight: 470
 activity: "Deploy"
 source: "05-deploy/release-notes.md"
 generated: true
@@ -9,36 +9,62 @@ generated: true
 
 > **Example from HELIX's own docs.** This generated page comes from `docs/helix/`. Use it to see the method in practice; start with the [artifact-type catalog](/artifact-types/) for reusable templates. Historical plans and reports may describe retired architecture.
 
-# Release Notes — HELIX v0.3.3
+> **Source identity** (from `05-deploy/release-notes.md`):
+
+```yaml
+ddx:
+  id: release-notes
+  authoring:
+    home: repo
+  depends_on:
+    - deployment-checklist
+```
+
+# Release Notes — HELIX v0.12.0
 
 ## Release Scope
 
-- Release identifier or version: `v0.3.3`
-- Release date: 2026-04 (operator-driven; tag commit `0db3ea8`)
-- Rollout window or environment: HELIX plugin (consumed by users via repo
-  tag) and the public website at `https://documentdrivendx.github.io/helix/`
+- Release identifier or version: `v0.12.0`
+- Release date: 2026-08-21 (operator-driven; tag commit `c1c66f25`)
+- Rollout window or environment: HELIX plugin (Claude Code marketplace,
+  Codex plugin, Databricks Genie bundle, Grok Build) and the public website
+  at `https://documentdrivendx.github.io/helix/`
 - Release owner: HELIX maintainer cutting the tag
-- Source commit or build: `0db3ea8` (tag `v0.3.3`)
+- Source commit or build: `c1c66f25` (tag `v0.12.0`); previous release
+  `v0.11.0` at `1553a431` (2026-07-22)
 
 ## Audience and Channels
 
 | Audience | Why they care | Delivery channel |
 |----------|---------------|------------------|
-| HELIX plugin users | New CI behavior and review-threshold knob affect day-to-day queue-drain output | Plugin repo tag; release notes in `docs/helix/05-deploy/release-notes.md` |
-| Website readers | Public docs at `documentdrivendx.github.io/helix/` updated to the tag | GitHub Pages rebuild; release-notes page |
-| HELIX maintainers | Test-suite stability changes need to be folded into local development practice | Repo issues and the HELIX commit workflow |
+| HELIX plugin users | New iterate-activity artifact types (roadmap, iteration plan, status report) and the grill mode change what `/helix` can author | Plugin repo tag; marketplace update |
+| Website readers | The artifact-type reference and workflow-mode pages regenerate from the catalog and the skill | GitHub Pages rebuild |
+| HELIX maintainers | The deliverable-over-machinery principle and lean plan defaults change how plans and work items are shaped | This file and `workflows/principles.md` |
 
 ## Highlights
 
-- **CI stability**: skill packaging tests now filter spurious DDx update
-  notices that were causing intermittent CI red without indicating a real
-  regression.
-- **Review-threshold knob**: A configurable threshold gates how aggressively
-  the queue-drain loop triggers periodic alignment, giving operators more
-  control over review cadence on long-running queues.
-- **Plugin manifest correctness**: A dangling hooks reference in
-  `.claude-plugin/plugin.json` was removed; fresh plugin installs no longer
-  emit a manifest-validation warning.
+- **Human-iteration documentation family.** Roadmap, iteration plan, and
+  status report join the catalog under `06-iterate`, with the skip test
+  that authors each one only when there is coordination to do
+  (FEAT-017).
+- **Grill mode** (`v0.11.0`, carried into this release): a
+  one-question-at-a-time interview that stress-tests a plan or design
+  before any artifact is drafted.
+- **Deliverable-over-machinery principle** and lean plan defaults in
+  `workflows/principles.md`: process exists to reduce the risk of a wrong
+  ship, never as the deliverable.
+- **Catalog fall-through for plugin installs**: adopters without local
+  templates bind the generated `references/` floor beside the skill;
+  project-local catalogs keep rank above an installed plugin.
+- **Dual-path engagement**: skill-tool hosts invoke the skill; hosts without
+  a skill tool load the skill body. Grok Build install guide added.
+
+## Required Actions Summary
+
+- None for plugin users; update the plugin and the new types resolve from
+  the packaged catalog.
+- Maintainers regenerate the site after pulling: `python3
+  scripts/generate-reference.py` and `python3 scripts/publish-artifacts.py`.
 
 ## Changes and Fixes
 
@@ -46,51 +72,44 @@ generated: true
 
 | Area | What changed | Who is affected |
 |------|--------------|-----------------|
-| Queue drain | `--review-threshold` accepted to tune periodic-alignment cadence | Operators running long queue-drain sessions |
-| CI | Skill packaging tests filter DDx update notices from harness output before assertions | HELIX maintainers and contributors |
-| Tracker / forge | Forge-agent discovery tracker issue added to capture follow-up work | HELIX maintainers |
+| Catalog | `roadmap`, `iteration-plan`, `status-report` (iterate); `market-analysis`, `data-flow-analysis` (discover) | Teams planning human iterations or framing a market |
+| Skill | `grill` mode; desired-state rule in align; dual-path engagement; catalog fall-through | Every `/helix` user |
+| Methodology | Deliverable-over-machinery principle; lean plan defaults; downstream-consumer verification; scope-discipline build gate | Maintainers and adopters shaping plans and work items |
+| Install | Grok Build guide; no-local-template doctrine | Adopters on Grok Build or without a vendored catalog |
 
 ### Fixes
 
 | Issue or symptom | Resolution | User or operator impact |
 |------------------|------------|-------------------------|
-| Intermittent CI red on skill packaging tests from DDx update banners | Banner filter applied before stdout assertions | Stable green CI; no operator action |
-| Manifest validation warning on plugin install | Dangling hooks reference removed from `.claude-plugin/plugin.json` | Fresh installs are clean |
+| Evolve missed canonical `ddx.links` edges | Traversal follows `ddx.links` first, legacy fields as fallback | Impact graphs are complete |
+| Copilot smoke test could not find the catalog | Catalog path exposed to the smoke check | Green install checks on Copilot |
+| Codex rejected `hooks/hooks.json` | Unknown `version` field dropped | Clean Codex plugin load |
 
 ## Breaking Changes and Required Actions
 
-There are no breaking changes in `v0.3.3`. No operator action is required.
+- None. Artifact frontmatter, marker shape, and mode names from `v0.11.0`
+  are unchanged.
 
 ## Migration or Rollback Guidance
 
-### Upgrade or Migration
-
-1. Pull the new tag: `git fetch --tags && git checkout v0.3.3` in your
-   HELIX checkout (or repoint your plugin install at the new tag).
-2. Re-run `ddx install helix --local . --force` to refresh the local
-   skill installation.
-3. No tracker or schema migration is required — `.ddx/beads.jsonl` is
-   forward-compatible.
-
-### Rollback or Hold Guidance
-
-- Pause rollout when: a downstream consumer reports `--review-threshold`
-  parsing errors, or when `bash tests/validate-skills.sh` regresses against
-  the new tag in CI.
-- Roll back using: `git checkout v0.3.2` and re-run
-  `ddx install helix --local . --force`. The previous tag is fully
-  compatible with the current `.ddx/beads.jsonl` schema.
-- Ask for help in: the HELIX repo issue tracker.
+- Migration: pull the tag; no artifact edits are needed. Projects that
+  vendored `workflows/` re-sync it to pick up the new types.
+- Rollback: install the `v0.11.0` tag. Artifacts authored with the three
+  new iterate types stay valid Markdown; only their catalog binding is lost
+  until the types return.
 
 ## Known Issues and Support
 
 | Issue | Who is affected | Workaround or next step |
 |------|------------------|-------------------------|
-| Forge-agent discovery is tracked as a follow-up bead but not yet implemented | Operators wanting auto-discovery of forge agents | Continue using explicit agent configuration; track the linked tracker issue |
+| Alignment and validation reports are prose tables with no machine-readable shape | Runtimes filing work from reports | A YAML report block lands in the next release |
+| The skill body is over 1,200 lines and carries bench-specific language | Hosts with small context budgets | The next release splits it into a router plus per-mode contracts |
+
+Support: open an issue at `https://github.com/DocumentDrivenDX/helix`.
 
 ## References
 
 - Deployment checklist: [`deployment-checklist.md`](/artifacts/deployment-checklist/)
-- Runbook: [`runbook.md`](/artifacts/runbook/)
-- Plugin manifest: `.claude-plugin/plugin.json`
-- Support or escalation path: HELIX repo issue tracker
+- Feature: `docs/helix/01-frame/features/FEAT-017-iteration-documentation.md`
+- Principles: `workflows/principles.md`
+- Commit range: `git log v0.11.0..v0.12.0`

@@ -8,19 +8,6 @@ claude_package_dir="$repo_root/.claude/skills"
 
 declare -A skills_requiring_argument_hint=(
   [helix]=1
-  [helix-align]=1
-  [helix-backfill]=1
-  [helix-check]=1
-  [helix-experiment]=1
-  [helix-build]=1
-  [helix-design]=1
-  [helix-evolve]=1
-  [helix-implement]=1
-  [helix-plan]=1
-  [helix-polish]=1
-  [helix-review]=1
-  [helix-run]=1
-  [helix-triage]=1
 )
 
 fail() {
@@ -69,103 +56,6 @@ assert_output_contains() {
     printf 'expected substring: %s\nin:\n%s\n' "$needle" "$haystack" >&2
     fail "$message"
   fi
-}
-
-validate_helix_triage_intro() {
-  local path="$1"
-  local intro normalized
-  local blanket_execution_ready_pattern
-
-  [[ -f "$path" ]] || fail "missing file for validation: $path"
-  intro="$(
-    awk '
-      /^# Triage: Shape Execution-Ready And Planning Issues$/ { in_intro = 1; next }
-      in_intro && /^## / { exit }
-      in_intro { print }
-    ' "$path"
-  )"
-  [[ -n "$intro" ]] || fail "helix-triage intro block is missing"
-
-  normalized="$(
-    printf '%s\n' "$intro" \
-      | tr '[:upper:]' '[:lower:]' \
-      | tr '\n' ' ' \
-      | tr -s '[:space:]' ' '
-  )"
-
-  blanket_execution_ready_pattern='(every|all|each)([[:space:]]+[[:alpha:]][[:alpha:]-]*)*[[:space:]]+(issue|issues|bead|beads|task|tasks|work[[:space:]]+item|work[[:space:]]+items)[[:space:]]+should[[:space:]]+enter[[:space:]]+the[[:space:]]+tracker[[:space:]]+ready[[:space:]]+(to[[:space:]]+execute|for[[:space:]]+execution)'
-  if [[ "$normalized" =~ $blanket_execution_ready_pattern ]]; then
-    fail "helix-triage intro must not prime every issue as execution-ready"
-  fi
-}
-
-assert_helix_triage_blanket_priming_regression() {
-  local temp_root output_file regression_output
-  local -a blanket_priming_sentences=(
-    "All implementation issues should enter the tracker ready to execute when possible."
-    "All execution-ready implementation planning and review issues should enter the tracker ready to execute when possible."
-  )
-
-  if [[ "${HELIX_VALIDATE_SKILLS_SKIP_REGRESSION:-0}" == "1" ]]; then
-    return
-  fi
-
-  command -v python3 >/dev/null 2>&1 || fail "python3 is required for execution-ready bead validation"
-
-  temp_root="$(mktemp -d)"
-  output_file="$(mktemp)"
-
-  cp -Rf \
-    "$repo_root/.agents" \
-    "$repo_root/.claude" \
-    "$repo_root/.claude-plugin" \
-    "$repo_root/.codex-plugin" \
-    "$repo_root/docs" \
-    "$repo_root/hooks" \
-    "$repo_root/scripts" \
-    "$repo_root/skills" \
-    "$repo_root/workflows" \
-    "$temp_root/"
-  mkdir -p "$temp_root/tests"
-  cp -f "$repo_root/tests/validate-skills.sh" "$temp_root/tests/validate-skills.sh"
-
-  for blanket_priming_sentence in "${blanket_priming_sentences[@]}"; do
-    python3 - "$temp_root/skills/helix-triage/SKILL.md" "$blanket_priming_sentence" <<'PYEOF'
-from pathlib import Path
-import sys
-
-path = Path(sys.argv[1])
-blanket_priming_sentence = sys.argv[2]
-text = path.read_text(encoding="utf-8")
-needle = "# Triage: Shape Execution-Ready And Planning Issues\n\n"
-replacement = (
-    "# Triage: Shape Execution-Ready And Planning Issues\n\n"
-    f"{blanket_priming_sentence}\n\n"
-)
-if needle not in text:
-    raise SystemExit("missing helix-triage heading in regression fixture")
-path.write_text(text.replace(needle, replacement, 1), encoding="utf-8")
-PYEOF
-
-    assert_command_fails \
-      "$output_file" \
-      "validate-skills must fail when helix-triage regains blanket execution-ready priming" \
-      env \
-        HELIX_VALIDATE_SKILLS_REPO_ROOT="$temp_root" \
-        HELIX_VALIDATE_SKILLS_SKIP_REGRESSION=1 \
-        bash "$temp_root/tests/validate-skills.sh"
-
-    regression_output="$(<"$output_file")"
-    assert_output_contains \
-      "$regression_output" \
-      "helix-triage intro must not prime every issue as execution-ready" \
-      "validate-skills must report the blanket execution-ready triage regression"
-
-    cp -f "$repo_root/skills/helix-triage/SKILL.md" "$temp_root/skills/helix-triage/SKILL.md"
-  done
-
-  rm -rf "$temp_root"
-  rm -f "$output_file"
 }
 
 # ---------- Plugin layout checks ----------
@@ -475,55 +365,48 @@ assert_file_contains \
   'Rule: do not add separate public `helix-*` skills' \
   "helix skill must prohibit reintroducing public helix-* skill sprawl"
 assert_file_contains \
-  "$repo_root/skills/helix/SKILL.md" \
+  "$repo_root/workflows/modes/polish.md" \
   "Require execution-ready work items to name exact files, commands, checks, fields," \
   "helix polish mode must require explicit measurable acceptance text for execution-ready work items"
 assert_file_contains \
-  "$repo_root/skills/helix/SKILL.md" \
+  "$repo_root/workflows/modes/polish.md" \
   "not execution-ready and route it back through planning" \
   "helix polish mode must define a flagging path for non-measurable acceptance text"
 assert_file_contains \
-  "$repo_root/skills/helix/SKILL.md" \
+  "$repo_root/workflows/modes/align.md" \
   "content migration ledger" \
   "helix align mode must require content migration ledger behavior"
 assert_file_contains \
-  "$repo_root/skills/helix/SKILL.md" \
+  "$repo_root/workflows/modes/align.md" \
   "Destination-shaped draft content" \
   "helix content migration ledger must capture destination-shaped content"
 assert_file_not_contains \
   "$repo_root/skills/helix/SKILL.md" \
   "compatibility" \
   "helix skill must not describe helix-* compatibility layers"
-assert_file_contains \
-  "$repo_root/skills/helix/SKILL.md" \
-  "### Refresh" \
-  "helix skill must have Refresh section under Workflow Contracts"
+[[ -f "$repo_root/workflows/modes/refresh.md" ]] || fail "helix skill must ship a refresh mode contract"
 assert_file_contains \
   "$repo_root/skills/helix/SKILL.md" \
   "## Project Root Resolution" \
   "helix skill must have Project Root Resolution top-level section"
 assert_file_contains \
-  "$repo_root/skills/helix/SKILL.md" \
+  "$repo_root/workflows/modes/validate.md" \
   "using the Align taxonomy: \`ALIGNED\`, \`INCOMPLETE\`, \`DIVERGENT\`," \
-  "helix skill must list the unified taxonomy in Validate item 5"
+  "helix validate mode must list the unified taxonomy"
 assert_file_contains \
-  "$repo_root/skills/helix/SKILL.md" \
+  "$repo_root/workflows/modes/validate.md" \
   "\`UNDERSPECIFIED\`, \`STALE_PLAN\`, or \`BLOCKED\`" \
-  "helix skill must list the unified taxonomy in Validate item 5"
+  "helix validate mode must list the unified taxonomy"
 assert_file_contains \
   "$repo_root/skills/helix/SKILL.md" \
   "Bring every artifact instance up to date with the current templates and prompts | refresh" \
   "helix skill must have routing row for refresh"
 assert_file_contains \
-  "$repo_root/skills/helix/SKILL.md" \
-  "### Grill" \
-  "helix skill must have Grill section under Workflow Contracts"
-assert_file_contains \
-  "$repo_root/skills/helix/SKILL.md" \
+  "$repo_root/workflows/modes/grill.md" \
   "one question at a time" \
   "helix grill mode must require one question at a time"
 assert_file_contains \
-  "$repo_root/skills/helix/SKILL.md" \
+  "$repo_root/workflows/modes/grill.md" \
   "recommended answer" \
   "helix grill mode must require a recommended answer per question"
 assert_file_contains \
@@ -648,7 +531,7 @@ rm -f "$flagged_output"
 
 # Assert every path SKILL.md instructs the runtime to load actually exists in
 # the shipped tree. Catches drift like "SKILL.md references library/foo.yml
-# but only family-test/library/foo.yml is shipped" — a defect that lets the
+# but only a research-fork copy is shipped" — a defect that lets the
 # plugin install while leaving the skill unable to load its resources at
 # runtime.
 python3 - "$repo_root/skills/helix/SKILL.md" "$repo_root" <<'PYEOF' || fail "SKILL.md references a path that does not exist in the shipped tree"
@@ -668,8 +551,13 @@ required = {
     "workflows/concerns/sample-data/practices.md",
     "workflows/graph.yml",
     "workflows/voice.yml",
+    "workflows/modes/_authoring.md",
+    "workflows/modes/_report.md",
 }
-import os
+import os, glob
+# Mode contracts are part of the shipped skill surface: include their text.
+for _m in glob.glob(os.path.join(repo_root, "workflows", "modes", "*.md")):
+    text += "\n" + open(_m, encoding="utf-8").read()
 missing = [p for p in required if not os.path.exists(os.path.join(repo_root, p))]
 # Also assert each path appears verbatim in SKILL.md — guards against the
 # reverse drift (we ship a file, SKILL.md stops referencing it).
@@ -679,6 +567,58 @@ if missing:
 if not_referenced:
     print(f"DRIFT — these paths exist in the shipped tree but are no longer referenced by SKILL.md: {not_referenced}", file=sys.stderr)
 sys.exit(1 if (missing or not_referenced) else 0)
+PYEOF
+
+# Mode table <-> mode files: every routed mode has a workflows/modes/<mode>.md
+# contract and every non-underscore mode file is routed.
+python3 - "$repo_root/skills/helix/SKILL.md" "$repo_root/workflows/modes" <<'PYEOF' || fail "routing table and workflows/modes/ disagree"
+import os, re, sys
+skill, modes_dir = sys.argv[1], sys.argv[2]
+text = open(skill, encoding="utf-8").read()
+sec = re.search(r"^## Routing Rules\n(.*?)^## ", text, re.S | re.M)
+if not sec:
+    print("Routing Rules section missing", file=sys.stderr); sys.exit(1)
+routed = set()
+for line in sec.group(1).splitlines():
+    cells = [c.strip() for c in line.strip().strip("|").split("|")]
+    if len(cells) == 2 and cells[0] not in ("User intent",) and not set(cells[0]) <= set("-: "):
+        routed.add(cells[1])
+files = {f[:-3] for f in os.listdir(modes_dir) if f.endswith(".md") and not f.startswith("_")}
+missing = routed - files
+unrouted = files - routed
+if missing or unrouted:
+    if missing: print(f"routed modes without a contract file: {sorted(missing)}", file=sys.stderr)
+    if unrouted: print(f"mode files not in the routing table: {sorted(unrouted)}", file=sys.stderr)
+    sys.exit(1)
+for f in files | {"_authoring", "_report"}:
+    if f"workflows/modes/{f}.md" not in text:
+        print(f"SKILL.md does not list workflows/modes/{f}.md under Mode Contracts", file=sys.stderr); sys.exit(1)
+PYEOF
+
+# Catalog table drift: the "seven activities" table in SKILL.md must list
+# exactly the artifact-type directories under workflows/activities/*/artifacts/.
+python3 - "$repo_root/skills/helix/SKILL.md" "$repo_root/workflows/activities" <<'PYEOF' || fail "SKILL.md activity table does not match workflows/activities/*/artifacts/"
+import os, re, sys
+skill, activities = sys.argv[1], sys.argv[2]
+text = open(skill, encoding="utf-8").read()
+listed = {}
+for m in re.finditer(r"^\| `(\d\d-[a-z]+)` \| (.+?) \|$", text, re.M):
+    listed[m.group(1)] = set(re.findall(r"`([a-z0-9-]+)`", m.group(2)))
+if not listed:
+    print("activity table not found in SKILL.md", file=sys.stderr); sys.exit(1)
+actual = {}
+for act in sorted(os.listdir(activities)):
+    art = os.path.join(activities, act, "artifacts")
+    if os.path.isdir(art):
+        actual[act] = {d for d in os.listdir(art) if os.path.isdir(os.path.join(art, d))}
+errors = []
+for act in sorted(set(listed) | set(actual)):
+    missing = actual.get(act, set()) - listed.get(act, set())
+    extra = listed.get(act, set()) - actual.get(act, set())
+    if missing: errors.append(f"{act}: table omits {sorted(missing)}")
+    if extra: errors.append(f"{act}: table lists nonexistent {sorted(extra)}")
+if errors:
+    print("\n".join(errors), file=sys.stderr); sys.exit(1)
 PYEOF
 
 # workflows/graph.yml drift: regenerate from meta.yml into a temp file and diff
@@ -725,6 +665,33 @@ if ! diff -r "$ref_tmp" "$pkg_tmp/helix/skills/helix/references" >/dev/null 2>&1
 fi
 rm -rf "$ref_tmp" "$pkg_tmp"
 
+# Portability gate (PRD R-4, success metric "zero runtime-specific commands in
+# skill body"): the routing skill must not name a runtime's tracker vocabulary,
+# host-specific invocation commands, or test-bench machinery. Runtimes own
+# execution; the bench is evidence, not contract.
+python3 - "$repo_root/skills/helix/SKILL.md" <<'PYEOF' || fail "SKILL.md carries runtime-specific or bench-specific language (PRD R-4)"
+import re, sys
+text = open(sys.argv[1], encoding="utf-8").read()
+body = text[text.find("\n---\n", 4) + 5:]
+banned = {
+    r"\bbeads?\b": "tracker vocabulary `bead` (say work item)",
+    r"\bbench\b|\bgrader": "bench machinery",
+    r"\bmatcher\b": "bench matcher references",
+    r"claude -p|codex exec": "host invocation commands",
+    r"\btool_use\b": "host tool-call vocabulary",
+    r"\bverbatim\b": "verbatim-output doctrine",
+}
+hits = []
+for pattern, why in banned.items():
+    for m in re.finditer(pattern, body):
+        line = body.count("\n", 0, m.start()) + 1
+        hits.append(f"  line {line}: {m.group(0)!r} ({why})")
+if hits:
+    print("SKILL.md portability violations:", file=sys.stderr)
+    print("\n".join(hits), file=sys.stderr)
+    sys.exit(1)
+PYEOF
+
 # Canonical SKILL.md frontmatter check: enforce agentskills.io spec AND the
 # runtime-specific limits we hit in benchmarking:
 #   - codex: description max 1024 chars (HARD: codex refuses to load over)
@@ -733,7 +700,7 @@ rm -rf "$ref_tmp" "$pkg_tmp"
 # routing-eval call. This guard catches that class of regression.
 #
 # Targets the canonical install at skills/helix/SKILL.md (post canonical-
-# promotion; the family-test/methodology-* research fork was removed).
+# promotion; the methodology-* research fork was removed).
 python3 - "$repo_root" <<'PYEOF' || fail "canonical SKILL.md frontmatter check failed"
 import sys, yaml, glob, os
 repo_root = sys.argv[1]

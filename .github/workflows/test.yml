@@ -25,8 +25,11 @@ jobs:
       - name: Validate deploy artifact graph
         run: bash tests/validate-deploy-artifacts.sh
 
-      - name: Validate state detection rules
-        run: bash tests/validate-state-rules.sh
+      - name: Validate headline rules stay in sync with sloptimizer
+        run: bash tests/validate-headline-sync.sh
+
+      - name: Validate deliverable scripts
+        run: bash tests/validate-deliverable.sh
 
       - name: Validate skill packages
         run: bash tests/validate-skills.sh
@@ -37,5 +40,11 @@ jobs:
       - name: Validate generated Genie bundle
         run: bash tests/validate-genie-bundle.sh
 
+      - name: Validate install surfaces and Copilot pointer
+        run: bash tests/validate-install-consistency.sh
+
       - name: Validate demo session records
         run: bash tests/validate-demos.sh
+
+      - name: Validate artifact instances against catalog validation blocks
+        run: bash tests/validate-instance.sh

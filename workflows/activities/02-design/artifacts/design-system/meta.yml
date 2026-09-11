@@ -48,7 +48,7 @@ validation:
       description: The non-goals section explicitly excludes runtime architecture, data flow, component implementation internals, and ADR material
       severity: blocking
 
-  automated_checks:
+  pattern_checks:
     - pattern: 'aria-current'
       expected: ">=1"
       message: Must state the aria-current="page" active-nav requirement

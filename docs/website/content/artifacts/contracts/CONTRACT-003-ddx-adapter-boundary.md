@@ -1,7 +1,7 @@
 ---
 title: "CONTRACT-003: DDx Adapter Boundary"
 slug: CONTRACT-003-ddx-adapter-boundary
-weight: 370
+weight: 350
 activity: "Design"
 source: "02-design/contracts/CONTRACT-003-ddx-adapter-boundary.md"
 generated: true
@@ -316,9 +316,11 @@ path).
 
 - **Status:** Resolved
 - **Evidence:** `grep -rnE 'ddx (bead|work|run|try|agent)' skills/ workflows/`
-  returns hits only in `workflows/DDX.md` (the DDx-scoped explainer); concrete
-  DDx commands live in `docs/install/ddx.md`; `lefthook.yml`
-  `check-workflow-paths` now enforces this gate.
+  returns no hits (the DDx-scoped explainer `workflows/DDX.md` was retired on
+  2026-09-10 along with the execution-era files `EXECUTION.md`,
+  `state-machine.yaml`, `state-rules.yml`, `actions/implementation.md`, and
+  `actions/check.md`); concrete DDx commands live in `docs/install/ddx.md`;
+  `lefthook.yml` `check-workflow-paths` enforces this gate with no exemption.
 
 Portable methodology content named DDx commands directly (`ddx bead create`,
 `ddx bead execute`, `ddx work`, …) and framed execution as "the runtime
@@ -344,10 +346,7 @@ The 2026-05-25 follow-up pass closed the remaining residual:
   virtual-harness behavior), neutralized to the runtime's agent
   invocation/recording mechanism.
 
-`workflows/DDX.md` (the DDx methodology explainer, analogous to
-`docs/install/ddx.md`) remains intentionally DDx-specific and is the only
-`skills/`+`workflows/` file exempt from the `ddx <verb>` gate. There are no
-remaining portable residuals for this leak.
+There are no remaining portable residuals for this leak.
 
 ### LEAK-8 — SKILL.md body hardcoded the DDx plugin path
 
@@ -385,8 +384,8 @@ The adapter boundary is healthy when all of the following are true:
 - [x] No `.ddx/plugins/helix` layout-leak path in shipped `skills/`+`workflows/`
       content; `check-workflow-paths` enforces this (LEAK-4, LEAK-6)
 - [x] No `ddx <verb>` command literal (`bead`, `work`, `run`, `try`, `agent`) in
-      shipped `skills/`+`workflows/` content outside `workflows/DDX.md`;
-      `check-workflow-paths` enforces this (LEAK-7)
+      shipped `skills/`+`workflows/` content; `check-workflow-paths` enforces
+      this (LEAK-7)
 - [x] Every boundary-leak ledger entry has current evidence and is resolved —
       LEAK-7's residual was closed by the 2026-05-25 follow-up pass (DDx command
       appendices relocated to `docs/install/ddx.md`; state files and the
@@ -396,7 +395,7 @@ The adapter boundary is healthy when all of the following are true:
 
 - [PRD](/artifacts/prd/) — R-4 (runtime-neutral), R-7 (per-runtime packages), Constraints
 - [Minimal Runtime Contract](https://github.com/DocumentDrivenDX/helix/blob/main/docs/install/README.md#minimal-runtime-contract)
-- [Claude Code install guide](https://github.com/DocumentDrivenDX/helix/blob/main/docs/install/claude-code.md)
+- [Install guide, Claude Code section](https://github.com/DocumentDrivenDX/helix/blob/main/docs/install/README.md#claude-code)
 - [Artifact Schema](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/artifact-schema.md)
 - [Routing Skill](https://github.com/DocumentDrivenDX/helix/blob/main/skills/helix/SKILL.md)
 - [CONTRACT-001: DDx / HELIX Boundary Contract](/artifacts/contracts/contract-001-ddx-helix-boundary/) — pre-collapse shared-object definitions, still authoritative for ddx work result surface

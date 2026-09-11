@@ -57,7 +57,7 @@ validation:
       description: No code-level detail unless a Component view is genuinely needed; remove views that don't add review or implementation value
       severity: warning
 
-  automated_checks:
+  pattern_checks:
     - pattern: "\\[TBD\\]|\\[TODO\\]|\\[NEEDS CLARIFICATION"
       expected: 0
       message: Remove all unresolved markers before approval

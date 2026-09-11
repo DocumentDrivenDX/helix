@@ -1,3 +1,7 @@
+# Checks name what must be true, not the toolchain that proves it. The
+# adopting project supplies the concrete command for each automated check
+# (its test runner, coverage, audit, and lint commands); HELIX imposes no
+# technology choice.
 activity: deploy
 number: "05"
 
@@ -7,16 +11,13 @@ entry_requirements:
       activity: 04-build
 
     - check: tests_passing
-      command: "npm test || go test ./... || pytest"
       description: "All tests from Build activity must pass"
 
     - check: coverage_threshold
       threshold: 80
-      command: "npm run coverage || go test -cover ./..."
       description: "Coverage threshold from Build activity met"
 
     - check: security_scan_clean
-      command: "npm audit --audit-level=high || gosec ./..."
       severity: high
       description: "Security scan from Build activity clean"
 

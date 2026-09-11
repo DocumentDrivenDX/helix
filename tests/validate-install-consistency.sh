@@ -6,6 +6,8 @@
 #   - plugin.json repository URL matches marketplace.json plugins[0].source.url
 #   - No easel/helix references in install docs or release installer
 #   - Install docs reference the canonical repo (from marketplace.json)
+#   - docs/install/README.md is the one guide with a section per host
+#   - .github/copilot-instructions.md points at the skill and copies none of it
 #
 # Exit codes:
 #   0  all assertions pass
@@ -152,37 +154,87 @@ if ! grep -rE "DocumentDrivenDX/helix" "$INSTALL_DOCS_DIR" >/dev/null 2>&1; then
 fi
 echo "ok: install docs reference canonical repo ($MARKER_REPO)"
 
-# Grok install guide (sixth runtime)
-GROK_MD="$INSTALL_DOCS_DIR/grok.md"
-if [[ ! -f "$GROK_MD" ]]; then
-  echo "FAIL: missing docs/install/grok.md" >&2
+# One install guide: README.md carries every host, including Grok Build
+README_MD="$INSTALL_DOCS_DIR/README.md"
+if [[ ! -f "$README_MD" ]]; then
+  echo "FAIL: missing docs/install/README.md" >&2
   exit 1
 fi
-echo "ok: docs/install/grok.md exists"
+echo "ok: docs/install/README.md exists"
 
-if ! grep -q 'grok plugin install' "$GROK_MD"; then
-  echo "FAIL: docs/install/grok.md must document grok plugin install" >&2
+for host in 'Claude Code' 'OpenAI Codex CLI' 'GitHub Copilot' 'Grok Build' 'Databricks Genie Code' 'DDx'; do
+  if ! grep -qE "^### ${host}\$" "$README_MD"; then
+    echo "FAIL: docs/install/README.md must have a per-host section '### ${host}'" >&2
+    exit 1
+  fi
+done
+echo "ok: README has a per-host section for all six hosts"
+
+if ! grep -q 'grok plugin install' "$README_MD"; then
+  echo "FAIL: docs/install/README.md must document grok plugin install" >&2
   exit 1
 fi
-echo "ok: grok.md documents grok plugin install"
+echo "ok: README documents grok plugin install"
 
-if ! grep -qE -- '--trust' "$GROK_MD"; then
-  echo "FAIL: docs/install/grok.md must mention --trust (or trust flow)" >&2
+if ! grep -qE -- '--trust' "$README_MD"; then
+  echo "FAIL: docs/install/README.md must mention --trust (or trust flow)" >&2
   exit 1
 fi
-echo "ok: grok.md documents trust"
+echo "ok: README documents Grok trust"
 
-if ! grep -qE 'fall.?through|need not vendor|do not copy|need not copy' "$GROK_MD" "$INSTALL_DOCS_DIR/README.md"; then
-  echo "FAIL: grok guide or README must state no-local-template / fall-through doctrine" >&2
+if ! grep -qE 'fall.?through|need not vendor|do not copy|do not vendor|need not copy' "$README_MD"; then
+  echo "FAIL: README must state no-local-template / fall-through doctrine" >&2
   exit 1
 fi
 echo "ok: no-local-template / fall-through doctrine present"
 
-if ! grep -qE '\[Grok Build\]\(grok\.md\)|docs/install/grok\.md|Grok Build' "$INSTALL_DOCS_DIR/README.md"; then
-  echo "FAIL: docs/install/README.md must link or list Grok Build runtime" >&2
+# Retired per-host guides must not be referenced from the install docs
+if grep -rnE 'install/(claude-code|codex|copilot|grok)\.md' "$INSTALL_DOCS_DIR"; then
+  echo "FAIL: install docs reference a retired per-host guide (claude-code/codex/copilot/grok.md)" >&2
   exit 1
 fi
-echo "ok: README lists Grok Build runtime"
+echo "ok: no references to retired per-host guides"
+
+# .github/copilot-instructions.md is a pointer at the skill, not a fork of it
+COPILOT_MD="$REPO_ROOT/.github/copilot-instructions.md"
+if [[ ! -f "$COPILOT_MD" ]]; then
+  echo "FAIL: missing .github/copilot-instructions.md" >&2
+  exit 1
+fi
+
+if ! grep -q 'skills/helix/SKILL.md' "$COPILOT_MD"; then
+  echo "FAIL: copilot-instructions.md must point at skills/helix/SKILL.md" >&2
+  exit 1
+fi
+if ! grep -q 'workflows/modes/' "$COPILOT_MD"; then
+  echo "FAIL: copilot-instructions.md must point at the mode files under workflows/modes/" >&2
+  exit 1
+fi
+echo "ok: copilot-instructions.md points at the skill and mode files"
+
+# Any of the skill's normative section headings or a mode-level ### heading
+# means contract text was copied in.
+for heading in '## Routing Rules' '## Mode Contracts' '## Catalog Resolution' '## Activation Discipline' '## Routing Axes' '## Autonomy' '## Voice Resolution' '## Operating Discipline'; do
+  if grep -qF "$heading" "$COPILOT_MD"; then
+    echo "FAIL: copilot-instructions.md contains skill section '$heading'; it must point at the skill, not copy it" >&2
+    exit 1
+  fi
+done
+if grep -qE '^### ' "$COPILOT_MD"; then
+  echo "FAIL: copilot-instructions.md contains a '### ' heading (mode contract text copied from the skill)" >&2
+  grep -nE '^### ' "$COPILOT_MD" >&2
+  exit 1
+fi
+if grep -qE '^\| `[a-z-]+`(/`[a-z-]+`)? \|' "$COPILOT_MD"; then
+  echo "FAIL: copilot-instructions.md contains a routing-table row copied from the skill" >&2
+  exit 1
+fi
+COPILOT_LINES=$(wc -l < "$COPILOT_MD" | tr -d " ")
+if (( COPILOT_LINES > 60 )); then
+  echo "FAIL: copilot-instructions.md is $COPILOT_LINES lines; a pointer stays under 60" >&2
+  exit 1
+fi
+echo "ok: copilot-instructions.md carries no mode contract text ($COPILOT_LINES lines)"
 
 echo
 echo "validate-install-consistency: PASS"

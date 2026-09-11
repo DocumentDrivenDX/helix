@@ -1,11 +1,11 @@
 ---
 title: "Iterate"
 slug: iterate
-weight: 120
+weight: 140
 generated: true
 ---
 
-Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/helix/blob/main/skills/helix/SKILL.md), the HELIX skill. Edit the skill, not this page.
+Generated from [`workflows/modes/iterate.md`](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/modes/iterate.md), the mode contract the HELIX skill loads. Edit that file, not this page.
 
 Use to plan or report a human iteration: sequence a roadmap, define
 workstreams, cut an iteration plan from the backlog and roadmap, or record

@@ -208,7 +208,7 @@ execution:
   required: true
 metric:
   name: principles-injection-alignment
-  definition: docs/helix/06-iterate/metrics/principles-injection-alignment.yaml
+  definition: docs/archive/helix/06-iterate/metrics/principles-injection-alignment.yaml
 ```
 
 ### Ratchet-backed executions

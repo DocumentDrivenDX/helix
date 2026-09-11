@@ -1,0 +1,128 @@
+# Metadata for Deliverable (deck, one-pager, brief)
+
+artifact:
+  name: Deliverable
+  id: deliverable
+  type: document
+  activity: iterate
+  level: project
+
+# Cross-activity: a deliverable projects artifacts from any activity (a
+# discover pitch, a frame summary, a design walkthrough, an iterate status
+# review). It is homed with the human-cadence artifacts because it exists to
+# coordinate people outside the project, like adr is homed in design while
+# recording decisions made anywhere.
+
+voice: human-facing
+
+kind:
+  enum:
+    - deck
+    - one-pager
+    - brief
+  default: deck
+  description: |
+    Shape of the deliverable. `deck` is a slide script (one unit per slide);
+    `one-pager` is a single page with 3 to 6 sections; `brief` is a 2 to 4
+    page document with headings as claims. All three share the template.
+
+description: |
+  A human-facing projection of governed artifacts: the script for a deck,
+  one-pager, or brief, written in the human-facing voice with claim titles,
+  a visual per unit, speaker notes, and a Sources appendix tracing every
+  figure to a governing artifact section. The Markdown script is the document
+  of record; rendered files (pptx, html, pdf, docx) are fidelity evidence
+  listed in `authoring.export`. Produced by the `present` mode.
+
+output:
+  location: docs/helix/06-iterate/deliverables/DEL-[nnn]-[slug].md
+  format: markdown
+  naming: DEL-[nnn]-[slug].md
+
+id_format:
+  prefix: DEL
+  pattern: "DEL-[0-9]{3}"
+
+validation:
+  required_sections:
+    - brief
+    - story
+    - content
+    - sources
+    - assumptions_and_gaps
+    - render
+
+  pattern_checks:
+    - pattern: "\\*\\*Pattern\\*\\*: "
+      expected: ">=1"
+      message: Every content unit declares its slide pattern
+      severity: blocking
+    - pattern: "\\*\\*Visual\\*\\*: "
+      expected: ">=1"
+      message: Every content unit specifies its visual
+      severity: blocking
+    - pattern: "\\*\\*Sources\\*\\*: "
+      expected: ">=1"
+      message: Every content unit cites its sources
+      severity: blocking
+    - pattern: "\\[NEEDS CLARIFICATION|\\[TODO\\]|\\bTBD\\b"
+      expected: 0
+      message: No placeholders in a deliverable; unknowns go under Assumptions and gaps
+      severity: blocking
+
+  quality_checks:
+    - check: titles_tell_the_story
+      description: Reading only the unit titles conveys the takeaway; titles are claims, not labels
+      severity: blocking
+    - check: no_helix_vocabulary_in_bodies
+      description: Artifact IDs, activity names, work-item terms, and AC codes appear only in Sources and frontmatter (scripts/check-deliverable.py enforces)
+      severity: blocking
+    - check: numbers_sourced
+      description: Every number in a body appears in the Sources appendix with a governing artifact section
+      severity: blocking
+    - check: fidelity
+      description: No claim contradicts its cited source; subsets are allowed
+      severity: blocking
+    - check: visual_every_unit
+      description: Every content unit names a concrete visual (what it shows, series, source), not "chart"
+      severity: blocking
+    - check: pattern_limits
+      description: Bodies respect the pattern's word and bullet limits and the density rules in slide-patterns.yml
+      severity: warning
+    - check: rendered_and_inspected
+      description: Render section lists each rendered path and records that every slide or page was rendered to an image and inspected
+      severity: blocking
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+example:
+  file: example.md
+
+relationships:
+  informed_by:
+    - business-case
+    - product-vision
+    - opportunity-canvas
+    - market-analysis
+    - competitive-analysis
+    - feasibility-study
+    - pr-faq
+    - roadmap
+    - status-report
+    - release-notes
+    - solution-design
+    - design-system
+  informs: []
+
+tags:
+  - iterate
+  - deliverable
+  - deck
+  - presentation
+  - human-facing
+
+version: 1.0.0

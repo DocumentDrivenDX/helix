@@ -1,7 +1,7 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-deploy-artifacts test-state-rules test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-surface-leakage test-microsite-doctrine test-context-digests test-actions
+test: test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable test-headline-sync
 
 # Serve the HELIX microsite at the canonical local review URL.
 website-serve:
@@ -10,10 +10,6 @@ website-serve:
 # Validate deploy artifact graph consistency
 test-deploy-artifacts:
     bash tests/validate-deploy-artifacts.sh
-
-# Validate state detection rules
-test-state-rules:
-    bash tests/validate-state-rules.sh
 
 # Run skill package validation
 test-skills:
@@ -31,6 +27,10 @@ test-plugin-catalog-resolution:
 test-genie-bundle:
     bash tests/validate-genie-bundle.sh
 
+# Validate install surfaces: manifests agree, one install guide, Copilot file is a pointer
+test-install-consistency:
+    bash tests/validate-install-consistency.sh
+
 # Validate Frame/TD artifacts do not define exact interface surfaces outside Contract
 test-surface-leakage:
     bash tests/validate-surface-leakage.sh
@@ -47,6 +47,10 @@ test-context-digests:
 test-actions:
     bash tests/validate-actions.sh
 
+# Validate artifact instances against catalog validation blocks
+test-validate-instance:
+    bash tests/validate-instance.sh
+
 # Run all tests and check for stale references
 check: test lint
 
@@ -54,7 +58,6 @@ check: test lint
 lint:
     @echo "Checking for stale command references..."
     @! grep -rn 'NEXT_ACTION.*IMPLEMENT\b' workflows/ tests/ --include='*.sh' --include='*.md' 2>/dev/null | grep -v 'BUILD|IMPLEMENT' || (echo "FAIL: stale IMPLEMENT references found" && exit 1)
-    @! grep -rn 'NEXT_ACTION.*\bPLAN\b' workflows/actions/check.md tests/ 2>/dev/null | grep -v 'DESIGN|PLAN_STATUS\|PLAN_DOCUMENT\|PLAN_ROUNDS' || (echo "FAIL: stale PLAN references found" && exit 1)
     @echo "Checking git diff..."
     @git diff --check || true
     @echo "Lint OK"

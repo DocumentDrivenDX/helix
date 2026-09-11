@@ -95,6 +95,8 @@ their agent, and the agent invoked HELIX's skill.
 | Portable content | Run on any runtime that reads markdown — DDx, Databricks Genie, Claude Code, anything |
 | Document-driven reviews | Audits work on artifacts, not chat transcripts |
 | Methodology, not platform | Adopt incrementally; no vendor lock-in |
+| Layered authority as control | Agents act only within what the layer above authorizes; a change enters at the top layer it affects and propagates down |
+| Governed human hand-offs | People decide and approve, agents draft and check; autonomy level, stop triggers, and approval mark where judgment enters |
 
 ## Success Definition
 

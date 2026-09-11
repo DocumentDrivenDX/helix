@@ -27,12 +27,16 @@ When conventions and execution guidance disagree, follow:
 
 1. [README.md](README.md)
 2. The bounded action prompts under `actions/`
-3. The runtime integration appendix for your runtime (e.g. the DDx
-   reference-runtime integration in [DDX.md](DDX.md) and [EXECUTION.md](EXECUTION.md))
+3. The install guide for your runtime (for DDx,
+   [docs/install/ddx.md](../docs/install/ddx.md))
 
 ## Documentation Voice
 
 HELIX documentation uses the canonical profiles in [voice.yml](voice.yml).
+Deliverables for people outside the project (decks, one-pagers, briefs) use
+the `human-facing` profile: conciseness 5, claim titles, no HELIX vocabulary
+in the body, every number sourced, and a subset-never-contradict rule against
+the governing artifact.
 Artifact authoring defaults to `artifact-signal`: conciseness 2/10, written for
 humans and agents that need to preserve context while making decisions. Public
 website copy uses `public-site`: conciseness 3/10, written for smart novice
@@ -297,6 +301,18 @@ Three representations exist and each has one role:
 
 Checking in does not approve the document. It makes approval possible; the
 document is still `draft` until it is reviewed like any other.
+
+### Reading through a connector
+
+When the runtime exposes a document connector for the authoring tool, a
+mode may read the live document at `authoring.origin` instead of waiting
+for a check-in. That read satisfies the rule that governing artifacts are
+read before drafting; findings cite the origin and the live section. Three
+things do not change: the Markdown body stays the committed copy, a
+checked-out artifact stays not dependable for approval until it is checked
+in, and nothing writes through the connector. Declare
+`authoring.connector` so a reader knows which connector was used. Runtimes
+without the connector fall back to the checked-in body.
 
 ### Transitions
 
@@ -665,9 +681,7 @@ These conventions will evolve based on usage. To propose changes:
 The conventions above are runtime-neutral. Each runtime documents its own
 workspace layout, shared-resource root, work-item tracker commands, and template
 paths in its install guide. For DDx-specific workspace, tracker, and template
-details, see [docs/install/ddx.md](../docs/install/ddx.md). For methodology
-background and the DDx authority model, see [DDX.md](DDX.md); for the
-runtime-neutral execution contract, see [EXECUTION.md](EXECUTION.md).
+details, see [docs/install/ddx.md](../docs/install/ddx.md).
 
 ---
 

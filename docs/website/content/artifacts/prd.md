@@ -27,7 +27,7 @@ ddx:
 ## Summary
 
 HELIX is a software development methodology and artifact catalog for
-AI-assisted teams. It ships portable content (templates for ~32 artifact
+AI-assisted teams. It ships portable content (templates for 53 artifact
 types, authoring prompts, methodology documentation) plus a single routing
 skill that operates HELIX workflow modes against a project's governing
 artifacts. The primary user experience is invoking the `helix` skill through

@@ -17,7 +17,7 @@
       "(?i)no \\.helix\\.yml",
       "(?i)\\.helix\\.yml.*absent",
       "(?i)heuristic",
-      "(?i)init-marker"
+      "(?i)\\.helix\\.yml marker"
     ],
     "must_not_match": [
       "(?i)helix-library.*(not installed|missing)"

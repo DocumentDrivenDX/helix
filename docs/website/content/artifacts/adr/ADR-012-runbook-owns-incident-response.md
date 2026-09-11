@@ -95,7 +95,7 @@ template | content not already in runbook moves there
 
 ## References
 
-- [Plan: artifact-types-and-concerns audit (2026-05-30)](/artifacts/plan-2026-05-30-artifact-types-and-concerns-audit/)
+- [Plan: artifact-types-and-concerns audit (2026-05-30)](https://github.com/DocumentDrivenDX/helix/blob/main/docs/archive/helix/02-design/plan-2026-05-30-artifact-types-and-concerns-audit.md)
 - [PRD](/artifacts/prd/)
 - `workflows/activities/05-deploy/artifacts/monitoring-setup/template.md`
 - `workflows/activities/05-deploy/artifacts/runbook/template.md`

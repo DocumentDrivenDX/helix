@@ -1,0 +1,375 @@
+# Deliverable mappings for the HELIX present mode.
+#
+# Per source artifact type: which template sections feed which units of a
+# human-facing deliverable, and which slide pattern each unit uses. Pattern ids
+# and story spines come from slide-patterns.yml; word budgets from theme.yml;
+# tone from the human-facing profile in voice.yml (titles are claims, no HELIX
+# vocabulary, provenance in the appendix).
+#
+# Conventions:
+#   - units are ordered; each becomes one slide (deck) or one section
+#     (one-pager, brief). Decks start with title and end with ask-next-steps
+#     then appendix-sources. An agenda unit is added only at 10 or more units.
+#   - from_sections are template H2 ids in meta.yml required_sections style
+#     (lowercase, underscores). Subsection hints live in notes.
+#   - include_in caps: one-pager 6 units, brief 8, deck 12 content units plus
+#     title, ask, appendix.
+#   - density follows slide-patterns.yml: no three consecutive units of one
+#     pattern, one stat-callout per deck, a table or comparison at most every
+#     third slide.
+#   - gaps_to_ask: what no governed artifact holds; the operator supplies it
+#     or the deliverable marks it as an assumption.
+
+version: 1
+
+mappings:
+  business-case:
+    default_spine: pyramid
+    default_kind: deck
+    audience_default: sponsor
+    units:
+      - { unit: title, from_sections: [executive_summary], pattern: title, include_in: [deck],
+          title_hint: "The investment ask and the return, in one claim" }
+      - { unit: recommendation, from_sections: [recommendation, executive_summary],
+          pattern: claim-evidence, include_in: [deck, one-pager, brief],
+          title_hint: "Lead with the decision and its condition",
+          notes: "Decision line plus the two strongest Conditions; Rationale goes to speaker notes." }
+      - { unit: opportunity, from_sections: [opportunity_sizing], pattern: stat-callout,
+          include_in: [deck, one-pager, brief], title_hint: "Name the obtainable market, not the total",
+          notes: "SOM is the number; TAM and SAM are the baseline. Key Assumptions go to notes." }
+      - { unit: investment, from_sections: [investment_required], pattern: table,
+          include_in: [deck, one-pager, brief], title_hint: "State the three-year cost and what dominates it" }
+      - { unit: return, from_sections: [expected_roi], pattern: claim-evidence,
+          include_in: [deck, one-pager, brief], title_hint: "Breakeven month and three-year return as the claim",
+          notes: "Visual: net line over three years; bullets carry breakeven, ROI, confidence." }
+      - { unit: risks, from_sections: [risk_assessment], pattern: risk-matrix,
+          include_in: [deck, one-pager, brief], title_hint: "Say which risk decides the outcome and who owns it" }
+      - { unit: alternatives, from_sections: [alternatives_considered], pattern: two-column-comparison,
+          include_in: [deck, brief], title_hint: "Why the recommended option beats doing nothing",
+          notes: "Recommended option versus the do-nothing or delay row; others go to notes." }
+      - { unit: ask, from_sections: [recommendation], pattern: ask-next-steps,
+          include_in: [deck, one-pager, brief], title_hint: "Ask for the go and the first funded step" }
+      - { unit: appendix, from_sections: [opportunity_sizing, investment_required, expected_roi],
+          pattern: appendix-sources, include_in: [deck, brief] }
+    omit: [strategic_alignment]   # internal goal mapping; the sponsor set the goals. Speaker notes only.
+    gaps_to_ask:
+      - "the sponsor's decision deadline"
+      - "who owns the budget line the ask draws from"
+      - "presenter and time slot (sets the content slide count)"
+
+  product-vision:
+    default_spine: situation-complication-resolution
+    default_kind: deck
+    audience_default: leadership
+    units:
+      - { unit: title, from_sections: [mission_statement, positioning], pattern: title, include_in: [deck],
+          title_hint: "The mission as a claim about the customer's world" }
+      - { unit: why-now, from_sections: [why_now], pattern: claim-evidence,
+          include_in: [deck, one-pager, brief], title_hint: "Name the change that makes waiting costly" }
+      - { unit: target-market, from_sections: [target_market], pattern: two-column-comparison,
+          include_in: [deck, one-pager, brief], title_hint: "Who switches, and what they leave behind",
+          notes: "Left: current solution and pain. Right: why they switch. Verdict: the Who row." }
+      - { unit: vision, from_sections: [vision, positioning], pattern: claim-evidence,
+          include_in: [deck, one-pager, brief], title_hint: "The North Star sentence, as written",
+          notes: "Visual: before/after state diagram; positioning sentence as one bullet." }
+      - { unit: user-experience, from_sections: [user_experience], pattern: process-flow,
+          include_in: [deck, brief], title_hint: "A session in three to five steps, told from the user's seat" }
+      - { unit: value-props, from_sections: [key_value_propositions], pattern: claim-evidence,
+          include_in: [deck, one-pager, brief], title_hint: "Lead with the benefit, not the capability" }
+      - { unit: success, from_sections: [success_definition], pattern: stat-callout,
+          include_in: [deck, one-pager, brief], title_hint: "The primary KPI target is the slide" }
+      - { unit: ask, from_sections: [success_definition, why_now], pattern: ask-next-steps,
+          include_in: [deck, one-pager, brief], title_hint: "Ask for endorsement of the direction and the next artifact" }
+      - { unit: appendix, from_sections: [target_market, success_definition],
+          pattern: appendix-sources, include_in: [deck, brief] }
+    omit: [review_checklist]   # authoring aid, never audience content
+    gaps_to_ask:
+      - "the decision the audience is being asked to make (the vision holds none)"
+      - "occasion and presenter (board, all-hands, or client)"
+      - "time slot"
+
+  opportunity-canvas:
+    default_spine: pyramid
+    default_kind: deck
+    audience_default: product leadership
+    units:
+      - { unit: title, from_sections: [problem_statement, go_no_go_decision], pattern: title, include_in: [deck],
+          title_hint: "The decision and the problem it answers" }
+      - { unit: decision, from_sections: [go_no_go_decision], pattern: claim-evidence,
+          include_in: [deck, one-pager, brief], title_hint: "Go, pivot, or stop, with the gate that decided it",
+          notes: "Visual: the five gates as a pass/risk/fail scorecard; Rationale as bullets." }
+      - { unit: problem, from_sections: [problem_statement], pattern: stat-callout,
+          include_in: [deck, one-pager, brief], title_hint: "The Impact row, quantified; the Problem Hypothesis is the claim line" }
+      - { unit: solution, from_sections: [solution_concept], pattern: two-column-comparison,
+          include_in: [deck, one-pager, brief], title_hint: "What it does for the first segment, and what it will not do",
+          notes: "Left: P0 capabilities. Right: NOT in Scope. P1/P2 go to notes." }
+      - { unit: segments, from_sections: [customer_segments], pattern: claim-evidence,
+          include_in: [deck, brief], title_hint: "Who buys first and why they are reachable",
+          notes: "Visual: segment sizes with confidence; Early Adopters as the lead bullet." }
+      - { unit: value, from_sections: [unique_value, customer_fit, unfair_advantage], pattern: claim-evidence,
+          include_in: [deck, one-pager, brief], title_hint: "The elevator pitch as the title; proof points as bullets",
+          notes: "Unfair Advantage rows with H sustainability become the last bullet; Honest Assessment to notes." }
+      - { unit: metrics, from_sections: [key_metrics], pattern: table,
+          include_in: [deck, one-pager, brief], title_hint: "How we will know it worked, and by when",
+          notes: "Highlight the North Star row." }
+      - { unit: ask, from_sections: [go_no_go_decision], pattern: ask-next-steps,
+          include_in: [deck, one-pager, brief], title_hint: "The Next Action row, with an owner and a date" }
+      - { unit: appendix, from_sections: [problem_statement, customer_segments, unique_value],
+          pattern: appendix-sources, include_in: [deck, brief] }
+    omit: []
+    gaps_to_ask:
+      - "decision deadline"
+      - "who owns the next action named in the canvas"
+      - "confidentiality of segment sizing and proof points"
+
+  market-analysis:
+    default_spine: pyramid
+    default_kind: deck
+    audience_default: founders and investment committee
+    units:
+      - { unit: title, from_sections: [concept, strategic_implications], pattern: title, include_in: [deck],
+          title_hint: "The market verdict for this opportunity" }
+      - { unit: implications, from_sections: [strategic_implications], pattern: claim-evidence,
+          include_in: [deck, one-pager, brief], title_hint: "Which shape of the opportunity has room, and on what terms",
+          notes: "One bullet per sub-approach plus the pricing signal; visual: room-to-enter map." }
+      - { unit: market-size, from_sections: [market_size_growth], pattern: stat-callout,
+          include_in: [deck, one-pager, brief], title_hint: "The most relevant slice and its growth, not the headline category",
+          notes: "The Read sentence is the one-line claim." }
+      - { unit: concept, from_sections: [concept], pattern: claim-evidence,
+          include_in: [deck, one-pager, brief], title_hint: "The opportunity has distinct shapes; name them",
+          notes: "Visual: sub-approaches side by side with supply chain and buyer differences." }
+      - { unit: landscape, from_sections: [competitive_landscape], pattern: table,
+          include_in: [deck, one-pager, brief], title_hint: "Who is already here and what they charge",
+          notes: "Columns: segment, archetype, named players, incumbents moving in, price points." }
+      - { unit: drivers, from_sections: [key_drivers], pattern: claim-evidence,
+          include_in: [deck, brief], title_hint: "What pulls demand, and how sure we are" }
+      - { unit: ask, from_sections: [open_questions, strategic_implications], pattern: ask-next-steps,
+          include_in: [deck, one-pager, brief], title_hint: "The commitments the audience must make before framing starts" }
+      - { unit: appendix, from_sections: [sources], pattern: appendix-sources, include_in: [deck, brief] }
+    omit: []
+    gaps_to_ask:
+      - "which sub-approach the presenter recommends (the analysis stops at implications)"
+      - "decision deadline"
+      - "whether observed competitor pricing may be shown outside the team"
+
+  competitive-analysis:
+    default_spine: pyramid
+    default_kind: deck
+    audience_default: product and go-to-market leads
+    units:
+      - { unit: title, from_sections: [differentiation_strategy], pattern: title, include_in: [deck],
+          title_hint: "The positioning sentence, trimmed to twelve words" }
+      - { unit: differentiation, from_sections: [differentiation_strategy], pattern: claim-evidence,
+          include_in: [deck, one-pager, brief], title_hint: "Where we win and why it holds",
+          notes: "Visual: positioning map; bullets carry each differentiator with defensibility." }
+      - { unit: landscape, from_sections: [market_landscape], pattern: stat-callout,
+          include_in: [deck, one-pager, brief], title_hint: "Growth rate with maturity as the baseline" }
+      - { unit: competitors, from_sections: [competitor_profiles], pattern: table,
+          include_in: [deck, one-pager, brief], title_hint: "The three rivals that matter, in one line each",
+          notes: "Drop the source column to the appendix; highlight the closest direct rival." }
+      - { unit: forces, from_sections: [competitive_forces], pattern: claim-evidence,
+          include_in: [deck, brief], title_hint: "Which pressure shapes the strategy most",
+          notes: "Visual: four forces with pressure levels; bullets are the Implication column." }
+      - { unit: implications, from_sections: [strategic_implications], pattern: claim-evidence,
+          include_in: [deck, one-pager, brief], title_hint: "Attack here, defend there, stay out of the rest" }
+      - { unit: features, from_sections: [feature_comparison], pattern: two-column-comparison,
+          include_in: [deck, one-pager, brief], title_hint: "Us against the strongest direct rival",
+          notes: "Pick one competitor column; the full grid goes to the appendix." }
+      - { unit: ask, from_sections: [strategic_implications], pattern: ask-next-steps,
+          include_in: [deck, one-pager, brief], title_hint: "Ask for the positioning to be adopted and the first attack move funded" }
+      - { unit: appendix, from_sections: [competitor_profiles, feature_comparison, market_landscape],
+          pattern: appendix-sources, include_in: [deck, brief] }
+    omit: []
+    gaps_to_ask:
+      - "decision the audience owns (positioning sign-off, pricing, or roadmap)"
+      - "presenter and time slot"
+      - "whether competitor names may appear in a client-facing version"
+
+  feasibility-study:
+    default_spine: pyramid
+    default_kind: deck
+    audience_default: sponsor and steering committee
+    units:
+      - { unit: title, from_sections: [executive_summary], pattern: title, include_in: [deck],
+          title_hint: "The assessment and the decision it supports; Decision Deadline in the subtitle" }
+      - { unit: recommendation, from_sections: [executive_summary], pattern: claim-evidence,
+          include_in: [deck, one-pager, brief], title_hint: "Feasible, conditional, or not, and the main factor",
+          notes: "Decision and Confidence as the first bullets; Project Overview to notes." }
+      - { unit: assessment, from_sections: [feasibility_assessment], pattern: table,
+          include_in: [deck, one-pager, brief], title_hint: "Four dimensions, one verdict each",
+          notes: "Rows: technical, business, operational, resource. Columns: assessment, main risk, evidence." }
+      - { unit: risks, from_sections: [risks], pattern: risk-matrix,
+          include_in: [deck, one-pager, brief], title_hint: "The risk that could flip the verdict, and its mitigation" }
+      - { unit: decision-framework, from_sections: [decision_framework], pattern: claim-evidence,
+          include_in: [deck, one-pager, brief], title_hint: "Which criteria pass today and which need work",
+          notes: "Visual: five-criterion scorecard; bullets only for Risk and Fail rows." }
+      - { unit: alternatives, from_sections: [alternatives], pattern: two-column-comparison,
+          include_in: [deck, brief], title_hint: "Why proceeding beats delay",
+          notes: "Recommended path versus Do Nothing / Delay; rejected alternatives to notes." }
+      - { unit: ask, from_sections: [next_steps, executive_summary], pattern: ask-next-steps,
+          include_in: [deck, one-pager, brief], title_hint: "The decision by its deadline, then the listed next steps" }
+      - { unit: appendix, from_sections: [feasibility_assessment, risks],
+          pattern: appendix-sources, include_in: [deck, brief] }
+    omit: []
+    gaps_to_ask:
+      - "budget owner for the resource estimate"
+      - "presenter and time slot"
+      - "confidentiality of regulatory findings"
+
+  pr-faq:
+    default_spine: problem-solution-evidence
+    default_kind: deck
+    audience_default: launch review
+    units:
+      - { unit: title, from_sections: [press_release], pattern: title, include_in: [deck],
+          title_hint: "The press release headline as written" }
+      - { unit: problem, from_sections: [press_release], pattern: claim-evidence,
+          include_in: [deck, one-pager, brief], title_hint: "The customer's pain with its number",
+          notes: "From The Problem subsection; visual: the failure mode or time cost." }
+      - { unit: solution, from_sections: [press_release], pattern: process-flow,
+          include_in: [deck, one-pager, brief], title_hint: "What the customer does, in the How It Works steps" }
+      - { unit: thesis, from_sections: [internal_product_argument], pattern: claim-evidence,
+          include_in: [deck, one-pager, brief], title_hint: "The Core Thesis sentence; the Mechanism as the visual",
+          notes: "Quality Model attributes and the decision boundary become bullets in plain words." }
+      - { unit: hard-questions, from_sections: [faq], pattern: claim-evidence,
+          include_in: [deck, one-pager, brief], title_hint: "The riskiest assumption and what we will do about it",
+          notes: "Riskiest technical assumption, unit economics, kill criteria. Internal FAQs only." }
+      - { unit: success, from_sections: [faq], pattern: stat-callout,
+          include_in: [deck, one-pager, brief], title_hint: "The twelve-month target" }
+      - { unit: scope, from_sections: [faq], pattern: two-column-comparison,
+          include_in: [deck, brief], title_hint: "What ships in v1 and what waits",
+          notes: "Left: smallest viable launch. Right: not in v1 and who it is not for." }
+      - { unit: ask, from_sections: [faq], pattern: ask-next-steps,
+          include_in: [deck, one-pager, brief], title_hint: "Approve the experiments that must run before commitment",
+          notes: "Experiments with owners and deadlines are the steps." }
+      - { unit: appendix, from_sections: [press_release, faq], pattern: appendix-sources, include_in: [deck, brief] }
+    omit: [downstream_projection, review_checklist]   # internal routing and authoring aids
+    gaps_to_ask:
+      - "whether the customer quote is real or illustrative (illustrative quotes never get the quote pattern)"
+      - "decision deadline and who owns the go"
+      - "confidentiality of pricing and unit economics"
+
+  roadmap:
+    default_spine: pyramid
+    default_kind: deck
+    audience_default: stakeholders and clients
+    units:
+      - { unit: title, from_sections: [horizon_and_cadence], pattern: title, include_in: [deck],
+          title_hint: "What we deliver over the horizon, as a claim" }
+      - { unit: horizon, from_sections: [horizon_and_cadence], pattern: claim-evidence,
+          include_in: [deck, one-pager, brief], title_hint: "How far we commit and how often we revisit",
+          notes: "Visual: horizon bar with review points; Beyond the horizon as one bullet." }
+      - { unit: sequence, from_sections: [sequenced_outcomes], pattern: timeline,
+          include_in: [deck, one-pager, brief], title_hint: "Outcomes in order, with the current position marked",
+          notes: "At most six milestones; split by workstream when longer. No artifact IDs on the slide." }
+      - { unit: workstreams, from_sections: [workstreams], pattern: table,
+          include_in: [deck, one-pager, brief], title_hint: "Who owns each stream of work",
+          notes: "Columns: workstream, scope, owner, status. Drop aliases; the name is the label." }
+      - { unit: why-this-order, from_sections: [sequenced_outcomes], pattern: claim-evidence,
+          include_in: [deck, one-pager, brief], title_hint: "The dependency or risk that fixes the order",
+          notes: "Bullets from Why This Order and Confidence; visual: dependency chain." }
+      - { unit: triggers, from_sections: [revision_triggers], pattern: claim-evidence,
+          include_in: [deck, one-pager, brief], title_hint: "What would change this plan, and what stays fixed" }
+      - { unit: ask, from_sections: [sequenced_outcomes, revision_triggers], pattern: ask-next-steps,
+          include_in: [deck, one-pager, brief], title_hint: "Confirm the committed outcomes for the next iteration" }
+      - { unit: appendix, from_sections: [sequenced_outcomes, workstreams],
+          pattern: appendix-sources, include_in: [deck, brief] }
+    omit: [review_checklist]
+    gaps_to_ask:
+      - "whether the audience may see confidence levels and owners by name"
+      - "presenter and time slot"
+      - "the date of the next review the ask points at"
+
+  status-report:
+    default_spine: plan-actual-next
+    default_kind: one-pager
+    audience_default: client and stakeholders
+    units:
+      - { unit: title, from_sections: [summary], pattern: title, include_in: [deck],
+          title_hint: "On track or not, in the title; iteration and date in the subtitle" }
+      - { unit: summary, from_sections: [summary, outcome_status], pattern: stat-callout,
+          include_in: [deck, one-pager, brief], title_hint: "Outcomes done against outcomes committed",
+          notes: "The Summary's decision sentence is the one-line claim." }
+      - { unit: outcomes, from_sections: [outcome_status], pattern: table,
+          include_in: [deck, one-pager, brief], title_hint: "What we committed to and where each stands",
+          notes: "Columns: workstream, outcome, status, evidence. Tier emoji become words; drop IDs. Highlight at-risk rows." }
+      - { unit: changes, from_sections: [changes_and_trades], pattern: claim-evidence,
+          include_in: [deck, one-pager, brief], title_hint: "What we traded and who agreed",
+          notes: "When the section says none, fold a one-liner into the summary and skip this unit." }
+      - { unit: blockers, from_sections: [blockers_and_risks], pattern: risk-matrix,
+          include_in: [deck, one-pager, brief], title_hint: "The blocker that needs a decision from this audience",
+          notes: "Use the table variant; Needs and Owner matter more than position." }
+      - { unit: ask, from_sections: [next_steps, blockers_and_risks], pattern: ask-next-steps,
+          include_in: [deck, one-pager, brief], title_hint: "The decision needed, then the dated next steps" }
+      - { unit: appendix, from_sections: [outcome_status], pattern: appendix-sources, include_in: [deck, brief] }
+    omit: [review_checklist]
+    gaps_to_ask:
+      - "whether the audience is the client or the team (decides how much evidence is shown)"
+      - "whether owners may be named outside the team"
+      - "time slot when presented live"
+
+  release-notes:
+    default_spine: problem-solution-evidence
+    default_kind: one-pager
+    audience_default: end users
+    units:
+      - { unit: title, from_sections: [release_scope, highlights], pattern: title, include_in: [deck],
+          title_hint: "The top change as the title; version and date in the subtitle" }
+      - { unit: highlights, from_sections: [highlights, release_scope], pattern: claim-evidence,
+          include_in: [deck, one-pager, brief], title_hint: "What got better for the reader",
+          notes: "Visual: screenshot of the top change. Build and commit details stay in the appendix." }
+      - { unit: changes, from_sections: [changes_and_fixes], pattern: table,
+          include_in: [deck, one-pager, brief], title_hint: "Every change, who it touches",
+          notes: "New or Improved rows first, then Fixes; at most seven rows, the rest to notes." }
+      - { unit: required-actions, from_sections: [breaking_changes_and_required_actions, required_actions_summary],
+          pattern: claim-evidence, include_in: [deck, one-pager, brief],
+          title_hint: "What you must do before the deadline",
+          notes: "Say plainly when nothing is required; do not skip the unit." }
+      - { unit: migration, from_sections: [migration_or_rollback_guidance], pattern: process-flow,
+          include_in: [deck, one-pager, brief], title_hint: "Upgrade in these steps; validation is the highlighted step",
+          notes: "Rollback conditions go to notes for user audiences, on the slide for operators." }
+      - { unit: known-issues, from_sections: [known_issues_and_support], pattern: table,
+          include_in: [deck, one-pager, brief], title_hint: "What still does not work and what to do meanwhile" }
+      - { unit: ask, from_sections: [required_actions_summary, known_issues_and_support], pattern: ask-next-steps,
+          include_in: [deck, one-pager, brief], title_hint: "Upgrade by the date; here is where to get help" }
+      - { unit: appendix, from_sections: [references, release_scope], pattern: appendix-sources, include_in: [deck, brief] }
+    omit: [audience_and_channels]   # distribution plan, not reader content; it picks the audience instead
+    gaps_to_ask:
+      - "which audience row this projection serves (users, operators, or support)"
+      - "support contact or channel the reader may use"
+      - "whether internal build identifiers may appear"
+
+  solution-design:
+    default_spine: problem-solution-evidence
+    default_kind: deck
+    audience_default: technical leadership
+    units:
+      - { unit: title, from_sections: [scope], pattern: title, include_in: [deck],
+          title_hint: "The selected approach as a claim about what it enables" }
+      - { unit: scope, from_sections: [scope, requirements_mapping], pattern: claim-evidence,
+          include_in: [deck, one-pager, brief], title_hint: "What this design covers and the requirements that drive it",
+          notes: "Top P0 rows as bullets; feature and artifact IDs stay in the appendix." }
+      - { unit: approach, from_sections: [solution_approaches], pattern: two-column-comparison,
+          include_in: [deck, one-pager, brief], title_hint: "Why the selected approach beats the runner-up",
+          notes: "Verdict line from Selected Approach; architecture impact as the last row." }
+      - { unit: domain, from_sections: [domain_model], pattern: claim-evidence,
+          include_in: [deck, brief], title_hint: "The entities that matter and the rules that bind them",
+          notes: "Visual: the entity diagram trimmed to core entities; Business Rules as bullets." }
+      - { unit: decomposition, from_sections: [system_decomposition], pattern: claim-evidence,
+          include_in: [deck, one-pager, brief], title_hint: "Which components carry the work and how they talk",
+          notes: "Visual: Component Interactions graph; one bullet per component purpose." }
+      - { unit: nfrs, from_sections: [requirements_mapping], pattern: table,
+          include_in: [deck, one-pager, brief], title_hint: "What performance, security, and scale demand of the design",
+          notes: "From NFR Impact on Architecture; highlight the row with the hardest target." }
+      - { unit: risks, from_sections: [risks, constraints_assumptions], pattern: risk-matrix,
+          include_in: [deck, one-pager, brief], title_hint: "The assumption that would hurt most if wrong",
+          notes: "Assumptions with a risk-if-wrong join the risks; constraints go to notes." }
+      - { unit: ask, from_sections: [solution_approaches, risks], pattern: ask-next-steps,
+          include_in: [deck, one-pager, brief], title_hint: "Approve the approach and the mitigations that need a decision" }
+      - { unit: appendix, from_sections: [traceability, requirements_mapping],
+          pattern: appendix-sources, include_in: [deck, brief] }
+    omit: [technology_rationale, concern_alignment, review_checklist]   # system-wide or governance detail; speaker notes at most
+    gaps_to_ask:
+      - "who approves the design (review board, lead, or client)"
+      - "review date and time slot"
+      - "whether component and vendor names may appear in a client-facing version"

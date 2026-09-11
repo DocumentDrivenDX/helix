@@ -72,6 +72,19 @@ sense that they steer judgment about how to extend HELIX itself.
    skill, or prompt that changes behavior); freeze process redesign mid-delivery.
    Do not skip real defect checks to "go faster."
 
+### Layers Are the Control
+
+HELIX's own artifacts are governed the way HELIX governs any project: the
+vision governs this PRD, the PRD governs its features, features govern
+designs and decisions, and the routing skill enforces what each layer
+authorizes. See `workflows/principles.md` for the methodology statement.
+
+### Humans Decide, Agents Draft
+
+Maintainers hold intent, judgment, and approval for HELIX's artifacts;
+agents draft, check, and surface. Autonomy level, stop triggers, and
+approval are the governed hand-off points. See `workflows/principles.md`.
+
 ## Tension Resolution
 
 | When these pull against each other | Resolve by |

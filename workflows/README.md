@@ -12,7 +12,7 @@ design, tests, implementation evidence, deployment evidence, and iteration
 learning. A runtime supplies the execution strand by reading those artifacts,
 performing work, and recording results.
 
-> **Quick Links**: [Quick Start Guide](QUICKSTART.md) | [Visual Overview](diagrams/workflow-overview.md) | [Reference Card](REFERENCE.md) | [Artifact Flow](diagrams/artifact-flow.md) | [Quality Ratchets](ratchets.md) | [DDx Methodology](DDX.md)
+> **Quick Links**: [Quick Start Guide](QUICKSTART.md) | [Visual Overview](diagrams/workflow-overview.md) | [Reference Card](REFERENCE.md) | [Artifact Flow](diagrams/artifact-flow.md) | [Quality Ratchets](ratchets.md)
 
 ## Core Metaphor
 
@@ -42,8 +42,6 @@ contract:
 
 - [README.md](README.md) for the high-level model, artifact authority
   hierarchy, and runtime boundary
-- [DDX.md](DDX.md) for historical methodology background and the DDx reference
-  integration model
 - `activities/*/artifacts/` for the canonical artifact-type catalog, prompts,
   templates, metadata, and examples
 - [reconcile-alignment.md](actions/reconcile-alignment.md) for top-down
@@ -187,7 +185,10 @@ without the shared workflow resources they depend on.
 
 Portable HELIX skills do not need to mirror any CLI command surface. The
 unified `/helix <mode>` skill is the operator-facing entry point; runtimes
-own execution.
+own execution. The skill body is a router; each mode's contract lives in
+`workflows/modes/<mode>.md` (packaged as `references/modes/`), with deeper
+procedures under `workflows/actions/` and report shapes in
+`workflows/modes/_report.md`.
 
 ## Cross-Cutting Context
 
@@ -236,6 +237,21 @@ AI agent responsibilities:
 - Code generation and refactoring
 - Test case generation
 - Documentation and analysis
+
+The two strands of the helix meet at governed hand-off points, never at
+implied ones. Humans decide; agents draft, check, surface, and record:
+
+| Hand-off | Who holds it | Where it is governed |
+|---|---|---|
+| Approval of a draft into authority | a person | artifact `status`, review, checked-in external documents |
+| How often an agent pauses | the team, per project | the autonomy level (`low`, `medium`, `high`) in the marker |
+| What an agent never does unasked | the methodology, extended per repo | stop triggers (`library/skill-prompts/stop-at-triggers.yml`) |
+| A question only a human can answer | a person, via escalation | the hard-stop invariant; findings handed off, never settled by the agent |
+| Judgment that agents surface but do not make | a person | alignment findings, review findings, contradictions between artifacts |
+
+The principles "Layers Are the Control" and "Humans Decide, Agents Draft"
+in [principles.md](principles.md) state the two commitments behind this
+table.
 
 ## Security Integration
 
@@ -348,15 +364,14 @@ and reported back so follow-on work re-enters planning; *how* a runtime
 realizes that is its own concern.
 
 For the concrete commands of a specific integration, see its install guide
-under [`docs/install/`](../docs/install/):
+in [`docs/install/README.md`](../docs/install/README.md), which has a
+section per host (Claude Code, Codex, Copilot, Grok Build, Databricks
+Genie, DDx):
 
 - [`docs/install/ddx.md`](../docs/install/ddx.md) — DDx reference runtime
   (work-item tracker, execution loop, queue guard, model routing).
-- [`docs/install/claude-code.md`](../docs/install/claude-code.md),
-  [`docs/install/codex.md`](../docs/install/codex.md),
-  [`docs/install/copilot.md`](../docs/install/copilot.md),
-  [`docs/install/databricks-genie.md`](../docs/install/databricks-genie.md)
-  — the other supported runtimes.
+- [`docs/install/databricks-genie.md`](../docs/install/databricks-genie.md)
+  — the Databricks Genie deploy runbook.
 
 A runtime that provides a work-item store should govern items by the HELIX
 authority stack, have them cite the canonical artifacts that authorize the

@@ -1,11 +1,11 @@
 ---
 title: "Validate"
 slug: validate
-weight: 50
+weight: 210
 generated: true
 ---
 
-Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/helix/blob/main/skills/helix/SKILL.md), the HELIX skill. Edit the skill, not this page.
+Generated from [`workflows/modes/validate.md`](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/modes/validate.md), the mode contract the HELIX skill loads. Edit that file, not this page.
 
 Use to check a single artifact instance against its governing template and
 prompt, then edit resolvable findings in place.
@@ -17,9 +17,12 @@ prompt, then edit resolvable findings in place.
 2. Load the artifact-type's `template.md`, `prompt.md`, `meta.yml`, and active
    voice profile from the resolved catalog path (see §Catalog Resolution and
    §Voice Resolution).
-3. Run structural conformance: required section headings from `template.md`
-   are present, and required frontmatter fields from `meta.yml` are
-   populated.
+3. Run the deterministic floor first: `scripts/validate-instance.py
+   <instance>` (beside this skill; `python3` and PyYAML) executes the type's
+   `required_sections`, `pattern_checks`, `automated_checks`, placeholder
+   scan, and frontmatter checks and prints findings with check ids. Treat its
+   blocking findings as `INCOMPLETE` unless judgment says otherwise. When the
+   host cannot run scripts, perform the same checks by reading `meta.yml`.
 4. Run prompt-section conformance: every section the `prompt.md` asks for is
    answered in the instance or explicitly marked N/A with a reason.
 5. Run voice conformance against the active profile, then classify each finding

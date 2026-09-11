@@ -1,7 +1,7 @@
 ---
-title: "Improvement Backlog — HELIX 2026-Q2"
+title: "Improvement Backlog — HELIX 2026-Q3"
 slug: improvement-backlog
-weight: 1020
+weight: 490
 activity: "Iterate"
 source: "06-iterate/improvement-backlog.md"
 generated: true
@@ -25,51 +25,52 @@ ddx:
     reviewed_at: "2026-05-15T04:11:24Z"
 ```
 
-# Improvement Backlog — HELIX 2026-Q2
+# Improvement Backlog — HELIX 2026-Q3
 
-**Iteration**: 2026-Q2 (post-`v0.3.3`)
-**Source Learnings**: `docs/helix/06-iterate/alignment-reviews/AR-2026-05-01-public-examples.md`,
-`docs/helix/06-iterate/metrics-dashboard.md`,
-`docs/helix/06-iterate/security-metrics.md`,
-recent `tests/the HELIX skill.sh` regression history,
-the active concerns roster (`hugo-hextra`, `demo-asciinema`, `e2e-playwright`).
+**Iteration**: 2026-Q3 (post-`v0.12.0`; the human-outputs branch
+`feat/helix-human-outputs`)
+**Source Learnings**: the 2026-09-10 top-to-bottom evaluation that produced
+the human-outputs plan (`docs/helix/01-frame/prd.md` non-goals and R-4;
+`docs/helix/00-discover/product-vision.md` success definition), the first
+`present` run (`docs/helix/06-iterate/deliverables/DEL-001-helix-evaluation-deck.md`
+Assumptions and gaps), and `docs/helix/06-iterate/metrics-dashboard.md`.
 
 ## Prioritization Rules
 
-- Rank by **authority leverage**: items that shore up CONTRACT-001 alignment
-  or fix authority-inversion risks rank above cosmetic improvements.
-- Rank by **public-surface impact**: items that make the public website /
-  artifact reference more accurate to readers rank above purely-internal
-  cleanups.
+- Rank by **authority leverage**: items that keep the skill inside the PRD's
+  non-goals (content plus one skill, no execution engine, no imposed
+  technology) rank above cosmetic improvements.
+- Rank by **evidence leverage**: items that make a success metric measurable
+  rank above items that add surface.
+- Rank by **public-surface impact**: items that make the published
+  reference more accurate rank above internal cleanups.
 - Items without tracker references stay at the bottom until they are
-  filed — the backlog does not retain unsourced ideas.
-- Safety / supply-chain risk items take priority over feature work. None
-  are currently flagged in `security-metrics.md`.
+  filed; the backlog does not retain unsourced ideas.
 
 ## Backlog Items
 
 | Priority | Item | Evidence | Tracker Ref | Why Now | Status |
 |----------|------|----------|-------------|---------|--------|
-| P1 | Author HELIX-real worked examples for the 12 descoped artifact slugs | AR-2026-05-01-public-examples.md "Follow-up beads to file" table | This iterate cycle is consuming them; one bead per slug | Public artifact reference currently shows a `Decision / Why It Exists` page where a worked example is expected, misleading readers | open |
-| P1 | Restore the public-site Playwright proof lane to green | `e2e-playwright` concern; recent CI history | helix-438c8a07 (and successors under `area:site,area:testing`) | Site regressions are landing without test coverage; Playwright is the only deterministic site verification | open |
-| P2 | Reconcile `the HELIX skill` ↔ `ddx work` cosmetic drift across PRD, ADR-001, SD-001, TD-002 | AR-2026-05-01-public-examples.md cross-cutting findings #7 | Filed as part of artifact-restoration work; covered by per-doc refresh beads | Published canonical examples should use the actual CLI invocation form; cosmetic but visible | open |
-| P2 | Verify the `github.com/easel/ddx` repo URL in architecture.md vs the canonical org URL | AR-2026-05-01-public-examples.md cross-cutting findings #6 | Pending bead under `area:docs,area:artifacts` | Public links must resolve; org migration may have invalidated this link | open |
-| P2 | Propagate context-digest concerns onto open beads under FEAT-006 | FEAT-006 status in implementation-plan-2026-04-11-snapshot ("DIVERGENT") | helix-674b1b42, helix-691d18c0, helix-d9f93a59 | Concern propagation is incomplete; beads claimed today may not see the right practices | open |
-| P3 | Replace remaining hardcoded `/home/erik/...` paths in older docs | AR-2026-05-01-public-examples.md cross-cutting findings #4 | One bead per affected doc | Public-readability blocker for any doc flipped into `HELIX_REAL_EXAMPLES_PUBLISHABLE` later | open |
-| P3 | Demo-recording inventory refresh under `demo-asciinema` | `demo-asciinema` concern; demos may have drifted from current CLI surface | helix-39fc1526 and successors | Public demos should match shipped behavior post-`v0.3.3` | open |
-| P3 | Forge-agent discovery scaffolding | `eff9742` "chore: add forge agent discovery tracker issue" | The bead created in that commit | Listed as a known known-issue in `release-notes.md`; no current path to consume it | open |
+| P1 | Build the evaluation the PRD promises: fixed corpus, headless run per host, `validate-instance.py` plus a rubric, results published; retire the 922-file `family-test/` scaffold that does not run | `evals/results/20260911-0955/summary.md`: 8 briefs, 32/32 checks, rubric 48/54, about $23 per full run; `family-test/` removed | this branch | The present mode and the deliverable gate gave the eval something concrete to grade | done |
+| P1 | Rasterize `.pptx` renders in the deliverable gate on the authoring host (LibreOffice, or PowerPoint automation permission) | `skills/helix/scripts/deck-qa.py` rasterizes through LibreOffice and writes a contact sheet; DEL-001 Render section records the inspection | this branch | A deck nobody looked at is not finished; the gate says so | done |
+| P2 | Sub-agent fan-out in align, review, and converge: one agent per review dimension or artifact family, fan-in through `workflows/modes/_report.md` | `workflows/modes/align.md` Fan-out section; review and converge likewise | this branch | The report shape exists, so fan-in has a contract | done |
+| P2 | Read governing artifacts that live in a connector-backed tool (Google Docs, Notion, Jira) directly, instead of only through the checkout stub | `workflows/conventions.md` Reading through a connector; `authoring.connector` in the schema | this branch | Hosts expose document connectors; read-only access removes a manual copy step | done |
+| P2 | Consolidate the six install guides (1,946 lines) into one guide plus per-host deltas, and test `.github/copilot-instructions.md` against the router | `docs/install/README.md` (886 lines across three files); `tests/validate-install-consistency.sh` keeps the Copilot file a pointer | this branch | The router split changed what every guide must describe | done |
+| P3 | Render deliverables to a self-contained HTML page as well as `.pptx` and PDF; the present mode names both targets but `render-deck.js` produces only `.pptx` | `workflows/modes/present.md` step 7; DEL-001 exports | pending bead | The pipeline is in place, so the second target is a renderer backend | open |
+| P3 | Prune overlapping catalog types: fold `test-suites` and `test-procedures` into `test-plan`; decide whether `market-analysis` stays separate from `competitive-analysis` | 03-test carries six types; discover carries four market documents | pending bead | The catalog table and graph regenerate cleanly now, so a prune is mechanical | open |
+| P3 | Sloptimizer adapter section for the `human-facing` profile | `workflows/voice.yml` `human-facing`; the sloptimizer HELIX adapter hard-codes `artifact-signal` | pending bead (easel repo) | Without it a prose rewrite fights the deck voice | open |
+| P3 | Add `ddx.type` to every catalog `example.md` so type resolution never falls back to the directory heuristic | `tests/validate-instance.sh` asserts the heuristic; every example emits a `frontmatter.type` warning | pending bead | Cheap once, removes 53 warnings | open |
 
 ## Selection for Next Iteration
 
-- **Chosen item**: P1 — Author HELIX-real worked examples for the 12
-  descoped artifact slugs. This iterate cycle is consuming them as the
-  current work-unit; eight slugs are flipped on as of `v0.3.3`, and
-  twelve more are pending per AR-2026-05-01.
-- **Why it wins the next slot**: Highest authority leverage (CONTRACT-001
-  alignment), highest public-surface impact (the artifact reference is the
-  most-visited part of the site), and it unblocks all P3 items below by
-  exercising the relocate-meta-decision-doc pattern that several other
-  cleanups will reuse.
+- **Chosen item**: P3 — the Sloptimizer adapter section for the
+  `human-facing` profile, together with pushing the `headline` target from
+  the easel-skills branch so hosts with Sloptimizer installed get the same
+  title rules the HELIX gate ports.
+- **Why it wins the next slot**: both P1 items closed on this branch; the
+  first eval run scored the `present` brief 6/8 on the rubric, and both
+  lost points were voice (investor-unfriendly source references, intake
+  fields not named), which is what the adapter fixes.
 
 ## Review Checklist
 

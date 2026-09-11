@@ -29,6 +29,7 @@ pkg_skill="$pkg_root/skills/helix"
 [[ -f "$pkg_root/.codex-plugin/plugin.json" ]] || fail "missing Codex plugin manifest"
 [[ -f "$pkg_root/hooks/hooks.json" ]] || fail "missing auto-loaded hooks/hooks.json"
 [[ -f "$pkg_skill/SKILL.md" ]] || fail "missing packaged SKILL.md"
+[[ -f "$pkg_skill/scripts/validate-instance.py" ]] || fail "missing packaged validate-instance.py"
 [[ -f "$pkg_root/library/skill-prompts/stop-at-triggers.yml" ]] || fail "missing packaged library prompt"
 [[ -f "$pkg_root/PACKAGE-SOURCE.json" ]] || fail "missing package provenance"
 

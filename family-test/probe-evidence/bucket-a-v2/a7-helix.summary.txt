@@ -1,3 +1,0 @@
-writes: ['/workspace/docs/helix/coffee-ordering-prd.md']
-expected_root: /docs/helix/
-ok: True

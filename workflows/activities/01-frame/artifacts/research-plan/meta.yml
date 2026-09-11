@@ -43,9 +43,9 @@ validation:
       description: Required resources and skills must be identified
       severity: blocking
 
-  automated_checks:
+  pattern_checks:
     - pattern: "\\*\\*Question\\*\\*:"
-      expected: ">0"
+      expected: ">=1"
       message: Must define at least one research question
 
     - pattern: "TBD|TODO|\\[PLACEHOLDER"

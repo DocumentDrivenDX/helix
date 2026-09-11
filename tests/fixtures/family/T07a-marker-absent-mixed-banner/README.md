@@ -25,7 +25,7 @@ A `Write` before disambiguation is a silent pick — fixture fails.
 - Disambiguation banner naming BOTH `helix` (bare) and `helix-infra`.
 - NO `Write` `tool_use` fires before disambiguation.
 - The assistant prompts the user to pick, set
-  `HELIX_METHODOLOGY`, or run `init-marker`.
+  `HELIX_METHODOLOGY`, or add a `.helix.yml` marker.
 
 ## What fails
 

@@ -61,8 +61,9 @@ downstream.
 
 ## Install
 
-HELIX runs on several runtimes. Pick the one you already use; each install guide
-under [`docs/install/`](docs/install/) has the full procedure.
+HELIX runs on several runtimes. Pick the one you already use; the install
+guide at [`docs/install/README.md`](docs/install/README.md) has the full
+procedure and a section per host.
 
 ### DDx Runtime
 
@@ -101,7 +102,7 @@ claude plugin marketplace add https://github.com/DocumentDrivenDX/helix
 claude plugin install helix@helix --scope user -y
 ```
 
-Full procedure: [`docs/install/claude-code.md`](docs/install/claude-code.md).
+Full procedure: [`docs/install/README.md#claude-code`](docs/install/README.md#claude-code).
 
 ### Codex (plugin)
 
@@ -113,8 +114,8 @@ codex plugin add helix@helix
 ```
 
 The plugin carries the same agentskills.io-compliant routing skill and
-artifact catalog. Full procedure, including the Skills CLI and filesystem-copy
-fallbacks: [`docs/install/codex.md`](docs/install/codex.md).
+artifact catalog. Full procedure, including the filesystem-copy fallback:
+[`docs/install/README.md#openai-codex-cli`](docs/install/README.md#openai-codex-cli).
 
 ### Databricks Genie
 

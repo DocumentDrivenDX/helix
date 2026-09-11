@@ -19,6 +19,7 @@ Measure, align, and improve. Close the feedback loop back into the planning stra
 
 {{< cards >}}
   {{< card link="security-metrics/" title="Security Metrics" subtitle="Iteration-level security posture report that turns incidents, vulnerabilities, control results, and compliance gaps into trend-backed improvement work." >}}
+  {{< card link="deliverable/" title="Deliverable" subtitle="A human-facing projection of governed artifacts: the script for a deck, one-pager, or brief, written in the human-facing voice with claim titles, a visual per…" >}}
   {{< card link="iteration-plan/" title="Iteration Plan" subtitle="Time-boxed commitment for one human iteration: a falsifiable goal, exactly one Good, one Better, and one Best outcome per participating workstream with owners…" >}}
   {{< card link="status-report/" title="Status Report" subtitle="Point-in-time record of an iteration against its plan: outcome status with evidence per claim, trades executed against the plan's trade rules, blockers with th…" >}}
 {{< /cards >}}

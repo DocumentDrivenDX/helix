@@ -504,7 +504,7 @@ This harness is specifically for **prompt and workflow wording iteration**.
 Related surfaces:
 - `tests/slider-autonomy-test-harness.md` focuses on autonomy behavior across low / medium / high.
 - Scenario fixtures under `tests/scenarios/` define the reusable comparison inputs.
-- `docs/helix/06-iterate/prompt-iteration-protocol.md` defines the repeatable decision loop and scoring rubric for these experiments.
+- `docs/archive/helix/06-iterate/prompt-iteration-protocol.md` defines the repeatable decision loop and scoring rubric for these experiments.
 - Execution-doc conventions live in `docs/helix/02-design/contracts/CONTRACT-002-helix-execution-doc-conventions.md`.
 
 This harness should stay focused on answering:

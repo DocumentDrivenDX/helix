@@ -193,6 +193,25 @@ column mapping scope.
 - [ ] Add CSV import security tests for formula injection and malformed files.
 - [ ] Add performance test using production-like object storage and database.
 - [ ] Confirm sample-file compatibility through the Research Plan before build.
+
+## Artifacts
+
+Preserved under `proofs-of-concept/POC-001/`:
+
+- **Code**: `import_validator/` (schema-driven parser with per-client column
+  mapping and rejected-row report), `matching_service/` (deterministic
+  amount, date-window, and payer-reference rules with evidence payload),
+  `review_api/` (decision endpoint with the transactional `review_decision`
+  write), and `schema.sql` (pilot entities from the Data Design).
+- **Data**: `fixtures/acme-bank-2026-05-08.csv` and
+  `fixtures/acme-invoices-2026-05-08.csv` (500 deposits, 500 invoices, two
+  export shapes), `fixtures/missing-amount-column.csv`, and
+  `fixtures/formula-injection.csv`. All fixtures are synthetic; no customer
+  data.
+- **Evidence**: `evidence/scenario-results.md` (pass/fail per scenario above),
+  `evidence/perf-1000-rows.log` (6.8 second local baseline),
+  `evidence/cross-firm-403.log` (firm-scope enforcement responses), and
+  `evidence/review-queue-payload.png` (suggestion with visible evidence).
 ``````
 
 </details>

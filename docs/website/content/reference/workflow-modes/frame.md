@@ -1,11 +1,11 @@
 ---
 title: "Frame"
 slug: frame
-weight: 30
+weight: 100
 generated: true
 ---
 
-Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/helix/blob/main/skills/helix/SKILL.md), the HELIX skill. Edit the skill, not this page.
+Generated from [`workflows/modes/frame.md`](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/modes/frame.md), the mode contract the HELIX skill loads. Edit that file, not this page.
 
 Use for creating or refining product vision, PRD, feature specs, and user
 stories.
@@ -17,31 +17,21 @@ stories.
    a framing gap, not an acceptable default-empty state. At `low`/`medium`,
    drive selection interactively by category (tech stack, data, infrastructure,
    quality). At `high`, infer the selection from the product's nature and record
-   each inferred concern as an assumption. **Fill each needed exclusive slot**
-   (a slot is an exclusive functional position — one frontend framework, one
-   language runtime; defined in `concerns/slots.yml`, resolved via §Catalog
-   Resolution — the `references/concerns/slots.yml` floor when no in-tree
-   catalog is present) by resolution order:
-   operator override (`docs/helix/01-frame/concerns.local.yml`) → shipped default
-   (`slots.yml`) → recorded assumption, and record the chosen filler plus its
-   source in `concerns.md`. A web app must fill `frontend-framework` — the
-   shipped default `react-nextjs` applies with no operator config. A UI web app
-   must also fill `e2e-framework` (default `e2e-playwright`); selecting the tool
-   is not coverage — ≥1 core user-flow must have a whole-stack e2e that runs green
-   against the running app (a browser e2e for a client-rendered UI, or an
-   HTTP+HTML-assertion e2e for a server-rendered one). An **operator-facing**
-   product (a human operator manages mutable domain objects or lifecycle state
-   through a UI) selects `admin-console` — the operator's jobs-to-be-done (CRUD +
-   control actions like pause/cancel) built as usable UI, with the primary
-   operator workflow exercised end-to-end *through the UI*. An **account-based /
-   multi-tenant** product (users/tenants/sign-in/roles/principal-scoped data)
-   selects `auth` — real signup→tenant+owner, login/sessions, server-side RBAC +
-   platform-admin, isolation through the principal — and fills the `auth-provider`
-   slot (default `auth-local-sessions`; an external IdP is a swappable filler,
-   never hardcoded). Neither is selected for pure APIs, CLIs, libraries,
-   static content sites, or read-only dashboards (unless an operator UI is
-   explicitly required). Selection happens here, once; propagation to work
-   items is a later gate owned by `check`/`polish`, not a re-selection.
+   each inferred concern as an assumption. Fill each needed exclusive slot per
+   §Concern slot resolution and record the chosen filler plus its source in
+   `concerns.md`. Selection signals: a UI web app needs `frontend-framework`
+   and `e2e-framework` (selecting the tool is not coverage — at least one core
+   user flow must have a whole-stack e2e that runs green against the running
+   app); an **operator-facing** product (a human manages mutable domain objects
+   or lifecycle state through a UI) selects `admin-console`, with the primary
+   operator workflow exercised end-to-end through the UI; an **account-based /
+   multi-tenant** product selects `auth` (real signup, login/sessions,
+   server-side RBAC, isolation through the principal) and fills the
+   `auth-provider` slot (an external IdP is a swappable filler, never
+   hardcoded). Neither is selected for pure APIs, CLIs, libraries, static
+   content sites, or read-only dashboards unless an operator UI is explicitly
+   required. Selection happens here, once; propagation to work items is a
+   later gate owned by `check`/`polish`, not a re-selection.
 3. Read the relevant artifact template, prompt, meta.yml, and active voice
    profile before drafting.
 4. Keep each artifact in its lane:
@@ -81,3 +71,36 @@ stories.
 6. Validate blocking template checks before treating the artifact as ready.
 7. Create follow-up design or implementation work only after the framing
    artifact can govern it.
+
+## Concern slot resolution
+
+A **slot** is an exclusive functional position a project must fill exactly
+once (one frontend framework, one language runtime, one e2e tool, one auth
+backend). Slots are declared in the shipped catalog at `concerns/slots.yml`, resolved
+via §Catalog Resolution — the in-tree `workflows/concerns/slots.yml` when a
+vendored tree is present, otherwise the `references/concerns/slots.yml` floor
+beside this SKILL.md (which always resolves). The file declares exclusive slots
+plus shipped defaults; membership in a slot is **derived** from each concern's
+own `## Slot` section, never listed in `slots.yml`.
+
+For every needed exclusive slot, resolve the filler in this fixed order
+(first match wins):
+
+1. **Operator override** — `docs/helix/01-frame/concerns.local.yml` in the
+   project tree. Read this BEFORE concerns.md exists, during high-autonomy
+   concern selection.
+2. **Shipped default** — the `defaults:` map in `slots.yml`.
+3. **Recorded assumption** — if neither source resolves, infer from the
+   product's nature and record it as an assumption in `concerns.md`.
+
+The exclusive slots and any shipped defaults are declared in `slots.yml`;
+read them there rather than from this skill. Defaults are starting points a
+project overrides, not technology choices HELIX imposes.
+
+**Contract**: select each needed slot **once per session** during §Frame
+step 2, and record the chosen filler PLUS its source (`operator-override`,
+`shipped-default`, or `assumption`) in `concerns.md`. Propagation to work
+items and downstream artifacts is a later gate (owned by `check`/`polish`),
+never a re-selection.
+
+Procedure: `workflows/actions/frame.md` (deeper step detail; this file is the contract).

@@ -1,3 +1,0 @@
-writes: ['/workspace/coffee-ordering-prd.md']
-required_substring: services/api/docs/helix/
-ok: False

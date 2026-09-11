@@ -102,6 +102,24 @@ active concerns.
 - P1: saved mapping reuse, row-level validation, import summary confirmation.
 - P2: large fixture performance and abandoned draft-session cleanup.
 
+## Acceptance Criteria Layer Allocation
+
+This project test plan aggregates strategy across stories. The per-criterion
+AC↔test matrix lives in each story test plan, keyed by stable `US-<n>-AC<m>`
+IDs. Criterion classes are allocated to a primary layer here; every P0
+criterion from an in-scope story appears in exactly one row.
+
+| AC class / source | Story Test Plan(s) | Primary Layer | Why this layer |
+|-------------------|--------------------|---------------|----------------|
+| Upload acceptance and draft-session creation (US-001-AC1) | [[STP-001-upload-csv-files]] | Integration | API-001, source-file storage, and draft-session persistence must hold together |
+| File rejection before parsing (US-001-AC2) | [[STP-001-upload-csv-files]] | Contract | API-001 problem-details errors are the observable boundary |
+| Mapping review opens once both files land (US-001-AC3) | [[STP-001-upload-csv-files]] | E2E | Reviewer-visible navigation outcome |
+
+**Allocation rule**: every `US-<n>-AC<m>` from an in-scope story (US-001 in
+this iteration) maps to exactly one primary layer above and to concrete tests
+in its STP. Unit and UI tests cover the same criteria as supporting layers
+without changing the primary allocation.
+
 ## Implementation Order
 
 1. Contract tests for API-001 success and problem-details errors.

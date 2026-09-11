@@ -1,5 +1,7 @@
 ---
 ddx:
+  authoring:
+    home: repo
   id: FEAT-recipe-share
   depends_on:
     - recipe-app-prd

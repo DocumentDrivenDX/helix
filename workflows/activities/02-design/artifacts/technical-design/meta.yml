@@ -51,14 +51,14 @@ validation:
       description: Rollback strategy should be defined
       severity: warning
 
-  automated_checks:
-    - pattern: "\\[\\[US-\\d{3}-"
+  pattern_checks:
+    - pattern: "\\[\\[US-\\d{3}[-\\]]"
       expected: ">=1"
-      message: Must reference the user story
+      message: Must wiki-link the governing user story ([[US-nnn]] or [[US-nnn-slug]])
 
-    - pattern: "\\[\\[SD-\\d{3}-"
+    - pattern: "\\[\\[SD-\\d{3}[-\\]]"
       expected: ">=1"
-      message: Must reference the solution design
+      message: Must wiki-link the parent solution design ([[SD-nnn]] or [[SD-nnn-slug]])
 
     - pattern: "US-\\d{3}-AC\\d+"
       expected: ">=1"

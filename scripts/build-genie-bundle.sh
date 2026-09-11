@@ -81,6 +81,8 @@ mkdir -p "$OUT_DIR/references"
 
 cp -f "$SRC_SKILL" "$OUT_DIR/SKILL.md"
 echo "✓ copied SKILL.md → $OUT_DIR/SKILL.md"
+cp -Rf skills/helix/scripts "$OUT_DIR/scripts"
+echo "✓ copied skill scripts → $OUT_DIR/scripts/"
 
 python3 scripts/sync_references.py "$OUT_DIR/references" >/dev/null
 echo "✓ generated workflows catalog → $OUT_DIR/references/"
@@ -89,7 +91,7 @@ cp -Rf "$SRC_LIBRARY" "$OUT_DIR/library"
 echo "✓ copied $SRC_LIBRARY → $OUT_DIR/library/"
 
 # Report what we built.
-SKILL_BYTES=$(stat -c%s "$OUT_DIR/SKILL.md")
+SKILL_BYTES=$(wc -c < "$OUT_DIR/SKILL.md" | tr -d " ")
 ACTIVITY_COUNT=$(find "$OUT_DIR/references/activities" -mindepth 1 -maxdepth 1 -type d | wc -l)
 CONCERN_COUNT=$(find "$OUT_DIR/references/concerns" -mindepth 1 -maxdepth 1 -type d | wc -l)
 LIBRARY_FILES=$(find "$OUT_DIR/library" -type f | wc -l)

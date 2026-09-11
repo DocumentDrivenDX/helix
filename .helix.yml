@@ -1,0 +1,7 @@
+# HELIX marker: declares which flows are active in this repository and the
+# scope root each one owns. The routing skill reads this before any edit.
+flows:
+  - id: helix
+    root: docs/helix/
+autonomy:
+  level: medium

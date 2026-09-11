@@ -1,11 +1,11 @@
 ---
 title: "Review"
 slug: review
-weight: 100
+weight: 190
 generated: true
 ---
 
-Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/helix/blob/main/skills/helix/SKILL.md), the HELIX skill. Edit the skill, not this page.
+Generated from [`workflows/modes/review.md`](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/modes/review.md), the mode contract the HELIX skill loads. Edit that file, not this page.
 
 Use for fresh-eyes review of plans, PRs, implementation, or recent work.
 
@@ -27,3 +27,17 @@ Use for fresh-eyes review of plans, PRs, implementation, or recent work.
    — block convergence. An external adversarial reviewer (a separate tool or
    model) is advisory input only and must never be a hard gate: when it hangs,
    errors, or is unavailable, convergence is decided by the intrinsic gates.
+
+Procedure: `workflows/actions/fresh-eyes-review.md` (deeper step detail; this file is the contract).
+
+## Fan-out
+
+When the host can run sub-agents, review in parallel by concern: correctness
+against the governing artifacts, claims-vs-reality (tests, coverage,
+metrics that are asserted but absent), scope discipline (unrequested
+features, narrowed capabilities, out-of-scope diffs), and test adequacy
+(each acceptance criterion exercised, guard branches included). Each agent
+returns findings ordered by severity with concrete evidence in the
+`_report.md` shape. Fan in by severity, then by evidence path; the
+phantom-claim count is the sum across agents and stays a zero-floor gate.
+Without sub-agents, run the concerns in that order.

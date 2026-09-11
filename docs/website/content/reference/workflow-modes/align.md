@@ -1,11 +1,11 @@
 ---
 title: "Align"
 slug: align
-weight: 40
+weight: 10
 generated: true
 ---
 
-Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/helix/blob/main/skills/helix/SKILL.md), the HELIX skill. Edit the skill, not this page.
+Generated from [`workflows/modes/align.md`](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/modes/align.md), the mode contract the HELIX skill loads. Edit that file, not this page.
 
 Use for reconciliation, traceability audits, drift checks, and artifact content
 placement reviews.
@@ -17,7 +17,7 @@ placement reviews.
    artifact, and every acceptance criterion traces to an exercising test. Unmapped
    material surfaces and unimplemented criteria are both alignment findings.
 2. **Desired-state rule (with intent guard).** Specs describe the **desired**
-   future state. Code behind specs → residual work items (beads/tracker), not
+   future state. Code behind specs → residual tracker work items, not
    silent requirement shrinks. Code ahead of docs → classify as plan-to-code
    honesty (`STALE_PLAN` / honesty evolve). Evolving specs to match code
    requires **operator intent** (explicit request or approved handoff) — do
@@ -48,3 +48,52 @@ placement reviews.
    commands). Prefer story/AC floor items when only docs/traceability lag.
    "Residual already green" means a governing AC is exercised by a passing
    test (or a recorded exception). Close or re-scope only with that evidence.
+
+## Content migration ledger
+
+If a user asks whether content belongs in the right HELIX document, use align
+mode. The alignment output must include a content migration ledger for every
+misplaced content unit:
+
+| Field | Required content |
+|---|---|
+| Source | Artifact path and line references |
+| Content unit | Small named chunk of content |
+| Classification | `keep`, `move`, `split`, `delete`, `needs-new-artifact`, or `decision-needed` |
+| Destination | Exact destination artifact path or artifact type |
+| Content to add | Destination-shaped draft content |
+| Template fit | Destination section and blocking/warning checks |
+| Destination risks | Any template check the proposed addition would fail |
+| Follow-up | Tracker issue ID or explicit issue to create |
+
+Do not remove content from one artifact unless the destination content and
+follow-up work are captured durably.
+
+Procedure: `workflows/actions/reconcile-alignment.md` (deeper step detail; this file is the contract).
+
+## Fan-out
+
+When the host can run sub-agents, split the review and fan in through the
+report shape in `_report.md`:
+
+- One agent per review dimension of the alignment procedure (artifact
+  contract rubric, bidirectional traceability, ADR honoring, concern drift,
+  concern realization, NFR targets, slot registry integrity, acceptance
+  criteria, instrument integrity, quality evaluation, work-item coverage),
+  or for a large tree one agent per artifact family (discover and frame,
+  design, test, deploy, iterate).
+- Every agent gets the same scope root, the same catalog bind, and the
+  governing artifacts its dimension needs, and returns only a
+  `helix_report` block: findings with classification, artifact, lines,
+  evidence, and the four handoff fields.
+- Fan in: merge the blocks; drop duplicates that share artifact, lines, and
+  classification; when two agents classify one gap differently keep the
+  stricter classification and record the disagreement under assumptions;
+  renumber finding ids; recompute the summary counts; then write the one
+  prose report a human reviews in under ten minutes.
+- Without sub-agents, run the dimensions in order. The output shape is the
+  same either way.
+
+Fan-out never widens scope. An agent that reads outside the scope root is
+discarded, and no agent writes an artifact; align stays read-only until the
+handoff.

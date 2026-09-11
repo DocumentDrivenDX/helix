@@ -1,56 +1,75 @@
 # HELIX on DDx
 
 DDx (Document-Driven Development Experience) is the HELIX reference
-runtime. This guide is the home for all DDx-specific packaging, naming,
-and invocation detail. The portable HELIX methodology
-([`workflows/README.md`](../../workflows/README.md),
-[`workflows/EXECUTION.md`](../../workflows/EXECUTION.md), and the
-[routing skill](../../skills/helix/SKILL.md)) describes *actions* in
-runtime-neutral terms; this guide names the concrete `ddx` commands that
-realize those actions when DDx is the runtime.
+runtime. This page is the home for all DDx-specific packaging, naming,
+and invocation detail: the concrete `ddx` commands that realize the
+runtime-neutral actions the methodology describes. What HELIX is, the
+marker, catalog resolution, autonomy, and verification are in the
+[install guide](README.md).
 
 > **Boundary.** HELIX provides the artifact catalog, the routing skill,
 > and the artifact schema. DDx provides the work-item tracker, the
 > execution loop, dispatch, and evidence capture. See
 > [CONTRACT-003](../helix/02-design/contracts/CONTRACT-003-ddx-adapter-boundary.md)
 > for the full adapter boundary. Nothing on this page is a HELIX
-> requirement — another runtime supplies its own equivalents (or none).
+> requirement; another runtime supplies its own equivalents (or none).
 
 ## Install
 
 ```bash
-ddx install helix
+ddx bead init        # create the tracker workspace (once per repo)
+ddx install helix    # clone HELIX into ~/.ddx/plugins/helix/
+ddx doctor           # verify and repair the install
 ```
 
-`ddx install helix` clones HELIX into `~/.ddx/plugins/helix/` using the
-Claude Code plugin format, so the same content serves both runtimes. In
-a DDx install the catalog source that HELIX docs call `workflows/` is
-vendored at `<plugin-root>/workflows/` — i.e. `.ddx/plugins/helix/workflows/`.
+`ddx install helix` uses the Claude Code plugin format, so the same tree
+also serves as a `claude --plugin-dir` target. The catalog source that
+HELIX docs call `workflows/` is vendored at `<plugin-root>/workflows/`
+(for example `.ddx/plugins/helix/workflows/`). The install also links the
+`helix` skill into `~/.agents/skills` and `~/.claude/skills`; `ddx doctor`
+creates missing plugin symlinks and skill links in the target repo. Refresh
+a local snapshot with `ddx install helix --force`.
 
-Verify the install:
+A DDx-managed HELIX project layout:
 
-```bash
-ddx doctor
 ```
+project-root/
+├── .ddx/                    # DDx workspace (beads, plugins, hooks)
+│   ├── beads.jsonl          # Work-item tracker storage
+│   └── plugins/helix/       # Installed HELIX content
+├── .agents/skills/          # Published HELIX skills (project-level)
+├── skills/                  # Skill sources for the HELIX package
+└── docs/helix/              # Canonical HELIX activity artifacts
+```
+
+Installers and plugins must preserve `.agents/skills/`, `skills/`, and
+`workflows/` together. DDx-installed templates live at
+`workflows/activities/<activity>/artifacts/<type>/template.md`; the
+refinement template at `workflows/templates/refinement-log.md`.
 
 ## DDx stores work items as beads
 
-DDx's concrete work item is the **bead**. Where the portable methodology
-says "work item", DDx means a bead. Beads are stored in `.ddx/beads.jsonl`
-and managed through `ddx bead`:
+DDx's concrete work item is the bead. Where the portable methodology says
+"work item", DDx means a bead. Beads are stored in `.ddx/beads.jsonl` and
+managed through `ddx bead`:
 
 ```bash
 ddx bead ready                  # open beads with all deps satisfied
 ddx bead ready --execution      # the next execution-ready bead
 ddx bead show <id>
+ddx bead dep tree <id>
+ddx bead blocked --json
 ddx bead update <id> --claim    # claim a bead to prevent concurrent work
 ddx bead close <id>             # close with evidence
 ddx bead status
+ddx bead import --from jsonl --file .ddx/beads.jsonl
+ddx bead export
 ```
 
 DDx owns bead storage, lifecycle (open → executing → closed), and queue
 ordering (`ReadyExecution()`). HELIX content describes the shape of a
-well-formed work item; DDx stores, claims, and closes it.
+well-formed work item; DDx stores, claims, and closes it. See
+`ddx bead --help` for the full tracker surface.
 
 ## The execution loop (`ddx work`)
 
@@ -58,8 +77,8 @@ The portable methodology's "the runtime executes ready work items, one
 bounded pass at a time" maps to:
 
 ```bash
-ddx work            # drain the ready queue end-to-end under DDx control
-ddx work --once     # run exactly one bounded build pass, then exit
+ddx work                # drain the ready queue end-to-end under DDx control
+ddx work --once         # run exactly one bounded build pass, then exit
 ddx bead execute <id>   # single-bead managed execution
 ```
 
@@ -69,9 +88,14 @@ operator or wrapping skill interprets, and stops on `WAIT`, `BACKFILL`,
 `GUIDANCE`, or `STOP`. DDx owns bead selection, managed-worktree
 execution, close-with-evidence, retry suppression, and orphan recovery.
 
+Execution-ready beads must carry deterministic acceptance and
+success-measurement criteria: exact commands, named checks, or observable
+repo state that DDx-managed execution can use to decide success without
+hidden human interpretation.
+
 ### Queue guard
 
-Guard an autonomous loop on *true* ready work with `ddx bead ready`
+Guard an autonomous loop on true ready work with `ddx bead ready`
 (blocker-aware), not `ddx bead list --ready` (not equivalent):
 
 ```bash
@@ -94,29 +118,43 @@ done
 /helix check
 ```
 
+Without `ddx work`, substitute
+`ddx bead execute "$(ddx bead ready --json --execution | ddx jq -r '.[0].id')"`
+for `ddx work --once` in the same loop.
+
 After each `ddx work --once --json`, the HELIX skill parses
 `results[].bead_id` and `results[].status` and applies post-cycle
 supervisory policy to the bead DDx actually executed.
 
 ## Operator entrypoints
 
-Operators interact with HELIX through the unified `/helix <mode>` skill in
-agent harnesses (Claude Code, Codex, Gemini, etc.) and through DDx runtime
-commands:
+Operators reach HELIX modes through the unified `/helix <mode>` skill in
+the agent harness (`/helix input "<intent>"`, `/helix design [scope]
+--rounds N`, `/helix polish --rounds N`, `/helix experiment --close`, and
+the rest of the routing table in the skill) and reach the runtime through
+`ddx work` (queue drain), `ddx bead execute <id>` (one bead),
+`ddx bead create "Title" ...` (well-structured work items), and
+`ddx doctor` (verify and repair the install).
 
-- `/helix input "<intent>"` — shape sparse intent into governed work
-- `/helix align [scope]` — top-down reconciliation
-- `/helix frame [scope]` — vision, PRD, feature specs
-- `/helix design [scope]` — design documents
-- `/helix evolve "<requirement>"` — thread a requirement through artifacts
-- `/helix review [scope]` — fresh-eyes review after build
-- `/helix check [scope]` — queue-drain decision
-- `/helix polish [scope]` — refine work items before implementation
-- `/helix experiment [scope]` — metric-driven optimization iteration
-- `ddx work` — primary queue-drain substrate
-- `ddx bead execute <id>` — single-bead managed execution
-- `ddx bead create "Title" ...` — create well-structured tracker work items
-- `ddx doctor` — verify and repair the HELIX install
+### Decision guide
+
+- Starting new work or a large scope: `/helix design`, then `/helix polish`,
+  then `ddx work`.
+- Starting from sparse user intent instead of a pre-shaped issue:
+  `/helix input`, setting autonomy when needed.
+- Ready execution issues exist: `ddx work`.
+- Work lacks design authority for safe execution: `/helix design`, or let
+  `/helix check` dispatch it.
+- Specs changed and open work needs refinement before implementation:
+  `/helix polish`, or let `/helix check` dispatch it.
+- No ready execution issue, but the planning stack exists and next work is
+  unclear: `/helix align` and record the review output.
+- Canonical docs are missing or too incomplete to execute safely:
+  `/helix backfill`.
+- Work exists but is blocked or already in progress: stop and wait.
+- The queue drains: `/helix check`, not a blind loop and not an ad hoc
+  ready-list loop.
+- After implementing an issue: `/helix review`.
 
 ## Work-item acquisition (bead-first under DDx)
 
@@ -201,269 +239,44 @@ into a provider-specific model name.
 - Closing a work item records completion; it does not redefine
   requirements, design, or tests. If execution changes behavior or scope,
   update the governing canonical artifacts explicitly.
-- Execution-ready beads carry deterministic acceptance and
-  success-measurement criteria — exact commands, named checks, or observable
-  repo state DDx-managed execution can use to decide success without hidden
-  human interpretation.
+- `ddx bead ready`, `ddx bead blocked`, and `ddx bead dep tree` replace
+  custom HELIX status fields for queue inspection.
 
 DDx-managed HELIX execution categories use native bead types, parents,
-dependencies, `spec-id`, and labels rather than custom queue files:
+dependencies, `spec-id`, and labels rather than custom queue files.
+Labels are triage and traceability conventions, not portable HELIX
+methodology:
 
-- `activity:build` — story-level implementation work
-- `activity:deploy` — rollout execution work
-- `activity:iterate` and `kind:backlog` — prioritized follow-up work
-- `kind:review` — reconciliation or audit work
-- `kind:planning` plus `action:<name>` — work-item-governed planning actions
-  such as `align`, `design`, or `polish`
-
-## Quick-reference commands relocated from portable docs
-
-The portable methodology docs describe runtime-neutral *actions*. The concrete
-DDx commands that realize them are collected here so the portable docs can point
-to one DDx home instead of carrying `ddx` command literals. Each subsection
-names the source doc the commands were relocated from.
-
-### From the HELIX Quick Reference Card (`workflows/REFERENCE.md`)
-
-Bootstrap:
-
-```bash
-ddx bead init
-ddx install helix
-ddx doctor
-```
-
-The unified `helix` agent skill is published once per project; the operator
-dispatches modes through `/helix <mode>`.
-
-DDx execution commands:
-
-```bash
-/helix input "natural language request"
-ddx work
-ddx work --once
-ddx bead execute hx-abc123
-/helix check repo
-/helix align repo
-/helix backfill repo
-/helix evolve "requirement description"
-ddx bead create "Issue title" --type task --labels helix,activity:build
-```
-
-Preferred DDx operator path:
-
-1. Use the `/helix input` skill mode for sparse intent.
-2. Use `ddx work` queue execution for execution-ready work.
-3. Use `/helix check`, `/helix review`, `/helix align`, `/helix design`, or
-   `/helix polish` when HELIX must interpret or route the next action.
-
-`ddx work` is the primary DDx queue-drain command for execution-ready beads.
-`ddx bead execute <id>` runs one bounded bead. Execution-ready beads must carry
-deterministic acceptance and success-measurement criteria: exact commands, named
-checks, or observable repo state that DDx-managed execution can use to decide
-success without hidden human interpretation.
-
-Planning and quality commands:
-
-```bash
-/helix input "natural language request"
-/helix input "natural language request" --autonomy high
-/helix design [scope]
-/helix design --rounds 8 auth
-/helix polish [scope]
-/helix polish --rounds 10
-/helix review [scope]
-/helix experiment [issue-id|goal]
-/helix experiment --close
-```
-
-`/helix input` is the sparse-intent entrypoint for the autonomy-slider workflow.
-`--autonomy` selects the HELIX-owned behavior contract (`low`, `medium`,
-`high`); the expected default is `medium` when no override is supplied.
-
-DDx tracker commands:
-
-```bash
-ddx bead ready --json
-ddx bead update <id> --claim
-ddx bead show <id>
-ddx bead dep tree <id>
-ddx bead blocked --json
-ddx bead close <id>
-ddx bead status
-ddx bead import --from jsonl --file .ddx/beads.jsonl
-ddx bead export
-```
-
-See `ddx bead --help` for full tracker conventions and setup guidance.
-
-DDx tracker labeling — labels are organizational conventions for triage and
-traceability; they are not part of the portable HELIX methodology. Recommended
-DDx labels:
-
-- `helix` identifies HELIX-managed issues in a DDx tracker.
-- Activity labels: `activity:frame`, `activity:design`, `activity:test`,
-  `activity:build`, `activity:deploy`, `activity:iterate`, `kind:review`.
-- Kind labels: `kind:build`, `kind:deploy`, `kind:backlog`, `kind:review`.
-- Traceability labels: `story:US-XXX`, `feature:FEAT-XXX`, `area:<name>`,
+- `helix` marks HELIX-managed issues; `activity:build` is story-level
+  implementation, `activity:deploy` rollout work, `activity:iterate` and
+  `kind:backlog` prioritized follow-up, `kind:review` reconciliation or
+  audit, and `kind:planning` plus `action:<name>` a work-item-governed
+  planning action such as `align`, `design`, or `polish`.
+- Other activity and kind labels: `activity:frame`, `activity:design`,
+  `activity:test`, `kind:build`, `kind:deploy`.
+- Traceability: `story:US-XXX`, `feature:FEAT-XXX`, `area:<name>`,
   `source:metrics`.
 
-DDx-specific decision guide:
+## Validation
 
-- Starting new work or a large scope: run `/helix design`, then `/helix polish`,
-  then `ddx work`.
-- Starting from sparse user intent instead of a pre-shaped issue: run `/helix
-  input` and set autonomy when needed.
-- Ready execution issues exist: use `ddx work` for queue draining.
-- Work lacks design authority for safe execution: run `/helix design`, or let
-  `/helix check` dispatch it.
-- Specs changed and open work needs issue refinement before implementation: run
-  `/helix polish`, or let `/helix check` dispatch it.
-- No ready execution issue, but the planning stack exists and next work is
-  unclear: run `/helix align` and record the review output.
-- Canonical docs are missing or too incomplete to execute safely: run `/helix
-  backfill`.
-- Work exists but is blocked or already in progress: stop and wait.
-- The queue drains: run `/helix check`, not a blind loop and not an ad hoc
-  ready-list loop.
-- After implementing an issue: run `/helix review`.
-
-DDx validation commands — when changing skill packaging docs or the DDx
-execution contract, the deterministic harnesses are:
+When changing skill packaging docs or the DDx execution contract, the
+deterministic harnesses are:
 
 ```bash
 bash tests/validate-skills.sh
 git diff --check
 ```
 
-### From the HELIX Workflow Quick Start (`workflows/QUICKSTART.md`)
-
-Bootstrap a repo:
-
-```bash
-ddx bead init
-ddx install helix
-ddx doctor
-```
-
-Notes:
-
-- `ddx bead init` creates the tracker workspace.
-- `ddx install helix` installs the HELIX plugin into the DDx plugin directory
-  and installs the HELIX skill into `~/.agents/skills` and `~/.claude/skills`.
-- `ddx doctor` verifies and repairs the installation — creates missing plugin
-  symlinks and skill links in the target repo.
-- The repo exposes the unified `helix` agent skill at `.agents/skills` and
-  `.claude/skills` (symlinks to `skills/`).
-- For Claude Code: `claude --plugin-dir /path/to/helix` discovers skills
-  automatically without manual install.
-
-DDx execution commands:
-
-```bash
-ddx work
-ddx bead execute <id>
-/helix check repo
-/helix align repo
-/helix backfill repo
-```
-
-Tracker introspection:
-
-```bash
-ddx bead --help
-ddx bead ready --json
-ddx bead ready --execution
-ddx bead show <id>
-```
-
-Minimal operator loop — if you are not using `ddx work`, use the bounded manual
-loop:
-
-```bash
-while [ "$(ddx bead ready --json | awk 'found || /^[{[]/ { found=1; print }' | ddx jq 'length')" -gt 0 ]; do
-  ddx bead execute "$(ddx bead ready --json --execution | ddx jq -r '.[0].id')"
-done
-
-/helix check
-```
-
-Validation — when you change skill packaging docs or the workflow contract, run:
-
-```bash
-bash tests/validate-skills.sh
-git diff --check
-```
-
-### From the Artifact Hierarchy (`workflows/artifact-hierarchy.md`)
-
-Under the DDx reference runtime, the queue controls for the artifact hierarchy
-are:
-
-```bash
-# Inspect the current queue
-ddx bead ready --json
-
-# Execute one ready work item
-ddx bead execute <id>
-
-# Decide the next action when the queue drains
-/helix check
-
-# Drain the ready queue
-ddx work
-```
-
-### From the Workflow Conventions (`workflows/conventions.md`)
-
-DDx workspace layout — DDx installs HELIX content at `workflows/` and stores
-work items in `.ddx/beads.jsonl`. A DDx-managed HELIX project layout includes
-this workspace alongside `docs/helix/`:
-
-```
-project-root/
-├── .ddx/                    # DDx workspace (beads, plugins, hooks)
-│   ├── beads.jsonl          # Work-item tracker storage
-│   └── plugins/helix/       # Installed HELIX content
-├── .agents/skills/          # Published HELIX skills (project-level)
-├── skills/                  # Skill sources for the HELIX package
-└── docs/helix/              # Canonical HELIX activity artifacts
-```
-
-DDx shared workflow root — under DDx, the shared workflow resource root is
-`workflows/`. Skills reference shared assets through that package-relative root.
-Installers and plugins must preserve `.agents/skills/`, `skills/`, and
-`workflows/` together.
-
-DDx work-item tracker — DDx uses a JSONL-backed tracker. See `ddx bead --help`
-for the full command surface. Common tracker introspection:
-
-- `ddx bead ready`, `ddx bead blocked`, and `ddx bead dep tree` replace custom
-  HELIX status fields for queue inspection.
-- The `helix` label identifies HELIX-managed issues in a DDx tracker.
-
-DDx template paths — DDx-installed templates live at:
-
-- artifact templates: `workflows/activities/<activity>/artifacts/<type>/template.md`
-- refinement template: `workflows/templates/refinement-log.md`
-
-Example artifact bootstrap:
-
-```bash
-sed -n '1,120p' workflows/activities/01-frame/artifacts/prd/prompt.md
-cp -f workflows/activities/01-frame/artifacts/prd/template.md \
-      docs/helix/01-frame/prd.md
-```
+The recorded DDx integration scenarios live in `tests/workflows/ddx/`.
 
 ## See also
 
-- [`workflows/README.md`](../../workflows/README.md) — runtime-neutral
+- [`workflows/README.md`](../../workflows/README.md): runtime-neutral
   methodology overview.
-- [`workflows/EXECUTION.md`](../../workflows/EXECUTION.md) — runtime-neutral
-  execution-integration model (bead-first, measure, report, check routing).
-- [`workflows/references/bead-first.md`](../../workflows/references/bead-first.md)
-  — the portable work-item acquisition pattern.
-- [CONTRACT-003](../helix/02-design/contracts/CONTRACT-003-ddx-adapter-boundary.md)
-  — the DDx adapter boundary.
-- [`docs/resources/agents/ddx-plugins.md`](../resources/agents/ddx-plugins.md)
-  — DDx plugin mechanism research notes.
+- [`workflows/references/bead-first.md`](../../workflows/references/bead-first.md):
+  the portable work-item acquisition pattern.
+- [CONTRACT-003](../helix/02-design/contracts/CONTRACT-003-ddx-adapter-boundary.md):
+  the DDx adapter boundary.
+- [`docs/resources/agents/ddx-plugins.md`](../resources/agents/ddx-plugins.md):
+  DDx plugin mechanism research notes.
+- [Install guide](README.md)
