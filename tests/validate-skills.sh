@@ -531,7 +531,7 @@ rm -f "$flagged_output"
 
 # Assert every path SKILL.md instructs the runtime to load actually exists in
 # the shipped tree. Catches drift like "SKILL.md references library/foo.yml
-# but only family-test/library/foo.yml is shipped" — a defect that lets the
+# but only a research-fork copy is shipped" — a defect that lets the
 # plugin install while leaving the skill unable to load its resources at
 # runtime.
 python3 - "$repo_root/skills/helix/SKILL.md" "$repo_root" <<'PYEOF' || fail "SKILL.md references a path that does not exist in the shipped tree"
@@ -700,7 +700,7 @@ PYEOF
 # routing-eval call. This guard catches that class of regression.
 #
 # Targets the canonical install at skills/helix/SKILL.md (post canonical-
-# promotion; the family-test/methodology-* research fork was removed).
+# promotion; the methodology-* research fork was removed).
 python3 - "$repo_root" <<'PYEOF' || fail "canonical SKILL.md frontmatter check failed"
 import sys, yaml, glob, os
 repo_root = sys.argv[1]

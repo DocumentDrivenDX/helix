@@ -1,6 +1,0 @@
-helix_version: 2
-flows:
-  - id: helix-data
-    root: docs/helix/
-defaults:
-  flow: helix-data

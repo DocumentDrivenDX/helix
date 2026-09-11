@@ -1,1 +1,0 @@
-Using repository configuration only, report active methodology IDs as JSON: { "active": [] }. Do not invoke any methodology skills. Respond only with the JSON object.
