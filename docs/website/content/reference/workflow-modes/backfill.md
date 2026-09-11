@@ -1,11 +1,11 @@
 ---
 title: "Backfill"
 slug: backfill
-weight: 90
+weight: 20
 generated: true
 ---
 
-Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/helix/blob/main/skills/helix/SKILL.md), the HELIX skill. Edit the skill, not this page.
+Generated from [`workflows/modes/backfill.md`](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/modes/backfill.md), the mode contract the HELIX skill loads. Edit that file, not this page.
 
 Use to reconstruct missing or incomplete HELIX artifacts from evidence.
 
@@ -15,3 +15,5 @@ Use to reconstruct missing or incomplete HELIX artifacts from evidence.
 3. Reconstruct only what the evidence supports.
 4. Mark uncertainty explicitly.
 5. Create follow-up work for unresolved authority gaps.
+
+Procedure: `workflows/actions/backfill-helix-docs.md` (deeper step detail; this file is the contract).

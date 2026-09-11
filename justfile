@@ -1,7 +1,7 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-surface-leakage test-microsite-doctrine test-context-digests test-actions
+test: test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance
 
 # Serve the HELIX microsite at the canonical local review URL.
 website-serve:
@@ -42,6 +42,10 @@ test-context-digests:
 # Validate action prompts are well-formed and registered in a route
 test-actions:
     bash tests/validate-actions.sh
+
+# Validate artifact instances against catalog validation blocks
+test-validate-instance:
+    bash tests/validate-instance.sh
 
 # Run all tests and check for stale references
 check: test lint

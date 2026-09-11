@@ -43,6 +43,7 @@ required_paths=(
   ".codex-plugin/plugin.json"
   "hooks/hooks.json"
   "$SRC_SKILL"
+  "skills/helix/scripts/validate-instance.py"
   "$SRC_LIBRARY/skill-prompts/stop-at-triggers.yml"
   "workflows/activities"
   "workflows/concerns"
@@ -85,6 +86,7 @@ cp -f .claude-plugin/marketplace.json "$OUT_DIR/.claude-plugin/marketplace.json"
 cp -f .codex-plugin/plugin.json "$OUT_DIR/.codex-plugin/plugin.json"
 cp -f hooks/hooks.json "$OUT_DIR/hooks/hooks.json"
 cp -f "$SRC_SKILL" "$OUT_DIR/skills/helix/SKILL.md"
+cp -Rf skills/helix/scripts "$OUT_DIR/skills/helix/scripts"
 cp -Rf "$SRC_LIBRARY" "$OUT_DIR/library"
 
 python3 scripts/sync_references.py "$OUT_DIR/skills/helix/references" >/dev/null

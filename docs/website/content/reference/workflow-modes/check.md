@@ -1,11 +1,11 @@
 ---
 title: "Check And Next"
-slug: check-and-next
-weight: 130
+slug: check
+weight: 30
 generated: true
 ---
 
-Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/helix/blob/main/skills/helix/SKILL.md), the HELIX skill. Edit the skill, not this page.
+Generated from [`workflows/modes/check.md`](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/modes/check.md), the mode contract the HELIX skill loads. Edit that file, not this page.
 
 Use when the safe next action is ambiguous, when the user asks "what's
 next" / "what's blocked" / "plan the change", or when a single ask

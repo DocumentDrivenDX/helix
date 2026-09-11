@@ -1,0 +1,92 @@
+# HELIX default deliverable theme.
+#
+# Resolution order for any deliverable (deck, one-pager, brief): the project's
+# own design-system artifact (docs/helix/02-design/design-system.md) when it
+# declares palette or typography, then this file. Adopters override; HELIX
+# ships a starting point, not a brand mandate.
+#
+# Typefaces are deliberately "safe": they render identically in PowerPoint,
+# Keynote, Google Slides, LibreOffice, and every PDF exporter, so a client
+# opens the file and sees what the author saw. No embedding, no substitution.
+
+version: 1
+
+typography:
+  display:
+    family: Georgia
+    fallback: [ "Times New Roman", serif ]
+    weight: 700
+  body:
+    family: Arial
+    fallback: [ Helvetica, sans-serif ]
+    weight: 400
+  mono:
+    family: Courier New
+    fallback: [ monospace ]
+  scale:          # points, for 16:9 slides; documents use the "doc" column
+    slide_title: 36
+    slide_subtitle: 20
+    slide_body: 18
+    slide_caption: 12
+    stat_callout: 64
+    doc_title: 24
+    doc_heading: 14
+    doc_body: 11
+    doc_caption: 9
+
+palette:
+  # Three brand hues from the HELIX microsite plus neutrals. One hue dominates
+  # (60-70% of colored surface), one supports, one accents. Never all three
+  # at equal weight on one slide.
+  primary:   "#3B6BA8"   # indigo (ai)
+  secondary: "#C44B2F"   # terracotta (human)
+  accent:    "#6842A8"   # violet (connect)
+  ink:       "#1F2933"
+  muted:     "#55606D"
+  surface:   "#FFFFFF"
+  surface_alt: "#F3F5F8"
+  border:    "#D6DCE4"
+  dark:                  # dark-background sections and the dark/light sandwich
+    primary:   "#6B9FD4"
+    secondary: "#E07A5F"
+    accent:    "#9B74D4"
+    ink:       "#EEF2F7"
+    muted:     "#B9C2CF"
+    surface:   "#14181F"
+    surface_alt: "#1E242D"
+    border:    "#2C3440"
+  categorical:           # chart series order is fixed; see dataviz rules
+    - "#3B6BA8"
+    - "#C44B2F"
+    - "#6842A8"
+    - "#2E8B6E"
+    - "#B8860B"
+    - "#55606D"
+  semantic:
+    positive: "#2E8B6E"
+    negative: "#B23A2E"
+    warning:  "#B8860B"
+    neutral:  "#55606D"
+
+layout:
+  slide:
+    aspect: "16:9"
+    width_in: 13.333
+    height_in: 7.5
+    margin_in: 0.6
+    gutter_in: 0.3
+    max_words_body: 60
+    max_bullets: 5
+    max_words_per_bullet: 14
+  document:
+    page: Letter          # or A4; the project design-system may override
+    margin_in: 1.0
+    columns: 1
+    max_words_one_pager: 450
+
+motif:
+  # One repeated visual device gives a deck identity. Default: a thin rule in
+  # the secondary hue under the section label (not under the title).
+  section_rule: { color: secondary, weight_pt: 2 }
+  slide_number: { position: bottom-right, size_pt: 10, color: muted }
+  footer_source: { position: bottom-left, size_pt: 9, color: muted }

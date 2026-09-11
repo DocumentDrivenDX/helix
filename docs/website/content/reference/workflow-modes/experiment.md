@@ -1,11 +1,11 @@
 ---
 title: "Experiment"
 slug: experiment
-weight: 150
+weight: 90
 generated: true
 ---
 
-Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/helix/blob/main/skills/helix/SKILL.md), the HELIX skill. Edit the skill, not this page.
+Generated from [`workflows/modes/experiment.md`](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/modes/experiment.md), the mode contract the HELIX skill loads. Edit that file, not this page.
 
 Use for metric-driven optimization loops.
 
@@ -19,3 +19,5 @@ Use for metric-driven optimization loops.
    *installed* (never by redirecting reads), score intrinsic metrics against the
    baseline, and **keep what moved, cut what didn't**. That evaluation is the
    standing answer to "how do we know this change is impactful."
+
+Procedure: `workflows/actions/experiment.md` (deeper step detail; this file is the contract).

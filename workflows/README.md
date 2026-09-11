@@ -185,7 +185,10 @@ without the shared workflow resources they depend on.
 
 Portable HELIX skills do not need to mirror any CLI command surface. The
 unified `/helix <mode>` skill is the operator-facing entry point; runtimes
-own execution.
+own execution. The skill body is a router; each mode's contract lives in
+`workflows/modes/<mode>.md` (packaged as `references/modes/`), with deeper
+procedures under `workflows/actions/` and report shapes in
+`workflows/modes/_report.md`.
 
 ## Cross-Cutting Context
 

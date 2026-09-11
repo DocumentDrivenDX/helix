@@ -1,11 +1,11 @@
 ---
 title: "Refresh"
 slug: refresh
-weight: 60
+weight: 170
 generated: true
 ---
 
-Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/helix/blob/main/skills/helix/SKILL.md), the HELIX skill. Edit the skill, not this page.
+Generated from [`workflows/modes/refresh.md`](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/modes/refresh.md), the mode contract the HELIX skill loads. Edit that file, not this page.
 
 Use to bring every artifact instance under a project HELIX tree up to
 date with the current canonical templates and prompts. §Refresh is

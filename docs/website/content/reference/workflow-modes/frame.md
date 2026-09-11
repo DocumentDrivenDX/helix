@@ -1,11 +1,11 @@
 ---
 title: "Frame"
 slug: frame
-weight: 30
+weight: 100
 generated: true
 ---
 
-Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/helix/blob/main/skills/helix/SKILL.md), the HELIX skill. Edit the skill, not this page.
+Generated from [`workflows/modes/frame.md`](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/modes/frame.md), the mode contract the HELIX skill loads. Edit that file, not this page.
 
 Use for creating or refining product vision, PRD, feature specs, and user
 stories.
@@ -71,3 +71,36 @@ stories.
 6. Validate blocking template checks before treating the artifact as ready.
 7. Create follow-up design or implementation work only after the framing
    artifact can govern it.
+
+## Concern slot resolution
+
+A **slot** is an exclusive functional position a project must fill exactly
+once (one frontend framework, one language runtime, one e2e tool, one auth
+backend). Slots are declared in the shipped catalog at `concerns/slots.yml`, resolved
+via §Catalog Resolution — the in-tree `workflows/concerns/slots.yml` when a
+vendored tree is present, otherwise the `references/concerns/slots.yml` floor
+beside this SKILL.md (which always resolves). The file declares exclusive slots
+plus shipped defaults; membership in a slot is **derived** from each concern's
+own `## Slot` section, never listed in `slots.yml`.
+
+For every needed exclusive slot, resolve the filler in this fixed order
+(first match wins):
+
+1. **Operator override** — `docs/helix/01-frame/concerns.local.yml` in the
+   project tree. Read this BEFORE concerns.md exists, during high-autonomy
+   concern selection.
+2. **Shipped default** — the `defaults:` map in `slots.yml`.
+3. **Recorded assumption** — if neither source resolves, infer from the
+   product's nature and record it as an assumption in `concerns.md`.
+
+The exclusive slots and any shipped defaults are declared in `slots.yml`;
+read them there rather than from this skill. Defaults are starting points a
+project overrides, not technology choices HELIX imposes.
+
+**Contract**: select each needed slot **once per session** during §Frame
+step 2, and record the chosen filler PLUS its source (`operator-override`,
+`shipped-default`, or `assumption`) in `concerns.md`. Propagation to work
+items and downstream artifacts is a later gate (owned by `check`/`polish`),
+never a re-selection.
+
+Procedure: `workflows/actions/frame.md` (deeper step detail; this file is the contract).

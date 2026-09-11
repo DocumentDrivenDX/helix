@@ -1,11 +1,11 @@
 ---
 title: "Grill"
 slug: grill
-weight: 20
+weight: 120
 generated: true
 ---
 
-Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/helix/blob/main/skills/helix/SKILL.md), the HELIX skill. Edit the skill, not this page.
+Generated from [`workflows/modes/grill.md`](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/modes/grill.md), the mode contract the HELIX skill loads. Edit that file, not this page.
 
 Use to stress-test a plan, design, or change via a decision-tree interview
 until shared understanding. Distills the grilling technique (one question at a
@@ -42,3 +42,5 @@ invoke interview-only without drafting PRDs or filing implementation work.
    handoff when already governed), evidence references.
 8. Do not silently start frame/design/build in the same turn unless the
    operator asks.
+
+Procedure: `workflows/actions/grill.md` (deeper step detail; this file is the contract).

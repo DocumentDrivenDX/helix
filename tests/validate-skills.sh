@@ -365,55 +365,48 @@ assert_file_contains \
   'Rule: do not add separate public `helix-*` skills' \
   "helix skill must prohibit reintroducing public helix-* skill sprawl"
 assert_file_contains \
-  "$repo_root/skills/helix/SKILL.md" \
+  "$repo_root/workflows/modes/polish.md" \
   "Require execution-ready work items to name exact files, commands, checks, fields," \
   "helix polish mode must require explicit measurable acceptance text for execution-ready work items"
 assert_file_contains \
-  "$repo_root/skills/helix/SKILL.md" \
+  "$repo_root/workflows/modes/polish.md" \
   "not execution-ready and route it back through planning" \
   "helix polish mode must define a flagging path for non-measurable acceptance text"
 assert_file_contains \
-  "$repo_root/skills/helix/SKILL.md" \
+  "$repo_root/workflows/modes/align.md" \
   "content migration ledger" \
   "helix align mode must require content migration ledger behavior"
 assert_file_contains \
-  "$repo_root/skills/helix/SKILL.md" \
+  "$repo_root/workflows/modes/align.md" \
   "Destination-shaped draft content" \
   "helix content migration ledger must capture destination-shaped content"
 assert_file_not_contains \
   "$repo_root/skills/helix/SKILL.md" \
   "compatibility" \
   "helix skill must not describe helix-* compatibility layers"
-assert_file_contains \
-  "$repo_root/skills/helix/SKILL.md" \
-  "### Refresh" \
-  "helix skill must have Refresh section under Workflow Contracts"
+[[ -f "$repo_root/workflows/modes/refresh.md" ]] || fail "helix skill must ship a refresh mode contract"
 assert_file_contains \
   "$repo_root/skills/helix/SKILL.md" \
   "## Project Root Resolution" \
   "helix skill must have Project Root Resolution top-level section"
 assert_file_contains \
-  "$repo_root/skills/helix/SKILL.md" \
+  "$repo_root/workflows/modes/validate.md" \
   "using the Align taxonomy: \`ALIGNED\`, \`INCOMPLETE\`, \`DIVERGENT\`," \
-  "helix skill must list the unified taxonomy in Validate item 5"
+  "helix validate mode must list the unified taxonomy"
 assert_file_contains \
-  "$repo_root/skills/helix/SKILL.md" \
+  "$repo_root/workflows/modes/validate.md" \
   "\`UNDERSPECIFIED\`, \`STALE_PLAN\`, or \`BLOCKED\`" \
-  "helix skill must list the unified taxonomy in Validate item 5"
+  "helix validate mode must list the unified taxonomy"
 assert_file_contains \
   "$repo_root/skills/helix/SKILL.md" \
   "Bring every artifact instance up to date with the current templates and prompts | refresh" \
   "helix skill must have routing row for refresh"
 assert_file_contains \
-  "$repo_root/skills/helix/SKILL.md" \
-  "### Grill" \
-  "helix skill must have Grill section under Workflow Contracts"
-assert_file_contains \
-  "$repo_root/skills/helix/SKILL.md" \
+  "$repo_root/workflows/modes/grill.md" \
   "one question at a time" \
   "helix grill mode must require one question at a time"
 assert_file_contains \
-  "$repo_root/skills/helix/SKILL.md" \
+  "$repo_root/workflows/modes/grill.md" \
   "recommended answer" \
   "helix grill mode must require a recommended answer per question"
 assert_file_contains \
@@ -558,8 +551,13 @@ required = {
     "workflows/concerns/sample-data/practices.md",
     "workflows/graph.yml",
     "workflows/voice.yml",
+    "workflows/modes/_authoring.md",
+    "workflows/modes/_report.md",
 }
-import os
+import os, glob
+# Mode contracts are part of the shipped skill surface: include their text.
+for _m in glob.glob(os.path.join(repo_root, "workflows", "modes", "*.md")):
+    text += "\n" + open(_m, encoding="utf-8").read()
 missing = [p for p in required if not os.path.exists(os.path.join(repo_root, p))]
 # Also assert each path appears verbatim in SKILL.md — guards against the
 # reverse drift (we ship a file, SKILL.md stops referencing it).
@@ -569,6 +567,32 @@ if missing:
 if not_referenced:
     print(f"DRIFT — these paths exist in the shipped tree but are no longer referenced by SKILL.md: {not_referenced}", file=sys.stderr)
 sys.exit(1 if (missing or not_referenced) else 0)
+PYEOF
+
+# Mode table <-> mode files: every routed mode has a workflows/modes/<mode>.md
+# contract and every non-underscore mode file is routed.
+python3 - "$repo_root/skills/helix/SKILL.md" "$repo_root/workflows/modes" <<'PYEOF' || fail "routing table and workflows/modes/ disagree"
+import os, re, sys
+skill, modes_dir = sys.argv[1], sys.argv[2]
+text = open(skill, encoding="utf-8").read()
+sec = re.search(r"^## Routing Rules\n(.*?)^## ", text, re.S | re.M)
+if not sec:
+    print("Routing Rules section missing", file=sys.stderr); sys.exit(1)
+routed = set()
+for line in sec.group(1).splitlines():
+    cells = [c.strip() for c in line.strip().strip("|").split("|")]
+    if len(cells) == 2 and cells[0] not in ("User intent",) and not set(cells[0]) <= set("-: "):
+        routed.add(cells[1])
+files = {f[:-3] for f in os.listdir(modes_dir) if f.endswith(".md") and not f.startswith("_")}
+missing = routed - files
+unrouted = files - routed
+if missing or unrouted:
+    if missing: print(f"routed modes without a contract file: {sorted(missing)}", file=sys.stderr)
+    if unrouted: print(f"mode files not in the routing table: {sorted(unrouted)}", file=sys.stderr)
+    sys.exit(1)
+for f in files | {"_authoring", "_report"}:
+    if f"workflows/modes/{f}.md" not in text:
+        print(f"SKILL.md does not list workflows/modes/{f}.md under Mode Contracts", file=sys.stderr); sys.exit(1)
 PYEOF
 
 # Catalog table drift: the "seven activities" table in SKILL.md must list

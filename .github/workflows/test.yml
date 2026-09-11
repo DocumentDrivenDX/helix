@@ -36,3 +36,6 @@ jobs:
 
       - name: Validate demo session records
         run: bash tests/validate-demos.sh
+
+      - name: Validate artifact instances against catalog validation blocks
+        run: bash tests/validate-instance.sh

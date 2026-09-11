@@ -53,6 +53,8 @@ CONCERNS_DEST = CONTENT_ROOT / "concerns"
 LEGACY_GLOSSARY = CONTENT_ROOT / "reference" / "glossary"
 SKILL_SRC = ROOT / "skills" / "helix" / "SKILL.md"
 SKILL_REL = "skills/helix/SKILL.md"
+MODES_SRC = ROOT / "workflows" / "modes"
+MODES_REL = "workflows/modes"
 MODES_DEST = CONTENT_ROOT / "reference" / "workflow-modes"
 
 ACTIVITIES = {
@@ -1183,26 +1185,21 @@ def parse_routing_rules(section: str) -> list[tuple[str, str]]:
     return routes
 
 
-def parse_workflow_contracts(section: str) -> list[dict]:
-    """Split the '## Workflow Contracts' body into per-'### <Mode>' contracts."""
+def parse_workflow_contracts() -> list[dict]:
+    """One contract per workflows/modes/<mode>.md (underscore files are shared
+    contracts, not modes). The H1 is the title; the rest is the body."""
     contracts: list[dict] = []
-    for chunk in ("\n" + section).split("\n### ")[1:]:
-        title, _, body = chunk.partition("\n")
-        title = title.strip()
-        if not title:
+    for path in sorted(MODES_SRC.glob("*.md")):
+        if path.name.startswith("_"):
             continue
-        contracts.append({
-            "title": title,
-            "slug": mode_slug(title),
-            "body": body.strip("\n"),
-        })
+        text = load_text(path)
+        first, _, body = text.partition("\n")
+        title = first[2:].strip() if first.startswith("# ") else path.stem
+        body = body.strip("\n")
+        # The contract H2/H3 headings become page H2/H3; nothing to shift.
+        contracts.append({"title": title, "slug": path.stem, "body": body, "rel": f"{MODES_REL}/{path.name}"})
     if not contracts:
-        print(
-            f"ERROR: no '### <Mode>' contract sections found under "
-            f"'## Workflow Contracts' in {SKILL_REL}. The skill was restructured — "
-            "update parse_workflow_contracts() in scripts/generate-reference.py.",
-            file=sys.stderr,
-        )
+        print(f"ERROR: no mode contracts found under {MODES_REL}/.", file=sys.stderr)
         sys.exit(1)
     return contracts
 
@@ -1216,11 +1213,7 @@ def parse_skill_workflow_modes() -> tuple[list[tuple[str, str]], list[dict]]:
     if not routing:
         print(f"ERROR: '## Routing Rules' section missing from {SKILL_REL}.", file=sys.stderr)
         sys.exit(1)
-    contracts_body = extract_markdown_section(md, "Workflow Contracts")
-    if not contracts_body:
-        print(f"ERROR: '## Workflow Contracts' section missing from {SKILL_REL}.", file=sys.stderr)
-        sys.exit(1)
-    return parse_routing_rules(routing), parse_workflow_contracts(contracts_body)
+    return parse_routing_rules(routing), parse_workflow_contracts()
 
 
 def contract_slug_for_mode(mode: str, contract_slugs: set[str]) -> str | None:
@@ -1253,11 +1246,12 @@ def render_mode_page(contract: dict, weight: int) -> str:
     out.append("generated: true")
     out.append("---")
     out.append("")
-    out.append(SKILL_GENERATED_NOTE)
+    out.append(
+        f"Generated from [`{contract['rel']}`]({HELIX_REPO_BLOB_BASE}/{contract['rel']}), "
+        "the mode contract the HELIX skill loads. Edit that file, not this page."
+    )
     out.append("")
-    # The '### <Mode>' heading became the page title; promote '####'
-    # subsections to '##' so the page has sensible internal levels.
-    out.append(shift_headings(contract["body"], by=-2).strip())
+    out.append(contract["body"].strip())
     out.append("")
     return "\n".join(out)
 

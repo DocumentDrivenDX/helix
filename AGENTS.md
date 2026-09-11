@@ -55,6 +55,8 @@ When working on HELIX itself in this repo:
 
 - top-level overview: `workflows/README.md`
 - methodology reference: `workflows/REFERENCE.md`
+- mode contracts: `workflows/modes/<mode>.md` (the skill routes, then loads
+  the mode file; `_authoring.md` and `_report.md` are shared)
 - marker: `.helix.yml` at the repo root declares the `helix` flow with root
   `docs/helix/`; the skill reads it before any edit
 - alignment and backfill are cross-activity actions:

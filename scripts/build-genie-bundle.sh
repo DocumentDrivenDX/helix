@@ -81,6 +81,8 @@ mkdir -p "$OUT_DIR/references"
 
 cp -f "$SRC_SKILL" "$OUT_DIR/SKILL.md"
 echo "✓ copied SKILL.md → $OUT_DIR/SKILL.md"
+cp -Rf skills/helix/scripts "$OUT_DIR/scripts"
+echo "✓ copied skill scripts → $OUT_DIR/scripts/"
 
 python3 scripts/sync_references.py "$OUT_DIR/references" >/dev/null
 echo "✓ generated workflows catalog → $OUT_DIR/references/"

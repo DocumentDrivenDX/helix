@@ -1,11 +1,11 @@
 ---
 title: "Review"
 slug: review
-weight: 100
+weight: 180
 generated: true
 ---
 
-Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/helix/blob/main/skills/helix/SKILL.md), the HELIX skill. Edit the skill, not this page.
+Generated from [`workflows/modes/review.md`](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/modes/review.md), the mode contract the HELIX skill loads. Edit that file, not this page.
 
 Use for fresh-eyes review of plans, PRs, implementation, or recent work.
 
@@ -27,3 +27,5 @@ Use for fresh-eyes review of plans, PRs, implementation, or recent work.
    — block convergence. An external adversarial reviewer (a separate tool or
    model) is advisory input only and must never be a hard gate: when it hangs,
    errors, or is unavailable, convergence is decided by the intrinsic gates.
+
+Procedure: `workflows/actions/fresh-eyes-review.md` (deeper step detail; this file is the contract).

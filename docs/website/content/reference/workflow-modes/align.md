@@ -1,11 +1,11 @@
 ---
 title: "Align"
 slug: align
-weight: 40
+weight: 10
 generated: true
 ---
 
-Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/helix/blob/main/skills/helix/SKILL.md), the HELIX skill. Edit the skill, not this page.
+Generated from [`workflows/modes/align.md`](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/modes/align.md), the mode contract the HELIX skill loads. Edit that file, not this page.
 
 Use for reconciliation, traceability audits, drift checks, and artifact content
 placement reviews.
@@ -48,3 +48,25 @@ placement reviews.
    commands). Prefer story/AC floor items when only docs/traceability lag.
    "Residual already green" means a governing AC is exercised by a passing
    test (or a recorded exception). Close or re-scope only with that evidence.
+
+## Content migration ledger
+
+If a user asks whether content belongs in the right HELIX document, use align
+mode. The alignment output must include a content migration ledger for every
+misplaced content unit:
+
+| Field | Required content |
+|---|---|
+| Source | Artifact path and line references |
+| Content unit | Small named chunk of content |
+| Classification | `keep`, `move`, `split`, `delete`, `needs-new-artifact`, or `decision-needed` |
+| Destination | Exact destination artifact path or artifact type |
+| Content to add | Destination-shaped draft content |
+| Template fit | Destination section and blocking/warning checks |
+| Destination risks | Any template check the proposed addition would fail |
+| Follow-up | Tracker issue ID or explicit issue to create |
+
+Do not remove content from one artifact unless the destination content and
+follow-up work are captured durably.
+
+Procedure: `workflows/actions/reconcile-alignment.md` (deeper step detail; this file is the contract).

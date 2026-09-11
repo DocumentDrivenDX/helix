@@ -33,6 +33,10 @@ When conventions and execution guidance disagree, follow:
 ## Documentation Voice
 
 HELIX documentation uses the canonical profiles in [voice.yml](voice.yml).
+Deliverables for people outside the project (decks, one-pagers, briefs) use
+the `human-facing` profile: conciseness 5, claim titles, no HELIX vocabulary
+in the body, every number sourced, and a subset-never-contradict rule against
+the governing artifact.
 Artifact authoring defaults to `artifact-signal`: conciseness 2/10, written for
 humans and agents that need to preserve context while making decisions. Public
 website copy uses `public-site`: conciseness 3/10, written for smart novice
