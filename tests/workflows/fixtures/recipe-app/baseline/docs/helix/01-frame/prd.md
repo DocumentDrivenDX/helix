@@ -1,5 +1,7 @@
 ---
 ddx:
+  authoring:
+    home: repo
   id: recipe-app-prd
   depends_on:
     - recipe-app-vision

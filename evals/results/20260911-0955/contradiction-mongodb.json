@@ -1,0 +1,50 @@
+{
+  "id": "contradiction-mongodb",
+  "mode": "evolve",
+  "seconds": 106.7,
+  "run_ok": true,
+  "cost_usd": 1.7215885000000002,
+  "turns": 20,
+  "checks_passed": 3,
+  "checks_total": 3,
+  "checks": [
+    {
+      "kind": "output_contains",
+      "ok": true,
+      "detail": "all present"
+    },
+    {
+      "kind": "files_unchanged",
+      "ok": true,
+      "detail": "unchanged"
+    },
+    {
+      "kind": "output_not_contains",
+      "ok": true,
+      "detail": "clean"
+    }
+  ],
+  "judge": {
+    "scores": [
+      {
+        "item": 1,
+        "score": 2,
+        "reason": "The response cites ADR-001-sqlite by path and line, names the contradiction with the PRD and technical design, and explicitly states nothing was written before raising it."
+      },
+      {
+        "item": 2,
+        "score": 2,
+        "reason": "It refuses to write a contradicting FEAT, proposes an evolve route with ADR-002 superseding ADR-001, and offers a Proposed-only ADR alternative, leaving the decision to the deciders."
+      },
+      {
+        "item": 3,
+        "score": 1,
+        "reason": "It challenges the scale drivers against ADR-001's 100-user sizing, the PRD's single-server constraint, budget cap, and low scalability risk, but never checks them against the vision document's stated target market."
+      }
+    ],
+    "total": 5,
+    "max": 6
+  },
+  "diff_stat": "",
+  "result": "Routing decision: this request engaged the `helix` flow in the product lane and routed to `frame`. I read the marker, the graph, and every existing artifact before drafting, and I stopped before writing because the request hits the HELIX hard-stop floor. Nothing was written.\n\n**The request contradicts two higher-authority artifacts, so a feature spec cannot govern it.**\n\n- `docs/helix/02-design/adr/ADR-001-sqlite.md:26` selects SQLite with a planned move to PostgreSQL. It rejected a document store in part for lock-in and limited query flexibility. It is still `Proposed`, so revisiting it is cheap, but it must be superseded, not bypassed.\n- `docs/helix/01-frame/prd.md:105` names SQLite as the database. Line 113 constrains the MVP to a single database server with no replication. Line 114 caps infrastructure at $5k. Sharding from day one contradicts all three.\n- `docs/helix/02-design/technical-designs/TD-recipe-store.md:18` inherits the SQLite constraint. It would drift the moment a MongoDB spec landed.\n\n**A datastore mandate is not feature behavior.** The feature-spec template forbids implementation choices at `template.md:135`, and the meta file lists \"Using PostgreSQL...\" as the exact phrasing to avoid. The frame action says stack selection and its rationale belong in ADRs. The concern catalog also reserves an exclusive `datastore` slot, so the choice is recorded in `concerns.md`, not in a FEAT.\n\n**The stated drivers are not yet supported by the governing requirements.** The PRD fixes the recipe shape to title, ingredients, instructions, photo, and description. ADR-001 sizes for 100 concurrent users, and the PRD rates database scalability a low-probability risk. If the product direction has changed toward evolving metadata and early scale, that change belongs in the PRD first, and then the ADR follows from it.\n\nThe correct route is `evolve`, and I can run it on your confirmation. It would produce:\n\n1. A revised PRD Technical Context and Constraints section stating the new schema-evolution and scale requirements, with the single-server constraint removed or re-scoped.\n2. `ADR-002` proposing MongoDB, evaluating it against SQLite and PostgreSQL on the new drivers, marking ADR-001 as superseded on acceptance, and recording the `datastore` slot filler.\n3. An update to TD-recipe-store replacing the SQLite inheritance and the relational data model with a reference to ADR-002.\n4. A `concerns.md` record, since no concern selection exists yet and any frame pass here would otherwise fail that gate.\n\nIf you want the MongoDB requirement captured without reopening the PRD, say so and I will draft ADR-002 as `Proposed` only. That leaves ADR-001 and the PRD untouched and puts the decision in front of the deciders where it belongs."
+}

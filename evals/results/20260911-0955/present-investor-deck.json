@@ -1,0 +1,60 @@
+{
+  "id": "present-investor-deck",
+  "mode": "present",
+  "seconds": 353.7,
+  "run_ok": true,
+  "cost_usd": 3.64507775,
+  "turns": 31,
+  "checks_passed": 4,
+  "checks_total": 4,
+  "checks": [
+    {
+      "kind": "files_exist",
+      "ok": true,
+      "detail": "present ['docs/helix/06-iterate/deliverables/DEL-*.md']"
+    },
+    {
+      "kind": "deliverable_gate",
+      "ok": true,
+      "detail": "1 script(s) pass (render checks excluded)"
+    },
+    {
+      "kind": "files_unchanged",
+      "ok": true,
+      "detail": "unchanged"
+    },
+    {
+      "kind": "output_not_contains",
+      "ok": true,
+      "detail": "clean"
+    }
+  ],
+  "judge": {
+    "scores": [
+      {
+        "item": 1,
+        "score": 2,
+        "reason": "The seven titles read in sequence as a complete argument: what RecipeHub is, why now, who is hurt, what fixes it, why it wins, the ask, sources."
+      },
+      {
+        "item": 2,
+        "score": 1,
+        "reason": "The one visible slide body and notes are clean of HELIX or engineering terms, but the remaining bodies are truncated and the sources slide is described as listing governing sections, which suggests file-path or HELIX section references an investor would not use."
+      },
+      {
+        "item": 3,
+        "score": 2,
+        "reason": "Every number visible (10,000 monthly cooks, four sources, six months, under $5k) is tied to a named vision or PRD section, the response states all figures are labelled as targets, and no untraced number appears."
+      },
+      {
+        "item": 4,
+        "score": 1,
+        "reason": "The ask names the action (a follow-up diligence meeting) and the exhibit promises dated steps with owners, but the ask slide body is not visible, and the assumptions list names missing source content (market, traction, revenue, team) rather than the inferred intake fields such as investor stage, live occasion, or decision sought."
+      }
+    ],
+    "total": 6,
+    "max": 8
+  },
+  "diff_stat": "?? docs/helix/06-iterate/\n",
+  "result": "The script is written and checked. Nothing else needs a tool call, so here is the hand-off.\n\n**Deck script written** at `docs/helix/06-iterate/deliverables/DEL-001-investor-evaluation-deck.md`. It follows the investor-pitch flow from the HELIX deck catalog, sized to a ten-minute slot: title, five content slides, ask, sources appendix. It is `status: draft` and not rendered, since this host has no presentation tooling.\n\n**Takeaway**: RecipeHub is the ad-free, peer-rated home for recipes that 10,000 home cooks a month will use within a year, and the next meeting is where that plan gets tested.\n\n**Titles-only outline**\n1. RecipeHub gives home cooks one trusted, ad-free place for recipes\n2. Recipe sites still sell ads to cooks who now plan on phones\n3. Home cooks scatter across four sources and find no peer review\n4. One mobile feed with peer ratings replaces the recipe hunt\n5. Ad-free peer ratings beat ad-funded blogs on trust\n6. Take the next meeting to test the ad-free plan for 10,000 cooks\n7. Sources\n\n**What the vision and PRD could not supply**, recorded under Assumptions and gaps rather than invented. An investor will ask about all of these, so the ask slide's speaker notes name them out loud:\n- No market size, so the required market beat is cut instead of faked.\n- No traction. Every number in the sources is a target and the notes label each one as such.\n- No revenue model. The product is ad-free by design and the PRD names no revenue stream.\n- No team, raise amount, or use of funds. Sending the amount is a dated founder step on the ask slide.\n\n**Source discrepancies found while checking fidelity.** The vision's walkthrough has the cook add ingredients to a cart and receive likes, and browse \"trending\" recipes. The PRD makes grocery delivery a non-goal, has no like feature, and defers trending to post-launch. The deck follows the PRD on all three. These belong in an alignment pass on the vision, not in the deck.\n\n**Gate results**\n- Script checks: 0 blocking, 1 warning (no rendered files listed, expected until rendered).\n- Horizontal, vertical, fidelity, and voice passes: done by read-through and recorded in the Render section.\n- Visual and file gates: open. No slide has been rendered or inspected. Render on a host with pptx or HTML presentation tooling, then record the paths in `authoring.export`.\n\nNothing was committed. The deck remains a draft until a person reviews it."
+}

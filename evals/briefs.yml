@@ -1,0 +1,158 @@
+# HELIX skill evaluation briefs.
+#
+# Each brief runs the routing skill headlessly against a fixed corpus and is
+# scored two ways: deterministic checks (files, validators, report shape,
+# forbidden edits) that need no judgment, and a rubric a judge scores 0-2
+# per item. scripts/run-eval.py reads this file.
+#
+# Fixtures (copied into a fresh workspace per brief, marker added):
+#   baseline  tests/workflows/fixtures/recipe-app/baseline  (vision, PRD, FEAT, ADR, TD)
+#   vision    the baseline reduced to docs/helix/00-discover/product-vision.md
+#
+# Check kinds:
+#   files_exist        globs relative to the workspace that must match at least one file
+#   files_unchanged    globs whose files must be byte-identical after the run
+#   validate_instance  globs; every matching artifact must pass validate-instance.py
+#   report_block       the final response must contain a `helix_report:` block with this mode
+#   output_contains    case-insensitive substrings the final response must contain
+#   output_not_contains substrings the final response must not contain
+#   deliverable_gate   glob; check-deliverable.py must report no blocking findings other than render.*
+#   max_new_files      upper bound on files created
+
+version: 1
+defaults:
+  max_turns: 80
+  timeout_seconds: 900
+
+briefs:
+  - id: frame-prd-from-vision
+    mode: frame
+    fixture: vision
+    prompt: >-
+      Frame the PRD for this product from the product vision under docs/helix.
+      Select the project's concerns as part of framing. Do not write code.
+    checks:
+      - { kind: files_exist, globs: ["docs/helix/01-frame/prd.md"] }
+      - { kind: validate_instance, globs: ["docs/helix/01-frame/prd.md"] }
+      - { kind: files_unchanged, globs: ["docs/helix/00-discover/product-vision.md"] }
+      - { kind: output_not_contains, values: ["bead", "ddx bead"] }
+      - { kind: max_new_files, value: 6 }
+    rubric:
+      - The PRD's requirements trace to the vision's positioning and target market rather than inventing scope.
+      - Non-goals are explicit and consistent with the vision.
+      - Concern selection is recorded (in concerns.md or stated as none apply with a reason), not skipped.
+      - Unknowns are marked as open questions instead of being resolved by invention.
+
+  - id: align-baseline
+    mode: align
+    fixture: baseline
+    prompt: >-
+      Run an alignment pass over docs/helix. Report drift, contradictions,
+      and missing downstream coverage. Do not edit any artifact.
+    checks:
+      - { kind: report_block, mode: align }
+      - { kind: files_unchanged, globs: ["docs/helix/**/*.md"] }
+      - { kind: output_contains, values: ["ALIGNED", "INCOMPLETE"] }
+      - { kind: output_not_contains, values: ["bead"] }
+      - { kind: max_new_files, value: 1 }
+    rubric:
+      - Findings cite artifact paths and lines or section anchors.
+      - Every non-aligned finding carries the four handoff fields (destination type, deliverable shape, next mode, evidence).
+      - The report is reviewable in under ten minutes (no restating of artifacts).
+      - No finding is fabricated; each traces to real text in the fixture.
+
+  - id: evolve-change-request
+    mode: evolve
+    fixture: baseline
+    prompt: >-
+      We need to move from SQLite to Postgres for production multi-user
+      concurrency. Thread this change through the HELIX artifacts: the
+      architecture decision record, the technical design, and anything else
+      the change affects.
+    checks:
+      - { kind: files_exist, globs: ["docs/helix/02-design/adr/*.md"] }
+      - { kind: validate_instance, globs: ["docs/helix/02-design/adr/*.md", "docs/helix/02-design/technical-designs/*.md"] }
+      - { kind: files_unchanged, globs: ["docs/helix/00-discover/product-vision.md"] }
+      - { kind: output_not_contains, values: ["bead"] }
+    rubric:
+      - The SQLite decision (ADR-001) is superseded or amended explicitly, not silently overwritten.
+      - The technical design changes are consistent with the new decision.
+      - Downstream conflicts are surfaced rather than papered over.
+      - The change is applied from the highest-authority artifact down.
+
+  - id: contradiction-mongodb
+    mode: evolve
+    fixture: baseline
+    prompt: >-
+      Add a feature specification requiring MongoDB as the primary data store
+      for the recipe platform. Its flexible schema is essential for evolving
+      recipe metadata, and we need horizontal scaling and sharding from day
+      one.
+    checks:
+      - { kind: output_contains, values: ["ADR-001"] }
+      - { kind: files_unchanged, globs: ["docs/helix/02-design/adr/ADR-001-sqlite.md"] }
+      - { kind: output_not_contains, values: ["bead"] }
+    rubric:
+      - The conflict with the recorded SQLite decision is named before any spec is drafted.
+      - The response routes the conflict to a decision (supersede the ADR or drop the request) rather than writing a contradicting spec.
+      - Scale claims ("massive growth", "day one sharding") are challenged against the vision's actual target market.
+
+  - id: present-investor-deck
+    mode: present
+    fixture: baseline
+    prompt: >-
+      Produce a ten-minute evaluation deck for a potential investor from the
+      product vision and PRD. Write the deck script; rendering is not
+      available on this host.
+    checks:
+      - { kind: files_exist, globs: ["docs/helix/06-iterate/deliverables/DEL-*.md"] }
+      - { kind: deliverable_gate, glob: "docs/helix/06-iterate/deliverables/DEL-*.md" }
+      - { kind: files_unchanged, globs: ["docs/helix/01-frame/prd.md", "docs/helix/00-discover/product-vision.md"] }
+      - { kind: output_not_contains, values: ["bead"] }
+    rubric:
+      - Reading only the slide titles tells the story.
+      - Bodies contain no HELIX or engineering vocabulary an investor would not use.
+      - Every number traces to a source row and none is invented.
+      - The ask is concrete (what, who, by when) and the assumptions list names the intake fields that were inferred.
+
+  - id: check-whats-next
+    mode: check
+    fixture: baseline
+    prompt: What's next for this project?
+    checks:
+      - { kind: report_block, mode: check }
+      - { kind: files_unchanged, globs: ["docs/helix/**/*.md"] }
+      - { kind: max_new_files, value: 0 }
+      - { kind: output_not_contains, values: ["bead"] }
+    rubric:
+      - The recommendation names one next mode with evidence paths.
+      - It reads the fixture's artifacts rather than answering from generic methodology prose.
+      - It does not start the recommended work in the same turn.
+
+  - id: ambiguous-request
+    mode: check
+    fixture: baseline
+    prompt: Help me with that thing we discussed earlier about the recipes and the stuff with the users.
+    checks:
+      - { kind: files_unchanged, globs: ["docs/helix/**/*.md"] }
+      - { kind: max_new_files, value: 0 }
+      - { kind: output_contains, values: ["?"] }
+    rubric:
+      - The response asks a scoped clarifying question grounded in what the fixture actually contains (recipe sharing, users).
+      - It does not invent a task or edit anything.
+
+  - id: validate-prd
+    mode: validate
+    fixture: baseline
+    prompt: >-
+      Validate docs/helix/01-frame/prd.md against its template and prompt
+      and fix what can be fixed mechanically.
+    checks:
+      - { kind: files_exist, globs: ["docs/helix/01-frame/prd.md"] }
+      - { kind: validate_instance, globs: ["docs/helix/01-frame/prd.md"] }
+      - { kind: report_block, mode: validate }
+      - { kind: files_unchanged, globs: ["docs/helix/02-design/**/*.md"] }
+    rubric:
+      - Mechanical findings (missing sections, placeholders) are fixed in place; judgment findings are handed off, not edited.
+      - Frontmatter keys are preserved byte-for-byte.
+      - The report classifies every finding with the Align taxonomy.

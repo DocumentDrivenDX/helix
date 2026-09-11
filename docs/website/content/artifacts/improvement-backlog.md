@@ -51,23 +51,26 @@ Assumptions and gaps), and `docs/helix/06-iterate/metrics-dashboard.md`.
 
 | Priority | Item | Evidence | Tracker Ref | Why Now | Status |
 |----------|------|----------|-------------|---------|--------|
-| P1 | Build the evaluation the PRD promises: fixed corpus, headless run per host, `validate-instance.py` plus a rubric, results published; retire the 922-file `family-test/` scaffold that does not run | PRD success metrics "alignment quality" and "authoring quality" have no measurement path; `docs/archive/helix/02-design/bench-build-results-2026-06-06-first-run.md` says a full run is "structurally unbuildable" | pending bead | The present mode and the deliverable gate now give the eval something concrete to grade | open |
-| P1 | Rasterize `.pptx` renders in the deliverable gate on the authoring host (LibreOffice, or PowerPoint automation permission) | DEL-001 Render section: the `.pptx` passed structural validation but no one has looked at its slides | pending bead | A deck nobody looked at is not finished; the gate says so | open |
-| P2 | Sub-agent fan-out in align, review, and converge: one agent per review dimension or artifact family, fan-in through `workflows/modes/_report.md` | `workflows/actions/reconcile-alignment.md` STEP 3 has eight review dimensions run single-threaded; PRD success criterion "alignment plan reviewable in under 10 minutes" | pending bead | The report shape now exists, so fan-in has a contract | open |
-| P2 | Read governing artifacts that live in a connector-backed tool (Google Docs, Notion, Jira) directly, instead of only through the checkout stub | `workflows/conventions.md` Authoring Home: `external-tool` documents are read only as check-in copies | pending bead | Hosts now expose document connectors; read-only access removes a manual copy step | open |
-| P2 | Consolidate the six install guides (1,946 lines) into one guide plus per-host deltas, and test `.github/copilot-instructions.md` against the router | `docs/install/*.md` line counts; `copilot-instructions.md` is a fourth normative surface no test compares | pending bead | The router split changed what every guide must describe | open |
+| P1 | Build the evaluation the PRD promises: fixed corpus, headless run per host, `validate-instance.py` plus a rubric, results published; retire the 922-file `family-test/` scaffold that does not run | `evals/results/20260911-0955/summary.md`: 8 briefs, 32/32 checks, rubric 48/54, about $23 per full run; `family-test/` removed | this branch | The present mode and the deliverable gate gave the eval something concrete to grade | done |
+| P1 | Rasterize `.pptx` renders in the deliverable gate on the authoring host (LibreOffice, or PowerPoint automation permission) | `skills/helix/scripts/deck-qa.py` rasterizes through LibreOffice and writes a contact sheet; DEL-001 Render section records the inspection | this branch | A deck nobody looked at is not finished; the gate says so | done |
+| P2 | Sub-agent fan-out in align, review, and converge: one agent per review dimension or artifact family, fan-in through `workflows/modes/_report.md` | `workflows/modes/align.md` Fan-out section; review and converge likewise | this branch | The report shape exists, so fan-in has a contract | done |
+| P2 | Read governing artifacts that live in a connector-backed tool (Google Docs, Notion, Jira) directly, instead of only through the checkout stub | `workflows/conventions.md` Reading through a connector; `authoring.connector` in the schema | this branch | Hosts expose document connectors; read-only access removes a manual copy step | done |
+| P2 | Consolidate the six install guides (1,946 lines) into one guide plus per-host deltas, and test `.github/copilot-instructions.md` against the router | `docs/install/README.md` (886 lines across three files); `tests/validate-install-consistency.sh` keeps the Copilot file a pointer | this branch | The router split changed what every guide must describe | done |
+| P3 | Render deliverables to a self-contained HTML page as well as `.pptx` and PDF; the present mode names both targets but `render-deck.js` produces only `.pptx` | `workflows/modes/present.md` step 7; DEL-001 exports | pending bead | The pipeline is in place, so the second target is a renderer backend | open |
 | P3 | Prune overlapping catalog types: fold `test-suites` and `test-procedures` into `test-plan`; decide whether `market-analysis` stays separate from `competitive-analysis` | 03-test carries six types; discover carries four market documents | pending bead | The catalog table and graph regenerate cleanly now, so a prune is mechanical | open |
 | P3 | Sloptimizer adapter section for the `human-facing` profile | `workflows/voice.yml` `human-facing`; the sloptimizer HELIX adapter hard-codes `artifact-signal` | pending bead (easel repo) | Without it a prose rewrite fights the deck voice | open |
 | P3 | Add `ddx.type` to every catalog `example.md` so type resolution never falls back to the directory heuristic | `tests/validate-instance.sh` asserts the heuristic; every example emits a `frontmatter.type` warning | pending bead | Cheap once, removes 53 warnings | open |
 
 ## Selection for Next Iteration
 
-- **Chosen item**: P1 — build the evaluation. It is the only item that
-  turns two PRD success metrics from prose into numbers, and it decides
-  whether the router split and the present mode moved anything.
-- **Why it wins the next slot**: highest evidence leverage; the deliverable
-  gate, the executable validator, and the report shape were the
-  prerequisites, and all three shipped on this branch.
+- **Chosen item**: P3 — the Sloptimizer adapter section for the
+  `human-facing` profile, together with pushing the `headline` target from
+  the easel-skills branch so hosts with Sloptimizer installed get the same
+  title rules the HELIX gate ports.
+- **Why it wins the next slot**: both P1 items closed on this branch; the
+  first eval run scored the `present` brief 6/8 on the rubric, and both
+  lost points were voice (investor-unfriendly source references, intake
+  fields not named), which is what the adapter fixes.
 
 ## Review Checklist
 
