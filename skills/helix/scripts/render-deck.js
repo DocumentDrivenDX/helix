@@ -170,12 +170,12 @@ function grid(col, span) {
 
 // ---------------------------------------------------------------- measuring
 // Average glyph width as a fraction of the point size, per typeface.
-const WIDTH_FACTOR = { Georgia: 0.56, Arial: 0.47, Helvetica: 0.47, "Courier New": 0.60, "Times New Roman": 0.46 };
+const WIDTH_FACTOR = { Georgia: 0.58, Arial: 0.5, "Courier New": 0.6 };  // average em per character; Arial bold runs wider still;
 const LINE_HEIGHT = 1.2;
 
 function textWidthIn(str, font, pt, bold) {
   const f = WIDTH_FACTOR[font] || 0.52;
-  return (str.length * pt * f * (bold ? 1.06 : 1)) / 72;
+  return (str.length * pt * f * (bold ? 1.2 : 1)) / 72;
 }
 function wrap(str, font, pt, bold, widthIn) {
   const lines = [];
@@ -184,6 +184,10 @@ function wrap(str, font, pt, bold, widthIn) {
     const next = cur ? cur + " " + word : word;
     if (textWidthIn(next, font, pt, bold) <= widthIn || !cur) cur = next;
     else { lines.push(cur); cur = word; }
+    // a single word wider than the box breaks mid-word in the renderer; count the
+    // extra lines it would take so the fit step shrinks the size instead
+    const ww = textWidthIn(word, font, pt, bold);
+    if (ww > widthIn) for (let k = 1; k < Math.ceil(ww / widthIn); k++) lines.push("");
   }
   if (cur) lines.push(cur);
   return lines.length ? lines : [""];
@@ -375,7 +379,7 @@ visuals["process-flow"] = (slide, box, spec, unit) => {
   const byLabel = new Map(unit.body.map(splitLabel).map(([l, d]) => [l.toLowerCase(), d]));
   const gap = 0.08;
   const stepW = (box.w - gap * (steps.length - 1)) / steps.length;
-  const chevH = Math.min(1.15, box.h * 0.3);
+  const chevH = Math.min(steps.length >= 5 ? 0.8 : 1.15, box.h * 0.3);  // narrower chevrons need a shallower notch so labels fit
   const y = box.y + (box.h > 3 ? 0.9 : 0.2);
   const hasDetails = steps.some((label, k) => details[k] || byLabel.get(label.toLowerCase()));
   const captionY = y + chevH + (hasDetails ? 1.3 : 0.3);
@@ -389,8 +393,11 @@ visuals["process-flow"] = (slide, box, spec, unit) => {
     const detail = details[k] || byLabel.get(label.toLowerCase()) || "";
     if (detail) text(slide, detail, { x: x + 0.1, y: y + chevH + 0.2, w: stepW - 0.2, h: 1.0 },
       { size: 14, min: 12, color: C.muted, align: "center" });
-    if (active && spec.caption) text(slide, spec.caption, { x: x - 0.4, y: captionY, w: stepW + 0.8, h: 0.6 },
+    if (active && spec.caption) {
+      const cx = Math.max(box.x, Math.min(x - 0.4, box.x + box.w - (stepW + 0.8)));  // keep the caption inside the box
+      text(slide, spec.caption, { x: cx, y: captionY, w: stepW + 0.8, h: 0.6 },
       { size: 14, min: 12, bold: true, color: C.secondary, align: "center" });
+    }
   });
 };
 

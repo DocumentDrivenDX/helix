@@ -11,7 +11,19 @@ or omitted.
 
 Usage:
     corpus-inventory.py <path-or-glob> [<path-or-glob> ...] [--top N]
-                        [--format md|json] [--min-docs 2]
+                        [--format md|json] [--min-docs 2] [--catalog DIR]
+
+Three passes, because a phrase counter alone misses two kinds of concept:
+  1. Structure: the catalog's own layering read from graph.yml, the activity
+     gates, and the concerns library (authority chain, cross-layer
+     propagation, gates and floors, what runs unasked). Emitted as concept
+     groups regardless of how often any document names them.
+  2. Roles and hand-offs: who does what to whom (approve, confirm, review,
+     decide, stop, infer, record) with the actor, so a theme carried by
+     scattered role vocabulary still surfaces.
+  3. Authority floor: every heading and table row of the top-ranked
+     documents is a mandatory candidate; recurrence thresholds do not apply
+     to what the vision, PRD, README, or principles say in a heading.
 
 Authority rank comes from the HELIX activity directory (00-discover highest)
 and from the document kind (a README or principles file ranks with frame);
@@ -88,12 +100,99 @@ def phrases(text: str) -> Counter:
     return c
 
 
+ACTORS = {
+    "human": r"(?:humans?|people|operators?|reviewers?|sponsors?|teams?|leads?|maintainers?|you|we)",
+    "agent": r"(?:agents?|models?|skills?|runtimes?|HELIX|the skill|the runtime)",
+}
+# canonical verb <- stems it may appear as
+HANDOFF_VERBS = {
+    "approve": r"approv\w*", "confirm": r"confirm\w*", "review": r"review\w*", "decide": r"decid\w*",
+    "escalate": r"escalat\w*", "stop": r"stop\w*", "pause": r"paus\w*", "ask": r"asks?\b|asking", "infer": r"infer\w*",
+    "record": r"record\w*", "authorize": r"authori[sz]\w*", "reject": r"reject\w*", "refuse": r"refus\w*",
+    "choose": r"choos\w*|chose", "judge": r"judg\w*", "verify": r"verif\w*", "surface": r"surfac\w*",
+    "hand off": r"hand\w* (?:off|back)", "defer": r"defer\w*", "propose": r"propos\w*", "select": r"select\w*",
+}
+HANDOFF_RE = "|".join(f"(?P<{k.replace(' ', '_')}>{v})" for k, v in HANDOFF_VERBS.items())
+
+
+def structure(catalog: Path) -> dict:
+    """The corpus's own abstraction layers, read from the catalog rather than counted in prose."""
+    out: dict = {"groups": [], "facts": []}
+    graph = catalog / "graph.yml"
+    if not graph.is_file():
+        return out
+    try:
+        import yaml  # optional; the structural pass degrades to nothing without it
+    except ImportError:
+        return out
+    g = yaml.safe_load(graph.read_text(encoding="utf-8")) or {}
+    acts = [a["id"] for a in g.get("activities", [])]
+    nodes = g.get("nodes", [])
+    edges = g.get("edges", [])
+    by_act: dict[str, list[str]] = defaultdict(list)
+    for n in nodes:
+        by_act[n.get("activity", "?")].append(n["id"])
+    chain = " → ".join(f"{a} ({len(by_act.get(a, []))})" for a in acts)
+    cross = sum(1 for e in edges if next((n.get("activity") for n in nodes if n["id"] == e["from"]), None) != next((n.get("activity") for n in nodes if n["id"] == e["to"]), None))
+    gates = sorted(p.parent.name for p in (catalog / "activities").glob("*/GATE.yaml")) if (catalog / "activities").is_dir() else []
+    concerns_dir = catalog / "concerns"
+    concerns = [d.name for d in concerns_dir.iterdir() if d.is_dir() and (d / "concern.md").is_file()] if concerns_dir.is_dir() else []
+    with_practices = [c for c in concerns if (concerns_dir / c / "practices.md").is_file()]
+    stop = catalog.parent / "library" / "skill-prompts" / "stop-at-triggers.yml"
+    out["facts"] = [
+        f"authority chain: {chain}; {len(nodes)} artifact types, {len(edges)} informs edges, {cross} of them crossing an activity boundary",
+        f"gates: GATE.yaml in {len(gates)} activities ({', '.join(gates)})",
+        f"concerns: {len(concerns)} in the library, {len(with_practices)} with activity-keyed practices that propagate into artifacts and work",
+        f"stop triggers: {'present' if stop.is_file() else 'absent'} ({stop.relative_to(catalog.parent) if stop.is_file() else 'library/skill-prompts/stop-at-triggers.yml'})",
+    ]
+    out["groups"] = [
+        {"concept": "layered authority as control: each activity's artifacts govern the next, down to code", "score": None, "documents": len(nodes), "source": "graph.yml activities and nodes"},
+        {"concept": f"cross-layer propagation: {len(edges)} informs edges and {len(with_practices)} concerns with practices reaching every downstream document and work item", "score": None, "documents": cross, "source": "graph.yml edges, concerns/*/practices.md"},
+        {"concept": f"gates and floors between activities ({len(gates)} gate files, ratchets)", "score": None, "documents": len(gates), "source": "activities/*/GATE.yaml, ratchets.md"},
+        {"concept": "what the runtime may do unasked: autonomy levels and stop triggers", "score": None, "documents": 1 if stop.is_file() else 0, "source": "stop-at-triggers.yml, ADR-003"},
+    ]
+    return out
+
+
+def roles(docs_text: list[tuple[str, str]]) -> dict:
+    """Who does what: actor + hand-off verb pairs across the corpus."""
+    pairs: Counter = Counter()
+    example: dict[tuple[str, str], str] = {}
+    for path, text in docs_text:
+        for sentence in re.split(r"[.!?\n]", text):
+            for actor, pat in ACTORS.items():
+                for m in re.finditer(rf"\b{pat}\s+(?:\w+\s+){{0,3}}?(?:{HANDOFF_RE})\b", sentence, re.I):
+                    verb = next(k for k, v in m.groupdict().items() if v).replace("_", " ")
+                    pairs[(actor, verb)] += 1
+                    example.setdefault((actor, verb), path)
+    rows = [{"actor": a, "verb": v, "count": n, "example": example[(a, v)]} for (a, v), n in pairs.most_common(24)]
+    human = sum(n for (a, _), n in pairs.items() if a == "human")
+    agent = sum(n for (a, _), n in pairs.items() if a == "agent")
+    group = {"concept": f"where humans and agents meet: {human} human hand-offs and {agent} agent hand-offs (approve, confirm, review, decide, stop, infer, record)", "score": None, "documents": len({r['example'] for r in rows}), "source": "role verbs across the corpus"} if rows else None
+    return {"rows": rows, "group": group}
+
+
+def authority_floor(docs: list[dict]) -> list[dict]:
+    """Headings of the top-ranked documents are candidates whatever their recurrence."""
+    floor = []
+    top = [d for d in docs if d["rank"] <= 2 and "/features/" not in d["path"]]  # feature specs share template headings
+    seen: Counter = Counter(h.lower().strip() for d in top for h in d["h2"])
+    for d in top:
+        for h in d["h2"]:
+            key = h.lower().strip()
+            if key in GENERIC or seen[key] > 2 or re.match(r"^(review|checklist|references?|open questions?|resources)", key):
+                continue
+            floor.append({"concept": h, "source": d["path"], "rank": d["rank"]})
+    return floor
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("paths", nargs="+")
     ap.add_argument("--top", type=int, default=40)
     ap.add_argument("--min-docs", type=int, default=2, help="a concept must appear in at least this many documents")
     ap.add_argument("--format", choices=["md", "json"], default="md")
+    ap.add_argument("--catalog", help="workflows/ directory holding graph.yml, activities/, concerns/ (default: ./workflows)")
     args = ap.parse_args()
 
     files: list[Path] = []
@@ -109,11 +208,13 @@ def main() -> int:
         return 2
 
     docs = []
+    docs_text: list[tuple[str, str]] = []
     doc_terms: dict[str, set[str]] = defaultdict(set)
     weighted: Counter = Counter()
     for f in files:
         text = f.read_text(encoding="utf-8", errors="ignore")
         fm, body = frontmatter(text)
+        docs_text.append((str(f), body))
         title = next((l[2:].strip() for l in body.splitlines() if l.startswith("# ")), f.stem)
         h2 = [l[3:].strip() for l in body.splitlines() if l.startswith("## ")]
         words = len(re.findall(r"\w+", body))
@@ -150,8 +251,12 @@ def main() -> int:
             break
 
     docs.sort(key=lambda d: (d["rank"], d["path"]))
+    catalog = Path(args.catalog) if args.catalog else Path("workflows")
+    struct = structure(catalog)
+    role = roles(docs_text)
+    floor = authority_floor(docs)
     if args.format == "json":
-        print(json.dumps({"documents": docs, "concepts": kept}, indent=2))
+        print(json.dumps({"documents": docs, "concepts": kept, "structure": struct, "roles": role, "authority_floor": floor}, indent=2))
         return 0
     print(f"# Corpus inventory: {len(docs)} documents, {sum(d['words'] for d in docs):,} words\n")
     print("## Documents by authority\n")
@@ -164,7 +269,28 @@ def main() -> int:
     print("|---|---|---|---|")
     for i, c in enumerate(kept, 1):
         print(f"| {i} | {c['concept']} | {c['score']} | {c['documents']} |")
-    print("\nThe mode clusters these into concept groups, ranks the groups against the audience's decision, and marks every group covered or omitted in the deliverable's Story section.")
+    if struct["groups"]:
+        print("\n## Structure: the corpus's own layers (from the catalog, not from prose)\n")
+        for fact in struct["facts"]:
+            print(f"- {fact}")
+        print("\n| # | Structural concept group | Evidence |")
+        print("|---|---|---|")
+        for i, g in enumerate(struct["groups"], 1):
+            print(f"| S{i} | {g['concept']} | {g['source']} |")
+    if role["rows"]:
+        print("\n## Roles and hand-offs (who does what; a theme scattered across role vocabulary)\n")
+        print("| Actor | Verb | Count | Example document |")
+        print("|---|---|---|---|")
+        for r in role["rows"]:
+            print(f"| {r['actor']} | {r['verb']} | {r['count']} | {r['example']} |")
+        print(f"\nCandidate group: {role['group']['concept']}.")
+    if floor:
+        print("\n## Authority floor: headings of rank-1 and rank-2 documents (mandatory candidates)\n")
+        print("| Rank | Heading | Document |")
+        print("|---|---|---|")
+        for fl in floor:
+            print(f"| {fl['rank']} | {fl['concept']} | {fl['source']} |")
+    print("\nThe mode clusters the recurring concepts, the structural groups, the roles group, and the authority-floor headings into five to nine groups, ranks them by authority and then by the audience's decision, and marks every group covered or omitted in the deliverable's Story section. Structural and authority-floor entries may be folded into a group but never dropped silently.")
     return 0
 
 

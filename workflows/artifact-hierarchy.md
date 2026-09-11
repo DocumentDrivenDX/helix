@@ -41,6 +41,27 @@ Runtime-specific tracker, queue, and execution-loop semantics live in each
 runtime's install guide (the DDx reference integration is
 [docs/install/ddx.md](../docs/install/ddx.md)).
 
+## The Hierarchy Is the Control Loop
+
+Read the hierarchy below as a control mechanism, not a filing order. Every
+layer is an abstraction over the one beneath it: the vision abstracts the
+requirements, the requirements abstract the features and stories, the
+designs abstract the tests, the tests abstract the code. Automated work is
+controlled by that layering in four ways:
+
+- **Authority flows down.** An agent may create or change an artifact only
+  within what the layers above authorize, and a change enters at the
+  highest layer it affects, then propagates.
+- **Concerns cross the layers.** A concern selected once at framing carries
+  its practices into every downstream artifact and work item; agents do not
+  re-decide it per task.
+- **Gates sit between layers.** Each activity's entry and exit gates and the
+  quality ratchets decide when work may move down a layer and keep floors
+  from sliding back.
+- **Humans hold the hand-offs.** Approval, autonomy level, stop triggers,
+  and escalation are where a person's judgment enters the loop; everything
+  between those points an agent may do.
+
 ## Canonical Authority Hierarchy
 
 Artifact flow and artifact authority are related but not identical. When two

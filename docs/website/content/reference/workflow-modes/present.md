@@ -43,11 +43,19 @@ which units). Voice: the `human-facing` profile in `voice.yml`.
    `must_cover` and `must_omit` (concept lists), and `max_messages`. Then
    inventory the scope before choosing anything: run
    `scripts/corpus-inventory.py <scope>` (beside this skill; by hand on
-   hosts without scripts) to list every document by authority with its
-   section claims and the concepts that recur across documents. Cluster
-   the concepts into five to nine groups, name each group in the audience's
-   words, and rank the groups by authority (what the vision and PRD say the
-   product is) before ranking by the decision. Record the groups under
+   hosts without scripts). It makes three passes, because a phrase count
+   alone misses two kinds of concept: recurring concepts weighted by
+   authority and spread; the corpus's own structure read from the catalog
+   (the authority chain, cross-layer propagation, gates and floors, what
+   runs unasked), emitted as groups whatever the prose says; and roles and
+   hand-offs (who approves, confirms, reviews, decides, stops, infers,
+   records), so a theme carried by scattered role vocabulary still
+   surfaces. It also lists every heading of the top-ranked documents as an
+   authority floor. Cluster all of that into five to nine groups, name each
+   group in the audience's words, and rank the groups by authority (what
+   the vision and PRD say the product is) before ranking by the decision.
+   Structural groups, the roles group, and authority-floor headings may be
+   folded into a group but never dropped silently. Record the groups under
    `## Story` as a Concept coverage table: every group is marked `covered`
    (with the message that carries it) or `omitted` (with the reason:
    breadth, angle, audience, or budget). A survey covers every group the

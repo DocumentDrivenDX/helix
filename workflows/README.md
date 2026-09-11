@@ -238,6 +238,21 @@ AI agent responsibilities:
 - Test case generation
 - Documentation and analysis
 
+The two strands of the helix meet at governed hand-off points, never at
+implied ones. Humans decide; agents draft, check, surface, and record:
+
+| Hand-off | Who holds it | Where it is governed |
+|---|---|---|
+| Approval of a draft into authority | a person | artifact `status`, review, checked-in external documents |
+| How often an agent pauses | the team, per project | the autonomy level (`low`, `medium`, `high`) in the marker |
+| What an agent never does unasked | the methodology, extended per repo | stop triggers (`library/skill-prompts/stop-at-triggers.yml`) |
+| A question only a human can answer | a person, via escalation | the hard-stop invariant; findings handed off, never settled by the agent |
+| Judgment that agents surface but do not make | a person | alignment findings, review findings, contradictions between artifacts |
+
+The principles "Layers Are the Control" and "Humans Decide, Agents Draft"
+in [principles.md](principles.md) state the two commitments behind this
+table.
+
 ## Security Integration
 
 HELIX integrates security practices throughout every activity, following DevSecOps

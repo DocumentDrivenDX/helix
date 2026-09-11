@@ -77,6 +77,29 @@ that catch real defects; kill work that only deepens process. Do not use this
 principle to skip tests, product ACs, claims-vs-reality, or scope-discipline.
 When process rounds outrun delivered units, stop and deliver.
 
+### Layers Are the Control
+
+The artifact hierarchy is not a filing order; it is how automated work is
+controlled. Each layer governs the one beneath it (vision governs
+requirements, requirements govern designs, designs govern tests, tests govern
+code), concerns propagate practices down through every layer, gates sit
+between activities, and floors never slide back. An agent may act only
+within what the layers above it authorize, and a change enters at the
+highest layer it affects and flows down. When a rule needs enforcing,
+put it in a layer, not in a prompt.
+
+### Humans Decide, Agents Draft
+
+The two strands of the helix share one loop with different jobs. People
+own intent, judgment, and approval: what to build, which decision stands,
+whether work is done. Agents own throughput: drafting, checking,
+surfacing, and recording. The hand-off points are explicit and governed,
+never implied: the autonomy level sets how often an agent pauses, stop
+triggers name what it must never do unasked, approval turns a draft into
+authority, and a refusal or an escalation returns judgment to a person.
+A workflow that lets an agent settle a question only a human can answer,
+or that makes a human do work an agent can check, has the strands crossed.
+
 ## Tension Resolution
 
 These principles can conflict. When they do, apply the principle whose

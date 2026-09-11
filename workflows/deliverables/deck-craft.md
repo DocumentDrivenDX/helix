@@ -33,6 +33,10 @@ what was read, so reading too little produces a confident deck about a
 corner of the subject. List every document in the declared scope by
 authority with the claims its sections make, and the concepts that recur
 across documents (`scripts/corpus-inventory.py` does the counting).
+Read the corpus's structure too, not only its prose: a catalog's layering
+(what governs what, what propagates, where the gates are) and its role
+vocabulary (who approves, who drafts, who stops) carry concepts that no
+phrase count surfaces, and the inventory emits both as candidates.
 Cluster those into five to nine concept groups in the audience's words.
 The groups are the candidates; the steps below choose among them, and
 every group the deck does not carry is written down as omitted with its
