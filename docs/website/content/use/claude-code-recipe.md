@@ -34,7 +34,7 @@ version:
 ```text
 $ claude plugin list
 NAME   VERSION  SOURCE
-helix  0.5.0    DocumentDrivenDX-helix
+helix  0.12.0   DocumentDrivenDX-helix
 ```
 
 Development and CI scenarios that need to test a local checkout before
@@ -61,9 +61,9 @@ Create these files in your project, using the artifact-type catalog as the shape
 
 - `docs/helix/00-discover/product-vision.md`
 - `docs/helix/01-frame/prd.md`
-- `docs/helix/02-plan/<feature>.md`
-- `docs/helix/03-design/<feature>.md`
-- `docs/helix/04-implement/<feature>-handoff.md`
+- `docs/helix/01-frame/features/FEAT-001-<feature>.md`
+- `docs/helix/02-design/technical-designs/TD-001-<feature>.md`
+- `docs/helix/04-build/implementation-plan.md`
 
 Prompt Claude Code:
 
@@ -71,7 +71,7 @@ Prompt Claude Code:
 Create the first HELIX artifact stack for <project>. Use these paths:
 <paths>. Start from concise, decision-oriented documents. Mark unknowns as open
 questions. Do not implement product code. Preserve this authority hierarchy:
-vision -> PRD -> feature spec -> design -> implementation handoff.
+vision -> PRD -> feature spec -> technical design -> implementation plan.
 ```
 
 Review the generated stack manually. Edit product facts, constraints, and

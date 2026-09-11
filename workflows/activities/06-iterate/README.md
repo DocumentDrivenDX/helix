@@ -235,15 +235,15 @@ Cross-activity reconciliation review:
 - writes a consolidated alignment report for the review run
 - emits follow-up execution issues only where explicit gaps exist
 
-#### Cross-Activity Action: Queue Check
-**Action Location**: `../../actions/check.md`
+#### Cross-Activity Mode: Check And Next
+**Contract Location**: the routing skill's Check And Next contract
 **Output Location**: terminal response only
 
-Bounded execution-state review:
-- inspects ready, in-progress, and blocked HELIX work
-- checks whether the current scope should implement, align, backfill, wait, ask for guidance, or stop
-- returns a deterministic `NEXT_ACTION` code and the exact next command
-- should be used when the implementation queue drains instead of looping blindly
+Read-only state review:
+- inspects governed work and artifact state for the scope
+- decides whether the next safe HELIX action is frame, design, align, backfill, polish, wait, or ask for guidance
+- names the next mode and the evidence behind the recommendation
+- should be used when the runtime's work queue drains instead of looping blindly
 
 #### Cross-Activity Action: Documentation Backfill
 **Action Location**: `../../actions/backfill-helix-docs.md`
@@ -437,9 +437,6 @@ Under the DDx reference runtime, iterate work is dispatched through:
 - `/helix review [scope]` — fresh-eyes post-implementation review
 - `/helix experiment [scope]` — metric-driven optimization iteration
 - `/helix backfill <scope>` — reconstruct missing canonical docs
-
-See [../../EXECUTION.md](../../EXECUTION.md) for the full DDx execution
-contract.
 
 ---
 

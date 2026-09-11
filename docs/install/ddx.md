@@ -3,8 +3,7 @@
 DDx (Document-Driven Development Experience) is the HELIX reference
 runtime. This guide is the home for all DDx-specific packaging, naming,
 and invocation detail. The portable HELIX methodology
-([`workflows/README.md`](../../workflows/README.md),
-[`workflows/EXECUTION.md`](../../workflows/EXECUTION.md), and the
+([`workflows/README.md`](../../workflows/README.md) and the
 [routing skill](../../skills/helix/SKILL.md)) describes *actions* in
 runtime-neutral terms; this guide names the concrete `ddx` commands that
 realize those actions when DDx is the runtime.
@@ -459,8 +458,6 @@ cp -f workflows/activities/01-frame/artifacts/prd/template.md \
 
 - [`workflows/README.md`](../../workflows/README.md) — runtime-neutral
   methodology overview.
-- [`workflows/EXECUTION.md`](../../workflows/EXECUTION.md) — runtime-neutral
-  execution-integration model (bead-first, measure, report, check routing).
 - [`workflows/references/bead-first.md`](../../workflows/references/bead-first.md)
   — the portable work-item acquisition pattern.
 - [CONTRACT-003](../helix/02-design/contracts/CONTRACT-003-ddx-adapter-boundary.md)

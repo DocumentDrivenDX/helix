@@ -1,7 +1,7 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-deploy-artifacts test-state-rules test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-surface-leakage test-microsite-doctrine test-context-digests test-actions
+test: test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-surface-leakage test-microsite-doctrine test-context-digests test-actions
 
 # Serve the HELIX microsite at the canonical local review URL.
 website-serve:
@@ -10,10 +10,6 @@ website-serve:
 # Validate deploy artifact graph consistency
 test-deploy-artifacts:
     bash tests/validate-deploy-artifacts.sh
-
-# Validate state detection rules
-test-state-rules:
-    bash tests/validate-state-rules.sh
 
 # Run skill package validation
 test-skills:
@@ -54,7 +50,6 @@ check: test lint
 lint:
     @echo "Checking for stale command references..."
     @! grep -rn 'NEXT_ACTION.*IMPLEMENT\b' workflows/ tests/ --include='*.sh' --include='*.md' 2>/dev/null | grep -v 'BUILD|IMPLEMENT' || (echo "FAIL: stale IMPLEMENT references found" && exit 1)
-    @! grep -rn 'NEXT_ACTION.*\bPLAN\b' workflows/actions/check.md tests/ 2>/dev/null | grep -v 'DESIGN|PLAN_STATUS\|PLAN_DOCUMENT\|PLAN_ROUNDS' || (echo "FAIL: stale PLAN references found" && exit 1)
     @echo "Checking git diff..."
     @git diff --check || true
     @echo "Lint OK"

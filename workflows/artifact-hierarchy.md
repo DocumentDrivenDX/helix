@@ -37,9 +37,9 @@ relationships, naming, and traceability. It does not define ready-queue logic, l
 select execution work.
 
 For execution behavior, follow the bounded action prompts under `actions/`.
-For runtime-specific tracker, queue, and execution-loop semantics, see the
-runtime integration appendix (the DDx reference integration lives in
-[DDX.md](DDX.md) and [EXECUTION.md](EXECUTION.md)).
+Runtime-specific tracker, queue, and execution-loop semantics live in each
+runtime's install guide (the DDx reference integration is
+[docs/install/ddx.md](../docs/install/ddx.md)).
 
 ## Canonical Authority Hierarchy
 
@@ -369,8 +369,7 @@ concrete command names.
 
 The runtime supplies the concrete queue controls that inspect, execute, and
 drain ready work for this hierarchy. For DDx-specific queue commands, see
-[docs/install/ddx.md](../docs/install/ddx.md). See [EXECUTION.md](EXECUTION.md)
-for the runtime-neutral execution contract.
+[docs/install/ddx.md](../docs/install/ddx.md).
 
 ---
 

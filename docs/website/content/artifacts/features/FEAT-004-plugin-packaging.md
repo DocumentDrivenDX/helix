@@ -83,7 +83,6 @@ helix/                              # plugin root
 │       └── SKILL.md
 ├── workflows/                      # shared resource library
 │   ├── actions/
-│   ├── EXECUTION.md
 │   ├── ratchets.md
 │   └── ...
 ├── bin/                            # added to Bash PATH by plugin loader

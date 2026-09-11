@@ -171,7 +171,7 @@ prior design) and emits ONE banner on first activation per session:
 
 ```
 No .helix.yml found. Activating <id> by heuristic (path: workflows/methodology.yml).
-Run /helix init-marker to make this explicit.
+Add a .helix.yml marker at the repository root to make this explicit.
 ```
 
 Heuristic activation is FROZEN — no new detection signals get added; the

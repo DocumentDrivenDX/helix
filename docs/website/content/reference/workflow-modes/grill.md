@@ -15,7 +15,7 @@ all installs.
 
 **Why a mode (not only `input`):** grill is stop-before-act interview discipline;
 `input` converts intent into governed work items. Operators must be able to
-invoke interview-only without drafting PRDs or filing implement beads.
+invoke interview-only without drafting PRDs or filing implementation work.
 
 1. Bind marker and catalog; load governing artifacts; explore the environment
    for **facts**.
@@ -24,13 +24,13 @@ invoke interview-only without drafting PRDs or filing implement beads.
 3. **Interactive:** ask **one question at a time**; wait for the answer. Each
    question includes a **recommended answer** and short rationale (cite
    path:line when known). Decisions go to the operator; facts are looked up.
-4. **Headless / non-interactive** (`claude -p`, `codex exec`, a runtime's
-   headless dispatch, CI, one-shot): emit in one response the full decision tree, recommended
+4. **Headless / non-interactive** (a runtime's headless dispatch, CI,
+   one-shot): emit in one response the full decision tree, recommended
    answers, assumptions for unresolved operator-only decisions, and the
    §Align handoff. Do **not** block waiting for answers.
 5. **Hard floor (all autonomy levels):** until the operator confirms shared
    understanding (interactive) or the headless one-shot completes, do **not**
-   Write/Edit product source, file implement/build beads, or apply/deploy.
+   Write/Edit product source, file implementation work items, or apply/deploy.
    This is a `stop_at`-style checkpoint; it does not rewrite autonomy source
    precedence for other pauses.
 6. Do **not** create a free-floating `CONTEXT.md` as authority. After confirm,

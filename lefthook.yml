@@ -14,14 +14,13 @@ pre-commit:
           echo "DDx-specific install/invocation paths belong only in docs/install/ddx.md."
           fail=1
         fi
-        # 2. Reject 'ddx <verb>' command literals in portable content. The
-        #    DDx-scoped explainer workflows/DDX.md is exempt; 'ddx:' frontmatter
-        #    is allowed (it is not a command literal and does not match this pattern).
-        if grep -rnE 'ddx (bead|work|run|try|agent)' skills/ workflows/ --include='*.md' --include='*.yaml' --include='*.yml' 2>/dev/null | grep -v '^workflows/DDX.md:'; then
+        # 2. Reject 'ddx <verb>' command literals in portable content. 'ddx:'
+        #    frontmatter is allowed (it is not a command literal and does not
+        #    match this pattern).
+        if grep -rnE 'ddx (bead|work|run|try|agent)' skills/ workflows/ --include='*.md' --include='*.yaml' --include='*.yml' 2>/dev/null; then
           echo "ERROR: Found a 'ddx <verb>' command literal in portable HELIX skill/workflow content."
           echo "Portable methodology content must describe runtime-neutral actions, not concrete ddx commands."
           echo "Move DDx-specific commands (ddx bead/work/run/try/agent ...) to docs/install/ddx.md and leave a neutral pointer."
-          echo "Only workflows/DDX.md (the DDx-scoped explainer) may name ddx commands; 'ddx:' frontmatter is allowed."
           fail=1
         fi
         exit $fail

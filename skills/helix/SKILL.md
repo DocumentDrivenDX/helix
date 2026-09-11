@@ -15,7 +15,7 @@ description: |
   / cross-flow queries. Engage on human-iteration planning: sequence a
   roadmap, define workstreams, cut a sprint/iteration plan, write a
   status report. Engage on desired state vs implementation,
-  specs behind code, and pruning beads against specs. Engage on
+  specs behind code, and pruning work items against specs. Engage on
   "grill me", stress-test a plan or design, or one-question interviews.
 argument-hint: "[intent or scope]"
 ---
@@ -37,10 +37,10 @@ the artifact content is attached, the workspace is empty, or the request
 looks like a generic task. **Engagement is the first tool action of the turn**
 (dual-path by host):
 
-- **Skill-tool hosts** (Claude Code `Skill` tool, Codex/opencode skill tool):
-  invoke `Skill(helix)` (or the host's equivalent skill-load tool for `helix`)
-  as the first tool action. Narrating HELIX-shaped reasoning without that
-  invocation is a contract violation on these hosts.
+- **Skill-tool hosts** (Claude Code, Codex, opencode): invoke the `helix`
+  skill through the host's skill tool as the first tool action. Narrating
+  HELIX-shaped reasoning without that invocation is a contract violation on
+  these hosts.
 - **Hosts without a skill tool** (for example Grok Build): the first action
   MUST load this `SKILL.md` body via the host mechanism (`/helix`, skill
   auto-load, or a read of this skill's path). That load is the engagement
@@ -103,7 +103,7 @@ the document action contract.
 
 | Domain lane | Triggers | Required observable behavior |
 |---|---|---|
-| `product` | HELIX artifact named; planning verb against product/feature/requirements; cross-flow query | (a) Read `.helix.yml` AND `workflows/graph.yml` BEFORE any Write/Edit (`read_before_write` matcher); (b) Read of named upstream artifacts (vision, PRD, feature spec) per the graph BEFORE drafting; (c) cite `ddx.links` / `informs` edges in any new artifact |
+| `product` | HELIX artifact named; planning verb against product/feature/requirements; cross-flow query | (a) Read `.helix.yml` AND `workflows/graph.yml` BEFORE any Write/Edit; (b) Read of named upstream artifacts (vision, PRD, feature spec) per the graph BEFORE drafting; (c) cite `ddx.links` / `informs` edges in any new artifact |
 | `infra` | IaC verb (terraform/tofu/kubectl, provision/destroy/rotate); CI/credentials ops | (a) Consult `library/skill-prompts/stop-at-triggers.yml` for `apply` or `secret_read` triggers BEFORE any Bash; (b) Read of infra-shaped artifacts (architecture, runbook, deployment-checklist); (c) explicit confirmation prompt before terraform/tofu/kubectl/credential operations |
 | `data` | Data-pipeline verb (backfill/ingest/migrate, profile a source, data contract) | (a) Read of data-contract / data-quality-expectations / data-architecture artifacts; (b) cite producer/consumer or PII/governance posture in prose; (c) defer schema mutations behind a `stop_at` confirmation |
 | `web` | Web/frontend verb (deploy/ship, add monitoring for a user flow, optimize page perf) | (a) Read of architecture / design-system / monitoring-setup / runbook artifacts in the deploy-flow scope; (b) cite Web Vitals / RUM / page-error vocabulary in prose; (c) defer production deploys behind a `stop_at` confirmation |
@@ -121,64 +121,53 @@ encountered. If the cwd is `/repo/services/api/docs/helix/` and the marker
 lives at `/repo/.helix.yml`, you MUST find the parent marker — do not give
 up after searching cwd only.
 
-Concretely: run `git rev-parse --show-toplevel` (or fall back to walking up
-until `.git/` is found), then check for `.helix.yml` at the top.
+Concretely: find the repository root (the directory containing `.git/`),
+then check for `.helix.yml` there.
 
 ### 1.5 Read marker AND graph before any Write/Edit (ordering invariant)
 
-The FIRST `Write` or `Edit` tool_use in the session MUST be preceded by at
-least one `Read` of the `.helix.yml` marker AND at least one `Read` that
-**successfully binds the methodology graph** via §Catalog Resolution. Skipping
-either is a contract violation, EVEN IF the Skill tool_use has already fired.
-The failure mode this rule prevents — the verbose-but-stuck pattern — is the
-agent narrating HELIX-shaped reasoning from training while the marker scope,
-the type catalog, and the prerequisite chain go unconsulted. The resulting
-artifact looks plausible but is unanchored to the workspace's actual contract.
+Before the first Write or Edit of the session, read the `.helix.yml` marker
+and bind the methodology graph via §Catalog Resolution. Skipping either is a
+contract violation. The failure this prevents is narrating HELIX-shaped
+reasoning from training while the marker scope, the type catalog, and the
+prerequisite chain go unconsulted; the resulting artifact looks plausible but
+is unanchored to the workspace's actual contract.
 
-A graph bind is **always achievable** in supported layouts: §Catalog Resolution
+A graph bind is always achievable in supported layouts: §Catalog Resolution
 falls through marker pointer → project-local `workflows/` → source-checkout /
 full plugin-dir `../../workflows/` → plugin env root (`$GROK_PLUGIN_ROOT` /
 `$CLAUDE_PLUGIN_ROOT`) → generated package `references/` floor beside this
-SKILL.md. A missing project-local `workflows/graph.yml` is therefore NEVER a
-reason to stop, defer, or skip artifact edits — it only means the bind comes
-from a later resolution step. "I cannot find the graph, so I will avoid HELIX
-artifact edits" is a contract violation, not a valid degraded mode: bind the
-graph from source checkout, plugin root, or the package floor and proceed. A
-`Read` whose target does not resolve does NOT satisfy this contract — the graph
-must actually bind.
+SKILL.md. A missing project-local `workflows/graph.yml` is never a reason to
+stop, defer, or skip artifact edits; bind from a later step and proceed. A
+read whose target does not resolve does not satisfy this rule: the graph must
+actually bind.
 
-The order between the two Reads is not constrained: marker-first is the
-natural sequence; graph-first is acceptable for graph-query-only prompts
-like "What's next?" (no Write/Edit follows).
+The order of the two reads is not constrained. Graph-first is fine for
+graph-query-only prompts like "What's next?" that write nothing.
 
-This ordering invariant is independent of autonomy level. Under
-`autonomous` the skill MAY proceed without operator confirmation, but it
-MUST NOT skip the two Reads — autonomy waives the human-in-the-loop ask,
-not the workspace-grounding contract.
+This invariant is independent of autonomy level: `high` autonomy waives the
+human-in-the-loop ask, not the workspace-grounding contract.
 
 If the marker is absent and the skill is engaging by heuristic (§2 banner
-case), the `Read` for `.helix.yml` is satisfied by the failed lookup itself
-(the Read tool_use occurred even though the file did not exist). The graph
-`Read` is still required, and is satisfied by the §Catalog Resolution bind —
-the HELIX source-checkout catalog or the generated package `references/` floor
-when no project-local graph exists — because the type catalog binds artifact
-templates regardless of marker presence. The marker-absent heuristic case
-therefore still authorizes artifact edits: it binds the shipped catalog.
-
-The bench enforces this via the `read_before_write` matcher, which accepts a
-graph `Read` from any §Catalog Resolution source (in-tree `workflows/graph.yml`,
-a marker `graph:` pointer, the HELIX source-checkout `workflows/graph.yml`, a
-plugin-env-root catalog, or the generated package `references/` floor).
+case), the failed marker lookup satisfies the marker read. The graph bind is
+still required and is satisfied by the shipped catalog (source checkout or the
+`references/` floor), so the marker-absent case still authorizes artifact
+edits.
 
 ### 2. Decide activation state
 
 Evaluate the marker before resolving lane or workflow mode:
 
 - **Marker present and well-formed**: parse it. The `flows[]` list (legacy
-  alias `methodologies[]:` accepted under M020 warn) is the authorization
+  alias `methodologies[]:` accepted with a warning) is the authorization
   boundary. If `helix` is listed, this skill is active for the listed
   `root:` scope. If `helix` is NOT listed (the marker only declares a
-  non-helix flow), defer to that flow's process — do not engage.
+  non-helix flow), defer to that flow's process — do not engage. A minimal
+  marker:
+
+      flows:
+        - id: helix
+          root: docs/helix/
 
 - **Multiple distinct flows in `flows[]` with an ambiguous verb** (e.g.
   `flows: [{id: helix, root: docs/helix/}, {id: helix-infra, root:
@@ -213,16 +202,15 @@ Evaluate the marker before resolving lane or workflow mode:
 
 - **Marker present and malformed** (YAML parse error, missing required keys,
   root outside repo, duplicate id, root resolves to nonexistent dir): STOP.
-  Report the marker error verbatim with file and line. Do NOT fall back to
-  heuristics.
+  Report the marker error as parsed, with file and line. Do NOT fall back
+  to heuristics.
 
 - **Marker absent, heuristic file present** (`workflows/methodology.yml`,
   `docs/helix/` tree, etc. — legacy heuristic filename retained for
-  back-compat detection): emit this banner verbatim before any other
-  output:
+  back-compat detection): emit this banner before any other output:
 
       No .helix.yml found. Activating helix by heuristic (path: <heuristic-path>).
-      Run /helix init-marker to make this explicit.
+      Add a .helix.yml marker at the repository root to make this explicit.
 
   Substitute the actual heuristic-path that triggered activation. Then
   proceed — this is an authorized flow: bind the catalog via §Catalog
@@ -297,8 +285,8 @@ phrase is a request to activate a flow; the marker is the authorization to do
 so. No marker authorization, no activation, even when the user is insistent and
 the work looks routine.
 
-Emit this diagnostic verbatim (substituting the actual flow name and
-marker path), then STOP — no Read of artifacts, no Write, no Edit, no
+Emit this diagnostic (substituting the actual flow name and marker path),
+then STOP — no Read of artifacts, no Write, no Edit, no
 mode routing, no "but I can still help with…" offer:
 
     Cannot engage <flow-name> here — the requested flow `<flow-name>`
@@ -309,7 +297,8 @@ mode routing, no "but I can still help with…" offer:
 
 Your refusal prose MUST include: (a) the name of the requested flow,
 and (b) a phrase stating the .helix.yml marker does not list or
-authorize it. Use the verbatim template above — do not paraphrase it.
+authorize it. Use the template above; a paraphrase loses the fields readers
+check for.
 
 Concretely: if the marker declares only `flows: [{id: helix, ...}]` and the
 prompt asks to use `helix-infra` for an upstream DNS provider, the requested
@@ -354,17 +343,9 @@ For every needed exclusive slot, resolve the filler in this fixed order
 3. **Recorded assumption** — if neither source resolves, infer from the
    product's nature and record it as an assumption in `concerns.md`.
 
-Exclusive slots and their shipped defaults (current `slots.yml`):
-
-| Slot | Shipped default |
-|---|---|
-| `frontend-framework` | `react-nextjs` |
-| `language-runtime` | `typescript-bun` |
-| `e2e-framework` | `e2e-playwright` |
-| `auth-provider` | `auth-local-sessions` |
-| `datastore` | — (no default; select on signal) |
-| `deploy-target` | — (no default; select on signal) |
-| `architecture-style` | — (no default; select on signal) |
+The exclusive slots and any shipped defaults are declared in `slots.yml`;
+read them there rather than from this skill. Defaults are starting points a
+project overrides, not technology choices HELIX imposes.
 
 **Contract**: select each needed slot **once per session** during §Frame
 step 2, and record the chosen filler PLUS its source (`operator-override`,
@@ -488,8 +469,8 @@ The seven activities and the artifact types they own:
 
 | Activity | Artifact types (directory names under `<activity>/artifacts/`) |
 |---|---|
-| `00-discover` | `business-case`, `competitive-analysis`, `data-flow-analysis`, `opportunity-canvas`, `product-vision`, `resource-summary` |
-| `01-frame` | `compliance-requirements`, `concerns`, `feasibility-study`, `feature-registry`, `feature-specification`, `parking-lot`, `pr-faq`, `prd`, `principles`, `research-plan`, `risk-register`, `roadmap`, `security-requirements`, `stakeholder-map`, `threat-model`, `user-stories`, `validation-checklist`, `data-prd` |
+| `00-discover` | `business-case`, `competitive-analysis`, `data-flow-analysis`, `market-analysis`, `opportunity-canvas`, `product-vision`, `resource-summary` |
+| `01-frame` | `compliance-requirements`, `concerns`, `feasibility-study`, `feature-registry`, `feature-specification`, `parking-lot`, `pr-faq`, `prd`, `principles`, `research-plan`, `risk-register`, `roadmap`, `security-requirements`, `stakeholder-map`, `threat-model`, `user-stories`, `validation-checklist` |
 | `02-design` | `adr`, `architecture`, `contract`, `data-design`, `design-system`, `proof-of-concept`, `security-architecture`, `solution-design`, `tech-spike`, `technical-design`, `data-architecture` |
 | `03-test` | `security-tests`, `story-test-plan`, `test-plan`, `test-procedures`, `test-suites`, `data-quality-expectations` |
 | `04-build` | `implementation-plan` |
@@ -580,10 +561,11 @@ for confirmation** — never which activities run.
 | `medium` (default) | Create deterministic non-conflict artifacts; pause when ambiguity or conflict blocks deterministic progress. Prompt for concern selection when none exists. |
 | `high` | Create downstream artifacts without pausing unless a hard stop blocks progress; record assumptions as speculative work rather than asking. When no concerns are declared, **infer** the concern selection from the product's nature and record it as an assumption. |
 
-**Resolution precedence** (first match wins): per-invocation override →
-governing artifact frontmatter / project policy → runtime default (`medium`).
-The autonomy signal lives only in runtime-neutral artifacts; do not read or
-write it from a runtime instruction file.
+**Resolution precedence** (first match wins): per-invocation override (the
+operator names a level in the prompt) → the `autonomy:` block in `.helix.yml`
+(committed team baseline) → default `medium`. The autonomy signal lives only
+in runtime-neutral artifacts; do not read or write it from a runtime
+instruction file.
 
 **Hard-stop invariant (all levels).** Autonomy changes the *pause threshold*,
 never the *stop floor*. Stop and surface to a human, at any level, when two
@@ -601,73 +583,31 @@ Workflow modes that pause (`input`, `frame`, `evolve`, `design`) honor the
 resolved level; runtime handoff honors the runtime's own pause policy. Routes
 that select concerns honor the high-autonomy inference path.
 
-## Apply The Autonomy Level
-
-A second-axis autonomy declaration is layered on top of the policy spectrum
-above for runtimes that support an explicit operator-facing level
-(`manual` / `guided` / `autonomous` / `aggressive`). When that declaration is
-present, consult it before every state-changing tool use.
-
-Before any tool use that mutates state (Write, Edit, Bash that writes, git,
-install), determine the effective autonomy by reading sources in this order;
-the first source that defines a level wins:
-
-1. **Per-prompt override** — slash prefix (`/helix-autonomous`, `/helix-manual`)
-   or `HELIX_AUTONOMY=<level>` environment variable.
-2. **Repo-user-local override** — `.helix-autonomy.yml` at the repo root
-   (gitignored; per-user-per-repo).
-3. **User default** — `~/.config/helix/autonomy.yml` (per-user, all repos).
-4. **Repo default** — the `autonomy:` block in `.helix.yml`
-   (committed, team baseline).
-5. **Skill default** — `guided` if no source defines a level.
-
-Then dispatch on the resolved level:
-
-- `manual` — state the proposed action, list its effects, and ask
-  "OK to proceed?" before ANY tool use (Read, Write, Edit, Bash).
-- `guided` — state the proposed action briefly. Ask before the *first*
-  state-changing tool use in the conversation. Subsequent state-changing
-  tool uses within the same turn proceed silently UNLESS the action touches
-  a `stop_at` event.
-- `autonomous` — proceed without asking; surface results after the fact.
-  Stop only on a `stop_at` event or irreducible ambiguity (e.g. two equally
-  valid graph routes, an ambiguous methodology activation). **Even when
-  silently routing via `defaults.flow` / `defaults.methodology`, prose-
-  attribute the routing decision in your FIRST text block** — name the
-  chosen flow ("Routing to helix because the marker's default flow is
-  helix") so downstream readers and bench graders can confirm the routing
-  decision. Silent routing is operationally allowed; silent-AND-unspoken
-  routing is a contract violation.
-- `aggressive` — as `autonomous`, but additionally take initiative across the
-  full methodology graph (e.g. draft ALL declared prerequisites plus the
-  requested artifact in one pass). Still honors `stop_at` and irreducible
-  ambiguity. Same prose-attribution rule as `autonomous`.
-
-`stop_at` is a hard floor that fires at every level, including `autonomous`
-and `aggressive`. The authoritative trigger list lives at
-`library/skill-prompts/stop-at-triggers.yml`. Load it at graph-mode start
-and consult each trigger's matcher before every mutating tool use. A repo
-may add triggers via `stop_at_extensions:` in `.helix-autonomy.yml`; the
-active set is the union of base + extensions. Base triggers cannot be
-removed.
-
-The base v1 triggers are:
+**Stop triggers (`stop_at`): a hard floor at every level.** The
+authoritative trigger list lives at `library/skill-prompts/stop-at-triggers.yml`.
+Load it when the skill engages and consult it before every state-changing tool
+call. A repo may add triggers under `autonomy.stop_at_extensions:` in
+`.helix.yml`; the active set is the union of base + extensions. Base triggers
+cannot be removed.
 
 | Trigger id | Fires on |
 |---|---|
-| `marker_edit` | Write/Edit on `.helix.yml` or `.helix-autonomy.yml` |
+| `marker_edit` | Write/Edit on `.helix.yml` |
 | `cross_methodology_edge_creation` | Write/Edit that introduces `cross_methodology: true` or `cross_instance: true` |
 | `branch_or_merge` | Bash running `git checkout|merge|push|reset|rebase|cherry-pick` or `gh pr merge|create` |
 | `secret_read` | Read or Bash targeting `.env`, `.tfvars`, `credentials.json`, `.pem`, `id_rsa(.pub)`, `private_key`, `.key`, `secrets/` |
-| `large_diff` | Single Write/Edit whose content exceeds 500 lines (per tool_use, not aggregated) |
+| `large_diff` | Single Write/Edit whose content exceeds 500 lines (per call, not aggregated) |
 | `apply` | Bash running `terraform apply`, `tofu apply`, `databricks jobs|pipelines run|update`, `kubectl apply|delete|patch` |
 
 When a trigger matches, emit an explicit confirmation prompt that names the
-trigger and the proposed action, then wait for the operator's reply. The
-prompt must be distinct from generic affirmations — at minimum, restate the
-action and ask whether to proceed (e.g. "About to run `terraform apply` in
+trigger and the proposed action, then wait for the operator's reply. Restate
+the action and ask whether to proceed (e.g. "About to run `terraform apply` in
 infra/prod — should I proceed?"). Generic `ok?` / `yes?` prompts do not
 satisfy the contract.
+
+At every level, name the routing decision in the first text block when routing
+silently via `defaults.flow` ("Routing to helix because the marker's default
+flow is helix"). Silent routing is allowed; unspoken routing is not.
 
 ## Workflow Contracts
 
@@ -693,7 +633,7 @@ all installs.
 
 **Why a mode (not only `input`):** grill is stop-before-act interview discipline;
 `input` converts intent into governed work items. Operators must be able to
-invoke interview-only without drafting PRDs or filing implement beads.
+invoke interview-only without drafting PRDs or filing implementation work.
 
 1. Bind marker and catalog; load governing artifacts; explore the environment
    for **facts**.
@@ -702,13 +642,13 @@ invoke interview-only without drafting PRDs or filing implement beads.
 3. **Interactive:** ask **one question at a time**; wait for the answer. Each
    question includes a **recommended answer** and short rationale (cite
    path:line when known). Decisions go to the operator; facts are looked up.
-4. **Headless / non-interactive** (`claude -p`, `codex exec`, a runtime's
-   headless dispatch, CI, one-shot): emit in one response the full decision tree, recommended
+4. **Headless / non-interactive** (a runtime's headless dispatch, CI,
+   one-shot): emit in one response the full decision tree, recommended
    answers, assumptions for unresolved operator-only decisions, and the
    §Align handoff. Do **not** block waiting for answers.
 5. **Hard floor (all autonomy levels):** until the operator confirms shared
    understanding (interactive) or the headless one-shot completes, do **not**
-   Write/Edit product source, file implement/build beads, or apply/deploy.
+   Write/Edit product source, file implementation work items, or apply/deploy.
    This is a `stop_at`-style checkpoint; it does not rewrite autonomy source
    precedence for other pauses.
 6. Do **not** create a free-floating `CONTEXT.md` as authority. After confirm,
@@ -733,31 +673,21 @@ stories.
    a framing gap, not an acceptable default-empty state. At `low`/`medium`,
    drive selection interactively by category (tech stack, data, infrastructure,
    quality). At `high`, infer the selection from the product's nature and record
-   each inferred concern as an assumption. **Fill each needed exclusive slot**
-   (a slot is an exclusive functional position — one frontend framework, one
-   language runtime; defined in `concerns/slots.yml`, resolved via §Catalog
-   Resolution — the `references/concerns/slots.yml` floor when no in-tree
-   catalog is present) by resolution order:
-   operator override (`docs/helix/01-frame/concerns.local.yml`) → shipped default
-   (`slots.yml`) → recorded assumption, and record the chosen filler plus its
-   source in `concerns.md`. A web app must fill `frontend-framework` — the
-   shipped default `react-nextjs` applies with no operator config. A UI web app
-   must also fill `e2e-framework` (default `e2e-playwright`); selecting the tool
-   is not coverage — ≥1 core user-flow must have a whole-stack e2e that runs green
-   against the running app (a browser e2e for a client-rendered UI, or an
-   HTTP+HTML-assertion e2e for a server-rendered one). An **operator-facing**
-   product (a human operator manages mutable domain objects or lifecycle state
-   through a UI) selects `admin-console` — the operator's jobs-to-be-done (CRUD +
-   control actions like pause/cancel) built as usable UI, with the primary
-   operator workflow exercised end-to-end *through the UI*. An **account-based /
-   multi-tenant** product (users/tenants/sign-in/roles/principal-scoped data)
-   selects `auth` — real signup→tenant+owner, login/sessions, server-side RBAC +
-   platform-admin, isolation through the principal — and fills the `auth-provider`
-   slot (default `auth-local-sessions`; an external IdP is a swappable filler,
-   never hardcoded). Neither is selected for pure APIs, CLIs, libraries,
-   static content sites, or read-only dashboards (unless an operator UI is
-   explicitly required). Selection happens here, once; propagation to work
-   items is a later gate owned by `check`/`polish`, not a re-selection.
+   each inferred concern as an assumption. Fill each needed exclusive slot per
+   §Concern slot resolution and record the chosen filler plus its source in
+   `concerns.md`. Selection signals: a UI web app needs `frontend-framework`
+   and `e2e-framework` (selecting the tool is not coverage — at least one core
+   user flow must have a whole-stack e2e that runs green against the running
+   app); an **operator-facing** product (a human manages mutable domain objects
+   or lifecycle state through a UI) selects `admin-console`, with the primary
+   operator workflow exercised end-to-end through the UI; an **account-based /
+   multi-tenant** product selects `auth` (real signup, login/sessions,
+   server-side RBAC, isolation through the principal) and fills the
+   `auth-provider` slot (an external IdP is a swappable filler, never
+   hardcoded). Neither is selected for pure APIs, CLIs, libraries, static
+   content sites, or read-only dashboards unless an operator UI is explicitly
+   required. Selection happens here, once; propagation to work items is a
+   later gate owned by `check`/`polish`, not a re-selection.
 3. Read the relevant artifact template, prompt, meta.yml, and active voice
    profile before drafting.
 4. Keep each artifact in its lane:
@@ -810,7 +740,7 @@ placement reviews.
    artifact, and every acceptance criterion traces to an exercising test. Unmapped
    material surfaces and unimplemented criteria are both alignment findings.
 2. **Desired-state rule (with intent guard).** Specs describe the **desired**
-   future state. Code behind specs → residual work items (beads/tracker), not
+   future state. Code behind specs → residual tracker work items, not
    silent requirement shrinks. Code ahead of docs → classify as plan-to-code
    honesty (`STALE_PLAN` / honesty evolve). Evolving specs to match code
    requires **operator intent** (explicit request or approved handoff) — do
@@ -1209,11 +1139,11 @@ Use for metric-driven optimization loops.
 3. Measure after each iteration.
 4. Keep changes or revert/adjust based on metric evidence.
 5. To validate a **methodology or skill change** (a workflow prompt, template,
-   or this routing skill), use the **regression bench**: record a committed
+   or this routing skill), use a **regression evaluation**: record a committed
    baseline, run a fixed brief from the bare prompt with the improved skill
    *installed* (never by redirecting reads), score intrinsic metrics against the
-   baseline, and **keep what moved, cut what didn't**. The bench is the standing
-   answer to "how do we know this change is impactful."
+   baseline, and **keep what moved, cut what didn't**. That evaluation is the
+   standing answer to "how do we know this change is impactful."
 
 ## Consult The Graph Before Authoring
 
@@ -1295,7 +1225,7 @@ follow-up work are captured durably.
 - **Short affirmations inherit the prior turn's offered scope.** When the user
   replies with a bare confirmation (`"do it"`, `"yes"`, `"go"`) after the
   prior turn surfaced multiple branches or options, do not silently pick one.
-  Ask which branch, or — if only one was recommended — restate it verbatim
+  Ask which branch, or — if only one was recommended — restate it exactly
   before acting.
 - **Scope complaints and pasted-evidence reactions route to `align` or
   `evolve`, not to direct edits.** When the user pastes a snippet and says

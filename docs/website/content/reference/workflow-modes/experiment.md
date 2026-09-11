@@ -14,8 +14,8 @@ Use for metric-driven optimization loops.
 3. Measure after each iteration.
 4. Keep changes or revert/adjust based on metric evidence.
 5. To validate a **methodology or skill change** (a workflow prompt, template,
-   or this routing skill), use the **regression bench**: record a committed
+   or this routing skill), use a **regression evaluation**: record a committed
    baseline, run a fixed brief from the bare prompt with the improved skill
    *installed* (never by redirecting reads), score intrinsic metrics against the
-   baseline, and **keep what moved, cut what didn't**. The bench is the standing
-   answer to "how do we know this change is impactful."
+   baseline, and **keep what moved, cut what didn't**. That evaluation is the
+   standing answer to "how do we know this change is impactful."

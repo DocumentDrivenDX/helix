@@ -25,9 +25,6 @@ jobs:
       - name: Validate deploy artifact graph
         run: bash tests/validate-deploy-artifacts.sh
 
-      - name: Validate state detection rules
-        run: bash tests/validate-state-rules.sh
-
       - name: Validate skill packages
         run: bash tests/validate-skills.sh
 

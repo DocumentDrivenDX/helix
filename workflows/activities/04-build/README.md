@@ -365,8 +365,8 @@ By the end of Build activity, you should have:
 
 ## Using AI Assistance
 
-Build execution is driven by the **build** action following the bounded loop
-defined in `actions/implementation.md`. Use the activity artifacts under
+Build execution belongs to the runtime (see the Runtime Integration
+Appendix below). Use the activity artifacts under
 `activities/04-build/artifacts/` when you need supporting build documentation or
 work-item guidance.
 
@@ -383,8 +383,7 @@ each ready work item end-to-end, or executes a single specified work item. When
 the queue drains, `/helix check` decides the next action. HELIX specifies the
 action; the runtime supplies the work-item store and the execution loop.
 
-See [../../EXECUTION.md](../../EXECUTION.md) for the full runtime-neutral
-execution contract, and the per-runtime install guide for concrete commands
+See the per-runtime install guide for concrete commands
 ([docs/install/ddx.md](../../../docs/install/ddx.md) for DDx).
 
 ---

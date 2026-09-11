@@ -12,7 +12,7 @@ design, tests, implementation evidence, deployment evidence, and iteration
 learning. A runtime supplies the execution strand by reading those artifacts,
 performing work, and recording results.
 
-> **Quick Links**: [Quick Start Guide](QUICKSTART.md) | [Visual Overview](diagrams/workflow-overview.md) | [Reference Card](REFERENCE.md) | [Artifact Flow](diagrams/artifact-flow.md) | [Quality Ratchets](ratchets.md) | [DDx Methodology](DDX.md)
+> **Quick Links**: [Quick Start Guide](QUICKSTART.md) | [Visual Overview](diagrams/workflow-overview.md) | [Reference Card](REFERENCE.md) | [Artifact Flow](diagrams/artifact-flow.md) | [Quality Ratchets](ratchets.md)
 
 ## Core Metaphor
 
@@ -42,8 +42,6 @@ contract:
 
 - [README.md](README.md) for the high-level model, artifact authority
   hierarchy, and runtime boundary
-- [DDX.md](DDX.md) for historical methodology background and the DDx reference
-  integration model
 - `activities/*/artifacts/` for the canonical artifact-type catalog, prompts,
   templates, metadata, and examples
 - [reconcile-alignment.md](actions/reconcile-alignment.md) for top-down

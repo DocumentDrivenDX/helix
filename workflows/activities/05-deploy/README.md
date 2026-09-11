@@ -407,10 +407,9 @@ release artifacts together in the HELIX docs tree.
 Deploy execution is driven by the runtime: it executes one ready deploy work
 item per pass, or drains the ready queue, with `/helix check` deciding next
 steps when the queue drains. HELIX specifies the action; the runtime supplies
-the work-item store and execution loop. See
-[../../EXECUTION.md](../../EXECUTION.md) for the full runtime-neutral execution
-contract, and the per-runtime install guide for concrete commands
-([docs/install/ddx.md](../../../docs/install/ddx.md) for DDx).
+the work-item store and execution loop. See the per-runtime install guide
+for concrete commands ([docs/install/ddx.md](../../../docs/install/ddx.md)
+for DDx).
 
 ---
 

@@ -27,8 +27,8 @@ When conventions and execution guidance disagree, follow:
 
 1. [README.md](README.md)
 2. The bounded action prompts under `actions/`
-3. The runtime integration appendix for your runtime (e.g. the DDx
-   reference-runtime integration in [DDX.md](DDX.md) and [EXECUTION.md](EXECUTION.md))
+3. The install guide for your runtime (for DDx,
+   [docs/install/ddx.md](../docs/install/ddx.md))
 
 ## Documentation Voice
 
@@ -665,9 +665,7 @@ These conventions will evolve based on usage. To propose changes:
 The conventions above are runtime-neutral. Each runtime documents its own
 workspace layout, shared-resource root, work-item tracker commands, and template
 paths in its install guide. For DDx-specific workspace, tracker, and template
-details, see [docs/install/ddx.md](../docs/install/ddx.md). For methodology
-background and the DDx authority model, see [DDX.md](DDX.md); for the
-runtime-neutral execution contract, see [EXECUTION.md](EXECUTION.md).
+details, see [docs/install/ddx.md](../docs/install/ddx.md).
 
 ---
 

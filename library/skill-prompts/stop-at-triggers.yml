@@ -1,20 +1,15 @@
 # stop_at triggers — base set (v1)
 #
-# Per plan §4.7 — `stop_at` events the HELIX skill MUST always confirm before
-# executing, regardless of autonomy level. The validator, bench, and skill all
-# consult this single committed file as the authoritative trigger list.
+# `stop_at` events the HELIX skill MUST always confirm before executing,
+# regardless of autonomy level. This file is the authoritative trigger list.
 #
-# Loaded by:
-#   - the skill at graph-mode start (consulted before every mutating tool_use)
-#   - the validator (G150) at config-parse time (shape-validated against
-#     stop-at-triggers.schema.json)
-#   - the bench runner (P3 stop_at rows) — each trigger has a positive row that
-#     proves the matcher fires and a near-miss negative row that proves the
-#     matcher does NOT false-positive
+# Loaded by the skill when it engages; consulted before every mutating tool
+# call regardless of autonomy level.
 #
-# Extension rule: repos extend via `stop_at_extensions:` in `.helix-autonomy.yml`.
-# The active trigger set is the union of base + extensions. Base triggers cannot
-# be removed (only extended) — `stop_at` is a hard floor per Invariant 2.
+# Extension rule: repos extend via `stop_at_extensions:` under the `autonomy:`
+# block of `.helix.yml`. The active trigger set is the union of base +
+# extensions. Base triggers cannot be removed (only extended) — `stop_at` is a
+# hard floor.
 
 version: 1
 

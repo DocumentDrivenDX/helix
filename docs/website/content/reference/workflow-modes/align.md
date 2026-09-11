@@ -17,7 +17,7 @@ placement reviews.
    artifact, and every acceptance criterion traces to an exercising test. Unmapped
    material surfaces and unimplemented criteria are both alignment findings.
 2. **Desired-state rule (with intent guard).** Specs describe the **desired**
-   future state. Code behind specs → residual work items (beads/tracker), not
+   future state. Code behind specs → residual tracker work items, not
    silent requirement shrinks. Code ahead of docs → classify as plan-to-code
    honesty (`STALE_PLAN` / honesty evolve). Evolving specs to match code
    requires **operator intent** (explicit request or approved handoff) — do
