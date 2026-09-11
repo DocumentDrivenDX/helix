@@ -102,8 +102,8 @@ briefs:
     fixture: baseline
     prompt: >-
       Produce a ten-minute evaluation deck for a potential investor from the
-      product vision and PRD. Write the deck script; rendering is not
-      available on this host.
+      product vision and PRD. Deep-dive breadth, angle: the business case.
+      Write the deck script; rendering is not available on this host.
     checks:
       - { kind: files_exist, globs: ["docs/helix/06-iterate/deliverables/DEL-*.md"] }
       - { kind: deliverable_gate, glob: "docs/helix/06-iterate/deliverables/DEL-*.md" }
@@ -114,6 +114,26 @@ briefs:
       - Bodies contain no HELIX or engineering vocabulary an investor would not use.
       - Every number traces to a source row and none is invented.
       - The ask is concrete (what, who, by when) and the assumptions list names the intake fields that were inferred.
+
+  - id: present-survey-deck
+    mode: present
+    fixture: baseline
+    prompt: >-
+      Produce a twenty-minute survey deck of this whole project for a new
+      engineering lead joining it: scope docs/helix, survey breadth, must
+      cover the product vision, the data decision, and the recipe sharing
+      feature. Write the deck script; rendering is not available on this
+      host.
+    checks:
+      - { kind: files_exist, globs: ["docs/helix/06-iterate/deliverables/DEL-*.md"] }
+      - { kind: deliverable_gate, glob: "docs/helix/06-iterate/deliverables/DEL-*.md" }
+      - { kind: files_unchanged, globs: ["docs/helix/01-frame/prd.md", "docs/helix/00-discover/product-vision.md", "docs/helix/02-design/**/*.md"] }
+      - { kind: output_not_contains, values: ["bead"] }
+    rubric:
+      - The Story section carries a concept coverage table that accounts for every artifact in the fixture (vision, PRD, feature spec, ADR, technical design) as covered or omitted with a reason.
+      - The messages span the project (product, feature, data decision, design), not one theme.
+      - The Brief declares survey breadth and the must-cover concepts, and each must-cover concept is carried by a message.
+      - Titles read in order as a tour of the project that ends in what the new lead should do first.
 
   - id: check-whats-next
     mode: check

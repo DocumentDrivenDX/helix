@@ -28,22 +28,51 @@ ddx:
 - **Time slot or page budget**: 20 minutes, at most 10 content slides
 - **Kind**: deck
 - **Constraints**: no client names; figures marked as assumptions stay marked; house theme
+- **Scope**: docs/helix/00-discover/business-case.md; docs/helix/00-discover/product-vision.md
+- **Breadth**: deep-dive
+- **Angle**: the investment decision
+- **Must cover**: pilot scope; investment and breakeven; risks
+- **Must omit**: none
+- **Max messages**: 4
 - **Takeaway**: a bounded CSV-first pilot is the cheapest way to learn whether reviewers trust suggested matches and whether firms will pay for the time saved
 
 ## Story
 
-- **Spine**: pyramid
-- **Titles-only read**:
-  1. A three-month pilot can win back reviewer hours at bookkeeping firms
-  2. Approve a three-month pilot that shows reviewers the evidence behind each match
-  3. Firms spend $1.2B a year on deposit matching; $180M is reachable
-  4. Firms lose reviewer capacity to manual deposit matching every week
-  5. A CSV-first pilot tests reviewer trust faster than bank feeds
-  6. Year one costs $262,000; the pilot plan breaks even in month 18
-  7. Three risks decide the pilot, and each one has a mitigation
-  8. Two conditions gate any spend beyond the pilot
-  9. Approve the pilot budget and name a pilot recruiter by month end
-  10. Sources
+- **Flow**: proposal
+- **Takeaway**: a bounded CSV-first pilot is the cheapest way to learn whether reviewers trust suggested matches and whether firms will pay
+- **Messages** (ranked by how much each moves the decision to fund the pilot):
+  1. Firms lose reviewer capacity to manual deposit matching every week, and the market is large enough to matter (evidence: docs/helix/00-discover/business-case.md#executive-summary; docs/helix/00-discover/business-case.md#opportunity-sizing)
+  2. A CSV-first pilot learns about reviewer trust faster and cheaper than integrating bank feeds (evidence: docs/helix/00-discover/business-case.md#alternatives-considered)
+  3. Year one costs $262,000 and the plan breaks even in month 18 if pilot conversion and pricing hold (evidence: docs/helix/00-discover/business-case.md#investment-required; docs/helix/00-discover/business-case.md#expected-roi)
+  4. Three risks decide the pilot, each with a mitigation, and two conditions gate spend beyond it (evidence: docs/helix/00-discover/business-case.md#risk-assessment; docs/helix/00-discover/business-case.md#recommendation)
+- **Beats and titles** (titles written before any body):
+
+  | # | Beat | Title (claim) | Message | Exhibit |
+  |---|---|---|---|---|
+  | 1 | takeaway | A three-month pilot can win back reviewer hours at bookkeeping firms | takeaway | title slide |
+  | 2 | recommendation | Approve a three-month pilot that shows reviewers the evidence behind each match | M2 | three-step process strip |
+  | 3 | opportunity | Firms spend $1.2B a year on deposit matching; $180M is reachable | M1 | two stat callouts |
+  | 4 | problem | Firms lose reviewer capacity to manual deposit matching every week | M1 | annotated spreadsheet |
+  | 5 | alternatives | A CSV-first pilot tests reviewer trust faster than bank feeds | M2 | two-column comparison |
+  | 6 | investment | Year one costs $262,000; the pilot plan breaks even in month 18 | M3 | cost table with breakeven marker |
+  | 7 | risks | Three risks decide the pilot, and each one has a mitigation | M4 | risk grid |
+  | 8 | conditions | Two conditions gate any spend beyond the pilot | M4 | two condition cards |
+  | 9 | ask | Approve the pilot budget and name a pilot recruiter by month end | takeaway | ask band and steps |
+  | 10 | sources | Sources | all | source table |
+
+- **Concept coverage** (every concept group the inventory surfaced, in authority order):
+
+  | # | Concept group | Authority | Status | Carried by / reason |
+  |---|---|---|---|---|
+  | 1 | Pilot scope: import, evidence-backed review, exception ownership | business case, vision | covered | M2 |
+  | 2 | Market and opportunity sizing | business case | covered | M1 |
+  | 3 | Investment and breakeven | business case | covered | M3 |
+  | 4 | Risks and gating conditions | business case | covered | M4 |
+  | 5 | Alternatives considered | business case | covered | M2 |
+  | 6 | Strategic alignment with the firm's goals | business case | omitted | angle: the committee decides on cost and risk, and the goals row restates the pilot scope |
+  | 7 | Product vision and positioning | vision | omitted | audience: the sponsor authored the vision; slide 4 carries the pain it names |
+
+- **Horizontal-logic test**: pass. The titles move from the ask (2) through the size of the problem (3, 4), why this scope (5), what it costs (6), what could go wrong (7, 8), and back to the ask (9); each reuses a word from the one before, and the ask repeats "pilot" from the takeaway.
 
 ## Content
 

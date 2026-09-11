@@ -483,7 +483,7 @@ function drawTable(slide, box, columns, rows, o = {}) {
     if (heights.reduce((a, b) => a + b, 0) <= box.h) break;
   }
   let total = heights[0], keep = 0;
-  for (let k = 1; k < heights.length; k++) { if (total + heights[k] > box.h) break; total += heights[k]; keep = k; }
+  for (let k = 1; k < heights.length; k++) { if (total + heights[k] > box.h + 1e-6) break; total += heights[k]; keep = k; }
   const shown = rows.slice(0, keep);
   const data = [columns, ...shown].map((r, ri) => r.map((c, k) => ({
     text: c, options: {
@@ -525,7 +525,7 @@ visuals.panels = (slide, box, spec) => {
     card(slide, { x, y: box.y, w: cardW, h: box.h });
     const d = Math.min(1.0, cardW * 0.45);
     numberBadge(slide, k + 1, x + (cardW - d) / 2, box.y + 0.5, d, hues[k], 24);
-    text(slide, name, { x: x + 0.15, y: box.y + d + 0.75, w: cardW - 0.3, h: 0.5 }, { size: 16, min: 12, bold: true, align: "center" });
+    text(slide, name, { x: x + 0.08, y: box.y + d + 0.75, w: cardW - 0.16, h: 0.5 }, { size: 16, min: 12, bold: true, align: "center" });
     text(slide, detail || "", { x: x + 0.15, y: box.y + d + 1.3, w: cardW - 0.3, h: box.h - d - 1.5 }, { size: 13, min: 12, color: C.muted, align: "center" });
   });
 };
@@ -684,7 +684,7 @@ layouts.table = (unit) => {
   do {
     const s = newSlide(unit, page ? { titleOverride: unit.title + " (continued)", noNotes: true } : {});
     rows = drawTable(s, { x: M, y: BODY_Y, w: W - 2 * M, h: BODY_H }, columns, rows,
-      { highlight: num(spec.highlight, 0), size: 15, minRow: Math.min(0.65, BODY_H / (rows.length + 1)) });
+      { highlight: num(spec.highlight, 0), size: 15, minRow: Math.min(0.65, (BODY_H - 0.05) / (rows.length + 1)) });
     page++;
   } while (rows.length && page < 4);
 };

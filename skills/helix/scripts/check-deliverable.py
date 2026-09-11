@@ -343,6 +343,51 @@ def main() -> int:
                 f"units {prev['n']} and {cur['n']}: titles share no content word; the titles-only read may not connect "
                 f"({prev['title'][:40]!r} -> {cur['title'][:40]!r})", cur["line"])
 
+    # Coverage: the Brief declares breadth and concept controls; the Story's
+    # Concept coverage table accounts for every inventory group.
+    brief = secs.get("Brief", (0, ""))[1]
+    story = secs.get("Story", (0, ""))[1]
+    def brief_field(name: str) -> str:
+        m = re.search(r"^- \*\*" + re.escape(name) + r"\*\*:\s*(.*)$", brief, re.M)
+        return m.group(1).strip() if m else ""
+    breadth = brief_field("Breadth").lower()
+    must_cover = [x.strip().lower() for x in re.split(r";", brief_field("Must cover")) if x.strip() and x.strip().lower() != "none"]
+    must_omit = [x.strip().lower() for x in re.split(r";", brief_field("Must omit")) if x.strip() and x.strip().lower() != "none"]
+    if breadth and breadth not in ("survey", "deep-dive"):
+        add("BLOCKING", "coverage.breadth", f"Breadth must be survey or deep-dive, not {breadth!r}")
+    if not breadth:
+        add("BLOCKING", "coverage.breadth", "Brief has no **Breadth** line; breadth is a declared choice")
+    cov_start = story.find("**Concept coverage**")
+    rows = []
+    if cov_start == -1:
+        add("BLOCKING", "coverage.table", "Story has no **Concept coverage** table; every inventory group must be marked covered or omitted")
+    else:
+        for line in story[cov_start:].splitlines():
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if len(cells) >= 5 and cells[0].isdigit():
+                rows.append({"group": cells[1], "status": cells[3].lower(), "note": cells[4]})
+        if not rows:
+            add("BLOCKING", "coverage.table", "Concept coverage table has no rows")
+        for r in rows:
+            if r["status"] not in ("covered", "omitted"):
+                add("BLOCKING", "coverage.status", f"concept group {r['group']!r} has status {r['status']!r}; use covered or omitted")
+            elif r["status"] == "omitted" and words(r["note"]) < 3:
+                add("BLOCKING", "coverage.reason", f"concept group {r['group']!r} is omitted without a reason")
+        covered = [r["group"].lower() for r in rows if r["status"] == "covered"]
+        if breadth == "survey" and rows and len(covered) < 5:
+            add("BLOCKING", "coverage.survey", f"a survey covers at least five concept groups; {len(covered)} covered")
+        def stems(text: str) -> set[str]:
+            return {w[:5] for w in re.findall(r"[a-z][a-z-]{3,}", text.lower()) if w not in _TITLE_STOPWORDS}
+        for mc in must_cover:
+            if not any(stems(mc) & stems(g) for g in covered):
+                add("BLOCKING", "coverage.must_cover", f"must-cover concept {mc!r} shares no content word with any covered group")
+    if must_omit:
+        for u in us:
+            hay = (u["title"] + " " + "\n".join([u["fields"].get("Body", {}).get("text", "")] + u["fields"].get("Body", {}).get("lines", []))).lower()
+            for mo in must_omit:
+                if mo in hay:
+                    add("BLOCKING", "coverage.must_omit", f"unit {u['n']} mentions must-omit concept {mo!r}", u["line"])
+
     if kind == "deck" and us:
         first = us[0]["fields"].get("Pattern", {}).get("text")
         if first != "title":

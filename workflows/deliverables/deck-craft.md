@@ -28,6 +28,17 @@ other way [1]. Anderson's throughline is the same idea for talks: one
 sentence of 15 words or fewer that every part of the talk serves, with
 anything that does not serve it cut [11].
 
+Before any of this, inventory the scope. Distillation ranks and cuts from
+what was read, so reading too little produces a confident deck about a
+corner of the subject. List every document in the declared scope by
+authority with the claims its sections make, and the concepts that recur
+across documents (`scripts/corpus-inventory.py` does the counting).
+Cluster those into five to nine concept groups in the audience's words.
+The groups are the candidates; the steps below choose among them, and
+every group the deck does not carry is written down as omitted with its
+reason. Breadth (`survey` or `deep-dive`) is a declared control in the
+Brief, not a consequence of which sections happened to be read.
+
 Work in this order:
 
 1. Name the decision. Who is in the room, what will they decide or do, and

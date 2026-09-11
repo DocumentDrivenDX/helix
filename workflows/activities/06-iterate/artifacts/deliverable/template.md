@@ -23,7 +23,13 @@ ddx:
 - **Decision or action sought**: [one sentence]
 - **Time slot or page budget**: [minutes or pages]
 - **Kind**: [deck | one-pager | brief]
-- **Constraints**: [brand, confidentiality, must-include, must-omit]
+- **Constraints**: [brand, confidentiality, house rules]
+- **Scope**: [paths or artifact ids the deliverable may draw on, for example docs/helix and workflows/README.md]
+- **Breadth**: [survey | deep-dive]
+- **Angle**: [the lens, or none]
+- **Must cover**: [concept; concept]
+- **Must omit**: [concept; concept, or none]
+- **Max messages**: [3 to 5]
 - **Takeaway**: [the one sentence the audience should leave with]
 
 ## Story
@@ -41,6 +47,13 @@ ddx:
   | 1 | [beat name] | [claim title] | [M1] | [one line: what will prove the title] |
   | 2 | [beat name] | [claim title] | [M2] | [...] |
   | [n] | ask | [the ask as a claim] | [takeaway] | [ask band, steps with owners and dates] |
+
+- **Concept coverage** (every concept group the inventory surfaced, in authority order; nothing is omitted silently):
+
+  | # | Concept group | Authority | Status | Carried by / reason |
+  |---|---|---|---|---|
+  | 1 | [group name in the audience's words] | [vision, PRD, design, ...] | covered | [M1] |
+  | 2 | [group name] | [...] | omitted | [breadth, angle, audience, or budget: one line] |
 
 - **Horizontal-logic test**: [pass, or the titles rewritten to make it pass: each title answers the question the previous one raised; the titles alone give the argument and the ask]
 

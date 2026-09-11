@@ -34,24 +34,43 @@ which units). Voice: the `human-facing` profile in `voice.yml`.
    infer from the artifacts and record each inference under `## Assumptions
    and gaps`. A deliverable with no named audience and no decision sought is
    not authored; that is a framing gap, not a default.
-2. **Source selection.** Walk the flow's artifact graph from the governing
-   artifacts. Use `deliverable-mappings.yml` for the source type(s) named or
-   implied; when several sources apply (a status review draws on the
-   iteration plan and the status report), merge their units and drop
-   duplicates. Read every source section you project. Content the
-   deliverable needs that no artifact holds (`gaps_to_ask`) becomes a
-   question or a recorded assumption, never an invented fact.
+2. **Scope and inventory.** Breadth is a declared choice, never an
+   accident of which sections a mapping names. Resolve and record in the
+   Brief: `scope` (the paths or artifact ids the deliverable may draw on;
+   default the flow root plus the methodology documents that define the
+   product), `breadth` (`survey`, cover the whole scope; or `deep-dive`,
+   one capability or problem), `angle` (the lens, when there is one),
+   `must_cover` and `must_omit` (concept lists), and `max_messages`. Then
+   inventory the scope before choosing anything: run
+   `scripts/corpus-inventory.py <scope>` (beside this skill; by hand on
+   hosts without scripts) to list every document by authority with its
+   section claims and the concepts that recur across documents. Cluster
+   the concepts into five to nine groups, name each group in the audience's
+   words, and rank the groups by authority (what the vision and PRD say the
+   product is) before ranking by the decision. Record the groups under
+   `## Story` as a Concept coverage table: every group is marked `covered`
+   (with the message that carries it) or `omitted` (with the reason:
+   breadth, angle, audience, or budget). A survey covers every group the
+   authority rank puts in the top five; a deep-dive names the groups it
+   leaves out. `deliverable-mappings.yml` still supplies section-to-unit
+   shapes for the artifact types it knows, as a floor, not a ceiling.
+   Read every source section you project. Content the deliverable needs
+   that no artifact holds (`gaps_to_ask`) becomes a question or a recorded
+   assumption, never an invented fact.
 3. **Storyboard.** Choose the flow by occasion from `deck-flows.yml`
    (`investor-pitch`, `evaluation-briefing`, `executive-status`, `proposal`,
    `product-walkthrough`, `board-update`, `internal-alignment`); a
    `default_spine` in `deliverable-mappings.yml` resolves through the file's
    `legacy_spines` map. Then, before any body text:
    - Distill. Write the one-sentence takeaway the audience should leave
-     with; the three to five messages that make it true, ranked by how much
+     with; the three to five messages (up to `max_messages`) that make it
+     true, drawn from the covered concept groups and ranked by how much
      each moves the audience's decision; and an evidence table with one row
      per message naming the source sections and the figure, example, or
      comparison each supplies. A message with no source section is a gap to
-     ask about or an assumption to record, not a message.
+     ask about or an assumption to record, not a message. A concept group
+     no message carries is `omitted` in the coverage table, with a reason;
+     silent omission is the failure this step exists to prevent.
    - Title every beat. One claim title per beat in the flow, each mapped to
      a message, with a one-line note of the exhibit that will prove it.
      Optional beats enter only when a message needs them; required beats no
@@ -134,6 +153,11 @@ which units). Voice: the `human-facing` profile in `voice.yml`.
      renders without console errors).
    - Flow checklist: every item in the chosen flow's `checklist` in
      `deck-flows.yml` holds.
+   - Coverage: every concept group in the inventory is marked covered or
+     omitted with a reason; every `must_cover` concept is covered by a
+     message; no `must_omit` concept appears in a title or body; a `survey`
+     covers at least five groups. `check-deliverable.py` reads the Brief and
+     the coverage table and fails on any of these.
 9. **Hand-off.** Save the script under the flow root (default
    `06-iterate/deliverables/DEL-<nnn>-<slug>.md`) with `ddx.links` to every
    source artifact and `authoring.export` pointing at the renders. Report:

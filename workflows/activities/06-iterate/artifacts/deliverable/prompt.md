@@ -12,6 +12,12 @@ must contain.
   for missing fields in one message. At `high`, infer and record each
   inference under Assumptions and gaps. No audience or no decision sought
   means stop; there is nothing to present yet.
+- Declare the scope, breadth, angle, must-cover and must-omit concepts, and
+  max messages in the Brief; then inventory the whole scope
+  (`scripts/corpus-inventory.py`) and cluster what recurs into five to nine
+  concept groups named in the audience's words, ranked by authority. Every
+  group ends up in the Story's Concept coverage table as covered or omitted
+  with a reason. Breadth is chosen, never inherited from a mapping.
 - Read every source section you will project. Use `deliverable-mappings.yml`
   for the source type; merge units when several sources apply. Note
   `gaps_to_ask` for the source type and resolve each one.
@@ -72,6 +78,9 @@ must contain.
   is proven by the body. Rewrite the title to what the body proves, or cut
   the unit.
 - Walk the flow's `checklist` in `deck-flows.yml`.
+- Check coverage: every must-cover concept is carried by a message, no
+  must-omit concept appears in a title or body, every inventory group has a
+  status, and a survey covers at least five groups.
 - Render to the targets, then render every slide or page to an image and
   look at each one. Fix overflow, collisions, orphan bullets, poor contrast,
   and missing visuals; re-render.
