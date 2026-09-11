@@ -311,6 +311,7 @@ When `home: repo`, no other `authoring` field is permitted.
 | `authoring.tool` | string | yes | Short identifier for the tool, such as `google-slides`, `miro`, or `figma`. |
 | `authoring.origin` | string | yes | URL of the document in the external tool. Permanent: it remains the write surface after content lands. |
 | `authoring.export` | string | after first check-in | Repository-relative path to the committed original file exported from the tool. A path, not a URL. |
+| `authoring.connector` | string | no | Identifier of the host connector (for example `google-docs`, `notion`, `jira`) through which a runtime may read the live document at `authoring.origin`. A read surface only; writes still happen in the tool. |
 
 | `state` | Meaning |
 | --- | --- |

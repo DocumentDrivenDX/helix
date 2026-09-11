@@ -302,6 +302,18 @@ Three representations exist and each has one role:
 Checking in does not approve the document. It makes approval possible; the
 document is still `draft` until it is reviewed like any other.
 
+### Reading through a connector
+
+When the runtime exposes a document connector for the authoring tool, a
+mode may read the live document at `authoring.origin` instead of waiting
+for a check-in. That read satisfies the rule that governing artifacts are
+read before drafting; findings cite the origin and the live section. Three
+things do not change: the Markdown body stays the committed copy, a
+checked-out artifact stays not dependable for approval until it is checked
+in, and nothing writes through the connector. Declare
+`authoring.connector` so a reader knows which connector was used. Runtimes
+without the connector fall back to the checked-in body.
+
 ### Transitions
 
 1. **Create.** Stub and external document in the same change. `state:

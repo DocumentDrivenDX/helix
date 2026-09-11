@@ -2,6 +2,14 @@
 
 Load this contract for any mode that creates or edits an artifact instance.
 
+## Governing artifacts authored elsewhere
+
+A governing artifact with `authoring.home: external-tool` is read through
+its `authoring.connector` when the host exposes that connector (live read of
+`authoring.origin`), otherwise through its checked-in Markdown body. A
+checked-out artifact with no body and no connector is a prerequisite gap,
+not something to paraphrase from memory. Never write through a connector.
+
 ## Consult the graph before authoring
 
 When the user asks for a new artifact of type `T` in the active methodology `M`

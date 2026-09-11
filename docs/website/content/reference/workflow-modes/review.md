@@ -29,3 +29,15 @@ Use for fresh-eyes review of plans, PRs, implementation, or recent work.
    errors, or is unavailable, convergence is decided by the intrinsic gates.
 
 Procedure: `workflows/actions/fresh-eyes-review.md` (deeper step detail; this file is the contract).
+
+## Fan-out
+
+When the host can run sub-agents, review in parallel by concern: correctness
+against the governing artifacts, claims-vs-reality (tests, coverage,
+metrics that are asserted but absent), scope discipline (unrequested
+features, narrowed capabilities, out-of-scope diffs), and test adequacy
+(each acceptance criterion exercised, guard branches included). Each agent
+returns findings ordered by severity with concrete evidence in the
+`_report.md` shape. Fan in by severity, then by evidence path; the
+phantom-claim count is the sum across agents and stays a zero-floor gate.
+Without sub-agents, run the concerns in that order.

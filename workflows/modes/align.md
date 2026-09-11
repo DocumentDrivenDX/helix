@@ -63,3 +63,30 @@ Do not remove content from one artifact unless the destination content and
 follow-up work are captured durably.
 
 Procedure: `workflows/actions/reconcile-alignment.md` (deeper step detail; this file is the contract).
+
+## Fan-out
+
+When the host can run sub-agents, split the review and fan in through the
+report shape in `_report.md`:
+
+- One agent per review dimension of the alignment procedure (artifact
+  contract rubric, bidirectional traceability, ADR honoring, concern drift,
+  concern realization, NFR targets, slot registry integrity, acceptance
+  criteria, instrument integrity, quality evaluation, work-item coverage),
+  or for a large tree one agent per artifact family (discover and frame,
+  design, test, deploy, iterate).
+- Every agent gets the same scope root, the same catalog bind, and the
+  governing artifacts its dimension needs, and returns only a
+  `helix_report` block: findings with classification, artifact, lines,
+  evidence, and the four handoff fields.
+- Fan in: merge the blocks; drop duplicates that share artifact, lines, and
+  classification; when two agents classify one gap differently keep the
+  stricter classification and record the disagreement under assumptions;
+  renumber finding ids; recompute the summary counts; then write the one
+  prose report a human reviews in under ten minutes.
+- Without sub-agents, run the dimensions in order. The output shape is the
+  same either way.
+
+Fan-out never widens scope. An agent that reads outside the scope root is
+discarded, and no agent writes an artifact; align stays read-only until the
+handoff.
