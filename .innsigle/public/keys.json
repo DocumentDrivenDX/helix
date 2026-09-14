@@ -1,0 +1,15 @@
+{
+  "innsigle_issuer": "1",
+  "issuer_id": "helix-smoke",
+  "issuer_name": "HELIX Smoke Test",
+  "keys": [
+    {
+      "key_id": "ed25519:e1574a3a79cf30bd7896fcf897a61127",
+      "alg": "ed25519",
+      "public_key": "eBN0yorDRdl7gFotR5dkjiv918yeYpy6L79HGsigy7Y",
+      "created_at": "2026-08-26T14:23:24Z",
+      "revoked_at": null
+    }
+  ],
+  "endorsements": []
+}
