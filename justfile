@@ -116,3 +116,19 @@ test-family-fixture-dry-run FIXTURE:
 count:
     @echo "Skill files: $(find skills -name 'SKILL.md' | wc -l)"
     @echo "Test scripts: $(ls tests/*.sh tests/*.py 2>/dev/null | wc -l)"
+
+# Validate deliverable scripts (deck/one-pager/brief) with check-deliverable.py
+test-validate-deliverable:
+    bash tests/validate-deliverable.sh
+
+# Render the catalog deck example to pptx, validate it, and run deck-qa.py (needs node with pptxgenjs on NODE_PATH, LibreOffice, pdftoppm)
+test-deck-render:
+    bash tests/validate-deck-render.sh
+
+# Run the headless skill eval with rubric scoring (calls the host per brief; costs money and minutes)
+eval:
+    python3 scripts/run-eval.py --judge
+
+# Keep the ported title rules in sync with sloptimizer's headline fixtures
+test-headline-sync:
+    bash tests/validate-headline-sync.sh
