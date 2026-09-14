@@ -1,7 +1,7 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable test-headline-sync test-deck-render test-demos
+test: test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable test-headline-sync test-deck-render test-demos test-innsigle
 
 # Serve the HELIX microsite at the canonical local review URL.
 website-serve:
@@ -129,3 +129,12 @@ eval:
 # Keep the ported title rules in sync with sloptimizer's headline fixtures
 test-headline-sync:
     bash tests/validate-headline-sync.sh
+
+# Seal microsite content sources with Innsigle colophon attestations
+# (needs .innsigle/config.json from `innsigle init` and `op` signed in)
+innsigle-seal:
+    bash scripts/innsigle-seal.sh
+
+# Gate: every microsite page has a valid, verified Innsigle seal and renders it
+test-innsigle:
+    bash tests/validate-innsigle.sh

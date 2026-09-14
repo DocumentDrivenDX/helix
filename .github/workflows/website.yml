@@ -12,6 +12,9 @@ on:
       - 'scripts/check-website-links.py'
       - 'scripts/helix_validate_artifact_meta.py'
       - 'tests/validate-website-generated.sh'
+      - 'tests/validate-innsigle.sh'
+      - 'scripts/innsigle-seal.sh'
+      - '.innsigle/**'
       - 'workflows/activities/**/artifacts/**'
       - '.vale.ini'
       - '.vale/**'
@@ -76,6 +79,10 @@ jobs:
         # real /helix/-prefixed URLs; a plain root build hides base-path bugs
         # like raw card links that bypass the baseURL.
         run: hugo --gc --minify --baseURL "https://documentdrivendx.github.io/helix/"
+
+      - name: Innsigle seal gate (claims, signatures, rendered seals)
+        # Rebuilds with hugo stderr captured so a stale-seal warning fails.
+        run: bash tests/validate-innsigle.sh
 
       - name: Check internal links + images
         run: python3 scripts/check-website-links.py

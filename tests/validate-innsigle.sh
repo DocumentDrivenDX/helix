@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+# Gate: every microsite page carries a verifiable Innsigle seal.
+#
+# Source side — for every *.md under docs/website/content there must be a
+# claim at .innsigle/public/claims/<slug>.attestation.json (slug = path
+# relative to the content root, non-alphanumeric runs -> "-", trimmed; the
+# same rule scripts/innsigle-seal.sh and the badge partial use) whose sha256
+# digest matches the current source bytes and whose signature verifies
+# against .innsigle/public/keys.json (checked with the innsigle CLI).
+#
+# Build side — the site is built here with hugo stderr captured; any warning
+# starting with "innsigle:" (the partial refusing to render a stale seal)
+# fails. Then website/public must carry /.well-known/innsigle/keys.json and
+# every page's HTML must contain the innsigle-colophon element.
+#
+# Fix unsealed or stale pages with `just innsigle-seal`.
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+content_root="docs/website/content"
+claims_dir=".innsigle/public/claims"
+keys_json=".innsigle/public/keys.json"
+site_dir="website/public"
+base_url="https://documentdrivendx.github.io/helix/"
+
+if command -v innsigle >/dev/null; then
+  INNSIGLE=(innsigle)
+else
+  INNSIGLE=(npx --yes --package=github:DocumentDrivenDX/innsigle innsigle)
+fi
+
+[ -f "$keys_json" ] || { echo "FAIL: $keys_json missing" >&2; exit 1; }
+
+fail=0
+pages=0 valid=0 missing=0 stale=0 badsig=0
+while IFS= read -r -d '' f; do
+  pages=$((pages+1))
+  rel="${f#"$content_root"/}"
+  slug="$(printf '%s' "$rel" | sed -E 's/[^a-zA-Z0-9]+/-/g; s/^-+//; s/-+$//')"
+  att="$claims_dir/$slug.attestation.json"
+  if [ ! -f "$att" ]; then
+    echo "UNSEALED: $rel" >&2; missing=$((missing+1)); continue
+  fi
+  digest="$(openssl dgst -sha256 -r "$f" | cut -d' ' -f1)"
+  if [ "$(jq -r '.payload.subjects[0].digest.value' "$att")" != "$digest" ]; then
+    echo "STALE: $rel (edited since sealing)" >&2; stale=$((stale+1)); continue
+  fi
+  if ! "${INNSIGLE[@]}" verify --attestation "$att" --content "$f" --keys "$keys_json" >/dev/null 2>&1; then
+    echo "BAD SIGNATURE: $rel ($att)" >&2; badsig=$((badsig+1)); continue
+  fi
+  valid=$((valid+1))
+done < <(find "$content_root" -name '*.md' -type f -print0 | sort -z)
+
+echo "claims: $pages pages, $valid valid, $missing unsealed, $stale stale, $badsig bad signature"
+[ $((missing+stale+badsig)) -eq 0 ] || fail=1
+
+echo "Building site..."
+hugo_err="$(mktemp)"
+trap 'rm -f "$hugo_err"' EXIT
+(cd website && hugo --gc --minify --baseURL "$base_url" >/dev/null 2>"$hugo_err") || {
+  echo "FAIL: hugo build failed" >&2; cat "$hugo_err" >&2; exit 1; }
+if grep -q 'innsigle:' "$hugo_err"; then
+  echo "FAIL: hugo reported innsigle warnings:" >&2
+  grep 'innsigle:' "$hugo_err" >&2
+  fail=1
+fi
+
+[ -f "$site_dir/.well-known/innsigle/keys.json" ] || {
+  echo "FAIL: $site_dir/.well-known/innsigle/keys.json missing" >&2; fail=1; }
+
+rendered=0 unrendered=0
+while IFS= read -r -d '' f; do
+  rel="${f#"$content_root"/}"
+  case "$rel" in
+    _index.md) html="$site_dir/index.html" ;;
+    */_index.md) html="$site_dir/${rel%/_index.md}/index.html" ;;
+    *) html="$site_dir/${rel%.md}/index.html" ;;
+  esac
+  if [ -f "$html" ] && grep -q 'innsigle-colophon' "$html"; then
+    rendered=$((rendered+1))
+  else
+    echo "NO SEAL RENDERED: $rel -> $html" >&2; unrendered=$((unrendered+1))
+  fi
+done < <(find "$content_root" -name '*.md' -type f -print0 | sort -z)
+echo "rendered: $rendered pages with a seal, $unrendered without"
+[ "$unrendered" -eq 0 ] || fail=1
+
+if [ "$fail" -ne 0 ]; then
+  echo "FAIL: Innsigle seal gate. Run \`just innsigle-seal\` and commit .innsigle/public/claims/." >&2
+  exit 1
+fi
+echo "OK: every page sealed and rendering a verified Innsigle seal"
