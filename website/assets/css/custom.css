@@ -2004,3 +2004,57 @@ main :where(blockquote) {
     transform: none;
   }
 }
+
+/* Innsigle colophon seal + attestation viewer (badge partial:
+   layouts/_partials/components/comments.html) */
+.innsigle-colophon {
+  margin-top: 3rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e0e0e0;
+  color: #888;
+  font-size: 0.8rem;
+}
+.dark .innsigle-colophon { border-top-color: #333; color: #777; }
+.innsigle-seal > summary {
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+.innsigle-seal > summary::-webkit-details-marker { display: none; }
+.innsigle-seal > summary:hover,
+.innsigle-seal[open] > summary { opacity: 1; color: #555; }
+.dark .innsigle-seal > summary:hover,
+.dark .innsigle-seal[open] > summary { color: #bbb; }
+.innsigle-glyph { flex: none; }
+.innsigle-viewer {
+  margin-top: 0.75rem;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fafafa;
+  max-width: 36rem;
+  color: #666;
+}
+.dark .innsigle-viewer { border-color: #333; background: #16181c; color: #999; }
+.innsigle-viewer dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.3rem 1rem;
+  margin: 0;
+}
+.innsigle-viewer dt { color: #999; font-weight: 600; }
+.dark .innsigle-viewer dt { color: #777; }
+.innsigle-viewer dd { margin: 0; overflow-wrap: anywhere; }
+.innsigle-raw { margin-top: 0.6rem; }
+.innsigle-raw pre {
+  max-height: 16rem;
+  overflow: auto;
+  font-size: 0.7rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.innsigle-links { margin: 0.6rem 0 0; }
