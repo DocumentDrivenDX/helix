@@ -278,6 +278,7 @@ ddx:
     tool: google-slides
     origin: https://docs.google.com/presentation/d/1AbC.../edit
     export: docs/helix/02-design/solution-designs/assets/SD-004-prebill-review.pptx
+    export_sha256: 7f87529ecaf9bf3fc08b9c050489470234f33d4bd202ff2edfcae08df3885ead
 ---
 
 # Prebill Review — Solution Design
@@ -297,6 +298,7 @@ Three representations exist and each has one role:
 | Markdown body | Read surface. Downstream artifacts, reviews, and agents resolve against it. |
 | `authoring.origin` | Write surface. Every edit goes here, for the life of the document. |
 | `authoring.export` | Fidelity evidence. The committed original, for formatting the Markdown cannot carry. |
+| `authoring.export_sha256` | Freshness evidence. The digest of that original at check-in, so a stale body can be told from a current one. |
 
 Checking in does not approve the document. It makes approval possible; the
 document is still `draft` until it is reviewed like any other.
@@ -318,11 +320,11 @@ without the connector fall back to the checked-in body.
 1. **Create.** Stub and external document in the same change. `state:
    checked-out`.
 2. **Check in.** One commit carries the body content, the `export` file,
-   and `state: checked-in`. Splitting these leaves a window where the
-   frontmatter and the body disagree.
-3. **Check out again.** Flip `state` back. Content and `export` from the
-   previous check-in stay as the last known copy; the banner changes to say
-   a revision is in flight.
+   `export_sha256` for that file, and `state: checked-in`. Splitting these
+   leaves a window where the frontmatter and the body disagree.
+3. **Check out again.** Flip `state` back. Content, `export`, and
+   `export_sha256` from the previous check-in stay as the last known copy;
+   the banner changes to say a revision is in flight.
 
 `home` never changes in any of these. Reclassifying a document is a migration,
 handled deliberately, not one of these transitions.
