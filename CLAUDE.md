@@ -4,12 +4,11 @@ See [AGENTS.md](AGENTS.md) for the main repository instructions.
 
 Claude-specific notes:
 
-- prefer `ddx agent run --harness claude` for non-interactive reproducible runs
 - for interactive work, use Claude Code sessions with the unified HELIX skill
   via `/helix <mode>` (e.g. `/helix input`, `/helix align`, `/helix frame`,
-  `/helix design`, `/helix evolve`, `/helix review`)
-- `ddx agent run` is the dispatch surface — avoid calling `claude -p` directly
-  in examples or docs
+  `/helix design`, `/helix evolve`, `/helix review`, `/helix present`);
+  headless runs (`scripts/run-eval.py`, `scripts/demos/capture_session.py`)
+  use `claude -p` with this checkout as the plugin directory
 - to deploy HELIX to a Databricks workspace (Genie), follow the runbook at
   [docs/install/databricks-genie.md](docs/install/databricks-genie.md); the
   `just genie-build` / `just genie-install` / `just genie-verify` recipes wrap

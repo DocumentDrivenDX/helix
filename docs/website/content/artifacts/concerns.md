@@ -60,7 +60,7 @@ Examples:
 ### demo-asciinema
 - **Current demos**: `helix-quickstart` (full lifecycle), `helix-concerns` (drift detection), `helix-evolve` (requirement threading), `helix-experiment` (metric-driven optimization)
 - **Experimental demos**: `helix-interactive` is kept in `docs/demos/` for internal exploration and manual recording workflows; it is not part of the shipped public microsite or Pages recording inventory
-- **Agent harness**: `ddx agent run --harness claude` — not `claude -p`
+- **Agent harness**: `scripts/demos/capture_session.py` wraps `claude -p --output-format=stream-json` and writes the session record; the committed `session.jsonl` replays deterministically without an API key
 - **Recording container**: Ubuntu 24.04 with project-specific deps (Node.js or Bun)
 - **Cast files**: archived in `docs/demos/*/recordings/` and copied to `website/static/demos/`
 

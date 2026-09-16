@@ -21,7 +21,7 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 - [Project Concerns](/artifacts/concerns/)
 - [Product Requirements Document](/artifacts/prd/)
 - [Project Principles](/artifacts/principles/)
-- [features](/artifacts/features/) _(13 items)_
+- [features](/artifacts/features/) _(14 items)_
 
 ## Design
 
@@ -46,6 +46,6 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 ## Iterate
 
 - [Improvement Backlog — HELIX 2026-Q3](/artifacts/improvement-backlog/)
-- [Metrics Dashboard: HELIX 2026-Q2 (post-`v0.3.3`)](/artifacts/metrics-dashboard/)
+- [Metrics Dashboard: HELIX 2026-Q3 (human-outputs branch)](/artifacts/metrics-dashboard/)
 - [Security Metrics — HELIX 2026-Q2 (post-`v0.3.3`)](/artifacts/security-metrics/)
 - [deliverables](/artifacts/deliverables/) _(1 item)_

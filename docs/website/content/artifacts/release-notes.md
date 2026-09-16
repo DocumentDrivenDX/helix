@@ -1,7 +1,7 @@
 ---
 title: "Release Notes — HELIX v0.12.0"
 slug: release-notes
-weight: 470
+weight: 480
 activity: "Deploy"
 source: "05-deploy/release-notes.md"
 generated: true

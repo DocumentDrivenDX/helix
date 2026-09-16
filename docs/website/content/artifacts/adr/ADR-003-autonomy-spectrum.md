@@ -1,7 +1,7 @@
 ---
 title: "ADR-003: Autonomy is a Three-Position Spectrum, Not a Fixed Level"
 slug: ADR-003-autonomy-spectrum
-weight: 190
+weight: 200
 activity: "Design"
 source: "02-design/adr/ADR-003-autonomy-spectrum.md"
 generated: true

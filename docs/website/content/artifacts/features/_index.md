@@ -22,3 +22,4 @@ generated: true
 - [Feature Specification: FEAT-014 — Workflow Coverage](feat-014-workflow-coverage/)
 - [Feature Specification: FEAT-016 — Artifact Honesty (Claims-vs-Reality)](feat-016-artifact-honesty/)
 - [Feature Specification: FEAT-017 — Iteration Documentation](feat-017-iteration-documentation/)
+- [Feature Specification: FEAT-018 — Deliverables](feat-018-deliverables/)

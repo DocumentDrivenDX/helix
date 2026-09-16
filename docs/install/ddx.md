@@ -267,8 +267,6 @@ bash tests/validate-skills.sh
 git diff --check
 ```
 
-The recorded DDx integration scenarios live in `tests/workflows/ddx/`.
-
 ## See also
 
 - [`workflows/README.md`](../../workflows/README.md): runtime-neutral

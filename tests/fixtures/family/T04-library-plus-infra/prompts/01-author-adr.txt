@@ -1,1 +1,0 @@
-Record an ADR for choosing VPC peering over transit gateway for our cross-account connectivity. Capture the decision, context, and consequences.

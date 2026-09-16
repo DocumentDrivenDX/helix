@@ -1,4 +1,0 @@
-TypeScript OR Rust
-Must include tests
-Must have help documentation
-Single developer weekend project
