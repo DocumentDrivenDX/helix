@@ -1,0 +1,53 @@
+{
+  "payload": {
+    "innsigle": "1",
+    "type": "https://innsigle.dev/claim/colophon/v1",
+    "issued_at": "2026-09-16T02:46:35Z",
+    "issuer": {
+      "id": "helix",
+      "name": "HELIX",
+      "key_id": "ed25519:d5a0b2d95482db5ff68fc8318a1ad4de",
+      "key_url": "https://documentdrivendx.github.io/helix/.well-known/innsigle/keys.json"
+    },
+    "subjects": [
+      {
+        "uri": "https://documentdrivendx.github.io/helix/artifacts/features/FEAT-017-iteration-documentation.md",
+        "digest": {
+          "alg": "sha256",
+          "value": "3c5dc81a82a24ab7d90e7368dfcb7acbd9fe62b39f02a502611f1b3e2f4a54f8"
+        }
+      }
+    ],
+    "colophon": {
+      "schema_version": "1",
+      "composition": "model-primary",
+      "ingredients": [
+        {
+          "kind": "model",
+          "name": "Claude",
+          "role": "draft"
+        },
+        {
+          "kind": "tool",
+          "name": "sloptimizer",
+          "role": "rewrite"
+        },
+        {
+          "kind": "human",
+          "name": "operator",
+          "role": "structure-edit"
+        }
+      ],
+      "notes": null
+    }
+  },
+  "payload_encoding": "json",
+  "signatures": [
+    {
+      "key_id": "ed25519:d5a0b2d95482db5ff68fc8318a1ad4de",
+      "alg": "ed25519",
+      "sig": "xQywS0l0DZ8hX1Fl2v4gxc-wA8hqDTfkDsAYknlCfx5nA1lCAKs0MV90eqj16ptrvCOfhg19dollArx_aFVODw",
+      "signed_at": "2026-09-16T02:46:35Z"
+    }
+  ]
+}

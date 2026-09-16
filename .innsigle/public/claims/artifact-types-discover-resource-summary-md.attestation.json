@@ -1,0 +1,53 @@
+{
+  "payload": {
+    "innsigle": "1",
+    "type": "https://innsigle.dev/claim/colophon/v1",
+    "issued_at": "2026-09-16T02:46:05Z",
+    "issuer": {
+      "id": "helix",
+      "name": "HELIX",
+      "key_id": "ed25519:d5a0b2d95482db5ff68fc8318a1ad4de",
+      "key_url": "https://documentdrivendx.github.io/helix/.well-known/innsigle/keys.json"
+    },
+    "subjects": [
+      {
+        "uri": "https://documentdrivendx.github.io/helix/artifact-types/discover/resource-summary.md",
+        "digest": {
+          "alg": "sha256",
+          "value": "16aab385a7cbf5959ed0fa28bb3535c552c788c3ecc935d19fa400f9628291f0"
+        }
+      }
+    ],
+    "colophon": {
+      "schema_version": "1",
+      "composition": "model-primary",
+      "ingredients": [
+        {
+          "kind": "model",
+          "name": "Claude",
+          "role": "draft"
+        },
+        {
+          "kind": "tool",
+          "name": "sloptimizer",
+          "role": "rewrite"
+        },
+        {
+          "kind": "human",
+          "name": "operator",
+          "role": "structure-edit"
+        }
+      ],
+      "notes": null
+    }
+  },
+  "payload_encoding": "json",
+  "signatures": [
+    {
+      "key_id": "ed25519:d5a0b2d95482db5ff68fc8318a1ad4de",
+      "alg": "ed25519",
+      "sig": "KvcmsrkEdeHdrw7UskOiT2bRRDwHWLkNWRq8puavvGnBv46sOSxmm9A8w3VUlNTNXkM01FpalFm8VJcklnfXAQ",
+      "signed_at": "2026-09-16T02:46:05Z"
+    }
+  ]
+}

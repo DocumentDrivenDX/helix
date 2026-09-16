@@ -1,0 +1,53 @@
+{
+  "payload": {
+    "innsigle": "1",
+    "type": "https://innsigle.dev/claim/colophon/v1",
+    "issued_at": "2026-09-16T02:47:25Z",
+    "issuer": {
+      "id": "helix",
+      "name": "HELIX",
+      "key_id": "ed25519:d5a0b2d95482db5ff68fc8318a1ad4de",
+      "key_url": "https://documentdrivendx.github.io/helix/.well-known/innsigle/keys.json"
+    },
+    "subjects": [
+      {
+        "uri": "https://documentdrivendx.github.io/helix/research/google-sre-monitoring-distributed-systems.md",
+        "digest": {
+          "alg": "sha256",
+          "value": "935609a2f41ed13c32cafadf61c6144e9ce6ebf47b982401f1e8e03e089fdd47"
+        }
+      }
+    ],
+    "colophon": {
+      "schema_version": "1",
+      "composition": "model-primary",
+      "ingredients": [
+        {
+          "kind": "model",
+          "name": "Claude",
+          "role": "draft"
+        },
+        {
+          "kind": "tool",
+          "name": "sloptimizer",
+          "role": "rewrite"
+        },
+        {
+          "kind": "human",
+          "name": "operator",
+          "role": "structure-edit"
+        }
+      ],
+      "notes": null
+    }
+  },
+  "payload_encoding": "json",
+  "signatures": [
+    {
+      "key_id": "ed25519:d5a0b2d95482db5ff68fc8318a1ad4de",
+      "alg": "ed25519",
+      "sig": "_IE_UszgrNayiu3a_k2zyirS5NelIN8iOjxG9Je8Oa-E-2eH5xmqawL0AGdFZormZl5JjWbFG4ahXAhlthkpAg",
+      "signed_at": "2026-09-16T02:47:25Z"
+    }
+  ]
+}
