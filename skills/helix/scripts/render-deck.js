@@ -116,6 +116,7 @@ const BODY_H = BODY_BOTTOM - BODY_Y;
 const MARKER = Object.assign({ size_in: 0.55, shape: "circle" }, theme.motif.section_marker || {}, look.marker ? { shape: look.marker } : {});
 const MIN_PT = R.min_pt;                      // no text below this on content slides
 const problems = [];                          // anything that made the render dishonest; reported and exit 1 after writing
+const warnings = [];                          // design defects worth fixing in the script; reported, exit unchanged
 let currentUnit = 0;                          // the unit being drawn, for messages
 const DARK_CONTENT = SURF === "dark";         // content slides on the dark surface
 const DARK_ENDS = SURF !== "light";           // title, dividers, statements, and the ask on the dark surface
@@ -134,7 +135,7 @@ function text(slide, str, box, o = {}) {
   // Fit `str` into box: shrink from o.size to o.min across o.step, then write.
   const font = o.font || FONT.body;
   const sizes = sizesDown(o.size || SCALE.slide_body, o.min || MIN_PT, o.step || 2);
-  const fit = fitParagraphs([str], box, { font, bold: !!o.bold, sizes });
+  const fit = fitParagraphs(String(str).split("\n"), box, { font, bold: !!o.bold, sizes, paraGap: 0 });
   if (!fit.fits) problems.push(`unit ${currentUnit}: '${String(str).slice(0, 50)}' does not fit its box at ${fit.pt}pt (autofit will shrink it below the floor)`);
   slide.addText(str, {
     x: box.x, y: box.y, w: box.w, h: box.h, fontFace: font, fontSize: fit.pt, bold: !!o.bold, italic: !!o.italic,
@@ -204,7 +205,7 @@ function badge(slide, x, y, d, fill, o = {}) {
     slide.addImage({ data, x: x + inset, y: y + inset, w: d - 2 * inset, h: d - 2 * inset });
     return true;
   }
-  if (o.n != null) slide.addText(String(o.n), { x, y, w: d, h: d, fontFace: FONT.display, fontSize: o.pt || Math.round(d * 30), bold: true,
+  if (o.n != null) slide.addText(String(o.n), { x, y, w: d, h: d, fontFace: FONT.body, fontSize: o.pt || Math.round(d * 30), bold: true,
     color: glyph, align: "center", valign: "middle", isTextBox: true, margin: 0 });
   return false;
 }
@@ -234,9 +235,9 @@ function chrome(slide, unit, o = {}) {
   const size = MARKER.size_in || 0.55;
   if (!o.noMarker) numberBadge(slide, unit.n, M, TITLE_Y + 0.12, size, K.support, 16, o.icon);
   const tx = o.noMarker ? M : M + size + 0.3;
-  const titleStr = o.titleOverride || unit.title;
-  text(slide, titleStr, { x: tx, y: TITLE_Y, w: W - M - tx, h: TITLE_H },
-    { font: FONT.display, size: SCALE.slide_title, min: 24, step: 4, bold: true, color: K.ink });
+  const titleStr = balancedTitle(o.titleOverride || unit.title, W - M - tx);
+  text(slide, titleStr.text, { x: tx, y: TITLE_Y, w: W - M - tx, h: TITLE_H },
+    { font: FONT.display, size: titleStr.pt, min: 24, step: 4, bold: true, color: K.ink });
   const mutedC = K.muted;
   const cited = (unit.sources.match(/S\d+/g) || []).join(", ");
   if (cited && !o.noSourceFooter) {
@@ -246,6 +247,25 @@ function chrome(slide, unit, o = {}) {
   slide.addText(String(slideCount), { x: W - M - 0.6, y: FOOTER_Y, w: 0.6, h: FOOTER_H, fontFace: FONT.body,
     fontSize: theme.motif.slide_number.size_pt || 10, color: mutedC, align: "right", isTextBox: true, margin: 0, valign: "bottom" });
   if (unit.notes && !o.noNotes) slide.addNotes(unit.notes);
+}
+// A title fits one line at the title size, or at two sizes below it; otherwise it breaks into two lines of
+// nearly equal width (no orphaned last word). Returns the text (with a newline when balanced) and the size.
+function balancedTitle(str, widthIn) {
+  const base = SCALE.slide_title;
+  for (const pt of [base, base - 2, base - 4]) {
+    if (wrap(str, FONT.display, pt, true, widthIn).length === 1) return { text: str, pt };
+  }
+  const words = String(str).split(/\s+/).filter(Boolean);
+  if (words.length < 4) return { text: str, pt: base };
+  let best = null;
+  for (let k = 2; k <= words.length - 2; k++) {
+    const a = words.slice(0, k).join(" "), b = words.slice(k).join(" ");
+    const wa = textWidthIn(a, FONT.display, base, true), wb = textWidthIn(b, FONT.display, base, true);
+    if (wa > widthIn || wb > widthIn) continue;
+    const diff = Math.abs(wa - wb);
+    if (!best || diff < best.diff) best = { diff, text: a + "\n" + b };
+  }
+  return { text: best ? best.text : str, pt: base };
 }
 function newSlide(unit, o) {
   const s = pres.addSlide();
@@ -304,23 +324,30 @@ visuals["process-flow"] = (slide, box, spec, unit) => {
 };
 
 visuals.timeline = (slide, box, spec) => {
+  // A line of milestones; `now: n` marks the present in the support hue, `missing: n` draws a hollow node reached by a
+  // dashed segment (the milestone that has not happened), and `marker` annotates the missing node, else the present one.
   const ms = items(spec.milestones).slice(0, 6);
   if (!ms.length) return placeholder(slide, box, spec);
-  const now = num(spec.now, 0);
+  const now = num(spec.now, 0), missing = num(spec.missing, 0);
   const mid = box.y + box.h * 0.4;
   const pad = 0.6;
-  line(slide, box.x + pad, mid, box.w - 2 * pad, 0, K.border, { width: 3 });
   const segW = (box.w - 2 * pad) / Math.max(ms.length - 1, 1);
+  const xs = ms.map((_, k) => box.x + pad + k * segW);
+  for (let k = 0; k < ms.length - 1; k++) {
+    const dashed = k + 2 === missing;
+    line(slide, xs[k], mid, segW, 0, dashed ? K.muted : K.border, { width: 3, dash: dashed ? "dash" : "solid" });
+  }
   const labelW = Math.min(segW, box.w / 2) - 0.1;
   ms.forEach((label, k) => {
-    const cx = box.x + pad + k * segW;
-    const active = k + 1 === now;
-    circle(slide, cx - 0.15, mid - 0.15, 0.3, active ? K.support : K.main);
+    const cx = xs[k];
+    const active = k + 1 === now, hollow = k + 1 === missing;
+    if (hollow) slide.addShape(pres.shapes.OVAL, { x: cx - 0.15, y: mid - 0.15, w: 0.3, h: 0.3, fill: { color: K.surface }, line: { color: K.support, width: 2, dashType: "dash" } });
+    else circle(slide, cx - 0.15, mid - 0.15, 0.3, active ? K.support : K.main);
     const above = k % 2 === 0;
     const lx = Math.min(Math.max(cx - labelW / 2, box.x), box.x + box.w - labelW);
     const lb = { x: lx, y: above ? mid - 0.95 : mid + 0.25, w: labelW, h: 0.7 };
-    text(slide, label, lb, { size: 14, min: 12, bold: active, color: active ? K.support : K.ink, align: "center", valign: above ? "bottom" : "top" });
-    if (active && spec.marker) {
+    text(slide, label, lb, { size: 14, min: 12, bold: active || hollow, color: active || hollow ? K.support : K.ink, align: "center", valign: above ? "bottom" : "top" });
+    if (spec.marker && (missing ? hollow : active)) {
       line(slide, cx, mid + 0.95, 0, 0.3, K.support, { dash: "dash", width: 2 });
       const mw = labelW + 0.8, mx = Math.min(Math.max(cx - mw / 2, box.x), box.x + box.w - mw);
       text(slide, spec.marker, { x: mx, y: mid + 1.3, w: mw, h: 0.5 },
@@ -344,17 +371,21 @@ visuals["two-column"] = (slide, box, spec, unit) => {
   const rowH = rows.length ? Math.min(1.3, (maxCardH - headH - 0.3) / rows.length) : 0;
   const cardH = Math.min(maxCardH, headH + 0.3 + rows.length * rowH);
   const icons = items(spec.icons);
+  // `hues: main; support` colors each side (main | support | spark); default: the preferred side in main, the other muted
+  const hueOf = { main: K.main, support: K.support, spark: K.spark };
+  const hues = items(spec.hues).map((h) => hueOf[h.trim()] || K.main);
   [left, right].forEach((head, side) => {
     const x = box.x + side * (colW + G);
+    const hue = hues[side] || (side === prefer ? K.main : K.muted);
     rect(slide, { x, y: box.y, w: colW, h: cardH }, side === prefer ? K.surface : K.alt, { line: K.border });
     const ix = icons[side] ? 0.6 : 0;
-    if (icons[side]) badge(slide, x + padX, box.y + 0.12, 0.45, side === prefer ? K.main : K.muted, { icon: icons[side] });
+    if (icons[side]) badge(slide, x + padX, box.y + 0.12, 0.45, hue, { icon: icons[side] });
     text(slide, head, { x: x + padX + ix, y: box.y + 0.2, w: colW - 2 * padX - ix, h: headH - 0.2 },
-      { font: FONT.display, size: 20, min: 16, bold: true, color: side === prefer ? K.main : K.muted });
+      { font: FONT.display, size: 20, min: 16, bold: true, color: hue });
     rows.forEach((r, k) => {
       const ry = box.y + headH + 0.1 + k * rowH;
       const mark = side === prefer;
-      if (mark) numberBadge(slide, "✓", x + padX, ry + 0.05, 0.32, K.main, 12);
+      if (mark) badge(slide, x + padX, ry + 0.05, 0.32, hues[side] || K.main, { n: "✓", pt: 12, icon: "check" });
       text(slide, r[side] || "", { x: x + padX + (mark ? 0.5 : 0), y: ry, w: colW - 2 * padX - (mark ? 0.5 : 0), h: rowH - 0.15 },
         { size: 15, min: 12, color: K.ink });
     });
@@ -385,7 +416,7 @@ visuals.table = (slide, box, spec, unit, o = {}) => {
 function drawTable(slide, box, columns, rows, o = {}) {
   const n = columns.length;
   const colW = o.colW || columns.map((_, k) => (k === 0 && n > 1 ? box.w * 0.3 : (box.w * 0.7) / (n - 1)));
-  const pad = 0.08;
+  const pad = o.pad == null ? 0.08 : o.pad;
   let pt = o.size || 14, heights = [];
   for (const cand of sizesDown(o.size || 14, MIN_PT, 1)) {
     pt = cand;
@@ -418,7 +449,8 @@ visuals.stat = (slide, box, spec, unit) => {
   let stats = items(spec.stats).map(cells).slice(0, 3);
   if (!stats.length) stats = unit.body.slice(0, 3).map((b) => { const m = b.match(/^([<>]?\s?\$?\d[\d,.]*\s?[%kKMBx+]*|[<>]\s?\d+)\s*(.*)$/); return m ? [m[1].trim(), m[2]] : [b, ""]; });
   const cardW = (stats.length ? (box.w - G * (stats.length - 1)) / stats.length : box.w);
-  const hues = stats.length === 2 ? [K.main, K.support] : [K.main, K.spark, K.support];
+  const hl = num(spec.highlight, 0);
+  const hues = stats.map((_, k) => (k + 1 === hl ? K.support : K.main));
   stats.forEach(([value, caption], k) => {
     const x = box.x + k * (cardW + G);
     card(slide, { x, y: box.y, w: cardW, h: box.h });
@@ -434,18 +466,37 @@ visuals.stat = (slide, box, spec, unit) => {
 };
 
 visuals.panels = (slide, box, spec) => {
+  // Cards in a row: one badge (icon or number), a name, a detail. Cards size to their content and center in the
+  // box; every badge is in the main hue, `highlight: n` puts one in the support hue. A name that opens with a
+  // number ("3 specs") renders as a count: the figure large in the display face, the noun beneath.
   const list = items(spec.items).map(cells).slice(0, 4);
   if (!list.length) return placeholder(slide, box, spec);
   const icons = items(spec.icons);
-  const hues = [K.main, K.spark, K.support, K.main];
+  const hl = num(spec.highlight, 0);
   const cardW = (box.w - G * (list.length - 1)) / list.length;
+  const d = Math.min(1.0, cardW * 0.45);
+  const counts = list.map(([name]) => name.match(/^([<>]?\s?\$?\d[\d,.]*\s?[%kKMBx+]*)\s+(.+)$/));
+  const isCount = counts.every(Boolean);
+  const detailH = Math.max(...list.map(([, detail]) =>
+    detail ? fitParagraphs([detail], { w: cardW - 0.3, h: 9 }, { font: FONT.body, sizes: [13] }).height : 0));
+  const nameH = isCount ? 1.05 : 0.5;
+  const cardH = Math.min(box.h, 0.5 + d + 0.25 + nameH + (detailH ? detailH + 0.2 : 0) + 0.4);
+  const y0 = box.y + (box.h - cardH) / 2;
   list.forEach(([name, detail], k) => {
     const x = box.x + k * (cardW + G);
-    card(slide, { x, y: box.y, w: cardW, h: box.h });
-    const d = Math.min(1.0, cardW * 0.45);
-    badge(slide, x + (cardW - d) / 2, box.y + 0.5, d, hues[k], { n: k + 1, pt: 24, icon: icons[k] });
-    text(slide, name, { x: x + 0.08, y: box.y + d + 0.75, w: cardW - 0.16, h: 0.5 }, { size: 16, min: 12, bold: true, align: "center" });
-    text(slide, detail || "", { x: x + 0.15, y: box.y + d + 1.3, w: cardW - 0.3, h: box.h - d - 1.5 }, { size: 13, min: 12, color: K.muted, align: "center" });
+    const hue = k + 1 === hl ? K.support : K.main;
+    card(slide, { x, y: y0, w: cardW, h: cardH });
+    badge(slide, x + (cardW - d) / 2, y0 + 0.5, d, hue, { n: k + 1, pt: 24, icon: icons[k] });
+    const ny = y0 + 0.5 + d + 0.25;
+    if (isCount) {
+      text(slide, counts[k][1], { x: x + 0.08, y: ny, w: cardW - 0.16, h: 0.65 },
+        { font: FONT.display, size: 36, min: 24, step: 4, bold: true, color: hue, align: "center", valign: "middle" });
+      text(slide, counts[k][2], { x: x + 0.08, y: ny + 0.65, w: cardW - 0.16, h: 0.4 }, { size: 14, min: 12, bold: true, align: "center" });
+    } else {
+      text(slide, name, { x: x + 0.08, y: ny, w: cardW - 0.16, h: nameH }, { size: 16, min: 12, bold: true, align: "center" });
+    }
+    if (detail) text(slide, detail, { x: x + 0.15, y: ny + nameH + 0.1, w: cardW - 0.3, h: detailH + 0.1 },
+      { size: 13, min: 12, color: K.muted, align: "center" });
   });
 };
 
@@ -515,15 +566,15 @@ visuals["layer-stack"] = (slide, box, spec, unit) => {
   const icons = items(spec.icons), details = items(spec.details);
   const byLabel = new Map(unit.body.map(splitLabel).map(([l, d]) => [l.toLowerCase(), d]));
   const hl = num(spec.highlight, 0);
-  const capH = spec.caption ? 0.5 : 0;
-  const gap = 0.3;
+  const capH = spec.caption ? 0.45 : 0;
+  const gap = 0.24;
   const bandH = Math.min(0.95, (box.h - capH - gap * (layers.length - 1)) / layers.length);
   const labelW = Math.min(3.2, box.w * 0.34);
   layers.forEach((label, k) => {
     const y = box.y + k * (bandH + gap);
     const active = k + 1 === hl;
     rect(slide, { x: box.x, y, w: box.w, h: bandH }, active ? K.support : K.main, { radius: 0.08 });
-    const d = Math.min(0.5, bandH - 0.3);
+    const d = Math.min(0.42, bandH - 0.18);   // an icon under 0.3in is a smudge; bands stay tall enough for one
     let tx = box.x + 0.25;
     if (icons[k]) { badge(slide, tx, y + (bandH - d) / 2, d, K.white, { icon: icons[k], shape: "none" }); tx += d + 0.15; }
     text(slide, label, { x: tx, y: y + 0.1, w: box.x + labelW - tx, h: bandH - 0.2 },
@@ -535,7 +586,7 @@ visuals["layer-stack"] = (slide, box, spec, unit) => {
       fill: { color: K.muted }, line: { color: K.muted } });
   });
   if (spec.caption) text(slide, spec.caption, { x: box.x, y: box.y + box.h - capH + 0.05, w: box.w, h: capH - 0.05 },
-    { size: 13, min: 12, bold: true, color: K.support, align: "center", valign: "bottom" });
+    { size: 13, min: 12, color: K.muted, align: "center", valign: "bottom" });   // the highlighted band is the one accent
 };
 
 visuals.cycle = (slide, box, spec, unit) => {
@@ -551,11 +602,11 @@ visuals.cycle = (slide, box, spec, unit) => {
   const rx = Math.min(box.w / 2 - pillW / 2 - 0.05, ry * 1.7);   // keep the ring a plausible ellipse on a wide box
   // the ring is a guide: it passes behind the pills, so deck-qa skips it (name starts with "guide")
   slide.addShape(pres.shapes.OVAL, { x: cx - rx, y: cy - ry, w: 2 * rx, h: 2 * ry, fill: { type: "none" },
-    line: { color: K.border, width: 3, dashType: "dash" }, objectName: "guide ring" });
+    line: { color: K.border, width: 2 }, objectName: "guide ring" });
   const centerW = Math.min(3.0, 2 * rx - pillW - 0.8);
   if (spec.center && centerW > 1) text(slide, spec.center, { x: cx - centerW / 2, y: cy - 0.5, w: centerW, h: 1.0 },
     { font: FONT.display, size: 22, min: 12, bold: true, color: K.main, align: "center", valign: "middle" });
-  const arrow = iconData("arrow-right", K.muted);
+  const arrow = iconData("arrow-right", K.ink);
   steps.forEach((label, k) => {
     const th = -Math.PI / 2 + (2 * Math.PI * k) / steps.length;
     const nx = cx + rx * Math.cos(th), ny = cy + ry * Math.sin(th);
@@ -569,7 +620,7 @@ visuals.cycle = (slide, box, spec, unit) => {
     text(slide, label, { x: tx, y: py + 0.05, w: px + pillW - tx - 0.15, h: pillH - 0.1 },
       { size: 14, min: 12, bold: true, color: K.white, valign: "middle" });
     if (arrow) {
-      const tm = th + Math.PI / steps.length, ad = 0.28;
+      const tm = th + Math.PI / steps.length, ad = 0.34;
       slide.addImage({ data: arrow, x: cx + rx * Math.cos(tm) - ad / 2, y: cy + ry * Math.sin(tm) - ad / 2, w: ad, h: ad,
         rotate: ((Math.round((tm * 180) / Math.PI + 90) % 360) + 360) % 360, objectName: "guide arrow" });
     }
@@ -593,12 +644,12 @@ visuals.hub = (slide, box, spec, unit) => {
   const trunkX = hx + hubW + 0.45, listX = trunkX + 0.45, d = 0.5;
   const rowH = Math.min(0.85, (box.h - capH) / spokes.length);
   const top = box.y + ((box.h - capH) - rowH * spokes.length) / 2;
-  line(slide, hx + hubW, hy + hubH / 2, trunkX - hx - hubW, 0, K.border, { width: 1.5 });
-  if (spokes.length > 1) line(slide, trunkX, top + rowH / 2, 0, rowH * (spokes.length - 1), K.border, { width: 1.5 });
+  line(slide, hx + hubW, hy + hubH / 2, trunkX - hx - hubW, 0, K.muted, { width: 1.5 });
+  if (spokes.length > 1) line(slide, trunkX, top + rowH / 2, 0, rowH * (spokes.length - 1), K.muted, { width: 1.5 });
   spokes.forEach(([label, detail], k) => {
     const y = top + k * rowH, my = y + rowH / 2;
     const active = k + 1 === hl;
-    line(slide, trunkX, my, listX - trunkX - 0.03, 0, K.border, { width: 1.5 });
+    line(slide, trunkX, my, listX - trunkX - 0.03, 0, K.muted, { width: 1.5 });
     badge(slide, listX, my - d / 2, d, active ? K.support : K.main, { n: k + 1, icon: icons[k], pt: 13 });
     const tx = listX + d + 0.2, tw = box.x + box.w - tx;
     if (detail) {
@@ -716,7 +767,7 @@ layouts["claim-evidence"] = (unit) => {
     const box = { x: lb.x, y: BODY_Y, w: lb.w, h: BODY_H };
     let take = rest.length;
     while (take > 1 && !fitParagraphs(rest.slice(0, take), box, { font: FONT.body, sizes: [14], paraGap: 0.6, indentIn: 0.3 }).fits) take--;
-    if (take) bulletList(s, rest.slice(0, take), box);
+    if (take) bulletList(s, rest.slice(0, take), box, { size: bcols <= 4 ? 16 : SCALE.slide_body });
     drawVisual(s, { x: rb.x, y: BODY_Y, w: rb.w, h: BODY_H }, unit);
     rest = rest.slice(take);
     page++;
@@ -792,8 +843,11 @@ layouts["ask-next-steps"] = (unit) => {
   const icons = items(spec.icons);
   const steps = unit.body.slice(0, -1), consequence = unit.body[unit.body.length - 1] || "";
   const bandH = 0.85;
+  const bandText = spec.ask || unit.title;   // the band carries the decision in the room's terms; repeating the title is reported
+  if (!spec.ask) warnings.push(`unit ${unit.n}: the ask band has no 'ask:' field, so it repeats the title; give the band the decision in the room's terms`);
   rect(s, { x: M, y: BODY_Y, w: W - 2 * M, h: bandH }, K.support);
-  text(s, spec.ask || unit.title, { x: M + 0.3, y: BODY_Y, w: W - 2 * M - 0.6, h: bandH }, { size: 18, min: 14, bold: true, color: K.white, valign: "middle" });
+  text(s, bandText, { x: M + 0.3, y: BODY_Y, w: W - 2 * M - 0.6, h: bandH },
+    { size: 18, min: 14, bold: true, color: K === PAL.dark ? PAL.dark.surface : K.white, valign: "middle" });   // ink-dark on the light band keeps 4.5:1
   const stepB = grid(1, 8), ownerB = grid(9, 2), dateB = grid(11, 2);
   const headY = BODY_Y + bandH + 0.3;
   [["Step", stepB], ["Owner", ownerB], ["Date", dateB]].forEach(([h, b]) =>
@@ -820,7 +874,7 @@ layouts["appendix-sources"] = (unit, deck) => {
     const s = newSlide(unit, { noMarker: true, noSourceFooter: true, titleOverride: page ? unit.title + " (continued)" : unit.title, noNotes: page > 0 });
     const box = { x: M, y: BODY_Y, w: W - 2 * M, h: BODY_H };
     rows = drawTable(s, box, ["Id", "Claim or figure", "Governing artifact and section"], rows,
-      { size: 12, colW: [0.6, (box.w - 0.6) * 0.62, (box.w - 0.6) * 0.38], boldFirst: true });
+      { size: 12, colW: [0.55, (box.w - 0.55) * 0.6, (box.w - 0.55) * 0.4], boldFirst: true, pad: 0.05 });
     page++;
   } while (rows.length && page < 6);
   if (rows.length) problems.push(`sources: ${rows.length} row(s) did not fit in 6 appendix slides and were dropped`);
@@ -840,6 +894,7 @@ for (const unit of deck.units) {
 }
 pres.writeFile({ fileName: outPath }).then(() => {
   console.log(`wrote ${outPath} (${slideCount} slides from ${deck.units.length} units; look ${lookId}: ${FONT.display}/${FONT.body}, ${SURF})`);
+  for (const m of warnings) console.error(`render-deck.js: warning: ${m}`);
   if (problems.length) {
     for (const m of problems) console.error(`render-deck.js: ${m}`);
     console.error(`render-deck.js: ${problems.length} problem(s); the file was written so deck-qa.py can show them, but the render is not clean`);

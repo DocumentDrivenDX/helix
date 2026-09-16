@@ -246,6 +246,24 @@ def check_slide(n: int, shapes: list[dict], W: float, H: float, add) -> None:
 
 
 # ---------------------------------------------------------------- raster
+def missing_fonts(deck: Path) -> list[str]:
+    """Typefaces named in the slides that fc-list does not know on this host (empty when fc-list is absent)."""
+    fc = shutil.which("fc-list")
+    if not fc:
+        return []
+    try:
+        installed = {l.strip().lower() for l in subprocess.run([fc, ":", "family"], capture_output=True, text=True, timeout=30).stdout.replace(",", "\n").splitlines()}
+    except (subprocess.SubprocessError, OSError):
+        return []
+    used: set[str] = set()
+    with zipfile.ZipFile(deck) as z:
+        for name in z.namelist():
+            if re.fullmatch(r"ppt/slides/slide\d+\.xml", name):
+                used |= set(re.findall(r'typeface="([^"]+)"', z.read(name).decode("utf-8", "ignore")))
+    absent = sorted(f for f in used if f.lower() not in installed and f not in ("+mn-lt", "+mj-lt"))
+    return [f"font not installed on this host: {f}; the raster substitutes it, so text fit on it is approximate" for f in absent]
+
+
 def find_soffice() -> str | None:
     for c in SOFFICE_CANDIDATES:
         p = shutil.which(c) or (c if os.path.isfile(c) else None)
@@ -339,11 +357,13 @@ def main() -> int:
             if sig == prev_sig:
                 add(n, "WARNING", "repeated-layout", "same layout signature as the previous slide")
             prev_sig = sig
+    # fonts the deck names that this host lacks: the raster substitutes and text fit is approximate there
+    font_notes = missing_fonts(deck)
     # geometry findings go out before rasterization so a raster failure never hides them
     if args.format == "text":
         for f in findings:
             print(f"slide {f['slide']:02d}  {f['severity']:<9} {f['check']:<18} {f['message']}", flush=True)
-    notes = [] if args.no_raster else rasterize(deck, Path(args.out) if args.out else deck.with_name(deck.stem + "-qa"), len(paths))
+    notes = font_notes + ([] if args.no_raster else rasterize(deck, Path(args.out) if args.out else deck.with_name(deck.stem + "-qa"), len(paths)))
 
     blocking = sum(1 for f in findings if f["severity"] == "BLOCKING")
     warning = len(findings) - blocking
