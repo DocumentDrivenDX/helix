@@ -23,6 +23,21 @@ names a data-pipeline artifact whose blocker is an infra prerequisite).
    before returning the next action.
 6. End with the `modes/_report.md` block, `mode: check`.
 
+## Flow disambiguation
+
+Applies at activation (SKILL.md §Activation Discipline step 3) before any
+routing:
+
+- **Several distinct flows and an ambiguous verb** (for example `helix` and
+  `helix-infra`, prompt "plan the rollout"): resolve cwd-under-root →
+  `defaults.flow` → single entry. If none resolves, emit the disambiguation
+  banner naming both candidate flows with their roots and ask which applies.
+  Do not silently pick one, and do not route to the infra lane under `helix`
+  because the prompt contains an infra-adjacent noun.
+- **Several helix instances** (`instance:` values with different roots): if
+  cwd lies inside exactly one root, choose it and say so; otherwise emit the
+  banner listing instances and roots, then stop until the operator chooses.
+
 ## Cross-flow ask — owner-flow first, then prerequisite fan-out
 
 A **cross-flow ask** is any prompt whose answer requires consulting more
