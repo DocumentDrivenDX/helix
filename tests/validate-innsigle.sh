@@ -25,13 +25,26 @@ keys_json=".innsigle/public/keys.json"
 site_dir="website/public"
 base_url="https://documentdrivendx.github.io/helix/"
 
+# Locally the gate skips (exit 0, with a message) when Hugo or the innsigle CLI is not available, so `just test`
+# stays runnable on a host without them; CI sets INNSIGLE_REQUIRED=1 and a skip becomes a failure there.
+skip() { if [ "${INNSIGLE_REQUIRED:-0}" = 1 ]; then echo "FAIL: $*" >&2; exit 1; fi; echo "SKIP: innsigle gate: $*"; exit 0; }
+command -v hugo >/dev/null || skip "hugo not installed"
 if command -v innsigle >/dev/null; then
   INNSIGLE=(innsigle)
 else
   INNSIGLE=(npx --yes --package=github:DocumentDrivenDX/innsigle innsigle)
+  "${INNSIGLE[@]}" --help >/dev/null 2>&1 || skip "innsigle CLI not resolvable (npx needs network, or install it globally)"
 fi
 
 [ -f "$keys_json" ] || { echo "FAIL: $keys_json missing" >&2; exit 1; }
+
+# No claims at all means the one-time key ceremony has not run; say that in three lines instead of one per page.
+if [ -z "$(find "$claims_dir" -name '*.attestation.json' -print -quit 2>/dev/null)" ]; then
+  echo "FAIL: no claims under $claims_dir; the site has never been sealed." >&2
+  echo "  1. npx --package=github:DocumentDrivenDX/innsigle innsigle init --onepassword --site-url $base_url" >&2
+  echo "  2. just innsigle-seal   3. git add .innsigle/public && git commit" >&2
+  exit 1
+fi
 
 fail=0
 pages=0 valid=0 missing=0 stale=0 badsig=0
@@ -41,7 +54,7 @@ while IFS= read -r -d '' f; do
   slug="$(printf '%s' "$rel" | sed -E 's/[^a-zA-Z0-9]+/-/g; s/^-+//; s/-+$//')"
   att="$claims_dir/$slug.attestation.json"
   if [ ! -f "$att" ]; then
-    echo "UNSEALED: $rel" >&2; missing=$((missing+1)); continue
+    missing=$((missing+1)); [ "$missing" -le 20 ] && echo "UNSEALED: $rel" >&2; continue
   fi
   digest="$(openssl dgst -sha256 -r "$f" | cut -d' ' -f1)"
   if [ "$(jq -r '.payload.subjects[0].digest.value' "$att")" != "$digest" ]; then
@@ -53,8 +66,19 @@ while IFS= read -r -d '' f; do
   valid=$((valid+1))
 done < <(find "$content_root" -name '*.md' -type f -print0 | sort -z)
 
-echo "claims: $pages pages, $valid valid, $missing unsealed, $stale stale, $badsig bad signature"
-[ $((missing+stale+badsig)) -eq 0 ] || fail=1
+[ "$missing" -gt 20 ] && echo "... and $((missing-20)) more unsealed pages" >&2
+# Orphans: a claim whose page no longer exists would still be published under /.well-known; the seal script removes them.
+orphans=0
+for att in "$claims_dir"/*.attestation.json; do
+  [ -f "$att" ] || continue
+  slug="$(basename "$att" .attestation.json)"
+  if ! find "$content_root" -name '*.md' -type f -print0 | while IFS= read -r -d '' f; do
+       rel="${f#"$content_root"/}"; [ "$(printf '%s' "$rel" | sed -E 's/[^a-zA-Z0-9]+/-/g; s/^-+//; s/-+$//')" = "$slug" ] && exit 0; done; then
+    echo "ORPHAN: $att names no current page (run just innsigle-seal to remove it)" >&2; orphans=$((orphans+1))
+  fi
+done
+echo "claims: $pages pages, $valid valid, $missing unsealed, $stale stale, $badsig bad signature, $orphans orphan claims"
+[ $((missing+stale+badsig+orphans)) -eq 0 ] || fail=1
 
 echo "Building site..."
 hugo_err="$(mktemp)"
@@ -81,7 +105,7 @@ while IFS= read -r -d '' f; do
   if [ -f "$html" ] && grep -q 'innsigle-colophon' "$html"; then
     rendered=$((rendered+1))
   else
-    echo "NO SEAL RENDERED: $rel -> $html" >&2; unrendered=$((unrendered+1))
+    unrendered=$((unrendered+1)); [ "$unrendered" -le 20 ] && echo "NO SEAL RENDERED: $rel -> $html" >&2
   fi
 done < <(find "$content_root" -name '*.md' -type f -print0 | sort -z)
 echo "rendered: $rendered pages with a seal, $unrendered without"
