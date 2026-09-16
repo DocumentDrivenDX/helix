@@ -1,7 +1,7 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable test-headline-sync test-deck-render
+test: test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable test-headline-sync test-deck-render test-demos
 
 # Serve the HELIX microsite at the canonical local review URL.
 website-serve:
@@ -104,13 +104,10 @@ genie-verify:
 install-test:
     bash tests/install/run-all.sh
 
-# Validate helix-family bench fixture structure (stdlib-only walker)
-test-family-fixtures-structure:
-    python3 tests/family/validate_fixture_structure.py
-
-# Dry-run a single helix-family bench fixture (no claude invocation yet)
-test-family-fixture-dry-run FIXTURE:
-    python3 tests/family/run_fixture.py {{FIXTURE}}
+# Validate demo session records, renders, and the assertions parser
+test-demos:
+    bash tests/validate-demos.sh
+    PYTHONPATH=. python3 tests/test_check_assertions_parser.py
 
 # Show test count
 count:

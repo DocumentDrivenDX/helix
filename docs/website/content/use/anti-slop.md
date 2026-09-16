@@ -117,22 +117,30 @@ Beyond titles, `check-deliverable.py` blocks on:
 - A number in a body that does not appear in the Sources table, single digits
   excepted. A unit that cites no source, or cites a source row that does not
   exist.
-- Placeholder text anywhere: `[TODO]`, `TBD`, `[Fill in]`, `[...]`, a
-  bracketed capitalized phrase.
+- Placeholder text anywhere: `[TODO]`, `TBD`, `[Fill in]`, `[...]`. A
+  bracketed capitalized phrase that is not a link is a warning, since it is
+  usually a template slot left behind.
 - A visual that is one generic word (`chart`, `diagram`, `none`) or fewer than
   six words. The spec must say what it shows, its series, and its source.
+- A Visual spec cut short by a period inside a field value (`Sept. 2026`,
+  `e.g.`): the fields after it would be read as prose and the figure drawn
+  wrong, so the checker blocks and the renderer reports it.
 - Coverage. The Brief declares breadth as `survey` or `deep-dive`; the Story
   carries a concept coverage table where every group is `covered` or
   `omitted`, and an omitted group has a reason of at least three words. A
   survey covers at least five groups. Every must-cover concept shares a content
   word with a covered group; no must-omit concept appears in a title or body.
 - Order. A deck opens with the `title` pattern and closes with `ask-next-steps`
-  then `appendix-sources`. The Render section names a rendered file and records
-  that a person inspected the slides.
+  then `appendix-sources`. The Render section names a rendered file; a Render
+  section that does not record an inspection is a warning, so a host without
+  the render toolchain can still ship the script and say what it did not
+  produce.
 
 It warns on pattern limits from `slide-patterns.yml` (bullets, words per
 bullet, body words, title words), more than two consecutive units of one
-pattern, more than twelve content slides, and a missing export list.
+pattern, more than twelve content slides, a missing export list, and
+methodology terms an audience would need defined (`concern`, `stop trigger`,
+`autonomy level`, `quality floor`, `framing`, `mode`).
 
 ## Prose lint
 
@@ -146,15 +154,20 @@ with a shorter form (`in order to`).
 ## The visual gate
 
 `deck-qa.py` reads the slide file's shapes and reports per slide. Blocking: a
-shape past the slide edge, a text box that needs more height than it has (an
-autofit box that fits after shrinking to three quarters of its size is a
-warning instead), two text shapes that overlap, a table that grows past the
-bottom margin. Warnings: a shape inside the half-inch margin, type below twelve
-points outside the footer band, text crossing another shape's edge, a line
-through text, a table taller than declared, and a slide with the same layout
-as the one before it. With LibreOffice and `pdftoppm` present it also renders
-every slide to an image and a labeled contact sheet; the mode requires a
-person to look at those images before the deck passes.
+shape past the slide edge, a text box that needs more height than it has, an
+autofit box whose shrink would land below twelve points, two text shapes that
+overlap, a table that grows past the bottom margin. Warnings: an autofit box
+that fits after a shrink that stays above twelve points, a shape inside the
+half-inch margin, type below twelve points outside the footer band, text
+crossing another shape's edge, a line through text, a table taller than
+declared, and a slide with the same layout as the one before it. It also notes
+any typeface the deck names that the host lacks, since the raster substitutes
+it and text fit there is approximate. With LibreOffice and `pdftoppm` present
+it renders every slide to an image and a labeled contact sheet; the mode
+requires a person to look at those images before the deck passes. The
+renderer itself refuses to be silent: a table row that cannot fit, text that
+cannot fit at the floor, or a cut Visual spec is reported and the render exits
+non-zero after writing the file, so the file can still be inspected.
 
 ## What the rules do not catch
 
