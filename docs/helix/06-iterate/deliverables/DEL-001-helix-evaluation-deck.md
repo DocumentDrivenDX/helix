@@ -45,7 +45,7 @@ ddx:
 ## Story
 
 - **Flow**: evaluation-briefing
-- **Takeaway**: one discipline governs agent work from intent to release
+- **Takeaway**: one discipline governs agent work from intent to release, and your agents can have it without changing the tools you run
 - **Messages** (ranked by how much each moves the decision to run a trial):
   1. Teams working with agents lose the disciplines human teams built; specs, designs, and decisions drift until review catches it (evidence: docs/helix/00-discover/product-vision.md#why-now; docs/helix/01-frame/prd.md#problem)
   2. HELIX is a method, not a platform: 53 document templates across a seven-activity loop, and one skill that routes twenty-one modes over those documents (evidence: docs/helix/01-frame/prd.md#summary; workflows/README.md#activities; skills/helix/SKILL.md#routing-rules)
@@ -57,19 +57,19 @@ ddx:
   | # | Beat | Title (claim) | Message | Exhibit |
   |---|---|---|---|---|
   | 1 | takeaway | One discipline governs agent work from intent to release | takeaway | title slide, layers icon in the hero marker |
-  | 2 | what-changed | Agents now write most production code | M1 | novelty-to-default timeline with the gap marked |
+  | 2 | what-changed | Most developers ship agent-touched code every day | M1 | novelty-to-default timeline, the missing milestone hollow |
   | 3 | cost-of-today | Agent code drifts without a shared practice | M1 | three failure panels with icons |
   | 4 | what-it-is | HELIX is the shared practice, built from templates | M2 | seven-activity cycle, template count in the ring |
   | 5 | what-it-is | One skill reads the templates and routes each request | M2 | hub and four mode spokes, alignment highlighted |
   | 6 | how-it-works | Each template layer governs the layer below | M3 | five-band layer stack, code highlighted |
-  | 7 | what-changes | Concerns and gates carry control across layers | M3 | without and with layered control, two columns |
+  | 7 | what-changes | Shared choices and gates carry control across layers | M3 | without and with layered control, two columns |
   | 8 | what-changes | Those same layers produce the documents sponsors read | M5 | three outputs as an icon list |
-  | 9 | proof | One gate caught five affected documents before coding | M3 | four count panels from the worked example |
-  | 10 | boundaries | People decide and agents draft at every gate | M4 | people hold versus agents hold, two columns |
+  | 9 | proof | In the worked example, one gate flags six documents | M3 | four count panels from the vision's worked example, labeled as such |
+  | 10 | boundaries | People decide and agents draft at every gate | M4 | people hold versus agents hold, two columns; the verdict names what HELIX does not ship or do |
   | 11 | ask | Pilot HELIX for one quarter and count what gates catch | takeaway | ask band and three steps |
   | 12 | sources | Sources | all | source table |
 
-- **Concept coverage** (every group the inventory surfaced, in authority order; inventory: 56 documents, three passes: recurring concepts, catalog structure, roles and hand-offs, plus the authority floor of top-ranked headings):
+- **Concept coverage** (every group the inventory surfaced, in authority order; inventory: 158 documents across the Brief's scope, three passes: recurring concepts, catalog structure, roles and hand-offs, plus the authority floor of top-ranked headings):
 
   | # | Concept group | Authority | Status | Carried by / reason |
   |---|---|---|---|---|
@@ -86,8 +86,10 @@ ddx:
   | 11 | Self-application: HELIX's own architecture, contracts with DDx, tracker data design | architecture, CONTRACT-001 to 003, data-design | omitted | audience: internal engineering detail of how HELIX builds itself, not what an adopter gets |
   | 12 | The public microsite and demos | FEAT-007, FEAT-012 | omitted | audience: marketing surface, not the method |
   | 13 | Success targets (findings per run, runtimes, repositories) | vision, PRD | covered | ask, as the measure of the trial |
+  | 14 | The concern library's own anatomy: categories, areas, boundaries, drift signals, artifact impact (86 documents) | concerns library | omitted | audience: the internal structure of the practice library; the deck carries shared choices at the level a leader decides them (slide 7) |
+  | 15 | Test-first and security integration as named practices | README authority floor | covered | M3, slide 6 (tests before code); security integration stays in the worked example on slide 9 |
 
-- **Horizontal-logic test**: pass after the second headline pass. The first pass left titles of ten to twelve words that counted the catalog ("53 document templates", "twenty-one modes") and carried filler ("also"); the rewrite holds every title to ten words or fewer, moves the counts into bodies, and keeps one shared word between neighbors: agent (1 to 3), practice (3, 4), templates (4, 5), layer (5 to 8), documents (8, 9), gate (9 to 11). Read in order, the titles move from the audience's change (2) to its cost (3), to what HELIX is (4, 5), how the layers control the work (6, 7), what comes out for people (8), proof at one gate (9), who decides at every gate (10), and a trial that counts what the gates catch (11).
+- **Horizontal-logic test**: pass after the second headline pass. The first pass left titles of ten to twelve words that counted the catalog ("53 document templates", "twenty-one modes") and carried filler ("also"); the rewrite holds every title to ten words or fewer, moves the counts into bodies, and keeps one shared word between neighbors: agent (1 to 3), practice (3, 4), templates (4, 5), layer (5 to 8), documents (8, 9), gate (9 to 11); slide 9 names itself a worked example so the proof is not read as a customer result. Read in order, the titles move from the audience's change (2) to its cost (3), to what HELIX is (4, 5), how the layers control the work (6, 7), what comes out for people (8), proof at one gate (9), who decides at every gate (10), and a trial that counts what the gates catch (11).
 
 ## Content
 
@@ -100,25 +102,25 @@ ddx:
 **Notes**: Say the takeaway once, then say the ask comes on the last slide and is one project for one quarter. Do not explain HELIX yet.
 **Sources**: S1
 
-### 2. Agents now write most production code
+### 2. Most developers ship agent-touched code every day
 
 **Pattern**: claim-evidence
 **Body**:
-- Most professional developers ship agent-written code every day
+- Most professional developers ship AI-touched code daily
 - The output is locally good and globally inconsistent
 - The document disciplines human teams built never reached the agents
 - Every practice era gets its equivalent of test-driven development
-**Visual**: kind: timeline | milestones: agents as novelty; agents as default practice; a shared practice for agents | now: 2 | marker: no shared practice yet | split: narrow | caption: how agent-written code became the default before any discipline caught up. Timeline drawn from the vision's Why Now section
-**Notes**: Name the change; do not argue it. This audience lives it. The missing third milestone is the deck.
+**Visual**: kind: timeline | milestones: agents as novelty; agents as default practice; a shared practice for agents | now: 2 | missing: 3 | marker: not yet | split: narrow | caption: agent-touched code became the default before any discipline caught up. Timeline drawn from the vision's Why Now section; the third milestone is hollow because it has not happened
+**Notes**: Name the change; do not argue it. This audience lives it. The vision's words are "AI-touched code daily", and that is the claim; the hollow third milestone is what the deck offers.
 **Sources**: S2
 
 ### 3. Agent code drifts without a shared practice
 
 **Pattern**: claim-evidence
 **Body**:
-- Specs, designs, and tests fall out of sync because nobody walks them between sessions
-- A feature ships whose design contradicts a decision recorded months earlier
-- Each new conversation re-improvises the workflow, so reviews get skipped
+- Drift surfaces in review, after the work, so each catch costs a rewrite
+- A contradiction with a recorded decision surfaces in production, where it costs an incident
+- A cold start costs the reviews nobody remembered to run
 **Visual**: kind: panels | items: Drift / specs and code diverge between sessions; Contradiction / a design ignores an earlier decision; Cold start / every session starts from zero | icons: trend-down; alert; loop | side: left. Three failure panels from the requirements document's problem statement, the visual on the left
 **Notes**: These are the three failure modes the requirements document names. Each shows up late, in review or in production, which is why the cost is high. Ask which one the audience saw last week.
 **Sources**: S3
@@ -131,8 +133,8 @@ ddx:
 - Seven activities from discovery to iteration, run as a loop
 - Every template is optional; teams adopt one type at a time
 - A method you adopt, with no platform to join
-**Visual**: kind: cycle | steps: Discover; Frame; Design; Test; Build; Deploy; Iterate | icons: compass; target; puzzle; check; code; cloud; loop | center: 53 templates. Seven-activity loop from the workflow's activity list, the template count at the center
-**Notes**: HELIX is a method you adopt, not a platform you join. Each template carries an authoring prompt and quality criteria, and the templates rank: vision governs requirements, requirements govern designs, designs govern tests and code. Every one of the 53 is optional; teams adopt one type at a time. Name the seven activities around the ring; the table of what each produces is in the appendix source.
+**Visual**: kind: cycle | steps: Discover; Frame; Design; Test; Build; Deploy; Iterate | icons: compass; target; puzzle; check; code; cloud; loop | center: 53 templates | caption: a method you adopt one template at a time, with no platform to join. Seven-activity loop from the workflow's activity list, the template count at the center
+**Notes**: Name the seven activities around the ring and say the templates rank: vision governs requirements, requirements govern designs, designs govern tests and code. The table of what each activity produces is in the appendix source.
 **Sources**: S4, S5
 
 ### 5. One skill reads the templates and routes each request
@@ -140,8 +142,8 @@ ddx:
 **Pattern**: claim-evidence
 **Body**:
 - A single skill installs on the agent runtime and reads the same documents
-- It routes each request to one of twenty-one modes
-- Alignment is the required mode; it finds drift and hands back a plan
+- It routes each request to one of twenty-one jobs, from vision to deck
+- The alignment check, which every team runs, finds drift and hands back a plan
 - The skill body is portable: no runtime commands, so it loads on any host
 **Visual**: kind: hub | center: One skill | spokes: Frame / vision, requirements, stories; Align / drift, gaps, contradictions; Evolve / thread one change through; Present / decks, briefs, reports | icons: target; search; route; presentation | highlight: 2 | split: narrow. Hub and four of the twenty-one modes from the routing table, alignment highlighted
 **Notes**: The team never invokes a HELIX command, because there is none. They invoke their agent, and the agent invokes the skill. The four spokes are the modes this audience will use first; the rest are in the appendix source.
@@ -160,17 +162,17 @@ ddx:
 **Notes**: This is the mechanism, not a filing order. An agent may act only within what the layer above authorizes. On one OAuth change the vision's worked example starts with the security architecture, then the specs, then the stories, and no code moves until then; slide 9 shows the count.
 **Sources**: S19, S20
 
-### 7. Concerns and gates carry control across layers
+### 7. Shared choices and gates carry control across layers
 
 **Pattern**: two-column-comparison
 **Body**:
 - Without layers: each agent re-decides the framework, the auth provider, the test approach per task
-- With layers: the team selects a concern once at framing and its practices propagate down
+- With layers: the team picks each shared choice once and every agent inherits it
 - Without layers: drift shows up in review or in production
-- With layers: entry and exit gates stop work moving down, and quality floors never slide back
-**Visual**: kind: two-column | left: Without layered control | right: With layered control | rows: Each agent re-decides framework, auth, and test approach per task / The team selects a concern once and its practices propagate down; Drift shows up in review or in production / Gates stop work moving down a layer; A claim of done goes unchecked / Every claim cites evidence a validator can check | prefer: right | icons: alert; shield | verdict: the rules live in the layers, not in a prompt. Two columns from the principles and the cross-cutting context
+- With layers: gates stop work moving down a layer, and a check that passed once stays required
+**Visual**: kind: two-column | left: Without layered control | right: With layered control | rows: Each agent re-decides framework, auth, and test approach per task / The team picks each shared choice once and every agent inherits it; Drift shows up in review or in production / Gates stop work moving down a layer; A claim of done goes unchecked / Every claim cites evidence a validator can check | prefer: right | icons: alert; shield | verdict: the rules live in the layers, not in a prompt. Two columns from the principles and the cross-cutting context
 **Notes**: Fifty concerns in the library, each with practices keyed to the activity they apply in. Exclusive slots (one frontend framework, one runtime, one auth provider) are why two agents cannot make two different choices. The artifact-honesty rule closes the loop: a claim without evidence blocks.
-**Sources**: S9, S11, S19
+**Sources**: S9, S10, S11, S12, S19
 
 ### 8. Those same layers produce the documents sponsors read
 
@@ -179,20 +181,20 @@ ddx:
 - Status report: for sponsors and clients, from the iteration plan, evidence per claim
 - Deck or brief: for executives and customers, from any governed set, every number sourced
 - Release notes: for users and support, from the deploy documents
-**Visual**: kind: icon-list | items: chart / Status report / for sponsors and clients, from the iteration plan, with evidence per claim; presentation / Deck or brief / for executives and customers, from any governed document set, every number sourced; flag / Release notes / for users and support, from the deploy documents | columns: 1. Three outputs from the iteration-documentation feature and the present mode, one icon each
+**Visual**: kind: icon-list | items: chart / Status report / for sponsors and clients, from the iteration plan, with evidence per claim; presentation / Deck or brief / for executives and customers, from any governed document set, every number sourced; box / Release notes / for users and support, from the deploy documents | columns: 3. Three outputs from the iteration-documentation feature and the present mode, one icon each
 **Notes**: The discipline is not only for engineers. A client cut of a status report may subset the internal one but never contradict it. Say that this deck is the worked example: its script, its sources, and its inspection record are in the repository.
 **Sources**: S16, S17
 
-### 9. One gate caught five affected documents before coding
+### 9. In the worked example, one gate flags six documents
 
 **Pattern**: claim-evidence
 **Body**:
-- A team asked its agent to add OAuth login
-- The alignment check found 3 affected feature specs and 2 affected designs
-- It flagged 1 recorded decision that conflicted with the OAuth pattern
-- It listed 4 missing user stories and 1 test plan to revise
-**Visual**: kind: panels | items: 3 specs / affected by the change; 1 decision / in conflict with OAuth; 4 stories / missing and now listed; 1 test plan / to revise first | icons: documents; alert; list; check. Four count panels from the vision's worked example
-**Notes**: This is the worked example in the product vision, not a customer result. Five affected documents: three feature specs and two designs, plus the conflicting decision and the missing stories. The order matters: the plan starts with the security architecture revision, then the specs, then the stories. The bar the product sets for itself, under 3 findings per check on a healthy project, is a target and belongs to the ask.
+- The product vision walks one change, adding OAuth login, through the alignment check
+- Six documents need work before code: 3 specs, 2 designs, the security architecture
+- It also flags 1 conflicting decision, 4 missing stories, and 1 test plan
+- The plan comes back in authority order: architecture first, then specs, stories, designs
+**Visual**: kind: panels | items: 3 specs / affected by the change; 2 designs / affected by the change; 1 decision / in conflict with OAuth; 4 stories / missing and now listed | icons: documents; puzzle; alert; list. Four count panels from the vision's worked example, which the title names as an example
+**Notes**: Say plainly that this is the worked example in the product vision, not a customer result; the trial in the ask is how the room gets its own number. Six documents: three feature specs, two solution designs, and the security architecture; the decision, the stories, and the test plan are on top. The order matters: the plan starts with the security architecture revision, then the specs, then the stories. The bar the product sets for itself, under 3 findings per check on a healthy project, is a target for a settled corpus, not for a first quarter.
 **Sources**: S8
 
 ### 10. People decide and agents draft at every gate
@@ -201,9 +203,9 @@ ddx:
 **Body**:
 - People hold intent, judgment, and approval: what to build, which decision stands, when work is complete
 - Agents hold throughput: drafting, checking, surfacing contradictions, recording evidence
-- The autonomy level sets when an agent pauses; stop triggers name what it never does unasked
+- A dial sets when agents pause, and a fixed list names what they never do
 - All of it runs on the team's existing runtime, tracker, and stack; HELIX ships none
-**Visual**: kind: two-column | left: People hold | right: Agents hold | rows: What to build and which decision stands / Drafting every document in its template; Approval that turns a draft into authority / Checking each draft against the layer above; When the work is complete / Surfacing drift, contradictions, and gaps; How much runs unasked, a three-position dial / Stopping at the triggers and handing judgment back | prefer: left | icons: person; agent | verdict: the hand-offs have owners and rules, never an implied one. Two columns from the humans-decide principle and the collaboration table
+**Visual**: kind: two-column | left: People hold | right: Agents hold | rows: What to build and which decision stands / Drafting every document in its template; Approval that turns a draft into authority / Checking each draft against the layer above; When the work is complete / Surfacing drift, contradictions, and gaps; How much runs unasked, a three-position dial / Stopping at the triggers and handing judgment back | prefer: left | icons: person; agent | verdict: every hand-off has an owner, and HELIX ships no runtime or tracker and approves nothing. Two columns from the humans-decide principle and the collaboration table; the verdict carries the non-goals
 **Notes**: The two strands of the helix share one loop with different jobs. Low autonomy asks before each step, medium pauses on ambiguity, high records assumptions and proceeds, and a hard floor of stop triggers holds at every level. Nothing here needs a new tool: no command-line tool, tracker, queue, or execution engine ships with HELIX, and it installs on six hosts today.
 **Sources**: S21, S22, S15, S13, S14
 
@@ -211,12 +213,12 @@ ddx:
 
 **Pattern**: ask-next-steps
 **Body**:
-- Pick one active project with an agent already in the loop, by the end of this week
-- Adopt the templates and run one alignment check on its documents in the first sprint
-- Review the findings together after four weeks against the bar of under 3 findings per check
+- Pick one active project with an agent already in the loop
+- Adopt the templates and run one alignment check on its documents
+- Review the findings the team accepts as real, and what each would have cost in review
 - Without a trial the practice stays improvised and drift keeps surfacing in review
-**Visual**: kind: none | owners: ; ; | dates: ; ; | icons: flag; search; chart. Ask band in the secondary hue, then three numbered steps with icons and owner and date columns left blank for the audience to fill
-**Notes**: Stop after the ask. The bar is a target the product sets for itself, not a result; say so. If asked about cost, the trial needs one champion and no new tooling.
+**Visual**: kind: none | ask: Run HELIX on one project for one quarter and count the findings the team accepts as real | owners: head of platform; the project's team lead; both of us | dates: this week; sprint one; week four | icons: flag; search; chart. Ask band carrying the decision in the room's terms, then three steps with icons, role owners, and horizons
+**Notes**: Stop after the ask. The measure is accepted findings per check and their avoided review cost; more catches in a first quarter is the evidence of value. The product's own bar, under 3 findings per check, is a target for a settled corpus and comes later. If asked about cost, the trial needs one champion and no new tooling. Owners are roles; let the room put names on them.
 **Sources**: S7, S18
 
 ### 12. Sources
@@ -273,12 +275,12 @@ ddx:
 - **Look**: editorial (Georgia display, Arial body, dark ends, light content, circle markers); the same script renders in `technical`, `bold`, or `classic` with `--look`
 - **Gate**:
   - Titles: headline pass clean after a second rewrite. The first pass left ten-to-twelve-word titles that counted the catalog ("53 document templates", "twenty-one modes") and carried filler ("also"). The tightened rules (inventory count, hedge, ten-word stop, target eight) flagged them. Every title is now ten words or fewer, with the counts moved into bodies. The shape pass (sloptimizer's slide target, ported as shape.slop and restatement) then caught a trailing negation, a flattery phrase, and a category label on a panel, all rewritten; check-deliverable.py reports no title.slop, shape.slop, horizontal_logic, or restatement findings.
-  - Coverage: thirteen concept groups from the inventory's three passes (recurring concepts, catalog structure, roles and hand-offs) plus the authority floor; eleven covered across five messages, two omitted with reasons; all eight must-cover concepts carried, including layered authority as control and human and agent hand-offs; survey breadth satisfied.
-  - Script checks: pass, 0 blocking, 0 warnings; validate-instance.py 0 findings.
+  - Coverage: fifteen concept groups from the inventory's three passes (recurring concepts, catalog structure, roles and hand-offs) plus the authority floor; twelve covered across five messages, three omitted with reasons; all eight must-cover concepts carried, including layered authority as control and human and agent hand-offs; survey breadth satisfied.
+  - Script checks: pass, 0 blocking, 0 warnings, including the shape, restatement, jargon, and Visual-spec checks; validate-instance.py 0 findings.
   - Horizontal logic: pass; the titles-only read in Story is the argument and ends in the ask.
   - Vertical logic: pass; each body carries the evidence its title claims; the counts on slides 4, 5, and 9 come from the sections in Sources.
-  - Fidelity: pass; every figure re-read against the sections in Sources, including the four sections added to the corpus on 2026-09-11 (S19 to S22).
+  - Fidelity: pass after the review: slide 2 now carries the vision's own claim (AI-touched code daily), slide 9 names itself the vision's worked example and counts the six documents the source lists, and the ask measures accepted findings rather than the settled-corpus bar; every figure re-read against the sections in Sources.
   - Voice: pass; Vale with the Helix styles reports 0 errors (two long-sentence warnings in the Story's evidence lists).
-  - Visual: pass. deck-qa.py rasterized all 15 slides through LibreOffice and reports 0 blocking findings (3 warnings: the appendix continuation pages repeat the first's layout, by design). Inspected on 2026-09-11 at contact-sheet size and slides 3 to 6, 8, 10, and 11 at full size. Three defects found and fixed in the renderer before this render: the seven-node cycle broke "Discover" mid-word inside its pill (pills widened); the cycle's labels crossed the ring (labels now sit inside the pills on the ring, and the ring is a named guide the QA tool ignores); the three-row icon list sat in the top half of an empty slide (rows now center and scale up when few). Each content slide carries a figure or icons: timeline, three icon panels, the seven-activity cycle, the skill hub, the five-layer stack, two icon-headed comparisons, the outputs icon list, four count panels, and the ask with step icons.
+  - Visual: pass. deck-qa.py rasterized all 15 slides through LibreOffice and reports 0 blocking findings (3 warnings: the appendix continuation pages repeat the first's layout, by design). Inspected on 2026-09-15 at contact-sheet size and slides 2, 3, 6, 8, 9, 10, and 11 at full size after the design pass from the deck critique: titles that need two lines now break at the balanced point; badges use one hue with the support hue reserved for the highlight; panel cards size to their content and the proof slide's panels render as counts; the layer stack's icons are legible; the comparison check marks are icons; the ask band carries the decision in the room's terms with role owners and horizons; the timeline draws the milestone that has not happened as a hollow node. Every content slide carries a figure or icons: timeline, three icon panels, the seven-activity cycle, the skill hub, the five-layer stack, two icon-headed comparisons, the outputs icon list, four count panels, and the ask with step icons.
   - File: pass; the presentation validator passes, 15 slides with speaker notes, no placeholder text.
   - Flow checklist (evaluation-briefing): titles move from the audience's problem to a trial; slide 4 names the category (a method: templates and one skill) before any capability; the ask labels its number a target; slide 10 states what stays with people and what ships with nothing; the ask names one project, one quarter, one measure, with owner and date columns for the room; no body uses a term the audience would need defined.

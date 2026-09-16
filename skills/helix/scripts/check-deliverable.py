@@ -44,6 +44,8 @@ PLACEHOLDER = re.compile(r"\[NEEDS CLARIFICATION|\[TODO\]|\bTBD\b|\[Fill in\]|<p
 # `[ADR-003]` do not match (same rule as validate-instance.py, warning severity)
 BRACKET_TOKEN = re.compile(r"(?<!\[)\[(?:[A-Z][a-z]+)(?:[ /][A-Za-z]+)*\](?!\()")
 NUMBER = re.compile(r"(?<![\w.])(?:\$?\d[\d,]*(?:\.\d+)?\s?(?:%|k|K|M|B|x)?)(?![\w.])")
+# Methodology terms an audience outside the project would need defined; a warning, since some are plain English elsewhere
+JARGON = re.compile(r"\b(?:concerns?|stop triggers?|autonomy levels?|quality floors?|ratchets?|framing|[\w-]+ modes?)\b", re.I)
 GENERIC_VISUALS = {"chart", "diagram", "image", "table", "graph", "picture", "photo", "screenshot", "none", "n/a"}
 
 # title.slop: headline shapes that read as generated. A title is one sentence
@@ -616,6 +618,9 @@ def main() -> int:
         for label, txt, ln in (("body", btext, bodyf.get("line")), ("notes", ntext, notes.get("line")), ("title", t, u["line"])):
             for m in HELIX_VOCAB.finditer(txt):
                 add("BLOCKING", "vocabulary", f"unit {u['n']} {label} uses HELIX vocabulary {m.group(0)!r}; move it to Sources", ln)
+        for label, txt, ln in (("body", btext, bodyf.get("line")), ("title", t, u["line"])):
+            for m in JARGON.finditer(txt):
+                add("WARNING", "vocabulary.jargon", f"unit {u['n']} {label} uses {m.group(0)!r}, a term the audience would need defined", ln)
         bullets = ([bodyf["text"]] if bodyf.get("text") else []) + [l for l in bodyf.get("lines", []) if l.strip().startswith(("-", "*", "•"))]
         # every text shape the slide will carry gets the shape rules; the title and the shapes together get the
         # restatement check (a bullet that repeats a panel, a verdict that repeats the title)
@@ -722,7 +727,10 @@ def main() -> int:
     render = secs.get("Render", (0, ""))[1]
     if "Render" in secs:
         if "inspected" not in render.lower():
-            add("BLOCKING", "render.inspected", "Render section must record that every slide/page was rendered to an image and inspected")
+            # a warning, not a block: a host without the render toolchain still ships the script, and the Render
+            # section then says which targets were not produced and why (meta.yml carries the same severity)
+            add("WARNING", "render.inspected", "Render section does not record that every slide was rendered to an image and inspected; "
+                "if the host lacks the render toolchain, say which targets were not produced and why")
         if not re.search(r"\.(pptx|html|pdf|docx)\b", render):
             add("BLOCKING", "render.targets", "Render section lists no rendered target path")
     exports = (ddx.get("authoring", {}) or {}).get("export") if isinstance(ddx, dict) else None

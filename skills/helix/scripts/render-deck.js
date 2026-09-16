@@ -668,6 +668,11 @@ visuals["icon-list"] = (slide, box, spec, unit) => {
   if (!rows.length) return placeholder(slide, box, spec, unit);
   const cols = num(spec.columns, rows.length > 4 && box.w > 8 ? 2 : 1);
   const per = Math.ceil(rows.length / cols);
+  if (cols >= 3 && per === 1 && rows.length <= 4) {
+    // one row of three or four across a wide box reads better as cards than as a strip in an empty canvas
+    return visuals.panels(slide, box, { items: rows.map(([, l, d]) => `${l} / ${d || ""}`).join("; "),
+      icons: rows.map(([i]) => i).join("; "), highlight: spec.highlight, text: spec.text }, unit);
+  }
   const colW = (box.w - G * (cols - 1)) / cols;
   const roomy = per <= 4 && box.w > 8;                       // few rows on a wide box: larger badges and type, centered vertically
   const rowH = Math.min(roomy ? 1.3 : 1.05, box.h / per);
