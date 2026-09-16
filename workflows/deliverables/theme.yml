@@ -75,9 +75,7 @@ layout:
     height_in: 7.5
     margin_in: 0.6
     gutter_in: 0.3
-    max_words_body: 60
-    max_bullets: 5
-    max_words_per_bullet: 14
+    # word, bullet, and density limits: slide-patterns.yml `density`
   document:
     page: Letter          # or A4; the project design-system may override
     margin_in: 1.0

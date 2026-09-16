@@ -1,10 +1,11 @@
 # Deliverable mappings for the HELIX present mode.
 #
 # Per source artifact type: which template sections feed which units of a
-# human-facing deliverable, and which slide pattern each unit uses. Pattern ids
-# and story spines come from slide-patterns.yml; word budgets from theme.yml;
-# tone from the human-facing profile in voice.yml (titles are claims, no HELIX
-# vocabulary, provenance in the appendix).
+# human-facing deliverable, and which slide pattern each unit uses. Pattern ids,
+# limits, and density come from slide-patterns.yml; story spines resolve
+# through deck-flows.yml `legacy_spines`; tone from the human-facing profile
+# in voice.yml (titles are claims, no HELIX vocabulary, provenance in the
+# appendix).
 #
 # Conventions:
 #   - units are ordered; each becomes one slide (deck) or one section
@@ -12,11 +13,10 @@
 #     then appendix-sources. An agenda unit is added only at 10 or more units.
 #   - from_sections are template H2 ids in meta.yml required_sections style
 #     (lowercase, underscores). Subsection hints live in notes.
-#   - include_in caps: one-pager 6 units, brief 8, deck 12 content units plus
-#     title, ask, appendix.
-#   - density follows slide-patterns.yml: no three consecutive units of one
-#     pattern, one stat-callout per deck, a table or comparison at most every
-#     third slide.
+#   - include_in caps: one-pager 6 units, brief 8, deck `content_slides_max`
+#     in slide-patterns.yml plus title, ask, appendix.
+#   - density (consecutive patterns, one stat-callout per section, table or
+#     comparison spacing) is the `density` block in slide-patterns.yml.
 #   - gaps_to_ask: what no governed artifact holds; the operator supplies it
 #     or the deliverable marks it as an assumption.
 
@@ -158,7 +158,7 @@ mappings:
     audience_default: product and go-to-market leads
     units:
       - { unit: title, from_sections: [differentiation_strategy], pattern: title, include_in: [deck],
-          title_hint: "The positioning sentence, trimmed to twelve words" }
+          title_hint: "The positioning sentence, trimmed to ten words" }
       - { unit: differentiation, from_sections: [differentiation_strategy], pattern: claim-evidence,
           include_in: [deck, one-pager, brief], title_hint: "Where we win and why it holds",
           notes: "Visual: positioning map; bullets carry each differentiator with defensibility." }
