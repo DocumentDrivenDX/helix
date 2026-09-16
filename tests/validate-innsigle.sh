@@ -99,20 +99,27 @@ fi
 [ -f "$site_dir/.well-known/innsigle/keys.json" ] || {
   echo "FAIL: $site_dir/.well-known/innsigle/keys.json missing" >&2; fail=1; }
 
+# Hugo lowercases every URL path, so ADR-002.md publishes at adr-002/. The published paths are matched
+# against an exact listing rather than [ -f ], because a case-insensitive filesystem would hide a case mismatch.
+published="$(mktemp)"
+(cd "$site_dir" && find . -name 'index.html' -type f | sed 's#^\./##' | sort) > "$published"
 rendered=0 unrendered=0
 while IFS= read -r -d '' f; do
   rel="${f#"$content_root"/}"
   case "$rel" in
-    _index.md) html="$site_dir/index.html" ;;
-    */_index.md) html="$site_dir/${rel%/_index.md}/index.html" ;;
-    *) html="$site_dir/${rel%.md}/index.html" ;;
+    _index.md) page="index.html" ;;
+    */_index.md) page="${rel%/_index.md}/index.html" ;;
+    *) page="${rel%.md}/index.html" ;;
   esac
-  if [ -f "$html" ] && grep -q 'innsigle-colophon' "$html"; then
+  page="$(printf '%s' "$page" | tr 'A-Z' 'a-z')"
+  html="$site_dir/$page"
+  if grep -Fxq "$page" "$published" && grep -q 'innsigle-colophon' "$html"; then
     rendered=$((rendered+1))
   else
     unrendered=$((unrendered+1)); [ "$unrendered" -le 20 ] && echo "NO SEAL RENDERED: $rel -> $html" >&2
   fi
 done < <(find "$content_root" -name '*.md' -type f -print0 | sort -z)
+rm -f "$published"
 echo "rendered: $rendered pages with a seal, $unrendered without"
 [ "$unrendered" -eq 0 ] || fail=1
 
