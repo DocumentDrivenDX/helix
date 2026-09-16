@@ -1,4 +1,4 @@
-# Metadata for Deliverable (deck, one-pager, brief)
+# Metadata for Deliverable (deck; one-pager and brief planned)
 
 artifact:
   name: Deliverable
@@ -22,16 +22,19 @@ kind:
     - brief
   default: deck
   description: |
-    Shape of the deliverable. `deck` is a slide script (one unit per slide);
-    `one-pager` is a single page with 3 to 6 sections; `brief` is a 2 to 4
-    page document with headings as claims. All three share the template.
+    Shape of the deliverable. `deck` is a slide script (one unit per slide).
+    `one-pager` (a single page with 3 to 6 sections) and `brief` (a 2 to 4
+    page document with headings as claims) are planned: the enum keeps the
+    values, but no document flow, section patterns, renderer, or kind-aware
+    checks exist yet (docs/helix/06-iterate/improvement-backlog.md). All
+    three share the template.
 
 description: |
   A human-facing projection of governed artifacts: the script for a deck,
   one-pager, or brief, written in the human-facing voice with claim titles,
   a visual per unit, speaker notes, and a Sources appendix tracing every
   figure to a governing artifact section. The Markdown script is the document
-  of record; rendered files (pptx, html, pdf, docx) are fidelity evidence
+  of record; rendered files (pptx, and pdf when the host exports one) are fidelity evidence
   listed in `authoring.export`. Produced by the `present` mode.
 
 output:
@@ -90,8 +93,8 @@ validation:
       description: Bodies respect the pattern's word and bullet limits and the density rules in slide-patterns.yml
       severity: warning
     - check: rendered_and_inspected
-      description: Render section lists each rendered path and records that every slide or page was rendered to an image and inspected
-      severity: blocking
+      description: Render section lists each produced path and records that every produced slide was rendered to an image and inspected; on a host without node and pptxgenjs (no .pptx), or without LibreOffice and pdftoppm (no raster), the Render section names the missing tool and the check warns instead of blocking the script-only run
+      severity: warning
 
 prompts:
   generation: prompt.md

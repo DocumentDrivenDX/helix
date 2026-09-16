@@ -8,7 +8,7 @@ ddx:
   authoring:
     home: repo
     export:
-      - [path to rendered .pptx / .html / .pdf / .docx]
+      - [path to rendered .pptx, and .pdf when the host exports one]
   links:
     - id: [source artifact id]
       kind: informed_by
@@ -66,7 +66,7 @@ ddx:
 **Body**:
 - [evidence bullet within the pattern's limits]
 - [evidence bullet]
-**Visual**: [what it shows, the series or elements, the source it is drawn from]
+**Visual**: [kind: <kind> | <field>: <value> | <field>: <value>. what it shows, the series or elements, the source it is drawn from; grammar and kinds in deliverables/visual-specs.md]
 **Notes**: [speaker notes: the detail the slide omits, in the same voice]
 **Sources**: [S1, S2]
 
@@ -105,5 +105,5 @@ ddx:
 ## Render
 
 - **Theme**: [project design-system | deliverables/theme.yml]
-- **Targets**: [pptx path], [html path], [pdf path]
-- **Gate**: script checks [pass/fail with check ids], horizontal logic [pass], vertical logic [pass], fidelity [pass], voice [pass], visual [every slide rendered to an image and inspected on <date>], file [validator result]
+- **Targets**: [pptx path], [pdf path, or which target was not produced and why]
+- **Gate**: script checks [pass/fail with check ids]; titles and shapes [headline pass, horizontal_logic, shape pass, restatement]; horizontal logic [pass]; vertical logic [pass]; fidelity [pass]; voice [pass]; visual [every produced slide rendered to an image and inspected on <date>, or the missing tool]; file [validator result]; flow checklist [pass, or the item and its recorded gap]; coverage [groups covered / omitted, must-cover carried, must-omit absent]

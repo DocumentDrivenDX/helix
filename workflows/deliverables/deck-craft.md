@@ -37,7 +37,8 @@ Read the corpus's structure too, not only its prose: a catalog's layering
 (what governs what, what propagates, where the gates are) and its role
 vocabulary (who approves, who drafts, who stops) carry concepts that no
 phrase count surfaces, and the inventory emits both as candidates.
-Cluster those into five to nine concept groups in the audience's words.
+Cluster those into concept groups in the audience's words, typically five
+to nine and more when the corpus is wide.
 The groups are the candidates; the steps below choose among them, and
 every group the deck does not carry is written down as omitted with its
 reason. Breadth (`survey` or `deep-dive`) is a declared control in the
@@ -176,15 +177,16 @@ list [12]. A "Questions?" or "Thank you" slide is not a close.
 
 The budget comes from the time slot, not from the source volume. Half a
 slide per minute of talk is the working rate (`slides_per_minute_of_talk`
-in `slide-patterns.yml`): a 5-minute slot holds 2 to 3 content slides, 10
-minutes holds 5, 20 minutes holds 10, and 30 minutes holds 12, which is the
+in `slide-patterns.yml`); the per-slot table is `default_length_budget` in
+`deck-flows.yml`, and `content_slides_max` in `slide-patterns.yml` is the
 cap without an explicit exception. Kawasaki's 10/20/30 sets the same shape:
 ten slides, twenty minutes, thirty-point type, so the deck fits the
 attention available and leaves the rest of the slot for discussion [6].
 Sequoia and YC land at 10 to 12 slides for a pitch [7][8].
 
-Per slide, the pattern limits in `slide-patterns.yml` hold: at most 60 body
-words, at most 5 bullets, one visual. Reynolds' rule is that slides support
+Per slide, the pattern limits and the `density` block in
+`slide-patterns.yml` hold: the body word cap, the bullet cap, one visual.
+Reynolds' rule is that slides support
 the speaker and are not the document; a slide dense enough to read alone is
 a "slideument" and fails as a slide [5][4]. The detail lives in the notes
 and the appendix, which have no word budget.

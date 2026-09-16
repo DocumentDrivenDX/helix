@@ -11,10 +11,11 @@
 #   - Beats are in deck order. `required: true` beats appear in every deck of
 #     the flow; optional beats appear when a message needs them and the
 #     budget allows.
-#   - `length_budget` counts content slides (title, agenda, and the sources
-#     appendix are not counted) at 0.5 slides per minute of talk, capped at
-#     12 without an explicit exception. `keep_when_short` is the beat order
-#     to keep when the budget is below the required count.
+#   - `default_length_budget` counts content slides (title, agenda, and the
+#     sources appendix are not counted) per time slot; the rate and the cap
+#     are `slides_per_minute_of_talk` and `content_slides_max` in
+#     slide-patterns.yml. Each flow's `keep_when_short` is the beat order to
+#     keep when the budget is below the required count.
 #   - Every deck opens with the `title` pattern, closes with `ask-next-steps`
 #     followed by `appendix-sources`, and adds `agenda` at 10 or more slides.
 #   - Titles are claims, never labels. Read in order, the titles must form
@@ -31,18 +32,19 @@ legacy_spines:
   plan-actual-next: executive-status
   problem-solution-evidence: product-walkthrough
 
+default_length_budget:
+  minutes_5: 3
+  minutes_10: 5
+  minutes_20: 10
+  minutes_30: 12
+
 flows:
   - id: investor-pitch
     purpose: Persuade an investor that the company is worth a next meeting or a check.
     audience:
       posture: Skeptical, pattern-matching against many other decks, deciding in the first minutes whether to keep listening.
       decision: Take the next meeting, run diligence, or pass.
-    length_budget:
-      minutes_5: 3
-      minutes_10: 5
-      minutes_20: 10
-      minutes_30: 12
-      keep_when_short: [purpose, problem, solution, traction, ask]
+    keep_when_short: [purpose, problem, solution, traction, ask]
     beats:
       - name: purpose
         answers: What does this company do, in one sentence?
@@ -138,12 +140,7 @@ flows:
     audience:
       posture: Interested but wary of switching cost; they will weigh the claim against what they already do and look for what it does not do.
       decision: Run a bounded trial, adopt, or pass.
-    length_budget:
-      minutes_5: 3
-      minutes_10: 5
-      minutes_20: 10
-      minutes_30: 12
-      keep_when_short: [takeaway, cost-of-today, what-it-is, proof, ask]
+    keep_when_short: [takeaway, cost-of-today, what-it-is, proof, ask]
     beats:
       - name: takeaway
         answers: What will be true for you if you adopt this?
@@ -225,12 +222,7 @@ flows:
     audience:
       posture: Time-poor, reading for variance and risk, deciding whether to intervene.
       decision: Continue as planned, change scope or resources, or escalate.
-    length_budget:
-      minutes_5: 3
-      minutes_10: 5
-      minutes_20: 10
-      minutes_30: 12
-      keep_when_short: [headline, results, variance, decisions-needed, ask]
+    keep_when_short: [headline, results, variance, decisions-needed, ask]
     beats:
       - name: headline
         answers: In one sentence, where does the work stand?
@@ -300,12 +292,7 @@ flows:
     audience:
       posture: Accountable for the spend, comparing this against alternatives and against doing nothing.
       decision: Approve, approve with conditions, defer, or reject.
-    length_budget:
-      minutes_5: 3
-      minutes_10: 5
-      minutes_20: 10
-      minutes_30: 12
-      keep_when_short: [recommendation, complication, recommended-option, return, ask]
+    keep_when_short: [recommendation, complication, recommended-option, return, ask]
     beats:
       - name: recommendation
         answers: What are you asking us to approve, and what do we get?
@@ -385,12 +372,7 @@ flows:
     audience:
       posture: Curious and comparing against what they use; they want to see it, not hear about it.
       decision: Try it, give feedback, or approve the next stage.
-    length_budget:
-      minutes_5: 3
-      minutes_10: 5
-      minutes_20: 10
-      minutes_30: 12
-      keep_when_short: [promise, who-and-pain, walkthrough, before-and-after, ask]
+    keep_when_short: [promise, who-and-pain, walkthrough, before-and-after, ask]
     beats:
       - name: promise
         answers: What will the user be able to do after this?
@@ -460,12 +442,7 @@ flows:
     audience:
       posture: Fiduciary, reading ahead of the meeting, looking for what changed and what is being hidden.
       decision: Approve, advise, or escalate; confirm the plan of record.
-    length_budget:
-      minutes_5: 3
-      minutes_10: 5
-      minutes_20: 10
-      minutes_30: 12
-      keep_when_short: [headline, scorecard, lowlights, risks, ask]
+    keep_when_short: [headline, scorecard, lowlights, risks, ask]
     beats:
       - name: headline
         answers: In one sentence, how is the company or program doing against plan?
@@ -535,12 +512,7 @@ flows:
     audience:
       posture: Wanting to know what changes for them, wary of slogans, listening for what is expected and by when.
       decision: Commit to the direction and start on their part.
-    length_budget:
-      minutes_5: 3
-      minutes_10: 5
-      minutes_20: 10
-      minutes_30: 12
-      keep_when_short: [why-we-are-here, where-we-are-going, how-we-get-there, what-it-means-for-you, ask]
+    keep_when_short: [why-we-are-here, where-we-are-going, how-we-get-there, what-it-means-for-you, ask]
     beats:
       - name: why-we-are-here
         answers: What is this session for, in one sentence?

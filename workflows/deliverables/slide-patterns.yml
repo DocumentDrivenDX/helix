@@ -16,10 +16,16 @@
 #   - Variety: no three consecutive slides of the same pattern; at most one
 #     stat-callout per section; a comparison or table at most every third
 #     slide; at least one diagram or statement in every ten content slides.
-#   - Icons name things, never decorate: a panel, a spoke, a layer, a column
-#     header, or a step may carry one icon from the set in
-#     skills/helix/scripts/icons (named on the Visual line); a slide never
-#     carries an icon for its own sake.
+#   - Icons name things: a panel, a spoke, a layer, a column header, or a
+#     step may carry one icon from the set in skills/helix/scripts/icons
+#     (named on the Visual line). The one decorative device is the hero
+#     marker on the end slides (`title`, `section-divider`, `statement`):
+#     one icon for the deck's subject, set with `icon:` on a `kind: none`
+#     visual. No other slide carries an icon for its own sake; a stat
+#     callout carries none.
+#   - This file owns every limit and density rule. theme.yml,
+#     deliverable-mappings.yml, deck-craft.md, and the present mode point
+#     here instead of restating numbers.
 
 version: 1
 
@@ -178,16 +184,20 @@ patterns:
       - "sources the deck never cites"
 
 density:
+  title_words_target: 8            # where possible
+  title_words_max: 10              # one line at title size
   words_per_content_slide_max: 60
+  words_per_bullet_max: 14
   bullets_per_slide_max: 5
   consecutive_same_pattern_max: 2
   stat_callouts_per_section_max: 1
-  slides_per_minute_of_talk: 0.5   # a 20-minute slot is at most 10 content slides
+  table_or_comparison_every_n_slides: 3   # at most one per three slides
+  diagram_or_statement_per_n_content_slides: 10   # at least one per ten
+  content_slides_max: 12           # without an explicit exception in the Brief
+  slides_per_minute_of_talk: 0.5   # per-slot table: default_length_budget in deck-flows.yml
 
-story_spines:
-  # Narrative order lives in deck-flows.yml: one flow per occasion with the
-  # ordered beats, the question each answers, allowed patterns, length
-  # budgets, transition rules, and a checklist. deck-craft.md explains why.
-  # The spine ids that deliverable-mappings.yml still names as default_spine
-  # resolve through deck-flows.yml `legacy_spines`.
-  source: deck-flows.yml
+# Narrative order lives in deck-flows.yml (source: deck-flows.yml): one flow
+# per occasion with the ordered beats, the question each answers, allowed
+# patterns, transition rules, and a checklist. deck-craft.md explains why.
+# The spine ids that deliverable-mappings.yml still names as default_spine
+# resolve through deck-flows.yml `legacy_spines`.
