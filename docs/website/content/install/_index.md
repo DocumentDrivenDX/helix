@@ -22,6 +22,11 @@ are required; item 4 is optional and belongs to the runtime, not the HELIX
 <!-- vale Helix.PassiveVoice = YES -->
 methodology contract.
 
+Rendering [decks and briefs](/use/decks-and-briefs/) is the one optional
+extra: it needs Node with `pptxgenjs`, LibreOffice, `pdftoppm`, and
+`rsvg-convert` or ImageMagick on the host; without them the skill writes the
+script and stops.
+
 ## Per-runtime install guides
 
 Each guide names the file layout, install steps, invocation, and verification

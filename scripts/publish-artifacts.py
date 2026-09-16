@@ -57,6 +57,9 @@ ACTIVITIES: dict[str, str] = {
 
 FRONTMATTER_RE = re.compile(r"\A---\s*\n(.*?\n)---\s*\n", re.DOTALL)
 H1_RE = re.compile(r"^#\s+(.+?)\s*$", re.MULTILINE)
+# `ddx.authoring.export` entries: rendered files a deliverable script lists.
+EXPORT_BLOCK_RE = re.compile(r"^\s*export:\s*\n((?:\s*-\s*\S+\s*\n?)+)", re.MULTILINE)
+EXPORT_ITEM_RE = re.compile(r"^\s*-\s*(\S+)\s*$", re.MULTILINE)
 # Inline markdown links and images: [text](target) / ![alt](target).
 LINK_RE = re.compile(r"(!?\[[^\]]*\])\(([^)\s]+)\)")
 GITHUB_BLOB = "https://github.com/DocumentDrivenDX/helix/blob/main"
@@ -200,12 +203,46 @@ def rewrite_links(body: str, src_path: Path, repo_root: Path, url_map: dict[Path
     return LINK_RE.sub(repl, body)
 
 
+def export_paths(src_fm: str) -> list[str]:
+    """Repo-relative paths listed under `authoring.export` in a source frontmatter."""
+    m = EXPORT_BLOCK_RE.search(src_fm)
+    if not m:
+        return []
+    return EXPORT_ITEM_RE.findall(m.group(1))
+
+
+def publish_exports(rec: dict, src_fm: str, repo_root: Path, dest: Path) -> list[tuple[str, str]]:
+    """Copy browser-viewable renders (PDF) beside the page; return (label, url) links.
+
+    A PDF listed in `authoring.export` is copied into the page's collection
+    directory (a Hugo branch bundle publishes it as-is) under a lowercase name
+    so the link matches Hugo's lowercased URLs. Other export formats link to
+    the repository. Missing files are skipped without a link.
+    """
+    links: list[tuple[str, str]] = []
+    for rel in export_paths(src_fm):
+        src = repo_root / rel
+        if not src.is_file():
+            continue
+        if src.suffix.lower() == ".pdf" and rec["collection"]:
+            name = src.name.lower()
+            out = dest / rec["collection"] / name
+            out.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(src, out)
+            links.append(("PDF", f"/artifacts/{rec['collection'].lower()}/{name}"))
+        else:
+            label = src.suffix.lstrip(".").upper() or src.name
+            links.append((label, f"{GITHUB_BLOB}/{PurePosixPath(rel).as_posix()}"))
+    return links
+
+
 def render_page(rec: dict, source_root: Path, weight: int,
-                repo_root: Path, url_map: dict[Path, str]) -> str:
+                repo_root: Path, url_map: dict[Path, str], dest: Path) -> str:
     text = rec["src"].read_text(encoding="utf-8")
     src_fm, body = split_frontmatter(text)
     body = rewrite_links(body, rec["src"].resolve(), repo_root, url_map)
     rel_source = rec["src"].relative_to(source_root).as_posix()
+    exports = publish_exports(rec, src_fm, repo_root, dest)
 
     fields: list[tuple[str, str]] = [
         ("title", yaml_dq(rec["title"])),
@@ -225,6 +262,12 @@ def render_page(rec: dict, source_root: Path, weight: int,
         "[artifact-type catalog](/artifact-types/) for reusable templates. "
         "Historical plans and reports may describe retired architecture.\n\n"
     )
+    if exports:
+        rendered = ", ".join(f"[{label}]({url})" for label, url in exports)
+        preamble += (
+            "> **Rendered from this script.** The Markdown below is the document "
+            f"of record; open the rendered file to see the finished deck: {rendered}.\n\n"
+        )
     if src_fm.strip():
         preamble += (
             "> **Source identity** (from "
@@ -330,7 +373,7 @@ def publish(source: Path, dest: Path, project: str) -> int:
         # Weight ordering: by activity number, then by collection, then by slug.
         # i is the sorted-walk index, so it already encodes the right order.
         page = render_page(rec, source, weight=(i + 1) * 10,
-                           repo_root=repo_root, url_map=url_map)
+                           repo_root=repo_root, url_map=url_map, dest=dest)
         out_path.write_text(page, encoding="utf-8")
 
     # Emit collection indexes for each subdirectory that holds files.
