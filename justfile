@@ -130,10 +130,18 @@ eval:
 test-headline-sync:
     bash tests/validate-headline-sync.sh
 
-# Seal microsite content sources with Innsigle colophon attestations
-# (needs .innsigle/config.json from `innsigle init` and `op` signed in)
-innsigle-seal:
-    bash scripts/innsigle-seal.sh
+# Seal microsite content sources with Innsigle colophon attestations: curated pages with the
+# human key (needs `op` signed in), generated pages with the build key when INNSIGLE_BUILD_KEY is set
+innsigle-seal *ARGS:
+    bash scripts/innsigle-seal.sh {{ARGS}}
+
+# One-time: create the CI build key (public half into keys.json, id into config.json)
+innsigle-build-key:
+    bash scripts/innsigle-build-key.sh
+
+# Human key endorses the build key so verifiers who pin the house key recognize CI seals
+innsigle-endorse:
+    bash scripts/innsigle-cli.sh endorse --subject-key-id "$(jq -r '.keys.build.key_id // empty' .innsigle/config.json)" --purpose build-signing
 
 # Gate: every microsite page has a valid, verified Innsigle seal and renders it
 test-innsigle:

@@ -1,11 +1,17 @@
 {{- /*
   Innsigle colophon seal (hextra renders this partial at the end of every
-  docs page). A seal appears only when a committed claim in
-  .innsigle/public/claims/ names this page's SOURCE file and its sha256
-  digest matches the current source bytes — an edited-but-not-resealed page
-  renders no seal (plus a build warning) rather than a seal that fails
-  verification. Claims are produced by `just innsigle-seal`; the attestation
-  is embedded at build time so the viewer needs no fetch.
+  docs page). A seal appears only when a claim in .innsigle/public/claims/
+  names this page's SOURCE file and its sha256 digest matches the current
+  source bytes — an edited-but-not-resealed page renders no seal (plus a
+  build warning) rather than a seal that fails verification.
+
+  Two keys, one issuer (Innsigle ADR-004): curated pages carry a claim signed
+  by the human key (committed, made by `just innsigle-seal`); generated pages
+  carry a claim signed by the build key that CI mints at build time. The
+  signature covers the markdown source, never these HTML bytes: the page
+  quotes the source attestation verbatim (application/innsigle+json) so a
+  reader can verify it against the source file. keys.json says which role a
+  key has and whether the human key endorsed it.
   Pattern adapted from entropy-exchange's filters/innsigle.lua.
 */ -}}
 {{- with .File }}
@@ -29,24 +35,42 @@
 {{- $colo := $payload.colophon }}
 {{- $issuer := $payload.issuer }}
 {{- $sig := index (default (slice dict) $att.signatures) 0 }}
+{{- /* key role + endorsement come from the issuer document, not the claim */ -}}
+{{- $keysDoc := dict }}
+{{- with resources.Get "innsigle/keys.json" }}{{ $keysDoc = .Content | transform.Unmarshal }}{{ end }}
+{{- $role := "" }}
+{{- range $keysDoc.keys }}{{ if eq .key_id $issuer.key_id }}{{ $role = .role | default "" }}{{ end }}{{ end }}
+{{- $endorsement := dict }}
+{{- range $keysDoc.endorsements }}{{ if eq .subject_key_id $issuer.key_id }}{{ $endorsement = . }}{{ end }}{{ end }}
+{{- $roleLabel := cond (eq $role "build") "build key" (cond (eq $role "human") "human key" "signing key") }}
 {{- /* relURL leaves the site's base path off a root-absolute input, so build the hrefs from the base URL's path */ -}}
 {{- $basePath := (urls.Parse site.BaseURL).Path | default "/" }}
 {{- $attHref := printf "%s.well-known/innsigle/claims/%s.attestation.json" $basePath $slug }}
 {{- $keysHref := printf "%s.well-known/innsigle/keys.json" $basePath }}
-<div class="innsigle-colophon">
+<div class="innsigle-colophon" data-innsigle-slug="{{ $slug }}" data-innsigle-role="{{ $role }}">
+  <script type="application/innsigle+json">{{ $raw | safeHTML }}</script>
   <details class="innsigle-seal">
     <summary title="View Innsigle attestation">
       <svg class="innsigle-glyph" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="0.75" stroke-dasharray="2 1.6"/><path d="M8.2 12.4l2.4 2.4 5-5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <span>Innsigle seal: <strong>{{ $colo.composition | default "unknown" }}</strong> by {{ $issuer.name | default "unknown issuer" }}</span>
     </summary>
     <div class="innsigle-viewer">
+      <p class="innsigle-covers">The signature covers the markdown source of this page, not these HTML bytes. This page quotes that seal; verify it against the source file.</p>
       <dl>
         <dt>Composition</dt><dd>{{ $colo.composition | default "unknown" }}</dd>
         <dt>Issuer</dt><dd>{{ $issuer.name }} <code>{{ $issuer.id }}</code></dd>
-        <dt>Signing key</dt><dd><a href="{{ $issuer.key_url | default $keysHref }}"><code>{{ $issuer.key_id }}</code></a></dd>
+        <dt>Signing key</dt><dd><a href="{{ $issuer.key_url | default $keysHref }}"><code>{{ $issuer.key_id }}</code></a> ({{ $roleLabel }})</dd>
+        <dt>Signed source</dt><dd><code>{{ $rel }}</code></dd>
         <dt>Signed</dt><dd>{{ $sig.signed_at | default $payload.issued_at | default "unknown" }}</dd>
         <dt>Content digest</dt><dd><code>{{ $subject.digest.alg }}:{{ printf "%.8s…%s" $subject.digest.value (substr $subject.digest.value -8) }}</code></dd>
       </dl>
+      {{- if $endorsement.attestation_url }}
+      <p class="innsigle-trust">This build key is <a href="{{ $endorsement.attestation_url }}">endorsed by the human key</a> for build signing; the signature is not a detector and not a truth guarantee.</p>
+      {{- else if eq $role "human" }}
+      <p class="innsigle-trust">Human-controlled key, held outside CI; the signature is not a detector and not a truth guarantee.</p>
+      {{- else }}
+      <p class="innsigle-trust">The signature is not a detector and not a truth guarantee.</p>
+      {{- end }}
       <details class="innsigle-raw"><summary>Raw attestation JSON</summary>
       <pre>{{ $raw }}</pre></details>
       <p class="innsigle-links"><a href="{{ $attHref }}">attestation file</a> · <a href="{{ $keysHref }}">issuer keys</a></p>

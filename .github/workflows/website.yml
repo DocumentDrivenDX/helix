@@ -14,6 +14,7 @@ on:
       - 'tests/validate-website-generated.sh'
       - 'tests/validate-innsigle.sh'
       - 'scripts/innsigle-seal.sh'
+      - 'scripts/innsigle-cli.sh'
       - '.innsigle/**'
       - 'workflows/activities/**/artifacts/**'
       - '.vale.ini'
@@ -73,6 +74,16 @@ jobs:
       - name: Validate artifact-type schemas
         run: uv run scripts/helix_validate_artifact_meta.py
 
+      - name: Seal generated pages (build key)
+        # Generated pages (`generated: true`) are sealed here with the CI build key, never committed;
+        # curated pages carry committed claims from the human key (Innsigle ADR-004). The secret is the
+        # PEM produced by `just innsigle-build-key`.
+        env:
+          INNSIGLE_BUILD_KEY: ${{ secrets.INNSIGLE_BUILD_KEY }}
+        run: |
+          [ -n "$INNSIGLE_BUILD_KEY" ] || { echo "::error::INNSIGLE_BUILD_KEY secret is not set; run just innsigle-build-key and store the PEM as a repository secret"; exit 1; }
+          bash scripts/innsigle-seal.sh --role build
+
       - name: Build site (Hugo)
         working-directory: website
         # Build with the production base path so the link check validates the
@@ -80,9 +91,10 @@ jobs:
         # like raw card links that bypass the baseURL.
         run: hugo --gc --minify --baseURL "https://documentdrivendx.github.io/helix/"
 
-      - name: Innsigle seal gate (claims, signatures, rendered seals)
+      - name: Innsigle seal gate (claims, key policy, rendered seals)
         # Rebuilds with hugo stderr captured so a stale-seal warning fails. Locally the gate skips
-        # without Hugo or the CLI; here a skip is a failure.
+        # without Hugo or the CLI and tolerates unsealed generated pages; here every page must be
+        # sealed by the right key and the build key must be endorsed.
         env:
           INNSIGLE_REQUIRED: "1"
         run: bash tests/validate-innsigle.sh

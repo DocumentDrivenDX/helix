@@ -75,4 +75,3 @@ skills/helix/scripts/node_modules/
 skills/helix/scripts/package-lock.json
 
 # Innsigle signing config (issuer + 1Password key ref) stays local
-.innsigle/config.json
