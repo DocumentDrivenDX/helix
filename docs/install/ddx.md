@@ -158,7 +158,7 @@ the rest of the routing table in the skill) and reach the runtime through
 
 ## Work-item acquisition (bead-first under DDx)
 
-The portable [bead-first reference](../../workflows/references/bead-first.md)
+The portable [bead-first reference](../../workflows/references/work-item-first.md)
 defines the runtime-neutral pattern: every action that modifies files is
 governed by a work item. Under DDx the concrete commands are:
 
@@ -271,7 +271,7 @@ git diff --check
 
 - [`workflows/README.md`](../../workflows/README.md): runtime-neutral
   methodology overview.
-- [`workflows/references/bead-first.md`](../../workflows/references/bead-first.md):
+- [`workflows/references/work-item-first.md`](../../workflows/references/work-item-first.md):
   the portable work-item acquisition pattern.
 - [CONTRACT-003](../helix/02-design/contracts/CONTRACT-003-ddx-adapter-boundary.md):
   the DDx adapter boundary.
