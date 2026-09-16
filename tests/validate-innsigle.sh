@@ -72,14 +72,16 @@ done < <(find "$content_root" -name '*.md' -type f -print0 | sort -z)
 [ "$missing" -gt 20 ] && echo "... and $((missing-20)) more unsealed pages" >&2
 # Orphans: a claim whose page no longer exists would still be published under /.well-known; the seal script removes them.
 orphans=0
+expected="$(mktemp)"
+find "$content_root" -name '*.md' -type f | sed -e "s#^$content_root/##" -E -e 's/[^a-zA-Z0-9]+/-/g; s/^-+//; s/-+$//' | sort -u > "$expected"
 for att in "$claims_dir"/*.attestation.json; do
   [ -f "$att" ] || continue
   slug="$(basename "$att" .attestation.json)"
-  if ! find "$content_root" -name '*.md' -type f -print0 | while IFS= read -r -d '' f; do
-       rel="${f#"$content_root"/}"; [ "$(printf '%s' "$rel" | sed -E 's/[^a-zA-Z0-9]+/-/g; s/^-+//; s/-+$//')" = "$slug" ] && exit 0; done; then
+  if ! grep -Fxq "$slug" "$expected"; then
     echo "ORPHAN: $att names no current page (run just innsigle-seal to remove it)" >&2; orphans=$((orphans+1))
   fi
 done
+rm -f "$expected"
 echo "claims: $pages pages, $valid valid, $missing unsealed, $stale stale, $badsig bad signature, $orphans orphan claims"
 [ $((missing+stale+badsig+orphans)) -eq 0 ] || fail=1
 

@@ -98,11 +98,12 @@ done < <(find "$content_root" -name '*.md' -type f -print0 | sort -z)
 
 # Remove claims whose page no longer exists (deleted or renamed), so /.well-known never publishes an orphan.
 removed=0
+expected="$workdir/expected-slugs"
+find "$content_root" -name '*.md' -type f | sed -e "s#^$content_root/##" -E -e 's/[^a-zA-Z0-9]+/-/g; s/^-+//; s/-+$//' | sort -u > "$expected"
 for att in "$claims_dir"/*.attestation.json; do
   [ -f "$att" ] || continue
   slug="$(basename "$att" .attestation.json)"
-  if ! find "$content_root" -name '*.md' -type f -print0 | while IFS= read -r -d '' f; do
-       rel="${f#"$content_root"/}"; [ "$(printf '%s' "$rel" | sed -E 's/[^a-zA-Z0-9]+/-/g; s/^-+//; s/-+$//')" = "$slug" ] && exit 0; done; then
+  if ! grep -Fxq "$slug" "$expected"; then
     echo "removed orphan claim: $(basename "$att")"; rm -f "$att"; removed=$((removed+1))
   fi
 done
