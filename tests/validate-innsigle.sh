@@ -33,7 +33,8 @@ if command -v innsigle >/dev/null; then
   INNSIGLE=(innsigle)
 else
   INNSIGLE=(npx --yes --package=github:DocumentDrivenDX/innsigle innsigle)
-  "${INNSIGLE[@]}" --help >/dev/null 2>&1 || skip "innsigle CLI not resolvable (npx needs network, or install it globally)"
+  # the CLI prints its usage and exits 1 on --help, so test the output, not the status
+  "${INNSIGLE[@]}" --help 2>&1 | grep -q 'innsigle' || skip "innsigle CLI not resolvable (npx needs network, or install it globally)"
 fi
 
 [ -f "$keys_json" ] || { echo "FAIL: $keys_json missing" >&2; exit 1; }
