@@ -43,13 +43,13 @@ validation:
       description: Escalation path must be defined
       severity: blocking
 
-  automated_checks:
+  pattern_checks:
     - pattern: "\\[Stakeholder Name/Role\\]"
       expected: 0
       message: Replace all placeholder names
 
     - pattern: "Contact Channel|Escalation"
-      expected: ">0"
+      expected: ">=1"
       message: Include contact channel or escalation information
 
 variables:

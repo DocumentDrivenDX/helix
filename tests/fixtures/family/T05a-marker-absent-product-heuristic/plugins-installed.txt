@@ -1,4 +1,0 @@
-# flow_classification: legacy heuristic fallback fixture
-helix-library
-helix
-helix-infra

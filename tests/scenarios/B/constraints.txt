@@ -1,5 +1,0 @@
-Must use PostgreSQL
-OAuth2/OIDC required
-Rate limiting needed
-Docker deployment
-Team of 3 developers

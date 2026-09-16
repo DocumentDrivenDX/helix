@@ -23,6 +23,8 @@ guide; for DDx-specific commands, see [docs/install/ddx.md](../docs/install/ddx.
   runtime boundary, and alignment methodology
 - `activities/*/artifacts/`: canonical artifact-type catalog, prompts, templates,
   metadata, and examples
+- `modes/*.md`: one contract per workflow mode the `helix` skill routes to
+  (`modes/_authoring.md` and `modes/_report.md` are shared contracts)
 - [reconcile-alignment.md](actions/reconcile-alignment.md): top-down review
 - [backfill-helix-docs.md](actions/backfill-helix-docs.md): conservative
   reconstruction

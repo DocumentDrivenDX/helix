@@ -190,17 +190,22 @@ listed in a required context by a specific artifact type.
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `pattern` | string | Regular expression to search for. |
-| `expected` | string or number | Expected match condition, such as `0`, `>=1`, or `>0`. |
+| `expected` | string or number | `0` (the pattern must not match) or `>=N` (at least N matches). |
 | `message` | string | Failure message. |
+| `severity` | string | Optional; `blocking` (default), `warning`, or `informational`. |
 
 `validation.automated_checks` entries are rule-based when regex is not enough:
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `check` | string | Named automated rule. |
-| `type` | string | Rule type, such as `unique_constraint`. |
-| `field` | string | Field the rule applies to. |
-| `not_equals` | string | Disallowed placeholder or value. |
+| `check` | string | Stable check identifier in snake_case. |
+| `type` | string | Rule type: `unique_constraint` or `not_equals`. |
+| `field` | string | Field the rule applies to (a table column or a `**Label**:` line). |
+| `value` | string | `not_equals` only: the disallowed placeholder or value. |
+| `severity` | string | Optional; `blocking` (default), `warning`, or `informational`. |
+| `message` | string | Optional failure message. |
+
+Regex checks belong under `pattern_checks`, never under `automated_checks`.
 
 ### Extension sections
 
@@ -306,6 +311,7 @@ When `home: repo`, no other `authoring` field is permitted.
 | `authoring.tool` | string | yes | Short identifier for the tool, such as `google-slides`, `miro`, or `figma`. |
 | `authoring.origin` | string | yes | URL of the document in the external tool. Permanent: it remains the write surface after content lands. |
 | `authoring.export` | string | after first check-in | Repository-relative path to the committed original file exported from the tool. A path, not a URL. |
+| `authoring.connector` | string | no | Identifier of the host connector (for example `google-docs`, `notion`, `jira`) through which a runtime may read the live document at `authoring.origin`. A read surface only; writes still happen in the tool. |
 
 | `state` | Meaning |
 | --- | --- |

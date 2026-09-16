@@ -1,5 +1,7 @@
 ---
 ddx:
+  authoring:
+    home: repo
   id: ADR-001
   depends_on:
     - recipe-app-prd
@@ -72,7 +74,7 @@ No active project concerns overridden. This is a database selection decision, no
 
 - PRD §Technical Context: Database requirement
 - FEAT-recipe-share: Feature depending on persistent storage
-- Planned: Migration guide (TBD) for upgrading to PostgreSQL
+- Planned: a migration guide for upgrading to PostgreSQL, not yet written
 
 ## Review Checklist
 

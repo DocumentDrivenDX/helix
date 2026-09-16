@@ -1,7 +1,7 @@
 ---
 title: "ADR-009: Acceptance Criteria Live in User-Stories; Feature-Specification Owns Functional Areas and Decomposition"
 slug: ADR-009-acceptance-criteria-ownership
-weight: 250
+weight: 260
 activity: "Design"
 source: "02-design/adr/ADR-009-acceptance-criteria-ownership.md"
 generated: true
@@ -89,4 +89,4 @@ across surfaces
 ## References
 
 - [PRD](/artifacts/prd/)
-- [Plan: 2026-05-30 Artifact Types and Concerns Audit](/artifacts/plan-2026-05-30-artifact-types-and-concerns-audit/)
+- [Plan: 2026-05-30 Artifact Types and Concerns Audit](https://github.com/DocumentDrivenDX/helix/blob/main/docs/archive/helix/02-design/plan-2026-05-30-artifact-types-and-concerns-audit.md)

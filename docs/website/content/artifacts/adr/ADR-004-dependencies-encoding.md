@@ -1,7 +1,7 @@
 ---
 title: "ADR-004: Artifact Dependencies Are Encoded in `meta.yml.relationships` Only (No Separate `dependencies.yaml`)"
 slug: ADR-004-dependencies-encoding
-weight: 200
+weight: 210
 activity: "Design"
 source: "02-design/adr/ADR-004-dependencies-encoding.md"
 generated: true
@@ -120,7 +120,7 @@ to that consumer, not to the catalog.
 
 ## References
 
-- [Audit plan 2026-05-30](/artifacts/plan-2026-05-30-artifact-types-and-concerns-audit/)
+- [Audit plan 2026-05-30](https://github.com/DocumentDrivenDX/helix/blob/main/docs/archive/helix/02-design/plan-2026-05-30-artifact-types-and-concerns-audit.md)
 - [PRD](/artifacts/prd/)
 - [Artifact schema](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/artifact-schema.md)
 - ADR-002: HELIX Tracker Write Safety Model

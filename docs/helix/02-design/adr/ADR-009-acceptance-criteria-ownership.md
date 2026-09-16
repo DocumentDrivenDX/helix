@@ -74,4 +74,4 @@ across surfaces
 ## References
 
 - [PRD](../../01-frame/prd.md)
-- [Plan: 2026-05-30 Artifact Types and Concerns Audit](../plan-2026-05-30-artifact-types-and-concerns-audit.md)
+- [Plan: 2026-05-30 Artifact Types and Concerns Audit](../../../archive/helix/02-design/plan-2026-05-30-artifact-types-and-concerns-audit.md)

@@ -1,0 +1,10 @@
+# Vendored from the sloptimizer skill (easel/easel-skills). Do not edit here.
+# The title.slop rules in skills/helix/scripts/check-deliverable.py are a port of
+# sloptimizer's headline rules; tests/validate-headline-sync.sh requires both to
+# agree on every case in this file. To re-sync: copy the upstream file over
+# headline-cases.json, update the three lines below, and make title.slop agree.
+upstream_path=skills/sloptimizer/tests/fixtures/headline-cases.json
+mannered_tokens=skills/sloptimizer/assets/vale/styles/Sloptimizer/ManneredProse.yml
+external_tokens=skills/sloptimizer/assets/vale/styles/SloptimizerExternal/{StatusJargon,InternalTaxonomy,MarketingRegister}.yml
+upstream_commit=a269347
+sha256=fdf576785f81d92b7ba1959b0a00f7dc02d071320f209995015e1c37e6337fec

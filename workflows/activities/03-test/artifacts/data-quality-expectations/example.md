@@ -11,13 +11,47 @@ ddx:
 
 # Data Quality Expectations: Customer-360 Analytics
 
-## Overview
+## Overview and Scope
 
 Quality expectations are written as testable predicates that the pipeline must
 satisfy before Gold tables are released for analytics queries. They are organized
 by layer (Bronze → Silver → Gold) and severity (P0 blocking, P1 alerting, P2
 observational). Expectations are executed as part of the orchestrated job, using
 Databricks SQL EXPECT clauses and dbt-style tests.
+
+**In scope**: the Customer-360 Bronze, Silver, and Gold tables defined in
+[[data-architecture]] (six Bronze source tables, five Silver tables, three
+Gold tables) and the cross-layer contracts between them. **Out of scope**:
+source-system data quality inside Salesforce and Stripe, BI-tool caching, and
+the v2 streaming path.
+
+### Quality Dimensions
+
+| Dimension | Definition | P0 Threshold | P1 Threshold | Enforcement |
+|-----------|-----------|--------------|--------------|-------------|
+| Completeness | Non-null rate on required columns; daily row count vs prior day | 100% required columns; ≥ 95% of prior-day rows | ≥ 99% required columns | Block next layer if P0 fails |
+| Timeliness | Gold tables refreshed and released | By 07:00 UTC daily | By 09:00 UTC | Alert; hold BI release |
+| Accuracy | Salesforce-to-Stripe reconciliation rate; value domains | ≥ 98% matched; 100% valid status values | Median confidence ≥ 0.95 | Block Gold; manual review |
+| Uniqueness | No duplicate keys in Silver facts and dimensions | 0 duplicates | n/a | Block Gold |
+| Consistency | Cross-layer counts and revenue sums reconcile | ±0.01% | ±0.1% | Block BI release |
+
+### Test Framework and Tooling
+
+- **Framework**: Databricks SQL assertions returning `expectation_passed`,
+  plus SDP `EXPECT ... ON VIOLATION` clauses on the Silver streaming tables
+  where the assertion is row-level.
+- **Execution**: Databricks Workflows tasks after each layer's load; results
+  written to `gold.data_quality_log`.
+- **Alerting**: `#data-platform-incidents` for P0; summary email to the
+  analytics team for P1.
+- **Remediation**: quarantine the failing batch, fix forward, rerun the layer.
+
+### Testing Philosophy
+
+All expectations run exhaustively on every load; Customer-360 volumes (tens of
+thousands of rows per day) do not justify sampling. If Stripe charge volume
+grows past ten million rows per day, GE-101 and SE-102 may move to a 10%
+sample with a documented 95% confidence interval.
 
 ## Bronze Layer Expectations
 
@@ -364,7 +398,56 @@ WHERE unpaid_invoice_count > 0
 **Severity**: P1 (alert; prioritize collection or investigate stuck Stripe records)
 **Owner**: Data Engineering, Finance
 
-## Test Execution
+## Cross-Layer Contracts
+
+Contracts that span layers catch transformations that pass every per-layer
+check yet lose or duplicate data between layers. All cross-layer contracts are
+P0 and run after the Gold aggregation task, before release to BI.
+
+### Layer-to-Layer Validation
+
+| Contract | Assertion | If Violated | Severity |
+|----------|-----------|-------------|----------|
+| CL-001 Bronze → Silver customer cardinality | Distinct `customer_id` in `silver.dim_customer` = distinct Salesforce account ids in today's Bronze load (unmatched accounts still get a flagged dim row) | Block Gold; investigate SE-001 matching | P0 |
+| CL-002 Silver → Gold customer cardinality | Row count of `gold.dim_customer_account` = row count of `silver.dim_customer` | Reject Gold; re-aggregate | P0 |
+| CL-003 Silver → Gold revenue reconciliation | Monthly `SUM(monthly_revenue_amount)` in Gold = monthly `SUM(amount)` of paid transactions in Silver, within 0.01% | Reject Gold; Finance and on-call audit | P0 |
+| CL-004 Gold → Silver lineage | Every `subscription_id` in `gold.fct_subscription_health` exists in `silver.fct_subscription_event` | Quarantine Gold rows; alert | P0 |
+
+### Cross-Table Contracts
+
+```sql
+-- CL-003: revenue sums reconcile between Silver and Gold per month
+WITH silver_rev AS (
+  SELECT DATE_TRUNC('month', payment_date) AS year_month, SUM(amount) AS amount
+  FROM silver.fct_payment_transaction
+  WHERE payment_status = 'paid'
+  GROUP BY 1
+),
+gold_rev AS (
+  SELECT year_month, SUM(monthly_revenue_amount) AS amount
+  FROM gold.fct_monthly_revenue
+  GROUP BY 1
+)
+SELECT COUNT(*) = 0 AS expectation_passed
+FROM silver_rev s
+FULL OUTER JOIN gold_rev g USING (year_month)
+WHERE s.amount IS NULL
+   OR g.amount IS NULL
+   OR ABS(s.amount - g.amount) / NULLIF(s.amount, 0) > 0.0001;
+
+-- CL-004: no orphaned subscriptions in Gold
+SELECT COUNT(*) = 0 AS expectation_passed
+FROM gold.fct_subscription_health h
+WHERE NOT EXISTS (
+  SELECT 1 FROM silver.fct_subscription_event e
+  WHERE e.subscription_id = h.subscription_id
+);
+```
+
+**Severity**: P0 (block release to BI)
+**Owner**: Data Engineering (CL-001, CL-002, CL-004); Data Engineering and Finance (CL-003)
+
+## Failure Handling and SLA
 
 ### Orchestration Integration
 
@@ -377,14 +460,52 @@ Silver Transform → [Validate SE-001 to SE-102]
   ↓ (if all P0 pass; P1s logged)
 Gold Aggregation → [Validate GE-001 to GE-102]
   ↓ (if all P0 pass; P1s logged)
-Release to BI (if GE-001, GE-002, GE-003 pass)
+Cross-Layer Contracts → [Validate CL-001 to CL-004]
+  ↓ (if all pass)
+Release to BI (if GE-001, GE-002, GE-003 and CL-001 to CL-004 pass)
 ```
 
-### Reporting
+### Alert and Escalation Policy
 
-- **Blocking failures (P0)**: Halt pipeline; send incident alert to `#data-platform-incidents`
-- **Warnings (P1)**: Log to `gold.data_quality_log`; send summary email to analytics team
-- **Dashboard**: Daily expectation summary in `gold.data_quality_dashboard` showing pass/fail counts per layer
+| Expectation | Severity | Detection SLA | Escalation | Action |
+|-------------|----------|---------------|------------|--------|
+| BE-001 to BE-003 (Bronze completeness, domains) | Blocking | < 5 min after Bronze load | Page data-eng on-call | Hold Silver load; check source export job |
+| BE-101, BE-102 | Warning | < 5 min after Bronze load | Slack summary | Continue; review before Gold release |
+| SE-001 to SE-003 (reconciliation, uniqueness, lineage) | Blocking | < 10 min after Silver load | Page on-call, Slack | Stop pipeline; review matching or source duplicates |
+| SE-004 (PII hashing) | Blocking | < 10 min after Silver load | Page on-call and compliance owner | Halt pipeline; compliance review before any rerun |
+| SE-101, SE-102 | Warning | < 10 min after Silver load | Email analytics team | Continue; investigate Stripe export or match tuning |
+| GE-001 to GE-003 (Gold completeness, domains) | Blocking | < 15 min after Gold load | Page on-call | Withhold BI release; re-aggregate |
+| GE-101, GE-102 | Warning | < 15 min after Gold load | Email analytics and Finance | Release with low-confidence flag; audit within 24 h |
+| CL-001 to CL-004 (cross-layer) | Blocking | < 30 min after Gold load | Page on-call; CL-003 also Finance | Withhold BI release; reconcile and rerun Gold |
+
+### Failure Recovery
+
+**On blocking failure**:
+1. Stop the workflow; no downstream task starts.
+2. Alert `#data-platform-incidents` and page the on-call data engineer.
+3. Write the failing expectation id, row counts, and sample keys to
+   `gold.data_quality_log`.
+4. Move the failing batch (partition `date_loaded`) to
+   `main.customer_360_quarantine` for review.
+5. No automatic retry; rerun the layer only after a fix is approved by the
+   Data Engineering Lead.
+
+**On warning failure**:
+1. Log the result to `gold.data_quality_log`.
+2. Post a Slack summary (no page).
+3. Continue the pipeline and flag affected Gold rows `low_confidence = true`.
+4. Complete a manual audit within 24 hours.
+
+### SLA Targets
+
+- **Detection**: < 5 min after Bronze load, < 15 min after Silver or Gold
+  load, < 30 min for cross-layer contracts.
+- **Recovery**: Gold released by 09:00 UTC after a blocking failure; mean time
+  to recovery ≤ 2 hours from page to rerun.
+- **False positive rate**: < 1% of expectation runs; thresholds are tuned per
+  the Maintenance and Tuning cadence below.
+- **Reporting**: daily pass/fail summary per layer in
+  `gold.data_quality_dashboard`.
 
 ## Maintenance and Tuning
 

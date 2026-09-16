@@ -66,13 +66,13 @@ validation:
       description: Each risk must have a mitigation strategy
       severity: warning
 
-  automated_checks:
+  pattern_checks:
     - pattern: "\\[NEEDS CLARIFICATION"
       expected: 0
       message: Remove all clarification markers before approval
 
     - pattern: "P0|Must Have"
-      expected: ">0"
+      expected: ">=1"
       message: PRD must define at least one P0 requirement
 
 variables:

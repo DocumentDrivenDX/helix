@@ -33,6 +33,11 @@ The skill is portable because its minimum runtime contract is simple: read
 Markdown, search files, write Markdown when approved, and present a plan for
 review.
 
+The same skill also projects those documents into decks, one-pagers, and briefs
+for people outside engineering, with every figure traced to its source; see
+[Decks and Briefs from Governed Documents](/use/decks-and-briefs/) and
+[the anti-slop rules](/use/anti-slop/) those outputs must pass.
+
 The full inputs, outputs, authority-hierarchy rule, open-question
 behavior, and runtime expectations live on the
 [invocation reference](/reference/skills/); the

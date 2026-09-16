@@ -207,6 +207,10 @@ nodes:
   type: library:runbook
   activity: 05-deploy
   cardinality: many
+- id: deliverable
+  type: library:deliverable
+  activity: 06-iterate
+  cardinality: many
 - id: improvement-backlog
   type: library:improvement-backlog
   activity: 06-iterate

@@ -1,3 +1,7 @@
+# Checks name what must be true, not the toolchain that proves it. The
+# adopting project supplies the concrete command for each automated check
+# (its test runner, coverage, audit, and lint commands); HELIX imposes no
+# technology choice.
 activity: build
 number: "04"
 
@@ -15,7 +19,6 @@ entry_requirements:
       description: "Test suites from Test activity must exist"
 
     - check: tests_failing
-      command: "npm test || go test ./... || pytest"
       description: "Tests must be failing (Red activity ready for implementation)"
 
     - check: file_exists
@@ -33,24 +36,20 @@ exit_requirements:
   automated:
     # All tests passing
     - check: tests_passing
-      command: "npm test || go test ./... || pytest"
       description: "All tests must pass"
 
     # Coverage thresholds
     - check: coverage_threshold
       threshold: 80
-      command: "npm run coverage || go test -cover ./... || pytest --cov"
       description: "Code coverage must be at least 80%"
 
     # Security scan
     - check: security_scan_clean
-      command: "npm audit --audit-level=high || gosec ./... || bandit -r ."
       severity: high
       description: "No high or critical security vulnerabilities"
 
     # Linting passes
     - check: lint_clean
-      command: "npm run lint || golangci-lint run || flake8"
       description: "No linting errors"
 
     # Build artifacts

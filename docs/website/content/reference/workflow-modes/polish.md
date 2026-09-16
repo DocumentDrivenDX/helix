@@ -1,11 +1,11 @@
 ---
 title: "Polish"
 slug: polish
-weight: 110
+weight: 150
 generated: true
 ---
 
-Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/helix/blob/main/skills/helix/SKILL.md), the HELIX skill. Edit the skill, not this page.
+Generated from [`workflows/modes/polish.md`](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/modes/polish.md), the mode contract the HELIX skill loads. Edit that file, not this page.
 
 Use to refine work items before execution.
 
@@ -20,3 +20,5 @@ Use to refine work items before execution.
    or observable repository states.
 5. If acceptance cannot be sharpened from governing artifacts, flag the work as
    not execution-ready and route it back through planning.
+
+Procedure: `workflows/actions/polish.md` (deeper step detail; this file is the contract).

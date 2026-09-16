@@ -29,13 +29,13 @@ validation:
       description: Each item should include Source and Revisit Trigger
       severity: warning
 
-  automated_checks:
+  pattern_checks:
     - pattern: "\\*\\*Source\\*\\*:"
-      expected: ">0"
+      expected: ">=1"
       message: Items should include a Source field
 
     - pattern: "\\*\\*Revisit Trigger\\*\\*:"
-      expected: ">0"
+      expected: ">=1"
       message: Items should include a Revisit Trigger field
 
 prompts:

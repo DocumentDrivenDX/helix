@@ -13,6 +13,7 @@ Every bounded action prompt under `workflows/actions/*.md` must be:
                      `security` inside `security-requirements` — does not count as
                      registration. Registry surfaces:
                        - skills/helix/SKILL.md        (intent -> mode routing)
+                       - workflows/modes/*.md         (mode contracts)
                        - workflows/REFERENCE.md       (canonical methodology docs)
                        - workflows/QUICKSTART.md      (bounded action prompts)
                        - workflows/workflow.yml       (activity contract_docs)
@@ -54,6 +55,8 @@ def main() -> int:
 
     registry = "\n".join(
         f.read_text(encoding="utf-8") for f in REGISTRY_FILES if f.is_file()
+    ) + "\n" + "\n".join(
+        f.read_text(encoding="utf-8") for f in sorted((REPO_ROOT / "workflows" / "modes").glob("*.md"))
     )
 
     actions = sorted(ACTIONS_DIR.glob("*.md"))

@@ -56,25 +56,25 @@ validation:
       description: At least one edge case documented
       severity: warning
 
-  automated_checks:
+  pattern_checks:
     - pattern: "\\*\\*As a\\*\\*"
-      expected: ">0"
+      expected: ">=1"
       message: Story must name the persona
 
     - pattern: "\\*\\*I want\\*\\*"
-      expected: ">0"
+      expected: ">=1"
       message: Story must name the user's goal
 
     - pattern: "\\*\\*So that\\*\\*"
-      expected: ">0"
+      expected: ">=1"
       message: Story must name the value or outcome
 
     - pattern: "Given .* [Ww]hen "
-      expected: ">0"
+      expected: ">=1"
       message: Must include testable Given/When acceptance criteria
 
     - pattern: "[Tt]hen "
-      expected: ">0"
+      expected: ">=1"
       message: Must include observable outcomes in acceptance criteria
 
 variables:

@@ -89,7 +89,7 @@ validation:
       description: Downstream projection names the artifacts or public pages that should inherit the PR-FAQ argument
       severity: blocking
 
-  automated_checks:
+  pattern_checks:
     - pattern: "\\[TBD\\]|\\[TODO\\]|\\[NEEDS CLARIFICATION"
       expected: 0
       message: Remove all unresolved markers before approval

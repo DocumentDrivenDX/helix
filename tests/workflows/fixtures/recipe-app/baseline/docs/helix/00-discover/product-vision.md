@@ -1,5 +1,7 @@
 ---
 ddx:
+  authoring:
+    home: repo
   id: recipe-app-vision
   depends_on: []
   status: draft

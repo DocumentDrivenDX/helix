@@ -1,0 +1,65 @@
+{
+  "id": "frame-prd-from-vision",
+  "mode": "frame",
+  "seconds": 447.0,
+  "run_ok": true,
+  "cost_usd": 6.750950249999999,
+  "turns": 64,
+  "checks_passed": 5,
+  "checks_total": 5,
+  "checks": [
+    {
+      "kind": "files_exist",
+      "ok": true,
+      "detail": "present ['docs/helix/01-frame/prd.md']"
+    },
+    {
+      "kind": "validate_instance",
+      "ok": true,
+      "detail": "1 artifact(s) valid"
+    },
+    {
+      "kind": "files_unchanged",
+      "ok": true,
+      "detail": "unchanged"
+    },
+    {
+      "kind": "output_not_contains",
+      "ok": true,
+      "detail": "clean"
+    },
+    {
+      "kind": "max_new_files",
+      "ok": true,
+      "detail": "2 new file(s): ['docs/helix/01-frame/prd.md', 'docs/helix/01-frame/concerns.md']"
+    }
+  ],
+  "judge": {
+    "scores": [
+      {
+        "item": 1,
+        "score": 2,
+        "reason": "The PRD links informed_by to recipe-app-vision and its summary, personas, goals, and non-goals explicitly reference vision elements (mobile-first, ad-free, home cooks 25-55, peer ratings, publishing, the grocery-cart scenario), with deferred scope pushed to non-goals rather than added as requirements."
+      },
+      {
+        "item": 2,
+        "score": 2,
+        "reason": "Nine explicit non-goals are listed with rationale, each consistent with the vision's ad-free, web-first, community-recipe positioning, and the cart-integration exclusion is tied directly back to the vision scenario."
+      },
+      {
+        "item": 3,
+        "score": 2,
+        "reason": "concerns.md records slot resolution, twenty active concerns with rationale, eight rejected concerns with revisit triggers, and marks every entry as an inference pending operator confirmation."
+      },
+      {
+        "item": 4,
+        "score": 2,
+        "reason": "Eleven open questions are recorded, missing baselines and product owner are flagged as open, leading-indicator targets are marked provisional, and datastore, deploy target, and architecture choices are labeled as assumptions needing ADRs rather than presented as settled."
+      }
+    ],
+    "total": 8,
+    "max": 8
+  },
+  "diff_stat": "?? docs/helix/01-frame/\n",
+  "result": "Framing is complete. Final report follows.\n\n**Routing.** HELIX engaged in `frame` mode, product lane. The marker at the repo root authorizes `helix` at `docs/helix/` with autonomy `high`. No in-tree catalog exists, so the graph, templates, and concern library bound from the source checkout at `/Users/erik/Projects/helix/workflows/`. Two governed artifacts were written; no code was touched.\n\n**Created**\n\n- `docs/helix/01-frame/prd.md` (`recipe-app-prd`, draft, `kind: product`). Frames RecipeHub from the vision: problem, four outcome goals, five metrics with named measurement methods, nine non-goals, three personas, 7 P0 / 5 P1 / 4 P2 requirements, 29 functional requirements under nine subsystems, one acceptance sketch per P0, technical context, risks, and eleven open questions. Links upstream to `recipe-app-vision`.\n- `docs/helix/01-frame/concerns.md` (`recipe-app-concerns`, draft). Records the concern selection with each entry marked as an inference, per high autonomy.\n\n**Concern selection.** No `concerns.local.yml` existed, so slots resolved from shipped defaults: React + Next.js, TypeScript + Bun, Playwright, and local sessions. Three slots had no default and were filled as recorded assumptions needing ADRs: PostgreSQL 16 for the datastore, an unresolved deploy target, and classic-layered architecture. Twenty composable concerns are active, including `auth`, `authorization-model`, `security-owasp`, `a11y-wcag-aa`, `relational-data-modeling`, `sample-data`, `verification`, `twelve-factor`, and `o11y-otel`. Eight concerns were considered and rejected with revisit triggers, notably `admin-console` (gated on P2 moderation tooling) and `domain-driven-design`. Four project overrides are recorded, including the Bun + Next.js runtime friction and a phone-viewport Playwright project.\n\n**Validation.** All eight required PRD sections are present, no template placeholders remain, FR IDs are sequential with no duplicates, the P0 count is seven, and both frontmatter blocks parse. Each file is well under the 500-line stop threshold.\n\n**Left out, and why**\n\n- No principles bootstrap. It requires interactive answers from the operator, so HELIX defaults were applied and the gap is an open question in the PRD.\n- No parking lot, feature specs, or user stories. They were outside the requested scope. Deferred items sit in the PRD non-goals until a parking lot exists.\n- No work items. The repo has no tracker.\n\n**Next actions the PRD needs from people:** name the product owner, decide whether anonymous browsing is allowed, and settle the datastore, deploy target, architecture style, runtime, and permission model ADRs before design begins.\n\n```\nFRAME_STATUS: COMPLETE\nARTIFACTS_CREATED: 2\nARTIFACTS_UPDATED: 0\nITEMS_CREATED: 0\nMEASURE_STATUS: PASS\nITEM_ID: none (no tracker)\nFOLLOW_ON_CREATED: 0\n```"
+}

@@ -1,7 +1,7 @@
 ---
 title: "ADR-013: Cross-phase informs edges are valid when declared on the downstream artifact"
 slug: ADR-013-cross-phase-informs-edges
-weight: 290
+weight: 300
 activity: "Design"
 source: "02-design/adr/ADR-013-cross-phase-informs-edges.md"
 generated: true
@@ -91,5 +91,5 @@ follow-up validator concern, not required by this ADR
 ## References
 
 - [PRD](/artifacts/prd/)
-- [Plan: 2026-05-30 Artifact Types and Concerns Audit](/artifacts/plan-2026-05-30-artifact-types-and-concerns-audit/)
+- [Plan: 2026-05-30 Artifact Types and Concerns Audit](https://github.com/DocumentDrivenDX/helix/blob/main/docs/archive/helix/02-design/plan-2026-05-30-artifact-types-and-concerns-audit.md)
 - ADR-004: Dependencies Encoding

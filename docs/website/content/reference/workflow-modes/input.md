@@ -1,11 +1,11 @@
 ---
 title: "Input"
 slug: input
-weight: 10
+weight: 130
 generated: true
 ---
 
-Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/helix/blob/main/skills/helix/SKILL.md), the HELIX skill. Edit the skill, not this page.
+Generated from [`workflows/modes/input.md`](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/modes/input.md), the mode contract the HELIX skill loads. Edit that file, not this page.
 
 Use for sparse user intent that needs to become governed HELIX work.
 
@@ -16,3 +16,5 @@ Use for sparse user intent that needs to become governed HELIX work.
    authority is missing.
 4. Keep created work standalone: include context, acceptance criteria, labels,
    parent/dependency relationships, and verification commands.
+
+Procedure: `workflows/actions/input.md` (deeper step detail; this file is the contract).

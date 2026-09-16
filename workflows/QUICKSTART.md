@@ -27,17 +27,15 @@ Read these files in order when you need the canonical contract:
 2. [REFERENCE.md](REFERENCE.md) — activity summary, methodology actions, and
    decision guide
 3. [conventions.md](conventions.md) — documentation layout and naming
-4. The runtime integration appendix for your runtime (see [DDX.md](DDX.md) for
-   the DDx reference integration)
+4. The install guide for your runtime (see
+   [docs/install/ddx.md](../docs/install/ddx.md) for DDx)
 
 Use the bounded action prompts only when you are doing the corresponding work:
 
 - [input.md](actions/input.md)
 - [frame.md](actions/frame.md)
 - [evolve.md](actions/evolve.md)
-- [implementation.md](actions/implementation.md)
 - [measure.md](actions/measure.md)
-- [check.md](actions/check.md)
 - [reconcile-alignment.md](actions/reconcile-alignment.md)
 - [backfill-helix-docs.md](actions/backfill-helix-docs.md)
 - [report.md](actions/report.md)
@@ -126,5 +124,4 @@ Execution rules:
 
 The bootstrap, queue-control, manual-loop, and validation commands for a given
 runtime live in that runtime's install guide. For DDx-specific commands, see
-[docs/install/ddx.md](../docs/install/ddx.md). For the runtime-neutral execution
-model, read [EXECUTION.md](EXECUTION.md).
+[docs/install/ddx.md](../docs/install/ddx.md).

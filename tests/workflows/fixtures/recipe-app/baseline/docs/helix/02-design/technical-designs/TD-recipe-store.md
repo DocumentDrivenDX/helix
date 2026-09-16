@@ -1,5 +1,7 @@
 ---
 ddx:
+  authoring:
+    home: repo
   id: TD-recipe-store
   depends_on:
     - FEAT-recipe-share

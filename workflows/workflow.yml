@@ -1,16 +1,11 @@
 # DDx plugin metadata stub — DDx-coupled by nature.
 # This file is a registry entry consumed by the DDx plugin loader.
 # It is NOT a runtime-neutral HELIX artifact; it describes where DDx finds
-# the normative workflow contract inside its plugin tree.
+# the methodology contract inside its plugin tree.
 #
-# Runtime-neutral state definitions live in:
-#   workflows/state-machine.yaml  — activity graph and gate conditions
-#   workflows/state-rules.yml     — artifact patterns and state-detection rules
-#
-# DDx plugin normative contract lives in:
+# Methodology contract lives in:
 # - workflows/README.md
-# - workflows/EXECUTION.md
-# - workflows/TRACKER.md
+# - workflows/activities/*/README.md and GATE.yaml
 # - workflows/actions/*.md bounded action prompts
 
 name: helix
@@ -64,7 +59,6 @@ activities:
     contract_docs:
       - workflows/activities/04-build/README.md
       - workflows/activities/04-build/GATE.yaml
-      - workflows/actions/implementation.md
       - workflows/actions/converge.md
       - workflows/actions/decompose-module.md
       - workflows/actions/e2e-ladder.md
@@ -84,7 +78,6 @@ activities:
     contract_docs:
       - workflows/activities/06-iterate/README.md
       - workflows/activities/06-iterate/GATE.yaml
-      - workflows/actions/check.md
       - workflows/actions/reconcile-alignment.md
       - workflows/actions/backfill-helix-docs.md
       - workflows/actions/project-audit.md

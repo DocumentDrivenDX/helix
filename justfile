@@ -1,7 +1,7 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-deploy-artifacts test-state-rules test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-surface-leakage test-microsite-doctrine test-context-digests test-actions
+test: test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable test-headline-sync test-deck-render test-demos
 
 # Serve the HELIX microsite at the canonical local review URL.
 website-serve:
@@ -10,10 +10,6 @@ website-serve:
 # Validate deploy artifact graph consistency
 test-deploy-artifacts:
     bash tests/validate-deploy-artifacts.sh
-
-# Validate state detection rules
-test-state-rules:
-    bash tests/validate-state-rules.sh
 
 # Run skill package validation
 test-skills:
@@ -31,6 +27,10 @@ test-plugin-catalog-resolution:
 test-genie-bundle:
     bash tests/validate-genie-bundle.sh
 
+# Validate install surfaces: manifests agree, one install guide, Copilot file is a pointer
+test-install-consistency:
+    bash tests/validate-install-consistency.sh
+
 # Validate Frame/TD artifacts do not define exact interface surfaces outside Contract
 test-surface-leakage:
     bash tests/validate-surface-leakage.sh
@@ -47,6 +47,10 @@ test-context-digests:
 test-actions:
     bash tests/validate-actions.sh
 
+# Validate artifact instances against catalog validation blocks
+test-validate-instance:
+    bash tests/validate-instance.sh
+
 # Run all tests and check for stale references
 check: test lint
 
@@ -54,7 +58,6 @@ check: test lint
 lint:
     @echo "Checking for stale command references..."
     @! grep -rn 'NEXT_ACTION.*IMPLEMENT\b' workflows/ tests/ --include='*.sh' --include='*.md' 2>/dev/null | grep -v 'BUILD|IMPLEMENT' || (echo "FAIL: stale IMPLEMENT references found" && exit 1)
-    @! grep -rn 'NEXT_ACTION.*\bPLAN\b' workflows/actions/check.md tests/ 2>/dev/null | grep -v 'DESIGN|PLAN_STATUS\|PLAN_DOCUMENT\|PLAN_ROUNDS' || (echo "FAIL: stale PLAN references found" && exit 1)
     @echo "Checking git diff..."
     @git diff --check || true
     @echo "Lint OK"
@@ -101,15 +104,28 @@ genie-verify:
 install-test:
     bash tests/install/run-all.sh
 
-# Validate helix-family bench fixture structure (stdlib-only walker)
-test-family-fixtures-structure:
-    python3 tests/family/validate_fixture_structure.py
-
-# Dry-run a single helix-family bench fixture (no claude invocation yet)
-test-family-fixture-dry-run FIXTURE:
-    python3 tests/family/run_fixture.py {{FIXTURE}}
+# Validate demo session records, renders, and the assertions parser
+test-demos:
+    bash tests/validate-demos.sh
+    PYTHONPATH=. python3 tests/test_check_assertions_parser.py
 
 # Show test count
 count:
     @echo "Skill files: $(find skills -name 'SKILL.md' | wc -l)"
     @echo "Test scripts: $(ls tests/*.sh tests/*.py 2>/dev/null | wc -l)"
+
+# Validate deliverable scripts (deck/one-pager/brief) with check-deliverable.py
+test-validate-deliverable:
+    bash tests/validate-deliverable.sh
+
+# Render the catalog deck example to pptx, validate it, and run deck-qa.py (needs node with pptxgenjs on NODE_PATH, LibreOffice, pdftoppm)
+test-deck-render:
+    bash tests/validate-deck-render.sh
+
+# Run the headless skill eval with rubric scoring (calls the host per brief; costs money and minutes)
+eval:
+    python3 scripts/run-eval.py --judge
+
+# Keep the ported title rules in sync with sloptimizer's headline fixtures
+test-headline-sync:
+    bash tests/validate-headline-sync.sh

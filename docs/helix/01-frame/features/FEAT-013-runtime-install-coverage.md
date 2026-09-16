@@ -121,14 +121,16 @@ without making any chat calls.
 [DOC-01]. `docs/install/README.md` MUST list the five runtimes and
 their canonical install commands.
 
-[DOC-02]. Each per-runtime doc under `docs/install/` MUST name a
+[DOC-02]. Each host section of `docs/install/README.md` MUST name a
 single canonical install command (not "git clone") plus a verification
 prompt taken from the routing skill's expected response.
 
-[DOC-03]. `docs/install/copilot.md` MUST exist as a runtime-specific
-guide separate from the Codex CLI guide, covering
-`.github/copilot-instructions.md`, optional `.github/instructions/`
-path-scoping, and Copilot CLI headless verification.
+[DOC-03]. `docs/install/README.md` MUST carry a GitHub Copilot section
+separate from the Codex CLI section, covering
+`.github/copilot-instructions.md` (a thin pointer to the skill, kept
+under test so it cannot fork the mode contracts), optional
+`.github/instructions/` path-scoping, and Copilot CLI headless
+verification.
 
 [DOC-04]. `docs/install/databricks-genie.md` MUST reflect the
 agentskills.io-correct layout (`helix/SKILL.md` directly under the

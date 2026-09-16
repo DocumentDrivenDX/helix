@@ -171,7 +171,7 @@ Best fit for HELIX is **repository custom instructions**:
   and `workflows/activities/` (the catalog).
 - For HELIX content in adopter repos, ship a template
   `.github/copilot-instructions.md` users can copy or include via
-  symlink. The HELIX install doc at `docs/install/codex.md` already
+  symlink. The GitHub Copilot section of `docs/install/README.md`
   describes this.
 - Optional per-path scoping with `.github/instructions/*.instructions.md`
   for narrowing HELIX guidance to specific subtrees (e.g. only apply

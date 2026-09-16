@@ -76,6 +76,9 @@ Pick the guide for your environment and you're up in minutes.
   Start by installing HELIX into the tool where your agent works. The HELIX
   skill reads your project documents, finds missing or stale context, and
   proposes the next document update. You stay in control of what changes.
+  The same skill turns those documents into
+  <a href="use/decks-and-briefs">decks and briefs</a> for people outside
+  engineering, with every figure traced to its source.
 </p>
 
 <div class="helix-home-grid helix-loop-steps">

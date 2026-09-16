@@ -22,8 +22,8 @@ python3 "$repo_root/scripts/sync_references.py" "$expected_refs" >/dev/null
 bundle_root="$bundle_parent/helix"
 
 [[ -f "$bundle_root/SKILL.md" ]] || fail "missing bundle SKILL.md"
-[[ -f "$bundle_root/library/skill-prompts/stop-at-triggers.yml" ]] || \
-  fail "missing bundle library prompt"
+[[ -f "$bundle_root/references/stop-triggers.yml" ]] || \
+  fail "missing bundle stop triggers"
 [[ ! -e "$bundle_root/workflows" ]] || \
   fail "Genie bundle must not carry a duplicate workflows/ tree"
 

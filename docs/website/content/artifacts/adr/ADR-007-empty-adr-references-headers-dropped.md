@@ -1,7 +1,7 @@
 ---
 title: "ADR-007: Empty ADR References Headers Are Dropped; Required Only When a Concern Cites a Specific ADR"
 slug: ADR-007-empty-adr-references-headers-dropped
-weight: 230
+weight: 240
 activity: "Design"
 source: "02-design/adr/ADR-007-empty-adr-references-headers-dropped.md"
 generated: true
@@ -84,4 +84,4 @@ Phase 3 | schema validator keeps the section optional
 ## References
 
 - [PRD](/artifacts/prd/)
-- [Plan: 2026-05-30 Artifact Types and Concerns Audit](/artifacts/plan-2026-05-30-artifact-types-and-concerns-audit/)
+- [Plan: 2026-05-30 Artifact Types and Concerns Audit](https://github.com/DocumentDrivenDX/helix/blob/main/docs/archive/helix/02-design/plan-2026-05-30-artifact-types-and-concerns-audit.md)

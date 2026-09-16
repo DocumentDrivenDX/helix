@@ -65,14 +65,14 @@ validation:
       description: Feature specs may name high-level interface dependencies but must not define exact API, CLI, event, schema, config, telemetry, or adapter surfaces; use Contract artifacts for normative interface detail
       severity: blocking
 
-  automated_checks:
+  pattern_checks:
     - pattern: "\\[NEEDS CLARIFICATION"
       expected: 0
-      message: Resolve all clarification markers for P0 features
-      severity: blocking_for_p0
+      message: Resolve all clarification markers before approval; a P0 feature cannot be approved with any open marker
+      severity: blocking
 
     - pattern: "must|shall|will"
-      expected: ">0"
+      expected: ">=1"
       message: Use clear requirement language
 
 variables:

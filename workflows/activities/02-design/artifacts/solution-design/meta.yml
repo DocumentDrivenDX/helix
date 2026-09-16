@@ -46,7 +46,7 @@ validation:
       description: Major components or subsystems must be identified
       severity: blocking
 
-  automated_checks:
+  pattern_checks:
     - pattern: "SD-\\d{3}-"
       expected: ">=1"
       message: Must use numbered SD naming

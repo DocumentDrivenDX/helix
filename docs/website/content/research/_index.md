@@ -61,8 +61,6 @@ publishes research-derived artifacts alongside its governing artifacts, so the
 reasoning chain is inspectable.
 
 {{< cards >}}
-  {{< card link="../artifacts/research-principles-injection-2026-04-05/" title="Principles Injection Study" subtitle="Measured how prompt context changes agent alignment, auditability, and token cost." icon="chart-bar" >}}
-  {{< card link="../artifacts/prompt-iteration-protocol/" title="Prompt Iteration Protocol" subtitle="Defines how HELIX evaluates prompt changes and records evidence during iteration." icon="refresh" >}}
   {{< card link="../artifacts/metrics-dashboard/" title="Metrics Dashboard" subtitle="Shows how iteration evidence is made visible after release work." icon="presentation-chart-line" >}}
 {{< /cards >}}
 

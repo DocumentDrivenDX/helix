@@ -47,10 +47,14 @@ validation:
       description: Recommendations must be specific and implementable
       severity: warning
 
-  automated_checks:
-    - pattern: "HYPOTHESIS:|FINDING:|RECOMMENDATION:"
-      expected: ">0"
-      message: Must include hypothesis, findings, and recommendations
+  pattern_checks:
+    - pattern: "\\*\\*FINDING \\d+\\*\\*:"
+      expected: ">=1"
+      message: "Must state at least one numbered **FINDING n**: with evidence"
+
+    - pattern: "\\*\\*RECOMMENDATION\\*\\*:"
+      expected: ">=1"
+      message: "Must state a **RECOMMENDATION**: with rationale and next steps"
 
     - pattern: "\\[INVESTIGATE\\]|\\[TODO\\]|\\[TBD\\]"
       expected: 0

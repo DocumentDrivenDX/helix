@@ -1,1 +1,0 @@
-Record an ADR for picking VPC peering over transit gateway.

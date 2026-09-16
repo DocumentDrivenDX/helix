@@ -44,9 +44,9 @@ validation:
       description: Key risks must have mitigation strategies
       severity: warning
 
-  automated_checks:
+  pattern_checks:
     - pattern: "FEASIBLE|NOT FEASIBLE|HIGH RISK"
-      expected: ">0"
+      expected: ">=1"
       message: Must provide clear feasibility assessment for each dimension
 
     - pattern: "\\[NEEDS INVESTIGATION"

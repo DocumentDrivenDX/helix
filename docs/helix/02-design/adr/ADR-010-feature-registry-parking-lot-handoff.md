@@ -68,6 +68,6 @@ boundary, so the boundary must be visible in the artifact shape
 
 ## References
 
-- [Plan: artifact-types and concerns audit](/Users/erik/Projects/helix/docs/helix/02-design/plan-2026-05-30-artifact-types-and-concerns-audit.md)
+- [Plan: artifact-types and concerns audit](../../../archive/helix/02-design/plan-2026-05-30-artifact-types-and-concerns-audit.md)
 - `workflows/activities/01-frame/artifacts/feature-registry/`
 - `workflows/activities/01-frame/artifacts/parking-lot/`

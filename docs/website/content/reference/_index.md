@@ -10,6 +10,7 @@ or the exact behavior.
 {{< cards >}}
   {{< card link="glossary" title="Glossary" subtitle="Activities, artifacts, actions, concerns, concepts, and reference-runtime terms." icon="book-open" >}}
   {{< card link="workflow-modes" title="Workflow Modes" subtitle="The intent-to-mode routing table and per-mode contracts, generated from the HELIX skill." icon="map" >}}
+  {{< card link="anti-slop-rules" title="Anti-slop Rules" subtitle="Every deterministic title, shape, prose, and visual rule the deliverable gate enforces, generated from the scripts." icon="shield-check" >}}
   {{< card link="skills" title="Skills" subtitle="Agent skills available in HELIX-aware sessions, with installation and invocation." icon="puzzle" >}}
   {{< card link="demos" title="Demos" subtitle="Reproducible terminal recordings of HELIX building features end-to-end." icon="film" >}}
 {{< /cards >}}

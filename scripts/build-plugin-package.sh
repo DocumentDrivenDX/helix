@@ -35,7 +35,6 @@ cd "$REPO_ROOT"
 
 OUT_DIR="$OUT_PARENT/helix"
 SRC_SKILL="skills/helix/SKILL.md"
-SRC_LIBRARY="library"
 
 required_paths=(
   ".claude-plugin/plugin.json"
@@ -43,7 +42,8 @@ required_paths=(
   ".codex-plugin/plugin.json"
   "hooks/hooks.json"
   "$SRC_SKILL"
-  "$SRC_LIBRARY/skill-prompts/stop-at-triggers.yml"
+  "skills/helix/scripts/validate-instance.py"
+  "workflows/stop-triggers.yml"
   "workflows/activities"
   "workflows/concerns"
   "workflows/graph.yml"
@@ -85,7 +85,7 @@ cp -f .claude-plugin/marketplace.json "$OUT_DIR/.claude-plugin/marketplace.json"
 cp -f .codex-plugin/plugin.json "$OUT_DIR/.codex-plugin/plugin.json"
 cp -f hooks/hooks.json "$OUT_DIR/hooks/hooks.json"
 cp -f "$SRC_SKILL" "$OUT_DIR/skills/helix/SKILL.md"
-cp -Rf "$SRC_LIBRARY" "$OUT_DIR/library"
+cp -Rf skills/helix/scripts "$OUT_DIR/skills/helix/scripts"
 
 python3 scripts/sync_references.py "$OUT_DIR/skills/helix/references" >/dev/null
 

@@ -1,0 +1,6 @@
+{
+  "name": "helix-render",
+  "private": true,
+  "description": "Optional host tooling for the HELIX present mode: render-deck.js needs pptxgenjs. `npm ci` here, or set NODE_PATH.",
+  "dependencies": { "pptxgenjs": "3.12.0" }
+}

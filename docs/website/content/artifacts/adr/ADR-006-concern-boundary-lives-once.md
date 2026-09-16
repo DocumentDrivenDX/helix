@@ -1,7 +1,7 @@
 ---
 title: "ADR-006: Concern boundary lives once, in concern.md"
 slug: ADR-006-concern-boundary-lives-once
-weight: 220
+weight: 230
 activity: "Design"
 source: "02-design/adr/ADR-006-concern-boundary-lives-once.md"
 generated: true
@@ -122,7 +122,7 @@ lives in resource docs
 
 ## References
 
-- [Plan: artifact-types-and-concerns audit (2026-05-30)](/artifacts/plan-2026-05-30-artifact-types-and-concerns-audit/)
+- [Plan: artifact-types-and-concerns audit (2026-05-30)](https://github.com/DocumentDrivenDX/helix/blob/main/docs/archive/helix/02-design/plan-2026-05-30-artifact-types-and-concerns-audit.md)
 - ADR-004: Dependencies encoding (Phase 1 catalog contract)
 - ADR-005: Practices format (Phase 1 catalog contract)
 - [PRD](/artifacts/prd/)

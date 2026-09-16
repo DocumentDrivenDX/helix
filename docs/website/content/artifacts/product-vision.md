@@ -17,9 +17,9 @@ ddx:
   authoring:
     home: repo
   review:
-    self_hash: 79d80961a61599087606ddda314e16409a244db23581fbd2eecd3b66353cebf9
+    self_hash: dba26d9ad36984f23ce0aad01480508498f22e60ea083221d4ea06c511fee010
     deps: {}
-    reviewed_at: "2026-05-15T04:11:24Z"
+    reviewed_at: "2026-09-16T01:53:39Z"
 ```
 
 # Product Vision
@@ -95,6 +95,8 @@ their agent, and the agent invoked HELIX's skill.
 | Portable content | Run on any runtime that reads markdown — DDx, Databricks Genie, Claude Code, anything |
 | Document-driven reviews | Audits work on artifacts, not chat transcripts |
 | Methodology, not platform | Adopt incrementally; no vendor lock-in |
+| Layered authority as control | Agents act only within what the layer above authorizes; a change enters at the top layer it affects and propagates down |
+| Governed human hand-offs | People decide and approve, agents draft and check; autonomy level, stop triggers, and approval mark where judgment enters |
 
 ## Success Definition
 

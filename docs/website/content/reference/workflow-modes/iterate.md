@@ -1,17 +1,17 @@
 ---
 title: "Iterate"
 slug: iterate
-weight: 120
+weight: 140
 generated: true
 ---
 
-Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/helix/blob/main/skills/helix/SKILL.md), the HELIX skill. Edit the skill, not this page.
+Generated from [`workflows/modes/iterate.md`](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/modes/iterate.md), the mode contract the HELIX skill loads. Edit that file, not this page.
 
 Use to plan or report a human iteration: sequence a roadmap, define
 workstreams, cut an iteration plan from the backlog and roadmap, or record
 status against the active plan. This is the human-cadence loop of activity
 `06-iterate`; runtime execution loops stay with the runtime
-(§Runtime Handoff).
+(`modes/runtime-handoff.md`).
 
 **Skip test — apply per artifact, before authoring.** These artifacts exist
 to coordinate people; they cut risk only when there is coordination to do.
@@ -57,7 +57,7 @@ Machinery).
    `<iteration-id>.<id>`).
 4. **Plan-owns-membership invariant**: the plan owns commitment membership —
    task rows select existing work items by ID, and rows without one are the
-   source from which the runtime creates items (via §Runtime Handoff),
+   source from which the runtime creates items (via `modes/runtime-handoff.md`),
    back-referencing each new ID in the plan. The tracker owns live status
    and execution history; the plan's Status column is planning-time state
    only. Never turn the plan into the live tracker, and never let

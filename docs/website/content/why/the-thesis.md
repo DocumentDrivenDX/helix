@@ -101,6 +101,13 @@ one scope.
   governed artifacts. The work that happened this time captures the knowledge
   that produces good work next time.
 
+The same documents come back out for people outside engineering. The `present`
+mode of the HELIX skill projects a governed artifact set into a deck,
+one-pager, or brief in the audience's words, with every figure traced to the
+section it came from, so a sponsor reads what the team decided rather than a
+summary written from memory. [Decks and Briefs from Governed
+Documents](/use/decks-and-briefs/) walks through it.
+
 ## Read more
 
 [Principles](/why/principles/) documents the load-bearing ideas behind these

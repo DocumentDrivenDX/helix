@@ -47,9 +47,9 @@ validation:
       description: Should address scalability and performance implications
       severity: warning
 
-  automated_checks:
+  pattern_checks:
     - pattern: "IMPLEMENTATION:|WORKING:|VALIDATED:"
-      expected: ">0"
+      expected: ">=1"
       message: Must demonstrate working implementation
 
     - pattern: "\\[TODO\\]|\\[INCOMPLETE\\]|\\[PLACEHOLDER\\]"

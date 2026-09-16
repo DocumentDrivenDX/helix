@@ -1,3 +1,0 @@
-writes: []
-expected_root: /infra/
-ok: False

@@ -4,21 +4,22 @@ ddx:
   authoring:
     home: repo
   review:
-    self_hash: e11b46de6300cc84460245fcfd6739210ce38406a76f90e32d26685938302eb1
+    self_hash: 060e5d594aa4d039d516d0a257f2d5129f75f56c912088b986a5e579a8f99b91
     deps: {}
-    reviewed_at: "2026-06-11T15:28:06Z"
+    reviewed_at: "2026-09-16T01:53:39Z"
 ---
 # Product Requirements Document
 
 ## Summary
 
 HELIX is a software development methodology and artifact catalog for
-AI-assisted teams. It ships portable content (templates for ~32 artifact
+AI-assisted teams. It ships portable content (templates for 53 artifact
 types, authoring prompts, methodology documentation) plus a single routing
 skill that operates HELIX workflow modes against a project's governing
 artifacts. The primary user experience is invoking the `helix` skill through
-an agent runtime to frame, validate, align, evolve, review, or polish the
-project's documents and produce the next document-driven plan.
+an agent runtime to frame, validate, align, evolve, review, polish, or
+present the project's documents and produce the next document-driven plan
+or a human-facing deliverable.
 
 HELIX does not provide a CLI, a tracker, an execution loop, or any runtime
 infrastructure. Those are runtime concerns. DDx is the reference runtime;
@@ -202,6 +203,17 @@ types; the `align` workflow mode applies type-scoped checks to instances based
 on ID prefix or path. Runtime-specific prose checkers may enforce those rules,
 but the rule source remains the artifact catalog.
 
+**R-12: Human-facing outputs.** The `present` workflow mode projects
+governed artifacts into a deliverable (deck, one-pager, or brief): a
+governed Markdown script in the human-facing voice profile, with claim
+titles, a visual per unit, speaker notes, and a Sources appendix that traces
+every figure to a governing artifact section. The script must pass a
+deterministic gate (title and shape rules, horizontal logic, sourced
+numbers, no HELIX vocabulary in bodies, concept coverage) before it counts
+as done. Rendering to `.pptx`, PDF, or HTML is optional host tooling: a
+host without it stops after the script and names a host that can render.
+The skill body stays runtime-neutral (R-4).
+
 #### P2
 
 **R-10: Catalog versioning.** Artifact-type changes are reviewable; consumers
@@ -225,15 +237,27 @@ traceability back to the affected features. Given a request that names another
 document workflow mode, the same skill routes to that mode without requiring a
 separate public skill.
 
-**R-4 (runtime-neutral):** Given the routing skill source, when grep is
-run for runtime-specific commands (`ddx `, `helix `, `bead`, `.helix/`),
-then zero hits in the skill's normative body. References are allowed only in
-per-runtime package metadata (the DDx-plugin manifest, the Genie skill
-descriptor, etc.).
+**R-4 (runtime-neutral):** Given the routing skill source, when
+`tests/validate-skills.sh` greps the skill's normative body for tracker
+vocabulary (`bead`), bench machinery (`bench`, `grader`, `matcher`), host
+invocation commands (`claude -p`, `codex exec`), host tool vocabulary
+(`tool_use`; `Bash`, `Write`, `Edit` outside code fences and the one
+`host tool names:` mapping sentence), plugin environment variables
+(`CLAUDE_PLUGIN_ROOT`, `GROK_PLUGIN_ROOT`), and verbatim-output doctrine,
+then zero hits. References are allowed only in per-runtime package metadata
+(the DDx-plugin manifest, the Genie skill descriptor, etc.) and install
+guides.
 
 **R-6 (self-application):** Given the HELIX repo, when the `align` workflow
 mode runs against `docs/helix/`, then the resulting report has fewer findings
 than on the same date one quarter prior — i.e. the dogfood improves over time.
+
+**R-12 (human-facing outputs):** Given a project with a vision and a PRD,
+when the `present` mode is asked for an evaluation deck, then a `DEL-nnn`
+script exists under the flow root, the deliverable gate reports zero
+blocking findings, every number in a body appears in Sources, and on a
+host without the render toolchain the run ends with the script and a
+statement of which host renders it.
 
 ### Technical Context
 
@@ -292,9 +316,15 @@ package uses whatever metadata format its target requires.
 
 ## Open Questions
 
-- Does HELIX itself need any tooling beyond the routing skill (e.g., a
-  catalog validator, a release-time portability check)? If yes, where does
-  that tooling live — in HELIX, or as a DDx contribution?
+- Resolved 2026-09-15: does HELIX need tooling beyond the routing skill,
+  and where does it live? HELIX ships small deterministic scripts beside
+  the skill (instance validation, the deliverable gate, the corpus
+  inventory, deck rendering and inspection) and a release-time portability
+  check in the test suite. The skill body stays runtime-neutral and works
+  with read, write, and search alone; the scripts are optional host tooling,
+  and each mode that names one states what happens when it is absent (the
+  model performs the check by hand, or the mode stops after the script and
+  names a host that can render). Nothing moves into DDx.
 
 ## Success Criteria
 

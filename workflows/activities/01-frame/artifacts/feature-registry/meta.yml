@@ -45,11 +45,12 @@ validation:
       description: Dependencies must reference valid feature IDs
       severity: warning
 
-  automated_checks:
+  pattern_checks:
     - pattern: "FEAT-\\d{3}"
-      expected: ">0"
+      expected: ">=1"
       message: Use proper FEAT-XXX format
 
+  automated_checks:
     - check: no_duplicate_ids
       type: unique_constraint
       field: feature_id

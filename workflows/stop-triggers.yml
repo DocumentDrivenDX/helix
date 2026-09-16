@@ -1,0 +1,54 @@
+# stop_at triggers — base set (v1)
+#
+# `stop_at` events the HELIX skill MUST always confirm before executing,
+# regardless of autonomy level. This file is the authoritative trigger list.
+#
+# Loaded by the skill when it engages (resolved via the skill's Catalog
+# Resolution; floor: references/stop-triggers.yml); consulted before every
+# state-changing action regardless of autonomy level. `tool_use_name` values
+# are the generic primitives: Write/Edit = a file write or edit, Bash = a shell
+# command, Read = a file read. Hosts map their own tool names onto them.
+#
+# Extension rule: repos extend via `stop_at_extensions:` under the `autonomy:`
+# block of `.helix.yml`. The active trigger set is the union of base +
+# extensions. Base triggers cannot be removed (only extended) — `stop_at` is a
+# hard floor.
+
+version: 1
+
+triggers:
+  - id: marker_edit
+    matcher:
+      tool_use_name: [Write, Edit]
+      file_path_pattern: '(^|/)\.helix\.yml$'
+    rationale: Marker is a load-bearing team decision; never edit without confirmation.
+
+  - id: cross_methodology_edge_creation
+    matcher:
+      tool_use_name: [Write, Edit]
+      content_must_match: 'cross_methodology:\s*true|cross_instance:\s*true'
+    rationale: Cross-method coupling deserves an explicit moment.
+
+  - id: branch_or_merge
+    matcher:
+      tool_use_name: Bash
+      command_pattern: '^\s*(git\s+(checkout|merge|push|reset|rebase|cherry-pick)|gh\s+pr\s+(merge|create))'
+    rationale: Hardly anything the skill should auto-do at the git level.
+
+  - id: secret_read
+    matcher:
+      tool_use_name: [Read, Bash]
+      target_pattern: '\.env(\.|$)|\.tfvars$|credentials\.json$|\.pem$|id_rsa(\.pub)?$|private_key|\.key$|secrets/'
+    rationale: Even in autonomous mode, secrets are a stop.
+
+  - id: large_diff
+    matcher:
+      tool_use_name: [Write, Edit]
+      content_line_count_min: 500       # per-tool_use, not aggregated
+    rationale: Avoid runaway autonomous edits.
+
+  - id: apply
+    matcher:
+      tool_use_name: Bash
+      command_pattern: '\b(tofu|terraform)\s+apply\b|\bdatabricks\s+(jobs|pipelines)\s+(run|update)\b|\bkubectl\s+(apply|delete|patch)\b'
+    rationale: Production-affecting infra/deploy commands always confirm.

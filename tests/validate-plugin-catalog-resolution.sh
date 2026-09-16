@@ -64,10 +64,12 @@ source_line="$(printf '%s\n' "$catalog_sec" | grep -nE '^[0-9]+\. \*\*Source-che
 [[ -n "$intree_line" ]] || fail "Catalog Resolution missing numbered In-tree step"
 [[ -n "$source_line" ]] || fail "Catalog Resolution missing numbered Source-checkout step"
 [[ -n "$env_step_line" ]] || fail "Catalog Resolution missing numbered Plugin env root step"
-printf '%s\n' "$catalog_sec" | grep -q 'GROK_PLUGIN_ROOT' \
-  || fail "Catalog Resolution missing GROK_PLUGIN_ROOT"
-printf '%s\n' "$catalog_sec" | grep -q 'CLAUDE_PLUGIN_ROOT' \
-  || fail "Catalog Resolution missing CLAUDE_PLUGIN_ROOT"
+# The env-root step stays host-neutral (PRD R-4): it names a plugin root the
+# host exposes, never the variable; docs/install/README.md names the variables.
+printf '%s\n' "$catalog_sec" | grep -q 'plugin root through its environment' \
+  || fail "Catalog Resolution env-root step must name a plugin root the host exposes through its environment"
+! printf '%s\n' "$catalog_sec" | grep -qE 'GROK_PLUGIN_ROOT|CLAUDE_PLUGIN_ROOT' \
+  || fail "Catalog Resolution must not name host env variables (see docs/install/README.md)"
 (( intree_line < source_line )) || fail "In-tree step must precede Source-checkout step"
 (( source_line < env_step_line )) || fail "Source-checkout step must precede Plugin env root (no demotion)"
 pass "SKILL.md documents fall-through with project rank above plugin env"

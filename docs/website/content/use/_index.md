@@ -28,6 +28,8 @@ spine.
 {{< cards >}}
   {{< card link="getting-started" title="Getting Started" subtitle="Create the first HELIX documents and ask your agent to review them." icon="play" >}}
   {{< card link="multiple-flows" title="Multiple Flows and Microsites" subtitle="Keep product documents and website documents separate while using one HELIX skill." icon="collection" >}}
+  {{< card link="decks-and-briefs" title="Decks and Briefs" subtitle="Turn governed project documents into a deck, one-pager, or brief for sponsors and clients, with every figure sourced." icon="presentation-chart-bar" >}}
+  {{< card link="anti-slop" title="The Anti-Slop Rules" subtitle="Every rule the deck and brief gate enforces on titles, bullets, numbers, and slides, with examples and where each runs." icon="shield-check" >}}
   {{< card link="../skills" title="The HELIX Skill" subtitle="See how the skill reads project documents and proposes the next update." icon="sparkles" >}}
   {{< card link="../artifact-types" title="Artifact Types" subtitle="Browse HELIX document patterns: PRDs, ADRs, test plans, runbooks, prompts, and templates." icon="collection" >}}
   {{< card link="../artifacts" title="HELIX Example Docs" subtitle="See the project documents this repository generates from its own HELIX files." icon="document-text" >}}

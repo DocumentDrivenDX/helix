@@ -149,14 +149,12 @@ Activity 0 / bootstrap section:
 
 | Action Prompt | File | Injection Point |
 |---|---|---|
-| Implementation | `workflows/actions/implementation.md` | Activity 0 (Bootstrap) — load alongside quality gates |
 | Fresh-eyes review | `workflows/actions/fresh-eyes-review.md` | Activity 0 (Identify Review Target) — load as review criteria |
 | Plan/Design | `workflows/actions/plan.md` | Before first refinement round — load as design guidance |
 | Evolve | `workflows/actions/evolve.md` | Activity 1 (Requirement Analysis) — load as scoping guidance |
 | Reconcile-alignment | `workflows/actions/reconcile-alignment.md` | Activity 0 — load as alignment criteria |
 | Polish | `workflows/actions/polish.md` | Bootstrap — load as refinement guidance |
 | Frame | `workflows/actions/frame.md` | Bootstrap — load to shape requirements priorities |
-| Check | `workflows/actions/check.md` | Not injected — check is mechanical queue evaluation, not judgment |
 | Backfill | `workflows/actions/backfill-helix-docs.md` | Not injected — backfill reconstructs what exists, does not make design choices |
 | Experiment | `workflows/actions/experiment.md` | Bootstrap — load to inform metric selection and experiment design |
 

@@ -107,7 +107,7 @@ lives in resource docs
 
 ## References
 
-- [Plan: artifact-types-and-concerns audit (2026-05-30)](../plan-2026-05-30-artifact-types-and-concerns-audit.md)
+- [Plan: artifact-types-and-concerns audit (2026-05-30)](../../../archive/helix/02-design/plan-2026-05-30-artifact-types-and-concerns-audit.md)
 - ADR-004: Dependencies encoding (Phase 1 catalog contract)
 - ADR-005: Practices format (Phase 1 catalog contract)
 - [PRD](/home/erik/Projects/helix/docs/helix/01-frame/prd.md)

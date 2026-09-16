@@ -46,14 +46,16 @@ validation:
       description: Risk triggers should be defined
       severity: warning
 
-  automated_checks:
+  pattern_checks:
     - pattern: "RISK-\\d{3}"
-      expected: ">0"
+      expected: ">=1"
       message: Use proper RISK-XXX format
 
+  automated_checks:
     - check: no_orphan_risks
+      type: not_equals
       field: owner
-      not_equals: "[Name]"
+      value: "[Name]"
 
 variables:
   - name: risk_owner

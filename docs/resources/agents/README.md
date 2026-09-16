@@ -14,8 +14,8 @@ runtimes.
 
 ## Why this exists
 
-HELIX ships per-runtime install guides under [`docs/install/`](../../install/).
-Those are user-facing how-tos. This directory holds the engineer-facing
+HELIX ships one install guide at [`docs/install/README.md`](../../install/README.md)
+with a section per host. That is the user-facing how-to. This directory holds the engineer-facing
 mechanism reference: what commands exist, what manifests are required,
 what paths skills load from, what headless test surfaces exist, and what
 is undocumented or moving.
@@ -56,7 +56,7 @@ source of truth for the underlying mechanisms.
 
 Each note carries an "Accessed" date in its source list. When an agent's
 docs change in ways that affect HELIX's install path, refresh the
-relevant note and update the corresponding `docs/install/<runtime>.md`.
+relevant note and update the host's section in `docs/install/README.md`.
 
 These notes are not normative HELIX content; they are external-source
 captures. HELIX's normative content (catalog and routing skill) stays

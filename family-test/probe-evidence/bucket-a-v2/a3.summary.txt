@@ -1,4 +1,0 @@
-git_rev_parse=False
-marker_read=False
-all_reads=[]
-ok: False

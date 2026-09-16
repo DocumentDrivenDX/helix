@@ -1,11 +1,11 @@
 ---
 title: "Evolve"
 slug: evolve
-weight: 70
+weight: 80
 generated: true
 ---
 
-Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/helix/blob/main/skills/helix/SKILL.md), the HELIX skill. Edit the skill, not this page.
+Generated from [`workflows/modes/evolve.md`](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/modes/evolve.md), the mode contract the HELIX skill loads. Edit that file, not this page.
 
 Use when the user wants to add, remove, amend, or thread a requirement through
 the HELIX artifact stack.
@@ -40,7 +40,7 @@ the HELIX artifact stack.
    designs, test plans, implementation plans, then code.
 7. Surface conflicts explicitly when a downstream artifact contradicts an
    updated upstream — do not silently overwrite the downstream; route it
-   through the §Align gap-to-implementation handoff instead.
+   through a handoff (the four fields in `modes/_report.md`) instead.
 8. Create follow-up work with dependencies where ordering matters.
 9. Prefer **progressive evolution** of the specific affected artifacts over
    re-generating the stack. Converge on "verified + each finding-class folded
@@ -48,3 +48,5 @@ the HELIX artifact stack.
    propagation check, or a ratchet) — not on a bare reviewer "SHIP" verdict.
    Intrinsic gates (build, test, conformance, phantom-claim count) block;
    external adversarial review is advisory and never a hard gate.
+
+Procedure: `workflows/actions/evolve.md` (deeper step detail; this file is the contract).

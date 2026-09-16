@@ -1,7 +1,7 @@
 ---
 title: "ADR-010: feature-registry and parking-lot stay separate with an explicit handoff"
 slug: ADR-010-feature-registry-parking-lot-handoff
-weight: 260
+weight: 270
 activity: "Design"
 source: "02-design/adr/ADR-010-feature-registry-parking-lot-handoff.md"
 generated: true
@@ -80,6 +80,6 @@ boundary, so the boundary must be visible in the artifact shape
 
 ## References
 
-- [Plan: artifact-types and concerns audit](/artifacts/plan-2026-05-30-artifact-types-and-concerns-audit/)
+- [Plan: artifact-types and concerns audit](https://github.com/DocumentDrivenDX/helix/blob/main/docs/archive/helix/02-design/plan-2026-05-30-artifact-types-and-concerns-audit.md)
 - `workflows/activities/01-frame/artifacts/feature-registry/`
 - `workflows/activities/01-frame/artifacts/parking-lot/`

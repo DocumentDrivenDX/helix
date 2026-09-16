@@ -243,7 +243,7 @@ Validate `depends_on` entries in each artifact's `ddx:` frontmatter before writi
 ### STEP 0.5 — Work-item acquisition
 
 Acquire the governing work item before writing any design content, per
-`workflows/references/bead-first.md`: find an open planning item labelled
+`workflows/references/work-item-first.md`: find an open planning item labelled
 `kind:planning,action:design` (claim it if found, filtering by scope or
 `spec-id` when dispatched with a scope) or create one with labels
 `helix,activity:design,kind:planning,action:design`, a `spec-id` pointing at the

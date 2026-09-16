@@ -10,8 +10,8 @@ the reference runtime: it owns the agent runtime, tracker, and execution loop
 that turn aligned artifacts into code. Claude Code, Codex CLI, GitHub Copilot,
 and Databricks Genie are target runtimes. HELIX itself is content (templates,
 prompts, methodology spec) plus the alignment skill. HELIX ships no checkout
-CLI; alignment, queue control, tracker behavior, and the broader historical
-command surface belong to runtimes like DDx.
+CLI; queue control, tracker behavior, and the broader historical command
+surface belong to runtimes like DDx.
 
 **[Documentation](https://documentdrivendx.github.io/helix/)** · **[Demo Reels](https://documentdrivendx.github.io/helix/demos/)** · **[Getting Started](https://documentdrivendx.github.io/helix/use/getting-started/)**
 
@@ -61,8 +61,9 @@ downstream.
 
 ## Install
 
-HELIX runs on several runtimes. Pick the one you already use; each install guide
-under [`docs/install/`](docs/install/) has the full procedure.
+HELIX runs on several runtimes. Pick the one you already use; the install
+guide at [`docs/install/README.md`](docs/install/README.md) has the full
+procedure and a section per host.
 
 ### DDx Runtime
 
@@ -101,7 +102,7 @@ claude plugin marketplace add https://github.com/DocumentDrivenDX/helix
 claude plugin install helix@helix --scope user -y
 ```
 
-Full procedure: [`docs/install/claude-code.md`](docs/install/claude-code.md).
+Full procedure: [`docs/install/README.md#claude-code`](docs/install/README.md#claude-code).
 
 ### Codex (plugin)
 
@@ -113,8 +114,8 @@ codex plugin add helix@helix
 ```
 
 The plugin carries the same agentskills.io-compliant routing skill and
-artifact catalog. Full procedure, including the Skills CLI and filesystem-copy
-fallbacks: [`docs/install/codex.md`](docs/install/codex.md).
+artifact catalog. Full procedure, including the filesystem-copy fallback:
+[`docs/install/README.md#openai-codex-cli`](docs/install/README.md#openai-codex-cli).
 
 ### Databricks Genie
 
@@ -140,18 +141,19 @@ release asset directly. Full procedure:
 
 ## Quick Start
 
-Shape intent into governed work, then let DDx drain the ready queue:
+Write the brief, then let the skill check it and plan the work:
 
-```bash
-/helix input "Build a REST API for managing bookmarks"
-ddx work
+```text
+/helix frame "Build a REST API for managing bookmarks"
+/helix align
+/helix check
 ```
 
-The first slash command invokes the HELIX skill against your project's
-artifacts, computes the artifact changes required by the new intent, and
-emits work items in the DDx tracker. The second runs DDx's bounded execution
-loop, dispatching agents to drain the queue. As work happens, the alignment
-skill keeps the governing artifacts in sync.
+`frame` authors the vision, PRD, and feature specs from your intent;
+`align` reads the artifact tree top-down and reports drift, gaps, and
+contradictions with a plan to close them; `check` names the next mode to
+run. Execution belongs to your runtime (a DDx queue, a Claude Code session,
+CI); as work lands, `align` keeps the governing artifacts in sync.
 
 Inside a Claude Code session, HELIX is available through a single skill that
 routes to the appropriate mode:
@@ -164,6 +166,12 @@ routes to the appropriate mode:
 | `/helix design auth` | Iteratively design a subsystem |
 | `/helix evolve "add OAuth"` | Thread a new requirement through the artifacts |
 | `/helix review` | Fresh-eyes review of recent work |
+| `/helix present "evaluation deck"` | Project governed artifacts into a deck, one-pager, or brief |
+
+`present` writes a governed slide script in a human-facing voice and, on a
+host with the render toolchain, renders it to `.pptx` and PDF; the script
+passes a gate (claim titles, sourced numbers, no HELIX vocabulary) before
+it counts as done.
 
 ## Where the Artifacts Live
 

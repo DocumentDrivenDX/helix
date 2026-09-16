@@ -1,4 +1,0 @@
-# flow_classification: legacy env-override fixture for retired HELIX_METHODOLOGY contract
-helix-library
-helix
-helix-infra

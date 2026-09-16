@@ -1,4 +1,0 @@
-turns:
-  - user: |
-      Let's deploy the site.
-    cwd: services/web

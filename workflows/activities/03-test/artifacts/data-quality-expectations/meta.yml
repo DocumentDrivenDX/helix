@@ -54,9 +54,9 @@ validation:
       description: Expectations must clarify whether checks are exhaustive or sampled (and sample rate)
       severity: warning
 
-  automated_checks:
+  pattern_checks:
     - pattern: "EXPECT|NOT NULL|UNIQUE|IN\\(|BETWEEN|LIKE|CHECK\\(|dbt test|Great Expectations"
-      expected: ">0"
+      expected: ">=1"
       message: Data quality expectations must include at least one testable assertion
 
     - pattern: "\\[TBD\\]|\\[TODO\\]|\\[NEEDS CLARIFICATION\\]"

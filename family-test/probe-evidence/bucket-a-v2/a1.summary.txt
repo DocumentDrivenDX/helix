@@ -1,3 +1,0 @@
-writes: ['/workspace/prd-office-coffee-preorder.md']
-expected_root: /docs/helix/
-ok: False

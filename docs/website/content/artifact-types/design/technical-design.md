@@ -52,8 +52,9 @@ ddx:
 
 # Technical Design: TD-001-upload-csv-files
 
-**User Story**: US-001 Upload CSV Files for a Client | **Feature**: FEAT-001 |
-**Solution Design**: SD-001 CSV Import and Column Mapping
+**User Story**: [[US-001-upload-csv-files]] | **Feature**:
+[[FEAT-001-csv-import-column-mapping]] | **Solution Design**:
+[[SD-001-csv-import-column-mapping]]
 
 ## Scope
 

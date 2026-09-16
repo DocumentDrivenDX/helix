@@ -105,11 +105,11 @@ cd tests/workflows/copilot-cli/recordings
 vhs < INT-CP.tape
 ```
 
-Output: `INT-CP.gif` (committed to the repo, linked in [docs/install/copilot.md](../../docs/install/copilot.md))
+Output: `INT-CP.gif` (committed to the repo)
 
 ## See also
 
-- [docs/install/copilot.md](../../docs/install/copilot.md) — Copilot CLI skill installation guide
+- [docs/install/README.md#github-copilot](../../docs/install/README.md#github-copilot) — Copilot install notes
 - [tests/workflows/codex-cli/](../codex-cli/) — Codex CLI equivalent harness
 - [tests/workflows/claude-code/](../claude-code/) — Claude Code equivalent harness
 - [tests/install/copilot-cli/](../../tests/install/copilot-cli/) — Docker image definition

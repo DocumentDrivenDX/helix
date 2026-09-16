@@ -1,1 +1,0 @@
-Create a new PRD for a feature called "Returns Portal" — customers initiating self-serve returns.
