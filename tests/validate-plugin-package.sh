@@ -30,7 +30,7 @@ pkg_skill="$pkg_root/skills/helix"
 [[ -f "$pkg_root/hooks/hooks.json" ]] || fail "missing auto-loaded hooks/hooks.json"
 [[ -f "$pkg_skill/SKILL.md" ]] || fail "missing packaged SKILL.md"
 [[ -f "$pkg_skill/scripts/validate-instance.py" ]] || fail "missing packaged validate-instance.py"
-[[ -f "$pkg_root/library/skill-prompts/stop-at-triggers.yml" ]] || fail "missing packaged library prompt"
+[[ -f "$pkg_skill/references/stop-triggers.yml" ]] || fail "missing packaged stop triggers"
 [[ -f "$pkg_root/PACKAGE-SOURCE.json" ]] || fail "missing package provenance"
 
 if ! diff -r "$expected_refs" "$pkg_skill/references" >/dev/null 2>&1; then

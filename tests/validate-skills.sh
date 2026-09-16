@@ -461,7 +461,9 @@ text = open(skill_path).read()
 # packages ship a references/ floor beside SKILL.md so §Catalog Resolution
 # resolves a graph/template after marketplace installation.
 required = {
-    "library/skill-prompts/stop-at-triggers.yml",
+    "workflows/stop-triggers.yml",
+    "workflows/principles.md",
+    "workflows/references/work-item-first.md",
     "workflows/concerns/slots.yml",
     "workflows/concerns/verification/practices.md",
     "workflows/concerns/sample-data/practices.md",
@@ -506,22 +508,28 @@ if missing or unrouted:
     if missing: print(f"routed modes without a contract file: {sorted(missing)}", file=sys.stderr)
     if unrouted: print(f"mode files not in the routing table: {sorted(unrouted)}", file=sys.stderr)
     sys.exit(1)
-for f in files | {"_authoring", "_report"}:
+# The shared contracts are named once in SKILL.md; routed modes are not
+# enumerated in prose (the routing table and the directory are the source).
+for f in ("_authoring", "_report"):
+    if not os.path.exists(os.path.join(modes_dir, f"{f}.md")):
+        print(f"missing shared contract workflows/modes/{f}.md", file=sys.stderr); sys.exit(1)
     if f"workflows/modes/{f}.md" not in text:
-        print(f"SKILL.md does not list workflows/modes/{f}.md under Mode Contracts", file=sys.stderr); sys.exit(1)
+        print(f"SKILL.md does not name workflows/modes/{f}.md under Mode Contracts", file=sys.stderr); sys.exit(1)
 PYEOF
 
-# Catalog table drift: the "seven activities" table in SKILL.md must list
-# exactly the artifact-type directories under workflows/activities/*/artifacts/.
-python3 - "$repo_root/skills/helix/SKILL.md" "$repo_root/workflows/activities" <<'PYEOF' || fail "SKILL.md activity table does not match workflows/activities/*/artifacts/"
-import os, re, sys
-skill, activities = sys.argv[1], sys.argv[2]
+# Catalog drift: SKILL.md points at graph.yml for the artifact-type listing
+# instead of carrying a table, so graph.yml nodes must match the artifact-type
+# directories under workflows/activities/*/artifacts/ exactly.
+python3 - "$repo_root/skills/helix/SKILL.md" "$repo_root/workflows/graph.yml" "$repo_root/workflows/activities" <<'PYEOF' || fail "workflows/graph.yml nodes do not match workflows/activities/*/artifacts/"
+import os, sys, yaml
+skill, graph_path, activities = sys.argv[1:4]
 text = open(skill, encoding="utf-8").read()
+if "enumerated in `graph.yml`" not in text:
+    print("SKILL.md must point at graph.yml for the artifact-type listing", file=sys.stderr); sys.exit(1)
+graph = yaml.safe_load(open(graph_path, encoding="utf-8"))
 listed = {}
-for m in re.finditer(r"^\| `(\d\d-[a-z]+)` \| (.+?) \|$", text, re.M):
-    listed[m.group(1)] = set(re.findall(r"`([a-z0-9-]+)`", m.group(2)))
-if not listed:
-    print("activity table not found in SKILL.md", file=sys.stderr); sys.exit(1)
+for node in graph.get("nodes", []):
+    listed.setdefault(node["activity"], set()).add(node["id"])
 actual = {}
 for act in sorted(os.listdir(activities)):
     art = os.path.join(activities, act, "artifacts")
@@ -531,8 +539,8 @@ errors = []
 for act in sorted(set(listed) | set(actual)):
     missing = actual.get(act, set()) - listed.get(act, set())
     extra = listed.get(act, set()) - actual.get(act, set())
-    if missing: errors.append(f"{act}: table omits {sorted(missing)}")
-    if extra: errors.append(f"{act}: table lists nonexistent {sorted(extra)}")
+    if missing: errors.append(f"{act}: graph.yml omits {sorted(missing)}")
+    if extra: errors.append(f"{act}: graph.yml lists nonexistent {sorted(extra)}")
 if errors:
     print("\n".join(errors), file=sys.stderr); sys.exit(1)
 PYEOF
@@ -596,12 +604,31 @@ banned = {
     r"claude -p|codex exec": "host invocation commands",
     r"\btool_use\b": "host tool-call vocabulary",
     r"\bverbatim\b": "verbatim-output doctrine",
+    r"CLAUDE_PLUGIN_ROOT|GROK_PLUGIN_ROOT": "host plugin env variables (say: a plugin root the host exposes)",
 }
+# Host tool names are banned outside code fences and outside the single
+# mapping sentence, which is the line carrying the marker `host tool names:`.
+tool_names = re.compile(r"\b(Bash|Write|Edit)\b")
 hits = []
 for pattern, why in banned.items():
     for m in re.finditer(pattern, body):
         line = body.count("\n", 0, m.start()) + 1
         hits.append(f"  line {line}: {m.group(0)!r} ({why})")
+in_fence = False
+mapping_lines = 0
+for i, line in enumerate(body.splitlines(), 1):
+    if line.startswith("```"):
+        in_fence = not in_fence
+        continue
+    if in_fence:
+        continue
+    if "host tool names:" in line:
+        mapping_lines += 1
+        continue
+    for m in tool_names.finditer(line):
+        hits.append(f"  line {i}: {m.group(0)!r} (host tool name; say file write/edit or shell command)")
+if mapping_lines != 1:
+    hits.append(f"  expected exactly one `host tool names:` mapping sentence, found {mapping_lines}")
 if hits:
     print("SKILL.md portability violations:", file=sys.stderr)
     print("\n".join(hits), file=sys.stderr)

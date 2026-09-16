@@ -28,10 +28,12 @@ default `medium` — that controls **checkpoint density only**. The level change
 how often a workflow pauses for confirmation; it never changes which activities
 run or whether a hard stop is honored.
 
-We fix the resolution precedence as: **per-invocation override → governing
-artifact frontmatter / project policy → runtime default (`medium`)**. The
-autonomy signal lives only in runtime-neutral artifacts. `CLAUDE.md` and
-runtime-specific instruction files are explicitly excluded from the chain.
+We fix the resolution precedence as: **per-invocation override → the
+`autonomy:` block in `.helix.yml` → runtime default (`medium`)**. The marker's
+`autonomy:` block is the sole project-policy source; governing-artifact
+frontmatter is not in the chain. The autonomy signal lives only in
+runtime-neutral artifacts. `CLAUDE.md` and runtime-specific instruction files
+are explicitly excluded from the chain.
 
 We bind two invariants to every level:
 
@@ -45,7 +47,8 @@ We bind two invariants to every level:
 At `high`, a workflow additionally **infers concern selection** when none is
 declared, recording the inference as an assumption rather than pausing to ask.
 
-**Key Points**: three fixed positions | precedence chain excludes CLAUDE.md |
+**Key Points**: three fixed positions | precedence chain is override → marker
+`autonomy:` → default, excludes artifact frontmatter and CLAUDE.md |
 checkpoint density only | hard stop + never-collapse-loop invariants | high
 autonomy infers concerns
 

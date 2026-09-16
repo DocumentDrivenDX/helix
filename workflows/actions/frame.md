@@ -349,7 +349,7 @@ commands of a specific runtime, see its install guide (DDx:
 ### STEP 0.5 — Work-item acquisition
 
 Acquire the governing work item before modifying files, per
-`workflows/references/bead-first.md`: find an open planning item labelled
+`workflows/references/work-item-first.md`: find an open planning item labelled
 `kind:planning,action:frame` (claim it if found) or create one with labels
 `helix,kind:planning,action:frame`, a `<context-digest>` description naming the
 scope and existing artifacts, and acceptance "Artifacts created/updated per type

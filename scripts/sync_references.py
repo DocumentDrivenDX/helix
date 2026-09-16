@@ -10,13 +10,16 @@ This script copies the catalog the skill binds at authoring time into a
 package-local `references/` directory:
 
     workflows/graph.yml    -> references/graph.yml
-    workflows/activities/  -> references/activities/   (templates/prompts/examples)
     workflows/voice.yml    -> references/voice.yml
+    workflows/stop-triggers.yml -> references/stop-triggers.yml (stop_at floor)
+    workflows/principles.md -> references/principles.md (default principles)
+    workflows/activities/  -> references/activities/   (templates/prompts/examples)
     workflows/concerns/    -> references/concerns/
     workflows/modes/       -> references/modes/       (mode contracts)
     workflows/actions/     -> references/actions/     (action procedures)
     workflows/templates/   -> references/templates/   (report templates)
     workflows/deliverables/-> references/deliverables/ (theme, slide patterns, mappings)
+    workflows/references/  -> references/references/   (shared references the actions cite)
 
 Single source of truth: edit under `workflows/`, regenerate graph.yml
 (scripts/generate_graph.py), then build/validate the plugin package. Drift
@@ -42,6 +45,8 @@ DEFAULT_OUT = REPO_ROOT / "dist" / "plugin-package" / "helix" / "skills" / "heli
 FILES = [
     ("workflows/graph.yml", "graph.yml"),
     ("workflows/voice.yml", "voice.yml"),
+    ("workflows/stop-triggers.yml", "stop-triggers.yml"),
+    ("workflows/principles.md", "principles.md"),
 ]
 TREES = [
     ("workflows/activities", "activities"),
@@ -50,6 +55,7 @@ TREES = [
     ("workflows/actions", "actions"),
     ("workflows/templates", "templates"),
     ("workflows/deliverables", "deliverables"),
+    ("workflows/references", "references"),
 ]
 
 

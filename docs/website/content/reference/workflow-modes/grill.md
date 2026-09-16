@@ -27,19 +27,18 @@ invoke interview-only without drafting PRDs or filing implementation work.
 4. **Headless / non-interactive** (a runtime's headless dispatch, CI,
    one-shot): emit in one response the full decision tree, recommended
    answers, assumptions for unresolved operator-only decisions, and the
-   §Align handoff. Do **not** block waiting for answers.
+   handoff (`modes/_report.md` fields). Do **not** block waiting for answers.
 5. **Hard floor (all autonomy levels):** until the operator confirms shared
    understanding (interactive) or the headless one-shot completes, do **not**
-   Write/Edit product source, file implementation work items, or apply/deploy.
+   write or edit product source, file implementation work items, or
+   apply/deploy.
    This is a `stop_at`-style checkpoint; it does not rewrite autonomy source
    precedence for other pauses.
 6. Do **not** create a free-floating `CONTEXT.md` as authority. After confirm,
    durable decisions land via handoff into existing catalog types (PRD, FEAT,
    ADR, technical-design, concerns, etc.).
-7. On confirm (or headless completion), emit a §Align handoff with all four
-   fields: destination artifact type, deliverable shape, next mode
-   (`frame` | `design` | `evolve` | `polish` | `validate` | `backfill` | runtime
-   handoff when already governed), evidence references.
+7. On confirm (or headless completion), emit a handoff with the four fields
+   defined in `modes/_report.md`.
 8. Do not silently start frame/design/build in the same turn unless the
    operator asks.
 

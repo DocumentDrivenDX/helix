@@ -277,7 +277,7 @@ tracker-only commit after the implementation commit.
 ### STEP 0.5 — Work-item acquisition
 
 Acquire the governing work item before modifying files, per
-`workflows/references/bead-first.md`: find an open planning item labelled
+`workflows/references/work-item-first.md`: find an open planning item labelled
 `kind:planning,action:review` (claim it if found) or create one with labels
 `helix,kind:review,kind:planning,action:review`, `spec-id` set to the reviewed
 commit or issue, a `<context-digest>` description naming the fresh-eyes review

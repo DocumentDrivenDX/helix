@@ -301,7 +301,7 @@ items for the scope.
 ### STEP 0.5 — Work-item acquisition
 
 Acquire the governing work item before modifying any work items, per
-`workflows/references/bead-first.md`: find an open planning item labelled
+`workflows/references/work-item-first.md`: find an open planning item labelled
 `kind:planning,action:polish` (claim it if found) or create one with labels
 `helix,activity:design,kind:planning,action:polish`, a `spec-id` pointing at the
 governing plan if known, a `<context-digest>` description that names the scope

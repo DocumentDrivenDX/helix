@@ -52,7 +52,7 @@ Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/hel
   {{< card link="polish" title="Polish" subtitle="Use to refine work items before execution." >}}
   {{< card link="present" title="Present" subtitle="Use to turn governed artifacts into a deck a client, sponsor, or executive can read or watch on the first try. Output: a `deliverable` artifact (a governed Mar…" >}}
   {{< card link="project-audit" title="Project Audit" subtitle="Use on entry to a project with stale context to answer one question: where does this project stand? Are specs, implementation, tests, and acceptance criteria a…" >}}
-  {{< card link="refresh" title="Refresh" subtitle="Use to bring every artifact instance under a project HELIX tree up to date with the current canonical templates and prompts. §Refresh is §Validate (fix-mode) a…" >}}
+  {{< card link="refresh" title="Refresh" subtitle="Use to bring every artifact instance under a project HELIX tree up to date with the current canonical templates and prompts. Refresh is `modes/validate.md` (fi…" >}}
   {{< card link="review" title="Review" subtitle="Use for fresh-eyes review of plans, PRs, implementation, or recent work." >}}
   {{< card link="runtime-handoff" title="Runtime Handoff" subtitle="Use when a workflow mode concludes that the next step is execution, source control, packaging, or a long-lived operator loop. HELIX does not own those surfaces…" >}}
   {{< card link="validate" title="Validate" subtitle="Use to check a single artifact instance against its governing template and prompt, then edit resolvable findings in place." >}}

@@ -237,11 +237,16 @@ traceability back to the affected features. Given a request that names another
 document workflow mode, the same skill routes to that mode without requiring a
 separate public skill.
 
-**R-4 (runtime-neutral):** Given the routing skill source, when grep is
-run for runtime-specific commands (`ddx `, `helix `, `bead`, `.helix/`),
-then zero hits in the skill's normative body. References are allowed only in
-per-runtime package metadata (the DDx-plugin manifest, the Genie skill
-descriptor, etc.).
+**R-4 (runtime-neutral):** Given the routing skill source, when
+`tests/validate-skills.sh` greps the skill's normative body for tracker
+vocabulary (`bead`), bench machinery (`bench`, `grader`, `matcher`), host
+invocation commands (`claude -p`, `codex exec`), host tool vocabulary
+(`tool_use`; `Bash`, `Write`, `Edit` outside code fences and the one
+`host tool names:` mapping sentence), plugin environment variables
+(`CLAUDE_PLUGIN_ROOT`, `GROK_PLUGIN_ROOT`), and verbatim-output doctrine,
+then zero hits. References are allowed only in per-runtime package metadata
+(the DDx-plugin manifest, the Genie skill descriptor, etc.) and install
+guides.
 
 **R-6 (self-application):** Given the HELIX repo, when the `align` workflow
 mode runs against `docs/helix/`, then the resulting report has fewer findings

@@ -887,7 +887,7 @@ upstream state. Stale digests are an alignment finding.
 ### STEP 0.5 — Work-item acquisition
 
 Acquire the governing work item before modifying files, per
-`workflows/references/bead-first.md`: find an open planning item labelled
+`workflows/references/work-item-first.md`: find an open planning item labelled
 `kind:planning,action:align` (claim it if found) or create one with labels
 `helix,kind:review,kind:planning,action:align`, `spec-id` set to the governing
 artifact if known, a `<context-digest>` description naming the scope of the
