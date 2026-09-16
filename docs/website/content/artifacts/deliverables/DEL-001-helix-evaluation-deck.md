@@ -10,6 +10,8 @@ collection: deliverables
 
 > **Example from HELIX's own docs.** This generated page comes from `docs/helix/`. Use it to see the method in practice; start with the [artifact-type catalog](/artifact-types/) for reusable templates. Historical plans and reports may describe retired architecture.
 
+> **Rendered from this script.** The Markdown below is the document of record; open the rendered file to see the finished deck: [PPTX](https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/06-iterate/deliverables/assets/DEL-001-helix-evaluation-deck.pptx), [PDF](/artifacts/deliverables/del-001-helix-evaluation-deck.pdf).
+
 > **Source identity** (from `06-iterate/deliverables/DEL-001-helix-evaluation-deck.md`):
 
 ```yaml
