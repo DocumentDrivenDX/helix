@@ -6,10 +6,10 @@ ddx:
   depends_on:
     - metrics-dashboard
   review:
-    self_hash: d80524b9ee8da39caad9d1a38a1b345e99c199ee7954417004076bf4c6bf04d7
+    self_hash: 952df3e5bbb6e967cd0e3d485ae7106893c464008ecda327e9c0c6a33527e2cd
     deps:
-      metrics-dashboard: aecf7fa7f07f3ee5b8b69bf58e4a78d0491e3d4d3e769448e623a94e1fe9184c
-    reviewed_at: "2026-09-16T01:53:39Z"
+      metrics-dashboard: 486cd18a01712b15850ce7dd808d432a8a52cc56d1db22a8939ed31b633191c0
+    reviewed_at: "2026-09-16T03:20:07Z"
 ---
 # Improvement Backlog — HELIX 2026-Q3
 
@@ -37,7 +37,7 @@ Assumptions and gaps), and `docs/helix/06-iterate/metrics-dashboard.md`.
 
 | Priority | Item | Evidence | Tracker Ref | Why Now | Status |
 |----------|------|----------|-------------|---------|--------|
-| P1 | Build the evaluation the PRD promises: fixed corpus, headless run per host, `validate-instance.py` plus a rubric, results published; retire the 922-file `family-test/` scaffold that does not run | `evals/results/20260911-0955/summary.md`: eight briefs at commit `0756e5fa` (nine in `evals/briefs.yml` now; `present-survey-deck` is unrun), 32/32 checks, rubric 48/54, about $23 per full run; `family-test/` removed | this branch | The present mode and the deliverable gate gave the eval something concrete to grade | done |
+| P1 | Build the evaluation the PRD promises: fixed corpus, headless run per host, `validate-instance.py` plus a rubric, results published; retire the 922-file `family-test/` scaffold that does not run | `evals/results/20260915-2202/summary.md`: nine briefs at commit `20315d5c`, 33/36 checks, rubric 57/62, about $32 per full run; `family-test/` removed | this branch | The present mode and the deliverable gate gave the eval something concrete to grade | done |
 | P1 | Rasterize `.pptx` renders in the deliverable gate on the authoring host (LibreOffice, or PowerPoint automation permission) | `skills/helix/scripts/deck-qa.py` rasterizes through LibreOffice and writes a contact sheet; DEL-001 Render section records the inspection | this branch | A deck nobody looked at is not finished; the gate says so | done |
 | P2 | Sub-agent fan-out in align, review, and converge: one agent per review dimension or artifact family, fan-in through `workflows/modes/_report.md` | `workflows/modes/align.md` Fan-out section; review and converge likewise | this branch | The report shape exists, so fan-in has a contract | done |
 | P2 | Read governing artifacts that live in a connector-backed tool (Google Docs, Notion, Jira) directly, instead of only through the checkout stub | `workflows/conventions.md` Reading through a connector; `authoring.connector` in the schema | this branch | Hosts expose document connectors; read-only access removes a manual copy step | done |

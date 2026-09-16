@@ -1,0 +1,62 @@
+{
+  "id": "present-investor-deck",
+  "mode": "present",
+  "seconds": 527.1,
+  "run_ok": true,
+  "cost_usd": 5.71699275,
+  "turns": 44,
+  "checks_passed": 3,
+  "checks_total": 4,
+  "checks": [
+    {
+      "kind": "files_exist",
+      "ok": true,
+      "detail": "present ['docs/helix/06-iterate/deliverables/DEL-*.md']"
+    },
+    {
+      "kind": "deliverable_gate",
+      "ok": false,
+      "detail": "docs/helix/06-iterate/deliverables/DEL-001-recipehub-investor-evaluation.md: shape.slop: unit 5 bullet 'Every milestone here is a target, not a result': contrastive reversal ', not a'; state the positive claim; coverage.status: concept group 'Market size, revenue model, team, raise amount' has status 'gap'; use covered or omitted"
+    },
+    {
+      "kind": "files_unchanged",
+      "ok": true,
+      "detail": "unchanged"
+    },
+    {
+      "kind": "output_not_contains",
+      "ok": true,
+      "detail": "clean"
+    }
+  ],
+  "judge": {
+    "scores": [
+      {
+        "item": 1,
+        "score": 2,
+        "reason": "The six content titles read as a complete narrative (bet, shift, pain, switch, cost and targets, ask) without any body text."
+      },
+      {
+        "item": 2,
+        "score": 1,
+        "reason": "Titles and the brief are free of internal vocabulary and the response asserts clean bodies, but the slide bodies themselves are not visible in the truncated diff so the claim cannot be confirmed."
+      },
+      {
+        "item": 3,
+        "score": 2,
+        "reason": "Every visible figure (six months, under $5,000, five milestones, first year) cites a PRD or vision anchor, and the four figures with no source (market size, revenue, team, raise) are explicitly declined rather than invented."
+      },
+      {
+        "item": 4,
+        "score": 1,
+        "reason": "The ask names what (a second meeting to size the raise) and the beat table promises three steps with owners and dates plus an Assumptions and gaps section, but the owners, dates, and the list of inferred intake fields are not shown in the visible evidence."
+      }
+    ],
+    "total": 6,
+    "max": 8,
+    "raw": "{\"scores\": [{\"item\": 1, \"score\": 2, \"reason\": \"The six content titles read as a complete narrative (bet, shift, pain, switch, cost and targets, ask) without any body text.\"}, {\"item\": 2, \"score\": 1, \"reason\": \"Titles and the brief are free of internal vocabulary and the response asserts clean bodies, but the slide bodies themselves are not visible in the truncated diff so the claim cannot be confirmed.\"}, {\"item\": 3, \"score\": 2, \"reason\": \"Every visible figure (six months, under $5,000, five milestones, first year) cites a PRD or vision anchor, and the four figures with no source (market size, revenue, team, raise) are explicitly declined rather than invented.\"}, {\"item\": 4, \"score\": 1, \"reason\": \"The ask names what (a second meeting to size the raise) and the beat table promises three ste"
+  },
+  "diff_stat": "?? docs/helix/06-iterate/\n",
+  "diff": "\n--- new file: docs/helix/06-iterate/deliverables/DEL-001-recipehub-investor-evaluation.md\n---\nddx:\n  id: DEL-001\n  type: deliverable\n  activity: iterate\n  kind: deck\n  status: draft\n  authoring:\n    home: repo\n    export: []\n  links:\n    - id: recipe-app-vision\n      kind: informed_by\n    - id: recipe-app-prd\n      kind: informed_by\n---\n\n# Six months and under $5,000 test an ad-free recipe community\n\n## Brief\n\n- **Audience**: a potential investor deciding whether to take a second meeting\n- **Occasion**: ten-minute live evaluation call; the deck is presented, then left behind as a send-after\n- **Decision or action sought**: agree a second meeting to size the raise behind the six-month test\n- **Time slot or page budget**: 10 minutes, at most 5 content slides\n- **Kind**: deck\n- **Constraints**: no figure beyond what the vision and the requirements document hold; targets labeled as targets; no internal vocabulary; no team or customer names, since none are recorded\n- **Look**: editorial\n- **Scope**: docs/helix/00-discover/product-vision.md; docs/helix/01-frame/prd.md\n- **Breadth**: deep-dive\n- **Angle**: the business case: what the bet costs, what it must prove, and by when\n- **Must cover**: cost and time limits on the build; targets and their dates; why cooks switch\n- **Must omit**: implementation detail (stack, database, storage, endpoints)\n- **Max messages**: 3\n- **Takeaway**: six months and under $5,000 buy a measured test of an ad-free recipe community\n\n## Story\n\n- **Flow**: investor-pitch\n- **Takeaway**: six months and under $5,000 buy a measured test of an ad-free recipe community\n- **Messages** (ranked by how much each moves the investor toward a second meeting):\n  1. Home cooks now plan meals on their phones and still juggle scattered, ad-first sources with no reviews they can trust (evidence: docs/helix/00-discover/product-vision.md#why-now, docs/helix/00-discover/product-vision.md#target-market, docs/helix/01-frame/prd.md#problem; the pain row and the mobile shift)\n  2. Cooks switch to one ad-free, mobile-first community for peer reviews they trust, and the switch costs an email signup (evidence: docs/helix/00-discover/product-vision.md#positioning, docs/helix/00-discover/product-vision.md#target-market, docs/helix/00-discover/product-vision.md#key-value-propositions, docs/helix/01-frame/prd.md#must-have-p0, docs/helix/01-frame/prd.md#assumptions; the today-versus-RecipeHub comparison)\n  3. The build is capped at six months and under $5,000 of infrastructure, and the first year is measured against dated targets (evidence: docs/helix/01-frame/prd.md#constraints, docs/helix/01-frame/prd.md#success-criteria, docs/helix/00-discover/product-vision.md#success-definition; the five-milestone timeline)\n- **Beats and titles** (beat ids from the investor-pitch flow in deck-flows.yml; titles written before any body):\n\n  | # | Beat | Title (claim) | Message | Exhibit |\n  |---|---|---|---|---|\n  | 1 | purpose | Six months and under $5,000 test an ad-free recipe community | takeaway | title slide |\n  | 2 | change | Meal planning moved to phones while recipe sites chased ads | M1 | statement carrying the why-now sentence |\n  | 3 | problem | Home cooks lose time to scattered sources and untrusted reviews | M1 | three panels: search, trust, share |\n  | 4 | solution | Cooks leave Google and Pinterest for peer reviews they trust | M2 | two columns, today against RecipeHub, doing nothing as the last row |\n  | 5 | financials | A six-month build under $5,000 reports against dated targets | M3 | five-milestone timeline |\n  | 6 | ask | Take a second meeting to size the raise | takeaway | ask band, three steps with owners and dates |\n  | 7 | sources | Sources | all | source table |\n\n  Beats cut for the five-slide budget, in the flow's keep-when-short order and by what the sources hold: market (no artifact sizes the segment or a price), traction (nothing is live; the sources hold targets, not results), business-model (no artifact says who pays), competition (folded into the solution slide's comparison, which the solution beat permits and which names doing nothing), team (no artifact names people), why-now (merged into change, as the flow advises under ten slides), product (budget; the vision's shopping scenario lives in slide 4 notes).\n\n- **Concept coverage** (every concept group the hand inventory surfaced across the flow root, in authority order):\n\n  | # | Concept group | Authority | Status | Carried by / reason |\n  |---|---|---|---|---|\n  | 1 | Who the home cook is and what hurts today | vision, PRD | covered | M1, slide 3 |\n  | 2 | The shift that makes now the moment | vision | covered | M1, slide 2 |\n  | 3 | What RecipeHub is and why cooks switch | vision, PRD | covered | M2, slide 4 |\n  | 4 | What ships first and what waits | PRD, feature spec | covered | M2, slide 4 rows and notes |\n  | 5 | Targets and how success is measured | vision, PRD, feature spec | covered | M3, slide 5 |\n  | 6 | Cost and time limits on the build | PRD, ADR | covered | M3, slide 5 |\n  | 7 | Risks and open questions | PRD, ADR, technical design | omitted | budget: five content slides; the three PRD risks and three open questions are in slide 5 notes and feed the ask's diligence step |\n  | 8 | How it is built: stack, database, image storage, API | PRD, ADR, technical design | omitted | angle and must-omit: an investor weighing the business case; nothing here changes the size of the bet |\n  | 9 | Posting a recipe, step by step | feature spec | omitted | scope and angle: outside the declared scope; the Share row on slide 4 carries the outcome |\n  | 10 | Market size, revenue model, team, raise amount | none | gap | no governing artifact holds them; named as diligence items in the ask and under Assumptions and gaps |\n\n- **Horizontal-logic test**: pass. Slide 1 states the bet. Slide 2 names the shift, which raises \"who is hurt\"; slide 3 answers with the home cook and the cost in time and guesswork. Slide 3 raises \"what fixes it\"; slide 4 answers with the switch and what it costs the cook. Slide 4 raises \"is that a business",
+  "result": "The deck script is written and gated by hand. It lives at `docs/helix/06-iterate/deliverables/DEL-001-recipehub-investor-evaluation.md`, status draft.\n\n**Routing.** HELIX `present` mode, product lane, investor-pitch flow, editorial look, catalog bound from the source checkout at `~/Projects/helix/workflows/`. Marker autonomy is high, so inferences are recorded in the script rather than asked.\n\n**Takeaway.** Six months and under $5,000 buy a measured test of an ad-free recipe community.\n\n**Titles in order** (five content slides, the ten-minute budget):\n\n1. Six months and under $5,000 test an ad-free recipe community\n2. Meal planning moved to phones while recipe sites chased ads\n3. Home cooks lose time to scattered sources and untrusted reviews\n4. Cooks leave Google and Pinterest for peer reviews they trust\n5. A six-month build under $5,000 reports against dated targets\n6. Take a second meeting to size the raise\n7. Sources\n\n**The main finding for you.** The vision and PRD do not yet hold an investor business case. Four things the flow requires have no source anywhere in the repo: market size, revenue model, team, and the raise amount. The positioning is ad-free, which rules out the incumbents' model, so the revenue question is real. I did not invent any of them. The ask is therefore a second meeting to size the raise, and those four items are named as the diligence steps. If you want a deck that asks for a check, the fix is upstream: an `evolve` or `frame` pass that adds a business case artifact, then re-present.\n\n**Other gaps recorded in the script:**\n\n- Traction does not exist, so slide 5 labels every milestone a target. The flow's \"traction slide holds one number\" check is a recorded miss.\n- The technical design and feature spec say a browse-and-save build already exists, while every artifact is draft and the database decision is only proposed. If something is live with users, a real traction slide belongs here. Worth confirming.\n- The vision's \"month 6\" and the PRD's \"ship within 6 months\" sit on different clocks; the slide says so.\n- The PRD points at a parking lot file that is not in the repo, and the vision's shopping-cart scenario contradicts the PRD's grocery non-goal. Both are alignment items, not deck edits.\n\n**Gate.** Every unit has a claim title, pattern, visual spec, notes, and sources. No placeholders, no internal vocabulary in bodies, every body number appears in Sources. Horizontal and vertical logic pass. Nothing was rendered, as requested, so the visual and file checks are recorded as not run. The two catalog scripts (corpus inventory and script checker) needed shell approval this non-interactive session could not grant, so the inventory and script checks were done by hand. Run this on a host with approval to confirm:\n\n```\npython3 ~/Projects/helix/skills/helix/scripts/check-deliverable.py --catalog ~/Projects/helix/workflows docs/helix/06-iterate/deliverables/DEL-001-recipehub-investor-evaluation.md\n```\n\nRendering later is `render-deck.js` beside the skill on a host with node and pptxgenjs, then `deck-qa.py` with LibreOffice and pdftoppm. Swap the look to bold with the renderer's look flag if the room turns out to be a pitch rather than an evaluation."
+}

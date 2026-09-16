@@ -158,6 +158,9 @@ def run_checks(brief: dict, ws: Path, before: dict[str, str], after: dict[str, s
         elif kind == "output_contains":
             missing = [v for v in c["values"] if v.lower() not in result.lower()]
             ok, detail = not missing, f"missing {missing}" if missing else "all present"
+        elif kind == "output_contains_any":
+            hit = [v for v in c["values"] if v.lower() in result.lower()]
+            ok, detail = bool(hit), f"found {hit}" if hit else f"none of {c['values']}"
         elif kind == "output_not_contains":
             found = [v for v in c["values"] if re.search(r"\b" + re.escape(v) + r"\b", result, re.I)]
             ok, detail = not found, f"found {found}" if found else "clean"

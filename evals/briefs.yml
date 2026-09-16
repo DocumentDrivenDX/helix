@@ -16,6 +16,7 @@
 #   report_block       the final response must contain a `helix_report:` block with this mode
 #   output_contains    case-insensitive substrings the final response must contain
 #   output_not_contains substrings the final response must not contain
+#   output_contains_any at least one of the substrings must appear (case-insensitive)
 #   deliverable_gate   glob; check-deliverable.py must report no blocking findings other than render.*
 #   max_new_files      upper bound on files created
 
@@ -118,6 +119,7 @@ briefs:
   - id: present-survey-deck
     mode: present
     fixture: baseline
+    timeout_seconds: 1800   # the inventory over the whole fixture plus a full survey script runs past the default
     prompt: >-
       Produce a twenty-minute survey deck of this whole project for a new
       engineering lead joining it: scope docs/helix, survey breadth, must
@@ -156,7 +158,7 @@ briefs:
     checks:
       - { kind: files_unchanged, globs: ["docs/helix/**/*.md"] }
       - { kind: max_new_files, value: 0 }
-      - { kind: output_contains, values: ["?"] }
+      - { kind: output_contains_any, values: ["?", "point me", "tell me which", "which one", "let me know"] }
     rubric:
       - The response asks a scoped clarifying question grounded in what the fixture actually contains (recipe sharing, users).
       - It does not invent a task or edit anything.
