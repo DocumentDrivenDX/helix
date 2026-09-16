@@ -23,6 +23,7 @@ import os
 import re
 import shutil
 import subprocess
+import tempfile
 import sys
 import zipfile
 import xml.etree.ElementTree as ET
@@ -199,8 +200,11 @@ def check_slide(n: int, shapes: list[dict], W: float, H: float, add) -> None:
             width, height = s["w"] - l - r, s["h"] - t - b
             need = needed_height(s["paras"], width)
             if need > height + 0.02:
-                if s["autofit"] and needed_height(s["paras"], width, SHRINK_FLOOR) <= height + 0.02:
+                shrunk = s["autofit"] and needed_height(s["paras"], width, SHRINK_FLOOR) <= height + 0.02
+                if shrunk and all(p["pt"] * SHRINK_FLOOR >= MIN_PT for p in s["paras"]):
                     add(n, "WARNING", "text-autofit", f"{label(s)} needs {need:.2f}in for {height:.2f}in; relies on autofit shrink")
+                elif shrunk:
+                    add(n, "BLOCKING", "text-autofit", f"{label(s)} needs {need:.2f}in for {height:.2f}in; autofit would shrink below {MIN_PT:g} pt")
                 else:
                     add(n, "BLOCKING", "text-overflow", f"{label(s)} needs {need:.2f}in of height, has {height:.2f}in")
             for p in s["paras"]:
@@ -259,12 +263,20 @@ def rasterize(deck: Path, out: Path, count: int) -> list[str]:
     out.mkdir(parents=True, exist_ok=True)
     for old in out.glob("slide-*.png"):
         old.unlink()
-    r = subprocess.run([soffice, "--headless", "--convert-to", "pdf", "--outdir", str(out), str(deck)],
-                       capture_output=True, text=True, timeout=300)
-    pdf = out / (deck.stem + ".pdf")
-    if r.returncode != 0 or not pdf.is_file():
-        return [f"raster failed: soffice exit {r.returncode}: {r.stderr.strip()[:200]}"]
-    subprocess.run([pdftoppm, "-png", "-r", "80", str(pdf), str(out / "slide")], check=True, timeout=300)
+    profile = tempfile.mkdtemp(prefix="deck-qa-lo-")   # a private profile so a running LibreOffice does not swallow the job
+    try:
+        r = subprocess.run([soffice, f"-env:UserInstallation=file://{profile}", "--headless", "--convert-to", "pdf",
+                            "--outdir", str(out), str(deck)], capture_output=True, text=True, timeout=300)
+        pdf = out / (deck.stem + ".pdf")
+        if r.returncode != 0 or not pdf.is_file():
+            return [f"raster failed: soffice exit {r.returncode}: {r.stderr.strip()[:200]}"]
+        subprocess.run([pdftoppm, "-png", "-r", "80", str(pdf), str(out / "slide")], check=True, timeout=300)
+    except subprocess.TimeoutExpired as e:
+        return [f"raster failed: {e.cmd[0] if isinstance(e.cmd, list) else e.cmd} timed out after {e.timeout}s"]
+    except subprocess.CalledProcessError as e:
+        return [f"raster failed: {e.cmd[0]} exit {e.returncode}: {(e.stderr or '').strip()[:200]}"]
+    finally:
+        shutil.rmtree(profile, ignore_errors=True)
     pngs = sorted(out.glob("slide-*.png"))
     for k, png in enumerate(pngs, 1):     # normalize pdftoppm's padding to slide-NN.png
         png.rename(out / f"slide-{k:02d}.png")
@@ -327,6 +339,10 @@ def main() -> int:
             if sig == prev_sig:
                 add(n, "WARNING", "repeated-layout", "same layout signature as the previous slide")
             prev_sig = sig
+    # geometry findings go out before rasterization so a raster failure never hides them
+    if args.format == "text":
+        for f in findings:
+            print(f"slide {f['slide']:02d}  {f['severity']:<9} {f['check']:<18} {f['message']}", flush=True)
     notes = [] if args.no_raster else rasterize(deck, Path(args.out) if args.out else deck.with_name(deck.stem + "-qa"), len(paths))
 
     blocking = sum(1 for f in findings if f["severity"] == "BLOCKING")
@@ -335,8 +351,6 @@ def main() -> int:
         print(json.dumps({"deck": str(deck), "slides": len(paths), "findings": findings, "notes": notes,
                           "summary": {"blocking": blocking, "warning": warning}}, indent=2))
     else:
-        for f in findings:
-            print(f"slide {f['slide']:02d}  {f['severity']:<9} {f['check']:<18} {f['message']}")
         for note in notes:
             print(note)
         print(f"{'FAIL' if blocking else 'OK'}: {deck} slides={len(paths)} blocking={blocking} warning={warning}")

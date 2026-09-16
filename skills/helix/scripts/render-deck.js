@@ -56,93 +56,19 @@ function firstExisting(cands) {
   return cands[0];
 }
 
-// ---------------------------------------------------------------- tiny YAML
-// Enough YAML for theme.yml and slide-patterns.yml: block maps and lists,
-// flow lists/maps on one line, quoted scalars, comments. Nothing more.
-function parseYaml(text) {
-  const lines = [];
-  for (const raw of text.split("\n")) {
-    const stripped = stripComment(raw);
-    if (stripped.trim() === "") continue;
-    lines.push({ indent: stripped.length - stripped.trimStart().length, text: stripped.trim() });
-  }
-  let i = 0;
-  function block(indent) {
-    return lines[i].text.startsWith("- ") ? list(indent) : map(indent);
-  }
-  function map(indent) {
-    const obj = {};
-    while (i < lines.length && lines[i].indent === indent && !lines[i].text.startsWith("- ")) {
-      const m = lines[i].text.match(/^([^:]+):\s*(.*)$/);
-      i++;
-      if (!m) continue;
-      const key = m[1].trim();
-      if (m[2] === "") obj[key] = i < lines.length && lines[i].indent > indent ? block(lines[i].indent) : null;
-      else obj[key] = scalar(m[2]);
-    }
-    return obj;
-  }
-  function list(indent) {
-    const arr = [];
-    while (i < lines.length && lines[i].indent === indent && lines[i].text.startsWith("- ")) {
-      const rest = lines[i].text.slice(2).trim();
-      if (/^[^:{["']+:(\s|$)/.test(rest)) {
-        lines[i] = { indent: indent + 2, text: rest };
-        arr.push(map(indent + 2));
-      } else {
-        i++;
-        arr.push(scalar(rest));
-      }
-    }
-    return arr;
-  }
-  return block(lines[0].indent);
-}
-function stripComment(line) {
-  let quote = null;
-  for (let k = 0; k < line.length; k++) {
-    const ch = line[k];
-    if (quote) { if (ch === quote) quote = null; continue; }
-    if (ch === '"' || ch === "'") quote = ch;
-    else if (ch === "#" && (k === 0 || /\s/.test(line[k - 1]))) return line.slice(0, k);
-  }
-  return line;
-}
-function scalar(s) {
-  s = s.trim();
-  if (/^["'].*["']$/.test(s)) return s.slice(1, -1);
-  if (s.startsWith("[") && s.endsWith("]")) return splitFlow(s.slice(1, -1)).map(scalar);
-  if (s.startsWith("{") && s.endsWith("}")) {
-    const obj = {};
-    for (const part of splitFlow(s.slice(1, -1))) {
-      const m = part.match(/^([^:]+):\s*(.*)$/);
-      if (m) obj[m[1].trim()] = scalar(m[2]);
-    }
-    return obj;
-  }
-  if (s === "true") return true;
-  if (s === "false") return false;
-  if (/^-?\d+(\.\d+)?$/.test(s)) return Number(s);
-  return s;
-}
-function splitFlow(s) {
-  const out = [];
-  let depth = 0, cur = "", quote = null;
-  for (const ch of s) {
-    if (quote) { cur += ch; if (ch === quote) quote = null; continue; }
-    if (ch === '"' || ch === "'") { quote = ch; cur += ch; continue; }
-    if (ch === "[" || ch === "{") depth++;
-    if (ch === "]" || ch === "}") depth--;
-    if (ch === "," && depth === 0) { out.push(cur); cur = ""; continue; }
-    cur += ch;
-  }
-  if (cur.trim()) out.push(cur);
-  return out;
-}
+// ---------------------------------------------------------------- libraries
+const { parseYaml } = require("./lib/yaml");
+const { WIDTH_FACTOR, LINE_HEIGHT, textWidthIn, wrap, fitParagraphs, sizesDown } = require("./lib/measure");
+const { parseScript, parseVisual, items, cells, num, splitLabel } = require("./lib/script");
 
 // ---------------------------------------------------------------- theme
+for (const [what, file] of [["theme", themePath], ["patterns", patternsPath]]) {
+  if (!fs.existsSync(file)) { console.error(`render-deck.js: no ${what} file at ${file}`); process.exit(2); }
+}
 const theme = parseYaml(fs.readFileSync(themePath, "utf8"));
 const patterns = parseYaml(fs.readFileSync(patternsPath, "utf8"));
+const R = Object.assign({ title_h_in: 1.3, footer_h_in: 0.3, gap_in: 0.25, min_pt: 12, bullet_min_pt: 14,
+  hot_light: "F6E4DF", hot_dark: "3A2622" }, theme.render || {});   // renderer constants a project may tune
 const limitsOf = {};
 for (const p of patterns.patterns || []) limitsOf[p.id] = p.limits || {};
 
@@ -151,9 +77,13 @@ const deck = parseScript(fs.readFileSync(scriptPath, "utf8"));
 
 const hex = (c) => String(c).replace("#", "").toUpperCase();
 const LOOKS = theme.looks || {};
-const lookId = flags.look || deck.brief.Look || LOOKS.default || "editorial";
-const look = LOOKS[lookId] || {};
-if (!LOOKS[lookId]) console.error(`render-deck.js: no look '${lookId}' in ${themePath}; using the theme's base typography`);
+let lookId = flags.look || deck.brief.Look || LOOKS.default || "editorial";
+if (typeof LOOKS[lookId] === "string") lookId = LOOKS[lookId];   // `default: editorial` is an alias
+if (!LOOKS[lookId] || typeof LOOKS[lookId] !== "object") {
+  console.error(`render-deck.js: no look '${lookId}' in ${themePath}; looks: ${Object.keys(LOOKS).filter((k) => typeof LOOKS[k] === "object").join(", ")}`);
+  process.exit(2);
+}
+const look = LOOKS[lookId];
 const SURF = look.surfaces || "sandwich";            // sandwich | light | dark
 const DOMINANT = look.dominant || "primary";         // which theme hue leads
 const P = theme.palette;
@@ -163,7 +93,7 @@ function palette(dark) {
   return {
     main: hex(src[order[0]]), support: hex(src[order[1]]), spark: hex(src[order[2]]),
     ink: hex(src.ink), muted: hex(src.muted), surface: hex(src.surface), alt: hex(src.surface_alt), border: hex(src.border),
-    white: "FFFFFF", hot: dark ? "3A2622" : "F6E4DF",
+    white: "FFFFFF", hot: dark ? R.hot_dark : R.hot_light,
   };
 }
 const PAL = { light: palette(false), dark: palette(true) };
@@ -177,142 +107,22 @@ const L = theme.layout.slide;
 const W = L.width_in, H = L.height_in, M = L.margin_in, G = L.gutter_in;
 const COLS = 12;
 const CW = (W - 2 * M - (COLS - 1) * G) / COLS;
-const FOOTER_H = 0.3;
+const FOOTER_H = R.footer_h_in;
 const FOOTER_Y = H - M - FOOTER_H;            // footer sits inside the margin
-const TITLE_Y = M, TITLE_H = 1.3;
-const BODY_Y = TITLE_Y + TITLE_H + 0.25;      // 2.15
-const BODY_BOTTOM = FOOTER_Y - 0.25;          // 6.35
+const TITLE_Y = M, TITLE_H = R.title_h_in;
+const BODY_Y = TITLE_Y + TITLE_H + R.gap_in;  // 2.15 by default
+const BODY_BOTTOM = FOOTER_Y - R.gap_in;      // 6.35 by default
 const BODY_H = BODY_BOTTOM - BODY_Y;
 const MARKER = Object.assign({ size_in: 0.55, shape: "circle" }, theme.motif.section_marker || {}, look.marker ? { shape: look.marker } : {});
-const MIN_PT = 12;                            // no text below this on content slides
+const MIN_PT = R.min_pt;                      // no text below this on content slides
+const problems = [];                          // anything that made the render dishonest; reported and exit 1 after writing
+let currentUnit = 0;                          // the unit being drawn, for messages
 const DARK_CONTENT = SURF === "dark";         // content slides on the dark surface
 const DARK_ENDS = SURF !== "light";           // title, dividers, statements, and the ask on the dark surface
 
 function grid(col, span) {
   // col is 1-based; returns x and w for `span` columns starting at `col`
   return { x: M + (col - 1) * (CW + G), w: span * CW + (span - 1) * G };
-}
-
-// ---------------------------------------------------------------- measuring
-// Average glyph width as a fraction of the point size, per typeface.
-const WIDTH_FACTOR = { Georgia: 0.58, Arial: 0.5, "Courier New": 0.6, "Times New Roman": 0.46, "Trebuchet MS": 0.53, Verdana: 0.62,
-  "Arial Black": 0.66, Cambria: 0.52, Calibri: 0.47, "Century Schoolbook": 0.56, "Bookman Old Style": 0.6 };  // average em per character; bold runs wider
-const LINE_HEIGHT = 1.2;
-
-function textWidthIn(str, font, pt, bold) {
-  const f = WIDTH_FACTOR[font] || 0.52;
-  return (str.length * pt * f * (bold ? 1.2 : 1)) / 72;
-}
-function wrap(str, font, pt, bold, widthIn) {
-  const lines = [];
-  let cur = "";
-  lines.overwide = false;
-  for (const word of String(str).split(/\s+/).filter(Boolean)) {
-    const next = cur ? cur + " " + word : word;
-    if (textWidthIn(next, font, pt, bold) <= widthIn || !cur) cur = next;
-    else { lines.push(cur); cur = word; }
-    // a single word wider than the box breaks mid-word in the renderer: that size does not fit, whatever the height
-    if (textWidthIn(word, font, pt, bold) > widthIn) lines.overwide = true;
-  }
-  if (cur) lines.push(cur);
-  return lines.length ? lines : [""];
-}
-// Pick the largest size from `sizes` at which every paragraph fits the box.
-// Returns { pt, fits, height, lines }.
-function fitParagraphs(paras, box, opts) {
-  const { font, bold = false, sizes, paraGap = 0.5, indentIn = 0 } = opts;
-  let last = null;
-  for (const pt of sizes) {
-    let height = 0, lines = 0, overwide = false;
-    paras.forEach((p, k) => {
-      const w = wrap(p, font, pt, bold, box.w - indentIn);
-      const n = w.length;
-      overwide = overwide || w.overwide;
-      lines += n;
-      height += (n * pt * LINE_HEIGHT) / 72;
-      if (k < paras.length - 1) height += (paraGap * pt) / 72;
-    });
-    last = { pt, fits: height <= box.h && !overwide, height, lines };
-    if (last.fits) return last;
-  }
-  return last;
-}
-function sizesDown(from, floor, step = 2) {
-  const out = [];
-  for (let s = from; s >= floor; s -= step) out.push(s);
-  if (out[out.length - 1] !== floor) out.push(floor);
-  return out;
-}
-
-// ---------------------------------------------------------------- script parsing
-function parseScript(md) {
-  const fm = {};
-  let body = md;
-  const fmMatch = md.match(/^---\n([\s\S]*?)\n---\n/);
-  if (fmMatch) {
-    body = md.slice(fmMatch[0].length);
-    try { Object.assign(fm, parseYaml(fmMatch[1])); } catch (e) { /* frontmatter is optional here */ }
-  }
-  const title = (body.match(/^# (.+)$/m) || [, ""])[1].trim();
-  const sections = {};
-  let cur = null;
-  for (const line of body.split("\n")) {
-    const h = line.match(/^## (.+)$/);
-    if (h) { cur = h[1].trim(); sections[cur] = []; continue; }
-    if (cur) sections[cur].push(line);
-  }
-  const units = [];
-  let unit = null, field = null;
-  for (const line of sections.Content || []) {
-    const h = line.match(/^### (\d+)\.\s+(.*)$/);
-    if (h) { unit = { n: Number(h[1]), title: h[2].trim(), body: [], visual: "", notes: "", sources: "" }; units.push(unit); field = null; continue; }
-    if (!unit) continue;
-    const f = line.match(/^\*\*(Pattern|Body|Visual|Notes|Sources)\*\*:\s*(.*)$/);
-    if (f) {
-      field = f[1].toLowerCase();
-      const rest = f[2].trim();
-      if (field === "body") { if (rest) unit.body.push(rest.replace(/^[-*]\s+/, "")); }
-      else unit[field] = rest;
-      continue;
-    }
-    if (!field || !line.trim()) continue;
-    if (field === "body") unit.body.push(line.trim().replace(/^[-*•]\s+/, ""));
-    else unit[field] += " " + line.trim();
-  }
-  const brief = {};
-  for (const line of sections.Brief || []) {
-    const m = line.match(/^- \*\*(.+?)\*\*:\s*(.*)$/);
-    if (m) brief[m[1]] = m[2].trim();
-  }
-  const sources = [];
-  for (const line of sections.Sources || []) {
-    const cells = line.split("|").map((s) => s.trim());
-    if (cells.length >= 4 && /^S\d+$/.test(cells[1])) sources.push([cells[1], cells[2], cells[3]]);
-  }
-  return { fm, title, brief, units, sources };
-}
-
-// Visual spec: `kind: x | field: a; b | field: c / d; e / f. prose`
-function parseVisual(line) {
-  const m = line.match(/^kind:\s*/);
-  if (!m) return { kind: null, text: line };
-  let specText = line, prose = "";
-  const end = line.search(/\.\s|\.$/);
-  if (end >= 0) { specText = line.slice(0, end); prose = line.slice(end + 1).trim(); }
-  const spec = { text: prose };
-  for (const part of specText.split(/\s\|\s/)) {
-    const kv = part.match(/^([\w-]+):\s*(.*)$/);
-    if (kv) spec[kv[1]] = kv[2].trim();
-  }
-  return spec;
-}
-const items = (v) => (v ? String(v).split(";").map((s) => s.trim()).filter(Boolean) : []);
-const cells = (v) => String(v).split(" / ").map((s) => s.trim());
-const num = (v, d) => (v && /^\d+$/.test(v) ? Number(v) : d);
-function splitLabel(bullet) {
-  // "Label: detail" -> ["Label", "detail"]; otherwise [bullet, ""]
-  const m = bullet.match(/^([^:]{2,60}):\s+(.*)$/);
-  return m ? [m[1].trim(), m[2].trim()] : [bullet, ""];
 }
 
 // ---------------------------------------------------------------- drawing helpers
@@ -325,6 +135,7 @@ function text(slide, str, box, o = {}) {
   const font = o.font || FONT.body;
   const sizes = sizesDown(o.size || SCALE.slide_body, o.min || MIN_PT, o.step || 2);
   const fit = fitParagraphs([str], box, { font, bold: !!o.bold, sizes });
+  if (!fit.fits) problems.push(`unit ${currentUnit}: '${String(str).slice(0, 50)}' does not fit its box at ${fit.pt}pt (autofit will shrink it below the floor)`);
   slide.addText(str, {
     x: box.x, y: box.y, w: box.w, h: box.h, fontFace: font, fontSize: fit.pt, bold: !!o.bold, italic: !!o.italic,
     color: o.color || K.ink, align: o.align || "left", valign: o.valign || "top", isTextBox: true, margin: 0,
@@ -334,8 +145,9 @@ function text(slide, str, box, o = {}) {
 }
 function bulletList(slide, list, box, o = {}) {
   const font = FONT.body;
-  const sizes = sizesDown(o.size || SCALE.slide_body, o.min || 14, 2);
+  const sizes = sizesDown(o.size || SCALE.slide_body, o.min || R.bullet_min_pt, 2);
   const fit = fitParagraphs(list, box, { font, sizes, paraGap: 0.6, indentIn: 0.3 });
+  if (!fit.fits) problems.push(`unit ${currentUnit}: ${list.length} bullets do not fit at ${fit.pt}pt`);
   slide.addText(
     list.map((t, k) => ({ text: t, options: { bullet: { indent: 18 }, breakLine: k < list.length - 1, paraSpaceAfter: fit.pt * 0.6 } })),
     { x: box.x, y: box.y, w: box.w, h: box.h, fontFace: font, fontSize: fit.pt, color: o.color || K.ink, isTextBox: true, margin: 0, valign: "top" }
@@ -360,10 +172,15 @@ const iconCache = new Map();
 let iconToolWarned = false;
 function iconData(name, colorHex) {
   // PNG data URI for icons/<name>.svg in the given hue, or null when the icon or a rasterizer is missing.
-  const file = path.join(ICON_DIR, String(name).trim() + ".svg");
-  if (!fs.existsSync(file)) { console.error(`render-deck.js: no icon '${name}' in ${ICON_DIR}; badge falls back to its number`); return null; }
+  name = String(name).trim();
   const key = name + "#" + colorHex;
   if (iconCache.has(key)) return iconCache.get(key);
+  if (!/^[a-z0-9-]+$/.test(name)) {   // an icon is a name in the set, never a path
+    console.error(`render-deck.js: unit ${currentUnit}: icon name '${name}' is not a plain name; badge falls back to its number`);
+    iconCache.set(key, null); return null;
+  }
+  const file = path.join(ICON_DIR, name + ".svg");
+  if (!fs.existsSync(file)) { console.error(`render-deck.js: unit ${currentUnit}: no icon '${name}' in ${ICON_DIR}; badge falls back to its number`); iconCache.set(key, null); return null; }
   const svg = fs.readFileSync(file, "utf8").replace(/currentColor/g, "#" + colorHex);
   let png = null;
   for (const [cmd, args] of [["rsvg-convert", ["-w", "256", "-h", "256"]], ["magick", ["-background", "none", "-density", "384", "svg:-", "png:-"]]]) {
@@ -409,6 +226,7 @@ function chevron(slide, box, fill) {
 
 // Chrome shared by content slides: numbered marker, title, footer, notes.
 function chrome(slide, unit, o = {}) {
+  currentUnit = unit.n;
   const dark = o.dark == null ? DARK_CONTENT : !!o.dark;
   K = dark ? PAL.dark : PAL.light;
   slideCount += 1;
@@ -560,7 +378,8 @@ visuals.table = (slide, box, spec, unit, o = {}) => {
   let rows = items(spec.rows).map(cells);
   if (!rows.length) rows = unit.body.map(splitLabel).filter((r) => r[1]);
   const hl = num(spec.highlight, 0);
-  drawTable(slide, box, columns, rows, { highlight: hl, size: o.size || 14 });
+  const left = drawTable(slide, box, columns, rows, { highlight: hl, size: o.size || 14 });
+  if (left.length) problems.push(`unit ${unit.n}: ${left.length} table row(s) did not fit beside the bullets; use the table pattern`);
 };
 // Draws header + rows as a native table sized to fit; returns rows that did not fit.
 function drawTable(slide, box, columns, rows, o = {}) {
@@ -578,6 +397,11 @@ function drawTable(slide, box, columns, rows, o = {}) {
   }
   let total = heights[0], keep = 0;
   for (let k = 1; k < heights.length; k++) { if (total + heights[k] > box.h + 1e-6) break; total += heights[k]; keep = k; }
+  if (!keep && rows.length) {
+    // the first row alone is taller than the box: take it anyway, clamped, and say so, rather than loop on it forever
+    keep = 1; heights[1] = Math.max(0.3, box.h - heights[0]);
+    problems.push(`unit ${currentUnit}: table row '${String(rows[0][0]).slice(0, 30)}' is taller than the slide body and was clamped`);
+  }
   const shown = rows.slice(0, keep);
   const data = [columns, ...shown].map((r, ri) => r.map((c, k) => ({
     text: c, options: {
@@ -595,17 +419,14 @@ visuals.stat = (slide, box, spec, unit) => {
   if (!stats.length) stats = unit.body.slice(0, 3).map((b) => { const m = b.match(/^([<>]?\s?\$?\d[\d,.]*\s?[%kKMBx+]*|[<>]\s?\d+)\s*(.*)$/); return m ? [m[1].trim(), m[2]] : [b, ""]; });
   const cardW = (stats.length ? (box.w - G * (stats.length - 1)) / stats.length : box.w);
   const hues = stats.length === 2 ? [K.main, K.support] : [K.main, K.spark, K.support];
-  const icons = items(spec.icons);
-  const iconH = icons.length ? 0.75 : 0;
   stats.forEach(([value, caption], k) => {
     const x = box.x + k * (cardW + G);
     card(slide, { x, y: box.y, w: cardW, h: box.h });
     const inner = { x: x + 0.25, w: cardW - 0.5 };
-    if (icons[k]) badge(slide, x + cardW / 2 - 0.3, box.y + 0.25, 0.6, hues[k], { icon: icons[k] });
-    const numH = Math.min(1.6, box.h * 0.4 - iconH * 0.5);
-    text(slide, value, { x: inner.x, y: box.y + 0.3 + iconH, w: inner.w, h: numH },
+    const numH = Math.min(1.6, box.h * 0.4);
+    text(slide, value, { x: inner.x, y: box.y + 0.3, w: inner.w, h: numH },
       { font: FONT.display, size: SCALE.stat_callout, min: 28, step: 8, bold: false, color: hues[k], align: "center", valign: "middle" });
-    text(slide, caption || "", { x: inner.x, y: box.y + numH + 0.5 + iconH, w: inner.w, h: box.h - numH - 1.2 - iconH },
+    text(slide, caption || "", { x: inner.x, y: box.y + numH + 0.5, w: inner.w, h: box.h - numH - 1.2 },
       { size: 15, min: 12, color: K.ink, align: "center" });
     if (spec.label) text(slide, spec.label.toUpperCase(), { x: inner.x, y: box.y + box.h - 0.55, w: inner.w, h: 0.35 },
       { size: 12, min: 12, bold: true, color: K.muted, align: "center", valign: "bottom" });
@@ -821,6 +642,7 @@ function placeholder(slide, box, spec, unit) {
 }
 function drawVisual(slide, box, unit) {
   const spec = parseVisual(unit.visual || "");
+  if (spec.truncated) problems.push(`unit ${unit.n}: the Visual spec was cut at a period inside a field value; fields after it were read as prose`);
   const fn = spec.kind && visuals[spec.kind];
   if (!fn) return placeholder(slide, box, spec, unit);
   fn(slide, box, spec, unit);
@@ -835,7 +657,8 @@ layouts.title = (unit) => {
   const tb = grid(1, 8);
   text(s, unit.title, { x: tb.x, y: 1.5, w: tb.w, h: 2.5 }, { font: FONT.display, size: SCALE.deck_title || 40, min: 28, step: 4, bold: true, color: K.ink, valign: "bottom" });
   if (unit.body[0]) text(s, unit.body[0], { x: tb.x, y: 4.2, w: tb.w, h: 1.0 }, { size: SCALE.slide_subtitle, min: 14, color: K.muted });
-  const when = new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  const when = deck.brief.Date || (process.env.SOURCE_DATE_EPOCH ? new Date(Number(process.env.SOURCE_DATE_EPOCH) * 1000) : new Date())
+    .toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
   text(s, when, { x: M, y: FOOTER_Y - 0.4, w: 6, h: 0.35 }, { size: 12, min: 12, color: K.muted, valign: "bottom" });
   hero(s, spec.icon);
   if (unit.notes) s.addNotes(unit.notes);
@@ -924,6 +747,7 @@ layouts.table = (unit) => {
       { highlight: num(spec.highlight, 0), size: 15, minRow: Math.min(0.65, (BODY_H - 0.05) / (rows.length + 1)) });
     page++;
   } while (rows.length && page < 4);
+  if (rows.length) problems.push(`unit ${unit.n}: ${rows.length} table row(s) did not fit in 4 slides and were dropped`);
 };
 
 // Full-width figure beneath the title; the Visual line's kind decides what is drawn
@@ -999,6 +823,7 @@ layouts["appendix-sources"] = (unit, deck) => {
       { size: 12, colW: [0.6, (box.w - 0.6) * 0.62, (box.w - 0.6) * 0.38], boldFirst: true });
     page++;
   } while (rows.length && page < 6);
+  if (rows.length) problems.push(`sources: ${rows.length} row(s) did not fit in 6 appendix slides and were dropped`);
 };
 
 // ---------------------------------------------------------------- main
@@ -1015,4 +840,9 @@ for (const unit of deck.units) {
 }
 pres.writeFile({ fileName: outPath }).then(() => {
   console.log(`wrote ${outPath} (${slideCount} slides from ${deck.units.length} units; look ${lookId}: ${FONT.display}/${FONT.body}, ${SURF})`);
+  if (problems.length) {
+    for (const m of problems) console.error(`render-deck.js: ${m}`);
+    console.error(`render-deck.js: ${problems.length} problem(s); the file was written so deck-qa.py can show them, but the render is not clean`);
+    process.exitCode = 1;
+  }
 });

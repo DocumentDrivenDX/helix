@@ -39,7 +39,10 @@ HELIX_VOCAB = re.compile(
     r"|\bddx\b",
     re.I,
 )
-PLACEHOLDER = re.compile(r"\[NEEDS CLARIFICATION|\[TODO\]|\bTBD\b|\[Fill in\]|<placeholder>|\[\.\.\.\]|\[[A-Z][a-z]+(?: [a-z]+)*\]")
+PLACEHOLDER = re.compile(r"\[NEEDS CLARIFICATION|\[TODO\]|\bTBD\b|\[Fill in\]|<placeholder>|\[\.\.\.\]")
+# A bracketed Capitalized phrase is usually a template slot left behind; markdown links `[text](url)` and ids like
+# `[ADR-003]` do not match (same rule as validate-instance.py, warning severity)
+BRACKET_TOKEN = re.compile(r"(?<!\[)\[(?:[A-Z][a-z]+)(?:[ /][A-Za-z]+)*\](?!\()")
 NUMBER = re.compile(r"(?<![\w.])(?:\$?\d[\d,]*(?:\.\d+)?\s?(?:%|k|K|M|B|x)?)(?![\w.])")
 GENERIC_VISUALS = {"chart", "diagram", "image", "table", "graph", "picture", "photo", "screenshot", "none", "n/a"}
 
@@ -398,10 +401,15 @@ def content_words(title: str) -> set[str]:
     for w in re.findall(r"[a-z0-9]+", title.lower()):
         if w in _TITLE_STOPWORDS or len(w) < 3:
             continue
-        if len(w) > 4 and w.endswith(("ing", "ed")):
-            w = w[:-3] if w.endswith("ing") else w[:-2]
-        elif len(w) > 4 and w.endswith("s"):
-            w = w[:-2] if w.endswith(("ses", "xes", "zes", "ches", "shes")) else w[:-1]   # gates -> gate, templates -> template
+        # light stemming so gates/gate, templates/template, drifting/drift, agreed/agree meet; never below 4 letters
+        if w.endswith("ing") and len(w) > 6:
+            w = w[:-3]
+        elif w.endswith("ed") and len(w) > 5:
+            w = w[:-2]
+        elif w.endswith("s") and len(w) > 4 and not w.endswith("ss"):
+            w = w[:-2] if w.endswith(("ses", "xes", "zes", "ches", "shes")) else w[:-1]
+        if w.endswith("e") and len(w) > 4:     # drifted -> drift, agree -> agre: strip a trailing e so both forms match
+            w = w[:-1]
         out.add(w)
     return out
 
@@ -469,7 +477,12 @@ def units(content: str, offset: int) -> list[dict]:
             cur["fields"][fm.group(1)] = {"line": offset + i + 1, "text": fm.group(2).strip(), "lines": []}
             cur["_last"] = fm.group(1)
         elif cur.get("_last") and line.strip():
-            cur["fields"][cur["_last"]]["lines"].append(line)
+            lines = cur["fields"][cur["_last"]]["lines"]
+            # a wrapped bullet continues the previous bullet; the renderer joins the same way
+            if cur["_last"] == "Body" and lines and not line.strip().startswith(("-", "*", "•")):
+                lines[-1] = lines[-1] + " " + line.strip()
+            else:
+                lines.append(line)
     for u in out:
         u.pop("_last", None)
     return out
@@ -514,6 +527,7 @@ def main() -> int:
     ap.add_argument("script")
     ap.add_argument("--catalog")
     ap.add_argument("--format", choices=["text", "json"], default="text")
+    ap.add_argument("--dump-units", action="store_true", help="print the parsed units as JSON and exit (parser agreement tests)")
     args = ap.parse_args()
     path = Path(args.script)
     if not path.is_file():
@@ -538,8 +552,10 @@ def main() -> int:
 
     for m in PLACEHOLDER.finditer(body):
         line = fm_lines + body.count("\n", 0, m.start()) + 1
-        # allow bracket tokens inside the Sources table path column? no: placeholders anywhere block
         add("BLOCKING", "placeholder", f"placeholder text {m.group(0)!r}", line)
+    for m in BRACKET_TOKEN.finditer(body):
+        line = fm_lines + body.count("\n", 0, m.start()) + 1
+        add("WARNING", "placeholder.bracket", f"bracketed phrase {m.group(0)!r} looks like a template slot", line)
 
     sources_text = secs.get("Sources", (0, ""))[1]
     source_ids = set(re.findall(r"^\|\s*(S\d+)\s*\|", sources_text, re.M))
@@ -548,6 +564,16 @@ def main() -> int:
 
     content_off = fm_lines + secs["Content"][0]
     us = units(secs["Content"][1], content_off)
+    if args.dump_units:
+        dump = []
+        for u in us:
+            bf = u["fields"].get("Body", {})
+            bl = ([bf["text"]] if bf.get("text") else []) + [l for l in bf.get("lines", []) if l.strip().startswith(("-", "*", "•"))]
+            dump.append({"n": u["n"], "title": u["title"], "pattern": u["fields"].get("Pattern", {}).get("text", ""),
+                         "bullets": [re.sub(r"^[-*•]\s+", "", b.strip()) for b in bl],
+                         "visual": (u["fields"].get("Visual", {}).get("text", "") + " " + " ".join(u["fields"].get("Visual", {}).get("lines", []))).strip()})
+        print(json.dumps(dump, indent=2))
+        return 0
     if not us:
         add("BLOCKING", "units", "no '### <n>. <claim title>' units under ## Content")
 
@@ -575,6 +601,12 @@ def main() -> int:
             add("WARNING", "density.consecutive", f"unit {u['n']}: more than {limit_consec} consecutive {pattern!r} units", u["line"])
         vis = f.get("Visual", {})
         vtext = (vis.get("text", "") + " " + " ".join(vis.get("lines", []))).strip()
+        if vtext.startswith("kind:"):
+            cut = re.search(r"\.\s|\.$", vtext)
+            prose = vtext[cut.end():].lstrip() if cut else ""
+            if prose and (prose[0].islower() or prose[0] in ";|" or prose[0].isdigit() or " | " in prose):
+                add("BLOCKING", "visual.spec", f"unit {u['n']} visual spec is cut at {vtext[max(0, cut.start() - 12):cut.start() + 1]!r}; "
+                    "no period inside a field value (the spec ends at the first '. ')", vis.get("line"))
         if vis and (vtext.lower().strip(" .") in GENERIC_VISUALS or words(vtext) < 6):
             add("BLOCKING", "visual.generic", f"unit {u['n']} visual is not specified (say what it shows, its series, and source)", vis.get("line"))
         bodyf = f.get("Body", {})
@@ -584,7 +616,7 @@ def main() -> int:
         for label, txt, ln in (("body", btext, bodyf.get("line")), ("notes", ntext, notes.get("line")), ("title", t, u["line"])):
             for m in HELIX_VOCAB.finditer(txt):
                 add("BLOCKING", "vocabulary", f"unit {u['n']} {label} uses HELIX vocabulary {m.group(0)!r}; move it to Sources", ln)
-        bullets = [l for l in bodyf.get("lines", []) if l.strip().startswith(("-", "*", "•"))]
+        bullets = ([bodyf["text"]] if bodyf.get("text") else []) + [l for l in bodyf.get("lines", []) if l.strip().startswith(("-", "*", "•"))]
         # every text shape the slide will carry gets the shape rules; the title and the shapes together get the
         # restatement check (a bullet that repeats a panel, a verdict that repeats the title)
         if pattern not in ("appendix-sources", "title"):
@@ -666,10 +698,8 @@ def main() -> int:
         covered = [r["group"].lower() for r in rows if r["status"] == "covered"]
         if breadth == "survey" and rows and len(covered) < 5:
             add("BLOCKING", "coverage.survey", f"a survey covers at least five concept groups; {len(covered)} covered")
-        def stems(text: str) -> set[str]:
-            return {w[:5] for w in re.findall(r"[a-z][a-z-]{3,}", text.lower()) if w not in _TITLE_STOPWORDS}
         for mc in must_cover:
-            if not any(stems(mc) & stems(g) for g in covered):
+            if not any(content_words(mc) & content_words(g) for g in covered):
                 add("BLOCKING", "coverage.must_cover", f"must-cover concept {mc!r} shares no content word with any covered group")
     if must_omit:
         for u in us:

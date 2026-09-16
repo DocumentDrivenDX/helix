@@ -122,8 +122,11 @@ def structure(catalog: Path) -> dict:
     if not graph.is_file():
         return out
     try:
-        import yaml  # optional; the structural pass degrades to nothing without it
+        import yaml  # optional, but its absence is reported, never silent: the structural pass is a coverage input
     except ImportError:
+        print("corpus-inventory: PyYAML is not installed; the structure pass (catalog layers, gates, concerns) was skipped. "
+              "Install it (pip install pyyaml) or read graph.yml, the GATE files, and the concerns index by hand.", file=sys.stderr)
+        out["skipped"] = "PyYAML missing: structure pass not run"
         return out
     g = yaml.safe_load(graph.read_text(encoding="utf-8")) or {}
     acts = [a["id"] for a in g.get("activities", [])]
@@ -271,6 +274,8 @@ def main() -> int:
         print(f"| {i} | {c['concept']} | {c['score']} | {c['documents']} |")
     if struct["groups"]:
         print("\n## Structure: the corpus's own layers (from the catalog, not from prose)\n")
+        if struct.get("skipped"):
+            print(f"**Skipped**: {struct['skipped']}; these groups are mandatory candidates and must be listed by hand.\n")
         for fact in struct["facts"]:
             print(f"- {fact}")
         print("\n| # | Structural concept group | Evidence |")

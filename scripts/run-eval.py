@@ -20,6 +20,7 @@ names a runtime; this script may.
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import datetime as dt
 import fnmatch
 import hashlib
@@ -44,7 +45,7 @@ DEFAULT_RUNNER = (
     "claude -p {prompt} --plugin-dir {repo} --output-format json "
     "--permission-mode acceptEdits --max-turns {max_turns} "
     "--allowedTools 'Skill,Read,Write,Edit,Glob,Grep,Bash(ls:*),Bash(cat:*),Bash(find:*),"
-    "Bash(grep:*),Bash(python3:*),Bash(git:*)'"
+    "Bash(grep:*),Bash(python3 {repo}/skills/helix/scripts/:*)'"   # the skill's own scripts only; the runner snapshots and diffs the workspace itself
 )
 JUDGE_RUNNER = "claude -p {prompt} --output-format json --max-turns 1"
 MARKER = "flows:\n  - id: helix\n    root: docs/helix/\nautonomy:\n  level: high\n"
@@ -116,17 +117,18 @@ def match(ws: Path, globs: list[str]) -> list[Path]:
     return sorted(set(files))
 
 
-def instance_findings(path: Path) -> set[str]:
-    """Blocking finding keys for one artifact (check id + message), empty when it passes."""
+def instance_findings(path: Path) -> Counter:
+    """Blocking finding keys for one artifact (check id + message) with their counts, empty when it passes.
+    Counts matter: a run that adds a second finding of a kind the fixture already had is still a regression."""
     r = subprocess.run([sys.executable, str(VALIDATE), str(path), "--catalog", str(REPO / "workflows"), "--format", "json"], capture_output=True, text=True)
     try:
         data = json.loads(r.stdout)
-        return {f"{x['check']}: {x['message']}" for x in data["findings"] if x["severity"] == "BLOCKING"}
+        return Counter(f"{x['check']}: {x['message']}" for x in data["findings"] if x["severity"] == "BLOCKING")
     except (json.JSONDecodeError, KeyError):
-        return {f"validator error: {r.stderr.strip()[-200:]}"}
+        return Counter({f"validator error: {r.stderr.strip()[-200:]}": 1})
 
 
-def run_checks(brief: dict, ws: Path, before: dict[str, str], after: dict[str, str], result: str, baseline: dict[str, set[str]]) -> list[dict]:
+def run_checks(brief: dict, ws: Path, before: dict[str, str], after: dict[str, str], result: str, baseline: dict[str, Counter]) -> list[dict]:
     out = []
     created = [f for f in after if f not in before]
     for c in brief.get("checks", []):
@@ -145,9 +147,9 @@ def run_checks(brief: dict, ws: Path, before: dict[str, str], after: dict[str, s
             fails = []
             for f in match(ws, c["globs"]):
                 rel = str(f.relative_to(ws))
-                new = instance_findings(f) - baseline.get(rel, set())
+                new = instance_findings(f) - baseline.get(rel, Counter())   # Counter subtraction keeps only the excess
                 if new:
-                    fails.append(f"{rel}: " + "; ".join(sorted(new))[:300])
+                    fails.append(f"{rel}: " + "; ".join(f"{k} (x{v})" if v > 1 else k for k, v in sorted(new.items()))[:300])
             ok, detail = not fails, "; ".join(fails) if fails else f"{len(match(ws, c['globs']))} artifact(s) valid (no new blocking findings)"
         elif kind == "report_block":
             m = re.search(r"helix_report:\s*\n(?:.*\n)*?\s*mode:\s*([a-z-]+)", result)

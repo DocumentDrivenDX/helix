@@ -67,3 +67,6 @@ tests/install/genie/recordings/*
 # Ephemeral lock-contention metrics — untracked to avoid the pre-land
 # checkpoint committing it in a loop (see ddx land checkpoint). Per-machine.
 .ddx/metrics/locks.jsonl
+# optional render toolchain (npm ci in skills/helix/scripts)
+skills/helix/scripts/node_modules/
+skills/helix/scripts/package-lock.json
