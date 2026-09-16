@@ -29,8 +29,10 @@
 {{- $colo := $payload.colophon }}
 {{- $issuer := $payload.issuer }}
 {{- $sig := index (default (slice dict) $att.signatures) 0 }}
-{{- $attHref := printf "/.well-known/innsigle/claims/%s.attestation.json" $slug | relURL }}
-{{- $keysHref := "/.well-known/innsigle/keys.json" | relURL }}
+{{- /* relURL leaves the site's base path off a root-absolute input, so build the hrefs from the base URL's path */ -}}
+{{- $basePath := (urls.Parse site.BaseURL).Path | default "/" }}
+{{- $attHref := printf "%s.well-known/innsigle/claims/%s.attestation.json" $basePath $slug }}
+{{- $keysHref := printf "%s.well-known/innsigle/keys.json" $basePath }}
 <div class="innsigle-colophon">
   <details class="innsigle-seal">
     <summary title="View Innsigle attestation">
