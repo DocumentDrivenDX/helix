@@ -285,5 +285,253 @@
     "name": "good_ten_words_exactly",
     "headline": "Each document layer governs the next, from vision to code",
     "expected_rules": []
+  },
+  {
+    "name": "slide_title_container_firm_capabilities",
+    "mode": "slide-title",
+    "headline": "Firm capabilities",
+    "expected_rules": [
+      "ContainerTitle"
+    ]
+  },
+  {
+    "name": "slide_title_container_platform_layer",
+    "mode": "slide-title",
+    "headline": "Platform layer",
+    "expected_rules": [
+      "ContainerTitle"
+    ]
+  },
+  {
+    "name": "slide_title_container_key_considerations",
+    "mode": "slide-title",
+    "headline": "Key considerations",
+    "expected_rules": [
+      "ContainerTitle"
+    ]
+  },
+  {
+    "name": "slide_title_concrete_noun_passes",
+    "mode": "slide-title",
+    "headline": "Use cases",
+    "expected_rules": []
+  },
+  {
+    "name": "slide_title_claim_passes",
+    "mode": "slide-title",
+    "headline": "Five checks are built and one is in use",
+    "expected_rules": []
+  },
+  {
+    "name": "slide_title_self_justifying_why_we",
+    "mode": "slide-title",
+    "headline": "Why we control it",
+    "expected_rules": [
+      "SelfJustifying"
+    ]
+  },
+  {
+    "name": "slide_title_self_justifying_how_to_read",
+    "mode": "slide-title",
+    "headline": "How to read this slide",
+    "expected_rules": [
+      "SelfJustifying"
+    ]
+  },
+  {
+    "name": "slide_title_status_jargon_from_vale_tokens",
+    "mode": "slide-title",
+    "headline": "Working hypothesis",
+    "expected_rules": [
+      "StatusJargon"
+    ]
+  },
+  {
+    "name": "slide_title_taxonomy_and_container",
+    "mode": "slide-title",
+    "headline": "Zone 6 capabilities",
+    "expected_rules": [
+      "ContainerTitle",
+      "Taxonomy"
+    ]
+  },
+  {
+    "name": "slide_title_marketing_register",
+    "mode": "slide-title",
+    "headline": "Leverage the platform layer",
+    "expected_rules": [
+      "ContainerTitle",
+      "Marketing"
+    ]
+  },
+  {
+    "name": "doc_heading_container_not_flagged",
+    "headline": "Firm capabilities",
+    "expected_rules": []
+  },
+  {
+    "name": "doc_heading_overview_not_flagged",
+    "headline": "Overview",
+    "expected_rules": []
+  },
+  {
+    "name": "shape_shouting_label",
+    "mode": "shape",
+    "headline": "WHAT EXISTS AND WHERE IT STANDS",
+    "expected_rules": [
+      "ShoutingLabel"
+    ]
+  },
+  {
+    "name": "shape_short_caps_status_passes",
+    "mode": "shape",
+    "headline": "IN USE",
+    "expected_rules": []
+  },
+  {
+    "name": "shape_principles_served_strip",
+    "mode": "shape",
+    "headline": "DESIGN PRINCIPLES SERVED P3 P4 P7",
+    "expected_rules": [
+      "SelfJustifying",
+      "ShoutingLabel"
+    ]
+  },
+  {
+    "name": "shape_trailing_commentary",
+    "mode": "shape",
+    "headline": "Verifies citations. Built as the worked example for moving a check between products.",
+    "expected_rules": [
+      "TrailingCommentary"
+    ]
+  },
+  {
+    "name": "shape_reversal_closer",
+    "mode": "shape",
+    "headline": "Retrieval is a request, not a capability.",
+    "expected_rules": [
+      "ContrastiveReversal"
+    ]
+  },
+  {
+    "name": "shape_aphoristic_closer",
+    "mode": "shape",
+    "headline": "That is what makes it portable.",
+    "expected_rules": [
+      "Aphorism"
+    ]
+  },
+  {
+    "name": "shape_plain_subtitle_passes",
+    "mode": "shape",
+    "headline": "Checks the firm has built as its own components. Five so far; one is in use.",
+    "expected_rules": []
+  },
+  {
+    "name": "shape_plain_card_sentence_passes",
+    "mode": "shape",
+    "headline": "Verifies that every citation resolves to a document in the matter file.",
+    "expected_rules": []
+  },
+  {
+    "name": "slide_mode_restatement_within_slide_only",
+    "mode": "slide",
+    "text": "# Scope\n\nKnown rules move out of prompts into versioned, testable components.\n\nRules that are known move out of the prompts and into versioned testable components.\n\n---\n\n# Cost\n\nKnown rules move out of prompts into versioned, testable components.\n",
+    "expected_rules": [
+      "ContainerTitle",
+      "Restatement"
+    ]
+  },
+  {
+    "name": "slide_mode_marp_frontmatter_and_separators",
+    "mode": "slide",
+    "text": "---\nmarp: true\n---\n\n# Use cases\n\nIN USE\n\n---\n\n# Platform layer\n\n![bg](cover.png)\n\n<!-- slide 2: shape 4 \"TextBox 3\" -->\n",
+    "expected_rules": [
+      "ContainerTitle"
+    ]
+  },
+  {
+    "name": "slide_mode_clean_deck_passes",
+    "mode": "slide",
+    "text": "# Five checks are built and one is in use\n\nIN USE\n\nEvery citation resolves to a document in the matter file.\n\n---\n\n# The citation check runs on every call\n\nBUILT\n",
+    "expected_rules": []
+  },
+  {
+    "name": "doc_label_shouting_web_eyebrow",
+    "mode": "headings",
+    "text": "# Pricing\n\nWHAT WE DO\n\nWe run the citation check on every filing.\n",
+    "expected_rules": [
+      "ShoutingLabel"
+    ]
+  },
+  {
+    "name": "doc_label_container_web_section",
+    "mode": "headings",
+    "text": "# Pricing\n\nOur approach\n\nWe run the citation check on every filing.\n",
+    "expected_rules": [
+      "ContainerTitle"
+    ]
+  },
+  {
+    "name": "doc_heading_container_internal_passes",
+    "mode": "headings",
+    "text": "# Overview\n\nThe worker re-reads the partition from offset zero.\n\n## Rationale\n\nA poison message burns forty minutes.\n",
+    "expected_rules": []
+  },
+  {
+    "name": "doc_heading_container_external_flagged",
+    "mode": "headings-external",
+    "text": "# Overview\n\nThe worker re-reads the partition from offset zero.\n",
+    "expected_rules": [
+      "ContainerTitle"
+    ]
+  },
+  {
+    "name": "doc_heading_status_jargon_external",
+    "mode": "headings-external",
+    "text": "## Working hypothesis\n\nThe worker re-reads the partition from offset zero.\n",
+    "expected_rules": [
+      "StatusJargon"
+    ]
+  },
+  {
+    "name": "doc_heading_shouting_any_audience",
+    "mode": "headings",
+    "text": "# WHAT EXISTS AND WHERE IT STANDS\n\nBody.\n",
+    "expected_rules": [
+      "ShoutingLabel"
+    ]
+  },
+  {
+    "name": "doc_restatement_within_section",
+    "mode": "headings",
+    "text": "# Retry path\n\nWhen a batch fails, the worker re-reads the entire partition from offset zero, so a single poison message burns forty minutes of CPU.\n\nA single poison message burns forty minutes of CPU because the worker re-reads the entire partition from offset zero when a batch fails.\n",
+    "expected_rules": [
+      "Restatement"
+    ]
+  },
+  {
+    "name": "doc_restatement_across_sections_passes",
+    "mode": "headings",
+    "text": "# Retry path\n\nWhen a batch fails, the worker re-reads the entire partition from offset zero, so a single poison message burns forty minutes of CPU.\n\n# Summary\n\nA single poison message burns forty minutes of CPU because the worker re-reads the entire partition from offset zero when a batch fails.\n",
+    "expected_rules": []
+  },
+  {
+    "name": "doc_list_items_not_labels",
+    "mode": "headings",
+    "text": "# Commands\n\n- Our approach\n- WHAT WE DO NOW HERE\n- Next steps\n",
+    "expected_rules": []
+  },
+  {
+    "name": "doc_wrapped_paragraph_not_label",
+    "mode": "headings",
+    "text": "# Notes\n\nOur approach\nis to run the check on every filing and report the count.\n",
+    "expected_rules": []
+  },
+  {
+    "name": "doc_label_trailing_colon_passes",
+    "mode": "headings",
+    "text": "# Notes\n\nKey considerations:\n\n- latency\n- cost\n",
+    "expected_rules": []
   }
 ]

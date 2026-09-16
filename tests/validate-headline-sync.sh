@@ -20,20 +20,25 @@ RULES = {"contrastive reversal": "ContrastiveReversal", "colon list": "ColonList
          "imperative chain": "ImperativeChain", "listicle count": "Listicle", "stacked negation": "StackedNegation",
          "rule-of-three list": "Triplet", "flattery": "Flattery", "pseudo-aphorism": "Aphorism",
          "universal claim": "UniversalClaim", "over-length": "Length", "mannered phrase": "Mannered",
-         "inventory count": "InventoryCount", "hedge": "Hedge"}
-def rules_for(title):
+         "inventory count": "InventoryCount", "hedge": "Hedge", "container title": "ContainerTitle",
+         "self-justifying": "SelfJustifying", "shouting label": "ShoutingLabel", "invented status": "StatusJargon",
+         "taxonomy code": "Taxonomy", "marketing register": "Marketing", "trailing commentary": "TrailingCommentary"}
+def rules_for(title, mode):
     out = set()
-    for msg in mod.title_slop(title):
+    msgs = (mod.title_slop(title) if mode == "headline" else
+            mod.title_slop(title, slide=True) if mode == "slide-title" else mod.shape_slop(title))
+    for msg in msgs:
         for prefix, name in RULES.items():
             if msg.startswith(prefix):
                 out.add(name); break
         else:
             out.add("?" + msg[:30])
     return out
-cases = [c for c in json.load(open(sys.argv[2], encoding="utf-8")) if "headline" in c]  # document-mode cases test sloptimizer's CLI, not the rules
+# document-mode cases (headings, all-lines, slide) test sloptimizer's CLI layout, not the rules
+cases = [c for c in json.load(open(sys.argv[2], encoding="utf-8")) if c.get("mode", "headline") in ("headline", "slide-title", "shape")]
 bad = []
 for c in cases:
-    got, want = rules_for(c["headline"]), set(c.get("expected_rules", []))
+    got, want = rules_for(c["headline"], c.get("mode", "headline")), set(c.get("expected_rules", []))
     if got != want:
         bad.append(f"  {c['name']}: expected {sorted(want)} got {sorted(got)}  <- {c['headline']!r}")
 print(f"checked {len(cases)} headline cases")
@@ -51,9 +56,12 @@ if [[ -n "$upstream" ]]; then
     fail "vendored headline-cases.json differs from $upstream; copy it over, update .SOURCE, and make title_slop agree"
   fi
   echo "vendored fixture matches upstream: $upstream"
-  mannered="$(dirname "$upstream")/../../assets/vale/styles/Sloptimizer/ManneredProse.yml"
-  if [[ -f "$mannered" ]]; then
-    python3 - "$repo_root/skills/helix/scripts/check-deliverable.py" "$mannered" <<'PYEOF' || fail "_MANNERED in check-deliverable.py differs from sloptimizer's ManneredProse.yml tokens; re-vendor the list"
+  styles="$(dirname "$upstream")/../../assets/vale/styles"
+  for pair in "_MANNERED:Sloptimizer/ManneredProse.yml" "_STATUS_JARGON:SloptimizerExternal/StatusJargon.yml" \
+              "_TAXONOMY:SloptimizerExternal/InternalTaxonomy.yml" "_MARKETING:SloptimizerExternal/MarketingRegister.yml"; do
+    attr="${pair%%:*}"; yml="$styles/${pair#*:}"
+    [[ -f "$yml" ]] || continue
+    python3 - "$repo_root/skills/helix/scripts/check-deliverable.py" "$yml" "$attr" <<'PYEOF' || fail "$attr in check-deliverable.py differs from sloptimizer's ${pair#*:} tokens; re-vendor the list"
 import importlib.util, sys
 spec = importlib.util.spec_from_file_location("cd", sys.argv[1]); mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
 tokens, intok = [], False
@@ -66,11 +74,12 @@ for raw in open(sys.argv[2], encoding="utf-8").read().splitlines():
         if t[0] == t[-1] and t[0] in "'\"":
             t = t[1:-1].replace("''", "'") if t[0] == "'" else t[1:-1]
         tokens.append(t)
-if list(mod._MANNERED) != tokens:
-    print(f"port has {len(mod._MANNERED)} tokens, upstream has {len(tokens)}", file=sys.stderr); sys.exit(1)
-print(f"mannered token list matches upstream ({len(tokens)} tokens)")
+port = list(getattr(mod, sys.argv[3]))
+if port != tokens:
+    print(f"{sys.argv[3]}: port has {len(port)} tokens, upstream has {len(tokens)}", file=sys.stderr); sys.exit(1)
+print(f"{sys.argv[3]} matches upstream ({len(tokens)} tokens)")
 PYEOF
-  fi
+  done
 else
   echo "sloptimizer source not present; skipped byte comparison (see $(basename "$source_note"))"
 fi

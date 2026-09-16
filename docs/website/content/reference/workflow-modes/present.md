@@ -128,7 +128,15 @@ which units). Voice: the `human-facing` profile in `voice.yml`.
    so each connects to its neighbor. Validate: re-run the pass
    until it is clean and sync the titles-only list under `## Story` with the
    unit headings. A body written under a slop title inherits its shape, so
-   titles are fixed first.
+   titles are fixed first. Then run the same tool's slide target over the
+   shapes (`slop-audit.sh --target slide` on the script, or on the rendered
+   `.pptx`, whose text it extracts shape by shape; the port is `shape.slop`
+   and `restatement` in `check-deliverable.py`): a bullet, card label,
+   caption, or verdict may not be a category label, a self-justifying
+   section, an all-caps label, an invented status, a marketing adjective, a
+   closer (a reversal or an aphorism), or a second sentence that explains
+   the first; and no two shapes on one slide may say the same thing, which
+   is how bullets that restate the visual are caught.
 6. **Theme.** Resolve palette and typography from the project's
    `design-system` artifact when it declares them, else `theme.yml`. Pick
    the look by room and record it in the Brief: `editorial` (serif display,
@@ -153,8 +161,9 @@ which units). Voice: the `human-facing` profile in `voice.yml`.
      title, a pattern, a visual, notes, and sources; no placeholder text; no
      HELIX vocabulary in bodies; word and bullet limits per pattern; density
      rules; every number in a body appears in Sources.
-   - Titles: the headline pass is clean (`title.slop` reports nothing) and
-     no consecutive titles fail `horizontal_logic`.
+   - Titles and shapes: the headline pass is clean (`title.slop` reports
+     nothing), no consecutive titles fail `horizontal_logic`, every shape
+     passes `shape.slop`, and no slide carries a `restatement`.
    - Horizontal logic: re-run the titles-only read on the finished script;
      the titles still form the argument and end in the ask. A failure goes
      back to step 3.

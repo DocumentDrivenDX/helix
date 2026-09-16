@@ -83,6 +83,9 @@ _APHORISM = [re.compile(p, re.I) for p in (
     r"\bis (?:a|the) (?:feature|superpower|multiplier|moat|journey|mindset)\b", r"\bis (?:a|an) (?:nice-to-have|luxury)\b",
     r"\b(?:wins|matters|counts)\s*[.!]?$", r"\bat scale\s*[.!]?$", r"\bthe hard way\b", r"\bchanges everything\b",
     r"\bhere to stay\b", r"\bthe future of\b", r"\bwelcome to\b",
+    r"^that(?:'|’)?s what makes\b", r"^that is what makes\b",
+    r"^(?:this|that) is (?:what|how|why) \w+ (?:works|matters|wins|scales|holds)\b",
+    r"\beverything else is (?:detail|plumbing|noise|downstream)\b",
 )]
 _COUNT = (
     r"(?:\d[\d,]*|a dozen|dozens|hundreds|thousands|"
@@ -144,6 +147,83 @@ _MANNERED = (  # vendored from sloptimizer assets/vale/styles/Sloptimizer/Manner
     '\\bthe (?:road|path) ahead\\b',
     '\\bfull circle\\b',
 )
+_STATUS_JARGON = (  # vendored from sloptimizer assets/vale/styles/SloptimizerExternal/StatusJargon.yml (ignorecase); the sync test keeps it equal
+    '\\bportability reference\\b',
+    '\\brepresentative workload\\b',
+    '\\bworking hypothesis\\b',
+    '\\bproposed contract\\b',
+    '\\bcandidate,? (?:scope open|tbd|pending)\\b',
+    '\\bscope (?:open|tbd|to be (?:defined|determined))\\b',
+    '\\bfit (?:unproven|tbd|unclear)\\b',
+    '\\bnot (?:yet )?committed\\b',
+    '\\bdirectionally (?:correct|right|aligned)\\b',
+    '\\bunder (?:exploration|consideration|evaluation|investigation)\\b',
+    '\\bin flight\\b',
+    '\\bto be validated\\b',
+    '\\bsubject to (?:validation|confirmation|alignment)\\b',
+    '\\bpending (?:alignment|validation|confirmation|decision)\\b',
+    '\\baspirational\\b',
+    '\\bnascent\\b',
+    '\\blighthouse (?:project|use case|customer|initiative)\\b',
+    '\\bpathfinder\\b',
+    '\\bexemplar\\b',
+    '\\bstraw ?man\\b',
+    '\\bnaming tbd\\b',
+    '\\btbd\\b',
+    '\\bwip\\b',
+)
+_TAXONOMY = (  # vendored from SloptimizerExternal/InternalTaxonomy.yml (case-sensitive, inline (?i:) groups)
+    '\\b(?i:zone|plane|pillar|horizon|wave|workstream|swimlane|quadrant|lane|epic|theme)s? \\d{1,2}\\b',
+    '\\bP\\d{1,2}(?:[ ,/]+P\\d{1,2})+\\b',
+    '\\b(?i:principle|pillar)s? P?\\d{1,2}\\b',
+)
+_MARKETING = (  # vendored from SloptimizerExternal/MarketingRegister.yml (ignorecase)
+    '\\bleverag(?:e|es|ed|ing)\\b',
+    '\\bdifferentiat(?:ed|ing|or|ors)\\b',
+    '\\bcommoditi[sz](?:e|es|ed|ing|ation)\\b',
+    '\\bbest[- ]of[- ]breed\\b',
+    '\\benterprise[- ]grade\\b',
+    '\\bfuture[- ]proof(?:ed|ing)?\\b',
+    '\\bturnkey\\b',
+    '\\bholistic(?:ally)?\\b',
+    '\\bfrictionless\\b',
+    '\\bnext[- ]gen(?:eration)?\\b',
+    '\\bsynerg(?:y|ies|istic)\\b',
+    '\\bvalue[- ]add(?:ed)?\\b',
+    '\\bmission[- ]critical\\b',
+    '\\bstate[- ]of[- ]the[- ]art\\b',
+    '\\b(?:universal|unified|seamless|delightful) experience\\b',
+    '\\bsingle (?:pane|source) of (?:glass|truth)\\b',
+    '\\bgoverned (?:conversational|data|ai) access\\b',
+)
+_CONTAINER_NOUNS = (
+    r"(?:capabilit(?:y|ies)|foundations?|layers?|overview|landscape|ecosystem|frameworks?|pillars?|principles|"
+    r"considerations|enablers|building blocks|components|dimensions|themes|elements|areas|aspects|fundamentals|"
+    r"essentials|basics|highlights|context|background|approach|philosophy|vision|stack|platform|architecture|"
+    r"framing|scope|summary|agenda|introduction|recap|takeaways|learnings|observations|reflections|opportunities|"
+    r"challenges|implications|next steps|key points|the ask|deep[- ]dive|overview and context)"
+)
+_SELF_JUSTIFYING = [re.compile(p, re.I) for p in (
+    r"^how to read (?:this|the)\b",
+    r"^how this (?:slide|page|view|diagram|map) (?:works|is organi[sz]ed|reads)\b",
+    r"^what this (?:slide|page|deck|diagram|view|map) (?:shows|means|is saying|tells)\b",
+    r"^reading (?:this|the) (?:slide|chart|diagram|map|table)\b",
+    r"^(?:a )?note on (?:how to read|reading|method|methodology)\b",
+    r"^(?:design |guiding |core |our )?principles? (?:served|applied|honou?red|met|addressed|upheld|in play)\b",
+    r"^why (?:we|our|us|the \w+|this|it|that) (?:own|control|built|build|chose|choose|keep|hold|matter|matters|care|need|exist)",
+    r"^why (?:this|it|that) (?:matters|is different|is hard|works)\b",
+    r"^what (?:stays|remains|does ?n[o'’]t change|we (?:control|own|keep|hold|guarantee))\b",
+    r"^(?:the |our |design )?rationale\b",
+)]
+_TRAILING_COMMENTARY = re.compile(
+    r"[.!?]\s+(?:Built|Designed|Intended|Meant|Chosen|Included|Added|Kept|Positioned|Shown|Placed|Retained|Selected)"
+    r"\s+(?:as|to|because|for|here|so|since)\b"
+    r"|[.!?]\s+(?:Serves|Acts|Exists|Stands|Functions)\s+(?:as|to|because|so)\b"
+    r"|[.!?]\s+(?:This|It|That) (?:is|was) (?:the|our|a) (?:worked example|reference|proof point|test case|first step)\b")
+_SHAPE_STOPWORDS = frozenset(
+    "the a an and or but of to in on for with by from at as is are was were be been being it its this that these those "
+    "we our you your they their he she his her not no do does did have has had will can into than then so if when what "
+    "which who how all any each every one two three".split())
 _TITLE_STOPWORDS = {
     "a", "an", "the", "and", "or", "but", "of", "to", "in", "on", "at", "by", "for", "with", "from", "into", "than",
     "that", "this", "these", "those", "it", "its", "is", "are", "was", "were", "be", "been", "as", "if", "when",
@@ -153,10 +233,105 @@ _TITLE_STOPWORDS = {
 }
 
 
-def title_slop(title: str) -> list[str]:
-    """Headline slop findings for one title; each is a short message with the match."""
-    t = title.strip()
+def _words_n(text: str) -> int:
+    return len(re.findall(r"[A-Za-z0-9$%][\w$%.,'’-]*", text))
+
+
+def label_slop(text: str, container: bool = True) -> list[str]:
+    """Rules for a unit that stands alone (a slide title, a card label, a caption): container title,
+    self-justifying section, shouting label. `container` is off for headings in internal documents."""
+    t = text.strip()
     out: list[str] = []
+    if container:
+        stripped = re.sub(r"[.!?:]+$", "", t)
+        if _words_n(stripped) <= 4:
+            m = re.fullmatch(rf"(?:[\w&/'’-]+\s+){{0,3}}{_CONTAINER_NOUNS}", stripped, re.I)
+            if m:
+                out.append(f"container title {m.group(0)!r}; name what the slide shows, not the category it belongs to")
+        for p in _SELF_JUSTIFYING:
+            m = p.search(t)
+            if m:
+                out.append(f"self-justifying section {m.group(0)!r}; the text argues for itself, delete it or move the one fact into the subtitle")
+                break
+    letters = re.sub(r"[^A-Za-z]", "", t)
+    if len(letters) >= 6 and letters == letters.upper():
+        n = _words_n(t)
+        question = re.match(r"^(?:WHAT|WHY|HOW|WHERE|WHEN|WHO)\b", t)
+        if (n >= 4 and len(letters) >= 12) or (n >= 2 and question):
+            out.append(f"shouting label {t!r}; shorten to a plain noun or delete")
+    return out
+
+
+def external_slop(text: str) -> list[str]:
+    """The SloptimizerExternal phrase lists: invented status, internal taxonomy codes, marketing register."""
+    out: list[str] = []
+    for name, tokens, flags, msg in (
+        ("invented status", _STATUS_JARGON, re.I, "use a state the reader already knows: in use, built, specified, idea, not adopted, retired"),
+        ("taxonomy code", _TAXONOMY, 0, "the reader does not have the map; name the thing or drop the code"),
+        ("marketing register", _MARKETING, re.I, "say the plain noun or verb, or the fact the reader can check"),
+    ):
+        for pat in tokens:
+            m = re.search(pat, text, flags)
+            if m:
+                out.append(f"{name} {m.group(0)!r}; {msg}")
+                break
+    return out
+
+
+def shape_slop(text: str) -> list[str]:
+    """Rules for a non-title unit on a slide (a bullet, a card label, a caption, a verdict): the label rules plus the
+    closer shapes a title cannot carry."""
+    t = text.strip()
+    out = label_slop(t)
+    for p in _REVERSAL:
+        m = p.search(t)
+        if m:
+            out.append(f"contrastive reversal {m.group(0).strip()!r}; state the positive claim")
+            break
+    for p in _APHORISM:
+        m = p.search(t)
+        if m:
+            out.append(f"pseudo-aphorism {m.group(0)!r}; delete the closer, do not replace it with another")
+            break
+    for p in _FLATTERY:
+        m = p.search(t)
+        if m:
+            out.append(f"flattery {m.group(0)!r}; replace the compliment with a checkable fact")
+            break
+    m = _TRAILING_COMMENTARY.search(t)
+    if m:
+        out.append(f"trailing commentary {m.group(0)!r}; keep the first sentence, move any status into the label")
+    return out
+
+
+def _shape_words(text: str) -> set[str]:
+    return {w for w in re.findall(r"[a-z][a-z'’-]+", text.lower()) if w not in _SHAPE_STOPWORDS and len(w) > 2}
+
+
+def restatements(shapes: list[str]) -> list[tuple[str, str]]:
+    """(text, earlier text) pairs on one slide whose content words overlap by half or more (lexical only)."""
+    out: list[tuple[str, str]] = []
+    bags = [(t, _shape_words(t)) for t in shapes]
+    for i, (t, bag) in enumerate(bags):
+        if len(bag) < 4:
+            continue
+        for other, obag in bags[:i]:
+            if len(obag) < 4:
+                continue
+            if len(bag & obag) / len(bag | obag) >= 0.5:
+                out.append((t, other))
+                break
+    return out
+
+
+def title_slop(title: str, slide: bool = False) -> list[str]:
+    """Headline slop findings for one title; each is a short message with the match.
+    `slide` is a slide title or a heading a reader outside the team will see: the label rules and the external
+    phrase lists apply. Off, only the shouting-label check runs, since `## Overview` is a convention inside a team."""
+    t = title.strip()
+    out: list[str] = label_slop(t, container=slide)
+    if slide:
+        out.extend(external_slop(t))
     for p in _REVERSAL:
         m = p.search(t)
         if m:
@@ -304,6 +479,36 @@ def words(s: str) -> int:
     return len(re.findall(r"[A-Za-z0-9$%][\w$%.,'-]*", s))
 
 
+def visual_shapes(vline: str) -> list[str]:
+    """The text cells a Visual spec puts on the slide: list items, cells, captions, verdicts, headers, the hub label."""
+    if not vline.startswith("kind:"):
+        return []
+    spec_text = vline
+    end = re.search(r"\.\s|\.$", vline)
+    if end:
+        spec_text = vline[: end.start()]
+    out: list[tuple[str, bool]] = []
+    for part in spec_text.split(" | "):
+        kv = re.match(r"^([\w-]+):\s*(.*)$", part)
+        if not kv or kv.group(1) in ("kind", "highlight", "now", "prefer", "columns", "split", "side", "icons", "icon", "owners", "dates"):
+            continue
+        node_field = kv.group(1) in NODE_FIELDS
+        for item in kv.group(2).split(";"):
+            for k, cell in enumerate(item.split(" / ")):
+                cell = cell.strip()
+                if cell and re.search(r"[A-Za-z]", cell):
+                    # a node label names a part of a figure (a layer, a step, a spoke); it is not a section title
+                    out.append((cell, node_field or (k == 0 and kv.group(1) in NODE_FIRST_CELL)))
+    return out
+
+
+# Visual fields whose values label parts of a figure rather than stand as titles: the container-title rule is off for them.
+NODE_FIELDS = {"steps", "layers", "milestones", "center", "columns", "left", "right"}
+NODE_FIRST_CELL = {"spokes", "items", "rows", "stats", "risks"}
+# Patterns whose layout draws the body bullets on the slide; elsewhere the bullets are the script's evidence of record.
+BODY_ON_SLIDE = {"claim-evidence", "agenda", "quote", "ask-next-steps", "statement", "section-divider"}
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("script")
@@ -355,7 +560,7 @@ def main() -> int:
         if pattern != "appendix-sources" and (t.lower().strip(" .:") in LABEL_TITLES or words(t) < 3):
             add("BLOCKING", "title.claim", f"unit {u['n']} title is a label, not a claim: {t!r}", u["line"])
         if pattern != "appendix-sources":
-            for msg in title_slop(t):
+            for msg in title_slop(t, slide=True):
                 add("BLOCKING", "title.slop", f"unit {u['n']} title: {msg}", u["line"])
         for name in ("Pattern", "Body", "Visual", "Notes", "Sources"):
             if name not in f:
@@ -380,6 +585,20 @@ def main() -> int:
             for m in HELIX_VOCAB.finditer(txt):
                 add("BLOCKING", "vocabulary", f"unit {u['n']} {label} uses HELIX vocabulary {m.group(0)!r}; move it to Sources", ln)
         bullets = [l for l in bodyf.get("lines", []) if l.strip().startswith(("-", "*", "•"))]
+        # every text shape the slide will carry gets the shape rules; the title and the shapes together get the
+        # restatement check (a bullet that repeats a panel, a verdict that repeats the title)
+        if pattern not in ("appendix-sources", "title"):
+            bullet_shapes = [re.sub(r"^[-*•]\s+", "", b.strip()) for b in bullets]
+            cells_ = visual_shapes(vtext)
+            for sh in bullet_shapes:
+                for msg in shape_slop(sh):
+                    add("BLOCKING", "shape.slop", f"unit {u['n']} bullet {sh[:50]!r}: {msg}", bodyf.get("line"))
+            for sh, node in cells_:
+                for msg in (label_slop(sh, container=False) if node else shape_slop(sh)):
+                    add("BLOCKING", "shape.slop", f"unit {u['n']} visual cell {sh[:50]!r}: {msg}", vis.get("line"))
+            on_slide = [t] + (bullet_shapes if pattern in BODY_ON_SLIDE else []) + [c for c, _ in cells_]
+            for later, earlier in restatements(on_slide):
+                add("WARNING", "restatement", f"unit {u['n']}: {later[:50]!r} restates {earlier[:50]!r} on the same slide; keep one", bodyf.get("line"))
         spec = pats["patterns"].get(pattern, {}).get("limits", {}) if pats["patterns"] else {}
         if spec:
             if "bullets" in spec and len(bullets) > spec["bullets"]:

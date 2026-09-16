@@ -113,9 +113,9 @@ ddx:
 **Pattern**: claim-evidence
 **Body**:
 - Deposit matching is a weekly chore that competes with client work
-- Matching happens across exports, bank statements, and email threads
-- Closing the spreadsheet throws away the evidence behind each match
-- Firm owners pay for saved time only when they can audit the result
+- A reviewer reconciles each deposit by hand against three separate sources
+- The reasoning behind a match lives in one person's head once the sheet closes
+- Saved hours count for an owner only when the result can be checked afterwards
 **Visual**: kind: panels | items: Exports / matching happens across exports, bank statements, and email threads; Spreadsheet / closing it throws away the evidence behind each match; Audit / owners pay for saved time only when they can audit the result. Three panels standing in for the annotated matching-spreadsheet screenshot, each marking a place evidence goes missing
 **Notes**: Keep this to the lived experience; the sponsor knows the pain. The point is that time saved without an audit trail is not something a firm will pay for.
 **Sources**: S5
@@ -159,7 +159,7 @@ ddx:
 **Pattern**: claim-evidence
 **Body**:
 - Recruit at least five pilot firms before expanding beyond import and review
-- Measure median reconciliation time and suggestion accuracy during the first two months
+- Both measures are read at the two-month checkpoint, before any expansion decision
 - A paid product waits until weekly reconciliation falls under 3 minutes per client
 **Visual**: kind: panels | items: Five pilot firms / recruited before expanding beyond import and review; Two measures / median reconciliation time and suggestion accuracy in the first two months. Two condition cards from the recommendation, with the 3-minute paid-product target in the body
 **Notes**: These are the conditions in the business case recommendation. They are the sponsor's protection against scope creep and the team's protection against building on unvalidated demand.

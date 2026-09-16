@@ -132,8 +132,8 @@ ddx:
 **Body**:
 - Specs, designs, and tests fall out of sync because nobody walks them between sessions
 - A feature ships whose design contradicts a decision recorded months earlier
-- Each new conversation re-improvises the workflow, so reviews that should happen do not
-**Visual**: kind: panels | items: Drift / specs and code diverge between sessions; Contradiction / a design ignores an earlier decision; Lost context / every session starts from zero | icons: trend-down; alert; loop | side: left. Three failure panels from the requirements document's problem statement, the visual on the left
+- Each new conversation re-improvises the workflow, so reviews get skipped
+**Visual**: kind: panels | items: Drift / specs and code diverge between sessions; Contradiction / a design ignores an earlier decision; Cold start / every session starts from zero | icons: trend-down; alert; loop | side: left. Three failure panels from the requirements document's problem statement, the visual on the left
 **Notes**: These are the three failure modes the requirements document names. Each shows up late, in review or in production, which is why the cost is high. Ask which one the audience saw last week.
 **Sources**: S3
 
@@ -216,7 +216,7 @@ ddx:
 - People hold intent, judgment, and approval: what to build, which decision stands, when work is complete
 - Agents hold throughput: drafting, checking, surfacing contradictions, recording evidence
 - The autonomy level sets when an agent pauses; stop triggers name what it never does unasked
-- All of it runs on the runtime, tracker, and stack you already have; HELIX ships none
+- All of it runs on the team's existing runtime, tracker, and stack; HELIX ships none
 **Visual**: kind: two-column | left: People hold | right: Agents hold | rows: What to build and which decision stands / Drafting every document in its template; Approval that turns a draft into authority / Checking each draft against the layer above; When the work is complete / Surfacing drift, contradictions, and gaps; How much runs unasked, a three-position dial / Stopping at the triggers and handing judgment back | prefer: left | icons: person; agent | verdict: the hand-offs have owners and rules, never an implied one. Two columns from the humans-decide principle and the collaboration table
 **Notes**: The two strands of the helix share one loop with different jobs. Low autonomy asks before each step, medium pauses on ambiguity, high records assumptions and proceeds, and a hard floor of stop triggers holds at every level. Nothing here needs a new tool: no command-line tool, tracker, queue, or execution engine ships with HELIX, and it installs on six hosts today.
 **Sources**: S21, S22, S15, S13, S14
@@ -286,7 +286,7 @@ ddx:
 - **Targets**: docs/helix/06-iterate/deliverables/assets/DEL-001-helix-evaluation-deck.pptx (rendered by scripts/render-deck.js from this script), docs/helix/06-iterate/deliverables/assets/DEL-001-helix-evaluation-deck.pdf (LibreOffice export of the pptx)
 - **Look**: editorial (Georgia display, Arial body, dark ends, light content, circle markers); the same script renders in `technical`, `bold`, or `classic` with `--look`
 - **Gate**:
-  - Titles: headline pass clean after a second rewrite. The first pass left ten-to-twelve-word titles that counted the catalog ("53 document templates", "twenty-one modes") and carried filler ("also"). The tightened rules (inventory count, hedge, ten-word stop, target eight) flagged them. Every title is now ten words or fewer, with the counts moved into bodies; check-deliverable.py reports no title.slop and no horizontal_logic findings.
+  - Titles: headline pass clean after a second rewrite. The first pass left ten-to-twelve-word titles that counted the catalog ("53 document templates", "twenty-one modes") and carried filler ("also"). The tightened rules (inventory count, hedge, ten-word stop, target eight) flagged them. Every title is now ten words or fewer, with the counts moved into bodies. The shape pass (sloptimizer's slide target, ported as shape.slop and restatement) then caught a trailing negation, a flattery phrase, and a category label on a panel, all rewritten; check-deliverable.py reports no title.slop, shape.slop, horizontal_logic, or restatement findings.
   - Coverage: thirteen concept groups from the inventory's three passes (recurring concepts, catalog structure, roles and hand-offs) plus the authority floor; eleven covered across five messages, two omitted with reasons; all eight must-cover concepts carried, including layered authority as control and human and agent hand-offs; survey breadth satisfied.
   - Script checks: pass, 0 blocking, 0 warnings; validate-instance.py 0 findings.
   - Horizontal logic: pass; the titles-only read in Story is the argument and ends in the ask.
