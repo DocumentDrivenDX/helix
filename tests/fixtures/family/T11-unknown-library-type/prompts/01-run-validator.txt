@@ -1,1 +1,0 @@
-Run the graph validator on workspace/graph.yml and report the result.

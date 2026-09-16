@@ -20,11 +20,11 @@ commands (see `lefthook.yml` `check-workflow-paths`).
 Validation and build:
 
 ```bash
-just test                     # Run all tests (skills, packaging, digests, actions)
+just test                     # All lanes: deploy artifacts, skills, plugin package, catalog resolution, Genie bundle, install consistency, surface leakage, microsite doctrine, context digests, actions, instance validation, deliverable gate, headline sync
+just test-deck-render         # Render the catalog deck example and run deck-qa.py (needs node with pptxgenjs, LibreOffice, pdftoppm)
 bash tests/validate-skills.sh
 bash tests/validate-context-digests.sh
-bash tests/validate-demo-fixtures.sh
-bash tests/validate-pages-demo-recording.sh
+bash tests/validate-demos.sh
 
 python3 scripts/generate_graph.py      # Regenerate workflows/graph.yml from meta.yml
 python3 scripts/generate-reference.py  # Regenerate /artifact-types/, /concerns/, /reference/workflow-modes/
@@ -169,21 +169,14 @@ context-digest validator:
 - `workflows/actions/fresh-eyes-review.md`
 - `workflows/actions/reconcile-alignment.md`
 
-If you change demo scripts, replay agent fixtures, or demo validation wiring,
-also run the demo-fixture validator:
+If you change demo session records, the renderer, or demo assertions, also
+run the demo validator (`bash tests/validate-demos.sh`; CI runs it in
+`.github/workflows/test.yml`):
 
-- `docs/demos/*/demo.sh`
-- `docs/demos/*/agent-dictionary/*.json`
-- `tests/validate-demo-fixtures.sh`
-- `justfile` entries that wire demo validation into shared test lanes
-
-If you change the Pages demo-recording workflow or its deterministic validator,
-also run the Pages demo-recording validator:
-
-- `.github/workflows/pages.yml`
-- `.github/workflows/test.yml`
-- `scripts/record_pages_demos.sh`
-- `tests/validate-pages-demo-recording.sh`
+- `docs/demos/*/session.jsonl` and `docs/demos/*/assertions.yml`
+- `scripts/demos/render_session.py`, `validate_session.py`,
+  `check_assertions.py`, `capture_session.py`
+- `tests/test_check_assertions_parser.py`
 
 Required checks:
 

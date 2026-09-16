@@ -1,5 +1,0 @@
-# Nested marker — v1 ignores; M010 warning expected.
-helix_version: 1
-methodologies:
-  - id: helix
-    root: docs/helix/

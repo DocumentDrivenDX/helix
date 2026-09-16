@@ -8,9 +8,10 @@ fixed corpus and scores what came back.
 
 ## What is here
 
-- `briefs.yml`: eight briefs, one per mode that matters (frame, align,
-  evolve, a contradiction, present, check, an ambiguous request, validate).
-  Each names its fixture, its prompt, deterministic checks, and a rubric.
+- `briefs.yml`: nine briefs, one per mode that matters (frame, align,
+  evolve, a contradiction, two present decks, check, an ambiguous request,
+  validate). Each names its fixture, its prompt, deterministic checks, and
+  a rubric.
 - `results/<stamp>/`: one JSON per brief (checks, judge scores, the final
   response, the workspace diff stat) plus `summary.md`. Commit the summary
   of a run you want to compare against later; the JSON files are evidence.
@@ -33,6 +34,16 @@ plugin directory, edits auto-accepted inside a throwaway workspace, and a
 read-only tool allowlist. Pass `--runner` with a template that receives
 `{prompt}`, `{cwd}`, `{repo}`, and `{max_turns}` to evaluate another host.
 `--keep` leaves each workspace under the results directory.
+
+## Runs
+
+- `results/20260911-0955/`: run at commit `0756e5fa` over eight briefs
+  (`present-survey-deck` was added afterwards). It predates the
+  present-mode changes that followed on `feat/helix-human-outputs`: the
+  ported headline rules, the slide-shape and restatement checks, the
+  inventory's structure and roles passes, and the deck rebuild. Compare
+  the next run against it as a baseline, not as a reading of the current
+  skill.
 
 ## Reading a result
 

@@ -1,7 +1,7 @@
 ---
 title: "One discipline governs agent work from intent to release"
 slug: DEL-001-helix-evaluation-deck
-weight: 480
+weight: 490
 activity: "Iterate"
 source: "06-iterate/deliverables/DEL-001-helix-evaluation-deck.md"
 generated: true

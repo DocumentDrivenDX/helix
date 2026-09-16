@@ -1,1 +1,0 @@
-Record an ADR for our auth approach — magic links vs passwords.

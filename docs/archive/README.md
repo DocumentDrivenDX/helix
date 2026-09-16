@@ -7,3 +7,8 @@ for the DDx runtime (`ddx-server` runbook and monitoring setup) that belong
 with DDx, not HELIX. They are kept for history and are not published to the
 site or treated as governing artifacts. Paths under `helix/` mirror where
 each file used to live.
+
+`session-harvest/` holds the session-log harvester (`harvest_sessions.py`,
+formerly under `scripts/`) and its playbook (formerly
+`docs/session-harvest-playbook.md`); the TP-014 appendix it fed is written,
+and nothing in the test lanes calls it.

@@ -1,7 +1,7 @@
 ---
 title: "Security Architecture — DDx Agent Execution Surface"
 slug: security-architecture
-weight: 380
+weight: 390
 activity: "Design"
 source: "02-design/security-architecture.md"
 generated: true

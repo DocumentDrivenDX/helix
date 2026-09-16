@@ -410,9 +410,10 @@ IMPLEMENTATION_PLAN / DESIGN_SYSTEM / TEST_PLAN) and verify each named artifact 
 
 One check, one output contract — the same `Concern→Artifact Realization` check runs at design-exit
 and inside the evolve-until-converged loop. The model performs it by reading each selected concern's
-`## Artifact Impact` and the artifacts it names. A deterministic floor (which selected concerns name
-which artifacts, and whether those artifacts exist) is a planned `scripts/helix_align_check.py`
-addition to pre-compute the structural part; until then the model performs the full check.
+`## Artifact Impact` and the artifacts it names. `scripts/helix_align_check.py` exists and computes
+the coverage-matrix denominators and structural findings, but it does not yet inspect concern
+practices (its output says so under the `Concern practice` dimension); the model performs the
+full check.
 
 ### NFR Target Verification
 

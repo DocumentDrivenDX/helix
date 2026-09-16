@@ -41,14 +41,21 @@ A HELIX-compliant runtime can:
 1. Read markdown files from the project's filesystem.
 2. Write markdown files to the project's filesystem.
 3. Search files by path or pattern across the project.
-4. Optionally execute a shell command for verification or the
-   execution-oriented modes.
+4. Optionally execute a shell command for verification, experiments, and
+   rendering.
 
 That is the full contract. HELIX assumes no tracker, queue, execution loop,
 IDE integration, or language toolchain. Items 1 through 3 are required and
-cover alignment, framing, design, evolve, validate, and review. Item 4 is
-optional; only `build`, `run`, `commit`, and `release` use it. This is the
+cover alignment, framing, design, evolve, validate, review, and the script
+half of present. Item 4 is optional; `experiment`, `e2e-ladder`,
+`decompose-module`, and the render step of `present` use it. This is the
 binding form of PRD R-4 (runtime-neutral content).
+
+Present-mode rendering also needs host tooling no other mode requires, all
+optional: node with `pptxgenjs` for the `.pptx`, LibreOffice and `pdftoppm`
+to export the PDF and rasterize slides for inspection, and `rsvg-convert`
+or ImageMagick for icons. Without them the mode stops after the script and
+names a host that can render it (PRD R-12).
 
 ## The marker
 
@@ -135,8 +142,9 @@ What HELIX routing modes are available, and where is the routing skill?
 ```
 
 A working install names modes (input, frame, align, evolve, design,
-backfill, review, polish, check, build, run, commit, release, experiment,
-worker, or a faithful subset) and cites `skills/helix/SKILL.md`. A broken
+backfill, review, polish, check, validate, refresh, present, experiment,
+e2e-ladder, decompose-module, or a faithful subset) and cites
+`skills/helix/SKILL.md`. A broken
 install answers with generic guidance that never mentions the skill. In
 interactive hosts `/helix check` does the same and proposes a next action.
 
@@ -227,8 +235,8 @@ There is no install command. Two repo-resident pieces:
   the first action, and the catalog binds at step 2 or 3.
 - Chat surfaces (IDE and github.com) are chat-only: name the project root
   for refresh and other tree-wide modes. They also have no persistent
-  shell, so `build`, `run`, `commit`, `release`, `experiment`, and
-  `worker` are limited; pair with DDx or use the cloud agent.
+  shell, so `experiment`, `e2e-ladder`, `decompose-module`, and
+  present-mode rendering are limited; pair with DDx or use the cloud agent.
 - Every Copilot surface reads the file (IDE chat, github.com chat, cloud
   agent, code review, CLI); `AGENTS.md` reaches fewer, so keep the
   instruction file primary.
@@ -290,10 +298,11 @@ runbook, [databricks-genie.md](databricks-genie.md). `just genie-build`,
   skills by directory scan; start a new Agent-mode chat after installing.
 - Chat-only: name the project root for tree-wide modes, and prefix a
   prompt with `@helix` if Genie does not pick the skill itself.
-- The shell surface is constrained, so `build` and `run` usually pair with
-  a Databricks job, notebook, or CI pipeline. Writes go through the
-  workspace (Repos integration for git-backed folders). DDx is not part of
-  the install.
+- The shell surface is constrained, so `experiment` and `e2e-ladder`
+  usually pair with a Databricks job, notebook, or CI pipeline, and
+  present-mode renders happen on a host with the render toolchain. Writes
+  go through the workspace (Repos integration for git-backed folders). DDx
+  is not part of the install.
 
 ### DDx
 
