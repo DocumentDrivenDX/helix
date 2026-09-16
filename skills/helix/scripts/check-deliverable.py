@@ -313,17 +313,21 @@ def _shape_words(text: str) -> set[str]:
     return {w for w in re.findall(r"[a-z][a-z'’-]+", text.lower()) if w not in _SHAPE_STOPWORDS and len(w) > 2}
 
 
+_RESTATEMENT_THRESHOLD = 0.5   # content-word Jaccard at or above this is a restatement
+_RESTATEMENT_MIN_WORDS = 4     # units with fewer content words are labels, not candidates
+
+
 def restatements(shapes: list[str]) -> list[tuple[str, str]]:
     """(text, earlier text) pairs on one slide whose content words overlap by half or more (lexical only)."""
     out: list[tuple[str, str]] = []
     bags = [(t, _shape_words(t)) for t in shapes]
     for i, (t, bag) in enumerate(bags):
-        if len(bag) < 4:
+        if len(bag) < _RESTATEMENT_MIN_WORDS:
             continue
         for other, obag in bags[:i]:
-            if len(obag) < 4:
+            if len(obag) < _RESTATEMENT_MIN_WORDS:
                 continue
-            if len(bag & obag) / len(bag | obag) >= 0.5:
+            if len(bag & obag) / len(bag | obag) >= _RESTATEMENT_THRESHOLD:
                 out.append((t, other))
                 break
     return out

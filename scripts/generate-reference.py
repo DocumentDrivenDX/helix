@@ -1388,6 +1388,11 @@ def main() -> None:
     print(f"Generated {len(artifacts)} artifact pages → {ARTIFACTS_DEST.relative_to(ROOT)}/")
     print(f"Generated {len(concerns)} concern pages   → {CONCERNS_DEST.relative_to(ROOT)}/")
     print(f"Generated {len(contracts)} workflow-mode pages → {MODES_DEST.relative_to(ROOT)}/")
+    generate_anti_slop_reference()
+def generate_anti_slop_reference() -> None:
+    """The anti-slop rules page is generated from the enforcing scripts by its own generator."""
+    import subprocess, sys as _sys
+    subprocess.run([_sys.executable, str(Path(__file__).resolve().parent / "generate-anti-slop-reference.py")], check=True)
 
 
 if __name__ == "__main__":

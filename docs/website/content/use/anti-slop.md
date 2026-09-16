@@ -94,6 +94,13 @@ which is how a title the reader could reorder without loss gets flagged.
 Vertical logic, that each body proves its title and nothing else, is a
 read-through the mode contract requires at the gate; no script checks it.
 
+## The full rule list
+
+This page explains the rules. The scripts that enforce them generate the
+complete deterministic list, every pattern, phrase list, threshold, check id,
+and severity, at [Anti-slop Rules](../../reference/anti-slop-rules/); the
+site's drift gate fails when that page and the scripts disagree.
+
 ## Where the title rules come from
 
 The title and shape rules are a port of the sloptimizer skill's `headline` and
@@ -118,8 +125,8 @@ Beyond titles, `check-deliverable.py` blocks on:
   excepted. A unit that cites no source, or cites a source row that does not
   exist.
 - Placeholder text anywhere: `[TODO]`, `TBD`, `[Fill in]`, `[...]`. A
-  bracketed capitalized phrase that is not a link is a warning, since it is
-  usually a template slot left behind.
+  bracketed capitalized phrase that is not a link is a warning, since it marks
+  a template slot left behind.
 - A visual that is one generic word (`chart`, `diagram`, `none`) or fewer than
   six words. The spec must say what it shows, its series, and its source.
 - A Visual spec cut short by a period inside a field value (`Sept. 2026`,

@@ -2,7 +2,7 @@
 # Validate that the generated/published site content is current and complete.
 #
 # The site's reference content is a projection of upstream sources:
-#   generate-reference.py : workflows/                 -> content/{artifact-types,concerns}
+#   generate-reference.py : workflows/, SKILL.md, the gate scripts -> content/{artifact-types,concerns,reference/workflow-modes,reference/anti-slop-rules}
 #   publish-artifacts.py  : docs/helix/                -> content/artifacts
 #   publish-resources.py  : docs/resources/            -> content/research
 #
@@ -17,7 +17,7 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
 content="docs/website/content"
-generated_dirs=("$content/artifact-types" "$content/concerns" "$content/artifacts" "$content/research" "$content/reference/workflow-modes")
+generated_dirs=("$content/artifact-types" "$content/concerns" "$content/artifacts" "$content/research" "$content/reference/workflow-modes" "$content/reference/anti-slop-rules")
 
 echo "Regenerating site reference content from upstream sources..."
 uv run scripts/generate-reference.py >/dev/null
