@@ -34,10 +34,9 @@ Engage this skill whenever any condition below is true, regardless of whether
 the artifact content is attached, the workspace is empty, or the request looks
 like a generic task. Engagement is the first tool action of the turn:
 
-- **Skill-tool hosts** (Claude Code, Codex, opencode): invoke the `helix`
-  skill through the host's skill tool first.
-- **Hosts without a skill tool**: load this `SKILL.md` body via the host
-  mechanism (`/helix`, skill auto-load, or a read of this file) first.
+- **Hosts with a skill tool**: invoke the `helix` skill through it first.
+- **Hosts without one**: load this `SKILL.md` body via the host mechanism (a
+  slash command, skill auto-load, or a read of this file) first.
 
 Narrating HELIX-shaped reasoning without that engagement action is a contract
 violation.
@@ -83,8 +82,8 @@ Once engaged, route by four axes:
 
 | Domain lane | Triggers | Required observable behavior |
 |---|---|---|
-| `product` | HELIX artifact named; planning verb against product/feature/requirements; cross-flow query | (a) Read `.helix.yml` AND the bound graph BEFORE any Write/Edit; (b) Read named upstream artifacts (vision, PRD, feature spec) per the graph BEFORE drafting; (c) cite `ddx.links` / `informs` edges in any new artifact |
-| `infra` | IaC verb (terraform/tofu/kubectl, provision/destroy/rotate); CI/credentials ops | (a) Consult `library/skill-prompts/stop-at-triggers.yml` for `apply` or `secret_read` triggers BEFORE any Bash; (b) Read infra-shaped artifacts (architecture, runbook, deployment-checklist); (c) explicit confirmation prompt before terraform/tofu/kubectl/credential operations |
+| `product` | HELIX artifact named; planning verb against product/feature/requirements; cross-flow query | (a) Read `.helix.yml` AND the bound graph before any file write or edit; (b) Read named upstream artifacts (vision, PRD, feature spec) per the graph BEFORE drafting; (c) cite `ddx.links` / `informs` edges in any new artifact |
+| `infra` | IaC verb (terraform/tofu/kubectl, provision/destroy/rotate); CI/credentials ops | (a) Consult the stop triggers (`workflows/stop-triggers.yml`) for `apply` or `secret_read` before any shell command; (b) Read infra-shaped artifacts (architecture, runbook, deployment-checklist); (c) explicit confirmation prompt before terraform/tofu/kubectl/credential operations |
 | `data` | Data-pipeline verb (backfill/ingest/migrate, profile a source, data contract) | (a) Read data-contract / data-quality-expectations / data-architecture artifacts; (b) cite producer/consumer or PII/governance posture in prose; (c) defer schema mutations behind a `stop_at` confirmation |
 | `web` | Web/frontend verb (deploy/ship, add monitoring for a user flow, optimize page perf) | (a) Read architecture / design-system / monitoring-setup / runbook artifacts in the deploy-flow scope; (b) cite Web Vitals / RUM / page-error vocabulary in prose; (c) defer production deploys behind a `stop_at` confirmation |
 
@@ -100,10 +99,12 @@ repository root (the directory containing `.git/`). Stop at the first marker
 found. A marker at the repository root governs work started in any
 subdirectory; do not give up after searching cwd only.
 
-### 2. Read the marker and bind the graph before any Write/Edit
+### 2. Read the marker and bind the graph before any file write or edit
 
-Before the first Write or Edit of the session, read the `.helix.yml` marker
-and bind the methodology graph via §Catalog Resolution. Skipping either is a
+This skill speaks in three primitives, read markdown, write markdown, and search files (host tool names: on hosts with named tools a file write or edit is Write or Edit, a shell command is Bash, a file read is Read).
+
+Before the first file write or edit of the session, read the `.helix.yml`
+marker and bind the methodology graph via §Catalog Resolution. Skipping either is a
 contract violation: it produces artifacts narrated from training rather than
 anchored to the workspace's catalog and prerequisite chain. A graph bind is
 always achievable in supported layouts, so a missing project-local
@@ -139,7 +140,7 @@ shipped catalog satisfies the graph bind.
   outside repo, duplicate id, nonexistent root): STOP and report the error
   with file and line. Do not fall back to heuristics.
 - **Marker absent, heuristic present** (`docs/helix/` tree or
-  `workflows/methodology.yml`): emit this banner before any other output,
+  `workflows/workflow.yml`): emit this banner before any other output,
   then proceed with the shipped catalog; a `docs/helix/` tree without a
   marker is not a reason to decline edits:
 
@@ -163,12 +164,15 @@ chain. Never invent a selector outside the marker.
 Before authoring or editing an instance, bind the type's `template.md`,
 `prompt.md`, `meta.yml`, and active voice profile from the resolved catalog
 and load `modes/_authoring.md` (graph prerequisites, links, edge rules). Do
-not author from the activity table alone.
+not author from the catalog listing alone. Principles resolve project-first:
+the project's `01-frame/principles.md` when it exists, else the catalog
+default `workflows/principles.md` (floor `references/principles.md`); no
+merging.
 
-Edit existing instances; Write only new ones. Verify with a Read: a
-successful Read of the resolved path means the instance is live and every
-modification, however small, goes through Edit, which preserves frontmatter
-and operator-added content. Only a missing file authorizes Write.
+Prefer in-place edits; create only when the file is missing. Verify with a read: a
+successful read of the resolved path means the instance is live and every
+modification, however small, is an in-place edit that preserves frontmatter
+and operator-added content. Only a missing file authorizes creating one.
 
 Instance edges (PRD → FEAT, ADR → technical design) belong in the instance's
 frontmatter under `ddx.links:`, never in the body or in this skill. Cross-flow
@@ -249,8 +253,9 @@ Each mode's contract is one file, `modes/<mode>.md`, in the bound catalog:
 in generated packages, resolved by §Catalog Resolution. After routing, load
 the routed mode's file before acting and follow it as the active interface.
 Modes that create or edit artifact instances also load `modes/_authoring.md`.
-Reports (alignment, validation, refresh, check) use the shape in
-`modes/_report.md` so runtimes and evaluations can consume them. Mode files
+Reports (align, validate, refresh, check, project-audit, review, converge)
+use the shape in `modes/_report.md` so runtimes and evaluations can consume
+them. Mode files
 point at their deeper procedure under `actions/` when one exists; consult it
 only when the contract needs more step detail.
 
@@ -291,19 +296,24 @@ source-checkout ranks below an installed plugin.
    `SKILL.md`, bind `../../workflows/...` when the skill lives at
    `skills/helix/SKILL.md` inside a HELIX checkout, a `--plugin-dir` tree, or
    a full-repo plugin install.
-4. **Plugin env root (additive)**: if steps 2–3 did not bind and
-   `$GROK_PLUGIN_ROOT` or `$CLAUDE_PLUGIN_ROOT` is set, try
-   `<env-root>/workflows/...` then `<env-root>/skills/helix/references/...`.
+4. **Plugin env root (additive)**: if steps 2–3 did not bind and the host
+   exposes a plugin root through its environment, try
+   `<plugin-root>/workflows/...` then
+   `<plugin-root>/skills/helix/references/...`; the install guide names the
+   variable per host.
 5. **Generated `references/` floor**: `references/graph.yml`,
    `references/modes/`, `references/activities/...`, `references/concerns/`,
-   `references/actions/`, `references/templates/`, and
-   `references/voice.yml` relative to this `SKILL.md`, shipped in plugin
+   `references/actions/`, `references/templates/`,
+   `references/deliverables/`, `references/references/`,
+   `references/voice.yml`, `references/stop-triggers.yml`, and
+   `references/principles.md` relative to this `SKILL.md`, shipped in plugin
    packages and skill bundles so a catalog always resolves.
 6. **Fail closed**: if nothing binds, stop with a diagnostic listing every
    path attempted. Never invent templates or contracts from training data.
 
 Same-source rule: once a catalog source binds, load graph, modes, templates,
-prompts, meta, voice, concerns, and stop triggers from that same bind. State
+prompts, meta, voice, concerns, principles, references, and stop triggers
+from that same bind. State
 which source bound when it is not the generated floor (for example "catalog:
 in-tree `workflows/graph.yml`"). Adopter projects need only `.helix.yml` and
 instance documents; they never need to copy templates.
@@ -386,19 +396,13 @@ density only; a high-autonomy run executes the same activities a low-autonomy
 run would, pausing less often.
 
 Stop triggers (`stop_at`) are a hard floor at every level. The authoritative
-list is `library/skill-prompts/stop-at-triggers.yml`; load it when the skill
-engages and consult it before every state-changing tool call. A repo may add
-triggers under `autonomy.stop_at_extensions:` in `.helix.yml`; base triggers
-cannot be removed.
-
-| Trigger id | Fires on |
-|---|---|
-| `marker_edit` | Write/Edit on `.helix.yml` |
-| `cross_methodology_edge_creation` | Write/Edit introducing `cross_methodology: true` or `cross_instance: true` |
-| `branch_or_merge` | Bash running `git checkout|merge|push|reset|rebase|cherry-pick` or `gh pr merge|create` |
-| `secret_read` | Read or Bash targeting `.env`, `.tfvars`, `credentials.json`, `.pem`, `id_rsa(.pub)`, `private_key`, `.key`, `secrets/` |
-| `large_diff` | Single Write/Edit whose content exceeds 500 lines (per call) |
-| `apply` | Bash running `terraform apply`, `tofu apply`, `databricks jobs|pipelines run|update`, `kubectl apply|delete|patch` |
+list is `workflows/stop-triggers.yml` (floor `references/stop-triggers.yml`,
+resolved via §Catalog Resolution), six base triggers: `marker_edit`,
+`cross_methodology_edge_creation`, `branch_or_merge`, `secret_read`,
+`large_diff`, `apply`. Load it when the skill engages and consult it before
+every state-changing action. A repo may add triggers under
+`autonomy.stop_at_extensions:` in `.helix.yml`; base triggers cannot be
+removed.
 
 When a trigger matches, name the trigger and the proposed action, ask whether
 to proceed, and wait ("About to run `terraform apply` in infra/prod — should
@@ -413,8 +417,9 @@ not.
   process redesign. Bound process machinery, freeze it, deliver.
 - Do not skip real defect checks (tests, product ACs, claims-vs-reality,
   scope discipline) under cover of shipping faster.
-- For projects with a work tracker, obey work-item-first rules before writing
-  files or mutating the tracker.
+- For projects with a work tracker, obey the work-item-first rules in
+  `workflows/references/work-item-first.md` before writing files or mutating
+  the tracker.
 - Do not silently start implementation when the request is planning,
   alignment, review, or routing. If the correct route is unclear, use `check`
   rather than guessing.

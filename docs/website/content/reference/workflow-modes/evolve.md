@@ -40,7 +40,7 @@ the HELIX artifact stack.
    designs, test plans, implementation plans, then code.
 7. Surface conflicts explicitly when a downstream artifact contradicts an
    updated upstream — do not silently overwrite the downstream; route it
-   through the §Align gap-to-implementation handoff instead.
+   through a handoff (the four fields in `modes/_report.md`) instead.
 8. Create follow-up work with dependencies where ordering matters.
 9. Prefer **progressive evolution** of the specific affected artifacts over
    re-generating the stack. Converge on "verified + each finding-class folded

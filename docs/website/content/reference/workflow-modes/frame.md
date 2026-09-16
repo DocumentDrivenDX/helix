@@ -18,7 +18,7 @@ stories.
    drive selection interactively by category (tech stack, data, infrastructure,
    quality). At `high`, infer the selection from the product's nature and record
    each inferred concern as an assumption. Fill each needed exclusive slot per
-   §Concern slot resolution and record the chosen filler plus its source in
+   the Concern slot resolution section below and record the chosen filler plus its source in
    `concerns.md`. Selection signals: a UI web app needs `frontend-framework`
    and `e2e-framework` (selecting the tool is not coverage — at least one core
    user flow must have a whole-stack e2e that runs green against the running
@@ -97,8 +97,8 @@ The exclusive slots and any shipped defaults are declared in `slots.yml`;
 read them there rather than from this skill. Defaults are starting points a
 project overrides, not technology choices HELIX imposes.
 
-**Contract**: select each needed slot **once per session** during §Frame
-step 2, and record the chosen filler PLUS its source (`operator-override`,
+**Contract**: select each needed slot **once per session** during step 2
+above, and record the chosen filler PLUS its source (`operator-override`,
 `shipped-default`, or `assumption`) in `concerns.md`. Propagation to work
 items and downstream artifacts is a later gate (owned by `check`/`polish`),
 never a re-selection.

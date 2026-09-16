@@ -368,7 +368,7 @@ names, never `area:*` labels.
 ### STEP 0.5 — Work-item acquisition
 
 Acquire the governing work item before modifying files, per
-`workflows/references/bead-first.md`: find an open planning item labelled
+`workflows/references/work-item-first.md`: find an open planning item labelled
 `kind:planning,action:evolve` (claim it if found) or create one with labels
 `helix,activity:design,kind:planning,action:evolve`, a `<context-digest>`
 description naming the requirement being threaded through the artifact stack

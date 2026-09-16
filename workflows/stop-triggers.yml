@@ -3,8 +3,11 @@
 # `stop_at` events the HELIX skill MUST always confirm before executing,
 # regardless of autonomy level. This file is the authoritative trigger list.
 #
-# Loaded by the skill when it engages; consulted before every mutating tool
-# call regardless of autonomy level.
+# Loaded by the skill when it engages (resolved via the skill's Catalog
+# Resolution; floor: references/stop-triggers.yml); consulted before every
+# state-changing action regardless of autonomy level. `tool_use_name` values
+# are the generic primitives: Write/Edit = a file write or edit, Bash = a shell
+# command, Read = a file read. Hosts map their own tool names onto them.
 #
 # Extension rule: repos extend via `stop_at_extensions:` under the `autonomy:`
 # block of `.helix.yml`. The active trigger set is the union of base +
@@ -17,7 +20,7 @@ triggers:
   - id: marker_edit
     matcher:
       tool_use_name: [Write, Edit]
-      file_path_pattern: '(^|/)\.helix\.yml$|(^|/)\.helix-autonomy\.yml$'
+      file_path_pattern: '(^|/)\.helix\.yml$'
     rationale: Marker is a load-bearing team decision; never edit without confirmation.
 
   - id: cross_methodology_edge_creation

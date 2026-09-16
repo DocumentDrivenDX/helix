@@ -25,18 +25,11 @@ placement reviews.
    (`workflows/templates/alignment-review.md` or the package
    `references/templates/` path when present).
 6. For every non-aligned gap (`INCOMPLETE`, `UNDERSPECIFIED`, `DIVERGENT`,
-   `STALE_PLAN`), the handoff to implementation must name all four of:
-   - **Destination artifact type** (e.g. PRD, FEAT, US, ADR, TD, TP) where
-     the gap is resolved.
-   - **Deliverable shape**: the concrete content to add (e.g. "a TD section
-     answering X", "a US covering Y", "an ADR recording the Z choice").
-   - **Suggested next workflow mode** (`frame`, `design`, `polish`,
-     `validate`, `evolve`, `backfill`) or runtime handoff when execution is
-     already governed — never a CLI command.
-   - **Evidence references**: artifact paths plus line numbers (or section
-     anchors) supporting the finding.
-7. Create or identify follow-up work for every non-aligned gap using the
-   handoff fields above. **Evidence-gated implement work:** before filing
+   `STALE_PLAN`), the handoff names all four fields defined in
+   `modes/_report.md` (destination type, deliverable, next mode, evidence);
+   never a CLI command.
+7. Create or identify follow-up work for every non-aligned gap using those
+   handoff fields. **Evidence-gated implement work:** before filing
    build/implement items, require concrete residual evidence (paths, tests,
    commands). Prefer story/AC floor items when only docs/traceability lag.
    "Residual already green" means a governing AC is exercised by a passing
@@ -64,10 +57,12 @@ follow-up work are captured durably.
 
 Procedure: `workflows/actions/reconcile-alignment.md` (deeper step detail; this file is the contract).
 
+End with the `modes/_report.md` block, `mode: align`.
+
 ## Fan-out
 
 When the host can run sub-agents, split the review and fan in through the
-report shape in `_report.md`:
+report shape in `modes/_report.md`:
 
 - One agent per review dimension of the alignment procedure (artifact
   contract rubric, bidirectional traceability, ADR honoring, concern drift,

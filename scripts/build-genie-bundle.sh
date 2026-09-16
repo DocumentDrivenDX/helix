@@ -3,7 +3,7 @@
 #
 # Outputs:
 #   dist/genie-bundle/helix/SKILL.md
-#   dist/genie-bundle/helix/references/{activities,concerns,graph.yml,voice.yml}
+#   dist/genie-bundle/helix/references/{activities,concerns,modes,graph.yml,voice.yml,stop-triggers.yml,...}
 #
 # The parent directory name `helix` must match the `name:` field in
 # SKILL.md frontmatter (agentskills.io spec invariant).
@@ -24,7 +24,6 @@ REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT"
 
 SRC_SKILL="skills/helix/SKILL.md"
-SRC_LIBRARY="library"
 
 if [[ ! -f "$SRC_SKILL" ]]; then
   echo "error: $SRC_SKILL not found" >&2
@@ -32,10 +31,6 @@ if [[ ! -f "$SRC_SKILL" ]]; then
 fi
 if [[ ! -f scripts/sync_references.py ]]; then
   echo "error: scripts/sync_references.py not found" >&2
-  exit 3
-fi
-if [[ ! -d "$SRC_LIBRARY" ]]; then
-  echo "error: $SRC_LIBRARY not found (SKILL.md references library/skill-prompts/...)" >&2
   exit 3
 fi
 
@@ -87,14 +82,10 @@ echo "✓ copied skill scripts → $OUT_DIR/scripts/"
 python3 scripts/sync_references.py "$OUT_DIR/references" >/dev/null
 echo "✓ generated workflows catalog → $OUT_DIR/references/"
 
-cp -Rf "$SRC_LIBRARY" "$OUT_DIR/library"
-echo "✓ copied $SRC_LIBRARY → $OUT_DIR/library/"
-
 # Report what we built.
 SKILL_BYTES=$(wc -c < "$OUT_DIR/SKILL.md" | tr -d " ")
 ACTIVITY_COUNT=$(find "$OUT_DIR/references/activities" -mindepth 1 -maxdepth 1 -type d | wc -l)
 CONCERN_COUNT=$(find "$OUT_DIR/references/concerns" -mindepth 1 -maxdepth 1 -type d | wc -l)
-LIBRARY_FILES=$(find "$OUT_DIR/library" -type f | wc -l)
 FILE_COUNT=$(find "$OUT_DIR" -type f | wc -l)
 
 echo
@@ -103,7 +94,6 @@ echo "  path:        $OUT_DIR"
 echo "  SKILL.md:    $SKILL_BYTES bytes"
 echo "  activities:  $ACTIVITY_COUNT"
 echo "  concerns:    $CONCERN_COUNT"
-echo "  library:     $LIBRARY_FILES files"
 echo "  total files: $FILE_COUNT"
 echo
 echo "Next: python scripts/install-genie.py --bundle $OUT_DIR"

@@ -34,8 +34,9 @@ prompt, then edit resolvable findings in place.
    (missing required sections, stale frontmatter shape, renamed headings,
    unsupported filler, or unscoped claims). For
    findings classified as `DIVERGENT`, `UNDERSPECIFIED`, `STALE_PLAN`,
-   or `BLOCKED` — which need human judgement — surface a §Align gap-to-
-   implementation handoff for that specific finding instead of editing.
-   When the user invoked validate to audit, surface a §Align handoff
-   for every non-`ALIGNED` finding regardless of mechanical
-   resolvability.
+   or `BLOCKED` — which need human judgement — surface a handoff (the four
+   fields in `modes/_report.md`) for that specific finding instead of
+   editing. When the user invoked validate to audit, surface a handoff for
+   every non-`ALIGNED` finding regardless of mechanical resolvability.
+
+End with the `modes/_report.md` block, `mode: validate`.

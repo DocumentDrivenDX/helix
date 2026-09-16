@@ -12,16 +12,16 @@ next" / "what's blocked" / "plan the change", or when a single ask
 straddles two or more flows declared in the marker (e.g. the prompt
 names a data-pipeline artifact whose blocker is an infra prerequisite).
 
-1. Inspect the queue, governing artifacts, and known blockers.
+1. Inspect open work, governing artifacts, and known blockers.
 2. Decide conservatively among design, alignment, backfill, polish, runtime
    handoff, wait, guidance, or stop.
 3. Do not dispatch another workflow silently.
-4. When recommending the next action against a specific gap, name it using
-   the §Align gap-to-implementation handoff shape: destination artifact
-   type, deliverable shape, suggested next workflow mode, and evidence
-   references (paths plus line numbers). Never prescribe a CLI command.
+4. When recommending the next action against a specific gap, name it with
+   the four handoff fields defined in `modes/_report.md`. Never prescribe a
+   CLI command.
 5. If missing tracked work is discovered, create or recommend explicit work
    before returning the next action.
+6. End with the `modes/_report.md` block, `mode: check`.
 
 ## Cross-flow ask — owner-flow first, then prerequisite fan-out
 
@@ -86,11 +86,11 @@ Cross-flow response shape (always emit all three):
   `customer-events.metrics.example.com` before helix-data can mark
   monitoring-setup ready."
 - **Concrete next action per flow.** For each flow with an action
-  pending, emit a §Align gap-to-implementation handoff: destination
-  artifact type (e.g. `network-iac` under `infra/`), the flow's domain lane
-  when relevant, suggested workflow mode or runtime handoff, and evidence paths
-  with line numbers (e.g. `pipelines/customer-events/monitoring-setup.md:20`).
-  Never prescribe a CLI command; the operator chooses dispatch.
+  pending, emit a handoff with the four `modes/_report.md` fields (for
+  example destination type `network-iac` under `infra/`, evidence
+  `pipelines/customer-events/monitoring-setup.md:20`) plus the flow's domain
+  lane when relevant. Never prescribe a CLI command; the operator chooses
+  dispatch.
 
 Do not skip owner-flow resolution because the prompt is short or the
 prerequisite verb is loud. Do not collapse multiple flows into a single

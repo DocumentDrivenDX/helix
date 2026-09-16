@@ -519,7 +519,7 @@ details, and list items by status.
 ### STEP 0.5 — Work-item acquisition
 
 Acquire the governing work item before modifying files or creating tracker
-items, per `workflows/references/bead-first.md`: find an open planning item
+items, per `workflows/references/work-item-first.md`: find an open planning item
 labelled `kind:planning,action:backfill` (claim it if found) or create one with
 labels `helix,kind:planning,action:backfill`, a `<context-digest>` description
 that names the scope being reconstructed and the existing coverage summary from

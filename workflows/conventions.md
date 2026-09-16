@@ -20,15 +20,14 @@ This document defines conventions for projects using the HELIX workflow, ensurin
 ## Scope Boundary
 
 This document defines documentation layout, naming, and traceability
-conventions. It does not define queue control, execution-loop behavior, or
-tracker semantics.
+conventions. It does not define tracker semantics or how a runtime executes
+work.
 
-When conventions and execution guidance disagree, follow:
-
-1. [README.md](README.md)
-2. The bounded action prompts under `actions/`
-3. The install guide for your runtime (for DDx,
-   [docs/install/ddx.md](../docs/install/ddx.md))
+When conventions and a mode contract disagree, the mode contract under
+`modes/` wins; actions under `actions/` are the deeper procedure behind a
+mode, not a separate authority. Runtime-specific tracker semantics live in
+each runtime's install guide (for DDx,
+[docs/install/ddx.md](../docs/install/ddx.md)).
 
 ## Documentation Voice
 

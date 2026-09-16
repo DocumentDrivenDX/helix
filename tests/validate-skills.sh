@@ -545,7 +545,9 @@ text = open(skill_path).read()
 # packages ship a references/ floor beside SKILL.md so §Catalog Resolution
 # resolves a graph/template after marketplace installation.
 required = {
-    "library/skill-prompts/stop-at-triggers.yml",
+    "workflows/stop-triggers.yml",
+    "workflows/principles.md",
+    "workflows/references/work-item-first.md",
     "workflows/concerns/slots.yml",
     "workflows/concerns/verification/practices.md",
     "workflows/concerns/sample-data/practices.md",
@@ -680,12 +682,31 @@ banned = {
     r"claude -p|codex exec": "host invocation commands",
     r"\btool_use\b": "host tool-call vocabulary",
     r"\bverbatim\b": "verbatim-output doctrine",
+    r"CLAUDE_PLUGIN_ROOT|GROK_PLUGIN_ROOT": "host plugin env variables (say: a plugin root the host exposes)",
 }
+# Host tool names are banned outside code fences and outside the single
+# mapping sentence, which is the line carrying the marker `host tool names:`.
+tool_names = re.compile(r"\b(Bash|Write|Edit)\b")
 hits = []
 for pattern, why in banned.items():
     for m in re.finditer(pattern, body):
         line = body.count("\n", 0, m.start()) + 1
         hits.append(f"  line {line}: {m.group(0)!r} ({why})")
+in_fence = False
+mapping_lines = 0
+for i, line in enumerate(body.splitlines(), 1):
+    if line.startswith("```"):
+        in_fence = not in_fence
+        continue
+    if in_fence:
+        continue
+    if "host tool names:" in line:
+        mapping_lines += 1
+        continue
+    for m in tool_names.finditer(line):
+        hits.append(f"  line {i}: {m.group(0)!r} (host tool name; say file write/edit or shell command)")
+if mapping_lines != 1:
+    hits.append(f"  expected exactly one `host tool names:` mapping sentence, found {mapping_lines}")
 if hits:
     print("SKILL.md portability violations:", file=sys.stderr)
     print("\n".join(hits), file=sys.stderr)

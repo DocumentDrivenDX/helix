@@ -138,18 +138,18 @@ def structure(catalog: Path) -> dict:
     concerns_dir = catalog / "concerns"
     concerns = [d.name for d in concerns_dir.iterdir() if d.is_dir() and (d / "concern.md").is_file()] if concerns_dir.is_dir() else []
     with_practices = [c for c in concerns if (concerns_dir / c / "practices.md").is_file()]
-    stop = catalog.parent / "library" / "skill-prompts" / "stop-at-triggers.yml"
+    stop = catalog / "stop-triggers.yml"
     out["facts"] = [
         f"authority chain: {chain}; {len(nodes)} artifact types, {len(edges)} informs edges, {cross} of them crossing an activity boundary",
         f"gates: GATE.yaml in {len(gates)} activities ({', '.join(gates)})",
         f"concerns: {len(concerns)} in the library, {len(with_practices)} with activity-keyed practices that propagate into artifacts and work",
-        f"stop triggers: {'present' if stop.is_file() else 'absent'} ({stop.relative_to(catalog.parent) if stop.is_file() else 'library/skill-prompts/stop-at-triggers.yml'})",
+        f"stop triggers: {'present' if stop.is_file() else 'absent'} ({stop.relative_to(catalog.parent) if stop.is_file() else 'stop-triggers.yml'})",
     ]
     out["groups"] = [
         {"concept": "layered authority as control: each activity's artifacts govern the next, down to code", "score": None, "documents": len(nodes), "source": "graph.yml activities and nodes"},
         {"concept": f"cross-layer propagation: {len(edges)} informs edges and {len(with_practices)} concerns with practices reaching every downstream document and work item", "score": None, "documents": cross, "source": "graph.yml edges, concerns/*/practices.md"},
         {"concept": f"gates and floors between activities ({len(gates)} gate files, ratchets)", "score": None, "documents": len(gates), "source": "activities/*/GATE.yaml, ratchets.md"},
-        {"concept": "what the runtime may do unasked: autonomy levels and stop triggers", "score": None, "documents": 1 if stop.is_file() else 0, "source": "stop-at-triggers.yml, ADR-003"},
+        {"concept": "what the runtime may do unasked: autonomy levels and stop triggers", "score": None, "documents": 1 if stop.is_file() else 0, "source": "stop-triggers.yml, ADR-003"},
     ]
     return out
 
