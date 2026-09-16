@@ -4,9 +4,9 @@ ddx:
   authoring:
     home: repo
   review:
-    self_hash: aecf7fa7f07f3ee5b8b69bf58e4a78d0491e3d4d3e769448e623a94e1fe9184c
+    self_hash: 08901f26fcd1422bd385122af0254abacc088a9f0eed2ae7a1df3173e2a5ee5a
     deps: {}
-    reviewed_at: "2026-09-16T01:53:39Z"
+    reviewed_at: "2026-09-16T03:20:33Z"
 ---
 # Metrics Dashboard: HELIX 2026-Q3 (human-outputs branch)
 
@@ -22,7 +22,7 @@ retired here.
 
 The branch made three PRD metrics measurable for the first time and
 measured a fourth surface, present mode, through its own gate. The eval
-run passes every deterministic check (32/32) and scores 48/54 on the
+run passes 33 of 36 deterministic checks and scores 57/62 on the
 rubric; the skill body carries zero runtime-specific commands; the one
 deck produced so far passes the deliverable gate with 0 blocking findings.
 The alignment-quality target (fewer than three findings per `align` run on
@@ -32,8 +32,8 @@ is no prior reading to degrade from.
 
 ## Summary
 
-`evals/results/20260911-0955/summary.md` is the current sample for the
-skill metrics (commit `0756e5fa`, eight briefs, about $23 per run); the
+`evals/results/20260915-2202/summary.md` is the current sample for the
+skill metrics (commit `20315d5c`, nine briefs, about $32 per run); the
 present-mode sample is the DEL-001 gate record
 (`docs/helix/06-iterate/deliverables/DEL-001-helix-evaluation-deck.md`
 Render section). Authoring quality reads well on the proxy available
@@ -44,13 +44,13 @@ the PRD's comparative study against free-form PRDs has not been run.
 
 | Metric | Baseline | Current | Direction | Result | Source |
 |--------|----------|---------|-----------|--------|--------|
-| Alignment findings per `align` run (healthy set) | none | 28 on the seeded `recipe-app/baseline` fixture; no healthy-set sample | lower is better (target < 3) | not measurable yet | `evals/results/20260911-0955/align-baseline.json`; `evals/briefs.yml` `align-baseline` |
-| Eval deterministic checks | none | 32/32 across 8 briefs | higher is better | pass | `evals/results/20260911-0955/summary.md` |
-| Eval rubric total | none | 48/54 (present brief 6/8, align brief 6/8) | higher is better | trend signal only | `evals/results/20260911-0955/summary.md` Rubric notes |
-| Authoring quality: template-authored PRD passes first review | none | 2/2 PRD-producing briefs pass `validate-instance.py` with 0 blocking findings (`frame-prd-from-vision` 5/5, `validate-prd` 4/4); no free-form comparison | higher is better | pass (proxy) | `evals/results/20260911-0955/frame-prd-from-vision.json`, `validate-prd.json` |
-| Skill portability: runtime-specific commands in the skill body | 0 | 0 | lower is better | pass | `tests/validate-skills.sh` runtime-neutrality gate; eval `output_not_contains` tracker vocabulary 8/8 clean |
+| Alignment findings per `align` run (healthy set) | none | 26 on the seeded `recipe-app/baseline` fixture; no healthy-set sample | lower is better (target < 3) | not measurable yet | `evals/results/20260915-2202/align-baseline.json`; `evals/briefs.yml` `align-baseline` |
+| Eval deterministic checks | none | 33/36 across 9 briefs (investor deck shape rule and coverage status, survey deck two 11-word titles, ambiguous reply without a question mark) | higher is better | three failed checks | `evals/results/20260915-2202/summary.md` |
+| Eval rubric total | none | 57/62 (investor deck 6/8, align brief 6/8, validate 5/6) | higher is better | trend signal only | `evals/results/20260915-2202/summary.md` Rubric notes |
+| Authoring quality: template-authored PRD passes first review | none | 2/2 PRD-producing briefs pass `validate-instance.py` with 0 blocking findings (`frame-prd-from-vision` 5/5, `validate-prd` 4/4); no free-form comparison | higher is better | pass (proxy) | `evals/results/20260915-2202/frame-prd-from-vision.json`, `validate-prd.json` |
+| Skill portability: runtime-specific commands in the skill body | 0 | 0 | lower is better | pass | `tests/validate-skills.sh` runtime-neutrality gate; eval `output_not_contains` tracker vocabulary 7/7 clean |
 | Present mode: deliverable gate on DEL-001 | none | `check-deliverable.py` 0 blocking, 0 warnings; `deck-qa.py` 15 slides, 0 blocking, 3 warnings; `validate-instance.py` 0 findings; Vale 0 errors | lower is better | pass | DEL-001 Render section; `python3 skills/helix/scripts/check-deliverable.py docs/helix/06-iterate/deliverables/DEL-001-helix-evaluation-deck.md` |
-| Present mode: eval brief | none | `present-investor-deck` checks 4/4, rubric 6/8 (render checks excluded on a headless host) | higher is better | pass; voice points lost | `evals/results/20260911-0955/present-investor-deck.json` |
+| Present mode: eval briefs | none | `present-investor-deck` checks 3/4, rubric 6/8; `present-survey-deck` checks 3/4, rubric 8/8 (render checks excluded on a headless host) | higher is better | gate findings on both decks | `evals/results/20260915-2202/present-investor-deck.json`, `present-survey-deck.json` |
 
 ## Interpretation Rules
 
@@ -68,24 +68,26 @@ the PRD's comparative study against free-form PRDs has not been run.
 
 ## Trend Notes
 
-- First reading; no trend. The eval was run at `0756e5fa`, before the
-  headline-rule port, the slide-shape checks, and the deck rebuild landed;
-  the next run is the first comparison.
-- The two rubric points lost on `present-investor-deck` were voice
-  (source references an investor would not use; intake fields not named),
-  the same gap the human-facing Sloptimizer adapter in the improvement
-  backlog targets.
-- The two points lost on `align-baseline` were report length (the YAML
-  block repeats the table) and a truncated handoff block, both report
-  shape rather than finding quality.
+- Second reading (`20260915-2202` at `20315d5c`) against the first
+  (`20260911-0955` at `0756e5fa`): checks went from 32/32 over eight
+  briefs to 33/36 over nine; the three losses are gate and wording rules
+  that did not exist at the first run (`evals/README.md` Runs). Rubric
+  went from 48/54 to 57/62.
+- The two rubric points lost on `present-investor-deck` were evidence
+  visibility (slide bodies and owner dates fall outside the truncated
+  diff the judge sees), not deck content.
+- The two points lost on `align-baseline` were a truncated handoff block
+  and fixture text absent from the evidence, both report shape rather
+  than finding quality; the one point lost on `validate-prd` was judgment
+  content authored in place.
 
 ## Follow-Up
 
 - Add a healthy-set `align` brief (a fixture with no seeded drift, or
   `docs/helix/` itself) so the < 3 findings target has a reading;
   `improvement-backlog.md` carries the item.
-- Run the eval at the branch head and commit the summary as the second
-  sample.
+- Fix the three failed checks (coverage vocabulary and the shape rule in
+  the present mode text; the title stop) and run the eval again.
 - Replace the first-review proxy with the PRD's comparative study
   (template-authored vs free-form PRDs through the same review).
 

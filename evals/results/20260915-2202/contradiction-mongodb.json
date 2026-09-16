@@ -1,0 +1,52 @@
+{
+  "id": "contradiction-mongodb",
+  "mode": "evolve",
+  "seconds": 115.7,
+  "run_ok": true,
+  "cost_usd": 1.750083,
+  "turns": 22,
+  "checks_passed": 3,
+  "checks_total": 3,
+  "checks": [
+    {
+      "kind": "output_contains",
+      "ok": true,
+      "detail": "all present"
+    },
+    {
+      "kind": "files_unchanged",
+      "ok": true,
+      "detail": "unchanged"
+    },
+    {
+      "kind": "output_not_contains",
+      "ok": true,
+      "detail": "clean"
+    }
+  ],
+  "judge": {
+    "scores": [
+      {
+        "item": 1,
+        "score": 2,
+        "reason": "The response states up front that no file was written and names the contradiction with the PRD's SQLite choice and ADR-001 before any spec work."
+      },
+      {
+        "item": 2,
+        "score": 2,
+        "reason": "It refuses to write a contradicting FEAT and routes to an operator decision followed by a superseding ADR-002 via the evolve path, or the smaller path of an NFR with ADR-001 review triggers."
+      },
+      {
+        "item": 3,
+        "score": 2,
+        "reason": "It challenges the sharding and evolving-metadata drivers against the PRD's fixed recipe model, the 100-concurrent-user target, the single-server constraint, and the $5k cap, calling for a concrete concurrency or volume target."
+      }
+    ],
+    "total": 6,
+    "max": 6,
+    "raw": "{\"scores\": [{\"item\": 1, \"score\": 2, \"reason\": \"The response states up front that no file was written and names the contradiction with the PRD's SQLite choice and ADR-001 before any spec work.\"}, {\"item\": 2, \"score\": 2, \"reason\": \"It refuses to write a contradicting FEAT and routes to an operator decision followed by a superseding ADR-002 via the evolve path, or the smaller path of an NFR with ADR-001 review triggers.\"}, {\"item\": 3, \"score\": 2, \"reason\": \"It challenges the sharding and evolving-metadata drivers against the PRD's fixed recipe model, the 100-concurrent-user target, the single-server constraint, and the $5k cap, calling for a concrete concurrency or volume target.\"}]}"
+  },
+  "diff_stat": "",
+  "diff": "",
+  "result": "No file was written. The request as phrased hits a HELIX hard stop, and I'm surfacing it rather than authoring around it.\n\n**Routing.** Marker `.helix.yml` authorizes `helix` at `docs/helix/`, autonomy `high`. Catalog bound from the source checkout at `/Users/erik/Projects/helix/workflows`. I routed to `frame` for a new feature spec, read the vision, PRD, existing FEAT, ADR-001, and the technical design, and found a true contradiction with higher-authority artifacts. High autonomy waives asking, but not the stop floor for contradictions between governing artifacts.\n\n**Why this cannot ship as a feature spec**\n\n- **The PRD already chooses the opposite.** Technical Context names SQLite via ADR-001 at `docs/helix/01-frame/prd.md:107`. The Constraints section requires a single database server with no replication, and caps infrastructure under $5k. \"Sharding from day one\" contradicts both. The PRD outranks any FEAT, so a FEAT cannot override it.\n- **ADR-001 owns this decision.** It selects SQLite for \u2264100 concurrent users, and it already rejected Firestore-style document stores for lock-in risk. HELIX treats ADRs as write-once. Changing the store means a superseding ADR-002, not a competing FEAT.\n- **A database mandate is not a feature.** The feature-spec contract fails it on the ship/cut/metric test: it has no user-facing outcome. Its spec rules list `Using PostgreSQL...` as prohibited language, and the no-implementation-details check applies. The FEAT lane owns what the product does, and the ADR lane owns which store it runs on.\n- **The stated drivers have no evidence in the governing artifacts.** The PRD's recipe model is fixed (title, ingredients, instructions, photo, description). Nothing in the vision or PRD calls for evolving metadata or for scale beyond 100 concurrent users. The ADR contract forbids accepting a decision whose design-defining facts are assumed rather than evidenced.\n\n**Two decisions only you can make**\n\n1. Do the PRD constraints change? Dropping \"single server, no replication\" and raising the $5k cap is a business decision, not a documentation edit.\n2. Does the scale target change? ADR-001's own review trigger is 200 concurrent users. Sharding from day one implies a target well past that, which the PRD does not state.\n\n**The governed route once you decide.** This is `evolve`, applied top-down:\n\n- **PRD.** Add the real requirements as NFRs: what \"evolving recipe metadata\" means (which fields, how often, who adds them) and a concrete concurrency or data-volume target. Revise the constraints and the scalability risk row.\n- **ADR-002.** Supersede ADR-001 with the MongoDB decision. Evidence the flexible-schema and sharding needs from the revised PRD, and address ADR-001's stated lock-in and query-flexibility concerns.\n- **TD-recipe-store.** Rewrite the data model, integration points, and risks. The current design is SQL and inherits the single-writer constraint.\n- **FEAT-recipe-share.** Only its scalability NFR changes. No new FEAT is needed.\n\nIf instead the drivers turn out to be softer, the smaller path is to add a metadata-flexibility NFR to the PRD and let the ADR-001 review triggers govern the store change later. Tell me which path and I'll run the evolve pass.\n\n```yaml\nhelix_report:\n  mode: check\n  scope: docs/helix/\n  catalog: source-checkout /Users/erik/Projects/helix/workflows\n  summary:\n    aligned: 0\n    incomplete: 0\n    divergent: 2\n    underspecified: 1\n    stale_plan: 0\n    blocked: 1\n    phantom_claims: 0\n  findings:\n    - id: F-1\n      classification: BLOCKED\n      artifact: docs/helix/01-frame/prd.md\n      lines: [107, 115, 116]\n      claim: Requested MongoDB-with-sharding FEAT contradicts PRD Technical Context (SQLite) and Constraints (single server, no replication, <$5k)\n      evidence: [docs/helix/01-frame/prd.md:107, docs/helix/01-frame/prd.md:115, docs/helix/01-frame/prd.md:116]\n      handoff:\n        destination_type: PRD\n        deliverable: operator decision on whether constraints and scale target change; if yes, revised Constraints, Technical Context, and a metadata-flexibility NFR with a numeric concurrency or volume target\n        next_mode: evolve\n        evidence: [docs/helix/01-frame/prd.md:102, docs/helix/01-frame/prd.md:111]\n    - id: F-2\n      classification: DIVERGENT\n      artifact: docs/helix/02-design/adr/ADR-001-sqlite.md\n      lines: [28, 37]\n      claim: Data-store selection belongs to an ADR; ADR-001 selects SQLite and rejected document stores for lock-in risk\n      evidence: [docs/helix/02-design/adr/ADR-001-sqlite.md:28, docs/helix/02-design/adr/ADR-001-sqlite.md:37]\n      handoff:\n        destination_type: ADR\n        deliverable: ADR-002 superseding ADR-001 with the MongoDB decision, evidencing schema-evolution and sharding needs from the revised PRD\n        next_mode: design\n        evidence: [docs/helix/02-design/adr/ADR-001-sqlite.md:64]\n    - id: F-3\n      classification: DIVERGENT\n      artifact: docs/helix/02-design/technical-designs/TD-recipe-store.md\n      lines: [31, 107]\n      claim: Technical design is SQL-schema-based and inherits the SQLite single-writer constraint\n      evidence: [docs/helix/02-design/technical-designs/TD-recipe-store.md:20, docs/helix/02-design/technical-designs/TD-recipe-store.md:107]\n      handoff:\n        destination_type: technical-design\n        deliverable: revised data model, integration points, and risks for a document store, after ADR-002 is accepted\n        next_mode: design\n        evidence: [docs/helix/02-design/technical-designs/TD-recipe-store.md:105]\n    - id: F-4\n      classification: UNDERSPECIFIED\n      artifact: docs/helix/01-frame/prd.md\n      lines: [80, 90]\n      claim: No governing artifact states an evolving-metadata requirement or a scale target beyond 100 concurrent users\n      evidence: [docs/helix/01-frame/prd.md:86, docs/helix/02-design/adr/ADR-001-sqlite.md:23]\n      handoff:\n        destination_type: PRD\n        deliverable: NFRs naming which recipe metadata evolves, how often, and the concurrency or data-volume target that motivates sharding\n        next_mode: evolve\n        evidence: [docs/helix/01-frame/prd.md:58]\n  assumptions:\n    - text: the request intends a project-wide data-store change, not a feature limited to one capability\n      source: operator prompt\n  next_mode: evolve\n```"
+}
