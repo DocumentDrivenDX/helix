@@ -57,6 +57,9 @@ reviews the script like any other artifact before it goes out.
   read.
 - Bullets that restate the visual or each other.
 
+[The anti-slop rules](/use/anti-slop/) lists every rule with examples and
+says where each one runs.
+
 ## The four looks
 
 - `editorial`: serif display type, dark opening and closing slides, light
