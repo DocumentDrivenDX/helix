@@ -38,12 +38,15 @@ read-only tool allowlist. Pass `--runner` with a template that receives
 ## Runs
 
 - `results/20260911-0955/`: run at commit `0756e5fa` over eight briefs
-  (`present-survey-deck` was added afterwards). It predates the
-  present-mode changes that followed on `feat/helix-human-outputs`: the
-  ported headline rules, the slide-shape and restatement checks, the
-  inventory's structure and roles passes, and the deck rebuild. Compare
-  the next run against it as a baseline, not as a reading of the current
-  skill.
+  (`present-survey-deck` was added afterwards); a baseline from before the
+  present-mode changes.
+- `results/20260915-2202/`: run at commit `20315d5c` over nine briefs:
+  33 of 36 checks, rubric 57 of 62. The three failed checks: the investor
+  deck tripped the shape rule on a bullet ending ", not a result" and used
+  coverage status "gap" instead of covered or omitted; the survey deck had
+  two 11-word titles against the 10-word stop; the ambiguous-request reply
+  asked for direction without a question mark, which an
+  `output_contains_any` check now covers.
 
 ## Reading a result
 

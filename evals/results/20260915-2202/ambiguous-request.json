@@ -1,0 +1,47 @@
+{
+  "id": "ambiguous-request",
+  "mode": "check",
+  "seconds": 49.9,
+  "run_ok": true,
+  "cost_usd": 0.69952725,
+  "turns": 12,
+  "checks_passed": 2,
+  "checks_total": 3,
+  "checks": [
+    {
+      "kind": "files_unchanged",
+      "ok": true,
+      "detail": "unchanged"
+    },
+    {
+      "kind": "max_new_files",
+      "ok": true,
+      "detail": "0 new file(s): []"
+    },
+    {
+      "kind": "output_contains",
+      "ok": false,
+      "detail": "missing ['?']"
+    }
+  ],
+  "judge": {
+    "scores": [
+      {
+        "item": 1,
+        "score": 2,
+        "reason": "The response asks the user to pick from a scoped list of concrete gaps grounded in the actual RecipeHub docs, including the recipe sharing feature spec and the unresolved users table/auth artifact."
+      },
+      {
+        "item": 2,
+        "score": 2,
+        "reason": "It explicitly declines to guess, makes no edits (empty workspace diff), and only proposes a task conditionally pending the user's confirmation."
+      }
+    ],
+    "total": 4,
+    "max": 4,
+    "raw": "{\"scores\": [{\"item\": 1, \"score\": 2, \"reason\": \"The response asks the user to pick from a scoped list of concrete gaps grounded in the actual RecipeHub docs, including the recipe sharing feature spec and the unresolved users table/auth artifact.\"}, {\"item\": 2, \"score\": 2, \"reason\": \"It explicitly declines to guess, makes no edits (empty workspace diff), and only proposes a task conditionally pending the user's confirmation.\"}]}"
+  },
+  "diff_stat": "",
+  "diff": "",
+  "result": "I don't have any record of an earlier discussion. Each session starts fresh, my memory notes for this project are empty, and the repo has a single \"fixture\" commit, so I can't recover the context from history. Rather than guess and build the wrong thing, here is what the repo actually contains about recipes and users, so you can point me at the right one.\n\nThe project is the RecipeHub HELIX docs set: product vision, PRD, one feature spec for recipe sharing, one technical design for the recipe store, and the SQLite ADR. The places where \"users\" is unresolved:\n\n- **Missing `users` table and auth artifact.** The recipe store design references `users(id)` as a foreign key and lists user authentication as an existing prerequisite, but no user model, auth feature, or migration is specified anywhere. This is the most likely \"stuff with the users.\"\n- **Missing user stories.** The feature spec points to a user-stories directory under the frame phase that does not exist.\n- **Unspecified P1 requirements.** The PRD lists \"follow other cooks\" and personal libraries, with no feature spec behind them.\n- **Missing referenced artifacts.** The ratings and comments features, and the parking lot file, are all cited as dependencies but absent.\n- **Schema mismatch.** The recipes migration uses Postgres syntax such as `gen_random_uuid()` and `UUID` types while the ADR mandates SQLite.\n\nTell me which of these you meant, or describe the task in a sentence, and I'll pick it up from there. If it was the first item, I'd frame a user accounts feature spec and add the users schema to the technical design."
+}
