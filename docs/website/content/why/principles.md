@@ -3,181 +3,115 @@ title: Principles
 weight: 1
 ---
 
-HELIX is a development control system: a framework for keeping AI-assisted
-software work coherent at scale. The principles below are the load-bearing
-ideas behind that framework.
+The five HELIX principles below serve as core decision-making guidelines for software teams when defining goals, delegating tasks to AI agents, verifying work, and adapting to real-world feedback.
 
-These are not workflow rules ("write tests first", "review before merging").
-Those belong in enforcers. These are the design choices that explain why
-HELIX takes the shape it does. When two implementations of the same
-workflow could both work, the principles say which one should govern.
+These principles are far from sequential, nor do they prescribe local workflow practices. They are intended to help teams choose between approaches that may both appear reasonable but lead to different outcomes. Each principle has a dedicated page that explains its meaning, consequences, and trade-offs. 
 
-<!-- vale Helix.PassiveVoice = NO -->
-## 1. Planning and execution are intertwined
-<!-- vale Helix.PassiveVoice = YES -->
+## The HELIX manifesto 
 
-> The framework takes its name from the double helix because the metaphor
-> encodes the architecture, not because it sounded good.
+> **H**uman authority balanced with agentic autonomy 
+> **E**vidence over confidence 
+> **L**inked artifacts over isolated or ephemeral plans
+> **I**ntent over inference 
+> e**X**ecution feedback over fixed plans 
 
-Planning and execution are not sequential activities. They happen simultaneously,
-at every zoom level, feeding back into each other continuously. A developer
-discovers a design flaw during implementation. A review surfaces a missing
-requirement. A metric reveals that a feature assumption was wrong. In each
-case, the execution strand feeds back into the planning strand, and the
-planning strand adjusts what happens next.
+HELIX balances human authority with agentic autonomy. The remaining principles express priorities rather than absolute exclusions. Confidence, individual documents, inference, and plans remain useful, but they should not replace validation, connected context, explicit intent, or feedback from execution.
 
-This rejection of sequential activities is what makes HELIX different from
-waterfall and from the compromise variants of agile. The strands are not
-stages. They are simultaneous processes that exist at every layer.
+## H: Human authority balanced with agentic autonomy
 
-## 2. Documents are the shared context
+> Agent autonomy should match the task, while humans define its boundaries.
 
-> Documents are first-class engineering artifacts, not records of work that
-> already happened.
+HELIX treats human involvement and agent autonomy as a spectrum rather than a fixed division of work. At one end, the agent does nothing without human direction. At the other, it can complete an authorized task or sequence of tasks independently. Most work sits somewhere between these two points.
 
-Humans and agents both read and write documents. Documents are the durable
-layer between them: the shared state that survives sessions, model
-upgrades, and team turnover. When a project's institutional knowledge lives
-in someone's head, the project loses that knowledge when the person leaves.
-When it lives in documents that drive execution, the knowledge compounds.
+Teams can move the level of autonomy up or down depending on the task's risk, the quality of the available context, their confidence in the workflow, and the consequences of getting the decision wrong or missing an opportunity.
 
-Every [artifact type in HELIX](/artifact-types/) has a deliberate role. Vision
-documents commit to direction. PRDs commit to requirements. Specs commit
-to behaviors. ADRs commit to design choices. Runtime work items, such as DDx
-beads, commit to work-in-progress. Together they form a graph that any agent can
-traverse when it needs context.
+Human authority defines the boundaries of that autonomy. Humans define the goal, decide what the agent is authorized to do, identify decisions that require escalation, and determine what evidence the agent must return. Within those boundaries, an agent can work independently without asking for approval at every step. 
 
-## 3. The artifact authority hierarchy governs reconciliation
+The balance can also change as work moves between planning and execution. Humans may take the lead when defining intent or resolving ambiguity, while agents may take the lead during well-defined implementation or verification work. New evidence can change that balance again. In the double-helix model, human and agent participation can vary throughout the project according to what the work requires.
 
-> When artifacts at different layers disagree, the higher layer governs.
+[Read the full principle](human-authority/).
 
-```
-Vision → PRD → Specs → ADRs → Designs → Tests → Plans → Code
-```
+## E: Evidence over confidence
 
-Source code reflects what exists, not what should exist. If a spec says one
-thing and the code says another, the code is wrong, not because code is
-unimportant, but because code drifts and specs are deliberate. This single
-rule prevents a common failure mode of agentic development: agents that
-infer requirements from existing code and propagate implementation accidents
-back into specifications.
+> Confidence in quality comes from validation instead of how certain an agent sounds.
 
-The authority hierarchy is also how change propagates. A vision shift cascades
-downward through every layer. A bug report at the code layer can propagate
-up to a spec change and then back down through tests. Either direction
-works, but the higher artifact always governs.
+LLMs can produce answers that are persuasive and expressed with high confidence even when they are wrong, incomplete, or inconsistent with the project's intent. HELIX therefore separates an agent's confidence in its own output from confidence in the quality of the work. 
 
-## 4. Progressive abstraction is the structure
+Work is complete only when there is evidence that it satisfies the commitments recorded in the artifact graph. Generating an output, changing the requested files, compiling the code, or passing a narrow set of tests may be part of that evidence, but none is sufficient by itself in every case. 
 
-> Every artifact lives at a specific zoom level. Changes can enter at any
-> level and propagate in either direction.
+The right evidence depends on the task and its acceptance criteria. It may include automated test results, static-analysis findings, interface-level checks, observability data, or documented findings from human or agent review. A separate review prompt or another model can help produce that evidence.
 
-| Layer | Question |
-|---|---|
-| Vision | What is this and why does it exist? |
-| Requirements | What must it do? |
-| Specs | What exactly does this feature do? |
-| Design | How do we build it? What trade-offs? |
-| Tests | How do we know it works? |
-| Code | What exists right now? |
+Verification must check both whether the result works and whether it remains aligned with authoritative artifacts. An implementation can function correctly and still be incomplete if it contradicts a specification, ignores a selected concern, or leaves related documents out of date. 
 
-The layers are not sequential stages. They are lenses at different zoom
-levels, all active simultaneously. The right abstraction for a question
-depends on the question: refining a spec is the right move when a feature
-is unclear, redesigning a system is the right move when constraints have
-shifted, rewriting code is the right move when the spec is correct and the
-code is not.
+HELIX builds quality confidence from evidence rather than relying on hallucinated confidence from the system that produced the work. 
 
-## 5. Human-AI is a continuum, not a binary
+[Read the full principle](evidence-over-confidence/).
 
-> Both humans and AI participate in both strands, at varying ratios per
-> task.
+## L: Linked artifacts over isolated or ephemeral plans
 
-There is no clean line where "human work" ends and "AI work" begins. A human
-writes a vision. An agent drafts the PRD against it. A human refines. An
-agent implements. A human reviews. Every task has a slider, from fully manual
-to fully autonomous or anywhere in between, and the right position depends
-on the task's stakes and the team's confidence.
+> Project knowledge should live in connected artifacts that evolve with the code.
 
-This rules out two failure modes. It rules out "AI replaces the human":
-no agent automates judgment away. It also rules out
-"AI assists but humans do the work that counts"; agents are first-class
-participants in the artifact graph, not autocomplete.
+HELIX treats documentation as part of the working system rather than a temporary planning layer that becomes obsolete once implementation begins. Goals, requirements, architecture, design decisions, constraints, and expected behavior should be recorded in human-readable form and updated as the software changes.
 
-<!-- vale Helix.PassiveVoice = NO -->
-## 6. Autonomy is supervised, not unbounded
-<!-- vale Helix.PassiveVoice = YES -->
+These artifacts form a graph. Vision documents, requirements, specifications, architecture decisions, designs, tests, plans, work items, and implementation evidence link to one another so that humans and agents can understand where a decision came from, what depends on it, and what else may need to change when that decision changes.
 
-> Agents operate inside bounded loops that stop when human judgment is
-> needed.
+The artifact graph must evolve with the code. If implementation changes while the governing artifacts remain static, those artifacts stop providing reliable context. HELIX therefore treats keeping code and its governing artifacts aligned as part of the development process rather than as documentation work to do later. 
 
-The HELIX methodology layers supervision on top of DDx's bounded execution
-loop. DDx supplies the queue-drain primitive (`ddx work`): claim a ready DDx
-work item, execute it, close it on success. HELIX decides *what* counts as
-ready, *which* work item is the highest-impact next move, and *when* to stop and
-ask. When forward progress would require authority that is missing,
-<!-- vale Helix.PassiveVoice = NO -->
-ambiguity that cannot be resolved, or judgment that is genuinely human, the
-<!-- vale Helix.PassiveVoice = YES -->
-<!-- vale Helix.PassiveVoice = NO -->
-loop halts and tells the operator exactly what decision is needed and why.
-<!-- vale Helix.PassiveVoice = YES -->
+Linked artifacts also make context easier to select. An agent does not need every document in the repository for every task. Artifact relationships, flow scopes, domain lanes, and authority rules help it find the relevant context without treating the entire project as one large prompt.
 
-<!-- vale Helix.Hedges = NO -->
-Two build-side guards check completion, not just green tests: the
-<!-- vale Helix.Hedges = YES -->
-[verification exit gate](/use/workflow/#verification-exit-gate) requires
-interface-appropriate proof of each acceptance criterion, and the
-[evolve-until-converged loop](/use/workflow/#evolve-until-converged)
-iterates against specs and concerns until the work converges.
+Because this knowledge lives in the artifact graph rather than inside a specific model, agent, tracker, or runtime, it remains portable. Teams can change tools or execution platforms without rebuilding the project's intent, architecture, and decision history around a new system. HELIX defines the artifact relationships and authority rules; individual runtimes supply their own commands, queues, and tracker integrations.
 
-This is what distinguishes HELIX from autonomous agent loops that run until
-they crash or burn through a budget. The supervisory pattern is the
-operational thesis: agents do work the user has authorized, in shapes the
-user can audit, and the user steers by changing tracker state.
+[Read the full principle](linked-artifacts/).
 
-## 7. Adversarial review surfaces blind spots
+## I: Intent over inference
 
-> Different models have different failure modes. Rotate them.
+> Documented intent governs implementation without being silently redefined by existing code.
 
-After an agent completes work, a different agent (or the same agent with a
-review prompt) examines the result against the artifact hierarchy. Does the
-implementation match the spec? Does the spec still align with the PRD? Are
-cross-cutting concerns respected? What drift signals are present?
+Agents often infer requirements from the code, tests, work items, and documents nearest to the task. Those inferences can help uncover missing information without replacing explicit project intent.
 
-<!-- vale Helix.PassiveVoice = NO -->
-Self-review consistently misses the same kinds of errors a model is biased
-<!-- vale Helix.PassiveVoice = YES -->
-toward producing. Cross-model review breaks that symmetry. Different models
-trained on different data with different objectives produce work with
-different blind spots, and alternating them catches what a single
-perspective never could.
+HELIX organizes artifacts by abstraction and authority: 
 
-## 8. Least power wins
+- **Vision documents** explain why the project exists. 
+- **Requirements** define what it must achieve.
+- **Specifications** describe expected behavior. 
+- **Designs** record how the team intends to build it. 
+- **Tests** provide evidence.
+- **Code** shows what currently exists.
 
-> The smallest sufficient action is the right action.
 
-When deciding what to do next, HELIX prefers:
+When artifacts disagree, the team must identify and reconcile the conflict. Evidence from implementation may justify revising a requirement or specification, but the team must make that change explicitly and update the affected artifacts. An agent must not treat existing behavior as intended behavior merely because the code already implements it.
 
-- Refining a spec before redesigning a system
-- Sharpening an issue before implementing
-- Reconciling artifacts before inventing new ones
-- Editing existing files before creating new ones
-- Reading existing code before writing more
+[Read the full principle](intent-over-inference/).
 
-The bias is not toward minimum effort. It is toward minimum disruption.
-<!-- vale Helix.PassiveVoice = NO -->
-Each layer of HELIX is a place where the system can be repaired or
-<!-- vale Helix.PassiveVoice = YES -->
-<!-- vale Helix.Hedges = NO -->
-extended; the right layer for a given change is usually the smallest one
-<!-- vale Helix.Hedges = YES -->
-that fully addresses the problem.
+## X: eXecution feedback over fixed plans
+
+> Planning guides execution, and execution continuously updates the plan.
+
+HELIX treats planning and execution as connected strands rather than separate stages. Requirements, specifications, and designs shape implementation, while implementation, testing, review, and production use generate new evidence about whether those plans still hold. 
+
+That evidence flows back to the appropriate planning layer. 
+
+- A constraint discovered during implementation may require a design change. 
+- A failed acceptance test may reveal an incomplete specification. 
+- Production behavior may challenge an assumption in the requirements. 
+
+HELIX responds to this feedback with the smallest sufficient intervention. New evidence should change only what needs to change: fix the implementation when the specification is still correct, revise the specification when the expected behavior was incomplete, or revisit a higher-level decision when the evidence shows that the underlying assumption no longer holds. 
+
+Plans remain useful because they guide execution. They remain current because execution can challenge and revise them as the project learns.
+
+[Read the full principle](execution-feedback/).
+
+## How the principles work together
+
+- **L**inked artifacts preserve the project's shared knowledge, evolve with the code, and keep that knowledge portable across tools and runtimes.
+- **I**ntent governs implementation and guides how the team reconciles disagreements between artifacts. Evidence can justify revising that intent, but the change must be explicit.
+- **H**uman authority defines the boundaries within which agent autonomy can vary. The balance changes with the task, its risks, and the available evidence.
+- **E**vidence establishes whether the work satisfies the project's commitments. Confidence in quality comes from validation rather than an agent's assurance that the work is complete.
+- e**X**ecution feedback carries what the team learns back into plans and artifacts. HELIX responds with the smallest sufficient intervention, updating the affected artifacts and implementation without unnecessary disruption.
+
+The [Use HELIX](/use/) section translates these principles into workflows, alignment loops, and adoption guidance. The [Artifact Types](/artifact-types/) catalog defines the documents that carry project intent, while the [Concerns](/concerns/) library applies standards and constraints across the artifact graph.
+
+
 
 ---
 
-These eight principles are the *why* of HELIX. The [Use HELIX](/use/)
-section describes the *how*: the workflow, the alignment loop, the
-recipes. The [artifact-type catalog](/artifact-types/) and the
-[Concerns](/concerns/) library are how those principles get expressed in
-practice.
