@@ -2,7 +2,7 @@
   "payload": {
     "innsigle": "1",
     "type": "https://innsigle.dev/claim/colophon/v1",
-    "issued_at": "2026-09-17T16:37:03Z",
+    "issued_at": "2026-09-17T19:26:56Z",
     "issuer": {
       "id": "helix",
       "name": "HELIX",
@@ -14,7 +14,7 @@
         "uri": "https://documentdrivendx.github.io/helix/use/claude-code-recipe/",
         "digest": {
           "alg": "sha256",
-          "value": "a45a9836c38be523306b86e4ff75a51c15fbb22a3e9912761eebd2f3a3aeece8"
+          "value": "67619725e33c566a389cee7f15727d6de1a1f10f03ef59450e0fe78ec6c857e5"
         }
       }
     ],
@@ -46,8 +46,8 @@
     {
       "key_id": "ed25519:d5a0b2d95482db5ff68fc8318a1ad4de",
       "alg": "ed25519",
-      "sig": "EEuu_j1ALTVBZAoM1nrHx__Vab5EEejOY0TEojhPqozDDgjeZtUtX47jctHcEa2vr3NhSrOwrkcvTjoch3HXAw",
-      "signed_at": "2026-09-17T16:37:03Z"
+      "sig": "VAXYOXwUuL40mTdaHpNNT9wnQ7FOrMZTAGamsv4XZe1P27QB4KhWmYYpI45Y4g0HGiN47lX_Fuv_AAz-gI9NBQ",
+      "signed_at": "2026-09-17T19:26:56Z"
     }
   ]
 }

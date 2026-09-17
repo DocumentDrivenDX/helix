@@ -6,65 +6,60 @@ ddx:
   depends_on:
     - deployment-checklist
   review:
-    self_hash: 08d5d2fde105ded3c68f345694d6254b9970dd40859cbfdf809747667dd84c3f
+    self_hash: 99574883788300395089b39ca0b1918d4a23f359269390fa4717bc0fc0c41f51
     deps:
       deployment-checklist: 78c9688645de24f33182dca537e13d0fb180abb4773ab85b48468e495a92bad1
-    reviewed_at: "2026-09-16T03:20:07Z"
+    reviewed_at: "2026-09-17T19:23:17Z"
 ---
 
-# Release Notes — HELIX v0.13.0
+# Release Notes — HELIX v0.13.1
 
 ## Release Scope
 
-- Release identifier or version: `v0.13.0`
-- Release date: 2026-09-15 (operator-driven; tagged at the merge commit)
-- Rollout window or environment: HELIX plugin (Claude Code marketplace,
-  Codex plugin, Databricks Genie bundle, Grok Build) and the public website
-  at `https://documentdrivendx.github.io/helix/`
+- Release identifier or version: `v0.13.1`
+- Release date: 2026-09-17 (operator-driven; tagged at the merge commit)
+- Rollout window or environment: the public website at
+  `https://documentdrivendx.github.io/helix/` and its build pipeline; the
+  plugin packages carry only the version bump
 - Release owner: HELIX maintainer cutting the tag
-- Source commit or build: the tag's merge commit (tag `v0.13.0`); previous release
-  `v0.12.0` at `c1c66f25` (2026-08-21)
+- Source commit or build: the tag's merge commit (tag `v0.13.1`); previous release
+  `v0.13.0` at `91eb74d2` (2026-09-15)
 
 ## Audience and Channels
 
 | Audience | Why they care | Delivery channel |
 |----------|---------------|------------------|
-| HELIX plugin users | The `present` mode turns governed artifacts into decks; the routing skill is a router with one contract file per mode; execution-era doctrine is gone | Plugin repo tag; marketplace update |
-| Website readers | Decks and Briefs and Anti-slop pages, a generated rule reference, the deck PDF | GitHub Pages rebuild |
-| Adopters who vendored `workflows/` | Mode contracts, the deliverable type, the stop-trigger file, and the shipped references floor changed shape | Re-sync `workflows/` |
-| HELIX maintainers | The eval harness, the deck render lane, and the portability gate change what `just test` proves | This file and `evals/README.md` |
+| Website readers | Every page carries an Innsigle seal that says who signed the page's source and whether a model drafted it | GitHub Pages rebuild |
+| HELIX maintainers | Curated pages are sealed with the house key before merge; generated pages are sealed by CI with a second key | This file and `.innsigle/README.md` |
+| HELIX plugin users | No change beyond the version number | Plugin repo tag; marketplace update |
 
 ## Highlights
 
-- **Human-facing outputs.** A `present` mode and a `deliverable` artifact
-  type project governed artifacts into client-ready decks: brief, corpus
-  inventory with scope and coverage controls, storyboard with the
-  titles-only test, headline and shape passes ported from sloptimizer,
-  slide patterns with figures and icons, four looks, a PPTX renderer, and a
-  gate that rasterizes every slide for inspection (FEAT-018, R-12).
-- **Router split.** `skills/helix/SKILL.md` only routes (348 lines, from
-  1,246); each mode's contract is `workflows/modes/<mode>.md`, shipped in the
-  references floor with the actions, templates, stop triggers, principles,
-  and a report shape runtimes can consume.
-- **Execution-era cleanup.** The execution engine doctrine, the state
-  machine, the family-test bench, and the execution-ready-bead machinery are
-  removed; the skill body uses only the PRD's primitives and a gate enforces
-  it (R-4).
-- **Evaluation.** `evals/` runs nine briefs headlessly against a fixed corpus
-  with deterministic checks and a judged rubric; results for this release
-  are committed under `evals/results/`.
-- **Schema.** `ddx.authoring.home` is required and tool-native checkout is
-  defined (#37).
+- **Content seals on every page.** Each website page quotes an Innsigle
+  attestation for its markdown source: the source digest, the declared
+  composition (`mixed` for curated prose, `model-primary` for generator
+  output), the signing key and its role, and the signature. A page whose
+  source changed after sealing renders no seal and fails the build instead
+  of showing a seal that would not verify.
+- **Two keys, one issuer (Innsigle ADR-004).** The house key stays in
+  1Password and seals curated pages, whose claims are committed. A build key
+  held as a repository secret seals the generated pages at every site build.
+  The house key endorses the build key, so a verifier who pins the house key
+  recognizes CI seals, and the build key can never mint a curated seal.
+- **Seal gate.** `tests/validate-innsigle.sh` verifies every claim with the
+  pinned Innsigle CLI, enforces the key policy, and checks the built site
+  serves the issuer document, the endorsement, and a seal on every page.
 
 ## Required Actions Summary
 
-- Plugin users: update the plugin; the new mode and type resolve from the
-  packaged catalog.
-- Adopters who vendored `workflows/`: re-sync it; `library/skill-prompts/`
-  no longer exists and stop triggers live at `workflows/stop-triggers.yml`.
-- Maintainers: the deck render lane needs node with pptxgenjs (`npm ci` in
-  `skills/helix/scripts`), LibreOffice, and pdftoppm to run in full; it
-  skips with a message without them.
+- Plugin users: none.
+- Maintainers: after editing a page under `docs/website/content/` that is
+  not generated, run `just innsigle-seal` (1Password CLI signed in) and
+  commit `.innsigle/public/claims/`; the website workflow fails until the
+  claim matches the source. Generated pages need nothing.
+- Maintainers: the build key is the `INNSIGLE_BUILD_KEY` repository secret;
+  `just innsigle-build-key --rotate` followed by `just innsigle-endorse`
+  rotates it.
 
 ## Changes and Fixes
 
@@ -72,40 +67,27 @@ ddx:
 
 | Area | What changed | Who is affected |
 |------|--------------|-----------------|
-| Catalog | `deliverable` type (deck) under `06-iterate`; `workflows/deliverables/` holds the theme with four looks, slide patterns, deck flows, deck craft, visual specs, and source mappings | Teams presenting to sponsors, clients, or executives |
-| Skill | `present` mode; router split into per-mode contracts; `_report.md` shape with review and converge fan-in; three autonomy levels per ADR-003; stop triggers shipped in the floor | Every `/helix` user |
-| Scripts | `check-deliverable.py` (title, shape, restatement, vocabulary, number, coverage checks), `render-deck.js` with requirable libraries, `deck-qa.py`, `corpus-inventory.py`, `validate-instance.py` | Hosts rendering or gating deliverables |
-| Evals | `scripts/run-eval.py` with nine briefs, delta validation, and a judge | Maintainers |
-| Site | Decks and Briefs, Anti-slop, and the generated Anti-slop Rules reference; the deck PDF published beside its script | Website readers |
-| Docs | One install guide with a section per host; PRD R-12 and FEAT-018; metrics dashboard rebuilt around the PRD's metrics; 51 working documents archived | Adopters and maintainers |
+| Site | The colophon partial renders a seal from the committed or CI-minted claim, embeds the attestation as `application/innsigle+json`, and states that the signature covers the markdown source, not the HTML; `.innsigle/public/` is served at `/.well-known/innsigle/` | Website readers |
+| Scripts | `scripts/innsigle-cli.sh` pins Innsigle v0.5.0 for every caller; `scripts/innsigle-seal.sh` wraps `innsigle seal --all`; `scripts/innsigle-build-key.sh` mints or rotates the build key | Maintainers |
+| Config | `.innsigle/config.json` is committed with the content globs, frontmatter-driven composition, and key roles; the issuer document lists both keys and the endorsement | Maintainers and verifiers |
+| CI | The website and Pages workflows seal generated pages with the build key before Hugo runs; the gate runs with every page required | Maintainers |
 
 ### Fixes
 
 | Issue or symptom | Resolution | User or operator impact |
 |------------------|------------|-------------------------|
-| Skill body named host tools and env roots | Rewritten in the PRD's primitives; `validate-skills.sh` fails on tool names and env roots | Portable skill body across hosts |
-| Stop triggers referenced a path the floor did not ship | Moved to `workflows/stop-triggers.yml` and shipped as `references/stop-triggers.yml` | Packaged installs resolve them |
-| Renderer dropped table rows and hid unfit text | Rows are clamped and reported; unfit text and cut Visual specs make the render exit non-zero after writing | Honest deck renders |
-| Sloptimizer port drifted from upstream | `tests/validate-headline-sync.sh` vendors the fixture and four phrase lists and fails on drift | Same title rules on every host |
+| The first build key's private half was committed to the pull request branch | The key is marked revoked in the issuer document and a replacement was minted, stored as the secret, and endorsed; the ignore rule now covers `.innsigle/keys/` | Seals from the revoked key never verify; the live site carries only replacement-key seals |
+| The claude-code recipe page was edited after sealing | Resealed with the house key | The page renders its seal again |
 
 ## Breaking Changes and Required Actions
 
-- `workflows/EXECUTION.md`, `workflows/DDX.md`, the state machine and
-  rules, `actions/implementation.md`, `actions/check.md`, `workflows/legacy/`,
-  `library/skill-prompts/`, and the family-test bench are removed. Runtimes
-  that read them must read the mode contracts and `stop-triggers.yml`
-  instead.
-- `workflows/references/bead-first.md` is `work-item-first.md`.
-- Artifact frontmatter requires `ddx.authoring.home` (#37).
-- One-pager and brief kinds are declared in `meta.yml` but not built; the
-  present mode produces decks only until the backlog item lands.
+- None. The plugin packages differ from `v0.13.0` only in the version field.
 
 ## Migration or Rollback Guidance
 
-- Migration: pull the tag; regenerate the site (`generate-reference.py`,
-  `publish-artifacts.py`, `publish-resources.py`).
-- Rollback: install the `v0.12.0` tag. Deliverable scripts stay valid
-  Markdown; only their catalog binding and gate are lost.
+- Migration: pull the tag; nothing to regenerate for plugin consumers.
+- Rollback: install the `v0.13.0` tag. The website keeps its seals because
+  they are produced at build time from `main`.
 
 ## Known Issues and Support
 
@@ -113,7 +95,7 @@ ddx:
 |------|------------------|-------------------------|
 | One-pager, brief, and HTML render targets are not built | Teams wanting a document rather than a deck | Backlog item with the precise gap; write the brief as a deck script for now |
 | The eval's investor-deck brief fails the shape gate on a reversal the skill wrote, and the survey brief needs an 1,800-second budget | Maintainers reading the eval | Recorded in `evals/results/`; the mode text names the coverage vocabulary and the shape rules |
-| Innsigle content seals are in review (PR #39) and ship in the next release | Website readers expecting a signed colophon | Next release |
+| Claim subject URIs for section index pages follow the source path shape (`…/_index/`) rather than the published URL | Verifiers reading the URI field | Informational only; the digest and the `Signed source` line identify the page; reported upstream |
 | Georgia and Trebuchet are absent on stock Linux LibreOffice, so the raster substitutes them there | Hosts rasterizing decks on Linux | `deck-qa.py` notes the missing typeface; use the `technical` or `classic` look |
 
 Support: open an issue at `https://github.com/DocumentDrivenDX/helix`.
@@ -121,7 +103,6 @@ Support: open an issue at `https://github.com/DocumentDrivenDX/helix`.
 ## References
 
 - Deployment checklist: [`deployment-checklist.md`](deployment-checklist.md)
-- Features: `docs/helix/01-frame/features/FEAT-018-deliverables.md`
-- Requirements: `docs/helix/01-frame/prd.md` (R-4, R-12)
-- Evaluation: `evals/README.md`, `evals/results/20260915-2202/summary.md`
-- Commit range: `git log v0.12.0..v0.13.0`
+- Seal operations: `.innsigle/README.md`, `.innsigle/AGENTS.md`
+- Innsigle decision record: ADR-004 in `DocumentDrivenDX/innsigle` (v0.5.0)
+- Commit range: `git log v0.13.0..v0.13.1`

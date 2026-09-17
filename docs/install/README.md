@@ -250,7 +250,7 @@ There is no install command. Two repo-resident pieces:
 
 ```bash
 grok plugin install DocumentDrivenDX/helix --trust
-# pin a release: DocumentDrivenDX/helix@v0.13.0
+# pin a release: DocumentDrivenDX/helix@v0.13.1
 ```
 
 Local checkout: `grok plugin validate /path/to/helix`, then
