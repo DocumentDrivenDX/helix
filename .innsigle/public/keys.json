@@ -10,7 +10,22 @@
       "created_at": "2026-09-16T02:43:52Z",
       "revoked_at": null,
       "role": "human"
+    },
+    {
+      "key_id": "ed25519:33c6d60dba5bcd2cbd1e662e1bb69f4b",
+      "alg": "ed25519",
+      "public_key": "qDkh8yG9scBh2oNBwUG7AOnRXsvFlUvWBEymloZW9P4",
+      "created_at": "2026-09-17T16:26:56Z",
+      "revoked_at": null,
+      "role": "build"
     }
   ],
-  "endorsements": []
+  "endorsements": [
+    {
+      "attestation_url": "https://documentdrivendx.github.io/helix/.well-known/innsigle/endorsements/ed25519-33c6d60dba5bcd2cbd1e662e1bb69f4b.attestation.json",
+      "subject_key_id": "ed25519:33c6d60dba5bcd2cbd1e662e1bb69f4b",
+      "subject_key_url": "https://documentdrivendx.github.io/helix/.well-known/innsigle/keys.json",
+      "issued_at": "2026-09-17T16:36:52Z"
+    }
+  ]
 }

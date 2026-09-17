@@ -1,0 +1,29 @@
+{
+  "payload": {
+    "innsigle": "1",
+    "type": "https://innsigle.dev/claim/key-endorsement/v1",
+    "issued_at": "2026-09-17T16:36:52Z",
+    "issuer": {
+      "id": "helix",
+      "name": "HELIX",
+      "key_id": "ed25519:d5a0b2d95482db5ff68fc8318a1ad4de",
+      "key_url": "https://documentdrivendx.github.io/helix/.well-known/innsigle/keys.json"
+    },
+    "endorsement": {
+      "subject_key_id": "ed25519:33c6d60dba5bcd2cbd1e662e1bb69f4b",
+      "subject_key_url": "https://documentdrivendx.github.io/helix/.well-known/innsigle/keys.json",
+      "subject_issuer_id": "helix",
+      "level": "full",
+      "purpose": "build-signing"
+    }
+  },
+  "payload_encoding": "json",
+  "signatures": [
+    {
+      "key_id": "ed25519:d5a0b2d95482db5ff68fc8318a1ad4de",
+      "alg": "ed25519",
+      "sig": "rh-rFwxk9BaoTkudx6V8ypljZFdo_B8FYYca3WeZEOTHD-Ft-w3_mFXj7ADYda56Fq24eMsG0dKUG1ly0CpmCw",
+      "signed_at": "2026-09-17T16:37:00Z"
+    }
+  ]
+}

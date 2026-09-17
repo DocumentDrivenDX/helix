@@ -21,7 +21,7 @@
   },
   "onepassword": {
     "vault": "Employee",
-    "item_title": "Innsigle \u00b7 helix-wt-innsigle",
+    "item_title": "Innsigle · helix-wt-innsigle",
     "item_id": "jgcajmlzo5m4keco5uvrbxt264",
     "private_key_ref": "op://Employee/jgcajmlzo5m4keco5uvrbxt264/private key"
   },
@@ -34,6 +34,10 @@
     "human": {
       "key_id": "ed25519:d5a0b2d95482db5ff68fc8318a1ad4de",
       "role": "human"
+    },
+    "build": {
+      "key_id": "ed25519:33c6d60dba5bcd2cbd1e662e1bb69f4b",
+      "role": "build"
     }
   }
 }
