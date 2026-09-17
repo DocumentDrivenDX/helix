@@ -1,7 +1,7 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable test-headline-sync test-deck-render test-demos
+test: test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable test-headline-sync test-deck-render test-demos test-innsigle
 
 # Serve the HELIX microsite at the canonical local review URL.
 website-serve:
@@ -129,3 +129,20 @@ eval:
 # Keep the ported title rules in sync with sloptimizer's headline fixtures
 test-headline-sync:
     bash tests/validate-headline-sync.sh
+
+# Seal microsite content sources with Innsigle colophon attestations: curated pages with the
+# human key (needs `op` signed in), generated pages with the build key when INNSIGLE_BUILD_KEY is set
+innsigle-seal *ARGS:
+    bash scripts/innsigle-seal.sh {{ARGS}}
+
+# One-time: create the CI build key (public half into keys.json, id into config.json); --rotate revokes and replaces it
+innsigle-build-key *ARGS:
+    bash scripts/innsigle-build-key.sh {{ARGS}}
+
+# Human key endorses the build key so verifiers who pin the house key recognize CI seals
+innsigle-endorse:
+    bash scripts/innsigle-cli.sh endorse --subject-key-id "$(jq -r '.keys.build.key_id // empty' .innsigle/config.json)" --purpose build-signing
+
+# Gate: every microsite page has a valid, verified Innsigle seal and renders it
+test-innsigle:
+    bash tests/validate-innsigle.sh

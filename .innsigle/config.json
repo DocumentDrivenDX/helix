@@ -1,0 +1,43 @@
+{
+  "schema_version": "1",
+  "issuer": {
+    "id": "helix",
+    "name": "HELIX",
+    "key_id": "ed25519:d5a0b2d95482db5ff68fc8318a1ad4de",
+    "key_url": "https://documentdrivendx.github.io/helix/.well-known/innsigle/keys.json",
+    "public_key": "oVGFXP2rA7UHjcXLUT1UTeo67L473RRIwgzST3ksWlg"
+  },
+  "paths": {
+    "public": ".innsigle/public",
+    "keys": ".innsigle/public/keys.json",
+    "claims_dir": ".innsigle/public/claims"
+  },
+  "publish": {
+    "site_keys_path": "/.well-known/innsigle/keys.json",
+    "copy": {
+      "from": ".innsigle/public",
+      "to": ".well-known/innsigle"
+    }
+  },
+  "onepassword": {
+    "vault": "Employee",
+    "item_title": "Innsigle · helix-wt-innsigle",
+    "item_id": "jgcajmlzo5m4keco5uvrbxt264",
+    "private_key_ref": "op://Employee/jgcajmlzo5m4keco5uvrbxt264/private key"
+  },
+  "content_root": "docs/website/content",
+  "content_globs": [
+    "docs/website/content/**/*.md"
+  ],
+  "kind_from_frontmatter": true,
+  "keys": {
+    "human": {
+      "key_id": "ed25519:d5a0b2d95482db5ff68fc8318a1ad4de",
+      "role": "human"
+    },
+    "build": {
+      "key_id": "ed25519:b0865d76d834a52c48506414d16f4e5a",
+      "role": "build"
+    }
+  }
+}

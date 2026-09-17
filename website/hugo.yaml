@@ -17,6 +17,16 @@ module:
       target: layouts
     - source: static
       target: static
+    # Innsigle content seals: publish the issuer tree at
+    # /.well-known/innsigle/, and expose claims + content sources to the
+    # badge partial (layouts/_partials/components/comments.html) for
+    # render-time digest verification.
+    - source: ../.innsigle/public
+      target: static/.well-known/innsigle
+    - source: ../.innsigle/public
+      target: assets/innsigle
+    - source: ../docs/website/content
+      target: assets/content-src
 
 enableRobotsTXT: true
 enableGitInfo: true

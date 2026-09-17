@@ -1,0 +1,53 @@
+{
+  "payload": {
+    "innsigle": "1",
+    "type": "https://innsigle.dev/claim/colophon/v1",
+    "issued_at": "2026-09-16T02:47:05Z",
+    "issuer": {
+      "id": "helix",
+      "name": "HELIX",
+      "key_id": "ed25519:d5a0b2d95482db5ff68fc8318a1ad4de",
+      "key_url": "https://documentdrivendx.github.io/helix/.well-known/innsigle/keys.json"
+    },
+    "subjects": [
+      {
+        "uri": "https://documentdrivendx.github.io/helix/reference/glossary/tracker.md",
+        "digest": {
+          "alg": "sha256",
+          "value": "9a6d0cda73cf212454d60180ae9ededa3e1ef05138d8fd3ff812fec930bfd4ff"
+        }
+      }
+    ],
+    "colophon": {
+      "schema_version": "1",
+      "composition": "mixed",
+      "ingredients": [
+        {
+          "kind": "human",
+          "name": "operator",
+          "role": "outline"
+        },
+        {
+          "kind": "model",
+          "name": "Claude",
+          "role": "expand"
+        },
+        {
+          "kind": "human",
+          "name": "operator",
+          "role": "final-edit"
+        }
+      ],
+      "notes": null
+    }
+  },
+  "payload_encoding": "json",
+  "signatures": [
+    {
+      "key_id": "ed25519:d5a0b2d95482db5ff68fc8318a1ad4de",
+      "alg": "ed25519",
+      "sig": "muPjqwyDXE-mWepYttuxhoiOWshrYn0WRE34XNvVN-7atS80C4-2wZ00djq1MFGC4WWA_1H9NIaKW-h0kSr6Aw",
+      "signed_at": "2026-09-16T02:47:05Z"
+    }
+  ]
+}

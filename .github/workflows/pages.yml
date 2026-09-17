@@ -69,6 +69,16 @@ jobs:
             python3 scripts/demos/render_session.py "$s" --output "website/static/demos/$slug.cast"
           done
 
+      - name: Seal generated pages (build key) and verify every seal
+        # Curated pages carry committed human-key claims; generated pages are sealed here with the
+        # CI build key so the deployed site quotes a seal on every page (Innsigle ADR-004).
+        env:
+          INNSIGLE_BUILD_KEY: ${{ secrets.INNSIGLE_BUILD_KEY }}
+        run: |
+          [ -n "$INNSIGLE_BUILD_KEY" ] || { echo "::error::INNSIGLE_BUILD_KEY secret is not set; run just innsigle-build-key and store the PEM as a repository secret"; exit 1; }
+          bash scripts/innsigle-seal.sh --role build
+          bash scripts/innsigle-cli.sh verify --all
+
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v5

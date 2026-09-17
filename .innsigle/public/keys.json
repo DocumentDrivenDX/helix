@@ -1,0 +1,39 @@
+{
+  "innsigle_issuer": "1",
+  "issuer_id": "helix",
+  "issuer_name": "HELIX",
+  "keys": [
+    {
+      "key_id": "ed25519:d5a0b2d95482db5ff68fc8318a1ad4de",
+      "alg": "ed25519",
+      "public_key": "oVGFXP2rA7UHjcXLUT1UTeo67L473RRIwgzST3ksWlg",
+      "created_at": "2026-09-16T02:43:52Z",
+      "revoked_at": null,
+      "role": "human"
+    },
+    {
+      "key_id": "ed25519:33c6d60dba5bcd2cbd1e662e1bb69f4b",
+      "alg": "ed25519",
+      "public_key": "qDkh8yG9scBh2oNBwUG7AOnRXsvFlUvWBEymloZW9P4",
+      "created_at": "2026-09-17T16:26:56Z",
+      "revoked_at": "2026-09-17T17:18:03Z",
+      "role": "build"
+    },
+    {
+      "key_id": "ed25519:b0865d76d834a52c48506414d16f4e5a",
+      "alg": "ed25519",
+      "public_key": "IXwjiSCqMFWyDqvQC2aD6BSVTyLVLT47EwKRpwjoYpc",
+      "created_at": "2026-09-17T17:18:05Z",
+      "revoked_at": null,
+      "role": "build"
+    }
+  ],
+  "endorsements": [
+    {
+      "attestation_url": "https://documentdrivendx.github.io/helix/.well-known/innsigle/endorsements/ed25519-b0865d76d834a52c48506414d16f4e5a.attestation.json",
+      "subject_key_id": "ed25519:b0865d76d834a52c48506414d16f4e5a",
+      "subject_key_url": "https://documentdrivendx.github.io/helix/.well-known/innsigle/keys.json",
+      "issued_at": "2026-09-17T17:18:26Z"
+    }
+  ]
+}
