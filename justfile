@@ -135,9 +135,9 @@ test-headline-sync:
 innsigle-seal *ARGS:
     bash scripts/innsigle-seal.sh {{ARGS}}
 
-# One-time: create the CI build key (public half into keys.json, id into config.json)
-innsigle-build-key:
-    bash scripts/innsigle-build-key.sh
+# One-time: create the CI build key (public half into keys.json, id into config.json); --rotate revokes and replaces it
+innsigle-build-key *ARGS:
+    bash scripts/innsigle-build-key.sh {{ARGS}}
 
 # Human key endorses the build key so verifiers who pin the house key recognize CI seals
 innsigle-endorse:

@@ -11,10 +11,11 @@
 # key as the INNSIGLE_BUILD_KEY GitHub secret and endorse it with the human
 # key (`just innsigle-endorse`).
 #
-# Run it once, from the repo root. It refuses to run twice; to rotate, remove
-# keys.build from config.json and the build entry from keys.json first (and
-# mark the old key revoked_at rather than deleting it if any claim was ever
-# published with it).
+# Run it once, from the repo root. It refuses to run twice unless --rotate is
+# given: rotation marks the current build key revoked_at in keys.json (never
+# deleted; published claims may name it), drops its endorsement, moves the
+# local PEMs aside, and mints a replacement. After a rotation the secret must
+# be replaced and the new key endorsed again.
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "$0")/.." && pwd)"
@@ -28,9 +29,23 @@ repo_slug="DocumentDrivenDX/helix"
 command -v jq >/dev/null || { echo "ERROR: jq required" >&2; exit 1; }
 [ -f "$config" ] || { echo "ERROR: $config not found" >&2; exit 1; }
 [ -f "$keys_json" ] || { echo "ERROR: $keys_json not found" >&2; exit 1; }
-if [ "$(jq -r '.keys.build.key_id // empty' "$config")" != "" ]; then
-  echo "ERROR: $config already has keys.build ($(jq -r '.keys.build.key_id' "$config")); see the header of this script to rotate" >&2
+rotate=0; [ "${1:-}" = "--rotate" ] && rotate=1
+old_id="$(jq -r '.keys.build.key_id // empty' "$config")"
+if [ -n "$old_id" ] && [ "$rotate" = 0 ]; then
+  echo "ERROR: $config already has keys.build ($old_id); pass --rotate to revoke it and mint a replacement" >&2
   exit 1
+fi
+if [ "$rotate" = 1 ]; then
+  [ -n "$old_id" ] || { echo "ERROR: --rotate given but $config has no keys.build" >&2; exit 1; }
+  now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  tmp="$(mktemp)"
+  jq --arg id "$old_id" --arg now "$now" '
+    .keys |= map(if .key_id == $id and .revoked_at == null then . + {revoked_at: $now} else . end)
+    | .endorsements = [(.endorsements // [])[] | select(.subject_key_id != $id)]
+  ' "$keys_json" > "$tmp" && mv "$tmp" "$keys_json"
+  rm -f ".innsigle/public/endorsements/$(printf '%s' "$old_id" | sed -E 's/[^a-zA-Z0-9]+/-/g').attestation.json"
+  [ -d "$key_dir" ] && mv "$key_dir" "$key_dir.revoked-$(date -u +%Y%m%dT%H%M%SZ)"
+  echo "revoked build key $old_id (keys.json revoked_at=$now; endorsement dropped; local PEMs moved aside)"
 fi
 [ -e "$key_dir/ed25519.priv.pem" ] && { echo "ERROR: $key_dir/ed25519.priv.pem already exists" >&2; exit 1; }
 
