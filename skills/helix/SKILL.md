@@ -194,8 +194,8 @@ content into the repository does not thereby become repo-authored.
 `authoring.origin` is the write surface for the life of the document. Editing
 the Markdown forks the artifact from its authoring home, and the fork is
 silent — the next check-in overwrites it. Route the change to the tool and
-report that you did; this is the §4 Edit-not-Write rule taken one step further,
-because here even `Edit` is the wrong surface.
+report that you did; this extends the §5 prefer-in-place-edit rule one step
+further, because here even an in-place edit is the wrong surface.
 
 **Treat `state: checked-out` content as undependable.** Before the first
 check-in the body carries identity and description only; after a later checkout
