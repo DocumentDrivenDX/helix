@@ -301,7 +301,9 @@ Prefer `repo` when the classification is unclear. A document wrongly marked
 wrongly marked `external-tool` routes every future edit through a checkout
 cycle it never needed.
 
-When `home: repo`, no other `authoring` field is permitted.
+When `home: repo`, no other `authoring` field is permitted except `export`,
+which for a repo-authored artifact lists rendered-output paths (for example a
+deliverable's `.pptx` and `.pdf`) rather than a checkout copy.
 
 #### External-tool fields
 
@@ -312,6 +314,7 @@ When `home: repo`, no other `authoring` field is permitted.
 | `authoring.origin` | string | yes | URL of the document in the external tool. Permanent: it remains the write surface after content lands. |
 | `authoring.export` | string | after first check-in | Repository-relative path to the committed original file exported from the tool. A path, not a URL. |
 | `authoring.connector` | string | no | Identifier of the host connector (for example `google-docs`, `notion`, `jira`) through which a runtime may read the live document at `authoring.origin`. A read surface only; writes still happen in the tool. |
+| `authoring.export_sha256` | string | no | SHA-256 of the file at `authoring.export`, recorded by the check-in that wrote the body. Lowercase hex, 64 characters, no `sha256:` prefix. Only meaningful alongside `export`. |
 
 | `state` | Meaning |
 | --- | --- |
@@ -321,15 +324,31 @@ When `home: repo`, no other `authoring` field is permitted.
 `state` is terminal in neither direction. A `checked-in` document returns to
 `checked-out` for its next revision and reuses the same `origin` and `export`.
 Checking a document out again never deletes content the repository already
-has — the body and `export` from the previous check-in remain until the next
-one replaces them.
+has — the body, `export`, and `export_sha256` from the previous check-in
+remain until the next one replaces them.
+
+`export_sha256` is what makes the `checked-in` row checkable. That row claims
+the body matches the external document; the digest pins the claim to a
+specific file, so a consumer that recomputes the digest of `export` and gets a
+different value knows the export moved without a check-in and the body beneath
+it is stale. Without the digest the claim is only an assertion, and a stale
+body is indistinguishable from a current one.
+
+The field is optional and its absence is not a defect. Artifacts checked in
+before it existed carry none, and a check-in that records no digest is still a
+check-in — a consumer treats a missing digest as unknown, not as mismatched.
+What the digest does not cover is `origin`: nothing in the repository can
+prove the body still matches the external document, because the tool is free
+to move on the moment a check-in finishes. It covers the link the repository
+owns, between the body and the export it was taken from.
 
 Operational state does not belong in `authoring`. Who holds a checked-out
 document, when they took it, and when they expect to return it are tracker or
 pull-request concerns, under the same exclusion that applies to queue claims
 and assignees.
 
-Example, checked out:
+Example, checked out before any check-in — no content has landed, so there is
+no `export` and nothing to digest:
 
 ```yaml
 ddx:
@@ -356,6 +375,24 @@ ddx:
     tool: google-slides
     origin: https://docs.google.com/presentation/d/1AbC.../edit
     export: docs/helix/02-design/solution-designs/assets/SD-004-prebill-review.pptx
+    export_sha256: 7f87529ecaf9bf3fc08b9c050489470234f33d4bd202ff2edfcae08df3885ead
+```
+
+Example, checked out again for a revision — `export` and `export_sha256` still
+describe the previous check-in, which is the last copy the repository holds:
+
+```yaml
+ddx:
+  id: SD-004
+  type: solution-design
+  status: draft
+  authoring:
+    home: external-tool
+    state: checked-out
+    tool: google-slides
+    origin: https://docs.google.com/presentation/d/1AbC.../edit
+    export: docs/helix/02-design/solution-designs/assets/SD-004-prebill-review.pptx
+    export_sha256: 7f87529ecaf9bf3fc08b9c050489470234f33d4bd202ff2edfcae08df3885ead
 ```
 
 #### Dependability of a checked-out artifact
