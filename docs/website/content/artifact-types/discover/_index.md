@@ -21,5 +21,6 @@ Validate that an opportunity is worth pursuing before committing to a developmen
   {{< card link="data-flow-analysis/" title="Data Flow Analysis" subtitle="As-is documentation of one existing business process or data flow: its actors, sources, sinks, data structures, transformations, and constraints, captured duri…" >}}
   {{< card link="opportunity-canvas/" title="Opportunity Canvas" subtitle="Discover synthesis gate for problem, customer, value, solution concept, metrics, advantage, and go/no-go readiness." >}}
   {{< card link="resource-summary/" title="Resource Summary" subtitle="Concise summary of an external resource used to ground HELIX artifact guidance. Captures what the source says, why it matters, and how far its authority extend…" >}}
+  {{< card link="current-state-inventory/" title="Current-State Inventory" subtitle="Register of the systems, tools, platforms and capabilities an organization already has, each carrying an evidence grade that separates what a named source atte…" >}}
   {{< card link="market-analysis/" title="Market Analysis" subtitle="Multi-source market sizing, growth, and strategic-implications synthesis for a candidate opportunity. Grounds later competitive positioning and investment deci…" >}}
 {{< /cards >}}

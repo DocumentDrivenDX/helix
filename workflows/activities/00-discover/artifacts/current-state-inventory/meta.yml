@@ -1,0 +1,91 @@
+# Metadata for Current-State Inventory
+
+artifact:
+  name: Current-State Inventory
+  id: current-state-inventory
+  type: document
+  activity: discover
+
+voice: artifact-signal
+
+description: |
+  Register of the systems, tools, platforms and capabilities an organization
+  already has, each carrying an evidence grade that separates what a named
+  source attests from what is merely claimed. Captured during Discover to
+  ground architecture and modernization decisions in the estate as it is.
+  One instance covers one estate or domain; it is a survey, never a target.
+
+output:
+  location: docs/helix/00-discover/current-state-inventory-[estate-name].md
+  format: markdown
+  naming: "current-state-inventory-[estate-name].md"
+
+validation:
+  required_sections:
+    - scope_and_boundary
+    - evidence_grades
+    - inventory
+    - totals
+    - open_questions
+
+  quality_checks:
+    - check: every_entry_graded
+      description: Every inventory entry carries exactly one evidence grade from the declared vocabulary
+      severity: blocking
+
+    - check: evidenced_entries_cite_a_source
+      description: Every entry graded Evidenced names a source and a date; an uncited Evidenced entry is Assumed
+      severity: blocking
+
+    - check: grade_vocabulary_declared
+      description: The evidence-grade vocabulary is stated in the artifact, so a reader can tell what each grade licenses
+      severity: blocking
+
+    - check: totals_computed_not_carried
+      description: Grade totals are tallied from the inventory in this revision, never copied forward from a previous one
+      severity: blocking
+
+    - check: scope_boundary_stated
+      description: What the inventory covers and what it deliberately excludes are both stated
+      severity: warning
+
+    - check: unevidenced_share_surfaced
+      description: The proportion of entries with no evidence is stated plainly rather than left for the reader to count
+      severity: warning
+
+    - check: no_target_state
+      description: The inventory records what exists; target state, recommendations and decisions live in architecture, ADRs and designs
+      severity: warning
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+example:
+  file: example.md
+
+workflow:
+  creation_order: 3
+  review_cycles: 1
+  approval_required: false
+  approvers:
+    - Technical Lead
+
+relationships:
+  informs:
+    - architecture
+    - feasibility-study
+    - business-case
+    - prd
+
+tags:
+  - discovery
+  - as-is
+  - inventory
+  - evidence
+  - modernization
+
+version: 1.0.0
+last_updated: 2026-09-19
