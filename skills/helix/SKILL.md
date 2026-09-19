@@ -173,6 +173,96 @@ Never rewrite unknown frontmatter keys. When editing a body, preserve
 (`relationships:`, `depends_on:`) keys byte-equivalent and in order. Legacy →
 new key translation is explicit migration work, never a side effect.
 
+### 8. Externally authored artifacts (the checkout cycle)
+
+`ddx.authoring.home` says where an instance is authored. `repo` means the
+Markdown file **is** the document. `external-tool` means the document lives in
+a collaboration tool and the file carries its identity plus, after a check-in,
+a copy of its content. Field definitions are normative in
+`workflows/artifact-schema.md` (Authoring home); the working practice is in
+`workflows/conventions.md`.
+
+**Default to `repo`.** Choose `external-tool` only on a demonstrated need for
+heavy human manipulation of format or content — a canvas iterated live in a
+workshop, a deck whose layout is part of the deliverable. Collaboration is not
+the test: a document several people contribute to that could have been written
+in Markdown is `repo`. `home` is fixed at creation. Changing it is a deliberate
+migration, never a side effect of an edit, and a document that later copies its
+content into the repository does not thereby become repo-authored.
+
+**Never edit an `external-tool` body to change its content.**
+`authoring.origin` is the write surface for the life of the document. Editing
+the Markdown forks the artifact from its authoring home, and the fork is
+silent — the next check-in overwrites it. Route the change to the tool and
+report that you did; this extends the §5 prefer-in-place-edit rule one step
+further, because here even an in-place edit is the wrong surface.
+
+**Treat `state: checked-out` content as undependable.** Before the first
+check-in the body carries identity and description only; after a later checkout
+it is the previous copy, which the tool has moved past. Do not quote a
+checked-out artifact as current, do not set `ddx.status: approved` on one, and
+do not approve anything that depends on one. Surface the checkout instead:
+name the artifact, its `origin`, and what it blocks.
+
+**Read `state: checked-in` bodies as the read surface.** A checked-in body is
+what consumers resolve against; `authoring.export` is the committed original it
+came from and `authoring.export_sha256`, when present, is that file's digest at
+check-in. If the digest no longer matches the export, the body is stale: say
+so and route to a fresh check-in rather than reasoning from it. A missing
+digest means unknown, not mismatched.
+
+**`state` is terminal in neither direction.** A checked-in document returns to
+`checked-out` for its next revision, reusing the same `origin`, `export`, and
+`export_sha256`; checking out again never deletes content the repository
+already holds. A check-in is one change carrying the body, the export file, the
+digest, and the `state` flip together — splitting them leaves the frontmatter
+and the body disagreeing. Checking in does not approve the document; it makes
+approval possible.
+
+Producing a check-in body from an external document is a runtime capability.
+If the runtime offers none, say so and leave `state` alone. Hand-transcribing
+content and flipping `state: checked-in` claims a fidelity the repository
+cannot back.
+
+## Concern slot resolution
+
+A **slot** is an exclusive functional position a project must fill exactly
+once (one frontend framework, one language runtime, one e2e tool, one auth
+backend). Slots are declared in the shipped catalog at `concerns/slots.yml`, resolved
+via §Catalog Resolution — the in-tree `workflows/concerns/slots.yml` when a
+vendored tree is present, otherwise the `references/concerns/slots.yml` floor
+beside this SKILL.md (which always resolves). The file declares exclusive slots
+plus shipped defaults; membership in a slot is **derived** from each concern's
+own `## Slot` section, never listed in `slots.yml`.
+
+For every needed exclusive slot, resolve the filler in this fixed order
+(first match wins):
+
+1. **Operator override** — `docs/helix/01-frame/concerns.local.yml` in the
+   project tree. Read this BEFORE concerns.md exists, during high-autonomy
+   concern selection.
+2. **Shipped default** — the `defaults:` map in `slots.yml`.
+3. **Recorded assumption** — if neither source resolves, infer from the
+   product's nature and record it as an assumption in `concerns.md`.
+
+Exclusive slots and their shipped defaults (current `slots.yml`):
+
+| Slot | Shipped default |
+|---|---|
+| `frontend-framework` | `react-nextjs` |
+| `language-runtime` | `typescript-bun` |
+| `e2e-framework` | `e2e-playwright` |
+| `auth-provider` | `auth-local-sessions` |
+| `datastore` | — (no default; select on signal) |
+| `deploy-target` | — (no default; select on signal) |
+| `architecture-style` | — (no default; select on signal) |
+
+**Contract**: select each needed slot **once per session** during §Frame
+step 2, and record the chosen filler PLUS its source (`operator-override`,
+`shipped-default`, or `assumption`) in `concerns.md`. Propagation to work
+items and downstream artifacts is a later gate (owned by `check`/`polish`),
+never a re-selection.
+
 ## Routing Rules
 
 Prefer the first matching route:

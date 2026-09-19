@@ -21,6 +21,11 @@ Run these two commands inside a Claude Code session:
 /plugin install helix@helix
 ```
 
+Claude Desktop and claude.ai offer the same flow through a GUI, with no
+session needed: open **Settings → Plugins → Discover**, click **Add → Add
+marketplace**, enter `DocumentDrivenDX/helix` as the repository, and click
+**Sync**. Find `helix` in the resulting list and click **Install** next to it.
+
 For automation or a Dockerfile, use the scripted CLI equivalent:
 
 ```bash
