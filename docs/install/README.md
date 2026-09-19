@@ -171,6 +171,11 @@ Inside a session:
 /plugin install helix@helix
 ```
 
+GUI (Claude Desktop or claude.ai, no session needed): open
+**Settings → Plugins → Discover**, click **Add → Add marketplace**, enter
+`DocumentDrivenDX/helix` as the repository, and click **Sync**. Find `helix`
+in the resulting list and click **Install** next to it.
+
 Scripted (Dockerfile or CI):
 
 ```bash
