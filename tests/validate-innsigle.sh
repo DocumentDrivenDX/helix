@@ -11,17 +11,27 @@
 #   generated page (`generated: true`)   -> claim signed by the BUILD key
 # and, once a build key is configured, that the human key has endorsed it.
 #
-# Build side — the site is built here with hugo stderr captured; any warning
-# starting with "innsigle:" (the partial refusing to render a stale seal)
-# fails. Then website/public must serve /.well-known/innsigle/keys.json and
-# every sealed page's HTML must carry the colophon quoting its attestation.
+# Build side — the site is built here with hugo stderr captured; a warning
+# starting with "innsigle:" that says a page's seal is stale (edited since
+# sealing) is reported but does not fail — that is just unsigned content,
+# not a broken one. Other "innsigle:" warnings (unreadable source, unsupported
+# digest) do fail. Then website/public must serve /.well-known/innsigle/keys.json
+# and every sealed page's HTML must carry the colophon quoting its attestation.
+#
+# Unsigned content is not a build blocker: a curated page that was never sealed
+# or was edited since its last seal (STALE) only warns, everywhere, including
+# CI — sealing requires the human key (1Password, never in CI), so a
+# contributor without desktop access to it cannot be blocked from merging.
+# What still fails the build is evidence of a broken or wrong signature: a
+# claim signed by the wrong key, an orphaned/ambiguous claim, or a claim the
+# CLI cannot parse.
 #
 # Strictness. Build-key claims are minted by CI, not committed, so:
-#   INNSIGLE_REQUIRED=1 (CI)  every page must be sealed and rendered, and the
-#                             build key must exist and be endorsed
-#   otherwise (a laptop)      curated pages must be sealed; generated pages may
-#                             be unsealed unless INNSIGLE_BUILD_KEY is set;
-#                             a missing endorsement is a warning
+#   INNSIGLE_REQUIRED=1 (CI)  generated pages must be sealed and rendered, and
+#                             the build key must exist and be endorsed
+#   otherwise (a laptop)      generated pages may be unsealed unless
+#                             INNSIGLE_BUILD_KEY is set; a missing endorsement
+#                             is a warning
 # Fix curated pages with `just innsigle-seal`; see `just innsigle-build-key`
 # and `just innsigle-endorse` for the build key.
 set -euo pipefail
@@ -86,7 +96,8 @@ trap 'rm -f "$report" "$cli_err"' EXIT
 bash scripts/innsigle-cli.sh verify --all >"$report" 2>"$cli_err" || true
 grep -q '^INVALID: no \|^INVALID: cannot' "$cli_err" && { echo "FAIL: innsigle verify --all could not run:" >&2; cat "$cli_err" >&2; exit 1; }
 
-valid=0 broken=0 unsealed_curated=0 unsealed_generated=0 policy=0
+valid=0 broken=0 stale=0 unsealed_curated=0 unsealed_generated=0 policy=0
+stale_srcs="$(mktemp)"
 while IFS= read -r line; do
   case "$line" in
     "VALID all "*) ;;
@@ -108,14 +119,19 @@ while IFS= read -r line; do
         unsealed_generated=$((unsealed_generated+1))
         [ "$have_build" = 1 ] && [ "$unsealed_generated" -le 20 ] && echo "UNSEALED: $src (generated; the build key should have sealed it)" >&2
       else
-        unsealed_curated=$((unsealed_curated+1)); [ "$unsealed_curated" -le 20 ] && echo "UNSEALED: $src (curated; run just innsigle-seal)" >&2
+        unsealed_curated=$((unsealed_curated+1)); [ "$unsealed_curated" -le 20 ] && echo "WARN: $src is curated and unsealed (run just innsigle-seal when you can)" >&2
       fi ;;
-    *) echo "$line" >&2; broken=$((broken+1)) ;;  # STALE, ORPHAN, AMBIGUOUS, INVALID(reason)
+    "STALE "*)
+      src="${line#STALE }"; src="${src% (*}"
+      stale=$((stale+1)); echo "$src" >> "$stale_srcs"
+      [ "$stale" -le 20 ] && echo "WARN: $src claim is stale (edited since sealing?) — run just innsigle-seal when you can" >&2 ;;
+    *) echo "$line" >&2; broken=$((broken+1)) ;;  # ORPHAN, AMBIGUOUS, INVALID(reason)
   esac
 done < "$report"
 [ "$unsealed_curated" -gt 20 ] && echo "... and $((unsealed_curated-20)) more unsealed curated pages" >&2
-echo "claims: $valid valid, $broken stale/orphan/invalid, $policy wrong key, $unsealed_curated curated unsealed, $unsealed_generated generated unsealed"
-[ $((broken+policy+unsealed_curated)) -eq 0 ] || fail=1
+[ "$stale" -gt 20 ] && echo "... and $((stale-20)) more stale claims" >&2
+echo "claims: $valid valid, $stale stale (warn), $broken orphan/ambiguous/invalid, $policy wrong key, $unsealed_curated curated unsealed (warn), $unsealed_generated generated unsealed"
+[ $((broken+policy)) -eq 0 ] || fail=1
 if [ "$unsealed_generated" -gt 0 ]; then
   if [ "$have_build" = 1 ]; then fail=1
   else echo "note: generated pages are sealed by the build key in CI; set INNSIGLE_BUILD_KEY to seal them here" >&2; fi
@@ -124,12 +140,18 @@ fi
 # --- build side -------------------------------------------------------------------------------------
 echo "Building site..."
 hugo_err="$(mktemp)"
-trap 'rm -f "$report" "$cli_err" "$hugo_err"' EXIT
+trap 'rm -f "$report" "$cli_err" "$stale_srcs" "$hugo_err"' EXIT
 (cd website && hugo --gc --minify --baseURL "$base_url" >/dev/null 2>"$hugo_err") || {
   echo "FAIL: hugo build failed" >&2; cat "$hugo_err" >&2; exit 1; }
-if grep -q 'innsigle:' "$hugo_err"; then
+stale_warn="$(grep 'innsigle:' "$hugo_err" | grep 'no longer matches its seal' || true)"
+other_warn="$(grep 'innsigle:' "$hugo_err" | grep -v 'no longer matches its seal' || true)"
+if [ -n "$stale_warn" ]; then
+  echo "WARN: hugo skipped rendering stale seals (run just innsigle-seal when you can):" >&2
+  echo "$stale_warn" >&2
+fi
+if [ -n "$other_warn" ]; then
   echo "FAIL: hugo reported innsigle warnings:" >&2
-  grep 'innsigle:' "$hugo_err" >&2
+  echo "$other_warn" >&2
   fail=1
 fi
 
@@ -150,6 +172,9 @@ while IFS= read -r -d '' f; do
   if [ ! -f "$claims_dir/$slug.attestation.json" ]; then
     unsealed_pages=$((unsealed_pages+1)); continue  # already accounted for on the source side
   fi
+  if grep -Fxq "$f" "$stale_srcs"; then
+    unsealed_pages=$((unsealed_pages+1)); continue  # stale claim, already warned on the source side
+  fi
   case "$rel" in
     _index.md) page="index.html" ;;
     */_index.md) page="${rel%/_index.md}/index.html" ;;
@@ -168,7 +193,7 @@ echo "rendered: $rendered pages quoting their seal, $unrendered sealed pages wit
 [ "$unrendered" -eq 0 ] || fail=1
 
 if [ "$fail" -ne 0 ]; then
-  echo "FAIL: Innsigle seal gate. Curated pages: \`just innsigle-seal\` and commit .innsigle/public/. Generated pages: sealed by CI with the build key." >&2
+  echo "FAIL: Innsigle seal gate found a broken or wrong-key signature (see WRONG KEY / ORPHAN / AMBIGUOUS / INVALID lines above), not just unsigned content." >&2
   exit 1
 fi
 echo "OK: every sealed page verifies and renders its seal"
