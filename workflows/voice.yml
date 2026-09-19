@@ -47,8 +47,10 @@ profiles:
       - Name assumptions, unknowns, blockers, and non-goals explicitly.
       - Prefer short paragraphs, compact tables, and bounded bullets over narrative buildup.
       - Keep specifications focused on intent; track implementation gaps in plans, reports, or work items.
+      - Define every external standard, vendor term, or acronym on first use in each artifact (name, owner, what it is), and link the project's resource summary for it when one exists. A term the reader cannot expand reads as invented, whatever its provenance.
     avoid:
       - implementation-status language in specifications
+      - an external standard or acronym named as if the reader already owned it
       - marketing copy
       - generic methodology exposition
       - hedged filler such as "it is important to note"

@@ -38,6 +38,21 @@ govern what the skill should surface as prerequisites at authoring time.
    `ddx.links` entry is a deliberate authoring decision, never a mechanical
    projection of a graph edge.
 
+## External standards named in an artifact
+
+Before drafting, list the external standards, vendor products, or acronyms the
+artifact will name. For each one:
+
+1. Look for its resource summary at `docs/resources/<slug>.md` in the project.
+   If none exists, note "consider also drafting" a `resource-summary`; this
+   does not block the artifact, but the artifact must still define the term on
+   first use (name, owner, what it is) rather than assume the reader owns it.
+2. If the artifact attributes a vocabulary, code set, or identifier list to the
+   standard, take it from the standard's published file by tooling and record
+   the file, release, and branch it came from. Do not write labels from memory,
+   and mark the project's own terms as project-defined.
+3. Link the resource summary from the first use once it exists.
+
 Graph consultation is **per-authoring**, not per-session: re-consult on every
 new artifact request because the instance scope may have changed since the
 previous turn (operator-side edits, parallel work, evolve passes).
