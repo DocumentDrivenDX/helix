@@ -31,6 +31,10 @@ nodes:
   type: library:competitive-analysis
   activity: 00-discover
   cardinality: many
+- id: current-state-inventory
+  type: library:current-state-inventory
+  activity: 00-discover
+  cardinality: many
 - id: data-flow-analysis
   type: library:data-flow-analysis
   activity: 00-discover
@@ -257,6 +261,22 @@ edges:
   kind: informs
   required: false
 - from: competitive-analysis
+  to: prd
+  kind: informs
+  required: false
+- from: current-state-inventory
+  to: architecture
+  kind: informs
+  required: false
+- from: current-state-inventory
+  to: business-case
+  kind: informs
+  required: false
+- from: current-state-inventory
+  to: feasibility-study
+  kind: informs
+  required: false
+- from: current-state-inventory
   to: prd
   kind: informs
   required: false
