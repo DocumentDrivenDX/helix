@@ -60,6 +60,24 @@ Use tight vocabulary:
   changing a decision, trace link, acceptance criterion, or next action, delete
   it.
 
+External standards and terminology:
+
+- Define every external standard, vendor term, or acronym on first use in each
+  artifact: name, owner, what it is, and licence where it matters. Canonical
+  HELIX terms are exempt; everything the project imports from outside is not.
+  "Terms of art the audience owns" means terms the reader uses daily, not terms
+  that exist somewhere.
+- A standard an artifact grounds on gets a `resource-summary` under
+  `docs/resources/<slug>.md` (source, summary, findings reused, HELIX usage,
+  authority boundary). Later artifacts link the summary on first use instead of
+  re-explaining the standard.
+- A vocabulary, code set, or identifier list attributed to a standard is
+  generated from the standard's published file, scoped to the right branch or
+  code set, and resolved by tooling. Never transcribe it from memory: labels
+  written from a careful reading of a standard have been measured wrong about a
+  quarter of the time. Terms the project owns are marked as project-defined,
+  not passed off as the standard's.
+
 Artifact prompts may add type-specific style rules, but they must preserve this
 contract. Public website prose may add stricter editorial rules through the
 `public-site` profile; it must not weaken the methodology-level requirement for

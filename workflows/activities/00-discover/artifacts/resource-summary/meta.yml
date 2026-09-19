@@ -27,10 +27,19 @@ validation:
     - helix_usage
     - authority_boundary
 
+  pattern_checks:
+    - pattern: "https?://"
+      expected: ">=1"
+      message: Source must carry at least one URL
+
   quality_checks:
     - check: source_url_present
       description: Source URL is named and linked
       severity: blocking
+
+    - check: definition_reusable
+      description: Summary opens with a one-sentence definition other artifacts reuse when they name the source on first use
+      severity: warning
 
     - check: summary_concise
       description: Summary captures the useful idea without reproducing the source
