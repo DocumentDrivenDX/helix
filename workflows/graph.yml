@@ -269,11 +269,11 @@ edges:
   kind: informs
   required: false
 - from: current-state-inventory
-  to: business-case
+  to: feasibility-study
   kind: informs
   required: false
 - from: current-state-inventory
-  to: feasibility-study
+  to: business-case
   kind: informs
   required: false
 - from: current-state-inventory
