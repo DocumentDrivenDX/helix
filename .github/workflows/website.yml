@@ -77,11 +77,20 @@ jobs:
       - name: Seal generated pages (build key)
         # Generated pages (`generated: true`) are sealed here with the CI build key, never committed;
         # curated pages carry committed claims from the human key (Innsigle ADR-004). The secret is the
-        # PEM produced by `just innsigle-build-key`.
+        # PEM produced by `just innsigle-build-key`. Forked pull requests never receive repository
+        # secrets (GitHub's fork isolation), so generated pages stay unsealed there; the gate below
+        # drops to non-strict mode in that case instead of hard-failing every external contribution.
         env:
           INNSIGLE_BUILD_KEY: ${{ secrets.INNSIGLE_BUILD_KEY }}
         run: |
-          [ -n "$INNSIGLE_BUILD_KEY" ] || { echo "::error::INNSIGLE_BUILD_KEY secret is not set; run just innsigle-build-key and store the PEM as a repository secret"; exit 1; }
+          if [ -z "$INNSIGLE_BUILD_KEY" ]; then
+            if [ "${{ github.event.pull_request.head.repo.fork }}" = "true" ]; then
+              echo "::notice::INNSIGLE_BUILD_KEY unavailable on a forked pull request; generated pages stay unsealed for this run."
+              exit 0
+            fi
+            echo "::error::INNSIGLE_BUILD_KEY secret is not set; run just innsigle-build-key and store the PEM as a repository secret"
+            exit 1
+          fi
           bash scripts/innsigle-seal.sh --role build
 
       - name: Build site (Hugo)
@@ -96,7 +105,7 @@ jobs:
         # without Hugo or the CLI and tolerates unsealed generated pages; here every page must be
         # sealed by the right key and the build key must be endorsed.
         env:
-          INNSIGLE_REQUIRED: "1"
+          INNSIGLE_REQUIRED: ${{ secrets.INNSIGLE_BUILD_KEY != '' && '1' || '0' }}
         run: bash tests/validate-innsigle.sh
 
       - name: Check internal links + images
