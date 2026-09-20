@@ -5,7 +5,7 @@ weight: 1
 
 The five HELIX principles below serve as core decision-making guidelines for software teams when defining goals, delegating tasks to AI agents, verifying work, and adapting to real-world feedback.
 
-These principles are far from sequential, nor do they prescribe local workflow practices. They are intended to help teams choose between approaches that may both appear reasonable but lead to different outcomes. Each principle has a dedicated page that explains its meaning, consequences, and trade-offs. 
+These principles are far from sequential, nor do they prescribe local workflow practices. They are intended to help teams choose between approaches that may both appear reasonable but lead to different outcomes.
 
 ## The HELIX manifesto 
 
@@ -29,8 +29,6 @@ Human authority defines the boundaries of that autonomy. Humans define the goal,
 
 The balance can also change as work moves between planning and execution. Humans may take the lead when defining intent or resolving ambiguity, while agents may take the lead during well-defined implementation or verification work. New evidence can change that balance again. In the double-helix model, human and agent participation can vary throughout the project according to what the work requires.
 
-[Read the full principle](human-authority/).
-
 ## E: Evidence over confidence
 
 > Confidence in quality comes from validation instead of how certain an agent sounds.
@@ -45,8 +43,6 @@ Verification must check both whether the result works and whether it remains ali
 
 HELIX builds quality confidence from evidence rather than relying on hallucinated confidence from the system that produced the work. 
 
-[Read the full principle](evidence-over-confidence/).
-
 ## L: Linked artifacts over isolated or ephemeral plans
 
 > Project knowledge should live in connected artifacts that evolve with the code.
@@ -60,8 +56,6 @@ The artifact graph must evolve with the code. If implementation changes while th
 Linked artifacts also make context easier to select. An agent does not need every document in the repository for every task. Artifact relationships, flow scopes, domain lanes, and authority rules help it find the relevant context without treating the entire project as one large prompt.
 
 Because this knowledge lives in the artifact graph rather than inside a specific model, agent, tracker, or runtime, it remains portable. Teams can change tools or execution platforms without rebuilding the project's intent, architecture, and decision history around a new system. HELIX defines the artifact relationships and authority rules; individual runtimes supply their own commands, queues, and tracker integrations.
-
-[Read the full principle](linked-artifacts/).
 
 ## I: Intent over inference
 
@@ -81,8 +75,6 @@ HELIX organizes artifacts by abstraction and authority:
 
 When artifacts disagree, the team must identify and reconcile the conflict. Evidence from implementation may justify revising a requirement or specification, but the team must make that change explicitly and update the affected artifacts. An agent must not treat existing behavior as intended behavior merely because the code already implements it.
 
-[Read the full principle](intent-over-inference/).
-
 ## X: eXecution feedback over fixed plans
 
 > Planning guides execution, and execution continuously updates the plan.
@@ -98,8 +90,6 @@ That evidence flows back to the appropriate planning layer.
 HELIX responds to this feedback with the smallest sufficient intervention. New evidence should change only what needs to change: fix the implementation when the specification is still correct, revise the specification when the expected behavior was incomplete, or revisit a higher-level decision when the evidence shows that the underlying assumption no longer holds. 
 
 Plans remain useful because they guide execution. They remain current because execution can challenge and revise them as the project learns.
-
-[Read the full principle](execution-feedback/).
 
 ## How the principles work together
 
