@@ -57,12 +57,13 @@ test.describe('Why HELIX', () => {
     await expect(article(page).getByRole('link', { name: /Who it's for/ })).toBeVisible()
   })
 
-  test('principles page covers all eight', async ({ page }) => {
+  test('principles page covers all five', async ({ page }) => {
     await page.goto('/why/principles/')
-    await expect(page.getByRole('heading', { name: /1\.\s+Planning and execution/ })).toBeVisible()
-    await expect(page.getByRole('heading', { name: /3\.\s+The artifact authority hierarchy/ })).toBeVisible()
-    await expect(page.getByRole('heading', { name: /6\.\s+Autonomy is supervised/ })).toBeVisible()
-    await expect(page.getByRole('heading', { name: /8\.\s+Least power wins/ })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /H:\s+Human authority balanced with agentic autonomy/ })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /E:\s+Evidence over confidence/ })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /L:\s+Linked artifacts over isolated or ephemeral plans/ })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /I:\s+Intent over inference/ })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /X:\s+eXecution feedback over fixed plans/ })).toBeVisible()
   })
 
   test('thesis page describes the document method', async ({ page }) => {
