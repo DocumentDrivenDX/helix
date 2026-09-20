@@ -2,7 +2,7 @@
   "payload": {
     "innsigle": "1",
     "type": "https://innsigle.dev/claim/colophon/v1",
-    "issued_at": "2026-09-19T20:29:53Z",
+    "issued_at": "2026-09-20T14:49:41Z",
     "issuer": {
       "id": "helix",
       "name": "HELIX",
@@ -14,7 +14,7 @@
         "uri": "https://documentdrivendx.github.io/helix/why/principles/",
         "digest": {
           "alg": "sha256",
-          "value": "934b929330924cce3d384d40e45d12d3d1c42af98208fdb6f4f23fb336083466"
+          "value": "0a10abbe2f04f90ca506e4775454baac94aa82153ab7e0de938ae04fc9639593"
         }
       }
     ],
@@ -46,8 +46,8 @@
     {
       "key_id": "ed25519:d5a0b2d95482db5ff68fc8318a1ad4de",
       "alg": "ed25519",
-      "sig": "BY5p-3nekuNP9dTMrS-zHQBbLwIObLJgSn4LKNK5NEuW-aKC5509KHZShHId-GI-Fib3fMtyrbcGunBlT4PpCw",
-      "signed_at": "2026-09-19T20:29:53Z"
+      "sig": "4NYVVl64oQQ4a3IHofrgGHAT7wcB91hroxM3y5zXTv7OWsJoGp7cABUM5MuzwKwcxmsEUeO5zV8Okp41mJhOAg",
+      "signed_at": "2026-09-20T14:49:41Z"
     }
   ]
 }
