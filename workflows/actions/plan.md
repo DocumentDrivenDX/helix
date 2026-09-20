@@ -64,7 +64,11 @@ when they exist.
    decisions** (API shape, data model, pricing/cost, security/permissions,
    operational guarantees, decomposition); if any is **assumed**, spike it — even
    with a provider chosen and its live integration deferred. An operator-marked
-   "spike/unknown" is authoritative. Define a **`tech-spike`** (or
+   "spike/unknown" is authoritative. When the unknown is a third-party
+   candidate not yet chosen (a technology, product, or managed provider), write
+   a **`component-profile`** (00-discover) per candidate first — the public
+   record, cited, with a fit verdict — so the spike is spent only on what the
+   record cannot settle. Define a **`tech-spike`** (or
    `proof-of-concept`) and de-risk it
    first: a **bounded runnable** spike when feasible, else a recorded **blocked
    spike** (why it could not run, what was read/simulated, which decisions stay

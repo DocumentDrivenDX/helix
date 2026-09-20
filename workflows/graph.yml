@@ -31,6 +31,10 @@ nodes:
   type: library:competitive-analysis
   activity: 00-discover
   cardinality: many
+- id: component-profile
+  type: library:component-profile
+  activity: 00-discover
+  cardinality: many
 - id: current-state-inventory
   type: library:current-state-inventory
   activity: 00-discover
@@ -262,6 +266,22 @@ edges:
   required: false
 - from: competitive-analysis
   to: prd
+  kind: informs
+  required: false
+- from: component-profile
+  to: tech-spike
+  kind: informs
+  required: false
+- from: component-profile
+  to: adr
+  kind: informs
+  required: false
+- from: component-profile
+  to: architecture
+  kind: informs
+  required: false
+- from: component-profile
+  to: concerns
   kind: informs
   required: false
 - from: current-state-inventory

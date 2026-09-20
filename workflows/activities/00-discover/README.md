@@ -37,8 +37,13 @@ Criteria to proceed to Frame (defined in `GATE.yaml`):
 |----------|---------|-----------------|
 | Product Vision | Mission, direction, value props | `docs/helix/00-discover/product-vision.md` |
 | Business Case | Investment justification | `docs/helix/00-discover/business-case.md` |
+| Market Analysis | Market sizing, growth, strategic implications | `docs/helix/00-discover/market-analysis.md` |
 | Competitive Analysis | Market positioning | `docs/helix/00-discover/competitive-analysis.md` |
 | Opportunity Canvas | Problem-solution fit | `docs/helix/00-discover/opportunity-canvas.md` |
+| Current-State Inventory | Evidence-graded register of what already exists | `docs/helix/00-discover/current-state-inventory-[estate-name].md` |
+| Data Flow Analysis | As-is documentation of one business process or data flow | `docs/helix/00-discover/data-flow-analysis-[flow-name].md` |
+| Component Profile | Cited desk research on one candidate component, with a fit verdict | `docs/helix/00-discover/component-profile-[component-name].md` |
+| Resource Summary | Summary of an external source grounding HELIX guidance | `docs/resources/[resource-slug].md` |
 
 ## Process Flow
 
