@@ -271,6 +271,14 @@ selection by the active autonomy level (FEAT-011; see `workflows/actions/input.m
      when running is infeasible or unsafe (external/paid APIs, missing creds, long
      benchmarks) record a **blocked spike** — why it could not run, what was read
      or simulated instead, and which decisions stay **provisional**.
+   - **Third-party candidate not yet chosen?** When the capability would be
+     filled by a technology, product, or managed provider still under
+     consideration, write a **`component-profile`** (00-discover) per candidate
+     first: the public record, cited, with a fit verdict against the project's
+     vision and concerns. The profile is not a spike and does not by itself
+     meet the evidence bar below; it narrows the spike to what the record
+     cannot settle, and when the record settles the question alone it feeds
+     the ADR directly.
    - **Anti-reframe: "known" means EVIDENCED, not familiar.** A capability is
      "clear/low-risk" only when its design-defining facts are **evidenced** — by an
      operator statement, a governing artifact, an existing implementation, a

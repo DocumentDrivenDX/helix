@@ -1,0 +1,122 @@
+# Metadata for Component Profile
+
+artifact:
+  name: Component Profile
+  id: component-profile
+  type: document
+  activity: discover
+  optional: true
+
+voice: artifact-signal
+
+description: |
+  Desk research on one candidate stack component — a technology, product or
+  managed provider — consolidated from the public record with every claim
+  cited, and closed with a fit verdict against this project's vision, concerns
+  and open decisions. Written before a tech-spike or ADR so the spike tests
+  only what the record cannot settle. One instance per candidate; several
+  candidates for one decision are several profiles that an ADR compares.
+
+output:
+  location: docs/helix/00-discover/component-profile-[component-name].md
+  format: markdown
+  naming: "component-profile-[component-name].md"
+
+validation:
+  required_sections:
+    - scope
+    - what_it_is
+    - capabilities
+    - technology_and_operations
+    - pricing_and_licensing
+    - positioning
+    - fit_assessment
+    - confidence
+    - sources
+    - open_questions
+
+  pattern_checks:
+    - pattern: "https?://"
+      expected: ">=1"
+      message: Sources must carry at least one URL
+
+    - pattern: "\\*\\*Verdict\\*\\*:"
+      expected: ">=1"
+      message: "Fit Assessment must close with a **Verdict**: from the declared vocabulary"
+
+  quality_checks:
+    - check: claims_cite_sources
+      description: Every factual claim cites a numbered source, or is marked "Not published" or "Third-party estimate"; nothing rests on familiarity with the component
+      severity: blocking
+
+    - check: fit_verdict_stated
+      description: Fit Assessment closes with exactly one verdict from the declared vocabulary, and every fit row names the project artifact or decision it is measured against
+      severity: blocking
+
+    - check: confidence_graded_and_justified
+      description: The profile carries one confidence grade from the declared rubric, justified by naming which claims are corroborated, which rest on the maker alone, and which have no source
+      severity: blocking
+
+    - check: vocabularies_declared
+      description: The confidence rubric and the verdict vocabulary are stated in the artifact, so a reader can tell what each grade and verdict licenses
+      severity: blocking
+
+    - check: pricing_labelled
+      description: Every figure is labelled Published (with source and date) or Third-party estimate (naming who estimated); absent pricing says Not published, never a guess
+      severity: blocking
+
+    - check: no_hands_on_claims
+      description: No benchmark, prototype or integration result appears; the public record is the only evidence, and anything needing hands-on proof is an open question routed to a tech-spike
+      severity: warning
+
+    - check: sources_dated
+      description: Every source carries the date it was accessed
+      severity: warning
+
+    - check: positioning_links_siblings
+      description: Adjacent candidates named in Positioning link to their own profiles where those exist
+      severity: warning
+
+    - check: no_choice_made
+      description: The profile assesses one candidate's fit; the choice among candidates lives in an ADR that cites the profiles
+      severity: warning
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+example:
+  file: example.md
+
+workflow:
+  creation_order: 3.5
+  review_cycles: 1
+  approval_required: false
+  approvers:
+    - Technical Lead
+
+relationships:
+  informed_by:
+    - product-vision
+    - principles
+    - concerns
+    - architecture
+    - current-state-inventory
+
+  informs:
+    - tech-spike
+    - adr
+    - architecture
+    - concerns
+
+tags:
+  - discovery
+  - research
+  - component
+  - vendor
+  - evidence
+
+version: 1.0.0
+last_updated: 2026-09-20

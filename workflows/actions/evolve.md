@@ -177,7 +177,11 @@ For each affected artifact:
      uncertainty** — unknown/changing API, cost, permissions/credentials,
      correctness, or operational risk (true even for a known vendor: billing,
      marketplaces, send-time optimization, queue design) → define a **`tech-spike`**
-     and de-risk it before committing the design. Prefer a **bounded runnable**
+     and de-risk it before committing the design. When the technology is a
+     third-party candidate not yet chosen, write a **`component-profile`**
+     (00-discover) per candidate first — the public record, cited, with a fit
+     verdict against vision and concerns — so the spike covers only what the
+     record cannot settle. Prefer a **bounded runnable**
      spike when feasible; when running is infeasible/unsafe (external/paid APIs,
      missing creds, long benchmarks) record a **blocked spike** (why it could not
      run, what was read/simulated, which decisions stay provisional).

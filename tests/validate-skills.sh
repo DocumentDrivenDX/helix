@@ -6,9 +6,14 @@ skills_dir="$repo_root/skills"
 agents_package_dir="$repo_root/.agents/skills"
 claude_package_dir="$repo_root/.claude/skills"
 
-declare -A skills_requiring_argument_hint=(
-  [helix]=1
-)
+# Skills whose SKILL.md must carry an argument-hint. A function rather than
+# an associative array so the script runs under macOS's default bash 3.2.
+requires_argument_hint() {
+  case "$1" in
+    helix) return 0 ;;
+    *) return 1 ;;
+  esac
+}
 
 fail() {
   printf 'skill validation failed: %s\n' "$*" >&2
@@ -269,7 +274,9 @@ shopt -s nullglob
 skill_dirs=("$skills_dir"/helix "$skills_dir"/helix-*)
 [[ "${#skill_dirs[@]}" -gt 0 ]] || fail "no published skills found under $skills_dir"
 
-mapfile -t expected_skills < <(
+# bash 3.2 has no mapfile; read newline-separated lines into arrays instead.
+expected_skills=()
+while IFS= read -r line; do expected_skills+=("$line"); done < <(
   for path in "${skill_dirs[@]}"; do
     [[ -d "$path" ]] || continue
     printf '%s\n' "${path##*/}"
@@ -279,7 +286,8 @@ mapfile -t expected_skills < <(
 # Validate .agents/skills/ symlinks — only HELIX-published skills (helix*).
 # Other entries (e.g. ddx-* skills installed by the ddx runtime) are
 # runtime artifacts and intentionally ignored here.
-mapfile -t agents_published_skills < <(
+agents_published_skills=()
+while IFS= read -r line; do agents_published_skills+=("$line"); done < <(
   for path in "$agents_package_dir"/helix*; do
     [[ -e "$path" || -L "$path" ]] || continue
     printf '%s\n' "${path##*/}"
@@ -287,7 +295,8 @@ mapfile -t agents_published_skills < <(
 )
 
 # Validate .claude/skills/ symlinks — only HELIX-published skills (helix*).
-mapfile -t claude_published_skills < <(
+claude_published_skills=()
+while IFS= read -r line; do claude_published_skills+=("$line"); done < <(
   for path in "$claude_package_dir"/helix*; do
     [[ -e "$path" || -L "$path" ]] || continue
     printf '%s\n' "${path##*/}"
@@ -351,7 +360,7 @@ for name in "${expected_skills[@]}"; do
   fi
   [[ -n "$description" ]] || fail "missing description field in $skill_file"
 
-  if [[ -n "${skills_requiring_argument_hint[$name]:-}" && -z "$argument_hint" ]]; then
+  if requires_argument_hint "$name" && [[ -z "$argument_hint" ]]; then
     fail "missing argument-hint field in $skill_file"
   fi
 done
