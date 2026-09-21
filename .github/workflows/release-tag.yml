@@ -1,0 +1,92 @@
+name: Release auto-tag
+
+# On merge of a `chore(release): vX.Y.Z` PR to main, create and push the
+# release tag automatically from the version the manifests declare at the
+# merge commit. This removes the manual "create a GitHub release" step as
+# a place a tag can be created — which is how v0.13.2 got tagged against a
+# commit whose manifests still said 0.13.1 (release-version-guard.yml only
+# catches that after the tag already exists). With this workflow, a tag is
+# only ever created here, straight from the manifest that was just merged,
+# so it cannot precede a manifest bump.
+#
+# release-version-guard.yml stays in place as a backstop for any tag
+# pushed manually outside this flow (e.g. a hotfix).
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    if: >
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.title, 'chore(release):')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout merge commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          fetch-depth: 0
+
+      - name: Determine tag from PR title and manifests
+        id: version
+        run: |
+          TITLE=${{ toJSON(github.event.pull_request.title) }}
+          python3 - "$TITLE" <<'PY'
+          import json, re, sys, os
+
+          title = json.loads(sys.argv[1])
+          m = re.match(r'^chore\(release\): (v\d+\.\d+\.\d+)\b', title)
+          if not m:
+              print(f"::error::PR title does not start with 'chore(release): vX.Y.Z': {title!r}")
+              sys.exit(1)
+          title_tag = m.group(1)
+          title_version = title_tag[1:]
+
+          manifests = {
+              ".claude-plugin/plugin.json": lambda d: d["version"],
+              ".codex-plugin/plugin.json": lambda d: d["version"],
+              ".claude-plugin/marketplace.json":
+                  lambda d: next(p["version"] for p in d["plugins"] if p["name"] == "helix"),
+          }
+          bad = []
+          for path, get in manifests.items():
+              try:
+                  v = get(json.load(open(path)))
+              except (OSError, KeyError, StopIteration, json.JSONDecodeError) as e:
+                  bad.append(f"{path}: could not read version ({e})")
+                  continue
+              if v != title_version:
+                  bad.append(f"{path}: {v!r} != PR title version {title_version!r}")
+          if bad:
+              print("::error::manifest version(s) do not match the PR title, refusing to tag:")
+              for b in bad:
+                  print(f"::error::  {b}")
+              sys.exit(1)
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"tag={title_tag}\n")
+          print(f"OK: tagging {title_tag}")
+          PY
+
+      - name: Skip if tag already exists
+        id: check
+        run: |
+          if git rev-parse -q --verify "refs/tags/${{ steps.version.outputs.tag }}" >/dev/null; then
+            echo "::error::tag ${{ steps.version.outputs.tag }} already exists"
+            exit 1
+          fi
+
+      - name: Create and push tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "${{ steps.version.outputs.tag }}" \
+            -m "${{ github.event.pull_request.title }}" \
+            "${{ github.event.pull_request.merge_commit_sha }}"
+          git push origin "${{ steps.version.outputs.tag }}"
