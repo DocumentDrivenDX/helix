@@ -39,7 +39,7 @@ version:
 ```text
 $ claude plugin list
 NAME   VERSION  SOURCE
-helix  0.13.1   DocumentDrivenDX-helix
+helix  0.14.0   DocumentDrivenDX-helix
 ```
 
 Development and CI scenarios that need to test a local checkout before

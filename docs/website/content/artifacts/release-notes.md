@@ -1,5 +1,5 @@
 ---
-title: "Release Notes — HELIX v0.13.1"
+title: "Release Notes — HELIX v0.14.0"
 slug: release-notes
 weight: 480
 activity: "Deploy"
@@ -25,54 +25,85 @@ ddx:
     reviewed_at: "2026-09-17T19:23:17Z"
 ```
 
-# Release Notes — HELIX v0.13.1
+# Release Notes — HELIX v0.14.0
 
 ## Release Scope
 
-- Release identifier or version: `v0.13.1`
-- Release date: 2026-09-17 (operator-driven; tagged at the merge commit)
-- Rollout window or environment: the public website at
-  `https://documentdrivendx.github.io/helix/` and its build pipeline; the
-  plugin packages carry only the version bump
+- Release identifier or version: `v0.14.0`
+- Release date: 2026-09-22 (operator-driven; tagged at the merge commit)
+- Rollout window or environment: HELIX plugin (Claude Code marketplace, Codex
+  plugin, Databricks Genie bundle, Grok Build) and the public website at
+  `https://documentdrivendx.github.io/helix/`
 - Release owner: HELIX maintainer cutting the tag
-- Source commit or build: the tag's merge commit (tag `v0.13.1`); previous release
-  `v0.13.0` at `91eb74d2` (2026-09-15)
+- Source commit or build: the tag's merge commit (tag `v0.14.0`); previous
+  release notes covered `v0.13.1` at `cfcab345` (2026-09-17)
 
 ## Audience and Channels
 
 | Audience | Why they care | Delivery channel |
 |----------|---------------|------------------|
-| Website readers | Every page carries an Innsigle seal that says who signed the page's source and whether a model drafted it | GitHub Pages rebuild |
-| HELIX maintainers | Curated pages are sealed with the house key before merge; generated pages are sealed by CI with a second key | This file and `.innsigle/README.md` |
-| HELIX plugin users | No change beyond the version number | Plugin repo tag; marketplace update |
+| HELIX plugin users | A new Discover artifact type for candidate research, and two new present-mode output kinds that render to HTML and PDF | Plugin repo tag; marketplace update |
+| Website readers | The principles page is rewritten as the H/E/L/I/X manifesto, and the artifact-type reference carries the new type | GitHub Pages rebuild |
+| HELIX maintainers | Release tags are now created by CI from the merged manifest, and the seal gate no longer fails a build on an unsigned page | This file and `.github/workflows/release-tag.yml` |
 
 ## Highlights
 
-- **Content seals on every page.** Each website page quotes an Innsigle
-  attestation for its markdown source: the source digest, the declared
-  composition (`mixed` for curated prose, `model-primary` for generator
-  output), the signing key and its role, and the signature. A page whose
-  source changed after sealing renders no seal and fails the build instead
-  of showing a seal that would not verify.
-- **Two keys, one issuer (Innsigle ADR-004).** The house key stays in
-  1Password and seals curated pages, whose claims are committed. A build key
-  held as a repository secret seals the generated pages at every site build.
-  The house key endorses the build key, so a verifier who pins the house key
-  recognizes CI seals, and the build key can never mint a curated seal.
-- **Seal gate.** `tests/validate-innsigle.sh` verifies every claim with the
-  pinned Innsigle CLI, enforces the key policy, and checks the built site
-  serves the issuer document, the endorsement, and a seal on every page.
+- **`component-profile`, a Discover artifact type for candidate research.**
+  Discover had no type for reading the public record on a candidate
+  technology, product, or managed provider before anyone spikes it.
+  `competitive-analysis` positions the product against rivals,
+  `current-state-inventory` records what already exists, and `tech-spike`
+  runs one experiment. A profile consolidates the published record on one
+  candidate and says how well it fits this project. One instance per
+  candidate, so six candidates are six profiles that an ADR compares, and
+  each can be researched in parallel and revised on its own.
+- **The profile starts from the need, not the candidate.** The record opens
+  with Need and Required Capabilities drawn from the project's own artifacts
+  before any candidate documentation is read, then aligns capability by
+  capability with a Settled-by line and a status word, scores the named
+  alternatives on those same capabilities, and closes with a verdict drawn
+  from disjoint definitions. Confidence caps at Medium while a
+  design-defining capability is unknown. Every factual claim cites a numbered
+  source or is marked as unpublished or as a third-party estimate; sources
+  carry a class, an author or organisation, dates, and a Searched record, and
+  documentation URLs are pinned to the version in scope. The catalog example
+  profiles PostgreSQL against DepositMatch from 33 dated sources.
+- **`present` gains brief and one-pager kinds.** Present mode could produce a
+  deck. It now also produces a brief and a one-pager, rendered to HTML and
+  PDF, with a candidate-briefing reference flow that uses label headings and
+  a need-first introduction, and per-flow files under `deliverables/flows/`.
+- **A human-facing voice profile, and a gate that reads the flow.**
+  The voice profile names mannered prose, negative parallelism, slogan
+  closers, shadowboxing, narration, copula avoidance, borrowed authority, and
+  terms of art stretched into metaphor, with a sample paragraph to match.
+  `check-deliverable.py` reads the Story's flow to choose between claim and
+  label title rules, checks that visual cells carry numbers, and blocks bare-noun
+  reversals, em dashes, copula avoidance, borrowed authority, bold-label
+  bullets, counts and Title Case in headings, document narration, and any
+  owner, date, or grade that no Sources row or Assumptions entry states. The
+  renderers add no text the author did not write.
+- **External standards are defined where they are first named.** A project
+  artifact named "SALI LMSS" across a dozen documents without saying what it
+  was, and 24 of its 86 attributed labels turned out to be absent from the
+  standard. The artifact-signal voice profile now requires that every
+  external standard, vendor term, or acronym be defined on first use and
+  linked to its resource summary, and a vocabulary attributed to a standard
+  is generated by tooling from the standard's published file rather than
+  transcribed from memory.
+- **Release tags are created by CI.** `v0.13.2` was tagged through the GitHub
+  Releases UI against a commit whose three plugin manifests still declared
+  `0.13.1`. On merge of a `chore(release): vX.Y.Z` pull request, CI now reads
+  the version from the title, cross-checks it against all three manifests at
+  the merge commit, and pushes the tag itself, so a tag can no longer precede
+  a manifest bump. `release-version-guard.yml` stays as a backstop for tags
+  pushed by hand.
 
 ## Required Actions Summary
 
-- Plugin users: none.
-- Maintainers: after editing a page under `docs/website/content/` that is
-  not generated, run `just innsigle-seal` (1Password CLI signed in) and
-  commit `.innsigle/public/claims/`; the website workflow fails until the
-  claim matches the source. Generated pages need nothing.
-- Maintainers: the build key is the `INNSIGLE_BUILD_KEY` repository secret;
-  `just innsigle-build-key --rotate` followed by `just innsigle-endorse`
-  rotates it.
+- Users: none.
+- Operators: none. The tag for this release is created by CI when the
+  release pull request merges; do not create it through the Releases UI.
+- Support: none.
 
 ## Changes and Fixes
 
@@ -80,42 +111,48 @@ ddx:
 
 | Area | What changed | Who is affected |
 |------|--------------|-----------------|
-| Site | The colophon partial renders a seal from the committed or CI-minted claim, embeds the attestation as `application/innsigle+json`, and states that the signature covers the markdown source, not the HTML; `.innsigle/public/` is served at `/.well-known/innsigle/` | Website readers |
-| Scripts | `scripts/innsigle-cli.sh` pins Innsigle v0.5.0 for every caller; `scripts/innsigle-seal.sh` wraps `innsigle seal --all`; `scripts/innsigle-build-key.sh` mints or rotates the build key | Maintainers |
-| Config | `.innsigle/config.json` is committed with the content globs, frontmatter-driven composition, and key roles; the issuer document lists both keys and the endorsement | Maintainers and verifiers |
-| CI | The website and Pages workflows seal generated pages with the build key before Hugo runs; the gate runs with every page required | Maintainers |
+| Artifact catalog | `component-profile` joins Discover with template, prompt, meta, and a researched PostgreSQL example; `graph.yml` gives it `informs` edges to `tech-spike`, `adr`, `architecture`, and `concerns` | HELIX users researching a stack decision |
+| Routing | `concern-resolution.md`, `actions/plan.md`, and `actions/evolve.md` route an unchosen third-party candidate to a profile before a spike, so a spike is spent only on what reading cannot settle | HELIX users |
+| Present mode | Brief and one-pager kinds with an HTML and PDF renderer, a candidate-briefing reference flow, per-flow files under `deliverables/flows/`, and a human-facing voice profile | Anyone producing a client-ready document |
+| Deliverable gate | `check-deliverable.py` switches title rules on the Story's flow and checks numbers in visual cells, unstated owners, dates, and grades, and the prose patterns the voice profile names | Maintainers and deliverable authors |
+| Conventions | Documentation Voice gains "External standards and terminology"; `modes/_authoring.md` asks for the standards an artifact names and points at `docs/resources/<slug>.md` before drafting; `resource-summary` asks for the reusable definition and the file a derived vocabulary comes from | Artifact authors |
+| Website | The principles page is rewritten as the five-letter H/E/L/I/X manifesto | Website readers |
+| CI | `release-tag.yml` creates and pushes the release tag on merge of a `chore(release):` pull request, refusing to tag when the manifests disagree with the title | Maintainers |
 
 ### Fixes
 
 | Issue or symptom | Resolution | User or operator impact |
 |------------------|------------|-------------------------|
-| The first build key's private half was committed to the pull request branch | The key is marked revoked in the issuer document and a replacement was minted, stored as the secret, and endorsed; the ignore rule now covers `.innsigle/keys/` | Seals from the revoked key never verify; the live site carries only replacement-key seals |
-| The claude-code recipe page was edited after sealing | Resealed with the house key | The page renders its seal again |
+| `v0.13.2` was tagged against a commit whose manifests declared `0.13.1`, and the `v0.13.3` manifest bump merged before the auto-tag workflow reached `main`, so it never got a tag | Tagging moved into CI, gated on the three manifests; `v0.14.0` is the first tag created that way | Consumers pinning `v0.13.2` get a plugin that reports `0.13.1`; `0.13.3` exists only as manifest content and is superseded here |
+| `tests/validate-skills.sh` failed under macOS's default bash 3.2 | The associative array became a case function and `mapfile` became a while-read loop | Contributors on macOS can run the skill gate without installing a newer bash |
+| The Innsigle seal gate failed CI on any page that was never sealed or was edited since its last seal | An unsigned or stale page warns everywhere, including CI; the gate still fails on a broken or wrong signature, an orphaned or ambiguous claim, or a claim the CLI cannot parse | Contributors without 1Password desktop access can change curated pages |
+| The principles page linked to five per-principle pages that do not exist | Links and the promise removed until those pages exist | The internal link checker passes |
 
 ## Breaking Changes and Required Actions
 
-- None. The plugin packages differ from `v0.13.0` only in the version field.
+- None. Existing artifacts, modes, and installs are unaffected; this release
+  adds a type, two output kinds, and gate coverage.
 
 ## Migration or Rollback Guidance
 
-- Migration: pull the tag; nothing to regenerate for plugin consumers.
-- Rollback: install the `v0.13.0` tag. The website keeps its seals because
-  they are produced at build time from `main`.
+- Migration: pull the tag. Nothing to regenerate for plugin consumers.
+- Rollback: install the `v0.13.1` tag, the last tag whose manifests match
+  their version. The website rebuilds from `main` and is not pinned to a tag.
 
 ## Known Issues and Support
 
 | Issue | Who is affected | Workaround or next step |
 |------|------------------|-------------------------|
-| One-pager, brief, and HTML render targets are not built | Teams wanting a document rather than a deck | Backlog item with the precise gap; write the brief as a deck script for now |
-| The eval's investor-deck brief fails the shape gate on a reversal the skill wrote, and the survey brief needs an 1,800-second budget | Maintainers reading the eval | Recorded in `evals/results/`; the mode text names the coverage vocabulary and the shape rules |
+| `v0.13.2` and `v0.13.3` are skipped: the `v0.13.2` tag carries `0.13.1` manifests and `0.13.3` was never tagged | Anyone pinning a patch in that range | Pin `v0.14.0` or `v0.13.1` |
 | Claim subject URIs for section index pages follow the source path shape (`…/_index/`) rather than the published URL | Verifiers reading the URI field | Informational only; the digest and the `Signed source` line identify the page; reported upstream |
 | Georgia and Trebuchet are absent on stock Linux LibreOffice, so the raster substitutes them there | Hosts rasterizing decks on Linux | `deck-qa.py` notes the missing typeface; use the `technical` or `classic` look |
+| The review marker on this file is stale: it was written without a tracker review pass | Maintainers reading review state | Re-review the file with the tracker after the tag |
 
 Support: open an issue at `https://github.com/DocumentDrivenDX/helix`.
 
 ## References
 
 - Deployment checklist: [`deployment-checklist.md`](/artifacts/deployment-checklist/)
-- Seal operations: `.innsigle/README.md`, `.innsigle/AGENTS.md`
-- Innsigle decision record: ADR-004 in `DocumentDrivenDX/innsigle` (v0.5.0)
-- Commit range: `git log v0.13.0..v0.13.1`
+- Auto-tag workflow: `.github/workflows/release-tag.yml`
+- Tag guard: `.github/workflows/release-version-guard.yml`
+- Commit range: `git log v0.13.1..v0.14.0`
