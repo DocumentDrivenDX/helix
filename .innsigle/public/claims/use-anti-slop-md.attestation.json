@@ -2,7 +2,7 @@
   "payload": {
     "innsigle": "1",
     "type": "https://innsigle.dev/claim/colophon/v1",
-    "issued_at": "2026-09-16T02:47:37Z",
+    "issued_at": "2026-09-22T19:20:30Z",
     "issuer": {
       "id": "helix",
       "name": "HELIX",
@@ -11,10 +11,10 @@
     },
     "subjects": [
       {
-        "uri": "https://documentdrivendx.github.io/helix/use/anti-slop.md",
+        "uri": "https://documentdrivendx.github.io/helix/use/anti-slop/",
         "digest": {
           "alg": "sha256",
-          "value": "ef0e0753f238cdba13908582d68ab30092a34a9e346ee7d54a5142827141931e"
+          "value": "6edad2e6c896feab312c0dced2435f91f75df94eeacdb9a49014830fbad95a02"
         }
       }
     ],
@@ -46,8 +46,8 @@
     {
       "key_id": "ed25519:d5a0b2d95482db5ff68fc8318a1ad4de",
       "alg": "ed25519",
-      "sig": "8YJyhhYW7tedR-FWSgx1_fO1Fpn-9P4zxmIcDgPsZmGOWIG3wRQPo_rx96FGb14WuK4zMPptJP7I2MxakB3sAA",
-      "signed_at": "2026-09-16T02:47:37Z"
+      "sig": "OLVv4twZXN2U-WUJ-CL9y_r91PSLN33gnmMlcGAnYQyYakmQdZmHZAfwCbXIL5paGyw2THzwF3movxhQvByGBg",
+      "signed_at": "2026-09-22T19:20:30Z"
     }
   ]
 }
