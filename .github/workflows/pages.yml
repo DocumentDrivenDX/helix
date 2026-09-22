@@ -69,15 +69,23 @@ jobs:
             python3 scripts/demos/render_session.py "$s" --output "website/static/demos/$slug.cast"
           done
 
-      - name: Seal generated pages (build key) and verify every seal
+      - name: Seal generated pages (build key) and check seals
         # Curated pages carry committed human-key claims; generated pages are sealed here with the
         # CI build key so the deployed site quotes a seal on every page (Innsigle ADR-004).
+        #
+        # The check is tests/validate-innsigle.sh, the same gate the website workflow runs, so one
+        # file defines the policy: an unsigned or stale page warns, and only evidence of a broken or
+        # wrong signature fails. This step used to call `innsigle verify --all` raw, which also fails
+        # on STALE. Sealing a curated page needs the human key from 1Password, which CI does not
+        # have, so a page that passed review blocked the deploy instead — twice, at #50 and again at
+        # v0.14.0. A stale seal costs that page its rendered seal; it never renders a wrong one.
         env:
           INNSIGLE_BUILD_KEY: ${{ secrets.INNSIGLE_BUILD_KEY }}
+          INNSIGLE_REQUIRED: '1'
         run: |
           [ -n "$INNSIGLE_BUILD_KEY" ] || { echo "::error::INNSIGLE_BUILD_KEY secret is not set; run just innsigle-build-key and store the PEM as a repository secret"; exit 1; }
           bash scripts/innsigle-seal.sh --role build
-          bash scripts/innsigle-cli.sh verify --all
+          bash tests/validate-innsigle.sh
 
       - name: Setup Pages
         id: pages
