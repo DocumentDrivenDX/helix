@@ -516,10 +516,11 @@ Every check `check-deliverable.py` can report, with its severity. A title that i
 | `density.consecutive` | warning | unit …: more than … consecutive … units |
 | `frontmatter.export` | warning | ddx.authoring.export lists no rendered files |
 | `horizontal_logic` | warning | units … and …: titles share no content word; the titles-only read may not connect |
-| `limits.body_words` | warning | unit …: body … words, … allows … |
-| `limits.bullets` | warning | unit …: … bullets, … allows … |
+| `limits.body_words` | warning | unit …: body … words, … allows …… |
+| `limits.bullets` | warning | unit …: … bullets, … allows …… |
+| `limits.one_pager_words` | warning | one-pager: … words exceeds theme.yml's max_words_one_pager (…); |
 | `limits.title_words` | warning | unit …: title over … words |
-| `limits.words_per_bullet` | warning | unit …: bullet over … words: … |
+| `limits.words_per_bullet` | warning | unit …: bullet over … words…: … |
 | `numbers.sourced` | blocking | unit …: figure … is not in the Sources table |
 | `pattern.unknown` | blocking | unit … pattern … not in slide-patterns.yml |
 | `placeholder` | blocking | placeholder text … |
@@ -528,22 +529,26 @@ Every check `check-deliverable.py` can report, with its severity. A title that i
 | `render.targets` | blocking | Render section lists no rendered target path |
 | `restatement` | warning | unit …: … restates … on the same slide; keep one |
 | `section` | blocking | missing '## …' |
-| `shape.slop` | blocking | unit … bullet …: … |
+| `shape.narration` | blocking | unit … introduction narrates the document: …; open with the reader's situation |
+| `shape.slop` | blocking | unit … introduction …: … |
 | `sources` | blocking | Sources table has no S<n> rows |
 | `sources.dangling` | blocking | unit … cites … which is not in the Sources table |
 | `sources.empty` | blocking | unit … cites no S<n> source |
-| `title.claim` | blocking | unit … title is a label, not a claim: … |
-| `title.slop` | blocking | unit … title: … |
+| `title.case` | blocking | document title is in Title Case: …; write it as a sentence |
+| `title.claim` | blocking | document title is a label, not a claim: … |
+| `title.count` | blocking | document title carries a count: …; the finding goes in the introduction, the title names the subject |
+| `title.slop` | blocking | document title: … |
 | `units` | blocking | no '### <n>. <claim title>' units under ## Content |
 | `visual.generic` | blocking | unit … visual is not specified (say what it shows, its series, and source) |
 | `visual.spec` | blocking | unit … visual spec is cut at …; |
+| `visual.unsourced` | blocking | unit … names … … that no Sources row or Assumptions entry states |
 | `vocabulary` | blocking | unit … … uses HELIX vocabulary …; move it to Sources |
 | `vocabulary.jargon` | warning | unit … … uses …, a term the audience would need defined |
 
 Patterns the vocabulary, number, placeholder, and visual checks use:
 
-- HELIX vocabulary (blocking in a title, body, or notes): `\b(?:FR|US|FEAT|ADR|TD|SD|TP|PRD|DEL|CONTRACT|WS)-\d+|\bbeads?\b|\bratchets?\b|\bwork items?\b|\bacceptance criteri(?:a|on)\b|\bAC\d+\b|\bartifact graph\b|\b(?:discover|frame|build|deploy|iterate) activity\b|\bddx\b`
-- Jargon (warning): `\b(?:concerns?|stop triggers?|autonomy levels?|quality floors?|ratchets?|framing|[\w-]+ modes?)\b`
+- HELIX vocabulary (blocking in a title, body, or notes): `\b(?:FR|US|FEAT|ADR|TD|SD|TP|PRD|DEL|CONTRACT|WS)-\d+|\bbeads?\b|\bratchets?\b|\bwork items?\b|\bacceptance criteri(?:a|on)\b|\bAC\d+\b|\bartifact graph\b|\b(?:discover|frame|build|deploy|iterate) activity\b|\bddx\b|\bstoryboard beats?\b|\bflow beats?\b|\bcandidate-briefing\b|\bkeep_when_short\b`
+- Jargon (warning): `\b(?:concerns?|stop triggers?|autonomy levels?|quality floors?|ratchets?|framing|[\w-]+ modes?|the record|the profile|spikes?|project artifacts?|sibling profiles?)\b`
 - Placeholder (blocking): `\[NEEDS CLARIFICATION|\[TODO\]|\bTBD\b|\[Fill in\]|<placeholder>|\[\.\.\.\]`; bracketed phrase (warning): `(?<!\[)\[(?:[A-Z][a-z]+)(?:[ /][A-Za-z]+)*\](?!\()`
 - A number in a body that must appear in the Sources table: `(?<![\w.])(?:\$?\d[\d,]*(?:\.\d+)?\s?(?:%|k|K|M|B|x)?)(?![\w.])` (single digits excepted)
 - Generic visuals (blocking, with anything under six words): `chart`, `diagram`, `graph`, `image`, `n/a`, `none`, `photo`, `picture`, `screenshot`, `table`

@@ -48,4 +48,4 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 - [Improvement Backlog — HELIX 2026-Q3](/artifacts/improvement-backlog/)
 - [Metrics Dashboard: HELIX 2026-Q3 (human-outputs branch)](/artifacts/metrics-dashboard/)
 - [Security Metrics — HELIX 2026-Q2 (post-`v0.3.3`)](/artifacts/security-metrics/)
-- [deliverables](/artifacts/deliverables/) _(1 item)_
+- [deliverables](/artifacts/deliverables/) _(4 items)_

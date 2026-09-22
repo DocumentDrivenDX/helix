@@ -1,7 +1,7 @@
 ---
 title: "Metrics Dashboard: HELIX 2026-Q3 (human-outputs branch)"
 slug: metrics-dashboard
-weight: 510
+weight: 540
 activity: "Iterate"
 source: "06-iterate/metrics-dashboard.md"
 generated: true

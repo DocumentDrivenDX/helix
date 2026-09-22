@@ -1,10 +1,12 @@
 # Deck craft
 
 How the `present` mode turns a large set of governed artifacts into a short
-deck that a reader can follow from the titles alone. `deck-flows.yml` holds
-the ordered beats per occasion; this file holds the reasoning behind them and
-the tests a storyboard must pass. Numbers in brackets point at the sources at
-the end.
+deck that a reader can follow from the titles alone. `deck-flows.yml` is the
+index of flows by occasion; each flow's ordered beats live in its own file
+under `deliverables/flows/`, so picking one costs a read of the index plus a
+read of that one file. This file holds the reasoning behind
+them and the tests a storyboard must pass. Numbers in brackets point at the
+sources at the end.
 
 The craft comes from five traditions that agree more than they differ:
 consulting structure (Minto, McKinsey), presentation design (Duarte,
@@ -33,7 +35,7 @@ what was read, so reading too little produces a confident deck about a
 corner of the subject. List every document in the declared scope by
 authority with the claims its sections make, and the concepts that recur
 across documents (`scripts/corpus-inventory.py` does the counting).
-Read the corpus's structure too, not only its prose: a catalog's layering
+Read the corpus's structure as well as its prose: a catalog's layering
 (what governs what, what propagates, where the gates are) and its role
 vocabulary (who approves, who drafts, who stops) carry concepts that no
 phrase count surfaces, and the inventory emits both as candidates.
@@ -42,7 +44,7 @@ to nine and more when the corpus is wide.
 The groups are the candidates; the steps below choose among them, and
 every group the deck does not carry is written down as omitted with its
 reason. Breadth (`survey` or `deep-dive`) is a declared control in the
-Brief, not a consequence of which sections happened to be read.
+Brief, whatever sections happened to be read.
 
 Work in this order:
 
@@ -62,10 +64,10 @@ Work in this order:
 4. Attach evidence to each message. For every message, list the source
    sections that prove it and the single figure, example, or comparison you
    will put on the slide. A message with no source section is a gap to ask
-   about or an assumption to record, never a slide. Every number keeps its
+   about or an assumption to record. Every number keeps its
    source through to the appendix.
 5. Rank by the decision. Order messages by how much each one moves the
-   decision, not by how the sources are organized. The source order is the
+   decision. The source order is the
    author's; the deck order is the audience's.
 
 What to cut, in this order: background the audience already has (Minto's
@@ -79,7 +81,7 @@ to stop adding [5].
 
 ## Narrative arcs
 
-An arc is the order of the messages. Pick by occasion, not by preference;
+An arc is the order of the messages. Pick by occasion;
 `deck-flows.yml` fixes the order per occasion. The arcs below are the ones
 the flows draw on.
 
@@ -120,6 +122,25 @@ things relate, where slides let both go unsaid [9]. The lesson for decks:
 the storyboard is the narrative. If the titles do not read as a memo, the
 deck will not either.
 
+Need, criteria, record, landscape (reference and engineering practice). The
+six traditions above all argue for a decision. Sometimes the deck's job is to
+inform a decision made elsewhere, and arguing then reads as advocacy where
+the reader wanted a record. Three practices inform without persuading.
+Wikipedia's manual of style opens every article with a lead that says what
+kind of thing this is before any feature, under plain section headings a
+reader can navigate by [13]. A PEP states the Motivation before the
+Specification and answers both with a required Rejected Ideas section, so a
+limit is stated on purpose [14]. Analyst methodologies such as Gartner's
+Magic Quadrant compare named vendors against fixed criteria and plot the
+result [15]. `candidate-briefing` threads these three: the need and the
+criteria first, then what the candidate is, then what the record shows on
+each criterion, then the named alternatives on the same criteria, then what
+the record cannot settle. Its headings are labels (Introduction, Background,
+Required capabilities, Capability alignment, Competitive landscape, Open
+questions), because a reference is navigated, and the finding goes in the
+first sentence under each heading. Use it for a technical or vendor brief
+that must inform a decision without making it.
+
 ## Horizontal and vertical logic
 
 Two tests, both from consulting practice [2].
@@ -130,7 +151,7 @@ sets up the next, and the last content title is the ask. A reader who sees
 nothing but the titles should be able to state the takeaway and the
 decision. Titles that name topics ("Results", "Approach") fail the test;
 titles that repeat each other fail it; titles that could be reordered
-without loss fail it. The fix is always in the titles, never in the bodies.
+without loss fail it. The fix is in the titles.
 
 Vertical logic: on each slide, the body proves the title and the title is
 proven by the body. Strip the title and ask what the exhibit shows; the
@@ -142,7 +163,7 @@ seconds [4].
 
 Both tests run on the storyboard before bodies exist, and again at the gate
 after bodies exist. The mode's gate treats a failure of either as a loop
-back to the storyboard, not as a polish item.
+back to the storyboard.
 
 ## Transition rules
 
@@ -167,7 +188,7 @@ knows where the ask lands. NotebookLM's opening does the same job: a hook,
 then what the source is and why the listener should care, before the first
 point [12].
 
-Close with synthesis, not summary. The last content slide restates the
+Close with synthesis. The last content slide restates the
 takeaway as the ask with owners and dates. Anderson's advice is to script
 the opening minute and the closing lines and to zoom out to the vision at
 the end [11]; NotebookLM ends on a final thought or question rather than a
@@ -175,7 +196,7 @@ list [12]. A "Questions?" or "Thank you" slide is not a close.
 
 ## Length budgets
 
-The budget comes from the time slot, not from the source volume. Half a
+The budget comes from the time slot. Half a
 slide per minute of talk is the working rate (`slides_per_minute_of_talk`
 in `slide-patterns.yml`); the per-slot table is `default_length_budget` in
 `deck-flows.yml`, and `content_slides_max` in `slide-patterns.yml` is the
@@ -191,9 +212,9 @@ the speaker and are not the document; a slide dense enough to read alone is
 a "slideument" and fails as a slide [5][4]. The detail lives in the notes
 and the appendix, which have no word budget.
 
-When the slot shrinks, cut beats in the order `deck-flows.yml` gives, never
+When the slot shrinks, cut beats in the order `deck-flows.yml` gives;
 by compressing more content into each slide. A one-pager or brief is a
-different kind, not a denser deck.
+different kind.
 
 ## Storyboard before bodies
 
@@ -255,3 +276,10 @@ usually mean the bodies were written to the wrong story.
     https://blog.google/technology/ai/notebooklm-audio-overviews/,
     https://support.google.com/notebooklm/answer/16212820, and
     https://nicolehennig.com/notebooklm-reverse-engineering-the-system-prompt-for-audio-overviews/
+13. Wikipedia, Manual of Style (Lead section) — category before capability:
+    https://en.wikipedia.org/wiki/Wikipedia:Manual_of_Style/Lead_section
+14. Python PEP 12, PEP Template — Motivation, Specification, and Rejected
+    Ideas as named, required sections: https://peps.python.org/pep-0012/
+15. Gartner Magic Quadrant methodology, vendors scored against fixed,
+    named criteria and plotted against each other (independent summary):
+    https://en.wikipedia.org/wiki/Magic_Quadrant

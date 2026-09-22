@@ -35,7 +35,7 @@ mappings:
           title_hint: "Lead with the decision and its condition",
           notes: "Decision line plus the two strongest Conditions; Rationale goes to speaker notes." }
       - { unit: opportunity, from_sections: [opportunity_sizing], pattern: stat-callout,
-          include_in: [deck, one-pager, brief], title_hint: "Name the obtainable market, not the total",
+          include_in: [deck, one-pager, brief], title_hint: "Name the obtainable market",
           notes: "SOM is the number; TAM and SAM are the baseline. Key Assumptions go to notes." }
       - { unit: investment, from_sections: [investment_required], pattern: table,
           include_in: [deck, one-pager, brief], title_hint: "State the three-year cost and what dominates it" }
@@ -75,14 +75,14 @@ mappings:
       - { unit: user-experience, from_sections: [user_experience], pattern: process-flow,
           include_in: [deck, brief], title_hint: "A session in three to five steps, told from the user's seat" }
       - { unit: value-props, from_sections: [key_value_propositions], pattern: claim-evidence,
-          include_in: [deck, one-pager, brief], title_hint: "Lead with the benefit, not the capability" }
+          include_in: [deck, one-pager, brief], title_hint: "Lead with the benefit to the user" }
       - { unit: success, from_sections: [success_definition], pattern: stat-callout,
           include_in: [deck, one-pager, brief], title_hint: "The primary KPI target is the slide" }
       - { unit: ask, from_sections: [success_definition, why_now], pattern: ask-next-steps,
           include_in: [deck, one-pager, brief], title_hint: "Ask for endorsement of the direction and the next artifact" }
       - { unit: appendix, from_sections: [target_market, success_definition],
           pattern: appendix-sources, include_in: [deck, brief] }
-    omit: [review_checklist]   # authoring aid, never audience content
+    omit: [review_checklist]   # authoring aid
     gaps_to_ask:
       - "the decision the audience is being asked to make (the vision holds none)"
       - "occasion and presenter (board, all-hands, or client)"
@@ -133,7 +133,7 @@ mappings:
           include_in: [deck, one-pager, brief], title_hint: "Which shape of the opportunity has room, and on what terms",
           notes: "One bullet per sub-approach plus the pricing signal; visual: room-to-enter map." }
       - { unit: market-size, from_sections: [market_size_growth], pattern: stat-callout,
-          include_in: [deck, one-pager, brief], title_hint: "The most relevant slice and its growth, not the headline category",
+          include_in: [deck, one-pager, brief], title_hint: "The most relevant slice and its growth",
           notes: "The Read sentence is the one-line claim." }
       - { unit: concept, from_sections: [concept], pattern: claim-evidence,
           include_in: [deck, one-pager, brief], title_hint: "The opportunity has distinct shapes; name them",
@@ -216,6 +216,43 @@ mappings:
       - "presenter and time slot"
       - "confidentiality of regulatory findings"
 
+  component-profile:
+    default_spine: candidate-briefing   # a flow id directly; a reference arc with label headings
+    default_kind: brief
+    audience_default: technical leadership and the owner of the decision the profile feeds
+    units:
+      - { unit: introduction, from_sections: [need, required_capabilities, capability_alignment, scope], pattern: title,
+          include_in: [deck, one-pager, brief], title_hint: "Subject and role, as a document title ('PostgreSQL as DepositMatch's system of record')",
+          notes: "The body is the introduction: the Need's three sentences, the capabilities in one sentence, the verdict in plain words. No count." }
+      - { unit: background, from_sections: [scope, need], pattern: claim-evidence, include_in: [deck, brief],
+          title_hint: "Background",
+          notes: "The incumbent and why it no longer serves. Skip when the introduction covers it." }
+      - { unit: required-capabilities, from_sections: [required_capabilities], pattern: table,
+          include_in: [deck, one-pager, brief], title_hint: "Required capabilities",
+          notes: "One row per C-numbered capability: capability, the goal it serves, where it comes from in plain words." }
+      - { unit: what-it-is, from_sections: [what_it_is, technology_and_operations, pricing_and_licensing],
+          pattern: claim-evidence, include_in: [deck, one-pager, brief], title_hint: "What it is",
+          notes: "Category, governing body, adoption, cadence and support, licence, built-for use cases." }
+      - { unit: capability-alignment, from_sections: [capability_alignment], pattern: table,
+          include_in: [deck, one-pager, brief], title_hint: "Capability alignment",
+          notes: "One row per capability in C order: what the record shows, the caveat that matters, the profile's status word. The verdict sentence closes the unit. Confidence grade in Notes." }
+      - { unit: limits, from_sections: [capability_alignment, technology_and_operations, pricing_and_licensing],
+          pattern: claim-evidence, include_in: [deck, brief], title_hint: "Outside the record",
+          notes: "The 'Not published', 'not native', and 'belongs to the operator' rows, stated as the record states them." }
+      - { unit: competitive-landscape, from_sections: [competitive_landscape], pattern: table,
+          include_in: [deck, one-pager, brief], title_hint: "Competitive landscape",
+          notes: "The profile's landscape table as-is: alternatives by capabilities, 'not researched' where the profile says so. One line per alternative below on the divergence." }
+      - { unit: open-questions, from_sections: [open_questions, confidence], pattern: table,
+          include_in: [deck, one-pager, brief], title_hint: "Open questions",
+          notes: "Question, why it is design-defining, the profile's route. No owner, date, or grade the profile lacks. This unit closes the piece." }
+      - { unit: appendix, from_sections: [sources], pattern: appendix-sources, include_in: [deck, brief] }
+    omit: [review_checklist]
+    gaps_to_ask:
+      - "the decision this profile feeds, and whether it has been made yet"
+      - "whether the audience wants sibling profiles compared side by side beyond the landscape table (that is a deliverable off the decision that cites them)"
+      - "presenter and time slot, if a deck"
+      - "whether vendor names, pricing, or positioning against named competitors may appear in a version shared outside the project"
+
   pr-faq:
     default_spine: problem-solution-evidence
     default_kind: deck
@@ -245,7 +282,7 @@ mappings:
       - { unit: appendix, from_sections: [press_release, faq], pattern: appendix-sources, include_in: [deck, brief] }
     omit: [downstream_projection, review_checklist]   # internal routing and authoring aids
     gaps_to_ask:
-      - "whether the customer quote is real or illustrative (illustrative quotes never get the quote pattern)"
+      - "whether the customer quote is real or illustrative (an illustrative quote does not get the quote pattern)"
       - "decision deadline and who owns the go"
       - "confidentiality of pricing and unit economics"
 
@@ -333,7 +370,7 @@ mappings:
       - { unit: ask, from_sections: [required_actions_summary, known_issues_and_support], pattern: ask-next-steps,
           include_in: [deck, one-pager, brief], title_hint: "Upgrade by the date; here is where to get help" }
       - { unit: appendix, from_sections: [references, release_scope], pattern: appendix-sources, include_in: [deck, brief] }
-    omit: [audience_and_channels]   # distribution plan, not reader content; it picks the audience instead
+    omit: [audience_and_channels]   # a distribution plan; it picks the audience instead
     gaps_to_ask:
       - "which audience row this projection serves (users, operators, or support)"
       - "support contact or channel the reader may use"

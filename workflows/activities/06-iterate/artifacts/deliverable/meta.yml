@@ -1,4 +1,4 @@
-# Metadata for Deliverable (deck; one-pager and brief planned)
+# Metadata for Deliverable (deck, one-pager, brief)
 
 artifact:
   name: Deliverable
@@ -22,12 +22,11 @@ kind:
     - brief
   default: deck
   description: |
-    Shape of the deliverable. `deck` is a slide script (one unit per slide).
-    `one-pager` (a single page with 3 to 6 sections) and `brief` (a 2 to 4
-    page document with headings as claims) are planned: the enum keeps the
-    values, but no document flow, section patterns, renderer, or kind-aware
-    checks exist yet (docs/helix/06-iterate/improvement-backlog.md). All
-    three share the template.
+    Shape of the deliverable. `deck` is a slide script, one unit per slide.
+    `one-pager` is a single Letter page; `brief` runs as many pages as its record needs. Documents
+    open with a masthead and an introduction, then numbered claim sections.
+    All three share the template and the `deliverables/` reference data;
+    renderers and authoring detail are in `workflows/modes/present.md`.
 
 description: |
   A human-facing projection of governed artifacts: the script for a deck,
@@ -90,10 +89,10 @@ validation:
       description: Every content unit names a concrete visual (what it shows, series, source), not "chart"
       severity: blocking
     - check: pattern_limits
-      description: Bodies respect the pattern's word and bullet limits and the density rules in slide-patterns.yml
+      description: Bodies respect the pattern's word and bullet limits and the density rules in slide-patterns.yml, scaled up for a `one-pager`/`brief` page rather than applied as a slide's own numbers; a one-pager also respects theme.yml's max_words_one_pager; a brief has no page budget
       severity: warning
     - check: rendered_and_inspected
-      description: Render section lists each produced path and records that every produced slide was rendered to an image and inspected; on a host without node and pptxgenjs (no .pptx), or without LibreOffice and pdftoppm (no raster), the Render section names the missing tool and the check warns instead of blocking the script-only run
+      description: Render section lists each produced path and records that every produced page or slide was rendered to an image and inspected; on a host without node and pptxgenjs (no .pptx), without LibreOffice and pdftoppm (no deck raster), or without a local Chrome/Chromium (no document PDF), the Render section names the missing tool and the check warns instead of blocking the script-only run
       severity: warning
 
 prompts:

@@ -10,12 +10,16 @@ artifact:
 voice: artifact-signal
 
 description: |
-  Desk research on one candidate stack component — a technology, product or
-  managed provider — consolidated from the public record with every claim
-  cited, and closed with a fit verdict against this project's vision, concerns
-  and open decisions. Written before a tech-spike or ADR so the spike tests
-  only what the record cannot settle. One instance per candidate; several
-  candidates for one decision are several profiles that an ADR compares.
+  Desk research on one candidate stack component (a technology, product, or
+  managed provider). It opens with what the project needs from the role and
+  the capabilities the role must have, derived from the project's own
+  artifacts before any candidate is read; then consolidates the public record
+  on the candidate, capability by capability, with every claim cited; then
+  scores the named alternatives on the same capabilities; and closes with a
+  verdict and the questions the record cannot settle. Written before a
+  tech-spike or ADR so the spike tests only what reading cannot settle. One
+  instance per candidate; several candidates for one decision share the Need
+  and Required Capabilities sections word for word.
 
 output:
   location: docs/helix/00-discover/component-profile-[component-name].md
@@ -25,60 +29,95 @@ output:
 validation:
   required_sections:
     - scope
+    - summary
+    - how_to_read_this_profile
+    - need
+    - required_capabilities
     - what_it_is
-    - capabilities
+    - capability_alignment
     - technology_and_operations
     - pricing_and_licensing
-    - positioning
-    - fit_assessment
+    - competitive_landscape
     - confidence
-    - sources
     - open_questions
+    - sources
 
   pattern_checks:
     - pattern: "https?://"
       expected: ">=1"
-      message: Sources must carry at least one URL
+      message: "Sources must carry at least one URL"
 
     - pattern: "\\*\\*Verdict\\*\\*:"
       expected: ">=1"
-      message: "Fit Assessment must close with a **Verdict**: from the declared vocabulary"
+      message: "Capability Alignment must close with a **Verdict**: by the definitions in How to Read This Profile"
+
+    - pattern: "\\*\\*Status\\*\\*:"
+      expected: ">=1"
+      message: "Every required capability closes with a **Status**: line"
+
+    - pattern: "\\*\\*Settled by\\*\\*:"
+      expected: ">=1"
+      message: "Every required capability closes its Settled by plan"
+
+    - pattern: "\\*\\*Grade\\*\\*:"
+      expected: ">=1"
+      message: "Confidence carries a **Grade**: line"
+
+    - pattern: "\\*\\*Searched\\*\\*:"
+      expected: ">=1"
+      message: "Sources records the searches behind every Not published and Not researched cell"
+
+    - pattern: "\\| C\\d+ \\|"
+      expected: ">=1"
+      message: "Required Capabilities must list at least one C-numbered capability"
 
   quality_checks:
-    - check: claims_cite_sources
-      description: Every factual claim cites a numbered source, or is marked "Not published" or "Third-party estimate"; nothing rests on familiarity with the component
+    - check: need_before_component
+      description: Need and Required Capabilities cite project artifacts only (no numbered source appears in them); every capability names the goal it serves, the artifact it comes from, and what public evidence would settle it
       severity: blocking
 
-    - check: fit_verdict_stated
-      description: Fit Assessment closes with exactly one verdict from the declared vocabulary, and every fit row names the project artifact or decision it is measured against
+    - check: claims_cite_at_the_clause
+      description: Every claim cites a numbered source at the clause it supports, or is marked Not published with the search recorded, or Not researched with the sibling profile named
       severity: blocking
 
-    - check: confidence_graded_and_justified
-      description: The profile carries one confidence grade from the declared rubric, justified by naming which claims are corroborated, which rest on the maker alone, and which have no source
+    - check: alignment_per_capability
+      description: Every required capability has a Capability Alignment subsection with a Settled by line and a status from How to Read This Profile; the section closes with exactly one verdict by those definitions, and a design-defining Unknown makes it Undetermined
       severity: blocking
 
-    - check: vocabularies_declared
-      description: The confidence rubric and the verdict vocabulary are stated in the artifact, so a reader can tell what each grade and verdict licenses
+    - check: landscape_on_same_capabilities
+      description: The Competitive Landscape scores every named alternative on the same required capabilities; a cell not researched says so and names the sibling profile
       severity: blocking
 
-    - check: pricing_labelled
-      description: Every figure is labelled Published (with source and date) or Third-party estimate (naming who estimated); absent pricing says Not published, never a guess
+    - check: confidence_by_rubric
+      description: The confidence grade follows the rubric (a design-defining Unknown caps it at Medium) and names which claims are corroborated, which rest on the maker alone, and which have no source
+      severity: blocking
+
+    - check: vocabularies_in_one_place
+      description: Status, verdict, figure-label, cell, confidence, and source-class vocabularies are stated in How to Read This Profile, so a reader can tell what each word licenses
+      severity: blocking
+
+    - check: figures_labelled_and_dated
+      description: Every figure is labelled Published (with source and date), Third-party estimate (naming who estimated), or Not published (with the search); every mutable fact carries an as-of date
+      severity: blocking
+
+    - check: no_invented_plan
+      description: No owner, date, duration, or figure appears that a project artifact does not state; a scale the project has not set is written as the project's, never as a number
+      severity: blocking
+
+    - check: sources_classed_and_dated
+      description: Every source carries its class, author or organisation, publication date where shown, and access date; scoped-version documentation is version-pinned
       severity: blocking
 
     - check: no_hands_on_claims
       description: No benchmark, prototype or integration result appears; the public record is the only evidence, and anything needing hands-on proof is an open question routed to a tech-spike
-      severity: warning
-
-    - check: sources_dated
-      description: Every source carries the date it was accessed
-      severity: warning
-
-    - check: positioning_links_siblings
-      description: Adjacent candidates named in Positioning link to their own profiles where those exist
-      severity: warning
+      severity: blocking
 
     - check: no_choice_made
-      description: The profile assesses one candidate's fit; the choice among candidates lives in an ADR that cites the profiles
+      description: The profile assesses one candidate; the choice among candidates lives in an ADR that cites the profiles
+      severity: warning
+
+    - check: reviewed_by_named
+      description: The Review Checklist names its reviewer, or says unreviewed
       severity: warning
 
 prompts:
@@ -100,6 +139,7 @@ workflow:
 relationships:
   informed_by:
     - product-vision
+    - business-case
     - principles
     - concerns
     - architecture
@@ -118,5 +158,5 @@ tags:
   - vendor
   - evidence
 
-version: 1.0.0
-last_updated: 2026-09-20
+version: 1.1.0
+last_updated: 2026-09-22

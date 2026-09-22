@@ -1,0 +1,109 @@
+# executive-status flow, split out of deck-flows.yml (workflows/deliverables/flows/) so
+# choosing a flow by occasion does not require loading every flow. See
+# ../deck-craft.md for the reasoning and sources behind this flow's arc.
+
+purpose: >-
+  Tell a steering committee or QBR audience where the work stands against plan and what they
+  must decide.
+audience:
+  posture: >-
+    Time-poor, reading for variance and risk, deciding whether to intervene.
+  decision: Continue as planned, change scope or resources, or escalate.
+keep_when_short:
+- headline
+- results
+- variance
+- decisions-needed
+- ask
+beats:
+- name: headline
+  answers: In one sentence, where does the work stand?
+  required: true
+  patterns:
+  - title
+  guidance: >-
+    State the overall condition and the one decision needed; no "Q3 update" titles.
+- name: commitments
+  answers: What did we say we would deliver by now?
+  required: true
+  patterns:
+  - table
+  - timeline
+  guidance: The plan of record as the committee last saw it; unchanged wording.
+- name: results
+  answers: What happened against those commitments?
+  required: true
+  patterns:
+  - table
+  - stat-callout
+  - claim-evidence
+  guidance: >-
+    Plan next to actual, one row per commitment; the one number that matters most gets the
+    callout.
+- name: variance
+  answers: Where are we off, and why?
+  required: true
+  patterns:
+  - claim-evidence
+  - two-column-comparison
+  - statement
+  guidance: >-
+    The cause of each variance, with what has already been done about it.
+- name: risks-and-blockers
+  answers: What could stop the next period?
+  required: true
+  patterns:
+  - risk-matrix
+  - table
+  guidance: >-
+    Three to six, each with owner and mitigation; blockers outside the team's control marked
+    as such.
+- name: decisions-needed
+  answers: What must this group decide today?
+  required: true
+  patterns:
+  - two-column-comparison
+  - claim-evidence
+  guidance: >-
+    Each decision with its options and the recommended one; a status deck without a decision
+    is a report.
+- name: next-period
+  answers: What will be true at the next review?
+  required: true
+  patterns:
+  - timeline
+  - table
+  guidance: The next commitments in the same wording the next deck will repeat.
+- name: ask
+  answers: What do you need from this group, by when?
+  required: true
+  patterns:
+  - ask-next-steps
+  guidance: >-
+    The decisions above with owners and dates, and what happens without them.
+- name: sources
+  answers: Where does each figure come from?
+  required: true
+  patterns:
+  - appendix-sources
+  guidance: Each figure maps to the status report or plan section it came from.
+transitions:
+- Commitments raise "did it happen"; results answer row by row.
+- Results raise "why not"; variance answers per row that missed.
+- Variance raises "what could go wrong next"; risks answer with owners.
+- >-
+  Risks raise "what do you need from us"; decisions-needed and the ask answer.
+- >-
+  Next-period restates the commitments the following deck will open with.
+leave_out:
+- Activity lists and effort narratives; outcomes only.
+- Good news without a commitment it fulfils.
+- Risks without an owner or mitigation.
+- Detail behind any number; notes and appendix.
+checklist:
+- >-
+  Titles read in order give the condition, the variance, and the decision.
+- Every commitment row has a result row.
+- Every variance names a cause and an action taken.
+- At least one decision is asked of the group.
+- Next-period commitments are worded so the next deck can reuse them.

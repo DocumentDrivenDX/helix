@@ -315,7 +315,9 @@ at their deeper procedure under `actions/` when one exists; consult it only
 when the contract needs more step detail. The `present` mode also reads six
 files under `workflows/deliverables/` (floor `references/deliverables/`):
 `theme.yml`, `slide-patterns.yml`, `deliverable-mappings.yml`,
-`deck-flows.yml`, `deck-craft.md`, and `visual-specs.md`.
+`deck-flows.yml`, `deck-craft.md`, and `visual-specs.md` — plus, once
+`deck-flows.yml` (an index) names the flow chosen by occasion, that one
+flow's own file under `deliverables/flows/`.
 
 ## Catalog Resolution
 

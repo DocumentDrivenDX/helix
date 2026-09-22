@@ -1,0 +1,105 @@
+# internal-alignment flow, split out of deck-flows.yml (workflows/deliverables/flows/) so
+# choosing a flow by occasion does not require loading every flow. See
+# ../deck-craft.md for the reasoning and sources behind this flow's arc.
+
+purpose: Get a team to commit to a direction and know their part in it.
+audience:
+  posture: >-
+    Wanting to know what changes for them, wary of slogans, listening for what is expected
+    and by when.
+  decision: Commit to the direction and start on their part.
+keep_when_short:
+- why-we-are-here
+- where-we-are-going
+- how-we-get-there
+- what-it-means-for-you
+- ask
+beats:
+- name: why-we-are-here
+  answers: What is this session for, in one sentence?
+  required: true
+  patterns:
+  - title
+  guidance: The destination as a claim about the team.
+- name: where-we-are
+  answers: What is true today that we all recognize?
+  required: true
+  patterns:
+  - claim-evidence
+  - stat-callout
+  guidance: >-
+    What is, stated plainly, including what is working; the team must see itself in it.
+- name: what-changed
+  answers: What happened that means the current path is not enough?
+  required: true
+  patterns:
+  - claim-evidence
+  - timeline
+  - statement
+  guidance: The event or trend, with a date; the reason the session exists.
+- name: where-we-are-going
+  answers: What does the better state look like, concretely?
+  required: true
+  patterns:
+  - claim-evidence
+  - two-column-comparison
+  - statement
+  guidance: What could be, next to what is; a picture the team can describe back.
+- name: how-we-get-there
+  answers: What is the plan, in phases?
+  required: true
+  patterns:
+  - timeline
+  - process-flow
+  guidance: >-
+    Three to six milestones with the present marked; the next one in detail, the rest in outline.
+- name: what-it-means-for-you
+  answers: What changes in each group's work, starting when?
+  required: true
+  patterns:
+  - table
+  - claim-evidence
+  guidance: One row per team or role; what starts, what stops, what stays.
+- name: how-we-will-know
+  answers: How will we tell it is working?
+  required: true
+  patterns:
+  - stat-callout
+  - table
+  guidance: Two or three measures with today's value and the target date.
+- name: ask
+  answers: What do we need from each of you this week?
+  required: true
+  patterns:
+  - ask-next-steps
+  guidance: The first concrete action per group, with owners and dates.
+- name: sources
+  answers: Where does each claim come from?
+  required: true
+  patterns:
+  - appendix-sources
+  guidance: >-
+    Each claim maps to the roadmap, vision, or iteration plan section behind it.
+transitions:
+- >-
+  Where-we-are raises "so why change"; what-changed answers with the event.
+- >-
+  What-changed raises "change to what"; where-we-are-going answers with the picture.
+- >-
+  Where-we-are-going raises "how"; how-we-get-there answers with the phases.
+- >-
+  The plan raises "what about me"; what-it-means-for-you answers per group.
+- >-
+  How-we-will-know raises "what first"; the ask answers with this week's action.
+leave_out:
+- Slogans and value words without a concrete consequence.
+- Organization charts unless roles change.
+- Plan detail beyond the next milestone.
+- Praise or blame for individuals.
+checklist:
+- >-
+  Titles read in order move from what is to what could be to what each group does first.
+- What-changed carries a date or an event.
+- Every group in the room has a row on what-it-means-for-you.
+- Measures on how-we-will-know have today's value and a target date.
+- The ask is this week's action per group with an owner.

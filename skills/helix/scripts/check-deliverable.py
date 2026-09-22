@@ -36,7 +36,8 @@ HELIX_VOCAB = re.compile(
     r"\b(?:FR|US|FEAT|ADR|TD|SD|TP|PRD|DEL|CONTRACT|WS)-\d+"
     r"|\bbeads?\b|\bratchets?\b|\bwork items?\b|\bacceptance criteri(?:a|on)\b"
     r"|\bAC\d+\b|\bartifact graph\b|\b(?:discover|frame|build|deploy|iterate) activity\b"
-    r"|\bddx\b",
+    r"|\bddx\b|\bstoryboard beats?\b|\bflow beats?\b|\bcandidate-briefing\b"
+    r"|\bkeep_when_short\b",
     re.I,
 )
 PLACEHOLDER = re.compile(r"\[NEEDS CLARIFICATION|\[TODO\]|\bTBD\b|\[Fill in\]|<placeholder>|\[\.\.\.\]")
@@ -45,7 +46,7 @@ PLACEHOLDER = re.compile(r"\[NEEDS CLARIFICATION|\[TODO\]|\bTBD\b|\[Fill in\]|<p
 BRACKET_TOKEN = re.compile(r"(?<!\[)\[(?:[A-Z][a-z]+)(?:[ /][A-Za-z]+)*\](?!\()")
 NUMBER = re.compile(r"(?<![\w.])(?:\$?\d[\d,]*(?:\.\d+)?\s?(?:%|k|K|M|B|x)?)(?![\w.])")
 # Methodology terms an audience outside the project would need defined; a warning, since some are plain English elsewhere
-JARGON = re.compile(r"\b(?:concerns?|stop triggers?|autonomy levels?|quality floors?|ratchets?|framing|[\w-]+ modes?)\b", re.I)
+JARGON = re.compile(r"\b(?:concerns?|stop triggers?|autonomy levels?|quality floors?|ratchets?|framing|[\w-]+ modes?|the record|the profile|spikes?|project artifacts?|sibling profiles?)\b", re.I)
 GENERIC_VISUALS = {"chart", "diagram", "image", "table", "graph", "picture", "photo", "screenshot", "none", "n/a"}
 
 # title.slop: headline shapes that read as generated. A title is one sentence
@@ -201,6 +202,47 @@ _MARKETING = (  # vendored from SloptimizerExternal/MarketingRegister.yml (ignor
     '\\bsingle (?:pane|source) of (?:glass|truth)\\b',
     '\\bgoverned (?:conversational|data|ai) access\\b',
 )
+# HELIX-owned, not vendored from sloptimizer (tests/validate-headline-sync.sh does not touch this
+# list): the human-facing voice profile's three named bland-prose smells the mechanical rules above
+# cannot see — a title or body can pass every rule above and still read like a policy memo. See
+# voice.yml's human-facing `avoid` list, which this ports as a mechanical backstop, not a substitute
+# for the editorial "would a person actually say this" pass in the deliverable prompt.
+_BUREAUCRATIC_EUPHEMISM = (
+    '\\bbefore the (?:decision|review|evaluation|assessment) (?:closes|concludes|finalizes|lands)\\b',
+    '\\bthe (?:decision|review|evaluation|assessment) (?:closes|concludes|finalizes|lands)\\b',
+    '\\bcloses? the (?:decision|review|evaluation|assessment) on\\b',
+    '\\bpending (?:finalization|closure)\\b',
+    '\\bconduct(?:s|ed|ing)? an? (?:evaluation|assessment|investigation)\\b',
+    '\\bprovide(?:s|d)? (?:clarification|guidance)\\b',
+    '\\bactionable insights?\\b',
+    '\\brobust (?:framework|solution|process)\\b',
+)
+# HELIX-owned, not vendored: the negative-parallelism shapes the upstream title rules leave alone because a
+# headline may legitimately say "instead of". In a body bullet they are the guidance's own register echoed
+# back ("not one it makes", "a guess instead of a record", "never a recommendation"), so they run on shapes
+# only. voice.yml's human-facing avoid list names them under negative parallelism and slogan closers.
+_BODY_REVERSAL = [re.compile(p, re.I) for p in (
+    r"\bnot one (?:it|we|they|this|that) \w+",
+    r"\brather than\b",
+    r"\b(?:a|an|the) [\w-]+ instead of (?:a|an|the) [\w-]+\s*[.!]?$",
+    r",\s*not\s+[a-z][\w-]*(?:\s+[a-z][\w-]*){0,3}\s*(?:[.;]|$)",   # "..., not published for the software" (bare noun or participle)
+    r"\bnever (?:a|an|the|to|as)\b",
+    r"^(?:skip|ignore|delay|postpone|wait on|do nothing about) [^,]{1,40}, and (?:the|this|that|your|our) \w+",
+)]
+_EM_DASH = re.compile(r"\u2014|\s\u2013\s|\s--\s")   # an unspaced en dash is a range (2016–2017) and stays
+# HELIX-owned: the copula-avoidance and borrowed-authority shapes voice.yml names; bodies and cells only
+_COPULA_AVOIDANCE = re.compile(r"\b(?:serves?|stands?|acts?|functions?) as\b|\bboasts?\b", re.I)
+_BORROWED_AUTHORITY = re.compile(
+    r"\b(?:experts?|analysts?|observers?|many|some|critics?|practitioners?) (?:say|agree|argue|note|believe|consider|suggest)\b"
+    r"|\bstudies (?:show|suggest|indicate)\b|\bit is (?:widely|generally|well) (?:known|accepted|regarded|understood)\b"
+    r"|\bwidely (?:regarded|considered|seen) as\b", re.I)
+_BOLD_LABEL_BULLET = re.compile(r"^\*\*[^*]{1,40}\*\*\s*[:.]")
+_COUNT_OF = r"\b(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten) of (?:\d+|one|two|three|four|five|six|seven|eight|nine|ten)\b"
+_TITLE_CASE = r"(?:[A-Z][\w'’-]*|[a-z]{1,3}|[\d$%,.]+|[:;,-]+)(?:\s+(?:[A-Z][\w'’-]*|[a-z]{1,3}|[\d$%,.]+|[:;,-]+))+"
+_NARRATION = re.compile(
+    r"^(?:in )?(?:this|the following|these|the present) (?:brief|page|one-pager|document|memo|deck|slide|profile|paper|section|pages|report|note)\b"
+    r"|^here (?:we|you)\b|^the following (?:sections?|pages?|table)\b|^(?:below|above),? (?:we|you)\b|^as (?:shown|described|noted) (?:below|above)\b", re.I)
+_HEADING_NUMBERS = {"27001", "27701", "9001", "2", "3"}  # standard names (ISO 27001) are labels; the gate keeps SOC 1/2/3 and ISO numbers as text
 _CONTAINER_NOUNS = (
     r"(?:capabilit(?:y|ies)|foundations?|layers?|overview|landscape|ecosystem|frameworks?|pillars?|principles|"
     r"considerations|enablers|building blocks|components|dimensions|themes|elements|areas|aspects|fundamentals|"
@@ -283,15 +325,28 @@ def external_slop(text: str) -> list[str]:
     return out
 
 
+def bureaucratic_slop(text: str) -> list[str]:
+    """HELIX-owned backstop (not vendored) for the human-facing voice profile's bland-prose smells: a
+    bureaucratic noun standing in for a plain verb, an empty precision-adjective on a plain noun. Runs
+    on titles and bodies alike, since the offending phrase is as likely in an ask line as a heading."""
+    for pat in _BUREAUCRATIC_EUPHEMISM:
+        m = re.search(pat, text, re.I)
+        if m:
+            return [f"bureaucratic euphemism {m.group(0)!r}; say the plain verb and the concrete stakes"]
+    return []
+
+
 def shape_slop(text: str) -> list[str]:
     """Rules for a non-title unit on a slide (a bullet, a card label, a caption, a verdict): the label rules plus the
     closer shapes a title cannot carry."""
     t = text.strip()
     out = label_slop(t)
+    reversed_ = False
     for p in _REVERSAL:
         m = p.search(t)
         if m:
             out.append(f"contrastive reversal {m.group(0).strip()!r}; state the positive claim")
+            reversed_ = True
             break
     for p in _APHORISM:
         m = p.search(t)
@@ -306,6 +361,22 @@ def shape_slop(text: str) -> list[str]:
     m = _TRAILING_COMMENTARY.search(t)
     if m:
         out.append(f"trailing commentary {m.group(0)!r}; keep the first sentence, move any status into the label")
+    out.extend(bureaucratic_slop(t))
+    for p in ([] if reversed_ else _BODY_REVERSAL):   # one finding per reversal; the upstream rule wins when both match
+        m = p.search(t)
+        if m:
+            out.append(f"negative parallelism {m.group(0).strip()!r}; state the positive claim and stop")
+            break
+    if _EM_DASH.search(t):
+        out.append("em dash; use a period, a comma, or a colon")
+    m = _COPULA_AVOIDANCE.search(t)
+    if m:
+        out.append(f"copula avoidance {m.group(0)!r}; say is, has, or does")
+    m = _BORROWED_AUTHORITY.search(t)
+    if m:
+        out.append(f"borrowed authority {m.group(0)!r}; name the source or drop the claim")
+    if _BOLD_LABEL_BULLET.match(t):
+        out.append("bold-label bullet; write the sentence, or make it a table row")
     return out
 
 
@@ -333,14 +404,17 @@ def restatements(shapes: list[str]) -> list[tuple[str, str]]:
     return out
 
 
-def title_slop(title: str, slide: bool = False) -> list[str]:
+def title_slop(title: str, slide: bool = False, label_heading: bool = False) -> list[str]:
     """Headline slop findings for one title; each is a short message with the match.
     `slide` is a slide title or a heading a reader outside the team will see: the label rules and the external
-    phrase lists apply. Off, only the shouting-label check runs, since `## Overview` is a convention inside a team."""
+    phrase lists apply. Off, only the shouting-label check runs, since `## Overview` is a convention inside a team.
+    `label_heading` is a reference document's section label (Introduction, Competitive landscape): the container
+    rule is off, the external phrase lists stay on."""
     t = title.strip()
-    out: list[str] = label_slop(t, container=slide)
+    out: list[str] = label_slop(t, container=slide and not label_heading)
     if slide:
         out.extend(external_slop(t))
+    out.extend(bureaucratic_slop(t))
     for p in _REVERSAL:
         m = p.search(t)
         if m:
@@ -395,6 +469,8 @@ def title_slop(title: str, slide: bool = False) -> list[str]:
     m = _HEDGES.search(t)
     if m:
         out.append(f"hedge {m.group(0)!r}; delete it, or scope the claim with a number")
+    if _EM_DASH.search(t):
+        out.append("em dash; one sentence, no aside")
     n = len(re.findall(r"[A-Za-z0-9$%][\w$%.,'’-]*", t))
     if n > _TITLE_MAX_WORDS:
         out.append(f"over-length ({n} words); aim for {_TITLE_TARGET_WORDS} or fewer, hard stop {_TITLE_MAX_WORDS}")
@@ -436,6 +512,41 @@ def load_patterns(catalog: Path | None, script_path: Path) -> dict:
             return {"path": c, "patterns": {p["id"]: p for p in data.get("patterns", [])},
                     "density": data.get("density", {})}
     return {"path": None, "patterns": {}, "density": {}}
+
+
+def load_flow(catalog: Path | None, script_path: Path, flow_id: str) -> dict:
+    """The chosen flow's own file (deliverables/flows/<id>.yml): heading_style and which beats are required."""
+    if not re.fullmatch(r"[a-z][a-z0-9-]*", flow_id or ""):
+        return {}
+    rel = Path("deliverables") / "flows" / f"{flow_id}.yml"
+    candidates = []
+    if catalog:
+        candidates += [catalog / rel, catalog / "workflows" / rel]
+    for parent in [script_path.resolve()] + list(script_path.resolve().parents):
+        candidates.append(parent / "workflows" / rel)
+    here = Path(__file__).resolve().parent
+    candidates += [here.parent / "references" / rel, here.parent.parent.parent / "workflows" / rel]
+    for c in candidates:
+        if c.is_file():
+            return yaml.safe_load(c.read_text(encoding="utf-8")) or {}
+    return {}
+
+
+def load_theme(catalog: Path | None, script_path: Path) -> dict:
+    candidates = []
+    if catalog:
+        candidates += [catalog / "deliverables" / "theme.yml",
+                       catalog / "workflows" / "deliverables" / "theme.yml"]
+    for parent in [script_path.resolve()] + list(script_path.resolve().parents):
+        candidates.append(parent / "workflows" / "deliverables" / "theme.yml")
+    here = Path(__file__).resolve().parent
+    candidates += [here.parent / "references" / "deliverables" / "theme.yml",
+                   here.parent.parent.parent / "workflows" / "deliverables" / "theme.yml"]
+    for c in candidates:
+        if c.is_file():
+            data = yaml.safe_load(c.read_text(encoding="utf-8")) or {}
+            return data.get("layout", {}).get("document", {}) or {}
+    return {}
 
 
 def split_frontmatter(text: str) -> tuple[dict, str, int]:
@@ -528,6 +639,28 @@ NODE_FIRST_CELL = {"spokes", "items", "rows", "stats", "risks"}
 BODY_ON_SLIDE = {"claim-evidence", "agenda", "quote", "ask-next-steps", "statement", "section-divider"}
 
 
+def unit_weight(vtext: str, n_bullets: int) -> float:
+    """A rough proxy for a unit's rendered height on a document page: a table/risk-grid/list's row
+    count dominates over its bullet count. Mirrors render-doc.js's identical heuristic (used there to
+    balance a one-pager's two-column grid), reused here as the one estimate `render_doc_page_estimate`
+    needs and word count alone cannot give: a table's cells are short but its rows are tall."""
+    for field in ("rows", "risks", "items"):
+        m = re.search(rf"\b{field}:\s*(.*?)(?:\s\|\s|\.\s|\.$|$)", vtext)
+        if m and m.group(1).strip():
+            n = len([p for p in m.group(1).split(";") if p.strip()])
+            if n:
+                return 2 + n * 1.3
+    return 2 + n_bullets * 0.9
+
+
+# Calibration for the brief page estimate: an empirical weight-per-page constant read off real
+# render-doc.js output (an 8-unit brief with a mix of tables, a two-column comparison, and a risk
+# grid rendered to 4 pages: total weight 60.3, so ~15.1 weight per page), not a modeled page
+# geometry. It is deliberately named and kept in one place so it can be recalibrated without hunting
+# through the check; treat its output as a sanity range, not a page count.
+DOC_WEIGHT_PER_PAGE = 15.0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("script")
@@ -542,6 +675,7 @@ def main() -> int:
     text = path.read_text(encoding="utf-8")
     fm, body, fm_lines = split_frontmatter(text)
     pats = load_patterns(Path(args.catalog) if args.catalog else None, path)
+    doc_layout = load_theme(Path(args.catalog) if args.catalog else None, path)
     findings: list[dict] = []
 
     def add(sev: str, check: str, msg: str, line: int | None = None) -> None:
@@ -549,6 +683,7 @@ def main() -> int:
 
     ddx = fm.get("ddx", {}) if isinstance(fm, dict) else {}
     kind = (ddx.get("kind") or "deck") if isinstance(ddx, dict) else "deck"
+    is_doc = kind != "deck"   # brief or one-pager: a read page, not a projected slide
     secs = sections(body)
     for required in ("Brief", "Story", "Content", "Sources", "Assumptions and gaps", "Render"):
         if required not in secs:
@@ -568,6 +703,28 @@ def main() -> int:
     if not source_ids:
         add("BLOCKING", "sources", "Sources table has no S<n> rows")
 
+    # The chosen flow decides two things the gate needs early: whether headings are claims (a deck or a
+    # persuasive document) or labels (a reference such as candidate-briefing), and whether the ask beat
+    # is required. Without a flow file both default to the deck's rules.
+    story_text = secs.get("Story", (0, ""))[1]
+    flow_m = re.search(r"\*\*Flow\*\*:\s*([\w-]+)", story_text)
+    flow = load_flow(Path(args.catalog) if args.catalog else None, path, flow_m.group(1) if flow_m else "")
+    label_headings = flow.get("heading_style") == "label"
+    ask_required = next((bool(b.get("required", True)) for b in flow.get("beats", []) if b.get("name") == "ask"), True)
+
+    h1 = re.search(r"^# (.+)$", body, re.M)
+    if h1:
+        h1_line = fm_lines + body.count("\n", 0, h1.start()) + 1
+        h1_text = h1.group(1).strip()
+        if not label_headings and (h1_text.lower().strip(" .:") in LABEL_TITLES or words(h1_text) < 3):
+            add("BLOCKING", "title.claim", f"document title is a label, not a claim: {h1_text!r}", h1_line)
+        for msg in title_slop(h1_text, slide=True, label_heading=label_headings):
+            add("BLOCKING", "title.slop", f"document title: {msg}", h1_line)
+        if re.search(_COUNT_OF, h1_text, re.I):
+            add("BLOCKING", "title.count", f"document title carries a count: {h1_text!r}; the finding goes in the introduction, the title names the subject", h1_line)
+        if re.fullmatch(_TITLE_CASE, h1_text) and words(h1_text) >= 4:
+            add("BLOCKING", "title.case", f"document title is in Title Case: {h1_text!r}; write it as a sentence", h1_line)
+
     content_off = fm_lines + secs["Content"][0]
     us = units(secs["Content"][1], content_off)
     if args.dump_units:
@@ -583,17 +740,30 @@ def main() -> int:
     if not us:
         add("BLOCKING", "units", "no '### <n>. <claim title>' units under ## Content")
 
+    doc_word_total = 0   # one-pager budget: matches render-doc.js's own word counter
+    doc_weight_total = 0.0   # brief page estimate: see unit_weight/DOC_WEIGHT_PER_PAGE
     prev_pattern, run = None, 0
-    limit_consec = int(pats["density"].get("consecutive_same_pattern_max", 2))
+    # slide-patterns.yml's density and per-pattern limits size a projected slide (read in seconds,
+    # at a distance); a document page is read up close, at leisure, and normally repeats a pattern
+    # (two tables back to back is a fact, not monotony) — so a document gets more room, not the
+    # slide's own numbers. WORD_SCALE/COUNT_SCALE are a deliberately rough multiple, not a modeled
+    # page geometry; DOC_WEIGHT_PER_PAGE below is the same kind of estimate, calibrated against
+    # real render-doc.js output, for the one check (brief length) a word-count proxy can't reach.
+    WORD_SCALE, COUNT_SCALE = 2.5, 1.5
+    limit_consec = int(pats["density"].get("consecutive_same_pattern_max", 2)) * (2 if is_doc else 1)
     for u in us:
         t = u["title"]
         f = u["fields"]
         pattern = f.get("Pattern", {}).get("text", "")
-        if pattern != "appendix-sources" and (t.lower().strip(" .:") in LABEL_TITLES or words(t) < 3):
+        if pattern != "appendix-sources" and not label_headings and (t.lower().strip(" .:") in LABEL_TITLES or words(t) < 3):
             add("BLOCKING", "title.claim", f"unit {u['n']} title is a label, not a claim: {t!r}", u["line"])
         if pattern != "appendix-sources":
-            for msg in title_slop(t, slide=True):
+            for msg in title_slop(t, slide=True, label_heading=label_headings):
                 add("BLOCKING", "title.slop", f"unit {u['n']} title: {msg}", u["line"])
+            if re.search(_COUNT_OF, t, re.I):
+                add("BLOCKING", "title.count", f"unit {u['n']} title carries a count: {t!r}; the finding goes in the first sentence of the body", u["line"])
+            if is_doc and re.fullmatch(_TITLE_CASE, t) and words(t) >= 4:
+                add("BLOCKING", "title.case", f"unit {u['n']} heading is in Title Case: {t!r}; write it as a sentence", u["line"])
         for name in ("Pattern", "Body", "Visual", "Notes", "Sources"):
             if name not in f:
                 add("BLOCKING", f"unit.{name.lower()}", f"unit {u['n']} has no **{name}** line", u["line"])
@@ -615,6 +785,19 @@ def main() -> int:
                     "no period inside a field value (the spec ends at the first '. ')", vis.get("line"))
         if vis and (vtext.lower().strip(" .") in GENERIC_VISUALS or words(vtext) < 6):
             add("BLOCKING", "visual.generic", f"unit {u['n']} visual is not specified (say what it shows, its series, and source)", vis.get("line"))
+        # An owner, a date, or a likelihood/impact grade on the page is a plan or a judgment; the source has to
+        # state it, or the Assumptions section has to say it was inferred and why. The number check cannot see
+        # "two weeks" or "medium / high", so this does.
+        if vtext.startswith("kind:"):
+            provenance = (sources_text + "\n" + secs.get("Assumptions and gaps", (0, ""))[1]).lower()
+            for field in ("owners", "dates"):
+                fm_ = re.search(rf"\b{field}:\s*([^|.]+)", vtext)
+                if fm_:
+                    for item in [x.strip() for x in fm_.group(1).split(";") if x.strip()]:
+                        if item.lower() not in provenance:
+                            add("BLOCKING", "visual.unsourced", f"unit {u['n']} names {field[:-1]} {item!r} that no Sources row or Assumptions entry states", vis.get("line"))
+            if re.search(r"/\s*(?:low|medium|high)\s*/\s*(?:low|medium|high)\b", vtext, re.I) and not re.search(r"likelihood|impact|probabilit", provenance):
+                add("BLOCKING", "visual.unsourced", f"unit {u['n']} grades likelihood and impact that no Sources row or Assumptions entry states", vis.get("line"))
         bodyf = f.get("Body", {})
         btext = "\n".join([bodyf.get("text", "")] + bodyf.get("lines", []))
         notes = f.get("Notes", {})
@@ -628,46 +811,93 @@ def main() -> int:
         bullets = ([bodyf["text"]] if bodyf.get("text") else []) + [l for l in bodyf.get("lines", []) if l.strip().startswith(("-", "*", "•"))]
         # every text shape the slide will carry gets the shape rules; the title and the shapes together get the
         # restatement check (a bullet that repeats a panel, a verdict that repeats the title)
+        if pattern == "title" and is_doc:
+            # on a brief or one-pager the title unit's Body is the rendered introduction, the most-read prose
+            # on the page; it gets the shape rules (reversals, closers, dashes) like any bullet
+            for sh in [re.sub(r"^[-*•]\s+", "", b.strip()) for b in bullets]:
+                for msg in shape_slop(sh):
+                    add("BLOCKING", "shape.slop", f"unit {u['n']} introduction {sh[:50]!r}: {msg}", bodyf.get("line"))
+                if _NARRATION.search(sh):
+                    add("BLOCKING", "shape.narration", f"unit {u['n']} introduction narrates the document: {sh[:50]!r}; open with the reader's situation", bodyf.get("line"))
         if pattern not in ("appendix-sources", "title"):
             bullet_shapes = [re.sub(r"^[-*•]\s+", "", b.strip()) for b in bullets]
             cells_ = visual_shapes(vtext)
             for sh in bullet_shapes:
                 for msg in shape_slop(sh):
                     add("BLOCKING", "shape.slop", f"unit {u['n']} bullet {sh[:50]!r}: {msg}", bodyf.get("line"))
+                if is_doc and _NARRATION.search(sh):
+                    add("BLOCKING", "shape.narration", f"unit {u['n']} bullet narrates the document: {sh[:50]!r}; give the finding", bodyf.get("line"))
             for sh, node in cells_:
                 for msg in (label_slop(sh, container=False) if node else shape_slop(sh)):
                     add("BLOCKING", "shape.slop", f"unit {u['n']} visual cell {sh[:50]!r}: {msg}", vis.get("line"))
             on_slide = [t] + (bullet_shapes if pattern in BODY_ON_SLIDE else []) + [c for c, _ in cells_]
             for later, earlier in restatements(on_slide):
                 add("WARNING", "restatement", f"unit {u['n']}: {later[:50]!r} restates {earlier[:50]!r} on the same slide; keep one", bodyf.get("line"))
+        if pattern != "title":   # the title unit's words land in the masthead, not a numbered page
+            doc_word_total += words(t) + words(btext)
+            vis_prose = vtext[re.search(r"\.\s|\.$", vtext).end():] if vtext.startswith("kind:") and re.search(r"\.\s|\.$", vtext) else (vtext if not vtext.startswith("kind:") else "")
+            doc_word_total += words(vis_prose)
+        if pattern != "appendix-sources":
+            doc_weight_total += unit_weight(vtext, len(bullets))
         spec = pats["patterns"].get(pattern, {}).get("limits", {}) if pats["patterns"] else {}
         if spec:
-            if "bullets" in spec and len(bullets) > spec["bullets"]:
-                add("WARNING", "limits.bullets", f"unit {u['n']}: {len(bullets)} bullets, {pattern} allows {spec['bullets']}", bodyf.get("line"))
+            doc_note = " (page limit, scaled up from the slide limit in slide-patterns.yml)" if is_doc else ""
+            bullets_max = spec["bullets"] * COUNT_SCALE if is_doc and "bullets" in spec else spec.get("bullets")
+            if bullets_max is not None and len(bullets) > bullets_max:
+                add("WARNING", "limits.bullets", f"unit {u['n']}: {len(bullets)} bullets, {pattern} allows {round(bullets_max)}{doc_note}", bodyf.get("line"))
             if "words_per_bullet" in spec:
+                wpb_max = spec["words_per_bullet"] * WORD_SCALE if is_doc else spec["words_per_bullet"]
                 for b in bullets:
-                    if words(b) > spec["words_per_bullet"]:
-                        add("WARNING", "limits.words_per_bullet", f"unit {u['n']}: bullet over {spec['words_per_bullet']} words: {b.strip()[:60]!r}", bodyf.get("line"))
-            if "body_words" in spec and words(btext) > spec["body_words"]:
-                add("WARNING", "limits.body_words", f"unit {u['n']}: body {words(btext)} words, {pattern} allows {spec['body_words']}", bodyf.get("line"))
+                    if words(b) > wpb_max:
+                        add("WARNING", "limits.words_per_bullet", f"unit {u['n']}: bullet over {round(wpb_max)} words{doc_note}: {b.strip()[:60]!r}", bodyf.get("line"))
+            if "body_words" in spec:
+                bw_max = spec["body_words"] * WORD_SCALE if is_doc else spec["body_words"]
+                if words(btext) > bw_max:
+                    add("WARNING", "limits.body_words", f"unit {u['n']}: body {words(btext)} words, {pattern} allows {round(bw_max)}{doc_note}", bodyf.get("line"))
             if "title_words" in spec and words(t) > spec["title_words"]:
+                # a section heading, not a slide title: no document scaling — a claim heading stays
+                # a claim heading no matter the kind, this limit is about label discipline, not room
                 add("WARNING", "limits.title_words", f"unit {u['n']}: title over {spec['title_words']} words", u["line"])
         # numbers in body must appear in Sources
         for m in NUMBER.finditer(btext):
-            num = m.group(0).strip()
+            num = m.group(0).strip().rstrip(",.")
             if re.fullmatch(r"\d", num):  # single digits are usually list counts
                 continue
-            if num not in sources_text:
+            if not re.search(rf"(?<![\w.]){re.escape(num)}(?![\w.])", sources_text):
                 add("BLOCKING", "numbers.sourced", f"unit {u['n']}: figure {num!r} is not in the Sources table", bodyf.get("line"))
+        # the same rule for the text a Visual spec puts on the page: cells, captions, verdicts; the spec's own
+        # layout fields (columns: 1, highlight: 2, n: 3) are structure, not figures
+        vcells = re.sub(r"\b(?:columns|highlight|n|cols|rows_max|width|size):\s*\d+", " ", vtext)
+        for m in NUMBER.finditer(vcells):
+            num = m.group(0).strip().rstrip(",.")
+            if re.fullmatch(r"\d", num) or num in _HEADING_NUMBERS:
+                continue
+            if not re.search(rf"(?<![\w.]){re.escape(num)}(?![\w.])", sources_text):
+                add("BLOCKING", "numbers.sourced", f"unit {u['n']}: figure {num!r} in the Visual spec is not in the Sources table", vis.get("line"))
         cited = set(re.findall(r"S\d+", f.get("Sources", {}).get("text", "")))
         for c in cited - source_ids:
             add("BLOCKING", "sources.dangling", f"unit {u['n']} cites {c} which is not in the Sources table", f["Sources"]["line"])
         if f.get("Sources") and not cited:
             add("BLOCKING", "sources.empty", f"unit {u['n']} cites no S<n> source", f["Sources"]["line"])
 
+    # Whole-document budgets: a one-pager and a brief are read as a page, not projected as slides,
+    # so the thing worth checking is the page itself, not per-unit slide limits. Both estimates are
+    # approximate (word count for the one-pager, the same weight heuristic render-doc.js uses to lay
+    # out a page for the brief) — a warning that says so, never a block, because the render-and-look
+    # step in `actions/present.md` is the actual ground truth.
+    if kind == "one-pager":
+        title_m = re.search(r"^# (.+)$", body, re.M)
+        doc_word_total += words(title_m.group(1)) if title_m else 0
+        budget = int(doc_layout.get("max_words_one_pager", 450) or 450)
+        if doc_word_total > budget:
+            add("WARNING", "limits.one_pager_words",
+                f"one-pager: {doc_word_total} words exceeds theme.yml's max_words_one_pager ({budget}); "
+                "drop a unit rather than thin every bullet")
+    # a brief has no page budget: it runs as many pages as its record needs (NFR-3)
+
     # horizontal logic: reading only the titles must tell the story, so each
     # title should share at least one content word with the one before it.
-    story = [u for u in us if u["fields"].get("Pattern", {}).get("text") != "appendix-sources"]
+    story = [] if label_headings else [u for u in us if u["fields"].get("Pattern", {}).get("text") != "appendix-sources"]
     for prev, cur in zip(story, story[1:]):
         if not (content_words(prev["title"]) & content_words(cur["title"])):
             add("WARNING", "horizontal_logic",
@@ -714,7 +944,8 @@ def main() -> int:
         for u in us:
             hay = (u["title"] + " " + "\n".join([u["fields"].get("Body", {}).get("text", "")] + u["fields"].get("Body", {}).get("lines", []))).lower()
             for mo in must_omit:
-                if mo in hay:
+                mo_words = content_words(mo)
+                if mo in hay or (len(mo_words) >= 2 and len(mo_words & content_words(hay)) >= max(2, (len(mo_words) + 1) // 2) and len(mo_words) <= 4):
                     add("BLOCKING", "coverage.must_omit", f"unit {u['n']} mentions must-omit concept {mo!r}", u["line"])
 
     if kind == "deck" and us:
@@ -722,8 +953,10 @@ def main() -> int:
         if first != "title":
             add("BLOCKING", "deck.order", "first unit of a deck must use the 'title' pattern", us[0]["line"])
         tail = [u["fields"].get("Pattern", {}).get("text") for u in us[-2:]]
-        if tail != ["ask-next-steps", "appendix-sources"]:
+        if ask_required and tail != ["ask-next-steps", "appendix-sources"]:
             add("BLOCKING", "deck.order", "a deck ends with 'ask-next-steps' then 'appendix-sources'", us[-1]["line"])
+        elif not ask_required and tail[-1:] != ["appendix-sources"]:
+            add("BLOCKING", "deck.order", "a deck ends with 'appendix-sources'", us[-1]["line"])
         content_units = [u for u in us if u["fields"].get("Pattern", {}).get("text") not in ("title", "agenda", "section-divider", "appendix-sources")]
         if len(content_units) > 12:
             add("WARNING", "deck.length", f"{len(content_units)} content slides; more than 12 needs an explicit exception in Brief")

@@ -77,8 +77,24 @@ the label rules plus the closers a title cannot carry: a reversal or aphorism
 used as a closing line (`That is what makes it portable.`), flattery, and
 trailing commentary, a second sentence that explains the first (`Verifies
 citations. Built as the worked example for moving a check between products.`).
-Labels that name a part of a figure (a layer, a step, a spoke) only get the
+A shape also gets the two rules the voice profile names under negative
+parallelism and slogan closers: a body-only reversal (`rather than`, `never`,
+`a guess instead of a record`, `not one it makes`) and any em dash. Labels
+that name a part of a figure (a layer, a step, a spoke) only get the
 shouting-label check.
+
+The document title goes through the title rules, plus a Title Case check and
+a count check, so `PostgreSQL: Primary Data Store Fit Assessment` and
+`PostgreSQL meets three of five requirements` both block. Which title rules
+run depends on the flow: a persuasive flow wants claims, and a reference flow
+that declares `heading_style: label` (candidate-briefing) wants plain section
+titles such as `Required capabilities` and skips the claim and
+horizontal-logic checks. An owner, date, or likelihood grade in a Visual spec
+that no Sources row, Brief line, or Assumptions entry states blocks as
+`visual.unsourced`. On a
+brief or one-pager the title unit's body is the rendered introduction; it
+gets the shape rules, and a sentence that opens `This brief checks` or `This
+page names` blocks as narration.
 
 Within one slide, the gate compares the title, the on-slide bullets, and the
 visual cells pairwise. Two shapes whose content words overlap by half or more
