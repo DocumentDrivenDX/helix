@@ -153,8 +153,9 @@ toolchain also produces the `.pptx` and PDF and looks at every slide.
   same script on every host; the catalog example passes it with zero
   blocking findings, and the broken fixture fails on the named check ids.
 - **NFR-3 (budget)**: a deck holds at most twelve content slides without a
-  recorded exception; a one-pager holds three to six sections; a brief
-  two to four pages.
+  recorded exception; a one-pager holds three to six sections; a brief has no
+  fixed page count and runs as many pages as its record needs, because a
+  more detailed product needs more content.
 
 ## User Stories
 
@@ -211,12 +212,10 @@ toolchain also produces the `.pptx` and PDF and looks at every slide.
 
 ## Out of Scope
 
-- A document flow, section patterns, renderer, or kind-aware checks for
-  one-pagers and briefs; the kinds are named and share the template, but
-  today only decks have a flow, patterns, a renderer, and a gate tuned to
-  them (tracked in the improvement backlog).
-- A self-contained HTML render target; the mode names it, no renderer
-  produces it.
+- A `.docx` render target for one-pagers and briefs (`scripts/render-doc.js`
+  covers the document flow, section patterns, and an HTML/PDF render
+  target; `scripts/check-deliverable.py` scales pattern and density limits
+  for a document kind rather than applying the slide's own numbers).
 - Marketing copy with no governing artifact behind it; frame first.
 - A design system; HELIX ships a theme, not brand governance.
 - Live editing of the rendered file; changes go through the script.

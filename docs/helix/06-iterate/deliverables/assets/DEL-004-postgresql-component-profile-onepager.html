@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PostgreSQL as DepositMatch's system of record</title>
+<style>
+  @page { size: Letter; margin: 0.45in; }
+  :root{
+    --ink:#1F2933; --muted:#55606D; --surface:#FFFFFF; --surface-alt:#F3F5F8; --border:#D6DCE4;
+    --accent-main:#3B6BA8; --accent-support:#C44B2F; --accent-spark:#6842A8;
+    --positive:#2E8B6E; --negative:#B23A2E; --warning:#B8860B; --neutral:#55606D;
+    --hot:#F6E4DF;
+    --font-display: Times New Roman, Times New Roman, serif; --font-body: Arial, Helvetica, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; font-family:var(--font-body); color:var(--ink); font-size:8.8pt; line-height:1.4; background:var(--surface); }
+  .page{ max-width:980px; margin:0 auto; padding:16px 22px; }
+  a{ color:var(--accent-main); }
+  sup.cite{ font-size:0.72em; } sup.cite a{ text-decoration:none; color:var(--accent-main); }
+
+  header.masthead{ display:flex; align-items:flex-start; gap:18px; padding-bottom:10px; border-bottom:3px solid var(--accent-main); margin-bottom:14px; }
+  header.masthead .mark{ flex:0 0 auto; width:44px; height:44px; border-radius:0px; background:var(--surface-alt); display:flex; align-items:center; justify-content:center; color:var(--accent-main); }
+  header.masthead .mark svg{ width:24px; height:24px; }
+  .kicker{ font-family:var(--font-body); font-size:8.8pt; letter-spacing:.13em; text-transform:uppercase; color:var(--accent-support); font-weight:700; margin:0 0 5px; }
+  h1.doc-title{ font-family:var(--font-display); font-size:24pt; line-height:1.18; margin:0 0 8px; font-weight:700; text-wrap:balance; }
+  .dek{ font-family:var(--font-body); font-size:9.5pt; color:var(--muted); margin:0 0 5px; }
+  p.intro{ font-family:var(--font-body); font-size:9.200000000000001pt; color:var(--ink); margin:10px 0 10px; line-height:1.6; }
+  .meta-row{ font-family:var(--font-body); font-size:8.6pt; color:var(--muted); display:flex; gap:16px; flex-wrap:wrap; }
+  .meta-row b{ color:var(--ink); font-weight:600; }
+
+  h2{ font-family:var(--font-display); font-size:11.5pt; color:var(--ink); margin:8px 0 6px; padding-bottom:4px; border-bottom:1.5px solid var(--border); font-weight:700; break-after:avoid; text-wrap:balance; }
+  .hnum{ color:var(--accent-main); margin-right:7px; }
+  p{ margin:0 0 9px; }
+  .src-line{ font-size:8pt; color:var(--muted); margin:2px 0 4px; }
+  .src-line sup.cite{ font-size:1em; }
+
+  ul.doc-list{ margin:0 0 5px; padding-left:18px; }
+  ul.doc-list li{ margin-bottom:1px; }
+
+  table.doc-table{ width:100%; border-collapse:collapse; margin:2px 0 6px; font-family:var(--font-body); font-size:8.5pt; }
+  table.doc-table th{ text-align:left; background:var(--surface-alt); color:var(--muted); font-weight:700; padding:3px 6px; border-bottom:2px solid var(--border); font-size:8.2pt; text-transform:uppercase; letter-spacing:.03em; }
+  table.doc-table td{ padding:3px 6px; border-bottom:1px solid var(--border); vertical-align:top; }
+  table.doc-table tr.hl td{ background:var(--surface-alt); }
+  table.doc-table tr{ break-inside:avoid; }
+
+  .pill{ display:inline-block; font-family:var(--font-body); font-size:7.8pt; font-weight:700; padding:2px 7px; border-radius:99px; white-space:nowrap; }
+  .pill-positive{ background:color-mix(in srgb, var(--positive) 16%, white); color:var(--positive); }
+  .pill-negative{ background:color-mix(in srgb, var(--negative) 16%, white); color:var(--negative); }
+  .pill-warning{ background:color-mix(in srgb, var(--warning) 16%, white); color:var(--warning); }
+  .pill-neutral{ background:var(--surface-alt); color:var(--muted); }
+
+  .badge{ display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; color:#fff; flex:0 0 auto; }
+  .badge-square{ border-radius:5px; }
+  .badge .glyph{ width:12px; height:12px; display:flex; }
+  .badge .glyph svg{ width:100%; height:100%; stroke:currentColor; }
+  .badge .glyph.num{ font-family:var(--font-display); font-size:10pt; font-weight:700; }
+  .badge.bare{ background:none !important; width:auto; height:auto; }
+  .badge.bare .glyph{ width:16px; height:16px; }
+  .badge.bare .glyph.num{ font-size:10.8pt; }
+
+  .two-col{ display:flex; gap:0; margin:6px 0 2px; break-inside:avoid; border-top:1px solid var(--border); }
+  .tc-col{ flex:1 1 0; padding:8px 10px;  }
+  .tc-col + .tc-col{ border-left:1px solid var(--border); }
+  .tc-col.tc-lead{  }
+  .tc-col h4{ margin:0 0 8px; font-family:var(--font-display); font-size:9.8pt; }
+  .tc-col ul{ margin:0; padding-left:0; list-style:none; font-size:8.8pt; color:var(--muted); }
+  .tc-col li{ margin-bottom:6px; padding-left:16px; position:relative; }
+  .tc-col li.tc-check::before{ content:"\2713"; position:absolute; left:0; color:var(--accent-main); font-weight:700; }
+  .tc-col li:not(.tc-check)::before{ content:"\2013"; position:absolute; left:0; color:var(--muted); }
+  .tc-verdict{ font-style:italic; color:var(--muted); font-size:8.200000000000001pt; margin:2px 0 4px; }
+
+  .stat-row{ display:flex; gap:0px; margin:10px 0 14px; break-inside:avoid; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+  .stat-card{ flex:1 1 0; padding:12px 14px;  }
+  .stat-card + .stat-card{ border-left:1px solid var(--border); }
+  .stat-value{ font-family:var(--font-display); font-size:20pt; font-weight:700; line-height:1.1; }
+  .stat-caption{ font-size:7.800000000000001pt; color:var(--muted); margin-top:3px; }
+  .stat-label{ font-size:7.6pt; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-top:5px; font-weight:700; }
+
+  .panel-row{ display:flex; gap:0px; margin:10px 0 14px; break-inside:avoid; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+  .panel{ flex:1 1 0; padding:14px 16px; text-align:left;  }
+  .panel + .panel{ border-left:1px solid var(--border); }
+  .panel-hl{  }
+  .panel .badge{ margin-bottom:7px; width:26px; height:26px; }
+  .panel .glyph{ width:14px; height:14px; }
+  .panel-name{ font-weight:700; font-size:8.8pt; }
+  .panel-detail{ font-size:7.500000000000001pt; color:var(--muted); margin-top:4px; }
+  .panel-dial{ display:inline-flex; margin-bottom:7px; }
+  .panel-grade{ display:inline-block; font-family:var(--font-display); font-weight:700; font-size:1.15em; color:var(--accent-main); margin-bottom:6px; }
+  .dial{ display:block; }
+
+  .hero-band{
+    border-top:2px solid var(--ink); border-bottom:1px solid var(--border); background:none;
+    padding:12px 0 14px; margin:0 0 14px; break-inside:avoid;
+  }
+  .hero-kicker{
+    font-family:var(--font-display); font-weight:700; color:var(--ink);
+    font-size:12.5pt; margin:0 0 8px; text-wrap:balance;
+  }
+  .hero-band .panel-row{ margin:0; border:none; }
+  .hero-band .panel{ text-align:left; padding:10px 12px;  }
+  .hero-band .panel-row.hero .panel-dial{ margin-bottom:9px; }
+  .hero-band .panel-row.hero .panel-name{ font-size:9.8pt; }
+  .hero-band .panel-row.hero .panel-detail{ font-size:7.800000000000001pt; }
+  .hero-band .src-line{ margin:8px 0 0; }
+
+  .icon-list{ margin:10px 0 14px; column-gap:20px; }
+  .icon-row{ display:flex; gap:10px; margin-bottom:10px; break-inside:avoid; }
+  .icon-label{ font-weight:700; font-size:8.8pt; }
+  .icon-detail{ font-size:7.800000000000001pt; color:var(--muted); }
+
+  figure.figure{ margin:12px 0 8px; break-inside:avoid; }
+  svg.risk-grid{ width:100%; max-width:460px; height:auto; }
+  svg.risk-grid rect{ }
+  svg.risk-grid text.axis-l{ font-family:var(--font-body); font-size:8px; fill:var(--muted); }
+  svg.risk-grid text.axis-t{ font-family:var(--font-body); font-size:8px; fill:var(--muted); font-weight:700; }
+  svg.risk-grid text.dot-n{ font-family:var(--font-body); font-size:9px; fill:#fff; font-weight:700; }
+  svg.risk-grid .accent-main{ fill:var(--accent-main); } svg.risk-grid .accent-support{ fill:var(--accent-support); }
+  figure.figure figcaption{ font-size:8pt; color:var(--muted); margin-top:6px; }
+
+  .finding-list{ list-style:none; margin:10px 0 14px; padding:0; }
+  .finding-list li{ display:flex; gap:10px; align-items:flex-start; padding:3px 0; border-bottom:1px solid var(--border); font-size:8.8pt; }
+  .finding-list li:last-child{ border-bottom:none; }
+  .finding-list b{ color:var(--ink); }
+
+  .sec-ask .ask-band{ background:var(--accent-support); color:#fff; font-weight:700; font-family:var(--font-display); padding:7px 12px; border-radius:0px; margin:4px 0 6px; font-size:9.8pt; }
+  .ask-consequence{ color:var(--muted); font-style:italic; font-size:8.100000000000001pt; margin-top:3px; }
+  .step-text{ flex:1; } .step-meta{ display:block; font-size:8pt; color:var(--muted); margin-top:2px; }
+
+  .sec-sources{ margin-top:12px; }
+  ol.src-list{ list-style:none; margin:0; padding:0; font-size:8.6pt; line-height:1.3; color:var(--muted); columns:2; column-gap:24px; }
+  ol.src-list li{ display:flex; gap:6px; margin-bottom:3px; break-inside:avoid; }
+  .src-n{ color:var(--accent-main); font-weight:700; flex:0 0 auto; }
+  .src-where{ color:var(--muted); }
+
+  .placeholder{ border:1px dashed var(--border); border-radius:0px; padding:10px 12px; color:var(--muted); font-size:7.800000000000001pt; margin:8px 0 14px; }
+
+  
+  .op-grid{ display:grid; grid-template-columns:1fr 1fr; gap:0 26px; align-items:start; }
+  .op-col .sec:first-child h2{ margin-top:0; }
+  .sec-ask{ margin-top:6px; }
+  header.masthead{ break-inside:avoid; }
+  
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="masthead">
+    <div class="mark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6a8 3 0 0 0 16 0a8 3 0 0 0-16 0"/><path d="M4 6v12a8 3 0 0 0 16 0V6"/><path d="M4 12a8 3 0 0 0 16 0"/></svg>
+</div>
+    <div>
+      <p class="kicker">As of 22 September 2026</p>
+      <h1 class="doc-title">PostgreSQL as DepositMatch's system of record</h1>
+      
+      <div class="meta-row"></div>
+    </div>
+  </header>
+  <p class="intro">DepositMatch needs one system of record for imports, source rows, invoices, deposits, matches, reviewer decisions, exceptions, and the audit log, so that every accepted match can be explained at month-end and every exception stays owned. It must meet the seven capabilities below. On the public record PostgreSQL 16 meets all seven, six on its own and encryption at rest through the Amazon RDS hosting; restore time and replica lag under an import burst wait on a drill and a test.</p>
+  
+  <div class="op-grid"><div class="op-col"><section class="sec"><h2 id="u2"><span class="hnum">1.</span>Required capabilities</h2><ul class="doc-list"><li>Each capability comes from a project document, named in the last column</li></ul><table class="doc-table"><thead><tr><th>Capability</th><th>Comes from</th></tr></thead><tbody><tr><td>Atomic import commit under constraints</td><td>decision record, import standard</td></tr><tr><td>Attribution and kept history</td><td>auditability standard</td></tr><tr><td>Access scoped by role to the column</td><td>financial-data standard</td></tr><tr><td>Encryption in transit and at rest</td><td>financial-data standard, architecture document</td></tr><tr><td>Point-in-time recovery within fifteen minutes</td><td>architecture document</td></tr><tr><td>A job queue inside the store</td><td>architecture document</td></tr><tr><td>A read replica later</td><td>decision record</td></tr></tbody></table><p class="src-line">Sources <sup class="cite"><a href="#src-2">2</a></sup></p></section>
+<section class="sec"><h2 id="u5"><span class="hnum">4.</span>Competitive landscape</h2><ul class="doc-list"><li>MySQL 8.4 has no native row-level security; Amazon RDS adds the at-rest encryption the software cannot supply</li></ul><table class="doc-table"><thead><tr><th>Candidate</th><th>Role scope to the column</th></tr></thead><tbody><tr class="hl"><td>PostgreSQL 16</td><td>Met</td></tr><tr><td>MySQL 8.4 Community</td><td>Unmet, no native row-level security</td></tr><tr><td>Document database (MongoDB)</td><td>not researched</td></tr><tr><td>Amazon RDS for PostgreSQL 16</td><td>Inherits</td></tr></tbody></table><p class="src-line">Sources <sup class="cite"><a href="#src-7">7</a></sup></p></section></div><div class="op-col"><section class="sec"><h2 id="u3"><span class="hnum">2.</span>What it is</h2><ul class="doc-list"><li>An open-source object-relational database, community governed, the most-used in the 2025 Stack Overflow survey, one major release a year with five years of support, no licence fee</li></ul><p class="src-line">Sources <sup class="cite"><a href="#src-3">3</a></sup></p></section>
+<section class="sec"><h2 id="u4"><span class="hnum">3.</span>Capability alignment</h2><ul class="doc-list"><li>Superusers always bypass row security and owners do unless the table forces it; at-rest encryption and the five-minute log interval come from the hosting</li></ul><table class="doc-table"><thead><tr><th>Capability</th><th>Record</th><th>Status</th></tr></thead><tbody><tr class="hl"><td>Atomic commit</td><td>Transactions, six constraint types</td><td><span class="pill pill-positive">Met</span></td></tr><tr><td>Attribution</td><td>Triggers write user, time, row</td><td><span class="pill pill-positive">Met</span></td></tr><tr><td>Role scope</td><td>Column privileges, row security</td><td><span class="pill pill-positive">Met</span></td></tr><tr><td>Encryption</td><td>TLS, AES-256 via hosting</td><td><span class="pill pill-positive">Met</span></td></tr><tr><td>Point-in-time recovery</td><td>Archiving, logs every 5 minutes</td><td><span class="pill pill-positive">Met</span></td></tr><tr><td>Job queue</td><td>SKIP LOCKED</td><td><span class="pill pill-positive">Met</span></td></tr><tr><td>Read replica later</td><td>Hot standby</td><td><span class="pill pill-positive">Met</span></td></tr></tbody></table><p class="src-line">Sources <sup class="cite"><a href="#src-4">4</a>, <a href="#src-8">8</a></sup></p></section>
+<section class="sec"><h2 id="u6"><span class="hnum">5.</span>Open questions</h2><ul class="doc-list"><li>Restore time waits on the scheduled restore drill, replica lag on the decision's review trigger, and row-security throughput on a test if isolation moves into the database</li></ul><p class="src-line">Sources <sup class="cite"><a href="#src-9">9</a></sup></p></section></div></div>
+  
+</div>
+</body>
+</html>

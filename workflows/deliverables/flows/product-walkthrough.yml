@@ -1,0 +1,106 @@
+# product-walkthrough flow, split out of deck-flows.yml (workflows/deliverables/flows/) so
+# choosing a flow by occasion does not require loading every flow. See
+# ../deck-craft.md for the reasoning and sources behind this flow's arc.
+
+purpose: >-
+  Show what the product does in the user's terms so the audience can judge it against their
+  own work.
+audience:
+  posture: >-
+    Curious and comparing against what they use; they want to see it work.
+  decision: Try it, give feedback, or approve the next stage.
+keep_when_short:
+- promise
+- who-and-pain
+- walkthrough
+- before-and-after
+- ask
+beats:
+- name: promise
+  answers: What will the user be able to do after this?
+  required: true
+  patterns:
+  - title
+  guidance: The outcome for the user.
+- name: who-and-pain
+  answers: Who is the user, and what hurts in their day?
+  required: true
+  patterns:
+  - claim-evidence
+  - quote
+  guidance: One named role, one recurring moment of friction.
+- name: scenario
+  answers: What is the concrete job we are about to watch?
+  required: true
+  patterns:
+  - claim-evidence
+  guidance: >-
+    One task with a start state and a finish state; the demo follows this exactly.
+- name: walkthrough
+  answers: What happens at each step, and what does the user see?
+  required: true
+  patterns:
+  - process-flow
+  - diagram
+  - claim-evidence
+  guidance: >-
+    Two to four slides, one step each, screenshot or flow per slide, the result of the step
+    in the title.
+- name: before-and-after
+  answers: What changed for the user compared with the old way?
+  required: true
+  patterns:
+  - two-column-comparison
+  - stat-callout
+  guidance: Same task, old way and new way, one measure (time, steps, errors).
+- name: proof-and-limits
+  answers: What do we know works, and where does it stop today?
+  required: true
+  patterns:
+  - claim-evidence
+  - table
+  guidance: >-
+    Evidence from real use next to the current limits; limits stated plainly build trust.
+- name: whats-next
+  answers: What is coming, and when?
+  required: false
+  patterns:
+  - timeline
+  guidance: >-
+    Three to six milestones; only when the audience decides on the roadmap.
+- name: ask
+  answers: What do we want the audience to do with what they saw?
+  required: true
+  patterns:
+  - ask-next-steps
+  guidance: >-
+    Try it, give feedback by a date, or approve the next stage; owners named.
+- name: sources
+  answers: Where does each claim come from?
+  required: true
+  patterns:
+  - appendix-sources
+  guidance: >-
+    Each claim maps to the design, release notes, or PR-FAQ section behind it.
+transitions:
+- >-
+  Who-and-pain raises "show me"; scenario sets up the exact task; walkthrough shows it step
+  by step.
+- >-
+  Each walkthrough title states the result of its step and sets up the next step.
+- >-
+  The last step raises "so what did that save"; before-and-after answers with one measure.
+- >-
+  Before-and-after raises "does it hold up"; proof-and-limits answers both halves.
+- The ask asks for the smallest action that gets the audience using it.
+leave_out:
+- Architecture and implementation detail.
+- Features the scenario does not touch.
+- Superlatives; the measure on before-and-after does the work.
+- Roadmap detail unless the audience decides on it.
+checklist:
+- Titles read in order tell the scenario from pain to result.
+- Every walkthrough slide has a screenshot or flow and one step.
+- Before-and-after uses one measure with a sourced figure.
+- Limits are stated on the proof slide.
+- The ask is an action the audience can take this week.

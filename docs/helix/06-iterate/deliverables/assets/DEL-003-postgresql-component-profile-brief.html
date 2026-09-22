@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PostgreSQL as DepositMatch's system of record</title>
+<style>
+  @page { size: Letter; margin: 1in; }
+  :root{
+    --ink:#1F2933; --muted:#55606D; --surface:#FFFFFF; --surface-alt:#F3F5F8; --border:#D6DCE4;
+    --accent-main:#3B6BA8; --accent-support:#C44B2F; --accent-spark:#6842A8;
+    --positive:#2E8B6E; --negative:#B23A2E; --warning:#B8860B; --neutral:#55606D;
+    --hot:#F6E4DF;
+    --font-display: Times New Roman, Times New Roman, serif; --font-body: Arial, Helvetica, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; font-family:var(--font-body); color:var(--ink); font-size:11pt; line-height:1.55; background:var(--surface); }
+  .page{ max-width:740px; margin:0 auto; padding:34px 6px; }
+  a{ color:var(--accent-main); }
+  sup.cite{ font-size:0.72em; } sup.cite a{ text-decoration:none; color:var(--accent-main); }
+
+  header.masthead{ display:flex; align-items:flex-start; gap:18px; padding-bottom:18px; border-bottom:3px solid var(--accent-main); margin-bottom:24px; }
+  header.masthead .mark{ flex:0 0 auto; width:44px; height:44px; border-radius:0px; background:var(--surface-alt); display:flex; align-items:center; justify-content:center; color:var(--accent-main); }
+  header.masthead .mark svg{ width:24px; height:24px; }
+  .kicker{ font-family:var(--font-body); font-size:8.8pt; letter-spacing:.13em; text-transform:uppercase; color:var(--accent-support); font-weight:700; margin:0 0 5px; }
+  h1.doc-title{ font-family:var(--font-display); font-size:24pt; line-height:1.18; margin:0 0 8px; font-weight:700; text-wrap:balance; }
+  .dek{ font-family:var(--font-body); font-size:11.7pt; color:var(--muted); margin:0 0 10px; }
+  p.intro{ font-family:var(--font-body); font-size:11.4pt; color:var(--ink); margin:16px 0 20px; line-height:1.6; }
+  .meta-row{ font-family:var(--font-body); font-size:8.6pt; color:var(--muted); display:flex; gap:16px; flex-wrap:wrap; }
+  .meta-row b{ color:var(--ink); font-weight:600; }
+
+  h2{ font-family:var(--font-display); font-size:14pt; color:var(--ink); margin:26px 0 6px; padding-bottom:4px; border-bottom:1.5px solid var(--border); font-weight:700; break-after:avoid; text-wrap:balance; }
+  .hnum{ color:var(--accent-main); margin-right:7px; }
+  p{ margin:0 0 9px; }
+  .src-line{ font-size:8pt; color:var(--muted); margin:2px 0 4px; }
+  .src-line sup.cite{ font-size:1em; }
+
+  ul.doc-list{ margin:0 0 10px; padding-left:18px; }
+  ul.doc-list li{ margin-bottom:4px; }
+
+  table.doc-table{ width:100%; border-collapse:collapse; margin:4px 0 12px; font-family:var(--font-body); font-size:9.3pt; }
+  table.doc-table th{ text-align:left; background:var(--surface-alt); color:var(--muted); font-weight:700; padding:6px 9px; border-bottom:2px solid var(--border); font-size:9pt; text-transform:uppercase; letter-spacing:.03em; }
+  table.doc-table td{ padding:7px 9px; border-bottom:1px solid var(--border); vertical-align:top; }
+  table.doc-table tr.hl td{ background:var(--surface-alt); }
+  table.doc-table tr{ break-inside:avoid; }
+
+  .pill{ display:inline-block; font-family:var(--font-body); font-size:7.8pt; font-weight:700; padding:2px 7px; border-radius:99px; white-space:nowrap; }
+  .pill-positive{ background:color-mix(in srgb, var(--positive) 16%, white); color:var(--positive); }
+  .pill-negative{ background:color-mix(in srgb, var(--negative) 16%, white); color:var(--negative); }
+  .pill-warning{ background:color-mix(in srgb, var(--warning) 16%, white); color:var(--warning); }
+  .pill-neutral{ background:var(--surface-alt); color:var(--muted); }
+
+  .badge{ display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; color:#fff; flex:0 0 auto; }
+  .badge-square{ border-radius:5px; }
+  .badge .glyph{ width:12px; height:12px; display:flex; }
+  .badge .glyph svg{ width:100%; height:100%; stroke:currentColor; }
+  .badge .glyph.num{ font-family:var(--font-display); font-size:10pt; font-weight:700; }
+  .badge.bare{ background:none !important; width:auto; height:auto; }
+  .badge.bare .glyph{ width:16px; height:16px; }
+  .badge.bare .glyph.num{ font-size:13pt; }
+
+  .two-col{ display:flex; gap:0; margin:12px 0 4px; break-inside:avoid; border-top:1px solid var(--border); }
+  .tc-col{ flex:1 1 0; padding:13px 14px;  }
+  .tc-col + .tc-col{ border-left:1px solid var(--border); }
+  .tc-col.tc-lead{  }
+  .tc-col h4{ margin:0 0 8px; font-family:var(--font-display); font-size:12pt; }
+  .tc-col ul{ margin:0; padding-left:0; list-style:none; font-size:11pt; color:var(--muted); }
+  .tc-col li{ margin-bottom:6px; padding-left:16px; position:relative; }
+  .tc-col li.tc-check::before{ content:"\2713"; position:absolute; left:0; color:var(--accent-main); font-weight:700; }
+  .tc-col li:not(.tc-check)::before{ content:"\2013"; position:absolute; left:0; color:var(--muted); }
+  .tc-verdict{ font-style:italic; color:var(--muted); font-size:10.4pt; margin:2px 0 14px; }
+
+  .stat-row{ display:flex; gap:0px; margin:10px 0 14px; break-inside:avoid; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+  .stat-card{ flex:1 1 0; padding:12px 14px;  }
+  .stat-card + .stat-card{ border-left:1px solid var(--border); }
+  .stat-value{ font-family:var(--font-display); font-size:20pt; font-weight:700; line-height:1.1; }
+  .stat-caption{ font-size:10pt; color:var(--muted); margin-top:3px; }
+  .stat-label{ font-size:7.6pt; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-top:5px; font-weight:700; }
+
+  .panel-row{ display:flex; gap:0px; margin:10px 0 14px; break-inside:avoid; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+  .panel{ flex:1 1 0; padding:14px 16px; text-align:left;  }
+  .panel + .panel{ border-left:1px solid var(--border); }
+  .panel-hl{  }
+  .panel .badge{ margin-bottom:7px; width:26px; height:26px; }
+  .panel .glyph{ width:14px; height:14px; }
+  .panel-name{ font-weight:700; font-size:11pt; }
+  .panel-detail{ font-size:9.7pt; color:var(--muted); margin-top:4px; }
+  .panel-dial{ display:inline-flex; margin-bottom:7px; }
+  .panel-grade{ display:inline-block; font-family:var(--font-display); font-weight:700; font-size:1.15em; color:var(--accent-main); margin-bottom:6px; }
+  .dial{ display:block; }
+
+  .hero-band{
+    border-top:2px solid var(--ink); border-bottom:1px solid var(--border); background:none;
+    padding:18px 0 20px; margin:0 0 26px; break-inside:avoid;
+  }
+  .hero-kicker{
+    font-family:var(--font-display); font-weight:700; color:var(--ink);
+    font-size:18pt; margin:0 0 14px; text-wrap:balance;
+  }
+  .hero-band .panel-row{ margin:0; border:none; }
+  .hero-band .panel{ text-align:left; padding:14px 16px;  }
+  .hero-band .panel-row.hero .panel-dial{ margin-bottom:9px; }
+  .hero-band .panel-row.hero .panel-name{ font-size:13.5pt; }
+  .hero-band .panel-row.hero .panel-detail{ font-size:11pt; }
+  .hero-band .src-line{ margin:12px 0 0; }
+
+  .icon-list{ margin:10px 0 14px; column-gap:20px; }
+  .icon-row{ display:flex; gap:10px; margin-bottom:10px; break-inside:avoid; }
+  .icon-label{ font-weight:700; font-size:11pt; }
+  .icon-detail{ font-size:10pt; color:var(--muted); }
+
+  figure.figure{ margin:12px 0 8px; break-inside:avoid; }
+  svg.risk-grid{ width:100%; max-width:460px; height:auto; }
+  svg.risk-grid rect{ }
+  svg.risk-grid text.axis-l{ font-family:var(--font-body); font-size:8px; fill:var(--muted); }
+  svg.risk-grid text.axis-t{ font-family:var(--font-body); font-size:8px; fill:var(--muted); font-weight:700; }
+  svg.risk-grid text.dot-n{ font-family:var(--font-body); font-size:9px; fill:#fff; font-weight:700; }
+  svg.risk-grid .accent-main{ fill:var(--accent-main); } svg.risk-grid .accent-support{ fill:var(--accent-support); }
+  figure.figure figcaption{ font-size:8pt; color:var(--muted); margin-top:6px; }
+
+  .finding-list{ list-style:none; margin:10px 0 14px; padding:0; }
+  .finding-list li{ display:flex; gap:10px; align-items:flex-start; padding:7px 0; border-bottom:1px solid var(--border); font-size:11pt; }
+  .finding-list li:last-child{ border-bottom:none; }
+  .finding-list b{ color:var(--ink); }
+
+  .sec-ask .ask-band{ background:var(--accent-support); color:#fff; font-weight:700; font-family:var(--font-display); padding:10px 14px; border-radius:0px; margin:8px 0 12px; font-size:12pt; }
+  .ask-consequence{ color:var(--muted); font-style:italic; font-size:10.3pt; margin-top:8px; }
+  .step-text{ flex:1; } .step-meta{ display:block; font-size:8pt; color:var(--muted); margin-top:2px; }
+
+  .sec-sources{ margin-top:16px; }
+  ol.src-list{ list-style:none; margin:0; padding:0; font-size:8.6pt; line-height:1.3; color:var(--muted); columns:2; column-gap:24px; }
+  ol.src-list li{ display:flex; gap:6px; margin-bottom:3px; break-inside:avoid; }
+  .src-n{ color:var(--accent-main); font-weight:700; flex:0 0 auto; }
+  .src-where{ color:var(--muted); }
+
+  .placeholder{ border:1px dashed var(--border); border-radius:0px; padding:10px 12px; color:var(--muted); font-size:10pt; margin:8px 0 14px; }
+
+  
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="masthead">
+    <div class="mark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6a8 3 0 0 0 16 0a8 3 0 0 0-16 0"/><path d="M4 6v12a8 3 0 0 0 16 0V6"/><path d="M4 12a8 3 0 0 0 16 0"/></svg>
+</div>
+    <div>
+      <p class="kicker">As of 22 September 2026</p>
+      <h1 class="doc-title">PostgreSQL as DepositMatch's system of record</h1>
+      
+      <div class="meta-row"></div>
+    </div>
+  </header>
+  <p class="intro">DepositMatch needs a system of record for its reconciliation workspace: each client firm's imports and source rows, the invoices and deposits they become, match suggestions, reviewer decisions, exceptions, and the audit log behind all of it. The goals are a review log a firm can explain at month-end, exceptions that stay owned, and a pilot with one store to operate. The store must commit an import and its derived rows atomically under constraints, record who decided what and keep the history, scope access by role to the column, encrypt data in transit and at rest, recover to a point in time within fifteen minutes, run the worker's job queue, and take a read replica later. We evaluated PostgreSQL 16 against those seven capabilities on the public record. It meets all seven, six from its own documentation and encryption at rest from the Amazon RDS hosting the architecture names. Restore time and replica lag under an import burst wait on a drill and a test.</p>
+  
+  <section class="sec"><h2 id="u2"><span class="hnum">1.</span>Required capabilities</h2><ul class="doc-list"><li>Each capability comes from a project document, named in the last column</li></ul><table class="doc-table"><thead><tr><th>Capability</th><th>Serves</th><th>Comes from</th></tr></thead><tbody><tr><td>An import and its derived rows commit together or not at all, under constraints</td><td>a review log a firm can explain</td><td>the decision record and the import-integrity standard</td></tr><tr><td>Every decision and correction is recorded with who and when, and history is kept</td><td>auditability as usability</td><td>the auditability standard and the principles</td></tr><tr><td>Access scoped by role down to the column</td><td>protecting financial records</td><td>the financial-data standard</td></tr><tr><td>Encryption in transit by the software, at rest by the hosting</td><td>records unreadable if traffic or storage leaks</td><td>the financial-data standard and the architecture document</td></tr><tr><td>Point-in-time recovery within fifteen minutes</td><td>the disaster-recovery target</td><td>the architecture document</td></tr><tr><td>A job queue inside the store for several workers</td><td>one store to operate</td><td>the architecture document and the decision record</td></tr><tr><td>A read replica later, without a schema change</td><td>reports that do not slow imports</td><td>the decision record</td></tr></tbody></table><p class="src-line">Sources <sup class="cite"><a href="#src-2">2</a></sup></p></section>
+<section class="sec"><h2 id="u3"><span class="hnum">2.</span>What it is</h2><ul class="doc-list"><li>An open-source object-relational database, ACID-compliant since 2001, governed by a community with no controlling vendor, and the most-used database in the 2025 Stack Overflow Developer Survey</li></ul><div class="icon-list" style="columns:1">
+    <div class="icon-row">
+      <span class="badge bare" style="color:#3B6BA8"><span class="glyph"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6a8 3 0 0 0 16 0a8 3 0 0 0-16 0"/><path d="M4 6v12a8 3 0 0 0 16 0V6"/><path d="M4 12a8 3 0 0 0 16 0"/></svg>
+</span></span>
+      <div><div class="icon-label">object-relational, transactional</div><div class="icon-detail">SQL, ACID, constraints, extensions</div></div>
+    </div>
+    <div class="icon-row">
+      <span class="badge bare" style="color:#3B6BA8"><span class="glyph"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 4a4 4 0 0 1 0 8"/><path d="M21 21v-2a4 4 0 0 0-3-3.9"/></svg>
+</span></span>
+      <div><div class="icon-label">community governed</div><div class="icon-detail">committers and a core team, no controlling vendor</div></div>
+    </div>
+    <div class="icon-row">
+      <span class="badge bare" style="color:#3B6BA8"><span class="glyph"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><line x1="8" y1="17" x2="8" y2="12"/><line x1="13" y1="17" x2="13" y2="6"/><line x1="18" y1="17" x2="18" y2="9"/></svg>
+</span></span>
+      <div><div class="icon-label">most-used database, 2025 survey</div><div class="icon-detail">55.6% of respondents</div></div>
+    </div>
+    <div class="icon-row">
+      <span class="badge bare" style="color:#3B6BA8"><span class="glyph"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>
+</span></span>
+      <div><div class="icon-label">one major release a year</div><div class="icon-detail">five years of support each, version 16 until 2028</div></div>
+    </div>
+    <div class="icon-row">
+      <span class="badge bare" style="color:#3B6BA8"><span class="glyph"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><path d="M17 7a4 4 0 0 0-4-3h-2a4 4 0 0 0 0 8h2a4 4 0 0 1 0 8h-2a4 4 0 0 1-4-3"/></svg>
+</span></span>
+      <div><div class="icon-label">no licence fee</div><div class="icon-detail">use, copy, modify, distribute</div></div>
+    </div></div><p class="src-line">Sources <sup class="cite"><a href="#src-3">3</a></sup></p></section>
+<section class="sec"><h2 id="u4"><span class="hnum">3.</span>Capability alignment</h2><ul class="doc-list"><li>Two documented cautions bear on role scoping: superusers always bypass row security and owners do unless the table forces them, and a tenant set with plain SET persists across a pooled connection where SET LOCAL resets it</li><li>Encryption at rest and the five-minute log interval come from the Amazon RDS hosting the architecture names; every other row is the software's own documentation</li><li>Outside the public record: certifications and running cost belong to the hosting, cross-server sharding is not native, and raw CSV rows fit the core JSONB type</li></ul><table class="doc-table"><thead><tr><th>Capability</th><th>What the record shows</th><th>Status</th></tr></thead><tbody><tr class="hl"><td>Atomic commit and constraints</td><td>All-or-nothing transactions, six constraint types including foreign keys</td><td><span class="pill pill-positive">Met</span></td></tr><tr><td>Attribution and history</td><td>Trigger functions writing user, time, and the changed row to an audit table</td><td><span class="pill pill-positive">Met</span></td></tr><tr><td>Role scope to the column</td><td>Column-level privileges and row security since 9.5, SET LOCAL behind a pool</td><td><span class="pill pill-positive">Met</span></td></tr><tr><td>Encryption</td><td>TLS from the software, AES-256 at rest from the hosting</td><td><span class="pill pill-positive">Met</span></td></tr><tr><td>Point-in-time recovery</td><td>Continuous archiving, hosting uploads logs every 5 minutes</td><td><span class="pill pill-positive">Met</span></td></tr><tr><td>In-store job queue</td><td>SELECT FOR UPDATE SKIP LOCKED for queue tables</td><td><span class="pill pill-positive">Met</span></td></tr><tr><td>Read replica later</td><td>Hot standby, read-only and eventually consistent, replicas with a lag metric on the hosting</td><td><span class="pill pill-positive">Met</span></td></tr></tbody></table><p class="src-line">Sources <sup class="cite"><a href="#src-4">4</a>, <a href="#src-5">5</a>, <a href="#src-6">6</a>, <a href="#src-8">8</a></sup></p></section>
+<section class="sec"><h2 id="u5"><span class="hnum">4.</span>Competitive landscape</h2><ul class="doc-list"><li>MySQL 8.4 has no native row-level security, and the documented alternative is views with WHERE clauses plus triggers; a document database supports multi-document transactions, and its own maker cautions against relying on them in place of schema design</li></ul><table class="doc-table"><thead><tr><th>Candidate</th><th>Atomic commit</th><th>Role scope</th><th>At rest</th><th>PITR</th><th>Replica</th></tr></thead><tbody><tr class="hl"><td>PostgreSQL 16</td><td>Met</td><td>Met</td><td>via hosting</td><td>via hosting</td><td>Met</td></tr><tr><td>MySQL 8.4 Community</td><td>InnoDB ACID model</td><td>Unmet, no native row security</td><td>not researched</td><td>not researched</td><td>not researched</td></tr><tr><td>Document database (MongoDB)</td><td>Transactions since 4.0</td><td>not researched</td><td>not researched</td><td>not researched</td><td>not researched</td></tr><tr><td>Amazon RDS for PostgreSQL 16</td><td>Inherits</td><td>Inherits</td><td>AES-256</td><td>Logs every 5 minutes</td><td>Replicas, lag metric</td></tr></tbody></table><p class="src-line">Sources <sup class="cite"><a href="#src-7">7</a></sup></p></section>
+<section class="sec"><h2 id="u6"><span class="hnum">5.</span>Open questions</h2><ul class="doc-list"><li>Each answer has a home: the scheduled restore drill, the decision's review trigger, or a test</li></ul><table class="doc-table"><thead><tr><th>Open question</th><th>Why it matters</th><th>Where the answer comes from</th></tr></thead><tbody><tr><td>Does a point-in-time restore complete within the four-hour recovery-time target?</td><td>The record carries the recovery point and no restore duration</td><td>The quarterly restore drill before paid launch</td></tr><tr><td>What replica lag would a reporting replica see during an import burst, should reporting load grow?</td><td>Decides whether firm-level reports can leave the primary</td><td>The decision's review trigger, then a planned test</td></tr><tr><td>If per-firm isolation moves into row security, does throughput hold behind the API's connection pool?</td><td>Decides whether isolation lives in the database or the application</td><td>A planned test, only if row security is adopted</td></tr></tbody></table><p class="src-line">Sources <sup class="cite"><a href="#src-9">9</a></sup></p></section>
+  <section class="sec sec-sources"><h2>Sources</h2><ol class="src-list"><li id="src-1"><span class="src-n">1.</span><span>Scope and Summary: PostgreSQL 16, the system-of-record role, the accepted decision this informs; 33 sources <span class="src-where">&middot; component-profile-postgresql#scope, component-profile-postgresql#summary, component-profile-postgresql#sources</span></span></li><li id="src-2"><span class="src-n">2.</span><span>Need and Required Capabilities: the goals and the seven capabilities with their origins <span class="src-where">&middot; component-profile-postgresql#need, component-profile-postgresql#required-capabilities</span></span></li><li id="src-3"><span class="src-n">3.</span><span>What It Is: object-relational, ACID-compliant since 2001, community governed, 55.6% of 2025 survey respondents, one major a year, five years of support, 16 until 2028, no-fee licence <span class="src-where">&middot; component-profile-postgresql#what-it-is</span></span></li><li id="src-4"><span class="src-n">4.</span><span>Capability Alignment: transactions and constraints; triggers with current_user and now(); column privileges and row security since 9.5 (superusers always bypass, owners unless forced, SET LOCAL); TLS, AES-256 via hosting; archiving, logs every 5 minutes; SKIP LOCKED; hot standby; Met on all seven; verdict Fit <span class="src-where">&middot; component-profile-postgresql#capability-alignment</span></span></li><li id="src-5"><span class="src-n">5.</span><span>Other capabilities: JSONB in core; no cross-server sharding; logical replication since 10 <span class="src-where">&middot; component-profile-postgresql#capability-alignment</span></span></li><li id="src-6"><span class="src-n">6.</span><span>Operations and pricing: certifications and running cost not published <span class="src-where">&middot; component-profile-postgresql#technology-and-operations, component-profile-postgresql#pricing-and-licensing</span></span></li><li id="src-7"><span class="src-n">7.</span><span>Competitive Landscape: MySQL 8.4 (InnoDB ACID, no native row-level security, GPL); MongoDB (transactions since 4.0); Amazon RDS for PostgreSQL 16 (PostgreSQL 13 to 17, AES-256, logs every 5 minutes, replicas with a lag metric, Multi-AZ standby) <span class="src-where">&middot; component-profile-postgresql#competitive-landscape</span></span></li><li id="src-8"><span class="src-n">8.</span><span>Confidence: Medium; design-defining claims rest on the maker alone <span class="src-where">&middot; component-profile-postgresql#confidence</span></span></li><li id="src-9"><span class="src-n">9.</span><span>Open Questions: restore within the 4-hour target, replica lag under an import burst, row-security throughput behind the pool; drill, review trigger, test <span class="src-where">&middot; component-profile-postgresql#open-questions</span></span></li></ol></section>
+</div>
+</body>
+</html>

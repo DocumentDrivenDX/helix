@@ -1,0 +1,156 @@
+# candidate-briefing flow, split out of deck-flows.yml (workflows/deliverables/flows/) so
+# choosing a flow by occasion does not require loading every flow. See
+# ../deck-craft.md for the reasoning and sources behind this flow's arc.
+#
+# A reference, in the shape of a good encyclopedia article filtered to the criteria one
+# decision needs: the need, the criteria, what the thing is, what the record shows on each
+# criterion, how the named alternatives compare on the same criteria, and what the record
+# cannot settle. It informs the decision made elsewhere. Headings are labels, because a
+# reference is navigated; the finding goes in the first sentence under each heading.
+
+heading_style: label
+purpose: >-
+  Give a technical audience the public record on one candidate, filtered to the criteria
+  their decision uses, so that decision rests on settled facts.
+audience:
+  posture: >-
+    Knows a decision is coming and wants the record on this candidate. Will check every
+    statement against the source and will notice a figure, owner, or date the record lacks.
+  decision: >-
+    None in this document. The choice among candidates happens elsewhere; this closes with
+    what the record leaves unsettled and where each answer lives.
+keep_when_short:
+- introduction
+- required-capabilities
+- what-it-is
+- capability-alignment
+- competitive-landscape
+beats:
+- name: introduction
+  heading: Introduction
+  answers: What do we need, what must it do, and what did we find?
+  required: true
+  patterns:
+  - title
+  guidance: >-
+    Three moves in one paragraph, lifted from the profile's Need and Required Capabilities:
+    we need a [role] for [use cases] so that [goals]; it must [capabilities]; we evaluated
+    [candidate] against those and found [the record's verdict in plain words, no count].
+    The document title names the subject and the role ("PostgreSQL as DepositMatch's system of record"); the finding is the introduction's last sentence.
+- name: background
+  heading: Background
+  answers: What fills the role today, and why does it no longer serve?
+  required: false
+  patterns:
+  - claim-evidence
+  - statement
+  guidance: >-
+    The incumbent and its limit, from the profile's Scope and Need. Two or three sentences.
+    Skip when the introduction already says it.
+- name: required-capabilities
+  heading: Required capabilities
+  answers: What must the role do, and where does each requirement come from?
+  required: true
+  patterns:
+  - table
+  - claim-evidence
+  guidance: >-
+    One row per capability from the profile's Required Capabilities: the capability in
+    plain words, the goal it serves, and where it comes from in the reader's words (the
+    product vision, the data-modelling standard, the open data-store decision). This is the
+    criteria list every later section is measured against.
+- name: what-it-is
+  heading: What it is
+  answers: What kind of thing is it, who governs it, and what is it built for?
+  required: true
+  patterns:
+  - claim-evidence
+  - icon-list
+  guidance: >-
+    The profile's lead: category, maker or governing body, adoption, cadence and support,
+    licence, built-for use cases. Capability alignment comes next.
+- name: capability-alignment
+  heading: Capability alignment
+  answers: On each required capability, what does the record show?
+  required: true
+  patterns:
+  - table
+  - claim-evidence
+  guidance: >-
+    One row per required capability, in the same order as the criteria list: what the
+    record shows, the version and caveat that matter to the need, and the record's status
+    word (Met, Unmet, Unknown). Carry the profile's own status; add none. The profile's
+    verdict sentence closes the section.
+- name: limits
+  heading: Outside the record
+  answers: What is absent from the core, unpublished, or left to an operator?
+  required: false
+  patterns:
+  - claim-evidence
+  - icon-list
+  - table
+  guidance: >-
+    The "not published", "not native", and "belongs to the operator" rows, stated as the
+    record states them. Fold into capability alignment when short.
+- name: competitive-landscape
+  heading: Competitive landscape
+  answers: How does each named alternative compare on the same capabilities?
+  required: true
+  patterns:
+  - table
+  - two-column-comparison
+  guidance: >-
+    The profile's Competitive Landscape table: one row per alternative, one column per
+    capability, the candidate in the first row. A cell the record does not fill says "not
+    researched"; the sibling profile carries it. Below the table, one line per alternative
+    on the divergence this decision cares about.
+- name: open-questions
+  heading: Open questions
+  answers: What can the record not settle, why does each matter, and where does the answer live?
+  required: true
+  patterns:
+  - table
+  - claim-evidence
+  guidance: >-
+    One row per open question from the profile: the question, why it is design-defining,
+    and the route the profile names. No owner, date, likelihood, or impact appears unless
+    the profile states it. This section closes the piece.
+- name: ask
+  heading: Next steps
+  answers: What has to happen before anyone can decide?
+  required: false
+  patterns:
+  - ask-next-steps
+  guidance: >-
+    Only when a project artifact names an action with an owner and a date. A reference
+    without one ends on open questions.
+- name: sources
+  heading: Sources
+  answers: Where does each claim come from?
+  required: true
+  patterns:
+  - appendix-sources
+  guidance: Every claim maps to a section of the profile, maker or independent.
+transitions:
+- The introduction states need, criteria, and finding; required capabilities lists the criteria in full.
+- The criteria raise "what is this thing"; what it is answers.
+- What it is raises "what does it do on our criteria"; capability alignment answers row by row.
+- Alignment raises "does an alternative do better"; competitive landscape answers on the same criteria.
+- The landscape raises "what is still unsettled"; open questions answers with the routes.
+leave_out:
+- A recommendation among candidates; that choice belongs to the decision this feeds.
+- A count or verdict in a heading; the finding is a sentence under the heading.
+- An owner, date, duration, likelihood, or impact the record does not state.
+- A benchmark, test, or hands-on result absent from the public record.
+- Maker language repeated without independent corroboration.
+- Sentences about what the piece itself does, avoids, or declines to recommend.
+checklist:
+- The introduction gives the need, the criteria, and the finding, in that order, with no count in the title.
+- Required capabilities lists every criterion the decision uses with its origin in plain words.
+- What it is gives kind, governing body, adoption, cadence, and licence before any alignment.
+- Capability alignment has one row per criterion, in the criteria list's order, with the profile's status word.
+- The competitive landscape scores every alternative the profile names on the same criteria, and every empty cell says not researched.
+- Every open question carries the profile's route and nothing the profile does not state.
+- No owner, date, duration, likelihood, or impact appears that the profile lacks.
+- No body claims a benchmark, test, or hands-on result absent from the record.
+- The piece ends on open questions or sources unless a project artifact names an action.

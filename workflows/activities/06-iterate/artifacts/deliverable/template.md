@@ -18,7 +18,7 @@ ddx:
 
 ## Brief
 
-- **Audience**: [who decides or acts; role, not name, unless a name matters]
+- **Audience**: [who decides or acts, by role; a name only when the name matters]
 - **Occasion**: [meeting, send-ahead, board pack, workshop]
 - **Decision or action sought**: [one sentence]
 - **Time slot or page budget**: [minutes or pages]
@@ -85,7 +85,6 @@ ddx:
 **Body**:
 - [next step, owner, date]
 - [next step, owner, date]
-- [what happens if no decision]
 **Visual**: [ask band plus numbered steps with owner and date columns]
 **Notes**: [...]
 **Sources**: [S1]

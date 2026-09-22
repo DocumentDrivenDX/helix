@@ -1,0 +1,103 @@
+# board-update flow, split out of deck-flows.yml (workflows/deliverables/flows/) so
+# choosing a flow by occasion does not require loading every flow. See
+# ../deck-craft.md for the reasoning and sources behind this flow's arc.
+
+purpose: >-
+  Give a board the state of the company or program against plan and the questions that need
+  its judgment.
+audience:
+  posture: >-
+    Fiduciary, reading ahead of the meeting, looking for what changed and what is being hidden.
+  decision: Approve, advise, or escalate; confirm the plan of record.
+keep_when_short:
+- headline
+- scorecard
+- lowlights
+- risks
+- ask
+beats:
+- name: headline
+  answers: In one sentence, how is the company or program doing against plan?
+  required: true
+  patterns:
+  - title
+  guidance: The condition and the one thing the board must weigh in on.
+- name: scorecard
+  answers: How do the agreed metrics stand against plan?
+  required: true
+  patterns:
+  - table
+  guidance: >-
+    The same metrics every meeting, plan and actual, the one that moved most highlighted.
+- name: highlights
+  answers: What went right that the board should know about?
+  required: true
+  patterns:
+  - claim-evidence
+  - stat-callout
+  guidance: Two or three, each tied to a scorecard row; no news without a number.
+- name: lowlights
+  answers: What went wrong, and what is being done?
+  required: true
+  patterns:
+  - claim-evidence
+  - two-column-comparison
+  - statement
+  guidance: >-
+    Stated as plainly as the highlights; each with the action already taken and the owner.
+- name: financials
+  answers: Where do cash, revenue, and runway stand?
+  required: false
+  patterns:
+  - table
+  - stat-callout
+  guidance: Required for a company board; optional for a program board.
+- name: risks
+  answers: What could change the plan before the next meeting?
+  required: true
+  patterns:
+  - risk-matrix
+  guidance: >-
+    Top risks with likelihood, impact, and owner; new since last meeting marked.
+- name: strategic-questions
+  answers: Where do we want the board's judgment?
+  required: true
+  patterns:
+  - claim-evidence
+  - two-column-comparison
+  - statement
+  guidance: One to three questions with the options and management's view.
+- name: ask
+  answers: What decisions or approvals do we need today?
+  required: true
+  patterns:
+  - ask-next-steps
+  guidance: Approvals sought, owners, dates, and what stays open without them.
+- name: sources
+  answers: Where does each figure come from?
+  required: true
+  patterns:
+  - appendix-sources
+  guidance: >-
+    Each figure maps to the status report, roadmap, or financial section it came from.
+transitions:
+- Headline states the condition; scorecard proves it row by row.
+- >-
+  Scorecard raises "what drove the moves"; highlights and lowlights answer, tied to rows.
+- Lowlights raise "what else could go wrong"; risks answer with owners.
+- >-
+  Risks raise "where do you want our help"; strategic-questions and the ask answer.
+- >-
+  Send the deck ahead; the meeting starts from the strategic questions.
+leave_out:
+- Operational detail below the scorecard's metrics.
+- Highlights that describe activity without an outcome.
+- Anything the board saw last meeting, unless it changed.
+- Surprises saved for the room.
+checklist:
+- >-
+  Titles read in order give condition, causes, risks, and the board's questions.
+- The scorecard uses the same metrics as the last deck.
+- Lowlights are as specific as highlights and each has an owner.
+- Every strategic question comes with management's recommendation.
+- The deck reads standalone as a send-ahead.

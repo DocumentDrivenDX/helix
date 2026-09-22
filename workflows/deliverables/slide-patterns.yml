@@ -164,14 +164,15 @@ patterns:
 
   - id: ask-next-steps
     use_when: The last content slide of every deck that seeks a decision or action.
-    holds: [the ask as a claim, 2 to 4 next steps each with an owner and a date, what happens if no decision]
+    holds: [the ask as a claim, 2 to 4 next steps each with an owner and a date]
     limits: { steps: 4, words_per_step: 14 }
-    visual: Numbered steps with owner and date columns; the ask in a highlighted band.
-    layout: Ask band at the top in the secondary hue on surface_alt; steps beneath.
+    visual: Numbered steps with owner and date columns; the ask in a highlighted band. A dated consequence of no decision renders only from a `consequence:` field in the Visual spec.
+    layout: Ask band at the top in the secondary hue on surface_alt; steps beneath; the unit ends on its last step.
     avoid:
       - "'Questions?' slides"
       - "steps without an owner"
       - "thank-you slides"
+      - "a closing maxim about what happens without a decision ('Skip the tests, and the decision rests on a guess'); a consequence, when one is worth stating, is a dated fact in the Visual spec's `consequence:` field"
 
   - id: appendix-sources
     use_when: Every deck; after the ask. Not presented, but present.
@@ -196,8 +197,9 @@ density:
   content_slides_max: 12           # without an explicit exception in the Brief
   slides_per_minute_of_talk: 0.5   # per-slot table: default_length_budget in deck-flows.yml
 
-# Narrative order lives in deck-flows.yml (source: deck-flows.yml): one flow
-# per occasion with the ordered beats, the question each answers, allowed
-# patterns, transition rules, and a checklist. deck-craft.md explains why.
-# The spine ids that deliverable-mappings.yml still names as default_spine
-# resolve through deck-flows.yml `legacy_spines`.
+# Narrative order lives in deck-flows.yml: an index of one flow per occasion,
+# each flow's ordered beats, the question each answers, allowed patterns,
+# transition rules, and checklist living in its own file under
+# deliverables/flows/<id>.yml. deck-craft.md explains why. The spine ids that
+# deliverable-mappings.yml still names as default_spine resolve through the
+# index's `legacy_spines`; a mapping may also name a flow id directly.

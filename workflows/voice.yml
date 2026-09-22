@@ -93,18 +93,44 @@ profiles:
       - client-facing status and proposal documents
       - any artifact section a meta.yml override marks human-facing
     required_moves:
-      - Open with what it means for the reader, then the evidence, then the ask.
-      - Make every title and heading a claim, not a label ("Churn falls 12% with prebill review", not "Results").
-      - Define or drop every HELIX and engineering term; no artifact IDs, activity names, work-item vocabulary, or acceptance-criterion codes in the body. Provenance goes in an appendix or the frontmatter.
-      - One idea per paragraph, bullet, or slide; concrete consequences over value language.
-      - Give every number a source; trace every claim to a governing artifact section.
-      - Vary sentence length; active voice; plain verbs.
-      - Subset the governing artifact when the audience needs less; never contradict it.
+      - Open with the situation the reader is in and what it means for them, then the evidence, then the ask. For a reference document, the introduction is the need, the criteria, and the finding in that order ("We need a data store for X, Y, and Z so that A, B, and C. It must do P, Q, and R. We evaluated N against those and found ...").
+      - In a deck or a persuasive document, make every title a claim ("Churn falls 12% with prebill review", "A three-month pilot wins back reviewer hours"); "Results" is a label. In a reference document (a flow whose `heading_style` is `label`), use the plain section titles a reader expects: Introduction, Background, Required capabilities, Competitive landscape, Open questions. Either way, keep counts, verdicts, and slogans out of headings; the finding belongs in the first sentence under the heading.
+      - Define or drop every HELIX and engineering term. Artifact IDs, activity names, work-item vocabulary, and acceptance-criterion codes stay out of the body; provenance goes in an appendix or the frontmatter.
+      - One idea per paragraph, bullet, or slide. Say the concrete consequence ("reviewers get four hours back a week"), and let the reader judge its value.
+      - Give every number a source and trace every claim to a governing artifact section. Name the study, the person, or the record behind a claim, or drop the claim.
+      - Say what a thing is with "is", "has", and "does". Write the literal phrase when one exists. Vary sentence length. Keep the actor in the sentence.
+      - Subset the governing artifact when the audience needs less; every sentence stays consistent with it.
+      - Read every title, heading, and call-to-action aloud as something you would say to a colleague in a hallway. If it sounds like a policy memo or a press release, name the concrete action and its stakes instead.
+      - Read the whole piece once more after the rules pass. A sentence can clear every rule below and still sound like nobody.
     avoid:
-      - em dashes, filler tokens (delve, leverage, seamless, robust, landscape), rhetorical reversals, rule-of-three padding
-      - bold-label bullets and TL;DR labels
-      - reader-steering tics ("worth noting", "the real X", "the candid version")
-      - hedges and unsupported claims
-      - placeholder text and template brackets
-      - internal shorthand ("the catalog", "the flow") and process narration
-
+      - "Mannered prose: metaphor and flourish in place of direct statement. Instead of 'a parameter worth varying', the mannered writer produces 'a dial worth turning'; instead of 'this point still matters', 'this point earns its keep'. The phrase displays the writer instead of conveying the idea, and it drags in connotations the writer did not choose. Say what you mean."
+      - "Negative parallelism in any form: 'not X but Y', 'X, not Y', 'Y rather than X', 'less X, more Y', a closing 'It is not a Z'. State the positive claim on its own; the reader supplies the contrast."
+      - "Slogan closers: a short final line that restates the point as a maxim ('Skip the tests, and the decision rests on a guess'). End on the last fact or the ask."
+      - "Shadowboxing: telling the reader what the piece is not doing, not claiming, or not recommending. Say once, in the ask, what you want. Anything else argues with nobody."
+      - "Narrating the document: 'This brief checks...', 'This page names...', 'The next section shows...'. Give the reader the situation and the finding; the structure shows itself."
+      - "Invented or internal terms used as if the reader already owned them ('the catalog', 'the flow', 'component profile', a coined noun repeated as household vocabulary). Name the ordinary thing."
+      - "Copula avoidance: 'serves as', 'stands as', 'acts as', 'features', 'boasts' in place of 'is' and 'has'."
+      - "Significance inflation and the promotional register: 'pivotal', 'crucial', 'testament', 'vibrant', 'seamless', 'robust', 'leverage', 'delve'. Filler adverbs and hedges: 'really', 'simply', 'arguably', 'it is worth noting'."
+      - "A term of art stretched into a metaphor. 'Competitive landscape' is a fixed term and stays; a list of features, vendors, or risks is a list, a table, or a comparison. The same holds for 'ecosystem', 'journey', 'north star', and 'roadmap' outside their fixed uses."
+      - "Borrowed authority: 'experts agree', 'studies show', 'widely regarded', a list of outlets. Name the source or drop the sentence."
+      - "Rule-of-three padding, bold-label bullets, TL;DR labels, em dashes, exclamation marks, emoji, headings in Title Case."
+      - "Reader-steering tics: 'worth noting', 'the real X', 'the candid version', 'here's the thing'."
+      - "Bureaucratic nominalizations that turn a plain verb into an abstract noun: 'before the decision closes' for 'before deciding', 'pending finalization' for 'before it is final', 'conduct an evaluation' for 'evaluate'."
+      - "Empty precision-adjectives stacked on a plain noun: 'bounded tests' for 'tests', 'actionable insights' for 'findings', 'robust framework' for 'framework'."
+      - "Generic command headings that could caption any ask: 'Fund the initiative', 'Adopt the proposal', 'Approve the plan'. Name the thing being asked for and what it buys."
+      - Placeholder text and template brackets; unsupported claims about tests, metrics, or completion.
+    sample: |
+      Reviewers at a mid-sized firm spend about four hours a week matching deposits
+      by hand, and the firm bills none of it. The business case puts the cost at
+      $1.2 billion a year across the market. A three-month pilot with two firms
+      would show whether reviewers trust suggested matches and whether the firms
+      will pay for the time saved. It costs $262,000 in the first year and breaks
+      even in month 18 if pilot conversion and pricing hold. Three risks could
+      sink it, and each has a named owner and a mitigation in the plan. We are
+      asking for the pilot budget and for one partner to recruit the two firms
+      before the next investment review.
+    sample_note: >-
+      The paragraph above is the register to match: short and long sentences mixed,
+      every number sourced in the governing artifact, the actor named in each
+      sentence, the ask stated once and plainly. Match its sound before applying
+      any rule in the avoid list.

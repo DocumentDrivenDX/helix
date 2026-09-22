@@ -116,8 +116,8 @@ ddx:
 - CSV-first: learns about reviewer trust in weeks; needs pilot recruiting and careful data handling
 - Bank feeds first: stronger automation story; longer build, higher integration risk, slower learning
 - Doing nothing for a quarter: rejected; every reviewer hour stays lost to manual matching
-- Verdict: CSV-first, because the open question is trust, not automation
-**Visual**: kind: two-column | left: CSV-first pilot | right: Bank feeds first | rows: Learns about reviewer trust in weeks / Stronger automation story; Needs pilot recruiting and careful data handling / Longer build and higher integration risk; Against doing nothing, saves the quarter of manual matching / Against doing nothing, saves nothing until the build lands | prefer: left | verdict: CSV-first, because the open question is trust, not automation. Two columns from the alternatives table in the business case with the check mark on the preferred column and the do-nothing baseline as the last row
+- Verdict: CSV-first, because the open question is reviewer trust
+**Visual**: kind: two-column | left: CSV-first pilot | right: Bank feeds first | rows: Learns about reviewer trust in weeks / Stronger automation story; Needs pilot recruiting and careful data handling / Longer build and higher integration risk; Against doing nothing, saves the quarter of manual matching / Against doing nothing, saves nothing until the build lands | prefer: left | verdict: CSV-first, because the open question is reviewer trust. Two columns from the alternatives table in the business case with the check mark on the preferred column and the do-nothing baseline as the last row
 **Notes**: The alternatives table in the business case also rejects spreadsheet templates, which keep no evidence; mention them only if asked. The comparison is about what we learn fastest, and doing nothing learns nothing.
 **Sources**: S5, S6
 
@@ -183,8 +183,7 @@ ddx:
 - Approve the year-one pilot budget of $262,000 today
 - Name the partner who recruits five pilot firms, by month end
 - Product lead reports median reconciliation time at the two-month checkpoint
-- No decision today delays the pilot a full quarter and keeps firms in manual matching
-**Visual**: kind: none | ask: Fund the pilot and name the recruiter today | owners: investment committee; a named partner; product lead | dates: today; month end; two-month checkpoint. Ask band in the secondary hue carrying the decision, then three numbered steps with owner and date columns filled from the body
+**Visual**: kind: none | ask: Fund the pilot and name the recruiter today | owners: investment committee; a named partner; product lead | dates: today; month end; two-month checkpoint | consequence: No decision today delays the pilot a full quarter and keeps firms in manual matching. Ask band in the secondary hue carrying the decision, then three numbered steps with owner and date columns filled from the body
 **Notes**: Stop talking after the ask. If the committee wants the three-year numbers, they are in the appendix source and the business case.
 **Sources**: S7, S10
 
@@ -209,8 +208,8 @@ ddx:
 | S6 | Alternatives: CSV-first pilot (carry forward), bank feed and accounting sync first (reject for v1), spreadsheet templates (reject), do nothing for one quarter (reject) | docs/helix/00-discover/business-case.md#alternatives-considered |
 | S7 | Year one: development $180,000, infrastructure $12,000, go-to-market $40,000, operations $30,000; total costs $262,000 | docs/helix/00-discover/business-case.md#investment-required, docs/helix/00-discover/business-case.md#expected-roi |
 | S8 | Year one revenue $120,000, net $142,000 shortfall (shown as -$142,000); breakeven month 18; confidence low until the pilot validates conversion and pricing | docs/helix/00-discover/business-case.md#expected-roi |
-| S9 | Risks: CSV exports vary (high, medium); reviewers distrust suggested matches (medium, high); firms will not pay enough (medium, high), each with the mitigation quoted | docs/helix/00-discover/business-case.md#risk-assessment |
-| S10 | Paid product path if weekly reconciliation time falls below 3 minutes per client | docs/helix/00-discover/business-case.md#executive-summary |
+| S9 | Risks: CSV exports vary (high, medium); reviewers distrust suggested matches (medium, high); firms will not pay enough (medium, high), each with the mitigation quoted, each graded for likelihood and impact | docs/helix/00-discover/business-case.md#risk-assessment |
+| S10 | Paid product path if weekly reconciliation time falls below 3 minutes per client; recommended next steps with owners and dates: the investment committee approves the year-one budget today, a named partner recruits five pilot firms by month end, the product lead reports reconciliation time at the two-month checkpoint | docs/helix/00-discover/business-case.md#executive-summary, docs/helix/00-discover/business-case.md#recommendation |
 
 ## Assumptions and gaps
 

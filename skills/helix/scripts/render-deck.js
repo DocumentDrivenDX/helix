@@ -846,7 +846,9 @@ layouts["ask-next-steps"] = (unit) => {
   const s = newSlide(unit, { dark: DARK_ENDS });
   const spec = parseVisual(unit.visual || "");
   const icons = items(spec.icons);
-  const steps = unit.body.slice(0, -1), consequence = unit.body[unit.body.length - 1] || "";
+  // Every body bullet is a step. A closing line renders only from the Visual spec's `consequence:`
+  // field; the human-facing voice ends the ask on its last step, with no slogan tail.
+  const steps = unit.body, consequence = spec.consequence || "";
   const bandH = 0.85;
   const bandText = spec.ask || unit.title;   // the band carries the decision in the room's terms; repeating the title is reported
   if (!spec.ask) warnings.push(`unit ${unit.n}: the ask band has no 'ask:' field, so it repeats the title; give the band the decision in the room's terms`);
