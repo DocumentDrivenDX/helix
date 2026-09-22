@@ -35,12 +35,13 @@ jobs:
 
       - name: Determine tag from PR title and manifests
         id: version
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          TITLE=${{ toJSON(github.event.pull_request.title) }}
-          python3 - "$TITLE" <<'PY'
+          python3 - "$PR_TITLE" <<'PY'
           import json, re, sys, os
 
-          title = json.loads(sys.argv[1])
+          title = sys.argv[1]
           m = re.match(r'^chore\(release\): (v\d+\.\d+\.\d+)\b', title)
           if not m:
               print(f"::error::PR title does not start with 'chore(release): vX.Y.Z': {title!r}")
