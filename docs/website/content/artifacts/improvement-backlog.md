@@ -62,19 +62,17 @@ Assumptions and gaps), and `docs/helix/06-iterate/metrics-dashboard.md`.
 | P3 | Kind-aware limits in `check-deliverable.py`: per-pattern word/bullet caps now scale up for a document instead of applying the slide's own numbers, `consecutive_same_pattern_max` is relaxed for a document, and a one-pager's word budget (`theme.yml`'s `max_words_one_pager`) and a brief's estimated page count (a weight heuristic shared with `render-doc.js`'s one-pager grid balancer) are checked at gate time, all as warnings — the actual render-and-look step stays the ground truth | `skills/helix/scripts/check-deliverable.py` (`is_doc`, `WORD_SCALE`/`COUNT_SCALE`, `unit_weight`, `DOC_WEIGHT_PER_PAGE`) | this branch | The HTML render path landed; a gate that still checked every kind against slide caps was the obvious next gap | done |
 | P3 | `.docx` renderer for one-pagers and briefs | `skills/helix/scripts/render-doc.js` (HTML/PDF only) | pending bead | The HTML path is done and in daily use; `.docx` is a separate, narrower, unrequested format | open |
 | P3 | Prune overlapping catalog types: fold `test-suites` and `test-procedures` into `test-plan`; decide whether `market-analysis` stays separate from `competitive-analysis` | 03-test carries six types; discover carries four market documents | pending bead | The catalog table and graph regenerate cleanly now, so a prune is mechanical | open |
-| P3 | Sloptimizer adapter section for the `human-facing` profile | `workflows/voice.yml` `human-facing`; the sloptimizer HELIX adapter hard-codes `artifact-signal` | pending bead (easel repo) | Without it a prose rewrite fights the deck voice | open |
+| P3 | Sloptimizer adapter section for the `human-facing` profile | `easel-skills` `skills/sloptimizer/references/adapters-helix.md` § "Deliverable Titles (`human-facing` profile)" ties the adapter to `workflows/voice.yml`'s `human-facing` profile by name instead of the prior `artifact-signal` hard-code | easel-skills `eb13ce6`, `f5de158` | A rewrite now lands inside the deck voice instead of fighting it | done |
 | P3 | Add `ddx.type` to every catalog `example.md` so type resolution never falls back to the directory heuristic | `tests/validate-instance.sh` asserts the heuristic; every example emits a `frontmatter.type` warning | pending bead | Cheap once, removes 53 warnings | open |
 
 ## Selection for Next Iteration
 
-- **Chosen item**: P3 — the Sloptimizer adapter section for the
-  `human-facing` profile, together with pushing the `headline` target from
-  the easel-skills branch so hosts with Sloptimizer installed get the same
-  title rules the HELIX gate ports.
-- **Why it wins the next slot**: both P1 items closed on this branch; the
-  first eval run scored the `present` brief 6/8 on the rubric, and both
-  lost points were voice (investor-unfriendly source references, intake
-  fields not named), which is what the adapter fixes.
+- **Closed this iteration**: P3 — the Sloptimizer adapter section for the
+  `human-facing` profile landed in `easel-skills` (`eb13ce6`, `f5de158`),
+  so hosts with Sloptimizer installed now get the same title rules the
+  HELIX gate ports; see the Backlog Items row above for evidence.
+- **Next candidate**: P2 — a healthy-set `align` brief, the only PRD metric
+  still unmeasured (see Backlog Items).
 
 ## Review Checklist
 
