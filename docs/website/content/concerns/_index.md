@@ -17,9 +17,11 @@ Concerns are how HELIX answers "every project needs this kind of consistency" wi
 
 {{< cards >}}
   {{< card link="auth-local-sessions" title="Local Sessions (auth-provider)" subtitle="api, data" >}}
+  {{< card link="databricks-appkit-ui" title="Databricks AppKit UI (React component layer)" subtitle="ui" >}}
   {{< card link="go-std" title="Go + Standard Toolchain" subtitle="all" >}}
   {{< card link="python-uv" title="Python + uv" subtitle="all" >}}
   {{< card link="react-nextjs" title="React + Next.js" subtitle="web, ui" >}}
+  {{< card link="react-vite" title="React + Vite (single-page app)" subtitle="ui" >}}
   {{< card link="rust-cargo" title="Rust + Cargo" subtitle="all" >}}
   {{< card link="scala-sbt" title="Scala + sbt" subtitle="all" >}}
   {{< card link="typescript-bun" title="TypeScript + Bun" subtitle="all" >}}

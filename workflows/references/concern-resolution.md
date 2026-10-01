@@ -341,6 +341,21 @@ explicitly when composing concerns:
   keep `bun:*` built-ins out of the Next.js runtime path (isolate the data layer
   in a separate Bun service). Record the chosen resolution as a project override.
   See the friction sections in both concerns' `practices.md`.
+- **`python-uv` + `databricks-apps` + `react-vite` + `databricks-appkit-ui`**: a
+  `requirements.txt` in the app directory (often exported "for the platform")
+  silently wins over `pyproject.toml`/`uv.lock` and drops the app to pip and
+  Python 3.11; delete it. The platform installs the root `package.json`
+  and runs its `build` script before the Python `command`, so a `frontend/`
+  with its own `package.json` needs a root `package.json` that installs and
+  builds it, Vite's `outDir` must be the directory the backend serves, and the
+  start command must not build or need Node.
+  `databricks apps run-local` injects identity headers but not
+  `x-forwarded-access-token`, so on-behalf-of paths are verified only on the
+  deployed app. AppKit UI query mode is bound to AppKit server queries the
+  Python backend does not serve, and its hooks are unverified without that
+  server (the standalone spike); use data mode until the spike reports. Record
+  each resolution as a project override. See the Constraints in
+  `databricks-apps/concern.md`.
 
 When a composed-concern friction is identified, resolve it the same way as a
 practice conflict: record the resolution as a **project override** in
