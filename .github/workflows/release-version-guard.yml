@@ -19,6 +19,9 @@ on:
         description: 'Version tag to check (e.g. v0.9.2)'
         required: true
 
+permissions:
+  contents: write
+
 jobs:
   version-guard:
     runs-on: ubuntu-latest
@@ -26,6 +29,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Assert manifest versions match the release tag
+        id: check
+        continue-on-error: true
         run: |
           TAG="${{ github.event.inputs.tag || github.ref_name }}"
           EXPECTED="${TAG#v}"
@@ -55,3 +60,21 @@ jobs:
               sys.exit(1)
           print(f"OK: all manifests declare version {expected}")
           PY
+
+      # A pushed tag whose manifests disagree is unpublished, so a release made
+      # by hand through the Releases UI cannot stay Latest with the wrong
+      # version inside. Tags are recreated by release-tag.yml from a merged
+      # `chore(release):` pull request. Manual dispatch only reports.
+      - name: Unpublish the mismatched tag and its release
+        if: steps.check.outcome == 'failure' && github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release delete "$TAG" --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes || true
+          git push origin ":refs/tags/$TAG" || true
+          echo "::error::deleted tag and release $TAG: manifests did not match. Merge a 'chore(release): $TAG' pull request to recreate it."
+
+      - name: Fail when manifests do not match
+        if: steps.check.outcome == 'failure'
+        run: exit 1
