@@ -9,6 +9,9 @@ name: Release auto-tag
 # only ever created here, straight from the manifest that was just merged,
 # so it cannot precede a manifest bump.
 #
+# A tag pushed with the default GITHUB_TOKEN does not trigger `on: push: tags`
+# workflows, so the publish workflows are started explicitly after the push.
+#
 # release-version-guard.yml stays in place as a backstop for any tag
 # pushed manually outside this flow (e.g. a hotfix).
 
@@ -19,6 +22,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   tag:
@@ -84,10 +88,21 @@ jobs:
           fi
 
       - name: Create and push tag
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "${{ steps.version.outputs.tag }}" \
-            -m "${{ github.event.pull_request.title }}" \
-            "${{ github.event.pull_request.merge_commit_sha }}"
-          git push origin "${{ steps.version.outputs.tag }}"
+          git tag -a "$TAG" -m "$PR_TITLE" "$MERGE_SHA"
+          git push origin "$TAG"
+
+      - name: Start the publish workflows on the tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          gh workflow run release-genie-bundle.yml --ref "$TAG"
+          gh workflow run install-smoke.yml --ref "$TAG"
+          gh workflow run pages.yml --ref "$TAG"
