@@ -88,7 +88,7 @@ ddx:
 |------|--------------|-----------------|
 | Concerns | `databricks-apps` rewritten against current platform documentation; `react-vite` and `databricks-appkit-ui` added; the `practices.md` boundary section removed per ADR-006 | HELIX users deploying to Databricks Apps |
 | Routing | `concern-resolution.md` gains a composed-concern friction entry for python-uv, databricks-apps, react-vite, and databricks-appkit-ui | HELIX users |
-| CI | `release-version-guard.yml` deletes a `v*` tag and its release when the manifests do not declare the tag's version | Maintainers |
+| CI | `release-version-guard.yml` deletes a `v*` tag and its release when the manifests do not declare the tag's version; `release-tag.yml` starts the bundle, install-smoke, and Pages workflows on the tag it creates | Maintainers |
 
 ### Fixes
 
@@ -96,6 +96,7 @@ ddx:
 |------------------|------------|-------------------------|
 | The Pages deploy failed on any stale Innsigle seal, although PR checks only warn | `pages.yml` runs `tests/validate-innsigle.sh`, the same gate as PR checks; two stale curated pages were resealed | The site publishes a release without the human signing key |
 | `release-tag.yml` interpolated the PR title into its shell step | The title is passed through the environment | A title with quotes or shell syntax cannot break the step |
+| A tag pushed by `release-tag.yml` with the default token did not trigger the `on: push: tags` workflows, so CI-created tags published no bundles | `release-tag.yml` dispatches `release-genie-bundle.yml`, `install-smoke.yml`, and `pages.yml` on the new tag | A release cut from a `chore(release):` pull request now publishes its bundles without a hand-made release |
 | The first `v0.14.1` tag and release carried `0.14.0` manifests | Deleted and recreated by CI from the release pull request | The release had no downloads before it was replaced |
 
 ## Breaking Changes and Required Actions
