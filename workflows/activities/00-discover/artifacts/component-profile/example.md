@@ -374,19 +374,3 @@ date), **community** (a project or forum around the component).
 33. [Amazon RDS Multi-AZ](https://aws.amazon.com/rds/features/multi-az/), maker (AWS), Amazon Web Services, accessed 22 Sep 2026
 
 **Searched**: "postgresql row level security performance multi-tenant connection pooling" (found [21]); "postgresql logical replication lag high write load" (found [22]; no measurement under a comparable import burst, hence Open Question 2); "mysql 8 row-level security" (found [23]; no native feature); "postgresql certifications SOC 2" (nothing for the software, hence Certifications Not published); "postgresql running cost" (nothing from the maker, hence Running cost Not published); MySQL constraint semantics, attribution, encryption, PITR, queueing, and replicas, and every MongoDB cell beyond transactions, were not searched, hence Not researched.
-
-## Review Checklist
-
-Reviewed by: unreviewed
-
-- [x] Need and Required Capabilities cite project artifacts only; no `[n]` appears in them
-- [x] Every required capability has a "Settled by" line and a status from How to Read This Profile
-- [x] Every claim cites at the clause or is marked Not published (with the search) or Not researched (with the sibling profile)
-- [x] Every figure carries a label, and every mutable fact an as-of date
-- [x] The verdict follows the definitions in How to Read This Profile
-- [x] The Competitive Landscape scores every named alternative on the same capabilities
-- [x] The confidence grade follows the rubric; a design-defining Unknown caps it at Medium
-- [x] Every source carries class, author or organisation, publication date where shown, and access date; scoped-version docs are version-pinned
-- [x] No benchmark, prototype, or integration result is claimed
-- [x] No owner, date, duration, or figure appears that a project artifact does not state
-- [x] No choice among candidates is made here

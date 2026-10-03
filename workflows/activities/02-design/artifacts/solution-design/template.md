@@ -3,11 +3,6 @@ ddx:
   id: SD-XXX
   authoring:
     home: repo
-  review:
-    self_hash: ea6f092342409cc3f74e945b3ae421392eb4787113b828331c0fdfab359bf86d
-    deps:
-      FEAT-XXX: a685da86c4c18a509196cb163f264af507cc966f804db574070e108a555bdf02
-    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Solution Design
@@ -121,21 +116,3 @@ this design is consistent with them:
 | Risk | Prob | Impact | Mitigation |
 |------|------|--------|------------|
 | [Risk] | H/M/L | H/M/L | [Strategy] |
-
-## Review Checklist
-
-Use this checklist when reviewing a solution design:
-
-- [ ] Requirements mapping covers all P0 functional requirements from the governing spec
-- [ ] NFR impact section shows how the architecture satisfies each non-functional requirement
-- [ ] At least two solution approaches were evaluated with concrete pros/cons
-- [ ] Selected approach rationale explains why alternatives were rejected
-- [ ] Domain model captures all entities and their relationships
-- [ ] Business rules are specific enough to implement
-- [ ] System decomposition assigns every requirement to at least one component
-- [ ] Component interfaces name how components communicate and link Contract IDs for exact shared surfaces
-- [ ] Technology rationale explains why each choice was made, not just what was chosen
-- [ ] Traceability table maps every requirement to a component and test strategy
-- [ ] Gaps section lists any requirements not fully addressed with mitigation plans
-- [ ] Concern alignment verifies consistency with active project concerns
-- [ ] Design is consistent with governing feature spec and PRD

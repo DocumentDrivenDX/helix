@@ -54,6 +54,67 @@ validation:
       description: Expectations must clarify whether checks are exhaustive or sampled (and sample rate)
       severity: warning
 
+    - check: review_overview_and_scope_clearly_states_01
+      description: >-
+        **Overview and Scope** clearly states which medallion layers and quality dimensions are covered
+      severity: warning
+    - check: review_bronze_layer_expectations_validate_schema
+      description: >-
+        **Bronze Layer Expectations** validate schema, completeness, freshness, and ingestion integrity
+      severity: warning
+    - check: review_silver_layer_expectations_enforce_deduplication
+      description: >-
+        **Silver Layer Expectations** enforce deduplication, nullability, normalization, and referential integrity
+      severity: warning
+    - check: review_gold_layer_expectations_guarantee_freshness
+      description: >-
+        **Gold Layer Expectations** guarantee freshness, consistency, and accuracy for consumer queries
+      severity: warning
+    - check: review_expectations_written_in_executable_form
+      description: >-
+        **Expectations are written in executable form**: SDP EXPECT, dbt test, or SQL constraint (not prose)
+      severity: warning
+    - check: review_expectation_traces_back_quality_requirement
+      description: >-
+        **Each expectation traces back** to a quality requirement in [[prd]] (kind: data) (reference by name)
+      severity: warning
+    - check: review_failure_modes_explicit_what_happens
+      description: >-
+        **Failure modes are explicit**: What happens when an expectation fails (reject, alert, quarantine)?
+      severity: warning
+    - check: review_sla_per_layer_documented_freshness
+      description: >-
+        **SLA per layer** is documented: freshness target, detection time, recovery time
+      severity: warning
+    - check: review_sampling_vs_exhaustive_clear_rows
+      description: >-
+        **Sampling vs exhaustive** is clear: All rows tested, or sample with confidence interval documented?
+      severity: warning
+    - check: review_cross_layer_data_contracts_ensure
+      description: >-
+        **Cross-layer data contracts** ensure consistency across layers (sums reconcile, cardinality stable, no orphans)
+      severity: warning
+    - check: review_alert_routing_escalation_policy_defined
+      description: >-
+        **Alert routing and escalation policy** is defined: Who gets paged? When does on-call respond?
+      severity: warning
+    - check: review_no_tbd_todo_needs_clarification
+      description: >-
+        **No `[TBD]`, `[TODO]`, or `[NEEDS CLARIFICATION]` markers remain**
+      severity: warning
+    - check: review_at_least_one_expectation_per
+      description: >-
+        **At least one expectation per quality dimension** (completeness, timeliness, accuracy, consistency, uniqueness)
+      severity: warning
+    - check: review_p0_requirements_have_multiple_expectations
+      description: >-
+        **P0 requirements have multiple expectations** (layered checks: Bronze schema, Silver uniqueness, Gold freshness)
+      severity: warning
+    - check: review_terminology_aligns_databricks_sdp_expect
+      description: >-
+        **Terminology aligns with Databricks SDP** (EXPECT clauses, UC, medallion layers, VIOLATION rules)
+      severity: warning
+
   pattern_checks:
     - pattern: "EXPECT|NOT NULL|UNIQUE|IN\\(|BETWEEN|LIKE|CHECK\\(|dbt test|Great Expectations"
       expected: ">=1"

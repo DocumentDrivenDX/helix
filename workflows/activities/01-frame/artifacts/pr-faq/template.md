@@ -218,29 +218,3 @@ inherit the thesis.
 |---|---|---|
 | [TARGET ARTIFACT OR PAGE] | [THESIS, MECHANISM, QUALITY MODEL, FAQ ANSWER] | [OWNER / STATUS] |
 | [TARGET ARTIFACT OR PAGE] | [THESIS, MECHANISM, QUALITY MODEL, FAQ ANSWER] | [OWNER / STATUS] |
-
-## Review Checklist
-
-Use this checklist when reviewing a PR-FAQ artifact:
-
-- [ ] Core thesis is a single plain-language claim, not a slogan
-- [ ] Mechanism explains why the thesis should be true
-- [ ] Quality model names attributes that can become requirements or checks
-- [ ] Decision / autonomy boundary distinguishes progress, assumptions, decomposition, and human decision points
-- [ ] Press release names a specific customer segment, not "users" or "teams"
-- [ ] Press release reads as a real wire-service story — no marketing fluff
-- [ ] Press release stays under ~350 words
-- [ ] The Problem section uses the customer's words and names a specific failure mode with a number
-- [ ] The Solution section describes the customer experience, not the implementation
-- [ ] Customer quote describes an outcome the customer got, not features they used
-- [ ] Availability names specific dates, prices, platforms, and regions
-- [ ] External FAQ explicitly compares to existing alternatives
-- [ ] External FAQ names who this is NOT for
-- [ ] A FAQ explicitly lists what is out of scope for v1
-- [ ] Internal FAQ surfaces at least one credible feasibility or technical risk
-- [ ] Internal FAQ confronts unit economics or pricing plausibility
-- [ ] Internal FAQ states explicit kill criteria
-- [ ] Internal FAQ names experiments or validation steps required before commit
-- [ ] Downstream projection lists the artifacts or public pages that should inherit the argument
-- [ ] No `[TBD]`, `[TODO]`, or `[NEEDS CLARIFICATION]` markers remain
-- [ ] PR-FAQ is consistent with the governing Product Vision

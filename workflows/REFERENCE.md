@@ -38,8 +38,8 @@ guide; for DDx-specific commands, see [docs/install/ddx.md](../docs/install/ddx.
 - [experiment.md](actions/experiment.md): metric-driven optimization iteration
 - [genesis.md](actions/genesis.md): cold-start bootstrap of a new project
   (name → research → vision → scaffold)
-- [project-audit.md](actions/project-audit.md): orientation entry-point composing
-  check + reconcile-alignment into one state report
+- [project-audit.md](actions/project-audit.md): explicit, scoped comparison of
+  implementation and tests with desired requirements
 - [decompose-module.md](actions/decompose-module.md): iterative oversized-module
   decomposition behind a per-iteration verify gate
 - [e2e-ladder.md](actions/e2e-ladder.md): build up end-to-end coverage as a ladder

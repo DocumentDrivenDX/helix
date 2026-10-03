@@ -293,6 +293,25 @@ def check_rule_entries(key: str, entries: list, body: str, base: int, report: Re
             report.add("info", check, f"unsupported automated check type '{rule}'; skipped")
 
 
+def check_delivery_history(body: str, base: int, report: Report) -> None:
+    """Reject repository-history citations, not transaction or release semantics.
+
+    Deliberately avoid treating every hex token as a revision: documents can
+    contain content digests, sample data, and session identifiers.
+    """
+    pattern = re.compile(
+        r"\bPR(?:\s*#?\s*|-)[0-9]+\b"
+        r"|\bpull[ -]request\s*#?\s*[0-9]+\b"
+        r"|https?://[^\s)<>]+/(?:pull|pulls|merge_requests)/[0-9]+\b"
+        r"|https?://[^\s)<>]+/commits?/[0-9a-f]{7,40}\b"
+        r"|\b(?:commit|revision)\s+(?:hash\s*|SHA\s*)?[`\"']?[0-9a-f]{7,40}\b"
+        r"|\b(?:commit|revision|commit_sha|source_commit)\s*[:=]\s*[`\"']?[0-9a-f]{7,40}\b",
+        re.IGNORECASE,
+    )
+    for match in pattern.finditer(body):
+        report.add("blocking", "delivery_history", "Keep repository-history citations in source control or the runtime tracker", line_of(body, match.start(), base))
+
+
 def check_placeholders(body: str, base: int, report: Report) -> None:
     scan = strip_fences(body)
     for m in PLACEHOLDER_RE.finditer(scan):
@@ -332,6 +351,7 @@ def main() -> int:
     check_rule_entries("pattern_checks", validation.get("pattern_checks") or [], body, base, report)
     check_rule_entries("automated_checks", validation.get("automated_checks") or [], body, base, report)
     check_placeholders(body, base, report)
+    check_delivery_history(text, 1, report)
 
     summary = report.summary()
     if args.format == "json":

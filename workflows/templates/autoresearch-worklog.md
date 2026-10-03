@@ -1,5 +1,8 @@
 # Experiment Worklog: {{goal}}
 
+Record the runs and insights that affect the experiment; omit unused optional
+sections.
+
 - **Date:** {{start_date}}
 - **Metric:** {{metric_name}} ({{metric_unit}}, {{lower_or_higher}} is better)
 - **Baseline:** {{metric_name}}={{baseline_value}}

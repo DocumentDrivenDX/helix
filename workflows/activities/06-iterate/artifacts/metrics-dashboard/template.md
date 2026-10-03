@@ -38,9 +38,3 @@ ddx:
 ## Follow-Up
 
 - [Tracker issue ID or next step]
-
-## Review Checklist
-
-- [ ] Baseline is explicit
-- [ ] Each metric cites a source
-- [ ] The summary states the decision implication

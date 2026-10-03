@@ -1,99 +1,31 @@
 # Alignment Review: [Scope]
 
-**Review Date**: [YYYY-MM-DD]
-**Scope**: [repo | subsystem | feature | story-set]
-**Status**: [draft | complete | superseded]
-**Review Epic**: [tracker issue ID]
-**Primary Governing Artifact**: [path or spec-id]
+Use this template when a durable alignment report is requested or needed by a
+runtime. Keep sections that answer the review question; omit the rest. Do not
+fill unused sections with `N/A`.
 
-## Scope and Governing Artifacts
+**Date:** [YYYY-MM-DD]
+**Scope:** [project, feature, component, or artifact]
+**Primary authority:** [path or identifier]
 
-### Scope
+## Intent and evidence
 
-- [Area 1]
-- [Area 2]
+[Summarize the relevant desired behavior and cite the governing artifacts,
+implementation, tests, or observations needed to support the review.]
 
-### Governing Artifacts
+## Findings
 
-- [docs/helix/...]
-- [tests/...]
+| Finding | Classification | Evidence | Impact | Suggested next step |
+|---------|----------------|----------|--------|----------------------|
+| [Material gap, if any] | [ALIGNED / INCOMPLETE / DIVERGENT / UNDERSPECIFIED / STALE_PLAN / BLOCKED] | [Relevant source] | [Effect] | [Useful action, if any] |
 
-## Intent Summary
+## Scope limits or assumptions
 
-- **Vision**: [Summary]
-- **Requirements**: [Summary]
-- **Features / Stories**: [Summary]
-- **Architecture / ADRs**: [Summary]
-- **Technical Design**: [Summary]
-- **Test Plans**: [Summary]
-- **Implementation Plans**: [Summary]
+[Include only when they affect the conclusion.]
 
-## Planning Stack Findings
+## Open decisions
 
-| Finding | Type | Evidence | Impact | Review Issue |
-|---------|------|----------|--------|-------------|
-| [Summary] | [contradiction/missing-link/underspecified/stale] | [path refs] | [impact] | [issue ID] |
+[Include decisions that need an owner or user direction.]
 
-## Implementation Map
-
-- **Topology**: [Module/package/workspace summary]
-- **Entry Points**: [Entry point or interface]
-- **Test Surfaces**: [Relevant test suites and checks]
-- **Unplanned Areas**: [Orphaned code paths]
-
-## Acceptance Criteria Status
-
-| Story / Feature | Criterion | Test Reference | Status | Evidence |
-|-----------------|-----------|----------------|--------|----------|
-| [ID] | [criterion] | [test path or "none"] | [SATISFIED/TESTED_NOT_PASSING/UNTESTED/UNIMPLEMENTED] | [refs] |
-
-## Desired-state posture
-
-- Specs = **desired** future state (do not shrink requirements to match incomplete code without operator intent).
-- Code behind specs → residual work items with evidence.
-- Code ahead of docs → honesty evolve only with **operator intent**; classify as `STALE_PLAN` until approved.
-
-## Gap Register
-
-| Area | Classification | Destination type | Deliverable shape | Next mode | Evidence (path:line) | Resolution Direction | Issue |
-|------|----------------|------------------|-------------------|-----------|----------------------|----------------------|-------|
-| [Area] | [ALIGNED/INCOMPLETE/DIVERGENT/UNDERSPECIFIED/STALE_PLAN/BLOCKED] | [PRD/FEAT/US/ADR/…] | [concrete add] | [frame/design/evolve/…] | [refs] | [code-to-plan/plan-to-code/decision-needed/quality-improvement] | [ID] |
-
-Four-field handoff (required for every non-ALIGNED row): destination artifact type, deliverable shape, suggested next workflow mode, evidence path:line.
-
-### Quality Findings
-
-| Area | Dimension | Concern | Severity | Resolution | Issue |
-|------|-----------|---------|----------|------------|-------|
-| [Area] | [robustness/maintainability/performance] | [description] | [low/medium/high] | [direction] | [ID] |
-
-## Traceability Matrix
-
-| Vision | Requirement | Feature/Story | Arch/ADR | Design | Tests | Impl Plan | Code Status | Classification |
-|--------|-------------|---------------|----------|--------|-------|-----------|-------------|----------------|
-| [Item] | [Req] | [Spec/US] | [Arch] | [TD] | [tests] | [IP] | [status] | [classification] |
-
-## Execution Issues Generated
-
-| Issue ID | Type | Labels | Goal | Dependencies | Verification |
-|----------|------|--------|------|--------------|-------------|
-| [ID] | [task/chore/decision] | [activity:... kind:...] | [goal] | [deps] | [checks] |
-
-## Issue Coverage
-
-| Gap / Criterion | Covering Issue | Status |
-|-----------------|----------------|--------|
-| [gap or AC] | [issue ID or "MISSING"] | [covered/missing/deferred] |
-
-## Execution Order
-
-1. [First issue or artifact update]
-2. [Next]
-
-**Critical Path**: [steps] | **Parallel**: [issue sets] | **Blockers**: [blockers]
-
-## Open Decisions
-
-| Decision | Why Open | Governing Artifacts | Recommended Owner |
-|----------|----------|---------------------|-------------------|
-| [Decision] | [Reason] | [refs] | [owner] |
+Do not add tracker identifiers, issue coverage, execution order, or a traceability
+matrix unless the user or runtime consumer asks for them.

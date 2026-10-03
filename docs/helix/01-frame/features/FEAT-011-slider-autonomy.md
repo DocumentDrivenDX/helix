@@ -28,39 +28,26 @@ HELIX expresses an **autonomy policy**; a capable runtime supplies the agency.
 This feature defines that policy as a three-position spectrum — `low`,
 `medium`, `high` — that controls **how often a HELIX workflow pauses for human
 confirmation** without changing **which activities run**. The vocabulary and
-the per-level behavior already live in `workflows/actions/input.md`; this spec
-makes them a governed feature, extends them with concern-inference at high
-autonomy, fixes the resolution precedence, and records the two invariants the
-spectrum must never violate.
+the per-level behavior live in `workflows/actions/input.md`; this spec defines
+their governing policy, concern-inference at high autonomy, resolution
+precedence, and the invariants the spectrum must preserve.
 
-HELIX still ships no execution engine (PRD Non-Goals). Autonomy is a policy the
-methodology authors and a runtime honors. This spec restores the dangling
-references to FEAT-011 / TD-011 that survived the scope collapse
-(`workflows/actions/input.md`, CONTRACT-001, CONTRACT-002) and re-scopes the
-feature to the content-only methodology: there is no `helix run`,
-`execute-loop`, or slider-config file — the autonomy signal is carried in
-runtime-neutral artifacts (per-invocation argument, artifact frontmatter, or
-project policy), never in `CLAUDE.md` or a runtime-specific config.
+HELIX ships no execution engine (PRD Non-Goals). Autonomy is a policy the
+methodology defines and a runtime honors. Runtime-neutral artifacts carry the
+policy; runtime-specific instruction files do not define it.
 
 ## Problem Statement
 
-- **Current situation**: `input.md` defines `low`/`medium`/`high` semantics and
-  cites "FEAT-011 / TD-011", but those governing artifacts were removed in the
-  collapse (823aa1ac), leaving the citation dangling. CONTRACT-002 still records
-  a FEAT-011 review-dependency hash that resolves to nothing. Nothing states how
-  the level is resolved, what high autonomy may infer, or what it may never
-  skip.
+- **Current situation**: HELIX needs one policy for how autonomy levels affect
+  workflow pauses. The policy must define level precedence, concern inference,
+  hard stops, and the activities a workflow must complete.
 - **Pain points**:
-  1. **Dangling authority** — the autonomy vocabulary is used across actions but
-     governed by no on-disk feature, so the behavior cannot be audited or
-     ratcheted.
+  1. **Unclear policy boundary** — autonomy must control confirmation pauses,
+     not activity selection or permission to pass a hard stop.
   2. **Under-defined high autonomy** — "create without prompts" does not say
-     whether a high-autonomy run may *select concerns* when none are declared,
-     which is exactly the gap that made the concerns library inert
-     ([[FEAT-006]]).
-  3. **Ambiguous precedence** — when a per-invocation level, an artifact
-     frontmatter value, and a runtime default all exist, nothing says which
-     wins.
+     how a workflow selects concerns when none are declared ([[FEAT-006]]).
+  3. **Ambiguous precedence** — a per-invocation level, project policy, and
+     runtime default need a defined order.
   4. **Risk of loop collapse** — "more autonomy" is easily misread as "skip
      activities", which would flatten the seven-activity loop the PRD forbids.
 - **Desired outcome**: a governed autonomy spectrum with a defined resolution
@@ -166,7 +153,7 @@ seven-activity loop into one generic prompt."
 | FEAT-011-AC3 | autonomy `high` and no `concerns.md` for a web-app product | a frame/input pass runs | `concerns.md` is created with inferred concerns recorded as assumptions, with no interactive prompt |
 | FEAT-011-AC4 | autonomy `high` and two equal-authority artifacts that truly contradict | the workflow reaches the conflict | the workflow stops and surfaces the contradiction (hard stop), it does not pick a side silently |
 | FEAT-011-AC5 | any autonomy level | a workflow runs end to end | every activity the work requires still runs; no activity is skipped and the loop is not flattened |
-| FEAT-011-AC6 | the restored FEAT-011 file on disk | CONTRACT-002 / CONTRACT-001 / `input.md` are read | their references to FEAT-011 resolve to this artifact |
+| FEAT-011-AC6 | an action or contract uses the autonomy policy | its governing references are followed | they resolve to this feature and use consistent level semantics |
 
 ## Edge Cases and Error Handling
 
@@ -180,7 +167,7 @@ seven-activity loop into one generic prompt."
 
 ## Success Metrics
 
-- Zero dangling FEAT-011 / TD-011 references in the repo after restore.
+- Action and contract references resolve to this feature and use its level semantics.
 - Autonomy behavior is auditable: alignment review can classify an autonomy
   precedence or loop-collapse violation as a finding.
 - High-autonomy runs select concerns without a human prompt while never

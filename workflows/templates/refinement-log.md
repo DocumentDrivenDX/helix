@@ -1,66 +1,21 @@
-# Refinement Log: {{STORY_ID}}-refinement-{{REFINEMENT_NUMBER}}
+# Refinement: {{scope}}
 
-**Story ID**: {{STORY_ID}}
-**Date**: {{CURRENT_DATE}}
-**Type**: {{REFINEMENT_TYPE}} <!-- bugs|requirements|enhancement|mixed -->
-**Triggered By**: {{TRIGGER_REASON}}
-**Status**: {{STATUS}} <!-- in-progress|completed|deferred -->
+Use only when a refinement summary is requested. Update the governing artifacts
+in place; keep execution history in the runtime tracker. Omit sections that do
+not help explain the change.
 
-## Summary
+## Required Change
 
-{{BRIEF_DESCRIPTION}}
+{{The requirement or decision being refined, with its governing artifact.}}
 
-**Affected Activities**: {{AFFECTED_PHASES}} <!-- frame|design|test|build|deploy|iterate -->
+## Rationale
 
-## Original State
+{{The evidence or constraint that changes the intended behavior.}}
 
-- **Story**: [{{STORY_ID}} - {{STORY_TITLE}}](../01-frame/user-stories/{{STORY_ID}}.md)
-- **Status**: {{IMPLEMENTATION_STATUS}}
-- **Key AC**: {{#each ORIGINAL_ACCEPTANCE_CRITERIA}}**{{ac_id}}**: {{ac_description}}; {{/each}}
+## Affected Artifacts
 
-## Issues Identified
+{{The specific documents that need changes and the intended result.}}
 
-{{#each IDENTIFIED_ISSUES}}
-### {{issue_number}}: {{issue_title}}
+## Open Decisions
 
-**Category**: {{issue_category}} | **Priority**: {{issue_priority}} | **Affected AC**: {{#each affected_ac}}{{ac_id}} {{/each}}
-
-{{issue_description}}
-
-**Root Cause**: {{root_cause}}
-{{/each}}
-
-## Resolutions
-
-{{#each REFINEMENT_RESOLUTIONS}}
-### {{resolution_number}}: {{resolution_title}}
-
-**Addresses**: {{addressed_issues}} | **Strategy**: {{strategy}}
-
-{{resolution_description}}
-
-**Requirements Changes**:
-{{#each requirement_changes}}
-- {{change_type}} {{target_requirement}}: {{refined_text}} (was: {{original_text}})
-{{/each}}
-
-**Impact**: code: {{code_changes}}; tests: {{test_updates}}; effort: {{effort_estimate}}
-{{/each}}
-
-## Activity Updates
-
-| Activity | Changes |
-|-------|---------|
-| Frame | {{#each story_modifications}}{{section_name}}: {{change_type}} — {{updated_content}}; {{/each}} |
-| Design | {{#each architecture_changes}}{{component_name}}: {{change_description}}; {{/each}} |
-| Test | {{#each new_test_cases}}NEW: {{test_name}}; {{/each}}{{#each modified_test_cases}}MOD: {{test_name}}; {{/each}} |
-| Build | {{#each implementation_changes}}{{component_name}}: {{implementation_change}}; {{/each}} |
-
-## Next Actions
-
-{{#each immediate_actions}}
-- [ ] {{action_description}} (owner: {{action_owner}})
-{{/each}}
-{{#each followup_items}}
-- [ ] {{item_description}} (timeline: {{item_timeline}})
-{{/each}}
+{{Unresolved questions that affect the change and who can answer them.}}

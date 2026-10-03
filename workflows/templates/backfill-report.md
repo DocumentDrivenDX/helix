@@ -1,9 +1,12 @@
 # HELIX Backfill Report: [Scope]
 
+Use this report when a durable backfill record is requested. Keep sections that
+support the conclusions and omit the rest; do not fill unused sections with
+`N/A`.
+
 **Date**: [YYYY-MM-DD]
 **Scope**: [repo | subsystem | feature | story-set]
 **Status**: [draft | awaiting-guidance | complete | superseded]
-**Research Epic**: [tracker issue ID]
 **Confidence Scale**: HIGH / MEDIUM / LOW
 
 ## Scope and Evidence
@@ -17,7 +20,7 @@
 
 - [paths surveyed]
 
-## Coverage Ledger
+## Coverage (optional)
 
 | Scope Node | Node Type | Coverage Status | Files / Paths | Notes |
 |------------|-----------|-----------------|---------------|-------|
@@ -87,11 +90,9 @@
 |------------|------------|--------------------|---------|
 | [Statement] | [H/M/L] | [paths] | [confirmed/pending/rejected] |
 
-## Follow-Up Issues
+## Follow-Up Work (optional)
 
-| Issue ID | Type | Goal | Dependencies |
-|----------|------|------|--------------|
-| [issue ID] | [task/chore/decision] | [goal] | [deps] |
+Record follow-up work only when requested or required by the runtime.
 
 ## Next Steps
 

@@ -1,5 +1,8 @@
 # Autoresearch Session: {{goal}}
 
+Keep only metrics and constraints used by this experiment. Omit unused optional
+entries rather than writing `none` or `N/A`.
+
 ## Objective
 
 {{objective_description}}
@@ -8,7 +11,7 @@
 
 - **Primary:** {{metric_name}} ({{metric_unit}}, {{lower_or_higher}} is better)
 - **Definition:** `docs/helix/06-iterate/metrics/{{metric_name}}.yaml`
-- **Secondary:** {{secondary_metrics_or_none}}
+- **Secondary:** {{secondary_metrics}} (optional)
 
 ## How to Run
 

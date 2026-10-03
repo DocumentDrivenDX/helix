@@ -13,7 +13,7 @@ ddx:
 - Release date: [YYYY-MM-DD]
 - Rollout window or environment: [production, staged rollout, region]
 - Release owner: [name or role]
-- Source commit or build: [SHA, image tag, or build link]
+- Release version/build: [release version, image tag, or build name]
 
 ## Audience and Channels
 

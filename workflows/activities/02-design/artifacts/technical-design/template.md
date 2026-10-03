@@ -3,13 +3,6 @@ ddx:
   id: TD-XXX
   authoring:
     home: repo
-  review:
-    self_hash: 081ac39c2360ed0034e2a9bc05b5932fbd2baa2930b605c2ab947bf4548a2015
-    deps:
-      FEAT-XXX: a685da86c4c18a509196cb163f264af507cc966f804db574070e108a555bdf02
-      SD-XXX: ea6f092342409cc3f74e945b3ae421392eb4787113b828331c0fdfab359bf86d
-      US-XXX: 48b416257cf7acd8b225b785edcb09a125fed67521af9c8f115ec7dc2fbf23a3
-    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Technical Design: TD-XXX-[story-name]
@@ -116,22 +109,3 @@ CREATE TABLE [table_name] (
 | Risk | Prob | Impact | Mitigation |
 |------|------|--------|------------|
 | [Risk] | H/M/L | H/M/L | [Strategy] |
-
-## Review Checklist
-
-Use this checklist when reviewing a technical design:
-
-- [ ] Each governing-story AC-ID (US-{n}-AC{m}) is realized by the technical changes (AC text is not restated here — ADR-009)
-- [ ] Technical approach inherits from the parent solution design — no contradictions
-- [ ] Key decisions have documented rationale
-- [ ] Trade-offs are explicit — what we gain and what we lose
-- [ ] Component changes clearly describe current state vs. changes
-- [ ] API/interface design references Contract IDs for exact shared surfaces instead of defining schemas inline
-- [ ] Data model changes include migration SQL
-- [ ] Integration points specify fallback behavior for external dependencies
-- [ ] Security section addresses authentication, authorization, and data protection
-- [ ] Performance targets are numeric with specific metrics
-- [ ] Testing section covers unit, integration, API, and security scenarios
-- [ ] Migration and rollback strategy is documented
-- [ ] Implementation sequence is ordered with file paths and test paths
-- [ ] Design is consistent with governing solution design and feature spec

@@ -32,9 +32,9 @@ ddx:
 
 | Aspect | Description |
 |--------|-------------|
-| Problem | A max-autonomy "one-shot a working app" build showed HELIX needs a governed way to say *how much* a runtime should pause for human confirmation. The `low`/`medium`/`high` vocabulary already existed in `workflows/actions/input.md`, but the governing feature (FEAT-011) and design (TD-011) were removed in the scope collapse (823aa1ac), so the policy was dangling and unauditable. |
-| Current State | The PRD now states autonomy is "a first-class, controllable spectrum (review-every-edit → full one-shot)" and that HELIX "will not flatten the seven-activity loop into one generic prompt." Nothing recorded *why* the spectrum has exactly three positions, how the active level is resolved, or what a high-autonomy run may never do. |
-| Requirements | HELIX must express an autonomy policy that a capable runtime honors, with a fixed vocabulary, a deterministic resolution order, and two invariants: a hard stop no level may pass, and a guarantee that autonomy never collapses the activity loop. The policy must be runtime-neutral — no `CLAUDE.md` dependency, no runtime config schema. |
+| Problem | A runtime needs to know how often to pause for human confirmation. The policy must give low, medium, and high autonomy clear meanings without changing required workflow activities or weakening hard stops. |
+| Current State | The PRD defines autonomy as a controllable spectrum and prohibits flattening the seven-activity loop into one prompt. Action guidance also uses the `low`/`medium`/`high` vocabulary. |
+| Requirements | HELIX defines a fixed vocabulary, deterministic resolution order, and two invariants: no level passes a hard stop, and no level skips a required activity. The policy remains runtime-neutral and requires no runtime-specific configuration. |
 
 ## Decision
 
@@ -81,7 +81,7 @@ autonomy infers concerns
 
 | Type | Impact |
 |------|--------|
-| Positive | The autonomy policy is governed, auditable, and ratchet-able instead of dangling. |
+| Positive | The autonomy policy is governed, auditable, and testable. |
 | Positive | The same project behaves identically across runtimes because the signal is runtime-neutral. |
 | Positive | High autonomy becomes safe to use: the hard-stop and never-collapse-loop invariants bound what it may do. |
 | Positive | Concern inference at high autonomy turns the previously inert concerns library into a default behavior. |

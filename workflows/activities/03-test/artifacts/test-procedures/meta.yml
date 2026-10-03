@@ -31,6 +31,23 @@ validation:
       description: Each procedure should state what evidence proves the result
       severity: blocking
 
+    - check: review_test_names_describe_behavior_severity_01
+      description: >-
+        Test names describe behavior
+      severity: warning
+    - check: review_tests_independent_deterministic_severity_warning
+      description: >-
+        Tests are independent and deterministic
+      severity: warning
+    - check: review_assertions_specific
+      description: >-
+        Assertions are specific
+      severity: warning
+    - check: review_managed_fixtures_factories_used
+      description: >-
+        Managed fixtures or factories are used
+      severity: warning
+
 prompts:
   generation: prompt.md
 

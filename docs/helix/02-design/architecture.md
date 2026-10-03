@@ -206,8 +206,10 @@ product vision
 ```
 
 The routing skill's `evolve` workflow mode threads changes downward through
-this order; `align` audits consistency across it. The authority hierarchy is a
-HELIX invariant; runtimes execute against it but do not redefine it.
+this order. `align` compares the artifacts affected by the requested change;
+an implementation audit is a separate, explicitly scoped request. The
+authority hierarchy is a HELIX invariant; runtimes execute against it but do
+not redefine it.
 
 ### Artifact instance frontmatter
 

@@ -65,6 +65,14 @@ validation:
       description: Feature specs may name high-level interface dependencies but must not define exact API, CLI, event, schema, config, telemetry, or adapter surfaces; use Contract artifacts for normative interface detail
       severity: blocking
 
+    - check: story_and_traceability_boundaries
+      description: Acceptance criteria live in referenced user stories; requirements connect to the governing PRD; stories are referenced by ID without duplicating their content; dependencies use specific artifact IDs or external systems
+      severity: blocking
+
+    - check: scope_and_outcomes
+      description: Broad features state the user-visible future state; areas stay within one capability and requirements are grouped when needed; feature-level edge cases span stories; success measures are feature-specific; out-of-scope items answer plausible scope questions
+      severity: warning
+
   pattern_checks:
     - pattern: "\\[NEEDS CLARIFICATION"
       expected: 0

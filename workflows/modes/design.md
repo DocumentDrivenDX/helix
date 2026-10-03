@@ -1,13 +1,20 @@
 # Design
 
-Use when implementation needs design authority before build work.
+Use when the requested change needs design authority before implementation.
 
-1. Load governing artifacts, existing designs, implementation context, tests,
-   and open work for the scope.
-2. Draft problem statement, requirements, architecture decisions, interfaces,
-   data model, errors, security, testing, sequencing, risks, and observability.
-3. Iterate through self-critique until material changes converge.
-4. Write the design to the project HELIX design location.
-5. Derive ordered, verifiable implementation work from the design.
+1. Read the requested scope and the governing artifacts that can affect it.
+   Read implementation, tests, concerns, and existing work only when relevant
+   to the design question.
+2. Draft the applicable requirements, decisions, interfaces, failure behavior,
+   security, tests, dependencies, risks, and observability. Omit sections that
+   do not apply; do not add empty data-model or security sections for ceremony.
+3. Preserve acceptance criteria and give each implementation slice a
+   verifiable outcome. Validate dependency references before writing.
+4. Resolve material unknowns with evidence or a bounded spike; state unresolved
+   assumptions and ask for decisions that affect the design.
+5. Stop when the design is implementable and no material ambiguity remains.
+   Treat a requested round count as an upper bound, not a minimum.
+6. Derive ordered work items only when the user requests them or the runtime
+   requires them.
 
-Procedure: `workflows/actions/plan.md` (deeper step detail; this file is the contract).
+Procedure: `workflows/actions/plan.md` supplies additional detail.

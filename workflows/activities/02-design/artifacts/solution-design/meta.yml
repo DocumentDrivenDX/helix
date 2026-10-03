@@ -46,6 +46,59 @@ validation:
       description: Major components or subsystems must be identified
       severity: blocking
 
+    - check: review_requirements_mapping_covers_all_p0_01
+      description: >-
+        Requirements mapping covers all P0 functional requirements from the governing spec
+      severity: warning
+    - check: review_nfr_impact_section_shows_how
+      description: >-
+        NFR impact section shows how the architecture satisfies each non-functional requirement
+      severity: warning
+    - check: review_at_least_two_solution_approaches
+      description: >-
+        At least two solution approaches were evaluated with concrete pros/cons
+      severity: warning
+    - check: review_selected_approach_rationale_explains_why
+      description: >-
+        Selected approach rationale explains why alternatives were rejected
+      severity: warning
+    - check: review_domain_model_captures_entities_their
+      description: >-
+        Domain model captures all entities and their relationships
+      severity: warning
+    - check: review_business_rules_specific_enough_implement
+      description: >-
+        Business rules are specific enough to implement
+      severity: warning
+    - check: review_system_decomposition_assigns_requirement_at
+      description: >-
+        System decomposition assigns every requirement to at least one component
+      severity: warning
+    - check: review_component_interfaces_name_how_components
+      description: >-
+        Component interfaces name how components communicate and link Contract IDs for exact shared surfaces
+      severity: warning
+    - check: review_technology_rationale_explains_why_choice
+      description: >-
+        Technology rationale explains why each choice was made, not just what was chosen
+      severity: warning
+    - check: review_traceability_table_maps_requirement_component
+      description: >-
+        Traceability table maps every requirement to a component and test strategy
+      severity: warning
+    - check: review_gaps_section_lists_any_requirements
+      description: >-
+        Gaps section lists any requirements not fully addressed with mitigation plans
+      severity: warning
+    - check: review_concern_alignment_verifies_consistency_active
+      description: >-
+        Concern alignment verifies consistency with active project concerns
+      severity: warning
+    - check: review_design_consistent_governing_feature_spec
+      description: >-
+        Design is consistent with governing feature spec and PRD
+      severity: warning
+
   pattern_checks:
     - pattern: "SD-\\d{3}-"
       expected: ">=1"

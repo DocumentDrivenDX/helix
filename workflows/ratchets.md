@@ -130,9 +130,9 @@ transition from `planned` to `active` happens when implementation ships with
 passing tests. Active criteria cannot revert to `planned` without the override
 protocol.
 
-**Co-staging**: when the floor fixture is updated, the sibling planning
-artifact (test plan, acceptance manifest, or equivalent) should be staged in
-the same commit to maintain traceability.
+**Ownership**: store measured criterion states in runtime test fixtures. Test
+plans state the intended verification strategy; do not duplicate the fixture
+status in those plans. Update a plan only when its intended requirements change.
 
 **Phantom-claim sub-ratchet (claims-vs-reality, floor = 0)**: reconcile-alignment Step 3 classifies a
 criterion as `ASSERTED_UNBACKED` when an artifact claims a test, coverage figure, or emitted metric
@@ -211,6 +211,9 @@ defines concrete metrics to track.
   change in the issue commit.
 
 ### Check Action
+
+Inspect ratchets only when the requested status or audit depends on them.
+Ordinary document authoring does not require measuring implementation floors.
 
 - **Step 2 (Artifact Health)**: report ratchet status (current measured value
   vs. floor, trend direction) as part of the artifact-health assessment. A

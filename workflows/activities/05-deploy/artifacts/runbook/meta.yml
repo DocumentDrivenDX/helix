@@ -23,7 +23,6 @@ validation:
     - alert_triage
     - common_incident_procedures
     - rollback_and_recovery
-    - routine_operations
     - escalation_and_communications
 
   quality_checks:

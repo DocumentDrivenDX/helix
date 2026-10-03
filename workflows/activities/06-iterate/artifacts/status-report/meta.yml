@@ -31,12 +31,14 @@ validation:
       description: Every outcome row must cite the iteration plan's outcome ID it reports against
       severity: blocking
     - check: evidence_cited
-      description: Every status claim cites evidence — done and at-risk cite the proof or the threat (demo, test, commit, metric), on-track cites observable progress so far, dropped cites the trade or escalation; an evidence-free claim is a phantom claim
+      description: Every status claim cites evidence — done and at-risk cite proof or threat (demo, test result, metric), on-track cites observable progress, and dropped cites the trade or escalation
       severity: blocking
     - check: trades_reference_rules
       description: Every executed trade must reference the plan's trade rules or name who approved the deviation
       severity: warning
-
+    - check: decisions_name_decider
+      description: Every decision needed from another person names that decision maker
+      severity: warning
 prompts:
   generation: prompt.md
 

@@ -68,6 +68,59 @@ validation:
       description: At least one test execution risk and mitigation must be listed
       severity: warning
 
+    - check: review_test_levels_cover_contract_integration_01
+      description: >-
+        Test levels cover contract, integration, unit, and E2E with coverage targets
+      severity: warning
+    - check: review_framework_choices_justified_consistent_project
+      description: >-
+        Framework choices are justified and consistent with project concerns
+      severity: warning
+    - check: review_critical_paths_p0_identified_have
+      description: >-
+        Critical paths (P0) are identified and have 100% coverage requirements
+      severity: warning
+    - check: review_test_data_strategy_covers_fixtures
+      description: >-
+        Test data strategy covers fixtures, factories, and mocks
+      severity: warning
+    - check: review_coverage_requirements_have_both_targets
+      description: >-
+        Coverage requirements have both targets and minimums with enforcement rules
+      severity: warning
+    - check: review_implementation_order_justified_what_tested
+      description: >-
+        Implementation order is justified — what must be tested first and why
+      severity: warning
+    - check: review_infrastructure_requirements_specific_tool_versions
+      description: >-
+        Infrastructure requirements are specific (tool versions, service deps)
+      severity: warning
+    - check: review_risks_include_flaky_test_mitigation
+      description: >-
+        Risks include flaky test mitigation and slow execution strategies
+      severity: warning
+    - check: review_known_gaps_documented_accepted_risk
+      description: >-
+        Known gaps are documented with accepted risk rationale
+      severity: warning
+    - check: review_build_handoff_commands_concrete_runnable
+      description: >-
+        Build handoff commands are concrete and runnable
+      severity: warning
+    - check: review_test_plan_traces_back_acceptance
+      description: >-
+        Test plan traces back to acceptance criteria from governing feature specs
+      severity: warning
+    - check: review_no_untested_p0_requirement_p0
+      description: >-
+        No untested P0 requirement — every P0 acceptance criterion has a test
+      severity: warning
+    - check: review_acceptance_criteria_allocated_test_layers
+      description: >-
+        Acceptance criteria are allocated to test layers by AC class without duplicating the per-AC `US-<n>-AC<m>` matrix owned by the story test plans
+      severity: warning
+
 prompts:
   generation: prompt.md
   review: |

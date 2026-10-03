@@ -116,10 +116,6 @@ validation:
       description: The profile assesses one candidate; the choice among candidates lives in an ADR that cites the profiles
       severity: warning
 
-    - check: reviewed_by_named
-      description: The Review Checklist names its reviewer, or says unreviewed
-      severity: warning
-
 prompts:
   generation: prompt.md
 

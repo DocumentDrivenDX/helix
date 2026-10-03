@@ -55,11 +55,3 @@ message, endpoint, or payload element named here is part of the contract.
 
 [Optional rationale or implementation guidance. Nothing in this section changes
 the contract.]
-
-## Validation Checklist
-
-- [ ] Normative fields and rules are explicit.
-- [ ] Compatibility and precedence rules are explicit.
-- [ ] Error handling is explicit.
-- [ ] At least one executable test can be derived from this contract.
-- [ ] Non-normative notes cannot be mistaken for contract requirements.

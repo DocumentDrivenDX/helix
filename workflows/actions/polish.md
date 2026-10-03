@@ -3,27 +3,26 @@
 You are performing plan decomposition and iterative issue refinement before
 implementation begins.
 
-"Decompose the plan, check your issues N times, implement once."
-
 Your goal is to decompose design plans into implementable tracker work items and then
-improve issue quality through multiple refinement passes: deduplication,
+improve relevant item quality as needed: deduplication,
 coverage verification against the plan, acceptance criteria sharpening,
 dependency correction, and convergence detection. This front-loaded investment
 prevents agents from running off to implement work that hasn't been properly
 broken down.
 
-**Polish is the bridge between design and build.** A design plan is not
-executable — it must be decomposed into individually implementable work items
-before the build action can safely execute. If the check action routes here,
-your first priority is decomposition; refinement follows.
+**Polish prepares requested work for execution.** Decompose a plan when asked or
+required by the runtime, then refine the resulting scoped items.
 
 ## Action Input
 
 You may receive:
 
-- no argument (default: all open work items)
+- a task or scope named in the request
 - a scope such as `auth`, `FEAT-003`, `activity:build`
-- `--rounds N` controlling maximum refinement passes (default: 6)
+- `--rounds N` as an optional upper bound on refinement passes (default: 6)
+
+Infer scope from the named task when possible. Ask when no clear scope can be
+inferred; do not expand to every open work item by default.
 
 ## STEP 0 - Load Current State
 
@@ -42,11 +41,10 @@ You may receive:
    provides a digest refresh helper, use it so area-label inference and digest
    assembly stay deterministic.
 1. Verify the runtime-provided work-item source is available. Stop immediately if unavailable.
-2. Load all open work items for the scope.
+2. Load open work items relevant to the scope.
 3. Load the governing plan document if one exists.
    - Check `docs/helix/02-design/plan-*.md` for the scope
    - Check other planning artifacts (PRD, feature specs, architecture docs)
-4. Record initial item count and state as the baseline.
 
 ## STEP 0.5 - Work Item Acquisition
 
@@ -67,8 +65,8 @@ For every open or proposed `activity:build` / implement item in scope:
 
 ## STEP 1 - Plan Decomposition
 
-**This activity runs first and is mandatory when a plan exists.** Plans must be
-decomposed into tracker work items before refinement or implementation can proceed.
+**This activity runs first when the user or runtime requests plan decomposition.**
+Decompose applicable implementation slices before refinement.
 
 1. Locate the governing plan documents for the scope:
    - `docs/helix/02-design/plan-*.md`
@@ -76,7 +74,7 @@ decomposed into tracker work items before refinement or implementation can proce
    - Other design artifacts referenced by the scope
 2. For each plan, check whether tracker work items already exist that reference it
    (via `spec-id`, description, or parent epic).
-3. If the plan has **not been decomposed** (no or very few corresponding work items):
+3. If the requested plan has **not been decomposed**:
    a. Read the plan's "Implementation Plan with Dependency Ordering" section
       (or equivalent work breakdown).
    b. Create one work item per implementable slice. Each item must:
@@ -89,11 +87,12 @@ decomposed into tracker work items before refinement or implementation can proce
    c. Group related items under an epic if the plan implies multiple
       implementation tracks.
    d. Wire dependencies based on the plan's dependency graph.
-4. If the plan has been partially decomposed, create work items only for uncovered
-   sections — do not duplicate existing work items.
+4. If the plan has been partially decomposed, create work items only for
+   uncovered implementation slices; explanatory sections do not each need an
+   item.
 
-Only after decomposition is complete (or confirmed already done) should
-refinement passes begin.
+When decomposition was requested, complete or confirm it before refining the
+resulting work items.
 
 ## STEP 2 through N - Refinement Passes
 
@@ -109,11 +108,10 @@ Each pass performs ALL of the following checks. Track changes made per pass.
 
 ### Plan Coverage Verification
 
-- If a plan document exists, verify every plan section has at least one issue
-  (decomposition should have handled this, but coverage verification catches
-  gaps).
-- If a section has no issue, create one with proper labels, spec-id, and
-  acceptance criteria derived from the plan.
+- If decomposition was requested, verify each applicable implementation slice
+  has a corresponding work item.
+- Create an item for an uncovered slice only when it is in scope and has
+  enough governing detail for verifiable acceptance criteria.
 - If an issue exists but doesn't map to any plan section, flag it for review.
 
 ### Acceptance Criteria Sharpening
@@ -218,23 +216,20 @@ scope:
 
 ## Convergence Detection
 
-Track a change count per round: number of issues modified, created, or merged.
-Decomposition (Step 1) does not count toward convergence — it is a one-time
-setup step, not an iterative pass.
-
-When change count drops below 3 for two consecutive refinement rounds, declare
-convergence and stop refinement.
-
-If max rounds is reached without convergence, report the current state and
-recommend additional rounds or user guidance.
+Stop when requested decomposition is complete, scoped items meet applicable
+readiness checks, and no material ambiguity remains. Treat `--rounds N` only as
+an upper bound; stop earlier when ready. If the limit is reached first, report
+what remains and why.
 
 ## ACTIVITY N+1 - Measure
 
 Verify the polish pass against the governing work item's acceptance criteria.
 See `workflows/references/measure.md` for the full pattern.
 
-1. **Decomposition completeness**: All plans in scope have corresponding work items.
-2. **Convergence**: Change velocity dropped below threshold.
+1. **Decomposition completeness**: Requested implementation slices have
+   corresponding work items.
+2. **Readiness**: In-scope items meet applicable readiness checks, with no
+   unresolved material ambiguity, or identify what blocks readiness.
 3. **Concern threading**: All work items in scope have concern-appropriate
    context digests and acceptance criteria.
 4. **Dependency integrity**: No circular dependencies; all `spec-id` references
@@ -247,7 +242,7 @@ Close the polish cycle and feed back into the planning cycle. See the report
 action for the full pattern.
 
 1. If measurement passed, close the governing work item with evidence summary.
-2. If measurement identified gaps, create follow-on work items for:
+2. Create follow-on items only when requested or required by the runtime, for:
    - Items that still lack concern coverage
    - Plans that could not be fully decomposed (need guidance)
    - Dependency issues that need resolution
@@ -256,8 +251,8 @@ action for the full pattern.
 
 ## Output
 
-Report a summary of all modifications made across rounds, then these trailer
-lines:
+Summarize modifications made across rounds. Use these fields only when the
+user or runtime requests structured output:
 
 ```
 POLISH_STATUS: CONVERGED|IN_PROGRESS
@@ -272,83 +267,11 @@ ITEM_ID: <governing-item-id>
 FOLLOW_ON_CREATED: N
 ```
 
-- `CONVERGED`: change velocity dropped below threshold
-- `IN_PROGRESS`: max rounds reached but velocity still above threshold
+- `CONVERGED`: requested decomposition is complete and scoped items are ready
+- `IN_PROGRESS`: the upper round limit was reached before the scope was ready
 - `DECOMPOSITION: YES`: plan was decomposed into work items in this run
 - `DECOMPOSITION: NO`: no plan found or plan was already decomposed
 - `DECOMPOSITION: PARTIAL`: plan partially decomposed, some sections could not
   be broken down without guidance
 
-## Runtime Integration Appendix
-
-This appendix covers how a runtime realizes the polish action. The reference
-paths and work-item acquisition below are runtime-neutral; for the concrete
-commands of a specific runtime, see its install guide (DDx:
-[docs/install/ddx.md](../../docs/install/ddx.md)).
-
-### STEP 0 — Reference resolution
-
-Confirm the runtime-provided work-item source is available before proceeding; stop immediately if
-it is not.
-
-Load principles from `workflows/references/principles-resolution.md`.
-Load concerns from `workflows/references/concern-resolution.md`.
-Refresh context digests per `workflows/references/context-digest.md`.
-
-Use the runtime-provided work-item source to load all open and in-progress work
-items for the scope.
-
-### STEP 0.5 — Work-item acquisition
-
-Acquire the governing work item before modifying any work items, per
-`workflows/references/work-item-first.md`: find an open planning item labelled
-`kind:planning,action:polish` (claim it if found) or create one with labels
-`helix,activity:design,kind:planning,action:polish`, a `spec-id` pointing at the
-governing plan if known, a `<context-digest>` description that names the scope
-and the plan documents to decompose found in Step 0, and acceptance "All plans
-in scope decomposed into work items; convergence reached (< 3 changes for 2
-consecutive rounds); context digests refreshed; concern-appropriate acceptance
-criteria on all work items". The runtime supplies the work-item store; for the
-concrete commands see its install guide
-([docs/install/ddx.md](../../docs/install/ddx.md) for DDx).
-
-### STEP 1 — Decomposition
-
-Wire dependencies between the decomposed work items through the runtime
-tracker's dependency mechanism, based on the plan's dependency graph.
-
-### ACTIVITY N+1 — Measure
-
-Record the measure results on the governing work item through the runtime
-tracker.
-
-Concern change check: compare git log on
-`workflows/concerns/` and `docs/helix/01-frame/concerns.md`
-against the timestamp of the most recent `kind:planning,action:polish` work item
-closed.
-
-### Action input examples
-
-```
-/helix polish
-/helix polish auth
-/helix polish --rounds 10 FEAT-003
-```
-
-### Output trailer
-
-```
-POLISH_STATUS: CONVERGED|IN_PROGRESS
-DECOMPOSITION: YES|NO|PARTIAL
-POLISH_ROUNDS: N
-ISSUES_DECOMPOSED: count (from plan decomposition)
-ISSUES_MODIFIED: count
-ISSUES_CREATED: count (from refinement, not decomposition)
-ISSUES_MERGED: count
-MEASURE_STATUS: PASS|FAIL|PARTIAL
-ITEM_ID: <governing-item-id>
-FOLLOW_ON_CREATED: N
-```
-
-The polished work items are now ready for the runtime's build loop to claim and
-execute.
+When in-scope implementation work is ready, the runtime can dispatch it under its own execution rules.

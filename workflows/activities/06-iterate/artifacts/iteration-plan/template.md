@@ -13,7 +13,7 @@ ddx:
 | **Dates** | [start → end] |
 | **Review** | [date and format of the iteration review] |
 | **Lead** | [who runs the iteration] |
-| **Roadmap Slot** | [roadmap order/iteration this fulfills, or N/A] |
+| **Roadmap Slot** | [roadmap order/iteration this fulfills; omit when there is no roadmap] |
 
 ## Iteration Goal
 
@@ -83,13 +83,3 @@ field.
 | Risk | Impact | Response |
 |------|--------|----------|
 | [risk] | [H/M/L] | [action] |
-
-## Review Checklist
-
-- [ ] Goal is falsifiable at the review date
-- [ ] Every participating workstream has exactly one Good, one Better, and one Best outcome
-- [ ] Every committed outcome has an owner, acceptance evidence, and at least one task
-- [ ] Workstream aliases match the roadmap's registry — none minted here (or the plan is roadmap-less and uses no aliases)
-- [ ] Trade rules make the drop order deterministic (Best, then Better; Good never)
-- [ ] Every task has a stable ID, maps to a committed outcome, and names its work item or is marked for creation
-- [ ] Runtime work items can derive from the task tables without inventing scope

@@ -1,8 +1,10 @@
 # Design Plan: {{scope}}
 
+Use the sections needed to explain this plan. Omit irrelevant sections rather
+than adding `N/A`; retain a section when its requirement applies.
+
 **Date**: {{YYYY-MM-DD}}
-**Status**: {{CONVERGED|IN_PROGRESS|GUIDANCE_NEEDED}}
-**Refinement Rounds**: {{N}}
+**Decision state**: {{Draft|Approved}}
 
 ## Problem Statement
 
@@ -59,7 +61,7 @@
 
 {{Work slices and their ordering}}
 
-### Issue Breakdown
+### Work Breakdown (optional)
 
 {{Suggested issues with acceptance criteria}}
 
@@ -76,4 +78,4 @@
 ## Governing Artifacts
 
 {{Cross-references to vision, PRD, feature specs, architecture docs}}
-Name the vision/PRD outcomes this plan advances (or N/A with reason).
+Name the vision or requirements this plan advances when relevant.

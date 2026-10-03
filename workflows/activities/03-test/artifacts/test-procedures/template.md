@@ -65,13 +65,6 @@ Run the same suite on push and PRs. Block merges on failure.
 |-----------|------|------|
 | [Procedure] | [Observable passing condition] | [Blocking failure condition] |
 
-## Quality Checklist
-
-- [ ] Test names describe behavior
-- [ ] Tests are independent and deterministic
-- [ ] Assertions are specific
-- [ ] Managed fixtures or factories are used
-
 ## Troubleshooting
 
 | Problem | Likely Cause | Fix |
