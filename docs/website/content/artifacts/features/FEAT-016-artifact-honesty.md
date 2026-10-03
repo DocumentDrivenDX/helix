@@ -51,6 +51,12 @@ are classified `ASSERTED_UNBACKED` and gated by a zero-floor ratchet. This is
 which is why it is its own feature rather than a clause inside FEAT-008 or
 FEAT-014.
 
+This check applies to factual claims about present reality. Planned tests,
+target metrics, and normative requirements describe desired state; their
+absence does not make a specification dishonest. Drafting a specification
+does not require an implementation audit. Verify implementation only when an
+artifact claims that behavior, tests, or measurements already exist.
+
 ## Problem Statement
 
 - **Current situation**: HELIX classifies acceptance criteria as `SATISFIED`,

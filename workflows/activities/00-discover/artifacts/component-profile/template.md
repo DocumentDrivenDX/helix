@@ -222,22 +222,3 @@ descriptive claim only, never a design-defining one.
 
 **Searched**: [the search strings and pages consulted, and which Not
 published or Not researched cells each produced]
-
-## Review Checklist
-
-Ticked by a named reviewer, recorded on the line; an author ticking their own
-boxes is a draft.
-
-Reviewed by: [name and role from a project artifact, or *unreviewed*]
-
-- [ ] Need and Required Capabilities cite project artifacts only; no `[n]` appears in them
-- [ ] Every required capability has a "Settled by" line and a status from How to Read This Profile
-- [ ] Every claim cites at the clause or is marked Not published (with the search) or Not researched (with the sibling profile)
-- [ ] Every figure carries a label, and every mutable fact an as-of date
-- [ ] The verdict follows the definitions in How to Read This Profile
-- [ ] The Competitive Landscape scores every named alternative on the same capabilities
-- [ ] The confidence grade follows the rubric; a design-defining Unknown caps it at Medium
-- [ ] Every source carries class, author or organisation, publication date where shown, and access date; scoped-version docs are version-pinned
-- [ ] No benchmark, prototype, or integration result is claimed
-- [ ] No owner, date, duration, or figure appears that a project artifact does not state
-- [ ] No choice among candidates is made here

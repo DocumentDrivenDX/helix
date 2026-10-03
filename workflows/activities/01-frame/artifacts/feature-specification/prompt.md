@@ -191,29 +191,3 @@ and the OAuth2 provider API" is specific.
 Each item should prevent a plausible scope question during implementation.
 "Not a replacement for the database" is only useful if someone might think
 it is.
-
-## Quality Checklist
-
-After drafting, verify every item. If any blocking check fails, revise before
-committing.
-
-### Blocking
-
-- [ ] Overview links to a specific PRD requirement
-- [ ] Ideal Future State is present for broad product-surface, workflow, IA, or documentation features
-- [ ] Functional Areas is present when the feature spans multiple surfaces, workflows, user modes, or domain objects
-- [ ] Similar domain objects are separated before requirements are written
-- [ ] Functional requirements are grouped by area when a flat list would mix unrelated scopes
-- [ ] Every functional requirement is testable
-- [ ] Non-functional requirements have specific numeric targets
-- [ ] User stories are referenced by ID (not duplicated inline)
-- [ ] Dependencies name specific feature IDs and external systems
-- [ ] Exact API/CLI/event/schema/config/telemetry/adapter surface is linked to a Contract, not defined inline
-- [ ] No `[NEEDS CLARIFICATION]` markers remain
-
-### Warning
-
-- [ ] Problem statement quantifies the pain
-- [ ] At least one feature-level edge case documented
-- [ ] Success metrics are feature-specific (not product-level)
-- [ ] Out of scope excludes something plausible

@@ -36,19 +36,12 @@ Differentiate the runbook from adjacent deploy artifacts:
 
 Map alerts or symptoms to first checks, dashboards, commands, and next
 decisions. Include rollback and recovery steps with prerequisites, stop
-conditions, and validation. Include recurring operational procedures only when
-somebody actually performs them.
+conditions, and validation. Include routine operations only when the service
+has recurring tasks; omit the section otherwise.
 Preserve evidence before destructive containment when security or data exposure
 is possible.
 
 Do not produce a generic SRE handbook, sample vendor command dump, or broad
 release coordination plan.
-
-## Completion Criteria
-- [ ] Operator entry points map situations to first checks, commands, and owners
-- [ ] Alert triage is tied to concrete dashboards, logs, or commands
-- [ ] Rollback and recovery steps include prerequisites, stop conditions, and validation
-- [ ] Routine operational procedures are explicit or the document says none exist
-- [ ] Escalation and communication paths are explicit
 
 Use the template at `workflows/activities/05-deploy/artifacts/runbook/template.md`.

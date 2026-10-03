@@ -90,8 +90,7 @@ ddx:
 | [key rotation, replay, cache warmup] | [when it happens] | [command or steps] | [proof] |
 | [backup or maintenance task] | [when it happens] | [command or steps] | [proof] |
 
-If no recurring operational tasks exist, state that explicitly and point to the
-systems that own them instead.
+Include this section only when the service has recurring operational tasks.
 
 ## Escalation and Communications
 

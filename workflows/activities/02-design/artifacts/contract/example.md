@@ -7,13 +7,6 @@ ddx:
     - example.architecture.depositmatch
     - example.feature-specification.depositmatch.csv-import
     - example.user-story.depositmatch.upload-csv
-  review:
-    self_hash: 0f6f77f7dca5d1d05590440459fe958f9620857ed3968839e537655dce27cd04
-    deps:
-      example.architecture.depositmatch: 64b7297158175ff16812e401fe093f7624b5ba70b11265a7a4bdf324e50a6bff
-      example.feature-specification.depositmatch.csv-import: d85530eb091209cf9989c9cac3bc1f1063358a5b79964ca0e5e7a384fa77c44a
-      example.user-story.depositmatch.upload-csv: ae65ec934b10e577641772c711eafec5a15dbb5854327d8240307341e2053f66
-    reviewed_at: "2026-05-15T04:11:24Z"
 ---
 
 # Contract
@@ -142,11 +135,3 @@ INV-104,2026-05-07,1200.00,Acme Dental
 This API creates only a draft import session. Mapping and validation are
 separate contracts so clients can recover from upload problems before row-level
 processing begins.
-
-## Validation Checklist
-
-- [ ] Normative fields and rules are explicit.
-- [ ] Compatibility and precedence rules are explicit.
-- [ ] Error handling is explicit.
-- [ ] At least one executable test can be derived from this contract.
-- [ ] Non-normative notes cannot be mistaken for contract requirements.

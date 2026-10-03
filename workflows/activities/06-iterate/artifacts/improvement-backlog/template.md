@@ -26,9 +26,3 @@ ddx:
 
 - [Chosen item]
 - [Why it wins the next slot]
-
-## Review Checklist
-
-- [ ] Each item cites evidence
-- [ ] Tracker references are included
-- [ ] Ordering is deterministic

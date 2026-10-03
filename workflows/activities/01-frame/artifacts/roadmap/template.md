@@ -39,11 +39,3 @@ reference workstreams by alias; they never mint new ones.
 
 - [Event that forces a re-sequence — e.g. a go/no-go finding, a slipped dependency, a backlog re-rank]
 - [What stays stable across revisions — e.g. the active iteration's committed outcomes]
-
-## Review Checklist
-
-- [ ] Every workstream has a stable `WS-<n>` alias, a scope line, and an owner
-- [ ] Every outcome cites its workstream and its governing artifact
-- [ ] Ordering states its rationale
-- [ ] The horizon is explicit; nothing beyond it is committed
-- [ ] Current-iteration outcomes match the active iteration plan

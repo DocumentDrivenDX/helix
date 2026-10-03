@@ -40,15 +40,52 @@ validation:
       severity: blocking
 
     - check: test_approach_specified
-      description: Testing strategy must be defined
+      description: Testing strategy covers relevant unit, integration, API, and security scenarios
       severity: warning
 
     - check: security_considered
-      description: Security requirements must be addressed
+      description: Security section addresses authentication, authorization, and data protection
       severity: blocking
 
     - check: rollback_plan_exists
-      description: Rollback strategy should be defined
+      description: Migration and rollback strategies are documented
+      severity: warning
+
+    - check: review_technical_approach_inherits_parent_solution
+      description: >-
+        Technical approach inherits from the parent solution design — no contradictions
+      severity: warning
+    - check: review_key_decisions_have_documented_rationale
+      description: >-
+        Key decisions have documented rationale
+      severity: warning
+    - check: review_trade_offs_explicit_what_we
+      description: >-
+        Trade-offs are explicit — what we gain and what we lose
+      severity: warning
+    - check: review_component_changes_clearly_describe_current
+      description: >-
+        Component changes clearly describe current state vs. changes
+      severity: warning
+    - check: review_data_model_changes_include_migration
+      description: >-
+        Data model changes include migration SQL
+      severity: warning
+    - check: review_integration_points_specify_fallback_behavior
+      description: >-
+        Integration points specify fallback behavior for external dependencies
+      severity: warning
+    - check: review_performance_targets_numeric_specific_metrics
+      description: >-
+        Performance targets are numeric with specific metrics
+      severity: warning
+    - check: review_implementation_sequence_ordered_file_paths
+      description: >-
+        Implementation sequence is ordered with file paths and test paths
+      severity: warning
+    - check: review_design_consistent_governing_solution_design
+      description: >-
+        Design is consistent with governing solution design and feature spec
       severity: warning
 
   pattern_checks:

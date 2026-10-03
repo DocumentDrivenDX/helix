@@ -38,8 +38,9 @@ Use these local resource summaries as grounding:
 - Keep alternatives and tradeoffs honest but brief.
 - Note validation and references only if they affect the decision.
 - Use one ADR per decision. If the decision has independent parts, split it.
-- Treat accepted ADRs as history. New decisions supersede old records instead
-  of rewriting them.
+- Keep one current record of the chosen direction and useful rationale. Update
+  it when the decision changes; supersede it only when retaining a materially
+  different earlier decision helps explain the current choice.
 - **Do not accept a decision whose design-defining facts are assumed.** A
   decision's design-defining facts (API shape, data model, pricing/cost
   semantics, security/permissions, operational guarantees, or work decomposition)

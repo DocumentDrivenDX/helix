@@ -27,14 +27,10 @@ contract from the catalog (§Mode Contracts).
 Rule: do not add separate public `helix-*` skills. Add or refine a route
 inside this skill instead.
 
-## When to engage (read first; non-negotiable)
+## When to engage
 
-Engage whenever a condition below holds, whether or not the artifact content
-is attached, the workspace is empty, or the request looks generic. Engagement
-is the first tool action of the turn: hosts with a skill tool invoke the
-`helix` skill through it; hosts without one load this `SKILL.md` body via the
-host mechanism (a slash command, skill auto-load, or a read of this file).
-Narrating HELIX-shaped reasoning without that action is a contract violation.
+Use this skill for the requests below. Load it through the host's skill tool
+or read this file. Resolve missing artifact paths from the marker and catalog.
 
 Engage when the prompt:
 
@@ -64,7 +60,7 @@ state-changing action (§Autonomy).
 
 | Domain lane | Triggers | Required observable behavior |
 |---|---|---|
-| `product` | HELIX artifact named; planning verb (frame, align, decompose, prioritize, propose, capture, review, decide, evolve, refresh) against a product/feature/requirements object; cross-flow query | (a) Read `.helix.yml` AND the bound graph before any file write or edit; (b) Read named upstream artifacts (vision, PRD, feature spec) per the graph BEFORE drafting; (c) cite `ddx.links` / `informs` edges in any new artifact |
+| `product` | HELIX artifact named; planning verb (frame, align, decompose, prioritize, propose, capture, review, decide, evolve, refresh) against a product/feature/requirements object; cross-flow query | (a) Read `.helix.yml` and bind the graph before editing; (b) read the target and governing artifacts relevant to the request; (c) record supported `ddx.links` when the artifact type calls for them |
 | `infra` | IaC verb (terraform/tofu/kubectl, provision/destroy/rotate); set up CI; manage credentials | (a) Consult the stop triggers (`workflows/stop-triggers.yml`) for `apply` or `secret_read` before any shell command; (b) Read infra-shaped artifacts (architecture, runbook, deployment-checklist); (c) explicit confirmation prompt before terraform/tofu/kubectl/credential operations |
 | `data` | Data-pipeline verb (backfill/ingest/migrate a table or schema, profile a source, write a data contract) | (a) Read data-contract / data-quality-expectations / data-architecture artifacts; (b) cite producer/consumer or PII/governance posture in prose; (c) defer schema mutations behind a `stop_at` confirmation |
 | `web` | Web/frontend verb (deploy/ship to production, add monitoring for a user-facing flow, optimize page performance) | (a) Read architecture / design-system / monitoring-setup / runbook artifacts in the deploy-flow scope; (b) cite Web Vitals / RUM / page-error vocabulary in prose; (c) defer production deploys behind a `stop_at` confirmation |
@@ -82,17 +78,11 @@ not stop after searching cwd only.
 
 ### 2. Read the marker and bind the graph before any file write or edit
 
-This skill speaks in three primitives, read markdown, write markdown, and search files (host tool names: on hosts with named tools a file write or edit is Write or Edit, a shell command is Bash, a file read is Read).
-
-Before the first file write or edit of the session, read the marker and bind
-the methodology graph via §Catalog Resolution, in either order; skipping
-either produces artifacts narrated from training and is a contract violation.
-A graph bind is always achievable in supported layouts, so a missing
-project-local `workflows/` never justifies stopping or skipping edits: bind
-from a later resolution step. A read whose target does not resolve does not
-count. `high` autonomy waives the human-in-the-loop ask, not this grounding.
-Under heuristic activation (§3) the failed marker lookup satisfies the
-marker read and the shipped catalog satisfies the graph bind.
+Before editing, read the marker and resolve the graph through §Catalog
+Resolution. If the project has no `workflows/` directory, try the remaining
+catalog locations. Use a graph that was successfully read. This applies at
+every autonomy level. Under heuristic activation (§3), the failed marker
+lookup and the shipped catalog provide the required context.
 
 ### 3. Decide activation state
 
@@ -120,8 +110,8 @@ marker read and the shipped catalog satisfies the graph bind.
       No .helix.yml found. Activating helix by heuristic (path: <heuristic-path>).
       Add a .helix.yml marker at the repository root to make this explicit.
 
-- **Marker absent, no heuristic**: report no active flow; machine-readable
-  form `{"active": []}`.
+- **Marker absent, no heuristic**: report in plain language that no active flow
+  was found.
 
 ### 4. Enforce scope
 
@@ -272,7 +262,7 @@ Prefer the first matching route:
 | Convert rough intent into governed HELIX work | input |
 | Grill / interview / stress-test a plan or design until shared understanding (one question at a time) | grill |
 | Create or refine product vision, PRD, feature specs, or user stories | frame |
-| Reconcile artifacts, check traceability, find drift, align documents, or move content between artifact layers | align |
+| Reconcile relevant documents, check traceability, find drift, or place content in the right artifact | align |
 | Check an artifact instance against its template and prompt; edit resolvable findings in place | validate |
 | Bring every artifact instance up to date with the current templates and prompts | refresh |
 | Thread a new, changed, removed, or incident-driven requirement through existing artifacts | evolve |
@@ -285,7 +275,7 @@ Prefer the first matching route:
 | Run an optimization experiment | experiment |
 | Bootstrap a brand-new project from bare intent (name, research, vision, scaffold) | genesis |
 | Drive a plan or completed work to convergence: review adversarially, fix, re-review until clean | converge |
-| Audit where a project stands (specs↔impl↔tests↔ACs aligned? complete? next action?) | project-audit |
+| Explicitly audit a named scope across specs, implementation, and tests | project-audit |
 | Decompose an oversized code module/file into encapsulated units behind a verify gate | decompose-module |
 | Build up end-to-end coverage as a ladder of increasingly complex real-client scenarios | e2e-ladder |
 | Turn governed artifacts into a deck, one-pager, or brief for clients, sponsors, or executives | present |
@@ -309,8 +299,8 @@ Each mode's contract is one file, `modes/<mode>.md`, in the bound catalog
 one per routed mode plus the shared `workflows/modes/_authoring.md` and
 `workflows/modes/_report.md`. After routing, load the routed mode's file and
 follow it as the active interface; modes that create or edit instances also
-load `modes/_authoring.md`; align, validate, refresh, check, project-audit,
-review, and converge end with the `modes/_report.md` block. Mode files point
+load `modes/_authoring.md`. Use `modes/_report.md` when a structured report is
+requested or required by a runtime consumer. Mode files point
 at their deeper procedure under `actions/` when one exists; consult it only
 when the contract needs more step detail. The `present` mode also reads six
 files under `workflows/deliverables/` (floor `references/deliverables/`):
@@ -421,20 +411,19 @@ unspoken routing is not.
   process redesign. Bound process machinery, freeze it, deliver.
 - Do not skip real defect checks (tests, product ACs, claims-vs-reality,
   scope discipline) under cover of shipping faster.
-- With a work tracker, obey `workflows/references/work-item-first.md` before
-  writing files or mutating the tracker.
+- Consult `workflows/references/work-item-first.md` when a user or runtime
+  requires tracker-backed execution; ordinary authoring and alignment do not
+  create tracker items by default.
 - Do not silently start implementation when the request is planning,
   alignment, review, or routing; when the route is unclear, use `check`.
 - Preserve the authority hierarchy: vision, PRD, features/stories,
   architecture and ADRs, designs, tests, implementation plans, code.
-- Short affirmations ("do it", "yes") inherit the prior turn's offered scope:
-  several branches offered → ask which; one recommended → restate it exactly
-  before acting.
+- Short affirmations ("do it", "yes") inherit the prior turn's offered scope.
+  Clarify only when that scope remains ambiguous.
 - Scope complaints and pasted-evidence reactions ("this isn't going to
   scale") route to `align` or `evolve`, never to direct edits of the pasted
   code.
-- Operator pushback on a reported blocker triggers an alignment surface, not
-  a retry: name the artifact-line evidence and route through the
-  `modes/_report.md` handoff fields.
+- Operator pushback on a blocker calls for a review of the relevant artifact
+  and evidence before deciding whether to retry or change direction.
 - `check` returns status; design changes are a follow-up turn the operator
   chooses.

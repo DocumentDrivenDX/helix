@@ -7,13 +7,6 @@ ddx:
     - example.user-story.depositmatch.upload-csv
     - example.technical-design.depositmatch.upload-csv
     - example.test-plan.depositmatch
-  review:
-    self_hash: 20aed2c4e248a67b448b0528b49ae9b2724d5045879ddcda655ad220d1c276ed
-    deps:
-      example.technical-design.depositmatch.upload-csv: 064c51468da1d444da9c6f65d6c2502487724ac315fa3e6c50f9bbeffd3d69b9
-      example.test-plan.depositmatch: ba055b639a94e62d3b24f3a7ca270f78c3f17f6bae78b936d399291225d7976f
-      example.user-story.depositmatch.upload-csv: b87b259be7a0ac9a75516d5868742aed44b6af05ab12d10aa4535a3cae24e9b6
-    reviewed_at: "2026-05-24T23:28:08Z"
 ---
 
 # Story Test Plan: STP-001-upload-csv-files
@@ -124,13 +117,3 @@ pnpm test:e2e -- upload-csv
   later story test plans.
 - [ ] The story can fail red before implementation and pass green after
   implementation.
-
-## Review Checklist
-
-- [ ] References the governing story and technical design
-- [ ] Every active acceptance criterion maps to concrete failing tests
-- [ ] File paths, commands, or test identifiers are specific enough to execute
-- [ ] Setup, fixtures, mocks, and seed data are explicit
-- [ ] Edge cases cover real story risks rather than generic boilerplate
-- [ ] Scope remains bounded to one story slice
-- [ ] Build handoff gives implementation a usable sequence

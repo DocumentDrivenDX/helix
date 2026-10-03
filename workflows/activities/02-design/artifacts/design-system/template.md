@@ -77,17 +77,3 @@ This document is the **interface system only**. It deliberately does NOT cover:
 
 If a decision is about *how the system is built* rather than *how the interface
 looks and behaves*, it belongs in architecture / solution-design / ADRs.
-
-## Review Checklist
-
-- [ ] Navigation section names the active-state convention AND requires
-      `aria-current="page"` on the active nav item
-- [ ] Active visual cue is derived from / bound to the active state, not a
-      free-floating style
-- [ ] Interaction states are scoped where-applicable, not demanded universally
-- [ ] Visual hierarchy is concrete enough to build against
-- [ ] Tokens name real values (palette, spacing scale, type scale)
-- [ ] Non-goals section keeps architecture, data flow, component internals, and
-      ADR material out of this document
-- [ ] Reads as this app's instance of the guidelines, not a copy of the
-      `ux-radix` concern library

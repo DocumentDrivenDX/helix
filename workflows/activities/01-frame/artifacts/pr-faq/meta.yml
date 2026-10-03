@@ -89,6 +89,91 @@ validation:
       description: Downstream projection names the artifacts or public pages that should inherit the PR-FAQ argument
       severity: blocking
 
+    - check: review_core_thesis_is_a_single_01
+      description: >-
+        Core thesis is a single plain-language claim, not a slogan
+      severity: warning
+    - check: review_mechanism_explains_why_thesis_true
+      description: >-
+        Mechanism explains why the thesis should be true
+      severity: warning
+    - check: review_quality_model_names_attributes_can
+      description: >-
+        Quality model names attributes that can become requirements or checks
+      severity: warning
+    - check: review_decision_autonomy_boundary_distinguishes_progress
+      description: >-
+        Decision / autonomy boundary distinguishes progress, assumptions, decomposition, and human decision points
+      severity: warning
+    - check: review_press_release_names_specific_customer
+      description: >-
+        Press release names a specific customer segment, not "users" or "teams"
+      severity: warning
+    - check: review_press_release_reads_as_real
+      description: >-
+        Press release reads as a real wire-service story — no marketing fluff
+      severity: warning
+    - check: review_press_release_stays_under_350
+      description: >-
+        Press release stays under ~350 words
+      severity: warning
+    - check: review_problem_section_uses_customer_s
+      description: >-
+        The Problem section uses the customer's words and names a specific failure mode with a number
+      severity: warning
+    - check: review_solution_section_describes_customer_experience
+      description: >-
+        The Solution section describes the customer experience, not the implementation
+      severity: warning
+    - check: review_customer_quote_describes_outcome_customer
+      description: >-
+        Customer quote describes an outcome the customer got, not features they used
+      severity: warning
+    - check: review_availability_names_specific_dates_prices
+      description: >-
+        Availability names specific dates, prices, platforms, and regions
+      severity: warning
+    - check: review_external_faq_explicitly_compares_existing
+      description: >-
+        External FAQ explicitly compares to existing alternatives
+      severity: warning
+    - check: review_external_faq_names_who_not
+      description: >-
+        External FAQ names who this is NOT for
+      severity: warning
+    - check: review_faq_explicitly_lists_what_out
+      description: >-
+        A FAQ explicitly lists what is out of scope for v1
+      severity: warning
+    - check: review_internal_faq_surfaces_at_least
+      description: >-
+        Internal FAQ surfaces at least one credible feasibility or technical risk
+      severity: warning
+    - check: review_internal_faq_confronts_unit_economics
+      description: >-
+        Internal FAQ confronts unit economics or pricing plausibility
+      severity: warning
+    - check: review_internal_faq_states_explicit_kill
+      description: >-
+        Internal FAQ states explicit kill criteria
+      severity: warning
+    - check: review_internal_faq_names_experiments_validation
+      description: >-
+        Internal FAQ names experiments or validation steps required before commit
+      severity: warning
+    - check: review_downstream_projection_lists_artifacts_public
+      description: >-
+        Downstream projection lists the artifacts or public pages that should inherit the argument
+      severity: warning
+    - check: review_no_tbd_todo_needs_clarification
+      description: >-
+        No `[TBD]`, `[TODO]`, or `[NEEDS CLARIFICATION]` markers remain
+      severity: warning
+    - check: review_pr_faq_consistent_governing_product
+      description: >-
+        PR-FAQ is consistent with the governing Product Vision
+      severity: warning
+
   pattern_checks:
     - pattern: "\\[TBD\\]|\\[TODO\\]|\\[NEEDS CLARIFICATION"
       expected: 0

@@ -59,6 +59,63 @@ validation:
       description: Databricks cluster size, DBU budget, storage tier, and scaling strategy must be sketched
       severity: warning
 
+    - check: review_scope_clearly_states_which_data_01
+      description: >-
+        **Scope** clearly states which data flows are in / out of bounds.
+      severity: warning
+    - check: review_medallion_topology_names_bronze_silver
+      description: >-
+        **Medallion topology** names Bronze / Silver / Gold purposes and transformation rules.
+      severity: warning
+    - check: review_data_flow_diagrams_show_how
+      description: >-
+        **Data flow diagrams** show how data moves through layers and to consumers.
+      severity: warning
+    - check: review_processing_semantics_explicitly_state_streaming
+      description: >-
+        **Processing semantics** explicitly state streaming vs batch per layer with latency targets tied to [[prd]] (kind: data).
+      severity: warning
+    - check: review_pipeline_level_quality_contracts_name
+      description: >-
+        **Pipeline-level quality contracts** name which contracts each layer boundary enforces; detailed `EXPECT` clauses are deferred to [[data-quality-expectations]].
+      severity: warning
+    - check: review_failure_handling_specifies_what_happens
+      description: >-
+        **Failure handling** specifies what happens when a contract fails (alert, reject, quarantine, rollback).
+      severity: warning
+    - check: review_access_control_model_covers_identity
+      description: >-
+        **Access control** model covers identity, row-level, column-level, and sensitive-data masking at the policy level.
+      severity: warning
+    - check: review_platform_design_names_catalog_organisation
+      description: >-
+        **Platform design** names catalog organisation, compute tiering, and storage strategy without committing to hardcoded cost numbers.
+      severity: warning
+    - check: review_decisions_tradeoffs_document_key_choices
+      description: >-
+        **Decisions and tradeoffs** document key choices with rationale and alternatives considered.
+      severity: warning
+    - check: review_cross_layer_contracts_defined_reconciliation
+      description: >-
+        **Cross-layer contracts** are defined (reconciliation, cardinality, no orphans).
+      severity: warning
+    - check: review_sla_per_layer_documented_freshness
+      description: >-
+        **SLA per layer** is documented (freshness, latency, availability) and traces to [[prd]] (kind: data).
+      severity: warning
+    - check: review_no_tbd_todo_needs_clarification
+      description: >-
+        No `[TBD]`, `[TODO]`, or `[NEEDS CLARIFICATION]` markers remain.
+      severity: warning
+    - check: review_entity_level_details_logical_schema
+      description: >-
+        Entity-level details (logical schema, indexes, migrations, store selection) are deferred to [[data-design]].
+      severity: warning
+    - check: review_non_databricks_platforms_terms_map
+      description: >-
+        For non-Databricks platforms, terms map via `docs/resources/databricks-platform-substitution.md`.
+      severity: warning
+
   pattern_checks:
     - pattern: "\\[TBD\\]|\\[TODO\\]|\\[NEEDS CLARIFICATION\\]"
       expected: 0

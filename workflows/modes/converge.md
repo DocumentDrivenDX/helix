@@ -1,12 +1,16 @@
 # Converge
 
-Use to drive a plan or completed work to convergence: review adversarially, resolve every blocking finding, and re-review until the review comes back clean.
+Use when the user asks to review a target, resolve blocking findings, and
+repeat the review within a stated or agreed limit.
 
-1. Wrap the existing `review` contract; do not invent a new review.
-2. Intrinsic gates (build, test, template conformance, `summary.phantom_claims`) block; external adversarial review is advisory.
-3. Fold each finding-class into a gate so it cannot recur; stop when a review pass returns no `severity: blocking` finding and `phantom_claims: 0`, or the stop rule fires.
-4. Never loop without a recorded stop rule (max rounds, or a named unresolvable decision).
-5. Each round's review may fan out per `modes/review.md`; the intrinsic gates run once per round after fan-in, and the stop rule counts rounds, never agents.
-6. End with the `modes/_report.md` block, `mode: converge`, carrying the final round's findings.
+1. Wrap the existing review contract and preserve its scope.
+2. Resolve genuine blocking findings and re-review the changed target. Stop
+   when blocking findings are resolved, the round limit is reached, or an
+   unresolved decision requires the user's input.
+3. Keep recommendations advisory unless the governing requirement, user
+   instruction, or an existing quality gate makes them binding. Do not create a
+   gate for every finding.
+4. Report the final disposition and evidence conversationally. Provide a
+   structured report when requested or required by a runtime consumer.
 
-Procedure: `workflows/actions/converge.md` (the full action prompt; this file is the contract).
+Procedure: `workflows/actions/converge.md` supplies additional detail.

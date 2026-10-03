@@ -47,15 +47,15 @@ validation:
 
   quality_checks:
     - check: metrics_quantified
-      description: All success metrics must have numeric targets
+      description: Success metrics have numeric targets and named measurement methods
       severity: blocking
 
     - check: personas_validated
-      description: User personas should be based on actual research
+      description: Personas are research-based and describe specific pains and switching triggers
       severity: warning
 
     - check: requirements_prioritized
-      description: Requirements must be categorized as P0/P1/P2
+      description: Requirements use P0/P1/P2 priorities; every P0 is necessary for launch, and P1/P2 priorities are ordered consistently
       severity: blocking
 
     - check: no_surface_leak
@@ -63,8 +63,48 @@ validation:
       severity: blocking
 
     - check: risks_mitigated
-      description: Each risk must have a mitigation strategy
+      description: Each risk has a concrete mitigation action, not a general monitoring strategy
       severity: warning
+
+    - check: summary_stands_alone
+      description: Summary helps a reader decide whether to read the full PRD
+      severity: warning
+
+    - check: problem_and_goals_specific
+      description: Problem names a specific failure and cost; goals state user outcomes
+      severity: blocking
+
+    - check: non_goals_bound_scope
+      description: Non-goals exclude plausible assumptions about product scope
+      severity: warning
+
+    - check: p0_test_sketches
+      description: Every P0 requirement has an acceptance test sketch
+      severity: blocking
+
+    - check: requirements_traceable
+      description: Requirements trace to the Product Vision and downstream artifacts
+      severity: blocking
+
+    - check: functional_requirements_testable
+      description: Each functional requirement is testable and carries a stable FR ID
+      severity: blocking
+
+    - check: requirements_grouped_by_subsystem
+      description: Functional requirements use canonical subsystem headings, appear under one subsystem, and each subsystem maps to one feature specification
+      severity: blocking
+
+    - check: technical_context_specific
+      description: Technical context names relevant versions and interfaces
+      severity: warning
+
+    - check: open_questions_actionable
+      description: Each open question names who can answer it and what is blocked
+      severity: warning
+
+    - check: requirements_consistent
+      description: PRD sections do not contradict one another or the governing Product Vision
+      severity: blocking
 
   pattern_checks:
     - pattern: "\\[NEEDS CLARIFICATION"

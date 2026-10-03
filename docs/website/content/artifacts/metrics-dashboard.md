@@ -1,7 +1,7 @@
 ---
-title: "Metrics Dashboard: HELIX 2026-Q3 (human-outputs branch)"
+title: "Metrics Dashboard: HELIX 2026-Q3"
 slug: metrics-dashboard
-weight: 540
+weight: 550
 activity: "Iterate"
 source: "06-iterate/metrics-dashboard.md"
 generated: true
@@ -22,9 +22,9 @@ ddx:
     reviewed_at: "2026-09-16T03:20:33Z"
 ```
 
-# Metrics Dashboard: HELIX 2026-Q3 (human-outputs branch)
+# Metrics Dashboard: HELIX 2026-Q3
 
-**Review Window**: 2026-09-10 → 2026-09-15 (`feat/helix-human-outputs`)
+**Review Window**: 2026-09-10 → 2026-09-15
 **Baseline**: none. This is the first sample against the PRD's success
 metrics (`docs/helix/01-frame/prd.md` Success Metrics). The previous
 dashboard measured the execution loop (bead close rate, cycle time,
@@ -47,7 +47,7 @@ is no prior reading to degrade from.
 ## Summary
 
 `evals/results/20260915-2202/summary.md` is the current sample for the
-skill metrics (commit `20315d5c`, nine briefs, about $32 per run); the
+skill metrics (nine briefs, about $32 per run); the
 present-mode sample is the DEL-001 gate record
 (`docs/helix/06-iterate/deliverables/DEL-001-helix-evaluation-deck.md`
 Render section). Authoring quality reads well on the proxy available
@@ -68,22 +68,22 @@ the PRD's comparative study against free-form PRDs has not been run.
 
 ## Interpretation Rules
 
-- Deterministic checks are pass or fail; a lost check on any brief is a
-  regression and blocks the change that caused it.
-- Rubric scores are a trend signal between runs, not a pass mark; a change
-  is kept when checks stay green and the rubric total moves up on the
-  briefs it targets (`evals/README.md` Reading a result).
+- Deterministic checks record whether a brief meets that check; this run had
+  three failures. Their significance depends on the affected requirement.
+- Rubric scores are a trend signal between runs, not a pass mark. Prefer
+  changes that preserve checks relevant to the changed behavior and improve
+  rubric scores on the briefs they target.
 - The alignment target reads only on a healthy artifact set. A finding
   count on a seeded fixture records the mode's recall, not the metric.
-- A present-mode gate warning is tolerated when the Render section names
-  it and the reason; a blocking finding is not.
+- A present-mode warning is tolerated when the Render section names it and
+  gives its reason; a blocking finding is not.
 - A row marked "not measurable yet" creates a follow-up; a "proxy" row
   creates a follow-up to replace the proxy with the PRD's measurement.
 
 ## Trend Notes
 
-- Second reading (`20260915-2202` at `20315d5c`) against the first
-  (`20260911-0955` at `0756e5fa`): checks went from 32/32 over eight
+- Second reading (`20260915-2202`) against the first (`20260911-0955`):
+  checks went from 32/32 over eight
   briefs to 33/36 over nine; the three losses are gate and wording rules
   that did not exist at the first run (`evals/README.md` Runs). Rubric
   went from 48/54 to 57/62.
@@ -98,17 +98,8 @@ the PRD's comparative study against free-form PRDs has not been run.
 ## Follow-Up
 
 - Add a healthy-set `align` brief (a fixture with no seeded drift, or
-  `docs/helix/` itself) so the < 3 findings target has a reading;
-  `improvement-backlog.md` carries the item.
-- Fix the three failed checks (coverage vocabulary and the shape rule in
-  the present mode text; the title stop) and run the eval again.
-- Replace the first-review proxy with the PRD's comparative study
-  (template-authored vs free-form PRDs through the same review).
-
-## Review Checklist
-
-- [x] Baseline is explicit (none; first sample, prior execution metrics retired)
-- [x] Each metric cites a source (an eval result file, a test lane, or the
-      DEL-001 gate record)
-- [x] The summary states the decision implication (checks and portability
-      pass; alignment target not yet measurable)
+  `docs/helix/` itself) so the < 3 findings target has a reading.
+- Fix the three failed checks: coverage vocabulary and the shape rule in the
+  present-mode text, plus the title stop; then rerun the evaluation.
+- Replace the first-review proxy with the PRD's comparative study of
+  template-authored and free-form PRDs under the same review.

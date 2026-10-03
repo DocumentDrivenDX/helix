@@ -62,8 +62,11 @@ def snapshot(root: Path) -> dict[str, str]:
 def make_workspace(fixture: str, keep_dir: Path | None) -> Path:
     ws = Path(tempfile.mkdtemp(prefix="helix-eval-")) if keep_dir is None else keep_dir
     ws.mkdir(parents=True, exist_ok=True)
-    if fixture == "baseline":
+    if fixture in ("baseline", "accepted-decision"):
         shutil.copytree(FIXTURE_BASELINE, ws, dirs_exist_ok=True)
+        if fixture == "accepted-decision":
+            adr = ws / "docs/helix/02-design/adr/ADR-001-sqlite.md"
+            adr.write_text(adr.read_text().replace("status: draft", "status: approved").replace("| Proposed |", "| Accepted |"))
     elif fixture == "vision":
         src = FIXTURE_BASELINE / "docs" / "helix" / "00-discover" / "product-vision.md"
         dst = ws / "docs" / "helix" / "00-discover" / "product-vision.md"

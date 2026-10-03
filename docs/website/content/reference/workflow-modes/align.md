@@ -7,88 +7,38 @@ generated: true
 
 Generated from [`workflows/modes/align.md`](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/modes/align.md), the mode contract the HELIX skill loads. Edit that file, not this page.
 
-Use for reconciliation, traceability audits, drift checks, and artifact content
-placement reviews.
+Use `align` to reconcile related HELIX documents, check traceability, or place
+content in the right artifact. The default scope is the requested document and
+the authorities that can affect it. Follow a graph relationship only when its
+content could change the result.
 
-1. Start from authority: vision, PRD, features/stories, architecture/ADRs,
-   designs, tests, implementation plans, code. The spec stack is the contract;
-   code is a projection of it. Traceability is **bidirectional**: every material
-   code surface (route/screen/CLI/API/job/migration) traces to a governing
-   artifact, and every acceptance criterion traces to an exercising test. Unmapped
-   material surfaces and unimplemented criteria are both alignment findings.
-2. **Desired-state rule (with intent guard).** Specs describe the **desired**
-   future state. Code behind specs → residual tracker work items, not
-   silent requirement shrinks. Code ahead of docs → classify as plan-to-code
-   honesty (`STALE_PLAN` / honesty evolve). Evolving specs to match code
-   requires **operator intent** (explicit request or approved handoff) — do
-   not auto-bless unapproved implementation as plan authority. Code reflects
-   state; it does not redefine plan alone.
-3. Reconstruct intent from planning artifacts before inspecting lower layers.
-4. Classify each gap as `ALIGNED`, `INCOMPLETE`, `DIVERGENT`,
-   `UNDERSPECIFIED`, `STALE_PLAN`, or `BLOCKED`.
-5. Produce one durable alignment report when the action is more than a
-   conversational review. The report must remain reviewable by a human in
-   under ten minutes. Prefer the alignment-review template under the catalog
-   (`workflows/templates/alignment-review.md` or the package
-   `references/templates/` path when present).
-6. For every non-aligned gap (`INCOMPLETE`, `UNDERSPECIFIED`, `DIVERGENT`,
-   `STALE_PLAN`), the handoff names all four fields defined in
-   `modes/_report.md` (destination type, deliverable, next mode, evidence);
-   never a CLI command.
-7. Create or identify follow-up work for every non-aligned gap using those
-   handoff fields. **Evidence-gated implement work:** before filing
-   build/implement items, require concrete residual evidence (paths, tests,
-   commands). Prefer story/AC floor items when only docs/traceability lag.
-   "Residual already green" means a governing AC is exercised by a passing
-   test (or a recorded exception). Close or re-scope only with that evidence.
+1. Read the target, its relevant governing artifacts, and the applicable
+   template or metadata. Preserve the authority order: vision, requirements,
+   features and stories, architecture and ADRs, designs, tests, plans, then
+   implementation.
+2. Compare the affected documents. Classify a material gap as `ALIGNED`,
+   `INCOMPLETE`, `DIVERGENT`, `UNDERSPECIFIED`, `STALE_PLAN`, or `BLOCKED`.
+   Keep requirements at their intended strength; code alone does not authorize
+   changing them.
+3. For misplaced content, state its source, destination, and the proposed
+   change. Omit a migration ledger unless the user requests one or a runtime
+   consumer requires it.
+4. Give findings concrete evidence and a useful next step. Create or update
+   tracker work only when the user requests it or the runtime explicitly
+   requires it. Do not turn each finding into a gate automatically.
+5. Keep the result conversational by default. Write a durable or structured
+   report when requested or required by a runtime consumer.
 
-## Content migration ledger
+An implementation audit is a separate, explicit request. When asked, keep it
+within the named scope and inspect the relevant code, tests, and governing
+decisions. Use the audit checks in `actions/reconcile-alignment.md` as needed;
+do not infer that every accepted decision has already been implemented.
 
-If a user asks whether content belongs in the right HELIX document, use align
-mode. The alignment output must include a content migration ledger for every
-misplaced content unit:
-
-| Field | Required content |
-|---|---|
-| Source | Artifact path and line references |
-| Content unit | Small named chunk of content |
-| Classification | `keep`, `move`, `split`, `delete`, `needs-new-artifact`, or `decision-needed` |
-| Destination | Exact destination artifact path or artifact type |
-| Content to add | Destination-shaped draft content |
-| Template fit | Destination section and blocking/warning checks |
-| Destination risks | Any template check the proposed addition would fail |
-| Follow-up | Tracker issue ID or explicit issue to create |
-
-Do not remove content from one artifact unless the destination content and
-follow-up work are captured durably.
-
-Procedure: `workflows/actions/reconcile-alignment.md` (deeper step detail; this file is the contract).
-
-End with the `modes/_report.md` block, `mode: align`.
+Procedure: `workflows/actions/reconcile-alignment.md` supplies additional detail.
 
 ## Fan-out
 
-When the host can run sub-agents, split the review and fan in through the
-report shape in `modes/_report.md`:
-
-- One agent per review dimension of the alignment procedure (artifact
-  contract rubric, bidirectional traceability, ADR honoring, concern drift,
-  concern realization, NFR targets, slot registry integrity, acceptance
-  criteria, instrument integrity, quality evaluation, work-item coverage),
-  or for a large tree one agent per artifact family (discover and frame,
-  design, test, deploy, iterate).
-- Every agent gets the same scope root, the same catalog bind, and the
-  governing artifacts its dimension needs, and returns only a
-  `helix_report` block: findings with classification, artifact, lines,
-  evidence, and the four handoff fields.
-- Fan in: merge the blocks; drop duplicates that share artifact, lines, and
-  classification; when two agents classify one gap differently keep the
-  stricter classification and record the disagreement under assumptions;
-  renumber finding ids; recompute the summary counts; then write the one
-  prose report a human reviews in under ten minutes.
-- Without sub-agents, run the dimensions in order. The output shape is the
-  same either way.
-
-Fan-out never widens scope. An agent that reads outside the scope root is
-discarded, and no agent writes an artifact; align stays read-only until the
-handoff.
+Use parallel reviewers only when the host supports them and the scope warrants
+it. Give each reviewer a distinct question and the same scope. Reconcile
+conflicts and duplicates in the final answer. No reviewer may widen scope or
+write artifacts unless the user authorized those changes.

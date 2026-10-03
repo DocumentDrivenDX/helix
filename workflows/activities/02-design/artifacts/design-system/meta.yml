@@ -48,6 +48,35 @@ validation:
       description: The non-goals section explicitly excludes runtime architecture, data flow, component implementation internals, and ADR material
       severity: blocking
 
+    - check: review_navigation_section_names_the_active_01
+      description: >-
+        Navigation section names the active-state convention AND requires `aria-current="page"` on the active nav item
+      severity: warning
+    - check: review_active_visual_cue_derived_bound
+      description: >-
+        Active visual cue is derived from / bound to the active state, not a free-floating style
+      severity: warning
+    - check: review_interaction_states_scoped_where_applicable
+      description: >-
+        Interaction states are scoped where-applicable, not demanded universally
+      severity: warning
+    - check: review_visual_hierarchy_concrete_enough_build
+      description: >-
+        Visual hierarchy is concrete enough to build against
+      severity: warning
+    - check: review_tokens_name_real_values_palette
+      description: >-
+        Tokens name real values (palette, spacing scale, type scale)
+      severity: warning
+    - check: review_non_goals_section_keeps_architecture
+      description: >-
+        Non-goals section keeps architecture, data flow, component internals, and ADR material out of this document
+      severity: warning
+    - check: review_reads_as_app_s_instance
+      description: >-
+        Reads as this app's instance of the guidelines, not a copy of the `ux-radix` concern library
+      severity: warning
+
   pattern_checks:
     - pattern: 'aria-current'
       expected: ">=1"

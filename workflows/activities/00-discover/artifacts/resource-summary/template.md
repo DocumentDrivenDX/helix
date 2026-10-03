@@ -31,11 +31,3 @@ explain how it should be used.]
 
 [Explain what this source does not govern. Name the HELIX artifact that owns the
 next level of detail when relevant.]
-
-## Review Checklist
-
-- [ ] Source URL and access date are present
-- [ ] Summary is concise and source-faithful
-- [ ] Findings are relevant to HELIX
-- [ ] HELIX usage is specific
-- [ ] Boundary prevents over-applying the source
