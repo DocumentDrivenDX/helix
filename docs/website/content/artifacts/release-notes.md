@@ -1,5 +1,5 @@
 ---
-title: "Release Notes — HELIX v0.14.1"
+title: "Release Notes — HELIX v0.15.0"
 slug: release-notes
 weight: 490
 activity: "Deploy"
@@ -19,65 +19,67 @@ ddx:
   depends_on:
     - deployment-checklist
   review:
-    self_hash: 8bc33a1023c19ca6bb079aafdff660076349e58b2b62d4c91e7bcb6956124a7f
+    self_hash: fb47a9c6a156682c88a3f34e22cdb968b09f586f711e82b16ab068d2cb85f553
     deps:
       deployment-checklist: 00556985f9bfc7cabe6c1288473bb2935f3fe4a83fb5fcd53918e95bf29e5d21
-    reviewed_at: "2026-10-04T02:22:28Z"
+    reviewed_at: "2026-10-04T03:52:23Z"
 ```
 
-# Release Notes — HELIX v0.14.1
+# Release Notes — HELIX v0.15.0
 
 ## Release Scope
 
-- Release identifier or version: `v0.14.1`
-- Release date: 2026-10-01 (operator-driven; tagged by CI)
+- Release identifier or version: `v0.15.0`
+- Release date: 2026-10-03 (operator-driven; tagged by CI)
 - Rollout window or environment: HELIX plugin (Claude Code marketplace, Codex
   plugin, Databricks Genie bundle, Grok Build) and the public website at
   `https://documentdrivendx.github.io/helix/`
 - Release owner: HELIX maintainer cutting the tag
-- Previous release: `v0.14.0` (2026-09-22)
+- Previous release: `v0.14.1` (2026-10-01)
 
 ## Audience and Channels
 
 | Audience | Why they care | Delivery channel |
 |----------|---------------|------------------|
-| HELIX plugin users | A refreshed Databricks Apps concern and two new concerns for a React + Vite frontend on a non-Node backend | Plugin repo tag; marketplace update |
-| Website readers | The three concern pages are regenerated | GitHub Pages rebuild |
-| HELIX maintainers | A hand-made release can no longer stay published with mismatched manifests | This file and `.github/workflows/release-version-guard.yml` |
+| HELIX plugin users | Edits stay scoped to the request, artifacts state current intent, and routine work no longer files tracker items or emits status trailers | Plugin repo tag; marketplace update |
+| Runtime integrators | The `helix_report` block and work-item creation are now opt-in | This file; `workflows/modes/_report.md`; `workflows/references/work-item-first.md` |
+| Website readers | Workflow-mode, artifact-type, and project-artifact pages are regenerated | GitHub Pages rebuild |
 
 ## Highlights
 
-- **The `databricks-apps` deploy-target concern is refreshed against the
-  Databricks Apps documentation as of 2026-10-01.** It now covers the
-  process contract (array `command`, `$DATABRICKS_APP_PORT`, a 15 s SIGTERM,
-  cleartext behind the TLS proxy), `app.yaml` semantics, identity (the app
-  service principal versus on-behalf-of through `x-forwarded-access-token`),
-  dependency resolution (a `requirements.txt` silently switches the app to
-  pip and Python 3.11), the root `package.json` build hook, horizontal
-  scaling and statelessness, bundle deploys that require `bundle run`, and
-  the platform's documented anti-patterns as drift signals. Questions the
-  documentation leaves open are recorded as named spikes.
-- **`react-vite` is a new, non-default `frontend-framework` filler.** It
-  describes a client-rendered React + Vite + TypeScript app served as static
-  files by the backend, with the dev proxy, the build-output hand-off, `VITE_`
-  environment exposure, and toolchain defaults that yield to `typescript-bun`.
-- **`databricks-appkit-ui` is a new composable concern.** It covers
-  `@databricks/appkit-ui` used standalone with a non-Node backend: the `-ui`
-  package only, 0.x version pinning, data mode until the standalone spike
-  reports, and its relationship to `ux-radix`. `concern-resolution.md` carries
-  a friction entry for python-uv with the three.
-- **A mismatched release is unpublished, not just reported.** `v0.14.1` was
-  first created through the Releases UI while its manifests still
-  declared `0.14.0`, which is the failure the `v0.14.0` auto-tag was meant to
-  prevent. The version guard now deletes the tag and its release when the
-  manifests disagree, so a plugin updater never sees it.
+- **HELIX documents describe desired state.** Specifications, decisions, and
+  designs state what the system should do and why. Execution status belongs
+  to the runtime's work tracker and history belongs to source control. An
+  accepted decision sets direction; it does not claim the system implements
+  it, and missing code does not make a specification invalid.
+- **Work stays scoped to the request.** Authoring, `align`, and `evolve` read
+  the target and the authorities that can affect it rather than traversing the
+  whole project. An implementation audit happens only when explicitly
+  requested, through `project-audit`, within a named scope.
+- **Process ceremony is opt-in.** Routine framing, alignment, and review no
+  longer create tracker items, gates, migration ledgers, fixed critique
+  rounds, or status trailers. Work items are created when the user asks or the
+  runtime requires them; the structured `helix_report` block is produced on
+  request. Assessment criteria and real defect checks are unchanged.
+- **One current ADR per decision.** A changed decision, including a reversal,
+  is rewritten in place with the replaced option under alternatives. A
+  superseding ADR is created only when the user asks to keep the earlier
+  decision as its own record. The ADR template no longer has a Supersession
+  section.
+- **Instance validation warns on repository-history citations.**
+  `validate-instance.py` flags pull-request numbers, pull-request and commit
+  URLs, and commit hashes in artifacts. It is a warning, and it ignores
+  transaction wording, release versions, migration revisions, and content
+  digests.
 
 ## Required Actions Summary
 
-- Users: none.
-- Operators: none. CI creates the release tag after approval; do not create
-  it through the Releases UI.
-- Support: none.
+- Users: none. Existing artifacts remain valid; validation may now warn on
+  pull-request or commit citations in artifact bodies.
+- Runtime integrators: request the `helix_report` block explicitly if you
+  parse it, and require tracker-backed execution explicitly if you rely on
+  HELIX creating work items.
+- Operators: none. CI creates the release tag after approval.
 
 ## Changes and Fixes
 
@@ -85,38 +87,48 @@ ddx:
 
 | Area | What changed | Who is affected |
 |------|--------------|-----------------|
-| Concerns | `databricks-apps` rewritten against current platform documentation; `react-vite` and `databricks-appkit-ui` added; the `practices.md` boundary section removed per ADR-006 | HELIX users deploying to Databricks Apps |
-| Routing | `concern-resolution.md` gains a composed-concern friction entry for python-uv, databricks-apps, react-vite, and databricks-appkit-ui | HELIX users |
-| CI | `release-version-guard.yml` deletes a `v*` tag and its release when the manifests do not declare the tag's version | Maintainers |
+| Skill and mode contracts | Context reads bounded to the request; `_report.md` optional; work-item creation opt-in; the opt-in rule stated once; `SKILL.md` about 15% shorter with routing and invariants unchanged | HELIX users; runtime integrators |
+| Action procedures | `frame`, `report`, `input`, `measure`, and `experiment` touch work items only when a runtime work item governs the run; high autonomy records assumptions instead of filing speculative items; trailers optional; `align`, `evolve`, `review`, `converge`, `backfill`, and `project-audit` procedures cut by roughly 80 percent | HELIX users |
+| Artifact catalog | Templates and prompts drop delivery bookkeeping; optional sections may be omitted without N/A entries; ADRs keep one current record | HELIX users |
+| Ratchets | Lowering a floor records the change and its justification where the floor is defined, or in an ADR | Maintainers |
+| Validation | Repository-history warning in `validate-instance.py`; a regression test keeps HELIX's own documents free of such citations | HELIX users; maintainers |
+| Evaluation | Three briefs cover a narrow desired-state edit, an accepted decision before code, and an explicit implementation audit; the evolve rubric rewards one current ADR | Maintainers |
 
 ### Fixes
 
 | Issue or symptom | Resolution | User or operator impact |
 |------------------|------------|-------------------------|
-| The Pages deploy failed on any stale Innsigle seal, although CI checks only warn | `pages.yml` runs `tests/validate-innsigle.sh`, the same gate as CI checks; two stale curated pages were resealed | The site publishes a release without the human signing key |
-| `release-tag.yml` interpolated the release title into its shell step | The title is passed through the environment | A title with quotes or shell syntax cannot break the step |
-| The first `v0.14.1` tag and release carried `0.14.0` manifests | CI deleted and recreated the release with matching manifests | The release had no downloads before it was replaced |
+| A tag pushed by `release-tag.yml` started no publish workflows, because a tag pushed with the default token does not trigger tag workflows | `release-tag.yml` dispatches the Genie bundle, install smoke, and Pages workflows on the new tag | A CI-created release publishes its bundles and site |
 
 ## Breaking Changes and Required Actions
 
-- None. Existing artifacts, modes, and installs are unaffected.
+- `align`, `validate`, `refresh`, `check`, `project-audit`, `review`, and
+  `converge` no longer end every response with a `helix_report` block. A
+  runtime that parses the block must ask for structured output.
+- Framing and alignment no longer acquire or create work items by default. A
+  runtime that depends on HELIX-created items must require tracker-backed
+  execution.
 
 ## Migration or Rollback Guidance
 
-- Migration: pull the tag. Nothing to regenerate for plugin consumers.
-- Rollback: install the `v0.14.0` tag. The website rebuilds from `main` and
+- Migration: pull the tag. Artifacts need no changes; a validation warning
+  about a repository citation can be resolved by moving the citation to source
+  control or the tracker.
+- Rollback: install the `v0.14.1` tag. The website rebuilds from `main` and
   is not pinned to a tag.
 
 ## Known Issues and Support
 
 | Issue | Who is affected | Workaround or next step |
 |------|------------------|-------------------------|
-| `v0.13.2` and `v0.13.3` are skipped: the `v0.13.2` tag carries `0.13.1` manifests and `0.13.3` was never tagged | Anyone pinning a patch in that range | Pin `v0.14.1` or `v0.13.1` |
+| `v0.13.2` and `v0.13.3` are skipped: the `v0.13.2` tag carries `0.13.1` manifests and `0.13.3` was never tagged | Anyone pinning a patch in that range | Pin `v0.15.0` or `v0.13.1` |
+| The repository-history warning cannot distinguish an upstream project's pull request from this repository's own | Artifacts citing upstream fixes | Treat the warning as advisory |
 
 Support: open an issue at `https://github.com/DocumentDrivenDX/helix`.
 
 ## References
 
 - Deployment checklist: [`deployment-checklist.md`](/artifacts/deployment-checklist/)
+- Desired-state authoring design: [`design-desired-state-authoring.md`](/artifacts/design-desired-state-authoring/)
 - Auto-tag workflow: `.github/workflows/release-tag.yml`
 - Tag guard: `.github/workflows/release-version-guard.yml`
