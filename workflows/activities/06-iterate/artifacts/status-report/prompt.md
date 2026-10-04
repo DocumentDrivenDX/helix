@@ -21,7 +21,7 @@ review, the checkpoint, or the stakeholder update.
 - Report against the plan's outcome IDs — never introduce outcomes the plan
   does not carry; a new outcome is a plan change first.
 - Claims-vs-reality applies to every status, not just done: done and at-risk
-  cite the proof or the threat (demo, test, commit, metric), on-track cites
+  cite the proof or the threat (demo, test result, metric), on-track cites
   the observable progress so far, dropped cites the trade or escalation. An
   evidence-free claim is a phantom claim and blocks.
 - Record trades explicitly. A dropped Best or Better per the trade rules is

@@ -1,52 +1,18 @@
-# Issue Polish Report
+# Work Readiness: {{scope}}
 
-**Date**: {{YYYY-MM-DD}}
-**Scope**: {{scope}}
-**Status**: {{CONVERGED|IN_PROGRESS}}
-**Rounds completed**: {{N}}
+Use this report only when requested. Keep execution status and refinement
+history in the runtime tracker. Include findings that change whether the scoped
+work can proceed; omit empty sections.
 
-## Summary
+## Findings
 
-| Metric | Count |
-|--------|-------|
-| Issues modified | {{count}} |
-| Issues created | {{count}} |
-| Issues merged | {{count}} |
-| Final issue count | {{count}} |
+{{Ambiguous acceptance criteria, missing requirements, duplicate scope, or
+incorrect dependencies, with evidence and a concrete correction.}}
 
-## Round-by-Round Changes
+## Required Decisions
 
-### Round {{N}}
+{{Questions the governing plan cannot resolve and who can answer them.}}
 
-- Changes: {{N}}
-- {{description of modifications}}
+## Next Step
 
-## Deduplication
-
-| Merged Into | Closed Duplicates | Reason |
-|-------------|-------------------|--------|
-| {{issue ID}} | {{issue IDs}} | {{overlapping scope}} |
-
-## Coverage Gaps Found
-
-| Plan Section | Gap | Issue Created |
-|-------------|-----|-------------|
-| {{section}} | {{what was missing}} | {{issue ID}} |
-
-## Acceptance Criteria Sharpened
-
-| Issue | Before | After |
-|-------|--------|-------|
-| {{ID}} | {{vague criterion}} | {{testable criterion}} |
-
-## Dependency Corrections
-
-| Issue | Problem | Fix |
-|-------|---------|-----|
-| {{ID}} | {{missing/circular/incorrect dep}} | {{correction}} |
-
-## Oversized Issues Split
-
-| Original | Split Into | Rationale |
-|----------|-----------|-----------|
-| {{ID}} | {{new IDs}} | {{why too large}} |
+{{The next action supported by the refined requirements and dependencies.}}

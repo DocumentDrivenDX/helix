@@ -6,10 +6,10 @@ ddx:
   depends_on:
     - deployment-checklist
   review:
-    self_hash: 99574883788300395089b39ca0b1918d4a23f359269390fa4717bc0fc0c41f51
+    self_hash: 8bc33a1023c19ca6bb079aafdff660076349e58b2b62d4c91e7bcb6956124a7f
     deps:
-      deployment-checklist: 78c9688645de24f33182dca537e13d0fb180abb4773ab85b48468e495a92bad1
-    reviewed_at: "2026-09-17T19:23:17Z"
+      deployment-checklist: 00556985f9bfc7cabe6c1288473bb2935f3fe4a83fb5fcd53918e95bf29e5d21
+    reviewed_at: "2026-10-04T02:22:28Z"
 ---
 
 # Release Notes — HELIX v0.14.1
@@ -17,13 +17,12 @@ ddx:
 ## Release Scope
 
 - Release identifier or version: `v0.14.1`
-- Release date: 2026-10-01 (operator-driven; tagged by CI at the merge commit)
+- Release date: 2026-10-01 (operator-driven; tagged by CI)
 - Rollout window or environment: HELIX plugin (Claude Code marketplace, Codex
   plugin, Databricks Genie bundle, Grok Build) and the public website at
   `https://documentdrivendx.github.io/helix/`
 - Release owner: HELIX maintainer cutting the tag
-- Source commit or build: the tag's merge commit (tag `v0.14.1`); previous
-  release notes covered `v0.14.0` at `33a43087` (2026-09-22)
+- Previous release: `v0.14.0` (2026-09-22)
 
 ## Audience and Channels
 
@@ -55,7 +54,7 @@ ddx:
   reports, and its relationship to `ux-radix`. `concern-resolution.md` carries
   a friction entry for python-uv with the three.
 - **A mismatched release is unpublished, not just reported.** `v0.14.1` was
-  first created through the Releases UI on a commit whose manifests still
+  first created through the Releases UI while its manifests still
   declared `0.14.0`, which is the failure the `v0.14.0` auto-tag was meant to
   prevent. The version guard now deletes the tag and its release when the
   manifests disagree, so a plugin updater never sees it.
@@ -63,8 +62,8 @@ ddx:
 ## Required Actions Summary
 
 - Users: none.
-- Operators: none. The tag for this release is created by CI when the
-  release pull request merges; do not create it through the Releases UI.
+- Operators: none. CI creates the release tag after approval; do not create
+  it through the Releases UI.
 - Support: none.
 
 ## Changes and Fixes
@@ -81,9 +80,9 @@ ddx:
 
 | Issue or symptom | Resolution | User or operator impact |
 |------------------|------------|-------------------------|
-| The Pages deploy failed on any stale Innsigle seal, although PR checks only warn | `pages.yml` runs `tests/validate-innsigle.sh`, the same gate as PR checks; two stale curated pages were resealed | The site publishes a release without the human signing key |
-| `release-tag.yml` interpolated the PR title into its shell step | The title is passed through the environment | A title with quotes or shell syntax cannot break the step |
-| The first `v0.14.1` tag and release carried `0.14.0` manifests | Deleted and recreated by CI from the release pull request | The release had no downloads before it was replaced |
+| The Pages deploy failed on any stale Innsigle seal, although CI checks only warn | `pages.yml` runs `tests/validate-innsigle.sh`, the same gate as CI checks; two stale curated pages were resealed | The site publishes a release without the human signing key |
+| `release-tag.yml` interpolated the release title into its shell step | The title is passed through the environment | A title with quotes or shell syntax cannot break the step |
+| The first `v0.14.1` tag and release carried `0.14.0` manifests | CI deleted and recreated the release with matching manifests | The release had no downloads before it was replaced |
 
 ## Breaking Changes and Required Actions
 
@@ -100,7 +99,6 @@ ddx:
 | Issue | Who is affected | Workaround or next step |
 |------|------------------|-------------------------|
 | `v0.13.2` and `v0.13.3` are skipped: the `v0.13.2` tag carries `0.13.1` manifests and `0.13.3` was never tagged | Anyone pinning a patch in that range | Pin `v0.14.1` or `v0.13.1` |
-| The review marker on this file is stale: it was written without a tracker review pass | Maintainers reading review state | Re-review the file with the tracker after the tag |
 
 Support: open an issue at `https://github.com/DocumentDrivenDX/helix`.
 
@@ -109,4 +107,3 @@ Support: open an issue at `https://github.com/DocumentDrivenDX/helix`.
 - Deployment checklist: [`deployment-checklist.md`](deployment-checklist.md)
 - Auto-tag workflow: `.github/workflows/release-tag.yml`
 - Tag guard: `.github/workflows/release-version-guard.yml`
-- Commit range: `git log v0.14.0..v0.14.1`

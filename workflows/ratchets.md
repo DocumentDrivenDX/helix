@@ -130,9 +130,9 @@ transition from `planned` to `active` happens when implementation ships with
 passing tests. Active criteria cannot revert to `planned` without the override
 protocol.
 
-**Co-staging**: when the floor fixture is updated, the sibling planning
-artifact (test plan, acceptance manifest, or equivalent) should be staged in
-the same commit to maintain traceability.
+**Ownership**: store measured criterion states in runtime test fixtures. Test
+plans state the intended verification strategy; do not duplicate the fixture
+status in those plans. Update a plan only when its intended requirements change.
 
 **Phantom-claim sub-ratchet (claims-vs-reality, floor = 0)**: reconcile-alignment Step 3 classifies a
 criterion as `ASSERTED_UNBACKED` when an artifact claims a test, coverage figure, or emitted metric
@@ -212,6 +212,9 @@ defines concrete metrics to track.
 
 ### Check Action
 
+Inspect ratchets only when the requested status or audit depends on them.
+Ordinary document authoring does not require measuring implementation floors.
+
 - **Step 2 (Artifact Health)**: report ratchet status (current measured value
   vs. floor, trend direction) as part of the artifact-health assessment. A
   ratchet that is trending downward toward the floor is a signal worth
@@ -224,9 +227,9 @@ defines concrete metrics to track.
   the acceptance criteria ratchet. When a ratchet floor fixture exists,
   compare the current satisfaction count against the floor and flag any
   regression.
-- **Step 7 (Execution Issues)**: if a ratchet regression is detected, create
-  a regression issue that references the specific criteria or metrics that
-  dropped below the floor.
+- **Step 7 (Execution Issues)**: if a ratchet regression is detected, report
+  the specific criteria or metrics that dropped below the floor. Create a
+  regression issue only when the user requests it or the runtime requires it.
 
 ### Build Activity Enforcer
 
@@ -250,20 +253,23 @@ Ratchet floor trends are iterate-activity metrics. The iterate activity should:
 
 To intentionally lower a ratchet floor:
 
-1. Create a tracker issue documenting:
+1. Record the change where the floor is defined (the governing artifact or
+   ratchet definition). For a consequential change, record it in an ADR. The
+   record states:
    - which ratchet and metric are being lowered
    - the current floor and the proposed new floor
    - the justification (e.g., feature removal, architectural change,
      intentional scope reduction)
-   - the acceptance criteria for restoring the previous level (or rationale
-     for why restoration is not needed)
+   - the criteria for restoring the previous level (or rationale for why
+     restoration is not needed)
 2. Lower the floor in the fixture file using the project's override mechanism
    (typically a `--force` flag on the enforcement script).
-3. Commit the floor change and the issue together.
+3. Commit the floor change and its record together.
 
 The override protocol exists to prevent ratchets from becoming immovable
-obstacles. But the audit trail ensures that every regression is intentional
-and traceable.
+obstacles. But the recorded justification ensures that every regression is
+intentional and traceable. A tracker issue for restoring the floor is optional
+runtime follow-up.
 
 ## Adopting Ratchets in a Project
 

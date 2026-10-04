@@ -1,0 +1,62 @@
+{
+  "id": "present-investor-deck",
+  "mode": "present",
+  "seconds": 224.3,
+  "run_ok": true,
+  "cost_usd": 3.43684275,
+  "turns": 34,
+  "checks_passed": 3,
+  "checks_total": 4,
+  "checks": [
+    {
+      "kind": "files_exist",
+      "ok": true,
+      "detail": "present ['docs/helix/06-iterate/deliverables/DEL-*.md']"
+    },
+    {
+      "kind": "deliverable_gate",
+      "ok": false,
+      "detail": "docs/helix/06-iterate/deliverables/DEL-001-investor-business-case.md: visual.unsourced: unit 6 names date 'At the second meeting' that no Sources row or Assumptions entry states"
+    },
+    {
+      "kind": "files_unchanged",
+      "ok": true,
+      "detail": "unchanged"
+    },
+    {
+      "kind": "output_not_contains",
+      "ok": true,
+      "detail": "clean"
+    }
+  ],
+  "judge": {
+    "scores": [
+      {
+        "item": 1,
+        "score": 2,
+        "reason": "The seven slide titles are full claims that read in sequence as problem, solution, target, cost, and ask, with only the closing 'Sources' slide being a label."
+      },
+      {
+        "item": 2,
+        "score": 1,
+        "reason": "The brief and outline exclude the technology stack and use plain investor language, but the diff is cut off before the slide bodies, so they cannot be checked."
+      },
+      {
+        "item": 3,
+        "score": 1,
+        "reason": "The headline figures (10,000 users, six months, under $5,000, 500 recipes) cite source sections and the response says nothing was invented, but the per-slide bodies and source table are not visible to confirm every number."
+      },
+      {
+        "item": 4,
+        "score": 1,
+        "reason": "The ask names a what (a second meeting with the revenue model and raise amount), but owners are partly inferred and there is no calendar date, and the visible assumptions flag the inferred flow, ask, and owners without clearly naming inferred intake fields such as audience, look, or max messages."
+      }
+    ],
+    "total": 5,
+    "max": 8,
+    "raw": "{\"scores\": [{\"item\": 1, \"score\": 2, \"reason\": \"The seven slide titles are full claims that read in sequence as problem, solution, target, cost, and ask, with only the closing 'Sources' slide being a label.\"}, {\"item\": 2, \"score\": 1, \"reason\": \"The brief and outline exclude the technology stack and use plain investor language, but the diff is cut off before the slide bodies, so they cannot be checked.\"}, {\"item\": 3, \"score\": 1, \"reason\": \"The headline figures (10,000 users, six months, under $5,000, 500 recipes) cite source sections and the response says nothing was invented, but the per-slide bodies and source table are not visible to confirm every number.\"}, {\"item\": 4, \"score\": 1, \"reason\": \"The ask names a what (a second meeting with the revenue model and raise amount), but owners are p"
+  },
+  "diff_stat": "?? docs/helix/06-iterate/\n",
+  "diff": "\n--- new file: docs/helix/06-iterate/deliverables/DEL-001-investor-business-case.md\n---\nddx:\n  id: DEL-001\n  type: deliverable\n  activity: iterate\n  kind: deck\n  status: draft\n  authoring:\n    home: repo\n    export: []\n  links:\n    - id: recipe-app-vision\n      kind: informed_by\n    - id: recipe-app-prd\n      kind: informed_by\n---\n\n# RecipeHub gives home cooks one trusted place for recipes\n\n## Brief\n\n- **Audience**: a prospective investor evaluating RecipeHub for the first time\n- **Occasion**: evaluation meeting, deck presented live\n- **Decision or action sought**: agree to a second meeting, where RecipeHub brings the revenue model and the raise amount\n- **Time slot or page budget**: 10 minutes, 5 content slides\n- **Kind**: deck\n- **Constraints**: every figure stays as the source states it; targets are labeled as targets; no figure is shown that the vision or the requirements document does not hold\n- **Look**: bold\n- **Scope**: docs/helix/00-discover/product-vision.md; docs/helix/01-frame/prd.md\n- **Breadth**: deep-dive\n- **Angle**: the business case\n- **Must cover**: the customer's problem; cost and schedule to launch; success targets; what the plan leaves open\n- **Must omit**: technology stack; later-release features\n- **Max messages**: 5\n- **Takeaway**: RecipeHub can learn within six months, on under $5,000 of infrastructure, whether home cooks will build a rated recipe library, and it owes an investor a revenue model before a check\n\n## Story\n\n- **Flow**: investor-pitch\n- **Takeaway**: RecipeHub can learn within six months, on under $5,000 of infrastructure, whether home cooks will build a rated recipe library, and it owes an investor a revenue model before a check\n- **Messages** (ranked by how much each moves the decision to take a second meeting):\n  1. Home cooks search many sources and find no rating they trust (evidence: docs/helix/00-discover/product-vision.md#target-market; docs/helix/01-frame/prd.md#problem-and-goals; the three pains in the Target Market table)\n  2. RecipeHub puts peer-rated recipes on one phone-first site (evidence: docs/helix/01-frame/prd.md#requirements; docs/helix/01-frame/prd.md#functional-requirements; the browse, save, rate, post sequence)\n  3. The launch is cheap to try: six months and under $5,000 of infrastructure (evidence: docs/helix/01-frame/prd.md#constraints-assumptions-dependencies; the Business constraint line)\n  4. The plan sets a target an investor can hold it to: 10,000 monthly active users by month 12 (evidence: docs/helix/00-discover/product-vision.md#success-definition; docs/helix/01-frame/prd.md#problem-and-goals)\n  5. Revenue, launch seeding, and moderation are undecided, and they are the agenda for a second meeting (evidence: docs/helix/01-frame/prd.md#open-questions; docs/helix/01-frame/prd.md#risks; no section in either document names a revenue source)\n- **Beats and titles** (beat ids from the investor-pitch flow; titles written before any body):\n\n  | # | Beat | Title (claim) | Message | Exhibit |\n  |---|---|---|---|---|\n  | 1 | purpose | RecipeHub gives home cooks one trusted place for recipes | takeaway | title slide |\n  | 2 | problem (carries change) | Home cooks search many sites without a rating they trust | M1 | three panels, one per pain |\n  | 3 | solution | RecipeHub puts peer-rated recipes on one phone-first site | M2 | four-step flow with rating highlighted |\n  | 4 | traction | The plan targets 10,000 monthly users by month 12 | M4 | one stat, labeled target |\n  | 5 | financials | Launch takes six months and under $5,000 of infrastructure | M3 | table of what the plan states and what it leaves out |\n  | 6 | ask | RecipeHub asks for a second meeting with the missing numbers | M5, takeaway | ask band and four steps |\n  | 7 | sources | Sources | all | source table |\n\n  Beats cut or unfilled: `change` is merged into the problem slide (the 10-minute budget keeps problem, solution, traction, ask). `market`, `business-model`, and `team` are required by the flow and no source section fills them; each is recorded under Assumptions and gaps and carried to the ask. `competition` is cut for budget; the alternatives cooks use today appear on slide 2.\n\n- **Concept coverage** (every concept group the inventory surfaced, in authority order):\n\n  | # | Concept group | Authority | Status | Carried by / reason |\n  |---|---|---|---|---|\n  | 1 | The home cook's problem: scattered sources, unreliable reviews, no community | vision, requirements | covered | M1 |\n  | 2 | Who the customer is and what they use today | vision, requirements | covered | M1 |\n  | 3 | Why now: meal planning has moved to phones | vision | covered | M1 (merged into the problem slide) |\n  | 4 | What the product does: browse, save, post, rate, comment | vision, requirements | covered | M2 |\n  | 5 | Success targets: users, recipes, rating, saves | vision, requirements | covered | M4 |\n  | 6 | Cost, schedule, and what launch depends on | requirements | covered | M3 |\n  | 7 | Risks and their mitigations | requirements | covered | M5 (speaker notes on slide 6) |\n  | 8 | Open questions and who answers them | requirements | covered | M5 |\n  | 9 | What the first version leaves out (meal planning, grocery delivery, chef tools, recommendations) | requirements | omitted | budget: one line in the notes on slide 3 |\n  | 10 | Later-release features: search, follow, trending, export, collections | requirements | omitted | breadth: a deep-dive on the business case, and must-omit |\n  | 11 | Technology stack and platform targets | requirements | omitted | audience and must-omit: the investor weighs cost and demand; slide 5 carries the one hosting fact that affects cost |\n  | 12 | Acceptance tests for each launch feature | requirements | omitted | audience: delivery detail |\n\n- **Horizontal-logic test**: pass. Slide 2 names the problem and raises \"what fixes it\"; slide 3 answers with the product and raises \"will cooks come\"; slide 4 answers with the target the plan sets and raises \"what does it cost to find out\"; slide 5 answers with cost and schedule and shows what the plan ",
+  "result": "The deck script is written as a draft at `docs/helix/06-iterate/deliverables/DEL-001-investor-business-case.md`. Nothing was rendered, and the automated script checker was not permitted to run here, so the gate results in the file are a manual read.\n\n**The main limitation:** the vision and PRD do not hold a full investor business case. They name no revenue model (the product is described as ad-free), no market size, no team, no raise amount and no traction. I did not invent any of these, so the deck states the gaps and asks for a second meeting instead of a check.\n\n**Takeaway:** RecipeHub can learn within six months, on under $5,000 of infrastructure, whether home cooks will build a rated recipe library, and it owes an investor a revenue model before a check.\n\n**Outline** (five content slides for the ten-minute slot, plus title and sources):\n\n1. Title: RecipeHub gives home cooks one trusted place for recipes\n2. Home cooks search many sites without a rating they trust\n3. RecipeHub puts peer-rated recipes on one phone-first site\n4. The plan targets 10,000 monthly users by month 12 (labelled as a target, no usage reported)\n5. Launch takes six months and under $5,000 of infrastructure (table with the revenue gap highlighted)\n6. RecipeHub asks for a second meeting with the missing numbers\n7. Sources\n\nEach slide has its pattern, body, visual spec, speaker notes and source references.\n\n**Things for you to confirm or supply:**\n- **Flow and ask:** I used the investor-pitch flow and made the ask a second meeting. If you have a raise amount, the ask slide should change.\n- **Owners and dates on the ask slide:** \"Product\" and \"Legal and product\" come from the PRD's open questions; the rest are inferred, and the dates are relative to a second meeting with no calendar date.\n- **Pre-launch status:** I assumed RecipeHub has no users yet, because both documents are drafts written in the future tense.\n- **Recipe targets:** the vision says 500 community recipes by month 6; the PRD says 500 seeded at launch and 100 community submissions within three months, and also lists the seed count as an open question. The deck keeps each as stated in the notes; these should be reconciled.\n- **Flow checklist:** three items do not hold: no bottom-up market number, no traction baseline, and no competition slide (cut for the slide budget; today's alternatives appear on slide 2).\n\nThe full list is under \"Assumptions and gaps\" in the file. To render, run the HELIX skill's `scripts/render-deck.js` on a host with node and `pptxgenjs`, then `scripts/deck-qa.py` to inspect each slide."
+}

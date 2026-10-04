@@ -39,6 +39,27 @@ validation:
       description: Each workstream carries a stable WS-<n> alias, assigned sequentially and never reused or renumbered; every sequenced outcome references one
       severity: blocking
 
+    - check: review_every_workstream_has_a_stable_01
+      description: >-
+        Every workstream has a stable `WS-<n>` alias, a scope line, and an owner
+      severity: warning
+    - check: review_outcome_cites_its_workstream_its
+      description: >-
+        Every outcome cites its workstream and its governing artifact
+      severity: warning
+    - check: review_ordering_states_its_rationale
+      description: >-
+        Ordering states its rationale
+      severity: warning
+    - check: review_horizon_explicit_nothing_beyond_it
+      description: >-
+        The horizon is explicit; nothing beyond it is committed
+      severity: warning
+    - check: review_current_iteration_outcomes_match_active
+      description: >-
+        Current-iteration outcomes match the active iteration plan
+      severity: warning
+
 prompts:
   generation: prompt.md
 

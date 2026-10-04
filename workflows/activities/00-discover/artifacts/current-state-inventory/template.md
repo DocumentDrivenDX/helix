@@ -72,12 +72,3 @@ Aspirational rows. State this plainly; do not leave the reader to count.
 | # | Question | Blocks | Owner |
 |---|----------|--------|-------|
 | 1 | [What is unknown about a component, stated as a question] | [What the answer unblocks] | [Named person] |
-
-## Review Checklist
-
-- [ ] Every entry carries exactly one grade from the declared vocabulary
-- [ ] Every Evidenced entry names a source and a date
-- [ ] Totals are tallied from this revision, not carried forward
-- [ ] The unevidenced share is stated, not implied
-- [ ] Scope and exclusions are both stated
-- [ ] No target state, recommendation or decision has crept in

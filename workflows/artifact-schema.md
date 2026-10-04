@@ -538,8 +538,9 @@ HELIX activities form a directional artifact progression:
 | `06-iterate` | Measure outcomes and feed changes back into discovery, framing, design, or build. | May depend on any prior activity and may create follow-up work. |
 
 Progression is not a waterfall rule. Feedback is expected. When a later activity
-changes an earlier assumption, update or supersede the earlier artifact and let
-the dependency graph show the new source of truth.
+changes an earlier assumption, update the earlier artifact in place (supersede
+only where the type's `reuse_policy` calls for it) and let the dependency graph
+show the source of truth.
 
 ## Consumer responsibilities
 

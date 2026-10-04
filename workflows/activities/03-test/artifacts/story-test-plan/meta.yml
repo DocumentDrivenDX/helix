@@ -78,6 +78,43 @@ validation:
       description: The plan must stay story-scoped and call out out-of-scope coverage explicitly
       severity: blocking
 
+    - check: review_references_the_governing_story_and_01
+      description: >-
+        References the governing story and technical design
+      severity: warning
+    - check: review_active_acceptance_criterion_maps_concrete
+      description: >-
+        Every active acceptance criterion maps to concrete failing tests, keyed by its stable `US-<n>-AC<m>` ID
+      severity: warning
+    - check: review_ac_row_names_behavior_assertion
+      description: >-
+        Every AC row names the behavior/assertion the test makes, not just a test name
+      severity: warning
+    - check: review_ac_row_names_covering_test
+      description: >-
+        Every AC row names the covering test AND records its `@covers US-<n>-AC<m>` citation (canonical AC-ID syntax)
+      severity: warning
+    - check: review_file_paths_commands_test_identifiers
+      description: >-
+        File paths, commands, or test identifiers are specific enough to execute
+      severity: warning
+    - check: review_setup_fixtures_mocks_seed_data
+      description: >-
+        Setup, fixtures, mocks, and seed data are explicit
+      severity: warning
+    - check: review_edge_cases_cover_real_story
+      description: >-
+        Edge cases cover real story risks rather than generic boilerplate
+      severity: warning
+    - check: review_scope_remains_bounded_one_story
+      description: >-
+        Scope remains bounded to one story slice
+      severity: warning
+    - check: review_build_handoff_gives_implementation_usable
+      description: >-
+        Build handoff gives implementation a usable sequence
+      severity: warning
+
 prompts:
   generation: prompt.md
   review: |

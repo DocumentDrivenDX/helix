@@ -83,12 +83,3 @@ which is the strongest argument in this document for retiring that diagram.
 | 1 | Which tables does CDC actually cover? | Warehouse consolidation scope | Priya Raman |
 | 2 | What do analysts mean by "notebooks"? | ADR-014 compute isolation | Sam Okafor |
 | 3 | Does anything consume the partner SFTP drops? | Whether ingestion can be retired | Priya Raman |
-
-## Review Checklist
-
-- [x] Every entry carries exactly one grade from the declared vocabulary
-- [x] Every Evidenced entry names a source and a date
-- [x] Totals are tallied from this revision, not carried forward
-- [x] The unevidenced share is stated, not implied
-- [x] Scope and exclusions are both stated
-- [x] No target state, recommendation or decision has crept in

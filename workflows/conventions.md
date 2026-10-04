@@ -31,6 +31,28 @@ each runtime's install guide (for DDx,
 
 ## Documentation Voice
 
+Each sentence must contribute a requirement, decision, action, explanation, or
+necessary example. Use canonical terms, name actors, and put conditions before
+the actions they govern. Give each procedural step one principal action.
+Preserve obligations, permissions, uncertainty, and exceptions when shortening
+text. Sentence length is a review aid, not a pass/fail rule.
+
+Specifications state the desired system. An accepted decision does not claim
+implementation. Keep execution status in the runtime tracker. HELIX documents
+must not cite pull-request numbers, repository revisions, or delivery history.
+Release versions, artifact references, measurements, and test evidence remain
+useful; database transaction terminology is unaffected.
+
+Templates define structure, prompts explain authoring, and metadata defines
+review criteria. Avoid repeating the same instructions in all three. Omit
+inapplicable optional sections without N/A entries. Retain a repeated rule only
+when a consumer would otherwise miss it.
+
+For example, replace "Before proceeding, it is necessary to perform a review
+of all related documents" with "If the change affects a requirement, read its
+governing specification." Keep "may retry after a timeout" distinct from "must
+retry after a timeout"; shorter wording must not change the requirement.
+
 HELIX documentation uses the canonical profiles in [voice.yml](voice.yml).
 Deliverables for people outside the project (decks, one-pagers, briefs) use
 the `human-facing` profile: conciseness 5, claim titles, no HELIX vocabulary
@@ -369,7 +391,7 @@ execution and how it relates to canonical artifacts.
 
 ### When to Use Work Items
 
-Use tracker work items for:
+Where tracking applies (`workflows/references/work-item-first.md`), use work items for:
 - Story-level implementation work
 - Story-level deployment work
 - Prioritized backlog items
@@ -420,8 +442,8 @@ runtime integration appendix.
   which the runtime creates missing items — each created item's ID is then
   back-referenced in the plan. The tracker owns live status either way, and
   hand-added tracker items never silently widen the plan.
-- Reports and retrospectives should emit follow-up work items instead of
-  embedding durable task lists in canonical docs. An iteration plan's task
+- Reports may recommend follow-up work. Create work items only when requested
+  or required by the runtime, and keep live task lists there. An iteration plan's task
   table is a commitment declaration, not a live task list: its Status column
   records planning-time state and is not maintained after work items derive.
 
@@ -571,120 +593,20 @@ A: Keep the shared project docs stable and add separate feature/story files in t
 A: Store them alongside the documents that reference them, or in a activity-level `images/` directory.
 
 ### Q: Can I skip activities?
-A: While not recommended, if skipping activities, document why in the project root README.
+A: Use the activities needed for the request. Do not create irrelevant artifacts
+or record skipped activities solely to complete the workflow.
 
 ## Story Refinement Conventions
 
-### Refinement Documentation Structure
+Update the story and affected design or test requirements in place. Preserve
+stable identifiers and explain the current requirement and its rationale. Do
+not add refinement-history sections, numbered change logs, or an index that
+repeats the runtime tracker.
 
-Story refinements are tracked in the iterate activity to maintain learning and traceability:
-
-```
-docs/helix/06-iterate/refinements/
-├── README.md                           # Refinement process overview
-├── US-001-refinement-001.md           # First refinement of US-001
-├── US-001-refinement-002.md           # Second refinement of US-001
-├── US-042-refinement-001.md           # First refinement of US-042
-└── refinement-index.md                # Cross-reference index
-```
-
-### Refinement Naming Convention
-
-**File Naming Pattern**: `{{STORY_ID}}-refinement-{{NUMBER}}.md`
-- `{{STORY_ID}}`: Original user story identifier (e.g., US-001, US-042)
-- `{{NUMBER}}`: Zero-padded refinement sequence (001, 002, 003...)
-
-Examples:
-- `US-001-refinement-001.md` - First refinement of US-001
-- `US-042-refinement-003.md` - Third refinement of US-042
-
-### Refinement Linking Strategy
-
-**Story Updates**: Original user stories reference their refinements:
-```markdown
-## Refinement History
-- [Refinement 001](../06-iterate/refinements/US-001-refinement-001.md) - Bug fixes for error handling
-- [Refinement 002](../06-iterate/refinements/US-001-refinement-002.md) - Scope expansion for mobile support
-```
-
-**Cross-Activity References**: Refinement logs link to all affected documents:
-```markdown
-### Updated Documents
-- [User Story](../01-frame/user-stories/US-001.md) - Updated acceptance criteria
-- [Technical Design](../02-design/architecture/auth-service.md) - Added error handling flows
-- [Test Plan](../03-test/test-procedures/US-001-tests.md) - Added regression tests
-```
-
-### Refinement Categories
-
-**Standard Categories** for consistent tracking:
-- `bugs` - Issues discovered during implementation or testing
-- `requirements` - New or evolved business requirements
-- `enhancement` - Improvements identified during development
-- `mixed` - Combination of multiple refinement types
-
-### Version Control Integration
-
-**Branch Strategy** for refinements:
-- Create refinement branches: `refinement/US-001-001`
-- Commit refinement log first, then affected documents
-- Ensure atomic commits for traceability
-
-**Commit Message Format**:
-```
-refine(US-001): fix error handling specification gaps
-
-- Add refinement log US-001-refinement-001
-- Update acceptance criteria for edge cases
-- Add regression test requirements
-- Update error handling design patterns
-
-Addresses bugs discovered during implementation activity.
-```
-
-### Quality Gates for Refinements
-
-**Pre-Refinement Checklist**:
-- [ ] Issues clearly documented and categorized
-- [ ] Impact assessment completed
-- [ ] Stakeholder approval obtained (if scope changes)
-- [ ] Intended artifact change, acceptance impact, and required evidence are
-      explicit
-
-**Post-Refinement Validation**:
-- [ ] All affected activity documents updated
-- [ ] Cross-references verified and functional
-- [ ] Traceability maintained from issue to resolution
-- [ ] No conflicts introduced between requirements
-- [ ] Team communication completed
-
-### Refinement Index Maintenance
-
-**Index Structure** for discoverability:
-```markdown
-# Story Refinement Index
-
-## Active Stories with Refinements
-- US-001: [3 refinements](US-001-refinement-001.md) - Authentication Service
-- US-042: [1 refinement](US-042-refinement-001.md) - Workflow Commands
-
-## Refinement Categories
-### Bugs (High Impact)
-- [US-001-refinement-001](US-001-refinement-001.md) - Critical error handling gaps
-- [US-018-refinement-002](US-018-refinement-002.md) - Input validation issues
-
-### Requirements Evolution
-- [US-025-refinement-001](US-025-refinement-001.md) - Mobile support addition
-- [US-042-refinement-001](US-042-refinement-001.md) - Enhanced command discovery
-```
-
-### Template Usage
-
-Use the standard refinement template at `templates/refinement-log.md` in the
-HELIX content package. Copy it into
-`docs/helix/06-iterate/refinements/<STORY_ID>-refinement-<NUMBER>.md` and fill
-it in. The runtime integration appendix lists the concrete package path your
-runtime installs.
+If the user requests a refinement summary, use
+`templates/refinement-log.md` for the required change, rationale, affected
+artifacts, and unresolved decisions. A summary is not a prerequisite for an
+edit. Source control and the runtime retain execution history.
 
 ## Evolution
 

@@ -48,6 +48,17 @@ read-only tool allowlist. Pass `--runner` with a template that receives
   asked for direction without a question mark, which an
   `output_contains_any` check now covers.
 
+- `results/20261003-2245/`: run at commit `023e6d14` over twelve briefs
+  (three new desired-state briefs): 43 of 45 checks, rubric 70 of 80. The
+  align report omitted the `aligned:` count, and the investor deck left
+  "At the second meeting" unsourced. `-frame-r2` and `-frame-r3` rerun the
+  frame brief (rubric 7 and 8 of 8; first run 6) to separate noise from
+  regression. `-evolve-r2` and `-evolve-r3` rerun the evolve brief after its
+  rubric changed to require one current ADR rather than a supersession chain:
+  r2 still superseded (5 of 8); r3, after the ADR guidance changed, rewrote
+  ADR-001 in place (7 of 8; a rename left a duplicate because the runner
+  allows no file deletion).
+
 ## Reading a result
 
 - **Checks** are deterministic and need no judgment: the files a mode must

@@ -6,12 +6,6 @@ ddx:
   depends_on:
     - example.technical-design.depositmatch.upload-csv
     - example.story-test-plan.depositmatch.upload-csv
-  review:
-    self_hash: c470ce1b656f474335d2b2ec376a3e41e3389d5b83c7fcc1b350890b50a42d7c
-    deps:
-      example.story-test-plan.depositmatch.upload-csv: 20aed2c4e248a67b448b0528b49ae9b2724d5045879ddcda655ad220d1c276ed
-      example.technical-design.depositmatch.upload-csv: 064c51468da1d444da9c6f65d6c2502487724ac315fa3e6c50f9bbeffd3d69b9
-    reviewed_at: "2026-05-26T02:56:15Z"
 ---
 
 # Build Plan
@@ -93,15 +87,3 @@ Story-level work is tracked as work items in the runtime's work-item store.
 - [ ] Shared constraints are documented.
 - [ ] Verification expectations are explicit.
 - [ ] Runtime issues can be created from this plan without inventing scope.
-
-## Review Checklist
-
-- [ ] Governing artifacts are listed and exist on disk
-- [ ] Shared constraints trace back to requirements, design, or architecture
-- [ ] Build sequence has a justified ordering
-- [ ] Dependencies between build steps are explicit
-- [ ] Each story/area references its governing artifacts
-- [ ] Issue decomposition follows tracker conventions
-- [ ] Quality gates are specific and enforceable
-- [ ] Risks have concrete responses
-- [ ] Plan is consistent with governing test plan and technical designs

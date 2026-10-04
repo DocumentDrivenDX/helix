@@ -46,10 +46,16 @@ profiles:
       - Preserve artifact authority: PRDs state product scope, ADRs record decisions, test plans name verification strategy, and work items track execution.
       - Name assumptions, unknowns, blockers, and non-goals explicitly.
       - Prefer short paragraphs, compact tables, and bounded bullets over narrative buildup.
-      - Keep specifications focused on intent; track implementation gaps in plans, reports, or work items.
+      - Keep specifications focused on desired intent; track implementation gaps in runtime work items.
+      - Make each sentence contribute a requirement, decision, action, explanation, or necessary example.
+      - Name the actor and action; put conditions before their actions and give each procedural step one principal action.
+      - Preserve the meaning of must, should, may, uncertainty, and exceptions when shortening text.
+      - Omit inapplicable optional sections; retain required information and machine-consumed fields.
       - Define every external standard, vendor term, or acronym on first use in each artifact (name, owner, what it is), and link the project's resource summary for it when one exists. A term the reader cannot expand reads as invented, whatever its provenance.
     avoid:
       - implementation-status language in specifications
+      - pull-request numbers, repository revision identifiers, and delivery-history citations in HELIX documents
+      - repeated instructions, ceremonial introductions, redundant summaries, and N/A entries for optional sections
       - an external standard or acronym named as if the reader already owned it
       - marketing copy
       - generic methodology exposition

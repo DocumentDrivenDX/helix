@@ -4,7 +4,9 @@ You are processing sparse user intent through the HELIX intake surface.
 
 Your goal is to accept a natural language request, identify the governed work it
 affects in the artifact stack, and create or update work items so the rest of
-the HELIX workflow can execute the intent without further user prompting.
+the HELIX workflow can execute the intent without further user prompting. When
+a tracker-backed runtime is in use, the result is created or updated work items;
+otherwise it is a planning summary in the response.
 
 ## Action Input
 
@@ -20,9 +22,10 @@ You receive:
 - `medium`: Create deterministic non-conflict artifacts. Pause for user input
   when ambiguity or conflict blocks deterministic progress on an affected artifact.
 - `high`: Create downstream artifacts without interactive prompts unless blocked
-  by a hard-stop constraint. Create speculative work items for assumptions
-  rather than asking. When no `concerns.md` exists, infer the concern selection
-  from the product nature and record it as an assumption (FEAT-011 FR-3).
+  by a hard-stop constraint. Proceed on reasonable assumptions rather than
+  asking, and record each in the response or the artifact. When no
+  `concerns.md` exists, infer the concern selection from the product nature and
+  record it as an assumption (FEAT-011 FR-3).
 
 **Resolution precedence (FEAT-011 FR-2)**: resolve the active level first-match
 wins — (1) per-invocation override (the level passed with the request) →
@@ -53,7 +56,8 @@ When artifacts disagree, use this precedence:
 ## STEP 0 — Bootstrap
 
 1. Read AGENTS.md so project instructions are fresh in working memory.
-2. Verify the runtime-provided work-item source is available.
+2. If a tracker-backed runtime is in use, verify its work-item source is
+   available.
 3. Read `docs/helix/01-frame/` if it exists to load project vision and
    declared concerns.
 
@@ -73,15 +77,18 @@ Parse the request:
 
 Traverse the artifact stack to find affected artifacts:
 
-1. Search for existing governing work items, features, specs, and designs that
-   the request touches.
+1. Search for existing features, specs, and designs that the request touches,
+   and for governing work items when a tracker is in use.
 2. Determine the blast radius: which governed artifacts need to change?
 3. If a matching work item already exists (same scope, same intent), prefer
    updating it over creating a duplicate.
 
 ## STEP 3 — Work Item Creation / Update
 
-Create or update work items for the identified work:
+When a tracker-backed runtime is in use (see
+`workflows/references/work-item-first.md`), create or update work items for the
+identified work. Otherwise, skip this step and give the planning summary in the
+response: the affected artifacts, the proposed changes, and acceptance criteria.
 
 1. Create new work items for new scope.
 2. Refine existing work items when the same scope already has an open item.
@@ -100,9 +107,9 @@ Create or update work items for the identified work:
 
 - `low`: Create only the work item the user explicitly confirmed.
 - `medium`: Create work items for deterministic downstream work. Flag ambiguous
-  scope in descriptions rather than creating speculative items.
-- `high`: Create speculative work items for reasonable downstream assumptions;
-  label them `kind:speculative` to mark them as assumed, not confirmed.
+  scope in descriptions rather than creating work items for it.
+- `high`: Create work items for deterministic downstream work. Record
+  assumptions in the response or artifact, not as separate tracker items.
 
 ## STEP 4 — Conflict Detection
 
@@ -113,30 +120,25 @@ Before finishing, check for conflicts:
 
 If a conflict exists:
 - `low` / `medium`: Report the conflict and ask the user how to resolve it.
-- `high`: Create an escalation work item labeled `kind:escalation` and proceed
-  with the non-conflicting portions of the request.
+- `high`: Report the conflict, proceed with the non-conflicting portions of the
+  request, and record the open decision in the response. When a tracker is in
+  use and the runtime requires it, file the escalation as a work item labeled
+  `kind:escalation`.
 
 ## STEP 5 — Output
 
-Report what was done:
-
-```
-INPUT_STATUS: COMPLETE | NEEDS_CLARIFICATION | BLOCKED
-ITEMS_CREATED: N
-ITEMS_UPDATED: N
-AUTONOMY_LEVEL: low|medium|high
-CONFLICTS: <description or "none">
-NEXT_ACTION: run implementation loop | check queue | <clarification question>
-```
+Report what was done: the interpreted intent, the affected artifacts, any work
+items created or updated, assumptions recorded, conflicts found, and the next
+action.
 
 Be precise. If the user's intent was ambiguous and autonomy required you to
 pause, state exactly what clarification is needed.
 
 ## Runtime Integration Appendix
 
-This appendix covers how a runtime realizes the input action. The reference
-paths and work-item acquisition below are runtime-neutral; for the concrete
-commands of a specific runtime, see its install guide (DDx:
+This appendix covers how a runtime realizes the input action when a tracker is
+in use. The reference paths and work-item acquisition below are runtime-neutral;
+for the concrete commands of a specific runtime, see its install guide (DDx:
 [docs/install/ddx.md](../../docs/install/ddx.md)).
 
 ### Bootstrap
@@ -167,16 +169,17 @@ After creating a new work item, assemble its `<context-digest>` per
 `scripts/refresh_context_digests.py`, use it after item creation so digest
 assembly and area labels stay deterministic.
 
-Omission path: if the this action cannot assemble a digest (legacy work item,
+Omission path: if this action cannot assemble a digest (legacy work item,
 incomplete concern mapping), use the exact prefix
 `Explicit omission rationale: <reason>`, add label `digest:omission-authorized`,
 and set `digest-omission-path=helix-input:legacy-migration`.
 
-**Autonomy-specific work-item creation rules** mirror the normative rules above,
-with speculative items labeled `kind:speculative` and escalation items labeled
-`kind:escalation`.
+Autonomy-specific creation rules mirror the normative rules above. Escalation
+items, when the runtime requires them, are labeled `kind:escalation`.
 
-### STEP 5 — Output trailer
+### Optional output trailer
+
+Emit only when a runtime consumer requires it.
 
 ```
 INPUT_STATUS: COMPLETE | NEEDS_CLARIFICATION | BLOCKED

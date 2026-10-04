@@ -75,11 +75,10 @@ artifacts unless the scope explicitly asks you to revise them.
 4. Identify what exists, what's missing, and what needs updating for the
    requested scope.
 
-## STEP 0.5 — Work Item Acquisition
+## STEP 0.5 — Work Item (when required)
 
-Before creating or modifying any artifacts, acquire a governing work item for
-this frame pass to record progress and govern changes. See the runtime's
-work-item acquisition reference for the full pattern.
+Use a governing work item when the user requests tracker-backed framing or the
+runtime requires one. Otherwise continue with the requested artifacts.
 
 ## STEP 2 — Draft
 
@@ -152,7 +151,8 @@ the other way around. Write them to last across multiple implementation cycles.
 
 ## STEP 3 — Iterative Refinement
 
-For each drafted artifact, perform 3-5 rounds of self-critique:
+Critique each drafted artifact against the checks below. Revise only for
+material gaps; stop when the artifact is ready.
 
 1. Challenge every assumption
 2. Check for missing requirements, edge cases, and failure modes
@@ -241,15 +241,15 @@ If you drafted or updated user stories, also check:
    compound criteria into separate items.
 6. **Test Scenarios**: Do they include concrete values, not placeholders? Could
    an implementer copy them into a test file?
-7. **Stability**: Is this story written to last? It will be referenced by
-   multiple tracker issues across design, build, and test activities.
+7. **Stability**: Is this story written to last? Design, build, and test work
+   will reference it.
 
 ### Validation gate
 
 After refinement, read `meta.yml` (specifically the `validation.quality_checks`
 section) and `prompt.md` from each artifact directory you touched. Verify all
 **blocking** quality checks pass. If any fail, revise the artifact before
-proceeding to Step 4. Do not commit an artifact that fails a blocking check.
+proceeding to Step 4. Do not finalize an artifact that fails a blocking check.
 See ADR-004 for why validation rules live in `meta.yml` rather than a separate
 `dependencies.yaml`.
 
@@ -269,64 +269,38 @@ If no `docs/helix/01-frame/principles.md` exists for this project:
 
 Skip this activity if the principles file already exists.
 
-## STEP 4 — Work Item Creation
+## STEP 4 — Output
 
-Create work items for Design-activity work implied by the framing:
+Write all artifacts to their canonical locations. Derive design work items or
+commit only when the user requests it or the runtime requires it.
 
-- One work item per feature spec that needs a solution design
-- Label with `helix,activity:design`
-- Set `spec-id` to the feature spec ID
-- Set acceptance criteria to "solution design exists and covers feature requirements"
+## STEP 5 — Check
 
-## STEP 5 — Output
+Check the frame pass against the request. If a runtime work item governs it,
+use that item's acceptance criteria.
 
-Write all artifacts to their canonical locations and commit.
-
-## STEP 6 — Measure
-
-Verify the frame pass against the governing work item's acceptance criteria.
-See the measure action for the full pattern.
-
-1. **Artifact completeness**: All required artifacts for the scope have been
-   created or updated.
+1. **Artifact completeness**: Artifacts required for the requested scope have
+   been created or updated.
 2. **Validation gates**: All blocking quality checks from `meta.yml`
    (`validation.quality_checks`) and `prompt.md` pass for each artifact.
-3. **Work item creation**: Downstream design work items have been filed for
-   each feature spec.
-4. **Concern selection (required)**: verify concern selection was performed —
+3. **Concern selection (required)**: verify concern selection was performed —
    `docs/helix/01-frame/concerns.md` exists with an active selection (or an
    explicit "no concerns apply" record). At high autonomy, verify inferred
    concerns are recorded as assumptions. Verify consistency with artifact
    content. A frame pass that produced feature specs but no concern decision
    fails this gate.
-5. **Record results** on the governing work item via the runtime-provided work-item source.
 
-## STEP 7 — Report
+## STEP 6 — Report
 
-Close the frame cycle and feed back into the planning cycle. See the report
-action for the full pattern.
+Summarize conversationally:
 
-1. If measurement passed, close the governing work item with evidence summary.
-2. If validation gates failed or guidance is needed, create follow-on items.
-3. The design work items created in Step 4 are the primary downstream output —
-   they enter the planning cycle for design and polish.
-
-Report:
 1. Artifacts created or updated
 2. Key decisions made
 3. Open questions requiring stakeholder input
-4. Work items created for downstream work
-5. Measurement results
+4. Check results, including any failed gate
 
-```
-FRAME_STATUS: COMPLETE|GUIDANCE_NEEDED
-ARTIFACTS_CREATED: N
-ARTIFACTS_UPDATED: N
-ITEMS_CREATED: N
-MEASURE_STATUS: PASS|FAIL|PARTIAL
-ITEM_ID: <governing-item-id>
-FOLLOW_ON_CREATED: N
-```
+If a runtime work item governs this pass, record the evidence and follow that
+runtime's closure rules.
 
 ## Runtime Integration Appendix
 
@@ -348,14 +322,12 @@ commands of a specific runtime, see its install guide (DDx:
 
 ### STEP 0.5 — Work-item acquisition
 
-Acquire the governing work item before modifying files, per
-`workflows/references/work-item-first.md`: find an open planning item labelled
-`kind:planning,action:frame` (claim it if found) or create one with labels
-`helix,kind:planning,action:frame`, a `<context-digest>` description naming the
-scope and existing artifacts, and acceptance "Artifacts created/updated per type
-requirements; downstream design issues filed; validation gates pass". The
-runtime supplies the work-item store; for the concrete commands see its install
-guide ([docs/install/ddx.md](../../docs/install/ddx.md) for DDx).
+When tracker-backed framing applies, follow
+`workflows/references/work-item-first.md`: reuse an open item labelled
+`kind:planning,action:frame` or create one with labels
+`helix,kind:planning,action:frame`. The runtime supplies the work-item store;
+for the concrete commands see its install guide
+([docs/install/ddx.md](../../docs/install/ddx.md) for DDx).
 
 ### Action input examples
 
@@ -363,16 +335,4 @@ guide ([docs/install/ddx.md](../../docs/install/ddx.md) for DDx).
 helix frame
 helix frame auth
 helix frame "real-time notifications"
-```
-
-### Output trailer
-
-```
-FRAME_STATUS: COMPLETE|GUIDANCE_NEEDED
-ARTIFACTS_CREATED: N
-ARTIFACTS_UPDATED: N
-ISSUES_CREATED: N
-MEASURE_STATUS: PASS|FAIL|PARTIAL
-ITEM_ID: <governing-item-id>
-FOLLOW_ON_CREATED: N
 ```

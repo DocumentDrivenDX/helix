@@ -1,0 +1,52 @@
+{
+  "id": "narrow-desired-state-edit",
+  "mode": "evolve",
+  "seconds": 25.0,
+  "run_ok": true,
+  "cost_usd": 0.70931175,
+  "turns": 10,
+  "checks_passed": 3,
+  "checks_total": 3,
+  "checks": [
+    {
+      "kind": "files_unchanged",
+      "ok": true,
+      "detail": "unchanged"
+    },
+    {
+      "kind": "max_new_files",
+      "ok": true,
+      "detail": "0 new file(s): []"
+    },
+    {
+      "kind": "output_not_contains",
+      "ok": true,
+      "detail": "clean"
+    }
+  ],
+  "judge": {
+    "scores": [
+      {
+        "item": 1,
+        "score": 2,
+        "reason": "The diff adds the 1\u2013120 character title rule to SHARE-01, SHARE-02 and SHARE-08 plus a matching acceptance row and edge case, and leaves every other requirement unchanged."
+      },
+      {
+        "item": 2,
+        "score": 2,
+        "reason": "Only the feature spec was edited and the only other source mentioned is the directly related technical design's title limit, with no sign of auditing unrelated decisions or code, though the evidence has no tool trace to confirm what was read."
+      },
+      {
+        "item": 3,
+        "score": 2,
+        "reason": "The response concisely reports the edit and its locations and flags the one downstream conflict in a single note, with no migration ledger and no delivery-status assessment."
+      }
+    ],
+    "total": 6,
+    "max": 6,
+    "raw": "{\"scores\": [{\"item\": 1, \"score\": 2, \"reason\": \"The diff adds the 1\u2013120 character title rule to SHARE-01, SHARE-02 and SHARE-08 plus a matching acceptance row and edge case, and leaves every other requirement unchanged.\"}, {\"item\": 2, \"score\": 2, \"reason\": \"Only the feature spec was edited and the only other source mentioned is the directly related technical design's title limit, with no sign of auditing unrelated decisions or code, though the evidence has no tool trace to confirm what was read.\"}, {\"item\": 3, \"score\": 2, \"reason\": \"The response concisely reports the edit and its locations and flags the one downstream conflict in a single note, with no migration ledger and no delivery-status assessment.\"}]}"
+  },
+  "diff_stat": " docs/helix/01-frame/features/FEAT-recipe-share.md | 8 +++++---\n 1 file changed, 5 insertions(+), 3 deletions(-)\n M docs/helix/01-frame/features/FEAT-recipe-share.md\n",
+  "diff": "diff --git a/docs/helix/01-frame/features/FEAT-recipe-share.md b/docs/helix/01-frame/features/FEAT-recipe-share.md\nindex eca488e..9ae2dd6 100644\n--- a/docs/helix/01-frame/features/FEAT-recipe-share.md\n+++ b/docs/helix/01-frame/features/FEAT-recipe-share.md\n@@ -43,9 +43,9 @@ A home cook opens the app, taps \"Share Recipe,\" fills in title, ingredients, ins\n \n #### Authoring (SHARE-01..04)\n \n-[SHARE-01]. Recipe author form MUST accept title (text, required), ingredients list (textarea, required), step-by-step instructions (textarea, required), optional recipe description (textarea), and optional photo (JPEG/PNG, \u2264 10MB).\n+[SHARE-01]. Recipe author form MUST accept title (text, required, 1\u2013120 characters), ingredients list (textarea, required), step-by-step instructions (textarea, required), optional recipe description (textarea), and optional photo (JPEG/PNG, \u2264 10MB).\n \n-[SHARE-02]. Form validation MUST require title and instructions before submit button enables. Form MUST reject empty ingredients list.\n+[SHARE-02]. Form validation MUST require title and instructions before submit button enables. Form MUST reject empty ingredients list. Form MUST reject a title shorter than 1 character or longer than 120 characters.\n \n [SHARE-03]. Photo upload MUST resize images to 800x600px for storage. Original filename discarded; file renamed to `{uuid}.jpg`.\n \n@@ -61,7 +61,7 @@ A home cook opens the app, taps \"Share Recipe,\" fills in title, ingredients, ins\n \n [SHARE-07]. Recipe card in feed MUST show author's name, title, thumbnail photo (if provided), average rating (e.g., \"4.2 \u2605\"), count of ratings, and count of comments.\n \n-[SHARE-08]. Tapping \"Edit\" on own recipe MUST allow author to modify title, ingredients, instructions, and description (not retroactively change photo). Changes apply immediately; edit history not tracked (v1).\n+[SHARE-08]. Tapping \"Edit\" on own recipe MUST allow author to modify title, ingredients, instructions, and description (not retroactively change photo). An edited title MUST still contain between 1 and 120 characters. Changes apply immediately; edit history not tracked (v1).\n \n ### Acceptance Criteria\n \n@@ -69,6 +69,7 @@ A home cook opens the app, taps \"Share Recipe,\" fills in title, ingredients, ins\n |-------------|----------|-------|------|------|\n | SHARE-01 | User fills form | Recipe authoring page | User enters title, ingredients, instructions | Submit button enabled |\n | SHARE-02 | User tries to submit incomplete form | Form with title only | User clicks submit | Error message \"ingredients required\" |\n+| SHARE-02 | User tries to submit over-long title | Form with a 121-character title, ingredients, instructions | User clicks submit | Recipe not created; error message states title must be 1\u2013120 characters |\n | SHARE-03 | User uploads photo | Upload input | User selects JPEG 2000x2000px, 8MB | Image resized to 800x600, upload succeeds |\n | SHARE-04 | User publishes recipe | Filled form | User clicks \"publish\" | Recipe appears in feed with author name and current time |\n | SHARE-05 | User views own profile | Authored \u2265 2 recipes | User navigates to profile | All authored recipes listed in reverse chronological order |\n@@ -91,6 +92,7 @@ A home cook opens the app, taps \"Share Recipe,\" fills in title, ingredients, ins\n \n - **Large photo**: User uploads 50MB image \u2192 error \"file too large, max 10MB\"\n - **Network failure during upload**: Error toast appears; user can retry without re-entering form\n+- **Title length out of range**: Empty title or title over 120 characters \u2192 recipe not saved; error states title must be 1\u2013120 characters\n - **Duplicate title**: Allowed; no uniqueness constraint\n - **Spam recipe**: Users can flag; flagged recipes hidden from feed (moderation review in v2)\n \n",
+  "result": "The recipe sharing spec now requires titles of 1\u2013120 characters; the change is uncommitted in `docs/helix/01-frame/features/FEAT-recipe-share.md`, and no other file was touched.\n\nThe title rule appears in five places in that file:\n\n- **SHARE-01**: the title field is now \"text, required, 1\u2013120 characters\".\n- **SHARE-02**: form validation must reject a title shorter than 1 or longer than 120 characters.\n- **SHARE-08**: an edited title must still be 1\u2013120 characters.\n- **Acceptance criteria**: one new SHARE-02 row covering a 121-character title being rejected.\n- **Edge cases**: one new entry for an empty or over-long title.\n\nAll other requirements are unchanged. The SHARE-08 clause and the acceptance row go slightly beyond a literal one-line change; I added them so the limit also holds on edit and is testable.\n\nThe technical design `TD-recipe-store.md` still says title `max 255` / `VARCHAR(255)`, so it now disagrees with the spec. I left it alone per your scope."
+}

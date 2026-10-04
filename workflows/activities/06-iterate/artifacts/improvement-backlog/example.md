@@ -5,11 +5,6 @@ ddx:
     home: repo
   depends_on:
     - example.metrics-dashboard.depositmatch.csv-import
-  review:
-    self_hash: ce764a566bffc81a77e3c174314022a4d2201a32cc6090fab0c585fda4284104
-    deps:
-      example.metrics-dashboard.depositmatch.csv-import: 55c3a758e5ff9beef2651c46bf668c6a31eab8be6a1f64662166de4135061398
-    reviewed_at: "2026-05-26T03:19:52Z"
 ---
 
 # Improvement Backlog
@@ -43,9 +38,3 @@ pilot-readiness review
   directly reduces risk in the validation and mapping work. The metrics
   dashboard currently passes, so latency optimization is not the next best use
   of the iteration.
-
-## Review Checklist
-
-- [x] Each item cites evidence
-- [x] Tracker references or explicit follow-up targets are included
-- [x] Ordering is deterministic

@@ -13,9 +13,11 @@ outcome; ship the product unit (or methodology content that changes behavior).
 
 You may receive:
 
-- no argument (default: repo-wide plan)
-- a scope such as `auth`, `FEAT-003`, `payments`
-- `--rounds N` controlling refinement iterations (default: 2)
+- a scope named in the request, such as `auth`, `FEAT-003`, or `payments`
+- `--rounds N` as an optional upper bound on refinement passes
+
+Infer scope from the named task when possible. Ask when no clear scope can be
+inferred; do not expand to the whole repository by default.
 
 ## Authority Hierarchy
 
@@ -35,24 +37,15 @@ when they exist.
 
 ## STEP 0 - Context Load
 
-0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
-   in your working memory. After long sessions, context compaction may have
-   dropped critical project rules. This step is cheap insurance against drift.
-0a. **Load active design principles** following the principles-resolution
-   reference for this runtime. These principles guide architectural and design
-   judgment throughout the plan.
-0b. **Load active concerns and practices** following the concern-resolution
-   reference for this runtime. The declared concerns constrain architecture
-   decisions — design within the declared technology selections. Reference
-   ADRs that justify concern choices when the design depends on them.
-1. Read all existing planning artifacts for the scope:
-   - product vision, PRD, feature specs, user stories
-   - architecture docs, ADRs, technical designs
-   - existing test plans and implementation plans
-2. Read the current implementation state relevant to the scope.
-3. Read the current work queue state if the tracker is initialized.
-4. Identify gaps: what questions does the existing planning stack leave open?
-4a. **Spiking is a first-class path to good design — de-risk before you commit.**
+0. Read the marker and bind the graph before editing. Load active principles
+   and concerns when they affect the design.
+1. Read the target and governing artifacts needed to resolve the requested
+   scope. Follow linked artifacts only when their content could change the
+   design.
+2. Read implementation, tests, and tracked work only when they bear on the
+   design question or the user requests them.
+3. Identify the decisions the existing authority leaves open.
+4. **Spiking is a first-class path to good design — de-risk before you commit.**
    For any hard or unknown choice (a capability with material uncertainty: unknown
    or changing API, cost, permissions/credentials, correctness, or operational
    risk — true even for a known vendor, e.g. billing, marketplaces, send-time
@@ -79,8 +72,7 @@ when they exist.
    ADR/technical-design. (Same risk-based rule as `concern-resolution.md` and
    `evolve.md`; spike artifacts:
    `workflows/activities/02-design/artifacts/{tech-spike,proof-of-concept}/`.)
-5. **Load design artifact numbering rules** (required before creating any SD or
-   TD artifact):
+5. **Load design artifact numbering rules** before creating an SD or TD:
    - Read the solution-design meta.yml to understand the SD-{number} format,
      naming pattern, and no-reuse policy.
    - Read the technical-design meta.yml to understand the TD-{number} format.
@@ -96,18 +88,11 @@ when they exist.
      existing artifact on disk. If a target does not exist, stop and request
      guidance before writing the file.
 
-## STEP 0.5 - Work Item Acquisition
-
-Before writing any design content, acquire a governing work item for this
-design pass to record progress, govern changes, and capture measurement
-results. See the runtime's work-item acquisition reference for the full
-pattern.
-
 ## STEP 1 - First Draft
 
 Produce a design document covering the sections that are **load-bearing for this
-scope**. Mark others N/A with a one-line reason. Do not invent content to fill
-shells.
+scope**. Omit optional sections that do not apply; do not invent content to fill
+shells or add `N/A` entries.
 
 When vision/PRD exist, each major implementation slice must name the **product
 outcome** it advances. Reject slices that only deepen process machinery
@@ -125,7 +110,7 @@ Candidate sections (use what this scope needs):
 8. **Test Strategy**
 9. **Implementation Plan with Dependency Ordering** — each slice needs an
    observable validation command or evidence path (not a milestone name)
-10. **Risk Register** (include deferred rigor as tracker/parking-lot items)
+10. **Risk Register** (record material risks and their mitigations)
 11. **Observability**
 
 ### Concern-Mandated Sections
@@ -133,87 +118,61 @@ Candidate sections (use what this scope needs):
 If active concerns require specific design coverage, those sections are
 mandatory for this scope:
 
-- `security-owasp` active → Security must include OWASP-aligned threat model
-- `o11y-otel` active → Observability must include concrete OTel plan
+- `security-owasp` active → include an applicable threat model
+- `o11y-otel` active → include an applicable observability plan
 - `a11y-wcag-aa` active → Accessibility (WCAG AA) for user-facing surfaces
 - Other active concerns → Check each concern's `practices.md` for design-activity
   requirements
 
-## STEP 2 through N - Iterative Refinement
+## Refinement
 
-For each subsequent round:
-
-1. Re-read AGENTS.md to refresh project context.
-2. Fill only **material** gaps that would block implementation or contradict
-   vision/PRD. Do not hunt for completeness theater.
-3. Challenge assumptions, interfaces, error paths, and edge cases that matter
-   for this scope.
-4. Ask when relevant (not every section every round):
-   - What happens when this fails?
-   - What happens when input is malformed or a dependency is unavailable?
-   - What would a security reviewer flag on new surfaces?
-5. Add missing detail only when it blocks a build slice or a real defect path.
-6. Track changes between rounds in a **Refinement Delta** (round, count,
-   summary) — optional once the plan is implementable.
-
-## Convergence Detection
-
-Stop when **either**:
-
-1. **Implementable early-stop** — all of:
-   - Open design decisions closed or spike-recorded
-   - Each build slice has a validation **command or evidence path**
-   - No unresolved contradiction with vision/PRD when those exist
-   - Shared constraints listed
-   - Concern-mandated plan obligations present or N/A
-2. **Velocity stop** — substantive changes drop below 5 for two consecutive
-   rounds (a substantive change affects behavior, interfaces, error handling,
-   security, or architecture — not formatting)
-
-Do not keep refining for round count prestige.
+Challenge only assumptions, interfaces, failure paths, security concerns, and
+other material gaps in scope. Add detail when it resolves a real uncertainty or
+lets an implementation slice be verified. Stop when the design is implementable
+and no material ambiguity remains. Treat `--rounds N` only as an upper bound;
+stop earlier when ready.
 
 ## ACTIVITY N+1 - Finalize
 
-1. Remove the Refinement Delta section (it served its purpose during iteration).
-2. Write the final plan to:
+1. Write the final plan to:
    `docs/helix/02-design/plan-YYYY-MM-DD[-scope].md`
    where YYYY-MM-DD is today's date and scope is the input scope (omit if repo-wide).
-3. Ensure the plan is self-contained: a reader should understand the full design
+2. Ensure the plan is self-contained: a reader should understand the full design
    without reading other documents, though it should cross-reference governing
    artifacts by path.
 
 ## ACTIVITY N+2 - Measure
 
-Verify the design document against the governing work item's acceptance
-criteria. See the measure action for the full pattern.
+Check the design against the request and relevant governing criteria. If a
+runtime work item governs it, use that item's acceptance criteria.
 
 1. **Acceptance criteria**: Design document exists at the canonical path;
-   load-bearing + concern-mandated sections are present (or N/A with reason);
+   load-bearing and applicable concern-mandated sections are present;
    each major slice names an outcome (when vision/PRD exist) and a
    command/evidence validation path.
-2. **Convergence**: Implementable early-stop **or** velocity stop, or explain
-   why neither was met.
-3. **Concern coverage**: Each active concern's design-activity requirements are
-   addressed or N/A.
-4. **Record results** on the governing work item via the runtime-provided work-item source.
+2. **Readiness**: implementation slices are verifiable and no material
+   ambiguity remains, or identify what blocks readiness.
+3. **Concern coverage**: Address applicable design requirements from active
+   concerns; omit requirements that do not apply.
+4. Record results on the governing work item when one applies.
 
 ## ACTIVITY N+3 - Report
 
-Close the design cycle and feed back into the planning cycle. See the report
-action for the full pattern.
+Summarize the design, evidence, and any unresolved guidance.
 
-1. If measurement passed, close the governing work item with evidence summary.
-2. If measurement identified gaps, create follow-on work items for:
+1. If a runtime work item governs this design, record the evidence summary and
+   follow that runtime's closure rules.
+2. Create follow-on work only when requested or required by the runtime, for:
    - Missing concern-mandated sections
    - Sections that need further refinement
    - Guidance-dependent items
-3. Note: The design document itself is not an execution work item — it must go
-   through the polish action to be decomposed into implementable items before
-   the build action can execute against it.
+3. Before runtime dispatch, use polish when implementation slices still need
+   decomposition into work items.
 
 ## Output
 
-Report these trailer lines at the end of your output:
+When the user or runtime requests structured output, these fields are
+available:
 
 ```
 PLAN_STATUS: CONVERGED|IN_PROGRESS|GUIDANCE_NEEDED
@@ -224,65 +183,6 @@ ITEM_ID: <governing-item-id>
 FOLLOW_ON_CREATED: N
 ```
 
-- `CONVERGED`: implementable early-stop or velocity stop
-- `IN_PROGRESS`: max rounds reached but not yet implementable
-- `GUIDANCE_NEEDED`: ambiguity that requires user input before the plan can converge
-
-## Runtime Integration Appendix
-
-This appendix covers how a runtime realizes the design action. The reference
-paths and work-item acquisition below are runtime-neutral; for the concrete
-commands of a specific runtime, see its install guide (DDx:
-[docs/install/ddx.md](../../docs/install/ddx.md)).
-
-### STEP 0 — Reference resolution
-
-- Principles: `workflows/references/principles-resolution.md`
-- Concerns: `workflows/references/concern-resolution.md`
-- Solution-design meta: `workflows/activities/02-design/artifacts/solution-design/meta.yml`
-- Technical-design meta: `workflows/activities/02-design/artifacts/technical-design/meta.yml`
-
-Validate `depends_on` entries in each artifact's `ddx:` frontmatter before writing.
-
-### STEP 0.5 — Work-item acquisition
-
-Acquire the governing work item before writing any design content, per
-`workflows/references/work-item-first.md`: find an open planning item labelled
-`kind:planning,action:design` (claim it if found, filtering by scope or
-`spec-id` when dispatched with a scope) or create one with labels
-`helix,activity:design,kind:planning,action:design`, a `spec-id` pointing at the
-governing artifact if known, a `<context-digest>` description that names the
-scope to design for and the governing artifacts loaded in Step 0, and acceptance
-"Design document implementable: load-bearing + concern-mandated sections (or
-N/A); slices have command/evidence validation; written to canonical path". All
-subsequent file modifications are governed by this work item. The runtime
-supplies the work-item store; for the concrete commands see its install guide
-([docs/install/ddx.md](../../docs/install/ddx.md) for DDx).
-
-### Action input examples
-
-```
-/helix design
-/helix design auth
-/helix design --rounds 8 FEAT-003
-```
-
-### ACTIVITY N+2 — Record results
-
-Record the measure results on the governing work item through the runtime
-tracker.
-
-### Output trailer
-
-```
-PLAN_STATUS: CONVERGED|IN_PROGRESS|GUIDANCE_NEEDED
-PLAN_DOCUMENT: docs/helix/02-design/plan-YYYY-MM-DD[-scope].md
-PLAN_ROUNDS: N
-MEASURE_STATUS: PASS|FAIL|PARTIAL
-ITEM_ID: <governing-item-id>
-FOLLOW_ON_CREATED: N
-```
-
-Note: The design document must go through `/helix polish` to be decomposed
-into implementable work items before the runtime executes ready work items
-against it.
+- `CONVERGED`: the design is implementable and no material ambiguity remains
+- `IN_PROGRESS`: the requested round limit was reached before readiness
+- `GUIDANCE_NEEDED`: a consequential ambiguity needs user input

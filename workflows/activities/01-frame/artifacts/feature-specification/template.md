@@ -112,27 +112,3 @@ not the product-level metrics from the PRD.]
 
 [What this feature explicitly does not cover. Each item should prevent a
 plausible scope question.]
-
-## Review Checklist
-
-Use this checklist when reviewing a feature specification:
-
-- [ ] Covered PRD Subsystem(s) and Requirements (`FR-n`) are listed; a feature spanning >1 subsystem carries an explicit cross-subsystem rationale (else split per the Decomposition test)
-- [ ] Functional areas (if any) are subordinate parts of this one capability, not separate capabilities (each fails the ship/cut/metric test on its own)
-- [ ] Overview connects this feature to a specific PRD requirement
-- [ ] Ideal future state describes the desired user-visible outcome, not only current problems
-- [ ] Problem statement describes what exists now and what is broken — not just what is wanted
-- [ ] Functional areas are mapped when the feature spans multiple surfaces, workflows, or domain objects
-- [ ] Requirements are grouped by functional area when a flat list would mix unrelated scopes
-- [ ] Domain objects that sound similar are explicitly separated (for example, artifact instances vs artifact types)
-- [ ] Every functional requirement is testable — you can write an assertion for it
-- [ ] Acceptance criteria are defined in the user stories that decompose this feature, not here (ADR-009)
-- [ ] Non-functional requirements have specific numeric targets, not "must be fast"
-- [ ] Edge cases cover realistic failure scenarios, not just happy paths
-- [ ] Success metrics are specific to this feature, not product-level metrics
-- [ ] Dependencies reference real artifact IDs (FEAT-XXX, external APIs)
-- [ ] Out of scope excludes things someone might reasonably assume are in scope
-- [ ] No implementation details ("use X library", "create Y table") — specify WHAT not HOW
-- [ ] No exact API/CLI/event/schema/config/telemetry/adapter surface is defined inline; normative surface links to Contract artifacts
-- [ ] Feature is consistent with governing PRD requirements
-- [ ] No `[NEEDS CLARIFICATION]` markers remain unresolved for P0 features

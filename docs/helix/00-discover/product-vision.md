@@ -4,9 +4,9 @@ ddx:
   authoring:
     home: repo
   review:
-    self_hash: dba26d9ad36984f23ce0aad01480508498f22e60ea083221d4ea06c511fee010
+    self_hash: 1f1e960bc87b10da772f5a37b3947d9908a56820cc84ff786c5258c2c664173d
     deps: {}
-    reviewed_at: "2026-09-16T01:53:39Z"
+    reviewed_at: "2026-10-04T02:22:27Z"
 ---
 
 # Product Vision
@@ -35,8 +35,10 @@ HELIX becomes the default discipline for AI-assisted software development.
 Teams adopt it the way they adopted test-driven development: not because of a
 tool, but because the practice produces durably better software. Agents
 authoring against HELIX's templates produce specifications and designs at a
-level human reviewers actually trust. The alignment skill keeps the governing
-artifacts coherent as priorities and code evolve.
+level human reviewers actually trust. The skill helps teams keep governing
+artifacts coherent as priorities and implementation evolve. Specifications
+describe desired state; an implementation audit compares that state with
+observed evidence when requested.
 
 **North Star**: A team writes its product intent once, and the rest of the
 governing artifacts — features, designs, tests, code — stay aligned with that
@@ -45,21 +47,20 @@ intent through every change, without the team rewriting documents by hand.
 ## User Experience
 
 A team wants to add OAuth login. They describe the intent to their agent. The
-agent invokes the HELIX alignment skill against the project's existing
-governing artifacts.
+agent reads the request, the relevant governing artifacts, and relationships
+that can affect the change.
 
-The skill walks the artifacts and produces a structured finding: the new
-feature affects three feature specs, two solution designs, and the security
-architecture; one existing ADR conflicts with the OAuth pattern; four user
-stories need to be added; one test plan must be revised before any of that.
-Output is a plan ordered by authority — start with the security-architecture
-revision, then update the affected feature specs, then create the stories,
-then update the designs.
+The agent identifies which artifacts the request affects and compares them
+where needed. It finds that the security architecture and one accepted
+decision constrain the change, and that affected feature specs, stories, and a
+test plan need updates. It proposes an authority-ordered plan. The team may
+also ask for a scoped implementation audit, which compares accepted
+specifications with code and test evidence.
 
-The team reviews the plan, adjusts scope, approves it. The runtime (DDx,
-Databricks Genie, whatever they're using) creates work items from the plan.
-As work happens, the alignment skill runs periodically against the artifacts
-to catch drift before it accumulates.
+The team reviews and approves the plan. The runtime creates work items if
+requested and tracks their execution. A conversational review can end with a
+human-readable report; a runtime may request structured output when it needs
+to process findings.
 
 The team never invoked a HELIX command, because there isn't one. They invoked
 their agent, and the agent invoked HELIX's skill.
@@ -80,7 +81,7 @@ their agent, and the agent invoked HELIX's skill.
 | Authority-ranked artifact catalog | Every document has a clear governing relationship; changes propagate predictably |
 | Single alignment skill | Catches drift early without walking the artifact tree by hand |
 | Portable content | Run on any runtime that reads markdown — DDx, Databricks Genie, Claude Code, anything |
-| Document-driven reviews | Audits work on artifacts, not chat transcripts |
+| Desired-state specifications | Requirements remain clear before and after implementation |
 | Methodology, not platform | Adopt incrementally; no vendor lock-in |
 | Layered authority as control | Agents act only within what the layer above authorizes; a change enters at the top layer it affects and propagates down |
 | Governed human hand-offs | People decide and approve, agents draft and check; autonomy level, stop triggers, and approval mark where judgment enters |

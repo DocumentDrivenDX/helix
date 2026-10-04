@@ -83,13 +83,3 @@ label (`ws:WS-1`).
 |------|--------|----------|
 | Pilot bank delays export delivery | H | Escalate through the pilot sponsor by 3 Jun; fall back to synthetic fixtures and flag confidence in the review |
 | Anonymization strips fields validation depends on | M | Review field list with operations lead before scripting |
-
-## Review Checklist
-
-- [x] Goal is falsifiable at the review date
-- [x] Every participating workstream has exactly one Good, one Better, and one Best outcome
-- [x] Every committed outcome has an owner, acceptance evidence, and at least one task
-- [x] Workstream aliases match the roadmap's registry — none minted here
-- [x] Trade rules make the drop order deterministic (Best, then Better; Good never)
-- [x] Every task has a stable ID, maps to a committed outcome, and names its work item or is marked for creation
-- [x] Runtime work items can derive from the task tables without inventing scope

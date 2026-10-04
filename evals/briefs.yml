@@ -15,7 +15,7 @@
 #   validate_instance  globs; every matching artifact must pass validate-instance.py
 #   report_block       the final response must contain a `helix_report:` block with this mode
 #   output_contains    case-insensitive substrings the final response must contain
-#   output_not_contains substrings the final response must not contain
+#   output_not_contains token-bounded strings the final response must not contain
 #   output_contains_any at least one of the substrings must appear (case-insensitive)
 #   deliverable_gate   glob; check-deliverable.py must report no blocking findings other than render.*
 #   max_new_files      upper bound on files created
@@ -26,6 +26,57 @@ defaults:
   timeout_seconds: 900
 
 briefs:
+  - id: narrow-desired-state-edit
+    mode: evolve
+    fixture: baseline
+    max_turns: 20
+    prompt: >-
+      Update only the recipe sharing feature specification so recipe titles
+      must contain between 1 and 120 characters. Preserve the other requirements.
+      This is a desired-state edit; do not implement it or assess delivery.
+    checks:
+      - { kind: files_unchanged, globs: ["docs/helix/00-discover/*.md", "docs/helix/02-design/**/*.md", "docs/helix/01-frame/prd.md"] }
+      - { kind: max_new_files, value: 0 }
+      - { kind: output_not_contains, values: ["helix_report:"] }
+    rubric:
+      - The feature contains the requested title length requirement and retains other requirements.
+      - The agent uses only relevant authorities and does not audit unrelated decisions or code.
+      - The response reports the edit without a migration ledger or delivery-status assessment.
+
+  - id: accepted-decision-before-code
+    mode: review
+    fixture: accepted-decision
+    max_turns: 15
+    prompt: >-
+      Review ADR-001 only as a desired architectural decision. It is accepted,
+      and implementation has not started. Does the absence of code invalidate
+      the decision? Identify any ambiguity in the decision itself. Do not edit.
+    checks:
+      - { kind: files_unchanged, globs: ["docs/helix/**/*.md"] }
+      - { kind: max_new_files, value: 0 }
+      - { kind: output_not_contains, values: ["helix_report:"] }
+    rubric:
+      - Acceptance establishes architectural direction; absent implementation does not invalidate it.
+      - Any finding concerns the decision text, not delivery completion.
+      - The response does not demand an implementation-status table or new tracking artifact.
+
+  - id: explicit-implementation-audit
+    mode: project-audit
+    fixture: accepted-decision
+    max_turns: 20
+    prompt: >-
+      Audit whether ADR-001 is implemented in this repository. Inspect available
+      code and tests, report missing evidence honestly, and do not edit any
+      specification or create tracker items. Keep the response conversational.
+    checks:
+      - { kind: files_unchanged, globs: ["docs/helix/**/*.md"] }
+      - { kind: max_new_files, value: 0 }
+      - { kind: output_not_contains, values: ["helix_report:"] }
+    rubric:
+      - The audit identifies that the fixture has no implementation or exercising tests.
+      - It distinguishes missing implementation from an invalid architectural decision.
+      - It does not claim delivery, weaken the decision, or demand unrelated audits.
+
   - id: frame-prd-from-vision
     mode: frame
     fixture: vision
@@ -50,6 +101,7 @@ briefs:
     prompt: >-
       Run an alignment pass over docs/helix. Report drift, contradictions,
       and missing downstream coverage. Do not edit any artifact.
+      Include a machine-readable helix_report for the evaluation consumer.
     checks:
       - { kind: report_block, mode: align }
       - { kind: files_unchanged, globs: ["docs/helix/**/*.md"] }
@@ -58,7 +110,7 @@ briefs:
       - { kind: max_new_files, value: 1 }
     rubric:
       - Findings cite artifact paths and lines or section anchors.
-      - Every non-aligned finding carries the four handoff fields (destination type, deliverable shape, next mode, evidence).
+      - Each material gap has evidence and an actionable next step; a concrete artifact handoff is included when useful.
       - The report is reviewable in under ten minutes (no restating of artifacts).
       - No finding is fabricated; each traces to real text in the fixture.
 
@@ -76,7 +128,7 @@ briefs:
       - { kind: files_unchanged, globs: ["docs/helix/00-discover/product-vision.md"] }
       - { kind: output_not_contains, values: ["bead"] }
     rubric:
-      - The SQLite decision (ADR-001) is superseded or amended explicitly, not silently overwritten.
+      - ADR-001 states the current decision and its rationale as one coherent record, with no change log, supersession notes, or superseding ADR.
       - The technical design changes are consistent with the new decision.
       - Downstream conflicts are surfaced rather than papered over.
       - The change is applied from the highest-authority artifact down.
@@ -140,7 +192,7 @@ briefs:
   - id: check-whats-next
     mode: check
     fixture: baseline
-    prompt: What's next for this project?
+    prompt: What's next for this project? Include a machine-readable helix_report.
     checks:
       - { kind: report_block, mode: check }
       - { kind: files_unchanged, globs: ["docs/helix/**/*.md"] }
@@ -168,7 +220,8 @@ briefs:
     fixture: baseline
     prompt: >-
       Validate docs/helix/01-frame/prd.md against its template and prompt
-      and fix what can be fixed mechanically.
+      and fix what can be fixed mechanically. Include a machine-readable
+      helix_report for the evaluation consumer.
     checks:
       - { kind: files_exist, globs: ["docs/helix/01-frame/prd.md"] }
       - { kind: validate_instance, globs: ["docs/helix/01-frame/prd.md"] }

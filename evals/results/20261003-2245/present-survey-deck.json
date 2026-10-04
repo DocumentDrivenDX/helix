@@ -1,0 +1,62 @@
+{
+  "id": "present-survey-deck",
+  "mode": "present",
+  "seconds": 359.8,
+  "run_ok": true,
+  "cost_usd": 5.1164415000000005,
+  "turns": 38,
+  "checks_passed": 4,
+  "checks_total": 4,
+  "checks": [
+    {
+      "kind": "files_exist",
+      "ok": true,
+      "detail": "present ['docs/helix/06-iterate/deliverables/DEL-*.md']"
+    },
+    {
+      "kind": "deliverable_gate",
+      "ok": true,
+      "detail": "1 script(s) pass (render checks excluded)"
+    },
+    {
+      "kind": "files_unchanged",
+      "ok": true,
+      "detail": "unchanged"
+    },
+    {
+      "kind": "output_not_contains",
+      "ok": true,
+      "detail": "clean"
+    }
+  ],
+  "judge": {
+    "scores": [
+      {
+        "item": 1,
+        "reason": "The Story section's concept coverage table lists vision, requirements (PRD), feature specification, decision record (ADR) and technical design as covered with a carrying message, and marks the tech-stack row as omitted with a budget reason; the table is cut off after row 10 in the evidence.",
+        "score": 2
+      },
+      {
+        "item": 2,
+        "reason": "The five messages cover the cook's problem and vision (M5), launch requirements and targets (M4), the recipe sharing feature and its store design (M3), the SQLite decision (M2), and open questions and conflicts (M1).",
+        "score": 2
+      },
+      {
+        "item": 3,
+        "reason": "The Brief states 'Breadth: survey' and 'Must cover: product vision; the data decision; recipe sharing feature', and these are carried by M5, M2 and M3 respectively, each with its own slides.",
+        "score": 2
+      },
+      {
+        "item": 4,
+        "reason": "The titles run from the cook's problem through the launch, the feature, targets, the data decision, the design, conflicts and review triggers to the ask 'The questions blocking the build are yours to close', followed only by a sources appendix.",
+        "score": 2
+      }
+    ],
+    "total": 8,
+    "max": 8,
+    "raw": "{\"scores\": [{\"item\": 1, \"reason\": \"The Story section's concept coverage table lists vision, requirements (PRD), feature specification, decision record (ADR) and technical design as covered with a carrying message, and marks the tech-stack row as omitted with a budget reason; the table is cut off after row 10 in the evidence.\", \"score\": 2}, {\"item\": 2, \"reason\": \"The five messages cover the cook's problem and vision (M5), launch requirements and targets (M4), the recipe sharing feature and its store design (M3), the SQLite decision (M2), and open questions and conflicts (M1).\", \"score\": 2}, {\"item\": 3, \"reason\": \"The Brief states 'Breadth: survey' and 'Must cover: product vision; the data decision; recipe sharing feature', and these are carried by M5, M2 and M3 respectively, each with its o"
+  },
+  "diff_stat": "?? docs/helix/06-iterate/\n",
+  "diff": "\n--- new file: docs/helix/06-iterate/deliverables/DEL-001-recipehub-engineering-lead-survey.md\n---\nddx:\n  id: DEL-001\n  type: deliverable\n  activity: iterate\n  kind: deck\n  status: draft\n  authoring:\n    home: repo\n    export: []\n  links:\n    - id: recipe-app-vision\n      kind: informed_by\n    - id: recipe-app-prd\n      kind: informed_by\n    - id: FEAT-recipe-share\n      kind: informed_by\n    - id: ADR-001\n      kind: informed_by\n    - id: TD-recipe-store\n      kind: informed_by\n---\n\n# RecipeHub's plan is written and its open questions are yours\n\n## Brief\n\n- **Audience**: the engineering lead joining RecipeHub, who will own the build and the technical decisions\n- **Occasion**: onboarding briefing, presented live in a 20-minute slot, script kept as the leave-behind\n- **Decision or action sought**: take the open questions and the conflicts between the planning documents as the first work list, and set a date for each\n- **Time slot or page budget**: 20 minutes, 10 content slides\n- **Kind**: deck\n- **Constraints**: internal audience; every figure stays as the planning documents state it; no owner or date appears that the documents do not name\n- **Look**: technical\n- **Scope**: docs/helix\n- **Breadth**: survey\n- **Angle**: none\n- **Must cover**: product vision; the data decision; recipe sharing feature\n- **Must omit**: none\n- **Max messages**: 5\n- **Takeaway**: RecipeHub is planned on paper from the product vision down to the design of its first feature, and the open questions and document conflicts are the new lead's to close before the build\n\n## Story\n\n- **Flow**: internal-alignment\n- **Takeaway**: RecipeHub is planned on paper from the product vision down to the design of its first feature, and the open questions and document conflicts are the new lead's to close before the build\n- **Messages** (ranked by how much each moves the lead's first decisions):\n  1. The documents leave three open questions and four conflicts that change what gets built (evidence: docs/helix/01-frame/prd.md#open-questions; docs/helix/01-frame/features/FEAT-recipe-share.md#requirements against docs/helix/02-design/technical-designs/TD-recipe-store.md#component-changes and docs/helix/02-design/adr/ADR-001-sqlite.md#risks; the conflict list)\n  2. SQLite runs the launch because it costs nothing to operate, and three measured triggers reopen the choice (evidence: docs/helix/02-design/adr/ADR-001-sqlite.md#decision, #alternatives, #validation; the alternatives table and the 500 ms trigger)\n  3. Recipe sharing is the first feature specified in detail and the only one with a design (evidence: docs/helix/01-frame/features/FEAT-recipe-share.md#requirements, #success-metrics; docs/helix/02-design/technical-designs/TD-recipe-store.md#technical-approach; the publish flow)\n  4. The launch is a short list of capabilities with numeric targets, six months, and a $5k infrastructure budget (evidence: docs/helix/01-frame/prd.md#requirements, #success-criteria, #constraints-assumptions-dependencies; docs/helix/00-discover/product-vision.md#success-definition; the target timeline)\n  5. Home cooks have no single trusted place for recipes, and RecipeHub is meant to be that place on a phone (evidence: docs/helix/00-discover/product-vision.md#positioning, #target-market, #why-now; the three pains)\n- **Beats and titles** (beat ids from the internal-alignment flow; titles written before any body):\n\n  | # | Beat | Title (claim) | Message | Exhibit |\n  |---|---|---|---|---|\n  | 1 | why-we-are-here | RecipeHub's plan is written and its open questions are yours | takeaway | title slide |\n  | 2 | agenda | We go from the cook's problem to your first decisions | all | four section claims |\n  | 3 | where-we-are | Home cooks search many sites and trust few reviews | M5 | three panels, one per pain |\n  | 4 | what-changed | Cooks now plan their meals on a phone | M5 | statement |\n  | 5 | where-we-are-going | The launch lets cooks find recipes and post their own | M4 | icon list of the launch capabilities |\n  | 6 | where-we-are-going | Posting a recipe should take one form and three minutes | M3 | five-step publish flow |\n  | 7 | how-we-get-there | The plan runs from 500 recipes to 10,000 monthly cooks | M4 | timeline of the stated targets |\n  | 8 | what-it-means-for-you | SQLite carries the launch because it costs nothing to run | M2 | alternatives table |\n  | 9 | what-it-means-for-you | Recipes live in SQLite and photos in an image bucket | M3 | hub diagram of the recipe store |\n  | 10 | what-it-means-for-you | The plan's documents contradict each other on drafts and deletion | M1 | four conflict panels |\n  | 11 | how-we-will-know | Write latency past 500 milliseconds reopens the database choice | M2 | three review triggers |\n  | 12 | ask | The questions blocking the build are yours to close | takeaway | ask band and four steps |\n  | 13 | sources | Sources | all | source table |\n\n- **Concept coverage** (every concept group the inventory surfaced, in authority order):\n\n  | # | Concept group | Authority | Status | Carried by / reason |\n  |---|---|---|---|---|\n  | 1 | Product vision: the cook, the pain, and what RecipeHub promises | vision | covered | M5 |\n  | 2 | Why the timing is right | vision | covered | M5 |\n  | 3 | Launch requirements and what is excluded | requirements | covered | M4 |\n  | 4 | Success targets, deadline, and budget | vision, requirements | covered | M4 |\n  | 5 | Recipe sharing feature: authoring, visibility, feedback | feature specification | covered | M3 |\n  | 6 | The data decision: SQLite now, PostgreSQL later | decision record | covered | M2 |\n  | 7 | Recipe store design: API, schema, photo storage | technical design | covered | M3 |\n  | 8 | Risks, open questions, and who can answer them | requirements, decision record, technical design | covered | M1 |\n  | 9 | Conflicts and missing documents across the plan | all five documents read together | covered | M1 |\n  | 10 | Technology choices for frontend and backend | requirements | omitted | budget: named in the notes of slide 9, no slide of its own in a 20-minute slot |\n  | 1",
+  "result": "The deck script is written, but nothing was rendered and the automated script checker could not run here (the command needed approval this session couldn't give). I checked it by hand against the checker's rules instead, so treat it as a draft that still needs one checker pass and a render on another host.\n\nIt is a 13-slide script for a 20-minute slot: title, agenda, ten content slides including the ask, and a sources appendix. All three must-cover topics have their own slides.\n\n**Takeaway:** RecipeHub is planned on paper from the product vision down to the design of its first feature, and the open questions and document conflicts are the new lead's to close before the build.\n\n**Slide titles, in order**\n1. RecipeHub's plan is written and its open questions are yours\n2. We go from the cook's problem to your first decisions\n3. Home cooks search many sites and trust few reviews\n4. Cooks now plan their meals on a phone\n5. The launch lets cooks find recipes and post their own\n6. Posting a recipe should take one form and three minutes\n7. The plan runs from 500 recipes to 10,000 monthly cooks\n8. SQLite carries the launch because it costs nothing to run\n9. Recipes live in SQLite and photos in an image bucket\n10. The plan's documents contradict each other on drafts and deletion\n11. Write latency past 500 milliseconds reopens the database choice\n12. The questions blocking the build are yours to close\n13. Sources\n\n**Conflicts between the source documents**\n\nReading the five documents against each other turned up four conflicts, which slide 10 presents. I did not edit any source document.\n- **Drafts:** the sharing feature creates a recipe in draft status first, while its own scope list rules drafts out.\n- **Deletion:** the feature forbids deleting a published recipe or changing its photo, while the design adds a delete endpoint and delete rights.\n- **Write load:** the feature requires 100 concurrent publishers, while the SQLite decision plans the PostgreSQL move at 5 concurrent writes.\n- **Schema:** the design's table definition uses PostgreSQL syntax (`gen_random_uuid()`), which SQLite does not provide. I read the SQL but did not run it.\n\nThree further gaps are in the speaker notes and the script's gaps section:\n- Several referenced documents do not exist: the deferred-items list, the ratings and comments features, user stories, the runbook, and the PostgreSQL migration guide.\n- The design says login and browsing endpoints already exist, but the repo holds documents only.\n- The requirements set a launch with at least 500 seeded recipes and also list the seed count as an open question.\n\n**Assumptions to confirm**\n- **The ask:** I inferred it as \"take the three open questions plus the conflicts as your first work list\". The request named the audience but no decision.\n- **Owners:** the ask slide uses the groups the requirements name for each open question (infra, legal and product, product), plus the engineering lead for the conflicts.\n- **Dates:** no document gives any, so every date on the ask slide reads \"not set\".\n- **Omitted for time:** the tech stack and the second persona appear only in speaker notes; the security threat list is left out.\n\nFiles are in `docs/helix/06-iterate/deliverables`:\n- DEL-001-recipehub-engineering-lead-survey.md"
+}

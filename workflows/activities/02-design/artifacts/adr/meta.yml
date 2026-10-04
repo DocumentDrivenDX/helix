@@ -15,14 +15,14 @@ id_format:
   example: ADR-001
   description: |
     Sequential three-digit number. Each ADR captures one architecture decision.
-    Numbers are never reused; superseded ADRs are marked Superseded with a
-    forward reference to the replacement.
+    Numbers are never reused.
 
 description: |
   An ADR documents a significant architectural decision: the context that drove
   it, the alternatives considered, the chosen approach, and the consequences.
-  Each ADR covers exactly one decision. ADRs are immutable once accepted; new
-  decisions that revise them create a new ADR marked as superseding the old one.
+  Each ADR covers exactly one decision. Accepted means the direction is chosen,
+  not that implementation is complete. Keep the current decision and useful
+  rationale in one living record.
 
 output:
   location: docs/helix/02-design/adr/ADR-{number}-{decision-name}.md
@@ -33,10 +33,12 @@ output:
     - ADR-002-helix-activity-structure.md
 
 reuse_policy: |
-  ADRs are write-once. Once an ADR status is Accepted or Rejected it must not
-  be edited to change the decision. To revise a decision, create a new ADR with
-  status Supersedes: ADR-XXX. The old ADR status is then updated to
-  Superseded by ADR-YYY. This preserves the full decision history.
+  Update the ADR in place when its decision or rationale changes, including a
+  reversal: rewrite the decision and record the replaced option under
+  alternatives with the reason it lost. Source control keeps the history.
+  Create a separate superseding ADR only when the user asks to keep the earlier
+  decision as its own record; then link them with `ddx.supersedes` and
+  `ddx.superseded_by`.
 
 validation:
   required_sections:
@@ -67,15 +69,19 @@ validation:
       description: Both positive and negative consequences must be stated
       severity: warning
 
+    - check: decision_and_rationale
+      description: The decision is actionable, alternatives have concrete tradeoffs, and the selected option's rationale explains why it fits better than the strongest alternative
+      severity: blocking
+
+    - check: risk_and_validation
+      description: Risks name likelihood, impact, and mitigation; validation states how the decision will be assessed and when uncertainty calls for reconsideration
+      severity: warning
+
+    - check: governing_context
+      description: Context and decision align with governing requirements; concern impact is recorded only when the decision selects or overrides a concern practice
+      severity: warning
 prompts:
   generation: prompt.md
-  review: |
-    Review this ADR for:
-    1. One decision per record
-    2. Honest alternatives comparison
-    3. Clear consequences
-    4. Correct status value
-    5. Traceability to governing artifacts
 
 template:
   file: template.md

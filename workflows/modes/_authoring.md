@@ -1,66 +1,32 @@
-# Authoring (shared contract)
+# Authoring
 
-Load this contract for any mode that creates or edits an artifact instance.
+Load this contract when a mode creates or edits an artifact instance.
+Use the active voice profile and shared writing guidance when they apply.
+Tracker work and gates follow `workflows/references/work-item-first.md`;
+report shape follows `workflows/modes/_report.md`.
 
-## Governing artifacts authored elsewhere
+## Consult relevant authority
 
-A governing artifact with `authoring.home: external-tool` is read through
-its `authoring.connector` when the host exposes that connector (live read of
-`authoring.origin`), otherwise through its checked-in Markdown body. A
-checked-out artifact with no body and no connector is a prerequisite gap,
-not something to paraphrase from memory. Never write through a connector.
+Read the target and the governing artifacts that can affect the requested
+change. Use the bound graph to identify required prerequisites and meaningful
+relationships; do not traverse unrelated branches. If a required prerequisite
+is missing, follow the active autonomy contract or the user's direction before
+proceeding. A non-required relationship may inform the work when relevant, but
+does not block it.
 
-## Consult the graph before authoring
+When creating an artifact, add only supported `ddx.links` relationships. Do not
+invent links or mechanically copy every graph edge. For an existing artifact,
+preserve its frontmatter, operator-added content, and unknown keys.
 
-When the user asks for a new artifact of type `T` in the active methodology `M`
-(per the resolved marker), consult `M`'s graph before drafting. This is the
-runtime use of the methodology graph: the same edges the validator checks
-govern what the skill should surface as prerequisites at authoring time.
+## External standards
 
-1. Read `M`'s `graph.yml`, bound via §Catalog Resolution (in-tree
-   `workflows/graph.yml`, a marker `graph:` pointer, or the `references/`
-   floor — whichever resolves first).
-2. Find the node `n` whose `type` matches `library:T` or `local:T`.
-3. Enumerate incoming edges to `n` whose `kind` is one of
-   `{requires, contains, informs}`.
-4. For each such edge `(src → n, kind, required)`:
-   - If `required: true` AND no instance of `src.type` exists in this
-     methodology's instance scope, **surface this as a prerequisite**. Per the
-     resolved §Autonomy level, either ask whether to draft `src` first
-     (`low`/`medium`), or draft `src` autonomously then `n` (`high`).
-   - If `required: false` AND no instance of `src.type` exists, note it as a
-     "consider also drafting" but do not block authoring of `n`.
-5. Only after prerequisites are present (or the operator has explicitly chosen
-   to skip them) proceed to author the requested artifact.
-6. After authoring, populate `ddx.links` to point at existing upstream
-   instances. **Do not invent links**: per Edge Authority Asymmetry, types
-   declare what is possible and instances declare what is actual. Every
-   `ddx.links` entry is a deliberate authoring decision, never a mechanical
-   projection of a graph edge.
+Define unfamiliar standards and acronyms on first use. When an artifact adopts
+a standard's exact vocabulary or identifiers, verify them against its published
+source and identify the source and release. Link an available project resource
+summary where useful; a missing summary does not block authoring.
 
-## External standards named in an artifact
+## External-tool artifacts
 
-Before drafting, list the external standards, vendor products, or acronyms the
-artifact will name. For each one:
-
-1. Look for its resource summary at `docs/resources/<slug>.md` in the project.
-   If none exists, note "consider also drafting" a `resource-summary`; this
-   does not block the artifact, but the artifact must still define the term on
-   first use (name, owner, what it is) rather than assume the reader owns it.
-2. If the artifact attributes a vocabulary, code set, or identifier list to the
-   standard, take it from the standard's published file by tooling and record
-   the file, release, and branch it came from. Do not write labels from memory,
-   and mark the project's own terms as project-defined.
-3. Link the resource summary from the first use once it exists.
-
-Graph consultation is **per-authoring**, not per-session: re-consult on every
-new artifact request because the instance scope may have changed since the
-previous turn (operator-side edits, parallel work, evolve passes).
-
-If the graph carries a **non-standard or locally-added edge** (a project's
-`workflows/graph.yml` introduces an edge not in the canonical HELIX library —
-e.g. `prd requires market-validation-brief`), the same rules apply: a graph
-edge governs what the skill surfaces, regardless of whether the edge matches
-general HELIX knowledge. Surfacing only the canonical edges and skipping the
-graph-declared ones is a graph-consultation defect, not an acceptable
-shorthand.
+For `authoring.home: external-tool`, follow `skills/helix/SKILL.md` §8
+(Externally authored artifacts). Never edit the body to change its content;
+route edits to `authoring.origin`.

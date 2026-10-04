@@ -1,7 +1,7 @@
 ---
 title: "TD-011: Slider Autonomy Implementation"
 slug: TD-011-slider-autonomy-implementation
-weight: 410
+weight: 420
 activity: "Design"
 source: "02-design/technical-designs/TD-011-slider-autonomy-implementation.md"
 generated: true
@@ -37,10 +37,10 @@ prompts, the routing skill, and runtime-neutral artifacts. There is no HELIX
 runtime to implement — the runtime supplies agency; HELIX supplies the words
 that tell it how often to pause and what it may never skip.
 
-This replaces the pre-collapse TD-011, which designed a `helix input` CLI, an
-`execute-loop` queue drainer, and a `.helix/slider-config.yaml` schema. Those
-surfaces were removed in 823aa1ac and are out of scope. What survives is the
-behavioral contract.
+This design covers the behavioral contract only. HELIX does not provide a
+runtime, queue drainer, or runtime-specific configuration schema. The runtime
+supplies agency; HELIX defines how often to pause and which safety and workflow
+invariants it must preserve.
 
 ## Requirements summary (from FEAT-011)
 

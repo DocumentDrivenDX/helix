@@ -47,7 +47,6 @@ validation:
     - check: workstreams_from_registry
       description: Workstream aliases must come from the roadmap's registry (WS-<n>) when a roadmap exists; a roadmap-less plan has one implicit workstream and uses no aliases; the plan never mints new workstreams
       severity: blocking
-
 prompts:
   generation: prompt.md
 

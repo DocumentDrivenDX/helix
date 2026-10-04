@@ -12,16 +12,13 @@ next" / "what's blocked" / "plan the change", or when a single ask
 straddles two or more flows declared in the marker (e.g. the prompt
 names a data-pipeline artifact whose blocker is an infra prerequisite).
 
-1. Inspect open work, governing artifacts, and known blockers.
+1. Inspect the requested scope, relevant governing artifacts, and known
+   blockers. Consult work tracking only when it informs the question.
 2. Decide conservatively among design, alignment, backfill, polish, runtime
    handoff, wait, guidance, or stop.
 3. Do not dispatch another workflow silently.
-4. When recommending the next action against a specific gap, name it with
-   the four handoff fields defined in `modes/_report.md`. Never prescribe a
-   CLI command.
-5. If missing tracked work is discovered, create or recommend explicit work
-   before returning the next action.
-6. End with the `modes/_report.md` block, `mode: check`.
+4. Explain the recommended next step and its evidence; never prescribe a CLI
+   command.
 
 ## Flow disambiguation
 
@@ -73,39 +70,18 @@ Cross-flow contract (every cross-flow ask):
    For each upstream named in `ddx.links:` or `informs` edges that
    the answer depends on, Read it too. Catalogue which artifacts
    exist (with path + status from frontmatter) and which are missing.
-3. **Fan out to prerequisite flows.** For each cross-flow
-   prerequisite the owner-flow surfaces (e.g. the monitoring-setup
-   prose says "dashboard URL needs DNS"; the PRD's acceptance
-   criteria require a new VPC), read that prerequisite flow's scoped
-   artifacts before drafting the prerequisite-flow action. Each active flow
-   that owns part of the answer gets its own scoped artifact read and its own
-   handoff in the response.
+3. **Read relevant prerequisite flows.** When a governing artifact identifies a
+   prerequisite in another flow, read that flow's scoped artifact before
+   recommending work there. Give a next step for each flow that owns part of
+   the requested outcome.
 4. **For a multi-flow status query** ("what's blocked across the
    project?", "what's next?"), inspect every relevant flow listed in the
    marker before reporting per-flow status. Answering from generic prose alone
    without reading the scoped artifacts is the failure mode this rule prevents.
 
-Cross-flow response shape (always emit all three):
-
-- **Named upstream artifacts and their state.** A list of the
-  artifacts the answer depends on, each annotated `exists` (with
-  path + frontmatter `status:` if present) or `missing` (with the
-  graph node that says it should exist). Example:
-  `pipelines/customer-events/monitoring-setup.md` (exists,
-  status: in-progress); `infra/dns/customer-events.tf` (missing,
-  required by monitoring-setup prose).
-- **Cross-flow prerequisites.** Name each prerequisite as
-  "`<owner-flow>` needs `<prerequisite-flow>` to <verb> <object>
-  before `<owner-flow>` can <ship-verb> <artifact>". Example:
-  "helix-data needs helix-infra to provision the DNS record for
-  `customer-events.metrics.example.com` before helix-data can mark
-  monitoring-setup ready."
-- **Concrete next action per flow.** For each flow with an action
-  pending, emit a handoff with the four `modes/_report.md` fields (for
-  example destination type `network-iac` under `infra/`, evidence
-  `pipelines/customer-events/monitoring-setup.md:20`) plus the flow's domain
-  lane when relevant. Never prescribe a CLI command; the operator chooses
-  dispatch.
+Answer concisely by naming the owner flow, relevant evidence, any prerequisite
+flow that affects the result, and the recommended next action. Mention artifact
+status when it changes that recommendation.
 
 Do not skip owner-flow resolution because the prompt is short or the
 prerequisite verb is loud. Do not collapse multiple flows into a single

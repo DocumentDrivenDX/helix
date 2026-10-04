@@ -1,7 +1,8 @@
 # HELIX Action: Experiment
 
 You are performing one bounded experiment iteration within a metric-optimization
-session tracked via the runtime-provided work-item source.
+session. The session is governed by a runtime work item when one applies, or by
+an explicitly named goal otherwise.
 
 Your goal is to hypothesize a change, implement it within scoped files, verify
 correctness, benchmark the result, make a keep/discard decision, log everything,
@@ -11,8 +12,9 @@ this action) decides whether to continue iterating.
 This action performs one experiment iteration. It modifies only files declared in
 scope, does not change test expectations, and does not implement new features.
 Session state (`autoresearch.*`, `experiments/`) is ephemeral and gitignored on
-the experiment branch. The experiment is execution-layer work tracked by an issue;
-the result is recorded in the issue close comment, not as a canonical HELIX doc.
+the experiment branch. The experiment is execution-layer work; the result is
+reported in the response (and on the governing work item when one applies), not
+as a canonical HELIX doc.
 The only normative artifact the experiment may create or update is a metric
 definition at `docs/helix/06-iterate/metrics/`.
 
@@ -56,9 +58,10 @@ template it scores (template↔meta drift) is a broken instrument, not a bad run
 
 You may receive:
 
-- no argument (auto-select a ready `activity:iterate` work item)
-- an explicit work item ID
+- a runtime work item ID
 - a goal description such as `optimize test-suite-runtime`
+- no argument, when a tracker is in use (auto-select a ready `activity:iterate`
+  work item)
 - a `--close` flag directing you to skip iteration and execute Step 3
 
 ## Authority Hierarchy
@@ -79,19 +82,22 @@ Rules:
 - Higher layers govern lower layers.
 - Tests govern build execution but do not override requirements or design.
 - Source code reflects current state but does not redefine the plan.
-- If an issue conflicts with its governing artifacts, do not implement the drift.
+- If the goal or work item conflicts with its governing artifacts, do not implement the drift.
 - Prefer aligning code and docs to plan. Only propose plan changes when the
   evidence is strong and the governing artifacts are stale or incomplete.
 
 ## Tracker Rules
 
-Use the runtime-provided work-item source only.
+Use a governing work item when the user supplies one, requests tracker-backed
+execution, or the runtime requires it (see
+`workflows/references/work-item-first.md`). Use the runtime-provided work-item
+source only. When a work item governs the run, it must be labeled
+`activity:iterate` (review and build/deploy items are excluded), and the
+session claims it at setup and records the result on it at session close.
 
-This action works only on execution work items labeled `activity:iterate`. Exclude
-review items and build/deploy items by default.
-
-The experiment action claims one item at session setup, may create follow-on
-items during execution, and closes the item at session close.
+Without a governing work item, the experiment runs against the explicitly named
+goal and reports in the response. Create follow-on work items only when the user
+requests them or the runtime requires them.
 
 ## STEP 0 - Bootstrap
 
@@ -105,7 +111,8 @@ items during execution, and closes the item at session close.
    reference for this runtime. Experiments must use the declared concerns —
    do not introduce alternative tools or frameworks as part of an optimization
    experiment.
-1. Verify the runtime-provided work-item source is available. Stop immediately if unavailable.
+1. When a work item governs the run, verify the runtime-provided work-item
+   source is available. Stop if it is unavailable.
 2. Load ratchet floor fixtures if the project has adopted quality ratchets.
    Note the current floors so Step 3 can compare against them for auto-bump
    decisions.
@@ -124,33 +131,35 @@ session is in progress. This survives context compaction and agent restarts.
 
 This activity runs on the first invocation only. If resuming, Step 0 skips here.
 
-### 1.1 Issue Selection
+### 1.1 Target Selection
 
-Select the experiment work item:
+Identify what the experiment optimizes:
 
-1. If the input is an explicit work item ID: inspect that item.
-2. If the input is a goal description: search ready `activity:iterate` items
-   matching the goal.
-3. If no input is given: inspect ready `activity:iterate` execution items and
-   choose the best candidate.
+1. If the input is a work item ID: inspect that item.
+2. If the input is a goal description and a tracker is in use: search ready
+   `activity:iterate` items matching the goal; otherwise use the goal as given.
+3. If no input is given and a tracker is in use: inspect ready `activity:iterate`
+   execution items and choose the best candidate.
 
-The selected item MUST:
+The target MUST:
 
-- be labeled `activity:iterate`
 - have passing tests (the project's test suite must be green before
   experimenting)
-- have clear acceptance criteria defining what metric to optimize
-- not be a review item or a build/deploy item
+- have clear acceptance criteria or a stated goal defining what metric to
+  optimize
+- if it is a work item, be labeled `activity:iterate` and not be a review item
+  or a build/deploy item
 
-If no eligible item exists, report the reason and exit cleanly.
+If no eligible target exists, report the reason and exit cleanly.
 
-### 1.2 Claim Work Item
+### 1.2 Claim Work Item (when a work item governs)
 
 Claim the selected item via the runtime-provided work-item source.
 
 ### 1.3 Authority Check
 
-Load the governing artifacts referenced by the issue:
+Load the governing artifacts for the goal. When a work item governs, these are
+the artifacts it references:
 
 - `spec-id`
 - parent epic or parent issue
@@ -158,7 +167,7 @@ Load the governing artifacts referenced by the issue:
 - linked user story, feature, design, or test artifacts
 
 Verify the optimization goal is consistent with architecture and design docs.
-If the issue's goal contradicts a higher-authority artifact, do not proceed.
+If the goal contradicts a higher-authority artifact, do not proceed.
 Document the conflict and exit.
 
 ### 1.4 Metric Definition
@@ -220,7 +229,7 @@ is non-negotiable — tests must pass at every step.
      autoresearch-worklog template.
    - `autoresearch.jsonl` — initialize with a config header line:
      ```json
-     {"type":"config","goal":"<goal>","metric":"<name>","direction":"<lower|higher>","issue":"<id>","started":"<ISO-8601>"}
+     {"type":"config","goal":"<goal>","metric":"<name>","direction":"<lower|higher>","issue":"<id-or-null>","started":"<ISO-8601>"}
      ```
 
 4. Session files are never committed. They are local working state for the
@@ -364,7 +373,7 @@ Interpretation:
 - `< 1.0` — within noise floor, improvement may be measurement variance
 
 If fewer than 3 results exist, report `EXPERIMENT_CONFIDENCE: insufficient_data`
-in the trailer.
+in the summary.
 
 ### Step 9: Update Session Doc
 
@@ -387,9 +396,9 @@ iteration is complete. It does NOT run during normal iteration.
 ### 3.1 Authority Check
 
 Review the cumulative diff on the experiment branch against governing
-artifacts. Verify that the total set of changes is consistent with the issue's
+artifacts. Verify that the total set of changes is consistent with the goal's
 scope and the project's architecture. If the cumulative diff has drifted from
-the issue's intent, flag the problem and determine whether to proceed.
+the goal's intent, flag the problem and determine whether to proceed.
 
 ### 3.2 Zero-Improvement Case
 
@@ -398,9 +407,9 @@ Read `autoresearch.jsonl` to determine whether any iterations were kept.
 If no iterations were kept (best equals baseline):
 
 - Skip the squash-merge — there are no code changes to merge.
-- Close the issue with a note recording what was tried, how many iterations
-  ran, and why nothing improved. This is a valid outcome. Not every
-  experiment produces improvement.
+- Report what was tried, how many iterations ran, and why nothing improved
+  (closing the governing work item with the same note, when one applies). This
+  is a valid outcome. Not every experiment produces improvement.
 - Proceed to cleanup (3.5).
 
 ### 3.3 Ratchet Floor Update
@@ -429,7 +438,7 @@ If iterations were kept:
    ```
    experiment(<goal>): <one-line summary of result>
 
-   Issue: <issue-id>
+   Issue: <issue-id, if any>
    Metric: <name> (<unit>, <direction> is better)
    Baseline: <baseline-value>
    Final: <best-value> (<delta>% improvement)
@@ -461,15 +470,14 @@ git branch -d experiment/<goal>-<date>
 
 ### 3.6 Measure
 
-Record measurement results on the work item via the runtime-provided work-item source before
-closing. See the measure action for the full pattern. Record timestamp, status,
-metric-improvement criterion pass/fail with evidence (baseline, final, delta),
-ratchet values, and experiment iterations/confidence.
+Record the timestamp, status, metric-improvement criterion pass/fail with evidence
+(baseline, final, delta), ratchet values, and experiment iterations/confidence.
+When a work item governs, record the same on it via the runtime-provided
+work-item source. See the measure action for the full pattern.
 
-### 3.7 Close Work Item
+### 3.7 Report and Close
 
-Close the work item via the runtime-provided work-item source with a comprehensive close comment
-recording execution evidence:
+Report the session outcome:
 
 - Goal and optimization target
 - Baseline metric value
@@ -480,37 +488,21 @@ recording execution evidence:
 - Ratchet floor updates (if any)
 - Files modified in the final squash commit
 
-This is execution evidence on the issue, not a canonical HELIX doc.
+When a work item governs, close it via the runtime-provided work-item source
+with this summary as the close comment. This is execution evidence, not a
+canonical HELIX doc.
 
-### 3.8 Follow-On Issues
+### 3.8 Follow-On Opportunities
 
 If the experiment revealed additional optimization opportunities, code quality
-concerns, or architectural concerns:
-
-- Create follow-on work items immediately.
-- Make them atomic and deterministic.
-- Set `spec-id` to the nearest governing artifact.
-- Add the correct HELIX labels.
+concerns, or architectural concerns, report them with evidence and a suggested
+next step. Create follow-on work items only when requested or required by the
+runtime; make them atomic and deterministic, with `spec-id` set to the nearest
+governing artifact.
 
 Do not silently absorb discovered work into the current experiment scope.
 
-### 3.9 Report
-
-Report trailer lines and a summary of the experiment session.
-
-## Trailer Lines
-
-Every invocation must end with these trailer lines:
-
-```
-EXPERIMENT_STATUS: CONVERGED|ITERATION_COMPLETE|NO_IMPROVEMENT|CLOSED
-EXPERIMENT_ITERATIONS: N
-EXPERIMENT_KEPT: N
-EXPERIMENT_BEST: <metric>=<value> (<delta>% vs baseline)
-EXPERIMENT_CONFIDENCE: <score>
-MEASURE_STATUS: PASS|FAIL|PARTIAL
-ITEM_ID: <id>
-```
+## Session Status
 
 ### Status Definitions
 
@@ -524,43 +516,42 @@ ITEM_ID: <id>
   The experiment has stalled. The operator should consider closing the session
   or changing strategy.
 - `CLOSED` — session close completed (Step 3 executed). The experiment
-  branch has been squash-merged (or skipped if zero improvement), the issue
-  has been closed, and session files have been cleaned up.
+  branch has been squash-merged (or skipped if zero improvement), any
+  governing work item has been closed, and session files have been cleaned up.
 
 These statuses are derived from the cumulative `autoresearch.jsonl` history,
 not from within-invocation state. Each invocation reads the full log to
 determine whether a convergence or stall pattern has emerged.
 
-### Field Definitions
+Report these values in the summary:
 
-- `EXPERIMENT_ITERATIONS`: total number of iterations run across all
-  invocations (read from `autoresearch.jsonl` run count).
-- `EXPERIMENT_KEPT`: number of iterations whose changes were committed
-  (status `kept` in JSONL).
-- `EXPERIMENT_BEST`: the best metric value achieved and its percentage
-  improvement over the baseline. Format: `<metric>=<value> (<delta>% vs
-  baseline)`. If no improvement, report the baseline value with `0%`.
-- `EXPERIMENT_CONFIDENCE`: the confidence score from Step 8, or
-  `insufficient_data` if fewer than 3 results exist, or `N/A` on `CLOSED`
-  status (confidence was already reported on the final iteration).
+- iterations: total number of iterations run across all invocations (read from
+  `autoresearch.jsonl` run count).
+- kept: number of iterations whose changes were committed (status `kept` in
+  JSONL).
+- best: the best metric value achieved and its percentage improvement over the
+  baseline, as `<metric>=<value> (<delta>% vs baseline)`. If no improvement,
+  report the baseline value with `0%`.
+- confidence: the score from Step 8, or `insufficient_data` if fewer than 3
+  results exist, or `N/A` on `CLOSED` status.
 
 ## Output Format
 
 Report these sections in order:
 
-1. Experiment Status (trailer lines)
-2. Issue ID
+1. Experiment Status
+2. Governing work item ID (if any)
 3. Current Iteration Summary (hypothesis, result, keep/discard decision)
 4. Cumulative Progress (iterations run, kept, best result, delta)
 5. Confidence Assessment
-6. Follow-On Issues Created (if any)
+6. Follow-On Opportunities (if any)
 7. Suggested Next Step (continue iterating, close session, change strategy)
 
 ## Runtime Integration Appendix
 
-This appendix covers how a runtime realizes the experiment action. The reference
-paths and work-item acquisition below are runtime-neutral; for the concrete
-commands of a specific runtime, see its install guide (DDx:
+This appendix covers how a runtime realizes the experiment action when a runtime
+work item governs the run. The reference paths below are runtime-neutral; for
+the concrete commands of a specific runtime, see its install guide (DDx:
 [docs/install/ddx.md](../../docs/install/ddx.md)).
 
 ### STEP 0 — Reference resolution
@@ -607,7 +598,9 @@ helix experiment optimize test-suite-runtime
 helix experiment --close <id>
 ```
 
-### Output trailer
+### Optional output trailer
+
+Emit only when a runtime consumer requires it.
 
 ```
 EXPERIMENT_STATUS: CONVERGED|ITERATION_COMPLETE|NO_IMPROVEMENT|CLOSED

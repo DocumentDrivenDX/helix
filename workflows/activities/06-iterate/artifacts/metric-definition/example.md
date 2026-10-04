@@ -6,12 +6,6 @@ ddx:
   depends_on:
     - example.test-plan.depositmatch
     - example.deployment-checklist.depositmatch.csv-import
-  review:
-    self_hash: 7889a106bd3b349d17124fe2fcd082f9f79c1b12947785617af369273603b0c8
-    deps:
-      example.deployment-checklist.depositmatch.csv-import: 02e9e7c9c29b4a335e0e2eceacaaaa6673018042db2a706f89293ab6f58abcbf
-      example.test-plan.depositmatch: ba055b639a94e62d3b24f3a7ca270f78c3f17f6bae78b936d399291225d7976f
-    reviewed_at: "2026-05-25T15:46:40Z"
 ---
 
 # Metric Definition: csv-import-validation-seconds

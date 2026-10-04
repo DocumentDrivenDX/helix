@@ -53,19 +53,3 @@ Unlike [current alternative], [product name] [primary differentiator].
 ## Why Now
 
 [One paragraph: What has changed — in the market, technology, or user behavior — that makes this the right time to build this? Why would waiting be costly?]
-
-## Review Checklist
-
-Use this checklist when reviewing a product vision artifact:
-
-- [ ] Mission statement is specific — names the user, the problem, and the approach
-- [ ] Positioning statement differentiates from the current alternative
-- [ ] Vision describes a desired end state, not a feature list
-- [ ] North star is a single measurable sentence
-- [ ] User experience section describes a concrete scenario, not abstract benefits
-- [ ] Target market identifies specific pain points and switching triggers
-- [ ] Value propositions map to customer benefits, not internal capabilities
-- [ ] Success metrics are measurable and time-bound
-- [ ] Why Now section names a specific change, not a vague opportunity
-- [ ] Business case details, competitor matrices, requirements, and technical choices are left to their own artifacts
-- [ ] No implementation details (technology choices, architecture) — those belong in design

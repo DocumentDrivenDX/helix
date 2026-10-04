@@ -5,11 +5,6 @@ ddx:
     home: repo
   depends_on:
     - example.feature-specification.depositmatch.csv-import
-  review:
-    self_hash: b87b259be7a0ac9a75516d5868742aed44b6af05ab12d10aa4535a3cae24e9b6
-    deps:
-      example.feature-specification.depositmatch.csv-import: d85530eb091209cf9989c9cac3bc1f1063358a5b79964ca0e5e7a384fa77c44a
-    reviewed_at: "2026-05-24T23:28:08Z"
 ---
 
 # US-001: Upload CSV Files for a Client

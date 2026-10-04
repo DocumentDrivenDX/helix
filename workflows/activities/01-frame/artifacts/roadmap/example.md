@@ -48,11 +48,3 @@ the identifier: `WS-<n>`, assigned sequentially, never reused or renumbered.
   accuracy work takes IT-07).
 - The active iteration's committed outcomes stay stable across revisions;
   re-sequencing applies from the next iteration forward.
-
-## Review Checklist
-
-- [x] Every workstream has a stable `WS-<n>` alias, a scope line, and an owner
-- [x] Every outcome cites its workstream and its governing artifact
-- [x] Ordering states its rationale
-- [x] The horizon is explicit; nothing beyond it is committed
-- [x] Current-iteration outcomes match the active iteration plan

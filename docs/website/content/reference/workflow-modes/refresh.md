@@ -20,17 +20,7 @@ date with the current canonical templates and prompts. Refresh is
    supports sub-agent dispatch, parallelise across the activity groups
    (one agent per activity); otherwise execute the groups in activity
    order.
-3. Aggregate the per-instance validate outputs into a single report:
-   per-classification counts using the unified taxonomy (`ALIGNED` /
-   `INCOMPLETE` / `DIVERGENT` / `UNDERSPECIFIED` / `STALE_PLAN` /
-   `BLOCKED`) plus the union of every handoff validate produced.
-4. Refresh surfaces handoffs in the report. It does **not** itself file
-   work items; the runtime decides whether to file work from the block or
-   display it unchanged. This keeps refresh runtime-neutral while
-   preserving `modes/align.md`'s tracker-mutation rules for runtimes that
-   have a tracker.
-5. Refresh is read-only against templates and prompts in the skill
+3. Summarize the material changes and unresolved findings.
+4. Refresh is read-only against templates and prompts in the skill
    catalog. If refresh reveals that a template itself needs to change,
    route through `evolve` against the catalog separately.
-
-End with the `modes/_report.md` block, `mode: refresh`.

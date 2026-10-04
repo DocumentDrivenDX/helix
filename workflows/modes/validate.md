@@ -16,8 +16,8 @@ prompt, then edit resolvable findings in place.
    scan, and frontmatter checks and prints findings with check ids. Treat its
    blocking findings as `INCOMPLETE` unless judgment says otherwise. When the
    host cannot run scripts, perform the same checks by reading `meta.yml`.
-4. Run prompt-section conformance: every section the `prompt.md` asks for is
-   answered in the instance or explicitly marked N/A with a reason.
+4. Check applicable requirements from `prompt.md`. Omit optional sections
+   when they do not apply; do not add `N/A` text to satisfy a template.
 5. Run voice conformance against the active profile, then classify each finding
    keyed to the relevant template, prompt, meta.yml, or voice-profile section
    using the Align taxonomy: `ALIGNED`, `INCOMPLETE`, `DIVERGENT`,
@@ -34,9 +34,6 @@ prompt, then edit resolvable findings in place.
    (missing required sections, stale frontmatter shape, renamed headings,
    unsupported filler, or unscoped claims). For
    findings classified as `DIVERGENT`, `UNDERSPECIFIED`, `STALE_PLAN`,
-   or `BLOCKED` — which need human judgement — surface a handoff (the four
-   fields in `modes/_report.md`) for that specific finding instead of
-   editing. When the user invoked validate to audit, surface a handoff for
-   every non-`ALIGNED` finding regardless of mechanical resolvability.
-
-End with the `modes/_report.md` block, `mode: validate`.
+   or `BLOCKED` — which need human judgment — report the evidence and a
+   concise next step instead of editing. When the
+   user invoked validate to audit, report each material non-`ALIGNED` finding.

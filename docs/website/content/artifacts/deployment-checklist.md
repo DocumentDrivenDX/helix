@@ -1,7 +1,7 @@
 ---
 title: "Deployment Checklist — HELIX Plugin and Website Release"
 slug: deployment-checklist
-weight: 470
+weight: 480
 activity: "Deploy"
 source: "05-deploy/deployment-checklist.md"
 generated: true
@@ -15,7 +15,7 @@ generated: true
 
 - Service or component: HELIX plugin (`.claude-plugin/`, `skills/`,
   `workflows/`) and the public website (`website/`, deployed to GitHub Pages).
-- Version or commit: `vX.Y.Z` tag at the release commit SHA.
+- Release version: `vX.Y.Z`.
 - Deployment window: Operator-driven; HELIX releases ship when the release
   bead reaches `Go` on this checklist. There is no fixed schedule.
 - Release owner: HELIX maintainer cutting the tag.
@@ -40,10 +40,10 @@ generated: true
 
 | Stage | Action | Exit Condition |
 |-------|--------|----------------|
-| Local proof | Run all pre-deploy checks against the release commit | All checks above are checked |
+| Local proof | Run all pre-deploy checks against the release candidate | All checks above are checked |
 | Tag and push | `git tag -a vX.Y.Z -m "..."` then `git push origin main vX.Y.Z` | Tag visible on origin; CI starts |
 | Plugin publication | Plugin is consumed by users via repo URL — no separate registry push | Tag exists; `git fetch --tags` from a fresh clone resolves the manifest |
-| Website rollout | GitHub Actions builds the site from the tagged commit and publishes to GitHub Pages | Pages workflow run succeeds; public URL serves the new content |
+| Website rollout | GitHub Actions builds the site for the release tag and publishes to GitHub Pages | Pages workflow run succeeds; public URL serves the new content |
 | Full rollout | Smoke-test the public site for the released artifact pages | Critical pages (`/`, `/why/`, `/use/`, `/artifacts/<each>/`) return 200 |
 
 ## Verification Checks
@@ -60,15 +60,14 @@ generated: true
 
 | Trigger | Threshold or Condition | Immediate Action | Owner |
 |---------|------------------------|------------------|-------|
-| Public site fails to build under the new tag | Pages workflow run fails | Re-run the workflow once; if still failing, revert the tag commit and re-tag | Operator |
-| Plugin install breaks for a fresh consumer | `ddx install helix --local . --force` exits non-zero on a clean checkout | Move the `vX.Y.Z` tag back one commit (`git tag -d` + force-push) only if no downstream consumers have pulled; otherwise issue a `vX.Y.Z+1` patch | Operator |
-| Skill packaging tests regressed in CI on the tag | `tests/validate-skills.sh` fails on the tag in CI | Revert the offending change in a follow-up tag; do not silently amend the released tag | Operator |
+| Public site fails to build under the new tag | Pages workflow run fails | Re-run the workflow once; if still failing, roll back to the previous release tag | Operator |
+| Plugin install breaks for a fresh consumer | `ddx install helix --local . --force` exits non-zero on a clean checkout | Roll back to the previous release tag only if no downstream consumers have updated; otherwise issue a `vX.Y.Z+1` patch | Operator |
+| Skill packaging tests regressed in CI on the tag | `tests/validate-skills.sh` fails on the tag in CI | Correct the issue in a follow-up tag; do not silently change a published release | Operator |
 | Critical artifact-reference page renders empty | A `HELIX_REAL_EXAMPLES_PUBLISHABLE` slug ships with a missing example | Patch release that flips the slug back off in `scripts/generate-reference.py` | Operator |
 
 ## Go or No-Go Decision
 
 - Decision: [Go / Hold / Roll Back]
 - Decision time: [ISO-8601 timestamp]
-- Notes: Capture any deferred checks, exceptions, or known follow-up beads
-  here. Reference the release-notes commit and the tag SHA so the decision
-  is reconstructable from the tracker.
+- Notes: Capture deferred checks, exceptions, or known follow-up work here.
+  Reference the release version and related artifact IDs.

@@ -148,16 +148,21 @@ solution design.
 
 ## Alignment Methodology
 
-Alignment is the mechanism that keeps the artifact stack coherent. A HELIX
-alignment pass reads from the highest relevant authority downward, classifies
-mismatches, and records durable review evidence.
+Alignment compares the documents affected by the request. Read the relevant
+authorities, identify contradictions, and explain the correction. A conversational
+answer is sufficient unless the user or runtime asks for a saved or structured
+report. Use `project-audit` for an explicit comparison with implementation.
+
+Specifications describe the desired system and can be valid before code exists.
+Keep implementation status in the runtime tracker. Keep repository history out
+of HELIX documents; source control already records it.
 
 Use alignment when:
 
 - product direction changes and downstream artifacts may now be stale
 - implementation work exists but the governing artifact path is unclear
 - generated documentation projects old behavior as current guidance
-- runtime execution evidence disagrees with requirements, design, or tests
+- an explicit implementation audit identifies a conflict in the documents
 - the next safe planning or execution step is ambiguous
 
 Alignment outcomes should classify each issue as one of these categories:
@@ -358,10 +363,9 @@ commands live in [`docs/install/ddx.md`](../docs/install/ddx.md).
 
 HELIX itself ships no commands. Each runtime supplies the operator path that
 queues, executes, and reports on work — and provides the work-item store,
-execution loop, and status reporting. The methodology requirement is only
-that work be governed (work-item-first), measured against acceptance criteria,
-and reported back so follow-on work re-enters planning; *how* a runtime
-realizes that is its own concern.
+execution loop, and status reporting. The runtime applies its work-item policy;
+HELIX does not create tracking records for ordinary conversation. Verify the
+requested deliverable against its requirements and report material gaps.
 
 For the concrete commands of a specific integration, see its install guide
 in [`docs/install/README.md`](../docs/install/README.md), which has a

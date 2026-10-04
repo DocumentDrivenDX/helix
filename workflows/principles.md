@@ -27,15 +27,16 @@ belongs in activity enforcers and ratchets.
 
 ### Spec Is The Contract
 
-The governing artifact stack (vision → PRD → features → stories/ACs → ADRs/design)
-is the contract and the source of truth; code is a **projection** of it. Two
-consequences: (1) cross-implementation comparison and reproduction start from the
-**spec**, not the code surface — equivalence is spec equivalence. (2) Traceability
-is **bidirectional** — every material code surface traces to a governing artifact
-(no code outside spec), and every acceptance criterion traces to an exercising
-test (no spec without implementation). Code that outran its spec and a spec that
-outran its code are both drift. Keep the spec current *with* the code in the same
-change, not best-effort afterward — best-effort spec evolution is not reproducible.
+The governing artifacts define the desired system. Code implements that intent;
+it cannot silently redefine it. A specification is valid before implementation
+exists. An accepted decision means the direction is chosen, not delivered.
+Compare implementation with selected requirements when assessing delivery or
+running an explicit audit. Record implementation gaps in the runtime tracker,
+not as status fields in the specification.
+
+Keep operative requirements and useful rationale in living documents. Source
+control owns delivery history: HELIX documents contain no pull-request numbers,
+repository revision identifiers, or citations to implementation history.
 
 ### Design for Change
 
@@ -69,24 +70,20 @@ Reversibility buys options; irreversibility spends them.
 
 ### Deliverable Over Machinery
 
-Ship the product unit (vision/PRD capability, user-visible slice, or — when the
-product is methodology — the template/skill/prompt that changes behavior).
-Process machinery is a derivative: bound it, freeze it, deliver. Deferred rigor
-is a tracker item or parking-lot line, not a redesign tranche. Prefer checks
-that catch real defects; kill work that only deepens process. Do not use this
-principle to skip tests, product ACs, claims-vs-reality, or scope-discipline.
-When process rounds outrun delivered units, stop and deliver.
+Complete the requested deliverable, which may itself be a specification. Use
+process only to resolve relevant uncertainty or prevent a concrete error. Read
+the target and the authorities that affect it; expand scope only for a relevant
+dependency or conflict. Stop when the requested result is coherent and verified.
+Do not turn every finding into a gate or every edit into an audit. Keep tests
+and evidence appropriate to the claims being made.
 
 ### Layers Are the Control
 
-The artifact hierarchy is not a filing order; it is how automated work is
-controlled. Each layer governs the one beneath it (vision governs
-requirements, requirements govern designs, designs govern tests, tests govern
-code), concerns propagate practices down through every layer, gates sit
-between activities, and floors never slide back. An agent may act only
-within what the layers above it authorize, and a change enters at the
-highest layer it affects and flows down. When a rule needs enforcing,
-put it in a layer, not in a prompt.
+Vision governs requirements; requirements govern designs and verification.
+Resolve conflicting intent at the highest affected authority. Update affected
+documents when a decision changes, without traversing unrelated branches of the
+artifact graph. The hierarchy establishes meaning, not a mandatory sequence of
+ceremonies.
 
 ### Humans Decide, Agents Draft
 

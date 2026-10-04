@@ -30,27 +30,51 @@ validation:
 
   quality_checks:
     - check: mission_concise
-      description: Mission statement under 50 words
+      description: Mission names the user, problem, and approach in under 50 words
       severity: warning
 
     - check: positioning_specific
-      description: Positioning names a specific customer segment and a specific competitor or alternative
+      description: Positioning names a specific customer segment and differentiates from a specific alternative
       severity: blocking
 
     - check: market_specific
-      description: Target market names specific segment, not a broad category
+      description: Target market names a specific segment, its pain points, and switching triggers
       severity: blocking
 
     - check: metrics_measurable
-      description: Success metrics have numeric targets or named measurement methods
+      description: Success metrics are measurable and time-bound, with numeric targets or named measurement methods
       severity: blocking
 
     - check: ux_concrete
-      description: User experience section describes a concrete scenario, not abstract benefits
+      description: User experience describes a concrete scenario, not abstract benefits
       severity: blocking
 
     - check: why_now_grounded
       description: Why Now cites an observable change, not a general trend
+      severity: warning
+
+    - check: vision_is_end_state
+      description: Vision describes the desired end state, not a feature list
+      severity: blocking
+
+    - check: north_star_single_measure
+      description: North Star is one measurable sentence
+      severity: warning
+
+    - check: value_propositions_customer_focused
+      description: Value propositions state customer benefits, not internal capabilities
+      severity: warning
+
+    - check: why_now_specific
+      description: Why Now names an observable change, not a vague opportunity
+      severity: warning
+
+    - check: boundaries_respected
+      description: Business cases, competitor comparisons, requirements, and technical choices stay in their own artifacts
+      severity: warning
+
+    - check: no_implementation_details
+      description: Vision avoids implementation choices owned by design artifacts
       severity: warning
 
 workflow:

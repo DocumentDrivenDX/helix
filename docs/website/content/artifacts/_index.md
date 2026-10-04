@@ -27,6 +27,7 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 
 - [Architecture](/artifacts/architecture/)
 - [Data Design — HELIX Bead Tracker](/artifacts/data-design/)
+- [Desired-state authoring: goal and approach](/artifacts/design-desired-state-authoring/)
 - [Security Architecture — DDx Agent Execution Surface](/artifacts/security-architecture/)
 - [adr](/artifacts/adr/) _(13 items)_
 - [contracts](/artifacts/contracts/) _(5 items)_
@@ -45,7 +46,7 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 
 ## Iterate
 
-- [Improvement Backlog — HELIX 2026-Q3](/artifacts/improvement-backlog/)
-- [Metrics Dashboard: HELIX 2026-Q3 (human-outputs branch)](/artifacts/metrics-dashboard/)
+- [Improvement Candidates](/artifacts/improvement-backlog/)
+- [Metrics Dashboard: HELIX 2026-Q3](/artifacts/metrics-dashboard/)
 - [Security Metrics — HELIX 2026-Q2 (post-`v0.3.3`)](/artifacts/security-metrics/)
 - [deliverables](/artifacts/deliverables/) _(4 items)_

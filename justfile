@@ -1,7 +1,7 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable test-headline-sync test-deck-render test-demos test-innsigle
+test: test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable test-headline-sync test-deck-render test-demos test-innsigle test-eval-checks
 
 # Serve the HELIX microsite at the canonical local review URL.
 website-serve:
@@ -146,3 +146,7 @@ innsigle-endorse:
 # Gate: every microsite page has a valid, verified Innsigle seal and renders it
 test-innsigle:
     bash tests/validate-innsigle.sh
+
+# Validate evaluation checks without calling a model
+test-eval-checks:
+    python3 tests/test_eval_checks.py

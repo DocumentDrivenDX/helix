@@ -20,83 +20,59 @@ ddx:
     - helix.prd
     - helix.product-vision
   review:
-    self_hash: 23db2c830aa9a8cabe8d7b6701b4da13bbe04bc979a9c0dc24900f1de2093cf2
+    self_hash: 93cd1656916b185cc307151361be40ab1a077117ba5d1e2756ae24fecb1959bb
     deps:
-      helix.prd: e11b46de6300cc84460245fcfd6739210ce38406a76f90e32d26685938302eb1
-      helix.product-vision: 13555b55d11d13ad2c01657a4f3b9c421867ca9f41dfb575c829ecb7c0990164
-    reviewed_at: "2026-06-14T03:20:37Z"
+      helix.prd: 48c38800e987ab54c72d79dcd9ceed6e20afbd197b87c05699c51b49f3cd1f41
+      helix.product-vision: 1f1e960bc87b10da772f5a37b3947d9908a56820cc84ff786c5258c2c664173d
+    reviewed_at: "2026-10-04T02:22:27Z"
 ```
 
 # Project Principles
 
-These principles guide judgment calls across all HELIX activities when
-working on HELIX itself. They are not workflow rules or process enforcement
-— they are lenses applied when choosing between two valid options. The only
-constraint: principles cannot negate HELIX mechanics (artifact authority
-order, activity gates, tracker semantics).
-
-This file was authored from the vision; mechanics-describing items below
-(authority is the resolver; documents are the contract; alignment is
-continuous; work flows in every direction) read as principles but are
-actually load-bearing HELIX mechanics. Treat them as principles only in the
-sense that they steer judgment about how to extend HELIX itself.
+These principles guide choices about HELIX. Workflow contracts define required
+steps; principles do not add steps or gates.
 
 ## Principles
 
-1. **Authority is the resolver.** Conflicts between artifacts resolve up the
-   artifact authority hierarchy, never down. Source code never overrides
-   specification.
+1. **Authority resolves conflicts.** Follow the artifact authority hierarchy;
+   implementation does not silently override an accepted specification.
+2. **Specifications describe desired state.** Record requirements and
+   consequential decisions in their governing artifacts. Record implementation
+   status in the runtime's work tracker or a factual report.
+3. **Scope the work.** Read the requested artifact and the authorities that can
+   affect the change. Audit implementation only when explicitly requested and
+   within the named scope.
+4. **Work flows in every direction.** A test exposes a design gap; a metric
+   revises a feature spec; a vision update propagates down. Activity names
+   locate the kind of work, not its position in a sequence.
+5. **Decisions guide implementation.** An accepted decision sets direction; it
+   does not claim that the system implements that direction.
+6. **People decide; agents draft and check.** People own intent and approval.
+   Agents draft, compare, and surface questions at the governed hand-offs.
+7. **HELIX stays small.** HELIX defines methodology and ships one routing skill.
+   Execution and tracking belong to the runtime.
+8. **Prefer useful evidence to ceremony.** Keep checks that find real defects.
+   Do not add gates, reports, or checklist sections only for completeness.
+9. **Discipline over improvisation.** Agents improvise well; HELIX makes that
+   improvisation reviewable.
 
-2. **Documents are the contract.** Every consequential decision lands as an
-   artifact update. If a decision is not in the documents, it does not exist.
+## Authority
 
-3. **Alignment is continuous.** The loop runs always; drift is caught early,
-   not in a quarterly audit. The alignment skill is the operator of this rule.
-
-4. **HELIX doesn't run anything.** Execution is the runtime's job — DDx,
-   Databricks Genie, Claude Code, anything that reads and writes files.
-   HELIX produces aligned documents and plans; the runtime executes them.
-
-5. **Less is more.** HELIX owns the methodology and one skill — not the
-   toolbox. Every feature added to HELIX is weighed against "could this live
-   in the runtime instead?"
-
-6. **Work flows in every direction.** A test exposes a design gap; a metric
-   revises a feature spec; a vision update propagates down. The activity
-   names locate the kind of work, not its position in a sequence.
-
-7. **Discipline over improvisation.** AI agents improvise well; the value of
-   HELIX is the discipline that makes improvisation reviewable.
-
-8. **Deliverable Over Machinery.** Ship the unit (for HELIX: the template,
-   skill, or prompt that changes behavior); freeze process redesign mid-delivery.
-   Do not skip real defect checks to "go faster."
-
-### Layers Are the Control
-
-HELIX's own artifacts are governed the way HELIX governs any project: the
-vision governs this PRD, the PRD governs its features, features govern
-designs and decisions, and the routing skill enforces what each layer
-authorizes. See `workflows/principles.md` for the methodology statement.
-
-### Humans Decide, Agents Draft
-
-Maintainers hold intent, judgment, and approval for HELIX's artifacts;
-agents draft, check, and surface. Autonomy level, stop triggers, and
-approval are the governed hand-off points. See `workflows/principles.md`.
+The vision governs the PRD, the PRD governs features, and features govern
+designs and decisions. The catalog and workflow contracts define how those
+artifacts are authored and related. See `workflows/principles.md` for the
+methodology statement.
 
 ## Tension Resolution
 
-| When these pull against each other | Resolve by |
+| Tension | Resolution |
 |---|---|
-| **Less is more** vs. methodology depth | Trim. If a methodology detail can live in `workflows/` or a glossary page rather than a flagship artifact, move it there. |
-| **HELIX doesn't run anything** vs. operator convenience | Move the convenience to the runtime adapter, not HELIX. Wrappers that shorten DDx invocations are DDx's job. |
-| **Documents are the contract** vs. ship-it pressure | Capture the decision as a document update before merging; otherwise the change exists only in code and the artifact graph diverges. |
-| **Deliverable Over Machinery** vs. completeness theater | Ship the unit; file deferred rigor as a tracker item, not a redesign tranche. |
+| Methodology depth vs. simplicity | Keep detail where readers need it; remove repeated process guidance. |
+| Runtime convenience vs. HELIX scope | Put execution conveniences in the runtime adapter. |
+| Validation vs. machinery | Keep evidence checks that protect quality; omit ceremony without a concrete failure to prevent. |
+| Desired state vs. implementation status | Keep requirements authoritative; report observed status separately. |
 
 ## Size Guidance
 
-Keep this file under ~60 lines. If a principle requires more than two
-sentences to explain, it is probably a methodology document, not a
-principle. Move the long-form rationale to `workflows/README.md` or a
-dedicated explainer and leave one-line guidance here.
+Keep this file short. Put workflow requirements in `workflows/` and detailed
+rationale in the relevant decision record.

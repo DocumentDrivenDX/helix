@@ -33,6 +33,43 @@ validation:
       description: Each slice should name the validation or evidence required for completion
       severity: blocking
 
+    - check: review_governing_artifacts_are_listed_and_01
+      description: >-
+        Governing artifacts are listed and exist on disk
+      severity: warning
+    - check: review_shared_constraints_trace_back_requirements
+      description: >-
+        Shared constraints trace back to requirements, design, or architecture
+      severity: warning
+    - check: review_build_sequence_has_justified_ordering
+      description: >-
+        Build sequence has a justified ordering — not just arbitrary
+      severity: warning
+    - check: review_dependencies_between_build_steps_explicit
+      description: >-
+        Dependencies between build steps are explicit
+      severity: warning
+    - check: review_story_area_references_its_governing
+      description: >-
+        Each story/area references its governing artifacts (TP, TD)
+      severity: warning
+    - check: review_issue_decomposition_follows_tracker_conventions
+      description: >-
+        Issue decomposition follows tracker conventions (labels, spec-id, deps)
+      severity: warning
+    - check: review_quality_gates_specific_enforceable_not
+      description: >-
+        Quality gates are specific and enforceable, not aspirational
+      severity: warning
+    - check: review_risks_have_concrete_responses_we
+      description: >-
+        Risks have concrete responses ("we do X"), not vague strategies
+      severity: warning
+    - check: review_plan_consistent_governing_test_plan
+      description: >-
+        Plan is consistent with governing test plan and technical designs
+      severity: warning
+
 prompts:
   generation: prompt.md
 

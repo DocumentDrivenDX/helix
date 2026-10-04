@@ -1,0 +1,52 @@
+{
+  "id": "contradiction-mongodb",
+  "mode": "evolve",
+  "seconds": 46.3,
+  "run_ok": true,
+  "cost_usd": 1.758686,
+  "turns": 17,
+  "checks_passed": 3,
+  "checks_total": 3,
+  "checks": [
+    {
+      "kind": "output_contains",
+      "ok": true,
+      "detail": "all present"
+    },
+    {
+      "kind": "files_unchanged",
+      "ok": true,
+      "detail": "unchanged"
+    },
+    {
+      "kind": "output_not_contains",
+      "ok": true,
+      "detail": "clean"
+    }
+  ],
+  "judge": {
+    "scores": [
+      {
+        "item": 1,
+        "score": 2,
+        "reason": "The response opens by saying no spec was written and names ADR-001's SQLite selection, the PRD's 'Database: SQLite' line and the SQL-based TD as the conflicts, with no files changed."
+      },
+      {
+        "item": 2,
+        "score": 2,
+        "reason": "It declines to write a contradicting spec and routes the conflict to an explicit user decision, proposing ADR-002 superseding ADR-001 plus PRD and TD amendments only if the user confirms the override."
+      },
+      {
+        "item": 3,
+        "score": 2,
+        "reason": "It challenges day-one sharding against the recorded scale (10,000 monthly users, 500+ recipes, at most 100 concurrent users, single-server and under-$5k constraints) and says nothing in the vision or PRD calls for that scale, though it does not describe the vision's target market itself."
+      }
+    ],
+    "total": 6,
+    "max": 6,
+    "raw": "{\"scores\": [{\"item\": 1, \"score\": 2, \"reason\": \"The response opens by saying no spec was written and names ADR-001's SQLite selection, the PRD's 'Database: SQLite' line and the SQL-based TD as the conflicts, with no files changed.\"}, {\"item\": 2, \"score\": 2, \"reason\": \"It declines to write a contradicting spec and routes the conflict to an explicit user decision, proposing ADR-002 superseding ADR-001 plus PRD and TD amendments only if the user confirms the override.\"}, {\"item\": 3, \"score\": 2, \"reason\": \"It challenges day-one sharding against the recorded scale (10,000 monthly users, 500+ recipes, at most 100 concurrent users, single-server and under-$5k constraints) and says nothing in the vision or PRD calls for that scale, though it does not describe the vision's target market itself.\"}]}"
+  },
+  "diff_stat": "",
+  "diff": "",
+  "result": "I haven't written the spec: the request contradicts decisions already recorded in this repo, and a feature spec is the wrong HELIX artifact for a datastore mandate. No files were changed.\n\n**What it conflicts with**\n\n- **ADR-001** (`docs/helix/02-design/adr/ADR-001-sqlite.md:28`) selects SQLite for launch, with a planned migration to PostgreSQL. MongoDB was not among the alternatives evaluated.\n- **PRD Technical Context** (`docs/helix/01-frame/prd.md:107`) says \"Database: SQLite (see ADR-001)\".\n- **PRD Constraints** (`prd.md:115-116`) say \"Single database server for MVP; no replication\" and \"under $5k infrastructure cost\". Sharding from day one breaks the first outright, and a sharded, replicated cluster would likely strain the second.\n- **PRD Risks** (`prd.md:136`) rate database scalability as low probability, mitigated by the Postgres migration. The scale targets are 10,000 monthly users and 500+ recipes, with ADR-001 sized for \u2264 100 concurrent users.\n- **TD-recipe-store** (`docs/helix/02-design/technical-designs/TD-recipe-store.md`) is built on a normalized SQL schema with foreign keys and depends on ADR-001.\n\n**Why not a feature spec**\n\nThe HELIX feature-spec template is \"scope, not solution\": component and data-model choices belong in design artifacts. A FEAT that names MongoDB would sit below the PRD in authority while contradicting it, and would leave ADR-001 still in force.\n\n**The route that would work**\n\n1. **PRD**: amend the Technical Context, the single-server constraint, the budget constraint and the scalability risk. Add the product-level need behind this (evolving recipe metadata, scale targets) as requirements.\n2. **ADR-002**: record \"MongoDB as primary data store\", superseding ADR-001, with SQLite and Postgres as evaluated alternatives.\n3. **TD-recipe-store**: mark it stale and redesign it as a document model with a shard key.\n4. **Optional feature spec**: one for flexible recipe metadata, stated as behavior (e.g. \"new metadata fields can be added without downtime\") with no technology named.\n\n**Decisions for you**\n\n- **Are you overriding the single-server and under-$5k constraints?** Sharding from day one is not compatible with them, and nothing in the current vision or PRD calls for that scale. This is the decision I can't make for you.\n- **Do you want \"sharding from day one\" literally?** The alternative is MongoDB on a single replica set with a shard-ready key design; I'd recommend that, since it keeps the flexible schema while staying far closer to the current constraints.\n\nIf you confirm the override, I'll make the PRD, ADR-002 and TD changes in that order."
+}

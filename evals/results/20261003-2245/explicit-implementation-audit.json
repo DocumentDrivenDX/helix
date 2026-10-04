@@ -1,0 +1,52 @@
+{
+  "id": "explicit-implementation-audit",
+  "mode": "project-audit",
+  "seconds": 31.4,
+  "run_ok": true,
+  "cost_usd": 0.75952875,
+  "turns": 10,
+  "checks_passed": 3,
+  "checks_total": 3,
+  "checks": [
+    {
+      "kind": "files_unchanged",
+      "ok": true,
+      "detail": "unchanged"
+    },
+    {
+      "kind": "max_new_files",
+      "ok": true,
+      "detail": "0 new file(s): []"
+    },
+    {
+      "kind": "output_not_contains",
+      "ok": true,
+      "detail": "clean"
+    }
+  ],
+  "judge": {
+    "scores": [
+      {
+        "item": 1,
+        "score": 2,
+        "reason": "It states outright that ADR-001 is not implemented and that the repo holds no code or tests of any kind, listing the absent source, migrations, dependencies and test files."
+      },
+      {
+        "item": 2,
+        "score": 2,
+        "reason": "It treats the decision as recorded and Accepted and carried through the docs, and frames the gap purely as missing implementation evidence, though it never says explicitly that the decision itself remains valid."
+      },
+      {
+        "item": 3,
+        "score": 2,
+        "reason": "It claims no delivery, leaves the ADR intact with no edits or tracker items, and limits its extra observations to ADR-related doc inconsistencies without demanding further audits."
+      }
+    ],
+    "total": 6,
+    "max": 6,
+    "raw": "{\"scores\": [{\"item\": 1, \"score\": 2, \"reason\": \"It states outright that ADR-001 is not implemented and that the repo holds no code or tests of any kind, listing the absent source, migrations, dependencies and test files.\"}, {\"item\": 2, \"score\": 2, \"reason\": \"It treats the decision as recorded and Accepted and carried through the docs, and frames the gap purely as missing implementation evidence, though it never says explicitly that the decision itself remains valid.\"}, {\"item\": 3, \"score\": 2, \"reason\": \"It claims no delivery, leaves the ADR intact with no edits or tracker items, and limits its extra observations to ADR-related doc inconsistencies without demanding further audits.\"}]}"
+  },
+  "diff_stat": "",
+  "diff": "",
+  "result": "ADR-001 is not implemented in this repository: there is no code or test of any kind to implement it. The repo has one commit containing six files, all of them HELIX docs plus `.helix.yml`.\n\n**What exists**\n- The decision itself is recorded and marked approved/Accepted in `docs/helix/02-design/adr/ADR-001-sqlite.md`.\n- The PRD names SQLite as the database and points to ADR-001.\n- `TD-recipe-store.md` (draft) says it inherits the single-writer SQLite constraint.\n\nSo the decision is carried through the docs, but that is the only evidence.\n\n**What's missing**\n- **Database code:** there is no `src/`, no `migrations/`, no package manifest, no SQLite dependency and no database file or connection config. The files the technical design names (`migrations/001_create_recipes_schema.sql`, `src/api/recipes.ts`, `src/services/storage.ts`, `src/app.ts`) don't exist.\n- **Tests:** there are none, and all four testing checkboxes in the technical design are unchecked.\n- **Validation metrics:** nothing measures 100 concurrent users without write timeouts, p99 write latency under 200ms, or corruption incidents. There is no load test, benchmark or monitoring config.\n- **Risk mitigations:** there is no write-latency monitoring, disk-space monitoring or S3 backup job. The ADR says the recovery procedure is \"documented in runbook\", but no runbook exists.\n- **Postgres migration path:** the ADR itself says the migration guide is not yet written, and there is no ADR-002.\n\n**Inconsistencies in the docs**\n- **Schema dialect:** the technical design's schema is written in a Postgres dialect, not SQLite. It uses `gen_random_uuid()`, which SQLite doesn't have, plus `UUID` and `VARCHAR(n)` types that SQLite won't enforce. Implemented as written, it would fail on SQLite, so the design contradicts the ADR it claims to follow.\n- **Claimed existing code:** the technical design says SQLite initialization, user auth and read-only browse endpoints already exist. Nothing in this repo backs that up; if they live in another repo, I can't see it from here.\n- **Write load:** the feature spec asks for 100 concurrent publishers, while the ADR admits to roughly 10\u201320 writes/sec and sets a migration trigger at 5 or more concurrent writes. This isn't strictly a contradiction, but it is untested and worth a look.\n\nAs you asked, I didn't edit any specs or create tracker items; this was read-only."
+}

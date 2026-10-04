@@ -20,11 +20,11 @@ ddx:
     - helix.prd
     - CONTRACT-003
   review:
-    self_hash: 8b13992ac119f6bc4c1033f3af547203bfe96704172392d90a540f508ad62c4f
+    self_hash: 842c8f9f2224aa7b4e2393ca848e26ec95c6479e296fcb5ddaf151c44e84f2a5
     deps:
-      CONTRACT-003: 7c2fb59f847a930555679eed989233d20f23fe0896bcd50761bbeb4d77352010
-      helix.prd: e11b46de6300cc84460245fcfd6739210ce38406a76f90e32d26685938302eb1
-    reviewed_at: "2026-06-14T03:20:37Z"
+      CONTRACT-003: 7d87da307956baa74bf4f845cb6013264b1a6db0c604dd38527a4b9f5603c234
+      helix.prd: 48c38800e987ab54c72d79dcd9ceed6e20afbd197b87c05699c51b49f3cd1f41
+    reviewed_at: "2026-10-04T02:22:28Z"
 ```
 
 # Architecture
@@ -219,8 +219,10 @@ product vision
 ```
 
 The routing skill's `evolve` workflow mode threads changes downward through
-this order; `align` audits consistency across it. The authority hierarchy is a
-HELIX invariant; runtimes execute against it but do not redefine it.
+this order. `align` compares the artifacts affected by the requested change;
+an implementation audit is a separate, explicitly scoped request. The
+authority hierarchy is a HELIX invariant; runtimes execute against it but do
+not redefine it.
 
 ### Artifact instance frontmatter
 

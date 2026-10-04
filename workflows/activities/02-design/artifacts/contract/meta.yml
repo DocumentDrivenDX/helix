@@ -28,11 +28,10 @@ validation:
     - precedence_and_compatibility
     - error_semantics
     - examples
-    - validation_checklist
 
   quality_checks:
     - check: normative_surface_explicit
-      description: Contract fields, commands, messages, or payload elements must be explicit
+      description: Normative fields and rules for commands, messages, or payloads are explicit
       severity: blocking
     - check: implementation_independent
       description: Another team should be able to implement against the contract without code-level coupling
@@ -43,6 +42,17 @@ validation:
     - check: examples_present
       description: At least one concrete example should illustrate the contract
       severity: warning
+
+
+    - check: compatibility_and_precedence
+      description: Compatibility rules and precedence between contract sources are explicit
+      severity: blocking
+    - check: executable_test_derivable
+      description: A concrete contract test can be derived from the normative surface
+      severity: warning
+    - check: non_normative_notes_separated
+      description: Explanatory notes cannot be mistaken for normative requirements
+      severity: blocking
 
 prompts:
   generation: prompt.md

@@ -27,7 +27,7 @@ Tier labels carry over from the plan: emoji plus a non-breaking space
 
 | ID | Workstream | Tier | Outcome | Status | Evidence |
 |----|------------|------|---------|--------|----------|
-| [WS-1-good] | [WS-1] | 🟢 Good | [outcome from the plan] | [on-track / at-risk / done / dropped] | [every status cites evidence: done/at-risk cite the proof or the threat (demo, test, commit, metric); on-track cites the observable progress so far; dropped cites the trade or escalation] |
+| [WS-1-good] | [WS-1] | 🟢 Good | [outcome from the plan] | [on-track / at-risk / done / dropped] | [evidence: demo, test result, metric, observed progress, or trade] |
 
 ## Changes and Trades
 
@@ -43,10 +43,3 @@ Tier labels carry over from the plan: emoji plus a non-breaking space
 ## Next Steps
 
 - [Action → owner → date]
-
-## Review Checklist
-
-- [ ] Every row traces to an iteration-plan outcome ID
-- [ ] Every done or at-risk claim cites evidence — no phantom claims
-- [ ] Trades reference the plan's trade rules or name their approver
-- [ ] Decisions needed name their decider

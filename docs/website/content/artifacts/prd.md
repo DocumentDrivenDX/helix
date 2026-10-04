@@ -17,9 +17,9 @@ ddx:
   authoring:
     home: repo
   review:
-    self_hash: 060e5d594aa4d039d516d0a257f2d5129f75f56c912088b986a5e579a8f99b91
+    self_hash: 48c38800e987ab54c72d79dcd9ceed6e20afbd197b87c05699c51b49f3cd1f41
     deps: {}
-    reviewed_at: "2026-09-16T01:53:39Z"
+    reviewed_at: "2026-10-04T02:22:27Z"
 ```
 
 # Product Requirements Document
@@ -84,8 +84,10 @@ product behavior should preserve this contract:
 
 1. **Write the brief.** Users create or update governing artifacts that describe
    intent, requirements, constraints, and decisions.
-2. **Check alignment.** HELIX reviews the artifact graph for drift,
-   contradictions, stale assumptions, and missing context.
+2. **Check alignment.** HELIX compares the artifacts affected by the request
+   and identifies relevant drift, contradictions, stale assumptions, and
+   missing context. A project-wide implementation audit is a separate,
+   explicitly scoped request.
 3. **Create the work plan.** HELIX turns aligned artifacts into bounded
    implementation work with scope, non-scope, acceptance criteria, and evidence
    expectations.
@@ -180,11 +182,11 @@ govern lower-level ones; conflicts resolve up.
 **R-3: Routing skill.** A single skill, deployable to any runtime that can
 read and write markdown, routes a user's intent to HELIX-owned workflow modes
 for a project artifact graph. The skill must support alignment as a core mode:
-given an artifact root plus optional intent, it produces:
-(a) a structured alignment report listing gaps, drift, and contradictions in
-    the governing artifacts;
+given a requested change, it reads the relevant authorities and affected
+artifacts, then produces:
+(a) a human-readable report of relevant gaps, drift, and contradictions;
 (b) a plan describing the artifact updates needed to close them, ordered by
-    authority.
+    authority. The user or a runtime may request structured output.
 
 **R-4: Runtime-neutral content.** The catalog and skill body contain no
 references to specific runtime commands, file layouts, or runtimes beyond
@@ -262,9 +264,10 @@ then zero hits. References are allowed only in per-runtime package metadata
 (the DDx-plugin manifest, the Genie skill descriptor, etc.) and install
 guides.
 
-**R-6 (self-application):** Given the HELIX repo, when the `align` workflow
-mode runs against `docs/helix/`, then the resulting report has fewer findings
-than on the same date one quarter prior — i.e. the dogfood improves over time.
+**R-6 (self-application):** Given the HELIX repo at a release tag, when `align`
+runs over `docs/helix/` with a structured report, then it reports zero
+`DIVERGENT` findings, and instance validation passes every artifact in
+`docs/helix/` with no blocking findings.
 
 **R-12 (human-facing outputs):** Given a project with a vision and a PRD,
 when the `present` mode is asked for an evaluation deck, then a `DEL-nnn`

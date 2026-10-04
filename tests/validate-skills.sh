@@ -383,12 +383,12 @@ assert_file_contains \
   "helix polish mode must define a flagging path for non-measurable acceptance text"
 assert_file_contains \
   "$repo_root/workflows/modes/align.md" \
-  "content migration ledger" \
-  "helix align mode must require content migration ledger behavior"
+  "Omit a migration ledger unless the user requests one" \
+  "helix align mode must not impose a migration ledger on ordinary edits"
 assert_file_contains \
   "$repo_root/workflows/modes/align.md" \
-  "Destination-shaped draft content" \
-  "helix content migration ledger must capture destination-shaped content"
+  "state its source, destination, and the proposed" \
+  "helix align mode must keep content moves concrete"
 assert_file_not_contains \
   "$repo_root/skills/helix/SKILL.md" \
   "compatibility" \
@@ -616,7 +616,8 @@ banned = {
     r"CLAUDE_PLUGIN_ROOT|GROK_PLUGIN_ROOT": "host plugin env variables (say: a plugin root the host exposes)",
 }
 # Host tool names are banned outside code fences and outside the single
-# mapping sentence, which is the line carrying the marker `host tool names:`.
+# optional mapping sentence, marked `host tool names:`. A portable skill
+# that uses no host tool names needs no mapping sentence.
 tool_names = re.compile(r"\b(Bash|Write|Edit)\b")
 hits = []
 for pattern, why in banned.items():
@@ -636,8 +637,8 @@ for i, line in enumerate(body.splitlines(), 1):
         continue
     for m in tool_names.finditer(line):
         hits.append(f"  line {i}: {m.group(0)!r} (host tool name; say file write/edit or shell command)")
-if mapping_lines != 1:
-    hits.append(f"  expected exactly one `host tool names:` mapping sentence, found {mapping_lines}")
+if mapping_lines > 1:
+    hits.append(f"  expected at most one `host tool names:` mapping sentence, found {mapping_lines}")
 if hits:
     print("SKILL.md portability violations:", file=sys.stderr)
     print("\n".join(hits), file=sys.stderr)

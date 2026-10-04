@@ -10,7 +10,7 @@ ddx:
 ## Release Scope
 
 - Service or component: [name]
-- Version or commit: [tag or SHA]
+- Release version/build: [release version, image tag, or build name]
 - Deployment window: [date and time]
 - Release owner: [name]
 - Rollback owner: [name]

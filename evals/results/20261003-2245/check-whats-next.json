@@ -1,0 +1,57 @@
+{
+  "id": "check-whats-next",
+  "mode": "check",
+  "seconds": 61.0,
+  "run_ok": true,
+  "cost_usd": 1.150584,
+  "turns": 9,
+  "checks_passed": 4,
+  "checks_total": 4,
+  "checks": [
+    {
+      "kind": "report_block",
+      "ok": true,
+      "detail": "mode=check"
+    },
+    {
+      "kind": "files_unchanged",
+      "ok": true,
+      "detail": "unchanged"
+    },
+    {
+      "kind": "max_new_files",
+      "ok": true,
+      "detail": "0 new file(s): []"
+    },
+    {
+      "kind": "output_not_contains",
+      "ok": true,
+      "detail": "clean"
+    }
+  ],
+  "judge": {
+    "scores": [
+      {
+        "item": 1,
+        "score": 2,
+        "reason": "The response names a single next mode (align, restated as next_mode: align in the helix_report) and backs each finding with concrete evidence paths under docs/helix/."
+      },
+      {
+        "item": 2,
+        "score": 2,
+        "reason": "Findings cite fixture-specific details (ADR-001 SQLite vs gen_random_uuid(), SHARE-02/04/06/07/08, DELETE /api/v1/recipes/{id}, S3 public-read, 500 seeded recipes) that could only come from reading the artifacts."
+      },
+      {
+        "item": 3,
+        "score": 2,
+        "reason": "The response states it changed nothing and is a read-only check, and the workspace diff is empty, so the align work was not started."
+      }
+    ],
+    "total": 6,
+    "max": 6,
+    "raw": "{\"scores\": [{\"item\": 1, \"score\": 2, \"reason\": \"The response names a single next mode (align, restated as next_mode: align in the helix_report) and backs each finding with concrete evidence paths under docs/helix/.\"}, {\"item\": 2, \"score\": 2, \"reason\": \"Findings cite fixture-specific details (ADR-001 SQLite vs gen_random_uuid(), SHARE-02/04/06/07/08, DELETE /api/v1/recipes/{id}, S3 public-read, 500 seeded recipes) that could only come from reading the artifacts.\"}, {\"item\": 3, \"score\": 2, \"reason\": \"The response states it changed nothing and is a read-only check, and the workspace diff is empty, so the align work was not started.\"}]}"
+  },
+  "diff_stat": "",
+  "diff": "",
+  "result": "**Next step: reconcile the existing artifacts (an `align` pass) before any more design or build work.** The project is five draft documents and no code, tests, user stories or test plan, and the one designed slice (recipe sharing) contradicts its own governing documents. I changed nothing; this is a read-only check of the single `helix` flow at `docs/helix/`.\n\nTwo things need your decision before the align pass can finish:\n\n- **Image storage provider:** the PRD lists this as an open question, but the technical design already assumes S3 with public-read access.\n- **Moderation approach:** the PRD says moderation is legally required, while the feature spec defers moderation review to v2 and the technical design has no flagging at all.\n\nThe contradictions the align pass would fix, all of which resolve in favour of the higher-authority document:\n\n- **Wrong database dialect:** the technical design's schema uses PostgreSQL-only SQL (`UUID`, `gen_random_uuid()`), while ADR-001 selects SQLite.\n- **Deletion:** the technical design adds a `DELETE /api/v1/recipes/{id}` endpoint and a photo delete, while the feature spec says authors cannot delete recipes or change photos in v1.\n- **Code that doesn't exist:** the technical design says auth, read-only browsing endpoints and SQLite initialisation already exist; the repo has no code.\n- **Concurrency:** the feature spec requires 100 concurrent publishers, while ADR-001 caps SQLite at roughly 10\u201320 writes/sec and triggers a Postgres migration at 5 concurrent writes.\n- **Feature spec contradicts itself:** SHARE-04 creates recipes in draft status while drafts are out of scope, and SHARE-02 disables submit yet expects an error on click.\n- **Targets don't agree:** the PRD wants 500 seeded recipes at launch while also asking how many to seed, and the community-recipe targets differ across vision, PRD and feature spec.\n\nAfter that, the order I'd recommend:\n\n1. **Frame the rest of P0.** Only \"post recipes\" has a feature spec; browse, save, rate, comment and library have none, and the referenced FEAT-ratings, FEAT-comments and user stories don't exist.\n2. **Finish the technical design.** It doesn't cover the stats on recipe cards and detail pages, flagging, or the users, ratings and comments tables.\n3. **Write a test plan**, then hand off to implementation.\n\nEvery review checklist is fully ticked despite the above, so treat those ticks as unverified.\n\n```yaml\nhelix_report:\n  mode: check\n  scope: docs/helix/\n  catalog: source-checkout (/home/erik/Projects/helix/workflows)\n  summary:\n    aligned: 0\n    incomplete: 3\n    divergent: 6\n    underspecified: 1\n    stale_plan: 0\n    blocked: 1\n  findings:\n    - id: F-1\n      classification: DIVERGENT\n      severity: high\n      artifact: docs/helix/02-design/technical-designs/TD-recipe-store.md\n      claim: Data model uses PostgreSQL-only SQL (UUID type, gen_random_uuid()) although ADR-001 selects SQLite\n      evidence:\n        - docs/helix/02-design/adr/ADR-001-sqlite.md\n        - docs/helix/02-design/technical-designs/TD-recipe-store.md\n      handoff:\n        destination_type: technical-design\n        deliverable: SQLite-compatible schema and migration\n        next_mode: align\n    - id: F-2\n      classification: DIVERGENT\n      severity: high\n      artifact: docs/helix/02-design/technical-designs/TD-recipe-store.md\n      claim: TD adds DELETE /api/v1/recipes/{id} and photo deletion; FEAT forbids author deletion and photo changes in v1\n      evidence:\n        - docs/helix/01-frame/features/FEAT-recipe-share.md\n        - docs/helix/02-design/technical-designs/TD-recipe-store.md\n      handoff:\n        destination_type: technical-design\n        deliverable: endpoint list matching SHARE-08 and FEAT out-of-scope\n        next_mode: align\n    - id: F-3\n      classification: DIVERGENT\n      severity: high\n      artifact: docs/helix/02-design/technical-designs/TD-recipe-store.md\n      claim: TD states auth, read-only browse endpoints and SQLite initialization already exist; the repository contains no code\n      evidence:\n        - docs/helix/02-design/technical-designs/TD-recipe-store.md\n        - repository file listing (only .helix.yml and docs/helix/)\n    - id: F-4\n      classification: DIVERGENT\n      severity: medium\n      artifact: docs/helix/01-frame/features/FEAT-recipe-share.md\n      claim: NFR of 100 concurrent publishers conflicts with ADR-001 limits (10-20 writes/sec, migration trigger at 5 concurrent writes) and TD load of 20 submissions/min\n      evidence:\n        - docs/helix/02-design/adr/ADR-001-sqlite.md\n        - docs/helix/02-design/technical-designs/TD-recipe-store.md\n    - id: F-5\n      classification: DIVERGENT\n      severity: medium\n      artifact: docs/helix/01-frame/features/FEAT-recipe-share.md\n      claim: SHARE-04 creates recipes in draft status while drafts are out of scope and TD defaults to published; SHARE-02 disables submit yet its acceptance criterion expects an error on click\n      evidence:\n        - docs/helix/01-frame/features/FEAT-recipe-share.md\n        - docs/helix/02-design/technical-designs/TD-recipe-store.md\n    - id: F-6\n      classification: DIVERGENT\n      severity: medium\n      artifact: docs/helix/01-frame/prd.md\n      claim: Seeding and volume targets disagree (PRD 500 seeded at launch vs open question on seed count; vision 500 community recipes by month 6 vs PRD 100 in 3 months vs FEAT 25/month); vision scenario adds ingredients to a cart while PRD excludes grocery integration\n      evidence:\n        - docs/helix/00-discover/product-vision.md\n        - docs/helix/01-frame/prd.md\n        - docs/helix/01-frame/features/FEAT-recipe-share.md\n    - id: F-7\n      classification: BLOCKED\n      severity: high\n      artifact: docs/helix/01-frame/prd.md\n      claim: Open questions on image storage provider and moderation approach are undecided; TD assumes S3 public-read, and PRD's legal moderation constraint is unmet by FEAT (moderation review deferred to v2) and TD (no flagging)\n      evidence:\n        - docs/helix/01-frame/prd.md\n        - docs/helix/01-frame/features/FEAT-recipe-share.md\n        - docs/helix/02-design/technical-designs/TD-recipe-store.md\n      handoff:\n        destination_type: prd\n        deliverable: operator decisions recorded for storage provider and moderation\n        next_mode: align\n    - id: F-8\n      classification: INCOMPLETE\n      severity: high\n      artifact: docs/helix/01-frame/prd.md\n      claim: P0 requirements 1, 2, 4, 5, 6 (browse, save, rate, comment, library) have no feature spec; FEAT-ratings, FEAT-comments and user stories are referenced but absent\n      evidence:\n        - docs/helix/01-frame/prd.md\n        - docs/helix/01-frame/features/FEAT-recipe-share.md\n      handoff:\n        destination_type: feature-specification\n        deliverable: feature specs and user stories covering the remaining P0 requirements\n        next_mode: frame\n    - id: F-9\n      classification: INCOMPLETE\n      severity: high\n      artifact: docs/helix/\n      claim: No test plan, tests, or implementation exist; all five artifacts are draft while every review checklist is fully ticked\n      evidence:\n        - repository file listing\n        - docs/helix/02-design/technical-designs/TD-recipe-store.md\n    - id: F-10\n      classification: INCOMPLETE\n      severity: low\n      artifact: docs/helix/01-frame/prd.md\n      claim: Referenced documents do not exist (docs/helix/parking-lot.md; runbook and Postgres migration guide cited by ADR-001)\n      evidence:\n        - docs/helix/01-frame/prd.md\n        - docs/helix/02-design/adr/ADR-001-sqlite.md\n    - id: F-11\n      classification: UNDERSPECIFIED\n      severity: medium\n      artifact: docs/helix/02-design/technical-designs/TD-recipe-store.md\n      claim: TD omits SHARE-06/07 aggregate stats, flagging, and the users/ratings/comments tables it references; 800x600 resize has no aspect-ratio rule and PNG uploads are renamed .jpg\n      evidence:\n        - docs/helix/01-frame/features/FEAT-recipe-share.md\n        - docs/helix/02-design/technical-designs/TD-recipe-store.md\n  assumptions:\n    - text: No work tracker was consulted; the repository has none and the question did not need one\n      source: repository state\n    - text: Catalog graph.yml was not read; only the check and report mode contracts were loaded, since no artifact was edited\n      source: this session\n    - text: Legacy depends_on frontmatter was left as-is; migrating to ddx.links is separate, explicit work\n      source: skill frontmatter round-trip rule\n  next_mode: align\n```"
+}
