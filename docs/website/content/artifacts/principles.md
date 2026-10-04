@@ -20,11 +20,11 @@ ddx:
     - helix.prd
     - helix.product-vision
   review:
-    self_hash: 23db2c830aa9a8cabe8d7b6701b4da13bbe04bc979a9c0dc24900f1de2093cf2
+    self_hash: 93cd1656916b185cc307151361be40ab1a077117ba5d1e2756ae24fecb1959bb
     deps:
-      helix.prd: e11b46de6300cc84460245fcfd6739210ce38406a76f90e32d26685938302eb1
-      helix.product-vision: 13555b55d11d13ad2c01657a4f3b9c421867ca9f41dfb575c829ecb7c0990164
-    reviewed_at: "2026-06-14T03:20:37Z"
+      helix.prd: 48c38800e987ab54c72d79dcd9ceed6e20afbd197b87c05699c51b49f3cd1f41
+      helix.product-vision: 1f1e960bc87b10da772f5a37b3947d9908a56820cc84ff786c5258c2c664173d
+    reviewed_at: "2026-10-04T02:22:27Z"
 ```
 
 # Project Principles
@@ -42,14 +42,19 @@ steps; principles do not add steps or gates.
 3. **Scope the work.** Read the requested artifact and the authorities that can
    affect the change. Audit implementation only when explicitly requested and
    within the named scope.
-4. **Decisions guide implementation.** An accepted decision sets direction; it
+4. **Work flows in every direction.** A test exposes a design gap; a metric
+   revises a feature spec; a vision update propagates down. Activity names
+   locate the kind of work, not its position in a sequence.
+5. **Decisions guide implementation.** An accepted decision sets direction; it
    does not claim that the system implements that direction.
-5. **People decide; agents draft and check.** People own intent and approval.
+6. **People decide; agents draft and check.** People own intent and approval.
    Agents draft, compare, and surface questions at the governed hand-offs.
-6. **HELIX stays small.** HELIX defines methodology and ships one routing skill.
+7. **HELIX stays small.** HELIX defines methodology and ships one routing skill.
    Execution and tracking belong to the runtime.
-7. **Prefer useful evidence to ceremony.** Keep checks that find real defects.
+8. **Prefer useful evidence to ceremony.** Keep checks that find real defects.
    Do not add gates, reports, or checklist sections only for completeness.
+9. **Discipline over improvisation.** Agents improvise well; HELIX makes that
+   improvisation reviewable.
 
 ## Authority
 

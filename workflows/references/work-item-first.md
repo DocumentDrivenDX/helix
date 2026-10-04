@@ -15,7 +15,7 @@ When tracker-backed execution applies:
    outcome. Include a context digest when the runtime's contract requires one.
 4. Follow the runtime's rules for claiming, measuring, and closing the item.
 
-Do not create a tracker item solely to record an alignment or review finding.
+Do not create a tracker item or gate solely to record an alignment or review finding.
 Create follow-up work when requested or required by a runtime consumer. Report
 the evidence and suggested next step even when no tracker is available.
 

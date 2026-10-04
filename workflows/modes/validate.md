@@ -37,6 +37,3 @@ prompt, then edit resolvable findings in place.
    or `BLOCKED` — which need human judgment — report the evidence and a
    concise next step instead of editing. When the
    user invoked validate to audit, report each material non-`ALIGNED` finding.
-
-Keep the result conversational unless a structured report is requested or
-required by a runtime consumer.

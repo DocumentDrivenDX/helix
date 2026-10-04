@@ -391,7 +391,7 @@ execution and how it relates to canonical artifacts.
 
 ### When to Use Work Items
 
-When the user requests tracked work or the runtime requires it, use work items for:
+Where tracking applies (`workflows/references/work-item-first.md`), use work items for:
 - Story-level implementation work
 - Story-level deployment work
 - Prioritized backlog items

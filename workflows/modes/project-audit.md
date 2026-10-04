@@ -9,8 +9,6 @@ the target is ambiguous.
    test evidence. Keep accepted decisions as desired direction; verify
    implementation separately.
 3. Report material gaps and evidence, then recommend a next step. Do not make
-   edits or create tracker items unless separately requested.
-4. Use a conversational report by default. Provide a structured report when
-   requested or required by a runtime consumer.
+   edits unless separately requested.
 
 Procedure: `workflows/actions/project-audit.md` supplies additional detail.

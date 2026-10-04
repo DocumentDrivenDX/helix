@@ -20,13 +20,7 @@ date with the current canonical templates and prompts. Refresh is
    supports sub-agent dispatch, parallelise across the activity groups
    (one agent per activity); otherwise execute the groups in activity
    order.
-3. Summarize the material changes and unresolved findings. Include counts or
-   structured handoffs only when requested or required by a runtime consumer.
-4. Do not create tracker items automatically; follow the user's request and
-   runtime's rules.
-5. Refresh is read-only against templates and prompts in the skill
+3. Summarize the material changes and unresolved findings.
+4. Refresh is read-only against templates and prompts in the skill
    catalog. If refresh reveals that a template itself needs to change,
    route through `evolve` against the catalog separately.
-
-Use `modes/_report.md` when structured output is requested or required by a
-runtime consumer.

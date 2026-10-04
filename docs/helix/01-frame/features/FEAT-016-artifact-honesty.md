@@ -7,10 +7,10 @@ ddx:
   depends_on:
     - helix.prd
   review:
-    self_hash: 226872932728d635279abac06206be77cee1075d787aae7760010941adb9c1e1
+    self_hash: edca5ef7e2ff80495dc4f1b21b56dee961aea3998bdebd760663cb53d842a0ca
     deps:
-      helix.prd: 2b22383538b33c6ecee57f43d85128dfef7d56254766b757aa36439e35f2bfc9
-    reviewed_at: "2026-05-25T16:26:54Z"
+      helix.prd: 48c38800e987ab54c72d79dcd9ceed6e20afbd197b87c05699c51b49f3cd1f41
+    reviewed_at: "2026-10-04T02:22:27Z"
 ---
 
 # Feature Specification: FEAT-016 — Artifact Honesty (Claims-vs-Reality)

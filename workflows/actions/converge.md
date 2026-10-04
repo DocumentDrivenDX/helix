@@ -30,12 +30,10 @@ its requirements, decisions, and tests. Use the review action for each pass.
 
 Existing build, test, security, and conformance requirements remain binding
 when they apply. External review is useful evidence, but its availability does
-not block a decision. Do not create new gates for each finding; add one only
-when the user asks or the governing process requires it.
+not block a decision.
 
 ## Output
 
 Report the target, number of rounds, final disposition, resolved blockers, and
 any remaining blockers or advisory findings. Support the conclusion with
-evidence. Keep the report conversational unless the user or runtime asks for a
-structured form.
+evidence.

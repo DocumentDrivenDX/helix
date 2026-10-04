@@ -8,11 +8,7 @@ or implementation.
 2. Report actionable findings first, with severity, location, and evidence.
    Verify factual claims about tests, coverage, or metrics before relying on
    them. Preserve security, correctness, and user-authorized stop rules.
-3. Separate defects from optional improvements. Do not create tracker items or
-   new gates for findings unless the user requests that follow-up or a runtime
-   consumer requires it.
-4. Use a conversational result by default. Provide a structured report when the
-   user or runtime asks for one.
+3. Separate defects from optional improvements.
 
 Procedure: `workflows/actions/fresh-eyes-review.md` supplies additional detail.
 

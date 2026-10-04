@@ -1,4 +1,4 @@
-"""Document history guard: citations fail; technical language remains valid."""
+"""Document history guard: citations warn; technical language remains valid."""
 import importlib.util
 from pathlib import Path
 import unittest
@@ -17,22 +17,26 @@ class DocumentHistoryTests(unittest.TestCase):
         validator.check_delivery_history(body, 1, report)
         return report.findings
 
-    def test_repository_citations_fail(self):
+    def test_repository_citations_warn(self):
         for citation in (
-            "Implemented in PR #42", "See PR42", "pull request 42",
+            "Implemented in PR #42", "pull request 42",
             "https://github.com/org/repo/pull/42",
             "https://github.com/org/repo/commit/abc1234",
-            "commit `abc1234`", "revision abc1234", "commit SHA abc1234",
+            "commit `abc1234`", "commit SHA abc1234",
             "---\nddx:\n  commit: abc1234\n---\n# Intent",
         ):
             with self.subTest(citation=citation):
-                self.assertEqual(self.findings(citation)[0]["severity"], "blocking")
+                self.assertEqual(self.findings(citation)[0]["severity"], "warning")
 
     def test_technical_semantics_and_non_git_identifiers_pass(self):
         self.assertEqual(self.findings(
             "Transactions commit atomically. Release v0.14.1 uses ADR-003.\n"
             "Run tests before committing. Session `2f92aad5` has 18 prompts.\n"
-            "The export SHA256 is " + "a" * 64
+            "The export SHA256 is " + "a" * 64 + "\n"
+            "Alembic revision ae1027a6acf3 adds the orders table.\n"
+            "Batched transactions commit 1000000 rows.\n"
+            "PR-1: p95 latency stays under 200ms. See PR42.\n"
+            "revision: 20241015"
         ), [])
 
     def test_findings_have_source_lines(self):

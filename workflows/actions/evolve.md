@@ -31,17 +31,10 @@ separate requested change.
 4. **Make authorized edits.** Update only the affected artifacts, from higher
    authority to lower. Preserve unrelated content and frontmatter.
 5. **Report the result.** Name changed artifacts, important related artifacts
-   left unchanged, unresolved conflicts, and evidence. Use a conversational
-   response unless a durable or structured result was requested.
-
-Create tracker work, dependency links, or new gates only when the user requests
-them or a runtime consumer requires them. When requested, describe each item in
-terms of its affected artifact and verifiable outcome. Do not make a gate from
-every review finding.
+   left unchanged, unresolved conflicts, and evidence.
 
 ## Output
 
 Summarize the requirement change, artifact edits, and remaining decisions. Do
 not include pull request numbers, commit hashes, or repository-history
-citations in the artifact or report. A structured report remains available
-when requested by a user or runtime consumer.
+citations in the artifact or report.

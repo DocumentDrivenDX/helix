@@ -43,16 +43,8 @@ system.
    artifacts and active concerns. Surface conflicts instead of silently
    choosing between them.
 5. **Report the result.** Name the artifact created or updated, evidence used,
-   important uncertainty, and any needed user decision. Keep the response
-   conversational by default.
+   important uncertainty, and any needed user decision.
 
-Create tracker items only when the user requests durable follow-up or the
-runtime requires them. A tracker or durable report is not a prerequisite for
-drafting. When requested, use `workflows/templates/backfill-report.md` and
-include only sections that help explain the evidence, assumptions, and result.
-
-## Optional structured result
-
-When requested by the user or required by a runtime consumer, report status,
-scope, artifacts changed, unresolved guidance, and evidence in the consumer's
-format. Do not emit a machine-readable trailer in ordinary conversation.
+A tracker or durable report is not a prerequisite for drafting. When a durable
+report is requested, use `workflows/templates/backfill-report.md` and include
+only sections that help explain the evidence, assumptions, and result.

@@ -17,8 +17,7 @@ authorization.
 4. Distinguish implemented, incomplete, divergent, and unverified behavior.
    An accepted decision establishes direction, not implementation status.
 5. Report material findings, evidence, scope limits, and the most useful next
-   step. Do not create work items or gates automatically.
+   step.
 
 An audit need not inventory every artifact or surface unless the user asks for
-comprehensive coverage. Use the structured form in `modes/_report.md` only when
-requested or required by a runtime consumer.
+comprehensive coverage.

@@ -16,9 +16,6 @@ existing artifacts.
 4. Update the affected artifacts from highest authority to lowest. Preserve the
    user's intended requirement strength and edit only within the authorized
    scope.
-5. Summarize changed, unchanged, and unresolved artifacts with evidence. Create
-   tracker work or add gates only when requested or required by a runtime
-   consumer. Keep the output conversational unless a structured report is
-   requested.
+5. Summarize changed, unchanged, and unresolved artifacts with evidence.
 
 Procedure: `workflows/actions/evolve.md` supplies additional detail.

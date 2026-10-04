@@ -42,7 +42,7 @@ Factual reports still need evidence such as measurements, test results, and
 observations. They do not maintain a second execution ledger. Release versions
 identify distributions; database transaction semantics remain technical content.
 
-## Component Changes
+## Component Behavior
 
 | Component | Required behavior |
 |---|---|
@@ -51,22 +51,16 @@ identify distributions; database transaction semantics remain technical content.
 | Project documents and shared guidance | Apply the same distinction between intent, observations, and execution status |
 | Validators and evaluation fixtures | Check useful requirements and requested output shapes, not mandatory ceremony |
 
-## Work Breakdown
+## Design Rules
 
-Workflow and catalog changes are independent. Integrate them with project
-document cleanup, then reconcile validators and generated catalog projections.
-Pilot the writing changes on feature specifications, component profiles,
-runbooks, and a complete routing/mode/action path before applying them to the
-remaining catalog. Keep template structure in templates, authoring instructions
-in prompts, and review criteria in metadata. Retain repetition only when a
-consumer would otherwise miss a necessary rule.
-Preserve existing artifact identities and technical requirements. Do not rewrite
-archives or source-control history, introduce a new public skill, or publish a
-release as part of this change.
+- Keep template structure in templates, authoring instructions in prompts, and
+  review criteria in metadata.
+- Retain repetition only when a consumer would otherwise miss a necessary rule.
+- Preserve artifact identities and technical requirements.
+- Moving text into mandatory references is not a reduction. Shorter output is
+  useful only when requirements, exceptions, and evidence remain clear.
 
-## Testing
-
-### Acceptance
+## Acceptance Criteria
 
 - A small requirement edit consults relevant authorities and stops after the
   requested coherent change; unrelated ADRs require no implementation audit.
@@ -77,13 +71,9 @@ release as part of this change.
   remains available to runtimes and evaluation consumers.
 - Active documents and catalog examples contain no repository-history citations;
   transaction terminology, release versions, and content digests remain valid.
-- Run the existing deterministic suite and focused regression checks, then
-  the repository pre-commit checks and whitespace validation.
-- Compare source words and complete representative task context before and
-  after editing. Moving text into mandatory references is not a reduction.
-  Shorter output is useful only when requirements, exceptions, and evidence
-  remain clear. Review fixed narrow, complex, missing-prerequisite, and
-  conflicting-authority scenarios; do not treat a word-count target as a gate.
+- Narrow, complex, missing-prerequisite, and conflicting-authority scenarios
+  each produce the shortest output that keeps requirements, exceptions, and
+  evidence clear.
 
 ## Risks
 

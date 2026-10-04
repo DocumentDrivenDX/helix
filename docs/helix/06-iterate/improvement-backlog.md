@@ -6,10 +6,10 @@ ddx:
   depends_on:
     - metrics-dashboard
   review:
-    self_hash: 952df3e5bbb6e967cd0e3d485ae7106893c464008ecda327e9c0c6a33527e2cd
+    self_hash: ed5edb10332f47e1faf1ff63ff3bd6d2b47a8ed959acc9aece1b2f1be8e2bf2c
     deps:
-      metrics-dashboard: 486cd18a01712b15850ce7dd808d432a8a52cc56d1db22a8939ed31b633191c0
-    reviewed_at: "2026-09-16T03:20:07Z"
+      metrics-dashboard: a6eeafc50ce55540e195d0613e8e23f97e05ca23f39b812821324ee74c78a125
+    reviewed_at: "2026-10-04T02:22:28Z"
 ---
 # Improvement Candidates
 

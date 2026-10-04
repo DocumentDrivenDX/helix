@@ -17,8 +17,8 @@ ddx:
 
 | Aspect | Description |
 |--------|-------------|
-| Problem | A runtime needs to know how often to pause for human confirmation. The policy must give low, medium, and high autonomy clear meanings without changing required workflow activities or weakening hard stops. |
-| Current State | The PRD defines autonomy as a controllable spectrum and prohibits flattening the seven-activity loop into one prompt. Action guidance also uses the `low`/`medium`/`high` vocabulary. |
+| Problem | A max-autonomy "one-shot a working app" build showed HELIX needs a governed way to say *how much* a runtime should pause for human confirmation. The `low`/`medium`/`high` vocabulary already existed in action guidance, but its governing feature and design had been removed, leaving the policy dangling and unauditable. |
+| Current State | The PRD defines autonomy as a controllable spectrum and prohibits flattening the seven-activity loop into one prompt. Nothing records why the spectrum has three positions, how the active level is resolved, or what a high-autonomy run may never do. |
 | Requirements | HELIX defines a fixed vocabulary, deterministic resolution order, and two invariants: no level passes a hard stop, and no level skips a required activity. The policy remains runtime-neutral and requires no runtime-specific configuration. |
 
 ## Decision

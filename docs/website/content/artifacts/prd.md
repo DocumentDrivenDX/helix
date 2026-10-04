@@ -17,9 +17,9 @@ ddx:
   authoring:
     home: repo
   review:
-    self_hash: 060e5d594aa4d039d516d0a257f2d5129f75f56c912088b986a5e579a8f99b91
+    self_hash: 48c38800e987ab54c72d79dcd9ceed6e20afbd197b87c05699c51b49f3cd1f41
     deps: {}
-    reviewed_at: "2026-09-16T01:53:39Z"
+    reviewed_at: "2026-10-04T02:22:27Z"
 ```
 
 # Product Requirements Document
@@ -264,10 +264,10 @@ then zero hits. References are allowed only in per-runtime package metadata
 (the DDx-plugin manifest, the Genie skill descriptor, etc.) and install
 guides.
 
-**R-6 (self-application):** Given a requested change to HELIX, when its
-relevant authorities and affected artifacts are aligned, then the resulting
-documents express the accepted desired state. A project-wide implementation
-audit occurs only when explicitly requested and names its scope and evidence.
+**R-6 (self-application):** Given the HELIX repo at a release tag, when `align`
+runs over `docs/helix/` with a structured report, then it reports zero
+`DIVERGENT` findings, and instance validation passes every artifact in
+`docs/helix/` with no blocking findings.
 
 **R-12 (human-facing outputs):** Given a project with a vision and a PRD,
 when the `present` mode is asked for an evaluation deck, then a `DEL-nnn`

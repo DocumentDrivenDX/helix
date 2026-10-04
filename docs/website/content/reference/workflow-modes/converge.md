@@ -15,9 +15,7 @@ repeat the review within a stated or agreed limit.
    when blocking findings are resolved, the round limit is reached, or an
    unresolved decision requires the user's input.
 3. Keep recommendations advisory unless the governing requirement, user
-   instruction, or an existing quality gate makes them binding. Do not create a
-   gate for every finding.
-4. Report the final disposition and evidence conversationally. Provide a
-   structured report when requested or required by a runtime consumer.
+   instruction, or an existing quality gate makes them binding.
+4. Report the final disposition and evidence.
 
 Procedure: `workflows/actions/converge.md` supplies additional detail.

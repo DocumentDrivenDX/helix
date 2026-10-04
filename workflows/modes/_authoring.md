@@ -2,6 +2,8 @@
 
 Load this contract when a mode creates or edits an artifact instance.
 Use the active voice profile and shared writing guidance when they apply.
+Tracker work and gates follow `workflows/references/work-item-first.md`;
+report shape follows `workflows/modes/_report.md`.
 
 ## Consult relevant authority
 
@@ -25,9 +27,6 @@ summary where useful; a missing summary does not block authoring.
 
 ## External-tool artifacts
 
-For `authoring.home: external-tool`, read through the configured connector when
-available; otherwise use the checked-in body. Do not edit the copy to change
-content. Route edits to `authoring.origin`. Treat `state: checked-out` as stale.
-For `checked-in`, a mismatched export digest means the body is stale; a missing
-digest means freshness is unknown. If the runtime cannot produce a faithful
-check-in, leave the state unchanged and explain the limitation.
+For `authoring.home: external-tool`, follow `skills/helix/SKILL.md` §8
+(Externally authored artifacts). Never edit the body to change its content;
+route edits to `authoring.origin`.

@@ -8,11 +8,11 @@ ddx:
     - helix.prd
     - FEAT-006
   review:
-    self_hash: 0d31847adee3e2048695700a430e37b6c8c65c93c2ce94dc7d2cc11aa5f4f9eb
+    self_hash: 4c002252461365e888c584aca1b2dcf51ac957bf84573e94724acffab8c807af
     deps:
-      FEAT-006: 7517c7bf2db366dcdbae3ada995a5c0148955b332cf34d567180dff971d79489
-      helix.prd: 2b22383538b33c6ecee57f43d85128dfef7d56254766b757aa36439e35f2bfc9
-    reviewed_at: "2026-05-25T20:24:24Z"
+      FEAT-006: ead00d4608416d00d76887e39846e171279363f520f7c830da631830aa7dda3d
+      helix.prd: 48c38800e987ab54c72d79dcd9ceed6e20afbd197b87c05699c51b49f3cd1f41
+    reviewed_at: "2026-10-04T02:22:28Z"
 ---
 
 # Feature Specification: FEAT-011 — Slider Autonomy

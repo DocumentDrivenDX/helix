@@ -17,9 +17,9 @@ ddx:
   authoring:
     home: repo
   review:
-    self_hash: 08901f26fcd1422bd385122af0254abacc088a9f0eed2ae7a1df3173e2a5ee5a
+    self_hash: a6eeafc50ce55540e195d0613e8e23f97e05ca23f39b812821324ee74c78a125
     deps: {}
-    reviewed_at: "2026-09-16T03:20:33Z"
+    reviewed_at: "2026-10-04T02:22:28Z"
 ```
 
 # Metrics Dashboard: HELIX 2026-Q3

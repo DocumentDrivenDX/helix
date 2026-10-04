@@ -10,11 +10,8 @@ names a data-pipeline artifact whose blocker is an infra prerequisite).
 2. Decide conservatively among design, alignment, backfill, polish, runtime
    handoff, wait, guidance, or stop.
 3. Do not dispatch another workflow silently.
-4. Explain the recommended next step and its evidence. Use a structured
-   handoff when requested or required by a runtime consumer; never prescribe a
-   CLI command.
-5. Create tracker work only when requested or required by a runtime consumer.
-6. Keep the answer conversational unless a structured report is requested.
+4. Explain the recommended next step and its evidence; never prescribe a CLI
+   command.
 
 ## Flow disambiguation
 
@@ -77,9 +74,7 @@ Cross-flow contract (every cross-flow ask):
 
 Answer concisely by naming the owner flow, relevant evidence, any prerequisite
 flow that affects the result, and the recommended next action. Mention artifact
-status when it changes that recommendation. Provide a structured per-flow
-handoff only when requested or required by a runtime consumer; never prescribe
-a CLI command.
+status when it changes that recommendation.
 
 Do not skip owner-flow resolution because the prompt is short or the
 prerequisite verb is loud. Do not collapse multiple flows into a single

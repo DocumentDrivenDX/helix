@@ -30,10 +30,8 @@ observations and optional improvements. If no findings remain, say what scope
 you reviewed and what evidence supports the result. A factual claim about a
 test, metric, or measurement must point to the test or observation behind it.
 
-Do not create tracker items, revise artifacts, or add gates automatically.
-Recommend those follow-ups when they would help; make them only when requested
-or required by a runtime consumer. Keep the response conversational unless a
-structured report is requested.
+Do not revise artifacts automatically. Recommend follow-ups when they would
+help.
 
 ## Optional structured report
 

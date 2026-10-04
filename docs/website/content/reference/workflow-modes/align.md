@@ -21,13 +21,8 @@ content could change the result.
    Keep requirements at their intended strength; code alone does not authorize
    changing them.
 3. For misplaced content, state its source, destination, and the proposed
-   change. Omit a migration ledger unless the user requests one or a runtime
-   consumer requires it.
-4. Give findings concrete evidence and a useful next step. Create or update
-   tracker work only when the user requests it or the runtime explicitly
-   requires it. Do not turn each finding into a gate automatically.
-5. Keep the result conversational by default. Write a durable or structured
-   report when requested or required by a runtime consumer.
+   change. Omit a migration ledger unless the user requests one.
+4. Give findings concrete evidence and a useful next step.
 
 An implementation audit is a separate, explicit request. When asked, keep it
 within the named scope and inspect the relevant code, tests, and governing

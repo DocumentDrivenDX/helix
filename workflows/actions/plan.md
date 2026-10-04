@@ -88,11 +88,6 @@ when they exist.
      existing artifact on disk. If a target does not exist, stop and request
      guidance before writing the file.
 
-## STEP 0.5 - Work Item (when required)
-
-Use a governing work item when the user requests tracker-backed planning or the
-runtime requires one. Otherwise continue with the requested design.
-
 ## STEP 1 - First Draft
 
 Produce a design document covering the sections that are **load-bearing for this

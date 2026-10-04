@@ -27,9 +27,7 @@ records the chosen direction; implementation status requires separate evidence.
 4. For misplaced content, identify its source and proposed destination. Draft
    destination text only when the user asks for it or authorizes edits.
 5. Report findings with evidence and a useful next step. A conversational
-   answer is sufficient by default. Create a durable report, structured output,
-   tracker item, or new quality gate only when requested or required by a
-   runtime consumer.
+   answer is sufficient by default.
 
 ## Explicit implementation audit
 
@@ -62,9 +60,3 @@ Record factual claims with evidence such as artifact sections, code locations,
 tests, commands, or observed measurements. State what was not examined when
 that limit changes the conclusion. Do not manufacture `N/A` rows for absent
 dimensions, and do not turn each finding into a gate or tracker item.
-
-## Optional structured report
-
-When a user or runtime consumer asks for machine-readable output, use the
-available shape in `workflows/modes/_report.md`. Include relevant findings and
-evidence only; exhaustive matrices and finding handoffs are optional.

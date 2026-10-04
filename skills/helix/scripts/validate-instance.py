@@ -294,22 +294,25 @@ def check_rule_entries(key: str, entries: list, body: str, base: int, report: Re
 
 
 def check_delivery_history(body: str, base: int, report: Report) -> None:
-    """Reject repository-history citations, not transaction or release semantics.
+    """Flag repository-history citations, not transaction or release semantics.
 
-    Deliberately avoid treating every hex token as a revision: documents can
-    contain content digests, sample data, and session identifiers.
+    A warning, not a block: the patterns cannot tell this repository's history
+    from a legitimate upstream reference. Hashes must mix letters and digits so
+    numeric counts ("commit 1000000 rows") pass; bare `revision` identifiers
+    (database migrations) and `PR-n` requirement IDs are not matched.
     """
+    sha = r"[`\"']?(?=[0-9a-f]*[a-f])(?=[0-9a-f]*[0-9])[0-9a-f]{7,40}\b"
     pattern = re.compile(
-        r"\bPR(?:\s*#?\s*|-)[0-9]+\b"
+        r"\bPR\s*#\s*[0-9]+\b"
         r"|\bpull[ -]request\s*#?\s*[0-9]+\b"
         r"|https?://[^\s)<>]+/(?:pull|pulls|merge_requests)/[0-9]+\b"
         r"|https?://[^\s)<>]+/commits?/[0-9a-f]{7,40}\b"
-        r"|\b(?:commit|revision)\s+(?:hash\s*|SHA\s*)?[`\"']?[0-9a-f]{7,40}\b"
-        r"|\b(?:commit|revision|commit_sha|source_commit)\s*[:=]\s*[`\"']?[0-9a-f]{7,40}\b",
+        r"|\bcommit\s+(?:hash\s*|SHA\s*)?" + sha +
+        r"|\b(?:commit|commit_sha|source_commit)\s*[:=]\s*" + sha,
         re.IGNORECASE,
     )
     for match in pattern.finditer(body):
-        report.add("blocking", "delivery_history", "Keep repository-history citations in source control or the runtime tracker", line_of(body, match.start(), base))
+        report.add("warning", "delivery_history", "Keep repository-history citations in source control or the runtime tracker", line_of(body, match.start(), base))
 
 
 def check_placeholders(body: str, base: int, report: Report) -> None:

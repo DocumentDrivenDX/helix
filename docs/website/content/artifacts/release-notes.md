@@ -19,10 +19,10 @@ ddx:
   depends_on:
     - deployment-checklist
   review:
-    self_hash: 99574883788300395089b39ca0b1918d4a23f359269390fa4717bc0fc0c41f51
+    self_hash: 8bc33a1023c19ca6bb079aafdff660076349e58b2b62d4c91e7bcb6956124a7f
     deps:
-      deployment-checklist: 78c9688645de24f33182dca537e13d0fb180abb4773ab85b48468e495a92bad1
-    reviewed_at: "2026-09-17T19:23:17Z"
+      deployment-checklist: 00556985f9bfc7cabe6c1288473bb2935f3fe4a83fb5fcd53918e95bf29e5d21
+    reviewed_at: "2026-10-04T02:22:28Z"
 ```
 
 # Release Notes — HELIX v0.14.1

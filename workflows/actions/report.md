@@ -1,52 +1,55 @@
 # HELIX Action: Report
 
-You are analyzing measurement results and closing the feedback loop between
-the execution cycle and the planning cycle.
+You are analyzing measurement results and feeding the findings back into
+planning.
 
-This action operates in two modes: per-item (closing one cycle) and batch
-(aggregating across a scope).
+This action operates in two modes: per-item (one measured cycle) and batch
+(aggregating across a scope). It reads measurement results wherever they were
+recorded: a runtime work item's notes, a measure action's output, or the
+conversation. It creates or closes tracker items only when a runtime work item
+governs the run.
 
 ## Action Input
 
 You may receive:
 
-- an explicit work item ID (per-item mode)
-- a scope selector such as `FEAT-003`, `area:auth`, or `activity:build` (batch mode)
+- a runtime work item ID (per-item mode)
+- a named scope such as `FEAT-003`, `area:auth`, or `activity:build` (batch mode)
 - `--since YYYY-MM-DD` to limit batch scope by time
 
 ## STEP 0 - Bootstrap
 
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory.
-1. Verify the runtime-provided work-item source is available.
-2. Load active concerns following the concern-resolution reference for this
+1. Load active concerns following the concern-resolution reference for this
    runtime.
+2. When a runtime work item governs the run, verify the runtime-provided
+   work-item source is available.
 
 ## Per-Item Mode
 
 ### STEP 1 - Load Measurement Results
 
-1. Load the target work item from the tracker.
-2. Parse the measurement results block from the item's notes.
-3. If no measurement results exist, recommend running the measure action first
+1. Load the measurement results for the target: from the governing work item's
+   notes when one applies, otherwise from the measure output the user supplies
+   or the current conversation.
+2. If no measurement results exist, recommend running the measure action first
    and stop.
 
 ### STEP 2 - Analyze Results
 
 Classify the measurement outcome:
 
-- **Clean**: All criteria passed, all gates passed. The work item is done.
+- **Clean**: All criteria passed, all gates passed. The work is done.
 - **Fixable**: Failures are within the action's scope to fix. Recommend
-  fixing and re-measuring rather than creating follow-on items.
-- **Follow-on**: Failures or findings require new work outside this item's
-  scope.
+  fixing and re-measuring rather than opening new work.
+- **Follow-on**: Failures or findings require new work outside this scope.
 
-### STEP 3 - Create Follow-On Work Items
+### STEP 3 - Follow-On Recommendations
 
-For each follow-on item, create a work item with a category prefix in the
-title, labels including `helix` and `activity:build`, a `spec-id` pointing to the
-nearest governing artifact, a context digest, a reference to the parent item in
-the description, and deterministic acceptance criteria.
+Classify each follow-on finding by category and report it with its evidence and
+a suggested next step. Create tracker items only when the user requests them or
+the runtime requires them; follow the runtime's rules for fields and digests.
 
 Follow-on categories:
 
@@ -60,47 +63,36 @@ Follow-on categories:
 | `phantom-claim` | A claims-vs-reality check classified an artifact assertion as `ASSERTED_UNBACKED` (zero-floor; see `workflows/ratchets.md` and FEAT-016) |
 | `follow-on` | Execution revealed additional work outside scope |
 
-Follow-on work items enter the planning cycle — they will be refined by the
-polish action before execution.
+### STEP 4 - Governing Work Item (when required)
 
-### STEP 4 - Close the Governing Work Item
+When a runtime work item governs the run, record the report on it and follow the
+runtime's closure rules. If measurement status is FAIL and the failures are not
+captured as follow-on work, leave the item open with a status note.
 
-If measurement status is PASS or all failures are captured as follow-on items,
-close the governing work item. The close comment should summarize:
-
-- What was done
-- Measurement status
-- Number of follow-on items created
-- References to commits or artifacts produced
-
-If measurement status is FAIL and failures are not captured as follow-on items,
-do not close. Leave the item open with a status note.
+Without a governing work item, state the measurement status, the evidence, and
+the recommended next step in the response.
 
 ### Per-Item Output
 
-```
-REPORT_STATUS: CLOSED|OPEN|FOLLOW_ON
-ITEM_ID: <id>
-MEASURE_STATUS: PASS|FAIL|PARTIAL
-FOLLOW_ON_CREATED: N
-```
+Report the measurement status, the classification from Step 2, and any
+follow-on recommendations. Name the governing item ID when one applies.
 
 ## Batch Mode
 
-### STEP 1 - Collect Work Items
+### STEP 1 - Collect Measurement Results
 
-1. Load all work items in scope that have measurement result notes.
+1. Load the measurement results in scope: from work item notes when a tracker
+   is in use, otherwise from existing reports and measure output.
 2. If `--since` is specified, filter by the measurement timestamp.
-3. Load each item's measurement results.
 
 ### STEP 2 - Aggregate Statistics
 
 Compute:
 
-- Total items measured / passed / failed / partial
+- Total measured / passed / failed / partial
 - Concern gate pass rates by concern
 - Ratchet trends (floor vs. measured over time)
-- Follow-on item categories (how much new work did execution generate?)
+- Follow-on categories (how much new work did execution generate?)
 - Acceptance criteria satisfaction rate
 
 ### STEP 3 - Identify Patterns
@@ -113,8 +105,8 @@ Look for:
   indicate a polish gap.
 - **Ratchet trends**: Metrics approaching the floor. May indicate quality
   erosion that needs attention before it becomes a regression.
-- **Follow-on volume**: High follow-on creation rate may indicate that items
-  are under-specified or that the planning cycle needs more polish passes.
+- **Follow-on volume**: A high follow-on rate may indicate that scope is
+  under-specified or that the planning cycle needs more polish passes.
 
 ### STEP 4 - Write Batch Report
 
@@ -130,26 +122,12 @@ The report should include:
 5. Ratchet trend analysis
 6. Recommendations (more polish, concern updates, ratchet floor adjustments)
 
-### Batch Output
+## Feed-Back Into Planning
 
-```
-REPORT_SCOPE: <scope>
-ITEMS_TOTAL: N
-ITEMS_PASSED: N
-ITEMS_FAILED: N
-ITEMS_PARTIAL: N
-FOLLOW_ON_TOTAL: N
-CONCERN_COVERAGE: N/M
-RATCHET_STATUS: all-passing | <name> approaching floor
-REPORT_FILE: docs/helix/06-iterate/reports/RPT-YYYY-MM-DD[-scope].md
-```
+Follow-on findings are raw. When they become tracker items, they are
+intentionally unrefined: the planning cycle refines them.
 
-## Feed-Back Into Planning Cycle
-
-Follow-on work items created during report are intentionally unrefined. The
-execution cycle produces raw findings; the planning cycle refines them.
-
-The next check action will detect these items and route appropriately:
+The next check action routes them:
 - If they need refinement → polish action
 - If they are already ready → build action
 - If they reveal design gaps → design action
@@ -158,36 +136,33 @@ Be precise, quantitative, and evidence-driven.
 
 ## Runtime Integration Appendix
 
-This appendix covers how a runtime realizes the report action. The reference
-paths and work-item acquisition below are runtime-neutral; for the concrete
-commands of a specific runtime, see its install guide (DDx:
+This appendix covers how a runtime realizes the report action when a runtime
+work item governs the run. The reference paths below are runtime-neutral; for
+the concrete commands of a specific runtime, see its install guide (DDx:
 [docs/install/ddx.md](../../docs/install/ddx.md)).
 
 ### STEP 0 — Reference resolution
 
-Verify the runtime-provided work-item source is reachable; stop immediately if
-it is not.
-
 Load active concerns following `workflows/references/concern-resolution.md`.
+When a runtime work item governs the run, verify the runtime-provided work-item
+source is reachable; stop if it is not.
 
 ### Per-item mode — runtime specifics
 
-Load the target work item from the runtime-provided work-item source.
+Load the target work item and its `<measure-results>` block from the
+runtime-provided work-item source. If no measurement results exist, recommend
+running `/helix measure <id>` first.
 
-If no measurement results exist, recommend running `/helix measure <id>` first.
+Follow `workflows/references/work-item-first.md` for any follow-on items the
+user requested or the runtime requires. Follow-on items are refined by
+`/helix polish` before execution. Close the governing work item per the
+runtime's rules once the report is complete.
 
-Create follow-on work items with labels `helix,activity:build`, `spec-id` set to
-the governing artifact, a `<context-digest>` description naming the parent item
-and the work needed, and testable acceptance criteria. The runtime supplies the
-work-item store; for the concrete commands see its install guide
-([docs/install/ddx.md](../../docs/install/ddx.md) for DDx).
+### Optional trailers
 
-Follow-on items enter the planning helix and will be refined by `/helix
-polish` before execution.
+Emit these only when a runtime consumer requires them.
 
-Close the governing work item once the report is complete.
-
-Per-item trailer:
+Per-item:
 ```
 REPORT_STATUS: CLOSED|OPEN|FOLLOW_ON
 ITEM_ID: <id>
@@ -195,8 +170,7 @@ MEASURE_STATUS: PASS|FAIL|PARTIAL
 FOLLOW_ON_CREATED: N
 ```
 
-### Batch mode — trailer
-
+Batch:
 ```
 REPORT_SCOPE: <scope>
 WORK_ITEMS_TOTAL: N
@@ -208,7 +182,3 @@ CONCERN_COVERAGE: N/M
 RATCHET_STATUS: all-passing | <name> approaching floor
 REPORT_FILE: docs/helix/06-iterate/reports/RPT-YYYY-MM-DD[-scope].md
 ```
-
-The next `/helix check` will detect follow-on work items and route appropriately:
-`POLISH` for refinement, `BUILD` if already ready, `DESIGN` if design gaps
-are revealed.
