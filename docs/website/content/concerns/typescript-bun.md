@@ -107,6 +107,7 @@ Agents working in any of these activities inherit the practices below through ru
 - `bun test` — all tests pass
 - `bun run typecheck` — `tsc --noEmit` passes for all packages
 - `bun run lint` — Biome lint + format check passes
+- Biome `noExcessiveCognitiveComplexity` and the file-size cap are set per `code-shape-ceilings`; no ceiling is raised and no `biome-ignore` is added for them
 - No `package-lock.json` committed (indicates npm was used)
 - `bun.lock` committed and up to date
 

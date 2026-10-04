@@ -210,6 +210,7 @@ Agents working in any of these activities inherit the practices below through ru
 
 - `tsc --noEmit` passes for the frontend.
 - The lint gate passes (Biome under `typescript-bun`, otherwise ESLint with the React hooks rules).
+- The ESLint config sets the complexity, function-length, parameter, and depth ceilings and a file-size cap per `code-shape-ceilings`; no ceiling is raised and no `eslint-disable` is added for them.
 - The component test suite passes (`vitest run`, or `bun test` under `typescript-bun`).
 - `vite build` succeeds and the initial-load JavaScript stays within the TD budget.
 - No `VITE_` variable holds a secret, and no client code references `process.env`.

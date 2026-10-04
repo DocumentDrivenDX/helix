@@ -321,3 +321,4 @@ model (`unity-catalog`) — see the boundary in `concern.md`.
 - The app **binds to existing** resources with **least-privilege** permissions; it creates no resources and embeds no credentials.
 - CI deploys run `bundle run` after `bundle deploy` and wait for `RUNNING`.
 - No source file exceeds 10 MB.
+- Code shape is gated by `code-shape-ceilings` (complexity, function, and file-size ceilings; editing-time and pre-commit hooks), which this concern does not restate.
