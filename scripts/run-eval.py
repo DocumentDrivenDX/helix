@@ -165,7 +165,7 @@ def run_checks(brief: dict, ws: Path, before: dict[str, str], after: dict[str, s
             hit = [v for v in c["values"] if v.lower() in result.lower()]
             ok, detail = bool(hit), f"found {hit}" if hit else f"none of {c['values']}"
         elif kind == "output_not_contains":
-            found = [v for v in c["values"] if re.search(r"\b" + re.escape(v) + r"\b", result, re.I)]
+            found = [v for v in c["values"] if re.search(r"(?<!\w)" + re.escape(v) + r"(?!\w)", result, re.I)]
             ok, detail = not found, f"found {found}" if found else "clean"
         elif kind == "deliverable_gate":
             fails = []

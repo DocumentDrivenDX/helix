@@ -15,7 +15,7 @@
 #   validate_instance  globs; every matching artifact must pass validate-instance.py
 #   report_block       the final response must contain a `helix_report:` block with this mode
 #   output_contains    case-insensitive substrings the final response must contain
-#   output_not_contains substrings the final response must not contain
+#   output_not_contains token-bounded strings the final response must not contain
 #   output_contains_any at least one of the substrings must appear (case-insensitive)
 #   deliverable_gate   glob; check-deliverable.py must report no blocking findings other than render.*
 #   max_new_files      upper bound on files created
