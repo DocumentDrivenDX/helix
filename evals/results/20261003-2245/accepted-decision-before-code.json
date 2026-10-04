@@ -1,0 +1,52 @@
+{
+  "id": "accepted-decision-before-code",
+  "mode": "review",
+  "seconds": 43.4,
+  "run_ok": true,
+  "cost_usd": 0.8255355,
+  "turns": 10,
+  "checks_passed": 3,
+  "checks_total": 3,
+  "checks": [
+    {
+      "kind": "files_unchanged",
+      "ok": true,
+      "detail": "unchanged"
+    },
+    {
+      "kind": "max_new_files",
+      "ok": true,
+      "detail": "0 new file(s): []"
+    },
+    {
+      "kind": "output_not_contains",
+      "ok": true,
+      "detail": "clean"
+    }
+  ],
+  "judge": {
+    "scores": [
+      {
+        "item": 1,
+        "score": 2,
+        "reason": "The response opens by stating that absence of code does not invalidate the accepted ADR, which records a desired state that is simply unbuilt."
+      },
+      {
+        "item": 2,
+        "score": 2,
+        "reason": "All findings address ambiguities or inconsistencies in the decision text (triggers, definitions, deployment model, durability, validation method), with none faulting missing implementation; the runbook note is about the ADR's wording."
+      },
+      {
+        "item": 3,
+        "score": 2,
+        "reason": "The response does not request an implementation-status table or any new tracking artifact, and no edits were made."
+      }
+    ],
+    "total": 6,
+    "max": 6,
+    "raw": "{\"scores\": [{\"item\": 1, \"score\": 2, \"reason\": \"The response opens by stating that absence of code does not invalidate the accepted ADR, which records a desired state that is simply unbuilt.\"}, {\"item\": 2, \"score\": 2, \"reason\": \"All findings address ambiguities or inconsistencies in the decision text (triggers, definitions, deployment model, durability, validation method), with none faulting missing implementation; the runbook note is about the ADR's wording.\"}, {\"item\": 3, \"score\": 2, \"reason\": \"The response does not request an implementation-status table or any new tracking artifact, and no edits were made.\"}]}"
+  },
+  "diff_stat": "",
+  "diff": "",
+  "result": "**No, the absence of code does not invalidate ADR-001.** An accepted ADR records a desired state; with implementation not started, it is simply unbuilt. Only a conflict with its governing artifacts, a superseding ADR, or its own review triggers firing would invalidate it, and none of those has happened. The decision does have ambiguities worth resolving before build starts. I made no edits.\n\n## Ambiguities in the decision\n\n1. **The Postgres migration trigger is defined four incompatible ways.**\n   - The Decision (line 28) says \"when concurrent user demand exceeds SQLite's write-lock constraints\", which has no number.\n   - Risks (line 52) says \"\u2265 5 concurrent writes observed\" in staging.\n   - Validation (lines 60\u201361) says more than 200 concurrent users, or p99 above 500ms.\n   - \"\u2265 5 concurrent writes\" is not well defined for a single-writer engine, and it could plausibly fire well below 100 users.\n\n2. **It is unclear whether the migration is committed or conditional.** \"Planned migration\u2026 when\" reads both ways, and Supersession says \"ADR-002 or similar\". The ADR doesn't say whether Postgres is the destination or merely the expected one.\n\n3. **\"Concurrent users\" is never defined.**\n   - It could mean sessions, in-flight requests, or writers.\n   - The requirement is \u2264 100, the success metric is 100, and the review trigger is 200, so the 100\u2013200 band is unowned. So is p99 between 200 and 500ms.\n   - FEAT-recipe-share requires \"100 concurrent publishers\", which means 100 writers and is a much harsher reading than the ADR's.\n   - The PRD targets 10,000 monthly active users, with no stated mapping to concurrency.\n\n4. **\"Easy migration to Postgres later\" is asserted, not decided.**\n   - No constraint makes it true, such as a portable SQL subset, a data access layer, or type discipline.\n   - TD-recipe-store shows the gap: its schema uses `gen_random_uuid()` and `UUID` under a SQLite heading. The ADR doesn't say which dialect governs.\n\n5. **The deployment model is unstated.**\n   - \"Free tier databases support SQLite\" (line 30) suggests hosted SQLite.\n   - \"Single-file backup\", \"zero devops\" and \"backups via file copy\" suggest an embedded local file.\n   - A local file needs a single node with a persistent disk. That rules out Vercel, which the PRD lists as a hosting option, and the ADR doesn't say so.\n\n6. **The operating mode is unspecified, and one number depends on it.** Journal mode (WAL or rollback), busy timeout and sync settings are not stated. The \"max ~10\u201320 writes/sec\" figure (line 45) is unsourced and depends on those settings.\n\n7. **The durability target is missing.**\n   - There is a recovery time (\u2264 1 hour) but no recovery point; daily backups imply up to 24 hours of loss.\n   - That sits against FEAT's \"published recipes never lost\" and the ADR's own High-impact data-loss risk.\n   - \"Backups via file copy\" doesn't say whether it is a raw copy of a live file, which is unsafe, or SQLite's online backup.\n\n8. **Validation has no measurement method.** The metrics don't say where or how they are measured (staging load test or production telemetry) or who owns the review.\n\n## Smaller inconsistencies\n\n- **Status wording:** the frontmatter says `approved` and the table says `Accepted`.\n- **Draft parent:** the ADR depends on a PRD still in `draft`, so an accepted decision rests on unapproved requirements.\n- **Runbook:** line 53 says \"documented in runbook\" as if the runbook exists, and it does not.\n- **Checklist:** \"Negative consequences have mitigations\" is ticked, but the Consequences table has none; only Risks does.\n- **Unused driver:** \"engineering team familiarity\" is listed as a decision driver and never used in the alternatives.\n- **Cost rationale:** Postgres is rejected as \"overspend\" at $10\u201350/month against a $5k budget. That is thin for a Medium-confidence decision."
+}
