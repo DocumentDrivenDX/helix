@@ -38,9 +38,10 @@ Use these local resource summaries as grounding:
 - Keep alternatives and tradeoffs honest but brief.
 - Note validation and references only if they affect the decision.
 - Use one ADR per decision. If the decision has independent parts, split it.
-- Keep one current record of the chosen direction and useful rationale. Update
-  it when the decision changes; supersede it only when retaining a materially
-  different earlier decision helps explain the current choice.
+- Keep one current record of the chosen direction and useful rationale. When
+  the decision changes, even to a reversal, rewrite it in place and move the
+  replaced option to the alternatives with the reason it lost. Do not add a
+  change log; source control keeps the history.
 - **Do not accept a decision whose design-defining facts are assumed.** A
   decision's design-defining facts (API shape, data model, pricing/cost
   semantics, security/permissions, operational guarantees, or work decomposition)
@@ -74,5 +75,5 @@ Use these local resource summaries as grounding:
 - The decision is unambiguous.
 - Alternatives are compared clearly.
 - Consequences are explicit.
-- Status and supersession state are clear.
+- Status is clear.
 - Reconsideration triggers are concrete when the decision has uncertainty.

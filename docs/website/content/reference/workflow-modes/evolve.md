@@ -22,7 +22,8 @@ existing artifacts.
    implementation is complete.
 4. Update the affected artifacts from highest authority to lowest. Preserve the
    user's intended requirement strength and edit only within the authorized
-   scope.
+   scope. Revise affected artifacts in place so each states the current intent;
+   source control keeps the history.
 5. Summarize changed, unchanged, and unresolved artifacts with evidence.
 
 Procedure: `workflows/actions/evolve.md` supplies additional detail.

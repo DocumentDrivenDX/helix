@@ -212,7 +212,7 @@ interface information to produce correct implementations.
 Stack selection rationale belongs in ADRs (Architecture Decision Records). If
 you're documenting a choice that doesn't have an ADR yet, note it in Open
 Questions. If an existing ADR contradicts what you'd write here, the ADR
-governs until it's superseded.
+governs until it's changed.
 
 **(kind: data)** When `kind: data`, frame the technical context as the
 **data-platform context**: target catalog and schema (e.g., `prod.customer_360`),

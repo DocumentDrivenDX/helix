@@ -128,7 +128,7 @@ briefs:
       - { kind: files_unchanged, globs: ["docs/helix/00-discover/product-vision.md"] }
       - { kind: output_not_contains, values: ["bead"] }
     rubric:
-      - The SQLite decision (ADR-001) is superseded or amended explicitly, not silently overwritten.
+      - ADR-001 states the current decision and its rationale as one coherent record, with no change log, supersession notes, or superseding ADR.
       - The technical design changes are consistent with the new decision.
       - Downstream conflicts are surfaced rather than papered over.
       - The change is applied from the highest-authority artifact down.

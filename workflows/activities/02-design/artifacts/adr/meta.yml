@@ -15,16 +15,14 @@ id_format:
   example: ADR-001
   description: |
     Sequential three-digit number. Each ADR captures one architecture decision.
-    Numbers are never reused; superseded ADRs are marked Superseded with a
-    forward reference to the replacement.
+    Numbers are never reused.
 
 description: |
   An ADR documents a significant architectural decision: the context that drove
   it, the alternatives considered, the chosen approach, and the consequences.
   Each ADR covers exactly one decision. Accepted means the direction is chosen,
   not that implementation is complete. Keep the current decision and useful
-  rationale in one living record; supersede it only when a materially different
-  earlier decision is worth retaining for readers.
+  rationale in one living record.
 
 output:
   location: docs/helix/02-design/adr/ADR-{number}-{decision-name}.md
@@ -35,10 +33,12 @@ output:
     - ADR-002-helix-activity-structure.md
 
 reuse_policy: |
-  Update the current ADR in place when its decision or rationale changes.
-  Create a superseding ADR only when keeping the materially different earlier
-  decision helps explain the current choice or serves an explicit reference.
-  Do not create a history chain for routine edits.
+  Update the ADR in place when its decision or rationale changes, including a
+  reversal: rewrite the decision and record the replaced option under
+  alternatives with the reason it lost. Source control keeps the history.
+  Create a separate superseding ADR only when the user asks to keep the earlier
+  decision as its own record; then link them with `ddx.supersedes` and
+  `ddx.superseded_by`.
 
 validation:
   required_sections:

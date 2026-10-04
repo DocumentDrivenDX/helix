@@ -62,11 +62,6 @@ search or document store in v1
 | Import confirmation remains atomic under validation and worker failures | Any partial import commit is observed in testing or production |
 | Pilot workload stays below PostgreSQL performance targets | Matching backlog exceeds 100 jobs for 5 minutes repeatedly |
 
-## Supersession
-
-- **Supersedes**: None
-- **Superseded by**: None
-
 ## Concern Impact
 
 - **Concern selection**: Reinforces `reviewer-auditability`,

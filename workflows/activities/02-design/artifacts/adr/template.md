@@ -58,13 +58,6 @@ We will [decision statement].
 |----------------|----------------|
 | [Metric 1] | [Condition for reconsideration] |
 
-## Supersession
-
-Include this section only when retaining a materially different earlier decision helps explain the current choice or serves an explicit reference.
-
-- **Supersedes**: [ADR-XXX]
-- **Superseded by**: [ADR-YYY]
-
 ## Concern Impact
 
 If this decision affects the project's active concerns or overrides a
