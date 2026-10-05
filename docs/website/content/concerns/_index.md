@@ -33,6 +33,7 @@ Concerns are how HELIX answers "every project needs this kind of consistency" wi
   {{< card link="a11y-wcag-aa" title="Accessibility (WCAG 2.1 AA)" subtitle="ui, frontend" >}}
   {{< card link="admin-console" title="Admin Console (operator backend)" subtitle="ui, api" >}}
   {{< card link="auth" title="Authentication & Accounts" subtitle="api, data, ui" >}}
+  {{< card link="code-shape-ceilings" title="Code Shape Ceilings" subtitle="all" >}}
   {{< card link="e2e-kind" title="E2E Testing with Kind Clusters" subtitle="api, infra" >}}
   {{< card link="e2e-playwright" title="E2E Visual Testing (Playwright)" subtitle="ui, site" >}}
   {{< card link="i18n-icu" title="Internationalization (ICU MessageFormat)" subtitle="ui, frontend" >}}

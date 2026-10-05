@@ -159,6 +159,13 @@ selection by the active autonomy level (FEAT-011; see `workflows/actions/input.m
    `verification`** — it only *relaxes the full-stack-e2e form of evidence*,
    recording the specific reason and substituting the strongest observable
    evidence available. See `workflows/concerns/verification/concern.md`.
+2a-i. **Auto-select `code-shape-ceilings` for any buildable product with
+   hand-written source.** It is composable (no slot) and owns the complexity,
+   function, class, and file-size ceilings, the ceilings-only-go-down check, and
+   the editing-time and pre-commit hooks. Record it as an assumption. Greenfield
+   products take the strict defaults in its `practices.md`; only library or
+   docs-only work with no source code may omit it. See
+   `workflows/concerns/code-shape-ceilings/concern.md`.
 2b. **Auto-select `sample-data` for any data-backed product.** A data-backed
    product — one whose value shows through data it stores and renders — must
    seed a **governed, varied demo/sample dataset** via a semantic faker (the

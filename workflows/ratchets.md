@@ -161,6 +161,14 @@ stub check, Check Step 2, reconcile-alignment Step 3/7). Rationale: harvested op
 agents repeatedly shipping stubbed or "facade" paths under a done claim, which the operator then had to
 catch by hand; a zero-floor ratchet makes HELIX catch it internally.
 
+**Code-shape ceiling sub-ratchet (ceiling only goes down)**: the `code-shape-ceilings` concern bounds
+function complexity, statements, parameters, public methods per class, and file length. Each ceiling is
+a ratchet whose floor is a maximum: greenfield projects start at the concern's strict defaults, adopting
+projects start at the worst value in the tree today. Raising a ceiling, or adding a `noqa` /
+`eslint-disable` / `biome-ignore` for one of these rules, is a blocking regression, resolved by
+splitting the code, never by relaxing the check. Adopting projects enforce it in the same gate as the
+other ratchets through the concern's `check_ceilings.py` and `just lint`.
+
 ### Test Coverage Ratchet
 
 **What it measures**: source-line coverage percentage (or equivalent) produced

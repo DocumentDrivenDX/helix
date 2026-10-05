@@ -95,6 +95,7 @@ Agents working in any of these activities inherit the practices below through ru
 - `pyright` — type check
 - `uv run pytest --cov` — tests with coverage
 - `pre-commit run --all-files` for the full gate
+- Complexity, statement, argument, and public-method ceilings, a file-size cap, and pyright `strict` on application code, per `code-shape-ceilings` (strict defaults for new projects; ceilings only go down)
 
 ## Dependency Management
 - `uv add <pkg>` / `uv add --dev <pkg>`

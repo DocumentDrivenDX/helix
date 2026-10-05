@@ -40,3 +40,4 @@
 - No second component library and no literal colors in components or chart options.
 - Every token override exists for both light and dark themes.
 - An AppKit UI upgrade lands as its own reviewed change with both themes checked.
+- Component code stays under the `code-shape-ceilings` complexity, function-length, and file-size ceilings.
