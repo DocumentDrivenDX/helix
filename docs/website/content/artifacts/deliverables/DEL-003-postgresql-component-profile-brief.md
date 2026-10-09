@@ -1,7 +1,7 @@
 ---
 title: "PostgreSQL as DepositMatch's system of record"
 slug: DEL-003-postgresql-component-profile-brief
-weight: 520
+weight: 550
 activity: "Iterate"
 source: "06-iterate/deliverables/DEL-003-postgresql-component-profile-brief.md"
 generated: true

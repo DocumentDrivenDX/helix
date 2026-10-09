@@ -39,6 +39,12 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 - [executions](/artifacts/executions/) _(1 item)_
 - [test plans](/artifacts/test-plans/) _(2 items)_
 
+## Build
+
+- [Modularity and Encapsulation Execution Plan](/artifacts/modularity-execution-plan/)
+- [Modularity Implementation Review](/artifacts/modularity-implementation-review/)
+- [Modularity Execution Plan Review](/artifacts/modularity-plan-review/)
+
 ## Deploy
 
 - [Deployment Checklist — HELIX Plugin and Website Release](/artifacts/deployment-checklist/)
