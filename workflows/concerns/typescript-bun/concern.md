@@ -16,7 +16,7 @@ language-runtime
 - **Package manager**: Bun (`bun install`, `bun add`) — NOT npm, NOT yarn, NOT pnpm
 - **Linter + Formatter**: Biome — NOT ESLint, NOT Prettier
 - **Test runner**: `bun:test` — NOT Vitest, NOT Jest
-- **Configuration**: `zod` schema parsed over `Bun.env` in one `env.ts` — NOT scattered `process.env`/`Bun.env` reads, NOT `dotenv` (Bun loads `.env` natively)
+- **Configuration**: `zod` schema parsed over merged layers (committed JSON files + `Bun.env`) in one `env.ts` — NOT scattered `process.env`/`Bun.env` reads, NOT `dotenv` (Bun loads `.env` natively)
 - **Workspace layout**: Bun workspaces (`workspaces` in root `package.json`)
 - **TypeScript config**: strict, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`
 
@@ -34,7 +34,8 @@ language-runtime
 - All configuration is declared in one central `zod` schema (single module, e.g. `env.ts`) that parses `Bun.env` once at startup and exports a frozen, typed config object; invalid or missing config fails at startup, not at first use
 - No `process.env`/`Bun.env` reads outside the env module; the config object is built at the entrypoint and passed in
 - Secrets are never logged or serialized (wrap in a redacting type or omit from log output)
-- Real environment variables take precedence; `.env` is local-development only, git-ignored, with a committed `.env.example` listing every variable (no secrets in it)
+- Config is layered by owner per `twelve-factor`: ops-injected values (`Bun.env`, mounted files, secret manager) over a committed `config/<env>.json` over committed defaults (schema `.default()`s plus `config/default.json`), deep-merged then parsed by the one `zod` schema; ops-owned keys (hosts, credentials) are required with no default and never appear in committed files
+- Real environment variables take precedence over files; `.env` is local-development only, git-ignored, with a committed `.env.example` listing every variable (no secrets in it)
 
 ## Drift Signals (anti-patterns to reject in review)
 

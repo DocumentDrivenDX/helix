@@ -31,7 +31,8 @@ language-runtime
 - All configuration is declared in one central config case class (single module, e.g. `AppConfig.scala`) with a derived `Config` (zio-config `deriveConfig`) and typed fields, defaults, and required markers
 - Config is loaded once as a `ZLayer` at the application edge and provided by dependency injection; no `sys.env`/`System.getenv` or ad hoc `ConfigProvider` reads outside the config module
 - Secrets use `Config.Secret` (zio) or an equivalent redacting type; invalid or missing config fails at startup (layer construction), not at first use
-- Real environment variables take precedence over `application.conf` defaults; `.env` is local-development only, git-ignored, with a committed `.env.example` listing every variable (no secrets in it)
+- Config is layered by owner per `twelve-factor`: ops-injected values (env vars, mounted files, secret manager) over a committed `application-<env>.conf` over committed defaults (`reference.conf`/`application.conf`); ops-owned keys (hosts, credentials) are required with no default and never appear in committed files
+- Real environment variables take precedence over files; `.env` is local-development only, git-ignored, with a committed `.env.example` listing every variable (no secrets in it)
 
 ## When to use
 

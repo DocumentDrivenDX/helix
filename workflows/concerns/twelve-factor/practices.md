@@ -16,12 +16,21 @@ at the codebase, the release artifact, or the runbook and confirm or reject it.
   non-committed source), not from code or checked-in per-environment
   config files. Prefer file or secret-manager delivery for secrets, since env
   vars leak via child processes, crash dumps, and `/proc`. Reviewer check: **grep the repo for credential/connection-string
-  literals and per-environment config files** — there MUST be none.
+  literals and for ops-owned handles in committed config files** — there MUST
+  be none. Committed per-environment files are allowed for dev-owned,
+  non-secret values only.
 - The **open-source litmus test** MUST hold: the codebase could be made public
   right now without leaking any credential.
-- Per-deploy config MUST be **granular env vars**, each independent — not a
-  single checked-in `production` / `staging` config bundle that grows
-  combinatorially.
+- Per-deploy ops-owned config MUST be independently injectable keys (env vars,
+  mounted files, or a secret manager) — not a checked-in bundle of credentials
+  or hostnames that grows combinatorially.
+- Config MUST be layered by owner, high to low precedence: **ops-injected**
+  (handles, credentials, secrets) over a **committed per-environment file**
+  (dev-owned, non-secret, `config/<env>.<ext>`) over **committed defaults**
+  (schema defaults plus `config/default.<ext>`). Each key has ONE owner; the
+  schema marks ops keys required with no default. Reviewer check: no ops-owned
+  key has a committed value, and no dev-owned default is duplicated in an
+  ops-injected source.
 - The process MUST read config **through one typed, validated config object**
   built at startup (failing fast on missing or invalid values), not by scattered
   direct env reads. The mechanism is per language — see the selected

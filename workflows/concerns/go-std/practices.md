@@ -10,7 +10,7 @@
 - Define interfaces in the consumer package; return concrete types where practical
 - Use minimal, consumer-driven interfaces
 - Guard shared state explicitly; prefer immutable data; use `errgroup` for concurrent work
-- Centralize configuration in one `Config` struct in `internal/config`, loaded once in `main` (`env.ParseWithOptions` or `koanf` layers: defaults, optional file, environment); production relies on real env vars or the platform secret manager
+- Centralize configuration in one `Config` struct in `internal/config`, loaded once in `main` (`koanf` layers: struct defaults, `config/default.yaml`, `config/<env>.yaml`, then environment; ops-owned keys are required with no default); production relies on real env vars or the platform secret manager
 - Commit `.env.example`; git-ignore `.env`
 - Embed version metadata: `Version`, `BuildTime`, `GitCommit` via `-ldflags`
 

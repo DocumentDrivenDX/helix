@@ -14,7 +14,7 @@
 - Use `pydantic` v2 for data validation
 - Centralize configuration in one `pydantic-settings` `BaseSettings` subclass; group related settings with nested models and an `env_nested_delimiter` / `env_prefix` rather than scattering reads
 - Use `SecretStr` for credentials and `AnyUrl`/`PostgresDsn`-style types for endpoints; validate at startup so bad config fails fast
-- Source precedence: init args > environment variables > `.env` (dev only) > defaults; production relies on real env vars or the platform secret manager
+- Source precedence: init args > environment variables / secret files > `.env` (dev only) > `config/<env>.toml` > `config/default.toml` > field defaults (`TomlConfigSettingsSource` via `settings_customise_sources`); ops-owned keys are required fields, dev-owned keys carry defaults; production relies on real env vars or the platform secret manager
 - Commit `.env.example`; git-ignore `.env`
 - Use `typer` + `rich` for CLI interfaces
 

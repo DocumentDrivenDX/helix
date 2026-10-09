@@ -10,7 +10,7 @@
 - All inter-crate dependencies declared in `[workspace.dependencies]`
 - Separate `crates/` (libraries) from `tools/` or `bin/` (binaries/CLIs) in workspace layout
 - Design error types using `thiserror` for library crates; surface errors with `anyhow` in binaries
-- Centralize configuration in one `Config` struct (`#[derive(Deserialize)]`); layer sources with `figment`: defaults, then optional config file, then environment (`Env::prefixed("APP_")`); production relies on real env vars or the platform secret manager
+- Centralize configuration in one `Config` struct (`#[derive(Deserialize)]`); layer sources with `figment`: `Serialized::defaults`, then `Toml::file("config/default.toml")`, then `Toml::file("config/<env>.toml")`, then environment (`Env::prefixed("APP_")`); ops-owned keys have no default; production relies on real env vars or the platform secret manager
 - CLI binaries: `clap` flags may override via `#[arg(env = "APP_...")]`, but still feed the one `Config`
 - Commit `.env.example`; git-ignore `.env`
 - Prefer newtypes and strong typing over stringly-typed parameters

@@ -75,10 +75,14 @@ The twelve factors, grouped by what each protects:
   **environment** (env vars), not in code or checked-in per-environment config
   files. Credentials, resource handles, and per-deploy hostnames are env vars,
   each orthogonal and independently managed. **Litmus test:** the codebase could
-  be made open source at any moment without leaking a single credential. Reject
-  grouped `config/production.rb`-style "environments" (combinatorial explosion);
-  env vars are granular and per-deploy.
-- **Backing services** — every service consumed over the network (database,
+  be made open source at any moment without leaking a single credential. The
+  original factor rejects grouped `config/production.rb`-style "environments"
+  (combinatorial explosion) in favor of granular per-deploy env vars. **HELIX
+  position:** keep the litmus test and the per-deploy independence, but split
+  config by **owner** (see Constraints) — dev-owned defaults and non-secret
+  per-environment values live in committed files; only ops-owned values are
+  injected at deploy time, by whatever mechanism (env vars, mounted files, a
+  secret manager).- **Backing services** — every service consumed over the network (database,
   cache, queue, SMTP, object store, third-party API) is an **attached
   resource** referenced only by a config-supplied handle. Local Postgres and
   Amazon RDS are the same kind of resource to the code; swapping one for the
@@ -132,12 +136,27 @@ The twelve factors, grouped by what each protects:
   an injected, non-committed source (env vars, mounted secret files, a secret
   manager). **No credential, hostname, port, or
   per-deploy literal is committed** to the repo — the open-source litmus test
-  must hold. Grouped checked-in per-environment config files (a
-  `production`/`staging` config set in the repo) are rejected in favor of
-  granular per-deploy env vars.
+  must hold. Checked-in per-environment files are allowed only for
+  dev-owned, non-secret values (layer 2 below); a repo `production`/`staging`
+  file holding credentials or ops-owned handles is rejected.
 - The process reads config through **one typed, validated config object** built
   at startup, not scattered direct env reads; the mechanism is owned by the
   selected `language-runtime` concern.
+- **Config has three layers, split by owner** (precedence high to low):
+  1. **Ops-injected** — values dev cannot know or must not hold: backing-service
+     handles (database host, endpoints), credentials, secrets. Delivered at
+     deploy time by env vars, mounted files, or a secret manager; the code does
+     not care which.
+  2. **Committed per-environment file** — dev-owned, reviewed, non-secret
+     values that differ by environment (log level, replica counts, flag
+     settings), e.g. `config/<env>.<ext>`.
+  3. **Committed defaults** — dev-owned values that rarely or never change,
+     defined once in the config schema and a base file `config/default.<ext>`.
+- **Each key has exactly one owner.** The schema marks ops keys *required, no
+  default* and dev keys *defaulted*. Ops handles (hostnames, endpoints) and
+  secrets never appear in committed files, even when not secret. The schema is
+  the contract at the ops/dev boundary and the source of the runbook's config
+  surface.
 
 ### Backing services are swappable by config alone
 

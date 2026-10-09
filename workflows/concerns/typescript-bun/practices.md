@@ -6,7 +6,7 @@
 
 ## Design
 - Centralize configuration in one `zod` schema in `env.ts` (e.g. `z.object({ PORT: z.coerce.number().default(3000), DATABASE_URL: z.url() })`); parse `Bun.env` once with `safeParse` and exit with a readable error on failure
-- Source precedence: real environment variables > `.env` (dev only) > schema defaults; production relies on real env vars or the platform secret manager
+- Source precedence: real environment variables / secret files > `.env` (dev only) > `config/<env>.json` > `config/default.json` > schema defaults (deep-merge the objects, then `safeParse`); ops-owned keys are required, dev-owned keys carry defaults; production relies on real env vars or the platform secret manager
 - Commit `.env.example`; git-ignore `.env`
 - Use Bun workspaces for monorepos: `"workspaces": ["packages/*"]` in root `package.json`
 - Separate packages by concern: `shared` (types/schemas), `server` (API), `web` (frontend)

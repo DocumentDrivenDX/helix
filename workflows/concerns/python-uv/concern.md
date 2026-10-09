@@ -19,7 +19,7 @@ language-runtime
 - **Type checker**: `pyright` — NOT mypy
 - **Test framework**: `pytest` with `pytest-cov`
 - **Property-based testing**: `hypothesis`
-- **Configuration**: `pydantic-settings` — one central typed `Settings` class; NOT bare `os.environ`/`os.getenv`, NOT `python-dotenv` called directly, NOT `dynaconf`/`configparser`
+- **Configuration**: `pydantic-settings` (TOML/YAML file sources plus environment) — one central typed `Settings` class; NOT bare `os.environ`/`os.getenv`, NOT `python-dotenv` called directly, NOT `dynaconf`/`configparser`
 
 ## Constraints
 
@@ -34,7 +34,8 @@ language-runtime
 - All configuration is declared in one central `pydantic-settings` `BaseSettings` subclass (single module, e.g. `src/<package>/settings.py`); every setting is a typed field with a default or is required
 - Settings are instantiated once at the composition root (app/CLI entrypoint) and passed in; no `os.environ`/`os.getenv` reads and no module-level settings singletons elsewhere in the codebase
 - Secrets use `SecretStr`; missing or invalid config fails at startup, not at first use
-- Real environment variables take precedence; `.env` is a local-development convenience only, git-ignored, with a committed `.env.example` listing every variable (no secrets in it)
+- Config is layered by owner per `twelve-factor`: ops-injected values (env vars, mounted files, secret manager) over a committed `config/<env>.toml` over committed defaults (field defaults plus `config/default.toml`), wired via `settings_customise_sources`; ops-owned keys (hosts, credentials) are required fields with no default and never appear in committed files
+- Real environment variables take precedence over files; `.env` is a local-development convenience only, git-ignored, with a committed `.env.example` listing every variable (no secrets in it)
 
 ## When to use
 
