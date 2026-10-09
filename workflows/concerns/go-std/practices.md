@@ -10,6 +10,8 @@
 - Define interfaces in the consumer package; return concrete types where practical
 - Use minimal, consumer-driven interfaces
 - Guard shared state explicitly; prefer immutable data; use `errgroup` for concurrent work
+- Centralize configuration in one `Config` struct in `internal/config`, loaded once in `main` (`env.ParseWithOptions` or `koanf` layers: defaults, optional file, environment); production relies on real env vars or the platform secret manager
+- Commit `.env.example`; git-ignore `.env`
 - Embed version metadata: `Version`, `BuildTime`, `GitCommit` via `-ldflags`
 
 ## Implementation
@@ -17,6 +19,7 @@
 - Error wrapping: `fmt.Errorf("context: %w", err)` — always add context
 - Sentinel errors: define with `errors.New` for expected conditions; compare with `errors.Is`
 - Concurrency: pass `context.Context` first; use `errgroup.WithContext` for fan-out; avoid goroutine leaks
+- Read configuration only through the injected `Config`; `forbidigo` bans `os.Getenv`/`os.LookupEnv` outside `internal/config`
 - Logging: structured with `log/slog` (stdlib) or project-chosen structured logger; no `fmt.Print*` in library code
 - No `panic` outside startup; in `main()`, convert panics to fatal log + exit
 
@@ -28,6 +31,7 @@
   - `-tags=integration`: VCR playback, no live APIs
   - `-tags=functional`: built binary CLI tests
   - `-tags=e2e`: live API tests (requires credentials)
+- Tests build `Config` directly or via `t.Setenv`; never depend on a developer's `.env`
 - Table-driven tests for pure functions
 - HTTP stubs: VCR cassette recording (`VCR_MODE=record` to capture, `VCR_MODE=playback` for CI)
 - Use `testify/assert` or `testify/require` for assertions; not bare `t.Fatal` comparisons

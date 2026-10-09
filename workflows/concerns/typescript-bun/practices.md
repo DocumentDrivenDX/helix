@@ -5,6 +5,9 @@
 - If a library dependency requires a Node.js adapter, flag it as a concern at framing — it may require a Bun-compatible alternative
 
 ## Design
+- Centralize configuration in one `zod` schema in `env.ts` (e.g. `z.object({ PORT: z.coerce.number().default(3000), DATABASE_URL: z.url() })`); parse `Bun.env` once with `safeParse` and exit with a readable error on failure
+- Source precedence: real environment variables > `.env` (dev only) > schema defaults; production relies on real env vars or the platform secret manager
+- Commit `.env.example`; git-ignore `.env`
 - Use Bun workspaces for monorepos: `"workspaces": ["packages/*"]` in root `package.json`
 - Separate packages by concern: `shared` (types/schemas), `server` (API), `web` (frontend)
 - Use workspace references (`workspace:*`) for cross-package dependencies
@@ -18,7 +21,7 @@
   - File I/O: `Bun.file()`, `Bun.write()`
   - Subprocesses: `Bun.spawn()`, `Bun.spawnSync()`
   - HTTP: `Bun.serve()`
-  - Environment: `Bun.env`
+  - Environment: `Bun.env` (read only in the env module)
 - TypeScript config: `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `verbatimModuleSyntax`
 - No `any` — TypeScript strict mode is enforced
 - Formatting: Biome with tabs, line width 100
@@ -27,6 +30,7 @@
 
 ## Testing
 - Framework: `bun:test` (built-in)
+- Config in tests: parse an explicit object through the env schema; never depend on a developer's `.env`
 - Run: `bun test`
 - Use `mock()` from `bun:test` for module mocking
 - Fake data: `@faker-js/faker` or equivalent — not static fixtures
@@ -37,6 +41,7 @@
 - `bun test` — all tests pass
 - `bun run typecheck` — `tsc --noEmit` passes for all packages
 - `bun run lint` — Biome lint + format check passes
+- No `process.env`/`Bun.env` outside the env module (Biome `noProcessEnv`, or a grep gate)
 - Biome `noExcessiveCognitiveComplexity` and the file-size cap are set per `code-shape-ceilings`; no ceiling is raised and no `biome-ignore` is added for them
 - No `package-lock.json` committed (indicates npm was used)
 - `bun.lock` committed and up to date

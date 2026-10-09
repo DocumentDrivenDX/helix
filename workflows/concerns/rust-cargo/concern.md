@@ -14,6 +14,7 @@ language-runtime
 - **Language**: Rust (latest stable; MSRV pinned in `rust-toolchain.toml`)
 - **Build system**: Cargo workspace (resolver = "2")
 - **Edition**: 2024
+- **Configuration**: `figment` (layered sources) deserialized into one `serde` `Config` struct; `secrecy` for secrets — NOT scattered `std::env::var`, NOT `dotenvy` called from library code
 - **Toolchain pinning**: `rust-toolchain.toml` and `workspace.package.rust-version` must stay in lockstep
 
 ## Constraints
@@ -28,6 +29,10 @@ language-runtime
 - All dependencies declared in `[workspace.dependencies]`; crates reference with `{ workspace = true }`
 - `cargo deny check` must pass (licenses, advisories, registry sources)
 - `cargo machete` must pass (no unused dependencies)
+- All configuration is declared in one central `Config` struct (single module/crate, e.g. `config.rs`) deserialized with `figment` (or `config`); every field is typed with a default or is required
+- The `Config` is built once in the binary's `main` and passed in; no `std::env::var`/`env::vars` reads outside the config module, and no global config singletons in library crates
+- Secrets use `secrecy::SecretString` (no `Debug`/`Display` leakage); invalid or missing config fails at startup, not at first use
+- Real environment variables take precedence; `.env` (via `dotenvy`, dev builds only) is a local convenience, git-ignored, with a committed `.env.example` listing every variable (no secrets in it)
 - Repo-owned Rust commands run through a pinned-toolchain wrapper; do not rely on ambient `rustc`/`cargo` from PATH
 
 ## Clippy Lint Policy
@@ -61,4 +66,4 @@ additional deny-level lints.
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
 - ADR: Rust + Cargo workspace (clippy, fmt, cargo-deny/machete, pinned toolchain) as the language-runtime
-- TD: workspace lints, error-handling (thiserror/anyhow), unsafe policy, profile conventions
+- TD: workspace lints, error-handling (thiserror/anyhow), unsafe policy, profile conventions, central `Config` struct and its env-var contract

@@ -16,6 +16,7 @@ language-runtime
 - **Package manager**: Bun (`bun install`, `bun add`) — NOT npm, NOT yarn, NOT pnpm
 - **Linter + Formatter**: Biome — NOT ESLint, NOT Prettier
 - **Test runner**: `bun:test` — NOT Vitest, NOT Jest
+- **Configuration**: `zod` schema parsed over `Bun.env` in one `env.ts` — NOT scattered `process.env`/`Bun.env` reads, NOT `dotenv` (Bun loads `.env` natively)
 - **Workspace layout**: Bun workspaces (`workspaces` in root `package.json`)
 - **TypeScript config**: strict, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`
 
@@ -30,6 +31,10 @@ language-runtime
 - No `package-lock.json` or `yarn.lock` — use `bun.lock`
 - No `node dist/index.js` start commands — use `bun src/index.ts`
 - Biome config: indent style tabs, line width 100, `noUnusedImports: error`
+- All configuration is declared in one central `zod` schema (single module, e.g. `env.ts`) that parses `Bun.env` once at startup and exports a frozen, typed config object; invalid or missing config fails at startup, not at first use
+- No `process.env`/`Bun.env` reads outside the env module; the config object is built at the entrypoint and passed in
+- Secrets are never logged or serialized (wrap in a redacting type or omit from log output)
+- Real environment variables take precedence; `.env` is local-development only, git-ignored, with a committed `.env.example` listing every variable (no secrets in it)
 
 ## Drift Signals (anti-patterns to reject in review)
 
@@ -40,6 +45,7 @@ language-runtime
 - `@hono/node-server` or any `*-node-*` HTTP adapter → use `Bun.serve()`
 - `node dist/` start command → use `bun src/`
 - `engines.node` constraint → remove
+- `process.env.X` / `Bun.env.X` outside the env module → read from the typed config object
 
 ## When to use
 
@@ -52,6 +58,6 @@ target state and the drift signals above identify what needs correction.
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
 - ADR: TypeScript + Bun (Biome, bun:test) as the language-runtime — not Node/npm/ESLint/Vitest
-- TD: strict tsconfig, Bun-native APIs, workspace layout, Biome config
+- TD: strict tsconfig, Bun-native APIs, workspace layout, Biome config, central env schema and its env-var contract
 
 ## ADR References

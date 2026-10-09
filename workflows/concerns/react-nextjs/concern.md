@@ -35,6 +35,7 @@ frontend-framework
   concern is selected for UI work
 - Tailwind config extends the design system tokens (colors, spacing, typography)
 - E2E tests use Playwright, not Cypress or Selenium
+- Server-side configuration is read only through the central env schema owned by `typescript-bun` (no `process.env` reads in route handlers or Server Components); only `NEXT_PUBLIC_`-prefixed variables reach the browser, and none holds a secret
 
 ## Drift Signals (anti-patterns to reject in review)
 

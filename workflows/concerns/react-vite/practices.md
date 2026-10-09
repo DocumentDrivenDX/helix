@@ -17,6 +17,7 @@
 - Fetch server state with TanStack Query; keep client-only UI state in components (patterns per `frontend-architecture`).
 - Validate forms with react-hook-form and Zod; mirror, never replace, the backend's validation.
 - Reference design tokens through Tailwind 4 theme variables; UI primitives and component library come from `ux-radix` (and `databricks-appkit-ui` when selected).
+- Backend configuration follows its `language-runtime` concern's central-config rule; the SPA never reads it directly.
 - Expose to the client only `VITE_`-prefixed variables that are safe to publish; serve runtime configuration from an `/api/*` route.
 
 ## Implementation
