@@ -71,13 +71,18 @@ The twelve factors, grouped by what each protects:
 
 ### Config + resources (config, backing services)
 
-- **Config** — everything that **varies between deploys** lives in the
+- **Config** — in the original factor, everything that **varies between deploys** lives in the
   **environment** (env vars), not in code or checked-in per-environment config
   files. Credentials, resource handles, and per-deploy hostnames are env vars,
   each orthogonal and independently managed. **Litmus test:** the codebase could
-  be made open source at any moment without leaking a single credential. Reject
-  grouped `config/production.rb`-style "environments" (combinatorial explosion);
-  env vars are granular and per-deploy.
+  be made open source at any moment without leaking a single credential. The
+  original factor rejects grouped `config/production.rb`-style "environments"
+  (combinatorial explosion) in favor of granular per-deploy env vars. **HELIX
+  position:** keep the litmus test and the per-deploy independence, but split
+  config by **owner** (see Constraints) — dev-owned defaults and non-secret
+  per-environment values live in committed files; only ops-owned values are
+  injected at deploy time, by whatever mechanism (env vars, mounted files, a
+  secret manager).
 - **Backing services** — every service consumed over the network (database,
   cache, queue, SMTP, object store, third-party API) is an **attached
   resource** referenced only by a config-supplied handle. Local Postgres and
@@ -126,14 +131,40 @@ The twelve factors, grouped by what each protects:
 
 ## Constraints
 
-### Config and secrets live in the environment, never in the codebase
+### Config is layered by owner; secrets and ops handles never live in the codebase
 
-- Everything that varies between deploys is supplied by the **environment**
-  (env vars or an injected env). **No credential, hostname, port, or
-  per-deploy literal is committed** to the repo — the open-source litmus test
-  must hold. Grouped checked-in per-environment config files (a
-  `production`/`staging` config set in the repo) are rejected in favor of
-  granular per-deploy env vars.
+- Everything that varies between deploys is supplied by the **environment** or
+  an injected, non-committed source (env vars, mounted secret files, a secret
+  manager). **No credential or ops-owned handle (hostname, endpoint, port
+  assigned by the platform) is committed** to the repo — the open-source
+  litmus test must hold. Checked-in per-environment files are allowed only for
+  dev-owned, non-secret values (layer 2 below); a repo `production`/`staging`
+  file holding credentials or ops-owned handles is rejected.
+- The process reads config through **one typed, validated config object** built
+  at startup, not scattered direct env reads; the mechanism is owned by the
+  selected `language-runtime` concern.
+- **Config has three layers, split by owner** (precedence high to low):
+  1. **Ops-injected** — values dev cannot know or must not hold: backing-service
+     handles (database host, endpoints), credentials, secrets. Delivered at
+     deploy time by env vars, mounted files, or a secret manager; the code does
+     not care which.
+  2. **Committed per-environment file** — dev-owned, reviewed, non-secret
+     values that differ by environment (log level, replica counts, flag
+     settings), e.g. `config/<env>.<ext>`. `<env>` is selected by a single
+     ops-injected key (e.g. `APP_ENV`), read by the config module before the
+     layered load.
+  3. **Committed defaults** — dev-owned values that rarely or never change,
+     defined once in the config schema and a base file `config/default.<ext>`.
+- **Each key has exactly one owner.** The schema marks ops keys *required, no
+  default* and dev keys *defaulted*. Ops handles (hostnames, endpoints) and
+  secrets never appear in committed files, even when not secret. The schema is
+  the contract at the ops/dev boundary and the source of the runbook's config
+  surface. Ops may override a dev-owned key at deploy time as an incident
+  override, not as a standing per-environment value (that belongs in layer 2).
+  `.env.example` is the one committed file that names ops keys; it lists every
+  key with a placeholder or a localhost-only value.
+- Platform exceptions: `databricks-apps` allows non-secret ops handles in
+  bundle `targets:`.
 
 ### Backing services are swappable by config alone
 
@@ -182,9 +213,9 @@ The twelve factors, grouped by what each protects:
 
 ## Drift Signals (anti-patterns to reject in review)
 
-- A credential, hostname, port, or per-deploy value **committed to the repo**
-  (or a checked-in `config/production.*`) → fails the open-source litmus test;
-  move it to the environment
+- A credential or ops-owned handle (hostname, endpoint) **committed to the
+  repo**, including in a `config/<env>.*` file → fails the open-source litmus
+  test; move it to an ops-injected source
 - Code that **branches on local-vs-third-party** for a backing service, or a
   service that cannot be swapped without a code change → make it an attached
   resource addressed by a config handle

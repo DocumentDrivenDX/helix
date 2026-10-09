@@ -11,15 +11,31 @@ at the codebase, the release artifact, or the runbook and confirm or reject it.
 ## Config and secrets in the environment
 
 - Config that **varies between deploys** (credentials, resource handles,
-  hostnames, ports, third-party API keys) MUST come from the **environment**
-  (env vars or an injected env), not from code or checked-in per-environment
-  config files. Reviewer check: **grep the repo for credential/connection-string
-  literals and per-environment config files** — there MUST be none.
+  hostnames, third-party API keys) and is ops-owned MUST come from an
+  injected, non-committed source (env vars, mounted secret files, or a secret
+  manager), not from code or committed files. Prefer file or secret-manager
+  delivery for secrets, since env vars leak via child processes, crash dumps,
+  and `/proc`. Reviewer check: **grep the repo for credential/connection-string
+  literals and for ops-owned handles in committed config files** — there MUST
+  be none. Committed per-environment files are allowed for dev-owned,
+  non-secret values only.
 - The **open-source litmus test** MUST hold: the codebase could be made public
   right now without leaking any credential.
-- Per-deploy config MUST be **granular env vars**, each independent — not a
-  single checked-in `production` / `staging` config bundle that grows
-  combinatorially.
+- Per-deploy ops-owned config MUST be independently injectable keys (env vars,
+  mounted files, or a secret manager) — not a checked-in bundle of credentials
+  or hostnames that grows combinatorially.
+- Config MUST be layered by owner, high to low precedence: **ops-injected**
+  (handles, credentials, secrets) over a **committed per-environment file**
+  (dev-owned, non-secret, `config/<env>.<ext>`) over **committed defaults**
+  (schema defaults plus `config/default.<ext>`). Each key has ONE owner; the
+  schema marks ops keys required with no default. Reviewer check: no ops-owned
+  key has a committed value, and no dev-owned default is duplicated in an
+  ops-injected source.
+- The process MUST read config **through one typed, validated config object**
+  built at startup (failing fast on missing or invalid values), not by scattered
+  direct env reads. The mechanism is per language — see the selected
+  `language-runtime` concern (`python-uv`, `typescript-bun`, `rust-cargo`,
+  `go-std`, `scala-sbt`).
 
 ## Backing services as attached resources
 
@@ -101,19 +117,20 @@ the deployable count and seams, the log/metric/trace schema, and the cluster
   attached resources addressed by config handles, and where persistent/session
   state lives so processes stay stateless. Also notes immutable build/release/run
   and the disposability (SIGTERM, reentrant-jobs) contract.
-- **Deployment checklist / runbook** — records the **env-var/secret surface**
+- **Deployment checklist / runbook** — records the **config/secret surface**
   (every config key the process reads), the **SIGTERM/graceful-shutdown
   behavior** and drain timeout, and **how logs are collected** from stdout.
 - **Technical design** — records the **process model** (process types and how
-  each scales horizontally), the **config surface** (the full set of env vars),
+  each scales horizontally), the **config surface** (the full set of config keys, with owner and source),
   and the **state strategy** (what lives in backing services vs nothing in the
   process).
 
 ## Quality Gates
 
 - **No secret/config literal in the codebase** — all per-deploy config and every
-  credential come from the environment; the open-source litmus test holds; no
-  checked-in per-environment config bundle.
+  credential come from ops-injected sources or dev-owned committed files by
+  owner; the open-source litmus test holds; no committed file holds a credential
+  or ops-owned handle.
 - **Backing services swappable by config alone** — every networked dependency is
   an attached resource addressed by a config handle; no code branches on
   local-vs-third-party; a swap is a config change with zero code change.

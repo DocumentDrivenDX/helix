@@ -163,6 +163,22 @@ must not duplicate its neighbors:
 - An existing Lakebase `database` resource is not switched to `postgres`; that
   creates separate roles and breaks data access.
 
+### Bundle targets are the committed per-environment config layer
+- This concern is the **exception** to `twelve-factor`'s "Ops handles (hostnames,
+  endpoints) and secrets never appear in committed files": a bundle's `targets:`
+  (per-target `variables`, `workspace.host`, warehouse/catalog/schema names) is
+  a committed per-environment file the platform consumes directly, so
+  non-secret ops handles may live there, reviewed like code. Per-target values
+  reach the app through resource bindings (`${var.*}` feeding
+  `resources.apps.<key>.resources`, read via `valueFrom`); `app.yaml` is one
+  file for every target, so it holds only target-independent literals.
+- Secrets still never appear in `value:`; they come through `valueFrom` secret
+  resources. Credentials and tokens stay out of `databricks.yml` entirely
+  (CI authenticates by workload identity).
+- The app still reads its config through the `language-runtime` concern's one
+  typed config object; resource bindings and `app.yaml` `env` are just the
+  injection path into it.
+
 ### Stateless across instances
 - Sessions, uploads, and job state live in Lakebase, Unity Catalog tables, or
   volumes, never instance memory or disk (lost on restart, redeploy, and

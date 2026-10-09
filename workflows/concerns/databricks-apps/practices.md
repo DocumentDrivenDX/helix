@@ -20,6 +20,7 @@ model (`unity-catalog`) — see the boundary in `concern.md`.
 - Design the backend as stateless across 1 to 5 instances: sessions, uploads, and job state in Lakebase or Unity Catalog; caches per instance and keyed per user.
 - Design the **durable-state store** as Unity Catalog tables/volumes or **Lakebase** (managed Postgres), never the app's local disk or memory.
 - Design data access to flow **through Unity Catalog** (SQL warehouse, governed tables, volumes) under the chosen identity's grants; route heavy work to SQL warehouses, Jobs, or Model Serving.
+- Declare per-environment non-secret values in the committed `databricks.yml`: `targets.<t>.workspace.host`, and warehouse/catalog/schema as target `variables` that feed resource bindings (read via `valueFrom`); literal `value:` only for non-resource, non-secret handles such as catalog/schema names. This is the documented exception to `twelve-factor`'s no-committed-ops-handles rule. Secrets stay `valueFrom`.
 - Design `app.yaml`: an array `command` and an `env` list whose resource and secret values all come from `valueFrom`.
 - Design the deploy as a bundle (`resources.apps.<key>` with `resources`, `user_api_scopes`, `compute_size`, `permissions`) run from CI.
 - Choose a compute size from the measured load, not by default; Medium is the platform default.

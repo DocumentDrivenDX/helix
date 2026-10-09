@@ -16,6 +16,7 @@ language-runtime
 - **Package manager**: Bun (`bun install`, `bun add`) — NOT npm, NOT yarn, NOT pnpm
 - **Linter + Formatter**: Biome — NOT ESLint, NOT Prettier
 - **Test runner**: `bun:test` — NOT Vitest, NOT Jest
+- **Configuration**: `zod` schema parsed over merged layers (committed JSON files + `process.env`, which Bun aliases as `Bun.env`) in one `env.ts` — NOT scattered `process.env`/`Bun.env` reads, NOT `dotenv` (Bun loads `.env` natively)
 - **Workspace layout**: Bun workspaces (`workspaces` in root `package.json`)
 - **TypeScript config**: strict, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`
 
@@ -30,6 +31,11 @@ language-runtime
 - No `package-lock.json` or `yarn.lock` — use `bun.lock`
 - No `node dist/index.js` start commands — use `bun src/index.ts`
 - Biome config: indent style tabs, line width 100, `noUnusedImports: error`
+- All configuration is declared in one central `zod` schema (single module, e.g. `env.ts`) that parses the merged layers (files + env) once at startup and exports a frozen, typed config object; invalid or missing config fails at startup, not at first use
+- `process.env` (or `Bun.env`) is read only inside the env module — use `process.env` so the module also runs under Next.js on Node or Edge, where `Bun.env` is undefined; the config object is built at the entrypoint and passed in
+- Secrets are never logged or serialized (wrap in a redacting type or omit from log output)
+- Config is layered by owner per `twelve-factor`: ops-injected values (`process.env`, mounted files, secret manager) over a committed `config/<env>.json` over committed defaults (schema `.default()`s plus `config/default.json`), deep-merged then parsed by the one `zod` schema; ops-owned keys (hosts, credentials) are required with no default and never appear in committed files
+- Real environment variables take precedence over files; `.env.<env>`/`.env.local` files are not used (Bun loads them natively; set `--env-file` explicitly or none) and plain `.env` is local-development only, git-ignored, with a committed `.env.example` listing every variable (no secrets in it)
 
 ## Drift Signals (anti-patterns to reject in review)
 
@@ -40,6 +46,7 @@ language-runtime
 - `@hono/node-server` or any `*-node-*` HTTP adapter → use `Bun.serve()`
 - `node dist/` start command → use `bun src/`
 - `engines.node` constraint → remove
+- `process.env.X` / `Bun.env.X` outside the env module → read from the typed config object
 
 ## When to use
 
@@ -52,6 +59,6 @@ target state and the drift signals above identify what needs correction.
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
 - ADR: TypeScript + Bun (Biome, bun:test) as the language-runtime — not Node/npm/ESLint/Vitest
-- TD: strict tsconfig, Bun-native APIs, workspace layout, Biome config
+- TD: strict tsconfig, Bun-native APIs, workspace layout, Biome config, central env schema and its config-key contract (owner and source per key)
 
 ## ADR References
