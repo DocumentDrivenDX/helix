@@ -16,7 +16,7 @@ language-runtime
 - **Package manager**: Bun (`bun install`, `bun add`) — NOT npm, NOT yarn, NOT pnpm
 - **Linter + Formatter**: Biome — NOT ESLint, NOT Prettier
 - **Test runner**: `bun:test` — NOT Vitest, NOT Jest
-- **Configuration**: `zod` schema parsed over merged layers (committed JSON files + `process.env`, which Bun aliases as `Bun.env`) in one `env.ts` — NOT scattered `process.env`/`Bun.env` reads, NOT `dotenv` (Bun loads `.env` natively)
+- **Configuration**: `zod` schema parsed over merged layers (committed JSON files + `process.env`, which Bun also exposes as the equivalent `Bun.env`) in one `env.ts` — NOT scattered `process.env`/`Bun.env` reads, NOT `dotenv` (Bun loads `.env` natively)
 - **Workspace layout**: Bun workspaces (`workspaces` in root `package.json`)
 - **TypeScript config**: strict, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`
 
