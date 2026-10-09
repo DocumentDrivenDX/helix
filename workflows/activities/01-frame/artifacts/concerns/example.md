@@ -18,6 +18,7 @@ not principles, requirements, ADRs, test plans, or implementation tasks.
 
 | Concern | Source | Areas | Why Active | Key Practices |
 |---------|--------|-------|------------|---------------|
+| `modularity-and-encapsulation` | library; baseline-policy | `areas: all` | Handwritten application source requires deliberate ownership and dependency boundaries. | Architecture maps modules, public APIs, imports, integration ownership, construction and the project boundary-check command. |
 | `csv-import-integrity` | project-local | `area:ui`, `area:api`, `area:data` | CSV import is the only v1 ingestion path, and bad mappings would corrupt review trust. | Validate required columns, preserve source row identity, save per-client mappings, and reject ambiguous files before matching. |
 | `financial-data-security` | project-local | `area:api`, `area:data`, `area:infra` | Deposit and invoice data include customer financial records. | Encrypt customer financial data at rest, exclude financial fields from analytics, and keep audit logs access-controlled. |
 | `reviewer-auditability` | project-local | `area:ui`, `area:api`, `area:data` | Trust depends on visible evidence, reviewer attribution, and reversible corrections. | Show evidence before acceptance, record reviewer and timestamp, preserve correction history, and avoid destructive edits. |

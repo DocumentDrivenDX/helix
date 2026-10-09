@@ -65,7 +65,9 @@ Use these local resource summaries as grounding:
 - Concerns are composable. Selecting multiple is normal and expected.
 - A concern must be active. Do not include a domain just because it is
   generally good practice.
-- Project overrides take full precedence over library practices.
+- Project overrides adapt library mechanisms subject to the source-code baseline
+  evidence floor and scoped exception contract in
+  `workflows/references/concern-resolution.md`.
 - Every override should reference a governing ADR when possible.
 - The area taxonomy declared here controls which concerns are injected
   into which work items via `<context-digest>`.
@@ -73,3 +75,12 @@ Use these local resource summaries as grounding:
   spec.
 - If a concern records a one-time technical choice, move it to an ADR.
 - If a concern describes build order, move it to the implementation plan.
+
+## Source-Code Baseline
+
+Apply the all-autonomy source-code baseline in
+`workflows/references/concern-resolution.md`: select
+`modularity-and-encapsulation` for handwritten source, including libraries and
+single-file tools, with selection source `baseline-policy`. For source-free work
+record the reason. Existing selections require an explicit adoption update;
+missing baseline is a readiness gap, not permission to overwrite selections.

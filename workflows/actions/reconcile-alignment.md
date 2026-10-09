@@ -60,3 +60,10 @@ Record factual claims with evidence such as artifact sections, code locations,
 tests, commands, or observed measurements. State what was not examined when
 that limit changes the conclusion. Do not manufacture `N/A` rows for absent
 dimensions, and do not turn each finding into a gate or tracker item.
+
+## Source-Code Boundary Baseline
+
+Apply `modularity-and-encapsulation` per the source-code baseline in
+`workflows/references/concern-resolution.md` and the matching mode contract.
+Preserve its applicability, adoption escape path, legacy-validity distinction,
+style compatibility and evidence requirements throughout this procedure.

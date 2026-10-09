@@ -262,8 +262,9 @@ Each concern ships a `practices.md` with conventions organized by activity:
 - Keyboard-only navigation testing
 ```
 
-Practices are advisory — they guide agent choices. Project overrides take
-precedence over library practices.
+Practices guide agent choices and may declare required evidence gates. Project
+overrides take precedence over library mechanisms, subject to the source-code
+baseline evidence floor and scoped exception contract in FR-17.
 
 ### Project concern file
 
@@ -428,7 +429,8 @@ context without paying the read cost.
    constraints, and associated practices in `concern.md` and `practices.md`.
 3. Projects must be able to select multiple concerns and declare overrides
    in `docs/helix/01-frame/concerns.md`.
-4. Project overrides must take full precedence over library practices.
+4. Project overrides take precedence over library mechanisms, subject to the
+   source-code baseline evidence floor and explicit exception contract in FR-17.
 5. Each concern must declare an `areas` field that controls which beads
    receive its practices in the context digest.
 6. `helix triage` and `/helix evolve` must assemble a context digest into
@@ -448,7 +450,7 @@ context without paying the read cost.
 13. Concern practices and project overrides must reference governing ADRs
     when an override departs from the library default.
 14. **Concern selection is a required Frame step.** `/helix frame` must select
-    concerns (or explicitly record "no concerns apply") before the frame pass is
+    concerns (or explicitly record "no concerns apply" for source-free work with a reason under FR-17) before the frame pass is
     complete — a project that ships feature specs with no concern decision is a
     framing gap, not a default-empty state. At autonomy `high`, when no
     `concerns.md` exists, frame **infers** the selection from the product nature
@@ -477,6 +479,25 @@ context without paying the read cost.
     every default names a concern whose `## Slot` matches that key; defaults only
     for exclusive slots; overrides name a real slot+concern) is checked during
     alignment.
+
+#### FR-17: Source-Code Boundary Baseline
+
+Projects with handwritten source, including libraries and single-file tools,
+must select `modularity-and-encapsulation` at every autonomy level. Source-free
+projects record reasoned non-applicability. Existing selections are adopted
+explicitly; missing selection/boundary/checker evidence blocks dependent feature
+readiness, while bounded adoption work may proceed. Project overrides may adapt
+mechanisms; departures require scope, owner, authority, rationale, alternative
+verification, and a review/removal trigger. They may not silently erase this
+evidence floor or conceal new violations by expanding an existing-debt baseline.
+
+Architecture owns module/type ownership, public surfaces, allowed/forbidden
+imports, integration owners, construction policy, and the project check command.
+Contracts own exact shared interfaces. Design, implementation and test plans,
+work-item context, and runtime handoff carry applicable obligations. The baseline
+composes with the selected architecture style, including deliberate coupling in
+classic-layered, without forcing inversion. Legacy artifact validity is retained;
+current execution readiness and structural validity are distinct.
 
 ### Non-Functional Requirements
 

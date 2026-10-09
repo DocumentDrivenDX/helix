@@ -29,6 +29,10 @@ within the named scope and inspect the relevant code, tests, and governing
 decisions. Use the audit checks in `actions/reconcile-alignment.md` as needed;
 do not infer that every accepted decision has already been implemented.
 
+## Source-Code Boundaries
+
+Check `modularity-and-encapsulation` selection and realization across relevant Architecture, Contracts, TD, test/build plans and scoped work. Separate legacy structural validity from current source-work readiness. When implementation audit is requested, compare relevant imports/public surfaces to the map and check for new violations or unsupported claims.
+
 Procedure: `workflows/actions/reconcile-alignment.md` supplies additional detail.
 
 ## Fan-out

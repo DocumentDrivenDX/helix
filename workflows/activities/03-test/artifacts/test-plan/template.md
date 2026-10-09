@@ -102,3 +102,8 @@ layer allocation.
 **Priority**: [Recommended order]
 
 **Blocking Gate**: [What must pass before implementation is considered done]
+
+<!-- For source projects, name the real boundary-check command, allowed/forbidden
+import controls, supported cycle/private-access checks, invariant tests and
+remaining semantic review obligations. Apply the modularity-and-encapsulation
+baseline; do not equate populated document fields with proven boundaries. -->

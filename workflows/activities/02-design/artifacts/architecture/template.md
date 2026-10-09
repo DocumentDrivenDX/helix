@@ -48,6 +48,22 @@ graph TB
     %% Optional: add components inside the container that needs detail
 ```
 
+## Module Boundaries
+
+**Source Applicability**: [source or source-free; reason]
+
+For source projects, complete every cell. A single module is sufficient for a
+small program; do not add layers solely to fill the table. Source-free projects
+may omit the table and fields below after recording the reason above.
+
+| Module | Responsibility / Owned Types | Public API | Allowed Dependencies | Forbidden Dependencies |
+|--------|------------------------------|------------|----------------------|------------------------|
+| [Package/file] | [Responsibility and owned types] | [Exported names or Contract reference] | [Permitted imports] | [Forbidden imports] |
+
+**Integration Owners**: [External system -> owning module and translation location, or None; reason]
+**Construction Policy**: [Owner/location for wiring or deliberate local construction]
+**Boundary Check**: [Concrete project-local command shared by local checks, pre-commit and CI]
+
 ## Deployment
 
 | Component | Infrastructure | Instances | Scaling | Backup / Recovery |

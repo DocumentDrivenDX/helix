@@ -24,4 +24,8 @@ Use when the requested change needs design authority before implementation.
 6. Derive ordered work items only when the user requests them or the runtime
    requires them.
 
+## Source-Code Boundaries
+
+For handwritten source, apply `modularity-and-encapsulation`: Architecture records Module Boundaries per its practices; Contracts own exact shared interfaces, and TD applies the map. Name actual modules, owned types, public APIs, allowed/forbidden imports, integration owners, construction policy, and a concrete project boundary command. Review semantic correctness; instance structure alone cannot establish readiness.
+
 Procedure: `workflows/actions/plan.md` supplies additional detail.

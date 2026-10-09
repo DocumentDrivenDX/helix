@@ -20,7 +20,7 @@ The Build activity implements the system to match specifications from Frame, arc
 
 When implementing:
 1. **Follow project structure**: Respect existing patterns
-2. **Extend existing modules**: Add to related code
+2. **Respect module ownership**: Extend the responsible module; new integrations get a named owning module, rather than accumulating in an orchestrator
 3. **Consistent naming**: Match project conventions
 4. **Update documentation**: Keep docs in sync
 
@@ -255,3 +255,11 @@ Ensure code is:
 - **Secure**: No vulnerabilities
 
 Remember: Build activity is about disciplined implementation. The creativity happened in Frame and Design, the specifications were set in Test. Now execute with precision. Guide teams to implement exactly what was specified - no more, no less.
+## Boundary Evidence
+
+Apply `modularity-and-encapsulation` per the source-code baseline. Source feature
+work requires an adopted boundary map and an actual project-local checker wired
+into local checks, pre-commit and CI. Review minimal exports, private mutable state,
+invariants, translation and construction ownership. The checker must reject a
+forbidden edge and permit an allowed edge. Existing debt is individually baselined;
+new violations fail. Bounded adoption/checker work may establish the prerequisites.

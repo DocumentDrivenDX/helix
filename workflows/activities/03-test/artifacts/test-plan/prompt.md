@@ -50,3 +50,14 @@ Use these local resource summaries as grounding:
 | Implementation sequencing for code changes | Implementation Plan |
 
 Use template at `workflows/activities/03-test/artifacts/test-plan/template.md`.
+
+## Boundary Verification
+
+For handwritten source, apply `modularity-and-encapsulation`. Name the actual
+project-local dependency checker command and exercise permitted imports and a
+forbidden import that must fail; cover cycles/private access where supported.
+Verify invariant protection through public APIs, review public vendor-type leakage,
+and test core isolation/substitution when promised by the selected style. Record
+unsupported static checks as named semantic review obligations; a presence check
+or green import graph does not prove encapsulation. Existing-debt baselines may
+allow unchanged violations but must reject new violations.

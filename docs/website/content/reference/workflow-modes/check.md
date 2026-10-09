@@ -86,3 +86,7 @@ status when it changes that recommendation.
 Do not skip owner-flow resolution because the prompt is short or the
 prerequisite verb is loud. Do not collapse multiple flows into a single
 undifferentiated answer.
+
+## Source-Code Boundaries
+
+Check the `modularity-and-encapsulation` source-code baseline in `workflows/references/concern-resolution.md`. Missing selection, map, or checker evidence blocks source feature readiness; recommend explicit adoption/design work. Legacy artifact validity remains separate. Check does not silently re-select concerns or edit existing adoption decisions.

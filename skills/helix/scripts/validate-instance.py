@@ -10,7 +10,7 @@ Checks run, in order:
   pattern_checks     regex entries {pattern, expected, message[, severity]}
                      where expected is 0 (must not match) or >=N
   automated_checks   rule entries {check, type, field[, severity, message]}
-                     with type unique_constraint, or not_equals plus `value`;
+                     with type unique_constraint, module_boundaries, or not_equals plus `value`;
                      other rule types are reported as unsupported without failing
   placeholder        leftover template markers ([TODO], TBD, [Fill in], ...)
 
@@ -259,6 +259,63 @@ def field_values(body: str, field: str) -> list[str]:
     return [v for v in values if v]
 
 
+def check_module_boundaries(body: str, base: int, severity: str, report: Report) -> None:
+    """Check populated boundary evidence, not import semantics or execution readiness.
+
+    Omission is valid for legacy instances. Workflows own adoption/readiness.
+    Source-free instances explicitly explain applicability, without invented modules.
+    """
+    scan = strip_fences(body)
+    headings = list(re.finditer(r"(?m)^##[ \t]+(?!#)(.+?)[ \t]*$", scan))
+    matches = [h for h in headings if slugify(h.group(1)) == "module_boundaries"]
+    if not matches:
+        return
+    match = matches[0]
+    line = line_of(scan, match.start(), base)
+    if len(matches) != 1:
+        report.add(severity, "module_boundaries", "Use exactly one Module Boundaries section", line)
+        return
+    next_heading = next((h for h in headings if h.start() > match.start()), None)
+    section = scan[match.end():next_heading.start() if next_heading else len(scan)]
+
+    def fail(message: str) -> None:
+        report.add(severity, "module_boundaries", message, line)
+
+    def value(label: str) -> str:
+        found = re.search(r"(?m)^\*\*" + re.escape(label) + r"\*\*:[ \t]*([^\n]*)$", section)
+        return found.group(1).strip() if found else ""
+
+    applicability = value("Source Applicability")
+    kind, separator, reason = applicability.partition(";")
+    if kind.strip() not in {"source", "source-free"} or not separator or not reason.strip():
+        fail("Source Applicability must be source or source-free followed by '; reason'")
+        return
+    if kind.strip() == "source-free":
+        return
+    for label in ("Integration Owners", "Construction Policy", "Boundary Check"):
+        if not value(label):
+            fail(f"Source projects must populate **{label}**")
+    columns = ("module", "responsibility_owned_types", "public_api", "allowed_dependencies", "forbidden_dependencies")
+    headers = None
+    rows = 0
+    for text in section.splitlines():
+        if not text.startswith("|"):
+            headers = None
+            continue
+        cells = [cell.strip() for cell in text.strip().strip("|").split("|")]
+        names = [slugify(cell) for cell in cells]
+        if headers is None:
+            headers = names if all(name in names for name in columns) else None
+            continue
+        if all(re.fullmatch(r":?-+:?", cell) for cell in cells):
+            continue
+        rows += 1
+        if len(cells) != len(headers) or any(not cells[headers.index(name)] for name in columns if headers.index(name) < len(cells)):
+            fail("Each boundary-map row must populate all five required columns")
+    if not rows:
+        fail("Source projects need a populated module table with Module, Responsibility / Owned Types, Public API, Allowed Dependencies and Forbidden Dependencies")
+
+
 def check_rule_entries(key: str, entries: list, body: str, base: int, report: Report) -> None:
     for i, entry in enumerate(entries):
         if not isinstance(entry, dict):
@@ -275,7 +332,9 @@ def check_rule_entries(key: str, entries: list, body: str, base: int, report: Re
             continue
         field = entry.get("field")
         rule = entry.get("type")
-        if rule == "unique_constraint" and field:
+        if rule == "module_boundaries":
+            check_module_boundaries(body, base, severity, report)
+        elif rule == "unique_constraint" and field:
             values = field_values(body, str(field))
             dupes = sorted({v for v in values if values.count(v) > 1})
             if dupes:

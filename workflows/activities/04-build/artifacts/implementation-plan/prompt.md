@@ -60,3 +60,13 @@ but leaves no trace here is drift (reconcile-alignment Concern->Artifact Realiza
 `workflows/activities/04-build/artifacts/implementation-plan/template.md`
 For tracker conventions see the runtime's install guide (DDx:
 `docs/install/ddx.md`).
+
+## Boundary Gate Sequencing
+
+For source projects, apply `modularity-and-encapsulation`: sequence baseline
+adoption, boundary mapping and the actual project checker before dependent feature
+work. Name the single command used locally, in pre-commit, and CI, plus allowed
+and forbidden import negative controls. Include supported cycle/private-access
+checks and named semantic review obligations. Bounded adoption work may proceed
+before the gate exists; feature work may not. Inventory existing violations
+individually with owners and remediation; do not enlarge baselines to hide new debt.

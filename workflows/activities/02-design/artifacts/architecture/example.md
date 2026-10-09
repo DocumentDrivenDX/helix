@@ -84,6 +84,26 @@ graph TB
     Evidence --> DB
 ```
 
+## Module Boundaries
+
+**Source Applicability**: source; DepositMatch includes handwritten application code.
+
+| Module | Responsibility / Owned Types | Public API | Allowed Dependencies | Forbidden Dependencies |
+|--------|------------------------------|------------|----------------------|------------------------|
+| api/domain | Owns matching invariants and core value types | Match decision and validation functions | Pure standard-library utilities | Services, Fastify, SQL, S3 SDK |
+| api/application | Import and review orchestration; application-owned requests | Import and review operations; Contracts define shared surfaces | domain and application-owned ports | Fastify, concrete SQL/S3 adapters |
+| api/adapters | HTTP, SQL and S3 integration; maps rows, vendor errors and transport DTOs | Implement application ports | domain, application, Fastify, SQL driver, S3 SDK | Other adapters' private implementation |
+| api/bootstrap | Construct and connect concrete implementations | start | application and adapters | Domain business rules |
+
+**Integration Owners**: PostgreSQL -> api/adapters/sql; S3 -> api/adapters/storage; Fastify -> api/adapters/http. Each translates representations and errors before calling application APIs.
+**Construction Policy**: api/bootstrap is the composition root and supplies concrete adapters to application-owned ports.
+**Boundary Check**: npm run check:boundaries (project-local import rules; invoked by pre-commit and CI).
+
+Import cycles are forbidden. Domain state changes use validation functions;
+mutable internals are private. Review checks public-type leakage and invariant
+protection; the import gate alone cannot prove these semantics. The checker must
+pass an allowed application-to-domain import and reject a domain-to-S3 import.
+
 ## Deployment
 
 | Component | Infrastructure | Instances | Scaling | Backup / Recovery |

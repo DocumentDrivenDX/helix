@@ -29,6 +29,7 @@ entry_requirements:
       description: "CI/CD pipeline configured for tests"
 
   manual:
+    - "For handwritten source, modularity-and-encapsulation selection and Architecture Module Boundaries are adopted; boundary-checker scaffold precedes dependent features. Bounded adoption work may establish these prerequisites; source-free work records why they do not apply."
     - "Test suites reviewed and approved"
     - "Security test suite validated"
 
@@ -102,6 +103,7 @@ exit_requirements:
       description: "Verification evidence record must exist: command+exit, target URL/env, core flows AND each governing AC's guard/negative branch exercised on the RUNNING system via the interface-appropriate harness, plus the re-review checklist (per the verification concern)"
 
   manual:
+    - "For handwritten source, the boundary checker ran through the shared local/pre-commit/CI recipe; allowed imports passed and forbidden imports failed. Semantic review covers ownership, public APIs and invariants; existing debt did not hide new violations. Source-free work records non-applicability with a reason; authorized scoped exceptions supply the alternative verification required by the baseline contract."
     - "Code review completed and approved"
     - "Performance benchmarks validated"
     - "Verification evidence reviewed (adversarial): every governing AC's guard/negative branch was driven on the RUNNING system via the interface-appropriate harness (web→Playwright, HTTP API→request client, MCP/agent surface→real client handshake, auth/SSO→real login flow, real-network/remote surface→exercised on the real address not localhost-stub, CLI→shell, TUI→tmux, backend→integration). Happy-path-green is not done; an un-waived untested guard branch is not done."

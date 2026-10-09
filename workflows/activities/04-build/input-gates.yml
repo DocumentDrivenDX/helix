@@ -15,3 +15,7 @@ input_gates:
     required: true
     source: 03-test
     validation: Automated test execution on commits
+  - criteria: Source-code boundary baseline adopted before dependent feature work
+    required: true
+    source: 02-design
+    validation: For handwritten source, Module Boundaries and checker scaffold are present or sequenced as explicit prerequisites; bounded adoption work may establish them; source-free work has a reasoned non-applicability decision

@@ -33,7 +33,7 @@ artifacts unless the scope explicitly asks you to revise them.
 0a. **Concern selection is a required Frame step.** Load or initialize active
    concerns following the concern-resolution reference for this runtime. A frame
    pass is not complete until concerns are selected (or it is explicitly
-   recorded that no concerns apply) — shipping feature specs with no concern
+   recorded that no concerns apply to source-free work with a reason) — shipping feature specs with no concern
    decision is a framing gap, not an acceptable default-empty state (FEAT-006
    FR-14). If `docs/helix/01-frame/concerns.md` does not exist, resolve the
    selection by autonomy level (see `input.md` autonomy semantics and FEAT-011):
@@ -285,7 +285,7 @@ use that item's acceptance criteria.
    (`validation.quality_checks`) and `prompt.md` pass for each artifact.
 3. **Concern selection (required)**: verify concern selection was performed —
    `docs/helix/01-frame/concerns.md` exists with an active selection (or an
-   explicit "no concerns apply" record). At high autonomy, verify inferred
+   explicit source-free "no concerns apply" record with reason). At high autonomy, verify inferred
    concerns are recorded as assumptions. Verify consistency with artifact
    content. A frame pass that produced feature specs but no concern decision
    fails this gate.
@@ -336,3 +336,10 @@ helix frame
 helix frame auth
 helix frame "real-time notifications"
 ```
+
+## Source-Code Boundary Baseline
+
+Apply `modularity-and-encapsulation` per the source-code baseline in
+`workflows/references/concern-resolution.md` and the matching mode contract.
+Preserve its applicability, adoption escape path, legacy-validity distinction,
+style compatibility and evidence requirements throughout this procedure.

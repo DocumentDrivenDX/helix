@@ -24,11 +24,46 @@ to load the active project concerns and their associated practices.
 
 1. Check: does `docs/helix/01-frame/concerns.md` exist and have content?
    - Yes -> load it as the active concerns document.
-   - No -> no active concerns. Omit concerns and practices from context.
+   - No -> no declared concerns to inject; apply the source-code baseline applicability/readiness check below rather than treating absence as readiness.
 
-There are no default concerns. Unlike principles, concerns are always
-project-specific. A project without a concerns file simply has no declared
-cross-cutting context beyond principles.
+Domain and technology concerns are project-specific. The source-code baseline
+below is an applicability obligation, independent of optional concern selection.
+A missing concerns file does not make source feature work execution-ready.
+
+## Source-code baseline (all autonomy levels)
+
+For handwritten source, including libraries and single-file programs, select
+`modularity-and-encapsulation` (`areas: all`) at low, medium, and high autonomy.
+Record the applicability evidence and selection source as `baseline-policy`;
+autonomy changes pauses, never this obligation. Source-free projects record a
+reason for non-applicability; unknown applicability must be resolved before
+source feature work is ready. Genesis records applicability or an unresolved
+question and hands off to Frame; detailed boundaries belong in Design.
+
+For a new concerns document, include the applicable baseline while selecting
+optional concerns normally. For an existing selection, do not silently overwrite
+it: report missing baseline as a blocking adoption/readiness gap and propose a
+scoped adoption update. Frame or Evolve applies that update when authorized.
+Check/Polish detect and propagate the decision; they do not re-select concerns.
+Bounded baseline/adoption/checker work may execute before the floor exists;
+dependent feature work may not.
+
+Architecture includes the boundary map defined in the concern's practices.
+Legacy instances without it remain structurally valid under FEAT-008, but cannot
+supply current source-work readiness evidence until adopted. A present section
+is mechanically checked for populated evidence; semantic correctness still
+requires review. Do not manufacture a full Architecture document for source-free
+work solely to record this baseline decision.
+
+Project overrides may adapt mechanisms, but may not silently delete the evidence
+floor. A departure requires exact scope, owner, governing authority, rationale,
+alternative verification, and a review/removal trigger. Existing violations may
+be individually baselined; new violations must fail, and widening a baseline or
+exception to hide new debt is prohibited. This requirement qualifies the general
+project-override precedence below. Architecture style remains signal-selected:
+classic-layered may accept concrete DAL coupling/local construction explicitly;
+inversion styles retain stronger core isolation. No universal interface-per-function
+or mandatory DI container is introduced.
 
 ### Area Filtering
 
@@ -78,7 +113,7 @@ label or assign multiple labels.
 4. Apply project overrides (listed under `## Project Overrides` in the
    concerns document) on top of library practices.
 
-Project overrides take full precedence.
+Project overrides take full precedence subject to the source-code baseline evidence floor and explicit exception contract above.
 
 ## Injection Preamble
 

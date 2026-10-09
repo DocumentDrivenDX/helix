@@ -120,3 +120,10 @@ NEXT: frame
 - Genesis composes `research` (STEP 2), the `product-vision` artifact (STEP 3), and
   hands off to `frame` (STEP 4). It does not duplicate those contracts — it orders
   them for a cold start.
+
+## Source-Code Boundary Baseline
+
+Apply `modularity-and-encapsulation` per the source-code baseline in
+`workflows/references/concern-resolution.md` and the matching mode contract.
+Preserve its applicability, adoption escape path, legacy-validity distinction,
+style compatibility and evidence requirements throughout this procedure.

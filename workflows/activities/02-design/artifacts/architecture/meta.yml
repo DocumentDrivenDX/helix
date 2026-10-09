@@ -53,9 +53,19 @@ validation:
       description: Containers in Level 2 are referenced consistently by Deployment and Data Flow views; nothing appears in one and not the others
       severity: warning
 
+    - check: boundary_semantics
+      description: Source-work readiness requires adopted module ownership, protected invariants, minimal public APIs, style-compatible dependencies and executable boundary checks; structural validation alone does not prove these
+      severity: blocking
+
     - check: scope_control
       description: No code-level detail unless a Component view is genuinely needed; remove views that don't add review or implementation value
       severity: warning
+
+  automated_checks:
+    - check: module_boundaries
+      type: module_boundaries
+      severity: blocking
+      message: A present Module Boundaries section must contain applicability and populated boundary evidence
 
   pattern_checks:
     - pattern: "\\[TBD\\]|\\[TODO\\]|\\[NEEDS CLARIFICATION"
@@ -104,6 +114,7 @@ template:
     - level_1_system_context: "Show the system, the actors, and the external systems. Skip if there's only one actor and no externals — that's noise."
     - level_2_container_diagram: "Required. Each container names its technology, responsibilities, and how it communicates."
     - component_diagram: "Optional. Include only when implementation choices need this level. Most teams ship without it."
+    - module_boundaries: "Include for new artifacts. Source projects record module ownership, public APIs, permitted/forbidden imports, integration owners, construction policy, and a check command; source-free projects give a reason. Legacy omission is an adoption/readiness gap, not structural invalidity."
     - deployment: "Required when the system runs anywhere non-trivial. Name regions, instance counts, scaling triggers, backup paths."
     - data_flow: "One sequence diagram for the most important user journey or operational flow. Pick the one most likely to fail."
     - quality_attributes: "Each row needs a measurable target, the strategy that achieves it, and the verification method."

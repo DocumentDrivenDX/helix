@@ -10,6 +10,10 @@ or implementation.
    them. Preserve security, correctness, and user-authorized stop rules.
 3. Separate defects from optional improvements.
 
+## Source-Code Boundaries
+
+For source changes, review `modularity-and-encapsulation` against Architecture, Contracts, and the project checker evidence. Inspect relevant imports, exports, mutable state/invariants, vendor-type leakage, integration translation and construction ownership. Respect the chosen style and authorized exceptions. Report missing adoption or new violations; do not infer semantics from a populated table.
+
 Procedure: `workflows/actions/fresh-eyes-review.md` supplies additional detail.
 
 ## Fan-out

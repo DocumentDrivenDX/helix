@@ -6,7 +6,7 @@ stories.
 1. Read existing Frame artifacts first.
 2. **Select concerns — this is a required Frame step.** A frame pass is not
    complete until the project's concerns are selected (or it is explicitly
-   recorded that none apply); shipping feature specs with no concern decision is
+   recorded that none apply to source-free work with a reason); shipping feature specs with no concern decision is
    a framing gap, not an acceptable default-empty state. At `low`/`medium`,
    drive selection interactively by category (tech stack, data, infrastructure,
    quality). At `high`, infer the selection from the product's nature and record
@@ -95,5 +95,9 @@ above, and record the chosen filler PLUS its source (`operator-override`,
 `shipped-default`, or `assumption`) in `concerns.md`. Propagation to work
 items and downstream artifacts is a later gate (owned by `check`/`polish`),
 never a re-selection.
+
+## Source-Code Boundaries
+
+Apply the all-autonomy source-code baseline in `workflows/references/concern-resolution.md`: select `modularity-and-encapsulation` for handwritten source, including libraries; record source-free non-applicability with a reason. Existing selections require explicit adoption rather than silent replacement.
 
 Procedure: `workflows/actions/frame.md` (deeper step detail; this file is the contract).

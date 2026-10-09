@@ -20,6 +20,10 @@ ddx:
 
 ## Implementation Slices
 
+For handwritten source, put boundary adoption/map and checker scaffolding before
+feature slices that depend on them. Name the project-local boundary command and
+its local/pre-commit/CI wiring; identify allowed/forbidden import controls.
+
 | Slice | Story / Area | Governing Artifacts | Depends On | Validation Gate | Notes |
 |-------|---------------|---------------------|------------|-----------------|-------|
 | [B-001] | [US-XXX or area] | [TP/TD refs] | None | [Command/evidence] | [Why first] |

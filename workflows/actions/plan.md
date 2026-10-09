@@ -186,3 +186,10 @@ FOLLOW_ON_CREATED: N
 - `CONVERGED`: the design is implementable and no material ambiguity remains
 - `IN_PROGRESS`: the requested round limit was reached before readiness
 - `GUIDANCE_NEEDED`: a consequential ambiguity needs user input
+
+## Source-Code Boundary Baseline
+
+Apply `modularity-and-encapsulation` per the source-code baseline in
+`workflows/references/concern-resolution.md` and the matching mode contract.
+Preserve its applicability, adoption escape path, legacy-validity distinction,
+style compatibility and evidence requirements throughout this procedure.

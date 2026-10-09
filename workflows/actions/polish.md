@@ -275,3 +275,10 @@ FOLLOW_ON_CREATED: N
   be broken down without guidance
 
 When in-scope implementation work is ready, the runtime can dispatch it under its own execution rules.
+
+## Source-Code Boundary Baseline
+
+Apply `modularity-and-encapsulation` per the source-code baseline in
+`workflows/references/concern-resolution.md` and the matching mode contract.
+Preserve its applicability, adoption escape path, legacy-validity distinction,
+style compatibility and evidence requirements throughout this procedure.

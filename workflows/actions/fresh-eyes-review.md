@@ -38,3 +38,10 @@ help.
 When requested, summarize status and findings using
 `workflows/modes/_report.md`. Include only applicable checks; do not add empty
 dimensions or `N/A` entries for ceremony.
+
+## Source-Code Boundary Baseline
+
+Apply `modularity-and-encapsulation` per the source-code baseline in
+`workflows/references/concern-resolution.md` and the matching mode contract.
+Preserve its applicability, adoption escape path, legacy-validity distinction,
+style compatibility and evidence requirements throughout this procedure.

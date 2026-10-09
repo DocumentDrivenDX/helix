@@ -29,3 +29,7 @@ surfaces; the runtime does.
 5. Do not prescribe runtime commands from the skill body. Point to the
    runtime's install or operator guide for concrete execution, source control,
    packaging, or loop commands.
+
+## Source-Code Boundaries
+
+For handwritten source, require `modularity-and-encapsulation` evidence: adopted module map, concrete boundary-check command and supported negative controls, semantic review of public APIs/type ownership/invariants, and existing-debt/exception dispositions. Do not hand dependent feature work off as ready without these prerequisites. Bounded adoption work may create them.

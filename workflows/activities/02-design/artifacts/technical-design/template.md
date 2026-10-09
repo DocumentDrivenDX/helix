@@ -29,6 +29,11 @@ ddx:
 
 ## Component Changes
 
+Apply Architecture's Module Boundaries: name affected modules and owned types,
+public API impact, applicable dependency rules and the boundary-check command.
+Reference governing Contracts for changed shared surfaces. Do not redefine the
+system map here; update Architecture first if a durable boundary changes.
+
 ### Modified: [Component Name]
 - **Current State**: [What exists]
 - **Changes**: [What changes]

@@ -339,3 +339,16 @@ This action succeeds when:
 - ✅ Foundation is established for deployment
 
 Remember: In TDD Green activity, implement just enough to make tests pass, then refactor for quality. Resist the urge to add unspecified features.
+
+## Source-Code Boundary Baseline
+
+Apply `modularity-and-encapsulation` using the all-autonomy source-code baseline
+in `workflows/references/concern-resolution.md` and its concern practices. Source
+feature work requires baseline adoption, populated Architecture boundary evidence,
+and project-local enforcement sequenced before dependent features. Bounded adoption
+work may create these prerequisites. Respect legacy validity, source-free reasons,
+classic-layered coupling decisions, and scoped exceptions. Genesis only records
+applicability for Frame; do not demand a finished Architecture during scaffolding.
+Check/Polish propagate existing decisions rather than silently re-selecting them.
+Review actual imports, public APIs, owned types and invariants where the requested
+scope includes implementation; structural presence checks do not prove semantics.

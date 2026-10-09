@@ -60,3 +60,13 @@ which decisions belong at the system, feature, and story levels.
 - The output is clearly story-level and disambiguated from a solution design.
 - The implementation sequence can be turned into one or more small,
   reviewable changes without losing test coverage.
+
+## Boundary Application
+
+Apply `modularity-and-encapsulation` from the source-code baseline: reference
+Architecture's Module Boundaries and identify affected modules/types, export
+changes, integration translation and construction locations, dependency rules,
+and focused invariant tests. Shared signatures belong in Contracts. Missing
+baseline/map evidence blocks dependent feature readiness; bounded adoption work
+may establish it. Respect deliberate classic-layered coupling and any authorized
+scoped exception rather than inventing a new architecture style.

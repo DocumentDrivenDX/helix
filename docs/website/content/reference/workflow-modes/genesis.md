@@ -14,4 +14,8 @@ Use to bootstrap a brand-new project from bare intent: name it, research the pri
 3. Scaffold the marker and activity directories, then hand off to `frame`.
 4. Stop before drafting requirements unless the operator asked for the full cascade.
 
+## Source-Code Boundaries
+
+Record handwritten-source applicability for the `modularity-and-encapsulation` baseline (or an unresolved question) in the Frame handoff. Genesis remains ready for Frame; detailed module boundaries and checker design belong in Design, not initial scaffolding.
+
 Procedure: `workflows/actions/genesis.md` (the full action prompt; this file is the contract).
