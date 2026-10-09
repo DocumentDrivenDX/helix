@@ -7,7 +7,7 @@
 ## Design
 - Organize as an sbt multi-project build; each logical module is a subproject
 - Depend on ZIO for effect management, ZIO JSON for serialization where applicable
-- Centralize configuration in one case class with `deriveConfig` (zio-config-magnolia) and load it via `ConfigProvider` as a `ZLayer`; sources layered as environment / secret files > `application-<env>.conf` > `application.conf` / `reference.conf` (zio-config-typesafe) > case-class defaults; ops-owned keys have no default; production relies on real env vars or the platform secret manager
+- Centralize configuration in one case class with `deriveConfig` (zio-config-magnolia) and load it via `ConfigProvider` as a `ZLayer`. Typesafe Config has no built-in per-environment file convention, so build the file layer explicitly in the config module: read `APP_ENV` once via `sys.env`, then `ConfigFactory.parseResources(s"application-$env.conf").withFallback(ConfigFactory.load())` (the latter already merges `application.conf` over `reference.conf`), wrapped with `TypesafeConfigProvider.fromTypesafeConfig`; compose an environment/secret-file `ConfigProvider` ahead of it with `orElse`. Resulting precedence: environment/secret files > `application-<env>.conf` > `application.conf` / `reference.conf` > case-class defaults; ops-owned keys have no default; production relies on real env vars or the platform secret manager
 - Commit `.env.example`; git-ignore `.env`
 - Define portable contracts at service seams to enable incremental migration
 
