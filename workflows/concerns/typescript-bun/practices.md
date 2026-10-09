@@ -5,7 +5,7 @@
 - If a library dependency requires a Node.js adapter, flag it as a concern at framing — it may require a Bun-compatible alternative
 
 ## Design
-- Centralize configuration in one `zod` schema in `env.ts` (e.g. `z.object({ LOG_LEVEL: z.enum(["info", "debug"]).default("info"), DATABASE_URL: z.string().url() })`); parse `Bun.env` once with `safeParse` and exit with a readable error on failure
+- Centralize configuration in one `zod` schema in `env.ts` (e.g. `z.object({ LOG_LEVEL: z.enum(["info", "debug"]).default("info"), DATABASE_URL: z.string().url() })`); parse `process.env` once (not `Bun.env`, so the module also runs under Next.js on Node or Edge) with `safeParse` and exit with a readable error on failure
 - Source precedence: real environment variables / secret files > `.env` (dev only) > `config/<env>.json` > `config/default.json` > schema defaults (plain deep-merge of the objects, then `safeParse`; use flat `UPPER_SNAKE` keys in the JSON files so env vars map one-to-one); ops-owned keys are required, dev-owned keys carry defaults; production relies on real env vars or the platform secret manager
 - Commit `.env.example`; git-ignore `.env`
 - Use Bun workspaces for monorepos: `"workspaces": ["packages/*"]` in root `package.json`
@@ -21,7 +21,7 @@
   - File I/O: `Bun.file()`, `Bun.write()`
   - Subprocesses: `Bun.spawn()`, `Bun.spawnSync()`
   - HTTP: `Bun.serve()`
-  - Environment: `Bun.env` (read only in the env module)
+  - Environment: `process.env`/`Bun.env` (read only in the env module)
 - TypeScript config: `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `verbatimModuleSyntax`
 - No `any` — TypeScript strict mode is enforced
 - Formatting: Biome with tabs, line width 100

@@ -15,7 +15,7 @@
   is selected for UI work.
 - Design tokens (colors, spacing, typography) in `tailwind.config.ts` — components reference tokens, not raw values
 - Forms: one Zod schema per entity in `@apogee/shared`, resolved via `@hookform/resolvers/zod`
-- Configuration: import the typed config from the shared `env.ts` (see `typescript-bun`); never read `process.env` directly in route handlers, Server Components, or actions
+- Configuration: import the typed config from the shared `env.ts` (see `typescript-bun`); never read `process.env` directly in route handlers, Server Components, or actions (only the env modules do)
 - Data tables: TanStack React Table with column definitions typed against shared schemas
 - State management: server state via TanStack Query (when added), client state via Zustand (when added), form state via react-hook-form — no Redux
 
