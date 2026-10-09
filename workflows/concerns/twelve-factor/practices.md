@@ -12,14 +12,21 @@ at the codebase, the release artifact, or the runbook and confirm or reject it.
 
 - Config that **varies between deploys** (credentials, resource handles,
   hostnames, ports, third-party API keys) MUST come from the **environment**
-  (env vars or an injected env), not from code or checked-in per-environment
-  config files. Reviewer check: **grep the repo for credential/connection-string
+  (env vars, mounted secret files, or a secret manager — an injected,
+  non-committed source), not from code or checked-in per-environment
+  config files. Prefer file or secret-manager delivery for secrets, since env
+  vars leak via child processes, crash dumps, and `/proc`. Reviewer check: **grep the repo for credential/connection-string
   literals and per-environment config files** — there MUST be none.
 - The **open-source litmus test** MUST hold: the codebase could be made public
   right now without leaking any credential.
 - Per-deploy config MUST be **granular env vars**, each independent — not a
   single checked-in `production` / `staging` config bundle that grows
   combinatorially.
+- The process MUST read config **through one typed, validated config object**
+  built at startup (failing fast on missing or invalid values), not by scattered
+  direct env reads. The mechanism is per language — see the selected
+  `language-runtime` concern (`python-uv`, `typescript-bun`, `rust-cargo`,
+  `go-std`, `scala-sbt`).
 
 ## Backing services as attached resources
 

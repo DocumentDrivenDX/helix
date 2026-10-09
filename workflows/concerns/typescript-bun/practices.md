@@ -41,7 +41,7 @@
 - `bun test` — all tests pass
 - `bun run typecheck` — `tsc --noEmit` passes for all packages
 - `bun run lint` — Biome lint + format check passes
-- No `process.env`/`Bun.env` outside the env module (Biome `noProcessEnv`, or a grep gate)
+- No `process.env`/`Bun.env` outside the env module (Biome `noProcessEnv` covers `process.env`; add a grep gate for `Bun.env`, which the rule does not cover; the env module opts out with `biome-ignore`)
 - Biome `noExcessiveCognitiveComplexity` and the file-size cap are set per `code-shape-ceilings`; no ceiling is raised and no `biome-ignore` is added for them
 - No `package-lock.json` committed (indicates npm was used)
 - `bun.lock` committed and up to date

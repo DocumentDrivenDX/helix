@@ -19,7 +19,7 @@
 - Error wrapping: `fmt.Errorf("context: %w", err)` — always add context
 - Sentinel errors: define with `errors.New` for expected conditions; compare with `errors.Is`
 - Concurrency: pass `context.Context` first; use `errgroup.WithContext` for fan-out; avoid goroutine leaks
-- Read configuration only through the injected `Config`; `forbidigo` bans `os.Getenv`/`os.LookupEnv` outside `internal/config`
+- Read configuration only through the injected `Config`; `forbidigo` (`pattern: '^os\.(Getenv|LookupEnv|Environ)$'`, `analyze-types: true`) bans env reads; the `internal/config` package and `_test.go` files are exempted via `linters.exclusions.rules` path entries
 - Logging: structured with `log/slog` (stdlib) or project-chosen structured logger; no `fmt.Print*` in library code
 - No `panic` outside startup; in `main()`, convert panics to fatal log + exit
 

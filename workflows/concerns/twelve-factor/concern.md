@@ -128,12 +128,16 @@ The twelve factors, grouped by what each protects:
 
 ### Config and secrets live in the environment, never in the codebase
 
-- Everything that varies between deploys is supplied by the **environment**
-  (env vars or an injected env). **No credential, hostname, port, or
+- Everything that varies between deploys is supplied by the **environment** or
+  an injected, non-committed source (env vars, mounted secret files, a secret
+  manager). **No credential, hostname, port, or
   per-deploy literal is committed** to the repo — the open-source litmus test
   must hold. Grouped checked-in per-environment config files (a
   `production`/`staging` config set in the repo) are rejected in favor of
   granular per-deploy env vars.
+- The process reads config through **one typed, validated config object** built
+  at startup, not scattered direct env reads; the mechanism is owned by the
+  selected `language-runtime` concern.
 
 ### Backing services are swappable by config alone
 
