@@ -62,6 +62,10 @@ validation:
       message: The AC↔test matrix must key each row on the story's stable US-<n>-AC<m> ID
 
   quality_checks:
+    - check: diagnostic_proof_executable
+      description: For relevant diagnostic stories, name real OTel receiver mapping and correlation proof plus privacy, duplication, bounded failure and retrieval tests rather than JSONL parsing alone
+      severity: warning
+
     - check: acceptance_traced
       description: Every active acceptance criterion maps to at least one concrete failing test
       severity: blocking

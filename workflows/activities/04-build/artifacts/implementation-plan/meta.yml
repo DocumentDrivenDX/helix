@@ -26,6 +26,10 @@ validation:
     - risks_and_rollbacks
 
   quality_checks:
+    - check: diagnostic_evidence_sequenced
+      description: For applicable o11y-otel practices, sequence Contracts, capture and real receiver proof before the diagnostic pilot, with safe evidence references and capture limits
+      severity: warning
+
     - check: slices_bounded
       description: Implementation slices should be small enough for independent execution and review
       severity: blocking

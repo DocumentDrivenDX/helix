@@ -27,6 +27,10 @@ validation:
     - alert_routing
 
   quality_checks:
+    - check: otel_collection_and_limits
+      description: For applicable o11y-otel practices, reference the governing Contract and record actual collection route, optional trace context, duplication control, privacy, retention, query access and loss limits
+      severity: warning
+
     - check: service_specific_signals
       description: Metrics and alerts must be specific to the service rather than generic placeholders
       severity: blocking

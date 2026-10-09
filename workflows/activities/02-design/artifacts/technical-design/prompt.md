@@ -70,3 +70,11 @@ and focused invariant tests. Shared signatures belong in Contracts. Missing
 baseline/map evidence blocks dependent feature readiness; bounded adoption work
 may establish it. Respect deliberate classic-layered coupling and any authorized
 scoped exception rather than inventing a new architecture style.
+
+## Diagnostic Wiring
+
+For selected `o11y-otel` practices, name local instrumentation, context/capture
+boundaries, independent console/storage projections and verification evidence.
+Reference governing Contracts instead of defining log fields or query schemas
+inline. Include receiver/conformance and privacy/failure tests for the changed
+path. Run/attempt correlation must work even when no active span exists.

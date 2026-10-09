@@ -22,3 +22,12 @@ Use parallel reviewers only when available and useful. Give each a distinct
 question within the same scope. Resolve duplicate or conflicting findings
 before reporting; no reviewer may widen the scope or make edits without
 authorization.
+
+## OpenTelemetry Diagnostics
+
+Apply selected `o11y-otel` practice sections, including agent run diagnostics
+where commands/tests need persistent evidence. Preserve applicability without
+silently re-selecting concerns. Require safe run/attempt evidence references,
+verification outcome and capture limits at execution closeout; a quiet console
+is not a pass. Shared schemas stay in Contracts, with actual OTel receiver proof
+for claimed integrations. See `workflows/references/agent-diagnostics.md`.

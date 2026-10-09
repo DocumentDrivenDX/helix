@@ -87,3 +87,11 @@ Story-level work is tracked as work items in the runtime's work-item store.
 - [ ] Shared constraints are documented.
 - [ ] Verification expectations are explicit.
 - [ ] Runtime issues can be created from this plan without inventing scope.
+
+## Diagnostic Evidence Sequencing
+
+A diagnostic adoption slice requires its own story, Contract and Story Test Plan
+before implementation. Sequence logger/capture wiring, actual OTel receiver and
+privacy/failure proof, then service/CLI agent diagnosis. Runtime closeout records
+run/attempt, safe manifest/receiver evidence, verification outcome and capture
+limits. This example defines sequencing and does not report pilot completion.

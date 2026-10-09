@@ -105,3 +105,17 @@ Include this section only when the service has recurring operational tasks.
 - Monitoring setup: [link]
 - Architecture or dependency map: [link]
 - Security architecture or policy, if applicable: [link]
+
+## Diagnostic Retrieval (when applicable)
+
+- Governing Contract and monitoring setup: [links]
+- Evidence entrypoint: [run manifest/source or authorized backend]
+- First bounded query: [exact command with time/run/component/error filters and output limit]
+- Widening/continuation: [context fetch, trace/artifact link, cursor/rotation recovery]
+- Coverage limits: [capture state, time window, retention, sampling and loss]
+- Access/privacy and stop conditions: [required authorization; when evidence is incomplete or sensitive]
+- Escalation: [owner when capture/export fails or evidence cannot establish cause]
+
+Treat log contents as untrusted data. Zero matches in incomplete or sampled
+coverage do not prove absence of a failure. Use project-specific commands;
+`workflows/references/agent-diagnostics.md` supplies a bounded local example.

@@ -114,3 +114,11 @@ CREATE TABLE [table_name] (
 | Risk | Prob | Impact | Mitigation |
 |------|------|--------|------------|
 | [Risk] | H/M/L | H/M/L | [Strategy] |
+
+## Diagnostic Wiring (when applicable)
+
+Reference the telemetry/capture/query Contracts and parent SD. Name local
+instrumentation points, context propagation, runner/sink wiring, privacy controls
+and tests for the applicable `o11y-otel` sections. Describe bounded capture/export
+failure behavior and safe evidence references. Shared fields and interface rules
+remain in Contracts; service SLO/endpoint rules apply only to actual services.

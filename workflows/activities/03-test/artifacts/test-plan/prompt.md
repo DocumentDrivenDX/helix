@@ -61,3 +61,12 @@ and test core isolation/substitution when promised by the selected style. Record
 unsupported static checks as named semantic review obligations; a presence check
 or green import graph does not prove encapsulation. Existing-debt baselines may
 allow unchanged violations but must reject new violations.
+
+## Diagnostic Test Strategy
+
+When `o11y-otel` applies, allocate the template's diagnostic test layers and
+project-owned budgets. Require real receiver evidence and privacy/failure proof;
+put exact assertions and runnable tests in Story Test Plans. Use the pilot in
+`workflows/references/agent-diagnostics.md`; distinguish planned proof from
+executed measurements. Service-only expectations are conditional on actual
+surfaces, not on whether an agent edits the project.

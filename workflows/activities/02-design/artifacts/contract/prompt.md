@@ -48,3 +48,13 @@ Use these local resource summaries as grounding:
 - Normative surface details are explicit rather than implied.
 - Error semantics and compatibility rules are documented.
 - Tests can be derived directly from the contract.
+
+## Telemetry Contracts
+
+For applicable `o11y-otel` surfaces, use the telemetry section of the template
+and `workflows/references/agent-diagnostics.md`. Define exact schema/mapping,
+capture/query bounds and access, ordering/continuation, loss and compatibility.
+Trace context is conditional; run/attempt identity does not manufacture it.
+Require an executable test of the real logger/ingestion path through an OTel
+receiver, including no duplicate ingestion. Architecture/ADRs own system choices;
+the Contract owns their externally implementable surfaces.

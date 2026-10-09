@@ -50,3 +50,12 @@ This project uses the following area labels for concern scoping:
 | Conflict | Resolution |
 |----------|------------|
 | [Concern A] vs. [Concern B] | [How downstream work should decide] |
+
+## Observability Applicability
+
+For `o11y-otel`, record applicable practice sections in the existing Why Active /
+Key Practices fields: service signals, agent run diagnostics, frontend/data
+boundaries, and/or GenAI operations. Agent development need not involve a
+model-calling product. These notes are not new slots or profile fields. Select
+on a real diagnostic surface and apply service-only obligations conditionally;
+a development runner can supply evidence for a static site or library.

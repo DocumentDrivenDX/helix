@@ -58,3 +58,12 @@ Use these local resource summaries as grounding:
 | Implementation file changes | Technical Design / Implementation Plan |
 
 Use template at `workflows/activities/03-test/artifacts/story-test-plan/template.md`.
+
+## Diagnostic Proof
+
+Realize applicable `o11y-otel` obligations using the Diagnostic Proof template
+section and adopting-project pilot in `workflows/references/agent-diagnostics.md`.
+Name exact receiver/failure/correlation/privacy/retrieval tests and assertions;
+record untested limits explicitly. Project strategy belongs in Test Plan and
+story AC-to-test rows remain here. Do not substitute a schema parse or a mock
+exporter for actual OTLP receiver evidence on the real instrumentation path.

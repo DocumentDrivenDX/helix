@@ -34,9 +34,10 @@ with three neighbors that must stay distinct:
 - **`o11y-otel`** decides **what telemetry to emit and how it is
   structured** — traces, RED metrics, structured-JSON log schema, trace
   context. Twelve-factor decides only the **logs-as-event-streams transport
-  rule**: the process writes its event stream to **stdout, unbuffered**, and
-  never manages log files, routing, or rotation itself; the execution
-  environment captures and routes the stream. The two **compose**: o11y says
+  rule**: the service streams to **stdout by default** and never manages log
+  files or rotation itself; the execution environment captures/routes it.
+  CLI/MCP diagnostic streams and supported native OTLP routes follow the
+  transport qualifications below. The two **compose**: o11y says
   *what each log line contains*, twelve-factor says *where the process puts it*.
   This concern does **not** specify log schema, span naming, or metric names.
 - **`k8s-kind`** (and any `deploy-target` filler) is the **runtime that
@@ -120,10 +121,11 @@ The twelve factors, grouped by what each protects:
   **personnel gap** (authors operate what they ship), and the **tools gap** —
   most importantly, use the **same type and version of each backing service**
   across all environments (no SQLite-in-dev / Postgres-in-prod substitution).
-- **Logs** — treat logs as **event streams**: the process writes its
-  unbuffered event stream to **stdout** and never concerns itself with routing,
-  storage, or rotation. The execution environment captures and routes the
-  stream. (Structure and content of those events are `o11y-otel`'s concern.)
+- **Logs** — treat logs as **event streams**: services use platform-captured
+  stdout by default; CLI/MCP diagnostics use stderr when stdout carries results
+  or protocol traffic. A supported native OTLP route is a documented project
+  choice. The execution environment owns storage/rotation, including local/CI
+  runner capture. Structure/content remain `o11y-otel`'s concern.
 - **Admin processes** — run admin/management tasks (migrations, one-off
   scripts, REPL/console) as **one-off processes against an identical release**:
   same codebase, same config, same dependency isolation as the long-running
@@ -193,11 +195,16 @@ The twelve factors, grouped by what each protects:
   work, drain in-flight, exit). Worker jobs are **reentrant/idempotent** and
   returned to the queue on interruption, so a sudden kill never corrupts state.
 
-### Logs stream to stdout; the process does not manage log files
+### Logs use platform capture; the process does not manage log files
 
-- The process writes its event stream to **stdout, unbuffered**, and does
-  **not** open, route, or rotate log files itself. Log routing/retention is the
-  environment's job. (What each line contains is `o11y-otel`.)
+- Services stream to **stdout by default**; CLI/MCP diagnostics use **stderr**
+  when stdout carries results/protocol traffic. A supported platform-native
+  OTLP route may be selected by an ADR; it must preserve bounded queue/flush
+  behavior and disclose export loss under `o11y-otel`.
+- The deployed application does **not** open or rotate log files. The environment
+  owns routing/retention; a development/CI runner may capture safe streams into
+  local files and own their rotation. Verify one canonical ingestion route to
+  avoid duplicates. What each record contains remains `o11y-otel`'s concern.
 
 ### Dev/prod parity — same backing services across environments
 
@@ -228,8 +235,9 @@ The twelve factors, grouped by what each protects:
 - **No SIGTERM handling** (process killed mid-request, jobs lost on shutdown),
   slow startup, or **non-idempotent jobs** that corrupt on re-run → add graceful
   drain + reentrant jobs
-- The app **writing/rotating its own log files** instead of streaming to stdout
-  → emit the unbuffered event stream to stdout; let the environment route it
+- The deployed app **writing/rotating its own log files** → use the selected
+  platform route (stdout by default, qualified for CLI/native OTLP); let the
+  environment or development runner own capture and rotation
 - A **different backing service in dev than prod** (SQLite vs Postgres, an
   in-memory queue vs the real broker) → align type and version across
   environments
@@ -255,7 +263,7 @@ is a deployed-process-like surface and may select it.
 
 It **composes** (no slot) with `deployment-topology` (which decides how many
 deployables each honor this contract), `o11y-otel` (which structures the events
-this concern streams to stdout), and `k8s-kind` / the `deploy-target` filler
+this concern sends through platform capture), and `k8s-kind` / the `deploy-target` filler
 (the runtime that consumes the twelve-factor process). `areas: infra` scopes its
 practices to the infrastructure / process-contract work items.
 
@@ -267,8 +275,8 @@ practices to the infrastructure / process-contract work items.
 > secrets supplied from the environment (open-source litmus test holds), backing
 > services as attached resources swappable by config alone, stateless
 > share-nothing processes, immutable build/release/run separation, fast startup
-> with graceful SIGTERM shutdown and reentrant jobs, logs streamed to stdout
-> (the process never rotates its own files), the same backing services across
+> with graceful SIGTERM shutdown and reentrant jobs, logs via platform capture
+> (stdout by default with CLI/native-OTLP qualifications; no app-owned rotation), the same backing services across
 > dev/staging/prod, and admin tasks run as one-off processes on an identical
 > release. Do **not** select it for a **library**, a **static/marketing site**,
 > or a **CLI with no config or backing services** — there is no per-process
@@ -281,7 +289,7 @@ practices to the infrastructure / process-contract work items.
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
 - ADR: config + state + backing-services strategy (env-sourced config, attached resources, stateless processes), build/release/run + disposability
-- TD: process model (stateless share-nothing, port binding, concurrency), logs to stdout, graceful SIGTERM, admin-as-one-off
+- TD: process model (stateless share-nothing, port binding, concurrency), platform-captured logs with CLI/native-OTLP qualifications, graceful SIGTERM, admin-as-one-off
 - IMPLEMENTATION_PLAN: deployment checklist/runbook — env-var config, dev/prod parity, immutable releases, migrations as one-off processes
 
 ## ADR References

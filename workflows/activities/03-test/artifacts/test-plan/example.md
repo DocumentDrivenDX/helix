@@ -124,3 +124,12 @@ then P0 E2E smoke.
 
 **Blocking Gate**: All P0 contract, integration, security, and E2E tests pass;
 coverage minimums hold; no raw financial fixture values appear in logs.
+
+## Diagnostic Test Strategy
+
+The diagnostic adoption slice allocates integration tests to actual OTel
+receiver/mapping and trace correlation, security tests to pre-sink privacy,
+and failure tests to capture/export bounds and query rotation. A service and
+CLI pilot will measure diagnosis accuracy, evidence citations, time/calls/context
+and overhead against agreed budgets. The slice needs its own governing story,
+Contract and Story Test Plan; this example does not claim those tests ran.

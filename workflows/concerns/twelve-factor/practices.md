@@ -83,10 +83,14 @@ at the codebase, the release artifact, or the runbook and confirm or reject it.
 
 ## Logs as event streams
 
-- The process MUST write its event stream to **stdout, unbuffered**, and MUST
-  **not open, route, or rotate log files itself**. Reviewer check: **no file
-  logger / log-rotation config in the app**; log routing and retention are the
-  environment's job. (What each line *contains* is `o11y-otel`'s practice.)
+- Deployed services stream to **stdout by default** and MUST NOT manage their
+  own log files/rotation. CLI/MCP diagnostics use stderr when stdout carries
+  results/protocol. A supported platform-native OTLP route requires a recorded
+  ADR and bounded queue/flush/loss policy under `o11y-otel`.
+- The environment owns routing/retention. A local/CI runner may capture safe
+  streams into files and own rotation; this does not authorize file loggers in
+  deployed applications. Verify one canonical ingestion route without duplicate
+  records. Record structure/content remain `o11y-otel`'s practices.
 
 ## Dev/prod parity
 
@@ -119,7 +123,8 @@ the deployable count and seams, the log/metric/trace schema, and the cluster
   and the disposability (SIGTERM, reentrant-jobs) contract.
 - **Deployment checklist / runbook** — records the **config/secret surface**
   (every config key the process reads), the **SIGTERM/graceful-shutdown
-  behavior** and drain timeout, and **how logs are collected** from stdout.
+  behavior** and drain timeout, and **how logs are collected** through the selected platform route, including
+  CLI/native-OTLP qualifications and any local/CI runner capture.
 - **Technical design** — records the **process model** (process types and how
   each scales horizontally), the **config surface** (the full set of config keys, with owner and source),
   and the **state strategy** (what lives in backing services vs nothing in the
@@ -144,9 +149,10 @@ the deployable count and seams, the log/metric/trace schema, and the cluster
 - **Fast startup + graceful SIGTERM shutdown + crash-safe jobs** — process ready
   in seconds, SIGTERM drains in-flight work then exits, and worker jobs are
   reentrant/idempotent and requeued on interruption.
-- **Logs go to stdout as a stream, not files the app rotates** — the process
-  emits its unbuffered event stream to stdout and manages no log files or
-  rotation; the environment routes the stream.
+- **Logs use platform capture, not files the deployed app rotates** — default
+  service stdout, protocol-safe CLI/MCP stderr or an approved supported native
+  OTLP route. The environment (including a local/CI runner) owns capture/rotation;
+  receiver evidence verifies bounded behavior and no duplicate ingestion.
 - **Dev/prod parity on backing services** — dev, staging, and prod use the same
   type and version of each backing service; no lightweight local substitute that
   diverges from production.

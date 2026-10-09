@@ -91,6 +91,7 @@ Agents working in any of these activities inherit the practices below through ru
 - Use minimal, consumer-driven interfaces
 - Guard shared state explicitly; prefer immutable data; use `errgroup` for concurrent work
 - Centralize configuration in one `Config` struct in `internal/config`, loaded once in `main` (`koanf` layers: struct defaults, `config/default.yaml`, `config/<env>.yaml`, then environment; ops-owned keys are required with no default); production relies on real env vars or the platform secret manager
+- The config package reads `APP_ENV` via `os.LookupEnv` once, before building the `koanf` layers, to pick `config/<env>.yaml`; that one read is covered by the package's existing `forbidigo` exclusion
 - Commit `.env.example`; git-ignore `.env`
 - Embed version metadata: `Version`, `BuildTime`, `GitCommit` via `-ldflags`
 

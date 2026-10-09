@@ -62,3 +62,10 @@ Story-level work is tracked as work items in the runtime's work-item store.
 - [ ] Shared constraints are documented
 - [ ] Verification expectations are explicit
 - [ ] Runtime issues can be created from this plan without inventing scope
+
+## Diagnostic Evidence Sequencing (when applicable)
+
+For selected `o11y-otel` practices, sequence Contracts before dependent wiring,
+then real receiver/conformance and failure proof before the service/CLI diagnostic
+pilot. Each closeout names run/attempt, safe evidence location, verification
+outcome and capture limits. A quiet console is not verification evidence.

@@ -31,6 +31,10 @@ validation:
     - testing
 
   quality_checks:
+    - check: diagnostic_wiring_references_contract
+      description: For applicable o11y-otel practices, local instrumentation and capture wiring reference Contracts and name privacy, correlation and receiver proof
+      severity: warning
+
     - check: acceptance_criteria_realized
       description: Each governing-story AC-ID (US-{n}-AC{m}) is realized by the technical changes; AC text is not restated here (ADR-009 — AC ownership lives in user-stories).
       severity: blocking

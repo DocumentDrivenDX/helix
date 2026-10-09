@@ -79,6 +79,7 @@ Agents working in any of these activities inherit the practices below through ru
 - Centralize configuration in one `pydantic-settings` `BaseSettings` subclass; group related settings with nested models and an `env_nested_delimiter` / `env_prefix` rather than scattering reads
 - Use `SecretStr` for credentials and `AnyUrl`/`PostgresDsn`-style types for endpoints; validate at startup so bad config fails fast
 - Source precedence: init args > environment variables / secret files > `.env` (dev only) > `config/<env>.toml` > `config/default.toml` > field defaults (two `TomlConfigSettingsSource` instances via `settings_customise_sources`, returning `(init, env, file_secret, dotenv, toml_env, toml_default)`); ops-owned keys are required fields, dev-owned keys carry defaults; production relies on real env vars or the platform secret manager
+- `settings_customise_sources` reads `APP_ENV` via `os.environ.get` once, before constructing `toml_env`, to pick `config/<env>.toml`; that one read is the sanctioned exception to "no `os.environ`/`os.getenv` outside the settings module"
 - Commit `.env.example`; git-ignore `.env`
 - Use `typer` + `rich` for CLI interfaces
 

@@ -26,7 +26,7 @@ language-runtime
 - **Package manager**: Bun (`bun install`, `bun add`) — NOT npm, NOT yarn, NOT pnpm
 - **Linter + Formatter**: Biome — NOT ESLint, NOT Prettier
 - **Test runner**: `bun:test` — NOT Vitest, NOT Jest
-- **Configuration**: `zod` schema parsed over merged layers (committed JSON files + `process.env`, which Bun aliases as `Bun.env`) in one `env.ts` — NOT scattered `process.env`/`Bun.env` reads, NOT `dotenv` (Bun loads `.env` natively)
+- **Configuration**: `zod` schema parsed over merged layers (committed JSON files + `process.env`, which Bun also exposes as the equivalent `Bun.env`) in one `env.ts` — NOT scattered `process.env`/`Bun.env` reads, NOT `dotenv` (Bun loads `.env` natively)
 - **Workspace layout**: Bun workspaces (`workspaces` in root `package.json`)
 - **TypeScript config**: strict, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`
 
@@ -84,6 +84,7 @@ Agents working in any of these activities inherit the practices below through ru
 ## Design
 - Centralize configuration in one `zod` schema in `env.ts` (e.g. `z.object({ LOG_LEVEL: z.enum(["info", "debug"]).default("info"), DATABASE_URL: z.string().url() })`); parse `process.env` once (not `Bun.env`, so the module also runs under Next.js on Node or Edge) with `safeParse` and exit with a readable error on failure
 - Source precedence: real environment variables / secret files > `.env` (dev only) > `config/<env>.json` > `config/default.json` > schema defaults (plain deep-merge of the objects, then `safeParse`; use flat `UPPER_SNAKE` keys in the JSON files so env vars map one-to-one); ops-owned keys are required, dev-owned keys carry defaults; production relies on real env vars or the platform secret manager
+- `env.ts` reads `process.env.APP_ENV` once, before the deep-merge, to pick `config/<env>.json`; that one read is covered by the module's existing `noProcessEnv` suppression
 - Commit `.env.example`; git-ignore `.env`
 - Use Bun workspaces for monorepos: `"workspaces": ["packages/*"]` in root `package.json`
 - Separate packages by concern: `shared` (types/schemas), `server` (API), `web` (frontend)

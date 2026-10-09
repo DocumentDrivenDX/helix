@@ -28,6 +28,10 @@ validation:
     - area_labels
 
   quality_checks:
+    - check: observability_applicability_recorded
+      description: When o11y-otel is selected, Why Active and Key Practices identify applicable sections without imposing service or GenAI obligations on unrelated surfaces
+      severity: warning
+
     - check: concerns_are_resolved
       description: Each selected concern must either exist in workflows/concerns/ or be declared as a project-local concern with scope and practices
       severity: blocking

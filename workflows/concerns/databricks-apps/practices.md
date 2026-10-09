@@ -60,3 +60,13 @@ model (`unity-catalog`) — see the boundary in `concern.md`.
 - CI deploys run `bundle run` after `bundle deploy` and wait for `RUNNING`.
 - No source file exceeds 10 MB.
 - Code shape is gated by `code-shape-ceilings` (complexity, function, and file-size ceilings; editing-time and pre-commit hooks), which this concern does not restate.
+
+## Local Agent Diagnostics
+
+Compose with `o11y-otel` for schema, correlation, privacy, console filtering and
+receiver proof. The deployed app keeps the platform stdout/stderr or supported
+managed telemetry route; it does not rotate local log files. A development/CI
+runner may capture safe output locally and own rotation/retention. Validate one
+canonical export/ingestion route; enabling file ingestion and SDK export for the
+same event requires tested deduplication. Instrumentation choice remains OTel's
+concern, not a new Databricks logging schema.

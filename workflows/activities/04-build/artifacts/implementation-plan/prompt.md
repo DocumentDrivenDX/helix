@@ -70,3 +70,11 @@ and forbidden import negative controls. Include supported cycle/private-access
 checks and named semantic review obligations. Bounded adoption work may proceed
 before the gate exists; feature work may not. Inventory existing violations
 individually with owners and remediation; do not enlarge baselines to hide new debt.
+
+## Diagnostic Evidence Sequencing
+
+When `o11y-otel` applies, follow the template's diagnostic sequencing and include
+its TEST_PLAN obligations in the project Test Plan and exact tests in Story Test
+Plans. Sequence Contract adoption, instrumentation/capture, actual OTel receiver
+proof and diagnostic pilot. Runtime work items carry safe evidence references,
+verification outcome and coverage/loss limits; do not dump whole logs into them.

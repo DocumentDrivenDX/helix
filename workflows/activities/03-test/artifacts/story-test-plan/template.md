@@ -98,3 +98,14 @@ placeholder for the numeric story id — replace `XXX` with the real number.
 - [ ] Named commands or test files exist and run
 - [ ] Out-of-scope coverage remains explicitly deferred rather than silently skipped
 - [ ] The story can fail red before implementation and pass green after implementation
+
+## Diagnostic Proof (when applicable)
+
+For selected `o11y-otel` practices, map relevant story criteria to tests of the
+real logger/capture path through an OTel receiver, correlation with a matching
+span and outside spans, duplicate ingestion, pre-sink privacy, bounded outage
+and shutdown behavior, and retrieval during concurrency/rotation. Allocate
+project-level strategy in the project Test Plan; put exact tests/commands here.
+For a diagnostic pilot, name fixture ground truth, agent evidence/accuracy and
+time/call/context measurements plus project-owned overhead budgets. Never claim
+an OTel integration works from JSONL parsing alone.

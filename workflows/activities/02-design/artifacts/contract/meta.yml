@@ -30,6 +30,10 @@ validation:
     - examples
 
   quality_checks:
+    - check: telemetry_mapping_and_query_defined
+      description: For diagnostic Contracts, define adopted OTel versions, exact mapping, conditional context, capture and query bounds, authorization, ordering, continuation, loss and compatibility
+      severity: warning
+
     - check: normative_surface_explicit
       description: Normative fields and rules for commands, messages, or payloads are explicit
       severity: blocking

@@ -52,6 +52,10 @@ validation:
       message: Must include at least one numeric coverage target
 
   quality_checks:
+    - check: diagnostic_test_strategy_allocated
+      description: For applicable o11y-otel practices, allocate receiver and correlation proof, privacy and bounded failure tests plus project-owned diagnostic pilot budgets
+      severity: warning
+
     - check: requirements_traced
       description: Every test must trace to a requirement or user story
       severity: blocking

@@ -39,8 +39,16 @@ ddx:
 ## Logs and Tracing
 
 ### Logging
-- Required fields: `timestamp`, `level`, `service`, `trace_id`, `message`
-- Retention: [hot and cold retention]
+- Governing telemetry/capture/query Contract: [link; schema/mapping and adopted OTel versions]
+- Resource/scope and event coverage: [service/version/environment and required events]
+- Trace/span correlation: [valid context when present; absent outside spans]
+- Run/attempt correlation: [Contract reference; independent of trace context]
+- Collection route: [platform stream, logger bridge or supported managed OTLP; duplication control]
+- Local/CI capture and console: [runner owner, evidence location, independent filters, clean protocol stdout]
+- Privacy/access: [pre-sink redaction including subprocess capture; query authorization]
+- Retention: [local and shared hot/cold retention, rotation/size bounds and deletion]
+- Loss policy: [sampling, queue/drop limits, outage/flush behavior and coverage disclosure]
+- Query entrypoint: [bounded command/interface; ordering/cursor and evidence references]
 
 ### Tracing
 - Critical journeys: [What must be traceable]

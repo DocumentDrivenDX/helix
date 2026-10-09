@@ -50,8 +50,21 @@ ddx:
 ## Logs and Tracing
 
 ### Logging
-- Required fields: `timestamp`, `level`, `service`, `trace_id`, `firm_id`,
-  `client_id`, `actor_id`, `event_type`, `import_id` where applicable.
+- Schema authority: the pilot diagnostic Contract owns exact fields and their
+  OTel mapping; service/version/environment identify the Resource.
+- Trace/span IDs are recorded only with valid context. Independent run/attempt
+  and authorized firm/client/import correlation follow that Contract.
+- Collection: platform-captured structured logs mapped to OTel through one
+  ingestion route. A staging receiver test must prove mapping and no duplicates.
+- CI evidence: the runner publishes an access-controlled run manifest and safe
+  JSONL; console shows readiness, transitions, actionable warnings and outcome.
+  Capture/rotation belong to the runner, not the deployed service.
+- Retrieval: the runbook provides a closed-snapshot query capped at 50 records;
+  backend queries enforce authenticated firm scope and bounded time/results.
+- Privacy: allowlist/redact before console, file, export and subprocess capture.
+  Raw command output is excluded if the runner cannot enforce that policy.
+- Loss: configured queue/flush bounds and sampling/drop/capture state appear in
+  run evidence; receiver outage tests must establish actual bounded behavior.
 - Prohibited fields: raw account numbers, invoice details, payer identifiers,
   client names, and raw CSV row values.
 - Retention: application logs hot for 14 days; security/audit events retained

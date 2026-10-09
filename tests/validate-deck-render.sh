@@ -32,7 +32,7 @@ done
 node -e "require('pptxgenjs')" 2>/dev/null || skip "pptxgenjs not resolvable (npm ci in skills/helix/scripts, or set PPTXGENJS_NODE_PATH)"
 
 # 1. library unit tests
-node --test "$repo_root/tests/render/" >"$tmpdir/unit.log" 2>&1 || fail "library unit tests: $(tail -30 "$tmpdir/unit.log")"
+node --test "$repo_root/tests/render/lib.test.js" >"$tmpdir/unit.log" 2>&1 || fail "library unit tests: $(tail -30 "$tmpdir/unit.log")"
 echo "render libraries: unit tests pass"
 
 # 2. four looks, geometry only

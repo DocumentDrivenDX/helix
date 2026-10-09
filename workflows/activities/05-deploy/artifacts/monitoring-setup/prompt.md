@@ -22,3 +22,13 @@ Use these local resources as grounding:
 - Logging, tracing, and health-check expectations are clear.
 - The setup is specific enough to support deployment and incident response.
 - Every page-worthy alert has an operator action or runbook entrypoint.
+
+## OpenTelemetry Diagnostics
+
+For applicable `o11y-otel` practices, complete Logging from the governing
+Contract; do not define a competing schema. Make trace context conditional and
+run/attempt correlation independent. Record actual collection route, duplication
+control, runner evidence/console policy, pre-sink privacy, retention/access and
+sampling/loss/outage/flush behavior. Link bounded retrieval and receiver-proof
+evidence. Collector topology follows the deploy target. Do not turn operational
+logs into authoritative security audit or billing records.

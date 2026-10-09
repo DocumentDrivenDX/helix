@@ -84,3 +84,12 @@ Apply the all-autonomy source-code baseline in
 single-file tools, with selection source `baseline-policy`. For source-free work
 record the reason. Existing selections require an explicit adoption update;
 missing baseline is a readiness gap, not permission to overwrite selections.
+
+## Observability Applicability
+
+For `o11y-otel`, record applicable practice sections in the existing Why Active /
+Key Practices fields: service signals, agent run diagnostics, frontend/data
+boundaries, and/or GenAI operations. Agent development need not involve a
+model-calling product. These notes are not new slots or profile fields. Select
+on a real diagnostic surface and apply service-only obligations conditionally;
+a development runner can supply evidence for a static site or library.

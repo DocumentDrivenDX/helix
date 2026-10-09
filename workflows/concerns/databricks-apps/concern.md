@@ -264,3 +264,11 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - TD: process contract (port, SIGTERM, no TLS), one-origin `/api/*` + static SPA serving, uv dependency resolution, `app.yaml` env + `valueFrom` bindings, stateless instances
 - IMPLEMENTATION_PLAN: `app.yaml` command/env, bundle resources and `user_api_scopes`, CI `bundle deploy` + `bundle run`, the open spikes the design depends on
 - TEST_PLAN: deployed-app checks for on-behalf-of denial (negative control), restart survival, SIGTERM exit, `/api/health`
+
+## Local Diagnostic Capture
+
+The prohibition on application-owned log files applies to the deployed app.
+A development/CI runner may capture safe stdout/stderr locally under `o11y-otel`
+and own rotation/retention. Preserve the platform's supported collection route
+and verify it does not ingest the same event twice; local evidence does not
+establish shared production retention.

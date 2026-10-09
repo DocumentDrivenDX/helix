@@ -116,3 +116,11 @@ this design is consistent with them:
 | Risk | Prob | Impact | Mitigation |
 |------|------|--------|------------|
 | [Risk] | H/M/L | H/M/L | [Strategy] |
+
+## Diagnostic Flow (when applicable)
+
+For selected `o11y-otel` practices, describe cross-component signal ownership,
+context propagation and capture/export/console flow. Reference Architecture/ADRs
+for system choices and Contracts for exact telemetry/capture/query surfaces.
+Identify the story slices proving OTel integration and agent diagnosis. Do not
+redefine shared schemas or mandate a collector/backend for every component.

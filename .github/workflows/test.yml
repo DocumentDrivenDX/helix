@@ -51,3 +51,6 @@ jobs:
 
       - name: Validate modularity baseline and boundary negative controls
         run: python3 tests/test_modularity.py
+
+      - name: Validate OpenTelemetry concern propagation and diagnostic queries
+        run: python3 tests/test_agent_diagnostics.py

@@ -107,3 +107,12 @@ layer allocation.
 import controls, supported cycle/private-access checks, invariant tests and
 remaining semantic review obligations. Apply the modularity-and-encapsulation
 baseline; do not equate populated document fields with proven boundaries. -->
+
+## Diagnostic Test Strategy (when applicable)
+
+For selected `o11y-otel` practices, allocate layers and budgets for real OTel
+receiver/mapping/correlation proof, duplicate ingestion, pre-sink privacy,
+bounded capture/export failures and authorized retrieval. Define service/CLI
+agent-pilot ground truth and diagnosis/evidence/time/call/context measurements
+against a baseline. Exact tests, commands and story AC rows belong in Story
+Test Plans. JSONL parsing alone does not establish an OTel integration.

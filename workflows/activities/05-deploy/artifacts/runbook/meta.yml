@@ -26,6 +26,10 @@ validation:
     - escalation_and_communications
 
   quality_checks:
+    - check: diagnostic_retrieval_bounded
+      description: For applicable o11y-otel practices, provide exact authorized bounded queries, source references, coverage limits, continuation recovery and capture failure escalation
+      severity: warning
+
     - check: service_specific_actions
       description: Procedures must use service-specific checks and commands rather than generic infrastructure filler
       severity: blocking

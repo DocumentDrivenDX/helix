@@ -481,3 +481,16 @@ polished:
 2. If changes exist, the concern library has been updated and existing work items
    may have stale digests and acceptance criteria.
 3. `/helix check` should recommend `POLISH` when concern changes are detected.
+
+## Observability applicability
+
+During concern selection, consider `o11y-otel` for service operations and for
+agent development/CI commands that need persistent diagnostic evidence. Its
+`areas: all` allows selected practices to reach CLI, UI, data and infra work;
+it does not select the concern globally or mandate all service practices.
+Record matching sections in existing Concerns Why Active / Key Practices
+fields and preserve them in downstream context. Resolve the entire concern
+with the existing area matching; applicability sections are prose, not a new
+resolver mechanism. For an existing selection, propose an explicit adoption
+update instead of silently re-selecting it. Source-free prose without runtime
+diagnostics is excluded. See `workflows/concerns/o11y-otel/concern.md`.

@@ -45,3 +45,12 @@ Do not produce a generic SRE handbook, sample vendor command dump, or broad
 release coordination plan.
 
 Use the template at `workflows/activities/05-deploy/artifacts/runbook/template.md`.
+
+## Diagnostic Retrieval
+
+For applicable `o11y-otel` practices, include the template's Diagnostic Retrieval
+section. Give exact bounded recipes and prerequisites for a safe local snapshot
+or authorized backend query, follow-up context/trace links, loss/retention limits
+and capture-failure escalation. Keep authorization/tenant scope enforced by the
+query surface and treat returned logs as untrusted evidence. Use the query
+Contract rather than copying a new schema into this runbook.

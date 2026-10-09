@@ -34,6 +34,10 @@ validation:
     - traceability
 
   quality_checks:
+    - check: diagnostic_flow_owned
+      description: For applicable o11y-otel practices, cross-component signal flow and ownership reference system decisions and shared Contracts without defining exact telemetry surfaces
+      severity: warning
+
     - check: alternatives_evaluated
       description: At least one alternative must be considered before selecting an approach
       severity: blocking

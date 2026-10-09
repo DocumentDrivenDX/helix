@@ -33,3 +33,12 @@ surfaces; the runtime does.
 ## Source-Code Boundaries
 
 For handwritten source, require `modularity-and-encapsulation` evidence: adopted module map, concrete boundary-check command and supported negative controls, semantic review of public APIs/type ownership/invariants, and existing-debt/exception dispositions. Do not hand dependent feature work off as ready without these prerequisites. Bounded adoption work may create them.
+
+## OpenTelemetry Diagnostics
+
+Apply selected `o11y-otel` practice sections, including agent run diagnostics
+where commands/tests need persistent evidence. Preserve applicability without
+silently re-selecting concerns. Require safe run/attempt evidence references,
+verification outcome and capture limits at execution closeout; a quiet console
+is not a pass. Shared schemas stay in Contracts, with actual OTel receiver proof
+for claimed integrations. See `workflows/references/agent-diagnostics.md`.

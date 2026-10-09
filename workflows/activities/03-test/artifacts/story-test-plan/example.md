@@ -117,3 +117,12 @@ pnpm test:e2e -- upload-csv
   later story test plans.
 - [ ] The story can fail red before implementation and pass green after
   implementation.
+
+## Diagnostic Proof
+
+For the diagnostic adoption slice, create a governing story and Contract before
+claiming its tests are ready. Plan a real OTel receiver test of the upload logger
+and matching span, plus untraced outcomes and concurrent attempt isolation.
+Inject private CSV sentinels into messages and subprocess output and verify no
+sink captures them. Test exporter outage and bounded retrieval/rotation. These
+are follow-up proof obligations, not executed tests for this upload example.

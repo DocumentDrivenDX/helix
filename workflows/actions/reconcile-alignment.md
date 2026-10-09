@@ -67,3 +67,15 @@ Apply `modularity-and-encapsulation` per the source-code baseline in
 `workflows/references/concern-resolution.md` and the matching mode contract.
 Preserve its applicability, adoption escape path, legacy-validity distinction,
 style compatibility and evidence requirements throughout this procedure.
+
+## OpenTelemetry Diagnostic Alignment
+
+When selected `o11y-otel` practices apply, check their Artifact Impact against
+owning artifacts. Compare templates, prompts, examples and quality checks when
+the catalog is in scope: conditional trace context, pre-sink privacy, transport
+ownership, bounded retrieval and capture-loss disclosures must agree. Exact
+shared telemetry/query surfaces belong in Contracts, not story TDs. Inspect
+actual receiver/correlation, duplicate-ingestion and failure evidence before
+accepting an implementation claim; JSONL parsing and quiet console output are
+insufficient. Report missing adoption/evidence without silently re-selecting
+concerns or claiming the adopting-project pilot ran.

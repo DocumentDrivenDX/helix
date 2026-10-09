@@ -187,3 +187,11 @@ in development/test environments.
 | Multipart parsing buffers large files in memory | M | H | Use streaming parser configuration and add memory regression test. |
 | UI and API validation drift | M | M | Treat API contract tests as authoritative; keep UI validation advisory only. |
 | Draft sessions accumulate after abandoned uploads | M | L | Add cleanup task in a later story; do not block US-001 on cleanup automation. |
+
+## Diagnostic Wiring
+
+Upload service and object-storage adapter emit safe outcomes under the parent
+SD and diagnostic Contract. The runner captures safe verification evidence;
+privacy applies before console, file and export. The diagnostic Contract must
+exist before diagnostic wiring is ready, rather than defining fields here.
+Receiver/correlation and capture-failure proof remain required for that slice.

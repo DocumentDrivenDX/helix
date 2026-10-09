@@ -205,3 +205,12 @@ Architecture and ADR-001.
 | CSV layouts vary more than expected | H | M | Keep mappings semantic and per-client; collect pilot fixtures before launch. |
 | Synchronous validation exceeds 5 seconds | M | M | Benchmark fixtures in CI; move validation to worker only if target fails repeatedly. |
 | Reviewers distrust rejected-row explanations | M | H | Include row number, field, and plain-language reason for every rejection. |
+
+## Diagnostic Flow
+
+API and import workers carry the selected service-signal practices; the CI
+runner supplies agent run diagnostics. Shared telemetry/capture/query definitions
+belong in the pilot diagnostic Contract before dependent stories are ready.
+Platform capture and runner capture are separate storage owners. The pilot must
+prove mapping/correlation through an OTel receiver and investigate a synthetic
+failed import; this example does not claim the pilot has run.

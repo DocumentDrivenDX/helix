@@ -101,3 +101,12 @@ never a re-selection.
 Apply the all-autonomy source-code baseline in `workflows/references/concern-resolution.md`: select `modularity-and-encapsulation` for handwritten source, including libraries; record source-free non-applicability with a reason. Existing selections require explicit adoption rather than silent replacement.
 
 Procedure: `workflows/actions/frame.md` (deeper step detail; this file is the contract).
+
+## OpenTelemetry Diagnostics
+
+Apply selected `o11y-otel` practice sections, including agent run diagnostics
+where commands/tests need persistent evidence. Preserve applicability without
+silently re-selecting concerns. Require safe run/attempt evidence references,
+verification outcome and capture limits at execution closeout; a quiet console
+is not a pass. Shared schemas stay in Contracts, with actual OTel receiver proof
+for claimed integrations. See `workflows/references/agent-diagnostics.md`.

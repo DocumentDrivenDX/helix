@@ -49,3 +49,11 @@ which decisions belong at the system, feature, and story levels.
 - The output is clearly feature-level and disambiguated from a technical
   design.
 - Every P0 requirement has a corresponding design element and test strategy.
+
+## Diagnostic Flow
+
+Apply selected `o11y-otel` practice sections to the feature's cross-component
+flow. Identify instrumentation/capture owners and context boundaries. Reference
+Contracts for exact surfaces; put system-wide logger, transport and backend
+choices in Architecture/ADRs. Name receiver proof and diagnostic pilot slices
+when relevant. A product that uses no models does not inherit GenAI conventions.
