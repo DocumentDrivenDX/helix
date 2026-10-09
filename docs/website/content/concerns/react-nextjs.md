@@ -45,6 +45,7 @@ frontend-framework
   concern is selected for UI work
 - Tailwind config extends the design system tokens (colors, spacing, typography)
 - E2E tests use Playwright, not Cypress or Selenium
+- Server-side configuration is read only through the central env schema owned by `typescript-bun` (no `process.env` reads in route handlers or Server Components; the env module itself may read `process.env`); only `NEXT_PUBLIC_`-prefixed variables reach the browser, and none holds a secret. Client code references `NEXT_PUBLIC_X` as a literal `process.env.NEXT_PUBLIC_X` (Next inlines only literal reads) in a dedicated client env module, with a `noProcessEnv` suppression there
 
 ## Drift Signals (anti-patterns to reject in review)
 
@@ -101,6 +102,7 @@ Agents working in any of these activities inherit the practices below through ru
   is selected for UI work.
 - Design tokens (colors, spacing, typography) in `tailwind.config.ts` — components reference tokens, not raw values
 - Forms: one Zod schema per entity in `@apogee/shared`, resolved via `@hookform/resolvers/zod`
+- Configuration: import the typed config from the shared `env.ts` (see `typescript-bun`); never read `process.env` directly in route handlers, Server Components, or actions (only the env modules do)
 - Data tables: TanStack React Table with column definitions typed against shared schemas
 - State management: server state via TanStack Query (when added), client state via Zustand (when added), form state via react-hook-form — no Redux
 

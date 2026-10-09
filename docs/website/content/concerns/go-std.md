@@ -26,6 +26,7 @@ language-runtime
 - **Formatter**: `gofmt` (non-negotiable)
 - **Linter**: `golangci-lint` with `.golangci.yml` config
 - **Security scanner**: `gosec` + `govulncheck`
+- **Configuration**: `koanf` (file + env providers) for layered sources — one central `Config` struct; `caarlos0/env` only for env-only utilities; NOT scattered `os.Getenv`, NOT `viper` global state
 - **CLI framework**: Cobra (for CLI projects)
 - **Testing**: `go test` with build tags for test levels
 
@@ -40,6 +41,11 @@ language-runtime
 - Define interfaces in the consuming package, not the providing package
 - Version metadata embedded at build time via `-ldflags "-X main.Version=..."`
 - `govulncheck ./...` must pass (no known vulnerabilities)
+- All configuration is declared in one central `Config` struct (single package, e.g. `internal/config`) with typed fields, defaults, and a `Validate()` method (or `go-playground/validator` tags) that enforces required keys
+- `Config` is loaded and validated once in `main` and passed in explicitly; no `os.Getenv`/`os.LookupEnv` outside the config package, and no package-level config globals
+- Secrets use a redacting type (`String()`/`MarshalText` returns a mask) so they cannot leak through logs; invalid or missing config fails at startup, not at first use
+- Config is layered by owner per `twelve-factor`: ops-injected values (env vars, mounted files, secret manager) over a committed `config/<env>.yaml` over committed defaults (struct defaults plus `config/default.yaml`); ops-owned keys (hosts, credentials) are required with no default and never appear in committed files
+- Real environment variables take precedence over files; `.env` (via `godotenv`, dev only) is a local convenience, git-ignored, with a committed `.env.example` listing every variable (no secrets in it)
 
 ## Lint Policy (golangci-lint baseline)
 
@@ -51,6 +57,7 @@ Enabled linters:
 - `unconvert`
 - `gosec` (severity: high, confidence: high)
 - `gocritic` (diagnostic, performance, style tags)
+- `forbidigo` (ban `os.Getenv`/`os.LookupEnv`/`os.Environ`, excluded for the config package and `_test.go`)
 
 Disabled linters (too opinionated):
 - `wsl`, `wrapcheck`, `varnamelen`, `nlreturn`, `exhaustruct`
@@ -67,7 +74,7 @@ All Go projects — CLIs, services, libraries. The standard toolchain and
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
 - ADR: Go + standard toolchain (gofmt, golangci-lint, gosec, govulncheck) as the language-runtime
-- TD: error-wrapping, context-passing, interface-in-consumer conventions; lint baseline
+- TD: error-wrapping, context-passing, interface-in-consumer conventions; lint baseline, central `Config` struct and its config-key contract (owner and source per key)
 
 ## Practices by activity
 
@@ -83,6 +90,8 @@ Agents working in any of these activities inherit the practices below through ru
 - Define interfaces in the consumer package; return concrete types where practical
 - Use minimal, consumer-driven interfaces
 - Guard shared state explicitly; prefer immutable data; use `errgroup` for concurrent work
+- Centralize configuration in one `Config` struct in `internal/config`, loaded once in `main` (`koanf` layers: struct defaults, `config/default.yaml`, `config/<env>.yaml`, then environment; ops-owned keys are required with no default); production relies on real env vars or the platform secret manager
+- Commit `.env.example`; git-ignore `.env`
 - Embed version metadata: `Version`, `BuildTime`, `GitCommit` via `-ldflags`
 
 ## Implementation
@@ -90,6 +99,7 @@ Agents working in any of these activities inherit the practices below through ru
 - Error wrapping: `fmt.Errorf("context: %w", err)` — always add context
 - Sentinel errors: define with `errors.New` for expected conditions; compare with `errors.Is`
 - Concurrency: pass `context.Context` first; use `errgroup.WithContext` for fan-out; avoid goroutine leaks
+- Read configuration only through the injected `Config`; `forbidigo` (`pattern: '^os\.(Getenv|LookupEnv|Environ)$'`, `analyze-types: true`) bans env reads; the `internal/config` package and `_test.go` files are exempted via `linters.exclusions.rules` path entries
 - Logging: structured with `log/slog` (stdlib) or project-chosen structured logger; no `fmt.Print*` in library code
 - No `panic` outside startup; in `main()`, convert panics to fatal log + exit
 
@@ -101,6 +111,7 @@ Agents working in any of these activities inherit the practices below through ru
   - `-tags=integration`: VCR playback, no live APIs
   - `-tags=functional`: built binary CLI tests
   - `-tags=e2e`: live API tests (requires credentials)
+- Tests build `Config` directly or via `t.Setenv`; never depend on a developer's `.env`
 - Table-driven tests for pure functions
 - HTTP stubs: VCR cassette recording (`VCR_MODE=record` to capture, `VCR_MODE=playback` for CI)
 - Use `testify/assert` or `testify/require` for assertions; not bare `t.Fatal` comparisons

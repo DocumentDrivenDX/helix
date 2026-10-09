@@ -173,6 +173,22 @@ must not duplicate its neighbors:
 - An existing Lakebase `database` resource is not switched to `postgres`; that
   creates separate roles and breaks data access.
 
+### Bundle targets are the committed per-environment config layer
+- This concern is the **exception** to `twelve-factor`'s "Ops handles (hostnames,
+  endpoints) and secrets never appear in committed files": a bundle's `targets:`
+  (per-target `variables`, `workspace.host`, warehouse/catalog/schema names) is
+  a committed per-environment file the platform consumes directly, so
+  non-secret ops handles may live there, reviewed like code. Per-target values
+  reach the app through resource bindings (`${var.*}` feeding
+  `resources.apps.<key>.resources`, read via `valueFrom`); `app.yaml` is one
+  file for every target, so it holds only target-independent literals.
+- Secrets still never appear in `value:`; they come through `valueFrom` secret
+  resources. Credentials and tokens stay out of `databricks.yml` entirely
+  (CI authenticates by workload identity).
+- The app still reads its config through the `language-runtime` concern's one
+  typed config object; resource bindings and `app.yaml` `env` are just the
+  injection path into it.
+
 ### Stateless across instances
 - Sessions, uploads, and job state live in Lakebase, Unity Catalog tables, or
   volumes, never instance memory or disk (lost on restart, redeploy, and
@@ -283,6 +299,7 @@ model (`unity-catalog`) — see the boundary in `concern.md`.
 - Design the backend as stateless across 1 to 5 instances: sessions, uploads, and job state in Lakebase or Unity Catalog; caches per instance and keyed per user.
 - Design the **durable-state store** as Unity Catalog tables/volumes or **Lakebase** (managed Postgres), never the app's local disk or memory.
 - Design data access to flow **through Unity Catalog** (SQL warehouse, governed tables, volumes) under the chosen identity's grants; route heavy work to SQL warehouses, Jobs, or Model Serving.
+- Declare per-environment non-secret values in the committed `databricks.yml`: `targets.<t>.workspace.host`, and warehouse/catalog/schema as target `variables` that feed resource bindings (read via `valueFrom`); literal `value:` only for non-resource, non-secret handles such as catalog/schema names. This is the documented exception to `twelve-factor`'s no-committed-ops-handles rule. Secrets stay `valueFrom`.
 - Design `app.yaml`: an array `command` and an `env` list whose resource and secret values all come from `valueFrom`.
 - Design the deploy as a bundle (`resources.apps.<key>` with `resources`, `user_api_scopes`, `compute_size`, `permissions`) run from CI.
 - Choose a compute size from the measured load, not by default; Medium is the platform default.

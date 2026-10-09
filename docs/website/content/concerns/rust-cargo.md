@@ -24,6 +24,7 @@ language-runtime
 - **Language**: Rust (latest stable; MSRV pinned in `rust-toolchain.toml`)
 - **Build system**: Cargo workspace (resolver = "2")
 - **Edition**: 2024
+- **Configuration**: `figment` (layered sources) deserialized into one `serde` `Config` struct; `secrecy` for secrets — NOT scattered `std::env::var`, NOT `dotenvy` called from library code
 - **Toolchain pinning**: `rust-toolchain.toml` and `workspace.package.rust-version` must stay in lockstep
 
 ## Constraints
@@ -38,6 +39,11 @@ language-runtime
 - All dependencies declared in `[workspace.dependencies]`; crates reference with `{ workspace = true }`
 - `cargo deny check` must pass (licenses, advisories, registry sources)
 - `cargo machete` must pass (no unused dependencies)
+- All configuration is declared in one central `Config` struct (single module/crate, e.g. `config.rs`) deserialized with `figment`; every field is typed with a default or is required
+- The `Config` is built once in the binary's `main` and passed in; no `std::env::var`/`env::vars` reads outside the config module, and no global config singletons in library crates
+- Secrets use `secrecy::SecretString` (no `Debug`/`Display` leakage); invalid or missing config fails at startup, not at first use
+- Config is layered by owner per `twelve-factor`: ops-injected values (env vars, mounted files, secret manager) over a committed `config/<env>.toml` over committed defaults (`Default` impl plus `config/default.toml`), merged with `figment`; ops-owned keys (hosts, credentials) have no default and never appear in committed files
+- Real environment variables take precedence over files; `.env` (via `dotenvy`, dev builds only) is a local convenience, git-ignored, with a committed `.env.example` listing every variable (no secrets in it)
 - Repo-owned Rust commands run through a pinned-toolchain wrapper; do not rely on ambient `rustc`/`cargo` from PATH
 
 ## Clippy Lint Policy
@@ -71,7 +77,7 @@ additional deny-level lints.
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
 - ADR: Rust + Cargo workspace (clippy, fmt, cargo-deny/machete, pinned toolchain) as the language-runtime
-- TD: workspace lints, error-handling (thiserror/anyhow), unsafe policy, profile conventions
+- TD: workspace lints, error-handling (thiserror/anyhow), unsafe policy, profile conventions, central `Config` struct and its config-key contract (owner and source per key)
 
 ## Practices by activity
 
@@ -87,6 +93,9 @@ Agents working in any of these activities inherit the practices below through ru
 - All inter-crate dependencies declared in `[workspace.dependencies]`
 - Separate `crates/` (libraries) from `tools/` or `bin/` (binaries/CLIs) in workspace layout
 - Design error types using `thiserror` for library crates; surface errors with `anyhow` in binaries
+- Centralize configuration in one `Config` struct (`#[derive(Deserialize)]`); layer sources with `figment`: `Serialized::defaults`, then `Toml::file("config/default.toml")`, then `Toml::file("config/<env>.toml")`, then environment (`Env::prefixed("APP_")`); ops-owned keys have no default; production relies on real env vars or the platform secret manager
+- CLI binaries: `clap` flags (with `#[arg(env = ...)]` only for CLI-only keys, inside the config module) feed the one `Config`
+- Commit `.env.example`; git-ignore `.env`
 - Prefer newtypes and strong typing over stringly-typed parameters
 - Concurrent state: prefer `Arc<Mutex<T>>` or `dashmap` for shared state; use `loom` for model-checking critical sections
 
@@ -94,6 +103,7 @@ Agents working in any of these activities inherit the practices below through ru
 - Run all commands through the pinned-toolchain wrapper script (e.g. `scripts/with-pinned-rust.sh cargo ...`)
 - Every new crate must include `[lints] workspace = true` in its `Cargo.toml`
 - Style: inline format args (`format!("{x}")`), method refs over closures (`.map(String::as_str)`), explicit match arms over wildcards, collapse nested ifs
+- Read configuration only through the injected `Config`; ban `std::env::var` outside the config module (clippy `disallowed_methods`: list `std::env::var`, `std::env::var_os`, `std::env::vars`, and `std::env::vars_os` under `disallowed-methods` in `clippy.toml`; the config module opts out with a local `#[allow(clippy::disallowed_methods)]`)
 - No `println!`/`eprintln!` for operational output — use `tracing` events
 - No `.unwrap()` or `.expect()` in library code; in binary code, only at startup with a clear message
 - `unsafe` blocks: add `// SAFETY:` comment explaining invariants, add local `#[allow(unsafe_code)]`, document in PR
@@ -107,6 +117,7 @@ Agents working in any of these activities inherit the practices below through ru
 - Use `rstest` for parameterized test cases
 - Use `insta` for snapshot testing of complex outputs
 - Use `testcontainers` for tests requiring real external services (databases, message queues)
+- Tests construct `Config` directly or via `figment::Jail`; never depend on a developer's `.env`
 - Use `tempfile` for filesystem fixtures; never hard-code paths
 - Run focused tests first: `cargo test -p <crate> <test_name>`, then full suite
 - Coverage: `cargo llvm-cov` for source-line coverage gating

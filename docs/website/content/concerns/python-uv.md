@@ -29,6 +29,7 @@ language-runtime
 - **Type checker**: `pyright` — NOT mypy
 - **Test framework**: `pytest` with `pytest-cov`
 - **Property-based testing**: `hypothesis`
+- **Configuration**: `pydantic-settings` (TOML file sources plus environment) — one central typed `Settings` class; NOT bare `os.environ`/`os.getenv`, NOT `python-dotenv` called directly, NOT `dynaconf`/`configparser`
 
 ## Constraints
 
@@ -40,6 +41,11 @@ language-runtime
 - Use `[tool.uv.sources]` for custom package indexes (e.g., PyTorch CUDA wheels)
 - Tests in `tests/` directory; pytest markers for test categories (acceptance, contract, slow, fast)
 - Branch coverage enforced via `pytest-cov` with `fail_under`
+- All configuration is declared in one central `pydantic-settings` `BaseSettings` subclass (single module, e.g. `src/<package>/settings.py`); every setting is a typed field with a default or is required
+- Settings are instantiated once at the composition root (app/CLI entrypoint) and passed in; no `os.environ`/`os.getenv` reads and no module-level settings singletons elsewhere in the codebase
+- Secrets use `SecretStr`; missing or invalid config fails at startup, not at first use
+- Config is layered by owner per `twelve-factor`: ops-injected values (env vars, mounted files, secret manager) over a committed `config/<env>.toml` over committed defaults (field defaults plus `config/default.toml`), wired via `settings_customise_sources`; ops-owned keys (hosts, credentials) are required fields with no default and never appear in committed files
+- Real environment variables take precedence over files; `.env` is a local-development convenience only, git-ignored, with a committed `.env.example` listing every variable (no secrets in it)
 
 ## When to use
 
@@ -52,7 +58,7 @@ and script running.
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
 - ADR: Python 3.12+ + uv (ruff, pyright, pytest) as the language-runtime
-- TD: pyproject.toml layout, dependency-group conventions, branch-coverage floor
+- TD: pyproject.toml layout, dependency-group conventions, branch-coverage floor, central `Settings` class and its config-key contract (owner and source per key)
 
 ## Practices by activity
 
@@ -60,6 +66,7 @@ Agents working in any of these activities inherit the practices below through ru
 
 ## Requirements (Frame activity)
 - Specify minimum Python version (3.12+ preferred)
+- Inventory the configuration the system needs (endpoints, credentials, feature flags) and which are secrets
 - Identify whether the project is a library (published) or an application (not published)
 - If ML/GPU dependencies exist, plan for `[tool.uv.sources]` with custom package indexes
 
@@ -68,7 +75,11 @@ Agents working in any of these activities inherit the practices below through ru
 - Library projects: use `hatchling` build backend with `uv-dynamic-versioning` for git-tag-based versions
 - Application projects: `[tool.uv] package = false` (no build artifact needed)
 - Organize source under `src/<package_name>/` layout
-- Use `pydantic` v2 for data validation and settings models
+- Use `pydantic` v2 for data validation
+- Centralize configuration in one `pydantic-settings` `BaseSettings` subclass; group related settings with nested models and an `env_nested_delimiter` / `env_prefix` rather than scattering reads
+- Use `SecretStr` for credentials and `AnyUrl`/`PostgresDsn`-style types for endpoints; validate at startup so bad config fails fast
+- Source precedence: init args > environment variables / secret files > `.env` (dev only) > `config/<env>.toml` > `config/default.toml` > field defaults (two `TomlConfigSettingsSource` instances via `settings_customise_sources`, returning `(init, env, file_secret, dotenv, toml_env, toml_default)`); ops-owned keys are required fields, dev-owned keys carry defaults; production relies on real env vars or the platform secret manager
+- Commit `.env.example`; git-ignore `.env`
 - Use `typer` + `rich` for CLI interfaces
 
 ## Implementation
@@ -76,6 +87,8 @@ Agents working in any of these activities inherit the practices below through ru
 - Run scripts: `uv run python ...` or `uv run pytest`
 - Add dependencies: `uv add <pkg>` (not `pip install`)
 - Add dev dependencies: `uv add --dev <pkg>` or to `[dependency-groups] dev`
+- Read configuration only through the central `Settings` object, built once at the entrypoint and injected; never `os.getenv`
+- Tests construct `Settings(...)` directly (or via `monkeypatch.setenv`) — never depend on a developer's `.env`
 - Type annotations: all public functions and methods must have type annotations
 - Avoid `Any` — use `pyright` targeted `# type: ignore` with comment when unavoidable
 - Use `TYPE_CHECKING` guard for import-only type imports
@@ -96,6 +109,7 @@ Agents working in any of these activities inherit the practices below through ru
 - `uv run pytest --cov` — tests with coverage
 - `pre-commit run --all-files` for the full gate
 - Complexity, statement, argument, and public-method ceilings, a file-size cap, and pyright `strict` on application code, per `code-shape-ceilings` (strict defaults for new projects; ceilings only go down)
+- Reject `os.environ`/`os.getenv` outside the settings module (ruff `TID251` banned-api on `os.getenv`/`os.environ`, ignored per-file for the settings module)
 
 ## Dependency Management
 - `uv add <pkg>` / `uv add --dev <pkg>`
