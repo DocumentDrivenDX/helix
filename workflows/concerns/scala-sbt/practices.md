@@ -16,7 +16,7 @@
 - Use `sbt-dynver` for versioning; do not hardcode version strings
 - `dynverSeparator := "-"` for Docker compatibility
 - `packageTimestamp := Package.gitCommitDateTimestamp` for reproducible artifacts
-- Read configuration only by depending on the config layer; ban `sys.env`/`System.getenv` outside the config module (scalafix `DisableSyntax.regex` with patterns for `System\\.getenv`, `sys\\.env`, and `ConfigProvider\\.envProvider`; it is syntactic, so the config module opts out with `// scalafix:off DisableSyntax.regex`)
+- Read configuration only by depending on the config layer; ban `sys.env`/`System.getenv` outside the config module (scalafix `DisableSyntax.regex` with patterns for `System\\.getenv`, `sys\\.env`, and `ConfigProvider\\.envProvider`; it is syntactic, so the config module opts out with `// scalafix:off DisableSyntax` (closed with `// scalafix:on`))
 - Exclude `.bloop`, `.cache`, `.targets`, `.hydra`, `.metals` from IDE indexing
 
 ## Testing

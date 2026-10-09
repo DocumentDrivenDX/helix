@@ -31,7 +31,7 @@ language-runtime
 - Define interfaces in the consuming package, not the providing package
 - Version metadata embedded at build time via `-ldflags "-X main.Version=..."`
 - `govulncheck ./...` must pass (no known vulnerabilities)
-- All configuration is declared in one central `Config` struct (single package, e.g. `internal/config`) with typed fields, defaults, and required markers
+- All configuration is declared in one central `Config` struct (single package, e.g. `internal/config`) with typed fields, defaults, and a `Validate()` method (or `go-playground/validator` tags) that enforces required keys
 - `Config` is loaded and validated once in `main` and passed in explicitly; no `os.Getenv`/`os.LookupEnv` outside the config package, and no package-level config globals
 - Secrets use a redacting type (`String()`/`MarshalText` returns a mask) so they cannot leak through logs; invalid or missing config fails at startup, not at first use
 - Config is layered by owner per `twelve-factor`: ops-injected values (env vars, mounted files, secret manager) over a committed `config/<env>.yaml` over committed defaults (struct defaults plus `config/default.yaml`); ops-owned keys (hosts, credentials) are required with no default and never appear in committed files
@@ -47,7 +47,7 @@ Enabled linters:
 - `unconvert`
 - `gosec` (severity: high, confidence: high)
 - `gocritic` (diagnostic, performance, style tags)
-- `forbidigo` (ban `os.Getenv`/`os.LookupEnv`, excluded for the config package)
+- `forbidigo` (ban `os.Getenv`/`os.LookupEnv`/`os.Environ`, excluded for the config package and `_test.go`)
 
 Disabled linters (too opinionated):
 - `wsl`, `wrapcheck`, `varnamelen`, `nlreturn`, `exhaustruct`
@@ -64,4 +64,4 @@ All Go projects — CLIs, services, libraries. The standard toolchain and
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
 - ADR: Go + standard toolchain (gofmt, golangci-lint, gosec, govulncheck) as the language-runtime
-- TD: error-wrapping, context-passing, interface-in-consumer conventions; lint baseline, central `Config` struct and its env-var contract
+- TD: error-wrapping, context-passing, interface-in-consumer conventions; lint baseline, central `Config` struct and its config-key contract (owner and source per key)

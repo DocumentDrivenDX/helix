@@ -11,11 +11,11 @@ at the codebase, the release artifact, or the runbook and confirm or reject it.
 ## Config and secrets in the environment
 
 - Config that **varies between deploys** (credentials, resource handles,
-  hostnames, ports, third-party API keys) MUST come from the **environment**
-  (env vars, mounted secret files, or a secret manager — an injected,
-  non-committed source), not from code or checked-in per-environment
-  config files. Prefer file or secret-manager delivery for secrets, since env
-  vars leak via child processes, crash dumps, and `/proc`. Reviewer check: **grep the repo for credential/connection-string
+  hostnames, third-party API keys) and is ops-owned MUST come from an
+  injected, non-committed source (env vars, mounted secret files, or a secret
+  manager), not from code or committed files. Prefer file or secret-manager
+  delivery for secrets, since env vars leak via child processes, crash dumps,
+  and `/proc`. Reviewer check: **grep the repo for credential/connection-string
   literals and for ops-owned handles in committed config files** — there MUST
   be none. Committed per-environment files are allowed for dev-owned,
   non-secret values only.
@@ -117,19 +117,20 @@ the deployable count and seams, the log/metric/trace schema, and the cluster
   attached resources addressed by config handles, and where persistent/session
   state lives so processes stay stateless. Also notes immutable build/release/run
   and the disposability (SIGTERM, reentrant-jobs) contract.
-- **Deployment checklist / runbook** — records the **env-var/secret surface**
+- **Deployment checklist / runbook** — records the **config/secret surface**
   (every config key the process reads), the **SIGTERM/graceful-shutdown
   behavior** and drain timeout, and **how logs are collected** from stdout.
 - **Technical design** — records the **process model** (process types and how
-  each scales horizontally), the **config surface** (the full set of env vars),
+  each scales horizontally), the **config surface** (the full set of config keys, with owner and source),
   and the **state strategy** (what lives in backing services vs nothing in the
   process).
 
 ## Quality Gates
 
 - **No secret/config literal in the codebase** — all per-deploy config and every
-  credential come from the environment; the open-source litmus test holds; no
-  checked-in per-environment config bundle.
+  credential come from ops-injected sources or dev-owned committed files by
+  owner; the open-source litmus test holds; no committed file holds a credential
+  or ops-owned handle.
 - **Backing services swappable by config alone** — every networked dependency is
   an attached resource addressed by a config handle; no code branches on
   local-vs-third-party; a swap is a config change with zero code change.

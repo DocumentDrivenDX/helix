@@ -29,7 +29,7 @@ language-runtime
 - All dependencies declared in `[workspace.dependencies]`; crates reference with `{ workspace = true }`
 - `cargo deny check` must pass (licenses, advisories, registry sources)
 - `cargo machete` must pass (no unused dependencies)
-- All configuration is declared in one central `Config` struct (single module/crate, e.g. `config.rs`) deserialized with `figment` (or `config`); every field is typed with a default or is required
+- All configuration is declared in one central `Config` struct (single module/crate, e.g. `config.rs`) deserialized with `figment`; every field is typed with a default or is required
 - The `Config` is built once in the binary's `main` and passed in; no `std::env::var`/`env::vars` reads outside the config module, and no global config singletons in library crates
 - Secrets use `secrecy::SecretString` (no `Debug`/`Display` leakage); invalid or missing config fails at startup, not at first use
 - Config is layered by owner per `twelve-factor`: ops-injected values (env vars, mounted files, secret manager) over a committed `config/<env>.toml` over committed defaults (`Default` impl plus `config/default.toml`), merged with `figment`; ops-owned keys (hosts, credentials) have no default and never appear in committed files
@@ -67,4 +67,4 @@ additional deny-level lints.
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
 - ADR: Rust + Cargo workspace (clippy, fmt, cargo-deny/machete, pinned toolchain) as the language-runtime
-- TD: workspace lints, error-handling (thiserror/anyhow), unsafe policy, profile conventions, central `Config` struct and its env-var contract
+- TD: workspace lints, error-handling (thiserror/anyhow), unsafe policy, profile conventions, central `Config` struct and its config-key contract (owner and source per key)

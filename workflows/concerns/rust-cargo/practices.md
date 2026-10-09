@@ -11,7 +11,7 @@
 - Separate `crates/` (libraries) from `tools/` or `bin/` (binaries/CLIs) in workspace layout
 - Design error types using `thiserror` for library crates; surface errors with `anyhow` in binaries
 - Centralize configuration in one `Config` struct (`#[derive(Deserialize)]`); layer sources with `figment`: `Serialized::defaults`, then `Toml::file("config/default.toml")`, then `Toml::file("config/<env>.toml")`, then environment (`Env::prefixed("APP_")`); ops-owned keys have no default; production relies on real env vars or the platform secret manager
-- CLI binaries: `clap` flags may override via `#[arg(env = "APP_...")]`, but still feed the one `Config`
+- CLI binaries: `clap` flags (with `#[arg(env = ...)]` only for CLI-only keys, inside the config module) feed the one `Config`
 - Commit `.env.example`; git-ignore `.env`
 - Prefer newtypes and strong typing over stringly-typed parameters
 - Concurrent state: prefer `Arc<Mutex<T>>` or `dashmap` for shared state; use `loom` for model-checking critical sections
@@ -20,7 +20,7 @@
 - Run all commands through the pinned-toolchain wrapper script (e.g. `scripts/with-pinned-rust.sh cargo ...`)
 - Every new crate must include `[lints] workspace = true` in its `Cargo.toml`
 - Style: inline format args (`format!("{x}")`), method refs over closures (`.map(String::as_str)`), explicit match arms over wildcards, collapse nested ifs
-- Read configuration only through the injected `Config`; ban `std::env::var` outside the config module (clippy `disallowed_methods`: list `std::env::var`, `std::env::var_os`, and `std::env::vars` under `disallowed-methods` in `clippy.toml`; the config module opts out with a local `#[allow(clippy::disallowed_methods)]`)
+- Read configuration only through the injected `Config`; ban `std::env::var` outside the config module (clippy `disallowed_methods`: list `std::env::var`, `std::env::var_os`, `std::env::vars`, and `std::env::vars_os` under `disallowed-methods` in `clippy.toml`; the config module opts out with a local `#[allow(clippy::disallowed_methods)]`)
 - No `println!`/`eprintln!` for operational output — use `tracing` events
 - No `.unwrap()` or `.expect()` in library code; in binary code, only at startup with a clear message
 - `unsafe` blocks: add `// SAFETY:` comment explaining invariants, add local `#[allow(unsafe_code)]`, document in PR

@@ -5,8 +5,8 @@
 - If a library dependency requires a Node.js adapter, flag it as a concern at framing — it may require a Bun-compatible alternative
 
 ## Design
-- Centralize configuration in one `zod` schema in `env.ts` (e.g. `z.object({ PORT: z.coerce.number().default(3000), DATABASE_URL: z.url() })`); parse `Bun.env` once with `safeParse` and exit with a readable error on failure
-- Source precedence: real environment variables / secret files > `.env` (dev only) > `config/<env>.json` > `config/default.json` > schema defaults (deep-merge the objects, then `safeParse`); ops-owned keys are required, dev-owned keys carry defaults; production relies on real env vars or the platform secret manager
+- Centralize configuration in one `zod` schema in `env.ts` (e.g. `z.object({ LOG_LEVEL: z.enum(["info", "debug"]).default("info"), DATABASE_URL: z.string().url() })`); parse `Bun.env` once with `safeParse` and exit with a readable error on failure
+- Source precedence: real environment variables / secret files > `.env` (dev only) > `config/<env>.json` > `config/default.json` > schema defaults (plain deep-merge of the objects, then `safeParse`; use flat `UPPER_SNAKE` keys in the JSON files so env vars map one-to-one); ops-owned keys are required, dev-owned keys carry defaults; production relies on real env vars or the platform secret manager
 - Commit `.env.example`; git-ignore `.env`
 - Use Bun workspaces for monorepos: `"workspaces": ["packages/*"]` in root `package.json`
 - Separate packages by concern: `shared` (types/schemas), `server` (API), `web` (frontend)

@@ -19,7 +19,7 @@ language-runtime
 - **Type checker**: `pyright` — NOT mypy
 - **Test framework**: `pytest` with `pytest-cov`
 - **Property-based testing**: `hypothesis`
-- **Configuration**: `pydantic-settings` (TOML/YAML file sources plus environment) — one central typed `Settings` class; NOT bare `os.environ`/`os.getenv`, NOT `python-dotenv` called directly, NOT `dynaconf`/`configparser`
+- **Configuration**: `pydantic-settings` (TOML file sources plus environment) — one central typed `Settings` class; NOT bare `os.environ`/`os.getenv`, NOT `python-dotenv` called directly, NOT `dynaconf`/`configparser`
 
 ## Constraints
 
@@ -48,4 +48,4 @@ and script running.
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
 - ADR: Python 3.12+ + uv (ruff, pyright, pytest) as the language-runtime
-- TD: pyproject.toml layout, dependency-group conventions, branch-coverage floor, central `Settings` class and its env-var contract
+- TD: pyproject.toml layout, dependency-group conventions, branch-coverage floor, central `Settings` class and its config-key contract (owner and source per key)
