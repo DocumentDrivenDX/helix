@@ -70,7 +70,7 @@ Each HELIX artifact type has structured metadata at
 | `template.md` | The structure to fill in |
 | `example.md` | A concrete example |
 
-The glossary artifacts page (`website/content/docs/glossary/artifacts.md`)
+The artifacts catalog page
 must include a substantive description for each artifact — not just a one-line
 purpose. Pull the description from `meta.yml` and the Purpose section of
 `prompt.md`. The reader should understand what each artifact is, when to

@@ -1,9 +1,9 @@
-# Practices: Accessibility (WCAG 2.1 AA)
+# Practices: Accessibility (WCAG 2.2 AA)
 
 ## Requirements (Frame activity)
 
 - All user stories involving UI must include a11y acceptance criteria
-- WCAG 2.1 AA is the minimum compliance target
+- WCAG 2.2 AA is the minimum compliance target
 - Accessibility is a requirement, not a nice-to-have
 
 ## Design
@@ -13,7 +13,7 @@
 - ARIA attributes required for custom components
 - Semantic heading hierarchy required (h1 > h2 > h3, no skips)
 - Focus order must follow visual reading order
-- Touch targets minimum 44x44 CSS pixels
+- Touch targets minimum 24x24 CSS pixels (SC 2.5.8, AA); 44x44 is the AAA value (SC 2.5.5)
 
 ## Implementation
 

@@ -100,8 +100,7 @@ Decide per route from the signals, and record the decision:
 - Each async view branches on its status and renders the matching surface:
   loading → skeleton/spinner; empty → empty-state surface; error → error surface
   with a retry/way-forward; success → the data. The four branches are present in
-  the code, not just the success branch. This is the it.39 guard-branch
-  discipline applied to data views.
+  the code, not just the success branch.
 
 ## Testing
 
@@ -127,7 +126,7 @@ Decide per route from the signals, and record the decision:
 - **No hand-rolled fetch-into-`useState`-with-loading-boolean** for shared
   remote data — the server-state layer owns caching/loading/error/refetch.
 - **Every async view renders loading / empty / error / success** — not just the
-  happy state (ties to it.39 guard branches). The error branch offers a way
+  happy state. The error branch offers a way
   forward; the empty branch is explicit, not a blank container.
 - **Async state is modeled as a status / discriminated union**, not scattered
   booleans that permit impossible combinations (`loading && error && data`).

@@ -8,9 +8,8 @@
 
 ## Design
 - Apply least-privilege: services, users, and credentials have minimum necessary permissions
-- Prefer deny-by-default for authorization (explicitly allow rather than explicitly deny)
-- Separate authentication (who are you?) from authorization (what can you do?)
-- Never store plaintext passwords — use `argon2id` or `bcrypt`
+- Authentication belongs to `auth`; authorization and deny-by-default belong to `authorization-model` (see [README-auth-family.md](../README-auth-family.md))
+- Password hashing: see `auth-local-sessions` practices
 - Encryption at rest for sensitive data stores; TLS for all transport
 - Audit log for security-relevant actions (login, auth failure, privilege escalation)
 
@@ -40,7 +39,6 @@
 ## Incident Response
 - Rotate compromised credentials immediately; do not wait to assess
 - File a security work item with `security` label; treat as P0 if customer data at risk
-- Document the incident in `docs/helix/06-iterate/` post-resolution
 
 ## Diagnostic Evidence Privacy
 

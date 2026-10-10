@@ -52,6 +52,7 @@ inward-only rule. They are honestly close relatives — the differentiator is
 - **vs `design-patterns-gof` / `enterprise-integration-patterns`** — object-level
   patterns inside a layer and between-system messaging respectively; Clean is
   the macro ring discipline for one deployable.
+- Enforcement of the import rules belongs to the `modularity-and-encapsulation` Boundary Check; this concern defines the rule only.
 
 ## Components
 

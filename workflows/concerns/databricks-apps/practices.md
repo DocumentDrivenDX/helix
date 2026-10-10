@@ -8,7 +8,7 @@ model (`unity-catalog`) — see the boundary in `concern.md`.
 ## Requirements (Frame activity)
 
 - Confirm the product is hosted **natively on Databricks** and its users belong to the Databricks account (SSO).
-- Decide the **identity per data path**: on-behalf-of for anything that reads or writes user data, the app service principal only for shared or bulk app-owned work. This is design-defining; record it.
+- Decide the **identity per data path**: on-behalf-of for any call inside a user's session that reads or writes user-scoped data (retrieval, tool calls reaching Databricks APIs), the app service principal only for shared configuration and bulk work with no user principal. This is design-defining; record it.
 - Identify the **resources** the app needs (SQL warehouse, serving endpoint, job, secret, Unity Catalog volume or table, Genie space, Lakebase) and which groups own them; the app attaches them, it cannot create them.
 - List the on-behalf-of **scopes** each feature needs; the minimal set becomes `user_api_scopes`.
 - Name the target workspaces per environment (dev, staging, prod) and who holds `CAN_MANAGE`.
@@ -63,10 +63,6 @@ model (`unity-catalog`) — see the boundary in `concern.md`.
 
 ## Local Agent Diagnostics
 
-Compose with `o11y-otel` for schema, correlation, privacy, console filtering and
-receiver proof. The deployed app keeps the platform stdout/stderr or supported
-managed telemetry route; it does not rotate local log files. A development/CI
-runner may capture safe output locally and own rotation/retention. Validate one
-canonical export/ingestion route; enabling file ingestion and SDK export for the
-same event requires tested deduplication. Instrumentation choice remains OTel's
-concern, not a new Databricks logging schema.
+Compose with `o11y-otel` for local capture, schema, correlation, and
+deduplication. Unique here: the deployed app keeps the platform stdout/stderr or
+managed telemetry route and does not rotate local log files.

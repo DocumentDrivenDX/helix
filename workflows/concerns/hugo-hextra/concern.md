@@ -13,10 +13,11 @@ all
 - **Content format**: Markdown with YAML frontmatter
 - **Deployment**: GitHub Pages via GitHub Actions
 - **E2E testing**: Playwright with screenshot snapshots
+- **Boundary**: `hugo-hextra` owns the site stack; `product-microsite-ia` owns site structure (sections, navigation, reader paths).
 
 ## Constraints
 
-- All site content lives under `website/` in the project root
+- Site content lives in the Hugo `content/` tree of the project's site
 - Hugo Module system for theme management — not git submodules, not manual copy
 - Hextra theme provides layout, navigation, search, and responsive design — do
   not duplicate what the theme already does

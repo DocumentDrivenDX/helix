@@ -8,7 +8,7 @@
 - Define a known test user/credential for interactive and automated access
 
 ## Design
-- `kind-config.yaml` at the project root defines the cluster topology
+- `deploy/kind-config.yaml` defines the cluster topology
 - NodePort mappings expose services to the host — one mapping per service
 - Kubernetes manifests for test infrastructure live in `k8s/` or `deploy/`
 - Seed script is deterministic, idempotent, and completes in under 30 seconds
@@ -17,7 +17,7 @@
   (from inside cluster)
 
 ## Implementation
-- Create `kind-config.yaml` with NodePort mappings for every exposed service
+- Create `deploy/kind-config.yaml` with NodePort mappings for every exposed service
 - Write Kubernetes manifests for each dependency (database, cache, broker, auth)
 - Use readiness probes and explicit waits between deployment steps
 - Write a seed script that populates realistic test data:
@@ -41,7 +41,7 @@
 - Tests should complete in under 10 minutes (excluding chaos tests)
 
 ## Quality Gates
-- `kind create cluster` succeeds with the project's `kind-config.yaml`
+- `kind create cluster` succeeds with the project's `deploy/kind-config.yaml`
 - All services reach ready state within 60 seconds
 - Seed script completes without errors
 - Application passes readiness probe after deployment
@@ -58,9 +58,9 @@
   every push
 
 ## Maintenance
-- When adding a new service dependency, add it to kind-config.yaml NodePorts
+- When adding a new service dependency, add it to deploy/kind-config.yaml NodePorts
   and the Kubernetes manifests
 - When the data model changes, update the seed script
-- When deployment topology changes, update the kind-config.yaml node layout
+- When deployment topology changes, update the deploy/kind-config.yaml node layout
 - Periodically verify that the kind cluster topology still matches production
   (same services, same networking model)

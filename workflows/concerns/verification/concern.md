@@ -43,9 +43,8 @@ duplicate the other two:
   that a unit suite is green. A passing unit layer is necessary, not
   sufficient.
 - Before claiming completion, an agent must produce the evidence artifacts in
-  `practices.md`: the command run + its exit status, the target URL/env, the
-  core flows exercised, and a short re-review checklist against the ACs and
-  integration risks.
+  `practices.md`: the command run + its exit status, the target URL/env, and the
+  core flows exercised, including each guard branch observed.
 - If the change has a named downstream consumer in another repo, "done"
   requires evidence that the consumer pulled the change and its integration was
   exercised. Local gate-green alone is not enough.
@@ -125,7 +124,7 @@ replace either.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- TEST_PLAN: whole-stack evidence gate per AC — command + exit status, target env, flows, adversarial re-review
-- ADR: any recorded exception (library/docs-only or full-stack-e2e-infeasible) and its substitute evidence
+- `docs/helix/04-build/verification-evidence.md`: the whole-stack evidence record — command + exit status, target env, flows, observed guard branches, and any recorded exception with its substitute evidence (one line)
+- TEST_PLAN: the layer allocation only
 
 ## ADR References

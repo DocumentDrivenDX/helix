@@ -5,7 +5,7 @@ exposes** — choosing the interface style (REST / GraphQL / gRPC /
 RPC-server-actions), shaping its contract and errors, validating input at the
 boundary, and keeping the wire contract a translation over the domain. They do
 **not** govern asynchronous cross-system messaging
-(`enterprise-integration-patterns`), codebase layering (`onion-architecture`),
+(`enterprise-integration-patterns`), codebase layering (the selected `architecture-style` filler),
 or the domain model itself (`domain-driven-design`); they reference those
 concerns at the seam and stay on the exposed interface.
 
@@ -98,7 +98,7 @@ concerns at the seam and stay on the exposed interface.
   internal aggregate or ORM row directly onto the wire, and do **not** treat the
   wire shape as the domain model.
 - The API handler (controller / resolver / service method / procedure) is an
-  **outer-ring adapter** (`onion-architecture`): it translates the wire request
+  **outer-ring adapter** (the selected `architecture-style` filler): it translates the wire request
   into a call on an inner application service and translates the result back —
   it does not contain domain logic.
 
@@ -109,7 +109,7 @@ concerns at the seam and stay on the exposed interface.
   response); EIP is **asynchronous messaging between systems** over a broker.
   A product may have both — a REST/GraphQL/gRPC surface **and** a queue — but do
   not conflate an exposed endpoint with a message channel.
-- **vs `onion-architecture`**: the API handler is **outer-ring** and depends
+- **vs the selected `architecture-style` filler**: the API handler is **outer-ring** and depends
   inward on the application service; do not restate the dependency rule, do honor
   it (no domain logic in the handler, no inward dependency on the handler).
 - **vs `domain-driven-design`**: the contract is a **translation over** the

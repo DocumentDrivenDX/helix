@@ -10,10 +10,9 @@
 - All inter-crate dependencies declared in `[workspace.dependencies]`
 - Separate `crates/` (libraries) from `tools/` or `bin/` (binaries/CLIs) in workspace layout
 - Design error types using `thiserror` for library crates; surface errors with `anyhow` in binaries
-- Centralize configuration in one `Config` struct (`#[derive(Deserialize)]`); layer sources with `figment`: `Serialized::defaults`, then `Toml::file("config/default.toml")`, then `Toml::file("config/<env>.toml")`, then environment (`Env::prefixed("APP_")`); ops-owned keys have no default; production relies on real env vars or the platform secret manager
+- Centralize configuration in one `Config` struct (`#[derive(Deserialize)]`); layering per `twelve-factor` via `figment`: `Serialized::defaults`, `Toml::file("config/default.toml")`, `Toml::file("config/<env>.toml")`, then `Env::prefixed("APP_")`
 - The config module reads `APP_ENV` via `std::env::var` once, before building the `figment` chain, to pick `config/<env>.toml`; that one read is covered by the module's existing `#[allow(clippy::disallowed_methods)]`
 - CLI binaries: `clap` flags (with `#[arg(env = ...)]` only for CLI-only keys, inside the config module) feed the one `Config`
-- Commit `.env.example`; git-ignore `.env`
 - Prefer newtypes and strong typing over stringly-typed parameters
 - Concurrent state: prefer `Arc<Mutex<T>>` or `dashmap` for shared state; use `loom` for model-checking critical sections
 

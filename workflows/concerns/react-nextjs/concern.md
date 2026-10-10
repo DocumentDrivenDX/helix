@@ -66,9 +66,3 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - TD: App Router + Server Components, react-hook-form + Zod, shared validation schemas
 - DESIGN_SYSTEM: Tailwind config extends design-system tokens (component-library conventions live with `ux-radix`)
 - TEST_PLAN: Playwright E2E (not Cypress/Selenium)
-
-## ADR References
-
-- ADR-010: Frontend validation architecture (Zod shared schemas)
-- ADR-011: ux-radix owns the Radix and shadcn component-library prescription;
-  this concern references rather than re-prescribing

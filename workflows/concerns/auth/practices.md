@@ -11,9 +11,7 @@ the family ownership table (and what `security-owasp`, `authorization-model`,
 
 - Identify the principal model: individual users, and — for multi-tenant
   products — the account/tenant they belong to and the role they hold.
-- Define the role model and the capability each role grants (e.g. member →
-  read; admin → +write/act; owner → +manage; platform/global-admin →
-  cross-tenant). Record it (an ADR or an authz capability table).
+- Define the role model and capabilities per `authorization-model`.
 - Decide the `auth-provider` filler (default `auth-local-sessions`); record any
   deferred external IdP (Auth0/OIDC) as a slot swap, not a rewrite.
 
@@ -23,12 +21,8 @@ the family ownership table (and what `security-owasp`, `authorization-model`,
   then establishes a session — a brand-new user can reach the product.
 - **Sessions**: login / logout with server-side sessions; protected surfaces
   redirect unauthenticated requests to login.
-- **RBAC**: resolve the principal once per request; gate every protected action
-  server-side by capability; return forbidden (not a silent no-op, not a hidden
-  button) on denial.
-- **Isolation**: derive the account/tenant scope from the authenticated
-  principal and apply it to every read and write; a cross-account identifier
-  must be unreachable.
+- **Principal**: resolve it once per request; permission checks
+  (`authorization-model`) and tenant scoping (`multi-tenancy`) consume it.
 - **Swappable backend**: all calls go through the `auth-provider` interface;
   selecting a different filler (e.g. an external IdP) is config, not a call-site
   change; vendor/IdP names are contained to the filler.

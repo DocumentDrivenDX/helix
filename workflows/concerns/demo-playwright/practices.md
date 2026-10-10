@@ -41,7 +41,7 @@ test.describe.serial("Product Demo Reel", () => {
 
   test("Act 2: Navigate to module", async ({ page }) => {
     await page.goto("/");
-    await page.click('[data-testid="nav-finance"]');
+    await page.getByRole("link", { name: "Finance" }).click();
     await page.waitForTimeout(500);
   });
 
@@ -105,7 +105,7 @@ Since there is no audio, the UI itself must tell the story:
 1. **Ensure seed data**: `bun run seed` or `bun run demo` to populate the database
 2. **Run the reel spec with video**:
    ```bash
-   bun run test:e2e -- tests/e2e/00-reel.spec.ts
+   bunx playwright test tests/e2e/00-reel.spec.ts
    ```
 3. **Extract video**: Playwright writes `.webm` to `test-results/`
 4. **Convert** (optional):

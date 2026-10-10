@@ -4,7 +4,7 @@ These practices govern **asynchronous messaging and cross-system integration** â
 the channels, message shapes, routers, transformers, endpoints, and operational
 patterns that carry information across a system or context boundary. They do not
 govern in-process domain modeling (`domain-driven-design`), codebase layering
-(`onion-architecture`), or intra-process object patterns (`design-patterns-gof`);
+(the selected `architecture-style` filler), or intra-process object patterns (`design-patterns-gof`);
 they reference those concerns at the seam and stay on the wire.
 
 ## Design
@@ -33,7 +33,7 @@ they reference those concerns at the seam and stay on the wire.
 
 - Hide the broker behind a **Messaging Gateway**: domain/application code calls a
   domain-shaped publish/handle interface, never the broker SDK directly. The
-  concrete client is an outer-ring adapter (`onion-architecture`).
+  concrete client is an outer-ring adapter (the selected `architecture-style` filler).
 - Put routing in **routers** (Content-Based Router, Message Filter, Recipient
   List), not in the sender. The sender publishes to a channel; it does not know
   its consumers.
@@ -92,7 +92,7 @@ they reference those concerns at the seam and stay on the wire.
 ## Boundary with neighbors
 
 See `concern.md` for the canonical Boundary (vs `domain-driven-design`,
-`onion-architecture`, `design-patterns-gof`). EIP owns the at-least-once
+the selected `architecture-style` filler, `design-patterns-gof`). EIP owns the at-least-once
 channel-delivery model that *causes* the redelivery downstream consumers must
 absorb â€” `concurrency-model` (in-process workers), `event-sourcing` (event
 handlers), and `cqrs` (projection updaters) each apply the resulting

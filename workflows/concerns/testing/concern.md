@@ -120,6 +120,6 @@ framework, or domain. Compose with language-specific concerns
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- TEST_PLAN: multi-layer strategy (unit/integration/e2e/contract), stubs-over-mocks, fakers-over-fixtures, AC traceability, boundary/property/fuzz/chaos + ratchets
+- TEST_PLAN: AC-class to primary-layer allocation, framework choice with cost, data strategy
 
 ## ADR References

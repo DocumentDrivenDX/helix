@@ -20,7 +20,8 @@ security-owasp, plus the admin-console and unity-catalog neighbors) see
 [README-auth-family.md](../README-auth-family.md). Broken Access Control is the
 OWASP umbrella; `authorization-model` is the per-handler model that prevents
 it, and `multi-tenancy` is the tenant-predicate refinement — neither is
-restated here.
+restated here. This concern states the redaction and audit policy only;
+`o11y-otel` owns the instrumentation mechanics.
 
 ## Components
 
@@ -34,7 +35,7 @@ restated here.
 
 - No secrets, credentials, API keys, or tokens committed to source control
 - All external inputs validated before use; reject or sanitize at the boundary
-- Authentication and authorization checked on every protected endpoint
+- Authentication and authorization on every protected endpoint: see `authorization-model`
 - Dependencies must be audited for known vulnerabilities before release
 - HTTPS/TLS enforced for all production network traffic
 - SQL queries must use parameterized queries / prepared statements — no string interpolation

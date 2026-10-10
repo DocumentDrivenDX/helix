@@ -100,7 +100,7 @@ exit_requirements:
     # branch (the verification concern is the authority for the record's contents).
     - check: file_exists
       path: docs/helix/04-build/verification-evidence.md
-      description: "Verification evidence record must exist: command+exit, target URL/env, core flows AND each governing AC's guard/negative branch exercised on the RUNNING system via the interface-appropriate harness, plus the re-review checklist (per the verification concern)"
+      description: "Verification evidence record must exist: command+exit, target URL/env, core flows AND each governing AC's guard/negative branch exercised on the RUNNING system via the interface-appropriate harness (per the verification concern)"
 
   manual:
     - "For handwritten source, the boundary checker ran through the shared local/pre-commit/CI recipe; allowed imports passed and forbidden imports failed. Semantic review covers ownership, public APIs and invariants; existing debt did not hide new violations. Source-free work records non-applicability with a reason; authorized scoped exceptions supply the alternative verification required by the baseline contract."

@@ -9,11 +9,12 @@ api, infra
 ## Components
 
 - **Cluster runtime**: kind (Kubernetes in Docker)
-- **Cluster config**: `kind-config.yaml` with NodePort mappings for service access
+- **Cluster config**: `deploy/kind-config.yaml` with NodePort mappings for service access
 - **Infrastructure manifests**: Kubernetes YAML or Helm charts for all services
 - **Test data seeding**: Deterministic seed scripts that populate realistic data
 - **Test harness**: Language-appropriate test framework running against the live cluster
 - **Lifecycle management**: Scripts to create, seed, test, and tear down the cluster
+- **Boundary**: `e2e-kind` owns the ephemeral test cluster; `k8s-kind` owns the dev-workflow cluster.
 
 ## Constraints
 
@@ -25,7 +26,7 @@ api, infra
   the same state
 - Tests must be self-contained — they create their cluster, seed data, run, and
   clean up
-- NodePort mappings in `kind-config.yaml` provide localhost access to services
+- NodePort mappings in `deploy/kind-config.yaml` provide localhost access to services
   without port-forwarding
 - The cluster is ephemeral — created for the test run, destroyed after
 - Tests must work in both local development and CI environments
@@ -96,7 +97,7 @@ Tests run on the host machine, connecting to cluster services via NodePorts:
 
 ```bash
 # Stand up cluster
-kind create cluster --config kind-config.yaml
+kind create cluster --config deploy/kind-config.yaml
 kubectl apply -f k8s/
 # Wait for readiness
 kubectl wait --for=condition=ready pod -l app=postgres --timeout=60s
@@ -104,7 +105,7 @@ kubectl wait --for=condition=ready pod -l app=postgres --timeout=60s
 kubectl apply -f k8s/seed-job.yaml
 kubectl wait --for=condition=complete job/seed --timeout=60s
 # Test
-DATABASE_URL=postgres://user:pass@localhost:5432/testdb npm test
+DATABASE_URL=postgres://user:pass@localhost:5432/testdb <test-command>
 # Tear down
 kind delete cluster --name <project>-test
 ```
@@ -138,10 +139,9 @@ set -euo pipefail
 
 CLUSTER_NAME="<project>-test"
 
-# Create or reuse
-if ! kind get clusters | grep -q "$CLUSTER_NAME"; then
-  kind create cluster --config kind-config.yaml
-fi
+# Always create fresh
+kind delete cluster --name "$CLUSTER_NAME" 2>/dev/null || true
+kind create cluster --name "$CLUSTER_NAME" --config deploy/kind-config.yaml
 
 # Build and load app image
 docker build -t <project>:test .
@@ -183,7 +183,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: helm/kind-action@v1
         with:
-          config: kind-config.yaml
+          config: deploy/kind-config.yaml
           cluster_name: <project>-test
       - run: docker build -t <project>:test .
       - run: kind load docker-image <project>:test

@@ -27,12 +27,9 @@ and act only within their authorized scope.**
 - **Onboarding**: a working signup that bootstraps the account/tenant and its
   first owner — not a pre-seeded-only system.
 - **Session lifecycle**: login, logout, and server-side sessions.
-- **Authorization (RBAC)**: roles appropriate to the product (e.g.
-  owner/admin/member) plus, for multi-tenant products, a global/platform-admin;
-  enforced **server-side**, never UI-only.
-- **Isolation through the principal**: every data access and mutation is scoped
-  by the authenticated principal's account/tenant — a cross-account id is
-  unreachable, not merely unlinked in the UI.
+- **Authorization and isolation**: the authenticated principal is what they
+  key off; permission semantics belong to `authorization-model` and the tenant
+  predicate to `multi-tenancy` (see [README-auth-family.md](../README-auth-family.md)).
 - **Swappable backend**: all of the above sit behind the `auth-provider` slot
   interface so the provider can change with no call-site rewrite.
 
@@ -46,12 +43,10 @@ and act only within their authorized scope.**
 - Onboarding provisions the account/tenant **and** its owner principal in one
   flow; the product is reachable by a brand-new user, not only by seeded data.
 
-### Authorization and isolation are enforced server-side, through the principal
+### Authorization and isolation key off the principal
 
-- Roles gate actions on the server (return forbidden on denial); hiding a button
-  is not authorization.
-- Every read and write is scoped by the authenticated principal's account/tenant.
-  Tenant isolation is a property of the principal, not of careful query-writing.
+- `auth` supplies the authenticated principal; the server-side permission check
+  is `authorization-model`'s and the tenant scope is `multi-tenancy`'s (see [README-auth-family.md](../README-auth-family.md)).
 
 ### The backend is swappable; external IdPs are deferred, never hardcoded
 

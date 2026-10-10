@@ -57,13 +57,13 @@ passing mutable internal state across public interfaces.
 
 ## Existing-project adoption
 
-Inventory specific violations by source and target, with owner and remediation
+Inventory specific violations by source and target, with remediation
 work. Baseline only existing violations; unchanged debt may remain while new edges
 fail. Baseline/adoption/checker work may execute before the gate exists; dependent
 feature work is not ready. Tighten the baseline as remediation lands.
 
 Overrides may adapt enforcement mechanisms. Departures require an exception with
-exact scope, owner, governing authority, rationale, alternative verification, and
+exact scope, governing authority, rationale, alternative verification, and
 review/removal trigger. A blanket directory exclusion or larger baseline used to
 hide new violations is not valid adoption.
 

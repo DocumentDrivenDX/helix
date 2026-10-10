@@ -14,8 +14,7 @@
   integration, what needs E2E
 - Design for testability: dependency injection, pure functions, clear
   interfaces at system boundaries
-- Plan fake data strategies: what entities need factories, what external
-  services need stubs
+- Each acceptance-criterion class maps to one primary layer
 - Identify invariants for property-based testing during contract design
   ("this function is commutative", "serialization round-trips", "output
   length is bounded by input length")
@@ -83,14 +82,14 @@
 
 ## Testing pyramid
 
-| Layer | What | Speed | Isolation | Proportion |
-|-------|------|-------|-----------|------------|
-| Unit | Pure logic, schemas, value objects | < 10ms each | Full | ~70% |
-| Integration | Service + real deps, API + DB | < 1s each | Partial | ~20% |
-| E2E | Full user journey, browser or CLI | < 30s each | None | ~10% |
-| Property | Invariants over random input | varies | Full | Alongside unit |
-| Fuzz | Crash/panic discovery | campaign | Full | Periodic |
-| Chaos | Failure resilience | varies | Partial | Alongside integration |
+| Layer | What | Isolation |
+|-------|------|-----------|
+| Unit | Pure logic, schemas, value objects | Full |
+| Integration | Service + real deps, API + DB | Partial |
+| E2E | Full user journey, browser or CLI | None |
+| Property | Invariants over random input | Full |
+| Fuzz | Crash/panic discovery | Full |
+| Chaos | Failure resilience | Partial |
 
 ## Surface → real-path harness
 
@@ -116,8 +115,6 @@ not verified.
 ## Quality Gates
 
 - All tests pass — no exceptions, no skips without linked issues
-- Coverage ratchet: measured coverage ≥ committed floor (project-specific
-  tooling)
 - Performance ratchet: key metrics ≥ committed floor
 - New features have tests tracing to acceptance criteria
 - Property tests run for all serialization, parsing, and arithmetic modules

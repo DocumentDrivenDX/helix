@@ -149,8 +149,3 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - IMPLEMENTATION_PLAN: frontend scaffold, build wiring into the backend's static directory, `tsc --noEmit` and bundle-budget gates
 - DESIGN_SYSTEM: Tailwind 4 tokens the components reference (component-library conventions live with `ux-radix`)
 - TEST_PLAN: Vitest (or `bun:test` under `typescript-bun`) + Testing Library component tests; browser e2e per `e2e-playwright`
-
-## ADR References
-
-- ADR-011: ux-radix owns the Radix and shadcn component-library prescription;
-  this concern references rather than re-prescribing

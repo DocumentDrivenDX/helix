@@ -47,6 +47,7 @@ differentiator is **practical, not dogmatic**:
   object-level patterns inside a layer and between-system messaging
   respectively. Hexagonal is the macro boundary discipline for one deployable;
   integration adapters are simply driven adapters under it.
+- Enforcement of the import rules belongs to the `modularity-and-encapsulation` Boundary Check; this concern defines the rule only.
 
 ## Components
 
