@@ -115,8 +115,7 @@ NEXT: frame
 ## Runtime Integration Appendix
 
 - The marker file, project config, and concrete `docs/helix/` paths are
-  runtime-specific; see the runtime's install guide (DDx:
-  [docs/install/ddx.md](../../docs/install/ddx.md)).
+  runtime-specific; see the runtime's install guide.
 - Genesis composes `research` (STEP 2), the `product-vision` artifact (STEP 3), and
   hands off to `frame` (STEP 4). It does not duplicate those contracts — it orders
   them for a cold start.

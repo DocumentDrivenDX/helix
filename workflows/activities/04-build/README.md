@@ -36,7 +36,7 @@ Technical execution strategy:
 - **Coding Standards**: Conventions and patterns
 - **Integration Points**: How components connect
 - **Resource Planning**: Team assignments and timeline
-- **Build Issue Strategy**: How story-level execution is decomposed into tracker issues
+- **Execution Strategy**: Plan-driven completion with optional independently scheduled work
 
 `secure-coding` remains retired as a standalone HELIX artifact. Its useful
 responsibility is already covered by the current build contract:
@@ -49,32 +49,19 @@ responsibility is already covered by the current build contract:
 Reintroducing `secure-coding` as its own artifact would recreate the same thin,
 duplicative checklist that HELIX already retired.
 
-### Story Build Work Items
-**Output Location**: the runtime's work-item tracker
+### Plan-Driven Execution
 
-Story-level implementation work is tracked as build work items in the runtime
-tracker rather than per-story markdown plans. Build work items:
-- reference the user story, technical design, test plan, and build plan
-- use native tracker issue IDs, dependencies, labels, and ready queues
-- define deterministic implementation steps
-- close independently once verification criteria are met
+The implementation plan governs scope, ordering, acceptance evidence, and exit
+criteria. After explicit implementation authorization, the runtime executes its
+steps through verified completion, continuing ordinary debugging within scope.
+Use compact continuation evidence alongside the plan for interruption recovery.
+A step boundary does not require another user prompt or a separate work item.
 
-The canonical execution flow action for ready work is **build**: it
-handles one work item per run — select or load a ready execution item, claim
-it, validate governing artifacts, perform the scoped work, run required
-verification, create follow-on items when needed, commit with traceability,
-close the item, and exit.
-
-Use this action as the canonical ready-queue entry point. Use story- or
-feature-specific Build actions only when the work is already explicitly scoped
-to that story or feature.
-
-When the ready queue drains, do not switch to an unconditional loop. Run the
-cross-activity **check** action instead — it determines whether the next step is
-more implementation, alignment, backfill, waiting on blockers, user guidance,
-or stopping.
-
-See the runtime integration appendix below for the concrete dispatch commands.
+Use work items only when explicitly selected by the user or required by the
+active execution contract. Prefer one item for a coherent goal; split for
+independent ownership, scheduling, parallel execution, or deferred work.
+The selected runtime retains its claim, audit, and closure requirements.
+See `workflows/references/work-item-first.md` for the shared contract.
 
 ## Core Workflow
 
@@ -378,13 +365,10 @@ must verify design fidelity, test intent, and security-sensitive changes.
 
 ## Runtime Integration Appendix
 
-Build execution is driven by the runtime: it drains the ready queue and executes
-each ready work item end-to-end, or executes a single specified work item. When
-the queue drains, `/helix check` decides the next action. HELIX specifies the
-action; the runtime supplies the work-item store and the execution loop.
-
-See the per-runtime install guide for concrete commands
-([docs/install/ddx.md](../../../docs/install/ddx.md) for DDx).
+Build execution belongs to the runtime. An authorized implementation-ready
+plan is its default input; an explicitly selected tracker may instead govern
+claims, live status, and execution history. Do not discover tracker binaries
+or consult optional adapter guides without selecting that adapter.
 
 ---
 

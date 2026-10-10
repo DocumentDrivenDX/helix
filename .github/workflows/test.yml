@@ -49,6 +49,9 @@ jobs:
       - name: Validate artifact instances against catalog validation blocks
         run: bash tests/validate-instance.sh
 
+      - name: Validate plan execution and tracker opt-in contracts
+        run: python3 tests/test_plan_execution.py
+
       - name: Validate modularity baseline and boundary negative controls
         run: python3 tests/test_modularity.py
 

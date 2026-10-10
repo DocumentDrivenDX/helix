@@ -10,8 +10,10 @@ test-plan context into bounded implementation slices with dependencies,
 validation gates, and closeout evidence.
 
 It is not the tracker. The runtime owns issue state and execution. This artifact
-defines the intended build shape so the runtime's work items can execute
-without inventing scope, ordering, or validation rules.
+defines the intended build shape so the runtime can execute the plan directly
+without inventing scope, ordering, or validation rules. Work items are optional;
+follow `workflows/references/work-item-first.md`. Readiness alone does not
+authorize implementation.
 
 ## Reference Anchors
 
@@ -41,7 +43,8 @@ but leaves no trace here is drift (reconcile-alignment Concern->Artifact Realiza
 
 - scope and governing artifacts
 - build order and dependencies
-- issue decomposition rules
+- execution authorization, completion conditions, and stop conditions
+- concise continuation evidence and optional tracking rules
 - quality gates and closeout criteria
 - risks that should refine upstream artifacts
 
@@ -58,8 +61,7 @@ but leaves no trace here is drift (reconcile-alignment Concern->Artifact Realiza
 ## Template
 
 `workflows/activities/04-build/artifacts/implementation-plan/template.md`
-For tracker conventions see the runtime's install guide (DDx:
-`docs/install/ddx.md`).
+For tracker conventions see the runtime's install guide.
 
 ## Boundary Gate Sequencing
 

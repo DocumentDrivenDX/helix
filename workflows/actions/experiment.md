@@ -551,8 +551,7 @@ Report these sections in order:
 
 This appendix covers how a runtime realizes the experiment action when a runtime
 work item governs the run. The reference paths below are runtime-neutral; for
-the concrete commands of a specific runtime, see its install guide (DDx:
-[docs/install/ddx.md](../../docs/install/ddx.md)).
+the concrete commands of a specific runtime, see its install guide.
 
 ### STEP 0 — Reference resolution
 
@@ -566,8 +565,7 @@ the concrete commands of a specific runtime, see its install guide (DDx:
 ### STEP 1.2 — Claim
 
 Claim the governing work item to prevent concurrent work. The runtime supplies
-the work-item store; for the concrete commands see its install guide
-([docs/install/ddx.md](../../docs/install/ddx.md) for DDx).
+the work-item store; for the concrete commands see its install guide.
 
 ### STEP 3.6 — Measure
 

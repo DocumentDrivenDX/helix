@@ -3,10 +3,11 @@
 You are processing sparse user intent through the HELIX intake surface.
 
 Your goal is to accept a natural language request, identify the governed work it
-affects in the artifact stack, and create or update work items so the rest of
-the HELIX workflow can execute the intent without further user prompting. When
-a tracker-backed runtime is in use, the result is created or updated work items;
-otherwise it is a planning summary in the response.
+affects in the artifact stack, and produce a planning summary with affected
+artifacts, proposed changes, and acceptance criteria. Create or update work
+items only when explicitly requested or required by the active execution
+contract. Follow `workflows/references/work-item-first.md`; an available tracker
+does not select it, and intake alone does not authorize implementation.
 
 ## Action Input
 
@@ -56,8 +57,8 @@ When artifacts disagree, use this precedence:
 ## STEP 0 — Bootstrap
 
 1. Read AGENTS.md so project instructions are fresh in working memory.
-2. If a tracker-backed runtime is in use, verify its work-item source is
-   available.
+2. Verify a work-item source only when tracking is explicitly selected. Do not
+   search for tracker binaries as part of ordinary intake.
 3. Read `docs/helix/01-frame/` if it exists to load project vision and
    declared concerns.
 
@@ -85,7 +86,8 @@ Traverse the artifact stack to find affected artifacts:
 
 ## STEP 3 — Work Item Creation / Update
 
-When a tracker-backed runtime is in use (see
+Only when tracking is explicitly requested or required by the active execution
+contract (see
 `workflows/references/work-item-first.md`), create or update work items for the
 identified work. Otherwise, skip this step and give the planning summary in the
 response: the affected artifacts, the proposed changes, and acceptance criteria.
@@ -103,7 +105,7 @@ response: the affected artifacts, the proposed changes, and acceptance criteria.
    items without either a digest or an explicit omission rationale when the
    contract allows omission.
 
-**Autonomy-specific work item creation rules**:
+**Autonomy-specific work item creation rules (only after explicit tracker selection)**:
 
 - `low`: Create only the work item the user explicitly confirmed.
 - `medium`: Create work items for deterministic downstream work. Flag ambiguous
@@ -138,8 +140,7 @@ pause, state exactly what clarification is needed.
 
 This appendix covers how a runtime realizes the input action when a tracker is
 in use. The reference paths and work-item acquisition below are runtime-neutral;
-for the concrete commands of a specific runtime, see its install guide (DDx:
-[docs/install/ddx.md](../../docs/install/ddx.md)).
+for the concrete commands of a specific runtime, see its install guide.
 
 ### Bootstrap
 
@@ -161,8 +162,7 @@ Create a new work item with labels `helix,activity:build,kind:implementation`,
 `spec-id` set to the governing artifact, and testable acceptance criteria. To
 refine an existing item, update it in place. To encode a blocker, declare a
 dependency from the blocked item to the blocking item. The runtime supplies the
-work-item store; for the concrete commands see its install guide
-([docs/install/ddx.md](../../docs/install/ddx.md) for DDx).
+work-item store; for the concrete commands see its install guide.
 
 After creating a new work item, assemble its `<context-digest>` per
 `workflows/references/context-digest.md`. If the repo ships

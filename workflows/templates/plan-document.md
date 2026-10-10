@@ -63,7 +63,7 @@ than adding `N/A`; retain a section when its requirement applies.
 
 ### Work Breakdown (optional)
 
-{{Suggested issues with acceptance criteria}}
+{{Ordered steps with acceptance criteria; tracker items only when explicitly selected}}
 
 ## Risk Register
 

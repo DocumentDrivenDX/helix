@@ -54,14 +54,14 @@ wrap in table cells: 🟢 Good · 🔵 Better · 🟣 Best.
 
 ## Tasks
 
-The plan owns membership; the runtime's tracker owns live state. Select
-existing work items by ID in the Work Item column; a task without one is
-created by the runtime from this table and its new ID back-referenced here.
+The plan owns membership. Tasks can execute directly from the plan after user
+authorization. The Work Item column is optional: use existing IDs or create
+items only when tracking is explicitly selected. No item is required per task.
 Every committed outcome maps to at least one task. Task IDs are stable —
 never renumber mid-iteration — and unique within this plan (fully qualified:
 `<iteration-id>.<task-id>`, e.g. `IT-05.1.1`). The Status column records
-planning-time state (normally Backlog); once work items derive, the tracker
-is authoritative and this column is not maintained.
+planning-time state (normally Backlog). When tracking is selected, the tracker
+owns live status; otherwise keep recovery evidence alongside the plan.
 
 Workstream aliases come from the roadmap's registry when one exists. A plan
 authored without a roadmap (single-workstream skip case) has one implicit
@@ -76,7 +76,7 @@ field.
 
 | ID | Task | Outcome | Owner | Due | Status | Work Item |
 |----|------|---------|-------|-----|--------|-----------|
-| [1.1] | [task] | [WS-1-good] | [name] | [date] | [Backlog] | [existing item ID, or — until created] |
+| [1.1] | [task] | [WS-1-good] | [name] | [date] | [Backlog] | [optional item ID, or — for direct execution] |
 
 ## Risks
 

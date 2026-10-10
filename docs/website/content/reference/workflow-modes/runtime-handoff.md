@@ -11,8 +11,12 @@ Use when a workflow mode concludes that the next step is execution, source
 control, packaging, or a long-lived operator loop. HELIX does not own those
 surfaces; the runtime does.
 
-1. Name the governed work item or artifact gap that is ready for runtime
-   action.
+1. Name the implementation-ready plan, explicitly selected work item, or
+   artifact gap that is ready for runtime action. Follow
+   `workflows/references/work-item-first.md`: a plan can govern the whole goal
+   without tracker acquisition. Planning readiness does not authorize execution.
+   After implementation is authorized, continue through verified completion,
+   preserving continuation evidence across interruptions.
 2. Name the domain lane and scope instance the runtime should preserve.
 3. Name the verification evidence the runtime must record before reporting
    completion. For buildable products, this includes observable end-to-end

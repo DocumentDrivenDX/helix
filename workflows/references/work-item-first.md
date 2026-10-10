@@ -1,24 +1,40 @@
-# Work-Item Acquisition
+# Execution Authority and Optional Tracking
 
-Use a runtime work-item store when the user requests tracker-backed execution
-or the active runtime requires it. Routine authoring, alignment, and review do
-not create tracker items by default.
+An implementation-ready plan is sufficient governing scope when the user
+explicitly authorizes implementation. Planning alone does not authorize build.
+The runtime owns execution, source control, and release operations.
 
-## Acquisition
+## Plan-Driven Default
 
-When tracker-backed execution applies:
+Execute the ordered steps through verified completion. A step boundary or
+context-window boundary is not a stopping condition. Continue ordinary debugging
+and implementation decisions within scope. Stop for missing authorization, a
+material authority conflict, a decision requiring the user, or a concrete blocker.
+Do not widen acceptance criteria to make verification pass.
 
-1. Search for an open item that covers the requested scope and action.
-2. Reuse it if it remains relevant; otherwise create an item only when the
-   user authorized durable work or the runtime requires one.
-3. Give the item a clear goal, scope, governing artifact, and verifiable
-   outcome. Include a context digest when the runtime's contract requires one.
-4. Follow the runtime's rules for claiming, measuring, and closing the item.
+Use a compact continuation record alongside the plan: governing plan path and
+revision, completed steps with evidence, remaining steps, decisions, blockers,
+and the next action. Reconcile it against the actual diff and tests on resume.
+This record is evidence for recovery, not a second issue queue. When a tracker
+is explicitly selected, it owns claims, live status, and execution history.
 
-Do not create a tracker item or gate solely to record an alignment or review finding.
-Create follow-up work when requested or required by a runtime consumer. Report
-the evidence and suggested next step even when no tracker is available.
+## Optional Work-Item Acquisition
 
-The DDx runtime may impose additional acquisition rules in its own install
-guidance. Those rules belong to that runtime and do not change HELIX's
-conversational default.
+Use a work-item store only when the user requests tracking or the active
+execution contract explicitly requires it. Installed binaries, metadata,
+frontmatter namespaces, and an available adapter are not such a contract.
+Do not search for or invoke a tracker binary to run ordinary HELIX workflows.
+Do not load an adapter install guide unless that adapter is explicitly selected.
+
+When tracking applies:
+
+1. Reuse a relevant existing item before creating another.
+2. Prefer one item governing a coherent plan. Split only for independent
+   scheduling, ownership, parallel execution, or deferred work.
+3. Keep scope, acceptance evidence, governing artifacts, and dependencies
+   explicit; follow the selected runtime's claim, audit, and closure rules.
+4. Do not turn every step or finding into an item. Report review findings and
+   suggested corrections; create follow-up items only when requested or required.
+
+Complexity calls for stronger plans and checkpoints, not automatic ticket
+proliferation. Preserve required safety stops and verification at every size.

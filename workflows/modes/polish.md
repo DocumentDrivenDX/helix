@@ -4,7 +4,8 @@ Use when the user asks to decompose or refine work items for a named scope.
 Infer the scope from the task; ask when it is unclear. Do not select all open
 work by default.
 
-1. Decompose requested implementation slices into bounded work items, keeping
+1. Prefer one item per coherent goal; split requested tracking only for
+   independent scheduling, ownership, parallel execution, or deferred work, keeping
    dependencies in the order required by the governing plan.
 2. Check scoped items for concrete acceptance criteria, evidence, dependencies,
    sizing, and applicable runtime labels. Preserve relevant area labels and
