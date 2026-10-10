@@ -94,6 +94,17 @@ CREATE TABLE [table_name] (
 - [ ] **Contract**: [CONTRACT/API IDs and story-specific cases to test]
 - [ ] **Security**: [Security scenarios]
 
+## Formal Specification (when applicable)
+
+For selected `formal-methods`, record slice applicability and chosen rigor.
+Affected slices name requirement/property IDs, state/initial conditions,
+transitions/guards, safety and liveness, assumptions/fairness, abstraction/bounds,
+model/config/proof files and evidence. Map elements to code/enforcement/tests;
+name residual gaps and recheck triggers. Reference Contracts for shared surfaces.
+Use `workflows/references/formal-methods.md`; bounded analysis never substitutes
+for implementation verification. Unaffected slices record why no analyzer/proof
+run applies. Omit this section when the concern is not selected.
+
 ## Migration & Rollback
 
 - **Backward Compatibility**: [Strategy]

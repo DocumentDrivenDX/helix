@@ -195,3 +195,11 @@ SD and diagnostic Contract. The runner captures safe verification evidence;
 privacy applies before console, file and export. The diagnostic Contract must
 exist before diagnostic wiring is ready, rather than defining fields here.
 Receiver/correlation and capture-failure proof remain required for that slice.
+
+## Formal Specification
+
+`formal-methods` is not selected for this straightforward CSV import slice; no
+formal analysis claim is made. If a broader project selects it for a critical
+coordination protocol, this import design records non-applicability: it does not
+change that protocol or its mapped guards. Ordinary validation, security and
+integration tests still apply; no analyzer/proof run is required for this slice.

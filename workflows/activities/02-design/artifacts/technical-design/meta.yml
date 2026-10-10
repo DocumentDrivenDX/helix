@@ -31,6 +31,10 @@ validation:
     - testing
 
   quality_checks:
+    - check: formal_methods_scope_and_evidence
+      description: For selected formal-methods, semantic review checks slice applicability, chosen rigor, requirement-linked specification, assumptions/bounds, non-vacuity, reproducible evidence and code/test correspondence; unaffected slices record exclusion without analyzer/proof runs; model evidence never replaces implementation verification
+      severity: blocking
+
     - check: diagnostic_wiring_references_contract
       description: For applicable o11y-otel practices, local instrumentation and capture wiring reference Contracts and name privacy, correlation and receiver proof
       severity: warning

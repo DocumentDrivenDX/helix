@@ -59,3 +59,12 @@ boundaries, and/or GenAI operations. Agent development need not involve a
 model-calling product. These notes are not new slots or profile fields. Select
 on a real diagnostic surface and apply service-only obligations conditionally;
 a development runner can supply evidence for a static site or library.
+
+## Formal Methods Applicability
+
+For selected `formal-methods`, record affected slices, risk, owner and rigor in
+Why Active / Key Practices; carry concise scope/rigor notes through Project
+Overrides when downstream context needs them. Unaffected items keep the context
+and record a concrete non-applicability reason in acceptance/evidence instead of
+running an analyzer. Follow `workflows/references/formal-methods.md`; selection
+does not imply model checking for every area or slice.

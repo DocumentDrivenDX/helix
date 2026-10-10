@@ -29,6 +29,7 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 - [Data Design — HELIX Bead Tracker](/artifacts/data-design/)
 - [Design: Agent Diagnostics with OpenTelemetry](/artifacts/design-agent-diagnostics/)
 - [Desired-state authoring: goal and approach](/artifacts/design-desired-state-authoring/)
+- [Design: Formal Methods Concern](/artifacts/design-formal-methods/)
 - [Security Architecture — DDx Agent Execution Surface](/artifacts/security-architecture/)
 - [adr](/artifacts/adr/) _(13 items)_
 - [contracts](/artifacts/contracts/) _(5 items)_

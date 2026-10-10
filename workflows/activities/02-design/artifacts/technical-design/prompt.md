@@ -78,3 +78,16 @@ boundaries, independent console/storage projections and verification evidence.
 Reference governing Contracts instead of defining log fields or query schemas
 inline. Include receiver/conformance and privacy/failure tests for the changed
 path. Run/attempt correlation must work even when no active span exists.
+
+## Formal Specification
+
+For selected `formal-methods`, follow its Artifact Impact and
+`workflows/references/formal-methods.md`. Record affected slice and rigor;
+specify state, initialization, guarded transitions, requirement-linked properties,
+safety separately from liveness, assumptions/fairness, abstraction and bounds.
+Name model/config/proof files and reproducible evidence, including reachable
+success/recovery witnesses and applicable targeted negative controls. Map modeled
+elements to actual code, enforcement and tests; name residual gaps and recheck
+triggers. Shared normative surfaces remain in Contracts. Do not infer production
+correctness from a model pass. Unaffected slices retain applicability context and
+record why no analyzer/proof run applies; unselected projects need no section.

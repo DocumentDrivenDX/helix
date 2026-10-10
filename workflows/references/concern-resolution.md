@@ -494,3 +494,25 @@ with the existing area matching; applicability sections are prose, not a new
 resolver mechanism. For an existing selection, propose an explicit adoption
 update instead of silently re-selecting it. Source-free prose without runtime
 diagnostics is excluded. See `workflows/concerns/o11y-otel/concern.md`.
+
+## Formal-methods applicability
+
+Consider `formal-methods` only when critical interacting state/rules and material
+failure cost or recurring defects justify it, or an explicit assurance requirement
+exists. Concurrency alone is insufficient. Follow the concern's positive and
+negative selection criteria; do not add it to an existing selection by inference.
+
+Record affected slices, risk, owner and chosen rigor in existing Concerns Why
+Active / Key Practices fields. Carry scope/rigor in Project Overrides when
+downstream compact context needs it, with authority pointing to the owning
+design/ADR. `areas: all` carries applicability context across work areas; it does
+not mandate model checking everywhere and creates no new resolver profile.
+
+For propagation completeness, an affected item realizes chosen-level obligations
+in acceptance and evidence; an unaffected item records a concrete exclusion
+reason there. That non-applicability disposition satisfies its concern AC/gate
+obligation without an analyzer/proof run. Review the reason against mapped code:
+an allegedly unrelated change to a modeled guard still requires rechecking.
+See `workflows/references/formal-methods.md`. Missing scope, stale evidence or
+unreviewed correspondence blocks the affected assurance claim, not unrelated
+work or legacy artifact structural validity.

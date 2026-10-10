@@ -79,3 +79,14 @@ actual receiver/correlation, duplicate-ingestion and failure evidence before
 accepting an implementation claim; JSONL parsing and quiet console output are
 insufficient. Report missing adoption/evidence without silently re-selecting
 concerns or claiming the adopting-project pilot ran.
+
+## Formal Methods Alignment
+
+For selected `formal-methods`, compare owning requirements, Contracts and designs
+with the chosen scope/rigor and property authority. Inspect current analysis
+results, bounds/assumptions, reachable witnesses, targeted negative controls and
+model/code/test correspondence before accepting assurance claims. Safety analysis
+does not prove liveness or production correctness. Missing/stale evidence blocks
+the affected claim. Unaffected slices record reviewed non-applicability without
+an analyzer/proof run. Preserve legacy structural validity and existing concern
+selection; use `workflows/references/formal-methods.md` for adoption checks.

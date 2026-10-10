@@ -36,6 +36,7 @@ Concerns are how HELIX answers "every project needs this kind of consistency" wi
   {{< card link="code-shape-ceilings" title="Code Shape Ceilings" subtitle="all" >}}
   {{< card link="e2e-kind" title="E2E Testing with Kind Clusters" subtitle="api, infra" >}}
   {{< card link="e2e-playwright" title="E2E Visual Testing (Playwright)" subtitle="ui, site" >}}
+  {{< card link="formal-methods" title="Formal Methods" subtitle="all" >}}
   {{< card link="i18n-icu" title="Internationalization (ICU MessageFormat)" subtitle="ui, frontend" >}}
   {{< card link="modularity-and-encapsulation" title="Modularity and Encapsulation" subtitle="all" >}}
   {{< card link="o11y-otel" title="Observability (OpenTelemetry)" subtitle="all" >}}
