@@ -5,9 +5,8 @@ Create a concise, service-specific deployment checklist for this release.
 ## Purpose
 
 Deployment Checklist is the **release-window execution checklist**. Its unique
-job is to capture the technical go/no-go checks, staged rollout steps,
-post-deploy verification, rollback triggers, and auditable decision point for a
-specific release.
+job is to capture the pre-deploy checks, validation gates, staged rollout, and
+rollback for a specific release.
 
 It is not a runbook, monitoring design, implementation plan, or release note.
 Point to those artifacts instead of duplicating them.
@@ -25,7 +24,11 @@ Use these local resource summaries as grounding:
 
 - Keep the checklist short enough to use during the release itself.
 - Include only the checks that materially change the technical go/no-go decision.
-- Make rollout verification and rollback triggers explicit.
+- Before Deploy covers the failures that actually bite: an unreviewed plan, a
+  dependency landing out of order, config that is silently empty, and grants
+  assumed rather than verified. Answer them for this release, not generically.
+- Make validation gates and rollback triggers explicit.
+- Omit owners, timestamps, and status checkboxes; the tracker and git hold them.
 - Point to supporting artifacts such as `monitoring-setup` or `runbook`
   instead of duplicating them.
 - Avoid communication boilerplate, launch marketing tasks, or generic
@@ -43,7 +46,6 @@ Use these local resource summaries as grounding:
 
 ## Completion Criteria
 
-- Prerequisites and owners are explicit.
-- Rollout verification names the signals or commands that prove health.
-- Rollback triggers and rollback entrypoint are explicit.
-- The final decision section makes the release auditable.
+- Before Deploy is answered for this release.
+- Each gate names the signal or command that proves it.
+- Rollback returns to the last working state; a failed deploy never replaces it.

@@ -7,101 +7,62 @@ ddx:
 
 # Test Plan
 
-## Testing Strategy
+## Strategy
 
-**Goals**: [Primary objective] | [Quality gates]
-**Out of Scope**: [Excluded areas]
-**Traceability Source**: [PRD / FEAT / US artifacts that drive the plan]
+**Goal**: [What must be true for the feature to be production-ready?]
 
-### Test Levels
+**Out of scope**: [Behaviors not covered by this plan]
 
-| Level | Coverage Target | Priority |
-|-------|-----------------|----------|
-| Contract | [Target and scope] | P0/P1 |
-| Integration | [Target and scope] | P0/P1 |
-| Unit | [Target and scope] | P0/P1 |
-| E2E | [Target and scope] | P0/P1 |
+## Framework Selection & Cost
 
-### Frameworks
+| Layer | Framework | Justification | CI Time Impact | Maintenance Burden |
+|-------|-----------|---------------|---------------|--------------------|
+| Contract | [Framework] | [Why this framework for API contract tests] | [~] | [~] |
+| Unit | [Framework] | [Why this framework for unit tests] | [2min / ~neutral / +30%] | [Low/Med/High] |
+| Integration | [Framework] | [Why this framework for integration] | [~] | [~] |
+| E2E | [Framework] | [Why this framework for e2e] | [~] | [~] |
 
-| Type | Framework | Reason |
-|------|-----------|--------|
-| Contract | [Framework] | [Why] |
-| Integration | [Framework] | [Why] |
-| Unit | [Framework] | [Why] |
-| E2E | [Framework] | [Why] |
+**Cost/benefit summary**: [Total CI time impact, maintenance vs. confidence tradeoff, decision rationale]
 
-## Test Data
+**Baseline**: [Only if you cite a measurement: what was measured and the commit it was taken at. Never hand-maintain counts; re-measure.]
 
-| Type | Strategy |
-|------|----------|
-| Fixtures | [Static data approach] |
-| Factories | [Dynamic generation] |
-| Mocks | [External service mocking] |
+## Critical Paths (P0)
 
-## Coverage Requirements
+These must pass before shipping:
 
-| Metric | Target | Minimum | Enforcement |
-|--------|--------|---------|-------------|
-| Line | 80% | 70% | CI blocks |
-| Critical | 100% | 100% | Required |
-
-### Critical Paths (P0)
-
-1. [Auth flow]
-2. [Core transaction]
-3. [Data persistence]
-4. [Error handling]
-
-### Secondary Paths (P1-P2)
-
-- P1: [Secondary features] | P2: [Edge cases, rare scenarios]
+1. [Path description]
+2. [Path description]
+3. [Path description]
 
 ## Acceptance Criteria Layer Allocation
 
-This project test plan **aggregates** strategy across stories. It does **not**
-restate the per-criterion AC↔test matrix — that lives in each story test plan
-(STP), keyed by stable `US-<n>-AC<m>` IDs (FEAT-008 FR-6). Here, allocate
-criterion *classes* to test layers and confirm every P0 criterion is allocated:
+Every P0 acceptance criterion maps to exactly one primary test layer. Per-criterion rows (`US-<n>-AC<m>` to named tests) live in each story test plan; here, allocate criterion classes.
 
-| AC class / source | Story Test Plan(s) | Primary Layer | Why this layer |
-|-------------------|--------------------|---------------|----------------|
-| [e.g. upload/validation criteria] | [[STP-XXX]] | Integration | [boundary + persistence] |
-| [e.g. visible reviewer flow] | [[STP-XXX]] | E2E | [user-observable outcome] |
+| AC class / source | Story Test Plan | Primary Layer | Why this layer |
+|-------------------|-----------------|---------------|----------------|
+| [e.g. upload/validation criteria] | [[STP-XXX]] | [Integration] | [what boundary it proves] |
 
-**Allocation rule**: no P0 acceptance criterion is left unallocated — every
-`US-<n>-AC<m>` from an in-scope story maps to exactly one primary layer here and
-to concrete tests in its STP. The STP owns the per-AC rows; this plan owns the
-layer allocation.
+## Secondary Paths (P1-P2)
 
-## Implementation Order
-1. [What must be written first and why]
-2. [What follows]
-3. [What can wait]
+- **P1**: [Feature coverage]
+- **P2**: [Edge cases]
 
-## Infrastructure
+## Test Data Strategy
 
-| Requirement | Specification |
-|-------------|---------------|
-| CI Tool | [Tool, version] |
-| Test DB | [Type, seeding, cleanup] |
-| Services | [Required services] |
+[How do you seed test data? Static fixtures, factories, production snapshots?]
 
-## Risks
+## Known Gaps
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Flaky tests | High | Retry logic, isolation |
-| Slow execution | Med | Parallelize |
+[Accepted risks, deferred coverage, infrastructure constraints]
 
-**Known Gaps**: [Limitations and accepted risks]
+## Build Commands
 
-## Build Handoff
+```bash
+[test command]
+[coverage command]
+```
 
-**Commands**: `[test command]` | `[coverage command]`
-**Priority**: [Recommended order]
-
-**Blocking Gate**: [What must pass before implementation is considered done]
+**Blocking gate**: [What must pass before the build is considered complete]
 
 <!-- For source projects, name the real boundary-check command, allowed/forbidden
 import controls, supported cycle/private-access checks, invariant tests and

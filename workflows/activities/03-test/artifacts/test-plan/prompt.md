@@ -1,6 +1,6 @@
 # Test Plan Generation Prompt
 
-Scope: project-level verification strategy — test levels, coverage targets, critical paths, data strategy, infrastructure, sequencing, risks, and build handoff commands.
+Scope: project-level verification strategy — goal, framework choices with cost, critical paths, data strategy, known gaps, and build commands.
 
 Related:
 - [Story Test Plan](../story-test-plan/prompt.md) — per-story AC↔test traceability
@@ -22,29 +22,30 @@ Use these local resource summaries as grounding:
 
 ## What to Include
 
-- test levels and scope
-- framework choices only where they matter
-- coverage targets and critical paths
-- acceptance-criteria **layer allocation** — allocate each in-scope
-  `US-<n>-AC<m>` criterion class to a primary test layer and confirm every P0 is
-  allocated. **Aggregate** the story test plans; do **not** duplicate their
-  per-AC matrix (the STP owns that, keyed by stable AC ID — FEAT-008 FR-6).
+- the goal: what must be true to ship, and what is out of scope
+- framework choice per layer, with why, CI time, and maintenance burden
+- critical paths (P0)
+- acceptance-criteria **layer allocation**: map each in-scope `US-<n>-AC<m>`
+  criterion class to one primary layer and confirm every P0 is allocated (the
+  STP owns the per-AC rows)
 - test data strategy
-- sequencing, dependencies, and infrastructure needs
-- risks that can block test execution
+- known gaps and accepted risks
+- build commands and the blocking gate
+
+Do not hand-maintain test counts or timings. If you cite a baseline, pin it to a commit.
 
 ## Keep In Mind
 
 - tests are the executable specification
 - every test should trace to a requirement or story
-- coverage targets should be risk-based and enforced, not decorative
+- put effort where failure costs most; add coverage numbers only when CI enforces them
 - do not add generic testing doctrine that the template already implies
 
 ## Boundary Test
 
 | If you are writing... | Put it in... |
 |---|---|
-| Overall test levels, coverage targets, data strategy, CI gates | Test Plan |
+| Overall strategy, framework choices, critical paths, CI gates | Test Plan |
 | One story's concrete test cases and fixtures | Story Test Plan |
 | Feature behavior or acceptance criteria | Feature Specification or User Story |
 | Implementation sequencing for code changes | Implementation Plan |

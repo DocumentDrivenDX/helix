@@ -7,51 +7,40 @@ ddx:
 
 # Deployment Checklist
 
-## Release Scope
+## Release
 
-- Service or component: [name]
-- Release version/build: [release version, image tag, or build name]
-- Deployment window: [date and time]
-- Release owner: [name]
-- Rollback owner: [name]
-- Supporting artifacts: [implementation plan, runbook, monitoring, release notes]
+- **Component**: [name]
+- **Release version**: [tag/build]
+- **Related artifacts**: [runbook, monitoring-setup, release-notes]
 
-## Pre-Deploy Checks
+## Before Deploy
 
-| Area | Check | Evidence or Command | Status |
-|------|-------|---------------------|--------|
-| Build | [CI, tests, approvals] | [link or command] | [ ] |
-| Config | [Secrets, flags, env vars] | [link or command] | [ ] |
-| Data | [Migrations, backups, compatibility] | [link or command] | [ ] |
-| Ops | [Dashboards, alerts, on-call] | [link or command] | [ ] |
+- **Plan reviewed**: [For infra or config changes, the plan/diff was read and every change is expected. Name anything unrelated that would also change.]
+- **Order of operations**: [What must land first (infra variable, migration, grant) and what depends on it.]
+- **Config is complete**: [Every required env/config value is non-empty after render. Name the values that fail silently when empty.]
+- **Access verified**: [The deploy principal holds the grants it needs, checked by a real run, not assumed from a merged change.]
 
-## Rollout Plan
+## Validation Gates
 
-| Stage | Action | Exit Condition |
-|-------|--------|----------------|
-| Staging | [deploy and validate] | [what must be true] |
-| Initial production | [first step or canary] | [what must be true] |
-| Full rollout | [complete rollout] | [what must be true] |
+| Gate | Must Pass Before | Check |
+|------|------------------|-------|
+| [Build and tests] | staging | [CI link / command] |
+| [Migration or data check] | production | [query / log] |
+| [Critical path works] | full rollout | [test / smoke script] |
+| [Error rate and latency] | full rollout | [threshold and dashboard] |
 
-## Verification Checks
+## Rollout Stages
 
-| Signal or Check | Expected Result | Evidence or Command | Status |
-|-----------------|-----------------|---------------------|--------|
-| [health check] | [healthy value] | [command or dashboard] | [ ] |
-| [error rate] | [threshold] | [dashboard or query] | [ ] |
-| [latency] | [threshold] | [dashboard or query] | [ ] |
-| [critical user journey] | [pass condition] | [test or observation] | [ ] |
+| Stage | Deploy Action | Exit Condition |
+|-------|---------------|----------------|
+| Staging | [steps] | [what must be true] |
+| Canary | [steps] | [what must be true] |
+| Full | [steps] | [what must be true] |
 
-## Rollback Triggers
+## Rollback
 
-| Trigger | Threshold or Condition | Immediate Action | Owner |
-|---------|------------------------|------------------|-------|
-| [trigger] | [threshold] | [rollback step or runbook] | [name] |
-| [trigger] | [threshold] | [rollback step or runbook] | [name] |
+**Path**: [How to get back to the last working state, and how long that takes. A failed deploy must not replace the working one.]
 
-## Go or No-Go Decision
-
-- Decision: [Go / Hold / Roll Back]
-- Decision time: [timestamp]
-- Notes: [exceptions, deferred checks, follow-up]
-- Follow-up owner: [name]
+| Signal | Threshold | Immediate Action |
+|--------|-----------|------------------|
+| [error rate / failed path / data issue] | [threshold] | [command or runbook section] |

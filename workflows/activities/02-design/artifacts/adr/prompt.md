@@ -16,8 +16,7 @@ one record. reconcile-alignment flags non-canonical names and lumped ADRs.
 
 An ADR is the **single-decision record** for architecture-significant choices.
 Its unique job is to preserve why a decision was made, what alternatives were
-considered, what tradeoffs were accepted, and when the decision should be
-revisited.
+considered, and what tradeoffs were accepted.
 
 ADRs are not architecture documents. Architecture owns the overall structural
 model. ADRs are not solution designs or technical designs; those apply accepted
@@ -34,9 +33,13 @@ Use these local resource summaries as grounding:
   traceability to architecture evolution, code, and infrastructure context.
 
 ## Focus
-- State the context and decision plainly.
-- Keep alternatives and tradeoffs honest but brief.
-- Note validation and references only if they affect the decision.
+- State the problem and decision plainly. If the operator has not stated the
+  intent behind the decision, confirm it before drafting (see `modes/design.md`).
+- Say what is built and tested versus only decided, in one line, when the ADR
+  could be read as more complete than it is.
+- For each alternative, say why this choice beats it; keep it brief and honest.
+- Name drift signals only when they would reveal the decision being abandoned.
+- Omit dates, status, deciders, and risk or metric tables; git and the tracker hold them.
 - Use one ADR per decision. If the decision has independent parts, split it.
 - Keep one current record of the chosen direction and useful rationale. When
   the decision changes, even to a reversal, rewrite it in place and move the
@@ -75,5 +78,5 @@ Use these local resource summaries as grounding:
 - The decision is unambiguous.
 - Alternatives are compared clearly.
 - Consequences are explicit.
-- Status is clear.
-- Reconsideration triggers are concrete when the decision has uncertainty.
+- `ddx.status` in the frontmatter says whether the direction is chosen; accepted does not mean built.
+- Drift signals are concrete when the decision has uncertainty.

@@ -12,118 +12,65 @@ ddx:
 
 # Test Plan
 
-## Testing Strategy
+## Strategy
 
-**Goals**: Prove CSV import, traceability, security boundaries, and critical
-reviewer paths before implementation is accepted. | **Quality gates**: P0
-requirements and accepted contracts block merge when failing.
-**Out of Scope**: Bank feeds, accounting API sync, payroll, inventory, tax
-workflows, and match-scoring optimization beyond FEAT-001.
-**Traceability Source**: PRD P0 requirements, FEAT-001, US-001, API-001, and
-active concerns.
+**Goal**: Before implementation is accepted, prove CSV import, traceability, security boundaries, and the critical reviewer paths. P0 requirements and accepted contracts block merge when failing.
 
-### Test Levels
+**Out of scope**: Bank feeds, accounting API sync, payroll, inventory, tax workflows, and match-scoring optimization beyond FEAT-001.
 
-| Level | Coverage Target | Priority |
-|-------|-----------------|----------|
-| Contract | 100% of API-001 success and error semantics | P0 |
-| Integration | 100% of FEAT-001 import-session persistence and source-file storage paths | P0 |
-| Unit | 90% line coverage for import upload, mapping, validation, and evidence services; 100% branch coverage for validation rules | P0/P1 |
-| E2E | One happy path and one rejection path for each P0 reviewer import workflow | P0 |
+## Framework Selection & Cost
 
-### Frameworks
+| Layer | Framework | Justification | CI Time Impact | Maintenance Burden |
+|-------|-----------|---------------|----------------|--------------------|
+| Contract | HTTP tests against Fastify with API-001 fixtures | Checks API behavior and problem-details errors independently of the UI | ~1 min | Low |
+| Integration | API test runner, PostgreSQL 16 container, S3-compatible fake | Exercises transaction, storage, and repository boundaries together | ~3 min | Med (container startup) |
+| Unit | Vitest | Fast feedback on parsing, validation, and UI state | <1 min | Low |
+| E2E | Playwright, desktop browser | Only layer that proves the reviewer workflow and accessible upload controls | ~4 min | High (flaky if overused) |
 
-| Type | Framework | Reason |
-|------|-----------|--------|
-| Contract | HTTP contract tests against Fastify with API-001 fixtures | Verifies independent API behavior and problem-details errors |
-| Integration | API test runner with PostgreSQL 16 test container and S3-compatible fake | Exercises transaction, storage, and repository boundaries |
-| Unit | Vitest for TypeScript services and React components | Fast feedback on parsing, validation, and UI state |
-| E2E | Playwright desktop browser tests | Verifies reviewer import workflow and accessible upload controls |
+**Cost/benefit summary**: About 9 minutes of CI. E2E is the costliest and most fragile, so it covers P0 happy and rejection paths only; detailed file cases are checked at the contract and integration layers.
 
-## Test Data
+**Baseline**: CI time measured at `3f9c2ab` (main); re-measure rather than edit.
 
-| Type | Strategy |
-|------|----------|
-| Fixtures | Versioned CSV fixtures for valid Acme Dental imports, missing amount column, malformed amount, duplicate source identifier, and non-CSV upload |
-| Factories | Client, import session, and authenticated firm-user factories for API and integration tests |
-| Mocks | S3-compatible fake for source-file storage; no bank or accounting API mocks in v1 |
-
-## Coverage Requirements
-
-| Metric | Target | Minimum | Enforcement |
-|--------|--------|---------|-------------|
-| Service line coverage | 90% | 85% | CI blocks on `pnpm test:coverage` |
-| Validation branch coverage | 100% | 100% | CI blocks validation package coverage |
-| Contract coverage | 100% API-001 success/errors | 100% | CI blocks contract test suite |
-| Critical reviewer workflows | 100% P0 happy/rejection paths | 100% | CI blocks Playwright smoke suite |
-
-### Critical Paths (P0)
+## Critical Paths (P0)
 
 1. Upload valid bank and invoice CSV files for one client.
 2. Reject missing, oversized, or non-CSV files before parsing.
 3. Preserve source file metadata for accepted uploads.
 4. Keep raw financial row values out of analytics and application logs.
-5. Open mapping review only after a draft session is created.
-
-### Secondary Paths (P1-P2)
-
-- P1: saved mapping reuse, row-level validation, import summary confirmation.
-- P2: large fixture performance and abandoned draft-session cleanup.
+5. Open mapping review only after a draft session exists.
 
 ## Acceptance Criteria Layer Allocation
 
-This project test plan aggregates strategy across stories. The per-criterion
-AC↔test matrix lives in each story test plan, keyed by stable `US-<n>-AC<m>`
-IDs. Criterion classes are allocated to a primary layer here; every P0
-criterion from an in-scope story appears in exactly one row.
+Every P0 acceptance criterion maps to exactly one primary test layer. Per-criterion rows (`US-<n>-AC<m>` to named tests) live in each story test plan; here, allocate criterion classes.
 
-| AC class / source | Story Test Plan(s) | Primary Layer | Why this layer |
-|-------------------|--------------------|---------------|----------------|
+| AC class / source | Story Test Plan | Primary Layer | Why this layer |
+|-------------------|-----------------|---------------|----------------|
 | Upload acceptance and draft-session creation (US-001-AC1) | [[STP-001-upload-csv-files]] | Integration | API-001, source-file storage, and draft-session persistence must hold together |
 | File rejection before parsing (US-001-AC2) | [[STP-001-upload-csv-files]] | Contract | API-001 problem-details errors are the observable boundary |
 | Mapping review opens once both files land (US-001-AC3) | [[STP-001-upload-csv-files]] | E2E | Reviewer-visible navigation outcome |
 
-**Allocation rule**: every `US-<n>-AC<m>` from an in-scope story (US-001 in
-this iteration) maps to exactly one primary layer above and to concrete tests
-in its STP. Unit and UI tests cover the same criteria as supporting layers
-without changing the primary allocation.
+## Secondary Paths (P1-P2)
 
-## Implementation Order
+- **P1**: saved mapping reuse, row-level validation, import summary confirmation.
+- **P2**: large fixture performance, abandoned draft-session cleanup.
 
-1. Contract tests for API-001 success and problem-details errors.
-2. Repository and storage integration tests for draft sessions and source files.
-3. Unit tests for upload service and UI upload state.
-4. Playwright P0 upload happy path and rejection path.
-5. Coverage gate wiring and fixture documentation.
+## Test Data Strategy
 
-## Infrastructure
+Versioned CSV fixtures: valid, missing amount column, malformed amount, duplicate source identifier, non-CSV upload. Factories for client, import session, and authenticated firm user. S3-compatible fake for storage; no bank or accounting API mocks in v1. No production financial data in fixtures.
 
-| Requirement | Specification |
-|-------------|---------------|
-| CI Tool | GitHub Actions with Node 20 and PostgreSQL 16 service |
-| Test DB | PostgreSQL 16 container; recreate schema per integration suite |
-| Services | S3-compatible fake for source-file storage; Playwright browser install |
-| Secrets | Test-only storage credentials; no production financial data in fixtures |
+## Known Gaps
 
-## Risks
+Match suggestion accuracy waits for FEAT-002. Accessibility coverage starts with upload controls and expands with mapping and review stories. Fixtures are synthetic until pilot exports can be anonymized.
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| CSV fixtures become unrealistic | High | Collect pilot exports and add anonymized fixtures before paid launch |
-| E2E upload tests become flaky | Med | Keep E2E suite to P0 paths; validate detailed file cases at contract/integration layers |
-| Coverage target encourages shallow tests | Med | Require traceability to FEAT/US/API IDs in test names or metadata |
+## Build Commands
 
-**Known Gaps**: Match suggestion accuracy tests wait for FEAT-002. Accessibility
-coverage starts with upload controls and expands during mapping/review stories.
+```bash
+pnpm test
+pnpm test:coverage
+pnpm test:e2e
+```
 
-## Build Handoff
-
-**Commands**: `pnpm test` | `pnpm test:coverage` | `pnpm test:e2e`
-**Priority**: API contract tests first, then integration tests, then unit/UI,
-then P0 E2E smoke.
-
-**Blocking Gate**: All P0 contract, integration, security, and E2E tests pass;
-coverage minimums hold; no raw financial fixture values appear in logs.
+**Blocking gate**: All P0 contract, integration, security, and E2E tests pass, and no raw financial fixture values appear in logs.
 
 ## Diagnostic Test Strategy
 

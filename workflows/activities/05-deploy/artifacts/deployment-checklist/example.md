@@ -10,58 +10,45 @@ ddx:
 
 # Deployment Checklist
 
-## Release Scope
+## Release
 
-- Service or component: DepositMatch CSV Import v1 (`csvImportV1`)
-- Release version/build: `release-2026-05-12-csv-import`
-- Deployment window: 2026-05-12 21:00-22:00 UTC
-- Release owner: Engineering lead
-- Rollback owner: On-call API engineer
-- Supporting artifacts: implementation plan `example.implementation-plan.depositmatch`,
-  test plan `example.test-plan.depositmatch`, API contract `API-001`
+- **Component**: DepositMatch CSV Import v1, behind the `csvImportV1` flag (defaults off in production)
+- **Release version**: `release-2026-05-12-csv-import`
+- **Related artifacts**: implementation plan, test plan, API-001
 
-## Pre-Deploy Checks
+## Before Deploy
 
-| Area | Check | Evidence or Command | Status |
-|------|-------|---------------------|--------|
-| Build | Main branch CI green for upload slice | `gh run list --branch main --limit 1` | [ ] |
-| Tests | Contract, integration, UI, and P0 E2E upload tests pass | `pnpm test && pnpm test:e2e -- upload-csv` | [ ] |
-| Config | `csvImportV1` flag exists and defaults off in production | Feature flag dashboard or config diff | [ ] |
-| Data | `import_sessions` and `import_files` migration applied in staging | Migration job log | [ ] |
-| Ops | Upload error-rate and latency panels visible | Dashboard link | [ ] |
-| Security | Log scan shows no raw CSV row values in test/staging logs | `pnpm test -- importUploadService` | [ ] |
+- **Plan reviewed**: Migration plan shows only `import_sessions` and `import_files`; nothing else changes.
+- **Order of operations**: Migration first, then API and web with the flag off, then enable the flag.
+- **Config is complete**: Storage bucket name and credentials are non-empty after render. An empty bucket disables uploads silently, so the smoke script asserts a real upload succeeds.
+- **Access verified**: The upload service account can write to the source-file bucket and no other bucket, confirmed by a staging upload.
 
-## Rollout Plan
+## Validation Gates
 
-| Stage | Action | Exit Condition |
-|-------|--------|----------------|
-| Staging | Deploy API/web, run migration, enable `csvImportV1` for staging | Upload happy path and PDF rejection pass in staging |
-| Initial production | Deploy API/web with `csvImportV1` off, run migration | Health checks green for 15 minutes; no migration errors |
-| Canary | Enable `csvImportV1` for one pilot firm | 3 successful import sessions or 30 minutes without trigger |
-| Full pilot rollout | Enable `csvImportV1` for all pilot firms | Upload error rate below 2% and p95 upload response below 2 seconds |
+| Gate | Must Pass Before | Check |
+|------|------------------|-------|
+| CI green on main, P0 upload tests pass | staging | `pnpm test && pnpm test:e2e -- upload-csv` |
+| Migration applied | production | Staging migration job log |
+| Valid CSV pair uploads; PDF is rejected | production | Staging smoke script |
+| No raw CSV row values in logs | production | Log query for fixture sentinel values |
+| Health green 15 minutes, flag off | canary | `curl -fsS https://api.depositmatch.example/healthz` |
+| Upload 5xx below 1%, p95 under 2s | full pilot | Upload dashboard |
 
-## Verification Checks
+## Rollout Stages
 
-| Signal or Check | Expected Result | Evidence or Command | Status |
-|-----------------|-----------------|---------------------|--------|
-| API health | 2xx from `/healthz` | `curl -fsS https://api.depositmatch.example/healthz` | [ ] |
-| Upload contract | 201 for valid CSV pair; 415 for PDF | Production smoke script with synthetic pilot client | [ ] |
-| Error rate | Upload endpoint 5xx below 1% over 15 minutes | Dashboard query | [ ] |
-| Latency | p95 upload response below 2 seconds before row parsing | Dashboard query | [ ] |
-| Logging | No raw CSV values in application logs | Log query for fixture sentinel values | [ ] |
+| Stage | Deploy Action | Exit Condition |
+|-------|---------------|----------------|
+| Staging | Deploy, migrate, enable flag | Happy path and rejection pass |
+| Production, flag off | Deploy and migrate | Health green 15 minutes |
+| Canary | Enable for one pilot firm | 3 successful imports or 30 minutes without a trigger |
+| Full pilot | Enable for all pilot firms | Gates above hold |
 
-## Rollback Triggers
+## Rollback
 
-| Trigger | Threshold or Condition | Immediate Action | Owner |
-|---------|------------------------|------------------|-------|
-| Upload endpoint 5xx | Above 1% for 15 minutes | Disable `csvImportV1`; keep deployment in place | Release owner |
-| Data integrity issue | Any partial session/file metadata commit | Disable flag, stop canary, open incident, run cleanup script | Rollback owner |
-| Raw financial row values in logs | Any confirmed occurrence | Disable flag and rotate affected logs per runbook | Security lead |
-| Migration failure | Migration does not complete or blocks API deploy | Stop rollout and restore previous task definition | Rollback owner |
+**Path**: Disable `csvImportV1`; the previous deploy stays in place, so recovery is immediate. If the migration blocks the API deploy, restore the previous task definition.
 
-## Go or No-Go Decision
-
-- Decision: [Go / Hold / Roll Back]
-- Decision time: [timestamp]
-- Notes: [exceptions, deferred checks, follow-up]
-- Follow-up owner: Release owner
+| Signal | Threshold | Immediate Action |
+|--------|-----------|------------------|
+| Upload 5xx | Above 1% for 15 minutes | Disable the flag |
+| Partial session or file commit | Any | Disable flag, stop canary, run cleanup script |
+| Raw row values in logs | Any confirmed | Disable flag, purge logs per runbook |
