@@ -10,7 +10,10 @@ surfaces; the runtime does.
    without tracker acquisition. Planning readiness does not authorize execution.
    After implementation is authorized, continue through verified completion,
    preserving continuation evidence across interruptions.
-2. Name the domain lane and scope instance the runtime should preserve.
+2. Name the domain lane and scope instance the runtime should preserve. Carry
+   the token estimate, total spending ceiling, and available metering or
+   enforcement limits from `workflows/references/work-item-first.md` in the
+   existing execution contract; include verification and review in that ceiling.
 3. Name the verification evidence the runtime must record before reporting
    completion. For buildable products, this includes observable end-to-end
    evidence against the running system when feasible, plus a claims-vs-reality

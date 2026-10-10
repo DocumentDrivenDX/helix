@@ -36,6 +36,10 @@ ordered slices through their verification gates and the goal's exit criteria.
 A slice is a reviewable change, not necessarily a separately scheduled issue.
 Stay within Scope; stop for authority conflicts, missing authorization, or
 concrete blockers requiring a decision. Ordinary debugging remains in scope.
+State the token range and usage basis (or unknown), total spending ceiling, and
+runtime metering or enforcement limits here; include verification and review.
+Follow `workflows/references/work-item-first.md`; reaching the ceiling requires
+a disposition with remaining work, not an automatic budget increase.
 
 ## Continuation Evidence
 
