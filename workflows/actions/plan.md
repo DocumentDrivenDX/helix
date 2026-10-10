@@ -166,8 +166,9 @@ Summarize the design, evidence, and any unresolved guidance.
    - Missing concern-mandated sections
    - Sections that need further refinement
    - Guidance-dependent items
-3. Before runtime dispatch, use polish when implementation slices still need
-   decomposition into work items.
+3. Hand an implementation-ready plan to the runtime without mandatory issue
+   decomposition. Use polish only for requested tracking or when the active
+   execution contract requires work items.
 
 ## Output
 

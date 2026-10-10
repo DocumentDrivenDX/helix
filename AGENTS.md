@@ -238,18 +238,20 @@ Pre-commit hooks must remain enabled. Do not use `--no-verify`.
 For new features or major work:
 
 1. `/helix design [scope]` — create the design document
-2. `/helix polish [scope]` — decompose the plan into implementable work items,
-   then refine them
-3. the runtime executes the work (for DDx, see `docs/install/ddx.md`)
+2. Author an implementation-ready plan with scope, ordered steps, acceptance
+   evidence, verification gates, and completion conditions.
+3. After explicit implementation authorization, the runtime executes the plan
+   through verified completion. Use polish only for explicitly selected tracking.
 
-Step 2 is mandatory. Without polish, agents encounter undecomposed epics
-during build and attempt ad-hoc decomposition, producing poor breakdowns.
+Do not discover tracker binaries merely because this repository has metadata.
+A coherent goal may run directly from its plan; independent scheduling or
+ownership may justify separate work items.
 
 ## Session Completion
 
-When ending a work session: file issues for remaining work, run the quality
-gates if content changed, update issue status, commit, and push. Work left
-uncommitted or unpushed is stranded.
+When ending a work session: record remaining steps and evidence in a compact
+continuation record; file issues only when tracking is explicitly selected. Run
+quality gates if content changed, update selected issue status, commit, and push.
 
 <!-- DDX-AGENTS:START -->
 <!-- Managed by ddx init / ddx update. Edit outside these markers. -->

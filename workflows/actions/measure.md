@@ -173,8 +173,7 @@ Be precise, quantitative, and evidence-driven.
 
 This appendix covers how a runtime realizes the measure action when a runtime
 work item governs the run. The reference paths below are runtime-neutral; for
-the concrete commands of a specific runtime, see its install guide (DDx:
-[docs/install/ddx.md](../../docs/install/ddx.md)).
+the concrete commands of a specific runtime, see its install guide.
 
 ### STEP 0 — Reference resolution
 
@@ -217,7 +216,7 @@ provides a notes field) as a `<measure-results>` block of this shape:
 ```
 
 The runtime supplies the work-item store; for the concrete commands see its
-install guide ([docs/install/ddx.md](../../docs/install/ddx.md) for DDx).
+install guide.
 
 ### Optional output trailer
 

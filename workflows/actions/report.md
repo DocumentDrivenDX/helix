@@ -138,8 +138,7 @@ Be precise, quantitative, and evidence-driven.
 
 This appendix covers how a runtime realizes the report action when a runtime
 work item governs the run. The reference paths below are runtime-neutral; for
-the concrete commands of a specific runtime, see its install guide (DDx:
-[docs/install/ddx.md](../../docs/install/ddx.md)).
+the concrete commands of a specific runtime, see its install guide.
 
 ### STEP 0 — Reference resolution
 

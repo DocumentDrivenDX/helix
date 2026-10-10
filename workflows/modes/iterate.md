@@ -49,11 +49,11 @@ Machinery).
    outcome and task IDs are unique within the plan (fully qualified as
    `<iteration-id>.<id>`).
 4. **Plan-owns-membership invariant**: the plan owns commitment membership —
-   task rows select existing work items by ID, and rows without one are the
-   source from which the runtime creates items (via `modes/runtime-handoff.md`),
-   back-referencing each new ID in the plan. The tracker owns live status
-   and execution history; the plan's Status column is planning-time state
-   only. Never turn the plan into the live tracker, and never let
+   task rows may execute directly from the plan after user authorization.
+   When tracking is explicitly selected, reference existing items or create
+   only the independently scheduled items needed, back-referencing their IDs.
+   The selected tracker owns live status and execution history; otherwise use
+   concise continuation evidence alongside the plan. Never let
    hand-added tracker items silently widen the plan — scope changes route
    back through the plan.
 5. Reporting (`status-report`): outcome status against the plan's IDs with

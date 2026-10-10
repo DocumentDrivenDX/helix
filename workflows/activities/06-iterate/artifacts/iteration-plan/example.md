@@ -49,12 +49,13 @@ roadmap order 2), WS-3 (reporting gated on matching)
 
 ## Tasks
 
-The plan owns membership; the tracker owns live state. Existing work items
-are selected by ID in the Work Item column; rows marked `—` are created by
-the runtime from this table and back-referenced here. Status records
-planning-time state and is not maintained after derivation. Workstream
-aliases come from the roadmap's registry; work items carry the alias as a
-label (`ws:WS-1`).
+The plan owns membership. This example uses an explicitly selected tracker;
+existing items are referenced by ID. A row with `—` may execute directly from
+the plan after authorization only when the selected runtime contract permits
+direct execution; worker-required claims cannot be bypassed. An empty ID alone
+does not select tracking or automatically create an item.
+The selected tracker owns live status; recovery evidence remains alongside
+the plan. Workstream aliases come from the roadmap registry.
 
 ### WS-1 · Data Intake — fixtures
 

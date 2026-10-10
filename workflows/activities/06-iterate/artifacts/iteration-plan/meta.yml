@@ -11,8 +11,7 @@ description: |
   one Good, one Better, and one Best outcome per participating workstream
   with owners and acceptance evidence, the trade rules that protect the goal
   under pressure (Best drops first, then Better; Good never), and stable-ID
-  task tables that select existing work items by ID or are the source from
-  which the runtime creates missing ones. The plan owns commitment
+  task tables that support direct execution or optionally selected tracker items. The plan owns commitment
   membership; the runtime's tracker owns live state. It is not the live
   tracker.
 
@@ -39,7 +38,7 @@ validation:
       description: Every committed outcome maps to at least one task row, so deriving work items from the task tables covers the whole commitment
       severity: blocking
     - check: tasks_identifiable
-      description: Every task row must carry a stable ID, unique within the plan (fully qualified as <iteration-id>.<task-id>), and either name an existing work item or be marked for creation
+      description: Every task row must carry a stable ID, unique within the plan (fully qualified as <iteration-id>.<task-id>), and allow direct plan execution or optionally reference a selected tracker item
       severity: blocking
     - check: goal_falsifiable
       description: The iteration goal must state what evidence at review makes the iteration a success

@@ -12,7 +12,19 @@ ddx:
     reviewed_at: "2026-10-04T03:52:23Z"
 ---
 
-# Release Notes — HELIX v0.15.2
+# Release Notes — HELIX v0.15.3
+
+## v0.15.3 — Plan-Driven Execution
+
+Implementation-ready plans now govern authorized execution through verified
+completion. Tracker decomposition is optional; independent ownership, scheduling,
+parallel work, and deferred follow-up may still use separate items. Portable
+prompts no longer point agents toward the optional DDx adapter or infer tracking
+from installed binaries or metadata. Existing artifact metadata remains compatible.
+
+Plan and iteration contracts include continuation evidence for interruption
+recovery. Explicit worker contracts retain their claims, audit, and closure rules.
+Contract regression checks cover authorization, recovery, and tracker opt-in.
 
 ## Release Scope
 

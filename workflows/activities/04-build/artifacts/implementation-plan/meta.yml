@@ -21,7 +21,9 @@ validation:
   required_sections:
     - scope
     - implementation_slices
-    - issue_decomposition
+    - execution_contract
+    - continuation_evidence
+    - exit_criteria
     - validation_plan
     - risks_and_rollbacks
 
@@ -31,7 +33,7 @@ validation:
       severity: warning
 
     - check: slices_bounded
-      description: Implementation slices should be small enough for independent execution and review
+      description: Implementation slices have bounded scope and are reviewable; separate work items are optional
       severity: blocking
     - check: validation_attached
       description: Each slice should name the validation or evidence required for completion
@@ -59,7 +61,7 @@ validation:
       severity: warning
     - check: review_issue_decomposition_follows_tracker_conventions
       description: >-
-        Issue decomposition follows tracker conventions (labels, spec-id, deps)
+        When tracking is explicitly selected, work items follow the selected runtime conventions
       severity: warning
     - check: review_quality_gates_specific_enforceable_not
       description: >-
