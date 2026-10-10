@@ -337,9 +337,10 @@ in the first text block: silent routing is allowed, unspoken routing is not.
 - Prefer the product unit (or methodology content that changes behavior) over
   process redesign. Do not skip real defect checks under cover of shipping
   faster.
-- Consult `workflows/references/work-item-first.md` when a user or runtime
-  requires tracker-backed execution; ordinary authoring and alignment do not
-  create tracker items by default.
+- Use `workflows/references/work-item-first.md` for plan-driven execution
+  handoff and optional tracking. An authorized implementation-ready plan is
+  sufficient scope; do not discover tracker tools from installed binaries or
+  artifact metadata. Load adapter guidance only when explicitly selected.
 - Do not silently start implementation when the request is planning,
   alignment, review, or routing; when the route is unclear, use `check`.
 - Preserve the authority hierarchy: vision, PRD, features/stories,

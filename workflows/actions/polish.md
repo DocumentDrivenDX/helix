@@ -1,14 +1,11 @@
 # HELIX Action: Polish Issues
 
-You are performing plan decomposition and iterative issue refinement before
-implementation begins.
+You are refining explicitly requested tracker work for execution.
 
-Your goal is to decompose design plans into implementable tracker work items and then
-improve relevant item quality as needed: deduplication,
-coverage verification against the plan, acceptance criteria sharpening,
-dependency correction, and convergence detection. This front-loaded investment
-prevents agents from running off to implement work that hasn't been properly
-broken down.
+An implementation-ready plan does not require polish or issue decomposition.
+When tracking is selected, prefer one item for a coherent goal; split only for
+independent scheduling, ownership, parallel execution, or deferred work. Refine
+acceptance criteria, dependencies, coverage, and duplicates within that scope.
 
 **Polish prepares requested work for execution.** Decompose a plan when asked or
 required by the runtime, then refine the resulting scoped items.
@@ -77,8 +74,10 @@ Decompose applicable implementation slices before refinement.
 3. If the requested plan has **not been decomposed**:
    a. Read the plan's "Implementation Plan with Dependency Ordering" section
       (or equivalent work breakdown).
-   b. Create one work item per implementable slice. Each item must:
-      - be individually completable in one build cycle
+   b. Prefer one work item governing the coherent plan. Split only for
+      independent scheduling, ownership, parallel execution, or deferred work.
+      Each item must:
+      - have a bounded, independently verifiable outcome
       - carry labels `helix` and `activity:build` plus area labels
       - set `spec-id` to the governing plan or design artifact
       - have deterministic acceptance criteria derived from the plan
@@ -88,8 +87,8 @@ Decompose applicable implementation slices before refinement.
       implementation tracks.
    d. Wire dependencies based on the plan's dependency graph.
 4. If the plan has been partially decomposed, create work items only for
-   uncovered implementation slices; explanatory sections do not each need an
-   item.
+   independently scheduled scope that needs tracking; uncovered plan steps
+   may remain inside an existing governing item.
 
 When decomposition was requested, complete or confirm it before refining the
 resulting work items.

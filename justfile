@@ -1,7 +1,7 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-modularity test-agent-diagnostics test-formal-methods test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable test-headline-sync test-deck-render test-demos test-innsigle test-eval-checks
+test: test-plan-execution test-modularity test-agent-diagnostics test-formal-methods test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable test-headline-sync test-deck-render test-demos test-innsigle test-eval-checks
 
 # Serve the HELIX microsite at the canonical local review URL.
 website-serve:
@@ -162,3 +162,7 @@ test-agent-diagnostics:
 # Exercise formal concern propagation and the packaged finite lease model.
 test-formal-methods:
     python3 tests/test_formal_methods.py
+
+# Plan execution and tracker opt-in contract regressions
+test-plan-execution:
+    python3 tests/test_plan_execution.py

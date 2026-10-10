@@ -1,12 +1,20 @@
 # Reference: Report Activity
 
 The report activity closes the feedback loop between the execution helix and the
-planning helix. It analyzes measurement results, creates follow-on work items for
-new work identified, and closes the governing work item with evidence.
+planning helix. It analyzes measurement results and reports evidence against
+the governing plan or explicitly selected work item. Follow-on tracker writes
+require explicit selection under `work-item-first.md`.
 
-## Per-Work-Item Report (Default)
+## Plan Report (Default)
 
-Every action's final activity is a per-work-item report. After measure completes:
+Report acceptance results, evidence, remaining steps, and blockers against the
+governing plan. Correct fixable failures within authorized scope and remeasure.
+Record outside-scope findings as recommendations; do not automatically file them.
+
+## Per-Work-Item Report (Explicit Tracking Only)
+
+The following procedure applies only when a selected runtime contract governs
+the action with a work item. After measure completes:
 
 ### 1. Analyze Measurement Results
 
@@ -19,7 +27,8 @@ Read the `<measure-results>` block from the work item's notes. Classify outcomes
 
 ### 2. Create Follow-On Work Items
 
-For each follow-on item, create a new work item carrying:
+Only when requested or required by the selected execution contract, create
+a follow-on work item carrying:
 
 - type `task` and labels `helix,activity:build`
 - a `spec-id` pointing at the governing artifact
@@ -27,7 +36,7 @@ For each follow-on item, create a new work item carrying:
 - testable acceptance criteria
 
 The runtime supplies the work-item store; for the concrete create command see
-its install guide ([docs/install/ddx.md](../../docs/install/ddx.md) for DDx).
+its install guide.
 
 Follow-on work items enter the planning helix — they will be refined by `/helix
 polish` before execution.

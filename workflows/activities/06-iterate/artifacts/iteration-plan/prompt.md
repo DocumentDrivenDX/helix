@@ -12,10 +12,10 @@ owners and acceptance evidence, deterministic trade rules, and stable-ID task
 tables.
 
 It is not the live tracker. The plan owns commitment membership: task rows
-select existing work items by ID where they exist, and rows without one are
-the source from which the runtime creates items, back-referencing each new
-ID in the plan. The runtime's tracker (work items, boards, issues) owns live
-status, assignment churn, and execution history. Scope changes route back
+may execute directly after user authorization. Only when tracking is explicitly
+selected do rows reference runtime items; an empty item ID does not require
+creation. The selected tracker owns live status and execution history; otherwise
+use compact continuation evidence alongside the plan. Scope changes route back
 through the plan — hand-added tracker items never silently widen the
 commitment.
 
@@ -84,4 +84,4 @@ Use this local resource summary as grounding:
 - Trade rules make the drop order deterministic (Best, then Better; Good
   never).
 - Every task has a stable ID, maps to a committed outcome, and names its
-  work item or is marked for creation.
+  optional work item, or explicitly uses direct plan execution.

@@ -29,24 +29,32 @@ its local/pre-commit/CI wiring; identify allowed/forbidden import controls.
 | [B-001] | [US-XXX or area] | [TP/TD refs] | None | [Command/evidence] | [Why first] |
 | [B-002] | [US-XXX or area] | [TP/TD refs] | [Dependency] | [Command/evidence] | [Why next] |
 
-## Issue Decomposition
+## Execution Contract
 
-Story-level work is tracked as work items in the runtime's work-item store.
+The user authorizes implementation separately from plan readiness. Execute the
+ordered slices through their verification gates and the goal's exit criteria.
+A slice is a reviewable change, not necessarily a separately scheduled issue.
+Stay within Scope; stop for authority conflicts, missing authorization, or
+concrete blockers requiring a decision. Ordinary debugging remains in scope.
 
-**Per-issue requirements**:
-- Labels: `helix`, `activity:build`, `kind:build`, `story:US-{story-id}`
-- References: user story, technical design, story test plan, this build plan
-- `spec-id` pointing at the nearest governing artifact
-- Blockers as dependency links
+## Continuation Evidence
 
-| Story / Area | Goal | Dependencies |
-|--------------|------|--------------|
-| [US-XXX] | [Outcome] | [Deps] |
+On interruption, record plan revision, completed slice IDs with evidence,
+remaining slices, decisions, blockers, and the next action alongside this plan.
+On resume, reconcile the record with the diff and tests before continuing.
+When tracking is explicitly selected, its store owns claims and live status.
+
+## Optional Tracking
+
+Use work items only when requested or required by the active execution contract.
+Prefer one item for this goal; split for independent scheduling, ownership,
+parallel execution, or deferred work. Follow the selected runtime's acceptance,
+dependency, audit, and closure requirements. Do not discover tracker binaries.
 
 ## Validation Plan
 
 - [ ] Failing tests exist before implementation starts
-- [ ] All required tests pass before closing a build issue
+- [ ] All required tests pass before reporting goal completion
 - [ ] Behavior changes update canonical documents
 - [ ] Code review is complete before activity exit
 
@@ -58,10 +66,15 @@ Story-level work is tracked as work items in the runtime's work-item store.
 
 ## Exit Criteria
 
-- [ ] Build issue set is defined with sequence and dependencies
-- [ ] Shared constraints are documented
-- [ ] Verification expectations are explicit
-- [ ] Runtime issues can be created from this plan without inventing scope
+Plan readiness requires defined scope, ordered slices, shared constraints, and
+explicit verification gates. These planning checks do not establish completion.
+Execution is complete only when:
+
+- [ ] [Observable implemented goal and its acceptance evidence]
+- [ ] Every required slice validation gate and the final integration gate pass.
+- [ ] Acceptance evidence is recorded; no required step or material blocker remains.
+- [ ] Required canonical documentation and review are complete.
+- [ ] Any explicitly selected runtime's audit and closure requirements are met.
 
 ## Diagnostic Evidence Sequencing (when applicable)
 

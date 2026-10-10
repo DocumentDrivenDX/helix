@@ -306,8 +306,7 @@ runtime's closure rules.
 
 This appendix covers how a runtime realizes the frame action. The reference
 paths and work-item acquisition below are runtime-neutral; for the concrete
-commands of a specific runtime, see its install guide (DDx:
-[docs/install/ddx.md](../../docs/install/ddx.md)).
+commands of a specific runtime, see its install guide.
 
 ### STEP 0 — Reference resolution
 
@@ -326,8 +325,7 @@ When tracker-backed framing applies, follow
 `workflows/references/work-item-first.md`: reuse an open item labelled
 `kind:planning,action:frame` or create one with labels
 `helix,kind:planning,action:frame`. The runtime supplies the work-item store;
-for the concrete commands see its install guide
-([docs/install/ddx.md](../../docs/install/ddx.md) for DDx).
+for the concrete commands see its install guide.
 
 ### Action input examples
 

@@ -1,7 +1,9 @@
 # Reference: Measure Activity
 
-The measure activity verifies results against a work item's acceptance criteria and
-records evidence on the work item. It runs as an embedded activity within every action
+The measure activity verifies results against the governing plan's acceptance
+criteria and records evidence alongside the plan. When tracking is explicitly
+selected, use the governing work item's criteria and evidence store instead.
+The work-item procedure below applies only to that selected tracking path. It runs as an embedded activity within every action
 and is also available as a standalone command.
 
 ## What Measure Checks
@@ -73,8 +75,7 @@ Measurement results are recorded on the work item's notes as a structured
 ```
 
 Write this block to the work item's notes through the runtime's work-item store; for
-the concrete command see its install guide
-([docs/install/ddx.md](../../docs/install/ddx.md) for DDx).
+the concrete command see its install guide.
 
 The `<measure-results>` block is machine-parseable. `helix report` reads it
 when analyzing results.

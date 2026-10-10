@@ -158,9 +158,11 @@ the rest of the routing table in the skill) and reach the runtime through
 
 ## Work-item acquisition (bead-first under DDx)
 
-The portable [bead-first reference](../../workflows/references/work-item-first.md)
-defines the runtime-neutral pattern: every action that modifies files is
-governed by a work item. Under DDx the concrete commands are:
+The portable [execution authority reference](../../workflows/references/work-item-first.md)
+defaults to authorized plan-driven execution. Direct implementation does not
+require a bead. Explicit DDx worker execution retains bead claims, acceptance
+criteria, and audit history. When tracker-backed execution is selected, the
+concrete commands are:
 
 ```bash
 # Search for an existing governing bead
