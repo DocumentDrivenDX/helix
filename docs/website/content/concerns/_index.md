@@ -103,6 +103,7 @@ Concerns are how HELIX answers "every project needs this kind of consistency" wi
 ## Data Governance
 
 {{< cards >}}
+  {{< card link="databricks-ai-gateway" title="Databricks AI Gateway (model access)" subtitle="api, infra" >}}
   {{< card link="unity-catalog" title="Unity Catalog (Databricks data governance)" subtitle="data, api, infra" >}}
 {{< /cards >}}
 
