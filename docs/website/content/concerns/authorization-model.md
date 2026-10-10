@@ -14,15 +14,12 @@ aliases:
 security
 
 Authorization is categorized as **security**, not architecture, because its
-defining failure is **Broken Access Control** — a principal performing an action
-or reading data they are not permitted to. OWASP ranks Broken Access Control as
-the #1 web application risk, and NIST treats access control as a core security
-function (SP 800-53 AC family; the RBAC standard INCITS 359; the ABAC guide
-SP 800-162). The *shape* of the model (RBAC vs ABAC vs ReBAC, and where the
-decision point sits) is a design decision, but the reason this concern exists
-and the property it must hold — *every privileged action and data return is
-authorized, deny-by-default* — is a confidentiality/integrity guarantee. The
-category reflects what review must protect.
+defining failure is **Broken Access Control** (OWASP's #1 web application
+risk) — a principal performing an action or reading data they are not
+permitted to. The *shape* of the model (RBAC vs ABAC vs ReBAC) is a design
+decision, but the property it must hold — *every privileged action and data
+return is authorized, deny-by-default* — is a confidentiality/integrity
+guarantee.
 
 ## Areas
 api
@@ -301,4 +298,4 @@ confirm or refute it against the diff and the running system.
 - A **negative authorization guard test** exists and ran green against the real
   enforcement path: an unauthorized principal calling a state-changing /
   data-returning handler is refused (403/404), not served the effect or the
-  data — ties to the it.39 guard-branch gate and the handler-authz defect family.
+  data.

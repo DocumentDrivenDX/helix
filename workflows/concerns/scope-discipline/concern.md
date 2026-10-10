@@ -122,5 +122,3 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - IMPLEMENTATION_PLAN: the scope boundary — what is in scope, and the explicit non-goals the change must not build
 - TEST_PLAN: no acceptance criterion is satisfied by a stubbed / placeholder path; incompleteness markers on AC-exercised code are a blocking finding
 - ADR: any recorded exception (explicitly phased placeholder, or requested scope reduction) and its reason
-
-## ADR References

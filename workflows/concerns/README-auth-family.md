@@ -1,6 +1,6 @@
 # Auth family — ownership table
 
-The auth family is a five-way cluster of concerns whose boundaries are easy to
+The auth family is a cluster of four concerns plus the auth-provider slot, whose boundaries are easy to
 restate and easy to confuse. Per ADR-006 (concern boundary lives once, in
 `concern.md`), each concern in the family states its own boundary in its own
 `concern.md`. This README is the **single ownership table** the family's

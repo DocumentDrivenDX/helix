@@ -133,8 +133,8 @@ how they stay in sync. Selecting CQRS without these changes is drift.
 - When the read model is **eventually consistent**, the system and its consumers
   are **designed for the staleness window**: there is no read-your-write
   guarantee across the read/write boundary, the UI accounts for acting on
-  possibly-stale reads, and the projection-update handlers are **idempotent**
-  (a published update may be delivered more than once).
+  possibly-stale reads, and projection updaters are idempotent (the rule
+  `event-sourcing` states when it is selected).
 
 ### Separate stores must be kept in sync — and that path is fallible
 
@@ -174,8 +174,8 @@ how they stay in sync. Selecting CQRS without these changes is drift.
   reflects a just-issued write immediately (read-your-write across the boundary)
   → design for the staleness window, or choose the synchronous consistency model
   and record that choice
-- A **non-idempotent projection updater** (double-applies an update event,
-  double-fires a side effect) → make read-model updates idempotent
+- A **non-idempotent projection updater** → apply `event-sourcing`'s
+  idempotent-application rule to the read model
 - **Anemic, field-mutation commands** (`SetXTo3`) instead of intent-bearing
   business-task commands → name commands for the business task
 - **CQRS applied across the whole system** / to thin-CRUD contexts that do not

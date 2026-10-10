@@ -44,8 +44,7 @@ language-runtime
 - All configuration is declared in one central `Config` struct (single package, e.g. `internal/config`) with typed fields, defaults, and a `Validate()` method (or `go-playground/validator` tags) that enforces required keys
 - `Config` is loaded and validated once in `main` and passed in explicitly; no `os.Getenv`/`os.LookupEnv` outside the config package, and no package-level config globals
 - Secrets use a redacting type (`String()`/`MarshalText` returns a mask) so they cannot leak through logs; invalid or missing config fails at startup, not at first use
-- Config is layered by owner per `twelve-factor`: ops-injected values (env vars, mounted files, secret manager) over a committed `config/<env>.yaml` over committed defaults (struct defaults plus `config/default.yaml`); ops-owned keys (hosts, credentials) are required with no default and never appear in committed files
-- Real environment variables take precedence over files; `.env` (via `godotenv`, dev only) is a local convenience, git-ignored, with a committed `.env.example` listing every variable (no secrets in it)
+- Config layering and `.env` rules follow `twelve-factor`; here `koanf` layers struct defaults, `config/default.yaml`, `config/<env>.yaml`, then environment (`godotenv` for dev-only `.env`)
 
 ## Lint Policy (golangci-lint baseline)
 
@@ -90,9 +89,8 @@ Agents working in any of these activities inherit the practices below through ru
 - Define interfaces in the consumer package; return concrete types where practical
 - Use minimal, consumer-driven interfaces
 - Guard shared state explicitly; prefer immutable data; use `errgroup` for concurrent work
-- Centralize configuration in one `Config` struct in `internal/config`, loaded once in `main` (`koanf` layers: struct defaults, `config/default.yaml`, `config/<env>.yaml`, then environment; ops-owned keys are required with no default); production relies on real env vars or the platform secret manager
+- Centralize configuration in one `Config` struct in `internal/config`, loaded once in `main`; layering per `twelve-factor` via `koanf` (struct defaults, `config/default.yaml`, `config/<env>.yaml`, then environment)
 - The config package reads `APP_ENV` via `os.LookupEnv` once, before building the `koanf` layers, to pick `config/<env>.yaml`; that one read is covered by the package's existing `forbidigo` exclusion
-- Commit `.env.example`; git-ignore `.env`
 - Embed version metadata: `Version`, `BuildTime`, `GitCommit` via `-ldflags`
 
 ## Implementation

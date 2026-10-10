@@ -47,7 +47,7 @@ the running implementation behaves like the model.
 
 ### Choose rigor per affected slice
 
-Record scope, risk, owner and one level in existing Project Concerns fields:
+Record scope, risk and one level in existing Project Concerns fields:
 
 | Level | Required evidence | Permitted claim |
 |---|---|---|
@@ -89,10 +89,10 @@ tests. Mark missing correspondence as a gap. Convert useful counterexamples
 into implementation regressions where applicable; derived tests supplement
 the implementation check, they do not prove refinement by themselves.
 
-Record source/config revision or digest, tool/version, exact command, property
-coverage, bounds, result and counterexamples. Changes to requirements, model,
-assumptions, configuration, tool version or mapped code invalidate affected
-evidence until reviewed and rechecked. Verification still requires its own
+Record exact command, tool version, the source revision it ran against, property coverage, bounds, result and counterexamples.
+Evidence is invalidated when the covered source or config changes, as do
+changes to requirements, model, assumptions, tool version or mapped code, until
+reviewed and rechecked. Verification still requires its own
 running-system evidence. Illustrative models carry no production assurance.
 
 ## Drift Signals (anti-patterns to reject in review)

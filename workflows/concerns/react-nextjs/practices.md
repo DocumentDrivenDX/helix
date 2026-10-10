@@ -13,8 +13,8 @@
   canonical owner of the shadcn/ui + Radix prescription (copy-not-install,
   customization, primitive selection). Compose `ux-radix` when this concern
   is selected for UI work.
-- Design tokens (colors, spacing, typography) in `tailwind.config.ts` — components reference tokens, not raw values
-- Forms: one Zod schema per entity in `@apogee/shared`, resolved via `@hookform/resolvers/zod`
+- Design tokens (colors, spacing, typography) in Tailwind 4 CSS-first `@theme` — components reference tokens, not raw values
+- Forms: one Zod schema per entity in the shared package, resolved via `@hookform/resolvers/zod`
 - Configuration: import the typed config from the shared `env.ts` (see `typescript-bun`); never read `process.env` directly in route handlers, Server Components, or actions (only the env modules do)
 - Data tables: TanStack React Table with column definitions typed against shared schemas
 - State management: server state via TanStack Query (when added), client state via Zustand (when added), form state via react-hook-form — no Redux
@@ -75,5 +75,5 @@
 - Accessible UI-primitive behavior (keyboard, focus, screen reader) is
   governed by the `ux-radix` concern — do not override Radix/shadcn handlers
   in ways that break the WAI-ARIA contract
-- Color contrast must meet WCAG AA (4.5:1 for normal text, 3:1 for large text)
+- Color contrast: see `a11y-wcag-aa`
 - Forms must associate labels with inputs and display validation errors accessibly

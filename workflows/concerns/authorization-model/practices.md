@@ -101,4 +101,4 @@ confirm or refute it against the diff and the running system.
 - A **negative authorization guard test** exists and ran green against the real
   enforcement path: an unauthorized principal calling a state-changing /
   data-returning handler is refused (403/404), not served the effect or the
-  data — ties to the it.39 guard-branch gate and the handler-authz defect family.
+  data.

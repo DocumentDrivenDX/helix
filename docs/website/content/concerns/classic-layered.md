@@ -54,6 +54,7 @@ data-access boundary**:
 - **`design-patterns-gof`** owns object-level collaboration patterns inside a
   layer; **`enterprise-integration-patterns`** owns between-system messaging.
   Classic-layered is the macro stacking rule across one deployable.
+- Enforcement of the import rules belongs to the `modularity-and-encapsulation` Boundary Check; this concern defines the rule only.
 
 ## Components
 
@@ -71,7 +72,8 @@ data-access boundary**:
   the layers above.
 - **(Optional) shared/cross-cutting layer** — logging, config, common types
   referenced by multiple layers. Kept thin to avoid becoming a dependency
-  sink.
+  sink. It must not become the generic shared-types
+  dumping ground that `modularity-and-encapsulation` rejects; that concern wins.
 
 ## Constraints
 

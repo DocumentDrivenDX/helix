@@ -16,6 +16,8 @@ or seams (`deployment-topology`), the per-process operational contract each
 deployable honors (`twelve-factor`), or the telemetry the deployables emit
 (`o11y-otel`).
 
+`k8s-kind` is the dev-workflow cluster; `e2e-kind` owns the ephemeral test cluster.
+
 ## Components
 
 - **Local cluster**: `kind` (Kubernetes in Docker) — NOT docker-compose

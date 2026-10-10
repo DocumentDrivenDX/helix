@@ -100,8 +100,9 @@ production assets — a **group**) who can grant/revoke on it.
 ## Constraints
 
 ### Every governed asset is registered and explicitly granted
-- All tables, views, volumes, models, and functions live in the
-  `catalog.schema.object` namespace under a Unity Catalog metastore — **no
+- All lakehouse tables, views, volumes, models, and functions live in the
+  `catalog.schema.object` namespace under a Unity Catalog metastore (Lakebase
+  Postgres state that `databricks-apps` permits is outside this rule) — **no
   unmanaged or anonymous data access** (no legacy Hive-metastore / no-isolation
   tables, no DBFS mounts standing in for governed data).
 - Access is granted **explicitly** via the privilege model; there is no implicit
@@ -135,7 +136,8 @@ production assets — a **group**) who can grant/revoke on it.
 - Unity Catalog grants are the **data-layer** control and compose with — never
   substitute for — application-layer authentication/authorization
   (`security-owasp`). An app reading lakehouse data does so **through** Unity
-  Catalog (see `databricks-apps`), not around it.
+  Catalog grants, not around them; this concern owns that rule and
+  `databricks-apps` cites it.
 
 ## Drift Signals (anti-patterns to reject in review)
 
@@ -215,8 +217,8 @@ ownership table at [README-auth-family.md](../readme-auth-family/).
 - Design grants as **group-based, least-privilege**: list `USE CATALOG` /
   `USE SCHEMA` plus the specific data privilege (`SELECT`, `MODIFY`,
   `READ VOLUME`, `EXECUTE`, …) each consumer group needs.
-- Design **production ownership** as group ownership, and production job/app
-  identity as a **service principal**.
+- Design **production ownership** as group ownership, and production job
+  identity as a **service principal** (app runtime identity: `databricks-apps`).
 - Where row-/column-level access differs by audience, design **row filters** and
   **column masks** instead of forked data copies.
 
@@ -230,7 +232,7 @@ ownership table at [README-auth-family.md](../readme-auth-family/).
 - Create external tables/volumes **beneath** a governed external location, never
   at its root.
 - Assign **group ownership** to production catalogs/schemas; run production jobs
-  and apps under a **service principal**.
+  under a **service principal** (app runtime identity: `databricks-apps`).
 - Apply **row filters** / **column masks** for fine-grained access.
 - Let consuming pipelines and apps read through the catalog — no hardcoded cloud
   paths or embedded credentials that bypass grants.
@@ -255,7 +257,7 @@ ownership table at [README-auth-family.md](../readme-auth-family/).
 - Access is granted **explicitly** and **to groups** (not individual users),
   least-privilege (no reflexive `ALL PRIVILEGES`); verified by a **negative
   control** — an ungranted principal is denied.
-- **Production** catalogs/schemas are **group-owned** and production jobs/apps
+- **Production** catalogs/schemas are **group-owned** and production jobs
   run under a **service principal**, not a personal identity.
 - External data is reached through a governed **external location** (+ storage
   credential), not a DBFS mount or raw cloud path; nothing is created at an

@@ -90,8 +90,9 @@ production assets — a **group**) who can grant/revoke on it.
 ## Constraints
 
 ### Every governed asset is registered and explicitly granted
-- All tables, views, volumes, models, and functions live in the
-  `catalog.schema.object` namespace under a Unity Catalog metastore — **no
+- All lakehouse tables, views, volumes, models, and functions live in the
+  `catalog.schema.object` namespace under a Unity Catalog metastore (Lakebase
+  Postgres state that `databricks-apps` permits is outside this rule) — **no
   unmanaged or anonymous data access** (no legacy Hive-metastore / no-isolation
   tables, no DBFS mounts standing in for governed data).
 - Access is granted **explicitly** via the privilege model; there is no implicit
@@ -125,7 +126,8 @@ production assets — a **group**) who can grant/revoke on it.
 - Unity Catalog grants are the **data-layer** control and compose with — never
   substitute for — application-layer authentication/authorization
   (`security-owasp`). An app reading lakehouse data does so **through** Unity
-  Catalog (see `databricks-apps`), not around it.
+  Catalog grants, not around them; this concern owns that rule and
+  `databricks-apps` cites it.
 
 ## Drift Signals (anti-patterns to reject in review)
 

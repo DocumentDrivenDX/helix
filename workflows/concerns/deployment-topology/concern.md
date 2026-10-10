@@ -19,7 +19,7 @@ single non-exclusive decision-guide concern with a strong default
 decision, and the alternatives differ in *how many deployables and when to
 split*, not in distinct rich vocabularies. Four neighbors must stay distinct:
 
-- **`onion-architecture` / `architecture-style`** owns the **internal layering
+- **The selected `architecture-style` filler** owns the **internal layering
   and dependency direction of ONE deployable** — which way source-code
   dependencies point inside a single buildable unit. Deployment-topology owns
   **how many deployables there are and where the seams between them fall**. They
@@ -141,7 +141,7 @@ split*, not in distinct rich vocabularies. Four neighbors must stay distinct:
   encoding) that hits execution-time limits, and workloads needing persistent
   connections (e.g. WebSockets against short function timeouts). The real
   lock-in risk is the **surrounding managed services (data, queues), not the
-  function code** — isolate provider SDKs behind a port (`onion-architecture`).
+  function code** — isolate provider SDKs behind a port (the selected `architecture-style` filler).
 
 ## Drift Signals (anti-patterns to reject in review)
 

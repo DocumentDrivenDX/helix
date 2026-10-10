@@ -132,9 +132,9 @@ sleep 3  # wait for Claude to initialize
 tmux send-keys -t "$SESSION" "I want to build a CLI that converts temperatures. Use /helix frame to get started." Enter
 sleep 30  # wait for Claude to complete framing
 
-# ACT 2: Drain the queue
-tmux send-keys -t "$SESSION" "/helix run" Enter
-sleep 60  # wait for build cycle
+# ACT 2: Design
+tmux send-keys -t "$SESSION" "/helix design" Enter
+sleep 60  # let the design pass run
 
 # ACT 3: Verify
 tmux send-keys -t "$SESSION" "Show me the test results and the final code." Enter
@@ -157,7 +157,7 @@ wait "$ASCIINEMA_PID" || true
   for completion markers if possible.
 - **Show the conversation**: The viewer should see both the human prompt
   and Claude's response. This is the natural tmux capture behavior.
-- **Use slash commands**: Show `/helix run`, `/helix review`, etc. as the
+- **Use slash commands**: Show `/helix design`, `/helix review`, etc. as the
   primary interaction — this is how users will actually invoke HELIX.
 - **Natural language too**: Show at least one natural-language prompt
   ("add OAuth support") to demonstrate that Claude understands context
@@ -308,7 +308,7 @@ file, which is the supported mechanism.
 
 ## Microsite Embedding
 
-Use the `asciinema` Hugo shortcode (see `hugo-hextra` concern):
+Use an `asciinema` Hugo shortcode (the project creates it; HELIX's `website/layouts` does not ship one; see `hugo-hextra` concern):
 
 ```markdown
 {{</* asciinema src="demo-name" cols="100" rows="30" */>}}
@@ -337,7 +337,7 @@ Copy the `.cast` file to `website/static/demos/` after recording.
 3. Review the cast file: `asciinema play recordings/<file>.cast`
 4. Generate GIF: `agg recordings/<file>.cast recordings/<file>.gif`
 5. Copy cast to microsite: `cp recordings/<file>.cast website/static/demos/`
-6. Embed in content with `asciinema` shortcode
+6. Embed in content with the project's `asciinema` shortcode
 
 Steps 1-2 are fully autonomous and can be run by an agent with access to
 the user's home directory. Steps 3-6 are post-processing that can also

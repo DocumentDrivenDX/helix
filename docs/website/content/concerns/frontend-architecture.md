@@ -182,8 +182,7 @@ their rules:
 - These states are modeled as a **status** (a discriminated union, or the query
   layer's `isLoading`/`isError`/`data`), not as ad-hoc boolean flags that can
   represent impossible combinations. (How each state *looks* and is keyboard-
-  reachable is `ux-radix`'s; that the branch *exists* is this concern's, and it
-  ties to the it.39 guard-branch discipline.)
+  reachable is `ux-radix`'s; that the branch *exists* is this concern's.)
 
 ## Drift Signals (anti-patterns to reject in review)
 
@@ -212,7 +211,7 @@ their rules:
   shared schema, reuse on both sides
 - An async view that renders only the happy path (no loading, no empty, no
   error branch) → render all four states; a silent blank or a thrown error to
-  the user is a defect (it.39 guard branches)
+  the user is a defect
 - Loading/error tracked with scattered booleans that allow impossible combos
   (e.g. `loading && error && data`) → model state as a status / discriminated
   union
@@ -374,8 +373,7 @@ Decide per route from the signals, and record the decision:
 - Each async view branches on its status and renders the matching surface:
   loading → skeleton/spinner; empty → empty-state surface; error → error surface
   with a retry/way-forward; success → the data. The four branches are present in
-  the code, not just the success branch. This is the it.39 guard-branch
-  discipline applied to data views.
+  the code, not just the success branch.
 
 ## Testing
 
@@ -401,7 +399,7 @@ Decide per route from the signals, and record the decision:
 - **No hand-rolled fetch-into-`useState`-with-loading-boolean** for shared
   remote data — the server-state layer owns caching/loading/error/refetch.
 - **Every async view renders loading / empty / error / success** — not just the
-  happy state (ties to it.39 guard branches). The error branch offers a way
+  happy state. The error branch offers a way
   forward; the empty branch is explicit, not a blank container.
 - **Async state is modeled as a status / discriminated union**, not scattered
   booleans that permit impossible combinations (`loading && error && data`).

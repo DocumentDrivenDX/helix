@@ -2,10 +2,10 @@
 
 These practices govern **what the domain model is** — its language, boundaries,
 and behavior-rich building blocks. They do **not** govern how the model is
-layered into the codebase (that is `onion-architecture`), nor the reusable
+layered into the codebase (that is the selected `architecture-style` filler), nor the reusable
 object/integration mechanics that may implement a role (`design-patterns-gof`,
 `enterprise-integration-patterns`). When a rule below references layering, defer
-to onion for the *how*; this concern asserts the *what*.
+to the filler for the *how*; this concern asserts the *what*.
 
 ## Discover
 
@@ -61,7 +61,7 @@ to onion for the *how*; this concern asserts the *what*.
   repository boundary into the domain.
 - The model is expressed in the **ubiquitous language**, not in storage terms;
   persistence conforms to the model, not the reverse. (The dependency-inversion
-  mechanism that makes this hold is `onion-architecture`'s practice.)
+  mechanism that makes this hold is the selected `architecture-style` filler's practice.)
 - Every true invariant is checked **inside the aggregate**, in the domain layer
   — **not** in a controller, request handler, route, or application service, and
   **not** delegated to a database constraint as the sole guard.
@@ -94,7 +94,7 @@ to onion for the *how*; this concern asserts the *what*.
 ### Boundary with neighbors
 
 - For **layering** (where domain/application/infrastructure live, the dependency
-  rule, who defines the repository interface) defer to `onion-architecture`; do
+  rule, who defines the repository interface) defer to the selected `architecture-style` filler; do
   not restate it here.
 - A DDD **Factory** / **Domain Event** is a domain role; the GoF mechanic or the
   messaging transport that implements it belongs to `design-patterns-gof` /

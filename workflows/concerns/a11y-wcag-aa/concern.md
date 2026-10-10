@@ -1,4 +1,4 @@
-# Concern: Accessibility (WCAG 2.1 AA)
+# Concern: Accessibility (WCAG 2.2 AA)
 
 ## Category
 accessibility
@@ -8,9 +8,10 @@ ui, frontend
 
 ## Components
 
-- **Standard**: WCAG 2.1 Level AA
+- **Standard**: WCAG 2.2 Level AA
 - **Testing**: axe-core automated checks + manual screen reader testing
 - **Scope**: All user-facing interfaces
+- **Boundary**: `a11y-wcag-aa` owns the accessibility checks; `ux-radix` owns the widgets.
 
 ## Constraints
 
@@ -29,6 +30,6 @@ consumer-facing products.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: target WCAG 2.1 AA standard + axe-core + manual screen-reader testing
+- ADR: target WCAG 2.2 AA standard + axe-core + manual screen-reader testing
 - DESIGN_SYSTEM: keyboard-navigable controls, AA contrast ratios, focus management, labeled inputs
 - TEST_PLAN: axe-core automated checks + manual screen-reader passes
