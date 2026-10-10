@@ -1,7 +1,7 @@
 ---
-title: "Release Notes — HELIX v0.15.1"
+title: "Release Notes — HELIX v0.15.2"
 slug: release-notes
-weight: 520
+weight: 530
 activity: "Deploy"
 source: "05-deploy/release-notes.md"
 generated: true
@@ -25,108 +25,85 @@ ddx:
     reviewed_at: "2026-10-04T03:52:23Z"
 ```
 
-# Release Notes — HELIX v0.15.1
+# Release Notes — HELIX v0.15.2
 
 ## Release Scope
 
-- Release identifier: `v0.15.1`
+- Release identifier: `v0.15.2`
 - Release date: 2026-10-09
-- Previous release: `v0.15.0` (2026-10-04)
-- Scope: HELIX routing skill, concern and artifact catalog, generated plugin
-  packages, Databricks Genie bundle, and public reference website.
-- Release owner: HELIX maintainer; the approved release pull request triggers
-  the existing auto-tag and publication workflows.
+- Previous release: `v0.15.1`
+- Scope: OpenTelemetry concern, agent diagnostics guidance, artifact catalog,
+  routing mode contracts, generated plugin/Genie bundles and public references.
+- Release owner: HELIX maintainer; the release pull request triggers the
+  existing auto-tag and publication workflows.
 
 ## Audience and Channels
 
 | Audience | Impact | Channel |
 |----------|--------|---------|
-| HELIX users | Explicit module boundaries, configuration ownership and code-shape guidance | Versioned plugin and concern catalog |
-| Runtime integrators | Source feature readiness includes boundary adoption and verification evidence | Mode contracts and concern practices |
-| Website readers | New concerns and principle documents, refreshed artifact references | Public website |
+| HELIX users | Safe persistent diagnostics and quieter consoles | Versioned concern catalog and plugin |
+| Runtime integrators | Explicit capture, retrieval and evidence obligations | Mode contracts and diagnostic reference |
+| Website readers | Aligned artifact guidance | Public reference website |
 
 ## Highlights
 
-- **Modularity and encapsulation from the start.** Every project with handwritten
-  source, including libraries, selects the baseline at every autonomy level.
-  Architecture records module/type ownership, public APIs, allowed and forbidden
-  dependencies, integration owners, construction policy, and a boundary-check
-  command. Dependent feature work requires adoption; bounded adoption work may
-  establish those prerequisites. Architectural style remains selectable.
-- **Central configuration with explicit owners.** Python, TypeScript, Rust, Go
-  and Scala concerns require a typed configuration boundary and startup
-  validation. Guidance distinguishes operator-injected settings, non-secret
-  environment files, and defaults. Next.js environment-module access and
-  Databricks bundle-managed non-secret configuration have explicit exceptions.
-- **Code shape ceilings.** The new composable concern sets strict greenfield
-  size/complexity defaults, editing-time and pre-commit checks, and a ratchet
-  that prevents ceilings from rising to accommodate oversized code.
-- **Principles made explicit.** New documents explain evidence over confidence,
-  human authority and agent autonomy, linked artifacts, intent over inference,
-  and feedback from execution.
+- OpenTelemetry governs the existing `o11y-otel` concern across applicable
+  service, CLI, CI and agent workflows. Projects own exact schemas and mappings
+  in Contracts; valid trace context remains optional and separate from run IDs.
+- Agent diagnostics use runner-owned local evidence, quiet console projections,
+  pre-sink privacy controls, bounded retrieval and explicit capture-loss state.
+- Architecture, design, test, monitoring and runbook guidance assigns diagnostic
+  responsibilities and requires real receiver evidence for claimed integrations.
 
 ## Required Actions Summary
 
-- Users: update to `v0.15.1`. Source projects adopt the modularity baseline
-  explicitly before dependent feature work. Source-free work records a reason
-  for non-applicability; existing selections are not silently overwritten.
-- Runtime integrators: propagate boundary evidence and project-local checker
-  requirements through Design, Polish, Check, review and runtime handoff.
-- Operators: follow owner-layered configuration and selected code-shape concern
-  practices when creating or updating source projects.
+- Users: update to `v0.15.2`; apply the relevant sections when `o11y-otel` is selected.
+- Runtime integrators: preserve safe run/attempt evidence and capture limits in
+  execution closeout; implement the project-owned Contract before claiming readiness.
+- Operators: choose collection, access and retention policies for the deployment target.
 
 ## Changes and Fixes
 
 | Area | Change | Effect |
 |------|--------|--------|
-| Concerns | Modularity baseline and code-shape ceilings | Ownership, encapsulation, dependency rules and size limits become explicit |
-| Configuration | Central typed config and owner-layered sources across language concerns | Environment reads and vendor configuration stop spreading through application logic |
-| Design and Build | Boundary evidence in templates, plans, review and gates | Work is checked before it is declared execution-ready |
-| Instance validation | Populated boundary evidence checked when the section is present | Empty fields, noncanonical heading variants and duplicate boundary sections fail |
-| Regression coverage | Boundary fixtures and allowed/forbidden import controls run locally and in CI | Structure checks and actual project-checker demonstrations remain distinct |
-| Documentation | New principle documents and regenerated projections | Published guidance agrees with the source catalog |
+| Observability | Expanded OTel concern and diagnostic reference | Local evidence and operational telemetry share explicit semantics |
+| Artifact catalog | Conditional diagnostic sections and review criteria | Shared interfaces stay in Contracts; local wiring stays in technical designs |
+| Monitoring action | Removed mandatory trace ID and competing field list | Untraced events remain valid and follow the governing mapping |
+| Verification | Executable bounded-query examples and alignment regression | Query truncation, source references and malformed-input behavior are checked |
+| Deck test runner | Explicit Node test file path | Supported Node runtimes execute the existing test suite |
 
 ## Breaking Changes and Required Actions
 
-No artifact-format or installation breaking change. Legacy Architecture instances
-without Module Boundaries remain structurally valid. Current source feature
-readiness has a new evidence obligation: explicitly adopt the baseline and
-boundary checks. Tiny programs may use a one-row map; classic-layered projects
-retain deliberate concrete data-access coupling and local construction.
-
-Configuration and code-shape practices apply when their concerns are selected.
-Existing code-shape adoption records current ceilings and tightens them as code
-is split. Existing dependency debt is individually inventoried; baselines must
-not be widened to hide new violations. Scoped exceptions require authority,
-owner, rationale, alternative verification and a review/removal trigger.
+No installation or artifact-format breaking changes. Existing concern selections
+are preserved. Selected practices add evidence obligations according to project
+applicability; they do not mandate a new telemetry backend or collector sidecar.
 
 ## Migration or Rollback Guidance
 
-1. Update the plugin or install a bundle from `v0.15.1`.
-2. For source projects, record baseline applicability and schedule bounded
-   adoption work for module maps and stack-appropriate dependency checks.
-3. Apply selected configuration/code-shape practices and verify their local,
-   pre-commit and CI commands.
+1. Update the plugin or bundle to `v0.15.2`.
+2. Record applicable diagnostic practices and adopt exact mappings, capture and
+   query rules in the project Contract.
+3. Run the adopting-project pilot with a real OTel receiver before claiming
+   integration readiness; preserve receiver output and measured results.
 
-To roll back the plugin, pin `v0.15.0`. Keep project-owned boundary decisions and
-adoption evidence; changing plugin versions does not remove them.
+To roll back the plugin, pin `v0.15.1`. Preserve project-owned diagnostic Contracts
+and evidence; changing plugin versions does not remove those decisions.
 
 ## Known Issues and Support
 
-- Structural validation proves populated evidence, not semantic correctness.
-  Review must assess invariants, visibility, type leakage and dependency direction;
-  adopting projects supply the actual import checker.
-- The small Python import fixture demonstrates negative controls; it is not a
-  comprehensive language dependency analyzer.
-- Repository-history citation warnings remain advisory.
+- HELIX content tests do not execute an adopting project's OTel integration.
+  The documented receiver and agent investigation pilot remains project-owned.
+- Metadata quality checks are instructional review criteria, not automated
+  semantic validation of a project's diagnostic system.
+- GenAI conventions remain evolving and require a pinned revision and migration policy.
 
 Support: open an issue in the HELIX repository.
 
 ## References
 
 - Deployment checklist: [deployment-checklist.md](/artifacts/deployment-checklist/)
-- Modularity concern: `workflows/concerns/modularity-and-encapsulation/`
-- Code-shape concern: `workflows/concerns/code-shape-ceilings/`
-- Selection and adoption: `workflows/references/concern-resolution.md`
+- Diagnostic design: [design-agent-diagnostics.md](/artifacts/design-agent-diagnostics/)
+- Diagnostic reference: `workflows/references/agent-diagnostics.md`
+- OTel concern: `workflows/concerns/o11y-otel/`
 - Release automation: `.github/workflows/release-tag.yml`
 - Version guard: `.github/workflows/release-version-guard.yml`

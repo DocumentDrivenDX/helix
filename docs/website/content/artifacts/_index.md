@@ -27,6 +27,7 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 
 - [Architecture](/artifacts/architecture/)
 - [Data Design — HELIX Bead Tracker](/artifacts/data-design/)
+- [Design: Agent Diagnostics with OpenTelemetry](/artifacts/design-agent-diagnostics/)
 - [Desired-state authoring: goal and approach](/artifacts/design-desired-state-authoring/)
 - [Security Architecture — DDx Agent Execution Surface](/artifacts/security-architecture/)
 - [adr](/artifacts/adr/) _(13 items)_
@@ -48,7 +49,7 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 ## Deploy
 
 - [Deployment Checklist — HELIX Plugin and Website Release](/artifacts/deployment-checklist/)
-- [Release Notes — HELIX v0.15.1](/artifacts/release-notes/)
+- [Release Notes — HELIX v0.15.2](/artifacts/release-notes/)
 
 ## Iterate
 

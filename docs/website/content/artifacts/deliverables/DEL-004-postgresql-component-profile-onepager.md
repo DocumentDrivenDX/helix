@@ -1,7 +1,7 @@
 ---
 title: "PostgreSQL as DepositMatch's system of record"
 slug: DEL-004-postgresql-component-profile-onepager
-weight: 560
+weight: 570
 activity: "Iterate"
 source: "06-iterate/deliverables/DEL-004-postgresql-component-profile-onepager.md"
 generated: true
