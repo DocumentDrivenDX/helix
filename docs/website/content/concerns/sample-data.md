@@ -60,6 +60,8 @@ decides what a test asserts. Keep them separate.
   **stable locale/config**, a **pinned dependency version**, and a
   **deterministic generation order** — not by the choice of library. Re-running
   the seed script with the same seed must produce the same dataset.
+- Zero rows is the absence of seed data, not a seeded state; empty child
+  collections of a seeded parent are seeded states.
 - Record or print the seed so a dataset can be reproduced exactly.
 
 ### Generate varied shapes and schema-relevant edge cases
@@ -67,8 +69,7 @@ decides what a test asserts. Keep them separate.
 - Generate **varied** data — not N copies of one row. Vary string lengths,
   optional-field presence, value ranges, and timestamps.
 - Cover **schema/domain-relevant edge cases** so every UI state renders:
-  **empty** (zero rows / empty collections), **long** (long strings, long
-  lists), **large** (big numbers, large counts), **boundary** (min/max,
+  **long** (long strings, long lists), **large** (big numbers, large counts), **boundary** (min/max,
   just-over/just-under limits), and **all status/enum variants**.
 - Edge cases are **bounded by default, not invalid-by-reflex** — generate the
   realistic boundaries the schema and domain allow, not malformed data the
@@ -93,10 +94,8 @@ decides what a test asserts. Keep them separate.
 ## Drift Signals (anti-patterns to reject in review)
 
 - A couple of thin, hardcoded, uniform rows as the only seed data → generate a
-  varied dataset via the semantic faker plus curated edge-case records
-- No semantic faker dependency for a data-backed product → add the tech stack's
-  named default (`@faker-js/faker`, `Faker`, `fake`, …)
-- Seed data with no edge cases (no empty / long / large / boundary / all-status
+  varied dataset (a semantic faker is one option) plus curated edge-case records
+- Seed data with no edge cases (no long / large / boundary / all-status
   coverage) → add schema-relevant edge cases so every UI state renders
 - Nondeterministic seed generation (no explicit seed, unstable locale, unpinned
   faker version, unordered generation) → make it reproducible

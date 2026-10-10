@@ -36,13 +36,13 @@ patterns that operate the message flow. Three neighbors must stay distinct:
   invariant it reconciles; EIP decides the channel, the delivery guarantee, and
   the wire shape. Do **not** restate aggregate/invariant/eventual-consistency
   modeling rules here.
-- **`onion-architecture`** owns the **layering within one deployable** —
+- **The selected `architecture-style` filler** owns the **layering within one deployable** —
   dependencies point inward, infrastructure is the outer ring. Messaging
   clients, channel adapters, gateways, and consumers are **outer-ring code**
-  under Onion's dependency rule: the inner layers declare the port (a publish
+  under the selected `architecture-style` filler's dependency rule: the inner layers declare the port (a publish
   or a handle-message interface in domain terms), and the EIP adapter in the
   outer ring implements it against the broker. EIP says *what* that adapter is
-  (a Messaging Gateway, an Idempotent Receiver); Onion says *where it sits and
+  (a Messaging Gateway, an Idempotent Receiver); the architecture style says *where it sits and
   which way it depends*. Do **not** restate the dependency rule here.
 - **`design-patterns-gof`** owns **intra-process object collaboration** —
   factory, strategy, observer, and the rest, all inside one address space. EIP
@@ -187,7 +187,7 @@ roll back together).
 ### The app is shielded from the broker
 - Application/domain code talks to a **Messaging Gateway** (a domain-shaped
   interface), not to the broker SDK directly. The broker is an outer-ring detail
-  (`onion-architecture`); swapping SQS for Kafka must not ripple into the domain.
+  (the selected `architecture-style` filler); swapping SQS for Kafka must not ripple into the domain.
 
 ### Endpoints are the right type for the message
 - **Command / Document / Event** messages are chosen deliberately: a command
@@ -205,7 +205,7 @@ roll back together).
 - Messages with no correlation/trace id, so a flow cannot be reconstructed
   across hops → add a **Correlation Identifier**
 - Domain/application code importing the broker SDK directly → hide it behind a
-  **Messaging Gateway** (outer-ring adapter under `onion-architecture`)
+  **Messaging Gateway** (outer-ring adapter under the selected `architecture-style` filler)
 - A GoF Observer / in-process event bus standing in for cross-system
   integration → use a real **Message Channel** with explicit delivery semantics
 - A sender that hardcodes which consumers receive its messages → move the
@@ -237,7 +237,7 @@ integration boundary.
 It is composable (no slot); `areas: api, infra` scopes its practices to the
 service and infrastructure work items where messaging lives. Compose with
 **`domain-driven-design`** (which decides the domain events/facts the messages
-carry), **`onion-architecture`** (under which messaging adapters are outer-ring
+carry), the selected **`architecture-style`** filler (under which messaging adapters are outer-ring
 code), the tech-stack concern (which fixes the broker client/library), and
 `o11y-otel` (which carries the correlation id into traces).
 
@@ -264,7 +264,7 @@ These practices govern **asynchronous messaging and cross-system integration** �
 the channels, message shapes, routers, transformers, endpoints, and operational
 patterns that carry information across a system or context boundary. They do not
 govern in-process domain modeling (`domain-driven-design`), codebase layering
-(`onion-architecture`), or intra-process object patterns (`design-patterns-gof`);
+(the selected `architecture-style` filler), or intra-process object patterns (`design-patterns-gof`);
 they reference those concerns at the seam and stay on the wire.
 
 ## Design
@@ -293,7 +293,7 @@ they reference those concerns at the seam and stay on the wire.
 
 - Hide the broker behind a **Messaging Gateway**: domain/application code calls a
   domain-shaped publish/handle interface, never the broker SDK directly. The
-  concrete client is an outer-ring adapter (`onion-architecture`).
+  concrete client is an outer-ring adapter (the selected `architecture-style` filler).
 - Put routing in **routers** (Content-Based Router, Message Filter, Recipient
   List), not in the sender. The sender publishes to a channel; it does not know
   its consumers.
@@ -352,7 +352,7 @@ they reference those concerns at the seam and stay on the wire.
 ## Boundary with neighbors
 
 See `concern.md` for the canonical Boundary (vs `domain-driven-design`,
-`onion-architecture`, `design-patterns-gof`). EIP owns the at-least-once
+the selected `architecture-style` filler, `design-patterns-gof`). EIP owns the at-least-once
 channel-delivery model that *causes* the redelivery downstream consumers must
 absorb — `concurrency-model` (in-process workers), `event-sourcing` (event
 handlers), and `cqrs` (projection updaters) each apply the resulting

@@ -170,7 +170,8 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - ADR: dataset shape (streaming-table vs materialized-view), expectation policy (warn/drop/fail), CDC strategy
 - TD: declarative datasets + framework-managed DAG/incremental; AUTO CDC / APPLY CHANGES; dev vs prod modes
 - DATA_DESIGN: published streaming tables/materialized views landing in a governed catalog.schema
-- TEST_PLAN: per-dataset data-quality expectations + transformation-logic unit tests
+- data-quality-expectations: per-dataset expectations
+- TEST_PLAN: transformation-logic unit tests
 
 ## ADR References
 

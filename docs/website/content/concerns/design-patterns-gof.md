@@ -34,7 +34,7 @@ messaging. Three neighbors must stay distinct:
   delivered via Observer). Name the GoF mechanic; leave the domain semantics to
   DDD. A GoF pattern is never a reason to introduce a domain concept that the
   ubiquitous language does not name.
-- **`onion-architecture`** owns the **macro arrangement** — which layer code
+- **The selected `architecture-style` filler** owns the **macro arrangement** — which layer code
   lives in and the dependency rule (dependencies point inward). GoF operates
   **within a layer**, not as the application's architecture: Strategy or
   Decorator is a class-level collaboration inside one layer, not a substitute for
@@ -115,7 +115,7 @@ The 23 GoF patterns group into three families. Each is a named solution to a
 - GoF supplies **implementation-level** vocabulary. When the construct carries
   business meaning, name the **domain role** (`domain-driven-design`) and let GoF
   describe only the mechanic. When it concerns which layer code lives in, that is
-  `onion-architecture`. When it crosses a process/system boundary, that is
+  the selected `architecture-style` filler. When it crosses a process/system boundary, that is
   `enterprise-integration-patterns`. Do not stretch a GoF pattern to cover any of
   the three.
 
@@ -139,7 +139,7 @@ The 23 GoF patterns group into three families. Each is a named solution to a
 - A GoF pattern standing in for the **domain model** (inventing a concept the
   ubiquitous language does not name) → that is `domain-driven-design`'s lane
 - A GoF pattern promoted to the application's **architecture / layering** → that
-  is `onion-architecture`'s lane; keep GoF within a layer
+  is the selected `architecture-style` filler's lane; keep GoF within a layer
 - A GoF Mediator/Adapter spanning **separate systems / processes** → that is
   `enterprise-integration-patterns`' lane
 - **Singleton** used as ambient global state (reached for statically, not
@@ -159,7 +159,7 @@ adapter/anti-corruption seam, an undoable command surface). It is a
 position); `areas: api, data` scopes its practices to the implementation layers
 where OO collaboration lives. Compose it with the tech-stack concern (which fixes
 the language idioms), with `domain-driven-design` (which supplies domain
-semantics for the roles GoF implements), and with `onion-architecture` (which
+semantics for the roles GoF implements), and with the selected `architecture-style` filler (which
 arranges those objects into layers).
 
 Do **not** select it for **thin CRUD** surfaces, glue scripts, configuration, or
@@ -169,7 +169,7 @@ answer and naming a pattern only adds indirection.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: each pattern introduced against a named recurring problem + recorded intent
+- Each pattern introduced: a named recurring problem + recorded intent in a code comment or the PR
 - TD: the pattern and the variability/duplication it absorbs at the collaboration point
 
 ## Practices by activity
@@ -178,7 +178,7 @@ Agents working in any of these activities inherit the practices below through ru
 
 These practices govern **when and how** a GoF pattern is applied so the codebase
 gains a shared vocabulary without acquiring speculative indirection. They sit
-beside `domain-driven-design` (domain semantics), `onion-architecture` (layering),
+beside `domain-driven-design` (domain semantics), the selected `architecture-style` filler (layering),
 and `enterprise-integration-patterns` (cross-system messaging) — they do not
 restate those concerns. Their one job is to keep patterns **earned, named, and
 simple**.
@@ -220,7 +220,7 @@ simple**.
   vocabulary describes only the implementing mechanic. A GoF pattern MUST NOT
   invent a domain concept the ubiquitous language does not name.
 - A GoF pattern MUST stay **within a layer**; it MUST NOT be promoted to the
-  application's macro architecture (that is `onion-architecture`) nor restate the
+  application's macro architecture (that is the selected `architecture-style` filler) nor restate the
   dependency rule.
 - A collaboration that crosses a **process/system boundary** MUST be treated as
   `enterprise-integration-patterns`, not modeled as an intra-process GoF Mediator
@@ -243,7 +243,7 @@ simple**.
 - Pattern names match the mechanic actually implemented — no misnamed or
   single-branch "patterns".
 - No GoF pattern stands in for domain modeling, macro layering, or cross-system
-  messaging (those route to `domain-driven-design`, `onion-architecture`,
+  messaging (those route to `domain-driven-design`, the selected `architecture-style` filler,
   `enterprise-integration-patterns`).
 - No Singleton used as ambient global state; the single instance is injected, or
   a true exactly-one invariant is recorded.

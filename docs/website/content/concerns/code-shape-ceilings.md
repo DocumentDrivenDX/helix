@@ -62,7 +62,7 @@ It composes with its neighbors and does not duplicate them:
   so no value is looser than the default.
 - An existing project that adopts this concern sets each ceiling to the worst
   value in its tree today and lowers it as code is split. The adoption is
-  recorded in the TD with the starting values.
+  recorded in `concerns.md` with the starting values.
 
 ### Global, no exceptions
 
@@ -75,8 +75,8 @@ It composes with its neighbors and does not duplicate them:
 
 ### Ceilings only go down
 
-- A change that raises a ceiling, or adds a silencer for one of these rules,
-  fails the ceilings check. The only way to pass is to split the code.
+- The ceiling-only-goes-down rule is owned by `workflows/ratchets.md`; here a
+  raised ceiling or new silencer fails the check, and the fix is to split the code.
 - Lowering a ceiling is always allowed and is encouraged whenever a split
   brings the worst unit in the tree under the next lower value.
 
@@ -90,8 +90,7 @@ It composes with its neighbors and does not duplicate them:
 
 ### Where new code goes
 
-- A new external system, protocol, or integration goes in its own module, not
-  into an existing orchestrator. A class that accumulates unrelated
+- Where a new integration lives is owned by `modularity-and-encapsulation`. A class that accumulates unrelated
   responsibilities is split by responsibility, not by line count alone.
 
 ## Drift Signals (anti-patterns to reject in review)
@@ -125,7 +124,7 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - TD: the ceiling values per stack, the file-size caps, the gate recipe, and the hook wiring
 - IMPLEMENTATION_PLAN: scaffold the lint config, the size and ceilings scripts, the hooks, and `just lint` before feature work
 - TEST_PLAN: the shape gate (`just lint`) runs in CI and fails the build; a raised ceiling or new silencer is a blocking finding
-- ADR: an adoption baseline for an existing project (starting values), or a recorded reason for any value looser than the default
+- `concerns.md`: the adoption baseline for an existing project (starting values)
 
 ## Practices by activity
 
@@ -145,8 +144,8 @@ toolchain only through the selected stack concern's linter.
 
 - Record the ceiling values, the file-size caps, and the excluded paths (with a
   reason each) in the TD.
-- Design modules by responsibility. A new external system, protocol, or
-  integration gets its own module; an orchestrator delegates to it.
+- Design modules by responsibility; integration ownership follows
+  `modularity-and-encapsulation`.
 
 ## Implementation
 
@@ -380,7 +379,7 @@ Install it with a `just hooks` recipe: `git config core.hooksPath .githooks`.
 
 - The lint config selects the complexity, statement, argument, and
   public-method rules at or below the strict defaults (or the adoption
-  baseline recorded in the TD).
+  baseline recorded in `concerns.md`).
 - `just lint` runs the linter, formatter check, type check,
   `check_file_size.py`, and `check_ceilings.py`; CI runs the same recipe.
 - The Claude `PostToolUse` and `Stop` hooks and the git pre-commit hook are

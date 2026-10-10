@@ -26,6 +26,8 @@ or seams (`deployment-topology`), the per-process operational contract each
 deployable honors (`twelve-factor`), or the telemetry the deployables emit
 (`o11y-otel`).
 
+`k8s-kind` is the dev-workflow cluster; `e2e-kind` owns the ephemeral test cluster.
+
 ## Components
 
 - **Local cluster**: `kind` (Kubernetes in Docker) — NOT docker-compose
@@ -72,7 +74,7 @@ Agents working in any of these activities inherit the practices below through ru
 - Expose services locally via `kubectl port-forward` or kind ingress
 
 ## Implementation
-- Create local cluster: `kind create cluster --config kind-config.yaml`
+- Create local cluster: `kind create cluster --config deploy/kind-config.yaml`
 - Load local images: `kind load docker-image <image>:<tag>`
 - Install/upgrade: `helm upgrade --install <release> ./deploy/helm/<chart> -f values-dev.yaml`
 - Image tagging: use git SHA for dev (`$(git rev-parse --short HEAD)`), semver for releases

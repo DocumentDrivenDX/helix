@@ -77,12 +77,6 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - DESIGN_SYSTEM: Tailwind config extends design-system tokens (component-library conventions live with `ux-radix`)
 - TEST_PLAN: Playwright E2E (not Cypress/Selenium)
 
-## ADR References
-
-- ADR-010: Frontend validation architecture (Zod shared schemas)
-- ADR-011: ux-radix owns the Radix and shadcn component-library prescription;
-  this concern references rather than re-prescribing
-
 ## Practices by activity
 
 Agents working in any of these activities inherit the practices below through runtime work context, such as a DDx bead context digest.
@@ -100,8 +94,8 @@ Agents working in any of these activities inherit the practices below through ru
   canonical owner of the shadcn/ui + Radix prescription (copy-not-install,
   customization, primitive selection). Compose `ux-radix` when this concern
   is selected for UI work.
-- Design tokens (colors, spacing, typography) in `tailwind.config.ts` — components reference tokens, not raw values
-- Forms: one Zod schema per entity in `@apogee/shared`, resolved via `@hookform/resolvers/zod`
+- Design tokens (colors, spacing, typography) in Tailwind 4 CSS-first `@theme` — components reference tokens, not raw values
+- Forms: one Zod schema per entity in the shared package, resolved via `@hookform/resolvers/zod`
 - Configuration: import the typed config from the shared `env.ts` (see `typescript-bun`); never read `process.env` directly in route handlers, Server Components, or actions (only the env modules do)
 - Data tables: TanStack React Table with column definitions typed against shared schemas
 - State management: server state via TanStack Query (when added), client state via Zustand (when added), form state via react-hook-form — no Redux
@@ -162,5 +156,5 @@ Agents working in any of these activities inherit the practices below through ru
 - Accessible UI-primitive behavior (keyboard, focus, screen reader) is
   governed by the `ux-radix` concern — do not override Radix/shadcn handlers
   in ways that break the WAI-ARIA contract
-- Color contrast must meet WCAG AA (4.5:1 for normal text, 3:1 for large text)
+- Color contrast: see `a11y-wcag-aa`
 - Forms must associate labels with inputs and display validation errors accessibly

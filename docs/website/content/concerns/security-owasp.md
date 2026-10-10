@@ -30,7 +30,8 @@ security-owasp, plus the admin-console and unity-catalog neighbors) see
 [README-auth-family.md](../readme-auth-family/). Broken Access Control is the
 OWASP umbrella; `authorization-model` is the per-handler model that prevents
 it, and `multi-tenancy` is the tenant-predicate refinement — neither is
-restated here.
+restated here. This concern states the redaction and audit policy only;
+`o11y-otel` owns the instrumentation mechanics.
 
 ## Components
 
@@ -44,7 +45,7 @@ restated here.
 
 - No secrets, credentials, API keys, or tokens committed to source control
 - All external inputs validated before use; reject or sanitize at the boundary
-- Authentication and authorization checked on every protected endpoint
+- Authentication and authorization on every protected endpoint: see `authorization-model`
 - Dependencies must be audited for known vulnerabilities before release
 - HTTPS/TLS enforced for all production network traffic
 - SQL queries must use parameterized queries / prepared statements — no string interpolation
@@ -87,9 +88,8 @@ Agents working in any of these activities inherit the practices below through ru
 
 ## Design
 - Apply least-privilege: services, users, and credentials have minimum necessary permissions
-- Prefer deny-by-default for authorization (explicitly allow rather than explicitly deny)
-- Separate authentication (who are you?) from authorization (what can you do?)
-- Never store plaintext passwords — use `argon2id` or `bcrypt`
+- Authentication belongs to `auth`; authorization and deny-by-default belong to `authorization-model` (see [README-auth-family.md](../readme-auth-family/))
+- Password hashing: see `auth-local-sessions` practices
 - Encryption at rest for sensitive data stores; TLS for all transport
 - Audit log for security-relevant actions (login, auth failure, privilege escalation)
 
@@ -119,7 +119,6 @@ Agents working in any of these activities inherit the practices below through ru
 ## Incident Response
 - Rotate compromised credentials immediately; do not wait to assess
 - File a security work item with `security` label; treat as P0 if customer data at risk
-- Document the incident in `docs/helix/06-iterate/` post-resolution
 
 ## Diagnostic Evidence Privacy
 

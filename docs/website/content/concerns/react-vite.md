@@ -160,11 +160,6 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - DESIGN_SYSTEM: Tailwind 4 tokens the components reference (component-library conventions live with `ux-radix`)
 - TEST_PLAN: Vitest (or `bun:test` under `typescript-bun`) + Testing Library component tests; browser e2e per `e2e-playwright`
 
-## ADR References
-
-- ADR-011: ux-radix owns the Radix and shadcn component-library prescription;
-  this concern references rather than re-prescribing
-
 ## Practices by activity
 
 Agents working in any of these activities inherit the practices below through runtime work context, such as a DDx bead context digest.

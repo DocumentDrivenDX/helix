@@ -44,8 +44,7 @@ language-runtime
 - All configuration is declared in one central `zod` schema (single module, e.g. `env.ts`) that parses the merged layers (files + env) once at startup and exports a frozen, typed config object; invalid or missing config fails at startup, not at first use
 - `process.env` (or `Bun.env`) is read only inside the env module — use `process.env` so the module also runs under Next.js on Node or Edge, where `Bun.env` is undefined; the config object is built at the entrypoint and passed in
 - Secrets are never logged or serialized (wrap in a redacting type or omit from log output)
-- Config is layered by owner per `twelve-factor`: ops-injected values (`process.env`, mounted files, secret manager) over a committed `config/<env>.json` over committed defaults (schema `.default()`s plus `config/default.json`), deep-merged then parsed by the one `zod` schema; ops-owned keys (hosts, credentials) are required with no default and never appear in committed files
-- Real environment variables take precedence over files; `.env.<env>`/`.env.local` files are not used (Bun loads them natively; set `--env-file` explicitly or none) and plain `.env` is local-development only, git-ignored, with a committed `.env.example` listing every variable (no secrets in it)
+- Config layering and `.env` rules follow `twelve-factor`; here `config/default.json` and `config/<env>.json` are deep-merged under `process.env` and parsed by the one `zod` schema (`.env.<env>`/`.env.local` are not used; Bun loads them natively, so set `--env-file` explicitly or none)
 
 ## Drift Signals (anti-patterns to reject in review)
 
@@ -71,8 +70,6 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - ADR: TypeScript + Bun (Biome, bun:test) as the language-runtime — not Node/npm/ESLint/Vitest
 - TD: strict tsconfig, Bun-native APIs, workspace layout, Biome config, central env schema and its config-key contract (owner and source per key)
 
-## ADR References
-
 ## Practices by activity
 
 Agents working in any of these activities inherit the practices below through runtime work context, such as a DDx bead context digest.
@@ -83,9 +80,8 @@ Agents working in any of these activities inherit the practices below through ru
 
 ## Design
 - Centralize configuration in one `zod` schema in `env.ts` (e.g. `z.object({ LOG_LEVEL: z.enum(["info", "debug"]).default("info"), DATABASE_URL: z.string().url() })`); parse `process.env` once (not `Bun.env`, so the module also runs under Next.js on Node or Edge) with `safeParse` and exit with a readable error on failure
-- Source precedence: real environment variables / secret files > `.env` (dev only) > `config/<env>.json` > `config/default.json` > schema defaults (plain deep-merge of the objects, then `safeParse`; use flat `UPPER_SNAKE` keys in the JSON files so env vars map one-to-one); ops-owned keys are required, dev-owned keys carry defaults; production relies on real env vars or the platform secret manager
+- Source precedence per `twelve-factor`: plain deep-merge of `config/default.json` and `config/<env>.json` under the environment, then `safeParse`; use flat `UPPER_SNAKE` keys in the JSON files so env vars map one-to-one
 - `env.ts` reads `process.env.APP_ENV` once, before the deep-merge, to pick `config/<env>.json`; that one read is covered by the module's existing `noProcessEnv` suppression
-- Commit `.env.example`; git-ignore `.env`
 - Use Bun workspaces for monorepos: `"workspaces": ["packages/*"]` in root `package.json`
 - Separate packages by concern: `shared` (types/schemas), `server` (API), `web` (frontend)
 - Use workspace references (`workspace:*`) for cross-package dependencies

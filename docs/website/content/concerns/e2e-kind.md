@@ -19,11 +19,12 @@ api, infra
 ## Components
 
 - **Cluster runtime**: kind (Kubernetes in Docker)
-- **Cluster config**: `kind-config.yaml` with NodePort mappings for service access
+- **Cluster config**: `deploy/kind-config.yaml` with NodePort mappings for service access
 - **Infrastructure manifests**: Kubernetes YAML or Helm charts for all services
 - **Test data seeding**: Deterministic seed scripts that populate realistic data
 - **Test harness**: Language-appropriate test framework running against the live cluster
 - **Lifecycle management**: Scripts to create, seed, test, and tear down the cluster
+- **Boundary**: `e2e-kind` owns the ephemeral test cluster; `k8s-kind` owns the dev-workflow cluster.
 
 ## Constraints
 
@@ -35,7 +36,7 @@ api, infra
   the same state
 - Tests must be self-contained — they create their cluster, seed data, run, and
   clean up
-- NodePort mappings in `kind-config.yaml` provide localhost access to services
+- NodePort mappings in `deploy/kind-config.yaml` provide localhost access to services
   without port-forwarding
 - The cluster is ephemeral — created for the test run, destroyed after
 - Tests must work in both local development and CI environments
@@ -106,7 +107,7 @@ Tests run on the host machine, connecting to cluster services via NodePorts:
 
 ```bash
 # Stand up cluster
-kind create cluster --config kind-config.yaml
+kind create cluster --config deploy/kind-config.yaml
 kubectl apply -f k8s/
 # Wait for readiness
 kubectl wait --for=condition=ready pod -l app=postgres --timeout=60s
@@ -114,7 +115,7 @@ kubectl wait --for=condition=ready pod -l app=postgres --timeout=60s
 kubectl apply -f k8s/seed-job.yaml
 kubectl wait --for=condition=complete job/seed --timeout=60s
 # Test
-DATABASE_URL=postgres://user:pass@localhost:5432/testdb npm test
+DATABASE_URL=postgres://user:pass@localhost:5432/testdb <test-command>
 # Tear down
 kind delete cluster --name <project>-test
 ```
@@ -148,10 +149,9 @@ set -euo pipefail
 
 CLUSTER_NAME="<project>-test"
 
-# Create or reuse
-if ! kind get clusters | grep -q "$CLUSTER_NAME"; then
-  kind create cluster --config kind-config.yaml
-fi
+# Always create fresh
+kind delete cluster --name "$CLUSTER_NAME" 2>/dev/null || true
+kind create cluster --name "$CLUSTER_NAME" --config deploy/kind-config.yaml
 
 # Build and load app image
 docker build -t <project>:test .
@@ -193,7 +193,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: helm/kind-action@v1
         with:
-          config: kind-config.yaml
+          config: deploy/kind-config.yaml
           cluster_name: <project>-test
       - run: docker build -t <project>:test .
       - run: kind load docker-image <project>:test
@@ -235,7 +235,7 @@ Agents working in any of these activities inherit the practices below through ru
 - Define a known test user/credential for interactive and automated access
 
 ## Design
-- `kind-config.yaml` at the project root defines the cluster topology
+- `deploy/kind-config.yaml` defines the cluster topology
 - NodePort mappings expose services to the host — one mapping per service
 - Kubernetes manifests for test infrastructure live in `k8s/` or `deploy/`
 - Seed script is deterministic, idempotent, and completes in under 30 seconds
@@ -244,7 +244,7 @@ Agents working in any of these activities inherit the practices below through ru
   (from inside cluster)
 
 ## Implementation
-- Create `kind-config.yaml` with NodePort mappings for every exposed service
+- Create `deploy/kind-config.yaml` with NodePort mappings for every exposed service
 - Write Kubernetes manifests for each dependency (database, cache, broker, auth)
 - Use readiness probes and explicit waits between deployment steps
 - Write a seed script that populates realistic test data:
@@ -268,7 +268,7 @@ Agents working in any of these activities inherit the practices below through ru
 - Tests should complete in under 10 minutes (excluding chaos tests)
 
 ## Quality Gates
-- `kind create cluster` succeeds with the project's `kind-config.yaml`
+- `kind create cluster` succeeds with the project's `deploy/kind-config.yaml`
 - All services reach ready state within 60 seconds
 - Seed script completes without errors
 - Application passes readiness probe after deployment
@@ -285,9 +285,9 @@ Agents working in any of these activities inherit the practices below through ru
   every push
 
 ## Maintenance
-- When adding a new service dependency, add it to kind-config.yaml NodePorts
+- When adding a new service dependency, add it to deploy/kind-config.yaml NodePorts
   and the Kubernetes manifests
 - When the data model changes, update the seed script
-- When deployment topology changes, update the kind-config.yaml node layout
+- When deployment topology changes, update the deploy/kind-config.yaml node layout
 - Periodically verify that the kind cluster topology still matches production
   (same services, same networking model)

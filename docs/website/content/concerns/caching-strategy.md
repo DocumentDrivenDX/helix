@@ -47,6 +47,8 @@ the cache sits in front of. Three neighbors must stay distinct:
   The cache holds a **derived, disposable copy**; the row in the store is the
   truth. This concern never makes the cache authoritative; on any doubt the
   origin wins. Reference the store as the source of truth; do not own the schema.
+- **`api-style`** owns HTTP cache headers and ETags; this concern owns
+  server-side caches.
 
 This concern owns the one thing those do not state: **a cache is a deliberate,
 bounded copy with an explicit invalidation/TTL policy and a named staleness

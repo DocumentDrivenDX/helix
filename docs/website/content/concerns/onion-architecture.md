@@ -41,6 +41,7 @@ and it does not own object-level design patterns:
 - **`enterprise-integration-patterns`** owns **between-system** messaging and
   integration. Onion governs the dependency structure **within** one
   deployable; integration adapters are simply outer-ring code under it.
+- Enforcement of the import rules belongs to the `modularity-and-encapsulation` Boundary Check; this concern defines the rule only.
 
 Onion is one named member of the **dependency-inversion architecture family**
 (Cockburn's Hexagonal / Ports-and-Adapters and Martin's Clean Architecture are

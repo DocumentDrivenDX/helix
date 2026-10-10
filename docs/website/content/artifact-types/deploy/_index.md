@@ -12,7 +12,7 @@ Deploy artifacts cover four first-class surfaces in the current HELIX contract: 
 ## Core Artifacts
 
 {{< cards >}}
-  {{< card link="deployment-checklist/" title="Deployment Checklist" subtitle="Short, execution-ready release readiness checklist that captures the technical go/no-go checks, rollout verification, and rollback triggers for a service deplo…" >}}
+  {{< card link="deployment-checklist/" title="Deployment Checklist" subtitle="Short, execution-ready release readiness checklist that captures the pre-deploy checks (plan, ordering, config, access), validation gates, rollout stages, and…" >}}
   {{< card link="release-notes/" title="Release Notes" subtitle="Release-scoped communication artifact that summarizes shipped user-visible and operator-visible changes, required actions, and known caveats for one rollout." >}}
 {{< /cards >}}
 

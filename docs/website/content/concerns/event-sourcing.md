@@ -44,13 +44,13 @@ must stay distinct:
   the eventstream that is the source of truth and the wire message that fans out
   to other systems are different artifacts. Reference EIP for the transport; do
   not own it.
-- **`onion-architecture`** owns **how** the codebase layers and which way
+- **The selected `architecture-style` filler** owns **how** the codebase layers and which way
   dependencies point. The **event store is an outer-ring infrastructure
   adapter** that implements a persistence interface (an event-store / repository
   port) declared by an inner layer in domain terms. ES says *the log is the
-  truth and the aggregate rehydrates from it*; onion says *the inner ring
+  truth and the aggregate rehydrates from it*; the architecture style says *the inner ring
   declares the port and the outer ring implements it*. Do not restate the
-  dependency rule — reference onion for the arrangement.
+  dependency rule — reference the filler for the arrangement.
 - **`sample-data`** owns the seed/demo dataset. For an event-sourced slice the
   governed seed is expressed as **events appended to the store** (not rows
   inserted into a current-state table), so projections rehydrate from a
@@ -194,7 +194,7 @@ domain slice, not whole-product** — apply it to the parts that benefit (the
 payment ledger, the order pipeline) and use plain current-state storage
 elsewhere; "don't event-source everything." `areas: data` scopes its practices
 to data-layer work items. Compose with `domain-driven-design` (aggregates emit
-the events ES persists), `onion-architecture` (the event store is an outer-ring
+the events ES persists), the selected `architecture-style` filler (the event store is an outer-ring
 adapter behind an inner port), **CQRS** (the projections are the read side), and
 `sample-data` (the seed is events appended to the store).
 
@@ -229,7 +229,7 @@ Agents working in any of these activities inherit the practices below through ru
 These practices govern **persisting a slice of state as an append-only log of
 events that is the source of truth**, deriving current state by replay. They do
 **not** govern what the domain model is (`domain-driven-design`), how the code
-layers (`onion-architecture`), or how messages move between systems
+layers (the selected `architecture-style` filler), or how messages move between systems
 (`enterprise-integration-patterns`). When a rule references the aggregate, defer
 to DDD for the modeling; this concern asserts how that aggregate is persisted
 and rehydrated. Apply these **per domain slice** that selected event sourcing —
@@ -323,7 +323,7 @@ not to every entity in the product.
 ## Boundary with neighbors
 
 See `concern.md` for the canonical Boundary (vs `domain-driven-design`,
-`enterprise-integration-patterns`, `onion-architecture`, `sample-data`, and
+`enterprise-integration-patterns`, the selected `architecture-style` filler, `sample-data`, and
 the **CQRS** companion). Idempotent application of events here is the same
 property `enterprise-integration-patterns` requires of consumers under
 at-least-once delivery — defer there for the channel-delivery rule, apply it

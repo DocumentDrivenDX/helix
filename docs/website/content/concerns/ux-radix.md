@@ -26,6 +26,7 @@ ui, frontend
   than re-prescribing
 - **Patterns**: WAI-ARIA design patterns for all interactive widgets
 - **Scope**: Searching, editing, navigation, selection, and disclosure
+- **Boundary**: `ux-radix` owns the widgets; `a11y-wcag-aa` owns the accessibility checks.
 
 ## Constraints
 
@@ -133,11 +134,6 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - ADR: shadcn/ui + Radix as the UI-primitives prescription (component library copied, not npm dep)
 - DESIGN_SYSTEM: WAI-ARIA interaction patterns for search/edit/nav/select/disclosure; Radix primitives; shadcn component conventions; states
 - TEST_PLAN: keyboard navigation, focus-return, active-state, and live-filter behavior checks
-
-## ADR References
-
-- ADR-011: ux-radix owns the Radix and shadcn component-library prescription;
-  framework concerns reference rather than re-prescribe
 
 ## Practices by activity
 

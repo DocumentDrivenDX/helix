@@ -11,9 +11,8 @@ generated: true
 ## Purpose
 
 Deployment Checklist is the **release-window execution checklist**. Its unique
-job is to capture the technical go/no-go checks, staged rollout steps,
-post-deploy verification, rollback triggers, and auditable decision point for a
-specific release.
+job is to capture the pre-deploy checks, validation gates, staged rollout, and
+rollback for a specific release.
 
 It is not a runbook, monitoring design, implementation plan, or release note.
 Point to those artifacts instead of duplicating them.
@@ -36,61 +35,48 @@ ddx:
 
 # Deployment Checklist
 
-## Release Scope
+## Release
 
-- Service or component: DepositMatch CSV Import v1 (`csvImportV1`)
-- Release version/build: `release-2026-05-12-csv-import`
-- Deployment window: 2026-05-12 21:00-22:00 UTC
-- Release owner: Engineering lead
-- Rollback owner: On-call API engineer
-- Supporting artifacts: implementation plan `example.implementation-plan.depositmatch`,
-  test plan `example.test-plan.depositmatch`, API contract `API-001`
+- **Component**: DepositMatch CSV Import v1, behind the `csvImportV1` flag (defaults off in production)
+- **Release version**: `release-2026-05-12-csv-import`
+- **Related artifacts**: implementation plan, test plan, API-001
 
-## Pre-Deploy Checks
+## Before Deploy
 
-| Area | Check | Evidence or Command | Status |
-|------|-------|---------------------|--------|
-| Build | Main branch CI green for upload slice | `gh run list --branch main --limit 1` | [ ] |
-| Tests | Contract, integration, UI, and P0 E2E upload tests pass | `pnpm test && pnpm test:e2e -- upload-csv` | [ ] |
-| Config | `csvImportV1` flag exists and defaults off in production | Feature flag dashboard or config diff | [ ] |
-| Data | `import_sessions` and `import_files` migration applied in staging | Migration job log | [ ] |
-| Ops | Upload error-rate and latency panels visible | Dashboard link | [ ] |
-| Security | Log scan shows no raw CSV row values in test/staging logs | `pnpm test -- importUploadService` | [ ] |
+- **Plan reviewed**: Migration plan shows only `import_sessions` and `import_files`; nothing else changes.
+- **Order of operations**: Migration first, then API and web with the flag off, then enable the flag.
+- **Config is complete**: Storage bucket name and credentials are non-empty after render. An empty bucket disables uploads silently, so the smoke script asserts a real upload succeeds.
+- **Access verified**: The upload service account can write to the source-file bucket and no other bucket, confirmed by a staging upload.
 
-## Rollout Plan
+## Validation Gates
 
-| Stage | Action | Exit Condition |
-|-------|--------|----------------|
-| Staging | Deploy API/web, run migration, enable `csvImportV1` for staging | Upload happy path and PDF rejection pass in staging |
-| Initial production | Deploy API/web with `csvImportV1` off, run migration | Health checks green for 15 minutes; no migration errors |
-| Canary | Enable `csvImportV1` for one pilot firm | 3 successful import sessions or 30 minutes without trigger |
-| Full pilot rollout | Enable `csvImportV1` for all pilot firms | Upload error rate below 2% and p95 upload response below 2 seconds |
+| Gate | Must Pass Before | Check |
+|------|------------------|-------|
+| CI green on main, P0 upload tests pass | staging | `pnpm test && pnpm test:e2e -- upload-csv` |
+| Migration applied | production | Staging migration job log |
+| Valid CSV pair uploads; PDF is rejected | production | Staging smoke script |
+| No raw CSV row values in logs | production | Log query for fixture sentinel values |
+| Health green 15 minutes, flag off | canary | `curl -fsS https://api.depositmatch.example/healthz` |
+| Upload 5xx below 1%, p95 under 2s | full pilot | Upload dashboard |
 
-## Verification Checks
+## Rollout Stages
 
-| Signal or Check | Expected Result | Evidence or Command | Status |
-|-----------------|-----------------|---------------------|--------|
-| API health | 2xx from `/healthz` | `curl -fsS https://api.depositmatch.example/healthz` | [ ] |
-| Upload contract | 201 for valid CSV pair; 415 for PDF | Production smoke script with synthetic pilot client | [ ] |
-| Error rate | Upload endpoint 5xx below 1% over 15 minutes | Dashboard query | [ ] |
-| Latency | p95 upload response below 2 seconds before row parsing | Dashboard query | [ ] |
-| Logging | No raw CSV values in application logs | Log query for fixture sentinel values | [ ] |
+| Stage | Deploy Action | Exit Condition |
+|-------|---------------|----------------|
+| Staging | Deploy, migrate, enable flag | Happy path and rejection pass |
+| Production, flag off | Deploy and migrate | Health green 15 minutes |
+| Canary | Enable for one pilot firm | 3 successful imports or 30 minutes without a trigger |
+| Full pilot | Enable for all pilot firms | Gates above hold |
 
-## Rollback Triggers
+## Rollback
 
-| Trigger | Threshold or Condition | Immediate Action | Owner |
-|---------|------------------------|------------------|-------|
-| Upload endpoint 5xx | Above 1% for 15 minutes | Disable `csvImportV1`; keep deployment in place | Release owner |
-| Data integrity issue | Any partial session/file metadata commit | Disable flag, stop canary, open incident, run cleanup script | Rollback owner |
-| Raw financial row values in logs | Any confirmed occurrence | Disable flag and rotate affected logs per runbook | Security lead |
-| Migration failure | Migration does not complete or blocks API deploy | Stop rollout and restore previous task definition | Rollback owner |
+**Path**: Disable `csvImportV1`; the previous deploy stays in place, so recovery is immediate. If the migration blocks the API deploy, restore the previous task definition.
 
-## Go or No-Go Decision
-
-- Decision: [Go / Hold / Roll Back]
-- Decision time: [timestamp]
-- Notes: [exceptions, deferred checks, follow-up]
-- Follow-up owner: Release owner
+| Signal | Threshold | Immediate Action |
+|--------|-----------|------------------|
+| Upload 5xx | Above 1% for 15 minutes | Disable the flag |
+| Partial session or file commit | Any | Disable flag, stop canary, run cleanup script |
+| Raw row values in logs | Any confirmed | Disable flag, purge logs per runbook |
 ``````
 
 </details>
@@ -105,7 +91,7 @@ ddx:
 <tr><th>Enables</th><td><em>None</em></td></tr>
 <tr><th>Informs</th><td><a href="../../../artifact-types/deploy/monitoring-setup/">Monitoring Setup</a></td></tr>
 <tr><th>HELIX documents</th><td><a href="https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/05-deploy/deployment-checklist.md"><code>docs/helix/05-deploy/deployment-checklist.md</code></a></td></tr>
-<tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Deployment Checklist Generation Prompt&#10;&#10;Create a concise, service-specific deployment checklist for this release.&#10;&#10;## Purpose&#10;&#10;Deployment Checklist is the **release-window execution checklist**. Its unique&#10;job is to capture the technical go/no-go checks, staged rollout steps,&#10;post-deploy verification, rollback triggers, and auditable decision point for a&#10;specific release.&#10;&#10;It is not a runbook, monitoring design, implementation plan, or release note.&#10;Point to those artifacts instead of duplicating them.&#10;&#10;## Reference Anchors&#10;&#10;Use these local resource summaries as grounding:&#10;&#10;- `docs/resources/google-sre-release-engineering.md` grounds repeatable,&#10;  staged, evidence-based releases with explicit rollback paths.&#10;- `docs/resources/microsoft-azure-well-architected-framework.md` grounds&#10;  operational readiness, reliability, and deployment risk checks.&#10;&#10;## Focus&#10;&#10;- Keep the checklist short enough to use during the release itself.&#10;- Include only the checks that materially change the technical go/no-go decision.&#10;- Make rollout verification and rollback triggers explicit.&#10;- Point to supporting artifacts such as `monitoring-setup` or `runbook`&#10;  instead of duplicating them.&#10;- Avoid communication boilerplate, launch marketing tasks, or generic&#10;  enterprise release wish lists.&#10;&#10;## Boundary Test&#10;&#10;| If you are writing... | Put it in... |&#10;|---|---|&#10;| Build sequence and implementation validation | Implementation Plan |&#10;| Operational procedures and incident response | Runbook |&#10;| Dashboards, alerts, and SLO instrumentation | Monitoring Setup |&#10;| User-facing release communication | Release Notes |&#10;| Release-window go/no-go checks and rollback triggers | Deployment Checklist |&#10;&#10;## Completion Criteria&#10;&#10;- Prerequisites and owners are explicit.&#10;- Rollout verification names the signals or commands that prove health.&#10;- Rollback triggers and rollback entrypoint are explicit.&#10;- The final decision section makes the release auditable.</code></pre></details></td></tr>
-<tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---&#10;ddx:&#10;  id: deployment-checklist&#10;  authoring:&#10;    home: repo&#10;---&#10;&#10;# Deployment Checklist&#10;&#10;## Release Scope&#10;&#10;- Service or component: [name]&#10;- Release version/build: [release version, image tag, or build name]&#10;- Deployment window: [date and time]&#10;- Release owner: [name]&#10;- Rollback owner: [name]&#10;- Supporting artifacts: [implementation plan, runbook, monitoring, release notes]&#10;&#10;## Pre-Deploy Checks&#10;&#10;| Area | Check | Evidence or Command | Status |&#10;|------|-------|---------------------|--------|&#10;| Build | [CI, tests, approvals] | [link or command] | [ ] |&#10;| Config | [Secrets, flags, env vars] | [link or command] | [ ] |&#10;| Data | [Migrations, backups, compatibility] | [link or command] | [ ] |&#10;| Ops | [Dashboards, alerts, on-call] | [link or command] | [ ] |&#10;&#10;## Rollout Plan&#10;&#10;| Stage | Action | Exit Condition |&#10;|-------|--------|----------------|&#10;| Staging | [deploy and validate] | [what must be true] |&#10;| Initial production | [first step or canary] | [what must be true] |&#10;| Full rollout | [complete rollout] | [what must be true] |&#10;&#10;## Verification Checks&#10;&#10;| Signal or Check | Expected Result | Evidence or Command | Status |&#10;|-----------------|-----------------|---------------------|--------|&#10;| [health check] | [healthy value] | [command or dashboard] | [ ] |&#10;| [error rate] | [threshold] | [dashboard or query] | [ ] |&#10;| [latency] | [threshold] | [dashboard or query] | [ ] |&#10;| [critical user journey] | [pass condition] | [test or observation] | [ ] |&#10;&#10;## Rollback Triggers&#10;&#10;| Trigger | Threshold or Condition | Immediate Action | Owner |&#10;|---------|------------------------|------------------|-------|&#10;| [trigger] | [threshold] | [rollback step or runbook] | [name] |&#10;| [trigger] | [threshold] | [rollback step or runbook] | [name] |&#10;&#10;## Go or No-Go Decision&#10;&#10;- Decision: [Go / Hold / Roll Back]&#10;- Decision time: [timestamp]&#10;- Notes: [exceptions, deferred checks, follow-up]&#10;- Follow-up owner: [name]</code></pre></details></td></tr>
+<tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Deployment Checklist Generation Prompt&#10;&#10;Create a concise, service-specific deployment checklist for this release.&#10;&#10;## Purpose&#10;&#10;Deployment Checklist is the **release-window execution checklist**. Its unique&#10;job is to capture the pre-deploy checks, validation gates, staged rollout, and&#10;rollback for a specific release.&#10;&#10;It is not a runbook, monitoring design, implementation plan, or release note.&#10;Point to those artifacts instead of duplicating them.&#10;&#10;## Reference Anchors&#10;&#10;Use these local resource summaries as grounding:&#10;&#10;- `docs/resources/google-sre-release-engineering.md` grounds repeatable,&#10;  staged, evidence-based releases with explicit rollback paths.&#10;- `docs/resources/microsoft-azure-well-architected-framework.md` grounds&#10;  operational readiness, reliability, and deployment risk checks.&#10;&#10;## Focus&#10;&#10;- Keep the checklist short enough to use during the release itself.&#10;- Include only the checks that materially change the technical go/no-go decision.&#10;- Before Deploy covers the failures that actually bite: an unreviewed plan, a&#10;  dependency landing out of order, config that is silently empty, and grants&#10;  assumed rather than verified. Answer them for this release, not generically.&#10;- Make validation gates and rollback triggers explicit.&#10;- Omit owners, timestamps, and status checkboxes; the tracker and git hold them.&#10;- Point to supporting artifacts such as `monitoring-setup` or `runbook`&#10;  instead of duplicating them.&#10;- Avoid communication boilerplate, launch marketing tasks, or generic&#10;  enterprise release wish lists.&#10;&#10;## Boundary Test&#10;&#10;| If you are writing... | Put it in... |&#10;|---|---|&#10;| Build sequence and implementation validation | Implementation Plan |&#10;| Operational procedures and incident response | Runbook |&#10;| Dashboards, alerts, and SLO instrumentation | Monitoring Setup |&#10;| User-facing release communication | Release Notes |&#10;| Release-window go/no-go checks and rollback triggers | Deployment Checklist |&#10;&#10;## Completion Criteria&#10;&#10;- Before Deploy is answered for this release.&#10;- Each gate names the signal or command that proves it.&#10;- Rollback returns to the last working state; a failed deploy never replaces it.</code></pre></details></td></tr>
+<tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---&#10;ddx:&#10;  id: deployment-checklist&#10;  authoring:&#10;    home: repo&#10;---&#10;&#10;# Deployment Checklist&#10;&#10;## Release&#10;&#10;- **Component**: [name]&#10;- **Release version**: [tag/build]&#10;- **Related artifacts**: [runbook, monitoring-setup, release-notes]&#10;&#10;## Before Deploy&#10;&#10;- **Plan reviewed**: [For infra or config changes, the plan/diff was read and every change is expected. Name anything unrelated that would also change.]&#10;- **Order of operations**: [What must land first (infra variable, migration, grant) and what depends on it.]&#10;- **Config is complete**: [Every required env/config value is non-empty after render. Name the values that fail silently when empty.]&#10;- **Access verified**: [The deploy principal holds the grants it needs, checked by a real run, not assumed from a merged change.]&#10;&#10;## Validation Gates&#10;&#10;| Gate | Must Pass Before | Check |&#10;|------|------------------|-------|&#10;| [Build and tests] | staging | [CI link / command] |&#10;| [Migration or data check] | production | [query / log] |&#10;| [Critical path works] | full rollout | [test / smoke script] |&#10;| [Error rate and latency] | full rollout | [threshold and dashboard] |&#10;&#10;## Rollout Stages&#10;&#10;| Stage | Deploy Action | Exit Condition |&#10;|-------|---------------|----------------|&#10;| Staging | [steps] | [what must be true] |&#10;| Canary | [steps] | [what must be true] |&#10;| Full | [steps] | [what must be true] |&#10;&#10;## Rollback&#10;&#10;**Path**: [How to get back to the last working state, and how long that takes. A failed deploy must not replace the working one.]&#10;&#10;| Signal | Threshold | Immediate Action |&#10;|--------|-----------|------------------|&#10;| [error rate / failed path / data issue] | [threshold] | [command or runbook section] |</code></pre></details></td></tr>
 </tbody>
 </table>
