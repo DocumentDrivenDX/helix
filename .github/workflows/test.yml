@@ -57,3 +57,6 @@ jobs:
 
       - name: Validate OpenTelemetry concern propagation and diagnostic queries
         run: python3 tests/test_agent_diagnostics.py
+
+      - name: Validate formal methods propagation and bounded lease model
+        run: python3 tests/test_formal_methods.py

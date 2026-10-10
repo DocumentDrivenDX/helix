@@ -12,97 +12,88 @@ ddx:
     reviewed_at: "2026-10-04T03:52:23Z"
 ---
 
-# Release Notes — HELIX v0.15.3
-
-## v0.15.3 — Plan-Driven Execution
-
-Implementation-ready plans now govern authorized execution through verified
-completion. Tracker decomposition is optional; independent ownership, scheduling,
-parallel work, and deferred follow-up may still use separate items. Portable
-prompts no longer point agents toward the optional DDx adapter or infer tracking
-from installed binaries or metadata. Existing artifact metadata remains compatible.
-
-Plan and iteration contracts include continuation evidence for interruption
-recovery. Explicit worker contracts retain their claims, audit, and closure rules.
-Contract regression checks cover authorization, recovery, and tracker opt-in.
+# Release Notes — HELIX v0.15.4
 
 ## Release Scope
 
-- Release identifier: `v0.15.2`
+- Release identifier: `v0.15.4`
 - Release date: 2026-10-09
-- Previous release: `v0.15.1`
-- Scope: OpenTelemetry concern, agent diagnostics guidance, artifact catalog,
-  routing mode contracts, generated plugin/Genie bundles and public references.
-- Release owner: HELIX maintainer; the release pull request triggers the
-  existing auto-tag and publication workflows.
+- Previous release: `v0.15.3`
+- Scope: optional formal-methods concern, adoption and technical-design guidance,
+  executable abstract lease model, regression checks and generated references.
+- Release owner: HELIX maintainer; annotated version tag triggers existing
+  bundle publication, version guard, install smoke and website workflows.
 
 ## Audience and Channels
 
 | Audience | Impact | Channel |
 |----------|--------|---------|
-| HELIX users | Safe persistent diagnostics and quieter consoles | Versioned concern catalog and plugin |
-| Runtime integrators | Explicit capture, retrieval and evidence obligations | Mode contracts and diagnostic reference |
-| Website readers | Aligned artifact guidance | Public reference website |
+| HELIX users | Risk-based formal specification and analysis | Concern catalog and plugin |
+| Runtime integrators | Scoped assurance and evidence obligations | Practices and adoption reference |
+| Website readers | Published concern and design examples | Public reference website |
 
 ## Highlights
 
-- OpenTelemetry governs the existing `o11y-otel` concern across applicable
-  service, CLI, CI and agent workflows. Projects own exact schemas and mappings
-  in Contracts; valid trace context remains optional and separate from run IDs.
-- Agent diagnostics use runner-owned local evidence, quiet console projections,
-  pre-sink privacy controls, bounded retrieval and explicit capture-loss state.
-- Architecture, design, test, monitoring and runbook guidance assigns diagnostic
-  responsibilities and requires real receiver evidence for claimed integrations.
+- Select `formal-methods` for critical interacting state/rules or explicit
+  assurance needs. Choose precise specification, executable analysis or
+  deductive proof per affected slice; unaffected work records an exclusion.
+- Technical designs distinguish safety, liveness, assumptions and bounds,
+  reproducible evidence and model/code/test correspondence. Exact shared
+  interfaces remain in Contracts; running-system verification still applies.
+- The abstract lease example checks 70 reachable states and 109 transitions,
+  with ordered recovery witnesses and replayable fencing/lock negative controls.
+  It makes no DDx production correctness or liveness claim.
 
 ## Required Actions Summary
 
-- Users: update to `v0.15.2`; apply the relevant sections when `o11y-otel` is selected.
-- Runtime integrators: preserve safe run/attempt evidence and capture limits in
-  execution closeout; implement the project-owned Contract before claiming readiness.
-- Operators: choose collection, access and retention policies for the deployment target.
+- Users: update to `v0.15.4`; existing concern selections remain unchanged.
+- Adopting teams: record the affected scope, chosen rigor and authority before
+  claiming formal assurance. No solver/proof assistant is installed by HELIX.
+- Runtime integrators: preserve scope notes and reasoned non-applicability,
+  and recheck evidence when mapped behavior or assumptions change.
 
 ## Changes and Fixes
 
 | Area | Change | Effect |
 |------|--------|--------|
-| Observability | Expanded OTel concern and diagnostic reference | Local evidence and operational telemetry share explicit semantics |
-| Artifact catalog | Conditional diagnostic sections and review criteria | Shared interfaces stay in Contracts; local wiring stays in technical designs |
-| Monitoring action | Removed mandatory trace ID and competing field list | Untraced events remain valid and follow the governing mapping |
-| Verification | Executable bounded-query examples and alignment regression | Query truncation, source references and malformed-input behavior are checked |
-| Deck test runner | Explicit Node test file path | Supported Node runtimes execute the existing test suite |
+| Concerns | Optional composable formal-methods concern | Critical behavior can be specified and analyzed at a chosen rigor |
+| Design and alignment | Conditional specification and assurance criteria | Bounded results remain separate from production verification |
+| Examples | Standard-library finite lease explorer and deliberate mutants | Runnable non-vacuity, fencing and lock-lifetime demonstration |
+| Validation | Digest propagation, packaged execution and report integrity tests | Selected/unselected/unaffected cases and counterexamples are exercised |
+| Integration | Preserve origin's v0.15.3 plan-driven execution changes | Both plan-execution and formal-methods suites run |
 
 ## Breaking Changes and Required Actions
 
-No installation or artifact-format breaking changes. Existing concern selections
-are preserved. Selected practices add evidence obligations according to project
-applicability; they do not mandate a new telemetry backend or collector sidecar.
+No installation or artifact-format breaking changes. Formal methods remain
+optional; a selected concern does not require analyzer runs for every slice.
+Existing documents remain structurally valid and adoption gaps are scoped.
 
 ## Migration or Rollback Guidance
 
-1. Update the plugin or bundle to `v0.15.2`.
-2. Record applicable diagnostic practices and adopt exact mappings, capture and
-   query rules in the project Contract.
-3. Run the adopting-project pilot with a real OTel receiver before claiming
-   integration readiness; preserve receiver output and measured results.
+1. Update the plugin or generated bundle to `v0.15.4`.
+2. If adopting formal methods, record risk/scope/rigor and use the checklist in
+   `workflows/references/formal-methods.md` in the owning technical design.
+3. Map any adopted model to implementation and run the chosen-level analysis
+   alongside implementation tests and running-system verification.
 
-To roll back the plugin, pin `v0.15.1`. Preserve project-owned diagnostic Contracts
-and evidence; changing plugin versions does not remove those decisions.
+To roll back the plugin, pin `v0.15.3`. Preserve project-owned specifications,
+assurance decisions and historical analysis evidence.
 
 ## Known Issues and Support
 
-- HELIX content tests do not execute an adopting project's OTel integration.
-  The documented receiver and agent investigation pilot remains project-owned.
-- Metadata quality checks are instructional review criteria, not automated
-  semantic validation of a project's diagnostic system.
-- GenAI conventions remain evolving and require a pinned revision and migration policy.
+- The lease model is abstract, finite and UNMAPPED to production code;
+  liveness is NOT_CHECKED. Clocks, crashes and external effects are excluded.
+- Catalog semantic quality checks are review obligations, not automated proofs.
+- Optional deck-render/signing lanes require their external tools; unavailable
+  tools are reported as skips, not verification successes.
 
 Support: open an issue in the HELIX repository.
 
 ## References
 
 - Deployment checklist: [deployment-checklist.md](deployment-checklist.md)
-- Diagnostic design: [design-agent-diagnostics.md](../02-design/design-agent-diagnostics.md)
-- Diagnostic reference: `workflows/references/agent-diagnostics.md`
-- OTel concern: `workflows/concerns/o11y-otel/`
-- Release automation: `.github/workflows/release-tag.yml`
+- Formal methods design: [design-formal-methods.md](../02-design/design-formal-methods.md)
+- Adoption reference: `workflows/references/formal-methods.md`
+- Concern: `workflows/concerns/formal-methods/`
+- Bundle publication: `.github/workflows/release-genie-bundle.yml`
 - Version guard: `.github/workflows/release-version-guard.yml`
