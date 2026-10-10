@@ -75,7 +75,10 @@ process only to resolve relevant uncertainty or prevent a concrete error. Read
 the target and the authorities that affect it; expand scope only for a relevant
 dependency or conflict. Stop when the requested result is coherent and verified.
 Do not turn every finding into a gate or every edit into an audit. Keep tests
-and evidence appropriate to the claims being made.
+and evidence appropriate to the claims being made. Ground agent estimates in
+observed token spending; more tokens, documents, or review rounds are not
+progress. Follow the spending and update rules in
+`workflows/references/work-item-first.md`.
 
 ### Layers Are the Control
 

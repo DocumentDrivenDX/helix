@@ -44,6 +44,9 @@ but leaves no trace here is drift (reconcile-alignment Concern->Artifact Realiza
 - scope and governing artifacts
 - build order and dependencies
 - execution authorization, completion conditions, and stop conditions
+- token estimates grounded in existing usage evidence and a total spending
+  ceiling in the existing execution contract, following
+  `workflows/references/work-item-first.md`; no separate estimate artifact
 - concise continuation evidence and optional tracking rules
 - quality gates and closeout criteria
 - risks that should refine upstream artifacts

@@ -18,6 +18,10 @@ review, the checkpoint, or the stakeholder update.
 - Author a report only when it has an audience — a review, a client
   checkpoint, a stakeholder update. The tracker already shows live status;
   a report nobody reads is ceremony.
+- Update at a meaningful checkpoint or material change for that audience,
+  not each agent step. Reuse runtime evidence; record measured token usage and
+  material forecast variance in an existing closeout entry when available.
+  Follow `workflows/references/work-item-first.md`; add no spending report.
 - Report against the plan's outcome IDs — never introduce outcomes the plan
   does not carry; a new outcome is a plan change first.
 - Claims-vs-reality applies to every status, not just done: done and at-risk
