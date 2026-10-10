@@ -13,6 +13,13 @@ from scripts import refresh_context_digests as digests
 
 
 class AgentDiagnosticsTests(unittest.TestCase):
+    def test_monitoring_action_uses_contract_mapping_and_conditional_context(self):
+        prompt = (ROOT / 'workflows/activities/05-deploy/actions/configure-monitoring/prompt.md').read_text()
+        self.assertIn("governing Contract's OpenTelemetry mapping", prompt)
+        self.assertIn('only when valid context exists', prompt)
+        self.assertIn('run/attempt correlation independent', prompt)
+        self.assertNotIn('timestamp, level, service, trace_id, message', prompt)
+
     def digest(self, area, selected=True, overrides=None):
         library = digests.build_concern_library(
             ROOT, ['o11y-otel'] if selected else [], overrides or {}

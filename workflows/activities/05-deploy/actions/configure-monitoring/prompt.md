@@ -16,7 +16,8 @@ This action configures monitoring systems -- dashboards, alerts, and metrics col
 
 ### 2. Logging Infrastructure
 - Configure centralized log aggregation (Fluentd/ELK or equivalent)
-- Ensure structured JSON logging with: timestamp, level, service, trace_id, message
+- Configure structured logging from the governing Contract's OpenTelemetry mapping; do not define a competing schema
+- Include trace/span context only when valid context exists; keep run/attempt correlation independent
 - Set log retention policies per environment
 
 ### 3. Distributed Tracing
