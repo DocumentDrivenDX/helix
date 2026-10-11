@@ -14,7 +14,7 @@
 - Feed charts and data components in data mode from the server-state layer that calls the project's `/api/*` routes.
 - Map each needed widget to an AppKit UI component first; only a gap gets a copied shadcn component themed with AppKit tokens.
 - Define token overrides as CSS variables for light and dark together; chart series use `--chart-1` to `--chart-5`.
-- Apply `ux-radix` interaction patterns (search, edit, navigation, selection, overlays) to AppKit UI components unchanged.
+- Apply `ux-interaction-patterns` interaction patterns (search, edit, navigation, selection, overlays) to AppKit UI components unchanged.
 
 ## Implementation
 
@@ -30,7 +30,7 @@
 - Run the standalone spike and record bundle size, Tailwind 4 setup, any calls to `/api/<plugin>` or `/health`, and theme switching.
 - Component tests (per `react-vite`) cover data components rendering empty, loading, error, and populated data.
 - Check affected screens in both light and dark themes for every change that touches tokens or an AppKit UI upgrade.
-- Verify keyboard and focus behavior per `ux-radix` on screens built from AppKit UI components.
+- Verify keyboard and focus behavior per `ux-interaction-patterns` on screens built from AppKit UI components.
 - Verify in the browser network panel or e2e that the deployed app calls no AppKit server routes.
 
 ## Quality Gates

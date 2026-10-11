@@ -27,8 +27,8 @@ testing. It is platform-neutral; any backend that can serve static files and an
   *patterns* (server state vs client state, colocation, async UI states). This
   concern fixes the rendering strategy to client-side rendering and names the
   libraries that express those patterns.
-- **`ux-radix`** owns the component library and interaction patterns (shadcn/ui +
-  Radix, per ADR-011); **`a11y-wcag-aa`** owns accessibility compliance;
+- **`ux-interaction-patterns`** owns neutral behavior; the selected library
+  concern (`ux-radix` or `packaged-design-system`) owns its component prescription; **`a11y-wcag-aa`** owns accessibility compliance;
   **`databricks-appkit-ui`** owns the Databricks component layer when selected.
 - **`api-style`** owns the wire contract the SPA consumes.
 - **The backend and `deploy-target`** own serving the build: the backend serves
@@ -133,7 +133,8 @@ rendering for SEO or first-paint data. **Selection signal:** the backend is not
 a Node/Next.js server, or the operator wants a plain SPA; select it by setting
 `frontend-framework: react-vite` under `defaults:` in
 `docs/helix/01-frame/concerns.local.yml`.
-Compose with the backend's `language-runtime` concern, `ux-radix`,
+Compose with the backend's `language-runtime` concern, `ux-interaction-patterns`,
+and the selected component owner,
 `frontend-architecture`, `a11y-wcag-aa`, and `e2e-playwright`; on Databricks,
 with `databricks-apps` and optionally `databricks-appkit-ui`.
 
@@ -147,10 +148,20 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - ADR: React 19 + Vite SPA as the frontend-framework slot (client-rendered, no meta-framework), served by the backend from one origin
 - TD: Vite layout, dev proxy of `/api`, `build.outDir` handed to the backend, `VITE_` env rule, initial-load bundle budget
 - IMPLEMENTATION_PLAN: frontend scaffold, build wiring into the backend's static directory, `tsc --noEmit` and bundle-budget gates
-- DESIGN_SYSTEM: Tailwind 4 tokens the components reference (component-library conventions live with `ux-radix`)
+- DESIGN_SYSTEM: Tailwind 4 tokens the components reference (component-library conventions live with the selected component owner)
 - TEST_PLAN: Vitest (or `bun:test` under `typescript-bun`) + Testing Library component tests; browser e2e per `e2e-playwright`
 
 ## ADR References
 
 - ADR-011: ux-radix owns the Radix and shadcn component-library prescription;
   this concern references rather than re-prescribing
+
+## Component ownership and package integration
+
+Framework selection does not select a component library. Apply the neutral
+ux-interaction-patterns baseline and the project's chosen component owner.
+References above to ux-radix describe the Radix/shadcn choice only; they do not
+require that choice. With packaged-design-system, use its documented components and tokens;
+record Tailwind defaults as overridden where they prescribe independent tokens
+or widget styling. With typescript-bun, run applicable supplied checks alongside the
+selected linter, or define project checks when the package provides none. Installed-version package documentation controls integration.

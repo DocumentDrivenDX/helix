@@ -19,6 +19,7 @@ Concerns are how HELIX answers "every project needs this kind of consistency" wi
   {{< card link="auth-local-sessions" title="Local Sessions (auth-provider)" subtitle="api, data" >}}
   {{< card link="databricks-appkit-ui" title="Databricks AppKit UI (React component layer)" subtitle="ui" >}}
   {{< card link="go-std" title="Go + Standard Toolchain" subtitle="all" >}}
+  {{< card link="packaged-design-system" title="Packaged Design System" subtitle="ui, frontend" >}}
   {{< card link="python-uv" title="Python + uv" subtitle="all" >}}
   {{< card link="react-nextjs" title="React + Next.js" subtitle="web, ui" >}}
   {{< card link="react-vite" title="React + Vite (single-page app)" subtitle="ui" >}}
@@ -43,6 +44,7 @@ Concerns are how HELIX answers "every project needs this kind of consistency" wi
   {{< card link="sample-data" title="Sample Data" subtitle="data" >}}
   {{< card link="scope-discipline" title="Scope Discipline" subtitle="all" >}}
   {{< card link="testing" title="Testing" subtitle="all" >}}
+  {{< card link="ux-interaction-patterns" title="UX Interaction Patterns" subtitle="ui, frontend" >}}
   {{< card link="ux-radix" title="UX Interaction Patterns (Radix)" subtitle="ui, frontend" >}}
   {{< card link="verification" title="Verification" subtitle="all" >}}
 {{< /cards >}}

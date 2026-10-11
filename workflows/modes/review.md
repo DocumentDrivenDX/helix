@@ -35,3 +35,14 @@ silently re-selecting concerns. Require safe run/attempt evidence references,
 verification outcome and capture limits at execution closeout; a quiet console
 is not a pass. Shared schemas stay in Contracts, with actual OTel receiver proof
 for claimed integrations. See `workflows/references/agent-diagnostics.md`.
+
+## UX coverage
+
+For affected interactive UI work, apply ux-interaction-patterns and the selected
+component owner. Use workflows/references/ux-evidence.md: a missing STP UX
+Coverage map is an adoption/readiness gap, not retroactive invalidity. Require
+populated AC mappings and review exclusion reasons. For planning/readiness,
+check named planned tests, commands, component gaps and evidence capture; do
+not demand future passing results. For implementation/completion claims,
+check actual test source and observed runtime results; SDK audit evidence
+cannot prove interaction flows.

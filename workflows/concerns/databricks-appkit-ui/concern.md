@@ -23,14 +23,12 @@ SDK), version pinning, what the library brings and which parts a standalone
 app uses, the token and theme posture, and the open question of standalone
 support. It must not duplicate its neighbors:
 
-- **`ux-radix`** owns the interaction patterns, keyboard contracts, and focus
-  rules, and the shadcn/ui + Radix component-library prescription (ADR-011).
-  AppKit UI is Databricks' distribution of that same shadcn/Radix pattern, so
-  every `ux-radix` interaction rule applies to its components unchanged. Where
-  `ux-radix` says shadcn is copied into `components/ui/` rather than installed,
-  this concern makes AppKit UI the installed library and copies shadcn only for
-  components AppKit UI lacks; record that resolution as a project override (see
-  Conflict Detection in `workflows/references/concern-resolution.md`).
+- **`ux-interaction-patterns`** owns neutral keyboard, navigation and focus
+  behavior, composed automatically for this concern. AppKit owns the installed
+  component layer here. `ux-radix` owns the alternative copied shadcn/Radix
+  prescription; it need not be selected just to obtain behavioral rules.
+  `packaged-design-system` covers another project-selected npm component
+  owner. Resolve competing prescriptions in project overrides.
 - **`frontend-framework`** (`react-vite`) owns the build, routing, environment
   exposure, and component tests; **`frontend-architecture`** owns the
   server-state pattern that feeds AppKit UI's data components.
@@ -114,7 +112,7 @@ support. It must not duplicate its neighbors:
   variables from `styles.css`
 - A token overridden for light only → override light and dark together
 - Custom keyboard or focus handlers on AppKit UI components → keep the Radix
-  behavior, per `ux-radix`
+  behavior, per `ux-interaction-patterns`
 - Standalone support treated as settled with no spike result → run and record
   the spike
 
@@ -136,7 +134,7 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - TD: data-mode components fed by the project's `/api/*` through the server-state layer; no AppKit server routes assumed
 - IMPLEMENTATION_PLAN: the AppKit UI standalone spike before UI build-out; exact pin and upgrade procedure
 - DESIGN_SYSTEM: AppKit OKLCH tokens, overrides for light and dark, chart series tokens, shadcn gap components themed with AppKit tokens
-- TEST_PLAN: affected screens checked in both themes; keyboard and focus behavior per `ux-radix`
+- TEST_PLAN: affected screens checked in both themes; keyboard and focus behavior per `ux-interaction-patterns`
 
 ## ADR References
 

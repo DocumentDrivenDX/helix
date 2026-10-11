@@ -40,8 +40,8 @@ frontend-framework
 - No `React.FC` type annotation — use plain function signatures with typed props
 - Forms must use react-hook-form with uncontrolled components — no `useState` per field
 - Validation schemas live in the shared package and are reused on frontend and backend
-- UI primitives and component-library choice are governed by the `ux-radix`
-  concern (canonical owner of shadcn/ui + Radix); compose `ux-radix` when this
+- UI primitives and component-library choice are governed by the selected library
+  concern (`ux-radix` for shadcn/Radix; `packaged-design-system` for an available npm design system); compose the selected component owner when this
   concern is selected for UI work
 - Tailwind config extends the design system tokens (colors, spacing, typography)
 - E2E tests use Playwright, not Cypress or Selenium
@@ -63,7 +63,7 @@ frontend-framework
 ## When to use
 
 React + Next.js frontend applications. Compose with `typescript-bun` for the
-base TypeScript and Bun runtime concern, and compose with `ux-radix` for UI
+base TypeScript and Bun runtime concern, and compose with `ux-interaction-patterns` and the selected component owner for UI
 primitives and component-library prescription (shadcn/ui + Radix). This
 concern adds React-specific framework patterns (App Router, Server Components,
 forms, data tables) and E2E testing requirements; it does NOT prescribe a
@@ -72,9 +72,9 @@ component library.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: React 19 + Next.js App Router as the frontend-framework slot; Tailwind for styling (component-library prescription is owned by `ux-radix`)
+- ADR: React 19 + Next.js App Router as the frontend-framework slot; Tailwind for styling (component prescription belongs to the selected library concern)
 - TD: App Router + Server Components, react-hook-form + Zod, shared validation schemas
-- DESIGN_SYSTEM: Tailwind config extends design-system tokens (component-library conventions live with `ux-radix`)
+- DESIGN_SYSTEM: Tailwind config extends design-system tokens (component-library conventions live with the selected component owner)
 - TEST_PLAN: Playwright E2E (not Cypress/Selenium)
 
 ## ADR References
@@ -82,6 +82,16 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - ADR-010: Frontend validation architecture (Zod shared schemas)
 - ADR-011: ux-radix owns the Radix and shadcn component-library prescription;
   this concern references rather than re-prescribing
+
+## Component ownership and package integration
+
+Framework selection does not select a component library. Apply the neutral
+ux-interaction-patterns baseline and the project's chosen component owner.
+References above to ux-radix describe the Radix/shadcn choice only; they do not
+require that choice. With packaged-design-system, use its documented components and tokens;
+record Tailwind defaults as overridden where they prescribe independent tokens
+or widget styling. With typescript-bun, run applicable supplied checks alongside the
+selected linter, or define project checks when the package provides none. Installed-version package documentation controls integration.
 
 ## Practices by activity
 
@@ -96,10 +106,9 @@ Agents working in any of these activities inherit the practices below through ru
 - Use Next.js App Router: layouts in `app/layout.tsx`, pages in `app/page.tsx`, route groups with `(groupName)/`
 - Default to React Server Components — add `"use client"` only for interactive components (forms, modals, dropdowns, client state)
 - Component hierarchy: page (server) → layout (server) → interactive widget (client)
-- UI primitives and component library: see the `ux-radix` concern — it is the
-  canonical owner of the shadcn/ui + Radix prescription (copy-not-install,
-  customization, primitive selection). Compose `ux-radix` when this concern
-  is selected for UI work.
+- UI behavior comes from ux-interaction-patterns; component primitives come
+  from the selected library owner: ux-radix for copied shadcn/Radix,
+  packaged-design-system for an available npm design system, or another explicitly selected adapter.
 - Design tokens (colors, spacing, typography) in `tailwind.config.ts` — components reference tokens, not raw values
 - Forms: one Zod schema per entity in `@apogee/shared`, resolved via `@hookform/resolvers/zod`
 - Configuration: import the typed config from the shared `env.ts` (see `typescript-bun`); never read `process.env` directly in route handlers, Server Components, or actions (only the env modules do)
@@ -160,7 +169,17 @@ Agents working in any of these activities inherit the practices below through ru
 ## Accessibility
 - All interactive elements must have accessible labels (aria-label, aria-labelledby, or visible text)
 - Accessible UI-primitive behavior (keyboard, focus, screen reader) is
-  governed by the `ux-radix` concern — do not override Radix/shadcn handlers
-  in ways that break the WAI-ARIA contract
+  governed by ux-interaction-patterns and the selected component owner — preserve its keyboard/focus handlers
+  without breaking the WAI-ARIA contract
 - Color contrast must meet WCAG AA (4.5:1 for normal text, 3:1 for large text)
 - Forms must associate labels with inputs and display validation errors accessibly
+
+## Component ownership and package integration
+
+Framework selection does not select a component library. Apply the neutral
+ux-interaction-patterns baseline and the project's chosen component owner.
+References above to ux-radix describe the Radix/shadcn choice only; they do not
+require that choice. With packaged-design-system, use its documented components and tokens;
+record Tailwind defaults as overridden where they prescribe independent tokens
+or widget styling. With typescript-bun, run applicable supplied checks alongside the
+selected linter, or define project checks when the package provides none. Installed-version package documentation controls integration.

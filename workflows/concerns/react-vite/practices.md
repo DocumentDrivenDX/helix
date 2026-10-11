@@ -16,7 +16,7 @@
 - Define routes with React Router's `createBrowserRouter` as a client-side library; lazy-load each route module.
 - Fetch server state with TanStack Query; keep client-only UI state in components (patterns per `frontend-architecture`).
 - Validate forms with react-hook-form and Zod; mirror, never replace, the backend's validation.
-- Reference design tokens through Tailwind 4 theme variables; UI primitives and component library come from `ux-radix` (and `databricks-appkit-ui` when selected).
+- Reference design tokens through Tailwind 4 theme variables; UI behavior comes from `ux-interaction-patterns`; the selected component owner supplies primitives (Radix/shadcn, AppKit, or packaged-design-system).
 - Backend configuration follows its `language-runtime` concern's central-config rule; the SPA never reads it directly.
 - Expose to the client only `VITE_`-prefixed variables that are safe to publish; serve runtime configuration from an `/api/*` route.
 
@@ -47,3 +47,13 @@
 - `vite build` succeeds and the initial-load JavaScript stays within the TD budget.
 - No `VITE_` variable holds a secret, and no client code references `process.env`.
 - No absolute API host in client code; all API calls are relative `/api/...`.
+
+## Component ownership and package integration
+
+Framework selection does not select a component library. Apply the neutral
+ux-interaction-patterns baseline and the project's chosen component owner.
+References above to ux-radix describe the Radix/shadcn choice only; they do not
+require that choice. With packaged-design-system, use its documented components and tokens;
+record Tailwind defaults as overridden where they prescribe independent tokens
+or widget styling. With typescript-bun, run applicable supplied checks alongside the
+selected linter, or define project checks when the package provides none. Installed-version package documentation controls integration.

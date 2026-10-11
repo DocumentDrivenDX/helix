@@ -164,3 +164,11 @@ committing.
 - [ ] Out of scope excludes something plausible
 - [ ] No compound acceptance criteria (split into separate items)
 - [ ] Story does not invent behavior outside the parent feature spec
+
+## Applicable UX behavior
+
+For interactive UI stories, ux-interaction-patterns informs stable observable
+ACs for the affected navigation, keyboard/overlay, async, form, data-state and
+destructive behaviors. Name outcomes and recovery; do not require absent
+widgets or duplicate exact component APIs. The STP UX Coverage section maps
+these categories to this story's ACs and executable assertions.
