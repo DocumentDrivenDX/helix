@@ -10,7 +10,7 @@ Checks run, in order:
   pattern_checks     regex entries {pattern, expected, message[, severity]}
                      where expected is 0 (must not match) or >=N
   automated_checks   rule entries {check, type, field[, severity, message]}
-                     with type unique_constraint, module_boundaries, or not_equals plus `value`;
+                     with type unique_constraint, module_boundaries, ux_coverage, or not_equals plus `value`;
                      other rule types are reported as unsupported without failing
   placeholder        leftover template markers ([TODO], TBD, [Fill in], ...)
 
@@ -316,6 +316,89 @@ def check_module_boundaries(body: str, base: int, severity: str, report: Report)
         fail("Source projects need a populated module table with Module, Responsibility / Owned Types, Public API, Allowed Dependencies and Forbidden Dependencies")
 
 
+UX_PATTERNS = {"navigation", "keyboard-overlays", "async-actions", "forms",
+               "data-states", "destructive-actions"}
+
+
+def check_ux_coverage(body: str, base: int, severity: str, report: Report) -> None:
+    """Validate declared STP coverage, not test execution or UX semantics.
+
+    Legacy absence passes; workflow readiness requires adoption for affected UI.
+    """
+    scan = strip_fences(body)
+    headings = list(re.finditer(r"(?m)^##[ \t]+(?!#)(.+?)[ \t]*$", scan))
+    sections = [h for h in headings if slugify(h.group(1)) == "ux_coverage"]
+    if not sections:
+        return
+    line = line_of(scan, sections[0].start(), base)
+
+    def fail(message: str) -> None:
+        report.add(severity, "ux_coverage", message, line)
+
+    if len(sections) != 1:
+        fail("Use exactly one UX Coverage section")
+        return
+
+    def section(heading):
+        end = next((h.start() for h in headings if h.start() > heading.start()), len(scan))
+        return scan[heading.end():end]
+
+    def table_rows(text, columns):
+        header = None
+        rows = []
+        for text_line in text.splitlines():
+            if not text_line.lstrip().startswith("|"):
+                header = None
+                continue
+            cells = [c.strip() for c in text_line.strip().strip("|").split("|")]
+            if all(re.fullmatch(r":?-+:?", c or "-") for c in cells):
+                continue
+            names = [slugify(c) for c in cells]
+            if all(c in names for c in columns):
+                header = names
+                continue
+            if header is not None:
+                rows.append({c: cells[header.index(c)] if header.index(c) < len(cells) else ""
+                             for c in columns})
+        return rows
+
+    mapping_heads = [h for h in headings if slugify(h.group(1)) == "acceptance_criteria_test_mapping"]
+    columns = ("ac_id", "failing_test_s_to_create_or_run", "asserted_behavior_what_the_test_verifies", "file_or_command")
+    mapped = {}
+    for heading in mapping_heads:
+        for row in table_rows(section(heading), columns):
+            ac = row["ac_id"].strip("` ")
+            if ac in mapped:
+                fail(f"Duplicate mapped AC ID: {ac}")
+            mapped[ac] = row
+    rows = table_rows(section(sections[0]), ("pattern", "disposition", "ac_ids_or_reason"))
+    seen = set()
+    for row in rows:
+        pattern, disposition, value = (row[c].strip("` ") for c in ("pattern", "disposition", "ac_ids_or_reason"))
+        if pattern not in UX_PATTERNS or pattern in seen:
+            fail(f"Unknown or duplicate UX pattern: {pattern}")
+        seen.add(pattern)
+        if disposition == "not-applicable":
+            if not value or value.lower() in {"n/a", "none", "not applicable", "-"}:
+                fail(f"{pattern}: non-applicability needs a concrete reason")
+        elif disposition == "covered":
+            ids = [ac.strip("` ") for ac in value.split(",")]
+            if not ids or any(not re.fullmatch(r"US-\d+-AC\d+", ac) for ac in ids) or len(ids) != len(set(ids)):
+                fail(f"{pattern}: covered rows need unique stable US numeric AC IDs")
+                continue
+            for ac in ids:
+                mapping = mapped.get(ac)
+                if not mapping:
+                    fail(f"{pattern}: unresolved AC ID {ac}")
+                elif any(not mapping[c].strip("` \t") or mapping[c].strip("` \t").lower() in {"n/a", "none", "-"} for c in columns[1:]):
+                    fail(f"{pattern}: {ac} needs populated test, assertion and file/command")
+        else:
+            fail(f"{pattern}: disposition must be covered or not-applicable")
+    missing = UX_PATTERNS - seen
+    if missing:
+        fail("Missing UX patterns: " + ", ".join(sorted(missing)))
+
+
 def check_rule_entries(key: str, entries: list, body: str, base: int, report: Report) -> None:
     for i, entry in enumerate(entries):
         if not isinstance(entry, dict):
@@ -332,7 +415,9 @@ def check_rule_entries(key: str, entries: list, body: str, base: int, report: Re
             continue
         field = entry.get("field")
         rule = entry.get("type")
-        if rule == "module_boundaries":
+        if rule == "ux_coverage":
+            check_ux_coverage(body, base, severity, report)
+        elif rule == "module_boundaries":
             check_module_boundaries(body, base, severity, report)
         elif rule == "unique_constraint" and field:
             values = field_values(body, str(field))

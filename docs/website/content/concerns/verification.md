@@ -208,7 +208,8 @@ from an actual run, never asserted from memory:
    running system**. That test is a **browser e2e** for a client-rendered UI, or
    an **HTTP+HTML-assertion e2e** for a server-rendered UI (drive the live server
    and assert the rendered markup, including a visible active state **and**
-   `aria-current="page"` on the active nav item for ≥1 route). **Both are
+   `aria-current="page"` on the active nav item for ≥1 route where page
+   navigation exists; otherwise record a concrete scoped exclusion). **Both are
    first-class — a server-rendered slice verified by
    an HTTP+HTML e2e is NOT a deviation** (the `e2e-framework` concern owns *how*
    and *which*; this gate only refuses-done without that running-system evidence).
@@ -288,3 +289,15 @@ e2e genuinely infeasible). Under a recorded exception:
   run that was watched finish.
 - Re-review pass recorded against the ACs and the integration seams the change
   touched.
+
+## UX and SDK evidence
+
+For affected interactive UI work, the STP UX Coverage map follows
+workflows/references/ux-evidence.md and ux-interaction-patterns. Review actual
+mapped test source/citations and observed interaction outcomes before done.
+Legacy omission is structurally valid but is a readiness gap for new affected
+work. Where ai-design-system is selected, record installed versions, source
+lint and runtime audit exits, affected route/theme/appearance coverage, JSON,
+HTML and screenshot paths, plus owner-assigned warnings and scoped reviewed
+exceptions. Audit-green alone never proves keyboard, focus, duplicate-submit,
+validation or recovery behavior. Static/API-only work needs no invented UI.

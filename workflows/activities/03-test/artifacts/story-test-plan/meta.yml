@@ -44,6 +44,12 @@ validation:
     - data_and_setup
     - build_handoff
 
+  automated_checks:
+    - check: ux_coverage
+      type: ux_coverage
+      severity: blocking
+      description: When present, UX Coverage maps all six patterns to populated existing AC test rows or concrete non-applicability reasons
+
   pattern_checks:
     - pattern: "\\[\\[US-[0-9]{3}-"
       expected: ">=1"

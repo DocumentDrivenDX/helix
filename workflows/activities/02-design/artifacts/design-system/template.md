@@ -9,7 +9,7 @@ ddx:
 
 This is the per-project **interface system**: the concrete UX/design-system
 decisions this app commits to. It is this app's *instance* of the interface
-guidelines in the `ux-radix` concern — not a copy of the concern library.
+guidelines in the `ux-interaction-patterns` concern — not a copy of the concern library.
 
 ## Navigation and Active State
 
@@ -54,7 +54,11 @@ the state actually exists for that element, not every state on every element.
 
 ## Tokens
 
-Concrete values, not placeholders.
+Choose one source of truth: concrete local values, or external token references
+with package/source, installed version, selected theme (or host-resolved embedded
+tokens), supported appearances and component mappings. For an external SDK use
+role-token names verified in installed guidance; do not copy the palette or
+restyle SDK widgets. Keep exact props/wiring in TDs and test assertions in STPs.
 
 ### Color
 [Palette: brand, neutrals, semantic (success/warning/danger/info), surfaces.]
@@ -77,3 +81,11 @@ This document is the **interface system only**. It deliberately does NOT cover:
 
 If a decision is about *how the system is built* rather than *how the interface
 looks and behaves*, it belongs in architecture / solution-design / ADRs.
+
+### Navigation applicability
+
+The active-page convention applies only where page navigation exists. For a
+single-surface or embedded view with none, record in Navigation and Active State:
+`Page navigation: not-applicable;` followed by a concrete reason. Do not create
+navigation merely to satisfy the template. Tabs still use their own selection
+semantics. Review applicability rather than accepting a bare exemption marker.

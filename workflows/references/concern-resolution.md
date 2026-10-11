@@ -107,10 +107,15 @@ label or assign multiple labels.
 
 1. Parse the active concerns document for selected concerns (listed under
    `## Active Concerns`).
-2. Filter to concerns matching the current work item's area scope.
-3. For each matched concern, load
+2. Compose `ux-interaction-patterns` when `ux-radix`,
+   `ai-design-system`, or `databricks-appkit-ui` is selected. Load its practices
+   as well as the adapter practices; retain the explicit selection document.
+   This bounded composition preserves existing UI selections, adds no library
+   choice and is implemented by the context-digest loader.
+3. Filter to concerns matching the current work item's area scope.
+4. For each matched concern, load
    `workflows/concerns/<concern-name>/practices.md` from the library.
-4. Apply project overrides (listed under `## Project Overrides` in the
+5. Apply project overrides (listed under `## Project Overrides` in the
    concerns document) on top of library practices.
 
 Project overrides take full precedence subject to the source-code baseline evidence floor and explicit exception contract above.
@@ -516,3 +521,23 @@ an allegedly unrelated change to a modeled guard still requires rechecking.
 See `workflows/references/formal-methods.md`. Missing scope, stale evidence or
 unreviewed correspondence blocks the affected assurance claim, not unrelated
 work or legacy artifact structural validity.
+
+## UX adoption and readiness
+
+For affected new or changed interactive UI work, apply ux-interaction-patterns
+and the selected component owner. A missing STP UX Coverage map is a blocking
+readiness/adoption finding, not retroactive invalidity of legacy instances.
+Static content and API-only work need no invented interactions. Check/Polish
+identify gaps; Frame/Evolve applies an authorized adoption update. No silent
+re-selection of existing projects.
+
+SDK adoption is explicit. React and Databricks hosting do not automatically
+select ux-radix/AppKit alongside ai-design-system. Resolve competing component
+owners, Tailwind presentation defaults and Biome versus SDK lint through the
+existing override mechanism, citing the governing ADR for conflicts/deviations.
+The SDK's databricks theme does not select databricks-appkit-ui.
+
+Use workflows/references/ux-evidence.md for the scoped coverage format. Carry
+its adoption obligation in compact context, verify full practices at execution,
+and require the observed interaction results plus applicable SDK lint/audit
+reports before completion. Structural coverage alone is not runtime proof.

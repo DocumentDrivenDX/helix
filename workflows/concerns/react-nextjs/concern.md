@@ -30,8 +30,8 @@ frontend-framework
 - No `React.FC` type annotation — use plain function signatures with typed props
 - Forms must use react-hook-form with uncontrolled components — no `useState` per field
 - Validation schemas live in the shared package and are reused on frontend and backend
-- UI primitives and component-library choice are governed by the `ux-radix`
-  concern (canonical owner of shadcn/ui + Radix); compose `ux-radix` when this
+- UI primitives and component-library choice are governed by the selected library
+  concern (`ux-radix` for shadcn/Radix; `ai-design-system` for the SDK); compose the selected component owner when this
   concern is selected for UI work
 - Tailwind config extends the design system tokens (colors, spacing, typography)
 - E2E tests use Playwright, not Cypress or Selenium
@@ -53,7 +53,7 @@ frontend-framework
 ## When to use
 
 React + Next.js frontend applications. Compose with `typescript-bun` for the
-base TypeScript and Bun runtime concern, and compose with `ux-radix` for UI
+base TypeScript and Bun runtime concern, and compose with `ux-interaction-patterns` and the selected component owner for UI
 primitives and component-library prescription (shadcn/ui + Radix). This
 concern adds React-specific framework patterns (App Router, Server Components,
 forms, data tables) and E2E testing requirements; it does NOT prescribe a
@@ -62,9 +62,9 @@ component library.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: React 19 + Next.js App Router as the frontend-framework slot; Tailwind for styling (component-library prescription is owned by `ux-radix`)
+- ADR: React 19 + Next.js App Router as the frontend-framework slot; Tailwind for styling (component prescription belongs to the selected library concern)
 - TD: App Router + Server Components, react-hook-form + Zod, shared validation schemas
-- DESIGN_SYSTEM: Tailwind config extends design-system tokens (component-library conventions live with `ux-radix`)
+- DESIGN_SYSTEM: Tailwind config extends design-system tokens (component-library conventions live with the selected component owner)
 - TEST_PLAN: Playwright E2E (not Cypress/Selenium)
 
 ## ADR References
@@ -72,3 +72,13 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - ADR-010: Frontend validation architecture (Zod shared schemas)
 - ADR-011: ux-radix owns the Radix and shadcn component-library prescription;
   this concern references rather than re-prescribing
+
+## Component ownership and SDK composition
+
+Framework selection does not select a component library. Apply the neutral
+ux-interaction-patterns baseline and the project's chosen component owner.
+References above to ux-radix describe the Radix/shadcn choice only; they do not
+require that choice. With ai-design-system, use its widgets and role tokens;
+record Tailwind defaults as overridden where they prescribe independent tokens
+or widget styling. With typescript-bun, SDK ESLint/Stylelint is additive to
+Biome, not silently omitted. SDK installed guidance controls integration.

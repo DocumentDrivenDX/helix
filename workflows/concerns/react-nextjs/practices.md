@@ -9,10 +9,9 @@
 - Use Next.js App Router: layouts in `app/layout.tsx`, pages in `app/page.tsx`, route groups with `(groupName)/`
 - Default to React Server Components — add `"use client"` only for interactive components (forms, modals, dropdowns, client state)
 - Component hierarchy: page (server) → layout (server) → interactive widget (client)
-- UI primitives and component library: see the `ux-radix` concern — it is the
-  canonical owner of the shadcn/ui + Radix prescription (copy-not-install,
-  customization, primitive selection). Compose `ux-radix` when this concern
-  is selected for UI work.
+- UI behavior comes from ux-interaction-patterns; component primitives come
+  from the selected library owner: ux-radix for copied shadcn/Radix,
+  ai-design-system for the SDK, or another explicitly selected adapter.
 - Design tokens (colors, spacing, typography) in `tailwind.config.ts` — components reference tokens, not raw values
 - Forms: one Zod schema per entity in `@apogee/shared`, resolved via `@hookform/resolvers/zod`
 - Configuration: import the typed config from the shared `env.ts` (see `typescript-bun`); never read `process.env` directly in route handlers, Server Components, or actions (only the env modules do)
@@ -73,7 +72,17 @@
 ## Accessibility
 - All interactive elements must have accessible labels (aria-label, aria-labelledby, or visible text)
 - Accessible UI-primitive behavior (keyboard, focus, screen reader) is
-  governed by the `ux-radix` concern — do not override Radix/shadcn handlers
-  in ways that break the WAI-ARIA contract
+  governed by ux-interaction-patterns and the selected component owner — preserve its keyboard/focus handlers
+  without breaking the WAI-ARIA contract
 - Color contrast must meet WCAG AA (4.5:1 for normal text, 3:1 for large text)
 - Forms must associate labels with inputs and display validation errors accessibly
+
+## Component ownership and SDK composition
+
+Framework selection does not select a component library. Apply the neutral
+ux-interaction-patterns baseline and the project's chosen component owner.
+References above to ux-radix describe the Radix/shadcn choice only; they do not
+require that choice. With ai-design-system, use its widgets and role tokens;
+record Tailwind defaults as overridden where they prescribe independent tokens
+or widget styling. With typescript-bun, SDK ESLint/Stylelint is additive to
+Biome, not silently omitted. SDK installed guidance controls integration.

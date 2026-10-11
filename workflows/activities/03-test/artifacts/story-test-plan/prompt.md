@@ -67,3 +67,24 @@ Name exact receiver/failure/correlation/privacy/retrieval tests and assertions;
 record untested limits explicitly. Project strategy belongs in Test Plan and
 story AC-to-test rows remain here. Do not substitute a schema parse or a mock
 exporter for actual OTLP receiver evidence on the real instrumentation path.
+
+## UX Coverage
+
+For affected interactive UI work, apply ux-interaction-patterns and
+workflows/references/ux-evidence.md. This section is optional for legacy
+structural validity; current affected UI handoff requires adoption. Each
+covered category references the existing AC mapping, which owns test names,
+assertions, @covers citations and commands. Mark absent patterns not-applicable
+with concrete reasons; runtime exceptions are reviewed in verification evidence.
+
+| Pattern | Disposition | AC IDs or Reason |
+|---|---|---|
+| navigation | covered / not-applicable | [stable AC IDs or exclusion reason] |
+| keyboard-overlays | covered / not-applicable | [stable AC IDs or exclusion reason] |
+| async-actions | covered / not-applicable | [stable AC IDs or exclusion reason] |
+| forms | covered / not-applicable | [stable AC IDs or exclusion reason] |
+| data-states | covered / not-applicable | [stable AC IDs or exclusion reason] |
+| destructive-actions | covered / not-applicable | [stable AC IDs or exclusion reason] |
+
+Structure checks only declared coverage integrity. Verify real test source and
+observed outcomes before completion; SDK lint/audit is separate evidence.
