@@ -201,7 +201,8 @@ from an actual run, never asserted from memory:
    running system**. That test is a **browser e2e** for a client-rendered UI, or
    an **HTTP+HTML-assertion e2e** for a server-rendered UI (drive the live server
    and assert the rendered markup, including a visible active state **and**
-   `aria-current="page"` on the active nav item for ≥1 route). **Both are
+   `aria-current="page"` on the active nav item for ≥1 route where page
+   navigation exists; otherwise record a concrete scoped exclusion). **Both are
    first-class — a server-rendered slice verified by
    an HTTP+HTML e2e is NOT a deviation** (the `e2e-framework` concern owns *how*
    and *which*; this gate only refuses-done without that running-system evidence).
@@ -280,3 +281,16 @@ e2e genuinely infeasible). Under a recorded exception:
   on the running system.
 - Zero asserted-but-unobserved results — every reported outcome traces to a
   run that was watched finish.
+
+## UX and package evidence
+
+For affected interactive UI work, the STP UX Coverage map follows
+workflows/references/ux-evidence.md and ux-interaction-patterns. Review actual
+mapped test source/citations and observed interaction outcomes before done.
+Legacy omission is structurally valid but is a readiness gap for new affected
+work. With packaged-design-system, record installed versions and the project's
+actual presentation/accessibility checks, command exits, route/theme coverage,
+report paths and reviewed findings/exceptions. Use applicable supplied tools;
+where none exist, define project checks. These do not replace keyboard, focus,
+duplicate-submit, validation or recovery tests. Static/API-only work needs no
+invented UI or package audit.

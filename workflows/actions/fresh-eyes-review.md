@@ -57,3 +57,21 @@ actual receiver/correlation, duplicate-ingestion and failure evidence before
 accepting an implementation claim; JSONL parsing and quiet console output are
 insufficient. Report missing adoption/evidence without silently re-selecting
 concerns or claiming the adopting-project pilot ran.
+
+## UX and package alignment
+
+For affected UI work, apply ux-interaction-patterns and the selected component
+owner, per workflows/references/ux-evidence.md. For plan reviews, verify STP
+UX Coverage resolves to concrete planned tests/assertions/commands; do not
+require future passing results. For implementation/completion reviews, verify
+IDs resolve to real tests with meaningful assertions and AC citations. Review
+pattern applicability, visible current location, keyboard/modality/focus,
+async duplicate guards, validation and recovery, and destructive policy.
+For completion claims require observed runtime outcomes; coverage structure
+is not behavioral proof.
+For packaged-design-system, inspect actual availability/compatibility evidence,
+installed-version documentation, token references and component ownership.
+For plans inspect the declared supplied/project check commands and evidence
+capture; for completion inspect observed results and reviewed findings/exceptions.
+Do not assume a package includes lint/audit tooling. Report missing evidence;
+never invent a consumer test run from HELIX's catalog tests.

@@ -14,7 +14,7 @@ description: |
   decisions this app commits to. It captures the navigation model and
   active-state convention, the visual hierarchy, the applicable interaction
   states, and the design tokens (color / spacing / type). It is the
-  app-specific instance of the interface-quality guidelines the `ux-radix`
+  app-specific instance of the interface-quality guidelines the `ux-interaction-patterns`
   concern prescribes — NOT a mirror or copy of the concern library. One
   DESIGN.md per project, like the architecture document.
 
@@ -33,7 +33,7 @@ validation:
 
   quality_checks:
     - check: active_state_convention_defined
-      description: The navigation section names the active-state convention AND requires aria-current="page" on the active nav item
+      description: The navigation section names the active-state convention AND requires aria-current="page" where page navigation exists, or explains its absence
       severity: blocking
 
     - check: applicable_states_only
@@ -41,7 +41,7 @@ validation:
       severity: warning
 
     - check: tokens_concrete
-      description: Tokens name concrete values (a palette, a spacing scale, a type scale), not placeholders
+      description: Tokens name concrete local values or versioned external role-token references, not placeholders
       severity: blocking
 
     - check: non_goals_present
@@ -50,7 +50,7 @@ validation:
 
     - check: review_navigation_section_names_the_active_01
       description: >-
-        Navigation section names the active-state convention AND requires `aria-current="page"` on the active nav item
+        Navigation section names the active-state convention AND requires `aria-current="page"` where page navigation exists, or explains its absence
       severity: warning
     - check: review_active_visual_cue_derived_bound
       description: >-
@@ -66,7 +66,7 @@ validation:
       severity: warning
     - check: review_tokens_name_real_values_palette
       description: >-
-        Tokens name real values (palette, spacing scale, type scale)
+        Tokens name local values or versioned external role-token references
       severity: warning
     - check: review_non_goals_section_keeps_architecture
       description: >-
@@ -74,13 +74,14 @@ validation:
       severity: warning
     - check: review_reads_as_app_s_instance
       description: >-
-        Reads as this app's instance of the guidelines, not a copy of the `ux-radix` concern library
+        Reads as this app's instance of the guidelines, not a copy of the `ux-interaction-patterns` concern library
       severity: warning
 
   pattern_checks:
-    - pattern: 'aria-current'
+    - pattern: 'aria-current|Page navigation: not-applicable;[^\n]*\S'
       expected: ">=1"
-      message: Must state the aria-current="page" active-nav requirement
+      message: >-
+        State the active-nav semantic requirement or Page navigation: not-applicable; with a concrete reason
 
     - pattern: "\\[TBD\\]|\\[TODO\\]|\\[NEEDS CLARIFICATION"
       expected: 0
@@ -100,14 +101,14 @@ prompts:
   review: |
     Review this DESIGN.md for:
     1. Whether the navigation section names a concrete active-state convention
-       AND requires aria-current="page" on the active nav item
+       AND requires aria-current="page" where page navigation exists, or explains its absence
     2. Whether interaction states are scoped where-applicable, not universally
     3. Whether the visual hierarchy is concrete enough to build against
-    4. Whether tokens name real values, not placeholders
+    4. Whether tokens name local values or versioned external references, not placeholders
     5. Whether the non-goals section keeps architecture, data flow, component
        implementation internals, and ADR material OUT of this document
     6. Whether it reads as this app's instance of the guidelines, not a copy of
-       the ux-radix concern library
+       the ux-interaction-patterns concern library
 
 template:
   file: template.md
@@ -115,7 +116,7 @@ template:
     - navigation_and_active_state: "The navigation model and the active-state convention (visible active state + aria-current='page' on the active item)."
     - visual_hierarchy: "How the interface ranks importance — layout, type scale, weight, spacing, and emphasis rules."
     - interaction_states: "The interaction states this app uses, where applicable (hover/focus-visible, disabled, loading, empty/error)."
-    - tokens: "The design tokens — color palette, spacing scale, type scale — as concrete values."
+    - tokens: "The design tokens — color palette, spacing scale, type scale — as concrete local values or versioned external references."
     - non_goals: "What this document deliberately does NOT cover (architecture, data flow, component internals, ADRs)."
 
 example:

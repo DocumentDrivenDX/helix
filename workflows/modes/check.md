@@ -83,3 +83,14 @@ undifferentiated answer.
 ## Source-Code Boundaries
 
 Check the `modularity-and-encapsulation` source-code baseline in `workflows/references/concern-resolution.md`. Missing selection, map, or checker evidence blocks source feature readiness; recommend explicit adoption/design work. Legacy artifact validity remains separate. Check does not silently re-select concerns or edit existing adoption decisions.
+
+## UX coverage
+
+For affected interactive UI work, apply ux-interaction-patterns and the selected
+component owner. Use workflows/references/ux-evidence.md: a missing STP UX
+Coverage map is an adoption/readiness gap, not retroactive invalidity. Require
+populated AC mappings and review exclusion reasons. For planning/readiness,
+check named planned tests, commands, component gaps and evidence capture; do
+not demand future passing results. For implementation/completion claims,
+check actual test source and observed runtime results; SDK audit evidence
+cannot prove interaction flows.

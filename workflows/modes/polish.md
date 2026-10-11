@@ -24,3 +24,14 @@ not execution-ready and route it back through planning.
 Apply `modularity-and-encapsulation` and the source-code baseline in `workflows/references/concern-resolution.md`. Feature work is not execution-ready without baseline selection, populated boundary evidence, and sequenced project-local enforcement. Name destination modules and applicable check commands in scoped work items. Bounded adoption/checker work may establish those prerequisites; do not block it on the gate it creates.
 
 Procedure: `workflows/actions/polish.md` supplies additional detail.
+
+## UX coverage
+
+For affected interactive UI work, apply ux-interaction-patterns and the selected
+component owner. Use workflows/references/ux-evidence.md: a missing STP UX
+Coverage map is an adoption/readiness gap, not retroactive invalidity. Require
+populated AC mappings and review exclusion reasons. For planning/readiness,
+check named planned tests, commands, component gaps and evidence capture; do
+not demand future passing results. For implementation/completion claims,
+check actual test source and observed runtime results; SDK audit evidence
+cannot prove interaction flows.

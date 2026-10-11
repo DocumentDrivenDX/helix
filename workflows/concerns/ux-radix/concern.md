@@ -6,120 +6,46 @@ quality-attribute
 ## Areas
 ui, frontend
 
+## Boundary
+
+This concern owns the Radix/shadcn implementation choice per ADR-011. It
+composes ux-interaction-patterns for framework-neutral behavior; the resolver
+and context-digest loader include that baseline for existing ux-radix selections.
+No selection migration or new exclusive slot is required.
+
 ## Components
 
-- **Primitives**: Radix UI (headless, accessible by default) — this concern is
-  the canonical owner of the Radix prescription; other concerns reference here
-- **Component library**: shadcn/ui (copied components, not an npm dependency)
-  built on top of Radix — this concern is the canonical owner of the shadcn
-  prescription; framework concerns (e.g. `react-nextjs`) reference here rather
-  than re-prescribing
-- **Patterns**: WAI-ARIA design patterns for all interactive widgets
-- **Scope**: Searching, editing, navigation, selection, and disclosure
+- Radix accessible primitives, wrapped by copied shadcn/ui components
+- WAI-ARIA patterns appropriate to the actual widget
 - **Boundary**: `ux-radix` owns the widgets; `a11y-wcag-aa` owns the accessibility checks.
 
 ## Constraints
 
-### Searching
-
-- Filterable lists use the combobox pattern (WAI-ARIA Combobox): text input
-  with an associated listbox, arrow-key navigation, typeahead, and
-  `aria-activedescendant` tracking
-- Global search uses a command palette (Dialog + Combobox): `Cmd+K` /
-  `Ctrl+K` opens a modal with instant filtering, grouped results, and
-  keyboard-only completion
-- Search inputs must have a visible label or `aria-label`; placeholder text
-  alone is not a label
-- Filtering must update results live without requiring a submit action;
-  debounce network requests (200-300ms) but show local filtering instantly
-- Empty states must be explicit: "No results for X" with a suggestion or
-  action, not a blank container
-- Clear/reset must be a single action (Escape in combobox, clear button in
-  filter bars)
-
-### Editing
-
-- Inline editing uses the edit pattern: display value → click/Enter to
-  activate → input with current value → Enter to confirm, Escape to cancel
-- Form editing uses react-hook-form with Zod validation: errors appear on
-  blur or submit, not on every keystroke
-- Destructive actions require confirmation: Dialog with explicit
-  confirm/cancel, destructive button visually distinct (red/danger variant)
-- Optimistic updates for low-risk edits (toggling, reordering); pessimistic
-  updates for high-risk edits (deletion, financial data)
-- Undo support for reversible actions where feasible (toast with undo
-  action, not just a confirmation dialog)
-- Autosave for long-form content with visible save status indicator
-  (saved / saving / unsaved changes)
-
-### Navigation
-
-- Primary navigation uses NavigationMenu (Radix): keyboard arrow-key
-  traversal, `aria-current="page"` on active item, roving tabindex within
-  menu groups
-- Breadcrumbs for hierarchical navigation: `<nav aria-label="Breadcrumb">`
-  with `aria-current="page"` on the current item, links for all ancestors
-- Tab navigation uses Tabs (Radix): arrow keys switch tabs, `aria-selected`
-  tracks active tab, tab panels are associated via `aria-labelledby`
-- Page-level keyboard shortcuts documented and discoverable (help modal
-  via `?` key); shortcuts must not conflict with browser or screen reader
-  keys
-- Focus must return to the trigger element when closing modals, popovers,
-  and dropdown menus
-- Navigation landmarks: `<main>`, `<nav>`, `<aside>`, `<header>`,
-  `<footer>` — one `<main>` per page, labeled `<nav>` elements when
-  multiple exist
-- Skip-to-content link as the first focusable element on every page
-
-### Selection
-
-- Single selection: Select (Radix) or RadioGroup — arrow keys cycle options,
-  typeahead jumps to matching item
-- Multi-selection: Checkbox groups with `aria-describedby` for group context,
-  select-all/none controls, count badge showing "N selected"
-- Row selection in tables: checkbox column, Shift+click for range select,
-  bulk action toolbar appears when selection is non-empty
-- Selection state must be visually obvious (not just color — use checkmarks,
-  borders, or background patterns for color-blind users)
-
-### Disclosure and Overlays
-
-- Tooltips: Tooltip (Radix) — hover and focus triggered, 200ms open delay,
-  Escape to dismiss, never contain interactive content
-- Popovers: Popover (Radix) — click triggered, focus trapped inside, Escape
-  to close, returns focus to trigger
-- Dialogs: Dialog (Radix) — focus trapped, Escape to close, scroll locked on
-  body, returns focus to trigger on close
-- Dropdown menus: DropdownMenu (Radix) — arrow-key navigation, typeahead,
-  submenus, checkable items, Escape closes current level
-- Accordions: Accordion (Radix) — arrow keys between headers, Enter/Space
-  toggles, `aria-expanded` tracked
-- Sheets/drawers: same focus trap and return rules as Dialog
-
-## Drift Signals (anti-patterns to reject in review)
-
-- Custom dropdown without keyboard navigation → use Radix Select or DropdownMenu
-- Modal without focus trap → use Radix Dialog
-- Search input without listbox association → use combobox pattern
-- Tooltip with interactive content (links, buttons) → move to Popover
-- Delete button without confirmation → add Dialog confirmation
-- Filter that requires clicking "Apply" → filter live with debounce
-- Navigation menu built from plain `<div>` + click handlers → use Radix NavigationMenu or semantic `<nav>` + `<a>`
-- Tab implementation using divs with onClick → use Radix Tabs
-- Focus lost after modal close → ensure focus returns to trigger
-- Keyboard shortcut that overrides browser default (Ctrl+P, Ctrl+S) → choose non-conflicting binding
+- Copy shadcn components into components/ui/ and theme them with project tokens;
+  shadcn is not installed as an npm dependency. Keep Radix semantics intact.
+- Ordinary nav uses semantic nav/links; NavigationMenu is optional when its
+  interaction fits. Plain text filtering is not automatically a combobox.
+- Dialog/AlertDialog implement modal decisions. Popover may be non-modal;
+  focus trapping follows modality, not an unconditional overlay rule.
+- Match tabs, selects, menus, tooltips and disclosure to their actual patterns.
+  Tooltips contain no interactive content; use a popover for interactive detail.
+- packaged-design-system and databricks-appkit-ui have competing component ownership;
+  resolve any composition in project overrides with governing ADR before build.
 
 ## When to use
 
-Any project with interactive user interfaces that involve searching, editing,
-navigating, or selecting data. Composes with `a11y-wcag-aa` for compliance
-requirements and `react-nextjs` for React-specific implementation patterns.
-Framework-agnostic in principle — the patterns are WAI-ARIA standards; Radix
-is the reference implementation for React projects, and shadcn/ui is the
-prescribed component library that wraps Radix for React projects.
+A project choosing Radix/shadcn as its UI implementation. For another component
+library select ux-interaction-patterns and its library concern instead. Existing
+ux-radix selections retain the neutral baseline automatically.
 
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- DESIGN_SYSTEM: WAI-ARIA interaction patterns for search/edit/nav/select/disclosure; Radix primitives; shadcn component conventions; states
-- TEST_PLAN: keyboard navigation, focus-return, active-state, and live-filter behavior checks
+- DESIGN_SYSTEM: component mappings and app conventions per ux-interaction-patterns
+- TEST_PLAN: baseline UX Coverage plus applicable Radix keyboard/focus tests
+
+## ADR References
+
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only
+when the project deviates from the Radix/shadcn prescription. Neutral interaction
+behavior composes separately.

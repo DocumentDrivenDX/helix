@@ -29,6 +29,7 @@ entry_requirements:
       description: "CI/CD pipeline configured for tests"
 
   manual:
+    - "Affected interactive UI work has reviewed STP UX Coverage per workflows/references/ux-evidence.md, named planned tests/commands and resolved component ownership/gaps. Package adoption plans applicable supplied/project checks and evidence capture. Entry requires an executable plan, not future passing runtime results."
     - "For handwritten source, modularity-and-encapsulation selection and Architecture Module Boundaries are adopted; boundary-checker scaffold precedes dependent features. Bounded adoption work may establish these prerequisites; source-free work records why they do not apply."
     - "Test suites reviewed and approved"
     - "Security test suite validated"
@@ -103,6 +104,7 @@ exit_requirements:
       description: "Verification evidence record must exist: command+exit, target URL/env, core flows AND each governing AC's guard/negative branch exercised on the RUNNING system via the interface-appropriate harness (per the verification concern)"
 
   manual:
+    - "Affected interactive UI work has reviewed STP UX Coverage per workflows/references/ux-evidence.md; mapped tests and observed runtime behavior are verified separately from structure. With packaged-design-system, declared package/project quality-check evidence records versions, supported routes/themes, actual reports and finding/exception dispositions; those checks alone do not prove interaction behavior."
     - "For handwritten source, the boundary checker ran through the shared local/pre-commit/CI recipe; allowed imports passed and forbidden imports failed. Semantic review covers ownership, public APIs and invariants; existing debt did not hide new violations. Source-free work records non-applicability with a reason; authorized scoped exceptions supply the alternative verification required by the baseline contract."
     - "Code review completed and approved"
     - "Performance benchmarks validated"

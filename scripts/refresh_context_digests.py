@@ -177,7 +177,18 @@ def build_concern_library(
 ) -> dict[str, dict[str, list[str]]]:
     library_root = library_root or root
     library: dict[str, dict[str, list[str]]] = {}
-    for name in active_concerns:
+    # Stable adapters compose the neutral UX baseline without changing selections.
+    # Keep this bounded: this is not a generic dependency resolver.
+    resolved = list(dict.fromkeys(active_concerns))
+    if any(name in resolved for name in ("ux-radix", "packaged-design-system", "databricks-appkit-ui")):
+        if "ux-interaction-patterns" not in resolved:
+            resolved.insert(0, "ux-interaction-patterns")
+    # Compact contexts must retain the behavioral floor AND the selected UI owner,
+    # even when generic runtime/testing concerns were selected earlier.
+    ux_priority = ("ux-interaction-patterns", "packaged-design-system", "databricks-appkit-ui", "ux-radix")
+    resolved = [name for name in ux_priority if name in resolved] + [
+        name for name in resolved if name not in ux_priority]
+    for name in resolved:
         concern_dir = resolve_concern_dir(root, name, library_root)
         concern_md = concern_dir / "concern.md" if concern_dir else None
         practices_md = concern_dir / "practices.md" if concern_dir else None
