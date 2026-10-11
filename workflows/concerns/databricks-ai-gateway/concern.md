@@ -86,13 +86,13 @@ slot). Select it with `databricks-apps` and `unity-catalog`; pair with
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: the tier set, who provisions each service and its grants, how names reach the app
-- TD: adapter route and features used; readiness gate coverage
+- TD: states the tier set, who provisions each service and its grants, how names reach the app, the adapter route and features used, and readiness gate coverage
 - TEST_PLAN: gate that calls each tier with the features in use; evals gating tier remaps
 - deployment-checklist: required service names non-empty after render; grants verified by a real call
 
 ## ADR References
 
-Record an ADR for the tier set and its owner, and another when the adapter's
-route or required features change. An unverified capability (does this model
-accept tools on this route?) is a probe or `tech-spike`, not an assumption.
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only
+when the project deviates from a constraint here. An unverified capability
+(does this model accept tools on this route?) is a probe or `tech-spike`, not an
+assumption.
