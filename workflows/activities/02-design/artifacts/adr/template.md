@@ -1,74 +1,38 @@
 ---
 ddx:
   id: ADR-XXX
+  status: draft
   authoring:
     home: repo
 ---
 
 # ADR-NNN: [Title]
-<!-- Filename: ADR-NNN-<decision-name>.md — uppercase ADR, zero-padded 3-digit, one decision per file. -->
 
+## Problem
 
-| Date | Status | Deciders | Related | Confidence |
-|------|--------|----------|---------|------------|
-| [YYYY-MM-DD] | [Proposed/Accepted/Deprecated/Superseded] | [Names] | [FEAT-XXX] | [High/Med/Low] |
-
-Accepted records the chosen direction; it does not claim implementation is complete.
-
-## Context
-
-| Aspect | Description |
-|--------|-------------|
-| Problem | [Specific problem] |
-| Current State | [Existing situation] |
-| Requirements | [Key requirements driving this] |
-| Decision Drivers | [Forces that make this architecture-significant] |
+[What constraint or tension prompted this decision? What's broken or at risk?]
 
 ## Decision
 
 We will [decision statement].
 
-**Key Points**: [Point 1] | [Point 2] | [Point 3]
+## Why We Chose This
 
-## Alternatives
+### Over [Alternative 1]
+[Why this beats the alternative — what matters more: trade-off, risk, intent.]
 
-| Option | Pros | Cons | Evaluation |
-|--------|------|------|------------|
-| [Option 1] | [Advantages] | [Disadvantages] | [Rejected: reason] |
-| [Option 2] | [Advantages] | [Disadvantages] | [Rejected: reason] |
-| **[Selected]** | [Advantages] | [Disadvantages + mitigations] | **Selected: reason** |
+### Over [Alternative 2]
+[Why this beats the alternative — what matters more: trade-off, risk, intent.]
 
 ## Consequences
 
-| Type | Impact |
-|------|--------|
-| Positive | [Good outcomes] |
-| Negative | [Trade-offs, technical debt] |
-| Neutral | [Side effects] |
+**Good**: [Outcomes that enable the PRD / reduce risk / unblock work]
 
-## Risks
+**Trade-offs**: [What we give up, defer, or constrain]
 
-| Risk | Prob | Impact | Mitigation |
-|------|------|--------|------------|
-| [Risk 1] | H/M/L | H/M/L | [Strategy] |
-
-## Validation
-
-| Success Metric | Review Trigger |
-|----------------|----------------|
-| [Metric 1] | [Condition for reconsideration] |
+**Drift signals to watch**: [Anti-patterns in review that signal this decision is being abandoned]
 
 ## Concern Impact
 
-If this decision overrides or deviates from a library concern constraint or
-practice, note the impact here. Selecting a concern needs no ADR; `concerns.md`
-records the selection.
-
-- **Practice override / deviation**: [Does this ADR override or deviate from a library concern constraint or practice? If so,
-  update `docs/helix/01-frame/concerns.md` Project Overrides with this ADR ref.]
-- **No concern impact**: [Delete this section if the ADR has no concern relevance.]
-
-## References
-
-- [PRD section link]
-- [Related ADRs]
+- **Override / deviation**: [Does this ADR override or deviate from a library concern constraint or practice? If so, add this ADR to Project Overrides in `docs/helix/01-frame/concerns.md`. Selecting a concern needs no ADR; `concerns.md` records it.]
+- **No concern impact**: [Delete if not relevant.]

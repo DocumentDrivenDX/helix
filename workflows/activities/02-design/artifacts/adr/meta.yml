@@ -42,9 +42,9 @@ reuse_policy: |
 
 validation:
   required_sections:
-    - context
+    - problem
     - decision
-    - alternatives
+    - why_we_chose_this
     - consequences
 
   pattern_checks:
@@ -52,17 +52,13 @@ validation:
       expected: ">=1"
       message: Must carry a valid ADR identifier
 
-    - pattern: "Proposed|Accepted|Rejected|Deprecated|Superseded"
-      expected: ">=1"
-      message: Status field must be one of the defined values
-
   quality_checks:
     - check: single_decision
       description: Each ADR must capture exactly one decision
       severity: blocking
 
     - check: alternatives_evaluated
-      description: At least one alternative must be compared before selecting an approach
+      description: At least one alternative is addressed, with why the chosen option beats it
       severity: blocking
 
     - check: consequences_explicit
@@ -73,12 +69,12 @@ validation:
       description: The decision is actionable, alternatives have concrete tradeoffs, and the selected option's rationale explains why it fits better than the strongest alternative
       severity: blocking
 
-    - check: risk_and_validation
-      description: Risks name likelihood, impact, and mitigation; validation states how the decision will be assessed and when uncertainty calls for reconsideration
+    - check: drift_signals
+      description: When the decision carries uncertainty, drift signals say what would reveal it being abandoned
       severity: warning
 
     - check: governing_context
-      description: Context and decision align with governing requirements; concern impact is recorded only when the decision selects or overrides a concern practice
+      description: Problem and decision align with governing requirements; concern impact is recorded only when the decision selects or overrides a concern practice
       severity: warning
 prompts:
   generation: prompt.md
