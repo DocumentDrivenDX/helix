@@ -60,7 +60,9 @@ Concerns are how HELIX answers "every project needs this kind of consistency" wi
 ## Infrastructure
 
 {{< cards >}}
+  {{< card link="databricks-ai-gateway" title="Databricks AI Gateway (model access on Databricks)" subtitle="api, infra" >}}
   {{< card link="k8s-kind" title="Kubernetes + kind" subtitle="infra" >}}
+  {{< card link="model-gateway" title="Model Gateway (model access)" subtitle="api, infra" >}}
   {{< card link="twelve-factor" title="Twelve-Factor App" subtitle="infra" >}}
 {{< /cards >}}
 
