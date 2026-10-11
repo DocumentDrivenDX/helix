@@ -47,7 +47,7 @@ from an actual run, never asserted from memory:
    (what was seen, not what was expected). **Happy-path-green is not done** — a
    criterion whose guard branch was never driven on the running system is
    incomplete. Drive each through the harness its surface dictates (see
-   [testing practices](../testing/practices.md), *Surface → real-path
+   the `testing` concern's practices, *Surface → real-path
    harness*; the `e2e-framework` slot owns the web runner).
 4. **Selection↔build coherence** — the built system actually **honors the
    selected concerns and slots**. For each selected slot, the build uses that
