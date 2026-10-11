@@ -67,7 +67,6 @@ target state and the drift signals above identify what needs correction.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: TypeScript + Bun (Biome, bun:test) as the language-runtime — not Node/npm/ESLint/Vitest
 - TD: strict tsconfig, Bun-native APIs, workspace layout, Biome config, central env schema and its config-key contract (owner and source per key)
 
 ## Practices by activity

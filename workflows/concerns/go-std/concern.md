@@ -62,5 +62,4 @@ All Go projects — CLIs, services, libraries. The standard toolchain and
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: Go + standard toolchain (gofmt, golangci-lint, gosec, govulncheck) as the language-runtime
 - TD: error-wrapping, context-passing, interface-in-consumer conventions; lint baseline, central `Config` struct and its config-key contract (owner and source per key)

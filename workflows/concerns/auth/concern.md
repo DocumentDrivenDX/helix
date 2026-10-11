@@ -83,11 +83,11 @@ internal APIs unless user/tenant principals are explicit. Compose with the
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
 - FEAT: signup/login/logout + session lifecycle as a real product surface
-- TD: server-side RBAC and principal-scoped isolation behind the swappable auth-provider slot
+- TD: server-side RBAC and principal-scoped isolation behind the swappable auth-provider slot; states the auth-provider filler (local sessions now, external IdP later) and the role model
 - DATA_DESIGN: principals/accounts (tenant) and session storage
-- ADR: auth-provider filler choice (local sessions now, external IdP later) + role model
 
 ## ADR References
 
-Projects record an ADR when choosing or swapping the `auth-provider` filler
-(e.g. local sessions now, Auth0/OIDC later) and when defining the role model.
+Selecting this concern or filling the `auth-provider` slot needs no ADR;
+`concerns.md` records it. Write an ADR only when the project deviates from a
+constraint here.

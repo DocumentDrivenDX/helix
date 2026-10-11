@@ -363,7 +363,7 @@ because they can be regenerated from scripts.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: Asciinema scripted terminal recordings (Docker-reproducible, microsite-embedded) as the demo-reel mechanism
+- none beyond `concerns.md`, which records the selection
 
 ## Practices by activity
 

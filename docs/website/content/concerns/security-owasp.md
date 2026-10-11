@@ -70,11 +70,13 @@ it applies throughout every activity of development.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: OWASP Top 10 as the security baseline
-- ADR: security architecture — secret management, TLS, boundary input validation, dependency auditing
+- TD: how secrets, TLS, boundary input validation, and dependency auditing are handled
 - TEST_PLAN: authz-on-every-protected-endpoint, parameterized-query, and input-validation checks
 
 ## ADR References
+
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only
+when the project deviates from a constraint here.
 
 ## Practices by activity
 

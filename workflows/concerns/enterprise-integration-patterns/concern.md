@@ -234,14 +234,13 @@ code), the tech-stack concern (which fixes the broker client/library), and
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: broker/transport + delivery guarantee (at-least-once/exactly-once, persistence, ordering)
-- TD: channels, routers, messaging gateway, idempotent receiver, dead-letter/invalid paths
+- TD: channels, routers, messaging gateway, idempotent receiver, dead-letter/invalid paths; states the broker/transport and delivery guarantee (at-least-once/exactly-once, persistence, ordering)
 - TEST_PLAN: idempotent-receiver test (replay applies once) + poison-message dead-letter path
 
 ## ADR References
 
-Record an ADR when choosing the broker/transport and its delivery guarantee
-(at-least-once vs exactly-once, persistence, ordering), since those are the
-design-defining decisions for an integration. A material uncertainty about the
+Selecting this concern needs no ADR; `concerns.md` records it. The broker/transport
+and delivery guarantee are design-defining and belong in the TD; write an ADR
+only when the project deviates from a constraint here. A material uncertainty about the
 transport (unknown API, cost, delivery semantics, ordering) is a `tech-spike`,
 not a silent assumption (see `workflows/references/concern-resolution.md`).

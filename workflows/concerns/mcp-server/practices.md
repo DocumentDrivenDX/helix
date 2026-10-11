@@ -27,8 +27,8 @@ at the seam and stay on the MCP surface.
   - **Prompt** — a **user-invoked workflow template** (slash command etc.),
     explicitly triggered, never auto-fired.
 - Do **not** expose a side-effecting action as a resource, and do **not** force
-  passive data through a tool the model must decide to call. Record the exposed
-  primitives in an ADR.
+  passive data through a tool the model must decide to call. State the exposed
+  primitives in the TD.
 
 ## Design
 

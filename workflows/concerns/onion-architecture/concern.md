@@ -150,11 +150,8 @@ tech-stack concern (whose package/module system enforces the import graph).
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: Onion chosen for the architecture-style slot over its siblings
 - TD: ring layout, inner-declared ports, outer-ring adapters, composition root
 
 ## ADR References
 
-Record an ADR when selecting Onion over a slot-sibling (`hexagonal` / `clean` /
-`classic-layered`), or when an operator overrides the `architecture-style`
-default per project.
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only when the project deviates from a constraint here (for example, when an operator overrides the `architecture-style` default per project).

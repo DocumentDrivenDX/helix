@@ -240,32 +240,30 @@ demands be rendered).
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: per-route rendering strategy (freshness/SEO/personalization) + server-state vs client-state split
-- TD: component/state/data-fetching layers, colocation, one-schema form validation, async-state branches
+- TD: component/state/data-fetching layers, colocation, one-schema form validation, async-state branches; states the per-route rendering strategy (freshness/SEO/personalization) and the server-state vs client-state split
 - DESIGN_SYSTEM: mandatory async UI states (loading/empty/error/success) as first-class designed surfaces
 - TEST_PLAN: every async view branches on loading/empty/error/success, not only the happy path
 
 ## ADR References
 
-Selecting this concern forces three artifact changes (it does **not** edit
-slots.yml or concern-resolution.md):
+Selecting this concern needs no ADR; `concerns.md` records it. It forces two
+artifact changes (it does **not** edit slots.yml or concern-resolution.md):
 
-- An **ADR** recording (a) the per-route/segment **rendering strategy** and its
-  freshness/SEO/personalization rationale, and (b) the **state + data-fetching
-  architecture** — the server-state layer (query cache or RSC) vs client-state
-  layer split, and the rule that server state is not duplicated into client
-  state.
 - The **technical-design** artifact gains explicit **component / state /
-  data-fetching layers** — where state is colocated, what the server-state
+  data-fetching layers**, stating the per-route/segment **rendering strategy**
+  and its freshness/SEO/personalization rationale, and the server-state layer
+  (query cache or RSC) vs client-state layer split (server state is not
+  duplicated into client state) — where state is colocated, what the server-state
   layer owns, how forms validate on both sides from one schema, and where each
   async view's loading/empty/error/success branches live.
 - The **design-system** artifact (DESIGN.md) gains the **mandatory async UI
   states** as first-class, designed surfaces (loading / empty / error / success
   for each data view), not afterthoughts.
 
-Record an ADR when a route departs from the default rendering strategy, or when
-a client store is introduced (justify the cross-cutting *client* state it holds
-and confirm it holds no server state). A material uncertainty about the
+Write an ADR only when the project deviates from a constraint here, such as a
+route departing from the default rendering strategy or a client store being
+introduced (justify the cross-cutting *client* state it holds and confirm it
+holds no server state). A material uncertainty about the
 rendering or data-fetching architecture is a `tech-spike`, not a silent
 assumption (see `workflows/references/concern-resolution.md`).
 

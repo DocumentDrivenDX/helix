@@ -20,7 +20,7 @@ not to every entity in the product.
 - Name the **aggregate / entity** whose eventstream this is (its boundary is the
   DDD aggregate's — defer to `domain-driven-design`), the **event store**, the
   **projections** to build, and the **eventual-consistency window** consumers
-  must tolerate. Record the selection in an ADR.
+  must tolerate. State these in the TD.
 
 ## Model events as immutable, intent-bearing facts
 

@@ -173,10 +173,12 @@ internal tools where no usage drives a charge.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: metering + billing model (aggregation function, idempotency, emission, reconciliation)
-- TD: capture on real path / idempotency key / aggregation / rating / emit / reconcile
+- TD: capture on real path / idempotency key / aggregation / rating / emit / reconcile; states the metering + billing model (aggregation function, idempotency, emission, reconciliation)
 - FEAT: which actions are billable and the meter each emits
 - DATA_DESIGN: usage/meter event ledger with dedupe key, retained for audit
 - TEST_PLAN: retried action meters once (idempotency) + metered-total reconciliation
 
 ## ADR References
+
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only
+when the project deviates from a constraint here.

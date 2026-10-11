@@ -9,9 +9,9 @@ authorization-model / multi-tenancy / security-owasp) see
 **reviewer-checkable**. Each MUST/SHOULD below is written so a reviewer can
 confirm or refute it against the diff and the running system.
 
-## Choose and record the model (Frame / Design)
+## Choose and state the model (Frame / Design)
 
-- Record the **permission model** in an ADR before building: RBAC, ABAC, ReBAC,
+- State the **permission model** in the TD before building: RBAC, ABAC, ReBAC,
   or a named combination. Apply the selection criteria explicitly:
   - **RBAC** — a **stable, enumerable role set** (owner / admin / member /
     viewer). Model roles → permissions; use **role hierarchies** for inheritance
@@ -22,7 +22,7 @@ confirm or refute it against the diff and the running system.
   - **ReBAC** — permission follows a **relationship / sharing / ownership graph**
     (Drive-style sharing, nested groups, folder inheritance). Model as
     relationship tuples (`object#relation@subject`) traversed to a decision.
-- Record the **PDP/PEP placement** in the same ADR: a **central decision point**
+- State the **PDP/PEP placement** in the same TD section: a **central decision point**
   (shared `authorize()` / policy module) and a **thin enforcement point** at each
   handler, in-process or externalized to a policy-as-code engine (OPA/Rego, AWS
   Cedar / Amazon Verified Permissions, OpenFGA). The PEP MUST carry no policy
@@ -85,7 +85,7 @@ confirm or refute it against the diff and the running system.
 
 ## Quality Gates
 
-- Permission **model recorded in an ADR** (RBAC / ABAC / ReBAC or a named
+- Permission **model stated in the TD** (RBAC / ABAC / ReBAC or a named
   combination) with its selection-criteria justification and **PDP/PEP
   placement** — not defaulted implicitly.
 - **Deny-by-default**: verifiable in review that no state-changing or

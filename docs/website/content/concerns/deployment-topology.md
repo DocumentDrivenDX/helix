@@ -18,7 +18,7 @@ infra, api
 
 ## Boundary
 
-This concern owns **one ADR-recorded decision: how many independently
+This concern owns **one decision, stated in the TD: how many independently
 deployable units the system ships as, and — if more than one — along which
 boundaries they are split**. It is the choice along the spectrum from a
 **modular monolith** (one deployable, module boundaries enforced in-process)
@@ -95,8 +95,9 @@ split*, not in distinct rich vocabularies. Four neighbors must stay distinct:
   enough to warrant them (Fowler, *MonolithFirst*). The majority of systems
   should be one modular application (Fowler, *MicroservicePremium*; Newman:
   microservices "should not be the default choice").
-- The decision to ship more than one deployable is **recorded in an ADR** with
-  the specific forcing function that justifies paying the premium. Splitting by
+- The decision to ship more than one deployable is a deviation from the default:
+  **record it in an ADR** with the specific forcing function that justifies
+  paying the premium. Splitting by
   default, or "because microservices", is the anti-pattern.
 
 ### The split needs a forcing function, not a hunch
@@ -174,7 +175,7 @@ split*, not in distinct rich vocabularies. Four neighbors must stay distinct:
   warm start / persistent connection on a sporadic-traffic path → make it
   stateless; reconsider topology if cold-start or timeout limits are violated
 - "We chose microservices/serverless" with no ADR recording the forcing function
-  and the premium-readiness → record the decision, or revert to the default
+  and the premium-readiness → record the deviation, or revert to the default
 - The topology decision conflated with the runtime (`k8s-kind`) or the internal
   layering (`architecture-style`) → separate them; this concern decides only the
   count and seams of deployables
@@ -219,17 +220,15 @@ where the deployable count and its seams are decided.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: deployable count + split topology, forcing function, microservice-premium readiness, bounded-context fault lines
-- TD: deployable units, module/service boundaries, per-service data ownership, function+trigger for serverless
+- TD: deployable units, module/service boundaries, per-service data ownership, function+trigger for serverless; states the deployable count and split topology (and, for a split, the bounded-context fault lines)
 
 ## ADR References
 
-Record an ADR for **any topology other than the modular-monolith default**, and
-for the default itself when a reader might expect microservices. The ADR MUST
-name: the chosen topology, the **specific forcing function** that justifies it
-(scaling / team autonomy / complexity), evidence the **microservice premium**
-(automated deployment, observability, distributed-data discipline) is paid, and
-the **bounded-context fault lines** each deployable sits on. A material
+Keeping the modular-monolith default needs no ADR; state it in the TD. Record
+an ADR only for a topology other than the default; it MUST name the **specific
+forcing function** that justifies it (scaling / team autonomy / complexity) and
+evidence the **microservice premium** (automated deployment, observability,
+distributed-data discipline) is paid. A material
 uncertainty about the topology (unknown load profile, unproven boundaries) is a
 `tech-spike`, not a silent split (see
 `workflows/references/concern-resolution.md`).
@@ -249,10 +248,10 @@ the default was kept or that a split was justified and the premium paid.
 
 ## Decide and record the topology
 
-- The product MUST have a **recorded topology decision** (ADR) naming whether it
-  ships as a modular monolith, microservices, or serverless/FaaS. The default
-  is **modular-monolith**; any other choice MUST cite a specific forcing
-  function.
+- The TD MUST state the topology decision, naming whether the product ships as
+  a modular monolith, microservices, or serverless/FaaS. The default is
+  **modular-monolith**; any other choice is a deviation and MUST cite a specific
+  forcing function in an ADR.
 - For any topology other than the modular-monolith default, the ADR MUST name:
   the **forcing function** (independent scaling / team autonomy / complexity
   exceeding one deployable), evidence the **microservice premium is paid**
@@ -320,8 +319,8 @@ the default was kept or that a split was justified and the premium paid.
 
 ## Quality Gates
 
-- A **recorded topology decision** (ADR) exists; the default is
-  modular-monolith and any other choice cites a specific forcing function plus
+- The TD states the topology decision; the default is modular-monolith and any
+  other choice is recorded in an ADR citing a specific forcing function plus
   evidence the microservice premium is paid.
 - A **monolith has enforced internal module boundaries** following
   bounded-context fault lines — no un-modularized "big ball of mud".

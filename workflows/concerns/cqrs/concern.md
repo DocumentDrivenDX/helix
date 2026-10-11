@@ -51,9 +51,9 @@ must stay distinct:
   exposed contract; do not own it.
 
 **Artifact impact — selecting CQRS forces specific document changes** (see also
-*When to use*): an **ADR** records the read/write-split decision *and* the
+*When to use*): the **technical-design** states the read/write-split decision *and* the
 **consistency model** chosen (synchronous shared-store vs. eventually-consistent
-separate-store); the **technical-design** must show **separate command and query
+separate-store) and must show **separate command and query
 models**, the **projection / read-model**, and **how eventual consistency is
 handled** (the staleness window, how the read side is updated, idempotent
 projection updates where async); the **data-design** must show the read schema
@@ -92,7 +92,7 @@ how they stay in sync. Selecting CQRS without these changes is drift.
   (read model updated in the write transaction — strongly consistent, simpler,
   same store) and **eventually consistent** (read model updated out-of-band —
   scalable, separately storable, but stale-read window). This choice is the
-  decision the ADR captures.
+  decision the technical-design states.
 
 ## Constraints
 
@@ -128,8 +128,8 @@ how they stay in sync. Selecting CQRS without these changes is drift.
 
 - Whether the read model is updated **synchronously** (same store / same
   transaction — strongly consistent) or **asynchronously** (separate store,
-  publish-and-project — **eventually consistent**) is a **deliberate, ADR-
-  recorded** choice, not an accident of implementation.
+  publish-and-project — **eventually consistent**) is a **deliberate choice stated in
+  the TD**, not an accident of implementation.
 - When the read model is **eventually consistent**, the system and its consumers
   are **designed for the staleness window**: there is no read-your-write
   guarantee across the read/write boundary, the UI accounts for acting on
@@ -181,7 +181,7 @@ how they stay in sync. Selecting CQRS without these changes is drift.
 - **CQRS applied across the whole system** / to thin-CRUD contexts that do not
   need it → over-engineering (Fowler's "risky complexity"); scope it to the
   bounded context whose read/write needs diverge, leave simple CRUD as one model
-- **CQRS selected but the ADR / technical-design / data-design unchanged** (no
+- **CQRS selected but the technical-design / data-design unchanged** (no
   recorded split, no consistency model, no read schema) → the selection forces
   those artifact changes; their absence is drift (see *When to use*)
 
@@ -212,9 +212,9 @@ model / source of truth and the projections the read side — frequent companion
 neither requires the other), and with `api-style` (a single exposed wire surface
 fronts the internal read/write split).
 
-**Selecting CQRS forces artifact changes:** an **ADR** for the read/write-split
-decision *and* the consistency model (synchronous vs. eventually consistent);
-the **technical-design** for the separate command/query models, the projection /
+**Selecting CQRS forces artifact changes:** the **technical-design** for the read/write-split
+decision *and* the consistency model (synchronous vs. eventually consistent),
+the separate command/query models, the projection /
 read-model, and the eventual-consistency handling; and the **data-design** for
 the distinct read schema and the write→read synchronization. Selecting it
 without these is drift.
@@ -229,23 +229,16 @@ bounded contexts that need it, never reflexively to a whole system (KISS/YAGNI).
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: read/write-split decision + consistency model (synchronous shared-store vs eventually-consistent separate-store)
-- TD: separate command/query models, projection/read-model, eventual-consistency handling (staleness, idempotent updates)
+- TD: separate command/query models, projection/read-model, eventual-consistency handling (staleness, idempotent updates); states the read/write-split decision and consistency model (synchronous shared-store vs eventually-consistent separate-store)
 - DATA_DESIGN: read schema (denormalized/materialized view/replica) distinct from write schema + write→read sync
 - TEST_PLAN: idempotent projection updater + read-side reflects committed writes within the staleness window
 
 ## ADR References
 
-Record an ADR when selecting CQRS for a given bounded context. It is a
-structural decision with a standing consistency cost, so the ADR names: the
-**bounded context** the split applies to; the **decisive signal** (collaborative
-domain / task-based UI / divergent read-write shape or scale / complex domain);
-the **consistency model** chosen — **synchronous shared-store** (strongly
-consistent, simpler) vs. **eventually-consistent separate-store** (scalable,
-stale-read window) — and, if eventually consistent, the **synchronization path**
-(how the read model is updated) and the **staleness window** consumers must
-tolerate; whether it **composes with `event-sourcing`** (event store as write
-model) and with the relevant `api-style` surface; and the contexts that
-deliberately remain **single-model CRUD**. A material uncertainty about whether
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only
+when the project deviates from a constraint here. The TD states the bounded
+context, decisive signal, consistency model (and, if eventually consistent, the
+synchronization path and staleness window), and the contexts that remain
+single-model CRUD. A material uncertainty about whether
 the read/write needs truly diverge is a `tech-spike`, not a silent assumption
 (see `workflows/references/concern-resolution.md`).

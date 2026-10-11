@@ -167,17 +167,15 @@ relate (do not duplicate) them here.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: dataset shape (streaming-table vs materialized-view), expectation policy (warn/drop/fail), CDC strategy
-- TD: declarative datasets + framework-managed DAG/incremental; AUTO CDC / APPLY CHANGES; dev vs prod modes
+- TD: declarative datasets + framework-managed DAG/incremental; AUTO CDC / APPLY CHANGES; dev vs prod modes; states dataset shape (streaming-table vs materialized-view), expectation policy (warn/drop/fail), CDC strategy
 - DATA_DESIGN: published streaming tables/materialized views landing in a governed catalog.schema
 - data-quality-expectations: per-dataset expectations
 - TEST_PLAN: transformation-logic unit tests
 
 ## ADR References
 
-Record an ADR for the pipeline's dataset shape (streaming-table vs
-materialized-view boundaries), the data-quality expectation policy
-(warn/drop/fail per dataset), and the CDC strategy (`APPLY CHANGES`). A material
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR
+only when the project deviates from a constraint here. A material
 uncertainty (source-system semantics, ingestion volume, CDC ordering) is a
 `tech-spike`, not a silent assumption (see
 `workflows/references/concern-resolution.md`).

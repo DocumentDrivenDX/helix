@@ -158,7 +158,7 @@ demonstrated.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: Playwright reel specs (video capture, seeded data, fixed viewport) as the demo-reel mechanism
+- none beyond `concerns.md`, which records the selection
 
 ## Practices by activity
 

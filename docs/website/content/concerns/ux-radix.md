@@ -131,7 +131,6 @@ prescribed component library that wraps Radix for React projects.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: shadcn/ui + Radix as the UI-primitives prescription (component library copied, not npm dep)
 - DESIGN_SYSTEM: WAI-ARIA interaction patterns for search/edit/nav/select/disclosure; Radix primitives; shadcn component conventions; states
 - TEST_PLAN: keyboard navigation, focus-return, active-state, and live-filter behavior checks
 
