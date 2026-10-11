@@ -23,6 +23,11 @@ already carry that work. Authoring all three because the types exist is
 process as deliverable, which this methodology forbids (Deliverable Over
 Machinery).
 
+Apply the token-grounded estimation and event-driven update rules in
+`workflows/references/work-item-first.md`. Iteration dates are human coordination
+commitments, not evidence of agent execution duration. Reuse existing usage
+evidence; do not author a separate estimation report.
+
 1. Read the governing artifacts first: PRD, roadmap, improvement backlog,
    and the active iteration plan when one exists.
 2. Sequencing (`roadmap`): define the workstream registry and order framed

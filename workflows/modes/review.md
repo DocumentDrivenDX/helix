@@ -18,6 +18,10 @@ Procedure: `workflows/actions/fresh-eyes-review.md` supplies additional detail.
 
 ## Fan-out
 
+Apply `workflows/references/work-item-first.md` spending and review rules. One
+pass is the default; additional reviewers must answer distinct risk questions
+within the shared ceiling, not duplicate a full review for consensus.
+
 Use parallel reviewers only when available and useful. Give each a distinct
 question within the same scope. Resolve duplicate or conflicting findings
 before reporting; no reviewer may widen the scope or make edits without
