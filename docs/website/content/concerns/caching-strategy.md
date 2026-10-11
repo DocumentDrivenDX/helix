@@ -184,19 +184,13 @@ invalidation/staleness problem for no gain — **premature caching is a drift**
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: cache pattern + invalidation/TTL policy + named staleness budget + consistency trade-off + what is not cached
-- TD: read/write pattern (cache-aside/read-through/write-through/write-behind), stampede protection on hot keys
+- TD: read/write pattern (cache-aside/read-through/write-through/write-behind), stampede protection on hot keys; states the cache pattern and why, invalidation/TTL policy, named staleness budget, consistency trade-off, and what is deliberately not cached
 - TEST_PLAN: invalidation/staleness behavior + stampede protection (single-flight) on a hot key
 
 ## ADR References
 
-Record an ADR when introducing a cache: the **read-heavy hot path or expensive
-computation** and the **performance NFR** it serves; the **pattern** chosen
-(cache-aside / read-through / write-through / write-behind) and **why**; the
-**invalidation policy + TTL** and the **named staleness budget** the data
-tolerates; the **consistency trade-off** accepted (and, for write-behind, the
-durability/consistency window); the **stampede protection** for hot keys; and
-**what is deliberately not cached** because it must stay fresh. A material
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only
+when the project deviates from a constraint here. A material
 uncertainty about whether the hot path truly needs a cache to hit the NFR is a
 `tech-spike` (measure first), not a silent assumption (see
 `workflows/references/concern-resolution.md`).
@@ -225,7 +219,7 @@ slot). A cache is always a derived, disposable copy; the origin is the truth.
 
 ## Frame
 
-- Choose the read/write pattern deliberately and record **why** in the ADR:
+- Choose the read/write pattern deliberately and state **why** in the TD:
   - **cache-aside (lazy)** / **read-through** for read-heavy data tolerant of
     bounded staleness (the difference is who populates on a miss);
   - **write-through** when reads after a write must be fresh (strong cache↔store
@@ -234,9 +228,9 @@ slot). A cache is always a derived, disposable copy; the origin is the truth.
     **durability/consistency window** (the cache holds writes the store does not
     yet — data-loss risk if the cache dies before flush) is **named and
     accepted**.
-- Record the **consistency trade-off** the chosen pattern implies against the
+- State the **consistency trade-off** the chosen pattern implies against the
   data's tolerance for staleness — never stumble into write-behind's window.
-- Record in the ADR **what is deliberately not cached** (and why it must stay
+- State in the TD **what is deliberately not cached** (and why it must stay
   fresh).
 
 ## Design
@@ -283,8 +277,8 @@ slot). A cache is always a derived, disposable copy; the origin is the truth.
   is authoritative; nothing of record lives only in the cache.
 - **Hot keys have stampede protection** (single-flight, early refresh, jittered
   TTL, or negative cache); a hot-key expiry does not dogpile the origin.
-- **What is deliberately not cached** (and why it must stay fresh) is recorded in
-  the ADR.
+- **What is deliberately not cached** (and why it must stay fresh) is stated in
+  the TD.
 
 ## Cross-cutting
 

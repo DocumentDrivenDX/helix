@@ -91,7 +91,7 @@ Selecting this concern requires applicable artifacts to change; an obligation
 missing from its owning artifact is drift:
 
 - CONCERNS: applicability evidence and selected practice sections, overrides.
-- ARCHITECTURE / ADR: signal ownership, logger/OTel integration and transport
+- ARCHITECTURE: signal ownership, logger/OTel integration and transport
   choices; collector/backend rationale and operational tradeoffs when needed.
 - SOLUTION_DESIGN: cross-component signal flow and applicable diagnostics.
 - CONTRACT: exact schema/event catalog, OTel mapping and version compatibility;
@@ -124,7 +124,7 @@ Agents working in any of these activities inherit the practices below through ru
 
 - OTel governs signal semantics. Prefer established language loggers (Go `slog`,
   or Pino for a compatible TypeScript runtime); verify bridge/collector support.
-  Record system choices in Architecture/ADRs and feature flow in Solution Design.
+  Record system choices in Architecture and feature flow in Solution Design.
 - Contracts own exact event/schema/mapping/query surfaces and adopted versions.
   TDs reference them and describe local wiring. See
   `workflows/references/agent-diagnostics.md` for mapping and retrieval examples.

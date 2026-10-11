@@ -17,7 +17,7 @@ ownership table at [README-auth-family.md](../README-auth-family.md).
 ## Design
 
 - Lay out the **three-level namespace** (`catalog.schema.object`) for the
-  product's assets; name the metastore/catalog topology in an ADR.
+  product's assets; state the metastore/catalog topology in the TD.
 - Decide **managed vs external** per asset — prefer managed; for external data,
   design the **external location + storage credential** rather than raw cloud
   paths or DBFS mounts.
