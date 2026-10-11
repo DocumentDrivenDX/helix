@@ -97,7 +97,7 @@ class UXGovernanceTests(unittest.TestCase):
                     self.assert_ux_failure(body.replace(row, '|'.join(altered)))
 
     def test_design_without_page_navigation_needs_reason(self):
-        body = (ROOT / 'workflows/activities/02-design/artifacts/design-system/example-sdk.md').read_text()
+        body = (ROOT / 'workflows/activities/02-design/artifacts/design-system/example-packaged.md').read_text()
         body = body.replace('aria-current', 'current-state')
         code, report = self.validate(body, 'design-system')
         self.assertEqual(code, 1, report)
@@ -117,8 +117,8 @@ class UXGovernanceTests(unittest.TestCase):
         code, report = self.validate(body.replace(row, '| navigation | covered | ' + ', '.join(ids[:2]) + ' |'))
         self.assertEqual(code, 0, report)
 
-    def test_local_and_sdk_design_examples_pass(self):
-        for name in ('example.md', 'example-sdk.md'):
+    def test_local_and_packaged_design_examples_pass(self):
+        for name in ('example.md', 'example-packaged.md'):
             code, report = self.validate((ROOT / 'workflows/activities/02-design/artifacts/design-system' / name).read_text(), 'design-system')
             self.assertEqual(code, 0, report)
 
@@ -127,40 +127,40 @@ class UXGovernanceTests(unittest.TestCase):
         body, _ = digests.build_digest({'title': 'Bounded UX change', 'description': 'Test authority', 'acceptance': 'Exercise behavior', 'labels': [f'area:{area}']}, principles=[], library=library, root=ROOT)
         return body, library
 
-    def test_existing_and_sdk_adapters_compose_baseline_without_other_kit(self):
-        for selected in ('ux-radix', 'ai-design-system', 'databricks-appkit-ui'):
+    def test_existing_and_packaged_adapters_compose_baseline_without_other_kit(self):
+        for selected in ('ux-radix', 'packaged-design-system', 'databricks-appkit-ui'):
             with self.subTest(selected=selected):
                 body, library = self.digest([selected])
                 self.assertIn('ux-interaction-patterns', library)
                 self.assertIn('ux-interaction-patterns', body)
                 self.assertIn('STP UX Coverage', body)
                 self.assertIn('running system', body)
-                if selected == 'ai-design-system':
+                if selected == 'packaged-design-system':
                     self.assertNotIn('ux-radix', library)
-                    self.assertIn('installed @skadden/ui/AGENTS.md', body)
-                    self.assertIn('skadden-audit', body)
+                    self.assertIn('installed-version documentation', body)
+                    self.assertIn('quality checks', body)
                 api, _ = self.digest([selected], 'api')
                 self.assertNotIn('<concerns>', api)
         body, library = self.digest([])
         self.assertNotIn('ux-interaction-patterns', library)
 
-    def test_realistic_sdk_selection_survives_compact_digest(self):
-        selected = ['typescript-bun', 'react-nextjs', 'a11y-wcag-aa', 'testing', 'verification', 'ai-design-system']
+    def test_realistic_packaged_selection_survives_compact_digest(self):
+        selected = ['typescript-bun', 'react-nextjs', 'a11y-wcag-aa', 'testing', 'verification', 'packaged-design-system']
         for explicit_baseline in (False, True):
             with self.subTest(explicit_baseline=explicit_baseline):
                 names = selected + (['ux-interaction-patterns'] if explicit_baseline else [])
-                library = digests.build_concern_library(ROOT, names, {'ai-design-system': ['Scope Records route; reviewed audit exception expires after SDK upgrade']})
-                body, _ = digests.build_digest({'title': 'SDK records view', 'description': 'Design authority', 'acceptance': 'Exercise behavior', 'labels': ['area:frontend']}, principles=[], library=library, root=ROOT)
-                self.assertIn('ux-interaction-patterns | ai-design-system', body)
-                self.assertIn('installed @skadden/ui/AGENTS.md', body)
-                self.assertIn('skadden-audit', body)
+                library = digests.build_concern_library(ROOT, names, {'packaged-design-system': ['Scope Records route; reviewed audit exception expires after packaged design system upgrade']})
+                body, _ = digests.build_digest({'title': 'Packaged records view', 'description': 'Design authority', 'acceptance': 'Exercise behavior', 'labels': ['area:frontend']}, principles=[], library=library, root=ROOT)
+                self.assertIn('ux-interaction-patterns | packaged-design-system', body)
+                self.assertIn('installed-version documentation', body)
+                self.assertIn('quality checks', body)
                 self.assertIn('Scope Records route', body)
 
     def test_catalog_floor_packages_both_concerns_and_evidence_reference(self):
         with tempfile.TemporaryDirectory() as directory:
             target = Path(directory) / 'references'
             subprocess.run([sys.executable, str(ROOT / 'scripts/sync_references.py'), str(target)], check=True, capture_output=True, text=True)
-            for name in ('ux-interaction-patterns', 'ai-design-system'):
+            for name in ('ux-interaction-patterns', 'packaged-design-system'):
                 self.assertTrue((target / 'concerns' / name / 'practices.md').is_file())
             self.assertTrue((target / 'references/ux-evidence.md').is_file())
 

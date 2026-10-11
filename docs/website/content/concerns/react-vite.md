@@ -38,7 +38,7 @@ testing. It is platform-neutral; any backend that can serve static files and an
   concern fixes the rendering strategy to client-side rendering and names the
   libraries that express those patterns.
 - **`ux-interaction-patterns`** owns neutral behavior; the selected library
-  concern (`ux-radix` or `ai-design-system`) owns its component prescription; **`a11y-wcag-aa`** owns accessibility compliance;
+  concern (`ux-radix` or `packaged-design-system`) owns its component prescription; **`a11y-wcag-aa`** owns accessibility compliance;
   **`databricks-appkit-ui`** owns the Databricks component layer when selected.
 - **`api-style`** owns the wire contract the SPA consumes.
 - **The backend and `deploy-target`** own serving the build: the backend serves
@@ -166,15 +166,15 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - ADR-011: ux-radix owns the Radix and shadcn component-library prescription;
   this concern references rather than re-prescribing
 
-## Component ownership and SDK composition
+## Component ownership and package integration
 
 Framework selection does not select a component library. Apply the neutral
 ux-interaction-patterns baseline and the project's chosen component owner.
 References above to ux-radix describe the Radix/shadcn choice only; they do not
-require that choice. With ai-design-system, use its widgets and role tokens;
+require that choice. With packaged-design-system, use its documented components and tokens;
 record Tailwind defaults as overridden where they prescribe independent tokens
-or widget styling. With typescript-bun, SDK ESLint/Stylelint is additive to
-Biome, not silently omitted. SDK installed guidance controls integration.
+or widget styling. With typescript-bun, run applicable supplied checks alongside the
+selected linter, or define project checks when the package provides none. Installed-version package documentation controls integration.
 
 ## Practices by activity
 
@@ -196,7 +196,7 @@ Agents working in any of these activities inherit the practices below through ru
 - Define routes with React Router's `createBrowserRouter` as a client-side library; lazy-load each route module.
 - Fetch server state with TanStack Query; keep client-only UI state in components (patterns per `frontend-architecture`).
 - Validate forms with react-hook-form and Zod; mirror, never replace, the backend's validation.
-- Reference design tokens through Tailwind 4 theme variables; UI behavior comes from `ux-interaction-patterns`; the selected component owner supplies primitives (Radix/shadcn, AppKit, or ai-design-system).
+- Reference design tokens through Tailwind 4 theme variables; UI behavior comes from `ux-interaction-patterns`; the selected component owner supplies primitives (Radix/shadcn, AppKit, or packaged-design-system).
 - Backend configuration follows its `language-runtime` concern's central-config rule; the SPA never reads it directly.
 - Expose to the client only `VITE_`-prefixed variables that are safe to publish; serve runtime configuration from an `/api/*` route.
 
@@ -228,12 +228,12 @@ Agents working in any of these activities inherit the practices below through ru
 - No `VITE_` variable holds a secret, and no client code references `process.env`.
 - No absolute API host in client code; all API calls are relative `/api/...`.
 
-## Component ownership and SDK composition
+## Component ownership and package integration
 
 Framework selection does not select a component library. Apply the neutral
 ux-interaction-patterns baseline and the project's chosen component owner.
 References above to ux-radix describe the Radix/shadcn choice only; they do not
-require that choice. With ai-design-system, use its widgets and role tokens;
+require that choice. With packaged-design-system, use its documented components and tokens;
 record Tailwind defaults as overridden where they prescribe independent tokens
-or widget styling. With typescript-bun, SDK ESLint/Stylelint is additive to
-Biome, not silently omitted. SDK installed guidance controls integration.
+or widget styling. With typescript-bun, run applicable supplied checks alongside the
+selected linter, or define project checks when the package provides none. Installed-version package documentation controls integration.

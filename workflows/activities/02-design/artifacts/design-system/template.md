@@ -56,9 +56,10 @@ the state actually exists for that element, not every state on every element.
 
 Choose one source of truth: concrete local values, or external token references
 with package/source, installed version, selected theme (or host-resolved embedded
-tokens), supported appearances and component mappings. For an external SDK use
-role-token names verified in installed guidance; do not copy the palette or
-restyle SDK widgets. Keep exact props/wiring in TDs and test assertions in STPs.
+tokens), supported appearances and component mappings. For an external package use
+token names verified in installed-version documentation; reference its palette
+and customize components through documented APIs rather than unsupported
+internal overrides. Keep exact props/wiring in TDs and test assertions in STPs.
 
 ### Color
 [Palette: brand, neutrals, semantic (success/warning/danger/info), surfaces.]

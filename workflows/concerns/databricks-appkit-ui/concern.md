@@ -27,8 +27,8 @@ support. It must not duplicate its neighbors:
   behavior, composed automatically for this concern. AppKit owns the installed
   component layer here. `ux-radix` owns the alternative copied shadcn/Radix
   prescription; it need not be selected just to obtain behavioral rules.
-  `ai-design-system` is another component owner; its Databricks visual theme is
-  not AppKit adoption. Resolve competing prescriptions in project overrides.
+  `packaged-design-system` covers another project-selected npm component
+  owner. Resolve competing prescriptions in project overrides.
 - **`frontend-framework`** (`react-vite`) owns the build, routing, environment
   exposure, and component tests; **`frontend-architecture`** owns the
   server-state pattern that feeds AppKit UI's data components.

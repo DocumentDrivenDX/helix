@@ -16,10 +16,10 @@ Concerns are how HELIX answers "every project needs this kind of consistency" wi
 ## Tech Stack
 
 {{< cards >}}
-  {{< card link="ai-design-system" title="AI Design System SDK" subtitle="ui, frontend" >}}
   {{< card link="auth-local-sessions" title="Local Sessions (auth-provider)" subtitle="api, data" >}}
   {{< card link="databricks-appkit-ui" title="Databricks AppKit UI (React component layer)" subtitle="ui" >}}
   {{< card link="go-std" title="Go + Standard Toolchain" subtitle="all" >}}
+  {{< card link="packaged-design-system" title="Packaged Design System" subtitle="ui, frontend" >}}
   {{< card link="python-uv" title="Python + uv" subtitle="all" >}}
   {{< card link="react-nextjs" title="React + Next.js" subtitle="web, ui" >}}
   {{< card link="react-vite" title="React + Vite (single-page app)" subtitle="ui" >}}

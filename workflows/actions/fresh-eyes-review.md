@@ -58,7 +58,7 @@ accepting an implementation claim; JSONL parsing and quiet console output are
 insufficient. Report missing adoption/evidence without silently re-selecting
 concerns or claiming the adopting-project pilot ran.
 
-## UX and SDK alignment
+## UX and package alignment
 
 For affected UI work, apply ux-interaction-patterns and the selected component
 owner, per workflows/references/ux-evidence.md. For plan reviews, verify STP
@@ -69,8 +69,9 @@ pattern applicability, visible current location, keyboard/modality/focus,
 async duplicate guards, validation and recovery, and destructive policy.
 For completion claims require observed runtime outcomes; coverage structure
 is not behavioral proof.
-For ai-design-system, also inspect installed guidance/version, role tokens
-and component ownership. For plans inspect planned lint/audit capture and
-route/theme coverage; for completion inspect observed reports and reviewed
-exceptions/warning dispositions. Report missing evidence; do not invent a
-consumer test run from HELIX's catalog tests.
+For packaged-design-system, inspect actual availability/compatibility evidence,
+installed-version documentation, token references and component ownership.
+For plans inspect the declared supplied/project check commands and evidence
+capture; for completion inspect observed results and reviewed findings/exceptions.
+Do not assume a package includes lint/audit tooling. Report missing evidence;
+never invent a consumer test run from HELIX's catalog tests.

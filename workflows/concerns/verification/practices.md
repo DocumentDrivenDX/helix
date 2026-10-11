@@ -146,14 +146,15 @@ e2e genuinely infeasible). Under a recorded exception:
 - Re-review pass recorded against the ACs and the integration seams the change
   touched.
 
-## UX and SDK evidence
+## UX and package evidence
 
 For affected interactive UI work, the STP UX Coverage map follows
 workflows/references/ux-evidence.md and ux-interaction-patterns. Review actual
 mapped test source/citations and observed interaction outcomes before done.
 Legacy omission is structurally valid but is a readiness gap for new affected
-work. Where ai-design-system is selected, record installed versions, source
-lint and runtime audit exits, affected route/theme/appearance coverage, JSON,
-HTML and screenshot paths, plus owner-assigned warnings and scoped reviewed
-exceptions. Audit-green alone never proves keyboard, focus, duplicate-submit,
-validation or recovery behavior. Static/API-only work needs no invented UI.
+work. With packaged-design-system, record installed versions and the project's
+actual presentation/accessibility checks, command exits, route/theme coverage,
+report paths and reviewed findings/exceptions. Use applicable supplied tools;
+where none exist, define project checks. These do not replace keyboard, focus,
+duplicate-submit, validation or recovery tests. Static/API-only work needs no
+invented UI or package audit.

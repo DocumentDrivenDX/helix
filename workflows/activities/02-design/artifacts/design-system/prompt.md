@@ -58,15 +58,15 @@ it is **not** an architecture document.
 - The document reads as this app's instance of the guidelines, not a copy of
   the `ux-interaction-patterns` concern library.
 
-## External SDK and applicability
+## External packages and applicability
 
-For ai-design-system consumers, record source/installed package versions,
-selected theme and supported appearances (some themes are light-only), verified
-role-token references, component mappings and gaps. Embedded views record the
-host-resolved token contract instead of inventing a theme switcher or duplicate
-branding. Preserve local-token projects as an alternative. Name applicable
-keyboard/modality, validation/recovery and async feedback conventions in the
-existing Interaction States section. Test mappings belong in STPs.
+When packaged-design-system applies, record installed package versions,
+supported themes/appearances, documented token references, component mappings
+and gaps. Use installed-version documentation; never assume particular provider
+APIs, mandatory dark mode or duplicated branding. A host-owned presentation
+contract is recorded where relevant. Local tokens remain an alternative when
+no suitable package is available. Name applicable behavior conventions in
+Interaction States; test mappings belong in STPs.
 
 ## Navigation applicability
 

@@ -108,7 +108,7 @@ label or assign multiple labels.
 1. Parse the active concerns document for selected concerns (listed under
    `## Active Concerns`).
 2. Compose `ux-interaction-patterns` when `ux-radix`,
-   `ai-design-system`, or `databricks-appkit-ui` is selected. Load its practices
+   `packaged-design-system`, or `databricks-appkit-ui` is selected. Load its practices
    as well as the adapter practices; retain the explicit selection document.
    This bounded composition preserves existing UI selections, adds no library
    choice and is implemented by the context-digest loader.
@@ -531,13 +531,18 @@ Static content and API-only work need no invented interactions. Check/Polish
 identify gaps; Frame/Evolve applies an authorized adoption update. No silent
 re-selection of existing projects.
 
-SDK adoption is explicit. React and Databricks hosting do not automatically
-select ux-radix/AppKit alongside ai-design-system. Resolve competing component
-owners, Tailwind presentation defaults and Biome versus SDK lint through the
-existing override mechanism, citing the governing ADR for conflicts/deviations.
-The SDK's databricks theme does not select databricks-appkit-ui.
+When an applicable design system is available as npm packages, use it and
+record availability, compatibility, package identity and installed-version
+integration evidence under packaged-design-system. For existing selections,
+apply an authorized adoption update; do not silently change libraries. Without
+an available suitable package, use the selected alternative or a project-owned
+concern. HELIX does not depend on a private design-system product.
+
+Framework and hosting selection do not add competing component libraries.
+Resolve component-owner and styling/toolchain conflicts through project
+overrides, citing the governing ADR where required.
 
 Use workflows/references/ux-evidence.md for the scoped coverage format. Carry
 its adoption obligation in compact context, verify full practices at execution,
-and require the observed interaction results plus applicable SDK lint/audit
-reports before completion. Structural coverage alone is not runtime proof.
+and require observed interaction results plus declared package/project quality
+check results before completion. Structure alone is not runtime proof.

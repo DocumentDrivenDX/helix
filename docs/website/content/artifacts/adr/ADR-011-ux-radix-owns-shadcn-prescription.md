@@ -92,6 +92,6 @@ concerns describe frameworks, not component libraries
 
 ux-radix retains the Radix/shadcn prescription. Framework-neutral behavior now
 belongs to ux-interaction-patterns, automatically composed for ux-radix and
-AppKit selections. ai-design-system owns its SDK prescription and composes the
+AppKit selections. packaged-design-system owns its packaged design system prescription and composes the
 same baseline. Framework selection does not force Radix; existing selections
 keep their library. Conflicts use the established project override/ADR policy.

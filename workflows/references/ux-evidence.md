@@ -44,11 +44,12 @@ for modals test focus entry/containment/return; for async actions test pending,
 duplicate guard and failure recovery. Non-modal and native navigation behavior
 follow their actual patterns. No screenshot-only semantic proof.
 
-With ai-design-system also record installed versions, lint result, audit
-URLs/routes, supported theme/appearance coverage, JSON/HTML/screenshot paths,
-and warning dispositions. An audit checks presentation adoption and contrast,
-not these behavioral flows. Reviewed exceptions identify scope, owner, rationale,
-alternative observed evidence and review/removal trigger; no silent --off,
-ignore, allow-list or warning suppression. SDK-owned warnings go to the SDK owner.
-Catalog validation is not a consumer integration run; never claim the latter
-from the former.
+With packaged-design-system also record installed versions, the project's
+actual presentation/accessibility check commands, exits, supported route/theme
+coverage and report paths. Use supplied package tools where applicable; if
+none exist, define project checks. Never assume a specific audit executable,
+report format or a second appearance. These checks do not replace behavioral
+flows. Reviewed exceptions identify scope, owner, rationale, alternative observed
+evidence and review/removal trigger; no silent suppression. Package-owned
+findings go to its owner. Catalog validation is not a consumer integration run;
+never claim the latter from the former.

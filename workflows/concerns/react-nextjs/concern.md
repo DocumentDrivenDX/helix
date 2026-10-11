@@ -31,7 +31,7 @@ frontend-framework
 - Forms must use react-hook-form with uncontrolled components — no `useState` per field
 - Validation schemas live in the shared package and are reused on frontend and backend
 - UI primitives and component-library choice are governed by the selected library
-  concern (`ux-radix` for shadcn/Radix; `ai-design-system` for the SDK); compose the selected component owner when this
+  concern (`ux-radix` for shadcn/Radix; `packaged-design-system` for an available npm design system); compose the selected component owner when this
   concern is selected for UI work
 - Tailwind config extends the design system tokens (colors, spacing, typography)
 - E2E tests use Playwright, not Cypress or Selenium
@@ -73,12 +73,12 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - ADR-011: ux-radix owns the Radix and shadcn component-library prescription;
   this concern references rather than re-prescribing
 
-## Component ownership and SDK composition
+## Component ownership and package integration
 
 Framework selection does not select a component library. Apply the neutral
 ux-interaction-patterns baseline and the project's chosen component owner.
 References above to ux-radix describe the Radix/shadcn choice only; they do not
-require that choice. With ai-design-system, use its widgets and role tokens;
+require that choice. With packaged-design-system, use its documented components and tokens;
 record Tailwind defaults as overridden where they prescribe independent tokens
-or widget styling. With typescript-bun, SDK ESLint/Stylelint is additive to
-Biome, not silently omitted. SDK installed guidance controls integration.
+or widget styling. With typescript-bun, run applicable supplied checks alongside the
+selected linter, or define project checks when the package provides none. Installed-version package documentation controls integration.

@@ -9,7 +9,7 @@ ui, frontend
 ## Boundary
 
 Owns basic user-visible behavior independently of framework, component library,
-brand or hosting. ux-radix and ai-design-system compose this baseline; neither
+brand or hosting. ux-radix and packaged-design-system compose this baseline; neither
 library adoption nor accessibility-friendly primitives prove a user flow works.
 a11y-wcag-aa owns compliance; e2e-framework owns the execution harness.
 

@@ -18,7 +18,7 @@
   suggestions, not every text filter. Tooltips are non-interactive hints.
 - Library-specific convenience patterns (command palettes, autosave, range
   selection) require product scope; do not introduce them as baseline obligations.
-- Resolve AppKit or SDK component ownership before implementation. No silently
+- Resolve AppKit or packaged design system component ownership before implementation. No silently
   installed second library or duplicated token system.
 
 ## Testing and Quality Gates

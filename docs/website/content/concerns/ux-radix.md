@@ -38,7 +38,7 @@ No selection migration or new exclusive slot is required.
   focus trapping follows modality, not an unconditional overlay rule.
 - Match tabs, selects, menus, tooltips and disclosure to their actual patterns.
   Tooltips contain no interactive content; use a popover for interactive detail.
-- ai-design-system and databricks-appkit-ui have competing component ownership;
+- packaged-design-system and databricks-appkit-ui have competing component ownership;
   resolve any composition in project overrides with governing ADR before build.
 
 ## When to use
@@ -79,7 +79,7 @@ Agents working in any of these activities inherit the practices below through ru
   suggestions, not every text filter. Tooltips are non-interactive hints.
 - Library-specific convenience patterns (command palettes, autosave, range
   selection) require product scope; do not introduce them as baseline obligations.
-- Resolve AppKit or SDK component ownership before implementation. No silently
+- Resolve AppKit or packaged design system component ownership before implementation. No silently
   installed second library or duplicated token system.
 
 ## Testing and Quality Gates
