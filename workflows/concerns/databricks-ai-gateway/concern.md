@@ -1,98 +1,59 @@
-# Concern: Databricks AI Gateway (model access)
+# Concern: Databricks AI Gateway (model access on Databricks)
 
 ## Category
-data-governance
+infrastructure
 
 ## Areas
 api, infra
 
 ## Platform
 
-**Platform-specific (Databricks).** The AI Gateway fronts model endpoints with
-governed access, usage limits, and tracing. This concern is how a product
-*calls models through it*, not how it governs the data the models read.
+**Platform-specific (Databricks).** The Databricks realization of
+`model-gateway`: how that concern's constraints are met when a Databricks App
+calls models through the workspace AI Gateway. The generic constraints (alias,
+owner, deploy gate, capability, eval-gated rebinds, attribution) live in
+`model-gateway` and are not restated here.
 
 ## Boundary
 
-Owns: what the product names when it needs a model, who provisions and grants
-the gateway services behind those names, how the names reach the deployed app,
-and how the product proves each model it depends on is callable the way it will
-actually call it.
-
-Does not own: the identity model (service principal vs on-behalf-of) — see
-`databricks-apps`; catalog grants as a general discipline — see `unity-catalog`
-(a gateway service is a securable object there; grants: see `unity-catalog`); trace
-and log conventions — see `o11y-otel`.
-
-## Components
-
-- **Tier**: a name for the job a call needs done (for example `quick`,
-  `balanced`, `deep`), declared by the product. Tiers are not model names and
-  not reasoning-effort levels.
-- **Gateway service**: the governed endpoint a tier resolves to, with its
-  fallback chain, usage limits, and grants. Owned by the infrastructure module,
-  per environment.
-- **Adapter**: the one place the product speaks to the gateway, on one API
-  route.
-- **Readiness gate**: a deploy-time call to every tier the app needs.
+Owns only the Databricks mechanics below. Identity (service principal vs
+on-behalf-of) and how settings reach the app belong to `databricks-apps`; access
+to a gateway service is a Unity Catalog grant governed by `unity-catalog`.
 
 ## Constraints
 
-- **Name the need, not the model.** Product code and plug-ins declare a tier.
-  The mapping from tier to model lives in per-environment infrastructure
-  configuration, so a model change needs no product release.
-- **One owner for services and grants.** The module that creates a gateway
-  service also grants access to it. A grant made anywhere else is undone on the
-  owner's next apply.
-- **Names arrive through the app's per-target configuration, and every
-  required one is non-empty after render.** Where the platform offers no app
-  resource binding for a gateway service, the infrastructure module publishes
-  one value per tier and the deploy renders them into the app's configuration. A missing service name must fail the deploy, not a
-  user's first prompt.
-- **The readiness gate exercises the call as the product makes it**: the same
-  route and the same features (tools, streaming, structured output), once per
-  tier, as the caller. A plain-prompt probe passes while tool calls fail.
-- **A tier's model must support what the adapter uses on the route it speaks.**
-  Capability differs by model family and route; verify by calling, not by
-  documentation.
-- **Retargeting a tier is a model substitution** and passes the evals of every
-  workflow that declares the tier.
-- **Model calls join one trace.** Send a W3C `traceparent` so product and
-  gateway spans share a trace id. Span attributes carry ids and sizes, never
-  prompts, answers, or tool arguments.
-- **Identity is `databricks-apps`'s call**; the gateway's usage record names the
-  caller.
+- **A gateway service name is an ordinary per-target setting.** It is required
+  and validated at deploy like any other; how settings reach the app is
+  `databricks-apps`'s rule.
+- **Access to a gateway service is a Unity Catalog grant**, issued by the module
+  that creates the service (see `unity-catalog`).
+- **The first deploy is two steps.** The app's service principal exists only
+  after its first deploy, so grant it access after that deploy, then verify with a
+  real call.
+- **Send W3C `traceparent` on every model call** so the product's spans and the
+  gateway's land in one trace in the workspace's trace table. Span content rules
+  are `o11y-otel`'s.
 
 ## Drift Signals (anti-patterns to reject in review)
 
-- A concrete model or service name hardcoded in product code or a plug-in
-  manifest → declare a tier
 - A gateway grant applied by hand or from the product's repository rather than
   by the module that owns the service
-- Deploy passes while the first real prompt returns 404 → readiness gate does
-  not call every tier
-- Readiness probe sends a plain prompt but production sends tools → probe the
-  features actually used
-- A tier remapped without re-running the evals that depend on it
-- A service-name variable that renders empty without failing the deploy
-- Spans or logs carrying prompt or answer text
+- A first deploy treated as complete before the service principal has access
+- Model calls that carry no `traceparent`, leaving the gateway's records
+  unjoinable to the product's
 
 ## When to use
 
-Any product that calls models through the Databricks AI Gateway. Composable (no
-slot). Select it with `databricks-apps` and `unity-catalog`; pair with
-`o11y-otel` when model calls must be traced end to end.
+A product that calls models through the Databricks AI Gateway. Composable (no
+slot). Select it with `model-gateway`, `databricks-apps` and `unity-catalog`.
 
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- TD: states the tier set, who provisions each service and its grants, how names reach the app, the adapter route and features used, and readiness gate coverage
-- TEST_PLAN: gate that calls each tier with the features in use; evals gating tier remaps
-- deployment-checklist: required service names non-empty after render; grants verified by a real call
+- TD: states how access to each gateway service is granted and in what order on first deploy
+- deployment-checklist: grants verified by a real call after the first deploy
 
 ## ADR References
 
 Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only
-when the project deviates from a constraint here. An unverified capability
-(does this model accept tools on this route?) is a probe or `tech-spike`, not an
-assumption.
+when the project deviates from a constraint here.
