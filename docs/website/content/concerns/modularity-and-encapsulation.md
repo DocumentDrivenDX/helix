@@ -87,7 +87,12 @@ baseline in `workflows/references/concern-resolution.md` for adoption and preced
 - TEST_PLAN: permitted and forbidden import controls, cycle/private-access checks
   where supported, invariant tests, core isolation when promised by the style,
   adapter contract tests, and explicit remaining review obligations
-- ADR: deliberate coupling, scoped exceptions, or existing-project adoption decisions
+
+## ADR References
+
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR when
+the project grants a scoped exception or accepts deliberate coupling that
+departs from a constraint here.
 
 ## Practices by activity
 
@@ -150,13 +155,13 @@ passing mutable internal state across public interfaces.
 
 ## Existing-project adoption
 
-Inventory specific violations by source and target, with owner and remediation
+Inventory specific violations by source and target, with remediation
 work. Baseline only existing violations; unchanged debt may remain while new edges
 fail. Baseline/adoption/checker work may execute before the gate exists; dependent
 feature work is not ready. Tighten the baseline as remediation lands.
 
 Overrides may adapt enforcement mechanisms. Departures require an exception with
-exact scope, owner, governing authority, rationale, alternative verification, and
+exact scope, governing authority, rationale, alternative verification, and
 review/removal trigger. A blanket directory exclusion or larger baseline used to
 hide new violations is not valid adoption.
 

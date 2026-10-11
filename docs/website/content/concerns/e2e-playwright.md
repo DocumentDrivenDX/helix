@@ -159,7 +159,6 @@ Any project with a web UI that users interact with. This includes:
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: Playwright as the e2e-framework slot (real browsers, screenshots, video, traces)
 - TEST_PLAN: per-page + per-workflow E2E in real browsers, seeded data across UI states, committed screenshot baselines
 
 ## Practices by activity

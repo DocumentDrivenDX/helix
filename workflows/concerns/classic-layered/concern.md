@@ -44,6 +44,7 @@ data-access boundary**:
 - **`design-patterns-gof`** owns object-level collaboration patterns inside a
   layer; **`enterprise-integration-patterns`** owns between-system messaging.
   Classic-layered is the macro stacking rule across one deployable.
+- Enforcement of the import rules belongs to the `modularity-and-encapsulation` Boundary Check; this concern defines the rule only.
 
 ## Components
 
@@ -61,7 +62,8 @@ data-access boundary**:
   the layers above.
 - **(Optional) shared/cross-cutting layer** — logging, config, common types
   referenced by multiple layers. Kept thin to avoid becoming a dependency
-  sink.
+  sink. It must not become the generic shared-types
+  dumping ground that `modularity-and-encapsulation` rejects; that concern wins.
 
 ## Constraints
 
@@ -132,12 +134,10 @@ because the layering constrains every buildable work item.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: classic-layered chosen over inversion siblings; business→data-access coupling accepted
-- TD: presentation→application→domain→data-access tiers, dependencies pointing down
+- TD: presentation→application→domain→data-access tiers, dependencies pointing down; states the accepted business→data-access coupling as a trade-off for lower ceremony
 
 ## ADR References
 
-Record an ADR when selecting classic-layered over a dependency-inversion
-slot-sibling (`onion` / `hexagonal` / `clean`) — the ADR should state that the
-business-to-data-access coupling is an accepted trade-off for lower ceremony —
-or when an operator overrides the `architecture-style` choice per project.
+Selecting this concern or filling the `architecture-style` slot needs no ADR;
+`concerns.md` records it. Write an ADR only when the project deviates from a
+constraint here.

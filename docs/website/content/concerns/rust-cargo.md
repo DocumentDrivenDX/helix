@@ -42,8 +42,7 @@ language-runtime
 - All configuration is declared in one central `Config` struct (single module/crate, e.g. `config.rs`) deserialized with `figment`; every field is typed with a default or is required
 - The `Config` is built once in the binary's `main` and passed in; no `std::env::var`/`env::vars` reads outside the config module, and no global config singletons in library crates
 - Secrets use `secrecy::SecretString` (no `Debug`/`Display` leakage); invalid or missing config fails at startup, not at first use
-- Config is layered by owner per `twelve-factor`: ops-injected values (env vars, mounted files, secret manager) over a committed `config/<env>.toml` over committed defaults (`Default` impl plus `config/default.toml`), merged with `figment`; ops-owned keys (hosts, credentials) have no default and never appear in committed files
-- Real environment variables take precedence over files; `.env` (via `dotenvy`, dev builds only) is a local convenience, git-ignored, with a committed `.env.example` listing every variable (no secrets in it)
+- Config layering and `.env` rules follow `twelve-factor`; here `figment` merges the `Default` impl, `config/default.toml`, `config/<env>.toml`, then environment (`dotenvy` for dev builds only)
 - Repo-owned Rust commands run through a pinned-toolchain wrapper; do not rely on ambient `rustc`/`cargo` from PATH
 
 ## Clippy Lint Policy
@@ -76,7 +75,6 @@ additional deny-level lints.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: Rust + Cargo workspace (clippy, fmt, cargo-deny/machete, pinned toolchain) as the language-runtime
 - TD: workspace lints, error-handling (thiserror/anyhow), unsafe policy, profile conventions, central `Config` struct and its config-key contract (owner and source per key)
 
 ## Practices by activity
@@ -93,10 +91,9 @@ Agents working in any of these activities inherit the practices below through ru
 - All inter-crate dependencies declared in `[workspace.dependencies]`
 - Separate `crates/` (libraries) from `tools/` or `bin/` (binaries/CLIs) in workspace layout
 - Design error types using `thiserror` for library crates; surface errors with `anyhow` in binaries
-- Centralize configuration in one `Config` struct (`#[derive(Deserialize)]`); layer sources with `figment`: `Serialized::defaults`, then `Toml::file("config/default.toml")`, then `Toml::file("config/<env>.toml")`, then environment (`Env::prefixed("APP_")`); ops-owned keys have no default; production relies on real env vars or the platform secret manager
+- Centralize configuration in one `Config` struct (`#[derive(Deserialize)]`); layering per `twelve-factor` via `figment`: `Serialized::defaults`, `Toml::file("config/default.toml")`, `Toml::file("config/<env>.toml")`, then `Env::prefixed("APP_")`
 - The config module reads `APP_ENV` via `std::env::var` once, before building the `figment` chain, to pick `config/<env>.toml`; that one read is covered by the module's existing `#[allow(clippy::disallowed_methods)]`
 - CLI binaries: `clap` flags (with `#[arg(env = ...)]` only for CLI-only keys, inside the config module) feed the one `Config`
-- Commit `.env.example`; git-ignore `.env`
 - Prefer newtypes and strong typing over stringly-typed parameters
 - Concurrent state: prefer `Arc<Mutex<T>>` or `dashmap` for shared state; use `loom` for model-checking critical sections
 

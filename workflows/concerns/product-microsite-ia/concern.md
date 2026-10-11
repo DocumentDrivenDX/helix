@@ -14,6 +14,7 @@ site, docs, frontend
 - **Trust path**: claims, examples, source artifacts, operational proof
 - **Navigation state**: current section, current page, sibling context, page-local headings
 - **Responsive behavior**: desktop sidebar, mobile drawer, page outline, touch targets
+- **Boundary**: `product-microsite-ia` owns site structure; `hugo-hextra` owns the stack it is built on.
 
 ## Constraints
 
@@ -108,6 +109,4 @@ serves both evaluators and active users.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: information-architecture model (reader modes, top-level sections, nav state) for the microsite
-
-## ADR References
+- none beyond `concerns.md`, which records the selection

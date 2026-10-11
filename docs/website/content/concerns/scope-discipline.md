@@ -133,8 +133,6 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 - TEST_PLAN: no acceptance criterion is satisfied by a stubbed / placeholder path; incompleteness markers on AC-exercised code are a blocking finding
 - ADR: any recorded exception (explicitly phased placeholder, or requested scope reduction) and its reason
 
-## ADR References
-
 ## Practices by activity
 
 Agents working in any of these activities inherit the practices below through runtime work context, such as a DDx bead context digest.

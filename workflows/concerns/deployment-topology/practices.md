@@ -3,7 +3,7 @@
 These practices make the **topology decision** (how many independently
 deployable units, and where their seams fall) checkable in review. They govern
 **how many deployables and where the boundaries are** — not the internal
-layering of any one deployable (`architecture-style` / `onion-architecture`),
+layering of any one deployable (the selected `architecture-style` filler),
 not how services talk once split (`enterprise-integration-patterns`), and not
 the runtime that hosts them (`k8s-kind` / the `deploy-target` filler). The
 default stance is **modular-monolith**; most of the review work is confirming
@@ -11,10 +11,10 @@ the default was kept or that a split was justified and the premium paid.
 
 ## Decide and record the topology
 
-- The product MUST have a **recorded topology decision** (ADR) naming whether it
-  ships as a modular monolith, microservices, or serverless/FaaS. The default
-  is **modular-monolith**; any other choice MUST cite a specific forcing
-  function.
+- The TD MUST state the topology decision, naming whether the product ships as
+  a modular monolith, microservices, or serverless/FaaS. The default is
+  **modular-monolith**; any other choice is a deviation and MUST cite a specific
+  forcing function in an ADR.
 - For any topology other than the modular-monolith default, the ADR MUST name:
   the **forcing function** (independent scaling / team autonomy / complexity
   exceeding one deployable), evidence the **microservice premium is paid**
@@ -65,13 +65,13 @@ the default was kept or that a split was justified and the premium paid.
   spikes, long-running / CPU-intensive work that hits execution-time limits, or
   workloads needing persistent connections (e.g. WebSockets).
 - Provider-specific SDKs (functions and the managed data/queue services they
-  use) SHOULD be isolated behind a port (`onion-architecture`) so the
+  use) SHOULD be isolated behind a port (the selected `architecture-style` filler) so the
   real lock-in surface — the surrounding managed services — is contained.
 
 ## Stay in your lane (boundary with sibling concerns)
 
 - Do **not** review the internal layering of a deployable here — that is
-  `architecture-style` / `onion-architecture`. Verify only the count and seams
+  the selected `architecture-style` filler. Verify only the count and seams
   of deployables.
 - Do **not** review channel / idempotency / dead-letter / delivery-guarantee
   rules here — that is `enterprise-integration-patterns`, which applies once a
@@ -82,8 +82,8 @@ the default was kept or that a split was justified and the premium paid.
 
 ## Quality Gates
 
-- A **recorded topology decision** (ADR) exists; the default is
-  modular-monolith and any other choice cites a specific forcing function plus
+- The TD states the topology decision; the default is modular-monolith and any
+  other choice is recorded in an ADR citing a specific forcing function plus
   evidence the microservice premium is paid.
 - A **monolith has enforced internal module boundaries** following
   bounded-context fault lines — no un-modularized "big ball of mud".

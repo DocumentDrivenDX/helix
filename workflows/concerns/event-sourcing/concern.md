@@ -34,13 +34,13 @@ must stay distinct:
   the eventstream that is the source of truth and the wire message that fans out
   to other systems are different artifacts. Reference EIP for the transport; do
   not own it.
-- **`onion-architecture`** owns **how** the codebase layers and which way
+- **The selected `architecture-style` filler** owns **how** the codebase layers and which way
   dependencies point. The **event store is an outer-ring infrastructure
   adapter** that implements a persistence interface (an event-store / repository
   port) declared by an inner layer in domain terms. ES says *the log is the
-  truth and the aggregate rehydrates from it*; onion says *the inner ring
+  truth and the aggregate rehydrates from it*; the architecture style says *the inner ring
   declares the port and the outer ring implements it*. Do not restate the
-  dependency rule — reference onion for the arrangement.
+  dependency rule — reference the filler for the arrangement.
 - **`sample-data`** owns the seed/demo dataset. For an event-sourced slice the
   governed seed is expressed as **events appended to the store** (not rows
   inserted into a current-state table), so projections rehydrate from a
@@ -184,7 +184,7 @@ domain slice, not whole-product** — apply it to the parts that benefit (the
 payment ledger, the order pipeline) and use plain current-state storage
 elsewhere; "don't event-source everything." `areas: data` scopes its practices
 to data-layer work items. Compose with `domain-driven-design` (aggregates emit
-the events ES persists), `onion-architecture` (the event store is an outer-ring
+the events ES persists), the selected `architecture-style` filler (the event store is an outer-ring
 adapter behind an inner port), **CQRS** (the projections are the read side), and
 `sample-data` (the seed is events appended to the store).
 
@@ -199,15 +199,14 @@ storage is the simpler, correct choice (KISS/YAGNI).
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: event-sourcing for the named slice + event store + snapshot/upcasting + eventual-consistency window
-- TD: event store, rehydration/replay, projections/read-models, idempotent handlers, upcasters
+- TD: event store, rehydration/replay, projections/read-models, idempotent handlers, upcasters; states the event-sourced slice, event store, snapshot/upcasting strategy and eventual-consistency window
 - DATA_DESIGN: append-only eventstream as system of record; projections are rebuildable views
 - TEST_PLAN: replay rebuilds state; idempotent handler (no double-apply); compensating-event correction
 
 ## ADR References
 
-Record an ADR when selecting event sourcing for a given domain slice (it is a
-costly-to-reverse persistence decision), naming the slice, the
-audit/history/temporal justification, the event store choice, the
-snapshot/upcasting strategy, and the projections and their eventual-consistency
-window.
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only
+when the project deviates from a constraint here (for example in-place event
+migration). The slice, its audit/history/temporal justification, event store,
+snapshot/upcasting strategy, and projections with their eventual-consistency
+window belong in the TD.

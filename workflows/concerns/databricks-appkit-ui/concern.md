@@ -130,13 +130,15 @@ governs the package and server there), or for Streamlit, Dash, or Gradio apps.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: `@databricks/appkit-ui` (exact pin, no Node SDK) as the component library, citing the standalone spike result
-- TD: data-mode components fed by the project's `/api/*` through the server-state layer; no AppKit server routes assumed
+- TD: data-mode components fed by the project's `/api/*` through the server-state layer; no AppKit server routes assumed; states `@databricks/appkit-ui` (exact pin, no Node SDK) as the component library, citing the standalone spike result
 - IMPLEMENTATION_PLAN: the AppKit UI standalone spike before UI build-out; exact pin and upgrade procedure
 - DESIGN_SYSTEM: AppKit OKLCH tokens, overrides for light and dark, chart series tokens, shadcn gap components themed with AppKit tokens
 - TEST_PLAN: affected screens checked in both themes; keyboard and focus behavior per `ux-interaction-patterns`
 
 ## ADR References
+
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only
+when the project deviates from a constraint here.
 
 - ADR-011: ux-radix owns the Radix and shadcn component-library prescription;
   this concern names AppKit UI as the installed distribution of that pattern

@@ -182,8 +182,7 @@ their rules:
 - These states are modeled as a **status** (a discriminated union, or the query
   layer's `isLoading`/`isError`/`data`), not as ad-hoc boolean flags that can
   represent impossible combinations. (How each state *looks* and is keyboard-
-  reachable is `ux-radix`'s; that the branch *exists* is this concern's, and it
-  ties to the it.39 guard-branch discipline.)
+  reachable is `ux-radix`'s; that the branch *exists* is this concern's.)
 
 ## Drift Signals (anti-patterns to reject in review)
 
@@ -212,7 +211,7 @@ their rules:
   shared schema, reuse on both sides
 - An async view that renders only the happy path (no loading, no empty, no
   error branch) → render all four states; a silent blank or a thrown error to
-  the user is a defect (it.39 guard branches)
+  the user is a defect
 - Loading/error tracked with scattered booleans that allow impossible combos
   (e.g. `loading && error && data`) → model state as a status / discriminated
   union
@@ -241,32 +240,30 @@ demands be rendered).
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: per-route rendering strategy (freshness/SEO/personalization) + server-state vs client-state split
-- TD: component/state/data-fetching layers, colocation, one-schema form validation, async-state branches
+- TD: component/state/data-fetching layers, colocation, one-schema form validation, async-state branches; states the per-route rendering strategy (freshness/SEO/personalization) and the server-state vs client-state split
 - DESIGN_SYSTEM: mandatory async UI states (loading/empty/error/success) as first-class designed surfaces
 - TEST_PLAN: every async view branches on loading/empty/error/success, not only the happy path
 
 ## ADR References
 
-Selecting this concern forces three artifact changes (it does **not** edit
-slots.yml or concern-resolution.md):
+Selecting this concern needs no ADR; `concerns.md` records it. It forces two
+artifact changes (it does **not** edit slots.yml or concern-resolution.md):
 
-- An **ADR** recording (a) the per-route/segment **rendering strategy** and its
-  freshness/SEO/personalization rationale, and (b) the **state + data-fetching
-  architecture** — the server-state layer (query cache or RSC) vs client-state
-  layer split, and the rule that server state is not duplicated into client
-  state.
 - The **technical-design** artifact gains explicit **component / state /
-  data-fetching layers** — where state is colocated, what the server-state
+  data-fetching layers**, stating the per-route/segment **rendering strategy**
+  and its freshness/SEO/personalization rationale, and the server-state layer
+  (query cache or RSC) vs client-state layer split (server state is not
+  duplicated into client state) — where state is colocated, what the server-state
   layer owns, how forms validate on both sides from one schema, and where each
   async view's loading/empty/error/success branches live.
 - The **design-system** artifact (DESIGN.md) gains the **mandatory async UI
   states** as first-class, designed surfaces (loading / empty / error / success
   for each data view), not afterthoughts.
 
-Record an ADR when a route departs from the default rendering strategy, or when
-a client store is introduced (justify the cross-cutting *client* state it holds
-and confirm it holds no server state). A material uncertainty about the
+Write an ADR only when the project deviates from a constraint here, such as a
+route departing from the default rendering strategy or a client store being
+introduced (justify the cross-cutting *client* state it holds and confirm it
+holds no server state). A material uncertainty about the
 rendering or data-fetching architecture is a `tech-spike`, not a silent
 assumption (see `workflows/references/concern-resolution.md`).
 
@@ -374,8 +371,7 @@ Decide per route from the signals, and record the decision:
 - Each async view branches on its status and renders the matching surface:
   loading → skeleton/spinner; empty → empty-state surface; error → error surface
   with a retry/way-forward; success → the data. The four branches are present in
-  the code, not just the success branch. This is the it.39 guard-branch
-  discipline applied to data views.
+  the code, not just the success branch.
 
 ## Testing
 
@@ -401,7 +397,7 @@ Decide per route from the signals, and record the decision:
 - **No hand-rolled fetch-into-`useState`-with-loading-boolean** for shared
   remote data — the server-state layer owns caching/loading/error/refetch.
 - **Every async view renders loading / empty / error / success** — not just the
-  happy state (ties to it.39 guard branches). The error branch offers a way
+  happy state. The error branch offers a way
   forward; the empty branch is explicit, not a blank container.
 - **Async state is modeled as a status / discriminated union**, not scattered
   booleans that permit impossible combinations (`loading && error && data`).

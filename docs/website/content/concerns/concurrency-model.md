@@ -20,7 +20,7 @@ execution model the system uses (threads-and-locks, an async/await event loop,
 the actor model, CSP channels, reactive streams, or a background worker pool),
 how shared mutable state is handled under it, and how concurrent work is
 bounded. Those decisions change the shape of the system (its state ownership,
-its synchronization points, its bounding strategy) and are recorded in ADRs and
+its synchronization points, its bounding strategy) and are recorded in
 the technical design, exactly like the other architecture concerns
 (`onion-architecture`, `enterprise-integration-patterns`, `resilience`). It is
 **composable** (no slot): it earns its place only when the system has real
@@ -233,9 +233,8 @@ callback.
 
 ## Constraints
 
-### A concurrency model is chosen deliberately and recorded
-- The system's in-process execution model is a **named, recorded decision** (an
-  ADR), not an accident of which library was imported first. Mixing models is
+### A concurrency model is chosen deliberately and stated
+- The system's in-process execution model is a **named decision stated in the TD**, not an accident of which library was imported first. Mixing models is
   allowed where each fits its workload (an event-loop web tier handing CPU work
   to a worker pool), but each is a deliberate choice, not drift.
 - The model must **fit the workload**: an event loop for I/O-bound concurrency,
@@ -352,20 +351,14 @@ observable).
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: in-process execution model (threads/event-loop/actors/CSP/reactive/worker) + bounding strategy + (if async) job idempotency/failure-visibility
-- TD: state ownership/synchronization, bounded concurrency (pool/semaphore/bounded-channel/backpressure), worker model
+- TD: state ownership/synchronization, bounded concurrency (pool/semaphore/bounded-channel/backpressure), worker model; states the in-process execution model (threads/event-loop/actors/CSP/reactive/worker), bounding strategy, and (if async) job idempotency/failure-visibility
 - TEST_PLAN: no unbounded concurrency, idempotent background jobs (no double-apply on retry), no leaked processes
 
 ## ADR References
 
-Selecting concurrency-model **forces** a specific ADR: the **concurrency model
-and its bounding strategy** — which in-process execution model the system uses
-(threads-and-locks / event loop / actors / CSP channels / reactive streams /
-worker pool, or a deliberate mix per workload), how **shared mutable state** is
-owned and protected under it, and how concurrent work is **bounded** (the
-pool/semaphore/bounded-channel/backpressure strategy) so there is no unbounded
-concurrency. For products with background/async processing the ADR also records
-the **job idempotency and failure-visibility** approach. A material uncertainty
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only
+when the project deviates from a constraint here. The concurrency model and its
+bounding strategy are stated in the TD. A material uncertainty
 about the model (unknown workload shape — I/O-bound vs CPU-bound, unknown
 throughput/contention profile, unproven backpressure behavior) is a `tech-spike`
 to de-risk before committing, not a silent assumption (see
@@ -512,6 +505,6 @@ count (`deployment-topology`).
 - Locks are acquired in a single consistent order (review), and no lightweight
   process or subscription leaks (no goroutine blocked forever on an unserviced
   channel; every subscription disposed).
-- The chosen concurrency model and its bounding strategy are recorded in an ADR;
+- The chosen concurrency model and its bounding strategy are stated in the TD;
   the model fits the workload shape (I/O-bound vs CPU-bound vs entity
   coordination vs deferred work).

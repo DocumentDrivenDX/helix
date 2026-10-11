@@ -48,14 +48,14 @@ neighbors must stay distinct:
   client calls and blocks on is api-style. A single product commonly has both (a
   REST API at the edge **and** a message queue inside) — they compose, they do
   not overlap. Do **not** restate channel/router/delivery-guarantee rules here.
-- **`onion-architecture`** owns the **layering within one deployable** —
+- **The selected `architecture-style` filler** owns the **layering within one deployable** —
   dependencies point inward, infrastructure is the outer ring. The API is an
   **outer-ring delivery adapter**: the controller/resolver/handler/procedure
   translates a wire request into a call on an inner application service and
   translates the result back out. api-style says *what the wire contract and
-  error shape are*; onion says *the handler is outer-ring code that depends
+  error shape are*; the architecture style says *the handler is outer-ring code that depends
   inward on the application service, never the reverse*. Do **not** restate the
-  dependency rule — reference onion for the arrangement.
+  dependency rule — reference the filler for the arrangement.
 - **`domain-driven-design`** owns the **domain model** — aggregates, value
   objects, invariants, the ubiquitous language. The API is a **translation
   layer OVER the domain, not the domain itself**: REST resources / GraphQL
@@ -152,7 +152,7 @@ neighbors must stay distinct:
   The internal aggregate is **not** serialized directly onto the wire, and the
   wire shape is **not** treated as the domain. This decoupling is what lets the
   contract and the domain evolve independently (it composes with
-  `onion-architecture`'s boundary-DTO rule and `domain-driven-design`'s model).
+  the selected `architecture-style` filler's boundary-DTO rule and `domain-driven-design`'s model).
 
 ### Match HTTP semantics when the style is HTTP-resource-oriented
 
@@ -253,7 +253,7 @@ client).**
 > genuinely differs.
 
 `areas: api` scopes its practices to the API/service work items where the
-interface lives. Compose with **`onion-architecture`** (the API handler is an
+interface lives. Compose with the selected **`architecture-style`** filler (the API handler is an
 outer-ring adapter depending inward), **`domain-driven-design`** (the contract is
 a translation over the domain model), **`enterprise-integration-patterns`** (the
 *asynchronous* counterpart for cross-system messaging — distinct surface),
@@ -265,16 +265,16 @@ the tech-stack concern (which fixes the HTTP/RPC framework and codegen).
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: interface style choice per surface (REST/GraphQL/gRPC/RPC/MCP) + versioning strategy
-- TD: the API contract artifact (OpenAPI/GraphQL SDL/proto/RPC types), error shape, boundary validation, cacheability
+- TD: the API contract artifact (OpenAPI/GraphQL SDL/proto/RPC types), error shape, boundary validation, cacheability; states the interface style per surface (REST/GraphQL/gRPC/RPC/MCP) and versioning strategy
 - TEST_PLAN: contract conformance + boundary input-validation tests on the exposed surface
 
 ## ADR References
 
-Record an ADR when selecting a non-default style for an exposed surface
-(GraphQL or gRPC over the REST / same-repo-RPC default, MCP for an agent-facing
-surface, or running multiple styles in a hybrid), naming the surface, its
-consumers, and the decisive signal (public/partner reach + caching → REST;
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only
+when the project deviates from a constraint here. The style chosen per surface
+(including a non-default one: GraphQL or gRPC over the REST / same-repo-RPC
+default, MCP for an agent-facing surface, or a hybrid) is stated in the TD,
+naming the surface, its consumers, and the decisive signal (public/partner reach + caching → REST;
 flexible client-specified data across many clients → GraphQL; internal
 service-to-service + streaming + strict contract → gRPC; first-party same-repo
 client → RPC/server-actions; **LLM agent / AI client consuming exposed
@@ -292,7 +292,7 @@ exposes** — choosing the interface style (REST / GraphQL / gRPC /
 RPC-server-actions), shaping its contract and errors, validating input at the
 boundary, and keeping the wire contract a translation over the domain. They do
 **not** govern asynchronous cross-system messaging
-(`enterprise-integration-patterns`), codebase layering (`onion-architecture`),
+(`enterprise-integration-patterns`), codebase layering (the selected `architecture-style` filler),
 or the domain model itself (`domain-driven-design`); they reference those
 concerns at the seam and stay on the exposed interface.
 
@@ -317,8 +317,8 @@ concerns at the seam and stay on the exposed interface.
     MCP-specific tool/resource/prompt, transport/OAuth, and agent-exposure
     security discipline this generic guide does not hold.
 - Do **NOT** reach for GraphQL or gRPC on a thin single-client first-party CRUD
-  app — cost without payoff (KISS/YAGNI). Record the choice (and any non-default
-  selection) in an ADR.
+  app — cost without payoff (KISS/YAGNI). State the choice (and any non-default
+  selection) in the TD.
 - A product MAY expose **multiple surfaces** (gRPC internally, REST/GraphQL at
   the edge); pick one style **per surface** for its own reason. Do not run two
   styles over the **same** surface for the **same** client.
@@ -385,7 +385,7 @@ concerns at the seam and stay on the exposed interface.
   internal aggregate or ORM row directly onto the wire, and do **not** treat the
   wire shape as the domain model.
 - The API handler (controller / resolver / service method / procedure) is an
-  **outer-ring adapter** (`onion-architecture`): it translates the wire request
+  **outer-ring adapter** (the selected `architecture-style` filler): it translates the wire request
   into a call on an inner application service and translates the result back —
   it does not contain domain logic.
 
@@ -396,7 +396,7 @@ concerns at the seam and stay on the exposed interface.
   response); EIP is **asynchronous messaging between systems** over a broker.
   A product may have both — a REST/GraphQL/gRPC surface **and** a queue — but do
   not conflate an exposed endpoint with a message channel.
-- **vs `onion-architecture`**: the API handler is **outer-ring** and depends
+- **vs the selected `architecture-style` filler**: the API handler is **outer-ring** and depends
   inward on the application service; do not restate the dependency rule, do honor
   it (no domain logic in the handler, no inward dependency on the handler).
 - **vs `domain-driven-design`**: the contract is a **translation over** the
@@ -417,8 +417,8 @@ concerns at the seam and stay on the exposed interface.
 
 - The exposed surface has an **explicit, typed contract** (OpenAPI / GraphQL
   schema / `.proto` / declared-or-inferred RPC types) that clients code against,
-  and its **style was chosen on a recorded signal** (non-default style →
-  ADR-recorded).
+  and its **style was chosen on a recorded signal** (non-default style
+  stated in the TD).
 - **Errors use the style's standard shape** — HTTP **status codes** for
   REST/RPC-over-HTTP (no `200 OK` with an error body), the GraphQL **`errors`
   array**, gRPC **status codes** — and the shape is **consistent across the

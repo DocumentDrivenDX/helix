@@ -53,9 +53,8 @@ duplicate the other two:
   that a unit suite is green. A passing unit layer is necessary, not
   sufficient.
 - Before claiming completion, an agent must produce the evidence artifacts in
-  `practices.md`: the command run + its exit status, the target URL/env, the
-  core flows exercised, and a short re-review checklist against the ACs and
-  integration risks.
+  `practices.md`: the command run + its exit status, the target URL/env, and the
+  core flows exercised, including each guard branch observed.
 - If the change has a named downstream consumer in another repo, "done"
   requires evidence that the consumer pulled the change and its integration was
   exercised. Local gate-green alone is not enough.
@@ -135,8 +134,8 @@ replace either.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- TEST_PLAN: whole-stack evidence gate per AC — command + exit status, target env, flows, adversarial re-review
-- ADR: any recorded exception (library/docs-only or full-stack-e2e-infeasible) and its substitute evidence
+- `docs/helix/04-build/verification-evidence.md`: the whole-stack evidence record — command + exit status, target env, flows, observed guard branches, and any recorded exception with its substitute evidence (one line)
+- TEST_PLAN: the layer allocation only
 
 ## ADR References
 
@@ -156,8 +155,7 @@ evidence behind it.
   which real user flow(s) traverse the full stack, and what observable
   outcome proves each one ran. This is the evidence you will capture at done.
 - Identify the integration seams the change touches — the boundaries where a
-  locally-correct component can be globally wrong. These become the re-review
-  checklist.
+  locally-correct component can be globally wrong.
 - If the change has a named downstream consumer in another repo, record the
   evidence you will need at done: the consumer pulled the change and exercised
   its integration. Local gate-green alone is not enough.
@@ -191,15 +189,10 @@ from an actual run, never asserted from memory:
    unauthorized, cross-tenant, out-of-window), with the observed outcome of each
    (what was seen, not what was expected). **Happy-path-green is not done** — a
    criterion whose guard branch was never driven on the running system is
-   incomplete. Drive each through the harness its surface dictates (the `testing`
-   concern's *surface → real-path harness* mapping; the `e2e-framework` slot owns
-   the web runner) — Playwright is not the universal verifier.
-4. **Re-review checklist** — a short adversarial pass recorded against:
-   - each governing acceptance criterion: was it actually satisfied by the
-     running system, or only by the unit layer?
-   - each integration risk / seam the change touched: was it exercised, or
-     assumed?
-5. **Selection↔build coherence** — the built system actually **honors the
+   incomplete. Drive each through the harness its surface dictates (see
+   the `testing` concern's practices, *Surface → real-path
+   harness*; the `e2e-framework` slot owns the web runner).
+4. **Selection↔build coherence** — the built system actually **honors the
    selected concerns and slots**. For each selected slot, the build uses that
    filler: e.g. a selected `frontend-framework: react-nextjs` means a real
    React/Next app exists (SSR/RSC is fine — the point is React/Next is *present*,
@@ -217,16 +210,16 @@ from an actual run, never asserted from memory:
    shipping a non-React app, or shipping **no** core-flow e2e at all — is what
    this catches.
 
-A completion claim missing any of these five is incomplete — the gate is not
+A completion claim missing any of these is incomplete — the gate is not
 "tests are green", it is "the stack was exercised, honors what was selected, and
 here is the recorded evidence".
 
-Write this recorded bundle to the canonical path the build gate checks —
+Write this recorded evidence to the canonical path the build gate checks —
 `docs/helix/04-build/verification-evidence.md` — so "done" is gated on its
-presence plus an adversarial review, not asserted from memory (see the 04-build
+presence, not asserted from memory (see the 04-build
 `GATE.yaml` exit requirements). A guard branch that is genuinely not applicable
 or not automatable carries a **recorded reviewed exception** (manual verification
-accepted / non-automatable, with evidence — who verified, what was observed; the
+accepted / non-automatable, with evidence — what was observed; the
 same escape hatch reconcile-alignment's AC coverage floor uses), never a silent
 omission; an un-waived untested guard branch leaves its acceptance criterion
 `UNTESTED` in reconcile-alignment.
@@ -273,7 +266,8 @@ e2e genuinely infeasible). Under a recorded exception:
 - Substitute the strongest observable evidence that *does* exist (the library
   suite green with command + exit status; the docs build/link-check; an
   integration run against a stubbed boundary; a recorded manual run).
-- Record which exception applies and why. An unrecorded "e2e is hard" is not
+- Record which exception applies and why, as one line in
+  `docs/helix/04-build/verification-evidence.md`. An unrecorded "e2e is hard" is not
   an exception.
 - The verify-don't-trust rule still holds: even the substitute evidence must
   be observed, never asserted.
@@ -284,11 +278,9 @@ e2e genuinely infeasible). Under a recorded exception:
   evidence) — not unit-green alone.
 - All evidence artifacts present for buildable work: command + exit status,
   target URL/env, core flows **and each AC's guard/negative branch** exercised
-  on the running system, re-review checklist.
+  on the running system.
 - Zero asserted-but-unobserved results — every reported outcome traces to a
   run that was watched finish.
-- Re-review pass recorded against the ACs and the integration seams the change
-  touched.
 
 ## UX and package evidence
 

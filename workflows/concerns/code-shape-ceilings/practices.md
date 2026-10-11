@@ -14,8 +14,8 @@ toolchain only through the selected stack concern's linter.
 
 - Record the ceiling values, the file-size caps, and the excluded paths (with a
   reason each) in the TD.
-- Design modules by responsibility. A new external system, protocol, or
-  integration gets its own module; an orchestrator delegates to it.
+- Design modules by responsibility; integration ownership follows
+  `modularity-and-encapsulation`.
 
 ## Implementation
 
@@ -249,7 +249,7 @@ Install it with a `just hooks` recipe: `git config core.hooksPath .githooks`.
 
 - The lint config selects the complexity, statement, argument, and
   public-method rules at or below the strict defaults (or the adoption
-  baseline recorded in the TD).
+  baseline recorded in `concerns.md`).
 - `just lint` runs the linter, formatter check, type check,
   `check_file_size.py`, and `check_ceilings.py`; CI runs the same recipe.
 - The Claude `PostToolUse` and `Stop` hooks and the git pre-commit hook are

@@ -48,7 +48,7 @@ is the tenant-specific, reviewer-checkable refinement.
 ## Components
 
 - **Isolation model** — the chosen point on the isolation spectrum, recorded in
-  an ADR. The spectrum (Azure: shared → isolated; AWS: pool → bridge → silo):
+  the design artifacts (TD / DATA_DESIGN). The spectrum (Azure: shared → isolated; AWS: pool → bridge → silo):
   - **Shared schema, tenant-discriminator column** (pool): one set of tables, a
     `tenant_id` on every tenant-owned row. Highest density / lowest cost;
     weakest physical isolation; the model where a missing predicate leaks data.
@@ -111,8 +111,8 @@ is the tenant-specific, reviewer-checkable refinement.
 
 ### The isolation model is chosen deliberately and recorded
 
-- The point on the isolation spectrum is an explicit decision recorded in an
-  ADR, justified against isolation strength, cost/density, noisy-neighbor risk,
+- The point on the isolation spectrum is an explicit decision stated in the
+  TD / DATA_DESIGN, justified against isolation strength, cost/density, noisy-neighbor risk,
   per-tenant backup/restore and compliance needs, blast radius, and operational
   fan-out — not defaulted implicitly.
 - In a **pooled** (shared-schema) model the isolation burden is **higher**, not
@@ -149,8 +149,8 @@ is the tenant-specific, reviewer-checkable refinement.
   authorization is intra-tenant
 - **No negative test** that tenant A cannot reach tenant B's data → add the
   cross-tenant guard test
-- Isolation model **defaulted implicitly** with no ADR weighing cost vs
-  isolation vs blast radius → record the decision
+- Isolation model **defaulted implicitly** with no TD/DATA_DESIGN statement weighing cost vs
+  isolation vs blast radius → state the decision
 - **Per-tenant schema/column customization or forked infrastructure** for one
   tenant → use per-tenant configuration / feature flags / a custom-data table;
   forking inhibits scale, testing, and updates
@@ -175,19 +175,13 @@ the model and the aggregate's identity).
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: tenant isolation model (shared-schema/+RLS/schema-per-tenant/db-per-tenant/bridge) + tenant resolution + lifecycle
-- TD: tenant-context propagation from the principal; tenant-scoped data-access choke point
+- TD: states the tenant isolation model (shared-schema/+RLS/schema-per-tenant/db-per-tenant/bridge), tenant resolution, and tenant lifecycle; tenant-context propagation from the principal; tenant-scoped data-access choke point
 - DATA_DESIGN: tenant discriminator + scoping (or per-schema/per-db isolation)
 - TEST_PLAN: negative cross-tenant guard — tenant A cannot reach tenant B by id/slug
 
 ## ADR References
 
-Projects record an ADR when choosing the isolation model (shared-schema +
-discriminator / + RLS / schema-per-tenant / database-per-tenant / bridge),
-justified against isolation strength, cost/density, noisy-neighbor risk,
-per-tenant backup/restore and compliance, blast radius, and operational fan-out;
-and when defining tenant resolution (claim / subdomain / path / tenant→deployment
-mapping) and the tenant lifecycle (provisioning + offboarding).
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only when the project deviates from a constraint here.
 
 ## Practices by activity
 
@@ -203,9 +197,9 @@ the running system.
 
 ## Choose and record the isolation model (Frame / Design)
 
-- Record the **isolation model** in an ADR before building: shared-schema with
+- State the **isolation model** in the TD / DATA_DESIGN before building: shared-schema with
   a tenant-discriminator column, shared-schema + row-level security (RLS),
-  schema-per-tenant, database-per-tenant, or a bridge (mixed). The ADR MUST
+  schema-per-tenant, database-per-tenant, or a bridge (mixed). The statement MUST
   justify the choice against: isolation strength, cost/tenant density,
   noisy-neighbor risk, per-tenant backup/restore and compliance, blast radius,
   and operational fan-out.
@@ -287,7 +281,7 @@ the running system.
 
 ## Quality Gates
 
-- Isolation model recorded in an ADR with its trade-off justification — not
+- Isolation model stated in the TD / DATA_DESIGN with its trade-off justification — not
   defaulted implicitly.
 - **No unscoped data-access path**: verifiable in review that every query
   touching tenant-owned data carries the tenant predicate, enforced at a single

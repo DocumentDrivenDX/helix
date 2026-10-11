@@ -32,8 +32,7 @@ language-runtime
 - All configuration is declared in one central `Config` struct (single module/crate, e.g. `config.rs`) deserialized with `figment`; every field is typed with a default or is required
 - The `Config` is built once in the binary's `main` and passed in; no `std::env::var`/`env::vars` reads outside the config module, and no global config singletons in library crates
 - Secrets use `secrecy::SecretString` (no `Debug`/`Display` leakage); invalid or missing config fails at startup, not at first use
-- Config is layered by owner per `twelve-factor`: ops-injected values (env vars, mounted files, secret manager) over a committed `config/<env>.toml` over committed defaults (`Default` impl plus `config/default.toml`), merged with `figment`; ops-owned keys (hosts, credentials) have no default and never appear in committed files
-- Real environment variables take precedence over files; `.env` (via `dotenvy`, dev builds only) is a local convenience, git-ignored, with a committed `.env.example` listing every variable (no secrets in it)
+- Config layering and `.env` rules follow `twelve-factor`; here `figment` merges the `Default` impl, `config/default.toml`, `config/<env>.toml`, then environment (`dotenvy` for dev builds only)
 - Repo-owned Rust commands run through a pinned-toolchain wrapper; do not rely on ambient `rustc`/`cargo` from PATH
 
 ## Clippy Lint Policy
@@ -66,5 +65,4 @@ additional deny-level lints.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: Rust + Cargo workspace (clippy, fmt, cargo-deny/machete, pinned toolchain) as the language-runtime
 - TD: workspace lints, error-handling (thiserror/anyhow), unsafe policy, profile conventions, central `Config` struct and its config-key contract (owner and source per key)

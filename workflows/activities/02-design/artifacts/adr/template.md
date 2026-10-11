@@ -34,5 +34,5 @@ We will [decision statement].
 
 ## Concern Impact
 
-- **Affects concerns**: [Does this select/override a slot or concern practice? If it overrides one, add this ADR to Project Overrides in `docs/helix/01-frame/concerns.md`.]
+- **Override / deviation**: [Does this ADR override or deviate from a library concern constraint or practice? If so, add this ADR to Project Overrides in `docs/helix/01-frame/concerns.md`. Selecting a concern needs no ADR; `concerns.md` records it.]
 - **No concern impact**: [Delete if not relevant.]

@@ -23,10 +23,11 @@ all
 - **Content format**: Markdown with YAML frontmatter
 - **Deployment**: GitHub Pages via GitHub Actions
 - **E2E testing**: Playwright with screenshot snapshots
+- **Boundary**: `hugo-hextra` owns the site stack; `product-microsite-ia` owns site structure (sections, navigation, reader paths).
 
 ## Constraints
 
-- All site content lives under `website/` in the project root
+- Site content lives in the Hugo `content/` tree of the project's site
 - Hugo Module system for theme management — not git submodules, not manual copy
 - Hextra theme provides layout, navigation, search, and responsive design — do
   not duplicate what the theme already does
@@ -238,8 +239,7 @@ minimal configuration.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: Hugo (extended) + Hextra theme via Hugo Modules, GitHub Pages deploy, as the microsite stack
-- TD: website/ layout, pinned theme/Hugo versions, Hugo config (enableGitInfo, unsafe HTML)
+- TD: website/ layout, pinned theme/Hugo versions, Hugo config (enableGitInfo, unsafe HTML); states the Hugo Modules and GitHub Pages deploy choices
 
 ## Practices by activity
 
@@ -315,7 +315,7 @@ Each HELIX artifact type has structured metadata at
 | `template.md` | The structure to fill in |
 | `example.md` | A concrete example |
 
-The glossary artifacts page (`website/content/docs/glossary/artifacts.md`)
+The artifacts catalog page
 must include a substantive description for each artifact — not just a one-line
 purpose. Pull the description from `meta.yml` and the Purpose section of
 `prompt.md`. The reader should understand what each artifact is, when to

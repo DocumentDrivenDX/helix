@@ -100,8 +100,9 @@ production assets — a **group**) who can grant/revoke on it.
 ## Constraints
 
 ### Every governed asset is registered and explicitly granted
-- All tables, views, volumes, models, and functions live in the
-  `catalog.schema.object` namespace under a Unity Catalog metastore — **no
+- All lakehouse tables, views, volumes, models, and functions live in the
+  `catalog.schema.object` namespace under a Unity Catalog metastore (Lakebase
+  Postgres state that `databricks-apps` permits is outside this rule) — **no
   unmanaged or anonymous data access** (no legacy Hive-metastore / no-isolation
   tables, no DBFS mounts standing in for governed data).
 - Access is granted **explicitly** via the privilege model; there is no implicit
@@ -135,7 +136,8 @@ production assets — a **group**) who can grant/revoke on it.
 - Unity Catalog grants are the **data-layer** control and compose with — never
   substitute for — application-layer authentication/authorization
   (`security-owasp`). An app reading lakehouse data does so **through** Unity
-  Catalog (see `databricks-apps`), not around it.
+  Catalog grants, not around them; this concern owns that rule and
+  `databricks-apps` cites it.
 
 ## Drift Signals (anti-patterns to reject in review)
 
@@ -174,15 +176,16 @@ the generic data-governance / data-modeling concerns there instead.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: metastore/catalog layout (isolation boundaries), managed-vs-external, group/ownership model for production
-- TD: assets registered in catalog.schema.object; data access through Unity Catalog grants, not around them
+- TD: assets registered in catalog.schema.object; data access through Unity Catalog grants, not around them; states the metastore/catalog layout (isolation boundaries), managed-vs-external, and group/ownership model for production
 - DATA_DESIGN: namespace placement, grant model, row filters/column masks, governed external locations
 
 ## ADR References
 
-Record an ADR for the metastore/catalog layout (isolation boundaries:
-per-environment vs per-business-unit), the managed-vs-external decision for the
-product's data, and the group/ownership model for production assets. A material
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only
+when the project deviates from a constraint here. The metastore/catalog layout
+(isolation boundaries: per-environment vs per-business-unit), the
+managed-vs-external decision, and the production group/ownership model are
+stated in the TD. A material
 uncertainty (workspace/metastore topology, external-storage credentials,
 cross-region constraints) is a `tech-spike`, not a silent assumption (see
 `workflows/references/concern-resolution.md`).
@@ -208,15 +211,15 @@ ownership table at [README-auth-family.md](../readme-auth-family/).
 ## Design
 
 - Lay out the **three-level namespace** (`catalog.schema.object`) for the
-  product's assets; name the metastore/catalog topology in an ADR.
+  product's assets; state the metastore/catalog topology in the TD.
 - Decide **managed vs external** per asset — prefer managed; for external data,
   design the **external location + storage credential** rather than raw cloud
   paths or DBFS mounts.
 - Design grants as **group-based, least-privilege**: list `USE CATALOG` /
   `USE SCHEMA` plus the specific data privilege (`SELECT`, `MODIFY`,
   `READ VOLUME`, `EXECUTE`, …) each consumer group needs.
-- Design **production ownership** as group ownership, and production job/app
-  identity as a **service principal**.
+- Design **production ownership** as group ownership, and production job
+  identity as a **service principal** (app runtime identity: `databricks-apps`).
 - Where row-/column-level access differs by audience, design **row filters** and
   **column masks** instead of forked data copies.
 
@@ -230,7 +233,7 @@ ownership table at [README-auth-family.md](../readme-auth-family/).
 - Create external tables/volumes **beneath** a governed external location, never
   at its root.
 - Assign **group ownership** to production catalogs/schemas; run production jobs
-  and apps under a **service principal**.
+  under a **service principal** (app runtime identity: `databricks-apps`).
 - Apply **row filters** / **column masks** for fine-grained access.
 - Let consuming pipelines and apps read through the catalog — no hardcoded cloud
   paths or embedded credentials that bypass grants.
@@ -255,7 +258,7 @@ ownership table at [README-auth-family.md](../readme-auth-family/).
 - Access is granted **explicitly** and **to groups** (not individual users),
   least-privilege (no reflexive `ALL PRIVILEGES`); verified by a **negative
   control** — an ungranted principal is denied.
-- **Production** catalogs/schemas are **group-owned** and production jobs/apps
+- **Production** catalogs/schemas are **group-owned** and production jobs
   run under a **service principal**, not a personal identity.
 - External data is reached through a governed **external location** (+ storage
   credential), not a DBFS mount or raw cloud path; nothing is created at an

@@ -72,16 +72,9 @@ component library.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: React 19 + Next.js App Router as the frontend-framework slot; Tailwind for styling (component prescription belongs to the selected library concern)
 - TD: App Router + Server Components, react-hook-form + Zod, shared validation schemas
 - DESIGN_SYSTEM: Tailwind config extends design-system tokens (component-library conventions live with the selected component owner)
 - TEST_PLAN: Playwright E2E (not Cypress/Selenium)
-
-## ADR References
-
-- ADR-010: Frontend validation architecture (Zod shared schemas)
-- ADR-011: ux-radix owns the Radix and shadcn component-library prescription;
-  this concern references rather than re-prescribing
 
 ## Component ownership and package integration
 
@@ -109,8 +102,8 @@ Agents working in any of these activities inherit the practices below through ru
 - UI behavior comes from ux-interaction-patterns; component primitives come
   from the selected library owner: ux-radix for copied shadcn/Radix,
   packaged-design-system for an available npm design system, or another explicitly selected adapter.
-- Design tokens (colors, spacing, typography) in `tailwind.config.ts` — components reference tokens, not raw values
-- Forms: one Zod schema per entity in `@apogee/shared`, resolved via `@hookform/resolvers/zod`
+- Design tokens (colors, spacing, typography) in Tailwind 4 CSS-first `@theme` — components reference tokens, not raw values
+- Forms: one Zod schema per entity in the shared package, resolved via `@hookform/resolvers/zod`
 - Configuration: import the typed config from the shared `env.ts` (see `typescript-bun`); never read `process.env` directly in route handlers, Server Components, or actions (only the env modules do)
 - Data tables: TanStack React Table with column definitions typed against shared schemas
 - State management: server state via TanStack Query (when added), client state via Zustand (when added), form state via react-hook-form — no Redux
@@ -171,7 +164,7 @@ Agents working in any of these activities inherit the practices below through ru
 - Accessible UI-primitive behavior (keyboard, focus, screen reader) is
   governed by ux-interaction-patterns and the selected component owner — preserve its keyboard/focus handlers
   without breaking the WAI-ARIA contract
-- Color contrast must meet WCAG AA (4.5:1 for normal text, 3:1 for large text)
+- Color contrast: see `a11y-wcag-aa`
 - Forms must associate labels with inputs and display validation errors accessibly
 
 ## Component ownership and package integration

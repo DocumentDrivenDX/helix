@@ -3,7 +3,7 @@
 These practices govern **persisting a slice of state as an append-only log of
 events that is the source of truth**, deriving current state by replay. They do
 **not** govern what the domain model is (`domain-driven-design`), how the code
-layers (`onion-architecture`), or how messages move between systems
+layers (the selected `architecture-style` filler), or how messages move between systems
 (`enterprise-integration-patterns`). When a rule references the aggregate, defer
 to DDD for the modeling; this concern asserts how that aggregate is persisted
 and rehydrated. Apply these **per domain slice** that selected event sourcing —
@@ -20,7 +20,7 @@ not to every entity in the product.
 - Name the **aggregate / entity** whose eventstream this is (its boundary is the
   DDD aggregate's — defer to `domain-driven-design`), the **event store**, the
   **projections** to build, and the **eventual-consistency window** consumers
-  must tolerate. Record the selection in an ADR.
+  must tolerate. State these in the TD.
 
 ## Model events as immutable, intent-bearing facts
 
@@ -97,7 +97,7 @@ not to every entity in the product.
 ## Boundary with neighbors
 
 See `concern.md` for the canonical Boundary (vs `domain-driven-design`,
-`enterprise-integration-patterns`, `onion-architecture`, `sample-data`, and
+`enterprise-integration-patterns`, the selected `architecture-style` filler, `sample-data`, and
 the **CQRS** companion). Idempotent application of events here is the same
 property `enterprise-integration-patterns` requires of consumers under
 at-least-once delivery — defer there for the channel-delivery rule, apply it

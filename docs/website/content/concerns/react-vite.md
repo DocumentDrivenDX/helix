@@ -155,16 +155,10 @@ sites (use `hugo-hextra`).
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: React 19 + Vite SPA as the frontend-framework slot (client-rendered, no meta-framework), served by the backend from one origin
 - TD: Vite layout, dev proxy of `/api`, `build.outDir` handed to the backend, `VITE_` env rule, initial-load bundle budget
 - IMPLEMENTATION_PLAN: frontend scaffold, build wiring into the backend's static directory, `tsc --noEmit` and bundle-budget gates
 - DESIGN_SYSTEM: Tailwind 4 tokens the components reference (component-library conventions live with the selected component owner)
 - TEST_PLAN: Vitest (or `bun:test` under `typescript-bun`) + Testing Library component tests; browser e2e per `e2e-playwright`
-
-## ADR References
-
-- ADR-011: ux-radix owns the Radix and shadcn component-library prescription;
-  this concern references rather than re-prescribing
 
 ## Component ownership and package integration
 

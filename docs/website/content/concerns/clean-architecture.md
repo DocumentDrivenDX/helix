@@ -62,6 +62,7 @@ inward-only rule. They are honestly close relatives — the differentiator is
 - **vs `design-patterns-gof` / `enterprise-integration-patterns`** — object-level
   patterns inside a layer and between-system messaging respectively; Clean is
   the macro ring discipline for one deployable.
+- Enforcement of the import rules belongs to the `modularity-and-encapsulation` Boundary Check; this concern defines the rule only.
 
 ## Components
 
@@ -169,15 +170,13 @@ and the tech-stack concern (package system enforcing the import graph).
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: Clean chosen for architecture-style slot; interactor/boundary-DTO ceremony justified by size/longevity
-- TD: Entities/Use-Cases/Interface-Adapters/Frameworks rings, interactors, boundary DTOs, composition root
+- TD: Entities/Use-Cases/Interface-Adapters/Frameworks rings, interactors, boundary DTOs, composition root; states why the interactor/boundary-DTO ceremony is justified by size/longevity
 
 ## ADR References
 
-Record an ADR when selecting Clean over a slot-sibling
-(`onion` / `hexagonal` / `classic-layered`) — the ADR should justify the
-explicit-use-case-interactor ceremony by system size/longevity — or when an
-operator overrides the `architecture-style` choice per project.
+Selecting this concern or filling the `architecture-style` slot needs no ADR;
+`concerns.md` records it. Write an ADR only when the project deviates from a
+constraint here.
 
 ## Practices by activity
 

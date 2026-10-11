@@ -26,6 +26,8 @@ or seams (`deployment-topology`), the per-process operational contract each
 deployable honors (`twelve-factor`), or the telemetry the deployables emit
 (`o11y-otel`).
 
+`k8s-kind` is the dev-workflow cluster; `e2e-kind` owns the ephemeral test cluster.
+
 ## Components
 
 - **Local cluster**: `kind` (Kubernetes in Docker) — NOT docker-compose
@@ -52,7 +54,6 @@ services need service discovery, ingress, or multi-container orchestration.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: Kubernetes + kind (Helm, reproducible images) as deployment topology — not docker-compose
 - IMPLEMENTATION_PLAN: Helm charts + env values files, image-build/tag, kind create + install + port-forward workflow
 
 ## Practices by activity
@@ -72,7 +73,7 @@ Agents working in any of these activities inherit the practices below through ru
 - Expose services locally via `kubectl port-forward` or kind ingress
 
 ## Implementation
-- Create local cluster: `kind create cluster --config kind-config.yaml`
+- Create local cluster: `kind create cluster --config deploy/kind-config.yaml`
 - Load local images: `kind load docker-image <image>:<tag>`
 - Install/upgrade: `helm upgrade --install <release> ./deploy/helm/<chart> -f values-dev.yaml`
 - Image tagging: use git SHA for dev (`$(git rev-parse --short HEAD)`), semver for releases

@@ -4,15 +4,12 @@
 security
 
 Authorization is categorized as **security**, not architecture, because its
-defining failure is **Broken Access Control** — a principal performing an action
-or reading data they are not permitted to. OWASP ranks Broken Access Control as
-the #1 web application risk, and NIST treats access control as a core security
-function (SP 800-53 AC family; the RBAC standard INCITS 359; the ABAC guide
-SP 800-162). The *shape* of the model (RBAC vs ABAC vs ReBAC, and where the
-decision point sits) is a design decision, but the reason this concern exists
-and the property it must hold — *every privileged action and data return is
-authorized, deny-by-default* — is a confidentiality/integrity guarantee. The
-category reflects what review must protect.
+defining failure is **Broken Access Control** (OWASP's #1 web application
+risk) — a principal performing an action or reading data they are not
+permitted to. The *shape* of the model (RBAC vs ABAC vs ReBAC) is a design
+decision, but the property it must hold — *every privileged action and data
+return is authorized, deny-by-default* — is a confidentiality/integrity
+guarantee.
 
 ## Areas
 api
@@ -39,7 +36,7 @@ access-control *model* that prevents it.
 
 ## Components
 
-- **Permission model** — the chosen model, recorded in an ADR. The spectrum:
+- **Permission model** — the chosen model, stated in the TD. The spectrum:
   - **RBAC** (roles → permissions; NIST INCITS 359). Principals hold roles;
     roles carry permissions; access flows only through roles. Supports **role
     hierarchies** (a senior role inherits a junior role's permissions) and
@@ -62,7 +59,7 @@ access-control *model* that prevents it.
     RBAC/ABAC model awkwardly; needs a tuple store and a consistency model
     (Zanzibar's *zookie* bounds read staleness).
   - These are **combinable** — RBAC with a tenant attribute, or ReBAC with
-    role-like relations, is common; the ADR records the primary model and how
+    role-like relations, is common; the TD states the primary model and how
     the others augment it.
 - **Decision point (PDP) and enforcement point (PEP)** — *where* the decision is
   made and *where* it is enforced (NIST SP 800-162 / XACML vocabulary). The
@@ -93,8 +90,8 @@ access-control *model* that prevents it.
 
 - The model (RBAC / ABAC / ReBAC, or a named combination) and the **PDP/PEP
   placement** (central decision point; thin enforcement at the handler;
-  in-process vs externalized policy engine) are an explicit decision recorded in
-  an ADR, justified against the selection criteria — not defaulted implicitly.
+  in-process vs externalized policy engine) are an explicit decision stated in
+  the TD, justified against the selection criteria — not defaulted implicitly.
 - **Selection criteria**: choose **RBAC** for a **stable, enumerable role set**;
   **ABAC** when decisions depend on **request/record context or attributes**;
   **ReBAC** when permission follows a **relationship / sharing / ownership
@@ -149,8 +146,8 @@ access-control *model* that prevents it.
   rules → the signal RBAC is the wrong model; move that rule class to ABAC/ReBAC
 - Broad/superuser grants handed out **by default** → least privilege; narrow the
   default, make broad grants deliberate
-- Model **defaulted implicitly** with no ADR weighing RBAC vs ABAC vs ReBAC and
-  PDP/PEP placement → record the decision
+- Model **defaulted implicitly** with no TD section weighing RBAC vs ABAC vs ReBAC and
+  PDP/PEP placement → state the decision
 - **No negative test** that an unauthorized principal is refused → add the
   guard test; permitted-path-green is not done
 
@@ -172,16 +169,14 @@ concern's.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: permission model (RBAC/ABAC/ReBAC or combination) + PDP/PEP placement (central vs externalized policy engine)
-- TD: central decision point, deny-by-default check on every state-changing/data-returning handler, least privilege
+- TD: central decision point, deny-by-default check on every state-changing/data-returning handler, least privilege; states the permission model (RBAC/ABAC/ReBAC or combination) and PDP/PEP placement (central vs externalized policy engine)
 - TEST_PLAN: negative guard — unauthorized principal gets 403/404, not the effect or the data
 
 ## ADR References
 
-Projects record an ADR when choosing the permission **model** (RBAC / ABAC /
-ReBAC or a named combination) and the **PDP/PEP placement** (central in-process
-decision point vs externalized policy engine such as OPA/Rego, AWS Cedar /
-Amazon Verified Permissions, or OpenFGA), justified against the selection
-criteria — stable role set (RBAC), context/attribute-rich rules (ABAC),
-relationship/sharing graph (ReBAC) — and against auditability ("who can do X?")
-and consistency needs (for ReBAC, the read-staleness/zookie model).
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only
+when the project deviates from a constraint here. The permission **model** and
+**PDP/PEP placement** are design choices stated in the TD, justified against the
+selection criteria (stable role set, context/attribute-rich rules,
+relationship/sharing graph), auditability ("who can do X?"), and, for ReBAC, the
+read-staleness/zookie model.

@@ -17,6 +17,7 @@ No selection migration or new exclusive slot is required.
 
 - Radix accessible primitives, wrapped by copied shadcn/ui components
 - WAI-ARIA patterns appropriate to the actual widget
+- **Boundary**: `ux-radix` owns the widgets; `a11y-wcag-aa` owns the accessibility checks.
 
 ## Constraints
 
@@ -39,10 +40,12 @@ ux-radix selections retain the neutral baseline automatically.
 
 ## Artifact Impact
 
-- ADR: deviations or conflicts affecting the Radix/shadcn prescription
+Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
 - DESIGN_SYSTEM: component mappings and app conventions per ux-interaction-patterns
 - TEST_PLAN: baseline UX Coverage plus applicable Radix keyboard/focus tests
 
 ## ADR References
 
-- ADR-011: ux-radix retains ownership of Radix/shadcn; neutral behavior composes separately
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only
+when the project deviates from the Radix/shadcn prescription. Neutral interaction
+behavior composes separately.

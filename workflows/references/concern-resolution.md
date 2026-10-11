@@ -273,7 +273,7 @@ selection by the active autonomy level (FEAT-011; see `workflows/actions/input.m
    assumption) only for trivial CRUD.
 2g. **Record each selected concern's `## Artifact Impact` into `concerns.md`** (and its context
    digest). Each concern's `concern.md` declares, under `## Artifact Impact`, which artifacts its
-   selection must change (ADR / FEAT / TD / DATA_DESIGN / IMPLEMENTATION_PLAN / DESIGN_SYSTEM / …).
+   selection must change (FEAT / TD / DATA_DESIGN / IMPLEMENTATION_PLAN / DESIGN_SYSTEM / …).
    Carrying that forward is what makes the downstream framing/design/build prompts realize it and
    lets reconcile-alignment's **Concern→Artifact Realization** check verify it — a selected concern
    that leaves no trace in its declared artifacts is drift.
@@ -411,21 +411,22 @@ than rediscovered when the build breaks.
 
 ## Relationship to ADRs and Spikes
 
-Concerns are the index; ADRs provide the rationale; spikes provide the
-evidence:
+Selecting a concern needs no ADR: `concerns.md` records the selection and its
+rationale. An ADR records a **deviation** — a project override of, or departure
+from, a constraint or practice in a concern.
 
 ```
 Spike/POC (gather evidence)
-  → ADR (record decision with rationale)
-    → Concern (index for context assembly)
-      → Context Digest (injected into work items)
+  → finding lands in the design artifact (TD / Architecture / DATA_DESIGN)
+    → ADR only if the finding drives a deviation from a concern
+      → Project Overrides in concerns.md cite the ADR
 ```
 
-- A spike or POC investigates a question.
-- An ADR records the decision with rationale, citing the spike.
-- The concern references the ADR in its `## ADR References` section.
-- Project overrides that depart from library defaults must cite the
-  governing ADR.
+- A spike or POC investigates a question; its finding lands in the design
+  artifact, not a new ADR, unless it drives a deviation.
+- An ADR for a deviation records the decision with rationale, citing the spike.
+- Project overrides that depart from library defaults must cite the governing
+  ADR.
 
 When a referenced ADR is superseded, `/helix polish` must flag the
 affected concern for re-evaluation.

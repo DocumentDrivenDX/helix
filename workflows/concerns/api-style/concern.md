@@ -38,14 +38,14 @@ neighbors must stay distinct:
   client calls and blocks on is api-style. A single product commonly has both (a
   REST API at the edge **and** a message queue inside) — they compose, they do
   not overlap. Do **not** restate channel/router/delivery-guarantee rules here.
-- **`onion-architecture`** owns the **layering within one deployable** —
+- **The selected `architecture-style` filler** owns the **layering within one deployable** —
   dependencies point inward, infrastructure is the outer ring. The API is an
   **outer-ring delivery adapter**: the controller/resolver/handler/procedure
   translates a wire request into a call on an inner application service and
   translates the result back out. api-style says *what the wire contract and
-  error shape are*; onion says *the handler is outer-ring code that depends
+  error shape are*; the architecture style says *the handler is outer-ring code that depends
   inward on the application service, never the reverse*. Do **not** restate the
-  dependency rule — reference onion for the arrangement.
+  dependency rule — reference the filler for the arrangement.
 - **`domain-driven-design`** owns the **domain model** — aggregates, value
   objects, invariants, the ubiquitous language. The API is a **translation
   layer OVER the domain, not the domain itself**: REST resources / GraphQL
@@ -142,7 +142,7 @@ neighbors must stay distinct:
   The internal aggregate is **not** serialized directly onto the wire, and the
   wire shape is **not** treated as the domain. This decoupling is what lets the
   contract and the domain evolve independently (it composes with
-  `onion-architecture`'s boundary-DTO rule and `domain-driven-design`'s model).
+  the selected `architecture-style` filler's boundary-DTO rule and `domain-driven-design`'s model).
 
 ### Match HTTP semantics when the style is HTTP-resource-oriented
 
@@ -243,7 +243,7 @@ client).**
 > genuinely differs.
 
 `areas: api` scopes its practices to the API/service work items where the
-interface lives. Compose with **`onion-architecture`** (the API handler is an
+interface lives. Compose with the selected **`architecture-style`** filler (the API handler is an
 outer-ring adapter depending inward), **`domain-driven-design`** (the contract is
 a translation over the domain model), **`enterprise-integration-patterns`** (the
 *asynchronous* counterpart for cross-system messaging — distinct surface),
@@ -255,16 +255,16 @@ the tech-stack concern (which fixes the HTTP/RPC framework and codegen).
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: interface style choice per surface (REST/GraphQL/gRPC/RPC/MCP) + versioning strategy
-- TD: the API contract artifact (OpenAPI/GraphQL SDL/proto/RPC types), error shape, boundary validation, cacheability
+- TD: the API contract artifact (OpenAPI/GraphQL SDL/proto/RPC types), error shape, boundary validation, cacheability; states the interface style per surface (REST/GraphQL/gRPC/RPC/MCP) and versioning strategy
 - TEST_PLAN: contract conformance + boundary input-validation tests on the exposed surface
 
 ## ADR References
 
-Record an ADR when selecting a non-default style for an exposed surface
-(GraphQL or gRPC over the REST / same-repo-RPC default, MCP for an agent-facing
-surface, or running multiple styles in a hybrid), naming the surface, its
-consumers, and the decisive signal (public/partner reach + caching → REST;
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only
+when the project deviates from a constraint here. The style chosen per surface
+(including a non-default one: GraphQL or gRPC over the REST / same-repo-RPC
+default, MCP for an agent-facing surface, or a hybrid) is stated in the TD,
+naming the surface, its consumers, and the decisive signal (public/partner reach + caching → REST;
 flexible client-specified data across many clients → GraphQL; internal
 service-to-service + streaming + strict contract → gRPC; first-party same-repo
 client → RPC/server-actions; **LLM agent / AI client consuming exposed

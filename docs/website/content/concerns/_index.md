@@ -31,7 +31,7 @@ Concerns are how HELIX answers "every project needs this kind of consistency" wi
 ## Quality Attributes
 
 {{< cards >}}
-  {{< card link="a11y-wcag-aa" title="Accessibility (WCAG 2.1 AA)" subtitle="ui, frontend" >}}
+  {{< card link="a11y-wcag-aa" title="Accessibility (WCAG 2.2 AA)" subtitle="ui, frontend" >}}
   {{< card link="admin-console" title="Admin Console (operator backend)" subtitle="ui, api" >}}
   {{< card link="auth" title="Authentication & Accounts" subtitle="api, data, ui" >}}
   {{< card link="code-shape-ceilings" title="Code Shape Ceilings" subtitle="all" >}}

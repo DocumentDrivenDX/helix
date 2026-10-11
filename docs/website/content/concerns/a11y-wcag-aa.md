@@ -1,5 +1,5 @@
 ---
-title: "Accessibility (WCAG 2.1 AA)"
+title: "Accessibility (WCAG 2.2 AA)"
 slug: a11y-wcag-aa
 generated: true
 aliases:
@@ -18,9 +18,10 @@ ui, frontend
 
 ## Components
 
-- **Standard**: WCAG 2.1 Level AA
+- **Standard**: WCAG 2.2 Level AA
 - **Testing**: axe-core automated checks + manual screen reader testing
 - **Scope**: All user-facing interfaces
+- **Boundary**: `a11y-wcag-aa` owns the accessibility checks; `ux-radix` owns the widgets.
 
 ## Constraints
 
@@ -39,8 +40,7 @@ consumer-facing products.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: target WCAG 2.1 AA standard + axe-core + manual screen-reader testing
-- DESIGN_SYSTEM: keyboard-navigable controls, AA contrast ratios, focus management, labeled inputs
+- DESIGN_SYSTEM: keyboard-navigable controls, AA contrast ratios, focus management, labeled inputs; states the WCAG 2.2 AA target, axe-core, and manual screen-reader testing
 - TEST_PLAN: axe-core automated checks + manual screen-reader passes
 
 ## Practices by activity
@@ -50,7 +50,7 @@ Agents working in any of these activities inherit the practices below through ru
 ## Requirements (Frame activity)
 
 - All user stories involving UI must include a11y acceptance criteria
-- WCAG 2.1 AA is the minimum compliance target
+- WCAG 2.2 AA is the minimum compliance target
 - Accessibility is a requirement, not a nice-to-have
 
 ## Design
@@ -60,7 +60,7 @@ Agents working in any of these activities inherit the practices below through ru
 - ARIA attributes required for custom components
 - Semantic heading hierarchy required (h1 > h2 > h3, no skips)
 - Focus order must follow visual reading order
-- Touch targets minimum 44x44 CSS pixels
+- Touch targets minimum 24x24 CSS pixels (SC 2.5.8, AA); 44x44 is the AAA value (SC 2.5.5)
 
 ## Implementation
 

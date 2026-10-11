@@ -31,6 +31,7 @@ and it does not own object-level design patterns:
 - **`enterprise-integration-patterns`** owns **between-system** messaging and
   integration. Onion governs the dependency structure **within** one
   deployable; integration adapters are simply outer-ring code under it.
+- Enforcement of the import rules belongs to the `modularity-and-encapsulation` Boundary Check; this concern defines the rule only.
 
 Onion is one named member of the **dependency-inversion architecture family**
 (Cockburn's Hexagonal / Ports-and-Adapters and Martin's Clean Architecture are
@@ -149,11 +150,8 @@ tech-stack concern (whose package/module system enforces the import graph).
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: Onion chosen for the architecture-style slot over its siblings
 - TD: ring layout, inner-declared ports, outer-ring adapters, composition root
 
 ## ADR References
 
-Record an ADR when selecting Onion over a slot-sibling (`hexagonal` / `clean` /
-`classic-layered`), or when an operator overrides the `architecture-style`
-default per project.
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only when the project deviates from a constraint here (for example, when an operator overrides the `architecture-style` default per project).

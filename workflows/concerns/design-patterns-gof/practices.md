@@ -2,7 +2,7 @@
 
 These practices govern **when and how** a GoF pattern is applied so the codebase
 gains a shared vocabulary without acquiring speculative indirection. They sit
-beside `domain-driven-design` (domain semantics), `onion-architecture` (layering),
+beside `domain-driven-design` (domain semantics), the selected `architecture-style` filler (layering),
 and `enterprise-integration-patterns` (cross-system messaging) — they do not
 restate those concerns. Their one job is to keep patterns **earned, named, and
 simple**.
@@ -44,7 +44,7 @@ simple**.
   vocabulary describes only the implementing mechanic. A GoF pattern MUST NOT
   invent a domain concept the ubiquitous language does not name.
 - A GoF pattern MUST stay **within a layer**; it MUST NOT be promoted to the
-  application's macro architecture (that is `onion-architecture`) nor restate the
+  application's macro architecture (that is the selected `architecture-style` filler) nor restate the
   dependency rule.
 - A collaboration that crosses a **process/system boundary** MUST be treated as
   `enterprise-integration-patterns`, not modeled as an intra-process GoF Mediator
@@ -67,7 +67,7 @@ simple**.
 - Pattern names match the mechanic actually implemented — no misnamed or
   single-branch "patterns".
 - No GoF pattern stands in for domain modeling, macro layering, or cross-system
-  messaging (those route to `domain-driven-design`, `onion-architecture`,
+  messaging (those route to `domain-driven-design`, the selected `architecture-style` filler,
   `enterprise-integration-patterns`).
 - No Singleton used as ambient global state; the single instance is injected, or
   a true exactly-one invariant is recorded.

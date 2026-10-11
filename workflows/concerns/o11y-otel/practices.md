@@ -13,7 +13,7 @@
 
 - OTel governs signal semantics. Prefer established language loggers (Go `slog`,
   or Pino for a compatible TypeScript runtime); verify bridge/collector support.
-  Record system choices in Architecture/ADRs and feature flow in Solution Design.
+  Record system choices in Architecture and feature flow in Solution Design.
 - Contracts own exact event/schema/mapping/query surfaces and adopted versions.
   TDs reference them and describe local wiring. See
   `workflows/references/agent-diagnostics.md` for mapping and retrieval examples.

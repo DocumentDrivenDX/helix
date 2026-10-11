@@ -44,8 +44,7 @@ language-runtime
 - All configuration is declared in one central `pydantic-settings` `BaseSettings` subclass (single module, e.g. `src/<package>/settings.py`); every setting is a typed field with a default or is required
 - Settings are instantiated once at the composition root (app/CLI entrypoint) and passed in; no `os.environ`/`os.getenv` reads and no module-level settings singletons elsewhere in the codebase
 - Secrets use `SecretStr`; missing or invalid config fails at startup, not at first use
-- Config is layered by owner per `twelve-factor`: ops-injected values (env vars, mounted files, secret manager) over a committed `config/<env>.toml` over committed defaults (field defaults plus `config/default.toml`), wired via `settings_customise_sources`; ops-owned keys (hosts, credentials) are required fields with no default and never appear in committed files
-- Real environment variables take precedence over files; `.env` is a local-development convenience only, git-ignored, with a committed `.env.example` listing every variable (no secrets in it)
+- Config layering and `.env` rules follow `twelve-factor`; here `settings_customise_sources` wires environment over `config/<env>.toml` over `config/default.toml` over field defaults (`.env` dev-only)
 
 ## When to use
 
@@ -57,7 +56,6 @@ and script running.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: Python 3.12+ + uv (ruff, pyright, pytest) as the language-runtime
 - TD: pyproject.toml layout, dependency-group conventions, branch-coverage floor, central `Settings` class and its config-key contract (owner and source per key)
 
 ## Practices by activity
@@ -78,9 +76,8 @@ Agents working in any of these activities inherit the practices below through ru
 - Use `pydantic` v2 for data validation
 - Centralize configuration in one `pydantic-settings` `BaseSettings` subclass; group related settings with nested models and an `env_nested_delimiter` / `env_prefix` rather than scattering reads
 - Use `SecretStr` for credentials and `AnyUrl`/`PostgresDsn`-style types for endpoints; validate at startup so bad config fails fast
-- Source precedence: init args > environment variables / secret files > `.env` (dev only) > `config/<env>.toml` > `config/default.toml` > field defaults (two `TomlConfigSettingsSource` instances via `settings_customise_sources`, returning `(init, env, file_secret, dotenv, toml_env, toml_default)`); ops-owned keys are required fields, dev-owned keys carry defaults; production relies on real env vars or the platform secret manager
+- Source precedence per `twelve-factor`, via `settings_customise_sources` returning `(init, env, file_secret, dotenv, toml_env, toml_default)` (two `TomlConfigSettingsSource` instances; `.env` dev only)
 - `settings_customise_sources` reads `APP_ENV` via `os.environ.get` once, before constructing `toml_env`, to pick `config/<env>.toml`; that one read is the sanctioned exception to "no `os.environ`/`os.getenv` outside the settings module"
-- Commit `.env.example`; git-ignore `.env`
 - Use `typer` + `rich` for CLI interfaces
 
 ## Implementation

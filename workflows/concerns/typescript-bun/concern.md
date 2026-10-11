@@ -34,8 +34,7 @@ language-runtime
 - All configuration is declared in one central `zod` schema (single module, e.g. `env.ts`) that parses the merged layers (files + env) once at startup and exports a frozen, typed config object; invalid or missing config fails at startup, not at first use
 - `process.env` (or `Bun.env`) is read only inside the env module — use `process.env` so the module also runs under Next.js on Node or Edge, where `Bun.env` is undefined; the config object is built at the entrypoint and passed in
 - Secrets are never logged or serialized (wrap in a redacting type or omit from log output)
-- Config is layered by owner per `twelve-factor`: ops-injected values (`process.env`, mounted files, secret manager) over a committed `config/<env>.json` over committed defaults (schema `.default()`s plus `config/default.json`), deep-merged then parsed by the one `zod` schema; ops-owned keys (hosts, credentials) are required with no default and never appear in committed files
-- Real environment variables take precedence over files; `.env.<env>`/`.env.local` files are not used (Bun loads them natively; set `--env-file` explicitly or none) and plain `.env` is local-development only, git-ignored, with a committed `.env.example` listing every variable (no secrets in it)
+- Config layering and `.env` rules follow `twelve-factor`; here `config/default.json` and `config/<env>.json` are deep-merged under `process.env` and parsed by the one `zod` schema (`.env.<env>`/`.env.local` are not used; Bun loads them natively, so set `--env-file` explicitly or none)
 
 ## Drift Signals (anti-patterns to reject in review)
 
@@ -58,7 +57,4 @@ target state and the drift signals above identify what needs correction.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: TypeScript + Bun (Biome, bun:test) as the language-runtime — not Node/npm/ESLint/Vitest
 - TD: strict tsconfig, Bun-native APIs, workspace layout, Biome config, central env schema and its config-key contract (owner and source per key)
-
-## ADR References

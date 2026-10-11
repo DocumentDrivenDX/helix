@@ -25,13 +25,13 @@ invariants. It does **not** own how the model is layered into the codebase, nor
 the catalog of reusable object/integration mechanics. Four neighbors must stay
 distinct:
 
-- **`onion-architecture`** (the layering / dependency-inversion concern) owns
+- **The selected `architecture-style` filler** (the layering / dependency-inversion concern) owns
   **how** the model is arranged in code: the dependency rule (dependencies point
   inward), which layer the domain, application, and infrastructure live in, and
   why the domain depends on nothing outward. DDD says *aggregates enforce
-  invariants and repositories return aggregates*; onion says *the domain layer
+  invariants and repositories return aggregates*; the architecture style says *the domain layer
   defines the repository interface and infrastructure implements it*. DDD is the
-  **content**; onion is the **arrangement**. Reference onion as complementary; do
+  **content**; the filler is the **arrangement**. Reference the filler as complementary; do
   **not** restate the dependency rule or layer boundaries here.
 - **`design-patterns-gof`** owns general-purpose object-construction and
   collaboration mechanics (factory-method vs abstract-factory, strategy,
@@ -125,8 +125,8 @@ mis-drawn boundary.
   domain model's public surface.
 - The domain model is expressed in domain terms (the ubiquitous language), not
   in storage terms. Persistence concerns conform to the model, not the reverse.
-  (How this is enforced via dependency inversion is `onion-architecture`'s
-  business; this concern only asserts the leak must not happen.)
+  (How this is enforced via dependency inversion is the selected `architecture-style`
+  filler's business; this concern only asserts the leak must not happen.)
 
 ### No anemic domain model
 
@@ -174,7 +174,7 @@ entities that carry **invariants, lifecycle, and relationships** (invoicing,
 CRM, ordering, billing, scheduling, ledgers, …). High autonomy auto-selects this
 concern for such products (see `workflows/references/concern-resolution.md`).
 It is composable (no slot); `areas: data, api` scopes its practices to the
-domain and service layers. Compose with **`onion-architecture`** (which arranges
+domain and service layers. Compose with the selected **`architecture-style`** filler (which arranges
 the model into layers), with the tech-stack concern (which fixes the language),
 and with `sample-data` (whose seed must respect the aggregates' invariants). Do
 **not** select it for pure presentation/marketing sites, thin CRUD-only
@@ -183,11 +183,8 @@ admin tools with no business rules, or libraries with no domain.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: bounded-context map + subdomain classification + aggregate boundaries
-- TD: aggregates/value-objects/repositories/domain-services/factories model
+- TD: aggregates/value-objects/repositories/domain-services/factories model; states the bounded-context map, subdomain classification and aggregate boundaries
 - DATA_DESIGN: schema mirrors aggregate boundaries; cross-aggregate refs by identity
-
-## ADR References
 
 ## Practices by activity
 
@@ -195,10 +192,10 @@ Agents working in any of these activities inherit the practices below through ru
 
 These practices govern **what the domain model is** — its language, boundaries,
 and behavior-rich building blocks. They do **not** govern how the model is
-layered into the codebase (that is `onion-architecture`), nor the reusable
+layered into the codebase (that is the selected `architecture-style` filler), nor the reusable
 object/integration mechanics that may implement a role (`design-patterns-gof`,
 `enterprise-integration-patterns`). When a rule below references layering, defer
-to onion for the *how*; this concern asserts the *what*.
+to the filler for the *how*; this concern asserts the *what*.
 
 ## Discover
 
@@ -254,7 +251,7 @@ to onion for the *how*; this concern asserts the *what*.
   repository boundary into the domain.
 - The model is expressed in the **ubiquitous language**, not in storage terms;
   persistence conforms to the model, not the reverse. (The dependency-inversion
-  mechanism that makes this hold is `onion-architecture`'s practice.)
+  mechanism that makes this hold is the selected `architecture-style` filler's practice.)
 - Every true invariant is checked **inside the aggregate**, in the domain layer
   — **not** in a controller, request handler, route, or application service, and
   **not** delegated to a database constraint as the sole guard.
@@ -287,7 +284,7 @@ to onion for the *how*; this concern asserts the *what*.
 ### Boundary with neighbors
 
 - For **layering** (where domain/application/infrastructure live, the dependency
-  rule, who defines the repository interface) defer to `onion-architecture`; do
+  rule, who defines the repository interface) defer to the selected `architecture-style` filler; do
   not restate it here.
 - A DDD **Factory** / **Domain Event** is a domain role; the GoF mechanic or the
   messaging transport that implements it belongs to `design-patterns-gof` /

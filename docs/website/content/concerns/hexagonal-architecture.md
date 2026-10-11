@@ -57,6 +57,7 @@ differentiator is **practical, not dogmatic**:
   object-level patterns inside a layer and between-system messaging
   respectively. Hexagonal is the macro boundary discipline for one deployable;
   integration adapters are simply driven adapters under it.
+- Enforcement of the import rules belongs to the `modularity-and-encapsulation` Boundary Check; this concern defines the rule only.
 
 ## Components
 
@@ -164,15 +165,11 @@ because the port boundary constrains every buildable work item.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: Hexagonal chosen for architecture-style slot; the driving/driven adapters justifying port symmetry
-- TD: core, driving/driven ports, primary/secondary adapters, composition root
+- TD: core, driving/driven ports, primary/secondary adapters, composition root; states the multiple driving/driven adapters that justify the port symmetry
 
 ## ADR References
 
-Record an ADR when selecting hexagonal over a slot-sibling
-(`onion` / `clean` / `classic-layered`) — the ADR should name the multiple
-driving/driven adapters that justify the port symmetry — or when an operator
-overrides the `architecture-style` choice per project.
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only when the project deviates from a constraint here (for example, when an operator overrides the `architecture-style` choice per project).
 
 ## Practices by activity
 

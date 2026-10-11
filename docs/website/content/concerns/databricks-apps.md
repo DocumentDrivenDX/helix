@@ -35,8 +35,7 @@ This concern owns **how an interactive data/AI app is hosted, identified, and
 wired to data on Databricks**: the managed serverless runtime and its process
 contract, `app.yaml`, the app service principal and on-behalf-of identities,
 resource bindings, how the platform resolves dependencies and builds the
-frontend, deploy and local-dev mechanics, and the rule that data access flows
-through Unity Catalog. It also owns the backend conventions that exist only
+frontend, and deploy and local-dev mechanics. It also owns the backend conventions that exist only
 because of the hosting contract (one origin, an `/api/*` prefix, a health
 route, the SPA served from a static directory with an index fallback), stated
 framework-neutrally with FastAPI/uvicorn as the reference implementation. It
@@ -56,9 +55,10 @@ must not duplicate its neighbors:
   Databricks Apps is the Databricks-specific deploy target: a **managed
   serverless** runtime that eliminates that infra. When this concern fills
   `deploy-target`, do not also stand up parallel self-hosted hosting.
-- **`unity-catalog`** owns the **data governance** the app reads through. This
-  concern owns *that the app reads through it* (and how the app's identity is
-  granted); it does not restate the catalog/grant model.
+- **`unity-catalog`** owns the **data governance** the app reads through,
+  including the rule that an app reads through Unity Catalog grants, not around
+  them. This concern owns how the app's identity is granted; it does not
+  restate the catalog/grant model.
 - **`security-owasp` / `auth` / `authorization-model`** own hardening, the audit
   policy, and the app's own permission model (see
   [README-auth-family.md](../readme-auth-family/)). Databricks Apps supplies
@@ -158,9 +158,11 @@ must not duplicate its neighbors:
   `pnpm-lock.yaml` stays in sync with `package.json`.
 
 ### Identity is the app service principal or the on-behalf-of user — chosen deliberately
-- Use **on-behalf-of** for anything that reads or writes user data, so Unity
-  Catalog grants, row filters, and column masks apply per user; use the **app
-  service principal** only for shared or bulk app-owned work.
+- Use **on-behalf-of** for any call made inside a user's session that reads or
+  writes user-scoped data (retrieval, tool calls reaching Databricks APIs, model
+  calls), so Unity Catalog grants, row filters, and column masks apply per user;
+  use the **app service principal** only for shared configuration and bulk work
+  with no user principal.
 - Request minimal `user_api_scopes`; never print, log, or persist a token; write
   a structured audit record of actions taken on behalf of users (policy per
   `auth`).
@@ -242,8 +244,7 @@ depends on it (see `workflows/references/concern-resolution.md`):
   only; request the minimal scopes
 - A secret in `value:` → `valueFrom: <secret-resource-key>`
 - Resources expected to be **created by the app** → attach existing resources
-- The app reaching data **around Unity Catalog** → governed tables, volumes, or a
-  SQL warehouse under grants
+- The app reaching data **around Unity Catalog** → governed tables, volumes, or a SQL warehouse under grants (rule: `unity-catalog`)
 - Log files on local disk → stdout/stderr, plus telemetry when scaled
 - `bundle deploy` without `bundle run`, or dev and prod in one workspace → run
   and poll for `RUNNING`; a workspace per environment
@@ -270,18 +271,15 @@ account/lakehouse — use the generic `deploy-target` and frontend concerns ther
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: auth model per data path (app service principal vs on-behalf-of) + durable-state store (UC tables/volumes vs Lakebase) + deploy path (bundles from CI)
-- TD: process contract (port, SIGTERM, no TLS), one-origin `/api/*` + static SPA serving, uv dependency resolution, `app.yaml` env + `valueFrom` bindings, stateless instances
+- TD: process contract (port, SIGTERM, no TLS), one-origin `/api/*` + static SPA serving, uv dependency resolution, `app.yaml` env + `valueFrom` bindings, stateless instances; states the auth model per data path (app service principal vs on-behalf-of), durable-state store (UC tables/volumes vs Lakebase), and deploy path (bundles from CI)
 - IMPLEMENTATION_PLAN: `app.yaml` command/env, bundle resources and `user_api_scopes`, CI `bundle deploy` + `bundle run`, the open spikes the design depends on
 - TEST_PLAN: deployed-app checks for on-behalf-of denial (negative control), restart survival, SIGTERM exit, `/api/health`
 
 ## Local Diagnostic Capture
 
-The prohibition on application-owned log files applies to the deployed app.
-A development/CI runner may capture safe stdout/stderr locally under `o11y-otel`
-and own rotation/retention. Preserve the platform's supported collection route
-and verify it does not ingest the same event twice; local evidence does not
-establish shared production retention.
+Local capture rules are `o11y-otel`'s. Unique here: the prohibition on
+application-owned log files applies to the deployed app, which keeps the
+platform's collection route.
 
 ## Practices by activity
 
@@ -295,7 +293,7 @@ model (`unity-catalog`) — see the boundary in `concern.md`.
 ## Requirements (Frame activity)
 
 - Confirm the product is hosted **natively on Databricks** and its users belong to the Databricks account (SSO).
-- Decide the **identity per data path**: on-behalf-of for anything that reads or writes user data, the app service principal only for shared or bulk app-owned work. This is design-defining; record it.
+- Decide the **identity per data path**: on-behalf-of for any call inside a user's session that reads or writes user-scoped data (retrieval, tool calls reaching Databricks APIs), the app service principal only for shared configuration and bulk work with no user principal. This is design-defining; record it.
 - Identify the **resources** the app needs (SQL warehouse, serving endpoint, job, secret, Unity Catalog volume or table, Genie space, Lakebase) and which groups own them; the app attaches them, it cannot create them.
 - List the on-behalf-of **scopes** each feature needs; the minimal set becomes `user_api_scopes`.
 - Name the target workspaces per environment (dev, staging, prod) and who holds `CAN_MANAGE`.
@@ -350,10 +348,6 @@ model (`unity-catalog`) — see the boundary in `concern.md`.
 
 ## Local Agent Diagnostics
 
-Compose with `o11y-otel` for schema, correlation, privacy, console filtering and
-receiver proof. The deployed app keeps the platform stdout/stderr or supported
-managed telemetry route; it does not rotate local log files. A development/CI
-runner may capture safe output locally and own rotation/retention. Validate one
-canonical export/ingestion route; enabling file ingestion and SDK export for the
-same event requires tested deduplication. Instrumentation choice remains OTel's
-concern, not a new Databricks logging schema.
+Compose with `o11y-otel` for local capture, schema, correlation, and
+deduplication. Unique here: the deployed app keeps the platform stdout/stderr or
+managed telemetry route and does not rotate local log files.

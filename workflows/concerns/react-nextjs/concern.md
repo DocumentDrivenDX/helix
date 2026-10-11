@@ -62,16 +62,9 @@ component library.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: React 19 + Next.js App Router as the frontend-framework slot; Tailwind for styling (component prescription belongs to the selected library concern)
 - TD: App Router + Server Components, react-hook-form + Zod, shared validation schemas
 - DESIGN_SYSTEM: Tailwind config extends design-system tokens (component-library conventions live with the selected component owner)
 - TEST_PLAN: Playwright E2E (not Cypress/Selenium)
-
-## ADR References
-
-- ADR-010: Frontend validation architecture (Zod shared schemas)
-- ADR-011: ux-radix owns the Radix and shadcn component-library prescription;
-  this concern references rather than re-prescribing
 
 ## Component ownership and package integration
 

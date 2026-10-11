@@ -17,15 +17,15 @@ ownership table at [README-auth-family.md](../README-auth-family.md).
 ## Design
 
 - Lay out the **three-level namespace** (`catalog.schema.object`) for the
-  product's assets; name the metastore/catalog topology in an ADR.
+  product's assets; state the metastore/catalog topology in the TD.
 - Decide **managed vs external** per asset — prefer managed; for external data,
   design the **external location + storage credential** rather than raw cloud
   paths or DBFS mounts.
 - Design grants as **group-based, least-privilege**: list `USE CATALOG` /
   `USE SCHEMA` plus the specific data privilege (`SELECT`, `MODIFY`,
   `READ VOLUME`, `EXECUTE`, …) each consumer group needs.
-- Design **production ownership** as group ownership, and production job/app
-  identity as a **service principal**.
+- Design **production ownership** as group ownership, and production job
+  identity as a **service principal** (app runtime identity: `databricks-apps`).
 - Where row-/column-level access differs by audience, design **row filters** and
   **column masks** instead of forked data copies.
 
@@ -39,7 +39,7 @@ ownership table at [README-auth-family.md](../README-auth-family.md).
 - Create external tables/volumes **beneath** a governed external location, never
   at its root.
 - Assign **group ownership** to production catalogs/schemas; run production jobs
-  and apps under a **service principal**.
+  under a **service principal** (app runtime identity: `databricks-apps`).
 - Apply **row filters** / **column masks** for fine-grained access.
 - Let consuming pipelines and apps read through the catalog — no hardcoded cloud
   paths or embedded credentials that bypass grants.
@@ -64,7 +64,7 @@ ownership table at [README-auth-family.md](../README-auth-family.md).
 - Access is granted **explicitly** and **to groups** (not individual users),
   least-privilege (no reflexive `ALL PRIVILEGES`); verified by a **negative
   control** — an ungranted principal is denied.
-- **Production** catalogs/schemas are **group-owned** and production jobs/apps
+- **Production** catalogs/schemas are **group-owned** and production jobs
   run under a **service principal**, not a personal identity.
 - External data is reached through a governed **external location** (+ storage
   credential), not a DBFS mount or raw cloud path; nothing is created at an

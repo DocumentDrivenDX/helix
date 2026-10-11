@@ -101,7 +101,7 @@ exit_requirements:
     # branch (the verification concern is the authority for the record's contents).
     - check: file_exists
       path: docs/helix/04-build/verification-evidence.md
-      description: "Verification evidence record must exist: command+exit, target URL/env, core flows AND each governing AC's guard/negative branch exercised on the RUNNING system via the interface-appropriate harness, plus the re-review checklist (per the verification concern)"
+      description: "Verification evidence record must exist: command+exit, target URL/env, core flows AND each governing AC's guard/negative branch exercised on the RUNNING system via the interface-appropriate harness (per the verification concern)"
 
   manual:
     - "Affected interactive UI work has reviewed STP UX Coverage per workflows/references/ux-evidence.md; mapped tests and observed runtime behavior are verified separately from structure. With packaged-design-system, declared package/project quality-check evidence records versions, supported routes/themes, actual reports and finding/exception dispositions; those checks alone do not prove interaction behavior."

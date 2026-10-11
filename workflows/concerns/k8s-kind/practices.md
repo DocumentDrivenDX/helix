@@ -13,7 +13,7 @@
 - Expose services locally via `kubectl port-forward` or kind ingress
 
 ## Implementation
-- Create local cluster: `kind create cluster --config kind-config.yaml`
+- Create local cluster: `kind create cluster --config deploy/kind-config.yaml`
 - Load local images: `kind load docker-image <image>:<tag>`
 - Install/upgrade: `helm upgrade --install <release> ./deploy/helm/<chart> -f values-dev.yaml`
 - Image tagging: use git SHA for dev (`$(git rev-parse --short HEAD)`), semver for releases
