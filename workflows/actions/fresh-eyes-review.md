@@ -20,6 +20,14 @@ Check the target for:
 - test quality and whether tests exercise the behavior they claim to cover;
 - unsupported claims about tests, coverage, or metrics.
 
+For completion reviews, follow the existing acceptance mapping and test-source
+citations to actual assertions and observed run results. Assess behavior-based
+names separately from stable citations; preserve legacy valid citations in names.
+Check tested revision/diff, command/exit, environment, executed scope and result
+retention per the verification practices. Skipped, stale or expired runs leave
+claims unverified. Normal reports suffice; supplemental observations are
+conditional on proof gaps outside that reporting path. No extra file is required.
+
 Skip checks that do not apply to the target. Do not infer that an accepted ADR
 has been implemented; compare its direction with code only when implementation
 is in scope. Preserve user-authorized stop rules.

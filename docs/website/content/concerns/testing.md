@@ -168,6 +168,31 @@ Agents working in any of these activities inherit the practices below through ru
 - Group related tests with `describe` / `context` / `mod tests`
 - Each test tests one behavior — if you need "and" in the name, split it
 
+### Test names and requirement citations
+
+Name the observable behavior and relevant condition or failure branch using
+framework conventions: `TestClaim_RejectsAlreadyLeasedBead`,
+`test_route_resolution_timeout_releases_lease`, or
+`it("rejects a duplicate submission while pending", ...)`. Avoid vague names
+such as `test_success`, `test_AC1` or names of private implementation steps.
+Parameterized cases identify the condition in their reported case name.
+
+Use stable story AC IDs in canonical source citations, for example:
+
+```go
+// @covers US-001-AC2
+func TestClaim_RejectsAlreadyLeasedBead(t *testing.T) { /* assert outcome */ }
+```
+
+Prefer comments/annotations to putting IDs into function names. Existing valid
+citations in test bodies, names or doc comments remain valid; no bulk rename is
+required. A test covering multiple criteria cites each with its own `@covers`
+tag. Non-story requirements use their existing IDs and project citation contract;
+do not invent story IDs. The Story Test Plan owns the mapping, not another file.
+Names and tags help discover coverage; review still checks meaningful assertions,
+required runtime layers and observed passing results. See the `verification`
+practices for run provenance and conditional supplemental observations.
+
 ### Test data
 - Factory functions with sensible defaults:
   ```

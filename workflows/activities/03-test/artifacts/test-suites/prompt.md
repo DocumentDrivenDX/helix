@@ -28,7 +28,11 @@ Use these local resource summaries as grounding:
 - the behaviors each suite owns
 - required fixtures, factories, or mocks
 - any coverage target that matters for this stack
-- suite ownership, execution commands, and evidence outputs
+- suite ownership, execution commands, and normal report outputs with tested
+  revision/diff, command/exit, environment and executed scope per `verification`
+  practices; no separate evidence file
+- behavior-and-condition test/case names and stable source citations per
+  `testing` practices, preserving existing valid citations
 
 ## Keep Out
 

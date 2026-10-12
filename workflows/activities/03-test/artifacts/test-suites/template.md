@@ -71,6 +71,13 @@ ddx:
 
 ## Evidence
 
+Use normal suite reports with behavior-and-condition test/case names and stable
+source citations per `testing` practices. Reports and their owning CI/runtime
+metadata identify tested revision/diff, command/exit, environment and executed
+scope. Existing acceptance mappings link them; no extra evidence file is needed.
+Keep accepted references accessible per `verification` practices. Supplemental
+observations apply only when these reports leave a proof gap.
+
 | Suite | Evidence Output | Required in CI |
 |-------|-----------------|----------------|
 | [Suite] | [Path/link] | [Yes/No] |

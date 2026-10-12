@@ -50,11 +50,24 @@ replacement. The canonical, parseable citation syntax is `@covers US-<n>-AC<m>`
 with numeric stable IDs (e.g. `@covers US-001-AC1`); `US-XXX` below is a
 placeholder for the numeric story id — replace `XXX` with the real number.
 
+Use behavior-and-condition test names per `testing` practices. Prefer source
+comments/annotations for `@covers`; existing citations in bodies, names or doc
+comments remain valid. Parameterized case names identify the condition. One test
+may cite multiple criteria; no wholesale renaming is required.
+
 | AC ID | Acceptance Criterion (Given/When/Then) | Failing Test(s) to Create or Run | Asserted Behavior (what the test verifies) | AC-ID Citation (`@covers`) | Test Level | File or Command | Setup / Data | Notes |
 |-------|----------------------------------------|----------------------------------|--------------------------------------------|----------------------------|------------|-----------------|--------------|-------|
 | US-001-AC1 | [Given/When/Then criterion] | `[test_name]` | [the concrete outcome the test asserts — e.g. "response is 200 with body {id}"] | `@covers US-001-AC1` | Unit / Integration / Contract / E2E | `tests/...` or `bash ...` | [Fixture, seed, mock] | [Edge case or sequencing note] |
 
 ## Executable Proof
+
+Reuse this mapping's Notes or Executable Proof to link normal test/CI reports
+for completion. Reports identify tested revision/diff, command/exit, environment,
+executed tests and observed outcomes per `verification` practices. No new table,
+column or evidence file is mandatory. Before Build these are planned commands
+and output locations; passing results are required only for completion claims.
+Supplemental observations are linked here only when normal reporting leaves a
+proof gap, including reviewed manual/non-automatable exceptions.
 
 ### Primary Commands
 

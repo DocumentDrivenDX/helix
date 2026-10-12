@@ -234,6 +234,11 @@ Key outputs to create:
 5. "Clean from start" - Don't defer quality
 6. "Drive the guard branch" - every acceptance criterion's failure/rejection path is exercised on the running system via the interface-appropriate harness, not just the happy path
 
+Use existing acceptance mappings, test-source citations and observed run reports
+for completion, per the verification practices. Review tested revision/diff,
+command/exit, environment and executed scope. Link supplemental observations only
+where normal reporting leaves a proof gap; no shared evidence file is required.
+
 ## Success Indicators
 
 You're succeeding when:

@@ -71,15 +71,59 @@ A completion claim missing any of these is incomplete — the gate is not
 "tests are green", it is "the stack was exercised, honors what was selected, and
 here is the recorded evidence".
 
-Write this recorded evidence to the canonical path the build gate checks —
-`docs/helix/04-build/verification-evidence.md` — so "done" is gated on its
-presence, not asserted from memory (see the 04-build
-`GATE.yaml` exit requirements). A guard branch that is genuinely not applicable
-or not automatable carries a **recorded reviewed exception** (manual verification
-accepted / non-automatable, with evidence — what was observed; the
-same escape hatch reconcile-alignment's AC coverage floor uses), never a silent
-omission; an un-waived untested guard branch leaves its acceptance criterion
-`UNTESTED` in reconcile-alignment.
+## Requirement-linked results
+
+Use the existing Story Test Plan's Acceptance Criteria Test Mapping, test-source
+`@covers` citations and observed test/run reports as the verification chain.
+For work governed by another requirement type, use its existing mapping or
+acceptance record and stable IDs. Do not create a second per-criterion matrix.
+Tests name observable behavior and relevant conditions per the `testing`
+practices; names and citations alone establish neither exercise nor success.
+
+For each in-scope criterion, review that the mapped test exists, cites the
+criterion, asserts its actual outcome and ran successfully at the required
+layer. Automated real-surface tests can provide all running-system evidence;
+when their reports capture the required proof, no supplemental record is needed.
+A green aggregate exit does not prove a skipped, deselected or unreported test
+ran. Missing, failing, skipped or stale results leave the claim unverified.
+
+Reuse the normal CI/test/runtime report metadata for the tested revision,
+command and exit status, environment/data state, executed tests and outcomes.
+If testing a dirty checkout, identify the tested diff as well as its base commit.
+Link the run from the mapping's existing Notes/Executable Proof or the existing
+acceptance/closeout record; keep run metadata in its owning report. A newer
+revision is not verified by an older run unless review establishes that the
+relevant code, tests and environment are unchanged. Otherwise rerun.
+
+Accepted references must remain accessible for the project's review/audit
+retention period. Before ephemeral CI artifacts expire, retain the needed
+report in an existing durable project/runtime location. Missing or expired
+results are unknown until recovered or rerun. Raw console dumps are unnecessary
+when a retained report contains the required facts. Do not retain credentials,
+tokens or sensitive seed data; keep safe reproduction references.
+
+## Supplemental observations (conditional)
+
+Add a concise linked observation only when the normal test/reporting path
+cannot capture the required proof: a manual interaction, hardware observation,
+external handshake, downstream-consumer exercise or reviewed verification
+exception. These are proof gaps, not exemptions from testing or a task-size rule.
+A real-client integration report that captures the observation already suffices.
+
+Use the existing mapping's Notes/Executable Proof, review/acceptance record or
+an existing per-change evidence README beside screenshots/traces. A separate
+per-change record is optional when the assets warrant it. Identify the criterion
+and change, tested revision/diff, command or manual procedure, environment,
+observed outcome and supporting artifacts. For exceptions include scope, owner,
+rationale, reviewer/decision, strongest observed substitute and review/removal
+trigger. An un-waived untested guard branch leaves its criterion `UNTESTED`.
+
+HELIX requires no `verification-evidence.md`, replacement directory, index or
+new evidence artifact. Preserve existing evidence and links as history; stop
+mandatory appends. Move old sections only as a deliberate migration that repairs
+their inbound links. File existence and mapping structure are not completion
+proof. The runtime/adopting project executes checks; reviewers assess their
+meaning and relevance to the change.
 
 ## Selected-stack changes are recorded, never silent
 
@@ -123,9 +167,9 @@ e2e genuinely infeasible). Under a recorded exception:
 - Substitute the strongest observable evidence that *does* exist (the library
   suite green with command + exit status; the docs build/link-check; an
   integration run against a stubbed boundary; a recorded manual run).
-- Record which exception applies and why, as one line in
-  `docs/helix/04-build/verification-evidence.md`. An unrecorded "e2e is hard" is not
-  an exception.
+- Record which exception applies and why in the existing acceptance record,
+  with the reviewed disposition and substitute evidence described above. An
+  unrecorded "e2e is hard" is not an exception.
 - The verify-don't-trust rule still holds: even the substitute evidence must
   be observed, never asserted.
 

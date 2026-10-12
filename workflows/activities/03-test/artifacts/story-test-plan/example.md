@@ -45,10 +45,22 @@ record source file metadata.
 | AC ID | Acceptance Criterion (Given/When/Then) | Failing Test(s) to Create or Run | Asserted Behavior (what the test verifies) | AC-ID Citation (`@covers`) | Test Level | File or Command | Setup / Data | Notes |
 |-------|----------------------------------------|----------------------------------|---|---|------------|-----------------|--------------|-------|
 | US-001-AC1 | Given Maya is viewing Acme Dental, when she uploads one valid bank CSV and one valid invoice CSV, then DepositMatch creates one draft import session for Acme Dental and opens mapping review. | `creates_draft_import_session_for_two_csv_files`, `routes_to_mapping_review_after_success` | Creates draft session for Acme Dental and routes to mapping review after success | `@covers US-001-AC1` | Contract, Integration, E2E | `apps/api/test/routes/importSessions.test.ts`; `apps/web/src/features/import/ImportSessionUpload.test.tsx`; `pnpm test:e2e -- upload-csv` | `fixtures/acme-bank-2026-05-08.csv`, `fixtures/acme-invoices-2026-05-08.csv`, authenticated Maya user, Acme Dental client | Covers API and visible reviewer flow |
-| US-001-AC2 | Given Maya is viewing Acme Dental, when she uploads a PDF instead of a CSV for either required file, then DepositMatch rejects the file before parsing and keeps the import session in draft. | `rejects_non_csv_bank_file`, `renders_problem_details_for_invalid_file_type` | Rejects non-CSV with actionable error and leaves session draft | `@covers US-001-AC2` | Contract, UI | `apps/api/test/routes/importSessions.test.ts`; `apps/web/src/features/import/ImportSessionUpload.test.tsx` | `fixtures/statement.pdf`, valid invoice CSV | Asserts 415 `unsupported-import-file-type` |
+| US-001-AC2 | Given Maya is viewing Acme Dental, when she uploads a PDF instead of a CSV for either required file, then DepositMatch rejects the file before parsing and keeps the import session in draft. | `rejects_non_csv_bank_file`, `renders_problem_details_for_invalid_file_type` | Rejects non-CSV with actionable error and leaves session draft | `@covers US-001-AC2` | Contract, UI, E2E | `apps/api/test/routes/importSessions.test.ts`; `apps/web/src/features/import/ImportSessionUpload.test.tsx`; `pnpm test:e2e -- upload-csv` | `fixtures/statement.pdf`, valid invoice CSV | Asserts 415 `unsupported-import-file-type`; live upload-csv E2E also drives the rejection |
 | US-001-AC3 | Given Maya has uploaded both required CSV files, when the files are accepted, then the import session records the client, file names, upload time, and source type for each file. | `persists_import_file_metadata`, `does_not_log_raw_csv_rows` | Persists client/file metadata without logging raw financial rows | `@covers US-001-AC3` | Integration, Security | `apps/api/test/services/importUploadService.test.ts`; `pnpm test -- importUploadService` | S3 fake, PostgreSQL test DB, log capture | Verifies metadata and financial-data logging concern |
 
 ## Executable Proof
+
+The commands and report locations below are planned proof, not claims that the
+sample application has run. At completion, link each relevant run through this
+mapping's Notes or this Executable Proof section. Reuse normal CI metadata for
+tested revision/diff, command/exit, environment, executed tests and outcomes;
+no additional evidence file is needed. For a manual file-picker check that the
+runner cannot capture, add the criterion, procedure, observed outcome and review
+disposition here, or link its existing per-change screenshot README.
+
+Test names above describe behavior and conditions. Test source carries citations,
+for example `// @covers US-001-AC2` above `rejects_non_csv_bank_file`; the tag
+supports traceability and the actual assertion/run supplies proof.
 
 ### Primary Commands
 
@@ -101,7 +113,8 @@ pnpm test:e2e -- upload-csv
 2. Create repository/service integration tests for draft-session and file
    metadata persistence.
 3. Create UI component tests for successful routing and problem-details errors.
-4. Create the Playwright happy-path smoke test after API/UI tests are green.
+4. Create the Playwright upload flow after API/UI tests are green; drive both
+   successful upload and non-CSV rejection against the running app.
 
 **Constraints**
 
