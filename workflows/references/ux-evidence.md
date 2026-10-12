@@ -37,11 +37,8 @@ passes structure but cannot establish readiness for affected new UX work.
 
 Review verifies actual mapped test source, the AC citation and meaningful
 assertions. Build drives the affected flow and failure branches through the
-appropriate real-surface harness. Record command/exit, target environment,
-observations and artifact references through the existing STP mapping and
-normal run reports, including tested revision/diff. These reports suffice when
-they capture the proof; supplemental observations cover only reporting gaps
-per the verification practices. No extra evidence file is required.
+appropriate real-surface harness. Link results from the existing STP mapping
+under the [verification contract](../concerns/verification/practices.md).
 For navigation assert semantic current location and check a visible bound cue;
 for modals test focus entry/containment/return; for async actions test pending,
 duplicate guard and failure recovery. Non-modal and native navigation behavior

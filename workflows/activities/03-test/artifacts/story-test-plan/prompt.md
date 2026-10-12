@@ -36,13 +36,9 @@ Use these local resource summaries as grounding:
   AC ID is `UNCITED_COVERAGE` (not covered for traceability; fix = add the
   citation, not a new test), distinct from `UNTESTED`. Citation is an additional
   gate on top of exercise+pass+satisfy, never a replacement
-- behavior-and-condition names per `testing` practices; prefer canonical source
-  comments/annotations, preserving existing body/name/doc-comment citations
-- planned normal report locations in existing Notes/Executable Proof; completion
-  links observed results and tested revision/diff, command/exit, environment and
-  executed scope per `verification` practices. No passing run is required at
-  planning time, and no separate evidence file or mapping is mandatory
-- supplemental observations only for proof gaps outside normal reporting
+- behavior-and-condition names and stable source citations per [testing practices](../../../../concerns/testing/practices.md)
+- planned report locations in existing Notes/Executable Proof; apply the
+  [verification contract](../../../../concerns/verification/practices.md) at completion
 - executable proof details: test file paths, commands, or named test cases
 - setup, fixtures, seed data, mocks, and environment assumptions
 - edge cases and error scenarios that the story must prove before build begins

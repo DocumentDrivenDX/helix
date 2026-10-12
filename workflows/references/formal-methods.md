@@ -54,10 +54,8 @@ type is deferred until independent lifecycle/traceability needs justify one.
 
 ## Evidence Record
 
-Use existing design/acceptance mappings and analyzer/proof reports, following
-the verification practices for run provenance and retention. Link supplemental
-observations only where normal reports leave a proof gap; no separate evidence
-file is mandatory. For each analysis record:
+Link analyzer/proof reports from existing design/acceptance mappings under the
+[verification contract](../concerns/verification/practices.md). For each analysis:
 
 | Field | Required content |
 |---|---|

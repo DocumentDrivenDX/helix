@@ -47,7 +47,6 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 - [Modularity and Encapsulation Execution Plan](/artifacts/modularity-execution-plan/)
 - [Modularity Implementation Review](/artifacts/modularity-implementation-review/)
 - [Modularity Execution Plan Review](/artifacts/modularity-plan-review/)
-- [Build Plan: Requirement-linked verification](/artifacts/plan-2026-10-12-requirement-test-verification/)
 
 ## Deploy
 

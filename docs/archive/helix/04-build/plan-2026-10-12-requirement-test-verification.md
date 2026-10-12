@@ -77,10 +77,11 @@ The optional deck-render lane skipped because pptxgenjs is unavailable; all
 other lanes passed, with the Innsigle lane separately rerun using its pinned
 verifier and a temporary npm cache (exit 0). `just check-website-links` exited 0:
 63,883 internal links/images resolved across 386 pages. `git diff --check`
-passed. Generated-content freshness will be checked after committing, because
-its validator compares projections against HEAD. B-004 review is complete;
-commit/push/PR publication remain the final steps. The PR owns publication and
-CI status. These catalog checks do not claim consumer runtime verification.
+passed. Generated-content freshness passed after commit `526daa91`; B-004
+publication completed in [PR #80](https://github.com/DocumentDrivenDX/helix/pull/80).
+This completed plan is archived during the PR's guidance cleanup and is no longer
+published as a current website artifact. The PR owns subsequent review,
+validation and CI status. These checks do not claim consumer runtime verification.
 Record review dispositions and final validation here or in the PR's existing
 validation summary. Do not create a generic verification diary.
 

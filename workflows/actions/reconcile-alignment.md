@@ -42,12 +42,9 @@ not required unless the user asks for comprehensive coverage.
   output and framework plumbing unless they affect the audited behavior.
 - **Acceptance evidence:** state whether each in-scope criterion is implemented,
   exercised by a relevant test, and passing. Report missing implementation,
-  missing or failing tests, and unsupported claims separately. Resolve the
-  existing mapping and test-source citations to meaningful assertions and
-  observed results for the tested revision/diff, environment and executed scope.
-  Names/citations do not prove execution; skipped, stale or expired results leave
-  the claim unverified. Normal reports suffice; link supplemental observations
-  only for reporting gaps per the verification practices.
+  missing or failing tests, and unsupported claims separately. Follow the
+  [verification completion contract](../concerns/verification/practices.md) for
+  existing mappings, test-source citations, assertions and observed results.
 - **Accepted ADRs:** compare the chosen mechanism or boundary with the scoped
   implementation. An unimplemented choice is a gap against desired state, not
   proof that the ADR is invalid.

@@ -50,17 +50,11 @@ record source file metadata.
 
 ## Executable Proof
 
-The commands and report locations below are planned proof, not claims that the
-sample application has run. At completion, link each relevant run through this
-mapping's Notes or this Executable Proof section. Reuse normal CI metadata for
-tested revision/diff, command/exit, environment, executed tests and outcomes;
-no additional evidence file is needed. For a manual file-picker check that the
-runner cannot capture, add the criterion, procedure, observed outcome and review
-disposition here, or link its existing per-change screenshot README.
-
-Test names above describe behavior and conditions. Test source carries citations,
-for example `// @covers US-001-AC2` above `rejects_non_csv_bank_file`; the tag
-supports traceability and the actual assertion/run supplies proof.
+These are planned commands, not observed passing results. At completion, link
+normal reports here per the [verification contract](../../../../concerns/verification/practices.md).
+Link supplemental manual file-picker observations only if normal reports cannot
+capture them. Test source cites the stable criterion, for example
+`// @covers US-001-AC2` above `rejects_non_csv_bank_file`.
 
 ### Primary Commands
 

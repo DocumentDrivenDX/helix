@@ -100,10 +100,8 @@ mapping MUST link observed run results for the tested revision, showing:
 - the **reconciliation** observed to match the independent count within
   tolerance.
 
-Normal integration/E2E reports suffice when they capture these outcomes and
-run provenance. Link supplemental observations from the existing acceptance
-record only when normal reporting cannot capture the proof, per the
-`verification` practices; no separate evidence file is required.
+Use the `workflows/concerns/verification/practices.md` for run references
+and conditional supplemental observations.
 
 A meter event whose emit is only *defined* and never observed firing on the
 running system is **UNTESTED** — the same failure class the evidence gate refuses

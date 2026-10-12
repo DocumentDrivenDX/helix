@@ -50,10 +50,8 @@ replacement. The canonical, parseable citation syntax is `@covers US-<n>-AC<m>`
 with numeric stable IDs (e.g. `@covers US-001-AC1`); `US-XXX` below is a
 placeholder for the numeric story id — replace `XXX` with the real number.
 
-Use behavior-and-condition test names per `testing` practices. Prefer source
-comments/annotations for `@covers`; existing citations in bodies, names or doc
-comments remain valid. Parameterized case names identify the condition. One test
-may cite multiple criteria; no wholesale renaming is required.
+Use behavior-and-condition names per [testing practices](../../../../concerns/testing/practices.md);
+existing body/name/doc-comment citations remain valid.
 
 | AC ID | Acceptance Criterion (Given/When/Then) | Failing Test(s) to Create or Run | Asserted Behavior (what the test verifies) | AC-ID Citation (`@covers`) | Test Level | File or Command | Setup / Data | Notes |
 |-------|----------------------------------------|----------------------------------|--------------------------------------------|----------------------------|------------|-----------------|--------------|-------|
@@ -61,13 +59,10 @@ may cite multiple criteria; no wholesale renaming is required.
 
 ## Executable Proof
 
-Reuse this mapping's Notes or Executable Proof to link normal test/CI reports
-for completion. Reports identify tested revision/diff, command/exit, environment,
-executed tests and observed outcomes per `verification` practices. No new table,
-column or evidence file is mandatory. Before Build these are planned commands
-and output locations; passing results are required only for completion claims.
-Supplemental observations are linked here only when normal reporting leaves a
-proof gap, including reviewed manual/non-automatable exceptions.
+Link completion results from existing Notes/Executable Proof under the
+[verification contract](../../../../concerns/verification/practices.md).
+No new table, column or evidence file is mandatory; passing results are required
+only for completion claims. At planning time, name commands and report locations.
 
 ### Primary Commands
 
