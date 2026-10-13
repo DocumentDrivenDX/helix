@@ -47,7 +47,14 @@ python3 scripts/run-eval.py --suite evals/session-regressions.yml --dry-run
 python3 scripts/run-eval.py --suite evals/session-regressions.yml --judge
 ```
 
-`file_contains` checks every required literal in an existing file. Rubrics
+`mode` records the expected route for reporting; it is not passed to the agent
+or checked as an observed route. The runner sends the bare prompt so the skill
+must route naturally; checks and rubrics score the resulting behavior.
+
+`file_contains` requires every literal and `file_not_contains` rejects obsolete
+literals in an existing file. The title scenario requires `120 characters` and
+rejects the old public `max 255` rule; the SQL column's storage capacity may
+remain 255. Rubrics
 judge semantic correctness; literals alone cannot prove it. Unchanged files
 prove no persistent tracker mutation, not absence of attempted invocation.
 The runner does not capture tool-call traces, so these briefs cannot certify
@@ -57,6 +64,12 @@ runs are opt-in and paid; deterministic checker tests remain in `just test`.
 Compare the same suite against committed baseline and candidate catalogs.
 
 ## Runs
+
+- `results/20261013-session-regressions/`: five live Codex scenarios against
+  committed baseline and combined candidate; 13/13 deterministic checks each.
+  Astra reviewed outputs and diffs; the summary records two partial semantic
+  rubric items and the catalog-binding correction. No comparative uplift or
+  fully passing rubric score is claimed.
 
 - `results/20260911-0955/`: run at commit `0756e5fa` over eight briefs
   (`present-survey-deck` was added afterwards); a baseline from before the

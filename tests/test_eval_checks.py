@@ -38,13 +38,31 @@ class SessionChecksTests(unittest.TestCase):
     def test_file_contains_requires_file_and_every_value(self):
         with tempfile.TemporaryDirectory() as td:
             ws = Path(td)
-            brief = {"checks": [{"kind": "file_contains", "path": "proof.md", "values": ["120", "reject"]}]}
+            brief = {"checks": [{"kind": "file_contains", "path": "proof.md", "values": ["120 characters", "reject"]}]}
             check = lambda: runner.run_checks(brief, ws, {}, {}, "", {})[0]["ok"]
             self.assertFalse(check())
             (ws / "proof.md").write_text("120")
             self.assertFalse(check())
-            (ws / "proof.md").write_text("reject 120")
+            (ws / "proof.md").write_text("reject 120 characters")
             self.assertTrue(check())
+
+    def test_obsolete_public_limit_is_rejected_even_with_new_phrase(self):
+        with tempfile.TemporaryDirectory() as td:
+            ws = Path(td)
+            brief = {"checks": [{"kind": "file_not_contains", "path": "design.md", "values": ["max 255"]}]}
+            check = lambda: runner.run_checks(brief, ws, {}, {}, "", {})[0]["ok"]
+            self.assertFalse(check())
+            (ws / "design.md").write_text("title max 255; note: 120 characters")
+            self.assertFalse(check())
+            (ws / "design.md").write_text("title max 120 characters; title VARCHAR(255)")
+            self.assertTrue(check())
+
+    def test_concern_overlay_has_catalog_structure(self):
+        with tempfile.TemporaryDirectory() as td:
+            with patch.object(runner.subprocess, "run"):
+                ws = runner.make_workspace("session-concern-gap", Path(td))
+            findings = runner.instance_findings(ws / "docs/helix/01-frame/concerns.md")
+            self.assertFalse(findings, findings)
 
     def test_overlay_preserves_low_autonomy_marker(self):
         with tempfile.TemporaryDirectory() as td, patch.object(runner.subprocess, "run"):

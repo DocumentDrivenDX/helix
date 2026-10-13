@@ -1,5 +1,19 @@
-# Selected concerns
+---
+ddx:
+  id: concerns
+  authoring:
+    home: repo
+---
 
-The operator selected twelve-factor for the recipe server process. Other
-concerns and slots are unchanged. Review scope is the recipe server's process
-configuration and lifecycle; preserve that selection.
+# Project Concerns
+
+## Active Concerns
+
+| Concern | Source | Areas | Why Active | Key Practices |
+|---------|--------|-------|------------|---------------|
+| twelve-factor | library | `area:api`, `area:infra` | The recipe server is a deployed process. | Externalized configuration, startup validation, graceful shutdown. |
+
+## Area Labels
+
+- `area:api` — recipe server process
+- `area:infra` — deployment and lifecycle

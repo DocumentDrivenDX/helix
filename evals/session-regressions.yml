@@ -1,4 +1,5 @@
 # Sanitized session-derived scenarios; no private transcript contents.
+# mode is expected-route metadata; the agent receives only the bare prompt.
 version: 1
 defaults: {max_turns: 20, timeout_seconds: 300}
 briefs:
@@ -39,8 +40,9 @@ briefs:
       reconcile it with the actual files, make both edits and verify them.
       No tracking, code implementation or additional artifacts.
     checks:
-      - {kind: file_contains, path: "docs/helix/01-frame/features/FEAT-recipe-share.md", values: ["120"]}
-      - {kind: file_contains, path: "docs/helix/02-design/technical-designs/TD-recipe-store.md", values: ["120"]}
+      - {kind: file_contains, path: "docs/helix/01-frame/features/FEAT-recipe-share.md", values: ["120 characters"]}
+      - {kind: file_contains, path: "docs/helix/02-design/technical-designs/TD-recipe-store.md", values: ["120 characters"]}
+      - {kind: file_not_contains, path: "docs/helix/02-design/technical-designs/TD-recipe-store.md", values: ["max 255"]}
       - {kind: files_unchanged, globs: ["docs/helix/00-discover/*.md", "docs/helix/01-frame/prd.md", "docs/helix/02-design/adr/*.md"]}
       - {kind: max_new_files, value: 0}
     rubric:

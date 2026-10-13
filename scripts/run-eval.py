@@ -9,7 +9,7 @@ headless call. Results land under evals/results/<stamp>/ as JSON plus a
 Markdown summary.
 
 Usage:
-    scripts/run-eval.py [--briefs id,id] [--judge] [--runner CMD] [--keep]
+    scripts/run-eval.py [--suite FILE] [--briefs id,id] [--judge] [--runner CMD] [--keep]
                         [--dry-run] [--out DIR]
 
 The default runner is Claude Code in print mode with this checkout as the
@@ -147,12 +147,17 @@ def run_checks(brief: dict, ws: Path, before: dict[str, str], after: dict[str, s
         if kind == "files_exist":
             missing = [g for g in c["globs"] if not match(ws, [g])]
             ok, detail = not missing, f"missing {missing}" if missing else f"present {c['globs']}"
-        elif kind == "file_contains":
+        elif kind in ("file_contains", "file_not_contains"):
             path = ws / c["path"]
             text = path.read_text() if path.is_file() else ""
-            missing = [v for v in c["values"] if v not in text]
-            ok = path.is_file() and not missing
-            detail = f"missing file or values {missing}" if not ok else "all present"
+            if kind == "file_contains":
+                missing = [v for v in c["values"] if v not in text]
+                ok = path.is_file() and not missing
+                detail = f"missing file or values {missing}" if not ok else "all present"
+            else:
+                found = [v for v in c["values"] if v in text]
+                ok = path.is_file() and not found
+                detail = f"missing file or forbidden values {found}" if not ok else "clean"
         elif kind == "files_unchanged":
             changed = [f for f in before if f in after and after[f] != before[f] and any(fnmatch.fnmatch(f, g) for g in c["globs"])]
             deleted = [f for f in before if f not in after and any(fnmatch.fnmatch(f, g) for g in c["globs"])]
@@ -318,7 +323,7 @@ def main() -> int:
 
 def write_summary(out_dir: Path, stamp: str, runner: str, rows: list[dict]) -> None:
     lines = [f"# HELIX eval run {stamp}", "", f"Runner: `{runner}`", f"Commit: `{subprocess.run(['git', 'rev-parse', '--short', 'HEAD'], cwd=REPO, capture_output=True, text=True).stdout.strip()}`", "",
-             "| Brief | Mode | Checks | Rubric | Turns | Seconds | Cost USD |", "|---|---|---|---|---|---|---|"]
+             "| Brief | Expected mode | Checks | Rubric | Turns | Seconds | Cost USD |", "|---|---|---|---|---|---|---|"]
     for r in rows:
         rub = f"{r['judge']['total']}/{r['judge']['max']}" if r.get("judge") else "n/a"
         cost = f"{r['cost_usd']:.2f}" if isinstance(r.get("cost_usd"), (int, float)) else "n/a"
