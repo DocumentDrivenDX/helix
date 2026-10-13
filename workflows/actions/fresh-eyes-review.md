@@ -20,6 +20,10 @@ Check the target for:
 - test quality and whether tests exercise the behavior they claim to cover;
 - unsupported claims about tests, coverage, or metrics.
 
+For completion reviews, trace the existing acceptance mapping and test-source
+citations to assertions and observed results under the
+[verification completion contract](../concerns/verification/practices.md).
+
 Skip checks that do not apply to the target. Do not infer that an accepted ADR
 has been implemented; compare its direction with code only when implementation
 is in scope. Preserve user-authorized stop rules.

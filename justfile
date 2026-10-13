@@ -1,7 +1,7 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-ux-governance test-plan-execution test-modularity test-agent-diagnostics test-formal-methods test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable test-headline-sync test-deck-render test-demos test-innsigle test-eval-checks
+test: test-verification-contract test-ux-governance test-plan-execution test-modularity test-agent-diagnostics test-formal-methods test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable test-headline-sync test-deck-render test-demos test-innsigle test-eval-checks
 
 # Serve the HELIX microsite at the canonical local review URL.
 website-serve:
@@ -170,3 +170,7 @@ test-plan-execution:
 # UX coverage integrity and concern composition; runtime UX is verified in consumers.
 test-ux-governance:
     python3 tests/test_ux_governance.py
+
+# Requirement-linked verification, conditional supplements and naming contracts.
+test-verification-contract:
+    python3 tests/test_verification_contract.py

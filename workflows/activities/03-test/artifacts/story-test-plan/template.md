@@ -50,11 +50,19 @@ replacement. The canonical, parseable citation syntax is `@covers US-<n>-AC<m>`
 with numeric stable IDs (e.g. `@covers US-001-AC1`); `US-XXX` below is a
 placeholder for the numeric story id — replace `XXX` with the real number.
 
+Use behavior-and-condition names per [testing practices](../../../../concerns/testing/practices.md);
+existing body/name/doc-comment citations remain valid.
+
 | AC ID | Acceptance Criterion (Given/When/Then) | Failing Test(s) to Create or Run | Asserted Behavior (what the test verifies) | AC-ID Citation (`@covers`) | Test Level | File or Command | Setup / Data | Notes |
 |-------|----------------------------------------|----------------------------------|--------------------------------------------|----------------------------|------------|-----------------|--------------|-------|
 | US-001-AC1 | [Given/When/Then criterion] | `[test_name]` | [the concrete outcome the test asserts — e.g. "response is 200 with body {id}"] | `@covers US-001-AC1` | Unit / Integration / Contract / E2E | `tests/...` or `bash ...` | [Fixture, seed, mock] | [Edge case or sequencing note] |
 
 ## Executable Proof
+
+Link completion results from existing Notes/Executable Proof under the
+[verification contract](../../../../concerns/verification/practices.md).
+No new table, column or evidence file is mandatory; passing results are required
+only for completion claims. At planning time, name commands and report locations.
 
 ### Primary Commands
 

@@ -23,7 +23,7 @@
 ## Testing
 
 - Use the STP UX Coverage format in workflows/references/ux-evidence.md. Assert actual outcomes and connect them to stable AC IDs using @covers.
-- Drive relevant routes, overlays, pending and failure paths through the real surface harness. Record command, exit, environment and observations in verification-evidence.md.
+- Drive relevant routes, overlays, pending and failure paths through the real surface harness. Link results from the existing STP mapping per `workflows/concerns/verification/practices.md`.
 - A structural validator establishes a populated evidence plan only. Review must verify mapped tests exist, cite the AC, and observed results prove the behavior; screenshots may support visual review but cannot replace semantic assertions.
 
 ## Quality Gates

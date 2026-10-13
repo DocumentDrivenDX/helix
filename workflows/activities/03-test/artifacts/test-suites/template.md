@@ -71,6 +71,9 @@ ddx:
 
 ## Evidence
 
+Link these normal reports from existing acceptance mappings under the
+[verification contract](../../../../concerns/verification/practices.md).
+
 | Suite | Evidence Output | Required in CI |
 |-------|-----------------|----------------|
 | [Suite] | [Path/link] | [Yes/No] |

@@ -98,7 +98,7 @@ validation:
       severity: warning
     - check: review_ac_row_names_behavior_assertion
       description: >-
-        Every AC row names the behavior/assertion the test makes, not just a test name
+        Every AC row names the asserted behavior; test names describe behavior and relevant conditions, while stable source citations identify requirements
       severity: warning
     - check: review_ac_row_names_covering_test
       description: >-
