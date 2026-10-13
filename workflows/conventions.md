@@ -596,12 +596,14 @@ A: Store them alongside the documents that reference them, or in a activity-leve
 A: Use the activities needed for the request. Do not create irrelevant artifacts
 or record skipped activities solely to complete the workflow.
 
-## Adopting requirement-linked verification
+## Migrating local verification rules
 
 The verification concern defines the proof required for completion. When
 upgrading a project that mandates appends to a shared evidence file, reconcile
 its local instructions and gates with that contract before claiming the
-upgrade is adopted. A catalog upgrade alone does not change project policy.
+upgrade is adopted. Use `align` to diagnose conflicting local rules and `evolve`
+to apply the authorized policy change. A catalog upgrade alone does not change
+project policy.
 
 Replace the mandatory append and file-presence checks with review of the
 existing requirement/test mapping and observed run references. Preserve the
