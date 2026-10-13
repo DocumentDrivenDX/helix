@@ -311,6 +311,15 @@ control how often a workflow pauses, never which activities run.
 | `medium` (default) | Create deterministic non-conflict artifacts; pause when ambiguity or conflict blocks deterministic progress. Prompt for concern selection when none exists. |
 | `high` | Create downstream artifacts without pausing unless a hard stop blocks progress; record assumptions rather than asking. Infer concern selection from the product's nature and record it as an assumption. |
 
+When a planning pause is required, ask the smallest decision that unlocks the
+next step. Explain unfamiliar terms, offer a recommended answer with its reason,
+and ask one decision at a time when choices depend on each other. Look up facts
+from relevant authority; do not ask the operator to research them or approve
+routine mechanical edits already authorized. Record the answer in the existing
+artifact when authoring is authorized. This applies across planning modes;
+`grill` retains its interview-only checkpoint and headless behavior. Preserve
+`low` autonomy's per-step pauses and every required hard stop.
+
 Precedence (first match wins): per-invocation override (the operator names a
 level in the prompt) → the `autonomy:` block in `.helix.yml` → default
 `medium`. Hard-stop invariant (all levels): autonomy moves the pause
