@@ -11,7 +11,7 @@ language-runtime
 
 ## Components
 
-- **Language**: Python 3.12+
+- **Language**: Python; applications target the version their deploy runtime runs (3.12+ when the runtime allows), libraries target the lowest Python their consumers run
 - **Package manager**: uv — NOT pip, NOT poetry, NOT conda
 - **Virtual environment**: uv-managed (`.venv` via `uv sync`)
 - **Build backend**: `hatchling` with `uv-dynamic-versioning` for versioned packages
@@ -27,6 +27,7 @@ language-runtime
 - All code must pass `ruff check` and `ruff format --check`
 - Use `pyproject.toml` for all project metadata (not `setup.py`, not `setup.cfg`)
 - Pin Python version in `.python-version`
+- `requires-python` states the lowest supported Python, and CI runs the tests on that version; a library's floor is the lowest Python any consumer runtime runs, not a preferred version
 - All dependencies in `[project.dependencies]` or `[dependency-groups]` (dev); no `requirements.txt`
 - Use `[tool.uv.sources]` for custom package indexes (e.g., PyTorch CUDA wheels)
 - Tests in `tests/` directory; pytest markers for test categories (acceptance, contract, slow, fast)
