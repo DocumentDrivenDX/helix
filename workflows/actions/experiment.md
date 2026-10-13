@@ -104,16 +104,17 @@ requests them or the runtime requires them.
 0. **Context Recovery**: Re-read AGENTS.md so project instructions are fresh
    in your working memory. After long sessions, context compaction may have
    dropped critical project rules. This step is cheap insurance against drift.
-0a. **Load active design principles** following the principles-resolution
-   reference for this runtime. Use them to inform metric selection and
+0a. **Load active design principles** following
+   `workflows/references/principles-resolution.md`. Use them to inform metric selection and
    experiment design decisions.
-0b. **Load active concerns and practices** following the concern-resolution
-   reference for this runtime. Experiments must use the declared concerns —
+0b. **Load active concerns and practices** following
+   `workflows/references/concern-resolution.md`. Experiments must use the declared concerns —
    do not introduce alternative tools or frameworks as part of an optimization
    experiment.
 1. When a work item governs the run, verify the runtime-provided work-item
    source is available. Stop if it is unavailable.
-2. Load ratchet floor fixtures if the project has adopted quality ratchets.
+2. Follow `workflows/ratchets.md` and load floor fixtures if the project has
+   adopted quality ratchets.
    Note the current floors so Step 3 can compare against them for auto-bump
    decisions.
 3. Determine the invocation mode:
@@ -126,6 +127,20 @@ requests them or the runtime requires them.
 Resume detection is file-based, not flag-based. The presence of
 `autoresearch.md` in the worktree root is the authoritative signal that a
 session is in progress. This survives context compaction and agent restarts.
+
+## Resource envelope
+
+Apply `workflows/modes/experiment.md` before the first run, on resume and before
+each expansion. Keep cumulative limits, consumption and the unresolved decision
+in the existing session state. Baseline collection, verification, retries and
+parallel jobs share that envelope. Before launch, reserve workload and timeout
+within the remaining cumulative allowance, accounting for outstanding parallel
+jobs and bounded retries. When billing is late,
+use conservative workload/time bounds and report money as unknown; do not
+confuse a proxy limit with an enforced dollar cap. At a stopping condition,
+launch no further runs and stop outstanding work using available controls or
+operator intervention. Report anything still running, partial results and
+cleanup obligations without claiming convergence or successful cancellation.
 
 ## STEP 1 - Session Setup
 
@@ -177,7 +192,8 @@ Load or create the primary metric definition:
 - If a metric definition exists at `docs/helix/06-iterate/metrics/<name>.yaml`,
   read `name`, `unit`, `direction`, `command`, and `tolerance` from it.
 - If no metric definition exists, create one during setup using the
-  metric-definition template from the runtime's templates directory. Commit
+  `workflows/templates/metric-definition.yaml` from the bound HELIX catalog.
+  Commit
   the new metric definition to the canonical location
   (`docs/helix/06-iterate/metrics/<name>.yaml`) before branching. This is a
   normative artifact at authority level 5-6.
@@ -193,6 +209,8 @@ Record:
 
 ### 1.5 Correctness Check Definition
 
+Use `workflows/templates/autoresearch-session.md` and
+`workflows/templates/autoresearch-worklog.md` from the bound HELIX catalog.
 Define the correctness check command in `autoresearch.md` under a "Correctness
 Check" section. Use the project's standard test command (e.g., `npm test`,
 `cargo test`, `pytest`) from AGENTS.md or CI configuration. If the project
@@ -372,7 +390,7 @@ Interpretation:
 - `1.0 - 2.0` — marginal, above noise but not strongly significant
 - `< 1.0` — within noise floor, improvement may be measurement variance
 
-If fewer than 3 results exist, report `EXPERIMENT_CONFIDENCE: insufficient_data`
+If fewer than 3 results exist, report confidence as `insufficient_data`
 in the summary.
 
 ### Step 9: Update Session Doc
@@ -506,6 +524,14 @@ Do not silently absorb discovered work into the current experiment scope.
 
 ### Status Definitions
 
+- `RESOURCE_LIMIT` — a cumulative resource ceiling was reached or the next
+  run cannot fit the remaining allowance. Record the limiting resource,
+  measured/proxy consumption, unfinished work and any outstanding cleanup.
+  The outer loop must stop; a new invocation does not reset limits. Resume
+  only within the existing allowance after a smaller bounded run is feasible,
+  or after the operator authorizes a revised ceiling. This is not convergence
+  or a completed iteration, and never waives required verification.
+
 - `ITERATION_COMPLETE` — normal single-iteration exit. The skill or operator
   decides whether to continue. This is the expected status for most
   invocations.
@@ -519,8 +545,9 @@ Do not silently absorb discovered work into the current experiment scope.
   branch has been squash-merged (or skipped if zero improvement), any
   governing work item has been closed, and session files have been cleaned up.
 
-These statuses are derived from the cumulative `autoresearch.jsonl` history,
-not from within-invocation state. Each invocation reads the full log to
+These statuses describe experiment outcomes, not a runtime wire protocol.
+Use cumulative experiment history and current resource observations; a limit
+can stop work before an iteration finishes. Each invocation reads the full log to
 determine whether a convergence or stall pattern has emerged.
 
 Report these values in the summary:
@@ -546,68 +573,3 @@ Report these sections in order:
 5. Confidence Assessment
 6. Follow-On Opportunities (if any)
 7. Suggested Next Step (continue iterating, close session, change strategy)
-
-## Runtime Integration Appendix
-
-This appendix covers how a runtime realizes the experiment action when a runtime
-work item governs the run. The reference paths below are runtime-neutral; for
-the concrete commands of a specific runtime, see its install guide.
-
-### STEP 0 — Reference resolution
-
-- Principles: `workflows/references/principles-resolution.md`
-- Concerns: `workflows/references/concern-resolution.md`
-- Ratchets: `workflows/ratchets.md`
-- Metric-definition template: `workflows/activities/06-iterate/artifacts/metric-definition/template.yaml`
-- Autoresearch-session template: `workflows/activities/06-iterate/artifacts/autoresearch-session/template.md`
-- Autoresearch-worklog template: `workflows/activities/06-iterate/artifacts/autoresearch-worklog/template.md`
-
-### STEP 1.2 — Claim
-
-Claim the governing work item to prevent concurrent work. The runtime supplies
-the work-item store; for the concrete commands see its install guide.
-
-### STEP 3.6 — Measure
-
-Record the results on the governing work item (in its notes, if the runtime
-provides a notes field) as a `<measure-results>` block of this shape:
-
-```
-<measure-results>
-  <timestamp>YYYY-MM-DDTHH:MM:SSZ</timestamp>
-  <status>PASS|FAIL</status>
-  <metric-improvement baseline='<N>' final='<N>' delta='<N>%'/>
-  <iterations total='N' kept='N'/>
-  <confidence><score></confidence>
-</measure-results>
-```
-
-### STEP 3.7 — Close
-
-Close the governing work item with a summary comment ("Experiment closed.
-<summary>").
-
-### Action input examples
-
-```
-helix experiment
-helix experiment <id>
-helix experiment optimize test-suite-runtime
-helix experiment --close <id>
-```
-
-### Optional output trailer
-
-Emit only when a runtime consumer requires it.
-
-```
-EXPERIMENT_STATUS: CONVERGED|ITERATION_COMPLETE|NO_IMPROVEMENT|CLOSED
-EXPERIMENT_ITERATIONS: N
-EXPERIMENT_KEPT: N
-EXPERIMENT_BEST: <metric>=<value> (<delta>% vs baseline)
-EXPERIMENT_CONFIDENCE: <score>
-MEASURE_STATUS: PASS|FAIL|PARTIAL
-ITEM_ID: <governing-item-id>
-```
-
-Be precise, quantitative, and operational.
