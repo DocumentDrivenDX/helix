@@ -10,7 +10,8 @@ Use for metric-driven optimization loops.
    small probe with explicit size and duration limits before expanding.
 3. Before each launch, bound its workload, timeout and outstanding parallel
    jobs to the remaining cumulative allowance. Measure results and resource
-   use after each iteration, before launching another. Expand only to resolve a named remaining uncertainty. Stop when the
+   use after each iteration, before launching another. Expand only to resolve
+   a named remaining uncertainty. Stop when the
    decision is supported or any limit is reached; preserve results and cancel
    outstanding work through the runtime. Resuming does not reset the allowance.
 4. Keep changes or revert/adjust based on metric evidence.
