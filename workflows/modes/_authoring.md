@@ -18,6 +18,24 @@ When creating an artifact, add only supported `ddx.links` relationships. Do not
 invent links or mechanically copy every graph edge. For an existing artifact,
 preserve its frontmatter, operator-added content, and unknown keys.
 
+## Factual authority
+
+Templates, examples and rubrics supply document shape and quality criteria;
+they are not evidence about the project. Names, ownership, acronym expansions,
+priorities, dates and behavioral requirements must come from the operator or
+relevant governing sources. Keep unsupported proposals visibly identified as
+assumptions/open decisions at the permitted autonomy level; never propagate
+an example's facts as established authority. Higher autonomy changes when to
+ask, not what counts as evidence.
+
+An alignment, refresh or wording pass preserves established meaning unless a
+semantic change is authorized. Distinguish factual/behavioral changes from
+mechanical cleanup in the reviewable diff and closeout. Do not remove a real
+deadline as status prose, or add a contract field while calling the pass
+cosmetic. Review repeated edits against their governing source before spreading
+a new fact across artifacts; correct unsupported propagation without replacing
+it with another guess.
+
 ## External standards
 
 Define unfamiliar standards and acronyms on first use. When an artifact adopts
