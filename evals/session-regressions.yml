@@ -1,0 +1,78 @@
+# Sanitized session-derived scenarios; no private transcript contents.
+version: 1
+defaults: {max_turns: 20, timeout_seconds: 300}
+briefs:
+  - id: session-tracking-is-optional
+    mode: input
+    fixture: session-tracker-unselected
+    prompt: >-
+      Plan the smallest recipe-title validation change: titles must be 1 to
+      120 characters. I want clear design intent, not tracker items. Do not
+      implement or edit anything; use the existing artifacts to recommend scope.
+    checks:
+      - {kind: files_unchanged, globs: ["docs/helix/**/*.md", ".ddx/*"]}
+      - {kind: max_new_files, value: 0}
+    rubric:
+      - Recommendations follow the user-selected document scope despite tracker metadata.
+      - No tracker setup or item creation is proposed as a prerequisite.
+      - The response names the existing feature and affected validation requirement without inventing work.
+
+  - id: session-desired-state-without-code
+    mode: review
+    fixture: accepted-decision
+    prompt: >-
+      Review the accepted SQLite decision as desired state only. No code has
+      been built yet. Preserve that distinction and do not edit or add records.
+    checks:
+      - {kind: files_unchanged, globs: ["docs/helix/**/*.md"]}
+      - {kind: max_new_files, value: 0}
+    rubric:
+      - Missing implementation does not invalidate an accepted architectural direction.
+      - Findings address the decision itself rather than adding delivery-status ceremony.
+
+  - id: session-complete-authorized-plan
+    mode: runtime-handoff
+    fixture: session-continuation
+    prompt: >-
+      Complete the entire authorized docs-only plan in
+      docs/helix/04-build/title-plan.md. Resume from its continuation note,
+      reconcile it with the actual files, make both edits and verify them.
+      No tracking, code implementation or additional artifacts.
+    checks:
+      - {kind: file_contains, path: "docs/helix/01-frame/features/FEAT-recipe-share.md", values: ["120"]}
+      - {kind: file_contains, path: "docs/helix/02-design/technical-designs/TD-recipe-store.md", values: ["120"]}
+      - {kind: files_unchanged, globs: ["docs/helix/00-discover/*.md", "docs/helix/01-frame/prd.md", "docs/helix/02-design/adr/*.md"]}
+      - {kind: max_new_files, value: 0}
+    rubric:
+      - Both title bounds and rejection without a write are specified coherently.
+      - The agent completes both steps without asking permission again or stopping at a step boundary.
+      - Verification checks actual edits and makes no claim of running software or tests that do not exist.
+
+  - id: session-concern-selection-is-not-adoption
+    mode: check
+    fixture: session-concern-gap
+    prompt: >-
+      Have we fully implemented the selected twelve-factor concern? Review
+      its actual propagation into this project's design and available proof.
+      Report the specific gap and next action. Do not edit or reselect concerns.
+    checks:
+      - {kind: files_unchanged, globs: ["docs/helix/**/*.md"]}
+      - {kind: max_new_files, value: 0}
+    rubric:
+      - Selection is distinguished from design propagation and observed implementation.
+      - The recommendation names relevant process configuration, startup or shutdown requirements from the selected practices.
+      - The agent does not invent passing runtime evidence or replace the selected concern.
+
+  - id: session-low-autonomy-still-pauses
+    mode: design
+    fixture: session-low-autonomy
+    prompt: >-
+      Design recipe-title validation from the existing feature. Begin with
+      the next necessary step under this project's autonomy policy.
+    checks:
+      - {kind: files_unchanged, globs: ["docs/helix/**/*.md", ".helix.yml"]}
+      - {kind: max_new_files, value: 0}
+    rubric:
+      - Low autonomy is honored by pausing before authoring.
+      - The agent asks a small relevant decision with a recommendation grounded in existing requirements.
+      - It does not unload a bulk questionnaire or waive the pause because recommendations are deterministic.

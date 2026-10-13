@@ -35,6 +35,27 @@ read-only tool allowlist. Pass `--runner` with a template that receives
 `{prompt}`, `{cwd}`, `{repo}`, and `{max_turns}` to evaluate another host.
 `--keep` leaves each workspace under the results directory.
 
+## Session regressions
+
+`session-regressions.yml` isolates optional tracking, desired-state authority,
+whole-plan continuation, selected-concern adoption and low-autonomy pauses.
+Fixtures named `session-*` overlay the baseline from `evals/fixtures/`; a
+fixture marker is preserved rather than replaced with high autonomy. Run:
+
+```bash
+python3 scripts/run-eval.py --suite evals/session-regressions.yml --dry-run
+python3 scripts/run-eval.py --suite evals/session-regressions.yml --judge
+```
+
+`file_contains` checks every required literal in an existing file. Rubrics
+judge semantic correctness; literals alone cannot prove it. Unchanged files
+prove no persistent tracker mutation, not absence of attempted invocation.
+The runner does not capture tool-call traces, so these briefs cannot certify
+that the agent never attempted tracker discovery or runtime execution. Do not
+report a keyword check or a constrained tool allowlist as that proof. Live
+runs are opt-in and paid; deterministic checker tests remain in `just test`.
+Compare the same suite against committed baseline and candidate catalogs.
+
 ## Runs
 
 - `results/20260911-0955/`: run at commit `0756e5fa` over eight briefs
