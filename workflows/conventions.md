@@ -596,6 +596,27 @@ A: Store them alongside the documents that reference them, or in a activity-leve
 A: Use the activities needed for the request. Do not create irrelevant artifacts
 or record skipped activities solely to complete the workflow.
 
+## Migrating local verification rules
+
+The verification concern defines the proof required for completion. When
+upgrading a project that mandates appends to a shared evidence file, reconcile
+its local instructions and gates with that contract before claiming the
+upgrade is adopted. Use `align` to diagnose conflicting local rules and `evolve`
+to apply the authorized policy change. A catalog upgrade alone does not change
+project policy.
+
+Replace the mandatory append and file-presence checks with review of the
+existing requirement/test mapping and observed run references. Preserve the
+required proof, retention, reviewed exceptions and any separately authorized
+project audit obligations. If those obligations conflict, surface the decision;
+do not silently remove them or declare adoption complete.
+
+Keep historical evidence and inbound links intact. Moving or deleting old
+sections is separate, explicitly scoped migration work, not a prerequisite for
+stopping new appends. No replacement directory, shared index or new per-change
+file is required. Use the verification practices' existing acceptance records
+and supplemental observations only where normal reports leave a proof gap.
+
 ## Story Refinement Conventions
 
 Update the story and affected design or test requirements in place. Preserve
