@@ -154,7 +154,9 @@ Apply the evidence gate defined in `concern.md`.
 
 ## Plan the proof
 
-Before Build, identify the change's core flows, integration seams, required
+Before Build, use `workflows/concerns/testing/practices.md` to scope proof to
+the governing requirements, claimed capability and failure risk. Identify the
+change's core flows, integration seams, required
 runtime harnesses and observable outcomes, including each governing acceptance
 criterion's guard/negative branch. Plan any downstream-consumer exercise and
 applicable exception/substitute proof now. Keep the running system reachable
