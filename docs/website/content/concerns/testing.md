@@ -146,6 +146,26 @@ Agents working in any of these activities inherit the practices below through ru
 - Non-functional requirements (latency, throughput, availability) must have
   measurable targets that become ratchet floors
 
+## Verification scope
+
+Choose verification from the in-scope requirements, claimed capability and
+failure risk, not from a generic maturity checklist. For an initial public
+interface, first prove an installed consumer can complete the promised core
+workflow, including applicable rejection, authorization and data-integrity
+behavior. Interface immaturity does not waive those checks.
+
+Performance, chaos, cross-engine and independent-implementation campaigns are
+release gates only when required by a governing criterion, an explicit support
+claim, a concrete defect or a material failure risk. Otherwise defer them until
+the usable interface is proven. Record that sequencing in the existing test or
+implementation plan; do not invent a maturity artifact or weaken requirements.
+A broad claim still requires broad proof; narrow the claim explicitly rather
+than imply untested scale or interoperability is supported.
+
+The strategy below applies where its behavior or risk is in scope. Periodic
+campaigns are not a prerequisite for every implementation slice. Required
+regression checks and the verification concern's observed-result gate remain.
+
 ## Design
 
 - Identify test boundaries during design: what is unit-testable, what needs
