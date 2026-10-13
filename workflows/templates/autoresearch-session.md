@@ -45,6 +45,11 @@ Tests must pass; failures discard the iteration.
 - No new dependencies without approval
 - Only modify files listed in "Files in Scope"
 - {{additional_constraint}}
+- Resource envelope: {{maximum_runs}}, {{elapsed_time_limit}} and applicable
+  {{paid_usage_limit}} / {{temporary_storage_limit}}; include baseline, retries
+  and parallel jobs. Unknown rates remain unknown; name bounded proxies.
+- Remaining allowance and observed consumption: {{resource_consumption}}
+- Stop when {{decision_resolved_or_resource_limit}}; resume keeps consumption.
 
 ## What's Been Tried
 

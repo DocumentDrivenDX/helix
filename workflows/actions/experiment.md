@@ -127,6 +127,18 @@ Resume detection is file-based, not flag-based. The presence of
 `autoresearch.md` in the worktree root is the authoritative signal that a
 session is in progress. This survives context compaction and agent restarts.
 
+## Resource envelope
+
+Apply `workflows/modes/experiment.md` before the first run, on resume and before
+each expansion. Keep cumulative limits, consumption and the unresolved decision
+in the existing session state. Baseline collection, verification, retries and
+parallel jobs share that envelope. Before launch, reserve workload and timeout within the remaining cumulative
+allowance, accounting for outstanding parallel jobs and bounded retries. When billing is late,
+use conservative workload/time bounds and report money as unknown; do not
+confuse a proxy limit with an enforced dollar cap. At a stopping condition,
+launch no further runs, cancel outstanding jobs through the runtime and report
+partial results and cleanup obligations without claiming convergence.
+
 ## STEP 1 - Session Setup
 
 This activity runs on the first invocation only. If resuming, Step 0 skips here.
@@ -506,6 +518,14 @@ Do not silently absorb discovered work into the current experiment scope.
 
 ### Status Definitions
 
+- `RESOURCE_LIMIT` — a cumulative resource ceiling was reached or the next
+  run cannot fit the remaining allowance. Record the limiting resource,
+  measured/proxy consumption, unfinished work and any outstanding cleanup.
+  The outer loop must stop; a new invocation does not reset limits. Resume
+  only within the existing allowance after a smaller bounded run is feasible,
+  or after the operator authorizes a revised ceiling. This is not convergence
+  or a completed iteration, and never waives required verification.
+
 - `ITERATION_COMPLETE` — normal single-iteration exit. The skill or operator
   decides whether to continue. This is the expected status for most
   invocations.
@@ -601,7 +621,7 @@ helix experiment --close <id>
 Emit only when a runtime consumer requires it.
 
 ```
-EXPERIMENT_STATUS: CONVERGED|ITERATION_COMPLETE|NO_IMPROVEMENT|CLOSED
+EXPERIMENT_STATUS: CONVERGED|ITERATION_COMPLETE|NO_IMPROVEMENT|RESOURCE_LIMIT|CLOSED
 EXPERIMENT_ITERATIONS: N
 EXPERIMENT_KEPT: N
 EXPERIMENT_BEST: <metric>=<value> (<delta>% vs baseline)
