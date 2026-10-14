@@ -27,6 +27,7 @@ spine.
 
 {{< cards >}}
   {{< card link="getting-started" title="Getting Started" subtitle="Create the first HELIX documents and ask your agent to review them." icon="play" >}}
+  {{< card link="supervising-agent-work" title="Supervising Agent Work" subtitle="For people who direct a coding agent without writing code: write intent first, then ask three questions before accepting any change." icon="eye" >}}
   {{< card link="multiple-flows" title="Multiple Flows and Microsites" subtitle="Keep product documents and website documents separate while using one HELIX skill." icon="collection" >}}
   {{< card link="decks-and-briefs" title="Decks and Briefs" subtitle="Turn governed project documents into a deck, one-pager, or brief for sponsors and clients, with every figure sourced." icon="presentation-chart-bar" >}}
   {{< card link="anti-slop" title="The Anti-Slop Rules" subtitle="Every rule the deck and brief gate enforces on titles, bullets, numbers, and slides, with examples and where each runs." icon="shield-check" >}}
