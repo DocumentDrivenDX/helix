@@ -32,13 +32,19 @@ Tests, lint rules, and CI checks are acceptance criteria too: ones the computer
 checks on every change. You do not have to write them. You do have to read
 their names and confirm they describe what you asked for.
 
-## Know your system
+## Know the structure before the first line of code
 
-Before you change a project, be able to sketch it: what runs in the browser,
-what runs on a server, where the source of truth for the data lives, which
-outside services it depends on, where its secrets are kept, and how it gets
-deployed. Ask the agent to explain the project box by box until you can draw
-it from memory.
+For a new project, write the charter or product vision and the
+[architecture](../../artifact-types/design/architecture/) document's System
+Context and Deployment sections with the agent before it writes code. For an
+existing project, read them before you change anything, and update them in
+the same change when you move something. The charter says what the project is
+for and what it does not do. System Context and Deployment say what runs
+where, where the source of truth for the data lives, which outside services it
+depends on, and how it gets deployed. If the project has no architecture
+document, ask the agent to draft one from the code and have the project's
+owner confirm it; until then the draft is a hypothesis. Then ask the agent to
+explain the code against these documents.
 
 Treat existing code as evidence of what the system does today, not as the
 authority on what it should do. When code and the governing documents
@@ -72,12 +78,18 @@ documents without reading the code, ask the HELIX skill to
 
 Most changes under version control can be reverted. Some
 cannot: deleting data, sending a message to another person, running a schema
-migration, publishing a release. HELIX's base stop triggers make the agent
-stop and ask before reading secrets, running git branch or merge commands,
-making very large edits, or applying infrastructure changes. Treat any action
+migration, publishing a release. HELIX's base
+[stop triggers](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/stop-triggers.yml)
+make the agent stop and ask before each of these, and also before adding a
+dependency, pushing or merging, reading secrets, making very large edits, or
+applying infrastructure changes, whatever its autonomy level. Treat any action
 whose undo takes more than reverting a commit the same way: you decide, and
-the agent prepares the action and waits. HELIX's
-[principles](../../why/principles/) say to prefer reversible decisions.
+the agent prepares the action and waits. HELIX's workflow
+[principles](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/principles.md#prefer-reversible-decisions)
+say to prefer reversible decisions.
+
+A HELIX review report opens with the same three lines: what changed, evidence
+it works, how to undo it. Read those three before the rest of the report.
 
 ## Keep changes small
 

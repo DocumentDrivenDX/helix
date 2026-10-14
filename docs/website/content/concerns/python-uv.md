@@ -21,7 +21,7 @@ language-runtime
 
 ## Components
 
-- **Language**: Python 3.12+
+- **Language**: Python; applications target the version their deploy runtime runs (3.12+ when the runtime allows), libraries target the lowest Python their consumers run
 - **Package manager**: uv — NOT pip, NOT poetry, NOT conda
 - **Virtual environment**: uv-managed (`.venv` via `uv sync`)
 - **Build backend**: `hatchling` with `uv-dynamic-versioning` for versioned packages
@@ -37,6 +37,7 @@ language-runtime
 - All code must pass `ruff check` and `ruff format --check`
 - Use `pyproject.toml` for all project metadata (not `setup.py`, not `setup.cfg`)
 - Pin Python version in `.python-version`
+- `requires-python` states the lowest supported Python, and CI runs the tests on that version; a library's floor is the lowest Python any consumer runtime runs, not a preferred version
 - All dependencies in `[project.dependencies]` or `[dependency-groups]` (dev); no `requirements.txt`
 - Use `[tool.uv.sources]` for custom package indexes (e.g., PyTorch CUDA wheels)
 - Tests in `tests/` directory; pytest markers for test categories (acceptance, contract, slow, fast)
@@ -63,7 +64,7 @@ Selecting this concern requires these artifacts to change (a selected concern ab
 Agents working in any of these activities inherit the practices below through runtime work context, such as a DDx bead context digest.
 
 ## Requirements (Frame activity)
-- Specify minimum Python version (3.12+ preferred)
+- Specify the minimum Python version from the deploy targets, not a preference: an application uses what its runtime runs (3.12+ when the runtime allows); a library uses the lowest Python any consumer runtime runs (for example, pip-resolved Databricks Apps run Python 3.11)
 - Inventory the configuration the system needs (endpoints, credentials, feature flags) and which are secrets
 - Identify whether the project is a library (published) or an application (not published)
 - If ML/GPU dependencies exist, plan for `[tool.uv.sources]` with custom package indexes
