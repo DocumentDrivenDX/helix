@@ -1,7 +1,7 @@
 # Practices: python-uv
 
 ## Requirements (Frame activity)
-- Specify minimum Python version (3.12+ preferred)
+- Specify the minimum Python version from the deploy targets, not a preference: an application uses what its runtime runs (3.12+ when the runtime allows); a library uses the lowest Python any consumer runtime runs (for example, pip-resolved Databricks Apps run Python 3.11)
 - Inventory the configuration the system needs (endpoints, credentials, feature flags) and which are secrets
 - Identify whether the project is a library (published) or an application (not published)
 - If ML/GPU dependencies exist, plan for `[tool.uv.sources]` with custom package indexes
