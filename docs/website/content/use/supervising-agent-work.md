@@ -34,11 +34,15 @@ their names and confirm they describe what you asked for.
 
 ## Know your system
 
-Before you change a project, be able to sketch it: what runs in the browser,
-what runs on a server, where the source of truth for the data lives, which
-outside services it depends on, where its secrets are kept, and how it gets
-deployed. Ask the agent to explain the project box by box until you can draw
-it from memory.
+Before you change a project, read what it says about itself. The charter or
+product vision says what the project is for and what it does not do. The
+[architecture](../../artifact-types/design/architecture/) document's System
+Context and Deployment sections say what runs where, where the source of truth
+for the data lives, which outside services it depends on, and how it gets
+deployed. If the project has no architecture document, ask the agent to draft
+one from the code and have the project's owner confirm it; until then the
+draft is a hypothesis. Then ask the agent to explain the code against these
+documents.
 
 Treat existing code as evidence of what the system does today, not as the
 authority on what it should do. When code and the governing documents
