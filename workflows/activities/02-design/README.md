@@ -546,3 +546,13 @@ Before approval, ensure:
 ---
 
 *Good design is not when there is nothing left to add, but when there is nothing left to remove.*
+
+## Developer orientation artifacts
+
+Use Solution Overview for a short system map and reading path. Architecture
+remains structural authority; Solution Design owns feature decomposition.
+Attach an end-to-end walkthrough to either when readers need to trace a
+critical flow into source and tests. Developer Guide (Build activity) owns
+setup, repository navigation, first contribution, and verification recipes.
+These explanatory views follow existing authority and should link it rather
+than restate decisions. They are useful onboarding aids, not mandatory new gates.

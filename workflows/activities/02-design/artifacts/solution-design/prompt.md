@@ -57,3 +57,14 @@ flow. Identify instrumentation/capture owners and context boundaries. Reference
 Contracts for exact surfaces; put system-wide logger, transport and backend
 choices in Architecture/ADRs. Name receiver proof and diagnostic pilot slices
 when relevant. A product that uses no models does not inherit GenAI conventions.
+
+## Explain a critical flow
+
+When a new developer cannot follow the main flow from structural views alone,
+include or link one end-to-end architecture walkthrough. Name its reader question,
+current/proposed state, and diagram legend. Trace a concrete user action through
+entrypoint, components, state changes, external interactions, failure handling,
+and proving tests; link source locations and describe each check's limits.
+For content systems, show content reads/writes and runtime actors without
+inventing services. Distinguish an illustrative contract trace from an observed
+runtime session. Name update triggers; avoid duplicating structural authority.

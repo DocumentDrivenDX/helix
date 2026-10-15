@@ -58,3 +58,14 @@ Source-free projects record applicability and reason; a tiny source project may
 use one row. Legacy artifacts remain structurally valid without this section,
 but current source feature readiness requires explicit adoption. Validate populated
 fields; review semantics and confirm the check command exists before handoff.
+
+## Explain a critical flow
+
+When a new developer cannot follow the main flow from structural views alone,
+include or link one end-to-end architecture walkthrough. Name its reader question,
+current/proposed state, and diagram legend. Trace a concrete user action through
+entrypoint, components, state changes, external interactions, failure handling,
+and proving tests; link source locations and describe each check's limits.
+For content systems, show content reads/writes and runtime actors without
+inventing services. Distinguish an illustrative contract trace from an observed
+runtime session. Name update triggers; avoid duplicating structural authority.
