@@ -4,8 +4,10 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 const here=dirname(fileURLToPath(import.meta.url));
 const modules=process.env.SPIKE_NODE_MODULES || resolve(here,'node_modules');
-const {createRenderer}=await import(pathToFileURL(resolve(modules,'@eraserlabs/diagrams/dist/index.js')));
-const renderer=await createRenderer({chromiumPath:process.env.CHROMIUM_PATH,deviceScaleFactor:2});
+const {createRenderer,eraserFonts}=await import(pathToFileURL(resolve(modules,'@eraserlabs/diagrams/dist/index.js')));
+const fonts=eraserFonts();
+fonts.faces=fonts.faces.map(face=>({...face,inline:true}));
+const renderer=await createRenderer({chromiumPath:process.env.CHROMIUM_PATH,deviceScaleFactor:2,fonts});
 try {
  const diagram=JSON.parse(await readFile(resolve(here,'02-eraser.json'),'utf8'));
  const output=await renderer.render({...diagram,outputs:{png:true,html:true,json:true}});

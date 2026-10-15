@@ -121,9 +121,11 @@ walkthrough. Any toolkit adoption remains a separate design decision.
   source snapshot `b3dd7e5`: skill, visual grammar, template catalog, QA guidance.
   Referenced as guidance; no upstream SVG/template code was copied.
 - [Eraser Diagrams](https://github.com/eraserlabs/eraser-diagrams), npm 0.2.0.
-  MIT; stock rendered HTML contains vendored font data from its font package.
+  MIT; rendered HTML embeds the stock font files for portable output.
+  Upstream package and font notices are retained in `licenses/`.
 - [D2](https://github.com/d2lang/d2), macOS ARM64 binary v0.9.0 with TALA.
-  Source-generated SVG retains its bundled renderer/font output.
+  Source-generated SVG retains its bundled renderer/font output; bundled
+  third-party notices are retained in `licenses/`.
 - [Visual Explainer](https://github.com/nicobailon/visual-explainer), source snapshot
   `69cd739`: skill, style guide, and diagram reference. Original HTML/SVG authored
   from guidance; it is self-contained and uses host fonts with fallbacks.
