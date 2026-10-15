@@ -1,0 +1,10 @@
+{
+  "name": "helix-diagram-spikes",
+  "private": true,
+  "type": "module",
+  "description": "Optional local rendering dependencies for the diagram spike; not a HELIX runtime dependency.",
+  "dependencies": {
+    "@eraserlabs/diagrams": "0.2.0",
+    "beautiful-mermaid": "1.1.3"
+  }
+}

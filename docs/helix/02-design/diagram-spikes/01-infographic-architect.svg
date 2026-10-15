@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc"><title id="title">HELIX: document discipline, runtime agency</title><desc id="desc">The team asks a runtime to load HELIX. Its catalog guides its routing skill, project scope bounds it, and the skill authors project documents that govern runtime execution.</desc><defs><marker id="a" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0 L8 4.5 L0 9" fill="none" stroke="#164BA1" stroke-width="1.8"/></marker><marker id="g" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0 L8 4.5 L0 9" fill="none" stroke="#087F78" stroke-width="1.8"/></marker></defs><style>text{font-family:Helvetica,Arial,sans-serif;fill:#142E4B}.muted{fill:#546B83}.mono{font-family:Menlo,monospace}</style><rect width="1280" height="720" fill="#F8FAFD"/>
+<g id="heading">
+<text x="60" y="70" font-size="18" font-weight="700" text-anchor="start" style="fill:#164BA1">HELIX</text>
+<text x="60" y="123" font-size="45" font-weight="700" text-anchor="start">Document discipline. Runtime agency.</text>
+<text x="60" y="165" font-size="22" font-weight="400" text-anchor="start" style="fill:#546B83">A shared architecture for human intent, agent work, and governing documents.</text>
+</g>
+<path d="M60 210 H1220" fill="none" stroke="#CCD9EA"/>
+<text x="60" y="244" font-size="15" font-weight="700" text-anchor="start" style="fill:#546B83">TEAM &amp; RUNTIME</text>
+<text x="450" y="244" font-size="15" font-weight="700" text-anchor="start" style="fill:#164BA1">HELIX / PORTABLE CONTENT</text>
+<text x="970" y="244" font-size="15" font-weight="700" text-anchor="start" style="fill:#546B83">PROJECT DOCUMENTS</text>
+<rect x="430" y="270" width="440" height="310" rx="8" fill="#E9F0FB" stroke="none"/>
+<g id="team-and-runtime">
+<circle cx="90" cy="306" r="15" fill="none" stroke="#164BA1" stroke-width="2"/><path d="M64 351 C64 317 116 317 116 351" fill="none" stroke="#164BA1" stroke-width="2"/>
+<text x="138" y="320" font-size="25" font-weight="700" text-anchor="start">Software team</text>
+<path d="M90 368 V405" fill="none" stroke="#164BA1" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#a)"/>
+<text x="111" y="391" font-size="17" font-weight="400" text-anchor="start" style="fill:#164BA1">asks</text>
+<rect x="60" y="420" width="270" height="120" rx="8" fill="#FFFFFF" stroke="#A9BCD6"/>
+<text x="82" y="458" font-size="27" font-weight="700" text-anchor="start">Agent runtime</text>
+<text x="82" y="491" font-size="18" font-weight="400" text-anchor="start" style="fill:#546B83">Model, tools, execution</text>
+<text x="82" y="519" font-size="18" font-weight="400" text-anchor="start" style="fill:#546B83">and evidence</text>
+</g><g id="catalog-and-skill">
+<text x="460" y="310" font-size="26" font-weight="700" text-anchor="start">Artifact catalog</text>
+<text x="460" y="342" font-size="18" font-weight="400" text-anchor="start" style="fill:#546B83">Templates · prompts · metadata · rules</text>
+<path d="M650 358 V405" fill="none" stroke="#164BA1" stroke-width="2.2" stroke-linejoin="round" stroke-dasharray="5 5" marker-end="url(#a)"/>
+<text x="674" y="389" font-size="17" font-weight="400" text-anchor="start" style="fill:#164BA1">guides</text>
+<rect x="460" y="420" width="380" height="120" rx="8" fill="#164BA1" stroke="none"/>
+<text x="484" y="461" font-size="30" font-weight="700" text-anchor="start" style="fill:#FFFFFF">Routing skill</text>
+<text x="484" y="495" font-size="20" font-weight="400" text-anchor="start" style="fill:#FFFFFF">Resolve scope and mode</text>
+<text x="484" y="523" font-size="20" font-weight="400" text-anchor="start" style="fill:#FFFFFF">Read governing artifacts</text>
+<path d="M344 480 H445" fill="none" stroke="#164BA1" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#a)"/>
+<text x="390" y="462" font-size="18" font-weight="400" text-anchor="middle" style="fill:#164BA1">loads</text>
+</g><g id="project-documents">
+<rect x="988" y="404" width="232" height="134" rx="2" fill="none" stroke="#92C8C4"/>
+<rect x="979" y="413" width="232" height="134" rx="2" fill="none" stroke="#50A89F"/>
+<rect x="970" y="422" width="232" height="134" rx="2" fill="#FFFFFF" stroke="#087F78"/>
+<text x="994" y="461" font-size="27" font-weight="700" text-anchor="start">Project</text>
+<text x="994" y="496" font-size="27" font-weight="700" text-anchor="start">documents</text>
+<text x="994" y="531" font-size="17" font-weight="400" text-anchor="start" style="fill:#546B83">Intent · design · tests</text>
+<path d="M854 480 H955" fill="none" stroke="#164BA1" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#a)"/>
+<text x="905" y="446" font-size="17" font-weight="400" text-anchor="middle" style="fill:#164BA1">authors &amp;</text>
+<text x="905" y="469" font-size="17" font-weight="400" text-anchor="middle" style="fill:#164BA1">reconciles</text>
+</g><g id="project-scope">
+<text x="460" y="610" font-size="23" font-weight="700" text-anchor="start">.helix.yml</text>
+<text x="606" y="610" font-size="18" font-weight="400" text-anchor="start" style="fill:#546B83">Project scope</text>
+<path d="M534 582 V550" fill="none" stroke="#164BA1" stroke-width="2.2" stroke-linejoin="round" stroke-dasharray="5 5" marker-end="url(#a)"/>
+<text x="556" y="571" font-size="17" font-weight="400" text-anchor="start" style="fill:#164BA1">bounds</text>
+</g><g id="governance-return">
+<path d="M1090 571 V647 H195 V552" fill="none" stroke="#087F78" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#g)"/>
+<rect x="398" y="631" width="565" height="34" rx="8" fill="#F8FAFD" stroke="none"/>
+<text x="680" y="654" font-size="22" font-weight="500" text-anchor="middle" style="fill:#087F78">Documents govern authorized execution</text>
+</g>
+<text x="60" y="699" font-size="14" font-weight="400" text-anchor="start" style="fill:#546B83">Solid: action or information    Dashed: guidance or constraint</text>
+<text x="1220" y="699" font-size="14" font-weight="500" text-anchor="end" style="fill:#546B83">CURRENT SYSTEM</text>
+</svg>

@@ -1,0 +1,10 @@
+import {readFile,writeFile} from 'node:fs/promises';
+import {dirname,resolve} from 'node:path';
+import {fileURLToPath,pathToFileURL} from 'node:url';
+const here=dirname(fileURLToPath(import.meta.url));
+const modules=process.env.SPIKE_NODE_MODULES || resolve(here,'node_modules');
+const {renderMermaidSVG}=await import(pathToFileURL(resolve(modules,'beautiful-mermaid/dist/index.js')));
+const source=await readFile(resolve(here,'05-beautiful-mermaid.mmd'),'utf8');
+const svg=renderMermaidSVG(source,{bg:'#F8FAFC',fg:'#19314B',line:'#66829F',accent:'#1E65AA',muted:'#4C647D',surface:'#E8F0FA',border:'#6A8AA8',font:'Helvetica',padding:60,nodeSpacing:42,layerSpacing:76});
+await writeFile(resolve(here,'05-beautiful-mermaid.svg'),svg);
+console.log('Beautiful Mermaid rendered SVG');

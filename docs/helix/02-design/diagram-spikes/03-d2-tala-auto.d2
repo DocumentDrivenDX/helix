@@ -1,0 +1,43 @@
+vars: {
+  d2-config: {
+    layout-engine: tala
+    theme-id: 0
+    pad: 64
+  }
+}
+label: HELIX solution architecture
+style: {
+  fill: "#F8FAFC"
+  font-size: 36
+  font-color: "#18324D"
+}
+direction: right
+classes: {
+  entity: {
+    style: {
+      fill: "#FFFFFF"
+      stroke: "#7891AB"
+      stroke-width: 2
+      font-size: 24
+      font-color: "#18324D"
+      border-radius: 10
+    }
+  }
+  constraint: {style: {stroke-dash: 5; stroke: "#58739D"; font-size: 20}}
+  action: {style: {stroke: "#234C87"; stroke-width: 2; font-size: 20}}
+}
+team: Software team {class: entity; shape: person}
+runtime: Agent runtime\nModel, tools, execution {class: entity}
+helix: HELIX · portable content {
+  style: {fill: "#E7EFFB"; stroke: "#7698C4"; stroke-dash: 5; font-size: 24}
+  catalog: Artifact catalog\nTemplates, prompts, rules {class: entity}
+  skill: Routing skill\nScope and mode {class: entity; style: {fill: "#234C87"; stroke: "#234C87"; font-color: "#FFFFFF"}}
+  catalog -> skill: guides {class: constraint}
+}
+scope: .helix.yml\nProject scope {class: entity; shape: document}
+docs: Project documents\nIntent, design, tests {class: entity; shape: document; style: {fill: "#DFF1EA"; stroke: "#28765F"}}
+team -> runtime: asks {class: action}
+runtime -> helix.skill: loads {class: action}
+scope -> helix.skill: bounds {class: constraint}
+helix.skill -> docs: authors & reconciles {class: action}
+docs -> runtime: governs authorized execution {class: action; style.stroke: "#28765F"}
