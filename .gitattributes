@@ -1,0 +1,2 @@
+# Generated PDF documents are binary artifacts, including ASCII-encoded PDFs.
+/output/pdf/*.pdf binary
