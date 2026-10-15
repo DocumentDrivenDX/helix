@@ -19,6 +19,19 @@ to make a change. This is an explanatory view of the current repository.
 
 ## System map
 
+The self-hosted HELIX pilot includes a presentation rendering with the same
+entities and arrow directions as this semantic view:
+
+![HELIX solution overview](https://raw.githubusercontent.com/DocumentDrivenDX/helix/main/docs/helix/02-design/diagrams/solution-overview.png)
+
+[Editable SVG](https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/02-design/diagrams/solution-overview.svg) ·
+[Design and visual review](https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/02-design/diagrams/solution-overview-design.md)
+
+The shaded region identifies HELIX-owned content. Dashed arrows show guidance
+or constraints; solid arrows show actions or information. The catalog summarizes
+templates, prompts, metadata, and mode contracts. Repository paths and omitted
+packaging/validation mechanics remain in the adjacent reference material.
+
 Question: how does a team's request become a project document?
 Arrows describe information or actions; boxes are content or actors, not running services.
 

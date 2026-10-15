@@ -36,6 +36,7 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 - [HELIX solution overview](/artifacts/solution-overview/)
 - [adr](/artifacts/adr/) _(13 items)_
 - [contracts](/artifacts/contracts/) _(5 items)_
+- [diagrams](/artifacts/diagrams/) _(1 item)_
 - [solution designs](/artifacts/solution-designs/) _(1 item)_
 - [technical designs](/artifacts/technical-designs/) _(3 items)_
 

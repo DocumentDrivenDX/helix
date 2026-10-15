@@ -19,6 +19,19 @@ to make a change. This is an explanatory view of the current repository.
 
 ## System map
 
+![HELIX overview: a team asks an agent runtime, which loads the HELIX skill. The catalog and project scope guide the skill as it authors project documents; those documents govern authorized execution.](diagrams/solution-overview.png)
+
+[Editable SVG](diagrams/solution-overview.svg) ·
+[Visual design and review](diagrams/solution-overview-design.md)
+
+The presentation view preserves the six entities and relationships below. The
+shaded region identifies HELIX-owned portable content. Solid arrows describe
+actions/information; dashed arrows describe guidance/constraints. The catalog
+label summarizes templates, prompts, metadata, and mode contracts. Validation
+and packaging details are covered by the architecture walkthrough.
+
+### Semantic source
+
 Question: how does a team's request become a project document?
 Arrows describe information or actions; boxes are content or actors, not running services.
 

@@ -106,3 +106,10 @@ entrypoint, components, data/state changes, integrations, failure handling, and
 proving tests. For each step name source paths or contracts and what a reader
 can verify. State verification limits and update triggers. Keep system decisions
 in Architecture and feature behavior in Solution Design.]
+
+### Presentation view (optional)
+
+[When requested, apply `workflows/references/diagram-design.md`. Link editable
+vector source and rendered export; record audience, takeaway, semantic source,
+deliberate omissions, rebuild instructions, and full-size/preview review evidence.
+Keep implementation paths in adjacent prose and preserve architectural meaning.]

@@ -1,7 +1,7 @@
 ---
 title: "Modularity Implementation Review"
 slug: modularity-implementation-review
-weight: 550
+weight: 560
 activity: "Build"
 source: "04-build/modularity-implementation-review.md"
 generated: true

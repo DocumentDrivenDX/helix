@@ -1,7 +1,7 @@
 ---
 title: "HELIX developer guide"
 slug: developer-guide
-weight: 530
+weight: 540
 activity: "Build"
 source: "04-build/developer-guide.md"
 generated: true

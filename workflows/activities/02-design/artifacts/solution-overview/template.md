@@ -13,7 +13,13 @@ ddx:
 
 ## System map
 
-[Question answered and legend: actors, boundaries, and labeled information/action arrows.]
+[Question, audience, intended takeaway, current/proposed state, and legend:
+actors, boundaries, and labeled information/action arrows.]
+
+[For a presentation version, follow `workflows/references/diagram-design.md`.
+Embed the rendered diagram and link editable vector source, export/rebuild
+instructions, and visual-review evidence. Keep the semantic source below;
+record simplifications and review both views for matching meaning.]
 
 ```mermaid
 flowchart LR

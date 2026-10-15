@@ -1,7 +1,7 @@
 ---
 title: "HELIX solution overview"
 slug: solution-overview
-weight: 460
+weight: 470
 activity: "Design"
 source: "02-design/solution-overview.md"
 generated: true
@@ -32,6 +32,19 @@ to make a change. This is an explanatory view of the current repository.
 [product requirements](/artifacts/prd/) govern product scope.
 
 ## System map
+
+![HELIX overview: a team asks an agent runtime, which loads the HELIX skill. The catalog and project scope guide the skill as it authors project documents; those documents govern authorized execution.](/artifacts/media/02-design/diagrams/solution-overview.png)
+
+[Editable SVG](/artifacts/media/02-design/diagrams/solution-overview.svg) ·
+[Visual design and review](/artifacts/diagrams/solution-overview-design/)
+
+The presentation view preserves the six entities and relationships below. The
+shaded region identifies HELIX-owned portable content. Solid arrows describe
+actions/information; dashed arrows describe guidance/constraints. The catalog
+label summarizes templates, prompts, metadata, and mode contracts. Validation
+and packaging details are covered by the architecture walkthrough.
+
+### Semantic source
 
 Question: how does a team's request become a project document?
 Arrows describe information or actions; boxes are content or actors, not running services.

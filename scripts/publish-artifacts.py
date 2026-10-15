@@ -152,6 +152,32 @@ def build_url_map(records: list[dict], source_root: Path) -> dict[Path, str]:
     return url_map
 
 
+def publish_images(records: list[dict], source: Path, dest: Path) -> dict[Path, str]:
+    """Publish linked local diagram assets while preserving source-relative paths.
+
+    Only image files beneath the artifact root qualify. Mapping links and images
+    to the same asset lets readers download editable SVGs alongside PNG previews.
+    """
+    images: dict[Path, str] = {}
+    for rec in records:
+        for match in LINK_RE.finditer(rec["src"].read_text(encoding="utf-8")):
+            target = match.group(2).split("#", 1)[0]
+            if not target or target.startswith("/") or target.lower().startswith(EXTERNAL_PREFIXES):
+                continue
+            image = (rec["src"].parent / target).resolve()
+            if image.suffix.lower() not in {".svg", ".png", ".jpg", ".jpeg", ".webp"} or not image.is_file():
+                continue
+            try:
+                rel = image.relative_to(source.resolve())
+            except ValueError:
+                continue
+            out = dest / "media" / rel
+            out.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(image, out)
+            images[image] = "/artifacts/media/" + rel.as_posix()
+    return images
+
+
 def rewrite_links(body: str, src_path: Path, repo_root: Path, url_map: dict[Path, str]) -> str:
     """Rewrite intra-repo .md cross-links to site URLs (published) or GitHub blobs.
 
@@ -365,6 +391,7 @@ def publish(source: Path, dest: Path, project: str) -> int:
 
     repo_root = source.parent.parent  # docs/helix -> repo root
     url_map = build_url_map(records, source)
+    url_map.update(publish_images(records, source, dest))
 
     # Emit each page.
     for i, rec in enumerate(records):

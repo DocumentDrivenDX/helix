@@ -33,6 +33,10 @@ validation:
     - decisions_and_tradeoffs
 
   quality_checks:
+    - check: presentation_visual_review
+      description: When presentation quality is requested, apply diagram-design guidance and review rendered readability, semantic parity, exports, and stated limits
+      severity: warning
+
     - check: walkthrough_evidence
       description: When included, a walkthrough labels current/proposed state and traces a critical flow, failure paths, source ownership, proving tests, verification limits, and update triggers
       severity: warning
