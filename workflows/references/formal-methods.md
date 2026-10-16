@@ -54,7 +54,8 @@ type is deferred until independent lifecycle/traceability needs justify one.
 
 ## Evidence Record
 
-Use an existing design/verification-evidence location. For each analysis record:
+Link analyzer/proof reports from existing design/acceptance mappings under the
+[verification contract](../concerns/verification/practices.md). For each analysis:
 
 | Field | Required content |
 |---|---|

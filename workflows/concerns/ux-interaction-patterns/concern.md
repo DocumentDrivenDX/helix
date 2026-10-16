@@ -45,7 +45,7 @@ select it directly with other libraries, without selecting Radix as a side effec
 - USER_STORIES: applicable UX behaviors as stable observable acceptance criteria
 - DESIGN_SYSTEM: app-specific navigation, state, modality and recovery conventions
 - TEST_PLAN: UX Coverage in affected STPs, mapping patterns and AC IDs to assertions
-- IMPLEMENTATION_PLAN: observed interaction results in verification-evidence.md
+- IMPLEMENTATION_PLAN: interaction results linked through existing STP mappings per `workflows/concerns/verification/practices.md`
 
 ## Drift Signals
 

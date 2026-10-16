@@ -9,7 +9,7 @@ headless call. Results land under evals/results/<stamp>/ as JSON plus a
 Markdown summary.
 
 Usage:
-    scripts/run-eval.py [--briefs id,id] [--judge] [--runner CMD] [--keep]
+    scripts/run-eval.py [--suite FILE] [--briefs id,id] [--judge] [--runner CMD] [--keep]
                         [--dry-run] [--out DIR]
 
 The default runner is Claude Code in print mode with this checkout as the
@@ -74,9 +74,16 @@ def make_workspace(fixture: str, keep_dir: Path | None) -> Path:
         shutil.copy2(src, dst)
         for d in ("01-frame", "02-design", "03-test", "04-build", "05-deploy", "06-iterate"):
             (ws / "docs" / "helix" / d).mkdir(parents=True, exist_ok=True)
+    elif re.fullmatch(r"session-[a-z-]+", fixture):
+        overlay = REPO / "evals" / "fixtures" / fixture
+        if not overlay.is_dir():
+            raise SystemExit(f"unknown fixture {fixture!r}")
+        shutil.copytree(FIXTURE_BASELINE, ws, dirs_exist_ok=True)
+        shutil.copytree(overlay, ws, dirs_exist_ok=True)
     else:
         raise SystemExit(f"unknown fixture {fixture!r}")
-    (ws / ".helix.yml").write_text(MARKER, encoding="utf-8")
+    if not (ws / ".helix.yml").exists():
+        (ws / ".helix.yml").write_text(MARKER, encoding="utf-8")
     subprocess.run(["git", "init", "-q"], cwd=ws, check=True)
     subprocess.run(["git", "add", "-A"], cwd=ws, check=True)
     subprocess.run(["git", "-c", "user.email=eval@helix", "-c", "user.name=helix-eval", "commit", "-qm", "fixture"], cwd=ws, check=True)
@@ -140,6 +147,17 @@ def run_checks(brief: dict, ws: Path, before: dict[str, str], after: dict[str, s
         if kind == "files_exist":
             missing = [g for g in c["globs"] if not match(ws, [g])]
             ok, detail = not missing, f"missing {missing}" if missing else f"present {c['globs']}"
+        elif kind in ("file_contains", "file_not_contains"):
+            path = ws / c["path"]
+            text = path.read_text() if path.is_file() else ""
+            if kind == "file_contains":
+                missing = [v for v in c["values"] if v not in text]
+                ok = path.is_file() and not missing
+                detail = f"missing file or values {missing}" if not ok else "all present"
+            else:
+                found = [v for v in c["values"] if v in text]
+                ok = path.is_file() and not found
+                detail = f"missing file or forbidden values {found}" if not ok else "clean"
         elif kind == "files_unchanged":
             changed = [f for f in before if f in after and after[f] != before[f] and any(fnmatch.fnmatch(f, g) for g in c["globs"])]
             deleted = [f for f in before if f not in after and any(fnmatch.fnmatch(f, g) for g in c["globs"])]
@@ -215,6 +233,7 @@ def judge(brief: dict, ws: Path, result: str, diff: str, runner: str, timeout: i
 
 def main() -> int:
     ap = argparse.ArgumentParser()
+    ap.add_argument("--suite", type=Path, default=BRIEFS, help="brief YAML (default evals/briefs.yml)")
     ap.add_argument("--briefs", help="comma-separated brief ids (default: all)")
     ap.add_argument("--judge", action="store_true", help="also score the rubric with a headless judge call")
     ap.add_argument("--runner", default=DEFAULT_RUNNER)
@@ -226,7 +245,7 @@ def main() -> int:
     ap.add_argument("--summarize", help="rewrite summary.md from a saved results directory (no runs, no judge)")
     args = ap.parse_args()
 
-    spec = yaml.safe_load(BRIEFS.read_text(encoding="utf-8"))
+    spec = yaml.safe_load(args.suite.read_text(encoding="utf-8"))
     all_briefs = spec["briefs"]
     briefs = all_briefs
     want = set(args.briefs.split(",")) if args.briefs else set()
@@ -304,7 +323,7 @@ def main() -> int:
 
 def write_summary(out_dir: Path, stamp: str, runner: str, rows: list[dict]) -> None:
     lines = [f"# HELIX eval run {stamp}", "", f"Runner: `{runner}`", f"Commit: `{subprocess.run(['git', 'rev-parse', '--short', 'HEAD'], cwd=REPO, capture_output=True, text=True).stdout.strip()}`", "",
-             "| Brief | Mode | Checks | Rubric | Turns | Seconds | Cost USD |", "|---|---|---|---|---|---|---|"]
+             "| Brief | Expected mode | Checks | Rubric | Turns | Seconds | Cost USD |", "|---|---|---|---|---|---|---|"]
     for r in rows:
         rub = f"{r['judge']['total']}/{r['judge']['max']}" if r.get("judge") else "n/a"
         cost = f"{r['cost_usd']:.2f}" if isinstance(r.get("cost_usd"), (int, float)) else "n/a"

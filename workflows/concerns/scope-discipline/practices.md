@@ -28,6 +28,11 @@ beside `verification` (which proves the system runs) and do not restate it.
   not exist yet.
 - Keep the diff scoped to the work item. If a tree-wide fix is warranted, file it
   as its own item rather than sweeping it in.
+- Add no language, runtime dependency, or toolchain the stack concerns do not
+  select. If one is needed, stop and get the decision recorded first.
+- When more than one implementation sits behind an interface, fix a failing
+  implementation behind the interface. Do not add backend-specific branches at
+  call sites.
 
 ## The scope gate (before claiming "done")
 
@@ -44,6 +49,12 @@ A completion claim is **incomplete** if any of these hold:
    recording the reduction in `concerns.md` / an ADR.
 4. **Off-scope blast radius** — the diff edits files outside the work item's
    stated scope. Resolve by reverting the off-scope edits.
+5. **Unapproved stack addition** — the diff adds a language, a runtime
+   dependency, or a toolchain with no recorded decision. Resolve by removing it
+   or recording the decision in an ADR.
+6. **Implementation leak** — the diff adds backend- or implementation-specific
+   conditionals outside the interface that owns the difference. Resolve by
+   moving the difference behind the interface.
 
 Phased placeholders and requested scope reductions are allowed only as the
 **recorded exceptions** in `concern.md` — a named stub with a tracked follow-up
@@ -72,3 +83,5 @@ asks whether the change is the right size.
 - No pre-release legacy-compat shim, alias, or fallback without a released
   consumer.
 - The change's diff is contained to the work item's stated scope.
+- No unrecorded language, runtime dependency, or toolchain additions.
+- No implementation-specific conditionals outside the interface that owns them.

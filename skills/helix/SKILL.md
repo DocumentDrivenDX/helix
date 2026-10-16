@@ -49,7 +49,7 @@ never a public skill name; (3) **workflow mode** (§Routing Rules);
 |---|---|---|
 | `product` | HELIX artifact named; planning verb (frame, align, decompose, prioritize, propose, capture, review, decide, evolve, refresh) against a product/feature/requirements object; cross-flow query | (a) Read `.helix.yml` and bind the graph before editing; (b) read the target and governing artifacts relevant to the request; (c) record supported `ddx.links` when the artifact type calls for them |
 | `infra` | IaC verb (terraform/tofu/kubectl, provision/destroy/rotate); set up CI; manage credentials | (a) Consult the stop triggers (`workflows/stop-triggers.yml`) for `apply` or `secret_read` before any shell command; (b) Read infra-shaped artifacts (architecture, runbook, deployment-checklist); (c) explicit confirmation prompt before terraform/tofu/kubectl/credential operations |
-| `data` | Data-pipeline verb (backfill/ingest/migrate a table or schema, profile a source, write a data contract) | (a) Read data-contract / data-quality-expectations / data-architecture artifacts; (b) cite producer/consumer or PII/governance posture in prose; (c) defer schema mutations behind a `stop_at` confirmation |
+| `data` | Data-pipeline verb (backfill/ingest/migrate a table or schema, profile a source, write a data contract) | (a) Read data-contract / data-quality-expectations / data-architecture artifacts; (b) cite producer/consumer or PII/governance posture in prose; (c) defer schema mutations and deletes behind the `schema_migration` and `data_destruction` stop triggers |
 | `web` | Web/frontend verb (deploy/ship to production, add monitoring for a user-facing flow, optimize page performance) | (a) Read architecture / design-system / monitoring-setup / runbook artifacts in the deploy-flow scope; (b) cite Web Vitals / RUM / page-error vocabulary in prose; (c) defer production deploys behind a `stop_at` confirmation |
 
 Skipping lane-required behavior is a routing failure even when the mode is
@@ -310,6 +310,15 @@ control how often a workflow pauses, never which activities run.
 | `low` | Ask before each step and before creating each downstream artifact. Do not infer unconfirmed scope. Concern selection stays interactive. |
 | `medium` (default) | Create deterministic non-conflict artifacts; pause when ambiguity or conflict blocks deterministic progress. Prompt for concern selection when none exists. |
 | `high` | Create downstream artifacts without pausing unless a hard stop blocks progress; record assumptions rather than asking. Infer concern selection from the product's nature and record it as an assumption. |
+
+When a planning pause is required, ask the smallest decision that unlocks the
+next step. Explain unfamiliar terms, offer a recommended answer with its reason,
+and ask one decision at a time when choices depend on each other. Look up facts
+from relevant authority; do not ask the operator to research them or approve
+routine mechanical edits already authorized. Record the answer in the existing
+artifact when authoring is authorized. This applies across planning modes;
+`grill` retains its interview-only checkpoint and headless behavior. Preserve
+`low` autonomy's per-step pauses and every required hard stop.
 
 Precedence (first match wins): per-invocation override (the operator names a
 level in the prompt) → the `autonomy:` block in `.helix.yml` → default

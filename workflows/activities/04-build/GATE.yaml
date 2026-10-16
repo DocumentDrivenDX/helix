@@ -97,17 +97,12 @@ exit_requirements:
         - internal/**/*
       description: "No incompleteness stubs (unimplemented!/todo!/not-implemented) in production code — a path an acceptance criterion claims to satisfy must run real code, not a placeholder (per the scope-discipline concern; a deliberately phased stub carries a recorded exception and no satisfied AC)"
 
-    # Verification evidence — running-system, including each AC's guard/negative
-    # branch (the verification concern is the authority for the record's contents).
-    - check: file_exists
-      path: docs/helix/04-build/verification-evidence.md
-      description: "Verification evidence record must exist: command+exit, target URL/env, core flows AND each governing AC's guard/negative branch exercised on the RUNNING system via the interface-appropriate harness (per the verification concern)"
-
   manual:
     - "Affected interactive UI work has reviewed STP UX Coverage per workflows/references/ux-evidence.md; mapped tests and observed runtime behavior are verified separately from structure. With packaged-design-system, declared package/project quality-check evidence records versions, supported routes/themes, actual reports and finding/exception dispositions; those checks alone do not prove interaction behavior."
     - "For handwritten source, the boundary checker ran through the shared local/pre-commit/CI recipe; allowed imports passed and forbidden imports failed. Semantic review covers ownership, public APIs and invariants; existing debt did not hide new violations. Source-free work records non-applicability with a reason; authorized scoped exceptions supply the alternative verification required by the baseline contract."
     - "Code review completed and approved"
     - "Performance benchmarks validated"
+    - "Requirement-linked results reviewed: existing acceptance mappings and test-source citations resolve to meaningful assertions and observed passing results under workflows/concerns/verification/practices.md (run provenance, retention and conditional supplemental observations)."
     - "Verification evidence reviewed (adversarial): every governing AC's guard/negative branch was driven on the RUNNING system via the interface-appropriate harness (web→Playwright, HTTP API→request client, MCP/agent surface→real client handshake, auth/SSO→real login flow, real-network/remote surface→exercised on the real address not localhost-stub, CLI→shell, TUI→tmux, backend→integration). Happy-path-green is not done; an un-waived untested guard branch is not done."
     - "Downstream-consumer evidence reviewed (adversarial): when a change has a named downstream consumer in another repo, done requires evidence that the consumer pulled the change and exercised its integration; local gate-green alone is not enough."
     - "Scope discipline reviewed (per the scope-discipline concern): the change builds exactly what the acceptance criteria asked for — no unrequested features/abstractions/config (gold-plating), no pre-release legacy-compat shim without a released consumer, no requested capability silently narrowed (e.g. shipped read-only) without a recorded tradeoff, and the diff is contained to the work item's stated scope. Any phased placeholder is recorded and covered by no satisfied AC."

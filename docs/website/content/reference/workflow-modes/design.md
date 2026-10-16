@@ -18,11 +18,11 @@ Use when the requested change needs design authority before implementation.
 3. Preserve acceptance criteria and give each implementation slice a
    verifiable outcome. Validate dependency references before writing.
 4. Resolve material unknowns with evidence or a bounded spike; state unresolved
-   assumptions and ask for decisions that affect the design. Before drafting a
-   decision whose intent the operator has not stated (who owns it, what it must
-   protect, which layer it lives in), confirm that intent in one sentence, or
-   route to `grill` when several such decisions interlock. A design built on a
-   guessed intent is rework; the Alternatives cannot catch it.
+   assumptions. Check governing authority before asking. If a decision only the
+   operator can make still blocks the design, ask, at any autonomy level; a guess
+   recorded as an assumption is still a guess. Follow the skill's
+   planning-question discipline. Route to `grill` when the operator asks for an
+   interview or several open decisions interlock.
 5. Stop when the design is implementable and no material ambiguity remains.
    Treat a requested round count as an upper bound, not a minimum.
 6. Derive ordered work items only when the user requests them or the runtime

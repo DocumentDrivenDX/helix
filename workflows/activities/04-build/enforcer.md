@@ -234,6 +234,9 @@ Key outputs to create:
 5. "Clean from start" - Don't defer quality
 6. "Drive the guard branch" - every acceptance criterion's failure/rejection path is exercised on the running system via the interface-appropriate harness, not just the happy path
 
+Apply the [verification completion contract](../../concerns/verification/practices.md)
+using existing mappings, test-source citations and observed reports.
+
 ## Success Indicators
 
 You're succeeding when:

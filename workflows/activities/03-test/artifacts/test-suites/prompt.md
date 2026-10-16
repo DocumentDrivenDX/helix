@@ -28,7 +28,9 @@ Use these local resource summaries as grounding:
 - the behaviors each suite owns
 - required fixtures, factories, or mocks
 - any coverage target that matters for this stack
-- suite ownership, execution commands, and evidence outputs
+- suite ownership, execution commands, and evidence outputs under the
+  [verification contract](../../../../concerns/verification/practices.md)
+- test/case names and citations per [testing practices](../../../../concerns/testing/practices.md)
 
 ## Keep Out
 

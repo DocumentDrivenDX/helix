@@ -55,7 +55,7 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 ## Deploy
 
 - [Deployment Checklist — HELIX Plugin and Website Release](/artifacts/deployment-checklist/)
-- [Release Notes — HELIX v0.16.0](/artifacts/release-notes/)
+- [Release Notes — HELIX v0.17.0](/artifacts/release-notes/)
 
 ## Iterate
 

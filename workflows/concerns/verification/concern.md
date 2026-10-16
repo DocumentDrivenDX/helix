@@ -31,8 +31,9 @@ duplicate the other two:
 - **Whole-stack exercise**: the real user flows are driven against the running
   system (the full stack from user action to datastore and back), not a
   green unit suite standing in for the system.
-- **Recorded evidence artifacts**: the concrete observations that prove the
-  work runs — captured, not asserted from memory.
+- **Requirement-linked results**: existing mappings and test-source citations
+  connect criteria to observed run reports. Supplemental observations cover
+  proof gaps outside the normal reporting path; no extra file is mandatory.
 - **Verify-don't-trust**: never report a result that was not observed.
 
 ## Constraints
@@ -44,7 +45,9 @@ duplicate the other two:
   sufficient.
 - Before claiming completion, an agent must produce the evidence artifacts in
   `practices.md`: the command run + its exit status, the target URL/env, and the
-  core flows exercised, including each guard branch observed.
+  core flows exercised, including each guard branch observed. Existing reports
+  carry these facts and the tested revision; link them from the existing mapping
+  or acceptance record. A cited test alone is not proof it ran and passed.
 - If the change has a named downstream consumer in another repo, "done"
   requires evidence that the consumer pulled the change and its integration was
   exercised. Local gate-green alone is not enough.
@@ -124,7 +127,11 @@ replace either.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- `docs/helix/04-build/verification-evidence.md`: the whole-stack evidence record — command + exit status, target env, flows, observed guard branches, and any recorded exception with its substitute evidence (one line)
+- STORY_TEST_PLAN: existing AC/test mapping and citations link to observed run
+  results; Notes/Executable Proof link supplemental observations only for proof
+  gaps. Other requirement types use their existing acceptance records.
 - TEST_PLAN: the layer allocation only
+- IMPLEMENTATION_PLAN: scoped validation commands, run-result references and
+  reviewed exceptions; no shared evidence file or duplicate mapping.
 
 ## ADR References
