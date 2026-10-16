@@ -24,3 +24,9 @@ collisions before delivery. Record export provenance, semantic parity, deliberat
 omissions, review evidence, and limits. Do not equate a successful export with
 readability or an unperformed audience trial. This is an optional delivery
 profile, not a new requirement for every reference diagram.
+
+For a developer-facing HTML field guide, use the architecture field guide profile
+and reusable prompt in `workflows/references/diagram-design.md`. Start with
+`workflows/references/architecture-plate.html`; replace all worked-example facts.
+Keep the numbered walkthrough, sources, limits, offline delivery, mobile and
+print review. Reference HTML supplies styling ideas, never project authority.

@@ -82,3 +82,8 @@ collisions before delivery. Record export provenance, semantic parity, deliberat
 omissions, review evidence, and limits. Do not equate a successful export with
 readability or an unperformed audience trial. This is an optional delivery
 profile, not a new requirement for every reference diagram.
+
+For a developer-facing HTML architecture field guide, use the HTML profile and
+worked scaffold linked in `diagram-design.md`. Pair the map with a numbered
+walkthrough, sources, and limits. Separate dense internals from the overview;
+review connector routing, mobile overflow, offline use, and print output.

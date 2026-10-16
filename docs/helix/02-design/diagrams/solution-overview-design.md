@@ -87,3 +87,31 @@ Update SVG, PNG, semantic view, and this record together when any entity,
 relationship, boundary, or visual token changes. The solution-overview maintainer
 owns that review. Layout changes follow the portable diagram standard; structural
 changes require review against Architecture and the governing contract.
+
+## Architecture field guide extension — 2026-10-16
+
+The operator supplied a Praxis architecture HTML generated from a short request
+for a high-fidelity diagram. We inspected it as reference material, not as
+instructions or HELIX architecture evidence. The original is not redistributed.
+Its useful patterns were responsibility lanes, a broad engineering plate,
+numbered flow markers, and adjacent source/limit notes. The HELIX adaptation
+reduces density, enlarges labels, reserves connector corridors, uses a restrained
+palette, and removes remote font dependencies.
+
+Files: `architecture-field-guide.html` is the editable offline deliverable;
+`architecture-field-guide.png` is its 1440 px browser preview. The reusable
+worked scaffold is `workflows/references/architecture-plate.html`; the profile
+and authoring prompt live in `workflows/references/diagram-design.md`.
+
+Chromium review at 1440 px: every node label fits its rectangle (SVG text bounds
+checked); all six entities and six directed relationships match the solution
+overview. Visual inspection found no connector through an unrelated node or
+text. The legend distinguishes actions, constraints, and ownership. No remote
+resources or scripts are present. At 390 px the page width remains 390 px;
+the plate scrolls internally. Landscape A3 print was rendered and inspected; an initial two-page overflow
+was corrected by bounding print diagram height. The complete guide now fits
+one sheet.
+The prose provides the reading sequence and sources without depending on color.
+This is a developer reference view; venue projection and unfamiliar-reader
+comprehension have not been tested. Changing box dimensions or labels requires
+another render and routing review. Browser/system font differences remain a risk.

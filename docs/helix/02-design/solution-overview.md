@@ -21,8 +21,11 @@ to make a change. This is an explanatory view of the current repository.
 
 ![HELIX overview: a team asks an agent runtime, which loads the HELIX skill. The catalog and project scope guide the skill as it authors project documents; those documents govern authorized execution.](diagrams/solution-overview.png)
 
+[Editable architecture field guide (HTML)](https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/02-design/diagrams/architecture-field-guide.html) ·
 [Editable SVG](diagrams/solution-overview.svg) ·
 [Visual design and review](diagrams/solution-overview-design.md)
+
+![Architecture field guide with responsibility lanes and a numbered developer walkthrough.](diagrams/architecture-field-guide.png)
 
 The presentation view preserves the six entities and relationships below. The
 shaded region identifies HELIX-owned portable content. Solid arrows describe

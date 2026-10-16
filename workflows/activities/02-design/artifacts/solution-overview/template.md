@@ -26,6 +26,10 @@ flowchart LR
     Actor[User or agent] -->|requests action from| System[System]
 ```
 
+[Optional developer HTML: link an offline architecture field guide using the
+`diagram-design.md` HTML profile and `architecture-plate.html` scaffold. Include
+numbered flow notes, governing sources, omissions, and rendered review evidence.]
+
 ## Parts and boundaries
 
 | Part | Responsibility | Source / authority |

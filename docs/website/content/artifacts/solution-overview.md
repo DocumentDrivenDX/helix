@@ -1,7 +1,7 @@
 ---
 title: "HELIX solution overview"
 slug: solution-overview
-weight: 470
+weight: 500
 activity: "Design"
 source: "02-design/solution-overview.md"
 generated: true
@@ -35,8 +35,11 @@ to make a change. This is an explanatory view of the current repository.
 
 ![HELIX overview: a team asks an agent runtime, which loads the HELIX skill. The catalog and project scope guide the skill as it authors project documents; those documents govern authorized execution.](/artifacts/media/02-design/diagrams/solution-overview.png)
 
+[Editable architecture field guide (HTML)](https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/02-design/diagrams/architecture-field-guide.html) ·
 [Editable SVG](/artifacts/media/02-design/diagrams/solution-overview.svg) ·
 [Visual design and review](/artifacts/diagrams/solution-overview-design/)
+
+![Architecture field guide with responsibility lanes and a numbered developer walkthrough.](/artifacts/media/02-design/diagrams/architecture-field-guide.png)
 
 The presentation view preserves the six entities and relationships below. The
 shaded region identifies HELIX-owned portable content. Solid arrows describe
