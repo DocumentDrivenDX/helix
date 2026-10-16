@@ -1,0 +1,53 @@
+artifact:
+  name: Developer Guide
+  id: developer-guide
+  type: document
+  activity: build
+voice: artifact-signal
+description: Help an unfamiliar developer run the project, locate a change, and verify
+  it.
+output:
+  location: docs/helix/04-build/developer-guide.md
+  format: markdown
+  naming: developer-guide.md
+validation:
+  required_sections:
+  - start_here
+  - prerequisites_and_setup
+  - repository_map
+  - first_contribution
+  - common_change_recipes
+  - debugging_and_verification
+  - maintenance_and_feedback
+  quality_checks:
+  - check: evidence_and_authority
+    description: Concrete source links support claims; explanatory content does not
+      redefine governing decisions.
+    severity: blocking
+  - check: reader_task_verified
+    description: Commands and paths are checked; an unfamiliar-developer trial is
+      recorded or explicitly pending.
+    severity: warning
+prompts:
+  generation: prompt.md
+  review: Can an unfamiliar developer complete the stated reader task using concrete
+    evidence and links? Are current/proposed state and verification limits explicit?
+template:
+  file: template.md
+  sections:
+  - start_here: Start here
+  - prerequisites_and_setup: Prerequisites and setup
+  - repository_map: Repository map
+  - first_contribution: First contribution
+  - common_change_recipes: Common change recipes
+  - debugging_and_verification: Debugging and verification
+  - maintenance_and_feedback: Maintenance and feedback
+examples:
+- file: example.md
+  description: HELIX self-hosting pilot developer guide
+relationships:
+  referenced_by: []
+tags:
+- onboarding
+- orientation
+version: 1.0.0

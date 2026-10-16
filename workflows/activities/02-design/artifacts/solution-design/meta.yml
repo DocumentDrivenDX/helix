@@ -34,6 +34,14 @@ validation:
     - traceability
 
   quality_checks:
+    - check: presentation_visual_review
+      description: When presentation quality is requested, apply diagram-design guidance and review rendered readability, semantic parity, exports, and stated limits
+      severity: warning
+
+    - check: walkthrough_evidence
+      description: When included, a walkthrough labels current/proposed state and traces a critical flow, failure paths, source ownership, proving tests, verification limits, and update triggers
+      severity: warning
+
     - check: diagnostic_flow_owned
       description: For applicable o11y-otel practices, cross-component signal flow and ownership reference system decisions and shared Contracts without defining exact telemetry surfaces
       severity: warning

@@ -163,6 +163,10 @@ nodes:
   type: library:solution-design
   activity: 02-design
   cardinality: many
+- id: solution-overview
+  type: library:solution-overview
+  activity: 02-design
+  cardinality: many
 - id: tech-spike
   type: library:tech-spike
   activity: 02-design
@@ -194,6 +198,10 @@ nodes:
 - id: test-suites
   type: library:test-suites
   activity: 03-test
+  cardinality: many
+- id: developer-guide
+  type: library:developer-guide
+  activity: 04-build
   cardinality: many
 - id: implementation-plan
   type: library:implementation-plan
@@ -513,6 +521,14 @@ edges:
   kind: informs
   required: false
 - from: architecture
+  to: solution-overview
+  kind: informs
+  required: false
+- from: architecture
+  to: developer-guide
+  kind: informs
+  required: false
+- from: architecture
   to: solution-design
   kind: informs
   required: false
@@ -622,6 +638,10 @@ edges:
   required: false
 - from: solution-design
   to: test-plan
+  kind: informs
+  required: false
+- from: solution-overview
+  to: developer-guide
   kind: informs
   required: false
 - from: tech-spike

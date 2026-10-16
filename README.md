@@ -17,6 +17,13 @@ surface belong to runtimes like DDx.
 
 ![HELIX Quickstart Demo](docs/demos/helix-quickstart/recordings/helix-quickstart.gif)
 
+## Contributor orientation
+
+Start with the [solution overview](docs/helix/02-design/solution-overview.md),
+follow the [architecture walkthrough](docs/helix/02-design/architecture-walkthrough.md),
+and use the [developer guide](docs/helix/04-build/developer-guide.md) for setup,
+change recipes, and verification.
+
 ## Local Microsite Review
 
 Use the standard startup script when reviewing the Hugo site locally:

@@ -1,7 +1,7 @@
 ---
 title: "Architecture"
 slug: architecture
-weight: 320
+weight: 330
 activity: "Design"
 source: "02-design/architecture.md"
 generated: true
@@ -422,3 +422,11 @@ and describes the resolution for each.
 - [Routing Skill](https://github.com/DocumentDrivenDX/helix/blob/main/skills/helix/SKILL.md) — the single agent-facing surface
 - [workflows/principles.md](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/principles.md)
 - [workflows/ratchets.md](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/ratchets.md)
+
+## Developer orientation
+
+Start with the [solution overview](/artifacts/solution-overview/), follow the
+[end-to-end authoring walkthrough](/artifacts/architecture-walkthrough/), then use the
+[developer guide](/artifacts/developer-guide/) for a first contribution.
+These explain this architecture and link to source evidence; structural
+decisions remain here and in the governing contracts and ADRs.

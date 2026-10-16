@@ -33,6 +33,14 @@ validation:
     - decisions_and_tradeoffs
 
   quality_checks:
+    - check: presentation_visual_review
+      description: When presentation quality is requested, apply diagram-design guidance and review rendered readability, semantic parity, exports, and stated limits
+      severity: warning
+
+    - check: walkthrough_evidence
+      description: When included, a walkthrough labels current/proposed state and traces a critical flow, failure paths, source ownership, proving tests, verification limits, and update triggers
+      severity: warning
+
     - check: containers_named_real_tech
       description: Every container in Level 2 names a specific technology, not just a role (e.g. "Postgres 15", not "Database")
       severity: blocking
@@ -145,6 +153,8 @@ workflow:
 
 relationships:
   informs:
+    - solution-overview
+    - developer-guide
     - solution-design
     - technical-design
     - adr

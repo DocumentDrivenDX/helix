@@ -1,0 +1,422 @@
+{
+  "entities": [
+    {
+      "tag": "Textbox",
+      "id": "heading",
+      "x": 40,
+      "y": 20,
+      "width": 1100,
+      "text": "**HELIX solution architecture**",
+      "fontSize": 42,
+      "color": "#22334B",
+      "typeface": "clean",
+      "height": 105
+    },
+    {
+      "tag": "Textbox",
+      "id": "subheading",
+      "x": 40,
+      "y": 84,
+      "width": 1100,
+      "text": "Portable document discipline, operated by your agent runtime.",
+      "fontSize": 22,
+      "color": "#56677E",
+      "typeface": "clean",
+      "height": 55
+    },
+    {
+      "tag": "Group",
+      "id": "helix",
+      "x": 450,
+      "y": 180,
+      "width": 460,
+      "height": 415,
+      "title": {
+        "text": "HELIX · portable content",
+        "fontSize": 22,
+        "typeface": "clean",
+        "border": false,
+        "color": "#164BA1"
+      },
+      "color": "blue",
+      "bgColor": "#EFF5FD",
+      "styleMode": "plain",
+      "borderStyle": "dashed"
+    },
+    {
+      "tag": "Shape",
+      "id": "team",
+      "x": 40,
+      "y": 230,
+      "width": 270,
+      "height": 110,
+      "shape": "rectangle",
+      "color": "gray",
+      "styleMode": "plain",
+      "cornerRadius": "round",
+      "texts": [
+        {
+          "text": "**Software team**",
+          "fontSize": 27,
+          "typeface": "clean",
+          "color": "#24354D"
+        },
+        {
+          "text": "Sets intent",
+          "fontSize": 19,
+          "typeface": "clean",
+          "color": "#24354D"
+        }
+      ],
+      "bgColor": "#FFFFFF",
+      "borderColor": "#7C91A8"
+    },
+    {
+      "tag": "Shape",
+      "id": "runtime",
+      "x": 40,
+      "y": 425,
+      "width": 270,
+      "height": 130,
+      "shape": "rectangle",
+      "color": "gray",
+      "styleMode": "plain",
+      "cornerRadius": "round",
+      "texts": [
+        {
+          "text": "**Agent runtime**",
+          "fontSize": 27,
+          "typeface": "clean",
+          "color": "#24354D"
+        },
+        {
+          "text": "Model, tools, execution",
+          "fontSize": 19,
+          "typeface": "clean",
+          "color": "#24354D"
+        }
+      ],
+      "bgColor": "#FFFFFF",
+      "borderColor": "#7C91A8"
+    },
+    {
+      "tag": "Shape",
+      "id": "catalog",
+      "x": 490,
+      "y": 245,
+      "width": 380,
+      "height": 119,
+      "shape": "rectangle",
+      "color": "blue",
+      "styleMode": "plain",
+      "cornerRadius": "round",
+      "texts": [
+        {
+          "text": "**Artifact catalog**",
+          "fontSize": 27,
+          "typeface": "clean",
+          "color": "#24354D"
+        },
+        {
+          "text": "Templates · prompts · rules",
+          "fontSize": 19,
+          "typeface": "clean",
+          "color": "#24354D"
+        }
+      ],
+      "containerId": "helix",
+      "bgColor": "#FFFFFF",
+      "borderColor": "#7C91A8"
+    },
+    {
+      "tag": "Shape",
+      "id": "skill",
+      "x": 490,
+      "y": 425,
+      "width": 380,
+      "height": 130,
+      "shape": "rectangle",
+      "color": "blue",
+      "styleMode": "plain",
+      "cornerRadius": "round",
+      "texts": [
+        {
+          "text": "**Routing skill**",
+          "fontSize": 27,
+          "typeface": "clean",
+          "color": "#FFFFFF"
+        },
+        {
+          "text": "Resolve scope and mode",
+          "fontSize": 19,
+          "typeface": "clean",
+          "color": "#FFFFFF"
+        }
+      ],
+      "containerId": "helix",
+      "bgColor": "#164BA1",
+      "borderColor": "#164BA1"
+    },
+    {
+      "tag": "Shape",
+      "id": "docs",
+      "x": 1060,
+      "y": 425,
+      "width": 300,
+      "height": 130,
+      "shape": "document",
+      "color": "green",
+      "styleMode": "plain",
+      "cornerRadius": "round",
+      "texts": [
+        {
+          "text": "**Project documents**",
+          "fontSize": 27,
+          "typeface": "clean",
+          "color": "#24354D"
+        },
+        {
+          "text": "Intent · design · tests",
+          "fontSize": 19,
+          "typeface": "clean",
+          "color": "#24354D"
+        }
+      ],
+      "bgColor": "#E3F3EE",
+      "borderColor": "#22826D"
+    },
+    {
+      "tag": "Shape",
+      "id": "scope",
+      "x": 490,
+      "y": 620,
+      "width": 380,
+      "height": 119,
+      "shape": "rectangle",
+      "color": "gray",
+      "styleMode": "plain",
+      "cornerRadius": "round",
+      "texts": [
+        {
+          "text": "**.helix.yml**",
+          "fontSize": 27,
+          "typeface": "clean",
+          "color": "#24354D"
+        },
+        {
+          "text": "Project scope",
+          "fontSize": 19,
+          "typeface": "clean",
+          "color": "#24354D"
+        }
+      ],
+      "bgColor": "#FFFFFF",
+      "borderColor": "#7C91A8"
+    },
+    {
+      "tag": "Textbox",
+      "id": "footer",
+      "x": 40,
+      "y": 810,
+      "width": 1100,
+      "text": "Current system · Dashed relationships carry guidance or constraints",
+      "fontSize": 18,
+      "color": "#56677E",
+      "typeface": "clean",
+      "height": 45
+    }
+  ],
+  "connections": [
+    {
+      "id": "asks",
+      "from": "team",
+      "to": "runtime",
+      "label": "asks",
+      "fromPort": "bottom",
+      "toPort": "top",
+      "fontSize": 20,
+      "typeface": "clean",
+      "connectorStyle": "elbow",
+      "endArrowhead": "triangle",
+      "x": 175,
+      "y": 340,
+      "points": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 85
+        }
+      ],
+      "labelPlacement": {
+        "x": -23,
+        "y": 37,
+        "width": 46,
+        "height": 24
+      }
+    },
+    {
+      "id": "loads",
+      "from": "runtime",
+      "to": "skill",
+      "label": "loads",
+      "fromPort": "right",
+      "toPort": "left",
+      "fontSize": 20,
+      "typeface": "clean",
+      "connectorStyle": "elbow",
+      "endArrowhead": "triangle",
+      "x": 310,
+      "y": 490,
+      "points": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 180,
+          "y": 0
+        }
+      ],
+      "labelPlacement": {
+        "x": 63,
+        "y": -12,
+        "width": 54,
+        "height": 24
+      }
+    },
+    {
+      "id": "guides",
+      "from": "catalog",
+      "to": "skill",
+      "label": "guides",
+      "fromPort": "bottom",
+      "toPort": "top",
+      "lineStyle": "dashed",
+      "fontSize": 20,
+      "typeface": "clean",
+      "connectorStyle": "elbow",
+      "endArrowhead": "triangle",
+      "x": 680,
+      "y": 364,
+      "points": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 61
+        }
+      ],
+      "labelPlacement": {
+        "x": -33,
+        "y": 13,
+        "width": 66,
+        "height": 24
+      }
+    },
+    {
+      "id": "bounds",
+      "from": "scope",
+      "to": "skill",
+      "label": "bounds",
+      "fromPort": "top",
+      "toPort": "bottom",
+      "lineStyle": "dashed",
+      "fontSize": 20,
+      "typeface": "clean",
+      "connectorStyle": "elbow",
+      "endArrowhead": "triangle",
+      "x": 680,
+      "y": 620,
+      "points": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": -65
+        }
+      ],
+      "labelPlacement": {
+        "x": -37,
+        "y": -51,
+        "width": 73,
+        "height": 24
+      }
+    },
+    {
+      "id": "authors",
+      "from": "skill",
+      "to": "docs",
+      "label": "authors & reconciles",
+      "fromPort": "right",
+      "toPort": "left",
+      "fontSize": 20,
+      "typeface": "clean",
+      "connectorStyle": "elbow",
+      "endArrowhead": "triangle",
+      "x": 870,
+      "y": 490,
+      "points": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 192.6099999999999,
+          "y": 0
+        }
+      ],
+      "labelPlacement": {
+        "x": 12,
+        "y": -24,
+        "width": 169,
+        "height": 48
+      }
+    },
+    {
+      "id": "governs",
+      "from": "docs",
+      "to": "runtime",
+      "label": "governs authorized execution",
+      "fromPort": "bottom",
+      "toPort": "bottom",
+      "points": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": 210
+        },
+        {
+          "x": -1035,
+          "y": 210
+        },
+        {
+          "x": -1035,
+          "y": 0
+        }
+      ],
+      "color": "green",
+      "fontSize": 20,
+      "typeface": "clean",
+      "connectorStyle": "elbow",
+      "endArrowhead": "triangle",
+      "x": 1210,
+      "y": 555
+    }
+  ],
+  "scene": {
+    "x": 24,
+    "y": 4,
+    "width": 1352,
+    "height": 867
+  }
+}

@@ -1,0 +1,10 @@
+flowchart LR
+    Team[Software team] -->|asks| Runtime[Agent runtime]
+    subgraph HELIX[HELIX · portable content]
+        Skill[Routing skill]
+        Catalog[Artifact catalog] -.->|guides| Skill
+    end
+    Runtime -->|loads| Skill
+    Scope[Project scope: .helix.yml] -.->|bounds| Skill
+    Skill -->|authors and reconciles| Docs[Project documents]
+    Docs -->|governs authorized execution| Runtime
