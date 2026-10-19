@@ -20,7 +20,7 @@ entry_requirements:
       description: "No unresolved clarification markers from Frame"
 
   manual:
-    - "PRD reviewed and approved"
+    - "PRD states the scoped outcome and constraints clearly"
     - "Requirements and constraints clearly documented"
 
 exit_requirements:
@@ -81,7 +81,7 @@ exit_requirements:
       description: "ADRs contain required sections"
 
   manual:
-    - "Technical Lead approval on architecture"
+    - "Material architecture choices and tradeoffs are resolved"
     - "Security review completed"
 
 next_activity: test

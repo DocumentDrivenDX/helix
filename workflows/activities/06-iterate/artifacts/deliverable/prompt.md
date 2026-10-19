@@ -192,5 +192,6 @@ three differences.
   and missing visuals; re-render. Without a renderer or rasterizer, record
   under Render which targets were not produced and why.
 - Fill the Render section with theme, targets, and the gate's own output:
-  the blocking and warning counts and what each warning was. Leave
-  `status: draft`; a person approves the deliverable like any artifact.
+  the blocking and warning counts and what each warning was. Omit
+  lifecycle labels; report material unresolved choices and evidence limits.
+  External distribution requires the applicable authorization.

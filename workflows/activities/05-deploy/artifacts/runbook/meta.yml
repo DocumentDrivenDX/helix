@@ -66,10 +66,6 @@ references:
 workflow:
   creation_order: 3
   review_cycles: 1
-  approval_required: true
-  approvers:
-    - Technical Lead
-    - On-Call Owner
 
 relationships:
   informed_by:

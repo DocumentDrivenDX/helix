@@ -9,7 +9,12 @@ content could change the result.
    template or metadata. Preserve the authority order: vision, requirements,
    features and stories, architecture and ADRs, designs, tests, plans, then
    implementation.
-2. Compare the affected documents. Classify a material gap as `ALIGNED`,
+2. Compare the affected documents for gaps affecting user outcomes,
+   requirements, scope, design choices, safety, or completion evidence. Lifecycle
+   labels, stale review stamps, and missing graph edges alone are not findings.
+   Resolve ordinary drift from clear higher authority when edits are authorized;
+   ask only for material choices that existing intent cannot resolve.
+   Classify a material gap as `ALIGNED`,
    `INCOMPLETE`, `DIVERGENT`, `UNDERSPECIFIED`, `STALE_PLAN`, or `BLOCKED`.
    Keep requirements at their intended strength; code alone does not authorize
    changing them.

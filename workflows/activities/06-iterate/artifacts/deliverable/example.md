@@ -4,7 +4,6 @@ ddx:
   type: deliverable
   activity: iterate
   kind: deck
-  status: draft
   authoring:
     home: repo
     export:

@@ -9,7 +9,7 @@ artifact:
 voice: artifact-signal
 
 description: |
-  Compact source of truth for feature IDs, names, status, priority, owner,
+  Compact source of truth for feature IDs, names, priority, owner,
   dependencies, and artifact trace links.
 
 output:
@@ -23,10 +23,8 @@ validation:
     - feature_id
     - name
     - description
-    - status
     - priority
     - owner
-    - created_date
 
   quality_checks:
     - check: unique_ids
@@ -42,7 +40,7 @@ validation:
       severity: blocking
 
     - check: dependencies_valid
-      description: Dependencies must reference valid feature IDs
+      description: Resolve unavailable prerequisite content only when it materially affects the scoped outcome
       severity: warning
 
   pattern_checks:
@@ -72,7 +70,7 @@ prompts:
     2. Never reuse retired IDs
     3. Document dependencies
     4. Assign owner and priority
-    5. Set initial status
+    5. Link relevant governing content when useful
 
 template:
   file: template.md
@@ -98,10 +96,8 @@ references:
 workflow:
   creation_order: 5
   review_cycles: 1
-  approval_required: false
   update_triggers:
     - new_feature_added
-    - status_change
     - priority_change
     - owner_change
 
@@ -124,17 +120,6 @@ registry_rules:
     sequence: incremental
     reuse: never
     reservation: optional
-
-  status_progression:
-    - draft
-    - specified
-    - designed
-    - in_test
-    - in_build
-    - built
-    - deployed
-    - deprecated
-    - cancelled
 
   priority_levels:
     P0: "Must have - Cannot ship without"

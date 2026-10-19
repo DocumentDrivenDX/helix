@@ -14,7 +14,6 @@ ddx:
 **Feasibility Lead**: Product and engineering leads
 **Evaluation Timeframe**: 2 weeks
 **Decision Deadline**: 2026-05-31
-**Status**: Example
 
 ## Executive Summary
 

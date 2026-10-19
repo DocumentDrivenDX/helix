@@ -71,7 +71,7 @@ Before creating new design docs:
 ## Gate Validation
 
 ### Entry Requirements (From Frame)
-- [ ] Frame activity complete and approved
+- [ ] Relevant requirements and constraints are clear
 - [ ] PRD signed off by stakeholders
 - [ ] All P0 requirements specified
 - [ ] Success metrics defined
@@ -79,7 +79,7 @@ Before creating new design docs:
 - [ ] No [NEEDS CLARIFICATION] markers
 
 ### Exit Requirements (Must Complete)
-- [ ] Architecture documented and approved
+- [ ] Architecture records material choices and boundaries
 - [ ] All API contracts defined
 - [ ] Data models complete
 - [ ] Security architecture reviewed

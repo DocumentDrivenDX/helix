@@ -74,7 +74,7 @@ Before creating any new document:
 - [ ] Stakeholders available for input
 
 ### Exit Requirements (Must Complete)
-- [ ] PRD approved with clear problem statement
+- [ ] PRD intent clear with clear problem statement
 - [ ] All P0 requirements have detailed specifications
 - [ ] Success metrics are specific and measurable
 - [ ] User stories have clear acceptance criteria

@@ -20,8 +20,13 @@ records the chosen direction; implementation status requires separate evidence.
 ## Document alignment
 
 1. Summarize the target's intent from its governing artifacts.
-2. Compare affected documents for contradictions, missing links, ambiguity,
-   stale content, or content placed in the wrong artifact.
+2. Compare affected documents for material contradictions, ambiguity, or stale
+   content that changes user outcomes, requirements, scope, design choices,
+   safety, or completion evidence. Missing links, lifecycle labels, and stale
+   review stamps alone are not findings. Use content and authority when links
+   are absent. Resolve ordinary lower-layer drift from clear higher authority
+   when edits are authorized; surface only choices that existing intent cannot
+   resolve. Do not create separate status or linkage housekeeping tasks.
 3. Classify material gaps as `ALIGNED`, `INCOMPLETE`, `DIVERGENT`,
    `UNDERSPECIFIED`, `STALE_PLAN`, or `BLOCKED`.
 4. For misplaced content, identify its source and proposed destination. Draft

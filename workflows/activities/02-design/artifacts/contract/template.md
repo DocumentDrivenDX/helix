@@ -10,7 +10,6 @@ ddx:
 **Contract ID**: [CONTRACT-XXX | API-XXX]
 **Type**: [boundary | HTTP API | CLI | library | protocol | event | schema]
 **Version**: [v1]
-**Status**: [draft | complete]
 **Related**: [ADR / SD / TD / FEAT references]
 
 ## Purpose

@@ -8,7 +8,6 @@ ddx:
 # Security Architecture
 
 **Scope**: [system or subsystem]
-**Status**: [draft | complete]
 
 ## Decision
 

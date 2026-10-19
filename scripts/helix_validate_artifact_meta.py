@@ -241,11 +241,41 @@ def iter_artifact_dirs() -> list[Path]:
     return dirs
 
 
+def check_lifecycle_defaults(meta_text: str, template_text: str) -> list[str]:
+    """Keep generic approval machinery out of the shipped catalog.
+
+    This is a source-catalog guard, not a migration requirement for adopters.
+    Domain authorization (production, data recovery, etc.) is not matched.
+    """
+    failures = []
+    workflow = re.search(r"(?ms)^workflow:\n((?:[ \t]+[^\n]*\n|\n)*)", meta_text)
+    if workflow and re.search(r"(?m)^  (approval_required|approvers):", workflow.group(1)):
+        failures.append("workflow must not impose a generic document approval lifecycle")
+    frontmatter = re.match(r"\A---\n(.*?)\n---(?:\n|$)", template_text, re.S)
+    if frontmatter and re.search(
+        r"(?m)^  status: (draft|review|approved|deprecated|superseded)\s*$",
+        frontmatter.group(1),
+    ):
+        failures.append("template must not seed document lifecycle status")
+    if re.search(
+        r"(?m)^\*\*Status:?\*\*:?[ \t]*(?:Draft|\[(?:Draft|Review|Approved|Specified)(?: \| (?:Draft|Review|Approved|Specified))*\])$",
+        template_text,
+    ):
+        failures.append("template must not seed a document lifecycle header")
+    return failures
+
+
 def validate(art_dir: Path, default_voice_profile: str, voice_profiles: set[str]) -> list[str]:
     """Return a list of failure messages for this artifact (empty if clean)."""
     meta_path = art_dir / "meta.yml"
     template_path = art_dir / "template.md"
-    failures: list[str] = []
+    failures: list[str] = [
+        f"{art_dir.relative_to(REPO_ROOT)}: {message}"
+        for message in check_lifecycle_defaults(
+            meta_path.read_text(encoding="utf-8"),
+            template_path.read_text(encoding="utf-8") if template_path.exists() else "",
+        )
+    ]
 
     for voice_ref in extract_voice_references(meta_path, default_voice_profile):
         if voice_ref not in voice_profiles:

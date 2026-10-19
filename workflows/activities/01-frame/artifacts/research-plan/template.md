@@ -10,7 +10,6 @@ ddx:
 **Research Lead**: {{research_lead}}
 **Time Budget**: {{time_budget}}
 **Created**: {{date}}
-**Status**: Draft
 
 ## Research Objectives
 
@@ -50,7 +49,7 @@ ddx:
 
 | Activity | Duration | Activities | Deliverables |
 |-------|----------|------------|--------------|
-| Planning | | Define scope, recruit | Plan approved |
+| Planning | | Define scope, recruit | Scope and research questions clear |
 | Investigation | | Execute methods | Raw data |
 | Analysis | | Synthesize findings | Findings report |
 | Validation | | Review with stakeholders | Validated conclusions |

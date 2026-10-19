@@ -8,7 +8,6 @@ ddx:
 # Market Analysis: SMB Expense-Report Automation
 
 **Activity:** Discover
-**Status:** Draft
 **Date:** 2026-03-01
 
 ## Concept

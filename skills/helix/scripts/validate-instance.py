@@ -14,6 +14,12 @@ Checks run, in order:
                      other rule types are reported as unsupported without failing
   placeholder        leftover template markers ([TODO], TBD, [Fill in], ...)
 
+Document lifecycle labels, review stamps and graph completeness are not checked.
+Legacy administrative section requirements are ignored. Content diagnostics do
+not establish implementation readiness: assess their effect on the scoped user
+outcome before blocking authorized work. Explicit source and identity metadata
+still protect authoring correctness when a ddx block is supplied.
+
 Exit codes: 0 = no blocking findings, 1 = blocking findings, 2 = usage or
 resolution error (instance unreadable, type or catalog unresolvable).
 
@@ -55,6 +61,14 @@ PREFIX_TYPES = {
 PLACEHOLDER_RE = re.compile(r"\[TODO\]|\bTBD\b|<placeholder>|\[Fill in\]|\[NEEDS CLARIFICATION")
 BRACKET_TOKEN_RE = re.compile(r"(?<!\[)\[(?:[A-Z][a-z]+)(?:[ /][A-Za-z]+)*\](?!\()")
 H2_RE = re.compile(r"^##\s+(?!#)(.+?)\s*$")
+# Legacy catalog sections that only track document administration. Do not
+# suppress domain sections (for example compliance_status or acceptance_criteria
+# test mappings): their content may constrain real behavior and evidence.
+ADMIN_SECTIONS = frozenset({
+    "document_status", "document_approval_status", "document_approvals",
+    "document_review_history", "document_change_history", "trace_links",
+})
+
 KNOWN_SEVERITIES = {"blocking": "blocking", "warning": "warning", "informational": "info", "info": "info"}
 
 
@@ -190,8 +204,10 @@ def resolve_type(fm: dict | None, explicit: str | None, instance: Path, catalog:
 # --- checks -------------------------------------------------------------------
 
 def check_frontmatter(fm: dict | None, report: Report) -> None:
-    if fm is None:
-        report.add("warning", "frontmatter", "no YAML frontmatter; instance is not graph-addressable", 1)
+    # Prose and unrelated frontmatter remain valid; graph addressability is
+    # optional, not a housekeeping warning. Explicit ddx blocks still obey the
+    # identity and authoring-home contract so edits cannot silently fork sources.
+    if fm is None or "ddx" not in fm:
         return
     ddx = fm.get("ddx")
     if not isinstance(ddx, dict):
@@ -199,14 +215,13 @@ def check_frontmatter(fm: dict | None, report: Report) -> None:
         return
     if not ddx.get("id"):
         report.add("blocking", "frontmatter.id", "ddx.id is missing", 1)
-    if not ddx.get("type") and not ddx.get("activity"):
-        report.add("warning", "frontmatter.type", "neither ddx.type nor ddx.activity is set", 1)
     home = (ddx.get("authoring") or {}).get("home") if isinstance(ddx.get("authoring"), dict) else None
     if home not in ("repo", "external-tool"):
         report.add("blocking", "frontmatter.authoring_home", "ddx.authoring.home must be `repo` or `external-tool`", 1)
 
 
 def check_required_sections(required: list, template: Path, body: str, markdown: bool, report: Report) -> None:
+    required = [s for s in required if slugify(str(s)) not in ADMIN_SECTIONS]
     if not markdown:  # yaml artifact types declare required_sections as top-level keys
         for section in required:
             if not re.search(rf"^\s*{re.escape(str(section))}\s*:", body, re.M):

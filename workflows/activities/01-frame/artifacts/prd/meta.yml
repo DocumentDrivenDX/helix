@@ -109,7 +109,7 @@ validation:
   pattern_checks:
     - pattern: "\\[NEEDS CLARIFICATION"
       expected: 0
-      message: Remove all clarification markers before approval
+      message: Resolve uncertainty that materially affects the scoped work
 
     - pattern: "P0|Must Have"
       expected: ">=1"
@@ -152,11 +152,6 @@ examples:
 workflow:
   creation_order: 1
   review_cycles: 2-3
-  approval_required: true
-  approvers:
-    - Product Owner
-    - Technical Lead
-    - Key Stakeholders
 
 relationships:
   informs:

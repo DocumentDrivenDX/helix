@@ -9,7 +9,6 @@ ddx:
 
 **Review Window**: [start date - end date]
 **Baseline**: [previous iteration, ratchet floor, or benchmark]
-**Status**: [draft | complete]
 
 ## Decision
 

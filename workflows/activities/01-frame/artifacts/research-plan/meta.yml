@@ -97,10 +97,6 @@ references:
 workflow:
   creation_order: 0.5  # Before PRD when needed
   review_cycles: 1-2
-  approval_required: true
-  approvers:
-    - Product Owner
-    - Technical Lead
 
   execution_phases:
     - planning: "Define scope and approach"

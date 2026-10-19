@@ -6,6 +6,7 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 python3 "$repo_root/tests/test_document_history.py"
+python3 "$repo_root/tests/test_living_documents.py"
 validator="$repo_root/skills/helix/scripts/validate-instance.py"
 fixtures="$repo_root/tests/fixtures/validate-instance"
 tmpdir="$(mktemp -d)"

@@ -51,7 +51,9 @@ the Brief, whatever the mapping suggests: `scope`, `breadth` (`survey` or
    or typography, else `theme.yml`, with the Brief's look.
 7. **Render.** `.pptx` from the script, plus PDF when the host can export one.
 8. **Pre-flight gate.** Every check below; a failure loops to step 3, 5, or 7.
-9. **Hand-off.** Save, link, report; `draft` until a person reviews it.
+9. **Hand-off.** Save, link, and report the result and any material unresolved
+   decisions. Do not seed a document lifecycle label. External distribution
+   and explicit domain sign-off remain subject to the user's authorization.
 
 ## Render toolchain
 

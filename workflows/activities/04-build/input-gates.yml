@@ -7,7 +7,7 @@ input_gates:
     required: true
     source: 03-test
     validation: Tests run but fail without implementation
-  - criteria: Test coverage plan approved
+  - criteria: Coverage plan identifies scoped requirements and meaningful tests
     required: true
     source: 03-test
     validation: Coverage targets defined for unit, integration, and e2e
