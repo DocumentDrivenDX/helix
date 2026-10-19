@@ -81,5 +81,5 @@ Link these normal reports from existing acceptance mappings under the
 ## Readiness
 - [ ] Suite boundaries are defined
 - [ ] Shared test data assets are identified
-- [ ] All planned suites begin in RED
+- [ ] Existing coverage is reused; new tests address meaningful behavioral gaps
 - [ ] Commands, owners, and evidence outputs are recorded

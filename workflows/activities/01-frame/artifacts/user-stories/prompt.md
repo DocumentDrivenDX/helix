@@ -99,8 +99,8 @@ outcome.
 Each criterion carries a **stable AC ID** of the form `US-<n>-AC<m>` (e.g.
 `US-001-AC1`), where `<n>` is this story's number. The ID is stable across edits
 so downstream artifacts reference a specific criterion by name. The story test
-plan (STP) owns the matrix that maps each AC ID to the failing test(s) that
-prove it — do **not** duplicate that matrix here; the story just defines the
+plan (STP) owns the matrix that maps each AC ID to the new or existing test(s)
+that prove it — do **not** duplicate that matrix here; the story just defines the
 criteria and their IDs. The project-level test plan (TP) aggregates strategy and
 allocates criteria to test layers; it does not restate the per-AC matrix either
 (FEAT-008 FR-6).

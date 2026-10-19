@@ -10,8 +10,10 @@ Generated from [`workflows/modes/design.md`](https://github.com/DocumentDrivenDX
 Use when the requested change needs design authority before implementation.
 
 1. Read the requested scope and the governing artifacts that can affect it.
-   Read implementation, tests, concerns, and existing work only when relevant
-   to the design question.
+   Inspect the affected implementation, producers, consumers, tests and existing
+   work before proposing interfaces or mechanisms. Keep the outcome bounded;
+   mechanical propagation across callers is part of completing that outcome.
+   Prefer evolving a clear existing concept over adding an overlapping one.
 2. Draft the applicable requirements, decisions, interfaces, failure behavior,
    security, tests, dependencies, risks, and observability. Omit sections that
    do not apply; do not add empty data-model or security sections for ceremony.

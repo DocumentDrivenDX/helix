@@ -18,19 +18,18 @@ duplicate the other two:
 - **`e2e-framework`** (the slot, default `e2e-playwright`) owns the *end-to-end
   tooling* — the browser runner, config, video/trace artifacts, and the
   run-core-flow gate.
-- **`verification`** owns one thing the other two do not state: **work is NOT
-  DONE until observed evidence of the running system exists.** It is the gate
-  that refuses "I wrote the code and the unit tests pass" as a completion
-  claim. It composes on top of `testing` and `e2e-framework`; it does not
-  re-specify how to write tests or which e2e tool to use.
+- **`verification`** requires observed evidence for the scoped outcome at the
+  layer selected by `testing`. Changed runtime boundaries need real-path proof;
+  internal changes may already have sufficient unit or regression coverage.
+  It does not require another test layer or re-specify which tool to use.
 
 ## Components
 
 - **Re-review before done**: an adversarial second pass against the acceptance
   criteria and integration risks — not a self-affirming "looks good to me".
-- **Whole-stack exercise**: the real user flows are driven against the running
-  system (the full stack from user action to datastore and back), not a
-  green unit suite standing in for the system.
+- **Runtime-boundary exercise**: changed user flows and integrations need
+  real-path proof; unit tests cannot establish a client handshake or deployment
+  claim. Unchanged boundaries do not create a new test campaign.
 - **Requirement-linked results**: existing mappings and test-source citations
   connect criteria to observed run reports. Supplemental observations cover
   proof gaps outside the normal reporting path; no extra file is mandatory.
@@ -40,16 +39,16 @@ duplicate the other two:
 
 ### Not done until observed evidence exists
 
-- "Done" means the whole stack was exercised with **recorded evidence**, not
-  that a unit suite is green. A passing unit layer is necessary, not
-  sufficient.
+- "Done" requires observed evidence sufficient for the scoped behavior and
+  material risks. Use existing tests where sufficient; do not require every
+  layer for every criterion or a new matrix for mechanical changes.
 - Before claiming completion, an agent must produce the evidence artifacts in
   `practices.md`: the command run + its exit status, the target URL/env, and the
-  core flows exercised, including each guard branch observed. Existing reports
+  affected flows exercised, including material failure branches. Existing reports
   carry these facts and the tested revision; link them from the existing mapping
   or acceptance record. A cited test alone is not proof it ran and passed.
-- If the change has a named downstream consumer in another repo, "done"
-  requires evidence that the consumer pulled the change and its integration was
+- If the change affects an integration with a named consumer in another repo,
+  "done" requires evidence that the consumer pulled the change and its integration was
   exercised. Local gate-green alone is not enough.
 - This catches **locally-correct / globally-wrong** work: components that pass
   in isolation but fail when composed into the running system.
@@ -75,8 +74,10 @@ duplicate the other two:
 
 ## Exceptions (honored in concern-resolution and at the gate)
 
-The evidence gate adapts to work where full-stack e2e is not the right proof.
-Record which exception applies and why:
+Use the appropriate existing proof for the scoped work. Internal refinements
+need no exception record merely because unit or regression checks suffice.
+For a required boundary exercise that is infeasible, record the reason and
+substitute proof in the existing acceptance record:
 
 - **Library / docs-only / non-buildable work** — there is no running stack to
   exercise. The evidence is the layer that *does* exist: the library's tests
@@ -96,22 +97,22 @@ was not observed.
 
 ## Drift Signals (anti-patterns to reject in review)
 
-- "Done" / "complete" claimed with only a unit suite green and no
-  whole-stack run → not done; produce the evidence artifacts
+- A changed runtime boundary claimed verified only by unit tests → exercise
+  that boundary with its real client and record the observed result
 - A reported result (status code, flow outcome, metric) with no recorded run
   behind it → verify-don't-trust violation; re-run and observe
 - A self-review that only confirms the author's intent → replace with an
   adversarial re-review against ACs + integration risks
 - "e2e is infeasible" with no recorded reason → record the reason or produce
   the evidence
-- Components pass in isolation, system never exercised end-to-end →
-  locally-correct / globally-wrong; exercise the running stack
+- A new integration passes in isolation but never ran through its real entry
+  point → exercise the integration before claiming it works
 - An agent/network-facing surface (MCP server, OAuth/SSO login, a remote
   endpoint) declared done on unit tests, with no real client ever completing the
   handshake/login against the real address → not done; the runtime boundary is
   exactly where unit-green hides the defect (the connection, the token exchange,
   the cert, localhost-vs-real-host). Drive a real client end-to-end before "done".
-- A change with a named downstream consumer declared done on local gate-green
+- An affected downstream integration declared done on local gate-green
   alone, with no observed downstream-consumer evidence → not done; the consumer
   must pull the change and exercise the integration.
 
@@ -126,7 +127,8 @@ replace either.
 
 ## Artifact Impact
 
-Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+Apply these responsibilities in relevant existing artifacts or the acceptance
+record. Concern selection alone does not require a new process document:
 - STORY_TEST_PLAN: existing AC/test mapping and citations link to observed run
   results; Notes/Executable Proof link supplemental observations only for proof
   gaps. Other requirement types use their existing acceptance records.

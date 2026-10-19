@@ -360,6 +360,9 @@ def check_ux_coverage(body: str, base: int, severity: str, report: Report) -> No
             if all(re.fullmatch(r":?-+:?", c or "-") for c in cells):
                 continue
             names = [slugify(c) for c in cells]
+            names = ["test_s_to_create_or_run" if n in (
+                "failing_test_s_to_create_or_run", "new_or_existing_test_s_to_create_or_run"
+            ) else n for n in names]
             if all(c in names for c in columns):
                 header = names
                 continue
@@ -369,7 +372,7 @@ def check_ux_coverage(body: str, base: int, severity: str, report: Report) -> No
         return rows
 
     mapping_heads = [h for h in headings if slugify(h.group(1)) == "acceptance_criteria_test_mapping"]
-    columns = ("ac_id", "failing_test_s_to_create_or_run", "asserted_behavior_what_the_test_verifies", "file_or_command")
+    columns = ("ac_id", "test_s_to_create_or_run", "asserted_behavior_what_the_test_verifies", "file_or_command")
     mapped = {}
     for heading in mapping_heads:
         for row in table_rows(section(heading), columns):

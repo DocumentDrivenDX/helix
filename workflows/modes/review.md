@@ -4,7 +4,9 @@ Use for an explicitly requested fresh-eyes review of a plan, artifact, change,
 or implementation.
 
 1. Define the target and keep the review within that scope. Read the governing
-   requirements, decisions, tests, and changed material that bear on it.
+   requirements, decisions, tests, and changed material that bear on it. Assess
+   cohesion, redundant mechanisms and consequential operations or costs where
+   relevant. Existing test success alone does not justify the design.
 2. Report actionable findings first, with severity, location, and evidence.
    Verify factual claims about tests, coverage, or metrics before relying on
    them. Preserve security, correctness, and user-authorized stop rules.

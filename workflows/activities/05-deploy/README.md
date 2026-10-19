@@ -232,7 +232,7 @@ Before marking deployment complete:
 ### Pre-Deployment Checks
 - [ ] All tests passing in CI/CD
 - [ ] Security scans completed
-- [ ] Performance benchmarks met
+- [ ] Applicable performance requirements met
 - [ ] Documentation updated
 - [ ] Rollback plan tested
 

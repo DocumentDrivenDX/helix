@@ -96,7 +96,7 @@ Before creating new design docs:
 
 ### 2. Over-Engineering
 **Violation**: "We need 7 microservices for future scalability"
-**Correction**: "Start with 3 services maximum. Document future scaling strategy."
+**Correction**: "Reuse existing boundaries. Add a service only for a demonstrated responsibility or constraint."
 
 ### 3. Missing Contracts
 **Violation**: "We'll figure out the API as we build"

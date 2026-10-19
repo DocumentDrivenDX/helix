@@ -17,11 +17,15 @@ all
 
 ### Tests must always pass
 
-- A failing test means the code is broken, not the test. Fix the code first.
-- If a test is genuinely wrong, fix the test and document why in the commit
-  message — but this should be rare. Default assumption: the test is right.
-- Never skip, disable, or delete a test to make CI green. `.skip` and
-  `@Ignore` are tech debt — they hide regressions.
+- Investigate failures against governing intent; either the code or the test
+  may be wrong. Do not preserve an obsolete mechanism solely to satisfy a test.
+- Revise or consolidate tests coupled to superseded implementation details.
+  Retire redundant tests when meaningful coverage remains, and remove tests for
+  intentionally retired behavior with the authorized requirement change. When a
+  retired test is mapped to an acceptance criterion, update its Story Test Plan
+  row to the test that still covers it.
+- Never skip, disable, or delete a test to hide a regression. `.skip` and
+  `@Ignore` cannot substitute for resolving a failure.
 - Never commit with failing tests. If you cannot fix the failure, leave the
   code uncommitted and report the blocker.
 - Flaky tests are bugs. Investigate and fix the non-determinism (race
@@ -29,10 +33,11 @@ all
 
 ### Tests identify issues in the code
 
-- Tests are specifications: they define what the system should do, and they
-  fail when the system does something else.
-- A test that never fails is not providing value. If a test has never caught
-  a bug, question whether it is testing something meaningful.
+- Tests encode expected behavior under governing requirements and can be
+  revised when evidence shows they encode an unnecessary mechanism.
+- Assess whether assertions detect a meaningful failure. A regression test can
+  remain valuable without having failed in normal runs; test count and failure
+  history alone do not establish value.
 - Prioritize testing behavior (what the system does) over implementation
   (how it does it). Tests that break when you refactor internals without
   changing behavior are over-coupled.
@@ -119,7 +124,8 @@ framework, or domain. Compose with language-specific concerns
 
 ## Artifact Impact
 
-Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+Apply these responsibilities in relevant existing artifacts or the acceptance
+record. Concern selection alone does not require a new process document:
 - TEST_PLAN: AC-class to primary-layer allocation, framework choice with cost, data strategy
 
 ## ADR References

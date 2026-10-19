@@ -87,7 +87,9 @@ That evidence flows back to the appropriate planning layer.
 - A failed acceptance test may reveal an incomplete specification. 
 - Production behavior may challenge an assumption in the requirements. 
 
-HELIX responds to this feedback with the smallest sufficient intervention. New evidence should change only what needs to change: fix the implementation when the specification is still correct, revise the specification when the expected behavior was incomplete, or revisit a higher-level decision when the evidence shows that the underlying assumption no longer holds. 
+Execution feedback should improve the coherence and economy of the system. As responsibilities and boundaries become clear, use what is learned to consolidate overlapping mechanisms, eliminate unnecessary work, and simplify specifications, interfaces, implementation, and tests. New requirements may justify expansion; refinement within established requirements should increasingly enable simplification.
+
+Judge an intervention by the system it leaves behind. Updating many callers may preserve a clearer design than adding another method. Removing a redundant mechanism may resolve more uncertainty than adding tests around it. Preserve required behavior and meaningful evidence while reducing what must be understood, operated, and maintained.
 
 Plans remain useful because they guide execution. They remain current because execution can challenge and revise them as the project learns.
 
@@ -97,7 +99,7 @@ Plans remain useful because they guide execution. They remain current because ex
 - **I**ntent governs implementation and guides how the team reconciles disagreements between artifacts. Evidence can justify revising that intent, but the change must be explicit.
 - **H**uman authority defines the boundaries within which agent autonomy can vary. The balance changes with the task, its risks, and the available evidence.
 - **E**vidence establishes whether the work satisfies the project's commitments. Confidence in quality comes from validation rather than an agent's assurance that the work is complete.
-- e**X**ecution feedback carries what the team learns back into plans and artifacts. HELIX responds with the smallest sufficient intervention, updating the affected artifacts and implementation without unnecessary disruption.
+- e**X**ecution feedback carries what the team learns back into plans and artifacts. As understanding improves, use that feedback to simplify the system and update the affected artifacts while preserving required behavior.
 
 The [Use HELIX](/use/) section translates these principles into workflows, alignment loops, and adoption guidance. The [Artifact Types](/artifact-types/) catalog defines the documents that carry project intent, while the [Concerns](/concerns/) library applies standards and constraints across the artifact graph.
 

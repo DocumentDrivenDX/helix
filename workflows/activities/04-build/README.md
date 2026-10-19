@@ -1,25 +1,24 @@
 # Activity 04: Build
 
-The execution activity where we transform designs and contracts into working code using test-driven development.
+The execution activity where we implement and refine governing intent with continuous verification.
 
 ## Purpose
 
-The Build activity is where code comes to life. Following the contracts and test specifications from Design, this activity emphasizes test-driven development (TDD), incremental delivery, and continuous validation. Every line of code is written to make a failing test pass.
+Build implements authorized behavior across affected producers and consumers. Use execution feedback to improve cohesion, remove unnecessary operations and consolidate overlapping mechanisms. Existing tests can verify a mechanical change; new behavior or a regression may need additional proof.
 
 ## Key Principle
 
-**Red-Green-Refactor**: Write failing tests first (Red), write minimal code to pass (Green), then improve code quality (Refactor). No production code exists without a failing test demanding it.
+**Refine Through Execution**: Preserve required outcomes while simplifying the system and its verification. Use Red-Green-Refactor where a failing test supplies missing evidence; do not manufacture failing tests for every edit.
 
 ## Input Gate
 
 Before starting Build activity, verify Test activity outputs:
-- [ ] All test suites written and reviewed
-- [ ] Tests are failing (Red activity of TDD)
+- [ ] Existing coverage and any missing behavioral evidence are understood
 - [ ] Coverage plan identifies scoped requirements and meaningful tests
 - [ ] CI/CD pipeline configured for tests
 - [ ] Test procedures documented
 - [ ] Test infrastructure operational
-- [ ] Security test suite completed and failing
+- [ ] Applicable security verification is planned using existing or new tests
 - [ ] SAST/DAST tools configured in CI/CD pipeline
 - [ ] Security coding standards established
 
@@ -65,33 +64,18 @@ See `workflows/references/work-item-first.md` for the shared contract.
 
 ## Core Workflow
 
-### Test-Driven Development Cycle
+### Implementation and Feedback
 
-```mermaid
-graph LR
-    A[Write Failing Test] -->|Red| B[Write Minimal Code]
-    B -->|Green| C[Test Passes]
-    C -->|Refactor| D[Improve Code]
-    D --> A
-```
+Trace the requested outcome through the existing interfaces and operations.
+Reuse meaningful coverage and add tests for distinct gaps. Implement in coherent
+increments, using Red-Green-Refactor where useful, then run applicable checks.
+Simplify code and tests as evidence clarifies the design; refactoring need not
+wait until every implementation step is complete.
 
-### Build Order
-
-1. **Contract Tests First**
-   - Create test files for all external interfaces
-   - Run tests - verify they fail
-   - This defines what "done" looks like
-
-2. **Integration Tests Second**
-   - Create tests for component interactions
-   - Run tests - verify they fail
-   - This ensures components work together
-
-3. **Implementation Last**
-   - Write minimal code to pass first test
-   - Refactor when green
-   - Move to next failing test
-   - Repeat until all tests pass
+Prefer changing an existing operation and updating its callers over adding an
+overlapping API merely to keep the diff small. Respect actual compatibility
+commitments. Inspect generated work and measured costs where they bear on the
+change; passing tests do not justify redundant queries, caches or checks.
 
 ## Human vs AI Responsibilities
 
@@ -106,56 +90,29 @@ graph LR
 - **Code Generation**: Write code to pass tests
 - **Test Implementation**: Create test files from specifications
 - **Refactoring**: Improve code structure
-- **Documentation**: Generate inline documentation
+- **Documentation**: Use descriptive names and concise language-native API documentation; retain comments for non-obvious rationale
 - **Pattern Application**: Apply consistent coding patterns
 
 ## Build Activities
 
-### Activity 1: Foundation (Red)
-**Goal**: All tests written and failing
+### Activity 1: Foundation
 
-Deliverables:
-- [ ] Contract test files created
-- [ ] Integration test files created
-- [ ] Test runner configured
-- [ ] All tests failing with clear messages
-- [ ] CI/CD pipeline running tests
+Establish governing behavior, relevant existing coverage and any missing proof.
+Reuse the project's test infrastructure. A new failing test may establish a
+regression or new behavior; an already passing suite can support refactoring.
 
-**Success Criteria**:
-- 100% of specified tests exist
-- 0% of tests passing
-- Clear failure messages
+### Activity 2: Core Build
 
-### Activity 2: Core Build (Green)
-**Goal**: Make tests pass incrementally
-
-Deliverables:
-- [ ] Core libraries implemented
-- [ ] CLI interface functional
-- [ ] Data persistence working
-- [ ] Error handling complete
-- [ ] All contract tests passing
-
-**Success Criteria**:
-- 100% contract tests passing
-- 100% integration tests passing
-- No implementation without test
+Implement the bounded outcome across affected components. Integrate continuously
+and verify behavior with appropriate tests. Remove superseded paths rather than
+preserving them solely to avoid changing callers or tests.
 
 ### Activity 3: Quality (Refactor)
-**Goal**: Improve code without breaking tests
 
-Deliverables:
-- [ ] Code refactored for clarity
-- [ ] Performance optimized
-- [ ] Documentation complete
-- [ ] Security hardened
-- [ ] Edge cases handled
-
-**Success Criteria**:
-- All tests still passing
-- Code coverage meets targets
-- Performance requirements met
-- Security scan passing
+Consolidate overlapping responsibilities, remove redundant operations and assess
+relevant measured costs. Revise or retire redundant and implementation-coupled
+tests while retaining meaningful proof. Run applicable project checks and the
+verification concern's observed-result contract before claiming completion.
 
 ## Quality Standards
 
@@ -171,84 +128,38 @@ Deliverables:
 - [ ] **Independent**: Tests don't depend on each other
 - [ ] **Repeatable**: Same result every time
 - [ ] **Self-Validating**: Clear pass/fail
-- [ ] **Timely**: Written before code
-
-## Common Patterns
-
-### Pattern: Contract Test First
-```bash
-# 1. Create contract test
-test/contracts/cli_test.go
-
-# 2. Run test - see it fail
-make test  # FAIL: CLI not found
-
-# 3. Create minimal implementation
-cmd/cli.go
-
-# 4. Run test - see it pass
-make test  # PASS
-
-# 5. Refactor if needed
-# Improve structure while tests stay green
-```
-
-### Pattern: Integration Test Flow
-```bash
-# 1. Create integration test
-test/integration/workflow_test.go
-
-# 2. Test fails - components don't exist
-make test  # FAIL: Components not found
-
-# 3. Build components incrementally
-internal/component1/
-internal/component2/
-
-# 4. Connect components
-internal/workflow/
-
-# 5. Test passes
-make test  # PASS
-```
+- [ ] **Behavioral**: Assert outcomes, not private steps
 
 ## Build Guidelines
 
 ### Do's ✅
-- Write the test first, always
-- Make tests fail before making them pass
-- Write minimal code to pass tests
-- Refactor only when tests are green
-- Commit after each passing test
-- Keep build log for progress tracking
+- Inspect existing implementation and coverage before adding mechanisms
+- Use failing tests to establish missing behavior where useful
+- Propagate required changes across affected callers
+- Consolidate code and tests while preserving required outcomes
+- Commit coherent verified changes
 
 ### Don'ts ❌
-- Write code without a failing test
-- Write multiple features at once
-- Skip the refactor step
-- Add features not in specifications
-- Mock when you can use real dependencies
-- Ignore failing tests
+- Add parallel APIs merely to reduce edited lines
+- Preserve redundant mechanisms because their private-detail tests expect them
+- Weaken required assertions or suppress failures to force green
+- Add unrelated features or cleanup
 
 ## Incremental Delivery
 
-### Daily Progress Tracking
-Track progress to maintain momentum:
+### Progress Tracking
 
-| Day | Tests Written | Tests Passing | Coverage | Notes |
-|-----|--------------|---------------|----------|--------|
-| 1 | 10 | 0 | 0% | All contract tests written |
-| 2 | 15 | 5 | 30% | CLI interface working |
-| 3 | 20 | 15 | 60% | Core library complete |
-| 4 | 20 | 20 | 85% | All tests passing |
+Track verified outcomes, resolved risks and remaining work in the existing plan.
+Test counts and growing coverage percentages alone do not establish progress.
+Simplification may reduce code and test volume while preserving required proof.
+
 
 ### Continuous Integration
 Every commit should:
 1. Pass all existing tests
 2. Not break previous functionality
-3. Include its own tests
-4. Update documentation
-5. Pass linting and formatting
+3. Use sufficient existing or new behavioral coverage
+4. Pass linting and formatting
 
 ## Common Pitfalls
 
@@ -256,7 +167,7 @@ Every commit should:
 
 1. **Writing Code Without Tests**
    - Bad: "I'll add tests later"
-   - Good: Test fails → Code written → Test passes
+   - Good: Identify existing coverage; add a failing regression test for missing proof
 
 2. **Big Bang Integration**
    - Bad: Build everything then integrate
@@ -264,11 +175,11 @@ Every commit should:
 
 3. **Over-Engineering**
    - Bad: Adding features "just in case"
-   - Good: Only what tests require
+   - Good: Clear responsibilities and no unnecessary mechanisms
 
 4. **Test After Development**
    - Bad: Code complete, now writing tests
-   - Good: No code without failing test
+   - Good: Plan appropriate verification before implementing; reuse coverage where sufficient
 
 5. **Ignoring Refactor Step**
    - Bad: Moving to next feature immediately
@@ -278,8 +189,8 @@ Every commit should:
 
 The Build activity is complete when:
 
-1. **All Tests Pass**: 100% of specified tests green
-2. **Coverage Met**: Contract coverage 100%, critical paths covered
+1. **All Tests Pass**: Applicable project checks are green
+2. **Coverage Met**: Governing behavior and critical paths verified under project targets
 3. **Performance Verified**: Meets requirements under load
 4. **Security Validated**: Passes security scans
 5. **Documentation Complete**: Code and API documented
@@ -316,36 +227,21 @@ make lint
 make fmt
 ```
 
-### TDD Rhythm
-```bash
-# 1. RED: Write failing test
-echo "test_cli_accepts_input()" > test_cli.py
-pytest  # FAIL
-
-# 2. GREEN: Make it pass
-echo "def accept_input(): pass" > cli.py
-pytest  # PASS
-
-# 3. REFACTOR: Improve
-# Refactor cli.py while keeping tests green
-pytest  # STILL PASS
-```
-
 ## Build Artifacts
 
 By the end of Build activity, you should have:
 
 1. **Source Code**: All production code
-2. **Test Suite**: Comprehensive test coverage
-3. **Documentation**: API docs, README, comments
+2. **Test Suite**: Meaningful coverage of governing behavior
+3. **Documentation**: Relevant API documentation and README updates; comments only where they clarify non-obvious intent
 4. **Build Scripts**: Compilation and packaging
 5. **CI/CD Config**: Automated testing pipeline
 6. **Deployment Package**: Ready for deployment
 
 ## Tips for Success
 
-1. **Small Steps**: One test, one feature at a time
-2. **Frequent Commits**: Commit every passing test
+1. **Small Steps**: One coherent slice at a time
+2. **Coherent Commits**: Commit verified changes with their affected tests
 3. **Pair Programming**: Two eyes catch more issues
 4. **Continuous Integration**: Test on every push
 5. **Refactor Courageously**: Tests are your safety net

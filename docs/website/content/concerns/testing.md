@@ -27,11 +27,15 @@ all
 
 ### Tests must always pass
 
-- A failing test means the code is broken, not the test. Fix the code first.
-- If a test is genuinely wrong, fix the test and document why in the commit
-  message — but this should be rare. Default assumption: the test is right.
-- Never skip, disable, or delete a test to make CI green. `.skip` and
-  `@Ignore` are tech debt — they hide regressions.
+- Investigate failures against governing intent; either the code or the test
+  may be wrong. Do not preserve an obsolete mechanism solely to satisfy a test.
+- Revise or consolidate tests coupled to superseded implementation details.
+  Retire redundant tests when meaningful coverage remains, and remove tests for
+  intentionally retired behavior with the authorized requirement change. When a
+  retired test is mapped to an acceptance criterion, update its Story Test Plan
+  row to the test that still covers it.
+- Never skip, disable, or delete a test to hide a regression. `.skip` and
+  `@Ignore` cannot substitute for resolving a failure.
 - Never commit with failing tests. If you cannot fix the failure, leave the
   code uncommitted and report the blocker.
 - Flaky tests are bugs. Investigate and fix the non-determinism (race
@@ -39,10 +43,11 @@ all
 
 ### Tests identify issues in the code
 
-- Tests are specifications: they define what the system should do, and they
-  fail when the system does something else.
-- A test that never fails is not providing value. If a test has never caught
-  a bug, question whether it is testing something meaningful.
+- Tests encode expected behavior under governing requirements and can be
+  revised when evidence shows they encode an unnecessary mechanism.
+- Assess whether assertions detect a meaningful failure. A regression test can
+  remain valuable without having failed in normal runs; test count and failure
+  history alone do not establish value.
 - Prioritize testing behavior (what the system does) over implementation
   (how it does it). Tests that break when you refactor internals without
   changing behavior are over-coupled.
@@ -129,7 +134,8 @@ framework, or domain. Compose with language-specific concerns
 
 ## Artifact Impact
 
-Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+Apply these responsibilities in relevant existing artifacts or the acceptance
+record. Concern selection alone does not require a new process document:
 - TEST_PLAN: AC-class to primary-layer allocation, framework choice with cost, data strategy
 
 ## ADR References
@@ -141,8 +147,9 @@ Agents working in any of these activities inherit the practices below through ru
 ## Requirements (Frame activity)
 
 - Every user story must have testable acceptance criteria
-- Acceptance criteria must be specific enough to write a failing test before
-  implementation starts (TDD)
+- Acceptance criteria must name observable outcomes. Use a failing test to
+  establish a regression or new behavior when it supplies missing evidence;
+  existing coverage may already verify a mechanical change or refactor.
 - Non-functional requirements (latency, throughput, availability) must have
   measurable targets that become ratchet floors
 
@@ -161,6 +168,14 @@ the usable interface is proven. Record that sequencing in the existing test or
 implementation plan; do not invent a maturity artifact or weaken requirements.
 A broad claim still requires broad proof; narrow the claim explicitly rather
 than imply untested scale or interoperability is supported.
+
+Inspect existing coverage and the affected system's actual operations before
+adding tests or matrices. Boundary observations (generated SQL and query
+measurements, network requests) can expose unnecessary mechanisms that passing
+tests would preserve; remove those rather than test around them. Add tests for
+distinct uncovered behavior or material failure risks. Weigh a test's fixtures,
+helpers, runtime and maintenance against the distinct behavior it proves, and
+prefer smaller verification at the layer that best detects the failure.
 
 The strategy below applies where its behavior or risk is in scope. Periodic
 campaigns are not a prerequisite for every implementation slice. Required
@@ -186,7 +201,8 @@ regression checks and the verification concern's observed-result gate remain.
   directory
 - Test files named `<module>.test.<ext>` or `<module>_test.<ext>`
 - Group related tests with `describe` / `context` / `mod tests`
-- Each test tests one behavior — if you need "and" in the name, split it
+- Keep each test focused on a meaningful behavior; related assertions may share
+  one scenario when splitting would duplicate setup and evidence.
 
 ### Test names and requirement citations
 
@@ -233,9 +249,8 @@ practices for run provenance and conditional supplemental observations.
 
 ### Property-based testing
 - Define properties as pure boolean functions: `(input) => invariant(fn(input))`
-- Start with at least: round-trip (encode/decode), idempotency (applying
-  twice = applying once), monotonicity (larger input → larger or equal output),
-  and no-crash (arbitrary input does not panic/throw)
+- Select properties that hold for the required behavior, such as round-trip or
+  idempotency. Do not generate properties or suites merely to fill categories.
 - Shrink failing cases to minimal reproduction
 - Run property tests in CI with enough iterations (100+ per property)
 
@@ -276,11 +291,10 @@ practices for run provenance and conditional supplemental observations.
 
 ## Surface → real-path harness
 
-The harness that *proves* a behavior depends on the surface it lives on. Drive
-each acceptance criterion's real path **and its guard/negative branch** through
-the harness its surface dictates. (Choosing the harness is a testing-strategy
-decision; the `verification` concern's evidence gate only refuses "done" without
-the resulting running-system evidence.)
+Choose the harness for the behavior and risk being verified. Changed user flows
+and runtime boundaries need real-path evidence, including applicable material
+failure branches. Internal criteria may be verified at a narrower layer; do not
+repeat them through every surface or invent a guard branch for each criterion.
 
 | Surface | Real-path harness |
 |---|---|
@@ -300,5 +314,5 @@ not verified.
 - All tests pass — no exceptions, no skips without linked issues
 - Performance ratchet: key metrics ≥ committed floor
 - New features have tests tracing to acceptance criteria
-- Property tests run for all serialization, parsing, and arithmetic modules
+- Property tests cover selected invariants where they add meaningful evidence
 - No test mocks internal implementation — only system boundaries

@@ -63,7 +63,7 @@ Typical order:
    Define architecture, ADRs, contracts, feature-level solution designs, and
    story-level technical designs.
 4. Test in `docs/helix/03-test/` and `tests/`
-   Write the test plan and failing tests before implementation.
+   Write the test plan; reuse or add tests for the scoped behavior.
 5. Build in `docs/helix/04-build/` plus the runtime's work-item tracker
    Keep project build guidance in docs and story-level execution work in the
    runtime tracker.

@@ -392,7 +392,7 @@ graph TD
 
 ### AI Assistant Responsibilities
 - **Contract Generation**: Create detailed interface specifications
-- **Test Case Design**: Generate comprehensive test scenarios
+- **Test Case Design**: Identify gaps in existing coverage and select meaningful scenarios
 - **Consistency Validation**: Check alignment with requirements
 - **Documentation**: Structure technical specifications
 - **Pattern Suggestions**: Recommend proven solutions
@@ -403,22 +403,10 @@ graph TD
 ## Design Principles Enforcement
 
 ### Core Principles Checklist
-- [ ] **Library-First**: Each feature is a standalone library
-- [ ] **CLI Interface**: All functionality exposed via text interface
-- [ ] **Test-First**: Tests specified before implementation
-- [ ] **Simplicity**: Maximum 3 major components
+- [ ] **Verification**: Existing evidence and missing behavioral proof identified
+- [ ] **Simplicity**: Every component has a current responsibility
 - [ ] **Anti-Abstraction**: Direct framework usage, no wrappers
 - [ ] **Integration Testing**: Real environments over mocks
-
-### Complexity Budget
-Track design complexity to prevent over-engineering:
-
-| Component | Complexity Points | Justification |
-|-----------|------------------|---------------|
-| Component 1 | 1 | Core requirement |
-| Component 2 | 1 | Essential integration |
-| Component 3 | 1 | (Only if justified) |
-| **Total** | **≤ 3** | Must stay within budget |
 
 ## Quality Gates
 
@@ -485,8 +473,8 @@ The Design activity is complete when:
 ## Next Activity: Test
 
 Once Design is validated, proceed to Test activity where you'll:
-- Write comprehensive test specifications
-- Implement failing tests (Red activity)
+- Reuse or extend verification for scoped behavior and material risks
+- Establish missing behavior with failing tests where useful
 - Define test data and scenarios
 - Establish test infrastructure
 
@@ -509,7 +497,7 @@ Don't design for hypothetical future needs. Design for current requirements only
 Choose tools pragmatically based on requirements, not preferences.
 
 ### 🚫 Test Theater
-Don't write tests that always pass. Tests must fail first, then pass.
+Inspect whether assertions detect meaningful failures. Existing passing tests are valid evidence; do not manufacture a Red state or a new matrix for every change.
 
 ### 🚫 Contract Drift
 Implementation must match contracts exactly. No undocumented behavior.
@@ -531,7 +519,7 @@ AI is useful for tradeoff analysis, option comparison, and documentation
 drafting. Architectural choices that existing intent cannot resolve remain
 human decisions; a committed design needs no separate lifecycle sign-off.
 
-The AI excels at generating comprehensive contracts and test cases but human judgment is essential for architectural decisions and technical trade-offs.
+Agents should inspect existing contracts, callers and tests before proposing additions. Design review assesses coherence and relevant operating costs; document volume and test count do not establish quality.
 
 ## Design Review Checklist
 

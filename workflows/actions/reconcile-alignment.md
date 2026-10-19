@@ -1,9 +1,11 @@
 # HELIX Action: Reconcile Alignment
 
-Compare the requested HELIX documents and resolve meaningful inconsistencies.
-An implementation audit is a separate operation: run it only when the user
-explicitly requests one and gives a scope. Keep analysis read-only unless the
-user also authorizes edits.
+Compare the requested artifacts or named system/component with governing intent
+and assess opportunities for simplification. A system/component alignment includes
+its relevant implementation and tests without another audit invocation; a
+request limited to documents does not authorize a code audit. Comprehensive
+inventory requires explicit selection. Keep analysis read-only unless the user
+also authorizes edits.
 
 ## Scope and authority
 
@@ -33,12 +35,26 @@ records the chosen direction; implementation status requires separate evidence.
    destination text only when the user asks for it or authorizes edits.
 5. Report findings with evidence and a useful next step. A conversational
    answer is sufficient by default.
+6. Separately, list simplification opportunities: overlapping types or
+   operations, duplicated verification, or obsolete detail. Report one only when
+   removing it would materially reduce what must be understood or maintained;
+   length alone is not a defect. Name the redundancy, the proposed removal and
+   the evidence that keeps the required outcome. These are advisory: they take
+   no gap classification, do not block readiness and create no work items by
+   default.
 
-## Explicit implementation audit
+## Implementation comparison
 
-When requested, inspect only implementation and test surfaces relevant to the
-named scope. Select checks that answer the audit question; a full inventory is
-not required unless the user asks for comprehensive coverage.
+For system/component alignment or an explicitly requested implementation audit,
+inspect only code and tests relevant to the named scope. Compare the resulting
+system's coherence as well as requirement coverage: overlapping methods or types,
+duplicated state, unnecessary operations, tests that duplicate other evidence or
+assert private steps, and comments that restate code or design documents. Judge
+these under `workflows/principles.md` (Design for Simplicity, Make Intent
+Explicit) and the testing practices, and report them as in step 6.
+
+Select the existing checks below where they answer the alignment question; a full
+inventory is not required unless the user asks for comprehensive coverage.
 
 - **Bidirectional traceability:** for comprehensive audits, map material scoped
   code surfaces (such as routes, APIs, jobs, migrations, feature flags, and

@@ -188,17 +188,13 @@ selection by the active autonomy level (FEAT-011; see `workflows/actions/input.m
 2. Map the nature to candidate library concerns — e.g. web app → a tech-stack
    concern + a frontend concern + `a11y-wcag-aa`; API service → tech-stack +
    `o11y-otel` + `security-owasp`.
-2a. **Auto-select `verification` for any buildable product.** `verification` is
-   the always-on **evidence gate** ("not done until observed evidence of the
-   running system exists"); it is composable (no slot) and composes on top of
-   `testing` and the `e2e-framework` slot — it does not replace either. Add it
-   to the inferred selection for every buildable product, recorded as an
-   assumption. **Exceptions are narrow**: only library / docs-only / non-buildable
-   work (no running stack to exercise) may omit `verification`. A buildable
-   product where full-stack e2e is genuinely infeasible **still selects
-   `verification`** — it only *relaxes the full-stack-e2e form of evidence*,
-   recording the specific reason and substituting the strongest observable
-   evidence available. See `workflows/concerns/verification/concern.md`.
+2a. **Auto-select `verification` for any buildable product.** It requires
+   observed evidence at the justified layer. Changed runtime boundaries need
+   real-path proof; internal or mechanical work may already have sufficient
+   regression, unit or compile checks. Full-stack E2E is not required for every
+   criterion. If a required boundary exercise is infeasible, use the strongest
+   observable substitute under `workflows/concerns/verification/concern.md`.
+
 2a-i. **Auto-select `code-shape-ceilings` for any buildable product with
    hand-written source.** It is composable (no slot) and owns the complexity,
    function, class, and file-size ceilings, the ceilings-only-go-down check, and
