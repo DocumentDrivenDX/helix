@@ -1,7 +1,7 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-verification-contract test-publish-artifacts test-ux-governance test-plan-execution test-modularity test-agent-diagnostics test-formal-methods test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-publish test-validate-publish-traits test-validate-publish-generators test-validate-guide test-validate-architecture-estate test-validate-architecture-views test-validate-architecture-present test-validate-deliverable test-headline-sync test-deck-render test-demos test-innsigle test-eval-checks
+test: test-verification-contract test-publish-artifacts test-ux-governance test-plan-execution test-modularity test-agent-diagnostics test-formal-methods test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-publish test-validate-publish-traits test-validate-publish-generators test-validate-guide test-validate-architecture-estate test-validate-architecture-views test-validate-architecture-present test-architecture-python test-validate-deliverable test-headline-sync test-deck-render test-demos test-innsigle test-eval-checks
 
 # Serve the HELIX microsite at the canonical local review URL.
 website-serve:
@@ -28,6 +28,13 @@ test-validate-architecture-views:
 
 test-validate-architecture-present:
     bash tests/validate-architecture-present.sh
+
+# The architecture scripts' unit tests (layout, routing, the pages), with pytest when it is installed.
+test-architecture-python:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    python3 -c 'import pytest' 2>/dev/null || { echo "SKIP: tests/python needs pytest (pip install pytest pyyaml)"; exit 0; }
+    python3 -m pytest -q tests/python
 
 # Validate deploy artifact graph consistency
 test-deploy-artifacts:
