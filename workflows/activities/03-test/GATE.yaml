@@ -6,30 +6,14 @@ activity: test
 number: "03"
 
 entry_requirements:
-  automated:
-    - check: previous_phase_complete
-      activity: 02-design
-
-    - check: file_exists
-      path: docs/helix/02-design/architecture.md
-      description: "Architecture from Design activity must exist"
-
-    - check: grep_absent
-      pattern: "\\[TO BE DEFINED\\]"
-      path: docs/helix/02-design/**/*.md
-      description: "No TBD markers in design documents"
+  automated: []
 
   manual:
     - "Relevant design decisions and constraints are clear"
-    - "User stories have clear acceptance criteria"
+    - "Scoped outcomes have clear acceptance criteria"
 
 exit_requirements:
   automated:
-    # Test plan and documentation
-    - check: file_exists
-      path: docs/helix/03-test/test-plan.md
-      description: "Test plan document must exist"
-
     # Reuse the project's suites; no new suite per test layer is required.
     - check: tests_exist
       path: tests

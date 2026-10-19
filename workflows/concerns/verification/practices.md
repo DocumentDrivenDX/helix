@@ -6,11 +6,12 @@ Apply the evidence gate defined in `concern.md`.
 
 Before Build, use `workflows/concerns/testing/practices.md` to scope proof to
 the governing requirements, claimed capability and failure risk. Identify the
-change's core flows, integration seams, required
-runtime harnesses and observable outcomes, including each governing acceptance
-criterion's guard/negative branch. Plan any downstream-consumer exercise and
-applicable exception/substitute proof now. Keep the running system reachable
-with a start command and suitable seed data. Planned proof is not a passing run.
+changed core flows, integration seams and observable outcomes. Use the layer
+that detects each material failure; an internal rule may need unit coverage,
+while a changed runtime boundary needs its real client and applicable
+rejection/failure proof. Plan affected downstream-consumer checks and any
+substitute proof. Keep a required running system reachable with its start command
+and seed data. Planned proof is not a passing run.
 
 ## Completion contract
 
@@ -29,15 +30,17 @@ governing criteria and integration risks. Check:
 - Each mapped test exists, cites its criterion, asserts its actual outcome and
   ran successfully at the required layer. Names, citations and a green aggregate
   exit do not prove a skipped, deselected or unreported test ran.
-- Core flows and each AC's guard/negative branch ran on the running system via
-  the surface-appropriate harness in `workflows/concerns/testing/practices.md`.
-  Observe rejection/failure outcomes as well as success. An un-waived untested
-  branch leaves its criterion `UNTESTED`; reviewed exclusions need substitute
-  proof under the exception rules below. Unit-green alone is insufficient.
-- A named downstream consumer pulled the change and exercised its integration.
+- Changed core flows and integration boundaries ran on the running system via
+  the appropriate harness in `workflows/concerns/testing/practices.md`, including
+  each applicable material guard/negative branch. Internal rules, refactors and
+  mechanical updates may use sufficient regression, unit or compile checks.
+  Do not duplicate every criterion at runtime or invent a rejection branch.
+  Missing required proof leaves the affected claim `UNTESTED`.
+- When the change affects a named downstream integration, that consumer pulled
+  the change and exercised its integration.
   An external/client-facing boundary needs its real client handshake/login on
   the real address; a localhost stub cannot prove that boundary works.
-- The build honors selected concerns and slots. A UI core flow ran green using
+- The build honors selected concerns and slots. An affected UI core flow ran green using
   browser E2E for client-rendered UI or HTTP+HTML assertions against the live
   server for server-rendered UI. Both are valid. Where page navigation exists,
   assert a visible active cue and `aria-current="page"` on at least one route;
@@ -81,7 +84,9 @@ criterion/change, tested revision/diff, command or manual procedure, environment
 observed outcome and supporting artifacts.
 
 For library / docs-only / non-buildable work, use the applicable library suite or
-docs build/link-check; there is no running stack to invent. If full-stack E2E is
+docs build/link-check; there is no running stack to invent. Selecting sufficient
+proof for internal or mechanical work is ordinary scoping, not an exception that
+needs a record. If required full-stack E2E is
 genuinely infeasible or a branch is not applicable/automatable, record scope,
 owner, rationale, reviewer/decision, strongest observable evidence available and
 review/removal trigger. Substitute proof may be a boundary-stub integration or

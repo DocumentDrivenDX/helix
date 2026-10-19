@@ -147,11 +147,10 @@ practices for run provenance and conditional supplemental observations.
 
 ## Surface → real-path harness
 
-The harness that *proves* a behavior depends on the surface it lives on. Drive
-each acceptance criterion's real path **and its guard/negative branch** through
-the harness its surface dictates. (Choosing the harness is a testing-strategy
-decision; the `verification` concern's evidence gate only refuses "done" without
-the resulting running-system evidence.)
+Choose the harness for the behavior and risk being verified. Changed user flows
+and runtime boundaries need real-path evidence, including applicable material
+failure branches. Internal criteria may be verified at a narrower layer; do not
+repeat them through every surface or invent a guard branch for each criterion.
 
 | Surface | Real-path harness |
 |---|---|

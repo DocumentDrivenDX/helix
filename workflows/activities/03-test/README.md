@@ -242,7 +242,7 @@ Before proceeding to Build activity, ensure:
 - [ ] Tests follow AAA pattern (Arrange, Act, Assert)
 - [ ] No implementation details in tests
 - [ ] Tests are deterministic (no flaky tests)
-- [ ] Performance benchmarks defined
+- [ ] Applicable performance requirements have appropriate verification
 
 ### Test Infrastructure
 - [ ] CI/CD pipeline configured

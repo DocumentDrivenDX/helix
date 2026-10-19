@@ -7,13 +7,6 @@ number: "04"
 
 entry_requirements:
   automated:
-    - check: previous_phase_complete
-      activity: 03-test
-
-    - check: file_exists
-      path: docs/helix/03-test/test-plan.md
-      description: "Test plan from Test activity must exist"
-
     - check: tests_exist
       path: tests
       description: "Test suites from Test activity must exist"
@@ -29,18 +22,13 @@ entry_requirements:
     - "Affected interactive UI work has reviewed STP UX Coverage per workflows/references/ux-evidence.md, named planned tests/commands and resolved component ownership/gaps. Package adoption plans applicable supplied/project checks and evidence capture. Entry requires an executable plan, not future passing runtime results."
     - "For handwritten source, modularity-and-encapsulation selection and Architecture Module Boundaries are adopted; boundary-checker scaffold precedes dependent features. Bounded adoption work may establish these prerequisites; source-free work records why they do not apply."
     - "Test suites exercise scoped requirements and failure cases"
-    - "Security test suite validated"
+    - "Applicable security behavior has meaningful existing or new verification"
 
 exit_requirements:
   automated:
     # All tests passing
     - check: tests_passing
       description: "All tests must pass"
-
-    # Coverage thresholds
-    - check: coverage_threshold
-      threshold: 80
-      description: "Code coverage must be at least 80%"
 
     # Security scan
     - check: security_scan_clean
@@ -50,11 +38,6 @@ exit_requirements:
     # Linting passes
     - check: lint_clean
       description: "No linting errors"
-
-    # Build artifacts
-    - check: file_exists
-      path: docs/helix/04-build/implementation-plan.md
-      description: "Implementation plan must exist"
 
     # Source code exists
     - check: dir_not_empty
@@ -98,11 +81,11 @@ exit_requirements:
     - "Affected interactive UI work has reviewed STP UX Coverage per workflows/references/ux-evidence.md; mapped tests and observed runtime behavior are verified separately from structure. With packaged-design-system, declared package/project quality-check evidence records versions, supported routes/themes, actual reports and finding/exception dispositions; those checks alone do not prove interaction behavior."
     - "For handwritten source, the boundary checker ran through the shared local/pre-commit/CI recipe; allowed imports passed and forbidden imports failed. Semantic review covers ownership, public APIs and invariants; existing debt did not hide new violations. Source-free work records non-applicability with a reason; authorized scoped exceptions supply the alternative verification required by the baseline contract."
     - "Code review completed and approved"
-    - "Performance benchmarks validated"
+    - "Project-adopted coverage targets and performance requirements verified where applicable to the scoped work; no default percentage or benchmark campaign is imposed."
     - "Requirement-linked results reviewed: existing acceptance mappings and test-source citations resolve to meaningful assertions and observed passing results under workflows/concerns/verification/practices.md (run provenance, retention and conditional supplemental observations)."
-    - "Verification evidence reviewed (adversarial): every governing AC's guard/negative branch was driven on the RUNNING system via the interface-appropriate harness (web→Playwright, HTTP API→request client, MCP/agent surface→real client handshake, auth/SSO→real login flow, real-network/remote surface→exercised on the real address not localhost-stub, CLI→shell, TUI→tmux, backend→integration). Happy-path-green is not done; an un-waived untested guard branch is not done."
-    - "Downstream-consumer evidence reviewed (adversarial): when a change has a named downstream consumer in another repo, done requires evidence that the consumer pulled the change and exercised its integration; local gate-green alone is not enough."
+    - "Verification evidence reviewed (adversarial): scoped criteria have observed proof at the justified layer. Changed user flows and integration boundaries, including each applicable material guard/negative branch, were exercised on the RUNNING system through the appropriate client. Internal or mechanical changes may use sufficient existing regression, unit or compile checks; do not invent runtime branches or duplicate layers."
+    - "Downstream-consumer evidence reviewed (adversarial): when a change affects an integration with a named downstream consumer in another repo, done requires evidence that the consumer pulled the change and exercised its integration; local gate-green alone is not enough."
     - "Scope discipline reviewed (per the scope-discipline concern): the change builds exactly what the acceptance criteria asked for — no unrequested features/abstractions/config (gold-plating), no pre-release legacy-compat shim without a released consumer, no requested capability silently narrowed (e.g. shipped read-only) without a recorded tradeoff, and changes serve the bounded outcome, including necessary caller updates and removal of superseded paths. Any phased placeholder is recorded and covered by no satisfied AC."
-    - "Code shape reviewed (per the code-shape-ceilings concern): the lint gate (`just lint`) passes, no ceiling was raised, no noqa/eslint-disable/biome-ignore/per-file ignore was added for a complexity, size, or parameter rule, no file is over the size cap, and new external systems live in their own module rather than an existing orchestrator."
+    - "Code shape reviewed (per the code-shape-ceilings concern): the lint gate (`just lint`) passes, no ceiling was raised, no noqa/eslint-disable/biome-ignore/per-file ignore was added for a complexity or size rule, no file is over the size cap, and new external systems live in their own module rather than an existing orchestrator."
 
 next_activity: deploy

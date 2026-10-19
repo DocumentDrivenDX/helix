@@ -124,7 +124,8 @@ framework, or domain. Compose with language-specific concerns
 
 ## Artifact Impact
 
-Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+Apply these responsibilities in relevant existing artifacts or the acceptance
+record. Concern selection alone does not require a new process document:
 - TEST_PLAN: AC-class to primary-layer allocation, framework choice with cost, data strategy
 
 ## ADR References
