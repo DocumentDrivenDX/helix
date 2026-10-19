@@ -1,5 +1,5 @@
 ---
-title: "Release Notes — HELIX v0.17.0"
+title: "Release Notes — HELIX v0.18.0"
 slug: release-notes
 weight: 550
 activity: "Deploy"
@@ -25,89 +25,92 @@ ddx:
     reviewed_at: "2026-10-04T03:52:23Z"
 ```
 
-# Release Notes — HELIX v0.17.0
+# Release Notes — HELIX v0.18.0
 
 ## Release Scope
 
-- Release identifier: `v0.17.0`
-- Release date: 2026-10-13
-- Previous release: `v0.16.0`
-- Scope: requirement-linked verification, bounded experiments, factual
-  authoring, progressive planning questions and behavioral regression scenarios.
+- Release identifier: `v0.18.0`
+- Release date: 2026-10-19
+- Previous release: `v0.17.0`
+- Scope: simplification through execution feedback, living documents, grounded
+  system context, supervision guidance and explicit stops for consequential actions.
 - Release owner: HELIX maintainer; published through the release PR workflow.
 
 ## Audience and Channels
 
 | Audience | Impact | Channel |
 |----------|--------|---------|
-| HELIX users | Less evidence ceremony and clearer planning boundaries | Plugin and generated bundles |
-| Experiment operators | Cumulative limits and honest stopping claims | Experiment guidance |
-| Adapter authors | Experiment outcomes without a HELIX wire protocol | Workflow catalog |
+| HELIX users | Less pressure to add mechanisms, tests and process documents | Plugin and generated bundles |
+| Project maintainers | Scoped alignment can suggest evidence-backed simplification | Workflow catalog and website |
+| Runtime integrators | Clearer authorization boundaries and review summaries | Routing skill and shared guidance |
 
 ## Highlights
 
-- Link requirements and exercising tests to observed results; no shared evidence
-  diary, replacement index or additional per-change file is mandatory.
-- Scope verification to the promised capability and failure risk while
-  preserving applicable guards, security checks and required regression gates.
-- Bound experiment runs, retries, parallel work, time, paid usage and temporary
-  storage cumulatively; resuming does not reset the allowance.
-- Templates and examples supply structure, not project facts. Planning asks the
-  smallest unresolved decision; operator-only blockers require a question at
-  every autonomy level.
+- Execution feedback should consolidate and remove unnecessary mechanisms as
+  system responsibilities become clear. Judge the resulting system rather than
+  the number of edited files; necessary caller updates belong to the change.
+- Reuse meaningful tests and retire redundant implementation-coupled coverage.
+  Remove blanket Red-state requirements, fixed coverage percentages and
+  mandatory process files from the affected gates. Parameter count is a cohesion
+  review signal rather than a reason to create another API.
+- Require observed proof at the layer appropriate to the changed behavior.
+  Real client and downstream-consumer checks remain required for affected
+  integrations; internal refinements need no duplicate runtime matrix.
+- Treat committed specifications as living intent. Address material gaps while
+  preserving authority; lifecycle labels and missing links do not create work.
+- Read system context before designing changes. Give reviewers concrete summaries
+  of changed behavior, observed evidence and reversal options. Consequential
+  actions retain explicit authorization boundaries.
 
 ## Required Actions Summary
 
-- Update the plugin or bundle to `v0.17.0`.
-- Reconcile local evidence-file rules through `align` and authorized `evolve`
-  work. Preserve historical evidence, links and independent audit obligations.
-- Adapters using the former experiment output trailer or XML result block must
-  own their serialization; these formats are removed from the HELIX action.
+- Update the plugin or bundle to `v0.18.0`.
+- Review project-owned gates on the next scoped change. HELIX does not rewrite
+  local coverage targets, contractual requirements or independent audit policy.
+- Use component-scoped alignment to identify duplicated mechanisms, excessive
+  verification or comments that repeat the design. Findings remain advisory
+  unless they expose a governing violation or material risk.
 
 ## Changes and Fixes
 
 | Area | Change | Effect |
 |------|--------|--------|
-| Verification (#80–#82) | Reuse observed reports and existing acceptance mappings; scope proof to claims | Reduce duplicate records without weakening completion proof |
-| Experiments (#83) | Cumulative resource bounds, conditional enforcement and manual stopping; remove runtime protocol | Work independently of execution adapters; disclose work still running |
-| Authoring (#84) | Preserve factual and semantic authority | Prevent example values becoming invented requirements |
-| Planning (#85) | Progressive questions and all-autonomy operator-only stops | Avoid repeated questions and unresolved guesses |
-| Evaluation (#86) | Five sanitized live regression scenarios and stronger checker/fixture validation | Measure behavior separately from structural checks |
+| Design and Build | Prefer coherent existing interfaces; remove generic architecture and process-file prescriptions | Avoid parallel APIs and unnecessary specification work |
+| Testing and verification | Scope proof to behavior and risk; permit reuse and retirement of redundant tests | Reduce test matrices while retaining meaningful evidence |
+| Alignment | Inspect relevant implementation for a named component and distinguish simplification advice from blockers | Identify waste without automatically creating work |
+| Authoring | Use descriptive names and concise language-native API documentation | Avoid copying design rationale throughout source comments |
+| Living documents | Preserve desired-state authority and reconcile relevant drift | Avoid lifecycle and linkage housekeeping |
+| Context and supervision | Read system context and report concrete evidence and reversal options | Make agent work easier to assess |
+| Authorization | Stop before unauthorized one-way actions and stack additions | Keep consequential decisions with the operator |
 
 ## Breaking Changes and Required Actions
 
-The experiment action no longer defines its runtime integration appendix, XML
-result payload or `EXPERIMENT_STATUS` trailer. Adapt consumers of those removed
-formats before upgrading. Resource exhaustion remains a semantic HELIX outcome.
-
-A shared evidence file is no longer mandatory. Projects must retain
-appropriate requirement → exercising test → observed-result proof and reviewed
-exceptions. No installation mechanism changes are introduced.
+Workflow defaults change; plugin installation and bundle formats are unchanged.
+Projects that intentionally enforce stricter verification or documentation rules
+retain those rules until their owners revise them. No artifact migration or
+bulk test deletion is required.
 
 ## Migration or Rollback Guidance
 
-1. Update to `v0.17.0` and review applicable guidance on the next scoped change.
-2. Reconcile local verification policy without mechanically migrating history.
-3. Update any experiment adapter's serialization and stopping behavior.
+1. Update to `v0.18.0` and apply the revised guidance to the next bounded task.
+2. Reconcile local conflicts in the relevant existing artifacts. Preserve
+   required behavior, compatibility commitments and meaningful evidence.
 
-To roll back, pin `v0.16.0`; preserve project-owned artifacts and historical
+To roll back, pin `v0.17.0`; preserve project-owned artifacts and historical
 proof. HELIX requires no DDx installation or compatibility gate.
 
 ## Known Issues and Support
 
-- Live baseline and combined-candidate scenarios each passed 13/13 deterministic
-  checks. Astra's semantic review recorded partial recommendation/rationale and
-  desired-state scope items; no fully passing rubric or comparative uplift is
-  claimed. See the committed session regression results.
-- Optional rendering and signing tools have explicit availability limits;
-  unavailable tooling is not proof of successful verification.
+- Deterministic validation checks packaging and contracts; it does not establish
+  that agents will produce simpler work. No behavioral benchmark improvement is claimed.
+- Optional deck-render and attestation checks require their local tools;
+  unavailable tooling is not evidence of a successful check.
 
 Support: open an issue in the HELIX repository.
 
 ## References
 
 - Deployment checklist: [deployment-checklist.md](/artifacts/deployment-checklist/)
-- Release changes: https://github.com/DocumentDrivenDX/helix/compare/v0.16.0...v0.17.0
-- Live validation: `evals/results/20261013-session-regressions/summary.md`
+- Release changes: https://github.com/DocumentDrivenDX/helix/compare/v0.17.0...v0.18.0
 - Bundle publication: `.github/workflows/release-genie-bundle.yml`
 - Version guard: `.github/workflows/release-version-guard.yml`
