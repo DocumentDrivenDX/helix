@@ -86,6 +86,17 @@ loop: plan, execute, measure, and adapt through specs, beads, runs, evidence,
 metrics, and staleness. Other runtimes can implement the same handoff with
 their own execution surfaces.
 
+### Living-document behavior
+
+Committed artifacts express current working intent without a separate document
+approval lifecycle. Agents prioritize material gaps that affect user outcomes,
+requirements, scope, safety, design choices, or completion evidence. Light drift,
+old lifecycle labels, missing review stamps, and incomplete graph edges do not
+by themselves block authorized work or justify separate housekeeping tasks.
+Resolve ordinary drift from higher authority within the requested task. Keep
+implementation progress in the relevant plan, selected work item, or factual
+report. Preserve explicit domain approvals and evidence for completion claims.
+
 ### Success Metrics
 
 | Metric | Target | Measurement Method | Timeline |

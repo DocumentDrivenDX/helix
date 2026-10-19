@@ -80,10 +80,6 @@ validation:
 workflow:
   creation_order: 1
   review_cycles: 1-2
-  approval_required: true
-  approvers:
-    - Sponsor
-    - Product Lead
 
 relationships:
   informs:

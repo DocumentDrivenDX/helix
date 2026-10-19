@@ -76,7 +76,7 @@ validation:
   pattern_checks:
     - pattern: "\\[NEEDS CLARIFICATION"
       expected: 0
-      message: Resolve all clarification markers before approval; a P0 feature cannot be approved with any open marker
+      message: Identify unresolved requirement choices; block only work that depends on them
       severity: blocking
 
     - pattern: "must|shall|will"
@@ -124,11 +124,6 @@ examples:
 workflow:
   creation_order: 4
   review_cycles: 2-3
-  approval_required: true
-  approvers:
-    - Product Owner
-    - Technical Lead
-    - QA Lead
 
 relationships:
   derived_from:
@@ -168,11 +163,6 @@ specification_rules:
 tracking:
   id_format: FEAT-XXX
   id_scope: project
-  status_values:
-    - draft
-    - in_review
-    - approved
-    - superseded
 
 tags:
   - requirements

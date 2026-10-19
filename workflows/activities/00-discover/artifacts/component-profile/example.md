@@ -2,7 +2,6 @@
 ddx:
   id: component-profile-postgresql
   type: component-profile
-  status: draft
   authoring:
     home: repo
 ---

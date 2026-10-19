@@ -70,7 +70,7 @@ Before creating new test files:
 ## Gate Validation
 
 ### Entry Requirements (From Design)
-- [ ] Design activity complete and approved
+- [ ] Relevant design choices and constraints are clear
 - [ ] Architecture documented
 - [ ] API contracts defined
 - [ ] User stories have acceptance criteria
@@ -78,7 +78,7 @@ Before creating new test files:
 - [ ] Security architecture completed
 
 ### Exit Requirements (Must Complete)
-- [ ] Test plan approved
+- [ ] Test plan names meaningful verification for the scoped work
 - [ ] All P0 requirements have tests
 - [ ] Tests are written and FAILING
 - [ ] Coverage targets defined

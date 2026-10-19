@@ -26,7 +26,7 @@ Prerequisites to enter this activity:
 ## Exit Gates
 
 Criteria to proceed to Frame (defined in `GATE.yaml`):
-- **Product vision approved**: Clear mission, specific positioning, concrete user experience, measurable success metrics
+- **Product vision states direction and intended user outcomes**: Clear mission, specific positioning, concrete user experience, measurable success metrics
 - **Business case validated**: ROI justifies investment
 - **Competitive position defined**: Differentiation strategy established
 - **Opportunity canvas complete**: Problem-solution fit confirmed

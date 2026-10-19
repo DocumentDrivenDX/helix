@@ -55,10 +55,6 @@ references:
 workflow:
   creation_order: 2
   review_cycles: 1-2
-  approval_required: true
-  approvers:
-    - Technical Lead
-    - Data Owner
 
 relationships:
   informed_by:

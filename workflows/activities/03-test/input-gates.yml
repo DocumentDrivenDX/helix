@@ -1,5 +1,5 @@
 input_gates:
-  - criteria: Design documents complete and approved
+  - criteria: Relevant design choices and constraints are clear
     required: true
     source: 02-design
     validation: Architecture and API contracts fully specified

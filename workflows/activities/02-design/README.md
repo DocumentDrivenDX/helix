@@ -13,12 +13,12 @@ The Design activity transforms validated business requirements from Frame into a
 ## Input Gate
 
 Before starting Design, verify Frame outputs:
-- [ ] PRD reviewed and approved
+- [ ] PRD states the scoped outcome and constraints clearly
 - [ ] Success metrics clearly defined
 - [ ] User stories with acceptance criteria
 - [ ] Principles document established
 - [ ] All stakeholders aligned on scope
-- [ ] Security requirements documented and approved
+- [ ] Security requirements and constraints documented
 - [ ] Threat model completed with risk assessment
 - [ ] Compliance requirements identified and mapped
 
@@ -376,7 +376,7 @@ graph TD
     J -->|No| K[Simplify Design]
     K --> C
     J -->|Yes| L[Technical Review]
-    L --> M{Approved?}
+    L --> M{Material choices resolved?}
     M -->|No| C
     M -->|Yes| N[Gate to Test Activity]
 ```
@@ -388,7 +388,7 @@ graph TD
 - **Trade-off Analysis**: Balance competing constraints
 - **Risk Assessment**: Identify technical challenges
 - **Contract Definition**: Define external interfaces
-- **Review and Approval**: Validate design decisions
+- **Review**: Resolve material design decisions
 
 ### AI Assistant Responsibilities
 - **Contract Generation**: Create detailed interface specifications
@@ -528,14 +528,14 @@ Common entry points:
   investigation work
 
 AI is useful for tradeoff analysis, option comparison, and documentation
-drafting. Architectural decisions, acceptance of complexity, and final design
-sign-off remain human responsibilities.
+drafting. Architectural choices that existing intent cannot resolve remain
+human decisions; a committed design needs no separate lifecycle sign-off.
 
 The AI excels at generating comprehensive contracts and test cases but human judgment is essential for architectural decisions and technical trade-offs.
 
 ## Design Review Checklist
 
-Before approval, ensure:
+For the scoped design, verify:
 - [ ] Contracts are complete and unambiguous
 - [ ] Every contract has test cases
 - [ ] Architecture is as simple as possible

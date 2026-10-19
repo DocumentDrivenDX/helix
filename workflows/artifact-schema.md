@@ -1,7 +1,5 @@
 # HELIX Artifact Schema
 
-Status: Canonical schema specification
-
 HELIX defines a portable artifact catalog and a portable artifact instance
 shape. The schema is intentionally substrate-neutral: a human team, DDx,
 Claude Code, Databricks Genie, or another runtime can read the same catalog and
@@ -69,7 +67,7 @@ workflows/activities/02-design/artifacts/adr/meta.yml
 | `dependencies.requires` | list | Inputs needed before this artifact can be authored responsibly. These are planning dependencies, not necessarily runtime blockers. |
 | `dependencies.enables` | list | Artifacts, decisions, or activity work this artifact unlocks. |
 | `dependencies.relates_to` | list | Peer or adjacent artifacts that should be considered together. |
-| `validation.required_sections` | list | Sections an instance should contain. |
+| `validation.required_sections` | list | Content sections an instance should contain. Legacy document-status, document-approval-status, document-approvals, document-review-history, document-change-history, and trace-links sections are administrative and must not be required. Domain state and requirement-to-test mappings remain substantive. |
 | `validation.required_fields` | list | Structured fields or table columns an instance should contain. |
 | `validation.quality_checks` | list | Human or automated checks that determine whether the artifact is useful enough to depend on. |
 | `validation.pattern_checks` | list | Regex checks a consumer can run mechanically against instance content. |
@@ -83,9 +81,9 @@ workflows/activities/02-design/artifacts/adr/meta.yml
 | `example.file` | string | Single canonical example filename relative to the artifact-type directory. |
 | `examples` | list | Example files for the artifact type. Examples are illustrative, not governing unless explicitly marked. |
 | `workflow.creation_order` | number or string | Relative order inside an activity. Lower values generally come earlier. |
-| `workflow.review_cycles` | number or string | Expected review depth before the artifact becomes dependable. |
-| `workflow.approval_required` | boolean | Whether explicit approval is expected before downstream artifacts depend on this artifact. |
-| `workflow.approvers` | list | Roles that should approve the artifact when approval is required. |
+| `workflow.review_cycles` | number or string | Suggested review depth for material decisions; not a document-readiness gate. |
+| `workflow.approval_required` | boolean | Legacy metadata, tolerated for compatibility; consumers must not infer a document approval gate from it. Explicit domain authorization belongs with the actual decision or operation. |
+| `workflow.approvers` | list | Legacy role hints; not a prerequisite for using committed working intent. |
 | `workflow.update_triggers` | list | Events that should cause the artifact to be revisited. |
 | `relationships` | mapping | Traceability relationships such as `informed_by` and `informs` that are useful but do not fit `dependencies`. |
 | `references` | list | External references, books, papers, or grounding resources for the artifact type. Each entry typically has `title`, `file`, and `relationship`. |
@@ -247,6 +245,12 @@ ddx:
 ---
 ```
 
+### Living-document semantics
+
+Apply `principles.md` §Living documents and material gaps. For this schema:
+lifecycle labels and review stamps do not establish readiness, and the graph
+records useful relationships, not a completion checklist.
+
 ### Required fields
 
 | Field | Type | Meaning |
@@ -264,13 +268,21 @@ with no frontmatter at all remains a valid prose artifact under
 | --- | --- | --- |
 | `ddx.type` | string | Artifact-type id from `artifact.id`, such as `prd`, `adr`, or `technical-design`. Recommended when `id` alone does not identify the type. |
 | `ddx.activity` | string | Activity slug that owns this instance. Recommended for generated or moved artifacts. |
-| `ddx.depends_on` | list of strings | Artifact instance IDs that must be considered before this artifact is complete or dependable. |
-| `ddx.status` | string | Artifact lifecycle state, such as `draft`, `review`, `approved`, `deprecated`, or `superseded`. |
+| `ddx.depends_on` | list of strings | Relevant upstream artifact IDs to consult when their content can affect the work; not an approval dependency. |
 | `ddx.supersedes` | list of strings | Prior artifact IDs replaced by this artifact. |
 | `ddx.superseded_by` | string | Artifact ID that replaces this artifact. |
 | `ddx.owner` | string | Person, role, or team responsible for maintaining the artifact. |
 | `ddx.updated` | string | Last meaningful update date in ISO `YYYY-MM-DD` format. |
 | `ddx.tags` | list of strings | Instance-level labels for search and routing. |
+
+### Legacy lifecycle metadata
+
+`ddx.status` is optional compatibility metadata. Consumers preserve existing
+values but must not require, normalize, or use them to gate work. New templates
+omit it. `ddx.review` and its hashes may inform a relevant content comparison;
+a missing or stale stamp alone does not establish a material gap. Supersession
+fields provide navigation where a document was deliberately replaced, not a
+requirement to create a document retirement workflow.
 
 ### Authoring home
 
@@ -354,7 +366,6 @@ no `export` and nothing to digest:
 ddx:
   id: SD-004
   type: solution-design
-  status: draft
   authoring:
     home: external-tool
     state: checked-out
@@ -368,7 +379,6 @@ Example, checked in:
 ddx:
   id: SD-004
   type: solution-design
-  status: draft
   authoring:
     home: external-tool
     state: checked-in
@@ -385,7 +395,6 @@ describe the previous check-in, which is the last copy the repository holds:
 ddx:
   id: SD-004
   type: solution-design
-  status: draft
   authoring:
     home: external-tool
     state: checked-out
@@ -397,17 +406,12 @@ ddx:
 
 #### Dependability of a checked-out artifact
 
-An artifact with `authoring.state: checked-out` is present but not dependable:
-its ID resolves, and its content does not exist in the repository.
-
-- It must not carry `ddx.status: approved`.
-- A downstream artifact must not be approved while any artifact it depends on
-  is checked out.
-
-This is the blocking condition described under
-[`depends_on` graph semantics](#depends_on-graph-semantics), reached by a
-different route: there the target is absent, here the target is present and
-empty.
+A checked-out artifact may have only a stub or a previous committed copy.
+Do not claim that copy reflects the live source. Read `authoring.origin` through
+an available connector when its current content matters; otherwise identify the
+specific missing decision or evidence. Block only the affected action or claim
+when that content is necessary. Unaffected work continues. Checkout state is
+source freshness information, not a downstream approval gate.
 
 Edges pointing at a checked-out artifact take the default edge `status:
 present`. The file exists; `status: planned` is for targets that have not been
@@ -442,11 +446,11 @@ Consumers should interpret this graph as follows:
 | --- | --- |
 | Identity | Each dependency value references another artifact's `ddx.id`, not a file path. |
 | Direction | Dependencies point upstream toward the artifact being relied on. |
-| Blocking | A dependency is blocking for artifact completion when the downstream artifact cannot be responsibly approved without the upstream artifact. |
+| Blocking | Block only the affected action or claim when missing upstream content leaves a material requirement, decision, safety constraint, or completion claim unresolved. A graph edge alone cannot establish a blocker. |
 | Traceability | A dependency also creates traceability even when no automation blocks on it. |
 | Activity order | Dependencies usually point to the same or earlier HELIX activity. Later-activity dependencies are allowed only for explicit feedback loops, reviews, reports, or supersession. |
 | DAG preference | The graph should be acyclic for normal activity progression. Cycles indicate either an iterative review loop that should be modeled explicitly or an artifact split that needs refinement. |
-| Missing IDs | A missing dependency target is a warning while drafting and blocking before publishing or depending on the artifact. |
+| Missing IDs | Resolve relevant intent from content and the authority hierarchy. Report a missing target only when its unavailable content materially affects the task; do not block on an absent ID or edge alone. |
 | External inputs | External systems, services, people, and research inputs should appear in artifact content or `meta.yml` dependencies, not in `ddx.depends_on`, unless they have their own HELIX artifact instance ID. |
 
 ## ID naming conventions
@@ -549,8 +553,8 @@ Consumers should be conservative readers and careful writers:
 1. Read required common fields.
 2. Preserve unknown fields.
 3. Treat missing required common fields as schema errors.
-4. Treat missing recommended fields as quality warnings unless a specific
-   workflow makes them blocking.
+4. Do not emit housekeeping findings for absent recommended metadata. Report
+   only missing content that materially affects the scoped action or claim.
 5. Resolve `ddx.depends_on` by artifact ID first, then by configured project
    indexes or source path hints.
 6. Never make runtime-specific behavior the only way to interpret an artifact.

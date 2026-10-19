@@ -21,7 +21,7 @@ entry_gates:
 
 exit_gates:
   # Vision Clarity
-  - criteria: Product vision approved
+  - criteria: Product vision states direction and intended user outcomes
     required: true
     validation:
       - Mission statement is concise and compelling
@@ -97,11 +97,6 @@ validation_rules:
 # Activity Transition
 transition:
   to_phase: 01-frame
-  approval_required: true
-  approvers:
-    - Sponsor
-    - Product Lead
-    - Business Stakeholder
 
   pre_transition_tasks:
     - Archive discovery artifacts

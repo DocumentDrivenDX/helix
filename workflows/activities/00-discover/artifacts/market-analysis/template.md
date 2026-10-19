@@ -8,7 +8,6 @@ ddx:
 # Market Analysis: [Opportunity Name]
 
 **Activity:** Discover
-**Status:** Draft
 **Date:** [YYYY-MM-DD]
 
 ## Concept

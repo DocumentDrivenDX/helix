@@ -15,7 +15,7 @@ The Build activity is where code comes to life. Following the contracts and test
 Before starting Build activity, verify Test activity outputs:
 - [ ] All test suites written and reviewed
 - [ ] Tests are failing (Red activity of TDD)
-- [ ] Test coverage plan approved
+- [ ] Coverage plan identifies scoped requirements and meaningful tests
 - [ ] CI/CD pipeline configured for tests
 - [ ] Test procedures documented
 - [ ] Test infrastructure operational

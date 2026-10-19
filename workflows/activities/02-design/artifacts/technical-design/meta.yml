@@ -167,10 +167,6 @@ references:
 workflow:
   creation_order: 1  # First artifact in design activity for a story
   review_cycles: 1-2
-  approval_required: true
-  approvers:
-    - Technical Lead
-    - Senior Developer
 
 relationships:
   informed_by:

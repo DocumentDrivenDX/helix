@@ -13,7 +13,6 @@ ddx:
 
 **Research Lead**: Product Lead
 **Time Budget**: 2 weeks
-**Status**: Example
 
 ## Research Objectives
 

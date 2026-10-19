@@ -57,9 +57,6 @@ references:
 workflow:
   creation_order: 2
   review_cycles: 1-2
-  approval_required: false
-  approvers:
-    - Product Lead
 
 relationships:
   depends_on:

@@ -19,7 +19,7 @@ Prerequisites to enter this activity (defined in `GATE.yaml`):
 ## Exit Gates
 
 Criteria to proceed to Design activity (defined in `GATE.yaml`):
-- **PRD approved**: Problem quantified, P0s testable, metrics measurable, non-goals specific, personas validatable
+- **PRD intent clear**: Problem quantified, P0s testable, metrics measurable, non-goals specific, personas validatable
 - **P0 requirements specified**: Critical features have detailed, testable specifications
 - **Success metrics measurable**: Metrics have numeric targets and named measurement methods
 - **Feature specs complete**: Each feature links to PRD requirements, has testable functional and non-functional requirements
@@ -112,7 +112,7 @@ graph TD
 
 ## Human vs AI Responsibilities
 
-**Human**: Vision, priorities, stakeholder alignment, success metrics, final approval.
+**Human**: Vision, priorities, stakeholder alignment, success metrics, material decisions.
 
 **AI**: Documentation structure, consistency checking, gap analysis, template
 application, quality checklist verification.

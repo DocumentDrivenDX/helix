@@ -47,7 +47,7 @@ steps; principles do not add steps or gates.
    locate the kind of work, not its position in a sequence.
 5. **Decisions guide implementation.** An accepted decision sets direction; it
    does not claim that the system implements that direction.
-6. **People decide; agents draft and check.** People own intent and approval.
+6. **People decide; agents draft and check.** People own intent and material decisions.
    Agents draft, compare, and surface questions at the governed hand-offs.
 7. **HELIX stays small.** HELIX defines methodology and ships one routing skill.
    Execution and tracking belong to the runtime.
@@ -55,6 +55,15 @@ steps; principles do not add steps or gates.
    Do not add gates, reports, or checklist sections only for completeness.
 9. **Discipline over improvisation.** Agents improvise well; HELIX makes that
    improvisation reviewable.
+
+## Living documents
+
+Committed documents express current working intent. Expect light drift; use
+higher authority to reconcile relevant gaps during authorized work. A material
+gap affects user outcomes, scope, requirements, design, safety, or completion
+evidence. Lifecycle labels, stale review stamps, and missing edges alone never
+block work or justify housekeeping tasks. Keep progress in the relevant plan,
+selected work item, or factual report. Explicit domain decisions still apply.
 
 ## Authority
 

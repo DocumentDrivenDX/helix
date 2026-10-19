@@ -5,7 +5,7 @@ Create the canonical build plan for the Build activity. Keep it short, but prese
 ## Purpose
 
 The Implementation Plan is the **build sequencing and execution-readiness
-artifact**. Its unique job is to translate approved story, technical design, and
+artifact**. Its unique job is to translate governing story, technical design, and
 test-plan context into bounded implementation slices with dependencies,
 validation gates, and closeout evidence.
 

@@ -102,8 +102,10 @@ graph TB
 
 ## Input Gates
 
-Each activity after Frame has input gates that validate the previous activity's
-outputs before allowing progression:
+Input gates test the material prerequisites for the requested slice. They do
+not require whole-activity completion, document approval stamps, or a complete
+linkage graph. Read relevant content and resolve ordinary drift from higher
+authority; block only the action that needs an unresolved decision or evidence:
 
 - **Design** cannot start until Frame outputs are coherent enough to govern it.
 - **Test** cannot start until Design has enough authority to define behavior.
@@ -248,11 +250,11 @@ implied ones. Humans decide; agents draft, check, surface, and record:
 
 | Hand-off | Who holds it | Where it is governed |
 |---|---|---|
-| Approval of a draft into authority | a person | artifact `status`, review, checked-in external documents |
+| Material choices existing intent cannot resolve | a person | relevant governing content and explicit decisions |
 | How often an agent pauses | the team, per project | the autonomy level (`low`, `medium`, `high`) in the marker |
 | What an agent never does unasked | the methodology, extended per repo | stop triggers (`workflows/stop-triggers.yml`) |
 | A question only a human can answer | a person, via escalation | the hard-stop invariant; findings handed off, never settled by the agent |
-| Judgment that agents surface but do not make | a person | alignment findings, review findings, contradictions between artifacts |
+| Judgment that agents surface but do not make | a person | material conflicts that the authority hierarchy and existing intent cannot resolve |
 
 The principles "Layers Are the Control" and "Humans Decide, Agents Draft"
 in [principles.md](principles.md) state the two commitments behind this

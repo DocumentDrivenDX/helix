@@ -31,7 +31,7 @@ entry_requirements:
   manual:
     - "Affected interactive UI work has reviewed STP UX Coverage per workflows/references/ux-evidence.md, named planned tests/commands and resolved component ownership/gaps. Package adoption plans applicable supplied/project checks and evidence capture. Entry requires an executable plan, not future passing runtime results."
     - "For handwritten source, modularity-and-encapsulation selection and Architecture Module Boundaries are adopted; boundary-checker scaffold precedes dependent features. Bounded adoption work may establish these prerequisites; source-free work records why they do not apply."
-    - "Test suites reviewed and approved"
+    - "Test suites exercise scoped requirements and failure cases"
     - "Security test suite validated"
 
 exit_requirements:

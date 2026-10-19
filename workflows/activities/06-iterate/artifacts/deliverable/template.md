@@ -4,7 +4,6 @@ ddx:
   type: deliverable
   activity: iterate
   kind: [deck | one-pager | brief]
-  status: draft
   authoring:
     home: repo
     export:

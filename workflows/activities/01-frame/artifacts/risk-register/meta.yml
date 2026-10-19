@@ -100,11 +100,6 @@ references:
 workflow:
   creation_order: 6
   review_cycles: continuous
-  approval_required: true
-  approvers:
-    - Project Manager
-    - Risk Owner
-    - Sponsor
 
   review_frequency:
     team: weekly

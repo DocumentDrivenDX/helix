@@ -1,5 +1,5 @@
 # Feature Registry Generation Prompt
-Maintain the feature registry as the source of truth for IDs, status, dependencies, ownership, and traceability.
+Maintain the feature registry as the source of truth for IDs, ownership, priority, and relevant dependencies.
 
 ## Reference Anchors
 
@@ -12,8 +12,9 @@ Use these local resource summaries as grounding:
 
 ## Focus
 - Assign new FEAT-XXX IDs sequentially.
-- Keep status changes and dependencies explicit.
-- Preserve traceability to stories, designs, contracts, tests, and code.
+- Record dependencies that materially affect the scoped outcome.
+- Link relevant stories, designs, contracts, tests, and code when useful; do not
+  require a complete linkage matrix or normalize document status.
 - Keep descriptions short; detail belongs in feature specs, stories, designs, and tests.
 
 ## Role Boundary
@@ -26,7 +27,8 @@ requirements; Feature Specifications define behavior; runtime work items track e
 - Entries are brief and complete.
 - IDs are unique and never reused.
 - The registry stays easy to scan.
-- Every active feature links to its governing artifact or clearly states the missing link.
+- Governing intent is discoverable from relevant content; missing links alone
+  do not block work or justify separate tasks.
 
 ## Promotion from Parking Lot
 
@@ -44,11 +46,11 @@ A parking-lot entry is eligible for promotion when all of these hold:
 - **Scope decided**: the item has been re-scoped into something a feature spec
   can be written against — not a vague idea kept warm.
 - **Owner assigned**: a named owner accepts responsibility for the feature
-  through at least the `specified` status.
+  for the scoped outcome.
 - **Blocking ADRs resolved**: any ADR that the entry was waiting on has landed
   (accepted or rejected); items still pending ADRs stay parked.
-- **Dependencies available**: prerequisite features listed on the entry are at
-  a status that unblocks this one (typically `built` or later).
+- **Dependencies available**: prerequisite features listed on the entry have
+  an evidenced condition that supports the dependent behavior.
 
 If any criterion fails, leave the entry parked and update the rationale or
 revisit trigger to reflect what is still missing.
@@ -57,8 +59,7 @@ revisit trigger to reflect what is still missing.
 
 1. **Assign the next sequential FEAT-XXX**: never reuse an ID, including IDs
    from cancelled or deprecated features. Add the new row to `Active Features`
-   with initial status `Draft` (or `Specified` if the spec is ready to land in
-   the same change).
+   with its scoped outcome, priority, and owner.
 2. **Record the back-link to the parking-lot source**: in the new feature row's
    `Source` column, cite the parking-lot entry title (e.g.
    `parking-lot:<entry-title>`). This makes the parked-to-active transition
@@ -66,12 +67,11 @@ revisit trigger to reflect what is still missing.
 3. **Update the parking-lot entry**: mark the entry as promoted, record the
    assigned `FEAT-XXX`, and the promotion date. Do not delete the parking-lot
    entry — the historical record is part of the back-link.
-4. **Seed traceability**: populate the new feature's `Trace Links` row with the
-   feature spec, stories, designs, tests, and release placeholders. Empty cells
-   are fine; missing cells are not.
+4. **Add useful references**: link available governing artifacts that help the
+   scoped work. Do not create placeholders for future documents or graph edges.
 5. **Carry over dependencies**: copy any `Dependencies` from the parking-lot
    entry into the registry's `Dependencies` table, expressed as FEAT-to-FEAT
    edges where the prerequisites have FEAT-XXX IDs.
 
 The promotion is complete when the new `FEAT-XXX` row exists with a back-link,
-the parking-lot entry records the promotion, and traceability rows are seeded.
+the parking-lot entry records the promotion, and its governing intent is clear.

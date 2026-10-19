@@ -26,7 +26,7 @@ The test-first approach ensures that quality is built-in, not bolted-on, and tha
 
 Prerequisites to enter this activity (defined in `input-gates.yml`):
 
-1. **Design documents complete and approved**
+1. **Relevant design choices and constraints are clear**
    - Requirement: Architecture and API contracts fully specified
    - Validation: manual review checklist or manual review checklist
    - Source: 02-design activity
@@ -43,7 +43,7 @@ Prerequisites to enter this activity (defined in `input-gates.yml`):
 
 4. **Security architecture completed**
    - Requirement: Security controls and architecture documented
-   - Validation: Security architecture and threat model approved
+   - Validation: Security architecture and threat model address scoped risks
    - Source: 02-design activity
 
 These gates ensure we have complete specifications to derive comprehensive tests, including security test requirements.
@@ -201,7 +201,7 @@ Security validation testing:
 This activity embodies SDD principles from `docs/resources/spec-driven.md`:
 
 ### Test-First Imperative (Article III)
-- **No code before tests**: Tests must be written and approved first
+- **No code before tests**: Tests must exercise the scoped behavior and meaningful failures
 - **Red-Green-Refactor**: Tests must fail initially (Red activity)
 - **Behavior-driven**: Tests define behavior, not implementation
 

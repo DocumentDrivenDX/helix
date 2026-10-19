@@ -24,7 +24,7 @@ entry_requirements:
       description: "No TBD markers in design documents"
 
   manual:
-    - "Design documents approved"
+    - "Relevant design decisions and constraints are clear"
     - "User stories have clear acceptance criteria"
 
 exit_requirements:
@@ -83,7 +83,7 @@ exit_requirements:
       description: "Test plan defines coverage targets"
 
   manual:
-    - "Test coverage plan reviewed and approved"
+    - "Coverage plan identifies scoped requirements and meaningful tests"
     - "Test infrastructure verified operational"
 
 next_activity: build

@@ -60,10 +60,6 @@ references:
 workflow:
   creation_order: 2
   review_cycles: 2
-  approval_required: true
-  approvers:
-    - Security Champion
-    - Technical Lead
 
 relationships:
   informed_by:

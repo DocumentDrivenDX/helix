@@ -234,15 +234,18 @@ artifacts require DDx. Minimal instance frontmatter:
 ---
 ddx:
   id: FEAT-001
-  type: feature-spec
+  type: feature-specification
   depends_on:
     - helix.prd
-  status: draft
+  authoring:
+    home: repo
 ---
 ```
 
-`ddx.id` is the only required field. `ddx.depends_on` builds the traceability
-graph the routing skill traverses inside the active flow. Cross-flow
+`ddx.id` and `ddx.authoring.home` identify the instance and its write surface.
+Committed content is living working intent; lifecycle labels are unnecessary.
+`ddx.depends_on` helps find relevant upstream content. Missing links alone do
+not block work; the skill follows relationships only when they affect the task. Cross-flow
 relationships use the marker and graph contract described above. Full field
 definitions are in
 [`workflows/artifact-schema.md`](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/artifact-schema.md).

@@ -114,4 +114,4 @@ When evaluating a set of principles for tensions:
 - No workflow rules are included (those belong in enforcers/ratchets).
 - All identified tensions have resolution strategies.
 - The document is within the size ceiling (ideally 5-8 principles).
-- The user has reviewed and approved the final set.
+- Material choices reflect user intent; unresolved decisions are explicit.
