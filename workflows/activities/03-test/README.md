@@ -1,26 +1,26 @@
 # Activity 03: Test
 
-The specification activity where we define how the system will be verified through comprehensive test creation.
+The verification activity where we select meaningful evidence for required behavior and resolve gaps in existing coverage.
 
 ## Purpose
 
-The Test activity transforms specifications from Frame and Design activities into executable tests that define system behavior. Following Specification-Driven Development (SDD) principles, this activity creates tests BEFORE implementation, establishing clear success criteria for the Build activity.
+The Test activity establishes how governing behavior will be verified. Inspect existing tests and the affected operations first, then address uncovered behavior or material risks. Execution feedback may simplify both the implementation and its verification.
 
 ## Key Principle
 
-**Tests Are Specifications**: Tests aren't afterthoughts—they're executable specifications that define exactly how the system should behave. Every test written here becomes a contract that implementation must fulfill.
+**Tests Verify Governing Intent**: Tests encode expected behavior and remain subject to review. Preserve meaningful behavioral evidence while revising or retiring tests of superseded implementation details.
 
 ## Workflow Principles
 
 This activity operates under the HELIX workflow principles, emphasizing:
 
-- **Test-First Development**: Tests precede implementation, defining behavior before code
+- **Test-First Development**: Use failing behavioral tests when they establish missing behavior or reproduce a defect
 - **Specification-Driven**: Tests are derived from Frame and Design specifications
-- **Quality Gates**: Tests must fail initially (Red activity) before proceeding to Build
-- **Human-AI Collaboration**: Humans define test strategy; AI generates comprehensive test suites
+- **Quality Gates**: Apply existing project checks; a blanket Red state is not required before Build
+- **Human-AI Collaboration**: Humans govern intent; agents assess coverage and address meaningful gaps
 - **Iterative Refinement**: Tests evolve with specifications through the cycle
 
-The test-first approach ensures that quality is built-in, not bolted-on, and that implementation exactly matches specifications.
+Verification follows requirements and risk. Passing tests do not establish that an implementation mechanism is necessary or economical.
 
 ## Input Gates
 
@@ -46,26 +46,19 @@ Prerequisites to enter this activity (defined in `input-gates.yml`):
    - Validation: Security architecture and threat model address scoped risks
    - Source: 02-design activity
 
-These gates ensure we have complete specifications to derive comprehensive tests, including security test requirements.
+Apply these prerequisites to the scoped work and its selected concerns; reuse existing decisions and verification rather than generating another full test matrix.
 
 ## Process Flow
 
 ```mermaid
 graph TD
-    A[Frame: Requirements & Stories] --> B[Extract Test Requirements]
-    C[Design: API Contracts & Architecture] --> B
-    B --> D[Write Contract Tests]
-    B --> E[Write Acceptance Tests]
-    B --> F[Write Unit Tests]
-    B --> G[Write Integration Tests]
-    D --> H[Test Review & Validation]
-    E --> H
-    F --> H
-    G --> H
-    H --> I{All Tests Failing?}
-    I -->|Yes| J[Exit: Ready for Build]
-    I -->|No| K[Debug Test Setup]
-    K --> D
+    A[Requirements and affected operations] --> B[Inspect existing evidence]
+    B --> C{Meaningful gap?}
+    C -->|Yes| D[Extend or add focused verification]
+    C -->|No| E[Reuse coverage]
+    D --> F[Build and verify]
+    E --> F
+    F --> G[Refine code and tests from feedback]
 ```
 
 ## Work Items
@@ -76,7 +69,7 @@ graph TD
 **Artifact Location**: `artifacts/test-plan/`
 **Output Location**: `docs/helix/03-test/test-plan.md`
 
-Comprehensive testing strategy (follows IEEE 829):
+Testing strategy scoped to requirements and risk:
 - Test scope and objectives
 - Test coverage targets and rationale
 - Testing pyramid (unit, integration, e2e ratios)
@@ -92,7 +85,7 @@ Comprehensive testing strategy (follows IEEE 829):
 Story-scoped verification handoff for one bounded technical design:
 - Governing user story and technical design references
 - Acceptance-criteria-to-test traceability
-- Concrete failing tests, commands, or file targets
+- Concrete new or existing tests, commands, or file targets
 - Fixtures, mocks, seed data, and environment needs
 - Edge cases and explicit out-of-scope boundaries
 - Build sequencing notes for the implementation handoff
@@ -200,10 +193,10 @@ Security validation testing:
 
 This activity embodies SDD principles from `docs/resources/spec-driven.md`:
 
-### Test-First Imperative (Article III)
-- **No code before tests**: Tests must exercise the scoped behavior and meaningful failures
-- **Red-Green-Refactor**: Tests must fail initially (Red activity)
-- **Behavior-driven**: Tests define behavior, not implementation
+### Test-First Practice
+- **Reuse evidence**: Existing tests may already exercise the scoped behavior
+- **Red-Green-Refactor**: Use a failing test for missing behavior or a regression where useful
+- **Behavior-driven**: Verify observable outcomes without freezing implementation details
 
 ### Integration-First Testing (Article IX)
 - **Real over mocked**: Use actual services where possible
@@ -227,10 +220,10 @@ Every test traces to specifications:
 - **Business Logic Validation**: Ensure tests match intent
 
 ### AI Assistant Responsibilities
-- **Test Generation**: Create tests from specifications
+- **Test Refinement**: Reuse, extend or consolidate tests against governing behavior
 - **Coverage Analysis**: Identify untested paths
 - **Test Structure**: Organize tests properly
-- **Assertion Writing**: Create comprehensive checks
+- **Assertion Writing**: Detect distinct meaningful failures with clear assertions
 - **Mock Generation**: Build necessary test doubles
 
 ## Quality Gates
@@ -239,9 +232,9 @@ Before proceeding to Build activity, ensure:
 
 ### Test Completeness
 - [ ] All user stories have acceptance tests
-- [ ] All API endpoints have contract tests
+- [ ] Changed API contracts have meaningful existing or new coverage
 - [ ] Critical paths have e2e tests
-- [ ] Edge cases documented and tested
+- [ ] Material in-scope failure risks have appropriate coverage
 - [ ] Error scenarios covered
 
 ### Test Quality
@@ -284,20 +277,11 @@ Before proceeding to Build activity, ensure:
 
 ## Exit Criteria
 
-The Test activity is complete and Build activity can begin when:
-
-1. **All Tests Written**: Tests exist for all requirements and scenarios
-   - Validation: `npm test` or `go test ./...` shows tests exist
-2. **Tests Are Failing**: Red activity of TDD confirmed
-   - Validation: Test runner shows failures (no implementation yet)
-3. **Coverage Plan Met**: Test coverage targets defined and achievable
-   - Validation: Coverage report shows test structure in place
-4. **Tests Reviewed**: Human validation of test correctness
-   - Validation: Code review approved by team lead
-5. **CI/CD Configured**: Automated test execution ready
-   - Validation: Pipeline runs tests on commit
-6. **Documentation Complete**: Test plan and strategies documented
-   - Validation: `docs/helix/03-test/test-plan.md` exists and is complete
+Apply `GATE.yaml` and the testing and verification concerns. Existing or new
+coverage must address governing criteria at the appropriate layer. A new failing
+test is useful for missing behavior; passing tests for existing behavior are
+valid. Keep required infrastructure operational and observed run evidence
+available. No new suite is required merely to populate a test category.
 
 ## Next Activity: Build
 
@@ -307,7 +291,7 @@ Once Test activity completes, proceed to Build where you'll:
 - Achieve all coverage targets
 - Refactor while keeping tests green
 
-Remember: Build activity success is simple—make all these tests pass!
+Build also assesses the coherence and cost of the implementation; passing tests alone cannot justify unnecessary mechanisms.
 
 ## Test Organization Best Practices
 
@@ -339,11 +323,11 @@ tests/
 - **Test Names**: Use descriptive names like `should_reject_invalid_email_when_creating_user()`
 
 ### Coverage Requirements
-- **Unit Tests**: 80% code coverage minimum
-- **Integration Tests**: All API endpoints and service boundaries
-- **Contract Tests**: 100% of public APIs
-- **E2E Tests**: Critical user paths and edge cases
-- **Acceptance Tests**: All user stories from Frame activity
+
+Use project coverage targets and the existing requirement mappings. Select layers
+by the behavior and risk they establish, reusing tests across criteria when their
+assertions support it. Unit, integration and E2E tests each have a place; no layer
+needs a duplicate suite merely to match a generic pyramid.
 
 ## Tips for Success
 
@@ -353,7 +337,7 @@ tests/
 4. **Test the Unhappy Path**: Errors and edge cases matter
 5. **Keep Tests Simple**: Complex tests hide bugs
 6. **Follow AAA Pattern**: Arrange, Act, Assert structure
-7. **One Assertion Per Test**: Keep tests focused and clear
+7. **Focused Scenarios**: Group related assertions when splitting would duplicate setup and evidence
 
 ## Using AI Assistance
 
@@ -368,9 +352,9 @@ Common entry points:
 - `artifacts/test-suites/`
 - `artifacts/security-tests/`
 
-AI is useful for expanding coverage from requirements and designs. Human review
-must confirm the tests reflect business intent and preserve the Red-first TDD
-constraint.
+Agents assess existing evidence and address distinct coverage gaps. Review
+confirms that assertions reflect governing behavior and that redundant tests or
+implementation details have not become obstacles to simplification.
 
 ## File Organization
 

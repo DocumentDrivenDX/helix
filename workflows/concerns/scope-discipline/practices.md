@@ -26,8 +26,10 @@ beside `verification` (which proves the system runs) and do not restate it.
 - Pre-release: cut the old path in the same change that replaces it. Do not add
   backward-compat aliases, fallbacks, or deprecation shims for consumers that do
   not exist yet.
-- Keep the diff scoped to the work item. If a tree-wide fix is warranted, file it
-  as its own item rather than sweeping it in.
+- Bound the requested outcome, then follow its consequences across affected
+  producers and consumers. Mechanical caller updates and removal of superseded
+  paths belong to that outcome; touching fewer files does not justify a parallel
+  API. Unrelated cleanup remains separate work.
 - Add no language, runtime dependency, or toolchain the stack concerns do not
   select. If one is needed, stop and get the decision recorded first.
 - When more than one implementation sits behind an interface, fix a failing
@@ -47,8 +49,9 @@ A completion claim is **incomplete** if any of these hold:
 3. **Unrecorded scope reduction** — a requested capability shipped narrowed
    (disabled, read-only) with no recorded tradeoff. Resolve by restoring it or
    recording the reduction in `concerns.md` / an ADR.
-4. **Off-scope blast radius** — the diff edits files outside the work item's
-   stated scope. Resolve by reverting the off-scope edits.
+4. **Off-scope blast radius** — the diff changes behavior unrelated to the
+   requested outcome. Remove unrelated changes; retain necessary mechanical
+   propagation and consolidation across affected files.
 5. **Unapproved stack addition** — the diff adds a language, a runtime
    dependency, or a toolchain with no recorded decision. Resolve by removing it
    or recording the decision in an ADR.
@@ -82,6 +85,6 @@ asks whether the change is the right size.
   acceptance criteria.
 - No pre-release legacy-compat shim, alias, or fallback without a released
   consumer.
-- The change's diff is contained to the work item's stated scope.
+- Changes serve the bounded outcome, including necessary propagation and consolidation.
 - No unrecorded language, runtime dependency, or toolchain additions.
 - No implementation-specific conditionals outside the interface that owns them.

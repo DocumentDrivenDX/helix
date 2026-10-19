@@ -46,9 +46,13 @@ choice makes future changes harder, that cost should be explicit and justified.
 
 ### Design for Simplicity
 
-Start with the minimal structure that could work. Additional components,
-layers, or abstractions require documented justification. Complexity that
-serves no current requirement is waste — remove it.
+Judge simplicity by the resulting system: its responsibilities, public
+concepts, retained state and operational work. A small diff can add lasting
+complexity; updating callers of an existing operation can preserve cohesion.
+As execution clarifies boundaries, consolidate overlapping mechanisms and
+remove unnecessary work, including superseded specifications and tests.
+Preserve required behavior and meaningful evidence. Use existing rationale
+where needed; do not create justification documents for routine edits.
 
 ### Validate Your Work
 
@@ -58,9 +62,13 @@ surface their own health.
 
 ### Make Intent Explicit
 
-Code, configs, and documents should say what they mean. Avoid implicit
-conventions, magic values, and behavior that depends on undocumented ordering.
-When intent is ambiguous, name it.
+Code, configs, and documents should say what they mean. Use descriptive names
+and explicit structure before adding explanation. Prefer concise language-native
+API documentation (docstrings, documentation comments or structured annotations)
+where callers or tooling need a contract. Reserve ordinary comments for rationale,
+constraints or surprising behavior that the code cannot express. Keep design
+rationale in its governing document rather than repeating it throughout source.
+Avoid implicit conventions, magic values and undocumented ordering.
 
 ### Prefer Reversible Decisions
 

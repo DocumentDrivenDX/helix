@@ -13,7 +13,7 @@ Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/hel
 | Convert rough intent into governed HELIX work | [input](input) |
 | Grill / interview / stress-test a plan or design until shared understanding (one question at a time) | [grill](grill) |
 | Create or refine product vision, PRD, feature specs, or user stories | [frame](frame) |
-| Reconcile relevant documents, check traceability, find drift, or place content in the right artifact | [align](align) |
+| Reconcile relevant documents or a named system/component, check traceability, find drift or simplification opportunities, or place content in the right artifact | [align](align) |
 | Check an artifact instance against its template and prompt; edit resolvable findings in place | [validate](validate) |
 | Bring every artifact instance up to date with the current templates and prompts | [refresh](refresh) |
 | Thread a new, changed, removed, or incident-driven requirement through existing artifacts | [evolve](evolve) |
@@ -35,7 +35,7 @@ Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/hel
 ## Contracts
 
 {{< cards >}}
-  {{< card link="align" title="Align" subtitle="Use `align` to reconcile related HELIX documents, check traceability, or place content in the right artifact. The default scope is the requested document and t…" >}}
+  {{< card link="align" title="Align" subtitle="Use `align` to reconcile related HELIX documents and assess whether a named system or component coherently realizes its intent. A document target defaults to t…" >}}
   {{< card link="backfill" title="Backfill" subtitle="Use to reconstruct missing or incomplete HELIX artifacts from evidence." >}}
   {{< card link="check" title="Check And Next" subtitle="Use when the safe next action is ambiguous, when the user asks &quot;what's next&quot; / &quot;what's blocked&quot; / &quot;plan the change&quot;, or when a single ask straddles two or more…" >}}
   {{< card link="converge" title="Converge" subtitle="Use when the user asks to review a target, resolve blocking findings, and repeat the review within a stated or agreed limit." >}}

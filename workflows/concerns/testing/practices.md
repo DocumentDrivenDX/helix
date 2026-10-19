@@ -3,8 +3,9 @@
 ## Requirements (Frame activity)
 
 - Every user story must have testable acceptance criteria
-- Acceptance criteria must be specific enough to write a failing test before
-  implementation starts (TDD)
+- Acceptance criteria must name observable outcomes. Use a failing test to
+  establish a regression or new behavior when it supplies missing evidence;
+  existing coverage may already verify a mechanical change or refactor.
 - Non-functional requirements (latency, throughput, availability) must have
   measurable targets that become ratchet floors
 
@@ -23,6 +24,22 @@ the usable interface is proven. Record that sequencing in the existing test or
 implementation plan; do not invent a maturity artifact or weaken requirements.
 A broad claim still requires broad proof; narrow the claim explicitly rather
 than imply untested scale or interoperability is supported.
+
+Inspect existing coverage and the affected system's actual operations before
+adding tests or matrices. Generated SQL and query measurements, network requests,
+or other boundary observations can expose unnecessary mechanisms that passing
+tests would preserve. Remove or consolidate redundant work when evidence
+supports it; verify the required outcome through existing coverage where it
+suffices. Add tests for distinct uncovered behavior or material failure risks.
+
+Evaluate test footprint against distinct behavioral evidence, including fixture
+and helper code, execution time and maintenance cost. When coverage measurements
+are useful, compare covered production lines or branches and test-code volume
+for the same production scope. Coverage gained per added test line can flag bulky
+additions, but changed denominators, compressed code and weak assertions can
+mislead. Use the ratio as a review signal, never a target, gate or reason to
+remove valuable tests. Prefer clearer, smaller verification at the layer that
+best detects the failure; do not ban unit tests or explanatory comments.
 
 The strategy below applies where its behavior or risk is in scope. Periodic
 campaigns are not a prerequisite for every implementation slice. Required
@@ -48,7 +65,8 @@ regression checks and the verification concern's observed-result gate remain.
   directory
 - Test files named `<module>.test.<ext>` or `<module>_test.<ext>`
 - Group related tests with `describe` / `context` / `mod tests`
-- Each test tests one behavior — if you need "and" in the name, split it
+- Keep each test focused on a meaningful behavior; related assertions may share
+  one scenario when splitting would duplicate setup and evidence.
 
 ### Test names and requirement citations
 
@@ -95,9 +113,8 @@ practices for run provenance and conditional supplemental observations.
 
 ### Property-based testing
 - Define properties as pure boolean functions: `(input) => invariant(fn(input))`
-- Start with at least: round-trip (encode/decode), idempotency (applying
-  twice = applying once), monotonicity (larger input → larger or equal output),
-  and no-crash (arbitrary input does not panic/throw)
+- Select properties that hold for the required behavior, such as round-trip or
+  idempotency. Do not generate properties or suites merely to fill categories.
 - Shrink failing cases to minimal reproduction
 - Run property tests in CI with enough iterations (100+ per property)
 
@@ -162,5 +179,5 @@ not verified.
 - All tests pass — no exceptions, no skips without linked issues
 - Performance ratchet: key metrics ≥ committed floor
 - New features have tests tracing to acceptance criteria
-- Property tests run for all serialization, parsing, and arithmetic modules
+- Property tests cover selected invariants where they add meaningful evidence
 - No test mocks internal implementation — only system boundaries

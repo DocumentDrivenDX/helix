@@ -56,7 +56,7 @@ Once the decision is made, the relevant documents should capture it so that late
 
 **Human authority balanced with agentic autonomy** determines which decisions an agent may make and when it needs approval. **Evidence over confidence** helps the team establish whether the implementation meets its requirements and whether a proposed change has sufficient support.
 
-**Linked artifacts** connect requirements, specifications, designs, and findings so that people and agents can understand the decisions behind the work. **Execution feedback over fixed plans** allows discoveries during implementation to revise those decisions, with the smallest sufficient change to address what the evidence revealed.
+**Linked artifacts** connect requirements, specifications, designs, and findings so that people and agents can understand the decisions behind the work. **Execution feedback over fixed plans** allows discoveries during implementation to revise those decisions, preserving required behavior while simplifying the affected system.
 
 Documented intent can therefore develop as the project learns, while remaining explicit enough for someone joining the work to understand what the team expects, why it changed, and which decisions govern the next task.
 

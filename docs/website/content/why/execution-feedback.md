@@ -29,15 +29,15 @@ Different findings require attention at different levels of the plan.
 
 **Production behavior** can challenge assumptions that appeared reasonable during planning. How people use a feature, or how the software behaves under actual operating conditions, may give the team a reason to revisit requirements, with the observed behavior providing evidence for that discussion.
 
-## Choosing the smallest sufficient intervention
+## Refining the system through feedback
 
-HELIX responds to feedback at the narrowest level that fully resolves the problem. If the specification remains correct and the implementation contains a defect, the work may only require a code fix and a test that checks it. If the expected behavior is incomplete, the team may need to revise the specification before changing the implementation.
+Respond at the level where the evidence shows a problem. Fix the implementation when the requirement still holds; revise the governing decision when its assumptions no longer hold. Follow the consequences through affected producers, consumers, and documents. A change can touch many files while remaining within one bounded outcome.
 
-The size of the response should follow what the evidence reveals. A finding that affects one component does not necessarily justify redesigning the whole system, while a problem in a shared design may require changes across several parts of the project.
+As the team understands the system's responsibilities, refinement should increasingly consolidate or remove mechanisms. Evolving an existing method and updating its callers may preserve a clearer interface than adding a similar method. A redundant cache may need removal rather than another suite of tests proving that it behaves correctly.
 
-The intervention must also include the related updates needed to keep the work consistent. A focused design change can still affect specifications, tests, and several implementation files, all of which need attention if they depend on the decision that changed.
+Inspect the work the system actually performs before expanding its verification. In a data-intensive operation, generated SQL, execution plans, and measured query cost can reveal duplicate reads, unnecessary checks, or redundant indices. Other systems need evidence at the boundary where their costs and consequences occur. Use the evidence relevant to the decision; a statement-by-statement audit is not required for every change.
 
-Choosing the smallest sufficient intervention means preserving decisions that still hold while addressing the full consequences of the problem. Leaving a known conflict unresolved would give the next task the same unreliable starting point.
+Keep the required behavior and meaningful verification while simplifying the mechanisms that deliver them. Further tests should address a named uncertainty or failure risk. Existing tests and specifications can also be consolidated or retired when their purpose is superseded, with affected references updated. Passing tests establish properties of a mechanism; they do not establish that the mechanism is necessary.
 
 ## Updating the plan and continuing the work
 

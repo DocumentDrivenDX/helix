@@ -138,11 +138,12 @@ solution design.
 ## Conflict Resolution Rules
 
 - Higher-order artifacts govern lower-order artifacts.
-- Tests are executable specifications for the Build activity: code must satisfy
-  tests, not the other way around.
-- Tests do not override upstream requirements or design. If tests conflict with
-  higher-order artifacts, return to the earlier activity and fix the inconsistency
-  there.
+- Tests encode governing behavior and provide evidence; they do not make an
+  implementation mechanism permanent. Revise or retire tests of superseded
+  details while preserving meaningful coverage.
+- Tests do not override upstream requirements or design. Resolve conflicts from
+  governing intent, updating affected tests and implementation together within
+  authority rather than freezing expectations at an activity boundary.
 - Source code is evidence of implementation, not the source of truth for
   requirements, design, or behavior.
 - Runtime state can describe work progress, blockers, and evidence; it cannot
@@ -150,10 +151,14 @@ solution design.
 
 ## Alignment Methodology
 
-Alignment compares the documents affected by the request. Read the relevant
-authorities, identify contradictions, and explain the correction. A conversational
-answer is sufficient unless the user or runtime asks for a saved or structured
-report. Use `project-audit` for an explicit comparison with implementation.
+Alignment compares the requested artifacts or named system/component with
+relevant authority. A system/component target includes affected code and tests;
+a document-only target stays within its artifacts. Identify contradictions and
+opportunities to consolidate redundant mechanisms, tests or source commentary.
+Ground suggestions in concrete evidence and preserve required behavior. Separate
+advisory improvements from readiness blockers. A conversational answer is
+sufficient unless a saved or structured report is requested. Use `project-audit`
+when explicitly selecting a comprehensive implementation audit.
 
 Specifications describe the desired system and can be valid before code exists.
 Keep implementation status in the runtime tracker. Keep repository history out

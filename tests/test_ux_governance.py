@@ -48,8 +48,14 @@ class UXGovernanceTests(unittest.TestCase):
 
     def test_covered_and_no_ui_dispositions_pass(self):
         for covered in (True, False):
-            code, report = self.validate(self.body(covered))
-            self.assertEqual(code, 0, report)
+            for legacy_header in (True, False):
+                with self.subTest(covered=covered, legacy_header=legacy_header):
+                    body = self.body(covered)
+                    if legacy_header:
+                        body = body.replace('New or Existing Test(s) to Create or Run',
+                                            'Failing Test(s) to Create or Run')
+                    code, report = self.validate(body)
+                    self.assertEqual(code, 0, report)
 
     def test_missing_each_pattern_fails(self):
         for pattern in PATTERNS:

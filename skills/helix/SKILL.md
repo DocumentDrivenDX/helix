@@ -207,7 +207,7 @@ Prefer the first matching route:
 | Convert rough intent into governed HELIX work | input |
 | Grill / interview / stress-test a plan or design until shared understanding (one question at a time) | grill |
 | Create or refine product vision, PRD, feature specs, or user stories | frame |
-| Reconcile relevant documents, check traceability, find drift, or place content in the right artifact | align |
+| Reconcile relevant documents or a named system/component, check traceability, find drift or simplification opportunities, or place content in the right artifact | align |
 | Check an artifact instance against its template and prompt; edit resolvable findings in place | validate |
 | Bring every artifact instance up to date with the current templates and prompts | refresh |
 | Thread a new, changed, removed, or incident-driven requirement through existing artifacts | evolve |

@@ -167,7 +167,11 @@ with a start command and suitable seed data. Planned proof is not a passing run.
 Use the existing Story Test Plan's Acceptance Criteria Test Mapping, test-source
 `@covers` citations and observed run reports. Other requirement types use their
 existing acceptance records and stable IDs; do not create a second per-criterion
-matrix. Test names follow `workflows/concerns/testing/practices.md`.
+matrix. Reuse tests that already supply the required proof; one test can cover
+multiple criteria. Adding another layer or matrix requires a distinct unresolved
+risk or claim. Simplifying a mechanism can remove the need for its private-detail
+tests while retaining proof of the governing outcomes. Test names follow
+`workflows/concerns/testing/practices.md`.
 
 Before claiming completion, make an adversarial review pass against the
 governing criteria and integration risks. Check:

@@ -1,6 +1,6 @@
 # HELIX Action: Write Story Tests
 
-Create failing tests that serve as executable specifications for user stories, enabling the TDD Red-Green-Refactor cycle.
+Reuse or extend tests for the story's governing behavior. Add failing tests where they establish missing behavior or reproduce a regression; do not generate another suite when existing assertions suffice.
 
 ## Prerequisites
 
@@ -36,7 +36,7 @@ describe('User Story: [Story Title]', () => {
 
 ### 3. Validate
 
-- All tests fail (no implementation exists)
+- Existing passing tests are reused; new tests detect the intended missing behavior or failure
 - Each acceptance criterion has corresponding tests
 - Tests are independent and can run in isolation
 
@@ -50,14 +50,14 @@ describe('User Story: [Story Title]', () => {
 
 ## Test Pyramid
 
-- **Unit (70%)**: Fast, isolated, specific
-- **Integration (20%)**: Component interactions
-- **E2E (10%)**: Full user journeys
+Choose unit, integration or E2E coverage according to the behavior and failure
+risk. Use existing suites and avoid duplicating the same evidence across layers;
+fixed percentages do not determine the appropriate strategy.
 
 ## Quality Gates
 
 - [ ] All acceptance criteria have corresponding tests
 - [ ] Edge cases and error conditions covered
 - [ ] Tests are independent and repeatable
-- [ ] All tests initially fail (Red activity)
+- [ ] Tests detect meaningful failures without depending on private implementation steps
 - [ ] Test coverage meets project standards
