@@ -20,6 +20,7 @@ package-local `references/` directory:
     workflows/templates/   -> references/templates/   (report templates)
     workflows/deliverables/-> references/deliverables/ (theme, slide patterns, mappings)
     workflows/references/  -> references/references/   (shared references the actions cite)
+    workflows/publish/     -> references/publish/      (publish flows and the site layout)
 
 Single source of truth: edit under `workflows/`, regenerate graph.yml
 (scripts/generate_graph.py), then build/validate the plugin package. Drift
@@ -56,6 +57,7 @@ TREES = [
     ("workflows/templates", "templates"),
     ("workflows/deliverables", "deliverables"),
     ("workflows/references", "references"),
+    ("workflows/publish", "publish"),
 ]
 
 

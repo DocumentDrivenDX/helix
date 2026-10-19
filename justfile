@@ -1,11 +1,33 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-verification-contract test-publish-artifacts test-ux-governance test-plan-execution test-modularity test-agent-diagnostics test-formal-methods test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable test-headline-sync test-deck-render test-demos test-innsigle test-eval-checks
+test: test-verification-contract test-publish-artifacts test-ux-governance test-plan-execution test-modularity test-agent-diagnostics test-formal-methods test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-publish test-validate-publish-traits test-validate-publish-generators test-validate-guide test-validate-architecture-estate test-validate-architecture-views test-validate-architecture-present test-validate-deliverable test-headline-sync test-deck-render test-demos test-innsigle test-eval-checks
 
 # Serve the HELIX microsite at the canonical local review URL.
 website-serve:
     bash website/scripts/serve-local.sh
+
+# Check publish provenance, staleness, links, budgets, and the site build
+test-validate-publish:
+    bash tests/validate-publish.sh
+
+test-validate-publish-traits:
+    bash tests/validate-publish-traits.sh
+
+test-validate-publish-generators:
+    bash tests/validate-publish-generators.sh
+
+test-validate-guide:
+    bash tests/validate-guide.sh
+
+test-validate-architecture-estate:
+    bash tests/validate-architecture-estate.sh
+
+test-validate-architecture-views:
+    bash tests/validate-architecture-views.sh
+
+test-validate-architecture-present:
+    bash tests/validate-architecture-present.sh
 
 # Validate deploy artifact graph consistency
 test-deploy-artifacts:

@@ -1,0 +1,7 @@
+{{ with .Params.sources }}
+<details class="sources">
+  <summary>Built from {{ len . }} source{{ if ne (len .) 1 }}s{{ end }}</summary>
+  <ul>{{ range . }}<li><code>{{ . }}</code></li>{{ end }}</ul>
+  <p>Each source's digest is recorded in the page's provenance header; <code>publish_check.py check</code> fails when a source changes and the page has not been regenerated.</p>
+</details>
+{{ end }}

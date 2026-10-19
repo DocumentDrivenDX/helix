@@ -37,6 +37,7 @@ with PyYAML, and `just` for the core content workflow. The full suite also uses
 Node with `pptxgenjs`, LibreOffice, and `pdftoppm` for deck rendering; Hugo and
 Node support website work. Individual validation scripts expose further lane
 requirements; inspect their failure output before claiming full validation.
+
 Host installation is separate: follow [docs/install/README.md](https://github.com/DocumentDrivenDX/helix/blob/main/docs/install/README.md).
 For Claude Code, `claude --plugin-dir /path/to/helix` loads the checkout.
 Project-local skill symlinks also point at the source skill.
@@ -51,6 +52,7 @@ bash tests/validate-skills.sh
 Success means the skills validator exits zero. This checks content and packaging
 contracts; it does not prove that a live model will follow every instruction.
 No model credentials are needed for deterministic repository checks.
+
 If `import yaml` fails, install PyYAML in your chosen Python environment and
 repeat the check. With `uv` available, `uv run --with pyyaml python3` supplies
 that dependency; run the commands below in the same environment, for example
@@ -109,7 +111,7 @@ not an unfilled copy of the template.
 
 Edit the instance under `docs/helix/`, preserving its identity and unknown
 frontmatter. Publish updated instances with `python3 scripts/publish-artifacts.py`.
-The overview and this guide explain existing authority; structural decisions
+The solution overview and the developer guide explain existing authority; structural decisions
 belong in Architecture or an architecture decision record (ADR).
 
 ### Change routing or packaging
@@ -136,7 +138,7 @@ runbooks; deterministic checks do not prove production or model behavior.
 
 ## Maintenance and feedback
 
-Contributors maintain this guide with changes to prerequisites, paths,
+Contributors maintain the developer guide with changes to prerequisites, paths,
 generation steps, and validation gates. Before calling onboarding proven,
 have an unfamiliar developer follow setup and make the first contribution;
 record where they needed help. The current pilot is repository-checked only.

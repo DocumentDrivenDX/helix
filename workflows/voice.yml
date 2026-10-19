@@ -6,9 +6,57 @@
 version: 1
 default_profile: artifact-signal
 
+# Measurable rules every profile shares. `skills/helix/scripts/validate-instance.py` audits an
+# instance of a type people read (`prose.audience: human` in its meta.yml) against them and its profile's `limits`, and reports each breach as a `prose.*` finding
+# (a warning unless the run passes --strict-prose). `workflows/references/writing-pass.md` is the
+# procedure that resolves them. A phrase in quotes or a code span is mentioned, not used, and is
+# not matched. Matching is case-insensitive and on whole words.
+prose:
+  avoid_phrases:
+    "it is important to note": state the point
+    "it is worth noting": state the point
+    "worth noting": state the point
+    "serves as": is
+    "acts as": is
+    "stands as": is
+    "leverage": use
+    "utilize": use
+    "delve": look at, or cut
+    "robust": name the property, or cut
+    "seamless": name the property, or cut
+    "simply": cut
+    "really": cut
+    "arguably": make the claim, or cut
+    "in order to": to
+    "this page": state the fact; the page shows itself
+    "this document": state the fact; the document shows itself
+    "the next section": cut; the headings show the structure
+  # An instance states facts about the system. Its own status, authorship, and open work belong in
+  # source control and the tracker (see `avoid` in artifact-signal).
+  information_only:
+    "provisional": cut; state facts, not the document's status
+    "drafted": cut; authorship belongs in source control
+    "for review": cut; review status belongs in the tracker
+    "to be recorded": cut; open work belongs in the tracker
+    "this guide": name the thing, or cut
+    "this walkthrough": name the thing, or cut
+    "this overview": name the thing, or cut
+  # An unnamed person is they or them.
+  pronouns:
+    "she": they
+    "her": their or them
+    "hers": theirs
+    "he": they
+    "him": them
+    "his": their
+
 profiles:
   machine-facts:
     conciseness: 1
+    limits:
+      sentence_words: 40
+      paragraph_sentences: 6
+      cell_words: 45
     audience:
       - LLM context assemblers
       - deterministic validators
@@ -30,6 +78,10 @@ profiles:
 
   artifact-signal:
     conciseness: 2
+    limits:
+      sentence_words: 40
+      paragraph_sentences: 6
+      cell_words: 45
     audience:
       - humans maintaining project intent
       - LLMs carrying artifact context across sessions
@@ -63,8 +115,36 @@ profiles:
       - unsupported claims about tests, metrics, validation, ratchets, or completion
       - smoothing away IDs, paths, commands, acceptance criteria, risks, or trace links
 
+  onboarding:
+    conciseness: 3
+    limits:
+      sentence_words: 28
+      paragraph_sentences: 4
+      cell_words: 25
+    audience:
+      - developers new to a repository
+      - agents orienting before a first change
+    purpose: Let a newcomer name the parts, find where a change belongs, and run one end to end.
+    use_for:
+      - solution overviews
+      - developer guides
+      - architecture walkthroughs
+    required_moves:
+      - Lead each section with the sentence that answers its heading.
+      - Put commands in fenced blocks a reader can paste, with the expected result.
+      - Move evidence a reader opens only to check a claim into a collapsed details block.
+      - Name a role, never a person, as the owner of an unknown.
+    avoid:
+      - restating repository rules a link can carry
+      - status, review, or trial records about the document itself
+      - dropping articles or verbs to reach a word budget
+
   public-site:
     conciseness: 3
+    limits:
+      sentence_words: 28
+      paragraph_sentences: 4
+      cell_words: 25
     audience:
       - smart novice evaluators
       - new HELIX users
@@ -89,6 +169,10 @@ profiles:
 
   human-facing:
     conciseness: 5
+    limits:
+      sentence_words: 25
+      paragraph_sentences: 4
+      cell_words: 25
     audience:
       - decision-makers, sponsors, and executives
       - clients and customers

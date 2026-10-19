@@ -1,0 +1,16 @@
+id: helix-catalog
+title: A HELIX methodology catalog
+detect:
+  - {files: "workflows/activities/*/artifacts/*/meta.yml", weight: 0.5}
+  - {files: "skills/helix/SKILL.md", weight: 0.3}
+  - {files: "workflows/modes/*.md", weight: 0.2}
+flows: [developer, user]
+pages:
+  - flow: user
+    id: artifact-types
+    title: Artifact types
+    kind: reference
+    task: Find every artifact type the catalog defines, by activity.
+    generated: helix-artifact-types
+views: [stack, cast]
+watch: ["workflows/modes/*.md", "workflows/activities/*/artifacts/*/meta.yml"]

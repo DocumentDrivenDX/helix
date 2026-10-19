@@ -1,0 +1,15 @@
+{{ define "main" }}
+<section class="hero">
+  <h1>{{ site.Title }}</h1>
+  {{ with site.Params.description }}<p class="lede">{{ . }}</p>{{ end }}
+</section>
+<section class="cards">
+  {{ range site.Params.sections }}
+  <article class="card">
+    <h2><a href="{{ .url | relURL }}">{{ .title }}</a></h2>
+    <p class="reader">{{ .reader }}</p>
+    <ul>{{ range .pages }}<li><a href="{{ .url | relURL }}">{{ .title }}</a>{{ with .task }}<span>{{ . }}</span>{{ end }}</li>{{ end }}</ul>
+  </article>
+  {{ end }}
+</section>
+{{ end }}

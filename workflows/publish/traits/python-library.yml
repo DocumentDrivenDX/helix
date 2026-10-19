@@ -1,0 +1,36 @@
+id: python-library
+title: A Python library others import
+detect:
+  - {files: "src/*/__init__.py", contains: "__all__", weight: 0.4}
+  - {files: pyproject.toml, contains: "^\\[project\\]", weight: 0.2}
+  - {files: pyproject.toml, contains: "^\\[build-system\\]", weight: 0.2}
+  - {files: "src/*/py.typed", weight: 0.2}
+flows: [developer]
+# A library is changed, released, and embedded rather than deployed: its developer guide runs the
+# tests and a release instead of a server, and its host (the application that imports it) is a
+# reader of its own.
+pages:
+  - flow: developer
+    id: api
+    title: Public interface
+    kind: reference
+    task: Find each public name the package exports, and what it is.
+    generated: python-api
+  - flow: developer
+    id: developer-guide
+    title: Developer guide
+    kind: how-to
+    task: Set up the library, run its tests, make one small change, and release it.
+    budget: 1300
+    outline: [Quick start, Repository map, Running the tests, Making a change, Releasing]
+    sources: ["pyproject.toml", "build and release workflows", "contributor rules", "tests"]
+  - flow: developer
+    id: embedding
+    title: Embedding the library
+    kind: how-to
+    task: Add the library to a host application, configure it, and call it, with the errors the host must handle.
+    budget: 1100
+    outline: [Install, Configure, First call, Errors and their meaning, Upgrading]
+    sources: ["README.md", "the package's __init__.py", "examples", "the configuration contract"]
+views: [stack, cast]
+watch: ["src/*/__init__.py"]

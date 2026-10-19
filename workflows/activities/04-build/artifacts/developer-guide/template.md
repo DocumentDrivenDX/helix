@@ -39,4 +39,4 @@ ddx:
 
 ## Maintenance and feedback
 
-[Maintainer role and update triggers. Record newcomer trial environment, task, result, help needed, and blockers, or explicitly mark the trial pending.]
+[Maintainer role and update triggers. Newcomer trials are recorded in the project's verification evidence or tracker, not here (see `workflows/references/writing-pass.md`, "Information only").]

@@ -2,7 +2,7 @@
 """Validate a HELIX artifact instance against its catalog type's `validation:` block.
 
 Usage:
-    validate-instance.py <instance.md> [--catalog DIR] [--type TYPE] [--format text|json]
+    validate-instance.py <instance.md> [--catalog DIR] [--type TYPE] [--format text|json] [--strict-prose]
 
 Checks run, in order:
   frontmatter        ddx.id, ddx.type/ddx.activity, ddx.authoring.home
@@ -13,6 +13,14 @@ Checks run, in order:
                      with type unique_constraint, module_boundaries, ux_coverage, or not_equals plus `value`;
                      other rule types are reported as unsupported without failing
   placeholder        leftover template markers ([TODO], TBD, [Fill in], ...)
+  prose              for a type people read (meta.yml prose.audience: human), the voice
+                     profile's limits and phrase lists in workflows/voice.yml:
+                     long sentences, crowded paragraphs, overfull cells, avoided phrases, and a
+                     word budget when meta.yml sets prose.budget_words. Warnings unless
+                     --strict-prose or the project's .helix.yml sets `prose: {strict: true}`.
+                     Other types, agent context and history, are not audited, nor is a path
+                     the project lists in `.helix.yml` prose.exempt. Resolve findings with
+                     workflows/references/writing-pass.md
 
 Exit codes: 0 = no blocking findings, 1 = blocking findings, 2 = usage or
 resolution error (instance unreadable, type or catalog unresolvable).
@@ -22,10 +30,14 @@ Requires PyYAML (`python3 -c 'import yaml'`); fails with a clear message otherwi
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import json
 import re
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import prose_audit  # noqa: E402  (sibling module, found beside this script)
 
 try:
     import yaml
@@ -467,6 +479,52 @@ def check_placeholders(body: str, base: int, report: Report) -> None:
         report.add("warning", "placeholder.bracket_token", f"possible template token '{m.group(0)}'", line_of(scan, m.start(), base))
 
 
+def project_prose_settings(instance: Path) -> tuple[dict, Path | None]:
+    """The `prose:` block of the nearest `.helix.yml` above the instance, and that file's directory.
+
+    `strict: true` makes prose findings blocking for every instance under it; `exempt` lists glob
+    patterns, relative to that directory, for records the project keeps (dated logs, reviews).
+    """
+    for parent in instance.resolve().parents:
+        marker = parent / ".helix.yml"
+        if marker.is_file():
+            data = yaml.safe_load(marker.read_text(encoding="utf-8")) or {}
+            return (data.get("prose") or {}), parent
+    return {}, None
+
+
+def prose_audited(meta: dict, instance: Path, settings: dict, root: Path | None) -> bool:
+    """People read this type (meta.yml `prose.audience: human`) and the project has not exempted it.
+
+    Every other type is context and history an agent loads; it keeps the wording it was written in.
+    """
+    if str((meta.get("prose") or {}).get("audience") or "").lower() != "human":
+        return False
+    if root is not None:
+        relative = instance.resolve().relative_to(root).as_posix()
+        return not any(fnmatch.fnmatch(relative, str(p)) for p in settings.get("exempt") or [])
+    return True
+
+
+def check_prose(meta: dict, activities: Path, body: str, base: int, strict: bool, report: Report) -> None:
+    """Audit the prose against the type's voice profile (workflows/voice.yml)."""
+    voice_path = activities.parent / "voice.yml"
+    if not voice_path.is_file():
+        return
+    voice = yaml.safe_load(voice_path.read_text(encoding="utf-8")) or {}
+    declared = meta.get("voice")
+    profile = declared.get("profile") if isinstance(declared, dict) else declared
+    prose = meta.get("prose") or {}
+    budget = prose.get("budget_words", 0)
+    limits = prose_audit.limits_for(voice, profile or voice.get("default_profile") or "", budget)
+    if limits is None:
+        return
+    severity = "blocking" if strict else "warning"
+    found = prose_audit.audit(body, base, limits, prose_audit.phrases(voice), prose.get("skip_lines"))
+    for check, message, line in found:
+        report.add(severity, check, message, line)
+
+
 # --- main ---------------------------------------------------------------------
 
 def main() -> int:
@@ -475,6 +533,7 @@ def main() -> int:
     parser.add_argument("--catalog", help="workflows/ (or activities/) directory of the artifact catalog")
     parser.add_argument("--type", dest="type_id", help="artifact type id when the instance does not declare one")
     parser.add_argument("--format", choices=("text", "json"), default="text")
+    parser.add_argument("--strict-prose", action="store_true", help="report prose findings as blocking")
     args = parser.parse_args()
 
     if yaml is None:
@@ -499,6 +558,10 @@ def main() -> int:
     check_rule_entries("automated_checks", validation.get("automated_checks") or [], body, base, report)
     check_placeholders(body, base, report)
     check_delivery_history(text, 1, report)
+    settings, root = project_prose_settings(args.instance)
+    if prose_audited(entry["meta"], args.instance, settings, root):
+        strict = args.strict_prose or bool(settings.get("strict"))
+        check_prose(entry["meta"], activities, body, base, strict, report)
 
     summary = report.summary()
     if args.format == "json":

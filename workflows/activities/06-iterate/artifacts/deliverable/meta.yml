@@ -128,3 +128,10 @@ tags:
   - human-facing
 
 version: 1.0.0
+
+# The `**Visual**:` line is a pipe-delimited spec the renderers parse (deliverables/visual-specs.md),
+# not prose, so the prose audit does not read it.
+prose:
+  audience: human
+  skip_lines:
+    - "^\\*\\*Visual\\*\\*:"

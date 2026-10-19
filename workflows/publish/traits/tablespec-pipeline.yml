@@ -1,0 +1,21 @@
+id: tablespec-pipeline
+title: Tables specified in UMF with tablespec
+detect:
+  - {files: "**/table.yaml", contains: "^table_name:", weight: 0.5}
+  - {files: "**/pyproject.toml", contains: "tablespec", weight: 0.3}
+  - {files: "**/pipeline.yaml", contains: "^name:", weight: 0.2}
+flows: [data]
+# tablespec's guidebook already publishes each table's columns, rules, and column lineage from the
+# specs. HELIX does not write a second table reference: the flow's tables page is delegated, and
+# the data pages link the guidebook. The lineage page keeps the stage-level picture (sources to
+# dashboards) that the guidebook does not draw.
+delegates:
+  - page: data/tables
+    tool: tablespec guidebook
+    build: "tablespec guidebook <specs directory> -o guidebook"
+    covers: each table's columns, keys, validation rules, and column lineage
+views: [dag]
+handling:
+  never_publish:
+    - "spec descriptions verbatim, which can hold names and counts"
+    - "sample values"

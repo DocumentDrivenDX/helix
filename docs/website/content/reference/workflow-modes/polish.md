@@ -1,7 +1,7 @@
 ---
 title: "Polish"
 slug: polish
-weight: 150
+weight: 160
 generated: true
 ---
 

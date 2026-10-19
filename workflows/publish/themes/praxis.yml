@@ -1,0 +1,20 @@
+# Skadden's Praxis theme, @skadden/tokens 1.4.1, praxis.light.
+id: praxis
+mode: light
+ground: "#FAF9F5"
+sunken: "#F0EEE6"
+surface: "#FFFFFF"
+border: "#E6E2D8"
+recessed: "#E4E0D4"
+strong: "#141413"
+text: "#3D3D3A"
+muted: "#6B675E"
+accent: "#D12800"
+focus: "#D12800"
+ok: "#3F7D58"
+limited: "#986A24"
+purchasing: "#4A5A7A"
+evaluation: "#777268"
+font: "ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif"
+accent_name: red
+ground_name: beige

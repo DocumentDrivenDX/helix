@@ -1,0 +1,41 @@
+# The guide gate (workflows/references/guide.md, In CI). Copy to .github/workflows/guide.yml.
+# `check` fails a pull request that leaves the guide behind the repository: a generated page that
+# would change, a written page whose source moved, a view that drifted from the model, a broken
+# link, a handling pattern. The weekly job regenerates what is generated and opens a pull request.
+name: guide
+on:
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  check:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install pyyaml
+      # HELIX_SCRIPTS: where this project gets HELIX's scripts (a vendored copy, a pinned checkout,
+      # or the installed plugin); set it once for the repository.
+      - run: python "$HELIX_SCRIPTS/guide.py" check --root .
+        env: {HELIX_SCRIPTS: "${{ vars.HELIX_SCRIPTS || '.helix/scripts' }}"}
+  refresh:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install pyyaml
+      - run: python "$HELIX_SCRIPTS/guide.py" build --root . --no-site
+        env: {HELIX_SCRIPTS: "${{ vars.HELIX_SCRIPTS || '.helix/scripts' }}"}
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          branch: guide/refresh
+          title: "guide: regenerate generated pages and views"
+          body: "The weekly guide job regenerated pages and views whose sources moved. Written pages that went stale are listed by `guide.py status`."
