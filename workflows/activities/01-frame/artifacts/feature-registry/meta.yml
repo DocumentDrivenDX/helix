@@ -130,15 +130,11 @@ monitoring:
   track_changes: true
   audit_log: true
   metrics:
-    - features_per_activity
-    - completion_rate
     - dependency_chains
     - owner_distribution
 
 reporting:
   dashboards:
-    - feature_status
-    - progress_tracking
     - dependency_graph
 
   exports:

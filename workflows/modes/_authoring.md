@@ -7,11 +7,7 @@ report shape follows `workflows/modes/_report.md`.
 
 ## Work on material gaps
 
-Committed documents are living working intent. Apply `workflows/principles.md`
-§Living documents and material gaps. Lifecycle labels, stale review stamps, and
-missing graph edges alone do not block work or justify housekeeping tasks.
-Reconcile relevant drift alongside the authorized change. Keep implementation
-progress in the relevant plan, selected work item, or factual report.
+Apply `workflows/principles.md` §Living documents and material gaps.
 
 ## Consult relevant authority
 

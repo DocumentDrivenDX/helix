@@ -59,18 +59,11 @@ class LivingDocumentTests(unittest.TestCase):
             validator.check_frontmatter(metadata, report)
             self.assertEqual(report.findings, [])
 
-    def test_legacy_admin_sections_do_not_hide_missing_substantive_content(self):
-        report = validator.Report()
-        validator.check_required_sections(
-            ['document_status', 'document_approvals', 'trace_links',
-             'requirements', 'compliance_status', 'approvals'],
-            Path('/nonexistent/template.md'), '', True, report,
-        )
-        self.assertEqual({f['check'] for f in report.findings}, {
-            'required_sections.requirements', 'required_sections.compliance_status',
-            'required_sections.approvals',
-        })
-        self.assertTrue(all(f['severity'] == 'blocking' for f in report.findings))
+    def test_catalog_does_not_require_admin_sections(self):
+        for path in (ROOT / 'workflows/activities').glob('*/artifacts/*/meta.yml'):
+            with self.subTest(path=path):
+                required = catalog_validator.extract_required_sections(path) or []
+                self.assertFalse(set(required) & catalog_validator.ADMIN_SECTIONS)
 
     def test_approved_label_does_not_hide_broken_requirements(self):
         text = (ROOT / 'tests/fixtures/validate-instance/broken-prd.md').read_text()
@@ -94,6 +87,13 @@ class LivingDocumentTests(unittest.TestCase):
         self.assertTrue(check('', '---\nddx:\n  status: draft\n---\n'))
         self.assertTrue(check('', '**Status**: [Draft | Review | Approved]'))
         self.assertTrue(check('', '**Status:** Draft'))
+        self.assertTrue(check('', '**Status**: [draft | complete]'))
+        self.assertTrue(check('', '**Status**: [ ] Not Started | [ ] In Progress | [x] Complete'))
+        self.assertTrue(check('', '---\nddx:\n    status: Approved\n---\n'))
+        self.assertTrue(check('workflow:\n    approvers:\n      - Lead', ''))
+        self.assertTrue(check('rules:\n  status_progression:\n    - draft\n', ''))
+        self.assertEqual(check('', '**Status**: [Open | Mitigating | Monitoring | Closed]'), [])
+        self.assertEqual(check('', '**Status**: Met | Unmet | Unknown'), [])
         self.assertEqual(check('operations:\n  approval_required: true\n',
                                'Production go/no-go decision approved\n```yaml\n  status: draft\n```'), [])
 
@@ -104,9 +104,9 @@ class LivingDocumentTests(unittest.TestCase):
                 self.assertNotIn('approval_required', meta.get('workflow', {}))
                 self.assertNotIn('approvers', meta.get('workflow', {}))
                 self.assertNotIn('status_values', meta.get('tracking', {}))
-        for path in (ROOT / 'workflows/activities').glob('*/artifacts/*/template.md'):
+        for path in (ROOT / 'workflows/activities').glob('*/artifacts/*/*.md'):
             with self.subTest(path=path):
-                self.assertNotRegex(path.read_text(), r'(?m)^  status: (draft|approved|review|deprecated|superseded)$')
+                self.assertEqual(catalog_validator.check_lifecycle_defaults('', path.read_text()), [])
         # Actual operational constraints and test evidence are still substantive.
         self.assertIn('Production go/no-go decision approved',
                       (ROOT / 'workflows/activities/05-deploy/GATE.yaml').read_text())

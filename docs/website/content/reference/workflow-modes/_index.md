@@ -52,7 +52,7 @@ Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/hel
   {{< card link="polish" title="Polish" subtitle="Use when the user asks to decompose or refine work items for a named scope. Infer the scope from the task; ask when it is unclear. Do not select all open work…" >}}
   {{< card link="present" title="Present" subtitle="Use to turn governed artifacts into a deck, brief, or one-pager a client, sponsor, or executive can read or watch on the first try. Output: a `deliverable` art…" >}}
   {{< card link="project-audit" title="Project Audit" subtitle="Use only when the user explicitly asks for an implementation audit. Confirm the requested project, component, feature, or other scope; ask for scope when the t…" >}}
-  {{< card link="refresh" title="Refresh" subtitle="Use to bring every artifact instance under a project HELIX tree up to date with the current canonical templates and prompts. Refresh is `modes/validate.md` (fi…" >}}
+  {{< card link="refresh" title="Refresh" subtitle="Use to bring every artifact instance under a project HELIX tree up to date on material content expectations in the current templates and prompts. Refresh is `m…" >}}
   {{< card link="review" title="Review" subtitle="Use for an explicitly requested fresh-eyes review of a plan, artifact, change, or implementation." >}}
   {{< card link="runtime-handoff" title="Runtime Handoff" subtitle="Use when a workflow mode concludes that the next step is execution, source control, packaging, or a long-lived operator loop. HELIX does not own those surfaces…" >}}
   {{< card link="validate" title="Validate" subtitle="Use to check a single artifact instance against its governing template and prompt, then edit resolvable findings in place." >}}

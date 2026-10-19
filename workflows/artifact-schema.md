@@ -247,14 +247,9 @@ ddx:
 
 ### Living-document semantics
 
-Apply `principles.md` §Living documents and material gaps. Committed content is
-working intent governed by subject and authority order. Lifecycle labels and
-review stamps do not grant authority or establish readiness. A graph records
-useful relationships, not a completion checklist. Block only the scoped action
-or claim that depends on unresolved material content; use relevant content and
-the hierarchy when links are absent. Keep progress in plans, selected work
-items, or factual reports. Preserve explicit domain authorization and evidence
-requirements where they govern actual behavior.
+Apply `principles.md` §Living documents and material gaps. For this schema:
+lifecycle labels and review stamps do not establish readiness, and the graph
+records useful relationships, not a completion checklist.
 
 ### Required fields
 

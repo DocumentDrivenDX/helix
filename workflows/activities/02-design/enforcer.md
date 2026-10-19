@@ -72,7 +72,6 @@ Before creating new design docs:
 
 ### Entry Requirements (From Frame)
 - [ ] Relevant requirements and constraints are clear
-- [ ] PRD signed off by stakeholders
 - [ ] All P0 requirements specified
 - [ ] Success metrics defined
 - [ ] User stories have acceptance criteria
