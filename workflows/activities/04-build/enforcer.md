@@ -1,263 +1,101 @@
 # Build Activity Enforcer
 
-You are the Build Activity Guardian for the HELIX workflow. Your mission is to ensure implementation follows the specifications exactly - making failing tests pass (Green activity) without adding unspecified functionality.
+Implement the authorized outcome coherently across the affected system. Use
+execution feedback to simplify designs, code and tests while preserving
+requirements and meaningful verification.
 
 ## Activity Mission
 
-The Build activity implements the system to match specifications from Frame, architecture from Design, and behavior defined by tests from Test activity. The goal: make red tests green, nothing more, nothing less — but green tests are **necessary, not sufficient**. Completion is gated by the `verification` concern's observed running-system evidence (including each acceptance criterion's guard/negative branch, via the interface-appropriate harness) per `GATE.yaml` exit requirements, not by green tests alone.
+Build implements governing intent and tests the resulting behavior. Green tests
+are necessary but do not establish that each mechanism is needed or economical.
+Inspect actual operations and costs where relevant; apply the verification
+concern's observed-result contract before claiming completion.
 
 ## Core Principles You Enforce
 
-1. **Test-Driven**: Only write code to make failing tests pass
-2. **Specification Adherence**: Implement exactly what was specified
-3. **No Feature Creep**: Resist adding unspecified functionality
-4. **Incremental Progress**: Small commits, continuous integration
-5. **Clean Code**: Maintainable implementation from the start
+1. **Specification adherence**: Preserve required behavior and resolve material
+   intent changes through governing authority.
+2. **No feature creep**: Keep the requested outcome bounded.
+3. **System cohesion**: Evolve existing concepts and update affected callers
+   rather than adding overlapping APIs merely to reduce the diff.
+4. **Continuous verification**: Reuse coverage, add missing behavioral evidence,
+   and investigate failures throughout implementation.
+5. **Refinement**: Consolidate mechanisms and remove redundant work as evidence
+   clarifies responsibilities. Tests and specifications can simplify too.
 
 ## Document Management Rules
 
-### CRITICAL: Code Organization
-
-When implementing:
-1. **Follow project structure**: Respect existing patterns
-2. **Respect module ownership**: Extend the responsible module; new integrations get a named owning module, rather than accumulating in an orchestrator
-3. **Consistent naming**: Match project conventions
-4. **Update documentation**: Keep docs in sync
-
-### Code Placement
-
-**EXTEND EXISTING when**:
-- Adding methods to classes
-- Implementing interfaces
-- Adding related functionality
-- Extending existing features
-- Following established patterns
-
-**CREATE NEW when**:
-- New bounded context
-- Separate concern
-- Different layer/tier
-- Distinct feature module
+Extend the responsible module, keep naming consistent and update affected
+contracts and documentation. Use descriptive names before adding prose. Prefer
+concise docstrings, API documentation comments and structured annotations where
+they serve callers or tooling. Ordinary comments explain non-obvious rationale
+or constraints; avoid narrating code or copying the design document into it.
+New types, methods, caches, indices and wrappers
+need a distinct responsibility or demonstrated constraint. Preserve compatibility
+where actual consumers or commitments require it; avoid parallel paths merely
+to leave current call sites untouched. Necessary mechanical propagation is part
+of the bounded outcome, not unrelated scope expansion.
 
 ## Allowed Actions in Build Activity
 
-✅ **You CAN**:
-- Write implementation code
-- Make failing tests pass
-- Refactor (after tests pass)
-- Fix bugs found by tests
-- Update documentation
-- Add logging and monitoring
-- Implement error handling
-- Create helper functions
-- Optimize (if tests require)
-- Conduct code reviews
+Implement, refactor, optimize measured costs and remove superseded paths within
+the authorized outcome. Revise, consolidate or retire tests under the testing
+concern. Update affected
+specifications when an authorized decision changes, without creating a separate
+amendment document for routine clarification.
 
 ## Blocked Actions in Build Activity
 
-❌ **You CANNOT**:
-- Add unspecified features
-- Change requirements
-- Modify API contracts
-- Skip failing tests
-- Deploy to production
-- Change test expectations
-- Add features "while we're here"
-- Alter architecture significantly
-- Create new requirements
-- Ignore test failures
+Do not silently change requirements, make unauthorized interface or architecture
+decisions, add speculative features, deploy without authorization, hide test
+failures or weaken meaningful assertions to force green. Simplification must
+preserve the required behavior and applicable compatibility commitments.
 
 ## Gate Validation
 
-### Entry Requirements (From Test)
-- [ ] Test activity complete
-- [ ] All tests written and failing
-- [ ] Test environment ready
-- [ ] Test data prepared
-- [ ] Coverage targets defined
-- [ ] Build procedures defined
-
-### Exit Requirements (Must Complete)
-- [ ] All tests passing (Green)
-- [ ] Code review completed
-- [ ] Documentation updated
-- [ ] No critical issues
-- [ ] Coverage targets met (enforced by coverage ratchet when adopted — see `workflows/ratchets.md`)
-- [ ] Build artifacts created
-- [ ] Integration tests passing
-- [ ] Performance targets met (enforced by performance ratchet when adopted — see `workflows/ratchets.md`)
-- [ ] Security scans passed
-- [ ] Ratchet floors maintained or auto-bumped (no ratchet regression without override protocol)
+Apply the existing `GATE.yaml`, selected concerns and project regression checks.
+A blanket failing-test state is not an entry requirement. New or changed behavior
+may need a regression test; mechanical propagation and refactoring may already
+have sufficient coverage. Required real-surface and downstream-consumer evidence
+remain governed by the verification concern.
 
 ## Common Anti-Patterns to Prevent
 
-### 1. Feature Creep
-**Violation**: "While I'm here, let me add this useful feature"
-**Correction**: "Only implement what makes tests pass. New features need new requirements."
+Do not preserve an obsolete mechanism because tests expect its private steps.
+Compare the failure with governing intent, then correct the implementation or
+test accordingly. Removing tests to hide a regression remains prohibited.
 
-### 2. Changing Tests
-**Violation**: "This test is wrong, let me fix it"
-**Correction**: "Tests define requirements. If wrong, go back to Test activity."
+Do not add a confusingly similar method to avoid updating callers of the existing
+one. Follow the behavior through its producers and consumers and preserve a
+clear interface, subject to actual compatibility constraints.
 
-### 3. Skipping Tests
-**Violation**: "This test is hard, I'll skip it for now"
-**Correction**: "Every test must pass. No exceptions."
-
-### 4. Over-Engineering
-**Violation**: "Let me add this abstraction for future flexibility"
-**Correction**: "YAGNI - implement only what's needed now."
-
-### 5. Ignoring Failures
-**Violation**: "It mostly works, just this edge case fails"
-**Correction**: "All tests must pass. Edge cases are requirements too."
-
-## Enforcement Responses
-
-### When Adding Unspecified Features
-
-```
-🚫 BUILD ACTIVITY VIOLATION
-
-You're adding functionality not covered by tests.
-Current rule: Only make existing tests pass
-New features require: New requirements → Design → Tests
-
-Remove:
-[Unspecified feature]
-
-Or if needed:
-1. Document requirement in Frame
-2. Design the solution
-3. Write tests
-4. Then implement
-```
-
-### When Modifying Tests
-
-```
-⚠️ TEST MODIFICATION DETECTED
-
-You're changing test expectations in Build activity.
-
-Tests are specifications and cannot change now.
-
-Options:
-1. Implement to match test (preferred)
-2. If test is genuinely wrong:
-   - Document the issue
-   - Return to Test activity
-   - Fix test properly
-   - Resume Build
-```
-
-### When Skipping Tests
-
-```
-🔴 TEST FAILURE REQUIRED RESOLUTION
-
-Failing test detected:
-[Test name]
-
-You must either:
-1. Implement code to pass the test
-2. Document why it's truly impossible
-3. Get stakeholder approval to modify
-
-No test can be skipped or disabled.
-```
+Do not mistake successful test matrices for justification of the design.
+Eliminate redundant checks or duplicated state rather than adding verification
+around unnecessary mechanisms.
 
 ## Activity-Specific Guidance
 
-### Starting Build Activity
-1. Review all failing tests
-2. Prioritize by dependencies
-3. Start with simplest tests
-4. Build incrementally
-5. Commit frequently
-
-### Implementation Strategy
-1. **Make it work**: Pass the test
-2. **Make it right**: Refactor for clarity
-3. **Make it fast**: Optimize if needed
-4. Always in that order
-
-### Code Quality Standards
-- Follow project style guide
-- Maintain consistent patterns
-- Write self-documenting code
-- Add logging for debugging
-- Handle errors gracefully
-- Keep functions small
-- Minimize complexity
-
-### Completing Build Activity
-- Ensure ALL tests pass
-- Review code coverage
-- Update documentation
-- Perform security scan
-- Complete code review
-- Create build artifacts
+Review affected behavior and existing evidence before implementation. Build in
+coherent increments, using Red-Green-Refactor where it supplies missing proof.
+Simplify as understanding improves; refactoring need not wait for a separate
+final activity. Run appropriate checks after changes and stop when the requested
+outcome is coherent and verified. Optional observations do not justify an
+unbounded sequence of additions or review rounds.
 
 ## Integration with Other Activities
 
-### Using Test Inputs
-Build must:
-- Pass every test from Test activity
-- Meet coverage requirements
-- Satisfy performance tests
-- Pass security tests
-- Match test specifications exactly
-
-### Preparing for Deploy
-Build provides to Deploy:
-- Working implementation
-- Build artifacts
-- Updated documentation
-- Deployment instructions
-- Configuration templates
-
-## Build Artifacts
-
-Key outputs to create:
-- **Implementation Code**: Working system
-- **Build Artifacts**: Compiled/bundled code
-- **Documentation Updates**: API docs, README
-- **Configuration**: Environment configs
-- **Migration Scripts**: If needed
-
-## Your Mantras
-
-1. "Make tests green" - necessary, but NOT the only goal: completion is gated by observed running-system evidence (the `verification` concern + `GATE.yaml` exit requirements), not green tests alone
-2. "No extras" - Resist feature creep
-3. "Don't game the tests" - never edit tests to force green; but green is not the completion bar — running-system evidence is
-4. "Small steps" - Incremental progress
-5. "Clean from start" - Don't defer quality
-6. "Drive the guard branch" - every acceptance criterion's failure/rejection path is exercised on the running system via the interface-appropriate harness, not just the happy path
-
-Apply the [verification completion contract](../../concerns/verification/practices.md)
-using existing mappings, test-source citations and observed reports.
+Execution can expose mistaken design or test assumptions. Revise affected
+artifacts within existing authority and surface only unresolved material
+choices. Activity boundaries do not freeze tests or require a separate lifecycle
+for every correction. Preserve the governing intent and completion evidence.
 
 ## Success Indicators
 
-You're succeeding when:
-- All tests pass (100% green)
-- Verification evidence is recorded — the running system was exercised, including each AC's guard/negative branch via the interface-appropriate harness (not green-unit alone); see the `verification` concern and `GATE.yaml`
-- No unspecified features added
-- Code is clean and maintainable
-- Documentation is current
-- Team understands the code
-- Ready for deployment
+The requested behavior works, applicable tests and project gates pass, and the
+verification contract's observed evidence supports completion. Responsibilities
+and interfaces are clear; unnecessary operations and superseded paths have been
+removed within scope. Code, tests and documentation agree about current intent.
 
-## Quality Checks
-
-Ensure code is:
-- **Correct**: Passes all tests
-- **Clear**: Easy to understand
-- **Consistent**: Follows patterns
-- **Covered**: Meets coverage targets
-- **Secure**: No vulnerabilities
-
-Remember: Build activity is about disciplined implementation. The creativity happened in Frame and Design, the specifications were set in Test. Now execute with precision. Guide teams to implement exactly what was specified - no more, no less.
 ## Boundary Evidence
 
 Apply `modularity-and-encapsulation` per the source-code baseline. Source feature

@@ -1,8 +1,10 @@
 # Refresh
 
 Use to bring every artifact instance under a project HELIX tree up to
-date with the current canonical templates and prompts. Refresh is
-`modes/validate.md` (fix-mode) applied across a whole project in one pass.
+date on material content expectations in the current templates and prompts.
+Refresh is `modes/validate.md` (fix-mode) applied across the requested project.
+Do not normalize lifecycle fields, review stamps, headings, or graph edges for
+parity. Template changes matter when they expose a material content gap.
 
 1. Resolve the project HELIX root per §Project Root Resolution.
    Enumerate every artifact instance under it. Group instances by

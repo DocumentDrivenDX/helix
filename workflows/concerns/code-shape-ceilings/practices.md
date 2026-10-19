@@ -28,12 +28,12 @@ Scaffold the gate before feature work: the lint config, the two scripts, one
 |---|---|---|---|
 | Complexity per function | `mccabe.max-complexity = 10` | `complexity: 10` | `noExcessiveCognitiveComplexity` at 15 |
 | Function length | `pylint.max-statements = 40` | `max-lines-per-function: 60` (skip blanks, comments) | none; file cap only |
-| Parameters | `pylint.max-args = 5` | `max-params: 4` | none; review |
+| Parameters | review cohesion | review cohesion | review cohesion |
 | Returns / branches | `max-returns = 6`, `max-branches = 12` | `max-depth: 4` | none; review |
 | Public methods per class | `pylint.max-public-methods = 15` (needs `PLR0904`, a preview rule) | `max-classes-per-file: 1` | none; review |
 | File length | `SOURCE_MAX = 500`, `TEST_MAX = 800` | same script | same script |
 
-Python also selects `C901` and `PLR` (ignore only `PLR2004`), sets
+Python also selects `C901` and `PLR` (ignore `PLR2004`, `PLR0913` and `PLR0917`), sets
 `preview = true` with `explicit-preview-rules = true` and
 `extend-select = ["PLR0904"]`, and runs pyright with `strict` on application
 code. TypeScript also sets `strict: true` and `noUncheckedIndexedAccess: true`,
@@ -53,14 +53,13 @@ select = ["E", "W", "F", "I", "B", "UP", "S", "SIM", "RUF", "PT", "C901", "PLR"]
 preview = true
 explicit-preview-rules = true
 extend-select = ["PLR0904"]
-ignore = ["PLR2004"]
+ignore = ["PLR2004", "PLR0913", "PLR0917"]
 
 # Global ceilings. No per-file exceptions; lower them, never raise them.
 [tool.ruff.lint.mccabe]
 max-complexity = 10
 
 [tool.ruff.lint.pylint]
-max-args = 5
 max-returns = 6
 max-branches = 12
 max-statements = 40
@@ -80,7 +79,6 @@ strict = ["src"]
   rules: {
     complexity: ["error", 10],
     "max-lines-per-function": ["error", { max: 60, skipBlankLines: true, skipComments: true }],
-    "max-params": ["error", 4],
     "max-depth": ["error", 4],
     "max-classes-per-file": ["error", 1],
   },
@@ -139,14 +137,14 @@ from pathlib import Path
 
 CEILINGS = {
     "pyproject.toml": re.compile(
-        r"^(max-(?:complexity|args|returns|branches|statements|public-methods))\s*=\s*(\d+)", re.M
+        r"^(max-(?:complexity|returns|branches|statements|public-methods))\s*=\s*(\d+)", re.M
     ),
-    "eslint.config.js": re.compile(r"(complexity|max-[\w-]+)\W+(\d+)"),
+    "eslint.config.js": re.compile(r"(complexity|max-(?:lines-per-function|depth|classes-per-file))\W+(\d+)"),
     "biome.json": re.compile(r'"(maxAllowedComplexity)"\s*:\s*(\d+)'),
     "scripts/check_file_size.py": re.compile(r"^(SOURCE_MAX|TEST_MAX)\s*=\s*(\d+)", re.M),
 }
 # Built from parts so this file's own definition is not read as a silencer.
-_RULES = r"(?:C901|PLR\w+|complexity|max-[\w-]+|noExcessive\w+)"
+_RULES = r"(?:C901|PLR(?!0913|0917)\w+|complexity|max-(?!params)[\w-]+|noExcessive\w+)"
 SILENCER = re.compile(
     rf"^\+.*(?:{'no' + 'qa'}:?[\w, ]*{_RULES}|(?:{'eslint' + '-disable'}|{'biome' + '-ignore'})[^\n]*{_RULES})",
     re.M,
@@ -247,7 +245,7 @@ Install it with a `just hooks` recipe: `git config core.hooksPath .githooks`.
 
 ## Quality Gates
 
-- The lint config selects the complexity, statement, argument, and
+- The lint config selects the complexity, statement, and
   public-method rules at or below the strict defaults (or the adoption
   baseline recorded in `concerns.md`).
 - `just lint` runs the linter, formatter check, type check,
@@ -255,6 +253,6 @@ Install it with a `just hooks` recipe: `git config core.hooksPath .githooks`.
 - The Claude `PostToolUse` and `Stop` hooks and the git pre-commit hook are
   committed and run that recipe.
 - No ceiling was raised, and no `noqa`, `eslint-disable`, `biome-ignore`, or
-  per-file ignore was added for a complexity, size, or parameter rule.
+  per-file ignore was added for a complexity or size rule.
 - No source file is over `SOURCE_MAX` and no test file over `TEST_MAX`.
 - No type-checker ignore list of modules.

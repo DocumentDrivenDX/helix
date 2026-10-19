@@ -1,6 +1,8 @@
 # Project Audit
 
-Use only when the user explicitly asks for an implementation audit. Confirm
+Use only when the user explicitly asks for an implementation audit of what is
+built. Aligning a named system or component (`align`) already inspects its code
+and tests for coherence with intent; it does not report implementation status. Confirm
 the requested project, component, feature, or other scope; ask for scope when
 the target is ambiguous.
 

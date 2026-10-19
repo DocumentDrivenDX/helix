@@ -7,7 +7,6 @@ ddx:
 
 # Frame Activity Validation Checklist
 
-**Status**: [ ] Not Started | [ ] In Progress | [ ] Complete
 **Validated By**: [Name]
 **Date**: [Date]
 **Result**: [ ] Pass | [ ] Conditional Pass | [ ] Fail
@@ -17,11 +16,11 @@ ddx:
 |------|--------|----------|--------------|
 | Problem, goals, and success metrics are clear enough to judge outcomes | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |
 | P0 scope is identified, prioritized, and separated from non-goals | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |
-| Features and stories are traceable through IDs and links | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |
+| The next scoped outcome follows governing requirements | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |
 | Acceptance criteria are testable | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |
 | Major risks, dependencies, and external constraints are explicit | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |
-| Frame artifacts do not contradict each other | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |
-| Required stakeholders have reviewed the plan | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |
+| Relevant material conflicts are resolved from governing authority | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |
+| Material choices needing human judgment have a decision | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |
 
 ## Result
 - [ ] **PASS**: Ready for Design activity
@@ -35,4 +34,4 @@ ddx:
 
 | Item | Owner | Due | Required Before |
 |------|-------|-----|-----------------|
-| [Condition] | [Owner] | [Date] | [Design start / design approval / build start] |
+| [Condition] | [Owner] | [Date] | [Specific dependent action] |

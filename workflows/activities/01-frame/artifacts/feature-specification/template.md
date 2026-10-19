@@ -8,7 +8,6 @@ ddx:
 # Feature Specification: FEAT-XXX — [Feature Name]
 
 **Feature ID**: FEAT-XXX
-**Status**: [Draft | Specified | Approved]
 **Priority**: [P0 | P1 | P2]
 **Owner**: [Team/Person]
 **Covered PRD Subsystem(s)**: [Subsystem name(s) from the PRD — normally exactly one]

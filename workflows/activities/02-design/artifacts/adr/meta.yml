@@ -95,9 +95,6 @@ references:
 
 workflow:
   review_cycles: 1
-  approval_required: true
-  approvers:
-    - Technical Lead
 
 relationships:
   informed_by:

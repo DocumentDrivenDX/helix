@@ -22,7 +22,7 @@ Define what the system should do, for whom, and how success will be measured.
 {{< cards >}}
   {{< card link="compliance-requirements/" title="Compliance Requirements" subtitle="Obligation-to-control map for applicable regulations, standards, contractual duties, data handling, owners, evidence, and validation." >}}
   {{< card link="feasibility-study/" title="Feasibility Study" subtitle="Pre-commitment viability assessment across technical, business, operational, resource, schedule, compliance, risk, and alternative dimensions." >}}
-  {{< card link="feature-registry/" title="Feature Registry" subtitle="Compact source of truth for feature IDs, names, status, priority, owner, dependencies, and artifact trace links." >}}
+  {{< card link="feature-registry/" title="Feature Registry" subtitle="Compact source of truth for feature IDs, names, priority, owner, dependencies, and artifact trace links." >}}
   {{< card link="parking-lot/" title="Parking Lot" subtitle="Registry for deferred or future work that should remain visible but outside current scope until a specific revisit trigger is met." >}}
   {{< card link="pr-faq/" title="PR-FAQ" subtitle="Working-backwards launch narrative and internal FAQ that test customer outcome, mechanism, autonomy boundary, feasibility, economics, and scope." >}}
   {{< card link="research-plan/" title="Research Plan" subtitle="Time-boxed plan for answering specific uncertainty before requirements, design, or investment decisions harden." >}}

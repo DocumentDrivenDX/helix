@@ -11,7 +11,6 @@ ddx:
 
 # Stakeholder Map
 
-**Status**: Review
 **Last Updated**: 2026-05-12
 
 ## Primary Stakeholders (High Influence, High Interest)

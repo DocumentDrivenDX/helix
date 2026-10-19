@@ -2,7 +2,6 @@
 ddx:
   id: current-state-inventory-analytics-estate
   type: current-state-inventory
-  status: draft
   authoring:
     home: repo
 ---

@@ -8,7 +8,6 @@ ddx:
 # Feasibility Study: {{project_name}}
 
 **Decision Deadline**: {{decision_deadline}}
-**Status**: Draft
 
 ## Executive Summary
 

@@ -5,14 +5,17 @@ Use the active voice profile and shared writing guidance when they apply.
 Tracker work and gates follow `workflows/references/work-item-first.md`;
 report shape follows `workflows/modes/_report.md`.
 
+## Work on material gaps
+
+Apply `workflows/principles.md` §Living documents and material gaps.
+
 ## Consult relevant authority
 
 Read the target and the governing artifacts that can affect the requested
-change. Use the bound graph to identify required prerequisites and meaningful
-relationships; do not traverse unrelated branches. If a required prerequisite
-is missing, follow the active autonomy contract or the user's direction before
-proceeding. A non-required relationship may inform the work when relevant, but
-does not block it.
+change. Use the bound graph to find relevant content; do not traverse unrelated
+branches. If upstream content is missing, identify the material uncertainty it
+leaves. Use existing intent and the authority hierarchy when sufficient; block
+only an affected action that requires an unresolved decision or evidence.
 
 When creating an artifact, add only supported `ddx.links` relationships. Do not
 invent links or mechanically copy every graph edge. For an existing artifact,

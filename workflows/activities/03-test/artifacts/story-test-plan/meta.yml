@@ -20,7 +20,7 @@ id_format:
 description: |
   The story test plan translates one bounded technical design into executable
   verification intent before implementation starts. It maps story acceptance
-  criteria to concrete failing tests, names the required setup and data, and
+  criteria to concrete new or existing tests, names the required setup and data, and
   gives Build a precise handoff for one story-sized slice.
 
 output:
@@ -73,7 +73,7 @@ validation:
       severity: warning
 
     - check: acceptance_traced
-      description: Every active acceptance criterion maps to at least one concrete failing test
+      description: Every active acceptance criterion maps to at least one concrete new or existing test
       severity: blocking
 
     - check: proof_is_executable
@@ -94,7 +94,7 @@ validation:
       severity: warning
     - check: review_active_acceptance_criterion_maps_concrete
       description: >-
-        Every active acceptance criterion maps to concrete failing tests, keyed by its stable `US-<n>-AC<m>` ID
+        Every active acceptance criterion maps to concrete new or existing tests, keyed by its stable `US-<n>-AC<m>` ID
       severity: warning
     - check: review_ac_row_names_behavior_assertion
       description: >-
@@ -129,7 +129,7 @@ prompts:
   generation: prompt.md
   review: |
     Review this story test plan for:
-    1. Clear traceability from story acceptance criteria to failing tests
+    1. Clear traceability from story acceptance criteria to new or existing tests
     2. Executable evidence paths (commands, files, test identifiers)
     3. Explicit setup, fixtures, and data dependencies
     4. Bounded story scope without feature-level drift
@@ -152,9 +152,6 @@ references:
 workflow:
   creation_order: 2
   review_cycles: 1-2
-  approval_required: true
-  approvers:
-    - Technical Lead
 
 relationships:
   informed_by:

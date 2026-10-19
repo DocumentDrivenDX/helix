@@ -106,7 +106,7 @@ Let's systematically unpack the problem we're trying to solve:
 **Before Completion**:
 - [ ] Problem statement passes the "newspaper test" (clear to outside reader)
 - [ ] Success criteria are SMART (Specific, Measurable, Achievable, Relevant, Time-bound)
-- [ ] All stakeholders have reviewed and approved problem definition
+- [ ] Material choices needing human judgment have a decision
 - [ ] Root causes are documented with supporting evidence
 - [ ] Scope boundaries are explicitly documented
 

@@ -89,10 +89,6 @@ references:
 workflow:
   creation_order: 3
   review_cycles: 2
-  approval_required: true
-  approvers:
-    - Product Owner
-    - Security Champion
 
 relationships:
   informs:

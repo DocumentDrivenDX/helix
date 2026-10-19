@@ -27,7 +27,7 @@ class VerificationContractTests(unittest.TestCase):
             self.assertNotIn('verification-evidence', item.get('path', ''))
         # Semantic coverage remains manual; no imaginary new executable check.
         self.assertEqual({item['check'] for item in checks}, {
-            'tests_passing', 'coverage_threshold', 'security_scan_clean',
+            'tests_passing', 'security_scan_clean',
             'lint_clean', 'file_exists', 'dir_not_empty', 'grep_absent',
         })
         review = '\n'.join(gate['exit_requirements']['manual'])

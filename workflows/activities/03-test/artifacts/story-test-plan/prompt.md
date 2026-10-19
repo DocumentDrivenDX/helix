@@ -1,6 +1,6 @@
 # Story Test Plan Generation Prompt
 
-Scope: one story's acceptance-criteria-to-test traceability — concrete failing tests, fixtures, commands, and setup for a single bounded slice.
+Scope: one story's acceptance-criteria-to-test traceability — concrete new or existing tests, fixtures, commands, and setup for a single bounded slice.
 
 Related:
 - [Test Plan](../test-plan/prompt.md) — project-wide strategy this STP inherits
@@ -24,7 +24,7 @@ Use these local resource summaries as grounding:
 
 - the governing `[[US-XXX-*]]` and `[[TD-XXX-*]]` references
 - a tight scope statement plus explicit out-of-scope boundaries
-- a matrix mapping each active acceptance criterion to concrete failing tests,
+- a matrix mapping each active acceptance criterion to concrete new or existing tests,
   keyed by the story's **stable `US-<n>-AC<m>` ID** (this story-level matrix is
   the AC↔test traceability surface; the project test plan aggregates strategy
   and allocates layers but does not duplicate these rows — FEAT-008 FR-6). Each

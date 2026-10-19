@@ -17,7 +17,11 @@ Check the target for:
 - correctness against its governing requirements and decisions;
 - missing error, boundary, integration, or recovery behavior relevant to scope;
 - security and active concern practices where applicable;
-- test quality and whether tests exercise the behavior they claim to cover;
+- coherence and cost of the affected behavior, including redundant operations,
+  duplicated state and overlapping interfaces; inspect generated operations or
+  runtime measurements where relevant rather than inferring economy from tests;
+- test quality, reuse of existing evidence and whether tests exercise required
+  behavior without preserving obsolete implementation details;
 - unsupported claims about tests, coverage, or metrics.
 
 For completion reviews, trace the existing acceptance mapping and test-source

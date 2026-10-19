@@ -4,6 +4,7 @@
 Checks:
 - required_sections must match template H2s.
 - artifact voice profile references must exist in workflows/voice.yml.
+- no generic document approval/status lifecycle in meta, templates, or examples.
 
 For every artifact under workflows/activities/<phase>/artifacts/<slug>/, read
 meta.yml and extract validation.required_sections (list of section IDs). Then
@@ -241,11 +242,64 @@ def iter_artifact_dirs() -> list[Path]:
     return dirs
 
 
+# Administrative sections an artifact type must not require.
+ADMIN_SECTIONS = frozenset({
+    "document_status", "document_approval_status", "document_approvals",
+    "document_review_history", "document_change_history", "trace_links",
+})
+LIFECYCLE_TERMS = (
+    r"draft|in review|review|approved|specified|complete|example|active|archived"
+    r"|not started|in progress|deprecated|superseded"
+)
+
+
+def check_lifecycle_defaults(meta_text: str, doc_text: str) -> list[str]:
+    """Keep generic approval machinery out of the shipped catalog.
+
+    This is a source-catalog guard, not a migration requirement for adopters.
+    Domain state (risk status, production go/no-go, etc.) is not matched.
+    """
+    failures = []
+    workflow = re.search(r"(?m)^workflow:[ \t]*\n((?:[ \t]+[^\n]*(?:\n|\Z)|\n)*)", meta_text)
+    if workflow and re.search(r"(?m)^[ \t]+(approval_required|approvers)\s*:", workflow.group(1)):
+        failures.append("workflow must not impose a generic document approval lifecycle")
+    if re.search(r"(?m)^[ \t]+(status_values|status_progression)\s*:", meta_text):
+        failures.append("meta must not define a document status lifecycle")
+    frontmatter = re.match(r"\A---\n(.*?)\n---(?:\n|$)", doc_text, re.S)
+    if frontmatter and re.search(
+        r"(?mi)^[ \t]+status:[ \t]*(draft|review|approved|deprecated|superseded)[ \t]*$",
+        frontmatter.group(1),
+    ):
+        failures.append("document must not seed lifecycle status frontmatter")
+    if re.search(
+        rf"(?mi)^\*\*Status:?\*\*:?[ \t]*\[?[ \t]*(?:\[[ x]?\][ \t]*)?(?:{LIFECYCLE_TERMS})\b",
+        doc_text,
+    ):
+        failures.append("document must not seed a lifecycle status header")
+    return failures
+
+
 def validate(art_dir: Path, default_voice_profile: str, voice_profiles: set[str]) -> list[str]:
     """Return a list of failure messages for this artifact (empty if clean)."""
     meta_path = art_dir / "meta.yml"
     template_path = art_dir / "template.md"
-    failures: list[str] = []
+    meta_text = meta_path.read_text(encoding="utf-8")
+    failures: list[str] = [
+        f"{art_dir.relative_to(REPO_ROOT)}: {message}"
+        for message in check_lifecycle_defaults(meta_text, "")
+    ]
+    for doc_path in sorted([template_path, *art_dir.glob("example*.md")]):
+        if doc_path.exists():
+            failures.extend(
+                f"{doc_path.relative_to(REPO_ROOT)}: {message}"
+                for message in check_lifecycle_defaults("", doc_path.read_text(encoding="utf-8"))
+            )
+    for section_id in extract_required_sections(meta_path) or []:
+        if section_id in ADMIN_SECTIONS:
+            failures.append(
+                f"{art_dir.relative_to(REPO_ROOT)}: required_section '{section_id}' "
+                "is document administration, not content"
+            )
 
     for voice_ref in extract_voice_references(meta_path, default_voice_profile):
         if voice_ref not in voice_profiles:

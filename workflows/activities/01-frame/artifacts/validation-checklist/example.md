@@ -16,7 +16,6 @@ ddx:
 
 # Frame Activity Validation Checklist
 
-**Status**: [ ] Not Started | [ ] In Progress | [x] Complete
 **Validated By**: Product Lead
 **Date**: 2026-05-12
 **Result**: [ ] Pass | [x] Conditional Pass | [ ] Fail

@@ -28,7 +28,6 @@ what separates them, and it is the artifact's reason to exist.
 ddx:
   id: current-state-inventory-analytics-estate
   type: current-state-inventory
-  status: draft
   authoring:
     home: repo
 ---

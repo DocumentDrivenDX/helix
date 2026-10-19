@@ -21,7 +21,7 @@ collection: adr
 | Aspect | Description |
 |--------|-------------|
 | Problem | The artifact-type audit flagged `feature-registry` and `parking-lot` as similarly-shaped registries in the frame phase, raising the question of whether they should collapse into a single registry distinguished by a status enum. |
-| Current State | `feature-registry` is the source of truth for accepted features (`FEAT-XXX`, owners, priorities, status progression from `draft` through `deployed`/`deprecated`/`cancelled`). `parking-lot` is a separate registry for deferred or future work, keyed by `Source` and `Revisit Trigger` and explicitly outside current scope. They share a `type: registry` classification and live in the same activity, but encode different lifecycle states and serve different operator decisions. |
+| Current State | `feature-registry` is the source of truth for accepted features (`FEAT-XXX`, owners, priorities, relevant product lifecycle facts, without document-stage progression). `parking-lot` is a separate registry for deferred or future work, keyed by `Source` and `Revisit Trigger` and explicitly outside current scope. They share a `type: registry` classification and live in the same activity, but encode different lifecycle states and serve different operator decisions. |
 | Requirements | The catalog must either (a) merge the two into one registry with a status discriminator, or (b) keep them separate with a documented handoff so the boundary the operator triages on stays visible and tracker-relevant. |
 
 ## Decision
@@ -31,12 +31,14 @@ collection: adr
 `parking-lot` is the staging area for deferred or future work — items kept
 visible but outside current scope until a recorded `Revisit Trigger` fires.
 `feature-registry` is the source of truth for accepted features that are in
-the active pipeline (`draft` → `specified` → `designed` → `in_test` →
-`in_build` → `built` → `deployed`, or terminal `deprecated`/`cancelled`).
+the current scope. It records identity, ownership, priorities, and relevant
+product lifecycle facts. Plans or selected work items carry implementation
+progress; the registry does not track document stages or require a complete
+linkage matrix.
 
 Handoff between the two is explicit: a parking-lot entry promotes to
 feature-registry when its revisit criteria are met. The promotion is a
-recorded transition (assign next sequential `FEAT-XXX`, set initial status,
+recorded transition (assign next sequential `FEAT-XXX`, identify the outcome,
 link back to the parking-lot source), not an implicit merge or status flip
 inside a single registry.
 

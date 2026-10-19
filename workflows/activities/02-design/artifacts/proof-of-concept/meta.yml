@@ -99,11 +99,6 @@ examples:
 workflow:
   creation_order: 2.5  # After initial design, before detailed contracts
   review_cycles: 1-2
-  approval_required: true
-  approvers:
-    - Technical Lead
-    - PoC Lead
-    - Architecture Team
 
   development_phases:
     - planning: "Define scope and success criteria"

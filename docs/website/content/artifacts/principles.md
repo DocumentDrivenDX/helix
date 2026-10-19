@@ -39,15 +39,18 @@ steps; principles do not add steps or gates.
 2. **Specifications describe desired state.** Record requirements and
    consequential decisions in their governing artifacts. Record implementation
    status in the runtime's work tracker or a factual report.
-3. **Scope the work.** Read the requested artifact and the authorities that can
-   affect the change. Audit implementation only when explicitly requested and
-   within the named scope.
-4. **Work flows in every direction.** A test exposes a design gap; a metric
-   revises a feature spec; a vision update propagates down. Activity names
-   locate the kind of work, not its position in a sequence.
+3. **Scope the work.** Read the requested target and relevant authorities.
+   A system/component alignment includes affected implementation and tests;
+   document-only alignment stays within its artifacts. A comprehensive audit
+   requires explicit selection. Keep each within the named scope.
+4. **Work flows in every direction.** Execution feedback revises plans and
+   enables simplification as responsibilities become clear. Consolidate
+   overlapping mechanisms and retire unnecessary work in specifications,
+   implementation and tests while preserving required behavior and evidence.
+   Activity names locate the kind of work, not its position in a sequence.
 5. **Decisions guide implementation.** An accepted decision sets direction; it
    does not claim that the system implements that direction.
-6. **People decide; agents draft and check.** People own intent and approval.
+6. **People decide; agents draft and check.** People own intent and material decisions.
    Agents draft, compare, and surface questions at the governed hand-offs.
 7. **HELIX stays small.** HELIX defines methodology and ships one routing skill.
    Execution and tracking belong to the runtime.
@@ -55,6 +58,15 @@ steps; principles do not add steps or gates.
    Do not add gates, reports, or checklist sections only for completeness.
 9. **Discipline over improvisation.** Agents improvise well; HELIX makes that
    improvisation reviewable.
+
+## Living documents
+
+Committed documents express current working intent. Expect light drift; use
+higher authority to reconcile relevant gaps during authorized work. A material
+gap affects user outcomes, scope, requirements, design, safety, or completion
+evidence. Lifecycle labels, stale review stamps, and missing edges alone never
+block work or justify housekeeping tasks. Keep progress in the relevant plan,
+selected work item, or factual report. Explicit domain decisions still apply.
 
 ## Authority
 

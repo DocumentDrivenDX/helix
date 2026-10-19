@@ -1,7 +1,6 @@
 ---
 ddx:
   id: ADR-XXX
-  status: draft
   authoring:
     home: repo
 ---

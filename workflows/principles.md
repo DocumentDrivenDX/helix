@@ -46,9 +46,13 @@ choice makes future changes harder, that cost should be explicit and justified.
 
 ### Design for Simplicity
 
-Start with the minimal structure that could work. Additional components,
-layers, or abstractions require documented justification. Complexity that
-serves no current requirement is waste — remove it.
+Start with the minimal structure that could work. Measure it by the resulting
+system (its responsibilities, public concepts, retained state and operational
+work), not by the size of the diff: updating callers of an existing operation
+is often simpler than adding a parallel one. Complexity that serves no current
+requirement is waste; remove it, including superseded specifications and tests,
+while preserving required behavior and meaningful evidence. Do not create
+justification documents for routine edits.
 
 ### Validate Your Work
 
@@ -58,9 +62,13 @@ surface their own health.
 
 ### Make Intent Explicit
 
-Code, configs, and documents should say what they mean. Avoid implicit
-conventions, magic values, and behavior that depends on undocumented ordering.
-When intent is ambiguous, name it.
+Code, configs, and documents should say what they mean. Use descriptive names
+and explicit structure before adding explanation. Prefer concise language-native
+API documentation (docstrings, documentation comments or structured annotations)
+where callers or tooling need a contract. Reserve ordinary comments for rationale,
+constraints or surprising behavior that the code cannot express. Keep design
+rationale in its governing document rather than repeating it throughout source.
+Avoid implicit conventions, magic values and undocumented ordering.
 
 ### Prefer Reversible Decisions
 
@@ -88,6 +96,36 @@ documents when a decision changes, without traversing unrelated branches of the
 artifact graph. The hierarchy establishes meaning, not a mandatory sequence of
 ceremonies.
 
+### Living documents and material gaps
+
+A document committed to Git is living working intent. Its subject and place in
+the authority hierarchy determine how it governs work; a lifecycle label does
+not grant or remove authority. Expect light drift as intent and implementation
+evolve. Git preserves history; revise affected documents in place to state the
+current intent.
+
+A material gap changes a user outcome, requirement, scope, architectural choice,
+safety constraint, or the evidence needed to claim completion. Work on these
+gaps within the requested scope. Missing status labels, review stamps, or graph
+edges alone are not gaps and do not block authorized work. Follow links when
+they help resolve intent; use relevant content and the hierarchy when links are
+absent. Do not traverse or normalize the graph for completeness.
+
+Resolve ordinary lower-layer drift from clear higher authority and continue
+within the authorized task. Ask for a decision only when unresolved intent
+materially changes the solution and cannot be resolved from existing authority.
+Do not weaken a requirement to match code. Keep implementation progress and
+remaining work in one relevant plan, selected work item, or factual report;
+do not repeat “not implemented” banners across specifications.
+
+Do not create separate administrative work solely to normalize document status
+or complete linkages. Update relevant references alongside substantive work.
+When intent is retired, remove or replace obsolete guidance; leave a replacement
+pointer only when readers need it. Existing lifecycle metadata is tolerated,
+not an instruction to migrate it. Product deprecation, contractual sign-off,
+release go/no-go decisions, and safety authorization remain real domain facts
+when explicitly applicable; they are not a generic document lifecycle.
+
 ### Humans Decide, Agents Draft
 
 The two strands of the helix share one loop with different jobs. People
@@ -95,8 +133,9 @@ own intent, judgment, and approval: what to build, which decision stands,
 whether work is done. Agents own throughput: drafting, checking,
 surfacing, and recording. The hand-off points are explicit and governed,
 never implied: the autonomy level sets how often an agent pauses, stop
-triggers name what it must never do unasked, approval turns a draft into
-authority, and a refusal or an escalation returns judgment to a person.
+triggers name what it must never do unasked, and a material unresolved choice
+returns judgment to a person. Committed documents express working intent
+without a separate approval state.
 A workflow that lets an agent settle a question only a human can answer,
 or that makes a human do work an agent can check, has the strands crossed.
 

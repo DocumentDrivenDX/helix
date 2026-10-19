@@ -102,11 +102,6 @@ references:
 workflow:
   creation_order: 0.8  # After research plan, before detailed requirements
   review_cycles: 1-2
-  approval_required: true
-  approvers:
-    - Product Owner
-    - Technical Lead
-    - Executive Sponsor
 
   analysis_phases:
     - data_gathering: "Collect information for assessment"

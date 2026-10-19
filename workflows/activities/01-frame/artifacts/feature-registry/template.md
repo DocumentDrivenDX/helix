@@ -7,26 +7,19 @@ ddx:
 
 # Feature Registry
 
-**Status**: [Active | Archived]
 **Last Updated**: [Date]
 
 ## Active Features
 
-| ID | Name | Description | Status | Priority | Owner | Source | Updated |
-|----|------|-------------|--------|----------|-------|--------|---------|
-| FEAT-001 | [Name] | [Brief description] | [Status] | P0 | [Owner] | [PRD/spec/story] | [Date] |
+| ID | Name | Description | Priority | Owner | Source | Updated |
+|----|------|-------------|----------|-------|--------|---------|
+| FEAT-001 | [Name] | [Brief description] | P0 | [Owner] | [PRD/spec/story] | [Date] |
 
-## Status Definitions
+## Product Lifecycle
 
-- **Draft**: Requirements being gathered
-- **Specified**: Feature spec complete (Frame done)
-- **Designed**: Technical design complete (Design done)
-- **In Test**: Tests being written
-- **In Build**: Implementation in progress
-- **Built**: Implementation complete
-- **Deployed**: Released to production
-- **Deprecated**: Scheduled for removal
-- **Cancelled**: Will not be pursued
+Record release, product deprecation, or cancellation information only when it
+changes a product decision. Implementation progress belongs in the relevant
+plan, selected work item, or factual report. Do not track document stages here.
 
 ## Dependencies
 
@@ -34,11 +27,10 @@ ddx:
 |---------|------------|------|-------|
 | FEAT-002 | FEAT-001 | Required | [Why] |
 
-## Trace Links
+## Relevant References
 
-| Feature | Spec | Stories | Designs | Tests | Release |
-|---------|------|---------|---------|-------|---------|
-| FEAT-001 | [Feature spec] | [Stories] | [Designs] | [Tests] | [Release] |
+Link governing artifacts and evidence when useful for the scoped work. Do not
+seed empty traceability matrices or report missing links as separate work.
 
 ## Feature Categories
 
