@@ -39,9 +39,8 @@ of the bounded outcome, not unrelated scope expansion.
 ## Allowed Actions in Build Activity
 
 Implement, refactor, optimize measured costs and remove superseded paths within
-the authorized outcome. Revise or consolidate implementation-coupled tests;
-retire redundant tests when meaningful coverage remains. Explain consequential
-coverage changes in the existing diff or commit message. Update affected
+the authorized outcome. Revise, consolidate or retire tests under the testing
+concern. Update affected
 specifications when an authorized decision changes, without creating a separate
 amendment document for routine clarification.
 
@@ -71,9 +70,8 @@ one. Follow the behavior through its producers and consumers and preserve a
 clear interface, subject to actual compatibility constraints.
 
 Do not mistake successful test matrices for justification of the design.
-Inspect consequential work directly, such as generated SQL and measured query
-cost, when it bears on the change. Eliminate redundant checks or duplicated
-state rather than adding verification around unnecessary mechanisms.
+Eliminate redundant checks or duplicated state rather than adding verification
+around unnecessary mechanisms.
 
 ## Activity-Specific Guidance
 

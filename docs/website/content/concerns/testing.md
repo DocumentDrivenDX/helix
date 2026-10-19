@@ -31,8 +31,9 @@ all
   may be wrong. Do not preserve an obsolete mechanism solely to satisfy a test.
 - Revise or consolidate tests coupled to superseded implementation details.
   Retire redundant tests when meaningful coverage remains, and remove tests for
-  intentionally retired behavior with the authorized requirement change. Explain
-  consequential coverage changes in the existing diff or commit message.
+  intentionally retired behavior with the authorized requirement change. When a
+  retired test is mapped to an acceptance criterion, update its Story Test Plan
+  row to the test that still covers it.
 - Never skip, disable, or delete a test to hide a regression. `.skip` and
   `@Ignore` cannot substitute for resolving a failure.
 - Never commit with failing tests. If you cannot fix the failure, leave the
@@ -168,20 +169,12 @@ A broad claim still requires broad proof; narrow the claim explicitly rather
 than imply untested scale or interoperability is supported.
 
 Inspect existing coverage and the affected system's actual operations before
-adding tests or matrices. Generated SQL and query measurements, network requests,
-or other boundary observations can expose unnecessary mechanisms that passing
-tests would preserve. Remove or consolidate redundant work when evidence
-supports it; verify the required outcome through existing coverage where it
-suffices. Add tests for distinct uncovered behavior or material failure risks.
-
-Evaluate test footprint against distinct behavioral evidence, including fixture
-and helper code, execution time and maintenance cost. When coverage measurements
-are useful, compare covered production lines or branches and test-code volume
-for the same production scope. Coverage gained per added test line can flag bulky
-additions, but changed denominators, compressed code and weak assertions can
-mislead. Use the ratio as a review signal, never a target, gate or reason to
-remove valuable tests. Prefer clearer, smaller verification at the layer that
-best detects the failure; do not ban unit tests or explanatory comments.
+adding tests or matrices. Boundary observations (generated SQL and query
+measurements, network requests) can expose unnecessary mechanisms that passing
+tests would preserve; remove those rather than test around them. Add tests for
+distinct uncovered behavior or material failure risks. Weigh a test's fixtures,
+helpers, runtime and maintenance against the distinct behavior it proves, and
+prefer smaller verification at the layer that best detects the failure.
 
 The strategy below applies where its behavior or risk is in scope. Periodic
 campaigns are not a prerequisite for every implementation slice. Required

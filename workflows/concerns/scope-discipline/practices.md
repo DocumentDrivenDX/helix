@@ -50,8 +50,8 @@ A completion claim is **incomplete** if any of these hold:
    (disabled, read-only) with no recorded tradeoff. Resolve by restoring it or
    recording the reduction in `concerns.md` / an ADR.
 4. **Off-scope blast radius** — the diff changes behavior unrelated to the
-   requested outcome. Remove unrelated changes; retain necessary mechanical
-   propagation and consolidation across affected files.
+   requested outcome. Remove unrelated changes; retain necessary caller updates
+   and removal of paths the change superseded.
 5. **Unapproved stack addition** — the diff adds a language, a runtime
    dependency, or a toolchain with no recorded decision. Resolve by removing it
    or recording the decision in an ADR.
@@ -85,6 +85,7 @@ asks whether the change is the right size.
   acceptance criteria.
 - No pre-release legacy-compat shim, alias, or fallback without a released
   consumer.
-- Changes serve the bounded outcome, including necessary propagation and consolidation.
+- Changes serve the bounded outcome, including necessary caller updates and
+  removal of paths the change superseded.
 - No unrecorded language, runtime dependency, or toolchain additions.
 - No implementation-specific conditionals outside the interface that owns them.

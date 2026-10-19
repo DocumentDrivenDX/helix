@@ -285,13 +285,9 @@ available. No new suite is required merely to populate a test category.
 
 ## Next Activity: Build
 
-Once Test activity completes, proceed to Build where you'll:
-- Implement code to make tests pass
-- Follow TDD red-green-refactor cycle
-- Achieve all coverage targets
-- Refactor while keeping tests green
-
-Build also assesses the coherence and cost of the implementation; passing tests alone cannot justify unnecessary mechanisms.
+Build implements the governing behavior, verifies it, and simplifies code and
+tests as execution clarifies the design. Passing tests alone cannot justify
+unnecessary mechanisms.
 
 ## Test Organization Best Practices
 

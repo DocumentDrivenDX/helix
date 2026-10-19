@@ -46,13 +46,13 @@ choice makes future changes harder, that cost should be explicit and justified.
 
 ### Design for Simplicity
 
-Judge simplicity by the resulting system: its responsibilities, public
-concepts, retained state and operational work. A small diff can add lasting
-complexity; updating callers of an existing operation can preserve cohesion.
-As execution clarifies boundaries, consolidate overlapping mechanisms and
-remove unnecessary work, including superseded specifications and tests.
-Preserve required behavior and meaningful evidence. Use existing rationale
-where needed; do not create justification documents for routine edits.
+Start with the minimal structure that could work. Measure it by the resulting
+system (its responsibilities, public concepts, retained state and operational
+work), not by the size of the diff: updating callers of an existing operation
+is often simpler than adding a parallel one. Complexity that serves no current
+requirement is waste; remove it, including superseded specifications and tests,
+while preserving required behavior and meaningful evidence. Do not create
+justification documents for routine edits.
 
 ### Validate Your Work
 

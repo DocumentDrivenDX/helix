@@ -21,13 +21,9 @@ audit. Follow relationships only where they can affect the result.
    changing them.
 3. For misplaced content, state its source, destination, and the proposed
    change. Omit a migration ledger unless the user requests one.
-4. Assess simplification within the selected scope under execution feedback.
-   Inspect overlapping interfaces, redundant operations or state, duplicated
-   verification and excessive source commentary where relevant. Use the
-   comparison in `actions/reconcile-alignment.md`; volume alone is not a defect.
-   Give findings concrete evidence, the proposed consolidation/removal and the
-   behavior or proof that must remain. Separate advisory improvements from
-   violations that block readiness; do not create gates or work items by default.
+4. Report simplification opportunities within the selected scope separately
+   from classified gaps, as advisory, per `actions/reconcile-alignment.md`
+   step 6.
 
 For system/component alignment, inspect relevant code and tests without requiring
 another audit invocation. Keep document-only alignment bounded to its artifacts.

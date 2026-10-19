@@ -403,22 +403,10 @@ graph TD
 ## Design Principles Enforcement
 
 ### Core Principles Checklist
-- [ ] **Library-First**: Each feature is a standalone library
-- [ ] **CLI Interface**: All functionality exposed via text interface
 - [ ] **Verification**: Existing evidence and missing behavioral proof identified
-- [ ] **Simplicity**: Maximum 3 major components
+- [ ] **Simplicity**: Every component has a current responsibility
 - [ ] **Anti-Abstraction**: Direct framework usage, no wrappers
 - [ ] **Integration Testing**: Real environments over mocks
-
-### Complexity Budget
-Track design complexity to prevent over-engineering:
-
-| Component | Complexity Points | Justification |
-|-----------|------------------|---------------|
-| Component 1 | 1 | Core requirement |
-| Component 2 | 1 | Essential integration |
-| Component 3 | 1 | (Only if justified) |
-| **Total** | **≤ 3** | Must stay within budget |
 
 ## Quality Gates
 

@@ -13,7 +13,6 @@ Build implements authorized behavior across affected producers and consumers. Us
 ## Input Gate
 
 Before starting Build activity, verify Test activity outputs:
-- [ ] All test suites written and reviewed
 - [ ] Existing coverage and any missing behavioral evidence are understood
 - [ ] Coverage plan identifies scoped requirements and meaningful tests
 - [ ] CI/CD pipeline configured for tests
@@ -129,46 +128,7 @@ verification concern's observed-result contract before claiming completion.
 - [ ] **Independent**: Tests don't depend on each other
 - [ ] **Repeatable**: Same result every time
 - [ ] **Self-Validating**: Clear pass/fail
-- [ ] **Timely**: Written before code
-
-## Common Patterns
-
-### Pattern: Contract Test First
-```bash
-# 1. Create contract test
-test/contracts/cli_test.go
-
-# 2. Run test - see it fail
-make test  # FAIL: CLI not found
-
-# 3. Create minimal implementation
-cmd/cli.go
-
-# 4. Run test - see it pass
-make test  # PASS
-
-# 5. Refactor if needed
-# Improve structure while tests stay green
-```
-
-### Pattern: Integration Test Flow
-```bash
-# 1. Create integration test
-test/integration/workflow_test.go
-
-# 2. Test fails - components don't exist
-make test  # FAIL: Components not found
-
-# 3. Build components incrementally
-internal/component1/
-internal/component2/
-
-# 4. Connect components
-internal/workflow/
-
-# 5. Test passes
-make test  # PASS
-```
+- [ ] **Behavioral**: Assert outcomes, not private steps
 
 ## Build Guidelines
 
@@ -199,8 +159,7 @@ Every commit should:
 1. Pass all existing tests
 2. Not break previous functionality
 3. Use sufficient existing or new behavioral coverage
-4. Update documentation
-5. Pass linting and formatting
+4. Pass linting and formatting
 
 ## Common Pitfalls
 
@@ -230,7 +189,7 @@ Every commit should:
 
 The Build activity is complete when:
 
-1. **All Tests Pass**: 100% of specified tests green
+1. **All Tests Pass**: Applicable project checks are green
 2. **Coverage Met**: Governing behavior and critical paths verified under project targets
 3. **Performance Verified**: Meets requirements under load
 4. **Security Validated**: Passes security scans
@@ -268,21 +227,6 @@ make lint
 make fmt
 ```
 
-### TDD Rhythm
-```bash
-# 1. RED: Write failing test
-echo "test_cli_accepts_input()" > test_cli.py
-pytest  # FAIL
-
-# 2. GREEN: Make it pass
-echo "def accept_input(): pass" > cli.py
-pytest  # PASS
-
-# 3. REFACTOR: Improve
-# Refactor cli.py while keeping tests green
-pytest  # STILL PASS
-```
-
 ## Build Artifacts
 
 By the end of Build activity, you should have:
@@ -296,7 +240,7 @@ By the end of Build activity, you should have:
 
 ## Tips for Success
 
-1. **Small Steps**: One test, one feature at a time
+1. **Small Steps**: One coherent slice at a time
 2. **Coherent Commits**: Commit verified changes with their affected tests
 3. **Pair Programming**: Two eyes catch more issues
 4. **Continuous Integration**: Test on every push

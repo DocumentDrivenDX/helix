@@ -47,8 +47,8 @@ nobody asked for). Both gates are required.
 - **No pre-release legacy shims**: backward-compat aliases, fallbacks, and
   deprecation shims are not added for consumers that do not exist yet.
 - **Bounded blast radius**: the change serves the requested outcome, including
-  necessary caller updates and removal of superseded paths; unrelated cleanup
-  remains separate work.
+  necessary caller updates and removal of paths it superseded; unrelated cleanup
+  and consolidation the change did not require remain separate work.
 - **No unapproved stack additions**: no second programming language, new
   runtime dependency, or extra toolchain (a separate virtual environment,
   package manager, or build tool) beyond the selected `language-runtime` and
@@ -92,7 +92,8 @@ nobody asked for). Both gates are required.
 - Keep the requested outcome bounded while following its consequences through
   affected producers and consumers. Mechanical propagation may touch many files;
   adding a parallel API to avoid it can leave lasting complexity. Unrelated
-  behavior changes or opportunistic cleanup remain outside the work item's scope.
+  behavior changes, opportunistic cleanup and consolidating mechanisms the
+  change did not make redundant remain outside the work item's scope.
 
 ## Exceptions (honored in concern-resolution and at the gate)
 
@@ -125,7 +126,8 @@ placeholder is never reported as a satisfied criterion.
 - A requested capability shipped disabled / read-only "for security" with no
   recorded tradeoff → unrequested scope retreat; restore it or record the change.
 - A diff changes behavior unrelated to the requested outcome → blast-radius;
-  remove unrelated edits while retaining necessary propagation and consolidation.
+  remove unrelated edits while retaining necessary caller updates and removal
+  of paths the change superseded.
 - A file in a language the stack concerns do not select, a new entry in the
   dependency manifest, or a second virtual environment or package manager with
   no recorded decision → unapproved stack addition; remove it or record the
@@ -203,8 +205,8 @@ A completion claim is **incomplete** if any of these hold:
    (disabled, read-only) with no recorded tradeoff. Resolve by restoring it or
    recording the reduction in `concerns.md` / an ADR.
 4. **Off-scope blast radius** — the diff changes behavior unrelated to the
-   requested outcome. Remove unrelated changes; retain necessary mechanical
-   propagation and consolidation across affected files.
+   requested outcome. Remove unrelated changes; retain necessary caller updates
+   and removal of paths the change superseded.
 5. **Unapproved stack addition** — the diff adds a language, a runtime
    dependency, or a toolchain with no recorded decision. Resolve by removing it
    or recording the decision in an ADR.
@@ -238,6 +240,7 @@ asks whether the change is the right size.
   acceptance criteria.
 - No pre-release legacy-compat shim, alias, or fallback without a released
   consumer.
-- Changes serve the bounded outcome, including necessary propagation and consolidation.
+- Changes serve the bounded outcome, including necessary caller updates and
+  removal of paths the change superseded.
 - No unrecorded language, runtime dependency, or toolchain additions.
 - No implementation-specific conditionals outside the interface that owns them.

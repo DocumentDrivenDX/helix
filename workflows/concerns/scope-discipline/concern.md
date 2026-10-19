@@ -37,8 +37,8 @@ nobody asked for). Both gates are required.
 - **No pre-release legacy shims**: backward-compat aliases, fallbacks, and
   deprecation shims are not added for consumers that do not exist yet.
 - **Bounded blast radius**: the change serves the requested outcome, including
-  necessary caller updates and removal of superseded paths; unrelated cleanup
-  remains separate work.
+  necessary caller updates and removal of paths it superseded; unrelated cleanup
+  and consolidation the change did not require remain separate work.
 - **No unapproved stack additions**: no second programming language, new
   runtime dependency, or extra toolchain (a separate virtual environment,
   package manager, or build tool) beyond the selected `language-runtime` and
@@ -82,7 +82,8 @@ nobody asked for). Both gates are required.
 - Keep the requested outcome bounded while following its consequences through
   affected producers and consumers. Mechanical propagation may touch many files;
   adding a parallel API to avoid it can leave lasting complexity. Unrelated
-  behavior changes or opportunistic cleanup remain outside the work item's scope.
+  behavior changes, opportunistic cleanup and consolidating mechanisms the
+  change did not make redundant remain outside the work item's scope.
 
 ## Exceptions (honored in concern-resolution and at the gate)
 
@@ -115,7 +116,8 @@ placeholder is never reported as a satisfied criterion.
 - A requested capability shipped disabled / read-only "for security" with no
   recorded tradeoff → unrequested scope retreat; restore it or record the change.
 - A diff changes behavior unrelated to the requested outcome → blast-radius;
-  remove unrelated edits while retaining necessary propagation and consolidation.
+  remove unrelated edits while retaining necessary caller updates and removal
+  of paths the change superseded.
 - A file in a language the stack concerns do not select, a new entry in the
   dependency manifest, or a second virtual environment or package manager with
   no recorded decision → unapproved stack addition; remove it or record the

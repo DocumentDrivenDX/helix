@@ -14,10 +14,6 @@ entry_requirements:
       path: docs/helix/02-design/architecture.md
       description: "Architecture from Design activity must exist"
 
-    - check: dir_not_empty
-      path: docs/helix/02-design/contracts
-      description: "API contracts from Design activity must exist"
-
     - check: grep_absent
       pattern: "\\[TO BE DEFINED\\]"
       path: docs/helix/02-design/**/*.md
@@ -34,14 +30,10 @@ exit_requirements:
       path: docs/helix/03-test/test-plan.md
       description: "Test plan document must exist"
 
-    - check: file_exists
-      path: docs/helix/03-test/test-procedures.md
-      description: "Test procedures document must exist"
-
     # Reuse the project's suites; no new suite per test layer is required.
     - check: tests_exist
       path: tests
-      description: "Applicable new or existing tests exercise the scoped behavior"
+      description: "Test files exist"
 
     # CI/CD configuration
     - check: file_exists
@@ -59,14 +51,9 @@ exit_requirements:
       path: tests/**/*
       description: "Test files contain test definitions"
 
-    # Coverage targets defined
-    - check: grep_present
-      pattern: "coverage|threshold|target"
-      path: docs/helix/03-test/test-plan.md
-      description: "Test plan defines coverage targets"
-
   manual:
     - "Coverage plan identifies scoped requirements and meaningful tests"
+    - "Applicable new or existing tests exercise the scoped behavior"
     - "Test infrastructure verified operational"
 
 next_activity: build

@@ -94,9 +94,9 @@ graph TB
    acceptance boundaries.
 2. **Design** - Choose architecture, record decisions, and describe bounded
    implementation slices.
-3. **Test** - Write failing tests or equivalent executable checks that define
-   system behavior.
-4. **Build** - Implement code or documentation to satisfy the tests and designs.
+3. **Test** - Select meaningful new or existing verification for governing
+   behavior.
+4. **Build** - Implement governing intent coherently and verify the result.
 5. **Deploy** - Release with rollout, monitoring, and recovery plans.
 6. **Iterate** - Learn from measurements, reviews, incidents, and user feedback.
 
@@ -109,13 +109,10 @@ authority; block only the action that needs an unresolved decision or evidence:
 
 - **Design** cannot start until Frame outputs are coherent enough to govern it.
 - **Test** cannot start until Design has enough authority to define behavior.
-- **Build** cannot start until tests or equivalent acceptance checks define the
-  expected result.
+- **Build** cannot start until the expected result and how it will be verified
+  are clear.
 - **Deploy** cannot start until Build evidence satisfies the acceptance checks.
 - **Iterate** begins once released behavior can be observed or reviewed.
-
-This test-first approach keeps specifications ahead of implementation and makes
-quality a design constraint rather than a cleanup activity.
 
 ## Authority Hierarchy
 
@@ -153,12 +150,10 @@ solution design.
 
 Alignment compares the requested artifacts or named system/component with
 relevant authority. A system/component target includes affected code and tests;
-a document-only target stays within its artifacts. Identify contradictions and
-opportunities to consolidate redundant mechanisms, tests or source commentary.
-Ground suggestions in concrete evidence and preserve required behavior. Separate
-advisory improvements from readiness blockers. A conversational answer is
-sufficient unless a saved or structured report is requested. Use `project-audit`
-when explicitly selecting a comprehensive implementation audit.
+a document-only target stays within its artifacts. Identify contradictions;
+report simplification opportunities separately as advisory. A conversational
+answer is sufficient unless a saved or structured report is requested. Use
+`project-audit` when explicitly asked for an implementation status audit.
 
 Specifications describe the desired system and can be valid before code exists.
 Keep implementation status in the runtime tracker. Keep repository history out
@@ -306,7 +301,7 @@ HELIX is ideal for:
 
 - New products or features requiring high quality and clear specifications
 - Mission-critical systems where defects are expensive
-- Teams practicing TDD or moving toward specification-first development
+- Teams moving toward specification-first development
 - AI-assisted development projects needing durable context and traceability
 - Security-sensitive applications requiring built-in security
 
@@ -317,27 +312,12 @@ HELIX may not be suitable for:
 - Emergency fixes requiring immediate deployment
 - Teams unwilling to maintain governing artifacts
 
-## Why Test-First?
+## Verification
 
-The HELIX workflow favors tests or equivalent executable acceptance checks before
-implementation because:
-
-1. **Tests are the specification**: they define what the system should do.
-2. **Definition of done is concrete**: implementation is complete when checks
-   pass and governing artifacts agree.
-3. **Over-engineering is constrained**: build only what the tests and designs
-   require.
-4. **Quality is immediate**: defects are caught near the change.
-5. **Refactoring is safer**: green checks provide confidence to improve code.
-
-## The TDD Cycle
-
-Within the Test and Build activities, HELIX follows the Red-Green-Refactor cycle:
-
-1. **Red**: write a failing test or acceptance check that defines desired
-   behavior.
-2. **Green**: write minimal implementation to make the check pass.
-3. **Refactor**: improve quality while keeping checks green.
+Plan how behavior will be verified before claiming it works. Use a failing test
+when it establishes missing behavior or reproduces a defect; existing passing
+coverage can verify a refactor or mechanical change. Passing tests do not
+justify a mechanism (see Conflict Resolution Rules).
 
 ## Getting Started
 

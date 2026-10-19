@@ -24,9 +24,7 @@ records the chosen direction; implementation status requires separate evidence.
 1. Summarize the target's intent from its governing artifacts.
 2. Compare affected documents for material contradictions, ambiguity, or stale
    content that changes user outcomes, requirements, scope, design choices,
-   safety, or completion evidence. Assess whether overlapping types or operations,
-   duplicated verification, or obsolete detail can be consolidated under the same
-   intent. Do not infer a defect from document length alone. Missing links, lifecycle labels, and stale
+   safety, or completion evidence. Missing links, lifecycle labels, and stale
    review stamps alone are not findings. Use content and authority when links
    are absent. Resolve ordinary lower-layer drift from clear higher authority
    when edits are authorized; surface only choices that existing intent cannot
@@ -35,35 +33,25 @@ records the chosen direction; implementation status requires separate evidence.
    `UNDERSPECIFIED`, `STALE_PLAN`, or `BLOCKED`.
 4. For misplaced content, identify its source and proposed destination. Draft
    destination text only when the user asks for it or authorizes edits.
-5. Report findings with evidence and a useful next step. For simplification,
-   name the redundancy, its cost or ambiguity, the proposed removal/consolidation,
-   and required behavior or evidence to preserve. Separate advisory improvements
-   from governing violations and unresolved risks; an improvement opportunity
-   alone does not block readiness. A conversational answer is sufficient by default.
+5. Report findings with evidence and a useful next step. A conversational
+   answer is sufficient by default.
+6. Separately, list simplification opportunities: overlapping types or
+   operations, duplicated verification, or obsolete detail. Report one only when
+   removing it would materially reduce what must be understood or maintained;
+   length alone is not a defect. Name the redundancy, the proposed removal and
+   the evidence that keeps the required outcome. These are advisory: they take
+   no gap classification, do not block readiness and create no work items by
+   default.
 
 ## Implementation comparison
 
 For system/component alignment or an explicitly requested implementation audit,
 inspect only code and tests relevant to the named scope. Compare the resulting
-system's coherence and economy as well as requirement coverage. Examine overlapping
-methods or DTOs, duplicated state and unnecessary operations; inspect generated
-SQL, execution plans or measured costs when they bear on the question. Prefer
-evolving an existing operation with necessary caller updates over a parallel
-interface introduced merely to keep the diff small. Respect actual compatibility
-commitments.
-
-Assess tests by their distinct behavioral evidence and maintenance cost. Identify
-redundant scenarios or assertions coupled to private steps; explain which existing
-coverage would preserve required outcomes after consolidation. Coverage gained
-per test-code line can inform review under the testing practices, but is neither
-a target nor proof of assertion quality. Do not infer excessive unit testing from
-its count or layer alone, or replace useful unit tests with E2E by default.
-
-Assess source documentation against descriptive names and governing design docs.
-Flag comments that narrate obvious code, repeat the design or preserve obsolete
-explanations. Prefer concise docstrings, API documentation comments and structured
-annotations for caller/tooling contracts. Keep non-obvious rationale, constraints
-and useful requirement citations; a blanket comment ban would discard intent.
+system's coherence as well as requirement coverage: overlapping methods or types,
+duplicated state, unnecessary operations, tests that duplicate other evidence or
+assert private steps, and comments that restate code or design documents. Judge
+these under `workflows/principles.md` (Design for Simplicity, Make Intent
+Explicit) and the testing practices, and report them as in step 6.
 
 Select the existing checks below where they answer the alignment question; a full
 inventory is not required unless the user asks for comprehensive coverage.

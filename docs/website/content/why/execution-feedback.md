@@ -35,7 +35,7 @@ Respond at the level where the evidence shows a problem. Fix the implementation 
 
 As the team understands the system's responsibilities, refinement should increasingly consolidate or remove mechanisms. Evolving an existing method and updating its callers may preserve a clearer interface than adding a similar method. A redundant cache may need removal rather than another suite of tests proving that it behaves correctly.
 
-Inspect the work the system actually performs before expanding its verification. In a data-intensive operation, generated SQL, execution plans, and measured query cost can reveal duplicate reads, unnecessary checks, or redundant indices. Other systems need evidence at the boundary where their costs and consequences occur. Use the evidence relevant to the decision; a statement-by-statement audit is not required for every change.
+Inspect the work the system actually performs before expanding its verification. Evidence at the boundary where costs occur, such as the queries a data operation issues, can reveal duplicate work that passing tests would otherwise preserve.
 
 Keep the required behavior and meaningful verification while simplifying the mechanisms that deliver them. Further tests should address a named uncertainty or failure risk. Existing tests and specifications can also be consolidated or retired when their purpose is superseded, with affected references updated. Passing tests establish properties of a mechanism; they do not establish that the mechanism is necessary.
 

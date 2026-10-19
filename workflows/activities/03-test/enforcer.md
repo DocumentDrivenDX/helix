@@ -36,9 +36,6 @@ cover multiple criteria; maintain the existing requirement citations.
 
 Define verification strategy, reuse or extend tests, prepare necessary data and
 infrastructure, and revise tests that no longer express governing behavior.
-Use generated operations, execution plans or measurements when they directly
-answer the design question. A SQL cost review may reveal redundant reads or
-state that should be removed rather than surrounded with more tests.
 
 ## Blocked Actions in Test Activity
 
@@ -65,9 +62,8 @@ and test rather than generating every category of happy, error and edge case.
 An existing scenario may already establish the outcome.
 
 A test that prevents internal simplification without protecting required
-behavior should be revised or retired. Explain consequential coverage changes
-in the existing review or commit; deleting a test to conceal a defect is not
-simplification.
+behavior should be revised or retired under the testing concern; deleting a
+test to conceal a defect is not simplification.
 
 ## Activity-Specific Guidance
 

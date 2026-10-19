@@ -2,7 +2,8 @@
 
 You are creating a design plan for a HELIX project scope.
 
-Your goal is a coherent design for the requested outcome. Inspect existing
+Your goal is the minimal coherent design for the requested outcome: minimal in
+the structure it leaves, not in the files it touches. Inspect existing
 producers, consumers, interfaces and verification that bear on the change before
 proposing structures. Evolve an existing concept and propagate mechanical
 caller changes when that leaves a clearer system than a parallel API or type.

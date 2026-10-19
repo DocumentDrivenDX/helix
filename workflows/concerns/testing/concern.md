@@ -21,8 +21,9 @@ all
   may be wrong. Do not preserve an obsolete mechanism solely to satisfy a test.
 - Revise or consolidate tests coupled to superseded implementation details.
   Retire redundant tests when meaningful coverage remains, and remove tests for
-  intentionally retired behavior with the authorized requirement change. Explain
-  consequential coverage changes in the existing diff or commit message.
+  intentionally retired behavior with the authorized requirement change. When a
+  retired test is mapped to an acceptance criterion, update its Story Test Plan
+  row to the test that still covers it.
 - Never skip, disable, or delete a test to hide a regression. `.skip` and
   `@Ignore` cannot substitute for resolving a failure.
 - Never commit with failing tests. If you cannot fix the failure, leave the

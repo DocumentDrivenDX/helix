@@ -46,15 +46,9 @@ conceal a regression.
 
 Extend an existing operation or type when it still owns the responsibility.
 New types, methods, caches, indices or wrappers need a distinct purpose or
-actual compatibility constraint. For example, a missing natural key on two
-existing DTOs may require adding and populating the field on both objects,
-without introducing a new DTO family.
-
-Inspect consequences at the relevant boundary. For a data operation, generated
-SQL, execution plans and measured query cost can expose duplicate reads or
-unnecessary caches. Other systems need different observations. Use evidence
-that answers the actual question rather than generating a matrix for every
-possible test layer.
+actual compatibility constraint. Inspect consequences at the boundary where
+they occur (see the testing practices) rather than generating a matrix for
+every possible test layer.
 
 ### 4. Code Quality Assurance
 
