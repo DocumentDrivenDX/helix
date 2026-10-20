@@ -37,9 +37,9 @@ names a HELIX artifact (see the frontmatter description), even to *review* or
 "what's next", "plan the change", or a cross-flow query needing the marker →
 `check`; "grill me" or stress-testing decisions one question at a time →
 `grill`; a deck, slides, one-pager, brief, memo, or client-ready document built
-from project artifacts → `present`; developer, operator, or user documentation,
-a getting-started or onboarding guide, or a documentation site → `guide`, which
-runs `publish` for each page it needs written.
+from project artifacts → `present`; developer, operator, user, or data
+documentation, a getting-started or onboarding guide, one page of it, or a
+documentation site → `guide`.
 
 ## Routing Axes
 
@@ -227,8 +227,7 @@ Prefer the first matching route:
 | Decompose an oversized code module/file into encapsulated units behind a verify gate | decompose-module |
 | Build up end-to-end coverage as a ladder of increasingly complex real-client scenarios | e2e-ladder |
 | Turn governed artifacts into a deck, one-pager, or brief for clients, sponsors, or executives | present |
-| Give a repository its guide: detect what it is, generate, write, evaluate, check, and assemble its docs site | guide |
-| Author or refresh one developer, operator, user, or data page from governed artifacts and code | publish |
+| Give a repository its guide, or one page of it: pages for developers, operators, users, and data consumers, generated, written, evaluated, checked, and assembled into a site | guide |
 | Hand governed work to the runtime for execution, source control, or packaging | runtime-handoff |
 
 When several routes fit, take the highest-authority planning route: `frame`
@@ -295,7 +294,7 @@ from the same bind as the graph. The active profile comes from the type's
 overrides); a missing `voice` means the registry's `default_profile`
 (`artifact-signal`). Apply the profile as artifact contract, not generic
 polish. Artifacts keep their profile's voice; the pages people read are
-projections (`publish`, `present`). `scripts/validate-instance.py` audits a
+projections (`guide`, `present`). `scripts/validate-instance.py` audits a
 deliverable (`prose.audience: human` in its `meta.yml`) against the profile's `limits` and the registry's shared `prose` phrase lists, and
 authoring modes resolve its `prose.*` findings with the writing pass
 (`workflows/references/writing-pass.md`, floor

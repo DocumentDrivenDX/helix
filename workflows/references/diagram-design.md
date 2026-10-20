@@ -138,6 +138,6 @@ limits instead of claiming conference readiness from an export alone.
 > and report the evidence and remaining limits.
 
 The HELIX [architecture field guide](../../docs/helix/02-design/diagrams/architecture-field-guide.html)
-is a worked application. Its composition builds on an operator-supplied Praxis
-architecture HTML and the Visual Explainer/Eraser experiments; only the visual
+is a worked application. Its composition builds on a hand-drawn architecture page
+from the pilot project and the Visual Explainer/Eraser experiments; only the visual
 patterns were carried forward. The private reference is not redistributed.

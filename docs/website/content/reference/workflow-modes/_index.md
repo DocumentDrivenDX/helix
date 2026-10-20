@@ -30,6 +30,7 @@ Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/hel
 | Decompose an oversized code module/file into encapsulated units behind a verify gate | [decompose-module](decompose-module) |
 | Build up end-to-end coverage as a ladder of increasingly complex real-client scenarios | [e2e-ladder](e2e-ladder) |
 | Turn governed artifacts into a deck, one-pager, or brief for clients, sponsors, or executives | [present](present) |
+| Give a repository its guide, or one page of it: pages for developers, operators, users, and data consumers, generated, written, evaluated, checked, and assembled into a site | [guide](guide) |
 | Hand governed work to the runtime for execution, source control, or packaging | [runtime-handoff](runtime-handoff) |
 
 ## Contracts
@@ -47,6 +48,7 @@ Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/hel
   {{< card link="frame" title="Frame" subtitle="Use for creating or refining product vision, PRD, feature specs, and user stories." >}}
   {{< card link="genesis" title="Genesis" subtitle="Use to bootstrap a brand-new project from bare intent: name it, research the prior art, draft a vision shaped by that research, and scaffold the HELIX structur…" >}}
   {{< card link="grill" title="Grill" subtitle="Use to stress-test a plan, design, or change via a decision-tree interview until shared understanding. Distills the grilling technique (one question at a time,…" >}}
+  {{< card link="guide" title="Guide" subtitle="Use to give a repository the documentation its readers need, and to keep it current: pages for developers, operators, users, and data consumers, each a project…" >}}
   {{< card link="input" title="Input" subtitle="Use for sparse user intent that needs to become governed HELIX work." >}}
   {{< card link="iterate" title="Iterate" subtitle="Use to plan or report a human iteration: sequence a roadmap, define workstreams, cut an iteration plan from the backlog and roadmap, or record status against t…" >}}
   {{< card link="polish" title="Polish" subtitle="Use when the user asks to decompose or refine work items for a named scope. Infer the scope from the task; ask when it is unclear. Do not select all open work…" >}}

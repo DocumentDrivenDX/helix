@@ -1,7 +1,7 @@
 ---
 title: "Product Requirements Document"
 slug: prd
-weight: 170
+weight: 180
 activity: "Frame"
 source: "01-frame/prd.md"
 generated: true
@@ -241,6 +241,18 @@ as done. Rendering to `.pptx`, PDF, or HTML is optional host tooling: a
 host without it stops after the script and names a host that can render.
 The skill body stays runtime-neutral (R-4).
 
+**R-13: Repository guide.** The `guide` workflow mode projects governed
+artifacts and code into the pages a repository's readers need: developers,
+operators, users, and data consumers, each page one Diátaxis kind with a
+reader task, an outline, and a budget, in the `onboarding` or `public-site`
+voice profile. Every page carries a provenance header naming its sources with
+digests; a deterministic check fails when a source moved, a generated page
+would differ, a page is missing or unreviewed, a link or path breaks, or a
+page matches a handling pattern. Detection, generated pages, architecture
+views, the check, and the site are optional host tooling (repoguide, which
+pins a HELIX version); a host without it does each step by hand and says so.
+The skill body stays runtime-neutral (R-4).
+
 #### P2
 
 **R-10: Catalog versioning.** Artifact-type changes are reviewable; consumers
@@ -286,6 +298,13 @@ script exists under the flow root, the deliverable gate reports zero
 blocking findings, every number in a body appears in Sources, and on a
 host without the render toolchain the run ends with the script and a
 statement of which host renders it.
+
+**R-13 (repository guide):** Given a repository whose `.helix.yml` names an
+audience, when a section a page cites changes, then the check reports the page
+stale and exits non-zero, and passes after the page is regenerated and
+reviewed; on a host without repoguide the pages are written with headers,
+unstamped sources carry `sha256:-`, and the handoff names the steps done by
+hand.
 
 ### Technical Context
 

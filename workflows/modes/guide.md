@@ -1,37 +1,48 @@
 # Guide
 
-Use to give a repository the documentation its readers need, and to keep it current: point HELIX at the repository, and the guide is detected, generated, written, evaluated, checked, and assembled into one site. Engage on: documentation for this repository, a docs site or microsite, a developer or user guide, "document this repo", onboarding docs, a reference that keeps drifting, "the docs are out of date". `publish` (`workflows/modes/publish.md`) is how each written page is made; this mode decides which pages exist and runs everything around them. The model is `workflows/references/guide.md`; the script is `skills/helix/scripts/guide.py`.
+Use to give a repository the documentation its readers need, and to keep it current: pages for developers, operators, users, and data consumers, each a projection of the artifacts and the code, never an edit to them. Engage on: documentation for this repository, a docs site, a developer, operator, user, or data guide, onboarding or getting started, "document this repo", one page of the guide, "the docs are out of date". The model is `workflows/references/publishing.md`; the writing standard is `workflows/references/writing-pass.md`.
 
-## 1. Detect
+The deterministic steps (detection, generated pages, architecture views, the check, the site) have a host tool, [repoguide](https://github.com/DocumentDrivenDX/repoguide), which implements this mode's machinery and pins a HELIX version; `repoguide --version` says whether the host has it. Without it, do each step by hand as described under "By hand"; nothing is skipped silently, and the handoff names the steps done by hand.
 
-Run `guide.py init --root .`. It scores the trait registry against the files git tracks and proposes the guide: which readers (flows), which traits, which pages each adds, generates, or delegates, and what no page may contain (`handling`). Read the evidence for each trait before accepting it. Write the confirmed block into `.helix.yml` (`--write` does it when the file has no `publish:` block), following the active autonomy contract. For each significant file no trait claims, propose a trait (`workflows/publish/traits/`) rather than documenting it by guesswork.
+## 1. Decide the guide
+
+With repoguide: run `repoguide init --root .`. It scores the trait registry against the files git tracks and proposes the `publish:` block: which audiences, which traits, which pages each adds, generates, or delegates, and what no page may contain (`handling`). Read the evidence for each trait before accepting it. By hand: read the build and deploy files and the marker's lanes, and propose the block from the audience table in `publishing.md`.
+
+Either way, the agent writes the confirmed block into `.helix.yml` under the `marker_edit` stop trigger. A repository with no marker gets one first (`repoguide init` scaffolds it with the activity directories; by hand, write the minimal marker from `docs/install/README.md`). For each significant file no trait claims, propose a trait rather than documenting the file by guesswork; a project keeps its own traits under `publish.traits_dir`. Pages the repository already has go under `publish.existing` and are adopted, never rewritten; a reference a tool of the repository already publishes goes under `publish.delegate` and is linked, never duplicated.
 
 ## 2. Generate
 
-Run `guide.py build --root . --no-site`. It writes every generated page from the repository's structured sources and renders the architecture views when the repository has a model (`workflows/references/architecture-model.md`). Generated pages and views are never edited by hand. A repository with no model and more than one deployed part gets one: write `architecture-model.toml` from the code, every element citing a file and a string it contains, before the written pages that embed its views.
+With repoguide: run `repoguide build --root . --no-site`. It writes every generated page from the repository's structured sources and renders the architecture views under the guide when the repository has a model. Generated pages and views are never edited by hand. By hand: write each generated page as a reference in the fixed shape its trait names, citing its structured files as glob sources; it is regenerated exactly once repoguide runs.
 
 ## 3. Write
 
-Run `guide.py status --root .`. For each page it lists as missing or stale, in the order it lists them, follow `publish`: resolve the sources, write to the page's Diátaxis kind and reader task, follow the code where an artifact disagrees, write the provenance header, stamp, check. A delegated page is not written; link the tool's output, with the command that builds it, from the pages that need it.
+`repoguide status --root .` lists the pages that are missing, stale, unreviewed, or unadopted, in that order, each with its reader task and sources. By hand, the list is every written page the audiences and traits name that does not exist or whose cited sources changed. For each page, in order:
+
+1. **Resolve the sources.** Map each source kind the audience names to concrete files in this project: an artifact type to its instances under the HELIX root, a section to its heading (H2 or deeper), `docs` to the project's own documentation outside HELIX, `code` to the build files, configuration, entry points, and tests that settle the page's claims. Read them. A page draws only on what it cites. A source kind the project lacks (no architecture, no stories) is left out and named in the handoff; a page none of whose sources exist is written from the code and the README and says so in the handoff.
+2. **Write for the reader.** Follow the page's outline and the writing pass, steps 1 to 5, in the page's voice, and keep to the page's kind (`publishing.md`, Page kinds). What belongs to another kind goes on that page, with a link. Do not copy an artifact's tables or prose. Diagrams come from the project's architecture model when it has one (generated views), else from the diagram in the artifact the page cites, trimmed to the page's reader and cited by section.
+3. **Follow the code.** Where an artifact and the code disagree, the page states what the code does and the disagreement goes to the handoff for `align`. Never edit an artifact from this mode.
+4. **Write the provenance header** at the top of the page: one `helix:publish` line (`audience`, `page`, `kind`, `voice`, `budget`) and one `helix:source` line per source, with `#<section>` when only one section was read. Then stamp: `repoguide stamp <page>`, or by hand the first 16 hex characters of the SHA-256 of each source's text with trailing whitespace stripped from each line, or `sha256:-` with a note in the handoff that the host could not stamp.
+5. **Check.** `repoguide check-pages <out>` (by hand: reread every cited source against its digest, every relative link and backticked path, every handling pattern) and resolve every finding; finish the writing pass (steps 6 and 7).
+
+A delegated page is not written; link the tool's output, with the command that builds it, from the pages that need it.
 
 ## 4. Evaluate
 
-Every written page is evaluated before it counts as current; `status` lists the ones that are not (`REVIEW`). Evaluate as a reader who has only the page and the repository, not as its writer: preferably a separate agent, or a person.
+Every written page is evaluated before it counts as current. Evaluate as a reader who has only the page and the repository, not as its writer: a separate agent or a person, never the one who wrote it.
 
 - **Task**: can the page's reader do its task with this page alone? Try the first step of a how-to or tutorial against the code.
 - **Kind**: does it keep to its kind? A how-to with a paragraph of theory, or a reference with steps, fails.
-- **The task that governs** is the one `guide.py status` shows: a trait can replace a flow's page, with its own task and outline.
-- **Claims**: trace each factual claim to a cited source or to code, and the cited file must itself state the claim (a real file cited for behavior that lives elsewhere fails). A claim with neither is removed or sourced; a claim the code contradicts is corrected, and the disagreement goes to the handoff for `align`. A number that depends on the environment (a timing, a port, a count of anything not in the repository) is measured and qualified, or left out.
+- **Claims**: trace each factual claim to a cited source or to code, and the cited file must itself state the claim. A claim with neither is removed or sourced; a claim the code contradicts is corrected, and the disagreement goes to the handoff for `align`. A number that depends on the environment is measured and qualified, or left out.
 - **Paths**: every repository path is written as code, so the path check sees it; a file the reader creates is named in the header (`<!-- helix:creates path -->`).
-- **Handling**: nothing `handling.never_publish` names, even paraphrased (a pattern catches only the shapes it knows).
-- **Words**: the writing pass (`workflows/references/writing-pass.md`), steps 6 and 7.
+- **Handling**: nothing `handling.never_publish` names, even paraphrased.
+- **Words**: the writing pass, steps 6 and 7.
 
-Fix what fails, restamp, and record the evaluation: `guide.py review <page> --by <agent-or-person>`. `review` refuses a page that has any finding, prose warnings included. The stamp records a digest of the page, so an edit after review (even a fix to the wording) returns the page to review, and a page whose sources change goes stale and is evaluated again after it is rewritten.
+Fix what fails, restamp, and record the evaluation: `repoguide review <page> --by <agent-or-person>`, which refuses a page with any finding and records a digest of the body so an edit after review returns the page to review. By hand, add `reviewed=<date>/<who>/-` to the header and the evaluation to the handoff; repoguide replaces the stamp when it next runs.
 
 ## 5. Check and assemble
 
-Run `guide.py check --root .`. It regenerates every generated page in memory and fails when one would change, when a written page's source moved, when a view drifted from the model, when a link or path breaks, when a page matches a handling pattern, or when a page is missing. Add it to CI (`workflows/publish/ci/github-actions.yml` is the template: `check` on every pull request, a weekly regeneration that opens a pull request) so a pull request that makes the guide stale fails until the guide catches up. `guide.py build --root .` assembles the site: one section per reader, pages in kind order, delegated pages as links to their tools, every page showing the sources it was built from.
+`repoguide check --root .` is the gate: it regenerates every generated page in memory and fails when one would change, when a written page's source moved, when a page is unreviewed, when a view drifted from the model, when a link or path breaks, when a page matches a handling pattern, or when a page is missing. Put it in CI (repoguide ships the workflow: `check` on every pull request, a weekly regeneration that opens a pull request) so the pull request that makes the guide stale fails until the guide catches up. `repoguide build --root .` assembles the site: into the repository's mkdocs or Hugo site when it has one, else a Hextra site under `.helix/site`, one section per audience, delegated pages as links to their tools, every page showing the sources it was built from. By hand, the Markdown pages under the guide directory are the site: the repository host renders them.
 
 ## Handoff
 
-Report the traits accepted and the evidence for each, the pages generated, written, delegated, and evaluated (with who evaluated them), the artifact-to-code disagreements found (for `align`), significant files no trait claims, and the `check` result.
+Report the traits accepted and the evidence for each, the pages generated, written, adopted, delegated, and evaluated (with who evaluated them), the artifact-to-code disagreements found (for `align`), source kinds the project lacks, significant files no trait claims, the steps done by hand, and the check result. Commit the pages with the change that made them stale, so a reviewer sees source and page together.

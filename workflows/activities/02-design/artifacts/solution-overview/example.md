@@ -2,7 +2,6 @@
 ddx:
   id: helix.solution-overview
   type: solution-overview
-  status: draft
   authoring:
     home: repo
 ---

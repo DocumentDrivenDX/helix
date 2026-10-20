@@ -1,7 +1,7 @@
 ---
 title: "Refresh"
 slug: refresh
-weight: 200
+weight: 190
 generated: true
 ---
 

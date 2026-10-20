@@ -68,7 +68,7 @@ grep -q "type=prd " "$tmpdir/typed.out" || fail "--type should select the prd ty
 
 # Prose audit (workflows/voice.yml limits and phrase lists; workflows/references/writing-pass.md).
 # Artifacts are the system of record and are not audited; a deliverable is a projection people read,
-# and its example meets its voice profile. Published pages are checked by publish_check.py
+# and its example meets its voice profile. Guide pages are checked by repoguide
 # (tests/validate-publish.sh).
 audited=0
 for path in "$repo_root"/workflows/activities/*/artifacts/*/example*.md; do

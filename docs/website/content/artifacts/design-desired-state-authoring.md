@@ -1,7 +1,7 @@
 ---
 title: "Desired-state authoring: goal and approach"
 slug: design-desired-state-authoring
-weight: 410
+weight: 430
 activity: "Design"
 source: "02-design/design-desired-state-authoring.md"
 generated: true

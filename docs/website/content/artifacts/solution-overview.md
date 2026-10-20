@@ -1,7 +1,7 @@
 ---
 title: "HELIX solution overview"
 slug: solution-overview
-weight: 500
+weight: 490
 activity: "Design"
 source: "02-design/solution-overview.md"
 generated: true
@@ -42,9 +42,7 @@ to make a change. This is an explanatory view of the current repository.
 ![Architecture field guide with responsibility lanes and a numbered developer walkthrough.](/artifacts/media/02-design/diagrams/architecture-field-guide.png)
 
 The presentation view preserves the six entities and relationships below. The
-shaded region identifies HELIX-owned portable content.
-
-Solid arrows describe
+shaded region identifies HELIX-owned portable content. Solid arrows describe
 actions/information; dashed arrows describe guidance/constraints. The catalog
 label summarizes templates, prompts, metadata, and mode contracts. Validation
 and packaging details are covered by the architecture walkthrough.
@@ -103,7 +101,7 @@ project's document made from it. A **flow** applies a methodology to a marker's
 bounded root. A **mode** is a workflow inside the single public `helix` skill.
 A **concern** supplies cross-cutting practices such as module boundaries.
 
-Read the solution overview → architecture walkthrough → developer guide for a first
+Read this overview → architecture walkthrough → developer guide for a first
 contribution. Consult Architecture for structural decisions, the catalog for
 document contracts, and [installation guidance](https://github.com/DocumentDrivenDX/helix/blob/main/docs/install/README.md) for host setup.
 

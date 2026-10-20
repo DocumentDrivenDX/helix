@@ -72,7 +72,9 @@ flows:
 
 Optional keys: `graph:` (or `catalog:`) points at a catalog (step 1
 below); `autonomy:` sets the default level and may add stop triggers under
-`autonomy.stop_at_extensions:`. With no marker but a `docs/helix/` tree,
+`autonomy.stop_at_extensions:`; `publish:` and `handling:` decide the
+repository's guide (which audiences, traits, and pages, and what no page may
+contain; `workflows/references/publishing.md`). With no marker but a `docs/helix/` tree,
 the skill engages by heuristic and says so. The full discipline is the
 skill's "Activation Discipline" section.
 

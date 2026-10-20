@@ -1,8 +1,8 @@
 # Writing pass
 
-HELIX keeps two layers. Artifact instances under the project's HELIX root are the system of record: agents load them as context, reviewers check them for traceability, and they keep the `artifact-signal` voice they were written in. People read projections of them: the pages `publish` generates for developers, operators, and users (`workflows/references/publishing.md`), and the decks and briefs `present` generates (`deliverable`). This pass is for the projections. Every published page and every deliverable gets the same seven steps before handoff. Steps 3 and 6 are measured, so two authors, or two agents, reach the same bar in any repository that uses HELIX.
+HELIX keeps two layers. Artifact instances under the project's HELIX root are the system of record: agents load them as context, reviewers check them for traceability, and they keep the `artifact-signal` voice they were written in. People read projections of them: the pages `guide` generates for developers, operators, users, and data consumers (`workflows/references/publishing.md`), and the decks and briefs `present` generates (`deliverable`). This pass is for the projections. Every published page and every deliverable gets the same seven steps before handoff. Steps 3 and 6 are measured, so two authors, or two agents, reach the same bar in any repository that uses HELIX.
 
-The rules live in `workflows/voice.yml`. Each profile's `limits` sets words per sentence, sentences per paragraph or list item, and words per table cell. The shared `prose` lists name phrases to avoid, status and authorship words, and gendered pronouns for an unnamed person. A publish flow names each page's voice and word budget; a deliverable takes its type's voice. `skills/helix/scripts/publish_check.py` measures published pages, and `skills/helix/scripts/validate-instance.py` measures a deliverable (its type sets `prose.audience: human`); both report each breach as a `prose.*` finding.
+The rules live in `workflows/voice.yml`. Each profile's `limits` sets words per sentence, sentences per paragraph or list item, and words per table cell. The shared `prose` lists name phrases to avoid, status and authorship words, and gendered pronouns for an unnamed person. An audience names each page's voice and word budget; a deliverable takes its type's voice. repoguide (`repoguide check-pages`) measures guide pages, and `skills/helix/scripts/validate-instance.py` measures a deliverable (its type sets `prose.audience: human`); both report each breach as a `prose.*` finding.
 
 ## Information only
 
@@ -26,7 +26,7 @@ Authorship, status, and history belong in source control and the tracker; where 
    - **Reference data a reader looks up**, such as a long table of limits, moves into a collapsed `<details>` block or a reference page of its own.
 
    List in the handoff report what was cut, moved, or corrected and the source for each correction; the page carries none of that.
-3. **Measure.** Run `publish_check.py check <page>` (or `validate-instance.py` for a deliverable). It prints each long sentence, crowded paragraph, overfull cell, and avoided phrase with its line, and the word count against any budget.
+3. **Measure.** Run `repoguide check-pages <page>` (or `validate-instance.py` for a deliverable); without a tool, count against the profile's limits by hand. It prints each long sentence, crowded paragraph, overfull cell, and avoided phrase with its line, and the word count against any budget.
 4. **Cut before you rewrite.** Remove what the "Information only" section excludes and what a link can carry: restated rules, repeated summaries, narration of the page's own structure. Move evidence a reader opens only to check a claim, such as long source lists and each test's limits, into a collapsed `<details>` block under its table. A `<details>` block does not count against the budget.
 
    Cut whole points, never grammar. Dropping articles, verbs, or subjects to reach a budget produces telegraph prose: "one reaches the menu", "sharing one trace with the gateway's in its collector". If a page is still over budget after the cuts, cut another point or split the page.
@@ -38,7 +38,7 @@ Authorship, status, and history belong in source control and the tracker; where 
    - Give a table cell one fact. A cell that needs a second sentence wants a row, a note under the table, or a `<details>` block.
    - Keep must, should, and may, every identifier, and every stated unknown when shortening.
    - Refer to an unnamed person as "they" or "them". Code and test names stay as written.
-6. **Measure again.** Run the check until it reports no `prose.*` finding, then stamp the page's provenance (`publish_check.py stamp`).
+6. **Measure again.** Run the check until it reports no `prose.*` finding, then stamp the page's provenance (`repoguide stamp`, or by hand).
 7. **Read it once, aloud, as the reader, and check the grammar.** A sentence can pass every number and still sound like nobody. Look for:
    - an "it" or "they" whose noun is in another sentence, or is not there at all;
    - a sentence or cell with no verb where the cells beside it have one, and list items in different forms;
@@ -52,7 +52,7 @@ Every identifier, command, path, and must, should, or may the page takes from it
 
 ## In a repository
 
-`publish_check.py check` gates published pages in CI (`publishing.md`, "Checks"). For deliverables, a project can make `validate-instance.py` treat prose findings as blocking in its `.helix.yml`:
+`repoguide check` gates guide pages in CI (`publishing.md`, "Checks"). For deliverables, a project can make `validate-instance.py` treat prose findings as blocking in its `.helix.yml`:
 
 ```yaml
 prose:

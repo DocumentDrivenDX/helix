@@ -1,7 +1,7 @@
 ---
 title: "ADR-006: Concern boundary lives once, in concern.md"
 slug: ADR-006-concern-boundary-lives-once
-weight: 230
+weight: 240
 activity: "Design"
 source: "02-design/adr/ADR-006-concern-boundary-lives-once.md"
 generated: true

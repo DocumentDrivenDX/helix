@@ -2,7 +2,6 @@
 ddx:
   id: helix.developer-guide
   type: developer-guide
-  status: draft
   authoring:
     home: repo
 ---

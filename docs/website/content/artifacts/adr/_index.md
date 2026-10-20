@@ -22,3 +22,4 @@ generated: true
 - [ADR-012: Runbook owns incident response procedures; monitoring-setup owns detection only](adr-012-runbook-owns-incident-response/)
 - [ADR-013: Cross-phase informs edges are valid when declared on the downstream artifact](adr-013-cross-phase-informs-edges/)
 - [ADR-014: Deferred: architecture-style slot occupants remain four separate concerns](adr-014-architecture-style-slot-shape-deferred/)
+- [ADR-015: Human documentation is generated from artifacts, with provenance](adr-015-human-documentation-is-generated-from-artifacts-with-provenance/)
