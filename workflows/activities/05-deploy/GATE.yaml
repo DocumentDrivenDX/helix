@@ -17,17 +17,16 @@ entry_requirements:
       severity: high
       description: "Security scan from Build activity clean"
 
-    - check: file_exists
-      path: README.md
-      description: "Documentation updated"
-
-    - check: file_exists
-      path: CHANGELOG.md
-      description: "Changelog updated"
+    # The guide is a projection of the governing artifacts (ADR-015); it is current when no
+    # page's sources moved since it was written and reviewed. Applies when .helix.yml declares
+    # publish:; the guide mode's check (documentor check, or by hand) proves it.
+    - check: guide_current
+      when: ".helix.yml declares publish:"
+      description: "The guide is current: no page stale, unreviewed, or missing"
 
   manual:
     - "Project-adopted coverage targets and performance SLAs validated where applicable"
-    - "Documentation review completed"
+    - "Documentation review completed (a project without publish: reviews its README and changelog by hand)"
 
 exit_requirements:
   automated:
