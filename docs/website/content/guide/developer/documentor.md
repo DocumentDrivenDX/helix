@@ -1,7 +1,7 @@
 ---
 title: Documentor
 weight: 103
-kind: reference
+page_kind: reference
 type: docs
 sidebar:
   open: true

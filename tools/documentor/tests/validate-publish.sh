@@ -163,7 +163,7 @@ content="$tmpdir/site/content/developer/_index.md"
 grep -q "https://example.test/org/fixture/blob/main/docs/helix/02-design/architecture.md#deployment" "$content" \
   || fail "a link to a repository file should resolve to repo_url: $(cat "$content")"
 grep -q "docs/helix/02-design/architecture.md#deployment" "$content" || fail "the page's sources should be in its front matter"
-grep -q "^kind: explanation" "$content" || fail "the page's kind should be in its front matter"
+grep -q "^page_kind: explanation" "$content" || fail "the page's kind should be in its front matter"
 grep -q 'href="../../../../developer/"' "$tmpdir/site/static/files/docs/guide/developer/plate.html" \
   || fail "a copied HTML page's links should become relative site links: $(cat "$tmpdir/site/static/files/docs/guide/developer/plate.html")"
 if command -v hugo >/dev/null; then

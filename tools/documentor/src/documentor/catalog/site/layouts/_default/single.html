@@ -1,6 +1,6 @@
 {{ define "main" }}
 <article class="page">
-  {{ with .Params.kind }}<p class="kind">{{ . }}</p>{{ end }}
+  {{ with .Params.page_kind }}<p class="kind">{{ . }}</p>{{ end }}
   <h1>{{ .Title }}</h1>
   {{ with .Params.task }}<p class="task">{{ . }}</p>{{ end }}
   {{ .Content }}

@@ -41,6 +41,7 @@ jobs:
         with: { hugo-version: "0.160.0", extended: true }
       - run: uv sync
       - name: Tests (the catalog matches workflows/, then every suite)
-        run: uvx --from rust-just==1.58.0 just test
+        # Inside the project's environment, so the suites find the `documentor` command.
+        run: uv run --with rust-just==1.58.0 just test
       - name: documentor's own guide is current
         run: uv run documentor check --root .

@@ -286,17 +286,19 @@ def emit_hugo(root: Path, config: dict, site_dir: Path, content_dir: str, hextra
             title, body = page_title(page.body, entry.get("title", pid))
             sources = [spec for spec, _ in page.sources]
             meta = {"title": title, "weight": position.get(pid, 100 + order), "sources": sources,
-                    "task": entry.get("task", ""), "kind": page.meta.get("kind", entry.get("kind", ""))} | docs
+                    "task": entry.get("task", ""),
+                    # `kind` is reserved front matter in Hugo (removed in v0.144), so the page kind is `page_kind`.
+                    "page_kind": page.meta.get("kind", entry.get("kind", ""))} | docs
             lead = ""
-            if meta["kind"] and hextra:
-                lead += f'<p class="guide-kind">{meta["kind"]}</p>\n\n'
+            if meta["page_kind"] and hextra:
+                lead += f'<p class="guide-kind">{meta["page_kind"]}</p>\n\n'
             if meta["task"] and hextra:
                 lead += f'<p class="guide-task">{meta["task"]}</p>\n\n'
             text = front_matter(meta) + lead + linker.rewrite(path, body) + (sources_block(sources) if inline_sources else "")
             (section_dir / ("_index.md" if pid == "index" else f"{pid}.md")).write_text(text, encoding="utf-8")
             listed.append({"title": title, "url": published[path.resolve()], "task": entry.get("task", "")})
         for pid, title, text in delegated_pages(config, root, aid, audience):
-            meta = {"title": title, "weight": position.get(pid, 100 + len(listed)), "kind": "reference"} | docs
+            meta = {"title": title, "weight": position.get(pid, 100 + len(listed)), "page_kind": "reference"} | docs
             (section_dir / f"{pid}.md").write_text(front_matter(meta) + text, encoding="utf-8")
             listed.append({"title": title, "url": f"{prefix}/{aid}/{pid}/", "task": ""})
         if not (section_dir / "_index.md").exists():

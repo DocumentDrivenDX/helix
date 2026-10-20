@@ -18,7 +18,7 @@ sources:
 - justfile
 task: Understand how the system is built and deployed, and which decision governs
   each part.
-kind: explanation
+page_kind: explanation
 type: docs
 sidebar:
   open: true

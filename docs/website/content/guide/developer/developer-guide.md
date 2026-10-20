@@ -6,7 +6,7 @@ sources:
 - CONTRIBUTING.md
 - justfile
 task: Run the system locally, make one small change, and verify it before a pull request.
-kind: how-to
+page_kind: how-to
 type: docs
 sidebar:
   open: true

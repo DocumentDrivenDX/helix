@@ -12,7 +12,7 @@ sources:
 - tools/documentor/README.md
 task: Name the system's parts, find the part a change belongs in, and know what to
   read next.
-kind: explanation
+page_kind: explanation
 type: docs
 sidebar:
   open: true
