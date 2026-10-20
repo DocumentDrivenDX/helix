@@ -1,6 +1,6 @@
 # Publishing
 
-A project's artifacts are the system of record: dense, exact, and written for agents and reviewers who trace intent through them. The people who build on, run, or use the system need something else: a page that answers their question in their vocabulary. The `guide` mode generates those pages from the artifacts and the code, records on each page exactly what it was built from, and checks on every change that no page has fallen behind its sources. The artifacts are never rewritten for readers. [repoguide](https://github.com/DocumentDrivenDX/repoguide) is the host tool for the deterministic parts; this reference is the contract both the mode and the tool follow.
+A project's artifacts are the system of record: dense, exact, and written for agents and reviewers who trace intent through them. The people who build on, run, or use the system need something else: a page that answers their question in their vocabulary. The `guide` mode generates those pages from the artifacts and the code, records on each page exactly what it was built from, and checks on every change that no page has fallen behind its sources. The artifacts are never rewritten for readers. documentor (`tools/documentor/` in the HELIX repository) is the host tool for the deterministic parts, kept in this repository outside the skill; this reference is the contract both the mode and the tool follow.
 
 ## Audiences
 
@@ -37,12 +37,12 @@ A page has one of the four [Diátaxis](https://diataxis.fr) kinds, and keeps to 
 
 The kind is recorded in the page's header (`kind=`) and shown on the site. A page whose task spans two kinds is two pages: the developer guide (how-to) and the request walkthrough (explanation) are separate for this reason.
 
-## Four kinds of work
+## Kinds of work
 
 | Work | Made by | Kept current by |
 |---|---|---|
-| **Generated** pages (settings, jobs, public interfaces, packages, resources, screens, workflows, API operations, commands, MCP tools) | a generator, from structured sources, deterministically: repoguide's, a Python distribution's, or a command the project owns | regeneration: the check fails when a regenerated page would differ |
-| **Views** (stack, cast, deployment, journey, DAG) | repoguide, from the architecture model, under the guide | evidence: each element cites code, so the check fails when the code moves |
+| **Generated** pages (settings, jobs, public interfaces, packages, resources, screens, workflows, API operations, commands, MCP tools) | a generator, from structured sources, deterministically: documentor's, a Python distribution's, or a command the project owns | regeneration: the check fails when a regenerated page would differ |
+| **Views** (stack, cast, deployment, journey, DAG) | documentor, from the architecture model, under the guide | evidence: each element cites code, so the check fails when the code moves |
 | **Written** pages (overviews, tutorials, how-tos, explanations) | an agent in `guide` mode, then evaluated by another reader | provenance: each source is digested, so the check fails when one changes; the page is rewritten and evaluated again |
 | **Existing** pages the project already had | their authors; adopted with a header, text untouched | links, paths, handling, and prose are checked; staleness only for sources they name |
 | **Delegated** pages (a table reference from tablespec's guidebook, components from Storybook, an API from mkdocstrings) | the repository's own tool | that tool; the guide links its output and the command that builds it |
@@ -83,7 +83,7 @@ publish:
     repo_url: https://github.example/org/example
 ```
 
-A **trait** says, as data, what a kind of repository is (signals over the files git tracks) and what its readers need: the audiences it implies, pages it adds or replaces by id, pages it generates, pages it delegates, views, watched files, and handling. repoguide carries the catalog of traits and grows it by one each time a repository has a significant file no trait claims; a project's own traits live under `publish.traits_dir`.
+A **trait** says, as data, what a kind of repository is (signals over the files git tracks) and what its readers need: the audiences it implies, pages it adds or replaces by id, pages it generates, pages it delegates, views, watched files, and handling. documentor carries the catalog of traits and grows it by one each time a repository has a significant file no trait claims; a project's own traits live under `publish.traits_dir`.
 
 ## Handling
 
@@ -139,7 +139,7 @@ The check runs on every change, in CI and before handoff:
 | `outside-scope` | `publish.out` is outside `publish.scope` | blocking |
 | `prose.*` | a breach of the page's voice limits or budget | warning, blocking with `--strict-prose` |
 
-The guide as a whole is behind the repository when any page is missing, stale, or unreviewed, or a view drifted from its model; `repoguide check` exits non-zero then. A stale page is regenerated, not patched: the agent reads the changed sources again, rewrites the affected sections, runs the writing pass, and stamps. A reviewer sees the source change and the page change in one pull request.
+The guide as a whole is behind the repository when any page is missing, stale, or unreviewed, or a view drifted from its model; `documentor check` exits non-zero then. A stale page is regenerated, not patched: the agent reads the changed sources again, rewrites the affected sections, runs the writing pass, and stamps. A reviewer sees the source change and the page change in one pull request.
 
 ## What publishing does not do
 

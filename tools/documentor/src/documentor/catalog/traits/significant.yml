@@ -1,0 +1,23 @@
+# Files that say something about what a repository is. Detection reports any that no trait's
+# signals claimed, so a new kind of repository is noticed rather than documented by guesswork.
+files:
+  - databricks.yml
+  - app.yaml
+  - pyproject.toml
+  - package.json
+  - Dockerfile
+  - docker-compose.yml
+  - "*.tf"
+  - dbt_project.yml
+  - "openapi*.yaml"
+  - "openapi*.json"
+  - manage.py
+  - go.mod
+  - Cargo.toml
+  - pom.xml
+  - build.gradle
+  - mkdocs.yml
+  - hugo.yaml
+  - "**/table.yaml"
+  - "**/plugin.toml"
+  - .mcp.json

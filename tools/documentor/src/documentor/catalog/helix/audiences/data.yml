@@ -1,0 +1,66 @@
+# Pages for someone who uses or maintains the project's data: the tables it produces, where they come
+# from, how to query and refresh them, and what each metric means. Suggested for a project whose
+# .helix.yml declares the `data` lane. `kind` is the page's Diátaxis kind (workflows/references/
+# publishing.md, Page kinds). These pages describe structure and meaning only: they never copy a row,
+# a sample value, or an identifier from the data, whatever the project's `handling:` says.
+id: data
+title: Data
+reader: Someone who queries, reports on, or changes the project's data.
+voice: onboarding
+watch:
+  - "{helix}/02-design/contracts/*.md"
+  - "{helix}/02-design/data-*.md"
+  - "{helix}/03-test/data-quality-expectations*.md"
+  - "{helix}/06-iterate/metric-definition*.md"
+pages:
+  - id: index
+    title: Data overview
+    kind: explanation
+    task: Know which datasets the project produces, what each is for, and which to use for a question.
+    budget: 900
+    outline: [What the data is for, The datasets, Freshness and ownership, Where to go next]
+    sources:
+      - artifact: product-vision
+      - artifact: data-architecture
+      - code: pipeline definitions (job, DLT, dbt, or notebook entry points)
+  - id: tables
+    title: Tables
+    kind: reference
+    task: Look up a table's purpose, grain, keys, and columns.
+    budget: 1800
+    outline: [one section per table, in a fixed shape - purpose, grain, keys, columns, produced by]
+    sources:
+      - artifact: data-design
+      - docs: the project's data dictionaries, when it keeps them
+      - code: schema definitions and table declarations
+  - id: lineage
+    title: Lineage
+    kind: explanation
+    task: Follow a dataset back to its sources, and know which steps transform it and why.
+    budget: 1200
+    outline: [Sources, The pipeline step by step, Quality checks, What breaks when a source changes]
+    sources:
+      - artifact: data-architecture
+      - artifact: data-flow-analysis
+      - artifact: data-quality-expectations
+      - code: pipeline definitions, expectations, and quality checks
+  - id: using
+    title: Querying and refreshing
+    kind: how-to
+    task: Query a dataset correctly, refresh it, and backfill it after a fix.
+    budget: 1100
+    outline: [Access, Querying, Refreshing, Backfilling, Common mistakes]
+    sources:
+      - code: job and pipeline definitions, deployment bundle
+      - artifact: runbook
+  - id: metrics
+    title: Metrics
+    kind: reference
+    task: Find what each reported metric means, how it is computed, and which table it comes from.
+    budget: 1200
+    outline: [one entry per metric - definition, formula, source table, caveats]
+    sources:
+      - artifact: metric-definition
+      - artifact: metrics-dashboard
+      - docs: metric definitions the project keeps beside its dashboards
+      - code: the queries or views that compute each metric

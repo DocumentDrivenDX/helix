@@ -1,0 +1,43 @@
+# The guide gate. Copy to .github/workflows/guide.yml and pin DOCUMENTOR to the release you adopt.
+#
+# `check` fails a pull request that leaves the guide behind the repository: a generated page that
+# would change, a written page whose source moved, a page nobody evaluated, a view that drifted
+# from the model, a broken link, a handling pattern. The weekly job regenerates what is generated
+# and opens a pull request; the written pages it lists as stale are the agent's work.
+#
+# The runner needs network access to github.com to fetch documentor. On a GitHub Enterprise instance
+# without it, install documentor from your private index instead (`pip install documentor`) and drop
+# the `--from` argument.
+name: guide
+on:
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+env:
+  DOCUMENTOR: "git+https://github.com/DocumentDrivenDX/helix@v0.19.0#subdirectory=tools/documentor"
+jobs:
+  check:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with: { python-version: "3.12" }
+      - run: uvx --from "$DOCUMENTOR" documentor check --root .
+  refresh:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with: { python-version: "3.12" }
+      - run: uvx --from "$DOCUMENTOR" documentor build --root . --no-site
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          branch: guide/refresh
+          title: "guide: regenerate generated pages and views"
+          body: "The weekly guide job regenerated pages and views whose sources moved. Written pages that went stale are listed by `documentor status`."

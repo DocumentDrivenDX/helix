@@ -1,0 +1,14 @@
+# HELIX marker for documentor, a sub-project of the HELIX repository (tools/documentor): its own flow and its own guide.
+version: 1
+flows:
+  - id: helix
+    root: docs/helix/
+autonomy:
+  level: medium
+
+publish:
+  schema: 1
+  traits: [python-cli, python-library]
+  audiences: [developer, user]
+  out: docs/guide
+  skip: [developer/api]

@@ -1,0 +1,226 @@
+# HELIX voice profiles.
+#
+# These profiles are methodology data. Runtimes and optional prose tools may
+# consume them, but HELIX remains usable when no prose tool is installed.
+
+version: 1
+default_profile: artifact-signal
+
+# Measurable rules every profile shares. `skills/helix/scripts/validate-instance.py` audits an
+# instance of a type people read (`prose.audience: human` in its meta.yml) against them and its profile's `limits`, and reports each breach as a `prose.*` finding
+# (a warning unless the run passes --strict-prose). `workflows/references/writing-pass.md` is the
+# procedure that resolves them. A phrase in quotes or a code span is mentioned, not used, and is
+# not matched. Matching is case-insensitive and on whole words.
+prose:
+  avoid_phrases:
+    "it is important to note": state the point
+    "it is worth noting": state the point
+    "worth noting": state the point
+    "serves as": is
+    "acts as": is
+    "stands as": is
+    "leverage": use
+    "utilize": use
+    "delve": look at, or cut
+    "robust": name the property, or cut
+    "seamless": name the property, or cut
+    "simply": cut
+    "really": cut
+    "arguably": make the claim, or cut
+    "in order to": to
+    "this page": state the fact; the page shows itself
+    "this document": state the fact; the document shows itself
+    "the next section": cut; the headings show the structure
+  # An instance states facts about the system. Its own status, authorship, and open work belong in
+  # source control and the tracker (see `avoid` in artifact-signal).
+  information_only:
+    "provisional": cut; state facts, not the document's status
+    "drafted": cut; authorship belongs in source control
+    "for review": cut; review status belongs in the tracker
+    "to be recorded": cut; open work belongs in the tracker
+    "this guide": name the thing, or cut
+    "this walkthrough": name the thing, or cut
+    "this overview": name the thing, or cut
+  # An unnamed person is they or them.
+  pronouns:
+    "she": they
+    "her": their or them
+    "hers": theirs
+    "he": they
+    "him": them
+    "his": their
+
+profiles:
+  machine-facts:
+    conciseness: 1
+    limits:
+      sentence_words: 40
+      paragraph_sentences: 6
+      cell_words: 45
+    audience:
+      - LLM context assemblers
+      - deterministic validators
+      - humans checking extracted state
+    purpose: Preserve facts, identifiers, edges, and evidence with the least possible prose.
+    use_for:
+      - context digests
+      - extracted state summaries
+      - generated indexes
+    required_moves:
+      - Put identifiers, paths, statuses, commands, metrics, dates, and edges before explanation.
+      - Prefer lists, tables, and key-value lines over paragraphs.
+      - Keep every claim scoped to its cited artifact, run, or source.
+    avoid:
+      - narrative setup
+      - persuasion
+      - background that can be recovered from the cited source
+      - synonyms for canonical HELIX terms
+
+  artifact-signal:
+    conciseness: 2
+    limits:
+      sentence_words: 40
+      paragraph_sentences: 6
+      cell_words: 45
+    audience:
+      - humans maintaining project intent
+      - LLMs carrying artifact context across sessions
+      - reviewers checking traceability and authority
+    purpose: Carry durable project signal between humans and LLMs without hiding decisions in prose.
+    use_for:
+      - HELIX artifact instances
+      - artifact templates and prompts
+      - artifact-type metadata
+      - alignment and validation reports
+    required_moves:
+      - Lead with the decision, requirement, constraint, evidence, risk, or open question.
+      - Use the exact artifact, field, command, metric, status, or trace ID when one exists.
+      - Preserve artifact authority: PRDs state product scope, ADRs record decisions, test plans name verification strategy, and work items track execution.
+      - Name assumptions, unknowns, blockers, and non-goals explicitly.
+      - Prefer short paragraphs, compact tables, and bounded bullets over narrative buildup.
+      - Keep specifications focused on desired intent; track implementation gaps in runtime work items.
+      - Make each sentence contribute a requirement, decision, action, explanation, or necessary example.
+      - Name the actor and action; put conditions before their actions and give each procedural step one principal action.
+      - Preserve the meaning of must, should, may, uncertainty, and exceptions when shortening text.
+      - Omit inapplicable optional sections; retain required information and machine-consumed fields.
+      - Define every external standard, vendor term, or acronym on first use in each artifact (name, owner, what it is), and link the project's resource summary for it when one exists. A term the reader cannot expand reads as invented, whatever its provenance.
+    avoid:
+      - implementation-status language in specifications
+      - pull-request numbers, repository revision identifiers, and delivery-history citations in HELIX documents
+      - repeated instructions, ceremonial introductions, redundant summaries, and N/A entries for optional sections
+      - an external standard or acronym named as if the reader already owned it
+      - marketing copy
+      - generic methodology exposition
+      - hedged filler such as "it is important to note"
+      - unsupported claims about tests, metrics, validation, ratchets, or completion
+      - smoothing away IDs, paths, commands, acceptance criteria, risks, or trace links
+
+  onboarding:
+    conciseness: 3
+    limits:
+      sentence_words: 28
+      paragraph_sentences: 4
+      cell_words: 25
+    audience:
+      - developers new to a repository
+      - agents orienting before a first change
+    purpose: Let a newcomer name the parts, find where a change belongs, and run one end to end.
+    use_for:
+      - solution overviews
+      - developer guides
+      - architecture walkthroughs
+    required_moves:
+      - Lead each section with the sentence that answers its heading.
+      - Put commands in fenced blocks a reader can paste, with the expected result.
+      - Move evidence a reader opens only to check a claim into a collapsed details block.
+      - Name a role, never a person, as the owner of an unknown.
+    avoid:
+      - restating repository rules a link can carry
+      - status, review, or trial records about the document itself
+      - dropping articles or verbs to reach a word budget
+
+  public-site:
+    conciseness: 3
+    limits:
+      sentence_words: 28
+      paragraph_sentences: 4
+      cell_words: 25
+    audience:
+      - smart novice evaluators
+      - new HELIX users
+      - active HELIX users looking for reference material
+      - contributors orienting to the project
+    purpose: Explain HELIX to public readers with enough local context to stand alone.
+    use_for:
+      - microsite pages
+      - generated website introductions
+      - public demos
+      - public catalog summaries
+    required_moves:
+      - Define the page's key terms on first use or link to the definition.
+      - State what the reader can do with the page before diving into detail.
+      - Make card, table, and module copy understandable without assuming prior page context.
+      - Separate public explanation from generated artifact evidence.
+    avoid:
+      - unexplained "the catalog", "the flow", or "the methodology" references
+      - internal-only shorthand
+      - proof-source disclaimers that read like doctrine
+      - duplicated explanations across adjacent pages
+
+  human-facing:
+    conciseness: 5
+    limits:
+      sentence_words: 25
+      paragraph_sentences: 4
+      cell_words: 25
+    audience:
+      - decision-makers, sponsors, and executives
+      - clients and customers
+      - readers with no HELIX or engineering vocabulary
+    purpose: Help a reader decide or act, in their own vocabulary, without a HELIX glossary.
+    use_for:
+      - decks, one-pagers, briefs, and memos projected from governed artifacts
+      - client-facing status and proposal documents
+      - any artifact section a meta.yml override marks human-facing
+    required_moves:
+      - Open with the situation the reader is in and what it means for them, then the evidence, then the ask. For a reference document, the introduction is the need, the criteria, and the finding in that order ("We need a data store for X, Y, and Z so that A, B, and C. It must do P, Q, and R. We evaluated N against those and found ...").
+      - In a deck or a persuasive document, make every title a claim ("Churn falls 12% with prebill review", "A three-month pilot wins back reviewer hours"); "Results" is a label. In a reference document (a flow whose `heading_style` is `label`), use the plain section titles a reader expects: Introduction, Background, Required capabilities, Competitive landscape, Open questions. Either way, keep counts, verdicts, and slogans out of headings; the finding belongs in the first sentence under the heading.
+      - Define or drop every HELIX and engineering term. Artifact IDs, activity names, work-item vocabulary, and acceptance-criterion codes stay out of the body; provenance goes in an appendix or the frontmatter.
+      - One idea per paragraph, bullet, or slide. Say the concrete consequence ("reviewers get four hours back a week"), and let the reader judge its value.
+      - Give every number a source and trace every claim to a governing artifact section. Name the study, the person, or the record behind a claim, or drop the claim.
+      - Say what a thing is with "is", "has", and "does". Write the literal phrase when one exists. Vary sentence length. Keep the actor in the sentence.
+      - Subset the governing artifact when the audience needs less; every sentence stays consistent with it.
+      - Read every title, heading, and call-to-action aloud as something you would say to a colleague in a hallway. If it sounds like a policy memo or a press release, name the concrete action and its stakes instead.
+      - Read the whole piece once more after the rules pass. A sentence can clear every rule below and still sound like nobody.
+    avoid:
+      - "Mannered prose: metaphor and flourish in place of direct statement. Instead of 'a parameter worth varying', the mannered writer produces 'a dial worth turning'; instead of 'this point still matters', 'this point earns its keep'. The phrase displays the writer instead of conveying the idea, and it drags in connotations the writer did not choose. Say what you mean."
+      - "Negative parallelism in any form: 'not X but Y', 'X, not Y', 'Y rather than X', 'less X, more Y', a closing 'It is not a Z'. State the positive claim on its own; the reader supplies the contrast."
+      - "Slogan closers: a short final line that restates the point as a maxim ('Skip the tests, and the decision rests on a guess'). End on the last fact or the ask."
+      - "Shadowboxing: telling the reader what the piece is not doing, not claiming, or not recommending. Say once, in the ask, what you want. Anything else argues with nobody."
+      - "Narrating the document: 'This brief checks...', 'This page names...', 'The next section shows...'. Give the reader the situation and the finding; the structure shows itself."
+      - "Invented or internal terms used as if the reader already owned them ('the catalog', 'the flow', 'component profile', a coined noun repeated as household vocabulary). Name the ordinary thing."
+      - "Copula avoidance: 'serves as', 'stands as', 'acts as', 'features', 'boasts' in place of 'is' and 'has'."
+      - "Significance inflation and the promotional register: 'pivotal', 'crucial', 'testament', 'vibrant', 'seamless', 'robust', 'leverage', 'delve'. Filler adverbs and hedges: 'really', 'simply', 'arguably', 'it is worth noting'."
+      - "A term of art stretched into a metaphor. 'Competitive landscape' is a fixed term and stays; a list of features, vendors, or risks is a list, a table, or a comparison. The same holds for 'ecosystem', 'journey', 'north star', and 'roadmap' outside their fixed uses."
+      - "Borrowed authority: 'experts agree', 'studies show', 'widely regarded', a list of outlets. Name the source or drop the sentence."
+      - "Rule-of-three padding, bold-label bullets, TL;DR labels, em dashes, exclamation marks, emoji, headings in Title Case."
+      - "Reader-steering tics: 'worth noting', 'the real X', 'the candid version', 'here's the thing'."
+      - "Bureaucratic nominalizations that turn a plain verb into an abstract noun: 'before the decision closes' for 'before deciding', 'pending finalization' for 'before it is final', 'conduct an evaluation' for 'evaluate'."
+      - "Empty precision-adjectives stacked on a plain noun: 'bounded tests' for 'tests', 'actionable insights' for 'findings', 'robust framework' for 'framework'."
+      - "Generic command headings that could caption any ask: 'Fund the initiative', 'Adopt the proposal', 'Approve the plan'. Name the thing being asked for and what it buys."
+      - Placeholder text and template brackets; unsupported claims about tests, metrics, or completion.
+    sample: |
+      Reviewers at a mid-sized firm spend about four hours a week matching deposits
+      by hand, and the firm bills none of it. The business case puts the cost at
+      $1.2 billion a year across the market. A three-month pilot with two firms
+      would show whether reviewers trust suggested matches and whether the firms
+      will pay for the time saved. It costs $262,000 in the first year and breaks
+      even in month 18 if pilot conversion and pricing hold. Three risks could
+      sink it, and each has a named owner and a mitigation in the plan. We are
+      asking for the pilot budget and for one partner to recruit the two firms
+      before the next investment review.
+    sample_note: >-
+      The paragraph above is the register to match: short and long sentences mixed,
+      every number sourced in the governing artifact, the actor named in each
+      sentence, the ask stated once and plainly. Match its sound before applying
+      any rule in the avoid list.

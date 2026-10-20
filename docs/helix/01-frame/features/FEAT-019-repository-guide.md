@@ -16,7 +16,7 @@ ddx:
 **Owner**: HELIX maintainers
 **Covered PRD Subsystem(s)**: Routing skill (guide mode), catalog (audiences, voice)
 **Covered PRD Requirements**: R-13
-**Cross-Subsystem Rationale**: The mode is the skill's; the audiences and voice profiles are catalog data; the deterministic machinery is a host tool outside HELIX (repoguide).
+**Cross-Subsystem Rationale**: The mode is the skill's; the audiences and voice profiles are catalog data; the deterministic machinery is a host tool outside HELIX (documentor).
 
 ## Overview
 
@@ -58,7 +58,7 @@ audiences and page shapes; each adds only what is particular to it.
   are the contract; what the check blocks on and warns about is the table in
   `publishing.md`.
 - **Script policy.** The deterministic steps are optional host tooling, as
-  for `present`: [repoguide](https://github.com/DocumentDrivenDX/repoguide)
+  for `present`: documentor (`tools/documentor/` in the HELIX repository)
   implements them and pins a HELIX version. Without it the agent does each
   step by hand, stamps `sha256:-` where it cannot digest, and says so in the
   handoff. Nothing is skipped silently.
@@ -67,11 +67,15 @@ audiences and page shapes; each adds only what is particular to it.
   keyed by artifact id. Pages are not graph nodes and carry no `ddx:`
   frontmatter; the record lives in the page header, as `ddx.review` lives in
   frontmatter, so there is no second store (CONTRACT-001).
-- **Distribution.** An adopting repository reaches repoguide at a pinned tag
-  through `uvx` or a private index; nothing is vendored and no template is
-  copied. The HELIX catalog carries no stack-specific traits or generators:
-  those are repoguide's and the adopting repository's.
-- **Out of scope.** Estate views across repositories (repoguide ADR-002),
+- **Distribution.** documentor lives in the HELIX repository under
+  `tools/documentor/`, outside the skill: plug-in packaging copies only
+  `skills/helix/`, so no install carries it. An adopting repository runs it
+  from a HELIX release tag with `uvx --from
+  "git+https://github.com/DocumentDrivenDX/helix@<tag>#subdirectory=tools/documentor"`;
+  nothing is vendored and no template is copied. The skill's catalog carries no
+  stack-specific traits or generators: those are documentor's and the adopting
+  repository's.
+- **Out of scope.** Estate views across repositories (`tools/documentor/docs/helix/02-design/adr/ADR-002`),
   field guides and presentation rendering, agent-driven bootstrap of artifacts
   from code, hosting of the site.
 
@@ -80,7 +84,7 @@ audiences and page shapes; each adds only what is particular to it.
 - Given a repository with `.helix.yml` `publish:` naming an audience, when a
   cited section changes, then the check reports the page `stale` and exits
   non-zero, and passes after the page is regenerated and reviewed.
-- Given a host without repoguide, when `guide` runs, then the pages are
+- Given a host without documentor, when `guide` runs, then the pages are
   written with their headers, the unstamped sources carry `sha256:-`, and the
   handoff names the steps done by hand.
 - Given two repositories of different shape (an application and a data

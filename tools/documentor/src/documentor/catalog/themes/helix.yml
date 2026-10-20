@@ -1,0 +1,19 @@
+id: helix
+mode: light
+ground: "#F7F8FA"
+sunken: "#EEF1F4"
+surface: "#FFFFFF"
+border: "#D9DEE5"
+recessed: "#CFD6DF"
+strong: "#111418"
+text: "#2E3440"
+muted: "#5E6875"
+accent: "#2F6F8F"
+focus: "#D97706"
+ok: "#2E8B57"
+limited: "#986A24"
+purchasing: "#4A5A7A"
+evaluation: "#777268"
+font: "ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif"
+accent_name: blue
+ground_name: gray

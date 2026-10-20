@@ -1,0 +1,56 @@
+# Pages for someone about to change the code. `publish` resolves each source kind to concrete
+# project paths and records them, with digests, in the page's provenance header
+# (workflows/references/publishing.md). `kind` is the page's Diátaxis kind (tutorial, how-to, reference,
+# explanation; publishing.md, Page kinds). `{helix}` is the project's HELIX root from .helix.yml.
+id: developer
+title: Developers
+reader: Someone about to change the code for the first time.
+voice: onboarding
+# A new decision that no page explains yet. Contracts and stories are agent-read records; the pages
+# cite the ones they explain, and a change to a cited one makes the page stale.
+watch:
+  - "{helix}/02-design/adr/*.md"
+pages:
+  - id: index
+    title: Overview
+    kind: explanation
+    task: Name the system's parts, find the part a change belongs in, and know what to read next.
+    budget: 800
+    outline: [What it is, The parts, One request, Where to go next]
+    sources:
+      - artifact: product-vision
+      - artifact: architecture
+        sections: [level-1-system-context, level-2-container-diagram]
+      - view: generated system or context view, when the project has one
+  - id: architecture
+    title: Architecture
+    kind: explanation
+    task: Understand how the system is built and deployed, and which decision governs each part.
+    budget: 1500
+    outline: [Context, Containers, Deployment, Quality targets, Decisions that shape the code]
+    sources:
+      - artifact: architecture
+      - artifact: adr
+        note: only the decisions the architecture names; one line each, linked
+      - code: deployment and build configuration
+  - id: walkthrough
+    title: Request walkthrough
+    kind: explanation
+    task: Follow one critical request through the code, with the tests that prove each step.
+    budget: 1100
+    outline: [Scenario, Sequence, Steps and evidence, Failure paths, Where to change what]
+    sources:
+      - artifact: architecture
+        sections: [data-flow]
+      - code: the entry points, gates, and stores the request passes through
+      - tests: the tests that prove each step
+  - id: developer-guide
+    title: Developer guide
+    kind: how-to
+    task: Run the system locally, make one small change, and verify it before a pull request.
+    budget: 1300
+    outline: [Quick start, Prerequisites, Repository map, First contribution, Common changes, Debugging and verification]
+    sources:
+      - code: build definitions, task runner recipes, contributor rules
+      - artifact: architecture
+        sections: [deployment]

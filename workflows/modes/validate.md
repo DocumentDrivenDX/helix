@@ -27,7 +27,7 @@ prompt, then edit resolvable findings in place.
    against the code, configuration, and governing artifacts: a claim one of
    them contradicts is `DIVERGENT` (cite the source). In fix-mode, correct it
    only when the contradicting source is authoritative. A corrected artifact
-   makes the guide pages that cite it stale (`repoguide check`, or the agent's
+   makes the guide pages that cite it stale (`documentor check`, or the agent's
    own re-digest without it).
 5. Run voice conformance against the active profile, then classify each finding
    keyed to the relevant template, prompt, meta.yml, or voice-profile section

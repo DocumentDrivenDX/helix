@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# The package builds as a wheel that carries its catalog, and the CLI answers from it.
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+fail() { echo "FAIL: $*" >&2; exit 1; }
+tmpdir="$(mktemp -d)"; trap 'rm -rf "$tmpdir"' EXIT
+cd "$repo_root"
+uv build --quiet --out-dir "$tmpdir/dist" >/dev/null 2>&1 || fail "uv build failed"
+wheel="$(ls "$tmpdir"/dist/*.whl)"
+for member in documentor/catalog/helix/voice.yml documentor/catalog/helix/audiences/developer.yml documentor/catalog/traits/significant.yml documentor/catalog/ci/github-actions.yml documentor/architecture/js/stage.mjs; do
+  python3 -m zipfile -l "$wheel" | grep -q "$member" || fail "the wheel lacks $member"
+done
+uv run --isolated --no-project --with "$wheel" documentor --version | grep -q "^documentor " || fail "the installed CLI should print its version"
+uv run --isolated --no-project --with "$wheel" documentor detect --help >/dev/null || fail "the installed CLI should run detect"
+echo "OK: the wheel carries the catalog and the CLI answers from a clean environment"

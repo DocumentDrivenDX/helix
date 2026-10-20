@@ -1,0 +1,41 @@
+# Pages for someone who uses the product. `kind` is the page's Diátaxis kind
+# (workflows/references/publishing.md, Page kinds).
+id: user
+title: Users
+reader: Someone who uses the product to get work done.
+voice: public-site
+watch:
+  - "{helix}/01-frame/features/*.md"
+pages:
+  - id: index
+    title: Getting started
+    kind: tutorial
+    task: Open the product and complete one first piece of work, step by step, to a result on the screen.
+    budget: 700
+    outline: [Before you start, Open it and sign in, "Your first task: one worked session, step by step", What you have done, Where to go next]
+    sources:
+      - artifact: user-stories
+        note: the stories the first session meets; only what the exercise needs
+      - code: the screens and labels the exercise passes through
+  - id: about
+    title: What it is and is not
+    kind: explanation
+    task: Understand what the product does for you, how it keeps work within the firm's rules, and what it will not do.
+    budget: 600
+    outline: [What it does for you, How it keeps to the firm's rules, What it will not do]
+    sources:
+      - artifact: product-vision
+      - artifact: prd
+        sections: [non-goals]
+      - artifact: feature-specification
+        sections: [overview]
+  - id: using
+    title: Using the product
+    kind: how-to
+    task: Do each everyday task, and understand what the product asks of you and why.
+    budget: 1500
+    outline: [one section per everyday task, in the order a user meets them]
+    sources:
+      - artifact: feature-specification
+      - artifact: user-stories
+        note: the behavior the user sees, never internal identifiers

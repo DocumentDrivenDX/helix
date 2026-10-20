@@ -123,7 +123,7 @@ report. Preserve explicit domain approvals and evidence for completion claims.
 
 ### Non-Goals
 
-- HELIX will not provide a CLI, tracker, queue, or execution engine.
+- HELIX will not provide a CLI, tracker, queue, or execution engine. The skill never requires a tool; the repository hosts one optional host tool, documentor (R-13), that adopters may run and need not install.
 - HELIX will not impose technology choices or fork by language ecosystem.
 - HELIX will not replace product, design, or architectural judgment.
 - HELIX will not hard-code one autonomy level: autonomy is a first-class, controllable spectrum (review-every-edit → full one-shot). HELIX expresses the autonomy policy; a capable runtime supplies the agency. (HELIX still ships no execution engine of its own — see above.)
@@ -249,8 +249,10 @@ voice profile. Every page carries a provenance header naming its sources with
 digests; a deterministic check fails when a source moved, a generated page
 would differ, a page is missing or unreviewed, a link or path breaks, or a
 page matches a handling pattern. Detection, generated pages, architecture
-views, the check, and the site are optional host tooling (repoguide, which
-pins a HELIX version); a host without it does each step by hand and says so.
+views, the check, and the site are optional host tooling: documentor, a
+package in this repository under `tools/documentor/`, outside the skill and
+never copied into an install. A host without it does each step by hand and
+says so.
 The skill body stays runtime-neutral (R-4).
 
 #### P2
@@ -302,7 +304,7 @@ statement of which host renders it.
 **R-13 (repository guide):** Given a repository whose `.helix.yml` names an
 audience, when a section a page cites changes, then the check reports the page
 stale and exits non-zero, and passes after the page is regenerated and
-reviewed; on a host without repoguide the pages are written with headers,
+reviewed; on a host without documentor the pages are written with headers,
 unstamped sources carry `sha256:-`, and the handoff names the steps done by
 hand.
 
