@@ -3,7 +3,7 @@
 <!-- helix:source docs/helix/00-discover/product-vision.md sha256:53b51880ca06cad7 -->
 <!-- helix:source docs/helix/02-design/adr/ADR-001-a-repository-guide-is-detected-generated-written-evaluated-and-checked.md#decision sha256:d3fd98aa3f21622b -->
 <!-- helix:source src/documentor/cli.py sha256:63fa5bcbdc82b569 -->
-<!-- helix:source src/documentor/lib.py sha256:4c3de9f491076524 -->
+<!-- helix:source src/documentor/lib.py sha256:651c08a95ae80112 -->
 <!-- helix:source src/documentor/write.py sha256:8ad5661054a3cc34 -->
 <!-- helix:source justfile sha256:8b9f44abbdc7b4e0 -->
 # Overview

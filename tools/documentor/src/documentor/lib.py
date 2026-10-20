@@ -106,10 +106,19 @@ def expand(pattern: str, config: dict) -> str:
 
 # --- the repository's files ---------------------------------------------------------------------
 
+INCIDENTAL_DIRS = {"test", "tests", "__tests__", "testdata", "test_data", "e2e", "fixture", "fixtures",
+                   "example", "examples", "sample", "samples", "demo", "demos"}
+
+
 def incidental(path: str) -> bool:
-    """A test, fixture, or example: it shows what the repository can do, not what it is."""
-    return any(word in part for part in path.split("/")[:-1]
-               for word in ("test", "e2e", "fixture", "example", "sample", "demo"))
+    """A test, fixture, or example: it shows what the repository can do, not what it is. A
+    directory counts by its whole name (`tests/`, `examples/`, `e2e/`, a `*_test` or `test_*`
+    package), never by a substring, so `03-test/` or `test-plan/` is not incidental."""
+    for part in path.split("/")[:-1]:
+        name = part.lower()
+        if name in INCIDENTAL_DIRS or name.startswith(("test_", "tests_", "e2e")) or name.endswith(("_test", "_tests", "-e2e")):
+            return True
+    return False
 
 
 def repository_files(root: Path) -> list[str]:

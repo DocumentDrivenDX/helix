@@ -1,7 +1,7 @@
 <!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=agent-opus reviewed=2026-10-20/second-reader-site-check/077b52089c19fc8c -->
 <!-- helix:gap artifact:architecture -->
 <!-- helix:source src/documentor/cli.py sha256:63fa5bcbdc82b569 -->
-<!-- helix:source src/documentor/lib.py sha256:4c3de9f491076524 -->
+<!-- helix:source src/documentor/lib.py sha256:651c08a95ae80112 -->
 <!-- helix:source src/documentor/write.py sha256:8ad5661054a3cc34 -->
 <!-- helix:source src/documentor/site.py sha256:1cd9d398b52567c7 -->
 <!-- helix:source src/documentor/architecture/model.py sha256:23e8d56bcb11fa69 -->

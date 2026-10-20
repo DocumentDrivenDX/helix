@@ -6,7 +6,7 @@
 <!-- helix:source src/documentor/cli.py sha256:63fa5bcbdc82b569 -->
 <!-- helix:source src/documentor/generate.py sha256:92dcfeb4e275656d -->
 <!-- helix:source src/documentor/write.py sha256:8ad5661054a3cc34 -->
-<!-- helix:source src/documentor/lib.py sha256:4c3de9f491076524 -->
+<!-- helix:source src/documentor/lib.py sha256:651c08a95ae80112 -->
 <!-- helix:source pyproject.toml sha256:95efaa59d25e6f0a -->
 <!-- helix:source docs/helix/01-frame/prd.md#requirements sha256:faab177063c3e4e8 -->
 # Embedding the library

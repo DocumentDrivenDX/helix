@@ -20,9 +20,9 @@ pages:
   - id: about
     title: What it is and is not
     kind: explanation
-    task: Understand what the product does for you, how it keeps work within the firm's rules, and what it will not do.
+    task: Understand what the product does for you, how it keeps work within the organisation's rules, and what it will not do.
     budget: 600
-    outline: [What it does for you, How it keeps to the firm's rules, What it will not do]
+    outline: [What it does for you, How it keeps to the organisation's rules, What it will not do]
     sources:
       - artifact: product-vision
       - artifact: prd

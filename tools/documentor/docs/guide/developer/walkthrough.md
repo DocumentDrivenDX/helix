@@ -2,7 +2,7 @@
 <!-- helix:gap artifact:architecture -->
 <!-- helix:source src/documentor/cli.py sha256:63fa5bcbdc82b569 -->
 <!-- helix:source src/documentor/check.py sha256:003d9b04712fdb17 -->
-<!-- helix:source src/documentor/lib.py sha256:4c3de9f491076524 -->
+<!-- helix:source src/documentor/lib.py sha256:651c08a95ae80112 -->
 <!-- helix:source src/documentor/generate.py sha256:92dcfeb4e275656d -->
 <!-- helix:source src/documentor/write.py sha256:8ad5661054a3cc34 -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
