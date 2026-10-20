@@ -11,7 +11,6 @@ ddx:
 **Feature Requirements**: [REQ-01, REQ-02]
 **PRD Requirements**: [FR-n — the PRD functional requirement(s) this story covers]
 **Priority**: [P0 | P1 | P2]
-**Status**: [Draft | Review | Approved]
 
 ## Story
 

@@ -71,15 +71,14 @@ Before creating new design docs:
 ## Gate Validation
 
 ### Entry Requirements (From Frame)
-- [ ] Frame activity complete and approved
-- [ ] PRD signed off by stakeholders
+- [ ] Relevant requirements and constraints are clear
 - [ ] All P0 requirements specified
 - [ ] Success metrics defined
 - [ ] User stories have acceptance criteria
 - [ ] No [NEEDS CLARIFICATION] markers
 
 ### Exit Requirements (Must Complete)
-- [ ] Architecture documented and approved
+- [ ] Architecture records material choices and boundaries
 - [ ] All API contracts defined
 - [ ] Data models complete
 - [ ] Security architecture reviewed
@@ -97,7 +96,7 @@ Before creating new design docs:
 
 ### 2. Over-Engineering
 **Violation**: "We need 7 microservices for future scalability"
-**Correction**: "Start with 3 services maximum. Document future scaling strategy."
+**Correction**: "Reuse existing boundaries. Add a service only for a demonstrated responsibility or constraint."
 
 ### 3. Missing Contracts
 **Violation**: "We'll figure out the API as we build"

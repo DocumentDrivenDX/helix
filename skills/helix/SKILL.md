@@ -168,9 +168,9 @@ home); practice: `workflows/conventions.md`.
   the tool and report that you did.
 - **`state: checked-out` content is undependable.** Before the first check-in
   the body is identity and description only; after a later checkout it is the
-  previous copy. Do not quote it as current, set `ddx.status: approved` on it,
-  or approve anything depending on it. Surface the checkout: name the artifact,
-  its `origin`, and what it blocks.
+  previous copy. Read `authoring.origin` when current content matters. Do not
+  quote an unread live source as current. If unavailable content leaves a
+  material decision unresolved, name that decision and block only affected work.
 - **`state: checked-in` bodies are the read surface.** `authoring.export` is
   the committed original; `authoring.export_sha256`, when present, is its
   digest at check-in. A digest that no longer matches the export means the body
@@ -180,7 +180,7 @@ home); practice: `workflows/conventions.md`.
   to `checked-out` for its next revision, reusing `origin`, `export`, and
   `export_sha256`; checkout never deletes content the repository holds. A
   check-in is one change carrying the body, export file, digest, and `state`
-  flip together. Checking in makes approval possible; it is not approval.
+  flip together. Checking in makes the content available as working intent.
 - Producing a check-in body from an external document is a runtime capability.
   If the runtime offers none, say so and leave `state` alone; hand-transcribing
   and flipping `state: checked-in` claims a fidelity the repository cannot
@@ -210,7 +210,7 @@ Prefer the first matching route:
 | Convert rough intent into governed HELIX work | input |
 | Grill / interview / stress-test a plan or design until shared understanding (one question at a time) | grill |
 | Create or refine product vision, PRD, feature specs, or user stories | frame |
-| Reconcile relevant documents, check traceability, find drift, or place content in the right artifact | align |
+| Reconcile relevant documents or a named system/component, check traceability, find drift or simplification opportunities, or place content in the right artifact | align |
 | Check an artifact instance against its template and prompt; edit resolvable findings in place | validate |
 | Bring every artifact instance up to date with the current templates and prompts | refresh |
 | Thread a new, changed, removed, or incident-driven requirement through existing artifacts | evolve |
@@ -334,7 +334,8 @@ Precedence (first match wins): per-invocation override (the operator names a
 level in the prompt) → the `autonomy:` block in `.helix.yml` → default
 `medium`. Hard-stop invariant (all levels): autonomy moves the pause
 threshold, never the stop floor; stop and surface to a human when two
-higher-or-equal-authority artifacts truly contradict, when the next action is
+higher-or-equal-authority artifacts have a material conflict that existing
+intent cannot resolve, when the next action is
 destructive or irreversible and unauthorized, or when only a human can decide.
 Never-collapse-the-loop invariant: every level runs the same activities;
 higher levels pause less.
@@ -350,6 +351,21 @@ ask whether to proceed, and wait ("About to run `terraform apply` in
 infra/prod — should I proceed?"); a generic `ok?` does not satisfy the
 contract. When routing silently via `defaults.flow`, name the routing decision
 in the first text block: silent routing is allowed, unspoken routing is not.
+
+## Living-document contract
+
+Committed documents are living working intent, governed by subject and authority
+order. Assume light drift. Prioritize material gaps affecting user outcomes,
+requirements, scope, design choices, safety, or completion evidence. Resolve
+ordinary lower-layer drift from clear higher authority within authorized work.
+Ask only when unresolved intent materially changes the solution.
+
+Lifecycle labels, stale review stamps, and missing graph edges alone do not
+block work. Do not create housekeeping tasks or normalize the graph for them.
+Use relevant content and authority order when links are absent. Keep progress
+in the relevant plan, selected work item, or factual report, rather than adding
+implementation-status banners to specifications. Explicit domain approvals and
+source freshness still matter where they affect the actual action or claim.
 
 ## Operating Discipline
 

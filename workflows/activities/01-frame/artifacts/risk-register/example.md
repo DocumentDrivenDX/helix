@@ -11,7 +11,6 @@ ddx:
 
 # Risk Register
 
-**Status**: Review
 **Last Updated**: 2026-05-12
 **Risk Owner**: Product Lead
 

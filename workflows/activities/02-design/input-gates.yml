@@ -1,5 +1,5 @@
 input_gates:
-  - criteria: Problem statement validated and approved
+  - criteria: Problem and intended user outcome are clear
     required: true
     source: 01-frame
     validation: Problem is clearly defined and worth solving

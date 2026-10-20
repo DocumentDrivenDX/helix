@@ -110,10 +110,6 @@ references:
 workflow:
   creation_order: 1.5  # During design when technical uncertainties arise
   review_cycles: 1
-  approval_required: true
-  approvers:
-    - Technical Lead
-    - Spike Lead
 
   execution_phases:
     - planning: "Define scope and approach"

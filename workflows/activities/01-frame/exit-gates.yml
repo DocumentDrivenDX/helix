@@ -3,13 +3,13 @@
 
 exit_gates:
   # Documentation Completeness
-  - criteria: PRD is complete and approved
+  - criteria: PRD states the scoped outcome and constraints clearly
     required: true
     validation:
       - Executive summary written
       - Problem statement clearly defined
       - Success metrics are specific and measurable
-      - All stakeholders have reviewed and signed off
+      - Material choices that require human judgment are resolved
     evidence: docs/helix/01-frame/prd.md
 
   - criteria: All P0 requirements have specifications
@@ -184,11 +184,6 @@ validation_rules:
 # Activity Transition Criteria
 transition:
   to_phase: 02-design
-  approval_required: true
-  approvers:
-    - Product Owner
-    - Technical Lead
-    - Key Stakeholders
 
   pre_transition_tasks:
     - Archive Frame activity decisions

@@ -21,7 +21,7 @@ description: |
   The project-level test plan defines the testing strategy for the full
   project: test levels and scope, framework choices, coverage targets,
   critical paths, test data strategy, infrastructure requirements, and
-  sequencing. It drives failing tests before implementation begins and
+  sequencing. It selects meaningful new or existing verification and
   provides traceability from requirements to test execution.
 
 output:
@@ -106,9 +106,6 @@ references:
 workflow:
   creation_order: 1
   review_cycles: 1-2
-  approval_required: true
-  approvers:
-    - Technical Lead
 
 relationships:
   informed_by:

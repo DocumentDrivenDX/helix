@@ -13,10 +13,6 @@ entry_requirements:
     - check: tests_passing
       description: "All tests from Build activity must pass"
 
-    - check: coverage_threshold
-      threshold: 80
-      description: "Coverage threshold from Build activity met"
-
     - check: security_scan_clean
       severity: high
       description: "Security scan from Build activity clean"
@@ -30,7 +26,7 @@ entry_requirements:
       description: "Changelog updated"
 
   manual:
-    - "Performance validated and within SLA"
+    - "Project-adopted coverage targets and performance SLAs validated where applicable"
     - "Documentation review completed"
 
 exit_requirements:

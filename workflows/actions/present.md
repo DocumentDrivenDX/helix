@@ -222,5 +222,6 @@ Save the script under the flow root (default
 `06-iterate/deliverables/DEL-<nnn>-<slug>.md`) with `ddx.links` to every
 source artifact and `authoring.export` pointing at the renders. Report: the
 takeaway sentence, the titles-only outline, assumptions and gaps, gate
-results, and where the files are. Do not present the deck as approved; it is
-`draft` until a person reviews it like any artifact.
+results, and where the files are. Report material unresolved choices and
+limits of evidence without assigning a lifecycle label. External distribution
+and explicit domain sign-off require the applicable authorization.

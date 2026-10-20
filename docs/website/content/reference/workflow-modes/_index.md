@@ -13,7 +13,7 @@ Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/hel
 | Convert rough intent into governed HELIX work | [input](input) |
 | Grill / interview / stress-test a plan or design until shared understanding (one question at a time) | [grill](grill) |
 | Create or refine product vision, PRD, feature specs, or user stories | [frame](frame) |
-| Reconcile relevant documents, check traceability, find drift, or place content in the right artifact | [align](align) |
+| Reconcile relevant documents or a named system/component, check traceability, find drift or simplification opportunities, or place content in the right artifact | [align](align) |
 | Check an artifact instance against its template and prompt; edit resolvable findings in place | [validate](validate) |
 | Bring every artifact instance up to date with the current templates and prompts | [refresh](refresh) |
 | Thread a new, changed, removed, or incident-driven requirement through existing artifacts | [evolve](evolve) |
@@ -30,14 +30,12 @@ Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/hel
 | Decompose an oversized code module/file into encapsulated units behind a verify gate | [decompose-module](decompose-module) |
 | Build up end-to-end coverage as a ladder of increasingly complex real-client scenarios | [e2e-ladder](e2e-ladder) |
 | Turn governed artifacts into a deck, one-pager, or brief for clients, sponsors, or executives | [present](present) |
-| Give a repository its guide: detect what it is, generate, write, evaluate, check, and assemble its docs site | [guide](guide) |
-| Author or refresh one developer, operator, user, or data page from governed artifacts and code | [publish](publish) |
 | Hand governed work to the runtime for execution, source control, or packaging | [runtime-handoff](runtime-handoff) |
 
 ## Contracts
 
 {{< cards >}}
-  {{< card link="align" title="Align" subtitle="Use `align` to reconcile related HELIX documents, check traceability, or place content in the right artifact. The default scope is the requested document and t…" >}}
+  {{< card link="align" title="Align" subtitle="Use `align` to reconcile related HELIX documents and assess whether a named system or component coherently realizes its intent. A document target defaults to t…" >}}
   {{< card link="backfill" title="Backfill" subtitle="Use to reconstruct missing or incomplete HELIX artifacts from evidence." >}}
   {{< card link="check" title="Check And Next" subtitle="Use when the safe next action is ambiguous, when the user asks &quot;what's next&quot; / &quot;what's blocked&quot; / &quot;plan the change&quot;, or when a single ask straddles two or more…" >}}
   {{< card link="converge" title="Converge" subtitle="Use when the user asks to review a target, resolve blocking findings, and repeat the review within a stated or agreed limit." >}}
@@ -49,14 +47,12 @@ Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/hel
   {{< card link="frame" title="Frame" subtitle="Use for creating or refining product vision, PRD, feature specs, and user stories." >}}
   {{< card link="genesis" title="Genesis" subtitle="Use to bootstrap a brand-new project from bare intent: name it, research the prior art, draft a vision shaped by that research, and scaffold the HELIX structur…" >}}
   {{< card link="grill" title="Grill" subtitle="Use to stress-test a plan, design, or change via a decision-tree interview until shared understanding. Distills the grilling technique (one question at a time,…" >}}
-  {{< card link="guide" title="Guide" subtitle="Use to give a repository the documentation its readers need, and to keep it current: point HELIX at the repository, and the guide is detected, generated, writt…" >}}
   {{< card link="input" title="Input" subtitle="Use for sparse user intent that needs to become governed HELIX work." >}}
   {{< card link="iterate" title="Iterate" subtitle="Use to plan or report a human iteration: sequence a roadmap, define workstreams, cut an iteration plan from the backlog and roadmap, or record status against t…" >}}
   {{< card link="polish" title="Polish" subtitle="Use when the user asks to decompose or refine work items for a named scope. Infer the scope from the task; ask when it is unclear. Do not select all open work…" >}}
   {{< card link="present" title="Present" subtitle="Use to turn governed artifacts into a deck, brief, or one-pager a client, sponsor, or executive can read or watch on the first try. Output: a `deliverable` art…" >}}
-  {{< card link="project-audit" title="Project Audit" subtitle="Use only when the user explicitly asks for an implementation audit. Confirm the requested project, component, feature, or other scope; ask for scope when the t…" >}}
-  {{< card link="publish" title="Publish" subtitle="Use to generate, refresh, or check the pages people read about a project: what developers need to change the code, what operators need to run it, and what user…" >}}
-  {{< card link="refresh" title="Refresh" subtitle="Use to bring every artifact instance under a project HELIX tree up to date with the current canonical templates and prompts. Refresh is `modes/validate.md` (fi…" >}}
+  {{< card link="project-audit" title="Project Audit" subtitle="Use only when the user explicitly asks for an implementation audit of what is built. Aligning a named system or component (`align`) already inspects its code a…" >}}
+  {{< card link="refresh" title="Refresh" subtitle="Use to bring every artifact instance under a project HELIX tree up to date on material content expectations in the current templates and prompts. Refresh is `m…" >}}
   {{< card link="review" title="Review" subtitle="Use for an explicitly requested fresh-eyes review of a plan, artifact, change, or implementation." >}}
   {{< card link="runtime-handoff" title="Runtime Handoff" subtitle="Use when a workflow mode concludes that the next step is execution, source control, packaging, or a long-lived operator loop. HELIX does not own those surfaces…" >}}
   {{< card link="validate" title="Validate" subtitle="Use to check a single artifact instance against its governing template and prompt, then edit resolvable findings in place." >}}

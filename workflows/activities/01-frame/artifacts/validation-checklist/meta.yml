@@ -25,12 +25,12 @@ validation:
     - required_follow_up
 
   quality_checks:
-    - check: all_artifacts_validated
-      description: Every Frame artifact must be checked
+    - check: relevant_intent_clear
+      description: Governing intent is sufficient for the requested next outcome
       severity: blocking
 
-    - check: approvals_obtained
-      description: Required approvals must be documented
+    - check: material_decisions_resolved
+      description: Unresolved choices block only the actions that depend on them; document lifecycle labels and missing edges alone do not block
       severity: blocking
 
     - check: issues_addressed
@@ -58,7 +58,7 @@ prompts:
   generation: prompt.md
   review: |
     Use this checklist to:
-    1. Systematically review all artifacts
+    1. Review relevant governing intent
     2. Identify gaps and issues
     3. Document validation results
     4. Make go/no-go decision
@@ -87,7 +87,7 @@ workflow:
     - self_assessment
     - formal_validation
     - remediation
-    - final_approval
+    - material_decision_resolution
 
   participants:
     - Product Owner
@@ -114,14 +114,14 @@ relationships:
 
 validation_criteria:
   must_pass:
-    - prd_approved
+    - prd_intent_clear
     - p0_requirements_specified
     - success_metrics_defined
     - stakeholder_alignment
     - critical_risks_addressed
 
   should_pass:
-    - all_artifacts_complete
+    - relevant_content_sufficient
     - examples_provided
     - glossary_defined
     - assumptions_documented
@@ -154,7 +154,7 @@ checklist_items:
 
   evidence_types:
     - document_review
-    - stakeholder_approval
+    - explicit_domain_decision
     - metric_verification
     - cross_reference_check
 

@@ -81,8 +81,8 @@ exit_requirements:
     - "Each story names a specific persona from the PRD"
     - "Each story walkthrough traces a complete vertical slice"
     - "Test scenarios include concrete values, not placeholders"
-    # Approval
-    - "Stakeholder sign-off on PRD obtained"
-    - "Product Owner approval confirmed"
+    # Material decisions
+    - "Material product decisions resolved"
+    - "Product intent and priorities are clear for the scoped work"
 
 next_activity: design

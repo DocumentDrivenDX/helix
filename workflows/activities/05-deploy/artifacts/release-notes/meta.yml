@@ -60,10 +60,6 @@ references:
 workflow:
   creation_order: 4
   review_cycles: 1
-  approval_required: true
-  approvers:
-    - Release Owner
-    - Product Owner
 
 relationships:
   informed_by:

@@ -68,8 +68,9 @@ Cross-flow contract (every cross-flow ask):
    the prompt references (e.g. `monitoring-setup.md`,
    `data-product-brief.md`, `prd-*.md`) BEFORE proposing any action.
    For each upstream named in `ddx.links:` or `informs` edges that
-   the answer depends on, Read it too. Catalogue which artifacts
-   exist (with path + status from frontmatter) and which are missing.
+   the answer depends on, Read it too. Identify the relevant intent and any
+   unavailable content that materially changes the recommendation. Do not
+   inventory lifecycle labels or treat missing graph edges as blockers.
 3. **Read relevant prerequisite flows.** When a governing artifact identifies a
    prerequisite in another flow, read that flow's scoped artifact before
    recommending work there. Give a next step for each flow that owns part of
@@ -81,7 +82,9 @@ Cross-flow contract (every cross-flow ask):
 
 Answer concisely by naming the owner flow, relevant evidence, any prerequisite
 flow that affects the result, and the recommended next action. Mention artifact
-status when it changes that recommendation.
+domain state when it changes that recommendation. Document lifecycle labels
+and stale review stamps alone never determine readiness. Recommend closing a
+material user-outcome gap, not normalizing status or link metadata.
 
 Do not skip owner-flow resolution because the prompt is short or the
 prerequisite verb is loud. Do not collapse multiple flows into a single

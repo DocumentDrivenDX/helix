@@ -15,15 +15,20 @@ prompt, then edit resolvable findings in place.
    `required_sections`, `pattern_checks`, `automated_checks`, placeholder
    scan, frontmatter checks, and, for a deliverable, the prose audit (`prose.*`,
    `workflows/references/writing-pass.md`) and prints findings with check ids. Treat its
-   blocking findings as `INCOMPLETE` unless judgment says otherwise. When the
-   host cannot run scripts, perform the same checks by reading `meta.yml`.
+   findings as evidence to assess, not automatic implementation gates. Report
+   a blocking material gap only with its effect on the scoped outcome, decision,
+   safety constraint, or completion claim. A missing heading can identify
+   missing content; it does not prove that content is unavailable elsewhere.
+   Lifecycle labels, stale review stamps, and missing edges alone are not
+   findings. When the host cannot run scripts, read `meta.yml`.
 4. Check applicable requirements from `prompt.md`. Omit optional sections
    when they do not apply; do not add `N/A` text to satisfy a template.
    Check the instance's statements of status, behavior, location, and count
    against the code, configuration, and governing artifacts: a claim one of
    them contradicts is `DIVERGENT` (cite the source). In fix-mode, correct it
    only when the contradicting source is authoritative. A corrected artifact
-   makes the published pages that cite it stale (`publish_check.py check`).
+   makes the guide pages that cite it stale (`repoguide check`, or the agent's
+   own re-digest without it).
 5. Run voice conformance against the active profile, then classify each finding
    keyed to the relevant template, prompt, meta.yml, or voice-profile section
    using the Align taxonomy: `ALIGNED`, `INCOMPLETE`, `DIVERGENT`,
@@ -37,9 +42,11 @@ prompt, then edit resolvable findings in place.
 6. Produce updates: when the user invoked validate to fix, apply edits
    in place for every finding the template, prompt, metadata, or voice-profile
    comparison can resolve mechanically — typically `INCOMPLETE` findings
-   (missing required sections, stale frontmatter shape, renamed headings,
-   unsupported filler, or unscoped claims). For
+   (missing material content, unsupported filler, or unscoped claims). Do not
+   normalize frontmatter, status labels, or headings solely for template parity.
+   For
    findings classified as `DIVERGENT`, `UNDERSPECIFIED`, `STALE_PLAN`,
-   or `BLOCKED` — which need human judgment — report the evidence and a
-   concise next step instead of editing. When the
+   or `BLOCKED`, resolve ordinary drift from clear higher authority when edits
+   are authorized. Report evidence and ask for a decision only when unresolved
+   intent materially changes the solution. When the
    user invoked validate to audit, report each material non-`ALIGNED` finding.

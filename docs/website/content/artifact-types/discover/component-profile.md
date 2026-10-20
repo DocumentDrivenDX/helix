@@ -30,7 +30,6 @@ profile, so they are written for a reader outside the project.
 ddx:
   id: component-profile-postgresql
   type: component-profile
-  status: draft
   authoring:
     home: repo
 ---

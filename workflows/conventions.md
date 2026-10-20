@@ -29,6 +29,16 @@ mode, not a separate authority. Runtime-specific tracker semantics live in
 each runtime's install guide (for DDx,
 [docs/install/ddx.md](../docs/install/ddx.md)).
 
+## Material prerequisites
+
+Use `principles.md` §Living documents and material gaps. Activity input/exit
+gates and enforcers apply to the requested outcome and its real prerequisites.
+They do not require completing every artifact in an activity or collecting
+approval stamps. Reconcile relevant drift during authorized work. Use content
+and the authority hierarchy when links are absent; pause only for material
+uncertainty that existing intent cannot resolve. Explicit domain authorization
+and evidence needed to claim completion still apply.
+
 ## Documentation Voice
 
 Each sentence must contribute a requirement, decision, action, explanation, or
@@ -275,7 +285,7 @@ needed, permanently.
 
 The stub enters the repository when the document is created in the tool, not
 when it is finished. Downstream artifacts need a resolvable `ddx.id` to point
-at, and a checked-out artifact is what blocks their approval.
+at. A checkout matters only when unavailable current content affects their work.
 
 ```markdown
 ---
@@ -283,7 +293,6 @@ ddx:
   id: SD-004
   type: solution-design
   activity: design
-  status: draft
   authoring:
     home: external-tool
     state: checked-out
@@ -311,7 +320,6 @@ ddx:
   id: SD-004
   type: solution-design
   activity: design
-  status: draft
   authoring:
     home: external-tool
     state: checked-in
@@ -340,8 +348,8 @@ Three representations exist and each has one role:
 | `authoring.export` | Fidelity evidence. The committed original, for formatting the Markdown cannot carry. |
 | `authoring.export_sha256` | Freshness evidence. The digest of that original at check-in, so a stale body can be told from a current one. |
 
-Checking in does not approve the document. It makes approval possible; the
-document is still `draft` until it is reviewed like any other.
+Checking in makes the committed content available as living working intent.
+There is no separate document approval transition.
 
 ### Reading through a connector
 
@@ -350,8 +358,8 @@ mode may read the live document at `authoring.origin` instead of waiting
 for a check-in. That read satisfies the rule that governing artifacts are
 read before drafting; findings cite the origin and the live section. Three
 things do not change: the Markdown body stays the committed copy, a
-checked-out artifact stays not dependable for approval until it is checked
-in, and nothing writes through the connector. Declare
+checked-out artifact is not claimed current without reading its live source,
+and a read does not authorize writes through the connector. Declare
 `authoring.connector` so a reader knows which connector was used. Runtimes
 without the connector fall back to the checked-in body.
 
@@ -369,18 +377,12 @@ without the connector fall back to the checked-in body.
 `home` never changes in any of these. Reclassifying a document is a migration,
 handled deliberately, not one of these transitions.
 
-### Approval blocking
+### Source availability
 
-A checked-out artifact is present but not dependable — its ID resolves and its
-content is not current in the repository.
-
-- A checked-out artifact must not be `ddx.status: approved`.
-- A downstream artifact must not be approved while anything it depends on is
-  checked out.
-
-Long-lived checkouts are the failure mode to watch: a document checked out for
-a quarter blocks its dependants for a quarter, and nothing in the repository
-notices. Review open checkouts when an activity's exit gate is assessed.
+A checkout is source freshness information. Read the live source when its
+content matters. If it is unavailable, identify the particular requirement or
+decision that cannot be resolved and block only work that depends on it.
+Do not propagate a checkout into a blanket downstream approval block.
 
 ## Work-Item Conventions
 

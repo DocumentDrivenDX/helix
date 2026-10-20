@@ -7,7 +7,6 @@ ddx:
 
 # Stakeholder Map
 
-**Status**: [Draft | Review | Approved]
 **Last Updated**: [Date]
 
 ## Primary Stakeholders (High Influence, High Interest)

@@ -22,7 +22,7 @@ surfaces; the runtime does.
    enforcement limits from `workflows/references/work-item-first.md` in the
    existing execution contract; include verification and review in that ceiling.
 3. Name existing acceptance mappings, test-source citations and run reports for
-   completion under the verification practices. For buildable products, include
+   completion under the verification practices. For affected runtime boundaries, include
    observable end-to-end evidence against the running system when feasible, plus a claims-vs-reality
    check with zero phantom claims. See the in-tree
    `workflows/concerns/verification/practices.md`, or the

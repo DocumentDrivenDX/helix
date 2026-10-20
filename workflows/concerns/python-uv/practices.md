@@ -44,7 +44,7 @@
 - `pyright` — type check
 - `uv run pytest --cov` — tests with coverage
 - `pre-commit run --all-files` for the full gate
-- Complexity, statement, argument, and public-method ceilings, a file-size cap, and pyright `strict` on application code, per `code-shape-ceilings` (strict defaults for new projects; ceilings only go down)
+- Complexity, statement, and public-method ceilings, a file-size cap, and pyright `strict` on application code, per `code-shape-ceilings` (strict defaults for new projects; ceilings only go down)
 - Reject `os.environ`/`os.getenv` outside the settings module (ruff `TID251` banned-api on `os.getenv`/`os.environ`, ignored per-file for the settings module)
 
 ## Dependency Management

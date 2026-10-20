@@ -119,7 +119,7 @@ validation:
   pattern_checks:
     - pattern: "\\[TBD\\]|\\[TODO\\]|\\[NEEDS CLARIFICATION\\]"
       expected: 0
-      message: Remove all unresolved markers before approval
+      message: Resolve uncertainty that materially affects the scoped work
 
     - pattern: "EXPECT|quality|SLA|freshness"
       expected: ">=1"
@@ -225,11 +225,6 @@ references:
 workflow:
   creation_order: 1
   review_cycles: 2
-  approval_required: true
-  approvers:
-    - Data Engineering Lead
-    - Data Platform Owner
-    - Solution Architect
 
 tags:
   - data-engineering
