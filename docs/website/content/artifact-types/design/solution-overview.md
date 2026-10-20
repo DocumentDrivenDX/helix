@@ -22,7 +22,6 @@ Explain the overall solution to a new developer before they read detailed design
 ddx:
   id: helix.solution-overview
   type: solution-overview
-  status: draft
   authoring:
     home: repo
 ---

@@ -22,7 +22,6 @@ Help an unfamiliar developer run the project, locate a change, and verify it.
 ddx:
   id: helix.developer-guide
   type: developer-guide
-  status: draft
   authoring:
     home: repo
 ---
