@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-52 -10 1022 798" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">
+<rect x="-52" y="-10" width="1022" height="798" fill="#F7F8FA"/>
+<defs><marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 z" fill="#2F6F8F"/></marker></defs>
+<rect x="0.0" y="0.0" width="960.0" height="89.0" rx="5" fill="#EEF1F4" stroke="#D9DEE5"/>
+<rect x="6.0" y="7.0" width="52.4" height="17" fill="#EEF1F4"/>
+<text x="10.0" y="20.0" font-size="11.5" fill="#5E6875" font-weight="600" letter-spacing="0.06em">PEOPLE</text>
+<rect x="0.0" y="173.0" width="960.0" height="89.0" rx="5" fill="#EEF1F4" stroke="#D9DEE5"/>
+<rect x="6.0" y="180.0" width="82.0" height="17" fill="#EEF1F4"/>
+<text x="10.0" y="193.0" font-size="11.5" fill="#5E6875" font-weight="600" letter-spacing="0.06em">AGENT HOST</text>
+<rect x="0.0" y="390.0" width="960.0" height="89.0" rx="5" fill="#EEF1F4" stroke="#D9DEE5"/>
+<rect x="6.0" y="397.0" width="96.8" height="17" fill="#EEF1F4"/>
+<text x="10.0" y="410.0" font-size="11.5" fill="#5E6875" font-weight="600" letter-spacing="0.06em">HELIX PLUGIN</text>
+<rect x="0.0" y="629.0" width="960.0" height="89.0" rx="5" fill="#EEF1F4" stroke="#D9DEE5"/>
+<rect x="6.0" y="636.0" width="119.0" height="17" fill="#EEF1F4"/>
+<text x="10.0" y="649.0" font-size="11.5" fill="#5E6875" font-weight="600" letter-spacing="0.06em">YOUR REPOSITORY</text>
+<path d="M480.0,79.0 L480.0,131.0 L242.5,131.0 L242.5,203.0" fill="none" stroke="#5E6875" stroke-width="1.3" marker-end="url(#arrow)"/>
+<path d="M242.5,252.0 L242.5,304.0 L242.5,304.0 L242.5,420.0" fill="none" stroke="#5E6875" stroke-width="1.3" marker-end="url(#arrow)"/>
+<path d="M358.8,252.0 L358.8,348.0 L717.5,348.0 L717.5,252.0" fill="none" stroke="#5E6875" stroke-width="1.3" marker-end="url(#arrow)"/>
+<path d="M126.2,469.0 L126.2,521.0 L242.5,521.0 L242.5,659.0" fill="none" stroke="#5E6875" stroke-width="1.3" marker-end="url(#arrow)"/>
+<path d="M358.8,469.0 L358.8,543.0 L795.0,543.0 L795.0,659.0" fill="none" stroke="#5E6875" stroke-width="1.3" marker-end="url(#arrow)"/>
+<path d="M242.5,469.0 L242.5,565.0 L717.5,565.0 L717.5,469.0" fill="none" stroke="#5E6875" stroke-width="1.3" marker-end="url(#arrow)"/>
+<path d="M640.0,659.0 L640.0,587.0 L-24.0,587.0 L-24.0,326.0 L126.2,326.0 L126.2,252.0" fill="none" stroke="#5E6875" stroke-width="1.3" marker-end="url(#arrow)"/>
+<rect x="249.2" y="122.0" width="226.5" height="18" rx="3" fill="#F7F8FA" stroke="#D9DEE5"/>
+<text x="362.5" y="135.0" font-size="12" fill="#111418" text-anchor="middle">asks · intent enters as a request</text>
+<rect x="148.8" y="295.0" width="187.5" height="18" rx="3" fill="#F7F8FA" stroke="#D9DEE5"/>
+<text x="242.5" y="308.0" font-size="12" fill="#111418" text-anchor="middle">loads · one skill, any host</text>
+<rect x="5.0" y="317.0" width="272.0" height="18" rx="3" fill="#F7F8FA" stroke="#D9DEE5"/>
+<text x="141.0" y="330.0" font-size="12" fill="#111418" text-anchor="middle">governs execution · spec is the contract</text>
+<rect x="380.0" y="339.0" width="317.5" height="18" rx="3" fill="#F7F8FA" stroke="#D9DEE5"/>
+<text x="538.8" y="352.0" font-size="12" fill="#111418" text-anchor="middle">runs the guide&#x27;s checks · optional host tooling</text>
+<rect x="16.2" y="512.0" width="220.0" height="18" rx="3" fill="#F7F8FA" stroke="#D9DEE5"/>
+<text x="126.2" y="525.0" font-size="12" fill="#111418" text-anchor="middle">reads scope · bounds every write</text>
+<rect x="395.2" y="534.0" width="311.0" height="18" rx="3" fill="#F7F8FA" stroke="#D9DEE5"/>
+<text x="550.8" y="547.0" font-size="12" fill="#111418" text-anchor="middle">authors and reconciles · the record stays true</text>
+<rect x="343.2" y="556.0" width="278.5" height="18" rx="3" fill="#F7F8FA" stroke="#D9DEE5"/>
+<text x="482.5" y="569.0" font-size="12" fill="#111418" text-anchor="middle">reads type · shape comes from the catalog</text>
+<rect x="10.0" y="30.0" width="940.0" height="49.0" rx="4" fill="#FFFFFF" stroke="#D9DEE5" stroke-width="1.5"/>
+<text x="480.0" y="50.0" font-size="13.5" fill="#111418" text-anchor="middle" font-weight="600">Software team</text>
+<text x="480.0" y="67.0" font-size="11.5" fill="#5E6875" text-anchor="middle">sets intent</text>
+<rect x="10.0" y="203.0" width="465.0" height="49.0" rx="4" fill="#FFFFFF" stroke="#D9DEE5" stroke-width="1.5"/>
+<text x="242.5" y="223.0" font-size="13.5" fill="#111418" text-anchor="middle" font-weight="600">Agent runtime</text>
+<text x="242.5" y="240.0" font-size="11.5" fill="#5E6875" text-anchor="middle">model, tools, execution</text>
+<rect x="485.0" y="203.0" width="465.0" height="49.0" rx="4" fill="#FFFFFF" stroke="#D9DEE5" stroke-width="1.5"/>
+<text x="717.5" y="223.0" font-size="13.5" fill="#111418" text-anchor="middle" font-weight="600">repoguide</text>
+<text x="717.5" y="240.0" font-size="11.5" fill="#5E6875" text-anchor="middle">checks, views, site</text>
+<rect x="10.0" y="420.0" width="465.0" height="49.0" rx="4" fill="#FFFFFF" stroke="#2F6F8F" stroke-width="2"/>
+<text x="242.5" y="440.0" font-size="13.5" fill="#111418" text-anchor="middle" font-weight="600">Routing skill</text>
+<text x="242.5" y="457.0" font-size="11.5" fill="#5E6875" text-anchor="middle">resolves scope and mode</text>
+<rect x="485.0" y="420.0" width="465.0" height="49.0" rx="4" fill="#FFFFFF" stroke="#D9DEE5" stroke-width="1.5"/>
+<text x="717.5" y="440.0" font-size="13.5" fill="#111418" text-anchor="middle" font-weight="600">Artifact catalog</text>
+<text x="717.5" y="457.0" font-size="11.5" fill="#5E6875" text-anchor="middle">templates, prompts, rules</text>
+<rect x="10.0" y="659.0" width="465.0" height="49.0" rx="4" fill="#FFFFFF" stroke="#D9DEE5" stroke-width="1.5"/>
+<text x="242.5" y="679.0" font-size="13.5" fill="#111418" text-anchor="middle" font-weight="600">.helix.yml</text>
+<text x="242.5" y="696.0" font-size="11.5" fill="#5E6875" text-anchor="middle">project scope</text>
+<rect x="485.0" y="659.0" width="465.0" height="49.0" rx="4" fill="#FFFFFF" stroke="#D9DEE5" stroke-width="1.5"/>
+<text x="717.5" y="679.0" font-size="13.5" fill="#111418" text-anchor="middle" font-weight="600">Project documents</text>
+<text x="717.5" y="696.0" font-size="11.5" fill="#5E6875" text-anchor="middle">intent, design, tests</text>
+</svg>
