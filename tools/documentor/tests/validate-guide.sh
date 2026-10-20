@@ -40,6 +40,19 @@ for page in index about using whats-new; do $rg review "$p/docs/guide/user/$page
 grep -Eq "reviewed=[0-9-]{10}/evaluator" "$p/docs/guide/user/about.md" || fail "review should stamp the header"
 $rg check --root "$p" >"$tmpdir/out" 2>&1 || fail "a complete, evaluated guide should pass: $(cat "$tmpdir/out")"
 
+# A written page's brief is what the agent gets: the page, its reader, the voice, the writing pass.
+$rg prompt user/about --root "$p" >"$tmpdir/out" 2>&1 || fail "prompt should print the brief: $(cat "$tmpdir/out")"
+grep -q "^## The page" "$tmpdir/out" && grep -q "the writing pass" "$tmpdir/out" || fail "the brief should carry the page and the writing pass"
+$rg prompt user/about --reviewer --root "$p" | grep -q "VERDICT" || fail "the reviewer's brief should ask for a verdict"
+$rg prompt user/nonesuch --root "$p" >/dev/null 2>&1 && fail "prompt should refuse a page the guide does not plan"
+# A block written for another contract version is refused, never misread.
+cp "$p/.helix.yml" "$tmpdir/helix-schema.bak"
+sed -i.bak 's/^  schema: 1$/  schema: 2/' "$p/.helix.yml"
+grep -q "schema: 2" "$p/.helix.yml" || printf '  schema: 2\n' >>"$p/.helix.yml"
+$rg status --root "$p" >"$tmpdir/out" 2>&1 && fail "a schema documentor does not read should be refused"
+grep -q "reads schema 1" "$tmpdir/out" || fail "expected the schema refusal: $(cat "$tmpdir/out")"
+cp "$tmpdir/helix-schema.bak" "$p/.helix.yml"
+
 # A changed source makes the written page stale, and a new plug-in the generated one.
 printf '# Vision\n\n## Mission\n\nReview and pay claims.\n' >"$p/docs/helix/01-frame/vision.md"
 $rg check --root "$p" >"$tmpdir/out" 2>&1 && fail "a changed source should fail the check"

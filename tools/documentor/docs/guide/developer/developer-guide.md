@@ -1,14 +1,14 @@
 <!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=agent-opus reviewed=2026-10-20/second-reader-site-check/2b4138b705c511f1 -->
 <!-- helix:source pyproject.toml sha256:95efaa59d25e6f0a -->
-<!-- helix:source justfile sha256:8b9f44abbdc7b4e0 -->
-<!-- helix:source ../../.github/workflows/documentor.yml sha256:06f939b8b1b71ec1 -->
+<!-- helix:source justfile sha256:591332b0635536f2 -->
+<!-- helix:source ../../.github/workflows/documentor.yml sha256:d66814968e1608c1 -->
 <!-- helix:source README.md#development sha256:ec26429513feaa3e -->
 <!-- helix:source src/documentor/__init__.py sha256:b5853dda7e0aef19 -->
-<!-- helix:source src/documentor/cli.py sha256:63fa5bcbdc82b569 -->
+<!-- helix:source src/documentor/cli.py sha256:744e33417eca1c19 -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
-<!-- helix:source tests/validate-package.sh sha256:69be8ff75ae2184c -->
+<!-- helix:source tests/validate-package.sh sha256:2fb8a2f16d284132 -->
 <!-- helix:source tests/validate-publish.sh sha256:978673c6cb51fb8f -->
-<!-- helix:source scripts/sync-helix-catalog.py sha256:d626e57d6a7c91b6 -->
+<!-- helix:source ../../scripts/sync_references.py sha256:4e0c6447084094b5 -->
 # Developer guide
 
 ## Quick start
@@ -59,7 +59,7 @@ The package is in `src/documentor`, the shell and Python tests are in `tests`, a
 | `src/documentor/catalog/helix/` | Audiences and voice copied from HELIX; do not edit by hand |
 | `src/documentor/catalog/ci/github-actions.yml` | The CI template that target repositories copy |
 | `src/documentor/catalog/themes/` | Site themes |
-| `scripts/sync-helix-catalog.py` | Copies the audiences and voice from the HELIX repository's own `workflows/` |
+| `src/documentor/catalog/helix/` | The packaged HELIX catalog, written by HELIX's `scripts/sync_references.py --subset documentor`; a run inside the HELIX checkout reads `workflows/` directly |
 | `tests/` | `validate-*.sh` end-to-end scripts and `tests/python/` unit tests |
 | `docs/helix/` | Product vision, PRD, ADRs, and plans |
 

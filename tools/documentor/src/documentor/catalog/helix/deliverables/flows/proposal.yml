@@ -1,0 +1,120 @@
+# proposal flow, split out of deck-flows.yml (workflows/deliverables/flows/) so
+# choosing a flow by occasion does not require loading every flow. See
+# ../deck-craft.md for the reasoning and sources behind this flow's arc.
+
+purpose: Win approval and resources for a course of action.
+audience:
+  posture: >-
+    Accountable for the spend, comparing this against alternatives and against doing nothing.
+  decision: Approve, approve with conditions, defer, or reject.
+keep_when_short:
+- recommendation
+- complication
+- recommended-option
+- return
+- ask
+beats:
+- name: recommendation
+  answers: What are you asking us to approve, and what do we get?
+  required: true
+  patterns:
+  - title
+  guidance: Answer first; the title is the recommendation and its main condition.
+- name: situation
+  answers: What do we all already agree is true?
+  required: true
+  patterns:
+  - claim-evidence
+  - stat-callout
+  guidance: >-
+    One slide, only facts the audience accepts; it exists to set up the complication.
+- name: complication
+  answers: What changed, or what is at stake if nothing changes?
+  required: true
+  patterns:
+  - claim-evidence
+  - stat-callout
+  - timeline
+  guidance: The cost of inaction, with a number and a date.
+- name: options-considered
+  answers: What could we do, and why were the others set aside?
+  required: true
+  patterns:
+  - table
+  - two-column-comparison
+  guidance: >-
+    Two to four options including doing nothing, scored on the criteria the audience uses.
+- name: recommended-option
+  answers: What exactly does the recommended option involve?
+  required: true
+  patterns:
+  - claim-evidence
+  - process-flow
+  - diagram
+  guidance: >-
+    Scope and non-scope in the same breath; the mechanism in three to five steps.
+- name: return
+  answers: What do we get back, and when?
+  required: true
+  patterns:
+  - stat-callout
+  - claim-evidence
+  guidance: >-
+    One return figure with its baseline and the date it lands; the model in the notes.
+- name: cost
+  answers: What does it cost in money, people, and time?
+  required: true
+  patterns:
+  - table
+  - stat-callout
+  guidance: Total cost of the option, phased if it is phased; no hidden run costs.
+- name: risks
+  answers: What could make this fail, and what will we do about it?
+  required: true
+  patterns:
+  - risk-matrix
+  guidance: Three to six risks with likelihood, impact, and a named mitigation.
+- name: plan
+  answers: What happens first, and when will we know it is working?
+  required: false
+  patterns:
+  - timeline
+  - process-flow
+  guidance: Milestones with the first checkpoint the approver can use to stop it.
+- name: ask
+  answers: What decision do you need today, and what happens without it?
+  required: true
+  patterns:
+  - ask-next-steps
+  guidance: >-
+    The approval sought, the next steps with owners and dates, the cost of no decision.
+- name: sources
+  answers: Where does each figure come from?
+  required: true
+  patterns:
+  - appendix-sources
+  guidance: Each figure maps to the business case or analysis section behind it.
+transitions:
+- >-
+  The title states the answer; situation and complication explain why the question arose.
+- >-
+  Complication raises "what are the choices"; options-considered answers and points at the
+  recommendation.
+- >-
+  Recommended-option raises "is it worth it"; return and cost answer in that order.
+- Cost raises "what could go wrong"; risks answer with mitigations.
+- >-
+  The ask repeats the title's recommendation with the first checkpoint as the condition.
+leave_out:
+- >-
+  Options nobody would choose, added to make the recommendation look good.
+- Benefits that cannot be tied to a figure or a date.
+- Implementation detail beyond the first checkpoint.
+- Background the approver already has.
+checklist:
+- >-
+  The title states the recommendation; a reader of titles alone can approve or reject.
+- Doing nothing appears among the options with its cost.
+- Return and cost are on separate slides with sourced figures.
+- Every risk has a mitigation and an owner.
+- The ask names the decision and what happens without it.

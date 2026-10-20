@@ -38,9 +38,45 @@ def catalog() -> Path:
     return Path(str(resources.files("documentor") / "catalog"))
 
 
+_CATALOG_OVERRIDE: Path | None = None
+
+
+def set_catalog(path: str | Path | None) -> None:
+    """Use this directory, laid out like HELIX's `workflows/`, as the HELIX half of the catalog."""
+    global _CATALOG_OVERRIDE
+    _CATALOG_OVERRIDE = Path(path).resolve() if path else None
+
+
+def _is_helix_catalog(path: Path) -> bool:
+    return (path / "voice.yml").is_file() and (path / "publish" / "audiences").is_dir()
+
+
+def helix_catalog() -> Path:
+    """The HELIX half of the catalog (audiences, voice, the writing pass, deliverables), laid out like
+    `workflows/`: `--catalog` or `DOCUMENTOR_CATALOG` when given; else the HELIX checkout this tool
+    sits in, read live; else the copy packaged with the tool (`scripts/sync_references.py --subset
+    documentor` writes it, from the same tree, at the same release)."""
+    import os
+
+    for given in (_CATALOG_OVERRIDE, os.environ.get("DOCUMENTOR_CATALOG")):
+        if given:
+            path = Path(given).resolve()
+            if not _is_helix_catalog(path):
+                raise SystemExit(f"documentor: {path} is not a HELIX catalog (no voice.yml and publish/audiences)")
+            return path
+    for parent in Path(__file__).resolve().parents:
+        if _is_helix_catalog(parent / "workflows"):
+            return parent / "workflows"
+    return catalog() / "helix"
+
+
 def helix_version() -> str:
-    marker = catalog() / "helix" / "HELIX_VERSION"
-    return marker.read_text(encoding="utf-8").strip() if marker.is_file() else "unsynced"
+    """Which HELIX catalog this run reads: a path when live or given, else the packaged release."""
+    source = helix_catalog()
+    if source != catalog() / "helix":
+        return f"live {source}"
+    marker = source / "HELIX_VERSION"
+    return "packaged " + (marker.read_text(encoding="utf-8").strip() if marker.is_file() else "unsynced")
 
 
 def find_root(start: Path) -> Path:
@@ -153,7 +189,7 @@ def matching(files: list[str], pattern: str) -> list[str]:
 # --- audiences and traits ---------------------------------------------------------------------------
 
 def load_audience(audience_id: str) -> dict:
-    return load_yaml(catalog() / "helix" / "audiences" / f"{audience_id}.yml") or {}
+    return load_yaml(helix_catalog() / "publish" / "audiences" / f"{audience_id}.yml") or {}
 
 
 def trait_dirs(config: dict, root: Path | None) -> list[Path]:

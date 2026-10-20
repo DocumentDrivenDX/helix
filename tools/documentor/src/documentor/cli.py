@@ -13,11 +13,14 @@ Usage:
     documentor check   [--root DIR]                the CI gate: regenerate in memory, fail on anything behind
     documentor review  PAGE --by NAME [--root DIR] record that a person or an evaluating agent read the page
                                                   against its sources and its task
+    documentor prompt  PAGE [--reviewer] [--root DIR]
+                                                  the brief a writer (or an evaluator) of a written page gets
     documentor adopt   PAGE --audience ID [--kind KIND] [--source SPEC ...] [--root DIR]
                                                   bring a hand-written page under the guide, unchanged
     documentor check-pages | stamp | detect | generate | site | views | present | estate ...
                                                   the tools, each with its own --help
     documentor --version
+    documentor --catalog DIR ...                  read the HELIX catalog (audiences, voice) from DIR
 
 A guide is every page the repository's readers need (HELIX's `publishing.md`). Its shape comes from
 `.helix.yml`: the audiences (readers), the traits (what the repository is, which add pages and
@@ -55,6 +58,7 @@ from documentor.lib import (
     audiences,
     config_of,
     helix_version,
+    set_catalog,
     incidental,
     load_traits,
     plan,
@@ -285,7 +289,7 @@ def adopt(root: Path, page: Path, audience: str, kind: str, sources: list[str]) 
 def guide_main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(prog="documentor", description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("command", choices=("init", "status", "build", "write", "check", "review", "adopt"))
+    parser.add_argument("command", choices=("init", "status", "build", "write", "check", "review", "adopt", "prompt"))
     parser.add_argument("page", nargs="?", type=Path)
     parser.add_argument("--root", type=Path, default=Path.cwd())
     parser.add_argument("--write", action="store_true")
@@ -300,6 +304,7 @@ def guide_main(argv: list[str]) -> int:
     parser.add_argument("--reviewer-model", default="", help="write: the evaluator's model")
     parser.add_argument("--agent", default="", help="write: the agent command; {model} is replaced")
     parser.add_argument("--dry-run", action="store_true", help="write: print the prompts, call nothing")
+    parser.add_argument("--reviewer", action="store_true", help="prompt: the evaluator's brief instead of the writer's")
     args = parser.parse_args(argv)
     root = args.root.resolve()
     if args.command == "init":
@@ -313,6 +318,11 @@ def guide_main(argv: list[str]) -> int:
             parser.error("adopt needs PAGE and --audience")
         return adopt(root, args.page.resolve(), args.audience, args.kind, args.source)
     config = config_of(root)
+    schema = (config.get("publish") or {}).get("schema", 1)
+    if schema != SCHEMA:
+        print(f"documentor: .helix.yml publish.schema is {schema}; this documentor reads schema {SCHEMA}. "
+              "Use the documentor from the same HELIX release as the block.", file=sys.stderr)
+        return 2
     if not audiences(config):
         print("No guide yet: run `documentor init` first.", file=sys.stderr)
         return 2
@@ -321,6 +331,18 @@ def guide_main(argv: list[str]) -> int:
     except KeyError as error:
         print(f"documentor: {error}", file=sys.stderr)
         return 2
+    if args.command == "prompt":
+        from documentor import write
+
+        wanted = str(args.page or "")
+        chosen = [p for p in pages if wanted in (p.key, p.path, str(Path(p.path).with_suffix("")))] if wanted else []
+        if not chosen or chosen[0].work != "written":
+            print("documentor prompt: name one written page, as audience/id or its path "
+                  f"({', '.join(p.key for p in pages if p.work == 'written')})", file=sys.stderr)
+            return 2
+        page = chosen[0]
+        print(write.reviewer_prompt(page, root) if args.reviewer else write.writer_prompt(page, pages, config, root), end="")
+        return 0
     written = 0
     if args.command in ("build", "write"):
         from documentor import write
@@ -363,6 +385,13 @@ def guide_main(argv: list[str]) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
+    if "--catalog" in argv:
+        index = argv.index("--catalog")
+        if index + 1 >= len(argv):
+            print("documentor: --catalog needs a directory laid out like HELIX's workflows/", file=sys.stderr)
+            return 2
+        set_catalog(argv[index + 1])
+        del argv[index:index + 2]
     if argv[:1] in (["--version"], ["-V"]):
         print(f"documentor {__version__} (HELIX catalog {helix_version()})")
         return 0

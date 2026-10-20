@@ -2,10 +2,10 @@
 <!-- helix:gap artifact:architecture -->
 <!-- helix:source docs/helix/00-discover/product-vision.md sha256:53b51880ca06cad7 -->
 <!-- helix:source docs/helix/02-design/adr/ADR-001-a-repository-guide-is-detected-generated-written-evaluated-and-checked.md#decision sha256:d3fd98aa3f21622b -->
-<!-- helix:source src/documentor/cli.py sha256:63fa5bcbdc82b569 -->
-<!-- helix:source src/documentor/lib.py sha256:651c08a95ae80112 -->
-<!-- helix:source src/documentor/write.py sha256:8ad5661054a3cc34 -->
-<!-- helix:source justfile sha256:8b9f44abbdc7b4e0 -->
+<!-- helix:source src/documentor/cli.py sha256:744e33417eca1c19 -->
+<!-- helix:source src/documentor/lib.py sha256:093a891d0f8bcf48 -->
+<!-- helix:source src/documentor/write.py sha256:e132cadcaf020701 -->
+<!-- helix:source justfile sha256:591332b0635536f2 -->
 # Overview
 
 ## What it is
@@ -40,7 +40,7 @@ The code is one package, `src/documentor/`, with one module per step of the pipe
 | `src/documentor/site.py` | Emits the pages into an existing mkdocs or Hugo site, or writes a new one |
 | `src/documentor/architecture/` | The architecture model, its views, the deployment drawing, presentations, and the estate view |
 
-The catalog is package data that the code reads but does not define. `src/documentor/catalog/traits/` holds the traits, and `src/documentor/catalog/helix/` holds the audiences and voice rules that `scripts/sync-helix-catalog.py` copies from the HELIX repository's own `workflows/`. `src/documentor/catalog/themes/` and `src/documentor/catalog/ci/github-actions.yml` hold the site themes and the CI template.
+The catalog is package data that the code reads but does not define. `src/documentor/catalog/traits/` holds the traits, and `src/documentor/catalog/helix/` holds the audiences, voice rules, and writing pass copied from HELIX's `workflows/` for installs; inside the HELIX checkout documentor reads `workflows/` directly, and `--catalog` names another copy. `src/documentor/catalog/themes/` and `src/documentor/catalog/ci/github-actions.yml` hold the site themes and the CI template.
 
 A new kind of repository usually needs a trait, not code. A new reference page from a structured source needs a generator in `src/documentor/generate.py`. A new check belongs in `src/documentor/check.py`.
 

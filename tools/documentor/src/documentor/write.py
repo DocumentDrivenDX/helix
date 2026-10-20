@@ -23,7 +23,7 @@ import sys
 from pathlib import Path
 
 from documentor import check
-from documentor.lib import GAP, HEADER, SOURCE, PagePlan, catalog, helix_root, load_audience, load_yaml, publish_out
+from documentor.lib import GAP, HEADER, SOURCE, PagePlan, catalog, helix_catalog, helix_root, load_audience, load_yaml, publish_out
 
 COMMAND = "claude -p --model {model} --allowedTools Read,Glob,Grep --output-format text"
 WRITER, REVIEWER = "opus", "sonnet"
@@ -63,7 +63,7 @@ def voice_of(page: PagePlan) -> str:
 
 
 def _voice_rules(profile: str) -> list[str]:
-    voice = load_yaml(catalog() / "helix" / "voice.yml") or {}
+    voice = load_yaml(helix_catalog() / "voice.yml") or {}
     entry = (voice.get("profiles") or {}).get(profile) or {}
     limits = entry.get("limits") or {}
     lines = [f"- Sentences of at most {limits.get('sentence_words')} words; paragraphs and list items of at most "
@@ -88,6 +88,26 @@ def _hints(page: PagePlan) -> list[str]:
         extra += [hint["note"]] if hint.get("note") else []
         lines.append(f"- {kind}: {what}" + (f" ({'; '.join(extra)})" if extra else ""))
     return lines
+
+
+def _writing_pass() -> list[str]:
+    """The writing pass's "Information only" and "What the pass keeps" rules and its rewrite step,
+    from HELIX's writing-pass.md, so an agent writes to the same standard a person follows."""
+    import re
+
+    path = helix_catalog() / "references" / "writing-pass.md"
+    if not path.is_file():
+        return []
+    text = path.read_text(encoding="utf-8")
+    wanted = []
+    for heading in ("Information only", "What the pass keeps"):
+        match = re.search(rf"^## {re.escape(heading)}\n(.*?)(?=^## |\Z)", text, re.M | re.S)
+        if match:
+            wanted += ["", f"## {heading} (the writing pass)", match.group(1).strip()]
+    rewrite = re.search(r"^5\. \*\*Rewrite what is left\.\*\*\n(.*?)(?=^6\. )", text, re.M | re.S)
+    if rewrite:
+        wanted += ["", "## Rewriting (the writing pass)", rewrite.group(1).strip()]
+    return wanted
 
 
 def writer_prompt(page: PagePlan, pages: list[PagePlan], config: dict, root: Path,
@@ -116,6 +136,7 @@ def writer_prompt(page: PagePlan, pages: list[PagePlan], config: dict, root: Pat
     lines += [f"HELIX artifacts (vision, PRD, architecture, ADRs) live under {helix_root(config)}/."
               " When a hint names an artifact the repository does not have, write from the code and record the gap."]
     lines += ["", "## Voice"] + _voice_rules(voice_of(page))
+    lines += _writing_pass()
     lines += ["", "## Rules the page is checked against",
               "- Every fact comes from a file you read. Do not invent commands, options, files, or behaviour.",
               "- A path in backticks that contains a slash must exist, relative to the repository root.",

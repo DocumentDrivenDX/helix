@@ -38,6 +38,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from documentor.lib import (
+    helix_catalog,
     CREATES,
     FENCE,
     HEADER,
@@ -280,7 +281,7 @@ def check_tests(page: Page, root: Path, findings: Findings) -> None:
 def check_prose(page: Page, strict: bool, findings: Findings) -> None:
     from documentor import prose
 
-    voice = load_yaml(catalog() / "helix" / "voice.yml") or {}
+    voice = load_yaml(helix_catalog() / "voice.yml") or {}
     limits = prose.limits_for(voice, page.meta.get("voice", "onboarding"), int(page.meta.get("budget", 0)))
     if limits is None:
         return

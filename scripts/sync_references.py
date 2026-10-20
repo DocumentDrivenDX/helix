@@ -28,10 +28,17 @@ between generated references and `workflows/` is a validation failure.
 
 Usage:
     python3 scripts/sync_references.py [OUTPUT_DIR]
+    python3 scripts/sync_references.py --subset documentor [--check] [OUTPUT_DIR]
 
 OUTPUT_DIR defaults to dist/plugin-package/helix/skills/helix/references.
 validate-skills.sh passes a temp dir and diffs the generated package floor
 against that expected output.
+
+`--subset documentor` writes the part of the catalog the documentation tool reads, in the same
+layout as `workflows/` (publish/, voice.yml, deliverables/, the two references the guide and the
+writing pass live in), to tools/documentor/src/documentor/catalog/helix by default, with a
+HELIX_VERSION file. `--check` writes nothing and fails when that copy differs from `workflows/`.
+One script defines every packaged floor, so the skill's and the tool's cannot drift apart.
 """
 from __future__ import annotations
 
@@ -87,8 +94,66 @@ def sync(out_dir: Path) -> int:
     return 0
 
 
+DOCUMENTOR_OUT = REPO_ROOT / "tools" / "documentor" / "src" / "documentor" / "catalog" / "helix"
+DOCUMENTOR_FILES = [
+    ("workflows/voice.yml", "voice.yml"),
+    ("workflows/references/publishing.md", "references/publishing.md"),
+    ("workflows/references/writing-pass.md", "references/writing-pass.md"),
+]
+DOCUMENTOR_TREES = [
+    ("workflows/publish", "publish"),
+    ("workflows/deliverables", "deliverables"),
+]
+
+
+def _documentor_expected() -> dict[str, bytes]:
+    """Every file the documentor floor holds, by its path in the floor, with its bytes."""
+    found: dict[str, bytes] = {}
+    for src_rel, dst in DOCUMENTOR_FILES:
+        found[dst] = (REPO_ROOT / src_rel).read_bytes()
+    for src_rel, dst in DOCUMENTOR_TREES:
+        for path in sorted((REPO_ROOT / src_rel).rglob("*")):
+            if path.is_file() and "__pycache__" not in path.parts:
+                found[f"{dst}/{path.relative_to(REPO_ROOT / src_rel).as_posix()}"] = path.read_bytes()
+    return found
+
+
+def sync_documentor(out_dir: Path, check: bool) -> int:
+    expected = _documentor_expected()
+    if check:
+        present = {p.relative_to(out_dir).as_posix(): p.read_bytes() for p in out_dir.rglob("*")
+                   if p.is_file() and p.name != "HELIX_VERSION" and "__pycache__" not in p.parts} if out_dir.is_dir() else {}
+        stale = sorted(k for k in expected if present.get(k) != expected[k])
+        extra = sorted(k for k in present if k not in expected)
+        for k in stale:
+            print(f"stale: {k}", file=sys.stderr)
+        for k in extra:
+            print(f"extra: {k}", file=sys.stderr)
+        if stale or extra:
+            print("the documentor floor differs from workflows/; run scripts/sync_references.py --subset documentor",
+                  file=sys.stderr)
+            return 1
+        print(f"documentor floor matches workflows/: {len(expected)} files")
+        return 0
+    if out_dir.exists():
+        shutil.rmtree(out_dir)
+    for rel, data in expected.items():
+        target = out_dir / rel
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(data)
+    (out_dir / "HELIX_VERSION").write_text("in-repo\n", encoding="utf-8")
+    print(f"synced documentor floor -> {out_dir.relative_to(REPO_ROOT)}: {len(expected)} files")
+    return 0
+
+
 def main(argv: list[str]) -> int:
-    out_dir = Path(argv[1]).resolve() if len(argv) > 1 else DEFAULT_OUT
+    args = argv[1:]
+    if args[:2] == ["--subset", "documentor"]:
+        rest = args[2:]
+        check = "--check" in rest
+        rest = [a for a in rest if a != "--check"]
+        return sync_documentor(Path(rest[0]).resolve() if rest else DOCUMENTOR_OUT, check)
+    out_dir = Path(args[0]).resolve() if args else DEFAULT_OUT
     return sync(out_dir)
 
 
