@@ -431,6 +431,6 @@ and describes the resolution for each.
 
 Start with the [solution overview](/artifacts/solution-overview/), follow the
 [end-to-end authoring walkthrough](/artifacts/architecture-walkthrough/), then use the
-[developer guide](/artifacts/developer-guide/) for a first contribution.
+[developer guide](https://github.com/DocumentDrivenDX/helix/blob/main/docs/guide/developer/developer-guide.md) for a first contribution.
 These explain this architecture and link to source evidence; structural
 decisions remain here and in the governing contracts and ADRs.

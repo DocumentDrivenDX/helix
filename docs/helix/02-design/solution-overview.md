@@ -12,7 +12,7 @@ ddx:
 
 HELIX gives software teams and their agents a shared set of documents and
 rules for keeping product intent, designs, tests, and implementation aligned.
-Start here to understand the system; use the [developer guide](../04-build/developer-guide.md)
+Start here to understand the system; use the [developer guide](../../guide/developer/developer-guide.md)
 to make a change. This is an explanatory view of the current repository.
 [Architecture](architecture.md) governs system structure; the
 [product requirements](../01-frame/prd.md) govern product scope.

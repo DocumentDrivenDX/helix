@@ -16,7 +16,7 @@ upstream sources and must be edited there, not here:
 
 - `artifact-types/` and `concerns/` come from `workflows/` via
   `scripts/generate-reference.py`.
-- `artifacts/` comes from `docs/helix/` via `scripts/publish-artifacts.py`.
+- `artifacts/` comes from `docs/helix/` via `documentor record` (the `publish.site` block in `.helix.yml`).
 - `research/` comes from `docs/resources/` via `scripts/publish-resources.py`.
 
 The rules below are enforced mechanically by Vale (`.vale.ini`, style package

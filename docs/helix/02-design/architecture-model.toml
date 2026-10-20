@@ -161,7 +161,7 @@ label = "runs the guide's checks"
 why = "optional host tooling"
 status = "built"
 note = "Detection, generated pages, views, the gate, and the site."
-evidence = [{ path = "workflows/modes/guide.md", contains = "`documentor --version` says whether the host has it" }]
+evidence = [{ path = "workflows/modes/guide.md", contains = "`documentor doctor` says what the host has" }]
 
 [[journey]]
 id = "request"

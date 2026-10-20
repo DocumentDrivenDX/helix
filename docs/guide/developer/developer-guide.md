@@ -1,44 +1,30 @@
----
-title: "HELIX developer guide"
-slug: developer-guide
-weight: 560
-activity: "Build"
-source: "04-build/developer-guide.md"
-generated: true
----
-
-> **Example from HELIX's own docs.** This generated page comes from `docs/helix/`. Use it to see the method in practice; start with the [artifact-type catalog](/artifact-types/) for reusable templates. Historical plans and reports may describe retired architecture.
-
-> **Source identity** (from `04-build/developer-guide.md`):
-
-```yaml
-ddx:
-  id: helix.developer-guide
-  type: developer-guide
-  status: draft
-  authoring:
-    home: repo
-```
-
+<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding existing=yes reviewed=2026-10-20/agent-sonnet/0aa16539e0c776e0 -->
+<!-- helix:source docs/helix/02-design/solution-overview.md sha256:98c59b6843712495 -->
+<!-- helix:source CONTRIBUTING.md sha256:d0027006597fad67 -->
+<!-- helix:source justfile sha256:d3e5861049a16f1f -->
 # HELIX developer guide
 
 ## Start here
 
 Your first contribution should leave the canonical content, generated outputs,
-and validation consistent. Read the [solution overview](/artifacts/solution-overview/)
-and [walkthrough](/artifacts/architecture-walkthrough/) first.
-[AGENTS.md](https://github.com/DocumentDrivenDX/helix/blob/main/AGENTS.md) governs repository work;
-[Architecture](/artifacts/architecture/) defines system boundaries.
+and validation consistent. Read the [solution overview](../../helix/02-design/solution-overview.md)
+and [walkthrough](../../helix/02-design/architecture-walkthrough.md) first.
+[AGENTS.md](../../../AGENTS.md) governs repository work;
+[Architecture](../../helix/02-design/architecture.md) defines system boundaries.
 
 ## Prerequisites and setup
 
-Clone the repository and run commands from its root. Use Git, Bash, Python 3.10+
-with PyYAML, and `just` for the core content workflow. The full suite also uses
-Node with `pptxgenjs`, LibreOffice, and `pdftoppm` for deck rendering; Hugo and
-Node support website work. Individual validation scripts expose further lane
-requirements; inspect their failure output before claiming full validation.
-Host installation is separate: follow [docs/install/README.md](https://github.com/DocumentDrivenDX/helix/blob/main/docs/install/README.md).
-For Claude Code, `claude --plugin-dir /path/to/helix` loads the checkout.
+Clone the repository and run commands from its root. Use Git, Bash, Python 3.11+
+with PyYAML, `uv`, and `just` for the core content workflow. The full suite also renders
+decks through documentor; `uv run --project tools/documentor documentor doctor` lists the Node, LibreOffice, and
+`pdftoppm` it needs. Hugo and Node support website work.
+
+Individual validation scripts expose further lane requirements. Inspect their
+failure output before claiming full validation.
+
+Host installation is separate: follow [docs/install/README.md](../../install/README.md).
+For Claude Code, `claude --plugin-dir /path/to/helix` loads the checkout; in that
+session, invoke a mode with `/helix <mode>`, for example `/helix align`.
 Project-local skill symlinks also point at the source skill.
 
 ```bash
@@ -51,6 +37,7 @@ bash tests/validate-skills.sh
 Success means the skills validator exits zero. This checks content and packaging
 contracts; it does not prove that a live model will follow every instruction.
 No model credentials are needed for deterministic repository checks.
+
 If `import yaml` fails, install PyYAML in your chosen Python environment and
 repeat the check. With `uv` available, `uv run --with pyyaml python3` supplies
 that dependency; run the commands below in the same environment, for example
@@ -70,8 +57,8 @@ that message rather than treating it as rendered evidence.
 | Packaging | `scripts/build-plugin-package.sh`, `scripts/sync_references.py` | Temporary package validated by package tests |
 | Microsite | `docs/website/`, `website/` | Hugo build; generated pages come from scripts |
 
-Generated package references belong in package output, not in source
-`skills/helix/references/`. Preserve existing document frontmatter when editing.
+Generated package references belong in package output, never in the skill's
+source tree. Preserve existing document frontmatter when editing.
 
 ## First contribution
 
@@ -108,8 +95,8 @@ not an unfilled copy of the template.
 ### Change project documentation
 
 Edit the instance under `docs/helix/`, preserving its identity and unknown
-frontmatter. Publish updated instances with `python3 scripts/publish-artifacts.py`.
-The overview and this guide explain existing authority; structural decisions
+frontmatter. Publish updated instances with `uv run --project tools/documentor documentor record --root .`.
+The overview and the developer guide explain existing authority; structural decisions
 belong in Architecture or an architecture decision record (ADR).
 
 ### Change routing or packaging
@@ -127,16 +114,9 @@ with `scripts/build-plugin-package.sh`; do not hand-edit generated references.
 | Type sections fail validation | `python3 scripts/helix_validate_artifact_meta.py` | Compare metadata with template headings |
 | Packaged behavior differs | `bash tests/validate-plugin-package.sh` | Check generated references against canonical workflows |
 | Catalog cannot resolve | `bash tests/validate-plugin-catalog-resolution.sh` | Inspect the skill's catalog fall-through rules |
-| Website links look wrong | Local URL includes `/helix/` | Use `bash website/scripts/serve-local.sh` |
+| Website links look wrong | Local URL includes `/helix/` | Use `bash website/scripts/serve-local.sh` (needs Hugo; serves `http://eitri:1315/helix/`) |
 | Full gate stops | First failing command in `just test` | Resolve that lane's prerequisite or content failure; rerun it |
 
 Required repository gate: `just test` and `git diff --check`. Pre-commit hooks
 remain enabled. Deployment and live host integration have separate install
 runbooks; deterministic checks do not prove production or model behavior.
-
-## Maintenance and feedback
-
-Contributors maintain this guide with changes to prerequisites, paths,
-generation steps, and validation gates. Before calling onboarding proven,
-have an unfamiliar developer follow setup and make the first contribution;
-record where they needed help. The current pilot is repository-checked only.

@@ -1,7 +1,7 @@
 # Contributing to HELIX
 
 Read [AGENTS.md](AGENTS.md) for repository policy and the
-[developer guide](docs/helix/04-build/developer-guide.md) for setup, repository
+[developer guide](docs/guide/developer/developer-guide.md) for setup, repository
 navigation, first contribution, debugging, and verification commands.
 
 Start with the [solution overview](docs/helix/02-design/solution-overview.md)

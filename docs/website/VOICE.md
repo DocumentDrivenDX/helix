@@ -148,7 +148,7 @@ Generated visible copy is still public copy. Fix it in the source generator or
 upstream source document, not by hand-editing generated output.
 
 - `artifact-types/` and `concerns/` copy comes from `workflows/`.
-- `artifacts/` copy comes from `scripts/publish-artifacts.py` and source
+- `artifacts/` copy comes from `documentor record` and source
   documents under `docs/helix/`.
 - `research/` copy comes from `docs/resources/`.
 

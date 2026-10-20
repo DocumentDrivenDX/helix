@@ -87,7 +87,7 @@ To improve the decomposition instructions, edit the Solution Design type's
 prompt/template/example together. Change routing only in the public skill and
 its mode contracts. Change validation mechanics in the packaged validator and
 its tests. Regenerate the graph after changing metadata relationships.
-Use the [developer guide](/artifacts/developer-guide/) for commands and gates.
+Use the [developer guide](https://github.com/DocumentDrivenDX/helix/blob/main/docs/guide/developer/developer-guide.md) for commands and gates.
 
 ## Maintenance
 

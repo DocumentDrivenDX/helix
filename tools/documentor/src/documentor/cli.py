@@ -25,6 +25,7 @@ Usage:
     documentor check-pages | stamp | detect | generate | site | views | tour | estate ...
                                                   the tools, each with its own --help (`tour`: the architecture
                                                   walkthrough player)
+    documentor record [--root DIR] [--dest DIR]       publish the governed record (the HELIX root) into the site
     documentor --version
     documentor --catalog DIR ...                  read the HELIX catalog (audiences, voice) from DIR
 
@@ -72,7 +73,7 @@ from documentor.lib import (
     repository_files,
 )
 
-TOOLS = ("check-pages", "stamp", "detect", "generate", "site", "views", "tour", "estate", "deck", "doc", "doctor")
+TOOLS = ("check-pages", "stamp", "detect", "generate", "site", "views", "tour", "estate", "deck", "doc", "doctor", "record")
 PHASES = ("00-discover", "01-frame", "02-design", "03-test", "04-build", "05-deploy", "06-iterate")
 
 
@@ -428,6 +429,10 @@ def main(argv: list[str] | None = None) -> int:
             from documentor import deliverable
 
             return {"deck": deliverable.deck_main, "doc": deliverable.doc_main, "doctor": deliverable.doctor_main}[name](rest)
+        if name == "record":
+            from documentor import record
+
+            return record.main(rest)
         if name == "estate":
             from documentor.architecture import estate
 

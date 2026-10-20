@@ -21,7 +21,7 @@ surface belong to runtimes like DDx.
 
 Start with the [solution overview](docs/helix/02-design/solution-overview.md),
 follow the [architecture walkthrough](docs/helix/02-design/architecture-walkthrough.md),
-and use the [developer guide](docs/helix/04-build/developer-guide.md) for setup,
+and use the [developer guide](docs/guide/developer/developer-guide.md) for setup,
 change recipes, and verification.
 
 ## Local Microsite Review
@@ -41,7 +41,7 @@ artifacts, or resource summaries:
 
 ```bash
 python3 scripts/generate-reference.py
-python3 scripts/publish-artifacts.py
+uv run --project tools/documentor documentor record --root .
 python3 scripts/publish-resources.py
 ```
 

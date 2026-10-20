@@ -4,13 +4,13 @@ weight: 2
 generated: true
 ---
 
-# HELIX — Artifacts
+# Guide — Artifacts
 
 Generated examples from the HELIX project's own HELIX documents. Use this section to see how the method looks in practice. To create documents for your project, start with the [artifact-type catalog](/artifact-types/). Historical plans and reports may describe retired architecture.
 
 Each page is the live content of the corresponding source document; edits should be made in the source, not here.
 
-_Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
+_Auto-generated from `helix/` by `documentor record`._
 
 ## Discover
 
@@ -47,7 +47,6 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 
 ## Build
 
-- [HELIX developer guide](/artifacts/developer-guide/)
 - [Modularity and Encapsulation Execution Plan](/artifacts/modularity-execution-plan/)
 - [Modularity Implementation Review](/artifacts/modularity-implementation-review/)
 - [Modularity Execution Plan Review](/artifacts/modularity-plan-review/)

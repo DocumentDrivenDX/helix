@@ -43,7 +43,8 @@ import yaml
 from documentor.check import parse_page
 from documentor.lib import FENCE, catalog, audiences, config_of, find_root, load_audience, load_traits, publish_out
 
-LINK = re.compile(r"(!?\[[^\]]*\]\()([^)\s]+)((?:\s+\"[^\"]*\")?\))")
+# A link or image; a link's text may hold an image (`[![alt](img.svg)](img.svg)`), rewritten too.
+LINK = re.compile(r"(!?\[(?:[^\[\]]|!\[[^\]]*\]\([^)]*\))*\]\()([^)\s]+)((?:\s+\"[^\"]*\")?\))")
 HREF = re.compile(r'(href=")([^"]+)(")')
 ASSET_SUFFIXES = {".png", ".svg", ".jpg", ".jpeg", ".gif", ".webp", ".html", ".pdf"}
 HUGO_CONFIGS = ("hugo.yaml", "hugo.yml", "hugo.toml", "config.toml", "config.yaml")
@@ -63,6 +64,45 @@ def hugo_dir(root: Path) -> Path | None:
         if any((base / name).is_file() for name in HUGO_CONFIGS):
             return base
     return None
+
+
+def hugo_site_dir(root: Path, config: dict) -> Path | None:
+    """The repository's Hugo site: `publish.site.site_dir` when given, else the first found."""
+    given = ((config.get("publish") or {}).get("site") or {}).get("site_dir")
+    return (root / given) if given else hugo_dir(root)
+
+
+def _hugo_config(site_dir: Path) -> dict:
+    for name in HUGO_CONFIGS:
+        path = site_dir / name
+        if not path.is_file():
+            continue
+        text = path.read_text(encoding="utf-8")
+        if name.endswith(".toml"):
+            import tomllib
+
+            return tomllib.loads(text)
+        return yaml.safe_load(text) or {}
+    return {}
+
+
+def content_root_for(root: Path, config: dict, target: str | None = None) -> Path:
+    """Where the site reads its content: `publish.site.content_root`; else, for a Hugo site, the
+    directory its `module.mounts` maps to `content` (a site may keep its pages outside its own
+    folder), else its `content/`; for a new site, `.helix/site/content`."""
+    settings = (config.get("publish") or {}).get("site") or {}
+    if settings.get("content_root"):
+        return root / settings["content_root"]
+    target = target or settings.get("target") or detect_target(root)
+    if target == "hugo":
+        site_dir = hugo_site_dir(root, config)
+        if site_dir is not None:
+            mounts = ((_hugo_config(site_dir).get("module") or {}).get("mounts")) or []
+            for mount in mounts:
+                if isinstance(mount, dict) and mount.get("target") == "content" and mount.get("source"):
+                    return (site_dir / mount["source"]).resolve()
+            return site_dir / "content"
+    return root / ".helix" / "site" / "content"
 
 
 def detect_target(root: Path) -> str:
@@ -147,7 +187,8 @@ def relative_to(here: str, url: str) -> str:
 
 class Linker:
     """Rewrites a page's relative links for the site. `published` maps a page file to its site URL;
-    assets are copied under `static_dir` and linked at `/files/...` (prefixed with `prefix`)."""
+    assets are copied under `static_dir/files` and linked at `/files/...` (prefixed with `prefix`, the
+    URL of `static_dir`)."""
 
     def __init__(self, root: Path, static_dir: Path, published: dict[Path, str], repo_url: str, branch: str,
                  prefix: str = "") -> None:
@@ -188,7 +229,11 @@ class Linker:
             return f"\0FENCE{len(fences) - 1}\0"
 
         held = FENCE.sub(hold, body)
-        held = LINK.sub(lambda m: m.group(1) + self.target(page, m.group(2)) + m.group(3), held)
+        def link(match: re.Match) -> str:
+            text = LINK.sub(link, match.group(1)[:-2]) + "]("
+            return text + self.target(page, match.group(2)) + match.group(3)
+
+        held = LINK.sub(link, held)
         return re.sub(r"\0FENCE(\d+)\0", lambda m: fences[int(m.group(1))], held)
 
 
@@ -206,13 +251,14 @@ def sources_block(sources: list[str]) -> str:
 # --- Hugo (an existing site, or a new Hextra one) --------------------------------------------------
 
 def emit_hugo(root: Path, config: dict, site_dir: Path, content_dir: str, hextra: bool,
-              inline_sources: bool = True) -> list[dict]:
+              inline_sources: bool = True, content_base: Path | None = None) -> list[dict]:
     """Write the sections and pages under `<site_dir>/content/<content_dir>`; return the sections."""
     publish = config.get("publish") or {}
     settings = publish.get("site") or {}
     sections = collect(root, config)
     prefix = f"/{content_dir}" if content_dir else ""
-    content = site_dir / "content" / content_dir if content_dir else site_dir / "content"
+    base = content_base or site_dir / "content"
+    content = base / content_dir if content_dir else base
     out = root / publish_out(config)
     if out.resolve().is_relative_to(content.resolve()):
         print(f"documentor site: {content} holds the guide's own pages ({out}); set site.content_dir elsewhere", file=sys.stderr)
@@ -222,7 +268,9 @@ def emit_hugo(root: Path, config: dict, site_dir: Path, content_dir: str, hextra
     content.mkdir(parents=True)
     published = {path.resolve(): (f"{prefix}/{aid}/" if pid == "index" else f"{prefix}/{aid}/{pid}/")
                  for aid, _, pages in sections for pid, path, _ in pages}
-    linker = Linker(root, site_dir / "static", published, settings.get("repo_url", ""), settings.get("branch", "main"), prefix)
+    # An existing site's assets go beside its pages, as the record's media do, so the site's own
+    # static tree stays untouched; a scaffolded site keeps them under its static directory.
+    linker = Linker(root, content if content_base else site_dir / "static", published, settings.get("repo_url", ""), settings.get("branch", "main"), prefix)
     docs = {"type": "docs", "sidebar": {"open": True}} if hextra else {}
     home_sections = []
     for weight, (aid, audience, pages) in enumerate(sections, start=1):
@@ -365,12 +413,14 @@ def scaffold_static(root: Path, config: dict, site: Path, run_hugo: bool, base_u
 def into_hugo(root: Path, config: dict, run_hugo: bool) -> int:
     """The pages as a section of the repository's own Hugo site."""
     settings = (config.get("publish") or {}).get("site") or {}
-    site_dir = hugo_dir(root)
-    assert site_dir is not None
-    hextra = any("hextra" in (site_dir / name).read_text(encoding="utf-8", errors="replace")
-                 for name in HUGO_CONFIGS if (site_dir / name).is_file())
-    sections = emit_hugo(root, config, site_dir, settings.get("content_dir", "guide"), hextra)
-    print(f"wrote {sum(len(s['pages']) for s in sections)} pages into {site_dir / 'content' / settings.get('content_dir', 'guide')}"
+    site_dir = hugo_site_dir(root, config)
+    if site_dir is None:
+        print("documentor site: no Hugo site found; set publish.site.site_dir", file=sys.stderr)
+        return 2
+    hextra = "hextra" in str(_hugo_config(site_dir).get("module") or "")
+    base = content_root_for(root, config, "hugo")
+    sections = emit_hugo(root, config, site_dir, settings.get("content_dir", "guide"), hextra, content_base=base)
+    print(f"wrote {sum(len(s['pages']) for s in sections)} pages into {base / settings.get('content_dir', 'guide')}"
           f" ({'Hextra' if hextra else 'Hugo'} site)")
     if run_hugo and shutil.which("hugo"):
         done = subprocess.run([shutil.which("hugo"), "--source", str(site_dir), "--quiet"], check=False)
@@ -473,14 +523,62 @@ def build(root: Path, site: Path, run_build: bool, base_url: str | None, target:
     if not publish:
         print("documentor site: .helix.yml has no publish: block", file=sys.stderr)
         return 2
-    target = target or (publish.get("site") or {}).get("target") or detect_target(root)
+    settings = publish.get("site") or {}
+    target = target or settings.get("target") or detect_target(root)
+    # The sections the guide does not write: the record and the project's own generated sections
+    # go in first, so a Hugo build sees them; a new site is rebuilt by its scaffold, so they follow it.
+    if target in ("hugo",):
+        extra = add_sections(root, config, content_root_for(root, config, target))
+        if extra:
+            return extra
     if target == "mkdocs":
         return into_mkdocs(root, config, run_build)
     if target == "hugo":
         return into_hugo(root, config, run_build)
-    if target == "hextra":
-        return scaffold_hextra(root, config, site, run_build, base_url)
-    return scaffold_static(root, config, site, run_build, base_url)
+    status = (scaffold_hextra if target == "hextra" else scaffold_static)(root, config, site, False, base_url)
+    if status:
+        return status
+    extra = add_sections(root, config, site / "content")
+    if extra:
+        return extra
+    if run_build and shutil.which("hugo"):
+        done = subprocess.run([shutil.which("hugo"), "--source", str(site), "--destination", str(site / "public"),
+                               "--quiet"], check=False)
+        if done.returncode:
+            return 1
+        print(f"built {site / 'public'}")
+    elif run_build:
+        print("documentor site: hugo is not installed; the Hugo project is ready to build", file=sys.stderr)
+    return 0
+
+
+def add_sections(root: Path, config: dict, content_root: Path) -> int:
+    """The record (`publish.site.record`) and the project's generated sections (`publish.site.sections`:
+    each `{id, title, generated: {command, out}}`, the command run from the root with
+    DOCUMENTOR_SECTION_OUT set to its directory under the content root)."""
+    import os
+
+    settings = (config.get("publish") or {}).get("site") or {}
+    if settings.get("record"):
+        from documentor import record
+
+        source, _, project, opts = record.options(root, config)
+        status = record.publish(source, content_root / opts["prefix"], project, opts)
+        if status:
+            return status
+    for section in settings.get("sections") or []:
+        generated = (section or {}).get("generated") or {}
+        command = generated.get("command")
+        if not command:
+            continue
+        out = content_root / str(generated.get("out") or section.get("id") or "")
+        env = dict(os.environ, DOCUMENTOR_SECTION_OUT=str(out))
+        done = subprocess.run(command, shell=True, cwd=root, env=env, check=False)
+        if done.returncode:
+            print(f"documentor site: section {section.get('id')} failed: {command}", file=sys.stderr)
+            return 1
+        print(f"section {section.get('id')}: {command}")
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -28,7 +28,7 @@ bash tests/validate-demos.sh
 
 python3 scripts/generate_graph.py      # Regenerate workflows/graph.yml from meta.yml
 python3 scripts/generate-reference.py  # Regenerate /artifact-types/, /concerns/, /reference/workflow-modes/
-python3 scripts/publish-artifacts.py   # Publish docs/helix/ into /artifacts/
+uv run --project tools/documentor documentor record --root .   # Publish docs/helix/ into /artifacts/
 python3 scripts/publish-resources.py   # Publish docs/resources/ into /research/
 bash website/scripts/serve-local.sh    # Serve the microsite at http://eitri:1315/helix/
 ```

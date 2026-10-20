@@ -5,3 +5,42 @@ flows:
     root: docs/helix/
 autonomy:
   level: medium
+
+# HELIX's own documentation plan (workflows/references/publishing.md). documentor builds the site
+# from it: the developer guide under docs/guide, the governed record as /artifacts/, and the
+# catalog reference and research notes as sections HELIX generates itself.
+publish:
+  schema: 1
+  traits: [helix-catalog]
+  audiences: [developer]
+  out: docs/guide
+  # The catalog's reference is the site's generated reference section, not a guide page.
+  ignore: ["workflows/modes/*.md", "workflows/activities/*/artifacts/*/meta.yml"]
+  skip: [developer/walkthrough]   # docs/helix/02-design/architecture-walkthrough.md serves until the page replaces it
+  existing:
+    developer:
+      developer-guide: docs/guide/developer/developer-guide.md
+  delegate:
+    developer/documentor:
+      tool: documentor's own guide
+      covers: how the documentation tool works, how to change it, and how to use it in another repository
+      url: https://github.com/DocumentDrivenDX/helix/blob/main/tools/documentor/docs/guide/developer/index.md
+  site:
+    title: Guide
+    description: How HELIX is built, and how to change it.
+    weight: 7
+    repo_url: https://github.com/DocumentDrivenDX/helix
+    branch: main
+    target: hugo
+    site_dir: website
+    content_dir: guide
+    record: true
+    record_dir: artifacts
+    record_title: Artifacts
+    record_notes:
+      page: "**Example from HELIX's own docs.** This generated page comes from `docs/helix/`. Use it to see the method in practice; start with the [artifact-type catalog](/artifact-types/) for reusable templates. Historical plans and reports may describe retired architecture."
+      collection: "**Examples from HELIX's own docs.** These generated pages come from `docs/helix/`. Use them to see the method in practice; start with the [artifact-type catalog](/artifact-types/) for reusable templates."
+      index: "Generated examples from the HELIX project's own HELIX documents. Use this section to see how the method looks in practice. To create documents for your project, start with the [artifact-type catalog](/artifact-types/). Historical plans and reports may describe retired architecture."
+    sections:
+      - {id: reference, title: Reference, generated: {command: "uv run scripts/generate-reference.py"}}
+      - {id: research, title: Research, generated: {command: "uv run scripts/publish-resources.py"}}

@@ -28,7 +28,7 @@ Private keys are **never** in the repo. The human key lives in 1Password
 | Page | Frontmatter | Composition | Key | Who seals |
 |------|-------------|-------------|-----|-----------|
 | curated | no `generated: true` | `mixed` | human | the operator: `just innsigle-seal`, then commit `.innsigle/public/` |
-| generated | `generated: true` (stamped by `scripts/generate-reference.py`, `publish-artifacts.py`, `publish-resources.py`) | `model-primary` | build | CI, at every website build; never committed |
+| generated | `generated: true` (stamped by `scripts/generate-reference.py`, `documentor record`, `publish-resources.py`) | `model-primary` | build | CI, at every website build; never committed |
 
 Frontmatter decides, not path. `innsigle seal --all` (v0.5.0) applies the
 policy from `content_globs` + `kind_from_frontmatter` in `config.json` and
