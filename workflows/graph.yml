@@ -199,10 +199,6 @@ nodes:
   type: library:test-suites
   activity: 03-test
   cardinality: many
-- id: developer-guide
-  type: library:developer-guide
-  activity: 04-build
-  cardinality: many
 - id: implementation-plan
   type: library:implementation-plan
   activity: 04-build
@@ -525,10 +521,6 @@ edges:
   kind: informs
   required: false
 - from: architecture
-  to: developer-guide
-  kind: informs
-  required: false
-- from: architecture
   to: solution-design
   kind: informs
   required: false
@@ -638,10 +630,6 @@ edges:
   required: false
 - from: solution-design
   to: test-plan
-  kind: informs
-  required: false
-- from: solution-overview
-  to: developer-guide
   kind: informs
   required: false
 - from: tech-spike

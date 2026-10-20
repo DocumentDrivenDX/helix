@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Compose an estate view from the architecture models of several repositories
-(docs/references/architecture-model.md (documentor), "The estate").
+(HELIX workflows/references/architecture-model.md, "The estate").
 
     documentor estate check  --config estate.toml [--fetch]
     documentor estate render --config estate.toml --out PAGE.md [--fetch]

@@ -99,6 +99,7 @@ DOCUMENTOR_FILES = [
     ("workflows/voice.yml", "voice.yml"),
     ("workflows/references/publishing.md", "references/publishing.md"),
     ("workflows/references/writing-pass.md", "references/writing-pass.md"),
+    ("workflows/references/architecture-model.md", "references/architecture-model.md"),
 ]
 DOCUMENTOR_TREES = [
     ("workflows/publish", "publish"),

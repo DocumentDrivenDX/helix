@@ -14,7 +14,7 @@ A program that spans repositories has no architecture view of the whole. Each re
 
 ## Decision
 
-We will define one architecture model format in the catalog (`docs/references/architecture-model.md`), lifted from the first adopting repository's checked model, and compose the estate from the repositories' models rather than draw it. Specifically:
+We will define one architecture model format in the catalog (`workflows/references/architecture-model.md` in HELIX), lifted from the first adopting repository's checked model, and compose the estate from the repositories' models rather than draw it. Specifically:
 
 - A model names its own system (`[system]`, with its repository) and marks an element that is another repository's system with `system = "<id>"`.
 - Each repository keeps its own model checked against its own code, with its own generator and views. The catalog owns the format, not the generator.

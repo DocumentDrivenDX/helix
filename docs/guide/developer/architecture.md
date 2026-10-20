@@ -8,7 +8,7 @@
 <!-- helix:source docs/helix/01-frame/prd.md sha256:87cd55c535e38bce -->
 <!-- helix:source docs/install/README.md#what-you-get sha256:e50570f47c6119a5 -->
 <!-- helix:source docs/install/README.md#no-fork-policy sha256:91bb66393b9e49f5 -->
-<!-- helix:source scripts/sync_references.py sha256:4e0c6447084094b5 -->
+<!-- helix:source scripts/sync_references.py sha256:019062c512836eb4 -->
 <!-- helix:source .github/workflows/release-genie-bundle.yml sha256:1d738dd651805901 -->
 <!-- helix:source .github/workflows/pages.yml sha256:531157c991907d82 -->
 <!-- helix:source .github/workflows/documentor.yml sha256:d66814968e1608c1 -->

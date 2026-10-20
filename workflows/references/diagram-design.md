@@ -19,7 +19,7 @@ With documentor on the host (`tools/documentor/` in the HELIX repository):
 | A talk or a walkthrough, one step at a time | the Eraser presentation (HTML player) | `documentor tour --view <id> --journey <id>`, then its `render.mjs` |
 
 `documentor check` fails when a view no longer matches the model or the model no longer matches
-the code. The model's format is documentor's `docs/references/architecture-model.md`. A project
+the code. The model's format is `workflows/references/architecture-model.md`. A project
 without a model writes one when it has more than one deployed part (the `guide` mode's
 "Generate" step); until then, and for a diagram that is not architecture, draw it by this
 standard. Without documentor on the host, draw from the model by hand, name the model as the

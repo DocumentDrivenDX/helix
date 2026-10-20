@@ -22,6 +22,10 @@ output:
   location: docs/helix/02-design/architecture.md
   format: markdown
   naming: architecture.md
+  companions:
+    - path: docs/helix/02-design/architecture-model.toml
+      format: workflows/references/architecture-model.md
+      description: The model the architecture views are generated from; each element and relation cites the code that shows it
 
 validation:
   required_sections:
@@ -150,7 +154,6 @@ workflow:
 relationships:
   informs:
     - solution-overview
-    - developer-guide
     - solution-design
     - technical-design
     - adr

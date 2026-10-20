@@ -1,4 +1,4 @@
-# The architecture model behind HELIX's own views (documentor `docs/references/architecture-model.md`).
+# The architecture model behind HELIX's own views (`workflows/references/architecture-model.md`).
 #
 # Every element and relation cites a file in this repository and a string it contains, so a rename
 # fails `documentor check`. Regenerate the views with `documentor build`; the presentation with

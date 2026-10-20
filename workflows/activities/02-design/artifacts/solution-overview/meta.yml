@@ -47,8 +47,7 @@ examples:
 - file: example.md
   description: HELIX self-hosting pilot solution overview
 relationships:
-  informs:
-  - developer-guide
+  informs: []
   referenced_by: []
 tags:
 - onboarding

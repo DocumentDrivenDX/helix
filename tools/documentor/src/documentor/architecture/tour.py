@@ -7,7 +7,7 @@ Usage:
 The diagram review (docs/helix/02-design/diagram-spikes, example 6) found that Eraser's measured
 boxes and routed connectors, styled in the Blueprint register with a walkthrough that highlights
 one relationship at a time, read best; but every position, color, and caption there was written by
-hand. Here they come from the architecture model instead (docs/references/architecture-model.md (documentor)):
+hand. Here they come from the architecture model instead (HELIX workflows/references/architecture-model.md):
 
   positions    the deployment layout: each element's tier and zone (architecture_deploy.py)
   connections  the view's relations, with ports from the layout and waypoints for a line that

@@ -81,3 +81,14 @@ installation via `PYTHONPATH`; the guide now includes dependency recovery.
 No unfamiliar-developer trial has occurred. Remaining evaluation is human review
 of the drafts and a real newcomer first-contribution session. No release or
 remote publication was performed.
+
+## Reversal (2026-10-20)
+
+The Developer Guide type is retired. The guide's developer audience
+(`workflows/publish/audiences/developer.yml`) already names a developer-guide
+page with the same reader task, in a voice written for people, checked against
+its sources, and reviewed by a second reader; a governed type for the same page
+was a second home for one document. HELIX's own developer guide moved to
+`docs/guide/developer/developer-guide.md` as an adopted guide page. Solution
+Overview stays a governed type: it is the explanation the developer pages are
+built from.

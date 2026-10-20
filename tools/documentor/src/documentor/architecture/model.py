@@ -1,6 +1,6 @@
 """A project's architecture model, and the checks that keep it true to the code.
 
-The model is `<helix root>/02-design/architecture-model.toml` (docs/references/architecture-model.md): the project's system, its elements and the relations between them, each
+The model is `<helix root>/02-design/architecture-model.toml` (HELIX workflows/references/architecture-model.md): the project's system, its elements and the relations between them, each
 citing a file and a string the file must contain, and the views that draw a subset of them.
 `documentor views` renders the views. A `[theme]` block sets the colors, and `[system] facts`
 names a script whose `declared_facts(root)` lists the external systems the configuration declares,

@@ -63,6 +63,7 @@ workflows/activities/02-design/artifacts/adr/meta.yml
 | `prose` | mapping | For a type people read as delivered text (`deliverable`, `release-notes`, `status-report`; every other type stays `artifact-signal` and omits it): `audience: human` turns on the prose audit (`workflows/voice.yml` limits and phrase lists, measured by `validate-instance.py`), `budget_words` caps the instance's prose units, `skip_lines` lists regular expressions for lines the audit ignores. |
 | `output.naming` | string | Naming pattern for an instance, such as `prd.md`, `FEAT-{number}-{title}.md`, or `ADR-{number}-{title}.md`. |
 | `output.examples` | list | Example filenames demonstrating the naming pattern. |
+| `output.companions` | list | Files the mode keeps beside each instance, as `{path, format, description}`; `format` names the reference that defines the file. |
 | `id_format` | mapping | Identifier shape for instances of this type. See [Instance ID format](#instance-id-format-id_format) below. |
 | `reuse_policy` | string | Human-readable rule explaining whether instances are write-once, updated in place, superseded, or replaced. |
 | `dependencies.requires` | list | Inputs needed before this artifact can be authored responsibly. These are planning dependencies, not necessarily runtime blockers. |
