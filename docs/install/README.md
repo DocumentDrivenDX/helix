@@ -67,8 +67,11 @@ documentor doctor        # what this host can do: hugo, node, Chrome, LibreOffic
 ```
 
 Install it from the same HELIX release as the skill. Everything else is
-optional and reported by `doctor`: Hugo builds a site; node, Chrome, and
-LibreOffice render decks and briefs; an agent CLI (Claude Code by default)
+optional and reported by `documentor doctor`: Hugo builds a site;
+`documentor deck render` and `documentor doc render` render decks and
+briefs with node (pptxgenjs is cached on first use), Chrome exports a
+brief's PDF, and LibreOffice lets `documentor deck qa` rasterize a deck; an
+agent CLI (Claude Code by default)
 lets `documentor write` write pages headless. `documentor check`, the CI
 gate, needs none of them. Without documentor, both modes do each step by
 hand and say so; a host with no shell (GitHub Copilot) uses that path, or

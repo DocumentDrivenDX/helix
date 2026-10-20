@@ -17,8 +17,14 @@ Usage:
                                                   the brief a writer (or an evaluator) of a written page gets
     documentor adopt   PAGE --audience ID [--kind KIND] [--source SPEC ...] [--root DIR]
                                                   bring a hand-written page under the guide, unchanged
-    documentor check-pages | stamp | detect | generate | site | views | present | estate ...
-                                                  the tools, each with its own --help
+    documentor deck render DEL.md OUT.pptx [args]  render a deck script to .pptx (node; pptxgenjs cached on first use)
+    documentor deck qa DECK.pptx [args]           geometry and visual QA of a rendered deck
+    documentor doc render DEL.md OUT.html [--kind brief|one-pager] [--pdf OUT.pdf] [args]
+                                                  render a brief or one-pager to HTML (and PDF through Chrome)
+    documentor doctor                             what this host can do: hugo, node, Chrome, LibreOffice, the agent CLI
+    documentor check-pages | stamp | detect | generate | site | views | tour | estate ...
+                                                  the tools, each with its own --help (`tour`: the architecture
+                                                  walkthrough player)
     documentor --version
     documentor --catalog DIR ...                  read the HELIX catalog (audiences, voice) from DIR
 
@@ -66,7 +72,7 @@ from documentor.lib import (
     repository_files,
 )
 
-TOOLS = ("check-pages", "stamp", "detect", "generate", "site", "views", "present", "estate")
+TOOLS = ("check-pages", "stamp", "detect", "generate", "site", "views", "tour", "estate", "deck", "doc", "doctor")
 PHASES = ("00-discover", "01-frame", "02-design", "03-test", "04-build", "05-deploy", "06-iterate")
 
 
@@ -414,10 +420,14 @@ def main(argv: list[str] | None = None) -> int:
 
             architecture_views.main(rest)
             return 0
-        if name == "present":
-            from documentor.architecture import present
+        if name == "tour":
+            from documentor.architecture import tour
 
-            return present.main(rest)
+            return tour.main(rest)
+        if name in ("deck", "doc", "doctor"):
+            from documentor import deliverable
+
+            return {"deck": deliverable.deck_main, "doc": deliverable.doc_main, "doctor": deliverable.doctor_main}[name](rest)
         if name == "estate":
             from documentor.architecture import estate
 

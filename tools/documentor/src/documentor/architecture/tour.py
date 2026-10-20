@@ -2,7 +2,7 @@
 """Draw a model view as a presentation: Eraser geometry, a theme, and a step-by-step walkthrough.
 
 Usage:
-    documentor present --root DIR --view ID [--journey ID] [--theme NAME] --out DIR
+    documentor tour --root DIR --view ID [--journey ID] [--theme NAME] --out DIR
 
 The diagram review (docs/helix/02-design/diagram-spikes, example 6) found that Eraser's measured
 boxes and routed connectors, styled in the Blueprint register with a walkthrough that highlights
@@ -15,7 +15,7 @@ hand. Here they come from the architecture model instead (docs/references/archit
   colors       a theme from workflows/publish/themes/, or the model's own [theme]
   walkthrough  a journey's steps, each walking a relation the model holds, with its caption
 
-This writes the renderer's input (`eraser.json`, `walkthrough.json`, `theme.json`); `present/
+This writes the renderer's input (`eraser.json`, `walkthrough.json`, `theme.json`); `js/
 render.mjs` renders it with Eraser and wraps it. Nothing here is drawn by hand, so a model change
 redraws the presentation. Requires PyYAML; the render step needs Node and Chromium.
 """
@@ -45,7 +45,7 @@ def theme_for(model: am.Model, name: str | None) -> dict:
     path = catalog() / "themes" / f"{chosen}.yml"
     if path.is_file():
         return am.DEFAULT_THEME | (yaml.safe_load(path.read_text(encoding="utf-8")) or {})
-    sys.exit(f"documentor present: no theme named {chosen}")
+    sys.exit(f"documentor tour: no theme named {chosen}")
 
 
 def _plain(text: str) -> str:
@@ -157,7 +157,7 @@ def walkthrough(model: am.Model, view: am.View, journey_id: str | None) -> dict:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="documentor present", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(prog="documentor tour", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--root", type=Path, default=Path.cwd())
     parser.add_argument("--model", type=Path)
     parser.add_argument("--view", required=True)

@@ -1,4 +1,4 @@
-// Render a presentation that architecture_present.py prepared: Eraser measures every box and
+// Render a presentation that `documentor tour` prepared: Eraser measures every box and
 // routes every connector; stage.mjs plays it on one screen, the camera gliding to each step
 // of the walkthrough, without redrawing anything (the diagram review's example 6).
 //

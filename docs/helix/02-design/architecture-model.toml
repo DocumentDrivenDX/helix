@@ -2,7 +2,7 @@
 #
 # Every element and relation cites a file in this repository and a string it contains, so a rename
 # fails `documentor check`. Regenerate the views with `documentor build`; the presentation with
-# `documentor present`. No host, credential, or identifier belongs here.
+# `documentor tour`. No host, credential, or identifier belongs here.
 
 [system]
 id = "helix"

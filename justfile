@@ -123,7 +123,7 @@ count:
 test-validate-deliverable:
     bash tests/validate-deliverable.sh
 
-# Render the catalog deck example to pptx, validate it, and run deck-qa.py (needs node with pptxgenjs on NODE_PATH, LibreOffice, pdftoppm)
+# Render the catalog deck example to pptx with documentor's renderer, validate it, and run deck-qa.py (needs node with pptxgenjs from the documentor cache or PPTXGENJS_NODE_PATH, LibreOffice, pdftoppm)
 test-deck-render:
     bash tests/validate-deck-render.sh
 

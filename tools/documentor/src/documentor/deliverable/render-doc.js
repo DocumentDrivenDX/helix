@@ -37,16 +37,9 @@ if (positional.length < 2) {
   process.exit(2);
 }
 const [scriptPath, outPath] = positional;
-const repoRoot = path.resolve(__dirname, "..", "..", "..");
-function firstExisting(cands) { for (const c of cands) if (fs.existsSync(c)) return c; return cands[0]; }
-const themePath = flags.theme || firstExisting([
-  path.join(repoRoot, "workflows", "deliverables", "theme.yml"),
-  path.join(__dirname, "..", "references", "deliverables", "theme.yml"),
-]);
-const patternsPath = flags.patterns || firstExisting([
-  path.join(repoRoot, "workflows", "deliverables", "slide-patterns.yml"),
-  path.join(__dirname, "..", "references", "deliverables", "slide-patterns.yml"),
-]);
+const { catalogFile } = require("./lib/catalog");
+const themePath = flags.theme || catalogFile("theme.yml");
+const patternsPath = flags.patterns || catalogFile("slide-patterns.yml");
 for (const [what, file] of [["theme", themePath], ["patterns", patternsPath]]) {
   if (!fs.existsSync(file)) { console.error(`render-doc.js: no ${what} file at ${file}`); process.exit(2); }
 }

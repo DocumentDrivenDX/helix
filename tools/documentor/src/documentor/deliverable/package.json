@@ -1,0 +1,6 @@
+{
+  "name": "documentor-deliverable",
+  "private": true,
+  "description": "documentor's deck renderer (render-deck.js) needs pptxgenjs; `documentor deck render` installs it into its cache. Or set NODE_PATH.",
+  "dependencies": { "pptxgenjs": "3.12.0" }
+}

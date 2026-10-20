@@ -64,26 +64,33 @@ the Brief, whatever the mapping suggests: `scope`, `breadth` (`survey` or
 
 ## Render toolchain
 
-For `deck`: `scripts/render-deck.js` (beside this skill) needs node with
-`pptxgenjs`; `scripts/deck-qa.py` rasterizes through LibreOffice and
-`pdftoppm`; icons through `rsvg-convert` or ImageMagick (without one, a
-badge shows its number). Without a tool the script is still produced: `##
+Rendering is documentor's (the optional host tool, `tools/documentor/`;
+`documentor doctor` reports what this host can do). The gates stay beside
+this skill: `scripts/check-deliverable.py` and `scripts/corpus-inventory.py`.
+Without documentor or its toolchain the mode stops after the script: `##
 Render` records which targets were not produced and why, and the gate runs
-on the produced set; the visual and file checks and `rendered_and_inspected`
-in `meta.yml` warn and name the missing tool.
+on the produced set.
 
-For `brief` and `one-pager`: `scripts/render-doc.js` needs node alone
-(icons are inlined SVG) and always produces the HTML. `--pdf <path>` also
-exports a PDF through a local Chrome or Chromium in headless print-to-pdf
-mode when one is found (`--chrome <path>` names it explicitly); otherwise
-`## Render` records that the HTML alone was produced and why. The renderer
-warns when an em dash reaches the page. Rasterize the PDF (`pdftoppm`, or any PDF viewer) and
-look at every page before calling the render clean, the same discipline as
-`deck-qa.py`'s slide-by-slide inspection.
+For `deck`: `documentor deck render <script.md> <out.pptx>` needs node
+(pptxgenjs is installed into documentor's cache on first use);
+`documentor deck qa <deck.pptx>` rasterizes through LibreOffice and
+`pdftoppm`; icons through `rsvg-convert` or ImageMagick (without one, a
+badge shows its number). Without a tool the visual and file checks and
+`rendered_and_inspected` in `meta.yml` warn and name the missing tool.
+
+For `brief` and `one-pager`: `documentor doc render <script.md> <out.html>
+--kind brief|one-pager [--pdf <out.pdf>]` needs node alone (icons are
+inlined SVG) and always produces the HTML. `--pdf <path>` also exports a PDF
+through a local Chrome or Chromium in headless print-to-pdf mode when one is
+found (`--chrome <path>` names it explicitly); otherwise `## Render` records
+that the HTML alone was produced and why. The renderer warns when an em dash
+reaches the page. Rasterize the PDF (`pdftoppm`, or any PDF viewer) and look
+at every page before calling the render clean, the same discipline as
+`documentor deck qa`'s slide-by-slide inspection.
 
 Architecture visuals in a deliverable are generated, not drawn, when the project has an
 architecture model: a Visual spec that shows the system names the model's view, and documentor
-renders it (`documentor views` for a static figure; `documentor present` for a stepped
+renders it (`documentor views` for a static figure; `documentor tour` for a stepped
 walkthrough in a live talk). The deck carries the rendered image and cites the model as its
 source. Without a model or without documentor, follow `workflows/references/diagram-design.md`
 and say in `## Render` which was missing (`diagram-design.md`, "Generated first").
@@ -108,15 +115,15 @@ and say in `## Render` which was missing (`diagram-design.md`, "Generated first"
 
 | Kind | Shape | Budget | Renderer |
 |---|---|---|---|
-| `deck` | title, optional agenda, content slides, ask, appendix | `default_length_budget` in `deck-flows.yml`; `content_slides_max` in `slide-patterns.yml` without an explicit exception | `scripts/render-deck.js` → `.pptx` |
-| `brief` | masthead (title, byline, introduction) then numbered claim sections in reading order, then the appendix bibliography | no fixed page count; the renderer flows as many pages as the record needs, and a more detailed product needs more (`NFR-3`) | `scripts/render-doc.js --kind brief` → HTML, PDF when a local Chrome/Chromium is found |
-| `one-pager` | masthead then a weight-balanced two-column grid of single-column "fact" units (table, claim-evidence, stat, panels, icon-list); a unit whose own visual is already two-part (`two-column-comparison`, `risk-matrix`) or the `ask-next-steps` unit spans full width below the grid | `max_words_one_pager` in `theme.yml` (450); the renderer counts words and warns past it | `scripts/render-doc.js --kind one-pager` → the same HTML/PDF path, forced to one Letter page |
+| `deck` | title, optional agenda, content slides, ask, appendix | `default_length_budget` in `deck-flows.yml`; `content_slides_max` in `slide-patterns.yml` without an explicit exception | `documentor deck render` → `.pptx` |
+| `brief` | masthead (title, byline, introduction) then numbered claim sections in reading order, then the appendix bibliography | no fixed page count; the renderer flows as many pages as the record needs, and a more detailed product needs more (`NFR-3`) | `documentor doc render --kind brief` → HTML, PDF when a local Chrome/Chromium is found |
+| `one-pager` | masthead then a weight-balanced two-column grid of single-column "fact" units (table, claim-evidence, stat, panels, icon-list); a unit whose own visual is already two-part (`two-column-comparison`, `risk-matrix`) or the `ask-next-steps` unit spans full width below the grid | `max_words_one_pager` in `theme.yml` (450); the renderer counts words and warns past it | `documentor doc render --kind one-pager` → the same HTML/PDF path, forced to one Letter page |
 
 Both document kinds share the deck's script format (frontmatter, Brief,
 Story, `## Content` units, `## Sources`), the theme
 (`deliverables/theme.yml`), and the Visual-spec grammar
 (`deliverables/visual-specs.md`), so a deck and a document from one project
-read as one system. `render-doc.js` needs no native dependency; icons are
+read as one system. `documentor doc render` needs no native dependency; icons are
 inlined SVG. Pick the look by room as usual. For a printed or filed document
 prefer `classic`, the look `theme.yml` names for proposals and printed
 briefs; its bare-numeral marker switches card chrome off in favor of
@@ -143,7 +150,7 @@ must [capabilities]; we evaluated [candidate] against those and found
 [verdict in plain words]. For a persuasive document, open with the reader's
 situation and the stakes, then the finding. The Brief's `Audience` and
 `Decision or action sought` fields steer the writing and do not print;
-`render-doc.js` adds no byline unless the Brief carries a `Byline` line or
+`documentor doc render` adds no byline unless the Brief carries a `Byline` line or
 `--byline` is passed. The introduction gets the same shape checks as a
 bullet, plus a narration check: a sentence that starts "This brief checks"
 or "This page names" blocks. A single bullet renders as a short dek line

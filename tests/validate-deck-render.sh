@@ -13,10 +13,10 @@
 #   7. (raster hosts) the example rasterizes and, when the pptx skill is installed, validates
 set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-scripts="$repo_root/skills/helix/scripts"
-renderer="$scripts/render-deck.js"
-qa="$scripts/deck-qa.py"
-checker="$scripts/check-deliverable.py"
+deliverable="$repo_root/tools/documentor/src/documentor/deliverable"
+renderer="$deliverable/render-deck.js"
+qa="$deliverable/deck-qa.py"
+checker="$repo_root/skills/helix/scripts/check-deliverable.py"
 example="$repo_root/workflows/activities/06-iterate/artifacts/deliverable/example.md"
 overflow="$repo_root/tests/fixtures/validate-deck-render/overflow-deck.md"
 icons="$repo_root/tests/fixtures/validate-deck-render/icons-deck.md"
@@ -26,10 +26,12 @@ fail() { printf 'deck render validation failed: %s\n' "$*" >&2; exit 1; }
 skip() { if [ "${DECK_RENDER_REQUIRED:-0}" = 1 ]; then fail "$*"; fi; echo "SKIP: deck render lane: $*"; exit 0; }
 
 command -v node >/dev/null 2>&1 || skip "node not installed"
-for cand in "${PPTXGENJS_NODE_PATH:-}" "$scripts/node_modules" "$repo_root/node_modules"; do
+pptx_version="$(sed -n 's/.*"pptxgenjs": *"\([^"]*\)".*/\1/p' "$deliverable/package.json")"
+documentor_cache="${XDG_CACHE_HOME:-$HOME/.cache}/documentor/node/$pptx_version/node_modules"
+for cand in "${PPTXGENJS_NODE_PATH:-}" "$documentor_cache" "$deliverable/node_modules" "$repo_root/node_modules"; do
   [ -n "$cand" ] && [ -d "$cand/pptxgenjs" ] && export NODE_PATH="$cand${NODE_PATH:+:$NODE_PATH}" && break
 done
-node -e "require('pptxgenjs')" 2>/dev/null || skip "pptxgenjs not resolvable (npm ci in skills/helix/scripts, or set PPTXGENJS_NODE_PATH)"
+node -e "require('pptxgenjs')" 2>/dev/null || skip "pptxgenjs not resolvable (run \`documentor deck render\` once to cache it, or set PPTXGENJS_NODE_PATH)"
 
 # 1. library unit tests
 node --test "$repo_root/tests/render/lib.test.js" >"$tmpdir/unit.log" 2>&1 || fail "library unit tests: $(tail -30 "$tmpdir/unit.log")"
@@ -53,7 +55,7 @@ const js = parseScript(fs.readFileSync(process.argv[2], "utf8")).units.map(u => 
 const py = JSON.parse(fs.readFileSync(process.argv[3], "utf8"));
 const a = JSON.stringify(js), b = JSON.stringify(py);
 if (a !== b) { console.error("renderer and checker parse units differently:\n" + a.slice(0, 600) + "\n---\n" + b.slice(0, 600)); process.exit(1); }
-' "$scripts" "$example" "$tmpdir/py-units.json" || fail "unit parsers disagree"
+' "$deliverable" "$example" "$tmpdir/py-units.json" || fail "unit parsers disagree"
 echo "parsers: renderer and checker agree on the example's units"
 
 # 4. deck-qa catches known defects

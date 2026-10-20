@@ -17,7 +17,7 @@ you can read a gate report and know which finding means what.
 | Storyboard | Titles exist before bodies; the headline pass and the titles-only read run on them first | the mode contract; `check-deliverable.py` on the script |
 | Script gate | Title, shape, vocabulary, number, placeholder, visual, limit, density, coverage, and ordering checks | `scripts/check-deliverable.py` (beside the skill) |
 | Prose lint | Sentence-level rules on the script and on this site | Vale with the Helix styles (`just lint-prose`) |
-| Render gate | Geometry checks on the slide file, then every slide as an image, inspected | `scripts/deck-qa.py`, LibreOffice, `pdftoppm` |
+| Render gate | Geometry checks on the slide file, then every slide as an image, inspected | `documentor deck qa`, LibreOffice, `pdftoppm` |
 | Eval | The gate re-runs on each brief, plus a rubric line that reading only the titles tells the story | `evals/briefs.yml` |
 
 ## The voice the rules protect
@@ -176,7 +176,7 @@ with a shorter form (`in order to`).
 
 ## The visual gate
 
-`deck-qa.py` reads the slide file's shapes and reports per slide. Blocking: a
+`documentor deck qa` reads the slide file's shapes and reports per slide. Blocking: a
 shape past the slide edge, a text box that needs more height than it has, an
 autofit box whose shrink would land below twelve points, two text shapes that
 overlap, a table that grows past the bottom margin. Warnings: an autofit box

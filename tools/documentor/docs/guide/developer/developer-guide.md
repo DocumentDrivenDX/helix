@@ -78,7 +78,7 @@ The CLI's commands are listed in [Command line](cli.md). [Embedding the library]
 | `just test-write` | `write` and `build --write` with a fake agent (`tests/validate-write.sh`) |
 | `just test-architecture-views` | Architecture views (`tests/validate-architecture-views.sh`) |
 | `just test-architecture-estate` | The estate view (`tests/validate-architecture-estate.sh`) |
-| `just test-architecture-present` | Architecture presentation (`tests/validate-architecture-present.sh`) |
+| `just test-architecture-tour` | Architecture walkthrough (`tests/validate-architecture-tour.sh`) |
 | `just test-python` | Pytest unit tests in `tests/python` |
 | `just test-package` | The wheel builds, carries the catalog, and its CLI runs in a clean environment |
 

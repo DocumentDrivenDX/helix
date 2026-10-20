@@ -16,7 +16,7 @@ With documentor on the host (`tools/documentor/` in the HELIX repository):
 | What connects to what, for a document or a guide page | a flowchart, stack, cast, journey, or DAG view (Mermaid or a table, between markers) | `documentor views` |
 | Where everything runs | a deployment view (SVG) | `documentor views` |
 | A developer's first map, with lanes and numbered steps | a field guide (self-contained HTML) | `documentor views` (a `field-guide` view) |
-| A talk or a walkthrough, one step at a time | the Eraser presentation (HTML player) | `documentor present --view <id> --journey <id>`, then its `render.mjs` |
+| A talk or a walkthrough, one step at a time | the Eraser presentation (HTML player) | `documentor tour --view <id> --journey <id>`, then its `render.mjs` |
 
 `documentor check` fails when a view no longer matches the model or the model no longer matches
 the code. The model's format is documentor's `docs/references/architecture-model.md`. A project

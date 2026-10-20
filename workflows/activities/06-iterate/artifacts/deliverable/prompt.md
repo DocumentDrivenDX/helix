@@ -169,7 +169,7 @@ three differences.
   page, with `theme.yml`'s `max_words_one_pager` (450) as a warned budget. To
   fit the one-pager, drop whole units (typically the evidence table and the
   appendix) and keep the remaining bullets whole.
-- Render with `scripts/render-doc.js <script.md> <out.html> --kind
+- Render with `documentor doc render <script.md> <out.html> --kind
   brief|one-pager [--pdf <out.pdf>]`; see `modes/present.md` §Kinds and
   §Render toolchain.
 

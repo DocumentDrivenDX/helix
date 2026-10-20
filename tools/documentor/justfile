@@ -2,7 +2,7 @@
 # so none of them skips for a missing interpreter or module.
 
 # Run every test
-test: test-catalog test-guide test-publish test-traits test-generators test-write test-architecture-views test-architecture-estate test-architecture-present test-python test-package
+test: test-catalog test-guide test-publish test-traits test-generators test-write test-architecture-views test-architecture-estate test-architecture-tour test-python test-package
 
 test-guide:
     bash tests/validate-guide.sh
@@ -30,8 +30,8 @@ test-architecture-views:
 test-architecture-estate:
     bash tests/validate-architecture-estate.sh
 
-test-architecture-present:
-    bash tests/validate-architecture-present.sh
+test-architecture-tour:
+    bash tests/validate-architecture-tour.sh
 
 # The architecture modules' unit tests (layout, routing, the pages)
 test-python:

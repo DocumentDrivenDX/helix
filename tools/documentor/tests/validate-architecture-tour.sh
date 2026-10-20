@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Exercise `documentor present`: a deployment view becomes Eraser input
+# Exercise `documentor tour`: a deployment view becomes Eraser input
 # (zones as groups, boxes inside them, routed connectors with pinned labels), a journey becomes
 # the walkthrough, a catalog theme colors it, and a model change redraws it with no hand edit.
-# The render step (present/render.mjs) runs only when Node, @eraserlabs/diagrams (ERASER_MODULES),
+# The render step (js/render.mjs) runs only when Node, @eraserlabs/diagrams (ERASER_MODULES),
 # and a Chromium (CHROMIUM_PATH) are present.
 set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -74,7 +74,7 @@ type = "deployment"
 elements = ["user", "svc", "db"]
 TOML
 
-$rg present --root . --view deployment --journey read --theme blueprint --out out >/dev/null
+$rg tour --root . --view deployment --journey read --theme blueprint --out out >/dev/null
 python3 - out <<'PY'
 import json, sys
 out = sys.argv[1]
@@ -102,7 +102,7 @@ PY
 
 # A model change redraws it: move the database beside the service, and its box changes zone.
 sed -i.bak 's/tier = 3/tier = 2/; s/zone = "Data"/zone = "Apps"/' "$M"
-$rg present --root . --view deployment --theme helix --out moved >/dev/null
+$rg tour --root . --view deployment --theme helix --out moved >/dev/null
 python3 - moved <<'PY'
 import json, sys
 d = json.load(open(f"{sys.argv[1]}/eraser.json"))
@@ -111,7 +111,7 @@ assert shapes["db"]["containerId"] == "zone-apps", shapes["db"]
 walk = json.load(open(f"{sys.argv[1]}/walkthrough.json"))
 assert [s["edge"] for s in walk["steps"]] == ["user--svc", "svc--db"], "no journey: the view's relations"
 PY
-out="$($rg present --root . --view deployment --theme nonesuch --out x 2>&1)" \
+out="$($rg tour --root . --view deployment --theme nonesuch --out x 2>&1)" \
   && { echo "FAIL: an unknown theme should be refused"; exit 1; }
 grep -q "no theme named nonesuch" <<<"$out" || { echo "FAIL: expected the refusal: $out"; exit 1; }
 
@@ -121,8 +121,8 @@ if command -v node >/dev/null && [ -n "$modules" ] && [ -d "$modules/@eraserlabs
   grep -q 'data-mdp-id="svc--db"' out/present.html
   grep -q 'id="play"' out/present.html && grep -q 'function camFor' out/present.html \
     || { echo "FAIL: the presentation should play on the stage, with its camera"; exit 1; }
-  echo "architecture_present: rendered"
+  echo "architecture_tour: rendered"
 else
-  echo "architecture_present: render skipped (set ERASER_MODULES and CHROMIUM_PATH)"
+  echo "architecture_tour: render skipped (set ERASER_MODULES and CHROMIUM_PATH)"
 fi
-echo "PASS: architecture_present"
+echo "PASS: architecture_tour"
