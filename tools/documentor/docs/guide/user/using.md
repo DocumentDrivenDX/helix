@@ -1,10 +1,10 @@
-<!-- helix:publish audience=user page=using kind=how-to voice=public-site budget=1500 written=agent-opus reviewed=2026-10-20/second-reader-move-review/4c959653c125ec36 -->
+<!-- helix:publish audience=user page=using kind=how-to voice=public-site budget=1500 written=agent-opus reviewed=2026-10-20/second-reader-site-check/20d15657eb3c5d33 -->
 <!-- helix:gap artifact:feature-specification -->
 <!-- helix:gap artifact:user-stories -->
 <!-- helix:source README.md#use sha256:1668b6192a52a5d5 -->
 <!-- helix:source src/documentor/cli.py sha256:63fa5bcbdc82b569 -->
 <!-- helix:source src/documentor/write.py sha256:8ad5661054a3cc34 -->
-<!-- helix:source src/documentor/site.py sha256:099a21eeb38e1388 -->
+<!-- helix:source src/documentor/site.py sha256:1cd9d398b52567c7 -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
 # Using the product
 
@@ -116,9 +116,9 @@ The site goes where your repository already publishes:
 |---|---|
 | A `mkdocs.yml` | Copies the pages under its docs folder and writes a `nav.yml` fragment for you to include. |
 | A Hugo site | Adds the pages as a section of its content. |
-| No site | Writes a new Hextra site, by default into `.helix/site` under the repository root. |
+| No site | Writes a new site in documentor's own layout, by default into `.helix/site` under the repository root. |
 
-A new Hextra site needs Hugo and Go to build, and the network once. To choose the target yourself, set `site.target` in `.helix.yml`.
+A new site needs only Hugo to build. For the Hextra theme instead, set `site.target: hextra` under `publish:` in `.helix.yml`; it also needs Go, and the network once.
 
 The Markdown pages in the guide folder are the record. Whatever documentor writes into a site is rebuilt from them each time, so edit the pages, not the site.
 

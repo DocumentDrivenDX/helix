@@ -170,10 +170,36 @@ if command -v hugo >/dev/null; then
   [ -f "$tmpdir/site/public/index.html" ] || fail "hugo should build the home page"
   grep -q 'class="mermaid' "$tmpdir/site/public/developer/index.html" || fail "a mermaid block should render as pre.mermaid"
   grep -q "Built from 3 sources" "$tmpdir/site/public/developer/index.html" || fail "the page should list its sources"
+  [ "$(grep -c "Built from" "$tmpdir/site/public/developer/index.html")" = 1 ] || fail "the sources should be listed once"
+  grep -q 'class="card"' "$tmpdir/site/public/index.html" || fail "the home page should have a card per audience"
+  grep -q "Overview" "$tmpdir/site/public/index.html" || fail "the home page should list each audience's pages"
+  grep -q 'class="kind"' "$tmpdir/site/public/developer/index.html" || fail "the page's kind should sit above its title"
+  ! grep -q "hextra" "$tmpdir/site/hugo.yaml" || fail "the default site needs no theme module"
   built="and built it with hugo"
 else
   built="(hugo not installed; build skipped)"
 fi
+
+# The Hextra target writes the same content with the theme as a module, and its home lists the pages.
+printf '  site: {title: Fixture, target: hextra}\n' >/dev/null
+$rg site --root "$project" --site "$tmpdir/hextra" --target hextra --no-build >"$tmpdir/site.out" 2>&1 || fail "hextra scaffold failed: $(cat "$tmpdir/site.out")"
+grep -q "github.com/imfing/hextra" "$tmpdir/hextra/hugo.yaml" || fail "the hextra site imports the theme"
+grep -q "^- \[Overview\](developer/)" "$tmpdir/hextra/content/_index.md" || fail "the hextra home should list each page: $(cat "$tmpdir/hextra/content/_index.md")"
+
+# A page that cites a test names one that exists: a Python node id, or a JS test file and its title.
+mkdir -p "$project/tests" "$project/web"
+printf 'class TestTurns:\n    def test_a_turn_locks(self):\n        pass\n\ndef test_saves(x):\n    pass\n' >"$project/tests/test_turns.py"
+printf 'test("opens the pane", () => {});\n' >"$project/web/pane.test.ts"
+cp "$page" "$tmpdir/page-tests.bak"
+printf '\nProved by `tests/test_turns.py::TestTurns::test_a_turn_locks`, `tests/test_turns.py::test_saves[case-1]`, and `web/pane.test.ts` "opens the pane".\n' >>"$page"
+run stamp "$page" >/dev/null
+run check "$project/docs/guide" >"$tmpdir/out" 2>&1 || fail "existing tests should pass: $(cat "$tmpdir/out")"
+printf 'And `tests/test_turns.py::test_gone`, and `web/pane.test.ts` "closes the pane".\n' >>"$page"
+run check "$project/docs/guide" >"$tmpdir/out" 2>&1 && fail "a missing test should block"
+grep -Eq "^BLOCKING +missing-test .*defines no test_gone" "$tmpdir/out" || fail "expected missing-test: $(cat "$tmpdir/out")"
+grep -Eq "^BLOCKING +missing-test .*no test titled \"closes the pane\"" "$tmpdir/out" || fail "expected the JS title: $(cat "$tmpdir/out")"
+cp "$tmpdir/page-tests.bak" "$page"
+run stamp "$page" >/dev/null
 
 # Into a repository's own site instead: a mkdocs site gets the pages under its docs directory and a
 # nav fragment; a Hugo site gets them as a content section with front matter. Neither is built here.
@@ -203,4 +229,4 @@ grep -q "^type: docs" "$project/website/content/guide/developer/_index.md" || fa
 grep -q "^sources:" "$project/website/content/guide/developer/_index.md" || fail "front matter should carry the sources"
 rm -r "$project/website"
 
-echo "OK: documentor check-pages stamps, pins staleness to sections, blocks broken links, paths and sources, applies budgets, reports unmapped files and a missing page kind, blocks handling patterns and writes outside scope; documentor site wrote a Hextra site $built, and emits into mkdocs and Hugo sites"
+echo "OK: documentor check-pages stamps, pins staleness to sections, blocks broken links, paths and sources, applies budgets, reports unmapped files and a missing page kind, blocks handling patterns and writes outside scope; documentor site wrote a self-contained site $built, scaffolds Hextra on request, and emits into mkdocs and Hugo sites"

@@ -1,4 +1,4 @@
-<!-- helix:publish audience=user page=about kind=explanation voice=public-site budget=600 written=agent-opus reviewed=2026-10-20/second-reader-move-review/d97e00b36548df2d -->
+<!-- helix:publish audience=user page=about kind=explanation voice=public-site budget=600 written=agent-opus reviewed=2026-10-20/second-reader-site-check/6059594d1b0a6b77 -->
 <!-- helix:gap artifact:feature-specification -->
 <!-- helix:source docs/helix/00-discover/product-vision.md#vision sha256:af72d95c19717f8b -->
 <!-- helix:source docs/helix/00-discover/product-vision.md#positioning sha256:925b7219f516bebb -->
@@ -6,7 +6,7 @@
 <!-- helix:source docs/helix/01-frame/prd.md#out-of-scope-now sha256:3d376634f9a4f887 -->
 <!-- helix:source README.md#use sha256:1668b6192a52a5d5 -->
 <!-- helix:source README.md#what-it-reads-and-writes sha256:55f9002fc000e454 -->
-<!-- helix:source src/documentor/check.py sha256:dd7449d66da8b7ec -->
+<!-- helix:source src/documentor/check.py sha256:003d9b04712fdb17 -->
 <!-- helix:source src/documentor/write.py sha256:8ad5661054a3cc34 -->
 <!-- helix:source src/documentor/generate.py sha256:92dcfeb4e275656d -->
 # What it is and is not
@@ -25,7 +25,7 @@ documentor makes each page in one of five ways:
 - **Existing.** A hand-written page you already have joins the guide with a short header, unchanged.
 - **Delegated.** When a tool you already use publishes a better reference, documentor links to it instead of copying it.
 
-Each page records the files it was built from. When one changes, the page is stale, and `documentor check` fails the pull request until someone updates it. The check also catches missing or unevaluated pages, drifted architecture drawings, and broken links.
+Each page records the files it was built from. When one changes, the page is stale, and `documentor check` fails the pull request until someone updates it. It also catches missing or unevaluated pages, drifted drawings, broken links, and cited tests that do not exist.
 
 documentor also writes the pages into your existing mkdocs or Hugo site, and creates a site only if you have none. The Markdown pages in the repository stay the record.
 

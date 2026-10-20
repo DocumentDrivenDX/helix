@@ -9,6 +9,7 @@ Usage:
   missing-source   a source path or `#section` no longer exists              (blocking)
   broken-link      a relative link resolves to no file                        (blocking)
   missing-path     a backticked repository path does not exist                (blocking)
+  missing-test     a backticked test reference names a test the file does not define  (blocking)
   unmapped         a watched file is cited by no page                         (warning)
   kind             the header names no page kind, or one that is not Diátaxis's (warning)
   handling         the page matches a pattern the project's `handling:` forbids  (blocking)
@@ -238,6 +239,44 @@ def check_links(page: Page, root: Path, findings: Findings) -> None:
                          f"<!-- helix:creates {candidate} -->)", line)
 
 
+PY_TEST = re.compile(r"`([\w./-]+\.py)::([\w:\[\]-]+)`")
+JS_TEST = re.compile(r'`([\w./-]+\.(?:test|spec)\.[jt]sx?)`\s+"([^"]+)"')
+
+
+def _python_names(path: Path) -> set[str]:
+    import ast
+
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+    except (SyntaxError, UnicodeDecodeError):
+        return set()
+    return {n.name for n in ast.walk(tree) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))}
+
+
+def check_tests(page: Page, root: Path, findings: Findings) -> None:
+    """A page that cites a test must name one that exists: `tests/test_x.py::test_y` (each `::` part a
+    function or class the file defines; a pytest parameter id in brackets is ignored), or a JavaScript
+    test file followed by its quoted title. A missing file is the path check's finding."""
+    body = FENCE.sub("", page.body)
+    for match in PY_TEST.finditer(body):
+        target = root / match.group(1)
+        if not target.is_file():
+            continue
+        names = _python_names(target)
+        parts = [part.split("[", 1)[0] for part in match.group(2).split("::") if part]
+        missing = [part for part in parts if part not in names]
+        if missing:
+            line = page.body_line + body.count("\n", 0, match.start())
+            findings.add("blocking", "missing-test", page.path,
+                         f"`{match.group(1)}` defines no {', '.join(missing)}", line)
+    for match in JS_TEST.finditer(body):
+        target = root / match.group(1)
+        if target.is_file() and match.group(2) not in target.read_text(encoding="utf-8", errors="replace"):
+            line = page.body_line + body.count("\n", 0, match.start())
+            findings.add("blocking", "missing-test", page.path,
+                         f"`{match.group(1)}` has no test titled \"{match.group(2)}\"", line)
+
+
 def check_prose(page: Page, strict: bool, findings: Findings) -> None:
     from documentor import prose
 
@@ -316,6 +355,7 @@ def run_check(paths: list[Path], root: Path | None, strict_prose: bool) -> Findi
             check_sources(page, root, findings)
         check_kind(page, findings)
         check_links(page, root, findings)
+        check_tests(page, root, findings)
     if have_yaml():
         check_handling(pages, config, findings)
         check_handling_drawings(paths, config, findings)

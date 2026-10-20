@@ -74,6 +74,13 @@ warns when an em dash reaches the page. Rasterize the PDF (`pdftoppm`, or any PD
 look at every page before calling the render clean, the same discipline as
 `deck-qa.py`'s slide-by-slide inspection.
 
+Architecture visuals in a deliverable are generated, not drawn, when the project has an
+architecture model: a Visual spec that shows the system names the model's view, and documentor
+renders it (`documentor views` for a static figure; `documentor present` for a stepped
+walkthrough in a live talk). The deck carries the rendered image and cites the model as its
+source. Without a model or without documentor, follow `workflows/references/diagram-design.md`
+and say in `## Render` which was missing (`diagram-design.md`, "Generated first").
+
 ## Gate
 
 - Script checks: claim title, pattern, visual, notes, and sources per unit;

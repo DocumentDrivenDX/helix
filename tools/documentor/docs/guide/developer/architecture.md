@@ -1,9 +1,9 @@
-<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=agent-opus reviewed=2026-10-20/second-reader-move-review/3c1bf3d91a9eb449 -->
+<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=agent-opus reviewed=2026-10-20/second-reader-site-check/077b52089c19fc8c -->
 <!-- helix:gap artifact:architecture -->
 <!-- helix:source src/documentor/cli.py sha256:63fa5bcbdc82b569 -->
 <!-- helix:source src/documentor/lib.py sha256:4c3de9f491076524 -->
 <!-- helix:source src/documentor/write.py sha256:8ad5661054a3cc34 -->
-<!-- helix:source src/documentor/site.py sha256:099a21eeb38e1388 -->
+<!-- helix:source src/documentor/site.py sha256:1cd9d398b52567c7 -->
 <!-- helix:source src/documentor/architecture/model.py sha256:23e8d56bcb11fa69 -->
 <!-- helix:source src/documentor/architecture/views.py sha256:9217c09b8a9d2262 -->
 <!-- helix:source src/documentor/architecture/estate.py sha256:85e415173d29ef4c -->
@@ -30,7 +30,7 @@ documentor connects five outside systems: a target repository, the HELIX catalog
 | The target repository | Reads the files git tracks and `.helix.yml`; writes pages under `publish.out` | Every command |
 | HELIX | Audiences and voice profiles copied into `src/documentor/catalog/helix/` from HELIX's `workflows/` | Planning and the prose checks |
 | An agent command | Prompt on standard input, page on standard output; Claude Code headless by default | `write` and `build --write` only |
-| A site generator | mkdocs, Hugo, or a scaffolded Hextra project | `site` and `build` |
+| A site generator | mkdocs or Hugo when the repository has one; else documentor's own layout, or Hextra on request | `site` and `build` |
 | GitHub, through `gh` | `gh api` fetches other repositories' architecture models | `estate --fetch` only |
 
 `just sync-helix` refreshes that copy from the repository's own `workflows/`, and `just test-catalog` fails when the two differ. The CLI reports the catalog it carries:
@@ -53,9 +53,9 @@ The containers are Python modules under `src/documentor/`, plus the catalog as p
 | `src/documentor/detect.py` | Scores the catalog's traits against the repository and proposes a `publish:` block |
 | `src/documentor/generate.py` | Writes the pages a structured source already states; also runs a project's own generator command |
 | `src/documentor/write.py` | Builds the writer's prompt with the page's own check findings, calls the agent, then has a second model evaluate |
-| `src/documentor/check.py` | `check-pages` and `stamp`: stale sources, broken links, missing paths, handling patterns, prose limits |
+| `src/documentor/check.py` | `check-pages` and `stamp`: stale sources, broken links, missing paths, cited tests, handling patterns, prose limits |
 | `src/documentor/prose.py` | Measures a page's prose against its voice profile and word budget |
-| `src/documentor/site.py` | Emits the pages into an mkdocs or Hugo site, or scaffolds Hextra |
+| `src/documentor/site.py` | Emits the pages into an mkdocs or Hugo site, or writes a new site in its own layout or Hextra |
 | `src/documentor/architecture/` | The architecture model and its checks, the views, the deployment drawing, the field guide, the estate, the presentation |
 | `src/documentor/catalog/` | Package data: `helix/` (synced), `traits/`, `themes/`, and `ci/` (the CI template) |
 
@@ -95,7 +95,7 @@ Each part of documentor runs in one of three places, depending on what it needs:
 - **A weekly job in that repository.** The same template runs `documentor build --root . --no-site`, then opens a pull request with the regenerated pages and views. It leaves stale written pages for `status` to list.
 - **A machine with agent credentials.** `documentor write` runs here, never in the CI template. The default agent command is `claude -p` with read tools only.
 
-A site build needs more. Hextra needs Hugo and Go, plus network access the first time. The scaffold goes to a `site` directory under `.helix`, unless `--site` names another directory.
+A site build needs more. The default layout needs only Hugo; Hextra also needs Go, plus network access the first time. A new site goes to a `site` directory under `.helix`, unless `--site` names another directory.
 
 documentor's CI is HELIX's `documentor` workflow. It runs when documentor, HELIX's publish catalog, or HELIX's voice profiles change. It works from `tools/documentor` with Python 3.12 and Hugo 0.160.0:
 

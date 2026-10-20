@@ -1,7 +1,7 @@
 """Assemble the guide's pages into a site: the repository's own site when it has one, else a new one.
 
 Usage:
-    documentor site [--root DIR] [--site DIR] [--target mkdocs|hugo|hextra] [--no-build] [--base-url URL]
+    documentor site [--root DIR] [--site DIR] [--target mkdocs|hugo|static|hextra] [--no-build] [--base-url URL]
 
 Reads the project's `.helix.yml` `publish:` block and the pages under `publish.out` (one directory
 per audience), then:
@@ -11,8 +11,12 @@ per audience), then:
            nothing else of the site is touched
   hugo     the repository has a Hugo site (`hugo.yaml` or `hugo.toml`, at the root or under
            `website/`): the pages become a section of its content with Hugo front matter
-  hextra   the repository has no site: a Hextra project is written to `--site` (default
-           `<root>/.helix/site`) with a home page, one section per audience, and the theme as a
+  static   the repository has no site (the default then): a site in documentor's self-contained
+           layout is written to `--site` (default `<root>/.helix/site`): a home page with a card
+           per audience listing each page and its task, a sidebar per section, each page's kind
+           and task above its title, and its sources. Building needs only hugo; no theme module,
+           Go, or network (Mermaid diagrams load in the reader's browser)
+  hextra   chosen with `site.target: hextra`: the same content as a Hextra project, the theme a
            Hugo module (building needs hugo and go, and the network once)
 
 `site.target` in `.helix.yml` chooses; without it the repository's files decide, as above. Each
@@ -37,7 +41,7 @@ from pathlib import Path
 import yaml
 
 from documentor.check import parse_page
-from documentor.lib import FENCE, audiences, config_of, find_root, load_audience, load_traits, publish_out
+from documentor.lib import FENCE, catalog, audiences, config_of, find_root, load_audience, load_traits, publish_out
 
 LINK = re.compile(r"(!?\[[^\]]*\]\()([^)\s]+)((?:\s+\"[^\"]*\")?\))")
 HREF = re.compile(r'(href=")([^"]+)(")')
@@ -66,7 +70,7 @@ def detect_target(root: Path) -> str:
         return "mkdocs"
     if hugo_dir(root):
         return "hugo"
-    return "hextra"
+    return "static"
 
 
 # --- the pages -----------------------------------------------------------------------------------------
@@ -201,7 +205,8 @@ def sources_block(sources: list[str]) -> str:
 
 # --- Hugo (an existing site, or a new Hextra one) --------------------------------------------------
 
-def emit_hugo(root: Path, config: dict, site_dir: Path, content_dir: str, hextra: bool) -> list[dict]:
+def emit_hugo(root: Path, config: dict, site_dir: Path, content_dir: str, hextra: bool,
+              inline_sources: bool = True) -> list[dict]:
     """Write the sections and pages under `<site_dir>/content/<content_dir>`; return the sections."""
     publish = config.get("publish") or {}
     settings = publish.get("site") or {}
@@ -239,7 +244,7 @@ def emit_hugo(root: Path, config: dict, site_dir: Path, content_dir: str, hextra
                 lead += f'<p class="guide-kind">{meta["kind"]}</p>\n\n'
             if meta["task"] and hextra:
                 lead += f'<p class="guide-task">{meta["task"]}</p>\n\n'
-            text = front_matter(meta) + lead + linker.rewrite(path, body) + sources_block(sources)
+            text = front_matter(meta) + lead + linker.rewrite(path, body) + (sources_block(sources) if inline_sources else "")
             (section_dir / ("_index.md" if pid == "index" else f"{pid}.md")).write_text(text, encoding="utf-8")
             listed.append({"title": title, "url": published[path.resolve()], "task": entry.get("task", "")})
         for pid, title, text in delegated_pages(config, root, aid, audience):
@@ -280,6 +285,10 @@ def scaffold_hextra(root: Path, config: dict, site: Path, run_hugo: bool, base_u
             f'<div class="hx:mt-6 hx:mb-6">\n{{{{< hextra/hero-headline >}}}}\n  {title}\n{{{{< /hextra/hero-headline >}}}}\n</div>\n\n'
             f'<div class="hx:mb-12">\n{{{{< hextra/hero-subtitle >}}}}\n  {settings.get("description", "")}\n'
             f"{{{{< /hextra/hero-subtitle >}}}}\n</div>\n\n{{{{< cards >}}}}\n{cards}{{{{< /cards >}}}}\n")
+    for s_ in sections:
+        lines = [f"- [{p['title']}]({p['url'].lstrip('/')})" + (f": {p['task']}" if p.get("task") else "") for p in s_["pages"]]
+        if lines:
+            home += f"\n## {s_['title']}\n\n{s_['reader']}\n\n" + "\n".join(lines) + "\n"
     (site / "content" / "_index.md").write_text(home, encoding="utf-8")
     h, s = hue(settings.get("accent", "#2f6f8f"))
     (site / "assets" / "css").mkdir(parents=True, exist_ok=True)
@@ -309,6 +318,42 @@ def scaffold_hextra(root: Path, config: dict, site: Path, run_hugo: bool, base_u
     hugo_bin = shutil.which("hugo")
     if not hugo_bin or not shutil.which("go"):
         print("documentor site: building a Hextra site needs hugo and go; the project is ready to build", file=sys.stderr)
+        return 0
+    done = subprocess.run([hugo_bin, "--source", str(site), "--destination", str(site / "public"), "--quiet"], check=False)
+    if done.returncode:
+        return 1
+    print(f"built {site / 'public'}")
+    return 0
+
+
+def scaffold_static(root: Path, config: dict, site: Path, run_hugo: bool, base_url: str | None) -> int:
+    """A new site in the self-contained layout under `catalog/site/`: no theme module, no Go, no
+    network at build time (Mermaid loads in the reader's browser). A home page with a card per
+    audience listing each page and its task, a sidebar per section, the page's kind and task above
+    its title, and the sources it was built from."""
+    settings = (config.get("publish") or {}).get("site") or {}
+    if site.exists():
+        shutil.rmtree(site)
+    shutil.copytree(catalog() / "site", site)
+    sections = emit_hugo(root, config, site, "", hextra=False, inline_sources=False)
+    title = settings.get("title", root.name)
+    (site / "content" / "_index.md").write_text(front_matter({"title": title, "weight": 0}), encoding="utf-8")
+    hugo_config = {
+        "baseURL": base_url or settings.get("base_url", "/"),
+        "title": title,
+        "relativeURLs": True,
+        "disableKinds": ["taxonomy", "term", "RSS", "sitemap"],
+        "markup": {"goldmark": {"renderer": {"unsafe": True}}, "highlight": {"noClasses": False}},
+        "params": {"accent": settings.get("accent", "#2f6f8f"), "repo_url": settings.get("repo_url", ""),
+                   "description": settings.get("description", ""), "sections": sections},
+    }
+    (site / "hugo.yaml").write_text(yaml.safe_dump(hugo_config, sort_keys=False, allow_unicode=True), encoding="utf-8")
+    print(f"wrote {site} ({sum(len(s['pages']) for s in sections)} pages in {len(sections)} sections)")
+    if not run_hugo:
+        return 0
+    hugo_bin = shutil.which("hugo")
+    if not hugo_bin:
+        print("documentor site: hugo is not installed; the Hugo project is ready to build", file=sys.stderr)
         return 0
     done = subprocess.run([hugo_bin, "--source", str(site), "--destination", str(site / "public"), "--quiet"], check=False)
     if done.returncode:
@@ -433,14 +478,16 @@ def build(root: Path, site: Path, run_build: bool, base_url: str | None, target:
         return into_mkdocs(root, config, run_build)
     if target == "hugo":
         return into_hugo(root, config, run_build)
-    return scaffold_hextra(root, config, site, run_build, base_url)
+    if target == "hextra":
+        return scaffold_hextra(root, config, site, run_build, base_url)
+    return scaffold_static(root, config, site, run_build, base_url)
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="documentor site", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--root", type=Path)
     parser.add_argument("--site", type=Path)
-    parser.add_argument("--target", choices=("mkdocs", "hugo", "hextra"))
+    parser.add_argument("--target", choices=("mkdocs", "hugo", "static", "hextra"))
     parser.add_argument("--no-build", action="store_true")
     parser.add_argument("--base-url")
     args = parser.parse_args(argv)

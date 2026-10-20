@@ -1,8 +1,30 @@
 # Diagram design standard
 
 Use this standard when a diagram must work in a presentation or as a flagship
-solution visual. Ordinary reference diagrams may remain in Mermaid. A polished
+solution visual, and to review a generated one. Ordinary reference diagrams may remain in Mermaid. A polished
 view explains the same architecture at a chosen level; it adds no authority.
+
+## Generated first
+
+When the project has an architecture model (`<helix root>/02-design/architecture-model.toml`,
+each element and relation citing the file that shows it), every architecture diagram is
+generated from it, never drawn: drawn diagrams drift, and nothing tells a reader when they have.
+With documentor on the host (`tools/documentor/` in the HELIX repository):
+
+| The question | Generate | Command |
+|---|---|---|
+| What connects to what, for a document or a guide page | a flowchart, stack, cast, journey, or DAG view (Mermaid or a table, between markers) | `documentor views` |
+| Where everything runs | a deployment view (SVG) | `documentor views` |
+| A developer's first map, with lanes and numbered steps | a field guide (self-contained HTML) | `documentor views` (a `field-guide` view) |
+| A talk or a walkthrough, one step at a time | the Eraser presentation (HTML player) | `documentor present --view <id> --journey <id>`, then its `render.mjs` |
+
+`documentor check` fails when a view no longer matches the model or the model no longer matches
+the code. The model's format is documentor's `docs/references/architecture-model.md`. A project
+without a model writes one when it has more than one deployed part (the `guide` mode's
+"Generate" step); until then, and for a diagram that is not architecture, draw it by this
+standard. Without documentor on the host, draw from the model by hand, name the model as the
+source, and say so in the handoff. The rest of this standard applies to the generated output
+too: review it rendered, at full size and as a preview, and record what it omits.
 
 ## Brief before layout
 

@@ -1,13 +1,13 @@
-<!-- helix:publish audience=developer page=walkthrough kind=explanation voice=onboarding budget=1100 written=agent-opus reviewed=2026-10-20/second-reader-move-review/94c494278218755a -->
+<!-- helix:publish audience=developer page=walkthrough kind=explanation voice=onboarding budget=1100 written=agent-opus reviewed=2026-10-20/second-reader-site-check/21c0f973800e599f -->
 <!-- helix:gap artifact:architecture -->
 <!-- helix:source src/documentor/cli.py sha256:63fa5bcbdc82b569 -->
-<!-- helix:source src/documentor/check.py sha256:dd7449d66da8b7ec -->
+<!-- helix:source src/documentor/check.py sha256:003d9b04712fdb17 -->
 <!-- helix:source src/documentor/lib.py sha256:4c3de9f491076524 -->
 <!-- helix:source src/documentor/generate.py sha256:92dcfeb4e275656d -->
 <!-- helix:source src/documentor/write.py sha256:8ad5661054a3cc34 -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
 <!-- helix:source tests/validate-guide.sh sha256:d86508e36bfa4fd1 -->
-<!-- helix:source tests/validate-publish.sh sha256:b8d3606d22ab7013 -->
+<!-- helix:source tests/validate-publish.sh sha256:978673c6cb51fb8f -->
 <!-- helix:source tests/validate-publish-traits.sh sha256:6f8a932174fe2332 -->
 <!-- helix:source tests/validate-write.sh sha256:231fcd5db47c82ed -->
 <!-- helix:source justfile sha256:8b9f44abbdc7b4e0 -->
@@ -123,6 +123,7 @@ Every failure ends in exit 1 with a line naming the page and the next action, ex
 | The body changed after review | `assess` | `REVIEW`: "changed after its evaluation; evaluate it again" |
 | A generated page differs from regeneration | `check_generated` | Blocking `stale`: "its sources changed" |
 | A broken link or backticked path | `check_links` | Blocking `broken-link` or `missing-path` |
+| A cited test the file does not define | `check_tests` | Blocking `missing-test` |
 | Text matches a `handling` pattern | `check_handling` | Blocking `handling`, also for drawings beside the pages |
 | Views drifted from the model | `views` | `architecture views: stale`, with the problems |
 

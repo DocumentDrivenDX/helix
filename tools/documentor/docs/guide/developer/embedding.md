@@ -1,4 +1,4 @@
-<!-- helix:publish audience=developer page=embedding kind=how-to voice=onboarding budget=1100 written=agent-opus reviewed=2026-10-20/second-reader-move-review/7ec58d7c1384f174 -->
+<!-- helix:publish audience=developer page=embedding kind=how-to voice=onboarding budget=1100 written=agent-opus reviewed=2026-10-20/second-reader-site-check/ccc7acaf587b0fd5 -->
 <!-- helix:gap artifact:examples -->
 <!-- helix:source README.md#install sha256:11003d4123be1f55 -->
 <!-- helix:source README.md#what-it-reads-and-writes sha256:55f9002fc000e454 -->
@@ -47,7 +47,7 @@ Expected result:
 0.1.0
 ```
 
-The host needs Python 3.11 or later, and the only runtime dependency is PyYAML. Hugo, and Go for the Hextra theme, are needed only to build a new site.
+The host needs Python 3.11 or later, and the only runtime dependency is PyYAML. Hugo is needed only to build a new site, and Go only for the Hextra theme.
 
 ## Configure
 

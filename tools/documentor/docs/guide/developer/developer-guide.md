@@ -1,4 +1,4 @@
-<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=agent-opus reviewed=2026-10-20/second-reader-move-review/2b4138b705c511f1 -->
+<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=agent-opus reviewed=2026-10-20/second-reader-site-check/2b4138b705c511f1 -->
 <!-- helix:source pyproject.toml sha256:95efaa59d25e6f0a -->
 <!-- helix:source justfile sha256:8b9f44abbdc7b4e0 -->
 <!-- helix:source ../../.github/workflows/documentor.yml sha256:06f939b8b1b71ec1 -->
@@ -7,7 +7,7 @@
 <!-- helix:source src/documentor/cli.py sha256:63fa5bcbdc82b569 -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
 <!-- helix:source tests/validate-package.sh sha256:69be8ff75ae2184c -->
-<!-- helix:source tests/validate-publish.sh sha256:b8d3606d22ab7013 -->
+<!-- helix:source tests/validate-publish.sh sha256:978673c6cb51fb8f -->
 <!-- helix:source scripts/sync-helix-catalog.py sha256:d626e57d6a7c91b6 -->
 # Developer guide
 

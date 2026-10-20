@@ -1,4 +1,4 @@
-<!-- helix:publish audience=developer page=index kind=explanation voice=onboarding budget=800 written=agent-opus reviewed=2026-10-20/second-reader-move-review/152adb00cdd8b807 -->
+<!-- helix:publish audience=developer page=index kind=explanation voice=onboarding budget=800 written=agent-opus reviewed=2026-10-20/second-reader-site-check/45599bb3e2faeee8 -->
 <!-- helix:gap artifact:architecture -->
 <!-- helix:source docs/helix/00-discover/product-vision.md sha256:53b51880ca06cad7 -->
 <!-- helix:source docs/helix/02-design/adr/ADR-001-a-repository-guide-is-detected-generated-written-evaluated-and-checked.md#decision sha256:d3fd98aa3f21622b -->
@@ -37,7 +37,7 @@ The code is one package, `src/documentor/`, with one module per step of the pipe
 | `src/documentor/write.py` | Calls a headless agent to write a page, checks the result, then calls a second model to evaluate it |
 | `src/documentor/check.py` | Checks provenance, links, paths, handling, and prose; stamps source digests |
 | `src/documentor/prose.py` | Measures a page's prose against its voice profile and word budget |
-| `src/documentor/site.py` | Emits the pages into an existing mkdocs or Hugo site, or scaffolds a Hextra one |
+| `src/documentor/site.py` | Emits the pages into an existing mkdocs or Hugo site, or writes a new one |
 | `src/documentor/architecture/` | The architecture model, its views, the deployment drawing, presentations, and the estate view |
 
 The catalog is package data that the code reads but does not define. `src/documentor/catalog/traits/` holds the traits, and `src/documentor/catalog/helix/` holds the audiences and voice rules that `scripts/sync-helix-catalog.py` copies from the HELIX repository's own `workflows/`. `src/documentor/catalog/themes/` and `src/documentor/catalog/ci/github-actions.yml` hold the site themes and the CI template.
