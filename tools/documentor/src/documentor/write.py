@@ -165,7 +165,8 @@ def reviewer_prompt(page: PagePlan, root: Path) -> str:
     entry = page.entry
     return "\n".join([
         "You are evaluating one page of a repository's documentation, written by someone else.",
-        f"Read the page at {page.path}, the sources its `helix:source` lines name, and whatever else in the repository you need.",
+        f"The repository is {root.resolve()}, the current directory; its paths below are relative to it.",
+        f"Read the page at {(root / page.path).resolve()}, the sources its `helix:source` lines name, and whatever else in the repository you need.",
         "",
         f"- Reader: the {page.audience} audience",
         f"- Kind (Diátaxis): {page.kind}",

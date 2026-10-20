@@ -20,7 +20,7 @@ model, prompt = sys.argv[1], sys.stdin.read()
 mode = os.environ.get("FAKE_MODE", "")
 log = open(os.environ["FAKE_LOG"], "a")
 if prompt.startswith("You are evaluating"):
-    path = re.search(r"Read the page at (\S+),", prompt).group(1)
+    path = os.path.relpath(re.search(r"Read the page at (\S+),", prompt).group(1))
     log.write(f"{model} evaluate {path}\n")
     print("VERDICT: fail\n- Overview: the parts are wrong" if mode == "reject" else "VERDICT: pass")
     sys.exit(0)

@@ -1,13 +1,13 @@
 <!-- helix:publish audience=developer page=cli kind=reference voice=onboarding generated=cli-commands -->
-<!-- helix:source pyproject.toml sha256:95efaa59d25e6f0a -->
-<!-- helix:source src/documentor/cli.py sha256:63fa5bcbdc82b569 -->
+<!-- helix:source pyproject.toml sha256:50b33a33c6ff0f5e -->
+<!-- helix:source src/documentor/cli.py sha256:4181ca3d7fc04669 -->
 # Command line
 
 Every command line the project installs: 1 in all, from `[project.scripts]` in its pyproject files, with each command's purpose from its docstring. Options and arguments are on each command's `--help`.
 
 ## documentor
 
-`documentor` is `documentor.cli:main` (pyproject.toml); 7 commands.
+`documentor` is `documentor.cli:main` (pyproject.toml); 8 commands.
 
 | Command | What it does |
 |---|---|
@@ -18,3 +18,4 @@ Every command line the project installs: 1 in all, from `[project.scripts]` in i
 | `documentor check` | the CI gate: regenerate in memory, fail on anything behind |
 | `documentor review` | Record an evaluation, only of a page that passes every check, never by the page's writer; it lapses when the page changes. |
 | `documentor adopt` | Give a hand-written page the header that brings it under the guide; its text is untouched. |
+| `documentor prompt` | the brief a writer (or an evaluator) of a written page gets |

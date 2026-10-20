@@ -11,4 +11,4 @@ publish:
   traits: [python-cli, python-library]
   audiences: [developer, user]
   out: docs/guide
-  skip: [developer/api]
+  skip: [developer/api, user/whats-new]   # whats-new: documentor ships in HELIX releases, whose notes HELIX keeps

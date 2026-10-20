@@ -1,18 +1,20 @@
-<!-- helix:publish audience=user page=using kind=how-to voice=public-site budget=1500 written=agent-opus reviewed=2026-10-20/second-reader-site-check/20d15657eb3c5d33 -->
+<!-- helix:publish audience=user page=using kind=how-to voice=public-site budget=1500 written=agent-opus reviewed=2026-10-20/agent-sonnet/a5bb05c3dd5bbf0c -->
 <!-- helix:gap artifact:feature-specification -->
 <!-- helix:gap artifact:user-stories -->
 <!-- helix:source README.md#use sha256:1668b6192a52a5d5 -->
-<!-- helix:source src/documentor/cli.py sha256:63fa5bcbdc82b569 -->
-<!-- helix:source src/documentor/write.py sha256:8ad5661054a3cc34 -->
-<!-- helix:source src/documentor/site.py sha256:1cd9d398b52567c7 -->
+<!-- helix:source src/documentor/cli.py sha256:4181ca3d7fc04669 -->
+<!-- helix:source src/documentor/write.py sha256:2118376b2c167085 -->
+<!-- helix:source src/documentor/site.py sha256:ed1edc72665fd7da -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
 # Using the product
 
-documentor builds a repository's documentation and keeps it current. That documentation is the repository's *guide*. Each task below is one you do regularly after your first session. They come in the order you are likely to meet them.
+documentor builds a repository's documentation and keeps it current. That documentation is the repository's *guide*. The tasks below follow the order you meet them.
 
-First you see what the guide needs, then write, evaluate, and bring in pages. Last, you build the site, pass the check, and keep the guide current.
+Every command runs from the repository's root folder, or from another folder given with `--root DIR`. If the repository has no guide yet, start with [Getting started](index.md).
 
-Every command runs from the repository's root folder. You can also add `--root DIR` to run it against another folder. If the repository has no guide yet, start with [Getting started](index.md).
+The guide's settings live in the `publish:` block of `.helix.yml`. That block has a `schema` number, which must match the schema your documentor reads.
+
+On a mismatch, `status`, `build`, `write`, `check`, and `prompt` stop and tell you to use the documentor from the block's HELIX release. `init`, `review`, and `adopt` do not check the schema.
 
 ## See what the guide needs
 
@@ -25,7 +27,7 @@ documentor status --format json
 
 The list ends with `For the agent`, an ordered work list. Pages to adopt come first, then missing pages, then stale ones, then ones nobody has evaluated. Work the list from the top.
 
-A *written page* is one that needs explanation, so an AI agent writes it. Sometimes the agent writes a page without a planning document it was told to read. That page's row then says `written without` and names the document. Add that document under `docs/helix/` and rewrite the page if you want it to cover more.
+A *written page* is one that needs explanation, so an AI agent writes it. If the agent wrote a page without a planning document it was told to read, the page's row says `written without` and names that document. Add that document under `docs/helix/` and rewrite the page if you want it to cover more.
 
 `--format json` prints the same information as JSON, for scripts.
 
@@ -37,24 +39,35 @@ documentor write docs/guide/user/about.md     # one page only, rewritten whateve
 documentor write --dry-run                    # print the prompts, call nothing
 ```
 
-Without a page named, `write` works through the written pages that are missing, stale, or not yet evaluated. It leaves current pages alone. A *stale* page is one where a file it cites as a source has changed since it was written.
+If you name no page, `write` works through the written pages that are missing, stale, or not yet evaluated. It leaves current pages alone. A *stale* page cites a source file that has changed since the page was written.
 
 Missing and stale pages are written. A page not yet evaluated is only evaluated, unless its own checks find problems. A broken link or a banned phrase, for example, sends it back to the writer first, because those findings would block an evaluation.
 
-Naming a page forces a rewrite, whatever its state. A current page is revised and evaluated again, so its earlier evaluation is replaced. A page that only needed evaluating is revised as well. Name a page when you want it rewritten, not to evaluate it.
+Naming a page forces a rewrite, whatever its state. A current page is revised and evaluated again, so its earlier evaluation is replaced.
 
-For each page it writes, the command does this:
+For each page, `write` does this:
 
 1. One agent call writes the page from its plan: the reader's task, the sections, the word budget, and where to look.
 2. documentor adds the header, records the sources, and runs the page checks. If a check fails, the agent revises the page once.
 3. A second call, on a different model, evaluates the page against its task and sources.
 4. A pass is recorded on the page. A fail sends the evaluator's notes back to the writer for one revision, then a second evaluation.
 
-A page that already exists is revised, not replaced. The agent gets the current page and keeps the rest. It is also told which sources moved and what the page's checks found. A link to a guide page not yet written does not count as a finding.
+A page that already exists is revised, not replaced. The agent gets the current page, which sources moved, and what the page's checks found. A link to a guide page not yet written does not count as a finding.
 
 Every page is written before any page is evaluated. Links between new pages then resolve before the evaluator reads them.
 
 The run ends with `wrote or evaluated N of M pages`. Any page that could not be finished is listed under `LEFT`, with its problems. The command then exits with status 1. Fix the problems the list names, or run `write` again for that page.
+
+### See what the agent is told
+
+```sh
+documentor prompt docs/guide/user/about.md
+documentor prompt docs/guide/user/about.md --reviewer
+```
+
+`prompt` prints the brief that the writing agent gets for one written page, and calls no agent. Name the page by its path or as audience/id. The brief includes the voice rules and HELIX's writing-pass rules, so the agent writes to the same standard a person follows.
+
+Add `--reviewer` to print the evaluator's brief instead. That brief names the repository folder and the page by their full paths, so the evaluator reads the right files.
 
 ### Why it asks for two models
 
@@ -69,7 +82,7 @@ A page never counts as evaluated by its own writer. `write` stops at once if the
 
 The default agent is Claude Code run headless, allowed only to read files. You can name another command with the `DOCUMENTOR_AGENT` environment variable. You can also set it in `.helix.yml` under `publish.agent`, with the keys `command`, `writer`, and `reviewer`. The agent needs credentials, so run `write` on a machine that has them.
 
-If the agent command is not installed, `write` says so and names the two places to set it. Each agent call has a limit of 900 seconds.
+If the agent command is not installed, `write` says so and names the two places to set it. `documentor doctor` also reports whether the agent command is present. Each agent call has a limit of 900 seconds.
 
 ## Evaluate a page yourself
 
@@ -79,7 +92,7 @@ documentor review docs/guide/user/about.md --by your-name
 
 Use `review` when a person, not the evaluating agent, reads a page against its sources and task. It records your name, the date, and a fingerprint of the page's text in the page header.
 
-`review` refuses in three cases, each for a reason:
+`review` refuses in three cases:
 
 - **You wrote the page.** If `--by` matches the page's writer, another reader must evaluate it.
 - **A check still fails.** It prints each finding and records nothing until you fix them.
@@ -97,11 +110,12 @@ documentor adopt docs/how-to/deploy.md --audience operator --kind how-to --sourc
 
 Name a source when the page describes that file. A change to the file then makes the page stale, so `check` reminds you to update it. Without `--kind`, the command tells you to add the kind to the header yourself.
 
-`status` marks pages to adopt with `ADOPT` and prints the exact `adopt` command to run. A page that already has a header is refused. The path in the example above stands for your own page.
+`status` marks pages to adopt with `ADOPT` and prints the exact `adopt` command to run. A page that already has a header is refused.
 
 ## Build the site
 
 ```sh
+documentor doctor               # which site and agent tools this machine has
 documentor build                # regenerate, check, and build the site
 documentor build --no-site      # everything except the site
 documentor build --write        # also write and evaluate pages first, as in `write`
@@ -115,12 +129,23 @@ The site goes where your repository already publishes:
 | Your repository has | What documentor does |
 |---|---|
 | A `mkdocs.yml` | Copies the pages under its docs folder and writes a `nav.yml` fragment for you to include. |
-| A Hugo site | Adds the pages as a section of its content. |
+| A Hugo site | Adds the pages as a section of the folder the site reads its content from. |
 | No site | Writes a new site in documentor's own layout, by default into `.helix/site` under the repository root. |
 
-A new site needs only Hugo to build. For the Hextra theme instead, set `site.target: hextra` under `publish:` in `.helix.yml`; it also needs Go, and the network once.
+A new site needs only Hugo to build. For the Hextra theme instead, set `site.target: hextra` under `publish:` in `.helix.yml`; it also needs Go, and the network once. `documentor doctor` prints one line per tool, marked `ok` or `missing`.
 
-The Markdown pages in the guide folder are the record. Whatever documentor writes into a site is rebuilt from them each time, so edit the pages, not the site.
+For an existing Hugo site, the content folder is the one its `module.mounts` maps to `content`, or else its `content/` folder. Set `site_dir` or `content_root` under `publish.site` to choose another. Images and other files a page links go beside the pages, so the site's own static folder stays untouched.
+
+Two more settings under `publish.site` add sections the guide does not write:
+
+| Setting | What it adds |
+|---|---|
+| `record` | The HELIX planning documents, published into the site. |
+| `sections` | Generated sections; each runs its `command` from the repository root. |
+
+A section's command gets the `DOCUMENTOR_SECTION_OUT` environment variable, set to that section's folder in the site. If the command fails, `build` stops.
+
+The Markdown pages in the guide folder are the source of the site. Whatever documentor writes into a site is rebuilt from them each time, so edit the pages, not the site.
 
 ## Pass the check before a pull request
 
@@ -138,7 +163,7 @@ It exits with status 1 when any of these hold:
 
 It prints up to ten unfinished pages, each with what it needs. Run `build` for generated pages and `write` for written ones, then check again.
 
-To run the gate on every pull request, copy the CI template into your repository as `guide.yml` in the .github/workflows folder. Install documentor once, then copy `github-actions.yml` from the catalog's ci folder inside the installed `documentor` package. You can also take it from the [HELIX repository](https://github.com/DocumentDrivenDX/helix/blob/main/tools/documentor/src/documentor/catalog/ci/github-actions.yml). Set its `DOCUMENTOR` variable to the HELIX release you use.
+To run the gate on every pull request, copy the CI template into your repository as `guide.yml` in the .github/workflows folder. The template ships inside the `documentor` package at `src/documentor/catalog/ci/github-actions.yml`. You can also take it from the [HELIX repository](https://github.com/DocumentDrivenDX/helix/blob/main/tools/documentor/src/documentor/catalog/ci/github-actions.yml). Set its `DOCUMENTOR` variable to the HELIX release you use.
 
 ## Keep the guide current
 

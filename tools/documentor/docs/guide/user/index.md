@@ -1,12 +1,13 @@
-<!-- helix:publish audience=user page=index kind=tutorial voice=public-site budget=700 written=agent-opus reviewed=2026-10-20/second-reader-site-check/24b76edbdd77679b -->
+<!-- helix:publish audience=user page=index kind=tutorial voice=public-site budget=700 written=agent-opus reviewed=2026-10-20/agent-sonnet/019d97a8b1e40ed4 -->
 <!-- helix:gap artifact:user-stories -->
 <!-- helix:source README.md#install sha256:11003d4123be1f55 -->
 <!-- helix:source README.md#use sha256:1668b6192a52a5d5 -->
-<!-- helix:source src/documentor/cli.py sha256:63fa5bcbdc82b569 -->
+<!-- helix:source src/documentor/cli.py sha256:4181ca3d7fc04669 -->
 <!-- helix:source src/documentor/detect.py sha256:ff655eeda6b4701f -->
+<!-- helix:source src/documentor/lib.py sha256:093a891d0f8bcf48 -->
 # Getting started
 
-documentor is a command-line tool. It detects what a repository is, then generates, checks, and assembles that repository's documentation, called its *guide*. In one short session, you point documentor at a repository of your own. You then read on screen the list of documentation pages that repository needs.
+documentor is a command-line tool. It works out what kind of project a repository is. It then generates, checks, and assembles that repository's documentation, which documentor calls its *guide*. In one session, you point documentor at your own repository and read the list of documentation pages it needs.
 
 ## Before you start
 
@@ -14,9 +15,9 @@ You need:
 
 - Python 3.11 or later.
 - [uv](https://docs.astral.sh/uv/), which installs and runs documentor.
-- A repository to document, checked out on your machine. Use a scratch branch, because documentor writes files into it.
+- A repository to document, checked out on your machine. Use a scratch branch; documentor writes files into it.
 
-You do not need Hugo, Go, or an agent for the first session. You need them later, to build a site and write pages.
+The first session needs no Hugo, Go, or agent. Those come later, to build a site and write pages.
 
 ## Open it and sign in
 
@@ -26,7 +27,7 @@ documentor has no account and no sign-in. You install it once and run it from a 
 uv tool install "git+https://github.com/DocumentDrivenDX/helix@<tag>#subdirectory=tools/documentor"
 ```
 
-To try it without installing, run it one-off instead:
+To try it without installing:
 
 ```sh
 uvx --from "git+https://github.com/DocumentDrivenDX/helix@<tag>#subdirectory=tools/documentor" documentor --version
@@ -42,7 +43,7 @@ The output names the documentor version and the HELIX catalog version it carries
 
 ## Your first task: one worked session, step by step
 
-The task is to have documentor describe your repository and list every page its readers need.
+In this task, documentor describes your repository and lists every page its readers need.
 
 **1. Go to the repository.**
 
@@ -50,7 +51,7 @@ The task is to have documentor describe your repository and list every page its 
 cd path/to/your-repository
 ```
 
-Every command also accepts `--root DIR` if you prefer to stay where you are.
+Or pass `--root DIR` to any command.
 
 **2. Ask documentor what the repository is.**
 
@@ -60,21 +61,21 @@ documentor init
 
 The screen starts with `Traits detected in <name>:`. A *trait* is something the repository is, such as a plugin or a data app. Each trait adds pages to the guide.
 
-Each trait line shows a confidence score and the files that count as evidence for it. Lines marked `PROPOSE` scored 0.5 or higher, and documentor proposes them. Below that, `Proposed for .helix.yml:` shows the configuration block documentor suggests. Lines starting `Page added:` and `Page delegated:` show what each trait contributes.
+Each trait line shows a confidence score and its evidence files. `PROPOSE` marks a trait that scored 0.5 or higher. Below that, `Proposed for .helix.yml:` shows the configuration block documentor suggests. Lines starting `Page added:` and `Page delegated:` show what each trait contributes.
 
-The report ends by listing significant files no proposed trait claims, or with `Every significant file is claimed.`
+The report ends by listing significant files that no proposed trait claims, or with `Every significant file is claimed.`
 
 **3. Record the proposal.**
 
 If the repository has no `.helix.yml` yet, `init` already wrote one in step 2. It also created the HELIX folders under `docs/helix/`. The screen confirms both.
 
-If `.helix.yml` exists but has no `publish:` block, record the proposal now:
+If `.helix.yml` exists but has no `publish:` block, `init` prints `Add to .helix.yml (or rerun with --write):`. Record the proposal now:
 
 ```sh
 documentor init --write
 ```
 
-The screen ends with `wrote the proposal to <path>/.helix.yml`, where `<path>` is the repository's folder. The `audiences` list in that block names who reads the guide: developer, operator, user, or data.
+The screen ends with `wrote the proposal to <path>/.helix.yml`, naming the repository's folder. The `audiences` list in that block names who reads the guide: developer, operator, user, or data. If `.helix.yml` already records traits, `init` changes nothing and asks you to compare them with the proposal.
 
 **4. List the guide.**
 
@@ -82,19 +83,21 @@ The screen ends with `wrote the proposal to <path>/.helix.yml`, where `<path>` i
 documentor status
 ```
 
-The screen starts with `Guide for <name>: N pages`, then lists the pages under each audience. Each row gives the page's state, its id, its kind, and how it is produced. The last column says what the page needs next.
+The screen starts with `Guide for <name>: N pages`, then lists the pages under each audience. Each row gives the page's state, id, kind, and how it is produced. The last column says what the page needs next.
 
 | Mark | Meaning |
 |---|---|
 | `ok` | The page is current. |
 | `MISSING` | The page does not exist yet. |
 | `STALE` | A source the page cites has changed since it was written. |
-| `REVIEW` | The page has not yet been evaluated by a second reader. |
+| `REVIEW` | A second reader has not yet evaluated the page. |
 | `ADOPT` | A hand-written page needs a header to join the guide. |
 | `->` | Another tool already publishes the page; the guide links it. |
-| `EMPTY` | Nothing in the repository to generate the page from. |
+| `EMPTY` | The repository has nothing to generate the page from. |
 
-On a new guide, most rows read `MISSING`. The list ends with `For the agent`, an ordered work list of the pages that still need writing.
+On a new guide, most rows read `MISSING`. The list ends with `For the agent`, an ordered list of the pages that still need writing.
+
+If the screen reads `No guide yet: run documentor init first.`, `.helix.yml` has no audiences yet. Go back to step 3.
 
 **5. Generate what can be generated.**
 
@@ -106,9 +109,9 @@ The command regenerates every page whose facts come from a structured source, an
 
 ## What you have done
 
-You installed documentor and let it detect your repository's traits. You recorded its proposal in `.helix.yml`. You then read the full list of pages your readers need, with each page's state.
+You installed documentor, let it detect your repository's traits, and recorded its proposal in `.helix.yml`. You then read every page your readers need, with each page's state.
 
-You also produced the generated pages. They are now files in the guide folder that `.helix.yml` names under `out`. The rows that changed from `MISSING` show which ones they were.
+The generated pages are now files in a folder named `guide` beside the HELIX root. With the default HELIX root `docs/helix/`, that folder is `docs/guide/`. Add an `out` key under `publish:` in `.helix.yml` to move the folder.
 
 ## Where to go next
 

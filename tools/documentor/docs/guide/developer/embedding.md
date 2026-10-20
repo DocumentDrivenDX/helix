@@ -1,21 +1,22 @@
-<!-- helix:publish audience=developer page=embedding kind=how-to voice=onboarding budget=1100 written=agent-opus reviewed=2026-10-20/second-reader-site-check/ccc7acaf587b0fd5 -->
+<!-- helix:publish audience=developer page=embedding kind=how-to voice=onboarding budget=1100 written=agent-opus reviewed=2026-10-20/agent-sonnet/a9dfcc6b046b0349 -->
 <!-- helix:gap artifact:examples -->
 <!-- helix:source README.md#install sha256:11003d4123be1f55 -->
 <!-- helix:source README.md#what-it-reads-and-writes sha256:55f9002fc000e454 -->
-<!-- helix:source src/documentor/__init__.py sha256:b5853dda7e0aef19 -->
-<!-- helix:source src/documentor/cli.py sha256:63fa5bcbdc82b569 -->
+<!-- helix:source src/documentor/__init__.py sha256:fca11fbda3ce2778 -->
+<!-- helix:source src/documentor/cli.py sha256:4181ca3d7fc04669 -->
 <!-- helix:source src/documentor/generate.py sha256:92dcfeb4e275656d -->
-<!-- helix:source src/documentor/write.py sha256:8ad5661054a3cc34 -->
-<!-- helix:source src/documentor/lib.py sha256:651c08a95ae80112 -->
-<!-- helix:source pyproject.toml sha256:95efaa59d25e6f0a -->
-<!-- helix:source docs/helix/01-frame/prd.md#requirements sha256:faab177063c3e4e8 -->
+<!-- helix:source src/documentor/write.py sha256:2118376b2c167085 -->
+<!-- helix:source src/documentor/lib.py sha256:093a891d0f8bcf48 -->
+<!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
+<!-- helix:source src/documentor/catalog/helix/HELIX_VERSION sha256:c4a278c15f5e2f11 -->
+<!-- helix:source pyproject.toml sha256:50b33a33c6ff0f5e -->
 # Embedding the library
 
 A host embeds documentor in one of three ways: it runs the `documentor` command, calls `documentor.cli.main` from Python, or ships a generator that documentor loads. The package exports only `__version__`, so `main` and the generator entry point are the contract.
 
 ## Install
 
-To run the command, install documentor as a tool. To call `main` or register a generator, add it as a dependency. Either way, set `<tag>` to the HELIX release that contains documentor (v0.19.0 or later). The host's CI reaches documentor through `uvx`, without vendoring it (PRD R-8).
+Install documentor as a tool to run the command, or as a dependency to call `main` or register a generator. `<tag>` is a HELIX release that contains documentor. The host's CI runs documentor through `uvx` and does not vendor it (`src/documentor/catalog/ci/github-actions.yml`).
 
 ```sh
 uv tool install "git+https://github.com/DocumentDrivenDX/helix@<tag>#subdirectory=tools/documentor"
@@ -23,13 +24,15 @@ uv tool install "git+https://github.com/DocumentDrivenDX/helix@<tag>#subdirector
 uvx --from "git+https://github.com/DocumentDrivenDX/helix@<tag>#subdirectory=tools/documentor" documentor --version
 ```
 
-Expected result:
+Expected result, from an install:
 
 ```text
-documentor 0.1.0 (HELIX catalog in-repo)
+documentor <version> (HELIX catalog packaged <marker>)
 ```
 
-A tool install is isolated, so the host's interpreter cannot import documentor from it. To call it from Python, add the same URL to the host's own environment:
+`<version>` is the package's `__version__`. `<marker>` is the packaged catalog's `HELIX_VERSION`. From a HELIX checkout or with `--catalog`, the parenthesis reads `HELIX catalog live <path>`.
+
+The host's interpreter cannot import from a tool install. To call `main`, add the same URL to the host's environment:
 
 ```sh
 uv add "documentor @ git+https://github.com/DocumentDrivenDX/helix@<tag>#subdirectory=tools/documentor"
@@ -41,29 +44,25 @@ pip install "git+https://github.com/DocumentDrivenDX/helix@<tag>#subdirectory=to
 python -c "import documentor; print(documentor.__version__)"
 ```
 
-Expected result:
+Expected result: the version string, such as `0.18.0`.
 
-```text
-0.1.0
-```
-
-The host needs Python 3.11 or later, and the only runtime dependency is PyYAML. Hugo is needed only to build a new site, and Go only for the Hextra theme.
+The host needs Python 3.11 or later, and PyYAML is the only runtime dependency.
 
 ## Configure
 
-The host's configuration is the `publish:` block in its `.helix.yml`. `documentor init` detects what the repository is and proposes that block. What it writes depends on the state of `.helix.yml`:
+The host configures documentor in the `publish:` block of its `.helix.yml`, and `documentor init` proposes that block:
 
 | Host state | What `documentor init` does |
 |---|---|
-| No `.helix.yml` | Writes `.helix.yml` with the HELIX marker and the block, and creates the `docs/helix/` activity folders. No `--write` is needed. |
-| `.helix.yml` without `publish:` | Prints the block. With `--write`, appends it to the file. |
-| `publish.traits` already set | Prints the proposal for comparison and changes nothing. |
+| No `.helix.yml` | Writes `.helix.yml` with the HELIX marker and the block, and creates the `docs/helix/` activity folders. |
+| `.helix.yml` without `publish:` | Prints the block; `--write` appends it. |
+| `publish.traits` already set | Prints the proposal and changes nothing. |
 
 ```sh
 documentor init --root /path/to/host
 ```
 
-The smallest working block names the schema, the traits, and the audiences. This is the block documentor uses for itself:
+The smallest working block names the schema, the traits, and the audiences. documentor uses this block for itself:
 
 ```yaml
 publish:
@@ -71,12 +70,12 @@ publish:
   traits: [python-cli, python-library]
   audiences: [developer, user]
   out: docs/guide
-  skip: [developer/api]
+  skip: [developer/api, user/whats-new]
 ```
 
-The full set of keys is in the README under [What it reads and writes](../../../README.md#what-it-reads-and-writes).
+The README lists every key under [What it reads and writes](../../../README.md#what-it-reads-and-writes).
 
-The `write` command calls an agent that the host chooses. The command comes from `--agent`, then `DOCUMENTOR_AGENT`, then `publish.agent.command`, then the default. The models come from `--model` and `--reviewer-model`, then `publish.agent.writer` and `publish.agent.reviewer`.
+`write` calls an agent the host chooses. The command comes from `--agent`, `DOCUMENTOR_AGENT`, `publish.agent.command`, or the default, in that order. The models come from `--model` and `--reviewer-model`, then `publish.agent.writer` and `publish.agent.reviewer`.
 
 ```yaml
 publish:
@@ -86,11 +85,17 @@ publish:
     reviewer: sonnet  # the default
 ```
 
-The agent reads its prompt on standard input and answers on standard output. Any `{model}` in the command is replaced by the model name.
+The agent reads its prompt on standard input and answers on standard output. Any `{model}` in the command becomes the model name.
+
+The HELIX catalog supplies the audiences and the voice. documentor takes it from `--catalog DIR`, `DOCUMENTOR_CATALOG`, a HELIX checkout that contains the tool, or the packaged copy, in that order. The directory is laid out like HELIX's `workflows` folder.
+
+```sh
+documentor --catalog /path/to/helix/workflows check --root /path/to/host
+```
 
 ## First call
 
-The first call is `check`, because it changes no files and reports the state of every page. After `init`, no written pages exist yet, so expect `check` to return 1.
+The first call is `check`, because it changes no files and reports every page's state. After `init`, no written pages exist, so `check` returns 1.
 
 ```sh
 documentor check --root /path/to/host; echo "exit $?"
@@ -99,11 +104,11 @@ documentor check --root /path/to/host; echo "exit $?"
 The report comes in this order:
 
 1. Each page under its audience, with its state (`ok`, `MISSING`, `STALE`, `REVIEW`, `ADOPT`, `->`, or `EMPTY`).
-2. The architecture views' state, then the written pages for the agent, in order.
-3. The count line, for example `checks: 0 blocking, 0 warnings`.
+2. The architecture views' state, then the agent's written pages, in order.
+3. The count line, such as `checks: 0 blocking, 0 warnings`.
 4. Up to ten `BLOCKING` lines, then up to ten `MISSING`, `STALE`, `UNREVIEWED`, or `UNADOPTED` lines.
 
-The exit code is 0 only when nothing is unfinished. To get from a new host to a passing `check`, write the pages and then build:
+To bring a new host to exit 0, write the pages, then build:
 
 ```sh
 documentor write --root /path/to/host --dry-run   # print the prompts; call no agent
@@ -112,9 +117,14 @@ documentor build --root /path/to/host             # regenerate the generated pag
 documentor check --root /path/to/host
 ```
 
-`write` sends an unreviewed page back to the writer when its own checks find a blocking or prose problem, and the writer receives those findings.
+`prompt` prints one page's writer brief, and `--reviewer` prints the evaluator's:
 
-From Python, `main` takes the same arguments as a list and returns the exit code:
+```sh
+documentor prompt developer/embedding --root /path/to/host
+documentor prompt developer/embedding --reviewer --root /path/to/host
+```
+
+From Python, `main` takes the same arguments as a list and returns the exit code. It prints its report to standard output and its errors to standard error.
 
 ```python
 from documentor.cli import main
@@ -122,13 +132,13 @@ from documentor.cli import main
 code = main(["check", "--root", "/path/to/host"])
 ```
 
-`main` prints its report to standard output and its errors to standard error. For output a host can parse, `status --format json` prints every page and the views' state as JSON:
+`status --format json` prints every page and the views' state as JSON:
 
 ```python
 main(["status", "--root", "/path/to/host", "--format", "json"])
 ```
 
-A Python distribution can add a generator by registering a function in the `documentor.generators` entry-point group. The function takes the root and a page dictionary, and returns the body and the source globs:
+A Python distribution adds a generator by registering a function in the `documentor.generators` entry-point group. The function takes the root and a page dictionary, and returns the body and the source globs:
 
 ```toml
 [project.entry-points."documentor.generators"]
@@ -143,28 +153,31 @@ def tables(root: Path, page: dict) -> tuple[str, list[str]]:
     return "| Table | Columns |\n|---|---|\n", ["specs/*.yml"]
 ```
 
-A page then names it with `generated: my-tables`. An empty body marks the page empty, and a packaged generator of the same name wins. A host that would rather not ship Python can name a command: `generated: {command: ..., sources: [...]}`.
+A page names it with `generated: my-tables`. An empty body marks the page empty, and a packaged generator of the same name wins. A host without Python can name a command instead: `generated: {command: ..., sources: [...]}`.
 
 ## Errors and their meaning
 
-The guide commands (`init`, `status`, `build`, `write`, `check`, `review`, `adopt`) return 0, 1, or 2, and the host branches on that code. The tools (`generate`, `site`, `present`, `estate`, and the rest) return their own codes, and `views` always returns 0.
+The guide commands (`init`, `status`, `build`, `write`, `check`, `review`, `adopt`, `prompt`) return 0, 1, or 2. The tools (`generate`, `site`, `tour`, `estate`, `deck`, `doc`, `doctor`, `record`, and the rest) return their own codes. `views` always returns 0.
 
 | Code | Meaning | Host's response |
 |---|---|---|
 | 0 | Done; for `check`, nothing blocks and every page is current. | Continue. |
-| 1 | Something needs doing: a blocking finding, a missing, stale, unreviewed, or unadopted page, or stale views. | Fail the pull request; `status` lists the work in order. |
+| 1 | Work remains: a blocking finding, stale views, or a missing, stale, unreviewed, or unadopted page. | Fail the pull request; `status` lists the work. |
 | 2 | Usage or configuration error. | Fix the call or `.helix.yml`; retrying will not help. |
 
-The guide commands print these lines to standard error and return 2:
+These messages go to standard error with exit code 2:
 
 | Message (standard error) | Cause |
 |---|---|
+| `documentor: .helix.yml publish.schema is …; this documentor reads schema 1. …` | `publish.schema` is not the schema this release reads. |
 | `No guide yet: run \`documentor init\` first.` | `.helix.yml` names no audiences. |
 | `documentor: "unknown trait(s) in .helix.yml publish.traits: …"` | A trait is in neither the catalog nor the project's trait directory. |
 | `documentor write: the writer and the evaluator must be different models` | Both models resolved to the same name. |
 | `documentor write: … is not a written page of the guide` | `write PAGE` named a generated, delegated, or unknown page. |
+| `documentor prompt: name one written page, as audience/id or its path (…)` | `prompt` named no page, or no written page. |
+| `documentor: --catalog needs a directory laid out like HELIX's workflows/` | `--catalog` is the last argument. |
 
-`write` reports every page it could not finish, then returns 1. Each page gets a `LEFT <page>:` line on standard error, followed by up to eight indented problems:
+`write` returns a page to the writer when its checks would block the stamp. It reports each unfinished page on a `LEFT <page>:` line on standard error, with up to eight indented problems, then returns 1:
 
 ```text
 LEFT docs/guide/developer/embedding.md:
@@ -176,42 +189,41 @@ LEFT docs/guide/developer/embedding.md:
 | `agent command not found: …` | The agent command is not on the path. |
 | `agent call timed out after 900s` | One agent call ran past its limit. |
 | `agent exited N: …` | The agent failed; the first 400 characters of its output follow. |
-| A check finding | The page the writer returned has problems the writer's checks found. |
-| `the evaluator failed it twice: …` | The evaluator rejected the page, and the revision too. |
-| `passed the evaluation, but its checks block the stamp (above)` | The evaluator passed the page, but `review` refused to stamp it. |
+| A check finding | The writer's checks found problems in the returned page. |
+| `the evaluator failed it twice: …` | The evaluator rejected the page and its revision. |
+| `passed the evaluation, but its checks block the stamp (above)` | `review` refused to stamp a page the evaluator passed. |
 
-Some failures escape `main` as exceptions, so a host that calls `main` from Python must catch them:
+These exceptions escape `main`, and a Python host must catch them:
 
-- `SystemExit(2)` from the argument parser, when a command or flag is unknown, or `review` and `adopt` miss a required argument.
-- A YAML error from a malformed `.helix.yml`, which `config_of` reads without a guard.
-- Any exception from importing a plug-in generator, because `load_plugins` calls `entry.load()` without a guard.
-- Any exception raised inside a plug-in generator, which is called without a guard.
+- `SystemExit(2)` from the argument parser, for an unknown command or flag, or a missing argument to `review` or `adopt`.
+- `SystemExit` with `documentor: … is not a HELIX catalog (no voice.yml and publish/audiences)`, when `--catalog` or `DOCUMENTOR_CATALOG` names another directory.
+- A YAML error from a malformed `.helix.yml`.
+- Any exception from importing or running a plug-in generator.
 
-A project command that exits non-zero, or prints nothing, is not an error. Its page is marked empty, and `status` says to add the source or skip the page.
+A project command that exits non-zero or prints nothing is not an error. documentor marks its page empty, and `status` says to add the source or skip the page.
 
 <details>
 <summary>Where each code and message comes from</summary>
 
-- Exit codes, the report order, and the tools' own codes: the docstring, `report`, `guide_main`, and `main` in `src/documentor/cli.py`.
-- What `init` writes in each case: `init` in `src/documentor/cli.py`.
-- The unknown-trait message: `src/documentor/lib.py`, printed through `print(f"documentor: {error}")`; the quotes come from the `KeyError`.
-- The unguarded YAML read: `config_of` and `load_yaml` in `src/documentor/lib.py`.
-- Agent errors, the 900-second limit, the `LEFT` problems, and which unreviewed pages go back to the writer: `call`, `findings_for`, and `run` in `src/documentor/write.py`.
-- Plug-in loading with `entry.load()` and `setdefault`, and command generators: `load_plugins` and `render_command` in `src/documentor/generate.py`.
+- `src/documentor/cli.py` holds the exit codes, the report order, and what `init` writes. Its docstring, `report`, `guide_main`, `init`, and `main` also hold the schema check, `prompt`, `--catalog`, `--version`, and the tools' codes.
+- `SCHEMA`, `helix_catalog`, and `helix_version` in `src/documentor/lib.py` set the schema, the catalog order, the `packaged` and `live` forms, and the not-a-catalog exit.
+- `config_of` and `load_yaml` in `src/documentor/lib.py` read `.helix.yml` without a guard.
+- `call`, `findings_for`, and `run` in `src/documentor/write.py` hold the agent errors, the 900-second limit, and the `LEFT` problems.
+- In `src/documentor/generate.py`, neither `load_plugins` nor the generator call has a guard; `render_command` runs command generators.
 
 </details>
 
 ## Upgrading
 
-To upgrade, move `<tag>` to the new HELIX release everywhere the host names it, then run `check`. The host names the tag in its tool install, its dependency, its `uvx` calls, and the CI workflow copied from `src/documentor/catalog/ci/github-actions.yml`.
+To upgrade, move `<tag>` to the new HELIX release, then run `check`. The tag appears in the tool install, the dependency, the `uvx` calls, and the `DOCUMENTOR` variable of the CI workflow copied from `src/documentor/catalog/ci/github-actions.yml`.
 
 ```sh
 uvx --from "git+https://github.com/DocumentDrivenDX/helix@<new-tag>#subdirectory=tools/documentor" documentor --version
 uvx --from "git+https://github.com/DocumentDrivenDX/helix@<new-tag>#subdirectory=tools/documentor" documentor check --root .
 ```
 
-`--version` reports the package and the HELIX catalog it carries. The audiences and the voice come from that catalog, so a new catalog can add pages or tighten prose limits. A host's passing `check` can then return 1 with no change to the host.
+A new catalog can add pages or tighten prose limits, so `check` can start returning 1 with no host change.
 
-`publish.schema` versions the configuration contract, and this release reads schema 1 without rejecting other values.
+`publish.schema` versions the configuration contract, and this release reads schema 1. A missing `schema` counts as 1. Against any other schema, a guide command returns 2 and says to use the documentor from the block's HELIX release.
 
 The [Command line](cli.md) reference lists every command.
