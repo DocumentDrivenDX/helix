@@ -9,7 +9,13 @@ Generated from [`workflows/modes/guide.md`](https://github.com/DocumentDrivenDX/
 
 Use to give a repository the documentation its readers need, and to keep it current: pages for developers, operators, users, and data consumers, each a projection of the artifacts and the code, never an edit to them. Engage on: documentation for this repository, a docs site, a developer, operator, user, or data guide, onboarding or getting started, "document this repo", one page of the guide, "the docs are out of date". The model is `workflows/references/publishing.md`; the writing standard is `workflows/references/writing-pass.md`.
 
-The deterministic steps (detection, generated pages, architecture views, the check, the site) have a host tool, documentor (`tools/documentor/` in the HELIX repository), which implements this mode's machinery and ships with the same HELIX release; `documentor --version` says whether the host has it. Without it, do each step by hand as described under "By hand"; nothing is skipped silently, and the handoff names the steps done by hand.
+The host tool is documentor (`tools/documentor/` in the HELIX repository), released with HELIX: it detects, generates, writes through an agent, checks, and assembles. Install it once from the HELIX release the project uses:
+
+```sh
+uv tool install "git+https://github.com/DocumentDrivenDX/helix@<tag>#subdirectory=tools/documentor"
+```
+
+`documentor doctor` says what the host has. The whole guide is then four commands: `documentor init --write`, `documentor build --write`, `documentor check`, and `documentor review` for a page a person evaluated. Each step below names its command and its by-hand form; without documentor, do each step by hand. Nothing is skipped silently, and the handoff names the steps done by hand.
 
 ## 1. Decide the guide
 
@@ -23,7 +29,9 @@ With documentor: run `documentor build --root . --no-site`. It writes every gene
 
 ## 3. Write
 
-`documentor status --root .` lists the pages that are missing, stale, unreviewed, or unadopted, in that order, each with its reader task and sources. By hand, the list is every written page the audiences and traits name that does not exist or whose cited sources changed. For each page, in order:
+With documentor: `documentor write --root .` (or `documentor build --write`, which also generates and assembles) writes every missing or stale page through the project's agent, holds each to the checks below, and has a second model evaluate it (step 4). Each page's brief is `documentor prompt <page>`: the audience entry, the writing pass, and the handling rules, the same brief an agent in this session follows.
+
+By hand, or in this session: `documentor status --root .` lists the pages that are missing, stale, unreviewed, or unadopted, in that order, each with its reader task and sources. Without documentor, the list is every written page the audiences and traits name that does not exist or whose cited sources changed. For each page, in order:
 
 1. **Resolve the sources.** Map each source kind the audience names to concrete files in this project: an artifact type to its instances under the HELIX root, a section to its heading (H2 or deeper), `docs` to the project's own documentation outside HELIX, `code` to the build files, configuration, entry points, and tests that settle the page's claims. Read them. A page draws only on what it cites. A source kind the project lacks (no architecture, no stories) is left out and named in the handoff; a page none of whose sources exist is written from the code and the README and says so in the handoff.
 2. **Write for the reader.** Follow the page's outline and the writing pass, steps 1 to 5, in the page's voice, and keep to the page's kind (`publishing.md`, Page kinds). What belongs to another kind goes on that page, with a link. Do not copy an artifact's tables or prose. Diagrams come from the project's architecture model when it has one (generated views), else from the diagram in the artifact the page cites, trimmed to the page's reader and cited by section.
@@ -48,7 +56,7 @@ Fix what fails, restamp, and record the evaluation: `documentor review <page> --
 
 ## 5. Check and assemble
 
-`documentor check --root .` is the gate: it regenerates every generated page in memory and fails when one would change, when a written page's source moved, when a page is unreviewed, when a view drifted from the model, when a link or path breaks, when a page matches a handling pattern, or when a page is missing. Put it in CI (documentor ships the workflow: `check` on every pull request, a weekly regeneration that opens a pull request) so the pull request that makes the guide stale fails until the guide catches up. `documentor build --root .` assembles the site: into the repository's mkdocs or Hugo site when it has one, else a Hextra site under `.helix/site`, one section per audience, delegated pages as links to their tools, every page showing the sources it was built from. By hand, the Markdown pages under the guide directory are the site: the repository host renders them.
+`documentor check --root .` is the gate: it regenerates every generated page in memory and fails when one would change, when a written page's source moved, when a page is unreviewed, when a view drifted from the model, when a link or path breaks, when a page matches a handling pattern, or when a page is missing. Put it in CI (documentor ships the workflow: `check` on every pull request, a weekly regeneration that opens a pull request) so the pull request that makes the guide stale fails until the guide catches up. `documentor build --root .` assembles the site: into the repository's mkdocs or Hugo site when it has one, else a self-contained site under `.helix/site` (Hextra with `site.target: hextra`), one section per audience, the governed artifacts as a read-only record when `site.record` is set, delegated pages as links to their tools, every page showing the sources it was built from. By hand, the Markdown pages under the guide directory are the site: the repository host renders them.
 
 ## Handoff
 

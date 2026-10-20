@@ -30,13 +30,13 @@ grep -q "For the agent" "$tmpdir/out" || fail "status should give the agent its 
 $rg check --root "$p" >/dev/null 2>&1 && fail "check should fail while pages are missing"
 
 # The agent writes the pages (here, minimal ones), stamps them, and they await evaluation.
-for page in index about using; do
+for page in index about using whats-new; do
   printf '<!-- helix:publish flow=user page=%s kind=how-to voice=public-site budget=200 -->\n<!-- helix:source docs/helix/01-frame/vision.md#mission -->\n# %s\n\nThe tool reviews claims.\n' "$page" "$page" >"$p/docs/guide/user/$page.md"
   $rg stamp "$p/docs/guide/user/$page.md" --root "$p" >/dev/null
 done
 $rg status --root "$p" >"$tmpdir/out" 2>&1 || true
 grep -Eq "REVIEW +about" "$tmpdir/out" || fail "a written, unevaluated page should await review: $(cat "$tmpdir/out")"
-for page in index about using; do $rg review "$p/docs/guide/user/$page.md" --root "$p" --by evaluator >/dev/null; done
+for page in index about using whats-new; do $rg review "$p/docs/guide/user/$page.md" --root "$p" --by evaluator >/dev/null; done
 grep -Eq "reviewed=[0-9-]{10}/evaluator" "$p/docs/guide/user/about.md" || fail "review should stamp the header"
 $rg check --root "$p" >"$tmpdir/out" 2>&1 || fail "a complete, evaluated guide should pass: $(cat "$tmpdir/out")"
 
@@ -61,14 +61,14 @@ open(path, "w").write(yaml.safe_dump(data, sort_keys=False))
 PY
 $rg status --root "$p" >"$tmpdir/out" 2>&1 || true
 grep -Eq "ADOPT +review-tool" "$tmpdir/out" || fail "an adopted page without a header awaits adoption: $(cat "$tmpdir/out")"
-grep -q " about " "$tmpdir/out" && fail "a skipped audience page should not be planned: $(cat "$tmpdir/out")"
+grep -Eq "^ +[A-Za-z>-]+ +about +" "$tmpdir/out" && fail "a skipped audience page should not be planned: $(cat "$tmpdir/out")"
 $rg adopt "$p/docs/howto/review-tool.md" --audience user --kind how-to --root "$p" >/dev/null || fail "adopt failed"
 grep -q "existing=yes" "$p/docs/howto/review-tool.md" || fail "adopt should add the header"
 $rg review "$p/docs/howto/review-tool.md" --root "$p" --by adopter >/dev/null || fail "an adopted page is reviewable despite its prose: $($rg review "$p/docs/howto/review-tool.md" --root "$p" --by adopter 2>&1)"
 
 # build also assembles the site (the self-contained layout needs no network).
 if command -v hugo >/dev/null; then
-  for page in index about using; do $rg stamp "$p/docs/guide/user/$page.md" --root "$p" >/dev/null; done
+  for page in index about using whats-new; do $rg stamp "$p/docs/guide/user/$page.md" --root "$p" >/dev/null; done
   $rg build --root "$p" --site "$tmpdir/site" >/dev/null 2>&1 || fail "build with the site failed"
   [ -f "$tmpdir/site/public/user/workflows/index.html" ] || fail "the site should hold the generated page"
 fi

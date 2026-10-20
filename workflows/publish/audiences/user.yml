@@ -6,6 +6,7 @@ reader: Someone who uses the product to get work done.
 voice: public-site
 watch:
   - "{helix}/01-frame/features/*.md"
+  - "{helix}/05-deploy/release-notes*.md"
 pages:
   - id: index
     title: Getting started
@@ -39,3 +40,13 @@ pages:
       - artifact: feature-specification
       - artifact: user-stories
         note: the behavior the user sees, never internal identifiers
+  - id: whats-new
+    title: What's new
+    kind: reference
+    task: Find what changed in each release that you will notice, and anything you must do about it.
+    budget: 800
+    outline: [one section per release, newest first - what you will notice, what you must do]
+    sources:
+      - artifact: release-notes
+        sections: [highlights, breaking-changes-and-required-actions, known-issues-and-support]
+        note: what a user notices and must do, never internal fixes or identifiers

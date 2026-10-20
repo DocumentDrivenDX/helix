@@ -17,6 +17,9 @@ pages:
       - artifact: architecture
         sections: [deployment]
       - artifact: runbook
+      - artifact: release-notes
+        sections: [required-actions-summary, migration-or-rollback-guidance]
+        note: the newest release's required actions and rollback, when the project keeps release notes
       - code: deployment bundle, CI workflows, infrastructure notes
   - id: configuration
     title: Configuration

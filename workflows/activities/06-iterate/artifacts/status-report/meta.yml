@@ -4,7 +4,7 @@ artifact:
   type: document
   activity: iterate
 
-voice: artifact-signal
+voice: human-facing
 
 description: |
   Point-in-time record of an iteration against its plan: outcome status with
@@ -62,3 +62,5 @@ tags:
   - iteration
 
 version: 1.0.0
+prose:
+  audience: human

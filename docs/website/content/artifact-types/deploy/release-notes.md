@@ -106,8 +106,8 @@ firms.
 
 ### Rollback or Hold Guidance
 
-- Pause rollout when: upload endpoint 5xx exceeds 1% for 15 minutes, any raw
-  CSV row value appears in logs, or any partial metadata commit is observed.
+- Pause rollout when: upload endpoint 5xx exceeds 1% for 15 minutes, a raw
+  CSV row value appears in logs, or a partial metadata commit appears.
 - Roll back using: deployment checklist rollback triggers.
 - Ask for help in: on-call channel for operators; pilot-support channel for
   user questions.

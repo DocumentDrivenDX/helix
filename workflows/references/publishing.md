@@ -51,7 +51,7 @@ Exactness wherever a source has structure; judgment only where a reader needs ex
 
 ## The project's decision
 
-Detection proposes; `.helix.yml` decides, so the documentation never changes shape because a file appeared:
+The `publish:` block in `.helix.yml` is the repository's documentation plan: who reads it (`audiences`), what it is (`traits`), which pages it has beyond the catalog's (`pages`, `existing`, `delegate`, `skip`), and how the site is assembled (`site`). Detection proposes it; `.helix.yml` decides, so the documentation never changes shape because a file appeared:
 
 ```yaml
 publish:
@@ -76,12 +76,31 @@ publish:
     data/tables: {tool: tablespec guidebook, build: "tablespec guidebook specs -o guidebook", url: guidebook/index.html}
   existing:                  # optional: hand-written pages to adopt, by audience
     developer: ["docs/how-to/*.md"]
+  skip: [user/about]         # optional: catalog pages this repository does not publish
   watch: ["databricks.yml"]  # optional: files a new one of which, cited by no page, is reported
   ignore: []                 # optional: globs no page should explain
-  site:                      # optional: title, repo_url, branch, accent, description; target (mkdocs | hugo | hextra); content_dir
+  views: guide               # optional: architecture views under the guide (default), or `artifact` (between markers in the model's own documents)
+  agent:                     # optional: the agent `documentor write` drives; DOCUMENTOR_AGENT overrides the command
+    command: "my-agent --model {model}"   # the prompt on stdin, the page on stdout
+    writer: opus
+    reviewer: sonnet         # must differ from the writer
+  site:                      # optional: how the site is assembled
     title: Example
-    repo_url: https://github.example/org/example
+    description: One line under the title
+    repo_url: https://github.example/org/example   # links to repository files resolve here
+    branch: main
+    accent: "#2f6f8f"
+    target: static           # mkdocs | hugo (the repository's own site) | static (default with no site) | hextra
+    site_dir: website        # optional: where the repository's Hugo site lives, when detection should not guess
+    content_root: docs/website/content   # optional: the Hugo content directory, when the site mounts it elsewhere
+    content_dir: guide       # the section the guide is written into, inside an existing site
+    record: true             # optional: also publish the governed artifacts (the HELIX root), read-only, with their sources
+    record_dir: record       # the record's section (default `record`)
+    sections:                # optional: sections the project generates itself
+      - {id: reference, title: Reference, generated: {command: "uv run scripts/generate-reference.py", out: reference}}
 ```
+
+**Schema.** `publish.schema` names the version of this contract the block follows. A block without it is version 1. A key whose meaning changes raises the version; a new optional key does not. documentor refuses a block whose schema it does not read, rather than misread it, and `documentor init` writes the version it reads.
 
 A **trait** says, as data, what a kind of repository is (signals over the files git tracks) and what its readers need: the audiences it implies, pages it adds or replaces by id, pages it generates, pages it delegates, views, watched files, and handling. documentor carries the catalog of traits and grows it by one each time a repository has a significant file no trait claims; a project's own traits live under `publish.traits_dir`.
 

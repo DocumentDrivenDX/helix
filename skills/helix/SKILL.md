@@ -16,7 +16,7 @@ description: |
   (present), and on a repository's docs, guide, or site (guide).
   Product, web, infra, and data are
   domain lanes that shape context and stop rules, not sibling skills.
-argument-hint: "[intent or scope]"
+argument-hint: "[mode] [intent or scope]"
 ---
 
 # HELIX Router
@@ -38,8 +38,10 @@ names a HELIX artifact (see the frontmatter description), even to *review* or
 `check`; "grill me" or stress-testing decisions one question at a time →
 `grill`; a deck, slides, one-pager, brief, memo, or client-ready document built
 from project artifacts → `present`; developer, operator, user, or data
-documentation, a getting-started or onboarding guide, one page of it, or a
-documentation site → `guide`.
+documentation, "document this repo", a getting-started or onboarding guide,
+what's new, one page of it, or a documentation site → `guide`. Both name
+documentor, the host tool released with HELIX, for the steps a host with a
+shell can run; each says what to do without it.
 
 ## Routing Axes
 
