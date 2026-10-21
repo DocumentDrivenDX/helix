@@ -95,6 +95,30 @@ grep -q 'alpha -->|"calls over HTTP"| beta' "$tmpdir/estate.md" || fail "expecte
 grep -q "| alpha | beta | calls over HTTP | HTTP, signed |" "$tmpdir/estate.md" || fail "expected both sides in the table"
 grep -q "org/alpha@worktree" "$tmpdir/estate.md" || fail "expected the model's commit (worktree for a plain directory)"
 
+# The explained estate: an agent writes it from the digest of the models, a second one checks it,
+# and the page keeps the landscape and the tables as evidence. A fake agent stands in for both.
+cat >"$tmpdir/agent.py" <<'PY'
+import sys
+model, prompt = sys.argv[1], sys.stdin.read()
+open(sys.argv[2], "a").write(f"{model} {'check' if prompt.startswith('You are checking') else 'write'}\n")
+if prompt.startswith("You are checking"):
+    print("VERDICT: pass")
+else:
+    print("Here it is.\n\n## Where things sit\n\nAlpha and Beta.\n\n## What each system does\n\nAlpha calls Beta.\n\n"
+          "## How they connect\n\nAlpha reads from Beta.\n\n## Journeys across systems\n\nNone.\n\n## Open questions\n\nGamma.")
+PY
+$rg estate write --config "$tmpdir/estate.toml" --dry-run >"$tmpdir/prompt" 2>&1 || fail "estate write --dry-run: $(cat "$tmpdir/prompt")"
+grep -q "^- connection " "$tmpdir/prompt" || fail "the writer's brief should hold every connection from the models"
+grep -q "^- Open questions" "$tmpdir/prompt" || fail "the brief should name the sections"
+$rg estate write --config "$tmpdir/estate.toml" --out "$tmpdir/explained.md" \
+  --agent "python3 $tmpdir/agent.py {model} $tmpdir/calls" >"$tmpdir/out" 2>&1 || fail "estate write: $(cat "$tmpdir/out")"
+grep -q "written=agent-opus reviewed=" "$tmpdir/explained.md" || fail "the page should name its writer and its evaluator"
+grep -q '^```mermaid' "$tmpdir/explained.md" || fail "the page keeps the landscape"
+grep -q "^## How they connect" "$tmpdir/explained.md" || fail "the page holds the agent's sections"
+grep -q "Here it is" "$tmpdir/explained.md" && fail "text before the first section should be dropped"
+grep -q "^### Connections" "$tmpdir/explained.md" || fail "the generated tables stay as evidence"
+[ "$(cat "$tmpdir/calls")" = "$(printf 'opus write\nsonnet check')" ] || fail "one writer call, one evaluator call: $(cat "$tmpdir/calls")"
+
 # One-sided: beta no longer says alpha calls it.
 sed -i.bak '/^\[\[relation\]\]/,$d' "$tmpdir/beta/docs/helix/02-design/architecture-model.toml"
 $rg estate check --config "$tmpdir/estate.toml" >"$tmpdir/out" 2>&1 && fail "a one-sided claim should block"
@@ -109,4 +133,4 @@ rm "$tmpdir/beta/docs/helix/02-design/architecture-model.toml"
 $rg estate check --config "$tmpdir/estate.toml" >"$tmpdir/out" 2>&1 && fail "a missing model should block"
 grep -Eq "^BLOCKING +missing-model " "$tmpdir/out" || fail "expected missing-model: $(cat "$tmpdir/out")"
 
-echo "OK: documentor estate composes two models into one landscape, blocks a one-sided connection, a mismatched or missing model, and warns about a system outside the estate"
+echo "OK: documentor estate composes two models into one landscape, writes the explained estate through a writer and an evaluator, blocks a one-sided connection, a mismatched or missing model, and warns about a system outside the estate"

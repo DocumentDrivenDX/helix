@@ -4,6 +4,7 @@
 
     documentor estate check  --config estate.toml [--fetch]
     documentor estate render --config estate.toml --out PAGE.md [--fetch]
+    documentor estate write  --config estate.toml --out PAGE.md [--fetch] [--agent CMD] [--model M] [--reviewer-model M] [--dry-run]
 
 The config names each system in the estate, its repository, and where its model is. A model is
 read from a local checkout (`path`) or, with --fetch, from the repository's default branch through
@@ -17,7 +18,10 @@ models, each at the commit it was read from.
   unresolved       a model names a system the estate does not include                  (warning)
 
 `render` writes a Markdown page: the landscape as Mermaid, the systems with their commits, and
-each connection as both sides state it. Standard library only (Python 3.11 or later for tomllib; `tomli` on older ones).
+each connection as both sides state it. `write` writes the explained estate: an agent writes, from a
+digest of every model, where each system sits, what it does, a reason for every connection, the
+journeys that cross systems, and the open questions; a second model checks the page against the same
+digest; the page keeps the landscape and the generated tables as its evidence. Standard library only (Python 3.11 or later for tomllib; `tomli` on older ones).
 Exit codes: 0 = no blocking findings, 1 = blocking findings, 2 = usage error.
 """
 
@@ -210,18 +214,151 @@ def render(config: dict, systems: dict[str, System], pairs: list[tuple[Claim, Cl
     return "\n".join(out) + "\n"
 
 
+# --- the explained estate ----------------------------------------------------------------------
+
+def digest(config: dict, fetch: bool, cache: Path) -> str:
+    """Everything the explained estate may say, from the models: each system's parts, each
+    connection with its reason, and each journey; nothing else."""
+    host = config.get("host", "")
+    out = []
+    for entry in config.get("system", []):
+        read = read_model(entry, host, fetch, cache)
+        if read is None:
+            out.append(f"## {entry['id']} ({entry['repo']}): model not readable")
+            continue
+        raw = tomllib.loads(read[0])
+        elements = {e["id"]: e for e in raw.get("element", [])}
+        out.append(f"## {entry['id']} ({entry['repo']} at {read[1]})")
+        for e in elements.values():
+            where = f", zone {e['zone']}" if e.get("zone") else ""
+            other = f", belongs to system {e['system']}" if e.get("system") else ""
+            out.append(f"- part {e['id']}: {e.get('name', e['id'])} [{e.get('kind')}, {e.get('status')}{where}{other}]"
+                       + (f": {e['detail']}" if e.get("detail") else "") + (f"; job: {e['job']}" if e.get("job") else ""))
+        for r in raw.get("relation", []):
+            why = r.get("why") or r.get("note") or ""
+            out.append(f"- connection {r['from']} -> {r['to']}: {r.get('label', '')} [{r.get('status', '')}]" + (f"; why: {why}" if why else ""))
+        for j in raw.get("journey", []):
+            steps = "; ".join(f"{s.get('from')} -> {s.get('to')}: {s.get('label', '')}" for s in j.get("step", []))
+            out.append(f"- journey {j.get('id')}: {j.get('title', '')}. {j.get('takeaway', '')} Steps: {steps}")
+    return "\n".join(out)
+
+
+SECTIONS = ("Where things sit", "What each system does", "How they connect", "Journeys across systems", "Open questions")
+
+
+def writer_prompt(config: dict, facts: str, generated: str, findings: Findings) -> str:
+    from documentor.write import _writing_pass
+
+    problems = "\n".join(f"- {m}" for _, _, m in findings.items) or "- none"
+    return "\n".join([
+        "You are writing the explained estate: one page that tells a newcomer how several systems fit together.",
+        "Answer with the page body only, starting at the first H2. Do not write files.",
+        "",
+        "## Sections, as H2 headings in this order",
+        *[f"- {s}" for s in SECTIONS],
+        "",
+        "Where things sit: the zones and who owns what. What each system does: one short paragraph each.",
+        "How they connect: every connection between systems, each with the reason the models give; a connection without a reason is an open question.",
+        "Journeys across systems: each journey the models hold, step by step. Open questions: what the models leave unknown, every finding below, every part whose status is not built.",
+        "",
+        "## Rules",
+        "- Every fact comes from the digest or the generated page below. Do not invent systems, parts, connections, or reasons.",
+        "- Name parts and systems as the digest names them. Keep statuses: a decided or placeholder part is not built.",
+        *_writing_pass(),
+        "",
+        f"## The estate: {config.get('title', 'Architecture estate')}",
+        config.get("takeaway", ""),
+        "",
+        "## Findings from the check",
+        problems,
+        "",
+        "## The digest of the models",
+        facts,
+        "",
+        "## The generated page (landscape and tables)",
+        generated,
+    ])
+
+
+def reviewer_prompt(page: str, facts: str) -> str:
+    return "\n".join([
+        "You are checking one page against the facts it must come from. Do not edit anything.",
+        "Fail the page for any claim the digest does not support, any connection between systems the page leaves out,",
+        "or any unknown the page states as settled. Answer with a first line `VERDICT: pass` or `VERDICT: fail`,",
+        "then one line per problem, each starting with `- `.",
+        "",
+        "## The digest", facts, "", "## The page", page,
+    ])
+
+
+def write_page(args, config: dict, systems: dict[str, System], pairs, findings: Findings) -> int:
+    from datetime import date
+
+    from documentor.write import AgentError, VERDICT, call, settings
+
+    cache = args.cache or args.config.parent / ".helix" / "estate"
+    facts = digest(config, args.fetch, cache)
+    generated = render(config, systems, pairs, findings)
+    command, writer, reviewer = settings({}, args.agent or "", args.model or "", args.reviewer_model or "")
+    if writer == reviewer:
+        print(f"documentor estate write: the writer and the evaluator must be different models (both {writer})", file=sys.stderr)
+        return 2
+    prompt = writer_prompt(config, facts, generated, findings)
+    if args.dry_run:
+        print(prompt)
+        return 0
+    root = args.config.parent.resolve()
+    notes: list[str] = []
+    for attempt in range(2):
+        try:
+            body = call(command, writer, prompt + ("\n\n## Feedback to resolve\n" + "\n".join(f"- {n}" for n in notes) if notes else ""), root)
+            body = body[body.find("## "):] if "## " in body else body
+            answer = call(command, reviewer, reviewer_prompt(body, facts), root)
+        except AgentError as error:
+            print(f"documentor estate write: {error}", file=sys.stderr)
+            return 1
+        verdict = VERDICT.search(answer)
+        notes = [line[2:].strip() for line in answer.splitlines() if line.startswith("- ")]
+        passed = bool(verdict and verdict.group(1).lower() == "pass")
+        if passed:
+            break
+    models = ", ".join(f"{s.repo}@{s.commit or '?'}" for s in systems.values())
+    reviewed = f"{date.today().isoformat()}/agent-{reviewer}" if passed else "-"
+    header = (f"<!-- architecture-estate: explained from the architecture models of {models}; written=agent-{writer} "
+              f"reviewed={reviewed}; rerun documentor estate write after a model changes -->")
+    landscape = generated[generated.index("```mermaid"):generated.index("```", generated.index("```mermaid") + 3) + 3]
+    tables = generated[generated.index("## Systems"):].replace("## ", "### ")
+    page = "\n".join([header, f"# {config.get('title', 'Architecture estate')}", "",
+                       *( [config["takeaway"], ""] if config.get("takeaway") else []),
+                       landscape, "", body.strip(), "",
+                       "<details>", "<summary>The models behind this page</summary>", "", tables.strip(), "", "</details>", ""])
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    args.out.write_text(page, encoding="utf-8")
+    if passed:
+        print(f"wrote {args.out} (written by {writer}, passed by {reviewer})")
+        return 0
+    print(f"LEFT {args.out}: written, unreviewed; the evaluator failed it twice. Resolve these, then review it:", file=sys.stderr)
+    for note in notes[:8]:
+        print(f"  {note}", file=sys.stderr)
+    return 1
+
+
 # --- commands ---------------------------------------------------------------------------------
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="documentor estate", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("command", choices=("check", "render"))
+    parser.add_argument("command", choices=("check", "render", "write"))
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--out", type=Path, help="render: the page to write")
     parser.add_argument("--fetch", action="store_true", help="read each model from its repository with gh, not a local path")
     parser.add_argument("--cache", type=Path, help="where fetched models are kept (default: .helix/estate beside the config)")
+    parser.add_argument("--agent", help="write: the agent command ({model} becomes the model); default as `documentor write`")
+    parser.add_argument("--model", help="write: the writer model")
+    parser.add_argument("--reviewer-model", help="write: the evaluator model (must differ)")
+    parser.add_argument("--dry-run", action="store_true", help="write: print the writer's prompt; call no agent")
     args = parser.parse_args(argv)
-    if args.command == "render" and not args.out:
-        parser.error("render needs --out")
+    if args.command in ("render", "write") and not args.out and not args.dry_run:
+        parser.error(f"{args.command} needs --out")
     config = tomllib.loads(args.config.read_text(encoding="utf-8"))
     cache = args.cache or args.config.parent / ".helix" / "estate"
     findings = Findings()
@@ -229,6 +366,11 @@ def main(argv: list[str] | None = None) -> int:
     pairs = check_claims(systems, findings)
     for severity, check, message in findings.items:
         print(f"{severity.upper():9} {check:14} {message}")
+    if args.command == "write":
+        if findings.blocking and not args.dry_run:
+            print("documentor estate write: fix the blocking findings first; the page explains a checked estate", file=sys.stderr)
+            return 1
+        return write_page(args, config, systems, pairs, findings)
     if args.command == "render":
         args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(render(config, systems, pairs, findings), encoding="utf-8")
