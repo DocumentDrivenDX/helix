@@ -1,0 +1,20 @@
+id: docker-compose
+title: Services run together with Docker Compose
+detect:
+  - {files: "compose.yaml", contains: "^services:", weight: 0.6}
+  - {files: "compose.yml", contains: "^services:", weight: 0.6}
+  - {files: "docker-compose.yml", contains: "^services:", weight: 0.6}
+  - {files: "**/docker-compose*.yml", contains: "^services:", weight: 0.4}
+audiences: [developer, operator]
+pages:
+  - audience: operator
+    id: services
+    title: Services
+    kind: reference
+    task: See which services run together, from which image, on which ports, and in what order they start.
+    generated: compose-services
+views: [deployment]
+watch: ["**/compose.y*ml", "**/docker-compose*.y*ml"]
+handling:
+  never_publish:
+    - "environment values, credentials, and hosts from the compose files"

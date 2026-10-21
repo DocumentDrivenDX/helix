@@ -1,0 +1,17 @@
+id: github-actions
+title: Continuous integration on GitHub Actions
+detect:
+  - {files: ".github/workflows/*.yml", contains: "^jobs:", weight: 0.6}
+  - {files: ".github/workflows/*.yaml", contains: "^jobs:", weight: 0.6}
+audiences: [developer]
+pages:
+  - audience: developer
+    id: ci
+    title: Continuous integration
+    kind: reference
+    task: See what runs on each change and release, and what each job waits for.
+    generated: ci-pipelines
+watch: [".github/workflows/*.yml", ".github/workflows/*.yaml"]
+handling:
+  never_publish:
+    - "secret values, tokens, and the hosts a workflow deploys to"

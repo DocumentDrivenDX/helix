@@ -1,0 +1,15 @@
+id: task-runner
+title: Tasks in a justfile, a Makefile, or npm scripts
+detect:
+  - {files: justfile, weight: 0.6}
+  - {files: Makefile, contains: "^[A-Za-z0-9_-]+:", weight: 0.5}
+  - {files: package.json, contains: "\"scripts\"", weight: 0.3}
+audiences: [developer]
+pages:
+  - audience: developer
+    id: tasks
+    title: Tasks
+    kind: reference
+    task: Find the command for each everyday task, and what it does.
+    generated: tasks
+watch: [justfile, Makefile, "**/justfile"]

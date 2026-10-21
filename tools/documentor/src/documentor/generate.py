@@ -567,6 +567,244 @@ def mcp_tools(root: Path, page: dict) -> tuple[str, list[str]]:
         lines += [f"| `{name}` | `{_cell(how)}` |" for name, how in servers]
     return "\n".join(lines) + "\n", sorted(set(sources))
 
+# --- ci-pipelines --------------------------------------------------------------------------------
+
+def _mermaid_id(text: str) -> str:
+    return re.sub(r"[^A-Za-z0-9_]", "_", text)
+
+
+@generator("ci-pipelines")
+def ci_pipelines(root: Path, page: dict) -> tuple[str, list[str]]:
+    """Each GitHub Actions workflow: what starts it, its jobs in order, and what each job waits for."""
+    files = sorted(_tracked(root, ".github/workflows/*.yml") + _tracked(root, ".github/workflows/*.yaml"))
+    sections = []
+    for path in files:
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        triggers = data.get("on", data.get(True)) or {}  # YAML 1.1 reads a bare `on:` as true
+        if isinstance(triggers, str):
+            triggers = {triggers: None}
+        elif isinstance(triggers, list):
+            triggers = {t: None for t in triggers}
+        starts = []
+        for event, spec in triggers.items():
+            detail = ""
+            if isinstance(spec, dict):
+                branches = spec.get("branches") or spec.get("tags")
+                if branches:
+                    detail = " on " + ", ".join(f"`{b}`" for b in branches)
+                elif spec.get("cron") or (isinstance(spec, list) and spec):
+                    detail = ""
+                if event == "schedule" or "cron" in str(spec):
+                    detail = ""
+            if event == "schedule" and isinstance(spec, list):
+                detail = " " + ", ".join(f"`{s.get('cron')}`" for s in spec if isinstance(s, dict))
+            starts.append(f"{event}{detail}")
+        jobs = data.get("jobs") or {}
+        if not jobs:
+            continue
+        rows, edges = [], []
+        for job_id, job in jobs.items():
+            job = job or {}
+            needs = job.get("needs") or []
+            needs = [needs] if isinstance(needs, str) else list(needs)
+            edges += [(n, job_id) for n in needs]
+            runs = job.get("runs-on", "") if not job.get("uses") else f"reuses `{job['uses']}`"
+            rows.append(f"| `{job_id}` | {_cell(str(job.get('name', '')))} | {_cell(str(runs))} | "
+                        + (", ".join(f"`{n}`" for n in needs) or "—") + " |")
+        relative = path.relative_to(root).as_posix()
+        section = [f"## {data.get('name') or path.stem}", "",
+                   f"`{relative}` runs on " + ("; ".join(starts) or "no trigger") + ".", "",
+                   "| Job | Name | Runs on | Waits for |", "|---|---|---|---|", *rows]
+        if edges:
+            section += ["", "```mermaid", "flowchart LR"]
+            section += [f"  {_mermaid_id(a)}[{a}] --> {_mermaid_id(b)}[{b}]" for a, b in edges]
+            section += ["```"]
+        sections.append("\n".join(section))
+    if not sections:
+        return "", []
+    intro = f"What runs on each change and release: {len(sections)} workflows, read from `.github/workflows/`."
+    return intro + "\n\n" + "\n\n".join(sections) + "\n", [".github/workflows/*.yml", ".github/workflows/*.yaml"]
+
+
+# --- tasks ---------------------------------------------------------------------------------------
+
+def _first_sentence(text: str) -> str:
+    match = re.match(r"(.+?[.!?])(\s|$)", text.strip())
+    return match.group(1) if match else text.strip()
+
+
+def _just_recipes(text: str) -> list[tuple[str, str]]:
+    recipes, comment = [], []
+    for line in text.splitlines():
+        if line.startswith("#"):
+            comment.append(line.lstrip("#").strip())
+            continue
+        match = re.match(r"^@?([A-Za-z0-9_-]+)(?:\s+[^:=]*)?:(?!=)", line)
+        if match and not line.startswith((" ", "\t")):
+            recipes.append((match.group(1), " ".join(comment)))
+        if line.strip() or not line.startswith("#"):
+            comment = [] if not line.startswith("#") else comment
+    return recipes
+
+
+def _make_targets(text: str) -> list[tuple[str, str]]:
+    targets, comment = [], []
+    for line in text.splitlines():
+        if line.startswith("#"):
+            comment.append(line.lstrip("#").strip())
+            continue
+        match = re.match(r"^([A-Za-z0-9_.-]+)\s*:(?!=)([^#]*)(?:##\s*(.*))?$", line)
+        if match and not match.group(1).startswith("."):
+            targets.append((match.group(1), (match.group(3) or " ".join(comment)).strip()))
+        comment = []
+    return targets
+
+
+@generator("tasks")
+def tasks(root: Path, page: dict) -> tuple[str, list[str]]:
+    """The commands the repository's task runners define: just recipes, make targets, npm scripts,
+    each with the comment above it."""
+    import json
+
+    sections, sources = [], []
+    for name, reader in (("justfile", _just_recipes), ("Makefile", _make_targets)):
+        for path in _tracked(root, f"**/{name}") + _tracked(root, name):
+            rows = reader(path.read_text(encoding="utf-8"))
+            relative = path.relative_to(root).as_posix()
+            if rows and relative not in sources:
+                runner = "just" if name == "justfile" else "make"
+                where = "" if path.parent == root else f" (from `{path.parent.relative_to(root).as_posix()}/`)"
+                sections.append("\n".join([f"## `{relative}`", "", f"Run with `{runner} <name>`{where}.", "",
+                                           "| Task | What it does |", "|---|---|",
+                                           *[f"| `{t}` | {_cell(_first_sentence(c)) or '—'} |" for t, c in rows]]))
+                sources.append(relative)
+    for path in _tracked(root, "**/package.json") + _tracked(root, "package.json"):
+        relative = path.relative_to(root).as_posix()
+        if relative in sources or "node_modules" in relative:
+            continue
+        try:
+            scripts = json.loads(path.read_text(encoding="utf-8")).get("scripts") or {}
+        except json.JSONDecodeError:
+            continue
+        if scripts:
+            sections.append("\n".join([f"## `{relative}`", "", "Run with `npm run <name>`.", "",
+                                       "| Script | Runs |", "|---|---|",
+                                       *[f"| `{k}` | `{_cell(str(v))}` |" for k, v in scripts.items()]]))
+            sources.append(relative)
+    if not sections:
+        return "", []
+    return (f"Every task the repository defines, from {len(sources)} files.\n\n" + "\n\n".join(sections) + "\n",
+            sources)
+
+
+# --- database-schema -----------------------------------------------------------------------------
+
+CREATE = re.compile(r"CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?[\"`]?([\w.]+)[\"`]?\s*\((.*?)\n\s*\)\s*;?", re.I | re.S)
+ALTER = re.compile(r"ALTER\s+TABLE\s+(?:IF\s+EXISTS\s+)?[\"`]?([\w.]+)[\"`]?\s+ADD\s+(?:COLUMN\s+)?(?:IF\s+NOT\s+EXISTS\s+)?[\"`]?(\w+)[\"`]?\s+(\w+(?:\s*\([^)]*\))?(?:\[\])?)", re.I)
+CONSTRAINTS = ("primary", "foreign", "unique", "check", "constraint", "exclude", "index")
+
+
+def _columns(body: str) -> list[tuple[str, str, str, str]]:
+    """(name, type, flags, comment) for each column of a CREATE TABLE body."""
+    columns = []
+    for raw in body.splitlines():
+        line, _, comment = raw.partition("--")
+        line = line.strip().rstrip(",")
+        match = re.match(r'^[\"`]?(\w+)[\"`]?\s+([A-Za-z][\w ]*?(?:\([^)]*\))?(?:\[\])?)(?:\s+(.*))?$', line)
+        if not match or match.group(1).lower() in CONSTRAINTS:
+            continue
+        rest = (match.group(3) or "").lower()
+        flags = []
+        if "primary key" in rest:
+            flags.append("PK")
+        reference = re.search(r"references\s+[\"`]?([\w.]+)", rest)
+        if reference:
+            flags.append(f"FK {reference.group(1)}")
+        if "not null" in rest and "primary key" not in rest:
+            flags.append("required")
+        columns.append((match.group(1), match.group(2).strip().split()[0], ", ".join(flags), comment.strip()))
+    return columns
+
+
+def _base_type(kind: str) -> str:
+    """`numeric(10,2)` as `numeric`: an entity diagram's attribute type is one word."""
+    return re.sub(r"[(\[].*", "", kind)
+
+
+@generator("database-schema")
+def database_schema(root: Path, page: dict) -> tuple[str, list[str]]:
+    """The tables the migrations build: each table's columns, keys, and the comments beside them,
+    with the references between tables drawn as an entity diagram. Read from the SQL in the
+    migrations (`.sql` files and migration modules), in file order, so a later `ALTER TABLE ... ADD
+    COLUMN` lands on its table. Structure only: no rows."""
+    files = sorted({*_tracked(root, "**/migrations/**/*.py"), *_tracked(root, "**/migrations/**/*.sql"),
+                    *_tracked(root, "**/schema/**/*.sql"), *_tracked(root, "**/schema*.sql"),
+                    *_tracked(root, "**/db/**/*.sql")})
+    tables: dict[str, list[tuple[str, str, str, str]]] = {}
+    sources = []
+    for path in files:
+        text = path.read_text(encoding="utf-8", errors="replace")
+        found = False
+        for name, body in CREATE.findall(text):
+            tables[name] = _columns(body)
+            found = True
+        for name, column, kind in ALTER.findall(text):
+            if name in tables and column.lower() not in CONSTRAINTS:
+                tables[name].append((column, kind.strip(), "", ""))
+                found = True
+        if found:
+            sources.append(path.relative_to(root).as_posix())
+    if not tables:
+        return "", []
+    lines = [f"The database the migrations build: {len(tables)} tables, read from {len(sources)} files.", "",
+             "```mermaid", "erDiagram"]
+    for name, columns in tables.items():
+        for column, _, flags, _ in columns:
+            target = next((f[3:] for f in flags.split(", ") if f.startswith("FK ")), "")
+            if target in tables:
+                lines.append(f"  {_mermaid_id(target)} ||--o{{ {_mermaid_id(name)} : {column}")
+    for name, cols in tables.items():
+        lines += [f"  {_mermaid_id(name)} {{", *[f"    {_mermaid_id(_base_type(t))} {_mermaid_id(c)}" for c, t, _, _ in cols[:12]], "  }"]
+    lines += ["```"]
+    for name, columns in tables.items():
+        lines += ["", f"## `{name}`", "", "| Column | Type | Keys | Note |", "|---|---|---|---|"]
+        lines += [f"| `{c}` | `{t}` | {k or '—'} | {_cell(n) or '—'} |" for c, t, k, n in columns]
+    return "\n".join(lines) + "\n", sources
+
+
+# --- compose-services ----------------------------------------------------------------------------
+
+@generator("compose-services")
+def compose_services(root: Path, page: dict) -> tuple[str, list[str]]:
+    """The services each compose file runs: image or build, published ports, what each waits for."""
+    files = [p for p in _tracked(root, "**/*.y*ml")
+             if re.search(r"(^|/)(docker-)?compose(\.[\w-]+)?\.ya?ml$", p.relative_to(root).as_posix())]
+    sections, sources = [], []
+    for path in sorted(files):
+        services = (yaml.safe_load(path.read_text(encoding="utf-8")) or {}).get("services") or {}
+        if not services:
+            continue
+        relative = path.relative_to(root).as_posix()
+        rows, edges = [], []
+        for name, spec in services.items():
+            spec = spec or {}
+            needs = spec.get("depends_on") or []
+            needs = list(needs) if not isinstance(needs, list) else needs
+            edges += [(name, n) for n in needs]
+            source = spec.get("image") or ("built from `" + str((spec.get("build") or {}).get("context", spec.get("build")) if isinstance(spec.get("build"), dict) else spec.get("build")) + "`" if spec.get("build") else "—")
+            ports = ", ".join(f"`{p}`" for p in spec.get("ports") or []) or "—"
+            rows.append(f"| `{name}` | {_cell(str(source))} | {ports} | " + (", ".join(f"`{n}`" for n in needs) or "—") + " |")
+        section = [f"## `{relative}`", "", f"Start with `docker compose -f {relative} up`.", "",
+                   "| Service | Image or build | Ports | Waits for |", "|---|---|---|---|", *rows]
+        if edges:
+            section += ["", "```mermaid", "flowchart LR", *[f"  {_mermaid_id(a)}[{a}] --> {_mermaid_id(b)}[{b}]" for a, b in edges], "```"]
+        sections.append("\n".join(section))
+        sources.append(relative)
+    if not sections:
+        return "", []
+    return f"The services the repository runs together, from {len(sources)} compose files.\n\n" + "\n\n".join(sections) + "\n", sources
+
+
 # --- writing and checking -----------------------------------------------------------------------
 
 def render(name: str, root: Path, header: str, title: str) -> str | None:
