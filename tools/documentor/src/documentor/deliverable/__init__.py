@@ -72,6 +72,40 @@ def pptxgenjs_env() -> dict:
     return with_node_path(env, modules)
 
 
+ERASER = ("@eraserlabs/diagrams", "0.2.0")  # the presentation renderer `documentor tour --render` drives
+
+
+def npm_modules(package: str, version: str) -> Path:
+    """A node_modules directory holding `package@version`, installed into the documentor cache on
+    first use."""
+    base = os.environ.get("XDG_CACHE_HOME") or str(Path.home() / ".cache")
+    cache = Path(base) / "documentor" / "node" / f"{package.replace('/', '+')}@{version}"
+    modules = cache / "node_modules"
+    if not (modules / package / "package.json").is_file():
+        cache.mkdir(parents=True, exist_ok=True)
+        (cache / "package.json").write_text(json.dumps({"private": True, "dependencies": {package: version}}))
+        cmd = ["npm", "install", "--no-audit", "--no-fund"]
+        print(f"documentor: installing {package} {version} into {cache}", file=sys.stderr)
+        done = subprocess.run(cmd, cwd=cache, stdout=sys.stderr)
+        if done.returncode != 0:
+            raise RuntimeError(f"`{' '.join(cmd)}` failed in {cache} (exit {done.returncode})")
+    return modules
+
+
+def eraser_env() -> dict:
+    """An environment in which `architecture/js/render.mjs` finds Eraser and a Chromium."""
+    env = dict(os.environ)
+    modules = env.get("ERASER_MODULES")
+    if not (modules and (Path(modules) / ERASER[0]).is_dir()):
+        env["ERASER_MODULES"] = str(npm_modules(*ERASER))
+    if not env.get("CHROMIUM_PATH"):
+        chrome = find_chrome()
+        if not chrome:
+            raise RuntimeError("no Chromium or Chrome found; set CHROMIUM_PATH")
+        env["CHROMIUM_PATH"] = chrome
+    return env
+
+
 def run_node(script: str, args: list[str], env: dict | None = None) -> int:
     return subprocess.run(["node", str(HERE / script), *args], env=env).returncode
 
@@ -229,9 +263,14 @@ def doctor_main(argv: list[str]) -> int:
     add(bool(raster), f"icon rasterizer {raster}".strip(), "deck icons (else badges show numbers)")
     agent = agent_command()
     add(bool(have(agent)), f"agent CLI {agent} {have(agent)}".strip(), "documentor write")
-    modules = Path(os.environ.get("ERASER_MODULES") or Path.cwd() / "node_modules")
-    eraser = (modules / "@eraserlabs" / "diagrams").is_dir()
-    add(eraser, f"@eraserlabs/diagrams in {modules}", "tour render (set ERASER_MODULES)")
+    base = os.environ.get("XDG_CACHE_HOME") or str(Path.home() / ".cache")
+    cached = Path(base) / "documentor" / "node" / f"{ERASER[0].replace('/', '+')}@{ERASER[1]}" / "node_modules"
+    modules = Path(os.environ["ERASER_MODULES"]) if os.environ.get("ERASER_MODULES") else cached
+    if (modules / ERASER[0]).is_dir():
+        add(True, f"{ERASER[0]} in {modules}", "presentations (tour --render, site)")
+    else:
+        add(bool(node and npm), f"{ERASER[0]} {ERASER[1]} " + ("cacheable (npm installs it on first render)"
+            if node and npm else "not installed and not cacheable"), "presentations (tour --render, site)")
     for ok, what, enables in lines:
         print(f"{'ok     ' if ok else 'missing'}  {what}: {enables}")
     return 0

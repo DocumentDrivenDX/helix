@@ -125,9 +125,10 @@ The deployment layout is arithmetic, not a layout engine: a tier's zones share t
 A deployment view can also be drawn for a room: measured boxes, routed connectors, a theme, and a walkthrough that highlights one step at a time. This is the diagram review's example 6, but generated from the model.
 
 ```bash
-documentor tour --root . --view deployment --journey nda-review --theme synaptiq --out out/
-ERASER_MODULES=... CHROMIUM_PATH=... node src/documentor/architecture/js/render.mjs out/    # writes out/present.html
+documentor tour --root . --view deployment --journey nda-review --theme synaptiq --out out/ --render   # writes out/present.html
 ```
+
+Rendering needs Node and a Chrome or Chromium (`CHROMIUM_PATH`, else an installed one); Eraser (`@eraserlabs/diagrams`) installs into the documentor cache on first use, and `documentor doctor` reports all three. A deployment view marked `present = true` (walked by its `journey`, when it names one) is rendered by every `documentor site` build into a Presentations section of a site documentor scaffolds, beside the model's field guide pages; on a host that cannot render, the build says so and leaves the presentation out.
 
 | Comes from | Becomes |
 |---|---|

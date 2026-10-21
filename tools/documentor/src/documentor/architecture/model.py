@@ -114,6 +114,9 @@ class View:
     # flowchart (the default), stack, cast, deployment, or journey; a journey view draws `journey`.
     type: str = "flowchart"
     journey: str = ""
+    # Also drawn as a presentation on the site (`documentor tour`): a deployment view, walked by
+    # `journey` when it names one.
+    present: bool = False
 
 
 @dataclass(frozen=True)
@@ -211,6 +214,7 @@ def _view(entry: dict) -> View:
         plate=entry.get("plate", ""),
         type=entry.get("type", "flowchart"),
         journey=entry.get("journey", ""),
+        present=bool(entry.get("present", False)),
     )
 
 
@@ -330,6 +334,10 @@ def _view_problems(model: Model) -> list[str]:
         ]
         if len(view.elements) > MAX_VIEW_ELEMENTS:
             problems.append(f"{owner}: {len(view.elements)} elements, ceiling {MAX_VIEW_ELEMENTS}")
+        if view.present and view.type != "deployment":
+            problems.append(f"{owner}: present = true needs a deployment view (each element with a tier and zone)")
+        if view.journey and view.present and view.journey not in model.journeys:
+            problems.append(f"{owner}: unknown journey {view.journey}")
         for group in view.groups:
             stray = [e for e in group.elements if e not in view.elements]
             problems += [f"{owner}: group {group.id} holds {e}, not in the view" for e in stray]

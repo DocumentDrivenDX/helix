@@ -133,14 +133,25 @@ out="$($rg tour --root . --view deployment --theme nonesuch --out x 2>&1)" \
   && { echo "FAIL: an unknown theme should be refused"; exit 1; }
 grep -q "no theme named nonesuch" <<<"$out" || { echo "FAIL: expected the refusal: $out"; exit 1; }
 
-modules="${ERASER_MODULES:-}"
-if command -v node >/dev/null && [ -n "$modules" ] && [ -d "$modules/@eraserlabs/diagrams" ] && [ -n "${CHROMIUM_PATH:-}" ]; then
-  node "$repo_root/src/documentor/architecture/js/render.mjs" out | grep -q "(0 warnings)" || { echo "FAIL: render warned"; exit 1; }
+# Rendering needs Node, npm (Eraser installs into the documentor cache), and a Chromium; tour exits 3
+# without them, and the render is skipped.
+status=0; render_out="$($rg tour --root . --view deployment --journey read --out out --render 2>&1)" || status=$?
+if [ "$status" = 3 ]; then
+  echo "architecture_tour: render skipped ($render_out)"
+else
+  [ "$status" = 0 ] || { echo "FAIL: render failed: $render_out"; exit 1; }
+  grep -q "(0 warnings)" <<<"$render_out" || { echo "FAIL: render warned: $render_out"; exit 1; }
   grep -q 'data-mdp-id="svc--db"' out/present.html
   grep -q 'id="play"' out/present.html && grep -q 'function camFor' out/present.html \
     || { echo "FAIL: the presentation should play on the stage, with its camera"; exit 1; }
-  echo "architecture_tour: rendered"
-else
-  echo "architecture_tour: render skipped (set ERASER_MODULES and CHROMIUM_PATH)"
+  # A view marked `present = true` becomes a section of the site.
+  printf 'journey = "read"\npresent = true\n' >> "$M"
+  printf '  schema: 1\n  audiences: [developer]\n' >> .helix.yml
+  git init -q . && git add -A
+  $rg site --root . --site site --no-build >/dev/null 2>&1 || { echo "FAIL: site with a presentation"; exit 1; }
+  [ -f site/static/presentations/deployment/present.html ] || { echo "FAIL: the presentation should be in the site"; exit 1; }
+  grep -q "presentations/deployment/present.html" site/content/presentations/_index.md \
+    || { echo "FAIL: the presentations section should list it"; exit 1; }
+  echo "architecture_tour: rendered, and placed in the site"
 fi
 echo "PASS: architecture_tour"

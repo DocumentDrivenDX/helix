@@ -162,6 +162,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--journey")
     parser.add_argument("--theme")
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--render", action="store_true", help="also render present.html (Node, Eraser, and a Chromium; Eraser installs into the cache)")
     args = parser.parse_args(argv)
     root = args.root.resolve()
     model_path = args.model or am.default_model(root)
@@ -177,7 +178,26 @@ def main(argv: list[str] | None = None) -> int:
     (args.out / "walkthrough.json").write_text(json.dumps(walkthrough(model, view, args.journey), indent=1), encoding="utf-8")
     (args.out / "theme.json").write_text(json.dumps(theme, indent=1), encoding="utf-8")
     print(f"wrote {args.out} ({len(view.elements)} elements, theme {theme.get('id', 'model')})")
-    return 0
+    return render(args.out) if args.render else 0
+
+
+def render(out: Path) -> int:
+    """Render `present.html` in `out` from the files `main` wrote."""
+    import shutil
+    import subprocess
+
+    from documentor.deliverable import eraser_env
+
+    if not (shutil.which("node") and shutil.which("npm")):
+        print("documentor tour: rendering needs node and npm", file=sys.stderr)
+        return 3
+    try:
+        env = eraser_env()
+    except (RuntimeError, OSError) as error:
+        print(f"documentor tour: cannot render: {error}", file=sys.stderr)
+        return 3
+    script = Path(__file__).parent / "js" / "render.mjs"
+    return subprocess.run(["node", str(script), str(out)], env=env, check=False).returncode
 
 
 if __name__ == "__main__":

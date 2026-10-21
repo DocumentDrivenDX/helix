@@ -322,6 +322,54 @@ def hue(color: str) -> tuple[int, int]:
     return round(h * 360), round(s * 100)
 
 
+def presentations(root: Path, config: dict, site: Path, weight: int, hextra: bool) -> list[dict]:
+    """The model's presentations as a site section: each view marked `present = true`, rendered by
+    `documentor tour --render` under the site's static files, and each field guide page beside them.
+    A view that cannot be rendered on this host (no Node, Eraser, or Chromium) is left out, and said."""
+    from documentor.architecture import model as am
+    from documentor.architecture import tour
+
+    path = am.default_model(root)
+    if not path.is_file():
+        return []
+    model = am.load(path)
+    out = site / "static" / "presentations"
+    listed = []
+    for view in model.views.values():
+        if view.present:
+            args = ["--root", str(root), "--model", str(path), "--view", view.id, "--out", str(out / view.id), "--render"]
+            args += ["--journey", view.journey] if view.journey else []
+            try:
+                status = tour.main(args)
+            except SystemExit as stop:
+                status = stop.code or 1
+            if status == 0 and (out / view.id / "present.html").is_file():
+                journey = model.journeys.get(view.journey)
+                listed.append({"title": view.title or (journey.title if journey else view.id),
+                               "url": f"/presentations/{view.id}/present.html",
+                               "task": re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", journey.takeaway if journey else view.takeaway)})
+            else:
+                print(f"documentor site: presentation {view.id} not rendered (see `documentor doctor`)", file=sys.stderr)
+        elif view.type == "field-guide":
+            from documentor.cli import views_dir
+
+            page = views_dir(root, config, path) / view.document
+            if page.is_file():
+                out.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(page, out / f"{view.id}.html")
+                listed.append({"title": view.title or "Field guide", "url": f"/presentations/{view.id}.html",
+                               "task": view.takeaway})
+    if not listed:
+        return []
+    meta = {"title": "Presentations", "weight": weight} | ({"type": "docs"} if hextra else {})
+    body = "".join(f"- [{p['title']}]({p['url']})" + (f": {p['task']}" if p.get("task") else "") + "\n" for p in listed)
+    section = site / "content" / "presentations"
+    section.mkdir(parents=True, exist_ok=True)
+    (section / "_index.md").write_text(front_matter(meta) + "Each one plays on one screen; the arrow keys step through it.\n\n" + body, encoding="utf-8")
+    return [{"id": "presentations", "title": "Presentations", "reader": "Anyone walking through the system in a room.",
+             "url": "/presentations/", "pages": listed, "weight": weight}]
+
+
 def scaffold_hextra(root: Path, config: dict, site: Path, run_hugo: bool, base_url: str | None) -> int:
     """A new Hextra site from the pages: a home page with a card per audience, one section each."""
     settings = (config.get("publish") or {}).get("site") or {}
@@ -329,6 +377,7 @@ def scaffold_hextra(root: Path, config: dict, site: Path, run_hugo: bool, base_u
         shutil.rmtree(site)
     site.mkdir(parents=True)
     sections = emit_hugo(root, config, site, "", hextra=True)
+    sections += presentations(root, config, site, len(sections) + 1, hextra=True)
     title = settings.get("title", root.name)
     cards = "".join(f'  {{{{< card link="{s["url"].strip("/")}/" title="{s["title"]}" subtitle="{s["reader"]}" >}}}}\n'
                     for s in sections)
@@ -390,6 +439,7 @@ def scaffold_static(root: Path, config: dict, site: Path, run_hugo: bool, base_u
         shutil.rmtree(site)
     shutil.copytree(catalog() / "site", site)
     sections = emit_hugo(root, config, site, "", hextra=False, inline_sources=False)
+    sections += presentations(root, config, site, len(sections) + 1, hextra=False)
     title = settings.get("title", root.name)
     (site / "content" / "_index.md").write_text(front_matter({"title": title, "weight": 0}), encoding="utf-8")
     hugo_config = {
