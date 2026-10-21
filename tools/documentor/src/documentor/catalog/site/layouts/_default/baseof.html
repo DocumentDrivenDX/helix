@@ -1,15 +1,19 @@
 <!doctype html>
-<html lang="en">
+{{ $theme := site.Params.theme }}
+<html lang="en"{{ with $theme }} data-theme="{{ .name }}"{{ if eq .appearance "dark" }} data-appearance="dark"{{ end }}{{ end }}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} · {{ site.Title }}{{ end }}</title>
-<link rel="stylesheet" href="{{ "site.css" | relURL }}">
-<style>:root{--accent:{{ site.Params.accent | default "#2f6f8f" | safeCSS }}}</style>
+{{ with $theme }}{{ range .css }}<link rel="stylesheet" href="{{ . | relURL }}">
+{{ end }}{{ with .favicon }}<link rel="icon" href="{{ . | relURL }}">
+{{ end }}{{ if and .dark (eq .appearance "system") }}<script>if(matchMedia("(prefers-color-scheme: dark)").matches)document.documentElement.dataset.appearance="dark"</script>
+{{ end }}{{ end }}<link rel="stylesheet" href="{{ "site.css" | relURL }}">
+{{ if not $theme }}<style>:root{--accent:{{ site.Params.accent | default "#2f6f8f" | safeCSS }}}</style>{{ end }}
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="{{ "/" | relURL }}">{{ site.Title }}</a>
+  <a class="brand" href="{{ "/" | relURL }}">{{ if $theme }}<span class="logo" aria-hidden="true"></span>{{ end }}{{ site.Title }}</a>
   <nav class="audiences" aria-label="Audiences">
     {{ range site.Params.sections }}<a href="{{ .url | relURL }}" {{ if hasPrefix $.RelPermalink .url }}aria-current="true"{{ end }}>{{ .title }}</a>{{ end }}
   </nav>

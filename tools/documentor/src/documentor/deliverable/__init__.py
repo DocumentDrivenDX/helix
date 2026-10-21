@@ -80,6 +80,33 @@ def usage(stream=sys.stdout) -> None:
     print(__doc__.strip(), file=stream)
 
 
+def project_deck_theme(args: list[str]) -> list[str]:
+    """`--theme <file>` for the project's ux-builder theme (`publish.theme`), when it names one and the
+    call names no theme of its own."""
+    if "--theme" in args:
+        return []
+    import tempfile
+
+    import yaml
+
+    from documentor import theme
+    from documentor.lib import config_of, find_root, helix_catalog
+
+    try:
+        root = find_root(Path.cwd())
+        config = config_of(root)
+    except (OSError, SystemExit, ValueError):
+        return []
+    if not theme.declared(config):
+        return []
+    base = yaml.safe_load((helix_catalog() / "deliverables" / "theme.yml").read_text(encoding="utf-8")) or {}
+    merged = theme.deck_theme(theme.load(root, config), base)
+    handle = tempfile.NamedTemporaryFile("w", suffix=".yml", prefix="documentor-theme-", delete=False, encoding="utf-8")
+    with handle:
+        yaml.safe_dump(merged, handle, sort_keys=False)
+    return ["--theme", handle.name]
+
+
 def deck_main(argv: list[str]) -> int:
     if not argv or argv[0] in ("-h", "--help"):
         usage()
@@ -95,7 +122,7 @@ def deck_main(argv: list[str]) -> int:
             print(f"documentor: deck render could not install pptxgenjs: {err}", file=sys.stderr)
             print(NO_TOOLCHAIN.format(what="deck render", needs="pptxgenjs", target=".pptx"), file=sys.stderr)
             return 3
-        return run_node("render-deck.js", rest, env)
+        return run_node("render-deck.js", rest + project_deck_theme(rest), env)
     if sub == "qa":
         return subprocess.run([sys.executable, str(HERE / "deck-qa.py"), *rest]).returncode
     print(f"documentor deck: unknown subcommand {sub!r} (render, qa)", file=sys.stderr)
@@ -149,6 +176,25 @@ def agent_command() -> str:
     return (os.environ.get("DOCUMENTOR_AGENT") or configured or COMMAND).split()[0]
 
 
+def theme_line() -> tuple[bool, str]:
+    """The theme `publish.theme` resolves to, or the packaged one."""
+    from documentor import theme
+    from documentor.lib import config_of, find_root
+
+    try:
+        root = find_root(Path.cwd())
+        config = config_of(root)
+    except (OSError, SystemExit, ValueError):
+        root, config = Path.cwd(), {}
+    if not theme.declared(config):
+        return True, "theme: none named (publish.theme); the packaged neutral look"
+    chosen = theme.load(root, config)
+    wanted = (config.get("publish") or {}).get("theme")
+    name = wanted.get("name") if isinstance(wanted, dict) else wanted
+    ok = chosen.name == (name or theme.DEFAULT_NAME)
+    return ok, f"theme {chosen.name} from {chosen.dist}" + ("" if ok else f" (wanted {name}; not found)")
+
+
 def doctor_main(argv: list[str]) -> int:
     if argv and argv[0] in ("-h", "--help"):
         print("documentor doctor: what this host can do, one line per capability (always exits 0)")
@@ -163,6 +209,7 @@ def doctor_main(argv: list[str]) -> int:
 
     add(True, f"python {sys.version.split()[0]} ({sys.executable})", "documentor itself")
     add(bool(have("hugo")), f"hugo {have('hugo') or ''}".strip(), "site build")
+    add(*theme_line(), "the look of the site, views, presentations, and decks")
     add(bool(have("go")), f"go {have('go') or ''}".strip(), "hextra theme (Hugo modules)")
     node, npm = have("node"), have("npm")
     add(bool(node), f"node {node}".strip(), "deck render, doc render")

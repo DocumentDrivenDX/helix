@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Exercise `documentor tour`: a deployment view becomes Eraser input
 # (zones as groups, boxes inside them, routed connectors with pinned labels), a journey becomes
-# the walkthrough, a catalog theme colors it, and a model change redraws it with no hand edit.
+# the walkthrough, a ux-builder theme colors it, and a model change redraws it with no hand edit.
 # The render step (js/render.mjs) runs only when Node, @eraserlabs/diagrams (ERASER_MODULES),
 # and a Chromium (CHROMIUM_PATH) are present.
 set -euo pipefail
@@ -12,6 +12,23 @@ T="$(mktemp -d)"; trap 'rm -rf "$T"' EXIT
 mkdir -p "$T/proj/docs/helix/02-design"
 cd "$T/proj"
 printf 'def main():\n    return 1\n' > app.py
+# A local @ux-builder/tokens build with two themes, so the test never fetches the package.
+printf 'flows:\n  - id: helix\n    root: docs/helix/\npublish:\n  theme: {tokens: tokens}\n' > .helix.yml
+mkdir -p tokens/resolved
+cat > tokens/manifest.json <<'JSON'
+{"themes": [{"name": "blueprint", "default": "dark", "appearances": ["dark"]},
+            {"name": "helix", "default": "light", "appearances": ["light"]}]}
+JSON
+python3 - <<'PY'
+import json
+def tokens(ground, accent, text):
+    return {"tokens": {"piq-color-ground": ground, "piq-color-surface": ground, "piq-color-surface-sunken": ground,
+                       "piq-color-border": text, "piq-color-ground-recessed": text, "piq-color-text": text,
+                       "piq-color-text-strong": text, "piq-color-text-muted": text, "piq-color-accent": accent,
+                       "piq-font-body": "Inter, sans-serif"}}
+json.dump(tokens("#0D1520", "#4FB3FF", "#E6EDF5"), open("tokens/resolved/blueprint.dark.json", "w"))
+json.dump(tokens("#FFFFFF", "#2F6F8F", "#2E3440"), open("tokens/resolved/helix.light.json", "w"))
+PY
 M=docs/helix/02-design/architecture-model.toml
 cat > "$M" <<'TOML'
 [system]
@@ -98,6 +115,7 @@ assert [s["edge"] for s in walk["steps"]] == ["user--svc", "svc--db"], walk
 assert walk["steps"][1]["caption"] == "Reads it: rows live there.", walk["steps"][1]
 assert walk["lead"] == "One request, one row.", "links are reduced to their words"
 assert theme["id"] == "blueprint", theme
+assert theme["accent"] == "#4FB3FF" and theme["ground"] == "#0D1520", "the colors are the ux-builder theme's"
 PY
 
 # A model change redraws it: move the database beside the service, and its box changes zone.

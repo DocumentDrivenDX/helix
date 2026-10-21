@@ -40,6 +40,7 @@ from pathlib import Path
 
 import yaml
 
+from documentor import theme as project_theme
 from documentor.check import parse_page
 from documentor.lib import FENCE, catalog, audiences, config_of, find_root, load_audience, load_traits, publish_out
 
@@ -340,7 +341,10 @@ def scaffold_hextra(root: Path, config: dict, site: Path, run_hugo: bool, base_u
         if lines:
             home += f"\n## {s_['title']}\n\n{s_['reader']}\n\n" + "\n".join(lines) + "\n"
     (site / "content" / "_index.md").write_text(home, encoding="utf-8")
-    h, s = hue(settings.get("accent", "#2f6f8f"))
+    accent = settings.get("accent", "#2f6f8f")
+    if project_theme.declared(config):
+        accent = project_theme.load(root, config).roles.get("accent", accent)
+    h, s = hue(accent)
     (site / "assets" / "css").mkdir(parents=True, exist_ok=True)
     (site / "assets" / "css" / "custom.css").write_text(
         f":root{{--primary-hue:{h}deg;--primary-saturation:{s}%;}}\n"
@@ -397,6 +401,12 @@ def scaffold_static(root: Path, config: dict, site: Path, run_hugo: bool, base_u
         "params": {"accent": settings.get("accent", "#2f6f8f"), "repo_url": settings.get("repo_url", ""),
                    "description": settings.get("description", ""), "sections": sections},
     }
+    if project_theme.declared(config):
+        chosen = project_theme.load(root, config)
+        assets = project_theme.copy_assets(chosen, site / "static" / "ux-builder")
+        hugo_config["params"]["theme"] = {"name": chosen.name, "appearance": chosen.appearance,
+                                          "dark": bool(chosen.dark), "favicon": f"ux-builder/{assets['favicon']}" if assets["favicon"] else "",
+                                          "css": [f"ux-builder/{c}" for c in assets["css"]]}
     (site / "hugo.yaml").write_text(yaml.safe_dump(hugo_config, sort_keys=False, allow_unicode=True), encoding="utf-8")
     print(f"wrote {site} ({sum(len(s['pages']) for s in sections)} pages in {len(sections)} sections)")
     if not run_hugo:

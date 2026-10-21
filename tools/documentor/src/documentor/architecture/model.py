@@ -231,6 +231,25 @@ def _system(raw: dict) -> System:
     )
 
 
+def project_theme(path: Path, name: str | None = None) -> dict:
+    """The drawing roles of the project's ux-builder theme (`publish.theme` in `.helix.yml`, or the
+    model's `[theme] name`); empty when neither names one, so the neutral defaults stand."""
+    from documentor import theme
+
+    try:
+        root = find_root(path.parent)
+        settings = (config_of(root).get("publish") or {}).get("theme") or {}
+    except (OSError, SystemExit, ValueError):
+        root, settings = path.parent, {}
+    settings = {"name": settings} if isinstance(settings, str) else dict(settings)
+    if name:
+        settings["name"] = name
+    if not settings.get("name"):
+        return {}
+    chosen = theme.load(root, {"publish": {"theme": settings}})
+    return theme.drawing_roles(chosen) | {"id": chosen.name}
+
+
 def load(path: Path | None = None) -> Model:
     """Read the model; a duplicate id is reported, and the first definition wins."""
     raw = tomllib.loads(path.read_text(encoding="utf-8"))
@@ -247,7 +266,8 @@ def load(path: Path | None = None) -> Model:
             problems.append(f"duplicate view id {view.id}")
         views.setdefault(view.id, view)
     relations = tuple(map(_relation, raw.get("relation", [])))
-    theme = DEFAULT_THEME | raw.get("theme", {})
+    own = dict(raw.get("theme", {}))
+    theme = DEFAULT_THEME | project_theme(path, own.pop("name", None)) | own
     journeys = {j.id: j for j in map(_journey, raw.get("journey", []))}
     zones = {z["name"]: z.get("caption", "") for z in raw.get("zone", [])}
     return Model(elements, relations, views, tuple(problems), system, theme, journeys, zones)

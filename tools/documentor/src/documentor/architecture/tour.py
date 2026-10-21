@@ -12,7 +12,7 @@ hand. Here they come from the architecture model instead (HELIX workflows/refere
   positions    the deployment layout: each element's tier and zone (architecture_deploy.py)
   connections  the view's relations, with ports from the layout and waypoints for a line that
                skips a tier; a relation marked `data = true` is left to the DAG view
-  colors       a theme from workflows/publish/themes/, or the model's own [theme]
+  colors       a ux-builder theme (`--theme`, or the project's `publish.theme`), under the model's own [theme]
   walkthrough  a journey's steps, each walking a relation the model holds, with its caption
 
 This writes the renderer's input (`eraser.json`, `walkthrough.json`, `theme.json`); `js/
@@ -29,23 +29,21 @@ import sys
 from pathlib import Path
 
 from documentor.architecture import deploy
-from documentor.lib import catalog
 from documentor.architecture import model as am
-import yaml
 
 LABEL_PX = 8.4  # the presentation label font, 16px Inter, per character
 SCALE = 1.45  # the layout's units are sized for documents; a presentation reads from farther away
 
 
-def theme_for(model: am.Model, name: str | None) -> dict:
-    """The named catalog theme, under the model's own overrides; the model's theme without a name."""
-    chosen = name or model.theme.get("name")
-    if not chosen:
+def theme_for(model: am.Model, name: str | None, model_path: Path) -> dict:
+    """The named ux-builder theme under the model's own overrides; the model's theme without a name
+    (which is the project's `publish.theme` when it names one)."""
+    if not name:
         return dict(model.theme)
-    path = catalog() / "themes" / f"{chosen}.yml"
-    if path.is_file():
-        return am.DEFAULT_THEME | (yaml.safe_load(path.read_text(encoding="utf-8")) or {})
-    sys.exit(f"documentor tour: no theme named {chosen}")
+    roles = am.project_theme(model_path, name)
+    if roles.get("id") != name:
+        sys.exit(f"documentor tour: no theme named {name}")
+    return am.DEFAULT_THEME | roles
 
 
 def _plain(text: str) -> str:
@@ -166,13 +164,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args(argv)
     root = args.root.resolve()
-    model = am.load(args.model or am.default_model(root))
+    model_path = args.model or am.default_model(root)
+    model = am.load(model_path)
     if args.view not in model.views:
         parser.error(f"no view named {args.view}")
     view = model.views[args.view]
     if any(model.elements[e].tier < 1 for e in view.elements):
         parser.error(f"view {args.view}: every element needs a tier and zone (a deployment view)")
-    theme = theme_for(model, args.theme)
+    theme = theme_for(model, args.theme, model_path)
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / "eraser.json").write_text(json.dumps(eraser(model, view, theme), indent=1), encoding="utf-8")
     (args.out / "walkthrough.json").write_text(json.dumps(walkthrough(model, view, args.journey), indent=1), encoding="utf-8")

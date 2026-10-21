@@ -80,6 +80,10 @@ publish:
   watch: ["databricks.yml"]  # optional: files a new one of which, cited by no page, is reported
   ignore: []                 # optional: globs no page should explain
   views: guide               # optional: architecture views under the guide (default), or `artifact` (between markers in the model's own documents)
+  theme:                     # optional: the project's look, from DocumentDrivenDX/ux-builder (`@ux-builder/tokens`)
+    name: synaptiq           # a theme in the tokens' manifest; the site, the architecture views, presentations, and decks wear it
+    appearance: system       # light | dark | system (the site follows the reader; drawings use light unless dark)
+    tokens: 1.6.0            # optional: another published version, or a path to a local tokens build
   agent:                     # optional: the agent `documentor write` drives; DOCUMENTOR_AGENT overrides the command
     command: "my-agent --model {model}"   # the prompt on stdin, the page on stdout
     writer: opus
@@ -89,7 +93,7 @@ publish:
     description: One line under the title
     repo_url: https://github.example/org/example   # links to repository files resolve here
     branch: main
-    accent: "#2f6f8f"
+    accent: "#2f6f8f"        # without `publish.theme`: the site's one color
     target: static           # mkdocs | hugo (the repository's own site) | static (default with no site) | hextra
     site_dir: website        # optional: where the repository's Hugo site lives, when detection should not guess
     content_root: docs/website/content   # optional: the Hugo content directory, when the site mounts it elsewhere
@@ -99,6 +103,8 @@ publish:
     sections:                # optional: sections the project generates itself
       - {id: reference, title: Reference, generated: {command: "uv run scripts/generate-reference.py", out: reference}}
 ```
+
+**Theme.** With `publish.theme`, every rendering wears one theme: the site loads the theme's CSS, fonts, and brand artwork, and maps its roles onto the theme's `--piq-*` tokens; the architecture views and presentations draw in its colors (a model's own `[theme]` still overrides a role); a deck takes its colors and keeps typefaces every presentation program has. The tokens are fetched once from the npm registry; without the network, or without `publish.theme`, the look is the packaged neutral theme. An existing Hugo or mkdocs site keeps its own look.
 
 **Schema.** `publish.schema` names the version of this contract the block follows. A block without it is version 1. A key whose meaning changes raises the version; a new optional key does not. documentor refuses a block whose schema it does not read, rather than misread it, and `documentor init` writes the version it reads.
 

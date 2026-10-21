@@ -48,7 +48,9 @@ the Brief, whatever the mapping suggests: `scope`, `breadth` (`survey` or
 5. **Write the script** in the `deliverable` template and the `human-facing`
    voice; then the shape pass over bullets, labels, captions, and verdicts.
 6. **Theme.** The project's `design-system` artifact when it declares palette
-   or typography, else `theme.yml`, with the Brief's look.
+   or typography, else `theme.yml`, with the Brief's look. With
+   `publish.theme` in `.helix.yml` (a ux-builder theme), `documentor deck
+   render` takes the palette from it and keeps `theme.yml`'s typefaces.
 7. **Render.** `.pptx` from the script, plus PDF when the host can export one.
 8. **Pre-flight gate.** Every check below; a failure loops to step 3, 5, or 7.
 9. **Hand-off.** Save, link, and report the result and any material unresolved

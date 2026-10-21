@@ -11,7 +11,7 @@ repo = "example-org/atlas"          # where the code the model cites lives
 facts = "scripts/architecture_facts.py"   # optional: its declared_facts(root) lists declared systems
 regenerate = "just architecture"    # optional: the command the generated text tells a reader to run
 
-[theme]                             # optional: the project's colors; HELIX's neutral palette otherwise
+[theme]                             # optional: the project's colors over its `publish.theme` (a ux-builder theme), or `name = "<theme>"`; a neutral palette otherwise
 accent = "#D12800"                  # the outline on the project's own code
 accent_name = "red"                 # the legend's word for it
 ground = "#F0EEE6"                  # the fill of everything outside the project
@@ -125,7 +125,7 @@ The deployment layout is arithmetic, not a layout engine: a tier's zones share t
 A deployment view can also be drawn for a room: measured boxes, routed connectors, a theme, and a walkthrough that highlights one step at a time. This is the diagram review's example 6, but generated from the model.
 
 ```bash
-documentor tour --root . --view deployment --journey nda-review --theme blueprint --out out/
+documentor tour --root . --view deployment --journey nda-review --theme synaptiq --out out/
 ERASER_MODULES=... CHROMIUM_PATH=... node src/documentor/architecture/js/render.mjs out/    # writes out/present.html
 ```
 
@@ -135,7 +135,7 @@ ERASER_MODULES=... CHROMIUM_PATH=... node src/documentor/architecture/js/render.
 | each element | a box, outlined in the accent for the system's own code and dashed when not built |
 | the deployment router's routes and label spots | each connector's ports, waypoints, and label position |
 | the journey's steps, and each relation's `why` | the walkthrough's highlighted step and caption; without a journey, the view's relations in order |
-| a theme in `workflows/publish/themes/` | the colors and font; without one, the model's own `[theme]` |
+| `--theme`, a ux-builder theme, or the project's `publish.theme` | the colors and font, under the model's own `[theme]` |
 
 The presentation plays on one screen, never scrolled (`js/stage.mjs`). The overview frames the whole diagram; each step's camera glides to that step's boxes and line and zooms in as far as they allow, above the caption. A jump to a shot off screen pulls back to frame both, then flies in. Play advances on its own; drag pans, the wheel zooms, and `#step-N` in the address opens a step.
 
