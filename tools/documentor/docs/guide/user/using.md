@@ -4,7 +4,7 @@
 <!-- helix:source README.md#use sha256:1668b6192a52a5d5 -->
 <!-- helix:source src/documentor/cli.py sha256:4181ca3d7fc04669 -->
 <!-- helix:source src/documentor/write.py sha256:2118376b2c167085 -->
-<!-- helix:source src/documentor/site.py sha256:ed1edc72665fd7da -->
+<!-- helix:source src/documentor/site.py sha256:adc2bb46d8775784 -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
 # Using the product
 

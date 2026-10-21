@@ -1,9 +1,9 @@
-<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=agent-opus reviewed=2026-10-20/agent-sonnet/50659a370f4305b9 -->
+<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=agent-opus reviewed=2026-10-21/agent-sonnet/8c00081b49ae1027 -->
 <!-- helix:gap artifact:architecture -->
 <!-- helix:source src/documentor/cli.py sha256:4181ca3d7fc04669 -->
 <!-- helix:source src/documentor/lib.py sha256:093a891d0f8bcf48 -->
 <!-- helix:source src/documentor/write.py sha256:2118376b2c167085 -->
-<!-- helix:source src/documentor/site.py sha256:ed1edc72665fd7da -->
+<!-- helix:source src/documentor/site.py sha256:adc2bb46d8775784 -->
 <!-- helix:source src/documentor/record.py sha256:cecdf2712047484e -->
 <!-- helix:source src/documentor/deliverable/__init__.py sha256:d7e4bcda6da1fbdf -->
 <!-- helix:source src/documentor/architecture/model.py sha256:374937f3d7f4c2ec -->
@@ -12,7 +12,7 @@
 <!-- helix:source src/documentor/architecture/tour.py sha256:091c1607b7c3ec64 -->
 <!-- helix:source pyproject.toml sha256:50b33a33c6ff0f5e -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
-<!-- helix:source ../../.github/workflows/documentor.yml sha256:d66814968e1608c1 -->
+<!-- helix:source ../../.github/workflows/documentor.yml sha256:ab2fb8338de1a028 -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
 <!-- helix:source tests/validate-package.sh sha256:b1ea61c5ad13ea18 -->
 <!-- helix:source docs/helix/01-frame/prd.md#requirements sha256:faab177063c3e4e8 -->
@@ -120,7 +120,7 @@ documentor's CI is HELIX's `documentor` workflow. It runs when documentor change
 
 ```sh
 uv sync
-uvx --from rust-just==1.58.0 just test
+uv run --with rust-just==1.58.0 just test
 uv run documentor check --root .
 ```
 

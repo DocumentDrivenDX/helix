@@ -1,7 +1,7 @@
-<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=agent-opus reviewed=2026-10-20/agent-sonnet/82d91760960ada99 -->
+<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=agent-opus reviewed=2026-10-21/agent-sonnet/9dc207ff5aefbf84 -->
 <!-- helix:source pyproject.toml sha256:50b33a33c6ff0f5e -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
-<!-- helix:source ../../.github/workflows/documentor.yml sha256:d66814968e1608c1 -->
+<!-- helix:source ../../.github/workflows/documentor.yml sha256:ab2fb8338de1a028 -->
 <!-- helix:source ../../.github/workflows/release-tag.yml sha256:cf31b27d56efd66b -->
 <!-- helix:source ../../.github/workflows/release-version-guard.yml sha256:31a73cb81eb3e42a -->
 <!-- helix:source ../../CONTRIBUTING.md sha256:d0027006597fad67 -->
@@ -11,7 +11,7 @@
 <!-- helix:source src/documentor/lib.py sha256:093a891d0f8bcf48 -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
 <!-- helix:source tests/validate-package.sh sha256:b1ea61c5ad13ea18 -->
-<!-- helix:source tests/validate-publish.sh sha256:978673c6cb51fb8f -->
+<!-- helix:source tests/validate-publish.sh sha256:8d0ea6ebcae9a964 -->
 <!-- helix:source ../../scripts/sync_references.py sha256:019062c512836eb4 -->
 # Developer guide
 
@@ -108,7 +108,7 @@ On success the last line starts with `OK:`.
 
 `just test-package` builds the wheel with `uv build` and runs the installed CLI with `uv run --isolated`. It checks that the wheel holds the catalog and the deck renderer. It also checks that `--catalog` refuses a directory that is no HELIX catalog.
 
-CI is HELIX's `documentor` workflow. It runs on pull requests and pushes to `main` that touch documentor, HELIX's publish catalog, or HELIX's voice profiles. From `tools/documentor`, it installs uv with Python 3.12 and Hugo 0.160.0 extended. It then runs `uvx --from rust-just==1.58.0 just test` and `uv run documentor check --root .`.
+CI is HELIX's `documentor` workflow. It runs on pull requests and pushes to `main` that touch documentor, HELIX's publish catalog, or HELIX's voice profiles. From `tools/documentor`, it installs uv with Python 3.12 and Hugo 0.160.0 extended. It then runs `uv run --with rust-just==1.58.0 just test` and `uv run documentor check --root .`.
 
 <details>
 <summary>The CI job, from HELIX's documentor workflow</summary>
@@ -119,7 +119,7 @@ CI is HELIX's `documentor` workflow. It runs on pull requests and pushes to `mai
 - uses: peaceiris/actions-hugo@v3
   with: { hugo-version: "0.160.0", extended: true }
 - run: uv sync
-- run: uvx --from rust-just==1.58.0 just test
+- run: uv run --with rust-just==1.58.0 just test
 - run: uv run documentor check --root .
 ```
 
