@@ -160,6 +160,9 @@ printf '\nThe [plate](plate.html) draws it.\n' >>"$page"
 $rg site --root "$project" --site "$tmpdir/site" >"$tmpdir/site.out" 2>&1 || fail "site build failed: $(cat "$tmpdir/site.out")"
 content="$tmpdir/site/content/developer/_index.md"
 [ -f "$content" ] || fail "the flow's index page should become the section page"
+grep -q "^title: How this guide was made" "$tmpdir/site/content/about/_index.md" \
+  || fail "the site should say how the guide was made"
+grep -q "^## The pages" "$tmpdir/site/content/about/_index.md" || fail "the report should list every page"
 grep -q "https://example.test/org/fixture/blob/main/docs/helix/02-design/architecture.md#deployment" "$content" \
   || fail "a link to a repository file should resolve to repo_url: $(cat "$content")"
 grep -q "docs/helix/02-design/architecture.md#deployment" "$content" || fail "the page's sources should be in its front matter"

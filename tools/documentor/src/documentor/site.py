@@ -322,6 +322,28 @@ def hue(color: str) -> tuple[int, int]:
     return round(h * 360), round(s * 100)
 
 
+def report_page(root: Path, config: dict, content: Path, sections: list[dict], weight: int, hextra: bool,
+                section: bool) -> list[dict]:
+    """The "How this guide was made" page (`report.py`): a section of a site documentor scaffolds,
+    or a page inside the guide's section of the repository's own site."""
+    from documentor import report
+    from documentor.cli import assess
+    from documentor.lib import plan
+
+    pages = plan(config, root)
+    assess(root, config, pages)
+    body = report.build_report(root, config, pages, sections)
+    title = "How this guide was made"
+    meta = {"title": title, "weight": weight} | ({"type": "docs"} if hextra else {})
+    if not section:
+        (content / "how-it-was-made.md").write_text(front_matter(meta | {"weight": 900}) + body, encoding="utf-8")
+        return []
+    (content / "about").mkdir(parents=True, exist_ok=True)
+    (content / "about" / "_index.md").write_text(front_matter(meta) + body, encoding="utf-8")
+    return [{"id": "about", "title": title, "url": "/about/", "pages": [], "weight": weight,
+             "reader": "What detection found, how each page was made and evaluated, and what would improve the guide."}]
+
+
 def presentations(root: Path, config: dict, site: Path, weight: int, hextra: bool) -> list[dict]:
     """The model's presentations as a site section: each view marked `present = true`, rendered by
     `documentor tour --render` under the site's static files, and each field guide page beside them.
@@ -378,6 +400,7 @@ def scaffold_hextra(root: Path, config: dict, site: Path, run_hugo: bool, base_u
     site.mkdir(parents=True)
     sections = emit_hugo(root, config, site, "", hextra=True)
     sections += presentations(root, config, site, len(sections) + 1, hextra=True)
+    sections += report_page(root, config, site / "content", sections, len(sections) + 1, hextra=True, section=True)
     title = settings.get("title", root.name)
     cards = "".join(f'  {{{{< card link="{s["url"].strip("/")}/" title="{s["title"]}" subtitle="{s["reader"]}" >}}}}\n'
                     for s in sections)
@@ -440,6 +463,7 @@ def scaffold_static(root: Path, config: dict, site: Path, run_hugo: bool, base_u
     shutil.copytree(catalog() / "site", site)
     sections = emit_hugo(root, config, site, "", hextra=False, inline_sources=False)
     sections += presentations(root, config, site, len(sections) + 1, hextra=False)
+    sections += report_page(root, config, site / "content", sections, len(sections) + 1, hextra=False, section=True)
     title = settings.get("title", root.name)
     (site / "content" / "_index.md").write_text(front_matter({"title": title, "weight": 0}), encoding="utf-8")
     hugo_config = {
@@ -482,6 +506,7 @@ def into_hugo(root: Path, config: dict, run_hugo: bool) -> int:
     hextra = "hextra" in str(_hugo_config(site_dir).get("module") or "")
     base = content_root_for(root, config, "hugo")
     sections = emit_hugo(root, config, site_dir, settings.get("content_dir", "guide"), hextra, content_base=base)
+    report_page(root, config, base / settings.get("content_dir", "guide"), sections, 900, hextra, section=False)
     print(f"wrote {sum(len(s['pages']) for s in sections)} pages into {base / settings.get('content_dir', 'guide')}"
           f" ({'Hextra' if hextra else 'Hugo'} site)")
     if run_hugo and shutil.which("hugo"):
@@ -650,10 +675,22 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--target", choices=("mkdocs", "hugo", "static", "hextra"))
     parser.add_argument("--no-build", action="store_true")
     parser.add_argument("--base-url")
+    parser.add_argument("--shots", action="store_true", help="after building, screenshot each page (desktop, dark, phone)")
     args = parser.parse_args(argv)
     root = (args.root or find_root(Path.cwd())).resolve()
     site = (args.site or root / ".helix" / "site").resolve()
-    return build(root, site, not args.no_build, args.base_url, args.target)
+    status = build(root, site, not args.no_build, args.base_url, args.target)
+    if status or not args.shots or args.no_build:
+        return status
+    from documentor import report
+
+    config = config_of(root)
+    target = args.target or ((config.get("publish") or {}).get("site") or {}).get("target") or detect_target(root)
+    if target == "mkdocs":
+        print("documentor site --shots: build the mkdocs site, then screenshot it; mkdocs output is not read here")
+        return 0
+    public = (hugo_site_dir(root, config) / "public") if target == "hugo" else site / "public"
+    return report.shots(public, (root / ".helix" / "shots") if target == "hugo" else site / "shots")
 
 
 if __name__ == "__main__":

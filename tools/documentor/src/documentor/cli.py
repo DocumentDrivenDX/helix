@@ -189,6 +189,9 @@ def report(root: Path, pages: list[PagePlan], view_state: tuple[str, list[str]])
             lines.append(f"    {mark[p.entry['state']]:8} {p.id:22} {p.kind:12} {what:10} {p.entry['detail']}")
     state, problems = view_state
     lines += ["", f"  architecture views: {state}"] + [f"    {x}" for x in problems[:5]]
+    from documentor import report as guide_report
+
+    lines += guide_report.gap_lines(pages)
     todo = [p for p in pages if p.entry["state"] in ("missing", "stale", "unreviewed", "unadopted")
             and p.work in ("written", "existing")]
     if todo:

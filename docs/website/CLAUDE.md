@@ -18,6 +18,7 @@ upstream sources and must be edited there, not here:
   `scripts/generate-reference.py`.
 - `artifacts/` comes from `docs/helix/` via `documentor record` (the `publish.site` block in `.helix.yml`).
 - `research/` comes from `docs/resources/` via `scripts/publish-resources.py`.
+- `guide/` comes from `docs/guide/` via `documentor site` (the guide's pages and How this guide was made).
 
 The rules below are enforced mechanically by Vale (`.vale.ini`, style package
 `.vale/styles/Helix/`) and by the public website voice validator. Run
