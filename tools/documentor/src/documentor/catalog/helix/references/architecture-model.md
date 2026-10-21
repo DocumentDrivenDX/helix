@@ -52,6 +52,8 @@ elements = ["analyst", "proxy", "atlas", "gateway"]
 document = "architecture.md"        # the file that holds the view's markers (default)
 ```
 
+**A first model is drafted, not drawn.** `documentor model draft` (and `documentor init`, when the project has no model) proposes one from what the repository already declares: the services a compose file runs and what each depends on, the apps, jobs, pipelines, and dashboards a Databricks bundle deploys (following its `include:` files, and drawing a bundle's many jobs as one part), the database its Alembic migrations build, a web frontend its package manifest names and the API it calls, and the API or command line its Python project installs. Each element and relation cites the file and line that show it, so the draft passes the check as written; `--write` writes it (never over an existing model). Then a person or the agent names things better, adds what no file declares (the people, the outside systems, the steps), and removes what a reader does not need.
+
 Rules:
 
 - **Evidence is a file and a string the file must contain.** Cite the narrowest string that names the thing (a class, a setting name, a dependency line), so a rename fails the check and a reflow does not. An element or relation with no evidence fails.

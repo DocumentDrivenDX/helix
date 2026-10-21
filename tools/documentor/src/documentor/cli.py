@@ -26,6 +26,7 @@ Usage:
                                                   the tools, each with its own --help (`tour`: the architecture
                                                   walkthrough player)
     documentor record [--root DIR] [--dest DIR]       publish the governed record (the HELIX root) into the site
+    documentor model draft [--root DIR] [--write]  draft the architecture model from what the repository declares
     documentor --version
     documentor --catalog DIR ...                  read the HELIX catalog (audiences, voice) from DIR
 
@@ -73,7 +74,7 @@ from documentor.lib import (
     repository_files,
 )
 
-TOOLS = ("check-pages", "stamp", "detect", "generate", "site", "views", "tour", "estate", "deck", "doc", "doctor", "record")
+TOOLS = ("check-pages", "stamp", "detect", "generate", "site", "views", "tour", "estate", "deck", "doc", "doctor", "record", "model")
 PHASES = ("00-discover", "01-frame", "02-design", "03-test", "04-build", "05-deploy", "06-iterate")
 
 
@@ -214,6 +215,34 @@ def proposal_text(root: Path) -> tuple[str, dict]:
 
 
 def init(root: Path, write: bool) -> int:
+    status = propose(root, write)
+    if status == 0:
+        draft_model(root, write)
+    return status
+
+
+def draft_model(root: Path, write: bool) -> None:
+    """With no architecture model, propose the one the repository's files declare (and write it with
+    --write), so the views can be drawn from the start."""
+    from documentor.architecture import draft
+    from documentor.architecture.model import default_model
+
+    path = default_model(root)
+    if path.exists():
+        return
+    drafted = draft.draft_model(root)
+    if len(drafted.elements) < 2:
+        return
+    summary = f"{len(drafted.elements)} parts and {len(drafted.relations)} connections, from {len(drafted.sources)} files"
+    if write:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(draft.to_toml(drafted), encoding="utf-8")
+        print(f"\nwrote a draft architecture model to {path.relative_to(root)} ({summary}); refine it, then `documentor build`")
+    else:
+        print(f"\nNo architecture model: `documentor model draft` proposes one ({summary}); --write writes it.")
+
+
+def propose(root: Path, write: bool) -> int:
     text, block = proposal_text(root)
     print(text)
     config_path = root / ".helix.yml"
@@ -437,6 +466,13 @@ def main(argv: list[str] | None = None) -> int:
             from documentor.architecture import estate
 
             return estate.main(rest)
+        if name == "model":
+            if rest[:1] != ["draft"]:
+                print("documentor model: one subcommand, `draft` (documentor model draft --help)", file=sys.stderr)
+                return 2
+            from documentor.architecture import draft
+
+            return draft.main(rest[1:])
     return guide_main(argv)
 
 
