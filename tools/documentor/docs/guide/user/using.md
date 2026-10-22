@@ -1,10 +1,10 @@
-<!-- helix:publish audience=user page=using kind=how-to voice=public-site budget=1500 written=agent-opus reviewed=2026-10-21/agent-sonnet/493dcb2e8846c847 -->
+<!-- helix:publish audience=user page=using kind=how-to voice=public-site budget=1500 written=agent-opus reviewed=2026-10-22/agent-sonnet/5d554a8aa8e39766 -->
 <!-- helix:gap artifact:feature-specification -->
 <!-- helix:gap artifact:user-stories -->
 <!-- helix:source README.md#use sha256:1668b6192a52a5d5 -->
 <!-- helix:source src/documentor/cli.py sha256:0707cd738e9b6418 -->
 <!-- helix:source src/documentor/write.py sha256:2118376b2c167085 -->
-<!-- helix:source src/documentor/site.py sha256:8e7b76c271457d90 -->
+<!-- helix:source src/documentor/site.py sha256:7462ea891ccb5b5a -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
 # Using the product
@@ -24,11 +24,11 @@ documentor status --format json
 
 `status` lists every page of the guide under its audience, with the page's state and what it needs next. [Getting started](index.md#your-first-task-one-worked-session-step-by-step) explains each state mark.
 
-The list ends with `For the agent`, an ordered work list. Pages to adopt come first, then missing pages, then stale ones, then ones nobody has evaluated. Work the list from the top.
+The list ends with `For the agent`, an ordered work list. Pages to adopt come first, then missing pages, then stale ones, then ones nobody has evaluated.
 
 A *written page* needs explanation, so an AI agent writes it. If the agent lacked a planning document it was told to read, the page's row says `written without` and names that document.
 
-`status` groups those missing documents under `Artifacts that would improve the guide`, the one that would improve the most pages first. Add that document under `docs/helix/` and rewrite its pages if you want them to cover more. `--format json` prints the same information for scripts.
+`status` groups those missing documents under `Artifacts that would improve the guide`, the one that would improve the most pages first. Add that document under `docs/helix/` and rewrite its pages to cover more.
 
 ## Write the missing and stale pages
 
@@ -51,7 +51,7 @@ For each page, `write` does this:
 
 An existing page is revised, not replaced. The agent gets the current page, which sources moved, and what the checks found. A link to a guide page not yet written does not count as a finding.
 
-Every page is written before any is evaluated, so links between new pages resolve first. The run ends with `wrote or evaluated N of M pages`. Unfinished pages are listed under `LEFT` with their problems, and the command exits with status 1. Fix those problems, or run `write` again for that page.
+Every page is written before any is evaluated, so links between new pages resolve first. The run ends with `wrote or evaluated N of M pages`. Unfinished pages are listed under `LEFT` with their problems, and the command exits with status 1.
 
 ### See what the agent is told
 
@@ -75,7 +75,7 @@ A page never counts as evaluated by its own writer. `write` stops at once if the
 
 The default agent is Claude Code run headless, allowed only to read files. The `DOCUMENTOR_AGENT` environment variable names another command. So does `publish.agent` in `.helix.yml`, with the keys `command`, `writer`, and `reviewer`.
 
-The agent needs credentials, so run `write` on a machine that has them. If the agent command is not installed, `write` says so and names both places to set it. `documentor doctor` also reports it. Each agent call has a limit of 900 seconds.
+The agent needs credentials, so run `write` on a machine that has them. If the agent command is not installed, `write` names both places to set it, and `documentor doctor` reports it. Each agent call has a limit of 900 seconds.
 
 ## Evaluate a page yourself
 
@@ -101,7 +101,7 @@ documentor adopt docs/how-to/deploy.md --audience operator --kind how-to --sourc
 
 `adopt` brings a hand-written page into the guide without changing its text. It adds a header naming the audience, the page kind, and any sources given with `--source`, which you can repeat.
 
-Name a source when the page describes that file. A change to the file then makes the page stale, so `check` reminds you to update it. Without `--kind`, the command tells you to add the kind to the header yourself.
+A change to a named source makes the page stale, so `check` reminds you to update it. Without `--kind`, the command tells you to add the kind to the header yourself.
 
 `status` marks pages to adopt with `ADOPT` and prints the exact `adopt` command.
 
@@ -145,6 +145,8 @@ Two more settings under `publish.site` add sections the guide does not write:
 
 A section's command gets `DOCUMENTOR_SECTION_OUT`, set to that section's folder in the site. If the command fails, `build` stops.
 
+In a new site, `build` lists the record and each generated section in the navigation, ahead of "How this guide was made". A section appears only once its folder exists in the site. The record's navigation title is `Record` unless `record_title` under `publish.site` names another.
+
 ### Look at the built pages
 
 ```sh
@@ -177,5 +179,4 @@ To run the gate on every pull request, copy the CI template into your repository
 
 The same workflow file also runs every Monday. It regenerates the generated pages and drawings and opens a pull request with the changes on a branch named `guide/refresh`.
 
-The weekly job does not write pages, because writing needs an agent and credentials. When a written page goes stale, run `documentor status` on your machine to see which. Then run `documentor write` to revise them and push the result.
-
+The weekly job does not write pages, because writing needs an agent and credentials. When a written page goes stale, run `documentor write` on your machine to revise it, then push the result.

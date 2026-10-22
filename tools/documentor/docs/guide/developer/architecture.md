@@ -1,9 +1,9 @@
-<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=agent-opus reviewed=2026-10-21/agent-sonnet/5095a20eee3a45f1 -->
+<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=agent-opus reviewed=2026-10-22/agent-sonnet/f782f18e1c6b9a36 -->
 <!-- helix:gap artifact:architecture -->
 <!-- helix:source src/documentor/cli.py sha256:0707cd738e9b6418 -->
 <!-- helix:source src/documentor/lib.py sha256:093a891d0f8bcf48 -->
 <!-- helix:source src/documentor/write.py sha256:2118376b2c167085 -->
-<!-- helix:source src/documentor/site.py sha256:8e7b76c271457d90 -->
+<!-- helix:source src/documentor/site.py sha256:7462ea891ccb5b5a -->
 <!-- helix:source src/documentor/record.py sha256:cecdf2712047484e -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/theme.py sha256:7e38d9589c728f0b -->
@@ -11,7 +11,7 @@
 <!-- helix:source src/documentor/architecture/model.py sha256:1dd45080b698edb2 -->
 <!-- helix:source src/documentor/architecture/views.py sha256:9217c09b8a9d2262 -->
 <!-- helix:source src/documentor/architecture/draft.py sha256:011428f478bbe9d4 -->
-<!-- helix:source src/documentor/architecture/estate.py sha256:45016902a9285fa4 -->
+<!-- helix:source src/documentor/architecture/estate.py sha256:00bdd63951c4abf6 -->
 <!-- helix:source src/documentor/architecture/tour.py sha256:80f840c2fe35c2c1 -->
 <!-- helix:source pyproject.toml sha256:50b33a33c6ff0f5e -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
@@ -130,12 +130,16 @@ documentor runs in three places:
 - **A weekly job in that repository.** The same template runs `documentor build --root . --no-site`, then opens a pull request with the regenerated pages and views. Stale written pages stay for `status` to list.
 - **A machine with agent credentials.** `documentor write` and `documentor estate write` run here, never in the CI template. The default agent command is `claude -p` with read tools only.
 
+`documentor estate write --review` evaluates the estate page as it stands after a person's edits, and records a pass in its header. It exits with code 2 when the page does not exist yet.
+
 A site build needs more. The default layout needs only Hugo; Hextra also needs Go, plus network access the first time. A new site goes to a `site` directory under `.helix` unless `--site` names another; for a Hugo site, `publish.site.site_dir` names it.
 
 <details>
 <summary>What site adds beyond the guide pages</summary>
 
 For a Hugo site, `site` writes the pages where its content mount points. Before the guide pages, `site` adds the sections the guide does not write. `publish.site.record` adds the record that `record.py` publishes. Each entry under `publish.site.sections` runs the project's own generator command.
+
+In a site that documentor scaffolded, `site` then adds the record and each generated section to the navigation in the site's `hugo.yaml`. It lists only a section whose content directory exists, and lists it once.
 
 A new site also gets a Presentations section, one per view marked `present = true`, and a "How this guide was made" page. A presentation the host cannot render is left out of the site, and `site` says so.
 
