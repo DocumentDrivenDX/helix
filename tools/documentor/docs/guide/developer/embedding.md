@@ -2,14 +2,14 @@
 <!-- helix:gap artifact:examples -->
 <!-- helix:source README.md#install sha256:11003d4123be1f55 -->
 <!-- helix:source README.md#what-it-reads-and-writes sha256:55f9002fc000e454 -->
-<!-- helix:source src/documentor/__init__.py sha256:e2b34185d9489454 -->
+<!-- helix:source src/documentor/__init__.py sha256:e612d1e2f68f2667 -->
 <!-- helix:source src/documentor/cli.py sha256:0707cd738e9b6418 -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/generate.py sha256:47b5e3e1d2d06cbd -->
 <!-- helix:source src/documentor/write.py sha256:2118376b2c167085 -->
 <!-- helix:source src/documentor/lib.py sha256:7e594138b133286a -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
-<!-- helix:source pyproject.toml sha256:b1cd4c63b2145691 -->
+<!-- helix:source pyproject.toml sha256:74a08b4781a32616 -->
 # Embedding the library
 
 A host can embed documentor in three ways. It can run the `documentor` command, call `documentor.cli.main` from Python, or ship a generator that documentor loads. The package exports only `__version__`, so `main` and the generator entry point are the contract.
