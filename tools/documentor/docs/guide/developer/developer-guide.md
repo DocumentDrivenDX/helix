@@ -1,12 +1,12 @@
 <!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=agent-opus reviewed=2026-10-22/agent-sonnet/37bf692a709e8c39 -->
-<!-- helix:source pyproject.toml sha256:b1cd4c63b2145691 -->
+<!-- helix:source pyproject.toml sha256:74a08b4781a32616 -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
 <!-- helix:source ../../.github/workflows/documentor.yml sha256:ab2fb8338de1a028 -->
 <!-- helix:source ../../.github/workflows/release-tag.yml sha256:cf31b27d56efd66b -->
 <!-- helix:source ../../.github/workflows/release-version-guard.yml sha256:31a73cb81eb3e42a -->
 <!-- helix:source ../../CONTRIBUTING.md sha256:d0027006597fad67 -->
 <!-- helix:source README.md#development sha256:ec26429513feaa3e -->
-<!-- helix:source src/documentor/__init__.py sha256:e2b34185d9489454 -->
+<!-- helix:source src/documentor/__init__.py sha256:e612d1e2f68f2667 -->
 <!-- helix:source src/documentor/cli.py sha256:0707cd738e9b6418 -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/lib.py sha256:7e594138b133286a -->

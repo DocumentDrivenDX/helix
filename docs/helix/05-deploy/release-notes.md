@@ -12,91 +12,67 @@ ddx:
     reviewed_at: "2026-10-04T03:52:23Z"
 ---
 
-# Release Notes — HELIX v0.19.0
+# Release Notes — HELIX v0.19.1
 
 ## Release Scope
 
-- Release identifier: `v0.19.0`
+- Release identifier: `v0.19.1`
 - Release date: 2026-10-22
-- Previous release: `v0.18.0`
-- Scope: documentation for people. A HELIX repository can now write the guide its readers
-  need from its artifacts. It checks that guide on every change and publishes it as a site.
+- Previous release: `v0.19.0`
+- Scope: a patch to documentor's version report. The guide mode and documentor themselves
+  arrived in `v0.19.0`; its notes are at the `v0.19.0` tag.
 - Release owner: HELIX maintainer; published through the release PR workflow.
 
 ## Audience and Channels
 
 | Audience | Impact | Channel |
 |----------|--------|---------|
-| HELIX users | A `guide` mode and an optional tool, documentor, that write, check, and publish documentation for people | Plugin, install README |
-| Project maintainers | A deploy gate that checks the guide is current, and a site built from the repository | Workflow catalog and website |
-| Present mode users | Decks and briefs render through documentor | Plugin and documentor |
+| documentor users | `documentor --version` names the release its catalog shipped in | documentor, installed from the tag |
+| HELIX users | No change to the skill or the catalog | Plugin and bundles |
 
 ## Highlights
 
-- The `guide` mode plans a repository's documentation by reader (developer, operator, user,
-  data) in the `.helix.yml` `publish:` block. Every page cites its sources, and a page goes
-  stale when a source changes.
-- documentor, released with HELIX, does the deterministic work. It detects what the repository
-  is, generates reference pages, and has one model write each page and another evaluate it.
-  It checks every page in CI and builds the site.
-- Sites are built from sections: the guide, the governed record of `docs/helix`, and
-  sections the project generates. Each site also says how it was made and which HELIX
-  artifacts would improve it. HELIX's own site is built this way.
-- Architecture diagrams come from a model whose every part cites the code. documentor can draft
-  that model from compose files, Databricks bundles, migrations, and package manifests. It can
-  also present a view step by step and explain how several repositories fit together.
-- A site, its diagrams, and its decks can wear one theme from DocumentDrivenDX/ux-builder
-  (`publish.theme`).
+- `documentor --version` now prints `documentor 0.19.1 (HELIX catalog packaged 0.19.1)`.
+  In `v0.19.0` it printed `packaged in-repo`, which named no release.
 
 ## Required Actions Summary
 
-- Update the plugin or bundle to `v0.19.0`.
-- To use documentor, install it from the same release:
-  `uv tool install "git+https://github.com/DocumentDrivenDX/helix@v0.19.0#subdirectory=tools/documentor"`,
-  then run `documentor doctor`. Every step also works by hand without it.
-- If a project has `developer-guide` artifact instances, move each to
-  `docs/guide/developer/developer-guide.md` and adopt it (`documentor adopt`); the type is retired.
-- If a script calls the deck or brief renderers under `skills/helix/scripts/`, call
-  `documentor deck render` or `documentor doc render` instead.
+- Install documentor from this tag:
+  `uv tool install --force "git+https://github.com/DocumentDrivenDX/helix@v0.19.1#subdirectory=tools/documentor"`.
+- Plugin users need no action.
 
 ## Changes and Fixes
 
-| Area | Change | Effect |
-|------|--------|--------|
-| Guide mode | New mode: plan, generate, write, evaluate, check, and publish the guide by reader | Documentation for people is planned and kept current like any artifact |
-| documentor | New host tool in `tools/documentor`, versioned with the plugin | One command line for guide pages, sites, diagrams, decks, and briefs |
-| Deploy gate | `guide_current` replaces the check that `README.md` and `CHANGELOG.md` exist | The gate checks that pages match their sources, not that two files exist |
-| Artifact types | `solution-overview` added; `developer-guide` retired; `release-notes` and `status-report` audited as human prose | One home for each document, written for its reader |
-| Architecture | Model views, model drafting, presentations, and the estate; the model format moves to `workflows/references/architecture-model.md` | Diagrams that fail the build when the code changes under them |
-| Generators | Reference pages for CI pipelines, tasks, database schemas, compose services, CLIs, APIs, MCP tools, and more | Pages no one writes by hand |
-| Present mode | Deck and brief renderers move into documentor | The skill keeps only its validators |
-| Website | HELIX's site is assembled by documentor, with a developer guide | `scripts/publish-artifacts.py` is removed |
+### New or Improved
+
+| Area | What changed | Who is affected |
+|------|--------------|-----------------|
+| None | This release fixes one report and adds nothing. | — |
+
+### Fixes
+
+| Issue or symptom | Resolution | User or operator impact |
+|------------------|------------|-------------------------|
+| `documentor --version` printed `packaged in-repo` | It prints the package's own version, which equals the HELIX release | A reader can tell which catalog an installed documentor carries |
 
 ## Breaking Changes and Required Actions
 
+There are no breaking changes and no migrations.
+
 | Change | Impact | Required action | Deadline or trigger |
 |--------|--------|-----------------|---------------------|
-| The `developer-guide` type is retired | Its instances no longer validate as a type | Move each instance into the guide and adopt it | Next validation run |
-| Deck and brief renderers left the skill | Direct calls to `skills/helix/scripts/render-*.js` fail | Use `documentor deck render` and `documentor doc render` | Next deck render |
-| The deploy gate checks `guide_current` | A project with `publish:` must have a current guide to pass | Run `documentor check` and fix what it reports | Next deploy |
-
-Projects without a `publish:` block keep the deploy gate's manual documentation review. No
-artifact migration is required beyond the retired type.
+| None | — | — | — |
 
 ## Migration or Rollback Guidance
 
 ### Upgrade or Migration
 
-1. Update to `v0.19.0`.
-2. Optional: install documentor, run `documentor init` in a repository, read the proposed
-   `publish:` block, then `documentor init --write` and `documentor build --write`.
-3. Add the CI template documentor ships (`documentor check` on every pull request).
+1. Reinstall documentor from `v0.19.1`, or update the pin in a CI workflow copied from
+   documentor's template.
 
 ### Rollback or Hold Guidance
 
-- Pause adoption when `documentor check` fails and the deploy gate blocks a release. Remove
-  the `publish:` block to return to the manual review.
-- Roll back by pinning `v0.18.0`. Guide pages are plain Markdown and stay readable.
+- Pin `v0.19.0` to roll back; only the version line differs.
 - Ask for help in the HELIX repository's issues.
 
 ## Known Issues and Support
@@ -105,14 +81,12 @@ artifact migration is required beyond the retired type.
 |------|------------------|-------------------------|
 | Writing pages needs an agent and its credentials | `documentor write` users | Run it where the agent is signed in; the CI check needs no agent |
 | The evaluating model sometimes returns no verdict | `documentor write` users | Run `write` again, or evaluate with `documentor prompt --reviewer` and record it with `documentor review` |
-| Presentations and screenshots need Node and Chrome | `documentor tour --render` and `site --shots` users | `documentor doctor` names what is missing; Eraser installs itself |
-| Optional deck-render and attestation checks need their local tools | Maintainers | Unavailable tooling is not evidence of a passing check |
 
 Support: open an issue in the HELIX repository.
 
 ## References
 
 - Deployment checklist: [deployment-checklist.md](deployment-checklist.md)
-- Release changes: https://github.com/DocumentDrivenDX/helix/compare/v0.18.0...v0.19.0
+- Release changes: https://github.com/DocumentDrivenDX/helix/compare/v0.19.0...v0.19.1
 - Bundle publication: `.github/workflows/release-genie-bundle.yml`
 - Version guard: `.github/workflows/release-version-guard.yml`
