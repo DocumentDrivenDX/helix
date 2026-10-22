@@ -173,3 +173,8 @@ tags:
 
 version: 1.0.0
 last_updated: 2024-01-14
+
+# The visuals this type usually draws, each only when it earns its place (references/visuals.md).
+visuals:
+  - {kind: flow, form: pipeline, question: "What path does a user take through the feature?", source: "the feature's user flow"}
+  - {kind: state, form: lifecycle, question: "What states does the feature's main object go through?", source: "the feature's states"}

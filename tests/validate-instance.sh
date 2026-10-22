@@ -131,4 +131,74 @@ cp "$prose" "$project/docs/helix/04-build/log.md"
 python3 "$validator" "$project/docs/helix/04-build/log.md" --catalog "$repo_root/workflows" --type deliverable >"$tmpdir/exempt.out" 2>&1
 grep -q "prose\." "$tmpdir/exempt.out" && fail "a path listed in .helix.yml prose.exempt should not be audited"
 
-echo "OK: validate-instance.py passes all $count catalog examples, holds the deliverable to its voice profile, rejects the broken PRD fixture, and errors on unresolvable types"
+# Visual blocks (workflows/references/visuals.md): a well-formed block and a source reference pass; a
+# missing or repeated id, a form outside its kind, and a missing question block; a kind and form the
+# type does not list warn.
+visuals="$tmpdir/ADR-901-visuals.md"
+cp "$repo_root/workflows/activities/02-design/artifacts/adr/example.md" "$visuals"
+cat >>"$visuals" <<'MD'
+
+```visual id=store-options
+kind: comparison
+form: matrix
+question: Which store holds the session, and why?
+```
+
+```visual id=store-from-model
+source: architecture-model.toml#deployment
+```
+
+```mermaid
+%% id: store-context
+flowchart LR
+  a --> b
+```
+MD
+python3 "$validator" "$visuals" --catalog "$repo_root/workflows" >"$tmpdir/visuals.out" 2>&1 \
+  || fail "well-formed visual blocks should pass:
+$(cat "$tmpdir/visuals.out")"
+grep -q "visual\." "$tmpdir/visuals.out" && fail "well-formed visual blocks produced findings:
+$(cat "$tmpdir/visuals.out")"
+cat >>"$visuals" <<'MD'
+
+```visual
+kind: flow
+form: network
+question: What connects?
+```
+
+```visual id=store-options
+kind: flow
+form: matrix
+question: What connects?
+```
+
+```visual id=Bad_Id
+kind: state
+form: machine
+```
+
+```visual id=unlisted-flow
+kind: flow
+form: network
+question: What does the store touch?
+```
+
+```mermaid
+%% id: store-context
+flowchart LR
+  c --> d
+```
+MD
+if python3 "$validator" "$visuals" --catalog "$repo_root/workflows" >"$tmpdir/visuals.out" 2>&1; then
+  fail "malformed visual blocks should block"
+fi
+for expected in "BLOCKING +visual\.id .*needs .id=" "BLOCKING +visual\.id .*'store-options' is used twice" \
+                "BLOCKING +visual\.form .*flow has the forms" "BLOCKING +visual\.id .*'Bad_Id'" \
+                "BLOCKING +visual\.question " "WARNING +visual\.unlisted .*flow/network" \
+                "BLOCKING +visual\.id .*'store-context' is used twice"; do
+  grep -Eq "$expected" "$tmpdir/visuals.out" || fail "expected /$expected/:
+$(cat "$tmpdir/visuals.out")"
+done
+
+echo "OK: validate-instance.py passes all $count catalog examples, holds the deliverable to its voice profile, rejects the broken PRD fixture, checks visual blocks, and errors on unresolvable types"
