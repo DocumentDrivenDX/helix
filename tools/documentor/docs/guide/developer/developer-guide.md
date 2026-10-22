@@ -1,12 +1,12 @@
-<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=agent-opus reviewed=2026-10-21/agent-sonnet/27192139ff408697 -->
-<!-- helix:source pyproject.toml sha256:50b33a33c6ff0f5e -->
+<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=agent-opus reviewed=2026-10-22/agent-sonnet/6c3d42d9ccb4befb -->
+<!-- helix:source pyproject.toml sha256:b1cd4c63b2145691 -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
 <!-- helix:source ../../.github/workflows/documentor.yml sha256:ab2fb8338de1a028 -->
 <!-- helix:source ../../.github/workflows/release-tag.yml sha256:cf31b27d56efd66b -->
 <!-- helix:source ../../.github/workflows/release-version-guard.yml sha256:31a73cb81eb3e42a -->
 <!-- helix:source ../../CONTRIBUTING.md sha256:d0027006597fad67 -->
 <!-- helix:source README.md#development sha256:ec26429513feaa3e -->
-<!-- helix:source src/documentor/__init__.py sha256:fca11fbda3ce2778 -->
+<!-- helix:source src/documentor/__init__.py sha256:e2b34185d9489454 -->
 <!-- helix:source src/documentor/cli.py sha256:0707cd738e9b6418 -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/lib.py sha256:093a891d0f8bcf48 -->
@@ -36,7 +36,7 @@ To check that the working copy's CLI runs:
 uv run documentor --version
 ```
 
-Inside the HELIX checkout, the output is `documentor 0.18.0 (HELIX catalog live /path/to/helix/workflows)`. An installed wheel reads its packaged copy and prints `HELIX catalog packaged`. `--catalog DIR` or the `DOCUMENTOR_CATALOG` variable names another catalog.
+Inside the HELIX checkout, the output is `documentor <version> (HELIX catalog live /path/to/helix/workflows)`. An installed wheel reads its packaged copy and prints `HELIX catalog packaged`. `--catalog DIR` or the `DOCUMENTOR_CATALOG` variable names another catalog.
 
 To see which optional tools the machine has (hugo, node, Chrome, LibreOffice, the agent CLI):
 
@@ -206,7 +206,9 @@ When written pages name a HELIX artifact the repository lacks, the report ends w
 
 ## Releasing
 
-documentor is released with HELIX: a HELIX release tag carries it, and it has no tag of its own. Release work requires a separately authorized release scope. It follows HELIX's [runtime handoff contract](../../../../../workflows/modes/runtime-handoff.md) and the release instructions in [CONTRIBUTING.md](../../../../../CONTRIBUTING.md).
+documentor is released with HELIX: a HELIX release tag carries it, and it has no tag of its own. The steps below come from HELIX's `release-tag` and `release-version-guard` workflows; no contributor file lists release steps.
+
+Release work requires a separately authorized release scope ([CONTRIBUTING.md](../../../../../CONTRIBUTING.md)). No file in the repository defines that scope or says how to get it. The HELIX release owner grants it, and you need it before step 3.
 
 1. Run every suite and the guide check from `tools/documentor`. Every script ends with an `OK:` line, and `check` exits zero:
 
@@ -215,7 +217,7 @@ documentor is released with HELIX: a HELIX release tag carries it, and it has no
    uv run documentor check --root .
    ```
 
-2. Set the release version in all five places. Each one holds `0.18.0` today, and no script updates them.
+2. Set the release version in all five places. Each one holds the current version, and no script updates them.
 
    | File | Field |
    |---|---|
