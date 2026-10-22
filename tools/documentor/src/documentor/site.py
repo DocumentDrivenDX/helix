@@ -628,6 +628,7 @@ def build(root: Path, site: Path, run_build: bool, base_url: str | None, target:
     extra = add_sections(root, config, site / "content")
     if extra:
         return extra
+    link_sections(config, site)
     if run_build and shutil.which("hugo"):
         done = subprocess.run([shutil.which("hugo"), "--source", str(site), "--destination", str(site / "public"),
                                "--quiet"], check=False)
@@ -637,6 +638,32 @@ def build(root: Path, site: Path, run_build: bool, base_url: str | None, target:
     elif run_build:
         print("documentor site: hugo is not installed; the Hugo project is ready to build", file=sys.stderr)
     return 0
+
+
+def link_sections(config: dict, site: Path) -> None:
+    """Put the record and the project's generated sections in a scaffolded site's navigation (the
+    scaffold wrote it before they existed)."""
+    settings = (config.get("publish") or {}).get("site") or {}
+    added = []
+    if settings.get("record"):
+        prefix = settings.get("record_dir", "record")
+        added.append({"id": prefix, "title": settings.get("record_title", "Record"), "url": f"/{prefix}/",
+                      "reader": "The project's governing documents, as written.", "pages": []})
+    for section in settings.get("sections") or []:
+        generated = (section or {}).get("generated") or {}
+        if generated.get("command"):
+            out = str(generated.get("out") or section.get("id"))
+            added.append({"id": section.get("id"), "title": section.get("title", section.get("id")),
+                          "url": f"/{out}/", "reader": section.get("reader", ""), "pages": []})
+    config_file = site / "hugo.yaml"
+    if not added or not config_file.is_file():
+        return
+    hugo = yaml.safe_load(config_file.read_text(encoding="utf-8")) or {}
+    listed = hugo.setdefault("params", {}).setdefault("sections", [])
+    for entry in added:
+        if (site / "content" / entry["url"].strip("/")).is_dir() and entry["id"] not in {s.get("id") for s in listed}:
+            listed.insert(len([s for s in listed if s.get("id") not in ("about",)]), entry | {"weight": len(listed) + 1})
+    config_file.write_text(yaml.safe_dump(hugo, sort_keys=False, allow_unicode=True), encoding="utf-8")
 
 
 def add_sections(root: Path, config: dict, content_root: Path) -> int:

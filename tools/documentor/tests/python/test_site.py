@@ -23,5 +23,23 @@ class LinkerTests(unittest.TestCase):
             self.assertTrue((content / "files/docs/guide/views/deployment.svg").is_file())
 
 
+class LinkSectionsTests(unittest.TestCase):
+    def test_a_generated_section_joins_a_scaffolded_sites_navigation_before_the_report(self):
+        import yaml
+
+        from documentor.site import link_sections
+
+        with tempfile.TemporaryDirectory() as tmp:
+            site = Path(tmp)
+            (site / "content" / "estate").mkdir(parents=True)
+            (site / "hugo.yaml").write_text(yaml.safe_dump({"params": {"sections": [
+                {"id": "developer", "url": "/developer/"}, {"id": "about", "url": "/about/"}]}}))
+            config = {"publish": {"site": {"sections": [
+                {"id": "estate", "title": "The estate", "generated": {"command": "true"}},
+                {"id": "absent", "title": "Absent", "generated": {"command": "true"}}]}}}
+            link_sections(config, site)
+            ids = [s["id"] for s in yaml.safe_load((site / "hugo.yaml").read_text())["params"]["sections"]]
+            self.assertEqual(ids, ["developer", "estate", "about"], "a section that wrote nothing is not linked")
+
 if __name__ == "__main__":
     unittest.main()

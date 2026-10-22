@@ -5,7 +5,7 @@ body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 ui-sans-seri
 a{color:var(--accent);text-underline-offset:3px}
 code{font:.88em ui-monospace,"SF Mono",Menlo,monospace;background:var(--code);padding:.1em .35em;border-radius:5px}
 pre{background:var(--code);padding:14px 16px;border-radius:10px;overflow:auto}pre code{background:none;padding:0}
-:not(pre)>code{overflow-wrap:anywhere}
+:not(pre)>code{overflow-wrap:break-word}
 .top{display:flex;align-items:center;gap:28px;padding:14px 24px;border-bottom:1px solid var(--rule);background:var(--panel);position:sticky;top:0;z-index:2;flex-wrap:wrap}
 .brand{font-weight:700;color:var(--ink);text-decoration:none;font-size:18px}
 .audiences{display:flex;gap:6px;flex-wrap:wrap}

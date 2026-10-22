@@ -291,6 +291,41 @@ def reviewer_prompt(page: str, facts: str) -> str:
     ])
 
 
+def review_page(args, config: dict) -> int:
+    """Evaluate the page as it stands (after a person's edits) against the digest, and record a pass."""
+    import re
+    from datetime import date
+
+    from documentor.write import AgentError, VERDICT, call, settings
+
+    if not args.out.is_file():
+        print(f"documentor estate write --review: {args.out} does not exist; write it first", file=sys.stderr)
+        return 2
+    page = args.out.read_text(encoding="utf-8")
+    start = page.find("\n## ")
+    end = page.rfind("\n<details>\n<summary>The models behind this page</summary>")
+    body = page[start:end if end > 0 else None].strip()
+    cache = args.cache or args.config.parent / ".helix" / "estate"
+    _, _, reviewer = settings({}, args.agent or "", args.model or "", args.reviewer_model or "")
+    command = settings({}, args.agent or "")[0]
+    try:
+        answer = call(command, reviewer, reviewer_prompt(body, digest(config, args.fetch, cache)), args.config.parent.resolve())
+    except AgentError as error:
+        print(f"documentor estate write --review: {error}", file=sys.stderr)
+        return 1
+    verdict = VERDICT.search(answer)
+    if not (verdict and verdict.group(1).lower() == "pass"):
+        print(f"FAILED {args.out}:", file=sys.stderr)
+        for line in answer.splitlines():
+            if line.startswith("- "):
+                print(f"  {line[2:].strip()}", file=sys.stderr)
+        return 1
+    page = re.sub(r"reviewed=\S+;", f"reviewed={date.today().isoformat()}/agent-{reviewer};", page, count=1)
+    args.out.write_text(page, encoding="utf-8")
+    print(f"{args.out}: passed by {reviewer}")
+    return 0
+
+
 def write_page(args, config: dict, systems: dict[str, System], pairs, findings: Findings) -> int:
     from datetime import date
 
@@ -356,6 +391,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--model", help="write: the writer model")
     parser.add_argument("--reviewer-model", help="write: the evaluator model (must differ)")
     parser.add_argument("--dry-run", action="store_true", help="write: print the writer's prompt; call no agent")
+    parser.add_argument("--review", action="store_true", help="write: evaluate the page as it stands (after edits) and record a pass")
     args = parser.parse_args(argv)
     if args.command in ("render", "write") and not args.out and not args.dry_run:
         parser.error(f"{args.command} needs --out")
@@ -370,7 +406,7 @@ def main(argv: list[str] | None = None) -> int:
         if findings.blocking and not args.dry_run:
             print("documentor estate write: fix the blocking findings first; the page explains a checked estate", file=sys.stderr)
             return 1
-        return write_page(args, config, systems, pairs, findings)
+        return review_page(args, config) if args.review else write_page(args, config, systems, pairs, findings)
     if args.command == "render":
         args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(render(config, systems, pairs, findings), encoding="utf-8")

@@ -118,6 +118,11 @@ grep -q "^## How they connect" "$tmpdir/explained.md" || fail "the page holds th
 grep -q "Here it is" "$tmpdir/explained.md" && fail "text before the first section should be dropped"
 grep -q "^### Connections" "$tmpdir/explained.md" || fail "the generated tables stay as evidence"
 [ "$(cat "$tmpdir/calls")" = "$(printf 'opus write\nsonnet check')" ] || fail "one writer call, one evaluator call: $(cat "$tmpdir/calls")"
+# After a person's edit, --review evaluates the page as it stands and records the pass.
+sed -i.bak 's/reviewed=[^;]*;/reviewed=-;/' "$tmpdir/explained.md"
+$rg estate write --config "$tmpdir/estate.toml" --out "$tmpdir/explained.md" --review \
+  --agent "python3 $tmpdir/agent.py {model} $tmpdir/calls" >"$tmpdir/out" 2>&1 || fail "estate write --review: $(cat "$tmpdir/out")"
+grep -q "reviewed=[0-9-]*/agent-sonnet;" "$tmpdir/explained.md" || fail "--review should record the pass"
 
 # One-sided: beta no longer says alpha calls it.
 sed -i.bak '/^\[\[relation\]\]/,$d' "$tmpdir/beta/docs/helix/02-design/architecture-model.toml"
