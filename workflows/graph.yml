@@ -163,6 +163,10 @@ nodes:
   type: library:solution-design
   activity: 02-design
   cardinality: many
+- id: solution-overview
+  type: library:solution-overview
+  activity: 02-design
+  cardinality: many
 - id: tech-spike
   type: library:tech-spike
   activity: 02-design
@@ -510,6 +514,10 @@ edges:
   required: false
 - from: adr
   to: technical-design
+  kind: informs
+  required: false
+- from: architecture
+  to: solution-overview
   kind: informs
   required: false
 - from: architecture

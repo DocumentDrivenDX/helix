@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 # Validate that the generated/published site content is current and complete.
 #
-# The site's reference content is a projection of upstream sources:
-#   generate-reference.py : workflows/, SKILL.md, the gate scripts -> content/{artifact-types,concerns,reference/workflow-modes,reference/anti-slop-rules}
-#   publish-artifacts.py  : docs/helix/                -> content/artifacts
-#   publish-resources.py  : docs/resources/            -> content/research
+# The site's reference content is a projection of upstream sources. `documentor site` assembles
+# it from the `.helix.yml` publish block:
+#   the guide                          : docs/guide/      -> content/guide
+#   the record (site.record)           : docs/helix/      -> content/artifacts
+#   section reference (generate-reference.py): workflows/, SKILL.md, the gate scripts -> content/{artifact-types,concerns,reference/workflow-modes,reference/anti-slop-rules}
+#   section research (publish-resources.py)  : docs/resources/ -> content/research
 #
 # This gate re-runs the generators and fails if the committed output drifts
 # from what the sources currently produce (stale output, hand-edits to
@@ -17,20 +19,16 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
 content="docs/website/content"
-generated_dirs=("$content/artifact-types" "$content/concerns" "$content/artifacts" "$content/research" "$content/reference/workflow-modes" "$content/reference/anti-slop-rules")
+generated_dirs=("$content/artifact-types" "$content/concerns" "$content/artifacts" "$content/guide" "$content/research" "$content/reference/workflow-modes" "$content/reference/anti-slop-rules")
 
 echo "Regenerating site reference content from upstream sources..."
-uv run scripts/generate-reference.py >/dev/null
-uv run scripts/publish-artifacts.py >/dev/null
-uv run scripts/publish-resources.py >/dev/null
+uv run --project tools/documentor documentor site --root . --no-build >/dev/null
 
 echo "Checking for drift in generated content..."
 if ! git diff --quiet -- "${generated_dirs[@]}"; then
   echo "FAIL: generated site content is out of date with its sources." >&2
   echo "Run the generators and commit the result:" >&2
-  echo "  uv run scripts/generate-reference.py" >&2
-  echo "  uv run scripts/publish-artifacts.py" >&2
-  echo "  uv run scripts/publish-resources.py" >&2
+  echo "  uv run --project tools/documentor documentor site --root . --no-build" >&2
   echo "Drifted files:" >&2
   git --no-pager diff --stat -- "${generated_dirs[@]}" >&2
   exit 1

@@ -169,8 +169,8 @@ available.
 
 ## STEP 7: Render
 
-Targets: a slide file (`.pptx`) from the script (`scripts/render-deck.js`
-when the host has node and the slide library it needs; else the host's
+Targets: a slide file (`.pptx`) from the script (`documentor deck render`
+when the host has documentor and node; else the host's
 presentation tooling), plus a PDF whenever the host can export one. Record
 each rendered path in `authoring.export` (several paths are allowed) and
 under `## Render`. Without a renderer, or a rasterizer for the visual check,
@@ -200,7 +200,7 @@ to step 3, 5, or 7:
   does not contradict it. Re-read the source for every stat callout.
 - Voice: the `human-facing` profile, checked with the host's prose lint when
   available and by a read-aloud pass.
-- Visual: render every produced slide to an image (`scripts/deck-qa.py`
+- Visual: render every produced slide to an image (`documentor deck qa`
   when the host has a slide-to-PDF converter and a PDF rasterizer; else the
   presentation tooling's export) and look at each one for overflow,
   collisions, orphan bullets, unreadable contrast, or a missing visual. Fix

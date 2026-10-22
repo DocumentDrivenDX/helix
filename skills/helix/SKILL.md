@@ -12,10 +12,11 @@ description: |
   sprint plan, status report). Engage on desired state vs implementation,
   specs behind code, and pruning work items against specs. Engage on "grill
   me" or stress-testing a plan one question at a time. Engage on decks,
-  slides, one-pagers, briefs, and client-ready or executive documents built
-  from governed artifacts (present). Product, web, infra, and data are
+  briefs, and client-ready documents built from governed artifacts
+  (present), and on a repository's docs, guide, or site (guide).
+  Product, web, infra, and data are
   domain lanes that shape context and stop rules, not sibling skills.
-argument-hint: "[intent or scope]"
+argument-hint: "[mode] [intent or scope]"
 ---
 
 # HELIX Router
@@ -36,7 +37,11 @@ names a HELIX artifact (see the frontmatter description), even to *review* or
 "what's next", "plan the change", or a cross-flow query needing the marker →
 `check`; "grill me" or stress-testing decisions one question at a time →
 `grill`; a deck, slides, one-pager, brief, memo, or client-ready document built
-from project artifacts → `present`.
+from project artifacts → `present`; developer, operator, user, or data
+documentation, "document this repo", a getting-started or onboarding guide,
+what's new, one page of it, or a documentation site → `guide`. Both name
+documentor, the host tool released with HELIX, for the steps a host with a
+shell can run; each says what to do without it.
 
 ## Routing Axes
 
@@ -224,6 +229,7 @@ Prefer the first matching route:
 | Decompose an oversized code module/file into encapsulated units behind a verify gate | decompose-module |
 | Build up end-to-end coverage as a ladder of increasingly complex real-client scenarios | e2e-ladder |
 | Turn governed artifacts into a deck, one-pager, or brief for clients, sponsors, or executives | present |
+| Give a repository its guide, or one page of it: pages for developers, operators, users, and data consumers, generated, written, evaluated, checked, and assembled into a site | guide |
 | Hand governed work to the runtime for execution, source control, or packaging | runtime-handoff |
 
 When several routes fit, take the highest-authority planning route: `frame`
@@ -289,7 +295,12 @@ from the same bind as the graph. The active profile comes from the type's
 `meta.yml` (`voice: <profile>` or `voice.profile: <profile>` with section
 overrides); a missing `voice` means the registry's `default_profile`
 (`artifact-signal`). Apply the profile as artifact contract, not generic
-polish. A prose tool may audit against it; none is required.
+polish. Artifacts keep their profile's voice; the pages people read are
+projections (`guide`, `present`). `scripts/validate-instance.py` audits a
+deliverable (`prose.audience: human` in its `meta.yml`) against the profile's `limits` and the registry's shared `prose` phrase lists, and
+authoring modes resolve its `prose.*` findings with the writing pass
+(`workflows/references/writing-pass.md`, floor
+`references/references/writing-pass.md`) before handoff. No other prose tool is required.
 
 ## Project Root Resolution
 

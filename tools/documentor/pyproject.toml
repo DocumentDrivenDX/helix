@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "documentor"
+version = "0.18.0"
+description = "Give a repository the documentation its readers need: detected, generated, written, evaluated, checked, and assembled into one site."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+dependencies = ["pyyaml>=6"]
+
+[project.scripts]
+documentor = "documentor.cli:main"
+
+# Packaged generators register here: name = "module:function"; the function takes (root, page) and
+# returns (body, source_globs). A repository's own generator needs no entry point: it is a command
+# (`generated: {command: ..., sources: [...]}` in .helix.yml).
+[project.entry-points."documentor.generators"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/documentor"]
+
+[dependency-groups]
+dev = ["pytest>=8"]

@@ -1,0 +1,16 @@
+id: npm-packages
+title: npm packages published for other projects
+detect:
+  - {files: package.json, contains: "\"workspaces\"", weight: 0.4}
+  - {files: "packages/*/package.json", contains: "\"name\": \"@", weight: 0.4}
+  - {files: "packages/*/package.json", contains: "publishConfig", weight: 0.2}
+audiences: [developer, user]
+pages:
+  - audience: user
+    id: packages
+    title: Packages
+    kind: reference
+    task: Find each package, what it gives an app, and how it is reached.
+    generated: npm-packages
+views: [stack, cast]
+watch: ["packages/*/package.json"]

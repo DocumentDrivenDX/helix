@@ -3,6 +3,11 @@
 # Run all tests
 test: test-verification-contract test-ux-governance test-plan-execution test-modularity test-agent-diagnostics test-formal-methods test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable test-headline-sync test-deck-render test-demos test-innsigle test-eval-checks
 
+# documentor (tools/documentor), the host tool behind the guide mode: its own suite and the
+# packaged catalog's match with workflows/. CI runs it in .github/workflows/documentor.yml.
+test-documentor:
+    cd tools/documentor && uv run just test
+
 # Serve the HELIX microsite at the canonical local review URL.
 website-serve:
     bash website/scripts/serve-local.sh
@@ -118,7 +123,7 @@ count:
 test-validate-deliverable:
     bash tests/validate-deliverable.sh
 
-# Render the catalog deck example to pptx, validate it, and run deck-qa.py (needs node with pptxgenjs on NODE_PATH, LibreOffice, pdftoppm)
+# Render the catalog deck example to pptx with documentor's renderer, validate it, and run deck-qa.py (needs node with pptxgenjs from the documentor cache or PPTXGENJS_NODE_PATH, LibreOffice, pdftoppm)
 test-deck-render:
     bash tests/validate-deck-render.sh
 

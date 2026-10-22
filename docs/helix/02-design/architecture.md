@@ -413,3 +413,11 @@ and describes the resolution for each.
 - [Routing Skill](../../../skills/helix/SKILL.md) — the single agent-facing surface
 - [workflows/principles.md](../../../workflows/principles.md)
 - [workflows/ratchets.md](../../../workflows/ratchets.md)
+
+## Developer orientation
+
+Start with the [solution overview](solution-overview.md), follow the
+[end-to-end authoring walkthrough](architecture-walkthrough.md), then use the
+[developer guide](../../guide/developer/developer-guide.md) for a first contribution.
+These explain this architecture and link to source evidence; structural
+decisions remain here and in the governing contracts and ADRs.

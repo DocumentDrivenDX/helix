@@ -1,0 +1,70 @@
+# Deck flows for the HELIX present mode: the index.
+#
+# One entry per occasion, purpose only. Each flow's full definition (the
+# ordered beats, the question each answers, the slide patterns it may use,
+# how beats hand off to each other, what to leave out, and the storyboard
+# checklist) lives in its own file, `flows/<id>.yml`, so choosing a flow by
+# occasion costs one read of this index plus one read of the chosen flow,
+# not all of them. deck-craft.md holds the reasoning and the sources; a
+# reader should be able to storyboard from the index plus the one flow file
+# alone.
+#
+# Conventions (apply to every flow file):
+#   - Beats are in deck order. `required: true` beats appear in every deck of
+#     the flow; optional beats appear when a message needs them and the
+#     budget allows.
+#   - `default_length_budget` (below) counts content slides (title, agenda,
+#     and the sources appendix are not counted) per time slot; the rate and
+#     the cap are `slides_per_minute_of_talk` and `content_slides_max` in
+#     slide-patterns.yml. Each flow's `keep_when_short` is the beat order to
+#     keep when the budget is below the required count.
+#   - Every deck opens with the `title` pattern and ends with `appendix-sources`;
+#     the unit before it is `ask-next-steps` unless the flow marks its `ask`
+#     beat `required: false` (a reference flow such as candidate-briefing ends
+#     on open questions). `agenda` appears at 10 or more slides.
+#   - Titles are claims unless the flow sets `heading_style: label`. Read in order, the titles must form
+#     the argument (horizontal logic); each body must prove its title
+#     (vertical logic).
+#   - `legacy_spines` maps the story spine ids that deliverable-mappings.yml
+#     still names as `default_spine` to the flow that replaced them; a
+#     mapping may also name a flow id directly (no spine to translate).
+
+version: 1
+
+legacy_spines:
+  pyramid: proposal
+  situation-complication-resolution: evaluation-briefing
+  plan-actual-next: executive-status
+  problem-solution-evidence: product-walkthrough
+
+default_length_budget:
+  minutes_5: 3
+  minutes_10: 5
+  minutes_20: 10
+  minutes_30: 12
+
+flows:
+  - id: investor-pitch
+    purpose: Persuade an investor that the company is worth a next meeting or a check.
+    file: flows/investor-pitch.yml
+  - id: evaluation-briefing
+    purpose: Help a buyer or adopter decide whether to try a product or method on their own work.
+    file: flows/evaluation-briefing.yml
+  - id: executive-status
+    purpose: Tell a steering committee or QBR audience where the work stands against plan and what they must decide.
+    file: flows/executive-status.yml
+  - id: proposal
+    purpose: Win approval and resources for a course of action.
+    file: flows/proposal.yml
+  - id: product-walkthrough
+    purpose: Show what the product does in the user's terms so the audience can judge it against their own work.
+    file: flows/product-walkthrough.yml
+  - id: board-update
+    purpose: Give a board the state of the company or program against plan and the questions that need its judgment.
+    file: flows/board-update.yml
+  - id: internal-alignment
+    purpose: Get a team to commit to a direction and know their part in it.
+    file: flows/internal-alignment.yml
+  - id: candidate-briefing
+    purpose: Brief a technical audience on what one candidate does, does not do, and how it compares to its competition, so a decision made elsewhere rests on settled facts.
+    file: flows/candidate-briefing.yml

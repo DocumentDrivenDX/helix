@@ -21,14 +21,14 @@ Validation and build:
 
 ```bash
 just test                     # All lanes: deploy artifacts, skills, plugin package, catalog resolution, Genie bundle, install consistency, surface leakage, microsite doctrine, context digests, actions, instance validation, deliverable gate, headline sync
-just test-deck-render         # Render the catalog deck example and run deck-qa.py (needs node with pptxgenjs, LibreOffice, pdftoppm)
+just test-deck-render         # Render the catalog deck example and run deck-qa.py from tools/documentor/src/documentor/deliverable/ (needs node with pptxgenjs, which `documentor deck render` caches; LibreOffice, pdftoppm)
 bash tests/validate-skills.sh
 bash tests/validate-context-digests.sh
 bash tests/validate-demos.sh
 
 python3 scripts/generate_graph.py      # Regenerate workflows/graph.yml from meta.yml
 python3 scripts/generate-reference.py  # Regenerate /artifact-types/, /concerns/, /reference/workflow-modes/
-python3 scripts/publish-artifacts.py   # Publish docs/helix/ into /artifacts/
+uv run --project tools/documentor documentor record --root .   # Publish docs/helix/ into /artifacts/
 python3 scripts/publish-resources.py   # Publish docs/resources/ into /research/
 bash website/scripts/serve-local.sh    # Serve the microsite at http://eitri:1315/helix/
 ```

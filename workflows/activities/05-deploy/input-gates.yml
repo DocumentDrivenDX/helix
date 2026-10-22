@@ -14,4 +14,4 @@ input_gates:
   - criteria: Documentation updated
     required: true
     source: 04-build
-    validation: API docs, README, and changelog current
+    validation: The guide is current (guide mode's check) when .helix.yml declares publish:; otherwise API docs, README, and changelog current

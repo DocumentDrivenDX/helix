@@ -1,0 +1,46 @@
+# documentor development tasks. Tests run under the project's uv environment (Python 3.11+, PyYAML),
+# so none of them skips for a missing interpreter or module.
+
+# Run every test
+test: test-catalog test-guide test-publish test-traits test-generators test-write test-architecture-views test-architecture-estate test-architecture-tour test-python test-package
+
+test-guide:
+    bash tests/validate-guide.sh
+
+test-publish:
+    bash tests/validate-publish.sh
+
+test-traits:
+    bash tests/validate-publish-traits.sh
+
+test-generators:
+    bash tests/validate-publish-generators.sh
+
+# The packaged HELIX catalog equals workflows/, and the prose audit equals the skill's
+test-catalog:
+    python3 ../../scripts/sync_references.py --subset documentor --check
+    cmp src/documentor/prose.py ../../skills/helix/scripts/prose_audit.py
+
+test-write:
+    bash tests/validate-write.sh
+
+test-architecture-views:
+    bash tests/validate-architecture-views.sh
+
+test-architecture-estate:
+    bash tests/validate-architecture-estate.sh
+
+test-architecture-tour:
+    bash tests/validate-architecture-tour.sh
+
+# The architecture modules' unit tests (layout, routing, the pages)
+test-python:
+    python3 -m pytest -q tests/python
+
+# The wheel builds and the CLI answers from a clean environment
+test-package:
+    bash tests/validate-package.sh
+
+# Refresh the packaged HELIX catalog (audiences, voice) from the repository's workflows/
+sync-helix:
+    python3 ../../scripts/sync_references.py --subset documentor

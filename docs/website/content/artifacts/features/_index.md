@@ -23,3 +23,4 @@ generated: true
 - [Feature Specification: FEAT-016 — Artifact Honesty (Claims-vs-Reality)](feat-016-artifact-honesty/)
 - [Feature Specification: FEAT-017 — Iteration Documentation](feat-017-iteration-documentation/)
 - [Feature Specification: FEAT-018 — Deliverables](feat-018-deliverables/)
+- [Feature Specification: FEAT-019 — Repository guide](feat-019-repository-guide/)

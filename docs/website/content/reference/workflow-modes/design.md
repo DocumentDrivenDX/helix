@@ -35,4 +35,6 @@ Use when the requested change needs design authority before implementation.
 
 For handwritten source, apply `modularity-and-encapsulation`: Architecture records Module Boundaries per its practices; Contracts own exact shared interfaces, and TD applies the map. Name actual modules, owned types, public APIs, allowed/forbidden imports, integration owners, construction policy, and a concrete project boundary command. Review semantic correctness; instance structure alone cannot establish readiness.
 
+When the project keeps an architecture model (`docs/helix/02-design/architecture-model.toml`, format in `workflows/references/architecture-model.md`), update it with the architecture: add or retire the elements and relations the change touches, each citing the code that shows it, and regenerate the views.
+
 Procedure: `workflows/actions/plan.md` supplies additional detail.

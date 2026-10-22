@@ -1,0 +1,20 @@
+id: openapi-api
+title: An HTTP API described by a committed OpenAPI document
+detect:
+  - {files: "**/openapi*.json", contains: "\"paths\"", weight: 0.7}
+  - {files: "**/openapi*.yaml", contains: "^paths:", weight: 0.7}
+  - {files: "**/openapi*.yml", contains: "^paths:", weight: 0.7}
+audiences: [developer]
+# A FastAPI or Flask app that does not commit its schema gets no page from this trait: export it
+# (`app.openapi()`) into the repository, or give the page a command (`generated: {command: ...}`).
+pages:
+  - audience: developer
+    id: api
+    title: HTTP API
+    kind: reference
+    task: Find each operation the API offers, what it does, and where its request and response shapes are defined.
+    generated: openapi-api
+watch: ["**/openapi*.json", "**/openapi*.yaml"]
+handling:
+  never_publish:
+    - "example values from the schema, which can hold real-looking identifiers"

@@ -47,15 +47,35 @@ A HELIX-compliant runtime can:
 That is the full contract. HELIX assumes no tracker, queue, execution loop,
 IDE integration, or language toolchain. Items 1 through 3 are required and
 cover alignment, framing, design, evolve, validate, review, and the script
-half of present. Item 4 is optional; `experiment`, `e2e-ladder`,
-`decompose-module`, and the render step of `present` use it. This is the
-binding form of PRD R-4 (runtime-neutral content).
+half of present, and the by-hand form of `guide`. Item 4 is optional;
+`experiment`, `e2e-ladder`, `decompose-module`, the render step of `present`,
+and documentor use it. This is the binding form of PRD R-4 (runtime-neutral
+content).
 
-Present-mode rendering also needs host tooling no other mode requires, all
-optional: node with `pptxgenjs` for the `.pptx`, LibreOffice and `pdftoppm`
-to export the PDF and rasterize slides for inspection, and `rsvg-convert`
-or ImageMagick for icons. Without them the mode stops after the script and
-names a host that can render it (PRD R-12).
+## The documentation tool (optional)
+
+The `guide` and `present` modes have one optional host tool, documentor,
+released with HELIX from `tools/documentor/` in this repository. It detects
+what a repository is, generates reference pages and architecture views,
+writes and evaluates the reader pages through an agent, checks that every
+page is current, builds the site, and renders decks and briefs. The only
+prerequisite is [uv](https://docs.astral.sh/uv/):
+
+```bash
+uv tool install "git+https://github.com/DocumentDrivenDX/helix@v0.19.0#subdirectory=tools/documentor"
+documentor doctor        # what this host can do: hugo, node, Chrome, LibreOffice, the agent CLI
+```
+
+Install it from the same HELIX release as the skill. Everything else is
+optional and reported by `documentor doctor`: Hugo builds a site;
+`documentor deck render` and `documentor doc render` render decks and
+briefs with node (pptxgenjs is cached on first use), Chrome exports a
+brief's PDF, and LibreOffice lets `documentor deck qa` rasterize a deck; an
+agent CLI (Claude Code by default)
+lets `documentor write` write pages headless. `documentor check`, the CI
+gate, needs none of them. Without documentor, both modes do each step by
+hand and say so; a host with no shell (GitHub Copilot) uses that path, or
+runs documentor in CI.
 
 ## The marker
 
@@ -70,9 +90,13 @@ flows:
     root: docs/helix/
 ```
 
-Optional keys: `graph:` (or `catalog:`) points at a catalog (step 1
+Optional keys: `version: 1` names the marker format; `defaults.flow` picks
+the flow when there are several; `graph:` (or `catalog:`) points at a catalog (step 1
 below); `autonomy:` sets the default level and may add stop triggers under
-`autonomy.stop_at_extensions:`. With no marker but a `docs/helix/` tree,
+`autonomy.stop_at_extensions:`; `publish:` and `handling:` decide the
+repository's guide (which audiences, traits, and pages, and what no page may
+contain; `workflows/references/publishing.md`); `prose:` (`strict`,
+`exempt`) makes `validate-instance.py` treat prose findings as blocking. With no marker but a `docs/helix/` tree,
 the skill engages by heuristic and says so. The full discipline is the
 skill's "Activation Discipline" section.
 

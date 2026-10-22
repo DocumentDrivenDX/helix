@@ -7,7 +7,7 @@ Sources (read, never restated by hand): skills/helix/scripts/check-deliverable.p
 vocabulary, number, placeholder, visual, coverage, and ordering checks with their patterns, phrase lists, and
 severities), tests/fixtures/validate-deliverable/headline-cases.{json,SOURCE} (examples and the upstream commit),
 workflows/deliverables/slide-patterns.yml (limits and density), .vale/styles/Helix/*.yml (prose lint),
-skills/helix/scripts/deck-qa.py (visual gate ids, severities, thresholds), and skills/helix/scripts/render-deck.js
+tools/documentor/src/documentor/deliverable/deck-qa.py (visual gate ids, severities, thresholds), and tools/documentor/src/documentor/deliverable/render-deck.js
 (what the renderer refuses to hide). Run by scripts/generate-reference.py; tests/validate-website-generated.sh
 fails when the committed page drifts from these sources.
 """
@@ -21,8 +21,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 CHECKER = ROOT / "skills/helix/scripts/check-deliverable.py"
-DECK_QA = ROOT / "skills/helix/scripts/deck-qa.py"
-RENDERER = ROOT / "skills/helix/scripts/render-deck.js"
+DECK_QA = ROOT / "tools/documentor/src/documentor/deliverable/deck-qa.py"
+RENDERER = ROOT / "tools/documentor/src/documentor/deliverable/render-deck.js"
 FIXTURE = ROOT / "tests/fixtures/validate-deliverable/headline-cases.json"
 FIXTURE_SOURCE = ROOT / "tests/fixtures/validate-deliverable/headline-cases.SOURCE"
 PATTERNS = ROOT / "workflows/deliverables/slide-patterns.yml"
@@ -199,7 +199,7 @@ def main() -> int:
     w("This page is generated from the code that enforces the rules, so it cannot drift from them: "
       f"{code('skills/helix/scripts/check-deliverable.py')} (the script gate), the vendored sloptimizer fixture, "
       f"{code('workflows/deliverables/slide-patterns.yml')} (limits), the Vale styles under {code('.vale/styles/Helix')}, "
-      f"{code('skills/helix/scripts/deck-qa.py')} (the visual gate), and {code('skills/helix/scripts/render-deck.js')}. "
+      f"{code('tools/documentor/src/documentor/deliverable/deck-qa.py')} (the visual gate), and {code('tools/documentor/src/documentor/deliverable/render-deck.js')}. "
       "The narrative on [Anti-slop](../../use/anti-slop/) says why each rule exists and how the passes are sequenced.")
     w("")
     w("Severities: **blocking** stops the deliverable at the gate; **warning** is reported and left to judgment. "

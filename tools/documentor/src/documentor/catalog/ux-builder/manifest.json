@@ -1,0 +1,723 @@
+{
+ "themes": [
+  {
+   "name": "plain",
+   "title": "Plain",
+   "brand": "plain",
+   "designSystem": null,
+   "default": "light",
+   "appearances": [
+    "light"
+   ]
+  }
+ ],
+ "brands": [
+  {
+   "name": "databricks",
+   "title": "Databricks",
+   "appearances": [
+    "light",
+    "dark"
+   ]
+  },
+  {
+   "name": "plain",
+   "title": "Plain",
+   "appearances": [
+    "light"
+   ]
+  },
+  {
+   "name": "praxis-v2",
+   "title": "Praxis V2",
+   "appearances": [
+    "light",
+    "dark"
+   ]
+  },
+  {
+   "name": "praxis",
+   "title": "Praxis",
+   "appearances": [
+    "dark",
+    "light"
+   ]
+  },
+  {
+   "name": "synaptiq",
+   "title": "Synaptiq",
+   "appearances": [
+    "light",
+    "dark"
+   ]
+  },
+  {
+   "name": "ux-builder",
+   "title": "UX Builder",
+   "appearances": [
+    "light",
+    "dark"
+   ]
+  }
+ ],
+ "designSystems": [
+  {
+   "name": "carbon",
+   "title": "Carbon",
+   "source": {
+    "system": "IBM Carbon Design System",
+    "version": "v11",
+    "url": "https://github.com/carbon-design-system/carbon"
+   }
+  },
+  {
+   "name": "databricks",
+   "title": "Databricks",
+   "source": {
+    "system": "Databricks AppKit UI",
+    "version": "@databricks/appkit-ui 0.81.0; @dbx-tools/ui-appkit 0.9.43",
+    "url": "https://docs.dbx.tools/packages/ui-appkit"
+   }
+  },
+  {
+   "name": "fluent",
+   "title": "Fluent 2",
+   "source": {
+    "system": "Fluent 2",
+    "version": "@fluentui/react-components v9",
+    "url": "https://github.com/microsoft/fluentui"
+   }
+  },
+  {
+   "name": "material",
+   "title": "Material Design 3",
+   "source": {
+    "system": "Material Design 3",
+    "version": "M3",
+    "url": "https://m3.material.io"
+   }
+  }
+ ],
+ "previewPairs": [
+  {
+   "brand": "databricks",
+   "designSystem": "carbon",
+   "appearance": "dark"
+  },
+  {
+   "brand": "databricks",
+   "designSystem": "carbon",
+   "appearance": "light"
+  },
+  {
+   "brand": "databricks",
+   "designSystem": "databricks",
+   "appearance": "dark"
+  },
+  {
+   "brand": "databricks",
+   "designSystem": "databricks",
+   "appearance": "light"
+  },
+  {
+   "brand": "databricks",
+   "designSystem": "fluent",
+   "appearance": "dark"
+  },
+  {
+   "brand": "databricks",
+   "designSystem": "fluent",
+   "appearance": "light"
+  },
+  {
+   "brand": "databricks",
+   "designSystem": "material",
+   "appearance": "dark"
+  },
+  {
+   "brand": "databricks",
+   "designSystem": "material",
+   "appearance": "light"
+  },
+  {
+   "brand": "plain",
+   "designSystem": "carbon",
+   "appearance": "light"
+  },
+  {
+   "brand": "plain",
+   "designSystem": "databricks",
+   "appearance": "light"
+  },
+  {
+   "brand": "plain",
+   "designSystem": "fluent",
+   "appearance": "light"
+  },
+  {
+   "brand": "plain",
+   "designSystem": "material",
+   "appearance": "light"
+  },
+  {
+   "brand": "praxis-v2",
+   "designSystem": "carbon",
+   "appearance": "dark"
+  },
+  {
+   "brand": "praxis-v2",
+   "designSystem": "carbon",
+   "appearance": "light"
+  },
+  {
+   "brand": "praxis-v2",
+   "designSystem": "databricks",
+   "appearance": "dark"
+  },
+  {
+   "brand": "praxis-v2",
+   "designSystem": "databricks",
+   "appearance": "light"
+  },
+  {
+   "brand": "praxis-v2",
+   "designSystem": "fluent",
+   "appearance": "dark"
+  },
+  {
+   "brand": "praxis-v2",
+   "designSystem": "fluent",
+   "appearance": "light"
+  },
+  {
+   "brand": "praxis-v2",
+   "designSystem": "material",
+   "appearance": "dark"
+  },
+  {
+   "brand": "praxis-v2",
+   "designSystem": "material",
+   "appearance": "light"
+  },
+  {
+   "brand": "praxis",
+   "designSystem": "carbon",
+   "appearance": "dark"
+  },
+  {
+   "brand": "praxis",
+   "designSystem": "carbon",
+   "appearance": "light"
+  },
+  {
+   "brand": "praxis",
+   "designSystem": "databricks",
+   "appearance": "dark"
+  },
+  {
+   "brand": "praxis",
+   "designSystem": "databricks",
+   "appearance": "light"
+  },
+  {
+   "brand": "praxis",
+   "designSystem": "fluent",
+   "appearance": "dark"
+  },
+  {
+   "brand": "praxis",
+   "designSystem": "fluent",
+   "appearance": "light"
+  },
+  {
+   "brand": "praxis",
+   "designSystem": "material",
+   "appearance": "dark"
+  },
+  {
+   "brand": "praxis",
+   "designSystem": "material",
+   "appearance": "light"
+  },
+  {
+   "brand": "synaptiq",
+   "designSystem": "carbon",
+   "appearance": "dark"
+  },
+  {
+   "brand": "synaptiq",
+   "designSystem": "carbon",
+   "appearance": "light"
+  },
+  {
+   "brand": "synaptiq",
+   "designSystem": "databricks",
+   "appearance": "dark"
+  },
+  {
+   "brand": "synaptiq",
+   "designSystem": "databricks",
+   "appearance": "light"
+  },
+  {
+   "brand": "synaptiq",
+   "designSystem": "fluent",
+   "appearance": "dark"
+  },
+  {
+   "brand": "synaptiq",
+   "designSystem": "fluent",
+   "appearance": "light"
+  },
+  {
+   "brand": "synaptiq",
+   "designSystem": "material",
+   "appearance": "dark"
+  },
+  {
+   "brand": "synaptiq",
+   "designSystem": "material",
+   "appearance": "light"
+  },
+  {
+   "brand": "ux-builder",
+   "designSystem": "carbon",
+   "appearance": "dark"
+  },
+  {
+   "brand": "ux-builder",
+   "designSystem": "carbon",
+   "appearance": "light"
+  },
+  {
+   "brand": "ux-builder",
+   "designSystem": "databricks",
+   "appearance": "dark"
+  },
+  {
+   "brand": "ux-builder",
+   "designSystem": "databricks",
+   "appearance": "light"
+  },
+  {
+   "brand": "ux-builder",
+   "designSystem": "fluent",
+   "appearance": "dark"
+  },
+  {
+   "brand": "ux-builder",
+   "designSystem": "fluent",
+   "appearance": "light"
+  },
+  {
+   "brand": "ux-builder",
+   "designSystem": "material",
+   "appearance": "dark"
+  },
+  {
+   "brand": "ux-builder",
+   "designSystem": "material",
+   "appearance": "light"
+  }
+ ],
+ "tokens": [
+  "accent",
+  "badge-bg",
+  "badge-fg",
+  "badge-radius",
+  "badge-size",
+  "body",
+  "border",
+  "btn-focus-offset",
+  "btn-focus-ring",
+  "btn-hover-mix",
+  "btn-lift",
+  "btn-lift-hover",
+  "btn-lift-press",
+  "btn-lift-quiet",
+  "btn-min-height",
+  "btn-pad-x",
+  "btn-press-mix",
+  "btn-radius",
+  "btn-secondary-bg",
+  "btn-secondary-border",
+  "btn-secondary-fg",
+  "btn-shift-hover",
+  "btn-shift-press",
+  "btn-size",
+  "btn-text-fg",
+  "btn-weight",
+  "card-bg",
+  "card-border",
+  "card-pad",
+  "check-border",
+  "check-on-bg",
+  "check-on-fg",
+  "check-radius",
+  "check-size",
+  "favicon",
+  "field-bg",
+  "field-border",
+  "field-border-bottom",
+  "field-focus-offset",
+  "field-focus-outline",
+  "field-focus-shadow",
+  "field-height",
+  "field-hover-edge",
+  "field-invalid-shadow",
+  "field-label-fg",
+  "field-label-size",
+  "field-label-tracking",
+  "field-label-transform",
+  "field-label-weight",
+  "field-pad-x",
+  "field-radius",
+  "font-body",
+  "font-display",
+  "font-heading",
+  "font-mono",
+  "ink",
+  "leading-body",
+  "leading-tight",
+  "logo-aspect",
+  "logo-bg",
+  "logo-height",
+  "logo-height-sm",
+  "logo-image",
+  "logo-mask",
+  "logo-paint",
+  "mark-bg",
+  "mark-image",
+  "mark-mask",
+  "measure",
+  "menu-bg",
+  "menu-border",
+  "menu-item-height",
+  "menu-item-hover",
+  "menu-item-on-bg",
+  "menu-item-on-fg",
+  "menu-item-on-mark",
+  "menu-item-on-weight",
+  "menu-pad-y",
+  "menu-radius",
+  "menu-shadow",
+  "muted",
+  "muted-2",
+  "navy",
+  "notice-bg",
+  "notice-border-width",
+  "notice-edge-mix",
+  "notice-radius",
+  "notice-stripe",
+  "notice-tint",
+  "paper",
+  "pill-bg",
+  "pill-border",
+  "pill-dot-size",
+  "pill-gap",
+  "pill-pad",
+  "pill-radius",
+  "pill-size",
+  "pill-tracking",
+  "pill-transform",
+  "pill-weight",
+  "piq-badge-bg",
+  "piq-badge-fg",
+  "piq-badge-font-size",
+  "piq-badge-radius",
+  "piq-border-default",
+  "piq-brand-favicon",
+  "piq-brand-logo-aspect",
+  "piq-brand-logo-bg",
+  "piq-brand-logo-height",
+  "piq-brand-logo-height-sm",
+  "piq-brand-logo-image",
+  "piq-brand-logo-mask",
+  "piq-brand-logo-paint",
+  "piq-brand-mark-bg",
+  "piq-brand-mark-image",
+  "piq-brand-mark-mask",
+  "piq-button-font-size",
+  "piq-button-font-weight",
+  "piq-button-ghost-fg",
+  "piq-button-height",
+  "piq-button-offset-hover",
+  "piq-button-offset-press",
+  "piq-button-padding-x",
+  "piq-button-radius",
+  "piq-button-secondary-bg",
+  "piq-button-secondary-border",
+  "piq-button-secondary-fg",
+  "piq-button-shadow",
+  "piq-button-shadow-flat",
+  "piq-button-shadow-hover",
+  "piq-button-shadow-press",
+  "piq-card-bg",
+  "piq-card-border",
+  "piq-card-padding",
+  "piq-check-border",
+  "piq-check-checked-bg",
+  "piq-check-checked-fg",
+  "piq-check-radius",
+  "piq-check-size",
+  "piq-choice-picker-border",
+  "piq-choice-picker-divider",
+  "piq-choice-picker-font-size",
+  "piq-choice-picker-font-weight",
+  "piq-choice-picker-gap",
+  "piq-choice-picker-height",
+  "piq-choice-picker-option-bg",
+  "piq-choice-picker-option-border",
+  "piq-choice-picker-option-fg",
+  "piq-choice-picker-option-hover-bg",
+  "piq-choice-picker-option-radius",
+  "piq-choice-picker-option-selected-bg",
+  "piq-choice-picker-option-selected-check",
+  "piq-choice-picker-option-selected-fg",
+  "piq-choice-picker-padding-x",
+  "piq-choice-picker-radius",
+  "piq-color-accent",
+  "piq-color-border",
+  "piq-color-ground",
+  "piq-color-ground-recessed",
+  "piq-color-on-accent",
+  "piq-color-structure",
+  "piq-color-surface",
+  "piq-color-surface-sunken",
+  "piq-color-text",
+  "piq-color-text-muted",
+  "piq-color-text-strong",
+  "piq-color-text-subtle",
+  "piq-field-bg",
+  "piq-field-border",
+  "piq-field-border-bottom",
+  "piq-field-border-hover",
+  "piq-field-focus-offset",
+  "piq-field-focus-outline",
+  "piq-field-focus-shadow",
+  "piq-field-height",
+  "piq-field-invalid-shadow",
+  "piq-field-label-fg",
+  "piq-field-label-font-size",
+  "piq-field-label-font-weight",
+  "piq-field-label-letter-spacing",
+  "piq-field-label-text-transform",
+  "piq-field-padding-x",
+  "piq-field-radius",
+  "piq-focus-offset",
+  "piq-focus-ring",
+  "piq-font-body",
+  "piq-font-display",
+  "piq-font-heading",
+  "piq-font-mono",
+  "piq-font-size-body",
+  "piq-font-size-display",
+  "piq-font-size-heading",
+  "piq-font-size-label",
+  "piq-font-size-lead",
+  "piq-font-size-small",
+  "piq-font-size-title",
+  "piq-font-weight-regular",
+  "piq-font-weight-strong",
+  "piq-icon-set",
+  "piq-letter-spacing-eyebrow",
+  "piq-letter-spacing-label",
+  "piq-line-height-body",
+  "piq-line-height-tight",
+  "piq-menu-bg",
+  "piq-menu-border",
+  "piq-menu-item-height",
+  "piq-menu-item-hover-bg",
+  "piq-menu-item-selected-bg",
+  "piq-menu-item-selected-fg",
+  "piq-menu-item-selected-font-weight",
+  "piq-menu-item-selected-indicator",
+  "piq-menu-padding-y",
+  "piq-menu-radius",
+  "piq-menu-shadow",
+  "piq-nav-bar-height",
+  "piq-nav-item-direction",
+  "piq-nav-item-gap",
+  "piq-nav-item-label-font-size",
+  "piq-nav-item-selected-bg",
+  "piq-nav-item-selected-border",
+  "piq-nav-width",
+  "piq-notice-bg",
+  "piq-notice-border-tone-mix",
+  "piq-notice-border-width",
+  "piq-notice-radius",
+  "piq-notice-stripe-width",
+  "piq-notice-tone-mix",
+  "piq-page-header-gap",
+  "piq-page-header-padding-y",
+  "piq-page-header-title-font-size",
+  "piq-pill-bg",
+  "piq-pill-border",
+  "piq-pill-dot-size",
+  "piq-pill-font-size",
+  "piq-pill-font-weight",
+  "piq-pill-gap",
+  "piq-pill-letter-spacing",
+  "piq-pill-padding",
+  "piq-pill-radius",
+  "piq-pill-text-transform",
+  "piq-progress-fill-bg",
+  "piq-progress-height",
+  "piq-progress-radius",
+  "piq-progress-track-bg",
+  "piq-radius-card",
+  "piq-radius-control",
+  "piq-shadow-card",
+  "piq-shadow-overlay",
+  "piq-size-breakpoint-expanded",
+  "piq-size-breakpoint-extra-large",
+  "piq-size-breakpoint-large",
+  "piq-size-breakpoint-medium",
+  "piq-size-content-form",
+  "piq-size-content-page",
+  "piq-size-measure",
+  "piq-size-target-minimum",
+  "piq-size-target-touch",
+  "piq-skeleton-bg",
+  "piq-skeleton-effect",
+  "piq-skeleton-radius",
+  "piq-space-1",
+  "piq-space-2",
+  "piq-space-3",
+  "piq-space-4",
+  "piq-space-5",
+  "piq-space-6",
+  "piq-space-7",
+  "piq-space-8",
+  "piq-space-gutter-compact",
+  "piq-space-gutter-expanded",
+  "piq-space-gutter-extra-large",
+  "piq-space-gutter-large",
+  "piq-space-gutter-medium",
+  "piq-spinner-line-cap",
+  "piq-spinner-stroke-width",
+  "piq-spinner-track-color",
+  "piq-state-closed",
+  "piq-state-evaluation",
+  "piq-state-layer-hover",
+  "piq-state-layer-press",
+  "piq-state-limited",
+  "piq-state-live",
+  "piq-state-purchasing",
+  "piq-switch-checked-thumb-bg",
+  "piq-switch-checked-thumb-size",
+  "piq-switch-checked-track-bg",
+  "piq-switch-height",
+  "piq-switch-radius",
+  "piq-switch-thumb-bg",
+  "piq-switch-thumb-inset",
+  "piq-switch-thumb-size",
+  "piq-switch-track-bg",
+  "piq-switch-track-border",
+  "piq-switch-width",
+  "piq-table-cell-padding-x",
+  "piq-table-cell-padding-y",
+  "piq-table-font-size",
+  "piq-table-header-bg",
+  "piq-table-header-border",
+  "piq-table-header-fg",
+  "piq-table-header-font-size",
+  "piq-table-header-font-weight",
+  "piq-table-header-height",
+  "piq-table-header-letter-spacing",
+  "piq-table-header-text-transform",
+  "piq-table-row-border",
+  "piq-table-row-height",
+  "piq-table-row-hover-bg",
+  "piq-table-row-stripe-bg",
+  "piq-tabs-indicator-height",
+  "piq-tabs-list-border",
+  "piq-tabs-tab-bg-selected",
+  "piq-tabs-tab-padding-x",
+  "piq-tabs-tab-radius",
+  "piq-toast-action-fg",
+  "piq-toast-bg",
+  "piq-toast-fg",
+  "piq-toast-radius",
+  "piq-toast-shadow",
+  "piq-toast-stripe-width",
+  "radius",
+  "radius-card",
+  "rail",
+  "rule",
+  "seg-bg",
+  "seg-divider",
+  "seg-fg",
+  "seg-gap",
+  "seg-height",
+  "seg-hover-bg",
+  "seg-on-bg",
+  "seg-on-fg",
+  "seg-opt-border",
+  "seg-opt-radius",
+  "seg-outline",
+  "seg-pad-x",
+  "seg-radius",
+  "seg-size",
+  "seg-tick",
+  "seg-weight",
+  "shadow-card",
+  "shadow-raised",
+  "size-body",
+  "size-display",
+  "size-heading",
+  "size-intro",
+  "size-label",
+  "size-small",
+  "size-title",
+  "space-1",
+  "space-2",
+  "space-3",
+  "space-4",
+  "space-5",
+  "space-6",
+  "space-7",
+  "space-8",
+  "state-closed",
+  "state-evaluation",
+  "state-limited",
+  "state-live",
+  "state-purchasing",
+  "surface",
+  "surface-sunken",
+  "switch-height",
+  "switch-inset",
+  "switch-off-bg",
+  "switch-off-border",
+  "switch-on-bg",
+  "switch-radius",
+  "switch-thumb-off",
+  "switch-thumb-off-bg",
+  "switch-thumb-on",
+  "switch-thumb-on-bg",
+  "switch-width",
+  "table-head-bg",
+  "table-head-border",
+  "table-head-fg",
+  "table-head-height",
+  "table-head-size",
+  "table-head-tracking",
+  "table-head-transform",
+  "table-head-weight",
+  "table-pad-x",
+  "table-pad-y",
+  "table-row-height",
+  "table-row-hover",
+  "table-size",
+  "toast-action-fg",
+  "toast-bg",
+  "toast-fg",
+  "toast-radius",
+  "toast-shadow",
+  "toast-stripe",
+  "tracking-kicker",
+  "tracking-label",
+  "weight-bold",
+  "weight-normal"
+ ]
+}

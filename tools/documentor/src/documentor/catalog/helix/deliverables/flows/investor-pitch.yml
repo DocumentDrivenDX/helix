@@ -1,0 +1,153 @@
+# investor-pitch flow, split out of deck-flows.yml (workflows/deliverables/flows/) so
+# choosing a flow by occasion does not require loading every flow. See
+# ../deck-craft.md for the reasoning and sources behind this flow's arc.
+
+purpose: >-
+  Persuade an investor that the company is worth a next meeting or a check.
+audience:
+  posture: >-
+    Skeptical, pattern-matching against many other decks, deciding in the first minutes whether
+    to keep listening.
+  decision: Take the next meeting, run diligence, or pass.
+keep_when_short:
+- purpose
+- problem
+- solution
+- traction
+- ask
+beats:
+- name: purpose
+  answers: What does this company do, in one sentence?
+  required: true
+  patterns:
+  - title
+  guidance: >-
+    The title slide states the company purpose as a declarative claim.
+- name: change
+  answers: What has changed in the world that makes this urgent now?
+  required: true
+  patterns:
+  - claim-evidence
+  - timeline
+  - statement
+  guidance: >-
+    Name the shift before the product; the shift is why the audience should care.
+- name: problem
+  answers: Who hurts because of that change, and what does it cost them today?
+  required: true
+  patterns:
+  - claim-evidence
+  - stat-callout
+  - quote
+  guidance: One named customer type, one concrete cost; no abstract pain.
+- name: solution
+  answers: What do you do about it, and why is that different from what exists?
+  required: true
+  patterns:
+  - claim-evidence
+  - process-flow
+  - two-column-comparison
+  guidance: >-
+    State the mechanism in the customer's words; save features for the product beat.
+- name: why-now
+  answers: Why could this not have been built before?
+  required: false
+  patterns:
+  - claim-evidence
+  - timeline
+  - statement
+  guidance: Merge into `change` when the budget is under 10 slides.
+- name: market
+  answers: How big is the prize, counted from the bottom up?
+  required: true
+  patterns:
+  - stat-callout
+  - claim-evidence
+  guidance: >-
+    Customers times price, from your real target segment; one number on the slide, the arithmetic
+    in the notes.
+- name: product
+  answers: What does it look like in the customer's hands?
+  required: false
+  patterns:
+  - claim-evidence
+  - process-flow
+  - diagram
+  guidance: One screenshot or one flow that shows the product in use.
+- name: traction
+  answers: What proof do you have that it works?
+  required: true
+  patterns:
+  - stat-callout
+  - claim-evidence
+  - quote
+  guidance: >-
+    The strongest single number, with its baseline and date; a customer quote if the number
+    is early.
+- name: business-model
+  answers: How do you make money, and from whom?
+  required: true
+  patterns:
+  - claim-evidence
+  - table
+  guidance: Who pays, how much, how often; one line per revenue stream.
+- name: competition
+  answers: Who else solves this, and why do you win?
+  required: true
+  patterns:
+  - two-column-comparison
+  - table
+  guidance: >-
+    Name real alternatives including doing nothing; the verdict line says why you win, not
+    that they are bad.
+- name: team
+  answers: Why are you the people to do this?
+  required: true
+  patterns:
+  - claim-evidence
+  guidance: Each person's one relevant proof.
+- name: financials
+  answers: What happens to the numbers over the next 18 to 24 months?
+  required: false
+  patterns:
+  - table
+  - timeline
+  guidance: Milestones the money buys; detailed projections go to the appendix.
+- name: ask
+  answers: >-
+    How much are you raising, for what, and what will be true when it is spent?
+  required: true
+  patterns:
+  - ask-next-steps
+  guidance: Amount, use of funds, milestones, and the next step with a date.
+- name: sources
+  answers: Where does each figure come from?
+  required: true
+  patterns:
+  - appendix-sources
+  guidance: Every number on a slide maps to a source row.
+transitions:
+- >-
+  The change slide raises "so who is affected"; the problem slide answers with a named customer
+  and cost.
+- >-
+  The problem slide raises "what fixes it"; the solution slide answers with the mechanism.
+- >-
+  The solution slide raises "is that a business"; market, traction, and model answer in that
+  order.
+- >-
+  Competition answers "why you and not them"; team answers "why you can execute"; the ask
+  closes with the takeaway's words.
+leave_out:
+- Company history and founding story unless it is the traction.
+- Feature lists; one product slide at most.
+- Vanity metrics (signups without retention, press mentions).
+- Detailed financial models; appendix only.
+- Any term the investor would have to ask about.
+checklist:
+- Titles read in order state the case for the raise without the bodies.
+- The market number is bottom-up and its arithmetic is in the notes.
+- The traction slide holds one number with baseline and date.
+- Competition names doing nothing as an alternative.
+- The ask states amount, use, milestones, and the next step.
+- Content slide count is within the budget for the slot.
