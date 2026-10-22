@@ -13,6 +13,11 @@ Checks run, in order:
                      with type unique_constraint, module_boundaries, ux_coverage, or not_equals plus `value`;
                      other rule types are reported as unsupported without failing
   placeholder        leftover template markers ([TODO], TBD, [Fill in], ...)
+  visuals            each fenced `visual` block (and each Mermaid block naming `%% id:`): an id that
+                     is present, well formed, and unique; a body naming a `source`, or a `kind`,
+                     `form`, and `question`; a form of its kind (umf.visual 1.0). A kind and form
+                     the type's meta.yml `visuals:` does not list is a warning
+                     (workflows/references/visuals.md)
   prose              for a type people read (meta.yml prose.audience: human), the voice
                      profile's limits and phrase lists in workflows/voice.yml:
                      long sentences, crowded paragraphs, overfull cells, avoided phrases, and a
@@ -73,6 +78,21 @@ PREFIX_TYPES = {
 PLACEHOLDER_RE = re.compile(r"\[TODO\]|\bTBD\b|<placeholder>|\[Fill in\]|\[NEEDS CLARIFICATION")
 BRACKET_TOKEN_RE = re.compile(r"(?<!\[)\[(?:[A-Z][a-z]+)(?:[ /][A-Za-z]+)*\](?!\()")
 H2_RE = re.compile(r"^##\s+(?!#)(.+?)\s*$")
+
+# The visual vocabulary: umf.visual 1.0 (DocumentDrivenDX/umf CONTRACT-082, `visualForms`).
+# workflows/references/visuals.md says which kind answers which question.
+VISUAL_FORMS = {
+    "flow": ("network", "pipeline", "zoned", "lanes"),
+    "sequence": ("lifelines", "ladder"),
+    "structure": ("stack", "tree", "nested", "entities"),
+    "state": ("machine", "lifecycle"),
+    "timeline": ("milestones", "roadmap", "history"),
+    "comparison": ("matrix", "quadrant", "before-after"),
+    "metric": ("stat", "bar", "line", "meter"),
+}
+VISUAL_ID_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+VISUAL_FENCE_RE = re.compile(r"^```visual\b([^\n]*)\n(.*?)^```", re.M | re.S)
+MERMAID_ID_RE = re.compile(r"^```mermaid[^\n]*\n\s*%%\s*id:\s*(\S+)", re.M)
 KNOWN_SEVERITIES = {"blocking": "blocking", "warning": "warning", "informational": "info", "info": "info"}
 
 
@@ -458,6 +478,53 @@ def check_rule_entries(key: str, entries: list, body: str, base: int, report: Re
             report.add("info", check, f"unsupported automated check type '{rule}'; skipped")
 
 
+def check_visuals(meta: dict, body: str, base: int, report: Report) -> None:
+    """Every visual block names a stable id and a form of its kind (workflows/references/visuals.md)."""
+    listed = {(v.get("kind"), v.get("form")) for v in meta.get("visuals") or [] if isinstance(v, dict)}
+    seen: dict[str, int] = {}
+
+    def claim(raw: str, line: int) -> None:
+        if not VISUAL_ID_RE.match(raw):
+            report.add("blocking", "visual.id", f"visual id {raw!r} must be lowercase letters, digits, and hyphens", line)
+        elif raw in seen:
+            report.add("blocking", "visual.id", f"visual id {raw!r} is used twice (first at line {seen[raw]})", line)
+        else:
+            seen[raw] = line
+
+    for match in VISUAL_FENCE_RE.finditer(body):
+        line = line_of(body, match.start(), base)
+        found = re.search(r"\bid=(\S+)", match.group(1))
+        if not found:
+            report.add("blocking", "visual.id", "a visual block needs `id=<stable-id>` after ```visual", line)
+        else:
+            claim(found.group(1), line)
+        try:
+            spec = yaml.safe_load(match.group(2)) or {}
+        except yaml.YAMLError as error:
+            report.add("blocking", "visual.body", f"the visual block is not YAML: {error}", line)
+            continue
+        if not isinstance(spec, dict):
+            report.add("blocking", "visual.body", "the visual block must be a YAML mapping", line)
+            continue
+        if spec.get("source") and not spec.get("kind"):
+            continue
+        kind, form = spec.get("kind"), spec.get("form")
+        if kind not in VISUAL_FORMS:
+            report.add("blocking", "visual.kind", f"a visual block needs a `source`, or a kind of {', '.join(VISUAL_FORMS)}; got {kind!r}", line)
+            continue
+        if form not in VISUAL_FORMS[kind]:
+            report.add("blocking", "visual.form", f"{kind} has the forms {', '.join(VISUAL_FORMS[kind])}; got {form!r}", line)
+            continue
+        if not spec.get("question"):
+            report.add("blocking", "visual.question", "a visual block names the one question it answers (`question:`)", line)
+        if listed and (kind, form) not in listed:
+            report.add("warning", "visual.unlisted",
+                       f"{kind}/{form} is not among this type's visuals ({', '.join(f'{k}/{f}' for k, f in sorted(listed))}); "
+                       "list it in meta.yml or draw it in another artifact", line)
+    for match in MERMAID_ID_RE.finditer(body):
+        claim(match.group(1), line_of(body, match.start(), base))
+
+
 def check_delivery_history(body: str, base: int, report: Report) -> None:
     """Flag repository-history citations, not transaction or release semantics.
 
@@ -567,6 +634,7 @@ def main() -> int:
     check_rule_entries("automated_checks", validation.get("automated_checks") or [], body, base, report)
     check_placeholders(body, base, report)
     check_delivery_history(text, 1, report)
+    check_visuals(entry["meta"], body, base, report)
     settings, root = project_prose_settings(args.instance)
     if prose_audited(entry["meta"], args.instance, settings, root):
         strict = args.strict_prose or bool(settings.get("strict"))

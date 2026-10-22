@@ -34,7 +34,7 @@ _Auto-generated from `helix/` by `documentor record`._
 - [UX behavior and packaged design systems](/artifacts/design-ux-governance/)
 - [Security Architecture — DDx Agent Execution Surface](/artifacts/security-architecture/)
 - [HELIX solution overview](/artifacts/solution-overview/)
-- [adr](/artifacts/adr/) _(14 items)_
+- [adr](/artifacts/adr/) _(15 items)_
 - [contracts](/artifacts/contracts/) _(5 items)_
 - [diagrams](/artifacts/diagrams/) _(1 item)_
 - [solution designs](/artifacts/solution-designs/) _(1 item)_

@@ -176,3 +176,11 @@ tags:
 
 version: 1.0.0
 last_updated: 2026-05-01
+
+# The visuals this type usually draws, each only when it earns its place (references/visuals.md).
+visuals:
+  - {kind: flow, form: network, question: "What does the system touch, and what touches it?", source: "architecture-model.toml (context view)"}
+  - {kind: flow, form: network, question: "What runs inside the system?", source: "architecture-model.toml (containers view)"}
+  - {kind: flow, form: zoned, question: "Where does each part run, and what travels between them?", source: "architecture-model.toml (deployment view)"}
+  - {kind: sequence, form: lifelines, question: "What happens, step by step, in one critical request?", source: "architecture-model.toml (a journey)"}
+  - {kind: structure, form: stack, question: "Where does each piece sit?", source: "architecture-model.toml (stack view)"}

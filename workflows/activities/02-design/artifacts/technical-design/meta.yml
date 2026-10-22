@@ -194,3 +194,8 @@ tags:
 
 version: 1.0.0
 last_updated: 2024-01-19
+
+# The visuals this type usually draws, each only when it earns its place (references/visuals.md).
+visuals:
+  - {kind: sequence, form: lifelines, question: "What happens, step by step, in the designed interaction?", source: "the design's interaction section"}
+  - {kind: state, form: machine, question: "What states can the designed component be in?", source: "the design's state section"}
