@@ -1,8 +1,8 @@
-<!-- helix:publish audience=developer page=walkthrough kind=explanation voice=onboarding budget=1100 written=agent-opus reviewed=2026-10-21/agent-sonnet/c95a67cc2d7a6607 -->
+<!-- helix:publish audience=developer page=walkthrough kind=explanation voice=onboarding budget=1100 written=agent-opus reviewed=2026-10-22/agent-sonnet/c95a67cc2d7a6607 -->
 <!-- helix:gap artifact:architecture -->
 <!-- helix:source src/documentor/cli.py sha256:0707cd738e9b6418 -->
 <!-- helix:source src/documentor/check.py sha256:784c2473233c0346 -->
-<!-- helix:source src/documentor/lib.py sha256:093a891d0f8bcf48 -->
+<!-- helix:source src/documentor/lib.py sha256:7e594138b133286a -->
 <!-- helix:source src/documentor/generate.py sha256:47b5e3e1d2d06cbd -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/write.py sha256:2118376b2c167085 -->

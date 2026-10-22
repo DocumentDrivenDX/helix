@@ -1,10 +1,10 @@
-<!-- helix:publish audience=user page=index kind=tutorial voice=public-site budget=700 written=agent-opus reviewed=2026-10-21/agent-sonnet/e151b909301cfa6a -->
+<!-- helix:publish audience=user page=index kind=tutorial voice=public-site budget=700 written=agent-opus reviewed=2026-10-22/agent-sonnet/126059c1b62f0c67 -->
 <!-- helix:gap artifact:user-stories -->
 <!-- helix:source README.md#install sha256:11003d4123be1f55 -->
 <!-- helix:source README.md#use sha256:1668b6192a52a5d5 -->
 <!-- helix:source src/documentor/cli.py sha256:0707cd738e9b6418 -->
 <!-- helix:source src/documentor/detect.py sha256:ff655eeda6b4701f -->
-<!-- helix:source src/documentor/lib.py sha256:093a891d0f8bcf48 -->
+<!-- helix:source src/documentor/lib.py sha256:7e594138b133286a -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 # Getting started
 
@@ -40,11 +40,11 @@ Check that it runs:
 documentor --version          # after uv tool install; with uvx, run uvx --from "..." documentor --version
 ```
 
-The output names the documentor version and the HELIX catalog version it carries. [HELIX](https://github.com/DocumentDrivenDX/helix) is the method that defines what a guide contains. documentor is the tool that builds one.
+The output reads `documentor <version> (HELIX catalog packaged <version>)`. documentor ships with HELIX, so both versions match. [HELIX](https://github.com/DocumentDrivenDX/helix) is the method that defines what a guide contains. documentor is the tool that builds one.
 
 ## Your first task: one worked session, step by step
 
-In this task, documentor describes your repository and lists every page its readers need.
+documentor describes your repository and lists the pages its readers need.
 
 **1. Go to the repository.**
 
@@ -64,7 +64,7 @@ The screen starts with `Traits detected in <name>:`. A *trait* is something the 
 
 Each trait line shows a confidence score and its evidence files. `PROPOSE` marks a trait that scored 0.5 or higher. Below that, `Proposed for .helix.yml:` shows the configuration block documentor suggests. Lines starting `Page added:` and `Page delegated:` show what each trait contributes.
 
-The report ends by listing significant files that no proposed trait claims, or with `Every significant file is claimed.`
+The report ends with significant files no proposed trait claims, or `Every significant file is claimed.`
 
 **3. Record the proposal.**
 
@@ -76,7 +76,7 @@ If `.helix.yml` exists but has no `publish:` block, `init` prints `Add to .helix
 documentor init --write
 ```
 
-The screen ends with `wrote the proposal to <path>/.helix.yml`, naming the repository's folder. The `audiences` list in that block names who reads the guide: developer, operator, user, or data. If `.helix.yml` already records traits, `init` changes nothing and asks you to compare them with the proposal.
+The screen ends with `wrote the proposal to <path>/.helix.yml`. The `audiences` list in that block names who reads the guide: developer, operator, user, or data. If `.helix.yml` already records traits, `init` changes nothing and asks you to compare them with the proposal.
 
 **4. List the guide.**
 
@@ -98,7 +98,7 @@ The screen starts with `Guide for <name>: N pages`, then lists the pages under e
 
 On a new guide, most rows read `MISSING`. The list ends with `For the agent`, an ordered list of the pages that still need writing.
 
-Once pages exist, a list headed `Artifacts that would improve the guide` can appear before `For the agent`. It names HELIX artifacts that written pages had to do without.
+Once pages exist, a list headed `Artifacts that would improve the guide` can appear before `For the agent`. It names HELIX artifacts the written pages lacked.
 
 If the screen reads `No guide yet: run documentor init first.`, `.helix.yml` has no audiences yet. Go back to step 3.
 

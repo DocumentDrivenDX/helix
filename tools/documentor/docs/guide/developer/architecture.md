@@ -1,7 +1,7 @@
-<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=agent-opus reviewed=2026-10-22/agent-sonnet/46e898af32cc09b6 -->
+<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=agent-opus reviewed=2026-10-22/agent-sonnet/ee6e217d52cf5e96 -->
 <!-- helix:gap artifact:architecture -->
 <!-- helix:source src/documentor/cli.py sha256:0707cd738e9b6418 -->
-<!-- helix:source src/documentor/lib.py sha256:093a891d0f8bcf48 -->
+<!-- helix:source src/documentor/lib.py sha256:7e594138b133286a -->
 <!-- helix:source src/documentor/write.py sha256:2118376b2c167085 -->
 <!-- helix:source src/documentor/site.py sha256:7462ea891ccb5b5a -->
 <!-- helix:source src/documentor/record.py sha256:cecdf2712047484e -->
@@ -17,7 +17,7 @@
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
 <!-- helix:source ../../.github/workflows/documentor.yml sha256:ab2fb8338de1a028 -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
-<!-- helix:source tests/validate-package.sh sha256:9db30b84d945186d -->
+<!-- helix:source tests/validate-package.sh sha256:ddc499febfa0dd79 -->
 <!-- helix:source docs/helix/01-frame/prd.md#requirements sha256:faab177063c3e4e8 -->
 <!-- helix:source docs/helix/02-design/adr/ADR-001-a-repository-guide-is-detected-generated-written-evaluated-and-checked.md sha256:f430157a0b1cbc34 -->
 <!-- helix:source docs/helix/02-design/adr/ADR-002-an-estate-view-is-composed-from-repository-architecture-models.md sha256:b612bb9b14aab618 -->
@@ -41,12 +41,12 @@ documentor connects six outside systems: a target repository, the HELIX catalog,
 | The npm registry | Fetches a named ux-builder theme, and the Eraser presentation renderer, into the documentor cache | `publish.theme`, `tour --render`, presentations on the site |
 | GitHub, through `gh` | `gh api` fetches other repositories' architecture models | `estate --fetch` only |
 
-documentor reads the first HELIX catalog it finds (`helix_catalog()` in `src/documentor/lib.py`). `--version` names the catalog a run reads:
+documentor reads the first HELIX catalog it finds (`helix_catalog()` in `src/documentor/lib.py`). `--version` names the catalog a run reads. documentor is released with HELIX at the same version, so the packaged catalog carries the package's own version:
 
 ```sh
 uv run documentor --version
 # inside the HELIX checkout:  documentor <version> (HELIX catalog live <checkout>/workflows)
-# from an installed wheel:    documentor <version> (HELIX catalog packaged <release>)
+# from an installed wheel:    documentor <version> (HELIX catalog packaged <version>)
 ```
 
 <details>
@@ -117,7 +117,7 @@ documentor ships as a wheel that hatchling builds and that a repository installs
 uv tool install "git+https://github.com/DocumentDrivenDX/helix@<tag>#subdirectory=tools/documentor"
 ```
 
-The wheel must carry the catalog, the packaged `plain` theme, and the deliverable renderers, because an installed documentor reads them from package data. The package test builds the wheel and runs the CLI from a clean environment. It also checks that `--catalog` switches to a live catalog and refuses a directory that is not one:
+The wheel must carry the catalog, the packaged `plain` theme, and the deliverable renderers, because an installed documentor reads them from package data. The package test builds the wheel and runs the CLI from a clean environment. It checks that `--version` reports the packaged catalog under the version in `pyproject.toml`. It also checks that `--catalog` switches to a live catalog and refuses a directory that is not one:
 
 ```sh
 bash tests/validate-package.sh

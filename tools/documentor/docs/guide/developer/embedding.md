@@ -1,4 +1,4 @@
-<!-- helix:publish audience=developer page=embedding kind=how-to voice=onboarding budget=1100 written=agent-opus reviewed=2026-10-21/agent-sonnet/5abc07e88cba768e -->
+<!-- helix:publish audience=developer page=embedding kind=how-to voice=onboarding budget=1100 written=agent-opus reviewed=2026-10-22/agent-sonnet/41399bb8da0d8456 -->
 <!-- helix:gap artifact:examples -->
 <!-- helix:source README.md#install sha256:11003d4123be1f55 -->
 <!-- helix:source README.md#what-it-reads-and-writes sha256:55f9002fc000e454 -->
@@ -7,9 +7,8 @@
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/generate.py sha256:47b5e3e1d2d06cbd -->
 <!-- helix:source src/documentor/write.py sha256:2118376b2c167085 -->
-<!-- helix:source src/documentor/lib.py sha256:093a891d0f8bcf48 -->
+<!-- helix:source src/documentor/lib.py sha256:7e594138b133286a -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
-<!-- helix:source src/documentor/catalog/helix/HELIX_VERSION sha256:c4a278c15f5e2f11 -->
 <!-- helix:source pyproject.toml sha256:b1cd4c63b2145691 -->
 # Embedding the library
 
@@ -28,10 +27,10 @@ uvx --from "git+https://github.com/DocumentDrivenDX/helix@<tag>#subdirectory=too
 Expected result, from an install:
 
 ```text
-documentor <version> (HELIX catalog packaged <marker>)
+documentor <version> (HELIX catalog packaged <version>)
 ```
 
-`<version>` is the package's `__version__`. `<marker>` is the packaged catalog's `HELIX_VERSION`.
+`<version>` is the release: documentor and the catalog it carries ship together.
 
 The host's interpreter cannot import from a tool install. To call `main`, add the same URL to the host's environment:
 

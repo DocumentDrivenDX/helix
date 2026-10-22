@@ -36,8 +36,8 @@ against that expected output.
 
 `--subset documentor` writes the part of the catalog the documentation tool reads, in the same
 layout as `workflows/` (publish/, voice.yml, deliverables/, the two references the guide and the
-writing pass live in), to tools/documentor/src/documentor/catalog/helix by default, with a
-HELIX_VERSION file. `--check` writes nothing and fails when that copy differs from `workflows/`.
+writing pass live in), to tools/documentor/src/documentor/catalog/helix by default. The copy carries no version of its
+own: documentor is released with HELIX at the same version. `--check` writes nothing and fails when that copy differs from `workflows/`.
 One script defines every packaged floor, so the skill's and the tool's cannot drift apart.
 """
 from __future__ import annotations
@@ -123,7 +123,7 @@ def sync_documentor(out_dir: Path, check: bool) -> int:
     expected = _documentor_expected()
     if check:
         present = {p.relative_to(out_dir).as_posix(): p.read_bytes() for p in out_dir.rglob("*")
-                   if p.is_file() and p.name != "HELIX_VERSION" and "__pycache__" not in p.parts} if out_dir.is_dir() else {}
+                   if p.is_file() and "__pycache__" not in p.parts} if out_dir.is_dir() else {}
         stale = sorted(k for k in expected if present.get(k) != expected[k])
         extra = sorted(k for k in present if k not in expected)
         for k in stale:
@@ -142,7 +142,6 @@ def sync_documentor(out_dir: Path, check: bool) -> int:
         target = out_dir / rel
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(data)
-    (out_dir / "HELIX_VERSION").write_text("in-repo\n", encoding="utf-8")
     print(f"synced documentor floor -> {out_dir.relative_to(REPO_ROOT)}: {len(expected)} files")
     return 0
 
