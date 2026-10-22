@@ -1,4 +1,4 @@
-<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=agent-opus reviewed=2026-10-22/agent-sonnet/f782f18e1c6b9a36 -->
+<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=agent-opus reviewed=2026-10-22/agent-sonnet/46e898af32cc09b6 -->
 <!-- helix:gap artifact:architecture -->
 <!-- helix:source src/documentor/cli.py sha256:0707cd738e9b6418 -->
 <!-- helix:source src/documentor/lib.py sha256:093a891d0f8bcf48 -->
@@ -13,7 +13,7 @@
 <!-- helix:source src/documentor/architecture/draft.py sha256:011428f478bbe9d4 -->
 <!-- helix:source src/documentor/architecture/estate.py sha256:00bdd63951c4abf6 -->
 <!-- helix:source src/documentor/architecture/tour.py sha256:80f840c2fe35c2c1 -->
-<!-- helix:source pyproject.toml sha256:50b33a33c6ff0f5e -->
+<!-- helix:source pyproject.toml sha256:b1cd4c63b2145691 -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
 <!-- helix:source ../../.github/workflows/documentor.yml sha256:ab2fb8338de1a028 -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
@@ -45,8 +45,8 @@ documentor reads the first HELIX catalog it finds (`helix_catalog()` in `src/doc
 
 ```sh
 uv run documentor --version
-# inside the HELIX checkout:  documentor 0.18.0 (HELIX catalog live <checkout>/workflows)
-# from an installed wheel:    documentor 0.18.0 (HELIX catalog packaged <release>)
+# inside the HELIX checkout:  documentor <version> (HELIX catalog live <checkout>/workflows)
+# from an installed wheel:    documentor <version> (HELIX catalog packaged <release>)
 ```
 
 <details>
@@ -111,7 +111,7 @@ The architecture subpackage loads only when one of its subcommands runs. Several
 
 ## Deployment
 
-documentor ships as a wheel that hatchling builds and that a repository installs through `uv` from the HELIX release containing it. The package version, 0.18.0, follows HELIX's. Nothing is vendored into the target repository.
+documentor ships as a wheel that hatchling builds and that a repository installs through `uv` from the HELIX release containing it. The package version, 0.19.0, follows HELIX's. Nothing is vendored into the target repository.
 
 ```sh
 uv tool install "git+https://github.com/DocumentDrivenDX/helix@<tag>#subdirectory=tools/documentor"
@@ -170,7 +170,7 @@ The quality targets are the PRD's requirements, and the tests and the CI gate en
 | A repository reaches documentor at a HELIX release tag, never vendored | R-8; the CI template's `DOCUMENTOR` variable |
 | The packaged catalog matches HELIX's `workflows/` | `just test-catalog` |
 
-The PRD lists "easy to read" without a measure, because no one has run a newcomer trial yet. The product owner owns that open question.
+The PRD lists "easy to read" without a measure, because no one has run a newcomer trial yet.
 
 <details>
 <summary>Exit codes the commands share</summary>
