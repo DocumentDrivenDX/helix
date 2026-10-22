@@ -1,4 +1,4 @@
-<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=agent-opus reviewed=2026-10-22/agent-sonnet/6c3d42d9ccb4befb -->
+<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=agent-opus reviewed=2026-10-22/agent-sonnet/37bf692a709e8c39 -->
 <!-- helix:source pyproject.toml sha256:b1cd4c63b2145691 -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
 <!-- helix:source ../../.github/workflows/documentor.yml sha256:ab2fb8338de1a028 -->
@@ -9,12 +9,12 @@
 <!-- helix:source src/documentor/__init__.py sha256:e2b34185d9489454 -->
 <!-- helix:source src/documentor/cli.py sha256:0707cd738e9b6418 -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
-<!-- helix:source src/documentor/lib.py sha256:093a891d0f8bcf48 -->
+<!-- helix:source src/documentor/lib.py sha256:7e594138b133286a -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
 <!-- helix:source src/documentor/catalog/ux-builder/README.md sha256:6b885638317975c7 -->
-<!-- helix:source tests/validate-package.sh sha256:9db30b84d945186d -->
+<!-- helix:source tests/validate-package.sh sha256:ddc499febfa0dd79 -->
 <!-- helix:source tests/validate-publish.sh sha256:fbe3dede8c6f4a24 -->
-<!-- helix:source ../../scripts/sync_references.py sha256:019062c512836eb4 -->
+<!-- helix:source ../../scripts/sync_references.py sha256:408f8110f448a604 -->
 # Developer guide
 
 ## Quick start
@@ -72,7 +72,7 @@ The package is in `src/documentor`, the tests are in `tests`, and the design rec
 | `src/documentor/architecture/` | Architecture views, the estate view, the tour, and the field guide |
 | `src/documentor/deliverable/` | Deck and brief renderers behind `documentor deck` and `documentor doc` |
 | `src/documentor/catalog/traits/` | One YAML file per trait, such as `significant.yml` |
-| `src/documentor/catalog/helix/` | The packaged HELIX catalog: `publish/`, `voice.yml`, `deliverables/`, `references/`, `HELIX_VERSION`; do not edit by hand |
+| `src/documentor/catalog/helix/` | The packaged HELIX catalog: `publish/`, `voice.yml`, `deliverables/`, `references/`; do not edit by hand |
 | `src/documentor/catalog/ci/github-actions.yml` | The CI template that target repositories copy |
 | `src/documentor/catalog/ux-builder/` | The packaged `plain` theme, copied unchanged from `@ux-builder/tokens` |
 | `src/documentor/catalog/site/` | Site layouts and static files |
@@ -246,4 +246,4 @@ Release work requires a separately authorized release scope ([CONTRIBUTING.md](.
 
 Neither release workflow reads documentor's own version, so only the step 2 edits keep `documentor --version` matched to the tag. The `release-version-guard` workflow deletes a pushed tag and its release when the plugin manifests disagree with the tag.
 
-`uv run just sync-helix` writes `in-repo` to `src/documentor/catalog/helix/HELIX_VERSION`. An installed wheel reports it as `HELIX catalog packaged in-repo`.
+An installed wheel reports its catalog as `HELIX catalog packaged <version>`, the release it shipped in.

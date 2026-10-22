@@ -71,12 +71,14 @@ def helix_catalog() -> Path:
 
 
 def helix_version() -> str:
-    """Which HELIX catalog this run reads: a path when live or given, else the packaged release."""
+    """Which HELIX catalog this run reads: a path when live or given, else the copy packaged with
+    this release (documentor is released with HELIX, at the same version)."""
+    from documentor import __version__
+
     source = helix_catalog()
     if source != catalog() / "helix":
         return f"live {source}"
-    marker = source / "HELIX_VERSION"
-    return "packaged " + (marker.read_text(encoding="utf-8").strip() if marker.is_file() else "unsynced")
+    return f"packaged {__version__}"
 
 
 def find_root(start: Path) -> Path:
