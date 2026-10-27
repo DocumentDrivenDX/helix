@@ -1,4 +1,4 @@
-<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=agent-opus reviewed=2026-10-22/agent-sonnet/37bf692a709e8c39 -->
+<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=agent-opus reviewed=2026-10-27/agent-sonnet/dca302513a9bd237 -->
 <!-- helix:source pyproject.toml sha256:74a08b4781a32616 -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
 <!-- helix:source ../../.github/workflows/documentor.yml sha256:ab2fb8338de1a028 -->
@@ -7,7 +7,8 @@
 <!-- helix:source ../../CONTRIBUTING.md sha256:d0027006597fad67 -->
 <!-- helix:source README.md#development sha256:ec26429513feaa3e -->
 <!-- helix:source src/documentor/__init__.py sha256:e612d1e2f68f2667 -->
-<!-- helix:source src/documentor/cli.py sha256:0707cd738e9b6418 -->
+<!-- helix:source src/documentor/cli.py sha256:4fe81cf37df6d5aa -->
+<!-- helix:source src/documentor/visuals.py sha256:daa439fb5d461d15 -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/lib.py sha256:7e594138b133286a -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
@@ -19,7 +20,7 @@
 
 ## Quick start
 
-To get a working copy, clone the HELIX repository, change to `tools/documentor`, run `uv sync`, and run the tests through `just`. You need Python 3.11 or later, [uv](https://docs.astral.sh/uv/), and `just` on your `PATH`. Hugo is optional; without it, the tests skip the site build.
+To get a working copy, clone the HELIX repository, change to `tools/documentor`, sync with uv, and run the tests. You need Python 3.11 or later, [uv](https://docs.astral.sh/uv/), and `just` on your `PATH`. Hugo is optional, and without it the tests skip the site build.
 
 ```sh
 git clone https://github.com/DocumentDrivenDX/helix
@@ -30,13 +31,13 @@ uv run just test
 
 `uv sync` creates `.venv` with the one runtime dependency (`pyyaml>=6`) and the `dev` group (`pytest>=8`). Each passing test script prints an `OK:` line. A failing script prints `FAIL:` with the reason and stops the run.
 
-To check that the working copy's CLI runs:
+To check that the CLI runs:
 
 ```sh
 uv run documentor --version
 ```
 
-Inside the HELIX checkout, the output is `documentor <version> (HELIX catalog live /path/to/helix/workflows)`. An installed wheel reads its packaged copy and prints `HELIX catalog packaged`. `--catalog DIR` or the `DOCUMENTOR_CATALOG` variable names another catalog.
+Inside the HELIX checkout, the output is `documentor <version> (HELIX catalog live /path/to/helix/workflows)`. An installed wheel prints `HELIX catalog packaged <version>`, the release it shipped in. `--catalog DIR` or the `DOCUMENTOR_CATALOG` variable names another catalog.
 
 To see which optional tools the machine has (hugo, node, Chrome, LibreOffice, the agent CLI):
 
@@ -50,7 +51,7 @@ To run your working copy against another repository:
 uv run documentor check --root ../some-repo
 ```
 
-`uvx --from /path/to/documentor` caches its build of a local path. After a change, add `--refresh`, or use `uv run --project /path/to/documentor documentor ...`.
+`uvx --from /path/to/documentor` caches its build of a local path, so after a change add `--refresh`, or use `uv run --project /path/to/documentor documentor ...`.
 
 ## Repository map
 
@@ -68,6 +69,7 @@ The package is in `src/documentor`, the tests are in `tests`, and the design rec
 | `src/documentor/record.py` | Publishes the governed record (the HELIX root) into the site |
 | `src/documentor/prose.py` | Prose checks against the voice profile |
 | `src/documentor/theme.py` | Resolves the theme a project names |
+| `src/documentor/visuals.py` | The model's views as `umf.visual` documents, drawn by `@ux-builder/visuals`; behind `documentor visuals` |
 | `src/documentor/lib.py` | Shared helpers, including which HELIX catalog a run reads |
 | `src/documentor/architecture/` | Architecture views, the estate view, the tour, and the field guide |
 | `src/documentor/deliverable/` | Deck and brief renderers behind `documentor deck` and `documentor doc` |
@@ -79,9 +81,11 @@ The package is in `src/documentor`, the tests are in `tests`, and the design rec
 | `tests/` | `validate-*.sh` end-to-end scripts and `tests/python/` unit tests |
 | `docs/helix/` | Product vision, PRD, ADRs, and plans |
 
-documentor uses the `plain` theme when a project names no theme, or when the named theme cannot be fetched. Every other theme comes from `@ux-builder/tokens`, through `publish.theme`.
+documentor uses the `plain` theme when a project names no theme or the named theme cannot be fetched. Other themes come from `@ux-builder/tokens`, through `publish.theme`.
 
-[Command line](cli.md) lists the CLI's commands. [Embedding the library](embedding.md) covers calling the package from Python.
+Visuals are on when `.helix.yml` sets `publish.visuals`. Then `documentor views --write` also writes the visuals, and `documentor views` reports the views stale when a visual no longer matches the model. `documentor visuals --check` writes nothing and fails on the same mismatch.
+
+[Command line](cli.md) lists the commands, and [Embedding the library](embedding.md) covers calling the package from Python.
 
 ## Running the tests
 
@@ -101,15 +105,15 @@ documentor uses the `plain` theme when a project names no theme, or when the nam
 | `just test-python` | Pytest unit tests in `tests/python` |
 | `just test-package` | The wheel builds, carries the catalog, and its CLI runs in a clean environment (`tests/validate-package.sh`) |
 
-Run one suite like this; on success the last line starts with `OK:`:
+To run one suite (on success, the last line starts with `OK:`):
 
 ```sh
 uv run just test-write
 ```
 
-`just test-write` needs no agent credentials. The script writes a fake agent that answers writer and evaluator prompts and logs each call.
+`just test-write` needs no agent credentials: the script writes a fake agent that answers writer and evaluator prompts and logs each call.
 
-`just test-publish` checks that the built site has an `about` section titled "How this guide was made", with a `## The pages` list. Without Hugo, its `OK:` line ends with `(hugo not installed; build skipped)`, and the suite still passes.
+`just test-publish` checks that the built site has an `about` section titled "How this guide was made", with a `## The pages` list. Without Hugo, its `OK:` line ends with `(hugo not installed; build skipped)`.
 
 `just test-package` builds the wheel with `uv build` and runs the installed CLI with `uv run --isolated`. It also checks that `--catalog` refuses a directory that is no HELIX catalog.
 
@@ -153,7 +157,7 @@ A new packaged file the CLI needs at run time belongs in this list.
 
 ## Making a change
 
-To make a change, edit the module or catalog file, add an assertion to the matching test script, and run that suite before the full suite. HELIX's [AGENTS.md](../../../../../AGENTS.md) and [CONTRIBUTING.md](../../../../../CONTRIBUTING.md) set the contributor rules. Commit messages state the resulting behaviour in one sentence.
+To make a change, edit the module or catalog file, add an assertion to the matching test script, and run that suite before the full suite. HELIX's [AGENTS.md](../../../../../AGENTS.md) and [CONTRIBUTING.md](../../../../../CONTRIBUTING.md) set the contributor rules.
 
 1. Create a branch from `main`:
 
@@ -169,14 +173,14 @@ To make a change, edit the module or catalog file, add an assertion to the match
    fail() { echo "FAIL: $*" >&2; exit 1; }
    ```
 
-4. Run the suite, then everything. Every script ends with an `OK:` line:
+4. Run the suite, then all suites:
 
    ```sh
    uv run just test-traits
    uv run just test
    ```
 
-5. Try the change on a copy of a real repository. `init` detects what the repository is and proposes its guide. Without a `.helix.yml`, `init` writes one and creates the `docs/helix/` folders, even without `--write`:
+5. Try the change on a copy of a real repository. Without a `.helix.yml`, `init` writes one and creates the `docs/helix/` folders, even without `--write`:
 
    ```sh
    uv run documentor init --root ../some-repo
@@ -184,9 +188,10 @@ To make a change, edit the module or catalog file, add an assertion to the match
 
    The proposal shows the traits and pages your change adds or removes.
 
-Three kinds of change follow their own path:
+Four kinds of change follow their own path:
 
 - **A new packaged generator** registers under `[project.entry-points."documentor.generators"]` in `pyproject.toml` as `name = "module:function"`. The function takes `(root, page)` and returns `(body, source_globs)`. A repository's own generator is a command under `generated:` in its `.helix.yml` and needs no entry point.
+- **A new tool subcommand** joins the `TOOLS` tuple in `src/documentor/cli.py`, and `main` dispatches it to its module's `main`, as `visuals` does. Its usage line belongs in the module docstring of `cli.py`.
 - **The HELIX catalog** (audiences, voice, deliverables, and the publishing and writing-pass references) comes from HELIX's `workflows/`. Change it there, then copy it rather than editing `src/documentor/catalog/helix/`:
 
   ```sh
@@ -196,7 +201,7 @@ Three kinds of change follow their own path:
   The script prints `synced documentor floor -> tools/documentor/src/documentor/catalog/helix: N files`. When the copy and `workflows/` differ, `just test-catalog` lists each `stale:` or `extra:` file and fails.
 - **The prose checks** in `src/documentor/prose.py` must stay byte-identical to `../../skills/helix/scripts/prose_audit.py`. Change both together, or `just test-catalog` fails.
 
-A change to the CLI's behaviour may change the pages in `docs/guide/`. `uv run documentor status` lists every page of the repository's guide and what each needs next, such as missing, stale, or unreviewed:
+A change to the CLI's behaviour may change the pages in `docs/guide/`. `uv run documentor status` lists each page of the guide and what it needs next:
 
 ```sh
 uv run documentor status
@@ -206,7 +211,7 @@ When written pages name a HELIX artifact the repository lacks, the report ends w
 
 ## Releasing
 
-documentor is released with HELIX: a HELIX release tag carries it, and it has no tag of its own. The steps below come from HELIX's `release-tag` and `release-version-guard` workflows; no contributor file lists release steps.
+documentor ships in HELIX releases and has no tag of its own. The steps come from HELIX's `release-tag` and `release-version-guard` workflows, because no contributor file lists release steps.
 
 Release work requires a separately authorized release scope ([CONTRIBUTING.md](../../../../../CONTRIBUTING.md)). No file in the repository defines that scope or says how to get it. The HELIX release owner grants it, and you need it before step 3.
 
@@ -217,7 +222,7 @@ Release work requires a separately authorized release scope ([CONTRIBUTING.md](.
    uv run documentor check --root .
    ```
 
-2. Set the release version in all five places. Each one holds the current version, and no script updates them.
+2. Set the release version in all five places, because no script updates them.
 
    | File | Field |
    |---|---|
@@ -227,14 +232,14 @@ Release work requires a separately authorized release scope ([CONTRIBUTING.md](.
    | `pyproject.toml` | `version` |
    | `src/documentor/__init__.py` | `__version__` |
 
-   The three plugin manifests decide whether HELIX gets a tag. The two documentor files decide what `documentor --version` prints.
+   The three plugin manifests decide whether HELIX gets a tag. The two documentor files decide what `documentor --version` prints, and no release workflow reads them.
 
 3. Open a pull request to `main` whose title starts with `chore(release): vX.Y.Z`. On merge, HELIX's `release-tag` workflow reads the three plugin manifests. When all three equal `X.Y.Z`, it pushes the tag and starts the publish workflows.
 
    <details>
    <summary>When the manifests and the title disagree</summary>
 
-   The workflow prints one `::error::` line per mismatched manifest, under `manifest version(s) do not match the PR title, refusing to tag:`. It exits without a tag. It also stops when the tag already exists. To recover, merge a new `chore(release):` pull request whose manifests match its title.
+   The workflow prints one `::error::` line per mismatched manifest, under `manifest version(s) do not match the PR title, refusing to tag:`. It exits without a tag, as it does when the tag already exists. To recover, merge a new `chore(release):` pull request whose manifests match its title.
 
    </details>
 
@@ -244,6 +249,4 @@ Release work requires a separately authorized release scope ([CONTRIBUTING.md](.
    uvx --from git+https://github.com/DocumentDrivenDX/helix@vX.Y.Z#subdirectory=tools/documentor documentor --version
    ```
 
-Neither release workflow reads documentor's own version, so only the step 2 edits keep `documentor --version` matched to the tag. The `release-version-guard` workflow deletes a pushed tag and its release when the plugin manifests disagree with the tag.
-
-An installed wheel reports its catalog as `HELIX catalog packaged <version>`, the release it shipped in.
+The `release-version-guard` workflow deletes a pushed tag and its release when the plugin manifests disagree with the tag.

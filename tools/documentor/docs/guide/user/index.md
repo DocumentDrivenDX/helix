@@ -1,8 +1,8 @@
-<!-- helix:publish audience=user page=index kind=tutorial voice=public-site budget=700 written=agent-opus reviewed=2026-10-22/agent-sonnet/126059c1b62f0c67 -->
+<!-- helix:publish audience=user page=index kind=tutorial voice=public-site budget=700 written=agent-opus reviewed=2026-10-26/agent-sonnet/0c06e149fea52e43 -->
 <!-- helix:gap artifact:user-stories -->
 <!-- helix:source README.md#install sha256:11003d4123be1f55 -->
 <!-- helix:source README.md#use sha256:1668b6192a52a5d5 -->
-<!-- helix:source src/documentor/cli.py sha256:0707cd738e9b6418 -->
+<!-- helix:source src/documentor/cli.py sha256:4fe81cf37df6d5aa -->
 <!-- helix:source src/documentor/detect.py sha256:ff655eeda6b4701f -->
 <!-- helix:source src/documentor/lib.py sha256:7e594138b133286a -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
@@ -100,7 +100,7 @@ On a new guide, most rows read `MISSING`. The list ends with `For the agent`, an
 
 Once pages exist, a list headed `Artifacts that would improve the guide` can appear before `For the agent`. It names HELIX artifacts the written pages lacked.
 
-If the screen reads `No guide yet: run documentor init first.`, `.helix.yml` has no audiences yet. Go back to step 3.
+If the screen reads ``No guide yet: run `documentor init` first.``, `.helix.yml` has no audiences yet. Go back to step 3.
 
 **5. Generate what can be generated.**
 

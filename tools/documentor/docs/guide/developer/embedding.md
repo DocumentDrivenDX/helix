@@ -1,22 +1,23 @@
-<!-- helix:publish audience=developer page=embedding kind=how-to voice=onboarding budget=1100 written=agent-opus reviewed=2026-10-22/agent-sonnet/41399bb8da0d8456 -->
+<!-- helix:publish audience=developer page=embedding kind=how-to voice=onboarding budget=1100 written=agent-opus reviewed=2026-10-27/agent-sonnet/fccec76767f9dc30 -->
 <!-- helix:gap artifact:examples -->
 <!-- helix:source README.md#install sha256:11003d4123be1f55 -->
 <!-- helix:source README.md#what-it-reads-and-writes sha256:55f9002fc000e454 -->
 <!-- helix:source src/documentor/__init__.py sha256:e612d1e2f68f2667 -->
-<!-- helix:source src/documentor/cli.py sha256:0707cd738e9b6418 -->
+<!-- helix:source src/documentor/cli.py sha256:4fe81cf37df6d5aa -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/generate.py sha256:47b5e3e1d2d06cbd -->
 <!-- helix:source src/documentor/write.py sha256:2118376b2c167085 -->
 <!-- helix:source src/documentor/lib.py sha256:7e594138b133286a -->
+<!-- helix:source src/documentor/visuals.py sha256:daa439fb5d461d15 -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
 <!-- helix:source pyproject.toml sha256:74a08b4781a32616 -->
 # Embedding the library
 
-A host can embed documentor in three ways. It can run the `documentor` command, call `documentor.cli.main` from Python, or ship a generator that documentor loads. The package exports only `__version__`, so `main` and the generator entry point are the contract.
+A host can run the `documentor` command, call `documentor.cli.main` from Python, or ship a generator that documentor loads.
 
 ## Install
 
-Install documentor as a tool to run the command, or as a dependency to call `main` or register a generator. `<tag>` is a HELIX release that contains documentor. The host's CI runs documentor through `uvx` and does not vendor it (`src/documentor/catalog/ci/github-actions.yml`).
+Install documentor as a tool to run the command. Install it as a dependency to call `main` or register a generator. `<tag>` is a HELIX release that contains documentor.
 
 ```sh
 uv tool install "git+https://github.com/DocumentDrivenDX/helix@<tag>#subdirectory=tools/documentor"
@@ -30,9 +31,7 @@ Expected result, from an install:
 documentor <version> (HELIX catalog packaged <version>)
 ```
 
-`<version>` is the release: documentor and the catalog it carries ship together.
-
-The host's interpreter cannot import from a tool install. To call `main`, add the same URL to the host's environment:
+To call `main`, add the same URL to the host's environment, because the host's interpreter cannot import from a tool install:
 
 ```sh
 uv add "documentor @ git+https://github.com/DocumentDrivenDX/helix@<tag>#subdirectory=tools/documentor"
@@ -71,9 +70,9 @@ publish:
   skip: [developer/api, user/whats-new]
 ```
 
-The README lists every key under [What it reads and writes](../../../README.md#what-it-reads-and-writes).
+The README section [What it reads and writes](../../../README.md#what-it-reads-and-writes) lists every key.
 
-`write` calls an agent the host chooses. The command comes from `--agent`, `DOCUMENTOR_AGENT`, `publish.agent.command`, or the default, in that order. The models come from `--model` and `--reviewer-model`, then `publish.agent.writer` and `publish.agent.reviewer`.
+`write` calls the agent that the host chooses. documentor takes the command from `--agent`, `DOCUMENTOR_AGENT`, `publish.agent.command`, or the default, in that order. The models come from `--model` and `--reviewer-model`, then `publish.agent.writer` and `publish.agent.reviewer`.
 
 ```yaml
 publish:
@@ -83,9 +82,11 @@ publish:
     reviewer: sonnet  # the default
 ```
 
-The agent reads its prompt on standard input and answers on standard output. Any `{model}` in the command becomes the model name.
+The agent reads its prompt on standard input and answers on standard output. documentor replaces any `{model}` in the command with the model name.
 
-The HELIX catalog supplies the audiences and the voice. documentor takes it from `--catalog DIR`, `DOCUMENTOR_CATALOG`, a HELIX checkout that contains the tool, or the packaged copy, in that order. The directory is laid out like HELIX's `workflows` folder.
+A host may turn on drawn architecture views with `publish.visuals`. A string names the renderer, and a mapping carries the settings.
+
+The HELIX catalog supplies the audiences and the voice. documentor takes it from `--catalog DIR`, `DOCUMENTOR_CATALOG`, a HELIX checkout that contains the tool, or the packaged copy, in that order.
 
 ```sh
 documentor --catalog /path/to/helix/workflows check --root /path/to/host
@@ -93,15 +94,15 @@ documentor --catalog /path/to/helix/workflows check --root /path/to/host
 
 ## First call
 
-The first call is `check`, because it changes no files and reports every page's state. After `init`, no written pages exist, so `check` returns 1.
+The first call is `check`, because it changes no files and reports every page's state. After `init`, the host has no written pages, so `check` returns 1.
 
 ```sh
 documentor check --root /path/to/host; echo "exit $?"
 ```
 
-The report lists each page under its audience with its state: `ok`, `MISSING`, `STALE`, `REVIEW`, `ADOPT`, `->`, or `EMPTY`. The views' state follows. When a page records a gap, the HELIX artifacts that would improve the guide come next, with the pages each would rewrite.
+The report lists each page under its audience with its state: `ok`, `MISSING`, `STALE`, `REVIEW`, `ADOPT`, `->`, or `EMPTY`. Next come the views' state, then the recorded gaps, which name HELIX artifacts that would improve the guide.
 
-Then come the written pages in `documentor write` order and a count line, such as `checks: 0 blocking, 0 warnings`. Up to ten `BLOCKING` lines follow, then up to ten `MISSING`, `STALE`, `UNREVIEWED`, or `UNADOPTED` lines.
+The written pages follow in `documentor write` order, then a count line such as `checks: 0 blocking, 0 warnings`. Up to ten `BLOCKING` lines come next, then up to ten `MISSING`, `STALE`, `UNREVIEWED`, or `UNADOPTED` lines.
 
 To bring a new host to exit 0, write the pages, then build:
 
@@ -119,7 +120,7 @@ documentor prompt developer/embedding --root /path/to/host
 documentor prompt developer/embedding --reviewer --root /path/to/host
 ```
 
-From Python, `main` takes the same arguments as a list and returns the exit code. It prints its report to standard output and its errors to standard error.
+From Python, `main` takes the same arguments as a list and returns the exit code. The report goes to standard output, and errors go to standard error.
 
 ```python
 from documentor.cli import main
@@ -148,17 +149,19 @@ def tables(root: Path, page: dict) -> tuple[str, list[str]]:
     return "| Table | Columns |\n|---|---|\n", ["specs/*.yml"]
 ```
 
-A page names it with `generated: my-tables`. An empty body marks the page empty. A packaged generator of the same name wins, so the host should pick a name that `documentor generate --list` does not show. A host without Python can name a command instead: `generated: {command: ..., sources: [...]}`.
+A page names it with `generated: my-tables`. An empty body marks the page empty. A packaged generator of the same name wins, so the host should pick a name absent from `documentor generate --list`. A host without Python can name a command instead: `generated: {command: ..., sources: [...]}`.
 
 ## Errors and their meaning
 
-The guide commands (`init`, `status`, `build`, `write`, `check`, `review`, `adopt`, `prompt`) return 0, 1, or 2. The tools (`generate`, `site`, `tour`, `estate`, `deck`, `doc`, `doctor`, `record`, and the rest) return their own codes. `views` always returns 0.
+The guide commands (`init`, `status`, `build`, `write`, `check`, `review`, `adopt`, `prompt`) return 0, 1, or 2. The tools (`generate`, `site`, `tour`, `estate`, `deck`, `doc`, `doctor`, `record`, `model`, `visuals`, and the rest) return their own codes. `views` always returns 0.
 
 | Code | Meaning | Host's response |
 |---|---|---|
 | 0 | Done; for `check`, nothing blocks and every page is current. | Continue. |
 | 1 | Work remains: a blocking finding, stale views, or a missing, stale, unreviewed, or unadopted page. | Fail the pull request; `status` lists the work. |
 | 2 | Usage or configuration error. | Fix the call or `.helix.yml`; retrying will not help. |
+
+A drawn visual that no longer matches its source makes the views stale, and `build` redraws it. `documentor visuals --check` returns 1 for such a visual. `documentor visuals` returns 3 when the renderer is missing or fails, and prints the cause on standard error.
 
 These messages go to standard error with exit code 2:
 
@@ -171,8 +174,9 @@ These messages go to standard error with exit code 2:
 | `documentor write: … is not a written page of the guide` | `write PAGE` named a generated, delegated, or unknown page. |
 | `documentor prompt: name one written page, as audience/id or its path (…)` | `prompt` named no page, or no written page. |
 | `documentor: --catalog needs a directory laid out like HELIX's workflows/` | `--catalog` is the last argument. |
+| `documentor model: one subcommand, \`draft\` (…)` | `model` was called without `draft`. |
 
-`write` returns a page to the writer when its checks would block the stamp. It reports each unfinished page on standard error as a `LEFT <page>:` line with up to eight indented problems, then returns 1:
+`write` reports each unfinished page on standard error as a `LEFT <page>:` line with up to eight indented problems, then returns 1:
 
 ```text
 LEFT docs/guide/developer/embedding.md:
@@ -195,15 +199,16 @@ These exceptions escape `main`, and a Python host must catch them:
 - A YAML error from a malformed `.helix.yml`.
 - Any exception from importing or running a plug-in generator.
 
-A project command that exits non-zero or prints nothing is not an error. documentor marks its page empty, and `status` says to add the source or skip the page.
+A project command that exits non-zero or prints nothing is not an error. Its page is marked empty, and `status` says to add the source or skip the page.
 
 <details>
 <summary>Where each code and message comes from</summary>
 
-- `src/documentor/cli.py` holds the exit codes, the report order, `init`, the schema check, `prompt`, `--catalog`, `--version`, and the tools' codes, in its docstring, `report`, `guide_main`, `init`, and `main`.
-- In `src/documentor/lib.py`, `SCHEMA`, `helix_catalog`, and `helix_version` set the schema, the catalog order, the `packaged` and `live` forms, and the not-a-catalog exit. `config_of` and `load_yaml` read `.helix.yml` without a guard.
-- `call`, `findings_for`, and `run` in `src/documentor/write.py` hold the agent errors, the 900-second limit, and the `LEFT` problems.
-- In `src/documentor/generate.py`, `load_plugins` adds a plug-in only under a name no packaged generator holds. Neither it nor the generator call has a guard, and `render_command` runs command generators.
+- `src/documentor/cli.py`: the exit codes, the report order, `init`, the schema check, `prompt`, `--catalog`, `--version`, the `model` message, and the tools' dispatch (`report`, `views`, `guide_main`, `main`).
+- `src/documentor/lib.py`: `SCHEMA`, the catalog order and not-a-catalog exit in `helix_catalog`, and `helix_version`. `config_of` and `load_yaml` read `.helix.yml` without a guard.
+- `src/documentor/write.py`: `call`, `findings_for`, and `run` hold the agent errors, the 900-second limit, and the `LEFT` problems.
+- `src/documentor/generate.py`: `load_plugins` adds a plug-in only under an unused name, with no guard, and `render_command` runs command generators.
+- `src/documentor/visuals.py`: `settings` and `enabled` read `publish.visuals`, `write` returns 3, and `main` returns 1 from `--check`.
 
 </details>
 

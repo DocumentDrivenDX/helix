@@ -1,4 +1,4 @@
-<!-- helix:publish audience=user page=about kind=explanation voice=public-site budget=600 written=agent-opus reviewed=2026-10-21/agent-sonnet/2a6ab5482c0cb69a -->
+<!-- helix:publish audience=user page=about kind=explanation voice=public-site budget=600 written=agent-opus reviewed=2026-10-26/agent-sonnet/40f8985e16cdb85f -->
 <!-- helix:gap artifact:feature-specification -->
 <!-- helix:source docs/helix/00-discover/product-vision.md#vision sha256:af72d95c19717f8b -->
 <!-- helix:source docs/helix/00-discover/product-vision.md#positioning sha256:925b7219f516bebb -->
@@ -10,26 +10,27 @@
 <!-- helix:source src/documentor/check.py sha256:784c2473233c0346 -->
 <!-- helix:source src/documentor/write.py sha256:2118376b2c167085 -->
 <!-- helix:source src/documentor/generate.py sha256:47b5e3e1d2d06cbd -->
-<!-- helix:source src/documentor/cli.py sha256:0707cd738e9b6418 -->
+<!-- helix:source src/documentor/cli.py sha256:4fe81cf37df6d5aa -->
+<!-- helix:source src/documentor/visuals.py sha256:daa439fb5d461d15 -->
 # What it is and is not
 
 documentor is a command-line tool that builds a repository's documentation, its *guide*, and keeps it current. Here is what it does, how it keeps to your organisation's data rules, and where it stops.
 
 ## What it does for you
 
-documentor plans, makes, and checks a guide with pages for up to four audiences the repository picks: developers, operators, users, and data consumers. Some kinds of repository add extra pages to the standard set.
+documentor plans, makes, and checks a guide with pages for up to four audiences the repository picks: developers, operators, users, and data consumers.
 
 documentor makes each page in one of five ways:
 
 - **Generated.** Pages about settings, commands, task-runner recipes, API operations, CI pipelines, compose services, database tables, or infrastructure come from their structured source. They cannot drift from it.
 - **Written.** An *agent* writes the pages that need explanation. The agent is an AI model that documentor runs as a command. A different model evaluates each page before it counts as finished.
-- **Views.** documentor draws the architecture diagrams from your architecture model.
+- **Views.** documentor draws the architecture diagrams from your architecture model. With `publish.visuals` in `.helix.yml`, `documentor visuals` also draws each view in your site's theme.
 - **Existing.** A hand-written page you already have joins the guide with a short header, unchanged.
 - **Delegated.** documentor links to a reference another tool publishes.
 
-Each page records its source files. When one changes, the page is stale, and `documentor check` fails the pull request until someone updates it. The check also catches missing or unevaluated pages, outdated diagrams, broken links, and cited tests that do not exist.
+Each page records its source files. When one changes, the page is stale, and `documentor check` fails the pull request until someone updates it. The check also catches missing or unevaluated pages, outdated diagrams and visuals, broken links, and cited tests that do not exist.
 
-documentor writes the pages into your existing mkdocs or Hugo site, or creates one if you have none. The repository's Markdown stays the record.
+documentor writes the pages into your existing mkdocs or Hugo site, or creates one. The repository's Markdown stays the record.
 
 ## How it keeps to the organisation's rules
 
@@ -42,7 +43,7 @@ documentor applies those rules at four points:
 - **The check enforces them.** `documentor check` blocks the pull request when any page or generated diagram matches a handling pattern. For generated pages, the check is the only guard.
 - **The guide and the check stay local.** The guide is plain Markdown in your repository, and `documentor check` needs no agent and no network.
 
-Copied text can still contain forbidden content, so write patterns for everything your organisation forbids, not only what agents might write.
+Copied text can still contain forbidden content, so write patterns for everything your organisation forbids, not only agent output.
 
 `documentor write` is the one step that sends page requests to an outside model service, through the agent command. By default that command is Claude Code (`claude -p`), and any repository files the agent reads also go to the model provider.
 

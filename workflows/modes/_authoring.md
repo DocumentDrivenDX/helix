@@ -47,8 +47,8 @@ Artifacts are written in their type's voice profile and keep it: they are the sy
 
 A type's `meta.yml` `visuals:` lists the pictures it usually needs. Draw each only when it earns its
 place by `workflows/references/visuals.md`: structure prose cannot carry, one question the reader
-has, and a governed source to draw it from. Write it as a fenced block with a stable id (a Mermaid
-block whose first line is `%% id: <id>` until documentor draws `visual` blocks); never draw by hand
+has, and a governed source to draw it from. Write it as a fenced block with a stable id (a `visual` block when the project sets `publish.visuals`,
+else a Mermaid block whose first line is `%% id: <id>`); never draw by hand
 what a model or an artifact already holds.
 
 ## External standards
