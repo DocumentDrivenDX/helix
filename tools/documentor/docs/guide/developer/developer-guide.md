@@ -13,7 +13,7 @@
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
 <!-- helix:source src/documentor/catalog/ux-builder/README.md sha256:6b885638317975c7 -->
 <!-- helix:source tests/validate-package.sh sha256:ddc499febfa0dd79 -->
-<!-- helix:source tests/validate-publish.sh sha256:fbe3dede8c6f4a24 -->
+<!-- helix:source tests/validate-publish.sh sha256:7db3a03534402d2f -->
 <!-- helix:source ../../scripts/sync_references.py sha256:408f8110f448a604 -->
 # Developer guide
 

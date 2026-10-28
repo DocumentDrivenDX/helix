@@ -8,7 +8,7 @@
 <!-- helix:source src/documentor/write.py sha256:2118376b2c167085 -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
 <!-- helix:source tests/validate-guide.sh sha256:5c416438f8ca7e20 -->
-<!-- helix:source tests/validate-publish.sh sha256:fbe3dede8c6f4a24 -->
+<!-- helix:source tests/validate-publish.sh sha256:7db3a03534402d2f -->
 <!-- helix:source tests/validate-publish-traits.sh sha256:6f8a932174fe2332 -->
 <!-- helix:source tests/validate-write.sh sha256:e7fa04c7257f761e -->
 <!-- helix:source tests/python/test_report.py sha256:8952e75926f6350b -->
