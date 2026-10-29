@@ -3,17 +3,17 @@
 <!-- helix:source docs/helix/00-discover/product-vision.md sha256:53b51880ca06cad7 -->
 <!-- helix:source docs/helix/02-design/adr/ADR-001-a-repository-guide-is-detected-generated-written-evaluated-and-checked.md#decision sha256:d3fd98aa3f21622b -->
 <!-- helix:source src/documentor/cli.py sha256:861322ae490496ea -->
-<!-- helix:source src/documentor/lib.py sha256:39cbb973aab6ab4d -->
+<!-- helix:source src/documentor/lib.py sha256:c5e1e41d3141003c -->
 <!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
-<!-- helix:source src/documentor/record.py sha256:4cdff66b481fa677 -->
+<!-- helix:source src/documentor/record.py sha256:ab468e2c1eef452a -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/theme.py sha256:7e38d9589c728f0b -->
 <!-- helix:source src/documentor/deliverable/__init__.py sha256:ad9354803e0dd670 -->
 <!-- helix:source src/documentor/catalog/ux-builder/README.md sha256:6b885638317975c7 -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
-<!-- helix:source src/documentor/schemas.py sha256:85cb75a98dd24995 -->
-<!-- helix:source src/documentor/umf_tables.py sha256:70107d8f275581c9 -->
-<!-- helix:source src/documentor/detect.py sha256:62c0aced6709e784 -->
+<!-- helix:source src/documentor/schemas.py sha256:9a9548369cb394fa -->
+<!-- helix:source src/documentor/umf_tables.py sha256:56c75007b5b2d2de -->
+<!-- helix:source src/documentor/detect.py sha256:376f1dd87ec38e48 -->
 # Overview
 
 ## What it is

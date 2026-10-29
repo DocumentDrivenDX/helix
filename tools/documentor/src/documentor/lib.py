@@ -272,7 +272,7 @@ def plan(config: dict, root: Path) -> list[PagePlan]:
     out = publish_out(config)
     traits = load_traits(config, root, publish.get("traits") or [])
     delegated = {d["page"]: d for t in traits for d in t.get("delegates") or []}
-    if {"umf-tablespec", "tablespec-pipeline"} <= set(publish.get("traits") or []):
+    if {"umf-tablespec", "tablespec-pipeline"} <= set(publish.get("traits") or []) and "data/tables" in delegated:
         delegated["data/pipeline-tables"] = delegated.pop("data/tables")
     delegated.update(publish.get("delegate") or {})
     existing = publish.get("existing") or {}

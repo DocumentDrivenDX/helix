@@ -46,9 +46,8 @@ def test_umf_init_proposes_design_and_operational_profiles(tmp_path):
     pub = block["publish"]
     assert pub["traits"] == ["umf-tablespec"]
     assert pub["data_mode"] == "operational"
-    assert pub["profile"] == "design-stage"
-    assert set(pub["skip"]) == {"developer/walkthrough", "developer/developer-guide",
-                                "data/lineage", "data/using", "data/metrics"}
+    assert "profile" not in pub
+    assert "skip" not in pub  # Only the data audience is selected.
     pages = {p.key: p for p in plan(block, tmp_path)}
     assert "data/lineage" not in pages
     assert "data-architecture" not in str(pages["data/index"].entry)
@@ -133,3 +132,63 @@ def test_pages_template_has_scoped_deploy_and_valid_build_command():
     build = next(s for s in steps if "documentor build" in s.get("run", ""))
     assert build["run"] == 'uvx --from "$DOCUMENTOR" documentor build --root .'
     assert "HUGO_BASEURL" in build["env"]
+    assert "REPLACE_WITH_UMF_RELEASE" in workflow["env"]["DOCUMENTOR"]
+    preflight = next(s for s in steps if s.get("name") == "Verify selected documentor release")
+    assert "documentor schemas --help" in preflight["run"]
+
+
+def test_design_only_developer_proposal_has_effective_skips_without_unused_profile(tmp_path):
+    path = tmp_path / "docs/helix/01-frame/vision.md"
+    path.parent.mkdir(parents=True)
+    path.write_text("# Planned software\n")
+    _, block = cli.proposal_text(tmp_path)
+    assert "profile" not in block["publish"]
+    assert block["publish"]["audiences"] == ["developer"]
+    assert set(block["publish"]["skip"]) == {"developer/walkthrough", "developer/developer-guide"}
+    assert not {"developer/walkthrough", "developer/developer-guide"} & {p.key for p in plan(block, tmp_path)}
+
+
+def test_local_pipeline_override_without_delegate_does_not_crash_planning(tmp_path):
+    traits = tmp_path / ".helix/traits"
+    traits.mkdir(parents=True)
+    (traits / "tablespec-pipeline.yml").write_text("id: tablespec-pipeline\ntitle: Custom pipeline\n")
+    config = {"publish": {"traits_dir": ".helix/traits",
+                         "traits": ["umf-tablespec", "tablespec-pipeline"], "audiences": ["data"]}}
+    pages = {p.key: p for p in plan(config, tmp_path)}
+    assert pages["data/tables"].generator == "umf-tables"
+    assert "data/pipeline-tables" not in pages
+
+
+def test_discovery_ignores_large_non_table_yaml_and_external_symlinks(tmp_path):
+    from documentor.umf_tables import tables
+
+    source = table(tmp_path)
+    (tmp_path / "pnpm-lock.yaml").write_text("lockfileVersion: 9\n#" + "x" * 4_100_000)
+    (tmp_path / "outside.yaml").symlink_to("/etc/passwd")
+    assert [path for path, _ in tables(tmp_path)] == [source.relative_to(tmp_path).as_posix()]
+    source.write_text(source.read_text() + "\n#" + "x" * 4_100_000)
+    with pytest.raises(ValueError, match="UMF table exceeds browser"):
+        tables(tmp_path)
+
+
+@pytest.mark.parametrize("release,tool_status,expected", [
+    ("REPLACE_WITH_UMF_RELEASE", 0, 1),
+    ("v0.19.1", 2, 2),
+    ("qualified-release", 0, 0),
+])
+def test_pages_preflight_rejects_placeholder_and_tools_without_schema_support(tmp_path, release, tool_status, expected):
+    import os
+    import subprocess
+    from documentor.lib import catalog
+
+    workflow = yaml.load((catalog() / "ci/github-pages.yml").read_text(), Loader=yaml.BaseLoader)
+    step = next(s for s in workflow["jobs"]["build"]["steps"]
+                if s.get("name") == "Verify selected documentor release")
+    tool = tmp_path / "uvx"
+    tool.write_text(f"#!/bin/sh\nexit {tool_status}\n")
+    tool.chmod(0o755)
+    result = subprocess.run(["/bin/sh", "-c", step["run"]], env=dict(os.environ,
+        PATH=str(tmp_path) + os.pathsep + os.environ["PATH"], DOCUMENTOR=release), capture_output=True, text=True)
+    assert result.returncode == expected
+    if release == "REPLACE_WITH_UMF_RELEASE":
+        assert "Set DOCUMENTOR to a released tag" in result.stderr

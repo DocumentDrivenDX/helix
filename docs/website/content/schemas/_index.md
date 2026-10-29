@@ -4,6 +4,8 @@ weight: 8
 generated: true
 ---
 
+<!-- documentor:schemas -->
+
 Explore the schemas referenced by the governed designs. The browser inspects sources; it does not establish instance validity or semantic compatibility.
 
 <p><a href="explorer.html">Open the schema browser in a full window</a></p>

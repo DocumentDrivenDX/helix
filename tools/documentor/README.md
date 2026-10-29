@@ -114,8 +114,8 @@ validation and semantic compatibility remain separate checks.
 
 ### Design-stage databases and deployment
 
-`documentor init` proposes `publish.profile: design-stage` and explicit `skip`
-entries when HELIX design documents exist without application source. Review
+`documentor init` proposes explicit developer-page `skip` entries when HELIX
+design documents exist without application source and developers are an audience. Review
 these suggestions; remove the skips when implementation makes the pages useful.
 `publish.data_mode: operational` selects an overview based on entity design and
 transactions, with tables rather than analytics lineage/refresh/metric pages.
@@ -140,5 +140,6 @@ Copy `src/documentor/catalog/ci/github-pages.yml` for Pages deployment, or
 Actions, match the upload directory to the site target, and add project-specific
 locked generator/browser dependency installs before building. The template is
 based on Tempo's successful [build and deploy run](https://github.com/DocumentDrivenDX/tempo/actions/runs/40952714352).
-The v0.19.1 pin names the current published tool; these new capabilities require
-a release containing them before a pinned consumer can use them.
+The Pages template requires replacing `REPLACE_WITH_UMF_RELEASE` with a released
+tag containing these capabilities. Its preflight refuses an unconfigured or
+older tool without `documentor schemas`; v0.19.1 predates schema publication.

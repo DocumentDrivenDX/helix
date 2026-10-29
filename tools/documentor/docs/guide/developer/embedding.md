@@ -1,4 +1,4 @@
-<!-- helix:publish audience=developer page=embedding kind=how-to voice=onboarding budget=1100 written=codex reviewed=2026-10-29/codex-independent-reader/2013afe34c17d363 -->
+<!-- helix:publish audience=developer page=embedding kind=how-to voice=onboarding budget=1100 written=codex reviewed=2026-10-29/codex-independent-reader/bb6276d19ee44b28 -->
 <!-- helix:gap artifact:examples -->
 <!-- helix:source README.md#install sha256:11003d4123be1f55 -->
 <!-- helix:source README.md#what-it-reads-and-writes sha256:55f9002fc000e454 -->
@@ -7,13 +7,13 @@
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/generate.py sha256:9ed3906b7fe2bc36 -->
 <!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
-<!-- helix:source src/documentor/lib.py sha256:39cbb973aab6ab4d -->
+<!-- helix:source src/documentor/lib.py sha256:c5e1e41d3141003c -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:9f8ec1f2b471f001 -->
 <!-- helix:source pyproject.toml sha256:74a08b4781a32616 -->
-<!-- helix:source src/documentor/schemas.py sha256:85cb75a98dd24995 -->
-<!-- helix:source src/documentor/detect.py sha256:62c0aced6709e784 -->
-<!-- helix:source src/documentor/umf_tables.py sha256:70107d8f275581c9 -->
-<!-- helix:source src/documentor/site.py sha256:3016a940e892ea14 -->
+<!-- helix:source src/documentor/schemas.py sha256:9a9548369cb394fa -->
+<!-- helix:source src/documentor/detect.py sha256:376f1dd87ec38e48 -->
+<!-- helix:source src/documentor/umf_tables.py sha256:56c75007b5b2d2de -->
+<!-- helix:source src/documentor/site.py sha256:280dd4bd10802e31 -->
 # Embedding the library
 
 A host can embed documentor in three ways. It can run the `documentor` command, call `documentor.cli.main` from Python, or ship a generator that documentor loads. The package exports only `__version__`, so `main` and the generator entry point are the contract.
@@ -173,7 +173,7 @@ code = main(["schemas", "--root", "/path/to/host"])
 code = main(["schemas", "--root", "/path/to/host", "--check"])
 ```
 
-Hugo, static, and Hextra assembly publishes automatically; plain Hugo needs the first call above. Browsing establishes no semantic conformance.
+Site assembly publishes schemas; Hugo needs generation first. Unowned collisions fail; unrelated files survive. Browsing proves no semantic conformance.
 
 ## Errors and their meaning
 

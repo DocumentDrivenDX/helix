@@ -3,8 +3,8 @@
 <!-- helix:source README.md#install sha256:11003d4123be1f55 -->
 <!-- helix:source README.md#use sha256:1668b6192a52a5d5 -->
 <!-- helix:source src/documentor/cli.py sha256:861322ae490496ea -->
-<!-- helix:source src/documentor/detect.py sha256:62c0aced6709e784 -->
-<!-- helix:source src/documentor/lib.py sha256:39cbb973aab6ab4d -->
+<!-- helix:source src/documentor/detect.py sha256:376f1dd87ec38e48 -->
+<!-- helix:source src/documentor/lib.py sha256:c5e1e41d3141003c -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 # Getting started
 

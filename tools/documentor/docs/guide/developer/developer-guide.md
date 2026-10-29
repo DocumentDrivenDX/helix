@@ -1,4 +1,4 @@
-<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=codex reviewed=2026-10-29/codex-independent-reader/c6071e6162fb93f1 -->
+<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=codex reviewed=2026-10-29/codex-independent-reader/4d5cfd5f91ba7233 -->
 <!-- helix:source pyproject.toml sha256:74a08b4781a32616 -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
 <!-- helix:source ../../.github/workflows/documentor.yml sha256:ab2fb8338de1a028 -->
@@ -9,17 +9,17 @@
 <!-- helix:source src/documentor/__init__.py sha256:e612d1e2f68f2667 -->
 <!-- helix:source src/documentor/cli.py sha256:861322ae490496ea -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
-<!-- helix:source src/documentor/lib.py sha256:39cbb973aab6ab4d -->
+<!-- helix:source src/documentor/lib.py sha256:c5e1e41d3141003c -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:9f8ec1f2b471f001 -->
 <!-- helix:source src/documentor/catalog/ux-builder/README.md sha256:6b885638317975c7 -->
 <!-- helix:source tests/validate-package.sh sha256:ddc499febfa0dd79 -->
 <!-- helix:source tests/validate-publish.sh sha256:fbe3dede8c6f4a24 -->
 <!-- helix:source ../../scripts/sync_references.py sha256:97cfc74fe156811e -->
-<!-- helix:source src/documentor/schemas.py sha256:85cb75a98dd24995 -->
-<!-- helix:source src/documentor/umf_tables.py sha256:70107d8f275581c9 -->
-<!-- helix:source tests/python/test_schemas.py sha256:e89f9e78be93c2c0 -->
-<!-- helix:source tests/python/test_tempo_gaps.py sha256:5d591ed69caf843a -->
-<!-- helix:source src/documentor/catalog/ci/github-pages.yml sha256:010c78c212500279 -->
+<!-- helix:source src/documentor/schemas.py sha256:9a9548369cb394fa -->
+<!-- helix:source src/documentor/umf_tables.py sha256:56c75007b5b2d2de -->
+<!-- helix:source tests/python/test_schemas.py sha256:b37e22e7a5a141d1 -->
+<!-- helix:source tests/python/test_tempo_gaps.py sha256:782978b63c346ef8 -->
+<!-- helix:source src/documentor/catalog/ci/github-pages.yml sha256:5656014516fa3a2d -->
 # Developer guide
 
 ## Quick start
@@ -220,7 +220,7 @@ uv run python -m pytest -q tests/python/test_schemas.py tests/python/test_tempo_
 uv run just test
 ```
 
-These cover schema and adoption behavior. Adapt `src/documentor/catalog/ci/github-pages.yml` for deployment.
+These cover schema and adoption behavior. Configure the release placeholder in `src/documentor/catalog/ci/github-pages.yml` before deployment.
 
 ## Releasing
 

@@ -11,8 +11,8 @@
 <!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
 <!-- helix:source src/documentor/generate.py sha256:9ed3906b7fe2bc36 -->
 <!-- helix:source src/documentor/cli.py sha256:861322ae490496ea -->
-<!-- helix:source src/documentor/schemas.py sha256:85cb75a98dd24995 -->
-<!-- helix:source src/documentor/umf_tables.py sha256:70107d8f275581c9 -->
+<!-- helix:source src/documentor/schemas.py sha256:9a9548369cb394fa -->
+<!-- helix:source src/documentor/umf_tables.py sha256:56c75007b5b2d2de -->
 # What it is and is not
 
 documentor is a command-line tool that builds a repository's documentation, its *guide*, and keeps it current. It follows your organisation's data rules.

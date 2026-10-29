@@ -1,14 +1,14 @@
-<!-- helix:publish audience=user page=using kind=how-to voice=public-site budget=1500 written=codex reviewed=2026-10-29/codex-independent-reader/cf297cc06fff6db1 -->
+<!-- helix:publish audience=user page=using kind=how-to voice=public-site budget=1500 written=codex reviewed=2026-10-29/codex-independent-reader/b83dc2194e378596 -->
 <!-- helix:gap artifact:feature-specification -->
 <!-- helix:gap artifact:user-stories -->
 <!-- helix:source README.md#use sha256:1668b6192a52a5d5 -->
 <!-- helix:source src/documentor/cli.py sha256:861322ae490496ea -->
 <!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
-<!-- helix:source src/documentor/site.py sha256:3016a940e892ea14 -->
+<!-- helix:source src/documentor/site.py sha256:280dd4bd10802e31 -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:9f8ec1f2b471f001 -->
-<!-- helix:source src/documentor/schemas.py sha256:85cb75a98dd24995 -->
-<!-- helix:source src/documentor/catalog/ci/github-pages.yml sha256:010c78c212500279 -->
+<!-- helix:source src/documentor/schemas.py sha256:9a9548369cb394fa -->
+<!-- helix:source src/documentor/catalog/ci/github-pages.yml sha256:5656014516fa3a2d -->
 # Using the product
 
 documentor builds and maintains the repository's *guide*. Follow these tasks in order.
@@ -192,7 +192,7 @@ documentor schemas --root .
 documentor schemas --root . --check
 ```
 
-Publication rejects missing or conflicting references and stale output; browsing does not validate application data. Adapt `src/documentor/catalog/ci/github-pages.yml` for deployment.
+Publication rejects invalid references, unowned output collisions, and stale output; browsing does not validate application data. Before using `src/documentor/catalog/ci/github-pages.yml`, replace its placeholder with a release containing UMF support.
 
 ## Keep the guide current
 

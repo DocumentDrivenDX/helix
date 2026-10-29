@@ -114,6 +114,22 @@ def detect_target(root: Path) -> str:
     return "static"
 
 
+def schema_output_dirs(root: Path, config: dict, target: str | None = None,
+                       site: Path | None = None) -> tuple[Path, Path]:
+    """Resolve schema content and assets with the same target as site assembly."""
+    settings = (config.get("publish") or {}).get("site") or {}
+    target = target or settings.get("target") or detect_target(root)
+    if target == "hugo":
+        output = hugo_site_dir(root, config)
+        if output is None:
+            raise ValueError("no Hugo site found; set publish.site.site_dir")
+        return content_root_for(root, config, target), output / "static"
+    if target in ("static", "hextra"):
+        output = site or root / ".helix/site"
+        return output / "content", output / "static"
+    raise ValueError(f"schema publishing does not support target: {target}")
+
+
 # --- the pages -----------------------------------------------------------------------------------------
 
 def ordered_pages(out: Path, audience_id: str, audience: dict, extra: list) -> list[tuple[str, Path, dict]]:
@@ -607,6 +623,14 @@ def into_mkdocs(root: Path, config: dict, run_build: bool) -> int:
 # --- entry -----------------------------------------------------------------------------------------------
 
 def build(root: Path, site: Path, run_build: bool, base_url: str | None, target: str | None = None) -> int:
+    try:
+        return _build(root, site, run_build, base_url, target)
+    except (ValueError, OSError, yaml.YAMLError) as error:
+        print(f"documentor site: {error}", file=sys.stderr)
+        return 1
+
+
+def _build(root: Path, site: Path, run_build: bool, base_url: str | None, target: str | None = None) -> int:
     config = config_of(root)
     publish = config.get("publish") or {}
     if not publish:
@@ -629,8 +653,7 @@ def build(root: Path, site: Path, run_build: bool, base_url: str | None, target:
         if site_dir is None:
             return into_hugo(root, config, run_build)
         try:
-            schemas.publish(root, config, content_root_for(root, config, target),
-                            site_dir / "static")
+            schemas.publish(root, config, *schema_output_dirs(root, config, target, site))
         except (ValueError, OSError, yaml.YAMLError) as error:
             print(f"documentor schemas: {error}", file=sys.stderr)
             return 1
@@ -644,7 +667,7 @@ def build(root: Path, site: Path, run_build: bool, base_url: str | None, target:
     from documentor import schemas
 
     try:
-        schemas.publish(root, config, site / "content", site / "static")
+        schemas.publish(root, config, *schema_output_dirs(root, config, target, site))
     except (ValueError, OSError, yaml.YAMLError) as error:
         print(f"documentor schemas: {error}", file=sys.stderr)
         return 1

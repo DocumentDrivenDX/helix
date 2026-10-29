@@ -2,7 +2,7 @@
 <!-- helix:gap artifact:architecture -->
 <!-- helix:source src/documentor/cli.py sha256:861322ae490496ea -->
 <!-- helix:source src/documentor/check.py sha256:784c2473233c0346 -->
-<!-- helix:source src/documentor/lib.py sha256:39cbb973aab6ab4d -->
+<!-- helix:source src/documentor/lib.py sha256:c5e1e41d3141003c -->
 <!-- helix:source src/documentor/generate.py sha256:9ed3906b7fe2bc36 -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
@@ -14,9 +14,9 @@
 <!-- helix:source tests/python/test_report.py sha256:8952e75926f6350b -->
 <!-- helix:source tests/python/test_generators_ops.py sha256:7b51edcbc2916d4e -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
-<!-- helix:source src/documentor/schemas.py sha256:85cb75a98dd24995 -->
-<!-- helix:source src/documentor/site.py sha256:3016a940e892ea14 -->
-<!-- helix:source tests/python/test_schemas.py sha256:e89f9e78be93c2c0 -->
+<!-- helix:source src/documentor/schemas.py sha256:9a9548369cb394fa -->
+<!-- helix:source src/documentor/site.py sha256:280dd4bd10802e31 -->
+<!-- helix:source tests/python/test_schemas.py sha256:b37e22e7a5a141d1 -->
 # Request walkthrough
 
 ## Scenario

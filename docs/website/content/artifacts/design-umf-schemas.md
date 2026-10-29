@@ -51,6 +51,13 @@ the shared reference contract remains normative for publication behavior.
 
 ## Implementation Plan
 
+Publication owns only its marked index and inventoried generated files. It
+refuses unowned output collisions, preserves unrelated site files, and retires
+only unchanged generated files. Discovery includes rendered guide references;
+standalone and integrated commands share target-aware output resolution. Invalid
+schema metadata must produce an actionable command error rather than a traceback.
+Automatic table discovery applies browser limits only to identified TableSpecs.
+
 1. Add the core reuse procedure, reference contract, artifact prompts/templates,
    and conditional blocking review criteria. Preserve historical prose and omit
    irrelevant modeling sections.
