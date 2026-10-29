@@ -74,7 +74,7 @@ from documentor.lib import (
     repository_files,
 )
 
-TOOLS = ("check-pages", "stamp", "detect", "generate", "site", "views", "tour", "estate", "deck", "doc", "doctor", "record", "model")
+TOOLS = ("check-pages", "stamp", "detect", "generate", "site", "views", "tour", "estate", "deck", "doc", "doctor", "record", "model", "schemas")
 PHASES = ("00-discover", "01-frame", "02-design", "03-test", "04-build", "05-deploy", "06-iterate")
 
 
@@ -212,6 +212,7 @@ def proposal_text(root: Path) -> tuple[str, dict]:
     proposed = [s for s in scores if s.confidence >= 0.5]
     text = detect.report(root, scores, 0.5, detect.unmapped(root, files, proposed))
     block = detect.proposal(proposed)
+    detect.project_profile(root, files, block)
     block.pop("_views", None)
     block["publish"] = {"schema": SCHEMA} | {k: v for k, v in block["publish"].items() if k != "delegated"}
     return text, block
@@ -410,16 +411,17 @@ def guide_main(argv: list[str]) -> int:
         print(f"\nchecks: {len(blocking)} blocking, {len(findings.items) - len(blocking)} warnings")
         for f in blocking[:10]:
             print(f"  BLOCKING {f['check']} {Path(f['page']).name}: {f['message']}")
+    site_status = 0
     if args.command == "build" and not args.no_site:
         from documentor import site
 
-        site.build(root, args.site or root / ".helix" / "site", True, None)
+        site_status = site.build(root, args.site or root / ".helix" / "site", True, None)
     if args.command == "check":
         unfinished = [p for p in pages if p.entry["state"] in ("missing", "stale", "unreviewed", "unadopted")]
         for p in unfinished[:10]:
             print(f"  {p.entry['state'].upper()} {p.path}: {p.entry['detail']}")
         return 1 if blocking or unfinished or view_state[0] == "stale" else 0
-    return 1 if written else 0
+    return 1 if written or site_status else 0
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -448,6 +450,10 @@ def main(argv: list[str] | None = None) -> int:
             from documentor import site
 
             return site.main(rest)
+        if name == "schemas":
+            from documentor import schemas
+
+            return schemas.main(rest)
         if name == "views":
             from documentor.architecture import views as architecture_views
 

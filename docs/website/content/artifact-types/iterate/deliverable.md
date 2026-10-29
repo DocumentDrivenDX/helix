@@ -68,7 +68,7 @@ ddx:
   1. Firms lose reviewer capacity to manual deposit matching every week, and the market is large enough to matter (evidence: docs/helix/00-discover/business-case.md#executive-summary; docs/helix/00-discover/business-case.md#opportunity-sizing)
   2. A CSV-first pilot learns about reviewer trust faster and cheaper than integrating bank feeds (evidence: docs/helix/00-discover/business-case.md#alternatives-considered)
   3. Year one costs $262,000 and the plan breaks even in month 18 if pilot conversion and pricing hold (evidence: docs/helix/00-discover/business-case.md#investment-required; docs/helix/00-discover/business-case.md#expected-roi)
-  4. Three risks decide the pilot, each with a mitigation, and two conditions gate spend beyond it (evidence: docs/helix/00-discover/business-case.md#risk-assessment; docs/helix/00-discover/business-case.md#recommendation)
+  4. Three risks inform the pilot, each with a mitigation, and the committee reviews findings before funding further work (evidence: docs/helix/00-discover/business-case.md#risk-assessment; docs/helix/00-discover/business-case.md#recommendation)
 - **Beats and titles** (beat ids from the proposal flow in deck-flows.yml; titles written before any body):
 
   | # | Beat | Title (claim) | Message | Exhibit |
@@ -80,8 +80,8 @@ ddx:
   | 5 | recommended-option | Approve a pilot that shows reviewers the evidence | M2 | three-step process strip |
   | 6 | return | The pilot breaks even in month 18 on planned pricing | M3 | timeline to breakeven |
   | 7 | cost | The pilot costs $262,000 in year one | M3 | cost table with the total highlighted |
-  | 8 | risks | Three risks decide the pilot, each with a mitigation | M4 | risk grid |
-  | 9 | plan | Two conditions gate any spend beyond the pilot | M4 | checkpoint strip |
+  | 8 | risks | Three risks inform the pilot, each with a mitigation | M4 | risk grid |
+  | 9 | plan | Pilot findings inform the next funding decision | M4 | checkpoint strip |
   | 10 | ask | Approve the pilot budget and name a recruiter | takeaway | ask band and steps |
   | 11 | sources | Sources | all | source table |
 
@@ -92,7 +92,7 @@ ddx:
   | 1 | Pilot scope: import, evidence-backed review, exception ownership | business case, vision | covered | M2 |
   | 2 | Market and opportunity sizing | business case | covered | M1 |
   | 3 | Investment and breakeven | business case | covered | M3 |
-  | 4 | Risks and gating conditions | business case | covered | M4 |
+  | 4 | Risks and research actions | business case | covered | M4 |
   | 5 | Alternatives considered | business case | covered | M2 |
   | 6 | Strategic alignment with the firm's goals | business case | omitted | angle: the committee decides on cost and risk, and the goals row restates the pilot scope |
   | 7 | Product vision and positioning | vision | omitted | audience: the sponsor authored the vision; slide 3 carries the pain it names |
@@ -164,7 +164,7 @@ ddx:
 - The pilot builds three things and nothing else
 - Reviewers see the evidence behind every suggested match before approving it
 - Every exception has a named owner instead of a shared spreadsheet
-- Spend beyond the pilot waits for two measured conditions
+- The proposed funding covers the pilot; further spend needs a new sponsor decision
 
 **Visual**: kind: process-flow | steps: Import; Review; Own exceptions | highlight: 2 | caption: reviewers see the evidence first. Three-step process strip drawn from the pilot scope in the business case, with the review step highlighted
 
@@ -176,11 +176,11 @@ ddx:
 
 **Pattern**: claim-evidence
 **Body**:
-- Year one revenue of $120,000 leaves a $142,000 shortfall we fund deliberately
+- Year one revenue of $120,000 leaves a projected $142,000 shortfall
 - Breakeven arrives in month 18 if pilot conversion and pricing hold
 - The three-year return rests on pricing the pilot has not yet validated
 
-**Visual**: kind: timeline | milestones: Pilot starts; Year one closes with $120,000 revenue; Breakeven in month 18; Three-year return | now: 1 | marker: today | caption: the shortfall is funded until month 18 | side: left. Net line over three years drawn from the expected ROI section, with the breakeven month marked in the secondary hue
+**Visual**: kind: timeline | milestones: Pilot starts; Year one closes with $120,000 revenue; Breakeven in month 18; Three-year return | now: 1 | marker: today | side: left. Net line over three years drawn from the expected ROI section, with the breakeven month marked in the secondary hue
 
 **Notes**: The model is in the expected ROI section. Revenue ramps with pilot conversion, and the three-year return depends on the price point the pilot tests. Lead with the breakeven month; the return figure waits for a partner to ask.
 
@@ -199,13 +199,13 @@ ddx:
 
 **Sources**: S7
 
-### 8. Three risks decide the pilot, each with a mitigation
+### 8. Three risks inform the pilot, each with a mitigation
 
 **Pattern**: risk-matrix
 **Body**:
 - Exports vary too much: recruit pilots across three accounting systems, map per client
 - Reviewers distrust suggestions: show evidence before approval, require reviewer acceptance
-- Firms will not pay enough: validate willingness to pay before widening scope
+- Firms will not pay enough: research willingness to pay to inform pricing and investment
 
 **Visual**: kind: risk-grid | risks: Exports vary too much / high / medium; Reviewers distrust suggestions / medium / high; Firms will not pay enough / medium / high. Likelihood-by-impact grid from the risk assessment with the three risks as numbered dots and the mitigations from the body keyed by number on the right
 
@@ -213,17 +213,17 @@ ddx:
 
 **Sources**: S9
 
-### 9. Two conditions gate any spend beyond the pilot
+### 9. Pilot findings inform the next funding decision
 
 **Pattern**: process-flow
 **Body**:
-- Recruit at least five pilot firms before expanding beyond import and review
-- Both measures are read at the two-month checkpoint, before any expansion decision
-- A paid product waits until weekly reconciliation falls under 3 minutes per client
+- Recruit five pilot firms to gather evidence on workflow value and pricing
+- Review time savings, accuracy, and pricing reactions at the two-month checkpoint
+- Return to the sponsor for a new decision before spending beyond the pilot
 
-**Visual**: kind: process-flow | steps: Recruit five firms; Read two measures; Expand or stop | highlight: 2 | caption: the two-month checkpoint is where the committee can stop the pilot. Three-step checkpoint strip from the recommendation's conditions, with the 3-minute paid-product target in the body
+**Visual**: kind: process-flow | steps: Recruit five firms; Read two measures; Review funding | highlight: 2 | caption: evidence for the next sponsor decision. Three-step research and investment strip from the business case recommendation
 
-**Notes**: These are the conditions in the business case recommendation. They are the sponsor's protection against scope creep and the team's protection against building on unvalidated demand.
+**Notes**: The committee is being asked to fund the bounded pilot. Its findings support the next funding decision; the pilot budget does not authorize additional spend.
 
 **Sources**: S2, S10
 
@@ -258,7 +258,7 @@ ddx:
 | Id | Claim or figure | Governing artifact and section |
 |---|---|---|
 | S1 | Recommended investment is a three-month pilot build for CSV import, evidence-backed match review, and exception ownership | docs/helix/00-discover/business-case.md#executive-summary |
-| S2 | Decision: Conditional Go; conditions: recruit at least five pilot firms; measure median reconciliation time and suggestion acceptance accuracy during the first two months | docs/helix/00-discover/business-case.md#recommendation |
+| S2 | Go for the bounded pilot; further spend needs a new sponsor decision; recruit five firms and measure time savings and accuracy | docs/helix/00-discover/business-case.md#recommendation |
 | S3 | TAM $1.2B annual workflow spend: 60,000 small bookkeeping firms x $20,000; planning assumption, low confidence | docs/helix/00-discover/business-case.md#opportunity-sizing |
 | S4 | SAM $180M: 9,000 firms with five to twenty-five employees x $20,000; medium confidence | docs/helix/00-discover/business-case.md#opportunity-sizing |
 | S5 | Firms are losing reviewer capacity to manual deposit matching; firm owners will pay for auditability plus time saved | docs/helix/00-discover/business-case.md#executive-summary, docs/helix/00-discover/product-vision.md#positioning |
@@ -266,7 +266,7 @@ ddx:
 | S7 | Year one: development $180,000, infrastructure $12,000, go-to-market $40,000, operations $30,000; total costs $262,000 | docs/helix/00-discover/business-case.md#investment-required, docs/helix/00-discover/business-case.md#expected-roi |
 | S8 | Year one revenue $120,000, net $142,000 shortfall (shown as -$142,000); breakeven month 18; confidence low until the pilot validates conversion and pricing | docs/helix/00-discover/business-case.md#expected-roi |
 | S9 | Risks: CSV exports vary (high, medium); reviewers distrust suggested matches (medium, high); firms will not pay enough (medium, high) | docs/helix/00-discover/business-case.md#risk-assessment |
-| S10 | Paid product path if weekly reconciliation time falls below 3 minutes per client; recommended next steps with owners and dates | docs/helix/00-discover/business-case.md#executive-summary, docs/helix/00-discover/business-case.md#recommendation |
+| S10 | Weekly reconciliation below 3 minutes per client is a product-outcome hypothesis, independent of release readiness; recommended next steps with owners and dates | docs/helix/00-discover/business-case.md#executive-summary, docs/helix/00-discover/business-case.md#recommendation |
 
 S9 grades each risk as (likelihood, impact) and quotes its mitigation.
 

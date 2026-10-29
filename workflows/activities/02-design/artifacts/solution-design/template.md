@@ -152,3 +152,11 @@ in Architecture and feature behavior in Solution Design.]
 vector source and rendered export; record audience, takeaway, semantic source,
 deliberate omissions, rebuild instructions, and full-size/preview review evidence.
 Keep implementation paths in adjacent prose and preserve architectural meaning.]
+
+## Schema Basis (when applicable)
+
+Follow `workflows/references/umf-schemas.md`. Name the inspected UMF core,
+extensions/domain packs and versions; what is reused/composed/extended; or the
+specific gap justifying an alternative. Reference the authoritative Contract
+and source through `ddx.schemas`; explain unsupported semantics and tests.
+Omit this section for work with no schema, structured interface, or domain model.

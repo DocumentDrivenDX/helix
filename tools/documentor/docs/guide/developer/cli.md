@@ -1,6 +1,6 @@
 <!-- helix:publish audience=data page=cli kind=reference voice=onboarding generated=cli-commands -->
 <!-- helix:source pyproject.toml sha256:74a08b4781a32616 -->
-<!-- helix:source src/documentor/cli.py sha256:0707cd738e9b6418 -->
+<!-- helix:source src/documentor/cli.py sha256:8b7a0be0b2efb9cb -->
 # Cli
 
 Every command line the project installs: 1 in all, from `[project.scripts]` in its pyproject files, with each command's purpose from its docstring. Options and arguments are on each command's `--help`.

@@ -273,6 +273,10 @@ def render_page(rec: dict, source_root: Path, weight: int,
             "> **Source identity** (from "
             f"`{rel_source}`):\n\n```yaml\n{src_fm.rstrip()}\n```\n\n"
         )
+    from documentor.schemas import links as schema_links
+
+    page_url = url_map[rec["src"].resolve()]
+    preamble += schema_links(rec["src"], repo_root, page_url)
     return fm + preamble + body.lstrip("\n")
 
 
@@ -433,4 +437,8 @@ def main(argv: list[str] | None = None) -> int:
     root = (args.root or find_root(Path.cwd())).resolve()
     config = config_of(root)
     source, dest, project, opts = options(root, config, str(args.dest) if args.dest else None)
-    return publish(source, dest.resolve(), args.project or project, opts)
+    try:
+        return publish(source, dest.resolve(), args.project or project, opts)
+    except (ValueError, OSError) as error:
+        print(f"documentor record: {error}", file=sys.stderr)
+        return 1

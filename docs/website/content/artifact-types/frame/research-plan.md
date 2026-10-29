@@ -47,9 +47,8 @@ ddx:
    problem?
    - **Why Important**: The Business Case assumes reconciliation is a capacity
      bottleneck, not a minor annoyance.
-   - **Success Criteria**: At least 4 of 5 interviewed firms report weekly
-     reconciliation above 3 hours and can name a recent close-cycle failure
-     caused by manual matching.
+   - **Success Criteria**: Record reconciliation time and recent close-cycle
+     failures reported by interviewed firms, including contrary evidence.
 
 2. **Question**: Can representative pilot firms provide CSV exports that are
    consistent enough for column mapping and suggested matches?
@@ -63,8 +62,8 @@ ddx:
    before bank-feed integrations or ledger writeback exist?
    - **Why Important**: The Business Case pricing and obtainable market are
      low-confidence assumptions.
-   - **Success Criteria**: At least 3 of 5 pilot firms agree that $149/month is
-     reasonable if the pilot reaches the stated time and accuracy targets.
+   - **Success Criteria**: Record reactions to $149/month and the reasons for
+     accepting or rejecting it. Negative pricing evidence is a useful result.
 
 ### Knowledge Gaps
 
@@ -86,8 +85,8 @@ integration research, and accounting-ledger writeback.
 **Assumptions**: Product Vision target segment and pilot scope remain stable
 through the research window.
 
-**Decision Enabled**: Whether the PRD can commit to CSV import, match review,
-exception ownership, pilot pricing, and success metrics.
+**Decision Enabled**: Which import assumptions, workflow priorities, and
+pricing hypotheses to revise based on the findings.
 
 ## Research Methods
 

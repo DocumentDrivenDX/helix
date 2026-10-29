@@ -52,7 +52,7 @@ client-scoped exception queue.
 **Rationale**: The CSV-first pilot is technically and operationally feasible if
 the first release stays narrow. The highest risks are CSV variability, live
 financial-data handling, and willingness to pay, so the project should proceed
-only with pilot recruiting, compliance review, and explicit success metrics.
+with compliance review required before using live financial data.
 **Confidence**: Medium
 
 ## Feasibility Assessment
@@ -107,7 +107,7 @@ only with pilot recruiting, compliance review, and explicit success metrics.
 | CSV exports vary enough to slow onboarding | High | Medium | Recruit pilots across at least three accounting systems and build explicit column mapping. |
 | Reviewers distrust suggestions | Medium | High | Show evidence before approval and measure accepted suggestion accuracy. |
 | Compliance review expands required controls | Medium | High | Complete legal applicability review before live-data pilot. |
-| Pilot firms do not pay at target pricing | Medium | High | Validate willingness to pay before expanding beyond CSV-first scope. |
+| Pilot firms do not pay at target pricing | Medium | High | Research willingness to pay to inform pricing and future investment; keep development and release criteria tied to product capabilities. |
 
 ## Alternatives
 
@@ -149,13 +149,13 @@ only with pilot recruiting, compliance review, and explicit success metrics.
 
 ## Next Steps
 
-1. Confirm five pilot firms and collect sample CSVs before finalizing PRD scope.
+1. Collect representative CSV samples to refine import requirements; record
+   remaining format assumptions in the PRD.
 2. Complete legal/compliance applicability review for live financial data.
 3. Turn the CSV import, evidence-backed matching, exception queue, and review
    log into PRD requirements.
-4. Add pilot success gates: reconciliation time below 3 minutes per client,
-   accepted suggestion accuracy above 95%, and 3 of 5 pilot firms willing to
-   pay target pricing.
+4. Record pilot time savings, accuracy, and willingness to pay as research
+   hypotheses for pricing and future investment.
 ``````
 
 </details>
@@ -169,7 +169,7 @@ only with pilot recruiting, compliance review, and explicit success metrics.
 <tr><th>Requires</th><td><em>None</em></td></tr>
 <tr><th>Enables</th><td><em>None</em></td></tr>
 <tr><th>Informs</th><td><a href="../../../artifact-types/frame/prd/">PRD</a><br><a href="../../../artifact-types/frame/principles/">Principles</a><br><a href="../../../artifact-types/frame/risk-register/">Risk Register</a><br><a href="../../../artifact-types/frame/stakeholder-map/">Stakeholder Map</a><br><a href="../../../artifact-types/frame/feature-registry/">Feature Registry</a></td></tr>
-<tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Feasibility Study Generation Prompt&#10;Assess whether the project is feasible and what it would take to proceed.&#10;&#10;## Reference Anchors&#10;&#10;Use these local resource summaries as grounding:&#10;&#10;- `docs/resources/doj-feasibility-study.md` grounds pre-commitment&#10;  feasibility, alternatives, decision criteria, and recommendation.&#10;- `docs/resources/eib-project-feasibility.md` grounds option analysis,&#10;  cost-benefit, organizational, compliance, and risk dimensions.&#10;&#10;## Focus&#10;- Separate technical, business, operational, and resource feasibility.&#10;- Compare realistic alternatives, including delaying or doing nothing where useful.&#10;- State the recommendation clearly.&#10;- Capture the main risks, constraints, and open questions.&#10;- Tie conclusions to evidence and confidence, not optimism.&#10;&#10;## Role Boundary&#10;&#10;Feasibility Study is not the Business Case, PRD, or Solution Design. It decides&#10;whether the opportunity is viable enough to justify deeper framing or delivery&#10;commitment. Business Case owns investment return; PRD owns required behavior;&#10;Solution Design owns the chosen implementation approach.&#10;&#10;## Completion Criteria&#10;- The recommendation is unambiguous.&#10;- Each feasibility dimension is summarized briefly.&#10;- Assumptions and mitigations are explicit.&#10;- The preferred alternative is justified against at least one rejected alternative.</code></pre></details></td></tr>
+<tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Feasibility Study Generation Prompt&#10;Assess whether the project is feasible and what it would take to proceed.&#10;&#10;## Reference Anchors&#10;&#10;Use these local resource summaries as grounding:&#10;&#10;- `docs/resources/doj-feasibility-study.md` grounds pre-commitment&#10;  feasibility, alternatives, decision criteria, and recommendation.&#10;- `docs/resources/eib-project-feasibility.md` grounds option analysis,&#10;  cost-benefit, organizational, compliance, and risk dimensions.&#10;&#10;## Focus&#10;- Separate technical, business, operational, and resource feasibility.&#10;- Compare realistic alternatives, including delaying or doing nothing where useful.&#10;- State the recommendation clearly.&#10;- Capture the main risks, constraints, and open questions.&#10;- Tie conclusions to evidence and confidence, not optimism.&#10;&#10;## Role Boundary&#10;&#10;Feasibility Study informs investment, scope, and technical-risk decisions.&#10;Business Case owns investment return; PRD owns required behavior;&#10;Solution Design owns the chosen implementation approach.&#10;&#10;## Completion Criteria&#10;- The recommendation is unambiguous.&#10;- Each feasibility dimension is summarized briefly.&#10;- Assumptions and mitigations are explicit.&#10;- The preferred alternative is justified against at least one rejected alternative.</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---&#10;ddx:&#10;  id: feasibility-study&#10;  authoring:&#10;    home: repo&#10;---&#10;&#10;# Feasibility Study: {{project_name}}&#10;&#10;**Decision Deadline**: {{decision_deadline}}&#10;&#10;## Executive Summary&#10;&#10;### Project Overview&#10;[Brief description of the proposed project or solution]&#10;&#10;### Recommendation&#10;**Overall Assessment**: FEASIBLE | CONDITIONALLY FEASIBLE | NOT FEASIBLE&#10;**Decision**: GO | CONDITIONAL GO | NO GO&#10;**Rationale**: [2-3 sentences on the main factors]&#10;**Confidence**: High | Medium | Low&#10;&#10;## Feasibility Assessment&#10;&#10;### Technical&#10;- **Assessment**: FEASIBLE | HIGH RISK | NOT FEASIBLE&#10;- **Key requirements**: [Brief list]&#10;- **Main risks**: [Brief list]&#10;- **Evidence**: [What supports the assessment]&#10;&#10;### Business&#10;- **Assessment**: FEASIBLE | HIGH RISK | NOT FEASIBLE&#10;- **Market opportunity**: [Brief summary]&#10;- **Value proposition**: [Brief summary]&#10;- **Evidence**: [What supports the assessment]&#10;&#10;### Operational&#10;- **Assessment**: FEASIBLE | HIGH RISK | NOT FEASIBLE&#10;- **Support and deployment needs**: [Brief summary]&#10;- **Regulatory requirements**: [Brief summary]&#10;- **Evidence**: [What supports the assessment]&#10;&#10;### Resource&#10;- **Assessment**: FEASIBLE | HIGH RISK | NOT FEASIBLE&#10;- **Budget**: [Estimate]&#10;- **Team and timeline**: [Estimate]&#10;- **Evidence**: [What supports the assessment]&#10;&#10;## Risks&#10;&#10;| Risk | Probability | Impact | Mitigation |&#10;|------|-------------|--------|------------|&#10;| [Risk] | High/Med/Low | High/Med/Low | [Strategy] |&#10;&#10;## Alternatives&#10;&#10;### [Alternative Approach]&#10;- **Pros**: [Brief]&#10;- **Cons**: [Brief]&#10;- **Feasibility**: [Brief]&#10;- **Decision**: Carry forward | Reject&#10;&#10;### Do Nothing / Delay&#10;- **Pros**: [Brief]&#10;- **Cons**: [Brief]&#10;- **Feasibility**: [Brief]&#10;- **Decision**: Carry forward | Reject&#10;&#10;## Decision Framework&#10;&#10;| Criterion | Status | Rationale |&#10;|-----------|--------|-----------|&#10;| Technical buildability | Pass / Risk / Fail | [Rationale] |&#10;| Business value | Pass / Risk / Fail | [Rationale] |&#10;| Operational supportability | Pass / Risk / Fail | [Rationale] |&#10;| Compliance readiness | Pass / Risk / Fail | [Rationale] |&#10;| Resource availability | Pass / Risk / Fail | [Rationale] |&#10;&#10;## Next Steps&#10;1. [Action]&#10;2. [Action]</code></pre></details></td></tr>
 </tbody>
 </table>

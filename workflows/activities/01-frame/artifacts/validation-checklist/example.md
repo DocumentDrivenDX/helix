@@ -24,7 +24,7 @@ ddx:
 
 | Gate | Status | Evidence | Blocking Gap |
 |------|--------|----------|--------------|
-| Problem, goals, and success metrics are clear enough to judge outcomes | Pass | Product Vision, Opportunity Canvas, PR-FAQ | None |
+| Problem, intended outcome, and delivery acceptance are clear | Pass | Product Vision, Opportunity Canvas, PR-FAQ | None |
 | P0 scope is identified, prioritized, and separated from non-goals | Pass | PRD, Feature Registry, Parking Lot | None |
 | Features and stories are traceable through IDs and links | Conditional | Feature Registry links FEAT-001; later features are pending | Complete trace links for FEAT-002 through FEAT-004 before design approval |
 | Acceptance criteria are testable | Conditional | PRD and Security Requirements | Add story-level acceptance criteria for FEAT-002 and FEAT-003 before build |

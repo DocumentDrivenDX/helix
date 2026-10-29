@@ -102,6 +102,6 @@ too big for spreadsheets and too small for Salesforce.
 - [x] User experience section describes a concrete scenario (Monday morning rep + manager + admin), not abstract benefits
 - [x] Target market identifies specific pain points (pipeline state scattered) and switching triggers (existing tools either too heavy or too light)
 - [x] Value propositions map to customer benefits, not internal capabilities
-- [x] Success metrics are measurable (≥80% WAU, ≥90% freshness, etc.)
+- [x] Learning indicators have observation methods; targets are product hypotheses
 - [x] Why Now section names specific changes (SaaS infra commoditization; opinionated-defaults cost drop)
 - [x] No implementation details — architecture left to design activity
