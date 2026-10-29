@@ -1,12 +1,12 @@
-<!-- helix:publish audience=developer page=walkthrough kind=explanation voice=onboarding budget=1100 written=agent-opus reviewed=2026-10-22/agent-sonnet/c95a67cc2d7a6607 -->
+<!-- helix:publish audience=developer page=walkthrough kind=explanation voice=onboarding budget=1100 written=codex reviewed=2026-10-29/codex-astra-independent-reader/4a8250a81fa82e57 -->
 <!-- helix:gap artifact:architecture -->
-<!-- helix:source src/documentor/cli.py sha256:0707cd738e9b6418 -->
+<!-- helix:source src/documentor/cli.py sha256:8b7a0be0b2efb9cb -->
 <!-- helix:source src/documentor/check.py sha256:784c2473233c0346 -->
-<!-- helix:source src/documentor/lib.py sha256:7e594138b133286a -->
-<!-- helix:source src/documentor/generate.py sha256:47b5e3e1d2d06cbd -->
+<!-- helix:source src/documentor/lib.py sha256:5db149c5af59118b -->
+<!-- helix:source src/documentor/generate.py sha256:9ed3906b7fe2bc36 -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
-<!-- helix:source src/documentor/write.py sha256:2118376b2c167085 -->
-<!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
+<!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
+<!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:9f8ec1f2b471f001 -->
 <!-- helix:source tests/validate-guide.sh sha256:5c416438f8ca7e20 -->
 <!-- helix:source tests/validate-publish.sh sha256:7db3a03534402d2f -->
 <!-- helix:source tests/validate-publish-traits.sh sha256:6f8a932174fe2332 -->
@@ -14,6 +14,9 @@
 <!-- helix:source tests/python/test_report.py sha256:8952e75926f6350b -->
 <!-- helix:source tests/python/test_generators_ops.py sha256:7b51edcbc2916d4e -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
+<!-- helix:source src/documentor/schemas.py sha256:6db23e6c01b889bc -->
+<!-- helix:source src/documentor/site.py sha256:1d8a815021485d27 -->
+<!-- helix:source tests/python/test_schemas.py sha256:fed68ae9a073185b -->
 # Request walkthrough
 
 ## Scenario
@@ -26,7 +29,7 @@ uvx --from "$DOCUMENTOR" documentor check --root .
 
 Take one pull request that edits a file a written page cites as a source. The check must fail, name the page as stale, and need no agent or network.
 
-The repository has no HELIX architecture document with a data-flow section, so the steps below come from the code and the tests. [Architecture](architecture.md) describes the parts.
+These steps follow code and tests; no architecture artifact governs them. [Architecture](architecture.md) describes the parts.
 
 ## Sequence
 
@@ -54,10 +57,10 @@ sequenceDiagram
 
 ## Steps and evidence
 
-Each step is one function, and a test under `tests/` proves its behaviour against a fixture repository.
+Tests use fixture repositories.
 
 1. **Dispatch.** `main` in `src/documentor/cli.py` first takes `--catalog DIR`, which sets the HELIX catalog the run reads. It sends tool names such as `check-pages` to their modules. Everything else, `check` included, goes to `guide_main`.
-2. **Configuration and plan.** `config_of` reads `.helix.yml`, and `guide_main` refuses a `publish.schema` other than `SCHEMA` in `src/documentor/lib.py`. `plan` then builds one `PagePlan` per page from the audiences, the traits, and the project's own pages. It applies the project's `delegate`, `existing`, and `skip` entries.
+2. **Configuration and plan.** `config_of` reads `.helix.yml`, and `guide_main` refuses a `publish.schema` other than `SCHEMA` in `src/documentor/lib.py`. `plan` then builds one `PagePlan` per page from the audiences, the traits, and the project's own pages. It applies `delegate`, `existing`, and `skip`, selecting operational data pages when configured.
 3. **Page state.** `assess` gives each page one state: delegated, empty, missing, unadopted, stale, unreviewed, or current. It regenerates a generated page in memory and compares the result. For a written page, it compares the source digests, then checks the `reviewed=` stamp against the digest of the body.
 4. **Gaps.** `assess` adds a page's `helix:gap` lines to its detail as "written without" the missing artifact. The gap does not change the page's state. `report` then calls `gap_lines` in `src/documentor/report.py`, which lists the artifacts that would improve the guide, the one behind the most pages first.
 5. **Source digests.** `check_sources` reads each `helix:source` line. It cuts a `path#anchor` source to that heading's section, so edits elsewhere in the file do not stale the page.
@@ -82,7 +85,7 @@ The states that `check` reports feed `documentor write` in `src/documentor/write
 | Page checks | `tests/validate-publish.sh` | Broken links, missing paths, handling patterns, and writes outside scope block |
 | Verdict | `tests/validate-guide.sh` | A complete, evaluated guide passes `check` |
 
-Run the two tests that cover the request end to end:
+Run the end-to-end tests:
 
 ```sh
 uv run just test-guide
@@ -128,6 +131,10 @@ grep -q "^opus write docs/guide/developer/developer-guide.md$" "$FAKE_LOG" || fa
 ```
 
 </details>
+
+## Schema publication boundary
+
+Schema publication is separate from the guide gate: use `documentor schemas --check` for freshness. Hugo, static, and Hextra assembly publishes schemas; plain Hugo needs `documentor schemas` first. Tests in `tests/python/test_schemas.py` cover references, retained sources, freshness, and site integration.
 
 ## Failure paths
 

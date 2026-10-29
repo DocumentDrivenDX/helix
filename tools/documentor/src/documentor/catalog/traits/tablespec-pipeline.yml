@@ -1,8 +1,8 @@
 id: tablespec-pipeline
 title: Tables specified in UMF with tablespec
 detect:
-  - {files: "**/table.yaml", contains: "^table_name:", weight: 0.5}
-  - {files: "**/pyproject.toml", contains: "tablespec", weight: 0.3}
+  - {files: "**/table.yaml", contains: "^table_name:", weight: 0.3}
+  - {files: "**/pyproject.toml", contains: "tablespec", weight: 0.5}
   - {files: "**/pipeline.yaml", contains: "^name:", weight: 0.2}
 audiences: [data]
 # tablespec's guidebook already publishes each table's columns, rules, and column lineage from the

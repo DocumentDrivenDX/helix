@@ -11,7 +11,7 @@ voice: artifact-signal
 description: |
   Feature-level authority document that translates PRD requirements into
   precise behavior, boundaries, functional areas, non-functional expectations,
-  edge cases, and feature-specific success measures. Acceptance criteria live
+  edge cases, and optional feature-learning indicators. Acceptance criteria live
   in user-stories (ADR-009); the feature spec carries FR-IDs and the
   decomposition test but does not define AC. Broad product-surface, workflow,
   IA, and documentation features must state the ideal future state and map
@@ -28,7 +28,6 @@ validation:
     - problem_statement
     - requirements
     - edge_cases_and_error_handling
-    - success_metrics
     - constraints_and_assumptions
     - out_of_scope
 
@@ -134,6 +133,8 @@ relationships:
     - solution-design
     - contract
     - test-plan
+    - user-flow
+    - user-journey-map
 
   registered_in:
     - feature-registry

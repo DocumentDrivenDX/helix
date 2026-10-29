@@ -14,7 +14,7 @@ ddx:
 ## Go / No-Go Gates
 | Gate | Status | Evidence | Blocking Gap |
 |------|--------|----------|--------------|
-| Problem, goals, and success metrics are clear enough to judge outcomes | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |
+| Problem, intended outcome, and delivery acceptance are clear | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |
 | P0 scope is identified, prioritized, and separated from non-goals | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |
 | The next scoped outcome follows governing requirements | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |
 | Acceptance criteria are testable | Pass / Conditional / Fail | [Artifact/link] | [Gap or None] |

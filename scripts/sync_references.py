@@ -100,6 +100,7 @@ DOCUMENTOR_FILES = [
     ("workflows/references/publishing.md", "references/publishing.md"),
     ("workflows/references/writing-pass.md", "references/writing-pass.md"),
     ("workflows/references/architecture-model.md", "references/architecture-model.md"),
+    ("workflows/references/umf-schemas.md", "references/umf-schemas.md"),
 ]
 DOCUMENTOR_TREES = [
     ("workflows/publish", "publish"),

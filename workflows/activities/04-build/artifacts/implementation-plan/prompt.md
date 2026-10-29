@@ -51,6 +51,11 @@ but leaves no trace here is drift (reconcile-alignment Concern->Artifact Realiza
 - quality gates and closeout criteria
 - risks that should refine upstream artifacts
 
+Do not derive build dependencies or closeout criteria from product uptake
+targets. Verify engineering completion against capabilities and readiness;
+record explicit funding or authorization constraints separately with their
+source and affected action.
+
 ## Boundary Test
 
 | If you are writing... | Put it in... |

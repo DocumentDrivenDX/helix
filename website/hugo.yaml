@@ -66,6 +66,9 @@ menu:
       weight: 10
       params:
         icon: github
+    - name: Schemas
+      pageRef: /schemas
+      weight: 7
 
 params:
   description: A document-driven methodology and artifact catalog that keeps AI-assisted software development aligned across vision, design, tests, and code.

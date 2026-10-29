@@ -131,6 +131,7 @@ relationships:
     - solution-design
     - technical-design
     - story-test-plan
+    - wireframe
 
   references:
     - architecture

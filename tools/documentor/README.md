@@ -98,3 +98,48 @@ uv run documentor check --root ../some-repo     # run the working copy against a
 
 `uvx --from /path/to/documentor` caches the build it makes from a local path, so after a change run
 it with `--refresh`, or use `uv run --project /path/to/documentor documentor ...` instead.
+
+## Design schemas
+
+Design artifacts declare versioned local sources in `ddx.schemas`, following
+HELIX's `workflows/references/umf-schemas.md`. Hugo, static and Hextra site builds
+publish a schema index, source downloads and provenance, with an embedded
+`@documentdrivendx/umf-schema-browser@2.0.0`. Install that pinned package with the
+site's package manager; repositories without references need no browser package.
+
+For an existing Hugo site, run `documentor schemas --root .` before a plain Hugo
+build. `documentor schemas --root . --check` rejects stale output. `documentor
+site` runs schema publication automatically. The browser inspects source; native
+validation and semantic compatibility remain separate checks.
+
+### Design-stage databases and deployment
+
+`documentor init` proposes explicit developer-page `skip` entries when HELIX
+design documents exist without application source and developers are an audience. Review
+these suggestions; remove the skips when implementation makes the pages useful.
+`publish.data_mode: operational` selects an overview based on entity design and
+transactions, with tables rather than analytics lineage/refresh/metric pages.
+Init proposes it for upstream UMF tables without pipeline signals; set it
+explicitly for other operational databases. Existing decisions remain unchanged.
+
+The `umf-tablespec` trait detects upstream monolithic UMF TableSpec 1.0 YAML,
+generates `data/tables` (columns, keys, foreign keys and an entity graph), and
+publishes the same sources through `@documentdrivendx/umf-schema-browser` using
+the design-schema publisher above. Install the pinned browser version in the
+site's locked dependencies before building. YAML owns the schema; generated
+prose does not. Descriptions and sample values are omitted; duplicate table
+names fail the build.
+
+`tablespec-pipeline` remains the tablespec integration and delegates to
+`tablespec guidebook`; a `table.yaml` alone no longer identifies a pipeline.
+When both traits are selected, UMF owns `data/tables` and the tablespec guidebook
+is linked as `data/pipeline-tables`. An explicit project delegation still wins.
+
+Copy `src/documentor/catalog/ci/github-pages.yml` for Pages deployment, or
+`github-actions.yml` for PR checks and weekly refresh. Set Pages source to GitHub
+Actions, match the upload directory to the site target, and add project-specific
+locked generator/browser dependency installs before building. The template is
+based on Tempo's successful [build and deploy run](https://github.com/DocumentDrivenDX/tempo/actions/runs/40952714352).
+The Pages template requires replacing `REPLACE_WITH_UMF_RELEASE` with a released
+tag containing these capabilities. Its preflight refuses an unconfigured or
+older tool without `documentor schemas`; v0.19.1 predates schema publication.

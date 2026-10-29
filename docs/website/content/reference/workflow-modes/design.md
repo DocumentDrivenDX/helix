@@ -14,6 +14,10 @@ Use when the requested change needs design authority before implementation.
    work before proposing interfaces or mechanisms. Keep the outcome bounded;
    mechanical propagation across callers is part of completing that outcome.
    Prefer evolving a clear existing concept over adding an overlapping one.
+   Before defining a schema, structured interface, or domain model, apply
+   `workflows/references/umf-schemas.md`: inspect UMF core, extensions, and domain
+   packs; reuse or compose suitable definitions by default, and record specific
+   gaps for alternatives. Declare applicable schema references for publication.
 2. Draft the applicable requirements, decisions, interfaces, failure behavior,
    security, tests, dependencies, risks, and observability. Omit sections that
    do not apply; do not add empty data-model or security sections for ceremony.

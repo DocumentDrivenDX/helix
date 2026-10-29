@@ -78,6 +78,9 @@ jobs:
       - name: Validate artifact-type schemas
         run: uv run scripts/helix_validate_artifact_meta.py
 
+      - name: Check design schema publication
+        run: uv run --project tools/documentor documentor schemas --root . --check
+
       - name: Seal generated pages (build key)
         # Generated pages (`generated: true`) are sealed here with the CI build key, never committed;
         # curated pages carry committed claims from the human key (Innsigle ADR-004). The secret is the
@@ -120,6 +123,10 @@ jobs:
         env:
           CI: "1"  # forces a fresh server so a stale one cannot mask content drift
         run: npx playwright test
+
+      - name: UMF schema browser under production base path
+        working-directory: website
+        run: npm run test:schemas
 
       - name: Upload Playwright report
         if: failure()

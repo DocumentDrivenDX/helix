@@ -79,7 +79,7 @@ Let's systematically unpack the problem we're trying to solve:
 **Validation Checklist**:
 - [ ] Problem statement is specific and measurable
 - [ ] Impact is quantified where possible
-- [ ] Success criteria are clear and achievable
+- [ ] Intended user outcome and scope are clear
 - [ ] Stakeholders agree on problem definition
 - [ ] Scope boundaries are explicitly defined
 - [ ] Root causes are identified and documented
@@ -105,7 +105,6 @@ Let's systematically unpack the problem we're trying to solve:
 
 **Before Completion**:
 - [ ] Problem statement passes the "newspaper test" (clear to outside reader)
-- [ ] Success criteria are SMART (Specific, Measurable, Achievable, Relevant, Time-bound)
 - [ ] Material choices needing human judgment have a decision
 - [ ] Root causes are documented with supporting evidence
 - [ ] Scope boundaries are explicitly documented
@@ -162,7 +161,6 @@ This action supports the Frame activity by:
 This action succeeds when:
 - ✅ Crystal clear problem statement exists
 - ✅ All stakeholders align on problem definition
-- ✅ Success criteria are measurable and achievable
 - ✅ Scope boundaries are explicitly documented
 - ✅ Problem complexity is understood and assessed
 - ✅ Foundation is established for effective solution design

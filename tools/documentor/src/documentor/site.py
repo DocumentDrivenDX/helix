@@ -42,7 +42,7 @@ import yaml
 
 from documentor import theme as project_theme
 from documentor.check import parse_page
-from documentor.lib import FENCE, catalog, audiences, config_of, find_root, load_audience, load_traits, publish_out
+from documentor.lib import FENCE, catalog, audiences, config_of, find_root, load_audience, load_traits, publish_out, resolved_delegates
 
 # A link or image; a link's text may hold an image (`[![alt](img.svg)](img.svg)`), rewritten too.
 LINK = re.compile(r"(!?\[(?:[^\[\]]|!\[[^\]]*\]\([^)]*\))*\]\()([^)\s]+)((?:\s+\"[^\"]*\")?\))")
@@ -114,6 +114,22 @@ def detect_target(root: Path) -> str:
     return "static"
 
 
+def schema_output_dirs(root: Path, config: dict, target: str | None = None,
+                       site: Path | None = None) -> tuple[Path, Path]:
+    """Resolve schema content and assets with the same target as site assembly."""
+    settings = (config.get("publish") or {}).get("site") or {}
+    target = target or settings.get("target") or detect_target(root)
+    if target == "hugo":
+        output = hugo_site_dir(root, config)
+        if output is None:
+            raise ValueError("no Hugo site found; set publish.site.site_dir")
+        return content_root_for(root, config, target), output / "static"
+    if target in ("static", "hextra"):
+        output = site or root / ".helix/site"
+        return output / "content", output / "static"
+    raise ValueError(f"schema publishing does not support target: {target}")
+
+
 # --- the pages -----------------------------------------------------------------------------------------
 
 def ordered_pages(out: Path, audience_id: str, audience: dict, extra: list) -> list[tuple[str, Path, dict]]:
@@ -152,8 +168,7 @@ def delegated_pages(config: dict, root: Path, audience_id: str, audience: dict) 
     """(page id, title, body) for each page a trait or the project delegates to a tool the repository already has."""
     publish = config.get("publish") or {}
     titles = {page["id"]: page.get("title", page["id"]) for page in audience.get("pages") or []}
-    delegates = [d for t in load_traits(config, root, publish.get("traits") or []) for d in t.get("delegates") or []]
-    delegates += [{"page": k, **v} for k, v in (publish.get("delegate") or {}).items()]
+    delegates = [{**value, "page": key} for key, value in resolved_delegates(config, root).items()]
     found = []
     for delegate in delegates:
         part, _, page_id = delegate["page"].partition("/")
@@ -295,7 +310,9 @@ def emit_hugo(root: Path, config: dict, site_dir: Path, content_dir: str, hextra
                 lead += f'<p class="guide-kind">{meta["page_kind"]}</p>\n\n'
             if meta["task"] and hextra:
                 lead += f'<p class="guide-task">{meta["task"]}</p>\n\n'
-            text = front_matter(meta) + lead + linker.rewrite(path, body) + (sources_block(sources) if inline_sources else "")
+            from documentor.schemas import links as schema_links
+
+            text = front_matter(meta) + lead + linker.rewrite(path, body) + schema_links(path, root, published[path.resolve()]) + (sources_block(sources) if inline_sources else "")
             (section_dir / ("_index.md" if pid == "index" else f"{pid}.md")).write_text(text, encoding="utf-8")
             listed.append({"title": title, "url": published[path.resolve()], "task": entry.get("task", "")})
         for pid, title, text in delegated_pages(config, root, aid, audience):
@@ -605,6 +622,14 @@ def into_mkdocs(root: Path, config: dict, run_build: bool) -> int:
 # --- entry -----------------------------------------------------------------------------------------------
 
 def build(root: Path, site: Path, run_build: bool, base_url: str | None, target: str | None = None) -> int:
+    try:
+        return _build(root, site, run_build, base_url, target)
+    except (ValueError, OSError, yaml.YAMLError) as error:
+        print(f"documentor site: {error}", file=sys.stderr)
+        return 1
+
+
+def _build(root: Path, site: Path, run_build: bool, base_url: str | None, target: str | None = None) -> int:
     config = config_of(root)
     publish = config.get("publish") or {}
     if not publish:
@@ -621,6 +646,16 @@ def build(root: Path, site: Path, run_build: bool, base_url: str | None, target:
     if target == "mkdocs":
         return into_mkdocs(root, config, run_build)
     if target == "hugo":
+        from documentor import schemas
+
+        site_dir = hugo_site_dir(root, config)
+        if site_dir is None:
+            return into_hugo(root, config, run_build)
+        try:
+            schemas.publish(root, config, *schema_output_dirs(root, config, target, site))
+        except (ValueError, OSError, yaml.YAMLError) as error:
+            print(f"documentor schemas: {error}", file=sys.stderr)
+            return 1
         return into_hugo(root, config, run_build)
     status = (scaffold_hextra if target == "hextra" else scaffold_static)(root, config, site, False, base_url)
     if status:
@@ -628,6 +663,13 @@ def build(root: Path, site: Path, run_build: bool, base_url: str | None, target:
     extra = add_sections(root, config, site / "content")
     if extra:
         return extra
+    from documentor import schemas
+
+    try:
+        schemas.publish(root, config, *schema_output_dirs(root, config, target, site))
+    except (ValueError, OSError, yaml.YAMLError) as error:
+        print(f"documentor schemas: {error}", file=sys.stderr)
+        return 1
     link_sections(config, site)
     if run_build and shutil.which("hugo"):
         done = subprocess.run([shutil.which("hugo"), "--source", str(site), "--destination", str(site / "public"),
@@ -645,6 +687,8 @@ def link_sections(config: dict, site: Path) -> None:
     scaffold wrote it before they existed)."""
     settings = (config.get("publish") or {}).get("site") or {}
     added = []
+    added.append({"id": "schemas", "title": "Design schemas", "url": "/schemas/",
+                  "reader": "Explore the schemas referenced by the designs.", "pages": []})
     if settings.get("record"):
         prefix = settings.get("record_dir", "record")
         added.append({"id": prefix, "title": settings.get("record_title", "Record"), "url": f"/{prefix}/",
@@ -660,9 +704,29 @@ def link_sections(config: dict, site: Path) -> None:
         return
     hugo = yaml.safe_load(config_file.read_text(encoding="utf-8")) or {}
     listed = hugo.setdefault("params", {}).setdefault("sections", [])
+    home_path = site / "content" / "_index.md"
+    home = home_path.read_text(encoding="utf-8") if home_path.is_file() else ""
+    hextra = "layout: hextra-home" in home
+    menu = hugo.setdefault("menu", {}).setdefault("main", []) if hextra else []
     for entry in added:
-        if (site / "content" / entry["url"].strip("/")).is_dir() and entry["id"] not in {s.get("id") for s in listed}:
-            listed.insert(len([s for s in listed if s.get("id") not in ("about",)]), entry | {"weight": len(listed) + 1})
+        if not (site / "content" / entry["url"].strip("/")).is_dir():
+            continue
+        if entry["id"] not in {s.get("id") for s in listed}:
+            listed.insert(len([s for s in listed if s.get("id") != "about"]), entry | {"weight": len(listed) + 1})
+        if hextra:
+            if entry["url"].strip("/") not in {
+                str(item.get("pageRef", item.get("url", ""))).strip("/") for item in menu
+            }:
+                menu.append({"name": entry["title"], "pageRef": entry["url"], "weight": len(menu) + 1})
+            link = entry["url"].strip("/") + "/"
+            if not re.search(r'{{< card\s+[^>]*link="/?' + re.escape(link) + r'"', home):
+                # Shortcode arguments must not be broken by a configured quote or newline.
+                title = str(entry["title"]).replace('"', '&quot;').replace("\n", " ")
+                reader = str(entry["reader"]).replace('"', '&quot;').replace("\n", " ")
+                card = f'  {{{{< card link="{link}" title="{title}" subtitle="{reader}" >}}}}\n'
+                home = home.replace("{{< /cards >}}", card + "{{< /cards >}}", 1)
+    if hextra:
+        home_path.write_text(home, encoding="utf-8")
     config_file.write_text(yaml.safe_dump(hugo, sort_keys=False, allow_unicode=True), encoding="utf-8")
 
 

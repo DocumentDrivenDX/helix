@@ -86,3 +86,12 @@ For a developer-facing HTML architecture field guide, use the HTML profile and
 worked scaffold linked in `diagram-design.md`. Pair the map with a numbered
 walkthrough, sources, and limits. Separate dense internals from the overview;
 review connector routing, mobile overflow, offline use, and print output.
+
+## UMF Schema Reuse
+
+Apply `workflows/references/umf-schemas.md` for schema, structured-interface, or
+domain-model work. Inspect applicable UMF core, extensions, and domain packs;
+reuse or compose by default. Record pinned sources, local additions, specific
+exceptions, and semantic/projection limits. Declare `ddx.schemas` references to
+the authoritative local sources so publication can render them in the UMF
+browser. Contracts own exact shared surfaces; designs reference them.
