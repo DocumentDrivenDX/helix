@@ -32,4 +32,5 @@ Define what the system should do, for whom, and how success will be measured.
   {{< card link="threat-model/" title="Threat Model" subtitle="Structured analysis of assets, data flows, trust boundaries, STRIDE threats, risk, mitigations, owners, and verification hooks." >}}
   {{< card link="validation-checklist/" title="Validation Checklist" subtitle="Frame exit gate that verifies completeness, consistency, traceability, evidence, stakeholder review, and readiness to enter Design." >}}
   {{< card link="roadmap/" title="Roadmap" subtitle="Frame-activity sequencing artifact that orders framed capabilities and outcomes across iterations or horizons, with dependencies, confidence, and ordering rati…" >}}
+  {{< card link="user-journey-map/" title="User Journey Map" subtitle="One person's experience of one task across several stories, laid out in phases with what they do, think and feel in each, the insights the team draws, and the…" >}}
 {{< /cards >}}

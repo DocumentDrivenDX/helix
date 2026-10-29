@@ -134,6 +134,8 @@ relationships:
     - solution-design
     - contract
     - test-plan
+    - user-flow
+    - user-journey-map
 
   registered_in:
     - feature-registry
