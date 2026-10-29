@@ -31,8 +31,10 @@ id_format:
   pattern: "UF-[0-9]+-[0-9]{2}-[a-z0-9-]+"
   example: UF-001-02-mapping-review
   description: |
-    A wireframe takes its user flow's number, a two-digit view number in the
-    order of the flow's Views table, and the view name. There is no separate
+    A wireframe takes its user flow's number, a two-digit view number and the
+    view name. The view number is the next unused number in the flow's folder,
+    given once when the wireframe is created and kept when views are added,
+    removed or reordered; it is not the view's row position. There is no separate
     wireframe prefix. Set ddx.type to wireframe, since the UF prefix alone
     resolves to the user flow.
 

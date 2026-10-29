@@ -14,8 +14,11 @@ all. The solution or technical design links the wireframe by ID.
 ## Focus
 
 - Create `docs/helix/02-design/flows/UF-XXX-[feature]/UF-XXX-NN-[view].md`
-  beside its user flow. NN is the view's two-digit position in the flow's
-  Views table. Put images in the folder's `assets/`. Set `ddx.type: wireframe`.
+  beside its user flow. NN is a two-digit number given once, when the
+  wireframe is created: the next number not yet used in that folder. Keep it
+  when views are added, removed or reordered; never renumber an existing
+  wireframe, and do not reuse a retired number. Put images in the folder's
+  `assets/`. Set `ddx.type: wireframe`.
 - Take the view's name, actions and transitions from the user flow.
 - State the modality (screen, voice or chat) and the fidelity first, and
   annotate to the fidelity's depth:

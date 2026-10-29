@@ -19,8 +19,10 @@ links to them by ID.
 - Create `docs/helix/01-frame/journey-maps/UJM-XXX-[name].md` only when a task
   spans several stories or views and the team needs the whole picture.
 - Pick one person from the PRD's User Segments and one task from the feature
-  specification's Task Model, and name both. A second person or task is a
-  second map.
+  specification's Task Model, and name both. If the PRD has no User Segments
+  or the feature has no Task Model, name the person and the task in plain words
+  from the PRD's users and the feature's stories instead. A second person or
+  task is a second map.
 - State goals and expectations before the phases; phases are judged against
   them.
 - Name phases as the person's stages ("Notice", "Prepare", "Decide"), not as
