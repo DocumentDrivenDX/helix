@@ -76,7 +76,6 @@ When documenting learnings:
 - [ ] System in production
 - [ ] Monitoring active
 - [ ] Metrics being collected
-- [ ] Users actively using system
 - [ ] Feedback channels open
 
 ### Exit Requirements (To Next Cycle)

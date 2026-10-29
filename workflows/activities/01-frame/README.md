@@ -19,9 +19,8 @@ Prerequisites to enter this activity (defined in `GATE.yaml`):
 ## Exit Gates
 
 Criteria to proceed to Design activity (defined in `GATE.yaml`):
-- **PRD intent clear**: Problem quantified, P0s testable, metrics measurable, non-goals specific, personas validatable
+- **PRD intent clear**: Problem clear, P0s testable, non-goals specific, personas concrete
 - **P0 requirements specified**: Critical features have detailed, testable specifications
-- **Success metrics measurable**: Metrics have numeric targets and named measurement methods
 - **Feature specs complete**: Each feature links to PRD requirements, has testable functional and non-functional requirements
 - **User stories written**: Each story traces a complete vertical slice with concrete test scenarios
 - **Principles established**: Design principles documented
@@ -41,8 +40,8 @@ type-level dependencies; see ADR-004).
 
 The authority document for what to build and why:
 - Summary (standalone 1-pager)
-- Problem statement with quantified pain
-- Success metrics with numeric targets and measurement methods
+- Problem statement naming a specific failure mode, quantified where supported
+- Product-outcome hypotheses and available measurement methods
 - Prioritized requirements (P0/P1/P2)
 - Acceptance test sketches for every P0
 - Technical context (stack decisions — rationale in ADRs)
@@ -58,7 +57,7 @@ Per-feature requirements and scope:
 - Functional requirements (testable, numbered for traceability)
 - Non-functional requirements with numeric targets
 - User stories referenced by ID (not duplicated)
-- Feature-specific success metrics
+- Optional feature-learning indicators
 - Edge cases and error handling
 - Dependencies and out of scope
 

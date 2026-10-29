@@ -42,8 +42,8 @@ validation:
       severity: blocking
 
     - check: metrics_measurable
-      description: Success metrics are measurable and time-bound, with numeric targets or named measurement methods
-      severity: blocking
+      description: Strategic indicators name a measurement method; unsupported targets remain hypotheses
+      severity: warning
 
     - check: ux_concrete
       description: User experience describes a concrete scenario, not abstract benefits

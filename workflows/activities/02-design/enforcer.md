@@ -73,7 +73,6 @@ Before creating new design docs:
 ### Entry Requirements (From Frame)
 - [ ] Relevant requirements and constraints are clear
 - [ ] All P0 requirements specified
-- [ ] Success metrics defined
 - [ ] User stories have acceptance criteria
 - [ ] No [NEEDS CLARIFICATION] markers
 
@@ -199,7 +198,6 @@ Design must address:
 - Every functional requirement
 - All non-functional requirements
 - Documented constraints
-- Success metrics
 - Security requirements
 
 ### Preparing for Test

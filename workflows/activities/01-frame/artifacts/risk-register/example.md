@@ -210,7 +210,7 @@ pilot-scope evidence.
 **Mitigation**:
 
 - **Preventive**: Label research conclusions as pilot evidence only.
-- **Contingency**: Add follow-up market research before general availability.
+- **Contingency**: Use follow-up market research to refine positioning and priorities independently of engineering release readiness.
 - **Fallback**: Keep Business Case market sizing at low confidence.
 
 **Review**: At research synthesis | **Next Review**: 2026-05-26

@@ -14,7 +14,6 @@ The Design activity transforms validated business requirements from Frame into a
 
 Before starting Design, verify Frame outputs:
 - [ ] PRD states the scoped outcome and constraints clearly
-- [ ] Success metrics clearly defined
 - [ ] User stories with acceptance criteria
 - [ ] Principles document established
 - [ ] All stakeholders aligned on scope
