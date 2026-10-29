@@ -1,9 +1,9 @@
-<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=codex reviewed=2026-10-29/codex-independent-reader/4fc171378f7ed55a -->
+<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=codex reviewed=2026-10-29/codex-astra-independent-reader/4f7b7c55224492c3 -->
 <!-- helix:gap artifact:architecture -->
-<!-- helix:source src/documentor/cli.py sha256:861322ae490496ea -->
-<!-- helix:source src/documentor/lib.py sha256:c5e1e41d3141003c -->
+<!-- helix:source src/documentor/cli.py sha256:8b7a0be0b2efb9cb -->
+<!-- helix:source src/documentor/lib.py sha256:5db149c5af59118b -->
 <!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
-<!-- helix:source src/documentor/site.py sha256:280dd4bd10802e31 -->
+<!-- helix:source src/documentor/site.py sha256:1d8a815021485d27 -->
 <!-- helix:source src/documentor/record.py sha256:ab468e2c1eef452a -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/theme.py sha256:7e38d9589c728f0b -->
@@ -22,7 +22,7 @@
 <!-- helix:source docs/helix/02-design/adr/ADR-001-a-repository-guide-is-detected-generated-written-evaluated-and-checked.md sha256:f430157a0b1cbc34 -->
 <!-- helix:source docs/helix/02-design/adr/ADR-002-an-estate-view-is-composed-from-repository-architecture-models.md sha256:b612bb9b14aab618 -->
 <!-- helix:source docs/helix/02-design/adr/ADR-003-documentor-drives-the-agent-that-writes-and-evaluates-the-written-pages.md sha256:46908679adfaa9f5 -->
-<!-- helix:source src/documentor/schemas.py sha256:9a9548369cb394fa -->
+<!-- helix:source src/documentor/schemas.py sha256:6db23e6c01b889bc -->
 <!-- helix:source src/documentor/umf_tables.py sha256:56c75007b5b2d2de -->
 <!-- helix:source src/documentor/catalog/ci/github-pages.yml sha256:5656014516fa3a2d -->
 # Architecture
@@ -146,7 +146,9 @@ For a Hugo site, `site` writes the pages where its content mount points. Before 
 
 In a site that documentor scaffolded, `site` then adds the record and each generated section to the navigation in the site's `hugo.yaml`. It lists only a section whose content directory exists, and lists it once. Hextra also receives navbar entries and home cards for these sections.
 
-Hugo, static, and Hextra builds publish artifact and guide schemas plus discovered UMF tables. The publisher preserves unrelated files and refuses unowned output collisions. `documentor schemas --check` checks freshness; rendering establishes no semantic conformance.
+Hugo, static, and Hextra builds publish artifact and guide schemas plus discovered UMF tables. Adopted pages contribute references. The browser follows the host theme and preserves selection across changes.
+
+The publisher preserves unrelated files and refuses unowned output collisions. `documentor schemas --check` checks freshness; rendering establishes no semantic conformance.
 
 The Pages template, `src/documentor/catalog/ci/github-pages.yml`, requires selecting a release with UMF support; preflight rejects the placeholder or a tool without schema publication.
 

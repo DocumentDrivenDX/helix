@@ -411,16 +411,17 @@ def guide_main(argv: list[str]) -> int:
         print(f"\nchecks: {len(blocking)} blocking, {len(findings.items) - len(blocking)} warnings")
         for f in blocking[:10]:
             print(f"  BLOCKING {f['check']} {Path(f['page']).name}: {f['message']}")
+    site_status = 0
     if args.command == "build" and not args.no_site:
         from documentor import site
 
-        site.build(root, args.site or root / ".helix" / "site", True, None)
+        site_status = site.build(root, args.site or root / ".helix" / "site", True, None)
     if args.command == "check":
         unfinished = [p for p in pages if p.entry["state"] in ("missing", "stale", "unreviewed", "unadopted")]
         for p in unfinished[:10]:
             print(f"  {p.entry['state'].upper()} {p.path}: {p.entry['detail']}")
         return 1 if blocking or unfinished or view_state[0] == "stale" else 0
-    return 1 if written else 0
+    return 1 if written or site_status else 0
 
 
 def main(argv: list[str] | None = None) -> int:

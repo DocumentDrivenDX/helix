@@ -42,7 +42,7 @@ import yaml
 
 from documentor import theme as project_theme
 from documentor.check import parse_page
-from documentor.lib import FENCE, catalog, audiences, config_of, find_root, load_audience, load_traits, publish_out
+from documentor.lib import FENCE, catalog, audiences, config_of, find_root, load_audience, load_traits, publish_out, resolved_delegates
 
 # A link or image; a link's text may hold an image (`[![alt](img.svg)](img.svg)`), rewritten too.
 LINK = re.compile(r"(!?\[(?:[^\[\]]|!\[[^\]]*\]\([^)]*\))*\]\()([^)\s]+)((?:\s+\"[^\"]*\")?\))")
@@ -168,8 +168,7 @@ def delegated_pages(config: dict, root: Path, audience_id: str, audience: dict) 
     """(page id, title, body) for each page a trait or the project delegates to a tool the repository already has."""
     publish = config.get("publish") or {}
     titles = {page["id"]: page.get("title", page["id"]) for page in audience.get("pages") or []}
-    delegates = [d for t in load_traits(config, root, publish.get("traits") or []) for d in t.get("delegates") or []]
-    delegates += [{"page": k, **v} for k, v in (publish.get("delegate") or {}).items()]
+    delegates = [{**value, "page": key} for key, value in resolved_delegates(config, root).items()]
     found = []
     for delegate in delegates:
         part, _, page_id = delegate["page"].partition("/")

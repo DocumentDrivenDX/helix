@@ -64,3 +64,5 @@ Run `just test`, `just test-documentor`, catalog synchronization, a production
 Hugo build and the schema browser test. A renderer pass makes no instance or
 native-semantic validation claim. No automatic upstream contribution, schema
 migration, application runtime dependency or tracker work is in scope.
+
+The embedded browser follows the microsite’s resolved theme on load and live changes, preserving the selected schema and definition. The standalone explorer honors the saved site preference and otherwise follows the system theme. Trait delegation uses the same resolution during planning and rendering; adopted pages selected by mapping or glob contribute schema references. Invalid UMF collection shapes produce source-specific command errors.

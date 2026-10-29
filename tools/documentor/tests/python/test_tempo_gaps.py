@@ -192,3 +192,19 @@ def test_pages_preflight_rejects_placeholder_and_tools_without_schema_support(tm
     assert result.returncode == expected
     if release == "REPLACE_WITH_UMF_RELEASE":
         assert "Set DOCUMENTOR to a released tag" in result.stderr
+
+
+@pytest.mark.parametrize("hextra", [False, True])
+def test_umf_and_pipeline_references_survive_site_rendering(tmp_path, hextra):
+    table(tmp_path)
+    config = {"publish": {"traits": ["umf-tablespec", "tablespec-pipeline"], "audiences": ["data"]}}
+    body, _ = generate.GENERATORS["umf-tables"](tmp_path, config)
+    page = tmp_path / "docs/guide/data/tables.md"
+    page.parent.mkdir(parents=True)
+    page.write_text("<!-- helix:publish audience=data page=tables kind=reference generated=umf-tables -->\n" + body)
+    output = tmp_path / "website"
+    site.emit_hugo(tmp_path, config, output, "guide", hextra)
+    content = output / "content/guide/data"
+    assert "uuid" in (content / "tables.md").read_text()
+    assert "tablespec guidebook" not in (content / "tables.md").read_text()
+    assert "tablespec guidebook" in (content / "pipeline-tables.md").read_text()

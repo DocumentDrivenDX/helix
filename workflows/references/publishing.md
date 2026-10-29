@@ -180,7 +180,7 @@ It generates `/schemas/`, original source downloads, provenance with SHA-256
 digests, and an embedded UMF schema browser. Published artifacts and referenced
 guide pages gain links to the selected schema and optional definition. Relative
 URLs preserve deployment prefixes such as `/helix/`. No references means no
-browser dependency or generated section. Existing sources are never rewritten.
+browser dependency or generated section. Existing sources are never rewritten. The embedded browser follows the host page’s resolved light or dark theme, including live changes; the standalone explorer follows the saved site preference or the system theme. Theme changes preserve the selected schema and definition.
 
 Install `@documentdrivendx/umf-schema-browser@2.0.0` with the site's package
 manager and commit its lockfile. The publisher looks under `node_modules/` and

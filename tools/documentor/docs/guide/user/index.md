@@ -1,10 +1,10 @@
-<!-- helix:publish audience=user page=index kind=tutorial voice=public-site budget=700 written=codex reviewed=2026-10-29/codex-independent-reader/8dae54e0fab51b0c -->
+<!-- helix:publish audience=user page=index kind=tutorial voice=public-site budget=700 written=codex reviewed=2026-10-29/codex-astra-independent-reader/8dae54e0fab51b0c -->
 <!-- helix:gap artifact:user-stories -->
 <!-- helix:source README.md#install sha256:11003d4123be1f55 -->
 <!-- helix:source README.md#use sha256:1668b6192a52a5d5 -->
-<!-- helix:source src/documentor/cli.py sha256:861322ae490496ea -->
+<!-- helix:source src/documentor/cli.py sha256:8b7a0be0b2efb9cb -->
 <!-- helix:source src/documentor/detect.py sha256:376f1dd87ec38e48 -->
-<!-- helix:source src/documentor/lib.py sha256:c5e1e41d3141003c -->
+<!-- helix:source src/documentor/lib.py sha256:5db149c5af59118b -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 # Getting started
 

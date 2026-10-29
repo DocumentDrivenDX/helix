@@ -16,7 +16,7 @@ from urllib.parse import urlencode
 
 import yaml
 
-from documentor.lib import config_of, find_root, helix_root, publish_out
+from documentor.lib import config_of, find_root, helix_root, publish_out, plan
 from documentor.record import split_frontmatter
 
 BROWSER_VERSION = "2.0.0"
@@ -70,10 +70,16 @@ def references(page: Path, root: Path) -> list[dict]:
             if (not isinstance(definition, list) or len(definition) != 2
                     or not all(isinstance(v, str) and v for v in definition)):
                 raise ValueError(f"{page}: definition must be [moduleId, elementId]")
-            if ref["schemaFormat"] != "umf" or not isinstance(value, dict) or not any(
+            modules = value.get("modules", []) if isinstance(value, dict) else []
+            if not isinstance(modules, list):
+                raise ValueError(f"{page}: schema source {ref['path']}: modules must be a list")
+            for module in modules:
+                if isinstance(module, dict) and not isinstance(module.get("elements", []), list):
+                    raise ValueError(f"{page}: schema source {ref['path']}: module {module.get('id')!r} elements must be a list")
+            if ref["schemaFormat"] != "umf" or not any(
                 m.get("id") == definition[0] and any(e.get("id") == definition[1]
                     for e in m.get("elements", []) if isinstance(e, dict))
-                for m in value.get("modules", []) if isinstance(m, dict)
+                for m in modules if isinstance(m, dict)
             ):
                 raise ValueError(f"{page}: definition does not exist: {definition}")
         checked.append(ref)
@@ -88,6 +94,8 @@ def discover(root: Path, config: dict) -> list[dict]:
     pages = {page for source in sources for page in source.rglob("*.md")
              if not any(p.startswith(".") for p in page.relative_to(source).parts)}
     pages.update(path for _, _, published in collect(root, config) for _, path, _ in published)
+    pages.update(local(root, page.path) for page in plan(config, root)
+                 if page.work == "existing" and local(root, page.path).is_file())
     for page in sorted(pages):
         local(root, page.relative_to(root).as_posix())
         for ref in references(page, root):
@@ -177,26 +185,57 @@ def package(root: Path, config: dict) -> Path:
 
 MOUNT = '''import {mountSchemaBrowser} from './browser/index.js';
 const base = new URL('./', import.meta.url);
-const handle = mountSchemaBrowser(document.getElementById('schema-view'), {
-  assetsUrl: new URL('browser/assets/', base).href,
-  catalogUrl: new URL('catalog.json', base).href,
-  assetBaseUrl: base.href,
-  initialRoute: location.hash.slice(1),
-  readOnlyLocalFiles: true, theme: 'auto', height: '85vh', onError: failed,
-  onCatalogError: failed,
-  onSelect: () => { document.getElementById('status').textContent = ''; },
-  onNavigate: selection => {
-    const params = new URLSearchParams(Object.entries(selection).filter(([, value]) => typeof value === 'string'));
-    history.replaceState(null, '', '#' + params);
+// The iframe's OS preference cannot see an explicit theme on the host page.
+// Use the public mount lifecycle when it changes; retain the current route.
+const system = matchMedia('(prefers-color-scheme: dark)');
+let host = document.documentElement;
+try { if (parent !== window) host = parent.document.documentElement; } catch {}
+function hostTheme() {
+  if (host !== document.documentElement) {
+    if (host.classList.contains('dark') || host.dataset.appearance === 'dark') return 'dark';
+    if (host.classList.contains('light') || host.dataset.appearance === 'light') return 'light';
+    const scheme = host.ownerDocument.defaultView.getComputedStyle(host).colorScheme;
+    if (scheme === 'light' || scheme === 'dark') return scheme;
   }
-});
+  const saved = localStorage.getItem('color-theme');
+  return saved === 'light' || saved === 'dark' ? saved : system.matches ? 'dark' : 'light';
+}
+let handle;
+let theme;
 function failed(error) {
   document.getElementById('status').textContent = 'Schema browser failed: ' + error.message;
 }
-handle.ready.then(() => {
-  const query = new URLSearchParams(location.hash.slice(1));
-  if (query.has('schema')) return handle.select(Object.fromEntries(query));
-}).catch(failed);
+
+function mount() {
+  const next = hostTheme();
+  if (next === theme) return;
+  theme = next;
+  if (handle) handle.destroy();
+  document.documentElement.style.colorScheme = theme;
+  const current = mountSchemaBrowser(document.getElementById('schema-view'), {
+    assetsUrl: new URL('browser/assets/', base).href,
+    catalogUrl: new URL('catalog.json', base).href,
+    assetBaseUrl: base.href,
+    initialRoute: location.hash.slice(1),
+    readOnlyLocalFiles: true, theme, height: '85vh', onError: failed,
+    onCatalogError: failed,
+    onSelect: () => { document.getElementById('status').textContent = ''; },
+    onNavigate: selection => {
+      const params = new URLSearchParams(Object.entries(selection).filter(([, value]) => typeof value === 'string'));
+      history.replaceState(null, '', '#' + params);
+    }
+  });
+  handle = current;
+  current.ready.then(() => {
+    if (handle !== current) return;
+    const query = new URLSearchParams(location.hash.slice(1));
+    if (query.has('schema')) return current.select(Object.fromEntries(query));
+  }).catch(error => { if (handle === current) failed(error); });
+}
+mount();
+new MutationObserver(mount).observe(host, {attributes: true, attributeFilter: ['class', 'style', 'data-appearance']});
+window.addEventListener('storage', mount);
+system.addEventListener('change', mount);
 window.addEventListener('hashchange', () => {
   const query = new URLSearchParams(location.hash.slice(1));
   if (query.has('schema')) handle.select(Object.fromEntries(query)).catch(failed);
@@ -291,6 +330,7 @@ def publish(root: Path, config: dict, content: Path, static: Path, check: bool =
     files: dict[str, bytes] = {"catalog.json": catalog.encode(), "mount.js": MOUNT.encode()}
     files["explorer.html"] = ('''<!doctype html><html lang="en"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>Design schemas</title>
+<style>body{background:light-dark(#fff,#111);color:light-dark(#111,#eee)}a{color:light-dark(#0645ad,#8ab4f8)}</style>
 <body><p><a href="./" target="_top">Schema index and provenance</a></p>
 <p id="status" role="status"></p><div id="schema-view"></div>
 <noscript>Enable JavaScript to explore schemas. Source downloads are available in the schema index.</noscript>

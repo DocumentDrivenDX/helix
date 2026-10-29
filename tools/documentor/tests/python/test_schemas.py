@@ -340,3 +340,50 @@ def test_guide_reference_discovery_honors_custom_output_directory(project):
     page.unlink()
     config["publish"] = {"out": ".guide", "audiences": ["developer"]}
     assert schemas.discover(root, config)[0]["owners"] == [".guide/developer/model.md"]
+
+
+@pytest.mark.parametrize("existing", [{"model": "manual/model.md"}, ["manual/*.md"]])
+def test_existing_pages_outside_guide_contribute_schemas(project, existing):
+    root, config, page, ref = project
+    page.unlink()
+    adopted = root / "manual/model.md"
+    adopted.parent.mkdir()
+    write_ref(adopted, ref)
+    config["publish"] = {"audiences": ["developer"], "existing": {"developer": existing}}
+    with patch("documentor.lib.repository_files", return_value=["manual/model.md"]):
+        entries = schemas.discover(root, config)
+    assert len(entries) == 1
+    assert entries[0]["owners"] == ["manual/model.md"]
+    with patch("documentor.lib.repository_files", return_value=["manual/model.md"]), patch.object(schemas, "package", return_value=browser(root)):
+        schemas.publish(root, config, root / "content", root / "static")
+    catalog = json.loads((root / "static/schemas/catalog.json").read_text())
+    assert catalog["entries"][0]["id"] == "customer@1.0.0"
+    assert (root / "static/schemas" / entries[0]["url"]).is_file()
+
+
+@pytest.mark.parametrize("value,field", [
+    ({"modules": None}, "modules"),
+    ({"modules": {}}, "modules"),
+    ({"modules": [{"id": "sales", "elements": None}]}, "elements"),
+    ({"modules": [{"id": "sales", "elements": {}}]}, "elements"),
+])
+def test_schema_cli_reports_invalid_umf_collection_shapes(project, value, field, capsys):
+    root, config, _, ref = project
+    (root / ref["path"]).write_text(json.dumps(value))
+    (root / ".helix.yml").write_text(yaml.safe_dump(config))
+    assert schemas.main(["--root", str(root)]) == 1
+    error = capsys.readouterr().err
+    assert ref["path"] in error and f"{field} must be a list" in error
+    assert "Traceback" not in error
+
+
+def test_default_build_propagates_schema_publication_failure(project, capsys):
+    from documentor import cli
+
+    root, config, _, ref = project
+    config["publish"] = {"schema": 1, "audiences": ["developer"], "site": {"target": "hextra", "record": True}}
+    (root / ".helix.yml").write_text(yaml.safe_dump(config))
+    (root / ref["path"]).write_text('{"modules":null}')
+    assert cli.main(["build", "--root", str(root)]) == 1
+    error = capsys.readouterr().err
+    assert ref["path"] in error and "modules must be a list" in error
