@@ -1,7 +1,7 @@
 ---
 title: "TD-011: Slider Autonomy Implementation"
 slug: TD-011-slider-autonomy-implementation
-weight: 510
+weight: 520
 activity: "Design"
 source: "02-design/technical-designs/TD-011-slider-autonomy-implementation.md"
 generated: true

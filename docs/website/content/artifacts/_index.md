@@ -33,6 +33,7 @@ _Auto-generated from `helix/` by `documentor record`._
 - [Design: Formal Methods Concern](/artifacts/design-formal-methods/)
 - [Design: UMF schemas and their published browser](/artifacts/design-umf-schemas/)
 - [UX behavior and packaged design systems](/artifacts/design-ux-governance/)
+- [Tempo-driven HELIX and documentor corrections](/artifacts/plan-tempo-documentor-gaps/)
 - [Security Architecture — DDx Agent Execution Surface](/artifacts/security-architecture/)
 - [HELIX solution overview](/artifacts/solution-overview/)
 - [adr](/artifacts/adr/) _(14 items)_
