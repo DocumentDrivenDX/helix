@@ -100,6 +100,20 @@ def discover(root: Path, config: dict) -> list[dict]:
                     previous["owners"].append(owner)
             else:
                 entries[identity] = entry
+    if "umf-tablespec" in (config.get("publish") or {}).get("traits", []):
+        from documentor.umf_tables import tables
+
+        for path, table in tables(root):
+            identity = "tablespec:" + table["table_name"] + "@" + str(table["version"])
+            digest = hashlib.sha256(local(root, path).read_bytes()).hexdigest()
+            suffix = Path(path).suffix
+            entry = {"id": identity, "title": table["table_name"], "category": "tables",
+                     "path": path, "format": "yaml", "schemaFormat": "tablespec",
+                     "url": f"sources/{digest}{suffix}", "description": f"Source: {path}",
+                     "assets": [], "owners": [path], "version": str(table["version"]), "sha256": digest}
+            if identity in entries:
+                raise ValueError(f"conflicting schema identity {identity}")
+            entries[identity] = entry
     if len(entries) > 10_000:
         raise ValueError("schema catalog exceeds browser's 10,000 entry limit")
     return [entries[k] for k in sorted(entries)]

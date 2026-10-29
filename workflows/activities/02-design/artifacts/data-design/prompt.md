@@ -37,3 +37,29 @@ reuse or compose by default. Record pinned sources, local additions, specific
 exceptions, and semantic/projection limits. Declare `ddx.schemas` references to
 the authoritative local sources so publication can render them in the UMF
 browser. Contracts own exact shared surfaces; designs reference them.
+
+## Machine-readable relational tables (when applicable)
+
+For relational designs, keep one upstream UMF TableSpec YAML per table under
+`docs/helix/02-design/umf/tables/` (or name the project's chosen specs directory).
+Use the upstream UMF project's TableSpec 1.0 format: `version: "1.0"`,
+`table_name`, `columns`, primary/unique keys, and
+`relationships.foreign_keys` (`column`, `references_table`, `references_column`).
+The YAML owns exact columns, types, keys and foreign keys; this document owns
+rationale, access patterns, transactions and migration decisions. Summaries link
+the specs; change them in the same revision rather than maintaining a second
+independent schema. Shared interfaces still follow the Contract ownership rule.
+
+Declare local sources through `ddx.schemas` with `schemaFormat: tablespec`
+(see `workflows/references/umf-schemas.md`), or select documentor's
+`umf-tablespec` trait for automatic table discovery. Install the pinned
+`@documentdrivendx/umf-schema-browser` version required by documentor in the
+site's locked dependencies, then run `documentor build --root .` to generate
+the table reference and publish the schema browser. The upstream UMF browser
+is the tool named here; tablespec guidebook remains for tablespec pipelines.
+Validate the YAML with the upstream validator supported by the project's pinned
+UMF version, and check FK targets plus prose/spec agreement. Rendering a browser
+is publication evidence, not schema validity or a database migration. Record the
+exact validation and browser build commands and observed results in the design.
+Skip this section with a reason when no relational model is in scope; a planned
+relational application needs specs even before application code exists.

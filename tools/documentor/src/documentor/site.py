@@ -682,9 +682,29 @@ def link_sections(config: dict, site: Path) -> None:
         return
     hugo = yaml.safe_load(config_file.read_text(encoding="utf-8")) or {}
     listed = hugo.setdefault("params", {}).setdefault("sections", [])
+    home_path = site / "content" / "_index.md"
+    home = home_path.read_text(encoding="utf-8") if home_path.is_file() else ""
+    hextra = "layout: hextra-home" in home
+    menu = hugo.setdefault("menu", {}).setdefault("main", []) if hextra else []
     for entry in added:
-        if (site / "content" / entry["url"].strip("/")).is_dir() and entry["id"] not in {s.get("id") for s in listed}:
-            listed.insert(len([s for s in listed if s.get("id") not in ("about",)]), entry | {"weight": len(listed) + 1})
+        if not (site / "content" / entry["url"].strip("/")).is_dir():
+            continue
+        if entry["id"] not in {s.get("id") for s in listed}:
+            listed.insert(len([s for s in listed if s.get("id") != "about"]), entry | {"weight": len(listed) + 1})
+        if hextra:
+            if entry["url"].strip("/") not in {
+                str(item.get("pageRef", item.get("url", ""))).strip("/") for item in menu
+            }:
+                menu.append({"name": entry["title"], "pageRef": entry["url"], "weight": len(menu) + 1})
+            link = entry["url"].strip("/") + "/"
+            if not re.search(r'{{< card\s+[^>]*link="/?' + re.escape(link) + r'"', home):
+                # Shortcode arguments must not be broken by a configured quote or newline.
+                title = str(entry["title"]).replace('"', '&quot;').replace("\n", " ")
+                reader = str(entry["reader"]).replace('"', '&quot;').replace("\n", " ")
+                card = f'  {{{{< card link="{link}" title="{title}" subtitle="{reader}" >}}}}\n'
+                home = home.replace("{{< /cards >}}", card + "{{< /cards >}}", 1)
+    if hextra:
+        home_path.write_text(home, encoding="utf-8")
     config_file.write_text(yaml.safe_dump(hugo, sort_keys=False, allow_unicode=True), encoding="utf-8")
 
 
