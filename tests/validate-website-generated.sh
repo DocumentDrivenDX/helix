@@ -19,7 +19,7 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
 content="docs/website/content"
-generated_dirs=("$content/artifact-types" "$content/concerns" "$content/artifacts" "$content/guide" "$content/research" "$content/reference/workflow-modes" "$content/reference/anti-slop-rules")
+generated_dirs=("$content/artifact-types" "$content/concerns" "$content/artifacts" "$content/guide" "$content/research" "$content/reference/workflow-modes" "$content/reference/anti-slop-rules" "$content/schemas")
 
 echo "Regenerating site reference content from upstream sources..."
 uv run --project tools/documentor documentor site --root . --no-build >/dev/null

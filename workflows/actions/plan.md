@@ -109,6 +109,10 @@ Candidate sections (use what this scope needs):
 2. **Requirements Analysis** (functional, non-functional, constraints)
 3. **Architecture Decisions** (question, alternatives, choice, why)
 4. **Interface Contracts**
+
+   Apply `workflows/references/umf-schemas.md` before inventing structured shapes.
+   Reuse UMF definitions by default; record inspected versions, local additions,
+   exceptions, semantic limits, and discoverable `ddx.schemas` references.
 5. **Data Model**
 6. **Error Handling Strategy**
 7. **Security Considerations**

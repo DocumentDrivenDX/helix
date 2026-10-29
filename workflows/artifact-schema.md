@@ -223,6 +223,11 @@ and ignore it when deciding schema validity.
 
 ## Instance frontmatter: the `ddx:` block
 
+Optional `ddx.schemas` lists versioned, repository-local schema references used
+by an artifact. Its field contract, authority rules, and publication behavior
+are defined in `references/umf-schemas.md`. Unknown keys remain preserved as
+specified below; absence does not invalidate historical prose artifacts.
+
 Markdown artifact instances may include YAML frontmatter. HELIX reserves the
 `ddx:` key for portable artifact identity and graph metadata.
 

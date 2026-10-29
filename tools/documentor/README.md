@@ -98,3 +98,16 @@ uv run documentor check --root ../some-repo     # run the working copy against a
 
 `uvx --from /path/to/documentor` caches the build it makes from a local path, so after a change run
 it with `--refresh`, or use `uv run --project /path/to/documentor documentor ...` instead.
+
+## Design schemas
+
+Design artifacts declare versioned local sources in `ddx.schemas`, following
+HELIX's `workflows/references/umf-schemas.md`. Hugo, static and Hextra site builds
+publish a schema index, source downloads and provenance, with an embedded
+`@documentdrivendx/umf-schema-browser@2.0.0`. Install that pinned package with the
+site's package manager; repositories without references need no browser package.
+
+For an existing Hugo site, run `documentor schemas --root .` before a plain Hugo
+build. `documentor schemas --root . --check` rejects stale output. `documentor
+site` runs schema publication automatically. The browser inspects source; native
+validation and semantic compatibility remain separate checks.

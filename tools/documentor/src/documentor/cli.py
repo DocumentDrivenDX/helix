@@ -74,7 +74,7 @@ from documentor.lib import (
     repository_files,
 )
 
-TOOLS = ("check-pages", "stamp", "detect", "generate", "site", "views", "tour", "estate", "deck", "doc", "doctor", "record", "model")
+TOOLS = ("check-pages", "stamp", "detect", "generate", "site", "views", "tour", "estate", "deck", "doc", "doctor", "record", "model", "schemas")
 PHASES = ("00-discover", "01-frame", "02-design", "03-test", "04-build", "05-deploy", "06-iterate")
 
 
@@ -448,6 +448,10 @@ def main(argv: list[str] | None = None) -> int:
             from documentor import site
 
             return site.main(rest)
+        if name == "schemas":
+            from documentor import schemas
+
+            return schemas.main(rest)
         if name == "views":
             from documentor.architecture import views as architecture_views
 

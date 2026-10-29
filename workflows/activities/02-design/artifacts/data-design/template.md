@@ -60,3 +60,11 @@ Field-level rules. Pipeline-level masking and access policy live in
   contracts.
 - [[data-quality-expectations]] — executable field-level and freshness
   contracts that this model must satisfy.
+
+## Schema Basis (when applicable)
+
+Follow `workflows/references/umf-schemas.md`. Name the inspected UMF core,
+extensions/domain packs and versions; what is reused/composed/extended; or the
+specific gap justifying an alternative. Reference the authoritative Contract
+and source through `ddx.schemas`; explain unsupported semantics and tests.
+Omit this section for work with no schema, structured interface, or domain model.

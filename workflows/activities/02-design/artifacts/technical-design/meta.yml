@@ -31,6 +31,9 @@ validation:
     - testing
 
   quality_checks:
+    - check: umf_schema_basis_explicit
+      description: For new or changed schemas, structured interfaces, or domain models, identify inspected UMF definitions and pinned versions, reuse/composition or a specific justified exception, local additions, semantic/projection limits, authoritative source references and supported validation evidence; narrative-only work requires no model
+      severity: blocking
     - check: formal_methods_scope_and_evidence
       description: For selected formal-methods, semantic review checks slice applicability, chosen rigor, requirement-linked specification, assumptions/bounds, non-vacuity, reproducible evidence and code/test correspondence; unaffected slices record exclusion without analyzer/proof runs; model evidence never replaces implementation verification
       severity: blocking

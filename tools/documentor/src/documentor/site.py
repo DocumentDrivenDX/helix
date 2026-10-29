@@ -295,7 +295,9 @@ def emit_hugo(root: Path, config: dict, site_dir: Path, content_dir: str, hextra
                 lead += f'<p class="guide-kind">{meta["page_kind"]}</p>\n\n'
             if meta["task"] and hextra:
                 lead += f'<p class="guide-task">{meta["task"]}</p>\n\n'
-            text = front_matter(meta) + lead + linker.rewrite(path, body) + (sources_block(sources) if inline_sources else "")
+            from documentor.schemas import links as schema_links
+
+            text = front_matter(meta) + lead + linker.rewrite(path, body) + schema_links(path, root, published[path.resolve()]) + (sources_block(sources) if inline_sources else "")
             (section_dir / ("_index.md" if pid == "index" else f"{pid}.md")).write_text(text, encoding="utf-8")
             listed.append({"title": title, "url": published[path.resolve()], "task": entry.get("task", "")})
         for pid, title, text in delegated_pages(config, root, aid, audience):
@@ -621,6 +623,17 @@ def build(root: Path, site: Path, run_build: bool, base_url: str | None, target:
     if target == "mkdocs":
         return into_mkdocs(root, config, run_build)
     if target == "hugo":
+        from documentor import schemas
+
+        site_dir = hugo_site_dir(root, config)
+        if site_dir is None:
+            return into_hugo(root, config, run_build)
+        try:
+            schemas.publish(root, config, content_root_for(root, config, target),
+                            site_dir / "static")
+        except (ValueError, OSError, yaml.YAMLError) as error:
+            print(f"documentor schemas: {error}", file=sys.stderr)
+            return 1
         return into_hugo(root, config, run_build)
     status = (scaffold_hextra if target == "hextra" else scaffold_static)(root, config, site, False, base_url)
     if status:
@@ -628,6 +641,13 @@ def build(root: Path, site: Path, run_build: bool, base_url: str | None, target:
     extra = add_sections(root, config, site / "content")
     if extra:
         return extra
+    from documentor import schemas
+
+    try:
+        schemas.publish(root, config, site / "content", site / "static")
+    except (ValueError, OSError, yaml.YAMLError) as error:
+        print(f"documentor schemas: {error}", file=sys.stderr)
+        return 1
     link_sections(config, site)
     if run_build and shutil.which("hugo"):
         done = subprocess.run([shutil.which("hugo"), "--source", str(site), "--destination", str(site / "public"),
@@ -645,6 +665,8 @@ def link_sections(config: dict, site: Path) -> None:
     scaffold wrote it before they existed)."""
     settings = (config.get("publish") or {}).get("site") or {}
     added = []
+    added.append({"id": "schemas", "title": "Design schemas", "url": "/schemas/",
+                  "reader": "Explore the schemas referenced by the designs.", "pages": []})
     if settings.get("record"):
         prefix = settings.get("record_dir", "record")
         added.append({"id": prefix, "title": settings.get("record_title", "Record"), "url": f"/{prefix}/",

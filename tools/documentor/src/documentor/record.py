@@ -273,6 +273,10 @@ def render_page(rec: dict, source_root: Path, weight: int,
             "> **Source identity** (from "
             f"`{rel_source}`):\n\n```yaml\n{src_fm.rstrip()}\n```\n\n"
         )
+    from documentor.schemas import links as schema_links
+
+    page_url = f"/{opts['prefix']}/{rec['dest_rel'].with_suffix('').as_posix().lower()}/"
+    preamble += schema_links(rec["src"], repo_root, page_url)
     return fm + preamble + body.lstrip("\n")
 
 
