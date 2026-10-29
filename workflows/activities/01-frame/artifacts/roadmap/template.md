@@ -30,6 +30,9 @@ reference workstreams by alias; they never mint new ones.
 
 ## Sequenced Outcomes
 
+[Sequence verifiable capabilities. Product and market uptake targets are not
+dependencies or conditions for completing a version or release.]
+
 | Order | Outcome | Workstream | Governing Artifact | Target Iteration | Depends On | Confidence | Why This Order |
 |-------|---------|------------|--------------------|------------------|------------|------------|----------------|
 | 1 | [outcome] | [WS-1] | [PRD R-n / FEAT-nnn / backlog item] | [iteration id] | [dependency or None] | [high/med/low] | [dependency, risk, or value rationale] |

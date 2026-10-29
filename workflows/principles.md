@@ -126,6 +126,24 @@ not an instruction to migrate it. Product deprecation, contractual sign-off,
 release go/no-go decisions, and safety authorization remain real domain facts
 when explicitly applicable; they are not a generic document lifecycle.
 
+### Product goals and delivery gates
+
+Adoption, active-user counts, customer counts, revenue, conversion, retention,
+market share, and community uptake are product or market goals. Record useful
+targets and measurement plans, then use the evidence to inform priorities and
+experiments. They do not block design, implementation, version progression,
+release, or completion of authorized work. Never invent a traction threshold
+such as “v0.1 needs 100 users” or “v1.0 needs three open-source adopters.”
+
+Delivery criteria describe verifiable product behavior and engineering readiness:
+capabilities, correctness, performance, security, compatibility, and operational
+safety. Capacity requirements such as supporting 100 concurrent sessions are
+engineering criteria, distinct from acquiring 100 users. Keep these separate
+from market outcomes. An unmet business goal can
+inform a future scope or investment decision; it does not make completed
+engineering work incomplete. Preserve explicitly applicable legal, contractual,
+and safety constraints without deriving them from business targets.
+
 ### Humans Decide, Agents Draft
 
 The two strands of the helix share one loop with different jobs. People

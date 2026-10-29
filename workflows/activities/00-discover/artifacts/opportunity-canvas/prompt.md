@@ -34,6 +34,11 @@ Frame. It owns problem-solution fit and readiness to create requirements.
 - **Keep the solution thin** - describe the minimum concept needed to test fit.
 - **Be honest about advantage** - if the advantage is weak, say what must be built.
 
+Product and market evidence informs investment and scope decisions. Do not
+turn recruitment, adoption, revenue, or willingness-to-pay targets into
+prerequisites for authorized design, implementation, version progression, or
+release. Record research goals and uncertainty separately from delivery checks.
+
 ## Quality Checklist
 
 - [ ] Problem is validated

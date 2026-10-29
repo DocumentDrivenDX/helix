@@ -113,6 +113,9 @@ report. Preserve explicit domain approvals and evidence for completion claims.
 
 ### Success Metrics
 
+These product goals inform learning and priorities. They do not gate
+implementation, version progression, release, or engineering completion.
+
 | Metric | Target | Measurement Method | Timeline |
 |---|---|---|---|
 | Runtime breadth | 3 documented runtime deployments (DDx, Databricks Genie, one other) | Release audit | 12 months |
@@ -361,7 +364,7 @@ package uses whatever metadata format its target requires.
 | Align mode produces noisy or wrong findings | Medium | High | The routing skill's alignment behavior is a primary development focus; quality criteria in templates are explicit and testable; ratchets on finding precision |
 | Old HELIX work leaks runtime coupling into new content | Medium | Medium | Keep the product boundary explicit; automated check on each release for runtime refs in skill body |
 | Documentation staleness | Medium | Medium | The `align` workflow mode catches stale documents; HELIX dogfoods its own catalog |
-| Transferability — HELIX cannot be taught without its creator present | Medium | High | Onboarding doc is P1 deliverable; new-teammate review gates the next release |
+| Transferability — HELIX cannot be taught without its creator present | Medium | High | Onboarding doc is P1 deliverable; verify the documented installation and first-run path with a bounded onboarding scenario |
 
 ## Open Questions
 

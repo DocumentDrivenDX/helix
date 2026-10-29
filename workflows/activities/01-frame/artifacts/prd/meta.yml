@@ -47,7 +47,7 @@ validation:
 
   quality_checks:
     - check: metrics_quantified
-      description: Success metrics have numeric targets and named measurement methods
+      description: Success metrics name measurement methods and supported targets or explicit hypotheses; product and market targets never gate engineering completion, versions, or release
       severity: blocking
 
     - check: personas_validated
@@ -133,7 +133,7 @@ prompts:
   review: |
     Review this PRD for:
     1. Clarity of problem statement
-    2. Measurability of success metrics
+    2. Measurability of success metrics and separation of product/market goals from delivery gates
     3. Completeness of requirements
     4. Identification of risks
     5. Alignment with business goals

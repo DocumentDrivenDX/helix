@@ -1,5 +1,6 @@
 # Exit Gates for Frame Activity
-# These criteria must be met before proceeding to the Design activity
+# These criteria assess readiness to design the scoped work.
+# Product and market targets need not be achieved to proceed.
 
 exit_gates:
   # Documentation Completeness
@@ -31,10 +32,10 @@ exit_gates:
   - criteria: Success metrics are measurable
     required: true
     validation:
-      - Each metric has a baseline value
-      - Each metric has a target value
-      - Measurement method is specified
-      - Timeline for achievement is defined
+      - Baselines are recorded when available; unknown baselines are explicit
+      - Targets are supported by product intent or labeled as hypotheses
+      - Measurement method and observation cadence are specified
+      - Adoption, revenue, user-count and community targets are separate from delivery acceptance
     evidence: docs/helix/01-frame/prd.md#success-metrics
 
   - criteria: Project principles are established
@@ -176,7 +177,7 @@ validation_rules:
     severity: warning
 
   - rule: metrics_quantified
-    description: Success metrics have numeric targets
+    description: Metric targets are supported or explicit hypotheses; attaining product or market targets never gates Design
     path: docs/helix/01-frame/prd.md
     check: metrics_have_numbers
     severity: blocking

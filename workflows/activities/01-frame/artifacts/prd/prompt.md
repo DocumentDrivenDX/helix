@@ -64,6 +64,10 @@ applies universally.
   before they see the solution.
 - **Decision-oriented** — every section should help someone make a build/skip
   decision. If a section doesn't inform a decision, it's filler.
+- **Separate outcomes from gates** — product and market goals guide learning
+  and priorities. User counts, adoption, revenue, retention, and community uptake
+  must never become implementation prerequisites, version milestones, release
+  gates, or criteria for completing engineering work.
 - **Testable requirements** — every P0 requirement should be verifiable. If
   you can't describe how to test it, it's too vague.
 - **Traceable boundaries** — requirements should connect upward to the Product
@@ -108,10 +112,13 @@ is an activity. "Operators can see system health without SSH" is a state
 change.
 
 ### Success Metrics
-Every metric needs three things: what you're measuring, a numeric target, and
-how you'll measure it. "User satisfaction" is not a metric. "NPS > 40 from
-monthly survey of active users" is. Drop the Timeline column — success metrics
-should define what success looks like, not when it happens.
+Name what you are measuring and how. Use targets supported by product intent;
+label unvalidated targets as hypotheses rather than inventing numbers to fill
+the table. For example, an NPS target measured through a monthly survey is a
+product-learning signal. It is never a prerequisite for building or releasing.
+Keep adoption, revenue, and satisfaction goals here, separate from delivery
+acceptance. Drop the Timeline column; release versions must not depend on
+achieving these goals.
 
 **(kind: data)** When `kind: data`, frame metrics for the data product
 itself: throughput (rows/day), latency (max age end-to-end), quality score
@@ -246,9 +253,12 @@ yet — it's better to have a clear list of unknowns than a document that
 pretends to be complete.
 
 ### Success Criteria
-These are the acceptance criteria for the entire initiative. They should be
-observable outcomes ("operators can do X without Y") not activities ("we
-shipped Z").
+Define delivery acceptance using observable product capabilities and engineering
+readiness, verifiable with tests, fixtures, or bounded evaluations. For example,
+“operators can reconcile a representative deposit and assign exceptions” can
+be verified before broad adoption. Product and market outcomes stay in Success
+Metrics; reaching a user count, revenue target, survey score, or number of
+external adopters cannot be required to complete or release this work.
 
 ## Quality Checklist
 
@@ -260,7 +270,8 @@ committing.
 - [ ] Problem section quantifies the pain or names a specific failure mode
 - [ ] Every P0 requirement is testable (someone could write an acceptance test)
 - [ ] Every P0 has an acceptance test sketch with inputs and expected outputs
-- [ ] Success metrics have numeric targets and named measurement methods
+- [ ] Success metrics name measurement methods; targets are supported or explicitly labeled hypotheses
+- [ ] Delivery criteria and version milestones contain no product or market uptake thresholds
 - [ ] Requirements trace upward to the Product Vision and downward to downstream artifacts
 - [ ] No `[TBD]`, `[TODO]`, or `[NEEDS CLARIFICATION]` markers in any section except Open Questions
 - [ ] Non-goals exclude something a reasonable person might assume is in scope

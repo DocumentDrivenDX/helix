@@ -43,7 +43,7 @@ ddx:
   1. Firms lose reviewer capacity to manual deposit matching every week, and the market is large enough to matter (evidence: docs/helix/00-discover/business-case.md#executive-summary; docs/helix/00-discover/business-case.md#opportunity-sizing)
   2. A CSV-first pilot learns about reviewer trust faster and cheaper than integrating bank feeds (evidence: docs/helix/00-discover/business-case.md#alternatives-considered)
   3. Year one costs $262,000 and the plan breaks even in month 18 if pilot conversion and pricing hold (evidence: docs/helix/00-discover/business-case.md#investment-required; docs/helix/00-discover/business-case.md#expected-roi)
-  4. Three risks decide the pilot, each with a mitigation, and two conditions gate spend beyond it (evidence: docs/helix/00-discover/business-case.md#risk-assessment; docs/helix/00-discover/business-case.md#recommendation)
+  4. Three risks inform the pilot, each with a mitigation, and two research actions guide future investment (evidence: docs/helix/00-discover/business-case.md#risk-assessment; docs/helix/00-discover/business-case.md#recommendation)
 - **Beats and titles** (beat ids from the proposal flow in deck-flows.yml; titles written before any body):
 
   | # | Beat | Title (claim) | Message | Exhibit |
@@ -56,7 +56,7 @@ ddx:
   | 6 | return | The pilot breaks even in month 18 on planned pricing | M3 | timeline to breakeven |
   | 7 | cost | The pilot costs $262,000 in year one | M3 | cost table with the total highlighted |
   | 8 | risks | Three risks decide the pilot, each with a mitigation | M4 | risk grid |
-  | 9 | plan | Two conditions gate any spend beyond the pilot | M4 | checkpoint strip |
+  | 9 | plan | Two pilot research actions guide future investment | M4 | checkpoint strip |
   | 10 | ask | Approve the pilot budget and name a recruiter | takeaway | ask band and steps |
   | 11 | sources | Sources | all | source table |
 
@@ -67,7 +67,7 @@ ddx:
   | 1 | Pilot scope: import, evidence-backed review, exception ownership | business case, vision | covered | M2 |
   | 2 | Market and opportunity sizing | business case | covered | M1 |
   | 3 | Investment and breakeven | business case | covered | M3 |
-  | 4 | Risks and gating conditions | business case | covered | M4 |
+  | 4 | Risks and research actions | business case | covered | M4 |
   | 5 | Alternatives considered | business case | covered | M2 |
   | 6 | Strategic alignment with the firm's goals | business case | omitted | angle: the committee decides on cost and risk, and the goals row restates the pilot scope |
   | 7 | Product vision and positioning | vision | omitted | audience: the sponsor authored the vision; slide 3 carries the pain it names |
@@ -139,7 +139,7 @@ ddx:
 - The pilot builds three things and nothing else
 - Reviewers see the evidence behind every suggested match before approving it
 - Every exception has a named owner instead of a shared spreadsheet
-- Spend beyond the pilot waits for two measured conditions
+- Research findings inform future investment independently of engineering delivery
 
 **Visual**: kind: process-flow | steps: Import; Review; Own exceptions | highlight: 2 | caption: reviewers see the evidence first. Three-step process strip drawn from the pilot scope in the business case, with the review step highlighted
 
@@ -180,7 +180,7 @@ ddx:
 **Body**:
 - Exports vary too much: recruit pilots across three accounting systems, map per client
 - Reviewers distrust suggestions: show evidence before approval, require reviewer acceptance
-- Firms will not pay enough: validate willingness to pay before widening scope
+- Firms will not pay enough: research willingness to pay to inform pricing and investment
 
 **Visual**: kind: risk-grid | risks: Exports vary too much / high / medium; Reviewers distrust suggestions / medium / high; Firms will not pay enough / medium / high. Likelihood-by-impact grid from the risk assessment with the three risks as numbered dots and the mitigations from the body keyed by number on the right
 
@@ -188,17 +188,17 @@ ddx:
 
 **Sources**: S9
 
-### 9. Two conditions gate any spend beyond the pilot
+### 9. Two pilot research actions guide future investment
 
 **Pattern**: process-flow
 **Body**:
-- Recruit at least five pilot firms before expanding beyond import and review
-- Both measures are read at the two-month checkpoint, before any expansion decision
-- A paid product waits until weekly reconciliation falls under 3 minutes per client
+- Recruit five pilot firms as a research target, independently of development and release
+- Read both measures at the two-month checkpoint to inform priorities
+- Measure the 3-minute reconciliation hypothesis independently of release readiness
 
-**Visual**: kind: process-flow | steps: Recruit five firms; Read two measures; Expand or stop | highlight: 2 | caption: the two-month checkpoint is where the committee can stop the pilot. Three-step checkpoint strip from the recommendation's conditions, with the 3-minute paid-product target in the body
+**Visual**: kind: process-flow | steps: Recruit five firms; Read two measures; Review priorities | highlight: 2 | caption: observe outcomes during the first two months. Three-step research strip from the recommendation, with the 3-minute outcome hypothesis in the body
 
-**Notes**: These are the conditions in the business case recommendation. They are the sponsor's protection against scope creep and the team's protection against building on unvalidated demand.
+**Notes**: These research actions support the next investment decision. Authorized engineering work completes against capability and readiness checks independently of recruitment and market outcomes.
 
 **Sources**: S2, S10
 
@@ -233,7 +233,7 @@ ddx:
 | Id | Claim or figure | Governing artifact and section |
 |---|---|---|
 | S1 | Recommended investment is a three-month pilot build for CSV import, evidence-backed match review, and exception ownership | docs/helix/00-discover/business-case.md#executive-summary |
-| S2 | Decision: Conditional Go; conditions: recruit at least five pilot firms; measure median reconciliation time and suggestion acceptance accuracy during the first two months | docs/helix/00-discover/business-case.md#recommendation |
+| S2 | Decision: Conditional Go; research actions: recruit five pilot firms independently of engineering delivery; measure median reconciliation time and suggestion acceptance accuracy during the first two months | docs/helix/00-discover/business-case.md#recommendation |
 | S3 | TAM $1.2B annual workflow spend: 60,000 small bookkeeping firms x $20,000; planning assumption, low confidence | docs/helix/00-discover/business-case.md#opportunity-sizing |
 | S4 | SAM $180M: 9,000 firms with five to twenty-five employees x $20,000; medium confidence | docs/helix/00-discover/business-case.md#opportunity-sizing |
 | S5 | Firms are losing reviewer capacity to manual deposit matching; firm owners will pay for auditability plus time saved | docs/helix/00-discover/business-case.md#executive-summary, docs/helix/00-discover/product-vision.md#positioning |
@@ -241,7 +241,7 @@ ddx:
 | S7 | Year one: development $180,000, infrastructure $12,000, go-to-market $40,000, operations $30,000; total costs $262,000 | docs/helix/00-discover/business-case.md#investment-required, docs/helix/00-discover/business-case.md#expected-roi |
 | S8 | Year one revenue $120,000, net $142,000 shortfall (shown as -$142,000); breakeven month 18; confidence low until the pilot validates conversion and pricing | docs/helix/00-discover/business-case.md#expected-roi |
 | S9 | Risks: CSV exports vary (high, medium); reviewers distrust suggested matches (medium, high); firms will not pay enough (medium, high) | docs/helix/00-discover/business-case.md#risk-assessment |
-| S10 | Paid product path if weekly reconciliation time falls below 3 minutes per client; recommended next steps with owners and dates | docs/helix/00-discover/business-case.md#executive-summary, docs/helix/00-discover/business-case.md#recommendation |
+| S10 | Weekly reconciliation below 3 minutes per client is a product-outcome hypothesis, independent of release readiness; recommended next steps with owners and dates | docs/helix/00-discover/business-case.md#executive-summary, docs/helix/00-discover/business-case.md#recommendation |
 
 S9 grades each risk as (likelihood, impact) and quotes its mitigation.
 

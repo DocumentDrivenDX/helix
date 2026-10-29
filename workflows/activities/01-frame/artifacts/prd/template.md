@@ -47,9 +47,13 @@ is 24 hours and source data changes hourly."]
 
 ### Success Metrics
 
+[Product and market goals guide learning and prioritization. Adoption, user
+counts, revenue, retention, and satisfaction targets are not development,
+version, release, or completion gates. Label unvalidated targets as hypotheses.]
+
 | Metric | Target | Measurement Method |
 |--------|--------|--------------------|
-| [Metric] | [Numeric target] | [Named tool or process] |
+| [Metric] | [Supported target or explicit hypothesis] | [Named tool or process] |
 
 **(kind: data)** When `kind: data`, frame metrics for the data product
 itself (throughput, latency, quality score, cost per GB). Include a baseline
@@ -243,5 +247,7 @@ questions here over `[TBD]` markers scattered through the document.]
 
 ## Success Criteria
 
-[What must be true to call the initiative successful. These should be
-observable outcomes, not activities.]
+[Delivery acceptance: observable capabilities and engineering readiness that
+can be verified with tests, fixtures, or bounded evaluations. Keep product and
+market targets in Success Metrics. Do not require user counts, customer
+adoption, revenue, or community uptake to complete work or release a version.]

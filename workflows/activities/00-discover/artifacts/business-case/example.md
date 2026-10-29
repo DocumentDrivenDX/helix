@@ -15,8 +15,8 @@ DepositMatch is a focused reconciliation workspace for bookkeeping firms that
 are losing reviewer capacity to manual deposit matching. The recommended
 investment is a three-month pilot build for CSV import, evidence-backed match
 review, and exception ownership. The expected return is increased client
-capacity for pilot firms and a paid product path if weekly reconciliation time
-falls below 3 minutes per client.
+capacity for pilot firms. Weekly reconciliation below 3 minutes per client is
+a product-outcome hypothesis to measure independently of release readiness.
 
 ## Opportunity Sizing
 
@@ -65,7 +65,7 @@ plan validates demand, market counts, and willingness to pay.
 |------|-------------|--------|------------|
 | CSV exports vary too much for a reliable pilot | High | Medium | Recruit pilots across at least three accounting systems and build per-client mapping. |
 | Reviewers distrust suggested matches | Medium | High | Make evidence visible before approval and require reviewer acceptance. |
-| Firms will not pay enough for a narrow workflow | Medium | High | Validate willingness to pay before expanding beyond pilot scope. |
+| Firms will not pay enough for a narrow workflow | Medium | High | Research willingness to pay to inform pricing and future investment. |
 
 ## Strategic Alignment
 
@@ -82,12 +82,13 @@ integrations, but it learns faster about reviewer trust and weekly time savings.
 **Decision**: Conditional Go
 
 **Rationale**: The opportunity is attractive if the pilot proves time savings
-and reviewer trust with CSV-first workflows. The investment should stay bounded
-until willingness to pay and CSV variability are validated.
+and reviewer trust with CSV-first workflows. Review willingness-to-pay and CSV
+variability evidence when considering additional investment. Authorized
+engineering work proceeds against its scoped delivery criteria.
 
 **Conditions**:
 
-- Recruit at least five pilot firms before expanding beyond CSV import and
-  review.
+- Recruit five pilot firms as a research target, independently of development
+  and release readiness.
 - Measure median reconciliation time and suggestion acceptance accuracy during
   the first two months.

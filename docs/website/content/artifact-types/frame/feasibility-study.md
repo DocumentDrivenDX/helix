@@ -107,7 +107,7 @@ only with pilot recruiting, compliance review, and explicit success metrics.
 | CSV exports vary enough to slow onboarding | High | Medium | Recruit pilots across at least three accounting systems and build explicit column mapping. |
 | Reviewers distrust suggestions | Medium | High | Show evidence before approval and measure accepted suggestion accuracy. |
 | Compliance review expands required controls | Medium | High | Complete legal applicability review before live-data pilot. |
-| Pilot firms do not pay at target pricing | Medium | High | Validate willingness to pay before expanding beyond CSV-first scope. |
+| Pilot firms do not pay at target pricing | Medium | High | Research willingness to pay to inform pricing and future investment; keep development and release criteria tied to product capabilities. |
 
 ## Alternatives
 

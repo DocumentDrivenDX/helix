@@ -36,6 +36,9 @@ Use this local resource summary as grounding:
   requirement, feature, or backlog selection, inside a named workstream.
 - State why each item holds its position — dependency, risk retirement, or
   value. An unexplained order is a quality-check failure.
+- Sequence capabilities and engineering readiness. Adoption, user-count,
+  revenue, and community-uptake targets may inform priorities but must not appear
+  as dependencies or conditions for a version or release.
 - Bound the horizon. Candidates beyond it stay in the improvement backlog or
   parking lot, unsequenced.
 - Name the revision triggers. A roadmap that cannot say when it must change

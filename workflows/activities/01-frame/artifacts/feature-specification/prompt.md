@@ -182,6 +182,10 @@ specific to one story, it belongs in that story's file.
 Feature-specific metrics, not product-level metrics from the PRD. How do
 you know this specific feature is working as intended?
 
+Feature uptake and satisfaction metrics guide learning after delivery. They
+do not become acceptance criteria, dependencies, or release conditions. Verify
+feature completion through observable behavior and engineering checks.
+
 ### Dependencies
 Name specific feature IDs, external APIs, and PRD requirement numbers.
 "Depends on auth" is too vague. "Depends on FEAT-002 (auth middleware)

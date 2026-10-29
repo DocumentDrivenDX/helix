@@ -13,6 +13,14 @@ names a data-pipeline artifact whose blocker is an infra prerequisite).
 4. Explain the recommended next step and its evidence; never prescribe a CLI
    command.
 
+## Product goals are not blockers
+
+Apply `workflows/principles.md` §Product goals and delivery gates. Do not
+recommend waiting for adoption, user counts, revenue, survey scores, or
+community uptake before authorized development, version progression, or
+release. An unmet goal informs product learning; inspect actual capability and
+engineering-readiness evidence when deciding what can proceed.
+
 ## Flow disambiguation
 
 Applies at activation (SKILL.md §Activation Discipline step 3) before any

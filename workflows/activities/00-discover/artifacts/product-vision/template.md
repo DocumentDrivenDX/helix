@@ -45,6 +45,9 @@ Unlike [current alternative], [product name] [primary differentiator].
 
 ## Success Definition
 
+These strategic goals guide learning and priorities; they do not gate
+development, version progression, or release.
+
 | Metric | Target |
 |--------|--------|
 | Primary KPI | [Specific measurable outcome] |

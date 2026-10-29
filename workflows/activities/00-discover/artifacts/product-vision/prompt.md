@@ -50,7 +50,7 @@ Product vision is for *direction*. If you find yourself writing about:
 | Per-feature requirements | `01-frame/features/FEAT-*.md` |
 | UI interaction details (clicks, screens) | feature spec or user story |
 | Architecture or technology choices | `02-design/` |
-| Release-scoped success metrics | `01-frame/prd.md` (vision keeps strategic, long-horizon outcomes only) |
+| Product-scope outcome metrics and delivery acceptance (kept separate) | `01-frame/prd.md` (vision keeps strategic, long-horizon outcomes only) |
 | Definitional schemas for metrics | `06-iterate/metric-definition.md` |
 
 ## Key Principles
@@ -100,9 +100,12 @@ Every metric must be measurable with a tool or process you can name. "User
 satisfaction" is not measurable. "NPS > 40 from monthly survey" is.
 
 These are *strategic, long-horizon* outcomes — what success looks like over
-12–24 months. Release-scoped metrics belong in the PRD; feature-scoped metrics
+12–24 months. Product-scope metrics belong in the PRD; feature-scoped metrics
 in feature specs; metric schemas in `metric-definition`. Aim for 3–5 strategic
-indicators, not a comprehensive metric catalog.
+indicators, not a comprehensive metric catalog. Adoption, revenue, user counts,
+and community uptake are learning goals, never development prerequisites or
+version/release gates. Do not turn a strategic target into delivery acceptance
+when propagating it downstream.
 
 ### Why Now
 Ground this in an observable change — a technology shift, a market event, a

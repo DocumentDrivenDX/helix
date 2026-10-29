@@ -31,6 +31,11 @@ Vision owns direction; PRD owns what to build.
 - **Compare alternatives** - include the cost of doing nothing or delaying.
 - **Separate facts from assumptions** - mark unvalidated estimates clearly.
 
+Product and market evidence informs investment and scope decisions. Do not
+turn recruitment, adoption, revenue, or willingness-to-pay targets into
+prerequisites for authorized design, implementation, version progression, or
+release. Record research goals and uncertainty separately from delivery checks.
+
 ## Quality Checklist
 
 - [ ] Market sizing distinguishes sourced facts from assumptions
