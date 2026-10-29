@@ -34,7 +34,8 @@ MAP-01. The system must require mappings for amount, date and identifier.
 
 ## Success Metrics
 
-- 95% of valid imports reach the summary without support.
+- Share of valid imports that reach the summary without support, observed in
+  import analytics.
 
 ## Constraints and Assumptions
 

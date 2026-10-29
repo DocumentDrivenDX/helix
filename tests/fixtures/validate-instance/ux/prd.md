@@ -59,4 +59,5 @@ Upload two CSV files and reach the import summary.
 
 ## Success Criteria
 
-95% of pilot imports reach the summary without support.
+A reviewer can import a representative bank CSV and invoice CSV and reach the
+import summary without support.
