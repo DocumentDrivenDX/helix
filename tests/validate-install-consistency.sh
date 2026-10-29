@@ -3,7 +3,7 @@
 #
 # Asserts:
 #   - Claude and Codex plugin manifests agree on repo/version/skill path
-#   - plugin.json repository URL matches marketplace.json plugins[0].source.url
+#   - plugin.json repository URL matches the named helix marketplace entry source.url
 #   - No easel/helix references in install docs or release installer
 #   - Install docs reference the canonical repo (from marketplace.json)
 #   - docs/install/README.md is the one guide with a section per host
@@ -54,6 +54,9 @@ if [[ ! -f "$GENIE_INSTALL" ]]; then
   exit 1
 fi
 
+# Validate every entry before comparing HELIX-specific manifests.
+python3 "$REPO_ROOT/scripts/validate-marketplace.py" "$REPO_ROOT"
+
 # Extract and compare manifest repos with python
 python3 - "$PLUGIN_JSON" "$CODEX_PLUGIN_JSON" "$MARKETPLACE_JSON" <<'PY'
 import sys
@@ -73,10 +76,11 @@ with open(marketplace_path) as f:
 
 # Extract repo paths from both manifests
 plugin_repo = plugin.get("repository", "")
-mp_source = marketplace.get("plugins", [{}])[0].get("source", {})
+helix_entry = next(p for p in marketplace["plugins"] if p["name"] == "helix")
+mp_source = helix_entry.get("source", {})
 # Claude Code marketplace shape: {"source": "github", "repo": "owner/name"} or {"source": "url", "url": "..."}
 marketplace_url = mp_source.get("url", "") or mp_source.get("repo", "")
-marketplace_version = marketplace.get("plugins", [{}])[0].get("version", "")
+marketplace_version = helix_entry.get("version", "")
 
 # Normalize URLs: extract owner/repo pattern from GitHub URLs
 def extract_repo_path(url):
@@ -127,7 +131,8 @@ marketplace_path = sys.argv[1]
 with open(marketplace_path) as f:
     marketplace = json.load(f)
 
-mp_source = marketplace.get("plugins", [{}])[0].get("source", {})
+helix_entry = next(p for p in marketplace["plugins"] if p["name"] == "helix")
+mp_source = helix_entry.get("source", {})
 marketplace_url = mp_source.get("url", "") or mp_source.get("repo", "")
 
 def extract_repo_path(url):

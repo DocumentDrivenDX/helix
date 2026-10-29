@@ -34,6 +34,7 @@ test-genie-bundle:
 
 # Validate install surfaces: manifests agree, one install guide, Copilot file is a pointer
 test-install-consistency:
+    python3 -m unittest discover -s tests -p test_marketplace.py
     bash tests/validate-install-consistency.sh
 
 # Validate Frame/TD artifacts do not define exact interface surfaces outside Contract
