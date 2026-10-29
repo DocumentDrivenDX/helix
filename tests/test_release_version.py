@@ -42,6 +42,21 @@ class ReleaseVersionTests(unittest.TestCase):
                     self.assertIn('0.19.1', path.read_text())
                     path.write_text(original)
 
+    def test_version_bump_refreshes_only_current_source_evidence(self):
+        import hashlib
+        source = self.root / 'tools/documentor/pyproject.toml'
+        normalized = "\n".join(line.rstrip() for line in source.read_text().strip().splitlines())
+        old = hashlib.sha256(normalized.encode()).hexdigest()[:16]
+        page = self.root / 'tools/documentor/docs/guide/developer/architecture.md'
+        page.parent.mkdir(parents=True)
+        page.write_text(f'<!-- helix:source pyproject.toml sha256:{old} -->\n# Unchanged body\n')
+        stale = page.with_name('embedding.md')
+        stale.write_text('<!-- helix:source pyproject.toml sha256:deadbeef -->\n# Stale body\n')
+        release.synchronize(self.root, 'v1.2.3', write=True)
+        self.assertNotIn(old, page.read_text())
+        self.assertTrue(page.read_text().endswith('# Unchanged body\n'))
+        self.assertIn('deadbeef', stale.read_text())
+
     def test_rejects_invalid_tags_before_writing(self):
         for tag in ['main', 'v1.2', 'v1.2.3; echo bad', 'v1.2.3-rc1']:
             with self.subTest(tag=tag), self.assertRaises(ValueError):
@@ -74,7 +89,7 @@ class ReleaseVersionTests(unittest.TestCase):
     def test_existing_tag_requires_draft_and_version_only_diff(self):
         workflow = (ROOT / '.github/workflows/release-tag.yml').read_text()
         self.assertIn('--json isDraft --jq .isDraft)', workflow)
-        self.assertIn('changed and changed <= allowed', workflow)
+        self.assertIn('changed and changed <= allowed | guide_pages', workflow)
         self.assertIn('--force-with-lease="refs/tags/$TAG:$OLD"', workflow)
         self.assertIn('git merge-base --is-ancestor', workflow)
 

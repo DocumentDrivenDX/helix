@@ -2,6 +2,7 @@
 """Check or set every version shipped together in a HELIX release."""
 import argparse
 import json
+import hashlib
 from pathlib import Path
 import re
 import sys
@@ -38,11 +39,31 @@ def synchronize(root, tag, write=False):
             raise ValueError(f"{name}: version field missing")
         changes.append((path, match[1], text[:match.start(1)] + version + text[match.end(1):]))
     mismatches = []
+    stamps = {}
     for path, actual, content in changes:
         if actual != version:
             mismatches.append(f"{path.relative_to(root)}: {actual} != {version}")
             if write:
+                # Only version metadata changed. Carry forward source evidence
+                # when its old digest was current; stale evidence stays stale.
+                def digest(text):
+                    normalized = "\n".join(line.rstrip() for line in text.strip().splitlines())
+                    return hashlib.sha256(normalized.encode()).hexdigest()[:16]
+                stamps[path.resolve()] = (digest(path.read_text()), digest(content))
                 path.write_text(content)
+    if write:
+        docroot = root / "tools/documentor"
+        for page in (docroot / "docs/guide").rglob("*.md"):
+            def refresh(match):
+                source, recorded = match.groups()
+                pair = stamps.get((docroot / source).resolve())
+                if pair and recorded == pair[0]:
+                    return f"<!-- helix:source {source} sha256:{pair[1]} -->"
+                return match[0]
+            text = page.read_text()
+            updated = re.sub(r"<!-- helix:source (\S+) sha256:([a-f0-9]+) -->", refresh, text)
+            if updated != text:
+                page.write_text(updated)
     if mismatches and not write:
         raise ValueError("release version mismatch:\n" + "\n".join(mismatches))
     return mismatches

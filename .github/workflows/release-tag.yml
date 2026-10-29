@@ -53,11 +53,19 @@ jobs:
             git diff --name-only "$TAG^{commit}" "$MERGE_SHA" > /tmp/release-paths
             python3 - <<'PYCODE'
           from pathlib import Path
+          import re, subprocess, os
           allowed = {'.claude-plugin/plugin.json', '.codex-plugin/plugin.json',
                      '.claude-plugin/marketplace.json', 'tools/documentor/pyproject.toml',
                      'tools/documentor/src/documentor/__init__.py', 'tools/documentor/uv.lock'}
           changed = set(Path('/tmp/release-paths').read_text().splitlines())
-          assert changed and changed <= allowed, f"Release scope changed: {changed - allowed}"
+          guide_pages = {'tools/documentor/docs/guide/developer/' + name + '.md'
+                         for name in ('architecture', 'developer-guide', 'embedding', 'cli')}
+          assert changed and changed <= allowed | guide_pages, f"Release scope changed: {changed - allowed - guide_pages}"
+          for path in changed & guide_pages:
+              def body(ref):
+                  text = subprocess.check_output(['git', 'show', ref + ':' + path], text=True)
+                  return re.sub(r'^<!-- helix:source .* -->\n', '', text, flags=re.M)
+              assert body(os.environ['TAG']) == body(os.environ['MERGE_SHA']), f"Guide body changed: {path}"
           PYCODE
             git tag -f -a "$TAG" -m "$PR_TITLE" "$MERGE_SHA"
             git push --force-with-lease="refs/tags/$TAG:$OLD" origin "refs/tags/$TAG"

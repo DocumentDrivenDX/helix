@@ -1,12 +1,15 @@
-<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=codex reviewed=2026-10-29/codex-astra-independent-reader/4d5cfd5f91ba7233 -->
-<!-- helix:source pyproject.toml sha256:74a08b4781a32616 -->
+<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=codex reviewed=2026-10-29/release-guide-independent-reader/4371ecc29c9f0645 -->
+<!-- helix:source pyproject.toml sha256:c46e99a7fc3955ad -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
 <!-- helix:source ../../.github/workflows/documentor.yml sha256:ab2fb8338de1a028 -->
-<!-- helix:source ../../.github/workflows/release-tag.yml sha256:cf31b27d56efd66b -->
-<!-- helix:source ../../.github/workflows/release-version-guard.yml sha256:31a73cb81eb3e42a -->
+<!-- helix:source ../../scripts/release-version.py sha256:ad55a7fa2e9e59a7 -->
+<!-- helix:source ../../.github/workflows/release-ui.yml sha256:5ce416ac09060351 -->
+<!-- helix:source ../../.github/workflows/release-genie-bundle.yml sha256:b0eea61fd244e8c7 -->
+<!-- helix:source ../../.github/workflows/release-tag.yml sha256:5c17d163a7d2e7bd -->
+<!-- helix:source ../../.github/workflows/release-version-guard.yml sha256:7a2f0f022c0b36b5 -->
 <!-- helix:source ../../CONTRIBUTING.md sha256:d0027006597fad67 -->
 <!-- helix:source README.md#development sha256:ec26429513feaa3e -->
-<!-- helix:source src/documentor/__init__.py sha256:e612d1e2f68f2667 -->
+<!-- helix:source src/documentor/__init__.py sha256:85f093e9f32ee453 -->
 <!-- helix:source src/documentor/cli.py sha256:8b7a0be0b2efb9cb -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/lib.py sha256:5db149c5af59118b -->
@@ -224,37 +227,42 @@ These cover schema and adoption behavior. Configure the release placeholder in `
 
 ## Releasing
 
-documentor is released with HELIX: a HELIX release tag carries it, and it has no tag of its own. The steps below come from HELIX's `release-tag` and `release-version-guard` workflows; no contributor file lists release steps.
+documentor ships under HELIX release tags.
 
-Release work requires a separately authorized release scope ([CONTRIBUTING.md](../../../../../CONTRIBUTING.md)). No file in the repository defines that scope or says how to get it. The HELIX release owner grants it, and you need it before step 3.
+Obtain a separately authorized release scope from the HELIX release owner before step 2 ([CONTRIBUTING.md](../../../../../CONTRIBUTING.md)).
 
-1. Run every suite and the guide check from `tools/documentor`. Every script ends with an `OK:` line, and `check` exits zero:
+1. Run the suites and guide check from `tools/documentor`:
 
    ```sh
    uv run just test
    uv run documentor check --root .
    ```
 
-2. Set the release version in all five places. Each one holds the current version, and no script updates them.
+2. In GitHub's Releases UI, create a new `vX.Y.Z` tag on current `main`, write
+   the release notes, and publish. The UI preparation workflow returns the
+   release to draft and opens a version bump PR. GitHub Actions must have
+   permission to create PRs in the repository.
 
-   | File | Field |
-   |---|---|
-   | `../../.claude-plugin/plugin.json` | `version` |
-   | `../../.codex-plugin/plugin.json` | `version` |
-   | `../../.claude-plugin/marketplace.json` | `version` of the `helix` entry under `plugins` |
-   | `pyproject.toml` | `version` |
-   | `src/documentor/__init__.py` | `__version__` |
+3. Review and merge that `chore(release): vX.Y.Z` PR. The shared version script
+   updates the three plugin manifests, documentor's package and runtime
+   versions, and lockfile. It refreshes current guide source fingerprints;
+   stale fingerprints still require review.
 
-   The three plugin manifests decide whether HELIX gets a tag. The two documentor files decide what `documentor --version` prints.
+   The tag workflow checks all six versions. It corrects an existing draft's
+   tag only when the intervening changes contain version metadata and guide
+   source fingerprints alone. If unrelated changes land meanwhile, it stops
+   for the release owner to resolve the scope.
 
-3. Open a pull request to `main` whose title starts with `chore(release): vX.Y.Z`. On merge, HELIX's `release-tag` workflow reads the three plugin manifests. When all three equal `X.Y.Z`, it pushes the tag and starts the publish workflows.
+   It then dispatches bundle
+   publication, which validates versions before any build or upload and
+   publishes the draft with new assets. The original release notes survive.
 
-   <details>
-   <summary>When the manifests and the title disagree</summary>
+   For local preparation, run from the HELIX root and open a
+   `chore(release): vX.Y.Z` PR:
 
-   The workflow prints one `::error::` line per mismatched manifest, under `manifest version(s) do not match the PR title, refusing to tag:`. It exits without a tag. It also stops when the tag already exists. To recover, merge a new `chore(release):` pull request whose manifests match its title.
-
-   </details>
+   ```sh
+   python3 scripts/release-version.py vX.Y.Z --write
+   ```
 
 4. Check the release from the tag. The output starts with `documentor X.Y.Z`:
 
@@ -262,6 +270,8 @@ Release work requires a separately authorized release scope ([CONTRIBUTING.md](.
    uvx --from git+https://github.com/DocumentDrivenDX/helix@vX.Y.Z#subdirectory=tools/documentor documentor --version
    ```
 
-Neither release workflow reads documentor's own version, so only the step 2 edits keep `documentor --version` matched to the tag. The `release-version-guard` workflow deletes a pushed tag and its release when the plugin manifests disagree with the tag.
+The version guard checks the requested tag on manual runs. It returns invalid
+UI releases to draft without deleting tags. A valid published release is not
+retagged automatically; corrections normally use a new patch version.
 
 An installed wheel reports its catalog as `HELIX catalog packaged <version>`, the release it shipped in.
