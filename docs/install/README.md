@@ -376,3 +376,10 @@ alignment finding.
 - [FEAT-013](../helix/01-frame/features/FEAT-013-runtime-install-coverage.md)
   and [TD-013](../helix/02-design/technical-designs/TD-013-multi-runtime-install.md):
   feature spec and technical design behind the install matrix.
+
+## UX Builder companion
+
+The HELIX marketplace also distributes UX Builder as a separately versioned
+plugin. See [installation, prerequisites and adoption](ux-builder.md). Installing
+the companion makes its skills available; component-library adoption remains a
+project decision through `packaged-design-system`.

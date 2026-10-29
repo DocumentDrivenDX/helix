@@ -113,6 +113,8 @@ Full procedure: [`docs/install/README.md#claude-code`](docs/install/README.md#cl
 
 ### Codex (plugin)
 
+The marketplace also includes the independently versioned [UX Builder companion](docs/install/ux-builder.md) for UX design, SDK implementation and usability assessment.
+
 HELIX installs into Codex as a plugin from the HELIX marketplace:
 
 ```bash

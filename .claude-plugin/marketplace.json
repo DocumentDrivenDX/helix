@@ -1,6 +1,6 @@
 {
   "name": "helix",
-  "description": "HELIX methodology marketplace",
+  "description": "HELIX methodology and companion development plugins",
   "owner": {
     "name": "DocumentDrivenDX",
     "url": "https://github.com/DocumentDrivenDX"
@@ -13,6 +13,17 @@
       "source": {
         "source": "url",
         "url": "https://github.com/DocumentDrivenDX/helix.git"
+      }
+    },
+    {
+      "name": "ux-builder",
+      "description": "Design, build and assess app experiences with the project-installed UX Builder SDK.",
+      "version": "0.1.0",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/DocumentDrivenDX/ux-builder.git",
+        "path": "./plugin",
+        "sha": "da1fcba65b876cb8e226757a1147025162767e0e"
       }
     }
   ]
