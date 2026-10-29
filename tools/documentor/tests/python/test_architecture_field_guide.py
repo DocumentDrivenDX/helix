@@ -1,4 +1,4 @@
-"""The developer field guide, drawn from the architecture model (HELIX's architecture views; praxis ADR-090 adopted them).
+"""The developer field guide, drawn from the architecture model (HELIX's architecture views).
 
 A field-guide view is a whole page: lanes from the view's groups, boxes stacked on one axis,
 numbered steps and the call that runs throughout, and the notes beside the plate, all from the
@@ -32,13 +32,13 @@ from documentor.architecture.model import (
 )
 
 
-PRAXIS = System(id="praxis", name="praxis", regenerate="just architecture")
+ATLAS = System(id="atlas", name="atlas", regenerate="just architecture")
 
 
 def _element(element_id: str, **fields: object) -> Element:
     values: dict = {"name": element_id.title(), "kind": "container", "status": "built"}
     values |= fields
-    values.setdefault("owner", default_owner(values["kind"], "praxis"))
+    values.setdefault("owner", default_owner(values["kind"], "atlas"))
     return Element(id=element_id, evidence=(Evidence("app.py", "APP"),), **values)
 
 
@@ -48,18 +48,18 @@ def _relation(source: str, target: str, label: str, **fields: object) -> Relatio
 
 def _model(*elements: Element, relations: tuple[Relation, ...] = (), views=()) -> Model:
     return Model(
-        {e.id: e for e in elements}, relations, {v.id: v for v in views}, (), PRAXIS, dict(DEFAULT_THEME)
+        {e.id: e for e in elements}, relations, {v.id: v for v in views}, (), ATLAS, dict(DEFAULT_THEME)
     )
 
 
 LANES = (
     Group("people", "People", ("user",)),
-    Group("app", "praxis", ("app",)),
+    Group("app", "atlas", ("app",)),
     Group("data", "Databricks platform", ("files", "queue", "db", "log", "cache", "index")),
 )
 ELEMENTS = (
     _element("user", kind="person", name="A reader", layer="People"),
-    _element("app", kind="system", name="praxis", detail="Databricks App", layer="praxis"),
+    _element("app", kind="system", name="atlas", detail="Databricks App", layer="atlas"),
     _element("files", kind="store", name="Files", layer="Platform"),
     _element("queue", kind="store", name="Queue", layer="Platform"),
     _element("db", kind="store", name="Lakebase", layer="Platform"),
@@ -83,7 +83,7 @@ def _view(**fields: object) -> View:
     values: dict = {
         "groups": LANES,
         "title": "One read.",
-        "takeaway": "A reader asks; praxis reads.",
+        "takeaway": "A reader asks; atlas reads.",
         "document": "../../guide/developer/field-guide.html",
         "type": "field-guide",
     }
@@ -141,7 +141,7 @@ def test_a_field_guide_needs_lanes_every_element_in_one_and_every_step_on_the_pl
 def test_lanes_run_left_to_right_and_a_lane_stacks_its_boxes_on_the_shared_axis() -> None:
     model, view = _guide()
     plate = layout(model, view)
-    assert [lane.title for lane in plate.lanes] == ["People", "praxis", "Databricks platform"]
+    assert [lane.title for lane in plate.lanes] == ["People", "atlas", "Databricks platform"]
     assert plate.lanes[0].x < plate.lanes[1].x < plate.lanes[2].x
     boxes = plate.nodes
     stack = [boxes[e].box for e in LANES[2].elements]
@@ -224,7 +224,7 @@ def test_the_plate_draws_every_element_by_id_numbers_the_steps_and_marks_what_ru
     assert ">twenty characters<" in drawing
     assert ">audit spans, OTLP<" in drawing, "a short label stays on one line"
     assert (
-        '<desc id="desc">1. A reader to praxis: HTTPS; 2. praxis to Lakebase: session.</desc>'
+        '<desc id="desc">1. A reader to atlas: HTTPS; 2. atlas to Lakebase: session.</desc>'
         in drawing
     )
 
@@ -233,7 +233,7 @@ def test_the_page_tells_the_walkthrough_the_omissions_and_where_else_the_model_i
     model, view = _guide()
     page = render_field_guide(model, view)
     assert "<h1>One read.</h1>" in page
-    assert "<p>A reader asks; praxis reads.</p>" in page
+    assert "<p>A reader asks; atlas reads.</p>" in page
     assert "<li><strong>The platform signs in.</strong> They open it.</li>" in page
     assert "<li><strong>State outlives a restart.</strong> It locks.</li>" in page
     assert "<strong>Throughout: audit spans, OTLP.</strong> Every <code>call()</code>." in page

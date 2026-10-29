@@ -107,6 +107,6 @@ audiences and page shapes; each adds only what is particular to it.
 
 ## Pilots
 
-praxis-harness (a Databricks application; thirteen pages, written and checked),
-synaptiq-northstar-idr (a data pipeline with a nested HELIX root), tablespec (a
-library with an existing documentation site, adopted through it).
+A Databricks application (thirteen pages, written and checked), a data pipeline
+with a nested HELIX root, and tablespec (a library with an existing documentation
+site, adopted through it).

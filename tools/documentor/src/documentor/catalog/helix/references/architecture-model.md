@@ -27,12 +27,12 @@ facts = ["hosted-mcp:genie-ask"]    # optional: declared systems the project's f
 evidence = [{ path = "config/tools.toml", contains = 'name = "genie-ask"' }]
 
 [[element]]
-id = "hohfeld"
-name = "Hohfeld"
+id = "ledger"
+name = "Ledger"
 kind = "container"
 status = "built"
-system = "hohfeld"                  # optional: this element is another repository's system (see The estate)
-evidence = [{ path = "pyproject.toml", contains = "hohfeld>=" }]
+system = "ledger"                   # optional: this element is another repository's system (see The estate)
+evidence = [{ path = "pyproject.toml", contains = "ledger>=" }]
 
 [[relation]]
 from = "backend"
@@ -155,12 +155,12 @@ host = "github.example.com"           # for --fetch; omit for github.com
 
 [[system]]
 id = "atlas"
-repo = "the client/atlas-harness"
+repo = "example-org/atlas-harness"
 path = "../atlas-harness"          # a local checkout; with --fetch the model is read from the repository instead
 
 [[system]]
-id = "hohfeld"
-repo = "the client/hohfeld"
+id = "ledger"
+repo = "example-org/ledger"
 ```
 
 `documentor estate check --config estate.toml` composes the models and fails when a connection is **one-sided**: A's model has a relation to an element marked `system = "B"`, and B's model has no relation in the same direction to an element marked `system = "A"`. Each repository keeps its own model checked against its own code; the estate checks that the repositories agree about each other. A model that names a system the estate does not include is a warning: the list of those is the estate's backlog.

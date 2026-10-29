@@ -13,7 +13,7 @@
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:9f8ec1f2b471f001 -->
 <!-- helix:source src/documentor/catalog/ux-builder/README.md sha256:6b885638317975c7 -->
 <!-- helix:source tests/validate-package.sh sha256:ddc499febfa0dd79 -->
-<!-- helix:source tests/validate-publish.sh sha256:fbe3dede8c6f4a24 -->
+<!-- helix:source tests/validate-publish.sh sha256:7db3a03534402d2f -->
 <!-- helix:source ../../scripts/sync_references.py sha256:97cfc74fe156811e -->
 <!-- helix:source src/documentor/schemas.py sha256:6db23e6c01b889bc -->
 <!-- helix:source src/documentor/umf_tables.py sha256:56c75007b5b2d2de -->

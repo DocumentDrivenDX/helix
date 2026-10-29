@@ -1,4 +1,4 @@
-"""The stack, cast, journey, and deployment views of the architecture model (HELIX's architecture views; praxis ADR-090 adopted them)."""
+"""The stack, cast, journey, and deployment views of the architecture model (HELIX's architecture views)."""
 
 from dataclasses import replace
 from itertools import pairwise
@@ -24,12 +24,12 @@ from documentor.architecture.views import render_view, run
 
 
 EVIDENCE = (Evidence("app.py", "APP"),)
-PRAXIS = System(id="praxis", name="praxis", regenerate="just architecture")
+ATLAS = System(id="atlas", name="atlas", regenerate="just architecture")
 
 
 def _element(element_id: str, **fields: object) -> Element:
     values: dict = {"name": element_id.title(), "kind": "container", "status": "built"}
-    values |= {"owner": "praxis"} | fields
+    values |= {"owner": "atlas"} | fields
     return Element(id=element_id, evidence=EVIDENCE, **values)
 
 
@@ -43,7 +43,7 @@ def _model(*elements: Element, relations=(), views=(), journeys=(), zones=None) 
         tuple(relations),
         {v.id: v for v in views},
         (),
-        PRAXIS,
+        ATLAS,
         dict(DEFAULT_THEME),
         {j.id: j for j in journeys},
         zones or {},
@@ -57,21 +57,21 @@ def _root(tmp_path: Path) -> Path:
 
 def test_a_stack_lists_each_layer_in_reading_order_and_marks_what_is_not_built() -> None:
     people = _element("user", kind="person", layer="People")
-    app = _element("app", layer="praxis")
+    app = _element("app", layer="atlas")
     walls = _element("walls", kind="external", status="unknown", layer="The firm")
     view = View("stack", "LR", ("user", "app", "walls"), type="stack", title="Where", takeaway="T.")
     text = render_stack(_model(people, app, walls, views=(view,)), view)
     assert text.startswith("**Where.** T.\n\n| Layer | What sits there |")
-    assert text.index("| People |") < text.index("| praxis |") < text.index("| The firm |")
+    assert text.index("| People |") < text.index("| atlas |") < text.index("| The firm |")
     assert "**Walls** (unknown)" in text
 
 
 def test_a_cast_gives_each_piece_its_job_and_names_another_repository() -> None:
-    hohfeld = _element("hohfeld", job="The ontology | library.", system="hohfeld")
+    ledger = _element("ledger", job="The ontology | library.", system="ledger")
     stand = _element("stand", job="Answers for now.", status="placeholder")
-    view = View("cast", "LR", ("hohfeld", "stand"), type="cast")
-    text = render_cast(_model(hohfeld, stand, views=(view,)), view)
-    assert "| **Hohfeld** (hohfeld) | The ontology \\| library. | built |" in text
+    view = View("cast", "LR", ("ledger", "stand"), type="cast")
+    text = render_cast(_model(ledger, stand, views=(view,)), view)
+    assert "| **Ledger** (ledger) | The ontology \\| library. | built |" in text
     assert "| **Stand** | Answers for now. | stand-in |" in text
 
 
@@ -219,7 +219,7 @@ def test_a_deployment_svg_is_written_beside_its_document_and_a_changed_one_is_st
 
 
 def test_a_view_may_skip_a_tier_and_a_line_past_a_box_loops_around_it(tmp_path: Path) -> None:
-    # Found on the NorthStar IDR trial: a view holding tiers 1 and 3 crashed, and a same-tier line
+    # Found on a pilot: a view holding tiers 1 and 3 crashed, and a same-tier line
     # between non-adjacent boxes ran through the box between them.
     jobs = _element("jobs", tier=1, zone="Jobs")
     left = _element("left", tier=3, zone="Data")
@@ -238,9 +238,9 @@ def test_a_view_may_skip_a_tier_and_a_line_past_a_box_loops_around_it(tmp_path: 
 def test_a_table_cell_keeps_angle_brackets_and_evidence_matches_across_wrapped_lines(
     tmp_path: Path,
 ) -> None:
-    catalog = _element("catalog", layer="Unity Catalog: idrflow_<env>", job="Holds <env> tables.")
+    catalog = _element("catalog", layer="Unity Catalog: pipeline_<env>", job="Holds <env> tables.")
     view = View("s", "LR", ("catalog",), type="stack")
-    assert "idrflow_&lt;env&gt;" in render_stack(_model(catalog, views=(view,)), view)
+    assert "pipeline_&lt;env&gt;" in render_stack(_model(catalog, views=(view,)), view)
     (tmp_path / "notes.md").write_text("The jobs run\nnightly at two.\n")
     wrapped = Element("j", "J", "container", "built", (Evidence("notes.md", "run nightly at"),))
     problems = model_problems(_model(wrapped), tmp_path)
