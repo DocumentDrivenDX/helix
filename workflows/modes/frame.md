@@ -26,6 +26,11 @@ stories.
    content sites, or read-only dashboards unless an operator UI is explicitly
    required. Selection happens here, once; propagation to work items is a
    later gate owned by `check`/`polish`, not a re-selection.
+   For a new selection, seed the applicable New-project quality defaults in
+   `workflows/references/concern-resolution.md` with `source: shipped-default`;
+   offer pruning with recorded reasons and retain operator-selected slot fillers.
+   Planned software counts even before code exists. Existing selections require
+   explicit adoption; do not silently append defaults.
 3. Read the relevant artifact template, prompt, meta.yml, and active voice
    profile before drafting.
 4. Keep each artifact in its lane:

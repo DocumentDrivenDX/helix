@@ -1,0 +1,58 @@
+# Copy to .github/workflows/pages.yml. Enable Pages > Source: GitHub Actions.
+# The build must use publish.site.target: hextra (or static) for the default output below;
+# for target: hugo set upload path to <publish.site.site_dir>/public.
+# Install any project-specific generators/browser package with the project's locked install
+# before documentor build. Node setup alone does not install those dependencies.
+# Adapted from Tempo's successful build + deploy run 40952714352 (2026-10-29).
+name: pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pages
+  cancel-in-progress: false
+env:
+  # Replace with a released tag containing schema publication and UMF table support.
+  # v0.19.1 predates these features. Do not silently deploy with that version.
+  DOCUMENTOR: "git+https://github.com/DocumentDrivenDX/helix@REPLACE_WITH_UMF_RELEASE#subdirectory=tools/documentor"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with: { python-version: "3.12" }
+      - uses: actions/setup-go@v5
+        with: { go-version: stable, cache: false }
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - uses: peaceiris/actions-hugo@v3
+        with: { hugo-version: "0.168.0", extended: true }
+      - uses: actions/configure-pages@v5
+        id: pages
+      - name: Verify selected documentor release
+        run: |
+          case "$DOCUMENTOR" in
+            *REPLACE_WITH_UMF_RELEASE*) echo "Set DOCUMENTOR to a released tag containing UMF schema publication." >&2; exit 1 ;;
+          esac
+          uvx --from "$DOCUMENTOR" documentor schemas --help >/dev/null
+      - run: uvx --from "$DOCUMENTOR" documentor build --root .
+        env:
+          HUGO_BASEURL: ${{ steps.pages.outputs.base_url }}/
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: .helix/site/public }
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

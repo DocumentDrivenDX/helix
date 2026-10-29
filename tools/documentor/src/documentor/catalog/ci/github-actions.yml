@@ -18,7 +18,7 @@ permissions:
   contents: write
   pull-requests: write
 env:
-  DOCUMENTOR: "git+https://github.com/DocumentDrivenDX/helix@v0.19.0#subdirectory=tools/documentor"
+  DOCUMENTOR: "git+https://github.com/DocumentDrivenDX/helix@v0.19.1#subdirectory=tools/documentor"
 jobs:
   check:
     if: github.event_name == 'pull_request'

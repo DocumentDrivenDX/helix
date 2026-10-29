@@ -19,9 +19,9 @@ Every page of this site was made from the repository by documentor, and is rebui
 
 | Reader | Page | Kind | Made by | Evaluated by | Sources | State |
 |---|---|---|---|---|---:|---|
-| developer | Overview | explanation | agent-opus | agent-sonnet | 8 | current |
+| developer | Overview | explanation | agent-opus | agent-sonnet | 8 | stale |
 | developer | Architecture | explanation | agent-opus | agent-sonnet | 14 | stale |
-| developer | Developer guide | how-to | a person (adopted) | agent-sonnet | 3 | current |
+| developer | Developer guide | how-to | a person (adopted) | agent-sonnet | 3 | stale |
 | developer | Documentor | reference | documentor's own guide | — | — | delegated |
 
 ## The architecture views

@@ -1,21 +1,24 @@
-<!-- helix:publish audience=developer page=index kind=explanation voice=onboarding budget=800 written=agent-opus reviewed=2026-10-22/agent-sonnet/ef88a5d175a54ed3 -->
+<!-- helix:publish audience=developer page=index kind=explanation voice=onboarding budget=800 written=codex reviewed=2026-10-29/codex-astra-independent-reader/e68e70caf7cc238f -->
 <!-- helix:gap artifact:architecture -->
 <!-- helix:source docs/helix/00-discover/product-vision.md sha256:53b51880ca06cad7 -->
 <!-- helix:source docs/helix/02-design/adr/ADR-001-a-repository-guide-is-detected-generated-written-evaluated-and-checked.md#decision sha256:d3fd98aa3f21622b -->
-<!-- helix:source src/documentor/cli.py sha256:0707cd738e9b6418 -->
-<!-- helix:source src/documentor/lib.py sha256:7e594138b133286a -->
-<!-- helix:source src/documentor/write.py sha256:2118376b2c167085 -->
-<!-- helix:source src/documentor/record.py sha256:cecdf2712047484e -->
+<!-- helix:source src/documentor/cli.py sha256:8b7a0be0b2efb9cb -->
+<!-- helix:source src/documentor/lib.py sha256:5db149c5af59118b -->
+<!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
+<!-- helix:source src/documentor/record.py sha256:ab468e2c1eef452a -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/theme.py sha256:7e38d9589c728f0b -->
 <!-- helix:source src/documentor/deliverable/__init__.py sha256:ad9354803e0dd670 -->
 <!-- helix:source src/documentor/catalog/ux-builder/README.md sha256:6b885638317975c7 -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
+<!-- helix:source src/documentor/schemas.py sha256:6db23e6c01b889bc -->
+<!-- helix:source src/documentor/umf_tables.py sha256:56c75007b5b2d2de -->
+<!-- helix:source src/documentor/detect.py sha256:376f1dd87ec38e48 -->
 # Overview
 
 ## What it is
 
-documentor is a Python command-line tool that turns a repository into a checked documentation guide for developers, operators, users, and data consumers. It implements the `guide` mode of HELIX. HELIX defines the audiences, page kinds, writing standard, and provenance header. documentor makes the deterministic parts exact and gives CI a gate.
+documentor turns a repository into a checked guide for developers, operators, users, and data consumers. It implements HELIX guide mode: audiences, page kinds, writing standards, provenance, and a CI gate.
 
 Each guide page is one of five kinds of work:
 
@@ -45,6 +48,8 @@ The code is one package, `src/documentor/`, with one module per pipeline step. A
 | `src/documentor/site.py` | Emits pages into an existing mkdocs or Hugo site, or writes a new one |
 | `src/documentor/report.py` | The "How this guide was made" page, the missing HELIX artifacts, and site screenshots |
 | `src/documentor/theme.py` | The project's ux-builder theme for the site, views, presentations, and decks |
+| `src/documentor/schemas.py` | Publishes versioned design schemas and the UMF browser |
+| `src/documentor/umf_tables.py` | Reads UMF TableSpec tables for generated data references |
 | `src/documentor/record.py` | Publishes the project's HELIX root into the site as read-only pages |
 | `src/documentor/deliverable/` | Renders HELIX present-mode scripts to `.pptx`, HTML, and PDF; reports the host's toolchain |
 | `src/documentor/architecture/` | The architecture model, its views, the deployment drawing, presentations, and the estate view |
@@ -61,7 +66,9 @@ uv run documentor --version
 
 An install prints `documentor <version> (HELIX catalog packaged <version>)`. Inside the HELIX checkout, or with `--catalog`, it reads `HELIX catalog live <path>`.
 
-A new kind of repository usually needs a trait, not code. A new reference page from a structured source needs a generator in `src/documentor/generate.py`.
+Applicable site builds publish declared schemas and discovered UMF tables through a pinned browser. Operational data pages use Data Design.
+
+Add traits for new repository kinds and generators in `src/documentor/generate.py` for structured references.
 
 ## One request
 
@@ -92,7 +99,7 @@ It prints the page list, the views' state, the missing HELIX artifacts, and a li
 
 </details>
 
-The project has no architecture model, so the steps above come from the code.
+The steps come from the code; this project has no architecture model.
 
 ## Where to go next
 

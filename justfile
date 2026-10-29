@@ -85,8 +85,13 @@ validate-artifact-schemas:
 
 # Check internal links + images in a production-shaped build (with the /helix base path)
 check-website-links:
+    uv run --project tools/documentor documentor schemas --root .
     cd website && hugo --gc --minify --baseURL "https://documentdrivendx.github.io/helix/" >/dev/null
     python3 scripts/check-website-links.py
+
+# Exercise the real UMF browser and definition links beneath /helix/.
+test-schema-browser:
+    cd website && npm run test:schemas
 
 # Install HELIX via DDx (refresh the local snapshot)
 install:

@@ -55,6 +55,13 @@ def _tracked(root: Path, pattern: str) -> list[Path]:
             if not incidental(f) and not any(fnmatch.fnmatch(f, g) for g in ignored)]
 
 
+@generator("umf-tables")
+def umf_tables(root: Path, page: dict) -> tuple[str, list[str]]:
+    from documentor.umf_tables import reference
+
+    return reference(root, page)
+
+
 # --- plugin-workflows --------------------------------------------------------------------------
 
 @generator("plugin-workflows")

@@ -1,4 +1,4 @@
-<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=agent-opus reviewed=2026-10-22/agent-sonnet/37bf692a709e8c39 -->
+<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=codex reviewed=2026-10-29/codex-astra-independent-reader/4d5cfd5f91ba7233 -->
 <!-- helix:source pyproject.toml sha256:74a08b4781a32616 -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
 <!-- helix:source ../../.github/workflows/documentor.yml sha256:ab2fb8338de1a028 -->
@@ -7,19 +7,24 @@
 <!-- helix:source ../../CONTRIBUTING.md sha256:d0027006597fad67 -->
 <!-- helix:source README.md#development sha256:ec26429513feaa3e -->
 <!-- helix:source src/documentor/__init__.py sha256:e612d1e2f68f2667 -->
-<!-- helix:source src/documentor/cli.py sha256:0707cd738e9b6418 -->
+<!-- helix:source src/documentor/cli.py sha256:8b7a0be0b2efb9cb -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
-<!-- helix:source src/documentor/lib.py sha256:7e594138b133286a -->
-<!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
+<!-- helix:source src/documentor/lib.py sha256:5db149c5af59118b -->
+<!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:9f8ec1f2b471f001 -->
 <!-- helix:source src/documentor/catalog/ux-builder/README.md sha256:6b885638317975c7 -->
 <!-- helix:source tests/validate-package.sh sha256:ddc499febfa0dd79 -->
 <!-- helix:source tests/validate-publish.sh sha256:fbe3dede8c6f4a24 -->
-<!-- helix:source ../../scripts/sync_references.py sha256:408f8110f448a604 -->
+<!-- helix:source ../../scripts/sync_references.py sha256:97cfc74fe156811e -->
+<!-- helix:source src/documentor/schemas.py sha256:6db23e6c01b889bc -->
+<!-- helix:source src/documentor/umf_tables.py sha256:56c75007b5b2d2de -->
+<!-- helix:source tests/python/test_schemas.py sha256:fed68ae9a073185b -->
+<!-- helix:source tests/python/test_tempo_gaps.py sha256:270fdda9944cc658 -->
+<!-- helix:source src/documentor/catalog/ci/github-pages.yml sha256:5656014516fa3a2d -->
 # Developer guide
 
 ## Quick start
 
-To get a working copy, clone the HELIX repository, change to `tools/documentor`, run `uv sync`, and run the tests through `just`. You need Python 3.11 or later, [uv](https://docs.astral.sh/uv/), and `just` on your `PATH`. Hugo is optional; without it, the tests skip the site build.
+Clone HELIX and enter `tools/documentor`. Use Python 3.11+, [uv](https://docs.astral.sh/uv/), and `just`; Hugo enables the optional site-build tests.
 
 ```sh
 git clone https://github.com/DocumentDrivenDX/helix
@@ -65,6 +70,8 @@ The package is in `src/documentor`, the tests are in `tests`, and the design rec
 | `src/documentor/check.py` | The CI gate: missing, stale, or unreviewed pages |
 | `src/documentor/report.py` | The site's "How this guide was made" page, and the missing artifacts the pages name |
 | `src/documentor/site.py` | Assembles the pages into a site |
+| `src/documentor/schemas.py` | Publishes referenced schemas and the pinned UMF browser |
+| `src/documentor/umf_tables.py` | Reads UMF TableSpec sources for data references |
 | `src/documentor/record.py` | Publishes the governed record (the HELIX root) into the site |
 | `src/documentor/prose.py` | Prose checks against the voice profile |
 | `src/documentor/theme.py` | Resolves the theme a project names |
@@ -182,7 +189,7 @@ To make a change, edit the module or catalog file, add an assertion to the match
    uv run documentor init --root ../some-repo
    ```
 
-   The proposal shows the traits and pages your change adds or removes.
+   Review the proposed traits and pages.
 
 Three kinds of change follow their own path:
 
@@ -203,6 +210,17 @@ uv run documentor status
 ```
 
 When written pages name a HELIX artifact the repository lacks, the report ends with `Artifacts that would improve the guide`. Each line names the artifact and the pages written without it, most pages first. Once HELIX supplies that artifact, the listed pages are rewritten from it.
+
+## Checking schema publication
+
+Run schema, adoption, and full tests:
+
+```sh
+uv run python -m pytest -q tests/python/test_schemas.py tests/python/test_tempo_gaps.py
+uv run just test
+```
+
+These cover schema and adoption behavior. Configure the release placeholder in `src/documentor/catalog/ci/github-pages.yml` before deployment.
 
 ## Releasing
 

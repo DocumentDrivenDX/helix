@@ -258,6 +258,16 @@ never copied into an install. A host without it does each step by hand and
 says so.
 The skill body stays runtime-neutral (R-4).
 
+**R-14: UMF-based design and schema publication.** For new or changed schemas,
+structured interfaces, and domain models, design workflows inspect UMF core,
+extensions and domain packs and reuse suitable definitions by default. A specific
+gap justifies an alternative. Exact shapes have one authoritative source;
+Contracts explain behavior and compatibility. Versioned local schema references
+are discoverable by the publishing pipeline, which renders them using the UMF
+schema browser with source provenance and definition links. Publication validates
+references and freshness; rendering does not establish semantic conformance.
+Narrative-only work requires no model or runtime dependency.
+
 #### P2
 
 **R-10: Catalog versioning.** Artifact-type changes are reviewable; consumers
