@@ -48,8 +48,8 @@ ddx:
 
 | Opportunity | Phase | Owner | Metric | Target |
 |---|---|---|---|---|
-| Flag a saved mapping whose column was renamed, before the reviewer confirms | Check columns | Import squad | Imports corrected after confirmation | under 1% by the end of the pilot |
-| Export rejected rows with their row numbers and reasons | Follow up | Product | Median time from summary to client email | under 2 minutes |
+| Flag a saved mapping whose column was renamed, before the reviewer confirms | Check columns | Import squad | Imports corrected after confirmation | hypothesis: under 1% |
+| Export rejected rows with their row numbers and reasons | Follow up | Product | Median time from summary to client email | hypothesis: under 2 minutes |
 
 ## Story Coverage
 

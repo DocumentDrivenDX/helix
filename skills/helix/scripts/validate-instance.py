@@ -10,7 +10,8 @@ Checks run, in order:
   pattern_checks     regex entries {pattern, expected, message[, severity]}
                      where expected is 0 (must not match) or >=N
   automated_checks   rule entries {check, type, field[, severity, message]}
-                     with type unique_constraint, module_boundaries, ux_coverage, or not_equals plus `value`;
+                     with type unique_constraint, module_boundaries, ux_coverage, findings_sources,
+                     or not_equals plus `value`;
                      other rule types are reported as unsupported without failing
   placeholder        leftover template markers ([TODO], TBD, [Fill in], ...)
   prose              for a type people read (meta.yml prose.audience: human), the voice
@@ -420,6 +421,46 @@ def check_ux_coverage(body: str, base: int, severity: str, report: Report) -> No
         fail("Missing UX patterns: " + ", ".join(sorted(missing)))
 
 
+def check_findings_sources(body: str, base: int, severity: str, report: Report) -> None:
+    """A present Findings section's Claims table has a Source column, filled for every claim.
+
+    Only the table under `### Claims` is read; other tables beneath Findings are not claims.
+    """
+    lines = strip_fences(body).splitlines()
+    start = next((i for i, l in enumerate(lines) if re.fullmatch(r"##[ \t]+Findings[ \t]*", l)), None)
+    if start is None:
+        return
+
+    def fail(message: str, i: int) -> None:
+        report.add(severity, "findings_sources", message, base + i)
+
+    end = next((i for i in range(start + 1, len(lines)) if re.match(r"##[ \t]", lines[i])), len(lines))
+    claims = next((i for i in range(start + 1, end) if re.fullmatch(r"###[ \t]+Claims[ \t]*", lines[i])), None)
+    rows = []
+    for i in range(claims + 1, end) if claims is not None else ():
+        if re.match(r"#{1,3}[ \t]", lines[i]) or (rows and not lines[i].lstrip().startswith("|")):
+            break  # the first table under Claims only
+        if lines[i].lstrip().startswith("|"):
+            cells = [c.strip() for c in lines[i].strip().strip("|").split("|")]
+            rows.append((i, cells))
+    rows = [(i, cells) for i, cells in rows if not all(re.fullmatch(r":?-+:?", c) for c in cells)]
+    if not rows:
+        fail("Findings needs a Claims table", start if claims is None else claims)
+        return
+    header = [slugify(c) for c in rows[0][1]]
+    if "source" not in header:
+        fail("The Claims table needs a Source column", rows[0][0])
+        return
+    source = header.index("source")
+    claim = header.index("claim") if "claim" in header else 0
+    for i, cells in rows[1:]:
+        if not any(cells):
+            continue
+        value = cells[source] if source < len(cells) else ""
+        if value.lower() in {"", "-", "n/a", "none"}:
+            fail(f"Claim has no Source: {cells[claim] if claim < len(cells) else ''}", i)
+
+
 def check_rule_entries(key: str, entries: list, body: str, base: int, report: Report) -> None:
     for i, entry in enumerate(entries):
         if not isinstance(entry, dict):
@@ -440,6 +481,8 @@ def check_rule_entries(key: str, entries: list, body: str, base: int, report: Re
             check_ux_coverage(body, base, severity, report)
         elif rule == "module_boundaries":
             check_module_boundaries(body, base, severity, report)
+        elif rule == "findings_sources":
+            check_findings_sources(body, base, severity, report)
         elif rule == "unique_constraint" and field:
             values = field_values(body, str(field))
             dupes = sorted({v for v in values if values.count(v) > 1})

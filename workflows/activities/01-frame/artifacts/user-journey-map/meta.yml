@@ -13,7 +13,7 @@ voice: artifact-signal
 description: |
   One person's experience of one task across several stories, laid out in
   phases with what they do, think and feel in each, the insights the team
-  draws, and the opportunities it commits to own and measure. It is keyed to a
+  draws, and the opportunities it commits to own and observe. It is keyed to a
   task in the feature specification's Task Model, and each phase links to the
   acceptance criteria that deliver it, so the map shows which parts of the
   experience the stories cover and which they leave out. Make one only when a
@@ -69,8 +69,8 @@ validation:
       description: Every in-product phase lists the US-<n>-AC<m> IDs that deliver it, or is marked uncovered with a reason
       severity: blocking
 
-    - check: opportunities_owned_and_measured
-      description: Every opportunity names one owner and one metric with a target
+    - check: opportunities_owned_and_observed
+      description: Every opportunity names one owner and the metric that shows its effect; a target is optional and is labelled a hypothesis unless evidence supports it
       severity: blocking
 
     - check: rows_named
@@ -111,7 +111,7 @@ prompts:
     2. Phases from trigger to end state, including steps outside the product
     3. Thoughts and emotions grounded in evidence or marked as assumptions
     4. Every in-product phase traced to US-<n>-AC<m> IDs, gaps named
-    5. Opportunities with one owner and one measurable target each
+    5. Opportunities with one owner and one metric each; targets optional, unsupported ones labelled hypotheses
     6. No view, layout or state design
 
 template:
@@ -120,7 +120,7 @@ template:
     - actor_and_scenario: "The person, the task, the scenario, goals and expectations."
     - journey_phases: "Phases with actions, thoughts, emotion, touchpoints and the acceptance criteria that deliver each."
     - insights: "Pain points and moments that matter, with evidence."
-    - opportunities: "Opportunities with owner, metric and target."
+    - opportunities: "Opportunities with owner and metric; any target is supported or labelled a hypothesis."
     - story_coverage: "Which phases the stories cover, and which they leave uncovered."
 
 example:

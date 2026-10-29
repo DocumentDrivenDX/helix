@@ -11,6 +11,15 @@ This is the per-project **interface system**: the concrete UX/design-system
 decisions this app commits to. It is this app's *instance* of the interface
 guidelines in the `ux-interaction-patterns` concern — not a copy of the concern library.
 
+## Modalities, Size Classes and App Frame
+
+[Optional. For an app that supports more than one modality or size class, or
+that chooses its app frame deliberately. Delete if not relevant.]
+
+- **Supported modalities**: [screen, voice, chat]
+- **Size classes**: [compact below 600 px, medium to 1024 px, expanded above]
+- **App frame**: [screen | top-bar | top-nav | side-nav], [per size class if it changes]
+
 ## Navigation and Active State
 
 [Describe the navigation model: top nav, sidebar, tabs, or a combination, and
@@ -29,6 +38,14 @@ on *which* route, belongs in the story/project test plan — not in DESIGN.md.
 |---|---|---|---|
 | [Primary nav] | [e.g. sidebar links] | [e.g. tinted bg + left border] | `aria-current="page"` |
 | [Secondary nav] | [e.g. tabs] | [e.g. underline] | `aria-selected` |
+
+### Destinations by Size Class
+
+[Optional. Where each top-level destination appears at each size class.]
+
+| Destination | Compact | Medium | Expanded |
+|---|---|---|---|
+| [Destination] | [bottom bar / menu / hidden] | [rail] | [side nav] |
 
 ## Visual Hierarchy
 

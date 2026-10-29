@@ -147,6 +147,15 @@ Lists, Segments", "API, CLI, docs") are usually **separate features**, not areas
 of one — each typically passes the Decomposition test as its own capability.
 Apply the test before treating them as areas.
 
+### Task Model
+Optional; add it when people use the feature directly. One row per task,
+named by what the person does ("Import a client's weekly files"), not
+numbered. Cite PRD User Segments and User Needs rows by name and business
+rules by their BR-n IDs; do not restate them. Realized by names the journey or
+the user flow (UF-XXX) that carries the task out. The Key column holds a
+stable slug that tools use to link journeys to tasks; keep it when the task is
+renamed.
+
 ### Functional Requirements
 Number each requirement for traceability. Group requirements by functional
 area when the feature spans multiple areas. Use stable prefixes that make the

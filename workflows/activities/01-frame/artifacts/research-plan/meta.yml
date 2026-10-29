@@ -11,12 +11,17 @@ voice: artifact-signal
 
 description: |
   Time-boxed plan for answering specific uncertainty before requirements,
-  design, or investment decisions harden.
+  design, or investment decisions harden. One plan per study. A study with
+  people can carry its scenarios, success criteria and screener under Methods,
+  and its claims under an optional Findings section once it has run. A
+  project's existing single docs/helix/01-frame/research-plan.md stays valid.
 
 output:
-  location: docs/helix/01-frame/research-plan.md
+  location: docs/helix/01-frame/research/{study}.md
   format: markdown
-  naming: research-plan.md
+  naming: "{study}.md"
+  examples:
+    - research/pilot-reviewer-interviews.md
 
 validation:
   required_sections:
@@ -42,6 +47,12 @@ validation:
     - check: resource_defined
       description: Required resources and skills must be identified
       severity: blocking
+
+  automated_checks:
+    - check: findings_sources
+      type: findings_sources
+      severity: blocking
+      description: When present, Findings has a Claims table with a Source column, filled for every claim
 
   pattern_checks:
     - pattern: "\\*\\*Question\\*\\*:"
