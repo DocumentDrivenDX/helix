@@ -40,7 +40,7 @@ type-level dependencies; see ADR-004).
 
 The authority document for what to build and why:
 - Summary (standalone 1-pager)
-- Problem statement with quantified pain
+- Problem statement naming a specific failure mode, quantified where supported
 - Product-outcome hypotheses and available measurement methods
 - Prioritized requirements (P0/P1/P2)
 - Acceptance test sketches for every P0

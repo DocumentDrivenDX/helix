@@ -17,7 +17,8 @@ kind: product  # `product` (default) frames general product requirements; `data`
 ## Summary
 
 [This section should work as a standalone 1-pager. Include: what we're
-building, who uses it, what problem it solves, and the solution approach. Write this last — it should be a distillation of the
+building, who uses it, what problem it solves, and the solution approach. Write
+this last — it should be a distillation of the
 full PRD, not an introduction. Someone who reads only this section should
 understand the product well enough to decide whether to read the rest.
 
@@ -47,23 +48,18 @@ is 24 hours and source data changes hourly."]
 ### Success Metrics
 
 [Product and market goals guide learning and prioritization. Adoption, user
-counts, revenue, retention, and satisfaction targets are not development,
-version, release, or completion gates. Label unvalidated targets as hypotheses.]
+counts, revenue, retention, and satisfaction targets do not imply delivery
+gates. Label unvalidated targets as hypotheses; record explicit human business
+decisions separately with their source and affected action.]
 
 | Metric | Target | Measurement Method |
 |--------|--------|--------------------|
 | [Metric] | [Supported target or explicit hypothesis] | [Named tool or process] |
 
-**(kind: data)** When `kind: data`, frame metrics for the data product
-itself (throughput, latency, quality score, cost per GB). Include a baseline
-and cadence column:
-
-| Metric | Target | Baseline | Measurement Method | Cadence |
-|--------|--------|----------|--------------------|---------|
-| [Throughput] | [e.g., 1M rows/day] | [Current: 100K rows/day] | [COUNT(*) from production table] | Daily |
-| [Latency] | [e.g., ≤1 hour end-to-end] | [Current: 4 hours] | [MAX(ingestion_timestamp) - MAX(source_timestamp)] | Hourly |
-| [Quality Score] | [e.g., ≥98%] | [Current: 85%] | [Automated quality checks pass rate] | Daily |
-| [Cost per GB] | [e.g., $0.05/GB/month] | [Current: $0.12/GB/month] | [DBU spend / data volume] | Monthly |
+**(kind: data)** Record useful in-use indicators (such as consumer satisfaction
+or cost trends) and observation methods here. Required throughput, latency,
+freshness, and quality thresholds belong in Requirements with verification
+methods; reference them rather than defining duplicate targets.
 
 ### Non-Goals
 
@@ -248,5 +244,5 @@ questions here over `[TBD]` markers scattered through the document.]
 
 [Delivery acceptance: observable capabilities and engineering readiness that
 can be verified with tests, fixtures, or bounded evaluations. Keep product and
-market targets in Success Metrics. Do not require user counts, customer
-adoption, revenue, or community uptake to complete work or release a version.]
+market targets in Success Metrics. Record explicit human investment or launch
+conditions separately in Constraints or the Business Case, with their source.]

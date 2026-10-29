@@ -59,8 +59,8 @@ the workspace.
 
 ## Success Definition
 
-These strategic goals guide learning and priorities; they do not gate
-development, version progression, or release.
+These strategic goals guide learning and priorities; they imply no delivery
+gate. Record explicit human business decisions separately.
 
 | Metric | Target |
 |--------|--------|

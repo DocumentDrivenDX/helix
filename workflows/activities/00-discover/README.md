@@ -25,9 +25,14 @@ Prerequisites to enter this activity:
 
 ## Exit Gates
 
-Readiness to frame authorized work:
-- **Intent clear**: The user need, intended outcome, and scope are understood
-- **Uncertainty explicit**: Material assumptions and open product decisions are named
+When Discover is selected, `GATE.yaml` requires:
+- **Vision clarity**: Direction, intended users, and a concrete usage scenario
+- **Decision recorded**: Go/pivot/no-go, rationale, authorized scope, assumptions,
+  material open questions, and next action
+
+Business Case, Competitive Analysis, and Opportunity Canvas are optional inputs
+when relevant to that decision. Discover is not mandatory market validation for
+already-authorized engineering work.
 
 ## Artifacts
 
@@ -74,12 +79,9 @@ graph TD
 
 ## Success Criteria
 
-Discover is complete when:
-1. **Vision clarity**: Team can articulate the opportunity in one sentence
-2. **Business assumptions**: Investment estimates and uncertainty are explicit
-3. **Market understanding**: Competitive landscape is mapped
-4. **Problem evidence**: Known needs and untested assumptions are distinct
-5. **Decision made**: Clear go/pivot/no-go with rationale
+Discover is complete when the required vision and decision checks in `GATE.yaml`
+are satisfied. Selected research records evidence and uncertainty; it need not
+prove a positive market outcome.
 
 ## Next Activity: Frame
 

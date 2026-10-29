@@ -129,7 +129,7 @@ prompts:
   review: |
     Review this PRD for:
     1. Clarity of problem statement
-    2. Measurability of success metrics and separation of product/market goals from delivery gates
+    2. Observation methods and honest hypotheses for useful indicators; separation from engineering acceptance
     3. Completeness of requirements
     4. Identification of risks
     5. Alignment with business goals
@@ -139,7 +139,7 @@ template:
   sections:
     - executive_summary: "Write this last"
     - problem_statement: "Start here"
-    - success_metrics: "Make specific and measurable"
+    - success_metrics: "Name observation methods; label unsupported targets as hypotheses"
 
 examples:
   - file: example.md

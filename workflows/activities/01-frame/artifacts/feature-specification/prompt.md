@@ -90,8 +90,9 @@ one `FEAT-NNN`). Use these **layered tests** to place a candidate:
    hold:
    - **Ship/cut:** it could be removed or deferred **without making another
      *named* capability incoherent** (it stands alone in the parking-lot).
-   - **Outcome:** it delivers a distinct user-visible capability that can be
-     verified independently.
+   - **Outcome:** it carries a feature-level user outcome that could be
+     observed; no numeric target is required. A button click or local row
+     count alone does not establish a feature-level outcome.
    If a candidate fails these — it cannot stand alone and has no outcome of its
    own — it is a **functional area** within a feature, not a feature.
 2. **Tie-breaker — bounded context.** When ship/cut is genuinely ambiguous, split

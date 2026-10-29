@@ -46,8 +46,9 @@ Artifacts are written in their type's voice profile and keep it: they are the sy
 ## Product outcomes and delivery criteria
 
 Apply `workflows/principles.md` §Product goals and delivery gates. Remove
-market-outcome conditions from engineering prerequisites and completion checks;
-retain useful goals as learning signals.
+agent-invented market conditions from engineering prerequisites and completion
+checks. Preserve sourced human business decisions separately and retain useful
+learning goals.
 
 ## External standards
 

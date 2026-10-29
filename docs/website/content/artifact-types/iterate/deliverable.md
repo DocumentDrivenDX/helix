@@ -68,7 +68,7 @@ ddx:
   1. Firms lose reviewer capacity to manual deposit matching every week, and the market is large enough to matter (evidence: docs/helix/00-discover/business-case.md#executive-summary; docs/helix/00-discover/business-case.md#opportunity-sizing)
   2. A CSV-first pilot learns about reviewer trust faster and cheaper than integrating bank feeds (evidence: docs/helix/00-discover/business-case.md#alternatives-considered)
   3. Year one costs $262,000 and the plan breaks even in month 18 if pilot conversion and pricing hold (evidence: docs/helix/00-discover/business-case.md#investment-required; docs/helix/00-discover/business-case.md#expected-roi)
-  4. Three risks inform the pilot, each with a mitigation, and two research actions guide future investment (evidence: docs/helix/00-discover/business-case.md#risk-assessment; docs/helix/00-discover/business-case.md#recommendation)
+  4. Three risks inform the pilot, each with a mitigation, and the committee reviews findings before funding further work (evidence: docs/helix/00-discover/business-case.md#risk-assessment; docs/helix/00-discover/business-case.md#recommendation)
 - **Beats and titles** (beat ids from the proposal flow in deck-flows.yml; titles written before any body):
 
   | # | Beat | Title (claim) | Message | Exhibit |
@@ -80,8 +80,8 @@ ddx:
   | 5 | recommended-option | Approve a pilot that shows reviewers the evidence | M2 | three-step process strip |
   | 6 | return | The pilot breaks even in month 18 on planned pricing | M3 | timeline to breakeven |
   | 7 | cost | The pilot costs $262,000 in year one | M3 | cost table with the total highlighted |
-  | 8 | risks | Three risks decide the pilot, each with a mitigation | M4 | risk grid |
-  | 9 | plan | Two pilot research actions guide future investment | M4 | checkpoint strip |
+  | 8 | risks | Three risks inform the pilot, each with a mitigation | M4 | risk grid |
+  | 9 | plan | Pilot findings inform the next funding decision | M4 | checkpoint strip |
   | 10 | ask | Approve the pilot budget and name a recruiter | takeaway | ask band and steps |
   | 11 | sources | Sources | all | source table |
 
@@ -164,7 +164,7 @@ ddx:
 - The pilot builds three things and nothing else
 - Reviewers see the evidence behind every suggested match before approving it
 - Every exception has a named owner instead of a shared spreadsheet
-- Research findings inform future investment independently of engineering delivery
+- The proposed funding covers the pilot; further spend needs a new sponsor decision
 
 **Visual**: kind: process-flow | steps: Import; Review; Own exceptions | highlight: 2 | caption: reviewers see the evidence first. Three-step process strip drawn from the pilot scope in the business case, with the review step highlighted
 
@@ -176,11 +176,11 @@ ddx:
 
 **Pattern**: claim-evidence
 **Body**:
-- Year one revenue of $120,000 leaves a $142,000 shortfall we fund deliberately
+- Year one revenue of $120,000 leaves a projected $142,000 shortfall
 - Breakeven arrives in month 18 if pilot conversion and pricing hold
 - The three-year return rests on pricing the pilot has not yet validated
 
-**Visual**: kind: timeline | milestones: Pilot starts; Year one closes with $120,000 revenue; Breakeven in month 18; Three-year return | now: 1 | marker: today | caption: the shortfall is funded until month 18 | side: left. Net line over three years drawn from the expected ROI section, with the breakeven month marked in the secondary hue
+**Visual**: kind: timeline | milestones: Pilot starts; Year one closes with $120,000 revenue; Breakeven in month 18; Three-year return | now: 1 | marker: today | side: left. Net line over three years drawn from the expected ROI section, with the breakeven month marked in the secondary hue
 
 **Notes**: The model is in the expected ROI section. Revenue ramps with pilot conversion, and the three-year return depends on the price point the pilot tests. Lead with the breakeven month; the return figure waits for a partner to ask.
 
@@ -199,7 +199,7 @@ ddx:
 
 **Sources**: S7
 
-### 8. Three risks decide the pilot, each with a mitigation
+### 8. Three risks inform the pilot, each with a mitigation
 
 **Pattern**: risk-matrix
 **Body**:
@@ -213,17 +213,17 @@ ddx:
 
 **Sources**: S9
 
-### 9. Two pilot research actions guide future investment
+### 9. Pilot findings inform the next funding decision
 
 **Pattern**: process-flow
 **Body**:
-- Recruit five pilot firms as a research target, independently of development and release
-- Read both measures at the two-month checkpoint to inform priorities
-- Measure the 3-minute reconciliation hypothesis independently of release readiness
+- Recruit five pilot firms to gather evidence on workflow value and pricing
+- Review time savings, accuracy, and pricing reactions at the two-month checkpoint
+- Return to the sponsor for a new decision before spending beyond the pilot
 
-**Visual**: kind: process-flow | steps: Recruit five firms; Read two measures; Review priorities | highlight: 2 | caption: observe outcomes during the first two months. Three-step research strip from the recommendation, with the 3-minute outcome hypothesis in the body
+**Visual**: kind: process-flow | steps: Recruit five firms; Read two measures; Review funding | highlight: 2 | caption: evidence for the next sponsor decision. Three-step research and investment strip from the business case recommendation
 
-**Notes**: These research actions support the next investment decision. Authorized engineering work completes against capability and readiness checks independently of recruitment and market outcomes.
+**Notes**: The committee is being asked to fund the bounded pilot. Its findings support the next funding decision; the pilot budget does not authorize additional spend.
 
 **Sources**: S2, S10
 
@@ -258,7 +258,7 @@ ddx:
 | Id | Claim or figure | Governing artifact and section |
 |---|---|---|
 | S1 | Recommended investment is a three-month pilot build for CSV import, evidence-backed match review, and exception ownership | docs/helix/00-discover/business-case.md#executive-summary |
-| S2 | Decision: Conditional Go; recruit five firms independently of engineering delivery; measure median reconciliation time and suggestion accuracy during the first two months | docs/helix/00-discover/business-case.md#recommendation |
+| S2 | Go for the bounded pilot; further spend needs a new sponsor decision; recruit five firms and measure time savings and accuracy | docs/helix/00-discover/business-case.md#recommendation |
 | S3 | TAM $1.2B annual workflow spend: 60,000 small bookkeeping firms x $20,000; planning assumption, low confidence | docs/helix/00-discover/business-case.md#opportunity-sizing |
 | S4 | SAM $180M: 9,000 firms with five to twenty-five employees x $20,000; medium confidence | docs/helix/00-discover/business-case.md#opportunity-sizing |
 | S5 | Firms are losing reviewer capacity to manual deposit matching; firm owners will pay for auditability plus time saved | docs/helix/00-discover/business-case.md#executive-summary, docs/helix/00-discover/product-vision.md#positioning |

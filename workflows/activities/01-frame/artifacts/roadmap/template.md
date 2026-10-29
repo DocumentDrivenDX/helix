@@ -30,8 +30,8 @@ reference workstreams by alias; they never mint new ones.
 
 ## Sequenced Outcomes
 
-[Sequence verifiable capabilities. Product and market uptake targets are not
-dependencies or conditions for completing a version or release.]
+[Sequence verifiable capabilities. Do not infer dependencies from uptake
+targets; link any explicit human business decision affecting the sequence.]
 
 | Order | Outcome | Workstream | Governing Artifact | Target Iteration | Depends On | Confidence | Why This Order |
 |-------|---------|------------|--------------------|------------------|------------|------------|----------------|

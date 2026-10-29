@@ -128,9 +128,12 @@ when explicitly applicable; they are not a generic document lifecycle.
 
 ### Product goals and delivery gates
 
-Product and market goals guide learning, priorities, and investment decisions;
-they do not gate authorized engineering work, versions, releases, or completion.
-Delivery acceptance verifies product capabilities and engineering readiness.
+Product and market goals guide learning, priorities, and investment decisions.
+Agents must not invent uptake gates or turn those goals into engineering
+acceptance. Preserve explicit human decisions about investment, launch, or
+authorization as named business decisions with their source and affected action;
+keep them separate from delivery acceptance. Do not infer such a decision from
+a goal or example. Delivery acceptance verifies capabilities and readiness.
 Supporting 100 concurrent sessions is a capacity requirement; acquiring 100
 users is a market goal. Preserve applicable legal, contractual, and safety
 constraints. Keep unsupported targets as hypotheses instead of inventing gates.

@@ -1,5 +1,6 @@
 # Gate Criteria for Discover Activity
-# Entry and exit criteria for Activity 00
+# Entry and exit criteria when Discover is selected; it is not a mandatory
+# market-validation prerequisite for already-authorized engineering work.
 
 activity: 00-discover
 name: Discover
@@ -67,10 +68,11 @@ exit_gates:
 
   # Decision Gate
   - criteria: Go/No-Go decision documented
-    required: false
+    required: true
     validation:
       - Decision rationale captured
-      - Key assumptions listed
+      - Intended outcome and authorized scope recorded
+      - Key assumptions and material open questions listed
       - Next steps defined (if Go)
       - Lessons learned documented (if No-Go)
     evidence: docs/helix/00-discover/decision.md
@@ -80,6 +82,16 @@ validation_rules:
   - rule: vision_concise
     description: Mission statement under 50 words
     path: docs/helix/00-discover/product-vision.md
+    severity: warning
+
+  - rule: market_quantified
+    description: Business-case sizing states numeric estimates or explains uncertainty
+    path: docs/helix/00-discover/business-case.md
+    severity: warning
+
+  - rule: competitors_identified
+    description: Competitive analysis names the relevant competing alternatives
+    path: docs/helix/00-discover/competitive-analysis.md
     severity: warning
 
 # Activity Transition

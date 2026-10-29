@@ -37,8 +37,9 @@ Use this local resource summary as grounding:
 - State why each item holds its position — dependency, risk retirement, or
   value. An unexplained order is a quality-check failure.
 - Sequence capabilities and engineering readiness. Adoption, user-count,
-  revenue, and community-uptake targets may inform priorities but must not appear
-  as dependencies or conditions for a version or release.
+  revenue, and community-uptake targets inform priorities. Do not invent version
+  or release dependencies from them; link separately to any explicit human
+  business decision affecting the sequence.
 - Bound the horizon. Candidates beyond it stay in the improvement backlog or
   parking lot, unsequenced.
 - Name the revision triggers. A roadmap that cannot say when it must change

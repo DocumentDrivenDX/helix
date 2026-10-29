@@ -300,6 +300,7 @@ Before proceeding to the next Frame activity, ensure:
 - [ ] Next iteration goals defined
 - [ ] Resource allocation planned
 - [ ] Risk mitigation strategies identified
+- [ ] Useful learning goals and observation methods identified
 
 ## Common Pitfalls
 

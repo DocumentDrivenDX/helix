@@ -102,10 +102,9 @@ targets as hypotheses; do not manufacture a numeric target for every goal.
 These are *strategic, long-horizon* outcomes — what success looks like over
 12–24 months. Product-scope metrics belong in the PRD; feature-scoped metrics
 in feature specs; metric schemas in `metric-definition`. Aim for 3–5 strategic
-indicators, not a comprehensive metric catalog. Adoption, revenue, user counts,
-and community uptake are learning goals, never development prerequisites or
-version/release gates. Do not turn a strategic target into delivery acceptance
-when propagating it downstream.
+indicators, not a comprehensive metric catalog. Do not infer development or
+release gates from strategic goals. Preserve explicit human business decisions
+separately from delivery acceptance.
 
 ### Why Now
 Ground this in an observable change — a technology shift, a market event, a

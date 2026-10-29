@@ -128,14 +128,15 @@ integrations, but it learns faster about reviewer trust and weekly time savings.
 
 ## Recommendation
 
-**Decision**: Conditional Go
+**Decision**: Go for the bounded pilot
 
 **Rationale**: The opportunity is attractive if the pilot proves time savings
 and reviewer trust with CSV-first workflows. Review willingness-to-pay and CSV
-variability evidence when considering additional investment. Authorized
-engineering work proceeds against its scoped delivery criteria.
+variability evidence when considering additional investment. The proposed
+funding covers the pilot only; further spend needs a new sponsor decision.
+Pilot engineering completion is assessed against its delivery criteria.
 
-**Conditions**:
+**Research Actions**:
 
 - Recruit five pilot firms as a research target, independently of development
   and release readiness.

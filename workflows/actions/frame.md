@@ -186,25 +186,28 @@ If you drafted or updated the PRD, also check:
    product? "Users don't have X" is weak. Quantify the pain.
 2. **Goals**: Are they state changes or activities? "Build a dashboard" is an
    activity, not a goal.
-3. **Non-Goals**: Would someone on the team plausibly argue for including each
+3. **Learning indicators**: Do retained indicators name an observation method,
+   with unsupported targets marked as hypotheses? Keep uptake thresholds out of
+   engineering acceptance; preserve separately sourced human business decisions.
+4. **Non-Goals**: Would someone on the team plausibly argue for including each
    excluded item? If not, the non-goal is a strawman.
-4. **P0 Requirements**: Could someone write an acceptance test for each one?
+5. **P0 Requirements**: Could someone write an acceptance test for each one?
    If not, it's too vague to be P0.
-5. **Personas**: Are they specific enough to find a real person who matches?
+6. **Personas**: Are they specific enough to find a real person who matches?
    Generic roles with generic pain points are templates, not personas.
-6. **Risks**: Does every mitigation name a concrete action? "Monitor closely"
+7. **Risks**: Does every mitigation name a concrete action? "Monitor closely"
    is not a mitigation.
-7. **Markers**: Search for `[TBD]`, `[TODO]`, `[NEEDS CLARIFICATION]`. None
+8. **Markers**: Search for `[TBD]`, `[TODO]`, `[NEEDS CLARIFICATION]`. None
    should remain outside the Open Questions section.
-8. **Acceptance Test Sketches**: Does every P0 have a scenario with inputs and
+9. **Acceptance Test Sketches**: Does every P0 have a scenario with inputs and
    expected outputs? Could an implementer write a passing test from the sketch
    alone?
-9. **Technical Context**: Are versions specific? Could an implementer set up
+10. **Technical Context**: Are versions specific? Could an implementer set up
     the dev environment from this section alone? Note: Technical Context
     records current stack decisions; it does not make them. Stack selection
     decisions and their rationale belong in ADRs. If a choice here conflicts
     with or isn't yet backed by an ADR, flag it in Open Questions.
-10. **Open Questions**: Are unresolved items collected here instead of buried
+11. **Open Questions**: Are unresolved items collected here instead of buried
     as markers? Does each question name who can answer and what's blocked?
 
 ### Feature-spec-specific critique

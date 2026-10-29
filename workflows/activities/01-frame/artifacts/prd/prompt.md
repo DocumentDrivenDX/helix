@@ -65,9 +65,9 @@ applies universally.
 - **Decision-oriented** — every section should help someone make a build/skip
   decision. If a section doesn't inform a decision, it's filler.
 - **Separate outcomes from gates** — product and market goals guide learning
-  and priorities. User counts, adoption, revenue, retention, and community uptake
-  must never become implementation prerequisites, version milestones, release
-  gates, or criteria for completing engineering work.
+  and priorities. Do not invent implementation or release gates from uptake
+  targets. Record explicit human investment or launch conditions as named
+  business decisions, separate from engineering acceptance.
 - **Testable requirements** — every P0 requirement should be verifiable. If
   you can't describe how to test it, it's too vague.
 - **Traceable boundaries** — requirements should connect upward to the Product
@@ -95,7 +95,8 @@ Product requirements are for product scope. If you find yourself writing about:
 
 ### Summary
 Write this last. This section must work as a **standalone 1-pager**: what
-we're building, who uses it, the problem, and the solution approach. Someone who reads only this section should understand the
+we're building, who uses it, the problem, and the solution approach. Someone
+who reads only this section should understand the
 product well enough to decide whether to invest time in the full PRD. Test:
 could a new team member read this alone and explain the product to someone
 else?
@@ -250,10 +251,11 @@ pretends to be complete.
 ### Success Criteria
 Define delivery acceptance using observable product capabilities and engineering
 readiness, verifiable with tests, fixtures, or bounded evaluations. For example,
-“operators can reconcile a representative deposit and assign exceptions” can
+"operators can reconcile a representative deposit and assign exceptions" can
 be verified before broad adoption. Product and market outcomes stay in Success
-Metrics; reaching a user count, revenue target, survey score, or number of
-external adopters cannot be required to complete or release this work.
+Metrics. Explicit human launch or investment decisions belong in Constraints
+or the Business Case with their source and scope; they do not redefine
+engineering completion.
 
 ## Quality Checklist
 
