@@ -258,7 +258,7 @@ ddx:
 | Id | Claim or figure | Governing artifact and section |
 |---|---|---|
 | S1 | Recommended investment is a three-month pilot build for CSV import, evidence-backed match review, and exception ownership | docs/helix/00-discover/business-case.md#executive-summary |
-| S2 | Decision: Conditional Go; research actions: recruit five pilot firms independently of engineering delivery; measure median reconciliation time and suggestion acceptance accuracy during the first two months | docs/helix/00-discover/business-case.md#recommendation |
+| S2 | Decision: Conditional Go; recruit five firms independently of engineering delivery; measure median reconciliation time and suggestion accuracy during the first two months | docs/helix/00-discover/business-case.md#recommendation |
 | S3 | TAM $1.2B annual workflow spend: 60,000 small bookkeeping firms x $20,000; planning assumption, low confidence | docs/helix/00-discover/business-case.md#opportunity-sizing |
 | S4 | SAM $180M: 9,000 firms with five to twenty-five employees x $20,000; medium confidence | docs/helix/00-discover/business-case.md#opportunity-sizing |
 | S5 | Firms are losing reviewer capacity to manual deposit matching; firm owners will pay for auditability plus time saved | docs/helix/00-discover/business-case.md#executive-summary, docs/helix/00-discover/product-vision.md#positioning |
