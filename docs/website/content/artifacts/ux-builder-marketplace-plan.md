@@ -73,8 +73,6 @@ check results and its upstream dependency.
 
 ## Verification record — 2026-10-29
 
-- Upstream packaging: [ux-builder PR 71](https://github.com/DocumentDrivenDX/ux-builder/pull/71).
-- Companion listing: [HELIX PR 107](https://github.com/DocumentDrivenDX/helix/pull/107).
 - Full local `just test` passed using temporary Python dependencies; install
   consistency regression tests (5), Claude manifest validation and diff checks passed.
 - Isolated Claude and Codex installations from the pinned Git source succeeded;
