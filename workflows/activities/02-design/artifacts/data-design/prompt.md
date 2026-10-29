@@ -28,3 +28,12 @@ constraints, and migration consequences that technical designs must honor.
 - Key data decisions and constraints are explicit.
 - Access patterns and migration strategy are concrete enough to guide
   implementation and tests.
+
+## UMF Schema Reuse
+
+Apply `workflows/references/umf-schemas.md` for schema, structured-interface, or
+domain-model work. Inspect applicable UMF core, extensions, and domain packs;
+reuse or compose by default. Record pinned sources, local additions, specific
+exceptions, and semantic/projection limits. Declare `ddx.schemas` references to
+the authoritative local sources so publication can render them in the UMF
+browser. Contracts own exact shared surfaces; designs reference them.

@@ -25,6 +25,9 @@ validation:
     - migration_strategy
 
   quality_checks:
+    - check: umf_schema_basis_explicit
+      description: For new or changed schemas, structured interfaces, or domain models, identify inspected UMF definitions and pinned versions, reuse/composition or a specific justified exception, local additions, semantic/projection limits, authoritative source references and supported validation evidence; narrative-only work requires no model
+      severity: blocking
     - check: entities_explicit
       description: Main entities or stores and their purposes must be named explicitly
       severity: blocking

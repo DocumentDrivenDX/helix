@@ -169,3 +169,35 @@ The guide as a whole is behind the repository when any page is missing, stale, o
 ## What publishing does not do
 
 It does not edit artifacts. A page that finds an artifact out of date with the code follows the code and reports the disagreement; `align` or `refresh` settles it in the artifact, and the page goes stale and is regenerated after. It does not replace a reference a better tool publishes, nor a site the repository has: those are delegated and emitted into.
+
+## Design schema browser
+
+Schema references use `ddx.schemas`, defined in
+`workflows/references/umf-schemas.md`. `documentor site` automatically collects
+references under the active HELIX root for Hugo, static, and Hextra targets.
+It generates `/schemas/`, original source downloads, provenance with SHA-256
+digests, and an embedded UMF schema browser. Published artifacts and referenced
+guide pages gain links to the selected schema and optional definition. Relative
+URLs preserve deployment prefixes such as `/helix/`. No references means no
+browser dependency or generated section. Existing sources are never rewritten.
+
+Install `@documentdrivendx/umf-schema-browser@2.0.0` with the site's package
+manager and commit its lockfile. The publisher looks under `node_modules/` and
+`website/node_modules/`. `publish.schemas.browser_package` may instead name a
+repository-relative installed package directory; the release identity and file
+hashes are checked before copying it. The site serves the complete asset tree
+and required license notices locally. No remote catalog is implicitly fetched.
+
+```sh
+documentor schemas --root .          # regenerate only the schema section/assets
+documentor schemas --root . --check  # fail on changed sources, metadata or assets
+```
+
+`--content` and `--static` can select output directories for another site build.
+The default is the configured Hugo content root and static directory. Run the
+generation step before plain Hugo builds, and the check after generation in CI.
+A missing source, conflicting identity, nonexistent selected definition, syntax
+error, transport limit violation, or missing browser package fails the build.
+Rendering and syntax checks establish no native semantic or instance-validation
+claim; run the appropriate pinned UMF/native validator separately. The browser
+loads only selected sources; full-text search of unloaded sources is not implied.
