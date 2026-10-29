@@ -95,8 +95,7 @@ Product requirements are for product scope. If you find yourself writing about:
 
 ### Summary
 Write this last. This section must work as a **standalone 1-pager**: what
-we're building, who uses it, the problem, the solution approach, and the top
-2-3 success metrics. Someone who reads only this section should understand the
+we're building, who uses it, the problem, and the solution approach. Someone who reads only this section should understand the
 product well enough to decide whether to invest time in the full PRD. Test:
 could a new team member read this alone and explain the product to someone
 else?
@@ -112,20 +111,16 @@ is an activity. "Operators can see system health without SSH" is a state
 change.
 
 ### Success Metrics
-Name what you are measuring and how. Use targets supported by product intent;
-label unvalidated targets as hypotheses rather than inventing numbers to fill
-the table. For example, an NPS target measured through a monthly survey is a
-product-learning signal. It is never a prerequisite for building or releasing.
-Keep adoption, revenue, and satisfaction goals here, separate from delivery
-acceptance. Drop the Timeline column; release versions must not depend on
-achieving these goals.
+Record useful product-learning indicators and how they will be observed. Keep
+unsupported targets as hypotheses; omit indicators that do not inform a product
+decision. Delivery acceptance belongs in Success Criteria.
 
 **(kind: data)** When `kind: data`, frame metrics for the data product
 itself: throughput (rows/day), latency (max age end-to-end), quality score
 (percentage of expectations passing), cost per GB or per DBU, freshness-SLA
-compliance, and consumer satisfaction. Each metric still needs a numeric
-target and a named measurement method — e.g., "SLA compliance > 95% measured
-by on-time delivery vs. promised refresh cadence."
+compliance, and consumer satisfaction. Put required capacity, freshness, and
+quality thresholds in requirements, with a verification method. Keep in-use
+learning indicators separate.
 
 ### Non-Goals
 Each non-goal should prevent scope creep on something plausible. "Not a
@@ -270,7 +265,6 @@ committing.
 - [ ] Problem section quantifies the pain or names a specific failure mode
 - [ ] Every P0 requirement is testable (someone could write an acceptance test)
 - [ ] Every P0 has an acceptance test sketch with inputs and expected outputs
-- [ ] Success metrics name measurement methods; targets are supported or explicitly labeled hypotheses
 - [ ] Delivery criteria and version milestones contain no product or market uptake thresholds
 - [ ] Requirements trace upward to the Product Vision and downward to downstream artifacts
 - [ ] No `[TBD]`, `[TODO]`, or `[NEEDS CLARIFICATION]` markers in any section except Open Questions
@@ -279,7 +273,7 @@ committing.
 
 ### Warning
 
-- [ ] Summary works as a standalone 1-pager (problem, solution, metrics)
+- [ ] Summary works as a standalone 1-pager (problem, scope, solution)
 - [ ] Goals describe state changes, not activities
 - [ ] Risk mitigations are concrete actions, not "monitor"
 - [ ] P0 requirements number 7 or fewer

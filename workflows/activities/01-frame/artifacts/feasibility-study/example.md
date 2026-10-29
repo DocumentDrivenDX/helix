@@ -31,7 +31,7 @@ client-scoped exception queue.
 **Rationale**: The CSV-first pilot is technically and operationally feasible if
 the first release stays narrow. The highest risks are CSV variability, live
 financial-data handling, and willingness to pay, so the project should proceed
-only with pilot recruiting, compliance review, and explicit success metrics.
+with compliance review required before using live financial data.
 **Confidence**: Medium
 
 ## Feasibility Assessment
@@ -128,10 +128,10 @@ only with pilot recruiting, compliance review, and explicit success metrics.
 
 ## Next Steps
 
-1. Confirm five pilot firms and collect sample CSVs before finalizing PRD scope.
+1. Collect representative CSV samples to refine import requirements; record
+   remaining format assumptions in the PRD.
 2. Complete legal/compliance applicability review for live financial data.
 3. Turn the CSV import, evidence-backed matching, exception queue, and review
    log into PRD requirements.
-4. Add pilot success gates: reconciliation time below 3 minutes per client,
-   accepted suggestion accuracy above 95%, and 3 of 5 pilot firms willing to
-   pay target pricing.
+4. Record pilot time savings, accuracy, and willingness to pay as research
+   hypotheses for pricing and future investment.

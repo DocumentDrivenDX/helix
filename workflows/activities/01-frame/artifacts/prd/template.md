@@ -17,15 +17,14 @@ kind: product  # `product` (default) frames general product requirements; `data`
 ## Summary
 
 [This section should work as a standalone 1-pager. Include: what we're
-building, who uses it, what problem it solves, the solution approach, and the
-top 2-3 success metrics. Write this last — it should be a distillation of the
+building, who uses it, what problem it solves, and the solution approach. Write this last — it should be a distillation of the
 full PRD, not an introduction. Someone who reads only this section should
 understand the product well enough to decide whether to read the rest.
 
 **(kind: data)** Frame this as a standalone 1-pager for the **data product**:
 what data we are building, who consumes it, the business problem it solves,
 the data solution approach (sources, medallion layer strategy, consumption
-shape), and the top 2-3 success metrics (freshness, quality, cost).]
+shape), and relevant freshness, quality, and cost requirements.]
 
 ## Problem and Goals
 

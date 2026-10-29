@@ -1,10 +1,10 @@
 # Activity 00: Discover
 
-Validate ideas and opportunities before committing to Frame.
+Investigate product direction, assumptions, and investment choices.
 
 ## Purpose
 
-The Discover activity is a **pre-commitment checkpoint** where ideas are evaluated for viability, market fit, and strategic alignment. This activity prevents wasted effort by validating opportunities before investing in detailed requirements.
+Discover examines user needs, market evidence, and strategic fit to inform product and investment choices. Use it when those questions affect the decision at hand.
 
 ## When to Use Discover
 
@@ -15,7 +15,7 @@ The Discover activity is a **pre-commitment checkpoint** where ideas are evaluat
 
 ## Key Principle
 
-**Validate Before You Invest**: Discover ensures alignment on the opportunity before committing engineering and design resources to Frame.
+**Evidence Informs Decisions**: Record what is known and what remains an assumption. Research can run alongside authorized requirements, design, and development work.
 
 ## Input Gates
 
@@ -25,11 +25,9 @@ Prerequisites to enter this activity:
 
 ## Exit Gates
 
-Criteria to proceed to Frame (defined in `GATE.yaml`):
-- **Product vision states direction and intended user outcomes**: Clear mission, specific positioning, concrete user experience, measurable success metrics
-- **Business case validated**: ROI justifies investment
-- **Competitive position defined**: Differentiation strategy established
-- **Opportunity canvas complete**: Problem-solution fit confirmed
+Readiness to frame authorized work:
+- **Intent clear**: The user need, intended outcome, and scope are understood
+- **Uncertainty explicit**: Material assumptions and open product decisions are named
 
 ## Artifacts
 
@@ -78,17 +76,17 @@ graph TD
 
 Discover is complete when:
 1. **Vision clarity**: Team can articulate the opportunity in one sentence
-2. **Business justification**: ROI and strategic value are quantified
+2. **Business assumptions**: Investment estimates and uncertainty are explicit
 3. **Market understanding**: Competitive landscape is mapped
-4. **Problem validation**: Customer pain points are confirmed
+4. **Problem evidence**: Known needs and untested assumptions are distinct
 5. **Decision made**: Clear go/pivot/no-go with rationale
 
 ## Next Activity: Frame
 
-Once Discover validates the opportunity, proceed to Frame where you will:
+Frame translates the selected intent into requirements:
 - Define detailed requirements (PRD)
 - Create user personas and stories
-- Establish success metrics
+- Record useful product-learning goals
 - Document risks and constraints
 
 ---

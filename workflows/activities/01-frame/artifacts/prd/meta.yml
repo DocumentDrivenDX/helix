@@ -46,10 +46,6 @@ validation:
     - success_criteria
 
   quality_checks:
-    - check: metrics_quantified
-      description: Success metrics name measurement methods and supported targets or explicit hypotheses; product and market targets never gate engineering completion, versions, or release
-      severity: blocking
-
     - check: personas_validated
       description: Personas are research-based and describe specific pains and switching triggers
       severity: warning

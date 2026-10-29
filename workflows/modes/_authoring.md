@@ -45,12 +45,9 @@ Artifacts are written in their type's voice profile and keep it: they are the sy
 
 ## Product outcomes and delivery criteria
 
-Apply `workflows/principles.md` §Product goals and delivery gates. Keep product
-and market targets as learning signals, separate from testable delivery criteria.
-Do not propagate adoption, user-count, revenue, or community-uptake targets into
-requirements, dependencies, version milestones, release gates, or completion
-checks. When revising an artifact, remove that coupling and retain any useful
-goal in its product-outcome section.
+Apply `workflows/principles.md` §Product goals and delivery gates. Remove
+market-outcome conditions from engineering prerequisites and completion checks;
+retain useful goals as learning signals.
 
 ## External standards
 

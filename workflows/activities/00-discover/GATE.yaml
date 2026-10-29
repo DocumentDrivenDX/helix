@@ -30,13 +30,12 @@ exit_gates:
       - User experience describes a concrete usage scenario
       - Target market is specific enough to identify real people
       - Key value propositions documented with customer benefits
-      - Success metrics have measurable outcomes
       - Why Now cites an observable change
     evidence: docs/helix/00-discover/product-vision.md
 
   # Business Justification
   - criteria: Business case validated
-    required: true
+    required: false
     validation:
       - Market sizing completed (TAM/SAM/SOM)
       - Investment requirements estimated
@@ -47,7 +46,7 @@ exit_gates:
 
   # Market Understanding
   - criteria: Competitive position defined
-    required: true
+    required: false
     validation:
       - Market landscape mapped
       - Key competitors identified
@@ -57,19 +56,18 @@ exit_gates:
 
   # Problem-Solution Fit
   - criteria: Opportunity canvas complete
-    required: true
+    required: false
     validation:
-      - Problem statement validated
+      - Problem statement and supporting evidence or assumptions recorded
       - Customer segments identified
       - Unique value articulated
       - Solution concept outlined
-      - Key metrics defined
       - Unfair advantage identified (if any)
     evidence: docs/helix/00-discover/opportunity-canvas.md
 
   # Decision Gate
   - criteria: Go/No-Go decision documented
-    required: true
+    required: false
     validation:
       - Decision rationale captured
       - Key assumptions listed
@@ -82,16 +80,6 @@ validation_rules:
   - rule: vision_concise
     description: Mission statement under 50 words
     path: docs/helix/00-discover/product-vision.md
-    severity: warning
-
-  - rule: market_quantified
-    description: TAM/SAM/SOM includes numeric values
-    path: docs/helix/00-discover/business-case.md
-    severity: blocking
-
-  - rule: competitors_identified
-    description: At least 3 competitors analyzed
-    path: docs/helix/00-discover/competitive-analysis.md
     severity: warning
 
 # Activity Transition

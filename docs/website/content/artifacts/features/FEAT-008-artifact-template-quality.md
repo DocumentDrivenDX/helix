@@ -81,7 +81,7 @@ synthesize.
 
 Each artifact template must include a review checklist that adversarial
 review agents use to evaluate the artifact. The checklist must be specific
-to the artifact type (e.g., "Does the PRD define success metrics?" rather
+to the artifact type (e.g., "Does every P0 requirement have a testable acceptance sketch?" rather
 than generic "Is this complete?").
 
 ### FR-4: Relationship Declarations

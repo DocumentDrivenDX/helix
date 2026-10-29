@@ -96,8 +96,8 @@ Each row must pass the "so what?" test. The customer benefit column should
 describe what changes for the customer, not restate the capability.
 
 ### Success Definition
-Every metric must be measurable with a tool or process you can name. "User
-satisfaction" is not measurable. "NPS > 40 from monthly survey" is.
+Name a measurement method for useful strategic indicators. Treat unsupported
+targets as hypotheses; do not manufacture a numeric target for every goal.
 
 These are *strategic, long-horizon* outcomes — what success looks like over
 12–24 months. Product-scope metrics belong in the PRD; feature-scoped metrics
@@ -125,7 +125,6 @@ committing.
 - [ ] Positioning names a specific customer segment (not a category)
 - [ ] Positioning names a specific competitor or alternative (not "existing solutions")
 - [ ] Target market is specific enough to identify real people
-- [ ] Every success metric has a numeric target or measurable outcome
 - [ ] User experience section describes a concrete scenario (not abstract benefits)
 
 ### Warning
