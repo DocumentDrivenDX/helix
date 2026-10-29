@@ -1,0 +1,52 @@
+name: Prepare UI release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: prepare-ui-release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Prepare source versions for the selected UI release
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Validate input before using it in any ref or branch operation.
+          python3 -c 'import runpy,os; runpy.run_path("scripts/release-version.py")["release_version"](os.environ["TAG"])'
+          git switch --detach "$TAG"
+          if python3 scripts/release-version.py "$TAG"; then
+            gh workflow run release-genie-bundle.yml --ref "$TAG"
+            exit 0
+          fi
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=true
+          # A UI release must not accidentally pull newer main content in.
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)" || {
+            echo "::error::Tag is not current main; prepare this release from its intended branch."
+            exit 1
+          }
+          python3 scripts/release-version.py "$TAG" --write
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git switch -c "release/$TAG"
+          git add .claude-plugin .codex-plugin tools/documentor/pyproject.toml tools/documentor/uv.lock tools/documentor/src/documentor/__init__.py
+          git commit -m "chore(release): $TAG"
+          git push origin "release/$TAG"
+          gh pr create --base main --head "release/$TAG" --title "chore(release): $TAG" \
+            --body "Prepare the draft UI release $TAG. Synchronize every shipped version, then merge to regenerate assets and publish. The tag can move only if the intervening diff contains version metadata alone."
+          # GITHUB_TOKEN-created PRs do not trigger pull_request workflows.
+          gh workflow run test.yml --ref "release/$TAG"
