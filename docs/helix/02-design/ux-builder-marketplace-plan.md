@@ -59,3 +59,17 @@ Initial listing uses the tested packaging PR commit. Keep it draft until that
 change is merged/released, update to the release revision, and verify actual
 marketplace installation before making it ready. Final PR text records exact
 check results and its upstream dependency.
+
+## Verification record — 2026-10-29
+
+- Upstream packaging: [ux-builder PR 71](https://github.com/DocumentDrivenDX/ux-builder/pull/71).
+- Companion listing: [HELIX PR 107](https://github.com/DocumentDrivenDX/helix/pull/107).
+- Full local `just test` passed using temporary Python dependencies; install
+  consistency regression tests (5), Claude manifest validation and diff checks passed.
+- Isolated Claude and Codex installations from the pinned Git source succeeded;
+  Claude discovered all three skills with no hooks or MCP servers. The installed
+  Codex bundle ran the consumer project's design overview command successfully.
+- The website CI drift finding required the generated projection of this plan
+  and its resulting navigation weights; these are generated, not hand-authored.
+- Remaining: upstream full SDK CI/merge/release, followed by a release pin and
+  repeat consumer installation before the companion listing leaves draft.

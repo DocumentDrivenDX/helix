@@ -36,6 +36,7 @@ _Auto-generated from `helix/` by `documentor record`._
 - [Tempo-driven HELIX and documentor corrections](/artifacts/plan-tempo-documentor-gaps/)
 - [Security Architecture — DDx Agent Execution Surface](/artifacts/security-architecture/)
 - [HELIX solution overview](/artifacts/solution-overview/)
+- [UX Builder marketplace integration plan](/artifacts/ux-builder-marketplace-plan/)
 - [adr](/artifacts/adr/) _(14 items)_
 - [contracts](/artifacts/contracts/) _(5 items)_
 - [diagrams](/artifacts/diagrams/) _(1 item)_
