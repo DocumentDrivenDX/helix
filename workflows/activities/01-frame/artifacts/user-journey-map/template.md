@@ -14,8 +14,8 @@ ddx:
 
 ## Actor and Scenario
 
-- **Person**: [PRD user segment: role, context, a relevant constraint such as device, expertise or access]
-- **Task**: [The Task Model row in FEAT-XXX this journey carries out, by name]
+- **Person**: [PRD user segment, or the PRD user if it has no segments: role, context, a relevant constraint such as device, expertise or access]
+- **Task**: [The Task Model row in FEAT-XXX this journey carries out, by name, or the task in plain words if the feature has no Task Model]
 - **Scenario**: [What happens, from trigger to end state, in one or two sentences]
 - **Trigger**: [The event that starts the journey]
 - **End state**: [What is true when the person is done]
