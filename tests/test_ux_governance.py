@@ -128,6 +128,14 @@ class UXGovernanceTests(unittest.TestCase):
             code, report = self.validate((ROOT / 'workflows/activities/02-design/artifacts/design-system' / name).read_text(), 'design-system')
             self.assertEqual(code, 0, report)
 
+    def test_new_ux_types_are_optional_and_examples_pass(self):
+        for activity, kind in (('01-frame', 'user-journey-map'), ('02-design', 'user-flow'), ('02-design', 'wireframe')):
+            with self.subTest(kind=kind):
+                directory = ROOT / 'workflows/activities' / activity / 'artifacts' / kind
+                self.assertIn('optional: true', (directory / 'meta.yml').read_text())
+                code, report = self.validate((directory / 'example.md').read_text(), kind)
+                self.assertEqual(code, 0, report)
+
     def digest(self, selected, area='ui'):
         library = digests.build_concern_library(ROOT, selected, {})
         body, _ = digests.build_digest({'title': 'Bounded UX change', 'description': 'Test authority', 'acceptance': 'Exercise behavior', 'labels': [f'area:{area}']}, principles=[], library=library, root=ROOT)

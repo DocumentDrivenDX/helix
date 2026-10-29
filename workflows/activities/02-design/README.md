@@ -52,9 +52,12 @@ slice. It should inherit the broader architecture from the parent solution
 design instead of redefining feature-level structure.
 
 `ux-design` remains retired as a standalone HELIX artifact. Put user-facing
-flow rationale, wireframes, and interaction trade-offs in the governing
-solution design or technical design, and use a proof of concept when the main
-risk is validating an interactive workflow end to end.
+flow rationale and interaction trade-offs in the governing solution design or
+technical design, and use a proof of concept when the main risk is validating
+an interactive workflow end to end. When a feature has a user interface,
+record its flow in a `user-flow` (UF-XXX) and each view's layout, states and
+events in a `wireframe` (UF-XXX-NN-view) nested under it, and link them by ID
+from the design. Both are optional.
 
 `auth-design` is retired as a standalone HELIX artifact. Put authentication
 and authorization security posture — trust boundaries, identity, session
