@@ -1,4 +1,4 @@
-<!-- helix:publish audience=user page=about kind=explanation voice=public-site budget=600 written=agent-opus reviewed=2026-10-21/agent-sonnet/2a6ab5482c0cb69a -->
+<!-- helix:publish audience=user page=about kind=explanation voice=public-site budget=600 written=codex reviewed=2026-10-29/codex-independent-reader/453c9c3973625d52 -->
 <!-- helix:gap artifact:feature-specification -->
 <!-- helix:source docs/helix/00-discover/product-vision.md#vision sha256:af72d95c19717f8b -->
 <!-- helix:source docs/helix/00-discover/product-vision.md#positioning sha256:925b7219f516bebb -->
@@ -8,12 +8,14 @@
 <!-- helix:source README.md#use sha256:1668b6192a52a5d5 -->
 <!-- helix:source README.md#what-it-reads-and-writes sha256:55f9002fc000e454 -->
 <!-- helix:source src/documentor/check.py sha256:784c2473233c0346 -->
-<!-- helix:source src/documentor/write.py sha256:2118376b2c167085 -->
-<!-- helix:source src/documentor/generate.py sha256:47b5e3e1d2d06cbd -->
-<!-- helix:source src/documentor/cli.py sha256:0707cd738e9b6418 -->
+<!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
+<!-- helix:source src/documentor/generate.py sha256:9ed3906b7fe2bc36 -->
+<!-- helix:source src/documentor/cli.py sha256:861322ae490496ea -->
+<!-- helix:source src/documentor/schemas.py sha256:85cb75a98dd24995 -->
+<!-- helix:source src/documentor/umf_tables.py sha256:70107d8f275581c9 -->
 # What it is and is not
 
-documentor is a command-line tool that builds a repository's documentation, its *guide*, and keeps it current. Here is what it does, how it keeps to your organisation's data rules, and where it stops.
+documentor is a command-line tool that builds a repository's documentation, its *guide*, and keeps it current. It follows your organisation's data rules.
 
 ## What it does for you
 
@@ -29,7 +31,7 @@ documentor makes each page in one of five ways:
 
 Each page records its source files. When one changes, the page is stale, and `documentor check` fails the pull request until someone updates it. The check also catches missing or unevaluated pages, outdated diagrams, broken links, and cited tests that do not exist.
 
-documentor writes the pages into your existing mkdocs or Hugo site, or creates one if you have none. The repository's Markdown stays the record.
+documentor builds an existing or new site. Applicable sites also publish UMF table references and a schema browser with provenance and downloads; browsing does not validate application data.
 
 ## How it keeps to the organisation's rules
 

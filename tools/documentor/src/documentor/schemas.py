@@ -236,7 +236,7 @@ def publish(root: Path, config: dict, content: Path, static: Path, check: bool =
         files[e["url"]] = local(root, e["path"]).read_bytes()
         route = urlencode({"schema": e["id"]})
         lines.extend([f'- <a href="explorer.html#{route}">{html.escape(e["title"])}</a> '
-                      f'(version {html.escape(e["version"])}) — '
+                      f'(version {html.escape(e["version"])}); '
                       f'<a href="{e["url"]}">Download source</a>',
                       f'  Source: <code>{html.escape(e["path"])}</code>; SHA-256: <code>{e["sha256"]}</code>.',
                       '  Referenced by: ' + ', '.join(f'<code>{html.escape(o)}</code>' for o in e["owners"])])

@@ -1,19 +1,21 @@
-<!-- helix:publish audience=user page=using kind=how-to voice=public-site budget=1500 written=agent-opus reviewed=2026-10-22/agent-sonnet/5d554a8aa8e39766 -->
+<!-- helix:publish audience=user page=using kind=how-to voice=public-site budget=1500 written=codex reviewed=2026-10-29/codex-independent-reader/cf297cc06fff6db1 -->
 <!-- helix:gap artifact:feature-specification -->
 <!-- helix:gap artifact:user-stories -->
 <!-- helix:source README.md#use sha256:1668b6192a52a5d5 -->
-<!-- helix:source src/documentor/cli.py sha256:0707cd738e9b6418 -->
-<!-- helix:source src/documentor/write.py sha256:2118376b2c167085 -->
-<!-- helix:source src/documentor/site.py sha256:7462ea891ccb5b5a -->
+<!-- helix:source src/documentor/cli.py sha256:861322ae490496ea -->
+<!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
+<!-- helix:source src/documentor/site.py sha256:3016a940e892ea14 -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
-<!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
+<!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:9f8ec1f2b471f001 -->
+<!-- helix:source src/documentor/schemas.py sha256:85cb75a98dd24995 -->
+<!-- helix:source src/documentor/catalog/ci/github-pages.yml sha256:010c78c212500279 -->
 # Using the product
 
-documentor builds a repository's documentation and keeps it current. That documentation is the repository's *guide*. The tasks below follow the order you meet them.
+documentor builds and maintains the repository's *guide*. Follow these tasks in order.
 
-Every command runs from the repository's root folder, or from another folder given with `--root DIR`. If the repository has no guide yet, start with [Getting started](index.md).
+Run from the repository root or pass `--root DIR`. Start with [Getting started](index.md) for a new guide.
 
-The guide's settings live in the `publish:` block of `.helix.yml`. That block has a `schema` number, which must match the schema your documentor reads. On a mismatch, `status`, `build`, `write`, `check`, and `prompt` stop and tell you to use the documentor from the block's HELIX release. `init`, `review`, and `adopt` do not check the schema.
+Settings live in `.helix.yml` under `publish:`. Its `schema` must match documentor: `status`, `build`, `write`, `check`, and `prompt` reject mismatches; `init`, `review`, and `adopt` do not check it.
 
 ## See what the guide needs
 
@@ -24,7 +26,7 @@ documentor status --format json
 
 `status` lists every page of the guide under its audience, with the page's state and what it needs next. [Getting started](index.md#your-first-task-one-worked-session-step-by-step) explains each state mark.
 
-The list ends with `For the agent`, an ordered work list. Pages to adopt come first, then missing pages, then stale ones, then ones nobody has evaluated.
+`For the agent` orders work: adopt, write missing pages, update stale pages, evaluate.
 
 A *written page* needs explanation, so an AI agent writes it. If the agent lacked a planning document it was told to read, the page's row says `written without` and names that document.
 
@@ -127,7 +129,7 @@ The site goes where your repository already publishes:
 
 A new site needs only Hugo. For the Hextra theme, set `site.target: hextra` under `publish:` in `.helix.yml`; it also needs Go, and the network once. `documentor doctor` marks each tool `ok` or `missing`.
 
-For an existing Hugo site, the content folder is the one its `module.mounts` maps to `content`, or else its `content/` folder. Set `site_dir` or `content_root` under `publish.site` to choose another. Files a page links go beside the pages, so the site's static folder stays untouched.
+For an existing Hugo site, the content folder is the one its `module.mounts` maps to `content`, or else its `content/` folder. Set `site_dir` or `content_root` under `publish.site` to choose another. Files a guide page links go beside the pages. Schema publication separately writes the browser, catalog, and source downloads into the site's static folder.
 
 A Hugo site and a new site also get a page named "How this guide was made", rebuilt at every build. In a new site it is its own section; in an existing Hugo site it sits inside the guide's section. It shows:
 
@@ -174,6 +176,23 @@ It exits with status 1 when any of these hold:
 It prints up to ten unfinished pages, each with what it needs. Run `build` for generated pages and `write` for written ones, then check again.
 
 To run the gate on every pull request, copy the CI template into your repository as `guide.yml` in the .github/workflows folder. The template ships inside the `documentor` package at `src/documentor/catalog/ci/github-actions.yml`. It is also in the [HELIX repository](https://github.com/DocumentDrivenDX/helix/blob/main/tools/documentor/src/documentor/catalog/ci/github-actions.yml). Set its `DOCUMENTOR` variable to the HELIX release you use.
+
+## Publish design schemas
+
+Install the browser at the site root: Hugo, static, and Hextra assembly publishes declared schemas and discovered UMF tables with provenance and downloads. For plain Hugo, run:
+
+```sh
+npm install --save-exact @documentdrivendx/umf-schema-browser@2.0.0
+```
+
+Declare existing sources using the [schema-reference format](../../../src/documentor/catalog/helix/references/umf-schemas.md).
+
+```sh
+documentor schemas --root .
+documentor schemas --root . --check
+```
+
+Publication rejects missing or conflicting references and stale output; browsing does not validate application data. Adapt `src/documentor/catalog/ci/github-pages.yml` for deployment.
 
 ## Keep the guide current
 
