@@ -83,6 +83,14 @@ assumption to validate in `frame`, not as fact.
 2. Record the initial concern selections the vision and constraints already imply
    (language/runtime slot, architecture style if decided) in `concerns.md`, each
    with its source (`operator-override` / `shipped-default` / `assumption`).
+   Seed the applicable New-project quality defaults from
+   `workflows/references/concern-resolution.md` now, including for design-stage
+   software: testing, verification, modularity-and-encapsulation,
+   code-shape-ceilings; o11y-otel for applications/services; a11y-wcag-aa and the
+   resolved e2e slot (default e2e-playwright) for interactive web UI; and
+   relational-data-modeling for relational storage. Record `source: shipped-default`,
+   preserve operator overrides, and present the list for pruning with reasons.
+   Do not defer all quality decisions to Frame.
 3. Leave a clear pointer to the next action: `frame` to turn the vision into a PRD,
    requirements, and stories.
 

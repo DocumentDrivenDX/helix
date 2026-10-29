@@ -272,6 +272,8 @@ def plan(config: dict, root: Path) -> list[PagePlan]:
     out = publish_out(config)
     traits = load_traits(config, root, publish.get("traits") or [])
     delegated = {d["page"]: d for t in traits for d in t.get("delegates") or []}
+    if {"umf-tablespec", "tablespec-pipeline"} <= set(publish.get("traits") or []):
+        delegated["data/pipeline-tables"] = delegated.pop("data/tables")
     delegated.update(publish.get("delegate") or {})
     existing = publish.get("existing") or {}
     skipped = set(publish.get("skip") or [])
@@ -279,6 +281,8 @@ def plan(config: dict, root: Path) -> list[PagePlan]:
     pages: list[PagePlan] = []
     for audience_id in audiences(config):
         audience = load_audience(audience_id)
+        if audience_id == "data" and publish.get("data_mode") == "operational":
+            audience = load_yaml(helix_catalog() / "publish" / "audiences" / "data-operational.yml")
         extra = [_strip(p) for t in traits for p in t.get("pages") or []
                  if p.get("audience", p.get("flow")) == audience_id]
         extra += list((publish.get("pages") or {}).get(audience_id) or [])

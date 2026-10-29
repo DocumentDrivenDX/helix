@@ -134,7 +134,8 @@ def writer_prompt(page: PagePlan, pages: list[PagePlan], config: dict, root: Pat
         lines.append(f"- Budget: at most {entry['budget']} words of prose (code, headings, and tables of commands are not counted).")
     lines += ["", "## Where to look (hints, not paths)"] + (_hints(page) or ["- the code"])
     lines += [f"HELIX artifacts (vision, PRD, architecture, ADRs) live under {helix_root(config)}/."
-              " When a hint names an artifact the repository does not have, write from the code and record the gap."]
+              " When an applicable hint names a missing artifact, write from available evidence and record the gap. "
+              "Omit inapplicable hints without a gap; operational databases need data-design, not an analytics data-architecture."]
     lines += ["", "## Voice"] + _voice_rules(voice_of(page))
     lines += _writing_pass()
     lines += ["", "## Rules the page is checked against",

@@ -111,3 +111,34 @@ For an existing Hugo site, run `documentor schemas --root .` before a plain Hugo
 build. `documentor schemas --root . --check` rejects stale output. `documentor
 site` runs schema publication automatically. The browser inspects source; native
 validation and semantic compatibility remain separate checks.
+
+### Design-stage databases and deployment
+
+`documentor init` proposes `publish.profile: design-stage` and explicit `skip`
+entries when HELIX design documents exist without application source. Review
+these suggestions; remove the skips when implementation makes the pages useful.
+`publish.data_mode: operational` selects an overview based on entity design and
+transactions, with tables rather than analytics lineage/refresh/metric pages.
+Init proposes it for upstream UMF tables without pipeline signals; set it
+explicitly for other operational databases. Existing decisions remain unchanged.
+
+The `umf-tablespec` trait detects upstream monolithic UMF TableSpec 1.0 YAML,
+generates `data/tables` (columns, keys, foreign keys and an entity graph), and
+publishes the same sources through `@documentdrivendx/umf-schema-browser` using
+the design-schema publisher above. Install the pinned browser version in the
+site's locked dependencies before building. YAML owns the schema; generated
+prose does not. Descriptions and sample values are omitted; duplicate table
+names fail the build.
+
+`tablespec-pipeline` remains the tablespec integration and delegates to
+`tablespec guidebook`; a `table.yaml` alone no longer identifies a pipeline.
+When both traits are selected, UMF owns `data/tables` and the tablespec guidebook
+is linked as `data/pipeline-tables`. An explicit project delegation still wins.
+
+Copy `src/documentor/catalog/ci/github-pages.yml` for Pages deployment, or
+`github-actions.yml` for PR checks and weekly refresh. Set Pages source to GitHub
+Actions, match the upload directory to the site target, and add project-specific
+locked generator/browser dependency installs before building. The template is
+based on Tempo's successful [build and deploy run](https://github.com/DocumentDrivenDX/tempo/actions/runs/40952714352).
+The v0.19.1 pin names the current published tool; these new capabilities require
+a release containing them before a pinned consumer can use them.

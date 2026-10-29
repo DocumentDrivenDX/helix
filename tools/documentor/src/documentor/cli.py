@@ -212,6 +212,7 @@ def proposal_text(root: Path) -> tuple[str, dict]:
     proposed = [s for s in scores if s.confidence >= 0.5]
     text = detect.report(root, scores, 0.5, detect.unmapped(root, files, proposed))
     block = detect.proposal(proposed)
+    detect.project_profile(root, files, block)
     block.pop("_views", None)
     block["publish"] = {"schema": SCHEMA} | {k: v for k, v in block["publish"].items() if k != "delegated"}
     return text, block
