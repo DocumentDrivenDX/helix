@@ -163,6 +163,30 @@ class UXGovernanceTests(unittest.TestCase):
         legacy = body[:body.index('## Findings')] + body[body.index('## Completion Criteria'):]
         self.assertEqual(self.validate(legacy, 'research-plan')[0], 0)
 
+    def test_findings_source_column_is_read_by_header(self):
+        body = (UX_FIXTURES / 'research-plan.md').read_text()
+        start, end = body.index('### Claims'), body.index('## Completion Criteria')
+
+        def with_findings(text):
+            return self.validate(body[:start] + text + '\n' + body[end:], 'research-plan')
+
+        def source_failure(report):
+            return any(f['check'] == 'findings_sources' and f['severity'] == 'blocking' for f in report['findings'])
+
+        claims = '### Claims\n\n| Claim | {} | Basis |\n|---|---|---|\n| Renamed columns break imports | {} | Observed in 4 of 6 sessions |\n'
+        code, report = self.validate(body[:start] + '### Claims\n\n| Claim | Basis | Confidence |\n|---|---|---|\n'
+                                     '| Renamed columns break imports | Observed in 4 of 6 sessions | medium |\n\n' + body[end:], 'research-plan')
+        self.assertEqual(code, 1, report)
+        self.assertTrue(source_failure(report), report)
+        reordered = '### Claims\n\n| Claim | Basis | Source |\n|---|---|---|\n| Renamed columns break imports | Observed in 4 of 6 sessions | {} |\n'
+        code, report = with_findings(reordered.format(' '))
+        self.assertEqual(code, 1, report)
+        self.assertTrue(source_failure(report), report)
+        self.assertEqual(with_findings(reordered.format('P1–P6, sessions 1–6'))[0], 0)
+        unrelated = claims.format('Source', 'P1–P6') + '\n### Sessions\n\n| Session | Notes |\n|---|---|\n| 1 | |\n'
+        code, report = with_findings(unrelated)
+        self.assertEqual(code, 0, report)
+
     def test_ux_coverage_evidence_column_is_optional(self):
         body = (UX_FIXTURES / 'story-test-plan.md').read_text()
         lines = body.splitlines()

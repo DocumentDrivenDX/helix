@@ -48,6 +48,12 @@ validation:
       description: Required resources and skills must be identified
       severity: blocking
 
+  automated_checks:
+    - check: findings_sources
+      type: findings_sources
+      severity: blocking
+      description: When present, Findings has a Claims table with a Source column, filled for every claim
+
   pattern_checks:
     - pattern: "\\*\\*Question\\*\\*:"
       expected: ">=1"
@@ -56,10 +62,6 @@ validation:
     - pattern: "TBD|TODO|\\[PLACEHOLDER"
       expected: 0
       message: Complete all research plan sections before execution
-
-    - pattern: "(?ms)^## Findings[ \\t]*$(?:(?!^## ).)*?^\\|(?![ \\t]*:?-)(?![ \\t]*Claim[ \\t]*\\|)[^|\\n]*\\|[ \\t]*\\|"
-      expected: 0
-      message: Every Findings claim names its Source
 
 variables:
   - name: research_topic
