@@ -45,11 +45,12 @@ thoughts and emotions "(assumption)". -->
 
 ## Opportunities
 
-<!-- Each opportunity has one owner and one metric with a target. -->
+<!-- Each opportunity has one owner and one metric. A target is optional:
+label it a hypothesis unless evidence supports it. It is not a delivery gate. -->
 
 | Opportunity | Phase | Owner | Metric | Target |
 |---|---|---|---|---|
-| [What to change or add] | [Phase] | [Role or team] | [Metric; link its metric definition if one exists] | [Target value and date] |
+| [What to change or add] | [Phase] | [Role or team] | [Metric; link its metric definition if one exists] | [Supported target, a hypothesis, or none] |
 
 ## Story Coverage
 

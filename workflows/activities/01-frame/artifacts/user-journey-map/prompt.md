@@ -34,7 +34,9 @@ links to them by ID.
   invent research.
 - Trace every in-product phase to `US-<n>-AC<m>` IDs. Mark a phase no
   criterion delivers as `uncovered:` with a reason; that gap is a finding.
-- Give every opportunity one owner and one metric with a target.
+- Give every opportunity one owner and the metric that shows its effect. A
+  target is optional: label it a hypothesis unless evidence supports it, and do
+  not turn it into a delivery or release gate.
 - Name rows by what they say; do not number insights or opportunities.
 
 ## Boundary Test
@@ -54,4 +56,4 @@ links to them by ID.
 - Phases run from trigger to end state.
 - Every in-product phase names its acceptance criteria or is marked uncovered.
 - Every thought and emotion cites evidence or is marked as an assumption.
-- Every opportunity has one owner and one measurable target.
+- Every opportunity has one owner and one metric; any target is supported or labelled a hypothesis.
