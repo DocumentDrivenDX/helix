@@ -34,6 +34,15 @@ ddx:
 - [Trend or anomaly]
 - [What changed relative to the baseline]
 
+## Journey Funnels
+
+[Optional. For a product with user journeys: one row per journey, named by the
+journey. Delete if not relevant.]
+
+| Journey | Completion | Biggest Drop-off | Diagnosis | Source |
+|---------|------------|------------------|-----------|--------|
+| [journey name] | [share who finish, against baseline] | [the step people leave most] | [why, and the follow-up] | [metric definition or report] |
+
 ## Follow-Up
 
 - [Tracker issue ID or next step]

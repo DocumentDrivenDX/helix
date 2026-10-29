@@ -50,6 +50,19 @@ capability.]
 |------|----------------------|------------------------|
 | [Area] | [What the user needs to know or do] | [What this feature must provide] |
 
+## Task Model
+
+[Optional. For a feature people use directly: the tasks it supports, one row
+per task, named by what the person does. Users and Needs cite the PRD's User
+Segments and User Needs rows by name; Rules cite business rules (BR-n) in the
+solution design; Realized by names the journey or user flow that carries the
+task out. Key is a stable slug that tools use to link journeys to tasks; people
+need not read it. Omit when the feature has no interface.]
+
+| Task | Goal | Users | Needs | Rules | Realized by | Key |
+|------|------|-------|-------|-------|-------------|-----|
+| [What the person does] | [What is true when they are done] | [User Segments rows] | [User Needs rows] | [BR-1, BR-2] | [journey name, UF-XXX] | [task-slug] |
+
 ## Requirements
 
 ### Functional Requirements by Area

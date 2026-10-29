@@ -36,6 +36,12 @@ it is **not** an architecture document.
   every element.
 - Keep architecture, data flow, component implementation internals, and ADR
   material OUT — state these as explicit non-goals.
+- When the app supports several modalities (screen, voice, chat) or size
+  classes, add the optional Modalities, Size Classes and App Frame section:
+  the modalities, each size class with its breakpoint, and the app frame
+  (screen, top-bar, top-nav or side-nav). Add the optional Destinations by
+  Size Class table under Navigation and Active State when destinations move
+  between size classes. Wireframes cite these size classes by name.
 
 ## Boundary Test
 

@@ -81,6 +81,21 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
 
 [Same structure]
 
+### User Segments
+
+[Optional, as is User Needs below: for a product people use directly. One row per segment, named by who they
+are. Rate the evidence apart from the confidence.]
+
+| User | Context | Needs | Evidence | Confidence | Status |
+|------|---------|-------|----------|------------|--------|
+| [Who] | [Where and how they work; device, expertise, access] | [Rows of User Needs, by name] | [Research plan, support data, analytics, or none] | [high / medium / low] | [assumed / validated / invalidated] |
+
+### User Needs
+
+| Need | Importance | Evidence | Confidence | Status |
+|------|------------|----------|------------|--------|
+| [What the user needs, in their words] | [high / medium / low] | [Research plan, support data, analytics, or none] | [high / medium / low] | [assumed / validated / invalidated] |
+
 ### (kind: data) Data Consumers
 
 [When `kind: data`, replace the persona blocks with concrete data consumers.]

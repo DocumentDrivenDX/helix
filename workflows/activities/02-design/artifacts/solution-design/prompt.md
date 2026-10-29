@@ -33,6 +33,13 @@ Use these local resource summaries as grounding:
   artifacts. If the solution needs exact fields, commands, payloads, or error
   semantics, link to or request a Contract.
 - Preserve only the decisions needed by build and test.
+- Give every business rule a stable `**BR-n** —` line, numbered across the
+  project and never reused. This section is the rules' single home: the
+  feature specification's Task Model, stories, designs and tests cite `BR-n`
+  instead of restating the rule.
+- When people use the feature directly, add the optional Experience
+  Traceability table (need, task, flow, view) and list any need or task with
+  no flow or view under Gaps. Align checks this chain.
 - Stay within the feature scope defined in the zoom-stack matrix
   (`workflows/activities/02-design/README.md`); update the governing artifact
   first if the feature forces a change at a higher level.

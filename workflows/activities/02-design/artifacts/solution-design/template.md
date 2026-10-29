@@ -56,7 +56,7 @@ erDiagram
 ```
 
 ### Business Rules
-1. [Rule]: [Description and implementation impact]
+- **BR-1** — [Rule]: [Description and implementation impact]
 
 ## System Decomposition
 
@@ -91,8 +91,19 @@ belong in Architecture or ADRs.
 |---------------|-----------|----------------|---------------|
 | FR-001 | [Component] | [How addressed] | [How tested] |
 
+### Experience Traceability
+
+[Optional. For a feature people use directly: the chain from each need to the view that
+serves it. Needs are PRD User Needs rows and tasks are Task Model rows, by
+name.]
+
+| Need | Task | Flow | View |
+|------|------|------|------|
+| [User Needs row] | [Task Model row] | [UF-XXX] | [UF-XXX-NN-view-name] |
+
 ### Gaps
 - [ ] [Requirement not fully addressed]: [Mitigation]
+- [ ] [Need or task with no flow or view]: [Mitigation]
 
 ## Concern Alignment
 
