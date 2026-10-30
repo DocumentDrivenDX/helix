@@ -38,7 +38,7 @@ answers the reader's question.
 We will treat a visual as data in one closed vocabulary, drawn from a governed source, and decide
 in HELIX when to draw one and which.
 
-- The vocabulary is DocumentDrivenDX/umf's `umf.visual` 1.0: seven kinds (`flow`, `sequence`,
+- The vocabulary is DocumentDrivenDX/umf-visual's `umf.visual` 1.0: seven kinds (`flow`, `sequence`,
   `structure`, `state`, `timeline`, `comparison`, `metric`) and 22 forms, with roles, statuses,
   evidence, and walkthrough steps, and no color, size, or position.
 - DocumentDrivenDX/ux-builder draws it (`@ux-builder/visuals`) in the product's theme; documentor
@@ -57,7 +57,7 @@ in HELIX when to draw one and which.
 ### Over each product keeping its own renderer
 The pictures already disagree in look and meaning: a dashed line means "not built" in one place
 and nothing in another. One vocabulary with one set of roles lets a reader learn the shapes once.
-Keeping the vocabulary in umf, apart from both its producers and its renderer, lets HELIX,
+Keeping the vocabulary in umf-visual, apart from both its producers and its renderer, lets HELIX,
 documentor, and an app built on ux-builder share it without depending on each other.
 
 ### Over free-form diagrams in Markdown
@@ -75,7 +75,7 @@ type's list is a guide, not a quota.
 - Authors stop drawing by hand what a model or an artifact already holds; existing hand-drawn
   diagrams are replaced by id as documentor gains each producer.
 - The kinds and forms live in two places, `umf.visual` and `validate-instance.py`'s
-  `VISUAL_FORMS`; adding a form in umf means adding it here, and the meta validator reads the
+  `VISUAL_FORMS`; adding a form in umf-visual means adding it here, and the meta validator reads the
   same table so a type cannot list a form the instance check rejects.
 - Until ux-builder's renderer and documentor's producers land, artifacts keep Mermaid with
   `%% id:` lines; the ids are what the later move replaces.
