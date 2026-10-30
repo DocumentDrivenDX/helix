@@ -1,9 +1,12 @@
-<!-- helix:publish audience=developer page=walkthrough kind=explanation voice=onboarding budget=1100 written=codex reviewed=2026-10-29/codex-astra-independent-reader/4a8250a81fa82e57 -->
+<!-- helix:publish audience=developer page=walkthrough kind=explanation voice=onboarding budget=1100 written=codex reviewed=2026-10-29/agent-sonnet/c55e176b4732400e -->
 <!-- helix:gap artifact:architecture -->
-<!-- helix:source src/documentor/cli.py sha256:8b7a0be0b2efb9cb -->
+<!-- helix:source src/documentor/cli.py sha256:803cf572bdc9acb7 -->
 <!-- helix:source src/documentor/check.py sha256:784c2473233c0346 -->
 <!-- helix:source src/documentor/lib.py sha256:5db149c5af59118b -->
 <!-- helix:source src/documentor/generate.py sha256:9ed3906b7fe2bc36 -->
+<!-- helix:source src/documentor/visuals.py sha256:a800032637b6cd3b -->
+<!-- helix:source tests/python/test_visuals.py sha256:1466ac963c1aef85 -->
+<!-- helix:source tests/python/test_architecture_views.py sha256:0261fa8f319ee2bc -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:9f8ec1f2b471f001 -->
@@ -15,7 +18,7 @@
 <!-- helix:source tests/python/test_generators_ops.py sha256:7b51edcbc2916d4e -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
 <!-- helix:source src/documentor/schemas.py sha256:6db23e6c01b889bc -->
-<!-- helix:source src/documentor/site.py sha256:1d8a815021485d27 -->
+<!-- helix:source src/documentor/site.py sha256:825480be83f5450b -->
 <!-- helix:source tests/python/test_schemas.py sha256:fed68ae9a073185b -->
 # Request walkthrough
 
@@ -33,7 +36,7 @@ These steps follow code and tests; no architecture artifact governs them. [Archi
 
 ## Sequence
 
-The request reads the configuration, confirms its schema, and plans the pages. It then gives each page a state, checks the architecture views and every page file, and turns the result into an exit code. A `check` writes nothing to disk.
+The request reads the configuration, confirms its schema, plans the pages, and gives each a state. It checks the views and every page and exits with the result, writing nothing.
 
 ```mermaid
 sequenceDiagram
@@ -59,14 +62,14 @@ sequenceDiagram
 
 Tests use fixture repositories.
 
-1. **Dispatch.** `main` in `src/documentor/cli.py` first takes `--catalog DIR`, which sets the HELIX catalog the run reads. It sends tool names such as `check-pages` to their modules. Everything else, `check` included, goes to `guide_main`.
+1. **Dispatch.** `main` in `src/documentor/cli.py` first takes `--catalog DIR`, the HELIX catalog to read. It sends tool names such as `check-pages` or `visuals` to their modules. Everything else, `check` included, goes to `guide_main`.
 2. **Configuration and plan.** `config_of` reads `.helix.yml`, and `guide_main` refuses a `publish.schema` other than `SCHEMA` in `src/documentor/lib.py`. `plan` then builds one `PagePlan` per page from the audiences, the traits, and the project's own pages. It applies `delegate`, `existing`, and `skip`, selecting operational data pages when configured.
-3. **Page state.** `assess` gives each page one state: delegated, empty, missing, unadopted, stale, unreviewed, or current. It regenerates a generated page in memory and compares the result. For a written page, it compares the source digests, then checks the `reviewed=` stamp against the digest of the body.
-4. **Gaps.** `assess` adds a page's `helix:gap` lines to its detail as "written without" the missing artifact. The gap does not change the page's state. `report` then calls `gap_lines` in `src/documentor/report.py`, which lists the artifacts that would improve the guide, the one behind the most pages first.
-5. **Source digests.** `check_sources` reads each `helix:source` line. It cuts a `path#anchor` source to that heading's section, so edits elsewhere in the file do not stale the page.
-6. **Architecture views.** `views` checks the architecture views against the model without rewriting them. With no model, the state is `none`.
+3. **Page state.** `assess` gives each page one state: delegated, empty, missing, unadopted, stale, unreviewed, or current. It regenerates and compares a generated page; a written page's source digests are compared (`check_sources` cuts `path#anchor` sources to their section), then its `reviewed=` stamp against the body. Gap lines become "written without" notes.
+4. **Architecture views.** `views` checks the architecture views against the model without rewriting them. With no model, the state is `none`; with `publish.visuals` set and current views, it also calls `visuals.check`.
+5. **Visuals.** `visuals.check` compares each `umf.visual` document under `<publish.out>/visuals/` with the model's projection; a missing, changed, undrawn, or orphaned one makes the views `stale`.
+6. **Gaps.** `report` prints the states and calls `gap_lines` in `src/documentor/report.py`, listing missing artifacts, the one behind most pages first.
 7. **Page checks.** `run_check` in `src/documentor/check.py` walks every page under the output directory. It checks sources, kinds, links, backticked paths, cited tests, handling patterns, scope, prose, and unmapped watched files.
-8. **Verdict.** `guide_main` prints the report and the counts of blocking findings and warnings. It returns 1 when there is a blocking finding, an unfinished page, or stale views.
+8. **Verdict.** `guide_main` prints the report and finding counts, and returns 1 on a blocking finding, an unfinished page, or stale views.
 
 The states that `check` reports feed `documentor write` in `src/documentor/write.py`. A missing or stale page goes to the writer. An unreviewed page goes to the evaluator, or back to the writer when its page checks have findings. `reviewer_prompt` gives the evaluator absolute paths to the repository and the page.
 
@@ -79,6 +82,8 @@ The states that `check` reports feed `documentor write` in `src/documentor/write
 | Gap order | `tests/python/test_report.py` | The artifact that would improve most pages comes first; no gaps, no lines |
 | Generated pages | `tests/validate-publish-traits.sh` | A new manifest makes the generated page stale and names the regenerate command |
 | Source digests | `tests/validate-publish.sh` | An uncited section's change passes; a cited H2 or H3 change blocks |
+| Architecture views | `tests/python/test_architecture_views.py` | A view past the element ceiling, or a group with an element outside its view, is reported |
+| Visuals | `tests/python/test_visuals.py` | A missing document is reported; drawn documents pass; a changed view makes one stale |
 | Review stamp | `tests/validate-write.sh` | The writer cannot review its own page |
 | Evaluation | `tests/validate-write.sh` | The reviewer model evaluates the page the evaluator prompt names |
 | Revision | `tests/validate-write.sh` | An unreviewed page with prose findings goes to the writer; a stale page is revised with the moved sources |

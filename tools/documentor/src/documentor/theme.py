@@ -7,7 +7,7 @@ A project names a theme in `.helix.yml`:
       theme:
         name: synaptiq          # a theme in @ux-builder/tokens' manifest.json
         appearance: system      # light, dark, or system (the site follows the reader; drawings use the default)
-        tokens: 1.6.0           # optional: another published version, or a path to a local tokens build
+        tokens: 1.7.0           # optional: another published version, or a path to a local tokens build
 
 The tokens come from the published package `@ux-builder/tokens`, fetched once from the npm registry
 into the documentor cache (no Node needed), or from a local path (a checkout's `packages/tokens`, or
@@ -33,7 +33,7 @@ from pathlib import Path
 
 from documentor.lib import catalog
 
-TOKENS_VERSION = "1.6.0"  # the @ux-builder/tokens release this documentor is tested against
+TOKENS_VERSION = "1.7.0"  # the @ux-builder/tokens release this documentor is tested against
 REGISTRY = "https://registry.npmjs.org/@ux-builder/tokens/-/tokens-{version}.tgz"
 DEFAULT_NAME = "plain"
 

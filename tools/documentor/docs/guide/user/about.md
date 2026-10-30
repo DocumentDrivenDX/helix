@@ -10,7 +10,7 @@
 <!-- helix:source src/documentor/check.py sha256:784c2473233c0346 -->
 <!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
 <!-- helix:source src/documentor/generate.py sha256:9ed3906b7fe2bc36 -->
-<!-- helix:source src/documentor/cli.py sha256:8b7a0be0b2efb9cb -->
+<!-- helix:source src/documentor/cli.py sha256:803cf572bdc9acb7 -->
 <!-- helix:source src/documentor/schemas.py sha256:6db23e6c01b889bc -->
 <!-- helix:source src/documentor/umf_tables.py sha256:56c75007b5b2d2de -->
 # What it is and is not

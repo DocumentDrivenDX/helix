@@ -27,6 +27,7 @@ Usage:
                                                   walkthrough player)
     documentor record [--root DIR] [--dest DIR]       publish the governed record (the HELIX root) into the site
     documentor model draft [--root DIR] [--write]  draft the architecture model from what the repository declares
+    documentor visuals [--root DIR] [--check]      the model's views as umf.visual documents, drawn by @ux-builder/visuals
     documentor --version
     documentor --catalog DIR ...                  read the HELIX catalog (audiences, voice) from DIR
 
@@ -74,7 +75,7 @@ from documentor.lib import (
     repository_files,
 )
 
-TOOLS = ("check-pages", "stamp", "detect", "generate", "site", "views", "tour", "estate", "deck", "doc", "doctor", "record", "model", "schemas")
+TOOLS = ("check-pages", "stamp", "detect", "generate", "site", "views", "tour", "estate", "deck", "doc", "doctor", "record", "model", "visuals", "schemas")
 PHASES = ("00-discover", "01-frame", "02-design", "03-test", "04-build", "05-deploy", "06-iterate")
 
 
@@ -149,6 +150,14 @@ def views(root: Path, config: dict, write: bool) -> tuple[str, list[str]]:
     problems = architecture_views.run(check=not write, directory=directory, model_path=model, create=create)
     if write and not problems:
         problems = architecture_views.run(check=True, directory=directory, model_path=model, create=create)
+    from documentor import visuals
+
+    if visuals.enabled(config) and not problems:
+        if write:
+            status, drawn = visuals.write(root, config)
+            for line in drawn:
+                print(f"visuals: {line}")
+        problems = visuals.check(root, config)
     return ("current" if not problems else "stale"), problems
 
 
@@ -475,6 +484,10 @@ def main(argv: list[str] | None = None) -> int:
             from documentor.architecture import estate
 
             return estate.main(rest)
+        if name == "visuals":
+            from documentor import visuals
+
+            return visuals.main(rest)
         if name == "model":
             if rest[:1] != ["draft"]:
                 print("documentor model: one subcommand, `draft` (documentor model draft --help)", file=sys.stderr)

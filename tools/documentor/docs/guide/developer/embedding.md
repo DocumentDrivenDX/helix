@@ -3,7 +3,7 @@
 <!-- helix:source README.md#install sha256:11003d4123be1f55 -->
 <!-- helix:source README.md#what-it-reads-and-writes sha256:55f9002fc000e454 -->
 <!-- helix:source src/documentor/__init__.py sha256:85f093e9f32ee453 -->
-<!-- helix:source src/documentor/cli.py sha256:8b7a0be0b2efb9cb -->
+<!-- helix:source src/documentor/cli.py sha256:803cf572bdc9acb7 -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/generate.py sha256:9ed3906b7fe2bc36 -->
 <!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
@@ -13,7 +13,7 @@
 <!-- helix:source src/documentor/schemas.py sha256:6db23e6c01b889bc -->
 <!-- helix:source src/documentor/detect.py sha256:376f1dd87ec38e48 -->
 <!-- helix:source src/documentor/umf_tables.py sha256:56c75007b5b2d2de -->
-<!-- helix:source src/documentor/site.py sha256:1d8a815021485d27 -->
+<!-- helix:source src/documentor/site.py sha256:825480be83f5450b -->
 # Embedding the library
 
 A host can embed documentor in three ways. It can run the `documentor` command, call `documentor.cli.main` from Python, or ship a generator that documentor loads. The package exports only `__version__`, so `main` and the generator entry point are the contract.

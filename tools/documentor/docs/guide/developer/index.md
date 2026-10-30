@@ -1,13 +1,14 @@
-<!-- helix:publish audience=developer page=index kind=explanation voice=onboarding budget=800 written=codex reviewed=2026-10-29/codex-astra-independent-reader/e68e70caf7cc238f -->
+<!-- helix:publish audience=developer page=index kind=explanation voice=onboarding budget=800 written=codex reviewed=2026-10-29/agent-sonnet/598c244910c70b63 -->
 <!-- helix:gap artifact:architecture -->
 <!-- helix:source docs/helix/00-discover/product-vision.md sha256:53b51880ca06cad7 -->
 <!-- helix:source docs/helix/02-design/adr/ADR-001-a-repository-guide-is-detected-generated-written-evaluated-and-checked.md#decision sha256:d3fd98aa3f21622b -->
-<!-- helix:source src/documentor/cli.py sha256:8b7a0be0b2efb9cb -->
+<!-- helix:source src/documentor/visuals.py sha256:a800032637b6cd3b -->
+<!-- helix:source src/documentor/cli.py sha256:803cf572bdc9acb7 -->
 <!-- helix:source src/documentor/lib.py sha256:5db149c5af59118b -->
 <!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
 <!-- helix:source src/documentor/record.py sha256:ab468e2c1eef452a -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
-<!-- helix:source src/documentor/theme.py sha256:7e38d9589c728f0b -->
+<!-- helix:source src/documentor/theme.py sha256:17adf6a5c35f2e4d -->
 <!-- helix:source src/documentor/deliverable/__init__.py sha256:ad9354803e0dd670 -->
 <!-- helix:source src/documentor/catalog/ux-builder/README.md sha256:6b885638317975c7 -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
@@ -34,7 +35,7 @@ The `publish:` block of `.helix.yml` sets a guide's traits, audiences, output di
 
 ## The parts
 
-The code is one package, `src/documentor/`, with one module per pipeline step. A change belongs in the module that owns its step.
+The code is one package, `src/documentor/`, with one module per pipeline step; a change belongs in that step's module.
 
 | Module | What it owns |
 |---|---|
@@ -50,11 +51,12 @@ The code is one package, `src/documentor/`, with one module per pipeline step. A
 | `src/documentor/theme.py` | The project's ux-builder theme for the site, views, presentations, and decks |
 | `src/documentor/schemas.py` | Publishes versioned design schemas and the UMF browser |
 | `src/documentor/umf_tables.py` | Reads UMF TableSpec tables for generated data references |
+| `src/documentor/visuals.py` | Draws model views as `umf.visual` documents via `@ux-builder/visuals` |
 | `src/documentor/record.py` | Publishes the project's HELIX root into the site as read-only pages |
 | `src/documentor/deliverable/` | Renders HELIX present-mode scripts to `.pptx`, HTML, and PDF; reports the host's toolchain |
 | `src/documentor/architecture/` | The architecture model, its views, the deployment drawing, presentations, and the estate view |
 
-Decks use `publish.theme` unless the call passes `--theme`. The deliverable module also installs the Eraser renderer for `documentor tour --render`.
+Decks use `publish.theme` unless given `--theme`; the deliverable module installs Eraser for `documentor tour --render`.
 
 The catalog is package data: traits in `src/documentor/catalog/traits/`, site layouts in `src/documentor/catalog/site/`, and the default `plain` theme in `src/documentor/catalog/ux-builder/themes/`. `src/documentor/catalog/ci/github-actions.yml` is the CI template.
 

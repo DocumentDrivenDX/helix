@@ -2,7 +2,7 @@
 <!-- helix:gap artifact:user-stories -->
 <!-- helix:source README.md#install sha256:11003d4123be1f55 -->
 <!-- helix:source README.md#use sha256:1668b6192a52a5d5 -->
-<!-- helix:source src/documentor/cli.py sha256:8b7a0be0b2efb9cb -->
+<!-- helix:source src/documentor/cli.py sha256:803cf572bdc9acb7 -->
 <!-- helix:source src/documentor/detect.py sha256:376f1dd87ec38e48 -->
 <!-- helix:source src/documentor/lib.py sha256:5db149c5af59118b -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->

@@ -1,12 +1,13 @@
-<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=codex reviewed=2026-10-29/codex-astra-independent-reader/4f7b7c55224492c3 -->
+<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=codex reviewed=2026-10-29/agent-sonnet/c5731444ffe32d74 -->
 <!-- helix:gap artifact:architecture -->
-<!-- helix:source src/documentor/cli.py sha256:8b7a0be0b2efb9cb -->
+<!-- helix:source src/documentor/visuals.py sha256:a800032637b6cd3b -->
+<!-- helix:source src/documentor/cli.py sha256:803cf572bdc9acb7 -->
 <!-- helix:source src/documentor/lib.py sha256:5db149c5af59118b -->
 <!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
-<!-- helix:source src/documentor/site.py sha256:1d8a815021485d27 -->
+<!-- helix:source src/documentor/site.py sha256:825480be83f5450b -->
 <!-- helix:source src/documentor/record.py sha256:ab468e2c1eef452a -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
-<!-- helix:source src/documentor/theme.py sha256:7e38d9589c728f0b -->
+<!-- helix:source src/documentor/theme.py sha256:17adf6a5c35f2e4d -->
 <!-- helix:source src/documentor/deliverable/__init__.py sha256:ad9354803e0dd670 -->
 <!-- helix:source src/documentor/architecture/model.py sha256:1dd45080b698edb2 -->
 <!-- helix:source src/documentor/architecture/views.py sha256:9217c09b8a9d2262 -->
@@ -33,7 +34,7 @@ The repository has no HELIX architecture document and no architecture model (`ar
 
 ## Context
 
-documentor connects six outside systems: a target repository, the HELIX catalog, an optional agent command, an optional site generator, the npm registry, and GitHub through `gh`.
+documentor connects six outside systems:
 
 | Neighbour | How documentor reaches it | Needed by |
 |---|---|---|
@@ -41,7 +42,7 @@ documentor connects six outside systems: a target repository, the HELIX catalog,
 | The HELIX catalog | Audiences, voice profiles, the writing pass, and deliverable themes, laid out like HELIX's `workflows/` | Planning, the prose checks, the writer's brief, deliverables |
 | An agent command | Prompt on standard input, page on standard output; Claude Code headless by default | `write`, `build --write`, and `estate write` only |
 | A site generator | mkdocs or Hugo when the repository has one; else documentor's own layout, or Hextra on request | `site` and `build` |
-| The npm registry | Fetches a named ux-builder theme, and the Eraser presentation renderer, into the documentor cache | `publish.theme`, `tour --render`, presentations on the site |
+| The npm registry | Fetches a named ux-builder theme and the Eraser and `@ux-builder/visuals` renderers into the documentor cache | `publish.theme`, `tour --render`, site presentations, `visuals` |
 | GitHub, through `gh` | `gh api` fetches other repositories' architecture models | `estate --fetch` only |
 
 documentor reads the first HELIX catalog it finds (`helix_catalog()` in `src/documentor/lib.py`). `--version` names the catalog a run reads. documentor is released with HELIX at the same version, so the packaged catalog carries the package's own version:
@@ -83,6 +84,7 @@ The containers are Python modules under `src/documentor/`, plus the catalog and 
 | `src/documentor/theme.py` | Maps the project's ux-builder theme onto the site, the views, the presentations, and the decks |
 | `src/documentor/schemas.py` | Collects declared schemas, preserves source bytes and provenance, and publishes the pinned browser |
 | `src/documentor/umf_tables.py` | Detects and reads UMF TableSpec tables for references and publication |
+| `src/documentor/visuals.py` | `visuals`: model views as `umf.visual` documents, drawn by `@ux-builder/visuals` |
 | `src/documentor/record.py` | `record`: publishes the HELIX root into the site as a read-only record section |
 | `src/documentor/deliverable/` | `deck`, `doc`, and `doctor`: renders deck and brief scripts to .pptx, HTML, and PDF |
 | `src/documentor/architecture/` | The architecture model, its draft and checks, the views, the field guide, the estate, the `tour` player |
@@ -112,11 +114,11 @@ Before it writes, `write.py` adds the page's own blocking and prose findings fro
 
 </details>
 
-Architecture modules load on demand. Most use the standard library; `tour --render` needs Node, npm, and Chromium and caches Eraser on first use.
+Architecture modules and `visuals.py` load on demand, and most use only the standard library. `tour --render` needs Node, npm, and Chromium; `visuals` needs Node and npm. Each caches its renderer (Eraser, `@ux-builder/visuals` 0.1.0) on first use; `visuals` skips this when `DOCUMENTOR_VISUALS` or `publish.visuals.command` names one.
 
 ## Deployment
 
-documentor ships as a wheel that hatchling builds and that a repository installs through `uv` from the HELIX release containing it. The package version, 0.19.1, follows HELIX's. Nothing is vendored into the target repository.
+documentor ships as a wheel that hatchling builds and that a repository installs through `uv` from the HELIX release containing it. The package version, 0.20.0, follows HELIX's. Nothing is vendored into the target repository.
 
 ```sh
 uv tool install "git+https://github.com/DocumentDrivenDX/helix@<tag>#subdirectory=tools/documentor"
@@ -191,7 +193,7 @@ The PRD lists "easy to read" without a measure, because no one has run a newcome
 | 0 | No blocking findings, or the command ran |
 | 1 | Something needs doing (`check`), or a page could not be read or built (`site`) |
 | 2 | Usage error, or a `publish.schema` this documentor does not read |
-| 3 | The host lacks a renderer's toolchain (`deck render`, `tour --render`) |
+| 3 | The host lacks a renderer's toolchain (`deck render`, `tour --render`, `visuals`) |
 
 </details>
 
