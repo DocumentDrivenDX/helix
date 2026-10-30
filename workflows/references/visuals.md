@@ -5,7 +5,7 @@ reference decides whether an artifact draws one and which. How it looks is
 [`diagram-design.md`](diagram-design.md); how an architecture model holds its facts is
 [`architecture-model.md`](architecture-model.md).
 
-The vocabulary is DocumentDrivenDX/umf's `umf.visual` 1.0 (CONTRACT-083 in that repository):
+The vocabulary is DocumentDrivenDX/umf-visual's `umf.visual` 1.0 (CONTRACT-083 in that repository):
 seven kinds, each with a few forms. A visual is one kind in one form. DocumentDrivenDX/ux-builder
 draws it (`@ux-builder/visuals`) in the project's theme; documentor produces it from the
 project's sources and places it on the project's site.
@@ -52,7 +52,8 @@ piece do": the architecture model's `cast` view stays a table.
 | How far toward the target? | `metric` | `meter` |
 
 When a question needs two kinds, draw two visuals. A visual holds at most fifteen parts and
-aims for five to seven; past that, split it.
+aims for five to seven; past that, split it. This is HELIX's composition rule, not the
+vocabulary's: a producer splits a view rather than emit a larger visual.
 
 ## Which visuals each artifact type draws
 
