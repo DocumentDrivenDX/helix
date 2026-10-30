@@ -13,6 +13,8 @@ Use this local resource summary as grounding:
   testable behavior, consequential constraints, and unresolved decisions.
 - Lifecycle labels, review stamps, and missing edges alone are not blockers.
   Read relevant content rather than requiring a complete linkage inventory.
+- Unmet product-learning targets do not fail this gate. Preserve explicit human
+  authorization decisions separately, with the action they actually govern.
 - Keep the pass/fail criteria concrete.
 - Avoid duplicating the content already covered by source artifacts.
 - Cite evidence or the missing artifact for every conditional or failed gate.

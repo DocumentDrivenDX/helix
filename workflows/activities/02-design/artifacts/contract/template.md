@@ -65,3 +65,11 @@ Define capture/query input and output, access scope, bounds, source references,
 ordering/snapshot/cursor behavior during concurrent writes and rotation, loss
 reporting, compatibility and recovery. Include traced and untraced examples.
 Do not treat JSONL as OTLP. See `workflows/references/agent-diagnostics.md`.
+
+## Schema Basis (when applicable)
+
+Follow `workflows/references/umf-schemas.md`. Name the inspected UMF core,
+extensions/domain packs and versions; what is reused/composed/extended; or the
+specific gap justifying an alternative. Reference the authoritative Contract
+and source through `ddx.schemas`; explain unsupported semantics and tests.
+Omit this section for work with no schema, structured interface, or domain model.

@@ -98,7 +98,6 @@ review patterns, and exception workflows than generic tools can copy quickly.
 | Problem validated | Risk | Strong internal hypothesis; needs pilot interviews. |
 | Segment reachable | Risk | Target segment is specific; recruiting channel still unvalidated. |
 | Value differentiated | Pass | Competitive Analysis identifies trust-first review and exception ownership. |
-| Metrics measurable | Pass | Product Vision defines time, accuracy, and exception targets. |
 | Risks bounded | Pass | Business Case limits the first investment to a three-month CSV-first pilot. |
 
 **Decision**: Go

@@ -1,5 +1,6 @@
 # Exit Gates for Frame Activity
-# These criteria must be met before proceeding to the Design activity
+# These criteria assess readiness to design the scoped work.
+# Product and market targets need not be achieved to proceed.
 
 exit_gates:
   # Documentation Completeness
@@ -8,7 +9,6 @@ exit_gates:
     validation:
       - Executive summary written
       - Problem statement clearly defined
-      - Success metrics are specific and measurable
       - Material choices that require human judgment are resolved
     evidence: docs/helix/01-frame/prd.md
 
@@ -27,15 +27,6 @@ exit_gates:
       - Specific scenarios documented for each persona
       - Pain points are quantified where possible
     evidence: docs/helix/01-frame/prd.md#users-and-personas
-
-  - criteria: Success metrics are measurable
-    required: true
-    validation:
-      - Each metric has a baseline value
-      - Each metric has a target value
-      - Measurement method is specified
-      - Timeline for achievement is defined
-    evidence: docs/helix/01-frame/prd.md#success-metrics
 
   - criteria: Project principles are established
     required: true
@@ -174,12 +165,6 @@ validation_rules:
     pattern: "As a .* I want .* So that"
     expected: present
     severity: warning
-
-  - rule: metrics_quantified
-    description: Success metrics have numeric targets
-    path: docs/helix/01-frame/prd.md
-    check: metrics_have_numbers
-    severity: blocking
 
 # Activity Transition Criteria
 transition:

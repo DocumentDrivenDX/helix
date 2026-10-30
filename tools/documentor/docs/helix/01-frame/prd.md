@@ -63,8 +63,8 @@ evaluation, checks all of it in CI without an agent, and assembles the pages int
 
 - **Agent-driven init** through a headless HELIX session (`claude -p --plugin-dir`), local only,
   never in CI. (Agent-driven write is R-9.)
-- **Design-system theme** for the Hextra scaffold and the diagrams, taking `@skadden/tokens` CSS
-  when the design-system repository publishes under DocumentDrivenDX.
+- **Design-system theme** for the Hextra scaffold and the diagrams, taking a design system's
+  tokens when its repository publishes under DocumentDrivenDX.
 - **Coverage**: notebooks, changelog and what's new, versioned docs for libraries, a security and
   access-model page for operators, glossary, per-package sections for monorepos, screenshots for
   user tutorials (the design system's audit already captures screens), Dockerfile, compose, dbt,

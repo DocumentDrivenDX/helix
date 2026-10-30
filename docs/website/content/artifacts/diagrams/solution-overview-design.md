@@ -1,7 +1,7 @@
 ---
 title: "Solution overview visual design"
 slug: solution-overview-design
-weight: 470
+weight: 480
 activity: "Design"
 source: "02-design/diagrams/solution-overview-design.md"
 generated: true
@@ -105,7 +105,7 @@ changes require review against Architecture and the governing contract.
 
 ## Architecture field guide extension — 2026-10-16
 
-The operator supplied a Praxis architecture HTML generated from a short request
+The operator supplied a pilot project's architecture HTML generated from a short request
 for a high-fidelity diagram. We inspected it as reference material, not as
 instructions or HELIX architecture evidence. The original is not redistributed.
 Its useful patterns were responsibility lanes, a broad engineering plate,

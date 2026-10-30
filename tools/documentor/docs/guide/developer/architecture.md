@@ -1,37 +1,40 @@
-<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=agent-opus reviewed=2026-10-27/agent-sonnet/191d3ad4861d8c1b -->
+<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=codex reviewed=2026-10-29/agent-sonnet/c5731444ffe32d74 -->
 <!-- helix:gap artifact:architecture -->
-<!-- helix:source src/documentor/cli.py sha256:4fe81cf37df6d5aa -->
-<!-- helix:source src/documentor/lib.py sha256:7e594138b133286a -->
-<!-- helix:source src/documentor/write.py sha256:2118376b2c167085 -->
-<!-- helix:source src/documentor/site.py sha256:c715ad483398775f -->
-<!-- helix:source src/documentor/record.py sha256:cecdf2712047484e -->
+<!-- helix:source src/documentor/visuals.py sha256:a800032637b6cd3b -->
+<!-- helix:source src/documentor/cli.py sha256:803cf572bdc9acb7 -->
+<!-- helix:source src/documentor/lib.py sha256:5db149c5af59118b -->
+<!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
+<!-- helix:source src/documentor/site.py sha256:825480be83f5450b -->
+<!-- helix:source src/documentor/record.py sha256:ab468e2c1eef452a -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/theme.py sha256:17adf6a5c35f2e4d -->
-<!-- helix:source src/documentor/visuals.py sha256:a800032637b6cd3b -->
 <!-- helix:source src/documentor/deliverable/__init__.py sha256:ad9354803e0dd670 -->
 <!-- helix:source src/documentor/architecture/model.py sha256:1dd45080b698edb2 -->
 <!-- helix:source src/documentor/architecture/views.py sha256:9217c09b8a9d2262 -->
 <!-- helix:source src/documentor/architecture/draft.py sha256:011428f478bbe9d4 -->
 <!-- helix:source src/documentor/architecture/estate.py sha256:00bdd63951c4abf6 -->
 <!-- helix:source src/documentor/architecture/tour.py sha256:80f840c2fe35c2c1 -->
-<!-- helix:source pyproject.toml sha256:74a08b4781a32616 -->
+<!-- helix:source pyproject.toml sha256:c46e99a7fc3955ad -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
 <!-- helix:source ../../.github/workflows/documentor.yml sha256:ab2fb8338de1a028 -->
-<!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
+<!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:9f8ec1f2b471f001 -->
 <!-- helix:source tests/validate-package.sh sha256:ddc499febfa0dd79 -->
 <!-- helix:source docs/helix/01-frame/prd.md#requirements sha256:faab177063c3e4e8 -->
 <!-- helix:source docs/helix/02-design/adr/ADR-001-a-repository-guide-is-detected-generated-written-evaluated-and-checked.md sha256:f430157a0b1cbc34 -->
 <!-- helix:source docs/helix/02-design/adr/ADR-002-an-estate-view-is-composed-from-repository-architecture-models.md sha256:b612bb9b14aab618 -->
 <!-- helix:source docs/helix/02-design/adr/ADR-003-documentor-drives-the-agent-that-writes-and-evaluates-the-written-pages.md sha256:46908679adfaa9f5 -->
+<!-- helix:source src/documentor/schemas.py sha256:6db23e6c01b889bc -->
+<!-- helix:source src/documentor/umf_tables.py sha256:56c75007b5b2d2de -->
+<!-- helix:source src/documentor/catalog/ci/github-pages.yml sha256:5656014516fa3a2d -->
 # Architecture
 
 documentor is one Python package with one command line, `documentor`. It reads a repository, plans the pages its readers need, and makes or checks each page. It runs no server: it runs on a developer's machine or in a CI job.
 
-The repository has no HELIX architecture document and no architecture model (`architecture-model.toml`) of its own.
+The repository has no HELIX architecture document and no architecture model (`architecture-model.toml`) of its own. The facts below come from the code, the PRD, and the three ADRs.
 
 ## Context
 
-documentor connects six outside systems: a target repository, the HELIX catalog, an optional agent command, an optional site generator, the npm registry, and GitHub through `gh`.
+documentor connects six outside systems:
 
 | Neighbour | How documentor reaches it | Needed by |
 |---|---|---|
@@ -39,10 +42,10 @@ documentor connects six outside systems: a target repository, the HELIX catalog,
 | The HELIX catalog | Audiences, voice profiles, the writing pass, and deliverable themes, laid out like HELIX's `workflows/` | Planning, the prose checks, the writer's brief, deliverables |
 | An agent command | Prompt on standard input, page on standard output; Claude Code headless by default | `write`, `build --write`, and `estate write` only |
 | A site generator | mkdocs or Hugo when the repository has one; else documentor's own layout, or Hextra on request | `site` and `build` |
-| The npm registry | Fetches a ux-builder theme, the Eraser presentation renderer, and the `@ux-builder/visuals` renderer into the documentor cache | `publish.theme`, `tour --render`, presentations, `visuals` |
+| The npm registry | Fetches a named ux-builder theme and the Eraser and `@ux-builder/visuals` renderers into the documentor cache | `publish.theme`, `tour --render`, site presentations, `visuals` |
 | GitHub, through `gh` | `gh api` fetches other repositories' architecture models | `estate --fetch` only |
 
-documentor reads the first HELIX catalog it finds (`helix_catalog()` in `src/documentor/lib.py`), and `--version` names it. documentor is released with HELIX, so the packaged catalog carries the package's own version:
+documentor reads the first HELIX catalog it finds (`helix_catalog()` in `src/documentor/lib.py`). `--version` names the catalog a run reads. documentor is released with HELIX at the same version, so the packaged catalog carries the package's own version:
 
 ```sh
 uv run documentor --version
@@ -61,7 +64,7 @@ uv run documentor --version
 
 </details>
 
-Without `publish.theme`, or when the theme cannot be fetched, documentor uses `plain`, packaged under `src/documentor/catalog/ux-builder/`. The theme tokens come from `@ux-builder/tokens` 1.7.0 unless `publish.theme.tokens` names another version or a local path. `check` reaches only the repository and the catalog, so CI can run it with no agent and no network.
+Without `publish.theme`, or when the theme cannot be fetched, documentor uses `plain`, packaged under `src/documentor/catalog/ux-builder/`. `check` reaches only the repository and the catalog, so CI can run it with no agent and no network.
 
 ## Containers
 
@@ -79,7 +82,9 @@ The containers are Python modules under `src/documentor/`, plus the catalog and 
 | `src/documentor/site.py` | Emits the pages into an mkdocs or Hugo site, or writes a new site in its own layout or Hextra |
 | `src/documentor/report.py` | The "How this guide was made" page, the gap list `status` prints, and `site --shots` screenshots |
 | `src/documentor/theme.py` | Maps the project's ux-builder theme onto the site, the views, the presentations, and the decks |
-| `src/documentor/visuals.py` | `visuals`: projects each model view into a `umf.visual` document and has `@ux-builder/visuals` draw it |
+| `src/documentor/schemas.py` | Collects declared schemas, preserves source bytes and provenance, and publishes the pinned browser |
+| `src/documentor/umf_tables.py` | Detects and reads UMF TableSpec tables for references and publication |
+| `src/documentor/visuals.py` | `visuals`: model views as `umf.visual` documents, drawn by `@ux-builder/visuals` |
 | `src/documentor/record.py` | `record`: publishes the HELIX root into the site as a read-only record section |
 | `src/documentor/deliverable/` | `deck`, `doc`, and `doctor`: renders deck and brief scripts to .pptx, HTML, and PDF |
 | `src/documentor/architecture/` | The architecture model, its draft and checks, the views, the field guide, the estate, the `tour` player |
@@ -89,32 +94,14 @@ Each guide page is one of five kinds of work, and the kind decides which module 
 
 - `generated`: `generate.py` writes the page from a structured source, or runs the project's own generator command.
 - `written`: `write.py` has the agent write the page.
-- `existing`: the project's own page, adopted unchanged.
+- `existing`: the project's own page stands in for the guide page, adopted unchanged.
 - `delegated`: the page links to another tool's output.
 
-The fifth kind is `views`. `cli.py` renders them from the architecture model into an `architecture-views` directory under `publish.out`, or into the architecture record when `publish.views: artifact` is set. When a repository has no model, `init` proposes one through `documentor model draft`, from what the repository declares.
-
-With `publish.visuals` set, the views step also runs `visuals.py`. It writes each view as `<id>.visual.json` under a `visuals` directory in `publish.out`, and draws an SVG and Mermaid beside it. The views then go stale when a visual document no longer matches the model or lacks a drawing.
-
-<details>
-<summary>How each model view maps to a visual</summary>
-
-| Model view | Visual |
-|---|---|
-| `flowchart` | `flow/network`, or `flow/pipeline` when the view says `form = "pipeline"` |
-| `deployment` | `flow/zoned` |
-| `field-guide` | `flow/lanes` |
-| `journey` | `sequence/lifelines` |
-| `stack` | `structure/stack` |
-| `cast` | None: what each piece does is a table |
-
-`publish.visuals.command` or `DOCUMENTOR_VISUALS` names the renderer's command. Otherwise documentor installs the pinned `@ux-builder/visuals` release into its cache.
-
-</details>
+The fifth kind is `views`. `cli.py` renders them from the architecture model into an `architecture-views` directory under `publish.out`, or into the architecture record when `publish.views: artifact` is set. When a repository has no model, `init` proposes one through `documentor model draft`, built from the files the repository already declares.
 
 The page header is the contract between the modules. `lib.py` defines the `helix:publish`, `helix:source`, and `helix:gap` comment lines, and `check.py` reads them back. `stamp` records each source's digest, so a page goes stale when one of its sources changes.
 
-`cli.py` refuses a `.helix.yml` whose `publish.schema` differs from the schema it reads, and exits with code 2. The documentor from the block's HELIX release must read it.
+`cli.py` refuses a `.helix.yml` whose `publish.schema` differs from the schema it reads, and exits with code 2. The documentor from the same HELIX release as the block must read it.
 
 `write.py` builds the writer's brief from the page plan, the voice profile, and the catalog's writing pass (`src/documentor/catalog/helix/references/writing-pass.md` in the packaged copy). `documentor prompt PAGE` prints that brief, and `--reviewer` prints the evaluator's brief.
 
@@ -123,21 +110,21 @@ The page header is the contract between the modules. `lib.py` defines the `helix
 
 Before it writes, `write.py` adds the page's own blocking and prose findings from `check.py` to the feedback. It skips a broken link to another written page, because that page may not exist yet.
 
-`write.py` runs both agent calls from the repository root. The evaluator's brief names the root and the page by absolute path.
+`write.py` runs both agent calls from the repository root. The evaluator's brief names that root and the page by absolute path, and resolves every other path against the root.
 
 </details>
 
-The architecture subpackage and `visuals.py` load only when one of their subcommands runs. Several architecture modules use only the standard library, so a project can vendor them unchanged. `tour --render` and `visuals` are the exceptions: they need Node, and `tour --render` also needs npm and a Chromium.
+Architecture modules and `visuals.py` load on demand, and most use only the standard library. `tour --render` needs Node, npm, and Chromium; `visuals` needs Node and npm. Each caches its renderer (Eraser, `@ux-builder/visuals` 0.1.0) on first use; `visuals` skips this when `DOCUMENTOR_VISUALS` or `publish.visuals.command` names one.
 
 ## Deployment
 
-documentor ships as a hatchling-built wheel that a repository installs through `uv` from the HELIX release containing it. The package version, 0.19.1, follows HELIX's. Nothing is vendored into the target repository.
+documentor ships as a wheel that hatchling builds and that a repository installs through `uv` from the HELIX release containing it. The package version, 0.20.0, follows HELIX's. Nothing is vendored into the target repository.
 
 ```sh
 uv tool install "git+https://github.com/DocumentDrivenDX/helix@<tag>#subdirectory=tools/documentor"
 ```
 
-The wheel must carry the catalog, the packaged `plain` theme, and the deliverable renderers, because an installed documentor reads them from package data. The package test builds the wheel, runs the CLI from a clean environment, and checks `--version` and `--catalog`:
+The wheel must carry the catalog, the packaged `plain` theme, and the deliverable renderers, because an installed documentor reads them from package data. The package test builds the wheel and runs the CLI from a clean environment. It checks that `--version` reports the packaged catalog under the version in `pyproject.toml`. It also checks that `--catalog` switches to a live catalog and refuses a directory that is not one:
 
 ```sh
 bash tests/validate-package.sh
@@ -146,30 +133,34 @@ bash tests/validate-package.sh
 
 documentor runs in three places:
 
-- **A pull request in a target repository.** The template at `src/documentor/catalog/ci/github-actions.yml` runs `documentor check --root .` through `uvx`. It needs Python, plus network access to github.com to fetch the HELIX tag it names (v0.19.0).
+- **A pull request in a target repository.** The template at `src/documentor/catalog/ci/github-actions.yml` runs `documentor check --root .` through `uvx`. It needs Python, plus network access to github.com to fetch the HELIX tag it names (v0.19.1).
 - **A weekly job in that repository.** The same template runs `documentor build --root . --no-site`, then opens a pull request with the regenerated pages and views. Stale written pages stay for `status` to list.
 - **A machine with agent credentials.** `documentor write` and `documentor estate write` run here, never in the CI template. The default agent command is `claude -p` with read tools only.
 
-`documentor estate write --review` evaluates the estate page after a person's edits and records a pass in its header. It exits with code 2 when the page does not exist.
+`documentor estate write --review` evaluates the estate page as it stands after a person's edits, and records a pass in its header. It exits with code 2 when the page does not exist yet.
 
-The default site layout needs only Hugo; Hextra also needs Go, plus network access the first time. A new site goes to a `site` directory under `.helix` unless `--site` names another; for a Hugo site, `publish.site.site_dir` names it.
+A site build needs more. The default layout needs only Hugo; Hextra also needs Go, plus network access the first time. A new site goes to a `site` directory under `.helix` unless `--site` names another; for a Hugo site, `publish.site.site_dir` names it.
 
 <details>
 <summary>What site adds beyond the guide pages</summary>
 
 For a Hugo site, `site` writes the pages where its content mount points. Before the guide pages, `site` adds the sections the guide does not write. `publish.site.record` adds the record that `record.py` publishes. Each entry under `publish.site.sections` runs the project's own generator command.
 
-In a site that documentor scaffolded, `site` then adds the record and each generated section to the navigation in the site's `hugo.yaml`. It lists only a section whose content directory exists, and lists it once.
+In a site that documentor scaffolded, `site` then adds the record and each generated section to the navigation in the site's `hugo.yaml`. It lists only a section whose content directory exists, and lists it once. Hextra also receives navbar entries and home cards for these sections.
 
-With `publish.visuals` set, `site` draws each page's ```` ```visual id=<id> ```` block inline, in Hugo and mkdocs alike. The Markdown page keeps its Mermaid for readers without the site.
+Hugo, static, and Hextra builds publish artifact and guide schemas plus discovered UMF tables. Adopted pages contribute references. The browser follows the host theme and preserves selection across changes.
+
+The publisher preserves unrelated files and refuses unowned output collisions. `documentor schemas --check` checks freshness; rendering establishes no semantic conformance.
+
+The Pages template, `src/documentor/catalog/ci/github-pages.yml`, requires selecting a release with UMF support; preflight rejects the placeholder or a tool without schema publication.
 
 A new site also gets a Presentations section, one per view marked `present = true`, and a "How this guide was made" page. A presentation the host cannot render is left out of the site, and `site` says so.
 
 </details>
 
-The renderers behind `deck`, `doc`, presentations, `visuals`, and `site --shots` need Node, LibreOffice, or Chrome. `documentor doctor` reports which of these the host has, and which theme `publish.theme` resolves to.
+The renderers behind `deck`, `doc`, presentations, and `site --shots` need Node, LibreOffice, or Chrome. `documentor doctor` reports which of these the host has, and which theme `publish.theme` resolves to.
 
-documentor's CI is HELIX's `documentor` workflow. It runs when documentor or the HELIX content it packages changes: the publish catalog, voice profiles, writing pass, deliverables, or prose audit. It works from `tools/documentor` with Python 3.12 and Hugo 0.160.0:
+documentor's CI is HELIX's `documentor` workflow. It runs when documentor changes, or when a part of HELIX that documentor packages changes: the publish catalog, voice profiles, writing pass, deliverables, or prose audit. It works from `tools/documentor` with Python 3.12 and Hugo 0.160.0:
 
 ```sh
 uv sync
@@ -185,7 +176,6 @@ The quality targets are the PRD's requirements, and the tests and the CI gate en
 |---|---|
 | `check` needs no agent, no network, and nothing beyond Python 3.11 and PyYAML | R-4; `dependencies = ["pyyaml>=6"]` in `pyproject.toml` |
 | A generated page cannot drift: `check` regenerates it in memory and compares | `check.py`, `generate.py` |
-| A visual document cannot drift: `check` compares each with the model's projection | `visuals.py` |
 | A written page counts only after another reader evaluates it | R-10; `review` refuses a reviewer equal to the page's writer |
 | A page reaches the evaluator only once its own checks are clean | `write.py` sends a page with blocking or prose findings back to the writer first |
 | A rerun on a current guide makes no agent call | R-9; `write` acts only on missing, stale, or unreviewed pages |
@@ -209,10 +199,10 @@ The PRD lists "easy to read" without a measure, because no one has run a newcome
 
 ## Decisions that shape the code
 
-Three ADRs govern the code.
+Three ADRs govern the code, and each one shapes named modules.
 
 - [ADR-001](../../helix/02-design/adr/ADR-001-a-repository-guide-is-detected-generated-written-evaluated-and-checked.md): a guide is detected, generated, written, evaluated, checked, and assembled. It gives `detect.py`, `generate.py`, `check.py`, and `site.py` their roles.
 - [ADR-002](../../helix/02-design/adr/ADR-002-an-estate-view-is-composed-from-repository-architecture-models.md) (status: draft): an estate view is composed from each repository's architecture model. It shapes `src/documentor/architecture/estate.py` and the model format in `src/documentor/catalog/helix/references/architecture-model.md`.
 - [ADR-003](../../helix/02-design/adr/ADR-003-documentor-drives-the-agent-that-writes-and-evaluates-the-written-pages.md): documentor calls the agent that writes the pages, then calls a second model to evaluate them. It shapes `write.py`, the `helix:gap` header line, and the agent-as-a-command interface.
 
-Before you add a dependency, read ADR-003's reasons for keeping the agent a command. Before you change a generator, read ADR-001's trade-offs, because a wrong generator documents every repository of that kind wrongly.
+Before you add a dependency, read ADR-003's reasons for keeping the agent a command. Before you change a generator, read ADR-001's trade-offs, because a wrong generator documents every repository of that kind wrongly. The [command line reference](cli.md) lists each subcommand, and the [developer guide](developer-guide.md) covers a first change.

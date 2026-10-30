@@ -1,0 +1,57 @@
+umf: 0.10.0
+id: helix:schema-reference
+title: Design schema reference
+vocabularies:
+  umf.ddd:
+    version: 0.1.0
+modules:
+- id: publishing
+  namespace: helix.publishing
+  extensions:
+    umf.ddd:
+      kind: bounded-context
+      terms:
+      - term: SchemaReference
+        definition: A versioned local schema used by a governed design.
+        concept:
+          module: publishing
+          element: SchemaReference
+  elements:
+  - id: SchemaReference
+    name: SchemaReference
+    extensions:
+      umf.ddd:
+        kind: value
+        fields:
+          id:
+            type:
+              kind: scalar
+              name: string
+            cardinality: one
+          title:
+            type:
+              kind: scalar
+              name: string
+            cardinality: one
+          version:
+            type:
+              kind: scalar
+              name: string
+            cardinality: one
+          path:
+            type:
+              kind: scalar
+              name: string
+            cardinality: one
+          schemaFormat:
+            type:
+              kind: scalar
+              name: string
+            cardinality: one
+        equality:
+          fields:
+          - id
+          - title
+          - version
+          - path
+          - schemaFormat

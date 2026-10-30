@@ -64,6 +64,10 @@ applies universally.
   before they see the solution.
 - **Decision-oriented** — every section should help someone make a build/skip
   decision. If a section doesn't inform a decision, it's filler.
+- **Separate outcomes from gates** — product and market goals guide learning
+  and priorities. Do not invent implementation or release gates from uptake
+  targets. Record explicit human investment or launch conditions as named
+  business decisions, separate from engineering acceptance.
 - **Testable requirements** — every P0 requirement should be verifiable. If
   you can't describe how to test it, it's too vague.
 - **Traceable boundaries** — requirements should connect upward to the Product
@@ -91,8 +95,8 @@ Product requirements are for product scope. If you find yourself writing about:
 
 ### Summary
 Write this last. This section must work as a **standalone 1-pager**: what
-we're building, who uses it, the problem, the solution approach, and the top
-2-3 success metrics. Someone who reads only this section should understand the
+we're building, who uses it, the problem, and the solution approach. Someone
+who reads only this section should understand the
 product well enough to decide whether to invest time in the full PRD. Test:
 could a new team member read this alone and explain the product to someone
 else?
@@ -108,17 +112,16 @@ is an activity. "Operators can see system health without SSH" is a state
 change.
 
 ### Success Metrics
-Every metric needs three things: what you're measuring, a numeric target, and
-how you'll measure it. "User satisfaction" is not a metric. "NPS > 40 from
-monthly survey of active users" is. Drop the Timeline column — success metrics
-should define what success looks like, not when it happens.
+Record useful product-learning indicators and how they will be observed. Keep
+unsupported targets as hypotheses; omit indicators that do not inform a product
+decision. Delivery acceptance belongs in Success Criteria.
 
 **(kind: data)** When `kind: data`, frame metrics for the data product
 itself: throughput (rows/day), latency (max age end-to-end), quality score
 (percentage of expectations passing), cost per GB or per DBU, freshness-SLA
-compliance, and consumer satisfaction. Each metric still needs a numeric
-target and a named measurement method — e.g., "SLA compliance > 95% measured
-by on-time delivery vs. promised refresh cadence."
+compliance, and consumer satisfaction. Put required capacity, freshness, and
+quality thresholds in requirements, with a verification method. Keep in-use
+learning indicators separate.
 
 ### Non-Goals
 Each non-goal should prevent scope creep on something plausible. "Not a
@@ -140,6 +143,16 @@ system, schema/table, owner, update frequency, quality baseline, and notes
 on API limits or retry policy. Generic personas are insufficient for a data
 product — the consumer and source tables drive every downstream design and
 quality decision.
+
+### User Segments and User Needs
+Optional. For a product people use directly, add these tables under Users and Scope.
+Name each row by what it says; do not number rows or mint IDs for them. Other
+documents (the feature specification's Task Model, a journey map) cite rows by
+name. Rate importance and evidence separately: a need can matter a great deal
+and still rest on no evidence. Evidence names its source (a research plan's
+findings, support data, analytics) or says none; Confidence says how far that
+evidence carries the row; Status says whether the row is assumed, validated or
+invalidated.
 
 ### Requirements (P0/P1/P2)
 P0 = the product is broken without this. P1 = the product is weak without
@@ -246,9 +259,13 @@ yet — it's better to have a clear list of unknowns than a document that
 pretends to be complete.
 
 ### Success Criteria
-These are the acceptance criteria for the entire initiative. They should be
-observable outcomes ("operators can do X without Y") not activities ("we
-shipped Z").
+Define delivery acceptance using observable product capabilities and engineering
+readiness, verifiable with tests, fixtures, or bounded evaluations. For example,
+"operators can reconcile a representative deposit and assign exceptions" can
+be verified before broad adoption. Product and market outcomes stay in Success
+Metrics. Explicit human launch or investment decisions belong in Constraints
+or the Business Case with their source and scope; they do not redefine
+engineering completion.
 
 ## Quality Checklist
 
@@ -260,7 +277,7 @@ committing.
 - [ ] Problem section quantifies the pain or names a specific failure mode
 - [ ] Every P0 requirement is testable (someone could write an acceptance test)
 - [ ] Every P0 has an acceptance test sketch with inputs and expected outputs
-- [ ] Success metrics have numeric targets and named measurement methods
+- [ ] Delivery criteria and version milestones contain no product or market uptake thresholds
 - [ ] Requirements trace upward to the Product Vision and downward to downstream artifacts
 - [ ] No `[TBD]`, `[TODO]`, or `[NEEDS CLARIFICATION]` markers in any section except Open Questions
 - [ ] Non-goals exclude something a reasonable person might assume is in scope
@@ -268,7 +285,7 @@ committing.
 
 ### Warning
 
-- [ ] Summary works as a standalone 1-pager (problem, solution, metrics)
+- [ ] Summary works as a standalone 1-pager (problem, scope, solution)
 - [ ] Goals describe state changes, not activities
 - [ ] Risk mitigations are concrete actions, not "monitor"
 - [ ] P0 requirements number 7 or fewer

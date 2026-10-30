@@ -1,10 +1,10 @@
-<!-- helix:publish audience=user page=index kind=tutorial voice=public-site budget=700 written=agent-opus reviewed=2026-10-26/agent-sonnet/0c06e149fea52e43 -->
+<!-- helix:publish audience=user page=index kind=tutorial voice=public-site budget=700 written=codex reviewed=2026-10-29/codex-astra-independent-reader/8dae54e0fab51b0c -->
 <!-- helix:gap artifact:user-stories -->
 <!-- helix:source README.md#install sha256:11003d4123be1f55 -->
 <!-- helix:source README.md#use sha256:1668b6192a52a5d5 -->
-<!-- helix:source src/documentor/cli.py sha256:4fe81cf37df6d5aa -->
-<!-- helix:source src/documentor/detect.py sha256:ff655eeda6b4701f -->
-<!-- helix:source src/documentor/lib.py sha256:7e594138b133286a -->
+<!-- helix:source src/documentor/cli.py sha256:803cf572bdc9acb7 -->
+<!-- helix:source src/documentor/detect.py sha256:376f1dd87ec38e48 -->
+<!-- helix:source src/documentor/lib.py sha256:5db149c5af59118b -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 # Getting started
 
@@ -40,7 +40,7 @@ Check that it runs:
 documentor --version          # after uv tool install; with uvx, run uvx --from "..." documentor --version
 ```
 
-The output reads `documentor <version> (HELIX catalog packaged <version>)`. documentor ships with HELIX, so both versions match. [HELIX](https://github.com/DocumentDrivenDX/helix) is the method that defines what a guide contains. documentor is the tool that builds one.
+The output reads `documentor <version> (HELIX catalog packaged <version>)`. documentor ships with HELIX, so both versions match. [HELIX](https://github.com/DocumentDrivenDX/helix) defines the guide; documentor builds it.
 
 ## Your first task: one worked session, step by step
 
@@ -64,7 +64,7 @@ The screen starts with `Traits detected in <name>:`. A *trait* is something the 
 
 Each trait line shows a confidence score and its evidence files. `PROPOSE` marks a trait that scored 0.5 or higher. Below that, `Proposed for .helix.yml:` shows the configuration block documentor suggests. Lines starting `Page added:` and `Page delegated:` show what each trait contributes.
 
-The report ends with significant files no proposed trait claims, or `Every significant file is claimed.`
+The report ends with significant files no proposed trait claims, or `Every significant file is claimed.` Init can propose design-stage skips or operational data pages for UMF tables. Review the suggestions; existing publish settings remain authoritative.
 
 **3. Record the proposal.**
 
@@ -100,7 +100,7 @@ On a new guide, most rows read `MISSING`. The list ends with `For the agent`, an
 
 Once pages exist, a list headed `Artifacts that would improve the guide` can appear before `For the agent`. It names HELIX artifacts the written pages lacked.
 
-If the screen reads ``No guide yet: run `documentor init` first.``, `.helix.yml` has no audiences yet. Go back to step 3.
+If the screen reads `No guide yet: run documentor init first.`, `.helix.yml` has no audiences yet. Go back to step 3.
 
 **5. Generate what can be generated.**
 

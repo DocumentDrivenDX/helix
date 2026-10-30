@@ -60,7 +60,7 @@ Use this checklist when reviewing a product vision artifact:
 - [ ] User experience section describes a concrete scenario, not abstract benefits
 - [ ] Target market identifies specific pain points and switching triggers
 - [ ] Value propositions map to customer benefits, not internal capabilities
-- [ ] Success metrics are measurable and time-bound
+- [ ] Learning indicators name observation methods; unsupported targets are hypotheses
 - [ ] Why Now section names a specific change, not a vague opportunity
 - [ ] Business case details, competitor matrices, requirements, and technical choices are left to their own artifacts
 - [ ] No implementation details (technology choices, architecture) — those belong in design

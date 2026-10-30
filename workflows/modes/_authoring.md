@@ -51,6 +51,13 @@ has, and a governed source to draw it from. Write it as a fenced block with a st
 else a Mermaid block whose first line is `%% id: <id>`); never draw by hand
 what a model or an artifact already holds.
 
+## Product outcomes and delivery criteria
+
+Apply `workflows/principles.md` §Product goals and delivery gates. Remove
+agent-invented market conditions from engineering prerequisites and completion
+checks. Preserve sourced human business decisions separately and retain useful
+learning goals.
+
 ## External standards
 
 Define unfamiliar standards and acronyms on first use. When an artifact adopts

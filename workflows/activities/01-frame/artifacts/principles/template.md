@@ -51,6 +51,15 @@ semantics).
    claims-vs-reality, or scope-discipline. When process rounds outrun delivered
    units, stop and deliver.
 
+## Experience Principles
+
+<!-- Optional. For a product with a user interface: the principles that govern
+how the interface behaves. Same shape as above: each changes a real decision.
+Delete this section if the product has no interface. -->
+
+1. **[Principle]** — [What to prefer when two valid interface choices compete,
+   and the decision it changes.]
+
 ## Tension Resolution
 
 When principles pull in opposite directions, document the resolution strategy

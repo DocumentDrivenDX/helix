@@ -99,6 +99,9 @@ report. Preserve explicit domain approvals and evidence for completion claims.
 
 ### Success Metrics
 
+These product goals inform learning and priorities. They do not gate
+implementation, version progression, release, or engineering completion.
+
 | Metric | Target | Measurement Method | Timeline |
 |---|---|---|---|
 | Runtime breadth | 3 documented runtime deployments (DDx, Databricks Genie, one other) | Release audit | 12 months |
@@ -241,6 +244,16 @@ never copied into an install. A host without it does each step by hand and
 says so.
 The skill body stays runtime-neutral (R-4).
 
+**R-14: UMF-based design and schema publication.** For new or changed schemas,
+structured interfaces, and domain models, design workflows inspect UMF core,
+extensions and domain packs and reuse suitable definitions by default. A specific
+gap justifies an alternative. Exact shapes have one authoritative source;
+Contracts explain behavior and compatibility. Versioned local schema references
+are discoverable by the publishing pipeline, which renders them using the UMF
+schema browser with source provenance and definition links. Publication validates
+references and freshness; rendering does not establish semantic conformance.
+Narrative-only work requires no model or runtime dependency.
+
 #### P2
 
 **R-10: Catalog versioning.** Artifact-type changes are reviewable; consumers
@@ -347,7 +360,7 @@ package uses whatever metadata format its target requires.
 | Align mode produces noisy or wrong findings | Medium | High | The routing skill's alignment behavior is a primary development focus; quality criteria in templates are explicit and testable; ratchets on finding precision |
 | Old HELIX work leaks runtime coupling into new content | Medium | Medium | Keep the product boundary explicit; automated check on each release for runtime refs in skill body |
 | Documentation staleness | Medium | Medium | The `align` workflow mode catches stale documents; HELIX dogfoods its own catalog |
-| Transferability — HELIX cannot be taught without its creator present | Medium | High | Onboarding doc is P1 deliverable; new-teammate review gates the next release |
+| Transferability — HELIX cannot be taught without its creator present | Medium | High | Onboarding doc is P1 deliverable; verify the documented installation and first-run path with a bounded onboarding scenario |
 
 ## Open Questions
 

@@ -1,19 +1,8 @@
 name: Release auto-tag
 
-# On merge of a `chore(release): vX.Y.Z` PR to main, create and push the
-# release tag automatically from the version the manifests declare at the
-# merge commit. This removes the manual "create a GitHub release" step as
-# a place a tag can be created — which is how v0.13.2 got tagged against a
-# commit whose manifests still said 0.13.1 (release-version-guard.yml only
-# catches that after the tag already exists). With this workflow, a tag is
-# only ever created here, straight from the manifest that was just merged,
-# so it cannot precede a manifest bump.
-#
-# A tag pushed with the default GITHUB_TOKEN does not trigger `on: push: tags`
-# workflows, so the publish workflows are started explicitly after the push.
-#
-# release-version-guard.yml stays in place as a backstop for any tag
-# pushed manually outside this flow (e.g. a hotfix).
+# Release PRs validate all source versions before tagging. A draft UI release
+# may be completed by moving its tag only across version metadata changes.
+# Token-created tags need explicit publish workflow dispatches.
 
 on:
   pull_request:
@@ -42,61 +31,52 @@ jobs:
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          python3 - "$PR_TITLE" <<'PY'
-          import json, re, sys, os
+          TAG=$(python3 -c 'import os,re; m=re.match(r"^chore\(release\): (v\d+\.\d+\.\d+)(?:$|\s)", os.environ["PR_TITLE"]); assert m, "expected chore(release): vX.Y.Z"; print(m[1])')
+          python3 scripts/release-version.py "$TAG"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
-          title = sys.argv[1]
-          m = re.match(r'^chore\(release\): (v\d+\.\d+\.\d+)\b', title)
-          if not m:
-              print(f"::error::PR title does not start with 'chore(release): vX.Y.Z': {title!r}")
-              sys.exit(1)
-          title_tag = m.group(1)
-          title_version = title_tag[1:]
-
-          manifests = {
-              ".claude-plugin/plugin.json": lambda d: d["version"],
-              ".codex-plugin/plugin.json": lambda d: d["version"],
-              ".claude-plugin/marketplace.json":
-                  lambda d: next(p["version"] for p in d["plugins"] if p["name"] == "helix"),
-          }
-          bad = []
-          for path, get in manifests.items():
-              try:
-                  v = get(json.load(open(path)))
-              except (OSError, KeyError, StopIteration, json.JSONDecodeError) as e:
-                  bad.append(f"{path}: could not read version ({e})")
-                  continue
-              if v != title_version:
-                  bad.append(f"{path}: {v!r} != PR title version {title_version!r}")
-          if bad:
-              print("::error::manifest version(s) do not match the PR title, refusing to tag:")
-              for b in bad:
-                  print(f"::error::  {b}")
-              sys.exit(1)
-
-          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-              f.write(f"tag={title_tag}\n")
-          print(f"OK: tagging {title_tag}")
-          PY
-
-      - name: Skip if tag already exists
-        id: check
-        run: |
-          if git rev-parse -q --verify "refs/tags/${{ steps.version.outputs.tag }}" >/dev/null; then
-            echo "::error::tag ${{ steps.version.outputs.tag }} already exists"
-            exit 1
-          fi
-
-      - name: Create and push tag
+      - name: Create tag or complete a draft UI release
         env:
+          GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.version.outputs.tag }}
           PR_TITLE: ${{ github.event.pull_request.title }}
           MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "$TAG" -m "$PR_TITLE" "$MERGE_SHA"
-          git push origin "$TAG"
+          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            # Only a quarantined UI release may have its tag corrected, and
+            # only when the entire intervening diff is version metadata.
+            test "$(gh release view "$TAG" --json isDraft --jq .isDraft)" = true
+            OLD=$(git rev-parse "refs/tags/$TAG")
+            git merge-base --is-ancestor "$TAG^{commit}" "$MERGE_SHA"
+            git diff --name-only "$TAG^{commit}" "$MERGE_SHA" > /tmp/release-paths
+            python3 - <<'PYCODE'
+          from pathlib import Path
+          import re, subprocess, os
+          allowed = {'.claude-plugin/plugin.json', '.codex-plugin/plugin.json',
+                     '.claude-plugin/marketplace.json', 'tools/documentor/pyproject.toml',
+                     'tools/documentor/src/documentor/__init__.py', 'tools/documentor/uv.lock'}
+          changed = set(Path('/tmp/release-paths').read_text().splitlines())
+          guide_pages = {'tools/documentor/docs/guide/developer/' + name + '.md'
+                         for name in ('architecture', 'developer-guide', 'embedding', 'cli')}
+          assert changed and changed <= allowed | guide_pages, f"Release scope changed: {changed - allowed - guide_pages}"
+          for path in changed & guide_pages:
+              def body(ref):
+                  text = subprocess.check_output(['git', 'show', ref + ':' + path], text=True)
+                  return re.sub(r'^<!-- helix:source .* -->\n', '', text, flags=re.M)
+              assert body(os.environ['TAG']) == body(os.environ['MERGE_SHA']), f"Guide body changed: {path}"
+          PYCODE
+            git tag -f -a "$TAG" -m "$PR_TITLE" "$MERGE_SHA"
+            git push --force-with-lease="refs/tags/$TAG:$OLD" origin "refs/tags/$TAG"
+            # Hide old assets until the publisher replaces them on this draft.
+            gh release view "$TAG" --json assets --jq '.assets[].name' | while IFS= read -r asset; do
+              gh release delete-asset "$TAG" "$asset" --yes
+            done
+          else
+            git tag -a "$TAG" -m "$PR_TITLE" "$MERGE_SHA"
+            git push origin "$TAG"
+          fi
 
       - name: Start the publish workflows on the tag
         env:

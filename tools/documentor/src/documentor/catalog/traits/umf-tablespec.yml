@@ -1,0 +1,20 @@
+id: umf-tablespec
+title: Upstream UMF TableSpec tables
+detect:
+  - files: "**/*.yaml"
+    contains: '(?s)\A(?=.*^version: ["\x27]?1\.0)(?=.*^table_name:)(?=.*^columns:)'
+    weight: 0.7
+  - files: "**/*.yml"
+    contains: '(?s)\A(?=.*^version: ["\x27]?1\.0)(?=.*^table_name:)(?=.*^columns:)'
+    weight: 0.7
+audiences: [data]
+pages:
+  - audience: data
+    id: tables
+    title: Tables
+    kind: reference
+    task: Look up columns, keys, foreign keys, and the entity diagram from upstream UMF TableSpec sources.
+    generated: umf-tables
+watch: ["**/*.yaml", "**/*.yml"]
+handling:
+  never_publish: [sample values, spec descriptions verbatim]
