@@ -1,7 +1,7 @@
 ---
 title: "Design: UMF schemas and their published browser"
 slug: design-umf-schemas
-weight: 450
+weight: 460
 activity: "Design"
 source: "02-design/design-umf-schemas.md"
 generated: true

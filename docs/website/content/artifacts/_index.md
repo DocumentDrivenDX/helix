@@ -27,12 +27,14 @@ _Auto-generated from `helix/` by `documentor record`._
 
 - [Architecture](/artifacts/architecture/)
 - [Architecture walkthrough: authoring a project document](/artifacts/architecture-walkthrough/)
+- [Concourse microsite integration](/artifacts/concourse-integration/)
 - [Data Design — HELIX Bead Tracker](/artifacts/data-design/)
 - [Design: Agent Diagnostics with OpenTelemetry](/artifacts/design-agent-diagnostics/)
 - [Desired-state authoring: goal and approach](/artifacts/design-desired-state-authoring/)
 - [Design: Formal Methods Concern](/artifacts/design-formal-methods/)
 - [Design: UMF schemas and their published browser](/artifacts/design-umf-schemas/)
 - [UX behavior and packaged design systems](/artifacts/design-ux-governance/)
+- [Tempo-driven HELIX and documentor corrections](/artifacts/plan-tempo-documentor-gaps/)
 - [Security Architecture — DDx Agent Execution Surface](/artifacts/security-architecture/)
 - [HELIX solution overview](/artifacts/solution-overview/)
 - [adr](/artifacts/adr/) _(14 items)_

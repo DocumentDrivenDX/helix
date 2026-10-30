@@ -8,6 +8,11 @@ on:
   push:
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      protected_mirror:
+        description: Deploy the approved protected HELIX mirror (requires prepared infrastructure).
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -42,6 +47,22 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Check out shared Concourse integration
+        uses: actions/checkout@v4
+        with:
+          repository: DocumentDrivenDX/concourse
+          ref: 94b28443af69163988a8fde1c7286c817cbc5324
+          path: .tools/concourse
+      - name: Set up Bun for Concourse assets
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.3
+      - name: Install Concourse browser assets
+        run: |
+          cd .tools/concourse
+          bun run build:browser
+          bun src/cli/install-hugo.ts ../../website
 
       - name: Install DDx
         run: curl -fsSL https://raw.githubusercontent.com/DocumentDrivenDX/ddx/main/install.sh | bash
@@ -116,6 +137,30 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: website/public
+
+      - name: Build authenticated Cloudflare mirror
+        if: github.event_name == 'workflow_dispatch' && inputs.protected_mirror
+        working-directory: website
+        env:
+          HUGO_PARAMS_CONCOURSE_ENABLED: 'true'
+        run: hugo --gc --minify --baseURL "https://helix.synaptiq.tools/" --destination ../protected-public
+
+      - name: Deploy authenticated Cloudflare mirror
+        if: github.event_name == 'workflow_dispatch' && inputs.protected_mirror
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.156.0'
+          command: pages deploy protected-public --project-name=helix-internal --branch=main
+
+      - name: Verify mirror admission wall
+        if: github.event_name == 'workflow_dispatch' && inputs.protected_mirror
+        run: |
+          bun .tools/concourse/src/cli/check-access.ts \
+            https://helix.synaptiq.tools/ \
+            https://helix.synaptiq.tools/index.json \
+            https://helix-internal.pages.dev/
 
   deploy:
     environment:
