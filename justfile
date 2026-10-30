@@ -1,7 +1,7 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-verification-contract test-ux-governance test-plan-execution test-modularity test-agent-diagnostics test-formal-methods test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable test-headline-sync test-deck-render test-demos test-innsigle test-eval-checks
+test: test-release-version test-verification-contract test-ux-governance test-plan-execution test-modularity test-agent-diagnostics test-formal-methods test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable test-headline-sync test-deck-render test-demos test-innsigle test-eval-checks
 
 # documentor (tools/documentor), the host tool behind the guide mode: its own suite and the
 # packaged catalog's match with workflows/. CI runs it in .github/workflows/documentor.yml.
@@ -85,8 +85,13 @@ validate-artifact-schemas:
 
 # Check internal links + images in a production-shaped build (with the /helix base path)
 check-website-links:
+    uv run --project tools/documentor documentor schemas --root .
     cd website && hugo --gc --minify --baseURL "https://documentdrivendx.github.io/helix/" >/dev/null
     python3 scripts/check-website-links.py
+
+# Exercise the real UMF browser and definition links beneath /helix/.
+test-schema-browser:
+    cd website && npm run test:schemas
 
 # Install HELIX via DDx (refresh the local snapshot)
 install:
@@ -179,3 +184,7 @@ test-ux-governance:
 # Requirement-linked verification, conditional supplements and naming contracts.
 test-verification-contract:
     python3 tests/test_verification_contract.py
+
+# Release versions and publication ordering regression checks
+test-release-version:
+    python3 tests/test_release_version.py

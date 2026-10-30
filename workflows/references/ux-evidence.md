@@ -10,14 +10,14 @@ not every screen or control in the product.
 
 ## Coverage format
 
-| Pattern | Disposition | AC IDs or Reason |
-|---|---|---|
-| navigation | covered | US-001-AC1 |
-| keyboard-overlays | covered | US-001-AC1 |
-| async-actions | not-applicable | No mutation or network action in this slice |
-| forms | not-applicable | No form in this slice |
-| data-states | not-applicable | Static content only |
-| destructive-actions | not-applicable | No destructive operation |
+| Pattern | Disposition | AC IDs or Reason | Evidence |
+|---|---|---|---|
+| navigation | covered | US-001-AC1 | 2026-10-28 · `pnpm check:ui --route /imports` · CI artifact `ui-check`, kept 400 days |
+| keyboard-overlays | covered | US-001-AC1 | 2026-10-28 · `pnpm check:a11y` · DDx execution record `20261028T141200-ab12cd34` |
+| async-actions | not-applicable | No mutation or network action in this slice | none |
+| forms | not-applicable | No form in this slice | none |
+| data-states | not-applicable | Static content only | none |
+| destructive-actions | not-applicable | No destructive operation | none |
 
 Use exactly one row for each category and one UX Coverage section. covered
 rows contain one or more stable numeric US-<n>-AC<m> IDs, comma-separated,
@@ -25,6 +25,21 @@ resolving to this STP's Acceptance Criteria Test Mapping. That existing mapping
 owns test names, asserted behavior, @covers citation and file/command; do not
 create a second competing test matrix. not-applicable rows explain the absent
 pattern in this bounded slice. A category may reference multiple ACs.
+
+The Evidence column is optional, and tables without it stay valid. It cites
+the presentation or accessibility check run behind a row, so the run can be
+found again:
+
+- a report committed to the repo: its path;
+- a run whose output is not committed: the run date, the exact command, and
+  where the report is kept (a CI artifact, a DDx execution record, a shared
+  store).
+
+Either way the report must stay open to reviewers for the project's review
+retention period, as the [verification contract](../concerns/verification/practices.md)
+asks of run references. A local or gitignored folder alone is not a citation:
+copy the report to a durable location before citing it. `none` is right for a
+not-applicable row and for a covered row whose proof is the mapped tests alone.
 
 The instance validator checks row completeness, references and populated mapped
 test/assertion/file fields. It does not establish that a referenced test exists,

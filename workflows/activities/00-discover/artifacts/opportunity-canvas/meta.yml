@@ -28,15 +28,11 @@ validation:
 
   quality_checks:
     - check: problem_validated
-      description: Problem has evidence, not just assumption
+      description: Problem names a specific user need and distinguishes evidence from assumptions
       severity: blocking
 
     - check: segments_specific
       description: Customer segments are named precisely
-      severity: blocking
-
-    - check: metrics_measurable
-      description: Key metrics have numeric targets
       severity: blocking
 
     - check: decision_documented

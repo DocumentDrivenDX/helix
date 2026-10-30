@@ -157,9 +157,8 @@ material gaps; stop when the artifact is ready.
 1. Challenge every assumption
 2. Check for missing requirements, edge cases, and failure modes
 3. Verify non-goals actually exclude what they should
-4. Ensure success metrics are measurable
-5. Check that feature specs cover the PRD requirements
-6. Verify user stories have deterministic acceptance criteria
+4. Check that feature specs cover the PRD requirements
+5. Verify user stories have deterministic acceptance criteria
 
 ### Vision-specific critique
 
@@ -187,8 +186,9 @@ If you drafted or updated the PRD, also check:
    product? "Users don't have X" is weak. Quantify the pain.
 2. **Goals**: Are they state changes or activities? "Build a dashboard" is an
    activity, not a goal.
-3. **Success Metrics**: Does every metric have a numeric target and a named
-   measurement method? If either is missing, the metric isn't usable.
+3. **Learning indicators**: Do retained indicators name an observation method,
+   with unsupported targets marked as hypotheses? Keep uptake thresholds out of
+   engineering acceptance; preserve separately sourced human business decisions.
 4. **Non-Goals**: Would someone on the team plausibly argue for including each
    excluded item? If not, the non-goal is a strawman.
 5. **P0 Requirements**: Could someone write an acceptance test for each one?

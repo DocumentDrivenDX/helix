@@ -30,11 +30,64 @@ Domain and technology concerns are project-specific. The source-code baseline
 below is an applicability obligation, independent of optional concern selection.
 A missing concerns file does not make source feature work execution-ready.
 
+## New-project quality defaults
+
+Genesis and Frame seed applicable quality concerns in a new `concerns.md` with
+`source: shipped-default`. Apply these to the intended product even before its
+first source file exists:
+
+| Product signal | Initial quality concerns |
+|---|---|
+| Software will be implemented | `testing`, `verification`, `modularity-and-encapsulation`, `code-shape-ceilings` |
+| Running application or service | `o11y-otel` |
+| Interactive web UI | `a11y-wcag-aa`; resolve `e2e-framework` through the slot registry (default `e2e-playwright`) |
+| Relational storage | `relational-data-modeling` |
+
+Keep operator-selected slot fillers. Present the seeded list for pruning and
+record each omission with its applicability reason or selected replacement.
+These defaults do not silently expand an existing project's selections.
+The source-code baseline below still applies: pruning cannot waive its evidence
+floor without the explicit exception contract. The initial selection source is
+`shipped-default`; record baseline applicability evidence alongside it. Source-free
+work records non-applicability instead of acquiring software quality obligations.
+
+## Project-owned slot fillers
+
+A slot without a shipped member/default is intentional: HELIX need not select a
+database engine or cloud provider for every project. For Entra ID, Azure SQL,
+and Azure Static Web Apps plus Functions, use project-owned fillers until a
+reusable concern has verified practices. A bare row with an invented library ID
+is insufficient.
+
+1. Record `auth-provider: auth-entra-id`, `datastore: datastore-azure-sql`, and
+   `deploy-target: deploy-azure-swa-functions` in `concerns.local.yml` when these
+   are the operator's choices. This is an override of needed slots, not three
+   additional selections alongside their defaults.
+2. Create project-owned `concern.md` and `practices.md` for each under
+   `docs/helix/01-frame/concerns/<id>/`. Give each concern Category, Areas, Slot,
+   Boundary, Components, Drift Signals, When to use, and Artifact Impact sections.
+   Link both files from the Active Concerns row and mark `source: operator-override`.
+3. Resolve these explicitly linked local files before the library path when
+   composing practices. A missing file is an unresolved concern, not evidence
+   that the selected practice exists. Runtime loaders must support those local
+   paths or the host must load them explicitly; a row alone is not automatic
+   runtime integration.
+4. In those practices, define and verify the project's identity boundary and
+   tenant policy, database access/migrations/restore policy, hosting routes and
+   configuration, and deployment/rollback evidence. Cite the project's governing
+   architecture and test plan. Do not invent provider-specific guarantees.
+
+This keeps technology choices concrete without shipping untested Azure advice
+as a universal default. Library contribution is a later, independently verified
+change; local fillers compose with `auth`, `authorization-model`, and
+`relational-data-modeling` rather than replacing them.
+
 ## Source-code baseline (all autonomy levels)
 
 For handwritten source, including libraries and single-file programs, select
 `modularity-and-encapsulation` (`areas: all`) at low, medium, and high autonomy.
-Record the applicability evidence and selection source as `baseline-policy`;
+Record the applicability evidence and selection source (`shipped-default` for a new
+quality-default selection; `baseline-policy` for a later baseline adoption);
 autonomy changes pauses, never this obligation. Source-free projects record a
 reason for non-applicability; unknown applicability must be resolved before
 source feature work is ready. Genesis records applicability or an unresolved
@@ -114,6 +167,7 @@ label or assign multiple labels.
    choice and is implemented by the context-digest loader.
 3. Filter to concerns matching the current work item's area scope.
 4. For each matched concern, load
+   the explicitly linked project-owned practices when selected; otherwise load
    `workflows/concerns/<concern-name>/practices.md` from the library.
 5. Apply project overrides (listed under `## Project Overrides` in the
    concerns document) on top of library practices.

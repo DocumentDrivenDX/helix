@@ -12,7 +12,6 @@ The Frame activity establishes the project foundation by focusing on understandi
 2. **Document Extension Over Creation**: Always extend existing documents when possible
 3. **Specification Completeness**: No ambiguity in requirements before proceeding
 4. **Stakeholder Alignment**: Everyone agrees on what we're building and why
-5. **Measurable Success**: Metrics have specific targets and measurement methods
 
 ## Document Management Rules
 
@@ -76,7 +75,6 @@ Before creating any new document:
 ### Exit Requirements (Must Complete)
 - [ ] PRD states a clear problem and intended outcome
 - [ ] All P0 requirements have detailed specifications
-- [ ] Success metrics are specific and measurable
 - [ ] User stories have clear acceptance criteria
 - [ ] No [NEEDS CLARIFICATION] markers remain
 - [ ] Stakeholders aligned and RACI complete
@@ -120,7 +118,7 @@ Technical decisions belong in: Design activity
 
 Correct approach:
 1. Document the requirement or constraint
-2. Define success criteria
+2. Define testable delivery acceptance
 3. Leave implementation details for Design
 
 Example:
@@ -172,7 +170,7 @@ Only create new if:
 1. Begin with problem discovery and user research
 2. Check for existing documentation to extend
 3. Identify all stakeholders early
-4. Define measurable success criteria
+4. Define testable delivery acceptance
 5. Document assumptions explicitly
 
 ### During Frame Activity
@@ -187,7 +185,6 @@ Only create new if:
 - Validate stakeholder alignment
 - Ensure no technical decisions included
 - Confirm all P0 items are achievable
-- Check that success metrics are measurable
 
 ## Integration with Other Activities
 
@@ -195,14 +192,14 @@ Only create new if:
 - Ensure all functional requirements clear
 - Non-functional requirements quantified
 - Constraints documented
-- Success criteria defined
+- Delivery acceptance defined
 - No solution bias in requirements
 
 ### Information Design Needs
 Frame provides to Design:
 - Clear problem statements
 - Detailed requirements
-- Success metrics
+- Testable delivery acceptance
 - User personas
 - Constraints and principles
 
@@ -210,9 +207,8 @@ Frame provides to Design:
 
 1. "What and Why, not How" - Solutions come later
 2. "Extend, don't duplicate" - Work within existing docs
-3. "Measure everything" - Vague requirements cause failure
-4. "Users first" - Real personas, real needs
-5. "Complete before proceeding" - Ambiguity multiplies downstream
+3. "Users first" - Real personas, real needs
+4. "Complete before proceeding" - Ambiguity multiplies downstream
 
 ## Success Indicators
 
@@ -221,7 +217,6 @@ You're succeeding when:
 - All requirements have clear acceptance criteria
 - Existing documents are extended, not duplicated
 - Stakeholders understand and agree on scope
-- Success metrics are specific and measurable
 - The team resists jumping to implementation
 
 Remember: Frame activity prevents expensive mistakes. Time invested here saves multiples downstream. Guide teams to clarity before code.

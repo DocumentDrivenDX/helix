@@ -134,7 +134,7 @@ if python3 -c 'import yaml' 2>/dev/null; then
   # With no publish.out, pages go to guide/ beside the HELIX root, however deep it is.
   python3 - <<'PY'
 from documentor.lib import publish_out
-assert publish_out({"flows": [{"root": "idrflow/docs/helix/"}]}) == "idrflow/docs/guide"
+assert publish_out({"flows": [{"root": "pipeline/docs/helix/"}]}) == "pipeline/docs/guide"
 assert publish_out({"flows": [{"root": "docs/helix"}]}) == "docs/guide"
 assert publish_out({"flows": [{"root": "docs/helix"}], "publish": {"out": "site/"}}) == "site"
 PY

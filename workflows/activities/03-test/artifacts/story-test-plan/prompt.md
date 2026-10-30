@@ -71,6 +71,14 @@ record untested limits explicitly. Project strategy belongs in Test Plan and
 story AC-to-test rows remain here. Do not substitute a schema parse or a mock
 exporter for actual OTLP receiver evidence on the real instrumentation path.
 
+## Journey Scenarios
+
+Optional. When a user flow or journey map spans this story, add one row per
+journey that passes through it: the journey's name, its path as the user
+flow's named transitions, the AC IDs it proves (they may belong to neighboring
+stories), and the end-to-end test and command that walk it. The AC mapping
+still owns per-criterion tests.
+
 ## UX Coverage
 
 For affected interactive UI work, apply ux-interaction-patterns and
@@ -80,14 +88,18 @@ covered category references the existing AC mapping, which owns test names,
 assertions, @covers citations and commands. Mark absent patterns not-applicable
 with concrete reasons; runtime exceptions are reviewed in verification evidence.
 
-| Pattern | Disposition | AC IDs or Reason |
-|---|---|---|
-| navigation | covered / not-applicable | [stable AC IDs or exclusion reason] |
-| keyboard-overlays | covered / not-applicable | [stable AC IDs or exclusion reason] |
-| async-actions | covered / not-applicable | [stable AC IDs or exclusion reason] |
-| forms | covered / not-applicable | [stable AC IDs or exclusion reason] |
-| data-states | covered / not-applicable | [stable AC IDs or exclusion reason] |
-| destructive-actions | covered / not-applicable | [stable AC IDs or exclusion reason] |
+| Pattern | Disposition | AC IDs or Reason | Evidence |
+|---|---|---|---|
+| navigation | covered / not-applicable | [stable AC IDs or exclusion reason] | [check run, or none] |
+| keyboard-overlays | covered / not-applicable | [stable AC IDs or exclusion reason] | [check run, or none] |
+| async-actions | covered / not-applicable | [stable AC IDs or exclusion reason] | [check run, or none] |
+| forms | covered / not-applicable | [stable AC IDs or exclusion reason] | [check run, or none] |
+| data-states | covered / not-applicable | [stable AC IDs or exclusion reason] | [check run, or none] |
+| destructive-actions | covered / not-applicable | [stable AC IDs or exclusion reason] | [check run, or none] |
+
+The Evidence column is optional. It cites the presentation or accessibility
+check run behind a row: a committed report by its path, or, for a run whose
+output is not committed, the run date, command and where the report is kept.
 
 Structure checks only declared coverage integrity. Verify real test source and
 observed outcomes before completion; SDK lint/audit is separate evidence.

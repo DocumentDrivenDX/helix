@@ -17,15 +17,15 @@ kind: product  # `product` (default) frames general product requirements; `data`
 ## Summary
 
 [This section should work as a standalone 1-pager. Include: what we're
-building, who uses it, what problem it solves, the solution approach, and the
-top 2-3 success metrics. Write this last — it should be a distillation of the
+building, who uses it, what problem it solves, and the solution approach. Write
+this last — it should be a distillation of the
 full PRD, not an introduction. Someone who reads only this section should
 understand the product well enough to decide whether to read the rest.
 
 **(kind: data)** Frame this as a standalone 1-pager for the **data product**:
 what data we are building, who consumes it, the business problem it solves,
 the data solution approach (sources, medallion layer strategy, consumption
-shape), and the top 2-3 success metrics (freshness, quality, cost).]
+shape), and relevant freshness, quality, and cost requirements.]
 
 ## Problem and Goals
 
@@ -47,20 +47,19 @@ is 24 hours and source data changes hourly."]
 
 ### Success Metrics
 
+[Product and market goals guide learning and prioritization. Adoption, user
+counts, revenue, retention, and satisfaction targets do not imply delivery
+gates. Label unvalidated targets as hypotheses; record explicit human business
+decisions separately with their source and affected action.]
+
 | Metric | Target | Measurement Method |
 |--------|--------|--------------------|
-| [Metric] | [Numeric target] | [Named tool or process] |
+| [Metric] | [Supported target or explicit hypothesis] | [Named tool or process] |
 
-**(kind: data)** When `kind: data`, frame metrics for the data product
-itself (throughput, latency, quality score, cost per GB). Include a baseline
-and cadence column:
-
-| Metric | Target | Baseline | Measurement Method | Cadence |
-|--------|--------|----------|--------------------|---------|
-| [Throughput] | [e.g., 1M rows/day] | [Current: 100K rows/day] | [COUNT(*) from production table] | Daily |
-| [Latency] | [e.g., ≤1 hour end-to-end] | [Current: 4 hours] | [MAX(ingestion_timestamp) - MAX(source_timestamp)] | Hourly |
-| [Quality Score] | [e.g., ≥98%] | [Current: 85%] | [Automated quality checks pass rate] | Daily |
-| [Cost per GB] | [e.g., $0.05/GB/month] | [Current: $0.12/GB/month] | [DBU spend / data volume] | Monthly |
+**(kind: data)** Record useful in-use indicators (such as consumer satisfaction
+or cost trends) and observation methods here. Required throughput, latency,
+freshness, and quality thresholds belong in Requirements with verification
+methods; reference them rather than defining duplicate targets.
 
 ### Non-Goals
 
@@ -80,6 +79,21 @@ Deferred items tracked in `docs/helix/parking-lot.md`.
 ### Secondary Persona: [Name]
 
 [Same structure]
+
+### User Segments
+
+[Optional, as is User Needs below: for a product people use directly. One row per segment, named by who they
+are. Rate the evidence apart from the confidence.]
+
+| User | Context | Needs | Evidence | Confidence | Status |
+|------|---------|-------|----------|------------|--------|
+| [Who] | [Where and how they work; device, expertise, access] | [Rows of User Needs, by name] | [Research plan, support data, analytics, or none] | [high / medium / low] | [assumed / validated / invalidated] |
+
+### User Needs
+
+| Need | Importance | Evidence | Confidence | Status |
+|------|------------|----------|------------|--------|
+| [What the user needs, in their words] | [high / medium / low] | [Research plan, support data, analytics, or none] | [high / medium / low] | [assumed / validated / invalidated] |
 
 ### (kind: data) Data Consumers
 
@@ -243,5 +257,7 @@ questions here over `[TBD]` markers scattered through the document.]
 
 ## Success Criteria
 
-[What must be true to call the initiative successful. These should be
-observable outcomes, not activities.]
+[Delivery acceptance: observable capabilities and engineering readiness that
+can be verified with tests, fixtures, or bounded evaluations. Keep product and
+market targets in Success Metrics. Record explicit human investment or launch
+conditions separately in Constraints or the Business Case, with their source.]

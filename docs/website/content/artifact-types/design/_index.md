@@ -27,4 +27,6 @@ Decide how to build it. Capture trade-offs, contracts, and architecture decision
   {{< card link="data-architecture/" title="Data Architecture" subtitle="Captures the data pipeline architecture, medallion topology, streaming vs batch semantics, processing frameworks, governance model, and quality contracts. The…" >}}
   {{< card link="design-system/" title="Design System" subtitle="The per-project interface-system instance: the concrete UX/design-system decisions this app commits to. It captures the navigation model and active-state conve…" >}}
   {{< card link="solution-overview/" title="Solution Overview" subtitle="Explain the overall solution to a new developer before they read detailed designs." >}}
+  {{< card link="user-flow/" title="User Flow" subtitle="How people move between the views of one feature: the views (screens, modals, panels, voice or chat turns), the actions that connect them, the decision points,…" >}}
+  {{< card link="wireframe/" title="Wireframe" subtitle="The annotated wireframe for one view of a user flow: its modality (screen, voice or chat), a layout per size class with each element annotated, the states the…" >}}
 {{< /cards >}}

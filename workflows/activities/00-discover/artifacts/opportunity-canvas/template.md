@@ -75,7 +75,6 @@ ddx:
 | Problem validated | Pass / Risk / Fail | [Evidence or gap] |
 | Segment reachable | Pass / Risk / Fail | [Evidence or gap] |
 | Value differentiated | Pass / Risk / Fail | [Evidence or gap] |
-| Metrics measurable | Pass / Risk / Fail | [Evidence or gap] |
 | Risks bounded | Pass / Risk / Fail | [Evidence or gap] |
 
 **Decision**: Go | Pivot | No-Go

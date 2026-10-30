@@ -12,6 +12,7 @@ from scripts import refresh_context_digests as digests
 
 VALIDATOR = ROOT / 'skills/helix/scripts/validate-instance.py'
 STP = ROOT / 'workflows/activities/03-test/artifacts/story-test-plan/example.md'
+UX_FIXTURES = ROOT / 'tests/fixtures/validate-instance/ux'
 PATTERNS = ('navigation', 'keyboard-overlays', 'async-actions', 'forms', 'data-states', 'destructive-actions')
 
 
@@ -127,6 +128,72 @@ class UXGovernanceTests(unittest.TestCase):
         for name in ('example.md', 'example-packaged.md'):
             code, report = self.validate((ROOT / 'workflows/activities/02-design/artifacts/design-system' / name).read_text(), 'design-system')
             self.assertEqual(code, 0, report)
+
+    def test_new_ux_types_are_optional_and_examples_pass(self):
+        for activity, kind in (('01-frame', 'user-journey-map'), ('02-design', 'user-flow'), ('02-design', 'wireframe')):
+            with self.subTest(kind=kind):
+                directory = ROOT / 'workflows/activities' / activity / 'artifacts' / kind
+                self.assertIn('optional: true', (directory / 'meta.yml').read_text())
+                code, report = self.validate((directory / 'example.md').read_text(), kind)
+                self.assertEqual(code, 0, report)
+
+    def test_optional_section_fixtures_pass(self):
+        sections = {
+            'research-plan': '## Findings', 'principles': '## Experience Principles',
+            'prd': '### User Needs', 'feature-specification': '## Task Model',
+            'solution-design': '### Experience Traceability', 'adr': '## Validation',
+            'design-system': '### Destinations by Size Class', 'story-test-plan': '## Journey Scenarios',
+            'metrics-dashboard': '## Journey Funnels',
+        }
+        for kind, heading in sections.items():
+            with self.subTest(kind=kind):
+                body = (UX_FIXTURES / f'{kind}.md').read_text()
+                self.assertIn(heading, body)
+                code, report = self.validate(body, kind)
+                self.assertEqual(code, 0, report)
+
+    def test_findings_claim_needs_source(self):
+        body = (UX_FIXTURES / 'research-plan.md').read_text()
+        row = next(line for line in body.splitlines() if line.startswith('| A renamed column'))
+        cells = row.split('|')
+        cells[2] = ' '
+        code, report = self.validate(body.replace(row, '|'.join(cells)), 'research-plan')
+        self.assertEqual(code, 1, report)
+        self.assertTrue(any('Source' in f['message'] and f['severity'] == 'blocking' for f in report['findings']), report)
+        legacy = body[:body.index('## Findings')] + body[body.index('## Completion Criteria'):]
+        self.assertEqual(self.validate(legacy, 'research-plan')[0], 0)
+
+    def test_findings_source_column_is_read_by_header(self):
+        body = (UX_FIXTURES / 'research-plan.md').read_text()
+        start, end = body.index('### Claims'), body.index('## Completion Criteria')
+
+        def with_findings(text):
+            return self.validate(body[:start] + text + '\n' + body[end:], 'research-plan')
+
+        def source_failure(report):
+            return any(f['check'] == 'findings_sources' and f['severity'] == 'blocking' for f in report['findings'])
+
+        claims = '### Claims\n\n| Claim | {} | Basis |\n|---|---|---|\n| Renamed columns break imports | {} | Observed in 4 of 6 sessions |\n'
+        code, report = self.validate(body[:start] + '### Claims\n\n| Claim | Basis | Confidence |\n|---|---|---|\n'
+                                     '| Renamed columns break imports | Observed in 4 of 6 sessions | medium |\n\n' + body[end:], 'research-plan')
+        self.assertEqual(code, 1, report)
+        self.assertTrue(source_failure(report), report)
+        reordered = '### Claims\n\n| Claim | Basis | Source |\n|---|---|---|\n| Renamed columns break imports | Observed in 4 of 6 sessions | {} |\n'
+        code, report = with_findings(reordered.format(' '))
+        self.assertEqual(code, 1, report)
+        self.assertTrue(source_failure(report), report)
+        self.assertEqual(with_findings(reordered.format('P1–P6, sessions 1–6'))[0], 0)
+        unrelated = claims.format('Source', 'P1–P6') + '\n### Sessions\n\n| Session | Notes |\n|---|---|\n| 1 | |\n'
+        code, report = with_findings(unrelated)
+        self.assertEqual(code, 0, report)
+
+    def test_ux_coverage_evidence_column_is_optional(self):
+        body = (UX_FIXTURES / 'story-test-plan.md').read_text()
+        lines = body.splitlines()
+        start = lines.index('## UX Coverage')
+        without = lines[:start] + ['|'.join(line.split('|')[:4]) + '|' if line.startswith('|') else line for line in lines[start:]]
+        self.assertEqual(self.validate('\n'.join(without) + '\n')[0], 0)
+        self.assert_ux_failure('\n'.join(line for line in lines if not line.startswith('| forms |')) + '\n')
 
     def digest(self, selected, area='ui'):
         library = digests.build_concern_library(ROOT, selected, {})

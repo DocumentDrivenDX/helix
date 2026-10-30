@@ -56,7 +56,7 @@ erDiagram
 ```
 
 ### Business Rules
-1. [Rule]: [Description and implementation impact]
+- **BR-1** — [Rule]: [Description and implementation impact]
 
 ## System Decomposition
 
@@ -91,8 +91,19 @@ belong in Architecture or ADRs.
 |---------------|-----------|----------------|---------------|
 | FR-001 | [Component] | [How addressed] | [How tested] |
 
+### Experience Traceability
+
+[Optional. For a feature people use directly: the chain from each need to the view that
+serves it. Needs are PRD User Needs rows and tasks are Task Model rows, by
+name.]
+
+| Need | Task | Flow | View |
+|------|------|------|------|
+| [User Needs row] | [Task Model row] | [UF-XXX] | [UF-XXX-NN-view-name] |
+
 ### Gaps
 - [ ] [Requirement not fully addressed]: [Mitigation]
+- [ ] [Need or task with no flow or view]: [Mitigation]
 
 ## Concern Alignment
 
@@ -141,3 +152,11 @@ in Architecture and feature behavior in Solution Design.]
 vector source and rendered export; record audience, takeaway, semantic source,
 deliberate omissions, rebuild instructions, and full-size/preview review evidence.
 Keep implementation paths in adjacent prose and preserve architectural meaning.]
+
+## Schema Basis (when applicable)
+
+Follow `workflows/references/umf-schemas.md`. Name the inspected UMF core,
+extensions/domain packs and versions; what is reused/composed/extended; or the
+specific gap justifying an alternative. Reference the authoritative Contract
+and source through `ddx.schemas`; explain unsupported semantics and tests.
+Omit this section for work with no schema, structured interface, or domain model.

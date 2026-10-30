@@ -26,7 +26,7 @@ from pathlib import Path
 
 import yaml
 
-from documentor.lib import config_of, incidental, load_traits, matching, repository_files, significant
+from documentor.lib import config_of, helix_root, incidental, load_traits, matching, repository_files, significant
 
 MAX_BYTES = 1_000_000
 
@@ -105,6 +105,26 @@ def proposal(proposed: list[Score]) -> dict:
     return block
 
 
+
+def project_profile(root: Path, files: list[str], block: dict) -> None:
+    """Conservative init suggestions; the operator's recorded publish block remains authoritative."""
+    publish = block["publish"]
+    design_root = helix_root(config_of(root)).rstrip("/") + "/"
+    if any(f.startswith(design_root) and f.endswith(".md") for f in files):
+        code = [f for f in files if Path(f).suffix in {".py", ".go", ".ts", ".tsx", ".js", ".rs", ".java", ".cs"}
+                and not f.startswith(("docs/", "scripts/", "tests/", ".", "workflows/"))]
+        if not code:
+            publish.setdefault("audiences", [])
+            if not publish["audiences"]:
+                publish["audiences"].append("developer")
+            if "developer" in publish["audiences"]:
+                publish["skip"] = ["developer/walkthrough", "developer/developer-guide"]
+    pipeline = any(Path(f).name in {"dbt_project.yml", "pipeline.yaml", "pipeline.yml"} for f in files)
+    pipeline |= any("pipeline" in t or t in {"dbt", "databricks-jobs"} for t in publish.get("traits", []))
+    if "umf-tablespec" in publish.get("traits", []) and not pipeline:
+        publish["data_mode"] = "operational"
+
+
 def trait_pages(traits: list[dict]) -> dict[str, list[dict]]:
     """The pages the traits add, by audience."""
     pages: dict[str, list[dict]] = {}
@@ -157,7 +177,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.format == "text":
         print(report(root, scores, args.threshold, loose))
     else:
-        data = proposal(proposed) | {
+        block = proposal(proposed)
+        project_profile(root, files, block)
+        data = block | {
             "confidence": {s.trait["id"]: s.confidence for s in scores},
             "unmapped": loose,
         }

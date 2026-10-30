@@ -1,6 +1,7 @@
 name: Test
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
   pull_request:
@@ -21,6 +22,9 @@ jobs:
         run: |
           git config --global user.email "ci@helix.dev"
           git config --global user.name "HELIX CI"
+
+      - name: Validate release versioning
+        run: python3 tests/test_release_version.py
 
       - name: Validate deploy artifact graph
         run: bash tests/validate-deploy-artifacts.sh

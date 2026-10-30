@@ -6,7 +6,8 @@ straddles two or more flows declared in the marker (e.g. the prompt
 names a data-pipeline artifact whose blocker is an infra prerequisite).
 
 1. Inspect the requested scope, relevant governing artifacts, and known
-   blockers. Consult work tracking only when it informs the question.
+   engineering blockers. Apply `workflows/principles.md` §Product goals and
+   delivery gates. Consult work tracking only when it informs the question.
 2. Decide conservatively among design, alignment, backfill, polish, runtime
    handoff, wait, guidance, or stop.
 3. Do not dispatch another workflow silently.

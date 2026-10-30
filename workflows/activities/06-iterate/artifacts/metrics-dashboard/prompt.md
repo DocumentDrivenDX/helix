@@ -28,6 +28,11 @@ Use this local resource summary as grounding:
 - Include only the metrics needed to support the decision.
 - Cite the source of each metric and the measurement command or report.
 - Keep raw observability setup and implementation details out of this artifact.
+- When the product has user journeys, add the optional Journey Funnels table:
+  per journey, the completion rate against its baseline, the step people drop
+  off at most, and the diagnosis. Route the fix to the improvement backlog.
+  Cite the analytics export as a source; dated exports are run output and stay
+  out of the repo.
 
 ## Boundary Test
 

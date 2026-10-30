@@ -110,6 +110,8 @@ relationships:
   informs:
     - solution-design
     - story-test-plan
+    - user-flow
+    - user-journey-map
 
 tracking:
   id_format: US-NNN
