@@ -1,7 +1,7 @@
 """The project's visuals as `umf.visual` documents, drawn by `@ux-builder/visuals`.
 
 With `publish.visuals` in `.helix.yml`, documentor projects each view of the architecture model
-into a `umf.visual` 1.0 document (DocumentDrivenDX/umf CONTRACT-083) and has ux-builder's renderer
+into a `umf.visual` 1.0 document (DocumentDrivenDX/umf-visual CONTRACT-083) and has ux-builder's renderer
 draw it in the project's theme (HELIX workflows/references/visuals.md):
 
 | Model view | Visual |
