@@ -78,3 +78,11 @@ skills/helix/scripts/package-lock.json
 
 # Generated pinned UMF browser, catalog and original schema copies
 website/static/schemas/
+
+# Concourse distribution/config installed from its pinned source during builds.
+website/static/concourse/
+website/layouts/_partials/concourse.html
+website/config/_default/concourse.yaml
+
+.tools/concourse
+website/node_modules

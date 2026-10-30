@@ -656,6 +656,13 @@ def _build(root: Path, site: Path, run_build: bool, base_url: str | None, target
         except (ValueError, OSError, yaml.YAMLError) as error:
             print(f"documentor schemas: {error}", file=sys.stderr)
             return 1
+        from documentor import concourse
+
+        try:
+            concourse.install(root, config, site_dir)
+        except (ValueError, OSError) as error:
+            print(f"documentor concourse: {error}", file=sys.stderr)
+            return 1
         return into_hugo(root, config, run_build)
     status = (scaffold_hextra if target == "hextra" else scaffold_static)(root, config, site, False, base_url)
     if status:
@@ -669,6 +676,13 @@ def _build(root: Path, site: Path, run_build: bool, base_url: str | None, target
         schemas.publish(root, config, *schema_output_dirs(root, config, target, site))
     except (ValueError, OSError, yaml.YAMLError) as error:
         print(f"documentor schemas: {error}", file=sys.stderr)
+        return 1
+    from documentor import concourse
+
+    try:
+        concourse.install(root, config, site)
+    except (ValueError, OSError) as error:
+        print(f"documentor concourse: {error}", file=sys.stderr)
         return 1
     link_sections(config, site)
     if run_build and shutil.which("hugo"):

@@ -27,6 +27,7 @@ _Auto-generated from `helix/` by `documentor record`._
 
 - [Architecture](/artifacts/architecture/)
 - [Architecture walkthrough: authoring a project document](/artifacts/architecture-walkthrough/)
+- [Concourse microsite integration](/artifacts/concourse-integration/)
 - [Data Design — HELIX Bead Tracker](/artifacts/data-design/)
 - [Design: Agent Diagnostics with OpenTelemetry](/artifacts/design-agent-diagnostics/)
 - [Desired-state authoring: goal and approach](/artifacts/design-desired-state-authoring/)
