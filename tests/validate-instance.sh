@@ -30,6 +30,18 @@ $(cat "$tmpdir/out")"
 done
 [ "$count" -ge 50 ] || fail "expected to validate every catalog example, ran $count"
 
+# Optional UX sections: each fixture fills its type's optional sections and must validate.
+ux=0
+for path in "$fixtures"/ux/*.md; do
+  type_id="$(basename "$path" .md)"
+  python3 "$validator" "$path" --catalog "$repo_root/workflows" >"$tmpdir/out" 2>&1 \
+    || fail "ux/$type_id.md should validate cleanly:
+$(cat "$tmpdir/out")"
+  grep -q "type=$type_id " "$tmpdir/out" || fail "ux/$type_id.md should resolve to type $type_id"
+  ux=$((ux + 1))
+done
+[ "$ux" -eq 9 ] || fail "expected 9 optional-section fixtures, ran $ux"
+
 # Broken PRD: missing required section, leftover placeholder, failed catalog regex.
 if python3 "$validator" "$fixtures/broken-prd.md" --catalog "$repo_root/workflows" >"$tmpdir/broken.out" 2>&1; then
   fail "broken-prd.md should exit 1"
@@ -131,4 +143,4 @@ cp "$prose" "$project/docs/helix/04-build/log.md"
 python3 "$validator" "$project/docs/helix/04-build/log.md" --catalog "$repo_root/workflows" --type deliverable >"$tmpdir/exempt.out" 2>&1
 grep -q "prose\." "$tmpdir/exempt.out" && fail "a path listed in .helix.yml prose.exempt should not be audited"
 
-echo "OK: validate-instance.py passes all $count catalog examples, holds the deliverable to its voice profile, rejects the broken PRD fixture, and errors on unresolvable types"
+echo "OK: validate-instance.py passes all $count catalog examples and $ux optional-section fixtures, holds the deliverable to its voice profile, rejects the broken PRD fixture, and errors on unresolvable types"

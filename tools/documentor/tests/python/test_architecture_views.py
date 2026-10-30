@@ -1,4 +1,4 @@
-"""The generated architecture views and the checks that keep them true (HELIX's architecture views; praxis ADR-090 adopted them)."""
+"""The generated architecture views and the checks that keep them true (HELIX's architecture views)."""
 
 from pathlib import Path
 
@@ -29,16 +29,16 @@ def _evidence(path: str = "app.py", contains: str = "APP") -> tuple[Evidence, ..
 def _element(element_id: str, **fields: object) -> Element:
     values: dict = {"name": element_id.title(), "kind": "container", "status": "built"}
     values |= fields
-    values.setdefault("owner", default_owner(values["kind"], "praxis"))
+    values.setdefault("owner", default_owner(values["kind"], "atlas"))
     return Element(id=element_id, evidence=_evidence(), **values)
 
 
-PRAXIS = System(id="praxis", name="praxis", regenerate="just architecture")
+ATLAS = System(id="atlas", name="atlas", regenerate="just architecture")
 
 
 def _model(*elements: Element, relations: tuple[Relation, ...] = (), views=()) -> Model:
     theme = dict(DEFAULT_THEME)
-    return Model({e.id: e for e in elements}, relations, {v.id: v for v in views}, (), PRAXIS, theme)
+    return Model({e.id: e for e in elements}, relations, {v.id: v for v in views}, (), ATLAS, theme)
 
 
 def _root(tmp_path: Path) -> Path:
@@ -127,14 +127,14 @@ def test_a_view_draws_status_shapes_and_only_the_edges_inside_it() -> None:
     assert "class walls unknown" in text
     assert "classDef placeholder" not in text
     assert "dashed arrow = not built or unknown" in text
-    assert "class app praxis" in text
+    assert "class app atlas" in text
     assert "class db platform" in text
     assert text.splitlines()[1].startswith("%%{init: ")
 
 
 def test_numbered_steps_are_drawn_heavier_and_explained_below_the_view() -> None:
     user = _element("user", kind="person")
-    app = _element("app", kind="system", name="praxis")
+    app = _element("app", kind="system", name="atlas")
     db = _element("db", kind="store", name="Lakebase")
     edges = (
         Relation(
@@ -168,11 +168,11 @@ def test_steps_that_skip_repeat_or_go_unexplained_are_reported(tmp_path: Path) -
 
 
 def test_an_element_built_by_its_owner_and_one_not_built_take_different_classes() -> None:
-    plugins = _element("plugins", kind="store", owner="praxis")
+    plugins = _element("plugins", kind="store", owner="atlas")
     walls = _element("walls", kind="container", status="placeholder")
     view = View("v", "LR", ("plugins", "walls"))
     text = render(_model(plugins, walls, views=(view,)), view)
-    assert "class plugins praxis" in text
+    assert "class plugins atlas" in text
     assert "class walls placeholder" in text
     assert "amber dashed = a stand-in" in text
 
@@ -242,7 +242,7 @@ def test_a_plate_must_draw_exactly_the_elements_of_its_view(tmp_path: Path) -> N
 
 
 def test_a_call_that_runs_throughout_is_drawn_heavy_unnumbered_and_explained_last() -> None:
-    app = _element("app", kind="system", name="praxis")
+    app = _element("app", kind="system", name="atlas")
     db = _element("db", kind="store", name="Lakebase")
     log = _element("log", kind="external", name="Collector")
     edges = (

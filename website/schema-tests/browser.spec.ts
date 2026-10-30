@@ -44,3 +44,41 @@ test('a published design opens its UMF definition under /helix/', async ({ page,
   await expect(page.frameLocator('#schema-view iframe').getByRole('heading', { name: 'Schema Reference', exact: true })).toBeVisible()
   await page.screenshot({ path: 'test-results/schema-mobile.png', fullPage: true })
 })
+
+test('embedded browser follows site theme overrides and live changes', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' })
+  await page.addInitScript(() => localStorage.setItem('color-theme', 'dark'))
+  await page.goto('schemas/')
+  const host = page.frameLocator('iframe[title="UMF design schema browser"]')
+  const browser = host.frameLocator('#schema-view iframe')
+  await expect(browser.locator('html')).toHaveAttribute('data-theme', 'dark')
+  const explorer = page.frames().find(frame => frame.url().includes('/schemas/explorer.html'))!
+  await explorer.evaluate(() => { location.hash = 'schema=helix.schema-reference%401.0.0&definition=%5B%22publishing%22%2C%22SchemaReference%22%5D' })
+  await expect(browser.getByRole('heading', { name: 'Schema Reference', exact: true })).toBeVisible()
+  async function selectTheme(theme: string) {
+    await page.locator('.hextra-theme-toggle').click()
+    await page.locator(`.hextra-theme-toggle-options [data-item="${theme}"]`).click()
+  }
+  await selectTheme('light')
+  await expect(browser.locator('html')).toHaveAttribute('data-theme', 'light')
+  await expect(browser.getByRole('heading', { name: 'Schema Reference', exact: true })).toBeVisible()
+  await page.emulateMedia({ colorScheme: 'dark' })
+  await expect(browser.locator('html')).toHaveAttribute('data-theme', 'light')
+  await selectTheme('dark')
+  await expect(browser.locator('html')).toHaveAttribute('data-theme', 'dark')
+  await selectTheme('system')
+  await page.emulateMedia({ colorScheme: 'light' })
+  await expect(browser.locator('html')).toHaveAttribute('data-theme', 'light')
+  await expect(browser.getByRole('heading', { name: 'Schema Reference', exact: true })).toBeVisible()
+  await expect(host.locator('#status')).toBeEmpty()
+})
+
+test('standalone browser honors the saved site theme', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' })
+  await page.addInitScript(() => { if (!localStorage.getItem('color-theme')) localStorage.setItem('color-theme', 'light') })
+  await page.goto('schemas/explorer.html')
+  await expect(page.frameLocator('#schema-view iframe').locator('html')).toHaveAttribute('data-theme', 'light')
+  await page.evaluate(() => localStorage.setItem('color-theme', 'system'))
+  await page.reload()
+  await expect(page.frameLocator('#schema-view iframe').locator('html')).toHaveAttribute('data-theme', 'dark')
+})

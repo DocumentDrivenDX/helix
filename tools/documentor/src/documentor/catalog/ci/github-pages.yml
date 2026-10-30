@@ -15,7 +15,9 @@ concurrency:
   group: pages
   cancel-in-progress: false
 env:
-  DOCUMENTOR: "git+https://github.com/DocumentDrivenDX/helix@v0.19.1#subdirectory=tools/documentor"
+  # Replace with a released tag containing schema publication and UMF table support.
+  # v0.19.1 predates these features. Do not silently deploy with that version.
+  DOCUMENTOR: "git+https://github.com/DocumentDrivenDX/helix@REPLACE_WITH_UMF_RELEASE#subdirectory=tools/documentor"
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -31,6 +33,12 @@ jobs:
         with: { hugo-version: "0.168.0", extended: true }
       - uses: actions/configure-pages@v5
         id: pages
+      - name: Verify selected documentor release
+        run: |
+          case "$DOCUMENTOR" in
+            *REPLACE_WITH_UMF_RELEASE*) echo "Set DOCUMENTOR to a released tag containing UMF schema publication." >&2; exit 1 ;;
+          esac
+          uvx --from "$DOCUMENTOR" documentor schemas --help >/dev/null
       - run: uvx --from "$DOCUMENTOR" documentor build --root .
         env:
           HUGO_BASEURL: ${{ steps.pages.outputs.base_url }}/

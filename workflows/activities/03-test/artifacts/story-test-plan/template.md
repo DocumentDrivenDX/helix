@@ -118,6 +118,17 @@ For a diagnostic pilot, name fixture ground truth, agent evidence/accuracy and
 time/call/context measurements plus project-owned overhead budgets. Never claim
 an OTel integration works from JSONL parsing alone.
 
+## Journey Scenarios
+
+Optional. When a user flow or journey map spans this story, map each journey
+that passes through it to one end-to-end test. Path is the user flow's named
+transitions; the ACs may belong to neighboring stories. Rows are named by
+journey.
+
+| Journey | Path | AC IDs | Test | File or Command |
+|---|---|---|---|---|
+| [journey name] | [UF-XXX: Action → Action → view] | [US-XXX-AC1, US-YYY-AC2] | `[test_name]` | `tests/e2e/...` |
+
 ## UX Coverage
 
 For affected interactive UI work, apply ux-interaction-patterns and
@@ -127,14 +138,18 @@ covered category references the existing AC mapping, which owns test names,
 assertions, @covers citations and commands. Mark absent patterns not-applicable
 with concrete reasons; runtime exceptions are reviewed in verification evidence.
 
-| Pattern | Disposition | AC IDs or Reason |
-|---|---|---|
-| navigation | covered / not-applicable | [stable AC IDs or exclusion reason] |
-| keyboard-overlays | covered / not-applicable | [stable AC IDs or exclusion reason] |
-| async-actions | covered / not-applicable | [stable AC IDs or exclusion reason] |
-| forms | covered / not-applicable | [stable AC IDs or exclusion reason] |
-| data-states | covered / not-applicable | [stable AC IDs or exclusion reason] |
-| destructive-actions | covered / not-applicable | [stable AC IDs or exclusion reason] |
+| Pattern | Disposition | AC IDs or Reason | Evidence |
+|---|---|---|---|
+| navigation | covered / not-applicable | [stable AC IDs or exclusion reason] | [check run, or none] |
+| keyboard-overlays | covered / not-applicable | [stable AC IDs or exclusion reason] | [check run, or none] |
+| async-actions | covered / not-applicable | [stable AC IDs or exclusion reason] | [check run, or none] |
+| forms | covered / not-applicable | [stable AC IDs or exclusion reason] | [check run, or none] |
+| data-states | covered / not-applicable | [stable AC IDs or exclusion reason] | [check run, or none] |
+| destructive-actions | covered / not-applicable | [stable AC IDs or exclusion reason] | [check run, or none] |
+
+The Evidence column is optional. It cites the presentation or accessibility
+check run behind a row: a committed report by its path, or, for a run whose
+output is not committed, the run date, command and where the report is kept.
 
 Structure checks only declared coverage integrity. Verify real test source and
 observed outcomes before completion; SDK lint/audit is separate evidence.

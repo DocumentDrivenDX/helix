@@ -17,7 +17,21 @@ def tables(root: Path) -> list[tuple[str, dict]]:
         if path.parent.name == "sources" and (path.parent.parent / "manifest.json").is_file():
             continue
         if not path.resolve().is_relative_to(root.resolve()):
-            raise ValueError(f"UMF table must stay inside repository: {path}")
+            continue  # Discovery never follows links into unrelated external files.
+        # Identify candidates without loading unrelated lockfiles or API specs.
+        with path.open(encoding="utf-8") as source:
+            markers = set()
+            for line in source:
+                if re.match(r"^table_name:", line):
+                    markers.add("table")
+                if re.match(r"^columns:", line):
+                    markers.add("columns")
+                if re.match(r'''^version:\s*["']?1\.0(?:["']|\s|$)''', line):
+                    markers.add("version")
+                if len(markers) == 3:
+                    break
+        if len(markers) != 3:
+            continue
         if path.stat().st_size > 4_000_000:
             raise ValueError(f"UMF table exceeds browser 4 MB limit: {path}")
         text = path.read_text(encoding="utf-8")

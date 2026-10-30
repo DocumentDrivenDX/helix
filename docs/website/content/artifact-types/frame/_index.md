@@ -25,11 +25,12 @@ Define what the system should do, for whom, and how success will be measured.
   {{< card link="feature-registry/" title="Feature Registry" subtitle="Compact source of truth for feature IDs, names, priority, owner, dependencies, and artifact trace links." >}}
   {{< card link="parking-lot/" title="Parking Lot" subtitle="Registry for deferred or future work that should remain visible but outside current scope until a specific revisit trigger is met." >}}
   {{< card link="pr-faq/" title="PR-FAQ" subtitle="Working-backwards launch narrative and internal FAQ that test customer outcome, mechanism, autonomy boundary, feasibility, economics, and scope." >}}
-  {{< card link="research-plan/" title="Research Plan" subtitle="Time-boxed plan for answering specific uncertainty before requirements, design, or investment decisions harden." >}}
+  {{< card link="research-plan/" title="Research Plan" subtitle="Time-boxed plan for answering specific uncertainty before requirements, design, or investment decisions harden. One plan per study. A study with people can car…" >}}
   {{< card link="risk-register/" title="Risk Register" subtitle="Action register for uncertain events that could change project outcome, scored with probability, impact, owner, trigger, response, and review cadence." >}}
   {{< card link="security-requirements/" title="Security Requirements" subtitle="Testable security requirements for authentication, authorization, data protection, privacy, validation, logging, compliance, and risk controls." >}}
   {{< card link="stakeholder-map/" title="Stakeholder Map" subtitle="Stakeholder and decision-rights map for roles, interests, influence, engagement, RACI ownership, communication cadence, and escalation paths." >}}
   {{< card link="threat-model/" title="Threat Model" subtitle="Structured analysis of assets, data flows, trust boundaries, STRIDE threats, risk, mitigations, owners, and verification hooks." >}}
   {{< card link="validation-checklist/" title="Validation Checklist" subtitle="Frame exit gate that verifies completeness, consistency, traceability, evidence, stakeholder review, and readiness to enter Design." >}}
   {{< card link="roadmap/" title="Roadmap" subtitle="Frame-activity sequencing artifact that orders framed capabilities and outcomes across iterations or horizons, with dependencies, confidence, and ordering rati…" >}}
+  {{< card link="user-journey-map/" title="User Journey Map" subtitle="One person's experience of one task across several stories, laid out in phases with what they do, think and feel in each, the insights the team draws, and the…" >}}
 {{< /cards >}}

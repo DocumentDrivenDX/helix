@@ -144,6 +144,16 @@ on API limits or retry policy. Generic personas are insufficient for a data
 product — the consumer and source tables drive every downstream design and
 quality decision.
 
+### User Segments and User Needs
+Optional. For a product people use directly, add these tables under Users and Scope.
+Name each row by what it says; do not number rows or mint IDs for them. Other
+documents (the feature specification's Task Model, a journey map) cite rows by
+name. Rate importance and evidence separately: a need can matter a great deal
+and still rest on no evidence. Evidence names its source (a research plan's
+findings, support data, analytics) or says none; Confidence says how far that
+evidence carries the row; Status says whether the row is assumed, validated or
+invalidated.
+
 ### Requirements (P0/P1/P2)
 P0 = the product is broken without this. P1 = the product is weak without
 this. P2 = the product is better with this. If you have more than 7 P0s,

@@ -265,16 +265,24 @@ def _strip(page: dict) -> dict:
     return {k: v for k, v in page.items() if k not in ("audience", "flow")}
 
 
+def resolved_delegates(config: dict, root: Path) -> dict[str, dict]:
+    """Resolve trait collisions and project overrides for planning and rendering."""
+    publish = config.get("publish") or {}
+    traits = load_traits(config, root, publish.get("traits") or [])
+    delegated = {d["page"]: d for t in traits for d in t.get("delegates") or []}
+    if {"umf-tablespec", "tablespec-pipeline"} <= set(publish.get("traits") or []) and "data/tables" in delegated:
+        delegated["data/pipeline-tables"] = delegated.pop("data/tables")
+    delegated.update(publish.get("delegate") or {})
+    return delegated
+
+
 def plan(config: dict, root: Path) -> list[PagePlan]:
     """The guide's pages: each audience's pages, replaced or joined by the traits' and the
     project's, with the project's delegated and existing pages marked."""
     publish = config.get("publish") or {}
     out = publish_out(config)
     traits = load_traits(config, root, publish.get("traits") or [])
-    delegated = {d["page"]: d for t in traits for d in t.get("delegates") or []}
-    if {"umf-tablespec", "tablespec-pipeline"} <= set(publish.get("traits") or []):
-        delegated["data/pipeline-tables"] = delegated.pop("data/tables")
-    delegated.update(publish.get("delegate") or {})
+    delegated = resolved_delegates(config, root)
     existing = publish.get("existing") or {}
     skipped = set(publish.get("skip") or [])
     files = None

@@ -10,18 +10,19 @@ import hashlib
 import html
 import json
 import posixpath
-import shutil
 import sys
 from pathlib import Path
 from urllib.parse import urlencode
 
 import yaml
 
-from documentor.lib import config_of, find_root, helix_root
+from documentor.lib import config_of, find_root, helix_root, publish_out, plan
 from documentor.record import split_frontmatter
 
 BROWSER_VERSION = "2.0.0"
 FORMATS = {"umf", "json-schema", "tablespec", "artifact-collection"}
+OWNER = "documentor.schemas/1"
+INDEX_MARKER = "<!-- documentor:schemas -->"
 
 
 def local(root: Path, raw: str) -> Path:
@@ -34,7 +35,10 @@ def local(root: Path, raw: str) -> Path:
 
 def references(page: Path, root: Path) -> list[dict]:
     front, _ = split_frontmatter(page.read_text(encoding="utf-8"))
-    data = yaml.safe_load(front) or {}
+    try:
+        data = yaml.safe_load(front) or {}
+    except yaml.YAMLError as error:
+        raise ValueError(f"{page}: invalid schema-reference frontmatter: {error}") from error
     metadata = (data.get("ddx") or {}) if isinstance(data, dict) else {}
     refs = metadata.get("schemas", []) if isinstance(metadata, dict) else []
     if not isinstance(refs, list):
@@ -55,7 +59,10 @@ def references(page: Path, root: Path) -> list[dict]:
             raise ValueError(f"{page}: schema exceeds browser's 4 MB limit: {path}")
         # Parse for a useful build-time failure; retain original bytes for publication.
         text = path.read_text(encoding="utf-8")
-        value = json.loads(text) if path.suffix == ".json" else yaml.safe_load(text)
+        try:
+            value = json.loads(text) if path.suffix == ".json" else yaml.safe_load(text)
+        except (ValueError, yaml.YAMLError) as error:
+            raise ValueError(f"{page}: invalid schema source {ref['path']}: {error}") from error
         if not isinstance(value, (dict, bool)):
             raise ValueError(f"{page}: schema must be an object or a JSON Schema boolean")
         definition = ref.get("definition")
@@ -63,10 +70,16 @@ def references(page: Path, root: Path) -> list[dict]:
             if (not isinstance(definition, list) or len(definition) != 2
                     or not all(isinstance(v, str) and v for v in definition)):
                 raise ValueError(f"{page}: definition must be [moduleId, elementId]")
-            if ref["schemaFormat"] != "umf" or not isinstance(value, dict) or not any(
+            modules = value.get("modules", []) if isinstance(value, dict) else []
+            if not isinstance(modules, list):
+                raise ValueError(f"{page}: schema source {ref['path']}: modules must be a list")
+            for module in modules:
+                if isinstance(module, dict) and not isinstance(module.get("elements", []), list):
+                    raise ValueError(f"{page}: schema source {ref['path']}: module {module.get('id')!r} elements must be a list")
+            if ref["schemaFormat"] != "umf" or not any(
                 m.get("id") == definition[0] and any(e.get("id") == definition[1]
                     for e in m.get("elements", []) if isinstance(e, dict))
-                for m in value.get("modules", []) if isinstance(m, dict)
+                for m in modules if isinstance(m, dict)
             ):
                 raise ValueError(f"{page}: definition does not exist: {definition}")
         checked.append(ref)
@@ -74,11 +87,17 @@ def references(page: Path, root: Path) -> list[dict]:
 
 
 def discover(root: Path, config: dict) -> list[dict]:
-    source = local(root, helix_root(config))
+    sources = {local(root, helix_root(config)), local(root, publish_out(config))}
     entries: dict[str, dict] = {}
-    for page in sorted(source.rglob("*.md")):
-        if any(p.startswith(".") for p in page.relative_to(source).parts):
-            continue
+    from documentor.site import collect
+
+    pages = {page for source in sources for page in source.rglob("*.md")
+             if not any(p.startswith(".") for p in page.relative_to(source).parts)}
+    pages.update(path for _, _, published in collect(root, config) for _, path, _ in published)
+    pages.update(local(root, page.path) for page in plan(config, root)
+                 if page.work == "existing" and local(root, page.path).is_file())
+    for page in sorted(pages):
+        local(root, page.relative_to(root).as_posix())
         for ref in references(page, root):
             identity = ref["id"] + "@" + ref["version"]
             path = local(root, ref["path"])
@@ -166,26 +185,57 @@ def package(root: Path, config: dict) -> Path:
 
 MOUNT = '''import {mountSchemaBrowser} from './browser/index.js';
 const base = new URL('./', import.meta.url);
-const handle = mountSchemaBrowser(document.getElementById('schema-view'), {
-  assetsUrl: new URL('browser/assets/', base).href,
-  catalogUrl: new URL('catalog.json', base).href,
-  assetBaseUrl: base.href,
-  initialRoute: location.hash.slice(1),
-  readOnlyLocalFiles: true, theme: 'auto', height: '85vh', onError: failed,
-  onCatalogError: failed,
-  onSelect: () => { document.getElementById('status').textContent = ''; },
-  onNavigate: selection => {
-    const params = new URLSearchParams(Object.entries(selection).filter(([, value]) => typeof value === 'string'));
-    history.replaceState(null, '', '#' + params);
+// The iframe's OS preference cannot see an explicit theme on the host page.
+// Use the public mount lifecycle when it changes; retain the current route.
+const system = matchMedia('(prefers-color-scheme: dark)');
+let host = document.documentElement;
+try { if (parent !== window) host = parent.document.documentElement; } catch {}
+function hostTheme() {
+  if (host !== document.documentElement) {
+    if (host.classList.contains('dark') || host.dataset.appearance === 'dark') return 'dark';
+    if (host.classList.contains('light') || host.dataset.appearance === 'light') return 'light';
+    const scheme = host.ownerDocument.defaultView.getComputedStyle(host).colorScheme;
+    if (scheme === 'light' || scheme === 'dark') return scheme;
   }
-});
+  const saved = localStorage.getItem('color-theme');
+  return saved === 'light' || saved === 'dark' ? saved : system.matches ? 'dark' : 'light';
+}
+let handle;
+let theme;
 function failed(error) {
   document.getElementById('status').textContent = 'Schema browser failed: ' + error.message;
 }
-handle.ready.then(() => {
-  const query = new URLSearchParams(location.hash.slice(1));
-  if (query.has('schema')) return handle.select(Object.fromEntries(query));
-}).catch(failed);
+
+function mount() {
+  const next = hostTheme();
+  if (next === theme) return;
+  theme = next;
+  if (handle) handle.destroy();
+  document.documentElement.style.colorScheme = theme;
+  const current = mountSchemaBrowser(document.getElementById('schema-view'), {
+    assetsUrl: new URL('browser/assets/', base).href,
+    catalogUrl: new URL('catalog.json', base).href,
+    assetBaseUrl: base.href,
+    initialRoute: location.hash.slice(1),
+    readOnlyLocalFiles: true, theme, height: '85vh', onError: failed,
+    onCatalogError: failed,
+    onSelect: () => { document.getElementById('status').textContent = ''; },
+    onNavigate: selection => {
+      const params = new URLSearchParams(Object.entries(selection).filter(([, value]) => typeof value === 'string'));
+      history.replaceState(null, '', '#' + params);
+    }
+  });
+  handle = current;
+  current.ready.then(() => {
+    if (handle !== current) return;
+    const query = new URLSearchParams(location.hash.slice(1));
+    if (query.has('schema')) return current.select(Object.fromEntries(query));
+  }).catch(error => { if (handle === current) failed(error); });
+}
+mount();
+new MutationObserver(mount).observe(host, {attributes: true, attributeFilter: ['class', 'style', 'data-appearance']});
+window.addEventListener('storage', mount);
+system.addEventListener('change', mount);
 window.addEventListener('hashchange', () => {
   const query = new URLSearchParams(location.hash.slice(1));
   if (query.has('schema')) handle.select(Object.fromEntries(query)).catch(failed);
@@ -193,20 +243,84 @@ window.addEventListener('hashchange', () => {
 '''
 
 
+def owned_manifest(destination: Path) -> dict | None:
+    """Recognize our inventory, never assume a directory named schemas is ours."""
+    path = destination / "manifest.json"
+    if destination.is_symlink() or path.is_symlink():
+        raise ValueError(f"refusing symlinked schema output: {destination}")
+    if not path.exists():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        owned = isinstance(data, dict) and data.get("generator") == OWNER
+        # Older versions emitted this exact inventory envelope without an owner.
+        legacy = (isinstance(data, dict) and set(data) == {"browserVersion", "schemas", "sha256", "indexSha256"}
+                  and data.get("browserVersion") == BROWSER_VERSION
+                  and isinstance(data.get("schemas"), list))
+        hashes = data.get("sha256") if isinstance(data, dict) else None
+        if not (owned or legacy) or not isinstance(hashes, dict) or not {
+            "catalog.json", "mount.js", "browser/index.js"
+        } <= set(hashes) or not isinstance(data.get("indexSha256"), str):
+            raise ValueError("not a documentor schema inventory")
+        if "manifest.json" in hashes:
+            raise ValueError("recursive schema inventory")
+        for name, digest in hashes.items():
+            if not isinstance(name, str) or not isinstance(digest, str) or len(digest) != 64:
+                raise ValueError("invalid schema inventory")
+            output_file(destination, name)
+        return data
+    except (ValueError, OSError) as error:
+        raise ValueError(f"refusing unowned schema output {destination}: {error}") from error
+
+
+def output_file(destination: Path, name: str) -> Path:
+    path = local(destination, name)
+    if path != destination.resolve() / name:
+        raise ValueError(f"refusing symlinked schema output: {destination / name}")
+    return path
+
+
+def remove_owned(destination: Path, manifest: dict, retained: set[str]) -> None:
+    """Retire only unchanged files recorded by our previous publication."""
+    obsolete = set(manifest["sha256"]) - retained
+    for name in obsolete:
+        path = output_file(destination, name)
+        if path.exists() and hashlib.sha256(path.read_bytes()).hexdigest() != manifest["sha256"][name]:
+            raise ValueError(f"refusing to delete modified schema output: {path}")
+    for name in obsolete:
+        path = output_file(destination, name)
+        if path.is_file():
+            path.unlink()
+    for directory in sorted(destination.rglob("*"), reverse=True):
+        if directory.is_dir() and not directory.is_symlink() and not any(directory.iterdir()):
+            directory.rmdir()
+
+
 def publish(root: Path, config: dict, content: Path, static: Path, check: bool = False) -> int:
     """Generate/check a site section and its assets. No references means no dependency."""
     entries = discover(root, config)
+    destination = static / "schemas"
+    index = content / "schemas/_index.md"
     if not entries:
-        # Remove only outputs this publisher owns, so retiring the last reference
-        # cannot leave an obsolete public schema behind.
-        for path in (content / "schemas/_index.md", static / "schemas/manifest.json"):
-            if path.exists():
-                if check:
-                    raise ValueError("stale schema publication: no remaining references")
-                if path.name == "_index.md":
-                    path.unlink()
-                else:
-                    shutil.rmtree(path.parent)
+        try:
+            previous = owned_manifest(destination)
+        except ValueError:
+            return 0  # No references authorize touching an unrelated schema tree.
+    else:
+        previous = owned_manifest(destination)
+    if not entries:
+        own_index = index.is_file() and not index.is_symlink() and (
+            INDEX_MARKER in index.read_text(encoding="utf-8") or previous is not None and
+            hashlib.sha256(index.read_bytes()).hexdigest() == previous["indexSha256"])
+        if check and (previous or own_index):
+            raise ValueError("stale schema publication: no remaining references")
+        if previous:
+            remove_owned(destination, previous, set())
+            (destination / "manifest.json").unlink()
+            if not any(destination.iterdir()):
+                destination.rmdir()
+        if own_index:
+            index.unlink()
         return 0
     browser = package(root, config)
     catalog_entries = [{k: v for k, v in e.items() if k not in ("owners", "version", "sha256")} for e in entries]
@@ -216,6 +330,7 @@ def publish(root: Path, config: dict, content: Path, static: Path, check: bool =
     files: dict[str, bytes] = {"catalog.json": catalog.encode(), "mount.js": MOUNT.encode()}
     files["explorer.html"] = ('''<!doctype html><html lang="en"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>Design schemas</title>
+<style>body{background:light-dark(#fff,#111);color:light-dark(#111,#eee)}a{color:light-dark(#0645ad,#8ab4f8)}</style>
 <body><p><a href="./" target="_top">Schema index and provenance</a></p>
 <p id="status" role="status"></p><div id="schema-view"></div>
 <noscript>Enable JavaScript to explore schemas. Source downloads are available in the schema index.</noscript>
@@ -226,7 +341,7 @@ def publish(root: Path, config: dict, content: Path, static: Path, check: bool =
             files["browser/assets/" + path.relative_to(browser / "assets").as_posix()] = path.read_bytes()
     for name in ("LICENSE-MIT", "LICENSE-APACHE", "THIRD_PARTY_NOTICES.md", "provenance.json"):
         files[name] = (browser / name).read_bytes()
-    lines = ['---', 'title: Design schemas', 'weight: 8', 'generated: true', '---', '',
+    lines = ['---', 'title: Design schemas', 'weight: 8', 'generated: true', '---', '', INDEX_MARKER, '',
              'Explore the schemas referenced by the governed designs. The browser inspects sources; '
              'it does not establish instance validity or semantic compatibility.', '',
              '<p><a href="explorer.html">Open the schema browser in a full window</a></p>', '',
@@ -236,29 +351,37 @@ def publish(root: Path, config: dict, content: Path, static: Path, check: bool =
         files[e["url"]] = local(root, e["path"]).read_bytes()
         route = urlencode({"schema": e["id"]})
         lines.extend([f'- <a href="explorer.html#{route}">{html.escape(e["title"])}</a> '
-                      f'(version {html.escape(e["version"])}) — '
+                      f'(version {html.escape(e["version"])}); '
                       f'<a href="{e["url"]}">Download source</a>',
                       f'  Source: <code>{html.escape(e["path"])}</code>; SHA-256: <code>{e["sha256"]}</code>.',
                       '  Referenced by: ' + ', '.join(f'<code>{html.escape(o)}</code>' for o in e["owners"])])
     page = ("\n".join(lines) + "\n").encode()
-    manifest = {"browserVersion": BROWSER_VERSION, "schemas": entries,
+    manifest = {"generator": OWNER, "browserVersion": BROWSER_VERSION, "schemas": entries,
                 "sha256": {k: hashlib.sha256(v).hexdigest() for k, v in sorted(files.items())},
                 "indexSha256": hashlib.sha256(page).hexdigest()}
     files["manifest.json"] = (json.dumps(manifest, indent=2, ensure_ascii=False) + "\n").encode()
-    destination = static / "schemas"
-    index = content / "schemas/_index.md"
     if check:
-        expected = set(files)
-        actual = {p.relative_to(destination).as_posix() for p in destination.rglob("*") if p.is_file()}
-        if actual != expected or not index.is_file() or index.read_bytes() != page or any(
+        if not index.is_file() or index.read_bytes() != page or any(
             not (destination / k).is_file() or (destination / k).read_bytes() != v for k, v in files.items()
         ):
             raise ValueError("stale schema publication; rerun documentor schemas")
         return 0
-    if destination.exists():
-        shutil.rmtree(destination)
+    if destination.exists() and previous is None and any(destination.iterdir()):
+        raise ValueError(f"refusing unowned schema output: {destination}")
+    if index.is_symlink() or index.exists() and not (
+        INDEX_MARKER in index.read_text(encoding="utf-8") or previous is not None and
+        hashlib.sha256(index.read_bytes()).hexdigest() == previous["indexSha256"] or
+        index.read_bytes() == page.replace((INDEX_MARKER + "\n\n").encode(), b"")
+    ):
+        raise ValueError(f"refusing unowned schema index: {index}")
+    for name in files:
+        path = output_file(destination, name)
+        if previous and path.exists() and name != "manifest.json" and name not in previous["sha256"]:
+            raise ValueError(f"refusing to overwrite unowned schema file: {path}")
+    if previous:
+        remove_owned(destination, previous, set(files))
     for name, data in files.items():
-        path = destination / name
+        path = output_file(destination, name)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(data)
     index.parent.mkdir(parents=True, exist_ok=True)
@@ -275,11 +398,11 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     root = find_root(Path(args.root).resolve())
     config = config_of(root)
-    from documentor.site import content_root_for, hugo_site_dir
-    site = hugo_site_dir(root, config) or root / ".helix/site"
+    from documentor.site import schema_output_dirs
     try:
-        return publish(root, config, Path(args.content).resolve() if args.content else content_root_for(root, config),
-                       Path(args.static).resolve() if args.static else site / "static", args.check)
+        content, static = schema_output_dirs(root, config)
+        return publish(root, config, Path(args.content).resolve() if args.content else content,
+                       Path(args.static).resolve() if args.static else static, args.check)
     except (ValueError, OSError, yaml.YAMLError) as error:
         print(f"documentor schemas: {error}", file=sys.stderr)
         return 1

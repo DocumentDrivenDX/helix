@@ -94,6 +94,8 @@ Use when the situation demands them:
   genuinely unknown and requires investigation before framing
 - **Feasibility Study** (`artifacts/feasibility-study/`): When viability is
   uncertain across technical, business, or resource dimensions
+- **User Journey Map** (`artifacts/user-journey-map/`): When one task spans
+  several stories or views and the team needs to see the whole experience
 
 ## Process Flow
 

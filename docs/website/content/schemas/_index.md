@@ -4,6 +4,8 @@ weight: 8
 generated: true
 ---
 
+<!-- documentor:schemas -->
+
 Explore the schemas referenced by the governed designs. The browser inspects sources; it does not establish instance validity or semantic compatibility.
 
 <p><a href="explorer.html">Open the schema browser in a full window</a></p>
@@ -12,6 +14,6 @@ Explore the schemas referenced by the governed designs. The browser inspects sou
 
 ## Sources and provenance
 
-- <a href="explorer.html#schema=helix.schema-reference%401.0.0">Design schema reference</a> (version 1.0.0) — <a href="sources/566e5e6eacae959bc3562d796d4a98052bbacdd538c8b12f1f0a59f84cf4c94a.yaml">Download source</a>
+- <a href="explorer.html#schema=helix.schema-reference%401.0.0">Design schema reference</a> (version 1.0.0); <a href="sources/566e5e6eacae959bc3562d796d4a98052bbacdd538c8b12f1f0a59f84cf4c94a.yaml">Download source</a>
   Source: <code>docs/helix/02-design/schemas/schema-reference.umf.yaml</code>; SHA-256: <code>566e5e6eacae959bc3562d796d4a98052bbacdd538c8b12f1f0a59f84cf4c94a</code>.
   Referenced by: <code>docs/helix/02-design/design-umf-schemas.md</code>

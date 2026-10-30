@@ -83,6 +83,16 @@ For every candidate principle, ask:
 | Does it require a mandatory process step? | Move it to workflow rules, enforcers, or ratchets. |
 | Does it only sound virtuous? | Delete it or rewrite it around a real tradeoff. |
 
+## Experience Principles
+
+For a product with a user interface, add the optional Experience Principles
+section: the principles that govern how the interface behaves, such as "show
+the consequence before the commit" or "never lose what someone typed". They
+meet the same quality criteria as the principles above and count toward the
+size thresholds. Exact interaction conventions belong in DESIGN.md; a
+principle only says what to prefer when two interface choices compete. Omit
+the section when the product has no interface.
+
 ## Size Thresholds
 
 Monitor the number of principles and provide guidance:

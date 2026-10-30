@@ -1,6 +1,7 @@
 ---
 ddx:
-  id: research-plan
+  id: research-plan-[study]
+  type: research-plan
   authoring:
     home: repo
 ---
@@ -45,6 +46,29 @@ ddx:
 - **Deliverable**: [Specific output]
 - **Decision Use**: [How the finding changes scope, design, pricing, or go/no-go]
 
+### Scenarios
+
+<!-- Optional, as are Success Criteria and Screener below: for a study with
+people. Each scenario is a goal in the participant's
+words, with no interface words: "find last week's rejected rows", not "open
+the Rejected tab". -->
+
+| Scenario | Goal |
+|----------|------|
+| [scenario name] | [What the participant tries to achieve] |
+
+### Success Criteria
+
+| Scenario | Succeeds When | Acceptance Criteria |
+|----------|---------------|---------------------|
+| [scenario name] | [What the participant has achieved] | [US-XXX-AC1] |
+
+### Screener
+
+- **Include**: [Who qualifies]
+- **Exclude**: [Who does not, and why]
+- **Mix**: [How many of each user segment]
+
 ## Timeline
 
 | Activity | Duration | Activities | Deliverables |
@@ -60,6 +84,19 @@ ddx:
 | Risk | Probability | Impact | Mitigation |
 |------|-------------|--------|------------|
 | | | | |
+
+## Findings
+
+<!-- Optional; add once the study has run. Raw material (recordings,
+transcripts, notes) stays out of the repo. Name participants by pseudonym
+(P1, P2). Mask any excerpt: no names, contact details, employers or other
+detail that identifies a person. Every claim has a Source and a Basis. -->
+
+### Claims
+
+| Claim | Source | Basis | Confidence | Direction | Verified | Contradicting | Unknown |
+|-------|--------|-------|------------|-----------|----------|---------------|---------|
+| [What the study found] | [P3, session 2; or a document] | [Observed in 4 of 6 sessions; a masked excerpt] | [high / medium / low] | [supports / weakens / refutes: the assumption or decision] | [yes / no] | [Evidence against, or none] | [What this study could not establish] |
 
 ## Completion Criteria
 - [ ] All research questions answered with evidence

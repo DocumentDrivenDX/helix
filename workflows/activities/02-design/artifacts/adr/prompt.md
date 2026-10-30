@@ -40,6 +40,14 @@ Use these local resource summaries as grounding:
   selected work item, or factual report; do not add progress banners here.
 - For each alternative, say why this choice beats it; keep it brief and honest.
 - Name drift signals only when they would reveal the decision being abandoned.
+- Add the optional **Assumptions** section when the decision rests on facts
+  not yet proven, each with what would invalidate it. A provisional-risk note
+  belongs here.
+- Add the optional **Validation** section when the decision should be tested
+  with real use (common for interface decisions). Result is `not tested`,
+  `tested` or `refuted`; Evidence cites what settled it: a study's research
+  plan, the metrics dashboard, or an experiment. Update it in place when the
+  evidence arrives; a refuted decision is rewritten, not appended to.
 - Omit dates, status, deciders, and risk or metric tables; git and the tracker hold them.
 - Use one ADR per decision. If the decision has independent parts, split it.
 - Keep one current record of the chosen direction and useful rationale. When

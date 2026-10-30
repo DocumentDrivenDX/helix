@@ -174,12 +174,13 @@ It does not edit artifacts. A page that finds an artifact out of date with the c
 
 Schema references use `ddx.schemas`, defined in
 `workflows/references/umf-schemas.md`. `documentor site` automatically collects
-references under the active HELIX root for Hugo, static, and Hextra targets.
+references under the active HELIX root and the guide output for Hugo, static,
+and Hextra targets.
 It generates `/schemas/`, original source downloads, provenance with SHA-256
 digests, and an embedded UMF schema browser. Published artifacts and referenced
 guide pages gain links to the selected schema and optional definition. Relative
 URLs preserve deployment prefixes such as `/helix/`. No references means no
-browser dependency or generated section. Existing sources are never rewritten.
+browser dependency or generated section. Existing sources are never rewritten. The embedded browser follows the host page’s resolved light or dark theme, including live changes; the standalone explorer follows the saved site preference or the system theme. Theme changes preserve the selected schema and definition.
 
 Install `@documentdrivendx/umf-schema-browser@2.0.0` with the site's package
 manager and commit its lockfile. The publisher looks under `node_modules/` and
@@ -194,10 +195,17 @@ documentor schemas --root . --check  # fail on changed sources, metadata or asse
 ```
 
 `--content` and `--static` can select output directories for another site build.
-The default is the configured Hugo content root and static directory. Run the
-generation step before plain Hugo builds, and the check after generation in CI.
+For Hugo, defaults follow its content mount and static directory; static and
+Hextra use `.helix/site/content` and `.helix/site/static`. Run generation before
+plain Hugo builds. Source drift belongs to the generated-site gate; the schema
+check compares a previously generated publication with current inputs.
 A missing source, conflicting identity, nonexistent selected definition, syntax
 error, transport limit violation, or missing browser package fails the build.
 Rendering and syntax checks establish no native semantic or instance-validation
 claim; run the appropriate pinned UMF/native validator separately. The browser
 loads only selected sources; full-text search of unloaded sources is not implied.
+
+The schema publisher records ownership in its manifest and index marker. It
+refuses to replace unowned schema directories or indexes, preserves unrelated
+files added beside generated output, and retires only unchanged generated files
+listed by its previous inventory. Retirement leaves an unrelated index alone.

@@ -114,16 +114,15 @@ def project_profile(root: Path, files: list[str], block: dict) -> None:
         code = [f for f in files if Path(f).suffix in {".py", ".go", ".ts", ".tsx", ".js", ".rs", ".java", ".cs"}
                 and not f.startswith(("docs/", "scripts/", "tests/", ".", "workflows/"))]
         if not code:
-            publish["profile"] = "design-stage"
             publish.setdefault("audiences", [])
             if not publish["audiences"]:
                 publish["audiences"].append("developer")
-            publish["skip"] = ["developer/walkthrough", "developer/developer-guide"]
+            if "developer" in publish["audiences"]:
+                publish["skip"] = ["developer/walkthrough", "developer/developer-guide"]
     pipeline = any(Path(f).name in {"dbt_project.yml", "pipeline.yaml", "pipeline.yml"} for f in files)
     pipeline |= any("pipeline" in t or t in {"dbt", "databricks-jobs"} for t in publish.get("traits", []))
     if "umf-tablespec" in publish.get("traits", []) and not pipeline:
         publish["data_mode"] = "operational"
-        publish.setdefault("skip", []).extend(["data/lineage", "data/using", "data/metrics"])
 
 
 def trait_pages(traits: list[dict]) -> dict[str, list[dict]]:

@@ -51,6 +51,13 @@ the shared reference contract remains normative for publication behavior.
 
 ## Implementation Plan
 
+Publication owns only its marked index and inventoried generated files. It
+refuses unowned output collisions, preserves unrelated site files, and retires
+only unchanged generated files. Discovery includes rendered guide references;
+standalone and integrated commands share target-aware output resolution. Invalid
+schema metadata must produce an actionable command error rather than a traceback.
+Automatic table discovery applies browser limits only to identified TableSpecs.
+
 1. Add the core reuse procedure, reference contract, artifact prompts/templates,
    and conditional blocking review criteria. Preserve historical prose and omit
    irrelevant modeling sections.
@@ -72,3 +79,5 @@ Run `just test`, `just test-documentor`, catalog synchronization, a production
 Hugo build and the schema browser test. A renderer pass makes no instance or
 native-semantic validation claim. No automatic upstream contribution, schema
 migration, application runtime dependency or tracker work is in scope.
+
+The embedded browser follows the microsite’s resolved theme on load and live changes, preserving the selected schema and definition. The standalone explorer honors the saved site preference and otherwise follows the system theme. Trait delegation uses the same resolution during planning and rendering; adopted pages selected by mapping or glob contribute schema references. Invalid UMF collection shapes produce source-specific command errors.

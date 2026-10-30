@@ -1,15 +1,19 @@
-<!-- helix:publish audience=developer page=embedding kind=how-to voice=onboarding budget=1100 written=agent-opus reviewed=2026-10-22/agent-sonnet/41399bb8da0d8456 -->
+<!-- helix:publish audience=developer page=embedding kind=how-to voice=onboarding budget=1100 written=codex reviewed=2026-10-29/codex-astra-independent-reader/bb6276d19ee44b28 -->
 <!-- helix:gap artifact:examples -->
 <!-- helix:source README.md#install sha256:11003d4123be1f55 -->
 <!-- helix:source README.md#what-it-reads-and-writes sha256:55f9002fc000e454 -->
-<!-- helix:source src/documentor/__init__.py sha256:e612d1e2f68f2667 -->
-<!-- helix:source src/documentor/cli.py sha256:0707cd738e9b6418 -->
+<!-- helix:source src/documentor/__init__.py sha256:85f093e9f32ee453 -->
+<!-- helix:source src/documentor/cli.py sha256:8b7a0be0b2efb9cb -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
-<!-- helix:source src/documentor/generate.py sha256:47b5e3e1d2d06cbd -->
-<!-- helix:source src/documentor/write.py sha256:2118376b2c167085 -->
-<!-- helix:source src/documentor/lib.py sha256:7e594138b133286a -->
-<!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
-<!-- helix:source pyproject.toml sha256:74a08b4781a32616 -->
+<!-- helix:source src/documentor/generate.py sha256:9ed3906b7fe2bc36 -->
+<!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
+<!-- helix:source src/documentor/lib.py sha256:5db149c5af59118b -->
+<!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:9f8ec1f2b471f001 -->
+<!-- helix:source pyproject.toml sha256:c46e99a7fc3955ad -->
+<!-- helix:source src/documentor/schemas.py sha256:6db23e6c01b889bc -->
+<!-- helix:source src/documentor/detect.py sha256:376f1dd87ec38e48 -->
+<!-- helix:source src/documentor/umf_tables.py sha256:56c75007b5b2d2de -->
+<!-- helix:source src/documentor/site.py sha256:1d8a815021485d27 -->
 # Embedding the library
 
 A host can embed documentor in three ways. It can run the `documentor` command, call `documentor.cli.main` from Python, or ship a generator that documentor loads. The package exports only `__version__`, so `main` and the generator entry point are the contract.
@@ -32,7 +36,7 @@ documentor <version> (HELIX catalog packaged <version>)
 
 `<version>` is the release: documentor and the catalog it carries ship together.
 
-The host's interpreter cannot import from a tool install. To call `main`, add the same URL to the host's environment:
+For Python imports, install into the host environment too:
 
 ```sh
 uv add "documentor @ git+https://github.com/DocumentDrivenDX/helix@<tag>#subdirectory=tools/documentor"
@@ -44,7 +48,7 @@ pip install "git+https://github.com/DocumentDrivenDX/helix@<tag>#subdirectory=to
 python -c "import documentor; print(documentor.__version__)"
 ```
 
-The host needs Python 3.11 or later.
+Requires Python 3.11+.
 
 ## Configure
 
@@ -91,6 +95,8 @@ The HELIX catalog supplies the audiences and the voice. documentor takes it from
 documentor --catalog /path/to/helix/workflows check --root /path/to/host
 ```
 
+Init proposes design-stage skips or operational data pages when applicable; existing publish settings remain authoritative. The `umf-tablespec` trait adds table references and browser sources; tablespec pipelines coexist separately.
+
 ## First call
 
 The first call is `check`, because it changes no files and reports every page's state. After `init`, no written pages exist, so `check` returns 1.
@@ -127,7 +133,7 @@ from documentor.cli import main
 code = main(["check", "--root", "/path/to/host"])
 ```
 
-`status --format json` prints every page and the views' state as JSON:
+`status --format json` returns JSON:
 
 ```python
 main(["status", "--root", "/path/to/host", "--format", "json"])
@@ -148,11 +154,30 @@ def tables(root: Path, page: dict) -> tuple[str, list[str]]:
     return "| Table | Columns |\n|---|---|\n", ["specs/*.yml"]
 ```
 
-A page names it with `generated: my-tables`. An empty body marks the page empty. A packaged generator of the same name wins, so the host should pick a name that `documentor generate --list` does not show. A host without Python can name a command instead: `generated: {command: ..., sources: [...]}`.
+Use `generated: my-tables`; an empty body marks it empty. Avoid packaged names listed by `documentor generate --list`. Non-Python hosts can use `generated: {command: ..., sources: [...]}`.
+
+## Publish design schemas
+
+Install the browser at the site root: `src/documentor/schemas.py` defines its version and reference fields; `publish.schemas.browser_package` overrides its location.
+
+```sh
+npm install --save-exact @documentdrivendx/umf-schema-browser@2.0.0
+```
+
+Declare existing sources using the [schema-reference format](../../../src/documentor/catalog/helix/references/umf-schemas.md).
+
+```python
+from documentor.cli import main
+
+code = main(["schemas", "--root", "/path/to/host"])
+code = main(["schemas", "--root", "/path/to/host", "--check"])
+```
+
+Site assembly publishes schemas; Hugo needs generation first. Unowned collisions fail; unrelated files survive. Browsing proves no semantic conformance.
 
 ## Errors and their meaning
 
-The guide commands (`init`, `status`, `build`, `write`, `check`, `review`, `adopt`, `prompt`) return 0, 1, or 2. The tools (`generate`, `site`, `tour`, `estate`, `deck`, `doc`, `doctor`, `record`, and the rest) return their own codes. `views` always returns 0.
+Guide commands return 0, 1, or 2. Tools have their own codes; `views` always returns 0.
 
 | Code | Meaning | Host's response |
 |---|---|---|

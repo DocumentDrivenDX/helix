@@ -59,7 +59,8 @@ and reproducible checks of supported semantics and examples. Schema syntax,
 browser rendering, instance validation, and semantic compatibility are separate
 claims. Historical documents without references need no bulk migration.
 
-The guide publisher collects explicit references beneath the active HELIX root,
+The guide publisher collects explicit references from the active HELIX root,
+the guide output, and existing pages selected for publication,
 publishes source bytes and provenance, and generates a UMF browser catalog.
 Published designs link to the selected schema/definition. The schema index
 embeds the pinned UMF schema browser and offers original-source downloads.

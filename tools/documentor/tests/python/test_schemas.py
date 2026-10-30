@@ -104,7 +104,7 @@ def test_publish_check_detects_source_catalog_asset_and_inventory_drift(project)
         schemas.publish(root, config, content, static)
         assert manifest == (static / "schemas/manifest.json").read_bytes()
         for path in (static / "schemas/catalog.json", static / "schemas/browser/index.js",
-                     content / "schemas/_index.md", static / "schemas/extra.txt"):
+                     content / "schemas/_index.md"):
             previous = path.read_bytes() if path.exists() else None
             path.write_text("stale")
             with pytest.raises(ValueError, match="stale schema publication"):
@@ -169,3 +169,221 @@ def test_site_build_automatically_publishes_catalog_and_design_link(project, tar
     assert (output / "content/schemas/_index.md").is_file()
     design = (output / "content/record/customer.md").read_text()
     assert "../../schemas/explorer.html#schema=customer%401.0.0" in design
+
+
+@pytest.mark.parametrize("existing", ["assets", "index"])
+def test_publisher_refuses_unowned_output_without_modifying_it(project, existing):
+    root, config, _, _ = project
+    content, static = root / "content", root / "static"
+    path = static / "schemas/customer.json" if existing == "assets" else content / "schemas/_index.md"
+    path.parent.mkdir(parents=True)
+    path.write_text("project-owned")
+    with patch.object(schemas, "package", return_value=browser(root)):
+        with pytest.raises(ValueError, match="unowned schema"):
+            schemas.publish(root, config, content, static)
+    assert path.read_text() == "project-owned"
+    assert not (static / "schemas/manifest.json").exists()
+
+
+def test_no_references_leave_unowned_files_and_index_alone(project):
+    root, config, page, _ = project
+    page.unlink()
+    content, static = root / "content", root / "static"
+    for path in (content / "schemas/_index.md", static / "schemas/manifest.json", static / "schemas/mine.json"):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("mine")
+    schemas.publish(root, config, content, static)
+    schemas.publish(root, config, content, static, check=True)
+    assert all(p.read_text() == "mine" for p in (content / "schemas/_index.md", static / "schemas/manifest.json", static / "schemas/mine.json"))
+
+
+def test_owned_updates_and_retirement_preserve_additional_site_files(project):
+    root, config, page, ref = project
+    content, static = root / "content", root / "static"
+    with patch.object(schemas, "package", return_value=browser(root)):
+        schemas.publish(root, config, content, static)
+        custom = static / "schemas/custom.json"
+        custom.write_text("project-owned")
+        write_ref(page, ref | {"title": "Updated"})
+        schemas.publish(root, config, content, static)
+        schemas.publish(root, config, content, static, check=True)
+        assert custom.read_text() == "project-owned"
+        page.unlink()
+        schemas.publish(root, config, content, static)
+        assert custom.read_text() == "project-owned"
+        assert not (static / "schemas/manifest.json").exists()
+        assert not (content / "schemas/_index.md").exists()
+
+
+def test_legacy_inventory_is_migrated_and_new_asset_collisions_are_refused(project):
+    root, config, _, _ = project
+    content, static = root / "content", root / "static"
+    pkg = browser(root)
+    with patch.object(schemas, "package", return_value=pkg):
+        schemas.publish(root, config, content, static)
+        path = static / "schemas/manifest.json"
+        legacy = json.loads(path.read_text())
+        del legacy["generator"]
+        path.write_text(json.dumps(legacy))
+        index = content / "schemas/_index.md"
+        index.write_text(index.read_text().replace(schemas.INDEX_MARKER + "\n\n", ""))
+        legacy["indexSha256"] = hashlib.sha256(index.read_bytes()).hexdigest()
+        path.write_text(json.dumps(legacy))
+        schemas.publish(root, config, content, static)
+        assert json.loads(path.read_text())["generator"] == schemas.OWNER
+        (pkg / "assets/extra.js").write_text("new generated asset")
+        collision = static / "schemas/browser/assets/extra.js"
+        collision.write_text("project asset")
+        with pytest.raises(ValueError, match="unowned schema file"):
+            schemas.publish(root, config, content, static)
+        assert collision.read_text() == "project asset"
+
+
+def test_retirement_refuses_modified_generated_files(project):
+    root, config, page, _ = project
+    content, static = root / "content", root / "static"
+    with patch.object(schemas, "package", return_value=browser(root)):
+        schemas.publish(root, config, content, static)
+    custom = static / "schemas/browser/index.js"
+    custom.write_text("hand edited")
+    page.unlink()
+    with pytest.raises(ValueError, match="refusing to delete modified"):
+        schemas.publish(root, config, content, static)
+    assert custom.read_text() == "hand edited"
+
+
+def test_guide_only_schema_reference_is_published(project):
+    root, config, page, ref = project
+    guide = root / "docs/guide/developer/reference.md"
+    guide.parent.mkdir(parents=True)
+    write_ref(guide, ref)
+    page.unlink()
+    entries = schemas.discover(root, config)
+    assert entries[0]["owners"] == ["docs/guide/developer/reference.md"]
+    content, static = root / "content", root / "static"
+    with patch.object(schemas, "package", return_value=browser(root)):
+        schemas.publish(root, config, content, static)
+        schemas.publish(root, config, content, static, check=True)
+    assert json.loads((static / "schemas/catalog.json").read_text())["entries"][0]["id"] == "customer@1.0.0"
+
+
+@pytest.mark.parametrize("target", ["static", "hextra"])
+def test_schema_cli_uses_selected_target_despite_unrelated_hugo_site(project, target):
+    from documentor import site
+
+    root, config, _, _ = project
+    config["publish"] = {"site": {"target": target}}
+    (root / "docs/hugo.toml").write_text('baseURL = "https://unrelated.example/"\n')
+    (root / ".helix.yml").write_text(yaml.safe_dump(config))
+    with patch.object(schemas, "package", return_value=browser(root)):
+        assert schemas.main(["--root", str(root)]) == 0
+        assert schemas.main(["--root", str(root), "--check"]) == 0
+    content, static = site.schema_output_dirs(root, config)
+    assert (content / "schemas/_index.md").is_file()
+    assert (static / "schemas/catalog.json").is_file()
+    assert not (root / "docs/static").exists()
+
+
+@pytest.mark.parametrize("target", ["hugo", "static", "hextra"])
+@pytest.mark.parametrize("bad", ["reference", "frontmatter", "schema"])
+def test_site_returns_actionable_errors_instead_of_traceback(project, target, bad, capsys):
+    from documentor import site
+
+    root, config, page, ref = project
+    output = root / "website"
+    output.mkdir()
+    (output / "hugo.yaml").write_text("baseURL: https://example.org/\n")
+    config["publish"] = {"site": {"target": target, "site_dir": "website", "record": True}}
+    (root / ".helix.yml").write_text(yaml.safe_dump(config))
+    if bad == "reference":
+        write_ref(page, ref | {"path": "missing.json"})
+    elif bad == "frontmatter":
+        page.write_text("---\nddx: [unterminated\n---\n# Invalid\n")
+    else:
+        (root / ref["path"]).write_text("{invalid-json")
+    assert site.build(root, output, False, None) == 1
+    error = capsys.readouterr().err
+    assert "documentor site:" in error and "customer.md" in error
+    assert "Traceback" not in error
+
+
+def test_record_cli_reports_schema_errors(project, capsys):
+    from documentor import record
+
+    root, config, page, _ = project
+    (root / ".helix.yml").write_text(yaml.safe_dump(config))
+    page.write_text("---\nddx: [unterminated\n---\n# Invalid\n")
+    assert record.main(["--root", str(root)]) == 1
+    assert "invalid schema-reference frontmatter" in capsys.readouterr().err
+
+
+def test_generated_asset_symlinks_cannot_overwrite_unrelated_files(project):
+    root, config, _, _ = project
+    content, static = root / "content", root / "static"
+    with patch.object(schemas, "package", return_value=browser(root)):
+        schemas.publish(root, config, content, static)
+        custom = static / "schemas/custom.txt"
+        custom.write_text("mine")
+        asset = static / "schemas/browser/index.js"
+        asset.unlink()
+        asset.symlink_to(custom)
+        with pytest.raises(ValueError, match="symlinked schema output"):
+            schemas.publish(root, config, content, static)
+        assert custom.read_text() == "mine"
+
+
+def test_guide_reference_discovery_honors_custom_output_directory(project):
+    root, config, page, ref = project
+    guide = root / ".guide/developer/model.md"
+    guide.parent.mkdir(parents=True)
+    write_ref(guide, ref)
+    page.unlink()
+    config["publish"] = {"out": ".guide", "audiences": ["developer"]}
+    assert schemas.discover(root, config)[0]["owners"] == [".guide/developer/model.md"]
+
+
+@pytest.mark.parametrize("existing", [{"model": "manual/model.md"}, ["manual/*.md"]])
+def test_existing_pages_outside_guide_contribute_schemas(project, existing):
+    root, config, page, ref = project
+    page.unlink()
+    adopted = root / "manual/model.md"
+    adopted.parent.mkdir()
+    write_ref(adopted, ref)
+    config["publish"] = {"audiences": ["developer"], "existing": {"developer": existing}}
+    with patch("documentor.lib.repository_files", return_value=["manual/model.md"]):
+        entries = schemas.discover(root, config)
+    assert len(entries) == 1
+    assert entries[0]["owners"] == ["manual/model.md"]
+    with patch("documentor.lib.repository_files", return_value=["manual/model.md"]), patch.object(schemas, "package", return_value=browser(root)):
+        schemas.publish(root, config, root / "content", root / "static")
+    catalog = json.loads((root / "static/schemas/catalog.json").read_text())
+    assert catalog["entries"][0]["id"] == "customer@1.0.0"
+    assert (root / "static/schemas" / entries[0]["url"]).is_file()
+
+
+@pytest.mark.parametrize("value,field", [
+    ({"modules": None}, "modules"),
+    ({"modules": {}}, "modules"),
+    ({"modules": [{"id": "sales", "elements": None}]}, "elements"),
+    ({"modules": [{"id": "sales", "elements": {}}]}, "elements"),
+])
+def test_schema_cli_reports_invalid_umf_collection_shapes(project, value, field, capsys):
+    root, config, _, ref = project
+    (root / ref["path"]).write_text(json.dumps(value))
+    (root / ".helix.yml").write_text(yaml.safe_dump(config))
+    assert schemas.main(["--root", str(root)]) == 1
+    error = capsys.readouterr().err
+    assert ref["path"] in error and f"{field} must be a list" in error
+    assert "Traceback" not in error
+
+
+def test_default_build_propagates_schema_publication_failure(project, capsys):
+    from documentor import cli
+
+    root, config, _, ref = project
+    config["publish"] = {"schema": 1, "audiences": ["developer"], "site": {"target": "hextra", "record": True}}
+    (root / ".helix.yml").write_text(yaml.safe_dump(config))
+    (root / ref["path"]).write_text('{"modules":null}')
+    assert cli.main(["build", "--root", str(root)]) == 1
+    error = capsys.readouterr().err
+    assert ref["path"] in error and "modules must be a list" in error
