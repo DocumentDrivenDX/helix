@@ -64,6 +64,7 @@ workflows/activities/02-design/artifacts/adr/meta.yml
 | `output.naming` | string | Naming pattern for an instance, such as `prd.md`, `FEAT-{number}-{title}.md`, or `ADR-{number}-{title}.md`. |
 | `output.examples` | list | Example filenames demonstrating the naming pattern. |
 | `output.companions` | list | Files the mode keeps beside each instance, as `{path, format, description}`; `format` names the reference that defines the file. |
+| `visuals` | list | The visuals this type usually draws, each `{kind, form, question, source}` on one line: a umf.visual kind and form, the reader's question, and the governed source it is drawn from. Authoring draws each only when it earns its place (`workflows/references/visuals.md`); `validate-instance.py` warns on a visual the type does not list. |
 | `id_format` | mapping | Identifier shape for instances of this type. See [Instance ID format](#instance-id-format-id_format) below. |
 | `reuse_policy` | string | Human-readable rule explaining whether instances are write-once, updated in place, superseded, or replaced. |
 | `dependencies.requires` | list | Inputs needed before this artifact can be authored responsibly. These are planning dependencies, not necessarily runtime blockers. |

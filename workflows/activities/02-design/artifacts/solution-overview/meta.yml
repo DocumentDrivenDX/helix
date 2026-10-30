@@ -53,3 +53,7 @@ tags:
 - onboarding
 - orientation
 version: 1.0.0
+
+# The visuals this type usually draws, each only when it earns its place (references/visuals.md).
+visuals:
+  - {kind: flow, form: lanes, question: "What is a newcomer's first map of the system?", source: "architecture-model.toml (a lanes view)"}

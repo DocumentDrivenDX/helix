@@ -73,3 +73,8 @@ tags:
 
 version: 1.0.0
 last_updated: 2026-04-09
+
+# The visuals this type usually draws, each only when it earns its place (references/visuals.md).
+visuals:
+  - {kind: metric, form: stat, question: "Is each security measure where it should be?", source: "the security metrics"}
+  - {kind: metric, form: line, question: "How has each security measure changed?", source: "the security metric history"}

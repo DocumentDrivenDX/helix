@@ -77,3 +77,8 @@ tags:
 
 version: 1.0.0
 last_updated: 2026-04-09
+
+# The visuals this type usually draws, each only when it earns its place (references/visuals.md).
+visuals:
+  - {kind: structure, form: entities, question: "What does the data look like?", source: "the design's schema section"}
+  - {kind: flow, form: pipeline, question: "Where does the data come from, and where does it go?", source: "the design's lineage section"}

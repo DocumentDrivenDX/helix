@@ -1,6 +1,7 @@
 # Diagram design standard
 
-Use this standard when a diagram must work in a presentation or as a flagship
+Whether to draw at all, and which kind of visual answers which question, is
+[`visuals.md`](visuals.md). Use this standard when a diagram must work in a presentation or as a flagship
 solution visual, and to review a generated one. Ordinary reference diagrams may remain in Mermaid. A polished
 view explains the same architecture at a chosen level; it adds no authority.
 
