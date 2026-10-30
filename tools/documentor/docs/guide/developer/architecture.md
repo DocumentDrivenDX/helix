@@ -7,7 +7,7 @@
 <!-- helix:source src/documentor/record.py sha256:cecdf2712047484e -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/theme.py sha256:17adf6a5c35f2e4d -->
-<!-- helix:source src/documentor/visuals.py sha256:daa439fb5d461d15 -->
+<!-- helix:source src/documentor/visuals.py sha256:a800032637b6cd3b -->
 <!-- helix:source src/documentor/deliverable/__init__.py sha256:ad9354803e0dd670 -->
 <!-- helix:source src/documentor/architecture/model.py sha256:1dd45080b698edb2 -->
 <!-- helix:source src/documentor/architecture/views.py sha256:9217c09b8a9d2262 -->

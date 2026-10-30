@@ -8,7 +8,7 @@
 <!-- helix:source README.md#development sha256:ec26429513feaa3e -->
 <!-- helix:source src/documentor/__init__.py sha256:e612d1e2f68f2667 -->
 <!-- helix:source src/documentor/cli.py sha256:4fe81cf37df6d5aa -->
-<!-- helix:source src/documentor/visuals.py sha256:daa439fb5d461d15 -->
+<!-- helix:source src/documentor/visuals.py sha256:a800032637b6cd3b -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/lib.py sha256:7e594138b133286a -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->

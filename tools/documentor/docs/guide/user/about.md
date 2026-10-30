@@ -11,7 +11,7 @@
 <!-- helix:source src/documentor/write.py sha256:2118376b2c167085 -->
 <!-- helix:source src/documentor/generate.py sha256:47b5e3e1d2d06cbd -->
 <!-- helix:source src/documentor/cli.py sha256:4fe81cf37df6d5aa -->
-<!-- helix:source src/documentor/visuals.py sha256:daa439fb5d461d15 -->
+<!-- helix:source src/documentor/visuals.py sha256:a800032637b6cd3b -->
 # What it is and is not
 
 documentor is a command-line tool that builds a repository's documentation, its *guide*, and keeps it current. Here is what it does, how it keeps to your organisation's data rules, and where it stops.

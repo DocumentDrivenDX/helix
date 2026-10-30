@@ -5,7 +5,7 @@
 <!-- helix:source src/documentor/cli.py sha256:4fe81cf37df6d5aa -->
 <!-- helix:source src/documentor/write.py sha256:2118376b2c167085 -->
 <!-- helix:source src/documentor/site.py sha256:c715ad483398775f -->
-<!-- helix:source src/documentor/visuals.py sha256:daa439fb5d461d15 -->
+<!-- helix:source src/documentor/visuals.py sha256:a800032637b6cd3b -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
 # Using the product

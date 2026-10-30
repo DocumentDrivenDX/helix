@@ -8,7 +8,7 @@
 <!-- helix:source src/documentor/generate.py sha256:47b5e3e1d2d06cbd -->
 <!-- helix:source src/documentor/write.py sha256:2118376b2c167085 -->
 <!-- helix:source src/documentor/lib.py sha256:7e594138b133286a -->
-<!-- helix:source src/documentor/visuals.py sha256:daa439fb5d461d15 -->
+<!-- helix:source src/documentor/visuals.py sha256:a800032637b6cd3b -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
 <!-- helix:source pyproject.toml sha256:74a08b4781a32616 -->
 # Embedding the library

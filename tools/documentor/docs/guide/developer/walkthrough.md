@@ -6,7 +6,7 @@
 <!-- helix:source src/documentor/generate.py sha256:47b5e3e1d2d06cbd -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/write.py sha256:2118376b2c167085 -->
-<!-- helix:source src/documentor/visuals.py sha256:daa439fb5d461d15 -->
+<!-- helix:source src/documentor/visuals.py sha256:a800032637b6cd3b -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:fa22a42e759b3fda -->
 <!-- helix:source tests/validate-guide.sh sha256:5c416438f8ca7e20 -->
 <!-- helix:source tests/validate-publish.sh sha256:fbe3dede8c6f4a24 -->
