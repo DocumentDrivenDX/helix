@@ -95,6 +95,22 @@ briefs:
       - Concern selection is recorded (in concerns.md or stated as none apply with a reason), not skipped.
       - Unknowns are marked as open questions instead of being resolved by invention.
 
+  - id: frame-databricks-app-profile
+    mode: frame
+    fixture: vision
+    prompt: >-
+      Frame the PRD for this product from the product vision under docs/helix.
+      The product will be hosted as a Databricks App. Select the project's
+      concerns as part of framing. Do not write code.
+    checks:
+      - { kind: files_exist, globs: ["docs/helix/01-frame/concerns.md"] }
+      - { kind: files_unchanged, globs: ["docs/helix/00-discover/product-vision.md"] }
+      - { kind: max_new_files, value: 6 }
+    rubric:
+      - concerns.md fills deploy-target with databricks-apps and records the databricks-apps profile as the source of python-uv, react-vite, lakebase and databricks-obo-identity.
+      - Composable profile concerns are selected or pruned with a reason, not silently added.
+      - No slot is filled from the global defaults where the profile supplies one.
+
   - id: align-baseline
     mode: align
     fixture: baseline

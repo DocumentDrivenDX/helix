@@ -7,6 +7,11 @@
 # key is a slot; each value is the concern that should fill it. The chosen filler
 # and its source ("concerns.local.yml override") are recorded in concerns.md.
 #
+# A deploy-target override also selects that target's profile in slots.yml
+# (e.g. `deploy-target: databricks-apps` brings python-uv, react-vite, lakebase
+# and databricks-obo-identity as defaults for the remaining slots); any slot
+# listed here still wins over the profile.
+#
 # With no concerns.local.yml present, selection falls back to the shipped
 # defaults in slots.yml — so leaving this as `.example` lets the shipped default
 # be exercised on its own (e.g. by the regression bench).

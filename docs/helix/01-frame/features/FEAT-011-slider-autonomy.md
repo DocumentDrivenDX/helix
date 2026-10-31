@@ -106,12 +106,16 @@ inference fills the slot by resolution order, first match wins:
 1. **Operator override** — the slot's value in
    `docs/helix/01-frame/concerns.local.yml` (read before `concerns.md` exists),
    if present.
-2. **Shipped default** — the slot's value in `slots.yml` `defaults:`.
-3. **Recorded assumption** — if neither supplies a filler, record an assumption
+2. **Profile default** — the slot's value in the `slots.yml` `profiles:` entry
+   whose `when` matches an already-resolved filler (the governing slot, e.g.
+   `deploy-target`, resolves first; see [[FEAT-006]] and ADR-016).
+3. **Shipped default** — the slot's value in `slots.yml` `defaults:`.
+4. **Recorded assumption** — if none supplies a filler, record an assumption
    to revisit; never make a silent pick.
 
-The chosen filler and its source ("concerns.local.yml override", "slots.yml
-default", or "assumption") are recorded in `concerns.md`. **A web app must fill
+The chosen filler and its source ("concerns.local.yml override", "profile
+default (<profile>)", "slots.yml default", or "assumption") are recorded in
+`concerns.md`. **A web app must fill
 the `frontend-framework` slot** — leaving it empty (raw-served HTML with no
 supported framework) is the failure this requirement exists to prevent; the
 shipped default `react-nextjs` takes effect with no operator configuration. This

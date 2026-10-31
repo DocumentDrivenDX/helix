@@ -337,12 +337,21 @@ selection by the active autonomy level (FEAT-011; see `workflows/actions/input.m
    1. **Operator override** — the slot's value in
       `docs/helix/01-frame/concerns.local.yml`, if that file exists. Read it
       **before** writing `concerns.md`.
-   2. **Shipped default** — the slot's value in `defaults:` of
+   2. **Profile default** — the slot's value in the `defaults` of the one
+      `profiles:` entry in `workflows/concerns/slots.yml` whose `when` matches a
+      filler already resolved (e.g. `deploy-target: databricks-apps` selects the
+      `databricks-apps` profile). Resolve the governing slot (`deploy-target`)
+      first so its profile can apply.
+   3. **Shipped default** — the slot's value in `defaults:` of
       `workflows/concerns/slots.yml`.
-   3. **Assumption** — if neither supplies a filler, record an assumption to
+   4. **Assumption** — if none supplies a filler, record an assumption to
       revisit; never make a silent pick.
    Record the chosen filler **and its source** (`concerns.local.yml override`,
-   `slots.yml default`, or `assumption`) in `concerns.md`. Slot membership is
+   `profile default (<profile>)`, `slots.yml default`, or `assumption`) in
+   `concerns.md`. A matching profile's `compose` list adds its composable
+   concerns as assumptions with source `profile default (<profile>)`, each still
+   subject to its own `## When to use` and pruned with a reason when it does not
+   apply. Slot membership is
    derived: a concern fills slot X iff its `concern.md` `## Slot` names X.
    **Filling `e2e-framework` selects the tool; it is not e2e coverage.** A UI web
    app must additionally have **≥1 core user-flow covered by a whole-stack e2e that

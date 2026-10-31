@@ -88,8 +88,13 @@ For every needed exclusive slot, resolve the filler in this fixed order
 1. **Operator override** — `docs/helix/01-frame/concerns.local.yml` in the
    project tree. Read this BEFORE concerns.md exists, during high-autonomy
    concern selection.
-2. **Shipped default** — the `defaults:` map in `slots.yml`.
-3. **Recorded assumption** — if neither source resolves, infer from the
+2. **Profile default** — the `defaults` of the one `profiles:` entry in
+   `slots.yml` whose `when` matches an already-resolved filler (resolve
+   `deploy-target` first; e.g. `databricks-apps` selects a platform stack). Its
+   `compose` list adds composable concerns, each still subject to its
+   `## When to use`.
+3. **Shipped default** — the `defaults:` map in `slots.yml`.
+4. **Recorded assumption** — if no source resolves, infer from the
    product's nature and record it as an assumption in `concerns.md`.
 
 The exclusive slots and any shipped defaults are declared in `slots.yml`;
@@ -98,7 +103,7 @@ project overrides, not technology choices HELIX imposes.
 
 **Contract**: select each needed slot **once per session** during step 2
 above, and record the chosen filler PLUS its source (`operator-override`,
-`shipped-default`, or `assumption`) in `concerns.md`. Propagation to work
+`profile-default`, `shipped-default`, or `assumption`) in `concerns.md`. Propagation to work
 items and downstream artifacts is a later gate (owned by `check`/`polish`),
 never a re-selection.
 

@@ -1,7 +1,7 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-release-version test-verification-contract test-ux-governance test-plan-execution test-modularity test-agent-diagnostics test-formal-methods test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable test-headline-sync test-deck-render test-demos test-innsigle test-eval-checks
+test: test-release-version test-verification-contract test-ux-governance test-plan-execution test-modularity test-agent-diagnostics test-formal-methods test-deploy-artifacts test-skills test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable test-headline-sync test-concern-slots test-deck-render test-demos test-innsigle test-eval-checks
 
 # documentor (tools/documentor), the host tool behind the guide mode: its own suite and the
 # packaged catalog's match with workflows/. CI runs it in .github/workflows/documentor.yml.
@@ -17,6 +17,9 @@ test-deploy-artifacts:
     bash tests/validate-deploy-artifacts.sh
 
 # Run skill package validation
+test-concern-slots:
+    bash tests/validate-concern-slots.sh
+
 test-skills:
     bash tests/validate-skills.sh
 

@@ -19,7 +19,8 @@ because they materially compose with the family but live outside it.
 | `multi-tenancy` | tenant predicate; tenant scoping rules (the inter-tenant guarantee) |
 | `security-owasp` | hardening posture; **audit-logging policy** (what to log on authz denial) |
 
-The `auth-provider` slot (default filler: `auth-local-sessions`) sits beneath
+The `auth-provider` slot (default filler: `auth-local-sessions`;
+`databricks-obo-identity` under the `databricks-apps` profile) sits beneath
 `auth` and owns the *mechanism* (how identities/sessions are stored and
 verified). A different slot filler (Auth0/OIDC, Clerk, …) is a swap, not a
 rewrite. The slot is what `auth` defers to; it is not itself a member of the

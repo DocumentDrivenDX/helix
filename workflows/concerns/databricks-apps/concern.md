@@ -252,8 +252,12 @@ targets the Databricks lakehouse / is a data+AI app on Databricks. It fills the
 backend), **`python-uv`** (the backend toolchain), **`unity-catalog`** (the
 data it reads is governed there), **`databricks-appkit-ui`** (Databricks-styled
 React components), and **`databricks-declarative-pipelines`** (when the data it
-reads is produced by declarative ETL). `areas: ui, api, infra` scopes its
-practices to the UI, service, and hosting work items.
+reads is produced by declarative ETL). Filling `deploy-target` with this
+concern selects the `databricks-apps` profile in `slots.yml`, which defaults
+`language-runtime` to `python-uv`, `frontend-framework` to `react-vite`,
+`datastore` to `lakebase`, and `auth-provider` to `databricks-obo-identity`.
+`areas: ui, api, infra` scopes its practices to the UI, service, and hosting
+work items.
 
 Do **not** select it for an app hosted off Databricks, or one with no Databricks
 account/lakehouse — use the generic `deploy-target` and frontend concerns there.

@@ -363,7 +363,7 @@ def run(docs_root: Path, code_root: Path) -> dict:
         {"dimension": "Slot / instrument", "computed": False, "found": None, "checked": None,
          "blocking_findings": 0, "advisory_findings": 0, "structural_status": "model-required",
          "detail": "Slot-Registry + Instrument-Integrity read the workflows/concerns tree, not this docs-root",
-         "model_completes": "run the deterministic Slot-Registry Integrity check (slots.yml vs concern ## Slot) separately"},
+         "model_completes": "run the deterministic Slot-Registry Integrity check separately: scripts/check_concern_slots.py"},
     ]
 
     blocking = sum(1 for f in findings if f["severity"] == "blocking")

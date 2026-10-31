@@ -205,6 +205,16 @@ defaults:
   frontend-framework: react-nextjs
   language-runtime:   typescript-bun
   e2e-framework:      e2e-playwright
+  auth-provider:      auth-local-sessions
+profiles:
+  databricks-apps:                     # keyed by the concern that triggers it
+    when: { deploy-target: databricks-apps }
+    defaults:
+      language-runtime:   python-uv
+      frontend-framework: react-vite
+      datastore:          lakebase
+      auth-provider:      databricks-obo-identity
+    compose: [databricks-appkit-ui, unity-catalog, databricks-ai-gateway]
 ```
 
 `e2e-framework` is an exclusive slot like the others (a project runs its core
@@ -229,9 +239,21 @@ have ≥1 core user-flow exercised by a browser e2e that runs green (FEAT-010).
 - **Operator house override.** A project may pin a different filler per slot in
   `docs/helix/01-frame/concerns.local.yml` (`defaults:` keyed by slot), read
   before `concerns.md` exists. It layers on top of the shipped defaults.
+- **Platform profiles.** A coherent stack can depend on where the product
+  runs: the shipped defaults suit a self-hosted TypeScript web app, not a
+  Databricks App. A `profiles:` entry supplies slot defaults that apply only
+  once its governing slot holds its trigger concern (`when`), plus composable
+  concerns the stack recommends (`compose`, each still gated by its own
+  `## When to use`). At most one profile matches a project; a profile never
+  defaults its own trigger slot. See ADR-016.
 - **Resolution order per needed exclusive slot** (high autonomy): operator
-  override (`concerns.local.yml`) → shipped default (`slots.yml`) → otherwise
-  record an assumption (never a silent pick). The chosen filler and its source
+  override (`concerns.local.yml`) → matching profile default (`slots.yml`
+  `profiles:`) → shipped default (`slots.yml` `defaults:`) → otherwise record an
+  assumption (never a silent pick). The governing slot resolves first.
+- **Integrity is checked deterministically.** `scripts/check_concern_slots.py`
+  (lane `test-concern-slots`) rejects duplicate keys, defaults and profile
+  entries naming a concern whose `## Slot` differs, a profile defaulting its own
+  trigger slot, and slot-filling concerns listed under `compose`. The chosen filler and its source
   are recorded in `concerns.md`. See FR-16 and FEAT-011 FR-3.
 
 ### Practices

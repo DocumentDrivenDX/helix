@@ -196,10 +196,13 @@ shipped defaults are declared in `concerns/slots.yml` (via §Catalog
 Resolution); read them there, not from this skill. Membership is derived from
 each concern's `## Slot` section. Resolve each needed slot in this order, first
 match wins: (1) operator override in `docs/helix/01-frame/concerns.local.yml`,
-read before `concerns.md` exists; (2) the `defaults:` map in `slots.yml`; (3) a
-recorded assumption inferred from the product's nature. Select each slot
+read before `concerns.md` exists; (2) the `defaults` of the `profiles:` entry in
+`slots.yml` whose `when` matches an already-resolved filler (resolve
+`deploy-target` first); (3) the `defaults:` map in `slots.yml`; (4) a recorded
+assumption inferred from the product's nature. Select each slot
 **once per session** during §Frame step 2 and record the filler plus its source
-(`operator-override`, `shipped-default`, or `assumption`) in `concerns.md`.
+(`operator-override`, `profile-default`, `shipped-default`, or `assumption`) in
+`concerns.md`.
 Propagation downstream is a later gate (`check`/`polish`), never a
 re-selection. Detail: `modes/frame.md`.
 

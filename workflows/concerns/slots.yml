@@ -14,11 +14,22 @@
 # Operators override a default per-project in
 # docs/helix/01-frame/concerns.local.yml (read during high-autonomy concern
 # selection, before concerns.md exists). Resolution order per needed exclusive
-# slot: operator override -> shipped default below -> recorded assumption.
+# slot: operator override -> matching profile default -> shipped default below
+# -> recorded assumption.
+#
+# `profiles` holds platform stacks: slot defaults that apply only once a
+# governing slot is filled by a named concern (e.g. deploy-target:
+# databricks-apps). A profile is keyed by the concern that triggers it; `when`
+# names that one slot and filler; `defaults` names fillers for OTHER slots;
+# `compose` lists composable (slot-free) concerns the stack recommends, each
+# still subject to its own `## When to use`. Resolve the governing slot first,
+# then apply the matching profile. At most one profile may match a project.
+# The Slot Registry Integrity check (scripts/check_concern_slots.py) enforces
+# these rules.
 slots:
   frontend-framework: { exclusive: true }
   language-runtime:    { exclusive: true }
-  datastore:           { exclusive: true }   # no universal engine default; project-owned fillers: references/concern-resolution.md
+  datastore:           { exclusive: true }   # no universal engine default (lakebase is the databricks-apps profile default); other engines use project-owned fillers: references/concern-resolution.md
   deploy-target:       { exclusive: true }
   e2e-framework:       { exclusive: true }   # the one browser-e2e tool a UI web app runs its core flows through
   auth-provider:       { exclusive: true }   # the one authentication/identity backend (local sessions, Auth0/OIDC, …)
@@ -31,3 +42,17 @@ defaults:
   language-runtime:   typescript-bun
   e2e-framework:      e2e-playwright
   auth-provider:      auth-local-sessions
+
+profiles:
+  databricks-apps:
+    when:
+      deploy-target: databricks-apps
+    defaults:
+      language-runtime:   python-uv
+      frontend-framework: react-vite
+      datastore:          lakebase
+      auth-provider:      databricks-obo-identity
+    compose:
+      - databricks-appkit-ui
+      - unity-catalog
+      - databricks-ai-gateway
