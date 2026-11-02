@@ -1,19 +1,20 @@
-<!-- helix:publish audience=user page=using kind=how-to voice=public-site budget=1500 written=codex reviewed=2026-10-29/codex-astra-independent-reader/b83dc2194e378596 -->
+<!-- helix:publish audience=user page=using kind=how-to voice=public-site budget=1500 written=codex reviewed=2026-11-02/codex-independent-reader/6bfb1bcdb1b98053 -->
 <!-- helix:gap artifact:feature-specification -->
 <!-- helix:gap artifact:user-stories -->
 <!-- helix:source README.md#use sha256:1668b6192a52a5d5 -->
 <!-- helix:source src/documentor/cli.py sha256:d35633003485cfea -->
 <!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
-<!-- helix:source src/documentor/site.py sha256:825480be83f5450b -->
+<!-- helix:source src/documentor/site.py sha256:db005a9f2608f6c9 -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:9f8ec1f2b471f001 -->
 <!-- helix:source src/documentor/schemas.py sha256:6db23e6c01b889bc -->
 <!-- helix:source src/documentor/catalog/ci/github-pages.yml sha256:5656014516fa3a2d -->
+<!-- helix:source src/documentor/concourse.py sha256:e4f9103bf730d2eb -->
 # Using the product
 
-documentor builds and maintains the repository's *guide*. Follow these tasks in order.
+Maintain the repository guide.
 
-Run from the repository root or pass `--root DIR`. Start with [Getting started](index.md) for a new guide.
+Use the repository root or `--root DIR`. Start with [Getting started](index.md) for a new guide.
 
 Settings live in `.helix.yml` under `publish:`. Its `schema` must match documentor: `status`, `build`, `write`, `check`, and `prompt` reject mismatches; `init`, `review`, and `adopt` do not check it.
 
@@ -148,6 +149,8 @@ Two more settings under `publish.site` add sections the guide does not write:
 A section's command gets `DOCUMENTOR_SECTION_OUT`, set to that section's folder in the site. If the command fails, `build` stops.
 
 In a new site, `build` lists the record and each generated section in the navigation, ahead of "How this guide was made". A section appears only once its folder exists in the site. The record's navigation title is `Record` unless `record_title` under `publish.site` names another.
+
+Use [Concourse integration](../developer/embedding.md#inline-comments) for optional comments; deploy its service separately.
 
 ### Look at the built pages
 

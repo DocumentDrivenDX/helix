@@ -1,4 +1,4 @@
-<!-- helix:publish audience=developer page=walkthrough kind=explanation voice=onboarding budget=1100 written=codex reviewed=2026-10-29/agent-sonnet/c55e176b4732400e -->
+<!-- helix:publish audience=developer page=walkthrough kind=explanation voice=onboarding budget=1100 written=codex reviewed=2026-11-02/codex-independent-reader/c55e176b4732400e -->
 <!-- helix:gap artifact:architecture -->
 <!-- helix:source src/documentor/cli.py sha256:d35633003485cfea -->
 <!-- helix:source src/documentor/check.py sha256:784c2473233c0346 -->
@@ -18,7 +18,7 @@
 <!-- helix:source tests/python/test_generators_ops.py sha256:7b51edcbc2916d4e -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
 <!-- helix:source src/documentor/schemas.py sha256:6db23e6c01b889bc -->
-<!-- helix:source src/documentor/site.py sha256:825480be83f5450b -->
+<!-- helix:source src/documentor/site.py sha256:db005a9f2608f6c9 -->
 <!-- helix:source tests/python/test_schemas.py sha256:fed68ae9a073185b -->
 # Request walkthrough
 

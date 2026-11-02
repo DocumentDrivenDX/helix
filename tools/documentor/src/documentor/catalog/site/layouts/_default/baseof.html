@@ -35,5 +35,6 @@ mermaid.initialize({startOnLoad:true, securityLevel:"strict", theme:"base", them
   fontFamily:getComputedStyle(document.body).fontFamily}});
 </script>
 {{ end }}
+{{ if site.Params.concourse.enabled }}{{ partial "concourse.html" . }}{{ end }}
 </body>
 </html>

@@ -71,6 +71,10 @@ menu:
       weight: 7
 
 params:
+  concourse:
+    enabled: false
+    site: helix
+    api: /__concourse/
   description: A document-driven methodology and artifact catalog that keeps AI-assisted software development aligned across vision, design, tests, and code.
 
   navbar:

@@ -40,6 +40,22 @@ jobs:
         with:
           fetch-depth: 0  # generator drift gate diffs against committed output
 
+      - name: Check out shared Concourse integration
+        uses: actions/checkout@v4
+        with:
+          repository: DocumentDrivenDX/concourse
+          ref: 94b28443af69163988a8fde1c7286c817cbc5324
+          path: .tools/concourse
+      - name: Set up Bun for Concourse assets
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.3
+      - name: Install Concourse browser assets
+        run: |
+          cd .tools/concourse
+          bun run build:browser
+          bun src/cli/install-hugo.ts ../../website
+
       - name: Install Hugo
         run: |
           wget -O "${{ runner.temp }}/hugo.deb" "https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb"

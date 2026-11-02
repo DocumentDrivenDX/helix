@@ -189,3 +189,13 @@ concerns and must not drift without an ADR.
 - Promoting `docs/demos/helix-interactive/` into the shipped public demo set
   without matching microsite embeds, CI recording coverage, and a feature-spec
   update
+
+## Authenticated inline discussion
+
+Owner direction 2026-10-29: HELIX microsites can opt into Concourse section
+comments for signed-in readers. Keep content publication and mutable discussion
+separate. The first target is a Cloudflare-hosted copy at
+`helix.synaptiq.tools` using existing Google Workspace login. GitHub Pages stays
+public and its default build does not enable an unavailable same-origin API.
+Documentor-generated Hugo sites must reuse the same Concourse distribution and
+explicit site settings. Never rewrite the Innsigle source or its attestation.

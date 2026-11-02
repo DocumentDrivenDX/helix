@@ -1,4 +1,4 @@
-<!-- helix:publish audience=developer page=embedding kind=how-to voice=onboarding budget=1100 written=codex reviewed=2026-10-29/codex-astra-independent-reader/bb6276d19ee44b28 -->
+<!-- helix:publish audience=developer page=embedding kind=how-to voice=onboarding budget=1100 written=codex reviewed=2026-11-02/codex-independent-reader/9d112a9361ec1752 -->
 <!-- helix:gap artifact:examples -->
 <!-- helix:source README.md#install sha256:11003d4123be1f55 -->
 <!-- helix:source README.md#what-it-reads-and-writes sha256:55f9002fc000e454 -->
@@ -13,7 +13,8 @@
 <!-- helix:source src/documentor/schemas.py sha256:6db23e6c01b889bc -->
 <!-- helix:source src/documentor/detect.py sha256:376f1dd87ec38e48 -->
 <!-- helix:source src/documentor/umf_tables.py sha256:56c75007b5b2d2de -->
-<!-- helix:source src/documentor/site.py sha256:825480be83f5450b -->
+<!-- helix:source src/documentor/site.py sha256:db005a9f2608f6c9 -->
+<!-- helix:source src/documentor/concourse.py sha256:e4f9103bf730d2eb -->
 # Embedding the library
 
 A host can embed documentor in three ways. It can run the `documentor` command, call `documentor.cli.main` from Python, or ship a generator that documentor loads. The package exports only `__version__`, so `main` and the generator entry point are the contract.
@@ -175,9 +176,34 @@ code = main(["schemas", "--root", "/path/to/host", "--check"])
 
 Site assembly publishes schemas; Hugo needs generation first. Unowned collisions fail; unrelated files survive. Browsing proves no semantic conformance.
 
+## Inline comments
+
+Build a pinned Concourse browser distribution before assembling Hugo, static, or Hextra output.
+
+<details>
+<summary>Configuration and installer behavior</summary>
+
+Configure `publish.site.concourse` in the host's `.helix.yml`:
+
+```yaml
+publish:
+  site:
+    concourse:
+      enabled: true
+      site: guide
+      api: /__concourse/
+      package: .tools/concourse
+```
+
+`package` names the checkout relative to the host root; `CONCOURSE_PACKAGE` is the fallback. The installer verifies the manifest before copying assets and preserves existing footer hooks. Add the installed partial to an existing hook yourself.
+
+Omit the block to skip installation; `enabled: false` still installs assets but disables comments. Deploy authentication and storage separately on the publication's origin.
+
+</details>
+
 ## Errors and their meaning
 
-Guide commands return 0, 1, or 2. Tools have their own codes; `views` always returns 0.
+Guide commands use the exit codes below; `views` returns 0.
 
 | Code | Meaning | Host's response |
 |---|---|---|
@@ -241,6 +267,6 @@ uvx --from "git+https://github.com/DocumentDrivenDX/helix@<new-tag>#subdirectory
 uvx --from "git+https://github.com/DocumentDrivenDX/helix@<new-tag>#subdirectory=tools/documentor" documentor check --root .
 ```
 
-A new catalog can add pages or tighten prose limits, so `check` can start returning 1 with no host change.
+Catalog changes can make `check` fail without host changes.
 
 `publish.schema` versions the configuration contract, and this release reads schema 1. A missing `schema` counts as 1. Against any other schema, a guide command returns 2 and says to use the documentor from the block's HELIX release.

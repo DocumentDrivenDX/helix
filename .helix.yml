@@ -34,6 +34,11 @@ publish:
     target: hugo
     site_dir: website
     content_dir: guide
+    concourse:
+      enabled: false  # Enabled for the authenticated Cloudflare mirror only.
+      site: helix
+      api: /__concourse/
+      package: .tools/concourse
     record: true
     record_dir: artifacts
     record_title: Artifacts

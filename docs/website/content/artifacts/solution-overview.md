@@ -1,7 +1,7 @@
 ---
 title: "HELIX solution overview"
 slug: solution-overview
-weight: 520
+weight: 530
 activity: "Design"
 source: "02-design/solution-overview.md"
 generated: true
