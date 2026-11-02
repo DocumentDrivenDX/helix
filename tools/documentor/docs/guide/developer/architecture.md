@@ -1,9 +1,9 @@
-<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=codex reviewed=2026-10-29/codex-astra-independent-reader/4f7b7c55224492c3 -->
+<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=codex reviewed=2026-11-02/codex-independent-reader/42d878c3a8fe5176 -->
 <!-- helix:gap artifact:architecture -->
 <!-- helix:source src/documentor/cli.py sha256:8b7a0be0b2efb9cb -->
 <!-- helix:source src/documentor/lib.py sha256:5db149c5af59118b -->
 <!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
-<!-- helix:source src/documentor/site.py sha256:1d8a815021485d27 -->
+<!-- helix:source src/documentor/site.py sha256:394c66bbb3c1f8c2 -->
 <!-- helix:source src/documentor/record.py sha256:ab468e2c1eef452a -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/theme.py sha256:7e38d9589c728f0b -->
@@ -25,6 +25,7 @@
 <!-- helix:source src/documentor/schemas.py sha256:6db23e6c01b889bc -->
 <!-- helix:source src/documentor/umf_tables.py sha256:56c75007b5b2d2de -->
 <!-- helix:source src/documentor/catalog/ci/github-pages.yml sha256:5656014516fa3a2d -->
+<!-- helix:source src/documentor/concourse.py sha256:e4f9103bf730d2eb -->
 # Architecture
 
 documentor is one Python package with one command line, `documentor`. It reads a repository, plans the pages its readers need, and makes or checks each page. It runs no server: it runs on a developer's machine or in a CI job.
@@ -79,6 +80,7 @@ The containers are Python modules under `src/documentor/`, plus the catalog and 
 | `src/documentor/check.py` | `check-pages` and `stamp`: stale sources, broken links, missing paths, cited tests, handling patterns, prose limits |
 | `src/documentor/prose.py` | Measures a page's prose against its voice profile and word budget |
 | `src/documentor/site.py` | Emits the pages into an mkdocs or Hugo site, or writes a new site in its own layout or Hextra |
+| `src/documentor/concourse.py` | Verifies and installs Concourse browser assets into a Hugo site |
 | `src/documentor/report.py` | The "How this guide was made" page, the gap list `status` prints, and `site --shots` screenshots |
 | `src/documentor/theme.py` | Maps the project's ux-builder theme onto the site, the views, the presentations, and the decks |
 | `src/documentor/schemas.py` | Collects declared schemas, preserves source bytes and provenance, and publishes the pinned browser |
@@ -116,7 +118,7 @@ Architecture modules load on demand. Most use the standard library; `tour --rend
 
 ## Deployment
 
-documentor ships as a wheel that hatchling builds and that a repository installs through `uv` from the HELIX release containing it. The package version, 0.19.1, follows HELIX's. Nothing is vendored into the target repository.
+documentor ships as a wheel that hatchling builds and that a repository installs through `uv` from the HELIX release containing it. The package version follows HELIX's. Nothing is vendored into the target repository.
 
 ```sh
 uv tool install "git+https://github.com/DocumentDrivenDX/helix@<tag>#subdirectory=tools/documentor"
@@ -148,7 +150,9 @@ In a site that documentor scaffolded, `site` then adds the record and each gener
 
 Hugo, static, and Hextra builds publish artifact and guide schemas plus discovered UMF tables. Adopted pages contribute references. The browser follows the host theme and preserves selection across changes.
 
-The publisher preserves unrelated files and refuses unowned output collisions. `documentor schemas --check` checks freshness; rendering establishes no semantic conformance.
+Hugo, static, and Hextra builds can install a Concourse distribution. `site.py` calls `src/documentor/concourse.py` after schema publication. Installation verifies every asset before copying; login and comment storage stay in Concourse.
+
+The schema publisher preserves unrelated files and refuses unowned output collisions. `documentor schemas --check` checks freshness; rendering establishes no semantic conformance.
 
 The Pages template, `src/documentor/catalog/ci/github-pages.yml`, requires selecting a release with UMF support; preflight rejects the placeholder or a tool without schema publication.
 

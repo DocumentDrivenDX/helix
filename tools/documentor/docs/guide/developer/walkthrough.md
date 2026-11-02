@@ -1,4 +1,4 @@
-<!-- helix:publish audience=developer page=walkthrough kind=explanation voice=onboarding budget=1100 written=codex reviewed=2026-10-29/codex-astra-independent-reader/4a8250a81fa82e57 -->
+<!-- helix:publish audience=developer page=walkthrough kind=explanation voice=onboarding budget=1100 written=codex reviewed=2026-11-02/codex-independent-reader/4a8250a81fa82e57 -->
 <!-- helix:gap artifact:architecture -->
 <!-- helix:source src/documentor/cli.py sha256:8b7a0be0b2efb9cb -->
 <!-- helix:source src/documentor/check.py sha256:784c2473233c0346 -->
@@ -15,7 +15,7 @@
 <!-- helix:source tests/python/test_generators_ops.py sha256:7b51edcbc2916d4e -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
 <!-- helix:source src/documentor/schemas.py sha256:6db23e6c01b889bc -->
-<!-- helix:source src/documentor/site.py sha256:1d8a815021485d27 -->
+<!-- helix:source src/documentor/site.py sha256:394c66bbb3c1f8c2 -->
 <!-- helix:source tests/python/test_schemas.py sha256:fed68ae9a073185b -->
 # Request walkthrough
 
