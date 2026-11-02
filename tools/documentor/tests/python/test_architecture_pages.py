@@ -5,7 +5,8 @@ from itertools import pairwise
 from pathlib import Path
 
 
-from documentor.architecture.deploy import render_deployment, route
+from documentor.architecture.deploy import LABEL_PX, render_deployment, route
+from documentor.architecture.deploy import _label as deploy_label
 from documentor.architecture.model import (
     DEFAULT_THEME,
     Element,
@@ -163,12 +164,107 @@ def test_a_deployment_gives_every_line_its_own_lane_and_sends_a_skip_down_the_co
     assert all(upper[1] < lower[0] for upper, lower in pairwise(tiers))
 
 
-def test_neighbors_too_close_for_a_label_loop_through_a_gap() -> None:
+def test_neighbors_a_line_joins_stand_apart_and_join_side_to_side() -> None:
     model = _deployment()
     layout = route(model, model.views["deploy"])
-    loops = [y for x, y, text in layout.labels if text in ("MCP", "changes")]
-    app, db = layout.boxes["app"], layout.boxes["db"]
-    assert all(app.y + app.h < y < db.y for y in loops)
+    for source, target in (("app", "peer"), ("db", "log")):
+        a, b = layout.boxes[source], layout.boxes[target]
+        left, right = (a, b) if a.x < b.x else (b, a)
+        points = layout.routes[f"{source}>{target}"]
+        assert [x for x, _ in points] in ([left.x + left.w, right.x], [right.x, left.x + left.w])
+        assert all(a.y < y < a.y + a.h for _, y in points)
+    mcp = next(x for x, _, text in layout.labels if text == "MCP")
+    app, peer = layout.boxes["app"], layout.boxes["peer"]
+    assert min(app.x, peer.x) < mcp < max(app.x + app.w, peer.x + peer.w)
+
+
+def _segments(layout):
+    return [(key, a, b) for key, points in layout.routes.items() for a, b in pairwise(points)]
+
+
+def _crossings(layout) -> int:
+    count = 0
+    segments = _segments(layout)
+    for i, (k1, a, b) in enumerate(segments):
+        for k2, c, d in segments[i + 1 :]:
+            if k1 == k2 or (a[1] == b[1]) == (c[1] == d[1]):
+                continue
+            (h0, h1), (v0, v1) = ((a, b), (c, d)) if a[1] == b[1] else ((c, d), (a, b))
+            if min(h0[0], h1[0]) < v0[0] < max(h0[0], h1[0]) and min(v0[1], v1[1]) < h0[1] < max(v0[1], v1[1]):
+                count += 1
+    return count
+
+
+def _tags_crossed(model, view, layout) -> list[str]:
+    owner = {deploy_label(r): f"{r.source}>{r.target}" for r in model.relations}
+    crossed = []
+    for (x, y, text), rows in zip(layout.labels, layout.label_rows, strict=True):
+        w, h = max(map(len, rows)) * LABEL_PX + 12, 16 * len(rows) + 2
+        box = (x - w / 2, y - h / 2, x + w / 2, y + h / 2)
+        for key, a, b in _segments(layout):
+            if key != owner[text] and min(a[0], b[0]) < box[2] and box[0] < max(a[0], b[0]) and min(a[1], b[1]) < box[3] and box[1] < max(a[1], b[1]):
+                crossed.append(text)
+                break
+    return crossed
+
+
+def test_a_busy_box_sends_each_line_on_its_own_track_with_no_crossing_and_no_line_under_a_tag() -> None:
+    # One box with lines to every box in the tier below, two tiers up, and one under the bottom
+    # tier: the shape that drew a bundle of crossed lines with tags over them.
+    people = [_element("person", tier=1, zone="People"), _element("installer", tier=1, zone="People")]
+    app = _element("app", kind="system", tier=2, zone="Apps")
+    below = [_element(f"store{i}", kind="store", tier=3, zone="Data") for i in range(5)]
+    relations = (
+        _relation("person", "app", "HTTPS", why="signs the person in"),
+        _relation("app", "person", "notifies", why="when a job finishes"),
+        *(_relation("app", e.id, f"writes {e.id}", why="state outlives a restart") for e in below),
+        _relation("installer", "store4", "copies a plug-in", why="reviewed, with no deploy"),
+    )
+    ids = tuple(e.id for e in (*people, app, *below))
+    view = View("d", "LR", ids, type="deployment")
+    model = _model(*people, app, *below, relations=relations, views=(view,))
+    layout = route(model, view)
+    assert _crossings(layout) == 0
+    assert _tags_crossed(model, view, layout) == []
+    # The installer's line skips a tier and runs under the bottom tier, rising into its box.
+    installer = layout.routes["installer>store4"]
+    store = layout.boxes["store4"]
+    assert installer[-1] == (installer[-1][0], store.y + store.h)
+    assert min(x for x, _ in installer) < 0
+
+
+def test_corridor_tracks_nest_the_shorter_line_inside() -> None:
+    top = _element("top", tier=1, zone="Top")
+    side = _element("side", tier=1, zone="Top")
+    middle = _element("middle", tier=2, zone="Middle")
+    app = _element("app", kind="system", tier=3, zone="Apps")
+    bottom = _element("bottom", tier=4, zone="Bottom")
+    relations = (
+        _relation("top", "middle", "reaches"),
+        _relation("middle", "app", "calls"),
+        _relation("app", "bottom", "stores"),
+        _relation("top", "bottom", "copies"),
+        _relation("app", "side", "asks", status="unknown"),
+    )
+    view = View("d", "LR", ("top", "side", "middle", "app", "bottom"), type="deployment")
+    model = _model(top, side, middle, app, bottom, relations=relations, views=(view,))
+    layout = route(model, view)
+    track = {key: min(x for x, _ in points) for key, points in layout.routes.items() if min(x for x, _ in points) < 0}
+    # The line spanning two tiers runs inside the one that goes on under the bottom tier.
+    assert track["app>side"] > track["top>bottom"]
+
+
+def test_a_zone_that_only_sends_sits_just_above_what_it_reaches() -> None:
+    ci = _element("ci", tier=1, zone="CI")
+    user = _element("user", kind="person", tier=1, zone="People")
+    proxy = _element("proxy", tier=2, zone="Edge")
+    app = _element("app", kind="system", tier=3, zone="Apps")
+    relations = (_relation("user", "proxy", "HTTPS"), _relation("proxy", "app", "headers"), _relation("ci", "app", "deploys"))
+    view = View("d", "LR", ("ci", "user", "proxy", "app"), type="deployment")
+    model = _model(ci, user, proxy, app, relations=relations, views=(view,))
+    layout = route(model, view)
+    assert layout.boxes["ci"].y == layout.boxes["proxy"].y
+    assert layout.corridors == 0
 
 
 def test_a_deployment_draws_the_svg_in_the_theme_and_the_page_links_it() -> None:
