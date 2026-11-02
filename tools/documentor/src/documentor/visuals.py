@@ -316,7 +316,10 @@ def draw(root: Path, config: dict, files: list[Path], out: Path) -> tuple[int, l
 
 
 def write(root: Path, config: dict, render: bool = True) -> tuple[int, list[str]]:
-    """Write every document, remove ones no source draws any more, and draw them."""
+    """Write every document, remove ones no source draws any more, and draw them.
+
+    A document that changed loses its old drawing first, so a redraw that fails leaves it undrawn
+    (and `check` says so) rather than showing the picture of the model before the change."""
     docs = documents(root, config)
     out = directory(root, config)
     out.mkdir(parents=True, exist_ok=True)
@@ -327,7 +330,12 @@ def write(root: Path, config: dict, render: bool = True) -> tuple[int, list[str]
     files = []
     for ident, document in docs.items():
         path = out / f"{ident}.visual.json"
-        path.write_text(serialize(document), encoding="utf-8")
+        text = serialize(document)
+        if not path.is_file() or path.read_text(encoding="utf-8") != text:
+            for drawn in out.glob(f"{ident}.*"):
+                if drawn != path:
+                    drawn.unlink()
+            path.write_text(text, encoding="utf-8")
         files.append(path)
     if not render or not files:
         return 0, []

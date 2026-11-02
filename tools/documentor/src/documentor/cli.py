@@ -155,8 +155,8 @@ def views(root: Path, config: dict, write: bool) -> tuple[str, list[str]]:
     if visuals.enabled(config) and not problems:
         if write:
             status, drawn = visuals.write(root, config)
-            for line in drawn:
-                print(f"visuals: {line}")
+            if status:
+                return "stale", [f"visuals: {line}" for line in drawn] or [f"visuals: the renderer exited {status}"]
         problems = visuals.check(root, config)
     return ("current" if not problems else "stale"), problems
 
@@ -393,6 +393,7 @@ def guide_main(argv: list[str]) -> int:
         print(write.reviewer_prompt(page, root) if args.reviewer else write.writer_prompt(page, pages, config, root), end="")
         return 0
     written = 0
+    drawn_state = ("none", [])
     if args.command in ("build", "write"):
         from documentor import write
 
@@ -401,7 +402,7 @@ def guide_main(argv: list[str]) -> int:
             return write.run(root, config, pages, str(args.page or ""), **agent)
         for path in regenerate(root, config, pages):
             print(f"regenerated {path}")
-        state, problems = views(root, config, write=True)
+        drawn_state = state, problems = views(root, config, write=True)
         if state != "none":
             print("architecture views written" if not problems else "\n".join(problems))
         if args.write:
@@ -409,6 +410,8 @@ def guide_main(argv: list[str]) -> int:
             pages = plan(config, root)  # write assessed the pages before it wrote them
     assess(root, config, pages)
     view_state = views(root, config, write=False)
+    if drawn_state[0] == "stale":
+        view_state = drawn_state  # a failed draw stays failed, even when its files look current
     if args.format == "json":
         print(json.dumps({"pages": [asdict(p) for p in pages], "views": view_state[0]}, indent=2))
     else:
@@ -430,7 +433,7 @@ def guide_main(argv: list[str]) -> int:
         for p in unfinished[:10]:
             print(f"  {p.entry['state'].upper()} {p.path}: {p.entry['detail']}")
         return 1 if blocking or unfinished or view_state[0] == "stale" else 0
-    return 1 if written or site_status else 0
+    return 1 if written or site_status or drawn_state[0] == "stale" else 0
 
 
 def main(argv: list[str] | None = None) -> int:

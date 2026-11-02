@@ -6,6 +6,7 @@ import sys
 import tempfile
 import textwrap
 import unittest
+from unittest import mock
 
 from documentor import visuals
 
@@ -187,6 +188,35 @@ class WriteCheckEmbedTests(unittest.TestCase):
             self.assertIn("```visual id=absent", shown, "a visual with nothing drawn is left as it was")
             self.assertIn("<summary>The picture in words</summary>", shown)
             self.assertIn("- Buyer → API: places an order", shown)
+
+    def test_a_failed_redraw_is_not_current(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp).resolve()
+            project(root)
+            cfg = config(root)
+            self.assertEqual(visuals.write(root, cfg), (0, []))
+            model = root / "docs/helix/02-design/architecture-model.toml"
+            model.write_text(model.read_text().replace('name = "API"', 'name = "Orders API"'))
+            (root / "refuse.py").write_text(
+                "import json\nprint(json.dumps({'rendered': [], 'refused': [{'file': 'x', 'id': 'shop-context', "
+                "'code': 'layout', 'message': 'no room'}]}))\n")
+            with mock.patch.dict("os.environ", {"DOCUMENTOR_VISUALS": f"{sys.executable} {root / 'refuse.py'}"}):
+                status, _ = visuals.write(root, cfg)
+            self.assertEqual(status, 1)
+            self.assertFalse((root / "docs/guide/visuals/shop-context.svg").exists(), "the old drawing does not survive")
+            self.assertIn("visual shop-context is not drawn", " ".join(visuals.check(root, cfg)))
+
+    def test_a_failed_render_check_fails_the_views_state(self):
+        from documentor import cli
+        from documentor.architecture import views as architecture_views
+
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(architecture_views, "run", return_value=[]):
+            root = Path(tmp).resolve()
+            project(root)
+            cfg = config(root)
+            self.assertEqual(cli.views(root, cfg, write=True), ("current", []))
+            with mock.patch.object(visuals, "write", return_value=(1, ["layout check failed"])):
+                self.assertEqual(cli.views(root, cfg, write=True), ("stale", ["visuals: layout check failed"]))
 
     def test_without_the_setting_nothing_changes(self):
         self.assertFalse(visuals.enabled({"publish": {}}))
