@@ -83,8 +83,9 @@ question: Which store holds the session, and why?
 ```
 ````
 
-Until documentor draws visual blocks (milestone M6 of the visuals plan), the same place holds a
-Mermaid block whose first line names the id, so the move to visual blocks replaces it by id:
+documentor draws visual blocks when the project sets `publish.visuals` (`publishing.md`). Without
+it, the same place holds a Mermaid block whose first line names the id, so the move to visual blocks
+replaces it by id:
 
 ````markdown
 ```mermaid

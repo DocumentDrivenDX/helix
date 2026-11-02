@@ -44,3 +44,8 @@ img{max-width:100%}
 :root[data-theme] code{font-family:var(--piq-font-mono)}
 .brand{display:inline-flex;align-items:center;gap:10px}
 .logo{display:inline-block;width:28px;height:28px;background:var(--piq-brand-mark-image,none) center/contain no-repeat}
+/* A visual drawn by @ux-builder/visuals, at its drawn size: a wide one scrolls inside its frame, never the page. */
+figure.visual{margin:1.4em 0;overflow-x:auto}
+figure.visual svg{display:block;max-width:none;height:auto}
+figure.visual figcaption{color:var(--muted);font-size:15px;margin-top:8px}
+figure.visual details.visual-text{margin-top:8px;font-size:14px}

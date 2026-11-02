@@ -27,6 +27,7 @@ Usage:
                                                   walkthrough player)
     documentor record [--root DIR] [--dest DIR]       publish the governed record (the HELIX root) into the site
     documentor model draft [--root DIR] [--write]  draft the architecture model from what the repository declares
+    documentor visuals [--root DIR] [--check]      the model's views as umf.visual documents, drawn by @ux-builder/visuals
     documentor --version
     documentor --catalog DIR ...                  read the HELIX catalog (audiences, voice) from DIR
 
@@ -74,7 +75,7 @@ from documentor.lib import (
     repository_files,
 )
 
-TOOLS = ("check-pages", "stamp", "detect", "generate", "site", "views", "tour", "estate", "deck", "doc", "doctor", "record", "model", "schemas")
+TOOLS = ("check-pages", "stamp", "detect", "generate", "site", "views", "tour", "estate", "deck", "doc", "doctor", "record", "model", "visuals", "schemas")
 PHASES = ("00-discover", "01-frame", "02-design", "03-test", "04-build", "05-deploy", "06-iterate")
 
 
@@ -149,6 +150,14 @@ def views(root: Path, config: dict, write: bool) -> tuple[str, list[str]]:
     problems = architecture_views.run(check=not write, directory=directory, model_path=model, create=create)
     if write and not problems:
         problems = architecture_views.run(check=True, directory=directory, model_path=model, create=create)
+    from documentor import visuals
+
+    if visuals.enabled(config) and not problems:
+        if write:
+            status, drawn = visuals.write(root, config)
+            if status:
+                return "stale", [f"visuals: {line}" for line in drawn] or [f"visuals: the renderer exited {status}"]
+        problems = visuals.check(root, config)
     return ("current" if not problems else "stale"), problems
 
 
@@ -384,6 +393,7 @@ def guide_main(argv: list[str]) -> int:
         print(write.reviewer_prompt(page, root) if args.reviewer else write.writer_prompt(page, pages, config, root), end="")
         return 0
     written = 0
+    drawn_state = ("none", [])
     if args.command in ("build", "write"):
         from documentor import write
 
@@ -392,7 +402,7 @@ def guide_main(argv: list[str]) -> int:
             return write.run(root, config, pages, str(args.page or ""), **agent)
         for path in regenerate(root, config, pages):
             print(f"regenerated {path}")
-        state, problems = views(root, config, write=True)
+        drawn_state = state, problems = views(root, config, write=True)
         if state != "none":
             print("architecture views written" if not problems else "\n".join(problems))
         if args.write:
@@ -400,6 +410,8 @@ def guide_main(argv: list[str]) -> int:
             pages = plan(config, root)  # write assessed the pages before it wrote them
     assess(root, config, pages)
     view_state = views(root, config, write=False)
+    if drawn_state[0] == "stale":
+        view_state = drawn_state  # a failed draw stays failed, even when its files look current
     if args.format == "json":
         print(json.dumps({"pages": [asdict(p) for p in pages], "views": view_state[0]}, indent=2))
     else:
@@ -421,7 +433,7 @@ def guide_main(argv: list[str]) -> int:
         for p in unfinished[:10]:
             print(f"  {p.entry['state'].upper()} {p.path}: {p.entry['detail']}")
         return 1 if blocking or unfinished or view_state[0] == "stale" else 0
-    return 1 if written or site_status else 0
+    return 1 if written or site_status or drawn_state[0] == "stale" else 0
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -475,6 +487,10 @@ def main(argv: list[str] | None = None) -> int:
             from documentor.architecture import estate
 
             return estate.main(rest)
+        if name == "visuals":
+            from documentor import visuals
+
+            return visuals.main(rest)
         if name == "model":
             if rest[:1] != ["draft"]:
                 print("documentor model: one subcommand, `draft` (documentor model draft --help)", file=sys.stderr)
