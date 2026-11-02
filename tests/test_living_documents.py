@@ -114,5 +114,16 @@ class LivingDocumentTests(unittest.TestCase):
                       (ROOT / 'workflows/activities/03-test/artifacts/data-quality-expectations/template.md').read_text())
 
 
+    def test_a_types_visuals_must_be_umf_visual_kinds_and_forms(self):
+        forms = catalog_validator.visual_forms()
+        good = 'visuals:\n  - {kind: flow, form: zoned, question: "Where?", source: "model"}\n'
+        self.assertEqual(catalog_validator.visual_problems(good, forms), [])
+        wrong = 'visuals:\n  - {kind: flow, form: matrix, question: "Where?", source: "model"}\n'
+        self.assertIn('flow/matrix', catalog_validator.visual_problems(wrong, forms)[0])
+        partial = 'visuals:\n  - {kind: flow, form: zoned}\nversion: 1\n'
+        self.assertIn('one line', catalog_validator.visual_problems(partial, forms)[0])
+        self.assertEqual(set(forms), {'flow', 'sequence', 'structure', 'state', 'timeline', 'comparison', 'metric'})
+        self.assertEqual(sum(len(f) for f in forms.values()), 22)
+
 if __name__ == '__main__':
     unittest.main()

@@ -203,3 +203,9 @@ tags:
 
 version: 1.0.0
 last_updated: 2026-03-27
+
+# The visuals this type usually draws, each only when it earns its place (references/visuals.md).
+visuals:
+  - {kind: structure, form: entities, question: "What does the domain model hold?", source: "the Domain Model section"}
+  - {kind: sequence, form: lifelines, question: "How do the components interact, in order?", source: "the Component Interactions section"}
+  - {kind: state, form: machine, question: "What states can the solution's main object be in?", source: "the design's state section"}

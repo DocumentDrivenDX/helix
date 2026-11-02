@@ -1,7 +1,7 @@
 ---
 title: "Deployment Checklist — HELIX Plugin and Website Release"
 slug: deployment-checklist
-weight: 610
+weight: 620
 activity: "Deploy"
 source: "05-deploy/deployment-checklist.md"
 generated: true

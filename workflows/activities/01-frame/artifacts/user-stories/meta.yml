@@ -121,3 +121,7 @@ tags:
   - requirements
   - vertical-slice
   - design-artifact
+
+# The visuals this type usually draws, each only when it earns its place (references/visuals.md).
+visuals:
+  - {kind: flow, form: pipeline, question: "What path does the user take through the story?", source: "the story's steps"}
