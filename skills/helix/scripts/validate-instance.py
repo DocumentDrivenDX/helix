@@ -92,8 +92,8 @@ VISUAL_FORMS = {
     "metric": ("stat", "bar", "line", "meter"),
 }
 VISUAL_ID_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
-VISUAL_FENCE_RE = re.compile(r"^```visual\b([^\n]*)\n(.*?)^```", re.M | re.S)
-MERMAID_ID_RE = re.compile(r"^```mermaid[^\n]*\n\s*%%\s*id:\s*(\S+)", re.M)
+FENCE_OPEN_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})\s*([^\n]*)$")
+MERMAID_ID_RE = re.compile(r"^\s*%%\s*id:\s*(\S+)")
 KNOWN_SEVERITIES = {"blocking": "blocking", "warning": "warning", "informational": "info", "info": "info"}
 
 
@@ -155,6 +155,28 @@ def strip_fences(body: str) -> str:
         else:
             out.append("" if in_fence else line)
     return "\n".join(out)
+
+
+def fenced_blocks(body: str):
+    """Yield (line index, info string, content) for each top-level fenced block.
+
+    A block closes only on a fence of its own character at least as long as the one that opened
+    it, so a ```visual sample inside a ````markdown block stays text, not a visual.
+    """
+    lines = body.split("\n")
+    i = 0
+    while i < len(lines):
+        opened = FENCE_OPEN_RE.match(lines[i])
+        if not opened or (opened.group(1)[0] == "`" and "`" in opened.group(2)):
+            i += 1
+            continue
+        fence, start = opened.group(1), i
+        close = re.compile(rf"^ {{0,3}}{re.escape(fence[0])}{{{len(fence)},}}\s*$")
+        i += 1
+        while i < len(lines) and not close.match(lines[i]):
+            i += 1
+        yield start, opened.group(2).strip(), "\n".join(lines[start + 1:i])
+        i += 1
 
 
 def line_of(body: str, offset: int, base: int) -> int:
@@ -534,15 +556,23 @@ def check_visuals(meta: dict, body: str, base: int, report: Report) -> None:
         else:
             seen[raw] = line
 
-    for match in VISUAL_FENCE_RE.finditer(body):
-        line = line_of(body, match.start(), base)
-        found = re.search(r"\bid=(\S+)", match.group(1))
+    for index, info, content in fenced_blocks(body):
+        line = base + index
+        word = info.split(maxsplit=1)[0] if info else ""
+        if word == "mermaid":
+            named = MERMAID_ID_RE.match(content)
+            if named:
+                claim(named.group(1), line)
+            continue
+        if word != "visual":
+            continue
+        found = re.search(r"\bid=(\S+)", info)
         if not found:
             report.add("blocking", "visual.id", "a visual block needs `id=<stable-id>` after ```visual", line)
         else:
             claim(found.group(1), line)
         try:
-            spec = yaml.safe_load(match.group(2)) or {}
+            spec = yaml.safe_load(content) or {}
         except yaml.YAMLError as error:
             report.add("blocking", "visual.body", f"the visual block is not YAML: {error}", line)
             continue
@@ -564,8 +594,6 @@ def check_visuals(meta: dict, body: str, base: int, report: Report) -> None:
             report.add("warning", "visual.unlisted",
                        f"{kind}/{form} is not among this type's visuals ({', '.join(f'{k}/{f}' for k, f in sorted(listed))}); "
                        "list it in meta.yml or draw it in another artifact", line)
-    for match in MERMAID_ID_RE.finditer(body):
-        claim(match.group(1), line_of(body, match.start(), base))
 
 
 def check_delivery_history(body: str, base: int, report: Report) -> None:

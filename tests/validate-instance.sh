@@ -171,6 +171,46 @@ python3 "$validator" "$visuals" --catalog "$repo_root/workflows" >"$tmpdir/visua
 $(cat "$tmpdir/visuals.out")"
 grep -q "visual\." "$tmpdir/visuals.out" && fail "well-formed visual blocks produced findings:
 $(cat "$tmpdir/visuals.out")"
+# Literal samples inside an outer fence (longer backticks or tildes) are text, not visuals: a repeated
+# or invalid sample beside the real figures above passes.
+literal="$tmpdir/ADR-902-literal.md"
+cp "$visuals" "$literal"
+cat >>"$literal" <<'MD'
+
+````markdown
+```visual id=example
+kind: comparison
+form: matrix
+question: Which store?
+```
+````
+
+````markdown
+```visual id=example
+kind: flow
+form: matrix
+```
+````
+
+~~~markdown
+```visual id=store-options
+kind: comparison
+form: matrix
+question: Which store?
+```
+
+```mermaid
+%% id: store-context
+flowchart LR
+  a --> b
+```
+~~~
+MD
+python3 "$validator" "$literal" --catalog "$repo_root/workflows" >"$tmpdir/literal.out" 2>&1 \
+  || fail "literal visual samples inside an outer fence should pass:
+$(cat "$tmpdir/literal.out")"
+grep -q "visual\." "$tmpdir/literal.out" && fail "literal visual samples inside an outer fence produced findings:
+$(cat "$tmpdir/literal.out")"
 cat >>"$visuals" <<'MD'
 
 ```visual
