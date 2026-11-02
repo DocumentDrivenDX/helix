@@ -1,7 +1,7 @@
 ---
 title: "Solution Design: SD-002 — First-Class Principles"
 slug: SD-002-first-class-principles
-weight: 510
+weight: 520
 activity: "Design"
 source: "02-design/solution-designs/SD-002-first-class-principles.md"
 generated: true

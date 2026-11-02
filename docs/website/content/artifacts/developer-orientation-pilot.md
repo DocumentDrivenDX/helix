@@ -1,7 +1,7 @@
 ---
 title: "Developer orientation pilot"
 slug: developer-orientation-pilot
-weight: 680
+weight: 690
 activity: "Iterate"
 source: "06-iterate/developer-orientation-pilot.md"
 generated: true

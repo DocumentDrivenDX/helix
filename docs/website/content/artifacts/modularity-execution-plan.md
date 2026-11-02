@@ -1,7 +1,7 @@
 ---
 title: "Modularity and Encapsulation Execution Plan"
 slug: modularity-execution-plan
-weight: 590
+weight: 600
 activity: "Build"
 source: "04-build/modularity-execution-plan.md"
 generated: true

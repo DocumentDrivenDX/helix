@@ -1,7 +1,7 @@
 ---
 title: "Modularity Execution Plan Review"
 slug: modularity-plan-review
-weight: 610
+weight: 620
 activity: "Build"
 source: "04-build/modularity-plan-review.md"
 generated: true
