@@ -1,11 +1,11 @@
 <!-- helix:publish audience=developer page=walkthrough kind=explanation voice=onboarding budget=1100 written=codex reviewed=2026-10-29/agent-sonnet/c55e176b4732400e -->
 <!-- helix:gap artifact:architecture -->
-<!-- helix:source src/documentor/cli.py sha256:803cf572bdc9acb7 -->
+<!-- helix:source src/documentor/cli.py sha256:d35633003485cfea -->
 <!-- helix:source src/documentor/check.py sha256:784c2473233c0346 -->
 <!-- helix:source src/documentor/lib.py sha256:5db149c5af59118b -->
 <!-- helix:source src/documentor/generate.py sha256:9ed3906b7fe2bc36 -->
-<!-- helix:source src/documentor/visuals.py sha256:a800032637b6cd3b -->
-<!-- helix:source tests/python/test_visuals.py sha256:1466ac963c1aef85 -->
+<!-- helix:source src/documentor/visuals.py sha256:1d4bb1fa77dff99e -->
+<!-- helix:source tests/python/test_visuals.py sha256:57cb84573b68f713 -->
 <!-- helix:source tests/python/test_architecture_views.py sha256:0261fa8f319ee2bc -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->

@@ -1,7 +1,7 @@
-<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=codex reviewed=2026-10-29/agent-sonnet/c5731444ffe32d74 -->
+<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=codex reviewed=2026-11-02/agent-sonnet/bfbec7bb08cc76f2 -->
 <!-- helix:gap artifact:architecture -->
-<!-- helix:source src/documentor/visuals.py sha256:a800032637b6cd3b -->
-<!-- helix:source src/documentor/cli.py sha256:803cf572bdc9acb7 -->
+<!-- helix:source src/documentor/visuals.py sha256:1d4bb1fa77dff99e -->
+<!-- helix:source src/documentor/cli.py sha256:d35633003485cfea -->
 <!-- helix:source src/documentor/lib.py sha256:5db149c5af59118b -->
 <!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
 <!-- helix:source src/documentor/site.py sha256:825480be83f5450b -->
@@ -191,7 +191,7 @@ The PRD lists "easy to read" without a measure, because no one has run a newcome
 | Code | Meaning |
 |---|---|
 | 0 | No blocking findings, or the command ran |
-| 1 | Something needs doing (`check`), or a page could not be read or built (`site`) |
+| 1 | Something needs doing (`check`), a page could not be read or built (`site`), or the views or visuals could not be drawn (`build`) |
 | 2 | Usage error, or a `publish.schema` this documentor does not read |
 | 3 | The host lacks a renderer's toolchain (`deck render`, `tour --render`, `visuals`) |
 

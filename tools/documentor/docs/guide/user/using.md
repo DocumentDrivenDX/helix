@@ -2,7 +2,7 @@
 <!-- helix:gap artifact:feature-specification -->
 <!-- helix:gap artifact:user-stories -->
 <!-- helix:source README.md#use sha256:1668b6192a52a5d5 -->
-<!-- helix:source src/documentor/cli.py sha256:803cf572bdc9acb7 -->
+<!-- helix:source src/documentor/cli.py sha256:d35633003485cfea -->
 <!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
 <!-- helix:source src/documentor/site.py sha256:825480be83f5450b -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->

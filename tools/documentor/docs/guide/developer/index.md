@@ -2,8 +2,8 @@
 <!-- helix:gap artifact:architecture -->
 <!-- helix:source docs/helix/00-discover/product-vision.md sha256:53b51880ca06cad7 -->
 <!-- helix:source docs/helix/02-design/adr/ADR-001-a-repository-guide-is-detected-generated-written-evaluated-and-checked.md#decision sha256:d3fd98aa3f21622b -->
-<!-- helix:source src/documentor/visuals.py sha256:a800032637b6cd3b -->
-<!-- helix:source src/documentor/cli.py sha256:803cf572bdc9acb7 -->
+<!-- helix:source src/documentor/visuals.py sha256:1d4bb1fa77dff99e -->
+<!-- helix:source src/documentor/cli.py sha256:d35633003485cfea -->
 <!-- helix:source src/documentor/lib.py sha256:5db149c5af59118b -->
 <!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
 <!-- helix:source src/documentor/record.py sha256:ab468e2c1eef452a -->
