@@ -84,6 +84,8 @@ publish:
     name: synaptiq           # a theme in the tokens' manifest; the site, the architecture views, presentations, and decks wear it
     appearance: system       # light | dark | system (the site follows the reader; drawings use light unless dark)
     tokens: 1.6.0            # optional: another published version, or a path to a local tokens build
+  visuals: ux-builder        # optional: draw the model's views as umf.visual documents with @ux-builder/visuals
+                             # (or {renderer: ux-builder, command: "<renderer command>"}; references/visuals.md)
   agent:                     # optional: the agent `documentor write` drives; DOCUMENTOR_AGENT overrides the command
     command: "my-agent --model {model}"   # the prompt on stdin, the page on stdout
     writer: opus
@@ -105,6 +107,8 @@ publish:
 ```
 
 **Theme.** With `publish.theme`, every rendering wears one theme: the site loads the theme's CSS, fonts, and brand artwork, and maps its roles onto the theme's `--piq-*` tokens; the architecture views and presentations draw in its colors (a model's own `[theme]` still overrides a role); a deck takes its colors and keeps typefaces every presentation program has. The tokens are fetched once from the npm registry; without the network, or without `publish.theme`, the look is the packaged neutral theme. An existing Hugo or mkdocs site keeps its own look.
+
+**Visuals.** With `publish.visuals`, documentor projects each view of the architecture model into a `umf.visual` document under `<out>/visuals/` and has ux-builder's renderer draw it in the project's theme: an SVG whose colors follow the page's theme and the reader's light or dark setting, Mermaid for the Markdown record, and a plate and a presentation where they apply. On the site, each generated view and each ```` ```visual id=… ```` block shows the drawn visual inline, with its takeaway as the caption and the picture in words beside it; the Markdown keeps its Mermaid. `documentor check` fails when a visual no longer matches the model, without needing the renderer.
 
 **Schema.** `publish.schema` names the version of this contract the block follows. A block without it is version 1. A key whose meaning changes raises the version; a new optional key does not. documentor refuses a block whose schema it does not read, rather than misread it, and `documentor init` writes the version it reads.
 

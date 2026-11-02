@@ -112,3 +112,7 @@ tags:
 
 version: 1.0.0
 last_updated: 2026-04-05
+
+# The visuals this type usually draws, each only when it earns its place (references/visuals.md).
+visuals:
+  - {kind: comparison, form: matrix, question: "Which option, and why?", source: "the options considered"}

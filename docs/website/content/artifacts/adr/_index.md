@@ -23,3 +23,4 @@ generated: true
 - [ADR-013: Cross-phase informs edges are valid when declared on the downstream artifact](adr-013-cross-phase-informs-edges/)
 - [ADR-014: Deferred: architecture-style slot occupants remain four separate concerns](adr-014-architecture-style-slot-shape-deferred/)
 - [ADR-015: Human documentation is generated from artifacts, with provenance](adr-015-human-documentation-is-generated-from-artifacts-with-provenance/)
+- [ADR-016: Visuals are one vocabulary, drawn from governed sources](adr-016-visuals-are-one-vocabulary-drawn-from-governed-sources/)

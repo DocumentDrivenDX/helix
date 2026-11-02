@@ -253,6 +253,13 @@ class Linker:
         return re.sub(r"\0FENCE(\d+)\0", lambda m: fences[int(m.group(1))], held)
 
 
+def show_visuals(root: Path, config: dict, body: str) -> str:
+    """A page's ```visual id=…``` blocks drawn inline, when the project draws its visuals."""
+    from documentor import visuals
+
+    return visuals.embed(body, visuals.directory(root, config)) if visuals.enabled(config) else body
+
+
 def front_matter(data: dict) -> str:
     return "---\n" + yaml.safe_dump(data, sort_keys=False, allow_unicode=True) + "---\n\n"
 
@@ -312,7 +319,7 @@ def emit_hugo(root: Path, config: dict, site_dir: Path, content_dir: str, hextra
                 lead += f'<p class="guide-task">{meta["task"]}</p>\n\n'
             from documentor.schemas import links as schema_links
 
-            text = front_matter(meta) + lead + linker.rewrite(path, body) + schema_links(path, root, published[path.resolve()]) + (sources_block(sources) if inline_sources else "")
+            text = front_matter(meta) + lead + linker.rewrite(path, show_visuals(root, config, body)) + schema_links(path, root, published[path.resolve()]) + (sources_block(sources) if inline_sources else "")
             (section_dir / ("_index.md" if pid == "index" else f"{pid}.md")).write_text(text, encoding="utf-8")
             listed.append({"title": title, "url": published[path.resolve()], "task": entry.get("task", "")})
         for pid, title, text in delegated_pages(config, root, aid, audience):
@@ -601,7 +608,7 @@ def into_mkdocs(root: Path, config: dict, run_build: bool) -> int:
             # Links between pages stay relative (the layout is the same); other links go through the linker.
             local = {p: posixpath.relpath(published[p], aid) for p in published}
             relinker = Linker(root, content, local, settings.get("repo_url", ""), settings.get("branch", "main"))
-            text = relinker.rewrite(path, page.body).rstrip("\n") + sources_block([s for s, _ in page.sources])
+            text = relinker.rewrite(path, show_visuals(root, config, page.body)).rstrip("\n") + sources_block([s for s, _ in page.sources])
             (section / name).write_text(text, encoding="utf-8")
             title, _ = page_title(page.body, entry.get("title", pid))
             entries.append({title: f"{content_dir}/{aid}/{name}"})

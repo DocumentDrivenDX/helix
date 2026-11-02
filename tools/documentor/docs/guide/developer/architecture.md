@@ -1,12 +1,13 @@
-<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=codex reviewed=2026-11-02/codex-independent-reader/42d878c3a8fe5176 -->
+<!-- helix:publish audience=developer page=architecture kind=explanation voice=onboarding budget=1500 written=codex reviewed=2026-11-02/codex-independent-reader/16bb89a633aac8e1 -->
 <!-- helix:gap artifact:architecture -->
-<!-- helix:source src/documentor/cli.py sha256:8b7a0be0b2efb9cb -->
+<!-- helix:source src/documentor/visuals.py sha256:1d4bb1fa77dff99e -->
+<!-- helix:source src/documentor/cli.py sha256:d35633003485cfea -->
 <!-- helix:source src/documentor/lib.py sha256:5db149c5af59118b -->
 <!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
-<!-- helix:source src/documentor/site.py sha256:394c66bbb3c1f8c2 -->
+<!-- helix:source src/documentor/site.py sha256:db005a9f2608f6c9 -->
 <!-- helix:source src/documentor/record.py sha256:ab468e2c1eef452a -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
-<!-- helix:source src/documentor/theme.py sha256:7e38d9589c728f0b -->
+<!-- helix:source src/documentor/theme.py sha256:17adf6a5c35f2e4d -->
 <!-- helix:source src/documentor/deliverable/__init__.py sha256:ad9354803e0dd670 -->
 <!-- helix:source src/documentor/architecture/model.py sha256:1dd45080b698edb2 -->
 <!-- helix:source src/documentor/architecture/views.py sha256:9217c09b8a9d2262 -->
@@ -34,7 +35,7 @@ The repository has no HELIX architecture document and no architecture model (`ar
 
 ## Context
 
-documentor connects six outside systems: a target repository, the HELIX catalog, an optional agent command, an optional site generator, the npm registry, and GitHub through `gh`.
+documentor connects six outside systems:
 
 | Neighbour | How documentor reaches it | Needed by |
 |---|---|---|
@@ -42,7 +43,7 @@ documentor connects six outside systems: a target repository, the HELIX catalog,
 | The HELIX catalog | Audiences, voice profiles, the writing pass, and deliverable themes, laid out like HELIX's `workflows/` | Planning, the prose checks, the writer's brief, deliverables |
 | An agent command | Prompt on standard input, page on standard output; Claude Code headless by default | `write`, `build --write`, and `estate write` only |
 | A site generator | mkdocs or Hugo when the repository has one; else documentor's own layout, or Hextra on request | `site` and `build` |
-| The npm registry | Fetches a named ux-builder theme, and the Eraser presentation renderer, into the documentor cache | `publish.theme`, `tour --render`, presentations on the site |
+| The npm registry | Fetches a named ux-builder theme and the Eraser and `@ux-builder/visuals` renderers into the documentor cache | `publish.theme`, `tour --render`, site presentations, `visuals` |
 | GitHub, through `gh` | `gh api` fetches other repositories' architecture models | `estate --fetch` only |
 
 documentor reads the first HELIX catalog it finds (`helix_catalog()` in `src/documentor/lib.py`). `--version` names the catalog a run reads. documentor is released with HELIX at the same version, so the packaged catalog carries the package's own version:
@@ -79,12 +80,13 @@ The containers are Python modules under `src/documentor/`, plus the catalog and 
 | `src/documentor/write.py` | Builds the writer's brief, calls the agent, then has a second model evaluate |
 | `src/documentor/check.py` | `check-pages` and `stamp`: stale sources, broken links, missing paths, cited tests, handling patterns, prose limits |
 | `src/documentor/prose.py` | Measures a page's prose against its voice profile and word budget |
-| `src/documentor/site.py` | Emits the pages into an mkdocs or Hugo site, or writes a new site in its own layout or Hextra |
+| `src/documentor/site.py` | Assembles existing or scaffolded sites, schemas, and Concourse assets |
 | `src/documentor/concourse.py` | Verifies and installs Concourse browser assets into a Hugo site |
 | `src/documentor/report.py` | The "How this guide was made" page, the gap list `status` prints, and `site --shots` screenshots |
 | `src/documentor/theme.py` | Maps the project's ux-builder theme onto the site, the views, the presentations, and the decks |
 | `src/documentor/schemas.py` | Collects declared schemas, preserves source bytes and provenance, and publishes the pinned browser |
 | `src/documentor/umf_tables.py` | Detects and reads UMF TableSpec tables for references and publication |
+| `src/documentor/visuals.py` | `visuals`: model views as `umf.visual` documents, drawn by `@ux-builder/visuals` |
 | `src/documentor/record.py` | `record`: publishes the HELIX root into the site as a read-only record section |
 | `src/documentor/deliverable/` | `deck`, `doc`, and `doctor`: renders deck and brief scripts to .pptx, HTML, and PDF |
 | `src/documentor/architecture/` | The architecture model, its draft and checks, the views, the field guide, the estate, the `tour` player |
@@ -114,7 +116,7 @@ Before it writes, `write.py` adds the page's own blocking and prose findings fro
 
 </details>
 
-Architecture modules load on demand. Most use the standard library; `tour --render` needs Node, npm, and Chromium and caches Eraser on first use.
+Architecture modules and `visuals.py` load on demand, and most use only the standard library. `tour --render` needs Node, npm, and Chromium; `visuals` needs Node and npm. Each caches its renderer (Eraser, `@ux-builder/visuals` 0.1.0) on first use; `visuals` skips this when `DOCUMENTOR_VISUALS` or `publish.visuals.command` names one.
 
 ## Deployment
 
@@ -150,7 +152,7 @@ In a site that documentor scaffolded, `site` then adds the record and each gener
 
 Hugo, static, and Hextra builds publish artifact and guide schemas plus discovered UMF tables. Adopted pages contribute references. The browser follows the host theme and preserves selection across changes.
 
-Hugo, static, and Hextra builds can install a Concourse distribution. `site.py` calls `src/documentor/concourse.py` after schema publication. Installation verifies every asset before copying; login and comment storage stay in Concourse.
+Configured Hugo, static, and Hextra builds call `src/documentor/concourse.py` after schema publication. It verifies assets before copying; Concourse supplies login and storage.
 
 The schema publisher preserves unrelated files and refuses unowned output collisions. `documentor schemas --check` checks freshness; rendering establishes no semantic conformance.
 
@@ -193,9 +195,9 @@ The PRD lists "easy to read" without a measure, because no one has run a newcome
 | Code | Meaning |
 |---|---|
 | 0 | No blocking findings, or the command ran |
-| 1 | Something needs doing (`check`), or a page could not be read or built (`site`) |
+| 1 | Something needs doing (`check`), a page could not be read or built (`site`), or the views or visuals could not be drawn (`build`) |
 | 2 | Usage error, or a `publish.schema` this documentor does not read |
-| 3 | The host lacks a renderer's toolchain (`deck render`, `tour --render`) |
+| 3 | The host lacks a renderer's toolchain (`deck render`, `tour --render`, `visuals`) |
 
 </details>
 

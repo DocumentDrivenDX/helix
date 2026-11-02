@@ -31,6 +31,39 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 ACTIVITIES_ROOT = REPO_ROOT / "workflows" / "activities"
 VOICE_REGISTRY = REPO_ROOT / "workflows" / "voice.yml"
+VISUAL_FORMS: dict[str, tuple[str, ...]] = {}
+VISUAL_ENTRY = re.compile(r"^\s+-\s*\{kind:\s*([\w-]+),\s*form:\s*([\w-]+),\s*question:\s*\S.*source:\s*\S")
+
+
+def visual_forms() -> dict[str, tuple[str, ...]]:
+    """The umf.visual kinds and forms, from the instance validator that checks them."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "validate_instance", REPO_ROOT / "skills" / "helix" / "scripts" / "validate-instance.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.VISUAL_FORMS
+
+
+def visual_problems(meta_text: str, forms: dict[str, tuple[str, ...]]) -> list[str]:
+    """Each `visuals:` entry is one line `{kind, form, question, source}` with a form of its kind."""
+    problems, inside = [], False
+    for line in meta_text.splitlines():
+        if re.match(r"^visuals:\s*$", line):
+            inside = True
+            continue
+        if inside and line and not line[0].isspace():
+            inside = False
+        if not inside or not line.strip():
+            continue
+        match = VISUAL_ENTRY.match(line)
+        if not match:
+            problems.append(f"visuals entry is not {{kind, form, question, source}} on one line: {line.strip()}")
+        elif match.group(2) not in forms.get(match.group(1), ()):
+            problems.append(f"visuals entry {match.group(1)}/{match.group(2)} is not a umf.visual kind and form "
+                            "(workflows/references/visuals.md)")
+    return problems
 
 
 def slugify(heading: str) -> str:
@@ -301,6 +334,9 @@ def validate(art_dir: Path, default_voice_profile: str, voice_profiles: set[str]
                 "is document administration, not content"
             )
 
+    for problem in visual_problems(meta_path.read_text(encoding="utf-8"), VISUAL_FORMS):
+        failures.append(f"{art_dir.relative_to(REPO_ROOT)}: {problem}")
+
     for voice_ref in extract_voice_references(meta_path, default_voice_profile):
         if voice_ref not in voice_profiles:
             failures.append(
@@ -335,6 +371,8 @@ def validate(art_dir: Path, default_voice_profile: str, voice_profiles: set[str]
 
 
 def main() -> int:
+    global VISUAL_FORMS
+    VISUAL_FORMS = visual_forms()
     art_dirs = iter_artifact_dirs()
     all_failures: list[str] = []
     default_voice_profile, voice_profiles, registry_failures = load_voice_registry(VOICE_REGISTRY)
@@ -350,7 +388,7 @@ def main() -> int:
 
     print(
         f"OK: {len(art_dirs)} artifact type(s) validated "
-        "(required_sections <-> template H2s, voice profiles)"
+        "(required_sections <-> template H2s, voice profiles, visuals)"
     )
     return 0
 

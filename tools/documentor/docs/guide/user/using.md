@@ -2,9 +2,9 @@
 <!-- helix:gap artifact:feature-specification -->
 <!-- helix:gap artifact:user-stories -->
 <!-- helix:source README.md#use sha256:1668b6192a52a5d5 -->
-<!-- helix:source src/documentor/cli.py sha256:8b7a0be0b2efb9cb -->
+<!-- helix:source src/documentor/cli.py sha256:d35633003485cfea -->
 <!-- helix:source src/documentor/write.py sha256:208f5a662b7501e4 -->
-<!-- helix:source src/documentor/site.py sha256:394c66bbb3c1f8c2 -->
+<!-- helix:source src/documentor/site.py sha256:db005a9f2608f6c9 -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:9f8ec1f2b471f001 -->
 <!-- helix:source src/documentor/schemas.py sha256:6db23e6c01b889bc -->
