@@ -1,7 +1,7 @@
 ---
 title: "Design: Formal Methods Concern"
 slug: design-formal-methods
-weight: 410
+weight: 430
 activity: "Design"
 source: "02-design/design-formal-methods.md"
 generated: true

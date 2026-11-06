@@ -1,7 +1,7 @@
 ---
 title: "Architecture"
 slug: architecture
-weight: 320
+weight: 340
 activity: "Design"
 source: "02-design/architecture.md"
 generated: true

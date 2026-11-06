@@ -31,9 +31,9 @@ _Auto-generated from `helix/` by `scripts/publish-artifacts.py`._
 - [Desired-state authoring: goal and approach](/artifacts/design-desired-state-authoring/)
 - [Design: Formal Methods Concern](/artifacts/design-formal-methods/)
 - [Security Architecture — DDx Agent Execution Surface](/artifacts/security-architecture/)
-- [adr](/artifacts/adr/) _(13 items)_
+- [adr](/artifacts/adr/) _(15 items)_
 - [contracts](/artifacts/contracts/) _(5 items)_
-- [solution designs](/artifacts/solution-designs/) _(1 item)_
+- [solution designs](/artifacts/solution-designs/) _(2 items)_
 - [technical designs](/artifacts/technical-designs/) _(3 items)_
 
 ## Test

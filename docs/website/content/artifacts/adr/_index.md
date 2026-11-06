@@ -22,3 +22,5 @@ generated: true
 - [ADR-012: Runbook owns incident response procedures; monitoring-setup owns detection only](adr-012-runbook-owns-incident-response/)
 - [ADR-013: Cross-phase informs edges are valid when declared on the downstream artifact](adr-013-cross-phase-informs-edges/)
 - [ADR-014: Deferred: architecture-style slot occupants remain four separate concerns](adr-014-architecture-style-slot-shape-deferred/)
+- [ADR-015: Flows bind to a graph profile through an optional `profile:` key](adr-015-flow-profile-binding/)
+- [ADR-016: Cross-graph references are advisory unless the consumer grants authority](adr-016-advisory-vs-governing-authority/)

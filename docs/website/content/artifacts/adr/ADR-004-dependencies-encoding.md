@@ -125,3 +125,4 @@ to that consumer, not to the catalog.
 - [Artifact schema](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/artifact-schema.md)
 - ADR-002: HELIX Tracker Write Safety Model
 - ADR-003: Autonomy Spectrum
+- [ADR-016](/artifacts/adr/adr-016-advisory-vs-governing-authority/) (accepted): defines instance-level typed `ddx.links` and cross-graph authority; this ADR remains the rule for type-level edge encoding.
