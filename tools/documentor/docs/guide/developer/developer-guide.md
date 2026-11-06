@@ -1,5 +1,5 @@
 <!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=codex reviewed=2026-10-29/release-guide-independent-reader/4371ecc29c9f0645 -->
-<!-- helix:source pyproject.toml sha256:c46e99a7fc3955ad -->
+<!-- helix:source pyproject.toml sha256:1b74d40b6314a968 -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
 <!-- helix:source ../../.github/workflows/documentor.yml sha256:ab2fb8338de1a028 -->
 <!-- helix:source ../../scripts/release-version.py sha256:ad55a7fa2e9e59a7 -->
@@ -9,7 +9,7 @@
 <!-- helix:source ../../.github/workflows/release-version-guard.yml sha256:7a2f0f022c0b36b5 -->
 <!-- helix:source ../../CONTRIBUTING.md sha256:d0027006597fad67 -->
 <!-- helix:source README.md#development sha256:ec26429513feaa3e -->
-<!-- helix:source src/documentor/__init__.py sha256:85f093e9f32ee453 -->
+<!-- helix:source src/documentor/__init__.py sha256:3e709dc94db92a20 -->
 <!-- helix:source src/documentor/cli.py sha256:d35633003485cfea -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/lib.py sha256:5db149c5af59118b -->

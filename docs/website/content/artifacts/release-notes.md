@@ -1,5 +1,5 @@
 ---
-title: "Release Notes — HELIX v0.19.1"
+title: "Release Notes — HELIX v0.21.0"
 slug: release-notes
 weight: 670
 activity: "Deploy"
@@ -25,34 +25,44 @@ ddx:
     reviewed_at: "2026-10-04T03:52:23Z"
 ```
 
-# Release Notes — HELIX v0.19.1
+# Release Notes — HELIX v0.21.0
 
 ## Release Scope
 
-- Release identifier: `v0.19.1`
-- Release date: 2026-10-22
-- Previous release: `v0.19.0`
-- Scope: a patch to documentor's version report. The guide mode and documentor themselves
-  arrived in `v0.19.0`; its notes are at the `v0.19.0` tag.
+- Release identifier: `v0.21.0`
+- Release date: 2026-11-06
+- Previous release: `v0.20.0`
+- Scope: graph profiles, so one HELIX framework governs a technology-intelligence
+  graph (the Technology Atlas) beside a software-delivery graph; four new or
+  generalized artifact types; pinned, reproducible publications.
 - Release owner: HELIX maintainer; published through the release PR workflow.
 
 ## Audience and Channels
 
 | Audience | Impact | Channel |
 |----------|--------|---------|
-| documentor users | `documentor --version` names the release its catalog shipped in | documentor, installed from the tag |
-| HELIX users | No change to the skill or the catalog | Plugin and bundles |
+| Teams keeping a technology atlas | A `technology-atlas` profile, types, and pinning | Plugin and bundles |
+| Existing HELIX users | None: a marker without `profile:` behaves as before | Plugin and bundles |
 
 ## Highlights
 
-- `documentor --version` now prints `documentor 0.19.1 (HELIX catalog packaged 0.19.1)`.
-  In `v0.19.0` it printed `packaged in-repo`, which named no release.
+- A flow in `.helix.yml` takes an optional `profile:`. `technology-atlas` selects
+  `component-profile`, `technology-assessment`, `position-paper`, `decision-brief`,
+  `adr`, and `deliverable`, with advisory authority across graphs.
+- New artifact types `technology-assessment`, `position-paper`, and `decision-brief`.
+  `component-profile` gains a `reusable` scope for briefs that name no project.
+- `ddx.links` is defined: `{id, kind, authority?, rev?, graph?}`. A link that
+  claims `governing` authority under an advisory-only profile is a blocking
+  finding; `contradicts` is reported and never fails validation.
+- `validate-instance.py --tier publish` applies a profile's publish tier and requires
+  pinned `rev` values on a deliverable's or brief's source links.
+  `pin-sources.py` pins, checks drift, and materializes sources.
 
 ## Required Actions Summary
 
-- Install documentor from this tag:
-  `uv tool install --force "git+https://github.com/DocumentDrivenDX/helix@v0.19.1#subdirectory=tools/documentor"`.
-- Plugin users need no action.
+- None for existing flows.
+- A deliverable's `ddx.authoring.export` is now one path string, as the schema and
+  DDx require; a list is a warning in `check-deliverable.py`.
 
 ## Changes and Fixes
 
@@ -60,13 +70,17 @@ ddx:
 
 | Area | What changed | Who is affected |
 |------|--------------|-----------------|
-| None | This release fixes one report and adds nothing. | — |
+| Profiles | `workflows/profiles/`, `generate_graph.py --profile`, per-profile graph | Atlas authors |
+| Types | `technology-assessment`, `position-paper`, `decision-brief`; reusable `component-profile` | Atlas authors |
+| Links | `ddx.links` vocabulary and authority check | Anyone using cross-flow references |
+| Publications | Pinned sources and `--tier publish` | Authors of deliverables |
 
 ### Fixes
 
 | Issue or symptom | Resolution | User or operator impact |
 |------------------|------------|-------------------------|
-| `documentor --version` printed `packaged in-repo` | It prints the package's own version, which equals the HELIX release | A reader can tell which catalog an installed documentor carries |
+| DDx rejected a deliverable whose `authoring.export` was a list | The template, example, and present action use one path string | `ddx doc audit` passes on deliverables |
+| A pre-commit job pointed at a missing script | Removed | Commits no longer print an error |
 
 ## Breaking Changes and Required Actions
 
@@ -74,32 +88,32 @@ There are no breaking changes and no migrations.
 
 | Change | Impact | Required action | Deadline or trigger |
 |--------|--------|-----------------|---------------------|
-| None | — | — | — |
+| `authoring.export` is a string | A deliverable listing several renders | Keep the primary render in `export`; list all under Render | Next `ddx doc audit` |
 
 ## Migration or Rollback Guidance
 
 ### Upgrade or Migration
 
-1. Reinstall documentor from `v0.19.1`, or update the pin in a CI workflow copied from
-   documentor's template.
+1. Update the plugin. Add `profile: technology-atlas` to a flow only for an atlas.
 
 ### Rollback or Hold Guidance
 
-- Pin `v0.19.0` to roll back; only the version line differs.
+- Pin `v0.20.0` to roll back; markers with `profile:` would then be ignored.
 - Ask for help in the HELIX repository's issues.
 
 ## Known Issues and Support
 
 | Issue | Who is affected | Workaround or next step |
 |------|------------------|-------------------------|
-| Writing pages needs an agent and its credentials | `documentor write` users | Run it where the agent is signed in; the CI check needs no agent |
-| The evaluating model sometimes returns no verdict | `documentor write` users | Run `write` again, or evaluate with `documentor prompt --reviewer` and record it with `documentor review` |
+| `graph:` references are recorded and pinned, not fetched | Cross-repository publications | The runtime (DDx) or the atlas tooling resolves them |
+| No projection to UMF or `umf-visual` | Atlas explorer | Deferred until those contracts are reviewed |
 
 Support: open an issue in the HELIX repository.
 
 ## References
 
 - Deployment checklist: [deployment-checklist.md](/artifacts/deployment-checklist/)
-- Release changes: https://github.com/DocumentDrivenDX/helix/compare/v0.19.0...v0.19.1
+- Design: SD-003, ADR-017, ADR-018
+- Release changes: https://github.com/DocumentDrivenDX/helix/compare/v0.20.0...v0.21.0
 - Bundle publication: `.github/workflows/release-genie-bundle.yml`
 - Version guard: `.github/workflows/release-version-guard.yml`
