@@ -1,4 +1,4 @@
-<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=codex reviewed=2026-10-29/release-guide-independent-reader/4371ecc29c9f0645 -->
+<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=agent-opus -->
 <!-- helix:source pyproject.toml sha256:1b74d40b6314a968 -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
 <!-- helix:source ../../.github/workflows/documentor.yml sha256:ab2fb8338de1a028 -->
@@ -17,7 +17,7 @@
 <!-- helix:source src/documentor/catalog/ux-builder/README.md sha256:6b885638317975c7 -->
 <!-- helix:source tests/validate-package.sh sha256:ddc499febfa0dd79 -->
 <!-- helix:source tests/validate-publish.sh sha256:7db3a03534402d2f -->
-<!-- helix:source ../../scripts/sync_references.py sha256:97cfc74fe156811e -->
+<!-- helix:source ../../scripts/sync_references.py sha256:3b3710d02aa78a81 -->
 <!-- helix:source src/documentor/schemas.py sha256:6db23e6c01b889bc -->
 <!-- helix:source src/documentor/umf_tables.py sha256:56c75007b5b2d2de -->
 <!-- helix:source tests/python/test_schemas.py sha256:fed68ae9a073185b -->
@@ -44,7 +44,7 @@ To check that the working copy's CLI runs:
 uv run documentor --version
 ```
 
-Inside the HELIX checkout, the output is `documentor <version> (HELIX catalog live /path/to/helix/workflows)`. An installed wheel reads its packaged copy and prints `HELIX catalog packaged`. `--catalog DIR` or the `DOCUMENTOR_CATALOG` variable names another catalog.
+Inside the HELIX checkout, the output is `documentor <version> (HELIX catalog live /path/to/helix/workflows)`. An installed wheel reads its packaged copy and prints `HELIX catalog packaged <version>`, the release it shipped in. `--catalog DIR` or the `DOCUMENTOR_CATALOG` variable names another catalog.
 
 To see which optional tools the machine has (hugo, node, Chrome, LibreOffice, the agent CLI):
 
@@ -84,12 +84,13 @@ The package is in `src/documentor`, the tests are in `tests`, and the design rec
 | `src/documentor/catalog/traits/` | One YAML file per trait, such as `significant.yml` |
 | `src/documentor/catalog/helix/` | The packaged HELIX catalog: `publish/`, `voice.yml`, `deliverables/`, `references/`; do not edit by hand |
 | `src/documentor/catalog/ci/github-actions.yml` | The CI template that target repositories copy |
+| `src/documentor/catalog/ci/github-pages.yml` | The Pages deployment template, with schema publication and UMF tables |
 | `src/documentor/catalog/ux-builder/` | The packaged `plain` theme, copied unchanged from `@ux-builder/tokens` |
 | `src/documentor/catalog/site/` | Site layouts and static files |
 | `tests/` | `validate-*.sh` end-to-end scripts and `tests/python/` unit tests |
 | `docs/helix/` | Product vision, PRD, ADRs, and plans |
 
-documentor uses the `plain` theme when a project names no theme, or when the named theme cannot be fetched. Every other theme comes from `@ux-builder/tokens`, through `publish.theme`.
+documentor uses the `plain` theme when a project names none or the named theme cannot be fetched. Every other theme comes from `@ux-builder/tokens`, through `publish.theme`.
 
 [Command line](cli.md) lists the CLI's commands. [Embedding the library](embedding.md) covers calling the package from Python.
 
@@ -117,11 +118,18 @@ Run one suite like this; on success the last line starts with `OK:`:
 uv run just test-write
 ```
 
-`just test-write` needs no agent credentials. The script writes a fake agent that answers writer and evaluator prompts and logs each call.
+`just test-write` needs no agent credentials; the script writes a fake agent that logs each call.
 
 `just test-publish` checks that the built site has an `about` section titled "How this guide was made", with a `## The pages` list. Without Hugo, its `OK:` line ends with `(hugo not installed; build skipped)`, and the suite still passes.
 
-`just test-package` builds the wheel with `uv build` and runs the installed CLI with `uv run --isolated`. It also checks that `--catalog` refuses a directory that is no HELIX catalog.
+`just test-catalog` runs the sync script in check mode. On success it prints `documentor floor matches workflows/: N files`.
+
+When a change touches `schemas.py` or `umf_tables.py`, run their pytest files before the full suite:
+
+```sh
+uv run python -m pytest -q tests/python/test_schemas.py tests/python/test_tempo_gaps.py
+uv run just test
+```
 
 CI is HELIX's `documentor` workflow. It runs on pull requests and pushes to `main` that touch documentor, HELIX's publish catalog, or HELIX's voice profiles.
 
@@ -157,7 +165,7 @@ documentor/deliverable/icons/
 documentor/deliverable/package.json
 ```
 
-A new packaged file the CLI needs at run time belongs in this list.
+A new packaged file the CLI needs at run time belongs in this list. `just test-package` also checks that `--catalog` refuses a directory that is no HELIX catalog.
 
 </details>
 
@@ -173,7 +181,7 @@ To make a change, edit the module or catalog file, add an assertion to the match
 
 2. Make the change. For example, to change which files a trait detects, edit its YAML under `src/documentor/catalog/traits/`.
 
-3. Add an assertion to the matching script. Each script builds a scratch repository in a temporary directory, runs the CLI, and calls `fail` when a result is wrong:
+3. Add an assertion to the matching script. Each script runs the CLI in a scratch repository and calls `fail` on a wrong result:
 
    ```sh
    fail() { echo "FAIL: $*" >&2; exit 1; }
@@ -197,37 +205,26 @@ To make a change, edit the module or catalog file, add an assertion to the match
 Three kinds of change follow their own path:
 
 - **A new packaged generator** registers under `[project.entry-points."documentor.generators"]` in `pyproject.toml` as `name = "module:function"`. The function takes `(root, page)` and returns `(body, source_globs)`. A repository's own generator is a command under `generated:` in its `.helix.yml` and needs no entry point.
-- **The HELIX catalog** (audiences, voice, deliverables, and the publishing and writing-pass references) comes from HELIX's `workflows/`. Change it there, then copy it rather than editing `src/documentor/catalog/helix/`:
+- **The HELIX catalog** comes from HELIX's `workflows/`. It holds `voice.yml`, the `publish/` and `deliverables/` trees, and four references: `publishing.md`, `writing-pass.md`, `architecture-model.md`, and `umf-schemas.md`. Change these under `workflows/`, then copy them rather than editing `src/documentor/catalog/helix/`:
 
   ```sh
   uv run just sync-helix
   ```
 
-  The script prints `synced documentor floor -> tools/documentor/src/documentor/catalog/helix: N files`. When the copy and `workflows/` differ, `just test-catalog` lists each `stale:` or `extra:` file and fails.
+  The script replaces the whole copy and prints `synced documentor floor -> tools/documentor/src/documentor/catalog/helix: N files`. When the copy and `workflows/` differ, `just test-catalog` lists each `stale:` or `extra:` file and fails. A new file the tool reads from `../../workflows/references/` must be added to the script's `DOCUMENTOR_FILES` list (`../../scripts/sync_references.py`).
 - **The prose checks** in `src/documentor/prose.py` must stay byte-identical to `../../skills/helix/scripts/prose_audit.py`. Change both together, or `just test-catalog` fails.
 
-A change to the CLI's behaviour may change the pages in `docs/guide/`. `uv run documentor status` lists every page of the repository's guide and what each needs next, such as missing, stale, or unreviewed:
+A change to the CLI's behaviour may change the pages in `docs/guide/`. `uv run documentor status` lists every guide page and what it needs next: missing, stale, or unreviewed.
 
 ```sh
 uv run documentor status
 ```
 
-When written pages name a HELIX artifact the repository lacks, the report ends with `Artifacts that would improve the guide`. Each line names the artifact and the pages written without it, most pages first. Once HELIX supplies that artifact, the listed pages are rewritten from it.
-
-## Checking schema publication
-
-Run schema, adoption, and full tests:
-
-```sh
-uv run python -m pytest -q tests/python/test_schemas.py tests/python/test_tempo_gaps.py
-uv run just test
-```
-
-These cover schema and adoption behavior. Configure the release placeholder in `src/documentor/catalog/ci/github-pages.yml` before deployment.
+When written pages name a HELIX artifact the repository lacks, the report ends with `Artifacts that would improve the guide`. Each line names the artifact and the pages written without it, most pages first.
 
 ## Releasing
 
-documentor ships under HELIX release tags.
+documentor ships under HELIX release tags. The packaged catalog carries no version of its own; it ships at the HELIX version.
 
 Obtain a separately authorized release scope from the HELIX release owner before step 2 ([CONTRIBUTING.md](../../../../../CONTRIBUTING.md)).
 
@@ -238,27 +235,15 @@ Obtain a separately authorized release scope from the HELIX release owner before
    uv run documentor check --root .
    ```
 
-2. In GitHub's Releases UI, create a new `vX.Y.Z` tag on current `main`, write
-   the release notes, and publish. The UI preparation workflow returns the
-   release to draft and opens a version bump PR. GitHub Actions must have
-   permission to create PRs in the repository.
+2. In GitHub's Releases UI, create a new `vX.Y.Z` tag on current `main`, write the release notes, and publish. The UI preparation workflow returns the release to draft and opens a version bump PR. GitHub Actions must have permission to create PRs in the repository.
 
-3. Review and merge that `chore(release): vX.Y.Z` PR. The shared version script
-   updates the three plugin manifests, documentor's package and runtime
-   versions, and lockfile. It refreshes current guide source fingerprints;
-   stale fingerprints still require review.
+3. Review and merge that `chore(release): vX.Y.Z` PR. The shared version script updates the three plugin manifests, documentor's package and runtime versions, and lockfile. It refreshes current guide source fingerprints; stale fingerprints still require review.
 
-   The tag workflow checks all six versions. It corrects an existing draft's
-   tag only when the intervening changes contain version metadata and guide
-   source fingerprints alone. If unrelated changes land meanwhile, it stops
-   for the release owner to resolve the scope.
+   The tag workflow checks all six versions. It corrects an existing draft's tag only when the intervening changes contain version metadata and guide source fingerprints alone. If unrelated changes land meanwhile, it stops for the release owner to resolve the scope.
 
-   It then dispatches bundle
-   publication, which validates versions before any build or upload and
-   publishes the draft with new assets. The original release notes survive.
+   It then dispatches bundle publication, which validates versions before any build or upload and publishes the draft with new assets and its original notes.
 
-   For local preparation, run from the HELIX root and open a
-   `chore(release): vX.Y.Z` PR:
+   For local preparation, run from the HELIX root and open a `chore(release): vX.Y.Z` PR:
 
    ```sh
    python3 scripts/release-version.py vX.Y.Z --write
@@ -270,8 +255,6 @@ Obtain a separately authorized release scope from the HELIX release owner before
    uvx --from git+https://github.com/DocumentDrivenDX/helix@vX.Y.Z#subdirectory=tools/documentor documentor --version
    ```
 
-The version guard checks the requested tag on manual runs. It returns invalid
-UI releases to draft without deleting tags. A valid published release is not
-retagged automatically; corrections normally use a new patch version.
+The version guard checks the requested tag on manual runs. It returns invalid UI releases to draft without deleting tags. A valid published release is not retagged automatically; corrections normally use a new patch version.
 
-An installed wheel reports its catalog as `HELIX catalog packaged <version>`, the release it shipped in.
+`src/documentor/catalog/ci/github-pages.yml` pins `DOCUMENTOR` to the placeholder `REPLACE_WITH_UMF_RELEASE`. Its verify step fails until `DOCUMENTOR` names a released tag with UMF schema publication; v0.19.1 predates that support.
