@@ -67,9 +67,6 @@ example:
 workflow:
   creation_order: 3
   review_cycles: 1
-  approval_required: false
-  approvers:
-    - Technical Lead
 
 relationships:
   informs:

@@ -261,8 +261,7 @@ account/lakehouse — use the generic `deploy-target` and frontend concerns ther
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: auth model per data path (app service principal vs on-behalf-of) + durable-state store (UC tables/volumes vs Lakebase) + deploy path (bundles from CI)
-- TD: process contract (port, SIGTERM, no TLS), one-origin `/api/*` + static SPA serving, uv dependency resolution, `app.yaml` env + `valueFrom` bindings, stateless instances
+- TD: process contract (port, SIGTERM, no TLS), one-origin `/api/*` + static SPA serving, uv dependency resolution, `app.yaml` env + `valueFrom` bindings, stateless instances; states the auth model per data path (app service principal vs on-behalf-of), durable-state store (UC tables/volumes vs Lakebase), and deploy path (bundles from CI)
 - IMPLEMENTATION_PLAN: `app.yaml` command/env, bundle resources and `user_api_scopes`, CI `bundle deploy` + `bundle run`, the open spikes the design depends on
 - TEST_PLAN: deployed-app checks for on-behalf-of denial (negative control), restart survival, SIGTERM exit, `/api/health`
 

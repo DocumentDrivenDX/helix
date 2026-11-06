@@ -6,6 +6,7 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 python3 "$repo_root/tests/test_document_history.py"
+python3 "$repo_root/tests/test_living_documents.py"
 validator="$repo_root/skills/helix/scripts/validate-instance.py"
 fixtures="$repo_root/tests/fixtures/validate-instance"
 tmpdir="$(mktemp -d)"
@@ -28,6 +29,18 @@ $(cat "$tmpdir/out")"
   count=$((count + 1))
 done
 [ "$count" -ge 50 ] || fail "expected to validate every catalog example, ran $count"
+
+# Optional UX sections: each fixture fills its type's optional sections and must validate.
+ux=0
+for path in "$fixtures"/ux/*.md; do
+  type_id="$(basename "$path" .md)"
+  python3 "$validator" "$path" --catalog "$repo_root/workflows" >"$tmpdir/out" 2>&1 \
+    || fail "ux/$type_id.md should validate cleanly:
+$(cat "$tmpdir/out")"
+  grep -q "type=$type_id " "$tmpdir/out" || fail "ux/$type_id.md should resolve to type $type_id"
+  ux=$((ux + 1))
+done
+[ "$ux" -eq 9 ] || fail "expected 9 optional-section fixtures, ran $ux"
 
 # Broken PRD: missing required section, leftover placeholder, failed catalog regex.
 if python3 "$validator" "$fixtures/broken-prd.md" --catalog "$repo_root/workflows" >"$tmpdir/broken.out" 2>&1; then
@@ -65,4 +78,179 @@ python3 "$validator" "$tmpdir/untyped.md" --catalog "$repo_root/workflows" --typ
   fail "--type prd on an empty document should still fail required_sections"
 grep -q "type=prd " "$tmpdir/typed.out" || fail "--type should select the prd type"
 
-echo "OK: validate-instance.py passes all $count catalog examples, rejects the broken PRD fixture, and errors on unresolvable types"
+# Prose audit (workflows/voice.yml limits and phrase lists; workflows/references/writing-pass.md).
+# Artifacts are the system of record and are not audited; a deliverable is a projection people read,
+# and its example meets its voice profile. Guide pages are checked by documentor
+# (tests/validate-publish.sh).
+audited=0
+for path in "$repo_root"/workflows/activities/*/artifacts/*/example*.md; do
+  grep -q "audience: human" "$(dirname "$path")/meta.yml" || continue
+  audited=$((audited + 1))
+  rel="${path#"$repo_root"/workflows/activities/}"
+  python3 "$validator" "$path" --strict-prose >"$tmpdir/strict.out" 2>&1 \
+    || fail "$rel should meet its voice profile's prose rules:
+$(grep 'prose\.' "$tmpdir/strict.out")"
+done
+[ "$audited" -ge 1 ] || fail "expected the deliverable example to be audited, ran $audited"
+
+# A breach is a warning by default and blocking with --strict-prose; a quoted phrase and a
+# generated block are not read.
+prose="$tmpdir/prose.md"
+cp "$repo_root/workflows/activities/06-iterate/artifacts/deliverable/example.md" "$prose"
+{
+  printf '\nThis document serves as the guide, and her token is checked when the gateway and the store and the queue and the cache and the scheduler and the worker and the index all agree on the same request at the same time.\n'
+  printf '\nWrite "is", not "serves as".\n'
+  printf '\n<!-- architecture-view: context -->\nThis document serves as a generated block.\n<!-- /architecture-view -->\n'
+} >>"$prose"
+python3 "$validator" "$prose" --catalog "$repo_root/workflows" >"$tmpdir/prose.out" 2>&1 \
+  || fail "prose findings should be warnings without --strict-prose:
+$(cat "$tmpdir/prose.out")"
+for check in prose.sentence; do
+  grep -Eq "^WARNING +$check " "$tmpdir/prose.out" || fail "expected warning $check:
+$(cat "$tmpdir/prose.out")"
+done
+for phrase in '"this document"' '"serves as"' '"her"'; do
+  grep -F "prose.avoid  $phrase" "$tmpdir/prose.out" >/dev/null || fail "expected avoided phrase $phrase:
+$(cat "$tmpdir/prose.out")"
+done
+[ "$(grep -cF 'prose.avoid  "serves as"' "$tmpdir/prose.out")" -eq 1 ] \
+  || fail "a quoted phrase and a generated block must not be matched:
+$(cat "$tmpdir/prose.out")"
+if python3 "$validator" "$prose" --catalog "$repo_root/workflows" --strict-prose >"$tmpdir/strict.out" 2>&1; then
+  fail "--strict-prose should make prose findings blocking"
+fi
+grep -Eq "^BLOCKING +prose\.sentence " "$tmpdir/strict.out" || fail "--strict-prose should report blocking prose.sentence"
+
+# An agent-read type (an ADR) is not audited; a project's .helix.yml can make findings blocking and
+# list paths to skip.
+project="$tmpdir/project"
+mkdir -p "$project/docs/helix/02-design/adr" "$project/docs/helix/04-build"
+decided="$project/docs/helix/02-design/adr/ADR-900-decided.md"
+sed 's/^  id: \(.*\)$/  id: \1\
+  status: accepted/' "$repo_root/workflows/activities/02-design/artifacts/adr/example.md" >"$decided"
+grep -q "^  status: accepted$" "$decided" || fail "test setup: could not mark the ADR accepted"
+printf '\nThis document serves as a record that is decided and will not be rewritten by anyone at all for any reason whatsoever in any case.\n' >>"$decided"
+python3 "$validator" "$decided" --catalog "$repo_root/workflows" --strict-prose >"$tmpdir/decided.out" 2>&1 \
+  || fail "an agent-read type should not be audited:
+$(cat "$tmpdir/decided.out")"
+grep -q "prose\." "$tmpdir/decided.out" && fail "an agent-read type produced prose findings"
+cp "$prose" "$project/docs/helix/02-design/overview.md"
+printf 'prose:\n  strict: true\n  exempt:\n    - "docs/helix/04-build/*"\n' >"$project/.helix.yml"
+if python3 "$validator" "$project/docs/helix/02-design/overview.md" --catalog "$repo_root/workflows" --type deliverable >"$tmpdir/project.out" 2>&1; then
+  fail ".helix.yml prose.strict should make findings blocking"
+fi
+cp "$prose" "$project/docs/helix/04-build/log.md"
+python3 "$validator" "$project/docs/helix/04-build/log.md" --catalog "$repo_root/workflows" --type deliverable >"$tmpdir/exempt.out" 2>&1
+grep -q "prose\." "$tmpdir/exempt.out" && fail "a path listed in .helix.yml prose.exempt should not be audited"
+
+# Visual blocks (workflows/references/visuals.md): a well-formed block and a source reference pass; a
+# missing or repeated id, a form outside its kind, and a missing question block; a kind and form the
+# type does not list warn.
+visuals="$tmpdir/ADR-901-visuals.md"
+cp "$repo_root/workflows/activities/02-design/artifacts/adr/example.md" "$visuals"
+cat >>"$visuals" <<'MD'
+
+```visual id=store-options
+kind: comparison
+form: matrix
+question: Which store holds the session, and why?
+```
+
+```visual id=store-from-model
+source: architecture-model.toml#deployment
+```
+
+```mermaid
+%% id: store-context
+flowchart LR
+  a --> b
+```
+MD
+python3 "$validator" "$visuals" --catalog "$repo_root/workflows" >"$tmpdir/visuals.out" 2>&1 \
+  || fail "well-formed visual blocks should pass:
+$(cat "$tmpdir/visuals.out")"
+grep -q "visual\." "$tmpdir/visuals.out" && fail "well-formed visual blocks produced findings:
+$(cat "$tmpdir/visuals.out")"
+# Literal samples inside an outer fence (longer backticks or tildes) are text, not visuals: a repeated
+# or invalid sample beside the real figures above passes.
+literal="$tmpdir/ADR-902-literal.md"
+cp "$visuals" "$literal"
+cat >>"$literal" <<'MD'
+
+````markdown
+```visual id=example
+kind: comparison
+form: matrix
+question: Which store?
+```
+````
+
+````markdown
+```visual id=example
+kind: flow
+form: matrix
+```
+````
+
+~~~markdown
+```visual id=store-options
+kind: comparison
+form: matrix
+question: Which store?
+```
+
+```mermaid
+%% id: store-context
+flowchart LR
+  a --> b
+```
+~~~
+MD
+python3 "$validator" "$literal" --catalog "$repo_root/workflows" >"$tmpdir/literal.out" 2>&1 \
+  || fail "literal visual samples inside an outer fence should pass:
+$(cat "$tmpdir/literal.out")"
+grep -q "visual\." "$tmpdir/literal.out" && fail "literal visual samples inside an outer fence produced findings:
+$(cat "$tmpdir/literal.out")"
+cat >>"$visuals" <<'MD'
+
+```visual
+kind: flow
+form: network
+question: What connects?
+```
+
+```visual id=store-options
+kind: flow
+form: matrix
+question: What connects?
+```
+
+```visual id=Bad_Id
+kind: state
+form: machine
+```
+
+```visual id=unlisted-flow
+kind: flow
+form: network
+question: What does the store touch?
+```
+
+```mermaid
+%% id: store-context
+flowchart LR
+  c --> d
+```
+MD
+if python3 "$validator" "$visuals" --catalog "$repo_root/workflows" >"$tmpdir/visuals.out" 2>&1; then
+  fail "malformed visual blocks should block"
+fi
+for expected in "BLOCKING +visual\.id .*needs .id=" "BLOCKING +visual\.id .*'store-options' is used twice" \
+                "BLOCKING +visual\.form .*flow has the forms" "BLOCKING +visual\.id .*'Bad_Id'" \
+                "BLOCKING +visual\.question " "WARNING +visual\.unlisted .*flow/network" \
+                "BLOCKING +visual\.id .*'store-context' is used twice"; do
+  grep -Eq "$expected" "$tmpdir/visuals.out" || fail "expected /$expected/:
+$(cat "$tmpdir/visuals.out")"
+done
+
+echo "OK: validate-instance.py passes all $count catalog examples and $ux optional-section fixtures, holds the deliverable to its voice profile, rejects the broken PRD fixture, checks visual blocks, and errors on unresolvable types"

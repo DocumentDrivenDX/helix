@@ -16,8 +16,8 @@ constraints, migration) lives in [[data-design]].
 
 [Describe the data product being architected, the business problem it solves,
 and the system context. Name the key data flows and platform fit. Reference
-[[prd]] (kind: data) for the requirements and success metrics this architecture must
-satisfy.]
+[[prd]] (kind: data) for the behavior, capacity, and quality requirements this
+architecture must satisfy.]
 
 ### Scope
 

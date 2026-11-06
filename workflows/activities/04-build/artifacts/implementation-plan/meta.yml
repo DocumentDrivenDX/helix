@@ -7,7 +7,7 @@ artifact:
 voice: artifact-signal
 
 description: |
-  Build-activity plan that decomposes approved design into implementation slices,
+  Build-activity plan that decomposes governing design into implementation slices,
   sequencing, ownership, validation gates, and evidence expectations. It turns
   story, design, and test artifacts into execution-ready build work without
   reopening product or design decisions.
@@ -107,3 +107,7 @@ tags:
   - planning
 
 version: 1.0.0
+
+# The visuals this type usually draws, each only when it earns its place (references/visuals.md).
+visuals:
+  - {kind: timeline, form: roadmap, question: "What runs alongside what, and when?", source: "the plan's phases and work items"}

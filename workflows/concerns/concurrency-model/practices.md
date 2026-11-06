@@ -137,6 +137,6 @@ count (`deployment-topology`).
 - Locks are acquired in a single consistent order (review), and no lightweight
   process or subscription leaks (no goroutine blocked forever on an unserviced
   channel; every subscription disposed).
-- The chosen concurrency model and its bounding strategy are recorded in an ADR;
+- The chosen concurrency model and its bounding strategy are stated in the TD;
   the model fits the workload shape (I/O-bound vs CPU-bound vs entity
   coordination vs deferred work).

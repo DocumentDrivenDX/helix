@@ -4,6 +4,20 @@ Use a clear conversational answer by default. A durable artifact or
 machine-readable block is appropriate when the user requests one or a runtime
 consumer requires it.
 
+## Reviewing a change
+
+When a review covers a change (code, configuration, or artifact edits), open
+the conversational answer with three lines a reader who does not read code can
+act on:
+
+- **What changed**: the files and behavior the change touches, including
+  anything added beyond the request.
+- **Evidence it works**: what was observed running, or "not observed" when
+  nothing was.
+- **How to undo it**: the revert path, or the step that cannot be reverted.
+
+Findings follow those lines.
+
 ## Optional structured report
 
 For align, validate, refresh, check, project-audit, review, or converge, this

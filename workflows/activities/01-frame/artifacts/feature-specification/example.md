@@ -13,7 +13,6 @@ ddx:
 # Feature Specification: FEAT-001 - CSV Import and Column Mapping
 
 **Feature ID**: FEAT-001
-**Status**: Specified
 **Priority**: P0
 **Owner**: Product and Engineering
 

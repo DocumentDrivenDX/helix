@@ -10,7 +10,7 @@ ddx:
 # DESIGN.md — DepositMatch
 
 This is DepositMatch's **interface system**: the concrete UX/design-system
-decisions the app commits to. It is DepositMatch's instance of the `ux-radix`
+decisions the app commits to. It is DepositMatch's instance of the `ux-interaction-patterns`
 interface guidelines — not a copy of the concern library.
 
 ## Navigation and Active State

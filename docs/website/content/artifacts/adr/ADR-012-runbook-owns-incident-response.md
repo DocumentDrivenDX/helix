@@ -1,7 +1,7 @@
 ---
 title: "ADR-012: Runbook owns incident response procedures; monitoring-setup owns detection only"
 slug: ADR-012-runbook-owns-incident-response
-weight: 290
+weight: 300
 activity: "Design"
 source: "02-design/adr/ADR-012-runbook-owns-incident-response.md"
 generated: true

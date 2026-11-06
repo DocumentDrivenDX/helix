@@ -17,7 +17,7 @@
 #     stat-callout per section; a comparison or table at most every third
 #     slide; at least one diagram or statement in every ten content slides.
 #   - Icons name things: a panel, a spoke, a layer, a column header, or a
-#     step may carry one icon from the set in skills/helix/scripts/icons
+#     step may carry one icon from the set in tools/documentor/src/documentor/deliverable/icons
 #     (named on the Visual line). The one decorative device is the hero
 #     marker on the end slides (`title`, `section-divider`, `statement`):
 #     one icon for the deck's subject, set with `icon:` on a `kind: none`

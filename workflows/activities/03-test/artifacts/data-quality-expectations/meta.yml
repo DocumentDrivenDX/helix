@@ -122,7 +122,7 @@ validation:
 
     - pattern: "\\[TBD\\]|\\[TODO\\]|\\[NEEDS CLARIFICATION\\]"
       expected: 0
-      message: Remove all unresolved markers before approval
+      message: Resolve uncertainty that materially affects the scoped work
 
 variables:
   - name: data_product_name
@@ -212,11 +212,6 @@ references:
 workflow:
   creation_order: 1
   review_cycles: 1-2
-  approval_required: true
-  approvers:
-    - Data Quality Owner
-    - Data Engineering Lead
-    - Data Product Owner
 
 tags:
   - data-engineering

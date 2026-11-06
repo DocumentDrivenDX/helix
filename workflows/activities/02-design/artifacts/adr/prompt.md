@@ -35,10 +35,19 @@ Use these local resource summaries as grounding:
 ## Focus
 - State the problem and decision plainly. If the operator has not stated the
   intent behind the decision, confirm it before drafting (see `modes/design.md`).
-- Say what is built and tested versus only decided, in one line, when the ADR
-  could be read as more complete than it is.
+- State the chosen direction without claiming implementation completion.
+  Record implementation gaps and observed results in the relevant plan,
+  selected work item, or factual report; do not add progress banners here.
 - For each alternative, say why this choice beats it; keep it brief and honest.
 - Name drift signals only when they would reveal the decision being abandoned.
+- Add the optional **Assumptions** section when the decision rests on facts
+  not yet proven, each with what would invalidate it. A provisional-risk note
+  belongs here.
+- Add the optional **Validation** section when the decision should be tested
+  with real use (common for interface decisions). Result is `not tested`,
+  `tested` or `refuted`; Evidence cites what settled it: a study's research
+  plan, the metrics dashboard, or an experiment. Update it in place when the
+  evidence arrives; a refuted decision is rewritten, not appended to.
 - Omit dates, status, deciders, and risk or metric tables; git and the tracker hold them.
 - Use one ADR per decision. If the decision has independent parts, split it.
 - Keep one current record of the chosen direction and useful rationale. When
@@ -78,5 +87,5 @@ Use these local resource summaries as grounding:
 - The decision is unambiguous.
 - Alternatives are compared clearly.
 - Consequences are explicit.
-- `ddx.status` in the frontmatter says whether the direction is chosen; accepted does not mean built.
+- The decision states current working intent; no lifecycle stamp is required.
 - Drift signals are concrete when the decision has uncertainty.

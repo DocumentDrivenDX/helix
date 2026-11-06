@@ -1,7 +1,7 @@
 ---
 title: "Architecture"
 slug: architecture
-weight: 340
+weight: 380
 activity: "Design"
 source: "02-design/architecture.md"
 generated: true
@@ -219,8 +219,9 @@ product vision
 ```
 
 The routing skill's `evolve` workflow mode threads changes downward through
-this order. `align` compares the artifacts affected by the requested change;
-an implementation audit is a separate, explicitly scoped request. The
+this order. `align` compares the artifacts affected by the requested change,
+plus relevant code and tests when the target is a named system or component;
+an implementation status audit is a separate, explicitly scoped request. The
 authority hierarchy is a HELIX invariant; runtimes execute against it but do
 not redefine it.
 
@@ -234,15 +235,18 @@ artifacts require DDx. Minimal instance frontmatter:
 ---
 ddx:
   id: FEAT-001
-  type: feature-spec
+  type: feature-specification
   depends_on:
     - helix.prd
-  status: draft
+  authoring:
+    home: repo
 ---
 ```
 
-`ddx.id` is the only required field. `ddx.depends_on` builds the traceability
-graph the routing skill traverses inside the active flow. Cross-flow
+`ddx.id` and `ddx.authoring.home` identify the instance and its write surface.
+Committed content is living working intent; lifecycle labels are unnecessary.
+`ddx.depends_on` helps find relevant upstream content. Missing links alone do
+not block work; the skill follows relationships only when they affect the task. Cross-flow
 relationships use the marker and graph contract described above. Full field
 definitions are in
 [`workflows/artifact-schema.md`](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/artifact-schema.md).
@@ -422,3 +426,11 @@ and describes the resolution for each.
 - [Routing Skill](https://github.com/DocumentDrivenDX/helix/blob/main/skills/helix/SKILL.md) — the single agent-facing surface
 - [workflows/principles.md](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/principles.md)
 - [workflows/ratchets.md](https://github.com/DocumentDrivenDX/helix/blob/main/workflows/ratchets.md)
+
+## Developer orientation
+
+Start with the [solution overview](/artifacts/solution-overview/), follow the
+[end-to-end authoring walkthrough](/artifacts/architecture-walkthrough/), then use the
+[developer guide](https://github.com/DocumentDrivenDX/helix/blob/main/docs/guide/developer/developer-guide.md) for a first contribution.
+These explain this architecture and link to source evidence; structural
+decisions remain here and in the governing contracts and ADRs.

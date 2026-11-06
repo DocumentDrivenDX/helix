@@ -173,6 +173,5 @@ admin tools with no business rules, or libraries with no domain.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: bounded-context map + subdomain classification + aggregate boundaries
-- TD: aggregates/value-objects/repositories/domain-services/factories model
+- TD: aggregates/value-objects/repositories/domain-services/factories model; states the bounded-context map, subdomain classification and aggregate boundaries
 - DATA_DESIGN: schema mirrors aggregate boundaries; cross-aggregate refs by identity

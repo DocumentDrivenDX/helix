@@ -2,7 +2,6 @@
 ddx:
   id: DB-001
   type: decision-brief
-  status: draft
   authoring:
     home: repo
   links:

@@ -9,5 +9,5 @@ authority:
   within_graph: positional
   cross_graph: advisory
 validation:
-  draft: [all]
-  published: [all]
+  default: [all]
+  publish: [all]

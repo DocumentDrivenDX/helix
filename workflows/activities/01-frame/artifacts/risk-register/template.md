@@ -7,7 +7,6 @@ ddx:
 
 # Risk Register
 
-**Status**: [Draft | Review | Approved]
 **Last Updated**: [Date]
 **Risk Owner**: [Name]
 

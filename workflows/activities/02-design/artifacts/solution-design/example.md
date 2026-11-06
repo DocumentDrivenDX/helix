@@ -92,14 +92,15 @@ erDiagram
 
 ### Business Rules
 
-1. **Required source pair**: A draft import session is not ready for mapping
-   until it has one bank CSV and one invoice CSV.
-2. **Mapping before import**: Accepted rows cannot be committed until required
-   mappings exist for amount, date, and source identifier.
-3. **Validation before matching**: Match suggestions cannot be created until the
-   reviewer confirms an import summary.
-4. **Traceability preservation**: Every accepted row must retain file identity,
-   row number, source identifier, normalized amount, and normalized date.
+- **BR-1** — Required source pair: A draft import session is not ready for
+  mapping until it has one bank CSV and one invoice CSV.
+- **BR-2** — Mapping before import: Accepted rows cannot be committed until
+  required mappings exist for amount, date, and source identifier.
+- **BR-3** — Validation before matching: Match suggestions cannot be created
+  until the reviewer confirms an import summary.
+- **BR-4** — Traceability preservation: Every accepted row must retain file
+  identity, row number, source identifier, normalized amount, and normalized
+  date.
 
 ## System Decomposition
 

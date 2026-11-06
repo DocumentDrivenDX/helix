@@ -58,6 +58,9 @@ teams that operate at "spreadsheet maturity" indefinitely.
 
 ### Success Metrics
 
+These outcome targets guide product learning and priorities. They do not gate
+implementation, versions, release, or completion of engineering work.
+
 | Metric | Target | Measurement Method |
 |--------|--------|--------------------|
 | Time-to-first-value | First pipeline review from CRM within 7 days of signup | Onboarding telemetry: signup → first pipeline-view session by manager |
@@ -280,7 +283,7 @@ work can confirm, override, or refine without re-discovering them.
 |---|---|---|---|
 | MVP scope creeps to match enterprise CRM expectations | High | High | Non-goals list is enforced as a frame-activity artifact; new requirements must displace existing P0/P1 or move to P2 |
 | Defaults don't fit any real customer because we tried to please everyone | Medium | High | Anchor defaults to one well-understood ICP (small B2B sales) and document the choice; resist "configurable for everyone" pull |
-| Spreadsheet-using teams don't switch because the cost of change > the cost of bad data | Medium | High | Time-to-first-value metric is a release gate; onboarding flow is treated as P0 |
+| Spreadsheet-using teams don't switch because the cost of change > the cost of bad data | Medium | High | Treat onboarding as P0 and verify the import-to-pipeline flow with representative fixtures; measure time to first value in use to guide improvements |
 | Stack choice prematurely commits before design activity | Low | Medium | All stack selection deferred to ADRs; PRD lists only what affects requirements |
 | Data export not credible → procurement blocks adoption | Low | High | R-8 (CSV export) is P0; document the export contract before launch |
 

@@ -33,6 +33,13 @@ Use these local resource summaries as grounding:
   artifacts. If the solution needs exact fields, commands, payloads, or error
   semantics, link to or request a Contract.
 - Preserve only the decisions needed by build and test.
+- Give every business rule a stable `**BR-n** —` line, numbered across the
+  project and never reused. This section is the rules' single home: the
+  feature specification's Task Model, stories, designs and tests cite `BR-n`
+  instead of restating the rule.
+- When people use the feature directly, add the optional Experience
+  Traceability table (need, task, flow, view) and list any need or task with
+  no flow or view under Gaps. Align checks this chain.
 - Stay within the feature scope defined in the zoom-stack matrix
   (`workflows/activities/02-design/README.md`); update the governing artifact
   first if the feature forces a change at a higher level.
@@ -57,3 +64,41 @@ flow. Identify instrumentation/capture owners and context boundaries. Reference
 Contracts for exact surfaces; put system-wide logger, transport and backend
 choices in Architecture/ADRs. Name receiver proof and diagnostic pilot slices
 when relevant. A product that uses no models does not inherit GenAI conventions.
+
+## Explain a critical flow
+
+When a new developer cannot follow the main flow from structural views alone,
+include or link one end-to-end architecture walkthrough. Name its reader question,
+current/proposed state, and diagram legend. Trace a concrete user action through
+entrypoint, components, state changes, external interactions, failure handling,
+and proving tests; link source locations and describe each check's limits.
+For content systems, show content reads/writes and runtime actors without
+inventing services. Distinguish an illustrative contract trace from an observed
+runtime session. Name update triggers; avoid duplicating structural authority.
+
+## Presentation visual quality
+
+For conference or flagship visuals, apply `workflows/references/diagram-design.md`.
+Start with the audience, one question, one takeaway, and semantic entities/edges.
+Keep a maintainable semantic view and create an editable vector presentation
+view when precise composition is needed. Use a named boundary, deliberate
+hierarchy, readable labels, and consistent color/connector roles. Retain source
+paths in adjacent prose. Render and inspect at full and preview sizes; correct
+collisions before delivery. Record export provenance, semantic parity, deliberate
+omissions, review evidence, and limits. Do not equate a successful export with
+readability or an unperformed audience trial. This is an optional delivery
+profile, not a new requirement for every reference diagram.
+
+For a developer-facing HTML architecture field guide, use the HTML profile and
+worked scaffold linked in `diagram-design.md`. Pair the map with a numbered
+walkthrough, sources, and limits. Separate dense internals from the overview;
+review connector routing, mobile overflow, offline use, and print output.
+
+## UMF Schema Reuse
+
+Apply `workflows/references/umf-schemas.md` for schema, structured-interface, or
+domain-model work. Inspect applicable UMF core, extensions, and domain packs;
+reuse or compose by default. Record pinned sources, local additions, specific
+exceptions, and semantic/projection limits. Declare `ddx.schemas` references to
+the authoritative local sources so publication can render them in the UMF
+browser. Contracts own exact shared surfaces; designs reference them.

@@ -50,7 +50,7 @@ Product vision is for *direction*. If you find yourself writing about:
 | Per-feature requirements | `01-frame/features/FEAT-*.md` |
 | UI interaction details (clicks, screens) | feature spec or user story |
 | Architecture or technology choices | `02-design/` |
-| Release-scoped success metrics | `01-frame/prd.md` (vision keeps strategic, long-horizon outcomes only) |
+| Product-scope outcome metrics and delivery acceptance (kept separate) | `01-frame/prd.md` (vision keeps strategic, long-horizon outcomes only) |
 | Definitional schemas for metrics | `06-iterate/metric-definition.md` |
 
 ## Key Principles
@@ -96,13 +96,15 @@ Each row must pass the "so what?" test. The customer benefit column should
 describe what changes for the customer, not restate the capability.
 
 ### Success Definition
-Every metric must be measurable with a tool or process you can name. "User
-satisfaction" is not measurable. "NPS > 40 from monthly survey" is.
+Name a measurement method for useful strategic indicators. Treat unsupported
+targets as hypotheses; do not manufacture a numeric target for every goal.
 
 These are *strategic, long-horizon* outcomes — what success looks like over
-12–24 months. Release-scoped metrics belong in the PRD; feature-scoped metrics
+12–24 months. Product-scope metrics belong in the PRD; feature-scoped metrics
 in feature specs; metric schemas in `metric-definition`. Aim for 3–5 strategic
-indicators, not a comprehensive metric catalog.
+indicators, not a comprehensive metric catalog. Do not infer development or
+release gates from strategic goals. Preserve explicit human business decisions
+separately from delivery acceptance.
 
 ### Why Now
 Ground this in an observable change — a technology shift, a market event, a
@@ -122,7 +124,6 @@ committing.
 - [ ] Positioning names a specific customer segment (not a category)
 - [ ] Positioning names a specific competitor or alternative (not "existing solutions")
 - [ ] Target market is specific enough to identify real people
-- [ ] Every success metric has a numeric target or measurable outcome
 - [ ] User experience section describes a concrete scenario (not abstract benefits)
 
 ### Warning

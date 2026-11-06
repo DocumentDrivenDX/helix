@@ -30,7 +30,7 @@ ddx:
 
 ### Testing Philosophy
 
-[Exhaustive testing on all rows (default) or sampling? Document the rationale. Sampling is OK for high-volume tables and computationally expensive checks, but must include a confidence interval and margin of error.]
+[Choose verification depth from the quality commitment and failure risk. Reuse enforced schema or database constraints where they provide sufficient evidence. Inspect generated SQL, execution plans and measured costs where relevant before adding scans or duplicate cross-layer checks. Use exhaustive checks when required; for statistical sampling, state the confidence interval and margin of error.]
 
 ---
 

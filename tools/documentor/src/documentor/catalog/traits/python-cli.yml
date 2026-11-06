@@ -1,0 +1,14 @@
+id: python-cli
+title: A command line installed from pyproject (Typer or Click)
+detect:
+  - {files: "**/pyproject.toml", contains: "^\\[project\\.scripts\\]", weight: 0.4}
+  - {files: "**/*.py", contains: "typer\\.Typer\\(|@click\\.group|click\\.Group\\(", weight: 0.4}
+audiences: [developer]
+pages:
+  - audience: developer
+    id: cli
+    title: Command line
+    kind: reference
+    task: Find each command the tool installs and what it does; the options are on each command's --help.
+    generated: cli-commands
+watch: ["**/pyproject.toml"]

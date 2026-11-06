@@ -4,7 +4,7 @@ artifact:
   type: document
   activity: deploy
 
-voice: artifact-signal
+voice: human-facing
 
 description: |
   Release-scoped communication artifact that summarizes shipped user-visible
@@ -60,10 +60,6 @@ references:
 workflow:
   creation_order: 4
   review_cycles: 1
-  approval_required: true
-  approvers:
-    - Release Owner
-    - Product Owner
 
 relationships:
   informed_by:
@@ -81,3 +77,5 @@ tags:
 
 version: 1.0.0
 last_updated: 2026-04-10
+prose:
+  audience: human

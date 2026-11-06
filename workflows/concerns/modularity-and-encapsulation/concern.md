@@ -77,4 +77,9 @@ baseline in `workflows/references/concern-resolution.md` for adoption and preced
 - TEST_PLAN: permitted and forbidden import controls, cycle/private-access checks
   where supported, invariant tests, core isolation when promised by the style,
   adapter contract tests, and explicit remaining review obligations
-- ADR: deliberate coupling, scoped exceptions, or existing-project adoption decisions
+
+## ADR References
+
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR when
+the project grants a scoped exception or accepts deliberate coupling that
+departs from a constraint here.

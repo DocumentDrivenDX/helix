@@ -66,8 +66,8 @@ synthesize.
 
 Each artifact template must include a review checklist that adversarial
 review agents use to evaluate the artifact. The checklist must be specific
-to the artifact type (e.g., "Does the PRD define success metrics?" rather
-than generic "Is this complete?").
+to the artifact type (e.g., "Does every P0 requirement have a testable
+acceptance sketch?" rather than generic "Is this complete?").
 
 ### FR-4: Relationship Declarations
 
@@ -100,6 +100,17 @@ coverage is mechanically checkable rather than asserted in prose:
    (contract / integration / unit / E2E).
 4. **Layer allocation**: the aggregating test plan records which layer verifies
    each criterion class, so reviewers can see that no P0 criterion is unallocated.
+
+5. **Behavior-based test names**: names identify the behavior and relevant
+   condition or rejection branch using the project's framework conventions.
+   Stable requirement citations remain in test source; names alone do not
+   establish coverage. Existing canonical citations in names remain valid.
+6. **Observed results without duplicate records**: completion connects the
+   existing mapping and test-source citations to actual results for the tested
+   revision. Normal test/CI reports suffice when they capture the required
+   behavior and provenance. Supplemental observations are linked from the
+   existing mapping only where the normal reporting path leaves a proof gap;
+   no shared evidence file or second per-criterion matrix is required.
 
 This requirement complements the honesty property in [[FEAT-016]]: stable AC IDs
 let the claims-vs-reality check resolve "this criterion is covered by test X"

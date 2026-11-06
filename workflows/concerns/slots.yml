@@ -18,7 +18,7 @@
 slots:
   frontend-framework: { exclusive: true }
   language-runtime:    { exclusive: true }
-  datastore:           { exclusive: true }   # no members in the library yet — slot defined, no default
+  datastore:           { exclusive: true }   # no universal engine default; project-owned fillers: references/concern-resolution.md
   deploy-target:       { exclusive: true }
   e2e-framework:       { exclusive: true }   # the one browser-e2e tool a UI web app runs its core flows through
   auth-provider:       { exclusive: true }   # the one authentication/identity backend (local sessions, Auth0/OIDC, …)

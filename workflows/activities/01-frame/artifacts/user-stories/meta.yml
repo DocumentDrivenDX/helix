@@ -102,9 +102,6 @@ references:
 workflow:
   creation_order: 3
   review_cycles: 1-2
-  approval_required: true
-  approvers:
-    - Product Owner
 
 relationships:
   derived_from:
@@ -113,6 +110,8 @@ relationships:
   informs:
     - solution-design
     - story-test-plan
+    - user-flow
+    - user-journey-map
 
 tracking:
   id_format: US-NNN
@@ -122,3 +121,7 @@ tags:
   - requirements
   - vertical-slice
   - design-artifact
+
+# The visuals this type usually draws, each only when it earns its place (references/visuals.md).
+visuals:
+  - {kind: flow, form: pipeline, question: "What path does the user take through the story?", source: "the story's steps"}

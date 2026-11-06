@@ -19,10 +19,12 @@ If the e2e suite was never run against the running app, the AC the flow backs is
 
 ## Assert the current-location cue (mechanized visual-cue gate)
 
-For a UI web app, the browser e2e MUST assert the current-location cue, not
+For a UI web app with page navigation, the browser e2e MUST assert the current-location cue, not
 eyeball it: navigate to a route, then assert that the active nav item carries
 **`aria-current="page"`** for **≥1 route**. This assertion is **required and
-non-optional**.
+non-optional** where page navigation exists. Single-surface/embedded views
+without it record a concrete exclusion in DESIGN.md and STP UX Coverage;
+no artificial nav is required.
 
 - Use the **portable** assertion (works across Playwright versions): locate the
   active nav link, then `await expect(activeNavItem).toHaveAttribute('aria-current', 'page')`.
@@ -115,7 +117,7 @@ this one when a reel is needed; do not author demo specs here.
 - `npx playwright test` passes with zero failures
 - All screenshot baselines are committed and up-to-date
 - Every navigable page has at least one test
-- The browser e2e asserts `aria-current="page"` on the active nav item for ≥1
+- Where page navigation exists, the browser e2e asserts `aria-current="page"` on the active nav item for ≥1
   route (required; an active class/style only as an additional assertion, never
   a substitute; no screenshot assertions for this cue)
 - Every user-facing workflow has at least one end-to-end test

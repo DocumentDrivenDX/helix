@@ -31,7 +31,7 @@ brief; it never overrides a client's requirements or decisions. A
    evidence, and answer each. An objection the evidence supports and the
    paper cannot answer belongs in Limits.
 5. **State the limits:** what the paper does not claim and when it fails.
-6. **Pin the evidence** before approval.
+6. **Pin the evidence** before publishing.
 
 ## Writing for the reader
 

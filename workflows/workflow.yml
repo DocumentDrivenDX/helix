@@ -47,7 +47,7 @@ activities:
   - id: test
     order: 3
     name: Test
-    description: Write failing tests that define system behavior.
+    description: Select meaningful new or existing verification for governing behavior.
     contract_docs:
       - workflows/activities/03-test/README.md
       - workflows/activities/03-test/GATE.yaml
@@ -55,7 +55,7 @@ activities:
   - id: build
     order: 4
     name: Build
-    description: Implement the minimum changes needed to satisfy tests.
+    description: Implement governing intent coherently and verify the result.
     contract_docs:
       - workflows/activities/04-build/README.md
       - workflows/activities/04-build/GATE.yaml

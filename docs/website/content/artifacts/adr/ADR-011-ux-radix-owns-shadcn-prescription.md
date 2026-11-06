@@ -1,7 +1,7 @@
 ---
 title: "ADR-011: ux-radix owns Radix and shadcn prescriptions; react-nextjs references"
 slug: ADR-011-ux-radix-owns-shadcn-prescription
-weight: 280
+weight: 290
 activity: "Design"
 source: "02-design/adr/ADR-011-ux-radix-owns-shadcn-prescription.md"
 generated: true
@@ -41,7 +41,7 @@ This follows the "concern boundary lives once" rule established in ADR-006:
 every prescription has exactly one canonical owner, and other concerns
 reference rather than re-state.
 
-**Key Points**: ux-radix is the canonical owner of Radix + shadcn prescription
+**Key Points**: selected component owner determines the library; ux-radix owns Radix + shadcn when selected; ux-interaction-patterns owns neutral behavior
 | react-nextjs references ux-radix instead of re-prescribing | framework
 concerns describe frameworks, not component libraries
 
@@ -87,3 +87,11 @@ concerns describe frameworks, not component libraries
 - workflows/concerns/ux-radix/concern.md
 - workflows/concerns/react-nextjs/concern.md
 - docs/helix/02-design/plan-2026-05-30-artifact-types-and-concerns-audit.md
+
+## Ownership clarification — 2026-10-11
+
+ux-radix retains the Radix/shadcn prescription. Framework-neutral behavior now
+belongs to ux-interaction-patterns, automatically composed for ux-radix and
+AppKit selections. packaged-design-system owns its packaged design system prescription and composes the
+same baseline. Framework selection does not force Radix; existing selections
+keep their library. Conflicts use the established project override/ADR policy.

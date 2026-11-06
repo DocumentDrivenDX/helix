@@ -4,7 +4,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const path = require("path");
-const lib = path.resolve(__dirname, "../../skills/helix/scripts/lib");
+const lib = path.resolve(__dirname, "../../tools/documentor/src/documentor/deliverable/lib");
 const { parseYaml } = require(path.join(lib, "yaml"));
 const { parseScript, parseVisual, items, cells } = require(path.join(lib, "script"));
 const { wrap, fitParagraphs, sizesDown } = require(path.join(lib, "measure"));

@@ -1,0 +1,16 @@
+id: streamlit-app
+title: A Streamlit app
+detect:
+  - {files: "*.py", contains: "import streamlit", weight: 0.6}
+  - {files: "pages/*.py", weight: 0.2}
+  - {files: requirements.txt, contains: "streamlit", weight: 0.2}
+audiences: [developer, user]
+pages:
+  - audience: user
+    id: screens
+    title: Screens
+    kind: reference
+    task: Find each screen of the app and what it is for.
+    generated: streamlit-screens
+views: [stack, cast, journey]
+watch: ["pages/*.py"]

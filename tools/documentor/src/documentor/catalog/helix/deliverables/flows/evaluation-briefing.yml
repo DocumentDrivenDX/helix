@@ -1,0 +1,136 @@
+# evaluation-briefing flow, split out of deck-flows.yml (workflows/deliverables/flows/) so
+# choosing a flow by occasion does not require loading every flow. See
+# ../deck-craft.md for the reasoning and sources behind this flow's arc.
+
+purpose: >-
+  Help a buyer or adopter decide whether to try a product or method on their own work.
+audience:
+  posture: >-
+    Interested but wary of switching cost; they will weigh the claim against what they already
+    do and look for what it does not do.
+  decision: Run a bounded trial, adopt, or pass.
+keep_when_short:
+- takeaway
+- cost-of-today
+- what-it-is
+- proof
+- ask
+beats:
+- name: takeaway
+  answers: What will be true for you if you adopt this?
+  required: true
+  patterns:
+  - title
+  guidance: >-
+    The title is the takeaway sentence in the audience's vocabulary; the subtitle names them
+    and the occasion.
+- name: what-changed
+  answers: What in your world makes the old way stop working?
+  required: true
+  patterns:
+  - claim-evidence
+  - timeline
+  - statement
+  guidance: A change the audience already lives with; do not argue it, name it.
+- name: cost-of-today
+  answers: What does the current way cost you, concretely?
+  required: true
+  patterns:
+  - claim-evidence
+  - stat-callout
+  - quote
+  guidance: >-
+    Two or three failure modes the audience recognizes, each with the moment it shows up.
+- name: what-it-is
+  answers: What is the thing, in one picture and one sentence?
+  required: true
+  patterns:
+  - claim-evidence
+  - process-flow
+  - diagram
+  guidance: >-
+    Category first (a method, a tool, a service), then the one picture that shows its shape.
+- name: how-it-works
+  answers: What happens, step by step, when your team uses it?
+  required: true
+  patterns:
+  - process-flow
+  - diagram
+  - claim-evidence
+  guidance: >-
+    Three to five steps with a verb each; mark the step that replaces the manual work.
+- name: what-changes
+  answers: What is different for your team afterwards?
+  required: true
+  patterns:
+  - two-column-comparison
+  - table
+  guidance: >-
+    Today on the left, after on the right, parallel rows; the verdict line names the biggest
+    change.
+- name: proof
+  answers: What evidence shows it works, and which numbers are still targets?
+  required: true
+  patterns:
+  - stat-callout
+  - claim-evidence
+  - quote
+  guidance: >-
+    Results labeled as results, targets labeled as targets; never mix the two on one slide.
+- name: boundaries
+  answers: What does it not do, and what stays yours?
+  required: true
+  patterns:
+  - claim-evidence
+  - two-column-comparison
+  - statement
+  guidance: >-
+    Answer the objection the audience is forming; non-goals are the strongest trust signal
+    in this flow.
+- name: cost-and-risk
+  answers: What does adopting cost, and what could go wrong?
+  required: false
+  patterns:
+  - risk-matrix
+  - table
+  guidance: Time, people, and reversibility; each risk with its mitigation.
+- name: ask
+  answers: What is the smallest reversible trial that would settle the question?
+  required: true
+  patterns:
+  - ask-next-steps
+  guidance: One project, one period, one measure to judge it by, owners and dates.
+- name: sources
+  answers: Where does each claim come from?
+  required: true
+  patterns:
+  - appendix-sources
+  guidance: Every claim and figure maps to a governing document section.
+transitions:
+- >-
+  What-changed raises "what does that cost me"; cost-of-today answers with the audience's
+  own failure modes.
+- >-
+  Cost-of-today raises "what would fix it"; what-it-is answers in one picture, how-it-works
+  shows the steps.
+- >-
+  How-it-works raises "so what changes for us"; what-changes answers with before and after.
+- >-
+  What-changes raises "prove it"; proof answers and separates results from targets.
+- >-
+  Proof raises "what is the catch"; boundaries answers with what it does not do.
+- >-
+  The ask repeats the takeaway's words and sizes the trial by the proof slide's measure.
+leave_out:
+- The author's architecture, roadmap, and internal vocabulary.
+- Every capability; only the ones a message needs.
+- Comparisons that disparage what the audience uses today.
+- Targets presented as results.
+checklist:
+- >-
+  Titles read in order move from the audience's problem to a trial they can say yes to.
+- The what-it-is slide names the category before any capability.
+- Proof labels every target as a target.
+- Boundaries states at least two things the offering does not do.
+- The ask names one project, one period, one measure, and owners.
+- No body uses a term the audience would need defined.

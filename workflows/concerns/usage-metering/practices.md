@@ -89,8 +89,8 @@ meter.
 
 Metering wiring MUST be **exercised on the running system**, not asserted from a
 function's existence — this is the `verification` evidence gate applied to the
-billable path. Before claiming the metering work done, the
-`verification-evidence.md` bundle MUST record, from an actual run:
+billable path. Before claiming the metering work done, the existing AC/test
+mapping MUST link observed run results for the tested revision, showing:
 
 - the **real billable flow driven end-to-end** and the metered total observed to
   move (positive: the wire fires);
@@ -99,6 +99,9 @@ billable path. Before claiming the metering work done, the
   does not double-count);
 - the **reconciliation** observed to match the independent count within
   tolerance.
+
+Use the `workflows/concerns/verification/practices.md` for run references
+and conditional supplemental observations.
 
 A meter event whose emit is only *defined* and never observed firing on the
 running system is **UNTESTED** — the same failure class the evidence gate refuses

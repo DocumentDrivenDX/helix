@@ -177,7 +177,7 @@ validation:
   pattern_checks:
     - pattern: "\\[TBD\\]|\\[TODO\\]|\\[NEEDS CLARIFICATION"
       expected: 0
-      message: Remove all unresolved markers before approval
+      message: Resolve uncertainty that materially affects the scoped work
 
     - pattern: "\\[BRACKETED PLACEHOLDER"
       expected: 0
@@ -244,11 +244,6 @@ examples:
 workflow:
   creation_order: 0.5
   review_cycles: 1-2
-  approval_required: true
-  approvers:
-    - Product Owner
-    - Sponsor
-    - Technical Lead
 
 relationships:
   informs:

@@ -20,7 +20,7 @@ is `verification`); it is a set of *structural design decisions* — where to pu
 timeouts, which dependencies get a circuit breaker, how to partition resources
 into bulkheads, what to fall back to when a dependency is down. Those decisions
 change the shape of the system (its failure boundaries, its guard wiring, its
-fallback paths) and are recorded in ADRs and the technical design, exactly like
+fallback paths) and are stated in the technical design, exactly like
 the other architecture concerns (`onion-architecture`,
 `enterprise-integration-patterns`). It is **composable** (no slot): it earns its
 place only when the system has a real failure surface, and composes with the
@@ -261,21 +261,17 @@ timeout / shed-load signals so failures are observable).
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: failure-handling strategy — per-dependency timeout/breaker/bulkhead/retry/fallback policy
-- TD: timeout + circuit-breaker + bulkhead + graceful-degradation guards at the outbound-call boundary
+- TD: timeout + circuit-breaker + bulkhead + graceful-degradation guards at the outbound-call boundary; states the failure-handling strategy (per-dependency timeout/breaker/bulkhead/retry/fallback policy)
 - TEST_PLAN: breaker open/half-open + timeout-fire + fallback paths exercised, not just happy path
 
 ## ADR References
 
-Selecting resilience **forces** a specific ADR: the **failure-handling
-strategy** — which dependencies are in the request path, which get a **circuit
-breaker** (with threshold + reset behavior) and/or a **bulkhead**, what the
-**timeout** policy is per dependency, the **retry** policy (backoff/jitter/cap,
-which operations are idempotent enough to retry), and the **fallback /
-degradation** behavior when each guarded dependency is down. The chosen failure
-modes and guard placement are design-defining decisions, recorded in an ADR — not
-left implicit. A material uncertainty about a dependency's failure behavior
-(unknown latency distribution, unknown idempotency guarantees, unknown recovery
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only
+when the project deviates from a constraint here. The **failure-handling
+strategy** itself (which dependencies are guarded by a breaker/bulkhead, the
+per-dependency timeout and retry policy, and the fallback/degradation behavior)
+is a design choice stated in the technical design, not left implicit. A material
+uncertainty about a dependency's failure behavior (unknown latency distribution, unknown idempotency guarantees, unknown recovery
 time) is a `tech-spike` to de-risk before committing the strategy, not a silent
 assumption (see `workflows/references/concern-resolution.md`).
 
@@ -308,7 +304,7 @@ metrics/traces these guards emit into). They reference those concerns at the sea
   which need a **bulkhead** (those sharing a finite pool with others), what the
   **timeout** is (from the dependency's latency percentile + padding), and the
   **retry** policy (only for transient + idempotent, with backoff/jitter/cap).
-  Record the choices — these are the ADR's failure-handling strategy.
+  State the choices in the TD as the failure-handling strategy.
 - **Design the fallback for each guarded dependency.** State what a degraded-but-
   useful response is when the dependency is down / its breaker is Open — a cached
   value, a default, a deferred acknowledgement, a hidden feature — or record

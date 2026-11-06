@@ -1,7 +1,7 @@
 # Visual specs for deliverable scripts
 
 The `**Visual**` line of a deliverable unit can open with a small structured
-spec so the renderer (`skills/helix/scripts/render-deck.js`) draws the visual
+spec so the renderer (`documentor deck render`) draws the visual
 instead of guessing from prose. Prose after the spec is the description for
 people and stays required: it says what the visual shows and where it comes
 from, which is what `check-deliverable.py` reads.
@@ -44,7 +44,7 @@ from, which is what `check-deliverable.py` reads.
 ## Icons, placement, and looks
 
 - `icons:` (a list, one per item) or `icon:` (one) names files from
-  `skills/helix/scripts/icons/` without the extension: `layers`, `shield`,
+  `tools/documentor/src/documentor/deliverable/icons/` without the extension: `layers`, `shield`,
   `agent`, `person`, `gate`, `check`, `alert`, `loop`, `route`, `search`,
   `presentation`, `flag`, `chart`, and the rest of the set (the directory
   lists them). The renderer rasterizes each icon in the badge's hue; on a
@@ -66,7 +66,7 @@ from, which is what `check-deliverable.py` reads.
 
 A `**Visual**` line without a spec still renders: the renderer draws a
 placeholder panel holding the prose so the slide is honest about what is
-missing, and `deck-qa.py` reports it.
+missing, and `documentor deck qa` reports it.
 
 ## Examples
 

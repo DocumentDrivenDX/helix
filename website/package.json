@@ -5,10 +5,15 @@
   "scripts": {
     "serve:local": "bash scripts/serve-local.sh",
     "test:e2e": "playwright test",
-    "test:screenshots": "playwright test --update-snapshots"
+    "test:screenshots": "playwright test --update-snapshots",
+    "serve:schemas": "uv run --project ../tools/documentor documentor schemas --root .. && hugo server --bind 127.0.0.1 --port 1317 --baseURL http://127.0.0.1:1317/helix/ --appendPort=false",
+    "test:schemas": "playwright test --config schema-browser.config.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",
     "@playwright/test": "^1.59.1"
+  },
+  "dependencies": {
+    "@documentdrivendx/umf-schema-browser": "2.0.0"
   }
 }

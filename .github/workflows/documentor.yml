@@ -1,0 +1,47 @@
+name: documentor
+
+# documentor (tools/documentor) is the host tool behind HELIX's guide mode. Its suite runs when the
+# tool changes, or when the HELIX catalog it packages (the audiences and voice profiles) changes.
+on:
+  pull_request:
+    paths:
+      - "tools/documentor/**"
+      - "workflows/publish/**"
+      - "workflows/voice.yml"
+      - "workflows/references/publishing.md"
+      - "workflows/references/writing-pass.md"
+      - "workflows/deliverables/**"
+      - "skills/helix/scripts/prose_audit.py"
+      - "scripts/sync_references.py"
+      - ".github/workflows/documentor.yml"
+  push:
+    branches: [main]
+    paths:
+      - "tools/documentor/**"
+      - "workflows/publish/**"
+      - "workflows/voice.yml"
+      - "workflows/references/publishing.md"
+      - "workflows/references/writing-pass.md"
+      - "workflows/deliverables/**"
+      - "skills/helix/scripts/prose_audit.py"
+      - "scripts/sync_references.py"
+      - ".github/workflows/documentor.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tools/documentor
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with: { python-version: "3.12" }
+      - uses: peaceiris/actions-hugo@v3
+        with: { hugo-version: "0.160.0", extended: true }
+      - run: uv sync
+      - name: Tests (the catalog matches workflows/, then every suite)
+        # Inside the project's environment, so the suites find the `documentor` command.
+        run: uv run --with rust-just==1.58.0 just test
+      - name: documentor's own guide is current
+        run: uv run documentor check --root .

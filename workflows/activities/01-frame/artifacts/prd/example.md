@@ -36,6 +36,9 @@ and trigger client follow-up days later.
 
 ### Success Metrics
 
+These are product-outcome hypotheses to evaluate in use. Missing a target
+informs improvements; it does not block development or release.
+
 | Metric | Target | Measurement Method |
 |--------|--------|--------------------|
 | Median reconciliation time | Under 3 minutes per client per week | In-product workflow timing |
@@ -170,6 +173,8 @@ reconciliation time while preserving reviewer trust and exception ownership.
 
 ## Success Criteria
 
-DepositMatch is successful when pilot firms reconcile routine weekly deposits
-from one workspace, reviewers accept at least 95% of audited suggestions, and
-unresolved deposits consistently leave a named owner and next action.
+Delivery is complete when acceptance scenarios demonstrate that reviewers can
+reconcile representative deposits from one workspace, inspect evidence before
+accepting a match, and assign an unresolved deposit to an owner with a next
+action. Verify these capabilities with fixtures and bounded workflow tests.
+The in-use targets above guide subsequent improvement independently of release.

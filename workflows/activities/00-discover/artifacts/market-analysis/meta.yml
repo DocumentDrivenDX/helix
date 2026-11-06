@@ -62,7 +62,6 @@ references:
 workflow:
   creation_order: 0.5
   review_cycles: 1
-  approval_required: false
 
 relationships:
   informs:

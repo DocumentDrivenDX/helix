@@ -33,14 +33,12 @@ SDK), version pinning, what the library brings and which parts a standalone
 app uses, the token and theme posture, and the open question of standalone
 support. It must not duplicate its neighbors:
 
-- **`ux-radix`** owns the interaction patterns, keyboard contracts, and focus
-  rules, and the shadcn/ui + Radix component-library prescription (ADR-011).
-  AppKit UI is Databricks' distribution of that same shadcn/Radix pattern, so
-  every `ux-radix` interaction rule applies to its components unchanged. Where
-  `ux-radix` says shadcn is copied into `components/ui/` rather than installed,
-  this concern makes AppKit UI the installed library and copies shadcn only for
-  components AppKit UI lacks; record that resolution as a project override (see
-  Conflict Detection in `workflows/references/concern-resolution.md`).
+- **`ux-interaction-patterns`** owns neutral keyboard, navigation and focus
+  behavior, composed automatically for this concern. AppKit owns the installed
+  component layer here. `ux-radix` owns the alternative copied shadcn/Radix
+  prescription; it need not be selected just to obtain behavioral rules.
+  `packaged-design-system` covers another project-selected npm component
+  owner. Resolve competing prescriptions in project overrides.
 - **`frontend-framework`** (`react-vite`) owns the build, routing, environment
   exposure, and component tests; **`frontend-architecture`** owns the
   server-state pattern that feeds AppKit UI's data components.
@@ -124,7 +122,7 @@ support. It must not duplicate its neighbors:
   variables from `styles.css`
 - A token overridden for light only → override light and dark together
 - Custom keyboard or focus handlers on AppKit UI components → keep the Radix
-  behavior, per `ux-radix`
+  behavior, per `ux-interaction-patterns`
 - Standalone support treated as settled with no spike result → run and record
   the spike
 
@@ -142,13 +140,15 @@ governs the package and server there), or for Streamlit, Dash, or Gradio apps.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: `@databricks/appkit-ui` (exact pin, no Node SDK) as the component library, citing the standalone spike result
-- TD: data-mode components fed by the project's `/api/*` through the server-state layer; no AppKit server routes assumed
+- TD: data-mode components fed by the project's `/api/*` through the server-state layer; no AppKit server routes assumed; states `@databricks/appkit-ui` (exact pin, no Node SDK) as the component library, citing the standalone spike result
 - IMPLEMENTATION_PLAN: the AppKit UI standalone spike before UI build-out; exact pin and upgrade procedure
 - DESIGN_SYSTEM: AppKit OKLCH tokens, overrides for light and dark, chart series tokens, shadcn gap components themed with AppKit tokens
-- TEST_PLAN: affected screens checked in both themes; keyboard and focus behavior per `ux-radix`
+- TEST_PLAN: affected screens checked in both themes; keyboard and focus behavior per `ux-interaction-patterns`
 
 ## ADR References
+
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only
+when the project deviates from a constraint here.
 
 - ADR-011: ux-radix owns the Radix and shadcn component-library prescription;
   this concern names AppKit UI as the installed distribution of that pattern
@@ -168,11 +168,11 @@ Agents working in any of these activities inherit the practices below through ru
 
 ## Design
 
-- Choose `@databricks/appkit-ui` at an exact version as the component library; record it in the ADR with the spike result.
+- Choose `@databricks/appkit-ui` at an exact version as the component library; state it in the TD with the spike result.
 - Feed charts and data components in data mode from the server-state layer that calls the project's `/api/*` routes.
 - Map each needed widget to an AppKit UI component first; only a gap gets a copied shadcn component themed with AppKit tokens.
 - Define token overrides as CSS variables for light and dark together; chart series use `--chart-1` to `--chart-5`.
-- Apply `ux-radix` interaction patterns (search, edit, navigation, selection, overlays) to AppKit UI components unchanged.
+- Apply `ux-interaction-patterns` interaction patterns (search, edit, navigation, selection, overlays) to AppKit UI components unchanged.
 
 ## Implementation
 
@@ -188,13 +188,13 @@ Agents working in any of these activities inherit the practices below through ru
 - Run the standalone spike and record bundle size, Tailwind 4 setup, any calls to `/api/<plugin>` or `/health`, and theme switching.
 - Component tests (per `react-vite`) cover data components rendering empty, loading, error, and populated data.
 - Check affected screens in both light and dark themes for every change that touches tokens or an AppKit UI upgrade.
-- Verify keyboard and focus behavior per `ux-radix` on screens built from AppKit UI components.
+- Verify keyboard and focus behavior per `ux-interaction-patterns` on screens built from AppKit UI components.
 - Verify in the browser network panel or e2e that the deployed app calls no AppKit server routes.
 
 ## Quality Gates
 
 - `package.json` pins `@databricks/appkit-ui` exactly and does not list `@databricks/appkit`.
-- The standalone spike result is recorded and cited by the ADR.
+- The standalone spike result is recorded and cited by the TD.
 - No second component library and no literal colors in components or chart options.
 - Every token override exists for both light and dark themes.
 - An AppKit UI upgrade lands as its own reviewed change with both themes checked.

@@ -1,0 +1,18 @@
+id: sql-migrations
+title: A database built by SQL migrations
+detect:
+  - {files: "**/alembic.ini", weight: 0.4}
+  - {files: "**/migrations/**/*.py", contains: "CREATE TABLE|op\\.create_table", weight: 0.4}
+  - {files: "**/migrations/**/*.sql", contains: "CREATE TABLE", weight: 0.6}
+audiences: [developer]
+pages:
+  - audience: developer
+    id: database
+    title: Database
+    kind: reference
+    task: See each table the migrations build, its columns and keys, and how the tables refer to each other.
+    generated: database-schema
+watch: ["**/migrations/**/*.py", "**/migrations/**/*.sql"]
+handling:
+  never_publish:
+    - "rows, sample values, and connection strings"

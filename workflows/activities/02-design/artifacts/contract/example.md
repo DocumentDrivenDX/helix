@@ -14,7 +14,6 @@ ddx:
 **Contract ID**: API-001
 **Type**: HTTP API
 **Version**: v1
-**Status**: complete
 **Related**: FEAT-001, US-001, ADR-001
 
 ## Purpose

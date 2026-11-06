@@ -2,7 +2,6 @@
 ddx:
   id: DB-[number]
   type: decision-brief
-  status: draft
   authoring:
     home: repo
   links:

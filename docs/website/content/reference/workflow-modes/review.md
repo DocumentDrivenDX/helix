@@ -1,7 +1,7 @@
 ---
 title: "Review"
 slug: review
-weight: 190
+weight: 200
 generated: true
 ---
 
@@ -11,7 +11,9 @@ Use for an explicitly requested fresh-eyes review of a plan, artifact, change,
 or implementation.
 
 1. Define the target and keep the review within that scope. Read the governing
-   requirements, decisions, tests, and changed material that bear on it.
+   requirements, decisions, tests, and changed material that bear on it. Assess
+   cohesion, redundant mechanisms and consequential operations or costs where
+   relevant. Existing test success alone does not justify the design.
 2. Report actionable findings first, with severity, location, and evidence.
    Verify factual claims about tests, coverage, or metrics before relying on
    them. Preserve security, correctness, and user-authorized stop rules.
@@ -42,3 +44,14 @@ silently re-selecting concerns. Require safe run/attempt evidence references,
 verification outcome and capture limits at execution closeout; a quiet console
 is not a pass. Shared schemas stay in Contracts, with actual OTel receiver proof
 for claimed integrations. See `workflows/references/agent-diagnostics.md`.
+
+## UX coverage
+
+For affected interactive UI work, apply ux-interaction-patterns and the selected
+component owner. Use workflows/references/ux-evidence.md: a missing STP UX
+Coverage map is an adoption/readiness gap, not retroactive invalidity. Require
+populated AC mappings and review exclusion reasons. For planning/readiness,
+check named planned tests, commands, component gaps and evidence capture; do
+not demand future passing results. For implementation/completion claims,
+check actual test source and observed runtime results; SDK audit evidence
+cannot prove interaction flows.

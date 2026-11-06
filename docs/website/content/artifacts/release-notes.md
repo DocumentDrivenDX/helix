@@ -1,7 +1,7 @@
 ---
-title: "Release Notes — HELIX v0.15.4"
+title: "Release Notes — HELIX v0.19.1"
 slug: release-notes
-weight: 570
+weight: 670
 activity: "Deploy"
 source: "05-deploy/release-notes.md"
 generated: true
@@ -25,88 +25,81 @@ ddx:
     reviewed_at: "2026-10-04T03:52:23Z"
 ```
 
-# Release Notes — HELIX v0.15.4
+# Release Notes — HELIX v0.19.1
 
 ## Release Scope
 
-- Release identifier: `v0.15.4`
-- Release date: 2026-10-09
-- Previous release: `v0.15.3`
-- Scope: optional formal-methods concern, adoption and technical-design guidance,
-  executable abstract lease model, regression checks and generated references.
-- Release owner: HELIX maintainer; annotated version tag triggers existing
-  bundle publication, version guard, install smoke and website workflows.
+- Release identifier: `v0.19.1`
+- Release date: 2026-10-22
+- Previous release: `v0.19.0`
+- Scope: a patch to documentor's version report. The guide mode and documentor themselves
+  arrived in `v0.19.0`; its notes are at the `v0.19.0` tag.
+- Release owner: HELIX maintainer; published through the release PR workflow.
 
 ## Audience and Channels
 
 | Audience | Impact | Channel |
 |----------|--------|---------|
-| HELIX users | Risk-based formal specification and analysis | Concern catalog and plugin |
-| Runtime integrators | Scoped assurance and evidence obligations | Practices and adoption reference |
-| Website readers | Published concern and design examples | Public reference website |
+| documentor users | `documentor --version` names the release its catalog shipped in | documentor, installed from the tag |
+| HELIX users | No change to the skill or the catalog | Plugin and bundles |
 
 ## Highlights
 
-- Select `formal-methods` for critical interacting state/rules or explicit
-  assurance needs. Choose precise specification, executable analysis or
-  deductive proof per affected slice; unaffected work records an exclusion.
-- Technical designs distinguish safety, liveness, assumptions and bounds,
-  reproducible evidence and model/code/test correspondence. Exact shared
-  interfaces remain in Contracts; running-system verification still applies.
-- The abstract lease example checks 70 reachable states and 109 transitions,
-  with ordered recovery witnesses and replayable fencing/lock negative controls.
-  It makes no DDx production correctness or liveness claim.
+- `documentor --version` now prints `documentor 0.19.1 (HELIX catalog packaged 0.19.1)`.
+  In `v0.19.0` it printed `packaged in-repo`, which named no release.
 
 ## Required Actions Summary
 
-- Users: update to `v0.15.4`; existing concern selections remain unchanged.
-- Adopting teams: record the affected scope, chosen rigor and authority before
-  claiming formal assurance. No solver/proof assistant is installed by HELIX.
-- Runtime integrators: preserve scope notes and reasoned non-applicability,
-  and recheck evidence when mapped behavior or assumptions change.
+- Install documentor from this tag:
+  `uv tool install --force "git+https://github.com/DocumentDrivenDX/helix@v0.19.1#subdirectory=tools/documentor"`.
+- Plugin users need no action.
 
 ## Changes and Fixes
 
-| Area | Change | Effect |
-|------|--------|--------|
-| Concerns | Optional composable formal-methods concern | Critical behavior can be specified and analyzed at a chosen rigor |
-| Design and alignment | Conditional specification and assurance criteria | Bounded results remain separate from production verification |
-| Examples | Standard-library finite lease explorer and deliberate mutants | Runnable non-vacuity, fencing and lock-lifetime demonstration |
-| Validation | Digest propagation, packaged execution and report integrity tests | Selected/unselected/unaffected cases and counterexamples are exercised |
-| Integration | Preserve origin's v0.15.3 plan-driven execution changes | Both plan-execution and formal-methods suites run |
+### New or Improved
+
+| Area | What changed | Who is affected |
+|------|--------------|-----------------|
+| None | This release fixes one report and adds nothing. | — |
+
+### Fixes
+
+| Issue or symptom | Resolution | User or operator impact |
+|------------------|------------|-------------------------|
+| `documentor --version` printed `packaged in-repo` | It prints the package's own version, which equals the HELIX release | A reader can tell which catalog an installed documentor carries |
 
 ## Breaking Changes and Required Actions
 
-No installation or artifact-format breaking changes. Formal methods remain
-optional; a selected concern does not require analyzer runs for every slice.
-Existing documents remain structurally valid and adoption gaps are scoped.
+There are no breaking changes and no migrations.
+
+| Change | Impact | Required action | Deadline or trigger |
+|--------|--------|-----------------|---------------------|
+| None | — | — | — |
 
 ## Migration or Rollback Guidance
 
-1. Update the plugin or generated bundle to `v0.15.4`.
-2. If adopting formal methods, record risk/scope/rigor and use the checklist in
-   `workflows/references/formal-methods.md` in the owning technical design.
-3. Map any adopted model to implementation and run the chosen-level analysis
-   alongside implementation tests and running-system verification.
+### Upgrade or Migration
 
-To roll back the plugin, pin `v0.15.3`. Preserve project-owned specifications,
-assurance decisions and historical analysis evidence.
+1. Reinstall documentor from `v0.19.1`, or update the pin in a CI workflow copied from
+   documentor's template.
+
+### Rollback or Hold Guidance
+
+- Pin `v0.19.0` to roll back; only the version line differs.
+- Ask for help in the HELIX repository's issues.
 
 ## Known Issues and Support
 
-- The lease model is abstract, finite and UNMAPPED to production code;
-  liveness is NOT_CHECKED. Clocks, crashes and external effects are excluded.
-- Catalog semantic quality checks are review obligations, not automated proofs.
-- Optional deck-render/signing lanes require their external tools; unavailable
-  tools are reported as skips, not verification successes.
+| Issue | Who is affected | Workaround or next step |
+|------|------------------|-------------------------|
+| Writing pages needs an agent and its credentials | `documentor write` users | Run it where the agent is signed in; the CI check needs no agent |
+| The evaluating model sometimes returns no verdict | `documentor write` users | Run `write` again, or evaluate with `documentor prompt --reviewer` and record it with `documentor review` |
 
 Support: open an issue in the HELIX repository.
 
 ## References
 
 - Deployment checklist: [deployment-checklist.md](/artifacts/deployment-checklist/)
-- Formal methods design: [design-formal-methods.md](/artifacts/design-formal-methods/)
-- Adoption reference: `workflows/references/formal-methods.md`
-- Concern: `workflows/concerns/formal-methods/`
+- Release changes: https://github.com/DocumentDrivenDX/helix/compare/v0.19.0...v0.19.1
 - Bundle publication: `.github/workflows/release-genie-bundle.yml`
 - Version guard: `.github/workflows/release-version-guard.yml`

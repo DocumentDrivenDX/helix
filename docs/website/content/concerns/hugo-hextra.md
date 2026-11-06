@@ -239,8 +239,7 @@ minimal configuration.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: Hugo (extended) + Hextra theme via Hugo Modules, GitHub Pages deploy, as the microsite stack
-- TD: website/ layout, pinned theme/Hugo versions, Hugo config (enableGitInfo, unsafe HTML)
+- TD: website/ layout, pinned theme/Hugo versions, Hugo config (enableGitInfo, unsafe HTML); states the Hugo Modules and GitHub Pages deploy choices
 
 ## Practices by activity
 

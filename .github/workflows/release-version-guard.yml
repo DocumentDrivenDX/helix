@@ -1,22 +1,14 @@
 name: Release version guard
 
-# On a version tag push, assert all plugin manifests declare the pushed tag's
-# version. Catches "tagged a release but forgot to bump the manifests" — which
-# silently ships a tag that plugin updaters ignore, because Claude Code resolves
-# a plugin's version from plugin.json's `version` field (an unchanged version
-# keeps the cached copy on every user's machine).
-#
-# PR-time mutual consistency of the three manifests is enforced by
-# tests/validate-skills.sh (the `test` job); this gate adds the tag↔version check
-# that only applies at release.
-
 on:
   push:
     tags: ['v*']
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Version tag to check (e.g. v0.9.2)'
+        description: 'Version tag to check (e.g. v0.20.0)'
         required: true
 
 permissions:
@@ -27,54 +19,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Manual checks must inspect the requested tag, never main.
+          ref: ${{ inputs.tag || github.event.release.tag_name || github.ref }}
 
-      - name: Assert manifest versions match the release tag
+      - name: Assert all shipped versions match the release tag
         id: check
         continue-on-error: true
-        run: |
-          TAG="${{ github.event.inputs.tag || github.ref_name }}"
-          EXPECTED="${TAG#v}"
-          echo "release tag: $TAG -> expected version: $EXPECTED"
-          python3 - "$EXPECTED" <<'PY'
-          import json, sys
-          expected = sys.argv[1]
-          checks = {
-              ".claude-plugin/plugin.json": lambda m: m["version"],
-              ".codex-plugin/plugin.json": lambda m: m["version"],
-              ".claude-plugin/marketplace.json":
-                  lambda m: next(p["version"] for p in m["plugins"] if p["name"] == "helix"),
-          }
-          bad = []
-          for path, get in checks.items():
-              try:
-                  v = get(json.load(open(path)))
-              except (OSError, KeyError, StopIteration, json.JSONDecodeError) as e:
-                  bad.append(f"{path}: could not read version ({e})")
-                  continue
-              if v != expected:
-                  bad.append(f"{path}: {v!r} != tag {expected!r}")
-          if bad:
-              print("::error::manifest version(s) do not match the release tag:")
-              for b in bad:
-                  print(f"::error::  {b}")
-              sys.exit(1)
-          print(f"OK: all manifests declare version {expected}")
-          PY
+        env:
+          TAG: ${{ inputs.tag || github.event.release.tag_name || github.ref_name }}
+        run: python3 scripts/release-version.py "$TAG"
 
-      # A pushed tag whose manifests disagree is unpublished, so a release made
-      # by hand through the Releases UI cannot stay Latest with the wrong
-      # version inside. Tags are recreated by release-tag.yml from a merged
-      # `chore(release):` pull request. Manual dispatch only reports.
-      - name: Unpublish the mismatched tag and its release
-        if: steps.check.outcome == 'failure' && github.event_name == 'push'
+      # Never delete tags: another workflow could recreate the release against
+      # main. The publisher has its own blocking validation before any upload.
+      - name: Quarantine an invalid UI release
+        if: steps.check.outcome == 'failure' && github.event_name == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ github.ref_name }}
-        run: |
-          gh release delete "$TAG" --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes || true
-          git push origin ":refs/tags/$TAG" || true
-          echo "::error::deleted tag and release $TAG: manifests did not match. Merge a 'chore(release): $TAG' pull request to recreate it."
+          TAG: ${{ github.event.release.tag_name }}
+        run: gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=true
 
-      - name: Fail when manifests do not match
+      - name: Fail when versions do not match
         if: steps.check.outcome == 'failure'
-        run: exit 1
+        run: |
+          echo "::error::Publish through the Releases UI to open a version bump PR before publication."
+          exit 1

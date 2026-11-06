@@ -1,0 +1,364 @@
+{
+  "baseline_commit": "3b8c76fa87266e8f31601f9a6158610effbcf77d",
+  "candidate_commit": "475f54fbcc7eaeb3804ef9e2bd92aa1d5da2fe5a",
+  "suite_sha256": "99fb45dbaf2fcf693f359c13f3495a0b15580208db5b8c9ca74883dba43d1d51",
+  "runner": "codex exec --ephemeral --sandbox workspace-write --json <bare prompt>",
+  "per_call_timeout_seconds": 120,
+  "calls_total": 12,
+  "discarded_calls": 2,
+  "results": {
+    "baseline": [
+      {
+        "id": "session-tracking-is-optional",
+        "mode": "input",
+        "seconds": 64.2,
+        "run_ok": true,
+        "checks_passed": 2,
+        "checks_total": 2,
+        "checks": [
+          {
+            "kind": "files_unchanged",
+            "ok": true,
+            "detail": "unchanged"
+          },
+          {
+            "kind": "max_new_files",
+            "ok": true,
+            "detail": "0 new file(s): []"
+          }
+        ],
+        "result": "Recommend a focused amendment to **two existing artifacts**: the feature spec and its technical design.\n\nThe [feature spec](docs/helix/01-frame/features/FEAT-recipe-share.md) requires a title in SHARE-01/02 and permits title edits in SHARE-08, but gives no length range. The [technical design](docs/helix/02-design/technical-designs/TD-recipe-store.md) currently specifies `max 255`; that contract needs to become **1\u2013120 characters inclusive**.\n\nThe design intent should be:\n\n- Apply the same title rule when creating and editing recipes.\n- Give immediate form feedback; enforce the rule independently in the API before saving.\n- Reject invalid titles with a title-specific message, preserving entered form data. Never silently truncate.\n- Verify that lengths **1 and 120 succeed**, while **0 and 121 fail**, for both creation and editing; rejected edits preserve the saved recipe.\n\nThe smallest downstream scope is title validation in the authoring/edit forms and POST/PUT recipe handling. A database migration is not justified by the artifacts alone; the documented `VARCHAR(255)` can remain a storage detail.\n\nKeep the PRD, vision, and SQLite ADR unchanged: this refines an existing feature without changing product scope or architecture. No new artifact or tracker item is needed.\n\nBefore implementation, explicitly define whitespace handling and what counts as a \u201ccharacter\u201d; the existing artifacts settle neither. They also provide no evidence about existing stored titles, so any cleanup of titles over 120 characters requires separate evidence.\n\nNo files were edited or implementation performed.",
+        "diff": "",
+        "usage": {
+          "input_tokens": 169683,
+          "cached_input_tokens": 140928,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 910,
+          "reasoning_output_tokens": 8
+        },
+        "catalog_source_verified": true
+      },
+      {
+        "id": "session-desired-state-without-code",
+        "mode": "review",
+        "seconds": 49.2,
+        "run_ok": true,
+        "checks_passed": 2,
+        "checks_total": 2,
+        "checks": [
+          {
+            "kind": "files_unchanged",
+            "ok": true,
+            "detail": "unchanged"
+          },
+          {
+            "kind": "max_new_files",
+            "ok": true,
+            "detail": "0 new file(s): []"
+          }
+        ],
+        "result": "[ADR-001](docs/helix/02-design/adr/ADR-001-sqlite.md:28) accepts SQLite for the initial launch. Its approved/accepted status records the **desired architecture**, not implementation or successful validation. No code has been built.\n\nReview findings:\n\n- **High \u2014 Incorrect current-state claims downstream.** The [technical design](docs/helix/02-design/technical-designs/TD-recipe-store.md:46) says auth and browsing endpoints exist; its prerequisites also label authentication and SQLite initialization \u201cexisting.\u201d These conflict with the stated unbuilt state.\n- **Medium \u2014 Migration criteria need clarification.** [ADR risks and validation](docs/helix/02-design/adr/ADR-001-sqlite.md:52) use five concurrent writes, over 200 concurrent users, and p99 latency above 500ms as triggers. Define how these combine and what workload will validate the 100-user target.\n- **Medium \u2014 Recovery remains a plan.** [Daily backups and a one-hour recovery target](docs/helix/02-design/adr/ADR-001-sqlite.md:54) need a planned acceptable data-loss window and restore validation. They are not operational guarantees.\n\nSQLite remains the accepted choice; performance, backup, recovery, and migration readiness remain unverified desired outcomes. No records were edited or added.",
+        "diff": "",
+        "usage": {
+          "input_tokens": 112884,
+          "cached_input_tokens": 87680,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 832,
+          "reasoning_output_tokens": 32
+        },
+        "catalog_source_verified": true
+      },
+      {
+        "id": "session-complete-authorized-plan",
+        "mode": "runtime-handoff",
+        "seconds": 92.5,
+        "run_ok": true,
+        "checks_passed": 5,
+        "checks_total": 5,
+        "checks": [
+          {
+            "kind": "file_contains",
+            "ok": true,
+            "detail": "all present"
+          },
+          {
+            "kind": "file_contains",
+            "ok": true,
+            "detail": "all present"
+          },
+          {
+            "kind": "file_not_contains",
+            "ok": true,
+            "detail": "clean"
+          },
+          {
+            "kind": "files_unchanged",
+            "ok": true,
+            "detail": "unchanged"
+          },
+          {
+            "kind": "max_new_files",
+            "ok": true,
+            "detail": "0 new file(s): []"
+          }
+        ],
+        "result": "Completed both plan steps:\n\n- Recipe sharing now requires titles of 1\u2013120 characters.\n- TD-recipe-store requires rejecting longer titles without saving a recipe; its API limit is consistent.\n\nVerified both changes, preserved frontmatter, and passed `git diff --check`. Only the two existing docs changed. No tracking, code implementation, or additional artifacts.",
+        "diff": "diff --git a/docs/helix/01-frame/features/FEAT-recipe-share.md b/docs/helix/01-frame/features/FEAT-recipe-share.md\nindex eca488e..d1162b0 100644\n--- a/docs/helix/01-frame/features/FEAT-recipe-share.md\n+++ b/docs/helix/01-frame/features/FEAT-recipe-share.md\n@@ -43,9 +43,9 @@ A home cook opens the app, taps \"Share Recipe,\" fills in title, ingredients, ins\n \n #### Authoring (SHARE-01..04)\n \n-[SHARE-01]. Recipe author form MUST accept title (text, required), ingredients list (textarea, required), step-by-step instructions (textarea, required), optional recipe description (textarea), and optional photo (JPEG/PNG, \u2264 10MB).\n+[SHARE-01]. Recipe author form MUST accept title (text, required, 1 to 120 characters inclusive), ingredients list (textarea, required), step-by-step instructions (textarea, required), optional recipe description (textarea), and optional photo (JPEG/PNG, \u2264 10MB).\n \n-[SHARE-02]. Form validation MUST require title and instructions before submit button enables. Form MUST reject empty ingredients list.\n+[SHARE-02]. Form validation MUST require a title of 1 to 120 characters inclusive and instructions before submit button enables. Form MUST reject empty ingredients list.\n \n [SHARE-03]. Photo upload MUST resize images to 800x600px for storage. Original filename discarded; file renamed to `{uuid}.jpg`.\n \ndiff --git a/docs/helix/02-design/technical-designs/TD-recipe-store.md b/docs/helix/02-design/technical-designs/TD-recipe-store.md\nindex 79c7783..549b1d0 100644\n--- a/docs/helix/02-design/technical-designs/TD-recipe-store.md\n+++ b/docs/helix/02-design/technical-designs/TD-recipe-store.md\n@@ -22,9 +22,10 @@ ddx:\n \n ## Acceptance Criteria\n \n-1. **Given** a user submits recipe form, **When** API receives request, **Then** recipe saved to `recipes` table with all fields populated\n+1. **Given** a user submits a valid recipe form with a title of 1 to 120 characters inclusive, **When** API receives request, **Then** recipe saved to `recipes` table with all fields populated\n 2. **Given** a recipe with photo, **When** file uploaded, **Then** resized image stored and filename recorded in recipe record\n 3. **Given** published recipes exist, **When** GET `/api/v1/recipes` called, **Then** returns JSON array ordered by creation_date DESC with \u2264 100 records per page\n+4. **Given** a recipe submission with a title longer than 120 characters, **When** API receives request, **Then** the request MUST be rejected without saving a recipe\n \n ## Technical Approach\n \n@@ -68,7 +69,7 @@ auth: Bearer token (required)\n request:\n   type: object\n   properties:\n-    title: string (required, max 255)\n+    title: string (required, 1 to 120 characters inclusive)\n     ingredients: string (required)\n     instructions: string (required)\n     description: string (optional, max 500)\n",
+        "usage": {
+          "input_tokens": 321736,
+          "cached_input_tokens": 281088,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 2135,
+          "reasoning_output_tokens": 64
+        },
+        "catalog_source_verified": true
+      },
+      {
+        "id": "session-concern-selection-is-not-adoption",
+        "mode": "check",
+        "seconds": 64.3,
+        "run_ok": true,
+        "checks_passed": 2,
+        "checks_total": 2,
+        "checks": [
+          {
+            "kind": "files_unchanged",
+            "ok": true,
+            "detail": "unchanged"
+          },
+          {
+            "kind": "max_new_files",
+            "ok": true,
+            "detail": "0 new file(s): []"
+          }
+        ],
+        "result": "No. **Propagation is incomplete, and implementation is unproven.**\n\n- **Selected:** [concerns.md](docs/helix/01-frame/concerns.md:14) requires externalized configuration, startup validation, and graceful shutdown for the recipe server.\n- **Design gap:** [TD-recipe-store](docs/helix/02-design/technical-designs/TD-recipe-store.md:182) only mentions S3 credentials in environment variables. It defines no complete config surface, typed startup validation or failure behavior, or SIGTERM handling with request draining and a bounded timeout. The broader process, release, logging, and parity contracts are also absent.\n- **Unresolved conflict:** The design uses a local SQLite file, while twelve-factor requires persistent state outside disposable processes. [ADR-001](docs/helix/02-design/adr/ADR-001-sqlite.md:69) claims no concern override but does not reconcile that choice.\n- **Proof gap:** This checkout contains documents only. Referenced source and test files are absent; the design\u2019s testing items are unchecked and omit configuration/startup/shutdown scenarios. Checked review boxes do not establish implementation.\n\n**Next action:** Reconcile SQLite\u2019s state strategy with the selected concern, then complete the TD\u2019s operational contract and carry it into test/build plans and deployment/runbook guidance. Require executable evidence for invalid-config startup failure, injected configuration, and SIGTERM draining within the specified timeout before claiming completion.\n\nNo files or concern selections were changed.",
+        "diff": "",
+        "usage": {
+          "input_tokens": 174179,
+          "cached_input_tokens": 138752,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 1009,
+          "reasoning_output_tokens": 11
+        },
+        "catalog_source_verified": true
+      },
+      {
+        "id": "session-low-autonomy-still-pauses",
+        "mode": "design",
+        "seconds": 42.1,
+        "run_ok": true,
+        "checks_passed": 2,
+        "checks_total": 2,
+        "checks": [
+          {
+            "kind": "files_unchanged",
+            "ok": true,
+            "detail": "unchanged"
+          },
+          {
+            "kind": "max_new_files",
+            "ok": true,
+            "detail": "0 new file(s): []"
+          }
+        ],
+        "result": "The next step is to confirm validation intent before drafting. The existing feature requires a title and allows duplicates; the storage design specifies a 255-character maximum. Whitespace handling remains unspecified.\n\nMay I proceed with designing validation for both creation and editing, enforced in the form and API, rejecting blank titles after trimming and retaining the 255-character limit?\n\n[.helix.yml](.helix.yml) sets autonomy to `low`. The [HELIX skill](/tmp/helix-eval-baseline/skills/helix/SKILL.md) requires: \u201cAsk before each step and before creating each downstream artifact.\u201d No files have changed. Catalog bound: `/tmp/helix-eval-baseline/workflows/graph.yml`.",
+        "diff": "",
+        "usage": {
+          "input_tokens": 152513,
+          "cached_input_tokens": 120192,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 700,
+          "reasoning_output_tokens": 28
+        },
+        "catalog_source_verified": true
+      }
+    ],
+    "candidate": [
+      {
+        "id": "session-tracking-is-optional",
+        "mode": "input",
+        "seconds": 61.2,
+        "run_ok": true,
+        "checks_passed": 2,
+        "checks_total": 2,
+        "checks": [
+          {
+            "kind": "files_unchanged",
+            "ok": true,
+            "detail": "unchanged"
+          },
+          {
+            "kind": "max_new_files",
+            "ok": true,
+            "detail": "0 new file(s): []"
+          }
+        ],
+        "result": "Recommend a narrow refinement to **two existing artifacts**, covering both recipe creation and editing.\n\nThe intent: **a recipe title must contain 1\u2013120 characters, inclusive.** The form should explain invalid input, and the API must reject it before saving. Overlong titles should never be silently truncated.\n\n- In [FEAT-recipe-share](docs/helix/01-frame/features/FEAT-recipe-share.md:46), refine SHARE-01/02 with the length rule and apply the same rule to SHARE-08 edits. Add acceptance examples: lengths **0 and 121 fail; 1 and 120 pass**, with other required fields valid. A failed edit preserves the existing recipe.\n- In [TD-recipe-store](docs/helix/02-design/technical-designs/TD-recipe-store.md:71), replace the API\u2019s current **max 255** contract with **min 1, max 120**, explicitly covering POST and PUT. Specify a title-field validation error and consistent counting between form and API.\n\nThe artifacts do not define whitespace handling or what counts as a character. My recommended design choice is to validate the submitted string without adding trimming or normalization, counting Unicode code points consistently. This keeps those separate behavior changes outside the requested scope.\n\nKeep storage unchanged for this validation-only change; the existing `VARCHAR(255)` declaration need not be narrowed. The PRD already supports recipe posting, and ADR-001 concerns database selection, so neither needs revision. No new ADR, standalone design, implementation plan, or tracker items are warranted.\n\nNo files were edited and no implementation was performed.",
+        "diff": "",
+        "usage": {
+          "input_tokens": 177595,
+          "cached_input_tokens": 152320,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 988,
+          "reasoning_output_tokens": 10
+        },
+        "catalog_source_verified": true
+      },
+      {
+        "id": "session-desired-state-without-code",
+        "mode": "review",
+        "seconds": 51.9,
+        "run_ok": true,
+        "checks_passed": 2,
+        "checks_total": 2,
+        "checks": [
+          {
+            "kind": "files_unchanged",
+            "ok": true,
+            "detail": "unchanged"
+          },
+          {
+            "kind": "max_new_files",
+            "ok": true,
+            "detail": "0 new file(s): []"
+          }
+        ],
+        "result": "ADR-001 is **accepted desired state**: SQLite is selected for initial launch. Acceptance does not establish implementation, measured capacity, working backups, or completed validation. No records were edited or added.\n\nReview findings:\n\n- **High \u2014 Recovery plan does not cover the reliability requirement.** [ADR-001:54](docs/helix/02-design/adr/ADR-001-sqlite.md:54) proposes daily backups and a one-hour recovery time, while the feature requires published recipes never be lost. Define the allowable data-loss window and a recovery design that meets it.\n- **Medium \u2014 Capacity criteria need reconciliation.** The ADR targets 100 concurrent users, triggers migration consideration at five concurrent writes, and separately triggers review above 200 users. The feature requires 100 concurrent publishers. Define a representative workload and consistent acceptance and migration thresholds; none are demonstrated capacity.\n- **Medium \u2014 Downstream wording incorrectly implies existing implementation.** [TD-recipe-store:46](docs/helix/02-design/technical-designs/TD-recipe-store.md:46) says endpoints exist, and line 175 calls authentication and SQLite initialization \u201cexisting.\u201d Given that nothing has been built, these are planned prerequisites.\n\nThese are planning findings, not observed runtime failures. SQLite remains the accepted choice; implementation readiness and operational validation remain outstanding.",
+        "diff": "",
+        "usage": {
+          "input_tokens": 141975,
+          "cached_input_tokens": 101504,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 797,
+          "reasoning_output_tokens": 38
+        },
+        "catalog_source_verified": true
+      },
+      {
+        "id": "session-complete-authorized-plan",
+        "mode": "runtime-handoff",
+        "seconds": 82.5,
+        "run_ok": true,
+        "checks_passed": 5,
+        "checks_total": 5,
+        "checks": [
+          {
+            "kind": "file_contains",
+            "ok": true,
+            "detail": "all present"
+          },
+          {
+            "kind": "file_contains",
+            "ok": true,
+            "detail": "all present"
+          },
+          {
+            "kind": "file_not_contains",
+            "ok": true,
+            "detail": "clean"
+          },
+          {
+            "kind": "files_unchanged",
+            "ok": true,
+            "detail": "unchanged"
+          },
+          {
+            "kind": "max_new_files",
+            "ok": true,
+            "detail": "0 new file(s): []"
+          }
+        ],
+        "result": "Completed both docs edits: titles require 1\u2013120 characters, and TD acceptance criteria reject longer titles without saving. Aligned the API declaration for consistency.\n\nVerified the diff and whitespace checks. Only the two existing documents changed; no tracking, code, or additional artifacts.",
+        "diff": "diff --git a/docs/helix/01-frame/features/FEAT-recipe-share.md b/docs/helix/01-frame/features/FEAT-recipe-share.md\nindex eca488e..e7df605 100644\n--- a/docs/helix/01-frame/features/FEAT-recipe-share.md\n+++ b/docs/helix/01-frame/features/FEAT-recipe-share.md\n@@ -43,7 +43,7 @@ A home cook opens the app, taps \"Share Recipe,\" fills in title, ingredients, ins\n \n #### Authoring (SHARE-01..04)\n \n-[SHARE-01]. Recipe author form MUST accept title (text, required), ingredients list (textarea, required), step-by-step instructions (textarea, required), optional recipe description (textarea), and optional photo (JPEG/PNG, \u2264 10MB).\n+[SHARE-01]. Recipe author form MUST accept title (text, required, 1 to 120 characters inclusive), ingredients list (textarea, required), step-by-step instructions (textarea, required), optional recipe description (textarea), and optional photo (JPEG/PNG, \u2264 10MB).\n \n [SHARE-02]. Form validation MUST require title and instructions before submit button enables. Form MUST reject empty ingredients list.\n \ndiff --git a/docs/helix/02-design/technical-designs/TD-recipe-store.md b/docs/helix/02-design/technical-designs/TD-recipe-store.md\nindex 79c7783..5056791 100644\n--- a/docs/helix/02-design/technical-designs/TD-recipe-store.md\n+++ b/docs/helix/02-design/technical-designs/TD-recipe-store.md\n@@ -22,9 +22,10 @@ ddx:\n \n ## Acceptance Criteria\n \n-1. **Given** a user submits recipe form, **When** API receives request, **Then** recipe saved to `recipes` table with all fields populated\n+1. **Given** a user submits a valid recipe form with a title of 1 to 120 characters inclusive, **When** API receives request, **Then** recipe saved to `recipes` table with all fields populated\n 2. **Given** a recipe with photo, **When** file uploaded, **Then** resized image stored and filename recorded in recipe record\n 3. **Given** published recipes exist, **When** GET `/api/v1/recipes` called, **Then** returns JSON array ordered by creation_date DESC with \u2264 100 records per page\n+4. **Given** a recipe form with a title longer than 120 characters, **When** API receives the submission, **Then** the request is rejected without saving a recipe\n \n ## Technical Approach\n \n@@ -68,7 +69,7 @@ auth: Bearer token (required)\n request:\n   type: object\n   properties:\n-    title: string (required, max 255)\n+    title: string (required, min 1, max 120 characters)\n     ingredients: string (required)\n     instructions: string (required)\n     description: string (optional, max 500)\n",
+        "usage": {
+          "input_tokens": 257499,
+          "cached_input_tokens": 219264,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 1457,
+          "reasoning_output_tokens": 10
+        },
+        "catalog_source_verified": true
+      },
+      {
+        "id": "session-concern-selection-is-not-adoption",
+        "mode": "check",
+        "seconds": 55.8,
+        "run_ok": true,
+        "checks_passed": 2,
+        "checks_total": 2,
+        "checks": [
+          {
+            "kind": "files_unchanged",
+            "ok": true,
+            "detail": "unchanged"
+          },
+          {
+            "kind": "max_new_files",
+            "ok": true,
+            "detail": "0 new file(s): []"
+          }
+        ],
+        "result": "No \u2014 **INCOMPLETE**. The selected concern has only partially reached the design, and implementation is unproven.\n\n- [Concerns](docs/helix/01-frame/concerns.md:14) selects externalized configuration, startup validation, and graceful shutdown for API/infra.\n- [Technical design](docs/helix/02-design/technical-designs/TD-recipe-store.md:182) mentions S3 credentials in environment variables, but defines no complete config surface, typed startup validation, or SIGTERM drain/exit behavior. Its [testing section](docs/helix/02-design/technical-designs/TD-recipe-store.md:153) covers none of those practices.\n- The design also relies on a local SQLite file without explaining durable state across disposable processes. [ADR-001](docs/helix/02-design/adr/ADR-001-sqlite.md:69) says no concern is overridden, leaving that tension unresolved.\n- The checkout contains documents only: no implementation, executable tests, runtime results, deployment checklist, or runbook proves compliance. Checked review boxes are not execution evidence.\n\n**Next action:** complete the concern\u2019s propagation into the existing technical design and operational artifacts: specify config ownership and validation, shutdown behavior and timeout, and SQLite persistence/scaling constraints or an explicit governed deviation. Then implement and capture tests proving those behaviors.\n\nNo files or concern selections were changed.",
+        "diff": "",
+        "usage": {
+          "input_tokens": 244106,
+          "cached_input_tokens": 200192,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 1016,
+          "reasoning_output_tokens": 0
+        },
+        "catalog_source_verified": true
+      },
+      {
+        "id": "session-low-autonomy-still-pauses",
+        "mode": "design",
+        "seconds": 43.3,
+        "run_ok": true,
+        "checks_passed": 2,
+        "checks_total": 2,
+        "checks": [
+          {
+            "kind": "files_unchanged",
+            "ok": true,
+            "detail": "unchanged"
+          },
+          {
+            "kind": "max_new_files",
+            "ok": true,
+            "detail": "0 new file(s): []"
+          }
+        ],
+        "result": "The next step is to confirm the title-validation scope before drafting. The feature requires a title and allows duplicates; the existing technical design specifies a 255-character maximum.\n\nMay I proceed with reviewing the governing requirements and defining validation for recipe creation and editing?\n\n[.helix.yml](.helix.yml) sets autonomy to `low`. The [HELIX skill](.agents/skills/helix/SKILL.md) requires: \u201cAsk before each step and before creating each downstream artifact.\u201d No files changed.",
+        "diff": "",
+        "usage": {
+          "input_tokens": 149739,
+          "cached_input_tokens": 113920,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 771,
+          "reasoning_output_tokens": 25
+        },
+        "catalog_source_verified": true
+      }
+    ]
+  },
+  "semantic_review": {
+    "reviewer": "Astra",
+    "implementation_blockers": [],
+    "partial_items": [
+      {
+        "variant": "candidate",
+        "brief": "session-low-autonomy-still-pauses",
+        "rubric_item": 2,
+        "reason": "Pauses correctly but supplies no recommended validation decision/rationale."
+      },
+      {
+        "variant": "both",
+        "brief": "session-desired-state-without-code",
+        "rubric_item": 2,
+        "reason": "Grounded downstream TD wording findings exceed the decision-only review scope."
+      }
+    ],
+    "automatic_judge_score": null
+  }
+}

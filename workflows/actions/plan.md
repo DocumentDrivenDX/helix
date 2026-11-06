@@ -2,9 +2,14 @@
 
 You are creating a design plan for a HELIX project scope.
 
-Your goal is the **minimal design that governs implementation without inventing
-scope**: architecture, interfaces, errors, security, testing strategy, and
-implementation ordering needed to build — not a completeness exercise.
+Your goal is the minimal coherent design for the requested outcome: minimal in
+the structure it leaves, not in the files it touches. Inspect existing
+producers, consumers, interfaces and verification that bear on the change before
+proposing structures. Evolve an existing concept and propagate mechanical
+caller changes when that leaves a clearer system than a parallel API or type.
+New mechanisms need a distinct responsibility or demonstrated constraint.
+Resolve relevant architecture, errors, security, testing and ordering without
+inventing scope or filling sections for completeness.
 
 Prefer short, implementable plans. Process redesign mid-delivery is not a plan
 outcome; ship the product unit (or methodology content that changes behavior).
@@ -104,6 +109,10 @@ Candidate sections (use what this scope needs):
 2. **Requirements Analysis** (functional, non-functional, constraints)
 3. **Architecture Decisions** (question, alternatives, choice, why)
 4. **Interface Contracts**
+
+   Apply `workflows/references/umf-schemas.md` before inventing structured shapes.
+   Reuse UMF definitions by default; record inspected versions, local additions,
+   exceptions, semantic limits, and discoverable `ddx.schemas` references.
 5. **Data Model**
 6. **Error Handling Strategy**
 7. **Security Considerations**

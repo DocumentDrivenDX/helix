@@ -2,7 +2,7 @@
 """Validate a HELIX artifact instance against its catalog type's `validation:` block.
 
 Usage:
-    validate-instance.py <instance.md> [--catalog DIR] [--type TYPE] [--format text|json]
+    validate-instance.py <instance.md> [--catalog DIR] [--type TYPE] [--format text|json] [--strict-prose]
 
 Checks run, in order:
   frontmatter        ddx.id, ddx.type/ddx.activity, ddx.authoring.home
@@ -10,21 +10,43 @@ Checks run, in order:
   pattern_checks     regex entries {pattern, expected, message[, severity]}
                      where expected is 0 (must not match) or >=N
   automated_checks   rule entries {check, type, field[, severity, message]}
-                     with type unique_constraint, module_boundaries, or not_equals plus `value`;
+                     with type unique_constraint, module_boundaries, ux_coverage, findings_sources,
+                     or not_equals plus `value`;
                      other rule types are reported as unsupported without failing
   placeholder        leftover template markers ([TODO], TBD, [Fill in], ...)
+  visuals            each fenced `visual` block (and each Mermaid block naming `%% id:`): an id that
+                     is present, well formed, and unique; a body naming a `source`, or a `kind`,
+                     `form`, and `question`; a form of its kind (umf.visual 1.0). A kind and form
+                     the type's meta.yml `visuals:` does not list is a warning
+                     (workflows/references/visuals.md)
+  prose              for a type people read (meta.yml prose.audience: human), the voice
+                     profile's limits and phrase lists in workflows/voice.yml:
+                     long sentences, crowded paragraphs, overfull cells, avoided phrases, and a
+                     word budget when meta.yml sets prose.budget_words. Warnings unless
+                     --strict-prose or the project's .helix.yml sets `prose: {strict: true}`.
+                     Other types, agent context and history, are not audited, nor is a path
+                     the project lists in `.helix.yml` prose.exempt. Resolve findings with
+                     workflows/references/writing-pass.md
+
+Document lifecycle labels, review stamps and graph completeness are not checked.
+Content diagnostics do not establish implementation readiness: assess their
+effect on the scoped user outcome before blocking authorized work. Explicit
+source and identity metadata still protect authoring correctness when a ddx
+block is supplied.
 
 Scope variants: when the instance sets `ddx.scope` and the type's
 `validation.by_scope.<scope>` exists, its `required_sections` and
 `pattern_checks` replace the type-level lists.
 
-Pinned links: when the type declares `validation.pin_links: {at_status: [...],
-kinds: [...]}` and the instance's `ddx.status` is listed, every `ddx.links`
-mapping whose `kind` is listed must carry `rev` (a `git:<commit>` or
-`sha256:<hex>` revision), so an approved document is reproducible from pinned
-sources. `pin-sources.py` fills and verifies pins.
+Pinned links: under `--tier publish`, when the type declares
+`validation.pin_links: {kinds: [...]}`, every `ddx.links` mapping whose `kind`
+is listed must carry `rev` (a `git:<commit>` or `sha256:<hex>` revision), so an
+issued document is reproducible from pinned sources. `pin-sources.py` fills
+and verifies pins. The flow profile's `validation.default` tier softens content
+findings to warnings until `--tier publish` is requested; lifecycle status
+selects nothing. `pin-sources.py` fills and verifies pins.
 
-Validation tiers (graph profiles, ADR-015): when the instance sets
+Validation tiers (graph profiles, ADR-017): when the instance sets
 `ddx.status: draft` and its flow's profile (`.helix.yml` `flows[].profile`,
 default software-delivery) does not run `all` checks at draft, content checks
 (required_sections, pattern_checks, automated_checks, placeholder) are reported
@@ -38,10 +60,14 @@ Requires PyYAML (`python3 -c 'import yaml'`); fails with a clear message otherwi
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import json
 import re
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import prose_audit  # noqa: E402  (sibling module, found beside this script)
 
 try:
     import yaml
@@ -71,6 +97,21 @@ PREFIX_TYPES = {
 PLACEHOLDER_RE = re.compile(r"\[TODO\]|\bTBD\b|<placeholder>|\[Fill in\]|\[NEEDS CLARIFICATION")
 BRACKET_TOKEN_RE = re.compile(r"(?<!\[)\[(?:[A-Z][a-z]+)(?:[ /][A-Za-z]+)*\](?!\()")
 H2_RE = re.compile(r"^##\s+(?!#)(.+?)\s*$")
+
+# The visual vocabulary: umf.visual 1.0 (DocumentDrivenDX/umf-visual CONTRACT-083, `visualForms`).
+# workflows/references/visuals.md says which kind answers which question.
+VISUAL_FORMS = {
+    "flow": ("network", "pipeline", "zoned", "lanes"),
+    "sequence": ("lifelines", "ladder"),
+    "structure": ("stack", "tree", "nested", "entities"),
+    "state": ("machine", "lifecycle"),
+    "timeline": ("milestones", "roadmap", "history"),
+    "comparison": ("matrix", "quadrant", "before-after"),
+    "metric": ("stat", "bar", "line", "meter"),
+}
+VISUAL_ID_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+FENCE_OPEN_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})\s*([^\n]*)$")
+MERMAID_ID_RE = re.compile(r"^\s*%%\s*id:\s*(\S+)")
 KNOWN_SEVERITIES = {"blocking": "blocking", "warning": "warning", "informational": "info", "info": "info"}
 
 
@@ -132,6 +173,28 @@ def strip_fences(body: str) -> str:
         else:
             out.append("" if in_fence else line)
     return "\n".join(out)
+
+
+def fenced_blocks(body: str):
+    """Yield (line index, info string, content) for each top-level fenced block.
+
+    A block closes only on a fence of its own character at least as long as the one that opened
+    it, so a ```visual sample inside a ````markdown block stays text, not a visual.
+    """
+    lines = body.split("\n")
+    i = 0
+    while i < len(lines):
+        opened = FENCE_OPEN_RE.match(lines[i])
+        if not opened or (opened.group(1)[0] == "`" and "`" in opened.group(2)):
+            i += 1
+            continue
+        fence, start = opened.group(1), i
+        close = re.compile(rf"^ {{0,3}}{re.escape(fence[0])}{{{len(fence)},}}\s*$")
+        i += 1
+        while i < len(lines) and not close.match(lines[i]):
+            i += 1
+        yield start, opened.group(2).strip(), "\n".join(lines[start + 1:i])
+        i += 1
 
 
 def line_of(body: str, offset: int, base: int) -> int:
@@ -232,8 +295,10 @@ def resolve_type(fm: dict | None, explicit: str | None, instance: Path, catalog:
 # --- checks -------------------------------------------------------------------
 
 def check_frontmatter(fm: dict | None, report: Report) -> None:
-    if fm is None:
-        report.add("warning", "frontmatter", "no YAML frontmatter; instance is not graph-addressable", 1)
+    # Prose and unrelated frontmatter remain valid; graph addressability is
+    # optional, not a housekeeping warning. Explicit ddx blocks still obey the
+    # identity and authoring-home contract so edits cannot silently fork sources.
+    if fm is None or "ddx" not in fm:
         return
     ddx = fm.get("ddx")
     if not isinstance(ddx, dict):
@@ -241,8 +306,6 @@ def check_frontmatter(fm: dict | None, report: Report) -> None:
         return
     if not ddx.get("id"):
         report.add("blocking", "frontmatter.id", "ddx.id is missing", 1)
-    if not ddx.get("type") and not ddx.get("activity"):
-        report.add("warning", "frontmatter.type", "neither ddx.type nor ddx.activity is set", 1)
     home = (ddx.get("authoring") or {}).get("home") if isinstance(ddx.get("authoring"), dict) else None
     if home not in ("repo", "external-tool"):
         report.add("blocking", "frontmatter.authoring_home", "ddx.authoring.home must be `repo` or `external-tool`", 1)
@@ -252,7 +315,7 @@ LINK_KINDS = {"informed_by", "informs", "addresses", "evaluates", "supported_by"
 
 
 def check_links(fm: dict | None, profile: dict, report: Report) -> None:
-    """ddx.links shape, vocabulary, and the profile's authority grant (ADR-016)."""
+    """ddx.links shape, vocabulary, and the profile's authority grant (ADR-018)."""
     ddx = (fm or {}).get("ddx") or {}
     authority = profile.get("authority") or {}
     for i, link in enumerate(ddx.get("links") or []):
@@ -281,7 +344,7 @@ def check_links(fm: dict | None, profile: dict, report: Report) -> None:
 
 def check_pinned_links(fm: dict | None, pin: dict, report: Report) -> None:
     ddx = (fm or {}).get("ddx") or {}
-    if not pin or str(ddx.get("status")) not in [str(x) for x in pin.get("at_status") or []]:
+    if not pin:
         return
     kinds = set(pin.get("kinds") or [])
     for i, link in enumerate(ddx.get("links") or []):
@@ -289,7 +352,7 @@ def check_pinned_links(fm: dict | None, pin: dict, report: Report) -> None:
             continue
         rev = str(link.get("rev") or "")
         if not re.match(r"^(git:[0-9a-f]{7,40}|sha256:[0-9a-f]{64})$", rev):
-            report.add("blocking", f"pin_links.{i}", f"link '{link.get('id')}' ({link.get('kind')}) needs a pinned rev (git:<commit> or sha256:<hex>) at status {ddx.get('status')}")
+            report.add("blocking", f"pin_links.{i}", f"link '{link.get('id')}' ({link.get('kind')}) needs a pinned rev (git:<commit> or sha256:<hex>) at the publish tier")
 
 
 def check_required_sections(required: list, template: Path, body: str, markdown: bool, report: Report) -> None:
@@ -402,6 +465,132 @@ def check_module_boundaries(body: str, base: int, severity: str, report: Report)
         fail("Source projects need a populated module table with Module, Responsibility / Owned Types, Public API, Allowed Dependencies and Forbidden Dependencies")
 
 
+UX_PATTERNS = {"navigation", "keyboard-overlays", "async-actions", "forms",
+               "data-states", "destructive-actions"}
+
+
+def check_ux_coverage(body: str, base: int, severity: str, report: Report) -> None:
+    """Validate declared STP coverage, not test execution or UX semantics.
+
+    Legacy absence passes; workflow readiness requires adoption for affected UI.
+    """
+    scan = strip_fences(body)
+    headings = list(re.finditer(r"(?m)^##[ \t]+(?!#)(.+?)[ \t]*$", scan))
+    sections = [h for h in headings if slugify(h.group(1)) == "ux_coverage"]
+    if not sections:
+        return
+    line = line_of(scan, sections[0].start(), base)
+
+    def fail(message: str) -> None:
+        report.add(severity, "ux_coverage", message, line)
+
+    if len(sections) != 1:
+        fail("Use exactly one UX Coverage section")
+        return
+
+    def section(heading):
+        end = next((h.start() for h in headings if h.start() > heading.start()), len(scan))
+        return scan[heading.end():end]
+
+    def table_rows(text, columns):
+        header = None
+        rows = []
+        for text_line in text.splitlines():
+            if not text_line.lstrip().startswith("|"):
+                header = None
+                continue
+            cells = [c.strip() for c in text_line.strip().strip("|").split("|")]
+            if all(re.fullmatch(r":?-+:?", c or "-") for c in cells):
+                continue
+            names = [slugify(c) for c in cells]
+            names = ["test_s_to_create_or_run" if n in (
+                "failing_test_s_to_create_or_run", "new_or_existing_test_s_to_create_or_run"
+            ) else n for n in names]
+            if all(c in names for c in columns):
+                header = names
+                continue
+            if header is not None:
+                rows.append({c: cells[header.index(c)] if header.index(c) < len(cells) else ""
+                             for c in columns})
+        return rows
+
+    mapping_heads = [h for h in headings if slugify(h.group(1)) == "acceptance_criteria_test_mapping"]
+    columns = ("ac_id", "test_s_to_create_or_run", "asserted_behavior_what_the_test_verifies", "file_or_command")
+    mapped = {}
+    for heading in mapping_heads:
+        for row in table_rows(section(heading), columns):
+            ac = row["ac_id"].strip("` ")
+            if ac in mapped:
+                fail(f"Duplicate mapped AC ID: {ac}")
+            mapped[ac] = row
+    rows = table_rows(section(sections[0]), ("pattern", "disposition", "ac_ids_or_reason"))
+    seen = set()
+    for row in rows:
+        pattern, disposition, value = (row[c].strip("` ") for c in ("pattern", "disposition", "ac_ids_or_reason"))
+        if pattern not in UX_PATTERNS or pattern in seen:
+            fail(f"Unknown or duplicate UX pattern: {pattern}")
+        seen.add(pattern)
+        if disposition == "not-applicable":
+            if not value or value.lower() in {"n/a", "none", "not applicable", "-"}:
+                fail(f"{pattern}: non-applicability needs a concrete reason")
+        elif disposition == "covered":
+            ids = [ac.strip("` ") for ac in value.split(",")]
+            if not ids or any(not re.fullmatch(r"US-\d+-AC\d+", ac) for ac in ids) or len(ids) != len(set(ids)):
+                fail(f"{pattern}: covered rows need unique stable US numeric AC IDs")
+                continue
+            for ac in ids:
+                mapping = mapped.get(ac)
+                if not mapping:
+                    fail(f"{pattern}: unresolved AC ID {ac}")
+                elif any(not mapping[c].strip("` \t") or mapping[c].strip("` \t").lower() in {"n/a", "none", "-"} for c in columns[1:]):
+                    fail(f"{pattern}: {ac} needs populated test, assertion and file/command")
+        else:
+            fail(f"{pattern}: disposition must be covered or not-applicable")
+    missing = UX_PATTERNS - seen
+    if missing:
+        fail("Missing UX patterns: " + ", ".join(sorted(missing)))
+
+
+def check_findings_sources(body: str, base: int, severity: str, report: Report) -> None:
+    """A present Findings section's Claims table has a Source column, filled for every claim.
+
+    Only the table under `### Claims` is read; other tables beneath Findings are not claims.
+    """
+    lines = strip_fences(body).splitlines()
+    start = next((i for i, l in enumerate(lines) if re.fullmatch(r"##[ \t]+Findings[ \t]*", l)), None)
+    if start is None:
+        return
+
+    def fail(message: str, i: int) -> None:
+        report.add(severity, "findings_sources", message, base + i)
+
+    end = next((i for i in range(start + 1, len(lines)) if re.match(r"##[ \t]", lines[i])), len(lines))
+    claims = next((i for i in range(start + 1, end) if re.fullmatch(r"###[ \t]+Claims[ \t]*", lines[i])), None)
+    rows = []
+    for i in range(claims + 1, end) if claims is not None else ():
+        if re.match(r"#{1,3}[ \t]", lines[i]) or (rows and not lines[i].lstrip().startswith("|")):
+            break  # the first table under Claims only
+        if lines[i].lstrip().startswith("|"):
+            cells = [c.strip() for c in lines[i].strip().strip("|").split("|")]
+            rows.append((i, cells))
+    rows = [(i, cells) for i, cells in rows if not all(re.fullmatch(r":?-+:?", c) for c in cells)]
+    if not rows:
+        fail("Findings needs a Claims table", start if claims is None else claims)
+        return
+    header = [slugify(c) for c in rows[0][1]]
+    if "source" not in header:
+        fail("The Claims table needs a Source column", rows[0][0])
+        return
+    source = header.index("source")
+    claim = header.index("claim") if "claim" in header else 0
+    for i, cells in rows[1:]:
+        if not any(cells):
+            continue
+        value = cells[source] if source < len(cells) else ""
+        if value.lower() in {"", "-", "n/a", "none"}:
+            fail(f"Claim has no Source: {cells[claim] if claim < len(cells) else ''}", i)
+
+
 def check_rule_entries(key: str, entries: list, body: str, base: int, report: Report) -> None:
     for i, entry in enumerate(entries):
         if not isinstance(entry, dict):
@@ -418,8 +607,12 @@ def check_rule_entries(key: str, entries: list, body: str, base: int, report: Re
             continue
         field = entry.get("field")
         rule = entry.get("type")
-        if rule == "module_boundaries":
+        if rule == "ux_coverage":
+            check_ux_coverage(body, base, severity, report)
+        elif rule == "module_boundaries":
             check_module_boundaries(body, base, severity, report)
+        elif rule == "findings_sources":
+            check_findings_sources(body, base, severity, report)
         elif rule == "unique_constraint" and field:
             values = field_values(body, str(field))
             dupes = sorted({v for v in values if values.count(v) > 1})
@@ -436,6 +629,59 @@ def check_rule_entries(key: str, entries: list, body: str, base: int, report: Re
                 report.add("info", check, f"field '{field}' not found in tables or **Label**: lines; check skipped")
         else:
             report.add("info", check, f"unsupported automated check type '{rule}'; skipped")
+
+
+def check_visuals(meta: dict, body: str, base: int, report: Report) -> None:
+    """Every visual block names a stable id and a form of its kind (workflows/references/visuals.md)."""
+    listed = {(v.get("kind"), v.get("form")) for v in meta.get("visuals") or [] if isinstance(v, dict)}
+    seen: dict[str, int] = {}
+
+    def claim(raw: str, line: int) -> None:
+        if not VISUAL_ID_RE.match(raw):
+            report.add("blocking", "visual.id", f"visual id {raw!r} must be lowercase letters, digits, and hyphens", line)
+        elif raw in seen:
+            report.add("blocking", "visual.id", f"visual id {raw!r} is used twice (first at line {seen[raw]})", line)
+        else:
+            seen[raw] = line
+
+    for index, info, content in fenced_blocks(body):
+        line = base + index
+        word = info.split(maxsplit=1)[0] if info else ""
+        if word == "mermaid":
+            named = MERMAID_ID_RE.match(content)
+            if named:
+                claim(named.group(1), line)
+            continue
+        if word != "visual":
+            continue
+        found = re.search(r"\bid=(\S+)", info)
+        if not found:
+            report.add("blocking", "visual.id", "a visual block needs `id=<stable-id>` after ```visual", line)
+        else:
+            claim(found.group(1), line)
+        try:
+            spec = yaml.safe_load(content) or {}
+        except yaml.YAMLError as error:
+            report.add("blocking", "visual.body", f"the visual block is not YAML: {error}", line)
+            continue
+        if not isinstance(spec, dict):
+            report.add("blocking", "visual.body", "the visual block must be a YAML mapping", line)
+            continue
+        if spec.get("source") and not spec.get("kind"):
+            continue
+        kind, form = spec.get("kind"), spec.get("form")
+        if kind not in VISUAL_FORMS:
+            report.add("blocking", "visual.kind", f"a visual block needs a `source`, or a kind of {', '.join(VISUAL_FORMS)}; got {kind!r}", line)
+            continue
+        if form not in VISUAL_FORMS[kind]:
+            report.add("blocking", "visual.form", f"{kind} has the forms {', '.join(VISUAL_FORMS[kind])}; got {form!r}", line)
+            continue
+        if not spec.get("question"):
+            report.add("blocking", "visual.question", "a visual block names the one question it answers (`question:`)", line)
+        if listed and (kind, form) not in listed:
+            report.add("warning", "visual.unlisted",
+                       f"{kind}/{form} is not among this type's visuals ({', '.join(f'{k}/{f}' for k, f in sorted(listed))}); "
+                       "list it in meta.yml or draw it in another artifact", line)
 
 
 def check_delivery_history(body: str, base: int, report: Report) -> None:
@@ -468,6 +714,52 @@ def check_placeholders(body: str, base: int, report: Report) -> None:
         report.add("warning", "placeholder.bracket_token", f"possible template token '{m.group(0)}'", line_of(scan, m.start(), base))
 
 
+def project_prose_settings(instance: Path) -> tuple[dict, Path | None]:
+    """The `prose:` block of the nearest `.helix.yml` above the instance, and that file's directory.
+
+    `strict: true` makes prose findings blocking for every instance under it; `exempt` lists glob
+    patterns, relative to that directory, for records the project keeps (dated logs, reviews).
+    """
+    for parent in instance.resolve().parents:
+        marker = parent / ".helix.yml"
+        if marker.is_file():
+            data = yaml.safe_load(marker.read_text(encoding="utf-8")) or {}
+            return (data.get("prose") or {}), parent
+    return {}, None
+
+
+def prose_audited(meta: dict, instance: Path, settings: dict, root: Path | None) -> bool:
+    """People read this type (meta.yml `prose.audience: human`) and the project has not exempted it.
+
+    Every other type is context and history an agent loads; it keeps the wording it was written in.
+    """
+    if str((meta.get("prose") or {}).get("audience") or "").lower() != "human":
+        return False
+    if root is not None:
+        relative = instance.resolve().relative_to(root).as_posix()
+        return not any(fnmatch.fnmatch(relative, str(p)) for p in settings.get("exempt") or [])
+    return True
+
+
+def check_prose(meta: dict, activities: Path, body: str, base: int, strict: bool, report: Report) -> None:
+    """Audit the prose against the type's voice profile (workflows/voice.yml)."""
+    voice_path = activities.parent / "voice.yml"
+    if not voice_path.is_file():
+        return
+    voice = yaml.safe_load(voice_path.read_text(encoding="utf-8")) or {}
+    declared = meta.get("voice")
+    profile = declared.get("profile") if isinstance(declared, dict) else declared
+    prose = meta.get("prose") or {}
+    budget = prose.get("budget_words", 0)
+    limits = prose_audit.limits_for(voice, profile or voice.get("default_profile") or "", budget)
+    if limits is None:
+        return
+    severity = "blocking" if strict else "warning"
+    found = prose_audit.audit(body, base, limits, prose_audit.phrases(voice), prose.get("skip_lines"))
+    for check, message, line in found:
+        report.add(severity, check, message, line)
+
+
 # --- main ---------------------------------------------------------------------
 
 def main() -> int:
@@ -476,6 +768,9 @@ def main() -> int:
     parser.add_argument("--catalog", help="workflows/ (or activities/) directory of the artifact catalog")
     parser.add_argument("--type", dest="type_id", help="artifact type id when the instance does not declare one")
     parser.add_argument("--format", choices=("text", "json"), default="text")
+    parser.add_argument("--tier", choices=("default", "publish"), default="default",
+                        help="publish applies the flow profile's publish tier (full validation and pinned sources); default applies its default tier")
+    parser.add_argument("--strict-prose", action="store_true", help="report prose findings as blocking")
     args = parser.parse_args()
 
     if yaml is None:
@@ -495,10 +790,9 @@ def main() -> int:
     ddx = (fm or {}).get("ddx") or {}
     scoped = (validation.get("by_scope") or {}).get(str(ddx.get("scope"))) or {}
     validation = {**validation, **{k: v for k, v in scoped.items() if k in ("required_sections", "pattern_checks")}}
-    draft_tier = (find_profile(args.instance, activities).get("validation") or {}).get("draft") or ["all"]
-    soften = str(ddx.get("status")) == "draft" and "all" not in draft_tier
-
     profile = find_profile(args.instance, activities)
+    default_tier = (profile.get("validation") or {}).get("default") or ["all"]
+    soften = args.tier == "default" and "all" not in default_tier
     report = Report()
     check_frontmatter(fm, report)
     check_links(fm, profile, report)
@@ -509,12 +803,19 @@ def main() -> int:
     check_rule_entries("automated_checks", validation.get("automated_checks") or [], body, base, report)
     check_placeholders(body, base, report)
     check_delivery_history(text, 1, report)
-    check_pinned_links(fm, validation.get("pin_links") or {}, report)
+    check_visuals(entry["meta"], body, base, report)
+    if args.tier == "publish":
+        check_pinned_links(fm, validation.get("pin_links") or {}, report)
+    settings, root = project_prose_settings(args.instance)
+    if prose_audited(entry["meta"], args.instance, settings, root):
+        strict = args.strict_prose or bool(settings.get("strict"))
+        check_prose(entry["meta"], activities, body, base, strict, report)
+
     if soften:
         for finding in report.findings[structural:]:
             if finding["severity"] == "blocking":
                 finding["severity"] = "warning"
-                finding["message"] += " (draft: enforced at publication)"
+                finding["message"] += " (enforced at the publish tier)"
 
     summary = report.summary()
     if args.format == "json":

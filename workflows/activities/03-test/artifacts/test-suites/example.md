@@ -105,5 +105,5 @@ npx playwright test tests/e2e/reviewer-smoke.spec.ts
 ## Readiness
 - [x] Suite boundaries are defined
 - [x] Shared test data assets are identified
-- [x] All planned suites begin in RED
+- [x] Existing coverage is reused; new tests address meaningful behavioral gaps
 - [x] Commands, owners, and evidence outputs are recorded

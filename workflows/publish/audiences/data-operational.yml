@@ -1,0 +1,43 @@
+# Selected by publish.data_mode: operational; no analytics or pipeline obligations.
+id: data
+title: Data
+reader: Someone who maintains the operational database and its integrity constraints.
+voice: onboarding
+watch:
+- '{helix}/02-design/contracts/*.md'
+- '{helix}/02-design/data-*.md'
+- '{helix}/03-test/data-quality-expectations*.md'
+- '{helix}/06-iterate/metric-definition*.md'
+pages:
+- id: index
+  title: Data overview
+  kind: explanation
+  task: Understand the operational entities, ownership, transaction boundaries, and
+    integrity constraints.
+  budget: 900
+  outline:
+  - Purpose and entities
+  - Ownership and transactions
+  - Integrity and access
+  - Where to go next
+  sources:
+  - artifact: product-vision
+  - artifact: data-design
+  - artifact: architecture
+  - code: schema definitions and migrations, when implemented
+- id: tables
+  title: Tables
+  kind: reference
+  task: Look up a table's purpose, grain, keys, and columns.
+  budget: 1800
+  outline:
+  - one section per table
+  - in a fixed shape - purpose
+  - grain
+  - keys
+  - columns
+  - produced by
+  sources:
+  - artifact: data-design
+  - docs: the project's data dictionaries, when it keeps them
+  - code: schema definitions and table declarations

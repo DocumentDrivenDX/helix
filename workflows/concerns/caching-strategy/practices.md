@@ -20,7 +20,7 @@ slot). A cache is always a derived, disposable copy; the origin is the truth.
 
 ## Frame
 
-- Choose the read/write pattern deliberately and record **why** in the ADR:
+- Choose the read/write pattern deliberately and state **why** in the TD:
   - **cache-aside (lazy)** / **read-through** for read-heavy data tolerant of
     bounded staleness (the difference is who populates on a miss);
   - **write-through** when reads after a write must be fresh (strong cache↔store
@@ -29,9 +29,9 @@ slot). A cache is always a derived, disposable copy; the origin is the truth.
     **durability/consistency window** (the cache holds writes the store does not
     yet — data-loss risk if the cache dies before flush) is **named and
     accepted**.
-- Record the **consistency trade-off** the chosen pattern implies against the
+- State the **consistency trade-off** the chosen pattern implies against the
   data's tolerance for staleness — never stumble into write-behind's window.
-- Record in the ADR **what is deliberately not cached** (and why it must stay
+- State in the TD **what is deliberately not cached** (and why it must stay
   fresh).
 
 ## Design
@@ -78,8 +78,8 @@ slot). A cache is always a derived, disposable copy; the origin is the truth.
   is authoritative; nothing of record lives only in the cache.
 - **Hot keys have stampede protection** (single-flight, early refresh, jittered
   TTL, or negative cache); a hot-key expiry does not dogpile the origin.
-- **What is deliberately not cached** (and why it must stay fresh) is recorded in
-  the ADR.
+- **What is deliberately not cached** (and why it must stay fresh) is stated in
+  the TD.
 
 ## Cross-cutting
 

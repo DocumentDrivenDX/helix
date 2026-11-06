@@ -249,19 +249,17 @@ tech-stack concern (which fixes the MCP SDK/server framework).
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: primitives exposed, transport (stdio/HTTP) + OAuth 2.1 audience binding, human-in-the-loop + least-privilege scope model
-- TD: tool/resource/prompt modeling, JSON-Schema tool inputs + descriptions, boundary validation, agent-exposure threat controls
+- TD: states the primitives exposed, transport (stdio/HTTP) + OAuth 2.1 audience binding, human-in-the-loop policy + least-privilege scope model; tool/resource/prompt modeling, JSON-Schema tool inputs + descriptions, boundary validation, agent-exposure threat controls
 - FEAT: which capabilities are exposed as tools vs resources vs prompts to the agent
 - TEST_PLAN: destructive-tool human-in-the-loop gate, token-audience validation, input-validation on agent args
 
 ## ADR References
 
-Record an ADR when exposing an MCP surface: name the **primitives exposed**
-(which tools/resources/prompts), the **transport** (stdio for local, Streamable
-HTTP for remote) and — for HTTP — the **OAuth 2.1 authorization** design
-(resource-server validation, audience binding, no passthrough), and the
-**human-in-the-loop policy** for destructive tools and the **scope model**
-(least-privilege per tool). A material uncertainty about the agent-exposure
+Exposing an MCP surface needs no ADR; `concerns.md` records the selection. The
+TD states the **primitives exposed**, the **transport** (stdio for local,
+Streamable HTTP for remote), the **OAuth 2.1 authorization** design for HTTP,
+and the **human-in-the-loop policy** and **scope model**. Write an ADR only
+when the project deviates from a constraint here. A material uncertainty about the agent-exposure
 surface (which capabilities are safe to expose autonomously, the auth/transport
 choice, the proxy/aggregation trust model) is a `tech-spike`, not a silent
 assumption (see `workflows/references/concern-resolution.md`).
@@ -297,8 +295,8 @@ at the seam and stay on the MCP surface.
   - **Prompt** — a **user-invoked workflow template** (slash command etc.),
     explicitly triggered, never auto-fired.
 - Do **not** expose a side-effecting action as a resource, and do **not** force
-  passive data through a tool the model must decide to call. Record the exposed
-  primitives in an ADR.
+  passive data through a tool the model must decide to call. State the exposed
+  primitives in the TD.
 
 ## Design
 

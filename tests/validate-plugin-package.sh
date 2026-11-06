@@ -21,6 +21,8 @@ trap 'rm -rf "$pkg_parent" "$expected_refs"' EXIT
 
 bash "$repo_root/scripts/build-plugin-package.sh" --out "$pkg_parent" >/dev/null
 python3 "$repo_root/scripts/sync_references.py" "$expected_refs" >/dev/null
+python3 "$repo_root/scripts/sync_references.py" --subset documentor --check >/dev/null \
+  || { echo "FAIL: documentor's packaged catalog differs from workflows/ (scripts/sync_references.py --subset documentor)" >&2; exit 1; }
 
 pkg_root="$pkg_parent/helix"
 pkg_skill="$pkg_root/skills/helix"

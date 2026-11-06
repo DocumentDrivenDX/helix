@@ -1,0 +1,7 @@
+<aside class="side" aria-label="Pages in this section">
+  {{ $section := .Section }}
+  {{ range site.Params.sections }}{{ if eq .id $section }}
+  <p class="side-title">{{ .title }}</p>
+  <ul>{{ range .pages }}<li><a href="{{ .url | relURL }}" {{ if eq .url $.RelPermalink }}aria-current="page"{{ end }}>{{ .title }}</a></li>{{ end }}</ul>
+  {{ end }}{{ end }}
+</aside>

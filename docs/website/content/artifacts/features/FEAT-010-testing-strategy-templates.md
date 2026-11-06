@@ -148,9 +148,11 @@ The discipline requires, before "done":
   system end-to-end (the full stack), catching locally-correct / globally-wrong
   work. "Done" = whole stack exercised with recorded evidence, **not**
   unit-green.
-- **Recorded evidence artifacts** — the command run + its exit status, the
-  target URL/env, the core flows exercised, and a short re-review checklist
-  against the ACs and integration risks.
+- **Requirement-linked results** — the existing story test plan and test-source
+  citations connect criteria to observed results, command/exit, tested revision,
+  target URL/env and exercised flows. Existing test/CI reports and review records
+  satisfy this when they capture the required proof. Supplemental observations
+  cover gaps outside that reporting path; no separate evidence file is mandatory.
 - **Verify-don't-trust** — never assert a result that was not observed; a
   self-reported "complete" is a hypothesis to verify (extends the measure
   action's M4).
@@ -174,6 +176,12 @@ traceability; the fix is to *add the citation*, not write a new test) — distin
 from `UNTESTED` (no exercising test) and from `ASSERTED_UNBACKED` (cites an AC it
 does not exercise — a phantom claim under **FEAT-016** artifact honesty). The
 story test plan's per-AC matrix records each test's `@covers` citation.
+
+Names describe observable behavior and relevant conditions in the project's
+framework style. Prefer canonical citations in source comments or annotations;
+existing citations in test bodies, names or doc comments remain valid. A test may
+cover several criteria, each cited explicitly. Names and citations do not prove
+assertion quality or passing execution; review checks those separately.
 
 ## Non-Functional Requirements
 

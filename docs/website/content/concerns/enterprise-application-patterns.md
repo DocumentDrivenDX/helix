@@ -127,7 +127,7 @@ implements and are noted only where load-bearing.
 
 ### Active Record vs Data Mapper is a recorded, load-bearing decision
 
-- The data-source choice is **architectural and must be recorded in an ADR**, not
+- The data-source choice is **architectural and must be stated in the TD**, not
   defaulted silently by the ORM.
 - **Active Record** couples a row and its domain logic in one object. It is a good
   fit when domain logic is **simple and maps closely to the table structure**; it
@@ -176,7 +176,7 @@ implements and are noted only where load-bearing.
   branches and duplicated rules → it has outgrown the pattern; refactor toward a
   Domain Model
 - The **Active Record vs Data Mapper** choice made implicitly by the ORM with **no
-  ADR** → record it; an architectural data-source decision is not a default
+  statement in the TD** → record it; an architectural data-source decision is not a default
 - A **rich Domain Model riding on Active Record** — business rules bending to the
   table shape, or SQL/row concerns leaking into domain objects → mismatch; use a
   Data Mapper (especially under DDD)
@@ -218,19 +218,20 @@ answer and the Domain-Model/Data-Mapper machinery is cost without payoff
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: domain-logic organization (Transaction Script/Domain Model) + data-source pattern (Active Record vs Data Mapper)
-- TD: data-source layer (mapper/Unit-of-Work/Identity-Map), Service Layer boundary, distribution/session-state placement
+- TD: data-source layer (mapper/Unit-of-Work/Identity-Map), Service Layer boundary, distribution/session-state placement; states the domain-logic organization (Transaction Script/Domain Model) and data-source pattern (Active Record vs Data Mapper)
 - DATA_DESIGN: how the chosen pattern maps domain objects to the schema
 
 ## ADR References
 
-Selecting this concern forces these decisions to be recorded:
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only
+when the project deviates from a constraint here (for example Active Record under
+`domain-driven-design`). Selecting it forces these decisions to be stated in the TD:
 
 - **Domain-logic organization** — Transaction Script vs Domain Model (vs Table
   Module), justified by the assessed complexity of the business logic.
 - **Data-source pattern** — **Active Record vs Data Mapper**, the load-bearing
   decision; under `domain-driven-design`, Data Mapper is expected and choosing
-  Active Record requires a recorded justification.
+  Active Record is a deviation that requires an ADR.
 - Where a non-trivial Domain Model is on a Data Mapper, note the **Unit of Work /
   Identity Map** provision (typically the ORM) and any **distribution** boundary
   that introduces Remote Facade / DTO and the **session-state** placement.
@@ -272,9 +273,9 @@ recorded, and not over-built** (KISS/YAGNI).
 
 ## Frame
 
-- The chosen domain-logic organization MUST be recorded in an ADR.
+- The chosen domain-logic organization MUST be stated in the TD.
 - The **Active Record vs Data Mapper** decision MUST be made explicitly and
-  **recorded in an ADR** — it MUST NOT be left as an implicit ORM default.
+  **stated in the TD** — it MUST NOT be left as an implicit ORM default.
 - Choose **Active Record** when domain logic is **simple and maps closely to the
   table structure** and coupling row + logic is an acceptable trade. Choose **Data
   Mapper** when the domain model is **rich and must stay independent of the
@@ -282,7 +283,7 @@ recorded, and not over-built** (KISS/YAGNI).
 - When `domain-driven-design` is also selected, **Data Mapper is the expected
   data-source pattern** — it is the mechanism that keeps the domain model ignorant
   of the database and lets repositories return aggregates in domain terms.
-  Choosing Active Record under DDD MUST be justified in the ADR.
+  Choosing Active Record under DDD is a deviation and MUST be justified in an ADR.
 
 ## Design
 
@@ -307,12 +308,12 @@ recorded, and not over-built** (KISS/YAGNI).
 ## Test
 
 - The **domain-logic organization** (Transaction Script vs Domain Model vs Table
-  Module) is recorded in an ADR and matches the assessed complexity — no Domain
+  Module) is stated in the TD and matches the assessed complexity — no Domain
   Model + Data Mapper + Unit of Work wrapped around a thin CRUD surface, and no
   Transaction Script left to accrete sprawling rules it has outgrown.
-- The **Active Record vs Data Mapper** decision is recorded in an ADR (not an
+- The **Active Record vs Data Mapper** decision is stated in the TD (not an
   implicit ORM default); under `domain-driven-design`, Data Mapper is used or
-  Active Record is explicitly justified.
+  Active Record is justified in an ADR.
 - No **rich Domain Model on Active Record** with rules bending to the table, and
   no ORM rows / Active Record instances surfacing as the domain's public types
   under DDD (persistence not leaking into the domain).

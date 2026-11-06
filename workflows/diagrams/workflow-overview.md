@@ -7,16 +7,16 @@ graph TB
     subgraph "🧬 HELIX Development Spiral"
         F[📋 1. FRAME<br/>Define Problem & Requirements]
         D[🏗️ 2. DESIGN<br/>Architecture & Solutions]
-        T[🧪 3. TEST<br/>Write Failing Tests]
-        B[⚙️ 4. BUILD<br/>Implement to Pass Tests]
+        T[🧪 3. TEST<br/>Select Verification]
+        B[⚙️ 4. BUILD<br/>Implement & Verify]
         DP[🚀 5. DEPLOY<br/>Release & Monitor]
         I[🔄 6. ITERATE<br/>Learn & Improve]
     end
 
     F -->|Requirements & Stories| D
     D -->|Contracts & Architecture| T
-    T -->|Red Tests| B
-    B -->|Green Tests| DP
+    T -->|Verification Plan| B
+    B -->|Verified Behavior| DP
     DP -->|Metrics & Feedback| I
     I -->|Insights| F
 
@@ -115,26 +115,6 @@ graph TB
     style J3 fill:#ffe0b2
     style J4 fill:#ffe0b2
     style J5 fill:#ffe0b2
-```
-
-## TDD Red-Green-Refactor Cycle
-
-```mermaid
-graph LR
-    subgraph "Test-Driven Development Core"
-        Red[🔴 RED<br/>Write Failing Test] --> Green[🟢 GREEN<br/>Write Minimal Code]
-        Green --> Refactor[🔵 REFACTOR<br/>Improve Code Quality]
-        Refactor --> Red
-    end
-
-    Frame[FRAME Activity] -->|Requirements| Red
-    Red -->|Test Activity| TestPhase[TEST Activity]
-    Green -->|Build Activity| BuildPhase[BUILD Activity]
-    Refactor -->|Build Activity| BuildPhase
-
-    style Red fill:#ffcdd2,stroke:#d32f2f,stroke-width:3px
-    style Green fill:#c8e6c9,stroke:#388e3c,stroke-width:3px
-    style Refactor fill:#bbdefb,stroke:#1976d2,stroke-width:3px
 ```
 
 ## Security Integration Throughout HELIX

@@ -162,7 +162,7 @@ agents repeatedly shipping stubbed or "facade" paths under a done claim, which t
 catch by hand; a zero-floor ratchet makes HELIX catch it internally.
 
 **Code-shape ceiling sub-ratchet (ceiling only goes down)**: the `code-shape-ceilings` concern bounds
-function complexity, statements, parameters, public methods per class, and file length. Each ceiling is
+function complexity, statements, public methods per class, and file length. Each ceiling is
 a ratchet whose floor is a maximum: greenfield projects start at the concern's strict defaults, adopting
 projects start at the worst value in the tree today. Raising a ceiling, or adding a `noqa` /
 `eslint-disable` / `biome-ignore` for one of these rules, is a blocking regression, resolved by

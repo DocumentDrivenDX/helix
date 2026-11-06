@@ -169,8 +169,8 @@ available.
 
 ## STEP 7: Render
 
-Targets: a slide file (`.pptx`) from the script (`scripts/render-deck.js`
-when the host has node and the slide library it needs; else the host's
+Targets: a slide file (`.pptx`) from the script (`documentor deck render`
+when the host has documentor and node; else the host's
 presentation tooling), plus a PDF whenever the host can export one. Record
 the primary render (the PDF when produced, else the slide file) in
 `authoring.export`, which is a single path string, and every rendered path
@@ -201,7 +201,7 @@ to step 3, 5, or 7:
   does not contradict it. Re-read the source for every stat callout.
 - Voice: the `human-facing` profile, checked with the host's prose lint when
   available and by a read-aloud pass.
-- Visual: render every produced slide to an image (`scripts/deck-qa.py`
+- Visual: render every produced slide to an image (`documentor deck qa`
   when the host has a slide-to-PDF converter and a PDF rasterizer; else the
   presentation tooling's export) and look at each one for overflow,
   collisions, orphan bullets, unreadable contrast, or a missing visual. Fix
@@ -223,9 +223,12 @@ Save the script under the flow root (default
 `06-iterate/deliverables/DEL-<nnn>-<slug>.md`) with `ddx.links` to every
 source artifact and `authoring.export` pointing at the renders. Report: the
 takeaway sentence, the titles-only outline, assumptions and gaps, gate
-results, and where the files are. Do not present the deck as approved; it is
-`draft` until a person reviews it like any artifact. Before approval, pin the
-sources: run `skills/helix/scripts/pin-sources.py pin <deliverable>` so every
-source link carries a `rev`, then `check` it. An approved deliverable is
-reproducible from those pinned revisions; later edits to a source never
-change it, and updating a source means a new revision of the deliverable.
+results, and where the files are. Report material unresolved choices and
+limits of evidence without assigning a lifecycle label. External distribution
+and explicit domain sign-off require the applicable authorization. Before a
+deliverable is issued, pin the sources: run
+`skills/helix/scripts/pin-sources.py pin <deliverable>` so every source link
+carries a `rev`, then `check` it and validate with `--tier publish`. An issued
+deliverable is reproducible from those pinned revisions; later edits to a
+source never change it, and updating a source means a new revision of the
+deliverable.

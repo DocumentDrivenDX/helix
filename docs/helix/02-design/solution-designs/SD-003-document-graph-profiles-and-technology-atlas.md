@@ -6,12 +6,12 @@ ddx:
   status: draft
   depends_on:
     - helix.prd
-    - ADR-015
-    - ADR-016
+    - ADR-017
+    - ADR-018
 ---
 # SD-003: Document-graph profiles and the Technology Atlas
 
-**Status:** Implemented in the catalog (profiles, ADR-015/016, `component-profile`
+**Status:** Implemented in the catalog (profiles, ADR-017/016, `component-profile`
 reusable scope, `decision-brief`, `technology-assessment`, `position-paper`,
 pinned `deliverable`). Section 1 describes the repository before this work;
 sections marked *Proposed* are the design that was implemented; §11 lists what
@@ -41,14 +41,14 @@ remains.
 | Technology brief/assessment reusable across clients | `component-profile` is project-scoped (needs derived from the project's artifacts) | Reusable scope for an existing type, plus one comparative assessment type |
 | Context-specific recommendation before an ADR | None | `decision-brief` |
 | Strategic argument over assessments | None | `position-paper` (deferred) |
-| Typed relationships (`addresses`, `evaluates`, `contradicts`) | `depends_on`, `informs`, `supersedes`; `ddx.links` undefined | Extend the `ddx.links` `{id, kind}` shape with new kinds, `authority`, `rev` (ADR-016) |
-| Informational vs governing authority | Implicit and positional | Explicit authority class on cross-graph references (ADR-016) |
+| Typed relationships (`addresses`, `evaluates`, `contradicts`) | `depends_on`, `informs`, `supersedes`; `ddx.links` undefined | Extend the `ddx.links` `{id, kind}` shape with new kinds, `authority`, `rev` (ADR-018) |
+| Informational vs governing authority | Implicit and positional | Explicit authority class on cross-graph references (ADR-018) |
 | Reproducible publication from pinned revisions | `deliverable` has no source pinning or approval gate | Pinned sources, audience, outputs, review gate (§6) |
-| Reuse by another graph without cloning | `external_edges` always empty; `cross_flow` undefined for external repos | Pinned external reference shape; resolution is runtime work (ADR-016) |
-| Draft-tolerant, publish-strict validation | Single validation tier | `status`-keyed validation tier |
+| Reuse by another graph without cloning | `external_edges` always empty; `cross_flow` undefined for external repos | Pinned external reference shape; resolution is runtime work (ADR-018) |
+| Default-tolerant, publish-strict validation | Single validation tier | Profile-keyed default and publish tiers, selected by `--tier` |
 | Per-profile `graph.yml` | Generator is single-methodology and `informs`-only | Generator refactor |
 
-## 3. Proposed: profile binding (see ADR-015)
+## 3. Proposed: profile binding (see ADR-017)
 
 Keep `flows:`. Add optional `profile:` per entry; default `software-delivery`
 so every existing marker is unchanged.
@@ -80,9 +80,9 @@ the profile only narrows and parameterizes it.
 | Publication | Extend `deliverable` (§6) | Separate type only if extension distorts the deck-script model. |
 
 Sections are semantic expectations, not rigid mandates. `required_sections`
-applies at `status: approved` or `published`, not at `draft`.
+applies at the profile's publish tier (`validate-instance.py --tier publish`), not at the default tier. Lifecycle status selects no tier.
 
-## 5. Proposed: relationships and authority (see ADR-016)
+## 5. Proposed: relationships and authority (see ADR-018)
 
 Reuse `depends_on`, `informs`, `supersedes`. Define `ddx.links` as a list of
 `{id, kind, authority?, rev?}`, extending the existing `{id, kind}` shape. Initial `kind` vocabulary: `addresses`,
@@ -93,11 +93,10 @@ Authority: within a flow, existing positional authority is unchanged. A
 reference that crosses a flow or Atlas boundary is **advisory** unless the
 consuming graph grants `governing` explicitly in its own marker or profile.
 
-## 6. Publication and cross-graph references (pinning implemented; external resolution is runtime work) (see ADR-016)
+## 6. Publication and cross-graph references (pinning implemented; external resolution is runtime work) (see ADR-018)
 
 Implemented (Phase 1): `deliverable` and `decision-brief` declare
-`validation.pin_links`. At `ddx.status: approved` (or `published` for
-deliverables) every `ddx.links` mapping of kind `informed_by`, `evaluates`, or
+`validation.pin_links`. At the publish tier every `ddx.links` mapping of kind `informed_by`, `evaluates`, or
 `supported_by` must carry `rev`: `git:<commit>` (content recoverable) or
 `sha256:<hex>` (content verifiable only), never a branch or tag name. A link
 may carry `graph:` for a source in another graph; the runtime resolves it and
@@ -106,7 +105,7 @@ provides `pin` (fill revs from git history), `check` (verify pins resolve,
 report drift), and `materialize` (write each source as it was at its rev, so
 any renderer builds from pinned content). Markdown stays the authoring medium;
 presentation stays separate from semantics and reuses the present workflow and
-its renderer. Updating a source never changes an approved deliverable; it means
+its renderer. Updating a source never changes an issued deliverable; it means
 a new revision of the deliverable, re-pinned and re-reviewed. Not implemented:
 audience, outputs and presentation use the existing Brief, `authoring.export`
 and Look fields rather than new keys, and a separate `publication` type is
@@ -144,7 +143,7 @@ publication.
 | T1 | Existing `.helix.yml` (no `profile:`) passes `tests/validate-skills.sh` unchanged. |
 | T2 | Two-flow marker (software-delivery + technology-atlas) resolves by cwd; a write into the wrong flow's root is refused. |
 | T3 | `generate_graph.py` default output is byte-identical to the committed `graph.yml`; `--profile technology-atlas` emits a separate graph. |
-| T4 | A draft `decision-brief` with missing sections validates; at `approved` it fails until sections are present. |
+| T4 | A `decision-brief` with missing sections validates at the default tier and fails at the publish tier until sections are present. |
 | T5 | A product-flow ADR referencing an Atlas assessment treats it as advisory; the same reference does not alter the ADR's own authority. |
 | T6 | A publication built from pinned sources is byte-identical after the underlying assessment changes; rebuild at a new pin produces a new publication. |
 | T7 | `contradicts` between two assessments is surfaced by align and does not fail validation. |

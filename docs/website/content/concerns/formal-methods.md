@@ -125,16 +125,16 @@ Select tools per project; HELIX installs no solver or proof assistant.
 ## Artifact Impact
 
 - FEAT: critical behavioral properties and their requirement authority, where applicable
-- ADR: selected rigor/method, rationale, assumptions and any scoped exception
-- TD: specification, analysis scope/evidence and implementation correspondence
+- TD: specification, analysis scope/evidence and implementation correspondence; states the selected rigor/method, rationale and assumptions
 - TEST_PLAN: derived tests, positive witnesses, negative controls and analysis commands for affected slices
 - IMPLEMENTATION_PLAN: sequence modeling and enforcement before dependent readiness claims
 - RUNBOOK: operational assumptions and response to violations, only for deployed affected behavior
 
 ## ADR References
 
-Record costly assurance/tool choices and exceptions in the adopting project's
-ADR. A material uncertainty about expressiveness, feasibility or model/code
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only
+when the project deviates from a constraint here (for example a scoped
+exception). A material uncertainty about expressiveness, feasibility or model/code
 correspondence requires a bounded tech spike before dependent design commits
 to that choice. See `workflows/references/formal-methods.md` for the checklist
 and an executable, explicitly abstract lease example.

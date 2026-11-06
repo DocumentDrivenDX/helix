@@ -91,3 +91,12 @@ elements to actual code, enforcement and tests; name residual gaps and recheck
 triggers. Shared normative surfaces remain in Contracts. Do not infer production
 correctness from a model pass. Unaffected slices retain applicability context and
 record why no analyzer/proof run applies; unselected projects need no section.
+
+## UMF Schema Reuse
+
+Apply `workflows/references/umf-schemas.md` for schema, structured-interface, or
+domain-model work. Inspect applicable UMF core, extensions, and domain packs;
+reuse or compose by default. Record pinned sources, local additions, specific
+exceptions, and semantic/projection limits. Declare `ddx.schemas` references to
+the authoritative local sources so publication can render them in the UMF
+browser. Contracts own exact shared surfaces; designs reference them.

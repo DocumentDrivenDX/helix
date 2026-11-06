@@ -10,9 +10,9 @@ the running system.
 
 ## Choose and record the isolation model (Frame / Design)
 
-- Record the **isolation model** in an ADR before building: shared-schema with
+- State the **isolation model** in the TD / DATA_DESIGN before building: shared-schema with
   a tenant-discriminator column, shared-schema + row-level security (RLS),
-  schema-per-tenant, database-per-tenant, or a bridge (mixed). The ADR MUST
+  schema-per-tenant, database-per-tenant, or a bridge (mixed). The statement MUST
   justify the choice against: isolation strength, cost/tenant density,
   noisy-neighbor risk, per-tenant backup/restore and compliance, blast radius,
   and operational fan-out.
@@ -94,7 +94,7 @@ the running system.
 
 ## Quality Gates
 
-- Isolation model recorded in an ADR with its trade-off justification — not
+- Isolation model stated in the TD / DATA_DESIGN with its trade-off justification — not
   defaulted implicitly.
 - **No unscoped data-access path**: verifiable in review that every query
   touching tenant-owned data carries the tenant predicate, enforced at a single

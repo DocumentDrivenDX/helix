@@ -124,12 +124,12 @@ motif:
   # circle in the secondary hue beside each slide title. Never an accent line
   # under a title or a color bar along an edge; those read as generated filler.
   section_marker: { shape: circle, color: secondary, size_in: 0.55, font: display }   # shape follows the look's `marker`
-  icons: skills/helix/scripts/icons   # monochrome line icons named on Visual lines (`icons:`, `icon:`); see visual-specs.md
+  icons: tools/documentor/src/documentor/deliverable/icons   # monochrome line icons named on Visual lines (`icons:`, `icon:`); see visual-specs.md
   slide_number: { position: bottom-right, size_pt: 10, color: muted }
   footer_source: { position: bottom-left, size_pt: 9, color: muted }
 
 render:
-  # Constants render-deck.js reads; a project may tune them without touching the script.
+  # Constants render-deck.js (`documentor deck render`) reads; a project may tune them without touching the script.
   title_h_in: 1.3        # height of the title block on content slides
   footer_h_in: 0.3       # source footer and slide number band
   gap_in: 0.25           # title-to-body and body-to-footer gaps

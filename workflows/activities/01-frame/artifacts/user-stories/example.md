@@ -12,7 +12,6 @@ ddx:
 **Feature**: FEAT-001 - CSV Import and Column Mapping
 **Feature Requirements**: UP-01, UP-02
 **Priority**: P0
-**Status**: Approved
 
 ## Story
 

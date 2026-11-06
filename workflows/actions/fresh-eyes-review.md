@@ -17,8 +17,16 @@ Check the target for:
 - correctness against its governing requirements and decisions;
 - missing error, boundary, integration, or recovery behavior relevant to scope;
 - security and active concern practices where applicable;
-- test quality and whether tests exercise the behavior they claim to cover;
+- coherence and cost of the affected behavior, including redundant operations,
+  duplicated state and overlapping interfaces; inspect generated operations or
+  runtime measurements where relevant rather than inferring economy from tests;
+- test quality, reuse of existing evidence and whether tests exercise required
+  behavior without preserving obsolete implementation details;
 - unsupported claims about tests, coverage, or metrics.
+
+For completion reviews, trace the existing acceptance mapping and test-source
+citations to assertions and observed results under the
+[verification completion contract](../concerns/verification/practices.md).
 
 Skip checks that do not apply to the target. Do not infer that an accepted ADR
 has been implemented; compare its direction with code only when implementation
@@ -57,3 +65,21 @@ actual receiver/correlation, duplicate-ingestion and failure evidence before
 accepting an implementation claim; JSONL parsing and quiet console output are
 insufficient. Report missing adoption/evidence without silently re-selecting
 concerns or claiming the adopting-project pilot ran.
+
+## UX and package alignment
+
+For affected UI work, apply ux-interaction-patterns and the selected component
+owner, per workflows/references/ux-evidence.md. For plan reviews, verify STP
+UX Coverage resolves to concrete planned tests/assertions/commands; do not
+require future passing results. For implementation/completion reviews, verify
+IDs resolve to real tests with meaningful assertions and AC citations. Review
+pattern applicability, visible current location, keyboard/modality/focus,
+async duplicate guards, validation and recovery, and destructive policy.
+For completion claims require observed runtime outcomes; coverage structure
+is not behavioral proof.
+For packaged-design-system, inspect actual availability/compatibility evidence,
+installed-version documentation, token references and component ownership.
+For plans inspect the declared supplied/project check commands and evidence
+capture; for completion inspect observed results and reviewed findings/exceptions.
+Do not assume a package includes lint/audit tooling. Report missing evidence;
+never invent a consumer test run from HELIX's catalog tests.

@@ -169,7 +169,7 @@ three differences.
   page, with `theme.yml`'s `max_words_one_pager` (450) as a warned budget. To
   fit the one-pager, drop whole units (typically the evidence table and the
   appendix) and keep the remaining bullets whole.
-- Render with `scripts/render-doc.js <script.md> <out.html> --kind
+- Render with `documentor doc render <script.md> <out.html> --kind
   brief|one-pager [--pdf <out.pdf>]`; see `modes/present.md` §Kinds and
   §Render toolchain.
 
@@ -192,5 +192,6 @@ three differences.
   and missing visuals; re-render. Without a renderer or rasterizer, record
   under Render which targets were not produced and why.
 - Fill the Render section with theme, targets, and the gate's own output:
-  the blocking and warning counts and what each warning was. Leave
-  `status: draft`; a person approves the deliverable like any artifact.
+  the blocking and warning counts and what each warning was. Omit
+  lifecycle labels; report material unresolved choices and evidence limits.
+  External distribution requires the applicable authorization.

@@ -1,6 +1,6 @@
 # Write Unit Tests
 
-Create unit tests for all business logic, pure functions, and isolated components. These form the foundation of the testing pyramid.
+Create or extend focused unit tests where they provide distinct behavioral evidence. Reuse integration or E2E coverage when sufficient; keep unit tests where they isolate meaningful rules or failures efficiently.
 
 ## Output Location
 
@@ -8,10 +8,10 @@ Create unit tests for all business logic, pure functions, and isolated component
 
 ## Requirements
 
-- Minimum 80% code coverage for business logic
-- 100% coverage for critical algorithms and data transformations
-- All public methods/functions tested
-- Edge cases and error conditions covered
+- Use the project's adopted coverage targets
+- Address uncovered governing behavior and material failure risks
+- Reuse existing tests rather than adding one test per method
+- Cover relevant edge cases and error conditions
 
 ## Test Structure (AAA Pattern)
 
@@ -57,7 +57,7 @@ const service = new UserService(mockDb);
 
 ## Quality Checklist
 
-- [ ] All public methods/functions have tests
+- [ ] Required behavior has meaningful coverage in existing or new tests
 - [ ] Edge cases and error scenarios covered
 - [ ] Tests are independent and isolated
 - [ ] Tests run quickly (< 5 seconds for suite)

@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-labelledby="title desc">
+  <title id="title">HELIX turns intent into governing documents</title>
+  <desc id="desc">A team asks an agent runtime, which loads the HELIX routing skill. The skill uses the artifact catalog and project scope to author and reconcile project documents. Those documents govern authorized execution by the runtime. The shaded HELIX boundary contains portable content and one skill; project scope and project documents belong to the adopting project.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M1 1 L8 5 L1 9" fill="none" stroke="#26364A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="input-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M1 1 L8 5 L1 9" fill="none" stroke="#70638F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="return-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M1 1 L8 5 L1 9" fill="none" stroke="#176F69" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <style>
+      text { font-family: Arial, Helvetica, sans-serif; fill: #172B42; }
+      .title { font-size: 62px; font-weight: 700; letter-spacing: -2px; }
+      .subtitle { font-size: 29px; fill: #516071; }
+      .name { font-size: 37px; font-weight: 700; letter-spacing: -0.6px; }
+      .detail { font-size: 26px; fill: #516071; }
+      .edge { font-size: 26px; fill: #26364A; }
+      .input { fill: #70638F; }
+      .connector { fill: none; stroke: #26364A; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow); }
+      .dependency { fill: none; stroke: #70638F; stroke-width: 2.5; stroke-dasharray: 7 8; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#input-arrow); }
+    </style>
+  </defs>
+  <rect width="1920" height="1080" fill="#FAF9F5"/>
+  <g id="heading">
+    <text x="96" y="126" class="title">HELIX turns intent into governing documents</text>
+    <text x="98" y="184" class="subtitle">The runtime provides the agency. HELIX provides the document discipline.</text>
+  </g>
+  <g id="helix-boundary">
+    <rect x="850" y="270" width="510" height="600" rx="28" fill="#EEEBF6"/>
+    <text x="890" y="323" font-size="28" font-weight="700" fill="#5C4486" letter-spacing="3">HELIX</text>
+    <text x="890" y="365" class="detail" style="fill:#685780">Portable content + one skill</text>
+  </g>
+  <g id="team">
+    <circle cx="204" cy="437" r="23" fill="none" stroke="#26364A" stroke-width="3"/>
+    <path d="M160 506 C160 462 248 462 248 506" fill="none" stroke="#26364A" stroke-width="3"/>
+    <text x="204" y="561" class="name" text-anchor="middle">Software</text>
+    <text x="204" y="607" class="name" text-anchor="middle">team</text>
+  </g>
+  <g id="runtime">
+    <rect x="430" y="440" width="300" height="180" rx="12" fill="#FAF9F5" stroke="#26364A" stroke-width="2.5"/>
+    <text x="462" y="499" class="name">Agent runtime</text>
+    <text x="462" y="546" class="detail">Model + tools</text>
+    <text x="462" y="584" class="detail">Execution + evidence</text>
+  </g>
+  <g id="routing-skill">
+    <rect x="910" y="440" width="390" height="180" rx="12" fill="#5C4486"/>
+    <text x="944" y="499" class="name" style="fill:#FFFFFF">Routing skill</text>
+    <text x="944" y="546" class="detail" style="fill:#F1EDF9">Resolve scope and mode</text>
+    <text x="944" y="584" class="detail" style="fill:#F1EDF9">Read governing artifacts</text>
+  </g>
+  <g id="documents">
+    <path d="M1510 428 H1820 V608" fill="none" stroke="#9AC9C0" stroke-width="2.5"/>
+    <path d="M1500 438 H1810 V618" fill="none" stroke="#68AFA2" stroke-width="2.5"/>
+    <rect x="1490" y="448" width="310" height="180" rx="12" fill="#E1F0EA" stroke="#176F69" stroke-width="2.5"/>
+    <text x="1520" y="507" class="name" style="fill:#145D58">Project</text>
+    <text x="1520" y="551" class="name" style="fill:#145D58">documents</text>
+    <text x="1520" y="596" class="detail" style="fill:#286D63">Intent · design · tests</text>
+  </g>
+  <g id="primary-flow">
+    <path d="M290 530 H414" class="connector"/>
+    <text x="352" y="501" class="edge" text-anchor="middle">asks</text>
+    <path d="M746 530 H894" class="connector"/>
+    <text x="820" y="501" class="edge" text-anchor="middle">loads</text>
+    <path d="M1316 530 H1474" class="connector"/>
+    <text x="1395" y="481" class="edge" text-anchor="middle">authors &amp;</text>
+    <text x="1395" y="513" class="edge" text-anchor="middle">reconciles</text>
+  </g>
+  <g id="catalog">
+    <text x="1105" y="757" font-size="34" font-weight="700" text-anchor="middle" fill="#5C4486">Artifact catalog</text>
+    <text x="1105" y="802" class="detail" text-anchor="middle" style="fill:#685780">Templates · prompts · rules</text>
+    <path d="M1160 707 V636" class="dependency"/>
+    <text x="1138" y="678" class="edge input" text-anchor="end">guides</text>
+  </g>
+  <g id="project-scope">
+    <path d="M440 728 H465 L477 740 V777 H440 Z M465 728 V741 H477" fill="none" stroke="#70638F" stroke-width="2.5" stroke-linejoin="round"/>
+    <text x="500" y="756" font-size="34" font-weight="700">.helix.yml</text>
+    <text x="500" y="798" class="detail">Project scope</text>
+    <path d="M716 756 H786 Q798 756 798 744 V678 Q798 666 810 666 H990 V636" class="dependency"/>
+    <text x="884" y="708" class="edge input" text-anchor="middle">bounds</text>
+  </g>
+  <g id="governance-return">
+    <path d="M1645 646 V925 Q1645 945 1625 945 H400 Q380 945 380 925 V602 Q380 590 392 590 H414" fill="none" stroke="#176F69" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#return-arrow)"/>
+    <rect x="770" y="923" width="690" height="44" fill="#FAF9F5"/>
+    <text x="1115" y="954" font-size="28" font-weight="500" text-anchor="middle" fill="#176F69">Documents govern authorized execution</text>
+  </g>
+  <g id="legend">
+    <path d="M98 996 H140" stroke="#26364A" stroke-width="3"/>
+    <text x="156" y="1004" font-size="24" fill="#516071">Action or information</text>
+    <path d="M470 996 H512" stroke="#70638F" stroke-width="2.5" stroke-dasharray="7 8"/>
+    <text x="528" y="1004" font-size="24" fill="#516071">Guidance or constraint</text>
+    <text x="1818" y="1004" font-size="24" text-anchor="end" fill="#516071">Current system · solution overview</text>
+  </g>
+</svg>

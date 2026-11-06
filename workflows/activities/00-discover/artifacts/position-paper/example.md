@@ -2,7 +2,6 @@
 ddx:
   id: PP-001
   type: position-paper
-  status: draft
   authoring:
     home: repo
   links:

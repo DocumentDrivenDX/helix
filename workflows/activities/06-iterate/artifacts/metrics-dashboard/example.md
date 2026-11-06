@@ -11,7 +11,6 @@ ddx:
 
 **Review Window**: 2026-05-05 - 2026-05-12
 **Baseline**: FEAT-001 pre-release benchmark floor from 2026-05-05
-**Status**: complete
 
 ## Decision
 

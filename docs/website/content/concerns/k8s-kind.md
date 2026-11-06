@@ -54,7 +54,6 @@ services need service discovery, ingress, or multi-container orchestration.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: Kubernetes + kind (Helm, reproducible images) as deployment topology — not docker-compose
 - IMPLEMENTATION_PLAN: Helm charts + env values files, image-build/tag, kind create + install + port-forward workflow
 
 ## Practices by activity

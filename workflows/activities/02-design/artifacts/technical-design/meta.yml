@@ -31,6 +31,9 @@ validation:
     - testing
 
   quality_checks:
+    - check: umf_schema_basis_explicit
+      description: For new or changed schemas, structured interfaces, or domain models, identify inspected UMF definitions and pinned versions, reuse/composition or a specific justified exception, local additions, semantic/projection limits, authoritative source references and supported validation evidence; narrative-only work requires no model
+      severity: blocking
     - check: formal_methods_scope_and_evidence
       description: For selected formal-methods, semantic review checks slice applicability, chosen rigor, requirement-linked specification, assumptions/bounds, non-vacuity, reproducible evidence and code/test correspondence; unaffected slices record exclusion without analyzer/proof runs; model evidence never replaces implementation verification
       severity: blocking
@@ -167,10 +170,6 @@ references:
 workflow:
   creation_order: 1  # First artifact in design activity for a story
   review_cycles: 1-2
-  approval_required: true
-  approvers:
-    - Technical Lead
-    - Senior Developer
 
 relationships:
   informed_by:
@@ -198,3 +197,8 @@ tags:
 
 version: 1.0.0
 last_updated: 2024-01-19
+
+# The visuals this type usually draws, each only when it earns its place (references/visuals.md).
+visuals:
+  - {kind: sequence, form: lifelines, question: "What happens, step by step, in the designed interaction?", source: "the design's interaction section"}
+  - {kind: state, form: machine, question: "What states can the designed component be in?", source: "the design's state section"}

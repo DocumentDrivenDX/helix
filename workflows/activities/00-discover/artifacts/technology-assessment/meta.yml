@@ -35,14 +35,13 @@ output:
     - TA-001-relational-databases-for-transactional-apps.md
 
 reuse_policy: |
-  Update in place while draft or in review. Once approved, a change to a
+  Update in place until an issued document cites it. After that, a change to a
   finding is a new revision; documents that cite the assessment pin the
   revision they read. When a cited brief changes, re-read the affected
   criteria and record the date.
 
 validation:
   pin_links:
-    at_status: [approved]
     kinds: [informed_by, evaluates, supported_by]
 
   required_sections:
@@ -76,8 +75,8 @@ validation:
       description: Where two sources conflict, both are cited in Contradictions and Gaps and the conflict is linked with `contradicts`; it is not resolved silently
       severity: blocking
 
-    - check: briefs_pinned_when_approved
-      description: Once approved, every cited technology brief carries the revision it was read at
+    - check: briefs_pinned_at_publish
+      description: At the publish tier, every cited technology brief carries the revision it was read at
       severity: blocking
 
 prompts:
@@ -89,11 +88,6 @@ template:
 example:
   file: example.md
 
-workflow:
-  review_cycles: 1
-  approval_required: true
-  approvers:
-    - Technical Lead
 
 relationships:
   informed_by:

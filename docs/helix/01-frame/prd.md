@@ -86,7 +86,21 @@ loop: plan, execute, measure, and adapt through specs, beads, runs, evidence,
 metrics, and staleness. Other runtimes can implement the same handoff with
 their own execution surfaces.
 
+### Living-document behavior
+
+Committed artifacts express current working intent without a separate document
+approval lifecycle. Agents prioritize material gaps that affect user outcomes,
+requirements, scope, safety, design choices, or completion evidence. Light drift,
+old lifecycle labels, missing review stamps, and incomplete graph edges do not
+by themselves block authorized work or justify separate housekeeping tasks.
+Resolve ordinary drift from higher authority within the requested task. Keep
+implementation progress in the relevant plan, selected work item, or factual
+report. Preserve explicit domain approvals and evidence for completion claims.
+
 ### Success Metrics
+
+These product goals inform learning and priorities. They do not gate
+implementation, version progression, release, or engineering completion.
 
 | Metric | Target | Measurement Method | Timeline |
 |---|---|---|---|
@@ -98,7 +112,7 @@ their own execution surfaces.
 
 ### Non-Goals
 
-- HELIX will not provide a CLI, tracker, queue, or execution engine.
+- HELIX will not provide a CLI, tracker, queue, or execution engine. The skill never requires a tool; the repository hosts one optional host tool, documentor (R-13), that adopters may run and need not install.
 - HELIX will not impose technology choices or fork by language ecosystem.
 - HELIX will not replace product, design, or architectural judgment.
 - HELIX will not hard-code one autonomy level: autonomy is a first-class, controllable spectrum (review-every-edit → full one-shot). HELIX expresses the autonomy policy; a capable runtime supplies the agency. (HELIX still ships no execution engine of its own — see above.)
@@ -216,6 +230,30 @@ as done. Rendering to `.pptx`, PDF, or HTML is optional host tooling: a
 host without it stops after the script and names a host that can render.
 The skill body stays runtime-neutral (R-4).
 
+**R-13: Repository guide.** The `guide` workflow mode projects governed
+artifacts and code into the pages a repository's readers need: developers,
+operators, users, and data consumers, each page one Diátaxis kind with a
+reader task, an outline, and a budget, in the `onboarding` or `public-site`
+voice profile. Every page carries a provenance header naming its sources with
+digests; a deterministic check fails when a source moved, a generated page
+would differ, a page is missing or unreviewed, a link or path breaks, or a
+page matches a handling pattern. Detection, generated pages, architecture
+views, the check, and the site are optional host tooling: documentor, a
+package in this repository under `tools/documentor/`, outside the skill and
+never copied into an install. A host without it does each step by hand and
+says so.
+The skill body stays runtime-neutral (R-4).
+
+**R-14: UMF-based design and schema publication.** For new or changed schemas,
+structured interfaces, and domain models, design workflows inspect UMF core,
+extensions and domain packs and reuse suitable definitions by default. A specific
+gap justifies an alternative. Exact shapes have one authoritative source;
+Contracts explain behavior and compatibility. Versioned local schema references
+are discoverable by the publishing pipeline, which renders them using the UMF
+schema browser with source provenance and definition links. Publication validates
+references and freshness; rendering does not establish semantic conformance.
+Narrative-only work requires no model or runtime dependency.
+
 #### P2
 
 **R-10: Catalog versioning.** Artifact-type changes are reviewable; consumers
@@ -261,6 +299,13 @@ script exists under the flow root, the deliverable gate reports zero
 blocking findings, every number in a body appears in Sources, and on a
 host without the render toolchain the run ends with the script and a
 statement of which host renders it.
+
+**R-13 (repository guide):** Given a repository whose `.helix.yml` names an
+audience, when a section a page cites changes, then the check reports the page
+stale and exits non-zero, and passes after the page is regenerated and
+reviewed; on a host without documentor the pages are written with headers,
+unstamped sources carry `sha256:-`, and the handoff names the steps done by
+hand.
 
 ### Technical Context
 
@@ -315,7 +360,7 @@ package uses whatever metadata format its target requires.
 | Align mode produces noisy or wrong findings | Medium | High | The routing skill's alignment behavior is a primary development focus; quality criteria in templates are explicit and testable; ratchets on finding precision |
 | Old HELIX work leaks runtime coupling into new content | Medium | Medium | Keep the product boundary explicit; automated check on each release for runtime refs in skill body |
 | Documentation staleness | Medium | Medium | The `align` workflow mode catches stale documents; HELIX dogfoods its own catalog |
-| Transferability — HELIX cannot be taught without its creator present | Medium | High | Onboarding doc is P1 deliverable; new-teammate review gates the next release |
+| Transferability — HELIX cannot be taught without its creator present | Medium | High | Onboarding doc is P1 deliverable; verify the documented installation and first-run path with a bounded onboarding scenario |
 
 ## Open Questions
 

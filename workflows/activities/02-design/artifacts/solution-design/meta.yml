@@ -34,6 +34,17 @@ validation:
     - traceability
 
   quality_checks:
+    - check: umf_schema_basis_explicit
+      description: For new or changed schemas, structured interfaces, or domain models, identify inspected UMF definitions and pinned versions, reuse/composition or a specific justified exception, local additions, semantic/projection limits, authoritative source references and supported validation evidence; narrative-only work requires no model
+      severity: blocking
+    - check: presentation_visual_review
+      description: When presentation quality is requested, apply diagram-design guidance and review rendered readability, semantic parity, exports, and stated limits
+      severity: warning
+
+    - check: walkthrough_evidence
+      description: When included, a walkthrough labels current/proposed state and traces a critical flow, failure paths, source ownership, proving tests, verification limits, and update triggers
+      severity: warning
+
     - check: diagnostic_flow_owned
       description: For applicable o11y-otel practices, cross-component signal flow and ownership reference system decisions and shared Contracts without defining exact telemetry surfaces
       severity: warning
@@ -165,10 +176,6 @@ references:
 workflow:
   creation_order: 1
   review_cycles: 1-2
-  approval_required: true
-  approvers:
-    - Technical Lead
-    - Product Lead
 
 relationships:
   informed_by:
@@ -196,3 +203,9 @@ tags:
 
 version: 1.0.0
 last_updated: 2026-03-27
+
+# The visuals this type usually draws, each only when it earns its place (references/visuals.md).
+visuals:
+  - {kind: structure, form: entities, question: "What does the domain model hold?", source: "the Domain Model section"}
+  - {kind: sequence, form: lifelines, question: "How do the components interact, in order?", source: "the Component Interactions section"}
+  - {kind: state, form: machine, question: "What states can the solution's main object be in?", source: "the design's state section"}

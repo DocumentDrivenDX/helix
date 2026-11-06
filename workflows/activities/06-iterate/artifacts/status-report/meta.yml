@@ -4,7 +4,7 @@ artifact:
   type: document
   activity: iterate
 
-voice: artifact-signal
+voice: human-facing
 
 description: |
   Point-in-time record of an iteration against its plan: outcome status with
@@ -62,3 +62,10 @@ tags:
   - iteration
 
 version: 1.0.0
+prose:
+  audience: human
+
+# The visuals this type usually draws, each only when it earns its place (references/visuals.md).
+visuals:
+  - {kind: metric, form: stat, question: "Is each number where it should be?", source: "the report's metrics"}
+  - {kind: metric, form: line, question: "How has each number changed?", source: "the report's metric history"}

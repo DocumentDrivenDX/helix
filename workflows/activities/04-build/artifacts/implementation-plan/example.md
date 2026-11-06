@@ -28,7 +28,7 @@ or match generation.
 ## Shared Constraints
 
 - API-001 is normative.
-- Failing tests from STP-001 must exist before behavior implementation.
+- Reuse coverage mapped in STP-001; add failing tests for missing behavior where useful.
 - Raw CSV row values must not appear in logs.
 - Storage failure must not leave partial session metadata.
 - Build slices should stay small enough for review and rollback.
@@ -67,7 +67,7 @@ dependency, audit, and closure requirements. Do not discover tracker binaries.
 
 ## Validation Plan
 
-- [ ] Failing tests exist before implementation starts for each slice.
+- [ ] Existing coverage and missing behavioral proof are identified for each slice.
 - [ ] B-001 passes repository tests.
 - [ ] B-002 passes upload service tests and log-redaction assertions.
 - [ ] B-003 passes API-001 contract tests.

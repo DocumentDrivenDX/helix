@@ -1,0 +1,43 @@
+# Pages for someone who deploys, configures, or runs the system.
+id: operator
+title: Operators
+reader: Someone who deploys, configures, or keeps the system running.
+voice: onboarding
+watch:
+  - "{helix}/05-deploy/**/*.md"
+  - "docs/infra/*.md"
+pages:
+  - id: index
+    title: Deployment
+    kind: how-to
+    task: Know what deploys where, what triggers each deploy, and how to check one succeeded.
+    budget: 1000
+    outline: [Environments, What triggers a deploy, Prerequisites, Checking a deploy, Rolling back]
+    sources:
+      - artifact: architecture
+        sections: [deployment]
+      - artifact: runbook
+      - artifact: release-notes
+        sections: [required-actions-summary, migration-or-rollback-guidance]
+        note: the newest release's required actions and rollback, when the project keeps release notes
+      - code: deployment bundle, CI workflows, infrastructure notes
+  - id: configuration
+    title: Configuration
+    kind: reference
+    task: Find each setting the deployed system reads, where its value comes from, and what it changes.
+    budget: 1200
+    outline: [Where settings come from, Settings by area, Tools and integrations, Secrets and identity]
+    sources:
+      - artifact: contract
+        note: the configuration contract, when the project has one
+      - code: deployment bundle and configuration files
+  - id: operations
+    title: Operations
+    kind: how-to
+    task: Diagnose a failure, find the logs and traces, and run the routine procedures.
+    budget: 1200
+    outline: [Health and readiness, Logs and traces, Common failures, Routine procedures]
+    sources:
+      - artifact: runbook
+      - artifact: monitoring-setup
+      - code: readiness and health endpoints, logging and tracing setup

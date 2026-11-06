@@ -59,11 +59,6 @@ references:
 workflow:
   creation_order: 2
   review_cycles: 2-3
-  approval_required: true
-  approvers:
-    - Sponsor
-    - Finance Lead
-    - Business Stakeholder
 
 relationships:
   depends_on:

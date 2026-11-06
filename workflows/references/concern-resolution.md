@@ -30,11 +30,64 @@ Domain and technology concerns are project-specific. The source-code baseline
 below is an applicability obligation, independent of optional concern selection.
 A missing concerns file does not make source feature work execution-ready.
 
+## New-project quality defaults
+
+Genesis and Frame seed applicable quality concerns in a new `concerns.md` with
+`source: shipped-default`. Apply these to the intended product even before its
+first source file exists:
+
+| Product signal | Initial quality concerns |
+|---|---|
+| Software will be implemented | `testing`, `verification`, `modularity-and-encapsulation`, `code-shape-ceilings` |
+| Running application or service | `o11y-otel` |
+| Interactive web UI | `a11y-wcag-aa`; resolve `e2e-framework` through the slot registry (default `e2e-playwright`) |
+| Relational storage | `relational-data-modeling` |
+
+Keep operator-selected slot fillers. Present the seeded list for pruning and
+record each omission with its applicability reason or selected replacement.
+These defaults do not silently expand an existing project's selections.
+The source-code baseline below still applies: pruning cannot waive its evidence
+floor without the explicit exception contract. The initial selection source is
+`shipped-default`; record baseline applicability evidence alongside it. Source-free
+work records non-applicability instead of acquiring software quality obligations.
+
+## Project-owned slot fillers
+
+A slot without a shipped member/default is intentional: HELIX need not select a
+database engine or cloud provider for every project. For Entra ID, Azure SQL,
+and Azure Static Web Apps plus Functions, use project-owned fillers until a
+reusable concern has verified practices. A bare row with an invented library ID
+is insufficient.
+
+1. Record `auth-provider: auth-entra-id`, `datastore: datastore-azure-sql`, and
+   `deploy-target: deploy-azure-swa-functions` in `concerns.local.yml` when these
+   are the operator's choices. This is an override of needed slots, not three
+   additional selections alongside their defaults.
+2. Create project-owned `concern.md` and `practices.md` for each under
+   `docs/helix/01-frame/concerns/<id>/`. Give each concern Category, Areas, Slot,
+   Boundary, Components, Drift Signals, When to use, and Artifact Impact sections.
+   Link both files from the Active Concerns row and mark `source: operator-override`.
+3. Resolve these explicitly linked local files before the library path when
+   composing practices. A missing file is an unresolved concern, not evidence
+   that the selected practice exists. Runtime loaders must support those local
+   paths or the host must load them explicitly; a row alone is not automatic
+   runtime integration.
+4. In those practices, define and verify the project's identity boundary and
+   tenant policy, database access/migrations/restore policy, hosting routes and
+   configuration, and deployment/rollback evidence. Cite the project's governing
+   architecture and test plan. Do not invent provider-specific guarantees.
+
+This keeps technology choices concrete without shipping untested Azure advice
+as a universal default. Library contribution is a later, independently verified
+change; local fillers compose with `auth`, `authorization-model`, and
+`relational-data-modeling` rather than replacing them.
+
 ## Source-code baseline (all autonomy levels)
 
 For handwritten source, including libraries and single-file programs, select
 `modularity-and-encapsulation` (`areas: all`) at low, medium, and high autonomy.
-Record the applicability evidence and selection source as `baseline-policy`;
+Record the applicability evidence and selection source (`shipped-default` for a new
+quality-default selection; `baseline-policy` for a later baseline adoption);
 autonomy changes pauses, never this obligation. Source-free projects record a
 reason for non-applicability; unknown applicability must be resolved before
 source feature work is ready. Genesis records applicability or an unresolved
@@ -107,10 +160,16 @@ label or assign multiple labels.
 
 1. Parse the active concerns document for selected concerns (listed under
    `## Active Concerns`).
-2. Filter to concerns matching the current work item's area scope.
-3. For each matched concern, load
+2. Compose `ux-interaction-patterns` when `ux-radix`,
+   `packaged-design-system`, or `databricks-appkit-ui` is selected. Load its practices
+   as well as the adapter practices; retain the explicit selection document.
+   This bounded composition preserves existing UI selections, adds no library
+   choice and is implemented by the context-digest loader.
+3. Filter to concerns matching the current work item's area scope.
+4. For each matched concern, load
+   the explicitly linked project-owned practices when selected; otherwise load
    `workflows/concerns/<concern-name>/practices.md` from the library.
-4. Apply project overrides (listed under `## Project Overrides` in the
+5. Apply project overrides (listed under `## Project Overrides` in the
    concerns document) on top of library practices.
 
 Project overrides take full precedence subject to the source-code baseline evidence floor and explicit exception contract above.
@@ -183,17 +242,13 @@ selection by the active autonomy level (FEAT-011; see `workflows/actions/input.m
 2. Map the nature to candidate library concerns — e.g. web app → a tech-stack
    concern + a frontend concern + `a11y-wcag-aa`; API service → tech-stack +
    `o11y-otel` + `security-owasp`.
-2a. **Auto-select `verification` for any buildable product.** `verification` is
-   the always-on **evidence gate** ("not done until observed evidence of the
-   running system exists"); it is composable (no slot) and composes on top of
-   `testing` and the `e2e-framework` slot — it does not replace either. Add it
-   to the inferred selection for every buildable product, recorded as an
-   assumption. **Exceptions are narrow**: only library / docs-only / non-buildable
-   work (no running stack to exercise) may omit `verification`. A buildable
-   product where full-stack e2e is genuinely infeasible **still selects
-   `verification`** — it only *relaxes the full-stack-e2e form of evidence*,
-   recording the specific reason and substituting the strongest observable
-   evidence available. See `workflows/concerns/verification/concern.md`.
+2a. **Auto-select `verification` for any buildable product.** It requires
+   observed evidence at the justified layer. Changed runtime boundaries need
+   real-path proof; internal or mechanical work may already have sufficient
+   regression, unit or compile checks. Full-stack E2E is not required for every
+   criterion. If a required boundary exercise is infeasible, use the strongest
+   observable substitute under `workflows/concerns/verification/concern.md`.
+
 2a-i. **Auto-select `code-shape-ceilings` for any buildable product with
    hand-written source.** It is composable (no slot) and owns the complexity,
    function, class, and file-size ceilings, the ceilings-only-go-down check, and
@@ -268,7 +323,7 @@ selection by the active autonomy level (FEAT-011; see `workflows/actions/input.m
    assumption) only for trivial CRUD.
 2g. **Record each selected concern's `## Artifact Impact` into `concerns.md`** (and its context
    digest). Each concern's `concern.md` declares, under `## Artifact Impact`, which artifacts its
-   selection must change (ADR / FEAT / TD / DATA_DESIGN / IMPLEMENTATION_PLAN / DESIGN_SYSTEM / …).
+   selection must change (FEAT / TD / DATA_DESIGN / IMPLEMENTATION_PLAN / DESIGN_SYSTEM / …).
    Carrying that forward is what makes the downstream framing/design/build prompts realize it and
    lets reconcile-alignment's **Concern→Artifact Realization** check verify it — a selected concern
    that leaves no trace in its declared artifacts is drift.
@@ -406,21 +461,22 @@ than rediscovered when the build breaks.
 
 ## Relationship to ADRs and Spikes
 
-Concerns are the index; ADRs provide the rationale; spikes provide the
-evidence:
+Selecting a concern needs no ADR: `concerns.md` records the selection and its
+rationale. An ADR records a **deviation** — a project override of, or departure
+from, a constraint or practice in a concern.
 
 ```
 Spike/POC (gather evidence)
-  → ADR (record decision with rationale)
-    → Concern (index for context assembly)
-      → Context Digest (injected into work items)
+  → finding lands in the design artifact (TD / Architecture / DATA_DESIGN)
+    → ADR only if the finding drives a deviation from a concern
+      → Project Overrides in concerns.md cite the ADR
 ```
 
-- A spike or POC investigates a question.
-- An ADR records the decision with rationale, citing the spike.
-- The concern references the ADR in its `## ADR References` section.
-- Project overrides that depart from library defaults must cite the
-  governing ADR.
+- A spike or POC investigates a question; its finding lands in the design
+  artifact, not a new ADR, unless it drives a deviation.
+- An ADR for a deviation records the decision with rationale, citing the spike.
+- Project overrides that depart from library defaults must cite the governing
+  ADR.
 
 When a referenced ADR is superseded, `/helix polish` must flag the
 affected concern for re-evaluation.
@@ -516,3 +572,28 @@ an allegedly unrelated change to a modeled guard still requires rechecking.
 See `workflows/references/formal-methods.md`. Missing scope, stale evidence or
 unreviewed correspondence blocks the affected assurance claim, not unrelated
 work or legacy artifact structural validity.
+
+## UX adoption and readiness
+
+For affected new or changed interactive UI work, apply ux-interaction-patterns
+and the selected component owner. A missing STP UX Coverage map is a blocking
+readiness/adoption finding, not retroactive invalidity of legacy instances.
+Static content and API-only work need no invented interactions. Check/Polish
+identify gaps; Frame/Evolve applies an authorized adoption update. No silent
+re-selection of existing projects.
+
+When an applicable design system is available as npm packages, use it and
+record availability, compatibility, package identity and installed-version
+integration evidence under packaged-design-system. For existing selections,
+apply an authorized adoption update; do not silently change libraries. Without
+an available suitable package, use the selected alternative or a project-owned
+concern. HELIX does not depend on a private design-system product.
+
+Framework and hosting selection do not add competing component libraries.
+Resolve component-owner and styling/toolchain conflicts through project
+overrides, citing the governing ADR where required.
+
+Use workflows/references/ux-evidence.md for the scoped coverage format. Carry
+its adoption obligation in compact context, verify full practices at execution,
+and require observed interaction results plus declared package/project quality
+check results before completion. Structure alone is not runtime proof.

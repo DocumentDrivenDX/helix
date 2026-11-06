@@ -2,7 +2,6 @@
 ddx:
   id: TA-001
   type: technology-assessment
-  status: draft
   authoring:
     home: repo
   links:

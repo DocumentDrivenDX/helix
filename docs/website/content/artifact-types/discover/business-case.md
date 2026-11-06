@@ -24,6 +24,11 @@ Vision owns direction; PRD owns what to build.
 - **Compare alternatives** - include the cost of doing nothing or delaying.
 - **Separate facts from assumptions** - mark unvalidated estimates clearly.
 
+Product and market evidence informs investment and scope decisions. Do not
+turn recruitment, adoption, revenue, or willingness-to-pay targets into
+prerequisites for authorized design, implementation, version progression, or
+release. Record research goals and uncertainty separately from delivery checks.
+
 <details>
 <summary>Quality checklist from the prompt</summary>
 
@@ -59,8 +64,8 @@ DepositMatch is a focused reconciliation workspace for bookkeeping firms that
 are losing reviewer capacity to manual deposit matching. The recommended
 investment is a three-month pilot build for CSV import, evidence-backed match
 review, and exception ownership. The expected return is increased client
-capacity for pilot firms and a paid product path if weekly reconciliation time
-falls below 3 minutes per client.
+capacity for pilot firms. Weekly reconciliation below 3 minutes per client is
+a product-outcome hypothesis to measure independently of release readiness.
 
 ## Opportunity Sizing
 
@@ -109,7 +114,7 @@ plan validates demand, market counts, and willingness to pay.
 |------|-------------|--------|------------|
 | CSV exports vary too much for a reliable pilot | High | Medium | Recruit pilots across at least three accounting systems and build per-client mapping. |
 | Reviewers distrust suggested matches | Medium | High | Make evidence visible before approval and require reviewer acceptance. |
-| Firms will not pay enough for a narrow workflow | Medium | High | Validate willingness to pay before expanding beyond pilot scope. |
+| Firms will not pay enough for a narrow workflow | Medium | High | Research willingness to pay to inform pricing and future investment. |
 
 ## Strategic Alignment
 
@@ -123,16 +128,18 @@ integrations, but it learns faster about reviewer trust and weekly time savings.
 
 ## Recommendation
 
-**Decision**: Conditional Go
+**Decision**: Go for the bounded pilot
 
 **Rationale**: The opportunity is attractive if the pilot proves time savings
-and reviewer trust with CSV-first workflows. The investment should stay bounded
-until willingness to pay and CSV variability are validated.
+and reviewer trust with CSV-first workflows. Review willingness-to-pay and CSV
+variability evidence when considering additional investment. The proposed
+funding covers the pilot only; further spend needs a new sponsor decision.
+Pilot engineering completion is assessed against its delivery criteria.
 
-**Conditions**:
+**Research Actions**:
 
-- Recruit at least five pilot firms before expanding beyond CSV import and
-  review.
+- Recruit five pilot firms as a research target, independently of development
+  and release readiness.
 - Measure median reconciliation time and suggestion acceptance accuracy during
   the first two months.
 ``````
@@ -148,7 +155,7 @@ until willingness to pay and CSV variability are validated.
 <tr><th>Requires</th><td><em>None</em></td></tr>
 <tr><th>Enables</th><td><em>None</em></td></tr>
 <tr><th>Informs</th><td><a href="../../../artifact-types/discover/opportunity-canvas/">Opportunity Canvas</a><br><a href="../../../artifact-types/frame/prd/">PRD</a><br><a href="../../../artifact-types/discover/resource-summary/">Resource Summary</a></td></tr>
-<tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Business Case Prompt&#10;&#10;Create a business case that justifies investment with market sizing, ROI, and risk assessment.&#10;&#10;## Reference Anchors&#10;&#10;Use this local resource summary as grounding:&#10;&#10;- `docs/resources/apm-business-case.md` grounds benefits, costs, risks,&#10;  alternatives, and preferred-option rationale.&#10;- `docs/resources/sba-market-research-competitive-analysis.md` grounds market&#10;  sizing, demand, pricing, and competitive evidence expectations.&#10;&#10;## Storage Location&#10;&#10;Store at: `docs/helix/00-discover/business-case.md`&#10;&#10;## Purpose&#10;&#10;Answers: **Should we invest in this opportunity?** Keep the case short, quantified, and decision-oriented.&#10;&#10;The business case is not the Product Vision or PRD. It owns investment logic:&#10;benefit, cost, risk, alternatives, strategic fit, and recommendation. Product&#10;Vision owns direction; PRD owns what to build.&#10;&#10;## Key Principles&#10;&#10;- **Quantify the decision** - use ranges, source labels, and confidence levels.&#10;- **Be explicit about risk** - show impact and mitigations.&#10;- **Show strategic fit** - connect to company goals and timing.&#10;- **Compare alternatives** - include the cost of doing nothing or delaying.&#10;- **Separate facts from assumptions** - mark unvalidated estimates clearly.&#10;&#10;## Quality Checklist&#10;&#10;- [ ] Market sizing distinguishes sourced facts from assumptions&#10;- [ ] Investment estimate is realistic&#10;- [ ] ROI assumptions are documented&#10;- [ ] Major risks identified with mitigations&#10;- [ ] Strategic fit is explicit&#10;- [ ] Recommendation follows from the numbers and alternatives</code></pre></details></td></tr>
+<tr><th>Generation prompt</th><td><details><summary>Show the full generation prompt</summary><pre><code># Business Case Prompt&#10;&#10;Create a business case that justifies investment with market sizing, ROI, and risk assessment.&#10;&#10;## Reference Anchors&#10;&#10;Use this local resource summary as grounding:&#10;&#10;- `docs/resources/apm-business-case.md` grounds benefits, costs, risks,&#10;  alternatives, and preferred-option rationale.&#10;- `docs/resources/sba-market-research-competitive-analysis.md` grounds market&#10;  sizing, demand, pricing, and competitive evidence expectations.&#10;&#10;## Storage Location&#10;&#10;Store at: `docs/helix/00-discover/business-case.md`&#10;&#10;## Purpose&#10;&#10;Answers: **Should we invest in this opportunity?** Keep the case short, quantified, and decision-oriented.&#10;&#10;The business case is not the Product Vision or PRD. It owns investment logic:&#10;benefit, cost, risk, alternatives, strategic fit, and recommendation. Product&#10;Vision owns direction; PRD owns what to build.&#10;&#10;## Key Principles&#10;&#10;- **Quantify the decision** - use ranges, source labels, and confidence levels.&#10;- **Be explicit about risk** - show impact and mitigations.&#10;- **Show strategic fit** - connect to company goals and timing.&#10;- **Compare alternatives** - include the cost of doing nothing or delaying.&#10;- **Separate facts from assumptions** - mark unvalidated estimates clearly.&#10;&#10;Product and market evidence informs investment and scope decisions. Do not&#10;turn recruitment, adoption, revenue, or willingness-to-pay targets into&#10;prerequisites for authorized design, implementation, version progression, or&#10;release. Record research goals and uncertainty separately from delivery checks.&#10;&#10;## Quality Checklist&#10;&#10;- [ ] Market sizing distinguishes sourced facts from assumptions&#10;- [ ] Investment estimate is realistic&#10;- [ ] ROI assumptions are documented&#10;- [ ] Major risks identified with mitigations&#10;- [ ] Strategic fit is explicit&#10;- [ ] Recommendation follows from the numbers and alternatives</code></pre></details></td></tr>
 <tr><th>Template</th><td><details><summary>Show the template structure</summary><pre><code>---&#10;ddx:&#10;  id: business-case&#10;  authoring:&#10;    home: repo&#10;---&#10;&#10;# Business Case&#10;&#10;## Executive Summary&#10;&#10;[2-3 sentences: Opportunity, investment ask, expected return]&#10;&#10;## Opportunity Sizing&#10;&#10;| Market Tier | Size | Calculation | Source / Confidence |&#10;|-------------|------|-------------|---------------------|&#10;| TAM (Total) | $[X]M | [Methodology] | [Source or assumption, confidence] |&#10;| SAM (Serviceable) | $[X]M | [Methodology] | [Source or assumption, confidence] |&#10;| SOM (Obtainable) | $[X]M | [Methodology] | [Source or assumption, confidence] |&#10;&#10;**Key Assumptions**: [List assumptions underlying these numbers]&#10;&#10;## Investment Required&#10;&#10;| Category | Year 1 | Year 2 | Year 3 |&#10;|----------|--------|--------|--------|&#10;| Development | $[X] | $[X] | $[X] |&#10;| Infrastructure | $[X] | $[X] | $[X] |&#10;| Go-to-Market | $[X] | $[X] | $[X] |&#10;| Operations | $[X] | $[X] | $[X] |&#10;&#10;## Alternatives Considered&#10;&#10;| Option | Benefits | Costs / Limits | Decision |&#10;|--------|----------|----------------|----------|&#10;| [Option] | [Expected benefit] | [Cost, risk, or limitation] | [Carry forward / reject] |&#10;| Do nothing / delay | [Avoided cost] | [Opportunity cost and risk] | [Carry forward / reject] |&#10;&#10;## Expected ROI&#10;&#10;| Metric | Year 1 | Year 2 | Year 3 |&#10;|--------|--------|--------|--------|&#10;| Revenue/Value | $[X] | $[X] | $[X] |&#10;| Costs | $[X] | $[X] | $[X] |&#10;| Net | $[X] | $[X] | $[X] |&#10;&#10;**Breakeven**: [Month/Year] | **3-Year ROI**: [X]% | **Confidence**: [High/Medium/Low]&#10;&#10;## Risk Assessment&#10;&#10;| Risk | Probability | Impact | Mitigation |&#10;|------|-------------|--------|------------|&#10;| [Risk 1] | H/M/L | H/M/L | [Strategy] |&#10;| [Risk 2] | H/M/L | H/M/L | [Strategy] |&#10;&#10;## Strategic Alignment&#10;&#10;| Strategic Goal | How This Contributes |&#10;|----------------|---------------------|&#10;| [Company goal 1] | [Contribution] |&#10;| [Company goal 2] | [Contribution] |&#10;&#10;**Opportunity Cost**: [What we give up by doing this]&#10;&#10;## Recommendation&#10;&#10;**Decision**: Go | Conditional Go | No-Go&#10;&#10;**Rationale**: [2-3 sentences supporting recommendation]&#10;&#10;**Conditions** (if Conditional Go):&#10;- [Condition 1]&#10;- [Condition 2]</code></pre></details></td></tr>
 </tbody>
 </table>

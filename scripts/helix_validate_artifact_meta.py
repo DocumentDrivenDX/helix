@@ -4,6 +4,7 @@
 Checks:
 - required_sections must match template H2s.
 - artifact voice profile references must exist in workflows/voice.yml.
+- no generic document approval/status lifecycle in meta, templates, or examples.
 
 For every artifact under workflows/activities/<phase>/artifacts/<slug>/, read
 meta.yml and extract validation.required_sections (list of section IDs). Then
@@ -30,6 +31,39 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 ACTIVITIES_ROOT = REPO_ROOT / "workflows" / "activities"
 VOICE_REGISTRY = REPO_ROOT / "workflows" / "voice.yml"
+VISUAL_FORMS: dict[str, tuple[str, ...]] = {}
+VISUAL_ENTRY = re.compile(r"^\s+-\s*\{kind:\s*([\w-]+),\s*form:\s*([\w-]+),\s*question:\s*\S.*source:\s*\S")
+
+
+def visual_forms() -> dict[str, tuple[str, ...]]:
+    """The umf.visual kinds and forms, from the instance validator that checks them."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "validate_instance", REPO_ROOT / "skills" / "helix" / "scripts" / "validate-instance.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.VISUAL_FORMS
+
+
+def visual_problems(meta_text: str, forms: dict[str, tuple[str, ...]]) -> list[str]:
+    """Each `visuals:` entry is one line `{kind, form, question, source}` with a form of its kind."""
+    problems, inside = [], False
+    for line in meta_text.splitlines():
+        if re.match(r"^visuals:\s*$", line):
+            inside = True
+            continue
+        if inside and line and not line[0].isspace():
+            inside = False
+        if not inside or not line.strip():
+            continue
+        match = VISUAL_ENTRY.match(line)
+        if not match:
+            problems.append(f"visuals entry is not {{kind, form, question, source}} on one line: {line.strip()}")
+        elif match.group(2) not in forms.get(match.group(1), ()):
+            problems.append(f"visuals entry {match.group(1)}/{match.group(2)} is not a umf.visual kind and form "
+                            "(workflows/references/visuals.md)")
+    return problems
 
 
 def slugify(heading: str) -> str:
@@ -241,11 +275,67 @@ def iter_artifact_dirs() -> list[Path]:
     return dirs
 
 
+# Administrative sections an artifact type must not require.
+ADMIN_SECTIONS = frozenset({
+    "document_status", "document_approval_status", "document_approvals",
+    "document_review_history", "document_change_history", "trace_links",
+})
+LIFECYCLE_TERMS = (
+    r"draft|in review|review|approved|specified|complete|example|active|archived"
+    r"|not started|in progress|deprecated|superseded"
+)
+
+
+def check_lifecycle_defaults(meta_text: str, doc_text: str) -> list[str]:
+    """Keep generic approval machinery out of the shipped catalog.
+
+    This is a source-catalog guard, not a migration requirement for adopters.
+    Domain state (risk status, production go/no-go, etc.) is not matched.
+    """
+    failures = []
+    workflow = re.search(r"(?m)^workflow:[ \t]*\n((?:[ \t]+[^\n]*(?:\n|\Z)|\n)*)", meta_text)
+    if workflow and re.search(r"(?m)^[ \t]+(approval_required|approvers)\s*:", workflow.group(1)):
+        failures.append("workflow must not impose a generic document approval lifecycle")
+    if re.search(r"(?m)^[ \t]+(status_values|status_progression)\s*:", meta_text):
+        failures.append("meta must not define a document status lifecycle")
+    frontmatter = re.match(r"\A---\n(.*?)\n---(?:\n|$)", doc_text, re.S)
+    if frontmatter and re.search(
+        r"(?mi)^[ \t]+status:[ \t]*(draft|review|approved|deprecated|superseded)[ \t]*$",
+        frontmatter.group(1),
+    ):
+        failures.append("document must not seed lifecycle status frontmatter")
+    if re.search(
+        rf"(?mi)^\*\*Status:?\*\*:?[ \t]*\[?[ \t]*(?:\[[ x]?\][ \t]*)?(?:{LIFECYCLE_TERMS})\b",
+        doc_text,
+    ):
+        failures.append("document must not seed a lifecycle status header")
+    return failures
+
+
 def validate(art_dir: Path, default_voice_profile: str, voice_profiles: set[str]) -> list[str]:
     """Return a list of failure messages for this artifact (empty if clean)."""
     meta_path = art_dir / "meta.yml"
     template_path = art_dir / "template.md"
-    failures: list[str] = []
+    meta_text = meta_path.read_text(encoding="utf-8")
+    failures: list[str] = [
+        f"{art_dir.relative_to(REPO_ROOT)}: {message}"
+        for message in check_lifecycle_defaults(meta_text, "")
+    ]
+    for doc_path in sorted([template_path, *art_dir.glob("example*.md")]):
+        if doc_path.exists():
+            failures.extend(
+                f"{doc_path.relative_to(REPO_ROOT)}: {message}"
+                for message in check_lifecycle_defaults("", doc_path.read_text(encoding="utf-8"))
+            )
+    for section_id in extract_required_sections(meta_path) or []:
+        if section_id in ADMIN_SECTIONS:
+            failures.append(
+                f"{art_dir.relative_to(REPO_ROOT)}: required_section '{section_id}' "
+                "is document administration, not content"
+            )
+
+    for problem in visual_problems(meta_path.read_text(encoding="utf-8"), VISUAL_FORMS):
+        failures.append(f"{art_dir.relative_to(REPO_ROOT)}: {problem}")
 
     for voice_ref in extract_voice_references(meta_path, default_voice_profile):
         if voice_ref not in voice_profiles:
@@ -281,6 +371,8 @@ def validate(art_dir: Path, default_voice_profile: str, voice_profiles: set[str]
 
 
 def main() -> int:
+    global VISUAL_FORMS
+    VISUAL_FORMS = visual_forms()
     art_dirs = iter_artifact_dirs()
     all_failures: list[str] = []
     default_voice_profile, voice_profiles, registry_failures = load_voice_registry(VOICE_REGISTRY)
@@ -296,7 +388,7 @@ def main() -> int:
 
     print(
         f"OK: {len(art_dirs)} artifact type(s) validated "
-        "(required_sections <-> template H2s, voice profiles)"
+        "(required_sections <-> template H2s, voice profiles, visuals)"
     )
     return 0
 

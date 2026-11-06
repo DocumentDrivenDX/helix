@@ -43,7 +43,7 @@ owner; do not argue the decision away inside the brief.
    the strongest alternative, and what would change it.
 7. **Record risks and unknowns** with a route. An owner, date, or figure
    appears only if a project artifact states it.
-8. **Pin the evidence** before approval: every reference carries the revision
+8. **Pin the evidence** before publishing: every reference carries the revision
    it was read at.
 
 ## Writing for the reviewer

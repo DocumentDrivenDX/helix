@@ -8,7 +8,6 @@ ddx:
 # Feature Specification: FEAT-XXX — [Feature Name]
 
 **Feature ID**: FEAT-XXX
-**Status**: [Draft | Specified | Approved]
 **Priority**: [P0 | P1 | P2]
 **Owner**: [Team/Person]
 **Covered PRD Subsystem(s)**: [Subsystem name(s) from the PRD — normally exactly one]
@@ -42,7 +41,7 @@ of only reacting to current pain.]
 
 [For features with more than one surface or stage **within this one capability**,
 map the subordinate areas before writing requirements. Areas are parts of one
-capability — each fails the ship/cut/metric test on its own. Lists of roles,
+capability — each fails the ship/cut/outcome test on its own. Lists of roles,
 lifecycle stages, or distinct domain objects are usually *separate features*, not
 areas (apply the Decomposition test). Omit when the feature is a single narrow
 capability.]
@@ -50,6 +49,19 @@ capability.]
 | Area | User question or job | Feature responsibility |
 |------|----------------------|------------------------|
 | [Area] | [What the user needs to know or do] | [What this feature must provide] |
+
+## Task Model
+
+[Optional. For a feature people use directly: the tasks it supports, one row
+per task, named by what the person does. Users and Needs cite the PRD's User
+Segments and User Needs rows by name; Rules cite business rules (BR-n) in the
+solution design; Realized by names the journey or user flow that carries the
+task out. Key is a stable slug that tools use to link journeys to tasks; people
+need not read it. Omit when the feature has no interface.]
+
+| Task | Goal | Users | Needs | Rules | Realized by | Key |
+|------|------|-------|-------|-------|-------------|-----|
+| [What the person does] | [What is true when they are done] | [User Segments rows] | [User Needs rows] | [BR-1, BR-2] | [journey name, UF-XXX] | [task-slug] |
 
 ## Requirements
 
@@ -93,10 +105,8 @@ cases belong in the story file.]
 
 ## Success Metrics
 
-[How do we know this feature is working? Metrics specific to this feature,
-not the product-level metrics from the PRD.]
-
-- [Metric with target]
+[Optional learning indicators and observation methods specific to this feature.
+Omit when none informs a product decision.]
 
 ## Constraints and Assumptions
 

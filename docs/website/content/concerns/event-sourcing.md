@@ -209,18 +209,17 @@ storage is the simpler, correct choice (KISS/YAGNI).
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: event-sourcing for the named slice + event store + snapshot/upcasting + eventual-consistency window
-- TD: event store, rehydration/replay, projections/read-models, idempotent handlers, upcasters
+- TD: event store, rehydration/replay, projections/read-models, idempotent handlers, upcasters; states the event-sourced slice, event store, snapshot/upcasting strategy and eventual-consistency window
 - DATA_DESIGN: append-only eventstream as system of record; projections are rebuildable views
 - TEST_PLAN: replay rebuilds state; idempotent handler (no double-apply); compensating-event correction
 
 ## ADR References
 
-Record an ADR when selecting event sourcing for a given domain slice (it is a
-costly-to-reverse persistence decision), naming the slice, the
-audit/history/temporal justification, the event store choice, the
-snapshot/upcasting strategy, and the projections and their eventual-consistency
-window.
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only
+when the project deviates from a constraint here (for example in-place event
+migration). The slice, its audit/history/temporal justification, event store,
+snapshot/upcasting strategy, and projections with their eventual-consistency
+window belong in the TD.
 
 ## Practices by activity
 
@@ -246,7 +245,7 @@ not to every entity in the product.
 - Name the **aggregate / entity** whose eventstream this is (its boundary is the
   DDD aggregate's — defer to `domain-driven-design`), the **event store**, the
   **projections** to build, and the **eventual-consistency window** consumers
-  must tolerate. Record the selection in an ADR.
+  must tolerate. State these in the TD.
 
 ## Model events as immutable, intent-bearing facts
 

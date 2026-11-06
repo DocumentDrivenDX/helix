@@ -35,14 +35,13 @@ output:
     - PP-001-build-new-tooling-in-python.md
 
 reuse_policy: |
-  Update in place while draft or in review. Once approved, a change to the
+  Update in place until an issued document cites it. After that, a change to the
   thesis is a new revision; publications that cite it pin the revision they
   read. When a cited assessment changes, re-read the argument and record
   whether the thesis still holds.
 
 validation:
   pin_links:
-    at_status: [approved, published]
     kinds: [informed_by, evaluates, supported_by]
 
   required_sections:
@@ -79,8 +78,8 @@ validation:
       description: The paper says what it does not claim and the conditions under which the thesis would not hold
       severity: blocking
 
-    - check: assessments_pinned_when_approved
-      description: Once approved, every cited assessment, brief, and source carries the revision it was read at
+    - check: assessments_pinned_at_publish
+      description: At the publish tier, every cited assessment, brief, and source carries the revision it was read at
       severity: blocking
 
 prompts:
@@ -92,11 +91,6 @@ template:
 example:
   file: example.md
 
-workflow:
-  review_cycles: 1
-  approval_required: true
-  approvers:
-    - Technical Lead
 
 relationships:
   informed_by:

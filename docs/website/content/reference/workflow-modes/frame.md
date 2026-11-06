@@ -16,7 +16,8 @@ stories.
    recorded that none apply to source-free work with a reason); shipping feature specs with no concern decision is
    a framing gap, not an acceptable default-empty state. At `low`/`medium`,
    drive selection interactively by category (tech stack, data, infrastructure,
-   quality). At `high`, infer the selection from the product's nature and record
+   quality), explaining the choices and recommending applicable selections
+   under the skill's planning-question discipline. At `high`, infer the selection from the product's nature and record
    each inferred concern as an assumption. Fill each needed exclusive slot per
    the Concern slot resolution section below and record the chosen filler plus its source in
    `concerns.md`. Selection signals: a UI web app needs `frontend-framework`
@@ -32,6 +33,11 @@ stories.
    content sites, or read-only dashboards unless an operator UI is explicitly
    required. Selection happens here, once; propagation to work items is a
    later gate owned by `check`/`polish`, not a re-selection.
+   For a new selection, seed the applicable New-project quality defaults in
+   `workflows/references/concern-resolution.md` with `source: shipped-default`;
+   offer pruning with recorded reasons and retain operator-selected slot fillers.
+   Planned software counts even before code exists. Existing selections require
+   explicit adoption; do not silently append defaults.
 3. Read the relevant artifact template, prompt, meta.yml, and active voice
    profile before drafting.
 4. Keep each artifact in its lane:

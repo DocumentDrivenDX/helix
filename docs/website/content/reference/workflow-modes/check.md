@@ -13,7 +13,8 @@ straddles two or more flows declared in the marker (e.g. the prompt
 names a data-pipeline artifact whose blocker is an infra prerequisite).
 
 1. Inspect the requested scope, relevant governing artifacts, and known
-   blockers. Consult work tracking only when it informs the question.
+   engineering blockers. Apply `workflows/principles.md` §Product goals and
+   delivery gates. Consult work tracking only when it informs the question.
 2. Decide conservatively among design, alignment, backfill, polish, runtime
    handoff, wait, guidance, or stop.
 3. Do not dispatch another workflow silently.
@@ -73,10 +74,12 @@ Cross-flow contract (every cross-flow ask):
    the prompt references (e.g. `monitoring-setup.md`,
    `data-product-brief.md`, `prd-*.md`) BEFORE proposing any action.
    For each upstream named in `ddx.links:` or `informs` edges that
-   the answer depends on, Read it too. Treat a link with a `graph:` key or
-   outside the flow as advisory unless the flow's profile grants `governing`;
-   list any `contradicts` links in the answer as items for review. Catalogue which artifacts
-   exist (with path + status from frontmatter) and which are missing.
+   the answer depends on, Read it too. Identify the relevant intent and any
+   unavailable content that materially changes the recommendation. Do not
+   inventory lifecycle labels or treat missing graph edges as blockers.
+   Treat a link with a `graph:` key or outside the flow as advisory unless the
+   flow's profile grants `governing`; list any `contradicts` links as items
+   for review.
 3. **Read relevant prerequisite flows.** When a governing artifact identifies a
    prerequisite in another flow, read that flow's scoped artifact before
    recommending work there. Give a next step for each flow that owns part of
@@ -88,7 +91,9 @@ Cross-flow contract (every cross-flow ask):
 
 Answer concisely by naming the owner flow, relevant evidence, any prerequisite
 flow that affects the result, and the recommended next action. Mention artifact
-status when it changes that recommendation.
+domain state when it changes that recommendation. Document lifecycle labels
+and stale review stamps alone never determine readiness. Recommend closing a
+material user-outcome gap, not normalizing status or link metadata.
 
 Do not skip owner-flow resolution because the prompt is short or the
 prerequisite verb is loud. Do not collapse multiple flows into a single
@@ -97,3 +102,14 @@ undifferentiated answer.
 ## Source-Code Boundaries
 
 Check the `modularity-and-encapsulation` source-code baseline in `workflows/references/concern-resolution.md`. Missing selection, map, or checker evidence blocks source feature readiness; recommend explicit adoption/design work. Legacy artifact validity remains separate. Check does not silently re-select concerns or edit existing adoption decisions.
+
+## UX coverage
+
+For affected interactive UI work, apply ux-interaction-patterns and the selected
+component owner. Use workflows/references/ux-evidence.md: a missing STP UX
+Coverage map is an adoption/readiness gap, not retroactive invalidity. Require
+populated AC mappings and review exclusion reasons. For planning/readiness,
+check named planned tests, commands, component gaps and evidence capture; do
+not demand future passing results. For implementation/completion claims,
+check actual test source and observed runtime results; SDK audit evidence
+cannot prove interaction flows.

@@ -22,5 +22,5 @@ Use these local resource summaries as grounding:
 ## Completion Criteria
 - Relevant threat coverage is explicit.
 - Expected failures and pass criteria are clear.
-- The output is usable in the Red activity.
+- The output names the tests or checks Build will run.
 - Residual risks are named with an owner or follow-up.

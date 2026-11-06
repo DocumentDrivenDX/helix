@@ -189,19 +189,19 @@ schema, keys, or migrations to govern (KISS/YAGNI).
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: normalization level + deliberate denormalization (read pattern + consistency mechanism), key choices, migration discipline
-- TD: schema-enforced integrity (NOT NULL/UNIQUE/CHECK/FK), indexing from access patterns
+- TD: schema-enforced integrity (NOT NULL/UNIQUE/CHECK/FK), indexing from access patterns; states the normalization level, key choices, and migration discipline
 - DATA_DESIGN: tables/columns/types, primary + foreign keys, normalization, indexes
 - IMPLEMENTATION_PLAN: versioned reversible migrations; destructive changes via expand→backfill→contract
 
 ## ADR References
 
-Record an ADR for the relational design decisions that are costly to reverse:
-the **normalization level** and any **deliberate denormalization** (with the
-read pattern that justifies it and the mechanism that keeps the redundant copy
-consistent); significant **key choices** (surrogate vs. natural, composite
-identity); and the **migration discipline** for destructive changes (the
+Selecting this concern needs no ADR; `concerns.md` records it. The design
+artifacts state the normalization level, significant **key choices** (surrogate
+vs. natural, composite identity), and the **migration discipline** (the
 expand-then-contract / backfill plan, and the forward-fix path for any
-irreversible migration). A material uncertainty about whether the read/write
-shape truly needs denormalization is a `tech-spike`, not a silent assumption
-(see `workflows/references/concern-resolution.md`).
+irreversible migration). Write an ADR only when the project deviates from a
+constraint here, such as a **deliberate denormalization** (with the read pattern
+that justifies it and the mechanism that keeps the redundant copy consistent).
+A material uncertainty about whether the read/write shape truly needs
+denormalization is a `tech-spike`, not a silent assumption (see
+`workflows/references/concern-resolution.md`).

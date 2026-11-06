@@ -91,11 +91,10 @@ and (usually) `auth`.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- FEAT: operator CRUD over core domain objects + lifecycle/control actions + the primary operator workflow as usable UI
+- FEAT: operator CRUD over core domain objects + lifecycle/control actions + the primary operator workflow as usable UI; states which operator workflows are in the slice vs deferred (deferral recorded, not silent)
 - DESIGN_SYSTEM: operator UI screens for manage + control actions (not a read-only dashboard)
-- ADR: which operator workflows are in the slice vs deferred (deferral recorded)
 
 ## ADR References
 
-Projects record an ADR when scoping which operator workflows are in the slice
-and which are deferred (with the deferral recorded, not silent).
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only
+when the project deviates from a constraint here.

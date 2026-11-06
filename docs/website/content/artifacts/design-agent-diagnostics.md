@@ -1,7 +1,7 @@
 ---
 title: "Design: Agent Diagnostics with OpenTelemetry"
 slug: design-agent-diagnostics
-weight: 410
+weight: 460
 activity: "Design"
 source: "02-design/design-agent-diagnostics.md"
 generated: true

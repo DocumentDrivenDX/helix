@@ -1,7 +1,12 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-plan-execution test-modularity test-agent-diagnostics test-formal-methods test-deploy-artifacts test-skills test-profiles test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable test-headline-sync test-deck-render test-demos test-innsigle test-eval-checks
+test: test-release-version test-verification-contract test-ux-governance test-plan-execution test-modularity test-agent-diagnostics test-formal-methods test-deploy-artifacts test-skills test-profiles test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable test-headline-sync test-deck-render test-demos test-innsigle test-eval-checks
+
+# documentor (tools/documentor), the host tool behind the guide mode: its own suite and the
+# packaged catalog's match with workflows/. CI runs it in .github/workflows/documentor.yml.
+test-documentor:
+    cd tools/documentor && uv run just test
 
 # Serve the HELIX microsite at the canonical local review URL.
 website-serve:
@@ -84,8 +89,13 @@ validate-artifact-schemas:
 
 # Check internal links + images in a production-shaped build (with the /helix base path)
 check-website-links:
+    uv run --project tools/documentor documentor schemas --root .
     cd website && hugo --gc --minify --baseURL "https://documentdrivendx.github.io/helix/" >/dev/null
     python3 scripts/check-website-links.py
+
+# Exercise the real UMF browser and definition links beneath /helix/.
+test-schema-browser:
+    cd website && npm run test:schemas
 
 # Install HELIX via DDx (refresh the local snapshot)
 install:
@@ -122,7 +132,7 @@ count:
 test-validate-deliverable:
     bash tests/validate-deliverable.sh
 
-# Render the catalog deck example to pptx, validate it, and run deck-qa.py (needs node with pptxgenjs on NODE_PATH, LibreOffice, pdftoppm)
+# Render the catalog deck example to pptx with documentor's renderer, validate it, and run deck-qa.py (needs node with pptxgenjs from the documentor cache or PPTXGENJS_NODE_PATH, LibreOffice, pdftoppm)
 test-deck-render:
     bash tests/validate-deck-render.sh
 
@@ -170,3 +180,15 @@ test-formal-methods:
 # Plan execution and tracker opt-in contract regressions
 test-plan-execution:
     python3 tests/test_plan_execution.py
+
+# UX coverage integrity and concern composition; runtime UX is verified in consumers.
+test-ux-governance:
+    python3 tests/test_ux_governance.py
+
+# Requirement-linked verification, conditional supplements and naming contracts.
+test-verification-contract:
+    python3 tests/test_verification_contract.py
+
+# Release versions and publication ordering regression checks
+test-release-version:
+    python3 tests/test_release_version.py

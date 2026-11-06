@@ -40,8 +40,7 @@ consumer-facing products.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: target WCAG 2.2 AA standard + axe-core + manual screen-reader testing
-- DESIGN_SYSTEM: keyboard-navigable controls, AA contrast ratios, focus management, labeled inputs
+- DESIGN_SYSTEM: keyboard-navigable controls, AA contrast ratios, focus management, labeled inputs; states the WCAG 2.2 AA target, axe-core, and manual screen-reader testing
 - TEST_PLAN: axe-core automated checks + manual screen-reader passes
 
 ## Practices by activity

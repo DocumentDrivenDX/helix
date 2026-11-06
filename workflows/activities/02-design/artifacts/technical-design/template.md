@@ -133,3 +133,11 @@ instrumentation points, context propagation, runner/sink wiring, privacy control
 and tests for the applicable `o11y-otel` sections. Describe bounded capture/export
 failure behavior and safe evidence references. Shared fields and interface rules
 remain in Contracts; service SLO/endpoint rules apply only to actual services.
+
+## Schema Basis (when applicable)
+
+Follow `workflows/references/umf-schemas.md`. Name the inspected UMF core,
+extensions/domain packs and versions; what is reused/composed/extended; or the
+specific gap justifying an alternative. Reference the authoritative Contract
+and source through `ddx.schemas`; explain unsupported semantics and tests.
+Omit this section for work with no schema, structured interface, or domain model.

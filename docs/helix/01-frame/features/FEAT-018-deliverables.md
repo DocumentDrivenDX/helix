@@ -26,7 +26,9 @@ outside the project read: a deck, a one-pager, or a brief. FEAT-018 is the
 type (`workflows/activities/06-iterate/artifacts/deliverable/`), the
 reference data under `workflows/deliverables/`, and the gate scripts beside
 the skill (`skills/helix/scripts/check-deliverable.py`,
-`corpus-inventory.py`, `render-deck.js`, `deck-qa.py`).
+`corpus-inventory.py`); the renderers are documentor's (`documentor deck
+render`, `documentor deck qa`, `documentor doc render`, in
+`tools/documentor/src/documentor/deliverable/`).
 
 ## Ideal Future State
 
@@ -212,7 +214,7 @@ toolchain also produces the `.pptx` and PDF and looks at every slide.
 
 ## Out of Scope
 
-- A `.docx` render target for one-pagers and briefs (`scripts/render-doc.js`
+- A `.docx` render target for one-pagers and briefs (`documentor doc render`
   covers the document flow, section patterns, and an HTML/PDF render
   target; `scripts/check-deliverable.py` scales pattern and density limits
   for a document kind rather than applying the slide's own numbers).

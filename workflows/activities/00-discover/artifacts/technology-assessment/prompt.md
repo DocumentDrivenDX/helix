@@ -33,7 +33,7 @@ Decision Brief begins.
 5. **Write findings** only where criteria separate the technologies.
 6. **Record disagreement.** When two sources conflict, cite both, link with
    `contradicts`, and leave the conflict open until new evidence settles it.
-7. **Pin the briefs** before approval.
+7. **Pin the briefs** before publishing.
 
 ## Writing for the reviewer
 

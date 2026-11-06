@@ -30,8 +30,8 @@ concerns at the seam and stay on the exposed interface.
     MCP-specific tool/resource/prompt, transport/OAuth, and agent-exposure
     security discipline this generic guide does not hold.
 - Do **NOT** reach for GraphQL or gRPC on a thin single-client first-party CRUD
-  app — cost without payoff (KISS/YAGNI). Record the choice (and any non-default
-  selection) in an ADR.
+  app — cost without payoff (KISS/YAGNI). State the choice (and any non-default
+  selection) in the TD.
 - A product MAY expose **multiple surfaces** (gRPC internally, REST/GraphQL at
   the edge); pick one style **per surface** for its own reason. Do not run two
   styles over the **same** surface for the **same** client.
@@ -130,8 +130,8 @@ concerns at the seam and stay on the exposed interface.
 
 - The exposed surface has an **explicit, typed contract** (OpenAPI / GraphQL
   schema / `.proto` / declared-or-inferred RPC types) that clients code against,
-  and its **style was chosen on a recorded signal** (non-default style →
-  ADR-recorded).
+  and its **style was chosen on a recorded signal** (non-default style
+  stated in the TD).
 - **Errors use the style's standard shape** — HTTP **status codes** for
   REST/RPC-over-HTTP (no `200 OK` with an error body), the GraphQL **`errors`
   array**, gRPC **status codes** — and the shape is **consistent across the

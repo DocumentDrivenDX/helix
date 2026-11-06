@@ -26,6 +26,10 @@ Before deploying:
 
 ### Documentation Requirements
 
+When `.helix.yml` declares `publish:`, the guide for people (`docs/guide/`) must be current before
+deploying: run the `guide` mode's check (`workflows/modes/guide.md`). Release notes feed its
+what's-new and operator pages.
+
 **ALWAYS UPDATE**:
 - Deployment procedures
 - Rollback instructions

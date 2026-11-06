@@ -30,7 +30,9 @@ Use these local resource summaries as grounding:
 
 - For each requirement in the PRD (kind: data), write at least one testable expectation.
 - Group expectations by layer (Bronze, Silver, Gold) and validate at the
-  appropriate layer.
+  appropriate layer. Reuse enforced constraints and avoid repeated scans or
+  duplicate assertions across layers unless they address a distinct risk.
+  Inspect generated SQL and relevant measured costs before expanding checks.
 - Use SDP `EXPECT` syntax for Databricks Streaming Tables, dbt tests for
   transformed tables, and Great Expectations for custom or complex checks.
 - Name what happens when expectations fail: quarantine the data, alert,

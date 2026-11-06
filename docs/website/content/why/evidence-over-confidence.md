@@ -35,7 +35,7 @@ These checks support a decision about the task's requirements under the conditio
 
 **Human authority** determines who may accept the work and when an agent must ask for a decision. **Linked artifacts** preserve the requirements and findings behind that decision, while **intent over inference** keeps the review grounded in what the project is supposed to do.
 
-**Execution feedback** carries problems found during verification back into the plans, documents, or code, where the team can make the smallest sufficient change to resolve them. The evidence then remains available to anyone who needs to understand or revisit the work.
+**Execution feedback** carries problems found during verification back into the plans, documents, or code, where the team can resolve them and simplify the affected system. The evidence then remains available to anyone who needs to understand or revisit the work.
 
 
 

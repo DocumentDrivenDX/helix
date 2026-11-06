@@ -12,10 +12,11 @@ description: |
   sprint plan, status report). Engage on desired state vs implementation,
   specs behind code, and pruning work items against specs. Engage on "grill
   me" or stress-testing a plan one question at a time. Engage on decks,
-  slides, one-pagers, briefs, and client-ready or executive documents built
-  from governed artifacts (present). Product, web, infra, and data are
+  briefs, and client-ready documents built from governed artifacts
+  (present), and on a repository's docs, guide, or site (guide).
+  Product, web, infra, and data are
   domain lanes that shape context and stop rules, not sibling skills.
-argument-hint: "[intent or scope]"
+argument-hint: "[mode] [intent or scope]"
 ---
 
 # HELIX Router
@@ -36,7 +37,11 @@ names a HELIX artifact (see the frontmatter description), even to *review* or
 "what's next", "plan the change", or a cross-flow query needing the marker →
 `check`; "grill me" or stress-testing decisions one question at a time →
 `grill`; a deck, slides, one-pager, brief, memo, or client-ready document built
-from project artifacts → `present`.
+from project artifacts → `present`; developer, operator, user, or data
+documentation, "document this repo", a getting-started or onboarding guide,
+what's new, one page of it, or a documentation site → `guide`. Both name
+documentor, the host tool released with HELIX, for the steps a host with a
+shell can run; each says what to do without it.
 
 ## Routing Axes
 
@@ -49,7 +54,7 @@ never a public skill name; (3) **workflow mode** (§Routing Rules);
 |---|---|---|
 | `product` | HELIX artifact named; planning verb (frame, align, decompose, prioritize, propose, capture, review, decide, evolve, refresh) against a product/feature/requirements object; cross-flow query | (a) Read `.helix.yml` and bind the graph before editing; (b) read the target and governing artifacts relevant to the request; (c) record supported `ddx.links` when the artifact type calls for them |
 | `infra` | IaC verb (terraform/tofu/kubectl, provision/destroy/rotate); set up CI; manage credentials | (a) Consult the stop triggers (`workflows/stop-triggers.yml`) for `apply` or `secret_read` before any shell command; (b) Read infra-shaped artifacts (architecture, runbook, deployment-checklist); (c) explicit confirmation prompt before terraform/tofu/kubectl/credential operations |
-| `data` | Data-pipeline verb (backfill/ingest/migrate a table or schema, profile a source, write a data contract) | (a) Read data-contract / data-quality-expectations / data-architecture artifacts; (b) cite producer/consumer or PII/governance posture in prose; (c) defer schema mutations behind a `stop_at` confirmation |
+| `data` | Data-pipeline verb (backfill/ingest/migrate a table or schema, profile a source, write a data contract) | (a) Read data-contract / data-quality-expectations / data-architecture artifacts; (b) cite producer/consumer or PII/governance posture in prose; (c) defer schema mutations and deletes behind the `schema_migration` and `data_destruction` stop triggers |
 | `web` | Web/frontend verb (deploy/ship to production, add monitoring for a user-facing flow, optimize page performance) | (a) Read architecture / design-system / monitoring-setup / runbook artifacts in the deploy-flow scope; (b) cite Web Vitals / RUM / page-error vocabulary in prose; (c) defer production deploys behind a `stop_at` confirmation |
 
 Skipping lane-required behavior is a routing failure even when the mode is
@@ -88,7 +93,7 @@ catalog provide the context.
   pre-profile behavior. A flow authors only types its profile selects, and
   resolves locations through the profile's `locations:` before `meta.yml
   output.location`. References that cross a flow or graph boundary are advisory
-  unless the consuming flow grants `governing` (ADR-015, ADR-016).
+  unless the consuming flow grants `governing` (ADR-017, ADR-018).
 
       flows:
         - id: helix
@@ -181,9 +186,9 @@ home); practice: `workflows/conventions.md`.
   the tool and report that you did.
 - **`state: checked-out` content is undependable.** Before the first check-in
   the body is identity and description only; after a later checkout it is the
-  previous copy. Do not quote it as current, set `ddx.status: approved` on it,
-  or approve anything depending on it. Surface the checkout: name the artifact,
-  its `origin`, and what it blocks.
+  previous copy. Read `authoring.origin` when current content matters. Do not
+  quote an unread live source as current. If unavailable content leaves a
+  material decision unresolved, name that decision and block only affected work.
 - **`state: checked-in` bodies are the read surface.** `authoring.export` is
   the committed original; `authoring.export_sha256`, when present, is its
   digest at check-in. A digest that no longer matches the export means the body
@@ -193,7 +198,7 @@ home); practice: `workflows/conventions.md`.
   to `checked-out` for its next revision, reusing `origin`, `export`, and
   `export_sha256`; checkout never deletes content the repository holds. A
   check-in is one change carrying the body, export file, digest, and `state`
-  flip together. Checking in makes approval possible; it is not approval.
+  flip together. Checking in makes the content available as working intent.
 - Producing a check-in body from an external document is a runtime capability.
   If the runtime offers none, say so and leave `state` alone; hand-transcribing
   and flipping `state: checked-in` claims a fidelity the repository cannot
@@ -223,7 +228,7 @@ Prefer the first matching route:
 | Convert rough intent into governed HELIX work | input |
 | Grill / interview / stress-test a plan or design until shared understanding (one question at a time) | grill |
 | Create or refine product vision, PRD, feature specs, or user stories | frame |
-| Reconcile relevant documents, check traceability, find drift, or place content in the right artifact | align |
+| Reconcile relevant documents or a named system/component, check traceability, find drift or simplification opportunities, or place content in the right artifact | align |
 | Check an artifact instance against its template and prompt; edit resolvable findings in place | validate |
 | Bring every artifact instance up to date with the current templates and prompts | refresh |
 | Thread a new, changed, removed, or incident-driven requirement through existing artifacts | evolve |
@@ -240,6 +245,7 @@ Prefer the first matching route:
 | Decompose an oversized code module/file into encapsulated units behind a verify gate | decompose-module |
 | Build up end-to-end coverage as a ladder of increasingly complex real-client scenarios | e2e-ladder |
 | Turn governed artifacts into a deck, one-pager, or brief for clients, sponsors, or executives | present |
+| Give a repository its guide, or one page of it: pages for developers, operators, users, and data consumers, generated, written, evaluated, checked, and assembled into a site | guide |
 | Hand governed work to the runtime for execution, source control, or packaging | runtime-handoff |
 
 When several routes fit, take the highest-authority planning route: `frame`
@@ -305,7 +311,12 @@ from the same bind as the graph. The active profile comes from the type's
 `meta.yml` (`voice: <profile>` or `voice.profile: <profile>` with section
 overrides); a missing `voice` means the registry's `default_profile`
 (`artifact-signal`). Apply the profile as artifact contract, not generic
-polish. A prose tool may audit against it; none is required.
+polish. Artifacts keep their profile's voice; the pages people read are
+projections (`guide`, `present`). `scripts/validate-instance.py` audits a
+deliverable (`prose.audience: human` in its `meta.yml`) against the profile's `limits` and the registry's shared `prose` phrase lists, and
+authoring modes resolve its `prose.*` findings with the writing pass
+(`workflows/references/writing-pass.md`, floor
+`references/references/writing-pass.md`) before handoff. No other prose tool is required.
 
 ## Project Root Resolution
 
@@ -327,11 +338,21 @@ control how often a workflow pauses, never which activities run.
 | `medium` (default) | Create deterministic non-conflict artifacts; pause when ambiguity or conflict blocks deterministic progress. Prompt for concern selection when none exists. |
 | `high` | Create downstream artifacts without pausing unless a hard stop blocks progress; record assumptions rather than asking. Infer concern selection from the product's nature and record it as an assumption. |
 
+When a planning pause is required, ask the smallest decision that unlocks the
+next step. Explain unfamiliar terms, offer a recommended answer with its reason,
+and ask one decision at a time when choices depend on each other. Look up facts
+from relevant authority; do not ask the operator to research them or approve
+routine mechanical edits already authorized. Record the answer in the existing
+artifact when authoring is authorized. This applies across planning modes;
+`grill` retains its interview-only checkpoint and headless behavior. Preserve
+`low` autonomy's per-step pauses and every required hard stop.
+
 Precedence (first match wins): per-invocation override (the operator names a
 level in the prompt) → the `autonomy:` block in `.helix.yml` → default
 `medium`. Hard-stop invariant (all levels): autonomy moves the pause
 threshold, never the stop floor; stop and surface to a human when two
-higher-or-equal-authority artifacts truly contradict, when the next action is
+higher-or-equal-authority artifacts have a material conflict that existing
+intent cannot resolve, when the next action is
 destructive or irreversible and unauthorized, or when only a human can decide.
 Never-collapse-the-loop invariant: every level runs the same activities;
 higher levels pause less.
@@ -347,6 +368,21 @@ ask whether to proceed, and wait ("About to run `terraform apply` in
 infra/prod — should I proceed?"); a generic `ok?` does not satisfy the
 contract. When routing silently via `defaults.flow`, name the routing decision
 in the first text block: silent routing is allowed, unspoken routing is not.
+
+## Living-document contract
+
+Committed documents are living working intent, governed by subject and authority
+order. Assume light drift. Prioritize material gaps affecting user outcomes,
+requirements, scope, design choices, safety, or completion evidence. Resolve
+ordinary lower-layer drift from clear higher authority within authorized work.
+Ask only when unresolved intent materially changes the solution.
+
+Lifecycle labels, stale review stamps, and missing graph edges alone do not
+block work. Do not create housekeeping tasks or normalize the graph for them.
+Use relevant content and authority order when links are absent. Keep progress
+in the relevant plan, selected work item, or factual report, rather than adding
+implementation-status banners to specifications. Explicit domain approvals and
+source freshness still matter where they affect the actual action or claim.
 
 ## Operating Discipline
 

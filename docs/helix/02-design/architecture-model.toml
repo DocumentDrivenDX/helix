@@ -1,0 +1,226 @@
+# The architecture model behind HELIX's own views (`workflows/references/architecture-model.md`).
+#
+# Every element and relation cites a file in this repository and a string it contains, so a rename
+# fails `documentor check`. Regenerate the views with `documentor build`; the presentation with
+# `documentor tour`. No host, credential, or identifier belongs here.
+
+[system]
+id = "helix"
+repo = "DocumentDrivenDX/helix"
+regenerate = "documentor build"
+
+[[element]]
+id = "team"
+name = "Software team"
+detail = "sets intent"
+kind = "person"
+status = "built"
+layer = "People"
+job = "Decides what to build and approves what agents propose."
+tier = 1
+zone = "People"
+evidence = [{ path = "docs/helix/00-discover/product-vision.md", contains = "Software teams using AI agents" }]
+
+[[element]]
+id = "runtime"
+name = "Agent runtime"
+detail = "model, tools, execution"
+kind = "external"
+status = "built"
+layer = "Agent host"
+job = "Runs the model and its tools; Claude Code, Codex, Genie, or DDx."
+tier = 2
+zone = "Agent host"
+evidence = [{ path = "docs/install/README.md", contains = "## Minimal runtime contract" }]
+
+[[element]]
+id = "documentor"
+name = "documentor"
+detail = "checks, views, site"
+kind = "external"
+status = "built"
+layer = "Agent host"
+job = "Optional host tool: generates, checks, and assembles a repository's guide."
+tier = 2
+zone = "Agent host"
+evidence = [{ path = "workflows/modes/guide.md", contains = "documentor (`tools/documentor/` in the HELIX repository)" }]
+
+[[element]]
+id = "skill"
+name = "Routing skill"
+detail = "resolves scope and mode"
+kind = "container"
+status = "built"
+layer = "HELIX"
+job = "Routes a request to a mode and binds the governing artifacts."
+tier = 3
+zone = "HELIX plugin"
+evidence = [{ path = "skills/helix/SKILL.md", contains = "name: helix" }]
+
+[[element]]
+id = "catalog"
+name = "Artifact catalog"
+detail = "templates, prompts, rules"
+kind = "store"
+owner = "helix"
+status = "built"
+layer = "HELIX"
+job = "Holds every artifact type, its graph, the modes, and the voice profiles."
+tier = 3
+zone = "HELIX plugin"
+evidence = [{ path = "workflows/graph.yml", contains = "nodes:" }]
+
+[[element]]
+id = "marker"
+name = ".helix.yml"
+detail = "project scope"
+kind = "store"
+status = "built"
+layer = "Your repository"
+job = "Declares the flows, their roots, autonomy, and the guide's audiences."
+tier = 4
+zone = "Your repository"
+evidence = [{ path = "docs/install/README.md", contains = "## The marker" }]
+
+[[element]]
+id = "docs"
+name = "Project documents"
+detail = "intent, design, tests"
+kind = "store"
+status = "built"
+layer = "Your repository"
+job = "The system of record agents load and reviewers trace."
+tier = 4
+zone = "Your repository"
+evidence = [{ path = "workflows/modes/_authoring.md", contains = "Load this contract when a mode creates or edits an artifact instance." }]
+
+[[relation]]
+from = "team"
+to = "runtime"
+label = "asks"
+why = "intent enters as a request"
+status = "built"
+step = 1
+note = "A person asks the agent for work in their own words."
+evidence = [{ path = "docs/helix/00-discover/product-vision.md", contains = "Software teams using AI agents" }]
+
+[[relation]]
+from = "runtime"
+to = "skill"
+label = "loads"
+why = "one skill, any host"
+status = "built"
+step = 2
+note = "The host loads HELIX's one skill as a plug-in."
+evidence = [{ path = ".claude-plugin/plugin.json", contains = "\"skills\": \"./skills/\"" }]
+
+[[relation]]
+from = "skill"
+to = "marker"
+label = "reads scope"
+why = "bounds every write"
+status = "built"
+step = 3
+note = "The marker says which flows are active and where each may write."
+evidence = [{ path = "skills/helix/SKILL.md", contains = "## Project Root Resolution" }]
+
+[[relation]]
+from = "skill"
+to = "catalog"
+label = "reads type"
+why = "shape comes from the catalog"
+status = "built"
+step = 4
+note = "The artifact type's template, prompt, and rules guide the work."
+evidence = [{ path = "skills/helix/SKILL.md", contains = "## Catalog Resolution" }]
+
+[[relation]]
+from = "skill"
+to = "docs"
+label = "authors and reconciles"
+why = "the record stays true"
+status = "built"
+step = 5
+note = "The mode writes or aligns the governing documents."
+evidence = [{ path = "workflows/modes/_authoring.md", contains = "Load this contract when a mode creates or edits an artifact instance." }]
+
+[[relation]]
+from = "docs"
+to = "runtime"
+label = "governs execution"
+why = "spec is the contract"
+status = "built"
+step = 6
+note = "Code implements the documented intent; it cannot silently redefine it."
+evidence = [{ path = "workflows/principles.md", contains = "### Spec Is The Contract" }]
+
+[[relation]]
+from = "runtime"
+to = "documentor"
+label = "runs the guide's checks"
+why = "optional host tooling"
+status = "built"
+note = "Detection, generated pages, views, the gate, and the site."
+evidence = [{ path = "workflows/modes/guide.md", contains = "`documentor doctor` says what the host has" }]
+
+[[journey]]
+id = "request"
+title = "A request becomes a governing document"
+takeaway = "The runtime acts; HELIX gives it the scope, the shape, and the record."
+
+[[journey.step]]
+from = "team"
+to = "runtime"
+label = "asks for work"
+
+[[journey.step]]
+from = "runtime"
+to = "skill"
+label = "loads the skill"
+
+[[journey.step]]
+from = "skill"
+to = "marker"
+label = "reads the scope"
+
+[[journey.step]]
+from = "skill"
+to = "catalog"
+label = "reads the artifact type"
+
+[[journey.step]]
+from = "skill"
+to = "docs"
+label = "authors and reconciles"
+
+[[journey.step]]
+from = "docs"
+to = "runtime"
+label = "governs what runs next"
+
+[[view]]
+id = "context"
+title = "HELIX in a repository"
+takeaway = "The runtime acts; HELIX gives it a document discipline."
+direction = "LR"
+elements = ["team", "runtime", "skill", "catalog", "marker", "docs", "documentor"]
+
+[[view]]
+id = "deployment"
+type = "deployment"
+title = "Where HELIX runs"
+takeaway = "One skill in the agent host, the record in your repository."
+elements = ["team", "runtime", "documentor", "skill", "catalog", "marker", "docs"]
+
+[[view]]
+id = "request"
+type = "journey"
+journey = "request"
+elements = []
+
+[[view]]
+id = "cast"
+type = "cast"
+title = "The pieces"
+takeaway = "Each piece does one job."
+elements = ["team", "runtime", "skill", "catalog", "marker", "docs", "documentor"]

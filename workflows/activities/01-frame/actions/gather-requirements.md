@@ -15,7 +15,7 @@ Collect, analyze, and document functional and non-functional requirements that w
 
 ## Prerequisites
 
-- [ ] Problem definition completed and approved
+- [ ] Problem and intended outcome are clear
 - [ ] Key stakeholders identified and available
 - [ ] Stakeholder interviews scheduled
 - [ ] Requirements template prepared
@@ -167,7 +167,7 @@ Focus Area: [Business Process/User Group]
 - [ ] Business rules are explicitly documented
 - [ ] Requirements are traceable to business objectives
 - [ ] Conflicts between requirements are resolved
-- [ ] Stakeholders have reviewed and approved requirements
+- [ ] Material requirement choices needing human judgment have a decision
 
 ## Integration with Frame Activity
 

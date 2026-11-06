@@ -54,7 +54,7 @@ guide; for DDx-specific commands, see [docs/install/ddx.md](../docs/install/ddx.
 | Optional `00-discover` | vision and opportunity framing | `docs/helix/00-discover/` |
 | `01-frame` | requirements and stories | `docs/helix/01-frame/` |
 | `02-design` | architecture and design contracts | `docs/helix/02-design/` |
-| `03-test` | test plans and failing tests | `docs/helix/03-test/`, `tests/` |
+| `03-test` | test plans and verification | `docs/helix/03-test/`, `tests/` |
 | `04-build` | implementation guidance and evidence | `docs/helix/04-build/` |
 | `05-deploy` | rollout, monitoring, and recovery evidence | `docs/helix/05-deploy/` |
 | `06-iterate` | backlog, reports, metrics, and follow-up planning | `docs/helix/06-iterate/` |

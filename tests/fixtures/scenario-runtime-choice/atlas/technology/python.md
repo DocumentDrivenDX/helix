@@ -3,7 +3,6 @@ ddx:
   id: component-profile-python-reusable
   type: component-profile
   scope: reusable
-  status: draft
   authoring:
     home: repo
 ---

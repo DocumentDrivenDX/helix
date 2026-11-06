@@ -153,7 +153,7 @@ DDx does.
 | Authoring prompts | `prompt.md` per artifact type | Surface to agents during frame, design, evolve |
 | Artifact schema | `workflows/artifact-schema.md` | Authoritative field definitions for `ddx:` frontmatter |
 | Routing skill body | `skills/helix/SKILL.md` | Loaded into agent sessions via plugin skill loader |
-| Instance frontmatter | `ddx:` block in project `docs/helix/` files | `ddx.id`, `ddx.depends_on`, `ddx.type`, `ddx.status` for graph traversal and queue dep-resolution |
+| Instance frontmatter | `ddx:` block in project `docs/helix/` files | `ddx.id`, `ddx.depends_on`, `ddx.type` for graph traversal |
 
 DDx must consume these as read-only inputs. Indexing and caching are fine;
 modifying the catalog source is not.

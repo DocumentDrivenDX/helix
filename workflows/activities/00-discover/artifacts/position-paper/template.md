@@ -2,7 +2,6 @@
 ddx:
   id: PP-[number]
   type: position-paper
-  status: draft
   authoring:
     home: repo
   links:

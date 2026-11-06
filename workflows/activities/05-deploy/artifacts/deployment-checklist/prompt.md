@@ -27,6 +27,8 @@ Use these local resource summaries as grounding:
 - Before Deploy covers the failures that actually bite: an unreviewed plan, a
   dependency landing out of order, config that is silently empty, and grants
   assumed rather than verified. Answer them for this release, not generically.
+- Exclude adoption, user-count, revenue, survey-score, and community-uptake
+  thresholds. Product and market goals do not determine technical readiness.
 - Make validation gates and rollback triggers explicit.
 - Omit owners, timestamps, and status checkboxes; the tracker and git hold them.
 - Point to supporting artifacts such as `monitoring-setup` or `runbook`

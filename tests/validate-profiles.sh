@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Graph profiles (ADR-015): profile files are well-formed and select real
+# Graph profiles (ADR-017): profile files are well-formed and select real
 # artifact types, every non-default profile graph is current, and a marker's
 # `profile:` keys resolve (absent = software-delivery; unknown = malformed).
 set -euo pipefail
@@ -29,7 +29,7 @@ for pid, prof in profiles.items():
         assert not missing, f"{pid}: unknown types {missing}"
         extra = sorted(set(prof.get("locations", {})) - set(sel))
         assert not extra, f"{pid}: locations for unselected types {extra}"
-    assert prof["authority"]["cross_graph"] == "advisory", f"{pid}: cross_graph authority must be advisory (ADR-016)"
+    assert prof["authority"]["cross_graph"] == "advisory", f"{pid}: cross_graph authority must be advisory (ADR-018)"
     assert prof["authority"]["within_graph"] in ("positional", "advisory"), f"{pid}: bad within_graph authority"
 
 # Non-default profile graphs must match what the generator would emit.
@@ -62,8 +62,8 @@ assert resolve({"flows": [{"id": "x", "profile": "nope", "root": "x/"}]}) == ["u
 print("OK: profiles")
 PYEOF
 
-# Validation tiers (T4): a draft with missing content passes in an atlas flow
-# and fails once approved; the same draft is still strict in software-delivery.
+# Validation tiers (T4): incomplete content passes at the default tier in an atlas
+# flow and fails at the publish tier; software-delivery is strict at both.
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 mkdir -p "$tmp/knowledge" "$tmp/docs/helix"
@@ -75,16 +75,15 @@ flows:
     profile: technology-atlas
     root: knowledge/
 YAML
-brief() { # status
-  printf -- '---\nddx:\n  id: DB-001\n  type: decision-brief\n  status: %s\n  authoring:\n    home: repo\n---\n\n# DB-001: Incomplete\n\n## Context\n\nOnly context so far.\n' "$1"
+brief() {
+  printf -- '---\nddx:\n  id: DB-001\n  type: decision-brief\n  authoring:\n    home: repo\n---\n\n# DB-001: Incomplete\n\n## Context\n\nOnly context so far.\n'
 }
 validator="$repo_root/skills/helix/scripts/validate-instance.py"
-brief draft > "$tmp/knowledge/draft.md"
-brief approved > "$tmp/knowledge/approved.md"
-brief draft > "$tmp/docs/helix/draft.md"
-python3 "$validator" "$tmp/knowledge/draft.md" --catalog "$repo_root/workflows" >/dev/null || fail "incomplete draft should pass in an atlas flow"
-if python3 "$validator" "$tmp/knowledge/approved.md" --catalog "$repo_root/workflows" >/dev/null; then fail "incomplete approved brief should fail"; fi
-if python3 "$validator" "$tmp/docs/helix/draft.md" --catalog "$repo_root/workflows" >/dev/null; then fail "incomplete draft should still fail in software-delivery"; fi
+brief > "$tmp/knowledge/incomplete.md"
+brief > "$tmp/docs/helix/incomplete.md"
+python3 "$validator" "$tmp/knowledge/incomplete.md" --catalog "$repo_root/workflows" >/dev/null || fail "incomplete content should pass at the default tier in an atlas flow"
+if python3 "$validator" "$tmp/knowledge/incomplete.md" --catalog "$repo_root/workflows" --tier publish >/dev/null; then fail "incomplete content should fail at the publish tier"; fi
+if python3 "$validator" "$tmp/docs/helix/incomplete.md" --catalog "$repo_root/workflows" >/dev/null; then fail "incomplete content should still fail in software-delivery"; fi
 
 # Scope variants: a reusable component-profile is judged by its own section list.
 python3 "$validator" "$repo_root/workflows/activities/00-discover/artifacts/component-profile/example-reusable.md" --catalog "$repo_root/workflows" >/dev/null \
@@ -93,7 +92,7 @@ sed 's/^  scope: reusable/  scope: contextual/' "$repo_root/workflows/activities
 if python3 "$validator" "$tmp/as-contextual.md" --catalog "$repo_root/workflows" >/dev/null; then fail "reusable content labelled contextual should fail"; fi
 echo "OK: validation tiers and scope variants"
 
-# Pinned publications (T6): an approved deliverable needs pinned sources, and a
+# Pinned publications (T6): a deliverable validated at the publish tier needs pinned sources, and a
 # pinned deliverable keeps its sources' content after the living source changes.
 pinner="$repo_root/skills/helix/scripts/pin-sources.py"
 repo="$tmp/pinrepo"
@@ -107,7 +106,6 @@ cat > "$repo/publications/pub.md" <<'MD'
 ddx:
   id: DEL-001
   type: deliverable
-  status: approved
   authoring:
     home: repo
   links:
@@ -121,8 +119,8 @@ ddx:
 # Publication
 MD
 git -C "$repo" add . && git -C "$repo" commit -q -m pub
-pin_findings() { python3 "$validator" "$repo/publications/pub.md" --catalog "$repo_root/workflows" --format json | python3 -c 'import json,sys; print(",".join(sorted(f["check"] for f in json.load(sys.stdin)["findings"] if f["check"].startswith("pin_links"))))' || true; }
-[ "$(pin_findings)" = "pin_links.0" ] || fail "approved deliverable with an unpinned link should report pin_links.0, got '$(pin_findings)'"
+pin_findings() { python3 "$validator" "$repo/publications/pub.md" --catalog "$repo_root/workflows" --tier publish --format json | python3 -c 'import json,sys; print(",".join(sorted(f["check"] for f in json.load(sys.stdin)["findings"] if f["check"].startswith("pin_links"))))' || true; }
+[ "$(pin_findings)" = "pin_links.0" ] || fail "a deliverable with an unpinned link at the publish tier should report pin_links.0, got '$(pin_findings)'"
 python3 "$pinner" pin "$repo/publications/pub.md" >/dev/null || fail "pin should succeed"
 grep -q 'rev: git:' "$repo/publications/pub.md" || fail "pin should write a git rev"
 [ -z "$(pin_findings)" ] || fail "pinned deliverable should have no pin_links findings"
@@ -148,12 +146,11 @@ for r in atlas client; do git -C "$sc/$r" init -q; done
 git -C "$sc/atlas" add . && git -C "$sc/atlas" commit -q -m "briefs"
 rev="git:$(git -C "$sc/atlas" rev-parse HEAD)"
 for f in atlas/technology/nodejs.md atlas/technology/python.md client/decisions/DB-001-test-decision.md client/publications/DEL-001-test-publication.md; do
-  python3 "$validator" "$sc/$f" --catalog "$repo_root/workflows" >/dev/null || fail "scenario fixture $f should validate as draft"
+  python3 "$validator" "$sc/$f" --catalog "$repo_root/workflows" >/dev/null || fail "scenario fixture $f should validate at the default tier"
 done
 # Approve: unpinned cross-graph links must block, pinned ones pass.
 for f in client/decisions/DB-001-test-decision.md client/publications/DEL-001-test-publication.md; do
-  sed -i.bak 's/^  status: draft/  status: approved/' "$sc/$f" && rm "$sc/$f.bak"
-  if python3 "$validator" "$sc/$f" --catalog "$repo_root/workflows" >/dev/null; then fail "approved $f with unpinned cross-graph links should fail"; fi
+  if python3 "$validator" "$sc/$f" --catalog "$repo_root/workflows" --tier publish >/dev/null; then fail "$f with unpinned cross-graph links should fail at the publish tier"; fi
   python3 - "$sc/$f" "$rev" <<'PY'
 import re, sys
 p, rev = sys.argv[1], sys.argv[2]
@@ -165,11 +162,11 @@ open(p, "w").write(t)
 PY
   python3 "$pinner" check "$sc/$f" | grep -q "external" || fail "pin-sources should report cross-graph links as external"
 done
-git -C "$sc/client" add . && git -C "$sc/client" commit -q -m "approved"
+git -C "$sc/client" add . && git -C "$sc/client" commit -q -m "pinned"
 # The local DB-001 link is pinned from client history; cross-graph pins came from the atlas.
 python3 "$pinner" pin "$sc/client/publications/DEL-001-test-publication.md" >/dev/null || fail "pin should succeed"
 for f in client/decisions/DB-001-test-decision.md client/publications/DEL-001-test-publication.md; do
-  python3 "$validator" "$sc/$f" --catalog "$repo_root/workflows" >/dev/null || fail "pinned approved $f should validate"
+  python3 "$validator" "$sc/$f" --catalog "$repo_root/workflows" --tier publish >/dev/null || fail "pinned $f should validate at the publish tier"
 done
 # The atlas evolves; the approved publication still resolves its pinned sources.
 printf '\nA later edit to the briefs.\n' >> "$sc/atlas/technology/nodejs.md"
@@ -179,10 +176,10 @@ git -C "$sc/atlas" show "${rev#git:}:technology/python.md" >/dev/null || fail "p
 grep -q "rev: $rev" "$sc/client/publications/DEL-001-test-publication.md" || fail "publication must still carry the original pin"
 echo "OK: scenario (Node.js vs Python)"
 
-# Authority and contradictions (ADR-016, T5/T7): a profile that grants only
+# Authority and contradictions (ADR-018, T5/T7): a profile that grants only
 # advisory authority rejects a governing link; `contradicts` is informational.
 authdoc() { # links-yaml
-  printf -- '---\nddx:\n  id: DB-009\n  type: decision-brief\n  status: draft\n  authoring:\n    home: repo\n  links:\n%s\n---\n\n# DB-009: Links\n' "$1"
+  printf -- '---\nddx:\n  id: DB-009\n  type: decision-brief\n  authoring:\n    home: repo\n  links:\n%s\n---\n\n# DB-009: Links\n' "$1"
 }
 authdoc '    - {id: A-1, kind: contradicts}' > "$tmp/knowledge/contradicts.md"
 authdoc '    - {id: B-1, graph: other-atlas, kind: evaluates, authority: governing}' > "$tmp/knowledge/governing.md"

@@ -57,7 +57,7 @@ dependency, audit, and closure requirements. Do not discover tracker binaries.
 
 ## Validation Plan
 
-- [ ] Failing tests exist before implementation starts
+- [ ] Existing coverage and any missing behavioral proof are identified
 - [ ] All required tests pass before reporting goal completion
 - [ ] Behavior changes update canonical documents
 - [ ] Code review is complete before activity exit

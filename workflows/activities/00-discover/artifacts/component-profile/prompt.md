@@ -53,7 +53,7 @@ A **reusable** profile (`ddx.scope: reusable`) is the portable part written
 once for use across projects and graphs. It carries the factual sections and
 Capabilities and Limits, and none of the project-bound ones. Other documents
 cite it by pinned revision (a link of kind `supported_by` or `informs`; see
-ADR-016) instead of copying it; the citing document supplies the Need, the
+ADR-018) instead of copying it; the citing document supplies the Need, the
 fit, and the verdict, and the reusable brief stays advisory unless the
 consuming graph grants it authority. When a project needs a profile of the
 same component, it writes a contextual profile that cites the reusable brief

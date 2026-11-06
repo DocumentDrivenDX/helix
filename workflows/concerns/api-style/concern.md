@@ -255,16 +255,16 @@ the tech-stack concern (which fixes the HTTP/RPC framework and codegen).
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: interface style choice per surface (REST/GraphQL/gRPC/RPC/MCP) + versioning strategy
-- TD: the API contract artifact (OpenAPI/GraphQL SDL/proto/RPC types), error shape, boundary validation, cacheability
+- TD: the API contract artifact (OpenAPI/GraphQL SDL/proto/RPC types), error shape, boundary validation, cacheability; states the interface style per surface (REST/GraphQL/gRPC/RPC/MCP) and versioning strategy
 - TEST_PLAN: contract conformance + boundary input-validation tests on the exposed surface
 
 ## ADR References
 
-Record an ADR when selecting a non-default style for an exposed surface
-(GraphQL or gRPC over the REST / same-repo-RPC default, MCP for an agent-facing
-surface, or running multiple styles in a hybrid), naming the surface, its
-consumers, and the decisive signal (public/partner reach + caching → REST;
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only
+when the project deviates from a constraint here. The style chosen per surface
+(including a non-default one: GraphQL or gRPC over the REST / same-repo-RPC
+default, MCP for an agent-facing surface, or a hybrid) is stated in the TD,
+naming the surface, its consumers, and the decisive signal (public/partner reach + caching → REST;
 flexible client-specified data across many clients → GraphQL; internal
 service-to-service + streaming + strict contract → gRPC; first-party same-repo
 client → RPC/server-actions; **LLM agent / AI client consuming exposed

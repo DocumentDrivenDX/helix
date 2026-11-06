@@ -4,7 +4,6 @@ ddx:
   type: deliverable
   activity: iterate
   kind: [deck | one-pager | brief]
-  status: draft
   authoring:
     home: repo
     export: [path to the primary render, the .pdf when produced, else the .pptx; one path string. List every render under Render]

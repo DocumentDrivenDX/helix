@@ -47,7 +47,6 @@ id_format:
 
 validation:
   pin_links:
-    at_status: [approved, published]
     kinds: [informed_by, evaluates, supported_by]
 
   required_sections:
@@ -107,9 +106,6 @@ reuse_policy: |
   of the deliverable (or a new deliverable), re-pinned and re-reviewed, not an
   in-place edit of the approved one.
 
-workflow:
-  review_cycles: 1
-  approval_required: true
 
 prompts:
   generation: prompt.md
@@ -148,3 +144,10 @@ tags:
   - human-facing
 
 version: 1.1.0
+
+# The `**Visual**:` line is a pipe-delimited spec the renderers parse (deliverables/visual-specs.md),
+# not prose, so the prose audit does not read it.
+prose:
+  audience: human
+  skip_lines:
+    - "^\\*\\*Visual\\*\\*:"

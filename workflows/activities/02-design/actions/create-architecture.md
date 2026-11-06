@@ -8,14 +8,14 @@ Design the system architecture, including components, interfaces, data flow, and
 
 ## When to Use This Action
 
-- After Frame activity requirements are approved
+- When relevant requirements are clear enough to design
 - When technical design must be established
 - Before detailed implementation planning begins
 - When architectural decisions need documentation
 
 ## Prerequisites
 
-- [ ] Requirements specification approved
+- [ ] Requirements state the scoped behavior and constraints
 - [ ] Technical constraints identified
 - [ ] Technology evaluation completed (if needed)
 - [ ] Architecture stakeholders available

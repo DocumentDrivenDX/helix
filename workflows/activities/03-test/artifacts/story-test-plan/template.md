@@ -29,7 +29,7 @@ ddx:
 
 This matrix is the **story-level** AC↔test traceability surface. Key each row on
 the story's **stable AC ID** (`US-<n>-AC<m>`) so a specific criterion maps to a
-specific failing test. This story test plan owns this matrix; the project-level
+specific new or existing test. This story test plan owns this matrix; the project-level
 test plan aggregates strategy and allocates layers — it does **not** duplicate
 these rows (FEAT-008 FR-6).
 
@@ -50,11 +50,19 @@ replacement. The canonical, parseable citation syntax is `@covers US-<n>-AC<m>`
 with numeric stable IDs (e.g. `@covers US-001-AC1`); `US-XXX` below is a
 placeholder for the numeric story id — replace `XXX` with the real number.
 
-| AC ID | Acceptance Criterion (Given/When/Then) | Failing Test(s) to Create or Run | Asserted Behavior (what the test verifies) | AC-ID Citation (`@covers`) | Test Level | File or Command | Setup / Data | Notes |
+Use behavior-and-condition names per [testing practices](../../../../concerns/testing/practices.md);
+existing body/name/doc-comment citations remain valid.
+
+| AC ID | Acceptance Criterion (Given/When/Then) | New or Existing Test(s) to Create or Run | Asserted Behavior (what the test verifies) | AC-ID Citation (`@covers`) | Test Level | File or Command | Setup / Data | Notes |
 |-------|----------------------------------------|----------------------------------|--------------------------------------------|----------------------------|------------|-----------------|--------------|-------|
 | US-001-AC1 | [Given/When/Then criterion] | `[test_name]` | [the concrete outcome the test asserts — e.g. "response is 200 with body {id}"] | `@covers US-001-AC1` | Unit / Integration / Contract / E2E | `tests/...` or `bash ...` | [Fixture, seed, mock] | [Edge case or sequencing note] |
 
 ## Executable Proof
+
+Link completion results from existing Notes/Executable Proof under the
+[verification contract](../../../../concerns/verification/practices.md).
+No new table, column or evidence file is mandatory; passing results are required
+only for completion claims. At planning time, name commands and report locations.
 
 ### Primary Commands
 
@@ -87,7 +95,7 @@ placeholder for the numeric story id — replace `XXX` with the real number.
 ## Build Handoff
 
 **Implementation Order**
-1. [What should be implemented first to turn the first red test green]
+1. [First coherent implementation slice and the existing or new proof it uses]
 2. [What follows once the core path passes]
 
 **Constraints**
@@ -97,7 +105,7 @@ placeholder for the numeric story id — replace `XXX` with the real number.
 - [ ] Every in-scope acceptance criterion has passing evidence
 - [ ] Named commands or test files exist and run
 - [ ] Out-of-scope coverage remains explicitly deferred rather than silently skipped
-- [ ] The story can fail red before implementation and pass green after implementation
+- [ ] Tests detect meaningful failures and supply observed proof of required behavior
 
 ## Diagnostic Proof (when applicable)
 
@@ -109,3 +117,39 @@ project-level strategy in the project Test Plan; put exact tests/commands here.
 For a diagnostic pilot, name fixture ground truth, agent evidence/accuracy and
 time/call/context measurements plus project-owned overhead budgets. Never claim
 an OTel integration works from JSONL parsing alone.
+
+## Journey Scenarios
+
+Optional. When a user flow or journey map spans this story, map each journey
+that passes through it to one end-to-end test. Path is the user flow's named
+transitions; the ACs may belong to neighboring stories. Rows are named by
+journey.
+
+| Journey | Path | AC IDs | Test | File or Command |
+|---|---|---|---|---|
+| [journey name] | [UF-XXX: Action → Action → view] | [US-XXX-AC1, US-YYY-AC2] | `[test_name]` | `tests/e2e/...` |
+
+## UX Coverage
+
+For affected interactive UI work, apply ux-interaction-patterns and
+workflows/references/ux-evidence.md. This section is optional for legacy
+structural validity; current affected UI handoff requires adoption. Each
+covered category references the existing AC mapping, which owns test names,
+assertions, @covers citations and commands. Mark absent patterns not-applicable
+with concrete reasons; runtime exceptions are reviewed in verification evidence.
+
+| Pattern | Disposition | AC IDs or Reason | Evidence |
+|---|---|---|---|
+| navigation | covered / not-applicable | [stable AC IDs or exclusion reason] | [check run, or none] |
+| keyboard-overlays | covered / not-applicable | [stable AC IDs or exclusion reason] | [check run, or none] |
+| async-actions | covered / not-applicable | [stable AC IDs or exclusion reason] | [check run, or none] |
+| forms | covered / not-applicable | [stable AC IDs or exclusion reason] | [check run, or none] |
+| data-states | covered / not-applicable | [stable AC IDs or exclusion reason] | [check run, or none] |
+| destructive-actions | covered / not-applicable | [stable AC IDs or exclusion reason] | [check run, or none] |
+
+The Evidence column is optional. It cites the presentation or accessibility
+check run behind a row: a committed report by its path, or, for a run whose
+output is not committed, the run date, command and where the report is kept.
+
+Structure checks only declared coverage integrity. Verify real test source and
+observed outcomes before completion; SDK lint/audit is separate evidence.

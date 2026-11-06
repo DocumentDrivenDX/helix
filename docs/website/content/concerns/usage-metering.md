@@ -183,13 +183,15 @@ internal tools where no usage drives a charge.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: metering + billing model (aggregation function, idempotency, emission, reconciliation)
-- TD: capture on real path / idempotency key / aggregation / rating / emit / reconcile
+- TD: capture on real path / idempotency key / aggregation / rating / emit / reconcile; states the metering + billing model (aggregation function, idempotency, emission, reconciliation)
 - FEAT: which actions are billable and the meter each emits
 - DATA_DESIGN: usage/meter event ledger with dedupe key, retained for audit
 - TEST_PLAN: retried action meters once (idempotency) + metered-total reconciliation
 
 ## ADR References
+
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only
+when the project deviates from a constraint here.
 
 ## Practices by activity
 
@@ -284,8 +286,8 @@ meter.
 
 Metering wiring MUST be **exercised on the running system**, not asserted from a
 function's existence — this is the `verification` evidence gate applied to the
-billable path. Before claiming the metering work done, the
-`verification-evidence.md` bundle MUST record, from an actual run:
+billable path. Before claiming the metering work done, the existing AC/test
+mapping MUST link observed run results for the tested revision, showing:
 
 - the **real billable flow driven end-to-end** and the metered total observed to
   move (positive: the wire fires);
@@ -294,6 +296,9 @@ billable path. Before claiming the metering work done, the
   does not double-count);
 - the **reconciliation** observed to match the independent count within
   tolerance.
+
+Use the `workflows/concerns/verification/practices.md` for run references
+and conditional supplemental observations.
 
 A meter event whose emit is only *defined* and never observed firing on the
 running system is **UNTESTED** — the same failure class the evidence gate refuses

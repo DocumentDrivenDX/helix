@@ -1,0 +1,20 @@
+id: opentofu-infra
+title: Infrastructure declared with OpenTofu or Terraform
+detect:
+  - {files: "**/*.tf", contains: "^resource |^module ", weight: 0.6}
+  - {files: "**/.terraform.lock.hcl", weight: 0.2}
+  - {files: "**/*.tf", contains: "provider \"", weight: 0.2}
+audiences: [operator]
+pages:
+  - audience: operator
+    id: resources
+    title: Resources
+    kind: reference
+    task: See what each module declares, and from which providers.
+    generated: opentofu-resources
+views: [deployment]
+watch: ["**/*.tf"]
+handling:
+  never_publish:
+    - "state contents, account and tenant ids, hosts, and credentials"
+  patterns: ['\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b']

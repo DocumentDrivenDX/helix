@@ -51,10 +51,6 @@ references:
 workflow:
   creation_order: 4
   review_cycles: 1
-  approval_required: true
-  approvers:
-    - Product Owner
-    - Technical Lead
 
 relationships:
   informed_by:

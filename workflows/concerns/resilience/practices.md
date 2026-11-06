@@ -25,7 +25,7 @@ metrics/traces these guards emit into). They reference those concerns at the sea
   which need a **bulkhead** (those sharing a finite pool with others), what the
   **timeout** is (from the dependency's latency percentile + padding), and the
   **retry** policy (only for transient + idempotent, with backoff/jitter/cap).
-  Record the choices — these are the ADR's failure-handling strategy.
+  State the choices in the TD as the failure-handling strategy.
 - **Design the fallback for each guarded dependency.** State what a degraded-but-
   useful response is when the dependency is down / its breaker is Open — a cached
   value, a default, a deferred acknowledgement, a hidden feature — or record

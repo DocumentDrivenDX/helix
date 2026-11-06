@@ -127,6 +127,10 @@ nodes:
   type: library:threat-model
   activity: 01-frame
   cardinality: many
+- id: user-journey-map
+  type: library:user-journey-map
+  activity: 01-frame
+  cardinality: many
 - id: user-stories
   type: library:user-stories
   activity: 01-frame
@@ -175,12 +179,24 @@ nodes:
   type: library:solution-design
   activity: 02-design
   cardinality: many
+- id: solution-overview
+  type: library:solution-overview
+  activity: 02-design
+  cardinality: many
 - id: tech-spike
   type: library:tech-spike
   activity: 02-design
   cardinality: many
 - id: technical-design
   type: library:technical-design
+  activity: 02-design
+  cardinality: many
+- id: user-flow
+  type: library:user-flow
+  activity: 02-design
+  cardinality: many
+- id: wireframe
+  type: library:wireframe
   activity: 02-design
   cardinality: many
 - id: data-quality-expectations
@@ -444,6 +460,14 @@ edges:
   to: test-plan
   kind: informs
   required: false
+- from: feature-specification
+  to: user-flow
+  kind: informs
+  required: false
+- from: feature-specification
+  to: user-journey-map
+  kind: informs
+  required: false
 - from: pr-faq
   to: prd
   kind: informs
@@ -532,6 +556,22 @@ edges:
   to: test-plan
   kind: informs
   required: false
+- from: user-journey-map
+  to: user-flow
+  kind: informs
+  required: false
+- from: user-journey-map
+  to: solution-design
+  kind: informs
+  required: false
+- from: user-journey-map
+  to: story-test-plan
+  kind: informs
+  required: false
+- from: user-journey-map
+  to: improvement-backlog
+  kind: informs
+  required: false
 - from: user-stories
   to: solution-design
   kind: informs
@@ -540,12 +580,24 @@ edges:
   to: story-test-plan
   kind: informs
   required: false
+- from: user-stories
+  to: user-flow
+  kind: informs
+  required: false
+- from: user-stories
+  to: user-journey-map
+  kind: informs
+  required: false
 - from: adr
   to: solution-design
   kind: informs
   required: false
 - from: adr
   to: technical-design
+  kind: informs
+  required: false
+- from: architecture
+  to: solution-overview
   kind: informs
   required: false
 - from: architecture
@@ -632,6 +684,10 @@ edges:
   to: story-test-plan
   kind: informs
   required: false
+- from: design-system
+  to: wireframe
+  kind: informs
+  required: false
 - from: proof-of-concept
   to: solution-design
   kind: informs
@@ -698,6 +754,26 @@ edges:
   required: false
 - from: technical-design
   to: implementation-plan
+  kind: informs
+  required: false
+- from: user-flow
+  to: wireframe
+  kind: informs
+  required: false
+- from: user-flow
+  to: solution-design
+  kind: informs
+  required: false
+- from: user-flow
+  to: story-test-plan
+  kind: informs
+  required: false
+- from: wireframe
+  to: technical-design
+  kind: informs
+  required: false
+- from: wireframe
+  to: story-test-plan
   kind: informs
   required: false
 - from: data-quality-expectations

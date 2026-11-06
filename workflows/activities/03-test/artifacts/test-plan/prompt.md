@@ -36,9 +36,10 @@ Do not hand-maintain test counts or timings. If you cite a baseline, pin it to a
 
 ## Keep In Mind
 
-- tests are the executable specification
+- tests encode governing behavior and may be consolidated as implementation improves
 - every test should trace to a requirement or story
-- put effort where failure costs most; add coverage numbers only when CI enforces them
+- put effort where failure costs most; reuse existing coverage and add tests for distinct gaps
+- assess test maintenance cost, including setup, test code volume, runtime and assertion quality; use coverage percentages only with their measured scope and limitations
 - do not add generic testing doctrine that the template already implies
 
 ## Boundary Test

@@ -25,9 +25,9 @@ its requirements, decisions, and tests. Use the review action for each pass.
    **blocking** when they violate a governing requirement, reveal an unresolved
    correctness or security defect, or invalidate necessary verification.
    Record other useful observations as advisory.
-2. Unless review-only, fix each blocking issue in the authorized target. Do not
-   dismiss a finding by reclassification. If a finding does not apply, record
-   the evidence that resolves it.
+2. Unless review-only, fix each blocking issue in the authorized target. A fix
+   may remove rather than add. Do not dismiss a finding by reclassification. If
+   a finding does not apply, record the evidence that resolves it.
 3. Re-review changed material and affected dependencies after blocking fixes.
    Advisory observations alone do not trigger another round. Stop when the clean
    streak is reached, the round or spending limit is reached, progress stalls,

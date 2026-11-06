@@ -1,6 +1,6 @@
 # Story Test Plan Generation Prompt
 
-Scope: one story's acceptance-criteria-to-test traceability — concrete failing tests, fixtures, commands, and setup for a single bounded slice.
+Scope: one story's acceptance-criteria-to-test traceability — concrete new or existing tests, fixtures, commands, and setup for a single bounded slice.
 
 Related:
 - [Test Plan](../test-plan/prompt.md) — project-wide strategy this STP inherits
@@ -24,7 +24,7 @@ Use these local resource summaries as grounding:
 
 - the governing `[[US-XXX-*]]` and `[[TD-XXX-*]]` references
 - a tight scope statement plus explicit out-of-scope boundaries
-- a matrix mapping each active acceptance criterion to concrete failing tests,
+- a matrix mapping each active acceptance criterion to concrete new or existing tests,
   keyed by the story's **stable `US-<n>-AC<m>` ID** (this story-level matrix is
   the AC↔test traceability surface; the project test plan aggregates strategy
   and allocates layers but does not duplicate these rows — FEAT-008 FR-6). Each
@@ -36,6 +36,9 @@ Use these local resource summaries as grounding:
   AC ID is `UNCITED_COVERAGE` (not covered for traceability; fix = add the
   citation, not a new test), distinct from `UNTESTED`. Citation is an additional
   gate on top of exercise+pass+satisfy, never a replacement
+- behavior-and-condition names and stable source citations per [testing practices](../../../../concerns/testing/practices.md)
+- planned report locations in existing Notes/Executable Proof; apply the
+  [verification contract](../../../../concerns/verification/practices.md) at completion
 - executable proof details: test file paths, commands, or named test cases
 - setup, fixtures, seed data, mocks, and environment assumptions
 - edge cases and error scenarios that the story must prove before build begins
@@ -67,3 +70,36 @@ Name exact receiver/failure/correlation/privacy/retrieval tests and assertions;
 record untested limits explicitly. Project strategy belongs in Test Plan and
 story AC-to-test rows remain here. Do not substitute a schema parse or a mock
 exporter for actual OTLP receiver evidence on the real instrumentation path.
+
+## Journey Scenarios
+
+Optional. When a user flow or journey map spans this story, add one row per
+journey that passes through it: the journey's name, its path as the user
+flow's named transitions, the AC IDs it proves (they may belong to neighboring
+stories), and the end-to-end test and command that walk it. The AC mapping
+still owns per-criterion tests.
+
+## UX Coverage
+
+For affected interactive UI work, apply ux-interaction-patterns and
+workflows/references/ux-evidence.md. This section is optional for legacy
+structural validity; current affected UI handoff requires adoption. Each
+covered category references the existing AC mapping, which owns test names,
+assertions, @covers citations and commands. Mark absent patterns not-applicable
+with concrete reasons; runtime exceptions are reviewed in verification evidence.
+
+| Pattern | Disposition | AC IDs or Reason | Evidence |
+|---|---|---|---|
+| navigation | covered / not-applicable | [stable AC IDs or exclusion reason] | [check run, or none] |
+| keyboard-overlays | covered / not-applicable | [stable AC IDs or exclusion reason] | [check run, or none] |
+| async-actions | covered / not-applicable | [stable AC IDs or exclusion reason] | [check run, or none] |
+| forms | covered / not-applicable | [stable AC IDs or exclusion reason] | [check run, or none] |
+| data-states | covered / not-applicable | [stable AC IDs or exclusion reason] | [check run, or none] |
+| destructive-actions | covered / not-applicable | [stable AC IDs or exclusion reason] | [check run, or none] |
+
+The Evidence column is optional. It cites the presentation or accessibility
+check run behind a row: a committed report by its path, or, for a run whose
+output is not committed, the run date, command and where the report is kept.
+
+Structure checks only declared coverage integrity. Verify real test source and
+observed outcomes before completion; SDK lint/audit is separate evidence.

@@ -9,7 +9,16 @@ ddx:
 
 This is the per-project **interface system**: the concrete UX/design-system
 decisions this app commits to. It is this app's *instance* of the interface
-guidelines in the `ux-radix` concern — not a copy of the concern library.
+guidelines in the `ux-interaction-patterns` concern — not a copy of the concern library.
+
+## Modalities, Size Classes and App Frame
+
+[Optional. For an app that supports more than one modality or size class, or
+that chooses its app frame deliberately. Delete if not relevant.]
+
+- **Supported modalities**: [screen, voice, chat]
+- **Size classes**: [compact below 600 px, medium to 1024 px, expanded above]
+- **App frame**: [screen | top-bar | top-nav | side-nav], [per size class if it changes]
 
 ## Navigation and Active State
 
@@ -29,6 +38,14 @@ on *which* route, belongs in the story/project test plan — not in DESIGN.md.
 |---|---|---|---|
 | [Primary nav] | [e.g. sidebar links] | [e.g. tinted bg + left border] | `aria-current="page"` |
 | [Secondary nav] | [e.g. tabs] | [e.g. underline] | `aria-selected` |
+
+### Destinations by Size Class
+
+[Optional. Where each top-level destination appears at each size class.]
+
+| Destination | Compact | Medium | Expanded |
+|---|---|---|---|
+| [Destination] | [bottom bar / menu / hidden] | [rail] | [side nav] |
 
 ## Visual Hierarchy
 
@@ -54,7 +71,12 @@ the state actually exists for that element, not every state on every element.
 
 ## Tokens
 
-Concrete values, not placeholders.
+Choose one source of truth: concrete local values, or external token references
+with package/source, installed version, selected theme (or host-resolved embedded
+tokens), supported appearances and component mappings. For an external package use
+token names verified in installed-version documentation; reference its palette
+and customize components through documented APIs rather than unsupported
+internal overrides. Keep exact props/wiring in TDs and test assertions in STPs.
 
 ### Color
 [Palette: brand, neutrals, semantic (success/warning/danger/info), surfaces.]
@@ -77,3 +99,11 @@ This document is the **interface system only**. It deliberately does NOT cover:
 
 If a decision is about *how the system is built* rather than *how the interface
 looks and behaves*, it belongs in architecture / solution-design / ADRs.
+
+### Navigation applicability
+
+The active-page convention applies only where page navigation exists. For a
+single-surface or embedded view with none, record in Navigation and Active State:
+`Page navigation: not-applicable;` followed by a concrete reason. Do not create
+navigation merely to satisfy the template. Tabs still use their own selection
+semantics. Review applicability rather than accepting a bare exemption marker.

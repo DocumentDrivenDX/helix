@@ -35,7 +35,7 @@
 - Table-driven tests for pure functions
 - HTTP stubs: VCR cassette recording (`VCR_MODE=record` to capture, `VCR_MODE=playback` for CI)
 - Use `testify/assert` or `testify/require` for assertions; not bare `t.Fatal` comparisons
-- Coverage: `go test -coverprofile=coverage.out ./...` + `go tool cover -func`; 80% threshold
+- Coverage: `go test -coverprofile=coverage.out ./...` + `go tool cover -func`; enforce project-adopted targets where applicable
 
 ## Quality Gates (pre-commit / CI)
 - `go fmt ./...` (or `gofmt -l .` check)

@@ -2,9 +2,19 @@
 
 Use for metric-driven optimization loops.
 
-1. Define the goal, metric, baseline, intervention, and stop condition.
-2. Run bounded iterations.
-3. Measure after each iteration.
+1. Define the goal, metric, baseline, intervention, and decision that the
+   measurement will change. State the stopping condition before running.
+2. Bound the whole experiment, including retries and parallel runs: maximum
+   runs, elapsed time, retained temporary storage and paid-service usage where
+   applicable. Honor existing user and tool limits. With no baseline, choose a
+   small probe with explicit size and duration limits before expanding.
+3. Before each launch, bound its workload, timeout and outstanding parallel
+   jobs to the remaining cumulative allowance. Measure results and resource
+   use after each iteration, before launching another. Expand only to resolve
+   a named remaining uncertainty. Stop when the decision is supported or any
+   limit is reached; preserve results and stop outstanding work using available
+   controls or operator intervention. Report work still running rather than
+   imply successful cancellation. Resuming does not reset the allowance.
 4. Keep changes or revert/adjust based on metric evidence.
 5. To validate a **methodology or skill change** (a workflow prompt, template,
    or this routing skill), use a **regression evaluation**: record a committed
@@ -12,5 +22,16 @@ Use for metric-driven optimization loops.
    *installed* (never by redirecting reads), score intrinsic metrics against the
    baseline, and **keep what moved, cut what didn't**. That evaluation is the
    standing answer to "how do we know this change is impactful."
+
+Known prices and metered usage can support a monetary estimate; unknown rates
+or delayed billing cannot support a claimed dollar cap. Use available workload,
+time and storage bounds instead, disclose the uncertainty once, and do not
+start unbounded paid runs. Use automated enforcement and metering when available;
+otherwise monitor the bounded work and arrange manual stopping with the operator.
+Disclose any limits that cannot be enforced or usage that cannot be measured;
+never claim a hard cap or successful stop without evidence. HELIX defines the
+stopping decision independently of the execution tool. Record limits and
+measured use in the existing experiment record, not a second budget document. Token
+spending still follows `workflows/references/work-item-first.md`.
 
 Procedure: `workflows/actions/experiment.md` (deeper step detail; this file is the contract).

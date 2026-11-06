@@ -144,15 +144,13 @@ because the layering constrains every buildable work item.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: classic-layered chosen over inversion siblings; business→data-access coupling accepted
-- TD: presentation→application→domain→data-access tiers, dependencies pointing down
+- TD: presentation→application→domain→data-access tiers, dependencies pointing down; states the accepted business→data-access coupling as a trade-off for lower ceremony
 
 ## ADR References
 
-Record an ADR when selecting classic-layered over a dependency-inversion
-slot-sibling (`onion` / `hexagonal` / `clean`) — the ADR should state that the
-business-to-data-access coupling is an accepted trade-off for lower ceremony —
-or when an operator overrides the `architecture-style` choice per project.
+Selecting this concern or filling the `architecture-style` slot needs no ADR;
+`concerns.md` records it. Write an ADR only when the project deviates from a
+constraint here.
 
 ## Practices by activity
 

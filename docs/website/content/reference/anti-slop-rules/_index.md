@@ -5,7 +5,7 @@ generated: true
 description: "Every deterministic rule the deliverable gate, the prose lint, and the visual gate enforce, generated from the scripts that enforce them."
 ---
 
-This page is generated from the code that enforces the rules, so it cannot drift from them: `skills/helix/scripts/check-deliverable.py` (the script gate), the vendored sloptimizer fixture, `workflows/deliverables/slide-patterns.yml` (limits), the Vale styles under `.vale/styles/Helix`, `skills/helix/scripts/deck-qa.py` (the visual gate), and `skills/helix/scripts/render-deck.js`. The narrative on [Anti-slop](../../use/anti-slop/) says why each rule exists and how the passes are sequenced.
+This page is generated from the code that enforces the rules, so it cannot drift from them: `skills/helix/scripts/check-deliverable.py` (the script gate), the vendored sloptimizer fixture, `workflows/deliverables/slide-patterns.yml` (limits), the Vale styles under `.vale/styles/Helix`, `tools/documentor/src/documentor/deliverable/deck-qa.py` (the visual gate), and `tools/documentor/src/documentor/deliverable/render-deck.js`. The narrative on [Anti-slop](../../use/anti-slop/) says why each rule exists and how the passes are sequenced.
 
 Severities: **blocking** stops the deliverable at the gate; **warning** is reported and left to judgment. Every title check is a suggestion in sloptimizer and a block here, because a deck title is read aloud in sequence and cannot carry a footnote.
 

@@ -59,6 +59,9 @@ the workspace.
 
 ## Success Definition
 
+These strategic goals guide learning and priorities; they imply no delivery
+gate. Record explicit human business decisions separately.
+
 | Metric | Target |
 |--------|--------|
 | Primary KPI | Median weekly reconciliation time below 3 minutes per client by the second month of use |

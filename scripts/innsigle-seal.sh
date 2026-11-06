@@ -11,7 +11,7 @@
 #
 # Two keys, one issuer (ADR-004):
 #   pages the generators stamp with `generated: true` frontmatter
-#   (scripts/generate-reference.py, publish-artifacts.py, publish-resources.py)
+#   (scripts/generate-reference.py, documentor record, publish-resources.py)
 #       -> model-primary, signed by the BUILD key (CI: INNSIGLE_BUILD_KEY)
 #   everything else (curated)
 #       -> mixed, signed by the HUMAN key (1Password, never in CI)

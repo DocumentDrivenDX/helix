@@ -10,9 +10,9 @@ existing artifacts.
 2. Identify affected downstream artifacts from relevant links, direct
    references, and the requested behavior. Preserve legacy relationship fields
    as written; do not migrate them incidentally.
-3. Surface conflicts instead of silently overwriting lower-authority content.
-   An accepted ADR establishes the chosen direction; it does not establish that
-   implementation is complete.
+3. Resolve ordinary lower-layer drift from clear higher authority within the
+   authorized scope. Surface a material choice only when existing intent cannot
+   resolve it. An ADR establishes direction, not implementation completion.
 4. Update the affected artifacts from highest authority to lowest. Preserve the
    user's intended requirement strength and edit only within the authorized
    scope. Revise affected artifacts in place so each states the current intent;

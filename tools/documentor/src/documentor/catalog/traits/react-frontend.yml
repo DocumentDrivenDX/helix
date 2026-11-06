@@ -1,0 +1,10 @@
+id: react-frontend
+title: A web frontend in React
+detect:
+  - {files: "**/package.json", contains: "\"react\"", weight: 0.5}
+  - {files: "**/*.tsx", weight: 0.3}
+  - {files: "**/vite.config.*", weight: 0.2}
+audiences: [developer, user]
+pages: []
+views: [journey]
+watch: ["**/package.json"]

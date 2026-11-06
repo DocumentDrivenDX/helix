@@ -2,7 +2,6 @@
 ddx:
   id: TA-[number]
   type: technology-assessment
-  status: draft
   authoring:
     home: repo
   links:

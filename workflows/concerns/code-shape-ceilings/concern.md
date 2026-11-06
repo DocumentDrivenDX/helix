@@ -32,7 +32,7 @@ It composes with its neighbors and does not duplicate them:
 ## Components
 
 - **Complexity ceilings**: cyclomatic complexity, branches, returns,
-  statements, and parameters per function, set in the linter config
+  statements per function, set in the linter config
 - **Class ceiling**: a cap on public methods per class
 - **File-length ceiling**: one script, with a separate cap for test files
 - **Ceilings-only-go-down check**: a script that compares the working tree
@@ -57,8 +57,11 @@ It composes with its neighbors and does not duplicate them:
 ### Global, no exceptions
 
 - Ceilings apply to the whole tree. No per-file ignore, `noqa`, `eslint-disable`,
-  `biome-ignore`, or `# pyright: ignore` for a complexity, size, or
-  parameter-count rule. When a unit trips a ceiling, split it.
+  `biome-ignore`, or `# pyright: ignore` for a complexity or size rule.
+  When a unit trips a ceiling, split it along responsibility boundaries.
+- Review parameter counts for cohesion; they are not a default blocking ceiling.
+  Evolve an existing operation and update callers rather than adding a wrapper,
+  parameter object or similar method solely to satisfy an argument limit.
 - Generated code, vendored code, and lockfiles are excluded by path in the
   gate script, once, with a comment saying why. Hand-written code is never
   excluded.
@@ -89,7 +92,7 @@ It composes with its neighbors and does not duplicate them:
   `C901`/`PLR`, ESLint without `complexity` and `max-lines-per-function`) →
   add them at the strict defaults
 - A ceiling raised, or a `noqa` / `eslint-disable` / `biome-ignore` for a
-  complexity, size, or parameter rule → split the code; revert the change
+  complexity or size rule → split the code; revert the change
 - A per-file ignore list, or a type-checker `ignore` list of modules → the
   excuse list is the god-object list; remove entries by splitting the files
 - A source file past the file ceiling, or one class that owns persistence,
@@ -110,7 +113,8 @@ non-buildable work with no source code may omit it.
 
 ## Artifact Impact
 
-Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
+Apply these responsibilities in relevant existing artifacts or the acceptance
+record. Concern selection alone does not require a new process document:
 - TD: the ceiling values per stack, the file-size caps, the gate recipe, and the hook wiring
 - IMPLEMENTATION_PLAN: scaffold the lint config, the size and ceilings scripts, the hooks, and `just lint` before feature work
 - TEST_PLAN: the shape gate (`just lint`) runs in CI and fails the build; a raised ceiling or new silencer is a blocking finding

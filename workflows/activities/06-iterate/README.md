@@ -36,12 +36,7 @@ Prerequisites to enter this activity (defined in `input-gates.yml`):
    - Validation: Dashboards populated with real data
    - Source: 05-deploy activity
 
-3. **Initial user interaction**
-   - Requirement: Sufficient usage to generate meaningful data
-   - Validation: Minimum threshold of user actions/time passed
-   - Source: Production environment
-
-4. **Team availability for retrospective**
+3. **Team availability for retrospective**
    - Requirement: Core team members available for review
    - Validation: Retrospective scheduled and confirmed
    - Source: Team calendar
@@ -305,7 +300,7 @@ Before proceeding to the next Frame activity, ensure:
 - [ ] Next iteration goals defined
 - [ ] Resource allocation planned
 - [ ] Risk mitigation strategies identified
-- [ ] Success metrics established
+- [ ] Useful learning goals and observation methods identified
 
 ## Common Pitfalls
 

@@ -174,19 +174,13 @@ invalidation/staleness problem for no gain — **premature caching is a drift**
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: cache pattern + invalidation/TTL policy + named staleness budget + consistency trade-off + what is not cached
-- TD: read/write pattern (cache-aside/read-through/write-through/write-behind), stampede protection on hot keys
+- TD: read/write pattern (cache-aside/read-through/write-through/write-behind), stampede protection on hot keys; states the cache pattern and why, invalidation/TTL policy, named staleness budget, consistency trade-off, and what is deliberately not cached
 - TEST_PLAN: invalidation/staleness behavior + stampede protection (single-flight) on a hot key
 
 ## ADR References
 
-Record an ADR when introducing a cache: the **read-heavy hot path or expensive
-computation** and the **performance NFR** it serves; the **pattern** chosen
-(cache-aside / read-through / write-through / write-behind) and **why**; the
-**invalidation policy + TTL** and the **named staleness budget** the data
-tolerates; the **consistency trade-off** accepted (and, for write-behind, the
-durability/consistency window); the **stampede protection** for hot keys; and
-**what is deliberately not cached** because it must stay fresh. A material
+Selecting this concern needs no ADR; `concerns.md` records it. Write an ADR only
+when the project deviates from a constraint here. A material
 uncertainty about whether the hot path truly needs a cache to hit the NFR is a
 `tech-spike` (measure first), not a silent assumption (see
 `workflows/references/concern-resolution.md`).

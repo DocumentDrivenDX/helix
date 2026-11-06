@@ -13,12 +13,11 @@ The Design activity transforms validated business requirements from Frame into a
 ## Input Gate
 
 Before starting Design, verify Frame outputs:
-- [ ] PRD reviewed and approved
-- [ ] Success metrics clearly defined
+- [ ] PRD states the scoped outcome and constraints clearly
 - [ ] User stories with acceptance criteria
 - [ ] Principles document established
 - [ ] All stakeholders aligned on scope
-- [ ] Security requirements documented and approved
+- [ ] Security requirements and constraints documented
 - [ ] Threat model completed with risk assessment
 - [ ] Compliance requirements identified and mapped
 
@@ -53,9 +52,12 @@ slice. It should inherit the broader architecture from the parent solution
 design instead of redefining feature-level structure.
 
 `ux-design` remains retired as a standalone HELIX artifact. Put user-facing
-flow rationale, wireframes, and interaction trade-offs in the governing
-solution design or technical design, and use a proof of concept when the main
-risk is validating an interactive workflow end to end.
+flow rationale and interaction trade-offs in the governing solution design or
+technical design, and use a proof of concept when the main risk is validating
+an interactive workflow end to end. When a feature has a user interface,
+record its flow in a `user-flow` (UF-XXX) and each view's layout, states and
+events in a `wireframe` (UF-XXX-NN-view) nested under it, and link them by ID
+from the design. Both are optional.
 
 `auth-design` is retired as a standalone HELIX artifact. Put authentication
 and authorization security posture — trust boundaries, identity, session
@@ -376,7 +378,7 @@ graph TD
     J -->|No| K[Simplify Design]
     K --> C
     J -->|Yes| L[Technical Review]
-    L --> M{Approved?}
+    L --> M{Material choices resolved?}
     M -->|No| C
     M -->|Yes| N[Gate to Test Activity]
 ```
@@ -388,11 +390,11 @@ graph TD
 - **Trade-off Analysis**: Balance competing constraints
 - **Risk Assessment**: Identify technical challenges
 - **Contract Definition**: Define external interfaces
-- **Review and Approval**: Validate design decisions
+- **Review**: Resolve material design decisions
 
 ### AI Assistant Responsibilities
 - **Contract Generation**: Create detailed interface specifications
-- **Test Case Design**: Generate comprehensive test scenarios
+- **Test Case Design**: Identify gaps in existing coverage and select meaningful scenarios
 - **Consistency Validation**: Check alignment with requirements
 - **Documentation**: Structure technical specifications
 - **Pattern Suggestions**: Recommend proven solutions
@@ -403,22 +405,10 @@ graph TD
 ## Design Principles Enforcement
 
 ### Core Principles Checklist
-- [ ] **Library-First**: Each feature is a standalone library
-- [ ] **CLI Interface**: All functionality exposed via text interface
-- [ ] **Test-First**: Tests specified before implementation
-- [ ] **Simplicity**: Maximum 3 major components
+- [ ] **Verification**: Existing evidence and missing behavioral proof identified
+- [ ] **Simplicity**: Every component has a current responsibility
 - [ ] **Anti-Abstraction**: Direct framework usage, no wrappers
 - [ ] **Integration Testing**: Real environments over mocks
-
-### Complexity Budget
-Track design complexity to prevent over-engineering:
-
-| Component | Complexity Points | Justification |
-|-----------|------------------|---------------|
-| Component 1 | 1 | Core requirement |
-| Component 2 | 1 | Essential integration |
-| Component 3 | 1 | (Only if justified) |
-| **Total** | **≤ 3** | Must stay within budget |
 
 ## Quality Gates
 
@@ -485,8 +475,8 @@ The Design activity is complete when:
 ## Next Activity: Test
 
 Once Design is validated, proceed to Test activity where you'll:
-- Write comprehensive test specifications
-- Implement failing tests (Red activity)
+- Reuse or extend verification for scoped behavior and material risks
+- Establish missing behavior with failing tests where useful
 - Define test data and scenarios
 - Establish test infrastructure
 
@@ -509,7 +499,7 @@ Don't design for hypothetical future needs. Design for current requirements only
 Choose tools pragmatically based on requirements, not preferences.
 
 ### 🚫 Test Theater
-Don't write tests that always pass. Tests must fail first, then pass.
+Inspect whether assertions detect meaningful failures. Existing passing tests are valid evidence; do not manufacture a Red state or a new matrix for every change.
 
 ### 🚫 Contract Drift
 Implementation must match contracts exactly. No undocumented behavior.
@@ -528,14 +518,14 @@ Common entry points:
   investigation work
 
 AI is useful for tradeoff analysis, option comparison, and documentation
-drafting. Architectural decisions, acceptance of complexity, and final design
-sign-off remain human responsibilities.
+drafting. Architectural choices that existing intent cannot resolve remain
+human decisions; a committed design needs no separate lifecycle sign-off.
 
-The AI excels at generating comprehensive contracts and test cases but human judgment is essential for architectural decisions and technical trade-offs.
+Agents should inspect existing contracts, callers and tests before proposing additions. Design review assesses coherence and relevant operating costs; document volume and test count do not establish quality.
 
 ## Design Review Checklist
 
-Before approval, ensure:
+For the scoped design, verify:
 - [ ] Contracts are complete and unambiguous
 - [ ] Every contract has test cases
 - [ ] Architecture is as simple as possible
@@ -546,3 +536,13 @@ Before approval, ensure:
 ---
 
 *Good design is not when there is nothing left to add, but when there is nothing left to remove.*
+
+## Developer orientation artifacts
+
+Use Solution Overview for a short system map and reading path. Architecture
+remains structural authority; Solution Design owns feature decomposition.
+Attach an end-to-end walkthrough to either when readers need to trace a
+critical flow into source and tests. Developer Guide (Build activity) owns
+setup, repository navigation, first contribution, and verification recipes.
+These explanatory views follow existing authority and should link it rather
+than restate decisions. They are useful onboarding aids, not mandatory new gates.

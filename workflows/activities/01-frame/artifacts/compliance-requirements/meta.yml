@@ -87,10 +87,6 @@ references:
 workflow:
   creation_order: 4
   review_cycles: 2
-  approval_required: true
-  approvers:
-    - Compliance Officer
-    - Legal Counsel
 
 relationships:
   informs:

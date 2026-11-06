@@ -109,4 +109,4 @@ serves both evaluators and active users.
 ## Artifact Impact
 
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
-- ADR: information-architecture model (reader modes, top-level sections, nav state) for the microsite
+- none beyond `concerns.md`, which records the selection

@@ -4,7 +4,6 @@ ddx:
   type: deliverable
   activity: iterate
   kind: brief
-  status: draft
   authoring:
     home: repo
     export: publications/DEL-001-test-publication.pdf

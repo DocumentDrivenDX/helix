@@ -19,6 +19,10 @@ on:
       - 'v*'
   workflow_dispatch:
 
+concurrency:
+  group: release-bundles-${{ github.ref_name }}
+  cancel-in-progress: false
+
 permissions:
   contents: write      # required to attach assets to a release
   id-token: write      # OIDC identity for Sigstore signing
@@ -30,6 +34,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      # This must gate the publisher itself: an independent guard can race
+      # with asset upload and leave a mismatched release published.
+      - name: Validate release versions before building or publishing
+        run: python3 scripts/release-version.py "$GITHUB_REF_NAME"
 
       - name: Set tag name
         id: tag
@@ -81,41 +90,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag.outputs.ref_name }}
+          target_commitish: ${{ github.sha }}
           files: |
             dist/release/helix-genie-bundle-${{ steps.tag.outputs.ref_name }}.tar.gz
             dist/release/helix-plugin-package-${{ steps.tag.outputs.ref_name }}.tar.gz
             dist/release/genie-install
           fail_on_unmatched_files: true
-          body: |
-            HELIX ${{ steps.tag.outputs.ref_name }} generated skill bundles.
-
-            `helix-plugin-package-${{ steps.tag.outputs.ref_name }}.tar.gz` is the
-            self-contained Claude/Codex plugin package with generated
-            `skills/helix/references/` output.
-
-            ## Install (user-scoped, no admin)
-
-            ```bash
-            export DATABRICKS_HOST=https://<your-workspace>.azuredatabricks.net
-            export DATABRICKS_TOKEN=<personal access token>
-            curl -fsSL https://github.com/${{ github.repository }}/releases/download/${{ steps.tag.outputs.ref_name }}/genie-install -o /tmp/genie-install
-            chmod +x /tmp/genie-install
-            /tmp/genie-install
-            ```
-
-            ## Workspace-wide (admin)
-
-            Add `--shared` to the final command.
-
-            See [docs/install/databricks-genie.md](https://github.com/${{ github.repository }}/blob/${{ steps.tag.outputs.ref_name }}/docs/install/databricks-genie.md)
-            for the full guide.
-
-            ## Verify provenance
-
-            Every asset carries a signed SLSA build-provenance attestation
-            (Sigstore). Verify a download came from this repo's release
-            workflow:
-
-            ```bash
-            gh attestation verify <downloaded-asset> -R ${{ github.repository }}
-            ```
+          draft: false
+          generate_release_notes: true

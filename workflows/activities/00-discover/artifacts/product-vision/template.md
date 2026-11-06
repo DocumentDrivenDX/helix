@@ -45,6 +45,9 @@ Unlike [current alternative], [product name] [primary differentiator].
 
 ## Success Definition
 
+These strategic goals guide learning and priorities; they imply no delivery
+gate. Record explicit human business decisions separately.
+
 | Metric | Target |
 |--------|--------|
 | Primary KPI | [Specific measurable outcome] |

@@ -47,15 +47,35 @@ A HELIX-compliant runtime can:
 That is the full contract. HELIX assumes no tracker, queue, execution loop,
 IDE integration, or language toolchain. Items 1 through 3 are required and
 cover alignment, framing, design, evolve, validate, review, and the script
-half of present. Item 4 is optional; `experiment`, `e2e-ladder`,
-`decompose-module`, and the render step of `present` use it. This is the
-binding form of PRD R-4 (runtime-neutral content).
+half of present, and the by-hand form of `guide`. Item 4 is optional;
+`experiment`, `e2e-ladder`, `decompose-module`, the render step of `present`,
+and documentor use it. This is the binding form of PRD R-4 (runtime-neutral
+content).
 
-Present-mode rendering also needs host tooling no other mode requires, all
-optional: node with `pptxgenjs` for the `.pptx`, LibreOffice and `pdftoppm`
-to export the PDF and rasterize slides for inspection, and `rsvg-convert`
-or ImageMagick for icons. Without them the mode stops after the script and
-names a host that can render it (PRD R-12).
+## The documentation tool (optional)
+
+The `guide` and `present` modes have one optional host tool, documentor,
+released with HELIX from `tools/documentor/` in this repository. It detects
+what a repository is, generates reference pages and architecture views,
+writes and evaluates the reader pages through an agent, checks that every
+page is current, builds the site, and renders decks and briefs. The only
+prerequisite is [uv](https://docs.astral.sh/uv/):
+
+```bash
+uv tool install "git+https://github.com/DocumentDrivenDX/helix@v0.19.0#subdirectory=tools/documentor"
+documentor doctor        # what this host can do: hugo, node, Chrome, LibreOffice, the agent CLI
+```
+
+Install it from the same HELIX release as the skill. Everything else is
+optional and reported by `documentor doctor`: Hugo builds a site;
+`documentor deck render` and `documentor doc render` render decks and
+briefs with node (pptxgenjs is cached on first use), Chrome exports a
+brief's PDF, and LibreOffice lets `documentor deck qa` rasterize a deck; an
+agent CLI (Claude Code by default)
+lets `documentor write` write pages headless. `documentor check`, the CI
+gate, needs none of them. Without documentor, both modes do each step by
+hand and say so; a host with no shell (GitHub Copilot) uses that path, or
+runs documentor in CI.
 
 ## The marker
 
@@ -70,9 +90,13 @@ flows:
     root: docs/helix/
 ```
 
-Optional keys: `graph:` (or `catalog:`) points at a catalog (step 1
+Optional keys: `version: 1` names the marker format; `defaults.flow` picks
+the flow when there are several; `graph:` (or `catalog:`) points at a catalog (step 1
 below); `autonomy:` sets the default level and may add stop triggers under
-`autonomy.stop_at_extensions:`. With no marker but a `docs/helix/` tree,
+`autonomy.stop_at_extensions:`; `publish:` and `handling:` decide the
+repository's guide (which audiences, traits, and pages, and what no page may
+contain; `workflows/references/publishing.md`); `prose:` (`strict`,
+`exempt`) makes `validate-instance.py` treat prose findings as blocking. With no marker but a `docs/helix/` tree,
 the skill engages by heuristic and says so. The full discipline is the
 skill's "Activation Discipline" section.
 
@@ -352,3 +376,30 @@ alignment finding.
 - [FEAT-013](../helix/01-frame/features/FEAT-013-runtime-install-coverage.md)
   and [TD-013](../helix/02-design/technical-designs/TD-013-multi-runtime-install.md):
   feature spec and technical design behind the install matrix.
+
+## Maintainers: publish a release
+
+Use GitHub **Releases → Draft a new release**, choose a new `vX.Y.Z` tag on
+current `main`, write the notes, and click **Publish release**. GitHub does not
+change source manifests itself. **Prepare UI release** returns a mismatched
+release to draft and opens a `chore(release): vX.Y.Z` PR synchronizing the
+Claude, Codex, marketplace, and documentor versions. Review and merge that PR.
+**Release auto-tag** then corrects the draft's tag and dispatches publication,
+install smoke checks, and the site build. The bundle publisher validates all
+versions before building, replaces the assets, and publishes the release.
+
+The repository must allow GitHub Actions to create pull requests. Only version
+metadata may differ between the original UI tag and the merged release commit;
+if other changes land meanwhile, completion stops instead of including them
+silently. Releases targeting older commits need a deliberately prepared release
+branch. Already published valid releases are never automatically retagged.
+
+For a release PR prepared locally, run
+`python3 scripts/release-version.py vX.Y.Z --write`, then open a PR titled
+`chore(release): vX.Y.Z`. The same merge workflow tags and publishes it.
+Manual version-guard runs check the requested tag rather than `main`.
+
+The v0.20.0 repair synchronizes all six version surfaces and replaces its tag
+and assets. Previously an independent guard deleted the mismatched tag while
+the publisher recreated it with stale manifests. Publication now blocks on its
+own version check and never relies on a parallel workflow deleting its output.

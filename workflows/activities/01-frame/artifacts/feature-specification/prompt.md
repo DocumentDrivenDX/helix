@@ -86,13 +86,13 @@ The brief decomposes into features at one granularity: **one feature per
 capability**, anchored to the PRD's `### Subsystem:` groupings (~one subsystem →
 one `FEAT-NNN`). Use these **layered tests** to place a candidate:
 
-1. **Primary — ship / cut / metric.** A candidate is its own **feature** if all
+1. **Primary — ship / cut / outcome.** A candidate is its own **feature** if all
    hold:
    - **Ship/cut:** it could be removed or deferred **without making another
      *named* capability incoherent** (it stands alone in the parking-lot).
-   - **Metric:** it carries its own **feature-level product/user outcome** as a
-     success metric — not a local counter (a button click or a row count is not a
-     feature metric).
+   - **Outcome:** it carries a feature-level user outcome that could be
+     observed; no numeric target is required. A button click or local row
+     count alone does not establish a feature-level outcome.
    If a candidate fails these — it cannot stand alone and has no outcome of its
    own — it is a **functional area** within a feature, not a feature.
 2. **Tie-breaker — bounded context.** When ship/cut is genuinely ambiguous, split
@@ -147,6 +147,15 @@ Lists, Segments", "API, CLI, docs") are usually **separate features**, not areas
 of one — each typically passes the Decomposition test as its own capability.
 Apply the test before treating them as areas.
 
+### Task Model
+Optional; add it when people use the feature directly. One row per task,
+named by what the person does ("Import a client's weekly files"), not
+numbered. Cite PRD User Segments and User Needs rows by name and business
+rules by their BR-n IDs; do not restate them. Realized by names the journey or
+the user flow (UF-XXX) that carries the task out. The Key column holds a
+stable slug that tools use to link journeys to tasks; keep it when the task is
+renamed.
+
 ### Functional Requirements
 Number each requirement for traceability. Group requirements by functional
 area when the feature spans multiple areas. Use stable prefixes that make the
@@ -179,8 +188,8 @@ Feature-level edge cases that span multiple stories. If an edge case is
 specific to one story, it belongs in that story's file.
 
 ### Success Metrics
-Feature-specific metrics, not product-level metrics from the PRD. How do
-you know this specific feature is working as intended?
+Optional indicators for learning from this feature in use. Keep delivery
+verification in requirements and story acceptance tests.
 
 ### Dependencies
 Name specific feature IDs, external APIs, and PRD requirement numbers.

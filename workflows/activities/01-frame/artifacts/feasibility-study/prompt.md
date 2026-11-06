@@ -19,9 +19,8 @@ Use these local resource summaries as grounding:
 
 ## Role Boundary
 
-Feasibility Study is not the Business Case, PRD, or Solution Design. It decides
-whether the opportunity is viable enough to justify deeper framing or delivery
-commitment. Business Case owns investment return; PRD owns required behavior;
+Feasibility Study informs investment, scope, and technical-risk decisions.
+Business Case owns investment return; PRD owns required behavior;
 Solution Design owns the chosen implementation approach.
 
 ## Completion Criteria

@@ -78,7 +78,6 @@ examples:
 workflow:
   creation_order: 0.2
   review_cycles: 1
-  approval_required: false
 
 relationships:
   informs:

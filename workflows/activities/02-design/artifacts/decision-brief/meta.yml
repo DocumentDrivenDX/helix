@@ -38,7 +38,7 @@ output:
     - DB-001-application-database-for-ai-workload.md
 
 reuse_policy: |
-  Update in place while draft or in review. Once approved, a change that
+  Update in place until an issued document cites it. After that, a change that
   alters the recommendation is a new revision of the brief; a deliverable
   that cites it pins the revision. When an ADR adopts the recommendation,
   link them with `ddx.links` and leave the brief as the record of the
@@ -46,7 +46,6 @@ reuse_policy: |
 
 validation:
   pin_links:
-    at_status: [approved]
     kinds: [informed_by, evaluates, supported_by]
 
   required_sections:
@@ -84,8 +83,8 @@ validation:
       description: The brief recommends and states what would change the recommendation; it does not claim authority over requirements or approved decisions, and cited external knowledge is treated as advisory
       severity: blocking
 
-    - check: evidence_pinned_when_approved
-      description: Once approved, every cited brief, profile, and source carries the revision it was read at
+    - check: evidence_pinned_at_publish
+      description: At the publish tier, every cited brief, profile, and source carries the revision it was read at
       severity: blocking
 
     - check: separable_decisions
@@ -101,11 +100,6 @@ template:
 example:
   file: example.md
 
-workflow:
-  review_cycles: 1
-  approval_required: true
-  approvers:
-    - Technical Lead
 
 relationships:
   informed_by:

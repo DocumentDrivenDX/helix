@@ -1,0 +1,18 @@
+id: mcp-server
+title: An MCP server, or a repository that connects to MCP servers
+detect:
+  - {files: "**/*.py", contains: "FastMCP\\(|@[a-z_]+\\.tool\\(", weight: 0.6}
+  - {files: .mcp.json, contains: "mcpServers", weight: 0.3}
+  - {files: "**/*.ts", contains: "@modelcontextprotocol/sdk", weight: 0.4}
+audiences: [developer]
+pages:
+  - audience: developer
+    id: mcp-tools
+    title: MCP tools
+    kind: reference
+    task: Find each tool an agent can call through the project's MCP servers, and which servers the repository itself connects to.
+    generated: mcp-tools
+watch: [".mcp.json"]
+handling:
+  never_publish:
+    - "server URLs or tokens from .mcp.json beyond the host name"

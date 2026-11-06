@@ -12,7 +12,6 @@ ddx:
 # Security Architecture
 
 **Scope**: DepositMatch CSV-first pilot
-**Status**: draft
 
 ## Decision
 

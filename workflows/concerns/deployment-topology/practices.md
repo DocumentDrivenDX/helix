@@ -11,10 +11,10 @@ the default was kept or that a split was justified and the premium paid.
 
 ## Decide and record the topology
 
-- The product MUST have a **recorded topology decision** (ADR) naming whether it
-  ships as a modular monolith, microservices, or serverless/FaaS. The default
-  is **modular-monolith**; any other choice MUST cite a specific forcing
-  function.
+- The TD MUST state the topology decision, naming whether the product ships as
+  a modular monolith, microservices, or serverless/FaaS. The default is
+  **modular-monolith**; any other choice is a deviation and MUST cite a specific
+  forcing function in an ADR.
 - For any topology other than the modular-monolith default, the ADR MUST name:
   the **forcing function** (independent scaling / team autonomy / complexity
   exceeding one deployable), evidence the **microservice premium is paid**
@@ -82,8 +82,8 @@ the default was kept or that a split was justified and the premium paid.
 
 ## Quality Gates
 
-- A **recorded topology decision** (ADR) exists; the default is
-  modular-monolith and any other choice cites a specific forcing function plus
+- The TD states the topology decision; the default is modular-monolith and any
+  other choice is recorded in an ADR citing a specific forcing function plus
   evidence the microservice premium is paid.
 - A **monolith has enforced internal module boundaries** following
   bounded-context fault lines — no un-modularized "big ball of mud".

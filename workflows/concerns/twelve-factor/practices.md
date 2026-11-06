@@ -86,7 +86,7 @@ at the codebase, the release artifact, or the runbook and confirm or reject it.
 - Deployed services stream to **stdout by default** and MUST NOT manage their
   own log files/rotation. CLI/MCP diagnostics use stderr when stdout carries
   results/protocol. A supported platform-native OTLP route requires a recorded
-  ADR and bounded queue/flush/loss policy under `o11y-otel`.
+  design decision in the TD and bounded queue/flush/loss policy under `o11y-otel`.
 - The environment owns routing/retention. A local/CI runner may capture safe
   streams into files and own rotation; this does not authorize file loggers in
   deployed applications. Verify one canonical ingestion route without duplicate
@@ -116,11 +116,6 @@ the deployable count and seams, the log/metric/trace schema, and the cluster
 
 ## Artifact impact (what selecting this changes)
 
-- **ADR** — records the **config + state + backing-services strategy**: config
-  and secrets from the environment, datastore/cache/queue/external services as
-  attached resources addressed by config handles, and where persistent/session
-  state lives so processes stay stateless. Also notes immutable build/release/run
-  and the disposability (SIGTERM, reentrant-jobs) contract.
 - **Deployment checklist / runbook** — records the **config/secret surface**
   (every config key the process reads), the **SIGTERM/graceful-shutdown
   behavior** and drain timeout, and **how logs are collected** through the selected platform route, including
@@ -128,7 +123,10 @@ the deployable count and seams, the log/metric/trace schema, and the cluster
 - **Technical design** — records the **process model** (process types and how
   each scales horizontally), the **config surface** (the full set of config keys, with owner and source),
   and the **state strategy** (what lives in backing services vs nothing in the
-  process).
+  process). It also states the **config + state + backing-services strategy**
+  (config and secrets from the environment, services as attached resources
+  addressed by config handles) and the immutable build/release/run and
+  disposability (SIGTERM, reentrant-jobs) contract.
 
 ## Quality Gates
 

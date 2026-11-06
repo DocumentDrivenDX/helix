@@ -59,12 +59,6 @@ exit_requirements:
       path: docs/helix/01-frame/features/**/*.md
       description: "Feature specs have FEAT-XXX identifiers"
 
-    # Success metrics must be quantified
-    - check: grep_present
-      pattern: "[0-9]+%|[0-9]+ (ms|seconds|minutes)|[<>][0-9]+"
-      path: docs/helix/01-frame/prd.md
-      description: "Success metrics contain numeric targets"
-
   manual:
     # PRD quality
     - "Problem section quantifies pain or names a specific failure mode"
@@ -81,8 +75,8 @@ exit_requirements:
     - "Each story names a specific persona from the PRD"
     - "Each story walkthrough traces a complete vertical slice"
     - "Test scenarios include concrete values, not placeholders"
-    # Approval
-    - "Stakeholder sign-off on PRD obtained"
-    - "Product Owner approval confirmed"
+    # Material decisions
+    - "Material product decisions resolved"
+    - "Product intent and priorities are clear for the scoped work"
 
 next_activity: design

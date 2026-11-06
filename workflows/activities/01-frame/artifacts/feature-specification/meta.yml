@@ -11,7 +11,7 @@ voice: artifact-signal
 description: |
   Feature-level authority document that translates PRD requirements into
   precise behavior, boundaries, functional areas, non-functional expectations,
-  edge cases, and feature-specific success measures. Acceptance criteria live
+  edge cases, and optional feature-learning indicators. Acceptance criteria live
   in user-stories (ADR-009); the feature spec carries FR-IDs and the
   decomposition test but does not define AC. Broad product-surface, workflow,
   IA, and documentation features must state the ideal future state and map
@@ -28,7 +28,6 @@ validation:
     - problem_statement
     - requirements
     - edge_cases_and_error_handling
-    - success_metrics
     - constraints_and_assumptions
     - out_of_scope
 
@@ -76,7 +75,7 @@ validation:
   pattern_checks:
     - pattern: "\\[NEEDS CLARIFICATION"
       expected: 0
-      message: Resolve all clarification markers before approval; a P0 feature cannot be approved with any open marker
+      message: Identify unresolved requirement choices; block only work that depends on them
       severity: blocking
 
     - pattern: "must|shall|will"
@@ -124,11 +123,6 @@ examples:
 workflow:
   creation_order: 4
   review_cycles: 2-3
-  approval_required: true
-  approvers:
-    - Product Owner
-    - Technical Lead
-    - QA Lead
 
 relationships:
   derived_from:
@@ -139,6 +133,8 @@ relationships:
     - solution-design
     - contract
     - test-plan
+    - user-flow
+    - user-journey-map
 
   registered_in:
     - feature-registry
@@ -168,11 +164,6 @@ specification_rules:
 tracking:
   id_format: FEAT-XXX
   id_scope: project
-  status_values:
-    - draft
-    - in_review
-    - approved
-    - superseded
 
 tags:
   - requirements
@@ -183,3 +174,8 @@ tags:
 
 version: 1.0.0
 last_updated: 2024-01-14
+
+# The visuals this type usually draws, each only when it earns its place (references/visuals.md).
+visuals:
+  - {kind: flow, form: pipeline, question: "What path does a user take through the feature?", source: "the feature's user flow"}
+  - {kind: state, form: lifecycle, question: "What states does the feature's main object go through?", source: "the feature's states"}

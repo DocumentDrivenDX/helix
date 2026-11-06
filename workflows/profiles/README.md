@@ -3,7 +3,7 @@
 A graph profile binds a flow (`.helix.yml` `flows[].profile`) to a subset of the
 artifact catalog plus relationship, authority, and validation rules. Artifact
 types stay reusable across profiles; a profile selects and parameterizes them.
-See ADR-015 and ADR-016.
+See ADR-017 and ADR-018.
 
 A flow without `profile:` uses `software-delivery`, so every existing marker is
 unchanged. An unknown profile id is a malformed marker.
@@ -19,7 +19,7 @@ Profile file shape (`workflows/profiles/<id>.yml`):
 | `edge_kinds` | Link kinds (`ddx.links[].kind`) the profile accepts, beyond `depends_on`, `informs`, `supersedes`. |
 | `authority.within_graph` | `positional` (existing: upstream activity governs downstream) or `advisory` (nothing in the graph governs by position). |
 | `authority.cross_graph` | Always `advisory` unless the consuming flow grants `governing`. |
-| `validation.draft` / `validation.published` | Which `meta.yml validation` tiers apply at each `ddx.status`. |
+| `validation.default` / `validation.publish` | Which `meta.yml validation` tiers apply by default and under `validate-instance.py --tier publish`. Lifecycle status never selects a tier. |
 
 The software-delivery graph is `workflows/graph.yml`. Other profiles' graphs are
 generated to `workflows/profiles/<id>.graph.yml` by

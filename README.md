@@ -17,6 +17,13 @@ surface belong to runtimes like DDx.
 
 ![HELIX Quickstart Demo](docs/demos/helix-quickstart/recordings/helix-quickstart.gif)
 
+## Contributor orientation
+
+Start with the [solution overview](docs/helix/02-design/solution-overview.md),
+follow the [architecture walkthrough](docs/helix/02-design/architecture-walkthrough.md),
+and use the [developer guide](docs/guide/developer/developer-guide.md) for setup,
+change recipes, and verification.
+
 ## Local Microsite Review
 
 Use the standard startup script when reviewing the Hugo site locally:
@@ -34,7 +41,7 @@ artifacts, or resource summaries:
 
 ```bash
 python3 scripts/generate-reference.py
-python3 scripts/publish-artifacts.py
+uv run --project tools/documentor documentor record --root .
 python3 scripts/publish-resources.py
 ```
 

@@ -36,8 +36,17 @@ nobody asked for). Both gates are required.
   "while we're here".
 - **No pre-release legacy shims**: backward-compat aliases, fallbacks, and
   deprecation shims are not added for consumers that do not exist yet.
-- **Bounded blast radius**: the change touches the files the work item scopes,
-  not an incidental codemod sweep across the tree.
+- **Bounded blast radius**: the change serves the requested outcome, including
+  necessary caller updates and removal of paths it superseded; unrelated cleanup
+  and consolidation the change did not require remain separate work.
+- **No unapproved stack additions**: no second programming language, new
+  runtime dependency, or extra toolchain (a separate virtual environment,
+  package manager, or build tool) beyond the selected `language-runtime` and
+  stack concerns, unless the work item or an ADR records the decision.
+- **Implementation-neutral code stays neutral**: when the system supports more
+  than one implementation of an interface (for example SQLite and Postgres
+  backends), behavior differences live behind that interface, not in
+  implementation-specific conditionals spread through callers.
 - **Recorded scope**: what is in scope and what is explicitly a non-goal is
   written down, so "done" is measured against a stated boundary, not a mood.
 
@@ -70,10 +79,11 @@ nobody asked for). Both gates are required.
 
 ### Bounded blast radius
 
-- The diff is scoped to the work item. A change that rewrites or sweeps files
-  outside the item's stated scope (a tree-wide `sed`, an opportunistic rename)
-  is reverted to scope; the off-scope edit becomes its own tracked item if it is
-  worth doing.
+- Keep the requested outcome bounded while following its consequences through
+  affected producers and consumers. Mechanical propagation may touch many files;
+  adding a parallel API to avoid it can leave lasting complexity. Unrelated
+  behavior changes, opportunistic cleanup and consolidating mechanisms the
+  change did not make redundant remain outside the work item's scope.
 
 ## Exceptions (honored in concern-resolution and at the gate)
 
@@ -105,8 +115,16 @@ placeholder is never reported as a satisfied criterion.
   YAGNI violation; remove it.
 - A requested capability shipped disabled / read-only "for security" with no
   recorded tradeoff → unrequested scope retreat; restore it or record the change.
-- A diff that edits files outside the work item's stated scope (tree-wide sweep,
-  drive-by rename) → blast-radius; revert to scope.
+- A diff changes behavior unrelated to the requested outcome → blast-radius;
+  remove unrelated edits while retaining necessary caller updates and removal
+  of paths the change superseded.
+- A file in a language the stack concerns do not select, a new entry in the
+  dependency manifest, or a second virtual environment or package manager with
+  no recorded decision → unapproved stack addition; remove it or record the
+  decision in an ADR.
+- A conditional on the active backend or implementation (`if sqlite: … else:
+  …`) added at a call site to make one implementation pass → implementation
+  leak; move the difference behind the interface.
 
 ## When to use
 
@@ -121,4 +139,4 @@ size gate on top; it does not replace verification's evidence requirement.
 Selecting this concern requires these artifacts to change (a selected concern absent from them is drift):
 - IMPLEMENTATION_PLAN: the scope boundary — what is in scope, and the explicit non-goals the change must not build
 - TEST_PLAN: no acceptance criterion is satisfied by a stubbed / placeholder path; incompleteness markers on AC-exercised code are a blocking finding
-- ADR: any recorded exception (explicitly phased placeholder, or requested scope reduction) and its reason
+- ADR: any recorded exception (explicitly phased placeholder, or requested scope reduction) and its reason, and any added language, runtime dependency, or toolchain

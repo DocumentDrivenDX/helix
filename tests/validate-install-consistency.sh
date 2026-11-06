@@ -236,5 +236,15 @@ if (( COPILOT_LINES > 60 )); then
 fi
 echo "ok: copilot-instructions.md carries no mode contract text ($COPILOT_LINES lines)"
 
+# documentor is released with HELIX: its version is the plugin's.
+PLUGIN_VERSION=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version"])' "$PLUGIN_JSON")
+DOCUMENTOR_VERSION=$(sed -n 's/^version = "\(.*\)"$/\1/p' "$REPO_ROOT/tools/documentor/pyproject.toml")
+DOCUMENTOR_INIT_VERSION=$(sed -n 's/^__version__ = "\(.*\)"$/\1/p' "$REPO_ROOT/tools/documentor/src/documentor/__init__.py")
+if [[ "$DOCUMENTOR_VERSION" != "$PLUGIN_VERSION" || "$DOCUMENTOR_INIT_VERSION" != "$PLUGIN_VERSION" ]]; then
+  echo "FAIL: documentor version (pyproject $DOCUMENTOR_VERSION, __init__ $DOCUMENTOR_INIT_VERSION) differs from plugin.json $PLUGIN_VERSION" >&2
+  exit 1
+fi
+echo "ok: documentor version matches plugin.json ($PLUGIN_VERSION)"
+
 echo
 echo "validate-install-consistency: PASS"

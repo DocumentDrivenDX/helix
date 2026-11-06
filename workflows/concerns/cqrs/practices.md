@@ -22,7 +22,7 @@ that selected CQRS — not to every context in the product.
 
 ## Frame
 
-- Choose and **record the consistency model in an ADR**: **synchronous**
+- Choose and **state the consistency model in the TD**: **synchronous**
   (read model updated in the write transaction — strongly consistent, simpler,
   same store) vs. **eventually consistent** (read model updated out-of-band,
   separate store — scalable, but a stale-read window). Name the **bounded
@@ -31,7 +31,7 @@ that selected CQRS — not to every context in the product.
 - A **synchronous** consistency model (read model updated in the write
   transaction, same store) is the simpler choice when strong read-after-write is
   required; prefer it unless the asymmetry/scale signal justifies the
-  eventually-consistent separation. Whichever is chosen MUST match the ADR.
+  eventually-consistent separation. Whichever is chosen MUST match the TD.
 - The selection MUST drive the artifacts: the **technical-design** SHOULD show
   separate command/query models, the projection/read-model, and the
   eventual-consistency handling; the **data-design** SHOULD show the read schema
@@ -91,14 +91,14 @@ that selected CQRS — not to every context in the product.
   domain logic) — verifiable that no business rule lives in the read side.
 - Commands are **named for the business task** (intent-bearing), not anemic field
   setters.
-- The **consistency model is recorded in an ADR** (synchronous shared-store vs.
+- The **consistency model is stated in the TD** (synchronous shared-store vs.
   eventually-consistent separate-store) and the implementation matches it.
 - When **eventually consistent**, consumers tolerate the **staleness window** (no
   read-your-write assumption across the boundary) and the **projection updater is
   idempotent** and failure/duplicate-tolerant; separate stores have a defined
   synchronization path.
-- Selecting CQRS is reflected in the artifacts: the **ADR** (split + consistency
-  model), the **technical-design** (separate command/query models + projection +
+- Selecting CQRS is reflected in the artifacts: the **technical-design** (read/write split +
+  consistency model, separate command/query models + projection +
   eventual-consistency handling), and the **data-design** (read schema distinct
   from write schema + sync path) — verifiable that the selection is not silent
   drift.
