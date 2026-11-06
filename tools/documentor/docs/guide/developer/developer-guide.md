@@ -1,4 +1,4 @@
-<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=agent-opus -->
+<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=agent-opus reviewed=2026-11-06/independent-evaluator-agent--sonnet---after-two-fixes-it-named/bf6a5b3554e81d43 -->
 <!-- helix:source pyproject.toml sha256:1b74d40b6314a968 -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
 <!-- helix:source ../../.github/workflows/documentor.yml sha256:ab2fb8338de1a028 -->
