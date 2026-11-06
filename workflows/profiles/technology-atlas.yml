@@ -4,10 +4,12 @@ profile:
   description: Technology intelligence graph; knowledge is advisory, publications are pinned.
 types:
   - component-profile
+  - decision-brief
   - adr
   - deliverable
 locations:
   component-profile: technology/{component-name}.md
+  decision-brief: decisions/DB-{number}-{decision-name}.md
   adr: decisions/ADR-{number}-{decision-name}.md
   deliverable: publications/{name}.md
 edge_kinds: [addresses, evaluates, supported_by, contradicts]

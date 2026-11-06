@@ -147,6 +147,10 @@ nodes:
   type: library:data-design
   activity: 02-design
   cardinality: many
+- id: decision-brief
+  type: library:decision-brief
+  activity: 02-design
+  cardinality: many
 - id: design-system
   type: library:design-system
   activity: 02-design
@@ -270,6 +274,10 @@ edges:
   required: false
 - from: component-profile
   to: tech-spike
+  kind: informs
+  required: false
+- from: component-profile
+  to: decision-brief
   kind: informs
   required: false
 - from: component-profile
@@ -570,6 +578,18 @@ edges:
   required: false
 - from: data-design
   to: test-plan
+  kind: informs
+  required: false
+- from: decision-brief
+  to: adr
+  kind: informs
+  required: false
+- from: decision-brief
+  to: solution-design
+  kind: informs
+  required: false
+- from: decision-brief
+  to: deliverable
   kind: informs
   required: false
 - from: design-system

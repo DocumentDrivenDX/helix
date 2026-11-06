@@ -28,13 +28,29 @@ nodes:
   type: library:adr
   activity: 02-design
   cardinality: many
+- id: decision-brief
+  type: library:decision-brief
+  activity: 02-design
+  cardinality: many
 - id: deliverable
   type: library:deliverable
   activity: 06-iterate
   cardinality: many
 edges:
 - from: component-profile
+  to: decision-brief
+  kind: informs
+  required: false
+- from: component-profile
   to: adr
+  kind: informs
+  required: false
+- from: decision-brief
+  to: adr
+  kind: informs
+  required: false
+- from: decision-brief
+  to: deliverable
   kind: informs
   required: false
 allowed_cycles: []

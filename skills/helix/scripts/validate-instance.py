@@ -14,6 +14,16 @@ Checks run, in order:
                      other rule types are reported as unsupported without failing
   placeholder        leftover template markers ([TODO], TBD, [Fill in], ...)
 
+Scope variants: when the instance sets `ddx.scope` and the type's
+`validation.by_scope.<scope>` exists, its `required_sections` and
+`pattern_checks` replace the type-level lists.
+
+Validation tiers (graph profiles, ADR-015): when the instance sets
+`ddx.status: draft` and its flow's profile (`.helix.yml` `flows[].profile`,
+default software-delivery) does not run `all` checks at draft, content checks
+(required_sections, pattern_checks, automated_checks, placeholder) are reported
+as warnings; frontmatter checks stay blocking. Any other status runs every check.
+
 Exit codes: 0 = no blocking findings, 1 = blocking findings, 2 = usage or
 resolution error (instance unreadable, type or catalog unresolvable).
 
@@ -150,6 +160,32 @@ def load_catalog(activities: Path) -> dict[str, dict]:
         type_id = (meta.get("artifact") or {}).get("id") or meta_path.parent.name
         types[type_id] = {"dir": meta_path.parent, "meta": meta}
     return types
+
+
+def find_profile(instance: Path, activities: Path) -> dict:
+    """Profile of the flow whose root contains the instance (default software-delivery)."""
+    profile_id = "software-delivery"
+    for parent in instance.resolve().parents:
+        marker = parent / ".helix.yml"
+        if not marker.is_file():
+            continue
+        try:
+            flows = (yaml.safe_load(marker.read_text(encoding="utf-8")) or {}).get("flows") or []
+        except yaml.YAMLError:
+            flows = []
+        best = None
+        for flow in flows:
+            root = (parent / str(flow.get("root", ""))).resolve()
+            if root == instance.resolve() or root in instance.resolve().parents:
+                if best is None or len(str(root)) > len(str(best[0])):
+                    best = (root, flow)
+        if best:
+            profile_id = best[1].get("profile") or profile_id
+        break
+    path = activities.parent / "profiles" / f"{profile_id}.yml"
+    if not path.is_file():
+        return {"validation": {"draft": ["all"]}}
+    return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
 
 
 def resolve_type(fm: dict | None, explicit: str | None, instance: Path, catalog: dict[str, dict]) -> str:
@@ -406,14 +442,26 @@ def main() -> int:
     validation = entry["meta"].get("validation") or {}
     template = entry["dir"] / ((entry["meta"].get("template") or {}).get("file") or "template.md")
 
+    ddx = (fm or {}).get("ddx") or {}
+    scoped = (validation.get("by_scope") or {}).get(str(ddx.get("scope"))) or {}
+    validation = {**validation, **{k: v for k, v in scoped.items() if k in ("required_sections", "pattern_checks")}}
+    draft_tier = (find_profile(args.instance, activities).get("validation") or {}).get("draft") or ["all"]
+    soften = str(ddx.get("status")) == "draft" and "all" not in draft_tier
+
     report = Report()
     check_frontmatter(fm, report)
+    structural = len(report.findings)
     markdown = str((entry["meta"].get("output") or {}).get("format") or "markdown").lower() == "markdown"
     check_required_sections(validation.get("required_sections") or [], template, body, markdown, report)
     check_rule_entries("pattern_checks", validation.get("pattern_checks") or [], body, base, report)
     check_rule_entries("automated_checks", validation.get("automated_checks") or [], body, base, report)
     check_placeholders(body, base, report)
     check_delivery_history(text, 1, report)
+    if soften:
+        for finding in report.findings[structural:]:
+            if finding["severity"] == "blocking":
+                finding["severity"] = "warning"
+                finding["message"] += " (draft: enforced at publication)"
 
     summary = report.summary()
     if args.format == "json":

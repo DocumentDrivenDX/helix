@@ -61,3 +61,34 @@ assert resolve(two) == [], "two-profile marker must resolve"
 assert resolve({"flows": [{"id": "x", "profile": "nope", "root": "x/"}]}) == ["unknown profile nope"]
 print("OK: profiles")
 PYEOF
+
+# Validation tiers (T4): a draft with missing content passes in an atlas flow
+# and fails once approved; the same draft is still strict in software-delivery.
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+mkdir -p "$tmp/knowledge" "$tmp/docs/helix"
+cat > "$tmp/.helix.yml" <<'YAML'
+flows:
+  - id: helix
+    root: docs/helix/
+  - id: atlas
+    profile: technology-atlas
+    root: knowledge/
+YAML
+brief() { # status
+  printf -- '---\nddx:\n  id: DB-001\n  type: decision-brief\n  status: %s\n  authoring:\n    home: repo\n---\n\n# DB-001: Incomplete\n\n## Context\n\nOnly context so far.\n' "$1"
+}
+validator="$repo_root/skills/helix/scripts/validate-instance.py"
+brief draft > "$tmp/knowledge/draft.md"
+brief approved > "$tmp/knowledge/approved.md"
+brief draft > "$tmp/docs/helix/draft.md"
+python3 "$validator" "$tmp/knowledge/draft.md" --catalog "$repo_root/workflows" >/dev/null || fail "incomplete draft should pass in an atlas flow"
+if python3 "$validator" "$tmp/knowledge/approved.md" --catalog "$repo_root/workflows" >/dev/null; then fail "incomplete approved brief should fail"; fi
+if python3 "$validator" "$tmp/docs/helix/draft.md" --catalog "$repo_root/workflows" >/dev/null; then fail "incomplete draft should still fail in software-delivery"; fi
+
+# Scope variants: a reusable component-profile is judged by its own section list.
+python3 "$validator" "$repo_root/workflows/activities/00-discover/artifacts/component-profile/example-reusable.md" --catalog "$repo_root/workflows" >/dev/null \
+  || fail "reusable component-profile example should validate"
+sed 's/^  scope: reusable/  scope: contextual/' "$repo_root/workflows/activities/00-discover/artifacts/component-profile/example-reusable.md" > "$tmp/as-contextual.md"
+if python3 "$validator" "$tmp/as-contextual.md" --catalog "$repo_root/workflows" >/dev/null; then fail "reusable content labelled contextual should fail"; fi
+echo "OK: validation tiers and scope variants"
