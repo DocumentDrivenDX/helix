@@ -34,6 +34,24 @@ effect on the scoped user outcome before blocking authorized work. Explicit
 source and identity metadata still protect authoring correctness when a ddx
 block is supplied.
 
+Scope variants: when the instance sets `ddx.scope` and the type's
+`validation.by_scope.<scope>` exists, its `required_sections` and
+`pattern_checks` replace the type-level lists.
+
+Pinned links: under `--tier publish`, when the type declares
+`validation.pin_links: {kinds: [...]}`, every `ddx.links` mapping whose `kind`
+is listed must carry `rev` (a `git:<commit>` or `sha256:<hex>` revision), so an
+issued document is reproducible from pinned sources. `pin-sources.py` fills
+and verifies pins. The flow profile's `validation.default` tier softens content
+findings to warnings until `--tier publish` is requested; lifecycle status
+selects nothing. `pin-sources.py` fills and verifies pins.
+
+Validation tiers (graph profiles, ADR-017): when the instance sets
+`ddx.status: draft` and its flow's profile (`.helix.yml` `flows[].profile`,
+default software-delivery) does not run `all` checks at draft, content checks
+(required_sections, pattern_checks, automated_checks, placeholder) are reported
+as warnings; frontmatter checks stay blocking. Any other status runs every check.
+
 Exit codes: 0 = no blocking findings, 1 = blocking findings, 2 = usage or
 resolution error (instance unreadable, type or catalog unresolvable).
 
@@ -213,6 +231,32 @@ def load_catalog(activities: Path) -> dict[str, dict]:
     return types
 
 
+def find_profile(instance: Path, activities: Path) -> dict:
+    """Profile of the flow whose root contains the instance (default software-delivery)."""
+    profile_id = "software-delivery"
+    for parent in instance.resolve().parents:
+        marker = parent / ".helix.yml"
+        if not marker.is_file():
+            continue
+        try:
+            flows = (yaml.safe_load(marker.read_text(encoding="utf-8")) or {}).get("flows") or []
+        except yaml.YAMLError:
+            flows = []
+        best = None
+        for flow in flows:
+            root = (parent / str(flow.get("root", ""))).resolve()
+            if root == instance.resolve() or root in instance.resolve().parents:
+                if best is None or len(str(root)) > len(str(best[0])):
+                    best = (root, flow)
+        if best:
+            profile_id = best[1].get("profile") or profile_id
+        break
+    path = activities.parent / "profiles" / f"{profile_id}.yml"
+    if not path.is_file():
+        return {"validation": {"draft": ["all"]}}
+    return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+
+
 def resolve_type(fm: dict | None, explicit: str | None, instance: Path, catalog: dict[str, dict]) -> str:
     prefixes = dict(PREFIX_TYPES)
     for type_id, entry in catalog.items():
@@ -265,6 +309,50 @@ def check_frontmatter(fm: dict | None, report: Report) -> None:
     home = (ddx.get("authoring") or {}).get("home") if isinstance(ddx.get("authoring"), dict) else None
     if home not in ("repo", "external-tool"):
         report.add("blocking", "frontmatter.authoring_home", "ddx.authoring.home must be `repo` or `external-tool`", 1)
+
+
+LINK_KINDS = {"informed_by", "informs", "addresses", "evaluates", "supported_by", "contradicts"}
+
+
+def check_links(fm: dict | None, profile: dict, report: Report) -> None:
+    """ddx.links shape, vocabulary, and the profile's authority grant (ADR-018)."""
+    ddx = (fm or {}).get("ddx") or {}
+    authority = profile.get("authority") or {}
+    for i, link in enumerate(ddx.get("links") or []):
+        if isinstance(link, str):
+            continue  # bare id: an upstream reference
+        if not isinstance(link, dict) or not link.get("id"):
+            report.add("blocking", f"links.{i}", "a ddx.links entry must be an id string or a mapping with `id`")
+            continue
+        kind = link.get("kind")
+        if kind is not None and kind not in LINK_KINDS:
+            report.add("warning", f"links.{i}.kind", f"link '{link['id']}' has unknown kind '{kind}'")
+        allowed = profile.get("edge_kinds")
+        if allowed and kind and kind not in {"informed_by", "informs", *allowed}:
+            report.add("warning", f"links.{i}.kind", f"link kind '{kind}' is not allowed by this flow's profile")
+        grant = link.get("authority")
+        if grant is not None and grant not in ("advisory", "governing"):
+            report.add("blocking", f"links.{i}.authority", f"link '{link['id']}' authority must be advisory or governing")
+        if grant == "governing":
+            scope = "cross_graph" if link.get("graph") else "within_graph"
+            if authority.get(scope, "advisory" if scope == "cross_graph" else "positional") == "advisory":
+                report.add("blocking", f"links.{i}.authority",
+                           f"link '{link['id']}' claims governing authority but this flow's profile grants {scope.replace('_', '-')} references advisory only; the consuming graph must grant it")
+        if kind == "contradicts":
+            report.add("info", f"links.{i}.contradicts", f"contradicts '{link['id']}': surfaced for review, never a validation failure")
+
+
+def check_pinned_links(fm: dict | None, pin: dict, report: Report) -> None:
+    ddx = (fm or {}).get("ddx") or {}
+    if not pin:
+        return
+    kinds = set(pin.get("kinds") or [])
+    for i, link in enumerate(ddx.get("links") or []):
+        if not isinstance(link, dict) or link.get("kind") not in kinds:
+            continue
+        rev = str(link.get("rev") or "")
+        if not re.match(r"^(git:[0-9a-f]{7,40}|sha256:[0-9a-f]{64})$", rev):
+            report.add("blocking", f"pin_links.{i}", f"link '{link.get('id')}' ({link.get('kind')}) needs a pinned rev (git:<commit> or sha256:<hex>) at the publish tier")
 
 
 def check_required_sections(required: list, template: Path, body: str, markdown: bool, report: Report) -> None:
@@ -680,6 +768,8 @@ def main() -> int:
     parser.add_argument("--catalog", help="workflows/ (or activities/) directory of the artifact catalog")
     parser.add_argument("--type", dest="type_id", help="artifact type id when the instance does not declare one")
     parser.add_argument("--format", choices=("text", "json"), default="text")
+    parser.add_argument("--tier", choices=("default", "publish"), default="default",
+                        help="publish applies the flow profile's publish tier (full validation and pinned sources); default applies its default tier")
     parser.add_argument("--strict-prose", action="store_true", help="report prose findings as blocking")
     args = parser.parse_args()
 
@@ -697,8 +787,16 @@ def main() -> int:
     validation = entry["meta"].get("validation") or {}
     template = entry["dir"] / ((entry["meta"].get("template") or {}).get("file") or "template.md")
 
+    ddx = (fm or {}).get("ddx") or {}
+    scoped = (validation.get("by_scope") or {}).get(str(ddx.get("scope"))) or {}
+    validation = {**validation, **{k: v for k, v in scoped.items() if k in ("required_sections", "pattern_checks")}}
+    profile = find_profile(args.instance, activities)
+    default_tier = (profile.get("validation") or {}).get("default") or ["all"]
+    soften = args.tier == "default" and "all" not in default_tier
     report = Report()
     check_frontmatter(fm, report)
+    check_links(fm, profile, report)
+    structural = len(report.findings)
     markdown = str((entry["meta"].get("output") or {}).get("format") or "markdown").lower() == "markdown"
     check_required_sections(validation.get("required_sections") or [], template, body, markdown, report)
     check_rule_entries("pattern_checks", validation.get("pattern_checks") or [], body, base, report)
@@ -706,10 +804,18 @@ def main() -> int:
     check_placeholders(body, base, report)
     check_delivery_history(text, 1, report)
     check_visuals(entry["meta"], body, base, report)
+    if args.tier == "publish":
+        check_pinned_links(fm, validation.get("pin_links") or {}, report)
     settings, root = project_prose_settings(args.instance)
     if prose_audited(entry["meta"], args.instance, settings, root):
         strict = args.strict_prose or bool(settings.get("strict"))
         check_prose(entry["meta"], activities, body, base, strict, report)
+
+    if soften:
+        for finding in report.findings[structural:]:
+            if finding["severity"] == "blocking":
+                finding["severity"] = "warning"
+                finding["message"] += " (enforced at the publish tier)"
 
     summary = report.summary()
     if args.format == "json":

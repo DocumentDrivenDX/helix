@@ -48,6 +48,7 @@ DEFAULT_RUNNER = (
     "Bash(grep:*),Bash(python3 {repo}/skills/helix/scripts/:*)'"   # the skill's own scripts only; the runner snapshots and diffs the workspace itself
 )
 JUDGE_RUNNER = "claude -p {prompt} --output-format json --max-turns 1"
+TWO_FLOW_MARKER = "flows:\n  - id: helix\n    root: docs/helix/\n  - id: atlas\n    profile: technology-atlas\n    root: knowledge/\nautonomy:\n  level: high\n"
 MARKER = "flows:\n  - id: helix\n    root: docs/helix/\nautonomy:\n  level: high\n"
 
 
@@ -74,6 +75,10 @@ def make_workspace(fixture: str, keep_dir: Path | None) -> Path:
         shutil.copy2(src, dst)
         for d in ("01-frame", "02-design", "03-test", "04-build", "05-deploy", "06-iterate"):
             (ws / "docs" / "helix" / d).mkdir(parents=True, exist_ok=True)
+    elif fixture == "two-flow":
+        shutil.copytree(FIXTURE_BASELINE, ws, dirs_exist_ok=True)
+        (ws / "knowledge").mkdir(exist_ok=True)
+        (ws / ".helix.yml").write_text(TWO_FLOW_MARKER, encoding="utf-8")
     elif re.fullmatch(r"session-[a-z-]+", fixture):
         overlay = REPO / "evals" / "fixtures" / fixture
         if not overlay.is_dir():

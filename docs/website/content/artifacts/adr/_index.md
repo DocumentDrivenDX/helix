@@ -24,3 +24,5 @@ generated: true
 - [ADR-014: Deferred: architecture-style slot occupants remain four separate concerns](adr-014-architecture-style-slot-shape-deferred/)
 - [ADR-015: Human documentation is generated from artifacts, with provenance](adr-015-human-documentation-is-generated-from-artifacts-with-provenance/)
 - [ADR-016: Visuals are one vocabulary, drawn from governed sources](adr-016-visuals-are-one-vocabulary-drawn-from-governed-sources/)
+- [ADR-017: Flows bind to a graph profile through an optional `profile:` key](adr-017-flow-profile-binding/)
+- [ADR-018: Cross-graph references are advisory unless the consumer grants authority](adr-018-advisory-vs-governing-authority/)

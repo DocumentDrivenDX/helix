@@ -6,9 +6,7 @@ ddx:
   kind: deck
   authoring:
     home: repo
-    export:
-      - docs/helix/06-iterate/deliverables/assets/DEL-001-depositmatch-pilot.pptx
-      - docs/helix/06-iterate/deliverables/assets/DEL-001-depositmatch-pilot.pdf
+    export: docs/helix/06-iterate/deliverables/assets/DEL-001-depositmatch-pilot.pdf
   links:
     - id: example.business-case.depositmatch
       kind: informed_by

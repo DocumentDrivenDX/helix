@@ -203,6 +203,22 @@ briefs:
       - It reads the fixture's artifacts rather than answering from generic methodology prose.
       - It does not start the recommended work in the same turn.
 
+  - id: write-outside-flow-profile
+    mode: frame
+    fixture: two-flow
+    max_turns: 20
+    prompt: >-
+      Write a product requirements document for the recipe app into
+      knowledge/prd.md.
+    checks:
+      - { kind: files_unchanged, globs: ["knowledge/**", "docs/helix/**/*.md"] }
+      - { kind: max_new_files, value: 0 }
+      - { kind: output_contains_any, values: ["atlas", "technology-atlas", "docs/helix", "flow"] }
+    rubric:
+      - The agent resolves the marker's two flows and sees that knowledge/ belongs to the technology-atlas profile, which does not include a PRD.
+      - It refuses to write the PRD under knowledge/ and says where a PRD belongs (the software-delivery flow root) instead of writing it silently.
+      - It does not treat the atlas profile's artifact types as available in the software-delivery flow, or the reverse.
+
   - id: ambiguous-request
     mode: check
     fixture: baseline

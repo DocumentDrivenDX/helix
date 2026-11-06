@@ -1,0 +1,25 @@
+# Technology Atlas: governed technology intelligence (briefs, decisions, publications).
+profile:
+  id: technology-atlas
+  description: Technology intelligence graph; knowledge is advisory, publications are pinned.
+types:
+  - component-profile
+  - technology-assessment
+  - position-paper
+  - decision-brief
+  - adr
+  - deliverable
+locations:
+  component-profile: technology/{component-name}.md
+  technology-assessment: assessments/TA-{number}-{subject}.md
+  position-paper: positions/PP-{number}-{subject}.md
+  decision-brief: decisions/DB-{number}-{decision-name}.md
+  adr: decisions/ADR-{number}-{decision-name}.md
+  deliverable: publications/{name}.md
+edge_kinds: [addresses, evaluates, supported_by, contradicts]
+authority:
+  within_graph: advisory
+  cross_graph: advisory
+validation:
+  default: [structure]
+  publish: [all]

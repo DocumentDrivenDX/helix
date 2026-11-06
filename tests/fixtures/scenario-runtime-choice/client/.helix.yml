@@ -1,0 +1,4 @@
+flows:
+  - id: client
+    profile: technology-atlas
+    root: ./

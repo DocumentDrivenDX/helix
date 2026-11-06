@@ -172,7 +172,8 @@ available.
 Targets: a slide file (`.pptx`) from the script (`documentor deck render`
 when the host has documentor and node; else the host's
 presentation tooling), plus a PDF whenever the host can export one. Record
-each rendered path in `authoring.export` (several paths are allowed) and
+the primary render (the PDF when produced, else the slide file) in
+`authoring.export`, which is a single path string, and every rendered path
 under `## Render`. Without a renderer, or a rasterizer for the visual check,
 the script is still produced: record under `## Render` which targets were
 not produced and why, name the host that can render it, and run the gate on
@@ -224,4 +225,10 @@ source artifact and `authoring.export` pointing at the renders. Report: the
 takeaway sentence, the titles-only outline, assumptions and gaps, gate
 results, and where the files are. Report material unresolved choices and
 limits of evidence without assigning a lifecycle label. External distribution
-and explicit domain sign-off require the applicable authorization.
+and explicit domain sign-off require the applicable authorization. Before a
+deliverable is issued, pin the sources: run
+`skills/helix/scripts/pin-sources.py pin <deliverable>` so every source link
+carries a `rev`, then `check` it and validate with `--tier publish`. An issued
+deliverable is reproducible from those pinned revisions; later edits to a
+source never change it, and updating a source means a new revision of the
+deliverable.

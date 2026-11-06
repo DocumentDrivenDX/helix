@@ -6,11 +6,16 @@ ddx:
   kind: [deck | one-pager | brief]
   authoring:
     home: repo
-    export:
-      - [path to rendered .pptx, and .pdf when the host exports one]
+    export: [path to the primary render, the .pdf when produced, else the .pptx; one path string. List every render under Render]
   links:
     - id: [source artifact id]
       kind: informed_by
+      rev: [git:<commit> or sha256:<hex>; required at status approved, filled by pin-sources.py]
+    # - id: [source in another graph]
+    #   graph: [graph name]
+    #   kind: informed_by
+    #   rev: [pinned revision]
+    #   authority: advisory
 ---
 
 # [Deck or document title: the takeaway as a claim]

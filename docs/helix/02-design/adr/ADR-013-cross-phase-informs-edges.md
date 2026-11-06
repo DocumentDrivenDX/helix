@@ -78,3 +78,4 @@ follow-up validator concern, not required by this ADR
 - [PRD](../../01-frame/prd.md)
 - [Plan: 2026-05-30 Artifact Types and Concerns Audit](../../../archive/helix/02-design/plan-2026-05-30-artifact-types-and-concerns-audit.md)
 - ADR-004: Dependencies Encoding
+- [ADR-018](ADR-018-advisory-vs-governing-authority.md) (accepted): defines instance-level typed `ddx.links` and cross-graph authority; this ADR remains the rule for `informs` edges between artifact types.

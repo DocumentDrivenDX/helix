@@ -21,6 +21,14 @@ description: |
   instance per candidate; several candidates for one decision share the Need
   and Required Capabilities sections word for word.
 
+  Two scopes, set in frontmatter as `ddx.scope`. `contextual` (the default)
+  is the project-bound profile described above. `reusable` is a technology
+  brief: only the portable factual sections plus Capabilities and Limits,
+  with no Need, Required Capabilities, Capability Alignment, verdict, or
+  Competitive Landscape. A reusable brief is referenced, pinned by revision,
+  from other documents instead of being copied; a contextual profile or a
+  decision-brief supplies the project-specific fit.
+
 output:
   location: docs/helix/00-discover/component-profile-[component-name].md
   format: markdown
@@ -72,8 +80,12 @@ validation:
       message: "Required Capabilities must list at least one C-numbered capability"
 
   quality_checks:
+    - check: reusable_is_context_free
+      description: At `reusable` scope no section names a project, client, or project artifact; Capabilities and Limits states what the record shows without a verdict, a Need, or a recommendation, and every claim still cites at the clause
+      severity: blocking
+
     - check: need_before_component
-      description: Need and Required Capabilities cite project artifacts only (no numbered source appears in them); every capability names the goal it serves, the artifact it comes from, and what public evidence would settle it
+      description: At contextual scope, Need and Required Capabilities cite project artifacts only (no numbered source appears in them); every capability names the goal it serves, the artifact it comes from, and what public evidence would settle it
       severity: blocking
 
     - check: claims_cite_at_the_clause
@@ -116,6 +128,30 @@ validation:
       description: The profile assesses one candidate; the choice among candidates lives in an ADR that cites the profiles
       severity: warning
 
+  by_scope:
+    reusable:
+      required_sections:
+        - scope
+        - summary
+        - how_to_read_this_profile
+        - what_it_is
+        - capabilities_and_limits
+        - technology_and_operations
+        - pricing_and_licensing
+        - confidence
+        - open_questions
+        - sources
+      pattern_checks:
+        - pattern: "https?://"
+          expected: ">=1"
+          message: "Sources must carry at least one URL"
+        - pattern: "\\*\\*Grade\\*\\*:"
+          expected: ">=1"
+          message: "Confidence carries a **Grade**: line"
+        - pattern: "\\*\\*Searched\\*\\*:"
+          expected: ">=1"
+          message: "Sources records the searches behind every Not published cell"
+
 prompts:
   generation: prompt.md
 
@@ -140,6 +176,8 @@ relationships:
 
   informs:
     - tech-spike
+    - technology-assessment
+    - decision-brief
     - adr
     - architecture
     - concerns
@@ -151,5 +189,5 @@ tags:
   - vendor
   - evidence
 
-version: 1.1.0
-last_updated: 2026-09-22
+version: 1.2.0
+last_updated: 2026-11-06

@@ -37,10 +37,10 @@ _Auto-generated from `helix/` by `documentor record`._
 - [Tempo-driven HELIX and documentor corrections](/artifacts/plan-tempo-documentor-gaps/)
 - [Security Architecture — DDx Agent Execution Surface](/artifacts/security-architecture/)
 - [HELIX solution overview](/artifacts/solution-overview/)
-- [adr](/artifacts/adr/) _(15 items)_
+- [adr](/artifacts/adr/) _(17 items)_
 - [contracts](/artifacts/contracts/) _(5 items)_
 - [diagrams](/artifacts/diagrams/) _(1 item)_
-- [solution designs](/artifacts/solution-designs/) _(1 item)_
+- [solution designs](/artifacts/solution-designs/) _(2 items)_
 - [technical designs](/artifacts/technical-designs/) _(3 items)_
 
 ## Test
@@ -57,7 +57,7 @@ _Auto-generated from `helix/` by `documentor record`._
 ## Deploy
 
 - [Deployment Checklist — HELIX Plugin and Website Release](/artifacts/deployment-checklist/)
-- [Release Notes — HELIX v0.19.1](/artifacts/release-notes/)
+- [Release Notes — HELIX v0.21.0](/artifacts/release-notes/)
 
 ## Iterate
 

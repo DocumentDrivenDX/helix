@@ -1,7 +1,7 @@
 ---
 title: "PostgreSQL as DepositMatch's system of record"
 slug: DEL-002-postgresql-component-profile
-weight: 660
+weight: 690
 activity: "Iterate"
 source: "06-iterate/deliverables/DEL-002-postgresql-component-profile.md"
 generated: true
@@ -9,8 +9,6 @@ collection: deliverables
 ---
 
 > **Example from HELIX's own docs.** This generated page comes from `docs/helix/`. Use it to see the method in practice; start with the [artifact-type catalog](/artifact-types/) for reusable templates. Historical plans and reports may describe retired architecture.
-
-> **Rendered from this script.** The Markdown below is the document of record; open the rendered file to see the finished deck: [PPTX](https://github.com/DocumentDrivenDX/helix/blob/main/docs/helix/06-iterate/deliverables/assets/DEL-002-postgresql-component-profile.pptx).
 
 > **Source identity** (from `06-iterate/deliverables/DEL-002-postgresql-component-profile.md`):
 
@@ -23,8 +21,7 @@ ddx:
   status: draft
   authoring:
     home: repo
-    export:
-      - docs/helix/06-iterate/deliverables/assets/DEL-002-postgresql-component-profile.pptx
+    export: docs/helix/06-iterate/deliverables/assets/DEL-002-postgresql-component-profile.pptx
   links:
     - id: component-profile-postgresql
       kind: informed_by

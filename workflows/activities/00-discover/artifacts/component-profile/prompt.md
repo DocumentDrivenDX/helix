@@ -6,7 +6,9 @@ before anyone spikes it or decides on it.
 
 ## Storage Location
 
-Store at: `docs/helix/00-discover/component-profile-[component-name].md`
+Store at: `docs/helix/00-discover/component-profile-[component-name].md`, or
+the path the flow's graph profile sets for this type (`locations:`), for
+example a technology-atlas flow's `technology/[component-name].md`.
 
 One file per candidate. A decision with six candidates: say PostgreSQL,
 MySQL and four managed Postgres providers, is six profiles in six files. Separate files let candidates be researched in parallel, added late,
@@ -39,15 +41,24 @@ candidates.
 
 ## Ownership and Reuse
 
-A profile belongs to the project whose decision it feeds and lives in that
-project's Discover directory. Its factual sections (What It Is,
-Technology and Operations, Pricing and Licensing, the evidence paragraphs in
-Capability Alignment, Sources) are portable: another project may copy them.
-Scope, Need, Required Capabilities, the status words, the verdict, and the
+A **contextual** profile (the default) belongs to the project whose decision
+it feeds and lives in that project's Discover directory. Its factual
+sections (What It Is, Technology and Operations, Pricing and Licensing, the
+evidence paragraphs in Capability Alignment, Sources) are portable. Scope,
+Need, Required Capabilities, the status words, the verdict, and the
 Competitive Landscape are not: they name this project's artifacts and
-decisions, and a copy that keeps them asserts a fit nobody measured. A project
-that reuses a profile rewrites those, re-grades Confidence, and re-dates every
-source it keeps. The graph has no cross-project edge for this; a project copies the file.
+decisions, and a copy that keeps them asserts a fit nobody measured.
+
+A **reusable** profile (`ddx.scope: reusable`) is the portable part written
+once for use across projects and graphs. It carries the factual sections and
+Capabilities and Limits, and none of the project-bound ones. Other documents
+cite it by pinned revision (a link of kind `supported_by` or `informs`; see
+ADR-018) instead of copying it; the citing document supplies the Need, the
+fit, and the verdict, and the reusable brief stays advisory unless the
+consuming graph grants it authority. When a project needs a profile of the
+same component, it writes a contextual profile that cites the reusable brief
+for the facts and adds its own Need, Required Capabilities, Capability
+Alignment, and Competitive Landscape.
 
 ## Method
 
@@ -117,6 +128,30 @@ whatever the maker chose to advertise.
     tenant count".
 11. **Write the Summary last.** Three sentences a brief can lift: the need,
     the capabilities in one clause each, the verdict with its conditions.
+
+## Reusable scope
+
+For `ddx.scope: reusable`, replace Method steps 1, 2, 6, 8 and the verdict
+with Capabilities and Limits, and keep the rest.
+
+1. **Fix the scope.** Name the exact component, edition, version line, and
+   hosting forms covered, and what is excluded.
+2. **Choose capability areas from the record, not from a project.** Use the
+   areas the maker's documentation and independent coverage organise the
+   component by (transactions, security, replication, extensibility, and so
+   on). A capability area no source documents is left out, not guessed.
+3. **Research each area** as in Method step 4, and write Capabilities and
+   Limits: what the record shows, the version, the documented limits, and
+   attributed independent coverage, then Applicability: when the record shows
+   it well and poorly suited, each cited.
+4. **Write What It Is, Technology and Operations, Pricing and Licensing,
+   Confidence, Open Questions, Sources** as for any profile. Open Questions
+   state what the record cannot answer about the component generally, routed
+   to a spike or a maker question, with no project-specific rationale.
+5. **Write the Summary last,** with no project, client, or recommendation.
+
+A reusable brief must read the same to any project. If a sentence needs a
+project to make sense, it belongs in a contextual profile or a decision-brief.
 
 ## Researching Honestly
 

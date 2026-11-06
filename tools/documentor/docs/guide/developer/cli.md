@@ -1,5 +1,5 @@
 <!-- helix:publish audience=data page=cli kind=reference voice=onboarding generated=cli-commands -->
-<!-- helix:source pyproject.toml sha256:c46e99a7fc3955ad -->
+<!-- helix:source pyproject.toml sha256:1b74d40b6314a968 -->
 <!-- helix:source src/documentor/cli.py sha256:d35633003485cfea -->
 # Cli
 

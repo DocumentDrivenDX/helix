@@ -100,6 +100,7 @@ relationships:
   informed_by:
     - prd
     - feature-specification
+    - decision-brief
 
   informs:
     - solution-design

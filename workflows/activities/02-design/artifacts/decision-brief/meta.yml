@@ -1,0 +1,125 @@
+# Metadata for Decision Brief
+
+artifact:
+  name: Decision Brief
+  id: decision-brief
+  type: document
+  activity: design
+  level: project
+  optional: true
+
+voice: artifact-signal
+
+id_format:
+  prefix: DB
+  pattern: "DB-[0-9]{3}"
+  example: DB-001
+  description: |
+    Sequential three-digit number. Each brief frames one decision for one
+    context. Numbers are never reused.
+
+description: |
+  A contextual recommendation made before a formal decision. It states the
+  decision and the context it is made in (the requirements, constraints, and
+  concerns that apply), compares the options against that context using
+  cited technology briefs, component profiles, and other evidence, and ends
+  in a recommendation with its conditions and the unknowns that could change
+  it. It is advisory: a reviewer or an ADR adopts, amends, or rejects it. It
+  never overrides requirements or approved decisions, and a general assessment
+  it relies on stays a reference, not a governing input. Use it when a
+  decision needs an argument a reviewer can check, ahead of or alongside an
+  ADR; an ADR records the decision once taken.
+
+output:
+  location: docs/helix/02-design/decision-brief-DB-{number}-{decision-name}.md
+  format: markdown
+  naming: "DB-{number}-{decision-name}.md"
+  examples:
+    - DB-001-application-database-for-ai-workload.md
+
+reuse_policy: |
+  Update in place until an issued document cites it. After that, a change that
+  alters the recommendation is a new revision of the brief; a deliverable
+  that cites it pins the revision. When an ADR adopts the recommendation,
+  link them with `ddx.links` and leave the brief as the record of the
+  argument.
+
+validation:
+  pin_links:
+    kinds: [informed_by, evaluates, supported_by]
+
+  required_sections:
+    - context
+    - decision
+    - options
+    - evaluation
+    - recommendation
+    - risks_and_unknowns
+    - evidence
+
+  pattern_checks:
+    - pattern: "DB-[0-9]{3}"
+      expected: ">=1"
+      message: Must carry a valid Decision Brief identifier
+
+    - pattern: "\\*\\*Recommendation\\*\\*:"
+      expected: ">=1"
+      message: "Recommendation opens with a **Recommendation**: line"
+
+  quality_checks:
+    - check: one_decision_one_context
+      description: The brief frames exactly one decision in one named context, and says what is out of scope
+      severity: blocking
+
+    - check: context_cites_governing_inputs
+      description: Context names the requirements, approved decisions, and concerns that bound the choice, each by id or path; none is restated as if the brief could change it
+      severity: blocking
+
+    - check: options_evaluated_on_the_same_criteria
+      description: Every option is evaluated against the same criteria, each cell citing evidence or marked unknown; the status quo is an option
+      severity: blocking
+
+    - check: advisory_not_governing
+      description: The brief recommends and states what would change the recommendation; it does not claim authority over requirements or approved decisions, and cited external knowledge is treated as advisory
+      severity: blocking
+
+    - check: evidence_pinned_at_publish
+      description: At the publish tier, every cited brief, profile, and source carries the revision it was read at
+      severity: blocking
+
+    - check: separable_decisions
+      description: Decisions that can vary independently (for example what to build on and where to run it) are separate decisions or separate sections, not one blended recommendation
+      severity: warning
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+example:
+  file: example.md
+
+
+relationships:
+  informed_by:
+    - prd
+    - concerns
+    - principles
+    - current-state-inventory
+    - component-profile
+    - technology-assessment
+    - position-paper
+
+  informs:
+    - adr
+    - solution-design
+    - deliverable
+
+tags:
+  - decision
+  - recommendation
+  - evidence
+
+version: 1.0.0
+last_updated: 2026-11-06

@@ -1,0 +1,4 @@
+flows:
+  - id: atlas
+    profile: technology-atlas
+    root: ./

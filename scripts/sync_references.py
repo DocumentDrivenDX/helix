@@ -20,6 +20,7 @@ package-local `references/` directory:
     workflows/templates/   -> references/templates/   (report templates)
     workflows/deliverables/-> references/deliverables/ (theme, slide patterns, mappings)
     workflows/references/  -> references/references/   (shared references the actions cite)
+    workflows/profiles/    -> references/profiles/     (graph profiles)
     workflows/publish/     -> references/publish/      (the guide's audiences)
 
 Single source of truth: edit under `workflows/`, regenerate graph.yml
@@ -64,6 +65,7 @@ TREES = [
     ("workflows/templates", "templates"),
     ("workflows/deliverables", "deliverables"),
     ("workflows/references", "references"),
+    ("workflows/profiles", "profiles"),
     ("workflows/publish", "publish"),
 ]
 

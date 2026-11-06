@@ -7,9 +7,7 @@ ddx:
   status: draft
   authoring:
     home: repo
-    export:
-      - docs/helix/06-iterate/deliverables/assets/DEL-004-postgresql-component-profile-onepager.html
-      - docs/helix/06-iterate/deliverables/assets/DEL-004-postgresql-component-profile-onepager.pdf
+    export: docs/helix/06-iterate/deliverables/assets/DEL-004-postgresql-component-profile-onepager.pdf
   links:
     - id: component-profile-postgresql
       kind: informed_by

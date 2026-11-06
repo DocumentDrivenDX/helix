@@ -1,7 +1,7 @@
 ---
 title: "UX behavior and packaged design systems"
 slug: design-ux-governance
-weight: 480
+weight: 500
 activity: "Design"
 source: "02-design/design-ux-governance.md"
 generated: true

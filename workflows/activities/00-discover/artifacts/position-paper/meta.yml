@@ -1,0 +1,111 @@
+# Metadata for Position Paper
+
+artifact:
+  name: Position Paper
+  id: position-paper
+  type: document
+  activity: discover
+  level: project
+  optional: true
+
+voice: artifact-signal
+
+id_format:
+  prefix: PP
+  pattern: "PP-[0-9]{3}"
+  example: PP-001
+  description: |
+    Sequential three-digit number. Each paper argues one position. Numbers
+    are never reused.
+
+description: |
+  An argued position on a technology or practice for a named audience, built
+  on technology assessments and briefs cited by pinned revision. It states
+  the thesis, the argument, the strongest objections and its answers, and
+  says what the position does not claim. Unlike an assessment it takes a
+  side, and unlike a Decision Brief it is not tied to one client's context.
+  It is advisory: it persuades and never governs. Every claim is either
+  traced to cited evidence or labelled as the author's judgment.
+
+output:
+  location: docs/helix/00-discover/position-paper-PP-{number}-{subject}.md
+  format: markdown
+  naming: "PP-{number}-{subject}.md"
+  examples:
+    - PP-001-build-new-tooling-in-python.md
+
+reuse_policy: |
+  Update in place until an issued document cites it. After that, a change to the
+  thesis is a new revision; publications that cite it pin the revision they
+  read. When a cited assessment changes, re-read the argument and record
+  whether the thesis still holds.
+
+validation:
+  pin_links:
+    kinds: [informed_by, evaluates, supported_by]
+
+  required_sections:
+    - thesis
+    - audience_and_stakes
+    - argument
+    - objections_and_answers
+    - limits_of_the_position
+    - evidence
+
+  pattern_checks:
+    - pattern: "PP-[0-9]{3}"
+      expected: ">=1"
+      message: Must carry a valid Position Paper identifier
+
+    - pattern: "\\*\\*Thesis\\*\\*:"
+      expected: ">=1"
+      message: "Thesis opens with a **Thesis**: line"
+
+  quality_checks:
+    - check: claims_traced_or_labelled
+      description: Every claim of fact cites evidence; every claim of judgment is labelled as the author's judgment
+      severity: blocking
+
+    - check: strongest_objections_answered
+      description: The strongest objections, including those the evidence raises against the thesis, are stated and answered, not omitted
+      severity: blocking
+
+    - check: advisory_not_governing
+      description: The paper persuades; it does not claim authority over a client's requirements or decisions, and cited external knowledge stays advisory
+      severity: blocking
+
+    - check: limits_stated
+      description: The paper says what it does not claim and the conditions under which the thesis would not hold
+      severity: blocking
+
+    - check: assessments_pinned_at_publish
+      description: At the publish tier, every cited assessment, brief, and source carries the revision it was read at
+      severity: blocking
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+example:
+  file: example.md
+
+
+relationships:
+  informed_by:
+    - technology-assessment
+    - component-profile
+    - concerns
+
+  informs:
+    - decision-brief
+    - deliverable
+
+tags:
+  - position
+  - argument
+  - evidence
+
+version: 1.0.0
+last_updated: 2026-11-06

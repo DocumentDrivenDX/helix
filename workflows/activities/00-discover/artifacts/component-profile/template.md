@@ -1,6 +1,7 @@
 ---
 ddx:
   id: component-profile
+  scope: contextual   # or: reusable
   authoring:
     home: repo
 ---
@@ -20,13 +21,21 @@ before any candidate is researched. The factual sections travel between
 projects; Scope, Need, Required Capabilities, Capability Alignment, and the
 Competitive Landscape do not.
 
+**Scope kinds** (`ddx.scope`). `contextual` (default) is this whole template.
+`reusable` is a technology brief for use across projects and graphs: write
+Scope, Summary, How to Read This Profile, What It Is, Capabilities and Limits,
+Technology and Operations, Pricing and Licensing, Confidence, Open Questions,
+and Sources, and omit Need, Required Capabilities, Capability Alignment, and
+Competitive Landscape. A reusable brief names no project, client, or project
+artifact and gives no verdict; other documents cite it by pinned revision.
+
 ## Scope
 
 - Component: [Name, edition or version line researched]
 - Kind: [Technology | Product | Managed provider]
-- Would fill: [The role, capability slot, or architectural position it is a candidate for]
-- Feeds: [The ADR, spike, or slot decision this profile informs, by id or path]
-- Incumbent: [What fills the role today, citing [[current-state-inventory]] where one exists, or *None*]
+- Would fill (contextual only): [The role, capability slot, or architectural position it is a candidate for]
+- Feeds (contextual only): [The ADR, spike, or slot decision this profile informs, by id or path]
+- Incumbent (contextual only): [What fills the role today, citing [[current-state-inventory]] where one exists, or *None*]
 - Researched: [Date range]
 - Excluded: [What this profile deliberately does not cover, and why]
 
@@ -105,6 +114,24 @@ population. [n]
 - Release cadence and support window: [n]
 - Licence: [n]
 - Built-for use cases: [n]
+
+## Capabilities and Limits
+
+Reusable scope only; contextual profiles use Capability Alignment instead.
+What the record documents the component can and cannot do, independent of any
+project: one subsection per capability area, each stating what the maker's
+documentation shows, the version that introduced it, the documented limits and
+caveats, and independent coverage attributed inline. No verdict, no Need, no
+recommendation. Close with Applicability: the conditions under which the
+record shows it is well suited and poorly suited, each cited. Cite at the
+clause; mutable facts carry "as of [date]".
+
+### [Capability area]
+
+[What the record shows, two to five sentences, each cited at the clause.] [n]
+
+**Applicability**: Well suited when [condition] [n]. Poorly suited when
+[condition] [n].
 
 ## Capability Alignment
 

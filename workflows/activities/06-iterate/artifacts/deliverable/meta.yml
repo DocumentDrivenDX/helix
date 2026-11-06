@@ -33,8 +33,8 @@ description: |
   one-pager, or brief, written in the human-facing voice with claim titles,
   a visual per unit, speaker notes, and a Sources appendix tracing every
   figure to a governing artifact section. The Markdown script is the document
-  of record; rendered files (pptx, and pdf when the host exports one) are fidelity evidence
-  listed in `authoring.export`. Produced by the `present` mode.
+  of record; rendered files (pptx, and pdf when the host exports one) are fidelity evidence;
+  the primary render is the single path in `authoring.export`, all renders are listed under Render. Produced by the `present` mode.
 
 output:
   location: docs/helix/06-iterate/deliverables/DEL-[nnn]-[slug].md
@@ -46,6 +46,9 @@ id_format:
   pattern: "DEL-[0-9]{3}"
 
 validation:
+  pin_links:
+    kinds: [informed_by, evaluates, supported_by]
+
   required_sections:
     - brief
     - story
@@ -95,6 +98,15 @@ validation:
       description: Render section lists each produced path and records that every produced page or slide was rendered to an image and inspected; on a host without node and pptxgenjs (no .pptx), without LibreOffice and pdftoppm (no deck raster), or without a local Chrome/Chromium (no document PDF), the Render section names the missing tool and the check warns instead of blocking the script-only run
       severity: warning
 
+reuse_policy: |
+  Draft while authoring. Before approval, pin every source link with
+  `skills/helix/scripts/pin-sources.py pin`; an approved or published
+  deliverable is reproducible from those pinned revisions and is never
+  changed by later edits to its sources. A source update means a new revision
+  of the deliverable (or a new deliverable), re-pinned and re-reviewed, not an
+  in-place edit of the approved one.
+
+
 prompts:
   generation: prompt.md
 
@@ -118,6 +130,10 @@ relationships:
     - release-notes
     - solution-design
     - design-system
+    - decision-brief
+    - technology-assessment
+    - position-paper
+    - component-profile
   informs: []
 
 tags:
@@ -127,7 +143,7 @@ tags:
   - presentation
   - human-facing
 
-version: 1.0.0
+version: 1.1.0
 
 # The `**Visual**:` line is a pipe-delimited spec the renderers parse (deliverables/visual-specs.md),
 # not prose, so the prose audit does not read it.

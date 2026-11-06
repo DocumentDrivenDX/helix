@@ -279,6 +279,8 @@ with no frontmatter at all remains a valid prose artifact under
 | `ddx.type` | string | Artifact-type id from `artifact.id`, such as `prd`, `adr`, or `technical-design`. Recommended when `id` alone does not identify the type. |
 | `ddx.activity` | string | Activity slug that owns this instance. Recommended for generated or moved artifacts. |
 | `ddx.depends_on` | list of strings | Relevant upstream artifact IDs to consult when their content can affect the work; not an approval dependency. |
+| `ddx.links` | list | Typed references to other artifacts: a bare id string (an upstream reference) or a mapping `{id, kind, authority?, rev?, graph?}`. See [`ddx.links`](#ddxlinks-typed-references). |
+| `ddx.scope` | string | Variant of an artifact type whose meta declares `validation.by_scope`, such as `contextual` or `reusable` for `component-profile`. |
 | `ddx.supersedes` | list of strings | Prior artifact IDs replaced by this artifact. |
 | `ddx.superseded_by` | string | Artifact ID that replaces this artifact. |
 | `ddx.owner` | string | Person, role, or team responsible for maintaining the artifact. |
@@ -440,6 +442,25 @@ ignore it without changing artifact meaning.
 Do not put queue claims, assignees, process IDs, local branch names, or
 runtime-only execution state in `ddx:`. Those belong to the runtime's tracker or
 workspace state.
+
+## `ddx.links`: typed references
+
+`ddx.links` carries references that are not blocking dependencies. Each entry
+is an id string (read as `informed_by`) or a mapping:
+
+| Key | Meaning |
+| --- | --- |
+| `id` | Target `ddx.id`. Required. |
+| `kind` | `informed_by`, `informs`, `addresses`, `evaluates`, `supported_by`, or `contradicts`. Read from this document to the target. |
+| `authority` | `advisory` or `governing`. Absent means advisory for a reference that leaves its flow or graph. |
+| `rev` | Pinned revision read: `git:<commit>` or `sha256:<hex>`. Types that declare `validation.pin_links` require it at approval. |
+| `graph` | Name of another graph holding the target. HELIX records it; the runtime resolves it. |
+
+Authority is granted by the consuming graph's profile, never by the target.
+A `governing` link under a profile whose `authority` for that scope is
+`advisory` is a blocking validation finding. `contradicts` is informational:
+alignment surfaces it and it never fails validation. Within one flow, positional
+authority is unchanged. See ADR-017 and ADR-018.
 
 ## `depends_on` graph semantics
 
