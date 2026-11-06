@@ -170,28 +170,21 @@ publication.
 - Whether the Synaptiq Atlas repository depends on the plugin catalog by
   version or vendors a profile file.
 
-## 11. Scenario outcome: PostgreSQL vs SQL Server
+## 11. Scenario test
 
-Fixtures: `tests/fixtures/scenario-db-choice/` (an atlas repo with two reusable
-briefs, a client repo with DB-001 and a pinned publication). Checked by
-`tests/validate-profiles.sh`.
+Fixtures: `tests/fixtures/scenario-runtime-choice/`, synthetic stubs (an atlas
+repo with two reusable briefs, Node.js and Python; a client repo with a
+Decision Brief and a pinned publication). Checked by
+`tests/validate-profiles.sh`. The real content, such as a database comparison,
+belongs in the Atlas repository, not here.
 
-Result: the Decision Brief carried the comparison without a Technology
-Assessment type; the evaluation table cites each brief by section. Approval is
-blocked until cross-graph links carry a `rev`, and an atlas revision stays
-resolvable after the atlas changes.
+Result: the Decision Brief carries a comparison without a Technology
+Assessment type. Approval is blocked until cross-graph links carry a `rev`, and
+an atlas revision stays resolvable after the atlas changes.
 
-Findings:
+Not covered:
 
-- Evidence gaps surfaced as designed: the PostgreSQL brief does not cover
-  vector search, so DB-001 recommends PostgreSQL conditionally on a spike.
-- The advocacy comparison supplied for the scenario states SQL Server 2025
-  list prices that the maker publishes only for 2022; the brief labels the
-  2025 figure a third-party estimate. Position-paper claims need the same
-  verification before publication.
-- Not covered: HELIX pins cross-graph links but does not fetch them, so
-  `materialize` works only within one repository; resolving `graph:` is
-  runtime work (SD-003 §6). A publication cannot yet be rebuilt from an atlas
-  pin without the runtime.
-- Not covered: nothing reads `authority`, and `contradicts` is not surfaced
-  by align (T5, T7).
+- HELIX pins cross-graph links but does not fetch them, so `materialize` works
+  only within one repository; resolving `graph:` is runtime work (§6).
+- Nothing reads `authority`, and `contradicts` is not surfaced by align
+  (T5, T7).
