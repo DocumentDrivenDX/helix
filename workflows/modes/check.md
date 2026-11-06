@@ -24,6 +24,11 @@ routing:
   banner naming both candidate flows with their roots and ask which applies.
   Do not silently pick one, and do not route to the infra lane under `helix`
   because the prompt contains an infra-adjacent noun.
+- **Flows with different profiles** (for example `helix` as
+  `software-delivery` and `atlas` as `technology-atlas`): the same chain
+  applies. Once a flow is chosen, its profile bounds the artifact types, link
+  kinds, and authority model; do not apply one profile's types or authority
+  rules to the other flow's documents.
 - **Several helix instances** (`instance:` values with different roots): if
   cwd lies inside exactly one root, choose it and say so; otherwise emit the
   banner listing instances and roots, then stop until the operator chooses.

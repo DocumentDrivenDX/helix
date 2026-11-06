@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# Graph profiles (ADR-015): profile files are well-formed and select real
+# artifact types, every non-default profile graph is current, and a marker's
+# `profile:` keys resolve (absent = software-delivery; unknown = malformed).
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+fail() { echo "FAIL: $*" >&2; exit 1; }
+
+python3 - "$repo_root" <<'PYEOF' || fail "profile validation failed"
+import sys, subprocess, filecmp, shutil, os, tempfile
+from pathlib import Path
+import yaml
+
+root = Path(sys.argv[1])
+profiles = {p.stem: yaml.safe_load(p.read_text()) for p in sorted((root / "workflows/profiles").glob("*.yml")) if not p.name.endswith(".graph.yml")}
+assert "software-delivery" in profiles, "software-delivery profile is required"
+
+types = set()
+for meta in (root / "workflows/activities").glob("*/artifacts/*/meta.yml"):
+    types.add((yaml.safe_load(meta.read_text()).get("artifact") or {}).get("id") or meta.parent.name)
+
+for pid, prof in profiles.items():
+    assert (prof.get("profile") or {}).get("id") == pid, f"{pid}: profile.id must equal file name"
+    sel = prof.get("types")
+    assert sel == "all" or isinstance(sel, list), f"{pid}: types must be 'all' or a list"
+    if sel != "all":
+        missing = sorted(set(sel) - types)
+        assert not missing, f"{pid}: unknown types {missing}"
+        extra = sorted(set(prof.get("locations", {})) - set(sel))
+        assert not extra, f"{pid}: locations for unselected types {extra}"
+    assert prof["authority"]["cross_graph"] == "advisory", f"{pid}: cross_graph authority must be advisory (ADR-016)"
+    assert prof["authority"]["within_graph"] in ("positional", "advisory"), f"{pid}: bad within_graph authority"
+
+# Non-default profile graphs must match what the generator would emit.
+for pid in profiles:
+    if pid == "software-delivery":
+        continue
+    committed = root / f"workflows/profiles/{pid}.graph.yml"
+    assert committed.is_file(), f"{committed} missing; run scripts/generate_graph.py --profile {pid}"
+    backup = tempfile.mktemp()
+    shutil.copy(committed, backup)
+    subprocess.check_call([sys.executable, str(root / "scripts/generate_graph.py"), "--profile", pid], stdout=subprocess.DEVNULL)
+    same = filecmp.cmp(backup, committed, shallow=False)
+    shutil.copy(backup, committed)
+    assert same, f"DRIFT: {committed.name} is stale; run scripts/generate_graph.py --profile {pid}"
+
+# Marker resolution: absent profile = software-delivery; unknown = malformed.
+def resolve(marker):
+    errs, ids = [], set()
+    for f in marker.get("flows", []):
+        if f["id"] in ids: errs.append(f"duplicate id {f['id']}")
+        ids.add(f["id"])
+        if f.get("profile", "software-delivery") not in profiles:
+            errs.append(f"unknown profile {f['profile']}")
+    return errs
+
+assert resolve(yaml.safe_load((root / ".helix.yml").read_text())) == [], "repo marker must resolve"
+two = {"flows": [{"id": "helix", "root": "docs/helix/"}, {"id": "atlas", "profile": "technology-atlas", "root": "knowledge/"}]}
+assert resolve(two) == [], "two-profile marker must resolve"
+assert resolve({"flows": [{"id": "x", "profile": "nope", "root": "x/"}]}) == ["unknown profile nope"]
+print("OK: profiles")
+PYEOF

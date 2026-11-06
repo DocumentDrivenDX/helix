@@ -17,6 +17,7 @@ two is a validate-skills.sh failure.
 """
 from __future__ import annotations
 
+import argparse
 import sys
 from pathlib import Path
 
@@ -30,6 +31,20 @@ except ImportError:
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CATALOG = REPO_ROOT / "workflows" / "activities"
 OUT = REPO_ROOT / "workflows" / "graph.yml"
+PROFILES = REPO_ROOT / "workflows" / "profiles"
+DEFAULT_PROFILE = "software-delivery"
+
+
+def load_profile(profile_id: str) -> dict:
+    path = PROFILES / f"{profile_id}.yml"
+    if not path.is_file():
+        print(f"error: unknown profile '{profile_id}' ({path} not found)", file=sys.stderr)
+        sys.exit(2)
+    profile = yaml.safe_load(path.read_text()) or {}
+    if (profile.get("profile") or {}).get("id") != profile_id:
+        print(f"error: {path} profile.id must equal '{profile_id}'", file=sys.stderr)
+        sys.exit(2)
+    return profile
 
 
 def collect():
@@ -81,7 +96,26 @@ def collect():
 
 
 def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--profile", default=DEFAULT_PROFILE,
+                    help="graph profile id (workflows/profiles/<id>.yml); default software-delivery")
+    args = ap.parse_args()
+    profile = load_profile(args.profile)
+    default = args.profile == DEFAULT_PROFILE
     activities, nodes, edges, dropped = collect()
+
+    selected = profile.get("types", "all")
+    if selected != "all":
+        known = {n["id"] for n in nodes}
+        missing = [t for t in selected if t not in known]
+        if missing:
+            print(f"error: profile '{args.profile}' names unknown types: {missing}", file=sys.stderr)
+            return 2
+        keep = set(selected)
+        nodes = [n for n in nodes if n["id"] in keep]
+        edges = [e for e in edges if e["from"] in keep and e["to"] in keep]
+        used = {n["activity"] for n in nodes}
+        activities = [a for a in activities if a["id"] in used]
 
     if dropped:
         print(f"warn: dropped {len(dropped)} edges with unknown targets:", file=sys.stderr)
@@ -94,6 +128,7 @@ def main() -> int:
             "id": "helix",
             "library_version": "^1.0.0",
             "validator_contract": 1,
+            **({} if default else {"profile": args.profile}),
         },
         "activities": activities,
         "nodes": nodes,
@@ -116,9 +151,15 @@ def main() -> int:
         "#     against meta.yml.\n"
     )
     body = yaml.safe_dump(graph, sort_keys=False, default_flow_style=False, indent=2)
-    OUT.write_text(header + body)
+    out = OUT if default else PROFILES / f"{args.profile}.graph.yml"
+    if not default:
+        header = header.replace(
+            "# workflows/graph.yml — canonical HELIX methodology graph.",
+            f"# workflows/profiles/{args.profile}.graph.yml — graph for profile '{args.profile}'.",
+        ).replace("python3 scripts/generate_graph.py\n", f"python3 scripts/generate_graph.py --profile {args.profile}\n")
+    out.write_text(header + body)
     print(
-        f"wrote {OUT.relative_to(REPO_ROOT)}: "
+        f"wrote {out.relative_to(REPO_ROOT)}: "
         f"{len(activities)} activities, {len(nodes)} nodes, {len(edges)} edges"
         + (f", dropped {len(dropped)} dangling" if dropped else "")
     )

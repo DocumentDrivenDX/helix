@@ -1,0 +1,13 @@
+# Default profile: the seven-activity software-delivery lifecycle.
+# Behavior is the pre-profile behavior; graph is workflows/graph.yml.
+profile:
+  id: software-delivery
+  description: Governed software-delivery document graph (discover through iterate).
+types: all
+edge_kinds: []
+authority:
+  within_graph: positional
+  cross_graph: advisory
+validation:
+  draft: [all]
+  published: [all]

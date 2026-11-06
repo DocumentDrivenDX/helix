@@ -81,12 +81,28 @@ catalog provide the context.
         - id: helix
           root: docs/helix/
 
+- **Flow profile**: an optional `profile:` on a flow entry binds it to a graph
+  profile (`workflows/profiles/<id>.yml`, floor `references/profiles/`) that
+  selects the artifact types, accepted link kinds, authority model, and
+  validation tiers for that flow's root. Absent means `software-delivery`, the
+  pre-profile behavior. A flow authors only types its profile selects, and
+  resolves locations through the profile's `locations:` before `meta.yml
+  output.location`. References that cross a flow or graph boundary are advisory
+  unless the consuming flow grants `governing` (ADR-015, ADR-016).
+
+      flows:
+        - id: helix
+          root: docs/helix/
+        - id: atlas
+          profile: technology-atlas
+          root: knowledge/
+
 - **Several flows or instances and an ambiguous target**: resolve
   cwd-under-root → `defaults.flow` → single entry; if none resolves, emit the
   disambiguation banner and stop until the operator chooses. Never silently
   pick one. Detail: `modes/check.md` §Flow disambiguation.
 - **Marker present and malformed** (YAML error, missing required keys, root
-  outside repo, duplicate id, nonexistent root): STOP and report the error
+  outside repo, duplicate id, nonexistent root, unknown `profile:`): STOP and report the error
   with file and line; no heuristic fallback.
 - **Marker absent, heuristic present** (`docs/helix/` tree or
   `workflows/workflow.yml`): emit this banner before any other output, then
