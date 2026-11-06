@@ -136,3 +136,45 @@ grep -q "version one" "$tmp/materialized/knowledge/pg.md" && ! grep -q "version 
 python3 "$pinner" pin "$repo/publications/pub.md" >/dev/null && git -C "$repo" diff --quiet -- publications/pub.md \
   || fail "re-pinning must not move an existing pin"
 echo "OK: pinned publications"
+
+# Scenario (SD-003 acceptance): PostgreSQL vs SQL Server. Reusable briefs live
+# in an atlas repo; a client graph in another repo holds the Decision Brief and
+# a publication that cites them by graph and pinned revision.
+fx="$repo_root/tests/fixtures/scenario-db-choice"
+sc="$tmp/scenario"
+mkdir -p "$sc"
+cp -R "$fx/atlas" "$sc/atlas"; cp -R "$fx/client" "$sc/client"
+for r in atlas client; do git -C "$sc/$r" init -q; done
+git -C "$sc/atlas" add . && git -C "$sc/atlas" commit -q -m "briefs"
+rev="git:$(git -C "$sc/atlas" rev-parse HEAD)"
+for f in atlas/technology/postgresql.md atlas/technology/sql-server.md client/decisions/DB-001-new-app-database.md client/publications/DEL-001-database-decision.md; do
+  python3 "$validator" "$sc/$f" --catalog "$repo_root/workflows" >/dev/null || fail "scenario fixture $f should validate as draft"
+done
+# Approve: unpinned cross-graph links must block, pinned ones pass.
+for f in client/decisions/DB-001-new-app-database.md client/publications/DEL-001-database-decision.md; do
+  sed -i.bak 's/^  status: draft/  status: approved/' "$sc/$f" && rm "$sc/$f.bak"
+  if python3 "$validator" "$sc/$f" --catalog "$repo_root/workflows" >/dev/null; then fail "approved $f with unpinned cross-graph links should fail"; fi
+  python3 - "$sc/$f" "$rev" <<'PY'
+import re, sys
+p, rev = sys.argv[1], sys.argv[2]
+t = open(p).read()
+t = re.sub(r"(kind: (?:evaluates|informed_by))(\}?)\n", lambda m: m.group(0), t)
+t = re.sub(r"\{id: ([\w.-]+), graph: ([\w-]+), kind: evaluates\}", r"{id: \1, graph: \2, kind: evaluates, rev: " + rev + "}", t)
+t = re.sub(r"(    - id: component-profile-[\w-]+\n      graph: [\w-]+\n      kind: informed_by\n)", r"\1      rev: " + rev + "\n", t)
+open(p, "w").write(t)
+PY
+  python3 "$pinner" check "$sc/$f" | grep -q "external" || fail "pin-sources should report cross-graph links as external"
+done
+git -C "$sc/client" add . && git -C "$sc/client" commit -q -m "approved"
+# The local DB-001 link is pinned from client history; cross-graph pins came from the atlas.
+python3 "$pinner" pin "$sc/client/publications/DEL-001-database-decision.md" >/dev/null || fail "pin should succeed"
+for f in client/decisions/DB-001-new-app-database.md client/publications/DEL-001-database-decision.md; do
+  python3 "$validator" "$sc/$f" --catalog "$repo_root/workflows" >/dev/null || fail "pinned approved $f should validate"
+done
+# The atlas evolves; the approved publication still resolves its pinned sources.
+printf '\nA later edit to the briefs.\n' >> "$sc/atlas/technology/postgresql.md"
+git -C "$sc/atlas" commit -qam "briefs evolve"
+git -C "$sc/atlas" show "${rev#git:}:technology/postgresql.md" | grep -q "later edit" && fail "pinned atlas revision must not contain the later edit"
+git -C "$sc/atlas" show "${rev#git:}:technology/sql-server.md" >/dev/null || fail "pinned atlas revision must resolve"
+grep -q "rev: $rev" "$sc/client/publications/DEL-001-database-decision.md" || fail "publication must still carry the original pin"
+echo "OK: scenario (PostgreSQL vs SQL Server)"
