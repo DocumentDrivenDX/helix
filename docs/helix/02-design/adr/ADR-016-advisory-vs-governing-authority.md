@@ -25,10 +25,11 @@ needs typed relationships and an explicit informational/governing split.
 
 ## Decision
 
-1. Define `ddx.links` as a list of `{rel, target, authority?, ref?}`.
+1. Extend the existing `ddx.links` entry shape `{id, kind}` (as in `kind: informed_by`) with optional `authority` and `rev`: `{id, kind, authority?, rev?}`. `kind` reads from this document to the target.
 2. Reuse existing predicates first: `depends_on`, `informs`, `supersedes`.
-   Add `rel` values `addresses`, `evaluates`, `supported_by`, `contradicts`
-   only as link kinds, not new top-level fields.
+   Add `kind` values `addresses`, `evaluates`, `supported_by`, `contradicts`
+   (alongside the existing `informed_by` and `informs`) only as link kinds,
+   not new top-level fields. `rev` pins the target revision read.
 3. Within a flow, positional authority is unchanged.
 4. A link that crosses a flow or Atlas boundary is **advisory** by default.
    `governing` is granted only by the consuming graph's own marker or profile,
@@ -61,11 +62,12 @@ puts the grant of authority on the side that bears the consequence.
 |------|--------|
 | Positive | Reuse of an Atlas assessment cannot silently override a client ADR. |
 | Negative | `ddx.links` must be specified, and `check`/`align` must learn authority. |
-| Neutral | Undefined legacy `ddx.links` usage stays valid when read as `informs`. |
+| Neutral | Existing `ddx.links` usage stays valid: a bare id string and `{id, kind: informed_by}` both mean an upstream reference. |
 
 ## Open question
 
-Checked: `ddx.links` is read as an untyped list of upstream references
-(`modes/check.md:63`, `actions/evolve.md:13`, `modes/_authoring.md:17`) and is
-not defined in `artifact-schema.md`. Item 1 therefore specifies the key rather
-than changing it: a bare string entry remains valid and reads as `informs`.
+Resolved. `ddx.links` is not defined in `artifact-schema.md`, but it is in use
+in two shapes: bare id strings (`docs/helix/02-design/design-desired-state-authoring.md`)
+and `{id, kind: informed_by}` mappings (every deliverable). Item 1 extends
+that mapping shape rather than introducing another. An earlier draft of this
+ADR proposed `{rel, target}`; that was corrected to match existing usage.

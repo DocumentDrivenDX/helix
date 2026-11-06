@@ -45,6 +45,10 @@ reuse_policy: |
   argument.
 
 validation:
+  pin_links:
+    at_status: [approved]
+    kinds: [informed_by, evaluates, supported_by]
+
   required_sections:
     - context
     - decision

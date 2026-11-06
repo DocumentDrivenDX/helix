@@ -18,6 +18,12 @@ Scope variants: when the instance sets `ddx.scope` and the type's
 `validation.by_scope.<scope>` exists, its `required_sections` and
 `pattern_checks` replace the type-level lists.
 
+Pinned links: when the type declares `validation.pin_links: {at_status: [...],
+kinds: [...]}` and the instance's `ddx.status` is listed, every `ddx.links`
+mapping whose `kind` is listed must carry `rev` (a `git:<commit>` or
+`sha256:<hex>` revision), so an approved document is reproducible from pinned
+sources. `pin-sources.py` fills and verifies pins.
+
 Validation tiers (graph profiles, ADR-015): when the instance sets
 `ddx.status: draft` and its flow's profile (`.helix.yml` `flows[].profile`,
 default software-delivery) does not run `all` checks at draft, content checks
@@ -242,6 +248,19 @@ def check_frontmatter(fm: dict | None, report: Report) -> None:
         report.add("blocking", "frontmatter.authoring_home", "ddx.authoring.home must be `repo` or `external-tool`", 1)
 
 
+def check_pinned_links(fm: dict | None, pin: dict, report: Report) -> None:
+    ddx = (fm or {}).get("ddx") or {}
+    if not pin or str(ddx.get("status")) not in [str(x) for x in pin.get("at_status") or []]:
+        return
+    kinds = set(pin.get("kinds") or [])
+    for i, link in enumerate(ddx.get("links") or []):
+        if not isinstance(link, dict) or link.get("kind") not in kinds:
+            continue
+        rev = str(link.get("rev") or "")
+        if not re.match(r"^(git:[0-9a-f]{7,40}|sha256:[0-9a-f]{64})$", rev):
+            report.add("blocking", f"pin_links.{i}", f"link '{link.get('id')}' ({link.get('kind')}) needs a pinned rev (git:<commit> or sha256:<hex>) at status {ddx.get('status')}")
+
+
 def check_required_sections(required: list, template: Path, body: str, markdown: bool, report: Report) -> None:
     if not markdown:  # yaml artifact types declare required_sections as top-level keys
         for section in required:
@@ -457,6 +476,7 @@ def main() -> int:
     check_rule_entries("automated_checks", validation.get("automated_checks") or [], body, base, report)
     check_placeholders(body, base, report)
     check_delivery_history(text, 1, report)
+    check_pinned_links(fm, validation.get("pin_links") or {}, report)
     if soften:
         for finding in report.findings[structural:]:
             if finding["severity"] == "blocking":

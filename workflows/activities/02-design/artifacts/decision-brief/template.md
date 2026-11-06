@@ -6,9 +6,9 @@ ddx:
   authoring:
     home: repo
   links:
-    # - {rel: evaluates, target: <technology brief or component profile id>, rev: <pinned revision>}
-    # - {rel: addresses, target: <concern id>}
-    # - {rel: supported_by, target: <source id>, rev: <pinned revision>}
+    # - {id: <technology brief or component profile id>, kind: evaluates, rev: <pinned revision>}
+    # - {id: <concern id>, kind: addresses}
+    # - {id: <source id>, kind: supported_by, rev: <pinned revision>}
 ---
 
 # DB-[number]: [Decision as a question]

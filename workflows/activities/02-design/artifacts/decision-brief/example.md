@@ -6,7 +6,7 @@ ddx:
   authoring:
     home: repo
   links:
-    - {rel: evaluates, target: component-profile-postgresql-reusable, rev: example}
+    - {id: component-profile-postgresql-reusable, kind: evaluates, rev: example}
 ---
 
 # DB-001: Which database should the document-search service use?

@@ -92,3 +92,47 @@ python3 "$validator" "$repo_root/workflows/activities/00-discover/artifacts/comp
 sed 's/^  scope: reusable/  scope: contextual/' "$repo_root/workflows/activities/00-discover/artifacts/component-profile/example-reusable.md" > "$tmp/as-contextual.md"
 if python3 "$validator" "$tmp/as-contextual.md" --catalog "$repo_root/workflows" >/dev/null; then fail "reusable content labelled contextual should fail"; fi
 echo "OK: validation tiers and scope variants"
+
+# Pinned publications (T6): an approved deliverable needs pinned sources, and a
+# pinned deliverable keeps its sources' content after the living source changes.
+pinner="$repo_root/skills/helix/scripts/pin-sources.py"
+repo="$tmp/pinrepo"
+mkdir -p "$repo/knowledge" "$repo/publications"
+export GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@t GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@t
+git -C "$repo" init -q
+printf -- '---\nddx:\n  id: pg-brief\n  authoring:\n    home: repo\n---\n# PG\n\nversion one\n' > "$repo/knowledge/pg.md"
+git -C "$repo" add . && git -C "$repo" commit -q -m v1
+cat > "$repo/publications/pub.md" <<'MD'
+---
+ddx:
+  id: DEL-001
+  type: deliverable
+  status: approved
+  authoring:
+    home: repo
+  links:
+    - id: pg-brief
+      kind: informed_by
+    - id: other-graph-doc
+      graph: other-atlas
+      kind: informed_by
+      rev: sha256:0000000000000000000000000000000000000000000000000000000000000000
+---
+# Publication
+MD
+git -C "$repo" add . && git -C "$repo" commit -q -m pub
+pin_findings() { python3 "$validator" "$repo/publications/pub.md" --catalog "$repo_root/workflows" --format json | python3 -c 'import json,sys; print(",".join(sorted(f["check"] for f in json.load(sys.stdin)["findings"] if f["check"].startswith("pin_links"))))' || true; }
+[ "$(pin_findings)" = "pin_links.0" ] || fail "approved deliverable with an unpinned link should report pin_links.0, got '$(pin_findings)'"
+python3 "$pinner" pin "$repo/publications/pub.md" >/dev/null || fail "pin should succeed"
+grep -q 'rev: git:' "$repo/publications/pub.md" || fail "pin should write a git rev"
+[ -z "$(pin_findings)" ] || fail "pinned deliverable should have no pin_links findings"
+git -C "$repo" commit -qam pinned
+printf 'version two, edited after approval\n' >> "$repo/knowledge/pg.md"
+git -C "$repo" commit -qam "assessment evolves"
+python3 "$pinner" check "$repo/publications/pub.md" | grep -q "source has changed since the pin" || fail "check should report source drift"
+python3 "$pinner" materialize "$repo/publications/pub.md" "$tmp/materialized" >/dev/null || fail "materialize should succeed"
+grep -q "version one" "$tmp/materialized/knowledge/pg.md" && ! grep -q "version two" "$tmp/materialized/knowledge/pg.md" \
+  || fail "materialized source must be the pinned version, not the edited one"
+python3 "$pinner" pin "$repo/publications/pub.md" >/dev/null && git -C "$repo" diff --quiet -- publications/pub.md \
+  || fail "re-pinning must not move an existing pin"
+echo "OK: pinned publications"

@@ -12,6 +12,12 @@ ddx:
   links:
     - id: [source artifact id]
       kind: informed_by
+      rev: [git:<commit> or sha256:<hex>; required at status approved, filled by pin-sources.py]
+    # - id: [source in another graph]
+    #   graph: [graph name]
+    #   kind: informed_by
+    #   rev: [pinned revision]
+    #   authority: advisory
 ---
 
 # [Deck or document title: the takeaway as a claim]

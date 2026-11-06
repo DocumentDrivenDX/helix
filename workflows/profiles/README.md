@@ -16,7 +16,7 @@ Profile file shape (`workflows/profiles/<id>.yml`):
 | `profile.description` | One line. |
 | `types` | `all`, or the artifact-type ids the profile selects. Every id must exist in the catalog. |
 | `locations` | Optional per-type output path override, relative to the flow root. Overrides `meta.yml output.location`. |
-| `edge_kinds` | Link kinds (`ddx.links[].rel`) the profile accepts, beyond `depends_on`, `informs`, `supersedes`. |
+| `edge_kinds` | Link kinds (`ddx.links[].kind`) the profile accepts, beyond `depends_on`, `informs`, `supersedes`. |
 | `authority.within_graph` | `positional` (existing: upstream activity governs downstream) or `advisory` (nothing in the graph governs by position). |
 | `authority.cross_graph` | Always `advisory` unless the consuming flow grants `governing`. |
 | `validation.draft` / `validation.published` | Which `meta.yml validation` tiers apply at each `ddx.status`. |

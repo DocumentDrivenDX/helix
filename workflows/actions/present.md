@@ -223,4 +223,8 @@ Save the script under the flow root (default
 source artifact and `authoring.export` pointing at the renders. Report: the
 takeaway sentence, the titles-only outline, assumptions and gaps, gate
 results, and where the files are. Do not present the deck as approved; it is
-`draft` until a person reviews it like any artifact.
+`draft` until a person reviews it like any artifact. Before approval, pin the
+sources: run `skills/helix/scripts/pin-sources.py pin <deliverable>` so every
+source link carries a `rev`, then `check` it. An approved deliverable is
+reproducible from those pinned revisions; later edits to a source never
+change it, and updating a source means a new revision of the deliverable.
