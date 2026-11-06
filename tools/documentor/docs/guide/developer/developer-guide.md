@@ -120,8 +120,6 @@ uv run just test-write
 
 `just test-write` needs no agent credentials; the script writes a fake agent that logs each call.
 
-`just test-publish` checks that the built site has an `about` section titled "How this guide was made", with a `## The pages` list. Without Hugo, its `OK:` line ends with `(hugo not installed; build skipped)`, and the suite still passes.
-
 `just test-catalog` runs the sync script in check mode. On success it prints `documentor floor matches workflows/: N files`.
 
 When a change touches `schemas.py` or `umf_tables.py`, run their pytest files before the full suite:
@@ -171,7 +169,7 @@ A new packaged file the CLI needs at run time belongs in this list. `just test-p
 
 ## Making a change
 
-To make a change, edit the module or catalog file, add an assertion to the matching test script, and run that suite before the full suite. HELIX's [AGENTS.md](../../../../../AGENTS.md) and [CONTRIBUTING.md](../../../../../CONTRIBUTING.md) set the contributor rules. Commit messages state the resulting behaviour in one sentence.
+To make a change, edit the module or catalog file, add an assertion to the matching test script, and run that suite before the full suite. HELIX's [AGENTS.md](../../../../../AGENTS.md) and [CONTRIBUTING.md](../../../../../CONTRIBUTING.md) set the contributor rules.
 
 1. Create a branch from `main`:
 
@@ -241,7 +239,7 @@ Obtain a separately authorized release scope from the HELIX release owner before
 
    The tag workflow checks all six versions. It corrects an existing draft's tag only when the intervening changes contain version metadata and guide source fingerprints alone. If unrelated changes land meanwhile, it stops for the release owner to resolve the scope.
 
-   It then dispatches bundle publication, which validates versions before any build or upload and publishes the draft with new assets and its original notes.
+   It then dispatches bundle publication, the install smoke test, and the Pages build. Bundle publication validates versions before any build or upload and publishes the draft with new assets and its original notes.
 
    For local preparation, run from the HELIX root and open a `chore(release): vX.Y.Z` PR:
 
