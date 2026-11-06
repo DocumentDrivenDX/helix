@@ -3,7 +3,7 @@ ddx:
   id: ADR-016
   authoring:
     home: repo
-  status: proposed
+  status: accepted
   depends_on:
     - ADR-015
     - ADR-004
@@ -13,7 +13,7 @@ ddx:
 
 | Date | Status | Deciders | Related | Confidence |
 |------|--------|----------|---------|------------|
-| 2026-11-06 | Proposed | HELIX maintainers | `ddx.links`, `external_edges`, concerns, SD-003 | Medium |
+| 2026-11-06 | Accepted | HELIX maintainers | `ddx.links`, `external_edges`, concerns, SD-003 | Medium |
 
 ## Problem
 

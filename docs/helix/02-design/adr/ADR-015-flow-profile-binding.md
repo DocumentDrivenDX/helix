@@ -3,7 +3,7 @@ ddx:
   id: ADR-015
   authoring:
     home: repo
-  status: proposed
+  status: accepted
   depends_on:
     - helix.prd
 ---
@@ -11,7 +11,7 @@ ddx:
 
 | Date | Status | Deciders | Related | Confidence |
 |------|--------|----------|---------|------------|
-| 2026-11-06 | Proposed | HELIX maintainers | `.helix.yml`, catalog resolution, SD-003 | Medium |
+| 2026-11-06 | Accepted | HELIX maintainers | `.helix.yml`, catalog resolution, SD-003 | Medium |
 
 ## Problem
 
