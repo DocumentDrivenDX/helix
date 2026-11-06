@@ -7,8 +7,7 @@ ddx:
   status: draft
   authoring:
     home: repo
-    export:
-      - docs/helix/06-iterate/deliverables/assets/DEL-002-postgresql-component-profile.pptx
+    export: docs/helix/06-iterate/deliverables/assets/DEL-002-postgresql-component-profile.pptx
   links:
     - id: component-profile-postgresql
       kind: informed_by

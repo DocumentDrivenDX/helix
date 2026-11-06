@@ -179,6 +179,7 @@ relationships:
 
   informs:
     - tech-spike
+    - technology-assessment
     - decision-brief
     - adr
     - architecture

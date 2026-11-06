@@ -24,4 +24,6 @@ Validate that an opportunity is worth pursuing before committing to a developmen
   {{< card link="component-profile/" title="Component Profile" subtitle="Desk research on one candidate stack component (a technology, product, or managed provider). It opens with what the project needs from the role and the capabil…" >}}
   {{< card link="current-state-inventory/" title="Current-State Inventory" subtitle="Register of the systems, tools, platforms and capabilities an organization already has, each carrying an evidence grade that separates what a named source atte…" >}}
   {{< card link="market-analysis/" title="Market Analysis" subtitle="Multi-source market sizing, growth, and strategic-implications synthesis for a candidate opportunity. Grounds later competitive positioning and investment deci…" >}}
+  {{< card link="position-paper/" title="Position Paper" subtitle="An argued position on a technology or practice for a named audience, built on technology assessments and briefs cited by pinned revision. It states the thesis,…" >}}
+  {{< card link="technology-assessment/" title="Technology Assessment" subtitle="A comparison of two or more technologies on stated criteria, independent of any one project. It rests on reusable technology briefs (component-profile with sco…" >}}
 {{< /cards >}}

@@ -24,6 +24,14 @@ nodes:
   type: library:component-profile
   activity: 00-discover
   cardinality: many
+- id: position-paper
+  type: library:position-paper
+  activity: 00-discover
+  cardinality: many
+- id: technology-assessment
+  type: library:technology-assessment
+  activity: 00-discover
+  cardinality: many
 - id: adr
   type: library:adr
   activity: 02-design
@@ -38,11 +46,31 @@ nodes:
   cardinality: many
 edges:
 - from: component-profile
+  to: technology-assessment
+  kind: informs
+  required: false
+- from: component-profile
   to: decision-brief
   kind: informs
   required: false
 - from: component-profile
   to: adr
+  kind: informs
+  required: false
+- from: position-paper
+  to: decision-brief
+  kind: informs
+  required: false
+- from: position-paper
+  to: deliverable
+  kind: informs
+  required: false
+- from: technology-assessment
+  to: decision-brief
+  kind: informs
+  required: false
+- from: technology-assessment
+  to: position-paper
   kind: informs
   required: false
 - from: decision-brief

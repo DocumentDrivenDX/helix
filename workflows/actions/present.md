@@ -172,7 +172,8 @@ available.
 Targets: a slide file (`.pptx`) from the script (`scripts/render-deck.js`
 when the host has node and the slide library it needs; else the host's
 presentation tooling), plus a PDF whenever the host can export one. Record
-each rendered path in `authoring.export` (several paths are allowed) and
+the primary render (the PDF when produced, else the slide file) in
+`authoring.export`, which is a single path string, and every rendered path
 under `## Render`. Without a renderer, or a rasterizer for the visual check,
 the script is still produced: record under `## Render` which targets were
 not produced and why, name the host that can render it, and run the gate on

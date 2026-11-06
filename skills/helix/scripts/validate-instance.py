@@ -248,6 +248,37 @@ def check_frontmatter(fm: dict | None, report: Report) -> None:
         report.add("blocking", "frontmatter.authoring_home", "ddx.authoring.home must be `repo` or `external-tool`", 1)
 
 
+LINK_KINDS = {"informed_by", "informs", "addresses", "evaluates", "supported_by", "contradicts"}
+
+
+def check_links(fm: dict | None, profile: dict, report: Report) -> None:
+    """ddx.links shape, vocabulary, and the profile's authority grant (ADR-016)."""
+    ddx = (fm or {}).get("ddx") or {}
+    authority = profile.get("authority") or {}
+    for i, link in enumerate(ddx.get("links") or []):
+        if isinstance(link, str):
+            continue  # bare id: an upstream reference
+        if not isinstance(link, dict) or not link.get("id"):
+            report.add("blocking", f"links.{i}", "a ddx.links entry must be an id string or a mapping with `id`")
+            continue
+        kind = link.get("kind")
+        if kind is not None and kind not in LINK_KINDS:
+            report.add("warning", f"links.{i}.kind", f"link '{link['id']}' has unknown kind '{kind}'")
+        allowed = profile.get("edge_kinds")
+        if allowed and kind and kind not in {"informed_by", "informs", *allowed}:
+            report.add("warning", f"links.{i}.kind", f"link kind '{kind}' is not allowed by this flow's profile")
+        grant = link.get("authority")
+        if grant is not None and grant not in ("advisory", "governing"):
+            report.add("blocking", f"links.{i}.authority", f"link '{link['id']}' authority must be advisory or governing")
+        if grant == "governing":
+            scope = "cross_graph" if link.get("graph") else "within_graph"
+            if authority.get(scope, "advisory" if scope == "cross_graph" else "positional") == "advisory":
+                report.add("blocking", f"links.{i}.authority",
+                           f"link '{link['id']}' claims governing authority but this flow's profile grants {scope.replace('_', '-')} references advisory only; the consuming graph must grant it")
+        if kind == "contradicts":
+            report.add("info", f"links.{i}.contradicts", f"contradicts '{link['id']}': surfaced for review, never a validation failure")
+
+
 def check_pinned_links(fm: dict | None, pin: dict, report: Report) -> None:
     ddx = (fm or {}).get("ddx") or {}
     if not pin or str(ddx.get("status")) not in [str(x) for x in pin.get("at_status") or []]:
@@ -467,8 +498,10 @@ def main() -> int:
     draft_tier = (find_profile(args.instance, activities).get("validation") or {}).get("draft") or ["all"]
     soften = str(ddx.get("status")) == "draft" and "all" not in draft_tier
 
+    profile = find_profile(args.instance, activities)
     report = Report()
     check_frontmatter(fm, report)
+    check_links(fm, profile, report)
     structural = len(report.findings)
     markdown = str((entry["meta"].get("output") or {}).get("format") or "markdown").lower() == "markdown"
     check_required_sections(validation.get("required_sections") or [], template, body, markdown, report)

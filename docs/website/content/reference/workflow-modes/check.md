@@ -73,7 +73,9 @@ Cross-flow contract (every cross-flow ask):
    the prompt references (e.g. `monitoring-setup.md`,
    `data-product-brief.md`, `prd-*.md`) BEFORE proposing any action.
    For each upstream named in `ddx.links:` or `informs` edges that
-   the answer depends on, Read it too. Catalogue which artifacts
+   the answer depends on, Read it too. Treat a link with a `graph:` key or
+   outside the flow as advisory unless the flow's profile grants `governing`;
+   list any `contradicts` links in the answer as items for review. Catalogue which artifacts
    exist (with path + status from frontmatter) and which are missing.
 3. **Read relevant prerequisite flows.** When a governing artifact identifies a
    prerequisite in another flow, read that flow's scoped artifact before

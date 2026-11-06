@@ -26,9 +26,11 @@ ddx:
 
 # SD-003: Document-graph profiles and the Technology Atlas
 
-**Status:** Draft for review. Nothing here is implemented. Sections marked
-*Confirmed* describe current behavior verified in the repository; sections
-marked *Proposed* are design.
+**Status:** Implemented in the catalog (profiles, ADR-015/016, `component-profile`
+reusable scope, `decision-brief`, `technology-assessment`, `position-paper`,
+pinned `deliverable`). Section 1 describes the repository before this work;
+sections marked *Proposed* are the design that was implemented; §11 lists what
+remains.
 
 ## 1. Current state (Confirmed)
 
@@ -87,9 +89,9 @@ the profile only narrows and parameterizes it.
 | Type | Decision | Notes |
 |---|---|---|
 | Technology Brief | Generalize `component-profile`: allow a reusable scope (needs come from a referenced context rather than project artifacts) | Avoids a duplicate type. Decide in the Phase 1 spike whether this is an in-place change or a sibling type. |
-| Technology Assessment | New `technology-assessment` (comparative, concern-referencing, evidence-cited) | Only if the generalized brief cannot carry comparison. |
+| Technology Assessment | New `technology-assessment` (reusable comparison, findings only, pinned briefs) | Added: a Decision Brief is contextual and cannot carry a context-free comparison several decisions reuse. |
 | Decision Brief | New `decision-brief` | Contextual recommendation prior to an ADR. Feeds an ADR; never replaces it. |
-| Position Paper | Deferred to Phase 2 | Not needed for the vertical slice. |
+| Position Paper | New `position-paper` (argued thesis, objections, limits) | Added: takes a side for an audience, unlike the assessment, and is not tied to one client, unlike the brief. |
 | Publication | Extend `deliverable` (§6) | Separate type only if extension distorts the deck-script model. |
 
 Sections are semantic expectations, not rigid mandates. `required_sections`
@@ -182,9 +184,10 @@ Result: the Decision Brief carries a comparison without a Technology
 Assessment type. Approval is blocked until cross-graph links carry a `rev`, and
 an atlas revision stays resolvable after the atlas changes.
 
-Not covered:
+Not covered (runtime or other repositories):
 
 - HELIX pins cross-graph links but does not fetch them, so `materialize` works
   only within one repository; resolving `graph:` is runtime work (§6).
-- Nothing reads `authority`, and `contradicts` is not surfaced by align
-  (T5, T7).
+- Projection to UMF and `umf-visual` is not designed here (§8).
+- Rendering a publication (HTML, PDF) is `present` and `documentor` work; the
+  scenario test checks pinning and validation only.

@@ -7,8 +7,7 @@ ddx:
   status: draft
   authoring:
     home: repo
-    export:
-      - [path to rendered .pptx, and .pdf when the host exports one]
+    export: [path to the primary render, the .pdf when produced, else the .pptx; one path string. List every render under Render]
   links:
     - id: [source artifact id]
       kind: informed_by

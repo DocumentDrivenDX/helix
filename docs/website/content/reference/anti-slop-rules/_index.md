@@ -514,7 +514,7 @@ Every check `check-deliverable.py` can report, with its severity. A title that i
 | `deck.length` | warning | … content slides; more than 12 needs an explicit exception in Brief |
 | `deck.order` | blocking | first unit of a deck must use the 'title' pattern |
 | `density.consecutive` | warning | unit …: more than … consecutive … units |
-| `frontmatter.export` | warning | ddx.authoring.export lists no rendered files |
+| `frontmatter.export` | warning | ddx.authoring.export names no rendered file |
 | `horizontal_logic` | warning | units … and …: titles share no content word; the titles-only read may not connect |
 | `limits.body_words` | warning | unit …: body … words, … allows …… |
 | `limits.bullets` | warning | unit …: … bullets, … allows …… |

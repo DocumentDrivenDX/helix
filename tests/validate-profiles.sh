@@ -178,3 +178,20 @@ git -C "$sc/atlas" show "${rev#git:}:technology/nodejs.md" | grep -q "later edit
 git -C "$sc/atlas" show "${rev#git:}:technology/python.md" >/dev/null || fail "pinned atlas revision must resolve"
 grep -q "rev: $rev" "$sc/client/publications/DEL-001-test-publication.md" || fail "publication must still carry the original pin"
 echo "OK: scenario (Node.js vs Python)"
+
+# Authority and contradictions (ADR-016, T5/T7): a profile that grants only
+# advisory authority rejects a governing link; `contradicts` is informational.
+authdoc() { # links-yaml
+  printf -- '---\nddx:\n  id: DB-009\n  type: decision-brief\n  status: draft\n  authoring:\n    home: repo\n  links:\n%s\n---\n\n# DB-009: Links\n' "$1"
+}
+authdoc '    - {id: A-1, kind: contradicts}' > "$tmp/knowledge/contradicts.md"
+authdoc '    - {id: B-1, graph: other-atlas, kind: evaluates, authority: governing}' > "$tmp/knowledge/governing.md"
+authdoc '    - {id: B-1, graph: other-atlas, kind: evaluates, authority: advisory}' > "$tmp/knowledge/advisory.md"
+authdoc '    - {id: B-1, kind: evaluates, authority: governing}' > "$tmp/docs/helix/governing-in-flow.md"
+python3 "$validator" "$tmp/knowledge/contradicts.md" --catalog "$repo_root/workflows" --format json | python3 -c 'import json,sys; d=json.load(sys.stdin); sys.exit(0 if d["summary"]["blocking"]==0 and any(f["check"].endswith("contradicts") and f["severity"]=="info" for f in d["findings"]) else 1)' \
+  || fail "contradicts must be surfaced as info and never block"
+python3 "$validator" "$tmp/knowledge/advisory.md" --catalog "$repo_root/workflows" >/dev/null || fail "an advisory cross-graph link should validate"
+if python3 "$validator" "$tmp/knowledge/governing.md" --catalog "$repo_root/workflows" >/dev/null; then fail "a governing cross-graph link must fail under an advisory-only profile"; fi
+{ python3 "$validator" "$tmp/docs/helix/governing-in-flow.md" --catalog "$repo_root/workflows" --format json || true; } | python3 -c 'import json,sys; d=json.load(sys.stdin); sys.exit(1 if any(f["check"].startswith("links.") and f["severity"]=="blocking" for f in d["findings"]) else 0)' \
+  || fail "positional authority inside a software-delivery flow must be unchanged"
+echo "OK: authority and contradictions"

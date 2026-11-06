@@ -1,0 +1,113 @@
+# Metadata for Technology Assessment
+
+artifact:
+  name: Technology Assessment
+  id: technology-assessment
+  type: document
+  activity: discover
+  level: project
+  optional: true
+
+voice: artifact-signal
+
+id_format:
+  prefix: TA
+  pattern: "TA-[0-9]{3}"
+  example: TA-001
+  description: |
+    Sequential three-digit number. Each assessment compares a stated set of
+    technologies on stated criteria. Numbers are never reused.
+
+description: |
+  A comparison of two or more technologies on stated criteria, independent of
+  any one project. It rests on reusable technology briefs (component-profile
+  with scope reusable) cited by pinned revision, grades each criterion per
+  technology with evidence, and records where sources disagree. It carries
+  findings, not a verdict: a recommendation needs a context, and that is a
+  Decision Brief. Use it when the same comparison will serve more than one
+  decision or client.
+
+output:
+  location: docs/helix/00-discover/technology-assessment-TA-{number}-{subject}.md
+  format: markdown
+  naming: "TA-{number}-{subject}.md"
+  examples:
+    - TA-001-relational-databases-for-transactional-apps.md
+
+reuse_policy: |
+  Update in place while draft or in review. Once approved, a change to a
+  finding is a new revision; documents that cite the assessment pin the
+  revision they read. When a cited brief changes, re-read the affected
+  criteria and record the date.
+
+validation:
+  pin_links:
+    at_status: [approved]
+    kinds: [informed_by, evaluates, supported_by]
+
+  required_sections:
+    - scope
+    - criteria
+    - technologies
+    - comparison
+    - findings
+    - contradictions_and_gaps
+    - evidence
+
+  pattern_checks:
+    - pattern: "TA-[0-9]{3}"
+      expected: ">=1"
+      message: Must carry a valid Technology Assessment identifier
+
+  quality_checks:
+    - check: criteria_stated_before_comparison
+      description: Criteria are named, defined, and (when a concern applies) tied to it before any technology is graded
+      severity: blocking
+
+    - check: same_criteria_every_technology
+      description: Every technology is graded on every criterion, each cell citing a brief section or marked Unknown
+      severity: blocking
+
+    - check: no_verdict_for_a_context
+      description: The assessment states findings per criterion; it does not recommend a technology for a project, which is a Decision Brief
+      severity: blocking
+
+    - check: disagreements_recorded
+      description: Where two sources conflict, both are cited in Contradictions and Gaps and the conflict is linked with `contradicts`; it is not resolved silently
+      severity: blocking
+
+    - check: briefs_pinned_when_approved
+      description: Once approved, every cited technology brief carries the revision it was read at
+      severity: blocking
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+example:
+  file: example.md
+
+workflow:
+  review_cycles: 1
+  approval_required: true
+  approvers:
+    - Technical Lead
+
+relationships:
+  informed_by:
+    - component-profile
+    - concerns
+
+  informs:
+    - decision-brief
+    - position-paper
+
+tags:
+  - research
+  - comparison
+  - evidence
+
+version: 1.0.0
+last_updated: 2026-11-06

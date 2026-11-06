@@ -972,7 +972,9 @@ def main() -> int:
             add("BLOCKING", "render.targets", "Render section lists no rendered target path")
     exports = (ddx.get("authoring", {}) or {}).get("export") if isinstance(ddx, dict) else None
     if not exports:
-        add("WARNING", "frontmatter.export", "ddx.authoring.export lists no rendered files")
+        add("WARNING", "frontmatter.export", "ddx.authoring.export names no rendered file")
+    elif not isinstance(exports, str):
+        add("WARNING", "frontmatter.export", "ddx.authoring.export must be one path string (DDx rejects a list); list every render under Render")
 
     return report(findings, args.format, path)
 

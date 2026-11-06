@@ -7,9 +7,7 @@ ddx:
   status: draft
   authoring:
     home: repo
-    export:
-      - docs/helix/06-iterate/deliverables/assets/DEL-001-helix-evaluation-deck.pptx
-      - docs/helix/06-iterate/deliverables/assets/DEL-001-helix-evaluation-deck.pdf
+    export: docs/helix/06-iterate/deliverables/assets/DEL-001-helix-evaluation-deck.pdf
   links:
     - id: helix.product-vision
       kind: informed_by

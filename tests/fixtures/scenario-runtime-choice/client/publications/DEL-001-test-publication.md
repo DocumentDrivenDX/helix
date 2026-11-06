@@ -7,8 +7,7 @@ ddx:
   status: draft
   authoring:
     home: repo
-    export:
-      - publications/DEL-001-test-publication.pdf
+    export: publications/DEL-001-test-publication.pdf
   links:
     - id: DB-001
       kind: informed_by

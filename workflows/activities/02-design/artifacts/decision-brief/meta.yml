@@ -114,6 +114,8 @@ relationships:
     - principles
     - current-state-inventory
     - component-profile
+    - technology-assessment
+    - position-paper
 
   informs:
     - adr
