@@ -19,6 +19,7 @@ jobs:
       github.event.pull_request.merged == true &&
       startsWith(github.event.pull_request.title, 'chore(release):')
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout merge commit
         uses: actions/checkout@v4

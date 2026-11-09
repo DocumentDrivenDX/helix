@@ -1,12 +1,12 @@
 <!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=agent-opus reviewed=2026-11-06/independent-evaluator-agent--sonnet---after-two-fixes-it-named/bf6a5b3554e81d43 -->
 <!-- helix:source pyproject.toml sha256:1b74d40b6314a968 -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
-<!-- helix:source ../../.github/workflows/documentor.yml sha256:ab2fb8338de1a028 -->
+<!-- helix:source ../../.github/workflows/test.yml sha256:40e34e209b8c92dd -->
 <!-- helix:source ../../scripts/release-version.py sha256:ad55a7fa2e9e59a7 -->
-<!-- helix:source ../../.github/workflows/release-ui.yml sha256:5ce416ac09060351 -->
-<!-- helix:source ../../.github/workflows/release-genie-bundle.yml sha256:b0eea61fd244e8c7 -->
-<!-- helix:source ../../.github/workflows/release-tag.yml sha256:5c17d163a7d2e7bd -->
-<!-- helix:source ../../.github/workflows/release-version-guard.yml sha256:7a2f0f022c0b36b5 -->
+<!-- helix:source ../../.github/workflows/release-ui.yml sha256:cb59e40be1f62060 -->
+<!-- helix:source ../../.github/workflows/release-genie-bundle.yml sha256:84c774287ca92276 -->
+<!-- helix:source ../../.github/workflows/release-tag.yml sha256:ea064384ea3d55a0 -->
+<!-- helix:source ../../.github/workflows/release-version-guard.yml sha256:859a4661f0e50d93 -->
 <!-- helix:source ../../CONTRIBUTING.md sha256:d0027006597fad67 -->
 <!-- helix:source README.md#development sha256:ec26429513feaa3e -->
 <!-- helix:source src/documentor/__init__.py sha256:3e709dc94db92a20 -->

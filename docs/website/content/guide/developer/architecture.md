@@ -14,7 +14,7 @@ sources:
 - scripts/sync_references.py
 - .github/workflows/release-genie-bundle.yml
 - .github/workflows/pages.yml
-- .github/workflows/documentor.yml
+- .github/workflows/test.yml
 - justfile
 task: Understand how the system is built and deployed, and which decision governs
   each part.
@@ -150,7 +150,7 @@ Releases run from GitHub Actions on `v*` tags:
 
 The microsite is a read-only projection of `workflows/` and `docs/helix/`, not a source of truth. Pages deploys after the `Test` workflow succeeds on `main`, and on every `v*` tag.
 
-documentor, under `tools/documentor/`, is the host tool behind HELIX's guide mode. `.github/workflows/documentor.yml` runs on changes to the tool or to the catalog files it packages. That workflow runs `just test` inside `tools/documentor/`, which checks the packaged catalog against `workflows/` and then runs every suite. It then runs `documentor check --root .` to confirm documentor's own guide is current.
+documentor, under `tools/documentor/`, is the host tool behind HELIX's guide mode. The `documentor` job in `.github/workflows/test.yml` runs on changes to the tool or to the catalog files it packages. That job runs `just test` inside `tools/documentor/`, which checks the packaged catalog against `workflows/` and then runs every suite. It then runs `documentor check --root .` to confirm documentor's own guide is current.
 
 Per-runtime install paths and invocation details live in the [install guide](https://github.com/DocumentDrivenDX/helix/blob/main/docs/install/README.md). None of that detail appears in the skill body or the catalog.
 
@@ -207,4 +207,4 @@ The architecture names one contract and four PRD requirements as its governing d
 The [developer guide](/guide/developer/developer-guide/) covers setup and day-to-day changes.
 
 
-<details class="guide-sources"><summary>Built from 14 sources</summary><ul><li><code>docs/helix/02-design/architecture.md#level-1-system-context</code></li><li><code>docs/helix/02-design/architecture.md#level-2-container-diagram</code></li><li><code>docs/helix/02-design/architecture.md#artifact-schema-as-runtime-contract</code></li><li><code>docs/helix/02-design/architecture.md#packaging</code></li><li><code>docs/helix/02-design/architecture.md#quality-attributes</code></li><li><code>docs/helix/02-design/architecture.md#ddx-as-one-reference-runtime</code></li><li><code>docs/helix/01-frame/prd.md</code></li><li><code>docs/install/README.md#what-you-get</code></li><li><code>docs/install/README.md#no-fork-policy</code></li><li><code>scripts/sync_references.py</code></li><li><code>.github/workflows/release-genie-bundle.yml</code></li><li><code>.github/workflows/pages.yml</code></li><li><code>.github/workflows/documentor.yml</code></li><li><code>justfile</code></li></ul></details>
+<details class="guide-sources"><summary>Built from 14 sources</summary><ul><li><code>docs/helix/02-design/architecture.md#level-1-system-context</code></li><li><code>docs/helix/02-design/architecture.md#level-2-container-diagram</code></li><li><code>docs/helix/02-design/architecture.md#artifact-schema-as-runtime-contract</code></li><li><code>docs/helix/02-design/architecture.md#packaging</code></li><li><code>docs/helix/02-design/architecture.md#quality-attributes</code></li><li><code>docs/helix/02-design/architecture.md#ddx-as-one-reference-runtime</code></li><li><code>docs/helix/01-frame/prd.md</code></li><li><code>docs/install/README.md#what-you-get</code></li><li><code>docs/install/README.md#no-fork-policy</code></li><li><code>scripts/sync_references.py</code></li><li><code>.github/workflows/release-genie-bundle.yml</code></li><li><code>.github/workflows/pages.yml</code></li><li><code>.github/workflows/test.yml</code></li><li><code>justfile</code></li></ul></details>

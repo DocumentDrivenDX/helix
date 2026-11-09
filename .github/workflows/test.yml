@@ -1,15 +1,73 @@
 name: Test
 
+# PR tier (seconds-to-minutes, one ubuntu runner): `test` (validation scripts) and, when
+# documentor paths change, `documentor`. Heavy tier (docker install scenarios) runs on
+# release tags (called from release-genie-bundle.yml before anything is published),
+# workflow_dispatch, weekly, and on PRs labelled `ci:full`.
+#
+# Evidence gate (alternative to burning CI minutes on the heavy tier):
+#   1. commit your change, run `bash scripts/verify-full.sh` locally (needs docker);
+#   2. commit the resulting .ci/evidence/full-suite.json as the LAST commit (it is excluded
+#      from the content hash, so adding it does not invalidate itself);
+#   3. `evidence-gate` recomputes the hash on the PR head and passes if it matches.
+# The gate also passes when the PR only touches paths the heavy tier does not cover, or
+# when the PR carries the `ci:full` label and `install-test` passed. Release runs ignore
+# evidence and always run the heavy tier.
+
 on:
   workflow_dispatch:
+  workflow_call:
   push:
-    branches: [main]
+    branches: [main]   # gates the Pages deploy (pages.yml listens for this workflow)
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
     branches: [main]
+  schedule:
+    - cron: '17 6 * * 1'   # weekly heavy run
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+  pull-requests: read
 
 jobs:
-  test:
+  changes:
+    # Path gating without a checkout: ask the API which files the PR touches.
+    if: github.event.action != 'labeled' || github.event.label.name == 'ci:full'
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      documentor: ${{ steps.f.outputs.documentor }}
+      install: ${{ steps.f.outputs.install }}
+    steps:
+      - id: f
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          if [ "$EVENT" != pull_request ]; then
+            echo "documentor=true" >> "$GITHUB_OUTPUT"; echo "install=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          files=$(gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/files" --jq '.[].filename')
+          doc='^(tools/documentor/|workflows/publish/|workflows/voice\.yml$|workflows/references/(publishing|writing-pass)\.md$|workflows/deliverables/|skills/helix/scripts/prose_audit\.py$|scripts/sync_references\.py$|\.github/workflows/test\.yml$)'
+          # Not covered by the install scenarios: docs, markdown (except the skill and plugin
+          # manifests), website, evals, documentor, workflow files.
+          light='^(docs/|scripts/verify-full\.sh$|\.ci/evidence/|website/|evals/|tools/documentor/|\.github/)|(^|/)[^/]*\.md$'
+          keep='^(skills/helix/SKILL\.md|\.claude-plugin/)'
+          d=$(printf '%s\n' "$files" | grep -Ec "$doc" || true)
+          n=$(printf '%s\n' "$files" | grep -Evc "$light" || true)
+          k=$(printf '%s\n' "$files" | grep -Ec "$keep" || true)
+          echo "documentor=$([ "$d" -gt 0 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "install=$([ $((n + k)) -gt 0 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+  test:
+    if: github.event.action != 'labeled'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -67,3 +125,117 @@ jobs:
 
       - name: Validate formal methods propagation and bounded lease model
         run: python3 tests/test_formal_methods.py
+
+  documentor:
+    # documentor (tools/documentor) is the host tool behind HELIX's guide mode. Its suite runs
+    # when the tool changes, or when the HELIX catalog it packages (audiences, voice) changes.
+    needs: changes
+    if: >-
+      needs.changes.outputs.documentor == 'true' && github.event.action != 'labeled' &&
+      (github.event_name != 'push' || startsWith(github.ref, 'refs/tags/'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: tools/documentor
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with: { python-version: "3.12" }
+      - uses: peaceiris/actions-hugo@v3
+        with: { hugo-version: "0.160.0", extended: true }
+      - run: uv sync
+      - name: Tests (the catalog matches workflows/, then every suite)
+        # Inside the project's environment, so the suites find the `documentor` command.
+        run: uv run --with rust-just==1.58.0 just test
+      - name: documentor's own guide is current
+        run: uv run documentor check --root .
+
+  install-test:
+    # Heavy tier. Runs the install scenario against THIS checkout (docker): default
+    # --plugin-dir mode plus TEST_LOCAL_MARKETPLACE=1 (the real `plugin install` path).
+    # Auth is optional: verify.sh uses a dummy key for the init-JSON probe.
+    needs: changes
+    if: >-
+      needs.changes.outputs.install == 'true' &&
+      (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' ||
+       startsWith(github.ref, 'refs/tags/v') ||
+       (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ci:full')))
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      CLAUDE_OAUTH_TOKEN: ${{ secrets.CLAUDE_OAUTH_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Synthesize credentials.json (when using OAuth token)
+        if: env.CLAUDE_OAUTH_TOKEN != '' && env.ANTHROPIC_API_KEY == ''
+        run: |
+          mkdir -p creds
+          python3 - <<'PY'
+          import json, os, time
+          creds = {"claudeAiOauth": {
+              "accessToken": os.environ["CLAUDE_OAUTH_TOKEN"],
+              "refreshToken": "",
+              "expiresAt": int((time.time() + 365*24*3600) * 1000),
+              "scopes": ["user:file_upload","user:inference","user:mcp_servers","user:profile","user:sessions:claude_code"],
+              "subscriptionType": "max",
+              "rateLimitTier": "max-claude-2x",
+          }}
+          json.dump(creds, open("creds/.credentials.json", "w"))
+          PY
+      - name: Build install-test image
+        run: docker build -t helix-install-test:claude-code tests/install/claude-code/
+      - name: Default mode (--plugin-dir + init-JSON probe)
+        run: |
+          AUTH_ARGS=()
+          if [[ -n "$ANTHROPIC_API_KEY" ]]; then
+            AUTH_ARGS=(-e ANTHROPIC_API_KEY)
+          elif [[ -f "$PWD/creds/.credentials.json" ]]; then
+            AUTH_ARGS=(-v "$PWD/creds/.credentials.json:/root/.claude/.credentials.json:ro")
+          fi
+          docker run --rm "${AUTH_ARGS[@]}" \
+            -v "$GITHUB_WORKSPACE:/workspace/helix:ro" \
+            helix-install-test:claude-code \
+            bash -c "install.sh && verify.sh"
+      - name: Local-marketplace mode (real plugin install code path)
+        run: |
+          AUTH_ARGS=()
+          if [[ -n "$ANTHROPIC_API_KEY" ]]; then
+            AUTH_ARGS=(-e ANTHROPIC_API_KEY)
+          elif [[ -f "$PWD/creds/.credentials.json" ]]; then
+            AUTH_ARGS=(-v "$PWD/creds/.credentials.json:/root/.claude/.credentials.json:ro")
+          fi
+          docker run --rm "${AUTH_ARGS[@]}" \
+            -e TEST_LOCAL_MARKETPLACE=1 \
+            -v "$GITHUB_WORKSPACE:/workspace/helix:ro" \
+            helix-install-test:claude-code \
+            bash -c "install.sh && verify.sh"
+
+  evidence-gate:
+    needs: [changes, install-test]
+    if: >-
+      always() && github.event_name == 'pull_request' &&
+      (github.event.action != 'labeled' || github.event.label.name == 'ci:full')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Evidence gate
+        env:
+          INSTALL_NEEDED: ${{ needs.changes.outputs.install }}
+          LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+          RESULTS: ${{ join(needs.install-test.result, ' ') }}
+        run: |
+          if [ "$INSTALL_NEEDED" != true ]; then echo "pass (c): no paths covered by the heavy tier"; exit 0; fi
+          h=$(git ls-files -z -- . ':!.ci/evidence' | while IFS= read -r -d '' f; do [ -f "$f" ] || continue; printf '%s\0' "$f"; cat -- "$f"; done | sha256sum | cut -d' ' -f1)
+          if [ -f .ci/evidence/full-suite.json ] && [ "$(jq -r .content_hash .ci/evidence/full-suite.json)" = "$h" ]; then
+            echo "pass (a): evidence matches $h"; exit 0
+          fi
+          if echo "$LABELS" | jq -e 'index("ci:full")' >/dev/null && [ "$RESULTS" = success ]; then
+            echo "pass (b): ci:full label and heavy suite green"; exit 0
+          fi
+          echo "::error::No valid evidence for $h. Run scripts/verify-full.sh locally and commit .ci/evidence/full-suite.json last, or add the ci:full label."
+          exit 1
