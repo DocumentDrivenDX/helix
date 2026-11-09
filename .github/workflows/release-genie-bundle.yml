@@ -27,10 +27,19 @@ permissions:
   contents: write      # required to attach assets to a release
   id-token: write      # OIDC identity for Sigstore signing
   attestations: write  # store the build-provenance attestation
+  pull-requests: read  # required by the called Test workflow's permissions
 
 jobs:
+  # Heavy suites (validation scripts, documentor, docker install scenarios) run first;
+  # nothing is published unless they pass. Evidence from PRs is deliberately ignored here.
+  verify:
+    uses: ./.github/workflows/test.yml
+    secrets: inherit
+
   build-and-publish:
+    needs: verify
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4

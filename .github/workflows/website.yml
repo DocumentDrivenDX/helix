@@ -1,7 +1,12 @@
 name: Website
 
+# PR tier: generator drift, schemas, seals, production Hugo build, links (no browsers).
+# Full tier adds Playwright e2e + axe and the schema browser tests; it runs on tags,
+# weekly, workflow_dispatch and on PRs labelled `ci:full`. Pushes to main do not re-run it
+# (the Pages deploy builds the site itself).
 on:
-  push:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
     branches: [main]
     paths: &website_paths
       - 'website/**'
@@ -23,17 +28,29 @@ on:
       - '.vale.ini'
       - '.vale/**'
       - '.github/workflows/website.yml'
-  pull_request:
-    branches: [main]
-    paths: *website_paths
+  push:
+    tags: ['v*']
+  schedule:
+    - cron: '43 6 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
 
 jobs:
   website-checks:
+    if: github.event.action != 'labeled' || github.event.label.name == 'ci:full'
+    timeout-minutes: 30
     # Pinned: Playwright 1.59 cannot install Chromium on ubuntu-latest's Ubuntu 26.04 image.
     runs-on: ubuntu-24.04
     env:
       HUGO_VERSION: "0.159.2"
       VALE_VERSION: "3.0.7"
+      FULL: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'ci:full') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -79,11 +96,14 @@ jobs:
           curl -sfL "https://github.com/errata-ai/vale/releases/download/v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz" \
             | sudo tar -xz -C /usr/local/bin vale
 
-      - name: Install Playwright + browsers
+      - name: Install website dependencies
         working-directory: website
-        run: |
-          npm ci
-          npx playwright install --with-deps chromium
+        run: npm ci
+
+      - name: Install Playwright browsers
+        if: env.FULL == 'true'
+        working-directory: website
+        run: npx playwright install --with-deps chromium
 
       - name: Lint prose (Vale)
         run: vale docs/website/content
@@ -135,12 +155,14 @@ jobs:
         run: python3 scripts/check-website-links.py
 
       - name: End-to-end + accessibility (Playwright + axe)
+        if: env.FULL == 'true'
         working-directory: website
         env:
           CI: "1"  # forces a fresh server so a stale one cannot mask content drift
         run: npx playwright test
 
       - name: UMF schema browser under production base path
+        if: env.FULL == 'true'
         working-directory: website
         run: npm run test:schemas
 
