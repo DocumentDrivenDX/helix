@@ -5,14 +5,14 @@
 <!-- helix:source docs/helix/02-design/architecture.md#packaging sha256:2ff820d456c362b4 -->
 <!-- helix:source docs/helix/02-design/architecture.md#quality-attributes sha256:a7f863b67c0f0f9d -->
 <!-- helix:source docs/helix/02-design/architecture.md#ddx-as-one-reference-runtime sha256:b5b467abedab6e0c -->
-<!-- helix:source docs/helix/01-frame/prd.md sha256:87cd55c535e38bce -->
+<!-- helix:source docs/helix/01-frame/prd.md sha256:8f17e7a1466098f3 -->
 <!-- helix:source docs/install/README.md#what-you-get sha256:e50570f47c6119a5 -->
 <!-- helix:source docs/install/README.md#no-fork-policy sha256:91bb66393b9e49f5 -->
-<!-- helix:source scripts/sync_references.py sha256:408f8110f448a604 -->
-<!-- helix:source .github/workflows/release-genie-bundle.yml sha256:1d738dd651805901 -->
-<!-- helix:source .github/workflows/pages.yml sha256:531157c991907d82 -->
-<!-- helix:source .github/workflows/documentor.yml sha256:ab2fb8338de1a028 -->
-<!-- helix:source justfile sha256:d3e5861049a16f1f -->
+<!-- helix:source scripts/sync_references.py sha256:3b3710d02aa78a81 -->
+<!-- helix:source .github/workflows/release-genie-bundle.yml sha256:84c774287ca92276 -->
+<!-- helix:source .github/workflows/pages.yml sha256:6b506daacdc39414 -->
+<!-- helix:source .github/workflows/test.yml sha256:40e34e209b8c92dd -->
+<!-- helix:source justfile sha256:4270805de0a79b8f -->
 # Architecture
 
 ## Context
@@ -134,7 +134,7 @@ Releases run from GitHub Actions on `v*` tags:
 
 The microsite is a read-only projection of `workflows/` and `docs/helix/`, not a source of truth. Pages deploys after the `Test` workflow succeeds on `main`, and on every `v*` tag.
 
-documentor, under `tools/documentor/`, is the host tool behind HELIX's guide mode. `.github/workflows/documentor.yml` runs on changes to the tool or to the catalog files it packages. That workflow runs `just test` inside `tools/documentor/`, which checks the packaged catalog against `workflows/` and then runs every suite. It then runs `documentor check --root .` to confirm documentor's own guide is current.
+documentor, under `tools/documentor/`, is the host tool behind HELIX's guide mode. The `documentor` job in `.github/workflows/test.yml` runs on changes to the tool or to the catalog files it packages. That job runs `just test` inside `tools/documentor/`, which checks the packaged catalog against `workflows/` and then runs every suite. It then runs `documentor check --root .` to confirm documentor's own guide is current.
 
 Per-runtime install paths and invocation details live in the [install guide](../../install/README.md). None of that detail appears in the skill body or the catalog.
 
