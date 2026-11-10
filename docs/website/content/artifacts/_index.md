@@ -57,7 +57,7 @@ _Auto-generated from `helix/` by `documentor record`._
 ## Deploy
 
 - [Deployment Checklist — HELIX Plugin and Website Release](/artifacts/deployment-checklist/)
-- [Release Notes — HELIX v0.21.0](/artifacts/release-notes/)
+- [Release Notes — HELIX v0.22.0](/artifacts/release-notes/)
 
 ## Iterate
 

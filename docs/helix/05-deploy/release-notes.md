@@ -12,44 +12,45 @@ ddx:
     reviewed_at: "2026-10-04T03:52:23Z"
 ---
 
-# Release Notes — HELIX v0.21.0
+# Release Notes — HELIX v0.22.0
 
 ## Release Scope
 
-- Release identifier: `v0.21.0`
-- Release date: 2026-11-06
-- Previous release: `v0.20.0`
-- Scope: graph profiles, so one HELIX framework governs a technology-intelligence
-  graph (the Technology Atlas) beside a software-delivery graph; four new or
-  generalized artifact types; pinned, reproducible publications.
+- Release identifier: `v0.22.0`
+- Release date: 2026-11-10
+- Previous release: `v0.21.0`
+- Scope: structured ratings for technology assessments, structured recommendations for
+  position papers, figure provenance, and keys; slimmer pull-request CI.
 - Release owner: HELIX maintainer; published through the release PR workflow.
 
 ## Audience and Channels
 
 | Audience | Impact | Channel |
 |----------|--------|---------|
-| Teams keeping a technology atlas | A `technology-atlas` profile, types, and pinning | Plugin and bundles |
-| Existing HELIX users | None: a marker without `profile:` behaves as before | Plugin and bundles |
+| Teams keeping a technology atlas | Assessment ratings and paper recommendations as checked data | Plugin and bundles |
+| Existing HELIX users | None: every new field is optional | Plugin and bundles |
+| HELIX maintainers | Heavy suites run on release or the `ci:full` label | Repository CI |
 
 ## Highlights
 
-- A flow in `.helix.yml` takes an optional `profile:`. `technology-atlas` selects
-  `component-profile`, `technology-assessment`, `position-paper`, `decision-brief`,
-  `adr`, and `deliverable`, with advisory authority across graphs.
-- New artifact types `technology-assessment`, `position-paper`, and `decision-brief`.
-  `component-profile` gains a `reusable` scope for briefs that name no project.
-- `ddx.links` is defined: `{id, kind, authority?, rev?, graph?}`. A link that
-  claims `governing` authority under an advisory-only profile is a blocking
-  finding; `contradicts` is reported and never fails validation.
-- `validate-instance.py --tier publish` applies a profile's publish tier and requires
-  pinned `rev` values on a deliverable's or brief's source links.
-  `pin-sources.py` pins, checks drift, and materializes sources.
+- A `technology-assessment` may keep its criteria and ratings as data in an `assessment:`
+  front matter block. It holds criteria ids from a shared `criteria.yml`, subjects, and a
+  finding or a stated gap for each pair. `assessment-tables.py` makes the Criteria and
+  Comparison tables from it and fails when they drift.
+- A `position-paper` may record stances in a `recommendations:` list. A stance is
+  recommended, conditional, watch, or avoid. Each has a rationale, the pinned assessments
+  it rests on, a review date, and approval given whole. Only a position paper has one.
+- A figure may end with `{basis=published accessed=2026-11-06 source="..."}`.
+  `validate-instance.py` requires `source` and `accessed` unless the basis is `not-published`.
+- A `keys.yml` at the flow root maps short names to document ids, usable in the two blocks.
+  A document records what each key resolved to, so repointing a key is a finding, not a
+  silent change. `ddx.links` keep full ids and pinned revs.
 
 ## Required Actions Summary
 
-- None for existing flows.
-- A deliverable's `ddx.authoring.export` is now one path string, as the schema and
-  DDx require; a list is a warning in `check-deliverable.py`.
+- None. Documents without these fields validate as before.
+- A repository that built its own `atlas:` ratings block can move to `assessment:` and
+  `recommendations:` and drop its table generator.
 
 ## Changes and Fixes
 
@@ -57,50 +58,47 @@ ddx:
 
 | Area | What changed | Who is affected |
 |------|--------------|-----------------|
-| Profiles | `workflows/profiles/`, `generate_graph.py --profile`, per-profile graph | Atlas authors |
-| Types | `technology-assessment`, `position-paper`, `decision-brief`; reusable `component-profile` | Atlas authors |
-| Links | `ddx.links` vocabulary and authority check | Anyone using cross-flow references |
-| Publications | Pinned sources and `--tier publish` | Authors of deliverables |
+| Assessments | `assessment:` block, shared `criteria.yml`, generated tables, shape checks | Atlas authors |
+| Position papers | `recommendations:` list with stance, rationale, pins, review date, approval | Atlas authors |
+| Provenance | `{basis=... accessed=... source=...}` on figures, checked wherever it appears | Authors of briefs |
+| Keys | `keys.yml`, recorded resolution, shadow and duplicate checks | Atlas authors |
+| CI | Pull requests run a slim suite; heavy suites run on release or `ci:full`, with an evidence gate | Maintainers |
 
 ### Fixes
 
 | Issue or symptom | Resolution | User or operator impact |
 |------------------|------------|-------------------------|
-| DDx rejected a deliverable whose `authoring.export` was a list | The template, example, and present action use one path string | `ddx doc audit` passes on deliverables |
-| A pre-commit job pointed at a missing script | Removed | Commits no longer print an error |
+| Findings on a document body reported a line one too low | The body offset now counts the closing front matter delimiter | Line numbers in `validate-instance.py` output match the file |
 
 ## Breaking Changes and Required Actions
 
 There are no breaking changes and no migrations.
 
-| Change | Impact | Required action | Deadline or trigger |
-|--------|--------|-----------------|---------------------|
-| `authoring.export` is a string | A deliverable listing several renders | Keep the primary render in `export`; list all under Render | Next `ddx doc audit` |
-
 ## Migration or Rollback Guidance
 
 ### Upgrade or Migration
 
-1. Update the plugin. Add `profile: technology-atlas` to a flow only for an atlas.
+1. Update the plugin. Add the new blocks only where you want them checked.
 
 ### Rollback or Hold Guidance
 
-- Pin `v0.20.0` to roll back; markers with `profile:` would then be ignored.
+- Pin `v0.21.0` to roll back; the new blocks would then go unchecked.
 - Ask for help in the HELIX repository's issues.
 
 ## Known Issues and Support
 
 | Issue | Who is affected | Workaround or next step |
 |------|------------------|-------------------------|
-| `graph:` references are recorded and pinned, not fetched | Cross-repository publications | The runtime (DDx) or the atlas tooling resolves them |
-| No projection to UMF or `umf-visual` | Atlas explorer | Deferred until those contracts are reviewed |
+| No check reads other documents: a cited assessment's links and findings, or a stance repeated across papers | Authors of recommendations | Check by hand until a graph-level check exists |
+| `key:` is not accepted inside `ddx.links` | Authors using keys | Keep the full id in `ddx.links`; use the key in the blocks |
+| The `{...}` notation is HELIX's own, not DITA or MDITA | Anyone expecting DITA interchange | None; a DITA processor drops it |
 
 Support: open an issue in the HELIX repository.
 
 ## References
 
 - Deployment checklist: [deployment-checklist.md](deployment-checklist.md)
-- Design: SD-003, ADR-017, ADR-018
-- Release changes: https://github.com/DocumentDrivenDX/helix/compare/v0.20.0...v0.21.0
+- Pull requests: #114, #115, #116
+- Release changes: https://github.com/DocumentDrivenDX/helix/compare/v0.21.0...v0.22.0
 - Bundle publication: `.github/workflows/release-genie-bundle.yml`
 - Version guard: `.github/workflows/release-version-guard.yml`
