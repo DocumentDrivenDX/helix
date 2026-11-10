@@ -329,12 +329,14 @@ grep -q "FAIL" "$tmpdir/tables.out" || fail "a drifted table should report FAIL"
 python3 "$tables" --write "$sb/drift.md" >/dev/null && cmp -s "$sb/drift.md" "$ta_src" \
   || fail "assessment-tables.py --write should restore the generated table"
 
-# Keys: a short name in a block stands for a document id; ddx.links keep full ids and pins.
+# Keys: a short name in a block stands for a document id; ddx.links keep full ids and pins, and the
+# document records what each key resolved to, so repointing a key is never a silent change.
 printf 'keys:\n  nodejs: component-profile-nodejs-reusable\n  python: component-profile-python-reusable\n' >"$sb/keys.yml"
 sed -e 's/^    - {id: component-profile-nodejs-reusable, label: Node.js}/    - {id: nodejs, label: Node.js}/' \
     -e 's/^    - {id: component-profile-python-reusable, label: Python}/    - {id: python, label: Python}/' \
     -e 's/subject: component-profile-nodejs-reusable,/subject: nodejs,/' \
-    -e 's/subject: component-profile-python-reusable,/subject: python,/' "$ta_src" >"$sb/keyed.md"
+    -e 's/subject: component-profile-python-reusable,/subject: python,/' \
+    -e 's/^assessment:/keys:\n  nodejs: component-profile-nodejs-reusable\n  python: component-profile-python-reusable\nassessment:/' "$ta_src" >"$sb/keyed.md"
 grep -q 'id: nodejs, label' "$sb/keyed.md" && grep -q 'subject: python,' "$sb/keyed.md" || fail "test setup: keys were not substituted"
 python3 "$validator" "$sb/keyed.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 || fail "a keyed assessment should validate:
 $(cat "$tmpdir/case.out")"
@@ -344,12 +346,40 @@ python3 "$validator" "$sb/case.md" --catalog "$repo_root/workflows" >"$tmpdir/ca
 grep -Eq "BLOCKING +assessment\.subjects .*'nodejs-unknown' is not linked" "$tmpdir/case.out" || fail "an unknown key should read as an unlinked id:
 $(cat "$tmpdir/case.out")"
 expect_block "$sb/keyed.md" 's/^    - {id: component-profile-python-reusable, kind: evaluates, rev: example}/    - {id: python, kind: evaluates, rev: example}\n    - {id: component-profile-python-reusable, kind: supported_by, rev: example}/' "BLOCKING +keys .*both a key in keys.yml and a linked document id"
-printf 'keys:\n  Bad Key: x\n' >"$sb/keys.yml"
-expect_block "$sb/keyed.md" 's/^$/&/' "BLOCKING +keys .*lower-case slug"
-rm "$sb/keys.yml"
+# Repointing a key is caught in every document that used it; a document must record what it used.
+printf 'keys:\n  nodejs: component-profile-python-reusable\n  python: component-profile-nodejs-reusable\n' >"$sb/keys.yml"
+expect_block "$sb/keyed.md" 's/^$/&/' "BLOCKING +keys .*key 'nodejs' resolves to 'component-profile-python-reusable' in keys.yml, but this document records 'component-profile-nodejs-reusable'"
+printf 'keys:\n  nodejs: component-profile-nodejs-reusable\n  python: component-profile-python-reusable\n' >"$sb/keys.yml"
+expect_block "$sb/keyed.md" '/^  python: component-profile-python-reusable$/d' "BLOCKING +keys .*key 'python' resolves to .* records None"
+expect_block "$sb/keyed.md" 's/^  python: component-profile-python-reusable$/  python: component-profile-python-reusable\n  old: component-profile-go-reusable/' "BLOCKING +keys .*records key 'old', which keys.yml no longer defines"
+# keys.yml itself: a repeated key, a key that is a document id, a boolean-looking key, a bad shape.
+printf 'keys:\n  nodejs: component-profile-nodejs-reusable\n  nodejs: component-profile-python-reusable\n' >"$sb/keys.yml"
+expect_block "$sb/keyed.md" 's/^$/&/' "BLOCKING +keys .*duplicate key 'nodejs'"
+printf -- '---\nddx:\n  id: some-doc-id\n---\nstub\n' >"$sb/stub.md"
+printf 'keys:\n  some-doc-id: component-profile-nodejs-reusable\n' >"$sb/keys.yml"
+expect_block "$sb/keyed.md" 's/^$/&/' "BLOCKING +keys .*key 'some-doc-id' is also a document id"
+rm "$sb/stub.md"
+printf 'keys:\n  no: component-profile-nodejs-reusable\n' >"$sb/keys.yml"
+expect_block "$sb/keyed.md" 's/^$/&/' "BLOCKING +keys .*bare yes, no, on or off as a boolean"
+printf 'keys: [a]\n' >"$sb/keys.yml"
+expect_block "$sb/keyed.md" 's/^$/&/' "BLOCKING +keys .*needs a .keys:. mapping"
+# ...but a malformed keys.yml does not block a document that has no block.
+cp "$repo_root/workflows/activities/01-frame/artifacts/prd/example.md" "$sb/prd.md"
+python3 "$validator" "$sb/prd.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 || fail "a bad keys.yml should not block a document without a block:
+$(cat "$tmpdir/case.out")"
+# A position paper uses keys the same way, for its subject and its based_on assessment.
+printf 'keys:\n  python: component-profile-python-reusable\n  ta1: TA-001\n' >"$sb/keys.yml"
+sed -e 's/subject: component-profile-python-reusable/subject: python/' \
+    -e 's/based_on: \[{assessment: TA-001,/based_on: [{assessment: ta1,/' \
+    -e 's/^recommendations:/keys:\n  python: component-profile-python-reusable\n  ta1: TA-001\nrecommendations:/' "$pp_src" >"$sb/ppkeyed.md"
+grep -q 'assessment: ta1' "$sb/ppkeyed.md" || fail "test setup: paper keys were not substituted"
+python3 "$validator" "$sb/ppkeyed.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 || fail "a keyed position paper should validate:
+$(cat "$tmpdir/case.out")"
+python3 "$tables" "$sb/ppkeyed.md" >/dev/null || fail "a keyed position paper should generate the same table"
+rm -f "$sb/keys.yml" "$sb/ppkeyed.md" "$sb/keyed.md"
 
 # Figure attributes: {basis=... accessed=... source=...} is checked wherever it appears; code is not.
-fig() {  # sed expression appended after the Findings heading, expected regex (empty = must pass)
+fig() {  # text placed after the Findings heading (\n = newline), expected regex (empty = must pass)
   sed "s|^## Findings\$|## Findings\n\n$1|" "$ta_src" >"$sb/fig.md"
   if [ -z "$2" ]; then
     python3 "$validator" "$sb/fig.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 || fail "figure /$1/ should pass:
@@ -363,10 +393,42 @@ $(cat "$tmpdir/case.out")"
 fig 'Five years. {basis=published accessed=2026-11-06 source="postgresql.org/support"}' ""
 fig 'Not stated. {basis=not-published}' ""
 fig 'Syntax is `{basis=wrong}` in code and {keys=pg role=evaluates} elsewhere.' ""
+fig 'Double ``{basis=wrong}`` backticks, and a path {basis=published accessed=2026-11-06 source="api/{id}/x"}.' ""
+fig 'A brace in a value. {basis=published accessed=2026-11-06 source="}price"}' ""
+fig 'Spaced. {Basis = published  ACCESSED = 2026-11-06 source = x}' ""
+fig 'Wrapped. {basis=published\n  accessed=2026-11-06\n  source=x}' ""
+fig 'Docs:\n\n~~~\n{basis=wrong}\n~~~' ""
+fig 'Docs:\n\n````markdown\n```\n{basis=wrong}\n```\n````' ""
+fig '<!-- {basis=wrong} -->' ""
+fig 'See [the page](https://x.example/a "{basis=wrong}").' ""
 fig 'Five years. {basis=guess accessed=2026-11-06 source=x}' "BLOCKING +figure\.basis "
+fig 'Five years. {BASIS=guess accessed=2026-11-06 source=x}' "BLOCKING +figure\.basis "
+fig 'Five years. {basis=published, accessed=2026-11-06 source=x}' "BLOCKING +figure\.basis .*without punctuation"
 fig 'Five years. {basis=third-party accessed=2026-11-06}' "BLOCKING +figure\.source "
 fig 'Five years. {basis=published source=x}' "BLOCKING +figure\.accessed "
 fig 'Five years. {basis=published accessed=2026-13-45 source=x}' "BLOCKING +figure\.accessed .*not a YYYY-MM-DD"
 fig 'Five years. {accessed=2026-11-06}' "BLOCKING +figure\.basis "
+fig 'Wrapped. {basis=guess\n  accessed=2026-11-06 source=x}' "BLOCKING +figure\.basis "
+fig 'Twice. {basis=guess basis=published accessed=2026-11-06 source=x}' "BLOCKING +figure\.duplicate .*basis"
+fig 'Quoted brace. {basis=guess source="api/{id}" accessed=2026-11-06}' "BLOCKING +figure\.basis "
+# The finding points at the line the attribute list is on.
+fig 'Five years. {basis=guess accessed=2026-11-06 source=x}' "BLOCKING +figure\.basis "
+want="$(grep -n 'basis=guess' "$sb/fig.md" | head -1 | cut -d: -f1)"
+grep -Eq "figure\.basis .*\[line $want\]" "$tmpdir/case.out" || fail "figure finding should be on line $want:
+$(cat "$tmpdir/case.out")"
+# Under a profile that validates structure only by default, a figure finding is a warning until
+# --tier publish, when it blocks.
+proj="$tmpdir/atlasproj"; mkdir -p "$proj/knowledge"
+printf 'flows:\n  - id: atlas\n    profile: technology-atlas\n    root: knowledge/\n' >"$proj/.helix.yml"
+cp "$repo_root/workflows/activities/00-discover/artifacts/criteria.yml" "$proj/knowledge/"
+sed -e 's|^## Findings$|## Findings\n\nFive years. {basis=guess accessed=2026-11-06 source=x}|' "$ta_src" >"$proj/knowledge/TA-001.md"
+python3 "$validator" "$proj/knowledge/TA-001.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 \
+  && grep -Eq "^WARNING +figure\.basis " "$tmpdir/case.out" || fail "a figure finding should be a warning at the default tier:
+$(cat "$tmpdir/case.out")"
+if python3 "$validator" "$proj/knowledge/TA-001.md" --catalog "$repo_root/workflows" --tier publish >"$tmpdir/case.out" 2>&1; then
+  fail "a figure finding should block at the publish tier"
+fi
+grep -Eq "^BLOCKING +figure\.basis " "$tmpdir/case.out" || fail "expected a blocking figure.basis at the publish tier:
+$(cat "$tmpdir/case.out")"
 
 echo "OK: validate-instance.py passes all $count catalog examples and $ux optional-section fixtures, holds the deliverable to its voice profile, rejects the broken PRD fixture, checks visual blocks and structured assessment and recommendation blocks, keys, and figure attributes, and errors on unresolvable types"

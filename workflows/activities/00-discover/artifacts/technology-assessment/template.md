@@ -12,7 +12,9 @@ ddx:
   # generated from it (`assessment-tables.py --write`) and cannot drift from it. Criteria are
   # ids from `criteria.yml` at the flow root (entries: id, label, definition, concern). A
   # `keys.yml` beside it may map short names to document ids; subjects and ratings accept a
-  # key, while `ddx.links` keep the full id and pinned rev.
+  # key, while `ddx.links` keep the full id and pinned rev. The document records what each key
+  # resolved to in a top-level `keys: {<key>: <document id>}`, so repointing a key in keys.yml
+  # shows up as a finding here instead of silently changing what the assessment cites.
 # assessment:
 #   criteria: [<criterion id from the graph's criteria.yml>]
 #   subjects: [{id: <technology brief id or a key from keys.yml>, label: <name in the table>}]

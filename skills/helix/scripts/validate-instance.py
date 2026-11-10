@@ -170,7 +170,7 @@ def split_frontmatter(text: str) -> tuple[dict | None, str, int]:
     raw = text[4:end]
     body = text[end + 5:]
     data = yaml.safe_load(raw) or {}
-    return (data if isinstance(data, dict) else {}), body, raw.count("\n") + 3
+    return (data if isinstance(data, dict) else {}), body, raw.count("\n") + 4
 
 
 def strip_fences(body: str) -> str:
@@ -717,9 +717,8 @@ def check_delivery_history(body: str, base: int, report: Report) -> None:
 
 
 def check_figures(body: str, base: int, report: Report) -> None:
-    scan = strip_fences(body)
-    for offset, check, message in figure_attributes.find(scan):
-        report.add("blocking", check, message, line_of(scan, offset, base))
+    for offset, check, message in figure_attributes.find(body):
+        report.add("blocking", check, message, line_of(body, offset, base))
 
 
 def check_placeholders(body: str, base: int, report: Report) -> None:
