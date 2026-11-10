@@ -253,4 +253,44 @@ for expected in "BLOCKING +visual\.id .*needs .id=" "BLOCKING +visual\.id .*'sto
 $(cat "$tmpdir/visuals.out")"
 done
 
-echo "OK: validate-instance.py passes all $count catalog examples and $ux optional-section fixtures, holds the deliverable to its voice profile, rejects the broken PRD fixture, checks visual blocks, and errors on unresolvable types"
+# Structured blocks: an assessment's `assessment:` and a paper's `recommendations:` are checked for
+# shape, and assessment-tables.py keeps the Markdown tables equal to them.
+tables="$repo_root/skills/helix/scripts/assessment-tables.py"
+sb="$tmpdir/structured"
+mkdir -p "$sb"
+cp "$repo_root/workflows/activities/00-discover/artifacts/technology-assessment/criteria.yml" "$sb/"
+ta_src="$repo_root/workflows/activities/00-discover/artifacts/technology-assessment/example.md"
+pp_src="$repo_root/workflows/activities/00-discover/artifacts/position-paper/example.md"
+expect_block() {  # file, sed expression, expected finding regex
+  local file="$sb/case.md" src="$1"; shift
+  sed "$1" "$src" >"$file"
+  if python3 "$validator" "$file" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1; then
+    fail "structured case /$1/ should block:
+$(cat "$tmpdir/case.out")"
+  fi
+  grep -Eq "$2" "$tmpdir/case.out" || fail "structured case /$1/ should report /$2/:
+$(cat "$tmpdir/case.out")"
+}
+expect_block "$ta_src" '/subject: component-profile-python-reusable, finding: Brief section Capabilities/d' "BLOCKING +assessment\.ratings .*no rating or gap"
+expect_block "$ta_src" 's/criteria: \[script-distribution, text-and-file-handling, dependency-isolation\]/criteria: [script-distribution, text-and-file-handling, speed]/' "BLOCKING +assessment\.criteria .*'speed' is not in criteria.yml"
+expect_block "$ta_src" 's/- {id: component-profile-python-reusable, label: Python}/- {id: component-profile-go-reusable, label: Go}/' "BLOCKING +assessment\.subjects .*'component-profile-go-reusable' is not linked"
+expect_block "$ta_src" 's/gap: Unknown (not in the brief)}$/gap: Unknown, finding: Both}/' "BLOCKING +assessment\.ratings\.[0-9]+ .*exactly one of"
+expect_block "$pp_src" 's/stance: conditional/stance: favourite/' "BLOCKING +recommendations\.0 .*stance must be one of"
+expect_block "$pp_src" 's/    review_by: 2027-02-06/    review_by: 2026-01-01/' "BLOCKING +recommendations\.0 .*review_by. is after"
+expect_block "$pp_src" 's/    since: 2026-11-06/    since: 2026-11-06\n    approved_by: Someone/' "BLOCKING +recommendations\.0 .*together or not at all"
+expect_block "$pp_src" 's/, kind: supported_by, rev: example}$/, kind: informed_by, rev: example}/' "BLOCKING +recommendations\.0 .*must be linked as supported_by"
+expect_block "$pp_src" '/    conditions: /d' "BLOCKING +recommendations\.0 .*conditional stance states its conditions"
+# a stance outside a position paper, and a criteria block outside an assessment
+expect_block "$ta_src" 's/^assessment:/recommendations: []\nassessment:/' "BLOCKING +recommendations\.placement "
+expect_block "$pp_src" 's/^recommendations:/assessment: {}\nrecommendations:/' "BLOCKING +assessment\.placement "
+
+# Generated tables: current examples pass; a drifted cell fails the check; --write repairs it.
+python3 "$tables" "$ta_src" "$pp_src" >"$tmpdir/tables.out" 2>&1 || fail "catalog examples' tables should match their blocks:
+$(cat "$tmpdir/tables.out")"
+sed 's/^| Script distribution | Unknown (not in the brief) | Unknown/| Script distribution | Fine | Unknown/' "$ta_src" >"$sb/drift.md"
+if python3 "$tables" "$sb/drift.md" >"$tmpdir/tables.out" 2>&1; then fail "a drifted table should fail assessment-tables.py"; fi
+grep -q "FAIL" "$tmpdir/tables.out" || fail "a drifted table should report FAIL"
+python3 "$tables" --write "$sb/drift.md" >/dev/null && cmp -s "$sb/drift.md" "$ta_src" \
+  || fail "assessment-tables.py --write should restore the generated table"
+
+echo "OK: validate-instance.py passes all $count catalog examples and $ux optional-section fixtures, holds the deliverable to its voice profile, rejects the broken PRD fixture, checks visual blocks and structured assessment and recommendation blocks, and errors on unresolvable types"

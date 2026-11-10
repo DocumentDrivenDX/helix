@@ -1,0 +1,16 @@
+# The criteria assessments judge technologies on. An assessment lists the ids it uses in its
+# `assessment:` block, and its Criteria table is made from here. concern: the HELIX concern the
+# criterion serves, or none. One criterion is one node across assessments.
+criteria:
+  - id: script-distribution
+    label: Script distribution
+    definition: How a single script is run on a machine that lacks the runtime's packages
+    concern: none
+  - id: text-and-file-handling
+    label: Text and file handling
+    definition: Standard-library support for reading, parsing, and writing text files
+    concern: none
+  - id: dependency-isolation
+    label: Dependency isolation
+    definition: How a script declares and isolates its own dependencies
+    concern: none

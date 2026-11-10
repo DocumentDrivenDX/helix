@@ -7,6 +7,18 @@ ddx:
   links:
     - {id: component-profile-nodejs-reusable, kind: evaluates, rev: example}
     - {id: component-profile-python-reusable, kind: evaluates, rev: example}
+assessment:
+  criteria: [script-distribution, text-and-file-handling, dependency-isolation]
+  subjects:
+    - {id: component-profile-nodejs-reusable, label: Node.js}
+    - {id: component-profile-python-reusable, label: Python}
+  ratings:
+    - {criterion: script-distribution, subject: component-profile-nodejs-reusable, gap: Unknown (not in the brief)}
+    - {criterion: script-distribution, subject: component-profile-python-reusable, gap: Unknown (not in the brief)}
+    - {criterion: text-and-file-handling, subject: component-profile-nodejs-reusable, finding: Brief section Capabilities}
+    - {criterion: text-and-file-handling, subject: component-profile-python-reusable, finding: Brief section Capabilities}
+    - {criterion: dependency-isolation, subject: component-profile-nodejs-reusable, finding: Brief section Technology and Operations}
+    - {criterion: dependency-isolation, subject: component-profile-python-reusable, finding: Brief section Technology and Operations}
 ---
 
 # TA-001: Node.js and Python for command-line tooling
