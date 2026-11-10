@@ -4,7 +4,7 @@
     "Docker version 29.8.2, build 7fc2dff",
     "Python 3.9.6"
   ],
-  "content_hash": "1ca0c03e52678c6b6e3813aa00c9ee33be7b1ca8b0f57afd3a66684ddf308714",
-  "timestamp": "2026-11-10T17:00:14Z",
+  "content_hash": "dbbedf486f8a9f3702d08d7831fe361ed973c632f3e3a8108d574f094d9428fc",
+  "timestamp": "2026-11-10T17:01:32Z",
   "command": "docker build -t helix-install-test:claude-code tests/install/claude-code/ && docker run --rm -v \"$PWD:/workspace/helix:ro\" helix-install-test:claude-code bash -c \"install.sh && verify.sh\" && docker run --rm -e TEST_LOCAL_MARKETPLACE=1 -v \"$PWD:/workspace/helix:ro\" helix-install-test:claude-code bash -c \"install.sh && verify.sh\""
 }
