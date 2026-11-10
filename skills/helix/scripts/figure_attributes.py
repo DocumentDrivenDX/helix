@@ -1,4 +1,7 @@
-"""Figure attributes: the provenance of a figure, written as an MDITA-style attribute list.
+"""Figure attributes: the provenance of a figure, written as a `{...}` attribute list.
+
+The notation is a common Markdown extension. It is HELIX's own and is not part of any DITA, MDITA or
+LwDITA specification, so a DITA processor will drop it.
 
 A figure (a price, a limit, a date, a support window) may end with `{basis=... accessed=... source=...}`,
 in a table cell, at the end of a list item, or at the end of a paragraph:
