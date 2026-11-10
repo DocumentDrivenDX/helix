@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#1b2a4a"/>
+    </linearGradient>
+    <linearGradient id="strand" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#a78bfa"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <!-- double helix motif -->
+  <g fill="none" stroke-width="6" stroke-linecap="round" opacity="0.9">
+    <path d="M760 80 C 860 160, 1060 160, 1160 80 S 1060 -0, 960 80" stroke="none"/>
+    <path d="M700 315 C 780 195, 880 195, 940 315 S 1100 435, 1180 315" stroke="url(#strand)"/>
+    <path d="M700 315 C 780 435, 880 435, 940 315 S 1100 195, 1180 315" stroke="#38bdf8" opacity="0.45"/>
+  </g>
+  <g stroke="#94a3b8" stroke-width="3" opacity="0.5">
+    <line x1="740" y1="262" x2="740" y2="368"/>
+    <line x1="790" y1="232" x2="790" y2="398"/>
+    <line x1="840" y1="226" x2="840" y2="404"/>
+    <line x1="890" y1="248" x2="890" y2="382"/>
+    <line x1="990" y1="382" x2="990" y2="248"/>
+    <line x1="1040" y1="404" x2="1040" y2="226"/>
+    <line x1="1090" y1="398" x2="1090" y2="232"/>
+    <line x1="1140" y1="368" x2="1140" y2="262"/>
+  </g>
+  <text x="80" y="270" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="150" font-weight="700" letter-spacing="6" fill="#f8fafc">HELIX</text>
+  <text x="84" y="350" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="40" fill="#cbd5e1">Document-driven methodology for</text>
+  <text x="84" y="402" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="40" fill="#cbd5e1">AI-assisted software development</text>
+  <text x="84" y="552" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="28" fill="#38bdf8">vision · design · tests · code, kept aligned</text>
+</svg>

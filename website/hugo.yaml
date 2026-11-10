@@ -71,6 +71,8 @@ menu:
       weight: 7
 
 params:
+  images:
+    - social/helix-card.png
   concourse:
     enabled: false
     site: helix
