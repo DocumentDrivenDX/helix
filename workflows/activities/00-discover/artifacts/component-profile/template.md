@@ -69,6 +69,12 @@ The vocabularies used below, in one place.
 | **High / Medium / Low** | Confidence | Defined in the Confidence section. |
 | **maker / vendor / independent / community** | Sources | Defined in the Sources section. |
 
+A figure can carry its provenance as an attribute list after it:
+`{basis=published accessed=2026-11-06 source="vendor.example/pricing"}`, with
+`basis` one of `published`, `third-party`, or `not-published`. Unless the
+basis is `not-published`, `source` and `accessed` (YYYY-MM-DD) are required,
+and `validate-instance.py` enforces that wherever the attribute appears.
+
 ## Need
 
 Written before the component is researched, from the project's own

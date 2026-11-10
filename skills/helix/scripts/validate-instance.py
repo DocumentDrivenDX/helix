@@ -19,6 +19,9 @@ Checks run, in order:
                      criterion and subject, stances, rationale, pinned assessments, review dates, and
                      approval given whole (structured_blocks.py); `assessment-tables.py` keeps the
                      Markdown tables equal to them
+  figures            `{basis=... accessed=... source=...}` attribute lists on figures: basis is
+                     published, third-party, or not-published; the first two need source and a
+                     YYYY-MM-DD accessed date (figure_attributes.py)
   visuals            each fenced `visual` block (and each Mermaid block naming `%% id:`): an id that
                      is present, well formed, and unique; a body naming a `source`, or a `kind`,
                      `form`, and `question`; a form of its kind (umf.visual 1.0). A kind and form
@@ -73,6 +76,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import prose_audit  # noqa: E402  (sibling module, found beside this script)
+import figure_attributes  # noqa: E402  (sibling module: {basis=... accessed=... source=...} on figures)
 import structured_blocks  # noqa: E402  (sibling module: assessment and recommendations blocks)
 
 try:
@@ -166,7 +170,7 @@ def split_frontmatter(text: str) -> tuple[dict | None, str, int]:
     raw = text[4:end]
     body = text[end + 5:]
     data = yaml.safe_load(raw) or {}
-    return (data if isinstance(data, dict) else {}), body, raw.count("\n") + 3
+    return (data if isinstance(data, dict) else {}), body, raw.count("\n") + 4
 
 
 def strip_fences(body: str) -> str:
@@ -712,6 +716,11 @@ def check_delivery_history(body: str, base: int, report: Report) -> None:
         report.add("warning", "delivery_history", "Keep repository-history citations in source control or the runtime tracker", line_of(body, match.start(), base))
 
 
+def check_figures(body: str, base: int, report: Report) -> None:
+    for offset, check, message in figure_attributes.find(body):
+        report.add("blocking", check, message, line_of(body, offset, base))
+
+
 def check_placeholders(body: str, base: int, report: Report) -> None:
     scan = strip_fences(body)
     for m in PLACEHOLDER_RE.finditer(scan):
@@ -811,6 +820,7 @@ def main() -> int:
     check_placeholders(body, base, report)
     check_delivery_history(text, 1, report)
     check_visuals(entry["meta"], body, base, report)
+    check_figures(body, base, report)
     if args.tier == "publish":
         check_pinned_links(fm, validation.get("pin_links") or {}, report)
     settings, root = project_prose_settings(args.instance)

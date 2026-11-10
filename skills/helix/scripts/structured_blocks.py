@@ -27,6 +27,19 @@ directory that has one (the flow root), so one criterion is one node across asse
         review_by: 2027-02-06
         approved_by: Name                           # both or neither; until then "proposed"
         approved_on: 2026-11-20
+
+Keys: `keys.yml` in the nearest ancestor directory that has one (the flow root) maps a short name to a
+document id. In the blocks, a subject, a rating's subject, a recommendation's subject, and a
+`based_on` assessment may be a key. A key is only an alias, resolved before any check: the document
+that cites a source still lists it by its full id in `ddx.links`, with its pinned `rev`, so a key can
+never follow a moving source. A document that uses a key also records what it resolved to, in a
+top-level `keys:` mapping, and the check fails when keys.yml disagrees; so repointing a key is a
+visible edit to every document that uses it, never a silent change of what they cite. A key is a
+lower-case slug and never the id of a document; keys.yml may not repeat a key.
+
+    # keys.yml                                      # in the document, beside `ddx:`
+    keys:                                           keys:
+      pg: component-profile-postgresql-reusable       pg: component-profile-postgresql-reusable
 """
 from __future__ import annotations
 
@@ -95,6 +108,131 @@ def load_catalogue(path: Path | None) -> dict[str, dict]:
     return read_catalogue(path)[0]
 
 
+KEY_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+
+
+class _UniqueKeyLoader(yaml.SafeLoader if yaml else object):
+    """SafeLoader that rejects a mapping key written twice, so the last one cannot win silently."""
+
+    def construct_mapping(self, node, deep=False):
+        seen = set()
+        for key_node, _ in node.value:
+            key = self.construct_object(key_node, deep=True)
+            if key in seen:
+                raise yaml.constructor.ConstructorError(None, None, f"duplicate key {key!r}", key_node.start_mark)
+            seen.add(key)
+        return super().construct_mapping(node, deep)
+
+
+def find_keys(instance: Path) -> Path | None:
+    """keys.yml in the nearest ancestor directory that has one, stopping at the project marker."""
+    for parent in instance.resolve().parents:
+        if (parent / "keys.yml").is_file():
+            return parent / "keys.yml"
+        if (parent / ".helix.yml").is_file():
+            return None
+    return None
+
+
+def _document_ids(root: Path) -> set[str]:
+    """ddx.id of every Markdown document under root: the ids a key must not shadow."""
+    ids = set()
+    for path in root.rglob("*.md"):
+        if any(part.startswith(".") or part == "node_modules" for part in path.relative_to(root).parts):
+            continue
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        end = text.find("\n---\n", 4) if text.startswith("---\n") else -1
+        try:
+            fm = yaml.safe_load(text[4:end]) if end > 0 else None
+        except yaml.YAMLError:
+            continue
+        ddx = fm.get("ddx") if isinstance(fm, dict) else None
+        if isinstance(ddx, dict) and ddx.get("id"):
+            ids.add(str(ddx["id"]))
+    return ids
+
+
+def read_keys(path: Path | None) -> tuple[dict[str, str], list[str]]:
+    """(key -> document id, problems). A key is a lower-case slug that is not itself a document id."""
+    if path is None:
+        return {}, []
+    try:
+        data = yaml.load(path.read_text(encoding="utf-8"), Loader=_UniqueKeyLoader) or {}
+    except yaml.YAMLError as err:
+        return {}, [f"{path.name} is not valid YAML: {err}"]
+    entries = data.get("keys") if isinstance(data, dict) else None
+    if not isinstance(entries, dict):
+        return {}, [f"{path.name} needs a `keys:` mapping of key to document id"]
+    existing = _document_ids(path.parent)
+    keys, problems = {}, []
+    for k, v in entries.items():
+        if not isinstance(k, str):
+            problems.append(f"{path.name}: key {k!r} is not text; YAML reads a bare yes, no, on or off as a boolean, so quote it")
+        elif not KEY_RE.match(k) or not isinstance(v, str) or not v:
+            problems.append(f"{path.name}: '{k}' must be a lower-case slug mapped to a document id")
+        elif k in existing:
+            problems.append(f"{path.name}: key '{k}' is also a document id; a key never shadows a document")
+        else:
+            keys[k] = v
+    return keys, problems
+
+
+def expand_keys(fm: dict, instance: Path) -> tuple[dict, list[str]]:
+    """fm with block references that name a key replaced by the document id; plus problems.
+
+    Only the blocks' references are expanded; ddx.links keep full ids and pinned revs. The document
+    records the resolution it was written against in a top-level `keys:` mapping, and any key it uses
+    must match keys.yml, so editing keys.yml cannot silently change what a document cites. A name
+    that is both a key and a linked id is ambiguous and reported, and left as the id."""
+    keys, problems = read_keys(find_keys(instance))
+    recorded = fm.get("keys") if isinstance(fm.get("keys"), dict) else {}
+    if not keys:
+        if recorded and not problems:
+            problems.append("the document records `keys:` but no keys.yml is in this graph")
+        return fm, problems
+    ddx = fm.get("ddx") if isinstance(fm.get("ddx"), dict) else {}
+    linked = {str(l["id"]) for l in ddx.get("links") or [] if isinstance(l, dict) and l.get("id")}
+    used: set[str] = set()
+
+    def ref(value):
+        if not isinstance(value, str) or value not in keys:
+            return value
+        if value in linked:
+            problems.append(f"'{value}' is both a key in keys.yml and a linked document id; rename the key")
+            return value
+        used.add(value)
+        return keys[value]
+
+    out = dict(fm)
+    block = fm.get("assessment")
+    if isinstance(block, dict):
+        out["assessment"] = {**block,
+            "subjects": [{**x, "id": ref(x.get("id"))} if isinstance(x, dict) else x for x in block.get("subjects") or []]
+            if isinstance(block.get("subjects"), list) else block.get("subjects"),
+            "ratings": [{**x, "subject": ref(x.get("subject"))} if isinstance(x, dict) else x for x in block.get("ratings") or []]
+            if isinstance(block.get("ratings"), list) else block.get("ratings")}
+    recs = fm.get("recommendations")
+    if isinstance(recs, list):
+        def rec(r):
+            if not isinstance(r, dict):
+                return r
+            based = r.get("based_on")
+            return {**r, "subject": ref(r.get("subject")),
+                    **({"based_on": [{**b, "assessment": ref(b.get("assessment"))} if isinstance(b, dict) else b for b in based]}
+                       if isinstance(based, list) else {})}
+        out["recommendations"] = [rec(r) for r in recs]
+    for k in sorted(used):
+        if recorded.get(k) != keys[k]:
+            problems.append(f"key '{k}' resolves to '{keys[k]}' in keys.yml, but this document records "
+                            f"{recorded.get(k)!r}; re-read what it cites, then set `keys: {{{k}: {keys[k]}}}`")
+    for k in sorted(set(recorded) - set(keys)):
+        problems.append(f"the document records key '{k}', which keys.yml no longer defines")
+    return out, problems
+
+
 def _date(value: object) -> datetime.date | None:
     if isinstance(value, datetime.datetime):
         return value.date()
@@ -131,6 +269,10 @@ def check(fm: dict | None, type_id: str, instance: Path, add, publish: bool = Fa
     A malformed shape is one finding and stops that block's checks; the table tool relies on it
     to run only on blocks that passed."""
     fm = fm or {}
+    if "assessment" in fm or "recommendations" in fm:
+        fm, key_problems = expand_keys(fm, instance)
+        for problem in key_problems:
+            add("blocking", "keys", problem)
     for key, owner in (("assessment", "technology-assessment"), ("recommendations", "position-paper")):
         if key in fm and type_id != owner:
             add("blocking", f"{key}.placement", f"`{key}:` belongs on a {owner}, not a {type_id}; "
@@ -359,6 +501,7 @@ def table_spans(body: str, span: tuple[int, int]) -> list[tuple[int, int]]:
 
 def regenerate(fm: dict, type_id: str, body: str, instance: Path) -> str:
     """body with its generated tables rewritten from the front matter's block."""
+    fm, _ = expand_keys(fm, instance)
     if type_id == "position-paper":
         span = section_span(body, "Recommendations")
         tables = table_spans(body, span) if span else []
