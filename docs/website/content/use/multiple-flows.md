@@ -61,6 +61,10 @@ flows:
     template: microsite-docs
 ```
 
+A flow can also name a `profile`, which selects its artifact types and how
+strictly each validation tier checks them. [Keep a Technology Atlas](/use/technology-atlas/)
+shows the `technology-atlas` profile.
+
 The `kind: helix` value says both entries use the same public HELIX skill.
 Use `id` to select the scope. Use `lanes` to tell the skill which domain
 vocabulary to prefer after it has resolved the owner scope.
