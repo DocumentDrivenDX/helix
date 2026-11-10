@@ -1,3 +1,3 @@
 """documentor: a repository's guide, detected, generated, written, evaluated, checked, and assembled."""
 
-__version__ = "0.21.0"
+__version__ = "0.22.0"
