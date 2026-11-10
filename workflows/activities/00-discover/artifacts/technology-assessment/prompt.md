@@ -31,7 +31,7 @@ Decision Brief begins.
    brief section; where no brief speaks, write Unknown.
 4. **Compare** in one table, cells citing sources. To keep the ratings as
    data, put them in an `assessment:` front matter block (criteria ids from
-   the graph's `criteria.yml`, a finding or a stated gap for every criterion
+   `criteria.yml` at the flow root, a one-line finding or a stated gap for every criterion
    and subject) and run `assessment-tables.py --write`; the Criteria and
    Comparison tables are generated from it.
 5. **Write findings** only where criteria separate the technologies.

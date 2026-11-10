@@ -50,6 +50,14 @@ def main(argv: list[str]) -> int:
         if BLOCKS.get(type_id) not in fm:
             print(f"skip  {path}: no structured block")
             continue
+        problems = []
+        sb.check(fm, type_id, path, lambda sev, chk, msg: problems.append(f"{chk}: {msg}") if sev == "blocking" else None)
+        if problems:
+            print(f"FAIL  {path}: its block is malformed; the tables are not generated")
+            for line in problems:
+                print(f"        {line}")
+            status = 1
+            continue
         try:
             new = sb.regenerate(fm, type_id, body, path)
         except (ValueError, KeyError) as err:

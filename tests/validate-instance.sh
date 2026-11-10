@@ -258,16 +258,18 @@ done
 tables="$repo_root/skills/helix/scripts/assessment-tables.py"
 sb="$tmpdir/structured"
 mkdir -p "$sb"
-cp "$repo_root/workflows/activities/00-discover/artifacts/technology-assessment/criteria.yml" "$sb/"
+cp "$repo_root/workflows/activities/00-discover/artifacts/criteria.yml" "$sb/"
 ta_src="$repo_root/workflows/activities/00-discover/artifacts/technology-assessment/example.md"
 pp_src="$repo_root/workflows/activities/00-discover/artifacts/position-paper/example.md"
 expect_block() {  # file, sed expression, expected finding regex
   local file="$sb/case.md" src="$1"; shift
   sed "$1" "$src" >"$file"
-  if python3 "$validator" "$file" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1; then
+  if python3 "$validator" "$file" --catalog "$repo_root/workflows" ${TIER:-} >"$tmpdir/case.out" 2>&1; then
     fail "structured case /$1/ should block:
 $(cat "$tmpdir/case.out")"
   fi
+  ! grep -q Traceback "$tmpdir/case.out" || fail "structured case /$1/ crashed instead of reporting:
+$(cat "$tmpdir/case.out")"
   grep -Eq "$2" "$tmpdir/case.out" || fail "structured case /$1/ should report /$2/:
 $(cat "$tmpdir/case.out")"
 }
@@ -278,11 +280,45 @@ expect_block "$ta_src" 's/gap: Unknown (not in the brief)}$/gap: Unknown, findin
 expect_block "$pp_src" 's/stance: conditional/stance: favourite/' "BLOCKING +recommendations\.0 .*stance must be one of"
 expect_block "$pp_src" 's/    review_by: 2027-02-06/    review_by: 2026-01-01/' "BLOCKING +recommendations\.0 .*review_by. is after"
 expect_block "$pp_src" 's/    since: 2026-11-06/    since: 2026-11-06\n    approved_by: Someone/' "BLOCKING +recommendations\.0 .*together or not at all"
-expect_block "$pp_src" 's/, kind: supported_by, rev: example}$/, kind: informed_by, rev: example}/' "BLOCKING +recommendations\.0 .*must be linked as supported_by"
+expect_block "$pp_src" 's/, kind: supported_by, rev: example}$/, kind: informed_by, rev: example}/' "BLOCKING +recommendations\.0 .*linked as supported_by"
 expect_block "$pp_src" '/    conditions: /d' "BLOCKING +recommendations\.0 .*conditional stance states its conditions"
 # a stance outside a position paper, and a criteria block outside an assessment
 expect_block "$ta_src" 's/^assessment:/recommendations: []\nassessment:/' "BLOCKING +recommendations\.placement "
 expect_block "$pp_src" 's/^recommendations:/assessment: {}\nrecommendations:/' "BLOCKING +assessment\.placement "
+
+# Malformed shapes are findings, never tracebacks; the table tool refuses a malformed block.
+expect_block "$ta_src" 's/^  subjects:$/  subjects:\n    - nodejs/' "BLOCKING +assessment\.shape .*subjects"
+expect_block "$ta_src" 's/^  criteria: \[.*\]$/  criteria: 5/' "BLOCKING +assessment\.shape .*criteria"
+expect_block "$ta_src" 's/^  criteria: \[.*\]$/  criteria: script-distribution/' "BLOCKING +assessment\.shape .*criteria"
+expect_block "$ta_src" 's/^assessment:$/assessment:\n  comparison: [x]/' "BLOCKING +assessment\.shape .*comparison"
+expect_block "$ta_src" 's/- {id: component-profile-python-reusable, label: Python}/- {id: component-profile-nodejs-reusable, label: Node.js}/' "BLOCKING +assessment\.subjects .*listed twice"
+expect_block "$ta_src" 's/    - {id: component-profile-nodejs-reusable, kind: evaluates, rev: example}/    - {kind: evaluates}/' "BLOCKING +assessment\.subjects "
+expect_block "$ta_src" 's/finding: Brief section Capabilities}$/finding: "two\\n\\nlines"}/' "BLOCKING +assessment\.ratings\.[0-9]+ .*one line"
+expect_block "$pp_src" 's/subject: component-profile-python-reusable/subject: [a]/' "BLOCKING +recommendations\.0 .*string .subject"
+expect_block "$pp_src" 's/stance: conditional/stance: [a]/' "BLOCKING +recommendations\.0 .*stance must be one of"
+expect_block "$pp_src" 's/based_on: \[{assessment: TA-001, criteria: \[text-and-file-handling\]}\]/based_on: [TA-001]/' "BLOCKING +recommendations\.0 .*linked as supported_by"
+expect_block "$pp_src" 's/    since: 2026-11-06/    since: 20261106/' "BLOCKING +recommendations\.0 .*YYYY-MM-DD"
+# Pins are required at the publish tier only; cited criteria need a catalogue.
+cp "$pp_src" "$sb/pinless.md"; sed -i.bak 's/- {id: TA-001, kind: supported_by, rev: example}/- {id: TA-001, kind: supported_by}/' "$sb/pinless.md"
+python3 "$validator" "$sb/pinless.md" --catalog "$repo_root/workflows" >/dev/null 2>&1 || fail "a paper without a pin should validate at the default tier"
+TIER="--tier publish" expect_block "$sb/pinless.md" 's/^$/&/' "BLOCKING +recommendations\.0 .*needs a pinned rev"
+nocat="$tmpdir/nocatalogue"; mkdir -p "$nocat"; touch "$nocat/.helix.yml"; cp "$pp_src" "$nocat/PP-001.md"
+python3 "$validator" "$nocat/PP-001.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 && fail "cited criteria without criteria.yml should block"
+grep -Eq "BLOCKING +recommendations\.0 .*does not have" "$tmpdir/case.out" || fail "expected the missing-catalogue finding:
+$(cat "$tmpdir/case.out")"
+# A catalogue entry without a label is a finding, not a KeyError in the table tool.
+printf 'criteria:\n  - id: script-distribution\n' >"$sb/criteria.yml"
+expect_block "$ta_src" 's/^$/&/' "BLOCKING +catalogue .*string .id. and .label"
+if python3 "$tables" "$ta_src" >"$tmpdir/tables.out" 2>&1; then :; fi
+cp "$repo_root/workflows/activities/00-discover/artifacts/criteria.yml" "$sb/"
+
+# A pipe in a finding is escaped on write and the table stays well formed.
+sed 's/finding: Brief section Capabilities}$/finding: "a | b"}/' "$ta_src" >"$sb/pipe.md"
+python3 "$tables" --write "$sb/pipe.md" >/dev/null || fail "writing a finding with a pipe should succeed"
+grep -Fq '| Text and file handling | a \| b | a \| b |' "$sb/pipe.md" || fail "a pipe in a finding should be escaped in the table:
+$(grep -n 'Text and file' "$sb/pipe.md")"
+python3 "$tables" "$sb/pipe.md" >/dev/null || fail "a table with an escaped pipe should check clean"
+python3 "$validator" "$sb/pipe.md" --catalog "$repo_root/workflows" >/dev/null || fail "a finding with a pipe should validate"
 
 # Generated tables: current examples pass; a drifted cell fails the check; --write repairs it.
 python3 "$tables" "$ta_src" "$pp_src" >"$tmpdir/tables.out" 2>&1 || fail "catalog examples' tables should match their blocks:

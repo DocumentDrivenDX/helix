@@ -49,6 +49,10 @@ EVIDENCE_KINDS = {"evaluates", "supported_by"}
 ROW_LAYOUTS = ("criteria", "subjects")
 
 
+PIN_RE = re.compile(r"^(git:[0-9a-f]{7,40}|sha256:[0-9a-f]{64})$")
+DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+
 def find_catalogue(instance: Path) -> Path | None:
     """criteria.yml in the nearest ancestor directory that has one, stopping at the project marker."""
     for parent in instance.resolve().parents:
@@ -59,9 +63,36 @@ def find_catalogue(instance: Path) -> Path | None:
     return None
 
 
+def _one_line(value: object) -> bool:
+    return "\n" not in str(value).strip()
+
+
+def read_catalogue(path: Path | None) -> tuple[dict[str, dict], list[str]]:
+    """(valid entries by id, problems). An entry needs a string id and label; cells stay one line."""
+    if path is None:
+        return {}, []
+    try:
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except yaml.YAMLError as err:
+        return {}, [f"{path.name} is not valid YAML: {err}"]
+    entries = data.get("criteria") if isinstance(data, dict) else None
+    if not isinstance(entries, list):
+        return {}, [f"{path.name} needs a `criteria:` list"]
+    cat, problems = {}, []
+    for i, c in enumerate(entries):
+        if not isinstance(c, dict) or not isinstance(c.get("id"), str) or not isinstance(c.get("label"), str):
+            problems.append(f"{path.name} entry {i} needs a string `id` and `label`")
+        elif c["id"] in cat:
+            problems.append(f"{path.name} lists '{c['id']}' twice")
+        elif not all(_one_line(c.get(k) or "") for k in ("label", "definition", "concern")):
+            problems.append(f"{path.name} entry '{c['id']}' has a multi-line label, definition or concern; table cells are one line")
+        else:
+            cat[c["id"]] = c
+    return cat, problems
+
+
 def load_catalogue(path: Path | None) -> dict[str, dict]:
-    data = yaml.safe_load(path.read_text(encoding="utf-8")) if path else None
-    return {c["id"]: c for c in (data or {}).get("criteria") or [] if isinstance(c, dict) and c.get("id")}
+    return read_catalogue(path)[0]
 
 
 def _date(value: object) -> datetime.date | None:
@@ -69,23 +100,36 @@ def _date(value: object) -> datetime.date | None:
         return value.date()
     if isinstance(value, datetime.date):
         return value
-    try:
-        return datetime.date.fromisoformat(str(value))
-    except ValueError:
-        return None
+    if isinstance(value, str) and DATE_RE.match(value):
+        try:
+            return datetime.date.fromisoformat(value)
+        except ValueError:
+            return None
+    return None
 
 
-def _evidence_ids(fm: dict) -> dict[str, str]:
-    """ddx.links id -> kind, for the links an assessment or paper may rest on."""
+def _evidence(fm: dict) -> dict[str, dict]:
+    """ddx.links id -> {kind, rev}, for the in-graph links an assessment or paper may rest on."""
+    ddx = fm.get("ddx") if isinstance(fm.get("ddx"), dict) else {}
     out = {}
-    for link in (fm.get("ddx") or {}).get("links") or []:
-        if isinstance(link, dict) and link.get("kind") in EVIDENCE_KINDS and not link.get("graph"):
-            out[str(link["id"])] = link["kind"]
+    for link in ddx.get("links") or []:
+        if isinstance(link, dict) and link.get("id") and link.get("kind") in EVIDENCE_KINDS and not link.get("graph"):
+            out[str(link["id"])] = {"kind": link["kind"], "rev": str(link.get("rev") or "")}
     return out
 
 
-def check(fm: dict | None, type_id: str, instance: Path, add) -> None:
-    """Report structured-block findings through add(severity, check, message)."""
+def _ids(value: object) -> list[str] | None:
+    """value as a list of non-empty strings, or None when it is not one."""
+    if isinstance(value, list) and all(isinstance(v, str) and v for v in value):
+        return list(value)
+    return None
+
+
+def check(fm: dict | None, type_id: str, instance: Path, add, publish: bool = False) -> None:
+    """Report structured-block findings through add(severity, check, message).
+
+    A malformed shape is one finding and stops that block's checks; the table tool relies on it
+    to run only on blocks that passed."""
     fm = fm or {}
     for key, owner in (("assessment", "technology-assessment"), ("recommendations", "position-paper")):
         if key in fm and type_id != owner:
@@ -94,7 +138,15 @@ def check(fm: dict | None, type_id: str, instance: Path, add) -> None:
     if type_id == "technology-assessment" and "assessment" in fm:
         _check_assessment(fm, instance, add)
     if type_id == "position-paper" and "recommendations" in fm:
-        _check_recommendations(fm, instance, add)
+        _check_recommendations(fm, instance, add, publish)
+
+
+def _catalogue_for(instance: Path, add, check_id: str) -> tuple[Path | None, dict[str, dict]]:
+    path = find_catalogue(instance)
+    cat, problems = read_catalogue(path)
+    for problem in problems:
+        add("blocking", "catalogue", problem)
+    return path, cat
 
 
 def _check_assessment(fm: dict, instance: Path, add) -> None:
@@ -102,69 +154,83 @@ def _check_assessment(fm: dict, instance: Path, add) -> None:
     if not isinstance(block, dict):
         add("blocking", "assessment.shape", "`assessment:` must be a mapping")
         return
-    path = find_catalogue(instance)
-    cat = load_catalogue(path)
+    criteria = _ids(block.get("criteria"))
+    subjects = block.get("subjects")
+    ratings = block.get("ratings")
+    layout = block.get("comparison") if block.get("comparison") is not None else {}
+    shape = []
+    if not criteria:
+        shape.append("`criteria` is a non-empty list of criterion ids")
+    if not (isinstance(subjects, list) and all(isinstance(s, dict) and isinstance(s.get("id"), str)
+                                               and isinstance(s.get("label"), str) and s["label"] for s in subjects)):
+        shape.append("`subjects` is a list of {id, label} mappings")
+    if not (isinstance(ratings, list) and all(isinstance(r, dict) for r in ratings)):
+        shape.append("`ratings` is a list of mappings")
+    if not isinstance(layout, dict) or (layout.get("tables") is not None and not (
+            isinstance(layout["tables"], list) and all(_ids(t) for t in layout["tables"]))):
+        shape.append("`comparison` is a mapping whose `tables` are non-empty lists of criterion ids")
+    if shape:
+        for message in shape:
+            add("blocking", "assessment.shape", message)
+        return
+
+    path, cat = _catalogue_for(instance, add, "assessment")
     if path is None:
-        add("blocking", "assessment.catalogue", "no criteria.yml in this graph; criteria are ids from it")
-    criteria = [str(c) for c in block.get("criteria") or []]
+        add("blocking", "assessment.catalogue", "no criteria.yml at the flow root; criteria are ids from it")
     for cid in criteria:
         if path and cid not in cat:
             add("blocking", "assessment.criteria", f"criterion '{cid}' is not in {path.name}")
     if len(set(criteria)) != len(criteria):
         add("blocking", "assessment.criteria", "a criterion is listed twice")
-    if not criteria:
-        add("blocking", "assessment.criteria", "`assessment.criteria` lists no criteria")
 
-    linked = _evidence_ids(fm)
-    subjects = [s for s in block.get("subjects") or [] if isinstance(s, dict)]
-    ids = [str(s.get("id")) for s in subjects]
-    if len(subjects) < 2:
-        add("blocking", "assessment.subjects", "an assessment compares at least two subjects")
+    linked = _evidence(fm)
+    ids = [s["id"] for s in subjects]
+    if len(set(ids)) != len(ids):
+        add("blocking", "assessment.subjects", "a subject is listed twice")
+    if len(set(ids)) < 2:
+        add("blocking", "assessment.subjects", "an assessment compares at least two different subjects")
     for s in subjects:
-        if not s.get("label"):
-            add("blocking", "assessment.subjects", f"subject '{s.get('id')}' needs a label")
-        if str(s.get("id")) not in linked:
-            add("blocking", "assessment.subjects",
-                f"subject '{s.get('id')}' is not linked as evaluates or supported_by in ddx.links")
+        if s["id"] not in linked:
+            add("blocking", "assessment.subjects", f"subject '{s['id']}' is not linked as evaluates or supported_by in ddx.links")
+        if not _one_line(s["label"]):
+            add("blocking", "assessment.subjects", f"the label of '{s['id']}' must be one line")
 
     seen = set()
-    for i, r in enumerate(block.get("ratings") or []):
-        if not isinstance(r, dict):
-            add("blocking", f"assessment.ratings.{i}", "a rating must be a mapping")
-            continue
-        crit, subj = str(r.get("criterion")), str(r.get("subject"))
-        if crit not in criteria:
-            add("blocking", f"assessment.ratings.{i}", f"rating names criterion '{crit}', which this assessment does not list")
-        if subj not in ids:
-            add("blocking", f"assessment.ratings.{i}", f"rating names subject '{subj}', which this assessment does not list")
-        if bool(str(r.get("finding") or "").strip()) == bool(str(r.get("gap") or "").strip()):
-            add("blocking", f"assessment.ratings.{i}", "a rating has exactly one of `finding` or `gap`")
+    for i, r in enumerate(ratings):
+        where = f"assessment.ratings.{i}"
+        crit, subj = r.get("criterion"), r.get("subject")
+        if not isinstance(crit, str) or crit not in criteria:
+            add("blocking", where, f"rating names criterion '{crit}', which this assessment does not list")
+        if not isinstance(subj, str) or subj not in ids:
+            add("blocking", where, f"rating names subject '{subj}', which this assessment does not list")
+        text = [str(r.get(k) or "").strip() for k in ("finding", "gap")]
+        if bool(text[0]) == bool(text[1]):
+            add("blocking", where, "a rating has exactly one of `finding` or `gap`")
+        elif not _one_line(text[0] or text[1]):
+            add("blocking", where, "a finding or gap is one line; it fills one table cell")
         if (crit, subj) in seen:
-            add("blocking", f"assessment.ratings.{i}", f"'{crit}' is rated twice for '{subj}'")
+            add("blocking", where, f"'{crit}' is rated twice for '{subj}'")
         seen.add((crit, subj))
     for crit in criteria:
         for subj in ids:
             if (crit, subj) not in seen:
                 add("blocking", "assessment.ratings", f"'{subj}' has no rating or gap for '{crit}'")
 
-    layout = block.get("comparison") or {}
     if layout.get("rows", "criteria") not in ROW_LAYOUTS:
         add("blocking", "assessment.comparison", f"`comparison.rows` is one of {', '.join(ROW_LAYOUTS)}")
-    tables = layout.get("tables")
-    if tables is not None:
-        flat = [str(c) for t in tables for c in t]
+    if layout.get("tables") is not None:
+        flat = [c for t in layout["tables"] for c in t]
         if sorted(flat) != sorted(criteria):
             add("blocking", "assessment.comparison", "`comparison.tables` must place every criterion in exactly one table")
 
 
-def _check_recommendations(fm: dict, instance: Path, add) -> None:
+def _check_recommendations(fm: dict, instance: Path, add, publish: bool) -> None:
     recs = fm["recommendations"]
     if not isinstance(recs, list) or not recs:
         add("blocking", "recommendations.shape", "`recommendations:` must be a non-empty list")
         return
-    linked = _evidence_ids(fm)
-    path = find_catalogue(instance)
-    cat = load_catalogue(path)
+    linked = _evidence(fm)
+    path, cat = _catalogue_for(instance, add, "recommendations")
     seen = set()
     for i, r in enumerate(recs):
         where = f"recommendations.{i}"
@@ -172,47 +238,66 @@ def _check_recommendations(fm: dict, instance: Path, add) -> None:
             add("blocking", where, "a recommendation must be a mapping")
             continue
         subject, context, stance = r.get("subject"), r.get("context"), r.get("stance")
-        if not subject or not context:
-            add("blocking", where, "a recommendation names a `subject` and a `context`")
-        elif (subject, context) in seen:
-            add("blocking", where, f"'{subject}' is recommended twice for context '{context}'")
-        seen.add((subject, context))
-        if subject and str(subject) not in linked:
-            add("blocking", where, f"subject '{subject}' is not linked as evaluates or supported_by in ddx.links")
-        if stance not in STANCES:
+        if not (isinstance(subject, str) and subject and isinstance(context, str) and context):
+            add("blocking", where, "a recommendation names a string `subject` and `context`")
+        else:
+            if (subject, context) in seen:
+                add("blocking", where, f"'{subject}' is recommended twice for context '{context}'")
+            seen.add((subject, context))
+            if subject not in linked:
+                add("blocking", where, f"subject '{subject}' is not linked as evaluates or supported_by in ddx.links")
+        if not (isinstance(stance, str) and stance in STANCES):
             add("blocking", where, f"stance must be one of {', '.join(STANCES)}")
         if not str(r.get("rationale") or "").strip():
             add("blocking", where, "a recommendation states its rationale")
         if stance == "conditional" and not str(r.get("conditions") or "").strip():
             add("blocking", where, "a conditional stance states its conditions")
+        if not all(_one_line(r.get(k) or "") for k in ("label", "context", "conditions")):
+            add("blocking", where, "`label`, `context` and `conditions` are one line; they fill table cells")
         based_on = r.get("based_on")
         if not isinstance(based_on, list) or not based_on:
             add("blocking", where, "a recommendation rests on `based_on` assessments, never on assertion")
         for b in based_on if isinstance(based_on, list) else []:
-            if not isinstance(b, dict) or linked.get(str(b.get("assessment"))) != "supported_by":
-                add("blocking", where, f"based_on '{b.get('assessment') if isinstance(b, dict) else b}' "
-                    "must be linked as supported_by in ddx.links, so the paper pins what it rests on")
+            name = b.get("assessment") if isinstance(b, dict) else b
+            link = linked.get(name) if isinstance(name, str) else None
+            if not isinstance(b, dict) or not link or link["kind"] != "supported_by":
+                add("blocking", where, f"based_on '{name}' must be an {{assessment, criteria}} mapping whose assessment "
+                    "is linked as supported_by in ddx.links, so the paper pins what it rests on")
                 continue
-            for cid in b.get("criteria") or []:
-                if path and str(cid) not in cat:
+            if publish and not PIN_RE.match(link["rev"]):
+                add("blocking", where, f"based_on '{name}' needs a pinned rev (git:<commit> or sha256:<hex>) at the publish tier")
+            cited = _ids(b.get("criteria") if b.get("criteria") is not None else [])
+            if cited is None:
+                add("blocking", where, f"`criteria` under based_on '{name}' is a list of criterion ids")
+                continue
+            if cited and path is None:
+                add("blocking", where, "cited criteria are ids from criteria.yml, which this graph does not have")
+            for cid in cited if path else []:
+                if cid not in cat:
                     add("blocking", where, f"cited criterion '{cid}' is not in {path.name}")
         since, review_by = _date(r.get("since")), _date(r.get("review_by"))
         if not since or not review_by:
-            add("blocking", where, "`since` and `review_by` are ISO dates")
+            add("blocking", where, "`since` and `review_by` are YYYY-MM-DD dates")
         elif review_by <= since:
             add("blocking", where, "`review_by` is after `since`")
         approver, approved_on = r.get("approved_by"), r.get("approved_on")
         if bool(approver) != bool(approved_on):
             add("blocking", where, "`approved_by` and `approved_on` are given together or not at all")
         elif approved_on and not _date(approved_on):
-            add("blocking", where, "`approved_on` is an ISO date")
+            add("blocking", where, "`approved_on` is a YYYY-MM-DD date")
 
 
 # --- tables made from the blocks ---------------------------------------------------------------
 
+def cell(value: object) -> str:
+    """A table cell: one line, with the pipe escaped. check() rejects multi-line text first."""
+    return str(value).strip().replace("|", "\\|")
+
+
 def render_table(head: list[str], rows: list[list[str]]) -> str:
+    head = [cell(h) for h in head]
     out = ["| " + " | ".join(head) + " |", "|" + "|".join("-" * (len(h) + 2) for h in head) + "|"]
-    out += ["| " + " | ".join(r) + " |" for r in rows]
+    out += ["| " + " | ".join(cell(c) for c in r) + " |" for r in rows]
     return "\n".join(out) + "\n"
 
 
@@ -221,9 +306,9 @@ def render_assessment(block: dict, cat: dict[str, dict]) -> tuple[str, list[str]
     def label(cid: str) -> str:
         return cat[cid]["label"]
     crit = render_table(["Criterion", "Definition", "Concern"],
-                        [[label(c), str(cat[c].get("definition", "")).strip(), str(cat[c].get("concern") or "none")]
+                        [[label(c), cat[c].get("definition") or "", cat[c].get("concern") or "none"]
                          for c in block["criteria"]])
-    cell = {(r["criterion"], r["subject"]): str(r.get("finding") or r.get("gap")).strip() for r in block["ratings"]}
+    cells = {(r["criterion"], r["subject"]): r.get("finding") or r.get("gap") for r in block["ratings"]}
     subjects = block["subjects"]
     layout = block.get("comparison") or {}
     by_criteria = layout.get("rows", "criteria") == "criteria"
@@ -232,10 +317,10 @@ def render_assessment(block: dict, cat: dict[str, dict]) -> tuple[str, list[str]
     for cols in tables:
         if by_criteria:
             comp.append(render_table(["Criterion"] + [s["label"] for s in subjects],
-                                     [[label(c)] + [cell[(c, s["id"])] for s in subjects] for c in cols]))
+                                     [[label(c)] + [cells[(c, s["id"])] for s in subjects] for c in cols]))
         else:
             comp.append(render_table(["Option"] + [label(c) for c in cols],
-                                     [[s["label"]] + [cell[(c, s["id"])] for c in cols] for s in subjects]))
+                                     [[s["label"]] + [cells[(c, s["id"])] for c in cols] for s in subjects]))
     return crit, comp
 
 
@@ -243,9 +328,8 @@ def render_recommendations(recs: list[dict]) -> str:
     rows = []
     for r in recs:
         status = "Approved" if r.get("approved_by") else "Proposed"
-        rows.append([str(r.get("label") or r["subject"]), f"{STANCES[r['stance']]} ({status})", str(r["context"]),
-                     str(r.get("conditions") or "").strip(),
-                     ", ".join(str(b["assessment"]) for b in r["based_on"])])
+        rows.append([r.get("label") or r["subject"], f"{STANCES[r['stance']]} ({status})", r["context"],
+                     r.get("conditions") or "", ", ".join(str(b["assessment"]) for b in r["based_on"])])
     return render_table(["Technology", "Stance", "Context", "Conditions", "Based on"], rows)
 
 
