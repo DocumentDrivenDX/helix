@@ -109,7 +109,7 @@ validation:
       severity: blocking
 
     - check: figures_labelled_and_dated
-      description: Every figure is labelled Published (with source and date), Third-party estimate (naming who estimated), or Not published (with the search); every mutable fact carries an as-of date
+      description: Every figure is labelled Published (with source and date), Third-party estimate (naming who estimated), or Not published (with the search); every mutable fact carries an as-of date. A figure's attribute list `{basis=... accessed=... source=...}` follows the same rule and is checked by validate-instance.py
       severity: blocking
 
     - check: no_invented_plan

@@ -329,4 +329,44 @@ grep -q "FAIL" "$tmpdir/tables.out" || fail "a drifted table should report FAIL"
 python3 "$tables" --write "$sb/drift.md" >/dev/null && cmp -s "$sb/drift.md" "$ta_src" \
   || fail "assessment-tables.py --write should restore the generated table"
 
-echo "OK: validate-instance.py passes all $count catalog examples and $ux optional-section fixtures, holds the deliverable to its voice profile, rejects the broken PRD fixture, checks visual blocks and structured assessment and recommendation blocks, and errors on unresolvable types"
+# Keys: a short name in a block stands for a document id; ddx.links keep full ids and pins.
+printf 'keys:\n  nodejs: component-profile-nodejs-reusable\n  python: component-profile-python-reusable\n' >"$sb/keys.yml"
+sed -e 's/^    - {id: component-profile-nodejs-reusable, label: Node.js}/    - {id: nodejs, label: Node.js}/' \
+    -e 's/^    - {id: component-profile-python-reusable, label: Python}/    - {id: python, label: Python}/' \
+    -e 's/subject: component-profile-nodejs-reusable,/subject: nodejs,/' \
+    -e 's/subject: component-profile-python-reusable,/subject: python,/' "$ta_src" >"$sb/keyed.md"
+grep -q 'id: nodejs, label' "$sb/keyed.md" && grep -q 'subject: python,' "$sb/keyed.md" || fail "test setup: keys were not substituted"
+python3 "$validator" "$sb/keyed.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 || fail "a keyed assessment should validate:
+$(cat "$tmpdir/case.out")"
+python3 "$tables" "$sb/keyed.md" >/dev/null || fail "a keyed assessment should generate the same tables as the full-id one"
+sed -e 's/^    - {id: nodejs, label: Node.js}/    - {id: nodejs-unknown, label: Node.js}/' "$sb/keyed.md" >"$sb/case.md"
+python3 "$validator" "$sb/case.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 && fail "an unknown key is taken as an id and must be linked"
+grep -Eq "BLOCKING +assessment\.subjects .*'nodejs-unknown' is not linked" "$tmpdir/case.out" || fail "an unknown key should read as an unlinked id:
+$(cat "$tmpdir/case.out")"
+expect_block "$sb/keyed.md" 's/^    - {id: component-profile-python-reusable, kind: evaluates, rev: example}/    - {id: python, kind: evaluates, rev: example}\n    - {id: component-profile-python-reusable, kind: supported_by, rev: example}/' "BLOCKING +keys .*both a key in keys.yml and a linked document id"
+printf 'keys:\n  Bad Key: x\n' >"$sb/keys.yml"
+expect_block "$sb/keyed.md" 's/^$/&/' "BLOCKING +keys .*lower-case slug"
+rm "$sb/keys.yml"
+
+# Figure attributes: {basis=... accessed=... source=...} is checked wherever it appears; code is not.
+fig() {  # sed expression appended after the Findings heading, expected regex (empty = must pass)
+  sed "s|^## Findings\$|## Findings\n\n$1|" "$ta_src" >"$sb/fig.md"
+  if [ -z "$2" ]; then
+    python3 "$validator" "$sb/fig.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 || fail "figure /$1/ should pass:
+$(cat "$tmpdir/case.out")"
+  else
+    if python3 "$validator" "$sb/fig.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1; then fail "figure /$1/ should block"; fi
+    grep -Eq "$2" "$tmpdir/case.out" || fail "figure /$1/ should report /$2/:
+$(cat "$tmpdir/case.out")"
+  fi
+}
+fig 'Five years. {basis=published accessed=2026-11-06 source="postgresql.org/support"}' ""
+fig 'Not stated. {basis=not-published}' ""
+fig 'Syntax is `{basis=wrong}` in code and {keys=pg role=evaluates} elsewhere.' ""
+fig 'Five years. {basis=guess accessed=2026-11-06 source=x}' "BLOCKING +figure\.basis "
+fig 'Five years. {basis=third-party accessed=2026-11-06}' "BLOCKING +figure\.source "
+fig 'Five years. {basis=published source=x}' "BLOCKING +figure\.accessed "
+fig 'Five years. {basis=published accessed=2026-13-45 source=x}' "BLOCKING +figure\.accessed .*not a YYYY-MM-DD"
+fig 'Five years. {accessed=2026-11-06}' "BLOCKING +figure\.basis "
+
+echo "OK: validate-instance.py passes all $count catalog examples and $ux optional-section fixtures, holds the deliverable to its voice profile, rejects the broken PRD fixture, checks visual blocks and structured assessment and recommendation blocks, keys, and figure attributes, and errors on unresolvable types"
