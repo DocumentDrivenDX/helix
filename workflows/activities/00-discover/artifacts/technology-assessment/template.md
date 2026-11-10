@@ -8,6 +8,15 @@ ddx:
     # - {id: <technology brief id>, kind: evaluates, rev: <pinned revision>}
     # - {id: <source id>, kind: supported_by, rev: <pinned revision>}
     # - {id: <other assessment id>, kind: contradicts}
+  # Optional: criteria and ratings as data. The Criteria and Comparison tables below are then
+  # generated from it (`assessment-tables.py --write`) and cannot drift from it. Criteria are
+  # ids from `criteria.yml` at the flow root (entries: id, label, definition, concern).
+# assessment:
+#   criteria: [<criterion id from the graph's criteria.yml>]
+#   subjects: [{id: <technology brief id>, label: <name in the table>}]
+#   ratings:
+#     - {criterion: <id>, subject: <brief id>, finding: "<finding, source>"}
+#     - {criterion: <id>, subject: <brief id>, gap: Not published}
 ---
 
 # TA-[number]: [Subject: what is compared]

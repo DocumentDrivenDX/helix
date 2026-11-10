@@ -8,6 +8,19 @@ ddx:
     # - {id: <technology assessment id>, kind: supported_by, rev: <pinned revision>}
     # - {id: <technology brief id>, kind: supported_by, rev: <pinned revision>}
     # - {id: <other paper or assessment id>, kind: contradicts}
+# Optional: stances as data. The Recommendations table below is then generated from it
+# (`assessment-tables.py --write`).
+# recommendations:
+#   - subject: <technology brief id>
+#     context: <the context the stance is for>
+#     stance: recommended | conditional | watch | avoid
+#     conditions: <required for conditional>
+#     rationale: <why, in a sentence or two>
+#     based_on: [{assessment: <assessment id>, criteria: [<criterion id>]}]
+#     since: <date>
+#     review_by: <date after since>
+#     approved_by: <name>   # with approved_on, or neither: until then the stance is proposed
+#     approved_on: <date>
 ---
 
 # PP-[number]: [The position as a claim]
@@ -37,6 +50,15 @@ The strongest objections, including any the cited evidence raises.
 | Objection | Answer | Evidence |
 |-----------|--------|----------|
 | [Objection] | [Answer] | [Source or "Author's judgment"] |
+
+## Recommendations
+
+Only when the paper advises a stance per technology and context. The table
+is generated from `recommendations:`; the argument above is the case for it.
+
+| Technology | Stance | Context | Conditions | Based on |
+|------------|--------|---------|------------|----------|
+| [Technology] | [Stance (Proposed or Approved)] | [Context] | [Conditions] | [Assessment id] |
 
 ## Limits of the Position
 

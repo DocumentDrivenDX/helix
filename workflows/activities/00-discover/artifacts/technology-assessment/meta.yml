@@ -25,7 +25,9 @@ description: |
   technology with evidence, and records where sources disagree. It carries
   findings, not a verdict: a recommendation needs a context, and that is a
   Decision Brief. Use it when the same comparison will serve more than one
-  decision or client.
+  decision or client. Criteria and ratings may be kept as data in an
+  `assessment:` front matter block, with criteria ids from the graph's shared
+  `criteria.yml`; the tables are then generated from it.
 
 output:
   location: docs/helix/00-discover/technology-assessment-TA-{number}-{subject}.md
@@ -65,6 +67,10 @@ validation:
 
     - check: same_criteria_every_technology
       description: Every technology is graded on every criterion, each cell citing a brief section or marked Unknown
+      severity: blocking
+
+    - check: tables_generated_from_block
+      description: When the front matter carries an `assessment:` block, the Criteria and Comparison tables equal what `assessment-tables.py` makes from it, and every criterion has a finding or a stated gap for every subject
       severity: blocking
 
     - check: no_verdict_for_a_context

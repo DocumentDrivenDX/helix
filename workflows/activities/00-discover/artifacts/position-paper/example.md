@@ -6,6 +6,17 @@ ddx:
     home: repo
   links:
     - {id: TA-001, kind: supported_by, rev: example}
+    - {id: component-profile-python-reusable, kind: supported_by, rev: example}
+recommendations:
+  - subject: component-profile-python-reusable
+    label: Python
+    context: repository-tooling
+    stance: conditional
+    conditions: The repository already uses Python and no script needs a Node.js-only library.
+    rationale: One runtime is less to install and maintain than two, and the cited assessment finds the two comparable for text and file work.
+    based_on: [{assessment: TA-001, criteria: [text-and-file-handling]}]
+    since: 2026-11-06
+    review_by: 2027-02-06
 ---
 
 # PP-001: New repository tooling should default to Python
@@ -36,6 +47,12 @@ a repository adds installation and upkeep for every contributor.
 |-----------|--------|----------|
 | The team already writes JavaScript | Familiarity favors Node.js for that team; the thesis assumes the repository's existing runtime is Python | Author's judgment |
 | Distribution of a single script may differ | The assessment has no finding on distribution; the thesis does not rely on it | TA-001, Contradictions and Gaps |
+
+## Recommendations
+
+| Technology | Stance | Context | Conditions | Based on |
+|------------|--------|---------|------------|----------|
+| Python | Use with conditions (Proposed) | repository-tooling | The repository already uses Python and no script needs a Node.js-only library. | TA-001 |
 
 ## Limits of the Position
 

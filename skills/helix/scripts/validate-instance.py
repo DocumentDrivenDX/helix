@@ -14,6 +14,11 @@ Checks run, in order:
                      or not_equals plus `value`;
                      other rule types are reported as unsupported without failing
   placeholder        leftover template markers ([TODO], TBD, [Fill in], ...)
+  structured blocks  a technology assessment's `assessment:` and a position paper's `recommendations:`
+                     front matter: criteria from the graph's criteria.yml, a rating or gap for every
+                     criterion and subject, stances, rationale, pinned assessments, review dates, and
+                     approval given whole (structured_blocks.py); `assessment-tables.py` keeps the
+                     Markdown tables equal to them
   visuals            each fenced `visual` block (and each Mermaid block naming `%% id:`): an id that
                      is present, well formed, and unique; a body naming a `source`, or a `kind`,
                      `form`, and `question`; a form of its kind (umf.visual 1.0). A kind and form
@@ -68,6 +73,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import prose_audit  # noqa: E402  (sibling module, found beside this script)
+import structured_blocks  # noqa: E402  (sibling module: assessment and recommendations blocks)
 
 try:
     import yaml
@@ -351,7 +357,7 @@ def check_pinned_links(fm: dict | None, pin: dict, report: Report) -> None:
         if not isinstance(link, dict) or link.get("kind") not in kinds:
             continue
         rev = str(link.get("rev") or "")
-        if not re.match(r"^(git:[0-9a-f]{7,40}|sha256:[0-9a-f]{64})$", rev):
+        if not structured_blocks.PIN_RE.match(rev):
             report.add("blocking", f"pin_links.{i}", f"link '{link.get('id')}' ({link.get('kind')}) needs a pinned rev (git:<commit> or sha256:<hex>) at the publish tier")
 
 
@@ -796,6 +802,7 @@ def main() -> int:
     report = Report()
     check_frontmatter(fm, report)
     check_links(fm, profile, report)
+    structured_blocks.check(fm, type_id, args.instance, report.add, publish=args.tier == "publish")
     structural = len(report.findings)
     markdown = str((entry["meta"].get("output") or {}).get("format") or "markdown").lower() == "markdown"
     check_required_sections(validation.get("required_sections") or [], template, body, markdown, report)

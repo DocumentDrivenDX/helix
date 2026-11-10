@@ -29,7 +29,11 @@ Decision Brief begins.
 2. **Define the criteria** before grading, from concerns where one applies.
 3. **Read each brief.** Grade every technology on every criterion from a
    brief section; where no brief speaks, write Unknown.
-4. **Compare** in one table, cells citing sources.
+4. **Compare** in one table, cells citing sources. To keep the ratings as
+   data, put them in an `assessment:` front matter block (criteria ids from
+   `criteria.yml` at the flow root, a one-line finding or a stated gap for every criterion
+   and subject) and run `assessment-tables.py --write`; the Criteria and
+   Comparison tables are generated from it.
 5. **Write findings** only where criteria separate the technologies.
 6. **Record disagreement.** When two sources conflict, cite both, link with
    `contradicts`, and leave the conflict open until new evidence settles it.
