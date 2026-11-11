@@ -14,7 +14,7 @@
 <!-- helix:source src/documentor/architecture/draft.py sha256:011428f478bbe9d4 -->
 <!-- helix:source src/documentor/architecture/estate.py sha256:00bdd63951c4abf6 -->
 <!-- helix:source src/documentor/architecture/tour.py sha256:80f840c2fe35c2c1 -->
-<!-- helix:source pyproject.toml sha256:e3c75cb096ccd5e2 -->
+<!-- helix:source pyproject.toml sha256:8b9d1fb99238fd7c -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
 <!-- helix:source ../../.github/workflows/test.yml sha256:765c7d505cc24d0e -->
 <!-- helix:source src/documentor/catalog/ci/github-actions.yml sha256:9f8ec1f2b471f001 -->
