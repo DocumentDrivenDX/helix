@@ -69,9 +69,12 @@ validation:
       expected: ">=1"
       message: "Thesis opens with a **Thesis**: line"
 
+  # The Limits table is checked when present and warned about when absent, so a paper
+  # written before the table existed still publishes.
+  automated_checks:
     - check: limits_table
-      pattern: "\\|[ \\t]*Condition[ \\t]*\\|[ \\t]*Option that wins[ \\t]*\\|[ \\t]*Evidence[ \\t]*\\|[ \\t]*\\n\\|[-:| \\t]+\\n\\|[ \\t]*[^|\\s]"
-      expected: ">=1"
+      type: limits_table
+      severity: blocking
       message: "Limits of the Position carries a table of Condition, Option that wins, Evidence with at least one row"
 
   quality_checks:
@@ -128,5 +131,5 @@ tags:
   - argument
   - evidence
 
-version: 1.1.0
+version: 1.1.1
 last_updated: 2026-11-10

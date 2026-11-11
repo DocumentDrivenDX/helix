@@ -303,7 +303,20 @@ expect_block "$ta_src" 's/finding: Brief section Technology and Operations}$/fin
 printf '    weight: decisive\n' >>"$sb/criteria.yml"
 expect_block "$pp_src" 's/^$/&/' "BLOCKING +catalogue .*'dependency-isolation' carries a weight"
 cp "$repo_root/workflows/activities/00-discover/artifacts/criteria.yml" "$sb/"
-expect_block "$pp_src" 's/^| Condition | Option that wins | Evidence |$/| Condition | Evidence |/' "BLOCKING +limits_table "
+expect_block "$pp_src" 's/^| Condition | Option that wins | Evidence |$/| Condition | Evidence |/' "BLOCKING +limits_table .*columns"
+expect_block "$pp_src" '/^| The repository.s existing runtime is Node.js /d; /^| A script needs a library /d' "BLOCKING +limits_table .*at least one row"
+# A paper with no Limits table predates it: a warning at either tier, so it still publishes.
+sed '/^| Condition | Option that wins | Evidence |$/,/^| A script needs a library /d' "$pp_src" >"$sb/nolimits.md"
+grep -q 'Option that wins' "$sb/nolimits.md" && fail "test setup: the Limits table was not removed"
+python3 "$validator" "$sb/nolimits.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 \
+  && grep -Eq "^WARNING +limits_table .*no table" "$tmpdir/case.out" || fail "a paper with no Limits table should warn and pass at the default tier:
+$(cat "$tmpdir/case.out")"
+# (the example's pins are placeholders, so it cannot pass the publish tier; the Limits finding must still be a warning there)
+python3 "$validator" "$sb/nolimits.md" --catalog "$repo_root/workflows" --tier publish >"$tmpdir/case.out" 2>&1 || true
+grep -Eq "^WARNING +limits_table .*no table" "$tmpdir/case.out" && ! grep -Eq "^BLOCKING +limits_table" "$tmpdir/case.out" \
+  || fail "a paper with no Limits table should only warn about it at the publish tier:
+$(cat "$tmpdir/case.out")"
+rm -f "$sb/nolimits.md"
 sed '/^recommendations:$/,/^weights:$/{/^weights:$/!d;}' "$pp_src" >"$sb/weightsonly.md"
 grep -q '^recommendations:' "$sb/weightsonly.md" && fail "test setup: recommendations were not removed"
 python3 "$tables" "$sb/weightsonly.md" >"$tmpdir/tables.out" 2>&1 || fail "a paper with weights and no recommendations should generate its Decision Criteria table:

@@ -125,10 +125,16 @@ list on an assessment, a `weight` inside an `assessment:` block, and a `weight`
 in `criteria.yml` are each a blocking finding. The scale has three steps and no
 numbers, because a number would claim more precision than the evidence has.
 
-Every position paper also states when the other option wins. `## Limits of the
-Position` needs a table with the columns Condition, Option that wins, and
-Evidence, and at least one row. Add a `## Transition Path` section only when the
-position displaces something already in use.
+A position paper also states when the other option wins. Under `## Limits of the
+Position`, add a table with the columns Condition, Option that wins, and
+Evidence, and at least one row. The validator blocks a table there that has other
+columns or no rows. A paper with no table in that section was written before the
+table existed. It gets a warning at both tiers and still publishes, so you can
+add the table at the paper's next revision.
+
+Add a `## Transition Path` section only when the position displaces something
+already in use.
+
 ## Answer an open question with a spike
 
 A brief routes what the public record cannot answer to a spike. In an atlas, the

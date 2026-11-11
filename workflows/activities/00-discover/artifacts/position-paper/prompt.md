@@ -33,6 +33,8 @@ brief; it never overrides a client's requirements or decisions. A
 5. **State the limits:** what the paper does not claim, then a table of when
    the other option wins: the condition, the option that wins under it, and
    the evidence. A `conditional` stance's conditions each imply a row.
+   A paper written before the table existed gains it at its next revision;
+   the validator warns until then.
 6. **Record stances as data** when the paper advises one per technology and
    context: a `recommendations:` front matter block, each entry with its
    stance (recommended, conditional, watch, avoid), rationale, the pinned
