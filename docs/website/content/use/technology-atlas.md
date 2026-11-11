@@ -40,6 +40,23 @@ Knowledge in an atlas is advisory. A document that cites an atlas document does
 not take orders from it, and a link that claims `governing` authority is a
 blocking finding under this profile.
 
+## Close a brief with reader views
+
+A technology brief (`component-profile` with `scope: reusable`) closes with a
+`## Views` section, placed before Confidence. It has four headings, one for each
+reader: Risk & Compliance, Finance, IT Operations, and Apps Dev. Under each
+heading, write one sentence that answers that reader's first question, then name
+the sections that carry the facts.
+
+The sentence sums up what those sections already say. A fact and its source stay
+in the section that states them. A view the brief does not cover says
+`Not applicable`, with the reason, or `Not researched`. Keep all four headings.
+
+`validate-instance.py` blocks a Views section that drops a heading or leaves one
+empty. A brief with no Views section was written before the section existed. It
+gets a warning at both tiers and still publishes, so you can add the section at
+the brief's next revision.
+
 ## Write an assessment with ratings as data
 
 An assessment can keep its criteria and ratings in front matter, so the tables a

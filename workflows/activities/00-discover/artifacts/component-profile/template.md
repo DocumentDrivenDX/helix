@@ -24,8 +24,8 @@ Competitive Landscape do not.
 **Scope kinds** (`ddx.scope`). `contextual` (default) is this whole template.
 `reusable` is a technology brief for use across projects and graphs: write
 Scope, Summary, How to Read This Profile, What It Is, Capabilities and Limits,
-Technology and Operations, Pricing and Licensing, Confidence, Open Questions,
-and Sources, and omit Need, Required Capabilities, Capability Alignment, and
+Technology and Operations, Pricing and Licensing, Views, Confidence, Open
+Questions, and Sources, and omit Need, Required Capabilities, Capability Alignment, and
 Competitive Landscape. A reusable brief names no project, client, or project
 artifact and gives no verdict; other documents cite it by pinned revision.
 
@@ -65,7 +65,8 @@ The vocabularies used below, in one place.
 | **Published** | Figures | The maker states it, with source and date. |
 | **Third-party estimate** | Figures | Someone other than the maker estimated it; the estimator is named. |
 | **Not published** | Figures and claims | Searched and absent; the search is recorded (which pages, which date). |
-| **Not researched** | Competitive Landscape cells | Nobody has looked; the sibling profile that would fill the cell is named. |
+| **Not researched** | Competitive Landscape cells; Views | Nobody has looked; in the landscape, the sibling profile that would fill the cell is named. |
+| **Not applicable** | Views | The reader's question does not arise for this component; the reason is given. |
 | **High / Medium / Low** | Confidence | Defined in the Confidence section. |
 | **maker / vendor / independent / community** | Sources | Defined in the Sources section. |
 
@@ -210,6 +211,40 @@ page that says which software it runs.
 
 Below the table, one line per alternative: the shared ground and the
 divergence this project cares about. [n]
+
+## Views
+
+Reusable scope only. The brief as four readers come to it. Each heading
+answers that reader's first question in one sentence, then points to the
+sections that carry the facts. The sentence sums up what those sections
+show and takes no side; a fact and its source are stated once, in the
+section pointed to, never here. A view the brief does not cover says **Not
+applicable**, with the reason, or **Not researched**. No heading is left out.
+
+### Risk & Compliance
+
+Can we defend this to a regulator, client, or auditor?
+
+[One sentence.] See [section, and the subsection or row].
+
+### Finance
+
+What does it cost now and over three to five years, and what are we
+committed to?
+
+[One sentence.] See [section, and the subsection or row].
+
+### IT Operations
+
+Who runs it, and what happens at 2 a.m.?
+
+[One sentence.] See [section, and the subsection or row].
+
+### Apps Dev
+
+How fast can teams build on it, and what will slow them down?
+
+[One sentence.] See [section, and the subsection or row].
 
 ## Confidence
 
