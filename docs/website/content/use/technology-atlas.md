@@ -79,6 +79,12 @@ reader sees are generated from data and cannot drift from it.
 
 Findings and gaps are one line each, because each fills one table cell.
 
+A flow can also keep a `views.yml` beside `criteria.yml`: a `views:` list that
+names the readers a criterion answers, each entry with an `id` and a `label`. A
+criterion can then carry `view:`, with one id or a list of ids. The validator
+blocks a `view:` that `views.yml` does not list. Without a `views.yml`, it does
+not check `view:`.
+
 ## Record stances in a position paper
 
 A position paper can record what the team advises as a `recommendations:` list.

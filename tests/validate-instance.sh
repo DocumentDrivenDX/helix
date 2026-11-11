@@ -314,6 +314,22 @@ python3 "$tables" --write "$sb/wdrift.md" >/dev/null && cmp -s "$sb/wdrift.md" "
   || fail "assessment-tables.py --write should restore the Decision Criteria table"
 rm -f "$sb/weightsonly.md" "$sb/wdrift.md"
 
+# Views: with a views.yml beside criteria.yml, a criterion's `view:` must name a view in it; one id
+# or a list. Without views.yml a `view:` is not checked.
+sed 's/^    concern: none$/    concern: none\n    view: finance/' "$repo_root/workflows/activities/00-discover/artifacts/criteria.yml" >"$sb/criteria.yml"
+python3 "$validator" "$sb/TA-001.md" --catalog "$repo_root/workflows" >/dev/null 2>&1 || fail "a view: without views.yml should not be checked"
+printf 'views:\n  - {id: finance, label: Finance}\n  - {id: apps-dev, label: Apps Dev}\n' >"$sb/views.yml"
+python3 "$validator" "$sb/TA-001.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 || fail "a view named in views.yml should validate:
+$(cat "$tmpdir/case.out")"
+sed -i.bak 's/^    view: finance$/    view: [finance, apps-dev]/' "$sb/criteria.yml"
+python3 "$validator" "$sb/TA-001.md" --catalog "$repo_root/workflows" >/dev/null 2>&1 || fail "a list of views named in views.yml should validate"
+printf 'views:\n  - {id: apps-dev, label: Apps Dev}\n' >"$sb/views.yml"
+expect_block "$ta_src" 's/^$/&/' "BLOCKING +catalogue .*names view 'finance', which is not in views.yml"
+printf 'views:\n  - apps-dev\n' >"$sb/views.yml"
+expect_block "$ta_src" 's/^$/&/' "BLOCKING +catalogue .*views.yml needs a .views:. list"
+rm -f "$sb/views.yml" "$sb/criteria.yml.bak"
+cp "$repo_root/workflows/activities/00-discover/artifacts/criteria.yml" "$sb/"
+
 # Malformed shapes are findings, never tracebacks; the table tool refuses a malformed block.
 expect_block "$ta_src" 's/^  subjects:$/  subjects:\n    - nodejs/' "BLOCKING +assessment\.shape .*subjects"
 expect_block "$ta_src" 's/^  criteria: \[.*\]$/  criteria: 5/' "BLOCKING +assessment\.shape .*criteria"

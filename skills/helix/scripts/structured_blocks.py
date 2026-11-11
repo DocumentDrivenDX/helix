@@ -34,6 +34,10 @@ directory that has one (the flow root), so one criterion is one node across asse
         weight: decisive                            #   as supported_by has a finding for
         reason: Why it counts this much, in one line   # decisive | important | minor
 
+Views: a graph may keep a `views.yml` beside criteria.yml, a `views:` list of {id, label} naming
+the readers a criterion answers (a technology atlas has four). A criterion may then carry `view:`,
+one id or a list of ids, and each must be in views.yml. Without views.yml a `view:` is not checked.
+
 A weight is a judgement, so it is rejected on an assessment, inside an `assessment:` block, and in
 criteria.yml. The finding is looked up in the assessment as it stands in the graph (the directory
 that holds criteria.yml), not at its pinned revision; `pin-sources.py check` reports a source that
@@ -117,7 +121,30 @@ def read_catalogue(path: Path | None) -> tuple[dict[str, dict], list[str]]:
             problems.append(f"{path.name} entry '{c['id']}' has a multi-line label, definition or concern; table cells are one line")
         else:
             cat[c["id"]] = c
-    return cat, problems
+    return cat, problems + _view_problems(path, cat)
+
+
+def _view_problems(path: Path, cat: dict[str, dict]) -> list[str]:
+    """Problems with views.yml beside the catalogue at path, and with each criterion's `view:`."""
+    views_path = path.parent / "views.yml"
+    if not views_path.is_file():
+        return []
+    try:
+        data = yaml.safe_load(views_path.read_text(encoding="utf-8")) or {}
+    except yaml.YAMLError as err:
+        return [f"views.yml is not valid YAML: {err}"]
+    entries = data.get("views") if isinstance(data, dict) else None
+    if not isinstance(entries, list) or not all(
+            isinstance(v, dict) and isinstance(v.get("id"), str) and isinstance(v.get("label"), str) for v in entries):
+        return ["views.yml needs a `views:` list whose entries have a string `id` and `label`"]
+    ids = [v["id"] for v in entries]
+    problems = [f"views.yml lists '{i}' twice" for i in sorted({i for i in ids if ids.count(i) > 1})]
+    for cid, c in cat.items():
+        named = c.get("view")
+        for view in named if isinstance(named, list) else [] if named is None else [named]:
+            if view not in ids:
+                problems.append(f"{path.name} entry '{cid}' names view {view!r}, which is not in views.yml")
+    return problems
 
 
 def load_catalogue(path: Path | None) -> dict[str, dict]:
