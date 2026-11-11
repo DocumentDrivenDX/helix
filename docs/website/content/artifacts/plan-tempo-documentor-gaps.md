@@ -1,7 +1,7 @@
 ---
 title: "Tempo-driven HELIX and documentor corrections"
 slug: plan-tempo-documentor-gaps
-weight: 520
+weight: 530
 activity: "Design"
 source: "02-design/plan-tempo-documentor-gaps.md"
 generated: true

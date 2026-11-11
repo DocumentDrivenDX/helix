@@ -1,7 +1,7 @@
 ---
 title: "SD-003: Document-graph profiles and the Technology Atlas"
 slug: SD-003-document-graph-profiles-and-technology-atlas
-weight: 550
+weight: 560
 activity: "Design"
 source: "02-design/solution-designs/SD-003-document-graph-profiles-and-technology-atlas.md"
 generated: true

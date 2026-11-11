@@ -1,7 +1,7 @@
 ---
 title: "Data Design — HELIX Bead Tracker"
 slug: data-design
-weight: 450
+weight: 460
 activity: "Design"
 source: "02-design/data-design.md"
 generated: true
