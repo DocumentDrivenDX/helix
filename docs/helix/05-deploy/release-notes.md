@@ -12,45 +12,50 @@ ddx:
     reviewed_at: "2026-10-04T03:52:23Z"
 ---
 
-# Release Notes — HELIX v0.22.0
+# Release Notes — HELIX v0.23.0
 
 ## Release Scope
 
-- Release identifier: `v0.22.0`
+- Release identifier: `v0.23.0`
 - Release date: 2026-11-10
-- Previous release: `v0.21.0`
-- Scope: structured ratings for technology assessments, structured recommendations for
-  position papers, figure provenance, and keys; slimmer pull-request CI.
+- Previous release: `v0.22.0`
+- Scope: reader views on the technology brief, weights and a table of limits on position
+  papers, spikes and a `measured` source class in the technology atlas, a `views.yml`
+  catalogue, and the removal of the CI evidence gate.
 - Release owner: HELIX maintainer; published through the release PR workflow.
 
 ## Audience and Channels
 
 | Audience | Impact | Channel |
 |----------|--------|---------|
-| Teams keeping a technology atlas | Assessment ratings and paper recommendations as checked data | Plugin and bundles |
-| Existing HELIX users | None: every new field is optional | Plugin and bundles |
-| HELIX maintainers | Heavy suites run on release or the `ci:full` label | Repository CI |
+| Teams keeping a technology atlas | New sections and blocks; existing briefs and papers get warnings, not failures | Plugin and bundles |
+| Existing HELIX users | None outside the `component-profile`, `position-paper`, and `tech-spike` types | Plugin and bundles |
+| HELIX maintainers | Pull requests no longer need recorded install evidence | Repository CI |
 
 ## Highlights
 
-- A `technology-assessment` may keep its criteria and ratings as data in an `assessment:`
-  front matter block. It holds criteria ids from a shared `criteria.yml`, subjects, and a
-  finding or a stated gap for each pair. `assessment-tables.py` makes the Criteria and
-  Comparison tables from it and fails when they drift.
-- A `position-paper` may record stances in a `recommendations:` list. A stance is
-  recommended, conditional, watch, or avoid. Each has a rationale, the pinned assessments
-  it rests on, a review date, and approval given whole. Only a position paper has one.
-- A figure may end with `{basis=published accessed=2026-11-06 source="..."}`.
-  `validate-instance.py` requires `source` and `accessed` unless the basis is `not-published`.
-- A `keys.yml` at the flow root maps short names to document ids, usable in the two blocks.
-  A document records what each key resolved to, so repointing a key is a finding, not a
-  silent change. `ddx.links` keep full ids and pinned revs.
+- A technology brief (`component-profile` with `scope: reusable`) closes with a `## Views`
+  section: Risk & Compliance, Finance, IT Operations, and Apps Dev. Each gives a one-sentence
+  answer to that reader's first question and points to the sections that carry the facts.
+- A `position-paper` may say how much each criterion counts in a `weights:` list, on a scale
+  of `decisive`, `important`, `minor`. `assessment-tables.py` makes the Decision Criteria
+  table from it. Only a position paper has a weight.
+- `## Limits of the Position` holds a table of when the other option wins: Condition, Option
+  that wins, Evidence. The template gains an optional `## Transition Path`.
+- The `technology-atlas` profile takes `tech-spike` at `spikes/TS-{number}-{subject}.md`. A
+  spike with `scope: reusable` runs on public inputs, records its test setup and how to
+  reproduce it, and recommends nothing. It links the brief it tests with kind `answers` and
+  the open question's number.
+- A brief may cite such a spike as a source of class `measured`. It counts as independent
+  corroboration for the configuration measured, and the Confidence grade says so.
+- A flow may keep a `views.yml` beside `criteria.yml`; a criterion's `view:` is then checked
+  against it.
 
 ## Required Actions Summary
 
-- None. Documents without these fields validate as before.
-- A repository that built its own `atlas:` ratings block can move to `assessment:` and
-  `recommendations:` and drop its table generator.
+- None to keep validating. A brief with no Views section and a position paper with no Limits
+  table each get a warning at both tiers and still publish.
+- Add the Views section and the Limits table at each document's next revision.
 
 ## Changes and Fixes
 
@@ -58,47 +63,61 @@ ddx:
 
 | Area | What changed | Who is affected |
 |------|--------------|-----------------|
-| Assessments | `assessment:` block, shared `criteria.yml`, generated tables, shape checks | Atlas authors |
-| Position papers | `recommendations:` list with stance, rationale, pins, review date, approval | Atlas authors |
-| Provenance | `{basis=... accessed=... source=...}` on figures, checked wherever it appears | Authors of briefs |
-| Keys | `keys.yml`, recorded resolution, shadow and duplicate checks | Atlas authors |
-| CI | Pull requests run a slim suite; heavy suites run on release or `ci:full`, with an evidence gate | Maintainers |
+| Briefs | `## Views` section and the `reader_views` check; `by_scope` may replace `automated_checks` | Atlas authors |
+| Position papers | `weights:` list, generated Decision Criteria table, Limits table, optional Transition Path | Atlas authors |
+| Spikes | `tech-spike` in the atlas profile, `reusable` scope, `answers` link with `question` | Atlas authors |
+| Sources | `measured` class, and its place in the Confidence grade | Authors of briefs |
+| Catalogues | `views.yml`; a criterion's `view:` is checked against it; a `weight` in `criteria.yml` is rejected | Atlas authors |
+| CI | The evidence gate, `scripts/verify-full.sh`, and the committed evidence file are removed | Maintainers |
 
 ### Fixes
 
 | Issue or symptom | Resolution | User or operator impact |
 |------------------|------------|-------------------------|
-| Findings on a document body reported a line one too low | The body offset now counts the closing front matter delimiter | Line numbers in `validate-instance.py` output match the file |
+| A position paper written to the v0.22.0 template failed the new Limits check at the publish tier | A missing table is a warning; a table that is present is checked for its columns and a row | Existing papers publish unchanged |
 
 ## Breaking Changes and Required Actions
 
-There are no breaking changes and no migrations.
+There are no breaking changes and no migrations. A document that validated under `v0.22.0`
+validates under `v0.23.0` at both tiers.
+
+Three things block only where a document uses the new feature:
+
+- A Views section that drops or empties one of the four headings.
+- A Limits table with other columns or no rows.
+- A `weights:` entry that is not `decisive`, `important`, or `minor`, or that names a
+  criterion no `supported_by` assessment has a finding for; a weight on an assessment or in
+  `criteria.yml`; an `answers` link with no `question` number; a `**RECOMMENDATION**:` line in
+  a reusable spike.
 
 ## Migration or Rollback Guidance
 
 ### Upgrade or Migration
 
-1. Update the plugin. Add the new blocks only where you want them checked.
+1. Update the plugin. Expect one `views` warning per brief and one `limits_table` warning per
+   position paper.
+2. Clear each warning when the document is next revised.
 
 ### Rollback or Hold Guidance
 
-- Pin `v0.21.0` to roll back; the new blocks would then go unchecked.
+- Pin `v0.22.0` to roll back; the new sections and blocks would then go unchecked.
 - Ask for help in the HELIX repository's issues.
 
 ## Known Issues and Support
 
 | Issue | Who is affected | Workaround or next step |
 |------|------------------|-------------------------|
-| No check reads other documents: a cited assessment's links and findings, or a stance repeated across papers | Authors of recommendations | Check by hand until a graph-level check exists |
-| `key:` is not accepted inside `ddx.links` | Authors using keys | Keep the full id in `ddx.links`; use the key in the blocks |
-| The `{...}` notation is HELIX's own, not DITA or MDITA | Anyone expecting DITA interchange | None; a DITA processor drops it |
+| ADR-018 and SD-003 list the link kinds and do not yet name `answers` | Readers of the design record | The profile, validator, and schema reference are current |
+| The four view headings are fixed in the check and template, not read from `views.yml` | A flow with other views | Keep the four headings in briefs |
+| A weight's finding is read from the assessment as it stands, not at its pinned revision | Authors of weights | Run `pin-sources.py check` to see a source that changed |
+| An `answers` link is not checked against the brief's Open Questions table | Authors of spikes | Check the number by hand |
 
 Support: open an issue in the HELIX repository.
 
 ## References
 
 - Deployment checklist: [deployment-checklist.md](deployment-checklist.md)
-- Pull requests: #114, #115, #116
-- Release changes: https://github.com/DocumentDrivenDX/helix/compare/v0.21.0...v0.22.0
+- Pull requests: #120, #121, #122, #123, #124, #125, #126
+- Release changes: https://github.com/DocumentDrivenDX/helix/compare/v0.22.0...v0.23.0
 - Bundle publication: `.github/workflows/release-genie-bundle.yml`
 - Version guard: `.github/workflows/release-version-guard.yml`
