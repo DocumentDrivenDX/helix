@@ -11,7 +11,7 @@ Checks run, in order:
                      where expected is 0 (must not match) or >=N
   automated_checks   rule entries {check, type, field[, severity, message]}
                      with type unique_constraint, module_boundaries, ux_coverage, findings_sources,
-                     reader_views, or not_equals plus `value`;
+                     reader_views, limits_table, or not_equals plus `value`;
                      other rule types are reported as unsupported without failing
   placeholder        leftover template markers ([TODO], TBD, [Fill in], ...)
   structured blocks  a technology assessment's `assessment:` and a position paper's `recommendations:`
@@ -641,6 +641,36 @@ def check_reader_views(body: str, base: int, severity: str, report: Report) -> N
                        "or say Not applicable or Not researched", base + start)
 
 
+LIMITS_COLUMNS = ["condition", "option_that_wins", "evidence"]
+
+
+def check_limits_table(body: str, base: int, severity: str, report: Report) -> None:
+    """A table under Limits of the Position has the columns Condition, Option that wins, Evidence
+    and at least one row.
+
+    A paper whose Limits section has no table predates it: that is a warning at every tier, so a
+    paper written to an older template still publishes, and gains the table at its next revision.
+    """
+    lines = strip_fences(body).splitlines()
+    start = next((i for i, l in enumerate(lines) if re.fullmatch(r"##[ \t]+Limits of the Position[ \t]*", l)), None)
+    if start is None:
+        return  # required_sections reports a missing section
+    end = next((i for i in range(start + 1, len(lines)) if re.match(r"##[ \t]", lines[i])), len(lines))
+    rows = [[c.strip() for c in l.strip().strip("|").split("|")]
+            for l in lines[start + 1:end] if l.lstrip().startswith("|")]
+    if not rows:
+        report.add("warning", "limits_table", "Limits of the Position has no table: a paper written to the current "
+                   "template gives Condition, Option that wins, and Evidence there; add it at the next revision",
+                   base + start)
+        return
+    filled = [r for r in rows[1:] if any(r) and not all(re.fullmatch(r":?-+:?", c or "-") for c in r)]
+    if [slugify(c) for c in rows[0]] != LIMITS_COLUMNS:
+        report.add(severity, "limits_table", "the Limits of the Position table has the columns Condition, "
+                   "Option that wins, Evidence", base + start)
+    elif not filled:
+        report.add(severity, "limits_table", "the Limits of the Position table needs at least one row", base + start)
+
+
 def check_rule_entries(key: str, entries: list, body: str, base: int, report: Report) -> None:
     for i, entry in enumerate(entries):
         if not isinstance(entry, dict):
@@ -663,6 +693,8 @@ def check_rule_entries(key: str, entries: list, body: str, base: int, report: Re
             check_module_boundaries(body, base, severity, report)
         elif rule == "findings_sources":
             check_findings_sources(body, base, severity, report)
+        elif rule == "limits_table":
+            check_limits_table(body, base, severity, report)
         elif rule == "reader_views":
             check_reader_views(body, base, severity, report)
         elif rule == "unique_constraint" and field:
