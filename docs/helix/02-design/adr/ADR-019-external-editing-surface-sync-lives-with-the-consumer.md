@@ -35,10 +35,10 @@ We will keep the "Claude Docs sync and edit" workflow, its adapter, the normaliz
 HELIX is content plus one skill, and its portability target is a skill body with zero runtime-specific commands (`docs/helix/00-discover/product-vision.md`, Success Definition). The workflow's core is a vendor connector and a Claude-driven orchestration, which is the runtime-specific work that target excludes. The skill-and-scripts surface already carries 8 scripts for artifact checks; a normalizer tuned to one export format would be the first that exists for one vendor's quirks. ADR-015 shows the accepted pattern when machinery is needed: HELIX owns the contract, a host tool owns the deterministic part. That pattern is available later, and nothing here needs it yet.
 
 ### Over a vendor-neutral abstraction now
-The abstraction would be designed from one adapter whose own read path is unproven. The second spike left open whether the docs `read` tool can return only the blocks changed since a revision, and whether that text is unescaped, untruncated, and mappable to source paragraphs and table rows. If it works, the right interface is "edits since a revision", not "export to Markdown and diff", and an abstraction built now would have the wrong seam.
+The abstraction would be designed from one adapter. A third spike (below) showed the docs `read` tool can return only the blocks changed since a revision, as raw unescaped text, so the right interface is "edits since a revision", not "export to Markdown and diff". That was one position paper edited by tool; an abstraction built now would still be fitted to one adapter's one read path.
 
 ### Over a separate standalone sync tool or MCP server
-The export reaches only the calling agent, so a standalone server cannot call the connector. A server can provide the deterministic parts (normalize, diff, patch, check, open the PR), and those can live as scripts in the consumer. A separate repository would add a release surface for code one consumer uses.
+The export and the changed-blocks read are both connector calls that only the calling agent can make, so a standalone server or HELIX script cannot call them. A server can provide the deterministic parts (normalize, diff, patch, check, open the PR), and those can live as scripts in the consumer. A separate repository would add a release surface for code one consumer uses.
 
 ### Over moving the ledger into HELIX
 The ledger is keyed by whole-file hash, and its reason to sit outside the file is that a review written into the file changes the hash and stales itself. HELIX's documentor avoids the same circularity another way: its `reviewed` stamp sits in a page header that the body digest excludes (`tools/documentor/src/documentor/cli.py`). That works for generated pages with a header HELIX controls, not for a governed document whose whole-file hash is the seal key. The two mechanisms answer different problems, so merging them would force one to carry the other's constraints.
@@ -55,12 +55,20 @@ The ledger is keyed by whole-file hash, and its reason to sit outside the file i
 
 - Only one consumer needs the workflow: a second HELIX-governed repository adopting it, with the same patch-against-pinned-base need, would show this false.
 - A skill plus scripts in the consumer is enough orchestration: if the sync can only run reliably as a standing service, it is not a skill and belongs in a tool.
-- The block-edit read path may replace export-and-diff: if it proves faithful, the normalizer shrinks to a block-to-paragraph mapper.
+- The block-edit read path can replace export-and-diff for text edits: the spike supports this, and the normalizer shrinks to a block-to-source mapper plus a word-level patcher. Export-and-diff stays as the fallback. Inline code and links, nested lists, a concurrent edit by another person, and edits made in the Docs UI rather than by tool are untested and could show it false.
 
 ## Validation
 
-**Result**: not tested
-**Evidence**: Two round-trip spikes recorded in the consumer's design doc. Neither exercised stale-base merge, positions, or the changed-blocks read path.
+**Result**: partly tested (one position paper, edits made by tool only)
+**Evidence**: Three spikes recorded in the consumer's design doc. The first two round-tripped a brief and an assessment through export; they did not exercise stale-base merge. The third read changes since a revision from a position paper and found:
+
+- Edited blocks come back whole, untruncated, with bold kept and text raw: `[1]`, `[[wiki-links]]` and underscores arrive as typed, so no unescaping is needed.
+- Unchanged blocks are never returned; they fold into a gap count. In a table only the changed row and cell appear, and the gap counts give the row and column index.
+- A deleted block or row appears with its id and the first 30 characters. An inserted block or row appears in full with a new id.
+- Block ids are stable across edits, and a second read from the same revision returns all edits together.
+- Not given: the old text of a changed block (it comes from the file at the base commit), who edited, and comment positions (a separate query returns those).
+
+Not yet tested: inline code and links, nested lists, a concurrent edit by another person, edits made in the Docs UI.
 
 ## Concern Impact
 
@@ -73,9 +81,10 @@ The ledger is keyed by whole-file hash, and its reason to sit outside the file i
 | A second HELIX-governed repository adopts the workflow | Extract the patch-against-pinned-base scripts into a host tool in `tools/`, released with HELIX, as ADR-015 does for documentor; the Docs adapter stays outside it |
 | A second editing surface (another connector) is wanted | Define the neutral interface in a contract (CONTRACT-NNN) from the two adapters |
 | Atlas-type documents gain a HELIX rule that a generated table may be edited in a draft | Add a table-to-block write-back to `assessment-tables.py`; until then, refuse |
-| The changed-blocks read path loses text fidelity | Keep export-and-diff and the normalizer; the decision stands |
-| A consumer other than Atlas needs hash-keyed review state | Reopen the ledger question as its own ADR; check it against the living-document principle first |
+| The changed-blocks read path loses fidelity on inline code, links, nested lists, concurrent edits, or edits made in the Docs UI | Fall back to export-and-diff with the normalizer; the decision stands |
+| The changed-blocks read holds up across those cases | Drop the normalizer's unescape and unwrap steps in the consumer; the neutral interface becomes "edits since a revision" when a second adapter exists |
+| A consumer other than Atlas needs hash-keyed review state (Atlas already runs one: a ledger and an attest command that a person runs at a terminal) | Reopen the ledger question as its own ADR; check it against the living-document principle first |
 
 ## First step
 
-Run the unbuilt third spike in the consumer, not HELIX: open one position paper in a doc, edit a paragraph and a Recommendations table row, call the docs `read` tool for blocks changed since the opening revision, and record whether the text is unescaped, untruncated, and mappable to source lines. That result decides between the two designs for the normalizer before any code is written. No HELIX change is needed first; the first HELIX change waits on the extraction trigger.
+The third spike is done and favours the changed-blocks design. Next, in the consumer, not HELIX: finish the untested cases (inline code and links, nested lists, a concurrent edit, edits made in the Docs UI), then build the block-to-source mapper and word-level patcher with tests over the consumer's whole corpus, keeping export-and-diff as the fallback. No HELIX change is needed first; the first HELIX change waits on the extraction trigger.
