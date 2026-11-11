@@ -1,7 +1,7 @@
 <!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=agent-opus reviewed=2026-11-06/independent-evaluator-agent--sonnet---after-two-fixes-it-named/bf6a5b3554e81d43 -->
 <!-- helix:source pyproject.toml sha256:e3c75cb096ccd5e2 -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
-<!-- helix:source ../../.github/workflows/test.yml sha256:40e34e209b8c92dd -->
+<!-- helix:source ../../.github/workflows/test.yml sha256:765c7d505cc24d0e -->
 <!-- helix:source ../../scripts/release-version.py sha256:ad55a7fa2e9e59a7 -->
 <!-- helix:source ../../.github/workflows/release-ui.yml sha256:cb59e40be1f62060 -->
 <!-- helix:source ../../.github/workflows/release-genie-bundle.yml sha256:84c774287ca92276 -->

@@ -11,7 +11,7 @@
 <!-- helix:source scripts/sync_references.py sha256:3b3710d02aa78a81 -->
 <!-- helix:source .github/workflows/release-genie-bundle.yml sha256:84c774287ca92276 -->
 <!-- helix:source .github/workflows/pages.yml sha256:6b506daacdc39414 -->
-<!-- helix:source .github/workflows/test.yml sha256:40e34e209b8c92dd -->
+<!-- helix:source .github/workflows/test.yml sha256:765c7d505cc24d0e -->
 <!-- helix:source justfile sha256:4270805de0a79b8f -->
 # Architecture
 
