@@ -144,11 +144,21 @@ with Capabilities and Limits, and keep the rest.
    Limits: what the record shows, the version, the documented limits, and
    attributed independent coverage, then Applicability: when the record shows
    it well and poorly suited, each cited.
-4. **Write What It Is, Technology and Operations, Pricing and Licensing,
+4. **Write the Views** after the factual sections and before Confidence:
+   four headings (Risk & Compliance, Finance, IT Operations, Apps Dev), each
+   a one-sentence answer to that reader's first question and pointers to the
+   sections that carry the facts. The sentence sums up what those sections
+   already say: it adds no fact, cites no new source, and takes no side. If a
+   view needs a fact the brief lacks, add the fact to its section first. A
+   view the brief does not cover says Not applicable, with the reason, or
+   Not researched; no heading is left out. A brief written before this
+   section existed gains it at its next revision, and the validator warns
+   until then.
+5. **Write What It Is, Technology and Operations, Pricing and Licensing,
    Confidence, Open Questions, Sources** as for any profile. Open Questions
    state what the record cannot answer about the component generally, routed
    to a spike or a maker question, with no project-specific rationale.
-5. **Write the Summary last,** with no project, client, or recommendation.
+6. **Write the Summary last,** with no project, client, or recommendation.
 
 A reusable brief must read the same to any project. If a sentence needs a
 project to make sense, it belongs in a contextual profile or a decision-brief.

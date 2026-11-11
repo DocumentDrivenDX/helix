@@ -38,6 +38,8 @@ on the maker's documentation.
 | **Published** | Figures | The maker states it, with source and date. |
 | **Third-party estimate** | Figures | Someone other than the maker estimated it; the estimator is named. |
 | **Not published** | Figures and claims | Searched and absent; the search is recorded. |
+| **Not researched** | Views | Nobody has looked. |
+| **Not applicable** | Views | The reader's question does not arise for this component; the reason is given. |
 | **High / Medium / Low** | Confidence | Defined in the Confidence section. |
 | **maker / vendor / independent / community** | Sources | Defined in the Sources section. |
 
@@ -169,6 +171,48 @@ cannot tolerate replica delay [19].
 | Licence | PostgreSQL Licence: use, copy, modify, and distribute for any purpose, without fee | Published | [1] |
 | Software cost | None | Published | [1] |
 | Running cost | Not published by the maker (searched [1][11], 22 Sep 2026)| Not published | [1][11] |
+
+## Views
+
+### Risk & Compliance
+
+Can we defend this to a regulator, client, or auditor?
+
+The record documents access control down to the row, encryption in transit,
+an audit mechanism, and a coordinated disclosure process; it shows no
+certification for the software and does not describe encryption at rest. See
+Capabilities and Limits (Access control, Auditing, Encryption in transit) and
+Technology and Operations (Data handling, Certifications, Security process).
+
+### Finance
+
+What does it cost now and over three to five years, and what are we
+committed to?
+
+The software carries no licence fee and its running cost is not published.
+See Pricing and Licensing, and What It Is (Licence, Release cadence and
+support window).
+
+### IT Operations
+
+Who runs it, and what happens at 2 a.m.?
+
+Point-in-time recovery and replication are built in and each major version
+is supported for five years; how long a restore takes and how far a replica
+lags under load are not in the record. See Capabilities and Limits (Backup
+and recovery, Replication and scale-out), Technology and Operations, and
+Open Questions 1 and 2.
+
+### Apps Dev
+
+How fast can teams build on it, and what will slow them down?
+
+Teams get SQL with ACID transactions, declarative constraints, and JSON
+documents in one store; the documented limits are sharding, which the
+database does not supply across servers, and row security behind a
+connection pool. See Capabilities and Limits (Transactions and integrity,
+Access control, Queue-like workloads, Replication and scale-out, Other
+documented capabilities).
 
 ## Confidence
 

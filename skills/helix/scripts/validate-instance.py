@@ -11,7 +11,7 @@ Checks run, in order:
                      where expected is 0 (must not match) or >=N
   automated_checks   rule entries {check, type, field[, severity, message]}
                      with type unique_constraint, module_boundaries, ux_coverage, findings_sources,
-                     or not_equals plus `value`;
+                     reader_views, or not_equals plus `value`;
                      other rule types are reported as unsupported without failing
   placeholder        leftover template markers ([TODO], TBD, [Fill in], ...)
   structured blocks  a technology assessment's `assessment:` and a position paper's `recommendations:`
@@ -43,8 +43,8 @@ source and identity metadata still protect authoring correctness when a ddx
 block is supplied.
 
 Scope variants: when the instance sets `ddx.scope` and the type's
-`validation.by_scope.<scope>` exists, its `required_sections` and
-`pattern_checks` replace the type-level lists.
+`validation.by_scope.<scope>` exists, its `required_sections`,
+`pattern_checks` and `automated_checks` replace the type-level lists.
 
 Pinned links: under `--tier publish`, when the type declares
 `validation.pin_links: {kinds: [...]}`, every `ddx.links` mapping whose `kind`
@@ -601,6 +601,41 @@ def check_findings_sources(body: str, base: int, severity: str, report: Report) 
             fail(f"Claim has no Source: {cells[claim] if claim < len(cells) else ''}", i)
 
 
+READER_VIEWS = ("Risk & Compliance", "Finance", "IT Operations", "Apps Dev")
+
+
+def check_reader_views(body: str, base: int, severity: str, report: Report) -> None:
+    """A Views section has the four reader headings, each with an answer or a stated absence.
+
+    A document with no Views section predates it: that is a warning at every tier, so a brief
+    written to an older template still publishes, and gains the section at its next revision.
+    """
+    scan = strip_fences(body)
+    lines = scan.splitlines()
+    start = next((i for i, l in enumerate(lines) if re.fullmatch(r"##[ \t]+Views[ \t]*", l)), None)
+    if start is None:
+        report.add("warning", "views", "no Views section: a brief written to the current template closes with "
+                   "one (" + ", ".join(READER_VIEWS) + "); add it at the next revision")
+        return
+    end = next((i for i in range(start + 1, len(lines)) if re.match(r"##[ \t]", lines[i])), len(lines))
+    text: dict[str, str] = {}
+    current = None
+    for line in lines[start + 1:end]:
+        heading = re.match(r"###[ \t]+(.+?)[ \t]*$", line)
+        if heading:
+            current = slugify(heading.group(1))
+            text.setdefault(current, "")
+        elif current:
+            text[current] += line.strip()
+    for view in READER_VIEWS:
+        if slugify(view) not in text:
+            report.add(severity, "views", f"Views has no `### {view}` heading; a view that does not apply says "
+                       "Not applicable or Not researched, it is not left out", base + start)
+        elif not text[slugify(view)]:
+            report.add(severity, "views", f"`### {view}` is empty; give the one-sentence answer and its pointers, "
+                       "or say Not applicable or Not researched", base + start)
+
+
 def check_rule_entries(key: str, entries: list, body: str, base: int, report: Report) -> None:
     for i, entry in enumerate(entries):
         if not isinstance(entry, dict):
@@ -623,6 +658,8 @@ def check_rule_entries(key: str, entries: list, body: str, base: int, report: Re
             check_module_boundaries(body, base, severity, report)
         elif rule == "findings_sources":
             check_findings_sources(body, base, severity, report)
+        elif rule == "reader_views":
+            check_reader_views(body, base, severity, report)
         elif rule == "unique_constraint" and field:
             values = field_values(body, str(field))
             dupes = sorted({v for v in values if values.count(v) > 1})
@@ -804,7 +841,7 @@ def main() -> int:
 
     ddx = (fm or {}).get("ddx") or {}
     scoped = (validation.get("by_scope") or {}).get(str(ddx.get("scope"))) or {}
-    validation = {**validation, **{k: v for k, v in scoped.items() if k in ("required_sections", "pattern_checks")}}
+    validation = {**validation, **{k: v for k, v in scoped.items() if k in ("required_sections", "pattern_checks", "automated_checks")}}
     profile = find_profile(args.instance, activities)
     default_tier = (profile.get("validation") or {}).get("default") or ["all"]
     soften = args.tier == "default" and "all" not in default_tier

@@ -431,4 +431,23 @@ fi
 grep -Eq "^BLOCKING +figure\.basis " "$tmpdir/case.out" || fail "expected a blocking figure.basis at the publish tier:
 $(cat "$tmpdir/case.out")"
 
-echo "OK: validate-instance.py passes all $count catalog examples and $ux optional-section fixtures, holds the deliverable to its voice profile, rejects the broken PRD fixture, checks visual blocks and structured assessment and recommendation blocks, keys, and figure attributes, and errors on unresolvable types"
+# Reader views: a reusable brief closes with a Views section of four headings. A brief with none
+# predates the section and only warns, at either tier, so it still publishes; a Views section that
+# drops or empties a heading blocks.
+brief_src="$repo_root/workflows/activities/00-discover/artifacts/component-profile/example-reusable.md"
+awk '/^## Views$/{skip=1} /^## Confidence$/{skip=0} !skip' "$brief_src" >"$sb/noviews.md"
+grep -q '^## Views$' "$sb/noviews.md" && fail "test setup: the Views section was not removed"
+for tier in default publish; do
+  python3 "$validator" "$sb/noviews.md" --catalog "$repo_root/workflows" --tier "$tier" >"$tmpdir/case.out" 2>&1 \
+    && grep -Eq "^WARNING +views .*no Views section" "$tmpdir/case.out" || fail "a brief with no Views section should warn and pass at the $tier tier:
+$(cat "$tmpdir/case.out")"
+done
+expect_block "$brief_src" 's/^### Finance$/### Money/' "BLOCKING +views .*no .### Finance. heading"
+awk '/^### Apps Dev$/{print; skip=1; next} /^## Confidence$/{skip=0} !skip' "$brief_src" >"$sb/emptyview.md"
+expect_block "$sb/emptyview.md" 's/^$/&/' "BLOCKING +views .*### Apps Dev. is empty"
+sed 's/^### Finance$/### Money/' "$brief_src" >"$proj/knowledge/brief.md"
+python3 "$validator" "$proj/knowledge/brief.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 \
+  && grep -Eq "^WARNING +views .*Finance" "$tmpdir/case.out" || fail "a malformed Views section should be a warning at an atlas flow's default tier:
+$(cat "$tmpdir/case.out")"
+
+echo "OK: validate-instance.py passes all $count catalog examples and $ux optional-section fixtures, holds the deliverable to its voice profile, rejects the broken PRD fixture, checks visual blocks and structured assessment and recommendation blocks, keys, figure attributes, and reader views, and errors on unresolvable types"
