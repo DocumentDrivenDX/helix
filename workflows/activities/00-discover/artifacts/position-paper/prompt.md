@@ -30,14 +30,24 @@ brief; it never overrides a client's requirements or decisions. A
 4. **Find the strongest objections,** including any raised by the cited
    evidence, and answer each. An objection the evidence supports and the
    paper cannot answer belongs in Limits.
-5. **State the limits:** what the paper does not claim and when it fails.
+5. **State the limits:** what the paper does not claim, then a table of when
+   the other option wins: the condition, the option that wins under it, and
+   the evidence. A `conditional` stance's conditions each imply a row.
 6. **Record stances as data** when the paper advises one per technology and
    context: a `recommendations:` front matter block, each entry with its
    stance (recommended, conditional, watch, avoid), rationale, the pinned
    assessments and criteria it rests on, `since` and `review_by` dates, and
    `approved_by` with `approved_on` once a named person approves; until then
    it is proposed. Run `assessment-tables.py --write` for the table.
-7. **Pin the evidence** before publishing.
+7. **Record weights as data** when the paper weighs criteria: a `weights:`
+   list, each entry a criterion id that a `supported_by` assessment has a
+   finding for, a weight of `decisive`, `important`, or `minor`, and a
+   one-line reason. A weight is the paper's judgement, so it is never
+   written into an assessment or `criteria.yml`, and never as a number. The
+   same command writes the Decision Criteria table.
+8. **Add a Transition Path** only when the position displaces something
+   already in use.
+9. **Pin the evidence** before publishing.
 
 ## Writing for the reader
 

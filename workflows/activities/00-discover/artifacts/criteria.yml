@@ -1,6 +1,7 @@
 # The criteria assessments judge technologies on. An assessment lists the ids it uses in its
 # `assessment:` block, and its Criteria table is made from here. concern: the HELIX concern the
-# criterion serves, or none. One criterion is one node across assessments.
+# criterion serves, or none. One criterion is one node across assessments. A criterion carries no
+# weight: how much it counts is a position paper's judgement (`weights:`), and is rejected here.
 criteria:
   - id: script-distribution
     label: Script distribution

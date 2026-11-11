@@ -6,7 +6,7 @@ Usage:
 
 A technology assessment's `assessment:` block makes its `## Criteria` table and the tables under
 `## Comparison`; a position paper's `recommendations:` list makes the first table under
-`## Recommendations`. Tables are found by position; prose between them is never touched. Without
+`## Recommendations`, and its `weights:` list the first table under `## Decision Criteria`. Tables are found by position; prose between them is never touched. Without
 --write the script reports FAIL for each file whose tables differ and exits 1 (a CI check); with
 --write it rewrites them. A file without a block is skipped. Block shape: see structured_blocks.py.
 
@@ -25,7 +25,7 @@ try:
 except ImportError:  # pragma: no cover
     yaml = None
 
-BLOCKS = {"technology-assessment": "assessment", "position-paper": "recommendations"}
+BLOCKS = {"technology-assessment": ("assessment",), "position-paper": ("recommendations", "weights")}
 
 
 def main(argv: list[str]) -> int:
@@ -47,7 +47,7 @@ def main(argv: list[str]) -> int:
         raw, body = text[4:end], text[end + 5:]
         fm = yaml.safe_load(raw) or {}
         type_id = (fm.get("ddx") or {}).get("type")
-        if BLOCKS.get(type_id) not in fm:
+        if not any(key in fm for key in BLOCKS.get(type_id, ())):
             print(f"skip  {path}: no structured block")
             continue
         problems = []

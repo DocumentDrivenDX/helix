@@ -94,6 +94,35 @@ Only a position paper can carry a stance. Putting `recommendations:` on a brief
 or an assessment is a blocking finding, which keeps what is documented apart
 from what is advised.
 
+## Weigh criteria in a position paper
+
+A position paper can also say how much each criterion counts, in a `weights:`
+list beside `recommendations:`. Each entry names a criterion, gives a weight of
+`decisive`, `important`, or `minor`, and states the reason in one line.
+
+```yaml
+weights:
+  - criterion: licence-cost
+    weight: decisive
+    reason: The budget has no room for a per-seat fee.
+```
+
+The criterion must be an id in `criteria.yml`, and an assessment the paper links
+as `supported_by` must have a finding for it, not a gap. The validator reads that
+assessment from the flow as it stands today, not at its pinned revision.
+`assessment-tables.py` writes the first table under `## Decision Criteria` from
+the list.
+
+A weight is a judgment, so only a position paper can carry one. A `weights:`
+list on an assessment, a `weight` inside an `assessment:` block, and a `weight`
+in `criteria.yml` are each a blocking finding. The scale has three steps and no
+numbers, because a number would claim more precision than the evidence has.
+
+Every position paper also states when the other option wins. `## Limits of the
+Position` needs a table with the columns Condition, Option that wins, and
+Evidence, and at least one row. Add a `## Transition Path` section only when the
+position displaces something already in use.
+
 ## Record where a figure comes from
 
 A figure can end with an attribute list that says where it came from:
@@ -149,7 +178,7 @@ named in `based_on` needs one too.
 
 The validator reads one document at a time. It does not check that a cited
 assessment links the recommended technology, that the assessment has findings
-for the criteria a recommendation cites, or that two papers do not give the same
+for the criteria a recommendation cites (it does check this for a weight), or that two papers do not give the same
 technology conflicting stances in one context. Check those by hand until a
 graph-level check exists. A link that points at another graph is recorded and
 pinned but not fetched, so the runtime or your own tooling resolves it.
