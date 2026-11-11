@@ -20,7 +20,8 @@ A [[component-profile]] with `scope: reusable` records one technology; the
 assessment compares several and cites each brief by pinned revision rather
 than restating it. A [[decision-brief]] recommends for one context; the
 assessment never does. A [[position-paper]] argues a stance; the assessment
-reports. If a reader needs "so which one", the assessment ends and a
+reports, and gives no criterion a weight: how much each counts is the
+paper's judgement. If a reader needs "so which one", the assessment ends and a
 Decision Brief begins.
 
 ## Method

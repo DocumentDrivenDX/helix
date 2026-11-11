@@ -21,6 +21,12 @@ ddx:
 #     review_by: <date after since>
 #     approved_by: <name>   # with approved_on, or neither: until then the stance is proposed
 #     approved_on: <date>
+# Optional: how much each criterion counts, as data. The Decision Criteria table below is then
+# generated from it. A weight is the paper's judgement; an assessment and criteria.yml carry none.
+# weights:
+#   - criterion: <criterion id that a supported_by assessment has a finding for>
+#     weight: decisive | important | minor
+#     reason: <why it counts this much, in one line>
 ---
 
 # PP-[number]: [The position as a claim]
@@ -34,6 +40,16 @@ disagree with.]
 
 Who the paper is for and what they decide or do differently if persuaded.
 Name the audience by role, and say what is at stake for them.
+
+## Decision Criteria
+
+Only when the paper weighs the criteria its assessments rate. The table is
+generated from `weights:`. A weight is decisive, important, or minor, never
+a number, and it is the author's judgement: the reason says why.
+
+| Criterion | Weight | Why |
+|-----------|--------|-----|
+| [Criterion] | [Decisive, Important, or Minor] | [Reason] |
 
 ## Argument
 
@@ -62,8 +78,20 @@ is generated from `recommendations:`; the argument above is the case for it.
 
 ## Limits of the Position
 
-What the paper does not claim, and the conditions under which the thesis
-would not hold.
+What the paper does not claim, in a sentence or two. Then when the other
+option wins: one row per condition under which the thesis does not hold,
+the option that wins under it, and the evidence (a pinned assessment's
+rating, or "Author's judgment").
+
+| Condition | Option that wins | Evidence |
+|-----------|------------------|----------|
+| [Condition] | [Option] | [Assessment id and criterion, or "Author's judgment"] |
+
+## Transition Path
+
+Optional: only when the position displaces something already in use. What
+a team with the existing option does first, what can stay as it is, and
+what would stop the move. Leave the section out when there is no incumbent.
 
 ## Evidence
 

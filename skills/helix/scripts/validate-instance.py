@@ -15,9 +15,11 @@ Checks run, in order:
                      other rule types are reported as unsupported without failing
   placeholder        leftover template markers ([TODO], TBD, [Fill in], ...)
   structured blocks  a technology assessment's `assessment:` and a position paper's `recommendations:`
-                     front matter: criteria from the graph's criteria.yml, a rating or gap for every
-                     criterion and subject, stances, rationale, pinned assessments, review dates, and
-                     approval given whole (structured_blocks.py); `assessment-tables.py` keeps the
+                     and `weights:` front matter: criteria from the graph's criteria.yml, a rating or
+                     gap for every criterion and subject, stances, rationale, pinned assessments,
+                     review dates, approval given whole, and a weight (decisive, important, minor)
+                     only in a position paper and only on a criterion its assessments have a
+                     finding for (structured_blocks.py); `assessment-tables.py` keeps the
                      Markdown tables equal to them
   figures            `{basis=... accessed=... source=...}` attribute lists on figures: basis is
                      published, third-party, or not-published; the first two need source and a

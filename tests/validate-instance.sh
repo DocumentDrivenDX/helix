@@ -261,6 +261,7 @@ mkdir -p "$sb"
 cp "$repo_root/workflows/activities/00-discover/artifacts/criteria.yml" "$sb/"
 ta_src="$repo_root/workflows/activities/00-discover/artifacts/technology-assessment/example.md"
 pp_src="$repo_root/workflows/activities/00-discover/artifacts/position-paper/example.md"
+cp "$ta_src" "$sb/TA-001.md"  # the assessment the paper's weights are checked against
 expect_block() {  # file, sed expression, expected finding regex
   local file="$sb/case.md" src="$1"; shift
   sed "$1" "$src" >"$file"
@@ -285,6 +286,33 @@ expect_block "$pp_src" '/    conditions: /d' "BLOCKING +recommendations\.0 .*con
 # a stance outside a position paper, and a criteria block outside an assessment
 expect_block "$ta_src" 's/^assessment:/recommendations: []\nassessment:/' "BLOCKING +recommendations\.placement "
 expect_block "$pp_src" 's/^recommendations:/assessment: {}\nrecommendations:/' "BLOCKING +assessment\.placement "
+
+# Weights: a paper says how much a criterion counts on a three-step scale, only for a criterion a
+# supported_by assessment has a finding for. A weight is a judgement, so an assessment and
+# criteria.yml may not carry one. Limits of the Position holds the table of when the other option wins.
+expect_block "$pp_src" 's/    weight: decisive/    weight: 5/' "BLOCKING +weights\.0 .*one of decisive, important, minor"
+expect_block "$pp_src" 's/  - criterion: dependency-isolation/  - criterion: speed/' "BLOCKING +weights\.1 .*'speed' is not in criteria.yml"
+expect_block "$pp_src" 's/  - criterion: dependency-isolation/  - criterion: script-distribution/' "BLOCKING +weights\.1 .*has a finding for 'script-distribution'"
+expect_block "$pp_src" 's/  - criterion: dependency-isolation/  - criterion: text-and-file-handling/' "BLOCKING +weights\.1 .*weighted twice"
+expect_block "$pp_src" '/    reason: Tooling scripts here/d' "BLOCKING +weights\.1 .*reason. in one line"
+expect_block "$pp_src" 's/^weights:$/weights: []\nunused:/' "BLOCKING +weights\.shape "
+expect_block "$pp_src" 's/- {id: TA-001, kind: supported_by, rev: example}/- {id: TA-001, kind: evaluates, rev: example}/' "BLOCKING +weights\.0 .*no assessment linked as supported_by has a finding"
+expect_block "$ta_src" 's/^assessment:/weights: []\nassessment:/' "BLOCKING +weights\.placement "
+expect_block "$ta_src" 's/^  ratings:$/  weights: []\n  ratings:/' "BLOCKING +assessment\.weights "
+expect_block "$ta_src" 's/finding: Brief section Technology and Operations}$/finding: Brief section Technology and Operations, weight: decisive}/' "BLOCKING +assessment\.weights "
+printf '    weight: decisive\n' >>"$sb/criteria.yml"
+expect_block "$pp_src" 's/^$/&/' "BLOCKING +catalogue .*'dependency-isolation' carries a weight"
+cp "$repo_root/workflows/activities/00-discover/artifacts/criteria.yml" "$sb/"
+expect_block "$pp_src" 's/^| Condition | Option that wins | Evidence |$/| Condition | Evidence |/' "BLOCKING +limits_table "
+sed '/^recommendations:$/,/^weights:$/{/^weights:$/!d;}' "$pp_src" >"$sb/weightsonly.md"
+grep -q '^recommendations:' "$sb/weightsonly.md" && fail "test setup: recommendations were not removed"
+python3 "$tables" "$sb/weightsonly.md" >"$tmpdir/tables.out" 2>&1 || fail "a paper with weights and no recommendations should generate its Decision Criteria table:
+$(cat "$tmpdir/tables.out")"
+sed 's/^| Dependency isolation | Minor |/| Dependency isolation | Decisive |/' "$pp_src" >"$sb/wdrift.md"
+if python3 "$tables" "$sb/wdrift.md" >"$tmpdir/tables.out" 2>&1; then fail "a drifted Decision Criteria table should fail assessment-tables.py"; fi
+python3 "$tables" --write "$sb/wdrift.md" >/dev/null && cmp -s "$sb/wdrift.md" "$pp_src" \
+  || fail "assessment-tables.py --write should restore the Decision Criteria table"
+rm -f "$sb/weightsonly.md" "$sb/wdrift.md"
 
 # Malformed shapes are findings, never tracebacks; the table tool refuses a malformed block.
 expect_block "$ta_src" 's/^  subjects:$/  subjects:\n    - nodejs/' "BLOCKING +assessment\.shape .*subjects"
@@ -450,4 +478,4 @@ python3 "$validator" "$proj/knowledge/brief.md" --catalog "$repo_root/workflows"
   && grep -Eq "^WARNING +views .*Finance" "$tmpdir/case.out" || fail "a malformed Views section should be a warning at an atlas flow's default tier:
 $(cat "$tmpdir/case.out")"
 
-echo "OK: validate-instance.py passes all $count catalog examples and $ux optional-section fixtures, holds the deliverable to its voice profile, rejects the broken PRD fixture, checks visual blocks and structured assessment and recommendation blocks, keys, figure attributes, and reader views, and errors on unresolvable types"
+echo "OK: validate-instance.py passes all $count catalog examples and $ux optional-section fixtures, holds the deliverable to its voice profile, rejects the broken PRD fixture, checks visual blocks and structured assessment, recommendation and weight blocks, keys, figure attributes, and reader views, and errors on unresolvable types"
