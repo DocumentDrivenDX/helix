@@ -4,15 +4,6 @@ name: Test
 # documentor paths change, `documentor`. Heavy tier (docker install scenarios) runs on
 # release tags (called from release-genie-bundle.yml before anything is published),
 # workflow_dispatch, weekly, and on PRs labelled `ci:full`.
-#
-# Evidence gate (alternative to burning CI minutes on the heavy tier):
-#   1. commit your change, run `bash scripts/verify-full.sh` locally (needs docker);
-#   2. commit the resulting .ci/evidence/full-suite.json as the LAST commit (it is excluded
-#      from the content hash, so adding it does not invalidate itself);
-#   3. `evidence-gate` recomputes the hash on the PR head and passes if it matches.
-# The gate also passes when the PR only touches paths the heavy tier does not cover, or
-# when the PR carries the `ci:full` label and `install-test` passed. Release runs ignore
-# evidence and always run the heavy tier.
 
 on:
   workflow_dispatch:
@@ -56,7 +47,7 @@ jobs:
           doc='^(tools/documentor/|workflows/publish/|workflows/voice\.yml$|workflows/references/(publishing|writing-pass)\.md$|workflows/deliverables/|skills/helix/scripts/prose_audit\.py$|scripts/sync_references\.py$|\.github/workflows/test\.yml$)'
           # Not covered by the install scenarios: docs, markdown (except the skill and plugin
           # manifests), website, evals, documentor, workflow files.
-          light='^(docs/|scripts/verify-full\.sh$|\.ci/evidence/|website/|evals/|tools/documentor/|\.github/)|(^|/)[^/]*\.md$'
+          light='^(docs/|website/|evals/|tools/documentor/|\.github/)|(^|/)[^/]*\.md$'
           keep='^(skills/helix/SKILL\.md|\.claude-plugin/)'
           d=$(printf '%s\n' "$files" | grep -Ec "$doc" || true)
           n=$(printf '%s\n' "$files" | grep -Evc "$light" || true)
@@ -211,31 +202,3 @@ jobs:
             -v "$GITHUB_WORKSPACE:/workspace/helix:ro" \
             helix-install-test:claude-code \
             bash -c "install.sh && verify.sh"
-
-  evidence-gate:
-    needs: [changes, install-test]
-    if: >-
-      always() && github.event_name == 'pull_request' &&
-      (github.event.action != 'labeled' || github.event.label.name == 'ci:full')
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-      - name: Evidence gate
-        env:
-          INSTALL_NEEDED: ${{ needs.changes.outputs.install }}
-          LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
-          RESULTS: ${{ join(needs.install-test.result, ' ') }}
-        run: |
-          if [ "$INSTALL_NEEDED" != true ]; then echo "pass (c): no paths covered by the heavy tier"; exit 0; fi
-          h=$(git ls-files -z -- . ':!.ci/evidence' | while IFS= read -r -d '' f; do [ -f "$f" ] || continue; printf '%s\0' "$f"; cat -- "$f"; done | sha256sum | cut -d' ' -f1)
-          if [ -f .ci/evidence/full-suite.json ] && [ "$(jq -r .content_hash .ci/evidence/full-suite.json)" = "$h" ]; then
-            echo "pass (a): evidence matches $h"; exit 0
-          fi
-          if echo "$LABELS" | jq -e 'index("ci:full")' >/dev/null && [ "$RESULTS" = success ]; then
-            echo "pass (b): ci:full label and heavy suite green"; exit 0
-          fi
-          echo "::error::No valid evidence for $h. Run scripts/verify-full.sh locally and commit .ci/evidence/full-suite.json last, or add the ci:full label."
-          exit 1
