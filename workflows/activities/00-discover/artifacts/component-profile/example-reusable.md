@@ -41,7 +41,7 @@ on the maker's documentation.
 | **Not researched** | Views | Nobody has looked. |
 | **Not applicable** | Views | The reader's question does not arise for this component; the reason is given. |
 | **High / Medium / Low** | Confidence | Defined in the Confidence section. |
-| **maker / vendor / independent / community** | Sources | Defined in the Sources section. |
+| **maker / vendor / independent / community / measured** | Sources | Defined in the Sources section. |
 
 ## What It Is
 
@@ -222,6 +222,10 @@ documented capabilities).
 | **Medium** | Design-defining claims rest on the maker alone, or a design-defining capability is Unknown, or the independent coverage is older than two major versions. |
 | **Low** | Thin public footprint; claims rest on one source or on none. |
 
+A **measured** source counts as independent corroboration for the
+configuration it measured, and for nothing wider. A grade that rests on one
+says so and names the configuration.
+
 **Grade**: Medium. Adoption [20] and row-security practice [21] are
 independently corroborated, and licence, governance, and release policy are
 stated by the maker [1][6][8]. The claims behind transactions, constraints,
@@ -243,7 +247,9 @@ in the record measures restore duration or replica lag under load.
 Classes: **maker** (the component's maker or governing body), **vendor** (a
 company selling hosting or support for the component or a rival),
 **independent** (no commercial interest; named author or organisation and a
-date), **community** (a project or forum around the component).
+date), **community** (a project or forum around the component), **measured**
+(the publisher's own measurement, in a tech-spike cited by pinned revision
+with its scripts in the repository; none is cited here).
 
 1. [About PostgreSQL and the PostgreSQL Licence](https://www.postgresql.org/about/licence/), maker, PostgreSQL Global Development Group, accessed 22 Sep 2026
 2. [Row Security Policies, PostgreSQL 16 documentation](https://www.postgresql.org/docs/16/ddl-rowsecurity.html), maker, PostgreSQL Global Development Group, accessed 22 Sep 2026

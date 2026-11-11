@@ -106,7 +106,7 @@ validation:
       severity: blocking
 
     - check: confidence_by_rubric
-      description: The confidence grade follows the rubric (a design-defining Unknown caps it at Medium) and names which claims are corroborated, which rest on the maker alone, and which have no source
+      description: The confidence grade follows the rubric (a design-defining Unknown caps it at Medium) and names which claims are corroborated, which rest on the maker alone, and which have no source; a `measured` source counts as independent corroboration only for the configuration it measured, and a grade that rests on one says so and names that configuration
       severity: blocking
 
     - check: vocabularies_in_one_place
@@ -122,11 +122,11 @@ validation:
       severity: blocking
 
     - check: sources_classed_and_dated
-      description: Every source carries its class, author or organisation, publication date where shown, and access date; scoped-version documentation is version-pinned
+      description: Every source carries its class (maker, vendor, independent, community, or measured), author or organisation, publication date where shown, and access date; scoped-version documentation is version-pinned
       severity: blocking
 
     - check: no_hands_on_claims
-      description: No benchmark, prototype or integration result appears; the public record is the only evidence, and anything needing hands-on proof is an open question routed to a tech-spike
+      description: The profile runs nothing and states no benchmark, prototype or integration result of its own; a measurement appears only as a citation of a tech-spike, pinned by revision and classed `measured`, and anything else needing hands-on proof is an open question routed to a tech-spike
       severity: blocking
 
     - check: no_choice_made

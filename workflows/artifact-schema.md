@@ -451,7 +451,8 @@ is an id string (read as `informed_by`) or a mapping:
 | Key | Meaning |
 | --- | --- |
 | `id` | Target `ddx.id`. Required. |
-| `kind` | `informed_by`, `informs`, `addresses`, `evaluates`, `supported_by`, or `contradicts`. Read from this document to the target. |
+| `kind` | `informed_by`, `informs`, `addresses`, `evaluates`, `supported_by`, `contradicts`, or `answers`. Read from this document to the target. |
+| `question` | `answers` only, and required there: the number of the open question in the target's Open Questions table that this document answers. |
 | `authority` | `advisory` or `governing`. Absent means advisory for a reference that leaves its flow or graph. |
 | `rev` | Pinned revision read: `git:<commit>` or `sha256:<hex>`. Types that declare `validation.pin_links` require it at approval. |
 | `graph` | Name of another graph holding the target. HELIX records it; the runtime resolves it. |

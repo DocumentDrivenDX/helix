@@ -90,6 +90,30 @@ python3 "$validator" "$repo_root/workflows/activities/00-discover/artifacts/comp
   || fail "reusable component-profile example should validate"
 sed 's/^  scope: reusable/  scope: contextual/' "$repo_root/workflows/activities/00-discover/artifacts/component-profile/example-reusable.md" > "$tmp/as-contextual.md"
 if python3 "$validator" "$tmp/as-contextual.md" --catalog "$repo_root/workflows" >/dev/null; then fail "reusable content labelled contextual should fail"; fi
+# A reusable tech-spike (a spike published as knowledge) is judged by its own section list: test
+# setup, views affected and reproduction required, no recommendation. Its `answers` link carries
+# the number of the open question it answers, and the technology-atlas profile accepts the kind.
+spike="$repo_root/tests/fixtures/validate-instance/reusable-spike.md"
+mkdir -p "$tmp/knowledge/spikes"
+cp "$spike" "$tmp/knowledge/spikes/TS-001-examplestore-restore.md"
+for at in "$spike" "$tmp/knowledge/spikes/TS-001-examplestore-restore.md"; do
+  python3 "$validator" "$at" --catalog "$repo_root/workflows" --tier publish >"$tmp/spike.out" 2>&1 || fail "the reusable spike fixture should validate at the publish tier:
+$(cat "$tmp/spike.out")"
+  grep -q "WARNING\|BLOCKING" "$tmp/spike.out" && fail "the reusable spike fixture should have no findings:
+$(cat "$tmp/spike.out")"
+done
+spike_case() {  # sed expression, expected finding regex
+  sed "$1" "$spike" >"$tmp/spike-case.md"
+  if python3 "$validator" "$tmp/spike-case.md" --catalog "$repo_root/workflows" >"$tmp/spike.out" 2>&1; then fail "spike case /$1/ should block"; fi
+  grep -Eq "$2" "$tmp/spike.out" || fail "spike case /$1/ should report /$2/:
+$(cat "$tmp/spike.out")"
+}
+spike_case 's/^## Reproduction$/## Reproduction\n\n**RECOMMENDATION**: Adopt it./' "BLOCKING +no_recommendation "
+spike_case 's/^## Test Setup$/## Setup/' "BLOCKING +required_sections\.test_setup "
+spike_case 's/^## Views Affected$/## Readers/' "BLOCKING +required_sections\.views_affected "
+spike_case 's/, question: 2,/,/' "BLOCKING +links\.0\.question "
+spike_case 's/question: 2,/question: two,/' "BLOCKING +links\.0\.question "
+spike_case '/^  scope: reusable$/d' "BLOCKING +required_sections\.recommendations "
 echo "OK: validation tiers and scope variants"
 
 # Pinned publications (T6): a deliverable validated at the publish tier needs pinned sources, and a

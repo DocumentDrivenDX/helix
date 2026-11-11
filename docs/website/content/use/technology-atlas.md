@@ -25,13 +25,14 @@ flows:
     root: knowledge/
 ```
 
-The `technology-atlas` profile uses six types:
+The `technology-atlas` profile uses seven types:
 
 | Type | Holds | Lives in |
 | --- | --- | --- |
 | `component-profile` with `scope: reusable` | What the public record says about one technology, with no project or verdict | `technology/` |
 | `technology-assessment` | A comparison of technologies on stated criteria, with findings and no recommendation | `assessments/` |
 | `position-paper` | An argued position, or advised stances, for an audience | `positions/` |
+| `tech-spike` with `scope: reusable` | A measurement that answers one open question of a brief, which anyone can rerun | `spikes/` |
 | `decision-brief` | A recommendation for one named context | `decisions/` |
 | `adr` | A decision record | `decisions/` |
 | `deliverable` | A document issued to an audience, with its sources pinned | `publications/` |
@@ -122,6 +123,36 @@ Every position paper also states when the other option wins. `## Limits of the
 Position` needs a table with the columns Condition, Option that wins, and
 Evidence, and at least one row. Add a `## Transition Path` section only when the
 position displaces something already in use.
+## Answer an open question with a spike
+
+A brief routes what the public record cannot answer to a spike. In an atlas, the
+spike is a `tech-spike` with `scope: reusable`, stored as
+`spikes/TS-{number}-{subject}.md`. It differs from a project's spike in four
+ways:
+
+- It runs on public inputs only, so anyone can rerun it. A spike that needs a
+  client's systems or data belongs in that client's own flow.
+- It records a Test Setup (version, environment, settings, data, and date) and a
+  Reproduction section, with the scripts kept in the repository.
+- It has a Views Affected table that says which reader's answer the result
+  changes.
+- It has no Recommendations section. The validator blocks a
+  `**RECOMMENDATION**:` line at this scope.
+
+The spike links the brief it tests and names the open question by number:
+
+```yaml
+links:
+  - {id: component-profile-postgresql-reusable, kind: answers, question: 2, rev: git:<commit>}
+```
+
+An `answers` link without a `question` number is a blocking finding. The
+validator does not open the brief to confirm that the question exists.
+
+At its next revision, the brief cites the spike as a source of class `measured`.
+A measured source counts as independent corroboration in the brief's Confidence
+grade, but only for the configuration the spike ran. A grade that rests on a
+measured source says so and names that configuration.
 
 ## Record where a figure comes from
 
