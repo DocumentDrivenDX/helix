@@ -40,11 +40,19 @@ nodes:
   type: library:decision-brief
   activity: 02-design
   cardinality: many
+- id: tech-spike
+  type: library:tech-spike
+  activity: 02-design
+  cardinality: many
 - id: deliverable
   type: library:deliverable
   activity: 06-iterate
   cardinality: many
 edges:
+- from: component-profile
+  to: tech-spike
+  kind: informs
+  required: false
 - from: component-profile
   to: technology-assessment
   kind: informs
@@ -79,6 +87,10 @@ edges:
   required: false
 - from: decision-brief
   to: deliverable
+  kind: informs
+  required: false
+- from: tech-spike
+  to: adr
   kind: informs
   required: false
 allowed_cycles: []

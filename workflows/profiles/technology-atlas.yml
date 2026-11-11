@@ -6,6 +6,7 @@ types:
   - component-profile
   - technology-assessment
   - position-paper
+  - tech-spike
   - decision-brief
   - adr
   - deliverable
@@ -13,10 +14,11 @@ locations:
   component-profile: technology/{component-name}.md
   technology-assessment: assessments/TA-{number}-{subject}.md
   position-paper: positions/PP-{number}-{subject}.md
+  tech-spike: spikes/TS-{number}-{subject}.md
   decision-brief: decisions/DB-{number}-{decision-name}.md
   adr: decisions/ADR-{number}-{decision-name}.md
   deliverable: publications/{name}.md
-edge_kinds: [addresses, evaluates, supported_by, contradicts]
+edge_kinds: [addresses, evaluates, supported_by, contradicts, answers]
 authority:
   within_graph: advisory
   cross_graph: advisory

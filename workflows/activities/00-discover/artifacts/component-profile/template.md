@@ -68,7 +68,7 @@ The vocabularies used below, in one place.
 | **Not researched** | Competitive Landscape cells; Views | Nobody has looked; in the landscape, the sibling profile that would fill the cell is named. |
 | **Not applicable** | Views | The reader's question does not arise for this component; the reason is given. |
 | **High / Medium / Low** | Confidence | Defined in the Confidence section. |
-| **maker / vendor / independent / community** | Sources | Defined in the Sources section. |
+| **maker / vendor / independent / community / measured** | Sources | Defined in the Sources section. |
 
 A figure can carry its provenance as an attribute list after it:
 `{basis=published accessed=2026-11-06 source="vendor.example/pricing"}`, with
@@ -256,6 +256,10 @@ One grade for the profile:
 | **Medium** | Design-defining claims rest on the maker alone, or a design-defining capability is Unknown, or the independent coverage is older than two major versions. |
 | **Low** | Thin public footprint; claims rest on one source or on none. |
 
+A **measured** source counts as independent corroboration for the
+configuration it measured, and for nothing wider. A grade that rests on one
+says so and names the configuration.
+
 **Grade**: [High | Medium | Low]. [Which claims are corroborated, which rest
 on the maker alone, and which have no source. Name the weakest area.]
 
@@ -271,6 +275,11 @@ project's tenant count", not as a number.
 |---|----------|-------------------------|-------|
 | 1 | [Question] | [Which decision turns on it] | [[tech-spike]] / ask maker / operator guidance / [[component-profile-name]] |
 
+A spike that answers a question links this profile with kind `answers` and
+the question's number. At the profile's next revision the result is cited
+where the fact belongs, as a `measured` source, and the row's route names
+the spike.
+
 ## Sources
 
 Numbered; cited by number above. Each carries its class, its author or
@@ -282,6 +291,7 @@ URL (`/docs/18/`, not `/docs/current/`). Classes:
 - **vendor**: a company that sells hosting or support for the component or a rival
 - **independent**: no commercial interest in the component; a named author or organisation and a date
 - **community**: a project or forum around the component
+- **measured**: a measurement made by whoever publishes this profile, recorded in a [[tech-spike]] that is cited by pinned revision and keeps the scripts that reproduce it in the repository; it speaks for the configuration measured
 
 A source with no named author or organisation and no date supports a
 descriptive claim only, never a design-defining one.

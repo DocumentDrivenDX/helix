@@ -323,7 +323,7 @@ def check_frontmatter(fm: dict | None, report: Report) -> None:
         report.add("blocking", "frontmatter.authoring_home", "ddx.authoring.home must be `repo` or `external-tool`", 1)
 
 
-LINK_KINDS = {"informed_by", "informs", "addresses", "evaluates", "supported_by", "contradicts"}
+LINK_KINDS = {"informed_by", "informs", "addresses", "evaluates", "supported_by", "contradicts", "answers"}
 
 
 def check_links(fm: dict | None, profile: dict, report: Report) -> None:
@@ -350,6 +350,9 @@ def check_links(fm: dict | None, profile: dict, report: Report) -> None:
             if authority.get(scope, "advisory" if scope == "cross_graph" else "positional") == "advisory":
                 report.add("blocking", f"links.{i}.authority",
                            f"link '{link['id']}' claims governing authority but this flow's profile grants {scope.replace('_', '-')} references advisory only; the consuming graph must grant it")
+        if kind == "answers" and not (type(link.get("question")) is int and link["question"] >= 1):
+            report.add("blocking", f"links.{i}.question",
+                       f"link '{link['id']}' answers an open question, so it names that question's number: `question: <n>`")
         if kind == "contradicts":
             report.add("info", f"links.{i}.contradicts", f"contradicts '{link['id']}': surfaced for review, never a validation failure")
 
