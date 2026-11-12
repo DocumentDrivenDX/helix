@@ -26,4 +26,4 @@ generated: true
 - [ADR-016: Visuals are one vocabulary, drawn from governed sources](adr-016-visuals-are-one-vocabulary-drawn-from-governed-sources/)
 - [ADR-017: Flows bind to a graph profile through an optional `profile:` key](adr-017-flow-profile-binding/)
 - [ADR-018: Cross-graph references are advisory unless the consumer grants authority](adr-018-advisory-vs-governing-authority/)
-- [ADR-019: Sync from an external editing surface lives with the consuming repository](adr-019-external-editing-surface-sync-lives-with-the-consumer/)
+- [ADR-019: A shared editing surface is a HELIX capability, incubated in the consuming repository](adr-019-shared-editing-surface-is-a-helix-capability-incubated-in-the-consumer/)
