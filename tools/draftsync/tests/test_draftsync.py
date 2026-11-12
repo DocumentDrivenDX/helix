@@ -219,3 +219,88 @@ def test_generated_table_edit_is_refused_and_prose_edit_is_not(assessment):
     e.write_text(json.dumps({"ops": [{"op": "replace", "block": para, "text": first + " Reviewed."}]}))
     r = run("apply", str(assessment), "--edits", str(e))
     assert r.returncode == 0, r.stderr
+
+
+# ---- the Claude Docs changed-blocks translator, on reads recorded from a live doc ----------------------
+
+FIX = Path(__file__).resolve().parent / "fixtures"
+
+
+def fixture_ops():
+    return ds.edits_from_read((FIX / "old.xml").read_text(), (FIX / "delta.xml").read_text(),
+                              (FIX / "pp-with-notes.md").read_text())
+
+
+def test_translates_a_recorded_read_into_ops():
+    ops = fixture_ops()
+    assert {"op": "replace", "block": 11, "cell": 1, "text": "Familiarity favours Node.js for that team; the thesis assumes the repository's existing runtime is Python"} in ops
+    assert {"op": "delete", "block": 12} in ops
+    assert {"op": "insert", "after": 20, "kind": "row", "cells": ["TA-002", "Technology assessment", "draft", "Objections"]} in ops
+    assert {"op": "insert", "after": 16, "kind": "paragraph", "text": "A new paragraph about **scope** and `code` between the sections."} in ops
+    assert {"op": "replace", "block": 25, "text": "Nested item b (edited)"} in ops
+    notes = next(o for o in ops if o.get("block") == 22)
+    assert notes["text"] == "Configure `app.yaml` and see [the guide](https://example.com/guide) and [[tech-spike]] for pg_cron configuration."
+
+
+def test_recorded_read_lands_with_only_the_edits_in_the_diff():
+    text = (FIX / "pp-with-notes.md").read_text()
+    ops = [o for o in fixture_ops() if not (o["op"] == "replace" and o.get("block") == 15)]   # a generated table
+    out = ds.apply_text(text, ops)
+    before, after = text.split("\n"), out.split("\n")
+    assert "a repository adds installation and maintenance for every contributor." in out
+    assert "| TA-002 | Technology assessment | draft | Objections |" in out
+    assert "Distribution of a single script" not in out
+    untouched = [l for l in before if l in after]
+    assert len(untouched) > len(before) - 12
+    assert "|-----------|--------|----------|" in out and "Argument step 1 |" in out
+
+
+def test_doc_and_file_that_do_not_line_up_are_refused():
+    text = (FIX / "pp-with-notes.md").read_text().replace("\n## Notes\n", "\n## Notes\n\nExtra paragraph.\n")
+    with pytest.raises(ds.Refused, match="do not line up"):
+        ds.edits_from_read((FIX / "old.xml").read_text(), (FIX / "delta.xml").read_text(), text)
+
+
+def test_a_whole_doc_read_is_refused():
+    with pytest.raises(ds.Refused, match="whole doc"):
+        ds.edits_from_read((FIX / "old.xml").read_text(),
+                           "<doc node='n' rev='3' since='unavailable'></doc>", (FIX / "pp-with-notes.md").read_text())
+
+
+def test_new_blocks_that_cannot_be_written_as_markdown_are_refused():
+    old = (FIX / "old.xml").read_text()
+    text = (FIX / "pp-with-notes.md").read_text()
+    table = "<doc rev='3' sinceRev='1'><gap blocks='3'/><table id='m9gc498ep5e.9999'><row id='.9998'><cell id='.9997'><paragraph id='.9996'><text id='.9995'>x</text></paragraph></cell></row></table></doc>"
+    with pytest.raises(ds.Refused, match="new <table>"):
+        ds.edits_from_read(old, table, text)
+    mention = "<doc rev='3' sinceRev='1'><gap blocks='4'/><paragraph id='m9gc498ep5e.259'><text id='.1'>a</text><mention id='.2' user='u'/></paragraph></doc>"
+    with pytest.raises(ds.Refused, match="mention"):
+        ds.edits_from_read(old, mention, text)
+
+
+def test_two_inserts_at_one_spot_keep_their_order_and_headings_and_items_insert():
+    out = ds.apply_text(DOC, [{"op": "insert", "after": 1, "kind": "paragraph", "text": "First."},
+                              {"op": "insert", "after": 1, "kind": "heading", "level": 2, "text": "Second"},
+                              {"op": "insert", "after": 6, "kind": "item", "like": 5, "text": "inserted item"}])
+    assert "pg_cron.\n\nFirst.\n\n## Second\n\n| a | b |" in out
+    assert "- second item\n- inserted item\n" in out
+
+
+def test_cli_edits_prints_json(tmp_path):
+    f = tmp_path / "pp.md"
+    f.write_text((FIX / "pp-with-notes.md").read_text())
+    r = run("edits", str(f), "--old", str(FIX / "old.xml"), "--delta", str(FIX / "delta.xml"))
+    assert r.returncode == 0 and json.loads(r.stdout)["ops"]
+
+
+def test_a_live_edit_to_a_generated_table_is_refused_end_to_end(tmp_path):
+    f = tmp_path / "PP.md"
+    f.write_text((FIX / "pp-with-notes.md").read_text())
+    shutil.copy(REPO / "workflows/activities/00-discover/artifacts/criteria.yml", tmp_path)
+    e = tmp_path / "e.json"
+    e.write_text(json.dumps({"ops": fixture_ops()}))
+    r = run("apply", str(f), "--edits", str(e))
+    assert r.returncode == 1 and "generated table" in r.stderr
+    e.write_text(json.dumps({"ops": [o for o in fixture_ops() if o.get("block") != 15]}))
+    r = run("apply", str(f), "--edits", str(e))
+    assert r.returncode == 0, r.stderr

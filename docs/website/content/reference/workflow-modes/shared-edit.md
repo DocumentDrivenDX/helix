@@ -23,7 +23,7 @@ Git is untouched while people and the agent edit and comment in the draft.
 
 ## 2. Land
 
-1. Ask the surface for what changed since the recorded revision, never for a full export, and translate it into `EDITS.json` (operations addressed by block index; `python3 tools/draftsync/draftsync.py blocks FILE` prints the index at the base). The format is in the script's header. Check each changed block's old text against the block at its computed index before applying; a mismatch means the indexing is off, so stop and ask.
+1. Ask the surface for what changed since the recorded revision, never for a full export, and translate it into `EDITS.json` (operations addressed by block index; `python3 tools/draftsync/draftsync.py blocks FILE` prints the index at the base). For the Claude Docs surface the adapter names the two reads and `draftsync.py edits` does the translation and checks that the old draft and the file line up. The format is in the script's header.
 2. Run `python3 tools/draftsync/draftsync.py apply FILE --edits EDITS.json --base-commit BASE`. It applies only the changed words, so untouched text stays byte-identical, merges into the current file when the file changed since the base, and prints the diff and the file's hash before and after. Review the diff, then run it again with `--write`.
 3. Handle a refusal, never route around it:
    - a generated table (an assessment's Criteria and Comparison tables, a position paper's Recommendations table) was edited: make the change in the `assessment:` or `recommendations:` block by hand, then run `skills/helix/scripts/assessment-tables.py --write`; never write the table to match the draft;

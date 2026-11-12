@@ -1,22 +1,28 @@
 # Shared edit: the Claude Docs adapter
 
-Adapter for `workflows/modes/shared-edit.md` when the runtime has the Claude Docs connector. Load it only then. It records what was observed in three round trips of a technology brief, an assessment, and a position paper; test anything outside those before relying on it.
+Adapter for `workflows/modes/shared-edit.md` when the runtime has the Claude Docs connector. Load it only then. It records what was observed in four round trips (a technology brief, an assessment, and two position papers, the last edited live through the docs tools); test anything outside those before relying on it.
 
 ## Open
 
-Create one doc per document from the body (front matter removed), titled with the document id. Record the doc id and its revision in the pull request. The connector adds a byline and takes the title from the doc name, so the doc has blocks the file does not.
+Create one doc per document from the body (front matter removed), titled with the document id, with the file's own `# ` heading as the doc's first block so the doc and the file have the same blocks. Record the doc id and the revision after creation (`rev` in the create acknowledgement) in the pull request. Do not add a byline or other blocks the file lacks: the translator refuses a doc that does not line up with the file.
 
 ## Read what changed
 
-Call the docs `read` tool with `{"kind":"view","sinceRev":<recorded revision>}`.
+Make two reads of the doc body and save each result's `xml` to a file:
 
-- An edited block comes back whole and untruncated as text runs with bold kept, and the text is raw: `[1]`, `[[wiki-links]]` and underscores arrive as typed, so nothing is unescaped.
+- `{"kind":"view","atRev":<recorded revision>}`: the doc as it was at the opening revision (`OLD.xml`).
+- `{"kind":"view","sinceRev":<recorded revision>}`: only what changed since (`DELTA.xml`).
+
+Then run `python3 tools/draftsync/draftsync.py edits FILE --old OLD.xml --delta DELTA.xml` and pass its output to `apply` as in the mode. The translator does the block counting below for you and stops if the old doc and the file do not have the same sequence of headings, paragraphs, list items and table rows. What the read returns:
+
+- An edited block comes back whole and untruncated as text runs, and the text is raw: `[1]`, `[[wiki-links]]` and underscores arrive as typed, so nothing is unescaped. Inline formatting arrives as `<bold>`, `<italic>`, `<code>` and `<link href=...>` inside the runs; the translator writes them back as `**`, `*`, backticks and `[text](href)`.
 - Unchanged blocks are never returned; they fold into `<gap blocks='N'/>`. In a table only the changed row and cell come back; the gap counts before them give the row and column index. A changed list item comes back alone.
-- A deleted block or row is `<gone id='...' was='first 30 characters'/>`. An inserted paragraph or appended row comes back in full with a new id; its neighbours and gaps place it.
+- A deleted block or row is `<gone id='...' was='first 30 characters'/>`, in the place it had. An inserted paragraph or row comes back in full with an id the opening doc did not have; its neighbours and gaps place it.
+- Ids print in full once and short (`.90`) after that; the translator expands them.
 - Block ids are stable across edits, and one read from the opening revision returns all later edits together.
 - Not returned: the old text of a changed block (take it from the file at the base), who edited, and comment positions (use `query`).
 
-Count blocks in the source with `draftsync.py blocks`, skip the doc's own title and byline blocks, and add the gap counts to find each changed block's index. The doc and the file agree on order but not on the title block, so check old text against the source before applying.
+The translator handles changed paragraphs, headings, list items and table cells, deleted blocks, rows and list items, and new paragraphs, headings, table rows and single-paragraph list items. It refuses a new list, table or code block, a paragraph that gained or lost heading status, and anything with an element that has no Markdown form (a mention, say); make those changes in the repository. Edits that land in a generated table are refused later, by `apply`.
 
 ## Fallback: export
 
@@ -24,4 +30,6 @@ Use an export only when the changed-blocks read cannot be used. It reaches only 
 
 ## Not yet tested
 
-Inline code and links, nested lists, a concurrent edit by another person, and edits made in the Docs UI instead of through the tools. Say so in the handoff when a draft involves them.
+A concurrent edit by another person, and edits made in the Docs UI instead of through the tools. Say so in the handoff when a draft involves them.
+
+Tested through the tools on a position paper: inline code, links, a wiki link in running text, a nested list edit, a table row delete and append, a new paragraph, and an edit to a generated table (refused).

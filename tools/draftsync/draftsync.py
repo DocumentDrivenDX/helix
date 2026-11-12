@@ -3,6 +3,8 @@
 
 Usage:
     draftsync.py blocks FILE                       list the file's addressable blocks
+    draftsync.py edits FILE --old OLD.xml --delta DELTA.xml
+                                                   turn a Claude Docs changed-blocks read into EDITS.json
     draftsync.py apply FILE --edits EDITS.json [--base-commit REV] [--write] [--no-table-guard]
                                                    [--assessment-tables PATH]
 
@@ -15,6 +17,8 @@ index):
       {"op": "replace", "block": 9, "cell": 1, "text": "new cell text"},
       {"op": "delete",  "block": 6},
       {"op": "insert",  "after": 4, "kind": "paragraph", "text": "a new paragraph"},
+      {"op": "insert",  "after": 4, "kind": "heading", "level": 2, "text": "A new heading"},
+      {"op": "insert",  "after": 8, "kind": "item", "like": 7, "text": "a new list item"},
       {"op": "insert",  "after": 9, "kind": "row", "cells": ["a", "b"]}
     ]}
 
@@ -32,6 +36,12 @@ whose generated tables matched their front matter before the patch must still ma
 edit to a generated table is refused and belongs in the `assessment:` or `recommendations:` block.
 Without --write nothing is written; the result is printed as a unified diff. The report names the
 whole-file sha256 before and after, which is what seals and reviews key on.
+
+`edits` is the Claude Docs adapter's translator: OLD.xml is the doc read at the opening revision
+(`{"kind":"view","atRev":N}`) and DELTA.xml the read since it (`{"kind":"view","sinceRev":N}`). It checks that
+the old doc and the file have the same sequence of headings, paragraphs, list items and table rows, so a
+mismatch stops before anything is applied, and prints EDITS.json. A new list, table or code block, and
+formatting it cannot write as Markdown, are refused.
 
 Exit codes: 0 ok, 1 refused or conflicted, 2 usage error.
 """
@@ -214,23 +224,32 @@ def apply_ops(body: str, ops: list[dict]) -> str:
                 text = "| " + " | ".join(op["cells"]) + " |"
                 plan.append((b.end, b.end, [text]))
             elif what == "item":
-                if b.kind != "item":
+                like = block(op["like"]) if "like" in op else b
+                if like.kind != "item":
                     raise Refused(f"cannot insert an item after block {after}: it is not a list item")
-                if _numbered(b):
+                if _numbered(like):
                     if not _last_in_list(blocks, after):
                         raise Refused(f"cannot insert after numbered item {after}: later items would need renumbering")
-                    num = int(re.search(r"\d+", b.prefix).group(0)) + 1
-                    prefix = re.sub(r"\d+", str(num), b.prefix, count=1)
+                    num = int(re.search(r"\d+", like.prefix).group(0)) + 1
+                    prefix = re.sub(r"\d+", str(num), like.prefix, count=1)
                 else:
-                    prefix = b.prefix
+                    prefix = like.prefix
                 plan.append((b.end, b.end, [prefix + op["text"]]))
             elif what == "paragraph":
                 plan.append((b.end, b.end, ["", op["text"]]))
+            elif what == "heading":
+                plan.append((b.end, b.end, ["", "#" * int(op.get("level", 2)) + " " + op["text"]]))
             else:
                 raise Refused(f"unknown insert kind {what!r}")
         else:
             raise Refused(f"unknown op {kind!r}")
-    for start, end, repl in sorted(plan, key=lambda p: (p[0], p[1]), reverse=True):
+    merged: list[tuple[int, int, list[str]]] = []
+    for start, end, repl in plan:      # inserts at one spot keep the order they were given in
+        if start == end and merged and merged[-1][0] == merged[-1][1] == start:
+            merged[-1] = (start, end, merged[-1][2] + repl)
+        else:
+            merged.append((start, end, repl))
+    for start, end, repl in sorted(merged, key=lambda p: (p[0], p[1]), reverse=True):
         lines[start:end] = repl
     return "\n".join(lines)
 
@@ -238,6 +257,199 @@ def apply_ops(body: str, ops: list[dict]) -> str:
 def apply_text(text: str, ops: list[dict]) -> str:
     front, body = split_front_matter(text)
     return front + apply_ops(body, ops)
+
+
+# ---- Claude Docs changed-blocks read -> EDITS.json -------------------------------------------------
+
+MARKS = {"bold": "**", "italic": "*", "code": "`", "strike": "~~"}
+
+
+def runs_to_markdown(node) -> str:
+    out = node.text or ""
+    for c in node:
+        if c.tag == "text":
+            out += runs_to_markdown(c)
+        elif c.tag in MARKS:
+            out += MARKS[c.tag] + runs_to_markdown(c) + MARKS[c.tag]
+        elif c.tag == "link":
+            out += f"[{runs_to_markdown(c)}]({c.get('href', '')})"
+        else:
+            raise Refused(f"the doc has <{c.tag}> inside a paragraph, which has no Markdown form here")
+        out += c.tail or ""
+    return out
+
+
+def full_ids(root) -> None:
+    """A read prints a session's first id in full and later ones short (`.90`); make them all full."""
+    prefix = ""
+    for e in root.iter():
+        ident = e.get("id")
+        if not ident:
+            continue
+        if ident.startswith("."):
+            e.set("id", prefix + ident)
+        else:
+            prefix = ident.split(".")[0]
+
+
+class OldDoc:
+    """The doc at the opening revision, as a tree of ids, with the file's block index of each unit."""
+
+    def __init__(self, xml: str, blocks: list[Block], lines: list[str]):
+        import xml.etree.ElementTree as ET
+        root = ET.fromstring(xml)
+        full_ids(root)
+        self.kids: dict[str, list[str]] = {"root": []}
+        self.tag: dict[str, str] = {}
+        self.src: dict[str, int] = {}          # unit id -> block index
+        self.last: dict[str, int] = {}         # any block id -> last block index in its subtree
+        self.first: dict[str, int] = {}        # ... and the first
+        kinds: list[str] = []
+
+        def unit(elem, kind: str, ident: str) -> None:
+            self.src[ident] = len(kinds)
+            kinds.append(kind)
+
+        def walk(elem, parent: str) -> None:
+            ident = elem.get("id")
+            self.kids[parent].append(ident)
+            self.tag[ident] = elem.tag
+            self.kids[ident] = []
+            before = len(kinds)
+            if elem.tag == "paragraph":
+                unit(elem, "heading" if elem.get("heading") else "paragraph", ident)
+            elif elem.tag == "list":
+                for li in elem.findall("listItem"):
+                    walk(li, ident)
+            elif elem.tag == "listItem":
+                paras = elem.findall("paragraph")
+                unit(elem, "item", ident)
+                for c in elem:
+                    if c.tag == "paragraph":
+                        self.kids[ident].append(c.get("id"))
+                        self.tag[c.get("id")] = "paragraph"
+                        self.kids[c.get("id")] = []
+                    elif c.tag == "list":
+                        walk(c, ident)
+                if len(paras) != 1:
+                    kinds[self.src[ident]] = "other"
+            elif elem.tag == "table":
+                for r in elem.findall("row"):
+                    walk(r, ident)
+            elif elem.tag == "row":
+                unit(elem, "row", ident)
+                for cell in elem.findall("cell"):
+                    cid = cell.get("id")
+                    self.kids[ident].append(cid)
+                    self.tag[cid] = "cell"
+                    self.kids[cid] = []
+            else:
+                unit(elem, "other", ident)
+            if len(kinds) > before:
+                self.first[ident], self.last[ident] = before, len(kinds) - 1
+
+        for elem in root:
+            walk(elem, "root")
+        for ident, tag in list(self.tag.items()):          # containers take their last descendant's index
+            if ident not in self.last:
+                desc = [self.last[k] for k in self.kids.get(ident, []) if k in self.last]
+                if desc:
+                    self.last[ident] = max(desc)
+        want = [b.kind for b in blocks]
+        if kinds != want:
+            at = next((i for i, (a, b) in enumerate(zip(kinds, want)) if a != b), min(len(kinds), len(want)))
+            raise Refused(f"the doc at the opening revision and the file do not line up: block {at} is "
+                          f"{kinds[at] if at < len(kinds) else 'missing'} in the doc and "
+                          f"{want[at] if at < len(want) else 'missing'} in the file")
+
+
+def edits_from_read(old_xml: str, delta_xml: str, text: str) -> list[dict]:
+    import xml.etree.ElementTree as ET
+    lines, blocks = parse(split_front_matter(text)[1])
+    old = OldDoc(old_xml, blocks, lines)
+    delta = ET.fromstring(delta_xml)
+    full_ids(delta)
+    if delta.get("since") == "unavailable":
+        raise Refused("the read is the whole doc (since='unavailable'), not a delta; compare the doc with the file by hand")
+    ops: list[dict] = []
+
+    def para_text(p) -> str:
+        return runs_to_markdown(p)
+
+    def insert_after(prev_id: str | None, make: dict) -> None:
+        if prev_id is None:
+            raise Refused("a new block at the start of its container has nothing to anchor to; add it in the repository")
+        ops.append({"op": "insert", "after": old.last[prev_id], **make})
+
+    def container(elem, old_id: str) -> None:
+        olds = old.kids[old_id]
+        ptr = 0
+        for c in elem:
+            if c.tag == "gap":
+                ptr += int(c.get("blocks"))
+            elif c.tag == "gone":
+                ident = c.get("id")
+                if ident not in olds:
+                    raise Refused(f"deleted block {ident} is not where the opening doc had it")
+                ptr = olds.index(ident) + 1
+                for i in range(old.first[ident], old.last[ident] + 1):
+                    ops.append({"op": "delete", "block": i})
+            else:
+                ident = c.get("id")
+                if ident in olds:
+                    ptr = olds.index(ident) + 1
+                    changed(c, ident, old_id)
+                else:
+                    prev = olds[ptr - 1] if ptr else None
+                    inserted(c, old_id, prev)
+
+    def changed(c, ident: str, parent: str) -> None:
+        tag = c.tag
+        if tag == "paragraph":
+            if parent == "root":
+                if (blocks[old.src[ident]].kind == "heading") != bool(c.get("heading")):
+                    raise Refused(f"block {old.src[ident]} changed between heading and paragraph; change it in the repository")
+                ops.append({"op": "replace", "block": old.src[ident], "text": para_text(c)})
+            else:                                                  # the paragraph of a list item
+                ops.append({"op": "replace", "block": old.src[parent], "text": para_text(c)})
+        elif tag in ("list", "table", "listItem", "row"):
+            container(c, ident)
+        elif tag == "cell":
+            row = parent
+            col = old.kids[row].index(ident)
+            ps = c.findall("paragraph")
+            if len(ps) != 1:
+                raise Refused(f"cell {ident} has {len(ps)} paragraphs; edit it in the repository")
+            ops.append({"op": "replace", "block": old.src[row], "cell": col, "text": para_text(ps[0])})
+        else:
+            raise Refused(f"block {ident} is a <{tag}>; edit it in the repository")
+
+    def inserted(c, parent: str, prev: str | None) -> None:
+        tag = c.tag
+        if tag == "paragraph" and parent == "root":
+            lvl = c.get("heading")
+            if lvl:
+                insert_after(prev, {"kind": "heading", "level": int(lvl), "text": para_text(c)})
+            else:
+                insert_after(prev, {"kind": "paragraph", "text": para_text(c)})
+        elif tag == "row":
+            cells = []
+            for cell in c.findall("cell"):
+                ps = cell.findall("paragraph")
+                cells.append(" ".join(para_text(p) for p in ps))
+            insert_after(prev, {"kind": "row", "cells": cells})
+        elif tag == "listItem":
+            if c.find("list") is not None or len(c.findall("paragraph")) != 1:
+                raise Refused("a new list item with nested items or several paragraphs is not supported; add it in the repository")
+            insert_after(prev, {"kind": "item", "like": old.src[prev] if prev in old.src else None, "text": para_text(c.find("paragraph"))})
+        else:
+            raise Refused(f"a new <{tag}> is not supported; add it in the repository")
+
+    container(delta, "root")
+    for op in ops:
+        if op.get("like", 0) is None:
+            del op["like"]
+    return ops
 
 
 def sha(text: str) -> str:
@@ -284,6 +496,10 @@ def main(argv: list[str]) -> int:
     sub = ap.add_subparsers(dest="cmd", required=True)
     b = sub.add_parser("blocks")
     b.add_argument("file", type=Path)
+    e = sub.add_parser("edits")
+    e.add_argument("file", type=Path)
+    e.add_argument("--old", type=Path, required=True)
+    e.add_argument("--delta", type=Path, required=True)
     a = sub.add_parser("apply")
     a.add_argument("file", type=Path)
     a.add_argument("--edits", type=Path, required=True)
@@ -298,6 +514,15 @@ def main(argv: list[str]) -> int:
         lines, blocks = parse(split_front_matter(current)[1])
         for n, blk in enumerate(blocks):
             print(f"{n}\t{blk.kind}\t{lines[blk.start][:70]}")
+        return 0
+
+    if args.cmd == "edits":
+        try:
+            ops = edits_from_read(args.old.read_text(encoding="utf-8"), args.delta.read_text(encoding="utf-8"), current)
+        except Refused as err:
+            print(f"refused: {err}", file=sys.stderr)
+            return 1
+        print(json.dumps({"ops": ops}, indent=2))
         return 0
 
     try:
