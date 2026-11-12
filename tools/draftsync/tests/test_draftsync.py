@@ -522,3 +522,24 @@ def test_base_commit_cannot_be_an_option(tmp_path):
     e.write_text('{"ops": []}')
     r = run("apply", str(f), "--edits", str(e), "--base-commit=--output=zz", "--no-table-guard")
     assert r.returncode == 1 and "not an option" in r.stderr and not list(tmp_path.glob("zz*"))
+
+
+# ---- a read recorded after edits in the Docs UI by three editors, two of them at the same time -----------
+
+def test_ui_edits_by_several_editors_translate_and_land():
+    text = (FIX / "pp-with-notes.md").read_text()
+    ops = ds.edits_from_read((FIX / "ui-old.xml").read_text(), (FIX / "ui-delta.xml").read_text(), text)
+    assert {"op": "delete", "block": 12} in ops
+    assert {"op": "insert", "after": 26, "kind": "item", "like": 26, "indent": 4, "text": "A new subitem."} in ops
+    assert any(o.get("text", "").startswith("Maintainers choosing a runtime for a new tooling script. A THIRD runtime") for o in ops)
+    out = ds.apply_text(text, ops)
+    assert "A THIRD runtime in\na repository adds installation and upkeep for every contributors." in out
+    assert "- Outer item two\n    - A new subitem.\n    - New Bullet\n" in out
+    assert "Distribution of a single script" not in out
+    assert out.count("\n") == text.count("\n") - 1 + 2          # one row gone, two items added
+
+
+def test_blocks_born_and_deleted_after_the_draft_opened_are_ignored():
+    old, text = (FIX / "old.xml").read_text(), (FIX / "pp-with-notes.md").read_text()
+    delta = "<doc rev='9' sinceRev='1'><gap blocks='9'/><gone id='zz.1' rev='3'/><gone id='.2' rev='4' was='x'/></doc>"
+    assert ds.edits_from_read(old, delta, text) == []

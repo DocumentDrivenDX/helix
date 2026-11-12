@@ -18,7 +18,7 @@ ddx:
 
 HELIX exists to make human and agent work on governed documents go well, and the best place for a person and an agent to work on a document is one they can both edit and comment on at once. A consuming repository (Atlas is the case at hand) wants reviewers and Claude to edit a draft copy of each document in Claude Docs, with git staying the record. A sync step lands the draft as a pull request and must leave untouched text byte-identical, because review state keys on the file hash.
 
-Four spikes tested the mechanics. Export-and-diff works but the export joins hard-wrapped lines, rewrites table separators, adds a byline, and escapes `[1]` and `[[wiki-links]]`, so it needs a normalizer. Reading only the blocks changed since a revision returns raw, unescaped, untruncated text and places table edits by row and column, which removes most of the normalizer. A fourth spike edited a position paper live through the docs tools (inline code, links, a nested list, table row delete and append, a new paragraph) and the changed-blocks read, with the opening revision read for comparison, translated exactly into edits that landed with only those changes in the diff. A concurrent edit and edits made in the Docs UI are untested. Should HELIX own this, and when?
+Five spikes tested the mechanics. Export-and-diff works but the export joins hard-wrapped lines, rewrites table separators, adds a byline, and escapes `[1]` and `[[wiki-links]]`, so it needs a normalizer. Reading only the blocks changed since a revision returns raw, unescaped, untruncated text and places table edits by row and column, which removes most of the normalizer. A fourth spike edited a position paper live through the docs tools (inline code, links, a nested list, table row delete and append, a new paragraph) and the changed-blocks read, with the opening revision read for comparison, translated exactly into edits that landed with only those changes in the diff. A fifth spike had three people edit a position paper in the Docs UI, two at the same time (a paragraph edited by two at once, a table row deleted, a cell retyped, a nested bullet list added); the changed-blocks read showed the merged result and it landed with only those changes. Should HELIX own this, and when?
 
 ## Decision
 
@@ -29,7 +29,7 @@ We will make a shared editing surface a HELIX capability: a runtime-neutral mode
 3. **Authoring home does not change.** A document edited through a draft copy stays `authoring.home: repo`. `external-tool` means the tool is the write surface and the repository holds a checked-in copy; this is the opposite relationship. The draft's document id, revision, and base are operational state, which the schema keeps out of `authoring` and leaves to the pull request or tracker. No field is added.
 4. **HELIX owns the checks that come from its own semantics.** Landing a patch refuses an edit to a generated table (an assessment's Criteria and Comparison tables, a position paper's Recommendations table) and points to the `assessment:` or `recommendations:` block, using `skills/helix/scripts/assessment-tables.py` as the check and never `--write` to hide a mismatch. It never edits frontmatter as text. It reports a moved base, and it reports which documents' file hashes the patch changes, so a consumer can stale its seals and reviews.
 5. **Ship the mode, the adapter, and the tool together.** `workflows/modes/shared-edit.md` is the mode, `workflows/references/shared-edit-claude-docs.md` is the Claude Docs adapter, and `tools/draftsync/` is the host tool (parse, word-level patch, three-way merge onto a moved base, generated-table guard, hash report). The skill routes to the mode and names no connector.
-6. **Say what is untested.** The adapter lists the cases not yet exercised (a concurrent edit by another person, edits made in the Docs UI) and the mode's handoff reports when a draft involves one. The export-and-diff fallback is documented in the adapter but draftsync does not normalize exports.
+6. **Say what is untested.** The adapter lists what was tested and what the tool refuses, and the mode's handoff reports when a draft goes beyond them. The export-and-diff fallback is documented in the adapter but draftsync does not normalize exports.
 7. **Review state stays the consumer's policy.** The hash-keyed review ledger, the attestation a named person types at a terminal, seals, and the scan for client names are consumer choices. HELIX's living-document principle (`workflows/principles.md`) says review stamps gate nothing, and `ddx.review` is legacy metadata. The contract needs only item 4's report of changed hashes.
 
 ## Packaging
@@ -73,7 +73,7 @@ The ledger is keyed by whole-file hash, and it sits outside the file because a r
 
 ## Validation
 
-**Result**: partly tested (two position papers and a brief and an assessment, edits made by tool only)
+**Result**: tested on four documents (a brief, an assessment, two position papers), through the tools and in the Docs UI, including a concurrent edit
 **Evidence**: Three spikes recorded in the consumer's design doc. The first two round-tripped a brief and an assessment through export and did not exercise stale-base merge. The third read changes since a revision from a position paper and found:
 
 - Edited blocks come back whole, untruncated, with bold kept and text raw: `[1]`, `[[wiki-links]]` and underscores arrive as typed, so no unescaping is needed.
@@ -82,7 +82,7 @@ The ledger is keyed by whole-file hash, and it sits outside the file because a r
 - Block ids are stable across edits, and a second read from the same revision returns all edits together.
 - Not given: the old text of a changed block (it comes from the file at the base commit), who edited, and comment positions (a separate query returns those).
 
-The fourth spike also showed that the opening revision is readable (`atRev`), so inserted blocks are the ids that revision lacked, and deleted blocks arrive in the place they had. Not yet tested: a concurrent edit by another person, edits made in the Docs UI.
+The fourth spike also showed that the opening revision is readable (`atRev`), so inserted blocks are the ids that revision lacked, and deleted blocks arrive in the place they had. The fifth spike covered concurrent edits and Docs UI edits. Not yet tested: a whole new table or numbered nested list in the doc, which the tool refuses, and a second surface.
 
 ## Concern Impact
 
@@ -92,11 +92,11 @@ The fourth spike also showed that the opening revision is readable (`atRev`), so
 
 | Trigger | Move |
 |---|---|
-| The changed-blocks read fails on concurrent edits or edits made in the Docs UI | Make the export fallback the supported path: add an export normalizer to draftsync |
+| A case outside what was tested (a new table, a numbered nested list, another surface) fails in use | Add it to draftsync, or make the export fallback the supported path with an export normalizer |
 | A second editing surface is wanted | Write a CONTRACT from the two adapters and move the shared edit format out of the script header |
 | Landing a patch to a generated table becomes wanted | Add a table-to-block write-back to `assessment-tables.py`; until then, refuse |
 | A consumer other than Atlas needs hash-keyed review state | Reopen the ledger question as its own ADR; check it against the living-document principle first |
 
 ## First step
 
-Run the two untested cases (a concurrent edit, edits made in the Docs UI) with a second person and record the results in the adapter, then decide whether the export normalizer is needed.
+Use it on a real review in the consuming repository and send each input it gets wrong back as a failing test; build the export normalizer only if the changed-blocks read fails on a real draft.

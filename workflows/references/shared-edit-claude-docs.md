@@ -1,6 +1,6 @@
 # Shared edit: the Claude Docs adapter
 
-Adapter for `workflows/modes/shared-edit.md` when the runtime has the Claude Docs connector. Load it only then. It records what was observed in four round trips (a technology brief, an assessment, and two position papers, the last edited live through the docs tools); test anything outside those before relying on it.
+Adapter for `workflows/modes/shared-edit.md` when the runtime has the Claude Docs connector. Load it only then. It records what was observed in five round trips (a technology brief, an assessment, and three position papers, two of them edited live, one through the docs tools and one in the Docs UI by several people); test anything outside those before relying on it.
 
 ## Open
 
@@ -30,6 +30,8 @@ Use an export only when the changed-blocks read cannot be used. It reaches only 
 
 ## Not yet tested
 
-A concurrent edit by another person, and edits made in the Docs UI instead of through the tools. Say so in the handoff when a draft involves them.
+Nothing in the cases the tool covers; say in the handoff when a draft goes beyond them.
+
+Tested in the Docs UI by three editors, two of them at the same time (a paragraph edited by two at once, a table row deleted, a table cell retyped, a new nested bullet list): the read shows the merged result, and it lands with only those changes in the diff. A block that was added and deleted after the draft opened comes back as a `<gone>` with an id the opening doc lacks; it is ignored. A new bullet list nested under an existing item is supported; a new numbered or doubly nested one is not.
 
 Tested through the tools on a position paper: inline code, links, a wiki link in running text, a nested list edit, a table row delete and append, a new paragraph, and an edit to a generated table (refused).

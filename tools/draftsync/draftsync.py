@@ -334,6 +334,10 @@ def apply_ops(body: str, ops: list[dict]) -> str:
                 text = _plain_check(op.get("text"), "an inserted item")
                 if _would_start_a_block(text):
                     raise Refused("the new item text would read as a heading, list, table or quote")
+                if "indent" in op:
+                    prefix = re.match(r"\s*", like.prefix).group(0) + " " * op["indent"] + "- "
+                    inserts.setdefault(b.end, []).append(prefix + text)
+                    continue
                 if _numbered(like):
                     lk = op["like"] if "like" in op else after
                     group = _list_group(blocks, lk)
@@ -555,6 +559,8 @@ def edits_from_read(old_xml: str, delta_xml: str, text: str) -> list[dict]:
                 ptr += n
             elif c.tag == "gone":
                 ident = c.get("id")
+                if ident not in old.tag:
+                    continue                      # born and deleted after the draft was opened: no change
                 if ident not in olds or olds.index(ident) != ptr:
                     raise Refused(f"deleted block {ident} is not where the opening doc had it")
                 if ident not in old.first:
@@ -617,6 +623,14 @@ def edits_from_read(old_xml: str, delta_xml: str, text: str) -> list[dict]:
                     raise Refused("a new row has a cell with a list or other content; add it in the repository")
                 cells.append(" ".join(para_text(p) for p in cell.findall("paragraph")))
             insert_after(prev, {"kind": "row", "cells": cells})
+        elif tag == "list" and old.tag.get(parent) == "listItem":
+            if c.get("kind") != "bullet" or old.kids[parent] and any(old.tag.get(k) == "list" for k in old.kids[parent]):
+                raise Refused("a new nested list must be a bullet list under an item with no nested list; add it in the repository")
+            for li in c.findall("listItem"):
+                if li.find("list") is not None or len(li.findall("paragraph")) != 1:
+                    raise Refused("a new nested item with its own nested items or several paragraphs is not supported")
+                ops.append({"op": "insert", "after": old.last[parent], "kind": "item", "like": old.src[parent], "indent": 4,
+                            "text": block_text(li.find("paragraph"))})
         elif tag == "listItem":
             if c.find("list") is not None or len(c.findall("paragraph")) != 1:
                 raise Refused("a new list item with nested items or several paragraphs is not supported; add it in the repository")
