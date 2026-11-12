@@ -1,4 +1,18 @@
 ---
+title: "ADR-019: A shared editing surface is a HELIX capability"
+slug: ADR-019-shared-editing-surface-is-a-helix-capability
+weight: 370
+activity: "Design"
+source: "02-design/adr/ADR-019-shared-editing-surface-is-a-helix-capability.md"
+generated: true
+collection: adr
+---
+
+> **Example from HELIX's own docs.** This generated page comes from `docs/helix/`. Use it to see the method in practice; start with the [artifact-type catalog](/artifact-types/) for reusable templates. Historical plans and reports may describe retired architecture.
+
+> **Source identity** (from `02-design/adr/ADR-019-shared-editing-surface-is-a-helix-capability.md`):
+
+```yaml
 ddx:
   id: ADR-019
   authoring:
@@ -7,8 +21,9 @@ ddx:
   depends_on:
     - ADR-015
     - ADR-018
----
-# ADR-019: A shared editing surface is a HELIX capability, incubated in the consuming repository
+```
+
+# ADR-019: A shared editing surface is a HELIX capability
 
 | Date | Status | Deciders | Related | Confidence |
 |------|--------|----------|---------|------------|
@@ -22,36 +37,34 @@ Three spikes tested the mechanics. Export-and-diff works but the export joins ha
 
 ## Decision
 
-We will make a shared editing surface a HELIX capability, specified by HELIX and implemented per runtime, and incubate the first implementation in the consuming repository until the untested cases pass. Specifically:
+We will make a shared editing surface a HELIX capability: a runtime-neutral mode, a host tool for the deterministic part, and one adapter reference per runtime surface. The maintainers chose to ship it now, ahead of the earlier plan to incubate it in the consuming repository, and to state the untested cases where the mode and the adapter use them. Specifically:
 
 1. **HELIX owns the contract.** A capability-gated mode: open a draft copy of a repo-authored document at a pinned base, take the edits the surface returns, and land them as a patch against that base so every untouched byte is identical. A runtime that offers a shared editing surface implements it; a runtime that does not is unaffected and edits the repository files directly. This sits beyond the minimal runtime contract, as CONTRACT-003 draws that boundary: HELIX portable behaviour ends there, and a runtime adapts HELIX content for its own surfaces.
 2. **The adapter is the runtime's, not the skill body's.** Claude Docs is the first adapter. The skill body names the capability, never the connector, so the portability target (zero runtime-specific commands in the skill body) holds.
 3. **Authoring home does not change.** A document edited through a draft copy stays `authoring.home: repo`. `external-tool` means the tool is the write surface and the repository holds a checked-in copy; this is the opposite relationship. The draft's document id, revision, and base are operational state, which the schema keeps out of `authoring` and leaves to the pull request or tracker. No field is added.
 4. **HELIX owns the checks that come from its own semantics.** Landing a patch refuses an edit to a generated table (an assessment's Criteria and Comparison tables, a position paper's Recommendations table) and points to the `assessment:` or `recommendations:` block, using `skills/helix/scripts/assessment-tables.py` as the check and never `--write` to hide a mismatch. It never edits frontmatter as text. It reports a moved base, and it reports which documents' file hashes the patch changes, so a consumer can stale its seals and reviews.
-5. **Incubate in the consumer first.** The mapper from changed blocks to source lines, the word-level patcher, and the orchestration skill are built and tested in the consuming repository against its whole corpus, written to the contract above so they can be lifted unchanged. HELIX adds no mode, validator, or schema field until promotion.
-6. **Promote on evidence, not on a second consumer.** HELIX adopts the mode and moves the generic scripts into a host tool under `tools/`, released with HELIX as ADR-015 does for documentor, when all of these hold: inline code and links, nested lists, a concurrent edit by another person, and edits made in the Docs UI pass; the sync has landed real reviews over the consumer's corpus; and the contract is written as a CONTRACT for the second adapter to implement against.
+5. **Ship the mode, the adapter, and the tool together.** `workflows/modes/shared-edit.md` is the mode, `workflows/references/shared-edit-claude-docs.md` is the Claude Docs adapter, and `tools/draftsync/` is the host tool (parse, word-level patch, three-way merge onto a moved base, generated-table guard, hash report). The skill routes to the mode and names no connector.
+6. **Say what is untested.** The adapter lists the cases not yet exercised (inline code and links, nested lists, a concurrent edit by another person, edits made in the Docs UI) and the mode's handoff reports when a draft involves one. The export-and-diff fallback is documented in the adapter but draftsync does not normalize exports.
 7. **Review state stays the consumer's policy.** The hash-keyed review ledger, the attestation a named person types at a terminal, seals, and the scan for client names are consumer choices. HELIX's living-document principle (`workflows/principles.md`) says review stamps gate nothing, and `ddx.review` is legacy metadata. The contract needs only item 4's report of changed hashes.
 
-## Packaging at promotion
+## Packaging
 
 HELIX allows one public skill (`tests/validate-skills.sh` requires `skills/helix/SKILL.md` as the single entrypoint and forbids separate `helix-*` skills) and keeps host vocabulary out of its body. The capability therefore adds no skill and no Claude-only plugin:
 
 | Piece | Home |
 |---|---|
-| The workflow: open a draft at a pinned base, land edits as a patch, refuse generated tables, report changed hashes | A runtime-neutral mode file in `workflows/modes/`, routed by the one skill |
-| The Claude Docs specifics: docs connector calls, the changed-blocks read, comment handling | An adapter reference file in `workflows/references/`, loaded only when the runtime exposes the docs connector; other runtimes ignore it |
-| The deterministic scripts: block-to-source mapper, word-level patcher | A host tool under `tools/`, released with HELIX like documentor |
+| The workflow: open a draft at a pinned base, land edits as a patch, refuse generated tables, report changed hashes | `workflows/modes/shared-edit.md`, routed by the one skill |
+| The Claude Docs specifics: connector calls, the changed-blocks read, the export fallback | `workflows/references/shared-edit-claude-docs.md`, loaded only when the runtime has the connector; other runtimes ignore it |
+| The deterministic part: block parser, word-level patcher, merge, table guard | `tools/draftsync/`, tested by `just test-draftsync` |
 | Review ledger, attestation, seals, scan for client names | The consuming repository |
-
-The promotion change also adds a test lane and a CONTRACT for a second adapter, and first extends the portability checks to cover the adapter file. Whether the existing validators accept a runtime-named reference file under `workflows/references/` is unverified, so the promotion change tests that before anything else.
 
 ## Why We Chose This
 
 ### Over keeping it in the consumer for good
 This was the first version of this decision, and it undersold HELIX's stake. HELIX already treats external editing as part of its model: `authoring.home: external-tool` has a checked-out and checked-in lifecycle, an origin URL, a connector field, and an export digest (`workflows/artifact-schema.md`). The checks that make a sync safe, generated tables, pinned sources, frontmatter that is never prose, are HELIX's own semantics, and a consumer that reimplements them will drift from them. A feature that improves how people and agents edit together is core to what HELIX is for.
 
-### Over building it in HELIX now
-The contract would be written from one adapter and one read path that was proven on one document type, edited by tool only. The connector calls, the export and the changed-blocks read, only reach the calling agent, so HELIX's own CI cannot exercise them; the consumer's corpus and its reviewers can. Incubating costs a later move of working code. Specifying first risks a mode in the skill that has to be rewritten when the Docs UI or a concurrent edit behaves differently from the tool path.
+### Over incubating in the consumer first
+The earlier version of this decision incubated the mapper and patcher in the consuming repository and promoted on evidence. The maintainers chose to ship now. The risk named then still stands: the contract is written from one adapter and one read path proven on one document type, edited by tool. The mitigation is that the tool is small and deterministic, is tested against the whole of this repository's Markdown and the consumer's `knowledge/` (replacing every paragraph, heading and item with its own unwrapped text changes no byte), refuses what it cannot do safely, and that the adapter says which cases are untested.
 
 ### Over a separate standalone sync tool or MCP server
 A server cannot call the connector. The deterministic parts (map, patch, check, open the PR) fit the host-tool pattern ADR-015 already accepted, and that is where item 6 puts them.
@@ -63,9 +76,9 @@ The ledger is keyed by whole-file hash, and it sits outside the file because a r
 
 **Good**: HELIX gets a defined path to bidirectional editing without committing the skill to one vendor. The consumer builds against a stable HELIX (structured blocks, generated tables, pinned sources) and gets table safety from an existing check. The abstraction is extracted from working code.
 
-**Trade-offs**: Until promotion the contract lives in an ADR and in the consumer's code, so a second consumer would copy it. The ledger and attestation have no HELIX validation. The promotion criteria depend on spike cases nobody has run yet, so the date is open.
+**Trade-offs**: The untested spike cases ship as stated limits. The ledger and attestation have no HELIX validation. HELIX now maintains a tool whose only runtime today is one connector, and it is not yet in the release version sync that documentor has.
 
-**Drift signals to watch**: Docs-specific string handling (`\[`, a byline) in HELIX scripts or mode files; the skill body naming a connector; HELIX gaining a field for a document id or revision; a consumer editing a generated table with `--write` to make a sync pass; an attestation written by an agent; review state in a document's frontmatter in a consumer that keys seals on the file hash; promotion happening before the listed cases pass.
+**Drift signals to watch**: Docs-specific string handling (`\[`, a byline) in HELIX scripts or mode files; the skill body naming a connector; HELIX gaining a field for a document id or revision; a consumer editing a generated table with `--write` to make a sync pass; an attestation written by an agent; review state in a document's frontmatter in a consumer that keys seals on the file hash; the adapter's untested list growing without anyone running the cases.
 
 ## Assumptions
 
@@ -94,12 +107,11 @@ Not yet tested: inline code and links, nested lists, a concurrent edit by anothe
 
 | Trigger | Move |
 |---|---|
-| The untested cases pass and real reviews have landed over the corpus | Promote: write the contract, add the mode, move the generic scripts to `tools/` |
-| The changed-blocks read fails on inline code, links, nested lists, concurrent edits, or edits made in the Docs UI | Keep export-and-diff with the normalizer as the supported path and delay promotion until a path is reliable |
-| A second editing surface is wanted before promotion | Write the contract from the two adapters, then promote |
+| The changed-blocks read fails on inline code, links, nested lists, concurrent edits, or edits made in the Docs UI | Make the export fallback the supported path: add an export normalizer to draftsync |
+| A second editing surface is wanted | Write a CONTRACT from the two adapters and move the shared edit format out of the script header |
 | Landing a patch to a generated table becomes wanted | Add a table-to-block write-back to `assessment-tables.py`; until then, refuse |
 | A consumer other than Atlas needs hash-keyed review state | Reopen the ledger question as its own ADR; check it against the living-document principle first |
 
 ## First step
 
-Finish the untested spike cases in the consumer, then build the block-to-source mapper and word-level patcher with tests over the consumer's whole corpus, keeping export-and-diff as the fallback. Write both against the contract in item 1 so they lift without change. No HELIX change is needed first.
+Run the four untested cases against a real draft and record the results in the adapter, then decide whether the export normalizer is needed.

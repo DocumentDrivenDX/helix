@@ -31,6 +31,7 @@ Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/hel
 | Build up end-to-end coverage as a ladder of increasingly complex real-client scenarios | [e2e-ladder](e2e-ladder) |
 | Turn governed artifacts into a deck, one-pager, or brief for clients, sponsors, or executives | [present](present) |
 | Give a repository its guide, or one page of it: pages for developers, operators, users, and data consumers, generated, written, evaluated, checked, and assembled into a site | [guide](guide) |
+| Work on a governed document with people in a shared editing surface (draft, comments, live editing) and land the result in the repository as a patch | [shared-edit](shared-edit) |
 | Hand governed work to the runtime for execution, source control, or packaging | [runtime-handoff](runtime-handoff) |
 
 ## Contracts
@@ -57,5 +58,6 @@ Generated from [`skills/helix/SKILL.md`](https://github.com/DocumentDrivenDX/hel
   {{< card link="refresh" title="Refresh" subtitle="Use to bring every artifact instance under a project HELIX tree up to date on material content expectations in the current templates and prompts. Refresh is `m…" >}}
   {{< card link="review" title="Review" subtitle="Use for an explicitly requested fresh-eyes review of a plan, artifact, change, or implementation." >}}
   {{< card link="runtime-handoff" title="Runtime Handoff" subtitle="Use when a workflow mode concludes that the next step is execution, source control, packaging, or a long-lived operator loop. HELIX does not own those surfaces…" >}}
+  {{< card link="shared-edit" title="Shared Edit" subtitle="Use when people and an agent should work on a governed document together in a shared editing surface (live editing, comments the agent answers) while the repos…" >}}
   {{< card link="validate" title="Validate" subtitle="Use to check a single artifact instance against its governing template and prompt, then edit resolvable findings in place." >}}
 {{< /cards >}}
