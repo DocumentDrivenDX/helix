@@ -30,7 +30,7 @@ if ! git diff --quiet -- "${generated_dirs[@]}"; then
   echo "Run the generators and commit the result:" >&2
   echo "  uv run --project tools/documentor documentor site --root . --no-build" >&2
   echo "Drifted files:" >&2
-  git --no-pager diff --stat -- "${generated_dirs[@]}" >&2
+  git --no-pager diff --stat -- "${generated_dirs[@]}" >&2; git --no-pager diff -U0 -- "${generated_dirs[@]}" >&2
   exit 1
 fi
 
