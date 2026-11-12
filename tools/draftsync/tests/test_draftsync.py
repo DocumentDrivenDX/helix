@@ -239,7 +239,7 @@ def test_translates_a_recorded_read_into_ops():
     assert {"op": "insert", "after": 16, "kind": "paragraph", "text": "A new paragraph about **scope** and `code` between the sections."} in ops
     assert {"op": "replace", "block": 25, "text": "Nested item b (edited)"} in ops
     notes = next(o for o in ops if o.get("block") == 22)
-    assert notes["text"] == "Configure `app.yaml` and see [the guide](https://example.com/guide) and [[tech-spike]] for pg_cron configuration."
+    assert notes["text"] == "Configure `app.yaml` and see [the guide](https://example.com/guide) and [[tech-spike]] for pg\\_cron configuration."
 
 
 def test_recorded_read_lands_with_only_the_edits_in_the_diff():
@@ -449,3 +449,76 @@ def test_small_things_row_pipes_checkboxes_bold_runs_and_ordering():
     assert out.index("X") < out.index("Y") < out.index("bee")
     with pytest.raises(ds.Refused):
         ap(t, {"op": "delete", "block": True})
+
+
+# ---- regressions from the second review -------------------------------------------------------------------
+
+def test_adjacent_tables_are_separate_for_deletes():
+    t = "| a |\n|---|\n| 1 |\n\n| b |\n|---|\n| 2 |\n\nend\n"
+    out = ap(t, {"op": "delete", "block": 2}, {"op": "delete", "block": 3})
+    assert "| b |" not in out and out.count("|---|") == 1
+    with pytest.raises(ds.Refused, match="header row"):
+        ap(t, {"op": "delete", "block": 2})
+    assert "| a |" not in ap(t, {"op": "delete", "block": 0}, {"op": "delete", "block": 1})
+
+
+def test_attribute_changes_and_empty_blocks_are_refused_not_dropped():
+    old, text = (FIX / "old.xml").read_text(), (FIX / "pp-with-notes.md").read_text()
+    with pytest.raises(ds.Refused, match="kind"):
+        ds.edits_from_read(old, "<doc rev='3' sinceRev='1'><gap blocks='6'/><list id='m9gc498ep5e.410' kind='bullet'><gap blocks='3'/></list></doc>", text)
+    with pytest.raises(ds.Refused, match="empty"):
+        ds.edits_from_read(old, "<doc rev='3' sinceRev='1'><gap blocks='4'/><paragraph id='m9gc498ep5e.259'></paragraph></doc>", text)
+    with pytest.raises(ds.Refused, match="same doc"):
+        ds.edits_from_read(old, "<doc node='other' rev='3' sinceRev='1'></doc>", text)
+    with pytest.raises(ds.Refused, match="negative"):
+        ds.edits_from_read(old, "<doc rev='3' sinceRev='1'><gap blocks='-1'/></doc>", text)
+
+
+def test_equivalent_spellings_of_untouched_words_stay_as_written():
+    assert ds.patch_words("an _old_ word here", "an *old* word there") == "an _old_ word there"
+    assert ds.patch_words("see <http://x.y> now", "see [http://x.y](http://x.y) later") == "see <http://x.y> later"
+    assert ds.patch_words("foo\\\nbar baz", "foo bar bazz") == "foo\\\nbar bazz"
+
+
+def test_literal_markdown_in_the_doc_is_escaped_and_code_is_not():
+    import xml.etree.ElementTree as ET
+    p = ET.fromstring("<paragraph><text>A *lit* _x_ &lt;b&gt; pg_cron </text><text><code>a_b</code></text></paragraph>")
+    assert ds.runs_to_markdown(p) == "A \\*lit\\* \\_x\\_ \\<b> pg\\_cron `a_b`"
+
+
+def test_row_inserts_are_checked_and_new_tasks_start_unchecked():
+    with pytest.raises(ds.Refused):
+        ap("| a | b |\n", {"op": "insert", "after": 0, "kind": "row", "cells": ["x\ny", "z"]})
+    with pytest.raises(ds.Refused, match="2 cells"):
+        ap("| a | b |\n", {"op": "insert", "after": 0, "kind": "row", "cells": ["x"]})
+    assert ap("- [ ] a\n- [x] b\n", {"op": "insert", "after": 1, "kind": "item", "like": 1, "text": "new"}) == "- [ ] a\n- [x] b\n- [ ] new\n"
+
+
+def test_empty_text_and_block_lookalikes_are_refused():
+    for op in ({"op": "replace", "block": 0, "text": "  "}, {"op": "replace", "block": 0, "text": "---"},
+               {"op": "insert", "after": 0, "kind": "heading", "level": 0, "text": "x"},
+               {"op": "insert", "after": 0, "kind": "paragraph", "text": ""}):
+        with pytest.raises(ds.Refused):
+            ap("plain\n", op)
+    with pytest.raises(ds.Refused):
+        ap("- a\n", {"op": "replace", "block": 0, "text": "- nested"})
+    with pytest.raises(ds.Refused, match="not a table row"):
+        ap("plain\n", {"op": "replace", "block": 0, "cell": 1, "text": "x"})
+
+
+def test_deleting_the_last_paragraph_keeps_the_trailing_newline_and_eof_front_matter_is_found():
+    assert ap("# H\nB\n", {"op": "delete", "block": 1}) == "# H\n"
+    assert ds.split_front_matter("---\na: 1\n---") == ("---\na: 1\n---", "")
+
+
+def test_a_cell_with_only_spaces_gets_normal_padding():
+    assert ap("|   | b |\n", {"op": "replace", "block": 0, "cell": 0, "text": "x"}) == "| x | b |\n"
+
+
+def test_base_commit_cannot_be_an_option(tmp_path):
+    f = tmp_path / "d.md"
+    f.write_text(DOC)
+    e = tmp_path / "e.json"
+    e.write_text('{"ops": []}')
+    r = run("apply", str(f), "--edits", str(e), "--base-commit=--output=zz", "--no-table-guard")
+    assert r.returncode == 1 and "not an option" in r.stderr and not list(tmp_path.glob("zz*"))

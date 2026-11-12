@@ -54,6 +54,7 @@ import argparse
 import difflib
 import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
@@ -86,6 +87,8 @@ def split_front_matter(text: str) -> tuple[str, str]:
         end = text.find("\n---\n", 3)
         if end >= 0:
             return text[: end + 5], text[end + 5:]
+        if text.endswith("\n---"):
+            return text, ""
     return "", text
 
 
@@ -144,7 +147,11 @@ def parse(body: str) -> tuple[list[str], list[Block]]:
 
 
 def norm_word(word: str) -> str:
-    return ESCAPED.sub(r"\1", word)
+    """A word with escapes, emphasis style (`_x_` and `*x*`), autolinks and a hard-break backslash made alike."""
+    word = ESCAPED.sub(r"\1", word)
+    word = re.sub(r"^<(https?://[^>\s]+)>$", r"[\1](\1)", word)
+    word = re.sub(r"^_+|_+$", lambda m: "*" * len(m.group(0)), word)
+    return word[:-1] if word.endswith("\\") and len(word) > 1 else word
 
 
 def patch_words(old: str, new: str) -> str:
@@ -204,16 +211,22 @@ def escape_cell(text: str) -> str:
     return re.sub(r"(?<!\\)\|", r"\\|", text)
 
 
-def _plain_check(text, what: str) -> str:
+def _plain_check(text, what: str, empty_ok: bool = False) -> str:
     if not isinstance(text, str):
         raise Refused(f"{what} needs `text` as a string")
     if "\n" in text:
         raise Refused(f"{what}: `text` is one paragraph and has no line breaks")
+    if not text.strip() and not empty_ok:
+        raise Refused(f"{what}: the new text is empty; delete the block instead")
     return text
 
 
+THEMATIC = re.compile(r"^\s*(([-*_])\s*){3,}$|^\s*(=+|-+)\s*$")
+
+
 def _would_start_a_block(text: str) -> bool:
-    return bool(HEADING.match(text) or ITEM.match(text) or FENCE.match(text) or text.lstrip().startswith(("|", ">", "<")))
+    return bool(HEADING.match(text) or ITEM.match(text) or FENCE.match(text) or THEMATIC.match(text)
+                or text.lstrip().startswith(("|", ">", "<")))
 
 
 def validate_ops(ops) -> None:
@@ -223,6 +236,8 @@ def validate_ops(ops) -> None:
         for key in ("block", "after", "cell", "like", "level"):
             if key in o and (isinstance(o[key], bool) or not isinstance(o[key], int)):
                 raise Refused(f"`{key}` must be an integer in {o}")
+        if "level" in o and not 1 <= o["level"] <= 6:
+            raise Refused(f"`level` must be 1 to 6 in {o}")
         if "cells" in o and not (isinstance(o["cells"], list) and all(isinstance(c, str) for c in o["cells"])):
             raise Refused(f"`cells` must be a list of strings in {o}")
 
@@ -244,9 +259,12 @@ def apply_ops(body: str, ops: list[dict]) -> str:
 
     def table_rows(n: int) -> list[int]:
         lo = hi = n
-        while lo > 0 and blocks[lo - 1].kind == "row" and blocks[lo].start - blocks[lo - 1].end <= 1:
+        def joined(a: int, b2: int) -> bool:           # rows a and b2 are lines of one table
+            gap = blocks[b2].start - blocks[a].end
+            return gap == 0 or (gap == 1 and _is_separator(lines[blocks[a].end]))
+        while lo > 0 and blocks[lo - 1].kind == "row" and joined(lo - 1, lo):
             lo -= 1
-        while hi + 1 < len(blocks) and blocks[hi + 1].kind == "row" and blocks[hi + 1].start - blocks[hi].end <= 1:
+        while hi + 1 < len(blocks) and blocks[hi + 1].kind == "row" and joined(hi, hi + 1):
             hi += 1
         return list(range(lo, hi + 1))
 
@@ -261,6 +279,8 @@ def apply_ops(body: str, ops: list[dict]) -> str:
             seen.add(key)
             if b.kind == "other":
                 raise Refused(f"block {n} is code, a quote or HTML; edit it in the repository")
+            if "cell" in op and b.kind != "row":
+                raise Refused(f"block {n} is not a table row, so `cell` does not apply")
             if kind == "delete":
                 end = b.end
                 if b.kind == "item" and _numbered(b):
@@ -274,7 +294,7 @@ def apply_ops(body: str, ops: list[dict]) -> str:
                             raise Refused(f"block {n} is the header row of a table that keeps other rows; edit it in the repository")
                         if end < len(lines) and _is_separator(lines[end]):
                             end += 1                         # the separator goes with a whole table
-                if b.kind in ("paragraph", "heading") and end < len(lines) and not lines[end].strip():
+                if b.kind in ("paragraph", "heading") and end < len(lines) - 1 and not lines[end].strip():
                     end += 1
                 plan.append((b.start, end, []))
             elif b.kind == "row":
@@ -282,14 +302,16 @@ def apply_ops(body: str, ops: list[dict]) -> str:
                 _, cells, _, _ = split_cells(lines[b.start])
                 if not isinstance(c, int) or not 0 <= c < len(cells):
                     raise Refused(f"block {n} is a table row with {len(cells)} cells; `cell` is required")
-                cell_edits.setdefault(n, {})[c] = _plain_check(op.get("text"), f"block {n}")
+                cell_edits.setdefault(n, {})[c] = _plain_check(op.get("text"), f"block {n}", empty_ok=True)
             else:
                 text = _plain_check(op.get("text"), f"block {n}")
-                if b.kind == "paragraph" and _would_start_a_block(text):
-                    raise Refused(f"the new text of block {n} would read as a heading, list, table or quote")
                 first = lines[b.start][len(b.prefix):]
                 old = "\n".join([first] + lines[b.start + 1:b.end])
-                plan.append((b.start, b.end, (b.prefix + patch_words(old, text)).split("\n")))
+                new = patch_words(old, text)
+                if b.kind in ("paragraph", "item") and new != old and _would_start_a_block(new.lstrip().split("\n")[0]) \
+                        and not _would_start_a_block(first):
+                    raise Refused(f"the new text of block {n} would read as a heading, list, table or quote")
+                plan.append((b.start, b.end, (b.prefix + new).split("\n")))
         elif kind == "insert":
             after = op.get("after")
             b = block(after)
@@ -299,6 +321,10 @@ def apply_ops(body: str, ops: list[dict]) -> str:
                     raise Refused(f"cannot insert a row after block {after}: it is not a table row")
                 if "cells" not in op:
                     raise Refused("a row insert needs `cells`")
+                for cell_text in op["cells"]:
+                    _plain_check(cell_text, "a new row's cell", empty_ok=True)
+                if len(op["cells"]) != len(split_cells(lines[b.start])[1]):
+                    raise Refused(f"a new row needs {len(split_cells(lines[b.start])[1])} cells like its table, not {len(op['cells'])}")
                 at = b.end + 1 if b.end < len(lines) and _is_separator(lines[b.end]) else b.end
                 inserts.setdefault(at, []).append("| " + " | ".join(escape_cell(c) for c in op["cells"]) + " |")
             elif what == "item":
@@ -306,6 +332,8 @@ def apply_ops(body: str, ops: list[dict]) -> str:
                 if like.kind != "item":
                     raise Refused(f"cannot insert an item after block {after}: it is not a list item")
                 text = _plain_check(op.get("text"), "an inserted item")
+                if _would_start_a_block(text):
+                    raise Refused("the new item text would read as a heading, list, table or quote")
                 if _numbered(like):
                     lk = op["like"] if "like" in op else after
                     group = _list_group(blocks, lk)
@@ -316,6 +344,7 @@ def apply_ops(body: str, ops: list[dict]) -> str:
                     prefix = re.sub(r"\d+", str(num), like.prefix, count=1)
                 else:
                     prefix = like.prefix
+                prefix = re.sub(r"\[[xX]\]", "[ ]", prefix)         # a new task is not done
                 inserts.setdefault(b.end, []).append(prefix + text)
             elif what in ("paragraph", "heading"):
                 text = _plain_check(op.get("text"), "an inserted block")
@@ -334,6 +363,8 @@ def apply_ops(body: str, ops: list[dict]) -> str:
         for c, text in edits.items():
             lead = re.match(r"\s*", cells[c]).group(0)
             tail = re.search(r"\s*$", cells[c]).group(0)
+            if not cells[c].strip():
+                lead, tail = " ", " "
             old = cells[c].strip().replace("\\|", "|")
             cells[c] = lead + escape_cell(patch_words(old, text)) + tail
         plan.append((b.start, b.end, [indent + "|" + "|".join(cells) + ("|" if closed else "") + trail.rstrip("\n")]))
@@ -355,11 +386,20 @@ def apply_text(text: str, ops: list[dict]) -> str:
 MARKS = {"bold": "**", "italic": "*", "code": "`", "strike": "~~"}
 
 
+def literal(text: str) -> str:
+    """Escape the characters that would start emphasis, code or HTML in text the doc holds literally."""
+    return re.sub(r"([*_`<\\])", r"\\\1", text)
+
+
 def runs_to_markdown(node) -> str:
-    out = node.text or ""
+    out = literal(node.text or "")
     for c in node:
         if c.tag == "text":
             out += runs_to_markdown(c)
+        elif c.tag == "code":
+            raw = "".join(c.itertext())
+            fence = "``" if "`" in raw else "`"
+            out += fence + raw + fence
         elif c.tag in MARKS:
             inner = runs_to_markdown(c)
             lead, core, trail = re.match(r"(\s*)(.*?)(\s*)$", inner, re.S).groups()
@@ -368,7 +408,7 @@ def runs_to_markdown(node) -> str:
             out += f"[{runs_to_markdown(c)}]({c.get('href', '')})"
         else:
             raise Refused(f"the doc has <{c.tag}> inside a paragraph, which has no Markdown form here")
-        out += c.tail or ""
+        out += literal(c.tail or "")
     return out
 
 
@@ -402,6 +442,9 @@ class OldDoc:
         self.src: dict[str, int] = {}          # unit id -> block index
         self.last: dict[str, int] = {}         # any block id -> last block index in its subtree
         self.first: dict[str, int] = {}        # ... and the first
+        self.rev = root.get("rev")
+        self.node = root.get("node")
+        self.attrs: dict[str, dict] = {}
         self.words: list[str] = []             # per unit, the doc's words reduced to letters and digits
         kinds: list[str] = []
 
@@ -421,6 +464,7 @@ class OldDoc:
             ident = elem.get("id")
             self.kids[parent].append(ident)
             self.tag[ident] = elem.tag
+            self.attrs[ident] = {k: v for k, v in elem.attrib.items() if k not in ("id", "rev", "h")}
             self.kids[ident] = []
             before = len(kinds)
             if elem.tag == "paragraph":
@@ -481,14 +525,23 @@ def edits_from_read(old_xml: str, delta_xml: str, text: str) -> list[dict]:
     full_ids(delta)
     if delta.get("since") == "unavailable":
         raise Refused("the read is the whole doc (since='unavailable'), not a delta; compare the doc with the file by hand")
+    if (delta.get("node") and old.node and delta.get("node") != old.node) or \
+            (delta.get("sinceRev") and old.rev and delta.get("sinceRev") != old.rev):
+        raise Refused("the read since the opening revision and the read at it are not of the same doc and revision")
     ops: list[dict] = []
 
     def para_text(p) -> str:
         return runs_to_markdown(p)
 
+    def block_text(p) -> str:
+        text = runs_to_markdown(p)
+        if not text.strip():
+            raise Refused("a paragraph is empty in the doc; delete the block in the repository instead")
+        return text
+
     def insert_after(prev_id: str | None, make: dict) -> None:
-        if prev_id is None:
-            raise Refused("a new block at the start of its container has nothing to anchor to; add it in the repository")
+        if prev_id is None or prev_id not in old.last:
+            raise Refused("a new block with nothing before it to anchor to; add it in the repository")
         ops.append({"op": "insert", "after": old.last[prev_id], **make})
 
     def container(elem, old_id: str) -> None:
@@ -496,7 +549,10 @@ def edits_from_read(old_xml: str, delta_xml: str, text: str) -> list[dict]:
         ptr = 0
         for c in elem:
             if c.tag == "gap":
-                ptr += int(c.get("blocks"))
+                n = int(c.get("blocks"))
+                if n < 0:
+                    raise Refused("the read has a negative gap")
+                ptr += n
             elif c.tag == "gone":
                 ident = c.get("id")
                 if ident not in olds or olds.index(ident) != ptr:
@@ -521,15 +577,19 @@ def edits_from_read(old_xml: str, delta_xml: str, text: str) -> list[dict]:
 
     def changed(c, ident: str, parent: str) -> None:
         tag = c.tag
+        now = {k: v for k, v in c.attrib.items() if k not in ("id", "rev", "h")}
+        for k in set(now) | set(old.attrs.get(ident, {})):
+            if k != "heading" and now.get(k) != old.attrs.get(ident, {}).get(k):
+                raise Refused(f"{tag} {ident} changed its `{k}` ({old.attrs.get(ident, {}).get(k)!r} to {now.get(k)!r}); change it in the repository")
         if tag == "paragraph":
             if parent == "root":
                 if (blocks[old.src[ident]].kind == "heading") != bool(c.get("heading")):
                     raise Refused(f"block {old.src[ident]} changed between heading and paragraph; change it in the repository")
                 if c.get("heading") and int(c.get("heading")) != len(blocks[old.src[ident]].prefix.strip()):
                     raise Refused(f"block {old.src[ident]} changed heading level; change it in the repository")
-                ops.append({"op": "replace", "block": old.src[ident], "text": para_text(c)})
+                ops.append({"op": "replace", "block": old.src[ident], "text": block_text(c)})
             else:                                                  # the paragraph of a list item
-                ops.append({"op": "replace", "block": old.src[parent], "text": para_text(c)})
+                ops.append({"op": "replace", "block": old.src[parent], "text": block_text(c)})
         elif tag in ("list", "table", "listItem", "row"):
             container(c, ident)
         elif tag == "cell":
@@ -547,19 +607,20 @@ def edits_from_read(old_xml: str, delta_xml: str, text: str) -> list[dict]:
         if tag == "paragraph" and parent == "root":
             lvl = c.get("heading")
             if lvl:
-                insert_after(prev, {"kind": "heading", "level": int(lvl), "text": para_text(c)})
+                insert_after(prev, {"kind": "heading", "level": int(lvl), "text": block_text(c)})
             else:
-                insert_after(prev, {"kind": "paragraph", "text": para_text(c)})
+                insert_after(prev, {"kind": "paragraph", "text": block_text(c)})
         elif tag == "row":
             cells = []
             for cell in c.findall("cell"):
-                ps = cell.findall("paragraph")
-                cells.append(" ".join(para_text(p) for p in ps))
+                if len(list(cell)) != len(cell.findall("paragraph")):
+                    raise Refused("a new row has a cell with a list or other content; add it in the repository")
+                cells.append(" ".join(para_text(p) for p in cell.findall("paragraph")))
             insert_after(prev, {"kind": "row", "cells": cells})
         elif tag == "listItem":
             if c.find("list") is not None or len(c.findall("paragraph")) != 1:
                 raise Refused("a new list item with nested items or several paragraphs is not supported; add it in the repository")
-            insert_after(prev, {"kind": "item", "like": old.src[prev] if prev in old.src else None, "text": para_text(c.find("paragraph"))})
+            insert_after(prev, {"kind": "item", "like": old.src[prev] if prev in old.src else None, "text": block_text(c.find("paragraph"))})
         else:
             raise Refused(f"a new <{tag}> is not supported; add it in the repository")
 
@@ -601,9 +662,10 @@ def find_tables_script(start: Path) -> Path | None:
 
 def tables_ok(script: Path, path: Path, text: str) -> bool:
     """True when the document's generated tables match its front matter (or it has none)."""
-    probe = path.with_name(path.stem + ".draftsync-probe" + path.suffix)
+    probe = path.with_name(f"{path.stem}.draftsync-probe-{os.getpid()}{path.suffix}")
     try:
-        probe.write_text(text, encoding="utf-8", newline="")
+        with open(probe, "w", encoding="utf-8", newline="") as f:
+            f.write(text)
         r = subprocess.run([sys.executable, str(script), str(probe)], capture_output=True, text=True)
         first = r.stdout.lstrip().split(" ", 1)[0]
         if r.returncode not in (0, 1) or first not in ("ok", "skip", "FAIL", "wrote"):
@@ -637,10 +699,14 @@ def main(argv: list[str]) -> int:
     a.add_argument("--no-table-guard", action="store_true")
     a.add_argument("--assessment-tables", type=Path)
     args = ap.parse_args(argv)
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(errors="backslashreplace")
 
     def base_text(current: str) -> str:
         if not args.base_commit:
             return current
+        if args.base_commit.startswith("-"):
+            raise Refused("--base-commit must be a commit, not an option")
         root = Path(git(args.file.resolve().parent, "rev-parse", "--show-toplevel").strip())
         rel = args.file.resolve().relative_to(root.resolve())
         return git(root, "show", f"{args.base_commit}:{rel.as_posix()}")
