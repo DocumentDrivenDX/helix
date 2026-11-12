@@ -304,3 +304,148 @@ def test_a_live_edit_to_a_generated_table_is_refused_end_to_end(tmp_path):
     e.write_text(json.dumps({"ops": [o for o in fixture_ops() if o.get("block") != 15]}))
     r = run("apply", str(f), "--edits", str(e))
     assert r.returncode == 0, r.stderr
+
+
+# ---- regressions from the independent review ---------------------------------------------------------------
+
+def ap(text, *ops):
+    return ds.apply_text(text, list(ops))
+
+
+def test_a_word_added_at_the_start_keeps_its_space():
+    assert ds.patch_words("text here", "New text here") == "New text here"
+    assert ap("- item text\n", {"op": "replace", "block": 0, "text": "New item text"}) == "- New item text\n"
+    assert ap("## Title here\n", {"op": "replace", "block": 0, "text": "The Title here"}) == "## The Title here\n"
+    assert ds.patch_words("   indented para text", "indented para text now") == "   indented para text now"
+
+
+def test_guard_fails_closed_when_the_table_check_cannot_run(tmp_path, monkeypatch):
+    f = tmp_path / "PP.md"
+    f.write_text((FIX / "pp-with-notes.md").read_text())
+    script = tmp_path / "broken.py"
+    script.write_text("import sys\nsys.stderr.write('PyYAML is required')\nsys.exit(2)\n")
+    with pytest.raises(ds.Refused, match="could not run"):
+        ds.tables_ok(script, f, f.read_text())
+
+
+def test_row_inserted_after_the_header_lands_after_the_separator():
+    t = "| H1 | H2 |\n|----|----|\n| a | b |\n"
+    assert ap(t, {"op": "insert", "after": 0, "kind": "row", "cells": ["x", "y"]}) == "| H1 | H2 |\n|----|----|\n| x | y |\n| a | b |\n"
+
+
+def test_pipes_are_escaped_and_escapes_survive_edits():
+    t = "| a \\| b c | z |\n"
+    assert ap(t, {"op": "replace", "block": 0, "cell": 0, "text": "a | b d"}) == "| a \\| b d | z |\n"
+    assert ap("| a | b |\n", {"op": "insert", "after": 0, "kind": "row", "cells": ["x|y", "z"]}) == "| a | b |\n| x\\|y | z |\n"
+    para = "Use \\*args and 2 \\* 3 here.\n"
+    assert ap(para, {"op": "replace", "block": 0, "text": "Use *args and 2 * 3 there."}) == "Use \\*args and 2 \\* 3 there.\n"
+    with pytest.raises(ds.Refused):
+        ap("plain\n", {"op": "replace", "block": 0, "text": "# now heading"})
+    with pytest.raises(ds.Refused):
+        ap("plain\n", {"op": "insert", "after": 0, "kind": "paragraph", "text": "- a list now"})
+
+
+def test_deleting_a_table_takes_its_separator_and_a_lone_header_is_refused():
+    t = "intro\n\n| H1 | H2 |\n|----|----|\n| a | b |\n"
+    out = ap(t, {"op": "delete", "block": 1}, {"op": "delete", "block": 2})
+    assert "|" not in out
+    with pytest.raises(ds.Refused, match="header row"):
+        ap(t, {"op": "delete", "block": 1})
+
+
+def test_a_short_id_with_no_full_id_before_it_is_refused():
+    old = (FIX / "old.xml").read_text()
+    with pytest.raises(ds.Refused, match="short"):
+        ds.edits_from_read(old, "<doc rev='3' sinceRev='1'><gap blocks='1'/><paragraph id='.1'>x</paragraph></doc>",
+                           (FIX / "pp-with-notes.md").read_text())
+
+
+def test_an_inserted_paragraph_is_followed_by_a_blank_line():
+    assert ap("## H\ntext here\n", {"op": "insert", "after": 0, "kind": "paragraph", "text": "NEW"}) == "## H\n\nNEW\n\ntext here\n"
+    assert ap("Intro:\n- a\n", {"op": "insert", "after": 0, "kind": "paragraph", "text": "NEW"}) == "Intro:\n\nNEW\n\n- a\n"
+
+
+def test_two_cells_of_one_row_can_be_edited():
+    t = "| a b | c d |\n"
+    out = ap(t, {"op": "replace", "block": 0, "cell": 0, "text": "a x"}, {"op": "replace", "block": 0, "cell": 1, "text": "c y"})
+    assert out == "| a x | c y |\n"
+    with pytest.raises(ds.Refused):
+        ap(t, {"op": "replace", "block": 0, "cell": 0, "text": "a x"}, {"op": "replace", "block": 0, "cell": 0, "text": "a z"})
+
+
+def test_bad_input_is_a_refusal_or_error_not_a_traceback(tmp_path):
+    f = tmp_path / "d.md"
+    f.write_text(DOC)
+    for payload in ('[1]', '{"ops": [{"op": "replace", "block": 1, "text": 5}]}', '{"ops": [{"op": "insert", "after": 1, "kind": "row", "cells": null}]}',
+                    '{"ops": [{"op": "delete", "block": true}]}'):
+        e = tmp_path / "e.json"
+        e.write_text(payload)
+        r = run("apply", str(f), "--edits", str(e), "--no-table-guard")
+        assert r.returncode in (1, 2) and "Traceback" not in r.stderr, (payload, r.stderr)
+    r = run("apply", str(tmp_path / "missing.md"), "--edits", str(e))
+    assert r.returncode == 2 and "Traceback" not in r.stderr
+    old = tmp_path / "o.xml"
+    old.write_text("<doc")
+    r = run("edits", str(f), "--old", str(old), "--delta", str(old))
+    assert r.returncode == 2 and "Traceback" not in r.stderr
+
+
+def test_translator_refuses_a_deleted_cell_a_big_gap_and_a_moved_block():
+    old, text = (FIX / "old.xml").read_text(), (FIX / "pp-with-notes.md").read_text()
+    with pytest.raises(ds.Refused):
+        ds.edits_from_read(old, "<doc rev='3' sinceRev='1'><gap blocks='9'/><gone id='m9gc498ep5e.722'/></doc>", text)
+    with pytest.raises(ds.Refused):
+        ds.edits_from_read(old, "<doc rev='3' sinceRev='1'><gap blocks='99'/><paragraph id='m9gc498ep5e.9999'>x</paragraph></doc>", text)
+    with pytest.raises(ds.Refused, match="not where"):
+        ds.edits_from_read(old, "<doc rev='3' sinceRev='1'><gap blocks='2'/><paragraph id='m9gc498ep5e.259'><text id='.1'>x</text></paragraph></doc>", text)
+
+
+def test_crlf_is_refused_and_empty_front_matter_is_recognised(tmp_path):
+    f = tmp_path / "d.md"
+    f.write_bytes(b"---\r\nddx:\r\n---\r\ntext here\r\n")
+    r = run("apply", str(f), "--edits", str(f), "--no-table-guard")
+    assert r.returncode == 1 and "CRLF" in r.stderr
+    front, body = ds.split_front_matter("---\n---\nbody\n\n---\n\nmore\n")
+    assert front == "---\n---\n" and body.startswith("body")
+
+
+def test_a_hash_report_matches_the_bytes_on_disk(tmp_path):
+    f = tmp_path / "d.md"
+    f.write_text(DOC)
+    e = tmp_path / "e.json"
+    e.write_text(json.dumps({"ops": [{"op": "replace", "block": 0, "text": "New title"}]}))
+    import hashlib
+    r = run("apply", str(f), "--edits", str(e), "--no-table-guard")
+    assert hashlib.sha256(f.read_bytes()).hexdigest() in r.stdout
+
+
+def test_heading_level_change_and_a_stale_draft_are_refused():
+    old, text = (FIX / "old.xml").read_text(), (FIX / "pp-with-notes.md").read_text()
+    with pytest.raises(ds.Refused, match="heading level"):
+        ds.edits_from_read(old, "<doc rev='3' sinceRev='1'><gap blocks='1'/><paragraph id='m9gc498ep5e.56' heading='3'><text id='.57'>Thesis</text></paragraph></doc>", text)
+    stale = text.replace("Maintainers choosing", "Reviewers choosing")
+    with pytest.raises(ds.Refused, match="different text"):
+        ds.edits_from_read(old, (FIX / "delta.xml").read_text(), stale)
+
+
+def test_numbered_inserts_count_up_and_deleted_neighbours_block_them():
+    t = "1. one\n2. two\n"
+    out = ap(t, {"op": "insert", "after": 1, "kind": "item", "like": 1, "text": "three"}, {"op": "insert", "after": 1, "kind": "item", "like": 1, "text": "four"})
+    assert out == "1. one\n2. two\n3. three\n4. four\n"
+    with pytest.raises(ds.Refused):
+        ap(t, {"op": "delete", "block": 1}, {"op": "insert", "after": 1, "kind": "item", "like": 1, "text": "deux"})
+    assert ap(t, {"op": "delete", "block": 0}, {"op": "delete", "block": 1}).strip() == ""
+
+
+def test_small_things_row_pipes_checkboxes_bold_runs_and_ordering():
+    assert ap("| a | b\n", {"op": "replace", "block": 0, "cell": 0, "text": "z"}) == "| z | b\n"
+    assert ap("- [ ] do thing\n", {"op": "replace", "block": 0, "text": "do the thing"}) == "- [ ] do the thing\n"
+    import xml.etree.ElementTree as ET
+    p = ET.fromstring("<paragraph><text><bold>Intro </bold></text><text>para</text><text><bold>graph.</bold></text></paragraph>")
+    assert ds.runs_to_markdown(p) == "**Intro** para**graph.**"
+    t = "a\n\nb\n"
+    out = ap(t, {"op": "insert", "after": 0, "kind": "paragraph", "text": "X"}, {"op": "replace", "block": 1, "text": "bee"},
+             {"op": "insert", "after": 0, "kind": "paragraph", "text": "Y"})
+    assert out.index("X") < out.index("Y") < out.index("bee")
+    with pytest.raises(ds.Refused):
+        ap(t, {"op": "delete", "block": True})

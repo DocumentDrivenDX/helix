@@ -22,7 +22,7 @@ Then run `python3 tools/draftsync/draftsync.py edits FILE --old OLD.xml --delta 
 - Block ids are stable across edits, and one read from the opening revision returns all later edits together.
 - Not returned: the old text of a changed block (take it from the file at the base), who edited, and comment positions (use `query`).
 
-The translator handles changed paragraphs, headings, list items and table cells, deleted blocks, rows and list items, and new paragraphs, headings, table rows and single-paragraph list items. It refuses a new list, table or code block, a paragraph that gained or lost heading status, and anything with an element that has no Markdown form (a mention, say); make those changes in the repository. Edits that land in a generated table are refused later, by `apply`.
+The translator handles changed paragraphs, headings, list items and table cells, deleted blocks, rows and list items, and new paragraphs, headings, table rows and single-paragraph list items. It refuses a new list, table or code block, a paragraph that gained or lost heading status, and anything with an element that has no Markdown form (a mention, say); make those changes in the repository. Edits that land in a generated table are refused later, by `apply`. It also refuses a draft whose text, at the opening revision, differs from the file (the draft was made from another version), a block that moved, and a heading level change. `apply` needs PyYAML for its generated-table check and refuses to continue if the check cannot run.
 
 ## Fallback: export
 
