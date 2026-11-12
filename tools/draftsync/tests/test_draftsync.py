@@ -976,3 +976,105 @@ def test_writer_will_not_delete_what_it_cannot_delete_cleanly():
     xml = "<doc node='n' rev='1'><table id='s.0'><row id='.1'><cell id='.2'><paragraph id='.3'><text id='.4'>x</text></paragraph></cell></row><row id='.5'><cell id='.6'><paragraph id='.7'><text id='.8'>same</text></paragraph></cell></row><row id='.9'><cell id='.10'><paragraph id='.11'><text id='.12'>same</text></paragraph></cell></row></table></doc>"
     out = ds.doc_ops("| x |\n|---|\n| same |\n| same |\n", "| x |\n|---|\n| same |\n", xml, xml, "git")
     assert [o for o in out["ops"] if o["op"] == "delete"] == [] and any("repeated identical" in r for r in out["report"])
+
+
+# ---- regressions from the fourth review: merge3 and the write-back's block pairing ------------------------
+
+def test_merge3_reviewer_cases():
+    assert ds.merge3("one\ntwo three\n", "one two\nthree\n", "one\nthree\n")[0] == "one\nthree\n"
+    assert ds.merge3("S0 w0\n\nS1\n\n", "S0 S1\n\n", "S0 w0 S1\n\n")[0] == "S0 S1\n\n"
+    out = ds.merge3("S0\nw0\n\nw1 S1\n", "S0\nw0\nw1 S1\n", "S0 T0\nw1 T2 T3\n")[0]
+    assert out.split() == ["S0", "T0", "w1", "T2", "T3"]
+    assert ds.merge3("w0\nw1", "w0\n\nw1", "w0\nX1")[0] == "w0\n\nX1"
+    assert ds.merge3("a b c d", "a b X d", "a b Y c d", "ours")[0].split() == ["a", "b", "Y", "X", "d"]
+    out = ds.merge3("S0 w0\n\nw1 w2 S1\n\n", "S0 w1 w2 S1\n\n", "S0 w0\n\nw1 w2 T3 S1\n\n")[0]
+    assert out.split() == ["S0", "w1", "w2", "T3", "S1"] and "\n\n" in out
+
+
+def test_merge3_fuzz_keeps_every_word_and_never_glues_or_duplicates():
+    import random
+    rnd = random.Random(11)
+    gaps = [" ", " ", "\n", "\n\n", "  "]
+    for _ in range(3000):
+        n = rnd.randint(4, 14)
+        words = [f"w{i}" for i in range(n)]
+        bgaps = [rnd.choice(gaps) for _ in range(n)]
+        spots = list(range(0, n, 2))
+        rnd.shuffle(spots)
+        edits = {"ours": {}, "theirs": {}}
+        for k, i in enumerate(spots[: rnd.randint(0, 4)]):
+            edits[rnd.choice(["ours", "theirs"])][i] = rnd.choice(["sub", "ins", "del"])
+
+        def render(side):
+            ws, gs = [], []
+            for i, w in enumerate(words):
+                kind = edits[side].get(i)
+                g = bgaps[i]
+                if kind == "ins":
+                    ws.append(f"{side[0]}{i}new")
+                    gs.append(g)
+                    g = rnd.choice(gaps) if False else g
+                if kind == "del":
+                    continue
+                ws.append(f"{side[0]}{i}sub" if kind == "sub" else w)
+                gs.append(g)
+            out = "".join(g + w for g, w in zip(gs, ws)).lstrip() + "\n"
+            return out
+
+        base = "".join(g + w for g, w in zip(bgaps, words)).lstrip() + "\n"
+        ours, theirs = render("ours"), render("theirs")
+        expect = []
+        for i, w in enumerate(words):
+            for side in ("ours", "theirs"):
+                if edits[side].get(i) == "ins":
+                    expect.append(f"{side[0]}{i}new")
+            kinds = [edits[s].get(i) for s in ("ours", "theirs") if edits[s].get(i)]
+            if "del" in kinds:
+                continue
+            expect.append(next((f"{s[0]}{i}sub" for s in ("ours", "theirs") if edits[s].get(i) == "sub"), w))
+        out, lost = ds.merge3(base, ours, theirs)
+        assert lost == []
+        assert out.split() == expect, (base, ours, theirs, out, expect)
+        out2, _ = ds.merge3(base, theirs, ours)
+        assert out2.split() == expect
+
+
+def test_writer_pairs_blocks_by_content_not_position():
+    base = "Alpha one two.\n\nBeta three four.\n\nGamma five six.\n"
+    xml = draft_xml(["Alpha one two.", "Beta three four.", "Gamma five six."])
+    now = draft_xml(["Alpha one two.", "Beta three FOUR.", "Gamma five six."])
+    out = ds.doc_ops(base, "Beta three four.\n\nGamma five six.\n\nDelta seven eight nine.\n", xml, now, "git")
+    assert out["report"] == []
+    assert [o["op"] for o in out["ops"]] == ["delete", "insert"]
+
+
+def test_writer_pairs_an_edited_short_block_when_the_block_count_changes():
+    base = "Intro stays.\n\nDue TBD\n\nTail stays.\n"
+    xml = draft_xml(["Intro stays.", "Due TBD", "Tail stays."])
+    out = ds.doc_ops(base, "Intro stays.\n\nDue Friday\n\nTail stays.\n\nExtra.\n", xml, xml, "git")
+    assert [o["op"] for o in out["ops"]] == ["replace", "insert"]
+    assert out["ops"][0]["with"]["from"]["content"].endswith("Friday") or "Friday" in out["ops"][0]["with"]["from"]["content"]
+    now = draft_xml(["Intro stays.", "Tail stays."])                     # the draft deleted that block
+    out = ds.doc_ops(base, "Intro stays.\n\nDue Friday\n\nTail stays.\n\nExtra.\n", xml, now, "git")
+    assert all(o["op"] != "insert" or o["source"]["from"]["content"] == "Extra." for o in out["ops"])
+
+
+def test_writer_reports_prefix_only_changes_and_does_not_delete_unanchored_blocks():
+    xml = "<doc node='n' rev='1'><paragraph id='s.0' heading='2'><text id='.1'>Title</text></paragraph><paragraph id='.2'><text id='.3'>Body here.</text></paragraph></doc>"
+    out = ds.doc_ops("## Title\n\nBody here.\n", "### Title\n\nBody here.\n", xml, xml, "git")
+    assert out["ops"] == [] and any("heading level" in r or "prefix" in r for r in out["report"])
+    xml = "<doc node='n' rev='1'><list id='s.0' kind='bullet'><listItem id='.1'><paragraph id='.2'><text id='.3'>task one</text></paragraph></listItem></list></doc>"
+    out = ds.doc_ops("- [ ] task one\n", "- [x] task one\n", xml, xml, "git")
+    assert out["ops"] == [] and out["report"]
+    xml = "<doc node='n' rev='1'><paragraph id='s.0' heading='1'><text id='.1'>Scope</text></paragraph><paragraph id='.2'><text id='.3'>Body here.</text></paragraph></doc>"
+    out = ds.doc_ops("# Scope\n\nBody here.\n", "# Goals\n\nNew para.\n\nBody here.\n", xml, xml, "git")
+    assert all(o["op"] != "delete" for o in out["ops"])
+
+
+def test_writer_deletes_a_whole_table_with_one_op_and_checks_row_widths():
+    xml = "<doc node='n' rev='1'><paragraph id='s.0'><text id='.1'>Intro here.</text></paragraph><table id='.2' h='tt'><row id='.3'><cell id='.4'><paragraph id='.5'><text id='.6'>a</text></paragraph></cell></row><row id='.7'><cell id='.8'><paragraph id='.9'><text id='.10'>b</text></paragraph></cell></row></table></doc>"
+    out = ds.doc_ops("Intro here.\n\n| a |\n|---|\n| b |\n", "Intro here.\n", xml, xml, "git")
+    dels = [o for o in out["ops"] if o["op"] == "delete"]
+    assert len(dels) == 1 and dels[0]["target"]["ids"] == [".2"] or dels[0]["target"]["ids"] == ["s.2"]
+    out = ds.doc_ops("Intro here.\n\n| a |\n|---|\n| b |\n", "Intro here.\n\n| a |\n|---|\n| b |\n| c | d |\n", xml, xml, "git")
+    assert [o for o in out["ops"] if o["op"] == "insert"] == [] and any("by hand" in r for r in out["report"])

@@ -486,6 +486,8 @@ class OldDoc:
             self.words.append(alnum(text))
             self.h[ident] = elem.get("h") or ""
             self.order.append(ident)
+            if kind == "other":
+                self.plain[ident] = "".join(elem.itertext())
             if kind == "row":
                 self.cells[ident] = [(c.get("id"), ESCAPED.sub(r"\1", " ".join(runs_to_markdown(q) for q in c.findall("paragraph"))),
                                       " ".join("".join(q.itertext()) for q in c.findall("paragraph"))) for c in elem.findall("cell")]
@@ -499,6 +501,7 @@ class OldDoc:
             self.kids[parent].append(ident)
             self.tag[ident] = elem.tag
             self.top[ident] = ident if parent == "root" else self.top.get(parent, ident)
+            self.h[ident] = elem.get("h") or ""
             if elem.tag == "row":
                 self.table_of[ident] = parent
             self.attrs[ident] = {k: v for k, v in elem.attrib.items() if k not in ("id", "rev", "h")}
@@ -713,14 +716,19 @@ def _sig(lines, b: Block):
 
 def align_blocks(lb, bb, lm, bm) -> tuple[dict[int, int], list[int]]:
     """Map base block index -> file block index for blocks that survive; and the file blocks that are new."""
-    if len(bb) == len(bm) and all(x.kind == y.kind for x, y in zip(bb, bm)):
-        return {i: i for i in range(len(bb))}, []             # nothing added or removed: position is identity
     sb, sm = [_sig(lb, b) for b in bb], [_sig(lm, b) for b in bm]
+    if len(bb) == len(bm) and all(x[0] == y[0] and difflib.SequenceMatcher(None, x[1], y[1], autojunk=False).ratio() >= 0.5
+                                  for x, y in zip(sb, sm)):
+        return {i: i for i in range(len(bb))}, []             # each block is still recognisably itself in place
     mapping: dict[int, int] = {}
     matched: set[int] = set()
     for tag, a1, a2, b1, b2 in difflib.SequenceMatcher(None, sb, sm, autojunk=False).get_opcodes():
         if tag == "equal":
             for k in range(a2 - a1):
+                mapping[a1 + k] = b1 + k
+                matched.add(b1 + k)
+        elif tag == "replace" and a2 - a1 == b2 - b1 and all(sb[a1 + k][0] == sm[b1 + k][0] for k in range(a2 - a1)):
+            for k in range(a2 - a1):                # the same number of blocks of the same kinds: edits in place
                 mapping[a1 + k] = b1 + k
                 matched.add(b1 + k)
         elif tag == "replace":                  # pair edited blocks in order by how much text they share
@@ -739,8 +747,17 @@ def align_blocks(lb, bb, lm, bm) -> tuple[dict[int, int], list[int]]:
     return mapping, [i for i in range(len(bm)) if i not in matched]
 
 
+def _prefix_sig(b: Block):
+    if b.kind == "heading":
+        return len(b.prefix.strip())
+    if b.kind == "item":
+        m = ITEM.match(b.prefix)
+        return (len(m.group(1)), m.group(2)[0] if not m.group(2)[0].isdigit() else "1", (m.group(4) or "").strip().lower()) if m else b.prefix
+    return None
+
+
 def _same(a: str, b: str) -> bool:
-    return [_key(t) for t in _tokens(a) if not t.isspace()] == [_key(t) for t in _tokens(b) if not t.isspace()]
+    return [_key(w) for w in a.split()] == [_key(w) for w in b.split()]
 
 
 def doc_ops(base_text: str, file_text: str, old_xml: str, now_xml: str, record: str) -> dict:
@@ -764,6 +781,7 @@ def doc_ops(base_text: str, file_text: str, old_xml: str, now_xml: str, record: 
     inserts: list[tuple[int, dict]] = []           # (file block index, op)
 
     flat: list[tuple[str, str]] = []               # (unit or cell id, plain text) in document order
+    other_text = [now.plain[u] for u in now.order if u in now.plain and now.tag.get(u) not in ("paragraph", "listItem")]
     for u in now.order:
         if u in now.cells:
             flat += [(c[0], c[2]) for c in now.cells[u]]
@@ -819,6 +837,9 @@ def doc_ops(base_text: str, file_text: str, old_xml: str, now_xml: str, record: 
             if end < len(cw):
                 end += 1
         find_text = " ".join(cw[start:end])
+        if any(find_text in t for t in other_text):
+            report.append(f"{key}: the words to change also appear in a code block or quote; sync it by hand")
+            return
         repl = " ".join(cw[start:lo] + new + cw[hi:end])
         offset = len(" ".join(cw[:start])) + (1 if start else 0)
         inside = overlap_count(cur_plain[:offset + len(find_text) - 1], find_text) - 1 if offset else 0
@@ -864,6 +885,8 @@ def doc_ops(base_text: str, file_text: str, old_xml: str, now_xml: str, record: 
             else:
                 report.append(f"block {b_idx}: deleted in the file but edited in the draft; the draft wins")
             continue
+        if _prefix_sig(bb[b_idx]) != _prefix_sig(bm[m_idx]):
+            report.append(f"block {b_idx}: its heading level, list marker, checkbox or indent changed in the file; sync it by hand")
         target = block_texts(lm, bm[m_idx])
         if kind == "row":
             oc, nc = old.cells[uid], now.cells[uid]
@@ -898,7 +921,9 @@ def doc_ops(base_text: str, file_text: str, old_xml: str, now_xml: str, record: 
         elif b.kind == "row" and before == "row" and b.start - bm[m_idx - 1].end <= 1 and now.tag.get(prev) == "row" \
                 and (anchor_of_m.get(m_idx - 1) == prev or (m_idx - 1) in set(new_blocks)):
             cells = block_texts(lm, b)
-            if any(_markup_word(w) for c in cells for w in c.split()):
+            if len(cells) != len(now.cells.get(prev, [])):
+                report.append(f"file block {m_idx}: a new table row with a different number of cells than its table; add it by hand")
+            elif any(_markup_word(w) for c in cells for w in c.split()):
                 report.append(f"file block {m_idx}: a new table row with formatting; add it to the draft by hand")
             else:
                 inserts.append((m_idx, {"op": "insert", "target": {"kind": "blocks", "ids": [prev]}, "side": "after",
@@ -906,7 +931,36 @@ def doc_ops(base_text: str, file_text: str, old_xml: str, now_xml: str, record: 
                                             {"type": "cell", "content": [{"type": "paragraph", "content": [{"type": "text", "text": c}]}]} for c in cells]}]}}}))
         else:
             report.append(f"file block {m_idx} ({b.kind}): new in the file; add it to the draft by hand")
-    ops = [o for _, o in sorted(replaces, key=lambda x: -x[0])] + deletes + [o for _, o in sorted(inserts, key=lambda x: -x[0])]
+    # a row delete that covers a whole table becomes one delete of the table; a lone header row is left to a person
+    by_table: dict[str, list[dict]] = {}
+    for d in deletes:
+        rid = d["target"]["ids"][0]
+        by_table.setdefault(now.table_of.get(rid, ""), []).append(d)
+    final_deletes: list[dict] = []
+    for tbl, group in by_table.items():
+        if not tbl:
+            final_deletes += group
+            continue
+        rows = now.kids[tbl]
+        gone = {d["target"]["ids"][0] for d in group}
+        if gone >= set(rows):
+            final_deletes.append({"op": "delete", "target": {"kind": "blocks", "ids": [tbl]}, "ifHash": now.h[tbl], "ifRev": int(now.rev or 0)})
+        elif rows[0] in gone:
+            report.append(f"table {tbl}: the file removes its header row but keeps other rows; sync it by hand")
+            final_deletes += [d for d in group if d["target"]["ids"][0] != rows[0]]
+        else:
+            final_deletes += group
+    if any("nothing before it in the draft to anchor to" in r for r in report):
+        first = min((old.src[u] for u in anchor_of_m.values() if u in old.src), default=len(bb))
+        kept = []
+        for d in final_deletes:
+            rid = d["target"]["ids"][0]
+            if old.src.get(rid, old.first.get(rid, len(bb))) < first:
+                report.append(f"{rid}: not deleted, because the file also adds a block before the draft's first surviving one")
+            else:
+                kept.append(d)
+        final_deletes = kept
+    ops = [o for _, o in sorted(replaces, key=lambda x: -x[0])] + final_deletes + [o for _, o in sorted(inserts, key=lambda x: -x[0])]
     return {"ops": ops, "report": report}
 
 
@@ -924,99 +978,163 @@ class Conflict(Exception):
         self.conflicts = conflicts
 
 
-def _line_tokens(text: str) -> tuple[list[str], list[int]]:
-    """Tokens (words and the whitespace between them), taken line by line, and the token index each line starts at."""
-    toks: list[str] = []
-    starts: list[int] = []
-    for line in text.splitlines(keepends=True):
-        starts.append(len(toks))
-        toks += re.findall(r"\s+|\S+", line)
-    starts.append(len(toks))
-    return toks, starts
+def _words(text: str) -> tuple[list[str], list[str], str]:
+    """(words, the whitespace before each word, the whitespace after the last word)."""
+    pieces = re.findall(r"(\s*)(\S+)", text)
+    return [w for _, w in pieces], [g for g, _ in pieces], re.search(r"\s*$", text).group(0)
 
 
-def _tokens(text: str) -> list[str]:
-    return _line_tokens(text)[0]
+def _key(word: str) -> str:
+    return norm_word(word)
 
 
-def _key(tok: str) -> str:
-    return tok if tok[0].isspace() else norm_word(tok)
-
-
-def _hunks(base: str, other: str, bt: list[str], bstarts: list[int], ot: list[str], ostarts: list[int]) -> list[tuple[int, int, int, int]]:
-    """Changed token ranges (base start, end, other start, end): lines first, then tokens inside changed lines."""
+def _hunks(bk: list[str], ok: list[str]) -> list[tuple[int, int, int, int]]:
+    """Changed word ranges (base start, end, other start, end)."""
+    lo = 0
+    while lo < len(bk) and lo < len(ok) and bk[lo] == ok[lo]:
+        lo += 1
+    hi_b, hi_o = len(bk), len(ok)
+    while hi_b > lo and hi_o > lo and bk[hi_b - 1] == ok[hi_o - 1]:
+        hi_b, hi_o = hi_b - 1, hi_o - 1
     out = []
-    bl, ol = base.splitlines(keepends=True), other.splitlines(keepends=True)
-    for tag, l1, l2, m1, m2 in difflib.SequenceMatcher(None, bl, ol, autojunk=False).get_opcodes():
+    for tag, b1, b2, o1, o2 in difflib.SequenceMatcher(None, bk[lo:hi_b], ok[lo:hi_o], autojunk=False).get_opcodes():
         if tag == "equal":
             continue
-        b0, b1, o0, o1 = bstarts[l1], bstarts[l2], ostarts[m1], ostarts[m2]
-        bk, ok = [_key(t) for t in bt[b0:b1]], [_key(t) for t in ot[o0:o1]]
-        for t2, x1, x2, y1, y2 in difflib.SequenceMatcher(None, bk, ok, autojunk=False).get_opcodes():
-            if t2 == "equal":
-                continue
-            if t2 == "replace" and x2 - x1 == y2 - y1:            # keep unrelated neighbours apart
-                out += [(b0 + x1 + k, b0 + x1 + k + 1, o0 + y1 + k, o0 + y1 + k + 1) for k in range(x2 - x1)]
-            else:
-                out.append((b0 + x1, b0 + x2, o0 + y1, o0 + y2))
+        b1, b2, o1, o2 = b1 + lo, b2 + lo, o1 + lo, o2 + lo
+        if tag == "replace" and b2 - b1 == o2 - o1:            # keep unrelated neighbours apart
+            out += [(b1 + k, b1 + k + 1, o1 + k, o1 + k + 1) for k in range(b2 - b1)]
+        else:
+            out.append((b1, b2, o1, o2))
     return out
 
 
 def merge3(base: str, ours: str, theirs: str, prefer: str | None = None) -> tuple[str, list[dict]]:
-    """Three-way merge at the level of words and the whitespace between them.
+    """Three-way merge at the level of words, with the whitespace between them merged separately.
 
-    `prefer` is "ours" or "theirs" (the side that wins a conflict). Both sides' changes apply, whitespace
-    changes included. A conflict is a place where both changed the same tokens differently (two insertions at
-    one spot count). Words compare with backslash escapes, emphasis style and autolinks made alike. Without
-    `prefer` a conflict raises Conflict; with it the preferred side's text is kept and the conflict reported."""
+    `prefer` is "ours" or "theirs" (the side that wins a conflict). Both sides' word changes apply. A conflict
+    is a place where both changed the same words differently (two insertions at one spot count; an insertion
+    next to a replacement does not). The whitespace before each word comes from a side in which that word and
+    the one before it are neighbours, the side that changed it winning over the base; so re-wrapping, new
+    blank lines and indentation survive. Words compare with backslash escapes, emphasis style and autolinks
+    made alike. Without `prefer` a conflict raises Conflict; with it the preferred side's text is kept and the
+    conflict reported."""
     if ours == base or ours == theirs:
         return theirs, []
     if theirs == base:
         return ours, []
-    (bt, bs), (ot, os_), (tt, ts) = _line_tokens(base), _line_tokens(ours), _line_tokens(theirs)
-    sides = {"ours": (ot, _hunks(base, ours, bt, bs, ot, os_)), "theirs": (tt, _hunks(base, theirs, bt, bs, tt, ts))}
-    hunks = sorted(((h[0], h[1], name, h) for name, (_, hs) in sides.items() for h in hs), key=lambda x: (x[0], x[1], x[2]))
+    texts = {"base": _words(base), "ours": _words(ours), "theirs": _words(theirs)}
+    keys = {n: [_key(w) for w in t[0]] for n, t in texts.items()}
+    side_hunks = {n: _hunks(keys["base"], keys[n]) for n in ("ours", "theirs")}
+    allh = sorted(((h[0], h[1], n, h) for n, hs in side_hunks.items() for h in hs), key=lambda x: (x[0], x[1], x[2]))
     groups: list[list] = []
-    for h in hunks:
+    for h in allh:
         if groups:
-            g = groups[-1]
-            gend = max(x[1] for x in g)
-            gstart = min(x[0] for x in g)
-            if h[0] < gend or (h[0] == gend and gend == gstart):
-                g.append(h)
+            q = groups[-1][-1]
+            gend = max(x[1] for x in groups[-1])
+            insert_q, insert_h = q[0] == q[1], h[0] == h[1]
+            if h[0] < gend or (insert_q and insert_h and q[0] == h[0]):
+                groups[-1].append(h)
                 continue
         groups.append([h])
-    out: list[str] = []
+
+    # output items: (word, {side: index in that side's words}); an unchanged base word maps into every side that keeps it
+    bmap: dict[str, dict[int, int]] = {}
+    for n in ("ours", "theirs"):
+        mp, bi, oi = {}, 0, 0
+        for b1, b2, o1, o2 in sorted(side_hunks[n]):
+            while bi < b1:
+                mp[bi] = oi
+                bi, oi = bi + 1, oi + 1
+            bi, oi = b2, o2
+        while bi < len(keys["base"]):
+            mp[bi] = oi
+            bi, oi = bi + 1, oi + 1
+        bmap[n] = mp
+
+    items: list[tuple[str, dict]] = []
     conflicts: list[dict] = []
     pos = 0
 
-    def side_text(grp, name: str, gs: int, ge: int) -> list[str]:
-        toks = sides[name][0]
+    def base_item(i: int) -> tuple[str, dict]:
+        return texts["base"][0][i], {"base": i, "ours": bmap["ours"].get(i), "theirs": bmap["theirs"].get(i)}
+
+    def side_items(grp, name: str, gs: int, ge: int):
+        w, _, _ = texts[name]
         res, at = [], gs
+        other = "theirs" if name == "ours" else "ours"
         for b1, b2, o1, o2 in sorted(h[3] for h in grp if h[2] == name):
-            res += bt[at:b1] + toks[o1:o2]
+            res += [base_item(i) for i in range(at, b1)]
+            if b2 - b1 == 1 and o2 - o1 == 1:           # a one-for-one substitution keeps the word's place for whitespace
+                res.append((w[o1], {name: o1, "base": b1, other: bmap[other].get(b1)}))
+            else:
+                res += [(w[j], {name: j}) for j in range(o1, o2)]
             at = b2
-        return res + bt[at:ge]
+        return res + [base_item(i) for i in range(at, ge)]
 
     for grp in groups:
-        gs = min(x[0] for x in grp)
-        ge = max(x[1] for x in grp)
-        out += bt[pos:gs]
+        gs, ge = min(x[0] for x in grp), max(x[1] for x in grp)
+        items += [base_item(i) for i in range(pos, gs)]
         names = {x[2] for x in grp}
         if len(names) == 1:
-            out += side_text(grp, names.pop(), gs, ge)
+            items += side_items(grp, next(iter(names)), gs, ge)
         else:
-            mine, theirs_ = side_text(grp, "ours", gs, ge), side_text(grp, "theirs", gs, ge)
-            if [_key(t) for t in mine] == [_key(t) for t in theirs_]:
-                out += mine
+            mine, theirs_ = side_items(grp, "ours", gs, ge), side_items(grp, "theirs", gs, ge)
+            if [_key(w) for w, _ in mine] == [_key(w) for w, _ in theirs_]:
+                merged_same = []
+                for (w, im), (_, it) in zip(mine, theirs_):
+                    merged_same.append((w, {**it, **im}))
+                items += merged_same
             else:
-                conflicts.append({"base": "".join(bt[gs:ge]).strip(), "ours": "".join(mine).strip(),
-                                  "theirs": "".join(theirs_).strip(), "kept": prefer})
-                out += theirs_ if prefer == "theirs" else mine
+                conflicts.append({"base": " ".join(texts["base"][0][gs:ge]), "ours": " ".join(w for w, _ in mine),
+                                  "theirs": " ".join(w for w, _ in theirs_), "kept": prefer})
+                items += theirs_ if prefer == "theirs" else mine
         pos = ge
-    out += bt[pos:]
+    items += [base_item(i) for i in range(pos, len(texts["base"][0]))]
     if conflicts and prefer is None:
         raise Conflict(conflicts)
+
+    def gap_before(x: tuple[str, dict], y: tuple[str, dict]) -> str:
+        """The whitespace between consecutive output words x and y."""
+        cands: dict[str, str | None] = {}
+        for n in ("base", "ours", "theirs"):
+            ix, iy = x[1].get(n), y[1].get(n)
+            cands[n] = texts[n][1][iy] if ix is not None and iy is not None and iy == ix + 1 else None
+        o, t, b = cands["ours"], cands["theirs"], cands["base"]
+        if o is not None and t is not None:
+            if o == t:
+                return o
+            if b is not None:
+                if o != b and t == b:
+                    return o
+                if t != b and o == b:
+                    return t
+            return t if prefer == "theirs" else o
+        if o is not None or t is not None:
+            return o if o is not None else t
+        if b is not None:
+            return b
+        for n in ("theirs", "ours") if prefer == "theirs" else ("ours", "theirs"):   # a boundary only the merge made
+            iy = y[1].get(n)
+            if iy is not None and iy > 0:
+                return texts[n][1][iy]
+        return " "
+
+    def outer(last: bool) -> str:
+        """Leading (index 1) or trailing (last) whitespace: the side that changed it wins over the base."""
+        pick = (lambda n: texts[n][2]) if last else (lambda n: texts[n][1][0] if texts[n][0] else "")
+        b, o, t = pick("base"), pick("ours"), pick("theirs")
+        if o != b and t == b:
+            return o
+        if t != b and o == b:
+            return t
+        return t if prefer == "theirs" else o
+
+    if not items:
+        return outer(True), conflicts
+    out = [outer(False) + items[0][0]]
+    for x, y in zip(items, items[1:]):
+        out.append(gap_before(x, y) + y[0])
+    out.append(outer(True))
     return "".join(out), conflicts
 
 
