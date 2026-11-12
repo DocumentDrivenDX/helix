@@ -1,7 +1,7 @@
 ---
 title: "Improvement Candidates"
 slug: improvement-backlog
-weight: 730
+weight: 740
 activity: "Iterate"
 source: "06-iterate/improvement-backlog.md"
 generated: true

@@ -1,7 +1,7 @@
 # HELIX development tasks
 
 # Run all tests
-test: test-release-version test-verification-contract test-ux-governance test-plan-execution test-modularity test-agent-diagnostics test-formal-methods test-deploy-artifacts test-skills test-profiles test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-validate-deliverable test-headline-sync test-deck-render test-demos test-innsigle test-eval-checks
+test: test-release-version test-verification-contract test-ux-governance test-plan-execution test-modularity test-agent-diagnostics test-formal-methods test-deploy-artifacts test-skills test-profiles test-plugin-package test-plugin-catalog-resolution test-genie-bundle test-install-consistency test-surface-leakage test-microsite-doctrine test-context-digests test-actions test-validate-instance test-draftsync test-validate-deliverable test-headline-sync test-deck-render test-demos test-innsigle test-eval-checks
 
 # documentor (tools/documentor), the host tool behind the guide mode: its own suite and the
 # packaged catalog's match with workflows/. CI runs it in .github/workflows/documentor.yml.
@@ -59,6 +59,10 @@ test-actions:
 # Validate artifact instances against catalog validation blocks
 test-validate-instance:
     bash tests/validate-instance.sh
+
+# draftsync (tools/draftsync), the host tool behind the shared-edit mode
+test-draftsync:
+    uv run --with pytest --with pyyaml pytest -q tools/draftsync/tests
 
 # Run all tests and check for stale references
 check: test lint

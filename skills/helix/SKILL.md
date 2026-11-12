@@ -246,6 +246,7 @@ Prefer the first matching route:
 | Build up end-to-end coverage as a ladder of increasingly complex real-client scenarios | e2e-ladder |
 | Turn governed artifacts into a deck, one-pager, or brief for clients, sponsors, or executives | present |
 | Give a repository its guide, or one page of it: pages for developers, operators, users, and data consumers, generated, written, evaluated, checked, and assembled into a site | guide |
+| Work on a governed document with people in a shared editing surface (draft, comments, live editing) and land the result in the repository as a patch | shared-edit |
 | Hand governed work to the runtime for execution, source control, or packaging | runtime-handoff |
 
 When several routes fit, take the highest-authority planning route: `frame`

@@ -1,7 +1,7 @@
 ---
 title: "Solution overview visual design"
 slug: solution-overview-design
-weight: 510
+weight: 520
 activity: "Design"
 source: "02-design/diagrams/solution-overview-design.md"
 generated: true
