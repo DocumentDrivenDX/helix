@@ -3,7 +3,7 @@ ddx:
   id: ADR-019
   authoring:
     home: repo
-  status: proposed
+  status: accepted
   depends_on:
     - ADR-015
     - ADR-018
@@ -12,7 +12,7 @@ ddx:
 
 | Date | Status | Deciders | Related | Confidence |
 |------|--------|----------|---------|------------|
-| 2026-11-11 | Proposed | HELIX maintainers | `ddx.authoring.home`, CONTRACT-003, `assessment-tables.py`, documentor | Medium |
+| 2026-11-12 | Accepted | HELIX maintainers | `ddx.authoring.home`, CONTRACT-003, `assessment-tables.py`, documentor | Medium |
 
 ## Problem
 
