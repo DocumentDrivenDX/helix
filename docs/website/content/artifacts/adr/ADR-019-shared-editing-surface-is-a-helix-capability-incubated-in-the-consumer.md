@@ -47,6 +47,19 @@ We will make a shared editing surface a HELIX capability, specified by HELIX and
 6. **Promote on evidence, not on a second consumer.** HELIX adopts the mode and moves the generic scripts into a host tool under `tools/`, released with HELIX as ADR-015 does for documentor, when all of these hold: inline code and links, nested lists, a concurrent edit by another person, and edits made in the Docs UI pass; the sync has landed real reviews over the consumer's corpus; and the contract is written as a CONTRACT for the second adapter to implement against.
 7. **Review state stays the consumer's policy.** The hash-keyed review ledger, the attestation a named person types at a terminal, seals, and the scan for client names are consumer choices. HELIX's living-document principle (`workflows/principles.md`) says review stamps gate nothing, and `ddx.review` is legacy metadata. The contract needs only item 4's report of changed hashes.
 
+## Packaging at promotion
+
+HELIX allows one public skill (`tests/validate-skills.sh` requires `skills/helix/SKILL.md` as the single entrypoint and forbids separate `helix-*` skills) and keeps host vocabulary out of its body. The capability therefore adds no skill and no Claude-only plugin:
+
+| Piece | Home |
+|---|---|
+| The workflow: open a draft at a pinned base, land edits as a patch, refuse generated tables, report changed hashes | A runtime-neutral mode file in `workflows/modes/`, routed by the one skill |
+| The Claude Docs specifics: docs connector calls, the changed-blocks read, comment handling | An adapter reference file in `workflows/references/`, loaded only when the runtime exposes the docs connector; other runtimes ignore it |
+| The deterministic scripts: block-to-source mapper, word-level patcher | A host tool under `tools/`, released with HELIX like documentor |
+| Review ledger, attestation, seals, scan for client names | The consuming repository |
+
+The promotion change also adds a test lane and a CONTRACT for a second adapter, and first extends the portability checks to cover the adapter file. Whether the existing validators accept a runtime-named reference file under `workflows/references/` is unverified, so the promotion change tests that before anything else.
+
 ## Why We Chose This
 
 ### Over keeping it in the consumer for good
