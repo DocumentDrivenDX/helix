@@ -685,20 +685,37 @@ def edits_from_read(old_xml: str, delta_xml: str, text: str) -> list[dict]:
 MARKUP = re.compile(r"[*`\[\]\\<>]")
 
 
+def _markup_word(w: str) -> bool:
+    return bool(MARKUP.search(w)) or w[:1] in "_~#" or w[-1:] in "_~"
+
+
+def overlap_count(hay: str, needle: str) -> int:
+    n, at = 0, hay.find(needle)
+    while at >= 0:
+        n += 1
+        at = hay.find(needle, at + 1)
+    return n
+
+
 def block_texts(lines: list[str], b: Block):
     """A block's text as the doc holds it: unwrapped words; a row's cells as a list."""
     if b.kind == "row":
         return [c.strip().replace("\\|", "|") for c in split_cells(lines[b.start])[1]]
     first = lines[b.start][len(b.prefix):]
-    return " ".join(("\n".join([first] + lines[b.start + 1:b.end])).split())
+    text = " ".join(("\n".join([first] + lines[b.start + 1:b.end])).split())
+    return re.sub(r"\s+#+$", "", text) if b.kind == "heading" else text
+
+
+def _sig(lines, b: Block):
+    t = block_texts(lines, b)
+    return (b.kind, alnum(" ".join(t) if isinstance(t, list) else t))
 
 
 def align_blocks(lb, bb, lm, bm) -> tuple[dict[int, int], list[int]]:
     """Map base block index -> file block index for blocks that survive; and the file blocks that are new."""
-    def sig(lines, b):
-        t = block_texts(lines, b)
-        return (b.kind, alnum(" ".join(t) if isinstance(t, list) else t))
-    sb, sm = [sig(lb, b) for b in bb], [sig(lm, b) for b in bm]
+    if len(bb) == len(bm) and all(x.kind == y.kind for x, y in zip(bb, bm)):
+        return {i: i for i in range(len(bb))}, []             # nothing added or removed: position is identity
+    sb, sm = [_sig(lb, b) for b in bb], [_sig(lm, b) for b in bm]
     mapping: dict[int, int] = {}
     matched: set[int] = set()
     for tag, a1, a2, b1, b2 in difflib.SequenceMatcher(None, sb, sm, autojunk=False).get_opcodes():
@@ -722,48 +739,18 @@ def align_blocks(lb, bb, lm, bm) -> tuple[dict[int, int], list[int]]:
     return mapping, [i for i in range(len(bm)) if i not in matched]
 
 
-def _span_ops(cur: str, merged: str, occurrences) -> list[dict] | str:
-    """Doc `replace` ops turning `cur` into `merged`, one per changed span; or a reason string. Both are the
-    draft's text as Markdown with escapes removed; a span that touches markup is left to a person."""
-    cw, mw = cur.split(), merged.split()
-    ops = []
-    for tag, a1, a2, b1, b2 in difflib.SequenceMatcher(None, cw, mw, autojunk=False).get_opcodes():
-        if tag == "equal":
-            continue
-        old, new = cw[a1:a2], mw[b1:b2]
-        if any(MARKUP.search(w) for w in old + new):
-            return "the change involves formatting or markup the doc cannot take as plain words; make it in the draft"
-        lo, hi = a1, a2
-        if not old:                      # a pure insertion needs an anchor word
-            if lo == 0 and not cw:
-                return "the unit is empty in the draft"
-            lo = max(lo - 1, 0)
-            hi = lo + 1 if cw else lo
-        ctx = 0
-        while True:
-            text = " ".join(cw[max(lo - ctx, 0):min(hi + ctx, len(cw))])
-            edge_lo, edge_hi = max(lo - ctx - 1, 0), min(hi + ctx + 1, len(cw))
-            blocked = (lo - ctx - 1 >= 0 and MARKUP.search(cw[lo - ctx - 1])) or (hi + ctx < len(cw) and MARKUP.search(cw[hi + ctx]))
-            if occurrences(text) <= 1 or blocked or (max(lo - ctx, 0) == 0 and min(hi + ctx, len(cw)) == len(cw)):
-                break
-            ctx += 1
-        start, end = max(lo - ctx, 0), min(hi + ctx, len(cw))
-        find_text = " ".join(cw[start:end])
-        pre = " ".join(cw[start:a1]) if a1 > start else ""
-        post = " ".join(cw[a2:end]) if a2 < end else ""
-        repl = " ".join(x for x in (pre, " ".join(new), post) if x)
-        if not old:
-            # insertion: keep the anchor word and add after it
-            repl = " ".join(cw[start:lo + 1] + new + cw[lo + 1:end]) if cw else " ".join(new)
-        ops.append({"find": find_text, "with": repl, "nth": None})
-    return ops
+def _same(a: str, b: str) -> bool:
+    return [_key(t) for t in _tokens(a) if not t.isspace()] == [_key(t) for t in _tokens(b) if not t.isspace()]
 
 
 def doc_ops(base_text: str, file_text: str, old_xml: str, now_xml: str, record: str) -> dict:
     """The doc `update` ops that bring the file's changes since the base into the draft as it is now.
 
     `old_xml` is the draft at the synced revision (equal to the base), `now_xml` the draft now. Where the file
-    and the draft changed the same words, `record` ("git" or "doc") decides. Returns {"ops": [...], "report": [...]}."""
+    and the draft changed the same words, `record` ("git" or "doc") decides. Anything it cannot write as plain
+    words with certainty is named in the report and left to a person. Returns {"ops": [...], "report": [...]}.
+    Apply the ops in the order given: replacements run from the end of the draft to its start, then deletions
+    and insertions, so earlier targets are not disturbed."""
     lb, bb = parse(split_front_matter(base_text)[1])
     lm, bm = parse(split_front_matter(file_text)[1])
     old = OldDoc(old_xml, bb, lb)
@@ -771,68 +758,114 @@ def doc_ops(base_text: str, file_text: str, old_xml: str, now_xml: str, record: 
     mapping, new_blocks = align_blocks(lb, bb, lm, bm)
     ids = {old.src[i]: i for i in old.src}
     prefer = "ours" if record == "git" else "theirs"
-    ops: list[dict] = []
     report: list[str] = []
-    all_plain = [(k, now.plain[k]) for k in now.order if k in now.plain] + \
-                [(c[0], c[2]) for k in now.order for c in now.cells.get(k, [])]
+    replaces: list[tuple[int, dict]] = []          # (position in the draft, op)
+    deletes: list[dict] = []
+    inserts: list[tuple[int, dict]] = []           # (file block index, op)
 
-    def occurrences_of(text: str) -> int:
-        return sum(t.count(text) for _, t in all_plain)
+    flat: list[tuple[str, str]] = []               # (unit or cell id, plain text) in document order
+    for u in now.order:
+        if u in now.cells:
+            flat += [(c[0], c[2]) for c in now.cells[u]]
+        elif u in now.plain:
+            flat.append((u, now.plain[u]))
+    pos_of = {k: i for i, (k, _) in enumerate(flat)}
 
-    def nth_of(unit_key: str, text: str) -> int | None:
-        total = occurrences_of(text)
-        if total <= 1:
-            return None
-        before = 0
-        for k, t in all_plain:
-            if k == unit_key:
-                break
-            before += t.count(text)
-        return before + 1
-
-    def replace_in(unit_key: str, cur_plain: str, base_md: str, target_md: str, cur_md: str, within: dict | None) -> None:
-        try:
-            merged, lost = merge3(base_md, target_md, cur_md, prefer)
-        except Conflict as err:                               # cannot happen with a prefer, but stay safe
-            report.append(f"conflict in {unit_key}: {err}")
-            return
+    def replace_in(key: str, base_md: str, target_md: str, cur_md: str, cur_plain: str, within: dict | None) -> None:
+        merged, lost = merge3(base_md, target_md, cur_md, prefer)
         for c in lost:
-            report.append(f"conflict in {unit_key} resolved for {record}: git {c['ours']!r} / draft {c['theirs']!r}")
-        if merged.split() == cur_md.split():
+            report.append(f"conflict in {key} resolved for {record}: git {c['ours']!r} / draft {c['theirs']!r}")
+        if _same(merged, cur_md):
             return
-        spans = _span_ops(cur_md, merged,
-                          lambda t: occurrences_of(t) if within is None else cur_plain.count(t))
-        if isinstance(spans, str):
-            report.append(f"{unit_key}: {spans}")
+        cw, mw = cur_md.split(), merged.split()
+        if any(MARKUP.search(w) for w in cw) or " ".join(cur_plain.split()) != cur_plain or cur_plain != " ".join(cw):
+            report.append(f"{key}: changed in the file, but the draft's text has formatting or odd spacing; sync it by hand")
             return
-        for sp in spans:
-            target = {"kind": "find", "text": sp["find"]}
-            if within is not None:
-                target["within"] = within
+        ch = [(a1, a2, b1, b2) for tag, a1, a2, b1, b2 in difflib.SequenceMatcher(None, cw, mw, autojunk=False).get_opcodes() if tag != "equal"]
+        lo, hi = ch[0][0], ch[-1][1]
+        blo, bhi = ch[0][2], ch[-1][3]
+        if any(_markup_word(w) for w in mw[blo:bhi]):
+            report.append(f"{key}: the file's new words contain formatting; sync it by hand")
+            return
+        new = mw[blo:bhi]
+        if lo == hi and not cw:
+            report.append(f"{key}: empty in the draft; sync it by hand")
+            return
+        if lo == hi:                                    # a pure insertion needs an anchor word
+            if lo > 0:
+                lo -= 1
+                new = [cw[lo]] + new
             else:
-                n = nth_of(unit_key, sp["find"])
-                if n:
-                    target["nth"] = n
-            ops.append({"op": "replace", "target": target, "with": {"from": {"kind": "inline", "content": sp["with"]}, "as": "text"}})
+                hi += 1
+                new = new + [cw[0]]
+        elif not new:                                   # a pure deletion keeps a neighbour so the text is not empty
+            if lo > 0:
+                lo -= 1
+                new = [cw[lo]]
+            elif hi < len(cw):
+                hi += 1
+                new = [cw[hi - 1]]
+            else:
+                report.append(f"{key}: the file empties it; delete the block by hand")
+                return
+        start, end = lo, hi
+        while True:
+            text = " ".join(cw[start:end])
+            if (overlap_count(cur_plain, text) <= 1 and (within is not None or sum(overlap_count(t, text) for _, t in flat) <= 1)) \
+                    or (start == 0 and end == len(cw)):
+                break
+            if start > 0:
+                start -= 1
+            if end < len(cw):
+                end += 1
+        find_text = " ".join(cw[start:end])
+        repl = " ".join(cw[start:lo] + new + cw[hi:end])
+        offset = len(" ".join(cw[:start])) + (1 if start else 0)
+        inside = overlap_count(cur_plain[:offset + len(find_text) - 1], find_text) - 1 if offset else 0
+        inside = max(inside, 0)
+        if within is not None:
+            nth = inside + 1
+        else:
+            nth = sum(overlap_count(t, find_text) for k, t in flat[:pos_of[key]]) + inside + 1
+        target = {"kind": "find", "text": find_text, "nth": nth}
+        if within is not None:
+            target["within"] = within
+        replaces.append((pos_of[key], {"op": "replace", "target": target,
+                                       "with": {"from": {"kind": "inline", "content": repl}, "as": "text"}}))
+
+    sig_count: dict = {}
+    for b in bb:
+        sig_count[_sig(lb, b)] = sig_count.get(_sig(lb, b), 0) + 1
 
     for b_idx in sorted(ids):
         uid = ids[b_idx]
         m_idx = mapping.get(b_idx)
+        kind = bb[b_idx].kind
+        if kind == "other":
+            if m_idx is None or block_texts(lb, bb[b_idx]) != block_texts(lm, bm[m_idx]):
+                report.append(f"block {b_idx}: code, a quote or HTML changed in the file; sync it by hand")
+            continue
         if uid not in now.order:
             if m_idx is not None and block_texts(lb, bb[b_idx]) != block_texts(lm, bm[m_idx]):
                 report.append(f"block {b_idx}: deleted in the draft and changed in the file; left deleted")
             continue
         if m_idx is None:                                      # the file deleted this block
-            unchanged = (now.cells.get(uid) == old.cells.get(uid)) if bb[b_idx].kind == "row" else now.md.get(uid) == old.md.get(uid)
+            if sig_count[_sig(lb, bb[b_idx])] > 1:
+                report.append(f"block {b_idx}: repeated identical blocks and one is gone from the file; sync it by hand")
+                continue
+            if now.tag.get(uid) == "listItem" and any(now.tag.get(k) == "list" for k in now.kids.get(uid, [])):
+                report.append(f"block {b_idx}: a list item with nested items was deleted in the file; sync it by hand")
+                continue
+            unchanged = (now.cells.get(uid) == old.cells.get(uid)) if kind == "row" else now.md.get(uid) == old.md.get(uid)
             if unchanged or record == "git":
-                ops.append({"op": "delete", "target": {"kind": "blocks", "ids": [uid]}, "ifHash": now.h[uid], "ifRev": int(now.rev or 0)})
+                deletes.append({"op": "delete", "target": {"kind": "blocks", "ids": [uid]}, "ifHash": now.h[uid], "ifRev": int(now.rev or 0)})
                 if not unchanged:
                     report.append(f"block {b_idx}: deleted in the file but edited in the draft; the file wins")
             else:
                 report.append(f"block {b_idx}: deleted in the file but edited in the draft; the draft wins")
             continue
         target = block_texts(lm, bm[m_idx])
-        if bb[b_idx].kind == "row":
+        if kind == "row":
             oc, nc = old.cells[uid], now.cells[uid]
             if len(target) != len(oc) or len(nc) != len(oc):
                 report.append(f"block {b_idx}: the row's cells differ in number; edit it by hand")
@@ -840,29 +873,40 @@ def doc_ops(base_text: str, file_text: str, old_xml: str, now_xml: str, record: 
             tbl = now.table_of.get(uid)
             row_pos = now.kids[tbl].index(uid) if tbl else 0
             for col, ((cid, base_md, _), (_, cur_md, cur_pl)) in enumerate(zip(oc, nc)):
-                replace_in(cid, cur_pl, base_md, target[col], cur_md, {"kind": "cell", "table": tbl, "row": row_pos, "col": col})
+                replace_in(cid, base_md, target[col], cur_md, cur_pl, {"kind": "cell", "table": tbl, "row": row_pos, "col": col})
         else:
-            replace_in(uid, now.plain[uid], old.md[uid], target, now.md[uid], None)
+            replace_in(uid, old.md[uid], target, now.md[uid], now.plain[uid], None)
 
     anchor_of_m = {m: ids[b] for b, m in mapping.items() if b in ids and ids[b] in now.order}
     for m_idx in new_blocks:
-        prev = next((anchor_of_m[k] for k in range(m_idx - 1, -1, -1) if k in anchor_of_m), None)
         b = bm[m_idx]
+        prev = next((anchor_of_m[k] for k in range(m_idx - 1, -1, -1) if k in anchor_of_m), None)
+        before = bm[m_idx - 1].kind if m_idx else None
+        after = bm[m_idx + 1].kind if m_idx + 1 < len(bm) else None
         if prev is None:
             report.append(f"file block {m_idx}: new, with nothing before it in the draft to anchor to; add it by hand")
-            continue
-        if b.kind in ("paragraph", "heading"):
+        elif b.kind in ("paragraph", "heading"):
             text = block_texts(lm, b)
-            content = ("#" * len(b.prefix.strip()) + " " + text) if b.kind == "heading" else text
-            ops.append({"op": "insert", "target": {"kind": "blocks", "ids": [now.top.get(prev, prev)]}, "side": "after",
-                        "source": {"as": "markdown", "from": {"kind": "inline", "content": content}}})
-        elif b.kind == "row" and now.tag.get(prev) == "row":
+            if before in ("item", "row") and after in ("item", "row"):
+                report.append(f"file block {m_idx}: new between list items or table rows; add it to the draft by hand")
+            elif any(_markup_word(w) for w in text.split()):
+                report.append(f"file block {m_idx}: new, with formatting; add it to the draft by hand")
+            else:
+                content = ("#" * len(b.prefix.strip()) + " " + text) if b.kind == "heading" else text
+                inserts.append((m_idx, {"op": "insert", "target": {"kind": "blocks", "ids": [now.top.get(prev, prev)]}, "side": "after",
+                                        "source": {"as": "markdown", "from": {"kind": "inline", "content": content}}}))
+        elif b.kind == "row" and before == "row" and b.start - bm[m_idx - 1].end <= 1 and now.tag.get(prev) == "row" \
+                and (anchor_of_m.get(m_idx - 1) == prev or (m_idx - 1) in set(new_blocks)):
             cells = block_texts(lm, b)
-            ops.append({"op": "insert", "target": {"kind": "blocks", "ids": [prev]}, "side": "after",
-                        "source": {"as": "blocks", "from": {"kind": "inline", "content": [{"type": "row", "content": [
-                            {"type": "cell", "content": [{"type": "paragraph", "content": [{"type": "text", "text": c}]}]} for c in cells]}]}}})
+            if any(_markup_word(w) for c in cells for w in c.split()):
+                report.append(f"file block {m_idx}: a new table row with formatting; add it to the draft by hand")
+            else:
+                inserts.append((m_idx, {"op": "insert", "target": {"kind": "blocks", "ids": [prev]}, "side": "after",
+                                        "source": {"as": "blocks", "from": {"kind": "inline", "content": [{"type": "row", "content": [
+                                            {"type": "cell", "content": [{"type": "paragraph", "content": [{"type": "text", "text": c}]}]} for c in cells]}]}}}))
         else:
             report.append(f"file block {m_idx} ({b.kind}): new in the file; add it to the draft by hand")
+    ops = [o for _, o in sorted(replaces, key=lambda x: -x[0])] + deletes + [o for _, o in sorted(inserts, key=lambda x: -x[0])]
     return {"ops": ops, "report": report}
 
 
@@ -880,27 +924,57 @@ class Conflict(Exception):
         self.conflicts = conflicts
 
 
-def _tokens(text: str) -> tuple[list[tuple[str, str]], str]:
-    toks = re.findall(r"(\s*)(\S+)", text)
-    return toks, re.search(r"\s*$", text).group(0)
+def _line_tokens(text: str) -> tuple[list[str], list[int]]:
+    """Tokens (words and the whitespace between them), taken line by line, and the token index each line starts at."""
+    toks: list[str] = []
+    starts: list[int] = []
+    for line in text.splitlines(keepends=True):
+        starts.append(len(toks))
+        toks += re.findall(r"\s+|\S+", line)
+    starts.append(len(toks))
+    return toks, starts
 
 
-def _hunks(base_words: list[str], other_words: list[str]) -> list[tuple[int, int, int, int]]:
-    sm = difflib.SequenceMatcher(None, base_words, other_words, autojunk=False)
-    return [(b1, b2, o1, o2) for tag, b1, b2, o1, o2 in sm.get_opcodes() if tag != "equal"]
+def _tokens(text: str) -> list[str]:
+    return _line_tokens(text)[0]
+
+
+def _key(tok: str) -> str:
+    return tok if tok[0].isspace() else norm_word(tok)
+
+
+def _hunks(base: str, other: str, bt: list[str], bstarts: list[int], ot: list[str], ostarts: list[int]) -> list[tuple[int, int, int, int]]:
+    """Changed token ranges (base start, end, other start, end): lines first, then tokens inside changed lines."""
+    out = []
+    bl, ol = base.splitlines(keepends=True), other.splitlines(keepends=True)
+    for tag, l1, l2, m1, m2 in difflib.SequenceMatcher(None, bl, ol, autojunk=False).get_opcodes():
+        if tag == "equal":
+            continue
+        b0, b1, o0, o1 = bstarts[l1], bstarts[l2], ostarts[m1], ostarts[m2]
+        bk, ok = [_key(t) for t in bt[b0:b1]], [_key(t) for t in ot[o0:o1]]
+        for t2, x1, x2, y1, y2 in difflib.SequenceMatcher(None, bk, ok, autojunk=False).get_opcodes():
+            if t2 == "equal":
+                continue
+            if t2 == "replace" and x2 - x1 == y2 - y1:            # keep unrelated neighbours apart
+                out += [(b0 + x1 + k, b0 + x1 + k + 1, o0 + y1 + k, o0 + y1 + k + 1) for k in range(x2 - x1)]
+            else:
+                out.append((b0 + x1, b0 + x2, o0 + y1, o0 + y2))
+    return out
 
 
 def merge3(base: str, ours: str, theirs: str, prefer: str | None = None) -> tuple[str, list[dict]]:
-    """Three-way merge at the level of words. `prefer` is "ours" or "theirs" (the side that wins a conflict).
+    """Three-way merge at the level of words and the whitespace between them.
 
-    Both sides' changes apply. A conflict is a place where both changed the same words differently (two
-    insertions at one spot count). Without `prefer` a conflict raises Conflict; with it the preferred side's
-    words are kept and the conflict is reported."""
-    bt, btail = _tokens(base)
-    ot, otail = _tokens(ours)
-    tt, ttail = _tokens(theirs)
-    bw = [w for _, w in bt]
-    sides = {"ours": (ot, _hunks(bw, [w for _, w in ot])), "theirs": (tt, _hunks(bw, [w for _, w in tt]))}
+    `prefer` is "ours" or "theirs" (the side that wins a conflict). Both sides' changes apply, whitespace
+    changes included. A conflict is a place where both changed the same tokens differently (two insertions at
+    one spot count). Words compare with backslash escapes, emphasis style and autolinks made alike. Without
+    `prefer` a conflict raises Conflict; with it the preferred side's text is kept and the conflict reported."""
+    if ours == base or ours == theirs:
+        return theirs, []
+    if theirs == base:
+        return ours, []
+    (bt, bs), (ot, os_), (tt, ts) = _line_tokens(base), _line_tokens(ours), _line_tokens(theirs)
+    sides = {"ours": (ot, _hunks(base, ours, bt, bs, ot, os_)), "theirs": (tt, _hunks(base, theirs, bt, bs, tt, ts))}
     hunks = sorted(((h[0], h[1], name, h) for name, (_, hs) in sides.items() for h in hs), key=lambda x: (x[0], x[1], x[2]))
     groups: list[list] = []
     for h in hunks:
@@ -912,40 +986,38 @@ def merge3(base: str, ours: str, theirs: str, prefer: str | None = None) -> tupl
                 g.append(h)
                 continue
         groups.append([h])
-    out: list[tuple[str, str]] = []
+    out: list[str] = []
     conflicts: list[dict] = []
     pos = 0
 
-    def side_tokens(name: str, gs: int, ge: int) -> list[tuple[str, str]]:
-        toks, hs = sides[name]
+    def side_text(grp, name: str, gs: int, ge: int) -> list[str]:
+        toks = sides[name][0]
         res, at = [], gs
-        for b1, b2, o1, o2 in sorted(h[3] for h in (x for x in groups_cur if x[2] == name)):
+        for b1, b2, o1, o2 in sorted(h[3] for h in grp if h[2] == name):
             res += bt[at:b1] + toks[o1:o2]
             at = b2
         return res + bt[at:ge]
 
-    for groups_cur in groups:
-        gs = min(x[0] for x in groups_cur)
-        ge = max(x[1] for x in groups_cur)
+    for grp in groups:
+        gs = min(x[0] for x in grp)
+        ge = max(x[1] for x in grp)
         out += bt[pos:gs]
-        names = {x[2] for x in groups_cur}
+        names = {x[2] for x in grp}
         if len(names) == 1:
-            out += side_tokens(names.pop(), gs, ge)
+            out += side_text(grp, names.pop(), gs, ge)
         else:
-            mine, theirs_ = side_tokens("ours", gs, ge), side_tokens("theirs", gs, ge)
-            if [w for _, w in mine] == [w for _, w in theirs_]:
+            mine, theirs_ = side_text(grp, "ours", gs, ge), side_text(grp, "theirs", gs, ge)
+            if [_key(t) for t in mine] == [_key(t) for t in theirs_]:
                 out += mine
             else:
-                kept = prefer
-                conflicts.append({"base": " ".join(w for _, w in bt[gs:ge]), "ours": " ".join(w for _, w in mine),
-                                  "theirs": " ".join(w for _, w in theirs_), "kept": kept})
-                out += mine if prefer == "ours" else theirs_ if prefer == "theirs" else mine
+                conflicts.append({"base": "".join(bt[gs:ge]).strip(), "ours": "".join(mine).strip(),
+                                  "theirs": "".join(theirs_).strip(), "kept": prefer})
+                out += theirs_ if prefer == "theirs" else mine
         pos = ge
     out += bt[pos:]
     if conflicts and prefer is None:
         raise Conflict(conflicts)
-    tail = otail if otail != btail else ttail
-    return "".join((sep if i else sep) + w for i, (sep, w) in enumerate(out)) + tail, conflicts
+    return "".join(out), conflicts
 
 
 # ---- the binding: sidecar, git attribute, status, hook -----------------------------------------------------
@@ -969,12 +1041,16 @@ def load_bindings(root: Path) -> list[dict]:
     f = root / BINDINGS
     if not f.is_file():
         return []
-    data = _yaml().safe_load(f.read_text(encoding="utf-8")) or {}
-    entries = list(data.get("bindings") or [])
-    for e in entries:
-        for key in ("base_sha256", "synced_rev"):         # a digits-only hash or a revision can load as a number
-            if key in e:
-                e[key] = str(e[key])
+    yaml = _yaml()
+    try:                                      # every scalar stays a string: a digits-only hash must not become a number
+        data = yaml.load(f.read_text(encoding="utf-8"), Loader=yaml.BaseLoader) or {}
+    except yaml.YAMLError as err:
+        raise Refused(f"{BINDINGS} is not valid YAML: {err}")
+    entries = data.get("bindings") if isinstance(data, dict) else None
+    if entries is None:
+        return []
+    if not isinstance(entries, list) or not all(isinstance(e, dict) and isinstance(e.get("path"), str) for e in entries):
+        raise Refused(f"{BINDINGS} must hold a list called `bindings` whose entries each have a `path`")
     return entries
 
 
@@ -991,12 +1067,25 @@ def body_sha(text: str) -> str:
 
 def bound_tool(root: Path, rel: str) -> str | None:
     """The surface a path is bound to by a `<tool>-bind` git attribute, or None."""
-    r = subprocess.run(["git", "-C", str(root), "check-attr", "-a", "--", rel], capture_output=True, text=True)
-    for line in r.stdout.splitlines():
-        _, attr, value = (part.strip() for part in line.split(":", 2))
+    r = subprocess.run(["git", "-C", str(root), "check-attr", "-z", "-a", "--", rel], capture_output=True, text=True)
+    parts = r.stdout.split("\0")
+    for path, attr, value in zip(parts[0::3], parts[1::3], parts[2::3]):
         if attr.endswith("-bind") and value not in ("unspecified", "unset"):
             return attr[: -len("-bind")]
     return None
+
+
+def attribute_line(rel: str, tool: str) -> str:
+    """A .gitattributes line binding exactly `rel` (a leading slash anchors it; glob characters are escaped)."""
+    pattern = "/" + re.sub(r"([\\\[\]*?#!])", r"\\\1", rel)
+    if re.search(r"[\s\"]", pattern):
+        pattern = '"' + pattern.replace("\\", "\\\\").replace('"', '\\"') + '"'
+    return f"{pattern} {tool}-bind"
+
+
+def committed_body_sha(root: Path, rel: str) -> str | None:
+    r = subprocess.run(["git", "-C", str(root), "show", f"HEAD:{rel}"], capture_output=True, text=True)
+    return body_sha(r.stdout) if r.returncode == 0 else None
 
 
 def record_of(text: str) -> str:
@@ -1012,7 +1101,7 @@ def record_of(text: str) -> str:
 
 
 def find_base(root: Path, rel: str, base_sha256: str) -> str:
-    for commit in git(root, "log", "--format=%H", "--", rel).split():
+    for commit in git(root, "log", "--follow", "--format=%H", "--", rel).split():
         text = git(root, "show", f"{commit}:{rel}")
         if body_sha(text) == base_sha256:
             return text
@@ -1177,15 +1266,22 @@ def main(argv: list[str]) -> int:
         if args.cmd == "bind":
             root = repo_root(args.file)
             rel = args.file.resolve().relative_to(root.resolve()).as_posix()
+            if not args.base_sha256 and committed_body_sha(root, rel) != body_sha(current):
+                raise Refused("the file's body differs from the committed one; commit it first so the base can be found in history")
             entries = [e for e in load_bindings(root) if e["path"] != rel]
             entry = {"path": rel, "tool": args.tool, "origin": args.origin, "synced_rev": args.synced_rev,
                      "base_sha256": args.base_sha256 or body_sha(current)}
             if args.connector:
                 entry["connector"] = args.connector
-            save_bindings(root, entries + [entry])
             if bound_tool(root, rel) != args.tool:
-                with open(root / ".gitattributes", "a", encoding="utf-8") as f:
-                    f.write(f"{rel} {args.tool}-bind\n")
+                attrs = root / ".gitattributes"
+                before = attrs.read_text(encoding="utf-8") if attrs.is_file() else ""
+                line = attribute_line(rel, args.tool)
+                attrs.write_text(before + ("" if not before or before.endswith("\n") else "\n") + line + "\n", encoding="utf-8")
+                if bound_tool(root, rel) != args.tool:
+                    attrs.write_text(before, encoding="utf-8")
+                    raise Refused(f"could not write a .gitattributes line that binds {rel}; add one by hand")
+            save_bindings(root, entries + [entry])
             print(f"bound {rel} to {args.tool} at revision {args.synced_rev}")
             return 0
 
@@ -1193,8 +1289,13 @@ def main(argv: list[str]) -> int:
             root = repo_root(args.file)
             rel = args.file.resolve().relative_to(root.resolve()).as_posix()
             entry = entry_for(root, rel)
+            if committed_body_sha(root, rel) != body_sha(current):
+                raise Refused("the file's body differs from the committed one; commit it first")
             lines, blocks = parse(split_front_matter(current)[1])
-            OldDoc(read(args.old), blocks, lines)          # refuses unless the draft at that revision equals the file
+            old_xml = read(args.old)
+            if ET.fromstring(old_xml).get("rev") != args.synced_rev:
+                raise Refused(f"--synced-rev {args.synced_rev} is not the revision of the draft read in {args.old}")
+            OldDoc(old_xml, blocks, lines)                 # refuses unless the draft at that revision equals the file
             entry.update(synced_rev=args.synced_rev, base_sha256=body_sha(current))
             save_bindings(root, [e for e in load_bindings(root) if e["path"] != rel] + [entry])
             print(f"rebound {rel} to revision {args.synced_rev}")

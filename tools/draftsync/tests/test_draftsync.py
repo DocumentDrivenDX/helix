@@ -723,18 +723,25 @@ def test_a_missing_base_or_binding_is_a_refusal(tmp_path):
     assert r.returncode == 1 and "no entry" in r.stderr
 
 
-def test_rebind_needs_the_draft_to_equal_the_file(tmp_path):
+def test_rebind_needs_the_draft_to_equal_a_committed_file(tmp_path):
     f = bound_repo(tmp_path)
     old = tmp_path / "old.xml"
     old.write_text("<doc node='n' rev='9'><paragraph id='s.0' heading='1'><text id='.1'>Title</text></paragraph>"
                    "<paragraph id='.2'><text id='.3'>alpha beta gamma delta epsilon zeta</text></paragraph></doc>")
     f.write_text(f.read_text().replace("beta", "BETA"))
     r = run("rebind", str(f), "--synced-rev", "9", "--old", str(old))
+    assert r.returncode == 1 and "commit it first" in r.stderr
+    git(tmp_path, "commit", "-qam", "git change")
+    r = run("rebind", str(f), "--synced-rev", "9", "--old", str(old))
     assert r.returncode == 1 and "different text" in r.stderr
     f.write_text(f.read_text().replace("BETA", "beta"))
+    git(tmp_path, "commit", "-qam", "back")
+    r = run("rebind", str(f), "--synced-rev", "5", "--old", str(old))
+    assert r.returncode == 1 and "not the revision" in r.stderr
     r = run("rebind", str(f), "--synced-rev", "9", "--old", str(old))
     assert r.returncode == 0, r.stderr
     assert json.loads(run("status", str(f)).stdout)["synced_rev"] == "9"
+
 
 
 # ---- git -> draft: doc ops ---------------------------------------------------------------------------------
@@ -810,11 +817,162 @@ def test_writer_on_reads_recorded_from_a_live_draft_with_merged_and_conflicting_
             .replace("## Limits of the Position\n", "## Limits of the Position\n\nA new paragraph from git.\n"))
     out = ds.doc_ops(base, text, (FIX / "wr-old.xml").read_text(), (FIX / "wr-now.xml").read_text(), "git")
     summary = [(o["op"], o["target"].get("text") or o["target"]["ids"][0]) for o in out["ops"]]
-    assert summary == [("replace", "second"), ("replace", "runtime has less"), ("replace", "favours"),
+    assert summary == [("replace", "favours"), ("replace", "runtime has less"), ("replace", "second"),
                        ("delete", "mmgx2r82dhj.913"), ("insert", "mmgx2r82dhj.1288")]
-    assert out["ops"][2]["target"]["within"] == {"kind": "cell", "table": "mmgx2r82dhj.720", "row": 1, "col": 1}
+    assert out["ops"][0]["target"]["within"] == {"kind": "cell", "table": "mmgx2r82dhj.720", "row": 1, "col": 1}
+    assert all(o["target"]["nth"] >= 1 for o in out["ops"] if o["op"] == "replace")      # replacements run from the end of the draft to its start
     assert out["ops"][3]["ifHash"] == "c677e51c" and out["ops"][3]["ifRev"] == 3
     assert out["report"] == ["conflict in mmgx2r82dhj.788 resolved for git: git 'prefers' / draft 'favours'"]
     out = ds.doc_ops(base, text, (FIX / "wr-old.xml").read_text(), (FIX / "wr-now.xml").read_text(), "doc")
     assert all("within" not in o["target"] for o in out["ops"] if o["op"] == "replace")     # the draft's word stays
     assert any("resolved for doc" in r for r in out["report"])
+
+
+def test_bind_handles_odd_file_names_and_existing_attributes(tmp_path):
+    git(tmp_path, "init", "-q")
+    (tmp_path / ".gitattributes").write_text("*.png binary")                    # no trailing newline
+    for name in ("my file.md", "[draft].md", "a: b.md", "#x.md"):
+        f = tmp_path / name
+        f.write_text("# T\n\ntext here\n")
+        git(tmp_path, "add", "-A")
+        git(tmp_path, "commit", "-qm", name)
+        r = run("bind", str(f), "--tool", "claude-docs", "--origin", "u", "--synced-rev", "1")
+        assert r.returncode == 0, (name, r.stderr)
+        assert json.loads(run("status", str(f)).stdout)["bound"] is True, name
+        run("bind", str(f), "--tool", "claude-docs", "--origin", "u", "--synced-rev", "1")      # twice adds no second line
+    text = (tmp_path / ".gitattributes").read_text()
+    assert text.startswith("*.png binary\n") and text.count("claude-docs-bind") == 4
+    sub = tmp_path / "sub"
+    sub.mkdir()
+    (sub / "my file.md").write_text("x\n")
+    assert json.loads(run("status", str(sub / "my file.md")).stdout)["bound"] is False   # anchored: same name below is not bound
+
+
+def test_bind_needs_a_committed_body_and_bindings_file_errors_are_clean(tmp_path):
+    git(tmp_path, "init", "-q")
+    f = tmp_path / "d.md"
+    f.write_text("# T\n\nwords here\n")
+    r = run("bind", str(f), "--tool", "claude-docs", "--origin", "u", "--synced-rev", "1")
+    assert r.returncode == 1 and "commit it first" in r.stderr
+    git(tmp_path, "add", "-A")
+    git(tmp_path, "commit", "-qm", "x")
+    assert run("bind", str(f), "--tool", "claude-docs", "--origin", "u", "--synced-rev", "1").returncode == 0
+    side = tmp_path / ".helix/bindings.yml"
+    for bad in ("bindings: [", "bindings:\n  - tool: x\n"):
+        side.write_text(bad)
+        r = run("status", str(f))
+        assert r.returncode == 1 and "Traceback" not in r.stderr, bad
+    side.write_text("bindings:\n  - path: d.md\n    tool: claude-docs\n    synced_rev: 010\n    base_sha256: 0000\n")
+    assert json.loads(run("status", str(f)).stdout)["synced_rev"] == "010"
+
+
+# ---- regressions from the third review: merge3 whitespace, write-back targeting ---------------------------
+
+def test_merge3_keeps_structure_around_changes_at_the_edges_of_text_and_blocks():
+    assert ds.merge3("B b", "New B b", "B b")[0] == "New B b"
+    assert ds.merge3("Old text\n", "# New\n\nOld text\n", "Old text\n")[0] == "# New\n\nOld text\n"
+    assert ds.merge3("A.\n\nB b.\n", "A.\n\nNew B b.\n", "A.\n\nB b.\n")[0] == "A.\n\nNew B b.\n"
+    assert ds.merge3("A.\n\nB b c.\n", "A.\n\nb c.\n", "A.\n\nB b c.\n")[0] == "A.\n\nb c.\n"
+    assert ds.merge3("A.\n\nB b c.\n", "A.\n\nB b c.\n", "A.\n\nB b.\n")[0] == "A.\n\nB b.\n"
+    assert ds.merge3("Intro\n\n| a | b |\n| a | d |\n", "Intro\n\n| a | d |\n", "Intro\n\n| a | b |\n| a | d |\n")[0] == "Intro\n\n| a | d |\n"
+
+
+def test_merge3_keeps_whitespace_only_changes_and_rewraps():
+    assert ds.merge3("a b c d\n", "a b\n\nc d\n", "a b c D\n")[0] == "a b\n\nc D\n"
+    assert ds.merge3("- a\n- b\n", "- a\n  - b\n", "- a\n- b\n")[0] == "- a\n  - b\n"
+    assert ds.merge3("one two three four\n", "one two\nthree four\n", "one two three FOUR\n")[0] == "one two\nthree FOUR\n"
+
+
+def test_merge3_a_change_next_to_one_already_on_both_sides_is_not_a_conflict():
+    assert ds.merge3("a X Z b", "a Y Z b", "a Y W b", "ours") == ("a Y W b", [])
+
+
+def draft_xml(paragraphs):
+    out = []
+    for i, text in enumerate(paragraphs):
+        out.append(f"<paragraph id='{'s.%d' % (i * 10) if i == 0 else '.%d' % (i * 10)}'><text id='.{i * 10 + 1}'>{text}</text></paragraph>")
+    return "<doc node='n' rev='1'>" + "".join(out) + "</doc>"
+
+
+def simulate(ops, blocks):
+    """Apply write-back replace ops to plain paragraphs, nth counted over the whole draft in order."""
+    blocks = list(blocks)
+    for op in ops:
+        assert op["op"] == "replace", op
+        text, nth = op["target"]["text"], op["target"]["nth"]
+        seen = 0
+        for i, b in enumerate(blocks):
+            at = b.find(text)
+            while at >= 0:
+                seen += 1
+                if seen == nth:
+                    assert op["with"]["from"]["content"], op            # an empty replacement is refused by Docs
+                    blocks[i] = b[:at] + op["with"]["from"]["content"] + b[at + len(text):]
+                    break
+                at = b.find(text, at + 1)
+            if seen >= nth:
+                break
+        else:
+            raise AssertionError(f"find {text!r} nth {nth} matches nothing in {blocks}")
+    return blocks
+
+
+def test_writer_edits_land_exactly_on_random_drafts_with_repeated_words():
+    import random
+    rnd = random.Random(7)
+    vocab = ["cat", "dog", "the", "a", "very", "TBD", "is", "ship"]
+    for _ in range(400):
+        base = [" ".join(rnd.choice(vocab) for _ in range(rnd.randint(2, 9))) for _ in range(rnd.randint(1, 4))]
+        new = []
+        for para in base:
+            w = para.split()
+            for _ in range(rnd.choice([0, 0, 1, 2])):
+                k = rnd.randrange(len(w) + 1)
+                kind = rnd.choice(["sub", "ins", "del"])
+                if kind == "sub" and w:
+                    w[min(k, len(w) - 1)] = rnd.choice(vocab + ["NEW"])
+                elif kind == "ins":
+                    w.insert(k, rnd.choice(vocab + ["NEW"]))
+                elif kind == "del" and len(w) > 1:
+                    del w[min(k, len(w) - 1)]
+            new.append(" ".join(w))
+        base_md = "\n\n".join(base) + "\n"
+        file_md = "\n\n".join(new) + "\n"
+        xml = draft_xml(base)
+        out = ds.doc_ops(base_md, file_md, xml, xml, "git")
+        assert out["report"] == [], (base, new, out)
+        assert simulate(out["ops"], base) == new, (base, new, out["ops"])
+
+
+def test_writer_leaves_formatting_odd_spacing_and_unsafe_cases_to_a_person():
+    base = "Intro para here.\n\nSecond para here.\n"
+    xml = draft_xml(["Intro para here.", "Second  para here."])
+    out = ds.doc_ops(base, "Intro para here.\n\nSecond para there.\n", xml, xml, "git")
+    assert out["ops"] == [] and any("odd spacing" in r for r in out["report"])
+    out = ds.doc_ops("Intro para here.\n\n```\ncode\n```\n", "Intro para here.\n", draft_xml(["Intro para here."]).replace("</doc>", "<codeBlock id='.90'><text id='.91'>code</text></codeBlock></doc>"),
+                     draft_xml(["Intro para here."]).replace("</doc>", "<codeBlock id='.90'><text id='.91'>code</text></codeBlock></doc>"), "git")
+    assert out["ops"] == [] and any("code, a quote or HTML" in r for r in out["report"])
+    xml = draft_xml(["Intro para here."])
+    out = ds.doc_ops("Intro para here.\n", "Intro para _really_ here.\n", xml, xml, "git")
+    assert out["ops"] == [] and any("formatting" in r for r in out["report"])
+
+
+def test_writer_inserts_new_blocks_in_file_order_and_not_between_list_items():
+    base = "Alpha one.\n\nBeta two.\n"
+    xml = draft_xml(["Alpha one.", "Beta two."])
+    out = ds.doc_ops(base, "Alpha one.\n\nFirst new.\n\nSecond new.\n\nBeta two.\n", xml, xml, "git")
+    contents = [o["source"]["from"]["content"] for o in out["ops"] if o["op"] == "insert"]
+    assert contents == ["Second new.", "First new."]                         # applied in order: First ends up above Second
+    base = "- a\n- b\n"
+    xml = "<doc node='n' rev='1'><list id='s.0' kind='bullet'><listItem id='.1'><paragraph id='.2'><text id='.3'>a</text></paragraph></listItem><listItem id='.4'><paragraph id='.5'><text id='.6'>b</text></paragraph></listItem></list></doc>"
+    out = ds.doc_ops(base, "- a\n\nBetween.\n\n- b\n", xml, xml, "git")
+    assert out["ops"] == []
+
+
+def test_writer_will_not_delete_what_it_cannot_delete_cleanly():
+    xml = "<doc node='n' rev='1'><list id='s.0' kind='bullet'><listItem id='.1'><paragraph id='.2'><text id='.3'>parent</text></paragraph><list id='.4' kind='bullet'><listItem id='.5'><paragraph id='.6'><text id='.7'>child one</text></paragraph></listItem></list></listItem></list></doc>"
+    out = ds.doc_ops("- parent\n  - child one\n", "- child one\n", xml, xml, "git")
+    assert [o for o in out["ops"] if o["op"] == "delete"] == [] and any("nested" in r for r in out["report"])
+    xml = "<doc node='n' rev='1'><table id='s.0'><row id='.1'><cell id='.2'><paragraph id='.3'><text id='.4'>x</text></paragraph></cell></row><row id='.5'><cell id='.6'><paragraph id='.7'><text id='.8'>same</text></paragraph></cell></row><row id='.9'><cell id='.10'><paragraph id='.11'><text id='.12'>same</text></paragraph></cell></row></table></doc>"
+    out = ds.doc_ops("| x |\n|---|\n| same |\n| same |\n", "| x |\n|---|\n| same |\n", xml, xml, "git")
+    assert [o for o in out["ops"] if o["op"] == "delete"] == [] and any("repeated identical" in r for r in out["report"])

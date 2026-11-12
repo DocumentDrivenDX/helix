@@ -72,7 +72,7 @@ An uncommitted edit is not the record, and a draft is shared with other people. 
 
 **Good**: A bound file can be synced by anyone with access to the draft. Both directions work for surfaces that allow it. Conflicts resolve by a rule the schema already states, and the losing text is reported. Document hashes change only when document content does.
 
-**Trade-offs**: The binding is a second file to keep consistent with the documents. A conflict silently resolving toward the record can discard an editor's work, so the report must be read. The write-back needs the draft's current structure and can fail on guards when people are editing; it retries from a fresh read. A hook in the shared plugin runs for every user of the plugin, so it must be inert for repositories with no bound files.
+**Trade-offs**: The write-back is deliberately narrow: it writes plain-word changes and names everything else in its report for a person (formatting, new lists and tables, blocks that repeat). The binding is a second file to keep consistent with the documents. A conflict silently resolving toward the record can discard an editor's work, so the report must be read. The write-back needs the draft's current structure and can fail on guards when people are editing; it retries from a fresh read. A hook in the shared plugin runs for every user of the plugin, so it must be inert for repositories with no bound files.
 
 **Drift signals to watch**: A binding field in document front matter; a second direction setting that disagrees with `home`; a conflict resolved without a report; a sync commit that changes a document with no content change; the hook doing work for an unbound file; the write-back replacing whole blocks and detaching comment anchors.
 

@@ -47,7 +47,7 @@ A file bound to a draft (ADR-020) is synced in both directions. The binding is o
 2. **Git to draft, after the merge.** Read the draft at the bound revision (`OLD.xml`) and now in full (`NOW.xml`), then run `python3 tools/draftsync/draftsync.py doc-ops FILE --old OLD.xml --now NOW.xml --from-binding`. It prints `ops` and a `report`. Send `ops` as the `payload.ops` of one `update` on the draft's body. Edits replace only changed words and are guarded by the draft's revision; if a guard refuses, someone edited meanwhile, so read again and rerun. The `report` lists conflicts and the changes it left to a person (formatting, a new list or table, a block the draft deleted).
 3. **Rebind** when later reads get long: once the draft equals a committed file body, `draftsync.py rebind FILE --synced-rev N --old OLD.xml` (the draft at N) moves the binding, after checking the draft against the file.
 
-A Claude Code hook can tell the agent when a bound file is edited locally. A repository with bound files registers it in `.claude/settings.json`; it does nothing for unbound files:
+A Claude Code hook can tell the agent when a bound file is edited locally. A repository with bound files registers it in `.claude/settings.json`; it does nothing for unbound files, and it needs PyYAML on the interpreter it runs under (use `uv run --quiet --with pyyaml python3 ...` where the system Python lacks it):
 
 ```json
 {"hooks": {"PostToolUse": [{"matcher": "Edit|Write|MultiEdit",
