@@ -5,6 +5,12 @@ Usage:
     draftsync.py blocks FILE                       list the file's addressable blocks
     draftsync.py edits FILE --old OLD.xml --delta DELTA.xml
                                                    turn a Claude Docs changed-blocks read into EDITS.json
+    draftsync.py doc-ops FILE --old OLD.xml --now NOW.xml [--from-binding]
+                                                   the draft edits that carry the file's changes into the draft
+    draftsync.py bind FILE --tool T --origin URL --synced-rev N     record the binding in .helix/bindings.yml
+    draftsync.py status FILE                       the binding, and whether the file changed since it
+    draftsync.py rebind FILE --synced-rev N --old OLD.xml           move the binding to a draft revision that equals the file
+    draftsync.py hook                              a Claude Code PostToolUse hook: notice edits to bound files
     draftsync.py apply FILE --edits EDITS.json [--base-commit REV] [--write] [--no-table-guard]
                                                    [--assessment-tables PATH]
 
@@ -33,7 +39,9 @@ cell text is escaped. New paragraph text that would read as a heading, list, tab
 Files with CRLF line endings are refused.
 
 With --base-commit the edits are applied to the file as it was at that commit and merged into the
-current file with `git merge-file`; a conflict stops with exit 1 and writes nothing. Unless
+current file word by word (merge3); a conflict, meaning both sides changed the same words, stops with
+exit 1 and writes nothing unless --prefer git (the file wins) or --prefer doc (the draft wins) is given,
+in which case each conflict is reported on stderr. Unless
 --no-table-guard is given, the patched file is checked with HELIX's assessment-tables.py: a document
 whose generated tables matched their front matter before the patch must still match after it, so an
 edit to a generated table is refused and belongs in the `assessment:` or `recommendations:` block.
@@ -45,6 +53,12 @@ whole-file sha256 before and after, which is what seals and reviews key on.
 the old doc and the file have the same sequence of headings, paragraphs, list items and table rows, so a
 mismatch stops before anything is applied, and prints EDITS.json. A new list, table or code block, and
 formatting it cannot write as Markdown, are refused.
+
+The binding (ADR-020) is one entry per file in `.helix/bindings.yml` (`path`, `tool`, `origin`, `connector`,
+`synced_rev`, `base_sha256`) and a `<tool>-bind` attribute in `.gitattributes`. `synced_rev` is a draft
+revision whose text equals the file body whose SHA-256 is `base_sha256`; `apply --from-binding` finds that
+body in git history as the base, and a conflict is resolved toward the file's system of record
+(`ddx.authoring.home`: `repo` or absent means git, `external-tool` means the draft).
 
 Exit codes: 0 ok, 1 refused or conflicted, 2 usage error.
 """
@@ -432,13 +446,13 @@ def full_ids(root) -> None:
 
 
 def alnum(text: str) -> str:
-    return "".join(ch for ch in text.lower() if ch.isalnum())
+    return "".join(ch for ch in text if ch.isalnum())
 
 
 class OldDoc:
     """The doc at the opening revision, as a tree of ids, with the file's block index of each unit."""
 
-    def __init__(self, xml: str, blocks: list[Block], lines: list[str]):
+    def __init__(self, xml: str, blocks: list[Block] | None = None, lines: list[str] | None = None):
         root = ET.fromstring(xml)
         full_ids(root)
         self.kids: dict[str, list[str]] = {"root": []}
@@ -449,7 +463,14 @@ class OldDoc:
         self.rev = root.get("rev")
         self.node = root.get("node")
         self.attrs: dict[str, dict] = {}
-        self.words: list[str] = []             # per unit, the doc's words reduced to letters and digits
+        self.words: list[str] = []
+        self.md: dict[str, str] = {}                      # unit id -> its text as Markdown (rows: see cells)
+        self.plain: dict[str, str] = {}                   # ... and as plain text, as the doc stores it
+        self.cells: dict[str, list[tuple[str, str, str]]] = {}   # row id -> [(cell id, Markdown, plain)]
+        self.h: dict[str, str] = {}
+        self.top: dict[str, str] = {}                     # unit id -> id of its top-level block
+        self.table_of: dict[str, str] = {}
+        self.order: list[str] = []                        # unit ids in document order             # per unit, the doc's words reduced to letters and digits
         kinds: list[str] = []
 
         def unit(elem, kind: str, ident: str) -> None:
@@ -463,11 +484,23 @@ class OldDoc:
                 para = elem if elem.tag == "paragraph" else elem.find("paragraph")
                 text = runs_to_markdown(para) if para is not None else ""
             self.words.append(alnum(text))
+            self.h[ident] = elem.get("h") or ""
+            self.order.append(ident)
+            if kind == "row":
+                self.cells[ident] = [(c.get("id"), ESCAPED.sub(r"\1", " ".join(runs_to_markdown(q) for q in c.findall("paragraph"))),
+                                      " ".join("".join(q.itertext()) for q in c.findall("paragraph"))) for c in elem.findall("cell")]
+            else:
+                para = elem if elem.tag == "paragraph" else elem.find("paragraph")
+                self.md[ident] = ESCAPED.sub(r"\1", text)
+                self.plain[ident] = "".join(para.itertext()) if para is not None else ""
 
         def walk(elem, parent: str) -> None:
             ident = elem.get("id")
             self.kids[parent].append(ident)
             self.tag[ident] = elem.tag
+            self.top[ident] = ident if parent == "root" else self.top.get(parent, ident)
+            if elem.tag == "row":
+                self.table_of[ident] = parent
             self.attrs[ident] = {k: v for k, v in elem.attrib.items() if k not in ("id", "rev", "h")}
             self.kids[ident] = []
             before = len(kinds)
@@ -510,6 +543,8 @@ class OldDoc:
                 desc = [self.last[k] for k in self.kids.get(ident, []) if k in self.last]
                 if desc:
                     self.last[ident] = max(desc)
+        if blocks is None:
+            return
         want = [b.kind for b in blocks]
         if kinds != want:
             at = next((i for i, (a, b) in enumerate(zip(kinds, want)) if a != b), min(len(kinds), len(want)))
@@ -645,6 +680,192 @@ def edits_from_read(old_xml: str, delta_xml: str, text: str) -> list[dict]:
     return ops
 
 
+# ---- git -> draft: the doc edits that carry the file's changes into the draft ----------------------------------
+
+MARKUP = re.compile(r"[*`\[\]\\<>]")
+
+
+def block_texts(lines: list[str], b: Block):
+    """A block's text as the doc holds it: unwrapped words; a row's cells as a list."""
+    if b.kind == "row":
+        return [c.strip().replace("\\|", "|") for c in split_cells(lines[b.start])[1]]
+    first = lines[b.start][len(b.prefix):]
+    return " ".join(("\n".join([first] + lines[b.start + 1:b.end])).split())
+
+
+def align_blocks(lb, bb, lm, bm) -> tuple[dict[int, int], list[int]]:
+    """Map base block index -> file block index for blocks that survive; and the file blocks that are new."""
+    def sig(lines, b):
+        t = block_texts(lines, b)
+        return (b.kind, alnum(" ".join(t) if isinstance(t, list) else t))
+    sb, sm = [sig(lb, b) for b in bb], [sig(lm, b) for b in bm]
+    mapping: dict[int, int] = {}
+    matched: set[int] = set()
+    for tag, a1, a2, b1, b2 in difflib.SequenceMatcher(None, sb, sm, autojunk=False).get_opcodes():
+        if tag == "equal":
+            for k in range(a2 - a1):
+                mapping[a1 + k] = b1 + k
+                matched.add(b1 + k)
+        elif tag == "replace":                  # pair edited blocks in order by how much text they share
+            at = b1
+            for i in range(a1, a2):
+                best, best_r = None, 0.5
+                for j in range(at, b2):
+                    if sb[i][0] == sm[j][0]:
+                        r = difflib.SequenceMatcher(None, sb[i][1], sm[j][1], autojunk=False).ratio()
+                        if r > best_r:
+                            best, best_r = j, r
+                if best is not None:
+                    mapping[i] = best
+                    matched.add(best)
+                    at = best + 1
+    return mapping, [i for i in range(len(bm)) if i not in matched]
+
+
+def _span_ops(cur: str, merged: str, occurrences) -> list[dict] | str:
+    """Doc `replace` ops turning `cur` into `merged`, one per changed span; or a reason string. Both are the
+    draft's text as Markdown with escapes removed; a span that touches markup is left to a person."""
+    cw, mw = cur.split(), merged.split()
+    ops = []
+    for tag, a1, a2, b1, b2 in difflib.SequenceMatcher(None, cw, mw, autojunk=False).get_opcodes():
+        if tag == "equal":
+            continue
+        old, new = cw[a1:a2], mw[b1:b2]
+        if any(MARKUP.search(w) for w in old + new):
+            return "the change involves formatting or markup the doc cannot take as plain words; make it in the draft"
+        lo, hi = a1, a2
+        if not old:                      # a pure insertion needs an anchor word
+            if lo == 0 and not cw:
+                return "the unit is empty in the draft"
+            lo = max(lo - 1, 0)
+            hi = lo + 1 if cw else lo
+        ctx = 0
+        while True:
+            text = " ".join(cw[max(lo - ctx, 0):min(hi + ctx, len(cw))])
+            edge_lo, edge_hi = max(lo - ctx - 1, 0), min(hi + ctx + 1, len(cw))
+            blocked = (lo - ctx - 1 >= 0 and MARKUP.search(cw[lo - ctx - 1])) or (hi + ctx < len(cw) and MARKUP.search(cw[hi + ctx]))
+            if occurrences(text) <= 1 or blocked or (max(lo - ctx, 0) == 0 and min(hi + ctx, len(cw)) == len(cw)):
+                break
+            ctx += 1
+        start, end = max(lo - ctx, 0), min(hi + ctx, len(cw))
+        find_text = " ".join(cw[start:end])
+        pre = " ".join(cw[start:a1]) if a1 > start else ""
+        post = " ".join(cw[a2:end]) if a2 < end else ""
+        repl = " ".join(x for x in (pre, " ".join(new), post) if x)
+        if not old:
+            # insertion: keep the anchor word and add after it
+            repl = " ".join(cw[start:lo + 1] + new + cw[lo + 1:end]) if cw else " ".join(new)
+        ops.append({"find": find_text, "with": repl, "nth": None})
+    return ops
+
+
+def doc_ops(base_text: str, file_text: str, old_xml: str, now_xml: str, record: str) -> dict:
+    """The doc `update` ops that bring the file's changes since the base into the draft as it is now.
+
+    `old_xml` is the draft at the synced revision (equal to the base), `now_xml` the draft now. Where the file
+    and the draft changed the same words, `record` ("git" or "doc") decides. Returns {"ops": [...], "report": [...]}."""
+    lb, bb = parse(split_front_matter(base_text)[1])
+    lm, bm = parse(split_front_matter(file_text)[1])
+    old = OldDoc(old_xml, bb, lb)
+    now = OldDoc(now_xml)
+    mapping, new_blocks = align_blocks(lb, bb, lm, bm)
+    ids = {old.src[i]: i for i in old.src}
+    prefer = "ours" if record == "git" else "theirs"
+    ops: list[dict] = []
+    report: list[str] = []
+    all_plain = [(k, now.plain[k]) for k in now.order if k in now.plain] + \
+                [(c[0], c[2]) for k in now.order for c in now.cells.get(k, [])]
+
+    def occurrences_of(text: str) -> int:
+        return sum(t.count(text) for _, t in all_plain)
+
+    def nth_of(unit_key: str, text: str) -> int | None:
+        total = occurrences_of(text)
+        if total <= 1:
+            return None
+        before = 0
+        for k, t in all_plain:
+            if k == unit_key:
+                break
+            before += t.count(text)
+        return before + 1
+
+    def replace_in(unit_key: str, cur_plain: str, base_md: str, target_md: str, cur_md: str, within: dict | None) -> None:
+        try:
+            merged, lost = merge3(base_md, target_md, cur_md, prefer)
+        except Conflict as err:                               # cannot happen with a prefer, but stay safe
+            report.append(f"conflict in {unit_key}: {err}")
+            return
+        for c in lost:
+            report.append(f"conflict in {unit_key} resolved for {record}: git {c['ours']!r} / draft {c['theirs']!r}")
+        if merged.split() == cur_md.split():
+            return
+        spans = _span_ops(cur_md, merged,
+                          lambda t: occurrences_of(t) if within is None else cur_plain.count(t))
+        if isinstance(spans, str):
+            report.append(f"{unit_key}: {spans}")
+            return
+        for sp in spans:
+            target = {"kind": "find", "text": sp["find"]}
+            if within is not None:
+                target["within"] = within
+            else:
+                n = nth_of(unit_key, sp["find"])
+                if n:
+                    target["nth"] = n
+            ops.append({"op": "replace", "target": target, "with": {"from": {"kind": "inline", "content": sp["with"]}, "as": "text"}})
+
+    for b_idx in sorted(ids):
+        uid = ids[b_idx]
+        m_idx = mapping.get(b_idx)
+        if uid not in now.order:
+            if m_idx is not None and block_texts(lb, bb[b_idx]) != block_texts(lm, bm[m_idx]):
+                report.append(f"block {b_idx}: deleted in the draft and changed in the file; left deleted")
+            continue
+        if m_idx is None:                                      # the file deleted this block
+            unchanged = (now.cells.get(uid) == old.cells.get(uid)) if bb[b_idx].kind == "row" else now.md.get(uid) == old.md.get(uid)
+            if unchanged or record == "git":
+                ops.append({"op": "delete", "target": {"kind": "blocks", "ids": [uid]}, "ifHash": now.h[uid], "ifRev": int(now.rev or 0)})
+                if not unchanged:
+                    report.append(f"block {b_idx}: deleted in the file but edited in the draft; the file wins")
+            else:
+                report.append(f"block {b_idx}: deleted in the file but edited in the draft; the draft wins")
+            continue
+        target = block_texts(lm, bm[m_idx])
+        if bb[b_idx].kind == "row":
+            oc, nc = old.cells[uid], now.cells[uid]
+            if len(target) != len(oc) or len(nc) != len(oc):
+                report.append(f"block {b_idx}: the row's cells differ in number; edit it by hand")
+                continue
+            tbl = now.table_of.get(uid)
+            row_pos = now.kids[tbl].index(uid) if tbl else 0
+            for col, ((cid, base_md, _), (_, cur_md, cur_pl)) in enumerate(zip(oc, nc)):
+                replace_in(cid, cur_pl, base_md, target[col], cur_md, {"kind": "cell", "table": tbl, "row": row_pos, "col": col})
+        else:
+            replace_in(uid, now.plain[uid], old.md[uid], target, now.md[uid], None)
+
+    anchor_of_m = {m: ids[b] for b, m in mapping.items() if b in ids and ids[b] in now.order}
+    for m_idx in new_blocks:
+        prev = next((anchor_of_m[k] for k in range(m_idx - 1, -1, -1) if k in anchor_of_m), None)
+        b = bm[m_idx]
+        if prev is None:
+            report.append(f"file block {m_idx}: new, with nothing before it in the draft to anchor to; add it by hand")
+            continue
+        if b.kind in ("paragraph", "heading"):
+            text = block_texts(lm, b)
+            content = ("#" * len(b.prefix.strip()) + " " + text) if b.kind == "heading" else text
+            ops.append({"op": "insert", "target": {"kind": "blocks", "ids": [now.top.get(prev, prev)]}, "side": "after",
+                        "source": {"as": "markdown", "from": {"kind": "inline", "content": content}}})
+        elif b.kind == "row" and now.tag.get(prev) == "row":
+            cells = block_texts(lm, b)
+            ops.append({"op": "insert", "target": {"kind": "blocks", "ids": [prev]}, "side": "after",
+                        "source": {"as": "blocks", "from": {"kind": "inline", "content": [{"type": "row", "content": [
+                            {"type": "cell", "content": [{"type": "paragraph", "content": [{"type": "text", "text": c}]}]} for c in cells]}]}}})
+        else:
+            report.append(f"file block {m_idx} ({b.kind}): new in the file; add it to the draft by hand")
+    return {"ops": ops, "report": report}
+
+
 def sha(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
@@ -653,17 +874,201 @@ def git(repo: Path, *args: str) -> str:
     return subprocess.run(["git", "-C", str(repo), *args], capture_output=True, text=True, check=True).stdout
 
 
-def merge_three_way(current: str, base: str, patched: str) -> tuple[str, int]:
-    with tempfile.TemporaryDirectory() as d:
-        paths = []
-        for name, content in (("current", current), ("base", base), ("patched", patched)):
-            p = Path(d) / name
-            p.write_text(content, encoding="utf-8")
-            paths.append(str(p))
-        r = subprocess.run(["git", "merge-file", "-p", *paths], capture_output=True, text=True)
-        if r.returncode < 0 or r.returncode > 127:
-            raise Refused(f"git merge-file failed: {r.stderr.strip()}")
-        return r.stdout, r.returncode
+class Conflict(Exception):
+    def __init__(self, conflicts):
+        super().__init__(f"{len(conflicts)} conflict(s)")
+        self.conflicts = conflicts
+
+
+def _tokens(text: str) -> tuple[list[tuple[str, str]], str]:
+    toks = re.findall(r"(\s*)(\S+)", text)
+    return toks, re.search(r"\s*$", text).group(0)
+
+
+def _hunks(base_words: list[str], other_words: list[str]) -> list[tuple[int, int, int, int]]:
+    sm = difflib.SequenceMatcher(None, base_words, other_words, autojunk=False)
+    return [(b1, b2, o1, o2) for tag, b1, b2, o1, o2 in sm.get_opcodes() if tag != "equal"]
+
+
+def merge3(base: str, ours: str, theirs: str, prefer: str | None = None) -> tuple[str, list[dict]]:
+    """Three-way merge at the level of words. `prefer` is "ours" or "theirs" (the side that wins a conflict).
+
+    Both sides' changes apply. A conflict is a place where both changed the same words differently (two
+    insertions at one spot count). Without `prefer` a conflict raises Conflict; with it the preferred side's
+    words are kept and the conflict is reported."""
+    bt, btail = _tokens(base)
+    ot, otail = _tokens(ours)
+    tt, ttail = _tokens(theirs)
+    bw = [w for _, w in bt]
+    sides = {"ours": (ot, _hunks(bw, [w for _, w in ot])), "theirs": (tt, _hunks(bw, [w for _, w in tt]))}
+    hunks = sorted(((h[0], h[1], name, h) for name, (_, hs) in sides.items() for h in hs), key=lambda x: (x[0], x[1], x[2]))
+    groups: list[list] = []
+    for h in hunks:
+        if groups:
+            g = groups[-1]
+            gend = max(x[1] for x in g)
+            gstart = min(x[0] for x in g)
+            if h[0] < gend or (h[0] == gend and gend == gstart):
+                g.append(h)
+                continue
+        groups.append([h])
+    out: list[tuple[str, str]] = []
+    conflicts: list[dict] = []
+    pos = 0
+
+    def side_tokens(name: str, gs: int, ge: int) -> list[tuple[str, str]]:
+        toks, hs = sides[name]
+        res, at = [], gs
+        for b1, b2, o1, o2 in sorted(h[3] for h in (x for x in groups_cur if x[2] == name)):
+            res += bt[at:b1] + toks[o1:o2]
+            at = b2
+        return res + bt[at:ge]
+
+    for groups_cur in groups:
+        gs = min(x[0] for x in groups_cur)
+        ge = max(x[1] for x in groups_cur)
+        out += bt[pos:gs]
+        names = {x[2] for x in groups_cur}
+        if len(names) == 1:
+            out += side_tokens(names.pop(), gs, ge)
+        else:
+            mine, theirs_ = side_tokens("ours", gs, ge), side_tokens("theirs", gs, ge)
+            if [w for _, w in mine] == [w for _, w in theirs_]:
+                out += mine
+            else:
+                kept = prefer
+                conflicts.append({"base": " ".join(w for _, w in bt[gs:ge]), "ours": " ".join(w for _, w in mine),
+                                  "theirs": " ".join(w for _, w in theirs_), "kept": kept})
+                out += mine if prefer == "ours" else theirs_ if prefer == "theirs" else mine
+        pos = ge
+    out += bt[pos:]
+    if conflicts and prefer is None:
+        raise Conflict(conflicts)
+    tail = otail if otail != btail else ttail
+    return "".join((sep if i else sep) + w for i, (sep, w) in enumerate(out)) + tail, conflicts
+
+
+# ---- the binding: sidecar, git attribute, status, hook -----------------------------------------------------
+
+BINDINGS = Path(".helix") / "bindings.yml"
+
+
+def _yaml():
+    try:
+        import yaml
+    except ImportError:
+        raise Refused("PyYAML is required for bindings (python3 -m pip install pyyaml)")
+    return yaml
+
+
+def repo_root(path: Path) -> Path:
+    return Path(git(path.resolve().parent, "rev-parse", "--show-toplevel").strip())
+
+
+def load_bindings(root: Path) -> list[dict]:
+    f = root / BINDINGS
+    if not f.is_file():
+        return []
+    data = _yaml().safe_load(f.read_text(encoding="utf-8")) or {}
+    entries = list(data.get("bindings") or [])
+    for e in entries:
+        for key in ("base_sha256", "synced_rev"):         # a digits-only hash or a revision can load as a number
+            if key in e:
+                e[key] = str(e[key])
+    return entries
+
+
+def save_bindings(root: Path, entries: list[dict]) -> None:
+    f = root / BINDINGS
+    f.parent.mkdir(parents=True, exist_ok=True)
+    f.write_text("# File bindings to shared drafts (ADR-020). Edit with `draftsync.py bind` and `rebind`.\n"
+                 + _yaml().safe_dump({"bindings": sorted(entries, key=lambda e: e["path"])}, sort_keys=False), encoding="utf-8")
+
+
+def body_sha(text: str) -> str:
+    return sha(split_front_matter(text)[1])
+
+
+def bound_tool(root: Path, rel: str) -> str | None:
+    """The surface a path is bound to by a `<tool>-bind` git attribute, or None."""
+    r = subprocess.run(["git", "-C", str(root), "check-attr", "-a", "--", rel], capture_output=True, text=True)
+    for line in r.stdout.splitlines():
+        _, attr, value = (part.strip() for part in line.split(":", 2))
+        if attr.endswith("-bind") and value not in ("unspecified", "unset"):
+            return attr[: -len("-bind")]
+    return None
+
+
+def record_of(text: str) -> str:
+    """The system of record from `ddx.authoring.home`: `git` for repo or absent, `doc` for external-tool."""
+    front = split_front_matter(text)[0]
+    if not front:
+        return "git"
+    try:
+        home = ((_yaml().safe_load(front[4:front.rindex("---")]) or {}).get("ddx") or {}).get("authoring", {}).get("home")
+    except Exception:
+        return "git"
+    return "doc" if home == "external-tool" else "git"
+
+
+def find_base(root: Path, rel: str, base_sha256: str) -> str:
+    for commit in git(root, "log", "--format=%H", "--", rel).split():
+        text = git(root, "show", f"{commit}:{rel}")
+        if body_sha(text) == base_sha256:
+            return text
+    raise Refused(f"no version of {rel} in git history has the body {base_sha256[:12]}; rebind it")
+
+
+def entry_for(root: Path, rel: str) -> dict:
+    for e in load_bindings(root):
+        if e["path"] == rel:
+            return e
+    raise Refused(f"{rel} has no entry in {BINDINGS}")
+
+
+def status_of(file: Path) -> dict:
+    root = repo_root(file)
+    rel = file.resolve().relative_to(root.resolve()).as_posix()
+    tool = bound_tool(root, rel)
+    entry = next((e for e in load_bindings(root) if e["path"] == rel), None)
+    out = {"path": rel, "bound": bool(tool and entry), "attribute": tool}
+    if out["bound"]:
+        text = read(file)
+        out.update(tool=entry.get("tool"), origin=entry.get("origin"), connector=entry.get("connector"),
+                   synced_rev=entry.get("synced_rev"), record=record_of(text),
+                   file_changed_since_base=body_sha(text) != entry.get("base_sha256"))
+    return out
+
+
+def hook() -> int:
+    """PostToolUse hook: tell the agent when a bound file was edited. Silent and exit 0 for anything else."""
+    try:
+        data = json.loads(sys.stdin.read() or "{}")
+        target = (data.get("tool_input") or {}).get("file_path")
+        if not target:
+            return 0
+        path = Path(target) if Path(target).is_absolute() else Path(data.get("cwd") or ".") / target
+        if not path.is_file():
+            return 0
+        st = status_of(path)
+        if not st["bound"] or not st["file_changed_since_base"]:
+            return 0
+        root = repo_root(path)
+        pending = Path(git(root, "rev-parse", "--absolute-git-dir").strip()) / "draftsync-pending"
+        pending.mkdir(exist_ok=True)
+        (pending / (hashlib.sha1(st["path"].encode()).hexdigest() + ".json")).write_text(json.dumps(st))
+        if st["record"] == "doc":
+            note = (f"{st['path']} is bound to a {st['tool']} draft ({st['origin']}) and the draft is its system of record. "
+                    "This edit is a conflict in waiting: where the draft changed the same words, the draft wins and the edit "
+                    "is overwritten. Prefer editing the draft, or tell the user before syncing.")
+        else:
+            note = (f"{st['path']} is bound to a {st['tool']} draft ({st['origin']}) and git is its system of record. "
+                    "This edit is not yet in the draft. When it is committed or merged, run the shared-edit sync "
+                    "(workflows/modes/shared-edit.md) to merge it with the draft's changes and write it back.")
+        print(json.dumps({"hookSpecificOutput": {"hookEventName": "PostToolUse", "additionalContext": note}}))
+    except Exception:                      # a hook must never get in the way of an edit
+        return 0
+    return 0
 
 
 def find_tables_script(start: Path) -> Path | None:
@@ -705,11 +1110,35 @@ def main(argv: list[str]) -> int:
     e.add_argument("--old", type=Path, required=True)
     e.add_argument("--delta", type=Path, required=True)
     e.add_argument("--base-commit")
+    e.add_argument("--from-binding", action="store_true")
+    bd = sub.add_parser("bind")
+    bd.add_argument("file", type=Path)
+    bd.add_argument("--tool", required=True)
+    bd.add_argument("--origin", required=True)
+    bd.add_argument("--connector")
+    bd.add_argument("--synced-rev", required=True)
+    bd.add_argument("--base-sha256")
+    st_ = sub.add_parser("status")
+    st_.add_argument("file", type=Path)
+    rb = sub.add_parser("rebind")
+    rb.add_argument("file", type=Path)
+    rb.add_argument("--synced-rev", required=True)
+    rb.add_argument("--old", type=Path, required=True)
+    dp = sub.add_parser("doc-ops")
+    dp.add_argument("file", type=Path)
+    dp.add_argument("--old", type=Path, required=True, help="the draft at the synced revision")
+    dp.add_argument("--now", type=Path, required=True, help="the draft now, in full")
+    dp.add_argument("--base-commit")
+    dp.add_argument("--from-binding", action="store_true")
+    dp.add_argument("--prefer", choices=("git", "doc"))
+    sub.add_parser("hook")
     a = sub.add_parser("apply")
     a.add_argument("file", type=Path)
     a.add_argument("--edits", type=Path, required=True)
     a.add_argument("--base-commit")
+    a.add_argument("--from-binding", action="store_true", help="take the base from the binding and the winner from the record")
     a.add_argument("--write", action="store_true")
+    a.add_argument("--prefer", choices=("git", "doc"), help="the system of record, which wins a conflict")
     a.add_argument("--no-table-guard", action="store_true")
     a.add_argument("--assessment-tables", type=Path)
     args = ap.parse_args(argv)
@@ -717,6 +1146,10 @@ def main(argv: list[str]) -> int:
         sys.stdout.reconfigure(errors="backslashreplace")
 
     def base_text(current: str) -> str:
+        if getattr(args, "from_binding", False):
+            root = repo_root(args.file)
+            rel = args.file.resolve().relative_to(root.resolve()).as_posix()
+            return find_base(root, rel, entry_for(root, rel)["base_sha256"])
         if not args.base_commit:
             return current
         if args.base_commit.startswith("-"):
@@ -725,6 +1158,8 @@ def main(argv: list[str]) -> int:
         rel = args.file.resolve().relative_to(root.resolve())
         return git(root, "show", f"{args.base_commit}:{rel.as_posix()}")
 
+    if args.cmd == "hook":
+        return hook()
     try:
         current = read(args.file)
         if "\r" in current:
@@ -733,6 +1168,41 @@ def main(argv: list[str]) -> int:
             lines, blocks = parse(split_front_matter(current)[1])
             for n, blk in enumerate(blocks):
                 print(f"{n}\t{blk.kind}\t{lines[blk.start][:70]}")
+            return 0
+
+        if args.cmd == "status":
+            print(json.dumps(status_of(args.file), indent=2))
+            return 0
+
+        if args.cmd == "bind":
+            root = repo_root(args.file)
+            rel = args.file.resolve().relative_to(root.resolve()).as_posix()
+            entries = [e for e in load_bindings(root) if e["path"] != rel]
+            entry = {"path": rel, "tool": args.tool, "origin": args.origin, "synced_rev": args.synced_rev,
+                     "base_sha256": args.base_sha256 or body_sha(current)}
+            if args.connector:
+                entry["connector"] = args.connector
+            save_bindings(root, entries + [entry])
+            if bound_tool(root, rel) != args.tool:
+                with open(root / ".gitattributes", "a", encoding="utf-8") as f:
+                    f.write(f"{rel} {args.tool}-bind\n")
+            print(f"bound {rel} to {args.tool} at revision {args.synced_rev}")
+            return 0
+
+        if args.cmd == "rebind":
+            root = repo_root(args.file)
+            rel = args.file.resolve().relative_to(root.resolve()).as_posix()
+            entry = entry_for(root, rel)
+            lines, blocks = parse(split_front_matter(current)[1])
+            OldDoc(read(args.old), blocks, lines)          # refuses unless the draft at that revision equals the file
+            entry.update(synced_rev=args.synced_rev, base_sha256=body_sha(current))
+            save_bindings(root, [e for e in load_bindings(root) if e["path"] != rel] + [entry])
+            print(f"rebound {rel} to revision {args.synced_rev}")
+            return 0
+
+        if args.cmd == "doc-ops":
+            out = doc_ops(base_text(current), current, read(args.old), read(args.now), args.prefer or record_of(current))
+            print(json.dumps(out, indent=2))
             return 0
 
         if args.cmd == "edits":
@@ -744,10 +1214,15 @@ def main(argv: list[str]) -> int:
         base = base_text(current)
         result = apply_text(base, ops)
         if base != current:
-            result, conflicts = merge_three_way(current, base, result)
-            if conflicts:
-                raise Refused(f"the file changed since the base commit and {conflicts} edit(s) conflict; "
-                              "ask the reviewer which text wins")
+            prefer = args.prefer or (record_of(current) if args.from_binding else None)
+            try:
+                result, lost = merge3(base, current, result, {"git": "ours", "doc": "theirs"}.get(prefer))
+            except Conflict as err:
+                shown = "; ".join(f"git: {c['ours']!r} / draft: {c['theirs']!r}" for c in err.conflicts[:3])
+                raise Refused(f"the file changed since the base and {len(err.conflicts)} change(s) conflict "
+                              f"({shown}); pass --prefer git or --prefer doc, or ask the reviewer which text wins")
+            for c in lost:
+                print(f"conflict resolved for {prefer}: git {c['ours']!r} / draft {c['theirs']!r}", file=sys.stderr)
         if not args.no_table_guard:
             script = args.assessment_tables or find_tables_script(args.file)
             if script is None:

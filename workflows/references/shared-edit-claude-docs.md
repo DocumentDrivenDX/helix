@@ -35,3 +35,12 @@ Nothing in the cases the tool covers; say in the handoff when a draft goes beyon
 Tested in the Docs UI by three editors, two of them at the same time (a paragraph edited by two at once, a table row deleted, a table cell retyped, a new nested bullet list): the read shows the merged result, and it lands with only those changes in the diff. A block that was added and deleted after the draft opened comes back as a `<gone>` with an id the opening doc lacks; it is ignored. A new bullet list nested under an existing item is supported; a new numbered or doubly nested one is not.
 
 Tested through the tools on a position paper: inline code, links, a wiki link in running text, a nested list edit, a table row delete and append, a new paragraph, and an edit to a generated table (refused).
+
+## Write into the draft
+
+`draftsync.py doc-ops` produces the `update` payload ops that carry the file's changes into the draft (see the mode, "Keeping a file bound to its draft"). What it emits for the Claude Docs surface, and what was observed when it ran against a live draft:
+
+- A changed word or phrase is a `replace` with a `find` target and `"as":"text"`, which re-words in place and keeps links, code and comment anchors. The quoted text is widened with neighbouring words until it is unique, and `nth` is added when it still repeats. A table cell change adds `within` with the table id and the cell's row and column.
+- A block the file deleted is a `delete` with `ifHash` and `ifRev` taken from the current read; a stale guard refuses and the sync reads again.
+- A new paragraph or heading is an `insert` after the previous surviving block, as Markdown; a new table row is an `insert` of a row after the previous row. A new list item, list or table is left to a person and named in the report.
+- A change that touches formatting (bold, code, a link) is left to a person; so is a block the draft deleted and the file changed.

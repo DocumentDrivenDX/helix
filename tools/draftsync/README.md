@@ -9,7 +9,7 @@ python3 tools/draftsync/draftsync.py apply FILE --edits EDITS.json --base-commit
 
 It keeps untouched text byte-identical (a changed paragraph keeps each unchanged word's spacing and line breaks), leaves front matter alone, merges into a file that moved since the base with `git merge-file`, and refuses an edit that makes a generated table differ from its front matter. It does not call a surface, normalize an export, scan for names, or know any review state; the agent and the consuming repository own those.
 
-Tests: `just test-draftsync`.
+Tests: `just test-draftsync`. The binding, status, hook, merge and draft write-back commands are described in the header of `draftsync.py` and in ADR-020.
 
 ## Known limits
 

@@ -27,3 +27,4 @@ generated: true
 - [ADR-017: Flows bind to a graph profile through an optional `profile:` key](adr-017-flow-profile-binding/)
 - [ADR-018: Cross-graph references are advisory unless the consumer grants authority](adr-018-advisory-vs-governing-authority/)
 - [ADR-019: A shared editing surface is a HELIX capability](adr-019-shared-editing-surface-is-a-helix-capability/)
+- [ADR-020: Draft sync is bidirectional and follows the system of record](adr-020-draft-sync-is-bidirectional-and-follows-the-record/)
