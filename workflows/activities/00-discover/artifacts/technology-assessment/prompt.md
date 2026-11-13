@@ -49,3 +49,14 @@ recommend. A tie or an unknown is a finding.
 
 - Reusable technology briefs for each technology
 - Concerns that define criteria
+
+## An assessment of a practice
+
+Set `ddx.scope: practice` when the subject is a practice that no technology
+assessment covers. Rate nothing: there are no criteria, subjects, or ratings,
+and no Criteria, Technologies, Comparison, or Evidence section. Write Scope,
+then Findings grouped by reader, then Contradictions and Gaps, then numbered
+Sources cited at the clause. Say how each claimed benefit is supported: by
+argument, by reported use, or by a named study. Where a technology assessment
+already covers the subject, put the explanation of the practice at the front
+of that assessment and write no second document.

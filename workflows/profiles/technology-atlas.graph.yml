@@ -28,10 +28,6 @@ nodes:
   type: library:position-paper
   activity: 00-discover
   cardinality: many
-- id: practice-guide
-  type: library:practice-guide
-  activity: 00-discover
-  cardinality: many
 - id: technology-assessment
   type: library:technology-assessment
   activity: 00-discover
@@ -75,14 +71,6 @@ edges:
   required: false
 - from: position-paper
   to: deliverable
-  kind: informs
-  required: false
-- from: practice-guide
-  to: position-paper
-  kind: informs
-  required: false
-- from: practice-guide
-  to: technology-assessment
   kind: informs
   required: false
 - from: technology-assessment

@@ -25,12 +25,11 @@ flows:
     root: knowledge/
 ```
 
-The `technology-atlas` profile uses eight types:
+The `technology-atlas` profile uses seven types:
 
 | Type | Holds | Lives in |
 | --- | --- | --- |
 | `component-profile` with `scope: reusable` | What the public record says about one technology, with no project or verdict | `technology/` |
-| `practice-guide` | What a practice is, why it is worth having and how to start, for a practice no assessment covers; no citations | `practice/` |
 | `technology-assessment` | A comparison of technologies on stated criteria, with findings and no recommendation | `assessments/` |
 | `position-paper` | An argued position, or advised stances, for an audience | `positions/` |
 | `tech-spike` with `scope: reusable` | A measurement that answers one open question of a brief, which anyone can rerun | `spikes/` |
@@ -41,6 +40,16 @@ The `technology-atlas` profile uses eight types:
 Knowledge in an atlas is advisory. A document that cites an atlas document does
 not take orders from it, and a link that claims `governing` authority is a
 blocking finding under this profile.
+
+## Assess a practice
+
+Some subjects have no product at their center: continuous integration is one. A
+`technology-assessment` with `scope: practice` in its frontmatter covers such a
+practice. It rates no technology, so it has no Criteria, Technologies,
+Comparison, or Evidence section. It keeps Scope, Findings grouped by reader,
+and Contradictions and Gaps, and it closes with numbered Sources. Where a
+technology assessment already covers the subject, explain the practice there,
+so a reader is handed one document per subject.
 
 ## Close a brief with reader views
 

@@ -29,6 +29,15 @@ description: |
   `assessment:` front matter block, with criteria ids from the graph's shared
   `criteria.yml`; the tables are then generated from it.
 
+  Scope `practice`, set in frontmatter as `ddx.scope`, is an assessment of a
+  practice that no technology assessment covers, such as continuous
+  integration. It rates no technology, so it has no Criteria, Technologies,
+  Comparison, or Evidence section and no `assessment:` block. It keeps Scope,
+  Findings (what the public record says, by reader), and Contradictions and
+  Gaps, and closes with its own Sources. Where a technology assessment covers
+  the subject, explain the practice in that assessment instead, so a reader
+  is handed one document per subject.
+
 output:
   location: docs/helix/00-discover/technology-assessment-TA-{number}-{subject}.md
   format: markdown
@@ -59,6 +68,21 @@ validation:
     - pattern: "TA-[0-9]{3}"
       expected: ">=1"
       message: Must carry a valid Technology Assessment identifier
+
+  # An assessment of a practice rates no technology: no criteria, technology list, comparison, or evidence table.
+  by_scope:
+    practice:
+      required_sections:
+        - scope
+        - findings
+        - sources
+      pattern_checks:
+        - pattern: "TA-[0-9]{3}"
+          expected: ">=1"
+          message: Must carry a valid Technology Assessment identifier
+        - pattern: "https?://"
+          expected: ">=1"
+          message: "Sources must carry at least one URL"
 
   quality_checks:
     - check: criteria_stated_before_comparison
