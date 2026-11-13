@@ -41,6 +41,16 @@ Knowledge in an atlas is advisory. A document that cites an atlas document does
 not take orders from it, and a link that claims `governing` authority is a
 blocking finding under this profile.
 
+## Assess a practice
+
+Some subjects have no product at their center: continuous integration is one. A
+`technology-assessment` with `scope: practice` in its frontmatter covers such a
+practice. It rates no technology, so it has no Criteria, Technologies,
+Comparison, or Evidence section. It keeps Scope, Findings grouped by reader,
+and Contradictions and Gaps, and it closes with numbered Sources. Where a
+technology assessment already covers the subject, explain the practice there,
+so a reader is handed one document per subject.
+
 ## Close a brief with reader views
 
 A technology brief (`component-profile` with `scope: reusable`) closes with a

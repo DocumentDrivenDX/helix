@@ -25,6 +25,14 @@ ddx:
 
 # TA-[number]: [Subject: what is compared]
 
+**Scope kinds** (`ddx.scope`). Unset is this whole template: technologies
+compared on criteria. `practice` is an assessment of a practice that no
+technology assessment covers: write Scope, Findings, Contradictions and Gaps,
+and Sources, and omit the `assessment:` block, Criteria, Technologies,
+Comparison, and Evidence. Group its Findings by reader (cost and commitment,
+security and compliance, running it, building on it). It names a product
+only as an example of a kind of tool.
+
 ## Scope
 
 What is compared and what is not. Name each technology and version line,
@@ -72,3 +80,10 @@ Where sources disagree (both cited), and what no brief covers.
 | Reference | Kind | Revision | Used for |
 |-----------|------|----------|----------|
 | [Technology brief or source] | [kind] | [revision or digest] | [criterion] |
+
+## Sources
+
+Practice scope only; an assessment of technologies cites its briefs under
+Evidence. Number each source and cite it at the clause it supports.
+
+1. [Title](https://example.org/public-page), [author or organization], [date on the page]. Read [date].
