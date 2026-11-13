@@ -25,11 +25,12 @@ flows:
     root: knowledge/
 ```
 
-The `technology-atlas` profile uses seven types:
+The `technology-atlas` profile uses eight types:
 
 | Type | Holds | Lives in |
 | --- | --- | --- |
 | `component-profile` with `scope: reusable` | What the public record says about one technology, with no project or verdict | `technology/` |
+| `practice-guide` | What a practice is, why it is worth having and how to start, for a practice no assessment covers; no citations | `practice/` |
 | `technology-assessment` | A comparison of technologies on stated criteria, with findings and no recommendation | `assessments/` |
 | `position-paper` | An argued position, or advised stances, for an audience | `positions/` |
 | `tech-spike` with `scope: reusable` | A measurement that answers one open question of a brief, which anyone can rerun | `spikes/` |

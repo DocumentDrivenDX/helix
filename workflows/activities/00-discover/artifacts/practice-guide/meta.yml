@@ -1,0 +1,114 @@
+# Metadata for Practice Guide
+
+artifact:
+  name: Practice Guide
+  id: practice-guide
+  type: document
+  activity: discover
+  level: project
+  optional: true
+
+voice: human-facing
+
+description: |
+  A short guide for the people responsible for a system: what a practice is, the problem it solves, how it works,
+  why it is worth having, how to start, the reference setup, what running it involves, what each of the four
+  executive readers should expect, questions to ask the team, and the common mistakes. It advocates. It carries no citations, no
+  source list and no document identifiers: the evidence behind it is kept apart, as working notes and a source
+  ledger, and every statement in the guide must be one that evidence supports. Where the support is reasoning and
+  not measurement, the guide gives the reasoning and states no measured effect.
+
+  A guide is written in ordinary connected prose for a reader who is not a specialist in the practice. It opens
+  with the point, never with a description of its reader or of itself.
+
+output:
+  location: docs/helix/00-discover/practice-guide-[practice-name].md
+  format: markdown
+  naming: "practice-guide-[practice-name].md"
+
+validation:
+  required_sections:
+    - the_problem
+    - how_it_works
+    - benefits
+    - getting_started
+    - reference_setup
+    - deployment
+    - views
+    - questions_for_your_team
+    - common_mistakes
+
+  pattern_checks:
+    - pattern: "\\[\\d+\\]"
+      expected: 0
+      message: A guide carries no numbered citations; the evidence is kept in its evidence notes
+      severity: blocking
+    - pattern: "https?://"
+      expected: 0
+      message: A guide carries no links to sources
+      severity: blocking
+    - pattern: "\\b(TA|PP|ADR|FEAT|US|DEL)-\\d{3}\\b"
+      expected: 0
+      message: A guide names another document by its title, never by its identifier
+      severity: blocking
+    - pattern: "\\[NEEDS CLARIFICATION|\\[TODO\\]|\\bTBD\\b"
+      expected: 0
+      message: No placeholders in a guide
+      severity: blocking
+
+  # The same four reader views a reusable component profile closes with: Risk & Compliance, Finance,
+  # IT Operations, Apps Dev. For a practice each answers a reworded question; see the template.
+  automated_checks:
+    - check: views
+      type: reader_views
+      severity: blocking
+      message: "Views carries the four reader headings, each answered or marked Not applicable with the reason"
+
+  quality_checks:
+    - check: opens_with_the_point
+      description: The first two sentences say what the practice is and what teams use it for; the guide never opens by describing its reader or itself
+      severity: blocking
+    - check: connected_prose
+      description: Paragraphs of three to five sentences that follow from one another; no slogans, no bold phrase followed by a clipped sentence, no "X, not Y" one-liners; bold only where a term is defined; lists only for the steps and the questions
+      severity: blocking
+    - check: supported_by_evidence
+      description: Every statement is supported by the guide's evidence notes; reasoning is written as reasoning and no measured effect is stated that nobody measured
+      severity: blocking
+    - check: reference_setup_is_concrete
+      description: Reference setup names the parts to stand up in the order work or data flows, what the shared service in the middle buys and costs, and the smallest version a single team can start with
+      severity: blocking
+    - check: every_reader_addressed
+      description: Views answers, for this practice, the first question of each of the four readers (Risk & Compliance, Finance, IT Operations, Apps Dev), or says Not applicable with the reason; Deployment speaks to the people who run it
+      severity: blocking
+    - check: no_process_language
+      description: No references, source lists, document identifiers, repository paths, or words about how the guide was researched, reviewed or built
+      severity: blocking
+    - check: terms_introduced
+      description: Every specialist term and every product is explained in a clause where it first appears
+      severity: warning
+
+prompts:
+  generation: prompt.md
+
+template:
+  file: template.md
+
+example:
+  file: example.md
+
+workflow:
+  creation_order: 3.7
+  review_cycles: 1
+
+relationships:
+  informed_by:
+    - component-profile
+    - technology-assessment
+  informs:
+    - position-paper
+    - technology-assessment
+
+tags:
+  - discovery
+  - practice
+  - guide

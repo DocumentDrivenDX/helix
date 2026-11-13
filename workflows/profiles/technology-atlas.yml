@@ -4,6 +4,7 @@ profile:
   description: Technology intelligence graph; knowledge is advisory, publications are pinned.
 types:
   - component-profile
+  - practice-guide
   - technology-assessment
   - position-paper
   - tech-spike
@@ -12,6 +13,7 @@ types:
   - deliverable
 locations:
   component-profile: technology/{component-name}.md
+  practice-guide: practice/{practice-name}.md
   technology-assessment: assessments/TA-{number}-{subject}.md
   position-paper: positions/PP-{number}-{subject}.md
   tech-spike: spikes/TS-{number}-{subject}.md
