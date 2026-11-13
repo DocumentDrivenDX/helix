@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -9,7 +10,8 @@ from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+SRC = str(Path(__file__).resolve().parents[1] / "src")
+sys.path.insert(0, SRC)
 import draftsync as ds  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[3]
@@ -161,7 +163,7 @@ def test_corpus_one_word_edit_touches_only_that_block():
 
 
 def run(*args, cwd=None):
-    return subprocess.run([sys.executable, str(REPO / "tools/draftsync/draftsync.py"), *args], capture_output=True, text=True, cwd=cwd)
+    return subprocess.run([sys.executable, "-m", "draftsync", *args], capture_output=True, text=True, cwd=cwd, env={**os.environ, "PYTHONPATH": SRC})
 
 
 def git(repo, *args):
@@ -631,7 +633,7 @@ def bound_repo(tmp_path, front="---\nddx:\n  id: X-1\n---\n"):
 def test_bind_writes_the_sidecar_and_the_attribute_and_status_reads_them(tmp_path):
     f = bound_repo(tmp_path)
     assert "d.md claude-docs-bind" in (tmp_path / ".gitattributes").read_text()
-    assert "synced_rev: '7'" in (tmp_path / ".helix/bindings.yml").read_text()
+    assert "synced_rev: '7'" in (tmp_path / ".helix-bindings.yml").read_text()
     st = json.loads(run("status", str(f)).stdout)
     assert st["bound"] and st["tool"] == "claude-docs" and st["record"] == "git" and st["file_changed_since_base"] is False
     f.write_text(f.read_text().replace("beta", "BETA"))
@@ -654,8 +656,8 @@ def test_the_record_follows_authoring_home(tmp_path):
 
 def hook_run(tmp_path, f, payload=None):
     data = payload or {"tool_name": "Edit", "tool_input": {"file_path": str(f)}, "cwd": str(tmp_path)}
-    return subprocess.run([sys.executable, str(REPO / "tools/draftsync/draftsync.py"), "hook"], input=json.dumps(data),
-                          capture_output=True, text=True, cwd=tmp_path)
+    return subprocess.run([sys.executable, "-m", "draftsync", "hook"], input=json.dumps(data),
+                          capture_output=True, text=True, cwd=tmp_path, env={**os.environ, "PYTHONPATH": SRC})
 
 
 def test_hook_is_silent_for_unbound_or_unchanged_files_and_tells_the_agent_otherwise(tmp_path):
@@ -681,7 +683,7 @@ def test_hook_warns_that_the_draft_wins_when_it_is_the_record(tmp_path):
 
 
 def test_hook_never_fails_on_garbage(tmp_path):
-    r = subprocess.run([sys.executable, str(REPO / "tools/draftsync/draftsync.py"), "hook"], input="not json", capture_output=True, text=True, cwd=tmp_path)
+    r = subprocess.run([sys.executable, "-m", "draftsync", "hook"], input="not json", capture_output=True, text=True, cwd=tmp_path, env={**os.environ, "PYTHONPATH": SRC})
     assert r.returncode == 0 and r.stdout == ""
 
 
@@ -712,7 +714,7 @@ def test_apply_from_binding_lets_the_draft_win_when_it_is_the_record(tmp_path):
 
 def test_a_missing_base_or_binding_is_a_refusal(tmp_path):
     f = bound_repo(tmp_path)
-    side = tmp_path / ".helix/bindings.yml"
+    side = tmp_path / ".helix-bindings.yml"
     side.write_text(side.read_text().replace(side.read_text().split("base_sha256: ")[1].split("\n")[0], "'" + "0" * 64 + "'"))
     e = tmp_path / "e.json"
     e.write_text('{"ops": []}')
@@ -857,7 +859,7 @@ def test_bind_needs_a_committed_body_and_bindings_file_errors_are_clean(tmp_path
     git(tmp_path, "add", "-A")
     git(tmp_path, "commit", "-qm", "x")
     assert run("bind", str(f), "--tool", "claude-docs", "--origin", "u", "--synced-rev", "1").returncode == 0
-    side = tmp_path / ".helix/bindings.yml"
+    side = tmp_path / ".helix-bindings.yml"
     for bad in ("bindings: [", "bindings:\n  - tool: x\n"):
         side.write_text(bad)
         r = run("status", str(f))
@@ -1078,3 +1080,26 @@ def test_writer_deletes_a_whole_table_with_one_op_and_checks_row_widths():
     assert len(dels) == 1 and dels[0]["target"]["ids"] == [".2"] or dels[0]["target"]["ids"] == ["s.2"]
     out = ds.doc_ops("Intro here.\n\n| a |\n|---|\n| b |\n", "Intro here.\n\n| a |\n|---|\n| b |\n| c | d |\n", xml, xml, "git")
     assert [o for o in out["ops"] if o["op"] == "insert"] == [] and any("by hand" in r for r in out["report"])
+
+
+# ---- packaging: a uv tool released with HELIX --------------------------------------------------------------
+
+def test_the_vendored_table_check_equals_the_skills_copy_and_the_version_follows_the_plugin():
+    for name in ("assessment-tables.py", "structured_blocks.py"):
+        assert (Path(SRC) / "draftsync/vendor" / name).read_bytes() == (REPO / "skills/helix/scripts" / name).read_bytes(), \
+            f"run: cp skills/helix/scripts/{name} tools/draftsync/src/draftsync/vendor/"
+    plugin = json.loads((REPO / ".claude-plugin/plugin.json").read_text())["version"]
+    assert ds.__version__ == plugin
+    assert f'version = "{plugin}"' in (REPO / "tools/draftsync/pyproject.toml").read_text()
+
+
+def test_the_table_guard_uses_the_vendored_check_outside_a_helix_checkout(tmp_path):
+    f = tmp_path / "PP.md"
+    f.write_text((FIX / "pp-with-notes.md").read_text())
+    shutil.copy(REPO / "workflows/activities/00-discover/artifacts/criteria.yml", tmp_path)
+    assert ds.find_tables_script(f).parent.name == "vendor" or "skills" in ds.find_tables_script(f).parts
+    vendored = Path(SRC) / "draftsync/vendor/assessment-tables.py"
+    e = tmp_path / "e.json"
+    e.write_text(json.dumps({"ops": [{"op": "replace", "block": 15, "cell": 1, "text": "Recommended"}]}))
+    r = run("apply", str(f), "--edits", str(e), "--assessment-tables", str(vendored))
+    assert r.returncode == 1 and "generated table" in r.stderr

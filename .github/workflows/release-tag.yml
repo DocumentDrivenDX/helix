@@ -57,7 +57,8 @@ jobs:
           import re, subprocess, os
           allowed = {'.claude-plugin/plugin.json', '.codex-plugin/plugin.json',
                      '.claude-plugin/marketplace.json', 'tools/documentor/pyproject.toml',
-                     'tools/documentor/src/documentor/__init__.py', 'tools/documentor/uv.lock'}
+                     'tools/documentor/src/documentor/__init__.py', 'tools/documentor/uv.lock',
+                     'tools/draftsync/pyproject.toml', 'tools/draftsync/uv.lock', 'tools/draftsync/src/draftsync/__init__.py'}
           changed = set(Path('/tmp/release-paths').read_text().splitlines())
           guide_pages = {'tools/documentor/docs/guide/developer/' + name + '.md'
                          for name in ('architecture', 'developer-guide', 'embedding', 'cli')}

@@ -31,6 +31,9 @@ def synchronize(root, tag, write=False):
         ("tools/documentor/pyproject.toml", r'^version = "([^"]+)"$'),
         ("tools/documentor/src/documentor/__init__.py", r'^__version__ = "([^"]+)"$'),
         ("tools/documentor/uv.lock", r'(?<=name = "documentor"\n)version = "([^"]+)"'),
+        ("tools/draftsync/pyproject.toml", r'^version = "([^"]+)"$'),
+        ("tools/draftsync/uv.lock", r'(?<=name = "draftsync"\n)version = "([^"]+)"'),
+        ("tools/draftsync/src/draftsync/__init__.py", r'^__version__ = "([^"]+)"$'),
     ]:
         path = root / name
         text = path.read_text()

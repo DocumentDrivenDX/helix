@@ -1,17 +1,16 @@
-#!/usr/bin/env python3
-"""Land edits from a shared editing surface onto a governed Markdown file as a patch.
+"""draftsync: land edits from a shared editing surface onto a governed Markdown file as a patch.
 
 Usage:
-    draftsync.py blocks FILE                       list the file's addressable blocks
-    draftsync.py edits FILE --old OLD.xml --delta DELTA.xml
+    draftsync blocks FILE                       list the file's addressable blocks
+    draftsync edits FILE --old OLD.xml --delta DELTA.xml
                                                    turn a Claude Docs changed-blocks read into EDITS.json
-    draftsync.py doc-ops FILE --old OLD.xml --now NOW.xml [--from-binding]
+    draftsync doc-ops FILE --old OLD.xml --now NOW.xml [--from-binding]
                                                    the draft edits that carry the file's changes into the draft
-    draftsync.py bind FILE --tool T --origin URL --synced-rev N     record the binding in .helix/bindings.yml
-    draftsync.py status FILE                       the binding, and whether the file changed since it
-    draftsync.py rebind FILE --synced-rev N --old OLD.xml           move the binding to a draft revision that equals the file
-    draftsync.py hook                              a Claude Code PostToolUse hook: notice edits to bound files
-    draftsync.py apply FILE --edits EDITS.json [--base-commit REV] [--write] [--no-table-guard]
+    draftsync bind FILE --tool T --origin URL --synced-rev N     record the binding in .helix-bindings.yml
+    draftsync status FILE                       the binding, and whether the file changed since it
+    draftsync rebind FILE --synced-rev N --old OLD.xml           move the binding to a draft revision that equals the file
+    draftsync hook                              a Claude Code PostToolUse hook: notice edits to bound files
+    draftsync apply FILE --edits EDITS.json [--base-commit REV] [--write] [--no-table-guard]
                                                    [--assessment-tables PATH]
 
 The surface returns what changed; the runtime adapter turns that into EDITS.json, a runtime-neutral list
@@ -54,7 +53,7 @@ the old doc and the file have the same sequence of headings, paragraphs, list it
 mismatch stops before anything is applied, and prints EDITS.json. A new list, table or code block, and
 formatting it cannot write as Markdown, are refused.
 
-The binding (ADR-020) is one entry per file in `.helix/bindings.yml` (`path`, `tool`, `origin`, `connector`,
+The binding (ADR-020) is one entry per file in `.helix-bindings.yml` (`path`, `tool`, `origin`, `connector`,
 `synced_rev`, `base_sha256`) and a `<tool>-bind` attribute in `.gitattributes`. `synced_rev` is a draft
 revision whose text equals the file body whose SHA-256 is `base_sha256`; `apply --from-binding` finds that
 body in git history as the base, and a conflict is resolved toward the file's system of record
@@ -63,6 +62,8 @@ body in git history as the base, and a conflict is resolved toward the file's sy
 Exit codes: 0 ok, 1 refused or conflicted, 2 usage error.
 """
 from __future__ import annotations
+
+__version__ = "0.23.0"
 
 import argparse
 import difflib
@@ -1140,7 +1141,7 @@ def merge3(base: str, ours: str, theirs: str, prefer: str | None = None) -> tupl
 
 # ---- the binding: sidecar, git attribute, status, hook -----------------------------------------------------
 
-BINDINGS = Path(".helix") / "bindings.yml"
+BINDINGS = Path(".helix-bindings.yml")
 
 
 def _yaml():
@@ -1175,7 +1176,7 @@ def load_bindings(root: Path) -> list[dict]:
 def save_bindings(root: Path, entries: list[dict]) -> None:
     f = root / BINDINGS
     f.parent.mkdir(parents=True, exist_ok=True)
-    f.write_text("# File bindings to shared drafts (ADR-020). Edit with `draftsync.py bind` and `rebind`.\n"
+    f.write_text("# File bindings to shared drafts (ADR-020). Edit with `draftsync bind` and `rebind`.\n"
                  + _yaml().safe_dump({"bindings": sorted(entries, key=lambda e: e["path"])}, sort_keys=False), encoding="utf-8")
 
 
@@ -1283,7 +1284,8 @@ def find_tables_script(start: Path) -> Path | None:
         c = parent / "skills" / "helix" / "scripts" / "assessment-tables.py"
         if c.is_file():
             return c
-    return None
+    vendored = Path(__file__).resolve().parent / "vendor" / "assessment-tables.py"      # kept equal to the skill's copy by a test
+    return vendored if vendored.is_file() else None
 
 
 def tables_ok(script: Path, path: Path, text: str) -> bool:
@@ -1466,5 +1468,9 @@ def main(argv: list[str]) -> int:
     return 0
 
 
+def cli() -> int:
+    return main(sys.argv[1:])
+
+
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))
+    sys.exit(cli())

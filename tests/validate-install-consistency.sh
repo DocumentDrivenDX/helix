@@ -246,5 +246,14 @@ if [[ "$DOCUMENTOR_VERSION" != "$PLUGIN_VERSION" || "$DOCUMENTOR_INIT_VERSION" !
 fi
 echo "ok: documentor version matches plugin.json ($PLUGIN_VERSION)"
 
+# draftsync is released with HELIX too.
+DRAFTSYNC_VERSION=$(sed -n 's/^version = "\(.*\)"$/\1/p' "$REPO_ROOT/tools/draftsync/pyproject.toml")
+DRAFTSYNC_INIT_VERSION=$(sed -n 's/^__version__ = "\(.*\)"$/\1/p' "$REPO_ROOT/tools/draftsync/src/draftsync/__init__.py")
+if [[ "$DRAFTSYNC_VERSION" != "$PLUGIN_VERSION" || "$DRAFTSYNC_INIT_VERSION" != "$PLUGIN_VERSION" ]]; then
+  echo "FAIL: draftsync version (pyproject $DRAFTSYNC_VERSION, __init__ $DRAFTSYNC_INIT_VERSION) differs from plugin.json $PLUGIN_VERSION" >&2
+  exit 1
+fi
+echo "ok: draftsync version matches plugin.json ($PLUGIN_VERSION)"
+
 echo
 echo "validate-install-consistency: PASS"

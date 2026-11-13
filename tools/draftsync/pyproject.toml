@@ -1,0 +1,21 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "draftsync"
+version = "0.23.0"
+description = "Land edits from a shared editing surface onto a governed Markdown file as a patch, and carry the file's changes back."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+dependencies = ["pyyaml>=6"]
+
+[project.scripts]
+draftsync = "draftsync:cli"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/draftsync"]
+
+[dependency-groups]
+dev = ["pytest>=8"]

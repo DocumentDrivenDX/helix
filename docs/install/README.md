@@ -52,6 +52,17 @@ half of present, and the by-hand form of `guide`. Item 4 is optional;
 and documentor use it. This is the binding form of PRD R-4 (runtime-neutral
 content).
 
+## The shared-edit tool (optional)
+
+The `shared-edit` mode keeps a governed document and a shared draft of it (a Claude Doc, for example) in step. It has one optional host tool, draftsync, released with HELIX from `tools/draftsync/`. It needs [uv](https://docs.astral.sh/uv/) and nothing else:
+
+```sh
+uv tool install "git+https://github.com/DocumentDrivenDX/helix@<tag>#subdirectory=tools/draftsync"
+draftsync --help
+```
+
+Without it the mode stops and says so. Binding a file, the optional local-edit hook, and the sync cycle are in `workflows/modes/shared-edit.md`.
+
 ## The documentation tool (optional)
 
 The `guide` and `present` modes have one optional host tool, documentor,
