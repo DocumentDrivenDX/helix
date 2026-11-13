@@ -63,7 +63,7 @@ Exit codes: 0 ok, 1 refused or conflicted, 2 usage error.
 """
 from __future__ import annotations
 
-__version__ = "0.23.0"
+__version__ = "0.24.0"
 
 import argparse
 import difflib

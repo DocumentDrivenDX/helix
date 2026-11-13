@@ -1,5 +1,5 @@
 <!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=agent-opus reviewed=2026-11-06/independent-evaluator-agent--sonnet---after-two-fixes-it-named/bf6a5b3554e81d43 -->
-<!-- helix:source pyproject.toml sha256:8b9d1fb99238fd7c -->
+<!-- helix:source pyproject.toml sha256:92fdf69a97e17e00 -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
 <!-- helix:source ../../.github/workflows/test.yml sha256:765c7d505cc24d0e -->
 <!-- helix:source ../../scripts/release-version.py sha256:ad55a7fa2e9e59a7 -->
@@ -9,7 +9,7 @@
 <!-- helix:source ../../.github/workflows/release-version-guard.yml sha256:859a4661f0e50d93 -->
 <!-- helix:source ../../CONTRIBUTING.md sha256:d0027006597fad67 -->
 <!-- helix:source README.md#development sha256:ec26429513feaa3e -->
-<!-- helix:source src/documentor/__init__.py sha256:56ef1aa188c7a078 -->
+<!-- helix:source src/documentor/__init__.py sha256:43ca6cde19c78f8a -->
 <!-- helix:source src/documentor/cli.py sha256:d35633003485cfea -->
 <!-- helix:source src/documentor/report.py sha256:0f48cfca412184a2 -->
 <!-- helix:source src/documentor/lib.py sha256:5db149c5af59118b -->
