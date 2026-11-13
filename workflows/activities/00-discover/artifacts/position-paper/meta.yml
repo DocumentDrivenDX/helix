@@ -29,7 +29,11 @@ description: |
   that advises a stance per technology and context records each as data in a
   `recommendations:` front matter block (stance, rationale, the assessments it
   rests on, review date, and approval); the Recommendations table is then
-  generated from it. Only a position paper carries a stance.
+  generated from it. Only a position paper carries a stance. It may also
+  say how much each criterion counts, in a `weights:` list (decisive,
+  important, or minor, with a reason), from which the Decision Criteria
+  table is generated; only a position paper carries a weight. Limits of the
+  Position holds a table of when the other option wins.
 
 output:
   location: docs/helix/00-discover/position-paper-PP-{number}-{subject}.md
@@ -65,6 +69,14 @@ validation:
       expected: ">=1"
       message: "Thesis opens with a **Thesis**: line"
 
+  # The Limits table is checked when present and warned about when absent, so a paper
+  # written before the table existed still publishes.
+  automated_checks:
+    - check: limits_table
+      type: limits_table
+      severity: blocking
+      message: "Limits of the Position carries a table of Condition, Option that wins, Evidence with at least one row"
+
   quality_checks:
     - check: claims_traced_or_labelled
       description: Every claim of fact cites evidence; every claim of judgment is labelled as the author's judgment
@@ -83,7 +95,11 @@ validation:
       severity: blocking
 
     - check: limits_stated
-      description: The paper says what it does not claim and the conditions under which the thesis would not hold
+      description: The paper says what it does not claim, and its Limits table gives each condition under which the thesis would not hold, the option that wins under it, and the evidence
+      severity: blocking
+
+    - check: weights_are_judgement
+      description: Each weight is decisive, important, or minor with a one-line reason, names a criterion a pinned assessment has a finding for, and is presented as the paper's judgement; the Decision Criteria table equals what `assessment-tables.py` makes from `weights:`
       severity: blocking
 
     - check: assessments_pinned_at_publish
@@ -115,5 +131,5 @@ tags:
   - argument
   - evidence
 
-version: 1.0.0
-last_updated: 2026-11-06
+version: 1.1.1
+last_updated: 2026-11-10

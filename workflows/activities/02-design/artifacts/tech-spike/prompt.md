@@ -32,6 +32,26 @@ blocked spike instead.
 - End with findings, limitations, and a recommendation that updates design,
   creates follow-up work, or stops the approach.
 
+## Reusable scope
+
+For `ddx.scope: reusable`, a spike published as knowledge (a technology
+atlas keeps them under `spikes/`):
+
+- **Answer one open question of one profile.** Link the [[component-profile]]
+  with kind `answers` and the question's number from its Open Questions
+  table, pinned to the revision read.
+- **Use public inputs only.** Anyone can rerun it from the repository. A
+  spike that needs a client's systems or data, or names a project, is not
+  reusable and stays in that project's graph.
+- **Record the Test Setup in full,** because the result speaks only for the
+  configuration measured: version, environment, settings, data, and date.
+- **Report, do not advise.** Findings, the conclusion, and its limits. No
+  Recommendations section; a position paper or decision brief draws advice.
+- **Say which views the result changes** in the profile: Risk & Compliance,
+  Finance, IT Operations, Apps Dev, or No change.
+- **Make it reproducible.** Scripts in the repository, commands in order.
+  The profile then cites the spike as a source of class `measured`.
+
 ## Completion Criteria
 - The uncertainty is reduced.
 - Evidence is documented.

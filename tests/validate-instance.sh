@@ -261,6 +261,7 @@ mkdir -p "$sb"
 cp "$repo_root/workflows/activities/00-discover/artifacts/criteria.yml" "$sb/"
 ta_src="$repo_root/workflows/activities/00-discover/artifacts/technology-assessment/example.md"
 pp_src="$repo_root/workflows/activities/00-discover/artifacts/position-paper/example.md"
+cp "$ta_src" "$sb/TA-001.md"  # the assessment the paper's weights are checked against
 expect_block() {  # file, sed expression, expected finding regex
   local file="$sb/case.md" src="$1"; shift
   sed "$1" "$src" >"$file"
@@ -285,6 +286,62 @@ expect_block "$pp_src" '/    conditions: /d' "BLOCKING +recommendations\.0 .*con
 # a stance outside a position paper, and a criteria block outside an assessment
 expect_block "$ta_src" 's/^assessment:/recommendations: []\nassessment:/' "BLOCKING +recommendations\.placement "
 expect_block "$pp_src" 's/^recommendations:/assessment: {}\nrecommendations:/' "BLOCKING +assessment\.placement "
+
+# Weights: a paper says how much a criterion counts on a three-step scale, only for a criterion a
+# supported_by assessment has a finding for. A weight is a judgement, so an assessment and
+# criteria.yml may not carry one. Limits of the Position holds the table of when the other option wins.
+expect_block "$pp_src" 's/    weight: decisive/    weight: 5/' "BLOCKING +weights\.0 .*one of decisive, important, minor"
+expect_block "$pp_src" 's/  - criterion: dependency-isolation/  - criterion: speed/' "BLOCKING +weights\.1 .*'speed' is not in criteria.yml"
+expect_block "$pp_src" 's/  - criterion: dependency-isolation/  - criterion: script-distribution/' "BLOCKING +weights\.1 .*has a finding for 'script-distribution'"
+expect_block "$pp_src" 's/  - criterion: dependency-isolation/  - criterion: text-and-file-handling/' "BLOCKING +weights\.1 .*weighted twice"
+expect_block "$pp_src" '/    reason: Tooling scripts here/d' "BLOCKING +weights\.1 .*reason. in one line"
+expect_block "$pp_src" 's/^weights:$/weights: []\nunused:/' "BLOCKING +weights\.shape "
+expect_block "$pp_src" 's/- {id: TA-001, kind: supported_by, rev: example}/- {id: TA-001, kind: evaluates, rev: example}/' "BLOCKING +weights\.0 .*no assessment linked as supported_by has a finding"
+expect_block "$ta_src" 's/^assessment:/weights: []\nassessment:/' "BLOCKING +weights\.placement "
+expect_block "$ta_src" 's/^  ratings:$/  weights: []\n  ratings:/' "BLOCKING +assessment\.weights "
+expect_block "$ta_src" 's/finding: Brief section Technology and Operations}$/finding: Brief section Technology and Operations, weight: decisive}/' "BLOCKING +assessment\.weights "
+printf '    weight: decisive\n' >>"$sb/criteria.yml"
+expect_block "$pp_src" 's/^$/&/' "BLOCKING +catalogue .*'dependency-isolation' carries a weight"
+cp "$repo_root/workflows/activities/00-discover/artifacts/criteria.yml" "$sb/"
+expect_block "$pp_src" 's/^| Condition | Option that wins | Evidence |$/| Condition | Evidence |/' "BLOCKING +limits_table .*columns"
+expect_block "$pp_src" '/^| The repository.s existing runtime is Node.js /d; /^| A script needs a library /d' "BLOCKING +limits_table .*at least one row"
+# A paper with no Limits table predates it: a warning at either tier, so it still publishes.
+sed '/^| Condition | Option that wins | Evidence |$/,/^| A script needs a library /d' "$pp_src" >"$sb/nolimits.md"
+grep -q 'Option that wins' "$sb/nolimits.md" && fail "test setup: the Limits table was not removed"
+python3 "$validator" "$sb/nolimits.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 \
+  && grep -Eq "^WARNING +limits_table .*no table" "$tmpdir/case.out" || fail "a paper with no Limits table should warn and pass at the default tier:
+$(cat "$tmpdir/case.out")"
+# (the example's pins are placeholders, so it cannot pass the publish tier; the Limits finding must still be a warning there)
+python3 "$validator" "$sb/nolimits.md" --catalog "$repo_root/workflows" --tier publish >"$tmpdir/case.out" 2>&1 || true
+grep -Eq "^WARNING +limits_table .*no table" "$tmpdir/case.out" && ! grep -Eq "^BLOCKING +limits_table" "$tmpdir/case.out" \
+  || fail "a paper with no Limits table should only warn about it at the publish tier:
+$(cat "$tmpdir/case.out")"
+rm -f "$sb/nolimits.md"
+sed '/^recommendations:$/,/^weights:$/{/^weights:$/!d;}' "$pp_src" >"$sb/weightsonly.md"
+grep -q '^recommendations:' "$sb/weightsonly.md" && fail "test setup: recommendations were not removed"
+python3 "$tables" "$sb/weightsonly.md" >"$tmpdir/tables.out" 2>&1 || fail "a paper with weights and no recommendations should generate its Decision Criteria table:
+$(cat "$tmpdir/tables.out")"
+sed 's/^| Dependency isolation | Minor |/| Dependency isolation | Decisive |/' "$pp_src" >"$sb/wdrift.md"
+if python3 "$tables" "$sb/wdrift.md" >"$tmpdir/tables.out" 2>&1; then fail "a drifted Decision Criteria table should fail assessment-tables.py"; fi
+python3 "$tables" --write "$sb/wdrift.md" >/dev/null && cmp -s "$sb/wdrift.md" "$pp_src" \
+  || fail "assessment-tables.py --write should restore the Decision Criteria table"
+rm -f "$sb/weightsonly.md" "$sb/wdrift.md"
+
+# Views: with a views.yml beside criteria.yml, a criterion's `view:` must name a view in it; one id
+# or a list. Without views.yml a `view:` is not checked.
+sed 's/^    concern: none$/    concern: none\n    view: finance/' "$repo_root/workflows/activities/00-discover/artifacts/criteria.yml" >"$sb/criteria.yml"
+python3 "$validator" "$sb/TA-001.md" --catalog "$repo_root/workflows" >/dev/null 2>&1 || fail "a view: without views.yml should not be checked"
+printf 'views:\n  - {id: finance, label: Finance}\n  - {id: apps-dev, label: Apps Dev}\n' >"$sb/views.yml"
+python3 "$validator" "$sb/TA-001.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 || fail "a view named in views.yml should validate:
+$(cat "$tmpdir/case.out")"
+sed -i.bak 's/^    view: finance$/    view: [finance, apps-dev]/' "$sb/criteria.yml"
+python3 "$validator" "$sb/TA-001.md" --catalog "$repo_root/workflows" >/dev/null 2>&1 || fail "a list of views named in views.yml should validate"
+printf 'views:\n  - {id: apps-dev, label: Apps Dev}\n' >"$sb/views.yml"
+expect_block "$ta_src" 's/^$/&/' "BLOCKING +catalogue .*names view 'finance', which is not in views.yml"
+printf 'views:\n  - apps-dev\n' >"$sb/views.yml"
+expect_block "$ta_src" 's/^$/&/' "BLOCKING +catalogue .*views.yml needs a .views:. list"
+rm -f "$sb/views.yml" "$sb/criteria.yml.bak"
+cp "$repo_root/workflows/activities/00-discover/artifacts/criteria.yml" "$sb/"
 
 # Malformed shapes are findings, never tracebacks; the table tool refuses a malformed block.
 expect_block "$ta_src" 's/^  subjects:$/  subjects:\n    - nodejs/' "BLOCKING +assessment\.shape .*subjects"
@@ -431,4 +488,23 @@ fi
 grep -Eq "^BLOCKING +figure\.basis " "$tmpdir/case.out" || fail "expected a blocking figure.basis at the publish tier:
 $(cat "$tmpdir/case.out")"
 
-echo "OK: validate-instance.py passes all $count catalog examples and $ux optional-section fixtures, holds the deliverable to its voice profile, rejects the broken PRD fixture, checks visual blocks and structured assessment and recommendation blocks, keys, and figure attributes, and errors on unresolvable types"
+# Reader views: a reusable brief closes with a Views section of four headings. A brief with none
+# predates the section and only warns, at either tier, so it still publishes; a Views section that
+# drops or empties a heading blocks.
+brief_src="$repo_root/workflows/activities/00-discover/artifacts/component-profile/example-reusable.md"
+awk '/^## Views$/{skip=1} /^## Confidence$/{skip=0} !skip' "$brief_src" >"$sb/noviews.md"
+grep -q '^## Views$' "$sb/noviews.md" && fail "test setup: the Views section was not removed"
+for tier in default publish; do
+  python3 "$validator" "$sb/noviews.md" --catalog "$repo_root/workflows" --tier "$tier" >"$tmpdir/case.out" 2>&1 \
+    && grep -Eq "^WARNING +views .*no Views section" "$tmpdir/case.out" || fail "a brief with no Views section should warn and pass at the $tier tier:
+$(cat "$tmpdir/case.out")"
+done
+expect_block "$brief_src" 's/^### Finance$/### Money/' "BLOCKING +views .*no .### Finance. heading"
+awk '/^### Apps Dev$/{print; skip=1; next} /^## Confidence$/{skip=0} !skip' "$brief_src" >"$sb/emptyview.md"
+expect_block "$sb/emptyview.md" 's/^$/&/' "BLOCKING +views .*### Apps Dev. is empty"
+sed 's/^### Finance$/### Money/' "$brief_src" >"$proj/knowledge/brief.md"
+python3 "$validator" "$proj/knowledge/brief.md" --catalog "$repo_root/workflows" >"$tmpdir/case.out" 2>&1 \
+  && grep -Eq "^WARNING +views .*Finance" "$tmpdir/case.out" || fail "a malformed Views section should be a warning at an atlas flow's default tier:
+$(cat "$tmpdir/case.out")"
+
+echo "OK: validate-instance.py passes all $count catalog examples and $ux optional-section fixtures, holds the deliverable to its voice profile, rejects the broken PRD fixture, checks visual blocks and structured assessment, recommendation and weight blocks, keys, figure attributes, and reader views, and errors on unresolvable types"

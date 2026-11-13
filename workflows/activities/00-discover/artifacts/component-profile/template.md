@@ -24,8 +24,8 @@ Competitive Landscape do not.
 **Scope kinds** (`ddx.scope`). `contextual` (default) is this whole template.
 `reusable` is a technology brief for use across projects and graphs: write
 Scope, Summary, How to Read This Profile, What It Is, Capabilities and Limits,
-Technology and Operations, Pricing and Licensing, Confidence, Open Questions,
-and Sources, and omit Need, Required Capabilities, Capability Alignment, and
+Technology and Operations, Pricing and Licensing, Views, Confidence, Open
+Questions, and Sources, and omit Need, Required Capabilities, Capability Alignment, and
 Competitive Landscape. A reusable brief names no project, client, or project
 artifact and gives no verdict; other documents cite it by pinned revision.
 
@@ -65,9 +65,10 @@ The vocabularies used below, in one place.
 | **Published** | Figures | The maker states it, with source and date. |
 | **Third-party estimate** | Figures | Someone other than the maker estimated it; the estimator is named. |
 | **Not published** | Figures and claims | Searched and absent; the search is recorded (which pages, which date). |
-| **Not researched** | Competitive Landscape cells | Nobody has looked; the sibling profile that would fill the cell is named. |
+| **Not researched** | Competitive Landscape cells; Views | Nobody has looked; in the landscape, the sibling profile that would fill the cell is named. |
+| **Not applicable** | Views | The reader's question does not arise for this component; the reason is given. |
 | **High / Medium / Low** | Confidence | Defined in the Confidence section. |
-| **maker / vendor / independent / community** | Sources | Defined in the Sources section. |
+| **maker / vendor / independent / community / measured** | Sources | Defined in the Sources section. |
 
 A figure can carry its provenance as an attribute list after it:
 `{basis=published accessed=2026-11-06 source="vendor.example/pricing"}`, with
@@ -211,6 +212,40 @@ page that says which software it runs.
 Below the table, one line per alternative: the shared ground and the
 divergence this project cares about. [n]
 
+## Views
+
+Reusable scope only. The brief as four readers come to it. Each heading
+answers that reader's first question in one sentence, then points to the
+sections that carry the facts. The sentence sums up what those sections
+show and takes no side; a fact and its source are stated once, in the
+section pointed to, never here. A view the brief does not cover says **Not
+applicable**, with the reason, or **Not researched**. No heading is left out.
+
+### Risk & Compliance
+
+Can we defend this to a regulator, client, or auditor?
+
+[One sentence.] See [section, and the subsection or row].
+
+### Finance
+
+What does it cost now and over three to five years, and what are we
+committed to?
+
+[One sentence.] See [section, and the subsection or row].
+
+### IT Operations
+
+Who runs it, and what happens at 2 a.m.?
+
+[One sentence.] See [section, and the subsection or row].
+
+### Apps Dev
+
+How fast can teams build on it, and what will slow them down?
+
+[One sentence.] See [section, and the subsection or row].
+
 ## Confidence
 
 One grade for the profile:
@@ -220,6 +255,10 @@ One grade for the profile:
 | **High** | Every design-defining claim is corroborated by the maker's material *and* at least one independent source, and no design-defining capability is Unknown. |
 | **Medium** | Design-defining claims rest on the maker alone, or a design-defining capability is Unknown, or the independent coverage is older than two major versions. |
 | **Low** | Thin public footprint; claims rest on one source or on none. |
+
+A **measured** source counts as independent corroboration for the
+configuration it measured, and for nothing wider. A grade that rests on one
+says so and names the configuration.
 
 **Grade**: [High | Medium | Low]. [Which claims are corroborated, which rest
 on the maker alone, and which have no source. Name the weakest area.]
@@ -236,6 +275,11 @@ project's tenant count", not as a number.
 |---|----------|-------------------------|-------|
 | 1 | [Question] | [Which decision turns on it] | [[tech-spike]] / ask maker / operator guidance / [[component-profile-name]] |
 
+A spike that answers a question links this profile with kind `answers` and
+the question's number. At the profile's next revision the result is cited
+where the fact belongs, as a `measured` source, and the row's route names
+the spike.
+
 ## Sources
 
 Numbered; cited by number above. Each carries its class, its author or
@@ -247,6 +291,7 @@ URL (`/docs/18/`, not `/docs/current/`). Classes:
 - **vendor**: a company that sells hosting or support for the component or a rival
 - **independent**: no commercial interest in the component; a named author or organisation and a date
 - **community**: a project or forum around the component
+- **measured**: a measurement made by whoever publishes this profile, recorded in a [[tech-spike]] that is cited by pinned revision and keeps the scripts that reproduce it in the repository; it speaks for the configuration measured
 
 A source with no named author or organisation and no date supports a
 descriptive claim only, never a design-defining one.

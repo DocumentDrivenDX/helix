@@ -17,6 +17,13 @@ recommendations:
     based_on: [{assessment: TA-001, criteria: [text-and-file-handling]}]
     since: 2026-11-06
     review_by: 2027-02-06
+weights:
+  - criterion: text-and-file-handling
+    weight: decisive
+    reason: Repository tooling is mostly reading and rewriting text files.
+  - criterion: dependency-isolation
+    weight: minor
+    reason: Tooling scripts here lean on the standard library.
 ---
 
 # PP-001: New repository tooling should default to Python
@@ -31,6 +38,13 @@ library with no equivalent.
 
 Maintainers choosing a runtime for a new tooling script. A second runtime in
 a repository adds installation and upkeep for every contributor.
+
+## Decision Criteria
+
+| Criterion | Weight | Why |
+|-----------|--------|-----|
+| Text and file handling | Decisive | Repository tooling is mostly reading and rewriting text files. |
+| Dependency isolation | Minor | Tooling scripts here lean on the standard library. |
 
 ## Argument
 
@@ -56,9 +70,17 @@ a repository adds installation and upkeep for every contributor.
 
 ## Limits of the Position
 
-The paper does not claim Python is better in general. It fails where the
-repository's existing runtime is Node.js, or a required library exists only
-for Node.js.
+The paper does not claim Python is better in general.
+
+| Condition | Option that wins | Evidence |
+|-----------|------------------|----------|
+| The repository's existing runtime is Node.js | Node.js | Author's judgment: argument step 2 favours whichever runtime is already there |
+| A script needs a library that exists only for Node.js | Node.js | Author's judgment |
+
+## Transition Path
+
+Existing Node.js scripts stay as they are. The position covers new tooling
+only, so nothing is rewritten.
 
 ## Evidence
 

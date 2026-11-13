@@ -13,6 +13,14 @@ description: |
   Time-boxed investigation that answers one technical question with evidence
   before implementation.
 
+  Two scopes, set in frontmatter as `ddx.scope`. The default is a project's
+  spike and ends in a recommendation. `reusable` is a spike published as
+  knowledge, for example in a technology atlas: it answers one open question
+  of a component profile (a link of kind `answers` carrying the question's
+  number), runs on public inputs anyone can obtain, records its test setup
+  and how to reproduce it, says which reader views the result changes, and
+  recommends nothing. A profile cites it as a source of class `measured`.
+
 output:
   location: docs/helix/02-design/spikes/
   format: markdown
@@ -47,6 +55,10 @@ validation:
       description: Recommendations must be specific and implementable
       severity: warning
 
+    - check: reusable_is_reproducible_and_context_free
+      description: At `reusable` scope the spike names no project, client, or private system, uses only inputs anyone can obtain, records the configuration measured in Test Setup, keeps the scripts that reproduce it in the repository, links the profile it answers with kind `answers` and the open question's number, and gives no recommendation
+      severity: blocking
+
   pattern_checks:
     - pattern: "\\*\\*FINDING \\d+\\*\\*:"
       expected: ">=1"
@@ -59,6 +71,32 @@ validation:
     - pattern: "\\[INVESTIGATE\\]|\\[TODO\\]|\\[TBD\\]"
       expected: 0
       message: Complete all investigations before finalizing spike
+
+  by_scope:
+    reusable:
+      required_sections:
+        - objective
+        - hypothesis
+        - test_setup
+        - approach
+        - findings
+        - analysis
+        - conclusions
+        - views_affected
+        - reproduction
+      pattern_checks:
+        - pattern: "\\*\\*FINDING \\d+\\*\\*:"
+          expected: ">=1"
+          message: "Must state at least one numbered **FINDING n**: with evidence"
+
+        - check: no_recommendation
+          pattern: "\\*\\*RECOMMENDATION\\*\\*:"
+          expected: 0
+          message: "A reusable spike reports what it measured and recommends nothing; advice belongs in a position paper or decision brief"
+
+        - pattern: "\\[INVESTIGATE\\]|\\[TODO\\]|\\[TBD\\]"
+          expected: 0
+          message: Complete all investigations before finalizing spike
 
 variables:
   - name: spike_id
@@ -196,5 +234,5 @@ tags:
   - risk-reduction
   - architecture
 
-version: 1.0.0
-last_updated: 2024-01-14
+version: 1.1.0
+last_updated: 2026-11-10

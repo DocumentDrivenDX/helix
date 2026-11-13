@@ -1,7 +1,8 @@
 """Structured front matter for two Technology Atlas types, and the tables made from it.
 
 A technology assessment's `assessment:` block holds its criteria and ratings as data; a position
-paper's `recommendations:` list holds its stances. The Markdown tables a reader sees are generated
+paper's `recommendations:` list holds its stances and its `weights:` list says how much each
+criterion counts. The Markdown tables a reader sees are generated
 from them (`assessment-tables.py`), so prose and data cannot disagree, and `validate-instance.py`
 checks the data's shape. Criteria come from a shared `criteria.yml` in the nearest ancestor
 directory that has one (the flow root), so one criterion is one node across assessments.
@@ -27,6 +28,20 @@ directory that has one (the flow root), so one criterion is one node across asse
         review_by: 2027-02-06
         approved_by: Name                           # both or neither; until then "proposed"
         approved_on: 2026-11-20
+
+    weights:                                        # optional; position paper only
+      - criterion: licence-cost                     # an id in criteria.yml that an assessment linked
+        weight: decisive                            #   as supported_by has a finding for
+        reason: Why it counts this much, in one line   # decisive | important | minor
+
+Views: a graph may keep a `views.yml` beside criteria.yml, a `views:` list of {id, label} naming
+the readers a criterion answers (a technology atlas has four). A criterion may then carry `view:`,
+one id or a list of ids, and each must be in views.yml. Without views.yml a `view:` is not checked.
+
+A weight is a judgement, so it is rejected on an assessment, inside an `assessment:` block, and in
+criteria.yml. The finding is looked up in the assessment as it stands in the graph (the directory
+that holds criteria.yml), not at its pinned revision; `pin-sources.py check` reports a source that
+has changed since its pin.
 
 Keys: `keys.yml` in the nearest ancestor directory that has one (the flow root) maps a short name to a
 document id. In the blocks, a subject, a rating's subject, a recommendation's subject, and a
@@ -58,6 +73,7 @@ STANCES = {
     "watch": "Watch",
     "avoid": "Avoid",
 }
+WEIGHTS = {"decisive": "Decisive", "important": "Important", "minor": "Minor"}
 EVIDENCE_KINDS = {"evaluates", "supported_by"}
 ROW_LAYOUTS = ("criteria", "subjects")
 
@@ -92,16 +108,43 @@ def read_catalogue(path: Path | None) -> tuple[dict[str, dict], list[str]]:
     if not isinstance(entries, list):
         return {}, [f"{path.name} needs a `criteria:` list"]
     cat, problems = {}, []
+    if "weights" in data:
+        problems.append(f"{path.name} carries `weights:`; a weight is a judgement and belongs in a position paper")
     for i, c in enumerate(entries):
         if not isinstance(c, dict) or not isinstance(c.get("id"), str) or not isinstance(c.get("label"), str):
             problems.append(f"{path.name} entry {i} needs a string `id` and `label`")
+        elif "weight" in c:
+            problems.append(f"{path.name} entry '{c['id']}' carries a weight; a weight is a judgement and belongs in a position paper")
         elif c["id"] in cat:
             problems.append(f"{path.name} lists '{c['id']}' twice")
         elif not all(_one_line(c.get(k) or "") for k in ("label", "definition", "concern")):
             problems.append(f"{path.name} entry '{c['id']}' has a multi-line label, definition or concern; table cells are one line")
         else:
             cat[c["id"]] = c
-    return cat, problems
+    return cat, problems + _view_problems(path, cat)
+
+
+def _view_problems(path: Path, cat: dict[str, dict]) -> list[str]:
+    """Problems with views.yml beside the catalogue at path, and with each criterion's `view:`."""
+    views_path = path.parent / "views.yml"
+    if not views_path.is_file():
+        return []
+    try:
+        data = yaml.safe_load(views_path.read_text(encoding="utf-8")) or {}
+    except yaml.YAMLError as err:
+        return [f"views.yml is not valid YAML: {err}"]
+    entries = data.get("views") if isinstance(data, dict) else None
+    if not isinstance(entries, list) or not all(
+            isinstance(v, dict) and isinstance(v.get("id"), str) and isinstance(v.get("label"), str) for v in entries):
+        return ["views.yml needs a `views:` list whose entries have a string `id` and `label`"]
+    ids = [v["id"] for v in entries]
+    problems = [f"views.yml lists '{i}' twice" for i in sorted({i for i in ids if ids.count(i) > 1})]
+    for cid, c in cat.items():
+        named = c.get("view")
+        for view in named if isinstance(named, list) else [] if named is None else [named]:
+            if view not in ids:
+                problems.append(f"{path.name} entry '{cid}' names view {view!r}, which is not in views.yml")
+    return problems
 
 
 def load_catalogue(path: Path | None) -> dict[str, dict]:
@@ -134,9 +177,8 @@ def find_keys(instance: Path) -> Path | None:
     return None
 
 
-def _document_ids(root: Path) -> set[str]:
-    """ddx.id of every Markdown document under root: the ids a key must not shadow."""
-    ids = set()
+def _front_matters(root: Path):
+    """Yield the front matter mapping of every Markdown document under root that has one."""
     for path in root.rglob("*.md"):
         if any(part.startswith(".") or part == "node_modules" for part in path.relative_to(root).parts):
             continue
@@ -149,10 +191,31 @@ def _document_ids(root: Path) -> set[str]:
             fm = yaml.safe_load(text[4:end]) if end > 0 else None
         except yaml.YAMLError:
             continue
-        ddx = fm.get("ddx") if isinstance(fm, dict) else None
+        if isinstance(fm, dict):
+            yield fm
+
+
+def _document_ids(root: Path) -> set[str]:
+    """ddx.id of every Markdown document under root: the ids a key must not shadow."""
+    ids = set()
+    for fm in _front_matters(root):
+        ddx = fm.get("ddx")
         if isinstance(ddx, dict) and ddx.get("id"):
             ids.add(str(ddx["id"]))
     return ids
+
+
+def _criteria_with_findings(root: Path, assessments: set[str]) -> set[str]:
+    """Criteria that one of the named assessments under root rates with a finding, not a gap."""
+    found = set()
+    for fm in _front_matters(root):
+        ddx, block = fm.get("ddx"), fm.get("assessment")
+        if not (isinstance(ddx, dict) and str(ddx.get("id")) in assessments and isinstance(block, dict)):
+            continue
+        for r in block.get("ratings") if isinstance(block.get("ratings"), list) else []:
+            if isinstance(r, dict) and isinstance(r.get("criterion"), str) and str(r.get("finding") or "").strip():
+                found.add(r["criterion"])
+    return found
 
 
 def read_keys(path: Path | None) -> tuple[dict[str, str], list[str]]:
@@ -273,7 +336,8 @@ def check(fm: dict | None, type_id: str, instance: Path, add, publish: bool = Fa
         fm, key_problems = expand_keys(fm, instance)
         for problem in key_problems:
             add("blocking", "keys", problem)
-    for key, owner in (("assessment", "technology-assessment"), ("recommendations", "position-paper")):
+    for key, owner in (("assessment", "technology-assessment"), ("recommendations", "position-paper"),
+                       ("weights", "position-paper")):
         if key in fm and type_id != owner:
             add("blocking", f"{key}.placement", f"`{key}:` belongs on a {owner}, not a {type_id}; "
                 "knowledge and advice are kept apart")
@@ -281,6 +345,8 @@ def check(fm: dict | None, type_id: str, instance: Path, add, publish: bool = Fa
         _check_assessment(fm, instance, add)
     if type_id == "position-paper" and "recommendations" in fm:
         _check_recommendations(fm, instance, add, publish)
+    if type_id == "position-paper" and "weights" in fm:
+        _check_weights(fm, instance, add)
 
 
 def _catalogue_for(instance: Path, add, check_id: str) -> tuple[Path | None, dict[str, dict]]:
@@ -315,6 +381,10 @@ def _check_assessment(fm: dict, instance: Path, add) -> None:
         for message in shape:
             add("blocking", "assessment.shape", message)
         return
+
+    if "weights" in block or any("weight" in r for r in ratings):
+        add("blocking", "assessment.weights", "an assessment records findings and carries no weight; "
+            "a weight is a judgement and belongs in a position paper's `weights:`")
 
     path, cat = _catalogue_for(instance, add, "assessment")
     if path is None:
@@ -429,6 +499,40 @@ def _check_recommendations(fm: dict, instance: Path, add, publish: bool) -> None
             add("blocking", where, "`approved_on` is a YYYY-MM-DD date")
 
 
+def _check_weights(fm: dict, instance: Path, add) -> None:
+    weights = fm["weights"]
+    if not isinstance(weights, list) or not weights or not all(isinstance(w, dict) for w in weights):
+        add("blocking", "weights.shape", "`weights:` must be a non-empty list of {criterion, weight, reason} mappings")
+        return
+    path = find_catalogue(instance)
+    cat, problems = read_catalogue(path)
+    for problem in problems if "recommendations" not in fm else []:  # else already reported
+        add("blocking", "catalogue", problem)
+    if path is None:
+        add("blocking", "weights.catalogue", "weighted criteria are ids from criteria.yml, which this graph does not have")
+    assessments = {name for name, link in _evidence(fm).items() if link["kind"] == "supported_by"}
+    rated = _criteria_with_findings(path.parent, assessments) if path else set()
+    seen = set()
+    for i, w in enumerate(weights):
+        where = f"weights.{i}"
+        crit, weight, reason = w.get("criterion"), w.get("weight"), str(w.get("reason") or "").strip()
+        if not (isinstance(weight, str) and weight in WEIGHTS):
+            add("blocking", where, f"weight must be one of {', '.join(WEIGHTS)}; a number claims a precision the evidence lacks")
+        if not reason or not _one_line(reason):
+            add("blocking", where, "a weight gives its `reason` in one line; it fills a table cell")
+        if not isinstance(crit, str) or not crit:
+            add("blocking", where, "a weight names a string `criterion`")
+            continue
+        if crit in seen:
+            add("blocking", where, f"'{crit}' is weighted twice")
+        seen.add(crit)
+        if path and crit not in cat:
+            add("blocking", where, f"criterion '{crit}' is not in {path.name}")
+        elif path and crit not in rated:
+            add("blocking", where, f"no assessment linked as supported_by has a finding for '{crit}'; "
+                "a weight rests on a criterion the paper's evidence rates")
+
+
 # --- tables made from the blocks ---------------------------------------------------------------
 
 def cell(value: object) -> str:
@@ -475,6 +579,11 @@ def render_recommendations(recs: list[dict]) -> str:
     return render_table(["Technology", "Stance", "Context", "Conditions", "Based on"], rows)
 
 
+def render_weights(weights: list[dict], cat: dict[str, dict]) -> str:
+    return render_table(["Criterion", "Weight", "Why"],
+                        [[cat[w["criterion"]]["label"], WEIGHTS[w["weight"]], w["reason"]] for w in weights])
+
+
 def section_span(body: str, name: str) -> tuple[int, int] | None:
     m = re.search(rf"^## {re.escape(name)}\s*\n", body, re.M)
     if not m:
@@ -502,14 +611,20 @@ def table_spans(body: str, span: tuple[int, int]) -> list[tuple[int, int]]:
 def regenerate(fm: dict, type_id: str, body: str, instance: Path) -> str:
     """body with its generated tables rewritten from the front matter's block."""
     fm, _ = expand_keys(fm, instance)
-    if type_id == "position-paper":
-        span = section_span(body, "Recommendations")
-        tables = table_spans(body, span) if span else []
-        if not tables:
-            raise ValueError("no table under `## Recommendations`")
-        (a, b), text = tables[0], render_recommendations(fm["recommendations"])
-        return body[:a] + text + body[b:]
     cat = load_catalogue(find_catalogue(instance))
+    if type_id == "position-paper":
+        for key, section, render in (
+                ("weights", "Decision Criteria", lambda: render_weights(fm["weights"], cat)),
+                ("recommendations", "Recommendations", lambda: render_recommendations(fm["recommendations"]))):
+            if key not in fm:
+                continue
+            span = section_span(body, section)
+            tables = table_spans(body, span) if span else []
+            if not tables:
+                raise ValueError(f"no table under `## {section}`")
+            a, b = tables[0]
+            body = body[:a] + render() + body[b:]
+        return body
     crit, comp = render_assessment(fm["assessment"], cat)
     spans = []
     cs = section_span(body, "Criteria")

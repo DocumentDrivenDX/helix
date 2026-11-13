@@ -25,13 +25,14 @@ flows:
     root: knowledge/
 ```
 
-The `technology-atlas` profile uses six types:
+The `technology-atlas` profile uses seven types:
 
 | Type | Holds | Lives in |
 | --- | --- | --- |
 | `component-profile` with `scope: reusable` | What the public record says about one technology, with no project or verdict | `technology/` |
 | `technology-assessment` | A comparison of technologies on stated criteria, with findings and no recommendation | `assessments/` |
 | `position-paper` | An argued position, or advised stances, for an audience | `positions/` |
+| `tech-spike` with `scope: reusable` | A measurement that answers one open question of a brief, which anyone can rerun | `spikes/` |
 | `decision-brief` | A recommendation for one named context | `decisions/` |
 | `adr` | A decision record | `decisions/` |
 | `deliverable` | A document issued to an audience, with its sources pinned | `publications/` |
@@ -39,6 +40,23 @@ The `technology-atlas` profile uses six types:
 Knowledge in an atlas is advisory. A document that cites an atlas document does
 not take orders from it, and a link that claims `governing` authority is a
 blocking finding under this profile.
+
+## Close a brief with reader views
+
+A technology brief (`component-profile` with `scope: reusable`) closes with a
+`## Views` section, placed before Confidence. It has four headings, one for each
+reader: Risk & Compliance, Finance, IT Operations, and Apps Dev. Under each
+heading, write one sentence that answers that reader's first question, then name
+the sections that carry the facts.
+
+The sentence sums up what those sections already say. A fact and its source stay
+in the section that states them. A view the brief does not cover says
+`Not applicable`, with the reason, or `Not researched`. Keep all four headings.
+
+`validate-instance.py` blocks a Views section that drops a heading or leaves one
+empty. A brief with no Views section was written before the section existed. It
+gets a warning at both tiers and still publishes, so you can add the section at
+the brief's next revision.
 
 ## Write an assessment with ratings as data
 
@@ -61,6 +79,12 @@ reader sees are generated from data and cannot drift from it.
 
 Findings and gaps are one line each, because each fills one table cell.
 
+A flow can also keep a `views.yml` beside `criteria.yml`: a `views:` list that
+names the readers a criterion answers, each entry with an `id` and a `label`. A
+criterion can then carry `view:`, with one id or a list of ids. The validator
+blocks a `view:` that `views.yml` does not list. Without a `views.yml`, it does
+not check `view:`.
+
 ## Record stances in a position paper
 
 A position paper can record what the team advises as a `recommendations:` list.
@@ -76,6 +100,71 @@ also records `approved_by` and `approved_on`, together. The first table under
 Only a position paper can carry a stance. Putting `recommendations:` on a brief
 or an assessment is a blocking finding, which keeps what is documented apart
 from what is advised.
+
+## Weigh criteria in a position paper
+
+A position paper can also say how much each criterion counts, in a `weights:`
+list beside `recommendations:`. Each entry names a criterion, gives a weight of
+`decisive`, `important`, or `minor`, and states the reason in one line.
+
+```yaml
+weights:
+  - criterion: licence-cost
+    weight: decisive
+    reason: The budget has no room for a per-seat fee.
+```
+
+The criterion must be an id in `criteria.yml`, and an assessment the paper links
+as `supported_by` must have a finding for it, not a gap. The validator reads that
+assessment from the flow as it stands today, not at its pinned revision.
+`assessment-tables.py` writes the first table under `## Decision Criteria` from
+the list.
+
+A weight is a judgment, so only a position paper can carry one. A `weights:`
+list on an assessment, a `weight` inside an `assessment:` block, and a `weight`
+in `criteria.yml` are each a blocking finding. The scale has three steps and no
+numbers, because a number would claim more precision than the evidence has.
+
+A position paper also states when the other option wins. Under `## Limits of the
+Position`, add a table with the columns Condition, Option that wins, and
+Evidence, and at least one row. The validator blocks a table there that has other
+columns or no rows. A paper with no table in that section was written before the
+table existed. It gets a warning at both tiers and still publishes, so you can
+add the table at the paper's next revision.
+
+Add a `## Transition Path` section only when the position displaces something
+already in use.
+
+## Answer an open question with a spike
+
+A brief routes what the public record cannot answer to a spike. In an atlas, the
+spike is a `tech-spike` with `scope: reusable`, stored as
+`spikes/TS-{number}-{subject}.md`. It differs from a project's spike in four
+ways:
+
+- It runs on public inputs only, so anyone can rerun it. A spike that needs a
+  client's systems or data belongs in that client's own flow.
+- It records a Test Setup (version, environment, settings, data, and date) and a
+  Reproduction section, with the scripts kept in the repository.
+- It has a Views Affected table that says which reader's answer the result
+  changes.
+- It has no Recommendations section. The validator blocks a
+  `**RECOMMENDATION**:` line at this scope.
+
+The spike links the brief it tests and names the open question by number:
+
+```yaml
+links:
+  - {id: component-profile-postgresql-reusable, kind: answers, question: 2, rev: git:<commit>}
+```
+
+An `answers` link without a `question` number is a blocking finding. The
+validator does not open the brief to confirm that the question exists.
+
+At its next revision, the brief cites the spike as a source of class `measured`.
+A measured source counts as independent corroboration in the brief's Confidence
+grade, but only for the configuration the spike ran. A grade that rests on a
+measured source says so and names that configuration.
 
 ## Record where a figure comes from
 
@@ -132,7 +221,7 @@ named in `based_on` needs one too.
 
 The validator reads one document at a time. It does not check that a cited
 assessment links the recommended technology, that the assessment has findings
-for the criteria a recommendation cites, or that two papers do not give the same
+for the criteria a recommendation cites (it does check this for a weight), or that two papers do not give the same
 technology conflicting stances in one context. Check those by hand until a
 graph-level check exists. A link that points at another graph is recorded and
 pinned but not fetched, so the runtime or your own tooling resolves it.

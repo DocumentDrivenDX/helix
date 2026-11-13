@@ -91,7 +91,7 @@ whatever the maker chose to advertise.
    comparisons, conference talks, issue trackers, post-mortems) for how it
    behaves in practice under the conditions the Need names (a pooled
    connection, a write burst, a region). Record each source with its URL,
-   its class (maker, vendor, independent, community), its author or
+   its class (maker, vendor, independent, community, or measured), its author or
    organisation, its publication date when shown, and the date you read it.
    Cite the versioned documentation URL for the scoped version. Record the
    search strings you used under Sources, so a Not published cell shows
@@ -118,7 +118,8 @@ whatever the maker chose to advertise.
    Below the table, one line per alternative: shared ground and the
    divergence this project cares about.
 9. **Grade confidence by the rubric.** A design-defining capability left
-   Unknown caps the grade at Medium. Say which claims are corroborated, which
+   Unknown caps the grade at Medium. A `measured` source counts as
+   independent corroboration for the configuration measured only; name it. Say which claims are corroborated, which
    rest on the maker alone, and which have none. Name the weakest area.
 10. **Route what the record cannot answer.** Every Unknown that bears on a
     design-defining decision becomes an Open Question with a route: a spike,
@@ -144,11 +145,21 @@ with Capabilities and Limits, and keep the rest.
    Limits: what the record shows, the version, the documented limits, and
    attributed independent coverage, then Applicability: when the record shows
    it well and poorly suited, each cited.
-4. **Write What It Is, Technology and Operations, Pricing and Licensing,
+4. **Write the Views** after the factual sections and before Confidence:
+   four headings (Risk & Compliance, Finance, IT Operations, Apps Dev), each
+   a one-sentence answer to that reader's first question and pointers to the
+   sections that carry the facts. The sentence sums up what those sections
+   already say: it adds no fact, cites no new source, and takes no side. If a
+   view needs a fact the brief lacks, add the fact to its section first. A
+   view the brief does not cover says Not applicable, with the reason, or
+   Not researched; no heading is left out. A brief written before this
+   section existed gains it at its next revision, and the validator warns
+   until then.
+5. **Write What It Is, Technology and Operations, Pricing and Licensing,
    Confidence, Open Questions, Sources** as for any profile. Open Questions
    state what the record cannot answer about the component generally, routed
    to a spike or a maker question, with no project-specific rationale.
-5. **Write the Summary last,** with no project, client, or recommendation.
+6. **Write the Summary last,** with no project, client, or recommendation.
 
 A reusable brief must read the same to any project. If a sentence needs a
 project to make sense, it belongs in a contextual profile or a decision-brief.
@@ -176,8 +187,14 @@ source.
   and do not recommend a candidate: that is the ADR's job.
 - **A fit row without an artifact is an opinion.** If nothing in the
   project's own documents requires it, it is not a requirement.
-- **Hands-on claims do not belong here.** If you find yourself writing "in
-  our test", stop and open a spike.
+- **Hands-on claims do not start here.** If you find yourself writing "in
+  our test", stop and open a spike. A profile never runs anything. It may
+  cite a finished [[tech-spike]] as a source of class `measured`, by pinned
+  revision, and then says which configuration was measured.
+- **A measurement speaks for its configuration.** A `measured` source
+  corroborates a claim independently of the maker for the version, hardware,
+  and settings the spike ran, and for nothing wider. A grade that rests on
+  one says so.
 - **Owners, dates, durations, and scales come from project artifacts.** "The
   platform team needs two weeks" is a plan, and a plan belongs to the
   artifact that owns it. "About 2,000 tenants" is a scale, and it belongs to

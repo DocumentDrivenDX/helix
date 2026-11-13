@@ -23,8 +23,9 @@ description: |
 
   Two scopes, set in frontmatter as `ddx.scope`. `contextual` (the default)
   is the project-bound profile described above. `reusable` is a technology
-  brief: only the portable factual sections plus Capabilities and Limits,
-  with no Need, Required Capabilities, Capability Alignment, verdict, or
+  brief: only the portable factual sections plus Capabilities and Limits and
+  a closing Views section (the brief read by four readers, as pointers), with
+  no Need, Required Capabilities, Capability Alignment, verdict, or
   Competitive Landscape. A reusable brief is referenced, pinned by revision,
   from other documents instead of being copied; a contextual profile or a
   decision-brief supplies the project-specific fit.
@@ -84,6 +85,10 @@ validation:
       description: At `reusable` scope no section names a project, client, or project artifact; Capabilities and Limits states what the record shows without a verdict, a Need, or a recommendation, and every claim still cites at the clause
       severity: blocking
 
+    - check: views_point_and_do_not_restate
+      description: At `reusable` scope a Views section closes the factual sections with the four reader headings (Risk & Compliance, Finance, IT Operations, Apps Dev); each gives a one-sentence answer that sums up what the pointed-to sections show, adds no fact or source, and takes no side, or says Not applicable (with the reason) or Not researched; no heading is left out
+      severity: blocking
+
     - check: need_before_component
       description: At contextual scope, Need and Required Capabilities cite project artifacts only (no numbered source appears in them); every capability names the goal it serves, the artifact it comes from, and what public evidence would settle it
       severity: blocking
@@ -101,7 +106,7 @@ validation:
       severity: blocking
 
     - check: confidence_by_rubric
-      description: The confidence grade follows the rubric (a design-defining Unknown caps it at Medium) and names which claims are corroborated, which rest on the maker alone, and which have no source
+      description: The confidence grade follows the rubric (a design-defining Unknown caps it at Medium) and names which claims are corroborated, which rest on the maker alone, and which have no source; a `measured` source counts as independent corroboration only for the configuration it measured, and a grade that rests on one says so and names that configuration
       severity: blocking
 
     - check: vocabularies_in_one_place
@@ -117,11 +122,11 @@ validation:
       severity: blocking
 
     - check: sources_classed_and_dated
-      description: Every source carries its class, author or organisation, publication date where shown, and access date; scoped-version documentation is version-pinned
+      description: Every source carries its class (maker, vendor, independent, community, or measured), author or organisation, publication date where shown, and access date; scoped-version documentation is version-pinned
       severity: blocking
 
     - check: no_hands_on_claims
-      description: No benchmark, prototype or integration result appears; the public record is the only evidence, and anything needing hands-on proof is an open question routed to a tech-spike
+      description: The profile runs nothing and states no benchmark, prototype or integration result of its own; a measurement appears only as a citation of a tech-spike, pinned by revision and classed `measured`, and anything else needing hands-on proof is an open question routed to a tech-spike
       severity: blocking
 
     - check: no_choice_made
@@ -151,6 +156,13 @@ validation:
         - pattern: "\\*\\*Searched\\*\\*:"
           expected: ">=1"
           message: "Sources records the searches behind every Not published cell"
+      # Views is checked when present and warned about when absent, not listed in
+      # required_sections, so a brief written before the section existed still publishes.
+      automated_checks:
+        - check: views
+          type: reader_views
+          severity: blocking
+          message: "Views carries the four reader headings, each answered or marked Not applicable or Not researched"
 
 prompts:
   generation: prompt.md
@@ -189,5 +201,5 @@ tags:
   - vendor
   - evidence
 
-version: 1.2.0
-last_updated: 2026-11-06
+version: 1.3.0
+last_updated: 2026-11-10

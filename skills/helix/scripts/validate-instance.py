@@ -11,13 +11,15 @@ Checks run, in order:
                      where expected is 0 (must not match) or >=N
   automated_checks   rule entries {check, type, field[, severity, message]}
                      with type unique_constraint, module_boundaries, ux_coverage, findings_sources,
-                     or not_equals plus `value`;
+                     reader_views, limits_table, or not_equals plus `value`;
                      other rule types are reported as unsupported without failing
   placeholder        leftover template markers ([TODO], TBD, [Fill in], ...)
   structured blocks  a technology assessment's `assessment:` and a position paper's `recommendations:`
-                     front matter: criteria from the graph's criteria.yml, a rating or gap for every
-                     criterion and subject, stances, rationale, pinned assessments, review dates, and
-                     approval given whole (structured_blocks.py); `assessment-tables.py` keeps the
+                     and `weights:` front matter: criteria from the graph's criteria.yml, a rating or
+                     gap for every criterion and subject, stances, rationale, pinned assessments,
+                     review dates, approval given whole, and a weight (decisive, important, minor)
+                     only in a position paper and only on a criterion its assessments have a
+                     finding for (structured_blocks.py); `assessment-tables.py` keeps the
                      Markdown tables equal to them
   figures            `{basis=... accessed=... source=...}` attribute lists on figures: basis is
                      published, third-party, or not-published; the first two need source and a
@@ -43,8 +45,8 @@ source and identity metadata still protect authoring correctness when a ddx
 block is supplied.
 
 Scope variants: when the instance sets `ddx.scope` and the type's
-`validation.by_scope.<scope>` exists, its `required_sections` and
-`pattern_checks` replace the type-level lists.
+`validation.by_scope.<scope>` exists, its `required_sections`,
+`pattern_checks` and `automated_checks` replace the type-level lists.
 
 Pinned links: under `--tier publish`, when the type declares
 `validation.pin_links: {kinds: [...]}`, every `ddx.links` mapping whose `kind`
@@ -321,7 +323,7 @@ def check_frontmatter(fm: dict | None, report: Report) -> None:
         report.add("blocking", "frontmatter.authoring_home", "ddx.authoring.home must be `repo` or `external-tool`", 1)
 
 
-LINK_KINDS = {"informed_by", "informs", "addresses", "evaluates", "supported_by", "contradicts"}
+LINK_KINDS = {"informed_by", "informs", "addresses", "evaluates", "supported_by", "contradicts", "answers"}
 
 
 def check_links(fm: dict | None, profile: dict, report: Report) -> None:
@@ -348,6 +350,9 @@ def check_links(fm: dict | None, profile: dict, report: Report) -> None:
             if authority.get(scope, "advisory" if scope == "cross_graph" else "positional") == "advisory":
                 report.add("blocking", f"links.{i}.authority",
                            f"link '{link['id']}' claims governing authority but this flow's profile grants {scope.replace('_', '-')} references advisory only; the consuming graph must grant it")
+        if kind == "answers" and not (type(link.get("question")) is int and link["question"] >= 1):
+            report.add("blocking", f"links.{i}.question",
+                       f"link '{link['id']}' answers an open question, so it names that question's number: `question: <n>`")
         if kind == "contradicts":
             report.add("info", f"links.{i}.contradicts", f"contradicts '{link['id']}': surfaced for review, never a validation failure")
 
@@ -601,6 +606,71 @@ def check_findings_sources(body: str, base: int, severity: str, report: Report) 
             fail(f"Claim has no Source: {cells[claim] if claim < len(cells) else ''}", i)
 
 
+READER_VIEWS = ("Risk & Compliance", "Finance", "IT Operations", "Apps Dev")
+
+
+def check_reader_views(body: str, base: int, severity: str, report: Report) -> None:
+    """A Views section has the four reader headings, each with an answer or a stated absence.
+
+    A document with no Views section predates it: that is a warning at every tier, so a brief
+    written to an older template still publishes, and gains the section at its next revision.
+    """
+    scan = strip_fences(body)
+    lines = scan.splitlines()
+    start = next((i for i, l in enumerate(lines) if re.fullmatch(r"##[ \t]+Views[ \t]*", l)), None)
+    if start is None:
+        report.add("warning", "views", "no Views section: a brief written to the current template closes with "
+                   "one (" + ", ".join(READER_VIEWS) + "); add it at the next revision")
+        return
+    end = next((i for i in range(start + 1, len(lines)) if re.match(r"##[ \t]", lines[i])), len(lines))
+    text: dict[str, str] = {}
+    current = None
+    for line in lines[start + 1:end]:
+        heading = re.match(r"###[ \t]+(.+?)[ \t]*$", line)
+        if heading:
+            current = slugify(heading.group(1))
+            text.setdefault(current, "")
+        elif current:
+            text[current] += line.strip()
+    for view in READER_VIEWS:
+        if slugify(view) not in text:
+            report.add(severity, "views", f"Views has no `### {view}` heading; a view that does not apply says "
+                       "Not applicable or Not researched, it is not left out", base + start)
+        elif not text[slugify(view)]:
+            report.add(severity, "views", f"`### {view}` is empty; give the one-sentence answer and its pointers, "
+                       "or say Not applicable or Not researched", base + start)
+
+
+LIMITS_COLUMNS = ["condition", "option_that_wins", "evidence"]
+
+
+def check_limits_table(body: str, base: int, severity: str, report: Report) -> None:
+    """A table under Limits of the Position has the columns Condition, Option that wins, Evidence
+    and at least one row.
+
+    A paper whose Limits section has no table predates it: that is a warning at every tier, so a
+    paper written to an older template still publishes, and gains the table at its next revision.
+    """
+    lines = strip_fences(body).splitlines()
+    start = next((i for i, l in enumerate(lines) if re.fullmatch(r"##[ \t]+Limits of the Position[ \t]*", l)), None)
+    if start is None:
+        return  # required_sections reports a missing section
+    end = next((i for i in range(start + 1, len(lines)) if re.match(r"##[ \t]", lines[i])), len(lines))
+    rows = [[c.strip() for c in l.strip().strip("|").split("|")]
+            for l in lines[start + 1:end] if l.lstrip().startswith("|")]
+    if not rows:
+        report.add("warning", "limits_table", "Limits of the Position has no table: a paper written to the current "
+                   "template gives Condition, Option that wins, and Evidence there; add it at the next revision",
+                   base + start)
+        return
+    filled = [r for r in rows[1:] if any(r) and not all(re.fullmatch(r":?-+:?", c or "-") for c in r)]
+    if [slugify(c) for c in rows[0]] != LIMITS_COLUMNS:
+        report.add(severity, "limits_table", "the Limits of the Position table has the columns Condition, "
+                   "Option that wins, Evidence", base + start)
+    elif not filled:
+        report.add(severity, "limits_table", "the Limits of the Position table needs at least one row", base + start)
+
+
 def check_rule_entries(key: str, entries: list, body: str, base: int, report: Report) -> None:
     for i, entry in enumerate(entries):
         if not isinstance(entry, dict):
@@ -623,6 +693,10 @@ def check_rule_entries(key: str, entries: list, body: str, base: int, report: Re
             check_module_boundaries(body, base, severity, report)
         elif rule == "findings_sources":
             check_findings_sources(body, base, severity, report)
+        elif rule == "limits_table":
+            check_limits_table(body, base, severity, report)
+        elif rule == "reader_views":
+            check_reader_views(body, base, severity, report)
         elif rule == "unique_constraint" and field:
             values = field_values(body, str(field))
             dupes = sorted({v for v in values if values.count(v) > 1})
@@ -804,7 +878,7 @@ def main() -> int:
 
     ddx = (fm or {}).get("ddx") or {}
     scoped = (validation.get("by_scope") or {}).get(str(ddx.get("scope"))) or {}
-    validation = {**validation, **{k: v for k, v in scoped.items() if k in ("required_sections", "pattern_checks")}}
+    validation = {**validation, **{k: v for k, v in scoped.items() if k in ("required_sections", "pattern_checks", "automated_checks")}}
     profile = find_profile(args.instance, activities)
     default_tier = (profile.get("validation") or {}).get("default") or ["all"]
     soften = args.tier == "default" and "all" not in default_tier
