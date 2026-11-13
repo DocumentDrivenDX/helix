@@ -1,7 +1,7 @@
 ---
 title: "Architecture walkthrough: authoring a project document"
 slug: architecture-walkthrough
-weight: 380
+weight: 390
 activity: "Design"
 source: "02-design/architecture-walkthrough.md"
 generated: true

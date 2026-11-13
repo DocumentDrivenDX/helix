@@ -543,3 +543,538 @@ def test_blocks_born_and_deleted_after_the_draft_opened_are_ignored():
     old, text = (FIX / "old.xml").read_text(), (FIX / "pp-with-notes.md").read_text()
     delta = "<doc rev='9' sinceRev='1'><gap blocks='9'/><gone id='zz.1' rev='3'/><gone id='.2' rev='4' was='x'/></doc>"
     assert ds.edits_from_read(old, delta, text) == []
+
+
+# ---- the word-level three-way merge ------------------------------------------------------------------------
+
+def test_merge3_applies_both_sides_changes_on_different_words_of_one_line():
+    base = "the quick brown fox\njumps over the lazy dog\n"
+    ours = "the quick red fox\njumps over the lazy dog\n"          # git changed brown
+    theirs = "the quick brown fox\njumps over the sleepy dog\n"    # the draft changed lazy
+    out, lost = ds.merge3(base, ours, theirs)
+    assert out == "the quick red fox\njumps over the sleepy dog\n" and lost == []
+
+
+def test_merge3_identical_changes_are_not_a_conflict_and_keep_wrapping():
+    base = "a b c\nd e f\n"
+    both = "a b X\nd e f\n"
+    assert ds.merge3(base, both, both) == (both, [])
+    out, _ = ds.merge3(base, both, "a b c\nd e f\n")
+    assert out == both
+
+
+def test_merge3_conflict_stops_or_follows_the_record():
+    base = "one two three\n"
+    ours = "one 2 three\n"
+    theirs = "one deux three\n"
+    with pytest.raises(ds.Conflict) as err:
+        ds.merge3(base, ours, theirs)
+    assert err.value.conflicts[0]["ours"] == "2" and err.value.conflicts[0]["theirs"] == "deux"
+    out, lost = ds.merge3(base, ours, theirs, prefer="ours")
+    assert out == "one 2 three\n" and lost[0]["kept"] == "ours"
+    out, lost = ds.merge3(base, ours, theirs, prefer="theirs")
+    assert out == "one deux three\n"
+
+
+def test_merge3_adjacent_edits_merge_and_two_insertions_at_one_spot_conflict():
+    base = "a b c d\n"
+    assert ds.merge3(base, "a B c d\n", "a b C d\n")[0] == "a B C d\n"
+    with pytest.raises(ds.Conflict):
+        ds.merge3(base, "a b X c d\n", "a b Y c d\n")
+    assert ds.merge3(base, "a b X c d\n", "a b X c d\n")[0] == "a b X c d\n"
+
+
+def test_merge3_a_deletion_against_an_edit_in_it_is_a_conflict():
+    base = "keep\n| a | b |\n| c | d |\nend\n"
+    ours = "keep\n| a | b |\nend\n"                      # git deleted the last row
+    theirs = "keep\n| a | b |\n| c | D |\nend\n"           # the draft edited it
+    with pytest.raises(ds.Conflict):
+        ds.merge3(base, ours, theirs)
+    assert ds.merge3(base, ours, theirs, prefer="ours")[0] == ours
+
+
+def test_apply_with_a_moved_base_merges_by_word_and_honours_prefer(tmp_path):
+    git(tmp_path, "init", "-q")
+    f = tmp_path / "d.md"
+    f.write_text("# Title\n\nalpha beta gamma delta\nepsilon zeta\n")
+    git(tmp_path, "add", "d.md")
+    git(tmp_path, "commit", "-qm", "base")
+    base = subprocess.run(["git", "-C", str(tmp_path), "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+    f.write_text("# Title\n\nalpha BETA gamma delta\nepsilon zeta\n")             # git moved: one word
+    e = tmp_path / "e.json"
+    e.write_text(json.dumps({"ops": [{"op": "replace", "block": 1, "text": "alpha beta gamma delta epsilon ZETA"}]}))   # draft: another word
+    r = run("apply", str(f), "--edits", str(e), "--base-commit", base, "--no-table-guard", "--write")
+    assert r.returncode == 0, r.stderr
+    assert "alpha BETA gamma delta\nepsilon ZETA" in f.read_text()
+    f.write_text("# Title\n\nalpha beta gamma delta\nepsilon zeta\n")
+    e.write_text(json.dumps({"ops": [{"op": "replace", "block": 1, "text": "alpha beta gamma delta epsilon ZETA"}, {"op": "replace", "block": 0, "text": "Draft title"}]}))
+    f.write_text("# Git title\n\nalpha beta gamma delta\nepsilon zeta\n")
+    r = run("apply", str(f), "--edits", str(e), "--base-commit", base, "--no-table-guard", "--write")
+    assert r.returncode == 1 and "--prefer" in r.stderr
+    r = run("apply", str(f), "--edits", str(e), "--base-commit", base, "--no-table-guard", "--write", "--prefer", "git")
+    assert r.returncode == 0 and "# Git title" in f.read_text() and "ZETA" in f.read_text() and "conflict resolved for git" in r.stderr
+
+
+# ---- the binding: sidecar, attribute, status, hook, base from history ------------------------------------
+
+def bound_repo(tmp_path, front="---\nddx:\n  id: X-1\n---\n"):
+    git(tmp_path, "init", "-q")
+    f = tmp_path / "d.md"
+    f.write_text(front + "# Title\n\nalpha beta gamma delta\nepsilon zeta\n")
+    git(tmp_path, "add", "d.md")
+    git(tmp_path, "commit", "-qm", "base")
+    r = run("bind", str(f), "--tool", "claude-docs", "--origin", "https://example.com/doc", "--synced-rev", "7")
+    assert r.returncode == 0, r.stderr
+    return f
+
+
+def test_bind_writes_the_sidecar_and_the_attribute_and_status_reads_them(tmp_path):
+    f = bound_repo(tmp_path)
+    assert "d.md claude-docs-bind" in (tmp_path / ".gitattributes").read_text()
+    assert "synced_rev: '7'" in (tmp_path / ".helix/bindings.yml").read_text()
+    st = json.loads(run("status", str(f)).stdout)
+    assert st["bound"] and st["tool"] == "claude-docs" and st["record"] == "git" and st["file_changed_since_base"] is False
+    f.write_text(f.read_text().replace("beta", "BETA"))
+    assert json.loads(run("status", str(f)).stdout)["file_changed_since_base"] is True
+    other = tmp_path / "o.md"
+    other.write_text("x\n")
+    assert json.loads(run("status", str(other)).stdout)["bound"] is False
+
+
+def test_front_matter_edits_do_not_count_as_changes_since_the_base(tmp_path):
+    f = bound_repo(tmp_path)
+    f.write_text(f.read_text().replace("id: X-1", "id: X-1\n  tags: [a]"))
+    assert json.loads(run("status", str(f)).stdout)["file_changed_since_base"] is False
+
+
+def test_the_record_follows_authoring_home(tmp_path):
+    f = bound_repo(tmp_path, "---\nddx:\n  id: X-1\n  authoring:\n    home: external-tool\n---\n")
+    assert json.loads(run("status", str(f)).stdout)["record"] == "doc"
+
+
+def hook_run(tmp_path, f, payload=None):
+    data = payload or {"tool_name": "Edit", "tool_input": {"file_path": str(f)}, "cwd": str(tmp_path)}
+    return subprocess.run([sys.executable, str(REPO / "tools/draftsync/draftsync.py"), "hook"], input=json.dumps(data),
+                          capture_output=True, text=True, cwd=tmp_path)
+
+
+def test_hook_is_silent_for_unbound_or_unchanged_files_and_tells_the_agent_otherwise(tmp_path):
+    f = bound_repo(tmp_path)
+    assert hook_run(tmp_path, f).stdout == ""                       # bound, unchanged
+    other = tmp_path / "o.md"
+    other.write_text("x\n")
+    assert hook_run(tmp_path, other).stdout == ""                   # unbound
+    assert hook_run(tmp_path, f, {"tool_input": {}}).stdout == ""   # not a file edit
+    assert hook_run(tmp_path, f, {"tool_input": {"file_path": "missing.md"}, "cwd": str(tmp_path)}).returncode == 0
+    f.write_text(f.read_text().replace("beta", "BETA"))
+    r = hook_run(tmp_path, f)
+    out = json.loads(r.stdout)["hookSpecificOutput"]
+    assert r.returncode == 0 and out["hookEventName"] == "PostToolUse"
+    assert "git is its system of record" in out["additionalContext"]
+    assert list((tmp_path / ".git/draftsync-pending").glob("*.json"))
+
+
+def test_hook_warns_that_the_draft_wins_when_it_is_the_record(tmp_path):
+    f = bound_repo(tmp_path, "---\nddx:\n  id: X-1\n  authoring:\n    home: external-tool\n---\n")
+    f.write_text(f.read_text().replace("beta", "BETA"))
+    assert "draft is its system of record" in json.loads(hook_run(tmp_path, f).stdout)["hookSpecificOutput"]["additionalContext"]
+
+
+def test_hook_never_fails_on_garbage(tmp_path):
+    r = subprocess.run([sys.executable, str(REPO / "tools/draftsync/draftsync.py"), "hook"], input="not json", capture_output=True, text=True, cwd=tmp_path)
+    assert r.returncode == 0 and r.stdout == ""
+
+
+def test_apply_from_binding_finds_the_base_in_history_and_follows_the_record(tmp_path):
+    f = bound_repo(tmp_path)
+    text = f.read_text()
+    f.write_text(text.replace("alpha beta", "alpha BETA"))                     # git moves on, committed
+    git(tmp_path, "commit", "-qam", "git change")
+    e = tmp_path / "e.json"
+    e.write_text(json.dumps({"ops": [{"op": "replace", "block": 1, "text": "alpha beta gamma delta epsilon ZETA"}]}))
+    r = run("apply", str(f), "--edits", str(e), "--from-binding", "--no-table-guard", "--write")
+    assert r.returncode == 0, r.stderr
+    assert "alpha BETA gamma delta\nepsilon ZETA" in f.read_text()
+    f.write_text(f.read_text().replace("# Title", "# Git title"))
+    e.write_text(json.dumps({"ops": [{"op": "replace", "block": 0, "text": "Draft title"}]}))
+    r = run("apply", str(f), "--edits", str(e), "--from-binding", "--no-table-guard", "--write")
+    assert r.returncode == 0 and "# Git title" in f.read_text() and "conflict resolved for git" in r.stderr
+
+
+def test_apply_from_binding_lets_the_draft_win_when_it_is_the_record(tmp_path):
+    f = bound_repo(tmp_path, "---\nddx:\n  id: X-1\n  authoring:\n    home: external-tool\n---\n")
+    f.write_text(f.read_text().replace("# Title", "# Git title"))
+    e = tmp_path / "e.json"
+    e.write_text(json.dumps({"ops": [{"op": "replace", "block": 0, "text": "Draft title"}]}))
+    r = run("apply", str(f), "--edits", str(e), "--from-binding", "--no-table-guard", "--write")
+    assert r.returncode == 0 and "# Draft title" in f.read_text() and "conflict resolved for doc" in r.stderr
+
+
+def test_a_missing_base_or_binding_is_a_refusal(tmp_path):
+    f = bound_repo(tmp_path)
+    side = tmp_path / ".helix/bindings.yml"
+    side.write_text(side.read_text().replace(side.read_text().split("base_sha256: ")[1].split("\n")[0], "'" + "0" * 64 + "'"))
+    e = tmp_path / "e.json"
+    e.write_text('{"ops": []}')
+    r = run("apply", str(f), "--edits", str(e), "--from-binding", "--no-table-guard")
+    assert r.returncode == 1 and "rebind" in r.stderr
+    side.unlink()
+    r = run("apply", str(f), "--edits", str(e), "--from-binding", "--no-table-guard")
+    assert r.returncode == 1 and "no entry" in r.stderr
+
+
+def test_rebind_needs_the_draft_to_equal_a_committed_file(tmp_path):
+    f = bound_repo(tmp_path)
+    old = tmp_path / "old.xml"
+    old.write_text("<doc node='n' rev='9'><paragraph id='s.0' heading='1'><text id='.1'>Title</text></paragraph>"
+                   "<paragraph id='.2'><text id='.3'>alpha beta gamma delta epsilon zeta</text></paragraph></doc>")
+    f.write_text(f.read_text().replace("beta", "BETA"))
+    r = run("rebind", str(f), "--synced-rev", "9", "--old", str(old))
+    assert r.returncode == 1 and "commit it first" in r.stderr
+    git(tmp_path, "commit", "-qam", "git change")
+    r = run("rebind", str(f), "--synced-rev", "9", "--old", str(old))
+    assert r.returncode == 1 and "different text" in r.stderr
+    f.write_text(f.read_text().replace("BETA", "beta"))
+    git(tmp_path, "commit", "-qam", "back")
+    r = run("rebind", str(f), "--synced-rev", "5", "--old", str(old))
+    assert r.returncode == 1 and "not the revision" in r.stderr
+    r = run("rebind", str(f), "--synced-rev", "9", "--old", str(old))
+    assert r.returncode == 0, r.stderr
+    assert json.loads(run("status", str(f)).stdout)["synced_rev"] == "9"
+
+
+
+# ---- git -> draft: doc ops ---------------------------------------------------------------------------------
+
+def writer(file_text, now_xml=None, record="git"):
+    base = (FIX / "pp-with-notes.md").read_text()
+    return ds.doc_ops(base, file_text, (FIX / "old.xml").read_text(), now_xml or (FIX / "old.xml").read_text(), record)
+
+
+def test_writer_carries_a_git_word_change_into_an_untouched_draft():
+    text = (FIX / "pp-with-notes.md").read_text().replace("hard to say", "hard to say")
+    text = text.replace("less to install", "far less to install")
+    out = writer(text)
+    assert out["report"] == []
+    assert len(out["ops"]) == 1
+    op = out["ops"][0]
+    assert op["op"] == "replace" and op["with"]["as"] == "text"
+    assert op["with"]["from"]["content"] == op["target"]["text"].replace("has less", "has far less")
+
+
+def test_writer_merges_with_the_drafts_own_edit_in_the_same_paragraph_and_reports_conflicts():
+    now = (FIX / "old.xml").read_text().replace("adds installation and upkeep for every contributor", "adds installation and maintenance for every contributor")
+    text = (FIX / "pp-with-notes.md").read_text().replace("A second runtime", "A third runtime")
+    out = writer(text, now)
+    assert out["report"] == [] and len(out["ops"]) == 1
+    assert "second" in out["ops"][0]["target"]["text"] and "third" in out["ops"][0]["with"]["from"]["content"]
+    clash = (FIX / "pp-with-notes.md").read_text().replace("upkeep", "care")
+    out = writer(clash, now, record="git")
+    assert any("conflict" in r and "resolved for git" in r for r in out["report"])
+    assert out["ops"] and "care" in out["ops"][0]["with"]["from"]["content"]
+    out = writer(clash, now, record="doc")
+    assert any("resolved for doc" in r for r in out["report"]) and out["ops"] == []
+
+
+def test_writer_deletes_blocks_the_file_deleted_and_inserts_new_ones_after_their_neighbour():
+    base = (FIX / "pp-with-notes.md").read_text()
+    text = base.replace("| Distribution of a single script may differ | The assessment has no finding on distribution; the thesis does not rely on it | TA-001, Contradictions and Gaps |\n", "")
+    text = text.replace("## Limits of the Position\n", "## Limits of the Position\n\nA new paragraph from git.\n")
+    out = writer(text)
+    kinds = [o["op"] for o in out["ops"]]
+    assert kinds.count("delete") == 1 and kinds.count("insert") == 1
+    d = next(o for o in out["ops"] if o["op"] == "delete")
+    assert d["target"]["ids"] == ["m9gc498ep5e.913"] and d["ifHash"] == "d9e9ecc8"
+    ins = next(o for o in out["ops"] if o["op"] == "insert")
+    assert ins["target"]["ids"] == ["m9gc498ep5e.1288"] and ins["source"]["from"]["content"] == "A new paragraph from git."
+
+
+def test_writer_edits_a_cell_with_a_within_target_and_leaves_markup_changes_to_a_person():
+    base = (FIX / "pp-with-notes.md").read_text()
+    out = writer(base.replace("Familiarity favors", "Familiarity favours"))
+    t = out["ops"][0]["target"]
+    assert t["within"] == {"kind": "cell", "table": "m9gc498ep5e.720", "row": 1, "col": 1} and "favors" in t["text"]
+    out = writer(base.replace("upkeep", "**upkeep**"))
+    assert out["ops"] == [] and any("formatting" in r for r in out["report"])
+
+
+def test_writer_has_nothing_to_do_when_the_file_has_not_changed_and_cli_runs(tmp_path):
+    base = (FIX / "pp-with-notes.md").read_text()
+    assert writer(base) == {"ops": [], "report": []}
+    f = tmp_path / "PP.md"
+    f.write_text(base.replace("less to install", "far less to install"))
+    git(tmp_path, "init", "-q")
+    r = run("doc-ops", str(f), "--old", str(FIX / "old.xml"), "--now", str(FIX / "old.xml"), "--base-commit=--x")
+    assert r.returncode == 1 and "not an option" in r.stderr
+
+
+def test_writer_on_reads_recorded_from_a_live_draft_with_merged_and_conflicting_edits():
+    """The draft had two edits of its own; git changed the same paragraph, one of the same words, a row and a heading's neighbour."""
+    base = (FIX / "pp-with-notes.md").read_text()
+    text = (base.replace("A second runtime", "A third runtime").replace("Familiarity favors", "Familiarity prefers")
+            .replace("has less to install", "has far less to install")
+            .replace("| Distribution of a single script may differ | The assessment has no finding on distribution; the thesis does not rely on it | TA-001, Contradictions and Gaps |\n", "")
+            .replace("## Limits of the Position\n", "## Limits of the Position\n\nA new paragraph from git.\n"))
+    out = ds.doc_ops(base, text, (FIX / "wr-old.xml").read_text(), (FIX / "wr-now.xml").read_text(), "git")
+    summary = [(o["op"], o["target"].get("text") or o["target"]["ids"][0]) for o in out["ops"]]
+    assert summary == [("replace", "favours"), ("replace", "runtime has less"), ("replace", "second"),
+                       ("delete", "mmgx2r82dhj.913"), ("insert", "mmgx2r82dhj.1288")]
+    assert out["ops"][0]["target"]["within"] == {"kind": "cell", "table": "mmgx2r82dhj.720", "row": 1, "col": 1}
+    assert all(o["target"]["nth"] >= 1 for o in out["ops"] if o["op"] == "replace")      # replacements run from the end of the draft to its start
+    assert out["ops"][3]["ifHash"] == "c677e51c" and out["ops"][3]["ifRev"] == 3
+    assert out["report"] == ["conflict in mmgx2r82dhj.788 resolved for git: git 'prefers' / draft 'favours'"]
+    out = ds.doc_ops(base, text, (FIX / "wr-old.xml").read_text(), (FIX / "wr-now.xml").read_text(), "doc")
+    assert all("within" not in o["target"] for o in out["ops"] if o["op"] == "replace")     # the draft's word stays
+    assert any("resolved for doc" in r for r in out["report"])
+
+
+def test_bind_handles_odd_file_names_and_existing_attributes(tmp_path):
+    git(tmp_path, "init", "-q")
+    (tmp_path / ".gitattributes").write_text("*.png binary")                    # no trailing newline
+    for name in ("my file.md", "[draft].md", "a: b.md", "#x.md"):
+        f = tmp_path / name
+        f.write_text("# T\n\ntext here\n")
+        git(tmp_path, "add", "-A")
+        git(tmp_path, "commit", "-qm", name)
+        r = run("bind", str(f), "--tool", "claude-docs", "--origin", "u", "--synced-rev", "1")
+        assert r.returncode == 0, (name, r.stderr)
+        assert json.loads(run("status", str(f)).stdout)["bound"] is True, name
+        run("bind", str(f), "--tool", "claude-docs", "--origin", "u", "--synced-rev", "1")      # twice adds no second line
+    text = (tmp_path / ".gitattributes").read_text()
+    assert text.startswith("*.png binary\n") and text.count("claude-docs-bind") == 4
+    sub = tmp_path / "sub"
+    sub.mkdir()
+    (sub / "my file.md").write_text("x\n")
+    assert json.loads(run("status", str(sub / "my file.md")).stdout)["bound"] is False   # anchored: same name below is not bound
+
+
+def test_bind_needs_a_committed_body_and_bindings_file_errors_are_clean(tmp_path):
+    git(tmp_path, "init", "-q")
+    f = tmp_path / "d.md"
+    f.write_text("# T\n\nwords here\n")
+    r = run("bind", str(f), "--tool", "claude-docs", "--origin", "u", "--synced-rev", "1")
+    assert r.returncode == 1 and "commit it first" in r.stderr
+    git(tmp_path, "add", "-A")
+    git(tmp_path, "commit", "-qm", "x")
+    assert run("bind", str(f), "--tool", "claude-docs", "--origin", "u", "--synced-rev", "1").returncode == 0
+    side = tmp_path / ".helix/bindings.yml"
+    for bad in ("bindings: [", "bindings:\n  - tool: x\n"):
+        side.write_text(bad)
+        r = run("status", str(f))
+        assert r.returncode == 1 and "Traceback" not in r.stderr, bad
+    side.write_text("bindings:\n  - path: d.md\n    tool: claude-docs\n    synced_rev: 010\n    base_sha256: 0000\n")
+    assert json.loads(run("status", str(f)).stdout)["synced_rev"] == "010"
+
+
+# ---- regressions from the third review: merge3 whitespace, write-back targeting ---------------------------
+
+def test_merge3_keeps_structure_around_changes_at_the_edges_of_text_and_blocks():
+    assert ds.merge3("B b", "New B b", "B b")[0] == "New B b"
+    assert ds.merge3("Old text\n", "# New\n\nOld text\n", "Old text\n")[0] == "# New\n\nOld text\n"
+    assert ds.merge3("A.\n\nB b.\n", "A.\n\nNew B b.\n", "A.\n\nB b.\n")[0] == "A.\n\nNew B b.\n"
+    assert ds.merge3("A.\n\nB b c.\n", "A.\n\nb c.\n", "A.\n\nB b c.\n")[0] == "A.\n\nb c.\n"
+    assert ds.merge3("A.\n\nB b c.\n", "A.\n\nB b c.\n", "A.\n\nB b.\n")[0] == "A.\n\nB b.\n"
+    assert ds.merge3("Intro\n\n| a | b |\n| a | d |\n", "Intro\n\n| a | d |\n", "Intro\n\n| a | b |\n| a | d |\n")[0] == "Intro\n\n| a | d |\n"
+
+
+def test_merge3_keeps_whitespace_only_changes_and_rewraps():
+    assert ds.merge3("a b c d\n", "a b\n\nc d\n", "a b c D\n")[0] == "a b\n\nc D\n"
+    assert ds.merge3("- a\n- b\n", "- a\n  - b\n", "- a\n- b\n")[0] == "- a\n  - b\n"
+    assert ds.merge3("one two three four\n", "one two\nthree four\n", "one two three FOUR\n")[0] == "one two\nthree FOUR\n"
+
+
+def test_merge3_a_change_next_to_one_already_on_both_sides_is_not_a_conflict():
+    assert ds.merge3("a X Z b", "a Y Z b", "a Y W b", "ours") == ("a Y W b", [])
+
+
+def draft_xml(paragraphs):
+    out = []
+    for i, text in enumerate(paragraphs):
+        out.append(f"<paragraph id='{'s.%d' % (i * 10) if i == 0 else '.%d' % (i * 10)}'><text id='.{i * 10 + 1}'>{text}</text></paragraph>")
+    return "<doc node='n' rev='1'>" + "".join(out) + "</doc>"
+
+
+def simulate(ops, blocks):
+    """Apply write-back replace ops to plain paragraphs, nth counted over the whole draft in order."""
+    blocks = list(blocks)
+    for op in ops:
+        assert op["op"] == "replace", op
+        text, nth = op["target"]["text"], op["target"]["nth"]
+        seen = 0
+        for i, b in enumerate(blocks):
+            at = b.find(text)
+            while at >= 0:
+                seen += 1
+                if seen == nth:
+                    assert op["with"]["from"]["content"], op            # an empty replacement is refused by Docs
+                    blocks[i] = b[:at] + op["with"]["from"]["content"] + b[at + len(text):]
+                    break
+                at = b.find(text, at + 1)
+            if seen >= nth:
+                break
+        else:
+            raise AssertionError(f"find {text!r} nth {nth} matches nothing in {blocks}")
+    return blocks
+
+
+def test_writer_edits_land_exactly_on_random_drafts_with_repeated_words():
+    import random
+    rnd = random.Random(7)
+    vocab = ["cat", "dog", "the", "a", "very", "TBD", "is", "ship"]
+    for _ in range(400):
+        base = [" ".join(rnd.choice(vocab) for _ in range(rnd.randint(2, 9))) for _ in range(rnd.randint(1, 4))]
+        new = []
+        for para in base:
+            w = para.split()
+            for _ in range(rnd.choice([0, 0, 1, 2])):
+                k = rnd.randrange(len(w) + 1)
+                kind = rnd.choice(["sub", "ins", "del"])
+                if kind == "sub" and w:
+                    w[min(k, len(w) - 1)] = rnd.choice(vocab + ["NEW"])
+                elif kind == "ins":
+                    w.insert(k, rnd.choice(vocab + ["NEW"]))
+                elif kind == "del" and len(w) > 1:
+                    del w[min(k, len(w) - 1)]
+            new.append(" ".join(w))
+        base_md = "\n\n".join(base) + "\n"
+        file_md = "\n\n".join(new) + "\n"
+        xml = draft_xml(base)
+        out = ds.doc_ops(base_md, file_md, xml, xml, "git")
+        assert out["report"] == [], (base, new, out)
+        assert simulate(out["ops"], base) == new, (base, new, out["ops"])
+
+
+def test_writer_leaves_formatting_odd_spacing_and_unsafe_cases_to_a_person():
+    base = "Intro para here.\n\nSecond para here.\n"
+    xml = draft_xml(["Intro para here.", "Second  para here."])
+    out = ds.doc_ops(base, "Intro para here.\n\nSecond para there.\n", xml, xml, "git")
+    assert out["ops"] == [] and any("odd spacing" in r for r in out["report"])
+    out = ds.doc_ops("Intro para here.\n\n```\ncode\n```\n", "Intro para here.\n", draft_xml(["Intro para here."]).replace("</doc>", "<codeBlock id='.90'><text id='.91'>code</text></codeBlock></doc>"),
+                     draft_xml(["Intro para here."]).replace("</doc>", "<codeBlock id='.90'><text id='.91'>code</text></codeBlock></doc>"), "git")
+    assert out["ops"] == [] and any("code, a quote or HTML" in r for r in out["report"])
+    xml = draft_xml(["Intro para here."])
+    out = ds.doc_ops("Intro para here.\n", "Intro para _really_ here.\n", xml, xml, "git")
+    assert out["ops"] == [] and any("formatting" in r for r in out["report"])
+
+
+def test_writer_inserts_new_blocks_in_file_order_and_not_between_list_items():
+    base = "Alpha one.\n\nBeta two.\n"
+    xml = draft_xml(["Alpha one.", "Beta two."])
+    out = ds.doc_ops(base, "Alpha one.\n\nFirst new.\n\nSecond new.\n\nBeta two.\n", xml, xml, "git")
+    contents = [o["source"]["from"]["content"] for o in out["ops"] if o["op"] == "insert"]
+    assert contents == ["Second new.", "First new."]                         # applied in order: First ends up above Second
+    base = "- a\n- b\n"
+    xml = "<doc node='n' rev='1'><list id='s.0' kind='bullet'><listItem id='.1'><paragraph id='.2'><text id='.3'>a</text></paragraph></listItem><listItem id='.4'><paragraph id='.5'><text id='.6'>b</text></paragraph></listItem></list></doc>"
+    out = ds.doc_ops(base, "- a\n\nBetween.\n\n- b\n", xml, xml, "git")
+    assert out["ops"] == []
+
+
+def test_writer_will_not_delete_what_it_cannot_delete_cleanly():
+    xml = "<doc node='n' rev='1'><list id='s.0' kind='bullet'><listItem id='.1'><paragraph id='.2'><text id='.3'>parent</text></paragraph><list id='.4' kind='bullet'><listItem id='.5'><paragraph id='.6'><text id='.7'>child one</text></paragraph></listItem></list></listItem></list></doc>"
+    out = ds.doc_ops("- parent\n  - child one\n", "- child one\n", xml, xml, "git")
+    assert [o for o in out["ops"] if o["op"] == "delete"] == [] and any("nested" in r for r in out["report"])
+    xml = "<doc node='n' rev='1'><table id='s.0'><row id='.1'><cell id='.2'><paragraph id='.3'><text id='.4'>x</text></paragraph></cell></row><row id='.5'><cell id='.6'><paragraph id='.7'><text id='.8'>same</text></paragraph></cell></row><row id='.9'><cell id='.10'><paragraph id='.11'><text id='.12'>same</text></paragraph></cell></row></table></doc>"
+    out = ds.doc_ops("| x |\n|---|\n| same |\n| same |\n", "| x |\n|---|\n| same |\n", xml, xml, "git")
+    assert [o for o in out["ops"] if o["op"] == "delete"] == [] and any("repeated identical" in r for r in out["report"])
+
+
+# ---- regressions from the fourth review: merge3 and the write-back's block pairing ------------------------
+
+def test_merge3_reviewer_cases():
+    assert ds.merge3("one\ntwo three\n", "one two\nthree\n", "one\nthree\n")[0] == "one\nthree\n"
+    assert ds.merge3("S0 w0\n\nS1\n\n", "S0 S1\n\n", "S0 w0 S1\n\n")[0] == "S0 S1\n\n"
+    out = ds.merge3("S0\nw0\n\nw1 S1\n", "S0\nw0\nw1 S1\n", "S0 T0\nw1 T2 T3\n")[0]
+    assert out.split() == ["S0", "T0", "w1", "T2", "T3"]
+    assert ds.merge3("w0\nw1", "w0\n\nw1", "w0\nX1")[0] == "w0\n\nX1"
+    assert ds.merge3("a b c d", "a b X d", "a b Y c d", "ours")[0].split() == ["a", "b", "Y", "X", "d"]
+    out = ds.merge3("S0 w0\n\nw1 w2 S1\n\n", "S0 w1 w2 S1\n\n", "S0 w0\n\nw1 w2 T3 S1\n\n")[0]
+    assert out.split() == ["S0", "w1", "w2", "T3", "S1"] and "\n\n" in out
+
+
+def test_merge3_fuzz_keeps_every_word_and_never_glues_or_duplicates():
+    import random
+    rnd = random.Random(11)
+    gaps = [" ", " ", "\n", "\n\n", "  "]
+    for _ in range(3000):
+        n = rnd.randint(4, 14)
+        words = [f"w{i}" for i in range(n)]
+        bgaps = [rnd.choice(gaps) for _ in range(n)]
+        spots = list(range(0, n, 2))
+        rnd.shuffle(spots)
+        edits = {"ours": {}, "theirs": {}}
+        for k, i in enumerate(spots[: rnd.randint(0, 4)]):
+            edits[rnd.choice(["ours", "theirs"])][i] = rnd.choice(["sub", "ins", "del"])
+
+        def render(side):
+            ws, gs = [], []
+            for i, w in enumerate(words):
+                kind = edits[side].get(i)
+                g = bgaps[i]
+                if kind == "ins":
+                    ws.append(f"{side[0]}{i}new")
+                    gs.append(g)
+                    g = rnd.choice(gaps) if False else g
+                if kind == "del":
+                    continue
+                ws.append(f"{side[0]}{i}sub" if kind == "sub" else w)
+                gs.append(g)
+            out = "".join(g + w for g, w in zip(gs, ws)).lstrip() + "\n"
+            return out
+
+        base = "".join(g + w for g, w in zip(bgaps, words)).lstrip() + "\n"
+        ours, theirs = render("ours"), render("theirs")
+        expect = []
+        for i, w in enumerate(words):
+            for side in ("ours", "theirs"):
+                if edits[side].get(i) == "ins":
+                    expect.append(f"{side[0]}{i}new")
+            kinds = [edits[s].get(i) for s in ("ours", "theirs") if edits[s].get(i)]
+            if "del" in kinds:
+                continue
+            expect.append(next((f"{s[0]}{i}sub" for s in ("ours", "theirs") if edits[s].get(i) == "sub"), w))
+        out, lost = ds.merge3(base, ours, theirs)
+        assert lost == []
+        assert out.split() == expect, (base, ours, theirs, out, expect)
+        out2, _ = ds.merge3(base, theirs, ours)
+        assert out2.split() == expect
+
+
+def test_writer_pairs_blocks_by_content_not_position():
+    base = "Alpha one two.\n\nBeta three four.\n\nGamma five six.\n"
+    xml = draft_xml(["Alpha one two.", "Beta three four.", "Gamma five six."])
+    now = draft_xml(["Alpha one two.", "Beta three FOUR.", "Gamma five six."])
+    out = ds.doc_ops(base, "Beta three four.\n\nGamma five six.\n\nDelta seven eight nine.\n", xml, now, "git")
+    assert out["report"] == []
+    assert [o["op"] for o in out["ops"]] == ["delete", "insert"]
+
+
+def test_writer_pairs_an_edited_short_block_when_the_block_count_changes():
+    base = "Intro stays.\n\nDue TBD\n\nTail stays.\n"
+    xml = draft_xml(["Intro stays.", "Due TBD", "Tail stays."])
+    out = ds.doc_ops(base, "Intro stays.\n\nDue Friday\n\nTail stays.\n\nExtra.\n", xml, xml, "git")
+    assert [o["op"] for o in out["ops"]] == ["replace", "insert"]
+    assert out["ops"][0]["with"]["from"]["content"].endswith("Friday") or "Friday" in out["ops"][0]["with"]["from"]["content"]
+    now = draft_xml(["Intro stays.", "Tail stays."])                     # the draft deleted that block
+    out = ds.doc_ops(base, "Intro stays.\n\nDue Friday\n\nTail stays.\n\nExtra.\n", xml, now, "git")
+    assert all(o["op"] != "insert" or o["source"]["from"]["content"] == "Extra." for o in out["ops"])
+
+
+def test_writer_reports_prefix_only_changes_and_does_not_delete_unanchored_blocks():
+    xml = "<doc node='n' rev='1'><paragraph id='s.0' heading='2'><text id='.1'>Title</text></paragraph><paragraph id='.2'><text id='.3'>Body here.</text></paragraph></doc>"
+    out = ds.doc_ops("## Title\n\nBody here.\n", "### Title\n\nBody here.\n", xml, xml, "git")
+    assert out["ops"] == [] and any("heading level" in r or "prefix" in r for r in out["report"])
+    xml = "<doc node='n' rev='1'><list id='s.0' kind='bullet'><listItem id='.1'><paragraph id='.2'><text id='.3'>task one</text></paragraph></listItem></list></doc>"
+    out = ds.doc_ops("- [ ] task one\n", "- [x] task one\n", xml, xml, "git")
+    assert out["ops"] == [] and out["report"]
+    xml = "<doc node='n' rev='1'><paragraph id='s.0' heading='1'><text id='.1'>Scope</text></paragraph><paragraph id='.2'><text id='.3'>Body here.</text></paragraph></doc>"
+    out = ds.doc_ops("# Scope\n\nBody here.\n", "# Goals\n\nNew para.\n\nBody here.\n", xml, xml, "git")
+    assert all(o["op"] != "delete" for o in out["ops"])
+
+
+def test_writer_deletes_a_whole_table_with_one_op_and_checks_row_widths():
+    xml = "<doc node='n' rev='1'><paragraph id='s.0'><text id='.1'>Intro here.</text></paragraph><table id='.2' h='tt'><row id='.3'><cell id='.4'><paragraph id='.5'><text id='.6'>a</text></paragraph></cell></row><row id='.7'><cell id='.8'><paragraph id='.9'><text id='.10'>b</text></paragraph></cell></row></table></doc>"
+    out = ds.doc_ops("Intro here.\n\n| a |\n|---|\n| b |\n", "Intro here.\n", xml, xml, "git")
+    dels = [o for o in out["ops"] if o["op"] == "delete"]
+    assert len(dels) == 1 and dels[0]["target"]["ids"] == [".2"] or dels[0]["target"]["ids"] == ["s.2"]
+    out = ds.doc_ops("Intro here.\n\n| a |\n|---|\n| b |\n", "Intro here.\n\n| a |\n|---|\n| b |\n| c | d |\n", xml, xml, "git")
+    assert [o for o in out["ops"] if o["op"] == "insert"] == [] and any("by hand" in r for r in out["report"])

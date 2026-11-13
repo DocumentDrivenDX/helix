@@ -38,3 +38,20 @@ Overwrite the file with an export, edit front matter as text, apply an edit the 
 ## Handoff
 
 Name the draft, the base, what landed, what was refused and why, and the documents whose hashes changed.
+
+## Keeping a file bound to its draft
+
+A file bound to a draft (ADR-020) is synced in both directions. The binding is one entry in `.helix/bindings.yml` plus a `<tool>-bind` line in `.gitattributes` (`draftsync.py bind FILE --tool claude-docs --origin URL --synced-rev N` writes both); `draftsync.py status FILE` shows it and says whether the file changed since the base. The system of record is the document's `ddx.authoring.home`: `repo` or absent means git wins a conflict, `external-tool` means the draft does.
+
+1. **Draft to git.** Read the draft as in step 2 above, but pass `--from-binding` to `edits` and `apply`: the base is the file body the binding names, found in git history, and a conflict resolves toward the record. The report on stderr lists what lost. Open the pull request as before.
+2. **Git to draft, after the merge.** Read the draft at the bound revision (`OLD.xml`) and now in full (`NOW.xml`), then run `python3 tools/draftsync/draftsync.py doc-ops FILE --old OLD.xml --now NOW.xml --from-binding`. It prints `ops` and a `report`. Send `ops` as the `payload.ops` of one `update` on the draft's body. Edits replace only changed words and are guarded by the draft's revision; if a guard refuses, someone edited meanwhile, so read again and rerun. The `report` lists conflicts and the changes it left to a person (formatting, a new list or table, a block the draft deleted).
+3. **Rebind** when later reads get long: once the draft equals a committed file body, `draftsync.py rebind FILE --synced-rev N --old OLD.xml` (the draft at N) moves the binding, after checking the draft against the file.
+
+A Claude Code hook can tell the agent when a bound file is edited locally. A repository with bound files registers it in `.claude/settings.json`; it does nothing for unbound files, and it needs PyYAML on the interpreter it runs under (use `uv run --quiet --with pyyaml python3 ...` where the system Python lacks it):
+
+```json
+{"hooks": {"PostToolUse": [{"matcher": "Edit|Write|MultiEdit",
+  "hooks": [{"type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/tools/draftsync/draftsync.py\" hook"}]}]}}
+```
+
+Under `repo` the agent syncs after the commit or merge, not on each edit; under `external-tool` it warns that the draft wins. Edits made through a shell command do not trigger the hook, so check `draftsync.py status` when a sync starts.
