@@ -62,7 +62,7 @@ test-validate-instance:
 
 # draftsync (tools/draftsync), the host tool behind the shared-edit mode
 test-draftsync:
-    uv run --with pytest --with pyyaml pytest -q tools/draftsync/tests
+    uv run --project tools/draftsync --with pytest pytest -q tools/draftsync/tests
 
 # Run all tests and check for stale references
 check: test lint

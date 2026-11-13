@@ -13,7 +13,7 @@ Make two reads of the doc body and save each result's `xml` to a file:
 - `{"kind":"view","atRev":<recorded revision>}`: the doc as it was at the opening revision (`OLD.xml`).
 - `{"kind":"view","sinceRev":<recorded revision>}`: only what changed since (`DELTA.xml`).
 
-Then run `python3 tools/draftsync/draftsync.py edits FILE --old OLD.xml --delta DELTA.xml` and pass its output to `apply` as in the mode. The translator does the block counting below for you and stops if the old doc and the file do not have the same sequence of headings, paragraphs, list items and table rows. What the read returns:
+Then run `draftsync edits FILE --old OLD.xml --delta DELTA.xml` and pass its output to `apply` as in the mode. The translator does the block counting below for you and stops if the old doc and the file do not have the same sequence of headings, paragraphs, list items and table rows. What the read returns:
 
 - An edited block comes back whole and untruncated as text runs, and the text is raw: `[1]`, `[[wiki-links]]` and underscores arrive as typed, so nothing is unescaped. Inline formatting arrives as `<bold>`, `<italic>`, `<code>` and `<link href=...>` inside the runs; the translator writes them back as `**`, `*`, backticks and `[text](href)`.
 - Unchanged blocks are never returned; they fold into `<gap blocks='N'/>`. In a table only the changed row and cell come back; the gap counts before them give the row and column index. A changed list item comes back alone.
@@ -38,7 +38,7 @@ Tested through the tools on a position paper: inline code, links, a wiki link in
 
 ## Write into the draft
 
-`draftsync.py doc-ops` produces the `update` payload ops that carry the file's changes into the draft (see the mode, "Keeping a file bound to its draft"). What it emits for the Claude Docs surface, and what was observed when it ran against a live draft:
+`draftsync doc-ops` produces the `update` payload ops that carry the file's changes into the draft (see the mode, "Keeping a file bound to its draft"). What it emits for the Claude Docs surface, and what was observed when it ran against a live draft:
 
 - A changed word or phrase is a `replace` with a `find` target and `"as":"text"`, which re-words in place and keeps links, code and comment anchors. The quoted text is widened with neighbouring words until it is unique, and `nth` is added when it still repeats. A table cell change adds `within` with the table id and the cell's row and column.
 - A block the file deleted is a `delete` with `ifHash` and `ifRev` taken from the current read; a stale guard refuses and the sync reads again.
