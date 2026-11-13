@@ -1,5 +1,5 @@
 ---
-title: "Release Notes — HELIX v0.23.0"
+title: "Release Notes — HELIX v0.24.0"
 slug: release-notes
 weight: 690
 activity: "Deploy"
@@ -25,112 +25,67 @@ ddx:
     reviewed_at: "2026-10-04T03:52:23Z"
 ```
 
-# Release Notes — HELIX v0.23.0
+# Release Notes — HELIX v0.24.0
 
 ## Release Scope
 
-- Release identifier: `v0.23.0`
-- Release date: 2026-11-10
-- Previous release: `v0.22.0`
-- Scope: reader views on the technology brief, weights and a table of limits on position
-  papers, spikes and a `measured` source class in the technology atlas, a `views.yml`
-  catalogue, and the removal of the CI evidence gate.
-- Release owner: HELIX maintainer; published through the release PR workflow.
+- Release identifier: `v0.24.0`
+- Release date: 2026-11-12
+- Previous release: `v0.23.0`
+- Scope: shared document editing, bidirectional draft sync, and the installable draftsync tool.
+- Release owner: HELIX maintainer, publishing through the release PR workflow.
 
 ## Audience and Channels
 
 | Audience | Impact | Channel |
 |----------|--------|---------|
-| Teams keeping a technology atlas | New sections and blocks; existing briefs and papers get warnings, not failures | Plugin and bundles |
-| Existing HELIX users | None outside the `component-profile`, `position-paper`, and `tech-spike` types | Plugin and bundles |
-| HELIX maintainers | Pull requests no longer need recorded install evidence | Repository CI |
+| Teams reviewing governed documents in Claude Docs | Open a shared draft, review changes, and land edits through a pull request | HELIX plugin and Claude Docs adapter |
+| Teams keeping drafts open after merge | Sync edits in both directions using a recorded binding | HELIX plugin and draftsync |
+| Maintainers | Claude, Codex, marketplace, documentor, and draftsync versions advance together | GitHub release |
 
 ## Highlights
 
-- A technology brief (`component-profile` with `scope: reusable`) closes with a `## Views`
-  section: Risk & Compliance, Finance, IT Operations, and Apps Dev. Each gives a one-sentence
-  answer to that reader's first question and points to the sections that carry the facts.
-- A `position-paper` may say how much each criterion counts in a `weights:` list, on a scale
-  of `decisive`, `important`, `minor`. `assessment-tables.py` makes the Decision Criteria
-  table from it. Only a position paper has a weight.
-- `## Limits of the Position` holds a table of when the other option wins: Condition, Option
-  that wins, Evidence. The template gains an optional `## Transition Path`.
-- The `technology-atlas` profile takes `tech-spike` at `spikes/TS-{number}-{subject}.md`. A
-  spike with `scope: reusable` runs on public inputs, records its test setup and how to
-  reproduce it, and recommends nothing. It links the brief it tests with kind `answers` and
-  the open question's number.
-- A brief may cite such a spike as a source of class `measured`. It counts as independent
-  corroboration for the configuration measured, and the Confidence grade says so.
-- A flow may keep a `views.yml` beside `criteria.yml`; a criterion's `view:` is then checked
-  against it.
+- The shared-edit mode lets authors review a governed document in Claude Docs while keeping the repository as the record. Draftsync applies body edits as a patch and leaves front matter in Git.
+- A persistent binding records the draft address, revision, and Git base. Draftsync can prepare changes in either direction and resolves text conflicts toward the document's declared authoring home.
+- Draftsync ships as a standalone uv tool and can be installed directly from the HELIX tag.
 
 ## Required Actions Summary
 
-- None to keep validating. A brief with no Views section and a position paper with no Limits
-  table each get a warning at both tiers and still publish.
-- Add the Views section and the Limits table at each document's next revision.
+- To use shared editing, update HELIX and install draftsync from the same tag. Existing projects can continue with their current editing workflow.
 
 ## Changes and Fixes
 
-### New or Improved
-
 | Area | What changed | Who is affected |
 |------|--------------|-----------------|
-| Briefs | `## Views` section and the `reader_views` check; `by_scope` may replace `automated_checks` | Atlas authors |
-| Position papers | `weights:` list, generated Decision Criteria table, Limits table, optional Transition Path | Atlas authors |
-| Spikes | `tech-spike` in the atlas profile, `reusable` scope, `answers` link with `question` | Atlas authors |
-| Sources | `measured` class, and its place in the Confidence grade | Authors of briefs |
-| Catalogues | `views.yml`; a criterion's `view:` is checked against it; a `weight` in `criteria.yml` is rejected | Atlas authors |
-| CI | The evidence gate, `scripts/verify-full.sh`, and the committed evidence file are removed | Maintainers |
-
-### Fixes
-
-| Issue or symptom | Resolution | User or operator impact |
-|------------------|------------|-------------------------|
-| A position paper written to the v0.22.0 template failed the new Limits check at the publish tier | A missing table is a warning; a table that is present is checked for its columns and a row | Existing papers publish unchanged |
+| Shared editing | Added the workflow, Claude Docs adapter, and patch validation | Document authors and reviewers |
+| Persistent bindings | Added status, draft-to-Git and Git-to-draft operations, and an optional Claude Code edit hook | Teams maintaining shared drafts |
+| Packaging | Added a tagged uv install target and version checks for draftsync | Operators and maintainers |
 
 ## Breaking Changes and Required Actions
 
-There are no breaking changes and no migrations. A document that validated under `v0.22.0`
-validates under `v0.23.0` at both tiers.
-
-Three things block only where a document uses the new feature:
-
-- A Views section that drops or empties one of the four headings.
-- A Limits table with other columns or no rows.
-- A `weights:` entry that is not `decisive`, `important`, or `minor`, or that names a
-  criterion no `supported_by` assessment has a finding for; a weight on an assessment or in
-  `criteria.yml`; an `answers` link with no `question` number; a `**RECOMMENDATION**:` line in
-  a reusable spike.
+Existing projects require no migration. Shared editing requires a runtime with a supported editing surface and the draftsync tool.
 
 ## Migration or Rollback Guidance
 
-### Upgrade or Migration
+Install the tool for this release:
 
-1. Update the plugin. Expect one `views` warning per brief and one `limits_table` warning per
-   position paper.
-2. Clear each warning when the document is next revised.
+```sh
+uv tool install 'git+https://github.com/DocumentDrivenDX/helix@v0.24.0#subdirectory=tools/draftsync'
+draftsync --help
+```
 
-### Rollback or Hold Guidance
-
-- Pin `v0.22.0` to roll back; the new sections and blocks would then go unchecked.
-- Ask for help in the HELIX repository's issues.
+To return to the prior workflow, pin HELIX to `v0.23.0` and remove the optional draftsync hook if you registered it.
 
 ## Known Issues and Support
 
-| Issue | Who is affected | Workaround or next step |
-|------|------------------|-------------------------|
-| ADR-018 and SD-003 list the link kinds and do not yet name `answers` | Readers of the design record | The profile, validator, and schema reference are current |
-| The four view headings are fixed in the check and template, not read from `views.yml` | A flow with other views | Keep the four headings in briefs |
-| A weight's finding is read from the assessment as it stands, not at its pinned revision | Authors of weights | Run `pin-sources.py check` to see a source that changed |
-| An `answers` link is not checked against the brief's Open Questions table | Authors of spikes | Check the number by hand |
+The shipped editing adapter supports Claude Docs. Sync reports formatting changes, new lists and tables, and deleted blocks for manual review when preparing Git-to-draft changes.
 
-Support: open an issue in the HELIX repository.
+Open a GitHub issue in the HELIX repository for support.
 
 ## References
 
 - Deployment checklist: [deployment-checklist.md](/artifacts/deployment-checklist/)
-- Pull requests: #120, #121, #122, #123, #124, #125, #126
-- Release changes: https://github.com/DocumentDrivenDX/helix/compare/v0.22.0...v0.23.0
+- Pull requests: #128, #129, #130
+- Release changes: https://github.com/DocumentDrivenDX/helix/compare/v0.23.0...v0.24.0
 - Bundle publication: `.github/workflows/release-genie-bundle.yml`
 - Version guard: `.github/workflows/release-version-guard.yml`
