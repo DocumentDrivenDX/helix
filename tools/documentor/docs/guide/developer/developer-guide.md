@@ -1,11 +1,11 @@
-<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=agent-opus reviewed=2026-11-06/independent-evaluator-agent--sonnet---after-two-fixes-it-named/bf6a5b3554e81d43 -->
+<!-- helix:publish audience=developer page=developer-guide kind=how-to voice=onboarding budget=1300 written=agent-opus reviewed=2026-11-12/guide-review/a55e460490bc31db -->
 <!-- helix:source pyproject.toml sha256:92fdf69a97e17e00 -->
 <!-- helix:source justfile sha256:33d64f77836eb9e1 -->
 <!-- helix:source ../../.github/workflows/test.yml sha256:765c7d505cc24d0e -->
-<!-- helix:source ../../scripts/release-version.py sha256:ad55a7fa2e9e59a7 -->
-<!-- helix:source ../../.github/workflows/release-ui.yml sha256:cb59e40be1f62060 -->
+<!-- helix:source ../../scripts/release-version.py sha256:abae9d19948ac6e5 -->
+<!-- helix:source ../../.github/workflows/release-ui.yml sha256:749110da960fb612 -->
 <!-- helix:source ../../.github/workflows/release-genie-bundle.yml sha256:84c774287ca92276 -->
-<!-- helix:source ../../.github/workflows/release-tag.yml sha256:ea064384ea3d55a0 -->
+<!-- helix:source ../../.github/workflows/release-tag.yml sha256:480303d12dfda08e -->
 <!-- helix:source ../../.github/workflows/release-version-guard.yml sha256:859a4661f0e50d93 -->
 <!-- helix:source ../../CONTRIBUTING.md sha256:d0027006597fad67 -->
 <!-- helix:source README.md#development sha256:ec26429513feaa3e -->
@@ -235,11 +235,11 @@ Obtain a separately authorized release scope from the HELIX release owner before
 
 2. In GitHub's Releases UI, create a new `vX.Y.Z` tag on current `main`, write the release notes, and publish. The UI preparation workflow returns the release to draft and opens a version bump PR. GitHub Actions must have permission to create PRs in the repository.
 
-3. Review and merge that `chore(release): vX.Y.Z` PR. The shared version script updates the three plugin manifests, documentor's package and runtime versions, and lockfile. It refreshes current guide source fingerprints; stale fingerprints still require review.
+3. Review and merge that `chore(release): vX.Y.Z` PR. The shared version script updates the three plugin manifests and the package versions, runtime versions, and lockfiles for documentor and draftsync. It refreshes current guide source fingerprints; stale fingerprints still require review.
 
-   The tag workflow checks all six versions. It corrects an existing draft's tag only when the intervening changes contain version metadata and guide source fingerprints alone. If unrelated changes land meanwhile, it stops for the release owner to resolve the scope.
+   The tag workflow checks all nine version fields. It corrects an existing draft's tag only when the intervening changes contain version metadata and guide source fingerprints alone. If unrelated changes land meanwhile, it stops for the release owner to resolve the scope.
 
-   It then dispatches bundle publication, the install smoke test, and the Pages build. Bundle publication validates versions before any build or upload and publishes the draft with new assets and its original notes.
+   It dispatches bundle publication, install smoke tests, and the Pages build. Bundle publication validates versions before any build or upload and publishes the draft with new assets and its original notes.
 
    For local preparation, run from the HELIX root and open a `chore(release): vX.Y.Z` PR:
 
@@ -252,6 +252,8 @@ Obtain a separately authorized release scope from the HELIX release owner before
    ```sh
    uvx --from git+https://github.com/DocumentDrivenDX/helix@vX.Y.Z#subdirectory=tools/documentor documentor --version
    ```
+
+Verify draftsync with `uvx --from 'git+https://github.com/DocumentDrivenDX/helix@vX.Y.Z#subdirectory=tools/draftsync' draftsync --help`.
 
 The version guard checks the requested tag on manual runs. It returns invalid UI releases to draft without deleting tags. A valid published release is not retagged automatically; corrections normally use a new patch version.
 
